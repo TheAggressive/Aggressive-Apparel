@@ -1,0 +1,69 @@
+/**
+ * Navigation Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+@import './abstracts/variables.css';
+
+.wp-block-navigation {
+  /* Navigation items */
+  & .wp-block-navigation-item {
+    & > a {
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--wp--preset--color--accent);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--wp--preset--color--accent);
+        outline-offset: 2px;
+      }
+    }
+
+    /* Focused state */
+    &.is-focused {
+      & > a {
+        color: var(--wp--preset--color--accent);
+      }
+    }
+  }
+
+  /* Submenu */
+  & .wp-block-navigation__submenu-container {
+    background-color: var(--wp--preset--color--base);
+    border: 1px solid var(--wp--preset--color--border);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Mobile menu */
+  &.is-open {
+    & .wp-block-navigation__responsive-container-content {
+      padding: var(--wp--preset--spacing--medium);
+    }
+  }
+}
+
+/* Custom navigation wrapper */
+.navigation-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+
+  &__logo {
+    flex-shrink: 0;
+  }
+
+  &__menu {
+    flex-grow: 1;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+

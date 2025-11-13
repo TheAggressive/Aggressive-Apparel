@@ -1,0 +1,64 @@
+/**
+ * Main Theme Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Tailwind CSS v4 */
+@import 'tailwindcss';
+
+/* Tailwind Theme Configuration */
+@theme {
+  /* Colors from theme.json */
+  --color-base: var(--wp--preset--color--base, #ffffff);
+  --color-contrast: var(--wp--preset--color--contrast, #000000);
+  --color-primary: var(--wp--preset--color--primary, #1a1a1a);
+  --color-secondary: var(--wp--preset--color--secondary, #666666);
+  --color-accent: var(--wp--preset--color--accent, #ff4444);
+  --color-accent-secondary: var(--wp--preset--color--accent-secondary, #00aaff);
+  --color-background: var(--wp--preset--color--background, #f5f5f5);
+  --color-border: var(--wp--preset--color--border, #e0e0e0);
+
+  /* Spacing from theme.json */
+  --spacing-xs: var(--wp--preset--spacing--x-small, 0.5rem);
+  --spacing-sm: var(--wp--preset--spacing--small, 1rem);
+  --spacing-md: var(--wp--preset--spacing--medium, 2rem);
+  --spacing-lg: var(--wp--preset--spacing--large, 3rem);
+  --spacing-xl: var(--wp--preset--spacing--x-large, 4rem);
+
+  /* Font families */
+  --font-sans: var(--wp--preset--font-family--system-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  --font-serif: var(--wp--preset--font-family--system-serif, Georgia, Times, serif);
+  --font-mono: var(--wp--preset--font-family--system-monospace, 'Courier New', Courier, monospace);
+
+  /* Font sizes */
+  --font-size-small: var(--wp--preset--font-size--small, 0.875rem);
+  --font-size-medium: var(--wp--preset--font-size--medium, 1rem);
+  --font-size-large: var(--wp--preset--font-size--large, 1.25rem);
+  --font-size-x-large: var(--wp--preset--font-size--x-large, 1.5rem);
+  --font-size-xx-large: var(--wp--preset--font-size--xx-large, 2rem);
+  --font-size-huge: var(--wp--preset--font-size--huge, 3rem);
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1400px;
+
+  /* Content widths */
+  --width-content: 1200px;
+  --width-wide: 1400px;
+}
+
+/* Import partials */
+@import './abstracts/variables.css';
+@import './base/reset.css';
+@import './base/typography.css';
+@import './components/buttons.css';
+@import './components/forms.css';
+@import './components/cards.css';
+@import './layout/header.css';
+@import './layout/footer.css';
+@import './layout/content.css';
+@import './utilities/helpers.css';

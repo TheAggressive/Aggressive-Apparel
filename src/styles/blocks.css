@@ -1,0 +1,86 @@
+/**
+ * Block Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+@import './abstracts/variables.css';
+
+/* Button block styles */
+.wp-block-button {
+  &.is-style-uppercase {
+    & .wp-block-button__link {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+/* Heading block styles */
+.wp-block-heading {
+  &.is-style-uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Image block styles */
+.wp-block-image {
+  &.is-style-rounded {
+    & img {
+      border-radius: 0.75rem;
+    }
+  }
+
+  &.is-style-circular {
+    & img {
+      border-radius: 9999px;
+    }
+  }
+}
+
+/* Group block */
+.wp-block-group {
+  &.has-background {
+    padding: var(--wp--preset--spacing--medium);
+  }
+}
+
+/* Cover block */
+.wp-block-cover {
+  min-height: 400px;
+
+  @media (min-width: 768px) {
+    min-height: 500px;
+  }
+}
+
+/* Columns block */
+.wp-block-columns {
+  &.is-style-card-grid {
+    & .wp-block-column {
+      background-color: var(--wp--preset--color--base);
+      border: 1px solid var(--wp--preset--color--border);
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+    }
+  }
+}
+
+/* Query Loop / Post Template */
+.wp-block-post-template {
+  &.is-style-card {
+    & .wp-block-post {
+      background-color: var(--wp--preset--color--base);
+      border: 1px solid var(--wp--preset--color--border);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+    }
+  }
+}
+

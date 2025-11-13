@@ -1,0 +1,136 @@
+/**
+ * WooCommerce Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+@import './abstracts/variables.css';
+
+/* Product Grid */
+.woocommerce {
+  & .products {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  & .product {
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+}
+
+/* Product Page */
+.single-product {
+  & .product-gallery {
+    margin-bottom: var(--wp--preset--spacing--large);
+  }
+
+  & .entry-summary {
+    & .price {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--wp--preset--color--accent);
+    }
+  }
+}
+
+/* Cart */
+.woocommerce-cart {
+  & .cart-collaterals {
+    margin-top: var(--wp--preset--spacing--large);
+  }
+}
+
+/* Checkout */
+.woocommerce-checkout {
+  & .woocommerce-form-coupon-toggle {
+    margin-bottom: var(--wp--preset--spacing--medium);
+  }
+}
+
+/* Quantity buttons */
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  & .qty {
+    width: 4rem;
+    text-align: center;
+  }
+
+  & .qty-plus,
+  & .qty-minus {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--wp--preset--color--border);
+    background: var(--wp--preset--color--base);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: var(--wp--preset--color--primary);
+      color: var(--wp--preset--color--base);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wp--preset--color--accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* Add to cart button */
+.single_add_to_cart_button {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Mini Cart */
+.mini-cart {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  max-width: 28rem;
+  background: var(--wp--preset--color--base);
+  box-shadow: var(--shadow-xl);
+  transform: translateX(100%);
+  transition: transform var(--transition-base);
+  z-index: var(--z-modal);
+
+  &.is-open {
+    transform: translateX(0);
+  }
+
+  &__header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--wp--preset--color--border);
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  &__body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+  }
+
+  &__footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--wp--preset--color--border);
+  }
+}
+

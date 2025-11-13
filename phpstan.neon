@@ -1,0 +1,44 @@
+includes:
+	- phpstan-baseline.neon
+
+parameters:
+	level: 8
+	paths:
+		- includes/
+
+	# WordPress bootstrap for analysis
+	bootstrapFiles:
+		- tests/phpstan-bootstrap.php
+
+	# Treat PHP code as if it always runs on PHP 8.2+
+	phpVersion: 80200
+
+	# WordPress-specific ignores
+	excludePaths:
+		- includes/vendor/
+
+	# Ignore common WordPress patterns
+	ignoreErrors:
+		# Allow functions that might not be defined in all contexts
+		- '#^Function (wp_|__|_e|esc_|get_|add_|remove_|register_|unregister_|is_|has_|current_|the_)[a-zA-Z_]+ not found\.$#'
+
+		# WooCommerce functions - allow conditionally called functions
+		- '#^Function (is_product|is_shop|is_product_category|is_product_tag) not found\.$#'
+
+		# WooCommerce functions - allow WC() global
+		-
+			message: '#^Function WC not found\.$#'
+			path: includes/helpers.php
+
+		# Ignore missing typehints from arrays
+		-
+			identifier: missingType.iterableValue
+
+	# Universal object crates - allow dynamic properties on these classes
+	universalObjectCratesClasses:
+		- WP_Post
+		- WP_Term
+		- WP_User
+		- WP_Comment
+		- WP_Query
+

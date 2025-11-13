@@ -1,0 +1,38 @@
+/**
+ * Base Reset
+ *
+ * @package Aggressive_Apparel
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+

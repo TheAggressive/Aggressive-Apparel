@@ -54,12 +54,6 @@ class Theme_Support {
 		// Add support for experimental link color control.
 		add_theme_support( 'experimental-link-color' );
 
-		// Add support for editor styles.
-		add_theme_support( 'editor-styles' );
-
-		// Enqueue editor styles.
-		add_editor_style( 'build/styles/editor-style.css' );
-
 		// Add support for Block Styles.
 		add_theme_support( 'wp-block-styles' );
 
@@ -74,6 +68,20 @@ class Theme_Support {
 
 		// Add support for custom spacing.
 		add_theme_support( 'custom-spacing' );
+
+		// Add support for HTML5 markup.
+		add_theme_support(
+			'html5',
+			array(
+				'comment-list',
+				'comment-form',
+				'search-form',
+				'gallery',
+				'caption',
+				'style',
+				'script',
+			)
+		);
 
 		// Remove core block patterns.
 		remove_theme_support( 'core-block-patterns' );

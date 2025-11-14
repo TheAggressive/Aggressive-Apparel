@@ -47,6 +47,7 @@ class Styles {
 	 */
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ), 10 );
 	}
 
 	/**
@@ -86,11 +87,45 @@ class Styles {
 			'all'
 		);
 
+	/**
+	 * Hook: After styles enqueued
+	 *
+	 * @since 1.0.0
+	 */
+		do_action( 'aggressive_apparel_after_enqueue_styles' );
+	}
+
+	/**
+	 * Enqueue block assets (available in both frontend and editor)
+	 *
+	 * @return void
+	 */
+	public function enqueue_block_assets() {
+		$theme_uri = get_template_directory_uri();
+
+		// Main theme stylesheet for editor context.
+		wp_enqueue_style(
+			'aggressive-apparel-main',
+			$theme_uri . '/build/styles/main.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		// Block styles for editor context.
+		wp_enqueue_style(
+			'aggressive-apparel-blocks',
+			$theme_uri . '/build/styles/blocks.css',
+			array( 'aggressive-apparel-main' ),
+			$this->version,
+			'all'
+		);
+
 		/**
-		 * Hook: After styles enqueued
+		 * Hook: After block assets enqueued
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'aggressive_apparel_after_enqueue_styles' );
+		do_action( 'aggressive_apparel_after_enqueue_block_assets' );
 	}
 }

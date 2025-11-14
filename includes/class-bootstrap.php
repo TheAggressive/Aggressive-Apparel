@@ -146,6 +146,9 @@ class Bootstrap {
 		// WebP on-demand conversion (converts when images are viewed).
 		$webp_on_demand = new Core\WebP_On_Demand();
 		$webp_on_demand->init();
+
+		// Block pattern categories.
+		new Core\Block_Categories();
 	}
 
 	/**
@@ -202,20 +205,6 @@ class Bootstrap {
 	 */
 	private function init_hooks() {
 		add_filter( 'body_class', array( $this, 'add_body_classes' ), 10, 1 );
-
-		// Initialize admin components.
-		if ( is_admin() ) {
-			$this->init_admin();
-		}
-	}
-
-	/**
-	 * Initialize admin components
-	 *
-	 * @return void
-	 */
-	private function init_admin() {
-		// Admin initialization complete.
 	}
 
 	/**

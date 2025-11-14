@@ -31,11 +31,6 @@ module.exports = {
 
     // Styles (CSS with PostCSS + Tailwind)
     'styles/main': path.resolve( process.cwd(), 'src/styles', 'main.css' ),
-    'styles/editor-style': path.resolve(
-      process.cwd(),
-      'src/styles',
-      'editor-style.css'
-    ),
     'styles/woocommerce': path.resolve(
       process.cwd(),
       'src/styles',

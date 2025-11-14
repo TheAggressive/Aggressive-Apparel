@@ -47,6 +47,7 @@ class Editor_Assets {
 	 */
 	public function init() {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ), 10 );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'dequeue_woocommerce_editor_styles' ), 20 );
 	}
 
 	/**
@@ -57,15 +58,6 @@ class Editor_Assets {
 	public function enqueue_editor_assets() {
 		$theme_uri = get_template_directory_uri();
 
-		// Editor stylesheet.
-		wp_enqueue_style(
-			'aggressive-apparel-editor-style',
-			$theme_uri . '/build/styles/editor-style.css',
-			array( 'wp-edit-blocks' ),
-			$this->version,
-			'all'
-		);
-
 		// Editor script.
 		wp_enqueue_script(
 			'aggressive-apparel-editor',
@@ -75,11 +67,22 @@ class Editor_Assets {
 			true
 		);
 
-		/**
-		 * Hook: After editor assets enqueued
-		 *
-		 * @since 1.0.0
-		 */
+	/**
+	 * Hook: After editor assets enqueued
+	 *
+	 * @since 1.0.0
+	 */
 		do_action( 'aggressive_apparel_after_enqueue_editor_assets' );
+	}
+
+	/**
+	 * Dequeue WooCommerce styles from editor context
+	 *
+	 * @return void
+	 */
+	public function dequeue_woocommerce_editor_styles() {
+		// Dequeue WooCommerce blocktheme styles from editor
+		wp_dequeue_style( 'woocommerce-blocktheme' );
+		wp_dequeue_style( 'woocommerce-blocktheme-css' );
 	}
 }

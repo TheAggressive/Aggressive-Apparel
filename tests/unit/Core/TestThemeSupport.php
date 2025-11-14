@@ -61,16 +61,6 @@ class TestThemeSupport extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test editor styles
-	 */
-	public function test_editor_styles_support() {
-		$this->assertTrue(
-			current_theme_supports( 'editor-styles' ),
-			'Theme should support editor-styles'
-		);
-	}
-
-	/**
 	 * Test Theme_Support class can be instantiated
 	 */
 	public function test_class_instantiation() {

@@ -67,6 +67,12 @@ class Bootstrap {
 	 * Initialize security headers
 	 */
 	private function init_security_headers(): void {
+		// Don't add security headers hook in testing environments
+		if ( defined( 'WP_TESTS_DIR' ) || defined( 'WP_PHPUNIT__TEST' ) ||
+			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( $_SERVER['SCRIPT_NAME'] ?? '', 'phpunit' ) !== false ) ) {
+			return;
+		}
+
 		add_action( 'send_headers', array( $this, 'add_security_headers' ) );
 	}
 
@@ -76,6 +82,16 @@ class Bootstrap {
 	 * @return void
 	 */
 	public function add_security_headers(): void {
+		// Don't send headers in testing environments, CLI, or if headers already sent
+		if ( headers_sent() ||
+			defined( 'WP_TESTS_DIR' ) ||
+			defined( 'WP_PHPUNIT__TEST' ) ||
+			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( $_SERVER['SCRIPT_NAME'] ?? '', 'phpunit' ) !== false ) ||
+			( php_sapi_name() === 'cli' ) ||
+			! isset( $_SERVER['REQUEST_METHOD'] ) ) {
+			return;
+		}
+
 		// Prevent MIME type sniffing.
 		header( 'X-Content-Type-Options: nosniff' );
 

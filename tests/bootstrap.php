@@ -43,7 +43,7 @@ function _aggressive_apparel_manually_load_environment() {
 	switch_theme( 'aggressive-apparel' );
 
 	// If WooCommerce is needed, activate it
-	if ( defined( 'WP_TESTS_WOOCOMMERCE' ) && WP_TESTS_WOOCOMMERCE ) {
+	if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
 		// Activate WooCommerce plugin
 		$plugins = get_option( 'active_plugins', array() );
 		if ( ! in_array( 'woocommerce/woocommerce.php', $plugins, true ) ) {

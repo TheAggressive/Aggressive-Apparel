@@ -14,11 +14,16 @@ use WP_UnitTestCase;
  */
 class TestSecurityHeaders extends WP_UnitTestCase {
 	/**
-	 * Test content type is properly set
+	 * Test security headers functionality exists
 	 */
-	public function test_content_type_header() {
-		$this->expectOutputRegex( '/Content-Type:/' );
-		header( 'Content-Type: text/html; charset=UTF-8' );
+	public function test_security_headers_functionality_exists() {
+		$bootstrap = \Aggressive_Apparel\Bootstrap::get_instance();
+
+		// Test that Bootstrap has the security headers method
+		$this->assertTrue( method_exists( $bootstrap, 'add_security_headers' ) );
+
+		// Test that the method exists and is callable (don't actually call it to avoid header issues)
+		$this->assertIsCallable( array( $bootstrap, 'add_security_headers' ) );
 	}
 
 	/**

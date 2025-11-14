@@ -30,7 +30,7 @@ class WooCommerce_Support {
 	 * @return void
 	 */
 	public function init() {
-		add_action( 'after_setup_theme', array( $this, 'register_woocommerce_support' ), 20 );
+		$this->register_woocommerce_support();
 	}
 
 	/**

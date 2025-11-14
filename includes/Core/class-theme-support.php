@@ -30,7 +30,7 @@ class Theme_Support {
 	 * @return void
 	 */
 	public function init() {
-		add_action( 'after_setup_theme', array( $this, 'register_theme_support' ), 10 );
+		$this->register_theme_support();
 	}
 
 	/**

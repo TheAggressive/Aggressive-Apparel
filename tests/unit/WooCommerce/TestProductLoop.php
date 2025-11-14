@@ -27,10 +27,6 @@ class TestProductLoop extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			$this->markTestSkipped( 'WooCommerce not available' );
-		}
-
 		$this->product_loop = new Product_Loop( 4, 16 );
 		$this->product_loop->init();
 	}

@@ -4,9 +4,9 @@
  * @package
  */
 
-describe( 'WooCommerce Cart', () => {
-  describe( 'Mini Cart', () => {
-    beforeEach( () => {
+describe('WooCommerce Cart', () => {
+  describe('Mini Cart', () => {
+    beforeEach(() => {
       // Set up mini cart DOM
       document.body.innerHTML = `
 				<button class="mini-cart-toggle">
@@ -16,33 +16,33 @@ describe( 'WooCommerce Cart', () => {
 					<div class="mini-cart__content"></div>
 				</div>
 			`;
-    } );
+    });
 
-    it( 'should have mini cart toggle', () => {
-      const toggle = document.querySelector( '.mini-cart-toggle' );
-      expect( toggle ).not.toBeNull();
-    } );
+    it('should have mini cart toggle', () => {
+      const toggle = document.querySelector('.mini-cart-toggle');
+      expect(toggle).not.toBeNull();
+    });
 
-    it( 'should have cart count element', () => {
-      const count = document.querySelector( '.mini-cart-toggle .count' );
-      expect( count ).not.toBeNull();
-      expect( count.textContent ).toBe( '0' );
-    } );
+    it('should have cart count element', () => {
+      const count = document.querySelector('.mini-cart-toggle .count');
+      expect(count).not.toBeNull();
+      expect(count.textContent).toBe('0');
+    });
 
-    it( 'should toggle mini cart state', () => {
-      const miniCart = document.querySelector( '.mini-cart' );
-      const initialState = miniCart.getAttribute( 'data-state' );
+    it('should toggle mini cart state', () => {
+      const miniCart = document.querySelector('.mini-cart');
+      const initialState = miniCart.getAttribute('data-state');
 
-      expect( initialState ).toBe( 'closed' );
+      expect(initialState).toBe('closed');
 
       // Simulate toggle
-      miniCart.setAttribute( 'data-state', 'open' );
-      expect( miniCart.getAttribute( 'data-state' ) ).toBe( 'open' );
-    } );
-  } );
+      miniCart.setAttribute('data-state', 'open');
+      expect(miniCart.getAttribute('data-state')).toBe('open');
+    });
+  });
 
-  describe( 'Quantity Controls', () => {
-    beforeEach( () => {
+  describe('Quantity Controls', () => {
+    beforeEach(() => {
       document.body.innerHTML = `
 				<div class="quantity">
 					<button class="qty-minus" aria-label="Decrease quantity">-</button>
@@ -50,34 +50,34 @@ describe( 'WooCommerce Cart', () => {
 					<button class="qty-plus" aria-label="Increase quantity">+</button>
 				</div>
 			`;
-    } );
+    });
 
-    it( 'should have quantity input', () => {
-      const input = document.querySelector( '.qty' );
-      expect( input ).not.toBeNull();
-      expect( input.value ).toBe( '1' );
-    } );
+    it('should have quantity input', () => {
+      const input = document.querySelector('.qty');
+      expect(input).not.toBeNull();
+      expect(input.value).toBe('1');
+    });
 
-    it( 'should have plus and minus buttons', () => {
-      const minus = document.querySelector( '.qty-minus' );
-      const plus = document.querySelector( '.qty-plus' );
+    it('should have plus and minus buttons', () => {
+      const minus = document.querySelector('.qty-minus');
+      const plus = document.querySelector('.qty-plus');
 
-      expect( minus ).not.toBeNull();
-      expect( plus ).not.toBeNull();
-    } );
+      expect(minus).not.toBeNull();
+      expect(plus).not.toBeNull();
+    });
 
-    it( 'should respect min and max values', () => {
-      const input = document.querySelector( '.qty' );
-      const min = parseInt( input.getAttribute( 'min' ) );
-      const max = parseInt( input.getAttribute( 'max' ) );
+    it('should respect min and max values', () => {
+      const input = document.querySelector('.qty');
+      const min = parseInt(input.getAttribute('min'));
+      const max = parseInt(input.getAttribute('max'));
 
-      expect( min ).toBe( 1 );
-      expect( max ).toBe( 10 );
-    } );
-  } );
+      expect(min).toBe(1);
+      expect(max).toBe(10);
+    });
+  });
 
-  describe( 'Cart Fragments', () => {
-    it( 'should handle cart fragment update', () => {
+  describe('Cart Fragments', () => {
+    it('should handle cart fragment update', () => {
       const fragmentData = {
         fragments: {
           '.mini-cart-count': '<span class="mini-cart-count">5</span>',
@@ -85,8 +85,8 @@ describe( 'WooCommerce Cart', () => {
         cart_hash: 'abc123',
       };
 
-      expect( fragmentData.fragments ).toBeDefined();
-      expect( fragmentData.cart_hash ).toBe( 'abc123' );
-    } );
-  } );
-} );
+      expect(fragmentData.fragments).toBeDefined();
+      expect(fragmentData.cart_hash).toBe('abc123');
+    });
+  });
+});

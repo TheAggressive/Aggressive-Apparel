@@ -36,6 +36,7 @@ export default [
         console: 'readonly',
         window: 'readonly',
         document: 'readonly',
+        Event: 'readonly',
       },
     },
     plugins: {
@@ -142,6 +143,47 @@ export default [
       react: {
         version: 'detect',
       },
+    },
+  },
+  // Test files configuration
+  {
+    files: [
+      'src/**/*.test.{js,jsx,ts,tsx}',
+      'src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        wp: 'readonly',
+        console: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        Event: 'readonly',
+        // Jest globals
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+      },
+    },
+    plugins: {
+      '@wordpress': wpPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+    },
+    rules: {
+      // Relax rules for test files
+      '@wordpress/no-unsafe-wp-apis': 'off',
     },
   },
 ];

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/dark-mode-toggle",
+  "version": "1.0.0",
+  "title": "Dark Mode Toggle",
+  "category": "theme",
+  "icon": "lightbulb",
+  "description": "A toggle switch for switching between light and dark themes.",
+  "example": {},
+  "supports": {
+    "align": ["left", "center", "right"],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "html": false,
+    "reusable": false
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "Dark Mode"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": true
+    },
+    "size": {
+      "type": "string",
+      "default": "medium",
+      "enum": ["small", "medium", "large"]
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left",
+      "enum": ["left", "center", "right"]
+    }
+  },
+  "textdomain": "dark-mode-toggle",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js"
+}

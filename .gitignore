@@ -50,6 +50,7 @@ Desktop.ini
 .project
 .settings/
 .classpath
+.cursor/
 
 # Logs
 *.log

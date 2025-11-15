@@ -149,6 +149,9 @@ class Bootstrap {
 
 		// Block pattern categories.
 		new Core\Block_Categories();
+
+		// Custom blocks.
+		Blocks\Blocks::init();
 	}
 
 	/**

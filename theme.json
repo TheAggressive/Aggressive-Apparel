@@ -52,9 +52,19 @@
           "color": "#ffffff"
         },
         {
+          "name": "Base Dark",
+          "slug": "base-dark",
+          "color": "#1a1a1a"
+        },
+        {
           "name": "Contrast",
           "slug": "contrast",
           "color": "#000000"
+        },
+        {
+          "name": "Contrast Dark",
+          "slug": "contrast-dark",
+          "color": "#ffffff"
         },
         {
           "name": "Primary",
@@ -62,9 +72,19 @@
           "color": "#1a1a1a"
         },
         {
+          "name": "Primary Dark",
+          "slug": "primary-dark",
+          "color": "#f5f5f5"
+        },
+        {
           "name": "Secondary",
           "slug": "secondary",
           "color": "#666666"
+        },
+        {
+          "name": "Secondary Dark",
+          "slug": "secondary-dark",
+          "color": "#a0a0a0"
         },
         {
           "name": "Accent",
@@ -72,9 +92,19 @@
           "color": "#ff4444"
         },
         {
+          "name": "Accent Dark",
+          "slug": "accent-dark",
+          "color": "#ff6666"
+        },
+        {
           "name": "Accent Secondary",
           "slug": "accent-secondary",
           "color": "#00aaff"
+        },
+        {
+          "name": "Accent Secondary Dark",
+          "slug": "accent-secondary-dark",
+          "color": "#33ccff"
         },
         {
           "name": "Background",
@@ -82,9 +112,19 @@
           "color": "#f5f5f5"
         },
         {
+          "name": "Background Dark",
+          "slug": "background-dark",
+          "color": "#0f0f0f"
+        },
+        {
           "name": "Border",
           "slug": "border",
           "color": "#e0e0e0"
+        },
+        {
+          "name": "Border Dark",
+          "slug": "border-dark",
+          "color": "#333333"
         }
       ],
       "gradients": [
@@ -94,9 +134,19 @@
           "gradient": "linear-gradient(135deg, var(--wp--preset--color--primary) 0%, var(--wp--preset--color--secondary) 100%)"
         },
         {
+          "name": "Primary to Secondary Dark",
+          "slug": "primary-secondary-dark",
+          "gradient": "linear-gradient(135deg, var(--wp--preset--color--primary-dark) 0%, var(--wp--preset--color--secondary-dark) 100%)"
+        },
+        {
           "name": "Accent to Accent Secondary",
           "slug": "accent-gradient",
           "gradient": "linear-gradient(135deg, var(--wp--preset--color--accent) 0%, var(--wp--preset--color--accent-secondary) 100%)"
+        },
+        {
+          "name": "Accent to Accent Secondary Dark",
+          "slug": "accent-gradient-dark",
+          "gradient": "linear-gradient(135deg, var(--wp--preset--color--accent-dark) 0%, var(--wp--preset--color--accent-secondary-dark) 100%)"
         }
       ]
     },

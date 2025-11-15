@@ -10,31 +10,31 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Register custom block styles
  */
-domReady( () => {
+domReady(() => {
   // Button styles
-  registerBlockStyle( 'core/button', {
+  registerBlockStyle('core/button', {
     name: 'secondary',
     label: 'Secondary',
-  } );
+  });
 
-  registerBlockStyle( 'core/button', {
+  registerBlockStyle('core/button', {
     name: 'outline',
     label: 'Outline',
-  } );
+  });
 
   // Heading styles
-  registerBlockStyle( 'core/heading', {
+  registerBlockStyle('core/heading', {
     name: 'uppercase',
     label: 'Uppercase',
-  } );
+  });
 
   // Image styles
-  registerBlockStyle( 'core/image', {
+  registerBlockStyle('core/image', {
     name: 'rounded',
     label: 'Rounded',
-  } );
+  });
 
   // Remove default block styles we don't want
-  unregisterBlockStyle( 'core/button', 'outline' );
-  unregisterBlockStyle( 'core/button', 'squared' );
-} );
+  unregisterBlockStyle('core/button', 'outline');
+  unregisterBlockStyle('core/button', 'squared');
+});

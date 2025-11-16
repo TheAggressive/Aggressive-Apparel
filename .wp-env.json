@@ -16,6 +16,7 @@
   "env": {
     "tests": {
       "port": 9920,
+      "phpmyadminPort": 9922,
       "themes": ["."]
     }
   }

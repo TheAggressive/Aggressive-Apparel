@@ -127,6 +127,7 @@ class Bootstrap {
 		$this->container->register( 'theme_support', fn() => new Core\Theme_Support() );
 		$this->container->register( 'image_sizes', fn() => new Core\Image_Sizes() );
 		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
+		$this->container->register( 'theme_updates', fn() => Core\Theme_Updates::get_instance() );
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 
 		// Register asset services.
@@ -176,6 +177,7 @@ class Bootstrap {
 		$this->container->get( 'theme_support' )->init();
 		$this->container->get( 'image_sizes' )->init();
 		$this->container->get( 'content_width' )->init();
+		$this->container->get( 'theme_updates' ); // Initialize theme updates (singleton)
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

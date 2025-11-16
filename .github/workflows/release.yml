@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  THEME_SLUG: aggressive-apparel
+  THEME_SLUG: Aggressive-Apparel
   NODE_VERSION: '20'
   PNPM_VERSION: '9'
   PHP_VERSION: '8.2'
@@ -325,19 +325,11 @@ jobs:
           pnpm env:start
           sleep 10
 
-      - name: Detect theme directory
-        id: detect-theme
-        run: |
-          # Try to find any directory containing 'aggressive' (case insensitive)
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
-          echo "Detected theme directory: $THEME_DIR"
-          echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && composer install --no-interaction --prefer-dist"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
       - name: Run unit tests with coverage
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && ./vendor/bin/phpunit --testsuite=unit --coverage-clover=coverage-unit.xml"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=unit --coverage-clover=coverage-unit.xml"
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -390,19 +382,11 @@ jobs:
           pnpm env:start
           sleep 10
 
-      - name: Detect theme directory
-        id: detect-theme
-        run: |
-          # Try to find any directory containing 'aggressive' (case insensitive)
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
-          echo "Detected theme directory: $THEME_DIR"
-          echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && composer install --no-interaction --prefer-dist"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
       - name: Run integration tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && ./vendor/bin/phpunit --testsuite=integration --verbose"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=integration --verbose"
 
       - name: Stop wp-env
         if: always()
@@ -448,26 +432,11 @@ jobs:
           pnpm env:start
           sleep 10
 
-      - name: Check theme directories
-        run: |
-          echo "📁 Checking theme directories in tests environment:"
-          pnpm wp-env run tests-cli -- bash -c 'ls -la /var/www/html/wp-content/themes/ | grep -E "(aggressive|Aggressive)" || echo "No aggressive theme directories found"'
-          echo "📂 Full themes directory listing:"
-          pnpm wp-env run tests-cli -- bash -c 'ls -la /var/www/html/wp-content/themes/'
-
-      - name: Detect theme directory
-        id: detect-theme
-        run: |
-          # Try to find any directory containing 'aggressive' (case insensitive)
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
-          echo "Detected theme directory: $THEME_DIR"
-          echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && composer install --no-interaction --prefer-dist"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
       - name: Run security tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && ./vendor/bin/phpunit --testsuite=security --verbose"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=security --verbose"
 
       - name: Stop wp-env
         if: always()
@@ -513,19 +482,11 @@ jobs:
           pnpm env:start
           sleep 10
 
-      - name: Detect theme directory
-        id: detect-theme
-        run: |
-          # Try to find any directory containing 'aggressive' (case insensitive)
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
-          echo "Detected theme directory: $THEME_DIR"
-          echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && composer install --no-interaction --prefer-dist"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
       - name: Run accessibility tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && ./vendor/bin/phpunit --testsuite=accessibility --verbose"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=accessibility --verbose"
 
       - name: Stop wp-env
         if: always()
@@ -571,19 +532,11 @@ jobs:
           pnpm env:start
           sleep 10
 
-      - name: Detect theme directory
-        id: detect-theme
-        run: |
-          # Try to find any directory containing 'aggressive' (case insensitive)
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
-          echo "Detected theme directory: $THEME_DIR"
-          echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
-
       - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && composer install --no-interaction --prefer-dist"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
       - name: Run performance tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ steps.detect-theme.outputs.theme_dir }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
 
       - name: Stop wp-env
         if: always()

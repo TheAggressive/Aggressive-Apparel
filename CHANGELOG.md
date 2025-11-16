@@ -1,3 +1,12 @@
+## [1.1.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.1...v1.1.2) (2025-11-16)
+
+
+### Bug Fixes
+
+* add semantic-release plugins as dependencies ([987c612](https://github.com/TheAggressive/Aggressive-Apparel/commit/987c61281998ea1e1651e0bee7afd7047e1771c5))
+* integrate ZIP upload into semantic-release workflow ([01e7b73](https://github.com/TheAggressive/Aggressive-Apparel/commit/01e7b73fdfeb1b0c7b83bfc7ac329d9fa9ba5c4f))
+* update pnpm-lock.yaml with semantic-release plugins ([8d3554c](https://github.com/TheAggressive/Aggressive-Apparel/commit/8d3554c7c6c0eff0154b202eaa21906595be2ea7))
+
 ## [1.1.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.0...v1.1.1) (2025-11-16)
 
 

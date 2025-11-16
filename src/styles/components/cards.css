@@ -9,30 +9,30 @@
   border: 1px solid var(--wp--preset--color--border);
   padding: 2rem;
   transition: transform var(--transition-base);
+}
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
 
-  &__header {
-    margin-bottom: 1rem;
-  }
+.card__header {
+  margin-bottom: 1rem;
+}
 
-  &__title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--wp--preset--color--primary);
-    margin-bottom: 0.5rem;
-  }
+.card__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--wp--preset--color--primary);
+  margin-bottom: 0.5rem;
+}
 
-  &__body {
-    margin-bottom: 1rem;
-  }
+.card__body {
+  margin-bottom: 1rem;
+}
 
-  &__footer {
-    padding-top: 1rem;
-    border-top: 1px solid var(--wp--preset--color--border);
-  }
+.card__footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--wp--preset--color--border);
 }
 

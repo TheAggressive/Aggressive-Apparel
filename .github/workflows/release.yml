@@ -325,6 +325,17 @@ jobs:
           pnpm env:start
           sleep 10
 
+      - name: Setup theme directory
+        run: |
+          # Create symlink from actual directory to expected theme slug for WordPress
+          pnpm wp-env run tests-cli -- bash -c "
+            cd /var/www/html/wp-content/themes/
+            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
+              ln -sf Aggressive-Apparel aggressive-apparel
+              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
+            fi
+          "
+
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
@@ -382,6 +393,17 @@ jobs:
           pnpm env:start
           sleep 10
 
+      - name: Setup theme directory
+        run: |
+          # Create symlink from actual directory to expected theme slug for WordPress
+          pnpm wp-env run tests-cli -- bash -c "
+            cd /var/www/html/wp-content/themes/
+            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
+              ln -sf Aggressive-Apparel aggressive-apparel
+              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
+            fi
+          "
+
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
@@ -431,6 +453,17 @@ jobs:
         run: |
           pnpm env:start
           sleep 10
+
+      - name: Setup theme directory
+        run: |
+          # Create symlink from actual directory to expected theme slug for WordPress
+          pnpm wp-env run tests-cli -- bash -c "
+            cd /var/www/html/wp-content/themes/
+            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
+              ln -sf Aggressive-Apparel aggressive-apparel
+              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
+            fi
+          "
 
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
@@ -482,6 +515,17 @@ jobs:
           pnpm env:start
           sleep 10
 
+      - name: Setup theme directory
+        run: |
+          # Create symlink from actual directory to expected theme slug for WordPress
+          pnpm wp-env run tests-cli -- bash -c "
+            cd /var/www/html/wp-content/themes/
+            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
+              ln -sf Aggressive-Apparel aggressive-apparel
+              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
+            fi
+          "
+
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
@@ -531,6 +575,17 @@ jobs:
         run: |
           pnpm env:start
           sleep 10
+
+      - name: Setup theme directory
+        run: |
+          # Create symlink from actual directory to expected theme slug for WordPress
+          pnpm wp-env run tests-cli -- bash -c "
+            cd /var/www/html/wp-content/themes/
+            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
+              ln -sf Aggressive-Apparel aggressive-apparel
+              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
+            fi
+          "
 
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"

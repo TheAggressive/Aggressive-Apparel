@@ -7,14 +7,23 @@ on:
       - master
 
 jobs:
-  release:
+  test:
+    name: Quality Assurance
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306: 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,31 +43,159 @@ jobs:
           pnpm install --frozen-lockfile
           composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Run tests
-        run: pnpm run test
-
       - name: Run linting
         run: pnpm run lint:all
+
+      - name: Run JavaScript tests
+        run: pnpm run test:js
+
+      - name: Setup WordPress test environment
+        run: pnpm run test:setup
+
+      - name: Run PHP tests
+        run: pnpm run test:php
+        env:
+          WP_TESTS_DB_HOST: 127.0.0.1:3306
+
+  build:
+    name: Build Theme
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build theme
         run: pnpm run build
 
-      - name: Create theme archive
+      - name: Clean and create theme archive
         run: |
-          # Create a clean archive of the theme (excluding dev files)
+          # Create temporary directory for clean build
+          mkdir -p ../clean-build
+          cp -r . ../clean-build/
+
+          cd ../clean-build
+
+          # Remove development and source files
+          rm -rf .git/
+          rm -rf .github/
+          rm -rf .husky/
+          rm -rf .vscode/
+          rm -rf tests/
+          rm -rf node_modules/
+          rm -rf vendor/
+          rm -rf .wp-env/
+          rm -rf src/  # Keep built files in build/ instead
+
+          # Remove development configuration files
+          rm -f .stylelintrc.json
+          rm -f eslint.config.js
+          rm -f tsconfig.json
+          rm -f jest.config.mjs
+          rm -f commitlint.config.mjs
+          rm -f .releaserc.json
+          rm -f phpcs.xml.dist
+          rm -f phpstan.neon
+          rm -f phpunit.xml.dist
+          rm -f .wp-env.json
+          rm -f bin/install-wp-tests.sh
+          rm -f composer.json
+          rm -f composer.lock
+          rm -f package.json
+          rm -f pnpm-lock.yaml
+          rm -f webpack.config.mjs
+          rm -f webpack.assets.config.mjs
+          rm -f postcss.config.cjs
+
+          # Remove hidden files and logs
+          find . -name "*.log" -delete
+          find . -name ".DS_Store" -delete
+          find . -name "phpunit.result.cache" -delete
+          find . -name "*.tmp" -delete
+          find . -name "*.bak" -delete
+
+          # Remove any remaining zip files
+          rm -f *.zip
+
+          # Create clean production archive
           zip -r aggressive-apparel.zip . \
             -x "*.git*" \
+            -x ".github/*" \
             -x "node_modules/*" \
             -x "vendor/*" \
             -x ".wp-env/*" \
             -x "tests/*" \
-            -x ".github/*" \
+            -x ".husky/*" \
+            -x ".vscode/*" \
             -x "*.log" \
             -x ".DS_Store" \
             -x "phpunit.result.cache" \
+            -x "*.tmp" \
+            -x "*.bak" \
+            -x "src/*" \
+            -x "*.config.*" \
+            -x "composer.*" \
+            -x "package*" \
+            -x "*.lock" \
+            -x "*.md" \
+            -x "bin/*" \
             -x "*.zip"
+
+          echo "Archive contents:"
+          unzip -l aggressive-apparel.zip | head -20
+
+      - name: Upload theme archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-archive
+          path: ../clean-build/aggressive-apparel.zip
+          retention-days: 1
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [test, build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download theme archive
+        uses: actions/download-artifact@v4
+        with:
+          name: theme-archive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install semantic-release
+        run: pnpm add -D semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog
+
+      - name: Verify archive contents
+        run: |
+          echo "Archive contents:"
+          unzip -l aggressive-apparel.zip | head -20
 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec semantic-release
+        run: npx semantic-release

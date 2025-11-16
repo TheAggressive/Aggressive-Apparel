@@ -39,8 +39,32 @@ function _aggressive_apparel_manually_load_environment() {
 	// Initialize autoloader
 	new Aggressive_Apparel\Autoloader();
 
+	// Get theme directory path
+	$theme_dir = dirname( __DIR__ ); // Go up from tests/ to theme root
+
+	// Define theme constants (normally done in functions.php)
+	if ( ! defined( 'AGGRESSIVE_APPAREL_VERSION' ) ) {
+		define( 'AGGRESSIVE_APPAREL_VERSION', wp_get_theme()->get( 'Version' ) );
+		define( 'AGGRESSIVE_APPAREL_DIR', $theme_dir );
+		define( 'AGGRESSIVE_APPAREL_URI', get_template_directory_uri() );
+	}
+
+	// Load theme helper functions (normally done in functions.php)
+	if ( file_exists( $theme_dir . '/includes/helpers.php' ) ) {
+		require_once $theme_dir . '/includes/helpers.php';
+	}
+
 	// Load the theme
 	switch_theme( 'aggressive-apparel' );
+
+	// Initialize theme support early (before wp_loaded)
+	$theme_support = new Aggressive_Apparel\Core\Theme_Support();
+	$theme_support->init();
+
+	// Initialize theme components (similar to functions.php)
+	if ( function_exists( 'aggressive_apparel_init' ) ) {
+		aggressive_apparel_init();
+	}
 
 	// If WooCommerce is needed, activate it
 	if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {

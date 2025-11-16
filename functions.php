@@ -14,9 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define theme constants.
-define( 'AGGRESSIVE_APPAREL_VERSION', wp_get_theme()->get( 'Version' ) );
-define( 'AGGRESSIVE_APPAREL_DIR', get_template_directory() );
-define( 'AGGRESSIVE_APPAREL_URI', get_template_directory_uri() );
+if ( ! defined( 'AGGRESSIVE_APPAREL_VERSION' ) ) {
+	define( 'AGGRESSIVE_APPAREL_VERSION', wp_get_theme()->get( 'Version' ) );
+}
+if ( ! defined( 'AGGRESSIVE_APPAREL_DIR' ) ) {
+	define( 'AGGRESSIVE_APPAREL_DIR', get_template_directory() );
+}
+if ( ! defined( 'AGGRESSIVE_APPAREL_URI' ) ) {
+	define( 'AGGRESSIVE_APPAREL_URI', get_template_directory_uri() );
+}
 
 /**
  * Autoloader

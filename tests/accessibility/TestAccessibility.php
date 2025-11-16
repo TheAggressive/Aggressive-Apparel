@@ -103,10 +103,12 @@ class TestAccessibility extends WP_UnitTestCase {
 		if ( function_exists( 'register_nav_menus' ) ) {
 			// Test that the function can be called without throwing exceptions
 			try {
-				$result = register_nav_menus( array(
-					'primary' => 'Primary Navigation',
-					'footer'  => 'Footer Navigation',
-				) );
+				$result = register_nav_menus(
+					array(
+						'primary' => 'Primary Navigation',
+						'footer'  => 'Footer Navigation',
+					)
+				);
 				// register_nav_menus doesn't return a value, so we just check it doesn't throw
 				$this->assertTrue( true, 'register_nav_menus executed without errors' );
 			} catch ( \Exception $e ) {

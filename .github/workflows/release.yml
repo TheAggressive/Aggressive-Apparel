@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, mysql, zip, curl
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run tests
+        run: pnpm run test
+
+      - name: Run linting
+        run: pnpm run lint:all
+
+      - name: Build theme
+        run: pnpm run build
+
+      - name: Create theme archive
+        run: |
+          # Create a clean archive of the theme (excluding dev files)
+          zip -r aggressive-apparel.zip . \
+            -x "*.git*" \
+            -x "node_modules/*" \
+            -x "vendor/*" \
+            -x ".wp-env/*" \
+            -x "tests/*" \
+            -x ".github/*" \
+            -x "*.log" \
+            -x ".DS_Store" \
+            -x "phpunit.result.cache" \
+            -x "*.zip"
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm exec semantic-release

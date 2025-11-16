@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "lib": [
-      "ES2021",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -27,14 +23,6 @@
       "@types/wordpress__edit-post"
     ]
   },
-  "include": [
-    "src/**/*",
-    "types/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "vendor",
-    "build",
-    "**/*.d.ts"
-  ]
+  "include": ["src/**/*", "types/**/*"],
+  "exclude": ["node_modules", "vendor", "build", "**/*.d.ts"]
 }

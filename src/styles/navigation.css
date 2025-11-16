@@ -7,8 +7,10 @@
 @import './abstracts/variables.css';
 
 .wp-block-navigation {
+
   /* Navigation items */
   & .wp-block-navigation-item {
+
     & > a {
       transition: color 0.3s ease;
 
@@ -24,6 +26,7 @@
 
     /* Focused state */
     &.is-focused {
+
       & > a {
         color: var(--wp--preset--color--accent);
       }
@@ -39,6 +42,7 @@
 
   /* Mobile menu */
   &.is-open {
+
     & .wp-block-navigation__responsive-container-content {
       padding: var(--wp--preset--spacing--medium);
     }

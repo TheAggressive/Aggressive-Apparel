@@ -8,7 +8,9 @@
 
 /* Button block styles */
 .wp-block-button {
+
   &.is-style-uppercase {
+
     & .wp-block-button__link {
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -18,6 +20,7 @@
 
 /* Heading block styles */
 .wp-block-heading {
+
   &.is-style-uppercase {
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -26,13 +29,16 @@
 
 /* Image block styles */
 .wp-block-image {
+
   &.is-style-rounded {
+
     & img {
       border-radius: 0.75rem;
     }
   }
 
   &.is-style-circular {
+
     & img {
       border-radius: 9999px;
     }
@@ -41,6 +47,7 @@
 
 /* Group block */
 .wp-block-group {
+
   &.has-background {
     padding: var(--wp--preset--spacing--medium);
   }
@@ -57,7 +64,9 @@
 
 /* Columns block */
 .wp-block-columns {
+
   &.is-style-card-grid {
+
     & .wp-block-column {
       background-color: var(--wp--preset--color--base);
       border: 1px solid var(--wp--preset--color--border);
@@ -74,7 +83,9 @@
 
 /* Query Loop / Post Template */
 .wp-block-post-template {
+
   &.is-style-card {
+
     & .wp-block-post {
       background-color: var(--wp--preset--color--base);
       border: 1px solid var(--wp--preset--color--border);

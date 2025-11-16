@@ -9,6 +9,7 @@ main {
 }
 
 .wp-block-post-content {
+
   & > * + * {
     margin-top: var(--wp--preset--spacing--medium);
   }

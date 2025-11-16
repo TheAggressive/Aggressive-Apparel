@@ -36,7 +36,7 @@ class TestWooCommerceIntegration extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->woocommerce_support = new WooCommerce_Support();
-		$this->product_loop = new Product_Loop();
+		$this->product_loop        = new Product_Loop();
 	}
 
 	/**

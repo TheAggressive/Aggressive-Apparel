@@ -649,7 +649,7 @@ jobs:
           rm -f pnpm-lock.yaml composer.lock
 
           # Remove config files
-          rm -f webpack.* tsconfig.* eslint.config.js .stylelintrc.json
+          rm -f webpack.* tsconfig.* eslint.config.js .stylelintrc.json postcss.config.cjs
           rm -f phpunit.xml* phpstan.* phpcs.xml* commitlint.config.mjs .releaserc.json
           rm -f jest.config.mjs
 

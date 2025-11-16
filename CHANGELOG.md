@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.0.0...v1.1.0) (2025-11-16)
+
+
+### Bug Fixes
+
+* correct artifact upload filename after lowercase directory change ([8617dc2](https://github.com/TheAggressive/Aggressive-Apparel/commit/8617dc233e438c12ce81875b8eada9f0434c3006))
+
+
+### Features
+
+* upload versioned theme ZIP files to GitHub releases ([8d75d52](https://github.com/TheAggressive/Aggressive-Apparel/commit/8d75d52a793abcdfd033c8707ff726b1ea0e12dc))
+* use lowercase directory name inside ZIP files ([257b8ab](https://github.com/TheAggressive/Aggressive-Apparel/commit/257b8abb08d496a82873b0a1f6261cbbe8dbb75c))
+
 # 1.0.0 (2025-11-16)
 
 

@@ -4,10 +4,11 @@
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
+    "@semantic-release/npm",
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "echo 'Preparing release ${nextRelease.version}' && mv 'aggressive-apparel.zip' 'aggressive-apparel-${nextRelease.version}.zip'"
+        "prepareCmd": "echo 'Preparing release ${nextRelease.version}' && ls -la && mv 'aggressive-apparel.zip' 'aggressive-apparel-${nextRelease.version}.zip' && echo 'File renamed successfully' && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' style.css"
       }
     ],
     [

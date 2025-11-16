@@ -1,7 +1,7 @@
 {
   "core": "WordPress/WordPress",
   "phpVersion": "8.3",
-  "themes": ["."],
+  "themes": [{"theme": ".", "slug": "aggressive-apparel"}],
   "plugins": [
     "https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip"
   ],
@@ -17,7 +17,7 @@
     "tests": {
       "port": 9920,
       "phpmyadminPort": 9922,
-      "themes": ["."]
+      "themes": [{"theme": ".", "slug": "aggressive-apparel"}]
     }
   }
 }

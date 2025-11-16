@@ -72,6 +72,7 @@ class Service_Container {
 		}
 
 		if ( ! isset( $this->services[ $key ] ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			throw new \InvalidArgumentException( "Service '{$key}' not registered" );
 		}
 

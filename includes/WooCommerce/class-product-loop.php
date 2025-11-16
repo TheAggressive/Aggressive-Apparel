@@ -65,7 +65,7 @@ class Product_Loop {
 	 * @param int $columns Current column count.
 	 * @return int Modified column count.
 	 */
-	public function set_loop_columns( $columns ) {
+	public function set_loop_columns( $columns ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return apply_filters( 'aggressive_apparel_product_columns', $this->columns );
 	}
 
@@ -75,7 +75,7 @@ class Product_Loop {
 	 * @param int $per_page Current products per page.
 	 * @return int Modified products per page.
 	 */
-	public function set_products_per_page( $per_page ) {
+	public function set_products_per_page( $per_page ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return apply_filters( 'aggressive_apparel_products_per_page', $this->per_page );
 	}
 }

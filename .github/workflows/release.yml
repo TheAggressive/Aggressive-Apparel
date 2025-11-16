@@ -643,7 +643,7 @@ jobs:
         run: |
           echo "🧹 Removing development files..."
           # Remove directories
-          rm -rf node_modules src tests .github .husky .vscode
+          rm -rf node_modules src tests .github .husky .vscode bin
 
           # Remove lock files
           rm -f pnpm-lock.yaml composer.lock

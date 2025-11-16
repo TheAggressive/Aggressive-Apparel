@@ -1,0 +1,22 @@
+# Ignore all non-CSS files
+**/*.js
+**/*.jsx
+**/*.ts
+**/*.tsx
+**/*.mjs
+**/*.php
+**/*.json
+**/*.md
+**/*.yml
+**/*.yaml
+
+# Also ignore common directories
+node_modules/
+build/
+vendor/
+tests/
+includes/
+bin/
+
+# Only allow CSS files in src/styles/
+!src/styles/**/*.css

@@ -23,5 +23,10 @@ export default {
       'never',
       ['sentence-case', 'start-case', 'pascal-case'],
     ],
+    'body-max-line-length': [
+      2,
+      'always',
+      120,
+    ],
   },
 };

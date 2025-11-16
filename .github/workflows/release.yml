@@ -48,17 +48,11 @@ jobs:
           pnpm install --frozen-lockfile
           composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Run linting
-        run: pnpm run lint:all
-
-      - name: Run JavaScript tests
-        run: pnpm run test:js
-
       - name: Setup WordPress test environment
         run: pnpm run test:setup
 
-      - name: Run PHP tests
-        run: pnpm run test:php
+      - name: Run quality assurance
+        run: pnpm run qa
         env:
           WP_TESTS_DB_HOST: 127.0.0.1:3306
 

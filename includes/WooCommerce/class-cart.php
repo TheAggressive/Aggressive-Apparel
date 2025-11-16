@@ -48,7 +48,7 @@ class Cart {
 
 		$cart_count = \WC()->cart->get_cart_contents_count();
 
-		$fragments['span.cart-count'] = '<span class="cart-count">' . esc_html( $cart_count ) . '</span>';
+		$fragments['span.cart-count'] = '<span class="cart-count">' . esc_html( (string) $cart_count ) . '</span>';
 
 		return $fragments;
 	}
@@ -64,7 +64,8 @@ class Cart {
 		}
 
 		$theme_uri = get_template_directory_uri();
-		$version   = wp_get_theme()->get( 'Version' );
+		$theme     = wp_get_theme();
+		$version   = ! $theme->errors() ? $theme->get( 'Version' ) : '1.0.0';
 
 		wp_enqueue_script(
 			'aggressive-apparel-cart',

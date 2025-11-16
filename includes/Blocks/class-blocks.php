@@ -79,7 +79,7 @@ class Blocks {
 		} catch ( \Throwable $e ) {
 			// Log error but don't break the site.
 			if ( function_exists( 'error_log' ) ) {
-				\error_log( 'Aggressive Apparel Blocks registration error: ' . $e->getMessage() );
+				\error_log( 'Aggressive Apparel Blocks registration error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 	}
@@ -163,7 +163,7 @@ class Blocks {
 			} catch ( \Throwable $e ) {
 				// Log error but continue with other blocks.
 				if ( function_exists( 'error_log' ) ) {
-					\error_log(
+					\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 						'Block registration error for ' . $block_location . ': ' . $e->getMessage()
 					);
 				}

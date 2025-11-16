@@ -40,6 +40,13 @@ class Bootstrap {
 	private $version;
 
 	/**
+	 * Service container for dependency management
+	 *
+	 * @var Service_Container
+	 */
+	private $container;
+
+	/**
 	 * Get the singleton instance
 	 *
 	 * @return Bootstrap
@@ -67,9 +74,9 @@ class Bootstrap {
 	 * Initialize security headers
 	 */
 	private function init_security_headers(): void {
-		// Don't add security headers hook in testing environments
+		// Don't add security headers hook in testing environments.
 		if ( defined( 'WP_TESTS_DIR' ) || defined( 'WP_PHPUNIT__TEST' ) ||
-			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( $_SERVER['SCRIPT_NAME'] ?? '', 'phpunit' ) !== false ) ) {
+			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ), 'phpunit' ) !== false ) ) {
 			return;
 		}
 
@@ -82,11 +89,11 @@ class Bootstrap {
 	 * @return void
 	 */
 	public function add_security_headers(): void {
-		// Don't send headers in testing environments, CLI, or if headers already sent
+		// Don't send headers in testing environments, CLI, or if headers already sent.
 		if ( headers_sent() ||
 			defined( 'WP_TESTS_DIR' ) ||
 			defined( 'WP_PHPUNIT__TEST' ) ||
-			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( $_SERVER['SCRIPT_NAME'] ?? '', 'phpunit' ) !== false ) ||
+			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ), 'phpunit' ) !== false ) ||
 			( php_sapi_name() === 'cli' ) ||
 			! isset( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
@@ -109,15 +116,92 @@ class Bootstrap {
 	}
 
 	/**
+	 * Get theme version safely
+	 *
+	 * @return string Theme version or fallback
+	 */
+	private function get_theme_version_safely(): string {
+		// Check if WordPress functions are available.
+		if ( ! function_exists( 'wp_get_theme' ) ) {
+			return '1.0.0';
+		}
+
+		// Get theme instance safely.
+		$theme = wp_get_theme();
+		if ( ! $theme->exists() ) {
+			return '1.0.0';
+		}
+
+		// Get version safely.
+		$version = $theme->get( 'Version' );
+		return $version ? $version : '1.0.0';
+	}
+
+	/**
 	 * Constructor
 	 */
 	private function __construct() {
+		$this->container = new Service_Container();
+		$this->register_services();
+		$this->initialize_services();
+	}
+
+	/**
+	 * Register all services in the container
+	 *
+	 * @return void
+	 */
+	private function register_services(): void {
+		$this->version = $this->get_theme_version_safely();
+
+		// Register core services.
+		$this->container->register( 'theme_support', fn() => new Core\Theme_Support() );
+		$this->container->register( 'image_sizes', fn() => new Core\Image_Sizes() );
+		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
+		$this->container->register( 'webp_support', fn() => new Core\WebP_Support() );
+		$this->container->register( 'webp_queue_manager', fn() => new Core\WebP_Queue_Manager() );
+		$this->container->register( 'webp_converter', fn() => new Core\WebP_Converter() );
+		$this->container->register(
+			'webp_on_demand',
+			fn() => new Core\WebP_On_Demand(
+				$this->container->get( 'webp_queue_manager' ),
+				$this->container->get( 'webp_converter' )
+			)
+		);
+		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
+
+		// Register asset services.
+		$this->container->register( 'styles', fn() => new Assets\Styles( $this->version ) );
+		$this->container->register( 'scripts', fn() => new Assets\Scripts( $this->version ) );
+
+		// Register WooCommerce services (conditionally).
+		if ( class_exists( 'WooCommerce' ) ) {
+			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
+			$this->container->register( 'product_loop', fn() => new WooCommerce\Product_Loop( 3, 12 ) );
+			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
+			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
+		}
+	}
+
+	/**
+	 * Initialize all registered services
+	 *
+	 * @return void
+	 */
+	private function initialize_services(): void {
 		$this->load_development_stubs();
 		$this->init_security_headers();
-		$this->version = wp_get_theme()->get( 'Version' );
-		$this->init_core();
-		$this->init_assets();
-		$this->init_woocommerce();
+
+		// Initialize core components.
+		$this->init_core_components();
+
+		// Initialize assets.
+		$this->init_asset_components();
+
+		// Initialize WooCommerce if available.
+		$this->init_woocommerce_components();
+
+		// Initialize hooks.
 		$this->init_hooks();
 	}
 
@@ -126,29 +210,13 @@ class Bootstrap {
 	 *
 	 * @return void
 	 */
-	private function init_core() {
-		// Theme support.
-		$theme_support = new Core\Theme_Support();
-		$theme_support->init();
-
-		// Image sizes.
-		$image_sizes = new Core\Image_Sizes();
-		$image_sizes->init();
-
-		// Content width.
-		$content_width = new Core\Content_Width( 1200 );
-		$content_width->init();
-
-		// WebP support (serves WebP to browsers).
-		$webp_support = new Core\WebP_Support();
-		$webp_support->init();
-
-		// WebP on-demand conversion (converts when images are viewed).
-		$webp_on_demand = new Core\WebP_On_Demand();
-		$webp_on_demand->init();
-
-		// Block pattern categories.
-		new Core\Block_Categories();
+	private function init_core_components(): void {
+		// Initialize core services using the container.
+		$this->container->get( 'theme_support' )->init();
+		$this->container->get( 'image_sizes' )->init();
+		$this->container->get( 'content_width' )->init();
+		$this->container->get( 'webp_support' )->init();
+		$this->container->get( 'webp_on_demand' )->init();
 
 		// Custom blocks.
 		Blocks\Blocks::init();
@@ -159,18 +227,10 @@ class Bootstrap {
 	 *
 	 * @return void
 	 */
-	private function init_assets() {
-		// Styles.
-		$styles = new Assets\Styles( $this->version );
-		$styles->init();
-
-		// Scripts.
-		$scripts = new Assets\Scripts( $this->version );
-		$scripts->init();
-
-		// Editor assets.
-		$editor_assets = new Assets\Editor_Assets( $this->version );
-		$editor_assets->init();
+	private function init_asset_components(): void {
+		// Initialize asset services using the container.
+		$this->container->get( 'styles' )->init();
+		$this->container->get( 'scripts' )->init();
 	}
 
 	/**
@@ -178,27 +238,17 @@ class Bootstrap {
 	 *
 	 * @return void
 	 */
-	private function init_woocommerce() {
-		// Only initialize if WooCommerce is active.
+	private function init_woocommerce_components(): void {
+		// Only initialize if WooCommerce is active and services are registered.
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
-		// WooCommerce support.
-		$wc_support = new WooCommerce\WooCommerce_Support();
-		$wc_support->init();
-
-		// Product loop.
-		$product_loop = new WooCommerce\Product_Loop( 3, 12 );
-		$product_loop->init();
-
-		// Cart.
-		$cart = new WooCommerce\Cart();
-		$cart->init();
-
-		// Templates.
-		$templates = new WooCommerce\Templates();
-		$templates->init();
+		// Initialize WooCommerce services using the container.
+		$this->container->get( 'wc_support' )->init();
+		$this->container->get( 'product_loop' )->init();
+		$this->container->get( 'cart' )->init();
+		$this->container->get( 'wc_templates' )->init();
 	}
 
 	/**

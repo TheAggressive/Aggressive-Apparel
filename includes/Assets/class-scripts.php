@@ -37,7 +37,14 @@ class Scripts {
 	 * @param string|null $version Theme version. If null, gets from theme data.
 	 */
 	public function __construct( $version = null ) {
-		$this->version = $version ? $version : \wp_get_theme()->get( 'Version' );
+		if ( $version ) {
+			$this->version = $version;
+		} elseif ( function_exists( 'wp_get_theme' ) ) {
+			$theme         = wp_get_theme();
+			$this->version = ! $theme->errors() ? $theme->get( 'Version' ) : '1.0.0';
+		} else {
+			$this->version = '1.0.0';
+		}
 	}
 
 	/**

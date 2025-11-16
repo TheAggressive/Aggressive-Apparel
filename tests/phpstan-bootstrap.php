@@ -41,3 +41,60 @@ if ( ! defined( 'AGGRESSIVE_APPAREL_URI' ) ) {
 if ( ! defined( 'WC_ABSPATH' ) ) {
 	define( 'WC_ABSPATH', ABSPATH . 'wp-content/plugins/woocommerce/' );
 }
+
+// WooCommerce function stub for PHPStan
+if ( ! function_exists( 'WC' ) ) {
+	/**
+	 * WooCommerce function stub
+	 *
+	 * @return mixed
+	 */
+	function WC() {
+		return null;
+	}
+}
+
+// WooCommerce conditional function stubs for PHPStan
+if ( ! function_exists( 'is_cart' ) ) {
+	/**
+	 * Check if current page is cart page
+	 *
+	 * @return bool
+	 */
+	function is_cart() {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'is_checkout' ) ) {
+	/**
+	 * Check if current page is checkout page
+	 *
+	 * @return bool
+	 */
+	function is_checkout() {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'is_account_page' ) ) {
+	/**
+	 * Check if current page is account page
+	 *
+	 * @return bool
+	 */
+	function is_account_page() {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'is_woocommerce' ) ) {
+	/**
+	 * Check if current page is WooCommerce page
+	 *
+	 * @return bool
+	 */
+	function is_woocommerce() {
+		return false;
+	}
+}

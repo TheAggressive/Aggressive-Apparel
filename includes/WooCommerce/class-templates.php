@@ -71,7 +71,8 @@ class Templates {
 		}
 
 		$theme_uri = get_template_directory_uri();
-		$version   = wp_get_theme()->get( 'Version' );
+		$theme     = wp_get_theme();
+		$version   = ! $theme->errors() ? $theme->get( 'Version' ) : '1.0.0';
 
 		wp_enqueue_style(
 			'aggressive-apparel-woocommerce',

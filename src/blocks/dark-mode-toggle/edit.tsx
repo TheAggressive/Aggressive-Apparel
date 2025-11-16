@@ -19,7 +19,7 @@ import { useBlockProps } from '@wordpress/block-editor';
  *
  * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
  */
-import './editor.scss';
+import './editor.css';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -30,9 +30,9 @@ import './editor.scss';
  * @return {Element} Element to render.
  */
 export default function Edit() {
-	return (
-		<p { ...useBlockProps() }>
-			{ __( 'Dark Mode Toggle – hello from the editor!', 'dark-mode-toggle' ) }
-		</p>
-	);
+  return (
+    <p {...useBlockProps()}>
+      {__('Dark Mode Toggle – hello from the editor!', 'dark-mode-toggle')}
+    </p>
+  );
 }

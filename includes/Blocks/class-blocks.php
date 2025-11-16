@@ -31,6 +31,7 @@ class Blocks {
 	 */
 	private const BUILD_DIRS = array(
 		'build/blocks',
+		'build/blocks-interactivity',
 	);
 
 	/**
@@ -78,7 +79,7 @@ class Blocks {
 		} catch ( \Throwable $e ) {
 			// Log error but don't break the site.
 			if ( function_exists( 'error_log' ) ) {
-				error_log( 'Aggressive Apparel Blocks registration error: ' . $e->getMessage() );
+				\error_log( 'Aggressive Apparel Blocks registration error: ' . $e->getMessage() );
 			}
 		}
 	}
@@ -119,7 +120,7 @@ class Blocks {
 	private static function get_block_directories( string $build_dir ): array {
 		$directories = array();
 
-		$items = @scandir( $build_dir );
+		$items = scandir( $build_dir );
 		if ( ! is_array( $items ) ) {
 			return $directories;
 		}
@@ -156,18 +157,13 @@ class Blocks {
 			}
 
 			try {
-				// Include render.php if it exists to make render functions available
-				$render_file = $block_location . '/render.php';
-				if ( file_exists( $render_file ) && is_readable( $render_file ) ) {
-					require_once $render_file;
-				}
-
-				// Register the block using WordPress metadata
+				// Register the block using WordPress metadata.
+				// WordPress will automatically load render.php if it exists.
 				\register_block_type_from_metadata( $block_location );
 			} catch ( \Throwable $e ) {
 				// Log error but continue with other blocks.
 				if ( function_exists( 'error_log' ) ) {
-					error_log(
+					\error_log(
 						'Block registration error for ' . $block_location . ': ' . $e->getMessage()
 					);
 				}

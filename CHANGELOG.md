@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.3.0...v1.4.0) (2025-11-16)
+
+
+### Features
+
+* add screenshot for theme updates documentation ([f6916bc](https://github.com/TheAggressive/Aggressive-Apparel/commit/f6916bce8f2fae9183df1a26be34bafc5291618d))
+
 # [1.3.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.2.0...v1.3.0) (2025-11-16)
 
 

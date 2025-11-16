@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.0...v1.1.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* correct ZIP filename in release upload step ([d312da3](https://github.com/TheAggressive/Aggressive-Apparel/commit/d312da3d7e7d3a20bff74601f18f9a44d34e77f4))
+
 # [1.1.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.0.0...v1.1.0) (2025-11-16)
 
 

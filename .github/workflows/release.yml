@@ -328,7 +328,8 @@ jobs:
       - name: Detect theme directory
         id: detect-theme
         run: |
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'ls -d /var/www/html/wp-content/themes/*aggressive* 2>/dev/null | head -1 | xargs basename' || echo "aggressive-apparel")
+          # Try to find any directory containing 'aggressive' (case insensitive)
+          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
           echo "Detected theme directory: $THEME_DIR"
           echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
 
@@ -392,7 +393,8 @@ jobs:
       - name: Detect theme directory
         id: detect-theme
         run: |
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'ls -d /var/www/html/wp-content/themes/*aggressive* 2>/dev/null | head -1 | xargs basename' || echo "aggressive-apparel")
+          # Try to find any directory containing 'aggressive' (case insensitive)
+          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
           echo "Detected theme directory: $THEME_DIR"
           echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
 
@@ -456,7 +458,8 @@ jobs:
       - name: Detect theme directory
         id: detect-theme
         run: |
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'ls -d /var/www/html/wp-content/themes/*aggressive* 2>/dev/null | head -1 | xargs basename' || echo "aggressive-apparel")
+          # Try to find any directory containing 'aggressive' (case insensitive)
+          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
           echo "Detected theme directory: $THEME_DIR"
           echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
 
@@ -513,7 +516,8 @@ jobs:
       - name: Detect theme directory
         id: detect-theme
         run: |
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'ls -d /var/www/html/wp-content/themes/*aggressive* 2>/dev/null | head -1 | xargs basename' || echo "aggressive-apparel")
+          # Try to find any directory containing 'aggressive' (case insensitive)
+          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
           echo "Detected theme directory: $THEME_DIR"
           echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
 
@@ -570,7 +574,8 @@ jobs:
       - name: Detect theme directory
         id: detect-theme
         run: |
-          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'ls -d /var/www/html/wp-content/themes/*aggressive* 2>/dev/null | head -1 | xargs basename' || echo "aggressive-apparel")
+          # Try to find any directory containing 'aggressive' (case insensitive)
+          THEME_DIR=$(pnpm wp-env run tests-cli -- bash -c 'find /var/www/html/wp-content/themes -maxdepth 1 -type d -iname "*aggressive*" -exec basename {} \; 2>/dev/null | head -1' || echo "aggressive-apparel")
           echo "Detected theme directory: $THEME_DIR"
           echo "theme_dir=$THEME_DIR" >> $GITHUB_OUTPUT
 

@@ -665,22 +665,25 @@ jobs:
         run: |
           echo "📦 Creating theme package..."
 
+          # Use lowercase name for WordPress theme directory inside ZIP
+          THEME_SLUG_LOWER=$(echo "${{ env.THEME_SLUG }}" | tr '[:upper:]' '[:lower:]')
+
           # Create temp directory for packaging
           TEMP_DIR="${{ env.THEME_SLUG }}-temp"
-          mkdir -p "../${TEMP_DIR}/${{ env.THEME_SLUG }}"
+          mkdir -p "../${TEMP_DIR}/${THEME_SLUG_LOWER}"
 
-          # Copy all files to temp directory
-          cp -r * "../${TEMP_DIR}/${{ env.THEME_SLUG }}/"
+          # Copy all files to temp directory with lowercase directory name
+          cp -r * "../${TEMP_DIR}/${THEME_SLUG_LOWER}/"
 
           # Create zip from temp directory
           cd "../${TEMP_DIR}"
-          zip -r "${{ env.THEME_SLUG }}.zip" "${{ env.THEME_SLUG }}" \
+          zip -r "${THEME_SLUG_LOWER}.zip" "${THEME_SLUG_LOWER}" \
             -x "**/.git/*" \
             -x "**/.DS_Store" \
             -x "**/Thumbs.db"
 
           # Move zip back to original directory
-          mv "${{ env.THEME_SLUG }}.zip" "../${{ env.THEME_SLUG }}/"
+          mv "${THEME_SLUG_LOWER}.zip" "../${{ env.THEME_SLUG }}/"
 
           # Clean up temp directory
           cd ..
@@ -689,7 +692,7 @@ jobs:
           # Return to theme directory
           cd ${{ env.THEME_SLUG }}
 
-          echo "✅ Package created: $(ls -lh ${{ env.THEME_SLUG }}.zip)"
+          echo "✅ Package created: $(ls -lh ${THEME_SLUG_LOWER}.zip)"
 
       - name: Upload theme package
         uses: actions/upload-artifact@v4
@@ -743,7 +746,8 @@ jobs:
       - name: Verify package exists
         run: |
           echo "📦 Verifying package..."
-          ls -lh ${{ env.THEME_SLUG }}.zip
+          THEME_SLUG_LOWER=$(echo "${{ env.THEME_SLUG }}" | tr '[:upper:]' '[:lower:]')
+          ls -lh ${THEME_SLUG_LOWER}.zip
           echo "✅ Package verified"
 
       - name: Semantic Release

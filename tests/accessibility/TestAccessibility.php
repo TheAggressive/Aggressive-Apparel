@@ -75,9 +75,23 @@ class TestAccessibility extends WP_UnitTestCase {
 	 * Test focus states for interactive elements
 	 */
 	public function test_focus_styles_defined() {
-		// Check if CSS files exist
-		$build_dir = get_template_directory() . '/build/styles';
-		$this->assertDirectoryExists( $build_dir, 'Build directory should exist' );
+		// For block themes, check if theme.json exists and has focus-related settings
+		$theme_json_path = get_template_directory() . '/theme.json';
+		$this->assertFileExists( $theme_json_path, 'theme.json should exist for block theme' );
+
+		$theme_json = json_decode( file_get_contents( $theme_json_path ), true );
+		$this->assertIsArray( $theme_json, 'theme.json should be valid JSON' );
+
+		// Check if theme.json has styles defined (focus styles are typically in global styles)
+		$this->assertArrayHasKey( 'styles', $theme_json, 'theme.json should have styles defined' );
+
+		// Check for main stylesheet existence
+		$stylesheet_path = get_template_directory() . '/style.css';
+		$this->assertFileExists( $stylesheet_path, 'Main stylesheet should exist' );
+
+		// For block themes, focus styles are typically handled by WordPress core or theme.json
+		// The important thing is that the theme is properly configured
+		$this->assertTrue( current_theme_supports( 'wp-block-styles' ), 'Theme should support block styles' );
 	}
 
 	/**

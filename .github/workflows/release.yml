@@ -757,23 +757,6 @@ jobs:
           echo "🚀 Running semantic release..."
           pnpm semantic-release
 
-      - name: Upload versioned theme zip
-        if: success()
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-
-          echo "📦 Renaming zip to version v${VERSION}..."
-          mv "aggressive-apparel.zip" "aggressive-apparel-${VERSION}.zip"
-
-          echo "📤 Uploading to GitHub release v${VERSION}..."
-          gh release upload "v${VERSION}" "aggressive-apparel-${VERSION}.zip" --clobber
-
-          echo "✅ Release v${VERSION} complete with versioned theme zip!"
-          ls -lh "aggressive-apparel-${VERSION}.zip"
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # ============================================================================
   # Summary
   # ============================================================================

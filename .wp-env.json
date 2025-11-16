@@ -18,8 +18,5 @@
       "port": 9920,
       "phpmyadminPort": 9922
     }
-  },
-  "lifecycleScripts": {
-    "afterStart": "wp-env run cli wp theme activate aggressive-apparel"
   }
 }

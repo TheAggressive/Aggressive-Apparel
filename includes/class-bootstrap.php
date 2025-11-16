@@ -33,13 +33,6 @@ class Bootstrap {
 	private static $instance = null;
 
 	/**
-	 * Theme version
-	 *
-	 * @var string
-	 */
-	private $version;
-
-	/**
 	 * Service container for dependency management
 	 *
 	 * @var Service_Container
@@ -116,28 +109,6 @@ class Bootstrap {
 	}
 
 	/**
-	 * Get theme version safely
-	 *
-	 * @return string Theme version or fallback
-	 */
-	private function get_theme_version_safely(): string {
-		// Check if WordPress functions are available.
-		if ( ! function_exists( 'wp_get_theme' ) ) {
-			return '1.0.0';
-		}
-
-		// Get theme instance safely.
-		$theme = wp_get_theme();
-		if ( ! $theme->exists() ) {
-			return '1.0.0';
-		}
-
-		// Get version safely.
-		$version = $theme->get( 'Version' );
-		return $version ? $version : '1.0.0';
-	}
-
-	/**
 	 * Constructor
 	 */
 	private function __construct() {
@@ -152,8 +123,6 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function register_services(): void {
-		$this->version = $this->get_theme_version_safely();
-
 		// Register core services.
 		$this->container->register( 'theme_support', fn() => new Core\Theme_Support() );
 		$this->container->register( 'image_sizes', fn() => new Core\Image_Sizes() );
@@ -171,8 +140,8 @@ class Bootstrap {
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 
 		// Register asset services.
-		$this->container->register( 'styles', fn() => new Assets\Styles( $this->version ) );
-		$this->container->register( 'scripts', fn() => new Assets\Scripts( $this->version ) );
+		$this->container->register( 'styles', fn() => new Assets\Styles() );
+		$this->container->register( 'scripts', fn() => new Assets\Scripts() );
 
 		// Register WooCommerce services (conditionally).
 		if ( class_exists( 'WooCommerce' ) ) {

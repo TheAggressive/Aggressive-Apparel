@@ -25,29 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Scripts {
 
 	/**
-	 * Theme version
-	 *
-	 * @var string
-	 */
-	private $version;
-
-	/**
-	 * Constructor
-	 *
-	 * @param string|null $version Theme version. If null, gets from theme data.
-	 */
-	public function __construct( $version = null ) {
-		if ( $version ) {
-			$this->version = $version;
-		} elseif ( function_exists( 'wp_get_theme' ) ) {
-			$theme         = wp_get_theme();
-			$this->version = ! $theme->errors() ? $theme->get( 'Version' ) : '1.0.0';
-		} else {
-			$this->version = '1.0.0';
-		}
-	}
-
-	/**
 	 * Initialize scripts
 	 *
 	 * @return void
@@ -62,36 +39,25 @@ class Scripts {
 	 * @return void
 	 */
 	public function enqueue_scripts() {
-		$theme_uri = \get_template_directory_uri();
-
 		// Main theme script.
-		wp_enqueue_script(
+		Asset_Loader::enqueue_script(
 			'aggressive-apparel-main',
-			$theme_uri . '/build/scripts/main.js',
-			array(),
-			$this->version,
-			true
+			'build/scripts/main'
 		);
 
 		// Navigation script (conditional).
 		if ( \has_nav_menu( 'primary' ) ) {
-			wp_enqueue_script(
+			Asset_Loader::enqueue_script(
 				'aggressive-apparel-navigation',
-				$theme_uri . '/build/scripts/navigation.js',
-				array(),
-				$this->version,
-				true
+				'build/scripts/navigation'
 			);
 		}
 
 		// Product script (conditional).
 		if ( \is_singular( 'product' ) ) {
-			wp_enqueue_script(
+			Asset_Loader::enqueue_script(
 				'aggressive-apparel-product',
-				$theme_uri . '/build/scripts/product.js',
-				array(),
-				$this->version,
-				true
+				'build/scripts/product'
 			);
 		}
 

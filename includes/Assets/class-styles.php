@@ -25,29 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Styles {
 
 	/**
-	 * Theme version
-	 *
-	 * @var string
-	 */
-	private $version;
-
-	/**
-	 * Constructor
-	 *
-	 * @param string $version Theme version.
-	 */
-	public function __construct( $version = null ) {
-		if ( $version ) {
-			$this->version = $version;
-		} elseif ( function_exists( 'wp_get_theme' ) ) {
-			$theme         = wp_get_theme();
-			$this->version = ! $theme->errors() ? $theme->get( 'Version' ) : '1.0.0';
-		} else {
-			$this->version = '1.0.0';
-		}
-	}
-
-	/**
 	 * Initialize styles
 	 *
 	 * @return void
@@ -63,35 +40,26 @@ class Styles {
 	 * @return void
 	 */
 	public function enqueue_styles() {
-		$theme_uri = get_template_directory_uri();
-
 		// Main theme stylesheet.
-		wp_enqueue_style(
+		Asset_Loader::enqueue_style(
 			'aggressive-apparel-main',
-			$theme_uri . '/build/styles/main.css',
-			array(),
-			$this->version,
-			'all'
+			'build/styles/main'
 		);
 
 		// Navigation styles (conditional).
 		if ( has_nav_menu( 'primary' ) ) {
-			wp_enqueue_style(
+			Asset_Loader::enqueue_style(
 				'aggressive-apparel-navigation',
-				$theme_uri . '/build/styles/navigation.css',
-				array( 'aggressive-apparel-main' ),
-				$this->version,
-				'all'
+				'build/styles/navigation',
+				array( 'aggressive-apparel-main' )
 			);
 		}
 
 		// Block styles.
-		wp_enqueue_style(
+		Asset_Loader::enqueue_style(
 			'aggressive-apparel-blocks',
-			$theme_uri . '/build/styles/blocks.css',
-			array( 'aggressive-apparel-main' ),
-			$this->version,
-			'all'
+			'build/styles/blocks',
+			array( 'aggressive-apparel-main' )
 		);
 
 		/**
@@ -108,24 +76,17 @@ class Styles {
 	 * @return void
 	 */
 	public function enqueue_block_assets() {
-		$theme_uri = get_template_directory_uri();
-
 		// Main theme stylesheet for editor context.
-		wp_enqueue_style(
+		Asset_Loader::enqueue_style(
 			'aggressive-apparel-main',
-			$theme_uri . '/build/styles/main.css',
-			array(),
-			$this->version,
-			'all'
+			'build/styles/main'
 		);
 
 		// Block styles for editor context.
-		wp_enqueue_style(
+		Asset_Loader::enqueue_style(
 			'aggressive-apparel-blocks',
-			$theme_uri . '/build/styles/blocks.css',
-			array( 'aggressive-apparel-main' ),
-			$this->version,
-			'all'
+			'build/styles/blocks',
+			array( 'aggressive-apparel-main' )
 		);
 
 		/**

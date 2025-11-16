@@ -17,15 +17,7 @@
       }
     ],
     [
-      "@semantic-release/github",
-      {
-        "assets": [
-          {
-            "path": "aggressive-apparel.zip",
-            "label": "Theme Archive"
-          }
-        ]
-      }
+      "@semantic-release/github"
     ]
   ]
 }

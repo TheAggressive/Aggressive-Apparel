@@ -754,7 +754,7 @@ jobs:
           echo "🚀 Running semantic release..."
           pnpm semantic-release
 
-      - name: Rename and upload theme zip
+      - name: Upload versioned theme zip
         if: success()
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -762,10 +762,10 @@ jobs:
           echo "📦 Renaming zip to version v${VERSION}..."
           mv "${{ env.THEME_SLUG }}.zip" "${{ env.THEME_SLUG }}-${VERSION}.zip"
 
-          echo "📤 Uploading to GitHub release..."
+          echo "📤 Uploading to GitHub release v${VERSION}..."
           gh release upload "v${VERSION}" "${{ env.THEME_SLUG }}-${VERSION}.zip" --clobber
 
-          echo "✅ Release v${VERSION} complete with theme zip!"
+          echo "✅ Release v${VERSION} complete with versioned theme zip!"
           ls -lh "${{ env.THEME_SLUG }}-${VERSION}.zip"
 
         env:

@@ -27,8 +27,8 @@
       {
         "assets": [
           {
-            "path": "aggressive-apparel-${nextRelease.version}.zip",
-            "label": "Aggressive Apparel Theme v${nextRelease.version}"
+            "path": "aggressive-apparel-*.zip",
+            "label": "Aggressive Apparel Theme"
           }
         ]
       }

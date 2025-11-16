@@ -58,7 +58,8 @@
     "test:any": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -lc 'export XDEBUG_MODE=off; ./vendor/bin/phpunit'",
     "phpstan": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --memory-limit=2G --verbose'",
     "analyse:php": "pnpm run phpstan",
-    "analyse:php:baseline": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --generate-baseline --memory-limit=2G'"
+    "analyse:php:baseline": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --generate-baseline --memory-limit=2G'",
+    "qa": "pnpm run test && pnpm run lint:all"
   },
   "repository": {
     "type": "git",

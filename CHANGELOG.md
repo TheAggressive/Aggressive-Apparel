@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.3...v1.1.4) (2025-11-16)
+
+
+### Bug Fixes
+
+* add comprehensive logging to semantic-release exec plugin ([41f6d96](https://github.com/TheAggressive/Aggressive-Apparel/commit/41f6d966ea5038df397a49b81e11330fa4751e80))
+
 ## [1.1.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.2...v1.1.3) (2025-11-16)
 
 

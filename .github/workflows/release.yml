@@ -692,13 +692,13 @@ jobs:
           # Return to theme directory
           cd ${{ env.THEME_SLUG }}
 
-          echo "✅ Package created: $(ls -lh ${THEME_SLUG_LOWER}.zip)"
+          echo "✅ Package created: $(ls -lh aggressive-apparel.zip)"
 
       - name: Upload theme package
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.THEME_SLUG }}-package
-          path: ${{ env.THEME_SLUG }}.zip
+          path: aggressive-apparel.zip
           retention-days: 30
 
   # ============================================================================
@@ -746,8 +746,7 @@ jobs:
       - name: Verify package exists
         run: |
           echo "📦 Verifying package..."
-          THEME_SLUG_LOWER=$(echo "${{ env.THEME_SLUG }}" | tr '[:upper:]' '[:lower:]')
-          ls -lh ${THEME_SLUG_LOWER}.zip
+          ls -lh aggressive-apparel.zip
           echo "✅ Package verified"
 
       - name: Semantic Release

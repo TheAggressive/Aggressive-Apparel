@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.2.0...v1.3.0) (2025-11-16)
+
+
+### Features
+
+* register and initialize theme updates in Bootstrap class ([e03ef57](https://github.com/TheAggressive/Aggressive-Apparel/commit/e03ef57accfcb5cd0c1286937b16c75b63db8d3e))
+
 # [1.2.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.5...v1.2.0) (2025-11-16)
 
 

@@ -52,9 +52,12 @@ class Product_Loop {
 	/**
 	 * Initialize product loop customizations
 	 *
+	 * Registers filters regardless of WooCommerce status for theme flexibility.
+	 *
 	 * @return void
 	 */
 	public function init() {
+		// Register filters regardless of WooCommerce status for theme flexibility.
 		add_filter( 'loop_shop_columns', array( $this, 'set_loop_columns' ), 10 );
 		add_filter( 'loop_shop_per_page', array( $this, 'set_products_per_page' ), 20 );
 	}

@@ -76,8 +76,8 @@ function _aggressive_apparel_manually_load_environment() {
 		}
 	}
 }
-
 tests_add_filter( 'muplugins_loaded', '_aggressive_apparel_manually_load_environment' );
 
 // Start up the WP testing environment
 require $_tests_dir . '/includes/bootstrap.php';
+

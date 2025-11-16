@@ -143,10 +143,12 @@ class Bootstrap {
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
 		$this->container->register( 'scripts', fn() => new Assets\Scripts() );
 
+		// Register product loop (always available for theme flexibility).
+		$this->container->register( 'product_loop', fn() => new WooCommerce\Product_Loop( 3, 12 ) );
+
 		// Register WooCommerce services (conditionally).
 		if ( class_exists( 'WooCommerce' ) ) {
 			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
-			$this->container->register( 'product_loop', fn() => new WooCommerce\Product_Loop( 3, 12 ) );
 			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
 			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
 		}
@@ -186,7 +188,6 @@ class Bootstrap {
 		$this->container->get( 'content_width' )->init();
 		$this->container->get( 'webp_support' )->init();
 		$this->container->get( 'webp_on_demand' )->init();
-
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}
@@ -208,16 +209,24 @@ class Bootstrap {
 	 * @return void
 	 */
 	private function init_woocommerce_components(): void {
-		// Only initialize if WooCommerce is active and services are registered.
+		// Always initialize product loop for theme flexibility.
+		$this->container->get( 'product_loop' )->init();
+
+		// Only initialize other WooCommerce services if WooCommerce is active.
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
-		// Initialize WooCommerce services using the container.
-		$this->container->get( 'wc_support' )->init();
-		$this->container->get( 'product_loop' )->init();
-		$this->container->get( 'cart' )->init();
-		$this->container->get( 'wc_templates' )->init();
+		// Initialize WooCommerce-specific services.
+		if ( $this->container->has( 'wc_support' ) ) {
+			$this->container->get( 'wc_support' )->init();
+		}
+		if ( $this->container->has( 'cart' ) ) {
+			$this->container->get( 'cart' )->init();
+		}
+		if ( $this->container->has( 'wc_templates' ) ) {
+			$this->container->get( 'wc_templates' )->init();
+		}
 	}
 
 	/**

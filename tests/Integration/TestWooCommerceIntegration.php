@@ -37,6 +37,9 @@ class TestWooCommerceIntegration extends WP_UnitTestCase {
 
 		$this->woocommerce_support = new WooCommerce_Support();
 		$this->product_loop        = new Product_Loop();
+
+		// Initialize product loop to register filters
+		$this->product_loop->init();
 	}
 
 	/**

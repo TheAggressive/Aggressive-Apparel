@@ -3,42 +3,42 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
 	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
-	beStrictAboutCoversAnnotation="true"
-	beStrictAboutOutputDuringTests="true"
-	beStrictAboutTodoAnnotatedTests="true"
+	backupglobals="false"
+	bestrictaboutcoversannotation="true"
+	bestrictaboutoutputduringtests="true"
+	bestrictabouttodoannotatedtests="true"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	failOnRisky="true"
-	failOnWarning="true"
+	converterrorstoexceptions="true"
+	convertnoticestoexceptions="true"
+	convertwarningstoexceptions="true"
+	failonrisky="true"
+	failonwarning="true"
 	verbose="false"
 >
 	<testsuites>
 		<testsuite name="unit">
-			<directory suffix=".php">tests/unit</directory>
+			<directory suffix=".php">tests/Unit</directory>
 		</testsuite>
 		<testsuite name="integration">
-			<directory suffix=".php">tests/integration</directory>
+			<directory suffix=".php">tests/Integration</directory>
 		</testsuite>
 		<testsuite name="security">
-			<directory suffix=".php">tests/security</directory>
+			<directory suffix=".php">tests/Security</directory>
 		</testsuite>
 		<testsuite name="accessibility">
-			<directory suffix=".php">tests/accessibility</directory>
+			<directory suffix=".php">tests/Accessibility</directory>
 		</testsuite>
 		<testsuite name="performance">
-			<directory suffix=".php">tests/performance</directory>
+			<directory suffix=".php">tests/Performance</directory>
 		</testsuite>
 	</testsuites>
 
 	<coverage
-		includeUncoveredFiles="true"
-		processUncoveredFiles="true"
-		pathCoverage="false"
-		ignoreDeprecatedCodeUnits="true"
-		disableCodeCoverageIgnore="true"
+		includeuncoveredfiles="true"
+		processuncoveredfiles="true"
+		pathcoverage="false"
+		ignoredeprecatedcodeunits="true"
+		disablecodecoverageignore="true"
 	>
 		<include>
 			<directory suffix=".php">includes</directory>
@@ -53,17 +53,17 @@
 		<ini name="error_reporting" value="-1" />
 		<ini name="memory_limit" value="-1" />
 
-		<!-- WordPress test environment variables -->
+		<!-- wordpress test environment variables -->
 		<env name="WP_TESTS_DOMAIN" value="localhost" />
 		<env name="WP_TESTS_EMAIL" value="admin@example.org" />
 		<env name="WP_TESTS_TITLE" value="Test Blog" />
 		<env name="WP_PHP_BINARY" value="php" />
 		<env name="WPLANG" value="" />
 
-		<!-- Set to true to skip database creation/installation -->
+		<!-- set to true to skip database creation/installation -->
 		<env name="WP_TESTS_SKIP_INSTALL" value="false" />
 
-		<!-- Theme directory name -->
+		<!-- theme directory name -->
 		<const name="WP_TESTS_THEME" value="aggressive-apparel" />
 	</php>
 

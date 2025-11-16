@@ -9,6 +9,7 @@
 **/*.md
 **/*.yml
 **/*.yaml
+*.dist
 
 # Also ignore common directories
 node_modules/

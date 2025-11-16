@@ -7,7 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "echo 'Preparing release ${nextRelease.version}' && ls -la && mv 'aggressive-apparel.zip' 'aggressive-apparel-${nextRelease.version}.zip' && echo 'File renamed successfully' && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' style.css && npm version ${nextRelease.version} --no-git-tag-version"
+        "prepareCmd": "echo '=== Preparing release ${nextRelease.version} ===' && pwd && ls -la *.zip 2>/dev/null || echo 'No ZIP files found' && if [ -f 'aggressive-apparel.zip' ]; then echo 'Found ZIP file, renaming...' && mv 'aggressive-apparel.zip' 'aggressive-apparel-${nextRelease.version}.zip' && echo '✅ File renamed successfully'; else echo '❌ ZIP file not found'; ls -la; fi && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' style.css && npm version ${nextRelease.version} --no-git-tag-version"
       }
     ],
     [

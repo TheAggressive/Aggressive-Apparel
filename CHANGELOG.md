@@ -1,3 +1,14 @@
+## [1.1.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.2...v1.1.3) (2025-11-16)
+
+
+### Bug Fixes
+
+* add npm plugin and style.css version update to semantic-release ([aaecf2d](https://github.com/TheAggressive/Aggressive-Apparel/commit/aaecf2d27c8466fa31e3c1dbdc861b9352a54933))
+* remove npm plugin from semantic-release for theme compatibility ([d2ca7ea](https://github.com/TheAggressive/Aggressive-Apparel/commit/d2ca7ead873b767e6b30824d7ccf85d2dec1157b))
+* standardize resolution formatting in pnpm-lock.yaml ([a3c87a0](https://github.com/TheAggressive/Aggressive-Apparel/commit/a3c87a0ca7eca7303ff53b1eeeedd9201f61c0f0))
+* update pnpm-lock.yaml for consistent resolution formatting ([690fe76](https://github.com/TheAggressive/Aggressive-Apparel/commit/690fe76c99058faf25cbdb4b27f362a58cc4c99f))
+* update semantic-release/github dependency and clean up pnpm-lock.yaml ([614c381](https://github.com/TheAggressive/Aggressive-Apparel/commit/614c3811ae88f8b610e34e5dfe15ab2a52b198c6))
+
 ## [1.1.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.1.1...v1.1.2) (2025-11-16)
 
 

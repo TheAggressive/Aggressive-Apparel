@@ -172,7 +172,6 @@ class TestPerformance extends WP_UnitTestCase {
 		// Test basic theme class loading (avoid triggering WooCommerce template conflicts)
 		$bootstrap     = \Aggressive_Apparel\Bootstrap::get_instance();
 		$theme_support = new \Aggressive_Apparel\Core\Theme_Support();
-		$webp_support  = new \Aggressive_Apparel\Core\WebP_Support();
 
 		$memory_after   = memory_get_usage();
 		$memory_used_mb = ( $memory_after - $memory_before ) / 1024 / 1024;

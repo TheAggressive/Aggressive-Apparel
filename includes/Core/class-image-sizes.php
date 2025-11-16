@@ -32,7 +32,6 @@ class Image_Sizes {
 	public function init() {
 		add_action( 'after_setup_theme', array( $this, 'register_image_sizes' ), 11 );
 		add_filter( 'image_size_names_choose', array( $this, 'add_custom_sizes_to_media_library' ) );
-		add_filter( 'wp_upload_image_mime_transforms', array( $this, 'enable_webp_conversion' ) );
 	}
 
 	/**
@@ -83,32 +82,5 @@ class Image_Sizes {
 				'aggressive-apparel-blog-thumbnail'    => __( 'Blog Thumbnail', 'aggressive-apparel' ),
 			)
 		);
-	}
-
-	/**
-	 * Enable automatic WebP conversion for uploads
-	 *
-	 * Converts JPEG and PNG images to WebP format on upload for better performance.
-	 * Requires WordPress 6.0+ and GD/Imagick with WebP support.
-	 *
-	 * @param array $transforms Image MIME type transforms.
-	 * @return array Modified transforms.
-	 */
-	public function enable_webp_conversion( $transforms ) {
-		// Only enable if WebP is supported.
-		if ( ! function_exists( 'gd_info' ) ) {
-			return $transforms;
-		}
-
-		$gd_info = gd_info();
-		if ( empty( $gd_info['WebP Support'] ) ) {
-			return $transforms;
-		}
-
-		// Convert JPEG and PNG to WebP on upload.
-		$transforms['image/jpeg'] = array( 'image/webp' );
-		$transforms['image/png']  = array( 'image/webp' );
-
-		return $transforms;
 	}
 }

@@ -84,24 +84,4 @@ class TestWooCommerceIntegration extends WP_UnitTestCase {
 		}
 	}
 
-	/**
-	 * Test WebP system integration with WooCommerce
-	 */
-	public function test_webp_integration_with_woocommerce() {
-		$bootstrap = Bootstrap::get_instance();
-
-		// Verify WebP classes are loaded
-		$this->assertTrue( class_exists( 'Aggressive_Apparel\\Core\\WebP_Support' ) );
-		$this->assertTrue( class_exists( 'Aggressive_Apparel\\Core\\WebP_Utils' ) );
-
-		// Test WebP utility functions
-		$webp_utils = new \Aggressive_Apparel\Core\WebP_Utils();
-
-		// Test basic WebP URL generation
-		$test_url = 'https://example.com/wp-content/uploads/2023/01/test.jpg';
-		$webp_url = $webp_utils->get_webp_url( $test_url );
-
-		// Should return false for non-existent images
-		$this->assertFalse( $webp_url );
-	}
 }

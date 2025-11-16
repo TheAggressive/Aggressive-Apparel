@@ -26,7 +26,7 @@ export default {
     'body-max-line-length': [
       2,
       'always',
-      120,
+      180,
     ],
   },
 };

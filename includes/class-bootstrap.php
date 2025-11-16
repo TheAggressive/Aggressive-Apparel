@@ -127,16 +127,6 @@ class Bootstrap {
 		$this->container->register( 'theme_support', fn() => new Core\Theme_Support() );
 		$this->container->register( 'image_sizes', fn() => new Core\Image_Sizes() );
 		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
-		$this->container->register( 'webp_support', fn() => new Core\WebP_Support() );
-		$this->container->register( 'webp_queue_manager', fn() => new Core\WebP_Queue_Manager() );
-		$this->container->register( 'webp_converter', fn() => new Core\WebP_Converter() );
-		$this->container->register(
-			'webp_on_demand',
-			fn() => new Core\WebP_On_Demand(
-				$this->container->get( 'webp_queue_manager' ),
-				$this->container->get( 'webp_converter' )
-			)
-		);
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 
 		// Register asset services.
@@ -186,8 +176,6 @@ class Bootstrap {
 		$this->container->get( 'theme_support' )->init();
 		$this->container->get( 'image_sizes' )->init();
 		$this->container->get( 'content_width' )->init();
-		$this->container->get( 'webp_support' )->init();
-		$this->container->get( 'webp_on_demand' )->init();
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

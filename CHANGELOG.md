@@ -1,0 +1,36 @@
+# 1.0.0 (2025-11-16)
+
+
+### Bug Fixes
+
+* add PHPCS ignore for exception message escaping ([3380673](https://github.com/TheAggressive/Aggressive-Apparel/commit/3380673683ed51e08760dbd8d998a605462e0a59))
+* add pnpm setup to GitHub Actions workflow ([f1c5789](https://github.com/TheAggressive/Aggressive-Apparel/commit/f1c5789ca87659df031812e11cfe8559a1048ca7))
+* add theme mapping for wp-env tests environment ([abf0438](https://github.com/TheAggressive/Aggressive-Apparel/commit/abf0438614437933acbd9433020a6749e27b1a6d))
+* correct YAML syntax in GitHub Actions workflow ([d14b37f](https://github.com/TheAggressive/Aggressive-Apparel/commit/d14b37f11ba46da6f10a6014fb4c15b2fdf4cc52))
+* create symlink for theme directory in GitHub Actions ([7c0caca](https://github.com/TheAggressive/Aggressive-Apparel/commit/7c0caca982cc801fa34d4e1286bf0f1fc2db9f6a))
+* enhance theme directory detection in CI workflow ([570fe52](https://github.com/TheAggressive/Aggressive-Apparel/commit/570fe52c7def5265f7d631a27eb8bf4945ebfa18))
+* escape block wrapper attributes for security compliance ([2aedd04](https://github.com/TheAggressive/Aggressive-Apparel/commit/2aedd0426f6c7e5332167539e3d7d8ffde7b312c))
+* exclude test files from PHP linting ([dfe5a6f](https://github.com/TheAggressive/Aggressive-Apparel/commit/dfe5a6f40cca2fbffe8efc5bfb644f7dfdb44c59))
+* remove redundant test setup scripts for wp-env compatibility ([a614cd0](https://github.com/TheAggressive/Aggressive-Apparel/commit/a614cd006e39a2ad7086073aec49713fce1c9103))
+* reorder pnpm setup and specify version ([3457676](https://github.com/TheAggressive/Aggressive-Apparel/commit/345767638eae3fead4f2ad671296bc6c84dfdaeb))
+* resolve CSS linting errors and improve configuration ([cb6917e](https://github.com/TheAggressive/Aggressive-Apparel/commit/cb6917e58e540b7345c98d95e5c78ea60e58eb9d))
+* resolve package.json linting issues and optimize qa command ([f00f163](https://github.com/TheAggressive/Aggressive-Apparel/commit/f00f1636d0c1587178f42643721ece2159dc3f8f))
+* resolve test environment issues ([02c518e](https://github.com/TheAggressive/Aggressive-Apparel/commit/02c518e5e2cd78c1ecc59295e3c78d7e711ff63f))
+* resolve wp-env port conflict between environments ([801a802](https://github.com/TheAggressive/Aggressive-Apparel/commit/801a802f2abb3eacc951a346bea649ba463c34e0))
+* resolve wp-env theme activation issue ([44ed85f](https://github.com/TheAggressive/Aggressive-Apparel/commit/44ed85f8152791618014c50a578e427944847655))
+* restore constructor and properties for Product_Loop configuration ([c5ce667](https://github.com/TheAggressive/Aggressive-Apparel/commit/c5ce66764e35654a678d496e2554c18cee18c796))
+* simplify theme directory handling by using GitHub repo name ([519315f](https://github.com/TheAggressive/Aggressive-Apparel/commit/519315f5ea8ce3fdd6afe508e37e5c1b1de84588))
+* standardize port mapping syntax in release workflow ([7662935](https://github.com/TheAggressive/Aggressive-Apparel/commit/7662935cfd71a8ac3171fc4e5c18e85167248cc6))
+* streamline theme directory handling in CI workflow ([b068a1b](https://github.com/TheAggressive/Aggressive-Apparel/commit/b068a1b7234a33debc8654e9819fd6fd8817fd9a))
+* suppress unused parameter warnings in WooCommerce filter methods ([2b9410a](https://github.com/TheAggressive/Aggressive-Apparel/commit/2b9410a1448ff58b4c52c4caad662221434d0fae))
+* update accessibility test for block theme compatibility ([edbf647](https://github.com/TheAggressive/Aggressive-Apparel/commit/edbf6475f7db6219a8cb30d371cfa5cfd197b13e))
+* update Node.js version for semantic-release compatibility ([7b0f844](https://github.com/TheAggressive/Aggressive-Apparel/commit/7b0f8444f1752366dda7bb8858482cb7ae984be3))
+* update Stylelint config ([5ae8a55](https://github.com/TheAggressive/Aggressive-Apparel/commit/5ae8a555a7a208c0d29bccb9f39dcd550983a5ca))
+* update theme directory checks for improved CI visibility ([f8d6d1b](https://github.com/TheAggressive/Aggressive-Apparel/commit/f8d6d1b194c47d8d77de42ecd6cb403d1c72f5a0))
+
+
+### Features
+
+* add qa command for comprehensive local quality assurance ([6579cdc](https://github.com/TheAggressive/Aggressive-Apparel/commit/6579cdce30ffd9b7e4b2dccf56b02dda8797b378))
+* add semantic release configuration and commit conventions ([f17ada0](https://github.com/TheAggressive/Aggressive-Apparel/commit/f17ada0ecd4a380fa2279d8f79de1f72d3069769))
+* configure semantic-release to update WordPress theme version ([df61ebe](https://github.com/TheAggressive/Aggressive-Apparel/commit/df61ebee55b6ba2d5859a0030dee2e997f247f33))

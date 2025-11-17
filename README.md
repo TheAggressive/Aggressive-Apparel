@@ -10,41 +10,40 @@ A modern, high-performance WordPress block theme (Full Site Editing) built speci
 
 - ✅ Full Site Editing (FSE) / Block Theme
 - ✅ WooCommerce Integration
-- ✅ Advanced WebP Image Optimization
+- ✅ GitHub-Based Theme Updates
 - ✅ Security Headers Implementation
 - ✅ Object-Oriented PHP Architecture
 - ✅ PSR-4 Autoloading
 - ✅ Bootstrap Orchestration Pattern
+- ✅ Service Container Pattern
 - ✅ Professional Class Structure
 - ✅ theme.json Configuration
 - ✅ Responsive Design
 - ✅ Performance Optimized
 - ✅ Extensible with Hooks and Filters
 
-## WebP Image Optimization System
+## Theme Update System
 
-This theme includes a comprehensive WebP optimization system for maximum performance:
+This theme includes a robust update system that automatically checks for and installs updates directly from GitHub releases:
 
-### Automatic WebP Conversion
-- **Upload-time conversion**: Images are automatically converted to WebP when uploaded
-- **On-demand conversion**: Images convert to WebP when first viewed (lazy loading)
-- **Browser detection**: Only serves WebP to supporting browsers
-- **Fallback support**: Original images serve as fallbacks
+### GitHub Integration
+- **Automatic updates**: WordPress automatically detects new theme versions
+- **Release assets**: Downloads official theme ZIP files from GitHub releases
+- **Version comparison**: Compares current theme version with latest GitHub release
+- **Secure downloads**: Uses GitHub's official release asset URLs
 
-### Coverage Areas
-- **WordPress images**: All media library images
-- **WooCommerce products**: Product images, galleries, and thumbnails
-- **Content images**: Images within post/page content
-- **Featured images**: Blog post and page featured images
-
-### Performance Features
-- **Memory-safe processing**: Prevents server overload during conversion
-- **Dimension limits**: Skips extremely large images for safety
-- **Caching system**: Converted images are cached for performance
-- **Error handling**: Graceful degradation if conversion fails
+### Update Process
+- **Background checking**: Automatically checks for updates in WordPress admin
+- **One-click updates**: Standard WordPress update process
+- **Package validation**: Ensures downloaded packages are valid theme ZIPs
+- **Rollback safety**: WordPress maintains backup during updates
 
 ### Configuration
-The WebP system is automatically enabled and requires no configuration. Images are converted in the background without impacting page load times.
+The update system is automatically configured and requires no setup:
+- **Repository**: `TheAggressive/Aggressive-Apparel`
+- **Update frequency**: Follows WordPress update schedule
+- **ETag caching**: Reduces API calls for better performance
+- **Error handling**: Graceful failure with clear error messages
 
 ## Security Features
 
@@ -63,16 +62,10 @@ This theme implements comprehensive security measures to protect your WooCommerc
 - **Secure coding**: Follows WordPress security coding standards
 - **Dependency checks**: Safe function existence checks for WooCommerce
 
-### WebP Security
-- **Upload validation**: Only processes legitimate image uploads
-- **Path sanitization**: Prevents directory traversal attacks
-- **Memory limits**: Prevents resource exhaustion during conversion
-- **Error handling**: Graceful failure without exposing sensitive information
-
 ## Requirements
 
 - WordPress 6.0 or higher
-- PHP 8.2 or higher
+- PHP 8.1 or higher
 - WooCommerce 7.0 or higher (recommended)
 
 ## Theme Structure
@@ -82,23 +75,26 @@ aggressive-apparel/
 ├── includes/
 │   ├── class-autoloader.php      # PSR-4 autoloader
 │   ├── class-bootstrap.php       # Main initialization orchestrator
+│   ├── class-service-container.php # Service container for dependency injection
 │   ├── stubs.php                 # Development stubs for IDE support
 │   ├── Core/                     # Core functionality
 │   │   ├── class-theme-support.php     # Theme support registration
-│   │   ├── class-image-sizes.php       # Image size management & WebP
+│   │   ├── class-image-sizes.php       # Image size management
 │   │   ├── class-content-width.php     # Content width setup
-│   │   ├── class-webp-support.php      # WebP image serving
-│   │   ├── class-webp-utils.php        # WebP utility functions
-│   │   └── class-webp-on-demand.php    # On-demand WebP conversion
+│   │   ├── class-theme-updates.php     # GitHub-based theme updates
+│   │   └── class-block-categories.php  # Block category registration
 │   ├── Assets/                   # Asset management
 │   │   ├── class-styles.php            # Frontend styles
 │   │   ├── class-scripts.php           # Frontend scripts
 │   │   └── class-editor-assets.php     # Editor assets
+│   ├── Blocks/                   # Custom block registration
+│   │   └── class-blocks.php            # Block initialization
 │   ├── WooCommerce/              # WooCommerce integration
 │   │   ├── class-woocommerce-support.php  # WC support registration
 │   │   ├── class-product-loop.php        # Product loop modifications
 │   │   ├── class-cart.php               # Cart functionality
 │   │   └── class-templates.php          # WC template overrides
+│   ├── Exceptions/               # Custom exception classes
 │   └── helpers.php               # Helper functions
 ├── parts/                        # Template parts
 ├── patterns/                     # Block patterns
@@ -121,12 +117,21 @@ The central initialization class that orchestrates all theme components:
 - Singleton pattern implementation
 - Component initialization in correct order
 - Development stubs loading (WP_DEBUG mode)
-- Dependency management between components
+- Service container integration
 
 ```php
 // Initialize theme
 Aggressive_Apparel\Bootstrap::get_instance();
 ```
+
+### Service Container
+**File:** `includes/class-service-container.php`
+
+Dependency injection container for managing theme services:
+- Service registration and resolution
+- Singleton and shared service support
+- Lazy loading of components
+- Clean dependency management
 
 ### Autoloader
 **File:** `includes/class-autoloader.php`
@@ -146,9 +151,8 @@ Handles WordPress theme support registration:
 - Responsive embeds and custom background
 
 #### Image Sizes (`includes/Core/class-image-sizes.php`)
-Modern image size management with WebP support:
+Modern image size management:
 - Responsive image sizes (1200x1200 products, 1600x900 blog)
-- Automatic WebP conversion on upload
 - Performance-optimized dimensions
 - WooCommerce product image integration
 
@@ -158,26 +162,18 @@ Responsive content width management:
 - Sidebar-aware width calculations
 - Mobile-responsive adjustments
 
-#### WebP Support (`includes/Core/class-webp-support.php`)
-Advanced WebP image optimization:
-- Browser detection for WebP support
-- Automatic WebP serving for all images
-- WooCommerce product image integration
-- Content image replacement in posts/pages
+#### Theme Updates (`includes/Core/class-theme-updates.php`)
+GitHub-based automatic theme update system:
+- Automatic update checking from GitHub releases
+- Release asset downloading and installation
+- ETag caching for API efficiency
+- WordPress update integration
 
-#### WebP Utils (`includes/Core/class-webp-utils.php`)
-Utility functions for WebP operations:
-- Upload directory path resolution
-- Browser capability detection
-- WebP URL generation and validation
-- Caching and performance optimizations
-
-#### WebP On-Demand (`includes/Core/class-webp-on-demand.php`)
-Background WebP conversion system:
-- Lazy conversion when images are first viewed
-- Memory-safe processing with limits
-- Dimension restrictions for performance
-- Error handling and logging
+#### Block Categories (`includes/Core/class-block-categories.php`)
+Custom block category registration:
+- Organized block categorization
+- Theme-specific block grouping
+- Block editor organization
 
 ### Asset Management
 
@@ -227,6 +223,23 @@ WooCommerce template overrides:
 - Template hook modifications
 - Layout customizations
 
+### Block System
+
+#### Blocks (`includes/Blocks/class-blocks.php`)
+Custom block registration and management:
+- Block initialization and setup
+- Block category integration
+- Block editor support
+
+### Exception Handling
+
+#### Exceptions (`includes/Exceptions/`)
+Custom exception classes for error handling:
+- API-related exceptions
+- Cache operation exceptions
+- Database operation exceptions
+- Validation and input exceptions
+
 ### Development Tools
 
 #### Stubs (`includes/stubs.php`)
@@ -249,7 +262,7 @@ Aggressive_Apparel\Bootstrap::get_instance();
 
 The Bootstrap class automatically:
 - Loads development stubs (in WP_DEBUG mode)
-- Initializes core components (theme support, WebP, etc.)
+- Initializes core components (theme support, theme updates, etc.)
 - Sets up asset management (styles, scripts, editor assets)
 - Configures WooCommerce integration (if active)
 - Registers all hooks and filters in correct order
@@ -264,7 +277,7 @@ $bootstrap = Aggressive_Apparel\Bootstrap::get_instance();
 
 // Access specific components (available after initialization)
 $theme_support = new Aggressive_Apparel\Core\Theme_Support();
-$webp_utils = new Aggressive_Apparel\Core\WebP_Utils();
+$theme_updates = new Aggressive_Apparel\Core\Theme_Updates();
 ```
 
 ### Helper Functions
@@ -478,7 +491,7 @@ composer test:coverage
 - PSR-4 autoloading for class organization
 - Use meaningful variable and function names
 - Document all functions with PHPDoc
-- Use type hinting and return types (PHP 8.2+)
+- Use type hinting and return types (PHP 8.1+)
 - Implement proper error handling and logging
 - Use defensive programming for WooCommerce functions
 
@@ -486,11 +499,11 @@ composer test:coverage
 
 ### Common Issues
 
-#### WebP Images Not Converting
-- **Check GD extension**: Ensure PHP GD extension is installed and WebP support is enabled
-- **Check file permissions**: Upload directory must be writable
-- **Check memory limits**: Large images may need increased PHP memory limit
-- **Debug mode**: Enable `WP_DEBUG` to see conversion errors in logs
+#### Theme Updates Not Working
+- **GitHub access**: Ensure server can access `api.github.com`
+- **Rate limits**: GitHub API has rate limits (60 requests/hour for unauthenticated)
+- **Version format**: Ensure theme version in `style.css` matches GitHub release tag format
+- **Debug logs**: Check WordPress debug.log for update-related errors
 
 #### WooCommerce Functions Not Found
 - **Plugin active**: Ensure WooCommerce plugin is installed and activated
@@ -505,7 +518,7 @@ composer test:coverage
 #### PHPStan Errors in IDE
 - **Stubs loading**: Development stubs are automatically loaded in `WP_DEBUG` mode
 - **PHPStan config**: The theme includes comprehensive PHPStan configuration
-- **Version compatibility**: Ensure PHPStan is configured for PHP 8.2+
+- **Version compatibility**: Ensure PHPStan is configured for PHP 8.1+
 
 ### Development Tips
 

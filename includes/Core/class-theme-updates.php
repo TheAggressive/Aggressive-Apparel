@@ -76,6 +76,8 @@ class Theme_Updates {
 
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );
+		add_filter( 'themes_api', array( $this, 'themes_api' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
 		add_action( 'admin_notices', array( $this, 'admin_update_notice' ) );
 	}
 
@@ -108,12 +110,14 @@ class Theme_Updates {
 				'package'     => $download_url,
 			);
 
-			// Cache the update data for ETag fallback.
+			// Cache the update data and release info for ETag fallback and changelog.
+			$release_data = $this->get_github_release_data();
 			set_transient(
 				'aggressive_apparel_theme_update',
 				array(
 					'version'      => $source_version,
 					'download_url' => $download_url,
+					'release_data' => $release_data,
 					'checked_at'   => time(),
 				),
 				HOUR_IN_SECONDS
@@ -130,43 +134,23 @@ class Theme_Updates {
 	 * @return string|false Version string or false on error.
 	 */
 	private function get_github_version() {
-		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
-		$args = array(
-			'headers' => array(
-				'User-Agent' => $this->repo_owner,
-			),
-		);
-
-		// Add ETag for conditional requests.
-		if ( ! empty( $this->etag ) ) {
-			$args['headers']['If-None-Match'] = $this->etag;
+		// Try to get from cache first.
+		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
+		if ( $cached_data && isset( $cached_data['version'] ) ) {
+			return $cached_data['version'];
 		}
 
-		$response = wp_remote_get( $url, $args );
+		$release_data = $this->get_github_release_data();
 
-		if ( is_wp_error( $response ) ) {
+		if ( ! $release_data ) {
 			return false;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-
-		// Handle conditional requests (not modified).
-		if ( 304 === $code ) {
-			// Return cached data if available.
-			$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-			return $cached_data && isset( $cached_data['version'] ) ? $cached_data['version'] : false;
+		if ( isset( $release_data['tag_name'] ) ) {
+			return ltrim( $release_data['tag_name'], 'v' );
 		}
 
-		// Store new ETag for future requests.
-		$new_etag = wp_remote_retrieve_header( $response, 'etag' );
-		if ( ! empty( $new_etag ) && is_string( $new_etag ) ) {
-			$this->etag = $new_etag;
-			update_option( 'aggressive_apparel_etag', $new_etag );
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		return isset( $body['tag_name'] ) ? ltrim( $body['tag_name'], 'v' ) : false;
+		return false;
 	}
 
 	/**
@@ -176,43 +160,39 @@ class Theme_Updates {
 	 * @return string|false Download URL or false on error.
 	 */
 	private function get_download_url() {
-		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
-		$args = array(
-			'headers' => array(
-				'User-Agent' => $this->repo_owner,
-			),
-		);
-
-		// Add ETag for conditional requests.
-		if ( ! empty( $this->etag ) ) {
-			$args['headers']['If-None-Match'] = $this->etag;
+		// Try to get from cache first.
+		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
+		if ( $cached_data && isset( $cached_data['download_url'] ) ) {
+			return $cached_data['download_url'];
 		}
 
-		$response = wp_remote_get( $url, $args );
+		$release_data = $this->get_github_release_data();
 
-		if ( is_wp_error( $response ) ) {
+		if ( ! $release_data ) {
 			return false;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-
-		// Handle conditional requests (not modified).
-		if ( 304 === $code ) {
-			// Return cached data if available.
-			$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-			return $cached_data && isset( $cached_data['download_url'] ) ? $cached_data['download_url'] : false;
+		// First try to get from assets (uploaded release files).
+		if ( isset( $release_data['assets'][0]['browser_download_url'] ) ) {
+			return $release_data['assets'][0]['browser_download_url'];
 		}
 
-		// Store new ETag for future requests.
-		$new_etag = wp_remote_retrieve_header( $response, 'etag' );
-		if ( ! empty( $new_etag ) && is_string( $new_etag ) ) {
-			$this->etag = $new_etag;
-			update_option( 'aggressive_apparel_etag', $new_etag );
+		// Use direct GitHub archive URL - most compatible with WordPress.
+		if ( isset( $release_data['tag_name'] ) ) {
+			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/archive/{$release_data['tag_name']}.zip";
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		// Fallback to tarball_url (source code download).
+		if ( isset( $release_data['tarball_url'] ) ) {
+			return $release_data['tarball_url'];
+		}
 
-		return isset( $body['assets'][0]['browser_download_url'] ) ? $body['assets'][0]['browser_download_url'] : false;
+		// Last resort: zipball_url.
+		if ( isset( $release_data['zipball_url'] ) ) {
+			return $release_data['zipball_url'];
+		}
+
+		return false;
 	}
 
 	/**
@@ -225,7 +205,8 @@ class Theme_Updates {
 	 * @return string Modified source path.
 	 */
 	public function rename_package( $source, $remote_source, $theme_slug ) {
-		if ( strpos( $remote_source, $this->repo_name ) !== false ) {
+		// Handle GitHub archive URLs (owner/repo/archive/tag.zip).
+		if ( strpos( $remote_source, '/archive/' ) !== false && strpos( $remote_source, $this->repo_name ) !== false ) {
 			$corrected_source = trailingslashit( $theme_slug ) . wp_get_theme()->get_stylesheet();
 
 			// Use WordPress filesystem API for file operations.
@@ -241,6 +222,182 @@ class Theme_Updates {
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Handle pre-download filter to add headers for GitHub URLs
+	 *
+	 * @since 1.0.0
+	 * @param false  $preempt Always false, can be used to short-circuit the request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
+	 * @return array Modified request arguments.
+	 */
+	public function pre_http_request( $preempt, $args, $url ) {
+		// Add User-Agent header for GitHub API requests.
+		if ( strpos( $url, 'api.github.com' ) !== false ) {
+			$args['headers']['User-Agent'] = $this->repo_owner;
+		}
+
+		// Add Accept header for GitHub API.
+		if ( strpos( $url, 'api.github.com' ) !== false ) {
+			$args['headers']['Accept'] = 'application/vnd.github.v3+json';
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Provide theme information for WordPress themes API
+	 *
+	 * @since 1.0.0
+	 * @param false|object|array $result The result object or array. Default false.
+	 * @param string             $action The type of information being requested from the Theme Installation API.
+	 * @param object             $args   Arguments used to query for installer.
+	 * @return false|object|array Modified result with theme information.
+	 */
+	public function themes_api( $result, $action, $args ) {
+		// Only handle theme information requests for our theme.
+		if ( 'theme_information' !== $action || ! isset( $args->slug ) ) {
+			return $result;
+		}
+
+		$theme_slug = wp_get_theme()->get_stylesheet();
+		if ( $args->slug !== $theme_slug ) {
+			return $result;
+		}
+
+		// Fetch release data from GitHub.
+		$release_data = $this->get_github_release_data();
+
+		if ( ! $release_data ) {
+			return $result;
+		}
+
+		// Format the data for WordPress themes API.
+		$theme_info = array(
+			'name'           => wp_get_theme()->get( 'Name' ),
+			'slug'           => $theme_slug,
+			'version'        => ltrim( $release_data['tag_name'], 'v' ),
+			'author'         => wp_get_theme()->get( 'Author' ),
+			'author_profile' => wp_get_theme()->get( 'AuthorURI' ),
+			'contributors'   => array(),
+			'requires'       => wp_get_theme()->get( 'RequiresWP' ) ? wp_get_theme()->get( 'RequiresWP' ) : '5.0',
+			'tested'         => (string) ( wp_get_theme()->get( 'TestedUpTo' ) ? wp_get_theme()->get( 'TestedUpTo' ) : '6.4' ), // @phpstan-ignore ternary.alwaysFalse
+			'requires_php'   => wp_get_theme()->get( 'RequiresPHP' ) ? wp_get_theme()->get( 'RequiresPHP' ) : '7.4',
+			'rating'         => 100,
+			'num_ratings'    => 1,
+			'ratings'        => array(
+				5 => 1,
+			),
+			'downloaded'     => 0,
+			'last_updated'   => $release_data['published_at'],
+			'homepage'       => wp_get_theme()->get( 'ThemeURI' ) ? wp_get_theme()->get( 'ThemeURI' ) : $release_data['html_url'],
+			'sections'       => array(
+				'description' => wp_get_theme()->get( 'Description' ),
+				'changelog'   => $this->format_changelog( $release_data ),
+			),
+			'download_link'  => $release_data['zipball_url'],
+			'tags'           => array(),
+			'screenshots'    => array(),
+		);
+
+		return (object) $theme_info;
+	}
+
+	/**
+	 * Get GitHub release data with caching
+	 *
+	 * @since 1.0.0
+	 * @return array|false Release data or false on error.
+	 */
+	private function get_github_release_data() {
+		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
+		$args = array(
+			'headers' => array(
+				'User-Agent' => $this->repo_owner,
+			),
+		);
+
+		// Add ETag for conditional requests.
+		if ( ! empty( $this->etag ) ) {
+			$args['headers']['If-None-Match'] = $this->etag;
+		}
+
+		$response = wp_remote_get( $url, $args );
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+
+		// Handle conditional requests (not modified).
+		if ( 304 === $code ) {
+			// Return cached data if available.
+			$cached_data = get_transient( 'aggressive_apparel_theme_update' );
+			if ( $cached_data && isset( $cached_data['release_data'] ) ) {
+				return $cached_data['release_data'];
+			}
+			return false;
+		}
+
+		// Store new ETag for future requests.
+		$new_etag = wp_remote_retrieve_header( $response, 'etag' );
+		if ( ! empty( $new_etag ) && is_string( $new_etag ) ) {
+			$this->etag = $new_etag;
+			update_option( 'aggressive_apparel_etag', $new_etag );
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! isset( $body['tag_name'] ) ) {
+			return false;
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Format changelog from GitHub release data
+	 *
+	 * @since 1.0.0
+	 * @param array $release_data GitHub release data.
+	 * @return string Formatted changelog.
+	 */
+	private function format_changelog( array $release_data ): string {
+		$changelog = '';
+
+		// Add version header.
+		$version    = ltrim( $release_data['tag_name'], 'v' );
+		$date       = gmdate( 'F j, Y', strtotime( $release_data['published_at'] ) );
+		$changelog .= "<h4>{$version} - {$date}</h4>\n";
+
+		// Add release body/notes.
+		if ( ! empty( $release_data['body'] ) && is_string( $release_data['body'] ) && null !== $release_data['body'] ) {
+			$changelog .= '<p>' . $this->format_release_body( $release_data['body'] ) . "</p>\n";
+		} else {
+			$changelog .= '<p>No changelog available for this release.</p>';
+		}
+
+		return $changelog;
+	}
+
+	/**
+	 * Format release body markdown to basic HTML.
+	 *
+	 * @since 1.0.0
+	 * @param string $body Release body content.
+	 * @return string Formatted HTML content.
+	 */
+	private function format_release_body( string $body ): string {
+		// Basic markdown to HTML conversion.
+		$body = (string) preg_replace( '/\*\*(.*?)\*\*/', '<strong>$1</strong>', $body );
+		$body = (string) preg_replace( '/\*(.*?)\*/', '<em>$1</em>', $body );
+		$body = (string) preg_replace( '/`(.*?)`/', '<code>$1</code>', $body );
+
+		// Convert line breaks.
+		return (string) nl2br( $body );
 	}
 
 	/**

@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.4.1...v1.5.0) (2025-11-17)
+
+
+### Features
+
+* add admin notice for available theme updates ([208d1ec](https://github.com/TheAggressive/Aggressive-Apparel/commit/208d1ec4533249e8bf71a580547ae7ae0ae432b7))
+
 ## [1.4.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.4.0...v1.4.1) (2025-11-17)
 
 

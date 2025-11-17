@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.5.0...v1.6.0) (2025-11-17)
+
+
+### Features
+
+* enhance theme update functionality ([f6795b8](https://github.com/TheAggressive/Aggressive-Apparel/commit/f6795b807afe39883514daa9a3c58d710cb2108a))
+
 # [1.5.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.4.1...v1.5.0) (2025-11-17)
 
 

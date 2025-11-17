@@ -77,8 +77,26 @@ class Theme_Updates {
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );
 		add_filter( 'themes_api', array( $this, 'themes_api' ), 10, 3 );
-		add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
 		add_action( 'admin_notices', array( $this, 'admin_update_notice' ) );
+		add_action( 'load-update-core.php', array( $this, 'force_fresh_check' ) );
+
+		// Add admin action to clear update cache for debugging.
+		add_action( 'wp_ajax_aggressive_apparel_clear_update_cache', array( $this, 'clear_update_cache' ) );
+	}
+
+	/**
+	 * Force a fresh check when visiting the update core page
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function force_fresh_check(): void {
+		// Clear our theme update cache and ETag when visiting update-core.php.
+		delete_transient( 'aggressive_apparel_theme_update' );
+		delete_option( 'aggressive_apparel_etag' );
+
+		// Force WordPress to refresh theme updates.
+		wp_update_themes();
 	}
 
 	/**
@@ -112,17 +130,22 @@ class Theme_Updates {
 			);
 
 			// Cache the update data and release info for ETag fallback and changelog.
-			$release_data = $this->get_github_release_data();
-			set_transient(
-				'aggressive_apparel_theme_update',
-				array(
-					'version'      => $source_version,
-					'download_url' => $download_url,
-					'release_data' => $release_data,
-					'checked_at'   => time(),
-				),
-				HOUR_IN_SECONDS
-			);
+			// Only cache if we have complete data.
+			if ( $download_url ) {
+				$release_data = $this->get_github_release_data();
+				if ( $release_data ) {
+					set_transient(
+						'aggressive_apparel_theme_update',
+						array(
+							'version'      => $source_version,
+							'download_url' => $download_url,
+							'release_data' => $release_data,
+							'checked_at'   => time(),
+						),
+						HOUR_IN_SECONDS
+					);
+				}
+			}
 		}
 
 		return $transient;
@@ -137,8 +160,11 @@ class Theme_Updates {
 	private function get_github_version() {
 		// Try to get from cache first.
 		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-		if ( $cached_data && isset( $cached_data['version'] ) ) {
-			return $cached_data['version'];
+		if ( $cached_data && isset( $cached_data['version'] ) && isset( $cached_data['checked_at'] ) ) {
+			// Check if cache is still fresh (within 5 minutes for version checks).
+			if ( ( time() - $cached_data['checked_at'] ) < 300 ) {
+				return $cached_data['version'];
+			}
 		}
 
 		$release_data = $this->get_github_release_data();
@@ -170,7 +196,8 @@ class Theme_Updates {
 		$release_data = $this->get_github_release_data();
 
 		if ( ! $release_data ) {
-			return false;
+			// Fallback: Try to construct URL from cached version data.
+			return $this->get_fallback_download_url();
 		}
 
 		// First try to get from assets (uploaded release files) - these are the actual theme ZIP files.
@@ -178,7 +205,19 @@ class Theme_Updates {
 			return $release_data['assets'][0]['browser_download_url'];
 		}
 
-		// Since we prioritize assets and they should always be available, return false if no assets found.
+		// If no assets, use zipball_url as primary fallback (auto-generated ZIP of the repository).
+		// This is guaranteed to exist for any GitHub release.
+		if ( isset( $release_data['zipball_url'] ) ) {
+			return $release_data['zipball_url'];
+		}
+
+		// Final fallback: construct URL based on tag name.
+		// This assumes the release has an asset named like "aggressive-apparel-{version}.zip".
+		if ( isset( $release_data['tag_name'] ) ) {
+			$tag = ltrim( $release_data['tag_name'], 'v' );
+			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
+		}
+
 		return false;
 	}
 
@@ -186,84 +225,63 @@ class Theme_Updates {
 	 * Rename the downloaded folder to match the theme directory name
 	 *
 	 * @since 1.0.0
-	 * @param string $source        Path to the source directory.
-	 * @param string $remote_source Path to the remote source.
-	 * @param string $theme_slug    Theme slug.
+	 * @param string       $source        Path to the source directory.
+	 * @param string       $remote_source Path to the remote source.
+	 * @param \WP_Upgrader $_upgrader     The upgrader instance.
 	 * @return string Modified source path.
 	 */
-	public function rename_package( $source, $remote_source, $theme_slug ) {
-		// Handle GitHub archive URLs (owner/repo/archive/tag.zip).
-		if ( false !== strpos( $remote_source, '/archive/' ) && false !== strpos( $remote_source, $this->repo_name ) ) {
-			$corrected_source = trailingslashit( $theme_slug ) . wp_get_theme()->get_stylesheet();
+	public function rename_package( $source, $remote_source, $_upgrader ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
-			// Use WordPress filesystem API for file operations.
-			global $wp_filesystem;
-			if ( ! $wp_filesystem ) {
-				require_once ABSPATH . '/wp-admin/includes/file.php';
-				WP_Filesystem();
-			}
+		// Extract theme slug from the remote source path.
+		// The path typically looks like: /path/to/upgrade/theme-slug-version/.
+		$path_parts = explode( '/', trim( $remote_source, '/' ) );
+		$filename   = end( $path_parts );
 
-			if ( $wp_filesystem->move( $source, $corrected_source ) ) {
-				return $corrected_source;
-			}
+		// Extract theme slug from filename (remove version suffix).
+		// Format: theme-slug-version or theme-slug.version.
+		$theme_slug = preg_replace( '/-[\d\.]+$/', '', $filename );
+
+		if ( empty( $theme_slug ) ) {
+			return $source;
 		}
 
-		// Handle GitHub release asset URLs (owner/repo/releases/download/tag/filename.zip).
-		if ( false !== strpos( $remote_source, '/releases/download/' ) && false !== strpos( $remote_source, $this->repo_name ) ) {
-			// Asset downloads typically extract to a folder named like "aggressive-apparel-1.6.0".
-			// We need to find the extracted folder and rename it to match the theme slug.
-			global $wp_filesystem;
-			if ( ! $wp_filesystem ) {
-				require_once ABSPATH . '/wp-admin/includes/file.php';
-				WP_Filesystem();
-			}
+		// Check if this is from our GitHub repo.
+		$is_github_source = false !== strpos( $remote_source, $this->repo_owner ) && false !== strpos( $remote_source, $this->repo_name );
 
-			// Get the parent directory where the theme was extracted.
-			$parent_dir = dirname( $source );
+		if ( ! $is_github_source ) {
+			// Not from our repo, return source unchanged.
+			return $source;
+		}
 
-			// Look for folders in the parent directory that match our theme naming pattern.
-			$files = $wp_filesystem->dirlist( $parent_dir );
-			if ( $files ) {
-				foreach ( $files as $file => $fileinfo ) {
-					if ( 'd' === $fileinfo['type'] && 0 === strpos( $file, 'aggressive-apparel' ) ) {
-						// Found a theme folder, rename it to the theme slug.
-						$current_path = trailingslashit( $parent_dir ) . $file;
-						$target_path  = trailingslashit( $parent_dir ) . $theme_slug;
+		// Get the actual theme slug from WordPress to ensure we use the correct one.
+		$actual_theme_slug = wp_get_theme()->get_stylesheet();
 
-						if ( $wp_filesystem->move( $current_path, $target_path ) ) {
-							return trailingslashit( $theme_slug ) . $theme_slug;
-						}
-						break;
-					}
-				}
-			}
+		// Check if the extracted directory name matches the theme slug.
+		$extracted_dir_name = basename( $source );
+
+		// If the directory name matches the theme slug, no renaming needed.
+		if ( $extracted_dir_name === $actual_theme_slug ) {
+			return $source;
+		}
+
+		// Directory name doesn't match, we need to rename it.
+		$parent_dir  = dirname( $source );
+		$target_path = trailingslashit( $parent_dir ) . $actual_theme_slug;
+
+		// Use WordPress filesystem API for file operations.
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		if ( $wp_filesystem->move( $source, $target_path ) ) {
+			return $target_path;
 		}
 
 		return $source;
 	}
 
-	/**
-	 * Handle pre-download filter to add headers for GitHub URLs
-	 *
-	 * @since 1.0.0
-	 * @param false  $_preempt Always false, can be used to short-circuit the request.
-	 * @param array  $args    HTTP request arguments.
-	 * @param string $url     The request URL.
-	 * @return array Modified request arguments.
-	 */
-	public function pre_http_request( $_preempt, $args, $url ) {
-		// Add User-Agent header for GitHub API requests.
-		if ( false !== strpos( $url, 'api.github.com' ) ) {
-			$args['headers']['User-Agent'] = $this->repo_owner;
-		}
-
-		// Add Accept header for GitHub API.
-		if ( false !== strpos( $url, 'api.github.com' ) ) {
-			$args['headers']['Accept'] = 'application/vnd.github.v3+json';
-		}
-
-		return $args;
-	}
 
 	/**
 	 * Provide theme information for WordPress themes API
@@ -334,6 +352,7 @@ class Theme_Updates {
 		$args = array(
 			'headers' => array(
 				'User-Agent' => $this->repo_owner,
+				'Accept'     => 'application/vnd.github.v3+json',
 			),
 		);
 
@@ -357,6 +376,12 @@ class Theme_Updates {
 			if ( $cached_data && isset( $cached_data['release_data'] ) ) {
 				return $cached_data['release_data'];
 			}
+			// Make a fresh request without ETag to get current data.
+			return $this->get_github_release_data_fresh();
+		}
+
+		// Check for error response codes.
+		if ( $code >= 400 ) {
 			return false;
 		}
 
@@ -369,11 +394,111 @@ class Theme_Updates {
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return false;
+		}
+
 		if ( ! isset( $body['tag_name'] ) ) {
 			return false;
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Get fresh GitHub release data without ETag caching
+	 *
+	 * @since 1.8.0
+	 * @return array|false Release data or false on error.
+	 */
+	private function get_github_release_data_fresh() {
+		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
+		$args = array(
+			'headers' => array(
+				'User-Agent' => $this->repo_owner,
+				'Accept'     => 'application/vnd.github.v3+json',
+			),
+			// Don't use ETag for fresh requests.
+		);
+
+		$response = wp_remote_get( $url, $args );
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+
+		// Check for error response codes.
+		if ( $code >= 400 ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return false;
+		}
+
+		if ( ! isset( $body['tag_name'] ) ) {
+			return false;
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Clear the update cache for debugging purposes
+	 *
+	 * @since 1.8.0
+	 * @return void
+	 */
+	public function clear_update_cache(): void {
+		// Verify user has permission.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+
+		// Clear transients and options.
+		delete_transient( 'aggressive_apparel_theme_update' );
+		delete_option( 'aggressive_apparel_etag' );
+		$this->etag = '';
+
+		wp_send_json_success( array( 'message' => 'Update cache cleared successfully' ) );
+	}
+
+	/**
+	 * Get fallback download URL when GitHub API fails
+	 *
+	 * @since 1.8.0
+	 * @return string|false Fallback download URL or false if not available.
+	 */
+	private function get_fallback_download_url() {
+		// Try to get version from cached data first.
+		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
+		if ( $cached_data && isset( $cached_data['version'] ) ) {
+			$version = $cached_data['version'];
+			$tag     = ltrim( $version, 'v' );
+			$url     = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
+
+			return $url;
+		}
+
+		// Last resort: Use the current theme version +1 as fallback.
+		$current_version = wp_get_theme()->get( 'Version' );
+		if ( $current_version ) {
+			// Try to increment the version for potential update.
+			$parts = explode( '.', $current_version );
+			if ( count( $parts ) >= 2 ) {
+				$parts[1]         = (int) $parts[1] + 1; // Increment minor version.
+				$fallback_version = implode( '.', $parts );
+				$url              = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$fallback_version}/aggressive-apparel-{$fallback_version}.zip";
+
+				return $url;
+			}
+		}
+
+		return false;
 	}
 
 	/**

@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.4.0...v1.4.1) (2025-11-17)
+
+
+### Bug Fixes
+
+* initialize theme updates correctly in Bootstrap class ([f69c3bb](https://github.com/TheAggressive/Aggressive-Apparel/commit/f69c3bb76ffc34aa52be7ea9db62dd38d913dd61))
+
 # [1.4.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.3.0...v1.4.0) (2025-11-16)
 
 

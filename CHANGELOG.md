@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.8.0...v1.9.0) (2025-11-17)
+
+
+### Features
+
+* enhance theme update process with fresh checks and fallback mechanisms ([6cc6cf4](https://github.com/TheAggressive/Aggressive-Apparel/commit/6cc6cf4cdd577795dcb33191e884177c68ed0690))
+
 # [1.8.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.7.0...v1.8.0) (2025-11-17)
 
 

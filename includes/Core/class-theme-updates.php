@@ -76,6 +76,7 @@ class Theme_Updates {
 
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );
+		add_action( 'admin_notices', array( $this, 'admin_update_notice' ) );
 	}
 
 	/**
@@ -240,5 +241,54 @@ class Theme_Updates {
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Display admin notice when theme update is available
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function admin_update_notice(): void {
+		$theme_slug = wp_get_theme()->get_stylesheet();
+		$transient  = get_site_transient( 'update_themes' );
+
+		if ( ! isset( $transient->response[ $theme_slug ] ) ) {
+			return;
+		}
+
+		$update_data     = $transient->response[ $theme_slug ];
+		$current_version = wp_get_theme()->get( 'Version' );
+
+		if ( ! current_user_can( 'update_themes' ) ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: 1: theme name, 2: current version, 3: new version */
+			__( 'A new version of %1$s is available. You have version %2$s and the latest version is %3$s.', 'aggressive-apparel' ),
+			'<strong>' . wp_get_theme()->get( 'Name' ) . '</strong>',
+			$current_version,
+			$update_data['new_version']
+		);
+
+		$update_url = wp_nonce_url(
+			admin_url( 'update.php?action=upgrade-theme&theme=' . $theme_slug ),
+			'upgrade-theme_' . $theme_slug
+		);
+
+		printf(
+			'<div class="notice notice-info is-dismissible">
+				<p>%1$s <a href="%2$s">%3$s</a></p>
+			</div>',
+			wp_kses(
+				$message,
+				array(
+					'strong' => array(),
+				)
+			),
+			esc_url( $update_url ),
+			esc_html__( 'Update now', 'aggressive-apparel' )
+		);
 	}
 }

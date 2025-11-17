@@ -177,7 +177,7 @@ class Bootstrap {
 		$this->container->get( 'theme_support' )->init();
 		$this->container->get( 'image_sizes' )->init();
 		$this->container->get( 'content_width' )->init();
-		$this->container->get( 'theme_updates' ); // Initialize theme updates (singleton)
+		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

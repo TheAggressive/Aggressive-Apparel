@@ -102,7 +102,8 @@ class Theme_Updates {
 			if ( ! isset( $transient->response ) ) {
 				$transient->response = array(); // @phpstan-ignore property.notFound
 			}
-			$download_url                       = $this->get_download_url();
+			$download_url = $this->get_download_url();
+
 			$transient->response[ $theme_slug ] = array(
 				'theme'       => $theme_slug,
 				'new_version' => $source_version,
@@ -172,26 +173,12 @@ class Theme_Updates {
 			return false;
 		}
 
-		// First try to get from assets (uploaded release files).
+		// First try to get from assets (uploaded release files) - these are the actual theme ZIP files.
 		if ( isset( $release_data['assets'][0]['browser_download_url'] ) ) {
 			return $release_data['assets'][0]['browser_download_url'];
 		}
 
-		// Use direct GitHub archive URL - most compatible with WordPress.
-		if ( isset( $release_data['tag_name'] ) ) {
-			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/archive/{$release_data['tag_name']}.zip";
-		}
-
-		// Fallback to tarball_url (source code download).
-		if ( isset( $release_data['tarball_url'] ) ) {
-			return $release_data['tarball_url'];
-		}
-
-		// Last resort: zipball_url.
-		if ( isset( $release_data['zipball_url'] ) ) {
-			return $release_data['zipball_url'];
-		}
-
+		// Since we prioritize assets and they should always be available, return false if no assets found.
 		return false;
 	}
 
@@ -206,7 +193,7 @@ class Theme_Updates {
 	 */
 	public function rename_package( $source, $remote_source, $theme_slug ) {
 		// Handle GitHub archive URLs (owner/repo/archive/tag.zip).
-		if ( strpos( $remote_source, '/archive/' ) !== false && strpos( $remote_source, $this->repo_name ) !== false ) {
+		if ( false !== strpos( $remote_source, '/archive/' ) && false !== strpos( $remote_source, $this->repo_name ) ) {
 			$corrected_source = trailingslashit( $theme_slug ) . wp_get_theme()->get_stylesheet();
 
 			// Use WordPress filesystem API for file operations.
@@ -221,6 +208,37 @@ class Theme_Updates {
 			}
 		}
 
+		// Handle GitHub release asset URLs (owner/repo/releases/download/tag/filename.zip).
+		if ( false !== strpos( $remote_source, '/releases/download/' ) && false !== strpos( $remote_source, $this->repo_name ) ) {
+			// Asset downloads typically extract to a folder named like "aggressive-apparel-1.6.0".
+			// We need to find the extracted folder and rename it to match the theme slug.
+			global $wp_filesystem;
+			if ( ! $wp_filesystem ) {
+				require_once ABSPATH . '/wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+
+			// Get the parent directory where the theme was extracted.
+			$parent_dir = dirname( $source );
+
+			// Look for folders in the parent directory that match our theme naming pattern.
+			$files = $wp_filesystem->dirlist( $parent_dir );
+			if ( $files ) {
+				foreach ( $files as $file => $fileinfo ) {
+					if ( 'd' === $fileinfo['type'] && 0 === strpos( $file, 'aggressive-apparel' ) ) {
+						// Found a theme folder, rename it to the theme slug.
+						$current_path = trailingslashit( $parent_dir ) . $file;
+						$target_path  = trailingslashit( $parent_dir ) . $theme_slug;
+
+						if ( $wp_filesystem->move( $current_path, $target_path ) ) {
+							return trailingslashit( $theme_slug ) . $theme_slug;
+						}
+						break;
+					}
+				}
+			}
+		}
+
 		return $source;
 	}
 
@@ -228,19 +246,19 @@ class Theme_Updates {
 	 * Handle pre-download filter to add headers for GitHub URLs
 	 *
 	 * @since 1.0.0
-	 * @param false  $preempt Always false, can be used to short-circuit the request.
+	 * @param false  $_preempt Always false, can be used to short-circuit the request.
 	 * @param array  $args    HTTP request arguments.
 	 * @param string $url     The request URL.
 	 * @return array Modified request arguments.
 	 */
-	public function pre_http_request( $preempt, $args, $url ) {
+	public function pre_http_request( $_preempt, $args, $url ) {
 		// Add User-Agent header for GitHub API requests.
-		if ( strpos( $url, 'api.github.com' ) !== false ) {
+		if ( false !== strpos( $url, 'api.github.com' ) ) {
 			$args['headers']['User-Agent'] = $this->repo_owner;
 		}
 
 		// Add Accept header for GitHub API.
-		if ( strpos( $url, 'api.github.com' ) !== false ) {
+		if ( false !== strpos( $url, 'api.github.com' ) ) {
 			$args['headers']['Accept'] = 'application/vnd.github.v3+json';
 		}
 

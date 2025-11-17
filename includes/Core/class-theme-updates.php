@@ -25,35 +25,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Theme_Updates {
 
 	/**
-	 * The single instance of the class
+	 * The single instance of the class.
 	 *
-	 * @var Theme_Updates
+	 * @var Theme_Updates|null
 	 */
 	private static ?Theme_Updates $instance = null;
 
 	/**
-	 * GitHub repository owner
+	 * GitHub repository owner.
 	 *
 	 * @var string
 	 */
 	private string $repo_owner = 'TheAggressive';
 
 	/**
-	 * GitHub repository name
+	 * GitHub repository name.
 	 *
 	 * @var string
 	 */
 	private string $repo_name = 'Aggressive-Apparel';
 
 	/**
-	 * ETag for conditional requests
+	 * ETag for conditional requests.
 	 *
 	 * @var string
 	 */
 	private string $etag = '';
 
 	/**
-	 * Get singleton instance
+	 * Get singleton instance.
 	 *
 	 * @since 1.0.0
 	 * @return Theme_Updates
@@ -66,7 +66,9 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Initialize the theme updater
+	 * Initialize the theme updater.
+	 *
+	 * Call this from theme bootstrap.
 	 *
 	 * @since 1.0.0
 	 * @return void
@@ -79,13 +81,10 @@ class Theme_Updates {
 		add_filter( 'themes_api', array( $this, 'themes_api' ), 10, 3 );
 		add_action( 'admin_notices', array( $this, 'admin_update_notice' ) );
 		add_action( 'load-update-core.php', array( $this, 'force_fresh_check' ) );
-
-		// Add admin action to clear update cache for debugging.
-		add_action( 'wp_ajax_aggressive_apparel_clear_update_cache', array( $this, 'clear_update_cache' ) );
 	}
 
 	/**
-	 * Force a fresh check when visiting the update core page
+	 * Force a fresh check when visiting the update core page.
 	 *
 	 * @since 1.8.0
 	 * @return void
@@ -100,7 +99,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Check for updates by comparing the current version with the GitHub release
+	 * Check for updates by comparing the current version with the GitHub release.
 	 *
 	 * @since 1.0.0
 	 * @param object $transient Transient update data.
@@ -112,14 +111,16 @@ class Theme_Updates {
 		}
 
 		$source_version  = $this->get_github_version();
-		$theme_slug      = wp_get_theme()->get_stylesheet();
-		$current_version = wp_get_theme()->get( 'Version' );
+		$theme           = wp_get_theme();
+		$theme_slug      = $theme->get_stylesheet();
+		$current_version = $theme->get( 'Version' );
 
 		if ( $source_version && version_compare( $source_version, $current_version, '>' ) ) {
 
 			if ( ! isset( $transient->response ) ) {
 				$transient->response = array(); // @phpstan-ignore property.notFound
 			}
+
 			$download_url = $this->get_download_url();
 
 			$transient->response[ $theme_slug ] = array(
@@ -130,7 +131,6 @@ class Theme_Updates {
 			);
 
 			// Cache the update data and release info for ETag fallback and changelog.
-			// Only cache if we have complete data.
 			if ( $download_url ) {
 				$release_data = $this->get_github_release_data();
 				if ( $release_data ) {
@@ -152,7 +152,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Fetch the latest version from GitHub API
+	 * Fetch the latest version from GitHub API.
 	 *
 	 * @since 1.0.0
 	 * @return string|false Version string or false on error.
@@ -160,7 +160,7 @@ class Theme_Updates {
 	private function get_github_version() {
 		// Try to get from cache first.
 		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-		if ( $cached_data && isset( $cached_data['version'] ) && isset( $cached_data['checked_at'] ) ) {
+		if ( $cached_data && isset( $cached_data['version'], $cached_data['checked_at'] ) ) {
 			// Check if cache is still fresh (within 5 minutes for version checks).
 			if ( ( time() - $cached_data['checked_at'] ) < 300 ) {
 				return $cached_data['version'];
@@ -181,7 +181,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Get the download URL for the latest GitHub release
+	 * Get the download URL for the latest GitHub release.
 	 *
 	 * @since 1.0.0
 	 * @return string|false Download URL or false on error.
@@ -200,19 +200,17 @@ class Theme_Updates {
 			return $this->get_fallback_download_url();
 		}
 
-		// First try to get from assets (uploaded release files) - these are the actual theme ZIP files.
+		// First try to get from assets (uploaded release files).
 		if ( isset( $release_data['assets'][0]['browser_download_url'] ) ) {
 			return $release_data['assets'][0]['browser_download_url'];
 		}
 
 		// If no assets, use zipball_url as primary fallback (auto-generated ZIP of the repository).
-		// This is guaranteed to exist for any GitHub release.
 		if ( isset( $release_data['zipball_url'] ) ) {
 			return $release_data['zipball_url'];
 		}
 
 		// Final fallback: construct URL based on tag name.
-		// This assumes the release has an asset named like "aggressive-apparel-{version}.zip".
 		if ( isset( $release_data['tag_name'] ) ) {
 			$tag = ltrim( $release_data['tag_name'], 'v' );
 			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
@@ -222,7 +220,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Rename the downloaded folder to match the theme directory name
+	 * Rename the downloaded folder to match the theme directory name.
 	 *
 	 * @since 1.0.0
 	 * @param string       $source        Path to the source directory.
@@ -246,7 +244,8 @@ class Theme_Updates {
 		}
 
 		// Check if this is from our GitHub repo.
-		$is_github_source = false !== strpos( $remote_source, $this->repo_owner ) && false !== strpos( $remote_source, $this->repo_name );
+		$is_github_source = false !== strpos( $remote_source, $this->repo_owner )
+			&& false !== strpos( $remote_source, $this->repo_name );
 
 		if ( ! $is_github_source ) {
 			// Not from our repo, return source unchanged.
@@ -272,19 +271,18 @@ class Theme_Updates {
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
-			WP_Filesystem();
+			\WP_Filesystem();
 		}
 
-		if ( $wp_filesystem->move( $source, $target_path ) ) {
+		if ( $wp_filesystem && $wp_filesystem->move( $source, $target_path ) ) {
 			return $target_path;
 		}
 
 		return $source;
 	}
 
-
 	/**
-	 * Provide theme information for WordPress themes API
+	 * Provide theme information for WordPress themes API.
 	 *
 	 * @since 1.0.0
 	 * @param false|object|array $result The result object or array. Default false.
@@ -298,7 +296,9 @@ class Theme_Updates {
 			return $result;
 		}
 
-		$theme_slug = wp_get_theme()->get_stylesheet();
+		$theme      = wp_get_theme();
+		$theme_slug = $theme->get_stylesheet();
+
 		if ( $args->slug !== $theme_slug ) {
 			return $result;
 		}
@@ -310,17 +310,19 @@ class Theme_Updates {
 			return $result;
 		}
 
+		$download_link = $this->get_download_url();
+
 		// Format the data for WordPress themes API.
 		$theme_info = array(
-			'name'           => wp_get_theme()->get( 'Name' ),
+			'name'           => $theme->get( 'Name' ),
 			'slug'           => $theme_slug,
 			'version'        => ltrim( $release_data['tag_name'], 'v' ),
-			'author'         => wp_get_theme()->get( 'Author' ),
-			'author_profile' => wp_get_theme()->get( 'AuthorURI' ),
+			'author'         => $theme->get( 'Author' ),
+			'author_profile' => $theme->get( 'AuthorURI' ),
 			'contributors'   => array(),
-			'requires'       => wp_get_theme()->get( 'RequiresWP' ) ? wp_get_theme()->get( 'RequiresWP' ) : '5.0',
-			'tested'         => (string) ( wp_get_theme()->get( 'TestedUpTo' ) ? wp_get_theme()->get( 'TestedUpTo' ) : '6.4' ), // @phpstan-ignore ternary.alwaysFalse
-			'requires_php'   => wp_get_theme()->get( 'RequiresPHP' ) ? wp_get_theme()->get( 'RequiresPHP' ) : '7.4',
+			'requires'       => $theme->get( 'RequiresWP' ) ? $theme->get( 'RequiresWP' ) : '5.0',
+			'tested'         => (string) ( $theme->get( 'TestedUpTo' ) ? $theme->get( 'TestedUpTo' ) : '6.4' ), // @phpstan-ignore ternary.alwaysFalse
+			'requires_php'   => $theme->get( 'RequiresPHP' ) ? $theme->get( 'RequiresPHP' ) : '7.4',
 			'rating'         => 100,
 			'num_ratings'    => 1,
 			'ratings'        => array(
@@ -328,12 +330,12 @@ class Theme_Updates {
 			),
 			'downloaded'     => 0,
 			'last_updated'   => $release_data['published_at'],
-			'homepage'       => wp_get_theme()->get( 'ThemeURI' ) ? wp_get_theme()->get( 'ThemeURI' ) : $release_data['html_url'],
+			'homepage'       => $theme->get( 'ThemeURI' ) ? $theme->get( 'ThemeURI' ) : $release_data['html_url'],
 			'sections'       => array(
-				'description' => wp_get_theme()->get( 'Description' ),
+				'description' => $theme->get( 'Description' ),
 				'changelog'   => $this->format_changelog( $release_data ),
 			),
-			'download_link'  => $release_data['zipball_url'],
+			'download_link'  => $download_link ? $download_link : ( $release_data['zipball_url'] ?? '' ),
 			'tags'           => array(),
 			'screenshots'    => array(),
 		);
@@ -342,7 +344,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Get GitHub release data with caching
+	 * Get GitHub release data with caching.
 	 *
 	 * @since 1.0.0
 	 * @return array|false Release data or false on error.
@@ -351,7 +353,7 @@ class Theme_Updates {
 		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
 		$args = array(
 			'headers' => array(
-				'User-Agent' => $this->repo_owner,
+				'User-Agent' => 'Aggressive-Apparel-Updater',
 				'Accept'     => 'application/vnd.github.v3+json',
 			),
 		);
@@ -406,7 +408,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Get fresh GitHub release data without ETag caching
+	 * Get fresh GitHub release data without ETag caching.
 	 *
 	 * @since 1.8.0
 	 * @return array|false Release data or false on error.
@@ -415,10 +417,9 @@ class Theme_Updates {
 		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
 		$args = array(
 			'headers' => array(
-				'User-Agent' => $this->repo_owner,
+				'User-Agent' => 'Aggressive-Apparel-Updater',
 				'Accept'     => 'application/vnd.github.v3+json',
 			),
-			// Don't use ETag for fresh requests.
 		);
 
 		$response = wp_remote_get( $url, $args );
@@ -448,27 +449,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Clear the update cache for debugging purposes
-	 *
-	 * @since 1.8.0
-	 * @return void
-	 */
-	public function clear_update_cache(): void {
-		// Verify user has permission.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'Insufficient permissions' );
-		}
-
-		// Clear transients and options.
-		delete_transient( 'aggressive_apparel_theme_update' );
-		delete_option( 'aggressive_apparel_etag' );
-		$this->etag = '';
-
-		wp_send_json_success( array( 'message' => 'Update cache cleared successfully' ) );
-	}
-
-	/**
-	 * Get fallback download URL when GitHub API fails
+	 * Get fallback download URL when GitHub API fails.
 	 *
 	 * @since 1.8.0
 	 * @return string|false Fallback download URL or false if not available.
@@ -487,7 +468,6 @@ class Theme_Updates {
 		// Last resort: Use the current theme version +1 as fallback.
 		$current_version = wp_get_theme()->get( 'Version' );
 		if ( $current_version ) {
-			// Try to increment the version for potential update.
 			$parts = explode( '.', $current_version );
 			if ( count( $parts ) >= 2 ) {
 				$parts[1]         = (int) $parts[1] + 1; // Increment minor version.
@@ -502,7 +482,7 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Format changelog from GitHub release data
+	 * Format changelog from GitHub release data.
 	 *
 	 * @since 1.0.0
 	 * @param array $release_data GitHub release data.
@@ -544,13 +524,14 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Display admin notice when theme update is available
+	 * Display admin notice when theme update is available.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function admin_update_notice(): void {
-		$theme_slug = wp_get_theme()->get_stylesheet();
+		$theme      = wp_get_theme();
+		$theme_slug = $theme->get_stylesheet();
 		$transient  = get_site_transient( 'update_themes' );
 
 		if ( ! isset( $transient->response[ $theme_slug ] ) ) {
@@ -558,7 +539,7 @@ class Theme_Updates {
 		}
 
 		$update_data     = $transient->response[ $theme_slug ];
-		$current_version = wp_get_theme()->get( 'Version' );
+		$current_version = $theme->get( 'Version' );
 
 		if ( ! current_user_can( 'update_themes' ) ) {
 			return;
@@ -567,7 +548,7 @@ class Theme_Updates {
 		$message = sprintf(
 			/* translators: 1: theme name, 2: current version, 3: new version */
 			__( 'A new version of %1$s is available. You have version %2$s and the latest version is %3$s.', 'aggressive-apparel' ),
-			'<strong>' . wp_get_theme()->get( 'Name' ) . '</strong>',
+			'<strong>' . $theme->get( 'Name' ) . '</strong>',
 			$current_version,
 			$update_data['new_version']
 		);

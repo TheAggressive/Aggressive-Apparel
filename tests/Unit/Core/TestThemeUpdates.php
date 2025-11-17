@@ -90,9 +90,13 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	public function test_rename_package_no_match(): void {
 		$source = '/tmp/test-source';
 		$remote_source = 'https://example.com/some-other-repo.zip';
-		$theme_slug = 'aggressive-apparel';
 
-		$result = $this->theme_updates->rename_package( $source, $remote_source, $theme_slug );
+		// Mock WP_Upgrader object
+		$upgrader = $this->getMockBuilder( 'WP_Upgrader' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$result = $this->theme_updates->rename_package( $source, $remote_source, $upgrader );
 
 		// Should return the original source when repo name doesn't match
 		$this->assertEquals( $source, $result );

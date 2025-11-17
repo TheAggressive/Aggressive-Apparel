@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.7.0...v1.8.0) (2025-11-17)
+
+
+### Bug Fixes
+
+* update CI/CD pipeline to ensure all necessary jobs run before building assets ([a74d973](https://github.com/TheAggressive/Aggressive-Apparel/commit/a74d97302ee1d91caa94e3b87f5dc678e3a8362d))
+
+
+### Features
+
+* implement conditional release trigger in CI/CD pipeline ([0293d1f](https://github.com/TheAggressive/Aggressive-Apparel/commit/0293d1fe23f3f334b54bef998e4d975c01e24798))
+
 # [1.7.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.6.0...v1.7.0) (2025-11-17)
 
 

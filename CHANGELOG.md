@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.9.0...v1.9.1) (2025-11-18)
+
+
+### Bug Fixes
+
+* prevent update notices during theme updates and bulk actions ([dbe03a0](https://github.com/TheAggressive/Aggressive-Apparel/commit/dbe03a0ed01b485d11873aa7c0fc95aa7fe00ee9))
+
 # [1.9.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.8.0...v1.9.0) (2025-11-17)
 
 

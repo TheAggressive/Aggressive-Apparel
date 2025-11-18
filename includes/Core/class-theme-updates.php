@@ -545,6 +545,24 @@ class Theme_Updates {
 			return;
 		}
 
+		// Don't show update notice when actively updating themes or during upgrade process.
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $action ) {
+			// Hide during individual theme updates.
+			if ( 'upgrade-theme' === $action && isset( $_GET['theme'] ) && sanitize_text_field( wp_unslash( $_GET['theme'] ) ) === $theme_slug ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				return;
+			}
+			// Hide during theme upgrade process.
+			if ( in_array( $action, array( 'do-theme-upgrade', 'do-core-upgrade' ), true ) ) {
+				return;
+			}
+		}
+
+		// Don't show update notice on the updates page during bulk updates.
+		if ( isset( $_POST['action'] ) && 'update-selected' === sanitize_text_field( wp_unslash( $_POST['action'] ) ) && isset( $_POST['checked'] ) && in_array( $theme_slug, array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['checked'] ) ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+
 		$message = sprintf(
 			/* translators: 1: theme name, 2: current version, 3: new version */
 			__( 'A new version of %1$s is available. You have version %2$s and the latest version is %3$s.', 'aggressive-apparel' ),

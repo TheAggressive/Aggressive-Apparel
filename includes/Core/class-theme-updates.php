@@ -46,11 +46,26 @@ class Theme_Updates {
 	private string $repo_name = 'Aggressive-Apparel';
 
 	/**
-	 * ETag for conditional requests.
-	 *
-	 * @var string
+	 * Private constructor for singleton.
 	 */
-	private string $etag = '';
+	private function __construct() {}
+
+	/**
+	 * Prevent cloning.
+	 *
+	 * @return void
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserializing.
+	 *
+	 * @return void
+	 * @throws \RuntimeException Cannot unserialize singleton.
+	 */
+	public function __wakeup() {
+		throw new \RuntimeException( 'Cannot unserialize singleton.' );
+	}
 
 	/**
 	 * Get singleton instance.
@@ -74,8 +89,6 @@ class Theme_Updates {
 	 * @return void
 	 */
 	public function init(): void {
-		$this->etag = get_option( 'aggressive_apparel_etag', '' );
-
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );
 		add_filter( 'themes_api', array( $this, 'themes_api' ), 10, 3 );
@@ -90,9 +103,9 @@ class Theme_Updates {
 	 * @return void
 	 */
 	public function force_fresh_check(): void {
-		// Clear our theme update cache and ETag when visiting update-core.php.
+		// Clear our theme update cache when visiting update-core.php.
 		delete_transient( 'aggressive_apparel_theme_update' );
-		delete_option( 'aggressive_apparel_etag' );
+		delete_transient( 'aggressive_apparel_theme_update_release' );
 
 		// Force WordPress to refresh theme updates.
 		wp_update_themes();
@@ -110,18 +123,27 @@ class Theme_Updates {
 			return $transient;
 		}
 
-		$source_version  = $this->get_github_version();
 		$theme           = wp_get_theme();
 		$theme_slug      = $theme->get_stylesheet();
 		$current_version = $theme->get( 'Version' );
+		$source_version  = $this->get_github_version();
 
-		if ( $source_version && version_compare( $source_version, $current_version, '>' ) ) {
+		if ( ! $source_version || ! is_string( $source_version ) ) {
+			return $transient;
+		}
+
+		if ( version_compare( $source_version, $current_version, '>' ) ) {
+
+			$download_url = $this->get_download_url();
+
+			// If we can't get a valid download URL, don't advertise an update.
+			if ( ! $download_url || ! is_string( $download_url ) ) {
+				return $transient;
+			}
 
 			if ( ! isset( $transient->response ) ) {
 				$transient->response = array(); // @phpstan-ignore property.notFound
 			}
-
-			$download_url = $this->get_download_url();
 
 			$transient->response[ $theme_slug ] = array(
 				'theme'       => $theme_slug,
@@ -130,21 +152,19 @@ class Theme_Updates {
 				'package'     => $download_url,
 			);
 
-			// Cache the update data and release info for ETag fallback and changelog.
-			if ( $download_url ) {
-				$release_data = $this->get_github_release_data();
-				if ( $release_data ) {
-					set_transient(
-						'aggressive_apparel_theme_update',
-						array(
-							'version'      => $source_version,
-							'download_url' => $download_url,
-							'release_data' => $release_data,
-							'checked_at'   => time(),
-						),
-						HOUR_IN_SECONDS
-					);
-				}
+			// Cache the update data and release info for changelog and fallback.
+			$release_data = $this->get_github_release_data();
+			if ( $release_data ) {
+				set_transient(
+					'aggressive_apparel_theme_update',
+					array(
+						'version'      => $source_version,
+						'download_url' => $download_url,
+						'release_data' => $release_data,
+						'checked_at'   => time(),
+					),
+					HOUR_IN_SECONDS
+				);
 			}
 		}
 
@@ -154,26 +174,20 @@ class Theme_Updates {
 	/**
 	 * Fetch the latest version from GitHub API.
 	 *
+	 * Always uses the latest stable (non-draft, non-prerelease) release
+	 * with the highest semver tag.
+	 *
 	 * @since 1.0.0
 	 * @return string|false Version string or false on error.
 	 */
 	private function get_github_version() {
-		// Try to get from cache first.
-		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-		if ( $cached_data && isset( $cached_data['version'], $cached_data['checked_at'] ) ) {
-			// Check if cache is still fresh (within 5 minutes for version checks).
-			if ( ( time() - $cached_data['checked_at'] ) < 300 ) {
-				return $cached_data['version'];
-			}
-		}
-
 		$release_data = $this->get_github_release_data();
 
 		if ( ! $release_data ) {
 			return false;
 		}
 
-		if ( isset( $release_data['tag_name'] ) ) {
+		if ( isset( $release_data['tag_name'] ) && is_string( $release_data['tag_name'] ) ) {
 			return ltrim( $release_data['tag_name'], 'v' );
 		}
 
@@ -187,7 +201,7 @@ class Theme_Updates {
 	 * @return string|false Download URL or false on error.
 	 */
 	private function get_download_url() {
-		// Try to get from cache first.
+		// Try to get from cached update data first.
 		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
 		if ( $cached_data && isset( $cached_data['download_url'] ) ) {
 			return $cached_data['download_url'];
@@ -205,7 +219,7 @@ class Theme_Updates {
 			return $release_data['assets'][0]['browser_download_url'];
 		}
 
-		// If no assets, use zipball_url as primary fallback (auto-generated ZIP of the repository).
+		// If no assets, use zipball_url as primary fallback (auto-generated ZIP).
 		if ( isset( $release_data['zipball_url'] ) ) {
 			return $release_data['zipball_url'];
 		}
@@ -344,77 +358,27 @@ class Theme_Updates {
 	}
 
 	/**
-	 * Get GitHub release data with caching.
+	 * Get the latest stable GitHub release data by scanning releases.
+	 *
+	 * This:
+	 * - Calls /releases?per_page=20
+	 * - Ignores drafts and prereleases
+	 * - Picks the highest semver tag
 	 *
 	 * @since 1.0.0
 	 * @return array|false Release data or false on error.
 	 */
 	private function get_github_release_data() {
-		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
-		$args = array(
-			'headers' => array(
-				'User-Agent' => 'Aggressive-Apparel-Updater',
-				'Accept'     => 'application/vnd.github.v3+json',
-			),
-		);
-
-		// Add ETag for conditional requests.
-		if ( ! empty( $this->etag ) ) {
-			$args['headers']['If-None-Match'] = $this->etag;
-		}
-
-		$response = wp_remote_get( $url, $args );
-
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		$code = wp_remote_retrieve_response_code( $response );
-
-		// Handle conditional requests (not modified).
-		if ( 304 === $code ) {
-			// Return cached data if available.
-			$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-			if ( $cached_data && isset( $cached_data['release_data'] ) ) {
-				return $cached_data['release_data'];
+		// Try cached release first.
+		$cached = get_transient( 'aggressive_apparel_theme_update_release' );
+		if ( $cached && isset( $cached['release_data'], $cached['checked_at'] ) ) {
+			// Consider cache fresh for 5 minutes.
+			if ( ( time() - (int) $cached['checked_at'] ) < 300 ) {
+				return $cached['release_data'];
 			}
-			// Make a fresh request without ETag to get current data.
-			return $this->get_github_release_data_fresh();
 		}
 
-		// Check for error response codes.
-		if ( $code >= 400 ) {
-			return false;
-		}
-
-		// Store new ETag for future requests.
-		$new_etag = wp_remote_retrieve_header( $response, 'etag' );
-		if ( ! empty( $new_etag ) && is_string( $new_etag ) ) {
-			$this->etag = $new_etag;
-			update_option( 'aggressive_apparel_etag', $new_etag );
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			return false;
-		}
-
-		if ( ! isset( $body['tag_name'] ) ) {
-			return false;
-		}
-
-		return $body;
-	}
-
-	/**
-	 * Get fresh GitHub release data without ETag caching.
-	 *
-	 * @since 1.8.0
-	 * @return array|false Release data or false on error.
-	 */
-	private function get_github_release_data_fresh() {
-		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases/latest";
+		$url  = "https://api.github.com/repos/{$this->repo_owner}/{$this->repo_name}/releases?per_page=20";
 		$args = array(
 			'headers' => array(
 				'User-Agent' => 'Aggressive-Apparel-Updater',
@@ -425,27 +389,83 @@ class Theme_Updates {
 		$response = wp_remote_get( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
+			// On HTTP error, fall back to stale cache if available.
+			if ( $cached && isset( $cached['release_data'] ) ) {
+				return $cached['release_data'];
+			}
 			return false;
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
-
-		// Check for error response codes.
-		if ( $code >= 400 ) {
+		if ( 200 !== $code ) {
+			// On non-200, also fall back to stale cache if available.
+			if ( $cached && isset( $cached['release_data'] ) ) {
+				return $cached['release_data'];
+			}
 			return false;
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
+		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $body ) ) {
+			if ( $cached && isset( $cached['release_data'] ) ) {
+				return $cached['release_data'];
+			}
 			return false;
 		}
 
-		if ( ! isset( $body['tag_name'] ) ) {
+		$best_release = null;
+		$best_version = null;
+
+		foreach ( $body as $release ) {
+			// Skip drafts.
+			if ( ! empty( $release['draft'] ) ) {
+				continue;
+			}
+
+			// Skip prereleases.
+			if ( ! empty( $release['prerelease'] ) ) {
+				continue;
+			}
+
+			if ( empty( $release['tag_name'] ) || ! is_string( $release['tag_name'] ) ) {
+				continue;
+			}
+
+			$tag = ltrim( $release['tag_name'], 'v' );
+
+			// Basic semver-ish validation: require at least "x.y".
+			if ( ! preg_match( '/^\d+\.\d+(\.\d+)?$/', $tag ) ) {
+				continue;
+			}
+
+			if ( null === $best_version || version_compare( $tag, $best_version, '>' ) ) {
+				$best_version = $tag;
+				$best_release = $release;
+			}
+		}
+
+		if ( null === $best_release || null === $best_version ) {
+			// No suitable release found.
+			if ( $cached && isset( $cached['release_data'] ) ) {
+				return $cached['release_data'];
+			}
 			return false;
 		}
 
-		return $body;
+		// Normalize tag_name and cache this result independently of the update transient.
+		$best_release['tag_name'] = 'v' . $best_version;
+
+		set_transient(
+			'aggressive_apparel_theme_update_release',
+			array(
+				'release_data' => $best_release,
+				'checked_at'   => time(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		return $best_release;
 	}
 
 	/**
@@ -455,29 +475,16 @@ class Theme_Updates {
 	 * @return string|false Fallback download URL or false if not available.
 	 */
 	private function get_fallback_download_url() {
-		// Try to get version from cached data first.
+		// Try to get version from cached update data first.
 		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
 		if ( $cached_data && isset( $cached_data['version'] ) ) {
-			$version = $cached_data['version'];
+			$version = $cached_data['version']; // Already the "latest" we saw before.
 			$tag     = ltrim( $version, 'v' );
-			$url     = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
 
-			return $url;
+			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
 		}
 
-		// Last resort: Use the current theme version +1 as fallback.
-		$current_version = wp_get_theme()->get( 'Version' );
-		if ( $current_version ) {
-			$parts = explode( '.', $current_version );
-			if ( count( $parts ) >= 2 ) {
-				$parts[1]         = (int) $parts[1] + 1; // Increment minor version.
-				$fallback_version = implode( '.', $parts );
-				$url              = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$fallback_version}/aggressive-apparel-{$fallback_version}.zip";
-
-				return $url;
-			}
-		}
-
+		// No cached info + GitHub failed → safest is to not offer an update.
 		return false;
 	}
 
@@ -524,6 +531,40 @@ class Theme_Updates {
 	}
 
 	/**
+	 * Check if this request is a bulk theme update for this theme.
+	 *
+	 * This reads core's update-core.php POST state only to suppress duplicate notices.
+	 * Core has its own nonce checks; we are not changing state here.
+	 *
+	 * @param string $theme_slug Theme stylesheet slug.
+	 * @return bool
+	 */
+	private function is_bulk_theme_update_request( string $theme_slug ): bool {
+		$pagenow = isset( $GLOBALS['pagenow'] ) ? $GLOBALS['pagenow'] : '';
+
+		if ( 'update-core.php' !== $pagenow ) {
+			return false;
+		}
+
+		// Verify nonce if present, but don't fail if missing (core may handle it).
+		if ( isset( $_POST['_wpnonce'] ) ) {
+			$nonce_verified = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'bulk-themes' );
+			if ( ! $nonce_verified ) {
+				return false;
+			}
+		}
+
+		if ( ! isset( $_POST['action'], $_POST['checked'] ) ) {
+			return false;
+		}
+
+		$action  = sanitize_text_field( wp_unslash( $_POST['action'] ) );
+		$checked = array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['checked'] ) );
+
+		return 'update-selected' === $action && in_array( $theme_slug, $checked, true );
+	}
+
+	/**
 	 * Display admin notice when theme update is available.
 	 *
 	 * @since 1.0.0
@@ -552,14 +593,14 @@ class Theme_Updates {
 			if ( 'upgrade-theme' === $action && isset( $_GET['theme'] ) && sanitize_text_field( wp_unslash( $_GET['theme'] ) ) === $theme_slug ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				return;
 			}
-			// Hide during theme upgrade process.
+			// Hide during theme/core upgrade process.
 			if ( in_array( $action, array( 'do-theme-upgrade', 'do-core-upgrade' ), true ) ) {
 				return;
 			}
 		}
 
 		// Don't show update notice on the updates page during bulk updates.
-		if ( isset( $_POST['action'] ) && 'update-selected' === sanitize_text_field( wp_unslash( $_POST['action'] ) ) && isset( $_POST['checked'] ) && in_array( $theme_slug, array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['checked'] ) ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( $this->is_bulk_theme_update_request( $theme_slug ) ) {
 			return;
 		}
 

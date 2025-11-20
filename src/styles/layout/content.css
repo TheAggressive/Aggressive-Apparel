@@ -4,14 +4,3 @@
  * @package Aggressive_Apparel
  */
 
-main {
-  min-height: 50vh;
-}
-
-.wp-block-post-content {
-
-  & > * + * {
-    margin-top: var(--wp--preset--spacing--medium);
-  }
-}
-

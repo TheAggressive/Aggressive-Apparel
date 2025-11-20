@@ -1,0 +1,18 @@
+# CSS files are formatted by stylelint instead of Prettier
+src/**/*.css
+
+# Build outputs
+build/
+node_modules/
+
+# WordPress core files
+wp-*.php
+wp-admin/
+wp-includes/
+
+# Vendor files
+vendor/
+
+# Generated files
+*.min.css
+*.min.js

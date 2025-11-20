@@ -5,12 +5,9 @@
  */
 
 /* Import partials */
-@import './abstracts/variables.css';
-@import './base/reset.css';
 @import './base/typography.css';
 @import './components/buttons.css';
 @import './components/forms.css';
-@import './components/cards.css';
 @import './layout/header.css';
 @import './layout/footer.css';
 @import './layout/content.css';

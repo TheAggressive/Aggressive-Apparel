@@ -3,39 +3,3 @@
  *
  * @package Aggressive_Apparel
  */
-
-.wp-block-button .wp-block-button__link {
-  transition: all 0.3s ease;
-}
-
-.wp-block-button .wp-block-button__link:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.wp-block-button .wp-block-button__link:focus-visible {
-  outline: 2px solid var(--wp--preset--color--accent);
-  outline-offset: 2px;
-}
-
-/* Secondary style */
-.wp-block-button.is-style-secondary .wp-block-button__link {
-  background-color: var(--wp--preset--color--secondary);
-}
-
-.wp-block-button.is-style-secondary .wp-block-button__link:hover {
-  background-color: var(--wp--preset--color--primary);
-}
-
-/* Outline style */
-.wp-block-button.is-style-outline .wp-block-button__link {
-  background-color: transparent;
-  border: 2px solid var(--wp--preset--color--primary);
-  color: var(--wp--preset--color--primary);
-}
-
-.wp-block-button.is-style-outline .wp-block-button__link:hover {
-  background-color: var(--wp--preset--color--primary);
-  color: var(--wp--preset--color--base);
-}
-

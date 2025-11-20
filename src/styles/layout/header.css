@@ -4,17 +4,4 @@
  * @package Aggressive_Apparel
  */
 
-.site-header {
-  position: sticky;
-  top: 0;
-  background-color: var(--wp--preset--color--base);
-  border-bottom: 1px solid var(--wp--preset--color--border);
-  z-index: var(--z-sticky);
-  box-shadow: var(--shadow-sm);
-}
 
-.custom-logo {
-  display: block;
-  max-width: 200px;
-  height: auto;
-}

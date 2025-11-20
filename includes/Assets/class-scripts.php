@@ -45,22 +45,6 @@ class Scripts {
 			'build/scripts/main'
 		);
 
-		// Navigation script (conditional).
-		if ( \has_nav_menu( 'primary' ) ) {
-			Asset_Loader::enqueue_script(
-				'aggressive-apparel-navigation',
-				'build/scripts/navigation'
-			);
-		}
-
-		// Product script (conditional).
-		if ( \is_singular( 'product' ) ) {
-			Asset_Loader::enqueue_script(
-				'aggressive-apparel-product',
-				'build/scripts/product'
-			);
-		}
-
 		// Localize script data.
 		wp_localize_script(
 			'aggressive-apparel-main',

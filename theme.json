@@ -10,34 +10,292 @@
     },
     "spacing": {
       "units": ["px", "em", "rem", "vh", "vw", "%"],
-      "spacingScale": {
-        "steps": 0
-      },
+      "blockGap": true,
       "spacingSizes": [
         {
-          "name": "X-Small",
+          "name": "0.5",
+          "size": "0.125rem",
+          "slug": "0-5"
+        },
+        {
+          "name": "1",
+          "size": "0.25rem",
+          "slug": "1"
+        },
+        {
+          "name": "1.5",
+          "size": "0.375rem",
+          "slug": "1-5"
+        },
+        {
+          "name": "2",
           "size": "0.5rem",
-          "slug": "x-small"
+          "slug": "2"
         },
         {
-          "name": "Small",
+          "name": "2.5",
+          "size": "0.625rem",
+          "slug": "2-5"
+        },
+        {
+          "name": "3",
+          "size": "0.75rem",
+          "slug": "3"
+        },
+        {
+          "name": "3.5",
+          "size": "0.875rem",
+          "slug": "3-5"
+        },
+        {
+          "name": "4",
           "size": "1rem",
-          "slug": "small"
+          "slug": "4"
         },
         {
-          "name": "Medium",
+          "name": "5",
+          "size": "1.25rem",
+          "slug": "5"
+        },
+        {
+          "name": "6",
+          "size": "1.5rem",
+          "slug": "6"
+        },
+        {
+          "name": "7",
+          "size": "1.75rem",
+          "slug": "7"
+        },
+        {
+          "name": "8",
           "size": "2rem",
-          "slug": "medium"
+          "slug": "8"
         },
         {
-          "name": "Large",
+          "name": "Fluid 8",
+          "size": "clamp(1.75rem, 1.75rem + ((1vw - 0.2rem) * 0.37), 2.0rem)",
+          "slug": "fluid-8"
+        },
+        {
+          "name": "9",
+          "size": "2.25rem",
+          "slug": "9"
+        },
+        {
+          "name": "Fluid 9",
+          "size": "clamp(2.0rem, 2.0rem + ((1vw - 0.2rem) * 0.37), 2.25rem)",
+          "slug": "fluid-9"
+        },
+        {
+          "name": "10",
+          "size": "2.5rem",
+          "slug": "10"
+        },
+        {
+          "name": "Fluid 10",
+          "size": "clamp(2.25rem, 2.25rem + ((1vw - 0.2rem) * 0.37), 2.5rem)",
+          "slug": "fluid-10"
+        },
+        {
+          "name": "11",
+          "size": "2.75rem",
+          "slug": "11"
+        },
+        {
+          "name": "Fluid 11",
+          "size": "clamp(2.5rem, 2.5rem + ((1vw - 0.2rem) * 0.37), 2.75rem)",
+          "slug": "fluid-11"
+        },
+        {
+          "name": "12",
           "size": "3rem",
-          "slug": "large"
+          "slug": "12"
         },
         {
-          "name": "X-Large",
+          "name": "Fluid 12",
+          "size": "clamp(2.5rem, 2.5rem + ((1vw - 0.2rem) * 0.741), 3.0rem)",
+          "slug": "fluid-12"
+        },
+        {
+          "name": "14",
+          "size": "3.5rem",
+          "slug": "14"
+        },
+        {
+          "name": "Fluid 14",
+          "size": "clamp(3.0rem, 3.0rem + ((1vw - 0.2rem) * 0.741), 3.5rem)",
+          "slug": "fluid-14"
+        },
+        {
+          "name": "16",
           "size": "4rem",
-          "slug": "x-large"
+          "slug": "16"
+        },
+        {
+          "name": "Fluid 16",
+          "size": "clamp(3.0rem, 3.0rem + ((1vw - 0.2rem) * 1.482), 4.0rem)",
+          "slug": "fluid-16"
+        },
+        {
+          "name": "18",
+          "size": "4.5rem",
+          "slug": "18"
+        },
+        {
+          "name": "Fluid 18",
+          "size": "clamp(4.0rem, 4.0rem + ((1vw - 0.2rem) * 0.741), 4.5rem)",
+          "slug": "fluid-18"
+        },
+        {
+          "name": "20",
+          "size": "5rem",
+          "slug": "20"
+        },
+        {
+          "name": "Fluid 20",
+          "size": "clamp(3.5rem, 3.5rem + ((1vw - 0.2rem) * 2.222), 5.0rem)",
+          "slug": "fluid-20"
+        },
+        {
+          "name": "24",
+          "size": "6rem",
+          "slug": "24"
+        },
+        {
+          "name": "Fluid 24",
+          "size": "clamp(4.0rem, 4.0rem + ((1vw - 0.2rem) * 2.963), 6.0rem)",
+          "slug": "fluid-24"
+        },
+        {
+          "name": "28",
+          "size": "7rem",
+          "slug": "28"
+        },
+        {
+          "name": "Fluid 28",
+          "size": "clamp(5.0rem, 5.0rem + ((1vw - 0.2rem) * 2.963), 7.0rem)",
+          "slug": "fluid-28"
+        },
+        {
+          "name": "32",
+          "size": "8rem",
+          "slug": "32"
+        },
+        {
+          "name": "Fluid 32",
+          "size": "clamp(5.0rem, 5.0rem + ((1vw - 0.2rem) * 4.444), 8.0rem)",
+          "slug": "fluid-32"
+        },
+        {
+          "name": "36",
+          "size": "9rem",
+          "slug": "36"
+        },
+        {
+          "name": "Fluid 36",
+          "size": "clamp(6.0rem, 6.0rem + ((1vw - 0.2rem) * 4.444), 9.0rem)",
+          "slug": "fluid-36"
+        },
+        {
+          "name": "40",
+          "size": "10rem",
+          "slug": "40"
+        },
+        {
+          "name": "Fluid 40",
+          "size": "clamp(6.0rem, 6.0rem + ((1vw - 0.2rem) * 5.926), 10.0rem)",
+          "slug": "fluid-40"
+        },
+        {
+          "name": "44",
+          "size": "11rem",
+          "slug": "44"
+        },
+        {
+          "name": "Fluid 44",
+          "size": "clamp(8.0rem, 8.0rem + ((1vw - 0.2rem) * 4.444), 11.0rem)",
+          "slug": "fluid-44"
+        },
+        {
+          "name": "48",
+          "size": "12rem",
+          "slug": "48"
+        },
+        {
+          "name": "Fluid 48",
+          "size": "clamp(7.0rem, 7.0rem + ((1vw - 0.2rem) * 7.408), 12.0rem)",
+          "slug": "fluid-48"
+        },
+        {
+          "name": "52",
+          "size": "13rem",
+          "slug": "52"
+        },
+        {
+          "name": "Fluid 52",
+          "size": "clamp(9.0rem, 9.0rem + ((1vw - 0.2rem) * 5.926), 13.0rem)",
+          "slug": "fluid-52"
+        },
+        {
+          "name": "56",
+          "size": "14rem",
+          "slug": "56"
+        },
+        {
+          "name": "Fluid 56",
+          "size": "clamp(10.0rem, 10.0rem + ((1vw - 0.2rem) * 5.926), 14.0rem)",
+          "slug": "fluid-56"
+        },
+        {
+          "name": "60",
+          "size": "15rem",
+          "slug": "60"
+        },
+        {
+          "name": "Fluid 60",
+          "size": "clamp(11.0rem, 11.0rem + ((1vw - 0.2rem) * 5.926), 15.0rem)",
+          "slug": "fluid-60"
+        },
+        {
+          "name": "64",
+          "size": "16rem",
+          "slug": "64"
+        },
+        {
+          "name": "Fluid 64",
+          "size": "clamp(10.0rem, 10.0rem + ((1vw - 0.2rem) * 8.889), 16.0rem)",
+          "slug": "fluid-64"
+        },
+        {
+          "name": "72",
+          "size": "18rem",
+          "slug": "72"
+        },
+        {
+          "name": "Fluid 72",
+          "size": "clamp(12.0rem, 12.0rem + ((1vw - 0.2rem) * 8.889), 18.0rem)",
+          "slug": "fluid-72"
+        },
+        {
+          "name": "80",
+          "size": "20rem",
+          "slug": "80"
+        },
+        {
+          "name": "Fluid 80",
+          "size": "clamp(14.0rem, 14.0rem + ((1vw - 0.2rem) * 8.889), 20.0rem)",
+          "slug": "fluid-80"
+        },
+        {
+          "name": "96",
+          "size": "24rem",
+          "slug": "96"
+        },
+        {
+          "name": "Fluid 96",
+          "size": "clamp(16.0rem, 16.0rem + ((1vw - 0.2rem) * 11.852), 24.0rem)",
+          "slug": "fluid-96"
         }
       ]
     },
@@ -47,84 +305,34 @@
       "defaultDuotone": false,
       "palette": [
         {
-          "name": "Base",
-          "slug": "base",
+          "name": "Primary",
+          "slug": "primary",
+          "color": "var(--wp--preset--color--red)"
+        },
+        {
+          "name": "White",
+          "slug": "white",
           "color": "#ffffff"
         },
         {
-          "name": "Base Dark",
-          "slug": "base-dark",
-          "color": "#1a1a1a"
+          "name": "White/Black (Light-Dark)",
+          "slug": "light-dark-white-black",
+          "color": "light-dark(#ffffff,#000000)"
         },
         {
-          "name": "Contrast",
-          "slug": "contrast",
+          "name": "Black",
+          "slug": "black",
           "color": "#000000"
         },
         {
-          "name": "Contrast Dark",
-          "slug": "contrast-dark",
-          "color": "#ffffff"
+          "name": "Black/White (Light-Dark)",
+          "slug": "light-dark-black-white",
+          "color": "light-dark(#000000,#ffffff)"
         },
         {
-          "name": "Primary",
-          "slug": "primary",
-          "color": "#1a1a1a"
-        },
-        {
-          "name": "Primary Dark",
-          "slug": "primary-dark",
-          "color": "#f5f5f5"
-        },
-        {
-          "name": "Secondary",
-          "slug": "secondary",
-          "color": "#666666"
-        },
-        {
-          "name": "Secondary Dark",
-          "slug": "secondary-dark",
-          "color": "#a0a0a0"
-        },
-        {
-          "name": "Accent",
-          "slug": "accent",
-          "color": "#ff4444"
-        },
-        {
-          "name": "Accent Dark",
-          "slug": "accent-dark",
-          "color": "#ff6666"
-        },
-        {
-          "name": "Accent Secondary",
-          "slug": "accent-secondary",
-          "color": "#00aaff"
-        },
-        {
-          "name": "Accent Secondary Dark",
-          "slug": "accent-secondary-dark",
-          "color": "#33ccff"
-        },
-        {
-          "name": "Background",
-          "slug": "background",
-          "color": "#f5f5f5"
-        },
-        {
-          "name": "Background Dark",
-          "slug": "background-dark",
-          "color": "#0f0f0f"
-        },
-        {
-          "name": "Border",
-          "slug": "border",
-          "color": "#e0e0e0"
-        },
-        {
-          "name": "Border Dark",
-          "slug": "border-dark",
-          "color": "#333333"
+          "name": "Red",
+          "slug": "red",
+          "color": "oklch(57.7% 0.245 27.325)"
         }
       ],
       "gradients": [
@@ -172,6 +380,12 @@
       ],
       "fontSizes": [
         {
+          "name": "X-Small",
+          "slug": "x-small",
+          "size": "0.75rem",
+          "fluid": false
+        },
+        {
           "name": "Small",
           "slug": "small",
           "size": "0.875rem",
@@ -186,6 +400,18 @@
         {
           "name": "Large",
           "slug": "large",
+          "size": "1.125rem",
+          "fluid": false
+        },
+        {
+          "name": "X-Large",
+          "slug": "x-large",
+          "size": "1.25rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid X-Large",
+          "slug": "fluid-x-large",
           "size": "1.25rem",
           "fluid": {
             "min": "1.125rem",
@@ -193,8 +419,14 @@
           }
         },
         {
-          "name": "X-Large",
-          "slug": "x-large",
+          "name": "XX-Large",
+          "slug": "xx-large",
+          "size": "1.5rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XX-Large",
+          "slug": "fluid-xx-large",
           "size": "1.5rem",
           "fluid": {
             "min": "1.25rem",
@@ -202,21 +434,108 @@
           }
         },
         {
-          "name": "XX-Large",
-          "slug": "xx-large",
-          "size": "2rem",
+          "name": "XXX-Large",
+          "slug": "xxx-large",
+          "size": "1.875rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXX-Large",
+          "slug": "fluid-xxx-large",
+          "size": "1.875rem",
           "fluid": {
             "min": "1.5rem",
-            "max": "2rem"
+            "max": "1.875rem"
           }
         },
         {
-          "name": "Huge",
-          "slug": "huge",
+          "name": "XXXX-Large",
+          "slug": "xxxx-large",
+          "size": "2.25rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXX-Large",
+          "slug": "fluid-xxxx-large",
+          "size": "2.25rem",
+          "fluid": {
+            "min": "1.875rem",
+            "max": "2.25rem"
+          }
+        },
+        {
+          "name": "XXXXX-Large",
+          "slug": "xxxxx-large",
+          "size": "3rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXXX-Large",
+          "slug": "fluid-xxxxx-large",
           "size": "3rem",
           "fluid": {
-            "min": "2rem",
+            "min": "2.25rem",
             "max": "3rem"
+          }
+        },
+        {
+          "name": "XXXXXX-Large",
+          "slug": "xxxxxx-large",
+          "size": "3.75rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXXXX-Large",
+          "slug": "fluid-xxxxxx-large",
+          "size": "3.75rem",
+          "fluid": {
+            "min": "3rem",
+            "max": "3.75rem"
+          }
+        },
+        {
+          "name": "XXXXXXX-Large",
+          "slug": "xxxxxxx-large",
+          "size": "4.5rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXXXXX-Large",
+          "slug": "fluid-xxxxxxx-large",
+          "size": "4.5rem",
+          "fluid": {
+            "min": "3.75rem",
+            "max": "4.5rem"
+          }
+        },
+        {
+          "name": "XXXXXXXX-Large",
+          "slug": "xxxxxxxx-large",
+          "size": "6rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXXXXXX-Large",
+          "slug": "fluid-xxxxxxxx-large",
+          "size": "6rem",
+          "fluid": {
+            "min": "4.5rem",
+            "max": "6rem"
+          }
+        },
+        {
+          "name": "XXXXXXXXX-Large",
+          "slug": "xxxxxxxxx-large",
+          "size": "8rem",
+          "fluid": false
+        },
+        {
+          "name": "Fluid XXXXXXXXX-Large",
+          "slug": "fluid-xxxxxxxxx-large",
+          "size": "8rem",
+          "fluid": {
+            "min": "6rem",
+            "max": "8rem"
           }
         }
       ],
@@ -294,84 +613,71 @@
     }
   },
   "styles": {
+    "css": ":root { color-scheme: light dark; } ::selection { background-color: var(--wp--preset--color--red); color: var(--wp--preset--color--white); }",
     "color": {
-      "background": "var(--wp--preset--color--base)",
-      "text": "var(--wp--preset--color--contrast)"
+      "background": "var:preset|color|light-dark-white-black",
+      "text": "var:preset|color|light-dark-black-white"
     },
     "typography": {
-      "fontFamily": "var(--wp--preset--font-family--system-sans-serif)",
-      "fontSize": "var(--wp--preset--font-size--medium)",
+      "fontFamily": "var:preset|font-family|system-sans-serif",
+      "fontSize": "var:preset|font-size|medium",
       "lineHeight": "1.6"
     },
     "spacing": {
-      "padding": {
-        "top": "0",
-        "right": "var(--wp--preset--spacing--medium)",
-        "bottom": "0",
-        "left": "var(--wp--preset--spacing--medium)"
-      },
-      "blockGap": "var(--wp--preset--spacing--medium)"
+      "blockGap": "var:preset|spacing|8"
     },
     "elements": {
       "link": {
         "color": {
-          "text": "var(--wp--preset--color--primary)"
+          "text": "var:preset|color|primary"
         },
         ":hover": {
           "color": {
-            "text": "var(--wp--preset--color--accent)"
+            "text": "var:preset|color|accent"
           }
         },
         ":focus": {
           "color": {
-            "text": "var(--wp--preset--color--accent)"
+            "text": "var:preset|color|accent"
           }
         }
       },
       "button": {
         "color": {
-          "background": "var(--wp--preset--color--primary)",
-          "text": "var(--wp--preset--color--base)"
+          "background": "var:preset|color|primary",
+          "text": "var:preset|color|white"
         },
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--medium)",
+          "fontSize": "var:preset|font-size|medium",
           "fontWeight": "600",
           "textTransform": "uppercase",
           "letterSpacing": "0.05em"
         },
-        "spacing": {
-          "padding": {
-            "top": "1rem",
-            "right": "2rem",
-            "bottom": "1rem",
-            "left": "2rem"
-          }
-        },
         "border": {
-          "radius": "0"
+          "radius": "calc(infinity * 1px)"
         },
         ":hover": {
           "color": {
-            "background": "var(--wp--preset--color--accent)",
-            "text": "var(--wp--preset--color--base)"
+            "background": "var:preset|color|white",
+            "text": "var:preset|color|red"
           }
         },
         ":focus": {
           "color": {
-            "background": "var(--wp--preset--color--accent)",
-            "text": "var(--wp--preset--color--base)"
+            "background": "var:preset|color|accent",
+            "text": "var:preset|color|base"
           }
         },
         ":active": {
           "color": {
-            "background": "var(--wp--preset--color--accent)",
-            "text": "var(--wp--preset--color--base)"
+            "background": "var:preset|color|accent",
+            "text": "var:preset|color|base"
           }
         }
       },
       "heading": {
         "color": {
-          "text": "var(--wp--preset--color--primary)"
+          "text": "var:preset|color|primary"
         },
         "typography": {
           "fontWeight": "700",
@@ -380,50 +686,50 @@
       },
       "h1": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--huge)"
+          "fontSize": "var:preset|font-size|xxxxx-large"
         }
       },
       "h2": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--xx-large)"
+          "fontSize": "var:preset|font-size|xxxx-large"
         }
       },
       "h3": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--x-large)"
+          "fontSize": "var:preset|font-size|xxx-large"
         }
       },
       "h4": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--large)"
+          "fontSize": "var:preset|font-size|xx-large"
         }
       },
       "h5": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--medium)"
+          "fontSize": "var:preset|font-size|x-large"
         }
       },
       "h6": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--small)"
+          "fontSize": "var:preset|font-size|large"
         }
       }
     },
     "blocks": {
       "core/site-title": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--x-large)",
+          "fontSize": "var:preset|font-size|xxx-large",
           "fontWeight": "700",
           "textTransform": "uppercase"
         },
         "elements": {
           "link": {
             "color": {
-              "text": "var(--wp--preset--color--primary)"
+              "text": "var:preset|color|primary"
             },
             ":hover": {
               "color": {
-                "text": "var(--wp--preset--color--accent)"
+                "text": "var:preset|color|accent"
               }
             }
           }
@@ -431,39 +737,39 @@
       },
       "core/navigation": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--medium)",
+          "fontSize": "var:preset|font-size|medium",
           "fontWeight": "500",
           "textTransform": "uppercase",
           "letterSpacing": "0.05em"
         },
         "spacing": {
-          "blockGap": "var(--wp--preset--spacing--medium)"
+          "blockGap": "var:preset|spacing|7"
         }
       },
       "core/post-title": {
         "typography": {
-          "fontSize": "var(--wp--preset--font-size--xx-large)",
+          "fontSize": "var:preset|font-size|xxxx-large",
           "fontWeight": "700"
         }
       },
       "core/post-content": {
         "spacing": {
-          "blockGap": "var(--wp--preset--spacing--medium)"
+          "blockGap": "var:preset|spacing|7"
         }
       },
       "core/group": {
         "spacing": {
-          "blockGap": "var(--wp--preset--spacing--medium)"
+          "blockGap": "var:preset|spacing|12"
         }
       },
       "core/columns": {
         "spacing": {
-          "blockGap": "var(--wp--preset--spacing--medium)"
+          "blockGap": "var:preset|spacing|2"
         }
       },
       "core/separator": {
         "color": {
-          "background": "var(--wp--preset--color--border)"
+          "background": "var:preset|color|border"
         }
       }
     }

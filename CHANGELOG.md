@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.9.1...v1.10.0) (2025-11-20)
+
+
+### Features
+
+* update theme.json with enhanced spacing and color configurations ([ed68057](https://github.com/TheAggressive/Aggressive-Apparel/commit/ed68057172571022cd42c070a381628779c858a1))
+
 ## [1.9.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.9.0...v1.9.1) (2025-11-18)
 
 

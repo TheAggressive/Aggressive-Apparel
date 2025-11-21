@@ -31,6 +31,7 @@ class Scripts {
 	 */
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ), 10 );
 	}
 
 	/**
@@ -61,5 +62,13 @@ class Scripts {
 		 * @since 1.0.0
 		 */
 		do_action( 'aggressive_apparel_after_enqueue_scripts' );
+	}
+
+	/**
+	 * Enqueue block assets
+	 *
+	 * @return void
+	 */
+	public function enqueue_block_assets() {
 	}
 }

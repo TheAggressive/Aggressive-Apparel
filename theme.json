@@ -576,16 +576,6 @@
         }
       ]
     },
-    "custom": {
-      "woocommerce": {
-        "productsPerPage": 12,
-        "columnsPerRow": 3,
-        "imageAspectRatio": "1:1"
-      },
-      "navigation": {
-        "maxWidth": "1400px"
-      }
-    },
     "blocks": {
       "core/button": {
         "border": {

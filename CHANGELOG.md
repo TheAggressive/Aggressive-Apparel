@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.11.0...v1.12.0) (2025-11-22)
+
+
+### Features
+
+* add color pattern management for WooCommerce ([86c0ff1](https://github.com/TheAggressive/Aggressive-Apparel/commit/86c0ff17d78c47f13bd08023e91efc3efa21c4f6))
+
 # [1.11.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.10.0...v1.11.0) (2025-11-22)
 
 

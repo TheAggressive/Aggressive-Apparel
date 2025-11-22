@@ -62,6 +62,14 @@ class Styles {
 			array( 'aggressive-apparel-main' )
 		);
 
+		if ( is_singular( 'product' ) ) {
+			Asset_Loader::enqueue_style(
+				'aggressive-apparel-product',
+				'build/styles/woocommerce/color-swatches',
+				array()
+			);
+		}
+
 		/**
 		 * Hook: After styles enqueued
 		 *

@@ -142,6 +142,10 @@ class Bootstrap {
 			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
 			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
 			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
+
+			// Register color attribute services.
+			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
+			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 		}
 	}
 
@@ -216,6 +220,12 @@ class Bootstrap {
 		}
 		if ( $this->container->has( 'wc_templates' ) ) {
 			$this->container->get( 'wc_templates' )->init();
+		}
+		if ( $this->container->has( 'color_attributes' ) ) {
+			$this->container->get( 'color_attributes' )->init();
+		}
+		if ( $this->container->has( 'color_block_swatch_manager' ) ) {
+			$this->container->get( 'color_block_swatch_manager' )->init();
 		}
 	}
 

@@ -1,0 +1,36 @@
+/**
+ * Color Swatches for WooCommerce Blocks - BEM CSS
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Block: Color swatch base styles */
+.aggressive-apparel-color-swatch {
+	display: inline-block;
+	transition: all 0.2s ease;
+
+	/* Element: The visual color circle (now applied to the swatch itself) */
+	&__circle {
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: 50%;
+		border: 2px solid #ccc;
+		display: inline-block;
+		cursor: pointer;
+
+		/* Modifier: Interactive swatches (clickable/focusable) */
+		&:focus,
+		&:hover {
+			transform: scale(1.1);
+			box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+		}
+	}
+
+	/* Modifier: When labels are shown */
+	&--with-label {
+		margin-right: 0.5rem;
+	}
+}
+
+
+

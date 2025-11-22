@@ -146,6 +146,7 @@ class Bootstrap {
 			// Register color attribute services.
 			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
+			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
 		}
 	}
 
@@ -226,6 +227,9 @@ class Bootstrap {
 		}
 		if ( $this->container->has( 'color_block_swatch_manager' ) ) {
 			$this->container->get( 'color_block_swatch_manager' )->init();
+		}
+		if ( $this->container->has( 'color_pattern_admin' ) ) {
+			$this->container->get( 'color_pattern_admin' )->register_hooks();
 		}
 	}
 

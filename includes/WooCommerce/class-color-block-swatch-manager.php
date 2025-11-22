@@ -120,12 +120,11 @@ class Color_Block_Swatch_Manager {
 					$color_term = get_term_by( 'slug', $color_slug, 'pa_color' );
 
 					if ( $color_term ) {
-						$color_value = $this->get_color_value_for_term( $color_term );
+						$color_data = $this->get_color_display_data_for_term( $color_term );
 
-						if ( ! empty( $color_value ) && $this->is_valid_hex_color( $color_value ) ) {
-							// Create accessible swatch HTML with optional margin.
-							$margin_style = $this->show_label ? 'margin-right: 0.5rem;' : '';
-							$aria_label   = sprintf(
+						if ( $color_data['is_valid'] && ! empty( $color_data['value'] ) ) {
+							// Create accessible swatch HTML.
+							$aria_label = sprintf(
 								/* translators: %s: color name */
 								__( 'Color option: %s', 'aggressive-apparel' ),
 								$color_term->name
@@ -136,13 +135,23 @@ class Color_Block_Swatch_Manager {
 								$classes .= ' aggressive-apparel-color-swatch--with-label';
 							}
 
+							// Different styling based on color type.
+							if ( 'pattern' === $color_data['type'] ) {
+								$classes         .= ' aggressive-apparel-color-swatch--pattern';
+								$background_style = 'background-image: url(\'' . esc_url( $color_data['value'] ) . '\');';
+								$data_attributes  = 'data-pattern-url="' . esc_attr( $color_data['value'] ) . '"';
+							} else {
+								$background_style = 'background-color: ' . esc_attr( $color_data['value'] ) . ';';
+								$data_attributes  = 'data-color="' . esc_attr( $color_data['value'] ) . '"';
+							}
+
 							$swatch_html = '<span class="' . esc_attr( $classes ) . ' aggressive-apparel-color-swatch__circle" ' .
-								'style="background-color: ' . esc_attr( $color_value ) . ';" ' .
+								'style="' . $background_style . '" ' .
 								'aria-label="' . esc_attr( $aria_label ) . '" ' .
 								'role="img" ' .
 								'tabindex="0" ' .
 								'title="' . esc_attr( $color_term->name ) . '" ' .
-								'data-color="' . esc_attr( $color_value ) . '" ' .
+								$data_attributes . ' ' .
 								'data-color-name="' . esc_attr( $color_term->name ) . '">' .
 								'</span>';
 
@@ -176,22 +185,54 @@ class Color_Block_Swatch_Manager {
 	}
 
 	/**
-	 * Retrieve the color value for a given term
+	 * Retrieve the color display data for a given term
 	 *
-	 * Checks both 'color_value' and 'color_hex' meta fields for backward compatibility.
+	 * Handles both solid colors and patterns.
 	 *
 	 * @param WP_Term $term The color term object.
-	 * @return string The color value or empty string if not found.
+	 * @return array Array with 'type' ('solid' or 'pattern'), 'value' (color or image URL), and 'is_valid'.
 	 */
-	private function get_color_value_for_term( WP_Term $term ): string {
-		$color_value = get_term_meta( $term->term_id, 'color_value', true );
+	private function get_color_display_data_for_term( WP_Term $term ): array {
+		$color_type = get_term_meta( $term->term_id, 'color_type', true );
 
-		// Fallback to hex field for backward compatibility.
-		if ( empty( $color_value ) ) {
-			$color_value = get_term_meta( $term->term_id, 'color_hex', true );
+		// Default to solid for backward compatibility.
+		if ( empty( $color_type ) ) {
+			$color_type = 'solid';
 		}
 
-		return $color_value;
+		if ( 'pattern' === $color_type ) {
+			$pattern_id = get_term_meta( $term->term_id, 'color_pattern_id', true );
+
+			if ( $pattern_id && wp_attachment_is_image( $pattern_id ) ) {
+				$pattern_url = wp_get_attachment_url( $pattern_id );
+				return array(
+					'type'     => 'pattern',
+					'value'    => $pattern_url,
+					'is_valid' => true,
+				);
+			} else {
+				// Pattern set but invalid/missing.
+				return array(
+					'type'     => 'pattern',
+					'value'    => '',
+					'is_valid' => false,
+				);
+			}
+		} else {
+			// Solid color handling.
+			$color_value = get_term_meta( $term->term_id, 'color_value', true );
+
+			// Fallback to hex field for backward compatibility.
+			if ( empty( $color_value ) ) {
+				$color_value = get_term_meta( $term->term_id, 'color_hex', true );
+			}
+
+			return array(
+				'type'     => 'solid',
+				'value'    => $color_value,
+				'is_valid' => $this->is_valid_hex_color( $color_value ),
+			);
+		}
 	}
 
 	/**

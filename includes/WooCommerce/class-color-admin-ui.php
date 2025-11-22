@@ -30,6 +30,22 @@ class Color_Admin_UI {
 	private const ATTRIBUTE_NAME = 'pa_color';
 
 	/**
+	 * Color Pattern Admin instance
+	 *
+	 * @var Color_Pattern_Admin
+	 */
+	private Color_Pattern_Admin $pattern_admin;
+
+	/**
+	 * Constructor
+	 *
+	 * @param Color_Pattern_Admin $pattern_admin Pattern admin instance.
+	 */
+	public function __construct( Color_Pattern_Admin $pattern_admin ) {
+		$this->pattern_admin = $pattern_admin;
+	}
+
+	/**
 	 * Register admin hooks
 	 *
 	 * @return void
@@ -62,10 +78,44 @@ class Color_Admin_UI {
 	public function add_color_field(): void {
 		?>
 		<div class="form-field">
+			<label><?php esc_html_e( 'Color Type', 'aggressive-apparel' ); ?></label>
+			<div class="color-type-selection" style="display: flex; gap: 1rem;">
+				<label>
+					<input type="radio" name="color_type" value="solid" checked="checked" class="color-type-radio" />
+					<?php esc_html_e( 'Solid Color', 'aggressive-apparel' ); ?>
+				</label>
+				<label>
+					<input type="radio" name="color_type" value="pattern" class="color-type-radio" />
+					<?php esc_html_e( 'Pattern', 'aggressive-apparel' ); ?>
+				</label>
+			</div>
+		</div>
+
+		<div class="form-field color-field-solid">
 			<label for="color_value"><?php esc_html_e( 'Color', 'aggressive-apparel' ); ?></label>
 			<input type="text" name="color_value" id="color_value" class="color-picker" value="#000000" />
-			<p><?php esc_html_e( 'Choose a color for this product attribute.', 'aggressive-apparel' ); ?></p>
+			<p><?php esc_html_e( 'Choose a solid color for this product attribute.', 'aggressive-apparel' ); ?></p>
 		</div>
+
+		<div class="form-field color-field-pattern" style="display: none;">
+			<label><?php esc_html_e( 'Pattern Image', 'aggressive-apparel' ); ?></label>
+			<?php $this->pattern_admin->render_pattern_upload_ui(); ?>
+		</div>
+
+		<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			$('.color-type-radio').on('change', function() {
+				var selectedType = $(this).val();
+				if (selectedType === 'solid') {
+					$('.color-field-solid').removeAttr('style');
+					$('.color-field-pattern').attr('style', 'display: none;');
+				} else if (selectedType === 'pattern') {
+					$('.color-field-solid').attr('style', 'display: none;');
+					$('.color-field-pattern').removeAttr('style');
+				}
+			});
+		});
+		</script>
 		<?php
 	}
 
@@ -76,23 +126,76 @@ class Color_Admin_UI {
 	 * @return void
 	 */
 	public function edit_color_field( \WP_Term $term ): void {
+		$color_type  = get_term_meta( $term->term_id, 'color_type', true );
 		$color_value = get_term_meta( $term->term_id, 'color_value', true );
 
+		// Default to solid if no type set (backward compatibility).
+		if ( empty( $color_type ) ) {
+			$color_type = 'solid';
+		}
+
 		// Fallback to hex for backward compatibility.
-		if ( empty( $color_value ) ) {
+		if ( empty( $color_value ) && 'solid' === $color_type ) {
 			$hex_value   = get_term_meta( $term->term_id, 'color_hex', true );
 			$color_value = $hex_value ? $hex_value : '#000000';
 		}
+
+		$solid_checked   = ( 'solid' === $color_type ) ? 'checked="checked"' : '';
+		$pattern_checked = ( 'pattern' === $color_type ) ? 'checked="checked"' : '';
+		$solid_display   = ( 'solid' === $color_type ) ? '' : 'none';
+		$pattern_display = ( 'pattern' === $color_type ) ? '' : 'none';
 		?>
 		<tr class="form-field">
+			<th scope="row">
+				<label><?php esc_html_e( 'Color Type', 'aggressive-apparel' ); ?></label>
+			</th>
+			<td>
+				<div class="color-type-selection" style="display: flex; gap: 1rem;">
+					<label>
+						<input type="radio" name="color_type" value="solid" <?php echo esc_attr( $solid_checked ); ?> class="color-type-radio" />
+						<?php esc_html_e( 'Solid Color', 'aggressive-apparel' ); ?>
+					</label>
+					<label>
+						<input type="radio" name="color_type" value="pattern" <?php echo esc_attr( $pattern_checked ); ?> class="color-type-radio" />
+						<?php esc_html_e( 'Pattern', 'aggressive-apparel' ); ?>
+					</label>
+				</div>
+			</td>
+		</tr>
+
+		<tr class="form-field color-field-solid"<?php echo $solid_display ? ' style="display: ' . esc_attr( $solid_display ) . ';"' : ''; ?>>
 			<th scope="row">
 				<label for="color_value"><?php esc_html_e( 'Color', 'aggressive-apparel' ); ?></label>
 			</th>
 			<td>
 				<input type="text" name="color_value" id="color_value" class="color-picker" value="<?php echo esc_attr( $color_value ); ?>" />
-				<p class="description"><?php esc_html_e( 'Choose a color for this product attribute.', 'aggressive-apparel' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Choose a solid color for this product attribute.', 'aggressive-apparel' ); ?></p>
 			</td>
 		</tr>
+
+		<tr class="form-field color-field-pattern"<?php echo $pattern_display ? ' style="display: ' . esc_attr( $pattern_display ) . ';"' : ''; ?>>
+			<th scope="row">
+				<label><?php esc_html_e( 'Pattern Image', 'aggressive-apparel' ); ?></label>
+			</th>
+			<td>
+				<?php $this->pattern_admin->render_pattern_upload_ui( $term->term_id ); ?>
+			</td>
+		</tr>
+
+		<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			$('.color-type-radio').on('change', function() {
+				var selectedType = $(this).val();
+				if (selectedType === 'solid') {
+					$('.color-field-solid').removeAttr('style');
+					$('.color-field-pattern').attr('style', 'display: none;');
+				} else if (selectedType === 'pattern') {
+					$('.color-field-solid').attr('style', 'display: none;');
+					$('.color-field-pattern').removeAttr('style');
+				}
+			});
+		});
+		</script>
 		<?php
 	}
 
@@ -108,23 +211,59 @@ class Color_Admin_UI {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_categories' ) ) {
 			return;
 		}
 
-		// Default to hex format for user-friendly color picker.
-		$color_format = 'hex';
-		$color_value  = isset( $_POST['color_value'] ) ? sanitize_hex_color( wp_unslash( $_POST['color_value'] ) ) : '';
+		$color_type = isset( $_POST['color_type'] ) ? sanitize_text_field( wp_unslash( $_POST['color_type'] ) ) : 'solid';
 
-		// Validate color value.
-		if ( ! empty( $color_value ) && $this->validate_color_value( $color_value, $color_format ) ) {
-			update_term_meta( $term_id, 'color_value', $color_value );
-			update_term_meta( $term_id, 'color_format', $color_format );
+		// Validate color type.
+		if ( ! in_array( $color_type, array( 'solid', 'pattern' ), true ) ) {
+			$color_type = 'solid';
+		}
 
-			// Keep backward compatibility with hex field.
-			update_term_meta( $term_id, 'color_hex', $color_value );
-		} else {
-			// Clear color data if invalid.
+		// Save color type.
+		update_term_meta( $term_id, 'color_type', $color_type );
+
+		if ( 'solid' === $color_type ) {
+			// Handle solid color.
+			$color_format = 'hex';
+			$color_value  = isset( $_POST['color_value'] ) ? sanitize_hex_color( wp_unslash( $_POST['color_value'] ) ) : '';
+
+			// Validate and save color value.
+			if ( ! empty( $color_value ) && $this->validate_color_value( $color_value, $color_format ) ) {
+				update_term_meta( $term_id, 'color_value', $color_value );
+				update_term_meta( $term_id, 'color_format', $color_format );
+
+				// Keep backward compatibility with hex field.
+				update_term_meta( $term_id, 'color_hex', $color_value );
+			} else {
+				// Clear color data if invalid.
+				delete_term_meta( $term_id, 'color_value' );
+				delete_term_meta( $term_id, 'color_format' );
+				delete_term_meta( $term_id, 'color_hex' );
+			}
+
+			// Clear any pattern data.
+			delete_term_meta( $term_id, 'color_pattern_id' );
+
+		} elseif ( 'pattern' === $color_type ) {
+			// Handle pattern.
+			$pattern_id = isset( $_POST['color_pattern_id'] ) ? absint( $_POST['color_pattern_id'] ) : 0;
+
+			if ( $pattern_id > 0 ) {
+				// Verify the attachment exists and is an image.
+				$attachment = get_post( $pattern_id );
+				if ( $attachment && 'attachment' === $attachment->post_type && wp_attachment_is_image( $pattern_id ) ) {
+					update_term_meta( $term_id, 'color_pattern_id', $pattern_id );
+				} else {
+					delete_term_meta( $term_id, 'color_pattern_id' );
+				}
+			} else {
+				delete_term_meta( $term_id, 'color_pattern_id' );
+			}
+
+			// Clear any solid color data.
 			delete_term_meta( $term_id, 'color_value' );
 			delete_term_meta( $term_id, 'color_format' );
 			delete_term_meta( $term_id, 'color_hex' );
@@ -219,18 +358,79 @@ class Color_Admin_UI {
 	}
 
 	/**
-	 * Populate the color column with color swatches
+	 * Populate the color column with color swatches or pattern previews
 	 *
-	 * @param string $content    Column content.
+	 * @param string $value       Column value.
 	 * @param string $column_name Column name.
-	 * @param int    $term_id    Term ID.
+	 * @param string $term_id     Term ID.
 	 * @return void
 	 */
-	public function populate_color_column( string $content, string $column_name, int $term_id ): void {
+	public function populate_color_column( string $value, string $column_name, string $term_id ): void {
 		if ( 'color' !== $column_name ) {
 			return;
 		}
 
+			$color_type = get_term_meta( (int) $term_id, 'color_type', true );
+			$pattern_id = get_term_meta( (int) $term_id, 'color_pattern_id', true );
+
+		// If we have a pattern, always show it (patterns override solid colors).
+		if ( ! empty( $pattern_id ) && wp_attachment_is_image( $pattern_id ) ) {
+			$this->render_pattern_column( (int) $term_id );
+		} elseif ( 'solid' === $color_type || empty( $color_type ) ) {
+			$this->render_solid_color_column( (int) $term_id );
+		} else {
+			// Fallback for invalid states.
+			$this->render_solid_color_column( (int) $term_id );
+		}
+	}
+
+	/**
+	 * Render pattern preview in taxonomy column
+	 *
+	 * @param int $term_id Term ID.
+	 * @return void
+	 */
+	private function render_pattern_column( int $term_id ): void {
+		$pattern_id = get_term_meta( $term_id, 'color_pattern_id', true );
+
+		if ( ! $pattern_id ) {
+			// No pattern set, show placeholder.
+			printf(
+				'<div class="color-pattern-placeholder" style="width: 30px; height: 30px; border: 1px dashed #ddd; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #f8f9fa;" title="%s">?</div>',
+				esc_attr__( 'No pattern set', 'aggressive-apparel' )
+			);
+			return;
+		}
+
+		$term          = get_term( $term_id, self::ATTRIBUTE_NAME );
+		$thumbnail_url = wp_get_attachment_image_url( $pattern_id, 'thumbnail' );
+
+		if ( $thumbnail_url && $term instanceof \WP_Term ) {
+			/* translators: %s: color term name */
+			printf(
+				'<img src="%s" alt="%s" class="color-pattern-preview" style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%%; border: 1px solid #ccc;" title="%s" />',
+				esc_url( $thumbnail_url ),
+				/* translators: %s: color term name */
+				esc_attr( sprintf( __( 'Pattern preview for %s', 'aggressive-apparel' ), $term->name ) ),
+				/* translators: %s: color term name */
+				esc_attr( sprintf( __( 'Pattern for %s', 'aggressive-apparel' ), $term->name ) )
+			);
+		} else {
+			// Fallback if image doesn't exist.
+			printf(
+				'<div class="color-pattern-error" style="width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #fff;" title="%s">!</div>',
+				esc_attr__( 'Pattern image not found', 'aggressive-apparel' )
+			);
+		}
+	}
+
+	/**
+	 * Render solid color swatch in taxonomy column
+	 *
+	 * @param int $term_id Term ID.
+	 * @return void
+	 */
+	private function render_solid_color_column( int $term_id ): void {
 		$color_value = get_term_meta( $term_id, 'color_value', true );
 
 		// Fallback to hex for backward compatibility.
@@ -246,7 +446,7 @@ class Color_Admin_UI {
 
 		// Output color swatch with inline styling.
 		printf(
-			'<div class="color-swatch" style="background-color: %s; width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 50%%; display: inline-block; margin: 0 auto;" title="%s"></div>',
+			'<div class="color-swatch" style="background-color: %s; width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center;" title="%s"></div>',
 			esc_attr( $color_value ),
 			esc_attr( $color_value )
 		);

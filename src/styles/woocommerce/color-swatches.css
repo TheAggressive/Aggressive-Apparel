@@ -11,8 +11,8 @@
 
 	/* Element: The visual color circle (now applied to the swatch itself) */
 	&__circle {
-		width: 1.5rem;
-		height: 1.5rem;
+		width: 2.5rem;
+		height: 2.5rem;
 		border-radius: 50%;
 		border: 2px solid #ccc;
 		display: inline-block;
@@ -29,6 +29,13 @@
 	/* Modifier: When labels are shown */
 	&--with-label {
 		margin-right: 0.5rem;
+	}
+
+	/* Modifier: Pattern swatches */
+	&--pattern {
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-position: center;
 	}
 }
 

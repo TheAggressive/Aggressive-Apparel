@@ -78,26 +78,54 @@ class Color_Data_Manager {
 	 * @return array Formatted color data.
 	 */
 	private function format_color_term( \WP_Term $term ): array {
+		$color_type   = get_term_meta( $term->term_id, 'color_type', true );
 		$color_value  = get_term_meta( $term->term_id, 'color_value', true );
 		$format_value = get_term_meta( $term->term_id, 'color_format', true );
+		$pattern_id   = get_term_meta( $term->term_id, 'color_pattern_id', true );
 		$color_format = $format_value ? $format_value : 'hex';
 
-		// Fallback to hex for backward compatibility.
-		if ( empty( $color_value ) ) {
-			$hex_value    = get_term_meta( $term->term_id, 'color_hex', true );
-			$color_value  = $hex_value ? $hex_value : '#000000';
-			$color_format = 'hex';
+		// Default to solid for backward compatibility.
+		if ( empty( $color_type ) ) {
+			$color_type = 'solid';
 		}
 
-		return array(
-			'id'     => $term->term_id,
-			'name'   => $term->name,
-			'slug'   => $term->slug,
-			'value'  => $color_value,
-			'format' => $color_format,
-			'hex'    => $color_value, // For hex format, value is already hex.
-			'count'  => $term->count,
-		);
+		// Handle different color types.
+		if ( 'pattern' === $color_type ) {
+			// For patterns, we use the pattern image URL as the display value.
+			$pattern_url   = $pattern_id ? wp_get_attachment_url( $pattern_id ) : '';
+			$display_value = $pattern_url;
+
+			return array(
+				'id'          => $term->term_id,
+				'name'        => $term->name,
+				'slug'        => $term->slug,
+				'type'        => 'pattern',
+				'value'       => $display_value,
+				'pattern_id'  => $pattern_id,
+				'pattern_url' => $pattern_url,
+				'format'      => 'pattern',
+				'count'       => $term->count,
+			);
+		} else {
+			// Solid color handling (existing logic).
+			// Fallback to hex for backward compatibility.
+			if ( empty( $color_value ) ) {
+				$hex_value    = get_term_meta( $term->term_id, 'color_hex', true );
+				$color_value  = $hex_value ? $hex_value : '#000000';
+				$color_format = 'hex';
+			}
+
+			return array(
+				'id'     => $term->term_id,
+				'name'   => $term->name,
+				'slug'   => $term->slug,
+				'type'   => 'solid',
+				'value'  => $color_value,
+				'format' => $color_format,
+				'hex'    => $color_value, // For hex format, value is already hex.
+				'count'  => $term->count,
+			);
+		}
 	}
 
 	/**

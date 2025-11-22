@@ -47,14 +47,27 @@ class Color_Attribute_Manager {
 	 *
 	 * @var Color_Admin_UI
 	 */
+	/**
+	 * Color Admin UI instance
+	 *
+	 * @var Color_Admin_UI
+	 */
 	private Color_Admin_UI $admin_ui;
+
+	/**
+	 * Color Pattern Admin instance
+	 *
+	 * @var Color_Pattern_Admin
+	 */
+	private Color_Pattern_Admin $pattern_admin;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->data_manager = new Color_Data_Manager();
-		$this->admin_ui     = new Color_Admin_UI();
+		$this->data_manager  = new Color_Data_Manager();
+		$this->pattern_admin = new Color_Pattern_Admin();
+		$this->admin_ui      = new Color_Admin_UI( $this->pattern_admin );
 	}
 
 	/**

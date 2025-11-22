@@ -1,0 +1,134 @@
+/**
+ * Color Pattern Admin Styles
+ *
+ * BEM-styled CSS for pattern upload and management in WordPress admin
+ *
+ * @package Aggressive_Apparel
+ * @since 1.0.0
+ */
+
+.aggressive-apparel-color-pattern-admin {
+	margin: 0;
+	padding: 1em;
+	background: #f8f9fa;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+  width: 90%;
+
+	&__preview {
+		text-align: center;
+		margin-bottom: 1em;
+	}
+
+	&__thumbnail {
+		max-width: 100px;
+		max-height: 100px;
+		border: 1px solid #8c8f94;
+		border-radius: 50%;
+		box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+	}
+
+	&__no-pattern {
+		padding: 2em;
+		border: 2px dashed #8c8f94;
+		border-radius: 4px;
+		background: #fff;
+
+		p {
+			margin: 0 0 1em;
+			color: #666;
+		}
+	}
+
+	&__actions {
+		margin-top: 1em;
+
+		.button {
+			margin-right: 0.5em;
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+
+	&__upload-button,
+	&__change-button {
+		background: #007cba;
+		border-color: #007cba;
+		color: #fff;
+
+		&:hover {
+			background: #005a87;
+			border-color: #005a87;
+		}
+	}
+
+	&__remove-button {
+		background: #dc3232;
+		border-color: #dc3232;
+		color: #fff;
+
+		&:hover {
+			background: #a00;
+			border-color: #a00;
+		}
+	}
+
+	&--loading {
+		opacity: 0.7;
+		pointer-events: none;
+		position: relative;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 20px;
+			height: 20px;
+			margin: -10px 0 0 -10px;
+			border: 2px solid #007cba;
+			border-top: 2px solid transparent;
+			border-radius: 50%;
+			animation: aggressive-apparel-color-pattern-admin-spin 1s linear infinite;
+		}
+	}
+
+	&__description {
+		margin-top: 1em;
+		color: #666;
+		font-style: italic;
+    text-align: center;
+	}
+}
+
+@keyframes aggressive-apparel-color-pattern-admin-spin {
+
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive adjustments */
+@media screen and (width <= 782px) {
+
+	.aggressive-apparel-color-pattern-admin {
+
+		&__actions .button {
+			display: block;
+			width: 100%;
+			margin: 0.25em 0;
+			text-align: center;
+		}
+
+		&__thumbnail {
+			max-width: 80px;
+			max-height: 80px;
+		}
+	}
+}

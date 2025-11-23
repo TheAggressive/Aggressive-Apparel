@@ -31,9 +31,9 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'                           => $combined_classes,
-		'data-wp-interactive'             => 'aggressive-apparel/animate-on-scroll',
-		'data-wp-context'                 => wp_json_encode(
+		'class'                     => $combined_classes,
+		'data-wp-interactive'       => 'aggressive-apparel/animate-on-scroll',
+		'data-wp-context'           => wp_json_encode(
 			array(
 				'isVisible'         => false,
 				'debugMode'         => $attributes['debugMode'],
@@ -43,10 +43,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 			)
 		),
-		'data-wp-init'                    => 'callbacks.initObserver',
-		'data-wp-class--is-visible'       => 'context.isVisible',
-		'data-stagger-children'           => $attributes['staggerChildren'] ? 'true' : 'false',
-		'data-wp-on-async-window--resize' => 'callbacks.handleResize',
+		'data-wp-init'              => 'callbacks.initObserver',
+		'data-wp-class--is-visible' => 'context.isVisible',
+		'data-stagger-children'     => $attributes['staggerChildren'] ? 'true' : 'false',
+		'data-wp-on-window--resize' => 'callbacks.handleResize',
 	)
 );
 ?>

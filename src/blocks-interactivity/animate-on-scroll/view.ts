@@ -1,4 +1,9 @@
+/// <reference types="@wordpress/interactivity" />
 import { getContext, getElement, store } from '@wordpress/interactivity';
+
+/**
+ * Utility functions
+ */
 
 // Invert the value of a CSS variable
 const invertValue = (value: string): string => {
@@ -9,6 +14,69 @@ const invertValue = (value: string): string => {
   const num = parseInt(match[1], 10);
   const unit = match[2];
   return `${-num}${unit}`;
+};
+
+// Apply inline styles to visibility trigger line element
+const applyLineStyles = (element: HTMLElement, linePosition: number): void => {
+  element.style.visibility = 'visible';
+  element.style.display = 'block';
+  element.style.opacity = '1';
+  element.style.position = 'absolute';
+  element.style.top = `${linePosition}px`;
+  element.style.left = '0';
+  element.style.width = '100%';
+  element.style.height = '2px';
+  element.style.borderTop = '2px dashed rgb(220 38 38)';
+  element.style.backgroundColor = 'rgb(220 38 38 / 0.5)';
+  element.style.zIndex = '9999';
+  element.style.pointerEvents = 'none';
+};
+
+// Apply inline styles to visibility trigger label element
+const applyLabelStyles = (element: HTMLElement, linePosition: number): void => {
+  element.style.visibility = 'visible';
+  element.style.display = 'flex';
+  element.style.opacity = '1';
+  element.style.position = 'absolute';
+  element.style.top = `${linePosition}px`;
+  element.style.left = '50%';
+  element.style.transform = 'translate(-50%, -50%)';
+  element.style.zIndex = '9999';
+  element.style.backgroundColor = 'rgb(220 38 68)';
+  element.style.color = 'white';
+  element.style.padding = '0.25rem 0.5rem';
+  element.style.borderRadius = '0.375rem';
+  element.style.fontSize = '0.75rem';
+  element.style.whiteSpace = 'nowrap';
+  element.style.pointerEvents = 'none';
+};
+
+// Get current scroll position (cross-browser compatible)
+const getScrollPosition = (): { top: number; left: number } => {
+  return {
+    top: window.pageYOffset || document.documentElement.scrollTop,
+    left: window.pageXOffset || document.documentElement.scrollLeft,
+  };
+};
+
+// Position a container element to match the target element's position
+const positionContainer = (
+  container: HTMLElement,
+  element: HTMLElement,
+  entryHeight: { current: number }
+): void => {
+  const rect = element.getBoundingClientRect();
+  const scroll = getScrollPosition();
+  const absoluteTop = rect.top + scroll.top;
+  const absoluteLeft = rect.left + scroll.left;
+
+  entryHeight.current = rect.height;
+
+  container.style.position = 'absolute';
+  container.style.top = `${absoluteTop}px`;
+  container.style.left = `${absoluteLeft}px`;
+  container.style.width = `${rect.width}px`;
+  container.style.height = `${rect.height}px`;
 };
 
 /**
@@ -84,37 +152,58 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         // This ensures it's visible even when element is hidden and positions correctly
         document.body.appendChild(debugContentContainer);
 
+        // Force visibility styles to ensure it's visible on all devices
+        debugContentContainer.style.visibility = 'visible';
+        debugContentContainer.style.display = 'block';
+        debugContentContainer.style.opacity = '1';
+
         // Position the container to match the element's position
         actions.updateDebugContainerPosition();
       }
     },
     updateDebugContainerPosition: () => {
-      if (!state.elementRef) return;
+      if (!state.elementRef || !state.ctx.id) {
+        return;
+      }
+
+      const containerClass = `wp-block-animate-on-scroll-debug-container-${state.ctx.id}`;
       const debugContentContainer = document.querySelector(
-        `.wp-block-animate-on-scroll-debug-container-${state.ctx.id}`
+        `.${containerClass}`
       ) as HTMLElement | null;
-      if (!debugContentContainer) return;
 
-      // Use getBoundingClientRect() for accurate position calculation
-      // This accounts for transforms, margins, borders, and all CSS positioning
-      const rect = state.elementRef.getBoundingClientRect();
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || document.documentElement.scrollLeft;
+      if (!debugContentContainer) {
+        // Container doesn't exist - try to create it if debug mode is enabled
+        if (state.ctx.debugMode) {
+          actions.debugContentContainer();
+          // Try again after creation
+          const newContainer = document.querySelector(
+            `.${containerClass}`
+          ) as HTMLElement | null;
+          if (!newContainer) {
+            return;
+          }
+          // Position the newly created container
+          positionContainer(newContainer, state.elementRef, {
+            current: state.entryHeight,
+          });
+          return;
+        }
+        return;
+      }
 
-      // Calculate document-relative position
-      const absoluteTop = rect.top + scrollTop;
-      const absoluteLeft = rect.left + scrollLeft;
-
-      // Position the container absolutely to match the element's position in the document
-      debugContentContainer.style.position = 'absolute';
-      debugContentContainer.style.top = `${absoluteTop}px`;
-      debugContentContainer.style.left = `${absoluteLeft}px`;
-      debugContentContainer.style.width = `${rect.width}px`;
-      debugContentContainer.style.height = `${rect.height}px`;
+      // Position the container to match the element's position
+      // Uses getBoundingClientRect() for accurate calculation that accounts for
+      // transforms, margins, borders, and all CSS positioning
+      positionContainer(debugContentContainer, state.elementRef, {
+        current: state.entryHeight,
+      });
     },
     debugVisibilityTriggerLine: () => {
+      // Recalculate entry height in case element size changed (important for responsive layouts)
+      if (state.elementRef) {
+        state.entryHeight = state.elementRef.offsetHeight;
+      }
+
       // Update container position first in case element has moved
       actions.updateDebugContainerPosition();
 
@@ -122,10 +211,16 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       const debugContentContainer = document.querySelector(
         `.wp-block-animate-on-scroll-debug-container-${state.ctx.id}`
       ) as HTMLElement | null;
-      if (!debugContentContainer) return;
+
+      if (!debugContentContainer) {
+        return;
+      }
 
       // Calculate and update CSS variable for Debug Visibility Trigger Line & Label
-      const linePosition = state.entryHeight * state.ctx.visibilityTrigger;
+      // Recalculate based on current element height
+      const currentHeight = state.elementRef?.offsetHeight || state.entryHeight;
+      const linePosition = currentHeight * state.ctx.visibilityTrigger;
+
       debugContentContainer.style.setProperty(
         '--wp-block-animate-on-scroll-debug-visibility-trigger-top',
         `${linePosition}px`
@@ -146,7 +241,11 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         // Create intersection line indicator
         debugVisibilityTriggerLine = document.createElement('div');
         debugVisibilityTriggerLine.className = lineClass;
+        applyLineStyles(debugVisibilityTriggerLine, linePosition);
         debugContentContainer.appendChild(debugVisibilityTriggerLine);
+      } else {
+        // Update existing line position
+        debugVisibilityTriggerLine.style.top = `${linePosition}px`;
       }
 
       if (!debugVisibilityTriggerLineLabel) {
@@ -154,11 +253,17 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         debugVisibilityTriggerLineLabel = document.createElement('div');
         debugVisibilityTriggerLineLabel.className = labelClass;
         debugVisibilityTriggerLineLabel.textContent = `Visibility Trigger: ${state.ctx.visibilityTrigger * 100}%`;
+        applyLabelStyles(debugVisibilityTriggerLineLabel, linePosition);
         debugContentContainer.appendChild(debugVisibilityTriggerLineLabel);
       } else {
-        // Update label text in case visibility trigger changed
+        // Update label text and position in case visibility trigger changed
         debugVisibilityTriggerLineLabel.textContent = `Visibility Trigger: ${state.ctx.visibilityTrigger * 100}%`;
+        debugVisibilityTriggerLineLabel.style.top = `${linePosition}px`;
       }
+
+      // Force a reflow to ensure browser renders the elements on small screens
+      // This is especially important for mobile devices where initial render might be delayed
+      void debugContentContainer.offsetHeight; // Trigger reflow
     },
     removeDebugOverlays: () => {
       // Remove block-specific debug elements
@@ -226,6 +331,62 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       // Call the debug function to create overlays for debugging if enabled
       actions.debug();
 
+      // Force an update after a brief delay to ensure elements are visible on small screens
+      // This fixes the issue where visibility trigger doesn't show on initial load
+      // Capture context and ref in closure to ensure correct values are used
+      if (ctx.debugMode) {
+        const blockId = ctx.id;
+        const elementRef = ref;
+        const debugMode = ctx.debugMode;
+
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          // Double RAF to ensure browser has rendered
+          requestAnimationFrame(() => {
+            // Check if container exists for this specific block (don't rely on shared state.ctx)
+            // This is important because state.ctx is shared and may be overwritten by other blocks
+            const containerClass = `wp-block-animate-on-scroll-debug-container-${blockId}`;
+            const container = document.querySelector(
+              `.${containerClass}`
+            ) as HTMLElement | null;
+
+            if (container && elementRef && debugMode) {
+              // Temporarily set state for this update (state.ctx is shared across blocks)
+              const previousCtx = state.ctx;
+              const previousElementRef = state.elementRef;
+
+              state.ctx = ctx;
+              state.elementRef = elementRef;
+
+              try {
+                actions.updateDebugContainerPosition();
+                actions.debugVisibilityTriggerLine();
+
+                // Force another update after a short delay to ensure visibility on small screens
+                // Sometimes the browser needs an extra render cycle on mobile
+                setTimeout(() => {
+                  if (
+                    document.querySelector(`.${containerClass}`) &&
+                    elementRef
+                  ) {
+                    state.ctx = ctx;
+                    state.elementRef = elementRef;
+                    actions.updateDebugContainerPosition();
+                    actions.debugVisibilityTriggerLine();
+                    state.ctx = previousCtx;
+                    state.elementRef = previousElementRef;
+                  }
+                }, 100);
+              } finally {
+                // Restore previous state (in case another block is using it)
+                state.ctx = previousCtx;
+                state.elementRef = previousElementRef;
+              }
+            }
+          });
+        });
+      }
+
       // Create a new Intersection Observer to detect when elements enter the viewport
       // The observer will monitor elements and trigger a callback when they become visible
       const observer = new IntersectionObserver(
@@ -251,8 +412,21 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       // Add scroll and resize listeners to update debug container position
       let scrollUpdateTimeout: number | null = null;
       const updateDebugPosition = () => {
-        if (ctx.debugMode && scrollUpdateTimeout === null) {
+        // Only update if debug mode is enabled and we have a valid context
+        if (
+          ctx.debugMode &&
+          state.ctx.id === ctx.id &&
+          scrollUpdateTimeout === null
+        ) {
           scrollUpdateTimeout = requestAnimationFrame(() => {
+            // Ensure state is up to date
+            state.ctx = ctx;
+            state.elementRef = ref;
+
+            // Recalculate entry height in case element size changed
+            if (ref) {
+              state.entryHeight = ref.offsetHeight;
+            }
             actions.updateDebugContainerPosition();
             actions.debugVisibilityTriggerLine(); // Update line position too
             scrollUpdateTimeout = null;
@@ -264,6 +438,8 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         window.addEventListener('scroll', updateDebugPosition, {
           passive: true,
         });
+        // Note: We also have handleResize callback via data-wp-on-window--resize
+        // This is a backup for immediate updates
         window.addEventListener('resize', updateDebugPosition, {
           passive: true,
         });
@@ -282,13 +458,24 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
     handleResize: () => {
       const ctx = getContext<AnimateOnScrollContext>();
       const { ref } = getElement();
-      if (!ref) return;
-      // If debug mode is enabled, update the container position and intersection line position
-      if (ctx.debugMode === true) {
-        state.entryHeight = ref.offsetHeight;
-        actions.updateDebugContainerPosition();
-        actions.debugVisibilityTriggerLine(); // Consolidated function handles both creation and update
+
+      // Early return if no ref or debug mode is disabled
+      if (!ref || !ctx.debugMode) {
+        return;
       }
+
+      // Update state context to ensure it's current
+      state.ctx = ctx;
+      state.elementRef = ref;
+
+      // Recalculate entry height (important for responsive layouts)
+      state.entryHeight = ref.offsetHeight;
+
+      // Update container position (handles viewport changes)
+      actions.updateDebugContainerPosition();
+
+      // Update visibility trigger line position (recalculates based on new height)
+      actions.debugVisibilityTriggerLine();
     },
   },
 });

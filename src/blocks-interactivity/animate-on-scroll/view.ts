@@ -30,6 +30,9 @@ interface AnimateOnScrollContext {
   intersectionRatio: number;
 }
 
+// Track active debug blocks for shared Detection Boundary overlay
+let activeDebugBlocks = new Set<string>();
+
 const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
   state: {
     isVisible: false,
@@ -44,7 +47,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         'wp-block-animate-on-scroll-debug-detection-boundary-overlay';
       let debugDetectionBoundaryOverlay = document.querySelector(
         `.${overlayId}`
-      );
+      ) as HTMLElement | null;
 
       if (!debugDetectionBoundaryOverlay) {
         debugDetectionBoundaryOverlay = document.createElement('div');
@@ -52,33 +55,38 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         document.body.appendChild(debugDetectionBoundaryOverlay);
       }
 
-      // Generate CSS variable
-      const cssVariables = Object.entries(state.ctx.detectionBoundary).reduce(
-        (acc, [key, value]) => {
-          const normalizedValue =
-            value?.endsWith('%') || value?.endsWith('px') ? value : '0%';
-          return (
-            acc +
-            `--wp-block-animate-on-scroll-detection-boundary-overlay-${key}: ${invertValue(normalizedValue)};\n`
-          );
-        },
-        ''
-      );
-
-      // Set all CSS variables at once
-      document.documentElement.style.cssText += cssVariables;
+      // Generate and set CSS variables for this block's detection boundary
+      // Note: If multiple blocks have different boundaries, the last one will be used
+      // This is acceptable since the overlay is viewport-based and shared
+      // Use setProperty to update individual variables instead of appending to cssText
+      // This prevents conflicts and ensures the overlay is always visible
+      Object.entries(state.ctx.detectionBoundary).forEach(([key, value]) => {
+        const normalizedValue =
+          value?.endsWith('%') || value?.endsWith('px') ? value : '0%';
+        document.documentElement.style.setProperty(
+          `--wp-block-animate-on-scroll-detection-boundary-overlay-${key}`,
+          invertValue(normalizedValue)
+        );
+      });
     },
     debugContentContainer: () => {
-      // Create the overlay container
-      const debugContentContainer = document.createElement('div');
-      debugContentContainer.className = `wp-block-animate-on-scroll-debug-container-${state.ctx.id}`;
+      const containerClass = `wp-block-animate-on-scroll-debug-container-${state.ctx.id}`;
+      let debugContentContainer = document.querySelector(
+        `.${containerClass}`
+      ) as HTMLElement | null;
 
-      // Append to body so it's positioned relative to document root, not a parent container
-      // This ensures it's visible even when element is hidden and positions correctly
-      document.body.appendChild(debugContentContainer);
+      if (!debugContentContainer) {
+        // Create the overlay container
+        debugContentContainer = document.createElement('div');
+        debugContentContainer.className = containerClass;
 
-      // Position the container to match the element's position
-      actions.updateDebugContainerPosition();
+        // Append to body so it's positioned relative to document root, not a parent container
+        // This ensures it's visible even when element is hidden and positions correctly
+        document.body.appendChild(debugContentContainer);
+
+        // Position the container to match the element's position
+        actions.updateDebugContainerPosition();
+      }
     },
     updateDebugContainerPosition: () => {
       if (!state.elementRef) return;
@@ -115,56 +123,79 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         `.wp-block-animate-on-scroll-debug-container-${state.ctx.id}`
       ) as HTMLElement | null;
       if (!debugContentContainer) return;
-      // Set CSS variable for Debug Visibility Trigger Line & Label
-      // Use setProperty to avoid overwriting the positioning styles
+
+      // Calculate and update CSS variable for Debug Visibility Trigger Line & Label
       const linePosition = state.entryHeight * state.ctx.visibilityTrigger;
       debugContentContainer.style.setProperty(
         '--wp-block-animate-on-scroll-debug-visibility-trigger-top',
         `${linePosition}px`
       );
 
-      // Add intersection line indicator to the overlay
-      const debugVisibilityTriggerLine = document.createElement('div');
-      debugVisibilityTriggerLine.className = `wp-block-animate-on-scroll-debug-visibility-trigger-line-${state.ctx.id}`;
+      // Create elements only if they don't exist (prevent duplication)
+      const lineClass = `wp-block-animate-on-scroll-debug-visibility-trigger-line-${state.ctx.id}`;
+      const labelClass = `wp-block-animate-on-scroll-debug-visibility-trigger-line-label-${state.ctx.id}`;
 
-      // Create the label for the intersection line
-      const debugVisibilityTriggerLineLabel = document.createElement('div');
-      debugVisibilityTriggerLineLabel.className = `wp-block-animate-on-scroll-debug-visibility-trigger-line-label-${state.ctx.id}`;
+      let debugVisibilityTriggerLine = debugContentContainer.querySelector(
+        `.${lineClass}`
+      ) as HTMLElement | null;
+      let debugVisibilityTriggerLineLabel = debugContentContainer.querySelector(
+        `.${labelClass}`
+      ) as HTMLElement | null;
 
-      // Add the visibility trigger text to the label
-      debugVisibilityTriggerLineLabel.textContent = `Visibility Trigger: ${state.ctx.visibilityTrigger * 100}%`;
+      if (!debugVisibilityTriggerLine) {
+        // Create intersection line indicator
+        debugVisibilityTriggerLine = document.createElement('div');
+        debugVisibilityTriggerLine.className = lineClass;
+        debugContentContainer.appendChild(debugVisibilityTriggerLine);
+      }
 
-      // Add the indicators to the overlay container
-      debugContentContainer.appendChild(debugVisibilityTriggerLine);
-      debugContentContainer.appendChild(debugVisibilityTriggerLineLabel);
-
-      // Make sure the target element is positioned relative
-      if (state.elementRef) {
-        state.elementRef.style.position = 'relative';
+      if (!debugVisibilityTriggerLineLabel) {
+        // Create the label for the intersection line
+        debugVisibilityTriggerLineLabel = document.createElement('div');
+        debugVisibilityTriggerLineLabel.className = labelClass;
+        debugVisibilityTriggerLineLabel.textContent = `Visibility Trigger: ${state.ctx.visibilityTrigger * 100}%`;
+        debugContentContainer.appendChild(debugVisibilityTriggerLineLabel);
+      } else {
+        // Update label text in case visibility trigger changed
+        debugVisibilityTriggerLineLabel.textContent = `Visibility Trigger: ${state.ctx.visibilityTrigger * 100}%`;
       }
     },
-    updateDebugVisibilityTriggerLine: (ctx: AnimateOnScrollContext) => {
-      // Calculate the top offset of the intersection element
-      const linePosition = state.entryHeight * state.ctx.visibilityTrigger;
-      const elementTopOffset = `${linePosition}px`;
-
-      // Update the CSS variable for the Visibility Trigger line
-      const container = document.querySelector(
-        `.wp-block-animate-on-scroll-debug-container-${ctx.id}`
-      ) as HTMLElement | null;
+    removeDebugOverlays: () => {
+      // Remove block-specific debug elements
+      const containerClass = `wp-block-animate-on-scroll-debug-container-${state.ctx.id}`;
+      const container = document.querySelector(`.${containerClass}`);
       if (container) {
-        container.style.setProperty(
-          '--wp-block-animate-on-scroll-debug-visibility-trigger-top',
-          elementTopOffset
+        container.remove();
+      }
+
+      // Remove this block from active debug blocks
+      activeDebugBlocks.delete(state.ctx.id);
+
+      // Only remove detection boundary overlay if no blocks are using it
+      if (activeDebugBlocks.size === 0) {
+        const boundaryOverlay = document.querySelector(
+          '.wp-block-animate-on-scroll-debug-detection-boundary-overlay'
         );
+        if (boundaryOverlay) {
+          boundaryOverlay.remove();
+        }
       }
     },
     debug: () => {
       // If debug mode is enabled, create overlays for debugging
       if (state.ctx.debugMode === true) {
+        // Track this block as using debug mode
+        activeDebugBlocks.add(state.ctx.id);
+
+        // Create/update shared Detection Boundary overlay
         actions.debugDetectionBoundaryOverlay();
+
+        // Create block-specific debug elements
         actions.debugContentContainer();
         actions.debugVisibilityTriggerLine();
+      } else {
+        // Clean up debug elements when debug mode is disabled
+        actions.removeDebugOverlays();
       }
     },
   },
@@ -223,6 +254,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         if (ctx.debugMode && scrollUpdateTimeout === null) {
           scrollUpdateTimeout = requestAnimationFrame(() => {
             actions.updateDebugContainerPosition();
+            actions.debugVisibilityTriggerLine(); // Update line position too
             scrollUpdateTimeout = null;
           });
         }
@@ -243,6 +275,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         if (ctx.debugMode) {
           window.removeEventListener('scroll', updateDebugPosition);
           window.removeEventListener('resize', updateDebugPosition);
+          actions.removeDebugOverlays();
         }
       };
     },
@@ -254,7 +287,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       if (ctx.debugMode === true) {
         state.entryHeight = ref.offsetHeight;
         actions.updateDebugContainerPosition();
-        actions.updateDebugVisibilityTriggerLine(ctx);
+        actions.debugVisibilityTriggerLine(); // Consolidated function handles both creation and update
       }
     },
   },

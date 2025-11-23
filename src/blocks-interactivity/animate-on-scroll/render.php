@@ -34,6 +34,18 @@ if ( $use_sequence ) {
 		in_array( $attributes['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce' ), true ) ) {
 		$default_classes[] = esc_attr( $attributes['direction'] );
 	}
+
+	// Add exit animation classes if re-animate is enabled.
+	if ( ! empty( $attributes['reAnimateOnScroll'] ) && ! empty( $attributes['exitAnimation'] ) ) {
+		$exit_animation_class = 'blur' === $attributes['exitAnimation'] ? 'blur-in' : esc_attr( $attributes['exitAnimation'] );
+		$default_classes[]    = 'exit-' . $exit_animation_class;
+
+		// Add exit direction for animations that support it.
+		if ( ! empty( $attributes['exitDirection'] ) &&
+			in_array( $attributes['exitAnimation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce' ), true ) ) {
+			$default_classes[] = 'exit-' . esc_attr( $attributes['exitDirection'] );
+		}
+	}
 }
 
 // Join classes with spaces.

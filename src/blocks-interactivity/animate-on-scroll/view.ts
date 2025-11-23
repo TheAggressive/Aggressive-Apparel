@@ -107,6 +107,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
     isVisible: false,
     elementRef: null as HTMLElement | null,
     intersectionRatio: 0,
+    previousRatio: 0,
     entryHeight: 0,
     ctx: {} as AnimateOnScrollContext,
     resizeTimeout: null as number | null,
@@ -495,6 +496,11 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
               }
             }
 
+            // Track scroll direction by comparing current and previous intersection ratio
+            const previousRatio = state.previousRatio;
+            const isScrollingDown = entry.intersectionRatio > previousRatio;
+            state.previousRatio = entry.intersectionRatio;
+
             // Update intersection ratio
             ctx.intersectionRatio = entry.intersectionRatio;
 
@@ -506,28 +512,35 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
 
             // When element crosses the visibility trigger (e.g., 50% visible)
             if (entry.intersectionRatio >= visibilityThreshold) {
-              // Element is now visible - animate in
-              if (!ctx.isVisible) {
-                ctx.isVisible = true;
+              // Element is now visible - animate in (only when scrolling down or already visible)
+              if (!ctx.isVisible || (isScrollingDown && ctx.isVisible)) {
+                // Remove exit animation class if present
+                if (ref && ctx.reAnimateOnScroll) {
+                  ref.classList.remove('is-exiting');
+                }
 
-                // Announce to screen readers (accessibility)
-                if (ref) {
-                  const announcement = document.createElement('div');
-                  announcement.setAttribute('role', 'status');
-                  announcement.setAttribute('aria-live', 'polite');
-                  announcement.setAttribute('aria-atomic', 'true');
-                  announcement.className = 'screen-reader-text';
-                  announcement.style.cssText =
-                    'position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;';
-                  announcement.textContent = 'Content animated into view';
-                  document.body.appendChild(announcement);
+                if (!ctx.isVisible) {
+                  ctx.isVisible = true;
 
-                  // Remove announcement after a delay
-                  setTimeout(() => {
-                    if (document.body.contains(announcement)) {
-                      document.body.removeChild(announcement);
-                    }
-                  }, 1000);
+                  // Announce to screen readers (accessibility)
+                  if (ref) {
+                    const announcement = document.createElement('div');
+                    announcement.setAttribute('role', 'status');
+                    announcement.setAttribute('aria-live', 'polite');
+                    announcement.setAttribute('aria-atomic', 'true');
+                    announcement.className = 'screen-reader-text';
+                    announcement.style.cssText =
+                      'position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;';
+                    announcement.textContent = 'Content animated into view';
+                    document.body.appendChild(announcement);
+
+                    // Remove announcement after a delay
+                    setTimeout(() => {
+                      if (document.body.contains(announcement)) {
+                        document.body.removeChild(announcement);
+                      }
+                    }, 1000);
+                  }
                 }
               }
 
@@ -536,8 +549,35 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
                 observer.disconnect();
               }
             } else if (ctx.reAnimateOnScroll && ctx.isVisible) {
-              // Element is now invisible - animate out (only if re-animation is enabled)
-              ctx.isVisible = false;
+              // Element is now invisible - apply exit animation when scrolling up
+              if (!isScrollingDown && ref) {
+                // Add exit animation class
+                ref.classList.add('is-exiting');
+
+                // Get animation duration from CSS variable
+                const durationValue = window
+                  .getComputedStyle(ref)
+                  .getPropertyValue(
+                    '--wp-block-animate-on-scroll-animation-duration'
+                  );
+                const durationSeconds = durationValue
+                  ? parseFloat(durationValue.replace('s', ''))
+                  : 0.5;
+
+                // After exit animation completes, hide element
+                setTimeout(() => {
+                  ctx.isVisible = false;
+                  if (ref) {
+                    ref.classList.remove('is-exiting');
+                  }
+                }, durationSeconds * 1000);
+              } else {
+                // Scrolling down past threshold - just hide immediately
+                ctx.isVisible = false;
+                if (ref) {
+                  ref.classList.remove('is-exiting');
+                }
+              }
             }
           });
         },

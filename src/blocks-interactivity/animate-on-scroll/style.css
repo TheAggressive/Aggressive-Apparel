@@ -469,6 +469,116 @@
 			var(--wp-block-animate-on-scroll-animation-timing)
 			forwards;
 	}
+
+	/* Exit Animations - Apply when scrolling up and element is exiting */
+	&.is-exiting:not(.has-animation-sequence) > * {
+		opacity: 0;
+	}
+
+	/* Exit Animation Type: Fade */
+	&.exit-fade.is-exiting > * {
+		opacity: 0;
+	}
+
+	/* Exit Animation Type: Blur */
+	&.exit-blur-in.is-exiting > * {
+		filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+		opacity: 0;
+	}
+
+	/* Exit Animation Type: Slide */
+	&.exit-slide {
+
+		&.exit-up.is-exiting > * {
+			transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
+			opacity: 0;
+		}
+
+		&.exit-down.is-exiting > * {
+			transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			opacity: 0;
+		}
+
+		&.exit-left.is-exiting > * {
+			transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
+			opacity: 0;
+		}
+
+		&.exit-right.is-exiting > * {
+			transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			opacity: 0;
+		}
+	}
+
+	/* Exit Animation Type: Zoom */
+	&.exit-zoom {
+
+		&.exit-in.is-exiting > * {
+			transform-origin: center center;
+			transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
+			opacity: 0;
+		}
+
+		&.exit-out.is-exiting > * {
+			transform-origin: center center;
+			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
+			opacity: 0;
+		}
+	}
+
+	/* Exit Animation Type: Flip */
+	&.exit-flip {
+
+		&.exit-up.is-exiting > * {
+			transform-origin: center center;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+				rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
+			opacity: 0;
+		}
+
+		&.exit-down.is-exiting > * {
+			transform-origin: center center;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+				rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			opacity: 0;
+		}
+
+		&.exit-left.is-exiting > * {
+			transform-origin: center center;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+				rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
+			opacity: 0;
+		}
+
+		&.exit-right.is-exiting > * {
+			transform-origin: center center;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+				rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			opacity: 0;
+		}
+	}
+
+	/* Exit Animation Type: Rotate */
+	&.exit-rotate {
+
+		&.exit-left.is-exiting > * {
+			transform-origin: center center;
+			transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
+			opacity: 0;
+		}
+
+		&.exit-right.is-exiting > * {
+			transform-origin: center center;
+			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			opacity: 0;
+		}
+	}
+
+	/* Exit Animation Type: Bounce */
+	&.exit-bounce.is-exiting > * {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+		opacity: 0;
+	}
 }
 
 /**

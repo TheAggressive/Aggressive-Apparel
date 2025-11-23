@@ -54,6 +54,8 @@ type BlockAttributes = {
   elasticDistance: number;
   initialDelay: number;
   reAnimateOnScroll: boolean;
+  exitAnimation: string;
+  exitDirection: string;
   useSequence: boolean;
   animationSequence: Array<{
     animation: string;
@@ -919,6 +921,58 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             )}
             __nextHasNoMarginBottom
           />
+
+          {attributes.reAnimateOnScroll && (
+            <>
+              <SelectControl
+                label={__('Exit Animation Type', 'aggressive-apparel')}
+                value={attributes.exitAnimation || 'fade'}
+                options={Object.entries(baseAnimations).map(
+                  ([value, config]) => ({
+                    value,
+                    label: config.label,
+                  })
+                )}
+                onChange={exitAnimation => {
+                  const animationKey = exitAnimation as AnimationKey;
+                  const config = baseAnimations[animationKey];
+                  const newDirection = config.hasDirection
+                    ? (config as { defaultDirection: string }).defaultDirection
+                    : '';
+                  setAttributes({
+                    exitAnimation,
+                    exitDirection: newDirection,
+                  });
+                }}
+                __next40pxDefaultSize
+              />
+              {baseAnimations[attributes.exitAnimation as AnimationKey]
+                ?.hasDirection && (
+                <SelectControl
+                  label={__('Exit Direction', 'aggressive-apparel')}
+                  value={attributes.exitDirection || 'up'}
+                  options={
+                    (
+                      baseAnimations[
+                        attributes.exitAnimation as AnimationKey
+                      ] as {
+                        directions: Array<{ label: string; value: string }>;
+                      }
+                    )?.directions || []
+                  }
+                  onChange={exitDirection => {
+                    setAttributes({ exitDirection });
+                  }}
+                  help={__(
+                    'Direction for exit animation when scrolling up',
+                    'aggressive-apparel'
+                  )}
+                  __next40pxDefaultSize
+                  __nextHasNoMarginBottom
+                />
+              )}
+            </>
+          )}
         </PanelBody>
 
         {/* Debug Panel */}

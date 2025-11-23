@@ -89,6 +89,14 @@
       "type": "boolean",
       "default": false
     },
+    "exitAnimation": {
+      "type": "string",
+      "default": "fade"
+    },
+    "exitDirection": {
+      "type": "string",
+      "default": "up"
+    },
     "useSequence": {
       "type": "boolean",
       "default": false

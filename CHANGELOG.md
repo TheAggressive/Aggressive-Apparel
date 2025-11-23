@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.12.0...v1.13.0) (2025-11-23)
+
+
+### Features
+
+* add initial delay and re-animation options to Animate On Scroll block ([43c6638](https://github.com/TheAggressive/Aggressive-Apparel/commit/43c663858876bf9896bc43ce54f70d0c5e584165))
+
 # [1.12.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.11.0...v1.12.0) (2025-11-22)
 
 

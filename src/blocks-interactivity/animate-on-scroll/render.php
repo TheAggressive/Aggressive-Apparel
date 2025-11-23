@@ -16,8 +16,10 @@
 $default_classes = array( 'wp-block-animate-on-scroll' );
 
 // Add the base animation class.
+// Map 'blur' to 'blur-in' to avoid conflict with Tailwind's .blur utility.
 if ( ! empty( $attributes['animation'] ) ) {
-	$default_classes[] = esc_attr( $attributes['animation'] );
+	$animation_class   = 'blur' === $attributes['animation'] ? 'blur-in' : esc_attr( $attributes['animation'] );
+	$default_classes[] = $animation_class;
 }
 
 // Add direction for animations that support it.

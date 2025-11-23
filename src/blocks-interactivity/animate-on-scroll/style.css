@@ -42,8 +42,8 @@
 
 	&.is-visible > * {
 		opacity: 1;
-		transform: none !important;
-		filter: none !important;
+		transform: none;
+		filter: blur(0);
 	}
 
 	/* Stagger Animation */
@@ -62,9 +62,13 @@
 		transform-origin: center center;
 	}
 
-	/* Animation Type: Blur */
-	&.blur > * {
+	/* Animation Type: Blur In (renamed from 'blur' to avoid Tailwind conflict) */
+	&.blur-in > * {
 		filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+	}
+
+	&.blur-in.is-visible > * {
+		filter: blur(0);
 	}
 
 	/* Animation Type: Slide */

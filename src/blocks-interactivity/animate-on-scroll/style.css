@@ -22,6 +22,8 @@
 	--wp-block-animate-on-scroll-zoom-out-start: 1.5;
 	--wp-block-animate-on-scroll-rotate-angle: 90deg;
 	--wp-block-animate-on-scroll-perspective: 1000px;
+	--wp-block-animate-on-scroll-bounce-distance: 30px;
+	--wp-block-animate-on-scroll-elastic-distance: 50px;
 
 	/* Base Styles */
 	display: block;
@@ -32,12 +34,15 @@
 		margin-block-start: 0 !important;
 	}
 
-	/* Animation States */
+	/* Animation States - Target all direct children including headings and text elements */
 	& > * {
 		opacity: 0;
 		transition: all
 			var(--wp-block-animate-on-scroll-animation-duration)
 			var(--wp-block-animate-on-scroll-animation-timing);
+
+		/* Use inline-block for flexibility - works for both block and inline elements, allows transforms */
+		display: inline-block;
 	}
 
 	/* Reset transforms and filters when visible - must come after animation type selectors */
@@ -55,11 +60,12 @@
 		);
 	}
 
-	/* Animation Type: Transform Origin */
+	/* Animation Type: Transform Origin - Set center origin for all transform-based animations to ensure scaling/rotation happens from center */
 	&.slide > *,
 	&.zoom > *,
 	&.flip > *,
-	&.rotate > * {
+	&.rotate > *,
+	&.bounce > * {
 		transform-origin: center center;
 	}
 
@@ -100,14 +106,16 @@
 		}
 	}
 
-	/* Animation Type: Zoom */
+	/* Animation Type: Zoom - Scale from center of element */
 	&.zoom {
 
 		&.in > * {
+			transform-origin: center center;
 			transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
 		}
 
 		&.out > * {
+			transform-origin: center center;
 			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
 		}
 
@@ -118,25 +126,29 @@
 		}
 	}
 
-	/* Animation Type: Flip */
+	/* Animation Type: Flip - Rotate from center of element */
 	&.flip {
 
 		&.up > * {
+			transform-origin: center center;
 			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
 				rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
 		}
 
 		&.down > * {
+			transform-origin: center center;
 			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
 				rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
 		}
 
 		&.left > * {
+			transform-origin: center center;
 			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
 				rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
 		}
 
 		&.right > * {
+			transform-origin: center center;
 			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
 				rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
 		}
@@ -150,14 +162,16 @@
 		}
 	}
 
-	/* Animation Type: Rotate */
+	/* Animation Type: Rotate - Rotate from center of element */
 	&.rotate {
 
 		&.left > * {
+			transform-origin: center center;
 			transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
 		}
 
 		&.right > * {
+			transform-origin: center center;
 			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
 		}
 
@@ -166,6 +180,129 @@
 		&.is-visible.right > * {
 			transform: rotate(0deg);
 		}
+	}
+
+	/* Animation Type: Bounce - with variations */
+	&.bounce > * {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+		opacity: 0;
+	}
+
+	/* Standard bounce */
+	&.bounce.standard.is-visible > *,
+	&.bounce.is-visible > * {
+		animation: bounce-in
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+
+	/* Elastic bounce variation */
+	&.bounce.elastic > * {
+		transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance));
+	}
+
+	&.bounce.elastic.is-visible > * {
+		animation: elastic-in
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+
+	/* Spring bounce variation */
+	&.bounce.spring > * {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+	}
+
+	&.bounce.spring.is-visible > * {
+		animation: spring-in
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+}
+
+/**
+ * Keyframe Animations
+ */
+
+@keyframes bounce-in {
+
+	0% {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+		opacity: 0;
+	}
+
+	60% {
+		transform: translateY(-10px);
+		opacity: 1;
+	}
+
+	80% {
+		transform: translateY(5px);
+	}
+
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes elastic-in {
+
+	0% {
+		transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance))
+			scaleY(0.8);
+		opacity: 0;
+	}
+
+	50% {
+		transform: translateY(-15px) scaleY(1.1);
+		opacity: 0.8;
+	}
+
+	70% {
+		transform: translateY(8px) scaleY(0.95);
+		opacity: 0.9;
+	}
+
+	85% {
+		transform: translateY(-4px) scaleY(1.02);
+		opacity: 0.95;
+	}
+
+	100% {
+		transform: translateY(0) scaleY(1);
+		opacity: 1;
+	}
+}
+
+@keyframes spring-in {
+
+	0% {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance))
+			scale(0.8);
+		opacity: 0;
+	}
+
+	40% {
+		transform: translateY(-20px) scale(1.05);
+		opacity: 0.9;
+	}
+
+	60% {
+		transform: translateY(10px) scale(0.98);
+		opacity: 0.95;
+	}
+
+	80% {
+		transform: translateY(-5px) scale(1.01);
+		opacity: 0.98;
+	}
+
+	100% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
 	}
 }
 

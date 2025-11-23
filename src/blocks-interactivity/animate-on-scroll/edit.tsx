@@ -134,6 +134,16 @@ const baseAnimations = {
     label: __('Blur', 'aggressive-apparel'),
     hasDirection: false,
   },
+  bounce: {
+    label: __('Bounce', 'aggressive-apparel'),
+    hasDirection: true,
+    directions: [
+      { label: __('Standard', 'aggressive-apparel'), value: 'standard' },
+      { label: __('Elastic', 'aggressive-apparel'), value: 'elastic' },
+      { label: __('Spring', 'aggressive-apparel'), value: 'spring' },
+    ],
+    defaultDirection: 'standard',
+  },
 };
 
 type AnimationKey = keyof typeof baseAnimations;

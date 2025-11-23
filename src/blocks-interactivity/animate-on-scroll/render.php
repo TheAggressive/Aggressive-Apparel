@@ -24,7 +24,7 @@ if ( ! empty( $attributes['animation'] ) ) {
 
 // Add direction for animations that support it.
 if ( ! empty( $attributes['direction'] ) &&
-	in_array( $attributes['animation'], array( 'slide', 'flip', 'rotate', 'zoom' ), true ) ) {
+	in_array( $attributes['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce' ), true ) ) {
 	$default_classes[] = esc_attr( $attributes['direction'] );
 }
 

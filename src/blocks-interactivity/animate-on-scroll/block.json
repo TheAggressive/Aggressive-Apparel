@@ -88,6 +88,18 @@
     "reAnimateOnScroll": {
       "type": "boolean",
       "default": false
+    },
+    "useSequence": {
+      "type": "boolean",
+      "default": false
+    },
+    "animationSequence": {
+      "type": "array",
+      "default": []
+    },
+    "sequenceCustomizations": {
+      "type": "object",
+      "default": {}
     }
   },
   "textdomain": "aggressive-apparel",

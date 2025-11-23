@@ -318,9 +318,32 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       state.elementRef = ref;
       state.entryHeight = ref.offsetHeight;
 
+      // Check if sequence mode is enabled (needed for stagger logic below)
+      const isSequenceMode = ref.classList.contains('has-animation-sequence');
+
+      // If animation sequence is enabled, attributes are already applied server-side in render.php
+      // We only need to verify they exist (as a fallback) but don't need to apply them
+      // The server-side rendering ensures attributes are present on page load
+      if (isSequenceMode) {
+        // Verify that sequence attributes are present (they should be from server-side rendering)
+        const hasSequenceAttributes = Array.from(ref.children).some(child =>
+          (child as HTMLElement).hasAttribute('data-animate-sequence-type')
+        );
+
+        // If attributes are missing (shouldn't happen with server-side rendering), log a warning
+        if (!hasSequenceAttributes) {
+          console.warn(
+            '[AnimateOnScroll] Sequence mode enabled but no sequence attributes found on children. ' +
+              'This may indicate a server-side rendering issue.'
+          );
+        }
+      }
+
       // If stagger animation is enabled, assign each child element a sequential index
       // This index can be used in CSS animations to create cascading/staggered effects
       // where each child animates with a slight delay after the previous one
+      // In sequence mode, children are wrapper divs with data-animate-sequence-type attributes
+      // In non-sequence mode, children are the direct content elements
       if (ref.dataset.staggerChildren === 'true') {
         Array.from(ref.children).forEach((child, index) => {
           (child as HTMLElement).style.setProperty(
@@ -394,6 +417,13 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         '(prefers-reduced-motion: reduce)'
       ).matches;
 
+      // For sequence mode, ensure data attributes are applied before observing
+      // This prevents premature animation on page load when elements are already visible
+      if (isSequenceMode) {
+        // Force a synchronous reflow to ensure data attributes are applied before observer triggers
+        void ref.offsetHeight;
+      }
+
       // Create a new Intersection Observer to detect when elements enter/leave the viewport
       // The observer will monitor elements and trigger a callback when they become visible/invisible
       const observer = new IntersectionObserver(
@@ -410,11 +440,72 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
               return;
             }
 
+            // For sequence mode, verify data attributes are set before animating
+            // This prevents all children from fading in on page load
+            if (isSequenceMode) {
+              const hasSequenceAttributes = Array.from(ref.children).some(
+                child =>
+                  (child as HTMLElement).hasAttribute(
+                    'data-animate-sequence-type'
+                  )
+              );
+              // If no attributes are set yet, delay animation until they are
+              if (!hasSequenceAttributes) {
+                // Re-apply attributes synchronously and check again
+                const sequenceData = ref.dataset.animationSequence;
+                if (sequenceData) {
+                  try {
+                    const sequence: Array<{
+                      animation: string;
+                      direction: string;
+                    }> = JSON.parse(sequenceData);
+                    Array.from(ref.children).forEach((child, index) => {
+                      const sequenceIndex = index % sequence.length;
+                      const sequenceItem = sequence[sequenceIndex];
+                      const childElement = child as HTMLElement;
+                      const animationType =
+                        sequenceItem.animation === 'blur'
+                          ? 'blur-in'
+                          : sequenceItem.animation;
+                      childElement.setAttribute(
+                        'data-animate-sequence-type',
+                        animationType
+                      );
+                      if (
+                        sequenceItem.direction &&
+                        ['slide', 'flip', 'rotate', 'zoom', 'bounce'].includes(
+                          sequenceItem.animation
+                        )
+                      ) {
+                        childElement.setAttribute(
+                          'data-animate-sequence-direction',
+                          sequenceItem.direction
+                        );
+                      }
+                    });
+                    // Force reflow to ensure attributes are applied
+                    void ref.offsetHeight;
+                  } catch (e) {
+                    console.error(
+                      '[AnimateOnScroll] Failed to parse animation sequence:',
+                      e
+                    );
+                  }
+                }
+              }
+            }
+
             // Update intersection ratio
             ctx.intersectionRatio = entry.intersectionRatio;
 
+            // Convert visibilityTrigger to number if it's a string (from block.json)
+            const visibilityThreshold =
+              typeof ctx.visibilityTrigger === 'string'
+                ? parseFloat(ctx.visibilityTrigger)
+                : ctx.visibilityTrigger;
+
             // When element crosses the visibility trigger (e.g., 50% visible)
-            if (entry.intersectionRatio >= ctx.visibilityTrigger) {
+            if (entry.intersectionRatio >= visibilityThreshold) {
               // Element is now visible - animate in
               if (!ctx.isVisible) {
                 ctx.isVisible = true;
@@ -451,7 +542,15 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
           });
         },
         {
-          threshold: [0, ctx.visibilityTrigger],
+          threshold: (() => {
+            // Convert visibilityTrigger to number if it's a string (from block.json)
+            const visibilityThreshold =
+              typeof ctx.visibilityTrigger === 'string'
+                ? parseFloat(ctx.visibilityTrigger)
+                : ctx.visibilityTrigger;
+            // Return array with 0 and the threshold to detect both entry and exit
+            return [0, visibilityThreshold];
+          })(),
           rootMargin: `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`,
         }
       );

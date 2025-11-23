@@ -47,7 +47,9 @@
 	}
 
 	/* Animation States - Target all direct children including headings and text elements */
-	& > * {
+
+	/* Exclude sequence children - they have their own rules */
+	&:not(.has-animation-sequence) > * {
 		opacity: 0;
 		transition: all
 			var(--wp-block-animate-on-scroll-animation-duration)
@@ -59,14 +61,257 @@
 	}
 
 	/* Reset transforms and filters when visible - must come after animation type selectors */
-	&.is-visible > * {
+
+	/* BUT: Don't apply to sequence children - they have their own rules */
+	&:not(.has-animation-sequence).is-visible > * {
 		opacity: 1;
 		transform: none;
 		filter: blur(0);
 	}
 
+	/* Animation Sequence: Use data attributes for reliable targeting */
+	&.has-animation-sequence {
+
+		/* Base styles for all sequence wrapper divs - ensure they start hidden and can be transformed */
+
+		/* The wrapper divs are applied server-side in render.php */
+		> div[data-animate-sequence-type] {
+			opacity: 0;
+			display: block;
+			width: 100%;
+			transition: opacity
+					var(--wp-block-animate-on-scroll-animation-duration)
+					var(--wp-block-animate-on-scroll-animation-timing),
+				transform
+					var(--wp-block-animate-on-scroll-animation-duration)
+					var(--wp-block-animate-on-scroll-animation-timing),
+				filter
+					var(--wp-block-animate-on-scroll-animation-duration)
+					var(--wp-block-animate-on-scroll-animation-timing);
+			transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
+		}
+
+		/* Sequence: Fade - Initial state */
+		> div[data-animate-sequence-type="fade"] {
+			opacity: 0;
+		}
+
+		/* Sequence: Slide */
+		> div[data-animate-sequence-type="slide"] {
+			transform-origin: center center;
+			opacity: 0;
+
+			&[data-animate-sequence-direction="up"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			}
+		}
+
+		/* Sequence: Zoom */
+		> div[data-animate-sequence-type="zoom"] {
+			transform-origin: center center;
+			opacity: 0;
+
+			&[data-animate-sequence-direction="in"] {
+				transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
+			}
+
+			&[data-animate-sequence-direction="out"] {
+				transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
+			}
+		}
+
+		/* Sequence: Flip */
+		> div[data-animate-sequence-type="flip"] {
+			transform-origin: center center;
+			opacity: 0;
+
+			&[data-animate-sequence-direction="up"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+		}
+
+		/* Sequence: Rotate */
+		> div[data-animate-sequence-type="rotate"] {
+			transform-origin: center center;
+			opacity: 0;
+
+			&[data-animate-sequence-direction="left"] {
+				transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+		}
+
+		/* Sequence: Blur */
+		> div[data-animate-sequence-type="blur-in"] {
+			opacity: 0;
+			filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+		}
+
+		/* Sequence: Bounce */
+		> div[data-animate-sequence-type="bounce"] {
+			transform-origin: center center;
+			opacity: 0;
+
+			&[data-animate-sequence-direction="standard"],
+			&[data-animate-sequence-direction="spring"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+			}
+
+			&[data-animate-sequence-direction="elastic"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance));
+			}
+		}
+
+		/* Reset all sequence-specific classes when visible */
+		&.is-visible > div[data-animate-sequence-type] {
+			opacity: 1 !important;
+			transform: none !important;
+			filter: blur(0) !important;
+		}
+
+		/* Sequence: Fade - Final state when visible */
+		&.is-visible > div[data-animate-sequence-type="fade"] {
+			opacity: 1 !important;
+		}
+
+		/* Sequence: Slide - Final states when visible */
+		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="up"] {
+			opacity: 1 !important;
+			transform: translate(0, 0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="down"] {
+			opacity: 1 !important;
+			transform: translate(0, 0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="left"] {
+			opacity: 1 !important;
+			transform: translate(0, 0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="right"] {
+			opacity: 1 !important;
+			transform: translate(0, 0) !important;
+		}
+
+		/* Sequence: Zoom - Final states when visible */
+		&.is-visible > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="in"] {
+			opacity: 1 !important;
+			transform: scale(1) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="out"] {
+			opacity: 1 !important;
+			transform: scale(1) !important;
+		}
+
+		/* Sequence: Flip - Final states when visible */
+		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="up"] {
+			opacity: 1 !important;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="down"] {
+			opacity: 1 !important;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="left"] {
+			opacity: 1 !important;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="right"] {
+			opacity: 1 !important;
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
+		}
+
+		/* Sequence: Rotate - Final states when visible */
+		&.is-visible > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="left"] {
+			opacity: 1 !important;
+			transform: rotate(0deg) !important;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="right"] {
+			opacity: 1 !important;
+			transform: rotate(0deg) !important;
+		}
+
+		/* Sequence: Blur - Final state when visible */
+		&.is-visible > div[data-animate-sequence-type="blur-in"] {
+			opacity: 1 !important;
+			filter: blur(0) !important;
+		}
+
+		/* Sequence: Bounce - Final states when visible */
+		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="standard"] {
+			opacity: 1 !important;
+			animation: bounce-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="elastic"] {
+			opacity: 1 !important;
+			animation: elastic-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="spring"] {
+			opacity: 1 !important;
+			animation: spring-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+	}
+
 	/* Stagger Animation - Combine initial delay with stagger delay */
 	&[data-stagger-children="true"] > * {
+		transition-delay: calc(
+			var(--wp-block-animate-on-scroll-initial-delay) +
+			(var(--wp-block-animate-on-scroll-stagger-delay) *
+				var(--wp-block-animate-on-scroll-stagger-index))
+		);
+	}
+
+	/* Stagger Animation for Sequence Mode - Apply to wrapper divs */
+	&.has-animation-sequence[data-stagger-children="true"] > div[data-animate-sequence-type] {
 		transition-delay: calc(
 			var(--wp-block-animate-on-scroll-initial-delay) +
 			(var(--wp-block-animate-on-scroll-stagger-delay) *

@@ -187,7 +187,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                 )?.directions || []
               }
               onChange={direction => {
-                console.log(direction);
                 setAttributes({ direction });
               }}
               __next40pxDefaultSize

@@ -40,6 +40,7 @@
 			var(--wp-block-animate-on-scroll-animation-timing);
 	}
 
+	/* Reset transforms and filters when visible - must come after animation type selectors */
 	&.is-visible > * {
 		opacity: 1;
 		transform: none;
@@ -89,6 +90,14 @@
 		&.right > * {
 			transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
 		}
+
+		/* Override transforms when visible */
+		&.is-visible.up > *,
+		&.is-visible.down > *,
+		&.is-visible.left > *,
+		&.is-visible.right > * {
+			transform: translate(0, 0);
+		}
 	}
 
 	/* Animation Type: Zoom */
@@ -100,6 +109,12 @@
 
 		&.out > * {
 			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
+		}
+
+		/* Override transforms when visible */
+		&.is-visible.in > *,
+		&.is-visible.out > * {
+			transform: scale(1);
 		}
 	}
 
@@ -125,6 +140,14 @@
 			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
 				rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
 		}
+
+		/* Override transforms when visible */
+		&.is-visible.up > *,
+		&.is-visible.down > *,
+		&.is-visible.left > *,
+		&.is-visible.right > * {
+			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0);
+		}
 	}
 
 	/* Animation Type: Rotate */
@@ -136,6 +159,12 @@
 
 		&.right > * {
 			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+		}
+
+		/* Override transforms when visible */
+		&.is-visible.left > *,
+		&.is-visible.right > * {
+			transform: rotate(0deg);
 		}
 	}
 }

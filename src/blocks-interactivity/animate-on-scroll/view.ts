@@ -96,6 +96,7 @@ interface AnimateOnScrollContext {
   detectionBoundary: DetectionBoundary;
   id: string;
   intersectionRatio: number;
+  reAnimateOnScroll?: boolean;
 }
 
 // Track active debug blocks for shared Detection Boundary overlay
@@ -108,6 +109,7 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
     intersectionRatio: 0,
     entryHeight: 0,
     ctx: {} as AnimateOnScrollContext,
+    resizeTimeout: null as number | null,
   },
   actions: {
     debugDetectionBoundaryOverlay: () => {
@@ -387,21 +389,69 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         });
       }
 
-      // Create a new Intersection Observer to detect when elements enter the viewport
-      // The observer will monitor elements and trigger a callback when they become visible
+      // Check for prefers-reduced-motion (accessibility)
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+
+      // Create a new Intersection Observer to detect when elements enter/leave the viewport
+      // The observer will monitor elements and trigger a callback when they become visible/invisible
       const observer = new IntersectionObserver(
         entries => {
           entries.forEach(entry => {
-            // When element crosses the visibility trigger (e.g., 50% visible)
-            if (entry.intersectionRatio >= ctx.visibilityTrigger) {
+            // Skip animation if user prefers reduced motion
+            if (prefersReducedMotion) {
               ctx.isVisible = true;
               ctx.intersectionRatio = entry.intersectionRatio;
-              observer.unobserve(entry.target);
+              // Still disconnect observer for performance
+              if (!ctx.reAnimateOnScroll) {
+                observer.disconnect();
+              }
+              return;
+            }
+
+            // Update intersection ratio
+            ctx.intersectionRatio = entry.intersectionRatio;
+
+            // When element crosses the visibility trigger (e.g., 50% visible)
+            if (entry.intersectionRatio >= ctx.visibilityTrigger) {
+              // Element is now visible - animate in
+              if (!ctx.isVisible) {
+                ctx.isVisible = true;
+
+                // Announce to screen readers (accessibility)
+                if (ref) {
+                  const announcement = document.createElement('div');
+                  announcement.setAttribute('role', 'status');
+                  announcement.setAttribute('aria-live', 'polite');
+                  announcement.setAttribute('aria-atomic', 'true');
+                  announcement.className = 'screen-reader-text';
+                  announcement.style.cssText =
+                    'position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;';
+                  announcement.textContent = 'Content animated into view';
+                  document.body.appendChild(announcement);
+
+                  // Remove announcement after a delay
+                  setTimeout(() => {
+                    if (document.body.contains(announcement)) {
+                      document.body.removeChild(announcement);
+                    }
+                  }, 1000);
+                }
+              }
+
+              // Performance: Disconnect observer after animation if not re-animating
+              if (!ctx.reAnimateOnScroll) {
+                observer.disconnect();
+              }
+            } else if (ctx.reAnimateOnScroll && ctx.isVisible) {
+              // Element is now invisible - animate out (only if re-animation is enabled)
+              ctx.isVisible = false;
             }
           });
         },
         {
-          threshold: ctx.visibilityTrigger,
+          threshold: [0, ctx.visibilityTrigger],
           rootMargin: `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`,
         }
       );
@@ -453,6 +503,11 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
           window.removeEventListener('resize', updateDebugPosition);
           actions.removeDebugOverlays();
         }
+        // Performance: Cancel any pending resize animations
+        if (state.resizeTimeout) {
+          cancelAnimationFrame(state.resizeTimeout);
+          state.resizeTimeout = null;
+        }
       };
     },
     handleResize: () => {
@@ -464,18 +519,27 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         return;
       }
 
-      // Update state context to ensure it's current
-      state.ctx = ctx;
-      state.elementRef = ref;
+      // Performance: Debounce resize handler to reduce layout thrashing
+      if (state.resizeTimeout) {
+        cancelAnimationFrame(state.resizeTimeout);
+      }
 
-      // Recalculate entry height (important for responsive layouts)
-      state.entryHeight = ref.offsetHeight;
+      state.resizeTimeout = requestAnimationFrame(() => {
+        // Update state context to ensure it's current
+        state.ctx = ctx;
+        state.elementRef = ref;
 
-      // Update container position (handles viewport changes)
-      actions.updateDebugContainerPosition();
+        // Recalculate entry height (important for responsive layouts)
+        state.entryHeight = ref.offsetHeight;
 
-      // Update visibility trigger line position (recalculates based on new height)
-      actions.debugVisibilityTriggerLine();
+        // Update container position (handles viewport changes)
+        actions.updateDebugContainerPosition();
+
+        // Update visibility trigger line position (recalculates based on new height)
+        actions.debugVisibilityTriggerLine();
+
+        state.resizeTimeout = null;
+      });
     },
   },
 });

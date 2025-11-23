@@ -80,6 +80,14 @@
     "elasticDistance": {
       "type": "number",
       "default": 50
+    },
+    "initialDelay": {
+      "type": "number",
+      "default": 0
+    },
+    "reAnimateOnScroll": {
+      "type": "boolean",
+      "default": false
     }
   },
   "textdomain": "aggressive-apparel",

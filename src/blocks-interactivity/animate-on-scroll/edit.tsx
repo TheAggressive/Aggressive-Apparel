@@ -51,6 +51,8 @@ type BlockAttributes = {
   perspective: number;
   bounceDistance: number;
   elasticDistance: number;
+  initialDelay: number;
+  reAnimateOnScroll: boolean;
 };
 
 type EditProps = BlockEditProps<BlockAttributes>;
@@ -358,6 +360,30 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             min={0.1}
             max={2}
             step={0.1}
+          />
+
+          <RangeControl
+            label={__('Initial Delay (seconds)', 'aggressive-apparel')}
+            value={attributes.initialDelay}
+            onChange={initialDelay => setAttributes({ initialDelay })}
+            min={0}
+            max={2}
+            step={0.1}
+            help={__(
+              "Delay before animation starts. When stagger is enabled, this delay is added to each child's stagger delay.",
+              'aggressive-apparel'
+            )}
+          />
+
+          <ToggleControl
+            label={__('Re-animate on Scroll Back', 'aggressive-apparel')}
+            checked={attributes.reAnimateOnScroll}
+            onChange={reAnimateOnScroll => setAttributes({ reAnimateOnScroll })}
+            help={__(
+              'Animate out when scrolling up, re-animate in when scrolling down.',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
           />
 
           <label

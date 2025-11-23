@@ -29,6 +29,18 @@
 	display: block;
 	will-change: transform, opacity, filter;
 
+	/* Accessibility: Respect prefers-reduced-motion */
+	@media (prefers-reduced-motion: reduce) {
+
+		& > * {
+			transition: none !important;
+			animation: none !important;
+			opacity: 1 !important;
+			transform: none !important;
+			filter: none !important;
+		}
+	}
+
 	/* Remove margin-top for constrained blocks */
 	:root :where(.is-layout-constrained) > & {
 		margin-block-start: 0 !important;
@@ -40,6 +52,7 @@
 		transition: all
 			var(--wp-block-animate-on-scroll-animation-duration)
 			var(--wp-block-animate-on-scroll-animation-timing);
+		transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
 
 		/* Use inline-block for flexibility - works for both block and inline elements, allows transforms */
 		display: inline-block;
@@ -52,11 +65,12 @@
 		filter: blur(0);
 	}
 
-	/* Stagger Animation */
+	/* Stagger Animation - Combine initial delay with stagger delay */
 	&[data-stagger-children="true"] > * {
 		transition-delay: calc(
-			var(--wp-block-animate-on-scroll-stagger-delay) *
-				var(--wp-block-animate-on-scroll-stagger-index)
+			var(--wp-block-animate-on-scroll-initial-delay) +
+			(var(--wp-block-animate-on-scroll-stagger-delay) *
+				var(--wp-block-animate-on-scroll-stagger-index))
 		);
 	}
 

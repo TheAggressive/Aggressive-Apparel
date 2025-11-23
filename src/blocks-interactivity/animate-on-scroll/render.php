@@ -42,13 +42,15 @@ $wrapper_attributes = get_block_wrapper_attributes(
 				'visibilityTrigger' => $attributes['threshold'],
 				'detectionBoundary' => $attributes['detectionBoundary'],
 				'id'                => uniqid(),
-
+				'reAnimateOnScroll' => $attributes['reAnimateOnScroll'] ?? false,
 			)
 		),
 		'data-wp-init'              => 'callbacks.initObserver',
 		'data-wp-class--is-visible' => 'context.isVisible',
 		'data-stagger-children'     => $attributes['staggerChildren'] ? 'true' : 'false',
 		'data-wp-on-window--resize' => 'callbacks.handleResize',
+		'aria-label'                => __( 'Animated content', 'aggressive-apparel' ),
+		'aria-live'                 => 'polite',
 	)
 );
 ?>
@@ -58,6 +60,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	style="
 		--wp-block-animate-on-scroll-animation-duration: <?php echo esc_attr( $attributes['duration'] ); ?>s;
 		--wp-block-animate-on-scroll-stagger-delay: <?php echo esc_attr( $attributes['staggerDelay'] ); ?>s;
+		--wp-block-animate-on-scroll-initial-delay: <?php echo esc_attr( $attributes['initialDelay'] ?? 0 ); ?>s;
 		--wp-block-animate-on-scroll-slide-distance: <?php echo esc_attr( $attributes['slideDistance'] ?? 50 ); ?>px;
 		--wp-block-animate-on-scroll-zoom-in-start: <?php echo esc_attr( $attributes['zoomInStart'] ?? 0.5 ); ?>;
 		--wp-block-animate-on-scroll-zoom-out-start: <?php echo esc_attr( $attributes['zoomOutStart'] ?? 1.5 ); ?>;

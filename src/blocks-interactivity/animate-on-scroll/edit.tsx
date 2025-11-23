@@ -43,6 +43,14 @@ type BlockAttributes = {
     left: string;
   };
   debugMode: boolean;
+  slideDistance: number;
+  zoomInStart: number;
+  zoomOutStart: number;
+  rotationAngle: number;
+  blurAmount: number;
+  perspective: number;
+  bounceDistance: number;
+  elasticDistance: number;
 };
 
 type EditProps = BlockEditProps<BlockAttributes>;
@@ -203,6 +211,130 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               __nextHasNoMarginBottom
             />
           )}
+
+          {/* Animation Customization - Only show if there are relevant controls */}
+          {attributes.animation === 'slide' && (
+            <RangeControl
+              label={__('Slide Distance (px)', 'aggressive-apparel')}
+              value={attributes.slideDistance}
+              onChange={slideDistance => setAttributes({ slideDistance })}
+              min={10}
+              max={200}
+              step={5}
+              help={__(
+                'Distance the element slides during animation',
+                'aggressive-apparel'
+              )}
+            />
+          )}
+
+          {attributes.animation === 'zoom' && (
+            <>
+              <RangeControl
+                label={__('Zoom In Start Scale', 'aggressive-apparel')}
+                value={attributes.zoomInStart}
+                onChange={zoomInStart => setAttributes({ zoomInStart })}
+                min={0.1}
+                max={0.9}
+                step={0.1}
+                help={__(
+                  'Starting scale for zoom in animation',
+                  'aggressive-apparel'
+                )}
+              />
+              <RangeControl
+                label={__('Zoom Out Start Scale', 'aggressive-apparel')}
+                value={attributes.zoomOutStart}
+                onChange={zoomOutStart => setAttributes({ zoomOutStart })}
+                min={1.1}
+                max={3}
+                step={0.1}
+                help={__(
+                  'Starting scale for zoom out animation',
+                  'aggressive-apparel'
+                )}
+              />
+            </>
+          )}
+
+          {attributes.animation === 'rotate' && (
+            <RangeControl
+              label={__('Rotation Angle (degrees)', 'aggressive-apparel')}
+              value={attributes.rotationAngle}
+              onChange={rotationAngle => setAttributes({ rotationAngle })}
+              min={15}
+              max={360}
+              step={15}
+              help={__(
+                'Angle of rotation during animation',
+                'aggressive-apparel'
+              )}
+            />
+          )}
+
+          {attributes.animation === 'blur' && (
+            <RangeControl
+              label={__('Blur Amount (px)', 'aggressive-apparel')}
+              value={attributes.blurAmount}
+              onChange={blurAmount => setAttributes({ blurAmount })}
+              min={1}
+              max={50}
+              step={1}
+              help={__(
+                'Intensity of blur effect during animation',
+                'aggressive-apparel'
+              )}
+            />
+          )}
+
+          {attributes.animation === 'flip' && (
+            <RangeControl
+              label={__('Perspective (px)', 'aggressive-apparel')}
+              value={attributes.perspective}
+              onChange={perspective => setAttributes({ perspective })}
+              min={500}
+              max={3000}
+              step={100}
+              help={__(
+                '3D perspective depth for flip animation',
+                'aggressive-apparel'
+              )}
+            />
+          )}
+
+          {attributes.animation === 'bounce' && (
+            <>
+              <RangeControl
+                label={__('Bounce Distance (px)', 'aggressive-apparel')}
+                value={attributes.bounceDistance}
+                onChange={bounceDistance => setAttributes({ bounceDistance })}
+                min={10}
+                max={100}
+                step={5}
+                help={__(
+                  'Distance for standard and spring bounce animations',
+                  'aggressive-apparel'
+                )}
+              />
+              {attributes.direction === 'elastic' && (
+                <RangeControl
+                  label={__('Elastic Distance (px)', 'aggressive-apparel')}
+                  value={attributes.elasticDistance}
+                  onChange={elasticDistance =>
+                    setAttributes({ elasticDistance })
+                  }
+                  min={20}
+                  max={150}
+                  step={5}
+                  help={__(
+                    'Distance for elastic bounce animation',
+                    'aggressive-apparel'
+                  )}
+                />
+              )}
+            </>
+          )}
+
           <ToggleControl
             label={__('Stagger Children', 'aggressive-apparel')}
             checked={attributes.staggerChildren}

@@ -48,6 +48,38 @@
     "debugMode": {
       "type": "boolean",
       "default": false
+    },
+    "slideDistance": {
+      "type": "number",
+      "default": 50
+    },
+    "zoomInStart": {
+      "type": "number",
+      "default": 0.5
+    },
+    "zoomOutStart": {
+      "type": "number",
+      "default": 1.5
+    },
+    "rotationAngle": {
+      "type": "number",
+      "default": 90
+    },
+    "blurAmount": {
+      "type": "number",
+      "default": 20
+    },
+    "perspective": {
+      "type": "number",
+      "default": 1000
+    },
+    "bounceDistance": {
+      "type": "number",
+      "default": 30
+    },
+    "elasticDistance": {
+      "type": "number",
+      "default": 50
     }
   },
   "textdomain": "aggressive-apparel",

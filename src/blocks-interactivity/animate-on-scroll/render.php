@@ -58,6 +58,14 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	style="
 		--wp-block-animate-on-scroll-animation-duration: <?php echo esc_attr( $attributes['duration'] ); ?>s;
 		--wp-block-animate-on-scroll-stagger-delay: <?php echo esc_attr( $attributes['staggerDelay'] ); ?>s;
+		--wp-block-animate-on-scroll-slide-distance: <?php echo esc_attr( $attributes['slideDistance'] ?? 50 ); ?>px;
+		--wp-block-animate-on-scroll-zoom-in-start: <?php echo esc_attr( $attributes['zoomInStart'] ?? 0.5 ); ?>;
+		--wp-block-animate-on-scroll-zoom-out-start: <?php echo esc_attr( $attributes['zoomOutStart'] ?? 1.5 ); ?>;
+		--wp-block-animate-on-scroll-rotate-angle: <?php echo esc_attr( $attributes['rotationAngle'] ?? 90 ); ?>deg;
+		--wp-block-animate-on-scroll-blur-amount: <?php echo esc_attr( $attributes['blurAmount'] ?? 20 ); ?>px;
+		--wp-block-animate-on-scroll-perspective: <?php echo esc_attr( $attributes['perspective'] ?? 1000 ); ?>px;
+		--wp-block-animate-on-scroll-bounce-distance: <?php echo esc_attr( $attributes['bounceDistance'] ?? 30 ); ?>px;
+		--wp-block-animate-on-scroll-elastic-distance: <?php echo esc_attr( $attributes['elasticDistance'] ?? 50 ); ?>px;
 	"
 >
 	<?php

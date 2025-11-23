@@ -11,8 +11,15 @@
           "variants",
           "responsive",
           "screen",
-          "theme"
+          "theme",
+          "reference"
         ]
+      }
+    ],
+    "no-invalid-position-at-import-rule": [
+      true,
+      {
+        "ignoreAtRules": ["reference"]
       }
     ],
     "function-no-unknown": [

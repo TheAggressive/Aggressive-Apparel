@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/animate-on-scroll",
+  "version": "1.0.0",
+  "title": "Animate On Scroll",
+  "category": "widgets",
+  "icon": "media-interactive",
+  "description": "Animate elements on scroll.",
+  "supports": {
+    "html": false,
+    "interactivity": true
+  },
+  "attributes": {
+    "animation": {
+      "type": "string",
+      "default": "fade"
+    },
+    "direction": {
+      "type": "string",
+      "default": "up"
+    },
+    "staggerChildren": {
+      "type": "boolean",
+      "default": false
+    },
+    "staggerDelay": {
+      "type": "number",
+      "default": 0.2
+    },
+    "duration": {
+      "type": "number",
+      "default": 0.5
+    },
+    "threshold": {
+      "type": "string",
+      "default": "0.3"
+    },
+    "detectionBoundary": {
+      "type": "object",
+      "default": {
+        "top": "0%",
+        "right": "0%",
+        "bottom": "-25%",
+        "left": "0%"
+      }
+    },
+    "debugMode": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

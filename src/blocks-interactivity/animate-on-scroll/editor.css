@@ -1,0 +1,16 @@
+/**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-animate-on-scroll {
+	opacity: 1;
+	transform: none;
+	filter: none;
+	animation: none;
+
+	& > * {
+		opacity: 1;
+	}
+}

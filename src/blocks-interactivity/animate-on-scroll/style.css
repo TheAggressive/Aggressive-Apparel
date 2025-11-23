@@ -1,0 +1,204 @@
+/* Reference Tailwind for @apply usage, then import utilities only (no reset) */
+@reference 'tailwindcss';
+@import 'tailwindcss/utilities';
+
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-animate-on-scroll {
+
+	/* Base variables */
+	--wp-block-animate-on-scroll-animation-duration: 0.6s;
+	--wp-block-animate-on-scroll-stagger-delay: 0.1s;
+	--wp-block-animate-on-scroll-stagger-index: 0;
+	--wp-block-animate-on-scroll-animation-timing: cubic-bezier(
+		0.4,
+		0,
+		0.2,
+		1
+	);
+	--wp-block-animate-on-scroll-slide-distance: 50px;
+	--wp-block-animate-on-scroll-blur-amount: 20px;
+	--wp-block-animate-on-scroll-zoom-in-start: 0.5;
+	--wp-block-animate-on-scroll-zoom-out-start: 1.5;
+	--wp-block-animate-on-scroll-rotate-angle: 90deg;
+	--wp-block-animate-on-scroll-perspective: 1000px;
+
+	/* Base styles */
+	display: block;
+	will-change: transform, opacity, filter;
+
+	/* Remove margin-top for constrained blocks */
+	:root :where(.is-layout-constrained) > & {
+		margin-block-start: 0 !important;
+	}
+
+	/* No stagger children, apply parent animations */
+	& > * {
+		opacity: 0;
+		transition: all
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing);
+	}
+
+	/* Stagger children */
+	&[data-stagger-children="true"] {
+
+		& > * {
+			transition-delay: calc(
+				var(--wp-block-animate-on-scroll-stagger-delay) *
+					var(--wp-block-animate-on-scroll-stagger-index)
+			);
+		}
+	}
+
+	&.is-visible > * {
+		opacity: 1;
+		transform: none !important;
+		filter: none !important;
+	}
+
+	&.slide > *,
+	&.zoom > *,
+	&.flip > *,
+	&.rotate > * {
+		transform-origin: center center;
+	}
+
+	&.blur > * {
+		filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+	}
+
+	&.slide {
+
+		&.up > * {
+			transform: translateY(
+				var(--wp-block-animate-on-scroll-slide-distance)
+			);
+		}
+
+		&.down > * {
+			transform: translateY(
+				calc(-1 * var(--wp-block-animate-on-scroll-slide-distance))
+			);
+		}
+
+		&.left > * {
+			transform: translateX(
+				var(--wp-block-animate-on-scroll-slide-distance)
+			);
+		}
+
+		&.right > * {
+			transform: translateX(
+				calc(-1 * var(--wp-block-animate-on-scroll-slide-distance))
+			);
+		}
+	}
+
+	&.zoom {
+
+		&.in > * {
+			transform: scale(
+				var(--wp-block-animate-on-scroll-zoom-in-start)
+			);
+		}
+
+		&.out > * {
+			transform: scale(
+				var(--wp-block-animate-on-scroll-zoom-out-start)
+			);
+		}
+	}
+
+	&.flip {
+
+		&.up > * {
+			transform: perspective(
+					var(--wp-block-animate-on-scroll-perspective)
+				)
+				rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
+		}
+
+		&.down > * {
+			transform: perspective(
+					var(--wp-block-animate-on-scroll-perspective)
+				)
+				rotateX(
+					calc(
+						-1 * var(--wp-block-animate-on-scroll-rotate-angle)
+					)
+				);
+		}
+
+		&.left > * {
+			transform: perspective(
+					var(--wp-block-animate-on-scroll-perspective)
+				)
+				rotateY(
+					calc(
+						-1 * var(--wp-block-animate-on-scroll-rotate-angle)
+					)
+				);
+		}
+
+		&.right > * {
+			transform: perspective(
+					var(--wp-block-animate-on-scroll-perspective)
+				)
+				rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
+		}
+	}
+
+	&.rotate {
+
+		&.left > * {
+			transform: rotate(
+				var(--wp-block-animate-on-scroll-rotate-angle)
+			);
+		}
+
+		&.right > * {
+			transform: rotate(
+				calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle))
+			);
+		}
+	}
+}
+
+.wp-block-animate-on-scroll-debug-detection-boundary-overlay {
+
+	@apply pointer-events-none fixed z-[999] border-2 border-dashed border-red-700 bg-red-200/60 backdrop-grayscale;
+
+	inset: var(--wp-block-animate-on-scroll-detection-boundary-overlay-top) var(--wp-block-animate-on-scroll-detection-boundary-overlay-right) var(--wp-block-animate-on-scroll-detection-boundary-overlay-bottom) var(--wp-block-animate-on-scroll-detection-boundary-overlay-left);
+
+	&::after {
+
+		@apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-red-600 px-2 py-2 text-center text-sm text-white;
+
+		content: "Detection_Boundary";
+	}
+}
+
+[class*="wp-block-animate-on-scroll-debug-container"] {
+
+	@apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 z-[999] bg-white/65 backdrop-blur-[1px] backdrop-grayscale;
+
+	[class*="wp-block-animate-on-scroll-debug-visibility-trigger-line-"] {
+
+		@apply pointer-events-none absolute z-[999] h-px w-full -translate-y-px border-t-2 border-dashed border-red-600;
+
+		top: var(--wp-block-animate-on-scroll-debug-visibility-trigger-top);
+	}
+
+	[class*="wp-block-animate-on-scroll-debug-visibility-trigger-line-label-"] {
+
+		@apply absolute left-1/2 right-0 z-[999] flex h-auto w-max -translate-x-1/2 -translate-y-1/2 rounded-md border-none bg-red-600 px-2 py-2 text-center text-sm text-white;
+
+		top: var(--wp-block-animate-on-scroll-debug-visibility-trigger-top);
+	}
+}

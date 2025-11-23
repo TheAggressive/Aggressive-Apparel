@@ -186,7 +186,7 @@
 
 [class*="wp-block-animate-on-scroll-debug-container"] {
 
-	@apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 z-[999] bg-white/65 backdrop-blur-[1px] backdrop-grayscale;
+	@apply pointer-events-none absolute z-[999];
 
 	[class*="wp-block-animate-on-scroll-debug-visibility-trigger-line-"] {
 

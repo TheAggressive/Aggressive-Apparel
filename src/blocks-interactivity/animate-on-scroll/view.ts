@@ -73,25 +73,55 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       const debugContentContainer = document.createElement('div');
       debugContentContainer.className = `wp-block-animate-on-scroll-debug-container-${state.ctx.id}`;
 
-      // Insert the overlay container before the target element
-      if (state.elementRef && state.elementRef.parentNode) {
-        state.elementRef.parentNode.insertBefore(
-          debugContentContainer,
-          state.elementRef
-        );
-      }
+      // Append to body so it's positioned relative to document root, not a parent container
+      // This ensures it's visible even when element is hidden and positions correctly
+      document.body.appendChild(debugContentContainer);
+
+      // Position the container to match the element's position
+      actions.updateDebugContainerPosition();
+    },
+    updateDebugContainerPosition: () => {
+      if (!state.elementRef) return;
+      const debugContentContainer = document.querySelector(
+        `.wp-block-animate-on-scroll-debug-container-${state.ctx.id}`
+      ) as HTMLElement | null;
+      if (!debugContentContainer) return;
+
+      // Use getBoundingClientRect() for accurate position calculation
+      // This accounts for transforms, margins, borders, and all CSS positioning
+      const rect = state.elementRef.getBoundingClientRect();
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft =
+        window.pageXOffset || document.documentElement.scrollLeft;
+
+      // Calculate document-relative position
+      const absoluteTop = rect.top + scrollTop;
+      const absoluteLeft = rect.left + scrollLeft;
+
+      // Position the container absolutely to match the element's position in the document
+      debugContentContainer.style.position = 'absolute';
+      debugContentContainer.style.top = `${absoluteTop}px`;
+      debugContentContainer.style.left = `${absoluteLeft}px`;
+      debugContentContainer.style.width = `${rect.width}px`;
+      debugContentContainer.style.height = `${rect.height}px`;
     },
     debugVisibilityTriggerLine: () => {
+      // Update container position first in case element has moved
+      actions.updateDebugContainerPosition();
+
       // Get the overlay container
       const debugContentContainer = document.querySelector(
         `.wp-block-animate-on-scroll-debug-container-${state.ctx.id}`
       ) as HTMLElement | null;
       if (!debugContentContainer) return;
-      // Set CSS variables for Debug Visibility Trigger Line & Label
+      // Set CSS variable for Debug Visibility Trigger Line & Label
+      // Use setProperty to avoid overwriting the positioning styles
       const linePosition = state.entryHeight * state.ctx.visibilityTrigger;
-      debugContentContainer.style.cssText = `
-			--wp-block-animate-on-scroll-debug-visibility-trigger-top: calc(${parseInt(String(linePosition))}px);
-			`;
+      debugContentContainer.style.setProperty(
+        '--wp-block-animate-on-scroll-debug-visibility-trigger-top',
+        `${linePosition}px`
+      );
 
       // Add intersection line indicator to the overlay
       const debugVisibilityTriggerLine = document.createElement('div');
@@ -187,19 +217,43 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
       // Start observing the target element
       observer.observe(ref);
 
-      // Clean up the observer when the component unmounts
+      // Add scroll and resize listeners to update debug container position
+      let scrollUpdateTimeout: number | null = null;
+      const updateDebugPosition = () => {
+        if (ctx.debugMode && scrollUpdateTimeout === null) {
+          scrollUpdateTimeout = requestAnimationFrame(() => {
+            actions.updateDebugContainerPosition();
+            scrollUpdateTimeout = null;
+          });
+        }
+      };
+
+      if (ctx.debugMode) {
+        window.addEventListener('scroll', updateDebugPosition, {
+          passive: true,
+        });
+        window.addEventListener('resize', updateDebugPosition, {
+          passive: true,
+        });
+      }
+
+      // Clean up the observer and listeners when the component unmounts
       return () => {
         observer.disconnect();
+        if (ctx.debugMode) {
+          window.removeEventListener('scroll', updateDebugPosition);
+          window.removeEventListener('resize', updateDebugPosition);
+        }
       };
     },
     handleResize: () => {
       const ctx = getContext<AnimateOnScrollContext>();
       const { ref } = getElement();
       if (!ref) return;
-      // If debug mode is enabled, update the intersection line position
+      // If debug mode is enabled, update the container position and intersection line position
       if (ctx.debugMode === true) {
         state.entryHeight = ref.offsetHeight;
-
+        actions.updateDebugContainerPosition();
         actions.updateDebugVisibilityTriggerLine(ctx);
       }
     },

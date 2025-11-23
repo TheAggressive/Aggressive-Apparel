@@ -91,11 +91,6 @@
 			transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
 		}
 
-		/* Sequence: Fade - Initial state */
-		> div[data-animate-sequence-type="fade"] {
-			opacity: 0;
-		}
-
 		/* Sequence: Slide */
 		> div[data-animate-sequence-type="slide"] {
 			transform-origin: center center;
@@ -198,11 +193,6 @@
 			opacity: 1 !important;
 			transform: none !important;
 			filter: blur(0) !important;
-		}
-
-		/* Sequence: Fade - Final state when visible */
-		&.is-visible > div[data-animate-sequence-type="fade"] {
-			opacity: 1 !important;
 		}
 
 		/* Sequence: Slide - Final states when visible */

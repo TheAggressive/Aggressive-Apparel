@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/animate-on-scroll",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "title": "Animate On Scroll",
   "category": "widgets",
   "icon": "media-interactive",
@@ -100,6 +100,34 @@
     "reverseOnScrollBack": {
       "type": "boolean",
       "default": false
+    },
+    "easing": {
+      "type": "string",
+      "default": "ease"
+    },
+    "staggerPattern": {
+      "type": "string",
+      "default": "sequential"
+    },
+    "staggerWaveFrequency": {
+      "type": "number",
+      "default": 1
+    },
+    "staggerRandomMin": {
+      "type": "number",
+      "default": 0
+    },
+    "staggerRandomMax": {
+      "type": "number",
+      "default": 0.5
+    },
+    "respectReducedMotion": {
+      "type": "boolean",
+      "default": true
+    },
+    "announceToScreenReader": {
+      "type": "boolean",
+      "default": true
     }
   },
   "textdomain": "aggressive-apparel",

@@ -44,14 +44,21 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 		'data-wp-interactive'       => 'aggressive-apparel/animate-on-scroll',
 		'data-wp-context'           => wp_json_encode(
 			array(
-				'isVisible'           => false,
-				'debugMode'           => $attributes['debugMode'],
-				'visibilityTrigger'   => $attributes['threshold'],
-				'detectionBoundary'   => $attributes['detectionBoundary'],
-				'id'                  => uniqid(),
-				'reverseOnScrollBack' => $attributes['reverseOnScrollBack'] ?? false,
-				'useSequence'         => $attributes['useSequence'] ?? false,
-				'animationSequence'   => $attributes['animationSequence'] ?? array(),
+				'isVisible'              => false,
+				'debugMode'              => $attributes['debugMode'],
+				'visibilityTrigger'      => $attributes['threshold'],
+				'detectionBoundary'      => $attributes['detectionBoundary'],
+				'id'                     => uniqid(),
+				'reverseOnScrollBack'    => $attributes['reverseOnScrollBack'] ?? false,
+				'useSequence'            => $attributes['useSequence'] ?? false,
+				'animationSequence'      => $attributes['animationSequence'] ?? array(),
+				'staggerPattern'         => $attributes['staggerPattern'] ?? 'sequential',
+				'staggerDelay'           => $attributes['staggerDelay'] ?? 0.2,
+				'staggerWaveFrequency'   => $attributes['staggerWaveFrequency'] ?? 1,
+				'staggerRandomMin'       => $attributes['staggerRandomMin'] ?? 0,
+				'staggerRandomMax'       => $attributes['staggerRandomMax'] ?? 0.5,
+				'respectReducedMotion'   => $attributes['respectReducedMotion'] ?? true,
+				'announceToScreenReader' => $attributes['announceToScreenReader'] ?? true,
 			)
 		),
 		'data-wp-init'              => 'callbacks.initObserver',
@@ -76,6 +83,7 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 		--wp-block-animate-on-scroll-animation-duration: <?php echo esc_attr( $attributes['duration'] ); ?>s;
 		--wp-block-animate-on-scroll-stagger-delay: <?php echo esc_attr( $attributes['staggerDelay'] ); ?>s;
 		--wp-block-animate-on-scroll-initial-delay: <?php echo esc_attr( $attributes['initialDelay'] ?? 0 ); ?>s;
+		--wp-block-animate-on-scroll-animation-timing: <?php echo esc_attr( $attributes['easing'] ?? 'ease' ); ?>;
 		--wp-block-animate-on-scroll-slide-distance: <?php echo esc_attr( $attributes['slideDistance'] ?? 50 ); ?>px;
 		--wp-block-animate-on-scroll-zoom-in-start: <?php echo esc_attr( $attributes['zoomInStart'] ?? 0.5 ); ?>;
 		--wp-block-animate-on-scroll-zoom-out-start: <?php echo esc_attr( $attributes['zoomOutStart'] ?? 1.5 ); ?>;

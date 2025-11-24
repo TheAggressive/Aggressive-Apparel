@@ -147,6 +147,13 @@ interface AnimateOnScrollContext {
   intersectionRatio: number;
   isIntersecting: boolean;
   reverseOnScrollBack?: boolean;
+  respectReducedMotion?: boolean;
+  announceToScreenReader?: boolean;
+  staggerPattern?: string;
+  staggerDelay?: number;
+  staggerWaveFrequency?: number;
+  staggerRandomMin?: number;
+  staggerRandomMax?: number;
 }
 
 // Track active debug blocks for shared Detection Boundary overlay
@@ -155,6 +162,37 @@ let activeDebugBlocks = new Set<string>();
 // Global scroll direction tracking (independent of IntersectionObserver)
 let globalScrollPosition = 0;
 let globalScrollDirection: 'up' | 'down' = 'down';
+
+// Configuration interfaces for better type safety
+interface StaggerConfig {
+  pattern: string;
+  delay: number;
+  waveFrequency: number;
+  randomMin: number;
+  randomMax: number;
+}
+
+// Accessibility helper for screen reader announcements
+const announceToScreenReader = (
+  message: string,
+  duration: number = 1000
+): void => {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'screen-reader-text';
+  announcement.style.cssText =
+    'position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+
+  setTimeout(() => {
+    if (document.body.contains(announcement)) {
+      document.body.removeChild(announcement);
+    }
+  }, duration);
+};
 
 // Track scroll direction globally for all animate-on-scroll blocks
 if (typeof window !== 'undefined') {
@@ -340,21 +378,8 @@ const updateAnimationState = (
       state.animationState = 'entering';
 
       // Accessibility announcement
-      if (ref) {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('role', 'status');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'screen-reader-text';
-        announcement.style.cssText =
-          'position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;';
-        announcement.textContent = 'Content animated into view';
-        document.body.appendChild(announcement);
-        setTimeout(() => {
-          if (document.body.contains(announcement)) {
-            document.body.removeChild(announcement);
-          }
-        }, 1000);
+      if (ref && ctx.announceToScreenReader) {
+        announceToScreenReader('Content animated into view');
       }
     }
 
@@ -372,9 +397,17 @@ const updateAnimationState = (
     if (ref) {
       ref.classList.add('is-exiting');
 
-      // Setup reverse stagger indices if stagger children is enabled
+      // Setup reverse stagger delays if stagger children is enabled
       if (ref.dataset.staggerChildren === 'true') {
-        setupStaggerIndices(ref, true);
+        const staggerConfig: StaggerConfig = {
+          pattern: ctx.staggerPattern ?? 'sequential',
+          delay: ctx.staggerDelay ?? 0.2,
+          waveFrequency: ctx.staggerWaveFrequency ?? 1,
+          randomMin: ctx.staggerRandomMin ?? 0,
+          randomMax: ctx.staggerRandomMax ?? 0.5,
+        };
+
+        setupStaggerDelays(ref, staggerConfig, true);
       }
 
       const durationValue = window
@@ -388,9 +421,17 @@ const updateAnimationState = (
         state.animationState = 'hidden';
         if (ref) {
           ref.classList.remove('is-exiting');
-          // Reset stagger indices back to normal order
+          // Reset stagger delays back to normal order
           if (ref.dataset.staggerChildren === 'true') {
-            setupStaggerIndices(ref, false);
+            const staggerConfig: StaggerConfig = {
+              pattern: ctx.staggerPattern ?? 'sequential',
+              delay: ctx.staggerDelay ?? 0.2,
+              waveFrequency: ctx.staggerWaveFrequency ?? 1,
+              randomMin: ctx.staggerRandomMin ?? 0,
+              randomMax: ctx.staggerRandomMax ?? 0.5,
+            };
+
+            setupStaggerDelays(ref, staggerConfig, false);
           }
         }
       }, durationSeconds * 1000);
@@ -456,17 +497,150 @@ const setupDebugEventListeners = (
   };
 };
 
-// Setup stagger indices for children - supports reverse order for exit animations
-const setupStaggerIndices = (
+// Pure functions for calculating stagger delays - better testability
+const calculateSequentialDelay = (
+  index: number,
+  staggerDelay: number,
+  reverse: boolean,
+  totalChildren: number
+): number => {
+  const sequentialIndex = reverse ? totalChildren - 1 - index : index;
+  return sequentialIndex * staggerDelay;
+};
+
+// Helper functions for initObserver refactoring
+const initializeElementState = (
+  ctx: AnimateOnScrollContext,
+  ref: HTMLElement
+): void => {
+  state.ctx = ctx;
+  state.elementRef = ref;
+  state.entryHeight = ref.offsetHeight;
+
+  // Initialize previousTop and previousScrollY for scroll direction detection
+  const initialRect = ref.getBoundingClientRect();
+  state.previousTop = initialRect.top;
+  state.previousScrollY = getScrollY();
+};
+
+const validateSequenceMode = (ref: HTMLElement): boolean => {
+  const isSequenceMode = ref.classList.contains('has-animation-sequence');
+
+  if (isSequenceMode && !hasAnimationSequenceAttributes(ref)) {
+    console.warn(
+      '[AnimateOnScroll] Sequence mode enabled but no sequence attributes found on children.'
+    );
+  }
+
+  return isSequenceMode;
+};
+
+const initializeStaggerAnimations = (
+  ctx: AnimateOnScrollContext,
+  ref: HTMLElement
+): void => {
+  if (ref.dataset.staggerChildren === 'true') {
+    const staggerConfig: StaggerConfig = {
+      pattern: ctx.staggerPattern ?? 'sequential',
+      delay: ctx.staggerDelay ?? 0.2,
+      waveFrequency: ctx.staggerWaveFrequency ?? 1,
+      randomMin: ctx.staggerRandomMin ?? 0,
+      randomMax: ctx.staggerRandomMax ?? 0.5,
+    };
+
+    setupStaggerDelays(ref, staggerConfig, false);
+  }
+};
+
+const initializeIntersectionObserver = (
+  ctx: AnimateOnScrollContext,
+  ref: HTMLElement
+): IntersectionObserver => {
+  const isSequenceMode = ref.classList.contains('has-animation-sequence');
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  if (isSequenceMode) {
+    void ref.offsetHeight; // Force reflow for sequence mode
+  }
+
+  const observer = createIntersectionObserver(
+    ctx,
+    ref,
+    isSequenceMode,
+    prefersReducedMotion
+  );
+  observer.observe(ref);
+
+  return observer;
+};
+
+const calculateWaveDelay = (
+  index: number,
+  staggerDelay: number,
+  staggerWaveFrequency: number,
+  reverse: boolean,
+  totalChildren: number
+): number => {
+  const waveIndex = reverse ? totalChildren - 1 - index : index;
+  const waveProgress = waveIndex / Math.max(totalChildren - 1, 1);
+  const wavePosition = waveProgress * staggerWaveFrequency * Math.PI * 2;
+  const waveValue = (Math.sin(wavePosition) + 1) / 2; // Normalize to 0-1
+  return waveValue * staggerDelay;
+};
+
+const calculateRandomDelay = (
+  staggerRandomMin: number,
+  staggerRandomMax: number
+): number => {
+  const randomRange = staggerRandomMax - staggerRandomMin;
+  return staggerRandomMin + Math.random() * randomRange;
+};
+
+// Setup stagger delays for children - supports different patterns and reverse order for exit animations
+const setupStaggerDelays = (
   element: HTMLElement,
+  staggerConfig: StaggerConfig,
   reverse: boolean = false
 ): void => {
-  const children = Array.from(element.children);
+  const children = Array.from(element.children) as HTMLElement[];
+
   children.forEach((child, index) => {
-    const staggerIndex = reverse ? children.length - 1 - index : index;
-    (child as HTMLElement).style.setProperty(
-      '--wp-block-animate-on-scroll-stagger-index',
-      String(staggerIndex)
+    let staggerDelayValue: number;
+
+    switch (staggerConfig.pattern) {
+      case 'wave':
+        staggerDelayValue = calculateWaveDelay(
+          index,
+          staggerConfig.delay,
+          staggerConfig.waveFrequency,
+          reverse,
+          children.length
+        );
+        break;
+
+      case 'random':
+        staggerDelayValue = calculateRandomDelay(
+          staggerConfig.randomMin,
+          staggerConfig.randomMax
+        );
+        break;
+
+      case 'sequential':
+      default:
+        staggerDelayValue = calculateSequentialDelay(
+          index,
+          staggerConfig.delay,
+          reverse,
+          children.length
+        );
+        break;
+    }
+
+    child.style.setProperty(
+      '--wp-block-animate-on-scroll-stagger-delay',
+      `${staggerDelayValue}s`
     );
   });
 };
@@ -1253,53 +1427,22 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
 
       if (!ref) return;
 
-      // Store the context and element reference
-      state.ctx = ctx;
-      state.elementRef = ref;
-      state.entryHeight = ref.offsetHeight;
+      // Initialize element state and setup
+      initializeElementState(ctx, ref);
 
-      // Initialize previousTop and previousScrollY for scroll direction detection
-      const initialRect = ref.getBoundingClientRect();
-      state.previousTop = initialRect.top;
-      state.previousScrollY = getScrollY();
+      // Validate sequence mode configuration
+      validateSequenceMode(ref);
 
-      // Check if sequence mode is enabled
-      const isSequenceMode = ref.classList.contains('has-animation-sequence');
-
-      // If animation sequence is enabled, verify attributes exist
-      if (isSequenceMode && !hasAnimationSequenceAttributes(ref)) {
-        console.warn(
-          '[AnimateOnScroll] Sequence mode enabled but no sequence attributes found on children.'
-        );
-      }
-
-      // Setup stagger animation if enabled
-      if (ref.dataset.staggerChildren === 'true') {
-        setupStaggerIndices(ref, false);
-      }
+      // Setup stagger animations if enabled
+      initializeStaggerAnimations(ctx, ref);
 
       // Initialize debug mode if enabled
       if (ctx.debugMode) {
         actions.debug();
       }
 
-      // Check for prefers-reduced-motion
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
-
-      if (isSequenceMode) {
-        void ref.offsetHeight;
-      }
-
-      // Create and setup IntersectionObserver
-      const observer = createIntersectionObserver(
-        ctx,
-        ref,
-        isSequenceMode,
-        prefersReducedMotion
-      );
-      observer.observe(ref);
+      // Setup and start IntersectionObserver
+      const observer = initializeIntersectionObserver(ctx, ref);
 
       // Setup debug event listeners if needed
       let cleanupDebugListeners: (() => void) | undefined;

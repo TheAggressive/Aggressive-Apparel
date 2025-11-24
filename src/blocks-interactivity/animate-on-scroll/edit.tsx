@@ -30,6 +30,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Block attributes type definition.
  */
+type EasingType =
+  | 'ease'
+  | 'linear'
+  | 'ease-in'
+  | 'ease-out'
+  | 'ease-in-out'
+  | 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  | 'cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+type StaggerPattern = 'sequential' | 'wave' | 'random';
 type BlockAttributes = {
   animation: string;
   direction: string;
@@ -59,6 +68,13 @@ type BlockAttributes = {
     elasticDistance?: number;
   }>;
   reverseOnScrollBack: boolean;
+  easing: EasingType;
+  staggerPattern: StaggerPattern;
+  staggerWaveFrequency: number;
+  staggerRandomMin: number;
+  staggerRandomMax: number;
+  respectReducedMotion: boolean;
+  announceToScreenReader: boolean;
   slideDistance?: number;
   zoomInStart?: number;
   zoomOutStart?: number;
@@ -750,6 +766,46 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             )}
           />
 
+          <SelectControl
+            label={__('Easing Function', 'aggressive-apparel')}
+            value={attributes.easing}
+            options={[
+              {
+                label: __('Ease (Default)', 'aggressive-apparel'),
+                value: 'ease',
+              },
+              { label: __('Linear', 'aggressive-apparel'), value: 'linear' },
+              { label: __('Ease In', 'aggressive-apparel'), value: 'ease-in' },
+              {
+                label: __('Ease Out', 'aggressive-apparel'),
+                value: 'ease-out',
+              },
+              {
+                label: __('Ease In Out', 'aggressive-apparel'),
+                value: 'ease-in-out',
+              },
+              {
+                label: __('Cubic Bezier', 'aggressive-apparel'),
+                value: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+              },
+              {
+                label: __('Bounce', 'aggressive-apparel'),
+                value: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+              },
+              {
+                label: __('Elastic', 'aggressive-apparel'),
+                value: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              },
+            ]}
+            onChange={easing => setAttributes({ easing: easing as EasingType })}
+            help={__(
+              'The timing function for the animation transition',
+              'aggressive-apparel'
+            )}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
+
           <RangeControl
             label={__('Initial Delay (seconds)', 'aggressive-apparel')}
             value={attributes.initialDelay}
@@ -774,18 +830,119 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             __nextHasNoMarginBottom
           />
           {attributes.staggerChildren && (
-            <RangeControl
-              label={__('Stagger Delay (seconds)', 'aggressive-apparel')}
-              value={attributes.staggerDelay}
-              onChange={staggerDelay => setAttributes({ staggerDelay })}
-              min={0.1}
-              max={1}
-              step={0.1}
-              help={__(
-                'Delay between each child element animation',
-                'aggressive-apparel'
+            <>
+              <SelectControl
+                label={__('Stagger Pattern', 'aggressive-apparel')}
+                value={attributes.staggerPattern}
+                options={[
+                  {
+                    label: __('Sequential', 'aggressive-apparel'),
+                    value: 'sequential',
+                  },
+                  { label: __('Wave', 'aggressive-apparel'), value: 'wave' },
+                  {
+                    label: __('Random', 'aggressive-apparel'),
+                    value: 'random',
+                  },
+                ]}
+                onChange={staggerPattern =>
+                  setAttributes({
+                    staggerPattern: staggerPattern as StaggerPattern,
+                  })
+                }
+                help={__(
+                  'How the stagger delay is applied to children',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              {attributes.staggerPattern === 'sequential' && (
+                <RangeControl
+                  label={__('Stagger Delay (seconds)', 'aggressive-apparel')}
+                  value={attributes.staggerDelay}
+                  onChange={staggerDelay => setAttributes({ staggerDelay })}
+                  min={0.1}
+                  max={1}
+                  step={0.1}
+                  help={__(
+                    'Delay between each child element animation',
+                    'aggressive-apparel'
+                  )}
+                />
               )}
-            />
+
+              {attributes.staggerPattern === 'wave' && (
+                <>
+                  <RangeControl
+                    label={__('Wave Frequency', 'aggressive-apparel')}
+                    value={attributes.staggerWaveFrequency}
+                    onChange={staggerWaveFrequency =>
+                      setAttributes({ staggerWaveFrequency })
+                    }
+                    min={1}
+                    max={10}
+                    step={1}
+                    help={__(
+                      'Number of wave cycles across all children',
+                      'aggressive-apparel'
+                    )}
+                  />
+                  <RangeControl
+                    label={__('Base Delay (seconds)', 'aggressive-apparel')}
+                    value={attributes.staggerDelay}
+                    onChange={staggerDelay => setAttributes({ staggerDelay })}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    help={__(
+                      'Base delay for wave pattern',
+                      'aggressive-apparel'
+                    )}
+                  />
+                </>
+              )}
+
+              {attributes.staggerPattern === 'random' && (
+                <>
+                  <RangeControl
+                    label={__(
+                      'Min Random Delay (seconds)',
+                      'aggressive-apparel'
+                    )}
+                    value={attributes.staggerRandomMin}
+                    onChange={staggerRandomMin =>
+                      setAttributes({ staggerRandomMin })
+                    }
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    help={__(
+                      'Minimum random delay for each child',
+                      'aggressive-apparel'
+                    )}
+                  />
+                  <RangeControl
+                    label={__(
+                      'Max Random Delay (seconds)',
+                      'aggressive-apparel'
+                    )}
+                    value={attributes.staggerRandomMax}
+                    onChange={staggerRandomMax =>
+                      setAttributes({ staggerRandomMax })
+                    }
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    help={__(
+                      'Maximum random delay for each child',
+                      'aggressive-apparel'
+                    )}
+                  />
+                </>
+              )}
+            </>
           )}
         </PanelBody>
 
@@ -925,7 +1082,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 
         {/* Debug Panel */}
         <PanelBody
-          title={__('Debug', 'aggressive-apparel')}
+          title={__('Debug & Accessibility', 'aggressive-apparel')}
           initialOpen={false}
         >
           <ToggleControl
@@ -934,6 +1091,32 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             onChange={debugMode => setAttributes({ debugMode })}
             help={__(
               'Shows visual indicators for the Detection Boundary & Visibility Trigger',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
+
+          <ToggleControl
+            label={__('Respect Reduced Motion', 'aggressive-apparel')}
+            checked={attributes.respectReducedMotion}
+            onChange={respectReducedMotion =>
+              setAttributes({ respectReducedMotion })
+            }
+            help={__(
+              'Disable animations for users who prefer reduced motion',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
+
+          <ToggleControl
+            label={__('Screen Reader Announcements', 'aggressive-apparel')}
+            checked={attributes.announceToScreenReader}
+            onChange={announceToScreenReader =>
+              setAttributes({ announceToScreenReader })
+            }
+            help={__(
+              'Announce animation events to screen readers',
               'aggressive-apparel'
             )}
             __nextHasNoMarginBottom

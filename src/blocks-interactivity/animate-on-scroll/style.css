@@ -2,6 +2,16 @@
 @reference 'tailwindcss';
 @import 'tailwindcss/utilities';
 
+/* Debug overlay colors - globally available */
+:root {
+	--wp-block-animate-on-scroll-debug-red: rgb(239 68 68);
+	--wp-block-animate-on-scroll-debug-yellow: rgb(234 179 8);
+	--wp-block-animate-on-scroll-debug-green: rgb(34 197 94);
+	--wp-block-animate-on-scroll-debug-red-bg: rgb(239 68 68 / 20%);
+	--wp-block-animate-on-scroll-debug-yellow-bg: rgb(234 179 8 / 20%);
+	--wp-block-animate-on-scroll-debug-green-bg: rgb(34 197 94 / 20%);
+}
+
 /**
  * Animate On Scroll Block Styles
  *
@@ -67,6 +77,16 @@
 		opacity: 1;
 		transform: none;
 		filter: blur(0);
+	}
+
+		/* Reverse animations when exiting - animate back to initial state */
+	&:not(.has-animation-sequence).is-exiting > * {
+		opacity: 0;
+	}
+
+	/* Reverse animations for sequence children when exiting */
+	&.has-animation-sequence.is-exiting > div[data-animate-sequence-type] {
+		opacity: 0;
 	}
 
 	/* Animation Sequence: Use data attributes for reliable targeting */
@@ -194,6 +214,7 @@
 			transform: none !important;
 			filter: blur(0) !important;
 		}
+
 
 		/* Sequence: Slide - Final states when visible */
 		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="up"] {
@@ -470,115 +491,6 @@
 			forwards;
 	}
 
-	/* Exit Animations - Apply when scrolling up and element is exiting */
-	&.is-exiting:not(.has-animation-sequence) > * {
-		opacity: 0;
-	}
-
-	/* Exit Animation Type: Fade */
-	&.exit-fade.is-exiting > * {
-		opacity: 0;
-	}
-
-	/* Exit Animation Type: Blur */
-	&.exit-blur-in.is-exiting > * {
-		filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
-		opacity: 0;
-	}
-
-	/* Exit Animation Type: Slide */
-	&.exit-slide {
-
-		&.exit-up.is-exiting > * {
-			transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
-			opacity: 0;
-		}
-
-		&.exit-down.is-exiting > * {
-			transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			opacity: 0;
-		}
-
-		&.exit-left.is-exiting > * {
-			transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
-			opacity: 0;
-		}
-
-		&.exit-right.is-exiting > * {
-			transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			opacity: 0;
-		}
-	}
-
-	/* Exit Animation Type: Zoom */
-	&.exit-zoom {
-
-		&.exit-in.is-exiting > * {
-			transform-origin: center center;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
-			opacity: 0;
-		}
-
-		&.exit-out.is-exiting > * {
-			transform-origin: center center;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
-			opacity: 0;
-		}
-	}
-
-	/* Exit Animation Type: Flip */
-	&.exit-flip {
-
-		&.exit-up.is-exiting > * {
-			transform-origin: center center;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
-			opacity: 0;
-		}
-
-		&.exit-down.is-exiting > * {
-			transform-origin: center center;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			opacity: 0;
-		}
-
-		&.exit-left.is-exiting > * {
-			transform-origin: center center;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
-			opacity: 0;
-		}
-
-		&.exit-right.is-exiting > * {
-			transform-origin: center center;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			opacity: 0;
-		}
-	}
-
-	/* Exit Animation Type: Rotate */
-	&.exit-rotate {
-
-		&.exit-left.is-exiting > * {
-			transform-origin: center center;
-			transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
-			opacity: 0;
-		}
-
-		&.exit-right.is-exiting > * {
-			transform-origin: center center;
-			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			opacity: 0;
-		}
-	}
-
-	/* Exit Animation Type: Bounce */
-	&.exit-bounce.is-exiting > * {
-		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
-		opacity: 0;
-	}
 }
 
 /**
@@ -666,62 +578,342 @@
 }
 
 /**
- * Debug Overlays
+ * Debug Overlays - Enhanced UI with Glassmorphism
  */
 
-/* Detection Boundary Overlay */
+/* Detection Boundary Overlay - Accurate viewport positioning */
 .wp-block-animate-on-scroll-debug-detection-boundary-overlay {
+	position: fixed;
+	pointer-events: none;
+	z-index: 999;
+	border: 2px dashed rgb(59 130 246 / 60%);
+	background: rgb(59 130 246 / 8%);
+	backdrop-filter: blur(4px);
+	box-shadow: inset 0 0 20px rgb(59 130 246 / 20%);
 
-	@apply pointer-events-none fixed z-[999] border-2 border-dashed border-red-700 bg-red-200/60 backdrop-grayscale;
-
-	inset: var(--wp-block-animate-on-scroll-detection-boundary-overlay-top)
-		var(--wp-block-animate-on-scroll-detection-boundary-overlay-right)
-		var(--wp-block-animate-on-scroll-detection-boundary-overlay-bottom)
-		var(--wp-block-animate-on-scroll-detection-boundary-overlay-left);
+	/* Inset is set via JavaScript to match rootMargin values */
 
 	&::after {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		content: "Detection Boundary";
+		background: rgb(59 130 246);
+		color: rgb(255 255 255);
+		padding: 0.375rem 0.75rem;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		white-space: nowrap;
+		box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	}
+}
 
-		@apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-red-600 px-2 py-2 text-center text-sm text-white;
+/* Debug Container - Element overlay */
+[class*="wp-block-animate-on-scroll-debug-container"] {
+	position: absolute;
+	pointer-events: none;
+	z-index: 9999;
+	min-width: 1px;
+	min-height: 1px;
+}
 
-		content: "Detection_Boundary";
+/* Floating Info Panel - Glassmorphism design */
+[class*="wp-block-animate-on-scroll-debug-panel"] {
+	position: fixed;
+	z-index: 10000;
+	background: rgb(0 0 0 / 85%);
+	backdrop-filter: blur(12px) saturate(180%);
+	border: 1px solid rgb(255 255 255 / 10%);
+	border-radius: 0.75rem;
+	box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 40px rgb(0 0 0 / 40%);
+	}
+
+	.debug-panel-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid rgb(255 255 255 / 10%);
+	}
+
+	.debug-panel-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: rgb(255 255 255);
+		letter-spacing: 0.025em;
+	}
+
+	.debug-panel-toggle {
+		background: transparent;
+		border: none;
+		color: rgb(255 255 255 / 70%);
+		cursor: pointer;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 1rem;
+		line-height: 1;
+		transition: color 0.2s, background-color 0.2s;
+
+		&:hover {
+			color: rgb(255 255 255);
+			background: rgb(255 255 255 / 10%);
+		}
+	}
+
+	.debug-panel-content {
+		padding: 0.5rem;
+	}
+
+	.debug-section {
+		margin-bottom: 0.5rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.debug-section-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0.75rem;
+		cursor: pointer;
+		border-radius: 0.375rem;
+		transition: background-color 0.2s;
+
+		&:hover {
+			background: rgb(255 255 255 / 5%);
+		}
+
+		span {
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: rgb(255 255 255 / 90%);
+		}
+
+		.section-toggle {
+			background: transparent;
+			border: none;
+			color: rgb(255 255 255 / 60%);
+			cursor: pointer;
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+			font-size: 0.875rem;
+			line-height: 1;
+			transition: color 0.2s;
+
+			&:hover {
+				color: rgb(255 255 255 / 90%);
+			}
+		}
+	}
+
+	.debug-section-content {
+		padding: 0.5rem 0.75rem;
+	}
+
+	.debug-metric {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.375rem 0;
+		font-size: 0.8125rem;
+
+		.metric-label {
+			color: rgb(255 255 255 / 70%);
+		}
+
+		.metric-value {
+			font-weight: 600;
+			color: rgb(255 255 255);
+			font-variant-numeric: tabular-nums;
+
+
+			&.direction-down {
+				color: rgb(34 197 94);
+			}
+
+			&.direction-up {
+				color: rgb(251 146 60);
+			}
+
+			&.performance-good {
+				color: rgb(34 197 94);
+			}
+
+			&.performance-lag {
+				color: rgb(251 146 60);
+			}
+
+			&.performance-jitter {
+				color: rgb(234 179 8);
+			}
+
+			&		.performance-poor {
+			color: rgb(239 68 68);
+		}
+
+		.intersection-state-value {
+			font-weight: 600;
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+			display: inline-block;
+
+			/* Red: Not intersecting */
+			&.intersection-state--not-intersecting {
+				background: var(--wp-block-animate-on-scroll-debug-red-bg);
+				color: var(--wp-block-animate-on-scroll-debug-red);
+			}
+
+			/* Yellow: Entering detection boundary */
+			&.intersection-state--entering {
+				background: var(--wp-block-animate-on-scroll-debug-yellow-bg);
+				color: var(--wp-block-animate-on-scroll-debug-yellow);
+			}
+
+			/* Green: Triggered */
+			&.intersection-state--triggered {
+				background: var(--wp-block-animate-on-scroll-debug-green-bg);
+				color: var(--wp-block-animate-on-scroll-debug-green);
+			}
+		}
+	}
+}
+}
+
+/* Zone Visualization */
+[data-zone-overlay] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 9998;
+}
+
+.entry-zone {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	pointer-events: none;
+	z-index: 9998;
+	transition: top 0.2s ease-out, height 0.2s ease-out, background-color 0.3s ease-out;
+
+	/* Red: Not intersecting */
+	&--not-intersecting {
+		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-red-bg), transparent);
+	}
+
+	/* Yellow: Entering element zone */
+	&--entering {
+		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-yellow-bg), transparent);
+	}
+
+	/* Green: Triggered */
+	&--triggered {
+		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-green-bg), transparent);
+	}
+}
+
+
+/* Trigger Line - Enhanced styling */
+[data-trigger-line] {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	pointer-events: none;
+	z-index: 9999;
+	transition: top 0.1s ease-out, background-color 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+
+	/* Red: Not intersecting (outside detection boundary) */
+	&.trigger-line--not-intersecting {
+		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-red), transparent);
+		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-red);
+		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-red-bg);
+	}
+
+	/* Yellow: Entering element zone (within detection boundary but below threshold) */
+	&.trigger-line--entering {
+		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-yellow), transparent);
+		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-yellow);
+		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-yellow-bg);
+	}
+
+	/* Green: Triggered (crossed threshold) */
+	&.trigger-line--triggered {
+		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-green), transparent);
+		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-green);
+		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-green-bg);
+	}
+}
+
+[data-trigger-label] {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: rgb(255 255 255);
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 10000;
+	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	transition: top 0.1s ease-out, background-color 0.3s ease-out;
+
+	/* Red: Not intersecting (outside detection boundary) */
+	&.trigger-label--not-intersecting {
+		background: var(--wp-block-animate-on-scroll-debug-red);
+	}
+
+	/* Yellow: Entering element zone (within detection boundary but below threshold) */
+	&.trigger-label--entering {
+		background: var(--wp-block-animate-on-scroll-debug-yellow);
+	}
+
+	/* Green: Triggered (crossed threshold) */
+	&.trigger-label--triggered {
+		background: var(--wp-block-animate-on-scroll-debug-green);
 	}
 }
 
 /* Debug Container */
-[class*="wp-block-animate-on-scroll-debug-container"] {
+[data-debug-container] {
+	position: absolute;
+}
 
-	@apply pointer-events-none absolute z-[9999];
+/* Mobile Responsive */
 
-	/* Ensure visibility on all devices */
-	min-width: 1px;
-	min-height: 1px;
-	visibility: visible !important;
-	display: block !important;
-	opacity: 1 !important;
+@media (width <= 767px) {
 
-	/* Visibility Trigger Line */
-	[class*="wp-block-animate-on-scroll-debug-visibility-trigger-line-"] {
+	[class*="wp-block-animate-on-scroll-debug-panel"] {
+		font-size: 0.8125rem;
 
-		@apply pointer-events-none absolute z-[9999] h-0.5 w-full -translate-y-px border-t-2 border-dashed border-red-600;
+		.debug-panel-header {
+			padding: 0.625rem 0.75rem;
+		}
 
-		top: var(--wp-block-animate-on-scroll-debug-visibility-trigger-top);
-		background-color: rgb(220 38 38 / 50%);
-		visibility: visible !important;
-		display: block !important;
-		opacity: 1 !important;
-	}
+		.debug-panel-title {
+			font-size: 0.8125rem;
+		}
 
-	/* Visibility Trigger Label */
-	[class*="wp-block-animate-on-scroll-debug-visibility-trigger-line-label-"] {
+		.debug-section-content {
+			padding: 0.375rem 0.625rem;
+		}
 
-		@apply absolute left-1/2 z-[9999] flex h-auto w-max -translate-x-1/2 -translate-y-1/2 rounded-md border-none bg-red-600 px-2 py-1 text-center text-xs text-white whitespace-nowrap;
-
-		top: var(--wp-block-animate-on-scroll-debug-visibility-trigger-top);
-		max-width: 90vw;
-		font-size: 0.75rem;
-		line-height: 1.2;
-		visibility: visible !important;
-		display: flex !important;
-		opacity: 1 !important;
+		.debug-metric {
+			font-size: 0.75rem;
+		}
 	}
 }

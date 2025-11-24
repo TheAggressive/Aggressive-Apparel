@@ -44,18 +44,7 @@ type BlockAttributes = {
     left: string;
   };
   debugMode: boolean;
-  slideDistance: number;
-  zoomInStart: number;
-  zoomOutStart: number;
-  rotationAngle: number;
-  blurAmount: number;
-  perspective: number;
-  bounceDistance: number;
-  elasticDistance: number;
   initialDelay: number;
-  reAnimateOnScroll: boolean;
-  exitAnimation: string;
-  exitDirection: string;
   useSequence: boolean;
   animationSequence: Array<{
     animation: string;
@@ -69,6 +58,15 @@ type BlockAttributes = {
     bounceDistance?: number;
     elasticDistance?: number;
   }>;
+  reverseOnScrollBack: boolean;
+  slideDistance?: number;
+  zoomInStart?: number;
+  zoomOutStart?: number;
+  rotationAngle?: number;
+  blurAmount?: number;
+  perspective?: number;
+  bounceDistance?: number;
+  elasticDistance?: number;
   sequenceCustomizations: Record<string, Record<string, number>>;
 };
 
@@ -192,6 +190,19 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           title={__('Animation Type', 'aggressive-apparel')}
           initialOpen={true}
         >
+          <ToggleControl
+            label={__('Reverse on Scroll Back', 'aggressive-apparel')}
+            checked={attributes.reverseOnScrollBack}
+            onChange={reverseOnScrollBack =>
+              setAttributes({ reverseOnScrollBack })
+            }
+            help={__(
+              'Animate elements out when scrolling back up past them. If stagger children is enabled, children will animate in reverse order.',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
+
           <ToggleControl
             label={__('Use Animation Sequence', 'aggressive-apparel')}
             checked={attributes.useSequence}
@@ -910,69 +921,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               'aggressive-apparel'
             )}
           </p>
-
-          <ToggleControl
-            label={__('Re-animate on Scroll Back', 'aggressive-apparel')}
-            checked={attributes.reAnimateOnScroll}
-            onChange={reAnimateOnScroll => setAttributes({ reAnimateOnScroll })}
-            help={__(
-              'Animate out when scrolling up, re-animate in when scrolling down.',
-              'aggressive-apparel'
-            )}
-            __nextHasNoMarginBottom
-          />
-
-          {attributes.reAnimateOnScroll && (
-            <>
-              <SelectControl
-                label={__('Exit Animation Type', 'aggressive-apparel')}
-                value={attributes.exitAnimation || 'fade'}
-                options={Object.entries(baseAnimations).map(
-                  ([value, config]) => ({
-                    value,
-                    label: config.label,
-                  })
-                )}
-                onChange={exitAnimation => {
-                  const animationKey = exitAnimation as AnimationKey;
-                  const config = baseAnimations[animationKey];
-                  const newDirection = config.hasDirection
-                    ? (config as { defaultDirection: string }).defaultDirection
-                    : '';
-                  setAttributes({
-                    exitAnimation,
-                    exitDirection: newDirection,
-                  });
-                }}
-                __next40pxDefaultSize
-              />
-              {baseAnimations[attributes.exitAnimation as AnimationKey]
-                ?.hasDirection && (
-                <SelectControl
-                  label={__('Exit Direction', 'aggressive-apparel')}
-                  value={attributes.exitDirection || 'up'}
-                  options={
-                    (
-                      baseAnimations[
-                        attributes.exitAnimation as AnimationKey
-                      ] as {
-                        directions: Array<{ label: string; value: string }>;
-                      }
-                    )?.directions || []
-                  }
-                  onChange={exitDirection => {
-                    setAttributes({ exitDirection });
-                  }}
-                  help={__(
-                    'Direction for exit animation when scrolling up',
-                    'aggressive-apparel'
-                  )}
-                  __next40pxDefaultSize
-                  __nextHasNoMarginBottom
-                />
-              )}
-            </>
-          )}
         </PanelBody>
 
         {/* Debug Panel */}

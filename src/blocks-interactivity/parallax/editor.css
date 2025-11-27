@@ -8,19 +8,11 @@
 
 /* Editor-specific styles */
 .wp-block-aggressive-apparel-parallax {
-	border: 2px solid #ddd;
-	border-radius: 4px;
-	padding: 1rem;
-	background: #f9f9f9;
 	min-height: 150px;
 	position: relative;
 }
 
 .parallax-container {
-	border: 1px dashed #ccc;
-	border-radius: 4px;
-	padding: 1rem;
-	background: #fff;
 	min-height: 100px;
 }
 
@@ -31,11 +23,6 @@
 /* Layer indicators in editor */
 .parallax-layer {
 	position: relative;
-	margin-bottom: 0.5rem;
-	padding: 0.5rem;
-	border: 1px solid #e1e1e1;
-	border-radius: 4px;
-	background: #fff;
 }
 
 .parallax-layer::before {

@@ -31,23 +31,33 @@
 
 .wp-block-animate-on-scroll {
 
-	/* CSS Custom Properties */
+	/* CSS Custom Properties - Optimized with logical grouping */
+
+	/* Timing */
 	--wp-block-animate-on-scroll-animation-duration: 0.6s;
 	--wp-block-animate-on-scroll-stagger-delay: 0.1s;
-	--wp-block-animate-on-scroll-stagger-index: 0;
+	--wp-block-animate-on-scroll-initial-delay: 0s;
 	--wp-block-animate-on-scroll-animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+	/* Transform values */
 	--wp-block-animate-on-scroll-slide-distance: 50px;
-	--wp-block-animate-on-scroll-blur-amount: 20px;
 	--wp-block-animate-on-scroll-zoom-in-start: 0.5;
 	--wp-block-animate-on-scroll-zoom-out-start: 1.5;
 	--wp-block-animate-on-scroll-rotate-angle: 90deg;
 	--wp-block-animate-on-scroll-perspective: 1000px;
+
+	/* Effect values */
+	--wp-block-animate-on-scroll-blur-amount: 20px;
 	--wp-block-animate-on-scroll-bounce-distance: 30px;
 	--wp-block-animate-on-scroll-elastic-distance: 50px;
 
-	/* Base Styles */
+	/* Internal tracking */
+	--wp-block-animate-on-scroll-stagger-index: 0;
+
+	/* Base Styles - Optimized for animations */
 	display: block;
 	will-change: transform, opacity, filter;
+	overflow: visible; /* Prevent animations from being clipped - no CSS containment to avoid layout restrictions */
 
 	/* Accessibility: Respect prefers-reduced-motion */
 	@media (prefers-reduced-motion: reduce) {

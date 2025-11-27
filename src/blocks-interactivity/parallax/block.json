@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/parallax",
+  "version": "1.0.5",
+  "title": "Advanced Parallax Container",
+  "category": "widgets",
+  "icon": "cover-image",
+  "description": "A container block that applies parallax effects to nested blocks using intersection observer.",
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "layout": {
+      "allowOrientation": false,
+      "allowEditing": false
+    },
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "intensity": {
+      "type": "number",
+      "default": 50
+    },
+    "enableIntersectionObserver": {
+      "type": "boolean",
+      "default": true
+    },
+    "intersectionThreshold": {
+      "type": "number",
+      "default": 0.1
+    },
+    "enableMouseInteraction": {
+      "type": "boolean",
+      "default": false
+    },
+    "parallaxDirection": {
+      "type": "string",
+      "enum": ["up", "down", "both"],
+      "default": "down"
+    },
+    "debugMode": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "providesContext": {
+    "aggressive-apparel/parallax/intensity": "intensity",
+    "aggressive-apparel/parallax/isIntersecting": "isIntersecting",
+    "aggressive-apparel/parallax/scrollProgress": "scrollProgress"
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

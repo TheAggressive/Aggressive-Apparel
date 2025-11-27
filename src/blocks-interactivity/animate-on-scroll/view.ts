@@ -658,14 +658,18 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
     resizeTimeout: null as number | null,
     scrollDirection: 'down' as 'up' | 'down',
     animationState: 'hidden' as 'hidden' | 'entering' | 'visible' | 'exiting',
-    // Performance tracking (lag/jitter detection)
+    // Performance tracking (lag/jitter detection) - optimized
     performanceStatus: 'good' as 'good' | 'lag' | 'jitter' | 'poor',
-    frameTimes: [] as number[], // Rolling window of frame times
+    frameTimes: [] as number[], // Rolling window of frame times (circular buffer)
+    frameTimeIndex: 0, // Current position in circular buffer
     lastFrameTime: 0,
     lastPerformanceUpdate: 0, // Last time we updated the display
     averageFrameTime: 0,
     lagCount: 0, // Count of frames exceeding 16.67ms (60fps threshold)
     jitterVariance: 0, // Variance in frame times (indicates jitter)
+
+    // Debug element cache for performance optimization
+    debugElements: {} as Record<string, HTMLElement | null>,
   },
   actions: {
     // Calculate and update detection boundary overlay with accurate positioning
@@ -991,16 +995,31 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         panel.style.width = `${Math.min(safePanelWidth, viewportWidth)}px`;
       }
 
-      // Update all real-time values
-      const visibilityValue = panel.querySelector('.visibility-value');
-      const directionValue = panel.querySelector('.direction-value');
-      const reverseScrollValue = panel.querySelector('.reverse-scroll-value');
-      const thresholdValue = panel.querySelector('.threshold-value');
-      const performanceValue = panel.querySelector('.performance-value');
-      const elementHeightValue = panel.querySelector('.element-height-value');
-      const intersectionStateValue = panel.querySelector(
-        '.intersection-state-value'
-      ) as HTMLElement | null;
+      // Cache and update debug elements for performance
+      if (!state.debugElements.panel || state.debugElements.panel !== panel) {
+        state.debugElements = {
+          panel,
+          visibilityValue: panel.querySelector('.visibility-value'),
+          directionValue: panel.querySelector('.direction-value'),
+          reverseScrollValue: panel.querySelector('.reverse-scroll-value'),
+          thresholdValue: panel.querySelector('.threshold-value'),
+          performanceValue: panel.querySelector('.performance-value'),
+          elementHeightValue: panel.querySelector('.element-height-value'),
+          intersectionStateValue: panel.querySelector(
+            '.intersection-state-value'
+          ),
+        };
+      }
+
+      const {
+        visibilityValue,
+        directionValue,
+        reverseScrollValue,
+        thresholdValue,
+        performanceValue,
+        elementHeightValue,
+        intersectionStateValue,
+      } = state.debugElements;
 
       if (visibilityValue) {
         // Use intersectionRatio directly from state (updated by observer)
@@ -1324,30 +1343,42 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         const frameTime = now - state.lastFrameTime;
 
         // Add to rolling window
-        state.frameTimes.push(frameTime);
-        if (state.frameTimes.length > FRAME_TIME_WINDOW) {
-          state.frameTimes.shift(); // Remove oldest
+        // Use circular buffer for efficient frame time storage
+        state.frameTimes[state.frameTimeIndex] = frameTime;
+        state.frameTimeIndex = (state.frameTimeIndex + 1) % FRAME_TIME_WINDOW;
+
+        // Mark buffer as full after first complete cycle
+        const isBufferFull = state.frameTimes.length === FRAME_TIME_WINDOW;
+        const bufferSize = isBufferFull
+          ? FRAME_TIME_WINDOW
+          : state.frameTimeIndex;
+
+        // Calculate average frame time efficiently
+        if (bufferSize > 0) {
+          let sum = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            sum += state.frameTimes[i];
+          }
+          state.averageFrameTime = sum / bufferSize;
         }
 
-        // Calculate average frame time
-        if (state.frameTimes.length > 0) {
-          const sum = state.frameTimes.reduce((a, b) => a + b, 0);
-          state.averageFrameTime = sum / state.frameTimes.length;
+        // Count lag frames efficiently
+        state.lagCount = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          if (state.frameTimes[i] > TARGET_FRAME_TIME) {
+            state.lagCount++;
+          }
         }
 
-        // Count lag frames (exceeding target frame time)
-        state.lagCount = state.frameTimes.filter(
-          time => time > TARGET_FRAME_TIME
-        ).length;
-
-        // Calculate jitter (variance in frame times)
-        if (state.frameTimes.length > 10) {
+        // Calculate jitter (variance) only when buffer is reasonably full
+        if (bufferSize >= 10) {
           const mean = state.averageFrameTime;
-          const variance =
-            state.frameTimes.reduce((acc, time) => {
-              return acc + Math.pow(time - mean, 2);
-            }, 0) / state.frameTimes.length;
-          state.jitterVariance = Math.sqrt(variance); // Standard deviation
+          let varianceSum = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const diff = state.frameTimes[i] - mean;
+            varianceSum += diff * diff;
+          }
+          state.jitterVariance = Math.sqrt(varianceSum / bufferSize);
         }
 
         // Determine performance status
@@ -1441,6 +1472,9 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
         actions.debug();
       }
 
+      // Add data attribute for quick block identification (performance optimization)
+      ref.setAttribute('data-animate-id', ctx.id);
+
       // Setup and start IntersectionObserver
       const observer = initializeIntersectionObserver(ctx, ref);
 
@@ -1460,6 +1494,8 @@ const { state, actions } = store('aggressive-apparel/animate-on-scroll', {
           cancelAnimationFrame(state.resizeTimeout);
           state.resizeTimeout = null;
         }
+        // Memory optimization: clear cached debug elements
+        state.debugElements = {};
       };
     },
     handleResize: () => {

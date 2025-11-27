@@ -1,0 +1,97 @@
+/**
+ * Advanced Parallax Container Block - Frontend Styles
+ *
+ * Core styles for the parallax effect groundwork.
+ *
+ * @package Aggressive Apparel
+ */
+
+/* Parallax container base styles */
+.wp-block-aggressive-apparel-parallax {
+	position: relative;
+	overflow: hidden;
+	min-height: 100px;
+}
+
+.parallax-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.parallax-content {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+/* Parallax block styles - applied to individual blocks with parallax enabled */
+[data-parallax-enabled="true"] {
+	position: relative;
+	will-change: transform;
+	transform: translateY(var(--parallax-translate-y, 0));
+	transition: transform var(--parallax-transition-duration, 0.1s) var(--parallax-easing, ease-out) var(--parallax-transition-delay, 0s);
+}
+
+/* Parallax layer styles */
+.parallax-layer {
+	position: relative;
+	will-change: transform;
+	transition: transform 0.1s ease-out;
+}
+
+/* Different layer weights for varying parallax speeds */
+.parallax-layer--foreground {
+	z-index: 10;
+}
+
+.parallax-layer--mid {
+	z-index: 5;
+}
+
+.parallax-layer--background {
+	z-index: 1;
+}
+
+/* Debug overlay styles */
+.parallax-debug-overlay {
+	position: relative;
+	pointer-events: none;
+	z-index: 1000;
+}
+
+.parallax-debug-overlay.hidden {
+	display: none;
+}
+
+/* Fallback content styles */
+.parallax-fallback {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+	padding: 2rem;
+	text-align: center;
+	background: rgb(0 0 0 / 5%);
+	border: 2px dashed rgb(0 0 0 / 10%);
+	border-radius: 8px;
+	font-style: italic;
+	color: rgb(0 0 0 / 60%);
+}
+
+/* Responsive adjustments */
+@media (width <= 768px) {
+
+	.wp-block-aggressive-apparel-parallax.disable-on-mobile .parallax-layer {
+		transform: none !important;
+	}
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+
+	.parallax-layer {
+		transition: none;
+		will-change: auto;
+	}
+}

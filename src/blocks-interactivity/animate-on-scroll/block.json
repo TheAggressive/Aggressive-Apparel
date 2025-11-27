@@ -9,7 +9,9 @@
   "description": "Animate elements on scroll.",
   "supports": {
     "html": false,
-    "interactivity": true
+    "interactivity": true,
+    "layout": false,
+    "align": ["wide", "full"]
   },
   "attributes": {
     "animation": {
@@ -39,7 +41,7 @@
     "detectionBoundary": {
       "type": "object",
       "default": {
-        "top": "100",
+        "top": "100%",
         "right": "0%",
         "bottom": "-25%",
         "left": "0%"

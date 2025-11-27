@@ -1,0 +1,156 @@
+/**
+ * Advanced Parallax Container Block - Editor Styles
+ *
+ * Styles for the block editor interface.
+ *
+ * @package Aggressive Apparel
+ */
+
+/* Editor-specific styles */
+.wp-block-aggressive-apparel-parallax {
+	border: 2px solid #ddd;
+	border-radius: 4px;
+	padding: 1rem;
+	background: #f9f9f9;
+	min-height: 150px;
+	position: relative;
+}
+
+.parallax-container {
+	border: 1px dashed #ccc;
+	border-radius: 4px;
+	padding: 1rem;
+	background: #fff;
+	min-height: 100px;
+}
+
+.parallax-content {
+	position: relative;
+}
+
+/* Layer indicators in editor */
+.parallax-layer {
+	position: relative;
+	margin-bottom: 0.5rem;
+	padding: 0.5rem;
+	border: 1px solid #e1e1e1;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.parallax-layer::before {
+	content: "Layer";
+	position: absolute;
+	top: -8px;
+	left: 8px;
+	background: #007cba;
+	color: #fff;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 500;
+}
+
+/* Debug mode indicator */
+.debug-mode::after {
+	content: "🔧 DEBUG MODE";
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: #ff6b35;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 10px;
+	font-weight: 700;
+	z-index: 10;
+}
+
+/* Fallback content in editor */
+.parallax-fallback {
+	background: #f0f0f0;
+	border: 2px dashed #bbb;
+	color: #666;
+	font-style: normal;
+	font-size: 14px;
+}
+
+/* Intersection observer indicator */
+.is-intersecting {
+	border-color: #46b450;
+	background: rgb(70 180 80 / 5%);
+}
+
+.is-intersecting::after {
+	content: "👁️ IN VIEW";
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	background: #46b450;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 10px;
+	font-weight: 700;
+}
+
+/* Mouse interaction indicator */
+.has-mouse-interaction::before {
+	content: "🖱️";
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	background: #007cba;
+	color: #fff;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	z-index: 10;
+}
+
+/* Direction indicator */
+.parallax-direction-up::after {
+	content: "⬆️ UP";
+	position: absolute;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #007cba;
+	color: #fff;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 10px;
+	font-weight: 700;
+}
+
+.parallax-direction-down::after {
+	content: "⬇️ DOWN";
+	position: absolute;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #007cba;
+	color: #fff;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 10px;
+	font-weight: 700;
+}
+
+.parallax-direction-both::after {
+	content: "⬌ BOTH";
+	position: absolute;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #007cba;
+	color: #fff;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 10px;
+	font-weight: 700;
+}

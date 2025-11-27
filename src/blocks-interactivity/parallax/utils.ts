@@ -34,23 +34,68 @@ export function calculateParallaxMovement(
   scrollProgress: number,
   intensity: number,
   speed: number,
-  direction: 'up' | 'down' | 'both' | 'none'
-): number {
+  direction: 'up' | 'down' | 'both' | 'none',
+  mouseX?: number,
+  mouseY?: number,
+  enableMouseInteraction?: boolean
+): { x: number; y: number } {
   const adjustedIntensity = intensity / 100;
 
+  // Initialize movement values
+  let scrollMovementY = 0;
+  let mouseMovementY = 0;
+  let mouseMovementX = 0;
+
+  // Calculate scroll-based movement (primarily affects Y axis)
   switch (direction) {
     case 'up':
-      return -scrollProgress * 100 * adjustedIntensity * speed;
+      scrollMovementY = -scrollProgress * 100 * adjustedIntensity * speed;
+      break;
     case 'down':
-      return scrollProgress * 100 * adjustedIntensity * speed;
+      scrollMovementY = scrollProgress * 100 * adjustedIntensity * speed;
+      break;
     case 'both': {
       const centeredProgress = (scrollProgress - 0.5) * 2;
-      return centeredProgress * 100 * adjustedIntensity * speed;
+      scrollMovementY = centeredProgress * 100 * adjustedIntensity * speed;
+      break;
     }
     case 'none':
     default:
-      return 0;
+      scrollMovementY = 0;
   }
+
+  // Add mouse interaction if enabled (affects both X and Y axes for 3D effect)
+  if (enableMouseInteraction && mouseX !== undefined && mouseY !== undefined) {
+    // Mouse influence: convert mouse position to movement offset
+    // mouseX and mouseY are normalized 0-1, convert to -1 to 1 range
+    const mouseOffsetX = (mouseX - 0.5) * 2; // -1 to 1
+    const mouseOffsetY = (mouseY - 0.5) * 2; // -1 to 1
+
+    // Apply mouse influence based on direction
+    switch (direction) {
+      case 'up':
+      case 'down':
+        // Mouse creates subtle 3D movement: horizontal mouse affects horizontal parallax
+        mouseMovementX = mouseOffsetX * 30 * adjustedIntensity * speed;
+        mouseMovementY = mouseOffsetY * 50 * adjustedIntensity * speed;
+        break;
+      case 'both':
+        // Full 3D mouse parallax effect
+        mouseMovementX = mouseOffsetX * 40 * adjustedIntensity * speed;
+        mouseMovementY = mouseOffsetY * 40 * adjustedIntensity * speed;
+        break;
+      case 'none':
+      default:
+        mouseMovementX = 0;
+        mouseMovementY = 0;
+    }
+  }
+
+  // Combine scroll and mouse movement (mouse has less influence)
+  return {
+    x: mouseMovementX * 0.3, // Mouse X influence
+    y: scrollMovementY + mouseMovementY * 0.3, // Scroll Y + Mouse Y influence
+  };
 }
 
 /**

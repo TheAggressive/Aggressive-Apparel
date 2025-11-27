@@ -9,12 +9,15 @@
  */
 export const PARALLAX_CONFIG = {
   // Performance settings
-  MOBILE_BREAKPOINT: 768,
   SCROLL_THROTTLE_MS: 16, // ~60fps
   TRANSITION_DURATION: 0.1,
 
+  // 3D perspective settings
+  PERSPECTIVE_DISTANCE: 1000, // CSS perspective value
+  MAX_ROTATION_DEGREES: 5, // Max rotation angle for mouse interaction
+  DEPTH_MULTIPLIER: 50, // Multiplier for Z-depth calculation
+
   // Default values
-  DEFAULT_INTENSITY: 50,
   DEFAULT_SPEED: 1.0,
   DEFAULT_DELAY: 0,
 

@@ -3,17 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
 	bootstrap="tests/bootstrap.php"
-	backupglobals="false"
-	bestrictaboutcoversannotation="true"
-	bestrictaboutoutputduringtests="true"
-	bestrictabouttodoannotatedtests="true"
 	colors="true"
-	converterrorstoexceptions="true"
-	convertnoticestoexceptions="true"
-	convertwarningstoexceptions="true"
-	failonrisky="true"
-	failonwarning="true"
 	verbose="false"
+	backupGlobals="false"
 >
 	<testsuites>
 		<testsuite name="unit">
@@ -34,11 +26,8 @@
 	</testsuites>
 
 	<coverage
-		includeuncoveredfiles="true"
-		processuncoveredfiles="true"
-		pathcoverage="false"
-		ignoredeprecatedcodeunits="true"
-		disablecodecoverageignore="true"
+		includeUncoveredFiles="true"
+		disableCodeCoverageIgnore="true"
 	>
 		<include>
 			<directory suffix=".php">includes</directory>

@@ -1,25 +1,24 @@
 <?php
 /**
- * Advanced Parallax Container Block - Groundwork
+ * Advanced Parallax Container Block
  *
- * Basic implementation focusing on:
+ * Full implementation featuring:
  * - Intersection Observer integration
- * - Container for nested blocks
- * - Simple parallax effect groundwork
- *
+ * - Container for nested blocks with individual parallax controls
+ * - Advanced parallax effects with customizable settings
  * The following variables are exposed to this file:
- *     $attributes (array): The block attributes.
- *     $content (string): The block default content.
- *     $block (WP_Block): The block instance.
+ * $attributes (array) : The block attributes .
+ * $content (string) : The block default content .
+ * $block( WP_Block ): The block instance .
  *
- * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ * @see https:// github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  *
  * @package Aggressive Apparel
  */
 
-declare(strict_types=1);
+	declare(strict_types=1);
 
-defined( 'ABSPATH' ) || exit;
+	defined( 'ABSPATH' ) || exit;
 
 // Extract attributes with defaults.
 $intensity                    = $attributes['intensity'] ?? 50;
@@ -38,8 +37,6 @@ $context = array(
 	'enableMouseInteraction'     => $enable_mouse_interaction,
 	'parallaxDirection'          => $parallax_direction,
 	'debugMode'                  => $debug_mode,
-	'elementSettings'            => $attributes['elementSettings'] ?? array(),
-	'useManualControl'           => $attributes['useManualControl'] ?? false,
 
 	// Runtime state.
 	'isIntersecting'             => false,

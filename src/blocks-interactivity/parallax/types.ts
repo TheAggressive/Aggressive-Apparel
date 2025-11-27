@@ -58,6 +58,6 @@ export interface ParallaxLayer {
   speed: number;
   direction: ElementSettings['direction'];
   delay: number;
-  easing: ElementSettings['direction'];
+  easing: ElementSettings['easing'];
   isActive: boolean;
 }

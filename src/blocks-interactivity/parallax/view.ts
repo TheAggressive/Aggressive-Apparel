@@ -74,18 +74,33 @@ class ParallaxSystem {
   private startParallaxEffect(): void {
     this.initializeLayers();
     this.startScrollListener();
+    if (this.context.enableMouseInteraction) {
+      this.startMouseListener();
+    }
   }
 
   private pauseParallaxEffect(): void {
     this.stopScrollListener();
+    this.stopMouseListener();
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
-    // Optionally reset transforms or set a default state
+
+    // Reset container rotation
+    const contentContainer = this.element.querySelector(
+      '.parallax-content'
+    ) as HTMLElement;
+    if (contentContainer) {
+      contentContainer.style.transform = '';
+    }
+
+    // Reset individual element transforms
     Object.values(this.context.layers || {}).forEach((layer: any) => {
       if (layer.element) {
+        layer.element.style.setProperty('--parallax-translate-x', '0px');
         layer.element.style.setProperty('--parallax-translate-y', '0px');
+        layer.element.style.setProperty('--parallax-translate-z', '0px');
         layer.element.style.setProperty('--parallax-transition-duration', '0s'); // Reset transition
         layer.element.style.setProperty('--parallax-transition-delay', '0s');
       }
@@ -221,6 +236,65 @@ class ParallaxSystem {
     }
   }
 
+  private startMouseListener(): void {
+    const handleMouseMove = (event: MouseEvent) => {
+      if (!this.isIntersecting) return;
+
+      // Calculate mouse position relative to the viewport
+      const mouseX = event.clientX / window.innerWidth; // 0-1 normalized
+      const mouseY = event.clientY / window.innerHeight; // 0-1 normalized
+
+      // Update context
+      this.context.mouseX = mouseX;
+      this.context.mouseY = mouseY;
+
+      // Apply 3D rotation to the parallax content container
+      const contentContainer = this.element.querySelector(
+        '.parallax-content'
+      ) as HTMLElement;
+      if (contentContainer) {
+        // Convert mouse position to rotation angles (subtle effect)
+        const rotateY =
+          (mouseX - 0.5) * PARALLAX_CONFIG.MAX_ROTATION_DEGREES * 2; // Horizontal rotation
+        const rotateX =
+          (mouseY - 0.5) * -PARALLAX_CONFIG.MAX_ROTATION_DEGREES * 2; // Vertical rotation (inverted)
+
+        contentContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      }
+
+      // Update individual layer transforms
+      this.updateLayerTransforms();
+    };
+
+    // Throttled mouse listener
+    let ticking = false;
+    const throttledMouseMove = (event: MouseEvent) => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleMouseMove(event);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    document.addEventListener('mousemove', throttledMouseMove, {
+      passive: true,
+    });
+
+    // Store cleanup function
+    (this.element as any)._parallaxMouseCleanup = () => {
+      document.removeEventListener('mousemove', throttledMouseMove);
+    };
+  }
+
+  private stopMouseListener(): void {
+    const cleanupMouse = (this.element as any)._parallaxMouseCleanup;
+    if (cleanupMouse) {
+      cleanupMouse();
+    }
+  }
+
   /**
    * Force initialization immediately (used when Intersection Observer is disabled)
    */
@@ -253,12 +327,32 @@ class ParallaxSystem {
           scrollProgress,
           this.context.intensity,
           speed,
-          direction
+          direction,
+          this.context.mouseX,
+          this.context.mouseY,
+          this.context.enableMouseInteraction
         );
 
-        // Apply transform via CSS variables
-        const movementValue = `${movement.toFixed(2)}px`;
-        blockElement.style.setProperty('--parallax-translate-y', movementValue);
+        // Apply 3D transform via CSS variables
+        const movementXValue = `${movement.x.toFixed(2)}px`;
+        const movementYValue = `${movement.y.toFixed(2)}px`;
+
+        // Calculate Z-depth based on speed (higher speed = closer/deeper)
+        const depthZ = (speed - 1) * PARALLAX_CONFIG.DEPTH_MULTIPLIER; // Configurable depth range
+        const movementZValue = `${depthZ.toFixed(2)}px`;
+
+        blockElement.style.setProperty(
+          '--parallax-translate-x',
+          movementXValue
+        );
+        blockElement.style.setProperty(
+          '--parallax-translate-y',
+          movementYValue
+        );
+        blockElement.style.setProperty(
+          '--parallax-translate-z',
+          movementZValue
+        );
         blockElement.style.setProperty(
           '--parallax-transition-duration',
           `${PARALLAX_CONFIG.TRANSITION_DURATION}s`
@@ -287,9 +381,25 @@ class ParallaxSystem {
       cleanupScroll();
     }
 
+    // Cleanup mouse listener
+    const cleanupMouse = (this.element as any)._parallaxMouseCleanup;
+    if (cleanupMouse) {
+      cleanupMouse();
+    }
+
+    // Reset container rotation
+    const contentContainer = this.element.querySelector(
+      '.parallax-content'
+    ) as HTMLElement;
+    if (contentContainer) {
+      contentContainer.style.transform = '';
+    }
+
     // Reset transforms and clean up cached elements
     this.cachedElements.forEach(element => {
+      element.style.setProperty('--parallax-translate-x', '');
       element.style.setProperty('--parallax-translate-y', '');
+      element.style.setProperty('--parallax-translate-z', '');
       element.style.setProperty('--parallax-transition-duration', '');
       element.style.setProperty('--parallax-transition-delay', '');
       element.style.setProperty('--parallax-easing', '');

@@ -11,25 +11,34 @@
 	position: relative;
 	overflow: hidden;
 	min-height: 100px;
+
+	--parallax-perspective: 1000px; /* 3D perspective distance */
+
+	perspective: var(--parallax-perspective);
 }
 
 .parallax-container {
 	position: relative;
 	width: 100%;
 	height: 100%;
+	transform-style: preserve-3d; /* Preserve 3D transforms for children */
 }
 
 .parallax-content {
 	position: relative;
 	width: 100%;
 	height: 100%;
+	transform-style: preserve-3d; /* Preserve 3D transforms for children */
+	transition: transform 0.1s ease-out;
 }
 
 /* Parallax block styles - applied to individual blocks with parallax enabled */
 [data-parallax-enabled="true"] {
 	position: relative;
 	will-change: transform;
-	transform: translateY(var(--parallax-translate-y, 0));
+	transform:
+		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
+		translateZ(var(--parallax-translate-z, 0));
 	transition: transform var(--parallax-transition-duration, 0.1s) var(--parallax-easing, ease-out) var(--parallax-transition-delay, 0s);
 }
 

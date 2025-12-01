@@ -34,67 +34,66 @@ export function calculateParallaxMovement(
   scrollProgress: number,
   intensity: number,
   speed: number,
-  direction: 'up' | 'down' | 'both' | 'none',
-  mouseX?: number,
-  mouseY?: number,
-  enableMouseInteraction?: boolean
+  direction: string,
+  mouseX: number,
+  mouseY: number,
+  enableMouseInteraction: boolean,
+  options: {
+    mouseInfluenceMultiplier: number;
+    maxMouseTranslation: number;
+    depthFactor: number;
+  }
 ): { x: number; y: number } {
-  const adjustedIntensity = intensity / 100;
+  // Scroll movement
+  let scrollX = 0;
+  let scrollY = 0;
+  const movement = scrollProgress * intensity * speed;
 
-  // Initialize movement values
-  let scrollMovementY = 0;
-  let mouseMovementY = 0;
-  let mouseMovementX = 0;
-
-  // Calculate scroll-based movement (primarily affects Y axis)
   switch (direction) {
     case 'up':
-      scrollMovementY = -scrollProgress * 100 * adjustedIntensity * speed;
+      scrollY = -movement;
       break;
     case 'down':
-      scrollMovementY = scrollProgress * 100 * adjustedIntensity * speed;
+      scrollY = movement;
       break;
-    case 'both': {
-      const centeredProgress = (scrollProgress - 0.5) * 2;
-      scrollMovementY = centeredProgress * 100 * adjustedIntensity * speed;
+    case 'left':
+      scrollX = -movement;
       break;
-    }
-    case 'none':
-    default:
-      scrollMovementY = 0;
+    case 'right':
+      scrollX = movement;
+      break;
+    case 'both':
+      scrollX = movement * 0.5;
+      scrollY = movement * 0.5;
+      break;
   }
 
-  // Add mouse interaction if enabled (affects both X and Y axes for 3D effect)
-  if (enableMouseInteraction && mouseX !== undefined && mouseY !== undefined) {
-    // Mouse influence: convert mouse position to movement offset
-    // mouseX and mouseY are normalized 0-1, convert to -1 to 1 range
-    const mouseOffsetX = (mouseX - 0.5) * 2; // -1 to 1
-    const mouseOffsetY = (mouseY - 0.5) * 2; // -1 to 1
+  // Mouse movement
+  let mouseXTrans = 0;
+  let mouseYTrans = 0;
 
-    // Apply mouse influence based on direction
-    switch (direction) {
-      case 'up':
-      case 'down':
-        // Mouse creates subtle 3D movement: horizontal mouse affects horizontal parallax
-        mouseMovementX = mouseOffsetX * 30 * adjustedIntensity * speed;
-        mouseMovementY = mouseOffsetY * 50 * adjustedIntensity * speed;
-        break;
-      case 'both':
-        // Full 3D mouse parallax effect
-        mouseMovementX = mouseOffsetX * 40 * adjustedIntensity * speed;
-        mouseMovementY = mouseOffsetY * 40 * adjustedIntensity * speed;
-        break;
-      case 'none':
-      default:
-        mouseMovementX = 0;
-        mouseMovementY = 0;
-    }
+  if (enableMouseInteraction) {
+    const { mouseInfluenceMultiplier, maxMouseTranslation, depthFactor } =
+      options;
+    const mouseInfluence = mouseInfluenceMultiplier * intensity * depthFactor;
+
+    mouseXTrans = (mouseX - 0.5) * mouseInfluence * speed;
+    mouseYTrans = (mouseY - 0.5) * mouseInfluence * speed;
+
+    // Clamp
+    mouseXTrans = Math.max(
+      -maxMouseTranslation,
+      Math.min(maxMouseTranslation, mouseXTrans)
+    );
+    mouseYTrans = Math.max(
+      -maxMouseTranslation,
+      Math.min(maxMouseTranslation, mouseYTrans)
+    );
   }
 
-  // Combine scroll and mouse movement (mouse has less influence)
   return {
-    x: mouseMovementX * 0.3, // Mouse X influence
-    y: scrollMovementY + mouseMovementY * 0.3, // Scroll Y + Mouse Y influence
+    x: scrollX + mouseXTrans,
+    y: scrollY + mouseYTrans,
   };
 }
 
@@ -139,11 +138,14 @@ export function getElementStableId(
 /**
  * Debounces a function call.
  */
+/**
+ * Debounces a function call.
+ */
 export function debounce<T extends Function>(func: T, wait: number): Function {
   let timeout: number;
   return (...args: any[]) => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
+    timeout = window.setTimeout(() => func(...args), wait);
   };
 }
 
@@ -156,7 +158,7 @@ export function throttle<T extends Function>(func: T, limit: number): Function {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      window.setTimeout(() => (inThrottle = false), limit);
     }
   };
 }

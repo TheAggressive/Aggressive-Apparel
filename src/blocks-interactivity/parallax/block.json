@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/parallax",
-  "version": "1.0.5",
+  "version": "1.0.8",
   "title": "Advanced Parallax Container",
   "category": "widgets",
   "icon": "cover-image",
@@ -21,26 +21,62 @@
       "type": "number",
       "default": 50
     },
-    "enableIntersectionObserver": {
-      "type": "boolean",
-      "default": true
-    },
-    "intersectionThreshold": {
+    "visibilityTrigger": {
       "type": "number",
-      "default": 0.1
+      "default": 0.3
+    },
+    "detectionBoundary": {
+      "type": "object",
+      "default": {
+        "top": "0%",
+        "right": "0%",
+        "bottom": "0%",
+        "left": "0%"
+      }
     },
     "enableMouseInteraction": {
       "type": "boolean",
       "default": false
     },
-    "parallaxDirection": {
-      "type": "string",
-      "enum": ["up", "down", "both"],
-      "default": "down"
-    },
     "debugMode": {
       "type": "boolean",
       "default": false
+    },
+    "parallaxDirection": {
+      "type": "string",
+      "default": "down"
+    },
+    "mouseInfluenceMultiplier": {
+      "type": "number",
+      "default": 0.5
+    },
+    "maxMouseTranslation": {
+      "type": "number",
+      "default": 20
+    },
+    "mouseSensitivityThreshold": {
+      "type": "number",
+      "default": 0.001
+    },
+    "depthIntensityMultiplier": {
+      "type": "number",
+      "default": 50
+    },
+    "transitionDuration": {
+      "type": "number",
+      "default": 0.1
+    },
+    "perspectiveDistance": {
+      "type": "number",
+      "default": 1000
+    },
+    "maxMouseRotation": {
+      "type": "number",
+      "default": 5
+    },
+    "parallaxDepth": {
+      "type": "number",
+      "default": 1.0
     }
   },
   "providesContext": {

@@ -72,6 +72,24 @@ addFilter(
           attributes.aggressiveApparelParallax.delay.toString() + 'ms',
         '--parallax-easing': attributes.aggressiveApparelParallax.easing,
       };
+
+      // Save effects data for all blocks inside parallax containers
+      // Apply effects to any element that has parallax effects configured
+      if (attributes.aggressiveApparelParallax?.effects) {
+        const effects = attributes.aggressiveApparelParallax.effects;
+
+        // Check if any effects are configured (including default values for layering control)
+        const hasAnyEffects =
+          effects.zoom ||
+          effects.depthLevel ||
+          effects.zIndex ||
+          effects.opacity ||
+          effects.rotation;
+
+        if (hasAnyEffects) {
+          extraProps['data-parallax-effects'] = JSON.stringify(effects);
+        }
+      }
     }
 
     return extraProps;

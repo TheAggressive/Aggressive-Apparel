@@ -9,12 +9,9 @@
 /* Parallax container base styles */
 .wp-block-aggressive-apparel-parallax {
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 	min-height: 100px;
-
-	--parallax-perspective: 1000px; /* 3D perspective distance */
-
-	perspective: var(--parallax-perspective);
+	perspective: var(--parallax-perspective, 1000px);
 }
 
 .parallax-container {
@@ -22,6 +19,17 @@
 	width: 100%;
 	height: 100%;
 	transform-style: preserve-3d; /* Preserve 3D transforms for children */
+	transition: transform 0.1s ease-out;
+	pointer-events: none; /* Allow clicks to pass through container */
+}
+
+/* 3D Card Effect - Container rotates in 3D space when mouse interaction enabled */
+.has-mouse-interaction .parallax-container {
+	transform:
+		rotateX(var(--parallax-card-rotate-x, 0deg))
+		rotateY(var(--parallax-card-rotate-y, 0deg));
+	will-change: transform;
+	pointer-events: none; /* Ensure container doesn't block clicks even with 3D transforms */
 }
 
 .parallax-content {
@@ -30,6 +38,20 @@
 	height: 100%;
 	transform-style: preserve-3d; /* Preserve 3D transforms for children */
 	transition: transform 0.1s ease-out;
+	pointer-events: auto; /* Re-enable clicks on content */
+	z-index: 1; /* Ensure content sits above container background */
+}
+
+/* Ensure all child elements and interactive elements remain clickable */
+.parallax-content > *,
+.parallax-content a,
+.parallax-content button,
+.parallax-content input,
+.parallax-content select,
+.parallax-content textarea,
+.parallax-content [role="button"],
+.parallax-content [tabindex] {
+	pointer-events: auto;
 }
 
 /* Parallax block styles - applied to individual blocks with parallax enabled */
@@ -38,8 +60,33 @@
 	will-change: transform;
 	transform:
 		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
-		translateZ(var(--parallax-translate-z, 0));
+		translateZ(var(--parallax-translate-z, 0))
+		scale(var(--parallax-scale, 1));
 	transition: transform var(--parallax-transition-duration, 0.1s) var(--parallax-easing, ease-out) var(--parallax-transition-delay, 0s);
+	z-index: var(--parallax-z-index, auto);
+	filter: var(--parallax-filter, none);
+	pointer-events: auto; /* Ensure parallax layers remain interactive */
+}
+
+/* Ensure all interactive elements within parallax layers are clickable */
+[data-parallax-enabled="true"] *,
+[data-parallax-enabled="true"] a,
+[data-parallax-enabled="true"] button,
+[data-parallax-enabled="true"] input,
+[data-parallax-enabled="true"] select,
+[data-parallax-enabled="true"] textarea,
+[data-parallax-enabled="true"] [role="button"],
+[data-parallax-enabled="true"] [tabindex] {
+	pointer-events: auto;
+}
+
+/* Enhanced transforms when mouse interaction is enabled */
+.has-mouse-interaction [data-parallax-enabled="true"] {
+	transform:
+		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
+		translateZ(var(--parallax-translate-z, 0))
+		translate(var(--parallax-mouse-x, 0), var(--parallax-mouse-y, 0))
+		scale(var(--parallax-scale, 1));
 }
 
 /* Parallax layer styles */
@@ -100,7 +147,360 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.parallax-layer {
-		transition: none;
-		will-change: auto;
+		transition: none !important;
+		will-change: auto !important;
+		transform: none !important;
+		animation: none !important;
+	}
+}
+
+/* ==========================================================================
+   DEBUG OVERLAYS - Ported from animate-on-scroll
+   ========================================================================== */
+
+/* Debug overlay colors - globally available */
+:root {
+	--wp-block-parallax-debug-red: rgb(239 68 68);
+	--wp-block-parallax-debug-yellow: rgb(234 179 8);
+	--wp-block-parallax-debug-green: rgb(34 197 94);
+	--wp-block-parallax-debug-red-bg: rgb(239 68 68 / 20%);
+	--wp-block-parallax-debug-yellow-bg: rgb(234 179 8 / 20%);
+	--wp-block-parallax-debug-green-bg: rgb(34 197 94 / 20%);
+}
+
+/* Detection Boundary Overlay - Accurate viewport positioning */
+.wp-block-parallax-debug-detection-boundary-overlay {
+	position: fixed;
+	pointer-events: none;
+	z-index: 999;
+	border: 2px dashed rgb(59 130 246 / 60%);
+	background: rgb(59 130 246 / 8%);
+	backdrop-filter: blur(4px);
+	box-shadow: inset 0 0 20px rgb(59 130 246 / 20%);
+
+	/* Inset is set via JavaScript to match rootMargin values */
+
+	&::after {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		content: "Detection Boundary";
+		background: rgb(59 130 246);
+		color: rgb(255 255 255);
+		padding: 0.375rem 0.75rem;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		white-space: nowrap;
+		box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	}
+}
+
+/* Debug Container - Element overlay */
+[class*="wp-block-parallax-debug-container"] {
+	position: absolute;
+	pointer-events: none;
+	z-index: 9999;
+	min-width: 1px;
+	min-height: 1px;
+}
+
+/* Floating Info Panel - Glassmorphism design */
+[class*="wp-block-parallax-debug-panel"] {
+	position: fixed;
+	z-index: 10000;
+	background: rgb(0 0 0 / 85%);
+	backdrop-filter: blur(12px) saturate(180%);
+	border: 1px solid rgb(255 255 255 / 10%);
+	border-radius: 0.75rem;
+	box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 12px 40px rgb(0 0 0 / 40%);
+	}
+
+	.debug-panel-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid rgb(255 255 255 / 10%);
+	}
+
+	.debug-panel-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: rgb(255 255 255);
+		letter-spacing: 0.025em;
+	}
+
+	.debug-panel-toggle {
+		background: transparent;
+		border: none;
+		color: rgb(255 255 255 / 70%);
+		cursor: pointer;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 1rem;
+		line-height: 1;
+		transition: color 0.2s, background-color 0.2s;
+
+		&:hover {
+			color: rgb(255 255 255);
+			background: rgb(255 255 255 / 10%);
+		}
+	}
+
+	.debug-panel-content {
+		padding: 0.5rem;
+	}
+
+	.debug-section {
+		margin-bottom: 0.5rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.debug-section-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0.75rem;
+		cursor: pointer;
+		border-radius: 0.375rem;
+		transition: background-color 0.2s;
+
+		&:hover {
+			background: rgb(255 255 255 / 5%);
+		}
+
+		span {
+			font-size: 0.8125rem;
+			font-weight: 500;
+			color: rgb(255 255 255 / 90%);
+		}
+
+		.section-toggle {
+			background: transparent;
+			border: none;
+			color: rgb(255 255 255 / 60%);
+			cursor: pointer;
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+			font-size: 0.875rem;
+			line-height: 1;
+			transition: color 0.2s;
+
+			&:hover {
+				color: rgb(255 255 255 / 90%);
+			}
+		}
+	}
+
+	.debug-section-content {
+		padding: 0.5rem 0.75rem;
+	}
+
+	.debug-metric {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.375rem 0;
+		font-size: 0.8125rem;
+
+		.metric-label {
+			color: rgb(255 255 255 / 70%);
+		}
+
+		.metric-value {
+			font-weight: 600;
+			color: rgb(255 255 255);
+			font-variant-numeric: tabular-nums;
+
+
+			&.direction-down {
+				color: rgb(34 197 94);
+			}
+
+			&.direction-up {
+				color: rgb(251 146 60);
+			}
+
+			&.performance-good {
+				color: rgb(34 197 94);
+			}
+
+			&.performance-lag {
+				color: rgb(251 146 60);
+			}
+
+			&.performance-jitter {
+				color: rgb(234 179 8);
+			}
+
+			&.performance-poor {
+				color: rgb(239 68 68);
+			}
+		}
+
+		.intersection-state-value {
+			font-weight: 600;
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+			display: inline-block;
+
+			/* Red: Not intersecting */
+			&.intersection-state--not-intersecting {
+				background: var(--wp-block-parallax-debug-red-bg);
+				color: var(--wp-block-parallax-debug-red);
+			}
+
+			/* Yellow: Entering detection boundary */
+			&.intersection-state--entering {
+				background: var(--wp-block-parallax-debug-yellow-bg);
+				color: var(--wp-block-parallax-debug-yellow);
+			}
+
+			/* Green: Triggered */
+			&.intersection-state--triggered {
+				background: var(--wp-block-parallax-debug-green-bg);
+				color: var(--wp-block-parallax-debug-green);
+			}
+		}
+	}
+}
+
+/* Zone Visualization */
+[data-zone-overlay] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 9998;
+}
+
+.entry-zone {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	pointer-events: none;
+	z-index: 9998;
+	transition: top 0.2s ease-out, height 0.2s ease-out, background-color 0.3s ease-out;
+
+	/* Red: Not intersecting */
+	&--not-intersecting {
+		background: linear-gradient(to bottom, var(--wp-block-parallax-debug-red-bg), transparent);
+	}
+
+	/* Yellow: Entering element zone */
+	&--entering {
+		background: linear-gradient(to bottom, var(--wp-block-parallax-debug-yellow-bg), transparent);
+	}
+
+	/* Green: Triggered */
+	&--triggered {
+		background: linear-gradient(to bottom, var(--wp-block-parallax-debug-green-bg), transparent);
+	}
+}
+
+
+/* Trigger Line - Enhanced styling */
+[data-trigger-line] {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	pointer-events: none;
+	z-index: 9999;
+	transition: top 0.1s ease-out, background-color 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+
+	/* Red: Not intersecting (outside detection boundary) */
+	&.trigger-line--not-intersecting {
+		background: linear-gradient(to right, transparent, var(--wp-block-parallax-debug-red), transparent);
+		border-top: 2px solid var(--wp-block-parallax-debug-red);
+		box-shadow: 0 0 4px var(--wp-block-parallax-debug-red-bg);
+	}
+
+	/* Yellow: Entering element zone (within detection boundary but below threshold) */
+	&.trigger-line--entering {
+		background: linear-gradient(to right, transparent, var(--wp-block-parallax-debug-yellow), transparent);
+		border-top: 2px solid var(--wp-block-parallax-debug-yellow);
+		box-shadow: 0 0 4px var(--wp-block-parallax-debug-yellow-bg);
+	}
+
+	/* Green: Triggered (crossed threshold) */
+	&.trigger-line--triggered {
+		background: linear-gradient(to right, transparent, var(--wp-block-parallax-debug-green), transparent);
+		border-top: 2px solid var(--wp-block-parallax-debug-green);
+		box-shadow: 0 0 4px var(--wp-block-parallax-debug-green-bg);
+	}
+}
+
+[data-trigger-label] {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: rgb(255 255 255);
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 10000;
+	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	transition: top 0.1s ease-out, background-color 0.3s ease-out;
+
+	/* Red: Not intersecting (outside detection boundary) */
+	&.trigger-label--not-intersecting {
+		background: var(--wp-block-parallax-debug-red);
+	}
+
+	/* Yellow: Entering element zone (within detection boundary but below threshold) */
+	&.trigger-label--entering {
+		background: var(--wp-block-parallax-debug-yellow);
+	}
+
+	/* Green: Triggered (crossed threshold) */
+	&.trigger-label--triggered {
+		background: var(--wp-block-parallax-debug-green);
+	}
+}
+
+/* Debug Container */
+[data-debug-container] {
+	position: absolute;
+}
+
+/* Mobile Responsive */
+
+@media (width <= 767px) {
+
+	[class*="wp-block-parallax-debug-panel"] {
+		font-size: 0.8125rem;
+
+		.debug-panel-header {
+			padding: 0.625rem 0.75rem;
+		}
+
+		.debug-panel-title {
+			font-size: 0.8125rem;
+		}
+
+		.debug-section-content {
+			padding: 0.375rem 0.625rem;
+		}
+
+		.debug-metric {
+			font-size: 0.75rem;
+		}
 	}
 }

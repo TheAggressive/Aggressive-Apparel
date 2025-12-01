@@ -45,7 +45,7 @@ const withParallaxControls = createHigherOrderComponent((BlockEdit: any) => {
       );
 
       if (isInsideParallax && !hasParallaxSettings) {
-        // Add default parallax settings to ANY block inside parallax container
+        // Add default parallax settings to blocks inside parallax container
         updateBlockAttributes(props.clientId, {
           aggressiveApparelParallax: DEFAULT_ELEMENT_SETTINGS,
         });

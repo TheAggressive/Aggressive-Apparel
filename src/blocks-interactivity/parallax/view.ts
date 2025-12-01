@@ -1,434 +1,273 @@
 /// <reference types="@wordpress/interactivity" />
 import { getContext, getElement, store } from '@wordpress/interactivity';
-import { EasingType, PARALLAX_CONFIG } from './config';
-import { ElementSettings, ParallaxContext, ParallaxLayer } from './types';
 import {
-  calculateParallaxMovement,
-  clamp,
-  getCSSEasing,
-  getElementStableId,
+  activeDebugBlocks,
+  removeDebugOverlays as removeDebugOverlaysImpl,
+  updateDebugContainerPosition as updateDebugContainerPositionImpl,
+  updateDebugPanel as updateDebugPanelImpl,
+  updateDetectionBoundary as updateDetectionBoundaryImpl,
+  updateVisibilityTriggerLine as updateVisibilityTriggerLineImpl,
+  updateZoneVisualization as updateZoneVisualizationImpl,
+} from './debug';
+import {
+  initializeElementState,
+  initializeIntersectionObserver,
+  setupDebugEventListeners,
+} from './observers';
+import {
+  applyLayerTransformDirect,
+  applyParallaxTransformsDirect,
+} from './transforms';
+import { ParallaxContext } from './types';
+import {
+  ParallaxLogger,
+  calculateProgressWithinBoundary,
   prefersReducedMotion,
+  validateConfiguration,
 } from './utils';
 
 // =============================================================================
-// PARALLAX SYSTEM CLASS
+// PARALLAX SYSTEM UTILITIES
 // =============================================================================
 
 /**
- * Manages the parallax effect for a block.
+ * Initialize parallax context with proper defaults
  */
-class ParallaxSystem {
-  private observer: IntersectionObserver | null = null;
-  private context: ParallaxContext;
-  private element: HTMLElement;
-  private cachedElements: HTMLElement[] = [];
-  private layers: Record<string, ParallaxLayer> = {};
-  private isIntersecting: boolean = false;
-  private animationFrameId: number | null = null;
+const initializeParallaxContext = (context: ParallaxContext): void => {
+  // Ensure context has all required properties with fallbacks
+  context.intensity = context?.intensity ?? 50;
+  context.visibilityTrigger = context?.visibilityTrigger ?? 0.3;
+  context.detectionBoundary = context?.detectionBoundary ?? {
+    top: '0%',
+    right: '0%',
+    bottom: '0%',
+    left: '0%',
+  };
+  context.enableMouseInteraction = context?.enableMouseInteraction ?? false;
+  context.debugMode = context?.debugMode ?? false;
 
-  constructor(context: ParallaxContext, element: HTMLElement) {
-    this.context = context;
-    this.element = element;
-    // If Intersection Observer is disabled, assume it's always intersecting for testing/direct activation
-    if (!this.context.enableIntersectionObserver) {
-      this.isIntersecting = true;
-    }
-    this.setupObserver();
-  }
+  // New attributes defaults
+  context.parallaxDirection = context?.parallaxDirection ?? 'down';
+  context.mouseInfluenceMultiplier = context?.mouseInfluenceMultiplier ?? 0.5;
+  context.maxMouseTranslation = context?.maxMouseTranslation ?? 20;
+  context.mouseSensitivityThreshold =
+    context?.mouseSensitivityThreshold ?? 0.001;
+  context.depthIntensityMultiplier = context?.depthIntensityMultiplier ?? 50;
+  context.transitionDuration = context?.transitionDuration ?? 0.1;
+  context.perspectiveDistance = context?.perspectiveDistance ?? 1000;
+  context.maxMouseRotation = context?.maxMouseRotation ?? 5;
+  context.parallaxDepth = context?.parallaxDepth ?? 1.0;
 
-  private setupObserver(): void {
-    if (!this.context.enableIntersectionObserver) {
-      this.startParallaxEffect(); // Start directly if observer is off
-      return;
-    }
-
-    this.observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          this.handleIntersection(entry);
-        });
-      },
-      {
-        threshold: this.context.intersectionThreshold,
-        rootMargin: '50px',
-      }
-    );
-
-    // Observe the parallax container
-    this.observer.observe(this.element);
-  }
-
-  private handleIntersection(entry: IntersectionObserverEntry): void {
-    const wasIntersecting = this.isIntersecting;
-    this.isIntersecting = entry.isIntersecting;
-    this.context.isIntersecting = entry.isIntersecting; // Update shared context
-
-    // Trigger parallax effect when entering viewport
-    if (this.isIntersecting && !wasIntersecting) {
-      this.startParallaxEffect();
-    } else if (!this.isIntersecting && wasIntersecting) {
-      this.pauseParallaxEffect();
-    }
-  }
-
-  private startParallaxEffect(): void {
-    this.initializeLayers();
-    this.startScrollListener();
-    if (this.context.enableMouseInteraction) {
-      this.startMouseListener();
-    }
-  }
-
-  private pauseParallaxEffect(): void {
-    this.stopScrollListener();
-    this.stopMouseListener();
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-
-    // Reset container rotation
-    const contentContainer = this.element.querySelector(
-      '.parallax-content'
-    ) as HTMLElement;
-    if (contentContainer) {
-      contentContainer.style.transform = '';
-    }
-
-    // Reset individual element transforms
-    Object.values(this.context.layers || {}).forEach((layer: any) => {
-      if (layer.element) {
-        layer.element.style.setProperty('--parallax-translate-x', '0px');
-        layer.element.style.setProperty('--parallax-translate-y', '0px');
-        layer.element.style.setProperty('--parallax-translate-z', '0px');
-        layer.element.style.setProperty('--parallax-transition-duration', '0s'); // Reset transition
-        layer.element.style.setProperty('--parallax-transition-delay', '0s');
-      }
-    });
-  }
-
-  private initializeLayers(): void {
-    // Initialize elements and layer state
-    this.initializeElements();
-  }
-
-  private initializeElements(): void {
-    // Find the parallax content container
-    const contentContainer = this.element.querySelector(
-      '.parallax-content'
-    ) as HTMLElement;
-    if (!contentContainer) {
-      return;
-    }
-
-    this.cachedElements = []; // Clear previous cache
-    this.context.layers = {}; // Clear previous layers
-
-    // Collect all elements with data-parallax-enabled="true" within the parallax content
-    const elements = contentContainer.querySelectorAll(
-      PARALLAX_CONFIG.ELEMENT_SELECTORS[0]
-    );
-    elements.forEach(element => {
-      this.cachedElements.push(element as HTMLElement);
-    });
-
-    // Sort by document position (top to bottom) - only once
-    this.cachedElements.sort((a, b) => {
-      const rectA = a.getBoundingClientRect();
-      const rectB = b.getBoundingClientRect();
-      return rectA.top - rectB.top;
-    });
-
-    // Initialize layer data - only for blocks with parallax enabled
-    this.cachedElements.forEach((blockElement, index) => {
-      const layerId = getElementStableId(blockElement, index);
-
-      // Assign a unique data-layer-id to the element for consistent targeting
-      blockElement.setAttribute('data-layer-id', layerId);
-
-      // Read settings directly from data attributes
-      const enabled =
-        blockElement.getAttribute('data-parallax-enabled') === 'true';
-
-      if (enabled) {
-        const speed = parseFloat(
-          blockElement.getAttribute('data-parallax-speed') || '1.0'
-        );
-        const direction = (blockElement.getAttribute(
-          'data-parallax-direction'
-        ) || 'down') as ElementSettings['direction'];
-        const delay = parseInt(
-          blockElement.getAttribute('data-parallax-delay') || '0',
-          10
-        );
-        const easing = (blockElement.getAttribute('data-parallax-easing') ||
-          'linear') as EasingType;
-
-        this.context.layers[layerId] = {
-          element: blockElement,
-          initialY: 0, // This might be useful for more complex effects
-          speed,
-          direction,
-          delay,
-          easing,
-          isActive: true, // Assume active if enabled and in view
-        };
-      }
-    });
-  }
-
-  private startScrollListener(): void {
-    // Basic scroll listener groundwork
-    const handleScroll = () => {
-      if (!this.isIntersecting) return; // Use internal state
-
-      // Calculate scroll progress within the element
-      const rect = this.element.getBoundingClientRect();
-      const elementTop = rect.top;
-      const elementHeight = rect.height;
-      const viewportHeight = window.innerHeight;
-
-      // For parallax, we want progress based on how far we've scrolled through the element
-      // When element just enters viewport (bottom): progress = 0
-      // When element just exits viewport (top): progress = 1
-
-      const startPoint = viewportHeight; // Element enters at viewport bottom
-      const endPoint = -elementHeight; // Element exits at viewport top
-
-      const currentPosition = elementTop;
-      const totalDistance = startPoint - endPoint;
-
-      // Progress from 0 (just entering) to 1 (just exiting)
-      const rawProgress = (startPoint - currentPosition) / totalDistance;
-      const scrollProgress = clamp(rawProgress, 0, 1);
-
-      // Update shared state for Interactivity API callbacks
-      this.context.scrollProgress = scrollProgress;
-
-      // Update transforms immediately
-      this.updateLayerTransforms();
-    };
-
-    // Throttled scroll listener
-    let ticking = false;
-    const throttledScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-
-    // Store cleanup function
-    (this.element as any)._parallaxScrollCleanup = () => {
-      window.removeEventListener('scroll', throttledScroll);
-    };
-  }
-
-  private stopScrollListener(): void {
-    const cleanupScroll = (this.element as any)._parallaxScrollCleanup;
-    if (cleanupScroll) {
-      cleanupScroll();
-    }
-  }
-
-  private startMouseListener(): void {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!this.isIntersecting) return;
-
-      // Calculate mouse position relative to the viewport
-      const mouseX = event.clientX / window.innerWidth; // 0-1 normalized
-      const mouseY = event.clientY / window.innerHeight; // 0-1 normalized
-
-      // Update context
-      this.context.mouseX = mouseX;
-      this.context.mouseY = mouseY;
-
-      // Apply 3D rotation to the parallax content container
-      const contentContainer = this.element.querySelector(
-        '.parallax-content'
-      ) as HTMLElement;
-      if (contentContainer) {
-        // Convert mouse position to rotation angles (subtle effect)
-        const rotateY =
-          (mouseX - 0.5) * PARALLAX_CONFIG.MAX_ROTATION_DEGREES * 2; // Horizontal rotation
-        const rotateX =
-          (mouseY - 0.5) * -PARALLAX_CONFIG.MAX_ROTATION_DEGREES * 2; // Vertical rotation (inverted)
-
-        contentContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      }
-
-      // Update individual layer transforms
-      this.updateLayerTransforms();
-    };
-
-    // Throttled mouse listener
-    let ticking = false;
-    const throttledMouseMove = (event: MouseEvent) => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleMouseMove(event);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    document.addEventListener('mousemove', throttledMouseMove, {
-      passive: true,
-    });
-
-    // Store cleanup function
-    (this.element as any)._parallaxMouseCleanup = () => {
-      document.removeEventListener('mousemove', throttledMouseMove);
-    };
-  }
-
-  private stopMouseListener(): void {
-    const cleanupMouse = (this.element as any)._parallaxMouseCleanup;
-    if (cleanupMouse) {
-      cleanupMouse();
-    }
-  }
-
-  /**
-   * Force initialization immediately (used when Intersection Observer is disabled)
-   */
-  public initializeImmediately(): void {
-    this.startParallaxEffect();
-  }
-
-  /**
-   * Update layer transforms directly (called from Interactivity API)
-   */
-  public updateLayerTransforms(): void {
-    // Apply parallax to each active layer (blocks with parallax enabled)
-    Object.entries(this.context.layers || {}).forEach(
-      ([, layerData]: [string, any]) => {
-        if (!layerData || !layerData.element || !this.isIntersecting) {
-          // Use internal state
-          return;
-        }
-
-        const blockElement = layerData.element as HTMLElement;
-        const scrollProgress = this.context.scrollProgress || 0;
-
-        const speed = layerData.speed;
-        const direction = layerData.direction;
-        const delay = layerData.delay || 0;
-        const easing = layerData.easing || 'linear';
-
-        // Calculate parallax movement using utility function
-        const movement = calculateParallaxMovement(
-          scrollProgress,
-          this.context.intensity,
-          speed,
-          direction,
-          this.context.mouseX,
-          this.context.mouseY,
-          this.context.enableMouseInteraction
-        );
-
-        // Apply 3D transform via CSS variables
-        const movementXValue = `${movement.x.toFixed(2)}px`;
-        const movementYValue = `${movement.y.toFixed(2)}px`;
-
-        // Calculate Z-depth based on speed (higher speed = closer/deeper)
-        const depthZ = (speed - 1) * PARALLAX_CONFIG.DEPTH_MULTIPLIER; // Configurable depth range
-        const movementZValue = `${depthZ.toFixed(2)}px`;
-
-        blockElement.style.setProperty(
-          '--parallax-translate-x',
-          movementXValue
-        );
-        blockElement.style.setProperty(
-          '--parallax-translate-y',
-          movementYValue
-        );
-        blockElement.style.setProperty(
-          '--parallax-translate-z',
-          movementZValue
-        );
-        blockElement.style.setProperty(
-          '--parallax-transition-duration',
-          `${PARALLAX_CONFIG.TRANSITION_DURATION}s`
-        );
-        blockElement.style.setProperty(
-          '--parallax-transition-delay',
-          `${delay}ms`
-        );
-        blockElement.style.setProperty(
-          '--parallax-easing',
-          getCSSEasing(easing)
-        );
-      }
+  // Runtime state - ensure these exist
+  context.isIntersecting = context.isIntersecting ?? false;
+  context.intersectionRatio = context.intersectionRatio ?? 0;
+  context.hasInitialized = context.hasInitialized ?? false;
+  context.scrollProgress = context.scrollProgress ?? 0;
+  context.mouseX = context.mouseX ?? 0.5;
+  context.mouseY = context.mouseY ?? 0.5;
+  // Configuration validation
+  const validation = validateConfiguration(context);
+  if (!validation.isValid) {
+    ParallaxLogger.error(
+      'Parallax configuration validation failed:',
+      validation.errors
     );
   }
-
-  public destroy(): void {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-
-    // Cleanup scroll listener
-    const cleanupScroll = (this.element as any)._parallaxScrollCleanup;
-    if (cleanupScroll) {
-      cleanupScroll();
-    }
-
-    // Cleanup mouse listener
-    const cleanupMouse = (this.element as any)._parallaxMouseCleanup;
-    if (cleanupMouse) {
-      cleanupMouse();
-    }
-
-    // Reset container rotation
-    const contentContainer = this.element.querySelector(
-      '.parallax-content'
-    ) as HTMLElement;
-    if (contentContainer) {
-      contentContainer.style.transform = '';
-    }
-
-    // Reset transforms and clean up cached elements
-    this.cachedElements.forEach(element => {
-      element.style.setProperty('--parallax-translate-x', '');
-      element.style.setProperty('--parallax-translate-y', '');
-      element.style.setProperty('--parallax-translate-z', '');
-      element.style.setProperty('--parallax-transition-duration', '');
-      element.style.setProperty('--parallax-transition-delay', '');
-      element.style.setProperty('--parallax-easing', '');
-      element.removeAttribute('data-layer-id');
-    });
-
-    this.cachedElements = [];
-    this.context.layers = {};
-  }
-}
+};
 
 // =============================================================================
 // INTERACTIVITY STORE
 // =============================================================================
 
-const { state } = store('aggressive-apparel/parallax', {
+const { state, actions } = store('aggressive-apparel/parallax', {
   state: {
     // Runtime state managed per instance
     isIntersecting: false,
-    scrollProgress: 0,
-    mouseX: 0,
-    mouseY: 0,
+    intersectionRatio: 0,
+    mouseX: 0.5,
+    mouseY: 0.5,
     hasInitialized: false,
-    layers: {} as Record<string, any>,
+    debugMode: false,
+
+    // Debug state (Ported from animate-on-scroll)
     elementRef: null as HTMLElement | null,
+    previousRatio: 0,
+    previousTop: 0,
+    previousScrollY: 0,
+    entryHeight: 0,
+    ctx: {} as ParallaxContext,
+    resizeTimeout: null as number | null,
+    scrollDirection: 'down' as 'up' | 'down',
+
+    // Performance tracking
+    performanceStatus: 'good' as 'good' | 'lag' | 'jitter' | 'poor',
+    frameTimes: [] as number[],
+    frameTimeIndex: 0,
+    lastFrameTime: 0,
+    lastPerformanceUpdate: 0,
+    averageFrameTime: 0,
+    lagCount: 0,
+    jitterVariance: 0,
+
+    // Debug element cache
+    debugElements: {} as Record<string, HTMLElement | null>,
   },
 
   actions: {
-    // Actions can be added here for complex operations
+    // Calculate and update detection boundary overlay with accurate positioning
+    updateDetectionBoundary: () => {
+      if (!state.ctx.detectionBoundary) return;
+      updateDetectionBoundaryImpl(state.ctx.detectionBoundary);
+    },
+
+    // Create or update floating info panel
+    updateInfoPanel: (isIntersecting?: boolean) => {
+      updateDebugPanelImpl(state, isIntersecting);
+    },
+
+    // Create zone visualization
+    updateZoneVisualization: (
+      intersectionRatio?: number,
+      isIntersecting?: boolean
+    ) => {
+      updateZoneVisualizationImpl(state, intersectionRatio, isIntersecting);
+    },
+
+    // Update visibility trigger line
+    updateVisibilityTriggerLine: (
+      intersectionRatio?: number,
+      isIntersecting?: boolean
+    ) => {
+      updateVisibilityTriggerLineImpl(state, intersectionRatio, isIntersecting);
+    },
+
+    // Update debug container position
+    updateDebugContainerPosition: () => {
+      updateDebugContainerPositionImpl(state);
+    },
+
+    // Remove all debug overlays
+    removeDebugOverlays: () => {
+      // @ts-ignore
+      if (state.ctx.id) {
+        // @ts-ignore
+        removeDebugOverlaysImpl(state.ctx.id);
+      }
+    },
+
+    // Performance monitoring
+    updatePerformance: () => {
+      // @ts-ignore
+      if (!state.ctx.debugMode || !state.ctx.id || !state.elementRef) return;
+
+      const now = performance.now();
+      const TARGET_FRAME_TIME = 16.67;
+      const MAX_FRAME_TIME = 33.33;
+      const FRAME_TIME_WINDOW = 60;
+      const LAG_THRESHOLD = 0.2;
+      const JITTER_THRESHOLD = 5;
+
+      if (state.lastFrameTime > 0) {
+        const frameTime = now - state.lastFrameTime;
+        state.frameTimes[state.frameTimeIndex] = frameTime;
+        state.frameTimeIndex = (state.frameTimeIndex + 1) % FRAME_TIME_WINDOW;
+
+        const isBufferFull = state.frameTimes.length === FRAME_TIME_WINDOW;
+        const bufferSize = isBufferFull
+          ? FRAME_TIME_WINDOW
+          : state.frameTimeIndex;
+
+        if (bufferSize > 0) {
+          let sum = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            sum += state.frameTimes[i];
+          }
+          state.averageFrameTime = sum / bufferSize;
+        }
+
+        state.lagCount = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          if (state.frameTimes[i] > TARGET_FRAME_TIME) {
+            state.lagCount++;
+          }
+        }
+
+        if (bufferSize >= 10) {
+          const mean = state.averageFrameTime;
+          let varianceSum = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const diff = state.frameTimes[i] - mean;
+            varianceSum += diff * diff;
+          }
+          state.jitterVariance = Math.sqrt(varianceSum / bufferSize);
+        }
+
+        const lagRatio = state.lagCount / state.frameTimes.length;
+        const hasSevereLag = state.averageFrameTime > MAX_FRAME_TIME;
+        const hasHighLag = lagRatio > LAG_THRESHOLD;
+        const hasJitter = state.jitterVariance > JITTER_THRESHOLD;
+
+        if (hasSevereLag || (hasHighLag && hasJitter)) {
+          state.performanceStatus = 'poor';
+        } else if (hasHighLag) {
+          state.performanceStatus = 'lag';
+        } else if (hasJitter) {
+          state.performanceStatus = 'jitter';
+        } else {
+          state.performanceStatus = 'good';
+        }
+
+        if (now >= state.lastPerformanceUpdate + 200) {
+          state.lastPerformanceUpdate = now;
+          // @ts-ignore
+          const panelId = `wp-block-parallax-debug-panel-${state.ctx.id}`;
+          const panel = document.querySelector(`.${panelId}`);
+          const performanceValue = panel?.querySelector('.performance-value');
+          if (performanceValue) {
+            const statusText = {
+              good: 'Good',
+              lag: 'Lag Detected',
+              jitter: 'Jitter Detected',
+              poor: 'Poor Performance',
+            }[state.performanceStatus];
+            performanceValue.textContent = statusText;
+            performanceValue.className = `metric-value performance-value performance-${state.performanceStatus}`;
+          }
+        }
+      }
+
+      state.lastFrameTime = now;
+
+      if (state.ctx.debugMode) {
+        requestAnimationFrame(() => actions.updatePerformance());
+      }
+    },
+
+    // Main debug function
+    debug: () => {
+      if (state.ctx.debugMode === true) {
+        // @ts-ignore
+        activeDebugBlocks.add(state.ctx.id);
+        actions.updateDetectionBoundary();
+        actions.updateDebugContainerPosition();
+
+        if (state.lastFrameTime === 0) {
+          const now = performance.now();
+          state.lastFrameTime = now;
+          state.lastPerformanceUpdate = now;
+          actions.updatePerformance();
+        }
+      } else {
+        actions.removeDebugOverlays();
+        state.performanceStatus = 'good';
+        state.frameTimes = [];
+        state.lastFrameTime = 0;
+        state.lastPerformanceUpdate = 0;
+        state.averageFrameTime = 0;
+        state.lagCount = 0;
+        state.jitterVariance = 0;
+      }
+    },
   },
 
   callbacks: {
@@ -436,96 +275,505 @@ const { state } = store('aggressive-apparel/parallax', {
      * Initialize parallax system.
      */
     initParallax: () => {
-      const ctx = getContext<ParallaxContext>();
-      const { ref } = getElement();
+      try {
+        const ctx = getContext<ParallaxContext>();
+        const { ref } = getElement();
 
-      if (!ref) {
-        return;
+        if (!ref) {
+          ParallaxLogger.warn('No element reference provided to initParallax');
+          return;
+        }
+
+        if (!ctx) {
+          throw new Error('No parallax context available');
+        }
+
+        // Add ID if missing (for debug purposes)
+        if (!ctx.id) {
+          ctx.id = `parallax_${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Check for reduced motion preference
+        if (prefersReducedMotion()) {
+          ParallaxLogger.info(
+            'Parallax disabled due to user prefers-reduced-motion setting'
+          );
+          return;
+        }
+
+        // Initialize context with defaults
+        initializeParallaxContext(ctx);
+
+        // Initialize element state for debug
+        initializeElementState(ctx, ref, state);
+
+        // Update state with context
+        state.isIntersecting = ctx.isIntersecting;
+        state.debugMode = ctx.debugMode;
+
+        // Setup and start IntersectionObserver
+        const observer = initializeIntersectionObserver(
+          ctx,
+          ref,
+          state,
+          actions
+        );
+
+        // Add mouse interaction class to container if enabled
+        if (ctx.enableMouseInteraction) {
+          ref.classList.add('has-mouse-interaction');
+        }
+
+        // Apply perspective distance to container for 3D transforms
+        const parallaxContainer = ref.querySelector(
+          '.parallax-container'
+        ) as HTMLElement;
+        if (parallaxContainer) {
+          const perspectiveValue = ctx.perspectiveDistance ?? 1000;
+          parallaxContainer.style.setProperty(
+            '--parallax-perspective',
+            `${perspectiveValue}px`
+          );
+        }
+
+        // Initialize debug mode if enabled
+        if (ctx.debugMode) {
+          actions.debug();
+        }
+
+        // Setup debug event listeners if needed
+        let cleanupDebugListeners: (() => void) | undefined;
+        if (ctx.debugMode) {
+          cleanupDebugListeners = setupDebugEventListeners(
+            ctx,
+            ref,
+            state,
+            actions
+          );
+        }
+
+        // Initialize scroll progress for first render using stateless logic
+        const { progress } = calculateProgressWithinBoundary(
+          ref,
+          ctx.detectionBoundary,
+          ctx.visibilityTrigger
+        );
+        ctx.scrollProgress = progress;
+
+        // Apply initial transforms only if element is intersecting
+        if (ctx.isIntersecting) {
+          applyParallaxTransformsDirect(ctx, ref);
+        }
+
+        // Set up window scroll listener for continuous parallax updates
+        let scrollRafId: number | null = null;
+        const handleWindowScroll = () => {
+          if (scrollRafId !== null) {
+            cancelAnimationFrame(scrollRafId);
+          }
+          scrollRafId = requestAnimationFrame(() => {
+            const scrollY = window.scrollY;
+
+            // Calculate progress within Detection Boundary zone using stateless logic
+            const { progress } = calculateProgressWithinBoundary(
+              ref,
+              ctx.detectionBoundary,
+              ctx.visibilityTrigger
+            );
+            ctx.scrollProgress = progress;
+
+            // Apply transforms continuously on scroll only if element is intersecting
+            if (ctx.isIntersecting) {
+              applyParallaxTransformsDirect(ctx, ref);
+            }
+
+            // Update direction
+            if (scrollY > state.previousScrollY) {
+              state.scrollDirection = 'down';
+            } else if (scrollY < state.previousScrollY) {
+              state.scrollDirection = 'up';
+            }
+            state.previousScrollY = scrollY;
+
+            scrollRafId = null;
+          });
+        };
+
+        // Set up mouse move listener if mouse interaction is enabled
+        let mouseRafId: number | null = null;
+        const handleWindowMouseMove = (event: MouseEvent) => {
+          if (!ctx.enableMouseInteraction) return;
+
+          if (mouseRafId !== null) {
+            cancelAnimationFrame(mouseRafId);
+          }
+          mouseRafId = requestAnimationFrame(() => {
+            // Get mouse position relative to viewport (0-1 range)
+            const mouseX = event.clientX / window.innerWidth;
+            const mouseY = event.clientY / window.innerHeight;
+
+            // Update context
+            ctx.mouseX = Math.max(0, Math.min(1, mouseX));
+            ctx.mouseY = Math.max(0, Math.min(1, mouseY));
+
+            // Re-apply transforms with updated mouse position only if element is intersecting
+            if (ctx.isIntersecting) {
+              applyParallaxTransformsDirect(ctx, ref);
+            }
+
+            mouseRafId = null;
+          });
+        };
+
+        // Attach event listeners
+        window.addEventListener('scroll', handleWindowScroll, {
+          passive: true,
+        });
+        if (ctx.enableMouseInteraction) {
+          window.addEventListener('mousemove', handleWindowMouseMove, {
+            passive: true,
+          });
+        }
+
+        // Mark as initialized
+        ctx.hasInitialized = true;
+
+        // Return cleanup function
+        return () => {
+          observer.disconnect();
+          window.removeEventListener('scroll', handleWindowScroll);
+          window.removeEventListener('mousemove', handleWindowMouseMove);
+
+          if (scrollRafId !== null) {
+            cancelAnimationFrame(scrollRafId);
+          }
+          if (mouseRafId !== null) {
+            cancelAnimationFrame(mouseRafId);
+          }
+
+          if (cleanupDebugListeners) {
+            cleanupDebugListeners();
+            actions.removeDebugOverlays();
+          }
+          if (state.resizeTimeout) {
+            cancelAnimationFrame(state.resizeTimeout);
+            state.resizeTimeout = null;
+          }
+          state.debugElements = {};
+        };
+      } catch (error) {
+        ParallaxLogger.error('Critical error in initParallax', {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+        throw error;
       }
-
-      // Check for reduced motion preference
-      if (prefersReducedMotion()) {
-        return;
-      }
-
-      // Update state with context and element
-      state.elementRef = ref;
-      state.isIntersecting = ctx.isIntersecting; // Sync initial state
-
-      // Initialize parallax system
-      const parallaxSystem = new ParallaxSystem(ctx, ref);
-
-      // Store parallax system reference for cleanup
-      (ref as any)._parallaxSystem = parallaxSystem;
-
-      // Force initialize layers immediately for testing if IO is disabled
-      if (!ctx.enableIntersectionObserver) {
-        parallaxSystem.initializeImmediately();
-      }
-
-      // Mark as initialized
-      ctx.hasInitialized = true;
-      state.hasInitialized = true;
-
-      // Return cleanup function
-      return () => {
-        parallaxSystem.destroy();
-      };
     },
 
     /**
-     * Watch for intersection state changes.
+     * Handle scroll events via Interactivity API
      */
-    watchIntersection: () => {
+    handleScroll: () => {
       const ctx = getContext<ParallaxContext>();
       const { ref } = getElement();
 
-      if (!ref) return;
+      if (!ctx || !ref) return;
 
-      // Update intersection state using basic bounding rect check
-      const rect = ref.getBoundingClientRect();
+      // Calculate progress within Detection Boundary zone using stateless logic
+      const { progress } = calculateProgressWithinBoundary(
+        ref,
+        ctx.detectionBoundary,
+        ctx.visibilityTrigger
+      );
+      ctx.scrollProgress = progress;
 
-      ctx.isIntersecting = rect.top < window.innerHeight && rect.bottom > 0;
-      state.isIntersecting = ctx.isIntersecting;
+      // Debug: Update debug panel with scroll info
+      if (ctx.debugMode && state.ctx.id) {
+        // Update scroll progress in debug panel
+        const panelId = `wp-block-parallax-debug-panel-${state.ctx.id}`;
+        const panel = document.querySelector(`.${panelId}`);
+        if (panel) {
+          const scrollInfo = panel.querySelector('.scroll-progress-debug');
+          const progress = ctx.scrollProgress ?? 0;
+          if (scrollInfo) {
+            scrollInfo.textContent = `Scroll Progress: ${(progress * 100).toFixed(1)}%`;
+          } else {
+            // Create debug element
+            const debugDiv = document.createElement('div');
+            debugDiv.className = 'scroll-progress-debug';
+            debugDiv.textContent = `Scroll Progress: ${(progress * 100).toFixed(1)}%`;
+            debugDiv.style.cssText =
+              'position: fixed; top: 100px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 5px; font-size: 12px; z-index: 9999;';
+            document.body.appendChild(debugDiv);
+          }
+        }
+      }
+
+      // Update direction
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > state.previousScrollY) {
+        state.scrollDirection = 'down';
+      } else if (currentScrollY < state.previousScrollY) {
+        state.scrollDirection = 'up';
+      }
+      state.previousScrollY = currentScrollY;
+
+      // Apply parallax transforms directly via Interactivity API only if element is intersecting
+      if (ctx.isIntersecting) {
+        applyParallaxTransformsDirect(ctx, ref);
+      }
+
+      // Debug: Visual indicator that scroll handler fired
+      if (ctx.debugMode) {
+        let indicator = document.querySelector(
+          '.scroll-debug-indicator'
+        ) as HTMLElement | null;
+        if (!indicator) {
+          indicator = document.createElement('div');
+          indicator.className = 'scroll-debug-indicator';
+          indicator.style.cssText = `
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            background: rgba(255,0,0,0.8);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            z-index: 10000;
+            border-radius: 3px;
+          `;
+          document.body.appendChild(indicator);
+        }
+        const progress = ctx.scrollProgress ?? 0;
+        indicator.textContent = `Scroll: ${(progress * 100).toFixed(0)}% | ${Date.now()}`;
+        indicator.style.background = `rgba(${Math.floor(progress * 255)}, ${Math.floor((1 - progress) * 255)}, 0, 0.8)`;
+      }
+
+      // Trigger debug update if enabled
+      if (ctx.debugMode) {
+        actions.updateInfoPanel(ctx.isIntersecting);
+      }
     },
 
     /**
-     * Get debug information.
+     * Apply parallax transforms to all layers
+     */
+    applyParallaxTransforms: (
+      ctx: ParallaxContext,
+      container: HTMLElement,
+      progress: number
+    ) => {
+      // Find all parallax layers within this container
+      const layers = container.querySelectorAll(
+        '[data-parallax-enabled="true"]'
+      );
+
+      layers.forEach(layer => {
+        const element = layer as HTMLElement;
+        const layerData = element.dataset;
+
+        // Get parallax settings from data attributes
+        const speed = parseFloat(layerData.parallaxSpeed || '1');
+        const direction = layerData.parallaxDirection || 'down';
+        const easing = layerData.parallaxEasing || 'linear';
+        const effects = layerData.parallaxEffects
+          ? JSON.parse(layerData.parallaxEffects)
+          : {};
+
+        // Apply transform to this layer
+        applyLayerTransformDirect(element, {
+          progress,
+          speed,
+          direction,
+          easing,
+          effects,
+          mouseX: ctx.mouseX ?? 0.5,
+          mouseY: ctx.mouseY ?? 0.5,
+          intensity: ctx.intensity ?? 50,
+          enableMouseInteraction: ctx.enableMouseInteraction ?? false,
+          mouseInfluenceMultiplier: ctx.mouseInfluenceMultiplier ?? 0.5,
+          maxMouseTranslation: ctx.maxMouseTranslation ?? 20,
+        });
+      });
+    },
+
+    /**
+     * Apply transform to a single layer (inline version)
+     */
+    applyLayerTransformInline: (
+      element: HTMLElement,
+      config: {
+        progress: number;
+        speed: number;
+        direction: string;
+        easing: string;
+        effects: any;
+        mouseX: number;
+        mouseY: number;
+        intensity: number;
+        enableMouseInteraction: boolean;
+      }
+    ) => {
+      const {
+        progress,
+        speed,
+        direction,
+        easing,
+        effects,
+        mouseX,
+        mouseY,
+        intensity,
+        enableMouseInteraction,
+      } = config;
+
+      // Calculate base translation
+      let translateX = 0;
+      let translateY = 0;
+      let translateZ = 0;
+      let scale = 1;
+
+      // Apply direction-based movement
+      // Start from 0 when progress = 0, ramp up to intensity * speed when progress = 1
+      const movement = progress * intensity * speed; // 0 to intensity * speed range
+
+      switch (direction) {
+        case 'up':
+          translateY = -movement;
+          break;
+        case 'down':
+          translateY = movement;
+          break;
+        case 'left':
+          translateX = -movement;
+          break;
+        case 'right':
+          translateX = movement;
+          break;
+        case 'both':
+          translateX = movement * 0.5;
+          translateY = movement * 0.5;
+          break;
+      }
+
+      // Apply zoom effects
+      if (effects.zoom?.enabled) {
+        const zoomType = effects.zoom.type || 'in';
+        const zoomIntensity = effects.zoom.intensity || 0.2;
+
+        if (zoomType === 'in') {
+          scale = 1 + progress * zoomIntensity;
+        } else if (zoomType === 'out') {
+          scale = 1 - progress * zoomIntensity;
+        }
+      }
+
+      // Apply mouse interaction if enabled (3D rotation + translation)
+      if (enableMouseInteraction) {
+        const mouseInfluence = 0.1 * intensity;
+        const rotateX = (mouseY - 0.5) * 15; // 15 degrees max rotation
+        const rotateY = (mouseX - 0.5) * -15; // 15 degrees max rotation
+
+        // Add mouse translation
+        translateX += (mouseX - 0.5) * mouseInfluence * speed;
+        translateY += (mouseY - 0.5) * mouseInfluence * speed;
+
+        // Apply 3D rotation
+        element.style.setProperty('--parallax-rotate-x', `${rotateX}deg`);
+        element.style.setProperty('--parallax-rotate-y', `${rotateY}deg`);
+      } else {
+        // Reset rotation when disabled
+        element.style.setProperty('--parallax-rotate-x', '0deg');
+        element.style.setProperty('--parallax-rotate-y', '0deg');
+      }
+
+      // Apply depth level effect
+      if (effects.depthLevel?.value) {
+        const depth = effects.depthLevel.value;
+        translateZ = progress * depth * speed;
+      }
+
+      // Apply transforms with proper units
+      element.style.setProperty('--parallax-translate-x', `${translateX}px`);
+      element.style.setProperty('--parallax-translate-y', `${translateY}px`);
+      element.style.setProperty('--parallax-translate-z', `${translateZ}px`);
+      element.style.setProperty('--parallax-scale', scale.toString());
+      element.style.setProperty('--parallax-easing', easing);
+
+      // Ensure the element has transform applied
+      const currentTransform = element.style.transform || '';
+      const rotateX = enableMouseInteraction ? (mouseY - 0.5) * 15 : 0;
+      const rotateY = enableMouseInteraction ? (mouseX - 0.5) * -15 : 0;
+
+      const parallaxTransform = `translate3d(${translateX}px, ${translateY}px, ${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`;
+
+      // Combine with existing transforms if any
+      if (currentTransform && !currentTransform.includes('translate3d')) {
+        element.style.transform = `${parallaxTransform} ${currentTransform}`;
+      } else if (!currentTransform) {
+        element.style.transform = parallaxTransform;
+      }
+    },
+
+    /**
+     * Handle mouse events via Interactivity API
+     */
+    handleMouse: (event: MouseEvent) => {
+      const ctx = getContext<ParallaxContext>();
+      const { ref } = getElement();
+
+      if (!ctx || !ctx.enableMouseInteraction || !ref) return;
+
+      // Get mouse position relative to viewport (0-1 range)
+      const mouseX = event.clientX / window.innerWidth;
+      const mouseY = event.clientY / window.innerHeight;
+
+      // Update context
+      ctx.mouseX = Math.max(0, Math.min(1, mouseX));
+      ctx.mouseY = Math.max(0, Math.min(1, mouseY));
+
+      // Re-apply transforms with updated mouse position
+      applyParallaxTransformsDirect(ctx, ref);
+
+      // Debug: Visual indicator that mouse handler fired
+      if (ctx.debugMode) {
+        let mouseIndicator = document.querySelector(
+          '.mouse-debug-indicator'
+        ) as HTMLElement | null;
+        if (!mouseIndicator) {
+          mouseIndicator = document.createElement('div');
+          mouseIndicator.className = 'mouse-debug-indicator';
+          mouseIndicator.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 10px;
+            background: rgba(0,0,255,0.8);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            z-index: 10000;
+            border-radius: 3px;
+          `;
+          document.body.appendChild(mouseIndicator);
+        }
+        mouseIndicator.textContent = `Mouse: ${mouseX.toFixed(2)}, ${mouseY.toFixed(2)} | ${Date.now()}`;
+      }
+    },
+
+    /**
+     * Get debug information. (Legacy/Fallback)
      */
     getDebugInfo: () => {
+      // This is now handled by the floating panel, but keeping for backward compatibility
+      // or if the user specifically wants the old overlay
       const ctx = getContext<ParallaxContext>();
 
       if (!ctx?.debugMode) {
         return '';
       }
 
-      return `
-                <div style="
-                  position: fixed;
-                  top: 20px;
-                  right: 20px;
-                  background: rgba(255,0,0,0.9);
-                  color: white;
-                  padding: 15px;
-                  font-size: 14px;
-                  font-family: monospace;
-                  border-radius: 8px;
-                  z-index: 999999;
-                  border: 3px solid yellow;
-                  box-shadow: 0 0 20px rgba(255,0,0,0.5);
-                  max-width: 300px;
-                  pointer-events: auto;
-                ">
-                  <div style="font-weight: bold; margin-bottom: 8px;">🚀 PARALLAX DEBUG</div>
-                  <div>Intersecting: ${ctx.isIntersecting ? '✅ Yes' : '❌ No'}</div>
-                  <div>Scroll Progress: ${(ctx.scrollProgress * 100).toFixed(1)}%</div>
-                  <div>Layers: ${Object.keys(ctx.layers || {}).length}</div>
-                  <div>Initialized: ${ctx.hasInitialized ? '✅ Yes' : '❌ No'}</div>
-                  <div>Direction: ${ctx.parallaxDirection}</div>
-                  <div>Intensity: ${ctx.intensity}</div>
-                  <div style="margin-top: 8px; font-size: 12px; color: yellow;">First element should move!</div>
-                </div>
-            `;
+      // If we have the new debug panel, we might not need this one
+      // or if the user specifically wants the old overlay
+      return '';
     },
   },
 });

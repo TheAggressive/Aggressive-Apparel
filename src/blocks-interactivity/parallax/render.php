@@ -16,43 +16,86 @@
  * @package Aggressive Apparel
  */
 
-	declare(strict_types=1);
-
 	defined( 'ABSPATH' ) || exit;
 
-// Extract attributes with defaults.
-$intensity                    = $attributes['intensity'] ?? 50;
-$enable_intersection_observer = $attributes['enableIntersectionObserver'] ?? true;
-$intersection_threshold       = $attributes['intersectionThreshold'] ?? 0.1;
-$enable_mouse_interaction     = $attributes['enableMouseInteraction'] ?? false;
-$parallax_direction           = $attributes['parallaxDirection'] ?? 'down';
-$debug_mode                   = $attributes['debugMode'] ?? false;
+// The render callback receives $attributes, $content, and $block parameters
+// Extract attributes with defaults (matching animate-on-scroll).
+$intensity          = $attributes['intensity'] ?? 50;
+$visibility_trigger = $attributes['visibilityTrigger'] ?? 0.3;
+$detection_boundary = $attributes['detectionBoundary'] ?? array(
+	'top'    => '0%',
+	'right'  => '0%',
+	'bottom' => '0%',
+	'left'   => '0%',
+);
+
+// Visibility trigger for intersection detection.
+$enable_mouse_interaction = $attributes['enableMouseInteraction'] ?? false;
+$debug_mode               = $attributes['debugMode'] ?? false;
+
+// New attributes.
+$parallax_direction          = $attributes['parallaxDirection'] ?? 'down';
+$mouse_influence_multiplier  = $attributes['mouseInfluenceMultiplier'] ?? 0.5;
+$max_mouse_translation       = $attributes['maxMouseTranslation'] ?? 20;
+$mouse_sensitivity_threshold = $attributes['mouseSensitivityThreshold'] ?? 0.001;
+$depth_intensity_multiplier  = $attributes['depthIntensityMultiplier'] ?? 50;
+$transition_duration         = $attributes['transitionDuration'] ?? 0.1;
+$perspective_distance        = $attributes['perspectiveDistance'] ?? 1000;
+$max_mouse_rotation          = $attributes['maxMouseRotation'] ?? 5;
+$parallax_depth              = $attributes['parallaxDepth'] ?? 1.0;
 
 // Build context for Interactivity API.
-$context = array(
-	// Core parallax settings.
-	'intensity'                  => $intensity,
-	'enableIntersectionObserver' => $enable_intersection_observer,
-	'intersectionThreshold'      => $intersection_threshold,
-	'enableMouseInteraction'     => $enable_mouse_interaction,
-	'parallaxDirection'          => $parallax_direction,
-	'debugMode'                  => $debug_mode,
+try {
+	$context = array(
+		// Core parallax settings (matching animate-on-scroll).
+		'intensity'                 => $intensity,
+		'visibilityTrigger'         => $visibility_trigger,
+		'detectionBoundary'         => $detection_boundary,
+		'enableMouseInteraction'    => $enable_mouse_interaction,
+		'debugMode'                 => $debug_mode,
+		'parallaxDirection'         => $parallax_direction,
+		'mouseInfluenceMultiplier'  => $mouse_influence_multiplier,
+		'maxMouseTranslation'       => $max_mouse_translation,
+		'mouseSensitivityThreshold' => $mouse_sensitivity_threshold,
+		'depthIntensityMultiplier'  => $depth_intensity_multiplier,
+		'transitionDuration'        => $transition_duration,
+		'perspectiveDistance'       => $perspective_distance,
+		'maxMouseRotation'          => $max_mouse_rotation,
+		'parallaxDepth'             => $parallax_depth,
 
-	// Runtime state.
-	'isIntersecting'             => false,
-	'scrollProgress'             => 0,
-	'mouseX'                     => 0,
-	'mouseY'                     => 0,
-	'hasInitialized'             => false,
+		// Runtime state for Interactivity API.
+		'isIntersecting'            => false,
+		'intersectionRatio'         => 0,
+		'hasInitialized'            => false,
+	);
+} catch ( Throwable $e ) {
+	// Return a minimal context to prevent complete failure.
+	$context = array(
+		'intensity'              => 50,
+		'visibilityTrigger'      => 0.3,
+		'detectionBoundary'      => array(
+			'top'    => '0%',
+			'right'  => '0%',
+			'bottom' => '0%',
+			'left'   => '0%',
+		),
+		'enableMouseInteraction' => false,
+		'debugMode'              => false,
+		'isIntersecting'         => false,
+		'intersectionRatio'      => 0,
+		'hasInitialized'         => false,
+	);
+}
 
-	// Layer information (will be populated by JavaScript).
-	'layers'                     => array(),
-);
+// Generate a unique ID for this parallax block instance.
+$parallax_instance_id  = 'parallax_' . uniqid();
+$context['instanceId'] = $parallax_instance_id;
 
 // Build CSS custom properties.
 $css_vars = array(
-	'--parallax-intensity'     => ( $intensity / 100 ),
-	'--intersection-threshold' => $intersection_threshold,
+	'--parallax-intensity'           => ( $intensity / 100 ),
+	'--parallax-perspective'         => $perspective_distance . 'px',
+	'--parallax-transition-duration' => $transition_duration . 's',
 );
 
 $style_string = '';
@@ -74,65 +117,62 @@ if ( $debug_mode ) {
 	$classes[] = 'debug-mode';
 }
 
-// Get wrapper attributes with Interactivity API integration.
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'                          => implode( ' ', $classes ),
-		'data-wp-interactive'            => 'aggressive-apparel/parallax',
-		'data-wp-context'                => wp_json_encode( $context ),
-		'data-wp-init'                   => 'callbacks.initParallax',
-		'data-wp-watch'                  => 'callbacks.watchIntersection',
-		'data-wp-class--is-intersecting' => 'context.isIntersecting',
-		'data-wp-class--has-initialized' => 'context.hasInitialized',
-		'data-wp-class--debug-mode'      => 'context.debugMode',
-		'style'                          => $style_string,
-	)
-);
-
-// Render inner blocks (nested content).
-$inner_content = '';
-if ( ! empty( $block->inner_blocks ) ) {
-	foreach ( $block->inner_blocks as $index => $inner_block ) {
-		// Render the block normally - parallax attributes should be added via blocks.getSaveContent.extraProps filter during save.
-		$inner_content .= $inner_block->render();
-	}
-}
-
-// Debug overlay (always present, but conditionally visible).
-$debug_overlay = '<div class="parallax-debug-overlay" data-wp-html="callbacks.getDebugInfo" data-wp-class--hidden="!context.debugMode"></div>';
-
-// Build final HTML structure.
-printf(
-	'<div %s>
-		<div class="parallax-container">
-			<div class="parallax-content">%s</div>
-			%s
-		</div>
-	</div>',
-	wp_kses(
-		$wrapper_attributes,
+	// Get wrapper attributes with Interactivity API integration.
+	$wrapper_attributes = get_block_wrapper_attributes(
 		array(
-			'class'                          => array(),
-			'id'                             => array(),
-			'style'                          => array(),
-			'data-wp-interactive'            => array(),
-			'data-wp-context'                => array(),
-			'data-wp-init'                   => array(),
-			'data-wp-watch'                  => array(),
-			'data-wp-class--is-intersecting' => array(),
-			'data-wp-class--has-initialized' => array(),
-			'data-wp-class--debug-mode'      => array(),
+			'class'                          => implode( ' ', $classes ),
+			'data-wp-interactive'            => 'aggressive-apparel/parallax',
+			'data-wp-context'                => wp_json_encode( $context ),
+			'data-wp-init'                   => 'callbacks.initParallax',
+			'data-wp-class--is-intersecting' => 'state.isIntersecting',
+			'data-wp-class--has-initialized' => 'state.hasInitialized',
+			'data-wp-class--debug-mode'      => 'state.debugMode',
+			'style'                          => $style_string,
 		)
-	),
-	wp_kses_post( $inner_content ),
-	wp_kses(
-		$debug_overlay,
-		array(
-			'div' => array(
-				'class'                 => array(),
-				'data-wp-html'          => array(),
-				'data-wp-class--hidden' => array(),
-			),
+	);
+
+	// Render inner blocks (nested content).
+	// In dynamic blocks, inner blocks are already rendered into $content.
+	$inner_content = $content;
+
+	// Debug overlay (always present, but conditionally visible).
+	$debug_overlay = '<div class="parallax-debug-overlay" data-wp-html="callbacks.getDebugInfo" data-wp-class--hidden="!context.debugMode"></div>';
+
+	// Build final HTML structure.
+	printf(
+		'<div %s data-instance-id="%s">
+    		<div class="parallax-container">
+				<div class="parallax-visual-layer"></div>
+				<div class="parallax-content-layer">
+    			<div class="parallax-content">
+				</div>%s</div>
+    			%s
+    		</div>
+    	</div>',
+		wp_kses(
+			$wrapper_attributes,
+			array(
+				'class'                          => array(),
+				'id'                             => array(),
+				'style'                          => array(),
+				'data-wp-interactive'            => array(),
+				'data-wp-context'                => array(),
+				'data-wp-init'                   => array(),
+				'data-wp-class--is-intersecting' => array(),
+				'data-wp-class--has-initialized' => array(),
+				'data-wp-class--debug-mode'      => array(),
+			)
+		),
+		esc_attr( $parallax_instance_id ),
+		wp_kses_post( $inner_content ),
+		wp_kses(
+			$debug_overlay,
+			array(
+				'div' => array(
+					'class'                 => array(),
+					'data-wp-html'          => array(),
+					'data-wp-class--hidden' => array(),
+				),
+			)
 		)
-	)
-);
+	);

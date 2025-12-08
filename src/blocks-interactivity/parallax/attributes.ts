@@ -84,7 +84,12 @@ addFilter(
           effects.depthLevel ||
           effects.zIndex ||
           effects.opacity ||
-          effects.rotation;
+          effects.rotation ||
+          effects.perspective3D ||
+          effects.scrollOpacity ||
+          effects.velocityBlur ||
+          effects.magneticMouse ||
+          effects.inertia;
 
         if (hasAnyEffects) {
           extraProps['data-parallax-effects'] = JSON.stringify(effects);

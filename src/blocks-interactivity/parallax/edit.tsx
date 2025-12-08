@@ -7,19 +7,19 @@
  */
 
 import {
-  InnerBlocks,
-  InspectorControls,
-  useBlockProps,
+    InnerBlocks,
+    InspectorControls,
+    useBlockProps,
 } from '@wordpress/block-editor';
 import { BlockEditProps } from '@wordpress/blocks';
 import {
-  Flex,
-  FlexItem,
-  PanelBody,
-  RangeControl,
-  SelectControl,
-  TextControl,
-  ToggleControl,
+    Flex,
+    FlexItem,
+    PanelBody,
+    RangeControl,
+    SelectControl,
+    TextControl,
+    ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -261,7 +261,7 @@ function Edit({
   return (
     <>
       <InspectorControls>
-        <PanelBody title={__('Parallax Settings', 'aggressive-apparel')}>
+        <PanelBody title={__('Parallax Behavior', 'aggressive-apparel')}>
           <RangeControl
             label={__('Intensity', 'aggressive-apparel')}
             value={intensity}
@@ -270,7 +270,7 @@ function Edit({
             max={200}
             step={10}
             help={__(
-              'Controls the strength of the parallax effect',
+              'Controls the strength of the parallax effect. Lower = Subtle, Higher = Dramatic.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
@@ -311,7 +311,7 @@ function Edit({
             max={1.0}
             step={0.05}
             help={__(
-              'How smoothly elements transition during parallax movement',
+              'How smoothly elements transition. Lower = Snappy, Higher = Smooth.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
@@ -353,7 +353,7 @@ function Edit({
                 max={1.0}
                 step={0.1}
                 help={__(
-                  'How strongly mouse movement affects the 3D rotation',
+                  'How strongly mouse movement affects the 3D rotation. Lower = Subtle, Higher = Strong.',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
@@ -385,7 +385,73 @@ function Edit({
                 max={2000}
                 step={100}
                 help={__(
-                  'Distance of the 3D perspective view (higher = more subtle effects)',
+                  'Distance of the 3D perspective view. Lower = Exaggerated 3D, Higher = Flatter.',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              <RangeControl
+                label={__('Max Mouse Translation', 'aggressive-apparel')}
+                value={maxMouseTranslation}
+                onChange={value =>
+                  setAttributes({ maxMouseTranslation: value })
+                }
+                min={5}
+                max={50}
+                step={5}
+                help={__(
+                  'Maximum pixels elements can move due to mouse interaction',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              <RangeControl
+                label={__('Mouse Sensitivity Threshold', 'aggressive-apparel')}
+                value={mouseSensitivityThreshold}
+                onChange={value =>
+                  setAttributes({ mouseSensitivityThreshold: value })
+                }
+                min={0.0001}
+                max={0.01}
+                step={0.0001}
+                help={__(
+                  'Minimum mouse movement required to trigger updates. Lower = More Sensitive.',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              <RangeControl
+                label={__('Depth Intensity', 'aggressive-apparel')}
+                value={depthIntensityMultiplier}
+                onChange={value =>
+                  setAttributes({ depthIntensityMultiplier: value })
+                }
+                min={10}
+                max={200}
+                step={5}
+                help={__(
+                  'Multiplier for Z-depth effects. Higher = More dramatic depth.',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              <RangeControl
+                label={__('Parallax Depth Level', 'aggressive-apparel')}
+                value={parallaxDepth}
+                onChange={value => setAttributes({ parallaxDepth: value })}
+                min={0.5}
+                max={3.0}
+                step={0.1}
+                help={__(
+                  'Base depth level for parallax-enabled elements',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
@@ -422,7 +488,7 @@ function Edit({
         </PanelBody>
 
         <PanelBody
-          title={__('Advanced Settings', 'aggressive-apparel')}
+          title={__('Triggers & Boundaries', 'aggressive-apparel')}
           initialOpen={false}
         >
           <RangeControl
@@ -433,7 +499,7 @@ function Edit({
             max={1}
             step={0.1}
             help={__(
-              'Intersection ratio threshold (0.1 = 10% visible, 0.5 = 50% visible)',
+              'When to start the effect. 0.1 = 10% visible, 0.5 = 50% visible.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
@@ -529,76 +595,6 @@ function Edit({
               )}
             </p>
           </div>
-
-          {enableMouseInteraction && (
-            <>
-              <RangeControl
-                label={__('Max Mouse Translation', 'aggressive-apparel')}
-                value={maxMouseTranslation}
-                onChange={value =>
-                  setAttributes({ maxMouseTranslation: value })
-                }
-                min={5}
-                max={50}
-                step={5}
-                help={__(
-                  'Maximum pixels elements can move due to mouse interaction',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-
-              <RangeControl
-                label={__('Mouse Sensitivity Threshold', 'aggressive-apparel')}
-                value={mouseSensitivityThreshold}
-                onChange={value =>
-                  setAttributes({ mouseSensitivityThreshold: value })
-                }
-                min={0.0001}
-                max={0.01}
-                step={0.0001}
-                help={__(
-                  'Minimum mouse movement required to trigger updates (lower = more sensitive)',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-
-              <RangeControl
-                label={__('Depth Intensity', 'aggressive-apparel')}
-                value={depthIntensityMultiplier}
-                onChange={value =>
-                  setAttributes({ depthIntensityMultiplier: value })
-                }
-                min={10}
-                max={200}
-                step={5}
-                help={__(
-                  'Multiplier for Z-depth effects (higher = more dramatic depth)',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-
-              <RangeControl
-                label={__('Parallax Depth Level', 'aggressive-apparel')}
-                value={parallaxDepth}
-                onChange={value => setAttributes({ parallaxDepth: value })}
-                min={0.5}
-                max={3.0}
-                step={0.1}
-                help={__(
-                  'Base depth level for parallax-enabled elements',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-            </>
-          )}
 
           <ToggleControl
             label={__('Debug Mode', 'aggressive-apparel')}

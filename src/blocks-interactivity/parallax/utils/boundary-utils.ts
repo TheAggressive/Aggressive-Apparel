@@ -112,3 +112,27 @@ export const calculateProgressWithinBoundary = (
 
   return { progress, isWithinBoundary };
 };
+
+/**
+ * Calculate "sticky" progress that maintains final state once reached
+ * Effects will stay at their maximum intensity until element leaves the zone
+ */
+export const calculateStickyProgress = (
+  element: HTMLElement,
+  detectionBoundary: DetectionBoundary,
+  visibilityTrigger: number = 0,
+  previousProgress: number = 0
+): { progress: number; isWithinBoundary: boolean; hasReachedMax: boolean } => {
+  const { progress, isWithinBoundary } = calculateProgressWithinBoundary(
+    element,
+    detectionBoundary,
+    visibilityTrigger
+  );
+
+  // If we've previously reached the maximum progress and are still within boundary,
+  // maintain the maximum progress to create "sticky" effects
+  const hasReachedMax = previousProgress >= 1.0;
+  const stickyProgress = hasReachedMax && isWithinBoundary ? 1.0 : progress;
+
+  return { progress: stickyProgress, isWithinBoundary, hasReachedMax };
+};

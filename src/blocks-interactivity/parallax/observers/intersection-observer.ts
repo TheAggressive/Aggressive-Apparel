@@ -70,6 +70,7 @@ export const createIntersectionObserver = (
             ctx.visibilityTrigger
           );
 
+
           ctx.scrollProgress = progress;
 
           // Apply transforms

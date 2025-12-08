@@ -59,6 +59,60 @@ export interface ParallaxEffects {
   zIndex?: {
     value: number;
   };
+  scrollOpacity?: {
+    enabled: boolean;
+    startOpacity: number; // 0-1
+    endOpacity: number; // 0-1
+    fadeRange: 'top' | 'middle' | 'bottom' | 'full';
+    effectStart?: number; // 0-1, when effect animation starts
+    effectEnd?: number; // 0-1, when effect animation completes
+    effectMode?: 'sustain' | 'peek' | 'reverse'; // Animation behavior (default: peek)
+  };
+  magneticMouse?: {
+    enabled: boolean;
+    strength: number; // 0-100
+    range: number; // px distance
+    elastic: boolean;
+    mode: 'attract' | 'repel';
+  };
+  blur?: {
+    enabled: boolean;
+    startBlur: number; // CSS blur value (px)
+    endBlur: number; // CSS blur value (px)
+    fadeRange: 'top' | 'middle' | 'bottom' | 'full';
+    effectStart?: number; // 0-1, when effect animation starts
+    effectEnd?: number; // 0-1, when effect animation completes
+    effectMode?: 'sustain' | 'peek' | 'reverse'; // Animation behavior (default: peek)
+  };
+  colorTransition?: {
+    enabled: boolean;
+    startColor: string; // Hex, RGB, or HSL color
+    endColor: string; // Hex, RGB, or HSL color
+    transitionType: 'background' | 'text' | 'border';
+    effectStart?: number; // 0-1, when effect animation starts
+    effectEnd?: number; // 0-1, when effect animation completes
+    effectMode?: 'sustain' | 'peek' | 'reverse'; // Animation behavior (default: peek)
+  };
+  dynamicShadow?: {
+    enabled: boolean;
+    startShadow: string; // CSS box-shadow value
+    endShadow: string; // CSS box-shadow value
+    shadowType: 'box-shadow' | 'text-shadow' | 'drop-shadow';
+    effectStart?: number; // 0-1, when effect animation starts
+    effectEnd?: number; // 0-1, when effect animation completes
+    effectMode?: 'sustain' | 'peek' | 'reverse'; // Animation behavior (default: peek)
+  };
+  rotation?: {
+    enabled: boolean;
+    startRotation: number; // degrees
+    endRotation: number; // degrees
+    axis: 'x' | 'y' | 'z' | 'all';
+    speed: number; // multiplier for rotation speed (0.1 to 3.0)
+    mode: 'range' | 'continuous' | 'looping'; // how rotation behaves
+    effectStart?: number; // 0-1, when effect animation starts
+    effectEnd?: number; // 0-1, when effect animation completes
+    effectMode?: 'sustain' | 'peek' | 'reverse'; // Animation behavior (default: peek)
+  };
 }
 
 /**
@@ -126,6 +180,7 @@ export interface ParallaxContext {
   isIntersecting: boolean;
   intersectionRatio: number;
   hasInitialized?: boolean;
+  previousProgress?: number; // Track previous progress for sticky effects
 
   // New properties for enhanced control
   parallaxDirection?: 'up' | 'down' | 'both';
@@ -292,6 +347,187 @@ export function validateParallaxAttributes(attrs: any): ValidationResult {
   };
 }
 
+/**
+ * Validate blur effect configuration
+ */
+export function validateBlurEffect(config: any): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (
+    typeof config.startBlur !== 'number' ||
+    config.startBlur < 0 ||
+    config.startBlur > 50
+  ) {
+    errors.push('Start blur must be a number between 0 and 50');
+  }
+
+  if (
+    typeof config.endBlur !== 'number' ||
+    config.endBlur < 0 ||
+    config.endBlur > 50
+  ) {
+    errors.push('End blur must be a number between 0 and 50');
+  }
+
+  if (!['top', 'middle', 'bottom', 'full'].includes(config.fadeRange)) {
+    errors.push('Invalid fade range');
+  }
+
+  if (config.startBlur === config.endBlur) {
+    warnings.push(
+      'Start and end blur values are the same - no transition will occur'
+    );
+  }
+
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Validate color transition effect configuration
+ */
+export function validateColorTransitionEffect(config: any): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Basic color validation (hex, rgb, rgba, hsl, hsla)
+  const colorRegex =
+    /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$|^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(0|1|0?\.\d+)\)$|^hsl\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%\)$|^hsla\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%,\s*(0|1|0?\.\d+)\)$/;
+
+  if (!colorRegex.test(config.startColor)) {
+    errors.push('Invalid start color format');
+  }
+
+  if (!colorRegex.test(config.endColor)) {
+    errors.push('Invalid end color format');
+  }
+
+  if (!['background', 'text', 'border'].includes(config.transitionType)) {
+    errors.push('Invalid transition type');
+  }
+
+  if (config.startColor === config.endColor) {
+    warnings.push(
+      'Start and end colors are the same - no transition will occur'
+    );
+  }
+
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Validate dynamic shadow effect configuration
+ */
+export function validateDynamicShadowEffect(config: any): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (
+    ['box-shadow', 'text-shadow', 'drop-shadow'].indexOf(config.shadowType) ===
+    -1
+  ) {
+    errors.push('Invalid shadow type');
+  }
+
+  // Basic CSS shadow value validation
+  const shadowRegex = /^(-?\d+px\s+){3,4}(rgba?\([^)]+\)|#[0-9a-fA-F]{3,8})$/;
+  if (config.startShadow && !shadowRegex.test(config.startShadow.trim())) {
+    warnings.push('Start shadow may not be a valid CSS shadow value');
+  }
+
+  if (config.endShadow && !shadowRegex.test(config.endShadow.trim())) {
+    warnings.push('End shadow may not be a valid CSS shadow value');
+  }
+
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Validate rotation effect configuration
+ */
+export function validateRotationEffect(config: any): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (
+    typeof config.startRotation !== 'number' ||
+    config.startRotation < -360 ||
+    config.startRotation > 360
+  ) {
+    errors.push('Start rotation must be a number between -360 and 360');
+  }
+
+  if (
+    typeof config.endRotation !== 'number' ||
+    config.endRotation < -360 ||
+    config.endRotation > 360
+  ) {
+    errors.push('End rotation must be a number between -360 and 360');
+  }
+
+  if (!['x', 'y', 'z', 'all'].includes(config.axis)) {
+    errors.push('Invalid rotation axis');
+  }
+
+  if (config.startRotation === config.endRotation) {
+    warnings.push(
+      'Start and end rotation values are the same - no rotation will occur'
+    );
+  }
+
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Enhanced effect validation that includes all new effects
+ */
+export function validateParallaxEffects(effects: any): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Validate each enabled effect
+  if (effects.blur?.enabled) {
+    const result = validateBlurEffect(effects.blur);
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+  }
+
+  if (effects.colorTransition?.enabled) {
+    const result = validateColorTransitionEffect(effects.colorTransition);
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+  }
+
+  if (effects.dynamicShadow?.enabled) {
+    const result = validateDynamicShadowEffect(effects.dynamicShadow);
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+  }
+
+  if (effects.rotation?.enabled) {
+    const result = validateRotationEffect(effects.rotation);
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+  }
+
+  // Check for conflicting effects
+  if (
+    effects.blur?.enabled &&
+    effects.dynamicShadow?.enabled &&
+    effects.dynamicShadow.shadowType === 'drop-shadow'
+  ) {
+    warnings.push(
+      'Using blur effect with drop-shadow may cause visual conflicts'
+    );
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+  };
+}
+
 // =============================================================================
 // STORE TYPES
 // =============================================================================
@@ -317,6 +553,8 @@ export interface ParallaxState {
   ctx: ParallaxContext;
   resizeTimeout: number | null;
   scrollDirection: 'up' | 'down';
+  velocity: number;
+  lastScrollTime: number;
 
   // Performance tracking
   performanceStatus: 'good' | 'lag' | 'jitter' | 'poor';

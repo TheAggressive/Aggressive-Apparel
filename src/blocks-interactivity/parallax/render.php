@@ -67,6 +67,7 @@ try {
 		'isIntersecting'            => false,
 		'intersectionRatio'         => 0,
 		'hasInitialized'            => false,
+		'previousProgress'          => 0,
 	);
 } catch ( Throwable $e ) {
 	// Return a minimal context to prevent complete failure.
@@ -84,6 +85,7 @@ try {
 		'isIntersecting'         => false,
 		'intersectionRatio'      => 0,
 		'hasInitialized'         => false,
+		'previousProgress'       => 0,
 	);
 }
 

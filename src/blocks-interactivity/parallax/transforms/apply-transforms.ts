@@ -6,15 +6,17 @@
 
 import { ParallaxContext, ParallaxEffects } from '../types';
 import {
-    calculateBlur,
-    calculateColorTransition,
-    calculateMagneticForce,
-    calculateParallaxMovement,
-    calculateRotation,
-    calculateScrollOpacity,
-    calculateShadow,
-    validateParallaxEffects,
+  calculateMagneticForce,
+  calculateParallaxMovement,
+  validateParallaxEffects,
 } from '../utils';
+import {
+  applyBlurEffect,
+  applyColorEffect,
+  applyRotationEffect,
+  applyScrollOpacityEffect,
+  applyShadowEffect,
+} from './effect-handlers';
 
 /**
  * Apply parallax transforms to all layers in a container (direct call)
@@ -41,10 +43,15 @@ export const applyParallaxTransformsDirect = (
         '--parallax-card-rotate-x',
         `${rotateX}deg`
       );
+
       parallaxContainer.style.setProperty(
         '--parallax-card-rotate-y',
         `${rotateY}deg`
       );
+      // Add perspective to container for 3D effect
+      const perspective = ctx.perspectiveDistance ?? 1000;
+      parallaxContainer.style.perspective = `${perspective}px`;
+      parallaxContainer.style.transformStyle = 'preserve-3d';
     }
   } else {
     // Reset container rotation when disabled
@@ -190,29 +197,62 @@ export const applyLayerTransformDirect = (
   translateX = movement.x;
   translateY = movement.y;
 
-  // Apply Z-Index
-  if (effects.zIndex?.value !== undefined) {
-    element.style.zIndex = effects.zIndex.value.toString();
+  // Apply Z-Index - either manual override or auto-calculated from depth
+  // Value of 0 = auto-calculate, any other value = manual override
+  // Auto: Lower depth = higher z-index (appears in FRONT)
+  // Auto: Higher depth = lower z-index (appears BEHIND)
+  const manualZIndex = effects.zIndex?.value;
+  if (manualZIndex && manualZIndex !== 0) {
+    // Manual z-index override
+    element.style.zIndex = manualZIndex.toString();
+  } else {
+    // Auto z-index from depth: depth 0.5 → z-index 200, depth 1 → z-index 100, depth 3 → z-index 33
+    const autoZIndex = Math.round(100 / depthFactor);
+    element.style.zIndex = autoZIndex.toString();
+  }
+
+  // Calculate 3D depth translation (True 3D)
+  // Depth 1 = 0px (focal plane)
+  // Depth < 1 = Positive Z (closer)
+  // Depth > 1 = Negative Z (farther)
+  // Scale factor 100px per depth unit deviation
+  const translateZ = (1 - depthFactor) * 100;
+
+  // Calculate differential rotation based on depth
+  // Elements further away rotate less, closer elements rotate more
+  let rotateX = 0;
+  let rotateY = 0;
+
+  if (enableMouseInteraction) {
+    const maxRot = 5; // Max rotation in degrees
+    // Inverse depth factor for rotation: closer things rotate more
+    const rotationFactor = 1 / depthFactor;
+    rotateX = (mouseY - 0.5) * maxRot * rotationFactor;
+    rotateY = (mouseX - 0.5) * -maxRot * rotationFactor;
   }
 
   // Scroll-based opacity
   let opacity = 1;
   if (effects.scrollOpacity?.enabled) {
-    const { startOpacity, endOpacity, fadeRange } = effects.scrollOpacity;
-    opacity = calculateScrollOpacity(
-      progress,
-      fadeRange,
-      startOpacity,
-      endOpacity,
-      effects.scrollOpacity.effectStart ?? 0.0,
-      effects.scrollOpacity.effectEnd ?? 0.25,
-      effects.scrollOpacity.effectMode ?? 'sustain'
+    const calculatedOpacity = applyScrollOpacityEffect(
+      {}, // We don't need styleUpdates here as we use the return value
+      effects.scrollOpacity,
+      progress
     );
+    if (calculatedOpacity !== undefined) {
+      opacity = calculatedOpacity;
+    }
   }
 
   // Apply transforms via CSS variables (CSS will handle the actual transform)
+  // Apply transforms via CSS variables
+  // Use translate3d for hardware acceleration and true 3D positioning
+  element.style.transform = `translate3d(${translateX}px, ${translateY}px, ${translateZ}px) scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+  // Keep CSS variables for other potential usages or debug
   element.style.setProperty('--parallax-translate-x', `${translateX}px`);
   element.style.setProperty('--parallax-translate-y', `${translateY}px`);
+  element.style.setProperty('--parallax-translate-z', `${translateZ}px`);
   element.style.setProperty('--parallax-scale', scale.toString());
   element.style.setProperty('--parallax-easing', easing);
   element.style.setProperty('--parallax-opacity', opacity.toString());
@@ -223,19 +263,32 @@ export const applyLayerTransformDirect = (
     transitionDuration || '0.1s'
   );
   if (enableMouseInteraction) {
-    const depthFactor = effects.depthLevel?.value || 1;
+    const depth = effects.depthLevel?.value || 1;
+
+    // TRUE 3D PARALLAX: elements move relative to a focal point (depth = 1)
+    // - depth < 1 (closer): moves OPPOSITE to mouse (negative factor)
+    // - depth = 1 (focal): no movement (stationary reference)
+    // - depth > 1 (further): moves WITH mouse (positive factor)
+    // This creates the illusion of looking through a window at layered objects
+    const parallaxFactor = depth - 1; // -0.5 for close, 0 for focal, +1.5 for far
+
+    // Intensity boost to make the effect more noticeable
+    const parallaxIntensity = 2.0;
+
     let mouseTranslateX =
       (mouseX - 0.5) *
       mouseInfluenceMultiplier *
       intensity *
       speed *
-      depthFactor;
+      parallaxFactor *
+      parallaxIntensity;
     let mouseTranslateY =
       (mouseY - 0.5) *
       mouseInfluenceMultiplier *
       intensity *
       speed *
-      depthFactor;
+      parallaxFactor *
+      parallaxIntensity;
 
     // NEW EFFECT: Magnetic Mouse Attraction
     if (effects.magneticMouse?.enabled) {
@@ -290,134 +343,16 @@ export const applyLayerTransformDirect = (
   const styleUpdates: Record<string, string> = {};
 
   // Blur effect
-  if (
-    effects.blur?.enabled &&
-    effects.blur.startBlur !== undefined &&
-    effects.blur.endBlur !== undefined
-  ) {
-    const blurAmount = calculateBlur(
-      progress,
-      effects.blur.startBlur,
-      effects.blur.endBlur,
-      effects.blur.fadeRange || 'full',
-      effects.blur.effectStart ?? 0.0,
-      effects.blur.effectEnd ?? 0.25,
-      effects.blur.effectMode ?? 'sustain'
-    );
-    styleUpdates.filter = `blur(${blurAmount}px)`;
-  }
+  applyBlurEffect(styleUpdates, effects.blur, progress);
 
   // Color transition effect
-  if (
-    effects.colorTransition?.enabled &&
-    effects.colorTransition.startColor &&
-    effects.colorTransition.endColor
-  ) {
-    const color = calculateColorTransition(
-      progress,
-      effects.colorTransition.startColor,
-      effects.colorTransition.endColor,
-      effects.colorTransition.effectStart ?? 0.0,
-      effects.colorTransition.effectEnd ?? 0.25,
-      effects.colorTransition.effectMode ?? 'sustain'
-    );
-
-    switch (effects.colorTransition.transitionType) {
-      case 'background':
-        styleUpdates.backgroundColor = color;
-        break;
-      case 'text':
-        styleUpdates.color = color;
-        break;
-      case 'border':
-        styleUpdates.borderColor = color;
-        break;
-    }
-  }
+  applyColorEffect(styleUpdates, effects.colorTransition, progress);
 
   // Dynamic shadow effect
-  if (
-    effects.dynamicShadow?.enabled &&
-    effects.dynamicShadow.startShadow &&
-    effects.dynamicShadow.endShadow
-  ) {
-    const shadow = calculateShadow(
-      progress,
-      effects.dynamicShadow.startShadow,
-      effects.dynamicShadow.endShadow,
-      effects.dynamicShadow.effectStart ?? 0.0,
-      effects.dynamicShadow.effectEnd ?? 0.25,
-      effects.dynamicShadow.effectMode ?? 'sustain'
-    );
-
-    switch (effects.dynamicShadow.shadowType) {
-      case 'box-shadow':
-        styleUpdates.boxShadow = shadow;
-        break;
-      case 'text-shadow':
-        styleUpdates.textShadow = shadow;
-        break;
-      case 'drop-shadow': {
-        // Check for drop-shadow support before applying
-        if (
-          typeof CSS !== 'undefined' &&
-          CSS.supports &&
-          CSS.supports('filter', 'drop-shadow(0px 0px 0px black)')
-        ) {
-          // Combine with existing filter if present
-          const existingFilter = styleUpdates.filter || '';
-          styleUpdates.filter = existingFilter
-            ? `${existingFilter} drop-shadow(${shadow})`
-            : `drop-shadow(${shadow})`;
-        } else {
-          // Fallback to box-shadow for unsupported browsers
-          styleUpdates.boxShadow = shadow;
-        }
-        break;
-      }
-    }
-  }
+  applyShadowEffect(styleUpdates, effects.dynamicShadow, progress);
 
   // Rotation effect
-  if (
-    effects.rotation?.enabled &&
-    effects.rotation.startRotation !== undefined &&
-    effects.rotation.endRotation !== undefined
-  ) {
-    const rotation = calculateRotation(
-      progress,
-      effects.rotation.startRotation,
-      effects.rotation.endRotation,
-      effects.rotation.speed || 1.0,
-      effects.rotation.mode || 'range',
-      effects.rotation.effectStart ?? 0.0,
-      effects.rotation.effectEnd ?? 0.25,
-      effects.rotation.effectMode ?? 'sustain'
-    );
-
-    const axis = effects.rotation.axis || 'z';
-    let transformValue = '';
-
-    switch (axis) {
-      case 'x':
-        transformValue = `rotateX(${rotation}deg)`;
-        break;
-      case 'y':
-        transformValue = `rotateY(${rotation}deg)`;
-        break;
-      case 'z':
-      case 'all':
-        transformValue = `rotate(${rotation}deg)`;
-        break;
-    }
-
-    // Don't read from element.style.transform as it contains previous rotation!
-    // Check if transform already set in styleUpdates (shouldn't be, but be safe)
-    const existingTransform = styleUpdates.transform || '';
-    styleUpdates.transform = existingTransform
-      ? `${existingTransform} ${transformValue}`
-      : transformValue;
-  }
+  applyRotationEffect(styleUpdates, effects.rotation, progress);
 
   // Apply all batched style updates at once
   Object.assign(element.style, styleUpdates);

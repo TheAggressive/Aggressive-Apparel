@@ -9,7 +9,7 @@ import {
   ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { EffectTimingControls } from './EffectTimingControls';
 
@@ -54,8 +54,15 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
     [clientId]
   );
 
+  // Initialize parallax attributes only if they don't exist
+  // Use a ref to prevent re-running after initial setup
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
+    if (hasInitialized.current) return;
+
     if (block && !block.attributes.aggressiveApparelParallax) {
+      hasInitialized.current = true;
       updateBlockAttributes(clientId, {
         aggressiveApparelParallax: {
           enabled: false,
@@ -67,31 +74,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         },
       });
     } else if (block?.attributes?.aggressiveApparelParallax) {
-      // Update depth level when parallax is enabled/disabled
-      const parallaxSettings = block.attributes.aggressiveApparelParallax;
-      const effects = parallaxSettings.effects || {};
-      const currentDepth = effects.depthLevel?.value;
-
-      // Set appropriate default depth based on parallax status
-      const defaultDepth = parallaxSettings.enabled ? 1.5 : 1;
-
-      if (
-        currentDepth === undefined ||
-        (parallaxSettings.enabled && currentDepth === 1) ||
-        (!parallaxSettings.enabled && currentDepth === 1.5)
-      ) {
-        const newEffects = { ...effects };
-        newEffects.depthLevel = {
-          value: defaultDepth,
-        };
-
-        updateBlockAttributes(clientId, {
-          aggressiveApparelParallax: {
-            ...parallaxSettings,
-            effects: newEffects,
-          },
-        });
-      }
+      hasInitialized.current = true;
     }
   }, [block, updateBlockAttributes, clientId]);
 
@@ -151,7 +134,6 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
     const defaults: Record<string, any> = {
       zoom: { type: 'in', intensity: 0.1 },
       depthLevel: { value: parallaxSettings.enabled ? 1.5 : 1 },
-      perspective3D: { layerDepth: 100, fov: 1000 },
       scrollOpacity: { startOpacity: 0, endOpacity: 1, fadeRange: 'full' },
       velocityBlur: { maxBlur: 10, sensitivity: 0.5, direction: 'vertical' },
       magneticMouse: { strength: 0.5, range: 200, mode: 'attract' },
@@ -202,6 +184,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 onChange={value => updateEffect('zoom', 'type', value)}
               />
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Zoom Intensity', 'aggressive-apparel')}
                 value={effects.zoom.intensity || 0.1}
                 onChange={value => updateEffect('zoom', 'intensity', value)}
@@ -232,6 +216,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
             {effects?.rotation?.enabled && (
               <>
                 <RangeControl
+                  __next40pxDefaultSize
+                  __nextHasNoMarginBottom
                   label={__('Start Rotation (degrees)', 'aggressive-apparel')}
                   value={effects.rotation.startRotation || 0}
                   onChange={value =>
@@ -242,6 +228,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                   step={15}
                 />
                 <RangeControl
+                  __next40pxDefaultSize
+                  __nextHasNoMarginBottom
                   label={__('End Rotation (degrees)', 'aggressive-apparel')}
                   value={effects.rotation.endRotation || 360}
                   onChange={value =>
@@ -275,6 +263,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                   onChange={value => updateEffect('rotation', 'axis', value)}
                 />
                 <RangeControl
+                  __next40pxDefaultSize
+                  __nextHasNoMarginBottom
                   label={__('Rotation Speed', 'aggressive-apparel')}
                   value={effects.rotation.speed || 1.0}
                   onChange={value => updateEffect('rotation', 'speed', value)}
@@ -311,7 +301,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 />
 
                 <EffectTimingControls
-                  effectType="rotation"
+                  effectType='rotation'
                   effectStart={effects.rotation.effectStart}
                   effectEnd={effects.rotation.effectEnd}
                   effectMode={effects.rotation.effectMode}
@@ -339,6 +329,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               {effects?.magneticMouse?.enabled && (
                 <>
                   <RangeControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('Magnetic Strength', 'aggressive-apparel')}
                     value={effects.magneticMouse.strength || 0.5}
                     onChange={value =>
@@ -353,6 +345,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                     )}
                   />
                   <RangeControl
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
                     label={__('Attraction Range (px)', 'aggressive-apparel')}
                     value={effects.magneticMouse.range || 200}
                     onChange={value =>
@@ -387,7 +381,6 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               )}
             </div>
           )}
-
         </div>
       </PanelBody>
 
@@ -418,46 +411,54 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           )}
 
           <RangeControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={__('Depth Level', 'aggressive-apparel')}
             value={
-              effects.depthLevel?.value ||
-              (parallaxSettings.enabled ? 1.5 : 1)
+              effects.depthLevel?.value || (parallaxSettings.enabled ? 1.5 : 1)
             }
             onChange={value => updateEffect('depthLevel', 'value', value)}
             min={0.1}
             max={3.0}
             step={0.1}
             help={__(
-              'How much this element responds to mouse movement. Higher values = more movement.',
+              '3D parallax depth. 1.0 = focal point (stationary). Lower = foreground, higher = background.',
               'aggressive-apparel'
             )}
           />
           <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-            Default: {parallaxSettings.enabled ? '1.5' : '1'} (
-            {parallaxSettings.enabled
-              ? 'enhanced depth for parallax elements'
-              : 'normal depth for static elements'}
-            )
-          </div>
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-            {effects.depthLevel?.value < 1 &&
-              __('Closer to camera (less movement)', 'aggressive-apparel')}
-            {(effects.depthLevel?.value ||
-              (parallaxSettings.enabled ? 1.5 : 1)) === 1 &&
-              __('Normal depth', 'aggressive-apparel')}
-            {effects.depthLevel?.value > 1 &&
-              __('Further from camera (more movement)', 'aggressive-apparel')}
+            {(() => {
+              const depth =
+                effects.depthLevel?.value ??
+                (parallaxSettings.enabled ? 1.5 : 1);
+              if (depth < 0.9)
+                return __(
+                  '🎯 Foreground - moves opposite to mouse',
+                  'aggressive-apparel'
+                );
+              if (depth > 1.1)
+                return __(
+                  '🏔️ Background - moves with mouse',
+                  'aggressive-apparel'
+                );
+              return __(
+                '📍 Focal point - stationary reference',
+                'aggressive-apparel'
+              );
+            })()}
           </div>
 
           <RangeControl
-            label={__('Z-Index', 'aggressive-apparel')}
-            value={effects.zIndex?.value || 1}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+            label={__('Z-Index Override', 'aggressive-apparel')}
+            value={effects.zIndex?.value ?? 0}
             onChange={value => updateEffect('zIndex', 'value', value)}
             min={-10}
-            max={10}
+            max={100}
             step={1}
             help={__(
-              'Stacking order - higher values appear in front.',
+              'Manual stacking order (optional). Leave at 0 for auto-stacking based on depth.',
               'aggressive-apparel'
             )}
           />
@@ -478,6 +479,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           {effects?.scrollOpacity?.enabled && (
             <>
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Start Opacity', 'aggressive-apparel')}
                 value={effects.scrollOpacity.startOpacity ?? 0}
                 onChange={value =>
@@ -488,6 +491,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 step={0.1}
               />
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('End Opacity', 'aggressive-apparel')}
                 value={effects.scrollOpacity.endOpacity ?? 1}
                 onChange={value =>
@@ -498,6 +503,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 step={0.1}
               />
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Fade Range (0-1)', 'aggressive-apparel')}
                 value={effects.scrollOpacity.fadeRange ?? 0.3}
                 onChange={value =>
@@ -513,7 +520,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               />
 
               <EffectTimingControls
-                effectType="scrollOpacity"
+                effectType='scrollOpacity'
                 effectStart={effects.scrollOpacity.effectStart}
                 effectEnd={effects.scrollOpacity.effectEnd}
                 effectMode={effects.scrollOpacity.effectMode}
@@ -541,6 +548,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           {effects?.blur?.enabled && (
             <>
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Start Blur (px)', 'aggressive-apparel')}
                 value={effects.blur.startBlur || 5}
                 onChange={value => updateEffect('blur', 'startBlur', value)}
@@ -549,6 +558,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 step={0.5}
               />
               <RangeControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('End Blur (px)', 'aggressive-apparel')}
                 value={effects.blur.endBlur || 0}
                 onChange={value => updateEffect('blur', 'endBlur', value)}
@@ -578,7 +589,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               />
 
               <EffectTimingControls
-                effectType="blur"
+                effectType='blur'
                 effectStart={effects.blur.effectStart}
                 effectEnd={effects.blur.effectEnd}
                 effectMode={effects.blur.effectMode}
@@ -666,7 +677,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               />
 
               <EffectTimingControls
-                effectType="colorTransition"
+                effectType='colorTransition'
                 effectStart={effects.colorTransition.effectStart}
                 effectEnd={effects.colorTransition.effectEnd}
                 effectMode={effects.colorTransition.effectMode}
@@ -716,7 +727,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               />
 
               <EffectTimingControls
-                effectType="dynamicShadow"
+                effectType='dynamicShadow'
                 effectStart={effects.dynamicShadow.effectStart}
                 effectEnd={effects.dynamicShadow.effectEnd}
                 effectMode={effects.dynamicShadow.effectMode}

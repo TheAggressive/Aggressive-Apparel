@@ -1,52 +1,51 @@
-<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+<!-- wp:template-part {"slug":"header","theme":"aggressive-apparel","tagName":"header"} /-->
 
 <!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
-<main class="wp-block-group">
-	<!-- wp:post-title {"level":1} /-->
+<main class="wp-block-group"><!-- wp:post-title {"level":1} /-->
 
-	<!-- wp:post-featured-image /-->
+<!-- wp:post-featured-image /-->
 
-	<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
 
-	<!-- wp:post-date /-->
+<!-- wp:post-date {"metadata":{"bindings":{"datetime":{"source":"core/post-data","args":{"field":"date"}}}}} /-->
 
-	<!-- wp:spacer {"height":"40px"} -->
-	<div style="height:40px" aria-hidden="true" class="wp-block-spacer"></div>
-	<!-- /wp:spacer -->
+<!-- wp:spacer {"height":"40px"} -->
+<div style="height:40px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
 
-	<!-- wp:post-terms {"term":"category"} /-->
+<!-- wp:post-terms {"term":"category"} /-->
 
-	<!-- wp:post-terms {"term":"post_tag"} /-->
+<!-- wp:post-terms {"term":"post_tag"} /-->
 
-	<!-- wp:spacer {"height":"60px"} -->
-	<div style="height:60px" aria-hidden="true" class="wp-block-spacer"></div>
-	<!-- /wp:spacer -->
+<!-- wp:spacer {"height":"60px"} -->
+<div style="height:60px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
 
-	<!-- wp:comments -->
-	<div class="wp-block-comments">
-		<!-- wp:comments-title /-->
-		<!-- wp:comment-template -->
-			<!-- wp:columns -->
-				<!-- wp:column {"width":"40px"} -->
-					<!-- wp:avatar {"size":40,"isLink":true} /-->
-				<!-- /wp:column -->
-				<!-- wp:column -->
-					<!-- wp:comment-author-name /-->
-					<!-- wp:comment-date /-->
-					<!-- wp:comment-content /-->
-					<!-- wp:comment-reply-link /-->
-				<!-- /wp:column -->
-			<!-- /wp:columns -->
-		<!-- /wp:comment-template -->
-		<!-- wp:comments-pagination -->
-			<!-- wp:comments-pagination-previous /-->
-			<!-- wp:comments-pagination-next /-->
-		<!-- /wp:comments-pagination -->
-		<!-- wp:post-comments-form /-->
-	</div>
-	<!-- /wp:comments -->
-</main>
+<!-- wp:comments -->
+<div class="wp-block-comments"><!-- wp:comments-title /-->
+
+<!-- wp:comment-template -->
+<!-- wp:avatar /-->
+
+<!-- wp:comment-author-name /-->
+
+<!-- wp:comment-date /-->
+
+<!-- wp:comment-content /-->
+
+<!-- wp:comment-reply-link /-->
+
+<!-- wp:comment-edit-link /-->
+<!-- /wp:comment-template -->
+
+<!-- wp:comments-pagination -->
+<!-- wp:comments-pagination-previous /-->
+
+<!-- wp:comments-pagination-next /-->
+<!-- /wp:comments-pagination -->
+
+<!-- wp:post-comments-form /--></div>
+<!-- /wp:comments --></main>
 <!-- /wp:group -->
 
-<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->
-
+<!-- wp:template-part {"slug":"footer","theme":"aggressive-apparel","tagName":"footer"} /-->

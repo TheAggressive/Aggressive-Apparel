@@ -60,7 +60,6 @@
 	will-change: transform, opacity, filter;
 	transform:
 		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
-		translateZ(var(--parallax-translate-z, 0))
 		scale(var(--parallax-scale, 1));
 	transition: transform var(--parallax-transition-duration, 0.1s) var(--parallax-easing, ease-out) var(--parallax-transition-delay, 0s),
 	            opacity var(--parallax-transition-duration, 0.1s) ease-out;
@@ -86,7 +85,6 @@
 .has-mouse-interaction [data-parallax-enabled="true"] {
 	transform:
 		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
-		translateZ(var(--parallax-translate-z, 0))
 		translate(var(--parallax-mouse-x, 0), var(--parallax-mouse-y, 0))
 		scale(var(--parallax-scale, 1));
 }

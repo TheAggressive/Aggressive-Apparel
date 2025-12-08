@@ -7,24 +7,26 @@
  */
 
 import {
-    InnerBlocks,
-    InspectorControls,
-    useBlockProps,
+  InnerBlocks,
+  InspectorControls,
+  useBlockProps,
 } from '@wordpress/block-editor';
 import { BlockEditProps } from '@wordpress/blocks';
 import {
-    Flex,
-    FlexItem,
-    PanelBody,
-    RangeControl,
-    SelectControl,
-    TextControl,
-    ToggleControl,
+  Flex,
+  FlexItem,
+  PanelBody,
+  RangeControl,
+  SelectControl,
+  TextControl,
+  ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+import { DirectionPicker } from './components/DirectionPicker';
+import { EffectPresets, PresetConfig } from './components/EffectPresets';
 import { EffectsControls } from './components/EffectsControls';
 import { ParallaxAttributes } from './types';
 
@@ -85,12 +87,40 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
     });
   };
 
+  const applyPreset = (preset: PresetConfig) => {
+    updateBlockAttributes(clientId, {
+      aggressiveApparelParallax: {
+        ...parallaxSettings,
+        ...preset.settings,
+        effects: {
+          ...parallaxSettings.effects,
+          ...preset.settings.effects,
+        },
+      },
+    });
+  };
+
+  const resetToDefaults = () => {
+    updateBlockAttributes(clientId, {
+      aggressiveApparelParallax: {
+        enabled: false,
+        speed: 1.0,
+        direction: 'down',
+        delay: 0,
+        easing: 'linear',
+        effects: {},
+      },
+    });
+  };
+
   return (
     <>
       <PanelBody
         title={__('Parallax Settings', 'aggressive-apparel')}
         initialOpen={false}
       >
+        <EffectPresets onApplyPreset={applyPreset} onReset={resetToDefaults} />
+
         <ToggleControl
           label={__('Enable Parallax', 'aggressive-apparel')}
           checked={parallaxSettings.enabled}
@@ -100,6 +130,11 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
 
         {parallaxSettings.enabled && (
           <>
+            <DirectionPicker
+              value={parallaxSettings.direction}
+              onChange={value => updateParallaxSetting('direction', value)}
+            />
+
             <RangeControl
               label={__('Speed', 'aggressive-apparel')}
               value={parallaxSettings.speed}
@@ -107,25 +142,7 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
               min={0.1}
               max={3.0}
               step={0.1}
-              help={__(
-                'How fast this element moves relative to scroll',
-                'aggressive-apparel'
-              )}
-              __next40pxDefaultSize
-              __nextHasNoMarginBottom
-            />
-
-            <SelectControl
-              label={__('Direction', 'aggressive-apparel')}
-              value={parallaxSettings.direction}
-              options={[
-                { label: __('Down', 'aggressive-apparel'), value: 'down' },
-                { label: __('Up', 'aggressive-apparel'), value: 'up' },
-                { label: __('Both', 'aggressive-apparel'), value: 'both' },
-                { label: __('None', 'aggressive-apparel'), value: 'none' },
-              ]}
-              onChange={value => updateParallaxSetting('direction', value)}
-              help={__('Direction of parallax movement', 'aggressive-apparel')}
+              help={__('Slow ← → Fast', 'aggressive-apparel')}
               __next40pxDefaultSize
               __nextHasNoMarginBottom
             />

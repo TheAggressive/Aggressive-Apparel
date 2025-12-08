@@ -1,26 +1,26 @@
 /// <reference types="@wordpress/interactivity" />
 import { getContext, getElement, store } from '@wordpress/interactivity';
 import {
-    activeDebugBlocks,
-    removeDebugOverlays as removeDebugOverlaysImpl,
-    updateDebugContainerPosition as updateDebugContainerPositionImpl,
-    updateDebugPanel as updateDebugPanelImpl,
-    updateDetectionBoundary as updateDetectionBoundaryImpl,
-    updateVisibilityTriggerLine as updateVisibilityTriggerLineImpl,
-    updateZoneVisualization as updateZoneVisualizationImpl,
+  activeDebugBlocks,
+  removeDebugOverlays as removeDebugOverlaysImpl,
+  updateDebugContainerPosition as updateDebugContainerPositionImpl,
+  updateDebugPanel as updateDebugPanelImpl,
+  updateDetectionBoundary as updateDetectionBoundaryImpl,
+  updateVisibilityTriggerLine as updateVisibilityTriggerLineImpl,
+  updateZoneVisualization as updateZoneVisualizationImpl,
 } from './debug';
 import {
-    initializeElementState,
-    initializeIntersectionObserver,
-    setupDebugEventListeners,
+  initializeElementState,
+  initializeIntersectionObserver,
+  setupDebugEventListeners,
 } from './observers';
 import { applyParallaxTransformsDirect } from './transforms';
 import { ParallaxContext } from './types';
 import {
-    ParallaxLogger,
-    calculateProgressWithinBoundary,
-    prefersReducedMotion,
-    validateConfiguration,
+  ParallaxLogger,
+  calculateProgressWithinBoundary,
+  prefersReducedMotion,
+  validateConfiguration,
 } from './utils';
 
 // =============================================================================
@@ -31,7 +31,6 @@ import {
  * Initialize parallax context with proper defaults
  */
 const initializeParallaxContext = (context: ParallaxContext): void => {
-
   // Ensure context has all required properties with fallbacks
   context.intensity = context?.intensity ?? 50;
   context.visibilityTrigger = context?.visibilityTrigger ?? 0.3;
@@ -412,6 +411,38 @@ const { state, actions } = store('aggressive-apparel/parallax', {
           });
         };
 
+        // Set up device orientation listener for mobile parallax
+        let orientationRafId: number | null = null;
+        const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+          if (!ctx.enableMouseInteraction) return;
+
+          if (orientationRafId !== null) {
+            cancelAnimationFrame(orientationRafId);
+          }
+
+          orientationRafId = requestAnimationFrame(() => {
+            // Gamma: Left/Right tilt (-90 to 90)
+            // Beta: Front/Back tilt (-180 to 180)
+
+            // Clamp values to useful range (-45 to 45 degrees)
+            const gamma = Math.max(-45, Math.min(45, event.gamma || 0));
+            const beta = Math.max(-45, Math.min(45, event.beta || 0));
+
+            // Map to 0-1 range (0.5 is center/flat)
+            const x = (gamma + 45) / 90;
+            const y = (beta + 45) / 90;
+
+            ctx.mouseX = x;
+            ctx.mouseY = y;
+
+            if (ctx.isIntersecting) {
+              applyParallaxTransformsDirect(ctx, ref, state.velocity);
+            }
+
+            orientationRafId = null;
+          });
+        };
+
         // Set up mouse move listener if mouse interaction is enabled
         let mouseRafId: number | null = null;
         const handleWindowMouseMove = (event: MouseEvent) => {
@@ -446,6 +477,17 @@ const { state, actions } = store('aggressive-apparel/parallax', {
           window.addEventListener('mousemove', handleWindowMouseMove, {
             passive: true,
           });
+
+          // Add device orientation support for mobile 3D effect
+          if (window.DeviceOrientationEvent) {
+            window.addEventListener(
+              'deviceorientation',
+              handleDeviceOrientation,
+              {
+                passive: true,
+              }
+            );
+          }
         }
 
         // Mark as initialized
@@ -456,12 +498,21 @@ const { state, actions } = store('aggressive-apparel/parallax', {
           observer.disconnect();
           window.removeEventListener('scroll', handleWindowScroll);
           window.removeEventListener('mousemove', handleWindowMouseMove);
+          if (window.DeviceOrientationEvent) {
+            window.removeEventListener(
+              'deviceorientation',
+              handleDeviceOrientation
+            );
+          }
 
           if (scrollRafId !== null) {
             cancelAnimationFrame(scrollRafId);
           }
           if (mouseRafId !== null) {
             cancelAnimationFrame(mouseRafId);
+          }
+          if (orientationRafId !== null) {
+            cancelAnimationFrame(orientationRafId);
           }
 
           if (cleanupDebugListeners) {
@@ -594,8 +645,6 @@ const { state, actions } = store('aggressive-apparel/parallax', {
         state.inertiaAnimations
       );
     },
-
-
 
     /**
      * Handle mouse events via Interactivity API

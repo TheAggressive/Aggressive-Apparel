@@ -85,7 +85,6 @@ addFilter(
           effects.zIndex ||
           effects.opacity ||
           effects.rotation ||
-          effects.perspective3D ||
           effects.scrollOpacity ||
           effects.velocityBlur ||
           effects.magneticMouse ||

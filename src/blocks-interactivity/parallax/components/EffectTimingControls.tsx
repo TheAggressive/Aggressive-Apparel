@@ -10,11 +10,12 @@ interface EffectTimingControlsProps {
   effectStart?: number;
   effectEnd?: number;
   effectMode?: 'sustain' | 'peek' | 'reverse';
-  onUpdate: (key: string, value: any) => void;
+  // eslint-disable-next-line no-unused-vars
+  onUpdate: (_key: string, _value: any) => void;
 }
 
 export const EffectTimingControls = ({
-  effectType,
+  // effectType, // Unused but kept in props for potential future use
   effectStart,
   effectEnd,
   effectMode,
@@ -33,7 +34,9 @@ export const EffectTimingControls = ({
   };
 
   const currentPreset = getCurrentPreset();
-  const isCustom = currentPreset === 'custom' || (effectStart !== undefined && effectEnd !== undefined);
+  const isCustom =
+    currentPreset === 'custom' ||
+    (effectStart !== undefined && effectEnd !== undefined);
 
   // Validation: effectEnd must be greater than effectStart
   const startValue = effectStart ?? 0;
@@ -65,13 +68,25 @@ export const EffectTimingControls = ({
         label={__('Timing Preset', 'aggressive-apparel')}
         value={currentPreset}
         options={[
-          { label: __('Instant (0-5%)', 'aggressive-apparel'), value: 'instant' },
-          { label: __('Quick (0-25%) - Default', 'aggressive-apparel'), value: 'quick' },
-          { label: __('Gradual (0-50%)', 'aggressive-apparel'), value: 'gradual' },
-          { label: __('Full Range (0-70%)', 'aggressive-apparel'), value: 'full' },
+          {
+            label: __('Instant (0-5%)', 'aggressive-apparel'),
+            value: 'instant',
+          },
+          {
+            label: __('Quick (0-25%) - Default', 'aggressive-apparel'),
+            value: 'quick',
+          },
+          {
+            label: __('Gradual (0-50%)', 'aggressive-apparel'),
+            value: 'gradual',
+          },
+          {
+            label: __('Full Range (0-70%)', 'aggressive-apparel'),
+            value: 'full',
+          },
           { label: __('Custom', 'aggressive-apparel'), value: 'custom' },
         ]}
-        onChange={(value) => {
+        onChange={value => {
           if (value === 'instant') {
             onUpdate('effectStart', 0.0);
             onUpdate('effectEnd', 0.05);
@@ -97,32 +112,48 @@ export const EffectTimingControls = ({
       {isCustom && (
         <>
           <RangeControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={__('Effect Start Position (%)', 'aggressive-apparel')}
             value={startValue * 100}
-            onChange={(value) => {
+            onChange={value => {
               const newStart = (value ?? 0) / 100;
               onUpdate('effectStart', newStart);
             }}
             min={0}
             max={100}
             step={5}
-            help={__('When effect animation begins (% through scroll)', 'aggressive-apparel')}
+            help={__(
+              'When effect animation begins (% through scroll)',
+              'aggressive-apparel'
+            )}
           />
           <RangeControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
             label={__('Effect End Position (%)', 'aggressive-apparel')}
             value={endValue * 100}
-            onChange={(value) => {
+            onChange={value => {
               const newEnd = (value ?? 25) / 100;
               onUpdate('effectEnd', newEnd);
             }}
             min={0}
             max={100}
             step={5}
-            help={__('When effect reaches maximum (% through scroll)', 'aggressive-apparel')}
+            help={__(
+              'When effect reaches maximum (% through scroll)',
+              'aggressive-apparel'
+            )}
           />
           {hasValidationError && (
-            <div style={{ color: '#cc1818', fontSize: '12px', marginTop: '8px' }}>
-              ⚠️ {__('End position must be greater than start position', 'aggressive-apparel')}
+            <div
+              style={{ color: '#cc1818', fontSize: '12px', marginTop: '8px' }}
+            >
+              ⚠️{' '}
+              {__(
+                'End position must be greater than start position',
+                'aggressive-apparel'
+              )}
             </div>
           )}
         </>
@@ -145,8 +176,11 @@ export const EffectTimingControls = ({
             value: 'reverse',
           },
         ]}
-        onChange={(value) => onUpdate('effectMode', value)}
-        help={__('How the effect behaves after reaching maximum', 'aggressive-apparel')}
+        onChange={value => onUpdate('effectMode', value)}
+        help={__(
+          'How the effect behaves after reaching maximum',
+          'aggressive-apparel'
+        )}
       />
 
       {/* Visual Preview */}
@@ -177,7 +211,7 @@ export const EffectTimingControls = ({
               display: 'flex',
             }}
           >
-            {[0, 25, 50, 75, 100].map((percent) => (
+            {[0, 25, 50, 75, 100].map(percent => (
               <div
                 key={percent}
                 style={{
@@ -199,7 +233,9 @@ export const EffectTimingControls = ({
               width: `${(endValue - startValue) * 100}%`,
               height: '100%',
               backgroundColor:
-                effectMode === 'peek' ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 200, 83, 0.3)',
+                effectMode === 'peek'
+                  ? 'rgba(0, 123, 255, 0.3)'
+                  : 'rgba(0, 200, 83, 0.3)',
               borderLeft:
                 '2px solid ' + (effectMode === 'peek' ? '#007bff' : '#00c853'),
               borderRight:

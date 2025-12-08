@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.13.0...v1.14.0) (2025-12-08)
+
+
+### Features
+
+* enhance Advanced Parallax Container with new features and optimizations ([071519c](https://github.com/TheAggressive/Aggressive-Apparel/commit/071519ca73cdf4e05b3194c084bc8356dcb513ba))
+
 # [1.13.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.12.0...v1.13.0) (2025-11-23)
 
 

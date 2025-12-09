@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.14.0...v1.15.0) (2025-12-09)
+
+
+### Features
+
+* enhance parallax block with new performance monitoring and default application ([e73d123](https://github.com/TheAggressive/Aggressive-Apparel/commit/e73d123424fc883acc45b3d965f9e4d175715979))
+
 # [1.14.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.13.0...v1.14.0) (2025-12-08)
 
 

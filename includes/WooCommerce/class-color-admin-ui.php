@@ -309,19 +309,28 @@ class Color_Admin_UI {
 					return;
 				}
 
-				// Security: Require and verify nonce for ALL admin UI display logic.
-				$nonce_action = 'color_admin_ui_display_' . get_current_user_id();
-				if ( ! isset( $_GET['_color_ui_nonce'] ) ||
-					! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_color_ui_nonce'] ) ), $nonce_action ) ) {
-					// Missing or invalid nonce - deny access.
-					return;
-				}
-
 				$current_taxonomy = isset( $_GET['taxonomy'] ) ? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) : '';
 
 				// Additional security: Verify taxonomy parameter is safe.
 				if ( empty( $current_taxonomy ) || ! taxonomy_exists( $current_taxonomy ) ) {
 					return;
+				}
+
+				// Ensure nonce is present; if missing/invalid, append and reload once.
+				$nonce_action = 'color_admin_ui_display_' . get_current_user_id();
+				$nonce_param  = isset( $_GET['_color_ui_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_color_ui_nonce'] ) ) : '';
+
+				if ( ! $nonce_param || ! wp_verify_nonce( $nonce_param, $nonce_action ) ) {
+					$nonce = wp_create_nonce( $nonce_action );
+
+					$current_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+					if ( empty( $current_url ) ) {
+						return;
+					}
+
+					$redirect_url = add_query_arg( '_color_ui_nonce', $nonce, $current_url );
+					wp_safe_redirect( $redirect_url );
+					exit;
 				}
 
 				if ( $current_taxonomy === $attribute_name ) {

@@ -48,7 +48,7 @@ class Templates {
 	 * @return void
 	 */
 	public function wrapper_start() {
-		echo '<div class="woocommerce-wrapper">';
+		echo '<div class="aggressive-apparel-woocommerce aggressive-apparel-woocommerce__wrapper">';
 	}
 
 	/**

@@ -48,7 +48,7 @@ class Cart {
 
 		$cart_count = \WC()->cart->get_cart_contents_count();
 
-		$fragments['span.cart-count'] = '<span class="cart-count">' . esc_html( (string) $cart_count ) . '</span>';
+		$fragments['span.aggressive-apparel-cart__count'] = '<span class="aggressive-apparel-cart aggressive-apparel-cart__count">' . esc_html( (string) $cart_count ) . '</span>';
 
 		return $fragments;
 	}

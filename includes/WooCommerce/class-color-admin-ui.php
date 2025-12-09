@@ -396,7 +396,7 @@ class Color_Admin_UI {
 		if ( ! $pattern_id ) {
 			// No pattern set, show placeholder.
 			printf(
-				'<div class="color-pattern-placeholder" style="width: 30px; height: 30px; border: 1px dashed #ddd; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #f8f9fa;" title="%s">?</div>',
+				'<div class="aggressive-apparel-color-admin__pattern-placeholder" style="width: 30px; height: 30px; border: 1px dashed #ddd; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #f8f9fa;" title="%s">?</div>',
 				esc_attr__( 'No pattern set', 'aggressive-apparel' )
 			);
 			return;
@@ -408,7 +408,7 @@ class Color_Admin_UI {
 		if ( $thumbnail_url && $term instanceof \WP_Term ) {
 			/* translators: %s: color term name */
 			printf(
-				'<img src="%s" alt="%s" class="color-pattern-preview" style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%%; border: 1px solid #ccc;" title="%s" />',
+				'<img src="%s" alt="%s" class="aggressive-apparel-color-admin__pattern-preview" style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%%; border: 1px solid #ccc;" title="%s" />',
 				esc_url( $thumbnail_url ),
 				/* translators: %s: color term name */
 				esc_attr( sprintf( __( 'Pattern preview for %s', 'aggressive-apparel' ), $term->name ) ),
@@ -418,7 +418,7 @@ class Color_Admin_UI {
 		} else {
 			// Fallback if image doesn't exist.
 			printf(
-				'<div class="color-pattern-error" style="width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #fff;" title="%s">!</div>',
+				'<div class="aggressive-apparel-color-admin__pattern-error" style="width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; background: #fff;" title="%s">!</div>',
 				esc_attr__( 'Pattern image not found', 'aggressive-apparel' )
 			);
 		}
@@ -446,7 +446,7 @@ class Color_Admin_UI {
 
 		// Output color swatch with inline styling.
 		printf(
-			'<div class="color-swatch" style="background-color: %s; width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center;" title="%s"></div>',
+			'<div class="aggressive-apparel-color-admin__swatch" style="background-color: %s; width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center;" title="%s"></div>',
 			esc_attr( $color_value ),
 			esc_attr( $color_value )
 		);

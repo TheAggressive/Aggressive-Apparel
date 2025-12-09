@@ -103,85 +103,116 @@ class Color_Block_Swatch_Manager {
 	 * @return string Modified block content.
 	 */
 	private function inject_swatches_with_html_processor( string $block_content ): string {
-		// Use regex to find and replace label elements with color swatches.
-		$pattern = '/<label[^>]*class="[^"]*wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill[^"]*"[^>]*>(.*?)<\/label>/s';
-
-		$result = preg_replace_callback(
-			$pattern,
-			function ( $matches ) {
-				$label_content = $matches[0];
-				$inner_content = $matches[1];
-
-				// Extract the color value from the input.
-				if ( preg_match( '/name="attribute_pa_color"\s+value="([^"]*)"/', $inner_content, $input_matches ) ) {
-					$color_slug = $input_matches[1];
-
-					// Get color term and value.
-					$color_term = get_term_by( 'slug', $color_slug, 'pa_color' );
-
-					if ( $color_term ) {
-						$color_data = $this->get_color_display_data_for_term( $color_term );
-
-						if ( $color_data['is_valid'] && ! empty( $color_data['value'] ) ) {
-							// Create accessible swatch HTML.
-							$aria_label = sprintf(
-								/* translators: %s: color name */
-								__( 'Color option: %s', 'aggressive-apparel' ),
-								$color_term->name
-							);
-
-							$classes = 'aggressive-apparel-color-swatch aggressive-apparel-color-swatch--interactive';
-							if ( $this->show_label ) {
-								$classes .= ' aggressive-apparel-color-swatch--with-label';
-							}
-
-							// Different styling based on color type.
-							if ( 'pattern' === $color_data['type'] ) {
-								$classes         .= ' aggressive-apparel-color-swatch--pattern';
-								$background_style = 'background-image: url(\'' . esc_url( $color_data['value'] ) . '\');';
-								$data_attributes  = 'data-pattern-url="' . esc_attr( $color_data['value'] ) . '"';
-							} else {
-								$background_style = 'background-color: ' . esc_attr( $color_data['value'] ) . ';';
-								$data_attributes  = 'data-color="' . esc_attr( $color_data['value'] ) . '"';
-							}
-
-							$swatch_html = '<span class="' . esc_attr( $classes ) . ' aggressive-apparel-color-swatch__circle" ' .
-								'style="' . $background_style . '" ' .
-								'aria-label="' . esc_attr( $aria_label ) . '" ' .
-								'role="img" ' .
-								'tabindex="0" ' .
-								'title="' . esc_attr( $color_term->name ) . '" ' .
-								$data_attributes . ' ' .
-								'data-color-name="' . esc_attr( $color_term->name ) . '">' .
-								'</span>';
-
-							// Modify the label content based on show_label setting.
-							if ( ! $this->show_label ) {
-								// Replace content after input tag with swatch.
-								$modified_content = preg_replace( '/(<input[^>]*>)(.*?)<\/label>$/s', '$1' . $swatch_html . '</label>', $label_content );
-							} else {
-								// Insert swatch after input tag, keep text.
-								$modified_content = preg_replace( '/(<input[^>]*>)/', '$1' . $swatch_html, $label_content, 1 );
-							}
-
-							// Ensure we have valid content.
-							if ( null === $modified_content ) {
-								$modified_content = $label_content;
-							}
-
-							return $modified_content;
-						}
-					}
-				}
-
-				// Return unchanged if no color processing needed.
-				return $label_content;
-			},
-			$block_content
+		$dom    = new \DOMDocument();
+		$loaded = $dom->loadHTML(
+			$block_content,
+			LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
 		);
 
-		// Ensure we always return a string, even if preg_replace_callback fails.
-		return ( null !== $result ) ? $result : $block_content;
+		if ( ! $loaded ) {
+			return $block_content;
+		}
+
+		$labels   = $dom->getElementsByTagName( 'label' );
+		$modified = false;
+
+		// NodeList is live, so copy to array before mutations.
+		$label_nodes = array();
+		foreach ( $labels as $label ) {
+			$label_nodes[] = $label;
+		}
+
+		foreach ( $label_nodes as $label ) {
+			$class_attr = $label->getAttribute( 'class' );
+			if ( false === strpos( $class_attr, 'wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill' ) ) {
+				continue;
+			}
+
+			$inputs = $label->getElementsByTagName( 'input' );
+			if ( 0 === $inputs->length ) {
+				continue;
+			}
+
+			$target_input = null;
+			foreach ( $inputs as $input ) {
+				if ( 'attribute_pa_color' === $input->getAttribute( 'name' ) ) {
+					$target_input = $input;
+					break;
+				}
+			}
+
+			if ( ! $target_input ) {
+				continue;
+			}
+
+			$color_slug = $target_input->getAttribute( 'value' );
+			if ( ! $color_slug ) {
+				continue;
+			}
+
+			$color_term = get_term_by( 'slug', $color_slug, 'pa_color' );
+			if ( ! $color_term ) {
+				continue;
+			}
+
+			$color_data = $this->get_color_display_data_for_term( $color_term );
+			if ( ! $color_data['is_valid'] || empty( $color_data['value'] ) ) {
+				continue;
+			}
+
+			$aria_label = sprintf(
+				/* translators: %s: color name */
+				__( 'Color option: %s', 'aggressive-apparel' ),
+				$color_term->name
+			);
+
+			$classes = 'aggressive-apparel-color-swatch aggressive-apparel-color-swatch--interactive';
+			if ( $this->show_label ) {
+				$classes .= ' aggressive-apparel-color-swatch--with-label';
+			}
+
+			$swatch = $dom->createElement( 'span' );
+			$swatch->setAttribute( 'class', $classes . ' aggressive-apparel-color-swatch__circle' );
+			$swatch->setAttribute( 'aria-label', $aria_label );
+			$swatch->setAttribute( 'role', 'img' );
+			$swatch->setAttribute( 'tabindex', '0' );
+			$swatch->setAttribute( 'title', $color_term->name );
+			$swatch->setAttribute( 'data-color-name', $color_term->name );
+
+			if ( 'pattern' === $color_data['type'] ) {
+				$swatch->setAttribute( 'data-pattern-url', $color_data['value'] );
+				$swatch->setAttribute( 'style', 'background-image: url(' . esc_url( $color_data['value'] ) . ');' );
+				$swatch->setAttribute( 'class', $swatch->getAttribute( 'class' ) . ' aggressive-apparel-color-swatch--pattern' );
+			} else {
+				$swatch->setAttribute( 'data-color', $color_data['value'] );
+				$swatch->setAttribute( 'style', 'background-color: ' . esc_attr( $color_data['value'] ) . ';' );
+			}
+
+			// Preserve original label text (trimmed) to re-append when show_label is true.
+			$label_text = trim( $label->textContent ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+			// Rebuild label content: input + swatch (+ text when configured).
+			while ( $label->firstChild ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$label->removeChild( $label->firstChild ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			}
+
+			$label->appendChild( $target_input->cloneNode( true ) );
+			$label->appendChild( $swatch );
+
+			if ( $this->show_label && '' !== $label_text ) {
+				$label->appendChild( $dom->createTextNode( $label_text ) );
+			}
+
+			$modified = true;
+		}
+
+		if ( ! $modified ) {
+			return $block_content;
+		}
+
+		$output = $dom->saveHTML();
+
+		return $output ? $output : $block_content;
 	}
 
 	/**

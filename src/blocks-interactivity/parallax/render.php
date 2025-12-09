@@ -108,28 +108,29 @@ foreach ( $css_vars as $property => $value ) {
 // Build wrapper classes.
 $classes = array(
 	'wp-block-aggressive-apparel-parallax',
-	'parallax-direction-' . $parallax_direction,
+	'aggressive-apparel-parallax',
+	'aggressive-apparel-parallax--direction-' . $parallax_direction,
 );
 
 if ( $enable_mouse_interaction ) {
-	$classes[] = 'has-mouse-interaction';
+	$classes[] = 'aggressive-apparel-parallax--mouse-interaction';
 }
 
 if ( $debug_mode ) {
-	$classes[] = 'debug-mode';
+	$classes[] = 'aggressive-apparel-parallax--debug';
 }
 
 	// Get wrapper attributes with Interactivity API integration.
 	$wrapper_attributes = get_block_wrapper_attributes(
 		array(
-			'class'                          => implode( ' ', $classes ),
-			'data-wp-interactive'            => 'aggressive-apparel/parallax',
-			'data-wp-context'                => wp_json_encode( $context ),
-			'data-wp-init'                   => 'callbacks.initParallax',
-			'data-wp-class--is-intersecting' => 'state.isIntersecting',
-			'data-wp-class--has-initialized' => 'state.hasInitialized',
-			'data-wp-class--debug-mode'      => 'state.debugMode',
-			'style'                          => $style_string,
+			'class'               => implode( ' ', $classes ),
+			'data-wp-interactive' => 'aggressive-apparel/parallax',
+			'data-wp-context'     => wp_json_encode( $context ),
+			'data-wp-init'        => 'callbacks.initParallax',
+			'data-wp-class--aggressive-apparel-parallax--intersecting' => 'state.isIntersecting',
+			'data-wp-class--aggressive-apparel-parallax--initialized' => 'state.hasInitialized',
+			'data-wp-class--aggressive-apparel-parallax--debug' => 'state.debugMode',
+			'style'               => $style_string,
 		)
 	);
 
@@ -138,31 +139,31 @@ if ( $debug_mode ) {
 	$inner_content = $content;
 
 	// Debug overlay (always present, but conditionally visible).
-	$debug_overlay = '<div class="parallax-debug-overlay" data-wp-html="callbacks.getDebugInfo" data-wp-class--hidden="!context.debugMode"></div>';
+	$debug_overlay = '<div class="aggressive-apparel-parallax__debug-overlay" data-wp-html="callbacks.getDebugInfo" data-wp-class--hidden="!context.debugMode"></div>';
 
 	// Build final HTML structure.
 	printf(
 		'<div %s data-instance-id="%s">
-    		<div class="parallax-container">
-				<div class="parallax-visual-layer"></div>
-				<div class="parallax-content-layer">
-    			<div class="parallax-content">
-				</div>%s</div>
-    			%s
-    		</div>
-    	</div>',
+			<div class="aggressive-apparel-parallax__container">
+				<div class="aggressive-apparel-parallax__visual-layer"></div>
+				<div class="aggressive-apparel-parallax__content-layer">
+					<div class="aggressive-apparel-parallax__content">%s</div>
+					%s
+				</div>
+			</div>
+		</div>',
 		wp_kses(
 			$wrapper_attributes,
 			array(
-				'class'                          => array(),
-				'id'                             => array(),
-				'style'                          => array(),
-				'data-wp-interactive'            => array(),
-				'data-wp-context'                => array(),
-				'data-wp-init'                   => array(),
-				'data-wp-class--is-intersecting' => array(),
-				'data-wp-class--has-initialized' => array(),
-				'data-wp-class--debug-mode'      => array(),
+				'class'               => array(),
+				'id'                  => array(),
+				'style'               => array(),
+				'data-wp-interactive' => array(),
+				'data-wp-context'     => array(),
+				'data-wp-init'        => array(),
+				'data-wp-class--aggressive-apparel-parallax--intersecting' => array(),
+				'data-wp-class--aggressive-apparel-parallax--initialized' => array(),
+				'data-wp-class--aggressive-apparel-parallax--debug' => array(),
 			)
 		),
 		esc_attr( $parallax_instance_id ),

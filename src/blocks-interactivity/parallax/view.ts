@@ -1,6 +1,11 @@
 /// <reference types="@wordpress/interactivity" />
 import { getContext, getElement, store } from '@wordpress/interactivity';
 import {
+  applyParallaxDefaults,
+  getParallaxConfig,
+  shouldMonitorPerformance,
+} from './config';
+import {
   activeDebugBlocks,
   removeDebugOverlays as removeDebugOverlaysImpl,
   updateDebugContainerPosition as updateDebugContainerPositionImpl,
@@ -28,49 +33,20 @@ import {
 // =============================================================================
 
 /**
- * Initialize parallax context with proper defaults
+ * Initialize parallax context with proper defaults and validation.
  */
-const initializeParallaxContext = (context: ParallaxContext): void => {
-  // Ensure context has all required properties with fallbacks
-  context.intensity = context?.intensity ?? 50;
-  context.visibilityTrigger = context?.visibilityTrigger ?? 0.3;
-  context.detectionBoundary = context?.detectionBoundary ?? {
-    top: '0%',
-    right: '0%',
-    bottom: '0%',
-    left: '0%',
-  };
-  context.enableMouseInteraction = context?.enableMouseInteraction ?? false;
-  context.debugMode = context?.debugMode ?? false;
-
-  // New attributes defaults
-  context.parallaxDirection = context?.parallaxDirection ?? 'down';
-  context.mouseInfluenceMultiplier = context?.mouseInfluenceMultiplier ?? 0.5;
-  context.maxMouseTranslation = context?.maxMouseTranslation ?? 20;
-  context.mouseSensitivityThreshold =
-    context?.mouseSensitivityThreshold ?? 0.001;
-  context.depthIntensityMultiplier = context?.depthIntensityMultiplier ?? 50;
-  context.transitionDuration = context?.transitionDuration ?? 0.1;
-  context.perspectiveDistance = context?.perspectiveDistance ?? 1000;
-  context.maxMouseRotation = context?.maxMouseRotation ?? 5;
-  context.parallaxDepth = context?.parallaxDepth ?? 1.0;
-
-  // Runtime state - ensure these exist
-  context.isIntersecting = context.isIntersecting ?? false;
-  context.intersectionRatio = context.intersectionRatio ?? 0;
-  context.hasInitialized = context.hasInitialized ?? false;
-  context.scrollProgress = context.scrollProgress ?? 0;
-  context.mouseX = context.mouseX ?? 0.5;
-  context.mouseY = context.mouseY ?? 0.5;
-  context.previousProgress = context.previousProgress ?? 0;
-  // Configuration validation
-  const validation = validateConfiguration(context);
+const initializeParallaxContext = (
+  context: ParallaxContext
+): ParallaxContext => {
+  const ctxWithDefaults = applyParallaxDefaults(context);
+  const validation = validateConfiguration(ctxWithDefaults);
   if (!validation.isValid) {
     ParallaxLogger.error(
       'Parallax configuration validation failed:',
       validation.errors
     );
   }
+  return ctxWithDefaults;
 };
 
 // =============================================================================
@@ -93,7 +69,7 @@ const { state, actions } = store('aggressive-apparel/parallax', {
     previousTop: 0,
     previousScrollY: 0,
     entryHeight: 0,
-    ctx: {} as ParallaxContext,
+    ctx: applyParallaxDefaults({}),
     resizeTimeout: null as number | null,
     scrollDirection: 'down' as 'up' | 'down',
     velocity: 0,
@@ -157,15 +133,24 @@ const { state, actions } = store('aggressive-apparel/parallax', {
 
     // Performance monitoring
     updatePerformance: () => {
-      // @ts-ignore
-      if (!state.ctx.debugMode || !state.ctx.id || !state.elementRef) return;
+      const ctxConfig = getParallaxConfig(state.ctx);
+      if (
+        !shouldMonitorPerformance(state.ctx) ||
+        !state.ctx.id ||
+        !state.elementRef
+      ) {
+        return;
+      }
 
       const now = performance.now();
-      const TARGET_FRAME_TIME = 16.67;
-      const MAX_FRAME_TIME = 33.33;
-      const FRAME_TIME_WINDOW = 60;
-      const LAG_THRESHOLD = 0.2;
-      const JITTER_THRESHOLD = 5;
+      const {
+        TARGET_FRAME_TIME,
+        MAX_FRAME_TIME,
+        FRAME_TIME_WINDOW,
+        LAG_THRESHOLD,
+        JITTER_THRESHOLD,
+        UPDATE_INTERVAL_MS,
+      } = ctxConfig.PERFORMANCE;
 
       if (state.lastFrameTime > 0) {
         const frameTime = now - state.lastFrameTime;
@@ -217,7 +202,7 @@ const { state, actions } = store('aggressive-apparel/parallax', {
           state.performanceStatus = 'good';
         }
 
-        if (now >= state.lastPerformanceUpdate + 200) {
+        if (now >= state.lastPerformanceUpdate + UPDATE_INTERVAL_MS) {
           state.lastPerformanceUpdate = now;
           // @ts-ignore
           const panelId = `wp-block-parallax-debug-panel-${state.ctx.id}`;
@@ -276,7 +261,7 @@ const { state, actions } = store('aggressive-apparel/parallax', {
      */
     initParallax: () => {
       try {
-        const ctx = getContext<ParallaxContext>();
+        let ctx = getContext<ParallaxContext>();
         const { ref } = getElement();
 
         if (!ref) {
@@ -302,35 +287,37 @@ const { state, actions } = store('aggressive-apparel/parallax', {
         }
 
         // Initialize context with defaults
-        initializeParallaxContext(ctx);
+        const ctxWithDefaults = initializeParallaxContext(ctx);
+        ctx = ctxWithDefaults;
 
         // Initialize element state for debug
-        initializeElementState(ctx, ref, state);
+        initializeElementState(ctxWithDefaults, ref, state);
 
         // Update state with context
-        state.isIntersecting = ctx.isIntersecting;
-        state.debugMode = ctx.debugMode;
+        state.isIntersecting = ctxWithDefaults.isIntersecting;
+        state.debugMode = ctxWithDefaults.debugMode;
         state.elementRef = ref; // Store ref for use in animation loops
+        state.ctx = ctxWithDefaults;
 
         // Setup and start IntersectionObserver
         const observer = initializeIntersectionObserver(
-          ctx,
+          ctxWithDefaults,
           ref,
           state,
           actions
         );
 
         // Add mouse interaction class to container if enabled
-        if (ctx.enableMouseInteraction) {
-          ref.classList.add('has-mouse-interaction');
+        if (ctxWithDefaults.enableMouseInteraction) {
+          ref.classList.add('aggressive-apparel-parallax--mouse-interaction');
         }
 
         // Apply perspective distance to container for 3D transforms
         const parallaxContainer = ref.querySelector(
-          '.parallax-container'
+          '.aggressive-apparel-parallax__container'
         ) as HTMLElement;
         if (parallaxContainer) {
-          const perspectiveValue = ctx.perspectiveDistance ?? 1000;
+          const perspectiveValue = ctxWithDefaults.perspectiveDistance ?? 1000;
           parallaxContainer.style.setProperty(
             '--parallax-perspective',
             `${perspectiveValue}px`
@@ -338,15 +325,15 @@ const { state, actions } = store('aggressive-apparel/parallax', {
         }
 
         // Initialize debug mode if enabled
-        if (ctx.debugMode) {
+        if (ctxWithDefaults.debugMode) {
           actions.debug();
         }
 
         // Setup debug event listeners if needed
         let cleanupDebugListeners: (() => void) | undefined;
-        if (ctx.debugMode) {
+        if (ctxWithDefaults.debugMode) {
           cleanupDebugListeners = setupDebugEventListeners(
-            ctx,
+            ctxWithDefaults,
             ref,
             state,
             actions
@@ -356,15 +343,13 @@ const { state, actions } = store('aggressive-apparel/parallax', {
         // Initialize scroll progress for first render using stateless logic
         const { progress } = calculateProgressWithinBoundary(
           ref,
-          ctx.detectionBoundary,
-          ctx.visibilityTrigger
+          ctxWithDefaults.detectionBoundary,
+          ctxWithDefaults.visibilityTrigger
         );
-        ctx.scrollProgress = progress;
+        ctxWithDefaults.scrollProgress = progress;
 
-        // Apply initial transforms only if element is intersecting
-        if (ctx.isIntersecting) {
-          applyParallaxTransformsDirect(ctx, ref);
-        }
+        // Apply initial transforms so effects (e.g., scroll opacity) start at correct state
+        applyParallaxTransformsDirect(ctxWithDefaults, ref);
 
         // Set up window scroll listener for continuous parallax updates
         let scrollRafId: number | null = null;
@@ -378,10 +363,10 @@ const { state, actions } = store('aggressive-apparel/parallax', {
             // Calculate progress within Detection Boundary zone using stateless logic
             const { progress } = calculateProgressWithinBoundary(
               ref,
-              ctx.detectionBoundary,
-              ctx.visibilityTrigger
+              ctxWithDefaults.detectionBoundary,
+              ctxWithDefaults.visibilityTrigger
             );
-            ctx.scrollProgress = progress;
+            ctxWithDefaults.scrollProgress = progress;
 
             // Update direction and velocity
             const now = performance.now();
@@ -403,8 +388,12 @@ const { state, actions } = store('aggressive-apparel/parallax', {
             state.previousScrollY = scrollY;
 
             // Apply transforms continuously on scroll only if element is intersecting
-            if (ctx.isIntersecting) {
-              applyParallaxTransformsDirect(ctx, ref, state.velocity);
+            if (ctxWithDefaults.isIntersecting) {
+              applyParallaxTransformsDirect(
+                ctxWithDefaults,
+                ref,
+                state.velocity
+              );
             }
 
             scrollRafId = null;
@@ -641,8 +630,7 @@ const { state, actions } = store('aggressive-apparel/parallax', {
       applyParallaxTransformsDirect(
         ctx,
         container,
-        (state.velocity as number) || 0,
-        state.inertiaAnimations
+        (state.velocity as number) || 0
       );
     },
 

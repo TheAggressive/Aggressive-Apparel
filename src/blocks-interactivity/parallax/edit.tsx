@@ -78,6 +78,10 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
 
   const parallaxSettings = block.attributes.aggressiveApparelParallax;
 
+  if (!parallaxSettings) {
+    return null;
+  }
+
   const updateParallaxSetting = (key: string, value: any) => {
     updateBlockAttributes(clientId, {
       aggressiveApparelParallax: {
@@ -634,8 +638,8 @@ function Edit({
       </InspectorControls>
 
       <div {...blockProps}>
-        <div className='parallax-container'>
-          <div className='parallax-content'>
+        <div className='aggressive-apparel-parallax__container'>
+          <div className='aggressive-apparel-parallax__content'>
             <InnerBlocks />
           </div>
         </div>

@@ -34,9 +34,9 @@ export const applyParallaxTransformsDirect = (
     const rotateX = (mouseY - 0.5) * maxRotation * 2; // Full range
     const rotateY = (mouseX - 0.5) * -maxRotation * 2; // Full range
 
-    // Find the parallax-container element to set rotation variables
+    // Find the parallax container element to set rotation variables
     const parallaxContainer = container.querySelector(
-      '.parallax-container'
+      '.aggressive-apparel-parallax__container'
     ) as HTMLElement;
     if (parallaxContainer) {
       parallaxContainer.style.setProperty(
@@ -56,7 +56,7 @@ export const applyParallaxTransformsDirect = (
   } else {
     // Reset container rotation when disabled
     const parallaxContainer = container.querySelector(
-      '.parallax-container'
+      '.aggressive-apparel-parallax__container'
     ) as HTMLElement;
     if (parallaxContainer) {
       parallaxContainer.style.setProperty('--parallax-card-rotate-x', '0deg');

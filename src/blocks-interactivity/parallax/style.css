@@ -7,14 +7,15 @@
  */
 
 /* Parallax container base styles */
-.wp-block-aggressive-apparel-parallax {
+.wp-block-aggressive-apparel-parallax,
+.aggressive-apparel-parallax {
 	position: relative;
 	overflow: visible;
 	min-height: 100px;
 	perspective: var(--parallax-perspective, 1000px);
 }
 
-.parallax-container {
+.aggressive-apparel-parallax__container {
 	position: relative;
 	width: 100%;
 	height: 100%;
@@ -24,7 +25,7 @@
 }
 
 /* 3D Card Effect - Container rotates in 3D space when mouse interaction enabled */
-.has-mouse-interaction .parallax-container {
+.aggressive-apparel-parallax--mouse-interaction .aggressive-apparel-parallax__container {
 	transform:
 		rotateX(var(--parallax-card-rotate-x, 0deg))
 		rotateY(var(--parallax-card-rotate-y, 0deg));
@@ -32,7 +33,7 @@
 	pointer-events: none; /* Ensure container doesn't block clicks even with 3D transforms */
 }
 
-.parallax-content {
+.aggressive-apparel-parallax__content {
 	position: relative;
 	width: 100%;
 	height: 100%;
@@ -43,14 +44,14 @@
 }
 
 /* Ensure all child elements and interactive elements remain clickable */
-.parallax-content > *,
-.parallax-content a,
-.parallax-content button,
-.parallax-content input,
-.parallax-content select,
-.parallax-content textarea,
-.parallax-content [role="button"],
-.parallax-content [tabindex] {
+.aggressive-apparel-parallax__content > *,
+.aggressive-apparel-parallax__content a,
+.aggressive-apparel-parallax__content button,
+.aggressive-apparel-parallax__content input,
+.aggressive-apparel-parallax__content select,
+.aggressive-apparel-parallax__content textarea,
+.aggressive-apparel-parallax__content [role="button"],
+.aggressive-apparel-parallax__content [tabindex] {
 	pointer-events: auto;
 }
 
@@ -82,7 +83,7 @@
 }
 
 /* Enhanced transforms when mouse interaction is enabled */
-.has-mouse-interaction [data-parallax-enabled="true"] {
+.aggressive-apparel-parallax--mouse-interaction [data-parallax-enabled="true"] {
 	transform:
 		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
 		translate(var(--parallax-mouse-x, 0), var(--parallax-mouse-y, 0))
@@ -90,38 +91,38 @@
 }
 
 /* Parallax layer styles */
-.parallax-layer {
+.aggressive-apparel-parallax__layer {
 	position: relative;
 	will-change: transform;
 	transition: transform 0.1s ease-out;
 }
 
 /* Different layer weights for varying parallax speeds */
-.parallax-layer--foreground {
+.aggressive-apparel-parallax__layer--foreground {
 	z-index: 10;
 }
 
-.parallax-layer--mid {
+.aggressive-apparel-parallax__layer--mid {
 	z-index: 5;
 }
 
-.parallax-layer--background {
+.aggressive-apparel-parallax__layer--background {
 	z-index: 1;
 }
 
 /* Debug overlay styles */
-.parallax-debug-overlay {
+.aggressive-apparel-parallax__debug-overlay {
 	position: relative;
 	pointer-events: none;
 	z-index: 1000;
 }
 
-.parallax-debug-overlay.hidden {
+.aggressive-apparel-parallax__debug-overlay.hidden {
 	display: none;
 }
 
 /* Fallback content styles */
-.parallax-fallback {
+.aggressive-apparel-parallax__fallback {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -138,7 +139,8 @@
 /* Responsive adjustments */
 @media (width <= 768px) {
 
-	.wp-block-aggressive-apparel-parallax.disable-on-mobile .parallax-layer {
+	.wp-block-aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer,
+	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer {
 		transform: none !important;
 	}
 }
@@ -146,7 +148,7 @@
 /* Performance optimizations */
 @media (prefers-reduced-motion: reduce) {
 
-	.parallax-layer {
+	.aggressive-apparel-parallax__layer {
 		transition: none !important;
 		will-change: auto !important;
 		transform: none !important;

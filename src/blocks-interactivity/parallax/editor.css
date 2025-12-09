@@ -7,25 +7,26 @@
  */
 
 /* Editor-specific styles */
-.wp-block-aggressive-apparel-parallax {
+.wp-block-aggressive-apparel-parallax,
+.aggressive-apparel-parallax {
 	min-height: 150px;
 	position: relative;
 }
 
-.parallax-container {
+.aggressive-apparel-parallax__container {
 	min-height: 100px;
 }
 
-.parallax-content {
+.aggressive-apparel-parallax__content {
 	position: relative;
 }
 
 /* Layer indicators in editor */
-.parallax-layer {
+.aggressive-apparel-parallax__layer {
 	position: relative;
 }
 
-.parallax-layer::before {
+.aggressive-apparel-parallax__layer::before {
 	content: "Layer";
 	position: absolute;
 	top: -8px;
@@ -39,7 +40,7 @@
 }
 
 /* Debug mode indicator */
-.debug-mode::after {
+.aggressive-apparel-parallax--debug::after {
 	content: "🔧 DEBUG MODE";
 	position: absolute;
 	top: 8px;
@@ -54,7 +55,7 @@
 }
 
 /* Fallback content in editor */
-.parallax-fallback {
+.aggressive-apparel-parallax__fallback {
 	background: #f0f0f0;
 	border: 2px dashed #bbb;
 	color: #666;
@@ -63,12 +64,12 @@
 }
 
 /* Intersection observer indicator */
-.is-intersecting {
+.aggressive-apparel-parallax--intersecting {
 	border-color: #46b450;
 	background: rgb(70 180 80 / 5%);
 }
 
-.is-intersecting::after {
+.aggressive-apparel-parallax--intersecting::after {
 	content: "👁️ IN VIEW";
 	position: absolute;
 	bottom: 8px;
@@ -82,7 +83,7 @@
 }
 
 /* Mouse interaction indicator */
-.has-mouse-interaction::before {
+.aggressive-apparel-parallax--mouse-interaction::before {
 	content: "🖱️";
 	position: absolute;
 	bottom: 8px;
@@ -100,7 +101,7 @@
 }
 
 /* Direction indicator */
-.parallax-direction-up::after {
+.aggressive-apparel-parallax--direction-up::after {
 	content: "⬆️ UP";
 	position: absolute;
 	bottom: 8px;
@@ -114,7 +115,7 @@
 	font-weight: 700;
 }
 
-.parallax-direction-down::after {
+.aggressive-apparel-parallax--direction-down::after {
 	content: "⬇️ DOWN";
 	position: absolute;
 	bottom: 8px;
@@ -128,7 +129,7 @@
 	font-weight: 700;
 }
 
-.parallax-direction-both::after {
+.aggressive-apparel-parallax--direction-both::after {
 	content: "⬌ BOTH";
 	position: absolute;
 	bottom: 8px;

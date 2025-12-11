@@ -1,0 +1,121 @@
+/**
+ * Responsive Logo Block Styles
+ *
+ * CSS Variables (set inline on block):
+ *   --logo-light-color
+ *   --logo-light-hover
+ *   --logo-dark-color
+ *   --logo-dark-hover
+ *
+ * Uses light-dark() for automatic color scheme switching.
+ * Default display state is set via inline styles on SVGs.
+ */
+
+.aggressive-apparel-logo {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff));
+
+  /* Inner wrapper. */
+  &__inner {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* SVG base styles. */
+  &__svg {
+    fill: currentcolor;
+    height: auto;
+  }
+
+  /* Breakpoint modifiers - responsive switching. */
+  &[data-breakpoint="mobile"] {
+
+    @media (width <= 480px) {
+
+      .aggressive-apparel-logo__svg--large {
+        display: none;
+      }
+
+      .aggressive-apparel-logo__svg--small {
+        display: block;
+      }
+    }
+  }
+
+  &[data-breakpoint="tablet"] {
+
+    @media (width <= 768px) {
+
+      .aggressive-apparel-logo__svg--large {
+        display: none;
+      }
+
+      .aggressive-apparel-logo__svg--small {
+        display: block;
+      }
+    }
+  }
+
+  &[data-breakpoint="desktop"] {
+
+    @media (width <= 1024px) {
+
+      .aggressive-apparel-logo__svg--large {
+        display: none !important;
+      }
+
+      .aggressive-apparel-logo__svg--small {
+        display: block !important;
+      }
+    }
+  }
+}
+
+/**
+ * Link styles - uses !important to override WordPress core global link styles.
+ * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--primary) }
+ */
+.aggressive-apparel-logo > a {
+  display: inline-flex;
+  align-items: center;
+  color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease;
+
+  &:visited {
+    color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
+  }
+
+  &:hover,
+  &:focus {
+    color: light-dark(var(--logo-light-hover, #333), var(--logo-dark-hover, #ccc)) !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 4px;
+  }
+}
+
+/* Block alignment. */
+.wp-block-aggressive-apparel-logo {
+
+  &.alignleft {
+    float: left;
+    margin-right: 1rem;
+  }
+
+  &.alignright {
+    float: right;
+    margin-left: 1rem;
+  }
+
+  &.aligncenter,
+  &.alignwide,
+  &.alignfull {
+    display: flex;
+    justify-content: center;
+  }
+}

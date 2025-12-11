@@ -1,0 +1,82 @@
+/**
+ * Editor styles for Responsive Logo Block.
+ *
+ * Uses nested BEM for consistency with style.css.
+ */
+
+.aggressive-apparel-logo {
+  display: inline-flex;
+  align-items: center;
+
+  /* SVG wrapper in editor preview. */
+  &__svg-wrapper {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  /* Preview mode toggle buttons. */
+  &__preview-toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e1e1e;
+    }
+  }
+
+  /* Mode toggle button. */
+  &__mode-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1e1e1e;
+    cursor: pointer;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: #e0e0e0;
+    }
+
+    &.is-active {
+      color: #fff;
+      background: #007cba;
+      border-color: #007cba;
+    }
+  }
+
+  /* Size settings group. */
+  &__size-group {
+    padding: 12px;
+    margin-bottom: 16px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+
+    h4 {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e1e1e;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

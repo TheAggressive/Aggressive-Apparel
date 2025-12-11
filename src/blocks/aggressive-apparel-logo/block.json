@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/aggressive-apparel-logo",
+  "version": "1.0.0",
+  "title": "Aggressive Apparel Logo",
+  "category": "theme",
+  "description": "Display responsive logo with light/dark mode color support and configurable breakpoint.",
+  "keywords": ["logo", "brand", "responsive", "dark mode"],
+  "supports": {
+    "align": ["left", "center", "right", "wide", "full"],
+    "html": false,
+    "reusable": false,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "alt": {
+      "type": "string",
+      "default": "Aggressive Apparel"
+    },
+    "lightColor": {
+      "type": "string",
+      "default": "#000000"
+    },
+    "lightHoverColor": {
+      "type": "string",
+      "default": "#333333"
+    },
+    "darkColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "darkHoverColor": {
+      "type": "string",
+      "default": "#cccccc"
+    },
+    "breakpoint": {
+      "type": "string",
+      "enum": ["mobile", "tablet", "desktop"],
+      "default": "tablet"
+    },
+    "largeWidth": {
+      "type": "number",
+      "default": 200
+    },
+    "largeHeight": {
+      "type": "number"
+    },
+    "smallWidth": {
+      "type": "number",
+      "default": 48
+    },
+    "smallHeight": {
+      "type": "number"
+    },
+    "linkToHome": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

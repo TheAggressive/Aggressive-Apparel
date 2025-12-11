@@ -108,6 +108,7 @@ class Bootstrap {
 		header( 'Permissions-Policy: geolocation=(), microphone=(), camera=()' );
 	}
 
+
 	/**
 	 * Constructor
 	 */

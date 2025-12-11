@@ -29,17 +29,20 @@
     height: auto;
   }
 
-  /* Breakpoint modifiers - responsive switching. */
+  /**
+   * Breakpoint modifiers - responsive switching.
+   * Uses !important to override inline styles set on SVGs.
+   */
   &[data-breakpoint="mobile"] {
 
     @media (width <= 480px) {
 
       .aggressive-apparel-logo__svg--large {
-        display: none;
+        display: none !important;
       }
 
       .aggressive-apparel-logo__svg--small {
-        display: block;
+        display: block !important;
       }
     }
   }
@@ -49,11 +52,11 @@
     @media (width <= 768px) {
 
       .aggressive-apparel-logo__svg--large {
-        display: none;
+        display: none !important;
       }
 
       .aggressive-apparel-logo__svg--small {
-        display: block;
+        display: block !important;
       }
     }
   }
@@ -71,51 +74,30 @@
       }
     }
   }
-}
 
-/**
- * Link styles - uses !important to override WordPress core global link styles.
- * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--primary) }
- */
-.aggressive-apparel-logo > a {
-  display: inline-flex;
-  align-items: center;
-  color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
-  text-decoration: none !important;
-  transition: color 0.2s ease;
-
-  &:visited {
+  /**
+   * Link styles - uses !important to override WordPress core global link styles.
+   * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--primary) }
+   */
+  & > a {
+    display: inline-flex;
+    align-items: center;
     color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
-  }
+    text-decoration: none !important;
+    transition: color 0.2s ease;
 
-  &:hover,
-  &:focus {
-    color: light-dark(var(--logo-light-hover, #333), var(--logo-dark-hover, #ccc)) !important;
-  }
+    &:visited {
+      color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
+    }
 
-  &:focus-visible {
-    outline: 2px solid currentcolor;
-    outline-offset: 4px;
-  }
-}
+    &:hover,
+    &:focus {
+      color: light-dark(var(--logo-light-hover, #333), var(--logo-dark-hover, #ccc)) !important;
+    }
 
-/* Block alignment. */
-.wp-block-aggressive-apparel-logo {
-
-  &.alignleft {
-    float: left;
-    margin-right: 1rem;
-  }
-
-  &.alignright {
-    float: right;
-    margin-left: 1rem;
-  }
-
-  &.aligncenter,
-  &.alignwide,
-  &.alignfull {
-    display: flex;
-    justify-content: center;
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 4px;
+    }
   }
 }

@@ -40,7 +40,7 @@ $small_style = sprintf(
 	$small_height ? $small_height . 'px' : 'auto'
 );
 
-// Inline SVGs.
+// Build inline SVGs with display states set via inline styles.
 $svg_large = sprintf(
 	'<svg class="aggressive-apparel-logo__svg aggressive-apparel-logo__svg--large" style="%s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 675 72" aria-hidden="true"><g fill="currentColor"><polygon points="513,54 525.6,72 525.6,22.7 513,22.7"/><path d="M657,44.9h-27.4c-11.3,0-14.5-0.8-16.6-2.3c-2.1-1.5-3.7-3.7-4.5-6.6H639l18-13.2h-49.3v-9h48.9l18-13.9h-72.8H594h-8.4c0,0-22.7,41-23.1,42.2C561.6,39.9,539.6,0,539.6,0h-10.8h-5.4h-65.7c-16.5,0-25,7.6-25.6,22.8H432h-18h-40.9c0.7-6,3.9-9,9.7-9H414L432,0h-38.8h-7.4H291h-3h-72v22.8h-36L198,36h6.4v8.9h-46.7V29.9c0-3.1,0.2-5.7,0.7-7.7c0.5-2.1,1.2-3.7,2.4-4.9c1.1-1.2,2.6-2.1,4.5-2.6c1.9-0.5,4.3-0.8,7.1-0.8H198L216,0h-43.9c-4.5,0-8.5,0.7-12,2c-3.5,1.3-6.4,3.2-8.8,5.8c-2.4,2.5-4.2,5.6-5.4,9.2c-0.6,1.8-1.1,3.8-1.4,5.9H108L126,36h6.4v8.9H85.7V29.9c0-3.1,0.2-5.7,0.7-7.7c0.5-2.1,1.2-3.7,2.4-4.9c1.1-1.2,2.6-2.1,4.5-2.6c1.9-0.5,4.3-0.8,7.1-0.8H126L144,0h-43.9c-4.5,0-8.5,0.7-12,2c-3.5,1.3-6.4,3.2-8.8,5.8c-2.4,2.5-4.2,5.6-5.4,9.2c-0.2,0.5-0.4,1.1-0.5,1.7V0H28.1c-4.5,0-8.4,0.7-11.9,2c-3.5,1.3-6.4,3.2-8.8,5.8C5,10.2,3.2,13.3,1.9,17C0.6,20.6,0,24.7,0,29.3V54l13.7,18V36h45.9v36l10-13.2H144h2.1h73.6l10,13.2V13.9h48c-0.4,2.9-1.4,5.1-3,6.7c-1.6,1.5-3.7,2.3-6.5,2.3H234l45,36h36l0,0c0.4,0,0.8,0,1.3,0H360h18h4h24.4h72c17.1,0,25.6-8.3,25.6-24.8V22.8h-54h-4.9c0.7-6,3.9-9,9.7-9H531L562.5,72L594,14.3v15.3c0,4.5,0.6,8.5,1.9,12.1c1.3,3.6,3.2,6.7,5.6,9.2c2.4,2.5,5.4,4.5,8.9,5.8c3.5,1.4,7.4,2.1,11.8,2.1H675L657,44.9z M59.6,23.1H14.6c0.3-1.3,0.7-2.6,1.3-3.7c0.6-1.1,1.6-2.1,3.1-2.9c1.4-0.8,3.4-1.4,5.9-1.9c2.5-0.4,5.8-0.7,10-0.7h24.8V23.1z M270.2,35.8c8.6-0.9,14.6-4.5,17.8-10.6v4.4c0,4.5,0.6,8.5,1.9,12.1c0.7,2.1,1.7,4,2.8,5.7L270.2,35.8z M389.5,44.9H378h-6.8h-54.7c-4.2,0-7.4-0.8-9.5-2.3c-2.1-1.5-3.7-3.7-4.5-6.6H333l18-13.2h-49.3v-9h59.9c-1.1,3.1-1.6,6.8-1.6,10.9V36h54h4.9c-0.4,2.9-1.4,5.1-3,6.6c-1.6,1.5-3.8,2.3-6.6,2.3H389.5z M450,36h40.9c-0.4,2.9-1.4,5.1-3,6.6c-1.6,1.5-3.8,2.3-6.6,2.3h-50.9c0.9-2.6,1.4-5.6,1.6-8.9h0.1H450z"/></g></svg>',
 	esc_attr( $large_style )
@@ -70,19 +70,25 @@ $wrapper_attrs = get_block_wrapper_attributes(
 );
 
 // Build the inner content.
-$inner_content = sprintf(
-	'<span class="aggressive-apparel-logo__inner" role="img" aria-label="%s">%s%s</span>',
-	esc_attr( $alt ),
-	$svg_large,
-	$svg_small
-);
-
-// Optionally wrap in a link.
+// Includes visually-hidden text for SEO (search engines can read it, users can't see it).
 if ( $link_to_home ) {
+	// Link gets aria-label for accessibility; inner text for SEO.
 	$inner_content = sprintf(
-		'<a href="%s" class="aggressive-apparel-logo__link" rel="home">%s</a>',
+		'<a href="%s" class="aggressive-apparel-logo__link" aria-label="%s" rel="home"><span class="aggressive-apparel-logo__inner">%s%s<span class="screen-reader-text">%s</span></span></a>',
 		esc_url( home_url( '/' ) ),
-		$inner_content
+		esc_attr( $alt ),
+		$svg_large,
+		$svg_small,
+		esc_html( $alt )
+	);
+} else {
+	// No link - use role="img" with aria-label for accessibility; inner text for SEO.
+	$inner_content = sprintf(
+		'<span class="aggressive-apparel-logo__inner" role="img" aria-label="%s">%s%s<span class="screen-reader-text">%s</span></span>',
+		esc_attr( $alt ),
+		$svg_large,
+		$svg_small,
+		esc_html( $alt )
 	);
 }
 

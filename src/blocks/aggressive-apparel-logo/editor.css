@@ -1,12 +1,11 @@
 /**
- * Editor styles for Responsive Logo Block.
+ * Editor-only styles for Responsive Logo Block.
  *
- * Uses nested BEM for consistency with style.css.
+ * Base block styles are in style.css (loaded in both editor and frontend).
+ * This file contains only editor-specific UI elements.
  */
 
 .aggressive-apparel-logo {
-  display: inline-flex;
-  align-items: center;
 
   /* SVG wrapper in editor preview. */
   &__svg-wrapper {

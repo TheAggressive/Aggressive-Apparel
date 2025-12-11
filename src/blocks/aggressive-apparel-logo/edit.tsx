@@ -98,10 +98,13 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
   return (
     <Fragment>
       <InspectorControls>
-        <PanelBody title={__('Light Mode Colors', 'aggressive-apparel')} initialOpen={true}>
+        <PanelBody
+          title={__('Light Mode Colors', 'aggressive-apparel')}
+          initialOpen={true}
+        >
           <PanelColorSettings
             __experimentalIsRenderedInSidebar
-            title=""
+            title=''
             colorSettings={[
               {
                 value: lightColor,
@@ -119,10 +122,13 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
           />
         </PanelBody>
 
-        <PanelBody title={__('Dark Mode Colors', 'aggressive-apparel')} initialOpen={false}>
+        <PanelBody
+          title={__('Dark Mode Colors', 'aggressive-apparel')}
+          initialOpen={false}
+        >
           <PanelColorSettings
             __experimentalIsRenderedInSidebar
-            title=""
+            title=''
             colorSettings={[
               {
                 value: darkColor,
@@ -140,18 +146,21 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
           />
         </PanelBody>
 
-        <PanelBody title={__('Preview', 'aggressive-apparel')} initialOpen={false}>
-          <div className="aggressive-apparel-logo__preview-toggle">
+        <PanelBody
+          title={__('Preview', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <div className='aggressive-apparel-logo__preview-toggle'>
             <span>{__('Mode:', 'aggressive-apparel')}</span>
             <button
-              type="button"
+              type='button'
               className={`aggressive-apparel-logo__mode-btn ${previewMode === 'light' ? 'is-active' : ''}`}
               onClick={() => setPreviewMode('light')}
             >
               {__('Light', 'aggressive-apparel')}
             </button>
             <button
-              type="button"
+              type='button'
               className={`aggressive-apparel-logo__mode-btn ${previewMode === 'dark' ? 'is-active' : ''}`}
               onClick={() => setPreviewMode('dark')}
             >
@@ -160,27 +169,41 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
           </div>
         </PanelBody>
 
-        <PanelBody title={__('Responsive', 'aggressive-apparel')} initialOpen={false}>
+        <PanelBody
+          title={__('Responsive', 'aggressive-apparel')}
+          initialOpen={false}
+        >
           <SelectControl
             label={__('Breakpoint', 'aggressive-apparel')}
             value={breakpoint}
             options={[
-              { label: __('Mobile (480px)', 'aggressive-apparel'), value: 'mobile' },
-              { label: __('Tablet (768px)', 'aggressive-apparel'), value: 'tablet' },
-              { label: __('Desktop (1024px)', 'aggressive-apparel'), value: 'desktop' },
+              {
+                label: __('Mobile (480px)', 'aggressive-apparel'),
+                value: 'mobile',
+              },
+              {
+                label: __('Tablet (768px)', 'aggressive-apparel'),
+                value: 'tablet',
+              },
+              {
+                label: __('Desktop (1024px)', 'aggressive-apparel'),
+                value: 'desktop',
+              },
             ]}
-            onChange={(value) => setAttributes({ breakpoint: value as Breakpoint })}
+            onChange={value =>
+              setAttributes({ breakpoint: value as Breakpoint })
+            }
             help={__('Switch to icon below this width.', 'aggressive-apparel')}
           />
         </PanelBody>
 
         <PanelBody title={__('Size', 'aggressive-apparel')} initialOpen={false}>
-          <div className="aggressive-apparel-logo__size-group">
+          <div className='aggressive-apparel-logo__size-group'>
             <h4>{__('Large Logo', 'aggressive-apparel')}</h4>
             <RangeControl
               label={__('Width', 'aggressive-apparel')}
               value={largeWidth}
-              onChange={(value) => setAttributes({ largeWidth: value ?? 200 })}
+              onChange={value => setAttributes({ largeWidth: value ?? 200 })}
               min={50}
               max={600}
               step={10}
@@ -188,8 +211,10 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
             <RangeControl
               label={__('Height', 'aggressive-apparel')}
               value={largeHeight ?? 0}
-              onChange={(value) =>
-                setAttributes({ largeHeight: value && value > 0 ? value : undefined })
+              onChange={value =>
+                setAttributes({
+                  largeHeight: value && value > 0 ? value : undefined,
+                })
               }
               min={0}
               max={200}
@@ -198,12 +223,12 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
             />
           </div>
 
-          <div className="aggressive-apparel-logo__size-group">
+          <div className='aggressive-apparel-logo__size-group'>
             <h4>{__('Small Logo', 'aggressive-apparel')}</h4>
             <RangeControl
               label={__('Width', 'aggressive-apparel')}
               value={smallWidth}
-              onChange={(value) => setAttributes({ smallWidth: value ?? 48 })}
+              onChange={value => setAttributes({ smallWidth: value ?? 48 })}
               min={24}
               max={150}
               step={4}
@@ -211,8 +236,10 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
             <RangeControl
               label={__('Height', 'aggressive-apparel')}
               value={smallHeight ?? 0}
-              onChange={(value) =>
-                setAttributes({ smallHeight: value && value > 0 ? value : undefined })
+              onChange={value =>
+                setAttributes({
+                  smallHeight: value && value > 0 ? value : undefined,
+                })
               }
               min={0}
               max={150}
@@ -222,23 +249,26 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
           </div>
         </PanelBody>
 
-        <PanelBody title={__('Link & Accessibility', 'aggressive-apparel')} initialOpen={false}>
+        <PanelBody
+          title={__('Link & Accessibility', 'aggressive-apparel')}
+          initialOpen={false}
+        >
           <ToggleControl
             label={__('Link to Home', 'aggressive-apparel')}
             checked={linkToHome}
-            onChange={(value) => setAttributes({ linkToHome: value })}
+            onChange={value => setAttributes({ linkToHome: value })}
           />
           <TextControl
             label={__('Alt Text', 'aggressive-apparel')}
             value={alt}
-            onChange={(value) => setAttributes({ alt: value })}
+            onChange={value => setAttributes({ alt: value })}
           />
         </PanelBody>
       </InspectorControls>
 
       <div {...blockProps}>
         <div
-          className="aggressive-apparel-logo__svg-wrapper"
+          className='aggressive-apparel-logo__svg-wrapper'
           style={{
             color: currentColor,
             width: currentWidth ? `${currentWidth}px` : 'auto',

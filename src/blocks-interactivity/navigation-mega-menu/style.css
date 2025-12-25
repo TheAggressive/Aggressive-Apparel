@@ -1,0 +1,229 @@
+/**
+ * Navigation Mega Menu Block - Frontend Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* =============================================================================
+   MEGA MENU BASE
+   ============================================================================= */
+
+/**
+ * Navigation Mega Menu Block - Frontend Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* =============================================================================
+   MEGA MENU BASE
+   ============================================================================= */
+
+.aa-navigation-mega-menu {
+  position: static; /* Override relative for full-width positioning */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  /* =============================================================================
+     TRIGGER BUTTON
+     ============================================================================= */
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 4px;
+    transition:
+      color var(--nav-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+      background var(--nav-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover,
+    &:focus {
+      color: var(--nav-hover-text, currentColor);
+      background: var(--nav-hover-bg, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--nav-hover-text, currentColor);
+      outline-offset: 2px;
+    }
+
+    &[aria-expanded="true"] .aa-navigation-mega-menu__icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* =============================================================================
+     MEGA MENU CONTENT
+     ============================================================================= */
+
+  &__content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 2rem;
+    box-shadow: 0 10px 60px rgb(0 0 0 / 15%);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition:
+      opacity var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+      transform var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s var(--mega-transition, 300ms);
+    z-index: 100;
+
+    &.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition:
+        opacity var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+        transform var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s;
+    }
+  }
+
+  &__inner {
+    display: flex;
+    gap: 2rem;
+    max-width: var(--wp--style--global--content-size, 1200px);
+    margin: 0 auto;
+  }
+
+  &__columns {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(var(--mega-columns, 4), 1fr);
+    gap: 2rem;
+  }
+
+  &__featured {
+    flex-shrink: 0;
+    width: 280px;
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+  }
+
+  /* =============================================================================
+     COLUMN STYLING
+     ============================================================================= */
+
+  .wp-block-column {
+    padding: 0;
+  }
+
+  .wp-block-heading {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgb(0 0 0 / 10%);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Navigation items within mega menu */
+  .aa-navigation-item__link {
+    padding: 0.5rem 0;
+  }
+}
+
+/* =============================================================================
+   MOBILE STYLES
+   ============================================================================= */
+
+@media (width <= 1024px) {
+
+  .aa-navigation-mega-menu {
+
+    &__content {
+      position: static;
+      max-height: 0;
+      padding: 0;
+      overflow: hidden;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      box-shadow: none;
+      transition: max-height var(--mega-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.is-open {
+        max-height: 2000px;
+        padding: 1rem;
+      }
+    }
+
+    &__inner {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    &__columns {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    &__featured {
+      width: 100%;
+      order: -1;
+    }
+
+    &__trigger {
+      width: 100%;
+      justify-content: space-between;
+      padding: 1rem;
+      border-bottom: 1px solid rgb(0 0 0 / 5%);
+    }
+  }
+}
+
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-navigation-mega-menu {
+
+    &__trigger,
+    &__icon,
+    &__content {
+      transition: none !important;
+    }
+  }
+}
+
+
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-navigation-mega-menu__trigger,
+  .aa-navigation-mega-menu__icon,
+  .aa-navigation-mega-menu__content {
+    transition: none !important;
+  }
+}

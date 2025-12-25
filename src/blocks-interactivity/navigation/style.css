@@ -1,0 +1,426 @@
+/**
+ * Ultimate Navigation Block - Frontend Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* Import shared variables */
+@import './shared.css';
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================================================= */
+
+.wp-block-aggressive-apparel-navigation,
+.aa-navigation {
+
+  /* Layout */
+  --nav-height: 80px;
+  --nav-height-sticky: 64px;
+  --nav-z-index: 1000;
+
+  /* Timing */
+  --nav-transition: var(--nav-transition, 300ms);
+  --nav-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Overlay */
+  --nav-overlay-opacity: var(--nav-overlay-opacity, 0.5);
+
+  /* Mobile breakpoint */
+  --mobile-breakpoint: var(--mobile-breakpoint, 1024px);
+}
+
+/* =============================================================================
+   BASE LAYOUT
+   ============================================================================= */
+
+.aa-navigation {
+  position: relative;
+  width: 100%;
+  min-height: var(--nav-height);
+  z-index: var(--nav-z-index);
+  transition:
+    height calc(var(--nav-transition) * 1ms) var(--nav-easing),
+    background calc(var(--nav-transition) * 1ms) var(--nav-easing),
+    box-shadow calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: var(--wp--style--global--content-size, 1200px);
+    margin: 0 auto;
+    padding: 0 1rem;
+    min-height: inherit;
+  }
+
+  /* =============================================================================
+     STICKY BEHAVIOR
+     ============================================================================= */
+
+  &--sticky-always.is-sticky,
+  &--sticky-scroll-up.is-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    min-height: var(--nav-height-sticky);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 10%);
+    backdrop-filter: blur(10px);
+    animation: slide-down calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+    /* Spacer when sticky */
+    & + * {
+      margin-top: var(--nav-height);
+    }
+  }
+
+  /* =============================================================================
+     MOBILE TOGGLE BUTTON
+     ============================================================================= */
+
+  &__toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: currentcolor;
+    cursor: pointer;
+    position: relative;
+    z-index: calc(var(--nav-z-index) + 10);
+    transition: transform calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--nav-hover-text, currentColor);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    &-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+        transform calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+      &--close {
+        position: absolute;
+        opacity: 0;
+        transform: rotate(-90deg);
+      }
+    }
+
+    &.is-active .aa-navigation__toggle-icon--open {
+      opacity: 0;
+      transform: rotate(90deg);
+    }
+
+    &.is-active .aa-navigation__toggle-icon--close {
+      opacity: 1;
+      transform: rotate(0);
+    }
+  }
+
+  /* Show toggle on mobile */
+  @media (width <= 1024px) {
+
+    &__toggle {
+      display: flex;
+    }
+  }
+
+  /* =============================================================================
+     MENU WRAPPER
+     ============================================================================= */
+
+  &__menu {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  &__items {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+      margin: 0;
+    }
+  }
+
+  /* =============================================================================
+     MOBILE MODES
+     ============================================================================= */
+
+  @media (width <= 1024px) {
+
+    &--mobile-drawer &__menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(320px, 85vw);
+      flex-direction: column;
+      align-items: stretch;
+      background: var(--mobile-bg, var(--nav-bg, #fff)); /* Fallback to global/white */
+      color: var(--mobile-text, var(--nav-text, inherit));
+      padding: calc(var(--nav-height) + 1rem) 1rem 1rem;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform calc(var(--nav-transition) * 1ms) var(--nav-easing);
+      z-index: calc(var(--nav-z-index) + 5);
+      box-shadow: 4px 0 20px rgb(0 0 0 / 10%);
+
+      &.is-open {
+        transform: translateX(0);
+      }
+    }
+
+    &--mobile-drawer &__items {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+    }
+
+    &--mobile-fullscreen &__menu {
+      position: fixed;
+      inset: 0;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--mobile-bg, var(--nav-bg, #fff));
+      color: var(--mobile-text, var(--nav-text, inherit));
+      padding: 2rem;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+        visibility 0s calc(var(--nav-transition) * 1ms);
+      z-index: calc(var(--nav-z-index) + 5);
+
+      &.is-open {
+        opacity: 1;
+        visibility: visible;
+        transition:
+          opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+          visibility 0s;
+      }
+    }
+
+    &--mobile-fullscreen &__items {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    &--mobile-dropdown &__menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      background: var(--mobile-bg, var(--nav-bg, #fff));
+      color: var(--mobile-text, var(--nav-text, inherit));
+      padding: 1rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height calc(var(--nav-transition) * 1ms) var(--nav-easing);
+      z-index: calc(var(--nav-z-index) + 5);
+      box-shadow: 0 4px 20px rgb(0 0 0 / 10%);
+
+      &.is-open {
+        max-height: min(80vh, 600px);
+        overflow-y: auto;
+      }
+    }
+
+    &--mobile-dropdown &__items {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+    }
+  }
+
+  /* =============================================================================
+     OVERLAY
+     ============================================================================= */
+
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / var(--nav-overlay-opacity));
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+      visibility 0s calc(var(--nav-transition) * 1ms);
+    z-index: calc(var(--nav-z-index) + 1);
+    pointer-events: none;
+
+    &.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+        visibility 0s;
+    }
+  }
+
+  /* =============================================================================
+     DRILL-DOWN NAVIGATION
+     ============================================================================= */
+
+  &__back {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border: none;
+    border-bottom: 1px solid rgb(0 0 0 / 10%);
+    background: transparent;
+    color: var(--nav-text, inherit);
+    font-size: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+    &:hover {
+      background: var(--submenu-hover-bg, rgb(0 0 0 / 5%));
+    }
+
+    &.is-visible {
+      display: flex;
+    }
+  }
+
+  &--expand-drill-down &__items {
+    transition: transform calc(var(--nav-transition) * 1ms) var(--nav-easing);
+  }
+
+  /* =============================================================================
+     ACTION BUTTONS (Search, Cart)
+     ============================================================================= */
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__search-toggle,
+  &__cart-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: currentcolor;
+    cursor: pointer;
+    border-radius: 50%;
+    transition:
+      background calc(var(--nav-transition) * 1ms) var(--nav-easing),
+      color calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+    &:hover {
+      background: var(--nav-hover-bg, transparent);
+      color: var(--nav-hover-text, currentColor);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--nav-hover-text, currentColor);
+      outline-offset: 2px;
+    }
+  }
+
+  /* Cart count badge */
+  &__cart-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: var(--wp--preset--color--primary, #06c);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition:
+      opacity calc(var(--nav-transition) * 1ms) var(--nav-easing),
+      transform calc(var(--nav-transition) * 1ms) var(--nav-easing);
+
+    &.has-items {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@keyframes slide-down {
+
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   BODY SCROLL LOCK
+   ============================================================================= */
+
+body.aa-navigation-menu-open {
+  overflow: hidden;
+}
+
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-navigation {
+
+    &,
+    &__toggle,
+    &__toggle-icon,
+    &__menu,
+    &__overlay,
+    &__back,
+    &__search-toggle,
+    &__cart-toggle,
+    &__cart-count {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/navigation-item",
+  "version": "1.0.0",
+  "title": "Navigation Item",
+  "category": "theme",
+  "icon": "admin-links",
+  "description": "A single navigation link.",
+  "keywords": ["link", "menu item", "nav link"],
+  "textdomain": "aggressive-apparel",
+  "parent": [
+    "aggressive-apparel/navigation",
+    "aggressive-apparel/navigation-submenu",
+    "aggressive-apparel/navigation-mega-menu"
+  ],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "className": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true
+    },
+    "spacing": {
+      "padding": true
+    }
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "url": {
+      "type": "string",
+      "default": ""
+    },
+    "opensInNewTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "rel": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "isCurrentPage": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "usesContext": [
+    "aggressive-apparel/navigation/hoverTextColor",
+    "aggressive-apparel/navigation/hoverBackgroundColor"
+  ],
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

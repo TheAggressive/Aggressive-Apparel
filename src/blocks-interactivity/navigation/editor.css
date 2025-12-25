@@ -1,0 +1,155 @@
+/**
+ * Ultimate Navigation Block - Editor Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* =============================================================================
+   EDITOR CONTAINER
+   ============================================================================= */
+
+.aa-navigation--editor {
+  min-height: 60px;
+  border: 1px dashed rgb(0 0 0 / 10%);
+  border-radius: 4px;
+}
+
+.aa-navigation--editor .aa-navigation__container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+/* =============================================================================
+   MOBILE TOGGLE (Editor Preview)
+   ============================================================================= */
+
+.aa-navigation__toggle--editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px dashed rgb(0 0 0 / 20%);
+  border-radius: 4px;
+  background: transparent;
+  color: rgb(0 0 0 / 50%);
+  cursor: not-allowed;
+}
+
+.aa-navigation__toggle--editor .aa-navigation__toggle-icon {
+  width: 24px;
+  height: 24px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(0 0 0 / 10%),
+    rgb(0 0 0 / 10%) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border-radius: 2px;
+}
+
+/* =============================================================================
+   MENU ITEMS (Editor)
+   ============================================================================= */
+
+.aa-navigation--editor .aa-navigation__menu {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.aa-navigation--editor .aa-navigation__menu .block-editor-inner-blocks {
+  width: 100%;
+}
+
+.aa-navigation--editor .aa-navigation__menu .block-editor-block-list__layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* =============================================================================
+   ACTION BUTTONS (Editor Preview)
+   ============================================================================= */
+
+.aa-navigation--editor .aa-navigation__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aa-navigation--editor .aa-navigation__search-toggle,
+.aa-navigation--editor .aa-navigation__cart-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px dashed rgb(0 0 0 / 20%);
+  border-radius: 50%;
+  background: transparent;
+  color: rgb(0 0 0 / 40%);
+  cursor: not-allowed;
+}
+
+.aa-navigation--editor .aa-navigation__search-toggle svg,
+.aa-navigation--editor .aa-navigation__cart-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* =============================================================================
+   BLOCK SELECTION STYLES
+   ============================================================================= */
+
+.aa-navigation--editor.is-selected {
+  border-color: var(--wp-admin-theme-color, #007cba);
+  border-style: solid;
+}
+
+/* =============================================================================
+   INNER BLOCKS PLACEHOLDER
+   ============================================================================= */
+
+.aa-navigation--editor .block-editor-inner-blocks__template-picker-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* =============================================================================
+   COLOR PREVIEWS
+   ============================================================================= */
+
+/* Show hover color preview on items */
+.aa-navigation--editor [data-type="aggressive-apparel/navigation-item"]:hover {
+  color: var(--nav-hover-text, inherit);
+  background: var(--nav-hover-bg, transparent);
+}
+
+/* =============================================================================
+   RESPONSIVE PREVIEW NOTICE
+   ============================================================================= */
+
+.aa-navigation--editor::after {
+  content: "Mobile menu preview available in frontend only";
+  display: none;
+  position: absolute;
+  bottom: -1.5rem;
+  left: 0;
+  font-size: 11px;
+  color: rgb(0 0 0 / 50%);
+}
+
+@media (width <= 782px) {
+
+  .aa-navigation--editor::after {
+    display: block;
+  }
+}

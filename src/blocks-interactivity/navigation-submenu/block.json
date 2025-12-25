@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/navigation-submenu",
+  "version": "1.0.0",
+  "title": "Navigation Submenu",
+  "category": "theme",
+  "icon": "list-view",
+  "description": "A submenu container with dropdown, accordion, or drill-down behavior.",
+  "keywords": ["submenu", "dropdown", "nested menu", "accordion"],
+  "textdomain": "aggressive-apparel",
+  "parent": [
+    "aggressive-apparel/navigation",
+    "aggressive-apparel/navigation-submenu"
+  ],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "className": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true
+    }
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "url": {
+      "type": "string"
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left",
+      "enum": ["left", "center", "right"]
+    },
+    "width": {
+      "type": "string",
+      "default": "auto"
+    },
+    "listBackgroundColor": {
+      "type": "string"
+    },
+    "listTextColor": {
+      "type": "string"
+    },
+    "listPadding": {
+      "type": "object"
+    },
+    "listMargin": {
+      "type": "object"
+    }
+  },
+  "usesContext": [
+    "aggressive-apparel/navigation/submenuExpandType",
+    "aggressive-apparel/navigation/submenuOpenBehavior",
+    "aggressive-apparel/navigation/animationDuration",
+    "aggressive-apparel/navigation/submenuBackgroundColor",
+    "aggressive-apparel/navigation/submenuTextColor",
+    "aggressive-apparel/navigation/submenuHoverTextColor",
+    "aggressive-apparel/navigation/submenuHoverBackgroundColor"
+  ],
+  "providesContext": {
+    "aggressive-apparel/navigation-submenu/depth": "depth"
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

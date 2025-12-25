@@ -1,0 +1,113 @@
+/**
+ * Navigation Item Block - Frontend Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* =============================================================================
+   NAVIGATION ITEM
+   ============================================================================= */
+
+/**
+ * Navigation Item Block - Frontend Styles
+ *
+ * @package Aggressive Apparel
+ */
+
+/* =============================================================================
+   NAVIGATION ITEM
+   ============================================================================= */
+
+.aa-navigation-item {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    padding: 0.75rem 1rem;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 4px;
+    transition:
+      color var(--nav-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+      background var(--nav-transition, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover,
+    &:focus {
+      color: var(--item-hover-text, var(--nav-hover-text, currentColor));
+      background: var(--item-hover-bg, var(--nav-hover-bg, transparent));
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--nav-hover-text, currentColor);
+      outline-offset: 2px;
+    }
+  }
+
+  /* Current page styling */
+  &--current &__link {
+    color: var(--nav-active-text, var(--nav-hover-text, currentColor));
+    background: var(--nav-active-bg, transparent);
+    font-weight: 600;
+  }
+
+  &__label {
+    display: inline-block;
+  }
+
+  &__description {
+    display: block;
+    font-size: 0.875em;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+}
+
+/* =============================================================================
+   MOBILE STYLES
+   ============================================================================= */
+
+@media (width <= 1024px) {
+
+  .aa-navigation-item__link {
+    width: 100%;
+    padding: 1rem;
+    border-bottom: 1px solid rgb(0 0 0 / 5%);
+  }
+}
+
+/* =============================================================================
+   IN SUBMENU
+   ============================================================================= */
+
+.aa-navigation-submenu .aa-navigation-item__link {
+  padding: 0.625rem 1rem;
+  color: var(--submenu-text, inherit);
+
+  &:hover,
+  &:focus {
+    color: var(--submenu-hover-text, var(--submenu-text, currentColor));
+    background: var(--submenu-hover-bg, rgb(0 0 0 / 5%));
+  }
+}
+
+/* =============================================================================
+   MOBILE STYLES
+   ============================================================================= */
+
+@media (width <= 1024px) {
+
+  .aa-navigation-item__link {
+    width: 100%;
+    padding: 1rem;
+    border-bottom: 1px solid rgb(0 0 0 / 5%);
+  }
+}
+

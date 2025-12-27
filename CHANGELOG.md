@@ -1,3 +1,11 @@
+# [1.16.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.15.0...v1.16.0) (2025-12-27)
+
+
+### Features
+
+* add Aggressive Apparel Logo block with responsive design ([bce4189](https://github.com/TheAggressive/Aggressive-Apparel/commit/bce418970e0a1e708313e2b58d9d28ea01be4df9))
+* implement mega menu functionality in navigation block ([9ef423f](https://github.com/TheAggressive/Aggressive-Apparel/commit/9ef423f6f26ec93b5ac6e7a12b5511ddf11b3fa2))
+
 # [1.15.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.14.0...v1.15.0) (2025-12-09)
 
 

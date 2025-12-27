@@ -9,6 +9,29 @@ defined( 'ABSPATH' ) || exit;
 
 use Aggressive_Apparel\Core\Icons;
 
+/**
+ * Process mega menu content to handle navigation-item blocks properly
+ *
+ * @param string $content The InnerBlocks content.
+ * @return string Processed content.
+ */
+function process_mega_menu_content( $content ) {
+	// Replace navigation-item list items with inline links.
+	$content = preg_replace_callback(
+		'/<li[^>]*class="[^"]*aa-navigation-item[^"]*"[^>]*>(.*?)<\/li>/s',
+		function ( $matches ) {
+			// Extract the link from the list item.
+			if ( preg_match( '/<a[^>]*>(.*?)<\/a>/s', $matches[1], $link_matches ) ) {
+				return $link_matches[0];
+			}
+			return $matches[0]; // Return original if no link found.
+		},
+		$content
+	);
+
+	return $content;
+}
+
 // Extract attributes.
 $label                    = $attributes['label'] ?? '';
 $columns                  = $attributes['columns'] ?? 4;
@@ -37,7 +60,11 @@ $context = array(
 	'submenuId'  => $mega_menu_id,
 	'isOpen'     => false,
 	'expandType' => 'flyout', // Mega menus always use flyout behavior.
+	'isMegaMenu' => true, // Flag to distinguish mega menus from submenus.
 );
+
+// Provide context to child blocks that they're inside a mega menu.
+$block->context['aggressive-apparel/navigation-mega-menu'] = true;
 
 // Build CSS custom properties.
 $css_vars = array(
@@ -82,17 +109,18 @@ $classes = array(
 // Get wrapper attributes.
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'           => implode( ' ', $classes ),
-		'style'           => $style_string,
-		'role'            => 'none',
-		'data-wp-context' => wp_json_encode( $context ),
+		'class'               => implode( ' ', $classes ),
+		'style'               => $style_string,
+		'role'                => 'none',
+		'data-wp-context'     => wp_json_encode( $context ),
+		'data-wp-interactive' => 'aggressive-apparel/navigation-mega-menu',
 	)
 );
 
 // Hover attributes for wrapper.
 $wrapper_hover_attrs = '';
 if ( 'hover' === $open_behavior ) {
-	$wrapper_hover_attrs = 'data-wp-on--mouseenter="actions.handleSubmenuHover" data-wp-on--mouseleave="actions.scheduleSubmenuClose"';
+	$wrapper_hover_attrs = 'data-wp-on--mouseenter="actions.handleMegaMenuHover" data-wp-on--mouseleave="actions.scheduleMegaMenuClose"';
 }
 
 ?>
@@ -103,7 +131,7 @@ if ( 'hover' === $open_behavior ) {
 		aria-expanded="false"
 		aria-haspopup="true"
 		aria-controls="<?php echo esc_attr( $mega_menu_id ); ?>"
-		data-wp-on--click="<?php echo 'hover' !== $open_behavior ? 'actions.openSubmenu' : ''; ?>"
+		data-wp-on--click="<?php echo 'hover' !== $open_behavior ? 'actions.openMegaMenu' : ''; ?>"
 		data-wp-bind--aria-expanded="context.isOpen"
 		data-submenu-id="<?php echo esc_attr( $mega_menu_id ); ?>"
 	>
@@ -130,9 +158,8 @@ if ( 'hover' === $open_behavior ) {
 		style="<?php echo esc_attr( $content_style ); ?>"
 	>
 		<div class="aa-navigation-mega-menu__inner">
-			<div class="aa-navigation-mega-menu__columns">
-				<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			</div>
+			<?php echo process_mega_menu_content( $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</div>
 
 			<?php if ( $show_featured_image && ! empty( $featured_image['url'] ) ) : ?>
 				<div class="aa-navigation-mega-menu__featured">

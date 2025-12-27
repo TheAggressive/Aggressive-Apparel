@@ -37,7 +37,7 @@ const ALLOWED_BLOCKS = [
   'core/paragraph',
   'core/image',
   'core/list',
-  'aggressive-apparel/navigation-item',
+  'aggressive-apparel/navigation-item', // Allow for backward compatibility
 ];
 
 /**
@@ -53,9 +53,13 @@ const TEMPLATE: any[] = [
         {},
         [
           ['core/heading', { level: 4, content: 'Category 1' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 1', url: '#' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 2', url: '#' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 3', url: '#' }],
+          [
+            'core/paragraph',
+            {
+              content:
+                '<a href="#" class="mega-menu-link">Link 1</a><br><a href="#" class="mega-menu-link">Link 2</a><br><a href="#" class="mega-menu-link">Link 3</a>',
+            },
+          ],
         ],
       ],
       [
@@ -63,8 +67,13 @@ const TEMPLATE: any[] = [
         {},
         [
           ['core/heading', { level: 4, content: 'Category 2' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 1', url: '#' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 2', url: '#' }],
+          [
+            'core/paragraph',
+            {
+              content:
+                '<a href="#" class="mega-menu-link">Link 1</a><br><a href="#" class="mega-menu-link">Link 2</a>',
+            },
+          ],
         ],
       ],
       [
@@ -72,8 +81,13 @@ const TEMPLATE: any[] = [
         {},
         [
           ['core/heading', { level: 4, content: 'Category 3' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 1', url: '#' }],
-          ['aggressive-apparel/navigation-item', { label: 'Link 2', url: '#' }],
+          [
+            'core/paragraph',
+            {
+              content:
+                '<a href="#" class="mega-menu-link">Link 1</a><br><a href="#" class="mega-menu-link">Link 2</a>',
+            },
+          ],
         ],
       ],
       ['core/column', {}, [['core/image', { sizeSlug: 'medium' }]]],

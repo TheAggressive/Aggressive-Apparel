@@ -54,6 +54,9 @@
       "type": "object"
     }
   },
+  "providesContext": {
+    "aggressive-apparel/navigation-mega-menu": true
+  },
   "usesContext": [
     "aggressive-apparel/navigation/submenuOpenBehavior",
     "aggressive-apparel/navigation/animationDuration",

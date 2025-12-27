@@ -64,6 +64,9 @@ importers:
       '@wordpress/blocks':
         specifier: ^15.8.0
         version: 15.8.0(react@19.2.0)
+      '@wordpress/browserslist-config':
+        specifier: ^6.35.0
+        version: 6.35.0
       '@wordpress/components':
         specifier: ^30.8.0
         version: 30.8.0(@emotion/is-prop-valid@1.4.0)(@types/react@19.2.5)(react-dom@18.3.1(react@19.2.0))(react@19.2.0)
@@ -14637,10 +14640,10 @@ packages:
         integrity: sha512-h0JYX+dO2Zr3abCQpS6/uFjujaOjA1DyDzGQ41+oFn9VW/ARiq9g5ln7qEP9+BTzDpOMyIfsfj4OvfgXAsMUSA==,
       }
 
-  third-party-web@0.28.0:
+  third-party-web@0.29.0:
     resolution:
       {
-        integrity: sha512-4P798O67JmIKRJfJ1HSOkIsZrx2+FuaN2jTQX+imHXFPbGp17KSMDabYxrRT011B3gBzaoHFhUkBlEkNZN8vuQ==,
+        integrity: sha512-nBDSJw5B7Sl1YfsATG2XkW5qgUPODbJhXw++BKygi9w6O/NKS98/uY/nR/DxDq2axEjL6halHW1v+jhm/j1DBQ==,
       }
 
   through2@2.0.5:
@@ -18036,7 +18039,7 @@ snapshots:
   '@paulirish/trace_engine@0.0.59':
     dependencies:
       legacy-javascript: 0.0.1
-      third-party-web: 0.28.0
+      third-party-web: 0.29.0
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -27594,7 +27597,7 @@ snapshots:
 
   third-party-web@0.27.0: {}
 
-  third-party-web@0.28.0: {}
+  third-party-web@0.29.0: {}
 
   through2@2.0.5:
     dependencies:

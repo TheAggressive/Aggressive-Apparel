@@ -10,7 +10,6 @@ interface EffectTimingControlsProps {
   effectStart?: number;
   effectEnd?: number;
   effectMode?: 'sustain' | 'peek' | 'reverse';
-  // eslint-disable-next-line no-unused-vars
   onUpdate: (_key: string, _value: any) => void;
 }
 

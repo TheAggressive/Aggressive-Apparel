@@ -623,7 +623,7 @@ const { state, actions } = store('aggressive-apparel/parallax', {
     applyParallaxTransforms: (
       ctx: ParallaxContext,
       container: HTMLElement,
-      progress: number // eslint-disable-line no-unused-vars
+      _progress: number
     ) => {
       // Use the shared direct transform function which handles inertia correctly
       // This ensures we don't overwrite inertia effects during scroll events

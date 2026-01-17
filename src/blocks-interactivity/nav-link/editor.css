@@ -1,0 +1,44 @@
+/**
+ * Nav Link Block Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-nav-link {
+  display: flex;
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem 0;
+    color: inherit;
+    text-decoration: none;
+    cursor: text;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__label {
+    min-width: 2rem;
+
+    &[data-rich-text-placeholder]::after {
+      opacity: 0.5;
+    }
+  }
+
+  &__description {
+    font-size: 0.875em;
+    opacity: 0.7;
+  }
+
+  /* Selected state. */
+  &.is-selected {
+    outline: 2px solid var(--wp-admin-theme-color, #007cba);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+

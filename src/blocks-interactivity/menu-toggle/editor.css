@@ -1,0 +1,28 @@
+/**
+ * Menu Toggle Block Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-menu-toggle {
+
+  /* In editor, show the toggle at all times for editing. */
+  display: flex !important;
+
+  /* Visual indicator in editor. */
+  &::after {
+    content: "Toggle";
+    position: absolute;
+    bottom: -1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.4;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}
+

@@ -1,0 +1,28 @@
+/**
+ * Nav Menu Block Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-nav-menu {
+  --nav-menu-gap: var(--wp--preset--spacing--6, 1.5rem);
+
+  display: flex;
+  align-items: center;
+  gap: var(--nav-menu-gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  /* Horizontal (default). */
+  &--horizontal {
+    flex-flow: row wrap;
+  }
+
+  /* Vertical. */
+  &--vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

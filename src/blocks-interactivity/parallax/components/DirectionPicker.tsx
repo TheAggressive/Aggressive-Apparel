@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 
 interface DirectionPickerProps {
   value: string;
-  // eslint-disable-next-line no-unused-vars
   onChange: (_direction: string) => void;
 }
 

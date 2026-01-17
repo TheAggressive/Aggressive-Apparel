@@ -156,7 +156,7 @@ export const applyLayerTransformDirect = (
     enableMouseInteraction,
     mouseInfluenceMultiplier,
     maxMouseTranslation,
-    velocity: _velocity, // eslint-disable-line no-unused-vars
+    velocity: _velocity,
     transitionDuration,
   } = config;
 

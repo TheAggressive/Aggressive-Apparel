@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-submenu",
+  "version": "1.0.1",
+  "title": "Nav Submenu",
+  "category": "aggressive-apparel",
+  "description": "Navigation item with dropdown, mega menu, or drill-down submenu.",
+  "keywords": ["submenu", "dropdown", "mega", "navigation"],
+  "textdomain": "aggressive-apparel",
+  "icon": "arrow-down-alt2",
+  "parent": ["aggressive-apparel/nav-menu"],
+  "allowedBlocks": [
+    "aggressive-apparel/nav-link",
+    "aggressive-apparel/mega-menu-content"
+  ],
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "url": {
+      "type": "string",
+      "default": ""
+    },
+    "menuType": {
+      "type": "string",
+      "enum": ["dropdown", "mega", "drilldown"],
+      "default": "dropdown"
+    },
+    "openOn": {
+      "type": "string",
+      "enum": ["hover", "click"],
+      "default": "hover"
+    },
+    "submenuId": {
+      "type": "string",
+      "default": ""
+    },
+    "showArrow": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "blockGap": true
+    },
+    "__experimentalBorder": {
+      "radius": true,
+      "width": true,
+      "color": true,
+      "style": true
+    },
+    "shadow": true,
+    "className": true
+  },
+  "providesContext": {
+    "aggressive-apparel/submenuId": "submenuId",
+    "aggressive-apparel/menuType": "menuType"
+  },
+  "usesContext": [
+    "aggressive-apparel/navigationId",
+    "aggressive-apparel/navigationOpenOn",
+    "aggressive-apparel/navMenuOrientation"
+  ],
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScriptModule": "file:./view.js"
+}

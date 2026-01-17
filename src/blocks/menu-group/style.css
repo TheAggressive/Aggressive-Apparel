@@ -1,0 +1,77 @@
+.wp-block-aggressive-apparel-menu-group {
+  --menu-group-columns: 2;
+  --menu-group-gap: 1rem;
+
+  display: block;
+  width: 100%;
+}
+
+.wp-block-aggressive-apparel-menu-group__title {
+  margin: 0 0 var(--menu-group-gap) 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--wp--preset--color--foreground, inherit);
+}
+
+.wp-block-aggressive-apparel-menu-group__content {
+  display: contents;
+}
+
+/* Layout: Vertical */
+.wp-block-aggressive-apparel-menu-group--vertical .wp-block-aggressive-apparel-menu-group__content > * + * {
+  margin-top: var(--menu-group-gap);
+}
+
+/* Layout: Horizontal */
+.wp-block-aggressive-apparel-menu-group--horizontal .wp-block-aggressive-apparel-menu-group__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--menu-group-gap);
+}
+
+/* Layout: Grid */
+.wp-block-aggressive-apparel-menu-group--grid .wp-block-aggressive-apparel-menu-group__content {
+  display: grid;
+  grid-template-columns: repeat(var(--menu-group-columns), 1fr);
+  gap: var(--menu-group-gap);
+}
+
+/* Responsive adjustments */
+@media (width <= 768px) {
+
+  .wp-block-aggressive-apparel-menu-group--grid .wp-block-aggressive-apparel-menu-group__content {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-block-aggressive-apparel-menu-group--horizontal .wp-block-aggressive-apparel-menu-group__content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Within mega menus - adjust spacing */
+.wp-block-aggressive-apparel-mega-menu .wp-block-aggressive-apparel-menu-group {
+  --menu-group-gap: 0.75rem;
+}
+
+.wp-block-aggressive-apparel-mega-menu .wp-block-aggressive-apparel-menu-group__title {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+/* Within navigation panels - compact layout */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-menu-group {
+  --menu-group-gap: 0.5rem;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-menu-group__title {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+

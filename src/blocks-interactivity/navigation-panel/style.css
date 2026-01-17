@@ -1,0 +1,434 @@
+/**
+ * Navigation Panel Block Styles
+ *
+ * Slide-out mobile navigation panel with overlay, focus management, and drill-down support.
+ * Supports multiple animation styles: slide, push, reveal, and fade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-navigation-panel {
+  --panel-width: min(320px, 85vw);
+  --panel-bg: var(--wp--preset--color--white, #fff);
+  --panel-color: var(--wp--preset--color--black, #000);
+  --panel-transition: var(--aa-nav-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1));
+  --panel-overlay-bg: var(--aa-nav-overlay-bg, rgb(0 0 0 / 50%));
+  --panel-z-index: 99999;
+  --panel-header-height: 60px;
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--panel-z-index);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Open state - use !important to override inline fallback styles. */
+.wp-block-aggressive-apparel-navigation-panel.is-open {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Overlay. */
+.wp-block-aggressive-apparel-navigation-panel__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--panel-overlay-bg);
+  opacity: 0;
+  transition: opacity var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1));
+  cursor: pointer;
+}
+
+.wp-block-aggressive-apparel-navigation-panel.is-open .wp-block-aggressive-apparel-navigation-panel__overlay {
+  opacity: 1;
+}
+
+/* Panel content container. */
+.wp-block-aggressive-apparel-navigation-panel__content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--panel-width);
+  background: var(--panel-bg);
+  color: var(--panel-color);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgb(0 0 0 / 15%);
+  transition:
+    transform var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* Panel header with close/back buttons. */
+.wp-block-aggressive-apparel-navigation-panel__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--panel-header-height);
+  padding: var(--wp--preset--spacing--4, 1rem);
+  border-bottom: 1px solid var(--aa-nav-border-light, rgb(0 0 0 / 10%));
+  flex-shrink: 0;
+}
+
+/* Panel body with scrollable content. */
+.wp-block-aggressive-apparel-navigation-panel__body {
+  flex: 1;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  padding: var(--wp--preset--spacing--4, 1rem);
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 0 0 / 20%) transparent;
+}
+
+/* Only apply smooth scrolling when reduced motion is not preferred. */
+@media (prefers-reduced-motion: no-preference) {
+
+  .wp-block-aggressive-apparel-navigation-panel__body {
+    scroll-behavior: smooth;
+  }
+}
+
+.wp-block-aggressive-apparel-navigation-panel__body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.wp-block-aggressive-apparel-navigation-panel__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wp-block-aggressive-apparel-navigation-panel__body::-webkit-scrollbar-thumb {
+  background: rgb(0 0 0 / 20%);
+  border-radius: 2px;
+}
+
+/* ========================================
+ * DEFAULT POSITION STYLES
+ * ======================================== */
+.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-navigation-panel__content {
+  right: 0;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+  left: 0;
+  box-shadow: 4px 0 24px rgb(0 0 0 / 15%);
+}
+
+/* ========================================
+ * ANIMATION STYLE: SLIDE (default)
+ * Panel slides in from the side.
+ * ======================================== */
+
+/* Slide - Right position (default). */
+.wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-navigation-panel__content {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--right.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+  transform: translateX(0);
+}
+
+/* Slide - Left position. */
+.wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--left.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+  transform: translateX(0);
+}
+
+/* ========================================
+ * ANIMATION STYLE: PUSH
+ * Panel slides in AND pushes page content.
+ * ======================================== */
+
+.wp-block-aggressive-apparel-navigation-panel--push {
+  pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--push.is-open {
+  pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--push .wp-block-aggressive-apparel-navigation-panel__content {
+  pointer-events: auto;
+}
+
+
+/* Push - Right position. */
+.wp-block-aggressive-apparel-navigation-panel--push.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-navigation-panel__content {
+  right: 0 !important;
+  left: auto !important;
+  transform: translateX(100%);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--push.wp-block-aggressive-apparel-navigation-panel--right.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+  transform: translateX(0);
+}
+
+/* Push - Left position. */
+.wp-block-aggressive-apparel-navigation-panel--push.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+  left: 0 !important;
+  right: auto !important;
+  transform: translateX(-100%);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--push.wp-block-aggressive-apparel-navigation-panel--left.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+  transform: translateX(0);
+}
+
+/* ========================================
+ * ANIMATION STYLE: REVEAL
+ * Page slides to reveal panel underneath.
+ * ======================================== */
+
+.wp-block-aggressive-apparel-navigation-panel--reveal {
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--reveal.is-open {
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--reveal .wp-block-aggressive-apparel-navigation-panel__content {
+  pointer-events: auto;
+  transition: none;
+}
+
+
+.wp-block-aggressive-apparel-navigation-panel--reveal.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-navigation-panel__content {
+  right: 0 !important;
+  left: auto !important;
+  transform: translateX(0) !important;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--reveal.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+  left: 0 !important;
+  right: auto !important;
+  transform: translateX(0) !important;
+}
+
+/* ========================================
+ * ANIMATION STYLE: FADE
+ * Panel fades in (no slide).
+ * ======================================== */
+.wp-block-aggressive-apparel-navigation-panel--fade .wp-block-aggressive-apparel-navigation-panel__content {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--fade.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.wp-block-aggressive-apparel-navigation-panel--fade.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-navigation-panel__content {
+  right: 0;
+}
+
+.wp-block-aggressive-apparel-navigation-panel--fade.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+  left: 0;
+}
+
+/* ========================================
+ * BUTTON STYLES
+ * ======================================== */
+
+.wp-block-aggressive-apparel-navigation-panel__close {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  border-radius: var(--aa-nav-radius-md, 4px);
+  transition:
+    background-color var(--aa-nav-transition-fast, 150ms ease),
+    transform var(--aa-nav-transition-fast, 150ms ease);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__close:hover {
+  background: var(--aa-nav-hover-bg, rgb(0 0 0 / 5%));
+}
+
+.wp-block-aggressive-apparel-navigation-panel__close:focus-visible {
+  outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
+  outline-offset: var(--aa-nav-focus-offset, 2px);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__close:active {
+  transform: scale(0.95);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__close svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--aa-nav-radius-md, 4px);
+  transition:
+    background-color var(--aa-nav-transition-fast, 150ms ease),
+    opacity var(--aa-nav-transition-fast, 150ms ease),
+    transform var(--aa-nav-transition-fast, 150ms ease);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back[hidden] {
+  display: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back:hover {
+  background: var(--aa-nav-hover-bg, rgb(0 0 0 / 5%));
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back:focus-visible {
+  outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
+  outline-offset: var(--aa-nav-focus-offset, 2px);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back:active {
+  transform: translateX(-2px);
+}
+
+.wp-block-aggressive-apparel-navigation-panel__back svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ========================================
+ * DRILL-DOWN NAVIGATION STYLES
+ * ======================================== */
+
+/* Drilldown panels use fixed positioning to escape __body's overflow-x: hidden.
+ * They position themselves to match the navigation panel's content area. */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+  position: fixed;
+  top: var(--panel-header-height, 60px);
+  bottom: 0;
+  width: var(--panel-width, min(320px, 85vw));
+  background: var(--panel-bg, #fff);
+  transform: translateX(100%);
+  transition: transform var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1));
+  z-index: 100;
+  overflow-y: auto;
+  padding: var(--wp--preset--spacing--4, 1rem);
+  box-sizing: border-box;
+}
+
+/* Right-positioned panel: drilldown slides from right edge */
+.wp-block-aggressive-apparel-navigation-panel--right .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+  right: 0;
+  left: auto;
+}
+
+/* Left-positioned panel: drilldown slides from left edge */
+.wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+  left: 0;
+  right: auto;
+  transform: translateX(-100%);
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu--drilldown.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
+  transform: translateX(0);
+}
+
+/* Remove the extra padding from nav-submenu base styles when inside panel */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel-inner {
+  padding-top: 0;
+}
+
+/* ========================================
+ * PUSH/REVEAL: Page content positioning
+ * Applied to the body when panel is open.
+ * ======================================== */
+
+/* Base transition on .wp-site-blocks so it animates both open and close. */
+.wp-site-blocks {
+  position: relative;
+  left: 0;
+  right: 0;
+  transition: left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Push Right */
+body.has-navigation-panel-open--push-right {
+  --push-panel-width: min(320px, 85vw);
+
+  overflow-x: hidden;
+}
+
+body.has-navigation-panel-open--push-right .wp-site-blocks {
+  left: calc(var(--push-panel-width) * -1);
+}
+
+/* Push Left */
+body.has-navigation-panel-open--push-left {
+  --push-panel-width: min(320px, 85vw);
+
+  overflow-x: hidden;
+}
+
+body.has-navigation-panel-open--push-left .wp-site-blocks {
+  left: var(--push-panel-width);
+}
+
+/* Reveal Right */
+body.has-navigation-panel-open--reveal-right {
+  --push-panel-width: min(320px, 85vw);
+
+  overflow-x: hidden;
+}
+
+body.has-navigation-panel-open--reveal-right .wp-site-blocks {
+  left: calc(var(--push-panel-width) * -1);
+  z-index: 9999;
+  background: inherit;
+}
+
+/* Reveal Left */
+body.has-navigation-panel-open--reveal-left {
+  --push-panel-width: min(320px, 85vw);
+
+  overflow-x: hidden;
+}
+
+body.has-navigation-panel-open--reveal-left .wp-site-blocks {
+  left: var(--push-panel-width);
+  z-index: 9999;
+  background: inherit;
+}
+
+/* Reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+  .wp-block-aggressive-apparel-navigation-panel {
+    --panel-transition: 0ms;
+  }
+
+  .wp-site-blocks {
+    transition: none;
+  }
+}

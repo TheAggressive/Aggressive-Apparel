@@ -575,14 +575,14 @@ export interface ParallaxState {
  */
 export interface ParallaxActions {
   updateDetectionBoundary: () => void;
-  updateInfoPanel: (isIntersecting?: boolean) => void; // eslint-disable-line
+  updateInfoPanel: (isIntersecting?: boolean) => void;
   updateZoneVisualization: (
-    intersectionRatio?: number, // eslint-disable-line
-    isIntersecting?: boolean // eslint-disable-line
+    intersectionRatio?: number,
+    isIntersecting?: boolean
   ) => void;
   updateVisibilityTriggerLine: (
-    intersectionRatio?: number, // eslint-disable-line
-    isIntersecting?: boolean // eslint-disable-line
+    intersectionRatio?: number,
+    isIntersecting?: boolean
   ) => void;
   updateDebugContainerPosition: () => void;
   removeDebugOverlays: () => void;

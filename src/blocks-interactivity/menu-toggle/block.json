@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/menu-toggle",
+  "version": "1.0.0",
+  "title": "Menu Toggle",
+  "category": "aggressive-apparel",
+  "description": "Hamburger button with premium animations for mobile navigation.",
+  "keywords": ["hamburger", "menu", "toggle", "mobile"],
+  "textdomain": "aggressive-apparel",
+  "icon": "menu",
+  "parent": ["aggressive-apparel/navigation"],
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "Menu"
+    },
+    "iconStyle": {
+      "type": "string",
+      "enum": [
+        "hamburger",
+        "hamburger-spin",
+        "squeeze",
+        "arrow",
+        "collapse",
+        "dots"
+      ],
+      "default": "hamburger"
+    },
+    "animationType": {
+      "type": "string",
+      "enum": [
+        "to-x",
+        "spin",
+        "squeeze",
+        "arrow-left",
+        "arrow-right",
+        "collapse",
+        "none"
+      ],
+      "default": "to-x"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "typography": {
+      "fontSize": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "__experimentalBorder": {
+      "radius": true
+    },
+    "shadow": true,
+    "className": true
+  },
+  "usesContext": [
+    "aggressive-apparel/navigationBreakpoint",
+    "aggressive-apparel/navigationId"
+  ],
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScriptModule": "file:./view.js"
+}

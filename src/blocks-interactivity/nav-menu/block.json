@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-menu",
+  "version": "1.0.0",
+  "title": "Nav Menu",
+  "category": "aggressive-apparel",
+  "description": "Container for navigation menu items with flexible layouts.",
+  "keywords": ["menu", "navigation", "links", "list"],
+  "textdomain": "aggressive-apparel",
+  "icon": "list-view",
+  "attributes": {
+    "orientation": {
+      "type": "string",
+      "enum": ["horizontal", "vertical"],
+      "default": "horizontal"
+    },
+    "itemSpacing": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "blockGap": true
+    },
+    "layout": {
+      "default": {
+        "type": "flex",
+        "flexWrap": "wrap"
+      },
+      "allowSwitching": false,
+      "allowInheriting": false,
+      "allowVerticalAlignment": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true,
+      "textTransform": true,
+      "letterSpacing": true
+    },
+    "className": true
+  },
+  "providesContext": {
+    "aggressive-apparel/navMenuOrientation": "orientation"
+  },
+  "usesContext": [
+    "aggressive-apparel/navigationBreakpoint",
+    "aggressive-apparel/navigationOpenOn"
+  ],
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScriptModule": "file:./view.js"
+}

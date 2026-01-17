@@ -64,7 +64,6 @@ const dramaticIcon = (
 );
 
 interface EffectPresetsProps {
-  // eslint-disable-next-line no-unused-vars
   onApplyPreset: (_preset: PresetConfig) => void;
   onReset: () => void;
 }

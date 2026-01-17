@@ -55,3 +55,10 @@ add_action( 'after_setup_theme', 'aggressive_apparel_init', 5 );
 if ( file_exists( AGGRESSIVE_APPAREL_DIR . '/includes/helpers.php' ) ) {
 	require_once AGGRESSIVE_APPAREL_DIR . '/includes/helpers.php';
 }
+
+/**
+ * Load navigation block shared functions
+ */
+if ( file_exists( AGGRESSIVE_APPAREL_DIR . '/includes/Blocks/class-navigation-functions.php' ) ) {
+	require_once AGGRESSIVE_APPAREL_DIR . '/includes/Blocks/class-navigation-functions.php';
+}

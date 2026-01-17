@@ -1,13 +1,14 @@
 /**
- * Ultimate Navigation Block - Save Component
+ * Navigation Block Save Component
  *
- * Dynamic block - returns null for PHP rendering.
+ * Dynamic block — PHP handles render via render.php.
+ * We still need to save InnerBlocks content for PHP to receive it.
  *
- * @package Aggressive Apparel
+ * @package Aggressive_Apparel
  */
 
 import { InnerBlocks } from '@wordpress/block-editor';
 
-export default function Save() {
+export default function Save(): JSX.Element {
   return <InnerBlocks.Content />;
 }

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/menu-group",
+  "version": "1.0.0",
+  "title": "Menu Group",
+  "category": "aggressive-apparel",
+  "description": "Organize menu items into groups with custom layouts.",
+  "keywords": ["menu", "group", "layout", "navigation"],
+  "textdomain": "aggressive-apparel",
+  "icon": "screenoptions",
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": ""
+    },
+    "layout": {
+      "type": "string",
+      "enum": ["vertical", "horizontal", "grid"],
+      "default": "vertical"
+    },
+    "columns": {
+      "type": "number",
+      "default": 2,
+      "minimum": 1,
+      "maximum": 6
+    },
+    "gap": {
+      "type": "string",
+      "default": "1rem"
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"],
+    "spacing": { "padding": true, "margin": true },
+    "color": { "text": true, "background": true },
+    "className": true
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

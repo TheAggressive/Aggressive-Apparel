@@ -4,6 +4,19 @@
  * @package Aggressive_Apparel
  */
 
+// Type declaration for WordPress global
+declare const wp:
+  | {
+      hooks: {
+        addAction: (
+          hook: string,
+          namespace: string,
+          callback: () => void
+        ) => void;
+      };
+    }
+  | undefined;
+
 interface DarkModeState {
   isDark: boolean;
   isSystemPreference: boolean;
@@ -84,8 +97,9 @@ class DarkModeToggle {
     }
   }
 
-  private handleCustomEvent(event: CustomEvent): void {
-    this.state.isDark = event.detail.isDark;
+  private handleCustomEvent(event: Event): void {
+    const customEvent = event as CustomEvent;
+    this.state.isDark = customEvent.detail.isDark;
     this.state.isSystemPreference = false;
     this.updateUI();
     this.applyTheme();
@@ -169,13 +183,5 @@ if (typeof wp !== 'undefined' && wp.hooks) {
 }
 
 // Export for potential external use
-declare global {
-  // eslint-disable-next-line no-unused-vars
-  interface Window {
-    DarkModeToggle: typeof DarkModeToggle;
-    initDarkModeToggles: typeof initDarkModeToggles;
-  }
-}
-
-window.DarkModeToggle = DarkModeToggle;
-window.initDarkModeToggles = initDarkModeToggles;
+(window as any).DarkModeToggle = DarkModeToggle;
+(window as any).initDarkModeToggles = initDarkModeToggles;

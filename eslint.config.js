@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import wpPlugin from '@wordpress/eslint-plugin';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
@@ -112,6 +113,7 @@ export default [
     },
     plugins: {
       '@wordpress': wpPlugin,
+      '@typescript-eslint': tsPlugin,
       'jsx-a11y': jsxA11yPlugin,
       'react-hooks': reactHooksPlugin,
     },
@@ -125,6 +127,12 @@ export default [
       'comma-dangle': 'off',
       'object-curly-spacing': 'off',
       'array-bracket-spacing': 'off',
+      // Use TypeScript-aware no-unused-vars rule
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       // React specific rules
       'react/react-in-jsx-scope': 'off', // Not needed in modern React
       'react/prop-types': 'off', // WordPress handles props differently

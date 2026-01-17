@@ -3,136 +3,75 @@
   "apiVersion": 3,
   "name": "aggressive-apparel/navigation",
   "version": "1.0.0",
-  "title": "Ultimate Navigation",
-  "category": "theme",
-  "icon": "menu",
-  "description": "A comprehensive navigation block with mobile drawer, submenus, mega menus, and sticky behavior.",
+  "title": "Navigation",
+  "category": "aggressive-apparel",
+  "description": "Responsive navigation container with mobile panel support.",
   "keywords": ["menu", "navigation", "header", "nav"],
   "textdomain": "aggressive-apparel",
+  "icon": "menu",
+  "attributes": {
+    "breakpoint": {
+      "type": "number",
+      "default": 1024
+    },
+    "ariaLabel": {
+      "type": "string",
+      "default": "Main navigation"
+    },
+    "navId": {
+      "type": "string",
+      "default": ""
+    },
+    "openOn": {
+      "type": "string",
+      "enum": ["hover", "click"],
+      "default": "hover"
+    }
+  },
   "supports": {
     "html": false,
     "interactivity": true,
     "align": ["wide", "full"],
-    "anchor": true,
-    "className": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
     "spacing": {
       "padding": true,
       "margin": true,
       "blockGap": true
     },
-    "color": {
-      "background": true,
-      "text": true,
-      "gradients": true,
-      "link": true,
-      "__experimentalDefaultControls": {
-        "background": true,
-        "text": true
-      }
-    },
-    "typography": {
-      "fontSize": true,
-      "fontFamily": true,
-      "fontWeight": true,
-      "textTransform": true,
-      "letterSpacing": true
-    },
     "__experimentalBorder": {
-      "color": true,
       "radius": true,
-      "width": true
-    }
-  },
-  "attributes": {
-    "mobileBreakpoint": {
-      "type": "number",
-      "default": 1024
+      "width": true,
+      "color": true,
+      "style": true
     },
-    "stickyBehavior": {
-      "type": "string",
-      "default": "none",
-      "enum": ["none", "always", "scroll-up"]
+    "shadow": true,
+    "layout": {
+      "default": {
+        "type": "flex",
+        "flexWrap": "nowrap",
+        "justifyContent": "space-between",
+        "orientation": "horizontal"
+      },
+      "allowSwitching": false,
+      "allowInheriting": false
     },
-    "stickyOffset": {
-      "type": "number",
-      "default": 0
-    },
-    "mobileMenuType": {
-      "type": "string",
-      "default": "drawer",
-      "enum": ["drawer", "fullscreen", "dropdown"]
-    },
-    "submenuOpenBehavior": {
-      "type": "string",
-      "default": "hover",
-      "enum": ["hover", "click"]
-    },
-    "submenuExpandType": {
-      "type": "string",
-      "default": "flyout",
-      "enum": ["flyout", "accordion", "drill-down"]
-    },
-    "animationDuration": {
-      "type": "number",
-      "default": 300
-    },
-    "showSearch": {
-      "type": "boolean",
-      "default": false
-    },
-    "showCart": {
-      "type": "boolean",
-      "default": false
-    },
-    "overlayOpacity": {
-      "type": "number",
-      "default": 0.5
-    },
-    "hoverTextColor": {
-      "type": "string"
-    },
-    "hoverBackgroundColor": {
-      "type": "string"
-    },
-    "activeTextColor": {
-      "type": "string"
-    },
-    "activeBackgroundColor": {
-      "type": "string"
-    },
-    "submenuBackgroundColor": {
-      "type": "string"
-    },
-    "submenuTextColor": {
-      "type": "string"
-    },
-    "submenuHoverTextColor": {
-      "type": "string"
-    },
-    "submenuHoverBackgroundColor": {
-      "type": "string"
-    },
-    "mobileMenuBackgroundColor": {
-      "type": "string"
-    },
-    "mobileMenuTextColor": {
-      "type": "string"
-    }
+    "className": true
   },
   "providesContext": {
-    "aggressive-apparel/navigation/submenuExpandType": "submenuExpandType",
-    "aggressive-apparel/navigation/submenuOpenBehavior": "submenuOpenBehavior",
-    "aggressive-apparel/navigation/animationDuration": "animationDuration",
-    "aggressive-apparel/navigation/hoverTextColor": "hoverTextColor",
-    "aggressive-apparel/navigation/hoverBackgroundColor": "hoverBackgroundColor",
-    "aggressive-apparel/navigation/submenuBackgroundColor": "submenuBackgroundColor",
-    "aggressive-apparel/navigation/submenuTextColor": "submenuTextColor",
-    "aggressive-apparel/navigation/submenuHoverTextColor": "submenuHoverTextColor",
-    "aggressive-apparel/navigation/submenuHoverBackgroundColor": "submenuHoverBackgroundColor"
+    "aggressive-apparel/navigationBreakpoint": "breakpoint",
+    "aggressive-apparel/navigationOpenOn": "openOn",
+    "aggressive-apparel/navigationId": "navId"
   },
+  "viewScriptModule": "file:./view.js",
+  "render": "file:./render.php",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
-  "style": "file:./style-index.css",
-  "render": "file:./render.php",
-  "viewScriptModule": "file:./view.js"
+  "style": "file:./style-index.css"
 }

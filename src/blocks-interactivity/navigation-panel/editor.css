@@ -5,8 +5,6 @@
  */
 
 .wp-block-aggressive-apparel-navigation-panel {
-
-  /* In editor, show panel inline for editing. */
   position: relative;
   inset: auto;
   pointer-events: auto;
@@ -14,18 +12,6 @@
   border: 1px dashed currentcolor;
   border-radius: 4px;
   background: var(--wp--preset--color--white, #fff);
-
-  &::before {
-    content: "Navigation Panel (Mobile)";
-    display: block;
-    padding: 0.5rem 0.75rem;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.5;
-    border-bottom: 1px dashed currentcolor;
-  }
 
   &__content {
     position: relative;

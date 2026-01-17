@@ -40,6 +40,12 @@
     "showArrow": {
       "type": "boolean",
       "default": true
+    },
+    "panelBackgroundColor": {
+      "type": "string"
+    },
+    "panelTextColor": {
+      "type": "string"
     }
   },
   "supports": {

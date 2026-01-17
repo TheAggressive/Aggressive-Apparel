@@ -281,5 +281,10 @@
   .wp-block-aggressive-apparel-menu-toggle {
     --toggle-transition: 0ms;
   }
+
+  .wp-block-aggressive-apparel-menu-toggle__bar {
+    transition: none !important;
+    transition-delay: 0ms !important;
+  }
 }
 

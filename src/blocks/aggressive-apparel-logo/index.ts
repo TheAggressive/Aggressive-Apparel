@@ -1,14 +1,31 @@
 /**
- * Registers the Aggressive Apparel Logo block.
+ * Aggressive Apparel Logo Block Registration
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ * @package Aggressive_Apparel
  */
-import { registerBlockType } from '@wordpress/blocks';
-import { createElement } from '@wordpress/element';
 
+import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
+import { createElement } from '@wordpress/element';
 import metadata from './block.json';
 import Edit from './edit';
+
+// Import styles for webpack to bundle.
 import './style.css';
+
+// Block attributes type derived from block.json.
+interface LogoAttributes {
+  alt: string;
+  lightColor: string;
+  lightHoverColor: string;
+  darkColor: string;
+  darkHoverColor: string;
+  breakpoint: 'mobile' | 'tablet' | 'desktop';
+  largeWidth: number;
+  largeHeight?: number;
+  smallWidth: number;
+  smallHeight?: number;
+  linkToHome: boolean;
+}
 
 // Custom icon using the Aggressive Apparel logo.
 const icon = createElement(
@@ -22,9 +39,7 @@ const icon = createElement(
   })
 );
 
-// @ts-expect-error - block.json types don't perfectly align with BlockConfiguration.
-registerBlockType(metadata.name, {
-  ...metadata,
+registerBlockType(metadata as unknown as BlockConfiguration<LogoAttributes>, {
   icon,
   edit: Edit,
 });

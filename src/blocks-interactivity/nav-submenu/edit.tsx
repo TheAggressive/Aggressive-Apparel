@@ -5,22 +5,33 @@
  */
 
 import {
+  BlockControls,
   InnerBlocks,
   InspectorControls,
+  LinkControl,
   RichText,
   useBlockProps,
   useInnerBlocksProps,
+  useSetting,
 } from '@wordpress/block-editor';
+import type { Color } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
+  BaseControl,
+  ColorPalette,
   PanelBody,
+  Popover,
   SelectControl,
   TextControl,
   ToggleControl,
+  ToolbarButton,
+  ToolbarGroup,
 } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { link as linkIcon } from '@wordpress/icons';
 import type { MenuType, NavSubmenuAttributes, OpenTrigger } from './types';
+import React from 'react';
 
 const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/nav-link', { label: 'Submenu Item 1', url: '#' }],
@@ -35,8 +46,20 @@ function generateSubmenuId(): string {
 export default function Edit({
   attributes,
   setAttributes,
+  isSelected,
 }: BlockEditProps<NavSubmenuAttributes>) {
-  const { label, url, menuType, openOn, submenuId, showArrow } = attributes;
+  const {
+    label,
+    url,
+    menuType,
+    openOn,
+    submenuId,
+    showArrow,
+    panelBackgroundColor,
+    panelTextColor,
+  } = attributes;
+  const [isLinkOpen, setIsLinkOpen] = useState(false);
+  const linkButtonRef = useRef<HTMLButtonElement>(null);
 
   // Generate submenu ID if not set.
   useEffect(() => {
@@ -49,6 +72,9 @@ export default function Edit({
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-submenu wp-block-aggressive-apparel-nav-submenu--${menuType}`,
   });
+
+  // Get theme color palette for color controls.
+  const colorPalette = useSetting('color.palette') as Color[] | undefined;
 
   // Determine which blocks to show based on menu type.
   const getAllowedBlocks = () => {
@@ -82,6 +108,17 @@ export default function Edit({
 
   return (
     <>
+      <BlockControls>
+        <ToolbarGroup>
+          <ToolbarButton
+            ref={linkButtonRef}
+            icon={linkIcon}
+            title={__('Edit link', 'aggressive-apparel')}
+            onClick={() => setIsLinkOpen(prev => !prev)}
+            isPressed={isLinkOpen}
+          />
+        </ToolbarGroup>
+      </BlockControls>
       <InspectorControls>
         <PanelBody title={__('Submenu Settings', 'aggressive-apparel')}>
           <TextControl
@@ -129,12 +166,41 @@ export default function Edit({
           />
         </PanelBody>
       </InspectorControls>
+      <InspectorControls>
+        <PanelBody
+          title={__('Panel Colors', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <BaseControl
+            id='panel-background-color'
+            label={__('Background', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelBackgroundColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelBackgroundColor: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='panel-text-color'
+            label={__('Text', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelTextColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelTextColor: value })
+              }
+            />
+          </BaseControl>
+        </PanelBody>
+      </InspectorControls>
       <li {...blockProps} role='none'>
         <div className='wp-block-aggressive-apparel-nav-submenu__trigger'>
-          <a
+          <div
             className='wp-block-aggressive-apparel-nav-submenu__link'
-            href={url || '#'}
-            onClick={e => e.preventDefault()}
             role='menuitem'
             aria-haspopup='true'
             aria-expanded='false'
@@ -163,11 +229,40 @@ export default function Edit({
                 </svg>
               </span>
             )}
-          </a>
+          </div>
+          {isSelected && isLinkOpen && (
+            <Popover
+              placement='bottom'
+              onClose={() => setIsLinkOpen(false)}
+              anchor={linkButtonRef.current}
+              focusOnMount='firstElement'
+            >
+              <LinkControl
+                value={{ url }}
+                onChange={linkData => {
+                  if (linkData && typeof linkData === 'object') {
+                    setAttributes({
+                      url: linkData.url ?? '',
+                    });
+                  }
+                }}
+                onRemove={() => {
+                  setAttributes({ url: '' });
+                  setIsLinkOpen(false);
+                }}
+              />
+            </Popover>
+          )}
         </div>
         <div
           className='wp-block-aggressive-apparel-nav-submenu__panel'
           aria-label={label}
+          style={
+            {
+              backgroundColor: panelBackgroundColor,
+              '--panel-link-color': panelTextColor,
+            } as React.CSSProperties
+          }
         >
           <ul {...innerBlocksProps} />
         </div>

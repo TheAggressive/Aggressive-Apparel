@@ -35,6 +35,7 @@
   &__arrow {
     display: flex;
     align-items: center;
+    transition: transform 0.2s ease;
 
     & svg {
       width: 1em;
@@ -42,31 +43,30 @@
     }
   }
 
-  /* Show panel in editor for editing. */
+  /* Panel styling to match frontend appearance */
   &__panel {
     position: relative;
     top: auto;
     left: auto;
-    opacity: 1;
-    visibility: visible;
     transform: none;
     margin-top: 0.5rem;
-    padding: 0.75rem;
-    background: var(--wp--preset--color--white, #f0f0f0);
-    border: 1px dashed currentcolor;
-    border-radius: 4px;
     min-width: 200px;
 
-    &::before {
-      content: "Submenu";
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 9px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      opacity: 0.4;
-    }
+    /* Match frontend styling */
+    padding: var(--wp--preset--spacing--4, 1rem);
+    background: var(--wp--preset--color--white, #fff);
+    border-radius: var(--aa-nav-radius-lg, 8px);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+
+    /* Hidden by default */
+    display: none;
+  }
+
+  /* Show panel when submenu or any child within is selected */
+  &.is-selected &__panel,
+  &:has(.is-selected) &__panel,
+  &:focus-within &__panel {
+    display: block;
   }
 
   &__panel-inner {
@@ -78,20 +78,24 @@
     gap: 0.25rem;
   }
 
-  /* Selected state. */
-  &.is-selected {
+  /* Apply panel link color to child nav-links by overriding their CSS variable. */
+  &__panel .wp-block-aggressive-apparel-nav-link {
+    --nav-link-color: var(--panel-link-color, currentcolor);
+  }
+
+  /* Selected state - highlight the trigger area. */
+  &.is-selected > &__trigger,
+  &:has(.is-selected) > &__trigger {
     outline: 2px solid var(--wp-admin-theme-color, #007cba);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Mega menu type indicator. */
-  &--mega &__panel::before {
-    content: "Mega Menu";
-  }
-
-  &--drilldown &__panel::before {
-    content: "Drill-down Submenu";
+  /* Rotate the existing arrow icon when panel is visible */
+  &.is-selected &__arrow,
+  &:has(.is-selected) &__arrow,
+  &:focus-within &__arrow {
+    transform: rotate(180deg);
   }
 }
 

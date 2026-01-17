@@ -5,6 +5,7 @@
  */
 
 import {
+  BlockControls,
   InspectorControls,
   LinkControl,
   RichText,
@@ -16,9 +17,12 @@ import {
   Popover,
   TextControl,
   ToggleControl,
+  ToolbarButton,
+  ToolbarGroup,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { link as linkIcon } from '@wordpress/icons';
 import type { NavLinkAttributes } from './types';
 
 export default function Edit({
@@ -28,6 +32,7 @@ export default function Edit({
 }: BlockEditProps<NavLinkAttributes>) {
   const { label, url, opensInNewTab, description, isCurrent } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
+  const linkButtonRef = useRef<HTMLButtonElement>(null);
 
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-link${isCurrent ? ' is-current' : ''}`,
@@ -35,6 +40,17 @@ export default function Edit({
 
   return (
     <>
+      <BlockControls>
+        <ToolbarGroup>
+          <ToolbarButton
+            ref={linkButtonRef}
+            icon={linkIcon}
+            title={__('Edit link', 'aggressive-apparel')}
+            onClick={() => setIsLinkOpen(prev => !prev)}
+            isPressed={isLinkOpen}
+          />
+        </ToolbarGroup>
+      </BlockControls>
       <InspectorControls>
         <PanelBody title={__('Link Settings', 'aggressive-apparel')}>
           <TextControl
@@ -68,13 +84,8 @@ export default function Edit({
         </PanelBody>
       </InspectorControls>
       <li {...blockProps} role='none'>
-        <a
+        <div
           className='wp-block-aggressive-apparel-nav-link__link'
-          href={url || '#'}
-          onClick={e => {
-            e.preventDefault();
-            setIsLinkOpen(true);
-          }}
           role='menuitem'
           aria-current={isCurrent ? 'page' : undefined}
         >
@@ -91,12 +102,12 @@ export default function Edit({
               {description}
             </span>
           )}
-        </a>
+        </div>
         {isSelected && isLinkOpen && (
           <Popover
-            position='bottom center'
+            placement='bottom'
             onClose={() => setIsLinkOpen(false)}
-            anchor={undefined}
+            anchor={linkButtonRef.current}
             focusOnMount='firstElement'
           >
             <LinkControl

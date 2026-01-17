@@ -1,34 +1,23 @@
 /**
- * Registers a new block provided a unique name and an object defining its behavior.
+ * Animate On Scroll Block Registration
  *
- * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
+ * @package Aggressive_Apparel
  */
-import { BlockConfiguration, registerBlockType } from '@wordpress/blocks';
 
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * All files containing `style` keyword are bundled together. The code used
- * gets applied both to the front of your site and to the editor. All other files
- * get applied to the editor only.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
-import './editor.css';
-import './style.css';
-
-/**
- * Internal dependencies
- */
+import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
 import Save from './save';
+import type { AnimateOnScrollAttributes } from './types';
 
-/**
- * Every block starts by registering a new block type definition.
- *
- * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
- */
-registerBlockType(metadata.name, {
-  edit: Edit,
-  save: Save,
-} as unknown as BlockConfiguration);
+// Import styles for webpack to bundle.
+import './editor.css';
+import './style.css';
+
+registerBlockType(
+  metadata as unknown as BlockConfiguration<AnimateOnScrollAttributes>,
+  {
+    edit: Edit,
+    save: Save,
+  }
+);

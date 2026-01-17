@@ -421,6 +421,98 @@ body.has-navigation-panel-open--reveal-left .wp-site-blocks {
   background: inherit;
 }
 
+/* ========================================
+ * GLASSMORPHISM EFFECT
+ * Premium frosted glass aesthetic for panel.
+ * ======================================== */
+@supports (backdrop-filter: blur(1px)) {
+
+  .wp-block-aggressive-apparel-navigation-panel__content {
+    background: rgb(255 255 255 / 90%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-left: 1px solid rgb(255 255 255 / 20%);
+  }
+
+  .wp-block-aggressive-apparel-navigation-panel--left .wp-block-aggressive-apparel-navigation-panel__content {
+    border-left: none;
+    border-right: 1px solid rgb(255 255 255 / 20%);
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+
+    .wp-block-aggressive-apparel-navigation-panel__content {
+      background: rgb(0 0 0 / 85%);
+      border-color: rgb(255 255 255 / 10%);
+    }
+  }
+}
+
+/* ========================================
+ * VIEW TRANSITIONS API
+ * Smooth state transitions for panel open/close.
+ * ======================================== */
+@supports (view-transition-name: none) {
+
+  .wp-block-aggressive-apparel-navigation-panel__content {
+    view-transition-name: navigation-panel;
+  }
+
+  .wp-block-aggressive-apparel-navigation-panel__overlay {
+    view-transition-name: navigation-overlay;
+  }
+}
+
+/* ========================================
+ * @starting-style ENTRY ANIMATIONS
+ * Smooth entry animations for panel appearance.
+ * ======================================== */
+@supports selector(@starting-style) {
+
+  .wp-block-aggressive-apparel-navigation-panel {
+    transition:
+      opacity var(--panel-transition),
+      visibility var(--panel-transition),
+      display var(--panel-transition) allow-discrete;
+  }
+
+  @starting-style {
+
+    .wp-block-aggressive-apparel-navigation-panel.is-open {
+      opacity: 0;
+    }
+
+    .wp-block-aggressive-apparel-navigation-panel.is-open .wp-block-aggressive-apparel-navigation-panel__overlay {
+      opacity: 0;
+    }
+
+    .wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--right.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+      transform: translateX(100%);
+    }
+
+    .wp-block-aggressive-apparel-navigation-panel--slide.wp-block-aggressive-apparel-navigation-panel--left.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+      transform: translateX(-100%);
+    }
+
+    .wp-block-aggressive-apparel-navigation-panel--fade.is-open .wp-block-aggressive-apparel-navigation-panel__content {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+}
+
+/* ========================================
+ * CONTENT-VISIBILITY PERFORMANCE
+ * Skip rendering hidden panel content.
+ * ======================================== */
+@supports (content-visibility: auto) {
+
+  .wp-block-aggressive-apparel-navigation-panel:not(.is-open) .wp-block-aggressive-apparel-navigation-panel__body {
+    content-visibility: hidden;
+    contain-intrinsic-size: auto 500px;
+  }
+}
+
 /* Reduced motion. */
 @media (prefers-reduced-motion: reduce) {
 
@@ -430,5 +522,14 @@ body.has-navigation-panel-open--reveal-left .wp-site-blocks {
 
   .wp-site-blocks {
     transition: none;
+  }
+
+  /* Disable View Transitions for reduced motion */
+  @supports (view-transition-name: none) {
+
+    .wp-block-aggressive-apparel-navigation-panel__content,
+    .wp-block-aggressive-apparel-navigation-panel__overlay {
+      view-transition-name: none !important;
+    }
   }
 }

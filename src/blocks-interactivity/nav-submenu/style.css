@@ -12,7 +12,7 @@
   --submenu-shadow: var(--aa-nav-shadow, 0 4px 20px rgb(0 0 0 / 15%));
   --submenu-radius: var(--aa-nav-radius-lg, 8px);
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
-  --submenu-transition: var(--aa-nav-transition-fast, 150ms ease);
+  --submenu-transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --submenu-min-width: 200px;
 
   position: relative;
@@ -121,12 +121,16 @@
 
   /* Panel links styling. */
   &__panel .wp-block-aggressive-apparel-nav-link {
+    --nav-link-color: var(--panel-link-color, currentcolor);
+
     margin: 0;
   }
 
-  &__panel .wp-block-aggressive-apparel-nav-link__link {
+  /* Override theme.json global link color with panel-specific color. */
+  &__panel .wp-block-aggressive-apparel-nav-link .wp-block-aggressive-apparel-nav-link__link {
     padding: 0.5rem 0.75rem;
     border-radius: var(--aa-nav-radius-md, 4px);
+    color: var(--nav-link-color);
 
     &:hover {
       background: var(--aa-nav-hover-bg, rgb(0 0 0 / 5%));
@@ -221,10 +225,141 @@
   }
 }
 
-/* Reduced motion. */
+/* ========================================
+ * CSS :has() HOVER STATES
+ * CSS-only hover/focus visibility (reduces JavaScript).
+ * ======================================== */
+@supports selector(:has(*)) {
+
+  /* Show dropdown when trigger is hovered/focused */
+  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
+  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
+  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
+  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* Keep open when hovering the panel itself */
+  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__panel:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
+  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__panel:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* Arrow rotation on hover using :has() */
+  .wp-block-aggressive-apparel-nav-submenu:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) .wp-block-aggressive-apparel-nav-submenu__arrow,
+  .wp-block-aggressive-apparel-nav-submenu:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) .wp-block-aggressive-apparel-nav-submenu__arrow {
+    transform: rotate(180deg);
+  }
+}
+
+/* ========================================
+ * @starting-style ENTRY ANIMATIONS
+ * Smooth entry animations for dropdowns.
+ * ======================================== */
+@supports selector(@starting-style) {
+
+  .wp-block-aggressive-apparel-nav-submenu__panel {
+    transition:
+      opacity var(--submenu-transition),
+      transform var(--submenu-transition),
+      visibility var(--submenu-transition),
+      display var(--submenu-transition) allow-discrete;
+  }
+
+  @starting-style {
+
+    .wp-block-aggressive-apparel-nav-submenu.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.98);
+    }
+  }
+}
+
+/* ========================================
+ * STAGGERED ANIMATIONS
+ * Menu items appear sequentially.
+ * ======================================== */
+.wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+  --item-index: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .wp-block-aggressive-apparel-nav-submenu.is-open .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    animation: submenu-stagger-in 300ms ease forwards;
+    animation-delay: calc(var(--item-index, 0) * 50ms);
+    opacity: 0;
+  }
+
+  @keyframes submenu-stagger-in {
+
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ========================================
+ * GLASSMORPHISM EFFECT
+ * Premium frosted glass aesthetic for dropdowns.
+ * ======================================== */
+@supports (backdrop-filter: blur(1px)) {
+
+  .wp-block-aggressive-apparel-nav-submenu__panel {
+    background: rgb(255 255 255 / 90%);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgb(255 255 255 / 20%);
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+
+    .wp-block-aggressive-apparel-nav-submenu__panel {
+      background: rgb(0 0 0 / 80%);
+      border-color: rgb(255 255 255 / 10%);
+    }
+  }
+}
+
+/* ========================================
+ * CONTENT-VISIBILITY PERFORMANCE
+ * Skip rendering hidden dropdown content.
+ * ======================================== */
+@supports (content-visibility: auto) {
+
+  /* Only hide content when not open via JS and not being hovered.
+   * Using :not() with complex selector to allow CSS hover to work. */
+  .wp-block-aggressive-apparel-nav-submenu:not(.is-open, :hover, :focus-within) .wp-block-aggressive-apparel-nav-submenu__panel {
+    content-visibility: hidden;
+    contain-intrinsic-size: auto 200px;
+  }
+}
+
+/* ========================================
+ * REDUCED MOTION
+ * Instant state changes for vestibular safety.
+ * ======================================== */
 @media (prefers-reduced-motion: reduce) {
 
   .wp-block-aggressive-apparel-nav-submenu {
     --submenu-transition: 0ms;
+  }
+
+  .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

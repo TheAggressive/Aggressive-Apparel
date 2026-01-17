@@ -19,6 +19,7 @@ import {
   EVENTS,
   HOVER_INTENT,
   KEYS,
+  PANEL_MENU_ITEM_SELECTOR,
   SELECTORS,
   SUBMENU_ITEM_SELECTOR,
   TOP_LEVEL_MENU_ITEM_SELECTOR,
@@ -900,6 +901,57 @@ const navigationStore = store('aggressive-apparel/navigation', {
     }),
 
     /**
+     * Handle native Popover API toggle events.
+     * Syncs popover state with Interactivity API state.
+     * This allows native popover behavior (light-dismiss, focus management)
+     * while keeping state in sync with our store.
+     */
+    onPopoverToggle(event: ToggleEvent): void {
+      try {
+        const context = getContext<
+          NavigationContext & { submenuId?: string }
+        >();
+        if (!context) {
+          return;
+        }
+
+        const isOpening = event.newState === 'open';
+        const submenuId = context.submenuId;
+
+        if (isOpening) {
+          // Sync opening state with shared registry
+          if (isValidNavId(context.navId) && submenuId) {
+            const shared = getSharedState(context.navId);
+            shared.activeSubmenuId = submenuId;
+          }
+          if (submenuId) {
+            context.activeSubmenuId = submenuId;
+            hoverIntent.activeId = submenuId;
+          }
+          announce('Submenu opened', { navId: context.navId });
+        } else {
+          // Sync closing state - only clear if this is the currently active submenu
+          if (isValidNavId(context.navId) && submenuId) {
+            const shared = getSharedState(context.navId);
+            if (shared.activeSubmenuId === submenuId) {
+              shared.activeSubmenuId = null;
+            }
+          }
+          if (context.activeSubmenuId === submenuId) {
+            context.activeSubmenuId = null;
+            hoverIntent.activeId = null;
+          }
+          announce('Submenu closed', { navId: context.navId });
+        }
+
+        // Clear any pending hover timeouts since popover handled the interaction
+        clearHoverTimeouts(hoverIntent);
+      } catch (error) {
+        logError('onPopoverToggle: Failed to handle popover toggle', error);
+      }
+    },
+
+    /**
      * Initialize panel and sync with navigation's shared state.
      */
     initPanel(): void {
@@ -1021,16 +1073,48 @@ const navigationStore = store('aggressive-apparel/navigation', {
           panel.getAttribute('data-animation-style') || 'slide';
         const position = panel.getAttribute('data-position') || 'right';
 
-        // Manage focus trap.
-        const existingCleanup = focusTrapRegistry.get(panel);
-        if (existingCleanup) {
-          existingCleanup();
-          focusTrapRegistry.delete(panel);
-        }
+        // Check if native inert attribute is supported (better focus management).
+        const supportsInert =
+          typeof HTMLElement !== 'undefined' &&
+          'inert' in HTMLElement.prototype;
 
-        if (isOpen) {
-          const cleanup = setupFocusTrap(panel);
-          focusTrapRegistry.set(panel, cleanup);
+        if (supportsInert) {
+          // Use native inert attribute for focus management.
+          // Apply inert to main content when panel is open.
+          const mainContent = document.querySelector(
+            '.wp-site-blocks'
+          ) as HTMLElement | null;
+          if (mainContent) {
+            mainContent.inert = isOpen;
+          }
+
+          // Focus first focusable element in panel when opening.
+          // Use double rAF to ensure aria-hidden binding has been updated
+          // before moving focus (prevents "Blocked aria-hidden" console error).
+          if (isOpen) {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                const firstFocusable = safeQuerySelector<HTMLElement>(
+                  panel,
+                  PANEL_MENU_ITEM_SELECTOR,
+                  false
+                );
+                firstFocusable?.focus();
+              });
+            });
+          }
+        } else {
+          // Fallback: use custom focus trap for older browsers.
+          const existingCleanup = focusTrapRegistry.get(panel);
+          if (existingCleanup) {
+            existingCleanup();
+            focusTrapRegistry.delete(panel);
+          }
+
+          if (isOpen) {
+            const cleanup = setupFocusTrap(panel);
+            focusTrapRegistry.set(panel, cleanup);
+          }
         }
 
         panel.classList.toggle(SELECTORS.isOpen, isOpen);

@@ -1,33 +1,27 @@
 /**
- * Registers a new block provided a unique name and an object defining its behavior.
+ * Dark Mode Toggle Block Registration
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ * @package Aggressive_Apparel
  */
-import { registerBlockType } from '@wordpress/blocks';
 
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * All files containing `style` keyword are bundled together. The code used
- * gets applied both to the front of your site and to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
+import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
+import metadata from './block.json';
+import Edit from './edit';
+
+// Import styles for webpack to bundle.
 import './style.css';
 
-/**
- * Internal dependencies
- */
-import Edit from './edit';
-import metadata from './block.json';
+// Block attributes type derived from block.json.
+interface DarkModeToggleAttributes {
+  label: string;
+  showLabel: boolean;
+  size: 'small' | 'medium' | 'large';
+  alignment: 'left' | 'center' | 'right';
+}
 
-/**
- * Every block starts by registering a new block type definition.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
- */
-registerBlockType(metadata.name, {
-  /**
-   * @see ./edit.js
-   */
-  edit: Edit,
-});
+registerBlockType(
+  metadata as unknown as BlockConfiguration<DarkModeToggleAttributes>,
+  {
+    edit: Edit,
+  }
+);

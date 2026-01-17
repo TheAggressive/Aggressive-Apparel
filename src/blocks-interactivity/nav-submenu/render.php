@@ -11,11 +11,13 @@
 
 declare(strict_types=1);
 
-$label      = $attributes['label'] ?? '';
-$url        = $attributes['url'] ?? '';
-$menu_type  = $attributes['menuType'] ?? 'dropdown';
-$submenu_id = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
-$show_arrow = $attributes['showArrow'] ?? true;
+$label                  = $attributes['label'] ?? '';
+$url                    = $attributes['url'] ?? '';
+$menu_type              = $attributes['menuType'] ?? 'dropdown';
+$submenu_id             = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
+$show_arrow             = $attributes['showArrow'] ?? true;
+$panel_background_color = $attributes['panelBackgroundColor'] ?? '';
+$panel_text_color       = $attributes['panelTextColor'] ?? '';
 
 // Inherit from parent navigation context.
 $nav_id  = $block->context['aggressive-apparel/navigationId'] ?? '';
@@ -81,6 +83,24 @@ if ( 'drilldown' === $menu_type ) {
 	$trigger_attrs['data-wp-on--click'] = 'actions.toggleSubmenu';
 }
 
+// Panel attributes - use popover only for click mode to avoid conflicts with CSS hover.
+// Note: Popover API requires popovertarget on a button, but our trigger is an <a>.
+// For now, we only use popover styling for click mode, relying on JS + CSS for hover.
+$panel_popover_attrs = '';
+// Disabled popover attribute for now - conflicts with hover mode CSS.
+// The Popover API works best with button triggers and click-only interaction.
+// Our CSS :has() and JS hover intent provide the dropdown behavior instead.
+
+// Build panel inline styles from color attributes.
+$panel_styles = array();
+if ( ! empty( $panel_background_color ) ) {
+	$panel_styles[] = 'background-color: ' . esc_attr( $panel_background_color );
+}
+if ( ! empty( $panel_text_color ) ) {
+	$panel_styles[] = '--panel-link-color: ' . esc_attr( $panel_text_color );
+}
+$panel_style_attr = ! empty( $panel_styles ) ? ' style="' . implode( '; ', $panel_styles ) . '"' : '';
+
 // Arrow icon SVG - different for drill-down (chevron right) vs dropdown (chevron down).
 $arrow_html = '';
 if ( $show_arrow ) {
@@ -119,7 +139,7 @@ printf(
 				%s
 			</a>
 		</div>
-		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="menu" aria-label="%s" data-wp-class--is-visible="%s">
+		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="menu" aria-label="%s" data-wp-class--is-visible="%s"%s%s>
 			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu">
 				%s
 			</ul>
@@ -135,5 +155,7 @@ printf(
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
 	esc_attr( $panel_visibility_binding ),
+	$panel_popover_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains only safe attributes.
+	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are already escaped.
 );

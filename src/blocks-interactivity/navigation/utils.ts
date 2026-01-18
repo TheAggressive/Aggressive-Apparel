@@ -21,7 +21,6 @@ import {
   BODY_CLASSES,
   FOCUSABLE_SELECTOR,
   ID_PREFIXES,
-  PANEL_MENU_ITEM_SELECTOR,
   TRANSITION_DURATION_MS,
   type BodyClassKey,
 } from './constants';
@@ -222,25 +221,29 @@ export function setBodyOverflow(hidden: boolean): void {
 
 /**
  * Manage panel visibility with animation support.
- * Handles the delayed hiding to allow exit animations.
+ *
+ * The panel is always visible in the DOM but positioned off-screen via CSS transform.
+ * The .is-open class triggers the transform animation to slide/push/reveal the panel.
+ * We don't use visibility:hidden because it prevents CSS transitions from working.
+ *
+ * For opening: Remove pointer-events:none and add .is-open to animate in.
+ * For closing: Remove .is-open to animate out, then restore pointer-events:none.
  */
 export function setPanelVisibility(panel: HTMLElement, isOpen: boolean): void {
   if (isOpen) {
+    // Enable pointer events and add class to trigger CSS transition animation.
+    panel.style.removeProperty('pointer-events');
     panel.classList.add('is-open');
-    panel.style.visibility = 'visible';
-    panel.style.opacity = '1';
-    panel.style.pointerEvents = 'auto';
   } else {
+    // Remove class to trigger exit animation.
     panel.classList.remove('is-open');
-    panel.style.pointerEvents = 'none';
 
-    // Wait for animation to complete before hiding.
+    // Wait for animation to complete before disabling pointer events.
     const duration = getTransitionDuration();
     setTimeout(() => {
-      // Only hide if still closed (user might have reopened).
+      // Only disable if still closed (user might have reopened).
       if (!panel.classList.contains('is-open')) {
-        panel.style.visibility = 'hidden';
-        panel.style.opacity = '0';
+        panel.style.pointerEvents = 'none';
       }
     }, duration);
   }
@@ -260,50 +263,86 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
 /**
  * Setup focus trap within a container element.
  * Returns cleanup function to remove the trap.
+ *
+ * Best practices implemented:
+ * - ALWAYS intercepts Tab and manages focus manually (bulletproof approach)
+ * - Dynamically queries focusable elements on each Tab (handles DOM changes)
+ * - Uses focusin listener as backup to catch any focus escape
+ * - Capture phase ensures we handle events before they bubble
  */
 export function setupFocusTrap(container: HTMLElement): () => void {
-  const focusable = getFocusableElements(container);
-
-  if (focusable.length === 0) {
-    logWarning('setupFocusTrap: No focusable elements found', {
-      container: container.id,
-    });
-    return () => {};
-  }
-
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-
-  // Find first actual menu item (skip header buttons like close/back).
-  const firstMenuItem = safeQuerySelector<HTMLElement>(
-    container,
-    PANEL_MENU_ITEM_SELECTOR
-  );
-
-  // Focus first menu item if found, otherwise first focusable element.
-  if (firstMenuItem) {
-    firstMenuItem.focus();
-  } else {
-    first.focus();
-  }
-
-  const handler = (e: KeyboardEvent) => {
+  /**
+   * Handle Tab key - ALWAYS prevent default and manage focus manually.
+   * This is the bulletproof approach: instead of only intercepting at boundaries,
+   * we intercept ALL Tab presses and calculate the next focus target ourselves.
+   */
+  const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== 'Tab') {
       return;
     }
 
-    if (e.shiftKey && document.activeElement === first) {
+    // Dynamically get focusable elements on each Tab press.
+    const focusable = getFocusableElements(container);
+
+    if (focusable.length === 0) {
       e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
+      return;
+    }
+
+    const active = document.activeElement as HTMLElement | null;
+
+    // Find current index in focusable list.
+    const currentIndex = active ? focusable.indexOf(active) : -1;
+
+    // Calculate next focus target.
+    let nextIndex: number;
+
+    if (e.shiftKey) {
+      // Shift+Tab: move backwards, wrap to last if at start or outside.
+      if (currentIndex <= 0) {
+        nextIndex = focusable.length - 1;
+      } else {
+        nextIndex = currentIndex - 1;
+      }
+    } else {
+      // Tab: move forwards, wrap to first if at end or outside.
+      if (currentIndex === -1 || currentIndex >= focusable.length - 1) {
+        nextIndex = 0;
+      } else {
+        nextIndex = currentIndex + 1;
+      }
+    }
+
+    // Always prevent default and manually focus the next element.
+    e.preventDefault();
+    focusable[nextIndex].focus();
+  };
+
+  /**
+   * Backup: If focus somehow escapes (click, programmatic focus, etc.),
+   * bring it back into the container.
+   */
+  const handleFocusin = (e: FocusEvent) => {
+    const target = e.target as HTMLElement;
+
+    // If focus moved to something outside the container, redirect it back.
+    if (!container.contains(target)) {
+      const focusable = getFocusableElements(container);
+      if (focusable.length > 0) {
+        // Focus the first element in the container.
+        focusable[0].focus();
+      }
     }
   };
 
-  container.addEventListener('keydown', handler);
+  // Capture phase ensures we handle events before they bubble.
+  document.addEventListener('keydown', handleKeydown, true);
+  document.addEventListener('focusin', handleFocusin, true);
 
-  return () => container.removeEventListener('keydown', handler);
+  return () => {
+    document.removeEventListener('keydown', handleKeydown, true);
+    document.removeEventListener('focusin', handleFocusin, true);
+  };
 }
 
 /**
@@ -438,4 +477,103 @@ export function clearHoverTimeouts(hoverIntent: HoverIntentState): void {
     clearTimeout(hoverIntent.closeTimeout);
     hoverIntent.closeTimeout = null;
   }
+}
+
+// ============================================================================
+// Drilldown Focus Management
+// ============================================================================
+
+/**
+ * Update inert state on drilldown panels based on the current drill stack.
+ * Panels not in the current view should be inert to prevent focus escape.
+ *
+ * @param container - The navigation panel container
+ * @param drillStack - Array of currently active submenu IDs
+ */
+export function updateDrilldownInertState(
+  container: HTMLElement,
+  drillStack: string[]
+): void {
+  // Check if inert is supported.
+  const supportsInert =
+    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
+
+  if (!supportsInert) {
+    return;
+  }
+
+  // Get all drilldown submenu panels.
+  const drilldownPanels = safeQuerySelectorAll<HTMLElement>(
+    container,
+    '.wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel'
+  );
+
+  // Current active panel is the last in the stack (or none if stack is empty).
+  const currentActiveId = drillStack[drillStack.length - 1] ?? null;
+
+  drilldownPanels.forEach(panel => {
+    const panelId = panel.id;
+    // Panel should be inert if it's NOT the current active panel.
+    // If no panel is active (drillStack empty), all panels should be inert.
+    const shouldBeInert = panelId !== currentActiveId;
+    panel.inert = shouldBeInert;
+  });
+}
+
+/**
+ * Focus the first focusable item in a drilldown panel.
+ *
+ * @param panelId - The ID of the panel to focus into
+ */
+export function focusDrilldownPanel(panelId: string): void {
+  const panel = safeGetElementById(panelId, false);
+  if (!panel) {
+    return;
+  }
+
+  // Use double rAF to ensure CSS transitions have started
+  // and the panel is visible before focusing.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const firstFocusable = safeQuerySelector<HTMLElement>(
+        panel,
+        FOCUSABLE_SELECTOR,
+        false
+      );
+      firstFocusable?.focus();
+    });
+  });
+}
+
+/**
+ * Focus the trigger that opened the current drilldown level when going back.
+ *
+ * @param container - The navigation panel container
+ * @param previousId - The ID of the panel we're leaving
+ */
+export function focusDrilldownTrigger(
+  container: HTMLElement,
+  previousId: string
+): void {
+  // Find the submenu element that has this panel.
+  const submenu = safeQuerySelector<HTMLElement>(
+    container,
+    `.wp-block-aggressive-apparel-nav-submenu--drilldown:has(#${CSS.escape(previousId)})`,
+    false
+  );
+
+  if (!submenu) {
+    return;
+  }
+
+  // Focus the trigger link/button.
+  const trigger = safeQuerySelector<HTMLElement>(
+    submenu,
+    '.wp-block-aggressive-apparel-nav-submenu__link',
+    false
+  );
+
+  requestAnimationFrame(() => {
+    trigger?.focus();
+  });
 }

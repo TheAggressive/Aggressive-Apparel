@@ -19,16 +19,18 @@
   position: fixed;
   inset: 0;
   z-index: var(--panel-z-index);
+
+  /* Panel wrapper is always visible but non-interactive when closed.
+   * The actual hiding is done via pointer-events and the content transform.
+   * This allows CSS transitions to animate properly. */
+  visibility: visible;
+  opacity: 1;
   pointer-events: none;
-  visibility: hidden;
-  opacity: 0;
 }
 
-/* Open state - use !important to override inline fallback styles. */
+/* Open state - enable pointer events for interaction. */
 .wp-block-aggressive-apparel-navigation-panel.is-open {
-  pointer-events: auto !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  pointer-events: auto;
 }
 
 /* Overlay. */
@@ -43,6 +45,7 @@
 
 .wp-block-aggressive-apparel-navigation-panel.is-open .wp-block-aggressive-apparel-navigation-panel__overlay {
   opacity: 1;
+  pointer-events: auto;
 }
 
 /* Panel content container. */

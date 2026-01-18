@@ -70,10 +70,11 @@ $classes = array(
 	'wp-block-aggressive-apparel-navigation-panel--' . sanitize_html_class( $animation_style ),
 );
 
-// Inline styles ensure panel is hidden even if CSS fails to load.
-// The stylesheet will override these when loaded via higher specificity.
+// Inline styles set the panel width CSS variable.
+// The panel is positioned off-screen via CSS transform when closed,
+// so we don't need visibility:hidden which would break animations.
 $inline_styles = sprintf(
-	'--panel-width: %s; visibility: hidden; opacity: 0; pointer-events: none;',
+	'--panel-width: %s; pointer-events: none;',
 	esc_attr( $width )
 );
 
@@ -145,6 +146,12 @@ $panel_html = sprintf(
 	$close_button_html,
 	$content
 );
+
+// Note: We intentionally DO NOT call wp_interactivity_process_directives() here.
+// The inner blocks ($content) have already been processed during normal block rendering.
+// Processing the full panel HTML again would double-process those directives.
+// The panel's wrapper directives are handled client-side via the onStateChange callback,
+// which listens for the aa-nav-state-change custom event dispatched by the navigation block.
 
 // Register the panel with the global registry.
 // Panels are rendered via wp_footer to ensure they're outside .wp-site-blocks.

@@ -125,19 +125,45 @@ foreach ( $trigger_attrs as $attr => $value ) {
 	$trigger_attr_string .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $value ) );
 }
 
-// Build the link.
-$link_url = ! empty( $url ) ? esc_url( $url ) : '#';
+// Determine if we should use a button or link for the trigger.
+// Use button when there's no URL (action-only), link when there's a destination.
+$has_url = ! empty( $url );
 
 // Panel visibility binding - different for drill-down.
 $panel_visibility_binding = 'drilldown' === $menu_type ? 'callbacks.isCurrentDrillLevel' : 'callbacks.isSubmenuOpen';
 
+// Build trigger element HTML based on whether URL exists.
+if ( $has_url ) {
+	// Use anchor tag when there's a navigation destination.
+	$trigger_element = sprintf(
+		'<a class="wp-block-aggressive-apparel-nav-submenu__link" href="%s" role="menuitem" aria-haspopup="true" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="%s">
+			<span class="wp-block-aggressive-apparel-nav-submenu__label">%s</span>
+			%s
+		</a>',
+		esc_url( $url ),
+		esc_attr( $submenu_id ),
+		esc_attr( $is_open_callback ),
+		esc_html( $label ),
+		$arrow_html
+	);
+} else {
+	// Use button when there's no URL (action-only trigger).
+	$trigger_element = sprintf(
+		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__link" role="menuitem" aria-haspopup="true" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="%s">
+			<span class="wp-block-aggressive-apparel-nav-submenu__label">%s</span>
+			%s
+		</button>',
+		esc_attr( $submenu_id ),
+		esc_attr( $is_open_callback ),
+		esc_html( $label ),
+		$arrow_html
+	);
+}
+
 printf(
 	'<li %s>
 		<div class="wp-block-aggressive-apparel-nav-submenu__trigger"%s>
-			<a class="wp-block-aggressive-apparel-nav-submenu__link" href="%s" role="menuitem" aria-haspopup="true" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="%s">
-				<span class="wp-block-aggressive-apparel-nav-submenu__label">%s</span>
-				%s
-			</a>
+			%s
 		</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="menu" aria-label="%s" data-wp-class--is-visible="%s"%s%s>
 			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu">
@@ -147,11 +173,7 @@ printf(
 	</li>',
 	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
 	$trigger_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
-	$link_url, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by esc_url() above.
-	esc_attr( $submenu_id ),
-	esc_attr( $is_open_callback ),
-	esc_html( $label ),
-	$arrow_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains only safe SVG markup.
+	$trigger_element, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
 	esc_attr( $panel_visibility_binding ),

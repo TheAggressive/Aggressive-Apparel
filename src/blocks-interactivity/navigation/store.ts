@@ -30,6 +30,8 @@ import {
   announce,
   clearHoverTimeouts,
   createHoverIntent,
+  focusDrilldownPanel,
+  focusDrilldownTrigger,
   focusMenuItem,
   generateNavId,
   getPanelId,
@@ -46,6 +48,7 @@ import {
   setBodyOverflow,
   setPanelVisibility,
   setupFocusTrap,
+  updateDrilldownInertState,
   type HoverIntentState,
 } from './utils';
 
@@ -78,7 +81,25 @@ interface SharedNavState {
   drillStack: string[];
 }
 
-const sharedStateRegistry = new Map<string, SharedNavState>();
+// IMPORTANT: Use a global registry on window to ensure all bundled modules share the same state.
+// Each block (navigation, menu-toggle, navigation-panel) is bundled separately, so module-level
+// variables like `const registry = new Map()` would create separate instances per bundle.
+// By attaching to window, all bundles share the same registry.
+declare global {
+  interface Window {
+    __aaNavSharedStateRegistry?: Map<string, SharedNavState>;
+  }
+}
+
+/**
+ * Get the global shared state registry, creating it if needed.
+ */
+function getSharedStateRegistry(): Map<string, SharedNavState> {
+  if (!window.__aaNavSharedStateRegistry) {
+    window.__aaNavSharedStateRegistry = new Map<string, SharedNavState>();
+  }
+  return window.__aaNavSharedStateRegistry;
+}
 
 /** Default shared state values. */
 const DEFAULT_SHARED_STATE: SharedNavState = {
@@ -97,10 +118,12 @@ function getSharedState(navId: string): SharedNavState {
     return { ...DEFAULT_SHARED_STATE };
   }
 
-  if (!sharedStateRegistry.has(navId)) {
-    sharedStateRegistry.set(navId, { ...DEFAULT_SHARED_STATE });
+  const registry = getSharedStateRegistry();
+
+  if (!registry.has(navId)) {
+    registry.set(navId, { ...DEFAULT_SHARED_STATE });
   }
-  return sharedStateRegistry.get(navId)!;
+  return registry.get(navId)!;
 }
 
 /**
@@ -166,6 +189,183 @@ function syncSharedStateToElements(navId: string): void {
       detail: { navId },
     })
   );
+}
+
+// ============================================================================
+// Panel Close/DrillBack Helpers
+// ============================================================================
+// These functions handle panel operations that need to work both from
+// Interactivity API actions (with context) and from event delegation (without).
+
+/**
+ * Close the navigation panel with full cleanup.
+ * Used by both event delegation and Interactivity API actions.
+ */
+function closePanelWithCleanup(
+  navId: string,
+  panel: HTMLElement,
+  shared: SharedNavState,
+  context: NavigationContext
+): void {
+  // Reset navigation state.
+  resetNavigationState(shared, context, { preserveIsMobile: true });
+  setBodyOverflow(false);
+
+  // Trigger panel close animation first (removes .is-open class).
+  // This starts the CSS transitions for the panel sliding out.
+  setPanelVisibility(panel, false);
+
+  // Remove body classes for push/reveal animations.
+  // This happens immediately so .wp-site-blocks animates back simultaneously.
+  removeAllBodyClasses();
+
+  // Clean up focus trap.
+  const existingCleanup = focusTrapRegistry.get(panel);
+  if (existingCleanup) {
+    existingCleanup();
+    focusTrapRegistry.delete(panel);
+  }
+
+  // Remove inert from main content.
+  const supportsInert =
+    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
+  if (supportsInert) {
+    const mainContent = document.querySelector(
+      '.wp-site-blocks'
+    ) as HTMLElement | null;
+    if (mainContent) {
+      mainContent.inert = false;
+    }
+  }
+
+  // Reset drilldown panels.
+  updateDrilldownInertState(panel, []);
+
+  // Clean up CSS variable after transition completes.
+  setTimeout(() => {
+    document.body.style.removeProperty('--push-panel-width');
+  }, getTransitionDuration());
+
+  // Announce and sync.
+  announce('Navigation menu closed', { assertive: true, navId });
+  syncSharedStateToElements(navId);
+  restoreFocus(navId);
+}
+
+/**
+ * Open the navigation panel with full setup.
+ * Used by event delegation for portal-rendered panels.
+ */
+function openPanelWithSetup(
+  navId: string,
+  panel: HTMLElement,
+  shared: SharedNavState
+): void {
+  // Get animation settings first.
+  const animationStyle = panel.getAttribute('data-animation-style') || 'slide';
+  const position = panel.getAttribute('data-position') || 'right';
+
+  // Set body classes for push/reveal BEFORE triggering panel animation.
+  // This ensures .wp-site-blocks has the body class so it can animate.
+  if (animationStyle === 'push' || animationStyle === 'reveal') {
+    const panelWidth =
+      window.getComputedStyle(panel).getPropertyValue('--panel-width').trim() ||
+      'min(320px, 85vw)';
+    document.body.style.setProperty('--push-panel-width', panelWidth);
+    addBodyClass(animationStyle, position);
+  }
+
+  // Set up panel visibility (triggers CSS animations via .is-open class).
+  // Note: setPanelVisibility already adds .is-open, no need for redundant call.
+  setPanelVisibility(panel, true);
+
+  // Set up focus trap.
+  const existingCleanup = focusTrapRegistry.get(panel);
+  if (existingCleanup) {
+    existingCleanup();
+    focusTrapRegistry.delete(panel);
+  }
+  const cleanup = setupFocusTrap(panel);
+  focusTrapRegistry.set(panel, cleanup);
+
+  // Apply inert to main content.
+  const supportsInert =
+    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
+  if (supportsInert) {
+    const mainContent = document.querySelector(
+      '.wp-site-blocks'
+    ) as HTMLElement | null;
+    if (mainContent) {
+      mainContent.inert = true;
+    }
+  }
+
+  // Initialize inert state for drilldown panels.
+  updateDrilldownInertState(panel, shared.drillStack);
+
+  // Manage back button visibility.
+  const backButton = safeQuerySelector<HTMLButtonElement>(
+    panel,
+    SELECTORS.panelBack,
+    false
+  );
+  if (backButton) {
+    backButton.hidden = shared.drillStack.length === 0;
+  }
+
+  // Focus first focusable element in panel.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const firstFocusable = safeQuerySelector<HTMLElement>(
+        panel,
+        PANEL_MENU_ITEM_SELECTOR,
+        false
+      );
+      firstFocusable?.focus();
+    });
+  });
+}
+
+/**
+ * Perform drill back navigation with full cleanup.
+ * Used by both event delegation and Interactivity API actions.
+ */
+function performDrillBack(
+  navId: string,
+  panel: HTMLElement,
+  shared: SharedNavState,
+  context: NavigationContext
+): void {
+  const currentStack = shared.drillStack;
+
+  if (currentStack.length === 0) {
+    return; // Nothing to drill back from.
+  }
+
+  // Get the ID of the panel we're leaving (for focus restoration).
+  const leavingPanelId = currentStack[currentStack.length - 1];
+  const newStack = currentStack.slice(0, -1);
+
+  // Update shared state and context.
+  shared.drillStack = newStack;
+  context.drillStack = newStack;
+
+  // Announce navigation back.
+  if (newStack.length === 0) {
+    announce('Back to main menu', { navId });
+  } else {
+    announce(`Back to level ${newStack.length}`, { navId });
+  }
+
+  syncSharedStateToElements(navId);
+
+  // Update inert state on drilldown panels.
+  updateDrilldownInertState(panel, newStack);
+
+  // Focus the trigger that opened the panel we just left.
+  if (leavingPanelId) {
+    focusDrilldownTrigger(panel, leavingPanelId);
+  }
 }
 
 // ============================================================================
@@ -471,6 +671,16 @@ const navigationStore = store('aggressive-apparel/navigation', {
           });
 
           syncSharedStateToElements(context.navId);
+
+          // Update inert state on drilldown panels to trap focus in current level.
+          const panelId = getPanelId(context.navId);
+          const panel = safeGetElementById(panelId, false);
+          if (panel) {
+            updateDrilldownInertState(panel, newStack);
+          }
+
+          // Focus the first item in the newly opened drilldown panel.
+          focusDrilldownPanel(context.submenuId);
         }
       } catch (error) {
         logError('drillInto: Failed to drill into submenu', error);
@@ -483,31 +693,22 @@ const navigationStore = store('aggressive-apparel/navigation', {
     drillBack(): void {
       try {
         const context = getContext<NavigationContext>();
-        if (!context) {
+        if (!context || !isValidNavId(context.navId)) {
           return;
         }
 
-        const currentStack = isValidNavId(context.navId)
-          ? getSharedState(context.navId).drillStack
-          : context.drillStack;
-        const newStack = currentStack.slice(0, -1);
-
-        if (isValidNavId(context.navId)) {
-          const shared = getSharedState(context.navId);
-          shared.drillStack = newStack;
-        }
-        context.drillStack = newStack;
-
-        // Announce navigation back.
-        if (newStack.length === 0) {
-          announce('Back to main menu', { navId: context.navId });
-        } else {
-          announce(`Back to level ${newStack.length}`, {
-            navId: context.navId,
-          });
+        const panelId = getPanelId(context.navId);
+        const panel = safeGetElementById(panelId, false);
+        if (!panel) {
+          return;
         }
 
-        syncSharedStateToElements(context.navId);
+        performDrillBack(
+          context.navId,
+          panel,
+          getSharedState(context.navId),
+          context
+        );
       } catch (error) {
         logError('drillBack: Failed to drill back', error);
       }
@@ -590,6 +791,106 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         // Store cleanup info.
         mediaQueryRegistry.set(element.ref, { mql, handler });
+
+        // ================================================================
+        // Event delegation for portal-rendered panel
+        // ================================================================
+        // The navigation-panel is rendered via wp_footer (outside the normal
+        // block tree) for push/reveal animations. Because the Interactivity API
+        // initializes on DOMContentLoaded before wp_footer runs, the panel's
+        // data-wp-on--click directives are never processed.
+        //
+        // We use event delegation to handle clicks on panel buttons.
+        // This listener is scoped to this navigation instance via navId.
+        const panelId = getPanelId(context.navId);
+
+        const handlePanelClick = (e: MouseEvent) => {
+          const target = e.target as HTMLElement;
+          if (!target) return;
+
+          // Only handle clicks within this navigation's panel.
+          const panel = target.closest(`#${CSS.escape(panelId)}`);
+          if (!panel) return;
+
+          // Check for close button or overlay click.
+          const closeButton = target.closest(SELECTORS.panelClose);
+          const overlay = target.closest(SELECTORS.panelOverlay);
+          const backButton = target.closest(SELECTORS.panelBack);
+
+          if (closeButton || overlay) {
+            e.preventDefault();
+            closePanelWithCleanup(
+              context.navId,
+              panel as HTMLElement,
+              getSharedState(context.navId),
+              context
+            );
+          } else if (backButton) {
+            e.preventDefault();
+            performDrillBack(
+              context.navId,
+              panel as HTMLElement,
+              getSharedState(context.navId),
+              context
+            );
+          }
+        };
+
+        document.addEventListener('click', handlePanelClick);
+
+        // ================================================================
+        // State change listener for portal-rendered panel
+        // ================================================================
+        // Listen for state changes and update the panel accordingly.
+        // This handles both opening and closing the panel.
+        let wasOpen = false;
+
+        const handleStateChange = (e: Event) => {
+          const event = e as CustomEvent<{ navId: string }>;
+          if (event.detail?.navId !== context.navId) {
+            return;
+          }
+
+          const shared = getSharedState(context.navId);
+          const panel = safeGetElementById<HTMLElement>(panelId, false);
+
+          if (!panel) {
+            logWarning('handleStateChange: Panel not found', { panelId });
+            return;
+          }
+
+          const isOpen = shared.isOpen;
+
+          // Only act on state changes.
+          if (wasOpen !== isOpen) {
+            if (isOpen) {
+              openPanelWithSetup(context.navId, panel, shared);
+            }
+            // Note: closing is handled by closePanelWithCleanup via click delegation
+            wasOpen = isOpen;
+          }
+
+          // Update drilldown inert state when drill stack changes.
+          if (isOpen) {
+            updateDrilldownInertState(panel, shared.drillStack);
+
+            // Update back button visibility.
+            const backButton = safeQuerySelector<HTMLButtonElement>(
+              panel,
+              SELECTORS.panelBack,
+              false
+            );
+            if (backButton) {
+              backButton.hidden = shared.drillStack.length === 0;
+            }
+          }
+        };
+
+        window.addEventListener(EVENTS.stateChange, handleStateChange);
+
+        // Store the handler for potential cleanup (though nav typically persists).
+        // Using a data attribute to track that we've set up delegation.
+        element.ref.setAttribute('data-panel-delegation', 'true');
       } catch (error) {
         logError('init: Failed to initialize navigation', error);
       }
@@ -975,6 +1276,15 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
     /**
      * Handle state sync event from other navigation elements.
+     *
+     * Note: Panel-specific updates (visibility, focus trap, inert, body classes)
+     * are now handled via event delegation in the navigation block's init callback.
+     * This is necessary because the panel is rendered via wp_footer, and the
+     * Interactivity API doesn't process directives for content added after
+     * DOMContentLoaded.
+     *
+     * This callback is still used by menu-toggle and navigation blocks to sync
+     * their context with shared state for reactive bindings (e.g., aria-expanded).
      */
     onStateChange(event: CustomEvent<{ navId: string }>): void {
       try {
@@ -988,156 +1298,33 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        const element = getElement();
-        const wasOpen = context.isOpen;
-        const shared = getSharedState(context.navId);
-
-        // Sync context with shared state.
-        syncContextFromShared(context, shared);
-
-        // Handle panel-specific updates.
-        if (
-          element?.ref?.classList.contains(SELECTORS.navigationPanel.slice(1))
-        ) {
-          const panel = element.ref as HTMLElement;
-
-          // Manage panel visibility with animation.
-          setPanelVisibility(panel, context.isOpen);
-
-          // Manage back button visibility.
-          const backButton = safeQuerySelector<HTMLButtonElement>(
-            panel,
-            SELECTORS.panelBack,
-            false
-          );
-          if (backButton) {
-            backButton.hidden = shared.drillStack.length === 0;
-          }
-
-          // Manage body classes for push/reveal animations.
-          if (wasOpen !== context.isOpen) {
-            const animationStyle =
-              panel.getAttribute('data-animation-style') || 'slide';
-            const position = panel.getAttribute('data-position') || 'right';
-
-            if (
-              context.isOpen &&
-              (animationStyle === 'push' || animationStyle === 'reveal')
-            ) {
-              const panelWidth =
-                window
-                  .getComputedStyle(panel)
-                  .getPropertyValue('--panel-width')
-                  .trim() || 'min(320px, 85vw)';
-              document.body.style.setProperty('--push-panel-width', panelWidth);
-              addBodyClass(animationStyle, position);
-            } else if (!context.isOpen) {
-              removeAllBodyClasses();
-
-              // Clean up CSS variable after transition completes.
-              setTimeout(() => {
-                document.body.style.removeProperty('--push-panel-width');
-              }, getTransitionDuration());
-            }
-          }
-        }
+        // Sync context with shared state for reactive bindings.
+        syncContextFromShared(context, getSharedState(context.navId));
       } catch (error) {
         logError('onStateChange: Failed to handle state change', error);
       }
     },
 
     /**
-     * Watch panel state for focus trap AND body classes (push/reveal animations).
+     * Watch panel state - syncs context with shared state.
+     *
+     * Note: This callback is defined for the panel's data-wp-watch directive,
+     * but since the panel is rendered via wp_footer, the directive is never
+     * processed. Panel state is now managed via event delegation in the
+     * navigation block's init callback. This callback is kept for potential
+     * future use if the panel is rendered within the normal block tree.
      */
     watchPanelState(): void {
       try {
         const context = getContext<NavigationContext>();
-        if (!context) {
+        if (!context || !isValidNavId(context.navId)) {
           return;
         }
 
         // Sync context with shared state for reactive bindings.
-        if (isValidNavId(context.navId)) {
-          syncContextFromShared(context, getSharedState(context.navId));
-        }
-
-        const isOpen = context.isOpen;
-        const panelId = getPanelId(context.navId);
-        const panel = safeGetElementById(panelId, false);
-
-        if (!panel) {
-          return;
-        }
-
-        const animationStyle =
-          panel.getAttribute('data-animation-style') || 'slide';
-        const position = panel.getAttribute('data-position') || 'right';
-
-        // Check if native inert attribute is supported (better focus management).
-        const supportsInert =
-          typeof HTMLElement !== 'undefined' &&
-          'inert' in HTMLElement.prototype;
-
-        if (supportsInert) {
-          // Use native inert attribute for focus management.
-          // Apply inert to main content when panel is open.
-          const mainContent = document.querySelector(
-            '.wp-site-blocks'
-          ) as HTMLElement | null;
-          if (mainContent) {
-            mainContent.inert = isOpen;
-          }
-
-          // Focus first focusable element in panel when opening.
-          // Use double rAF to ensure aria-hidden binding has been updated
-          // before moving focus (prevents "Blocked aria-hidden" console error).
-          if (isOpen) {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                const firstFocusable = safeQuerySelector<HTMLElement>(
-                  panel,
-                  PANEL_MENU_ITEM_SELECTOR,
-                  false
-                );
-                firstFocusable?.focus();
-              });
-            });
-          }
-        } else {
-          // Fallback: use custom focus trap for older browsers.
-          const existingCleanup = focusTrapRegistry.get(panel);
-          if (existingCleanup) {
-            existingCleanup();
-            focusTrapRegistry.delete(panel);
-          }
-
-          if (isOpen) {
-            const cleanup = setupFocusTrap(panel);
-            focusTrapRegistry.set(panel, cleanup);
-          }
-        }
-
-        panel.classList.toggle(SELECTORS.isOpen, isOpen);
-
-        // Manage body classes for push/reveal animations.
-        removeAllBodyClasses();
-
-        if (
-          isOpen &&
-          (animationStyle === 'push' || animationStyle === 'reveal')
-        ) {
-          const panelWidth =
-            window
-              .getComputedStyle(panel)
-              .getPropertyValue('--panel-width')
-              .trim() || 'min(320px, 85vw)';
-          document.body.style.setProperty('--push-panel-width', panelWidth);
-          addBodyClass(animationStyle, position);
-        } else {
-          document.body.style.removeProperty('--push-panel-width');
-        }
+        syncContextFromShared(context, getSharedState(context.navId));
       } catch (error) {
-        logError('watchPanelState: Failed to watch panel state', error);
+        logError('watchPanelState: Failed to sync panel state', error);
       }
     },
 

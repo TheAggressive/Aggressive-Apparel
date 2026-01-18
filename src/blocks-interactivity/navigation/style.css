@@ -117,6 +117,14 @@
       gap: 0;
     }
 
+    /* Mobile touch target sizing - ensure 44px minimum for accessibility. */
+    & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-link__link {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 0;
+    }
+
     /* Mobile submenu behavior: accordion style inside panel. */
     & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu {
       display: block;
@@ -130,6 +138,7 @@
       & .wp-block-aggressive-apparel-nav-submenu__link {
         width: 100%;
         justify-content: space-between;
+        min-height: 44px;
         padding: 0.75rem 0;
         border-bottom: 1px solid var(--aa-nav-border-subtle);
       }

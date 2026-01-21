@@ -1,0 +1,19 @@
+/**
+ * Panel Footer Block Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-panel-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--aa-nav-border-light, rgb(0 0 0 / 10%));
+}
+
+.wp-block-aggressive-apparel-panel-footer__content {
+  display: flex;
+  align-items: center;
+  justify-content: var(--panel-footer-justify, center);
+  flex-wrap: wrap;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+  padding: var(--wp--preset--spacing--4, 1rem);
+}

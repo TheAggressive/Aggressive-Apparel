@@ -69,6 +69,13 @@ interface MediaQueryRegistryEntry {
 }
 const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
 
+// Event delegation handlers registry for cleanup.
+interface EventDelegationEntry {
+  panelClickHandler: (e: MouseEvent) => void;
+  stateChangeHandler: (e: Event) => void;
+}
+const eventDelegationRegistry = new WeakMap<Element, EventDelegationEntry>();
+
 // ============================================================================
 // Shared State Registry
 // ============================================================================
@@ -302,16 +309,6 @@ function openPanelWithSetup(
 
   // Initialize inert state for drilldown panels.
   updateDrilldownInertState(panel, shared.drillStack);
-
-  // Manage back button visibility.
-  const backButton = safeQuerySelector<HTMLButtonElement>(
-    panel,
-    SELECTORS.panelBack,
-    false
-  );
-  if (backButton) {
-    backButton.hidden = shared.drillStack.length === 0;
-  }
 
   // Focus first focusable element in panel.
   requestAnimationFrame(() => {
@@ -815,7 +812,17 @@ const navigationStore = store('aggressive-apparel/navigation', {
           // Check for close button or overlay click.
           const closeButton = target.closest(SELECTORS.panelClose);
           const overlay = target.closest(SELECTORS.panelOverlay);
-          const backButton = target.closest(SELECTORS.panelBack);
+          // Check for drilldown header click (the entire header is a clickable back button).
+          const drilldownHeader = target.closest(SELECTORS.drilldownHeader);
+
+          // Check for drilldown trigger click.
+          // Only handle triggers inside drilldown-type submenus.
+          const drilldownSubmenu = target.closest(
+            `.${SELECTORS.submenuDrilldown}`
+          );
+          const drilldownTrigger = drilldownSubmenu
+            ? target.closest(SELECTORS.submenuTrigger)
+            : null;
 
           if (closeButton || overlay) {
             e.preventDefault();
@@ -825,7 +832,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
               getSharedState(context.navId),
               context
             );
-          } else if (backButton) {
+          } else if (drilldownHeader) {
             e.preventDefault();
             performDrillBack(
               context.navId,
@@ -833,8 +840,76 @@ const navigationStore = store('aggressive-apparel/navigation', {
               getSharedState(context.navId),
               context
             );
+          } else if (drilldownTrigger && drilldownSubmenu) {
+            e.preventDefault();
+
+            // Extract submenuId from the data-wp-context attribute.
+            const contextAttr =
+              drilldownSubmenu.getAttribute('data-wp-context');
+            if (!contextAttr) return;
+
+            // Parse context with robust error handling.
+            let submenuContext: { submenuId?: string } | null = null;
+            try {
+              submenuContext = JSON.parse(contextAttr);
+            } catch (parseError) {
+              logError('handlePanelClick: Invalid JSON in submenu context', {
+                contextAttr,
+                error: parseError,
+              });
+              return;
+            }
+
+            // Validate the parsed context structure.
+            if (
+              !submenuContext ||
+              typeof submenuContext !== 'object' ||
+              typeof submenuContext.submenuId !== 'string' ||
+              !submenuContext.submenuId
+            ) {
+              logWarning('handlePanelClick: Missing or invalid submenuId', {
+                submenuContext,
+              });
+              return;
+            }
+
+            const shared = getSharedState(context.navId);
+            const newStack = [...shared.drillStack, submenuContext.submenuId];
+            shared.drillStack = newStack;
+            context.drillStack = newStack;
+
+            // Get the submenu label for announcement.
+            const labelEl = drilldownSubmenu.querySelector(
+              SELECTORS.submenuLabel
+            );
+            const submenuLabel = labelEl?.textContent?.trim() || 'submenu';
+
+            // Announce navigation.
+            announce(`Opened ${submenuLabel}, level ${newStack.length}`, {
+              navId: context.navId,
+            });
+
+            syncSharedStateToElements(context.navId);
+
+            // Update inert state and focus.
+            updateDrilldownInertState(panel as HTMLElement, newStack);
+            focusDrilldownPanel(submenuContext.submenuId);
           }
         };
+
+        // Clean up any existing event handlers before adding new ones.
+        // This prevents accumulation when navigation blocks are re-initialized.
+        const existingDelegation = eventDelegationRegistry.get(element.ref);
+        if (existingDelegation) {
+          document.removeEventListener(
+            'click',
+            existingDelegation.panelClickHandler
+          );
+          window.removeEventListener(
+            EVENTS.stateChange,
+            existingDelegation.stateChangeHandler
+          );
+        }
 
         document.addEventListener('click', handlePanelClick);
 
@@ -845,6 +920,10 @@ const navigationStore = store('aggressive-apparel/navigation', {
         // This handles both opening and closing the panel.
         let wasOpen = false;
 
+        // Retry configuration for panel initialization.
+        const PANEL_RETRY_DELAY = 50;
+        const PANEL_MAX_RETRIES = 20; // 1 second total
+
         const handleStateChange = (e: Event) => {
           const event = e as CustomEvent<{ navId: string }>;
           if (event.detail?.navId !== context.navId) {
@@ -852,44 +931,78 @@ const navigationStore = store('aggressive-apparel/navigation', {
           }
 
           const shared = getSharedState(context.navId);
-          const panel = safeGetElementById<HTMLElement>(panelId, false);
+          let panel = safeGetElementById<HTMLElement>(panelId, false);
 
-          if (!panel) {
-            logWarning('handleStateChange: Panel not found', { panelId });
+          // If panel not found and we're trying to open, retry with exponential backoff.
+          // This handles the race condition where toggle is clicked before wp_footer renders the panel.
+          if (!panel && shared.isOpen) {
+            let retryCount = 0;
+
+            const retryFindPanel = () => {
+              panel = safeGetElementById<HTMLElement>(panelId, false);
+              if (panel) {
+                // Panel found, apply the state.
+                applyPanelState(panel);
+              } else if (retryCount < PANEL_MAX_RETRIES) {
+                retryCount++;
+                setTimeout(retryFindPanel, PANEL_RETRY_DELAY);
+              } else {
+                logError('handleStateChange: Panel not found after retries', {
+                  panelId,
+                  retriesAttempted: retryCount,
+                });
+                // Reset state since panel couldn't be found.
+                shared.isOpen = false;
+                context.isOpen = false;
+                setBodyOverflow(false);
+              }
+            };
+
+            retryFindPanel();
             return;
           }
 
-          const isOpen = shared.isOpen;
-
-          // Only act on state changes.
-          if (wasOpen !== isOpen) {
-            if (isOpen) {
-              openPanelWithSetup(context.navId, panel, shared);
-            }
-            // Note: closing is handled by closePanelWithCleanup via click delegation
-            wasOpen = isOpen;
+          if (!panel) {
+            // Panel doesn't exist and we're not trying to open, safe to skip.
+            return;
           }
 
-          // Update drilldown inert state when drill stack changes.
-          if (isOpen) {
-            updateDrilldownInertState(panel, shared.drillStack);
+          applyPanelState(panel);
 
-            // Update back button visibility.
-            const backButton = safeQuerySelector<HTMLButtonElement>(
-              panel,
-              SELECTORS.panelBack,
-              false
-            );
-            if (backButton) {
-              backButton.hidden = shared.drillStack.length === 0;
+          function applyPanelState(panelEl: HTMLElement) {
+            const isOpen = shared.isOpen;
+
+            // Only act on state changes.
+            if (wasOpen !== isOpen) {
+              // Update wasOpen BEFORE calling setup/cleanup functions to prevent
+              // infinite recursion. These functions call syncSharedStateToElements()
+              // which dispatches events synchronously.
+              wasOpen = isOpen;
+
+              if (isOpen) {
+                openPanelWithSetup(context.navId, panelEl, shared);
+              } else {
+                // Handle closing from any source (actions.close, escape key, etc.)
+                closePanelWithCleanup(context.navId, panelEl, shared, context);
+              }
+            }
+
+            // Update drilldown state when drill stack changes.
+            if (isOpen) {
+              updateDrilldownInertState(panelEl, shared.drillStack);
             }
           }
         };
 
         window.addEventListener(EVENTS.stateChange, handleStateChange);
 
-        // Store the handler for potential cleanup (though nav typically persists).
-        // Using a data attribute to track that we've set up delegation.
+        // Store handlers for cleanup on re-initialization.
+        eventDelegationRegistry.set(element.ref, {
+          panelClickHandler: handlePanelClick,
+          stateChangeHandler: handleStateChange,
+        });
+
+        // Track that we've set up delegation.
         element.ref.setAttribute('data-panel-delegation', 'true');
       } catch (error) {
         logError('init: Failed to initialize navigation', error);
@@ -951,8 +1064,30 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const submenuPanel = activeElement.closest(SELECTORS.submenuPanel);
         const navMenu = activeElement.closest(SELECTORS.navMenu);
         const isInSubmenu = !!submenuPanel;
-        const isHorizontal =
-          navMenu?.classList.contains(SELECTORS.menuHorizontal) ?? true;
+
+        // Determine menu orientation with robust fallback.
+        // Check for explicit horizontal class first, then vertical class.
+        // If neither is found, check if we're in a panel body (vertical) or use computed styles.
+        let isHorizontal = true; // Default fallback for desktop nav.
+        if (navMenu) {
+          if (navMenu.classList.contains(SELECTORS.menuHorizontal)) {
+            isHorizontal = true;
+          } else if (navMenu.classList.contains(SELECTORS.menuVertical)) {
+            isHorizontal = false;
+          } else {
+            // Fallback: Check if menu is in a navigation panel (always vertical).
+            const isInPanel = !!navMenu.closest(SELECTORS.navigationPanel);
+            if (isInPanel) {
+              isHorizontal = false;
+            } else {
+              // Last resort: check computed flex-direction.
+              const computedStyle = window.getComputedStyle(navMenu);
+              isHorizontal =
+                computedStyle.flexDirection === 'row' ||
+                computedStyle.flexDirection === 'row-reverse';
+            }
+          }
+        }
 
         // Get the appropriate item list.
         let items: HTMLElement[] = [];
@@ -1110,6 +1245,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (hoverIntent.closeTimeout) {
           clearTimeout(hoverIntent.closeTimeout);
           hoverIntent.closeTimeout = null;
+        }
+
+        // Clear any pending open timeout before setting a new one.
+        if (hoverIntent.openTimeout) {
+          clearTimeout(hoverIntent.openTimeout);
+          hoverIntent.openTimeout = null;
         }
 
         // Set a small delay before opening (hover intent).

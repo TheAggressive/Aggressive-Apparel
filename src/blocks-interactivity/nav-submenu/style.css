@@ -208,6 +208,7 @@
     visibility: visible;
     box-shadow: none;
     border-radius: 0;
+    padding: 0;
     background: var(--wp--preset--color--white, #fff);
     transform: translateX(100%);
     transition: transform var(--submenu-transition);
@@ -226,8 +227,65 @@
   }
 
   &--drilldown &__panel-inner {
-    padding: var(--wp--preset--spacing--4, 1rem);
-    padding-top: calc(var(--wp--preset--spacing--4, 1rem) + 60px);
+    padding: 0;
+  }
+
+  /* Drilldown header - entire header is a clickable back button for better UX */
+  &__drilldown-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: var(--wp--preset--spacing--3, 0.75rem);
+    width: 100%;
+    min-height: 60px;
+    padding: 0;
+    background: var(--panel-bg, var(--wp--preset--color--white, #fff));
+    border: none;
+    border-bottom: 1px solid var(--aa-nav-border-light, rgb(0 0 0 / 10%));
+    color: var(--panel-link-color, inherit);
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background-color var(--aa-nav-transition-fast, 150ms ease),
+      color var(--aa-nav-transition-fast, 150ms ease);
+
+    &:hover {
+      background: var(--panel-link-hover-bg, var(--aa-nav-hover-bg, rgb(0 0 0 / 5%)));
+    }
+
+    &:focus-visible {
+      outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
+      outline-offset: var(--aa-nav-focus-offset, -2px);
+    }
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+
+    & svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+  }
+
+  &__drilldown-title {
+    flex: 1;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -329,12 +387,23 @@
     border: 1px solid rgb(255 255 255 / 20%);
   }
 
+  /* Drilldown panels don't use glassmorphism border */
+  .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+    border: none;
+    backdrop-filter: none;
+    background: var(--wp--preset--color--white, #fff);
+  }
+
   /* Dark mode support */
   @media (prefers-color-scheme: dark) {
 
     .wp-block-aggressive-apparel-nav-submenu__panel {
       background: rgb(0 0 0 / 80%);
       border-color: rgb(255 255 255 / 10%);
+    }
+
+    .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+      background: var(--wp--preset--color--black, #000);
     }
   }
 }

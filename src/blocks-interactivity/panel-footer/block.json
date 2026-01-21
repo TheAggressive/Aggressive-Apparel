@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/panel-footer",
+  "version": "1.0.0",
+  "title": "Panel Footer",
+  "category": "aggressive-apparel",
+  "description": "Footer section for the navigation panel. Contains social links, contact info, or additional navigation.",
+  "keywords": ["footer", "panel", "navigation"],
+  "textdomain": "aggressive-apparel",
+  "icon": "arrow-down-alt",
+  "parent": ["aggressive-apparel/navigation-panel"],
+  "attributes": {
+    "justifyContent": {
+      "type": "string",
+      "enum": ["flex-start", "center", "flex-end", "space-between"],
+      "default": "center"
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": false
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "width": true,
+      "style": true
+    },
+    "className": true
+  },
+  "usesContext": ["aggressive-apparel/navigationId"],
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

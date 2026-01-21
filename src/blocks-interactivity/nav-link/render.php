@@ -13,11 +13,12 @@
 
 declare(strict_types=1);
 
-$label         = $attributes['label'] ?? '';
-$url           = $attributes['url'] ?? '';
-$opens_new_tab = $attributes['opensInNewTab'] ?? false;
-$description   = $attributes['description'] ?? '';
-$is_current    = $attributes['isCurrent'] ?? false;
+$label           = $attributes['label'] ?? '';
+$url             = $attributes['url'] ?? '';
+$opens_new_tab   = $attributes['opensInNewTab'] ?? false;
+$description     = $attributes['description'] ?? '';
+$is_current      = $attributes['isCurrent'] ?? false;
+$is_inside_panel = $block->context['aggressive-apparel/isInsidePanel'] ?? false;
 
 // Auto-detect current page if not manually set.
 if ( ! $is_current && ! empty( $url ) ) {
@@ -88,13 +89,16 @@ if ( ! empty( $description ) ) {
 	);
 }
 
-// SVG underline for hover animation.
+// SVG underline for hover animation (desktop nav only, not inside panel).
 // Uses a simple wavy path that animates on hover via stroke-dashoffset.
-$underline_svg = '<span class="wp-block-aggressive-apparel-nav-link__underline" aria-hidden="true">
-	<svg viewBox="0 0 100 6" preserveAspectRatio="none">
-		<path d="M0 3 Q 25 0, 50 3 T 100 3" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
-	</svg>
-</span>';
+$underline_svg = '';
+if ( ! $is_inside_panel ) {
+	$underline_svg = '<span class="wp-block-aggressive-apparel-nav-link__underline" aria-hidden="true">
+		<svg viewBox="0 0 100 6" preserveAspectRatio="none">
+			<path d="M0 3 Q 25 0, 50 3 T 100 3" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
+		</svg>
+	</span>';
+}
 
 printf(
 	'<li %s><a%s><span class="wp-block-aggressive-apparel-nav-link__label">%s</span>%s%s</a></li>',

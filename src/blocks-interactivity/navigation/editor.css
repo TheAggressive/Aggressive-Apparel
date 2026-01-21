@@ -1,38 +1,55 @@
 /**
  * Navigation Block Editor Styles
  *
+ * Provides view mode switching between desktop and mobile navigation
+ * for easier editing of each navigation type.
+ *
+ * IMPORTANT: Use direct child selectors to avoid hiding nav-menus inside panel-body.
+ *
  * @package Aggressive_Apparel
  */
 
 .wp-block-aggressive-apparel-navigation--editor {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  border: 1px dashed currentcolor;
-  border-radius: 4px;
-  min-height: 60px;
-
-  &::before {
-    content: "Navigation";
-    position: absolute;
-    top: -0.75rem;
-    left: 0.5rem;
-    padding: 0 0.25rem;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.5;
-    background: var(--wp--preset--color--white, #fff);
-  }
-
-  /* Show all child blocks in editor for easier editing. */
-  & > .wp-block-aggressive-apparel-menu-toggle,
-  & > .wp-block-aggressive-apparel-nav-menu,
-  & > .wp-block-aggressive-apparel-navigation-panel {
-    display: flex;
-  }
+  position: relative;
+  width: 100%;
 }
+
+/* ========================================
+ * DESKTOP VIEW MODE
+ * Show direct-child nav-menu, hide panel and toggle.
+ * ======================================== */
+
+/* Show the main desktop nav-menu (direct child of navigation's inner blocks) */
+.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks .wp-block-aggressive-apparel-nav-menu:not(.wp-block-aggressive-apparel-panel-body .wp-block-aggressive-apparel-nav-menu) {
+  display: flex;
+}
+
+/* Hide menu-toggle and navigation-panel in desktop view */
+.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-menu-toggle,
+.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-navigation-panel {
+  display: none !important;
+}
+
+/* ========================================
+ * MOBILE VIEW MODE
+ * Show panel and toggle, hide ONLY the direct-child nav-menu.
+ * Nav-menus inside panel-body must remain visible!
+ * ======================================== */
+
+/* Show menu-toggle in mobile view */
+.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-menu-toggle {
+  display: flex;
+}
+
+/* Show navigation-panel in mobile view */
+.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-navigation-panel {
+  display: block;
+}
+
+/* Hide ONLY the main desktop nav-menu (direct child), NOT the one inside panel-body */
+.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-nav-menu {
+  display: none !important;
+}
+
+/* Note: Nav-menu visibility inside panel-body is handled by panel-body/editor.css */
 

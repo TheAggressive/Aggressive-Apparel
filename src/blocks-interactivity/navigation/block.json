@@ -59,8 +59,12 @@
         "justifyContent": "space-between",
         "orientation": "horizontal"
       },
-      "allowSwitching": false,
-      "allowInheriting": false
+      "allowSwitching": true,
+      "allowInheriting": false,
+      "allowEditing": true,
+      "allowJustification": true,
+      "allowOrientation": false,
+      "allowVerticalAlignment": true
     },
     "className": true
   },

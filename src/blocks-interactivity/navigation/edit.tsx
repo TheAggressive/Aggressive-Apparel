@@ -11,11 +11,15 @@ import {
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
+  Button,
+  ButtonGroup,
   PanelBody,
   RangeControl,
   SelectControl,
   TextControl,
 } from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import type { NavigationAttributes } from './types';
 
@@ -43,6 +47,9 @@ export default function Edit({
 }: BlockEditProps<NavigationAttributes>) {
   const { breakpoint, ariaLabel, openOn, navId } = attributes;
 
+  // Track which view mode is active: 'desktop' or 'mobile'.
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+
   // Ensure unique ID exists for context sharing.
   if (!navId) {
     // simplified ID generation for editor persistence
@@ -51,12 +58,44 @@ export default function Edit({
   }
 
   const blockProps = useBlockProps({
-    className: 'wp-block-aggressive-apparel-navigation--editor',
+    className: `wp-block-aggressive-apparel-navigation--editor wp-block-aggressive-apparel-navigation--view-${viewMode}`,
   });
 
   return (
     <>
       <InspectorControls>
+        <PanelBody title={__('Editor View', 'aggressive-apparel')}>
+          <p
+            style={{
+              fontSize: '12px',
+              color: '#757575',
+              marginBottom: '12px',
+            }}
+          >
+            {__(
+              'Switch between desktop and mobile views to edit each navigation.',
+              'aggressive-apparel'
+            )}
+          </p>
+          <ButtonGroup style={{ display: 'flex' }}>
+            <Button
+              icon={desktop}
+              isPressed={viewMode === 'desktop'}
+              onClick={() => setViewMode('desktop')}
+              style={{ flex: 1, justifyContent: 'center' }}
+            >
+              {__('Desktop', 'aggressive-apparel')}
+            </Button>
+            <Button
+              icon={mobile}
+              isPressed={viewMode === 'mobile'}
+              onClick={() => setViewMode('mobile')}
+              style={{ flex: 1, justifyContent: 'center' }}
+            >
+              {__('Mobile', 'aggressive-apparel')}
+            </Button>
+          </ButtonGroup>
+        </PanelBody>
         <PanelBody title={__('Responsive Settings', 'aggressive-apparel')}>
           <RangeControl
             label={__('Mobile Breakpoint (px)', 'aggressive-apparel')}

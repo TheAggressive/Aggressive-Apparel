@@ -4,8 +4,13 @@
  * @package Aggressive_Apparel
  */
 
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+  InspectorControls,
+  useBlockProps,
+  store as blockEditorStore,
+} from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
+import { useSelect } from '@wordpress/data';
 import {
   PanelBody,
   SelectControl,
@@ -43,11 +48,23 @@ const ANIMATION_TYPES: { label: string; value: AnimationType }[] = [
 export default function Edit({
   attributes,
   setAttributes,
+  clientId,
 }: BlockEditProps<MenuToggleAttributes>) {
   const { label, iconStyle, animationType, showLabel } = attributes;
 
+  // Check if this toggle is selected.
+  const isSelected = useSelect(
+    select => {
+      const { getSelectedBlockClientId } = select(blockEditorStore) as {
+        getSelectedBlockClientId: () => string | null;
+      };
+      return getSelectedBlockClientId() === clientId;
+    },
+    [clientId]
+  );
+
   const blockProps = useBlockProps({
-    className: `wp-block-aggressive-apparel-menu-toggle wp-block-aggressive-apparel-menu-toggle--${iconStyle} wp-block-aggressive-apparel-menu-toggle--anim-${animationType}`,
+    className: `wp-block-aggressive-apparel-menu-toggle wp-block-aggressive-apparel-menu-toggle--${iconStyle} wp-block-aggressive-apparel-menu-toggle--anim-${animationType}${isSelected ? ' is-toggle-active' : ''}`,
   });
 
   // Render icon bars based on style.

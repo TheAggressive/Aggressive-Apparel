@@ -12,7 +12,10 @@ export interface NavigationPanelAttributes {
   animationStyle: AnimationStyle;
   width: string;
   showOverlay: boolean;
-  showCloseButton: boolean;
+  linkColor?: string;
+  linkHoverColor?: string;
+  linkBackgroundColor?: string;
+  linkHoverBackgroundColor?: string;
 }
 
 export interface NavigationPanelContext {

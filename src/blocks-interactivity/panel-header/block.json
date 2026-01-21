@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/panel-header",
+  "version": "1.0.0",
+  "title": "Panel Header",
+  "category": "aggressive-apparel",
+  "description": "Header section for the navigation panel. Contains close button and optional branding.",
+  "keywords": ["header", "panel", "navigation"],
+  "textdomain": "aggressive-apparel",
+  "icon": "arrow-up-alt",
+  "parent": ["aggressive-apparel/navigation-panel"],
+  "attributes": {
+    "justifyContent": {
+      "type": "string",
+      "enum": ["flex-start", "center", "flex-end", "space-between"],
+      "default": "flex-end"
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": false
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "width": true,
+      "style": true
+    },
+    "className": true
+  },
+  "usesContext": ["aggressive-apparel/navigationId"],
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

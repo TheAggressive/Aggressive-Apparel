@@ -1,0 +1,48 @@
+/**
+ * Panel Close Button Block Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-panel-close-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--close-btn-bg, transparent);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--aa-nav-radius-md, 4px);
+  transition:
+    background-color var(--aa-nav-transition-fast, 150ms ease),
+    color var(--aa-nav-transition-fast, 150ms ease),
+    transform var(--aa-nav-transition-fast, 150ms ease);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--close-btn-hover-bg, var(--close-btn-bg, var(--aa-nav-hover-bg, rgb(0 0 0 / 5%))));
+  }
+
+  &:focus-visible {
+    outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
+    outline-offset: var(--aa-nav-focus-offset, 2px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  /* SVG icon */
+  & svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--close-btn-color, currentcolor);
+    transition: stroke var(--aa-nav-transition-fast, 150ms ease);
+  }
+
+  &:hover svg {
+    stroke: var(--close-btn-hover-color, var(--close-btn-color, currentcolor));
+  }
+}

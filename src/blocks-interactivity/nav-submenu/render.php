@@ -132,6 +132,25 @@ $has_url = ! empty( $url );
 // Panel visibility binding - different for drill-down.
 $panel_visibility_binding = 'drilldown' === $menu_type ? 'callbacks.isCurrentDrillLevel' : 'callbacks.isSubmenuOpen';
 
+// Drilldown header - shows back button and current level title.
+// Only rendered for drilldown menu type.
+// The entire header is a button for better touch target / UX.
+$drilldown_header = '';
+if ( 'drilldown' === $menu_type ) {
+	$drilldown_header = sprintf(
+		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__drilldown-header" aria-label="%s" data-wp-on--click="actions.drillBack">
+			<span class="wp-block-aggressive-apparel-nav-submenu__back" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M15 18l-6-6 6-6"/>
+				</svg>
+			</span>
+			<span class="wp-block-aggressive-apparel-nav-submenu__drilldown-title">%s</span>
+		</button>',
+		esc_attr__( 'Go back', 'aggressive-apparel' ),
+		esc_html( $label )
+	);
+}
+
 // Build trigger element HTML based on whether URL exists.
 if ( $has_url ) {
 	// Use anchor tag when there's a navigation destination.
@@ -166,6 +185,7 @@ printf(
 			%s
 		</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="menu" aria-label="%s" data-wp-class--is-visible="%s"%s%s>
+			%s
 			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu">
 				%s
 			</ul>
@@ -179,5 +199,6 @@ printf(
 	esc_attr( $panel_visibility_binding ),
 	$panel_popover_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains only safe attributes.
 	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.
+	$drilldown_header, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are already escaped.
 );

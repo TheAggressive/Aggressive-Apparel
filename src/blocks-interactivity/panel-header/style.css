@@ -1,0 +1,22 @@
+/**
+ * Panel Header Block Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-panel-header {
+  --panel-header-height: 60px;
+
+  flex-shrink: 0;
+  min-height: var(--panel-header-height);
+  border-bottom: 1px solid var(--aa-nav-border-light, rgb(0 0 0 / 10%));
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: var(--panel-header-justify, flex-end);
+    gap: var(--wp--preset--spacing--2, 0.5rem);
+    min-height: var(--panel-header-height);
+    padding: 0 var(--wp--preset--spacing--4, 1rem);
+  }
+}

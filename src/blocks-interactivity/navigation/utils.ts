@@ -255,9 +255,25 @@ export function setPanelVisibility(panel: HTMLElement, isOpen: boolean): void {
 
 /**
  * Get all focusable elements within a container.
+ * Filters out elements inside inert ancestors since they can't receive focus.
  */
 export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return safeQuerySelectorAll<HTMLElement>(container, FOCUSABLE_SELECTOR);
+  const elements = safeQuerySelectorAll<HTMLElement>(
+    container,
+    FOCUSABLE_SELECTOR
+  );
+
+  // Filter out elements that are inside an inert ancestor.
+  return elements.filter(el => {
+    let parent: HTMLElement | null = el.parentElement;
+    while (parent && parent !== container) {
+      if (parent.inert) {
+        return false;
+      }
+      parent = parent.parentElement;
+    }
+    return true;
+  });
 }
 
 /**

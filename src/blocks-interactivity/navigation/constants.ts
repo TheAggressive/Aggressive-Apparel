@@ -35,10 +35,12 @@ export const SELECTORS = {
   // Panel elements
   panelContent: '.wp-block-aggressive-apparel-navigation-panel__content',
   panelHeader: '.wp-block-aggressive-apparel-navigation-panel__header',
-  panelBody: '.wp-block-aggressive-apparel-navigation-panel__body',
+  panelBody: '.wp-block-aggressive-apparel-panel-body',
   panelOverlay: '.wp-block-aggressive-apparel-navigation-panel__overlay',
   panelClose: '.wp-block-aggressive-apparel-navigation-panel__close',
-  panelBack: '.wp-block-aggressive-apparel-navigation-panel__back',
+  drilldownHeader: '.wp-block-aggressive-apparel-nav-submenu__drilldown-header',
+  drilldownBack: '.wp-block-aggressive-apparel-nav-submenu__back',
+  drilldownTitle: '.wp-block-aggressive-apparel-nav-submenu__drilldown-title',
 
   // State classes
   isOpen: 'is-open',

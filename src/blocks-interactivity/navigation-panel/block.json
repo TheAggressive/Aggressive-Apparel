@@ -29,9 +29,17 @@
       "type": "boolean",
       "default": true
     },
-    "showCloseButton": {
-      "type": "boolean",
-      "default": true
+    "linkColor": {
+      "type": "string"
+    },
+    "linkHoverColor": {
+      "type": "string"
+    },
+    "linkBackgroundColor": {
+      "type": "string"
+    },
+    "linkHoverBackgroundColor": {
+      "type": "string"
     }
   },
   "supports": {

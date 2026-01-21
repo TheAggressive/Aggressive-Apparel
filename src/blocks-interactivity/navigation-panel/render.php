@@ -2,9 +2,6 @@
 /**
  * Navigation Panel Block Render
  *
- * Panels are rendered via wp_footer to ensure they're outside .wp-site-blocks
- * for proper push/reveal animations that move the page content.
- *
  * @package Aggressive_Apparel
  *
  * @var array    $attributes Block attributes.
@@ -14,42 +11,67 @@
 
 declare(strict_types=1);
 
+// Panels are rendered via wp_footer to ensure they're outside .wp-site-blocks
+// for proper push/reveal animations that move the page content.
+
 // Explicitly enqueue block assets since we're using the portal pattern.
 // WordPress normally auto-enqueues when block output is detected, but since we
 // store the HTML for wp_footer output, we need to manually ensure assets load.
-$block_name = 'aggressive-apparel/navigation-panel';
+// This includes the panel's own styles AND all child block styles.
 
-// Enqueue the block's frontend styles.
-// Try the WordPress-generated handle first, then fallback to direct enqueue.
-$style_handle = generate_block_asset_handle( $block_name, 'style' );
-if ( wp_style_is( $style_handle, 'registered' ) ) {
-	wp_enqueue_style( $style_handle );
-} else {
+// Helper function to enqueue a block's frontend styles.
+// @param string $block_name Full block name (e.g., 'aggressive-apparel/panel-header').
+$enqueue_block_style = static function ( string $block_name ): void {
+	$style_handle = generate_block_asset_handle( $block_name, 'style' );
+	if ( wp_style_is( $style_handle, 'registered' ) ) {
+		wp_enqueue_style( $style_handle );
+		return;
+	}
+
 	// Fallback: directly enqueue the CSS file.
-	$style_path = get_template_directory() . '/build/blocks-interactivity/navigation-panel/style-index.css';
-	$style_url  = get_template_directory_uri() . '/build/blocks-interactivity/navigation-panel/style-index.css';
+	$block_slug = str_replace( 'aggressive-apparel/', '', $block_name );
+	$style_path = get_template_directory() . '/build/blocks-interactivity/' . $block_slug . '/style-index.css';
+	$style_url  = get_template_directory_uri() . '/build/blocks-interactivity/' . $block_slug . '/style-index.css';
 	if ( file_exists( $style_path ) ) {
 		wp_enqueue_style(
-			'aggressive-apparel-navigation-panel-style',
+			'aggressive-apparel-' . $block_slug . '-style',
 			$style_url,
 			array(),
 			filemtime( $style_path )
 		);
 	}
+};
+
+// Enqueue styles for the navigation-panel and all its child blocks.
+// Child blocks need explicit enqueuing because the portal pattern means
+// WordPress doesn't detect them during normal content rendering.
+$panel_blocks = array(
+	'aggressive-apparel/navigation-panel',
+	'aggressive-apparel/panel-header',
+	'aggressive-apparel/panel-body',
+	'aggressive-apparel/panel-footer',
+	'aggressive-apparel/panel-close-button',
+);
+
+foreach ( $panel_blocks as $panel_block_name ) {
+	$enqueue_block_style( $panel_block_name );
 }
 
 // Enqueue the view script module (for Interactivity API).
 // Script modules use a different API than regular scripts in WordPress 6.5+.
-$view_script_module_id = generate_block_asset_handle( $block_name, 'viewScriptModule' );
+$view_script_module_id = generate_block_asset_handle( 'aggressive-apparel/navigation-panel', 'viewScriptModule' );
 if ( function_exists( 'wp_enqueue_script_module' ) ) {
 	wp_enqueue_script_module( $view_script_module_id );
 }
 
-$position          = $attributes['position'] ?? 'right';
-$animation_style   = $attributes['animationStyle'] ?? 'slide';
-$width             = $attributes['width'] ?? 'min(320px, 85vw)';
-$show_overlay      = $attributes['showOverlay'] ?? true;
-$show_close_button = $attributes['showCloseButton'] ?? true;
+$position            = $attributes['position'] ?? 'right';
+$animation_style     = $attributes['animationStyle'] ?? 'slide';
+$width               = $attributes['width'] ?? 'min(320px, 85vw)';
+$show_overlay        = $attributes['showOverlay'] ?? true;
+$link_color          = $attributes['linkColor'] ?? '';
+$link_hover_color    = $attributes['linkHoverColor'] ?? '';
+$link_bg_color       = $attributes['linkBackgroundColor'] ?? '';
+$link_hover_bg_color = $attributes['linkHoverBackgroundColor'] ?? '';
 
 // Get navigation ID and breakpoint from context using shared functions.
 $nav_id     = aggressive_apparel_get_nav_id_from_context( $block );
@@ -70,13 +92,29 @@ $classes = array(
 	'wp-block-aggressive-apparel-navigation-panel--' . sanitize_html_class( $animation_style ),
 );
 
-// Inline styles set the panel width CSS variable.
+// Build inline styles with CSS variables.
 // The panel is positioned off-screen via CSS transform when closed,
 // so we don't need visibility:hidden which would break animations.
-$inline_styles = sprintf(
-	'--panel-width: %s; pointer-events: none;',
-	esc_attr( $width )
+$style_parts = array(
+	sprintf( '--panel-width: %s', esc_attr( $width ) ),
+	'pointer-events: none',
 );
+
+// Add link color variables if set (for panel-body nav items).
+if ( $link_color ) {
+	$style_parts[] = sprintf( '--panel-link-color: %s', esc_attr( $link_color ) );
+}
+if ( $link_hover_color ) {
+	$style_parts[] = sprintf( '--panel-link-hover-color: %s', esc_attr( $link_hover_color ) );
+}
+if ( $link_bg_color ) {
+	$style_parts[] = sprintf( '--panel-link-bg: %s', esc_attr( $link_bg_color ) );
+}
+if ( $link_hover_bg_color ) {
+	$style_parts[] = sprintf( '--panel-link-hover-bg: %s', esc_attr( $link_hover_bg_color ) );
+}
+
+$inline_styles = implode( '; ', $style_parts ) . ';';
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
@@ -107,43 +145,12 @@ if ( $show_overlay ) {
 	$overlay_html = '<div class="wp-block-aggressive-apparel-navigation-panel__overlay" data-wp-on--click="actions.close" aria-hidden="true" role="presentation"></div>';
 }
 
-// Close button markup.
-$close_button_html = '';
-if ( $show_close_button ) {
-	$close_button_html = sprintf(
-		'<button class="wp-block-aggressive-apparel-navigation-panel__close" type="button" aria-label="%s" data-wp-on--click="actions.close">
-			<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<line x1="18" y1="6" x2="6" y2="18"></line>
-				<line x1="6" y1="6" x2="18" y2="18"></line>
-			</svg>
-		</button>',
-		esc_attr__( 'Close menu', 'aggressive-apparel' )
-	);
-}
-
-// Drill-down back button (hidden by default, shown via CSS when drill stack has items).
-$back_button_html = sprintf(
-	'<button class="wp-block-aggressive-apparel-navigation-panel__back" type="button" aria-label="%s" data-wp-on--click="actions.drillBack" data-wp-bind--hidden="!callbacks.hasDrillHistory">
-		<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<line x1="19" y1="12" x2="5" y2="12"></line>
-			<polyline points="12 19 5 12 12 5"></polyline>
-		</svg>
-		<span>%s</span>
-	</button>',
-	esc_attr__( 'Go back', 'aggressive-apparel' ),
-	esc_html__( 'Back', 'aggressive-apparel' )
-);
-
 // Build the panel HTML.
+// The content comes from InnerBlocks which includes the header, body, and footer groups.
 $panel_html = sprintf(
-	'<div %s>%s<div class="wp-block-aggressive-apparel-navigation-panel__content">
-		<div class="wp-block-aggressive-apparel-navigation-panel__header">%s%s</div>
-		<div class="wp-block-aggressive-apparel-navigation-panel__body">%s</div>
-	</div></div>',
+	'<div %s>%s<div class="wp-block-aggressive-apparel-navigation-panel__content">%s</div></div>',
 	$wrapper_attributes,
 	$overlay_html,
-	$back_button_html,
-	$close_button_html,
 	$content
 );
 
@@ -175,24 +182,44 @@ if ( ! $aggressive_apparel_panels_footer_registered ) {
 				return;
 			}
 
-			// Print the stylesheet since wp_head has already run.
+			// Print stylesheets for navigation-panel and all child blocks since wp_head has already run.
 			// We use wp_print_styles to output any enqueued styles that haven't been printed yet.
-			$style_handle = generate_block_asset_handle( 'aggressive-apparel/navigation-panel', 'style' );
-			if ( wp_style_is( $style_handle, 'enqueued' ) && ! wp_style_is( $style_handle, 'done' ) ) {
-				wp_print_styles( array( $style_handle ) );
-			} elseif ( ! wp_style_is( $style_handle, 'done' ) ) {
-				// Fallback: register and print the stylesheet via wp_enqueue_style.
-				$style_url  = get_template_directory_uri() . '/build/blocks-interactivity/navigation-panel/style-index.css';
-				$style_path = get_template_directory() . '/build/blocks-interactivity/navigation-panel/style-index.css';
-				if ( file_exists( $style_path ) ) {
-					wp_register_style(
-						'aggressive-apparel-navigation-panel-footer-style',
-						$style_url,
-						array(),
-						(string) filemtime( $style_path )
-					);
-					wp_print_styles( array( 'aggressive-apparel-navigation-panel-footer-style' ) );
+			$panel_blocks = array(
+				'aggressive-apparel/navigation-panel',
+				'aggressive-apparel/panel-header',
+				'aggressive-apparel/panel-body',
+				'aggressive-apparel/panel-footer',
+				'aggressive-apparel/panel-close-button',
+			);
+
+			$styles_to_print = array();
+
+			foreach ( $panel_blocks as $block_name ) {
+				$style_handle = generate_block_asset_handle( $block_name, 'style' );
+
+				if ( wp_style_is( $style_handle, 'enqueued' ) && ! wp_style_is( $style_handle, 'done' ) ) {
+					$styles_to_print[] = $style_handle;
+				} elseif ( ! wp_style_is( $style_handle, 'done' ) ) {
+					// Fallback: register the stylesheet directly if not already done.
+					$block_slug = str_replace( 'aggressive-apparel/', '', $block_name );
+					$style_url  = get_template_directory_uri() . '/build/blocks-interactivity/' . $block_slug . '/style-index.css';
+					$style_path = get_template_directory() . '/build/blocks-interactivity/' . $block_slug . '/style-index.css';
+
+					if ( file_exists( $style_path ) ) {
+						$fallback_handle = 'aggressive-apparel-' . $block_slug . '-footer-style';
+						wp_register_style(
+							$fallback_handle,
+							$style_url,
+							array(),
+							(string) filemtime( $style_path )
+						);
+						$styles_to_print[] = $fallback_handle;
+					}
 				}
+			}
+
+			if ( ! empty( $styles_to_print ) ) {
+				wp_print_styles( $styles_to_print );
 			}
 
 			// Render all registered panels at the end of body.

@@ -1,0 +1,25 @@
+/**
+ * Panel Close Button Block Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-panel-close-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--close-btn-bg, transparent);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--close-btn-color, currentcolor);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.wp-block-aggressive-apparel-panel-close-button svg {
+  width: 24px;
+  height: 24px;
+}

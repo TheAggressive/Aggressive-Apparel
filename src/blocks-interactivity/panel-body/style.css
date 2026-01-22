@@ -95,11 +95,6 @@
         color: var(--panel-link-hover-color, var(--wp--preset--color--primary, currentcolor));
         background: var(--panel-link-hover-bg, var(--aa-nav-hover-bg, rgb(0 0 0 / 5%)));
       }
-
-      /* Submenu chevron icon transition */
-      & svg {
-        transition: stroke var(--aa-nav-transition-fast, 150ms ease);
-      }
     }
   }
 }

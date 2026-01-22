@@ -89,22 +89,10 @@ if ( ! empty( $description ) ) {
 	);
 }
 
-// SVG underline for hover animation (desktop nav only, not inside panel).
-// Uses a simple wavy path that animates on hover via stroke-dashoffset.
-$underline_svg = '';
-if ( ! $is_inside_panel ) {
-	$underline_svg = '<span class="wp-block-aggressive-apparel-nav-link__underline" aria-hidden="true">
-		<svg viewBox="0 0 100 6" preserveAspectRatio="none">
-			<path d="M0 3 Q 25 0, 50 3 T 100 3" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
-		</svg>
-	</span>';
-}
-
 printf(
-	'<li %s><a%s><span class="wp-block-aggressive-apparel-nav-link__label">%s</span>%s%s</a></li>',
+	'<li %s><a%s><span class="wp-block-aggressive-apparel-nav-link__label">%s</span>%s</a></li>',
 	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
 	$link_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
 	esc_html( $label ),
-	$description_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$underline_svg // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG markup.
+	$description_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
 );

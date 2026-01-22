@@ -38,11 +38,5 @@
   & svg {
     width: 32px;
     height: 32px;
-    stroke: var(--close-btn-color, currentcolor);
-    transition: stroke var(--aa-nav-transition-fast, 150ms ease);
-  }
-
-  &:hover svg {
-    stroke: var(--close-btn-hover-color, var(--close-btn-color, currentcolor));
   }
 }

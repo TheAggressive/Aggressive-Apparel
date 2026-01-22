@@ -63,15 +63,6 @@
       transform var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1)),
       opacity var(--panel-transition, 300ms cubic-bezier(0.4, 0, 0.2, 1));
 
-    /* Ensure all SVGs inside panel inherit fill color from parent */
-    & svg {
-      fill: currentcolor;
-    }
-
-    /* Preserve fill="none" for stroke-only icons (chevrons, close, etc.) */
-    & svg[fill="none"] {
-      fill: none;
-    }
   }
 
   /* Note: Panel header, body, and footer styling is handled by dedicated blocks:

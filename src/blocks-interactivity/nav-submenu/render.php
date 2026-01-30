@@ -11,17 +11,23 @@
 
 declare(strict_types=1);
 
-$label                  = $attributes['label'] ?? '';
-$url                    = $attributes['url'] ?? '';
-$menu_type              = $attributes['menuType'] ?? 'dropdown';
-$submenu_id             = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
-$show_arrow             = $attributes['showArrow'] ?? true;
-$panel_background_color = $attributes['panelBackgroundColor'] ?? '';
-$panel_text_color       = $attributes['panelTextColor'] ?? '';
+$label      = $attributes['label'] ?? '';
+$url        = $attributes['url'] ?? '';
+$menu_type  = $attributes['menuType'] ?? 'dropdown';
+$submenu_id = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
+$show_arrow = $attributes['showArrow'] ?? true;
 
 // Inherit from parent navigation context.
 $nav_id  = $block->context['aggressive-apparel/navigationId'] ?? '';
 $open_on = $block->context['aggressive-apparel/navigationOpenOn'] ?? ( $attributes['openOn'] ?? 'hover' );
+
+// Inherit panel styling from nav-menu context.
+$panel_background_color = $block->context['aggressive-apparel/submenuBackgroundColor'] ?? '';
+$panel_text_color       = $block->context['aggressive-apparel/submenuTextColor'] ?? '';
+$panel_border_radius    = $block->context['aggressive-apparel/submenuBorderRadius'] ?? '';
+$panel_border_width     = $block->context['aggressive-apparel/submenuBorderWidth'] ?? '';
+$panel_border_color     = $block->context['aggressive-apparel/submenuBorderColor'] ?? '';
+$panel_border_style     = $block->context['aggressive-apparel/submenuBorderStyle'] ?? 'solid';
 
 // Build context for Interactivity API.
 $context = wp_json_encode(
@@ -91,13 +97,26 @@ $panel_popover_attrs = '';
 // The Popover API works best with button triggers and click-only interaction.
 // Our CSS :has() and JS hover intent provide the dropdown behavior instead.
 
-// Build panel inline styles from color attributes.
+// Build panel inline styles from color and border attributes.
+// Border uses CSS custom properties to override the glassmorphism defaults.
 $panel_styles = array();
 if ( ! empty( $panel_background_color ) ) {
 	$panel_styles[] = 'background-color: ' . esc_attr( $panel_background_color );
 }
 if ( ! empty( $panel_text_color ) ) {
 	$panel_styles[] = '--panel-link-color: ' . esc_attr( $panel_text_color );
+}
+if ( ! empty( $panel_border_radius ) ) {
+	$panel_styles[] = 'border-radius: ' . esc_attr( $panel_border_radius );
+}
+if ( ! empty( $panel_border_width ) ) {
+	$panel_styles[] = '--panel-border-width: ' . esc_attr( $panel_border_width );
+}
+if ( ! empty( $panel_border_color ) ) {
+	$panel_styles[] = '--panel-border-color: ' . esc_attr( $panel_border_color );
+}
+if ( ! empty( $panel_border_style ) && 'solid' !== $panel_border_style ) {
+	$panel_styles[] = '--panel-border-style: ' . esc_attr( $panel_border_style );
 }
 $panel_style_attr = ! empty( $panel_styles ) ? ' style="' . implode( '; ', $panel_styles ) . '"' : '';
 

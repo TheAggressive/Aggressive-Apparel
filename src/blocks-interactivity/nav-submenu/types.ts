@@ -14,8 +14,6 @@ export interface NavSubmenuAttributes {
   openOn: OpenTrigger;
   submenuId: string;
   showArrow: boolean;
-  panelBackgroundColor?: string;
-  panelTextColor?: string;
 }
 
 export interface NavSubmenuContext {

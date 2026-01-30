@@ -56,14 +56,13 @@
   --navigation-breakpoint: 1024px;
 
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--navigation-gap);
+  width: 100%;
 
-  /* Default desktop state: Show nav menu, hide toggle & panel. */
-  & .wp-block-aggressive-apparel-nav-menu {
+  /* Flex properties are handled by WordPress layout support.
+   * Only set fallbacks for when layout classes aren't present. */
+  &:not(.is-layout-flex) {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--navigation-gap);
   }
@@ -109,12 +108,13 @@
       /* Visibility controlled by panel's own state (is-open) */
     }
 
-    /* Nav menus inside the panel should be visible and vertical. */
+    /* Nav menus inside the panel must be vertical regardless of layout settings.
+     * This intentionally overrides WordPress layout classes for mobile panel. */
     & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-menu {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0 !important;
     }
 
     /* Mobile touch target sizing - ensure 44px minimum for accessibility. */

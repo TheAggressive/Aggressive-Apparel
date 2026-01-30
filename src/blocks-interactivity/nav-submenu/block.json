@@ -40,12 +40,6 @@
     "showArrow": {
       "type": "boolean",
       "default": true
-    },
-    "panelBackgroundColor": {
-      "type": "string"
-    },
-    "panelTextColor": {
-      "type": "string"
     }
   },
   "supports": {
@@ -80,7 +74,13 @@
   "usesContext": [
     "aggressive-apparel/navigationId",
     "aggressive-apparel/navigationOpenOn",
-    "aggressive-apparel/navMenuOrientation"
+    "aggressive-apparel/navMenuOrientation",
+    "aggressive-apparel/submenuBackgroundColor",
+    "aggressive-apparel/submenuTextColor",
+    "aggressive-apparel/submenuBorderRadius",
+    "aggressive-apparel/submenuBorderWidth",
+    "aggressive-apparel/submenuBorderColor",
+    "aggressive-apparel/submenuBorderStyle"
   ],
   "render": "file:./render.php",
   "editorScript": "file:./index.js",

@@ -96,6 +96,11 @@
       opacity var(--submenu-transition),
       visibility var(--submenu-transition),
       transform var(--submenu-transition);
+
+    /* Border - controlled via CSS custom properties from Nav Menu settings */
+    border-width: var(--panel-border-width, 0);
+    border-style: var(--panel-border-style, solid);
+    border-color: var(--panel-border-color, currentcolor);
   }
 
   &__panel-inner {
@@ -384,7 +389,11 @@
   .wp-block-aggressive-apparel-nav-submenu__panel {
     background: rgb(255 255 255 / 90%);
     backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgb(255 255 255 / 20%);
+
+    /* Border only applied when custom values are set via Nav Menu settings */
+    border-width: var(--panel-border-width, 0);
+    border-style: var(--panel-border-style, solid);
+    border-color: var(--panel-border-color, currentcolor);
   }
 
   /* Drilldown panels don't use glassmorphism border */
@@ -399,26 +408,12 @@
 
     .wp-block-aggressive-apparel-nav-submenu__panel {
       background: rgb(0 0 0 / 80%);
-      border-color: rgb(255 255 255 / 10%);
+      border-color: var(--panel-border-color, rgb(255 255 255 / 10%));
     }
 
     .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
       background: var(--wp--preset--color--black, #000);
     }
-  }
-}
-
-/* ========================================
- * CONTENT-VISIBILITY PERFORMANCE
- * Skip rendering hidden dropdown content.
- * ======================================== */
-@supports (content-visibility: auto) {
-
-  /* Only hide content when not open via JS and not being hovered.
-   * Using :not() with complex selector to allow CSS hover to work. */
-  .wp-block-aggressive-apparel-nav-submenu:not(.is-open, :hover, :focus-within) .wp-block-aggressive-apparel-nav-submenu__panel {
-    content-visibility: hidden;
-    contain-intrinsic-size: auto 200px;
   }
 }
 

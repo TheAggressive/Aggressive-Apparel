@@ -7,20 +7,26 @@
 .wp-block-aggressive-apparel-nav-menu {
   --nav-menu-gap: var(--wp--preset--spacing--6, 1.5rem);
 
-  display: flex;
-  align-items: center;
-  gap: var(--nav-menu-gap);
+  width: 100%;
   list-style: none;
   margin: 0;
   padding: 0;
 
+  /* Flex properties handled by WordPress layout support.
+   * Fallback for when layout classes aren't present. */
+  &:not(.is-layout-flex) {
+    display: flex;
+    align-items: center;
+    gap: var(--nav-menu-gap);
+  }
+
   /* Horizontal (default). */
-  &--horizontal {
+  &--horizontal:not(.is-layout-flex) {
     flex-flow: row wrap;
   }
 
-  /* Vertical. */
-  &--vertical {
+  /* Vertical - only apply when WordPress layout isn't handling it. */
+  &--vertical:not(.is-layout-flex) {
     flex-direction: column;
     align-items: stretch;
   }

@@ -13,12 +13,11 @@
 
 declare(strict_types=1);
 
-$label           = $attributes['label'] ?? '';
-$url             = $attributes['url'] ?? '';
-$opens_new_tab   = $attributes['opensInNewTab'] ?? false;
-$description     = $attributes['description'] ?? '';
-$is_current      = $attributes['isCurrent'] ?? false;
-$is_inside_panel = $block->context['aggressive-apparel/isInsidePanel'] ?? false;
+$label         = $attributes['label'] ?? '';
+$url           = $attributes['url'] ?? '';
+$opens_new_tab = $attributes['opensInNewTab'] ?? false;
+$description   = $attributes['description'] ?? '';
+$is_current    = $attributes['isCurrent'] ?? false;
 
 // Auto-detect current page if not manually set.
 if ( ! $is_current && ! empty( $url ) ) {

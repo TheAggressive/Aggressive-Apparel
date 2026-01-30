@@ -35,10 +35,14 @@
     "layout": {
       "default": {
         "type": "flex",
-        "flexWrap": "wrap"
+        "flexWrap": "wrap",
+        "orientation": "horizontal"
       },
       "allowSwitching": false,
       "allowInheriting": false,
+      "allowEditing": true,
+      "allowJustification": true,
+      "allowOrientation": false,
       "allowVerticalAlignment": true
     },
     "typography": {

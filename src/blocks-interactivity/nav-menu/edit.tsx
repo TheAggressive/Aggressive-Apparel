@@ -4,15 +4,9 @@
  * @package Aggressive_Apparel
  */
 
-import {
-  InspectorControls,
-  useBlockProps,
-  useInnerBlocksProps,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
-import { PanelBody, SelectControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import type { MenuOrientation, NavMenuAttributes } from './types';
+import type { NavMenuAttributes } from './types';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/nav-link',
@@ -27,7 +21,6 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
 
 export default function Edit({
   attributes,
-  setAttributes,
 }: BlockEditProps<NavMenuAttributes>) {
   const { orientation } = attributes;
 
@@ -37,6 +30,7 @@ export default function Edit({
 
   // Use useInnerBlocksProps to render inner blocks directly inside the ul
   // without extra wrapper divs that break ul > li structure.
+  // Orientation is passed for editor drag/drop behavior.
   const innerBlocksProps = useInnerBlocksProps(
     { ...blockProps, role: 'menubar' },
     {
@@ -47,34 +41,5 @@ export default function Edit({
     }
   );
 
-  return (
-    <>
-      <InspectorControls>
-        <PanelBody title={__('Menu Settings', 'aggressive-apparel')}>
-          <SelectControl
-            label={__('Orientation', 'aggressive-apparel')}
-            help={__(
-              'Horizontal for desktop, vertical for mobile panels.',
-              'aggressive-apparel'
-            )}
-            value={orientation}
-            options={[
-              {
-                label: __('Horizontal', 'aggressive-apparel'),
-                value: 'horizontal',
-              },
-              {
-                label: __('Vertical', 'aggressive-apparel'),
-                value: 'vertical',
-              },
-            ]}
-            onChange={value =>
-              setAttributes({ orientation: value as MenuOrientation })
-            }
-          />
-        </PanelBody>
-      </InspectorControls>
-      <ul {...innerBlocksProps} />
-    </>
-  );
+  return <ul {...innerBlocksProps} />;
 }

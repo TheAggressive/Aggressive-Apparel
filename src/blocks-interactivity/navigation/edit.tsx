@@ -8,20 +8,26 @@ import {
   InnerBlocks,
   InspectorControls,
   useBlockProps,
+  useSetting,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
+import type { Color } from '@wordpress/components';
 import {
+  BaseControl,
   Button,
   ButtonGroup,
+  ColorPalette,
   PanelBody,
   RangeControl,
   SelectControl,
   TextControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
+  __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import type { NavigationAttributes } from './types';
+import type { BorderStyle, NavigationAttributes } from './types';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/menu-toggle',
@@ -45,7 +51,21 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<NavigationAttributes>) {
-  const { breakpoint, ariaLabel, openOn, navId } = attributes;
+  const {
+    breakpoint,
+    ariaLabel,
+    openOn,
+    navId,
+    submenuBackgroundColor,
+    submenuTextColor,
+    submenuBorderRadius,
+    submenuBorderWidth,
+    submenuBorderColor,
+    submenuBorderStyle,
+  } = attributes;
+
+  // Get theme color palette for color controls.
+  const colorPalette = useSetting('color.palette') as Color[] | undefined;
 
   // Track which view mode is active: 'desktop' or 'mobile'.
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
@@ -138,6 +158,90 @@ export default function Edit({
             value={ariaLabel}
             onChange={value => setAttributes({ ariaLabel: value })}
           />
+        </PanelBody>
+        <PanelBody
+          title={__('Submenu Colors', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <BaseControl
+            id='submenu-background-color'
+            label={__('Background', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={submenuBackgroundColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ submenuBackgroundColor: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='submenu-text-color'
+            label={__('Text', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={submenuTextColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ submenuTextColor: value })
+              }
+            />
+          </BaseControl>
+        </PanelBody>
+        <PanelBody
+          title={__('Submenu Border', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <UnitControl
+            label={__('Border Radius', 'aggressive-apparel')}
+            value={submenuBorderRadius}
+            onChange={(value: string | undefined) =>
+              setAttributes({ submenuBorderRadius: value })
+            }
+            units={[
+              { value: 'px', label: 'px', default: 0 },
+              { value: 'em', label: 'em', default: 0 },
+              { value: 'rem', label: 'rem', default: 0 },
+              { value: '%', label: '%', default: 0 },
+            ]}
+          />
+          <UnitControl
+            label={__('Border Width', 'aggressive-apparel')}
+            value={submenuBorderWidth}
+            onChange={(value: string | undefined) =>
+              setAttributes({ submenuBorderWidth: value })
+            }
+            units={[
+              { value: 'px', label: 'px', default: 0 },
+              { value: 'em', label: 'em', default: 0 },
+              { value: 'rem', label: 'rem', default: 0 },
+            ]}
+          />
+          <SelectControl
+            label={__('Border Style', 'aggressive-apparel')}
+            value={submenuBorderStyle ?? 'solid'}
+            options={[
+              { label: __('Solid', 'aggressive-apparel'), value: 'solid' },
+              { label: __('Dashed', 'aggressive-apparel'), value: 'dashed' },
+              { label: __('Dotted', 'aggressive-apparel'), value: 'dotted' },
+              { label: __('None', 'aggressive-apparel'), value: 'none' },
+            ]}
+            onChange={value =>
+              setAttributes({ submenuBorderStyle: value as BorderStyle })
+            }
+          />
+          <BaseControl
+            id='submenu-border-color'
+            label={__('Border Color', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={submenuBorderColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ submenuBorderColor: value })
+              }
+            />
+          </BaseControl>
         </PanelBody>
       </InspectorControls>
       <nav {...blockProps} aria-label={ariaLabel}>

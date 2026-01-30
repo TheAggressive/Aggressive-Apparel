@@ -12,13 +12,9 @@ import {
   RichText,
   useBlockProps,
   useInnerBlocksProps,
-  useSetting,
 } from '@wordpress/block-editor';
-import type { Color } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
-  BaseControl,
-  ColorPalette,
   PanelBody,
   Popover,
   SelectControl,
@@ -31,12 +27,22 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
 import type { MenuType, NavSubmenuAttributes, OpenTrigger } from './types';
-import React from 'react';
+import type React from 'react';
 
 const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/nav-link', { label: 'Submenu Item 1', url: '#' }],
   ['aggressive-apparel/nav-link', { label: 'Submenu Item 2', url: '#' }],
 ];
+
+// Context values from parent nav-menu block.
+interface NavSubmenuContext {
+  'aggressive-apparel/submenuBackgroundColor'?: string;
+  'aggressive-apparel/submenuTextColor'?: string;
+  'aggressive-apparel/submenuBorderRadius'?: string;
+  'aggressive-apparel/submenuBorderWidth'?: string;
+  'aggressive-apparel/submenuBorderColor'?: string;
+  'aggressive-apparel/submenuBorderStyle'?: string;
+}
 
 // Generate a unique submenu ID.
 function generateSubmenuId(): string {
@@ -47,19 +53,20 @@ export default function Edit({
   attributes,
   setAttributes,
   isSelected,
-}: BlockEditProps<NavSubmenuAttributes>) {
-  const {
-    label,
-    url,
-    menuType,
-    openOn,
-    submenuId,
-    showArrow,
-    panelBackgroundColor,
-    panelTextColor,
-  } = attributes;
+  context,
+}: BlockEditProps<NavSubmenuAttributes> & { context: NavSubmenuContext }) {
+  const { label, url, menuType, openOn, submenuId, showArrow } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Get panel styling from parent nav-menu context.
+  const panelBackgroundColor =
+    context['aggressive-apparel/submenuBackgroundColor'];
+  const panelTextColor = context['aggressive-apparel/submenuTextColor'];
+  const panelBorderRadius = context['aggressive-apparel/submenuBorderRadius'];
+  const panelBorderWidth = context['aggressive-apparel/submenuBorderWidth'];
+  const panelBorderColor = context['aggressive-apparel/submenuBorderColor'];
+  const panelBorderStyle = context['aggressive-apparel/submenuBorderStyle'];
 
   // Generate submenu ID if not set.
   useEffect(() => {
@@ -72,9 +79,6 @@ export default function Edit({
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-submenu wp-block-aggressive-apparel-nav-submenu--${menuType}`,
   });
-
-  // Get theme color palette for color controls.
-  const colorPalette = useSetting('color.palette') as Color[] | undefined;
 
   // Determine which blocks to show based on menu type.
   const getAllowedBlocks = () => {
@@ -90,6 +94,28 @@ export default function Edit({
     }
     return TEMPLATE;
   };
+
+  // Build panel styles from context.
+  // Border uses CSS custom properties to override the glassmorphism defaults.
+  const panelStyle: Record<string, string> = {};
+  if (panelBackgroundColor) {
+    panelStyle.backgroundColor = panelBackgroundColor;
+  }
+  if (panelTextColor) {
+    panelStyle['--panel-link-color'] = panelTextColor;
+  }
+  if (panelBorderRadius) {
+    panelStyle.borderRadius = panelBorderRadius;
+  }
+  if (panelBorderWidth) {
+    panelStyle['--panel-border-width'] = panelBorderWidth;
+  }
+  if (panelBorderColor) {
+    panelStyle['--panel-border-color'] = panelBorderColor;
+  }
+  if (panelBorderStyle && panelBorderStyle !== 'solid') {
+    panelStyle['--panel-border-style'] = panelBorderStyle;
+  }
 
   // Use useInnerBlocksProps to properly associate inner blocks with this block.
   // Inner blocks are li elements, so the container must be a ul.
@@ -166,37 +192,6 @@ export default function Edit({
           />
         </PanelBody>
       </InspectorControls>
-      <InspectorControls>
-        <PanelBody
-          title={__('Panel Colors', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <BaseControl
-            id='panel-background-color'
-            label={__('Background', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colorPalette}
-              value={panelBackgroundColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelBackgroundColor: value })
-              }
-            />
-          </BaseControl>
-          <BaseControl
-            id='panel-text-color'
-            label={__('Text', 'aggressive-apparel')}
-          >
-            <ColorPalette
-              colors={colorPalette}
-              value={panelTextColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelTextColor: value })
-              }
-            />
-          </BaseControl>
-        </PanelBody>
-      </InspectorControls>
       <li {...blockProps} role='none'>
         <div className='wp-block-aggressive-apparel-nav-submenu__trigger'>
           <div
@@ -257,12 +252,7 @@ export default function Edit({
         <div
           className='wp-block-aggressive-apparel-nav-submenu__panel'
           aria-label={label}
-          style={
-            {
-              backgroundColor: panelBackgroundColor,
-              '--panel-link-color': panelTextColor,
-            } as React.CSSProperties
-          }
+          style={panelStyle}
         >
           <ul {...innerBlocksProps} />
         </div>

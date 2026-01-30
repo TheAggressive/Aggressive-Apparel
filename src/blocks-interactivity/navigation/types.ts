@@ -6,11 +6,19 @@
  * @package Aggressive_Apparel
  */
 
+export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
+
 export interface NavigationAttributes {
   breakpoint: number;
   ariaLabel: string;
   openOn: 'hover' | 'click';
   navId?: string;
+  submenuBackgroundColor?: string;
+  submenuTextColor?: string;
+  submenuBorderRadius?: string;
+  submenuBorderWidth?: string;
+  submenuBorderColor?: string;
+  submenuBorderStyle?: BorderStyle;
 }
 
 export interface NavigationContext {

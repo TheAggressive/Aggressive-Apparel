@@ -26,6 +26,29 @@
       "type": "string",
       "enum": ["hover", "click"],
       "default": "hover"
+    },
+    "submenuBackgroundColor": {
+      "type": "string"
+    },
+    "submenuTextColor": {
+      "type": "string"
+    },
+    "submenuBorderRadius": {
+      "type": "string",
+      "default": ""
+    },
+    "submenuBorderWidth": {
+      "type": "string",
+      "default": ""
+    },
+    "submenuBorderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "submenuBorderStyle": {
+      "type": "string",
+      "enum": ["solid", "dashed", "dotted", "none"],
+      "default": "solid"
     }
   },
   "supports": {
@@ -71,7 +94,13 @@
   "providesContext": {
     "aggressive-apparel/navigationBreakpoint": "breakpoint",
     "aggressive-apparel/navigationOpenOn": "openOn",
-    "aggressive-apparel/navigationId": "navId"
+    "aggressive-apparel/navigationId": "navId",
+    "aggressive-apparel/submenuBackgroundColor": "submenuBackgroundColor",
+    "aggressive-apparel/submenuTextColor": "submenuTextColor",
+    "aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
+    "aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
+    "aggressive-apparel/submenuBorderColor": "submenuBorderColor",
+    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle"
   },
   "viewScriptModule": "file:./view.js",
   "render": "file:./render.php",

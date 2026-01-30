@@ -58,6 +58,11 @@
     border-radius: var(--aa-nav-radius-lg, 8px);
     box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
 
+    /* Border only applied when custom values are set via Nav Menu settings */
+    border-width: var(--panel-border-width, 0);
+    border-style: var(--panel-border-style, solid);
+    border-color: var(--panel-border-color, currentcolor);
+
     /* Hidden by default */
     display: none;
   }

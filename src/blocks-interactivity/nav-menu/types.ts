@@ -10,7 +10,3 @@ export interface NavMenuAttributes {
   orientation: MenuOrientation;
   itemSpacing: string;
 }
-
-export interface NavMenuContext {
-  orientation: MenuOrientation;
-}

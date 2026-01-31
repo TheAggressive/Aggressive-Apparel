@@ -62,6 +62,12 @@ export default function Edit({
     submenuBorderWidth,
     submenuBorderColor,
     submenuBorderStyle,
+    panelBackgroundColor,
+    panelTextColor,
+    panelLinkHoverColor,
+    panelLinkHoverBg,
+    panelOverlayColor,
+    panelOverlayOpacity,
   } = attributes;
 
   // Get theme color palette for color controls.
@@ -242,6 +248,81 @@ export default function Edit({
               }
             />
           </BaseControl>
+        </PanelBody>
+        <PanelBody
+          title={__('Mobile Panel Colors', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <BaseControl
+            id='panel-background-color'
+            label={__('Background', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelBackgroundColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelBackgroundColor: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='panel-text-color'
+            label={__('Text', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelTextColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelTextColor: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='panel-link-hover-color'
+            label={__('Link Hover Color', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelLinkHoverColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelLinkHoverColor: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='panel-link-hover-bg'
+            label={__('Link Hover Background', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelLinkHoverBg}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelLinkHoverBg: value })
+              }
+            />
+          </BaseControl>
+          <BaseControl
+            id='panel-overlay-color'
+            label={__('Overlay Color', 'aggressive-apparel')}
+          >
+            <ColorPalette
+              colors={colorPalette}
+              value={panelOverlayColor}
+              onChange={(value: string | undefined) =>
+                setAttributes({ panelOverlayColor: value })
+              }
+            />
+          </BaseControl>
+          <RangeControl
+            label={__('Overlay Opacity', 'aggressive-apparel')}
+            value={panelOverlayOpacity ?? 50}
+            onChange={value =>
+              setAttributes({ panelOverlayOpacity: value ?? 50 })
+            }
+            min={0}
+            max={100}
+            step={1}
+          />
         </PanelBody>
       </InspectorControls>
       <nav {...blockProps} aria-label={ariaLabel}>

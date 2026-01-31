@@ -59,8 +59,8 @@
       display: flex;
       width: 100%;
       padding: var(--wp--preset--spacing--3, 0.75rem) var(--wp--preset--spacing--4, 1rem);
-      color: var(--panel-link-color, inherit);
-      background: var(--panel-link-bg, transparent);
+      color: inherit;
+      background: transparent;
       border-radius: var(--aa-nav-radius-md, 4px);
       text-decoration: none;
       transition:
@@ -83,8 +83,8 @@
       display: flex;
       width: 100%;
       padding: var(--wp--preset--spacing--3, 0.75rem) var(--wp--preset--spacing--4, 1rem);
-      color: var(--panel-link-color, inherit);
-      background: var(--panel-link-bg, transparent);
+      color: inherit;
+      background: transparent;
       border-radius: var(--aa-nav-radius-md, 4px);
       text-decoration: none;
       transition:

@@ -100,9 +100,9 @@ export default function Edit({
   // Build panel style with CSS variables.
   const panelStyle: React.CSSProperties = {
     ...(width && { '--panel-width': width }),
-    ...(linkColor && { '--panel-link-color': linkColor }),
+    ...(linkColor && { '--panel-color': linkColor }),
     ...(linkHoverColor && { '--panel-link-hover-color': linkHoverColor }),
-    ...(linkBackgroundColor && { '--panel-link-bg': linkBackgroundColor }),
+    ...(linkBackgroundColor && { '--panel-bg': linkBackgroundColor }),
     ...(linkHoverBackgroundColor && {
       '--panel-link-hover-bg': linkHoverBackgroundColor,
     }),

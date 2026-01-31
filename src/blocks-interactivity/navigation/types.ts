@@ -19,6 +19,12 @@ export interface NavigationAttributes {
   submenuBorderWidth?: string;
   submenuBorderColor?: string;
   submenuBorderStyle?: BorderStyle;
+  panelBackgroundColor?: string;
+  panelTextColor?: string;
+  panelLinkHoverColor?: string;
+  panelLinkHoverBg?: string;
+  panelOverlayColor?: string;
+  panelOverlayOpacity?: number;
 }
 
 export interface NavigationContext {

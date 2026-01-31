@@ -65,7 +65,13 @@
   },
   "usesContext": [
     "aggressive-apparel/navigationBreakpoint",
-    "aggressive-apparel/navigationId"
+    "aggressive-apparel/navigationId",
+    "aggressive-apparel/panelBackgroundColor",
+    "aggressive-apparel/panelTextColor",
+    "aggressive-apparel/panelLinkHoverColor",
+    "aggressive-apparel/panelLinkHoverBg",
+    "aggressive-apparel/panelOverlayColor",
+    "aggressive-apparel/panelOverlayOpacity"
   ],
   "render": "file:./render.php",
   "editorScript": "file:./index.js",

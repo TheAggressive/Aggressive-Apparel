@@ -5,9 +5,14 @@
  */
 
 .wp-block-aggressive-apparel-panel-close-button {
+  --close-bar-width: 24px;
+  --close-bar-height: 2px;
+  --close-bar-radius: var(--aa-nav-radius-sm, 1px);
+
   width: 44px;
   height: 44px;
   padding: 0;
+  color: var(--close-btn-color, inherit);
   background: var(--close-btn-bg, transparent);
   border: none;
   cursor: pointer;
@@ -22,6 +27,7 @@
   flex-shrink: 0;
 
   &:hover {
+    color: var(--close-btn-hover-color, var(--close-btn-color, currentColor));
     background: var(--close-btn-hover-bg, var(--close-btn-bg, var(--aa-nav-hover-bg, rgb(0 0 0 / 5%))));
   }
 
@@ -34,9 +40,30 @@
     transform: scale(0.95);
   }
 
-  /* SVG icon */
-  & svg {
-    width: 32px;
-    height: 32px;
+  /* Icon container */
+  &__icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--close-bar-width);
+    height: var(--close-bar-width);
+  }
+
+  /* Bars forming the X */
+  &__bar {
+    position: absolute;
+    width: 100%;
+    height: var(--close-bar-height);
+    background: currentcolor;
+    border-radius: var(--close-bar-radius);
+
+    &:nth-child(1) {
+      transform: rotate(45deg);
+    }
+
+    &:nth-child(2) {
+      transform: rotate(-45deg);
+    }
   }
 }

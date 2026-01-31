@@ -49,6 +49,25 @@
       "type": "string",
       "enum": ["solid", "dashed", "dotted", "none"],
       "default": "solid"
+    },
+    "panelBackgroundColor": {
+      "type": "string"
+    },
+    "panelTextColor": {
+      "type": "string"
+    },
+    "panelLinkHoverColor": {
+      "type": "string"
+    },
+    "panelLinkHoverBg": {
+      "type": "string"
+    },
+    "panelOverlayColor": {
+      "type": "string"
+    },
+    "panelOverlayOpacity": {
+      "type": "number",
+      "default": 50
     }
   },
   "supports": {
@@ -100,7 +119,13 @@
     "aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
     "aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
     "aggressive-apparel/submenuBorderColor": "submenuBorderColor",
-    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle"
+    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle",
+    "aggressive-apparel/panelBackgroundColor": "panelBackgroundColor",
+    "aggressive-apparel/panelTextColor": "panelTextColor",
+    "aggressive-apparel/panelLinkHoverColor": "panelLinkHoverColor",
+    "aggressive-apparel/panelLinkHoverBg": "panelLinkHoverBg",
+    "aggressive-apparel/panelOverlayColor": "panelOverlayColor",
+    "aggressive-apparel/panelOverlayOpacity": "panelOverlayOpacity"
   },
   "viewScriptModule": "file:./view.js",
   "render": "file:./render.php",

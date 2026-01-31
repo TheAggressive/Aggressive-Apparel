@@ -46,11 +46,6 @@
     opacity: 0.7;
   }
 
-  /* Current page indicator. */
-  &.is-current &__link {
-    color: var(--nav-link-hover-color);
-    font-weight: 600;
-  }
 }
 
 /* Reduced motion. */

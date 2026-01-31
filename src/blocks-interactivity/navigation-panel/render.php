@@ -64,14 +64,17 @@ if ( function_exists( 'wp_enqueue_script_module' ) ) {
 	wp_enqueue_script_module( $view_script_module_id );
 }
 
-$position            = $attributes['position'] ?? 'right';
-$animation_style     = $attributes['animationStyle'] ?? 'slide';
-$width               = $attributes['width'] ?? 'min(320px, 85vw)';
-$show_overlay        = $attributes['showOverlay'] ?? true;
-$link_color          = $attributes['linkColor'] ?? '';
-$link_hover_color    = $attributes['linkHoverColor'] ?? '';
-$link_bg_color       = $attributes['linkBackgroundColor'] ?? '';
-$link_hover_bg_color = $attributes['linkHoverBackgroundColor'] ?? '';
+$position        = $attributes['position'] ?? 'right';
+$animation_style = $attributes['animationStyle'] ?? 'slide';
+$width           = $attributes['width'] ?? 'min(320px, 85vw)';
+$show_overlay    = $attributes['showOverlay'] ?? true;
+// Read panel colors from Navigation block context first, fall back to own attributes.
+$link_color          = $block->context['aggressive-apparel/panelTextColor'] ?? ( $attributes['linkColor'] ?? '' );
+$link_hover_color    = $block->context['aggressive-apparel/panelLinkHoverColor'] ?? ( $attributes['linkHoverColor'] ?? '' );
+$link_bg_color       = $block->context['aggressive-apparel/panelBackgroundColor'] ?? ( $attributes['linkBackgroundColor'] ?? '' );
+$link_hover_bg_color = $block->context['aggressive-apparel/panelLinkHoverBg'] ?? ( $attributes['linkHoverBackgroundColor'] ?? '' );
+$overlay_color       = $block->context['aggressive-apparel/panelOverlayColor'] ?? '';
+$overlay_opacity     = $block->context['aggressive-apparel/panelOverlayOpacity'] ?? null;
 
 // Get navigation ID and breakpoint from context using shared functions.
 $nav_id     = aggressive_apparel_get_nav_id_from_context( $block );
@@ -100,18 +103,28 @@ $style_parts = array(
 	'pointer-events: none',
 );
 
-// Add link color variables if set (for panel-body nav items).
+// Add panel color variables (for panel-body nav items).
+if ( $link_bg_color ) {
+	$style_parts[] = sprintf( '--panel-bg: %s', esc_attr( $link_bg_color ) );
+}
 if ( $link_color ) {
-	$style_parts[] = sprintf( '--panel-link-color: %s', esc_attr( $link_color ) );
+	$style_parts[] = sprintf( '--panel-color: %s', esc_attr( $link_color ) );
 }
 if ( $link_hover_color ) {
 	$style_parts[] = sprintf( '--panel-link-hover-color: %s', esc_attr( $link_hover_color ) );
 }
-if ( $link_bg_color ) {
-	$style_parts[] = sprintf( '--panel-link-bg: %s', esc_attr( $link_bg_color ) );
-}
 if ( $link_hover_bg_color ) {
 	$style_parts[] = sprintf( '--panel-link-hover-bg: %s', esc_attr( $link_hover_bg_color ) );
+}
+// Build overlay background from color + opacity.
+if ( $overlay_color || null !== $overlay_opacity ) {
+	$ov_color      = $overlay_color ?? '#000000';
+	$ov_opacity    = null !== $overlay_opacity ? ( (int) $overlay_opacity / 100 ) : 0.5;
+	$style_parts[] = sprintf(
+		'--panel-overlay-bg: color-mix(in srgb, %s %s%%, transparent)',
+		esc_attr( $ov_color ),
+		esc_attr( (string) ( $ov_opacity * 100 ) )
+	);
 }
 
 $inline_styles = implode( '; ', $style_parts ) . ';';

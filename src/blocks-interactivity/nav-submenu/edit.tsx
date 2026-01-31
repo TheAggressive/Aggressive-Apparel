@@ -102,7 +102,7 @@ export default function Edit({
     panelStyle.backgroundColor = panelBackgroundColor;
   }
   if (panelTextColor) {
-    panelStyle['--panel-link-color'] = panelTextColor;
+    panelStyle.color = panelTextColor;
   }
   if (panelBorderRadius) {
     panelStyle.borderRadius = panelBorderRadius;

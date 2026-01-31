@@ -101,10 +101,10 @@ $panel_popover_attrs = '';
 // Border uses CSS custom properties to override the glassmorphism defaults.
 $panel_styles = array();
 if ( ! empty( $panel_background_color ) ) {
-	$panel_styles[] = 'background-color: ' . esc_attr( $panel_background_color );
+	$panel_styles[] = '--submenu-bg: ' . esc_attr( $panel_background_color );
 }
 if ( ! empty( $panel_text_color ) ) {
-	$panel_styles[] = '--panel-link-color: ' . esc_attr( $panel_text_color );
+	$panel_styles[] = '--submenu-color: ' . esc_attr( $panel_text_color );
 }
 if ( ! empty( $panel_border_radius ) ) {
 	$panel_styles[] = 'border-radius: ' . esc_attr( $panel_border_radius );

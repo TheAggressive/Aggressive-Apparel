@@ -2,8 +2,8 @@
 /**
  * Title: Hero Product Launch
  * Description: A bold hero section for product launches and brand messaging with compelling CTAs.
- * Slug: aggressive/hero-product-launch
- * Categories: aggressive
+ * Slug: aggressive-apparel/hero-product-launch
+ * Categories: aggressive-apparel
  * Keywords: hero, launch, product, banner, cta, featured
  * Viewport Width: 1400
  *

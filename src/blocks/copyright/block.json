@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/copyright",
+  "version": "1.0.0",
+  "title": "Copyright",
+  "category": "aggressive-apparel",
+  "description": "Dynamic copyright notice with auto-updating year and editable suffix text.",
+  "keywords": ["copyright", "year", "footer", "legal"],
+  "textdomain": "aggressive-apparel",
+  "icon": "shield",
+  "attributes": {
+    "ownerName": {
+      "type": "string",
+      "default": "Aggressive Apparel"
+    },
+    "showStartYear": {
+      "type": "boolean",
+      "default": false
+    },
+    "startYear": {
+      "type": "string",
+      "default": "2024"
+    },
+    "separator": {
+      "type": "string",
+      "default": "–"
+    },
+    "prefix": {
+      "type": "string",
+      "default": "©"
+    },
+    "suffix": {
+      "type": "string",
+      "default": ""
+    },
+    "textAlign": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "text": true,
+      "background": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true,
+      "lineHeight": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "className": true
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

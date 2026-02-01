@@ -25,16 +25,18 @@ declare(strict_types=1);
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/nav-menu -->
 <!-- wp:aggressive-apparel/navigation-panel {"position":"left","showOverlay":true} -->
+<!-- wp:aggressive-apparel/panel-header -->
 <!-- wp:site-logo {"width":80} /-->
-<!-- wp:spacer {"height":"20px"} -->
-<div style="height:20px" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
+<!-- wp:aggressive-apparel/panel-close-button /-->
+<!-- /wp:aggressive-apparel/panel-header -->
+<!-- wp:aggressive-apparel/panel-body -->
 <!-- wp:aggressive-apparel/nav-menu {"orientation":"vertical"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Shop","url":"/shop"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Collections","url":"/collections"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"About","url":"/about"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/nav-menu -->
+<!-- /wp:aggressive-apparel/panel-body -->
 <!-- /wp:aggressive-apparel/navigation-panel -->
 <!-- /wp:aggressive-apparel/navigation -->
 </div>

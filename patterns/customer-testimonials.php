@@ -2,8 +2,8 @@
 /**
  * Title: Customer Testimonials
  * Description: Showcase customer reviews and testimonials with star ratings and avatars.
- * Slug: aggressive/customer-testimonials
- * Categories: aggressive
+ * Slug: aggressive-apparel/customer-testimonials
+ * Categories: aggressive-apparel
  * Keywords: testimonials, reviews, customers, stars, ratings, social proof
  * Viewport Width: 1200
  *
@@ -31,7 +31,7 @@
 					<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|30"}}},"className":"testimonial-author"} -->
 					<div class="wp-block-group testimonial-author" style="margin-top:var(--wp--preset--spacing--30)">
 						<!-- wp:image {"width":"60px","height":"60px","scale":"cover","sizeSlug":"thumbnail","linkDestination":"none","className":"testimonial-avatar","style":{"border":{"radius":"50%"}}} -->
-						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMzAiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTMwIDIwQzMzLjMxMzcgMjAgMzYgMjMuMzEzNyAzNiAzMGMwIDYuNjI3NC02LjYyNzQgMTItMTIgMTJzLTEyLTUuMzcyNi0xMi0xMmMwLTYuNjI3NCA1LjM3MjYtMTIgMTItMTJ6IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0zMCA0NUMyMS4xNjQgNDUgMTQgNDMuNTIyIDE0IDQwVjM1aDEydjVoMTJWM0BjMC0zLjUyMi03LjE2NC01LTUtNXoiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2Zz4K" alt="Sarah M."/></figure>
+						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iI0U1RTdFQiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjQiIHI9IjEwIiBmaWxsPSIjOUNBM0FGIi8+PHBhdGggZD0iTTMwIDM4Yy0xMSAwLTE4IDQtMTggOXYzaDM2di0zYzAtNS03LTktMTgtOXoiIGZpbGw9IiM5Q0EzQUYiLz48L3N2Zz4=" alt="Sarah M."/></figure>
 						<!-- /wp:image -->
 
 						<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"margin":{"left":"var:preset|spacing|20"}}},"className":"testimonial-details"} -->
@@ -63,7 +63,7 @@
 					<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|30"}}},"className":"testimonial-author"} -->
 					<div class="wp-block-group testimonial-author" style="margin-top:var(--wp--preset--spacing--30)">
 						<!-- wp:image {"width":"60px","height":"60px","scale":"cover","sizeSlug":"thumbnail","linkDestination":"none","className":"testimonial-avatar","style":{"border":{"radius":"50%"}}} -->
-						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMzAiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTMwIDIwQzMzLjMxMzcgMjAgMzYgMjMuMzEzNyAzNiAzMGMwIDYuNjI3NC02LjYyNzQgMTItMTIgMTJzLTEyLTUuMzcyNi0xMi0xMmMwLTYuNjI3NCA1LjM3MjYtMTIgMTItMTJ6IiBmaWxsPSIjQzQ5RDVGQi8+CjxwYXRoIGQ9Ik0zMCA0NUMyMS4xNjQgNDUgMTQgNDMuNTIyIDE0IDQwVjM1aDEydjVoMTJWM0BjMC0zLjUyMi03LjE2NC01LTUtNXoiIGZpbGw9IiNDNDlENUYiLz4KPHN2Zz4K" alt="Mike R."/></figure>
+						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iI0U1RTdFQiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjQiIHI9IjEwIiBmaWxsPSIjNkI3MjgwIi8+PHBhdGggZD0iTTMwIDM4Yy0xMSAwLTE4IDQtMTggOXYzaDM2di0zYzAtNS03LTktMTgtOXoiIGZpbGw9IiM2QjcyODAiLz48L3N2Zz4=" alt="Mike R."/></figure>
 						<!-- /wp:image -->
 
 						<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"margin":{"left":"var:preset|spacing|20"}}},"className":"testimonial-details"} -->
@@ -95,7 +95,7 @@
 					<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|30"}}},"className":"testimonial-author"} -->
 					<div class="wp-block-group testimonial-author" style="margin-top:var(--wp--preset--spacing--30)">
 						<!-- wp:image {"width":"60px","height":"60px","scale":"cover","sizeSlug":"thumbnail","linkDestination":"none","className":"testimonial-avatar","style":{"border":{"radius":"50%"}}} -->
-						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMzAiIGZpbGw9IiNFNUU3RUIiLz4KPHBhdGggZD0iTTMwIDIwQzMzLjMxMzcgMjAgMzYgMjMuMzEzNyAzNiAzMGMwIDYuNjI3NC02LjYyNzQgMTItMTIgMTJzLTEyLTUuMzcyNi0xMi0xMmMwLTYuNjI3NCA1LjM3MjYtMTIgMTItMTJ6IiBmaWxsPSIjRjU5QzQ5Ii8+CjxwYXRoIGQ9Ik0zMCA0NUMyMS4xNjQgNDUgMTQgNDMuNTIyIDE0IDQwVjM1aDEydjVoMTJWM0BjMC0zLjUyMi03LjE2NC01LTUtNXoiIGZpbGw9IiNGNTlDNDkiLz4KPHN2Zz4K" alt="Emma L."/></figure>
+						<figure class="wp-block-image size-thumbnail testimonial-avatar" style="border-radius:50%"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iI0U1RTdFQiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjQiIHI9IjEwIiBmaWxsPSIjRDk3NzA2Ii8+PHBhdGggZD0iTTMwIDM4Yy0xMSAwLTE4IDQtMTggOXYzaDM2di0zYzAtNS03LTktMTgtOXoiIGZpbGw9IiNEOTc3MDYiLz48L3N2Zz4=" alt="Emma L."/></figure>
 						<!-- /wp:image -->
 
 						<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"margin":{"left":"var:preset|spacing|20"}}},"className":"testimonial-details"} -->

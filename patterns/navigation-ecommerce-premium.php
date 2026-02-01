@@ -67,7 +67,11 @@ declare(strict_types=1);
 <!-- wp:aggressive-apparel/nav-link {"label":"Blog","url":"/blog"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/nav-menu -->
-<!-- wp:aggressive-apparel/navigation-panel {"position":"right","animationStyle":"push","showOverlay":true,"showCloseButton":true,"width":"min(360px, 90vw)"} -->
+<!-- wp:aggressive-apparel/navigation-panel {"position":"right","animationStyle":"push","showOverlay":true,"width":"min(360px, 90vw)"} -->
+<!-- wp:aggressive-apparel/panel-header -->
+<!-- wp:aggressive-apparel/panel-close-button /-->
+<!-- /wp:aggressive-apparel/panel-header -->
+<!-- wp:aggressive-apparel/panel-body -->
 <!-- wp:aggressive-apparel/nav-menu {"orientation":"vertical"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
 <!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"drilldown","showArrow":true} -->
@@ -116,5 +120,6 @@ declare(strict_types=1);
 <!-- /wp:button -->
 <!-- /wp:buttons -->
 <!-- /wp:aggressive-apparel/nav-menu -->
+<!-- /wp:aggressive-apparel/panel-body -->
 <!-- /wp:aggressive-apparel/navigation-panel -->
 <!-- /wp:aggressive-apparel/navigation -->

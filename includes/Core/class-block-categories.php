@@ -66,16 +66,31 @@ class Block_Categories {
 				'label'       => __( 'Aggressive', 'aggressive-apparel' ),
 				'description' => __( 'Premium apparel patterns for the Aggressive brand.', 'aggressive-apparel' ),
 			),
-
-			/*
-			 * Future categories can be easily added here.
-			 *
-			 * array(
-			 *     'slug'        => 'aggressive-products',
-			 *     'label'       => __( 'Product Displays', 'aggressive-apparel' ),
-			 *     'description' => __( 'Showcase products and collections.', 'aggressive-apparel' ),
-			 * ),
-			 */
+			array(
+				'slug'        => 'aggressive-homepage',
+				'label'       => __( 'Homepage Sections', 'aggressive-apparel' ),
+				'description' => __( 'Sections for building a storefront homepage.', 'aggressive-apparel' ),
+			),
+			array(
+				'slug'        => 'aggressive-products',
+				'label'       => __( 'Product Displays', 'aggressive-apparel' ),
+				'description' => __( 'Showcase products and collections.', 'aggressive-apparel' ),
+			),
+			array(
+				'slug'        => 'aggressive-social-proof',
+				'label'       => __( 'Social Proof', 'aggressive-apparel' ),
+				'description' => __( 'Reviews, press mentions, and trust signals.', 'aggressive-apparel' ),
+			),
+			array(
+				'slug'        => 'aggressive-conversion',
+				'label'       => __( 'Conversion', 'aggressive-apparel' ),
+				'description' => __( 'CTAs, email signups, and loyalty sections.', 'aggressive-apparel' ),
+			),
+			array(
+				'slug'        => 'aggressive-informational',
+				'label'       => __( 'Informational', 'aggressive-apparel' ),
+				'description' => __( 'About, FAQ, contact, and brand story sections.', 'aggressive-apparel' ),
+			),
 		);
 	}
 }

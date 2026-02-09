@@ -105,6 +105,11 @@ class Feature_Settings {
 				'description' => __( 'Show customers their recently viewed products using browser storage.', 'aggressive-apparel' ),
 				'section'     => 'interactive',
 			),
+			'stock_status'      => array(
+				'label'       => __( 'Stock Status', 'aggressive-apparel' ),
+				'description' => __( 'Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View.', 'aggressive-apparel' ),
+				'section'     => 'rich',
+			),
 			'quick_view'        => array(
 				'label'       => __( 'Quick View', 'aggressive-apparel' ),
 				'description' => __( 'Preview products in a modal overlay from shop pages.', 'aggressive-apparel' ),

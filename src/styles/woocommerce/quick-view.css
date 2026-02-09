@@ -343,8 +343,12 @@
 	background-color: var(--quick-view-stock-in);
 }
 
-.aggressive-apparel-quick-view__stock.is-in-stock .aggressive-apparel-quick-view__stock-dot {
-	background-color: var(--quick-view-stock-in);
+.aggressive-apparel-quick-view__stock.is-in-stock {
+	color: var(--quick-view-stock-in);
+
+	& .aggressive-apparel-quick-view__stock-dot {
+		background-color: var(--quick-view-stock-in);
+	}
 }
 
 .aggressive-apparel-quick-view__stock.is-low-stock {

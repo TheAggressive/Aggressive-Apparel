@@ -356,7 +356,7 @@ function populateModalDOM() {
     img.alt = state.productImageAlt;
   }
 
-  // Stock label.
+  // Stock label (element only exists when stock_status feature is enabled).
   const stockEl = q('.aggressive-apparel-quick-view__stock');
   if (stockEl) {
     stockEl.classList.toggle('is-in-stock', state.stockStatus === 'instock');
@@ -557,6 +557,47 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     get isOutOfStock() {
       return state.stockStatus === 'outofstock';
+    },
+
+    // Negated getters for data-wp-bind--hidden directives.
+    get isClosed() {
+      return !state.isOpen;
+    },
+
+    get isNotLoading() {
+      return !state.isLoading;
+    },
+
+    get hasNoProduct() {
+      return !state.hasProduct;
+    },
+
+    get isNotOnSale() {
+      return !state.productOnSale;
+    },
+
+    get hasOneImage() {
+      return !state.hasMultipleImages;
+    },
+
+    get isNotVariable() {
+      return !state.isVariable;
+    },
+
+    get cannotAddToCart() {
+      return !state.canAddToCart;
+    },
+
+    get hidePostCartActions() {
+      return !state.showPostCartActions;
+    },
+
+    get hasNoCartError() {
+      return !state.cartError;
+    },
+
+    get hasNoError() {
+      return !state.hasError;
     },
 
     /**

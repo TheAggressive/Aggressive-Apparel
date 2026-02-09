@@ -185,7 +185,7 @@ class Quick_View {
 			id="aggressive-apparel-quick-view"
 			class="aggressive-apparel-quick-view"
 			data-wp-interactive="aggressive-apparel/quick-view"
-			data-wp-bind--hidden="!state.isOpen"
+			data-wp-bind--hidden="state.isClosed"
 			data-wp-class--is-open="state.isOpen"
 			data-wp-on-document--keydown="actions.handleKeydown"
 			hidden
@@ -213,7 +213,7 @@ class Quick_View {
 				<!-- Skeleton loading state. -->
 				<div
 					class="aggressive-apparel-quick-view__skeleton"
-					data-wp-bind--hidden="!state.isLoading"
+					data-wp-bind--hidden="state.isNotLoading"
 				>
 					<div class="aggressive-apparel-quick-view__skeleton-image"></div>
 					<div class="aggressive-apparel-quick-view__skeleton-details">
@@ -228,7 +228,7 @@ class Quick_View {
 				<!-- Product content — shown when data is loaded. -->
 				<div
 					class="aggressive-apparel-quick-view__content"
-					data-wp-bind--hidden="!state.hasProduct"
+					data-wp-bind--hidden="state.hasNoProduct"
 					hidden
 				>
 					<!-- Gallery section (60% width). -->
@@ -243,7 +243,7 @@ class Quick_View {
 							<!-- Sale badge. -->
 							<span
 								class="aggressive-apparel-quick-view__sale-badge"
-								data-wp-bind--hidden="!state.productOnSale"
+								data-wp-bind--hidden="state.isNotOnSale"
 								data-wp-text="state.saleBadgeText"
 								hidden
 							></span>
@@ -252,7 +252,7 @@ class Quick_View {
 						<!-- Thumbnail navigation. -->
 						<div
 							class="aggressive-apparel-quick-view__thumbnails"
-							data-wp-bind--hidden="!state.hasMultipleImages"
+							data-wp-bind--hidden="state.hasOneImage"
 							hidden
 						>
 							<template data-wp-each="state.productImages">
@@ -282,7 +282,8 @@ class Quick_View {
 							data-wp-text="state.productName"
 						></h2>
 
-						<!-- Stock status indicator. -->
+						<?php if ( Feature_Settings::is_enabled( 'stock_status' ) ) : ?>
+						<!-- Stock status indicator (toggled via Store Enhancements). -->
 						<div
 							class="aggressive-apparel-quick-view__stock"
 							data-wp-class--is-in-stock="state.isInStock"
@@ -295,13 +296,14 @@ class Quick_View {
 								data-wp-text="state.stockStatusLabel"
 							></span>
 						</div>
+						<?php endif; ?>
 
 						<div class="aggressive-apparel-quick-view__price">
 							<!-- Regular price (visible only when on sale). -->
 							<span
 								class="aggressive-apparel-quick-view__price-regular"
 								data-wp-text="state.productRegularPrice"
-								data-wp-bind--hidden="!state.productOnSale"
+								data-wp-bind--hidden="state.isNotOnSale"
 								hidden
 							></span>
 							<!-- Current/sale price. -->
@@ -319,7 +321,7 @@ class Quick_View {
 						<!-- Attribute swatches (variable products only). -->
 						<div
 							class="aggressive-apparel-quick-view__attributes"
-							data-wp-bind--hidden="!state.isVariable"
+							data-wp-bind--hidden="state.isNotVariable"
 							hidden
 						>
 							<template data-wp-each="state.productAttributes">
@@ -380,7 +382,7 @@ class Quick_View {
 									type="button"
 									class="aggressive-apparel-quick-view__add-to-cart"
 									data-wp-on--click="actions.addToCart"
-									data-wp-bind--disabled="!state.canAddToCart"
+									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-text="state.addToCartLabel"
 									data-wp-class--is-adding="state.isAddingToCart"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
@@ -389,7 +391,7 @@ class Quick_View {
 							<!-- Post-cart actions panel. -->
 							<div
 								class="aggressive-apparel-quick-view__post-cart"
-								data-wp-bind--hidden="!state.showPostCartActions"
+								data-wp-bind--hidden="state.hidePostCartActions"
 								hidden
 							>
 								<p class="aggressive-apparel-quick-view__post-cart-message">
@@ -412,7 +414,7 @@ class Quick_View {
 							<!-- Cart error. -->
 							<p
 								class="aggressive-apparel-quick-view__cart-error"
-								data-wp-bind--hidden="!state.cartError"
+								data-wp-bind--hidden="state.hasNoCartError"
 								data-wp-text="state.cartError"
 								hidden
 							></p>
@@ -429,7 +431,7 @@ class Quick_View {
 				<!-- Error state. -->
 				<div
 					class="aggressive-apparel-quick-view__error"
-					data-wp-bind--hidden="!state.hasError"
+					data-wp-bind--hidden="state.hasNoError"
 					hidden
 				>
 					<p><?php echo esc_html__( 'Could not load product details. Please try again.', 'aggressive-apparel' ); ?></p>

@@ -2,7 +2,7 @@
 /**
  * Title: Navigation with Mega Menu
  * Slug: aggressive-apparel/navigation-mega-menu
- * Categories: navigation, aggressive-apparel
+ * Categories: aggressive, navigation, aggressive-apparel
  * Keywords: navigation, menu, mega, header, ecommerce
  * Description: Full-featured navigation with mega menus for e-commerce.
  *

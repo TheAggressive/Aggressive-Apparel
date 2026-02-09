@@ -2,7 +2,7 @@
 /**
  * Title: Navigation with Dropdowns
  * Slug: aggressive-apparel/navigation-with-dropdowns
- * Categories: navigation, aggressive-apparel
+ * Categories: aggressive, navigation, aggressive-apparel
  * Keywords: navigation, menu, dropdown, header
  * Description: Navigation with dropdown submenus for desktop.
  *

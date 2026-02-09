@@ -1,0 +1,52 @@
+/**
+ * Product Badges Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-product-badge__wrapper {
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	pointer-events: none;
+}
+
+.aggressive-apparel-product-badge {
+	--badge-low-stock: #f59e0b;
+
+	display: inline-block;
+	padding: 0.2em 0.6em;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	line-height: 1.4;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	pointer-events: auto;
+
+	&--sale {
+		background-color: var(--wp--preset--color--red, #dc2626);
+		color: var(--wp--preset--color--white, #fff);
+	}
+
+	&--new {
+		background-color: var(--wp--preset--color--black, #000);
+		color: var(--wp--preset--color--white, #fff);
+	}
+
+	&--low-stock {
+		background-color: var(--badge-low-stock);
+		color: var(--wp--preset--color--black, #000);
+	}
+
+	&--bestseller {
+		background-color: var(--wp--preset--color--white, #fff);
+		color: var(--wp--preset--color--black, #000);
+		border: 1px solid currentcolor;
+	}
+}

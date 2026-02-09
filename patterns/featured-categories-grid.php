@@ -3,7 +3,7 @@
  * Title: Featured Categories Grid
  * Description: Three product category cards with image overlays and shop links for browsing by category.
  * Slug: aggressive-apparel/featured-categories-grid
- * Categories: aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
  * Keywords: categories, grid, shop, collections, featured
  * Viewport Width: 1200
  *
@@ -34,8 +34,8 @@
 
 					<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
-						<!-- wp:button {"className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"color":"#ffffff"}}} -->
-						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-border-color wp-element-button" style="border-color:#ffffff;padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/hoodies">Shop Now</a></div>
+						<!-- wp:button {"textColor":"white","className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}}}} -->
+						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-white-color has-text-color wp-element-button has-custom-font-size" style="padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/hoodies">Shop Now</a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -57,8 +57,8 @@
 
 					<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
-						<!-- wp:button {"className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"color":"#ffffff"}}} -->
-						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-border-color wp-element-button" style="border-color:#ffffff;padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/tees">Shop Now</a></div>
+						<!-- wp:button {"textColor":"white","className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}}}} -->
+						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-white-color has-text-color wp-element-button has-custom-font-size" style="padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/tees">Shop Now</a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -80,8 +80,8 @@
 
 					<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
-						<!-- wp:button {"className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"color":"#ffffff"}}} -->
-						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-border-color wp-element-button" style="border-color:#ffffff;padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/bottoms">Shop Now</a></div>
+						<!-- wp:button {"textColor":"white","className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em","fontSize":"0.875rem"},"spacing":{"padding":{"top":"var:preset|spacing|2","bottom":"var:preset|spacing|2","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}}}} -->
+						<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-white-color has-text-color wp-element-button has-custom-font-size" style="padding-top:var(--wp--preset--spacing--2);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--2);padding-left:var(--wp--preset--spacing--6);font-size:0.875rem;font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/bottoms">Shop Now</a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->

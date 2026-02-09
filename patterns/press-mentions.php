@@ -3,7 +3,7 @@
  * Title: Press Mentions
  * Description: A slim trust-building section displaying publication logos where the brand has been featured.
  * Slug: aggressive-apparel/press-mentions
- * Categories: aggressive-apparel, aggressive-social-proof
+ * Categories: aggressive, aggressive-apparel, aggressive-social-proof
  * Keywords: press, media, logos, featured, as seen in, trust
  * Viewport Width: 1200
  *

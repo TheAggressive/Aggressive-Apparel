@@ -3,7 +3,7 @@
  * Title: Social Feed
  * Description: Instagram-style social media section with heading and a grid of placeholder images.
  * Slug: aggressive-apparel/social-feed
- * Categories: aggressive-apparel, aggressive-social-proof, aggressive-homepage
+ * Categories: aggressive, aggressive-apparel, aggressive-social-proof, aggressive-homepage
  * Keywords: instagram, social, feed, gallery, community, ugc
  * Viewport Width: 1400
  *

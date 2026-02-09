@@ -1,0 +1,41 @@
+/**
+ * Free Shipping Progress Bar Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-shipping-bar {
+	--shipping-bar-complete: #15803d;
+
+	margin-bottom: 1rem;
+
+	&__track {
+		height: 6px;
+		background-color: color-mix(in oklch, currentcolor 15%, transparent);
+		border-radius: 3px;
+		overflow: hidden;
+	}
+
+	&__progress {
+		height: 100%;
+		background-color: var(--wp--preset--color--red, #dc2626);
+		border-radius: 3px;
+		transition: width 0.4s ease;
+	}
+
+	&__message {
+		margin-top: 0.4rem;
+		font-size: 0.8rem;
+		text-align: center;
+	}
+
+	&--complete &__progress {
+		background-color: var(--shipping-bar-complete);
+	}
+
+	&--complete &__message {
+		font-weight: 600;
+		color: var(--shipping-bar-complete);
+	}
+}

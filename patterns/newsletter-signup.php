@@ -3,7 +3,7 @@
  * Title: Newsletter Signup
  * Description: Email signup section with compelling headline and call-to-action on a dark background.
  * Slug: aggressive-apparel/newsletter-signup
- * Categories: aggressive-apparel, aggressive-conversion
+ * Categories: aggressive, aggressive-apparel, aggressive-conversion
  * Keywords: newsletter, email, signup, subscribe, mailing list
  * Viewport Width: 1200
  *

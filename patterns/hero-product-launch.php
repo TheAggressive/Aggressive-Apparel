@@ -3,7 +3,7 @@
  * Title: Hero Product Launch
  * Description: A bold hero section for product launches and brand messaging with compelling CTAs.
  * Slug: aggressive-apparel/hero-product-launch
- * Categories: aggressive-apparel
+ * Categories: aggressive, aggressive-apparel, aggressive-homepage
  * Keywords: hero, launch, product, banner, cta, featured
  * Viewport Width: 1400
  *
@@ -11,7 +11,7 @@
  */
 
 ?><!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":80,"minHeightUnit":"vh","contentPosition":"center center","align":"full","className":"hero-product-launch","style":{"spacing":{"margin":{"top":"0","bottom":"0"}}}} -->
-<div class="wp-block-cover alignfull hero-product-launch has-black-overlay-color has-background-dim has-background-dim-50" style="margin-top:0;margin-bottom:0;min-height:80vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} -->
+<div class="wp-block-cover alignfull hero-product-launch has-black-overlay-color" style="margin-top:0;margin-bottom:0;min-height:80vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} -->
 <div class="wp-block-group"><!-- wp:heading {"textAlign":"center","level":1,"className":"hero-title","style":{"typography":{"fontSize":"4rem","fontWeight":"700","lineHeight":"1.1"},"spacing":{"margin":{"bottom":"2rem"}}}} -->
 <h1 class="wp-block-heading has-text-align-center hero-title" style="margin-bottom:2rem;font-size:4rem;font-weight:700;line-height:1.1">New Collection Drop</h1>
 <!-- /wp:heading -->

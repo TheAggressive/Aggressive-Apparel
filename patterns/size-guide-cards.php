@@ -3,7 +3,7 @@
  * Title: Size Guide Cards
  * Description: Three cards explaining fit types (Regular, Slim, Oversized) with sizing tips for shoppers.
  * Slug: aggressive-apparel/size-guide-cards
- * Categories: aggressive-apparel, aggressive-informational, aggressive-products
+ * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-products
  * Keywords: size guide, sizing, fit, measurements, help
  * Viewport Width: 1200
  *

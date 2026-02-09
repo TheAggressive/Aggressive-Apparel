@@ -1,0 +1,16 @@
+/**
+ * Lookbook Block — Editor Styles.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-lookbook__image-wrapper {
+	position: relative;
+	cursor: crosshair;
+}
+
+.aggressive-apparel-lookbook__hotspot.is-editing .aggressive-apparel-lookbook__hotspot-dot {
+	outline: 2px solid var(--wp-admin-theme-color, #007cba);
+	outline-offset: 2px;
+}

@@ -2,7 +2,7 @@
 /**
  * Title: Simple Navigation
  * Slug: aggressive-apparel/navigation-simple
- * Categories: navigation, aggressive-apparel
+ * Categories: aggressive, navigation, aggressive-apparel
  * Keywords: navigation, menu, header, simple
  * Description: A simple horizontal navigation with basic links.
  *

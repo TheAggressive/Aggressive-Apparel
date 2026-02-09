@@ -1,0 +1,64 @@
+/**
+ * Countdown Timer Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-countdown {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin: 0.5rem 0;
+	font-variant-numeric: tabular-nums;
+
+	&__label {
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		color: var(--wp--preset--color--red, #dc2626);
+	}
+
+	&__segment {
+		display: inline-flex;
+		align-items: baseline;
+	}
+
+	&__value {
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	&__unit {
+		font-size: 0.7rem;
+		font-weight: 500;
+		margin-left: 1px;
+	}
+
+	/* Compact variant for archives. */
+	&--compact {
+		gap: 0.3rem;
+		margin: 0.25rem 0 0;
+
+		.aggressive-apparel-countdown__label {
+			font-size: 0.75rem;
+		}
+
+		.aggressive-apparel-countdown__value {
+			font-size: 0.75rem;
+		}
+
+		.aggressive-apparel-countdown__unit {
+			font-size: 0.75rem;
+		}
+	}
+
+	/* Expired state. */
+	&--expired {
+
+		.aggressive-apparel-countdown__label {
+			color: currentcolor;
+		}
+	}
+}

@@ -2,7 +2,7 @@
 /**
  * Title: Centered Navigation
  * Slug: aggressive-apparel/navigation-centered
- * Categories: navigation, aggressive-apparel
+ * Categories: aggressive, navigation, aggressive-apparel
  * Keywords: navigation, menu, centered, header, logo
  * Description: Centered navigation with logo in the middle.
  *

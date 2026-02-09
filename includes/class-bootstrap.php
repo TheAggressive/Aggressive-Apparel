@@ -148,6 +148,10 @@ class Bootstrap {
 			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
+
+			// Register enhancement services.
+			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
+			$this->container->register( 'wc_enhancements', fn() => new WooCommerce\Enhancements() );
 		}
 	}
 
@@ -183,7 +187,8 @@ class Bootstrap {
 		$this->container->get( 'theme_support' )->init();
 		$this->container->get( 'image_sizes' )->init();
 		$this->container->get( 'content_width' )->init();
-		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates
+		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates.
+		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}
@@ -231,6 +236,14 @@ class Bootstrap {
 		}
 		if ( $this->container->has( 'color_pattern_admin' ) ) {
 			$this->container->get( 'color_pattern_admin' )->register_hooks();
+		}
+
+		// Initialize feature settings page and enhancement coordinator.
+		if ( $this->container->has( 'wc_feature_settings' ) ) {
+			$this->container->get( 'wc_feature_settings' )->init();
+		}
+		if ( $this->container->has( 'wc_enhancements' ) ) {
+			$this->container->get( 'wc_enhancements' )->init();
 		}
 	}
 

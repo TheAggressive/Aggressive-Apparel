@@ -1,0 +1,52 @@
+/**
+ * Mini Cart Theme Overrides
+ *
+ * Styles the native WooCommerce mini-cart block to match the Aggressive Apparel
+ * design language: typography, colors, spacing, border-radius, and transitions.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+/* Drawer container. */
+.wc-block-mini-cart__drawer {
+	font-family: var(--wp--preset--font-family--body, inherit);
+
+	.wc-block-mini-cart__title {
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+}
+
+/* Product rows inside the drawer. */
+.wc-block-mini-cart__products-table {
+
+	.wc-block-cart-items__row {
+		border-bottom: 1px solid color-mix(in oklch, currentcolor 10%, transparent);
+	}
+
+	.wc-block-components-product-name {
+		font-weight: 600;
+	}
+}
+
+/* Totals. */
+.wc-block-mini-cart__footer {
+	border-top: 2px solid currentcolor;
+
+	.wc-block-mini-cart__footer-subtotal {
+		font-weight: 700;
+	}
+}
+
+/* Buttons. */
+.wc-block-mini-cart__footer-actions {
+
+	.wc-block-components-button {
+		border-radius: 0;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-weight: 700;
+	}
+}

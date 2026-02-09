@@ -1,0 +1,142 @@
+/**
+ * Lookbook Block — Frontend Styles.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-lookbook {
+	position: relative;
+}
+
+.aggressive-apparel-lookbook__image-wrapper {
+	position: relative;
+	overflow: hidden;
+	line-height: 0;
+}
+
+.aggressive-apparel-lookbook__image {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+/* Hotspot dots. */
+.aggressive-apparel-lookbook__hotspot {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	z-index: 2;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+}
+
+.aggressive-apparel-lookbook__hotspot-dot {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--white, #fff);
+	color: var(--wp--preset--color--black, #000);
+	font-size: 0.65rem;
+	font-weight: 700;
+	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	transition: transform 0.2s ease;
+	animation: aggressive-apparel-hotspot-pulse 2s ease-in-out infinite;
+}
+
+.aggressive-apparel-lookbook__hotspot:hover .aggressive-apparel-lookbook__hotspot-dot,
+.aggressive-apparel-lookbook__hotspot.is-active .aggressive-apparel-lookbook__hotspot-dot {
+	transform: scale(1.2);
+	animation: none;
+}
+
+@keyframes aggressive-apparel-hotspot-pulse {
+
+	0%,
+	100% {
+		box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	}
+
+	50% {
+		box-shadow: 0 2px 8px rgb(0 0 0 / 20%),
+			0 0 0 6px rgb(255 255 255 / 30%);
+	}
+}
+
+/* Popover card. */
+.aggressive-apparel-lookbook__popover {
+	position: absolute;
+	z-index: 10;
+	transform: translate(-50%, calc(-100% - 1.5rem));
+	pointer-events: auto;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.aggressive-apparel-lookbook__product-card {
+	display: flex;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	min-width: 260px;
+	max-width: 320px;
+	background-color: var(--wp--preset--color--white, #fff);
+	color: var(--wp--preset--color--black, #000);
+	border-radius: 0.5rem;
+	box-shadow: 0 10px 25px -5px rgb(0 0 0 / 15%);
+}
+
+.aggressive-apparel-lookbook__product-image {
+	width: 4rem;
+	height: 4rem;
+	object-fit: cover;
+	border-radius: 0.25rem;
+	flex-shrink: 0;
+}
+
+.aggressive-apparel-lookbook__product-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.aggressive-apparel-lookbook__product-name {
+	margin: 0;
+	font-size: 0.85rem;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.aggressive-apparel-lookbook__product-price {
+	margin: 0.2rem 0;
+	font-size: 0.8rem;
+}
+
+.aggressive-apparel-lookbook__product-link {
+	display: inline-block;
+	margin-top: 0.25rem;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.aggressive-apparel-lookbook__loading {
+	padding: 1rem;
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+/* Reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-lookbook__hotspot-dot {
+		animation: none;
+	}
+}

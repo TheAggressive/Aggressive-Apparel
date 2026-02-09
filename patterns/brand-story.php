@@ -3,7 +3,7 @@
  * Title: Brand Story
  * Description: Two-column section with lifestyle image and brand story text, ideal for homepage or about page.
  * Slug: aggressive-apparel/brand-story
- * Categories: aggressive-apparel, aggressive-informational, aggressive-homepage
+ * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-homepage
  * Keywords: about, brand, story, mission, values
  * Viewport Width: 1200
  *

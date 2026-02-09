@@ -3,7 +3,7 @@
  * Title: Brand Values
  * Description: Three-column section showcasing core brand values with large numbered indicators.
  * Slug: aggressive-apparel/brand-values
- * Categories: aggressive-apparel, aggressive-informational, aggressive-social-proof
+ * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-social-proof
  * Keywords: values, brand, mission, pillars, features, why
  * Viewport Width: 1200
  *

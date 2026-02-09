@@ -3,7 +3,7 @@
  * Title: Loyalty Program
  * Description: Split-screen section promoting a membership or loyalty program with benefits list.
  * Slug: aggressive-apparel/loyalty-program
- * Categories: aggressive-apparel, aggressive-conversion
+ * Categories: aggressive, aggressive-apparel, aggressive-conversion
  * Keywords: loyalty, membership, rewards, vip, program, perks
  * Viewport Width: 1400
  *

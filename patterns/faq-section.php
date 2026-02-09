@@ -3,7 +3,7 @@
  * Title: FAQ Section
  * Description: Two-column FAQ layout with heading and support CTA on the left, accordion questions on the right.
  * Slug: aggressive-apparel/faq-section
- * Categories: aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-apparel, aggressive-informational
  * Keywords: faq, questions, answers, help, support, accordion
  * Viewport Width: 1200
  *

@@ -1,0 +1,1135 @@
+/**
+ * Quick View — Interactivity API Store.
+ *
+ * Supports simple and variable products with add-to-cart via the
+ * WooCommerce Store API. Variable products display attribute swatches
+ * and match variations before enabling add-to-cart.
+ *
+ * State values `restBase` and `cartApiUrl` are provided by PHP
+ * via wp_interactivity_state().
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+import { store, getContext } from '@wordpress/interactivity';
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Parse a Store API raw price (minor units) into display strings.
+ *
+ * @param {Object} prices - The `prices` object from the Store API.
+ * @return {Object} `{ current, regular, onSale }`.
+ */
+function parsePrice(prices) {
+  const result = { current: '', regular: '', onSale: false };
+  if (!prices || !prices.price) {
+    return result;
+  }
+
+  const minorUnit = prices.currency_minor_unit ?? 2;
+  const divisor = Math.pow(10, minorUnit);
+  const prefix = prices.currency_prefix ?? '$';
+  const suffix = prices.currency_suffix ?? '';
+
+  const currentVal = (parseInt(prices.price, 10) / divisor).toFixed(minorUnit);
+  result.current = `${prefix}${currentVal}${suffix}`;
+
+  if (
+    prices.regular_price &&
+    prices.sale_price &&
+    prices.regular_price !== prices.sale_price
+  ) {
+    const regularVal = (parseInt(prices.regular_price, 10) / divisor).toFixed(
+      minorUnit
+    );
+    result.regular = `${prefix}${regularVal}${suffix}`;
+    result.onSale = true;
+  }
+  return result;
+}
+
+/**
+ * Strip HTML tags and return trimmed plain text.
+ *
+ * @param {string} html - HTML string.
+ * @return {string} Plain text.
+ */
+function stripTags(html) {
+  if (!html) {
+    return '';
+  }
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return (div.textContent || '').trim();
+}
+
+/**
+ * Pick the best description from a Store API product.
+ *
+ * @param {Object} product - Store API product object.
+ * @return {string} Plain-text description.
+ */
+function pickDescription(product) {
+  const short = stripTags(product.short_description);
+  if (short.length > 30) {
+    return short;
+  }
+  const full = stripTags(product.description);
+  if (!full) {
+    return short;
+  }
+  if (full.length <= 200) {
+    return full;
+  }
+  const truncated = full.substring(0, 200);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (
+    (lastSpace > 120 ? truncated.substring(0, lastSpace) : truncated) + '…'
+  );
+}
+
+/**
+ * Build gallery images array from Store API product.
+ *
+ * @param {Object} product - Store API product object.
+ * @return {Array} Array of image objects with src, alt, thumbnail.
+ */
+function buildGalleryImages(product) {
+  if (!product.images || product.images.length === 0) {
+    return [];
+  }
+  return product.images.map((img, index) => ({
+    id: img.id || index,
+    src: img.src,
+    alt: img.alt || product.name,
+    thumbnail: img.thumbnail || img.src,
+  }));
+}
+
+/**
+ * Get stock status info from Store API product.
+ *
+ * @param {Object} product - Store API product object.
+ * @return {Object} Stock info with status, quantity, and label.
+ */
+function getStockInfo(product) {
+  const lowThreshold = 3;
+  const isInStock = product.is_in_stock !== false;
+  const qty = product.stock_quantity;
+
+  if (!isInStock) {
+    return {
+      status: 'outofstock',
+      quantity: 0,
+      label: 'Out of Stock',
+    };
+  }
+
+  if (qty !== null && qty !== undefined && qty <= lowThreshold && qty > 0) {
+    return {
+      status: 'lowstock',
+      quantity: qty,
+      label: `Only ${qty} left!`,
+    };
+  }
+
+  return {
+    status: 'instock',
+    quantity: qty,
+    label: 'In Stock',
+  };
+}
+
+/**
+ * Calculate sale percentage from prices.
+ *
+ * @param {number} regularPrice - Regular price in minor units.
+ * @param {number} salePrice    - Sale price in minor units.
+ * @return {number} Percentage discount (0-100).
+ */
+function calculateSalePercentage(regularPrice, salePrice) {
+  if (!regularPrice || !salePrice || regularPrice <= salePrice) {
+    return 0;
+  }
+  return Math.round(((regularPrice - salePrice) / regularPrice) * 100);
+}
+
+/**
+ * Setup focus trap within a container element.
+ *
+ * @param {HTMLElement} container - The container to trap focus within.
+ * @return {Function} Cleanup function to remove the trap.
+ */
+function setupFocusTrap(container) {
+  const FOCUSABLE_SELECTOR =
+    'a[href], button:not([disabled]), input:not([disabled]), ' +
+    'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  const handleKeydown = e => {
+    if (e.key !== 'Tab') {
+      return;
+    }
+
+    const focusable = Array.from(
+      container.querySelectorAll(FOCUSABLE_SELECTOR)
+    ).filter(el => !el.closest('[hidden]') && !el.closest('[inert]'));
+
+    if (focusable.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    const currentIndex = focusable.indexOf(document.activeElement);
+    let nextIndex;
+
+    if (e.shiftKey) {
+      nextIndex = currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;
+    } else {
+      nextIndex = currentIndex >= focusable.length - 1 ? 0 : currentIndex + 1;
+    }
+
+    e.preventDefault();
+    focusable[nextIndex].focus();
+  };
+
+  container.addEventListener('keydown', handleKeydown);
+
+  return () => {
+    container.removeEventListener('keydown', handleKeydown);
+  };
+}
+
+/**
+ * Build attribute data from a Store API product for template rendering.
+ *
+ * @param {Object} product - Store API product response.
+ * @return {Array} Array of `{ name, slug, options: [{ name, slug }] }`.
+ */
+function buildAttributes(product) {
+  if (!product.attributes || product.attributes.length === 0) {
+    return [];
+  }
+
+  const attrSlugFor = attr => attr.taxonomy || attr.name;
+
+  return product.attributes
+    .filter(attr => attr.has_variations)
+    .map(attr => ({
+      name: attr.name,
+      slug: attrSlugFor(attr),
+      options: (attr.terms || []).map(term => ({
+        name: term.name,
+        slug: term.slug || term.name,
+        attrSlug: attrSlugFor(attr),
+      })),
+    }));
+}
+
+/**
+ * Build simplified variation objects from a Store API product.
+ *
+ * @param {Object} product - Store API product response.
+ * @return {Array} Array of variation objects.
+ */
+function buildVariations(product) {
+  if (!product.variations || product.variations.length === 0) {
+    return [];
+  }
+
+  return product.variations.map(v => ({
+    id: v.id,
+    attributes: v.attributes || [],
+    image:
+      v.image && v.image.src
+        ? v.image.src
+        : product.images && product.images.length > 0
+          ? product.images[0].src
+          : '',
+    imageAlt: v.image && v.image.alt ? v.image.alt : product.name || '',
+    prices: v.prices || product.prices,
+  }));
+}
+
+/**
+ * Find a variation matching the selected attributes.
+ *
+ * @param {Array}  variations - Array from buildVariations().
+ * @param {Object} selected   - Map of slug -> value.
+ * @return {Object|null} Matching variation or null.
+ */
+function matchVariation(variations, selected) {
+  const selectedKeys = Object.keys(selected).filter(k => selected[k]);
+  if (selectedKeys.length === 0) {
+    return null;
+  }
+
+  return (
+    variations.find(v =>
+      v.attributes.every(attr => {
+        const key = attr.attribute || attr.name || attr.taxonomy || '';
+        const val = selected[key];
+        // "Any" attributes match everything.
+        if (!attr.value) {
+          return true;
+        }
+        return val === attr.value;
+      })
+    ) || null
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Store                                                              */
+/* ------------------------------------------------------------------ */
+
+// Store reference for focus trap cleanup.
+let focusTrapCleanup = null;
+let triggerElement = null;
+
+/**
+ * Directly populate the Quick View modal DOM from current store state.
+ *
+ * Acts as a fallback for when the Interactivity API's data-wp-text and
+ * data-wp-bind directives were never hydrated (e.g. because another
+ * block's hydration crashed and aborted the loop).
+ *
+ * Safe to call even when hydration DID succeed — the values are
+ * identical so there is no visual flicker.
+ */
+function populateModalDOM() {
+  const modal = document.querySelector('.aggressive-apparel-quick-view__modal');
+  if (!modal) {
+    return;
+  }
+
+  const q = sel => modal.querySelector(sel);
+
+  // Skeleton / content / error visibility.
+  const skeleton = q('.aggressive-apparel-quick-view__skeleton');
+  const content = q('.aggressive-apparel-quick-view__content');
+  const error = q('.aggressive-apparel-quick-view__error');
+
+  if (skeleton) {
+    skeleton.hidden = !state.isLoading;
+  }
+  if (content) {
+    content.hidden = !state.hasProduct;
+  }
+  if (error) {
+    error.hidden = !state.hasError;
+  }
+
+  if (!state.hasProduct) {
+    return;
+  }
+
+  // Product details.
+  const name = q('.aggressive-apparel-quick-view__name');
+  if (name) {
+    name.textContent = state.productName;
+  }
+
+  const priceCurrent = q('.aggressive-apparel-quick-view__price-current');
+  if (priceCurrent) {
+    priceCurrent.textContent = state.productPrice;
+  }
+
+  const priceRegular = q('.aggressive-apparel-quick-view__price-regular');
+  if (priceRegular) {
+    priceRegular.textContent = state.productRegularPrice;
+    priceRegular.hidden = !state.productOnSale;
+  }
+
+  const desc = q('.aggressive-apparel-quick-view__description');
+  if (desc) {
+    desc.textContent = state.productDescription;
+  }
+
+  // Main image.
+  const img = q('.aggressive-apparel-quick-view__main-image img');
+  if (img && state.productImage) {
+    img.src = state.productImage;
+    img.alt = state.productImageAlt;
+  }
+
+  // Stock label.
+  const stockEl = q('.aggressive-apparel-quick-view__stock');
+  if (stockEl) {
+    stockEl.classList.toggle('is-in-stock', state.stockStatus === 'instock');
+    stockEl.classList.toggle('is-low-stock', state.stockStatus === 'lowstock');
+    stockEl.classList.toggle(
+      'is-out-of-stock',
+      state.stockStatus === 'outofstock'
+    );
+  }
+  const stockLabel = q('.aggressive-apparel-quick-view__stock-label');
+  if (stockLabel) {
+    stockLabel.textContent = state.stockStatusLabel;
+  }
+
+  // Sale badge.
+  const badge = q('.aggressive-apparel-quick-view__sale-badge');
+  if (badge) {
+    badge.hidden = !state.productOnSale;
+    badge.textContent =
+      state.salePercentage > 0 ? `-${state.salePercentage}%` : '';
+  }
+
+  // Product link.
+  const link = q('.aggressive-apparel-quick-view__link');
+  if (link) {
+    link.href = state.productLink;
+  }
+
+  // Cart row (quantity + add-to-cart).
+  const cartRow = q('.aggressive-apparel-quick-view__cart-row');
+  if (cartRow) {
+    cartRow.hidden = state.showPostCartActions;
+  }
+
+  // Add to Cart button.
+  const addBtn = q('.aggressive-apparel-quick-view__add-to-cart');
+  if (addBtn) {
+    addBtn.disabled = !state.canAddToCart;
+    addBtn.textContent = state.addToCartLabel;
+  }
+}
+
+const { state, actions } = store('aggressive-apparel/quick-view', {
+  state: {
+    // Provided by PHP via wp_interactivity_state().
+    restBase: '',
+    cartApiUrl: '',
+
+    // Modal visibility.
+    isOpen: false,
+    isLoading: false,
+    hasError: false,
+    hasProduct: false,
+
+    // Core product info.
+    productId: 0,
+    productType: 'simple',
+    productImage: '',
+    productImageAlt: '',
+    productName: '',
+    productPrice: '',
+    productRegularPrice: '',
+    productOnSale: false,
+    productDescription: '',
+    productLink: '',
+
+    // Variable product data.
+    productAttributes: [],
+    productVariations: [],
+    selectedAttributes: {},
+    matchedVariationId: 0,
+
+    // Quantity.
+    quantity: 1,
+
+    // Cart interaction.
+    cartNonce: '',
+    isAddingToCart: false,
+    addedToCart: false,
+    cartError: '',
+
+    // Gallery support.
+    productImages: [],
+    activeImageIndex: 0,
+
+    // Stock status.
+    stockStatus: 'instock',
+    stockQuantity: null,
+    stockStatusLabel: '',
+
+    // Sale badge.
+    salePercentage: 0,
+
+    // Color swatch data (from PHP).
+    colorSwatchData: {},
+
+    // Post-cart actions.
+    showPostCartActions: false,
+    cartUrl: '/cart/',
+
+    // Accessibility announcement.
+    announcement: '',
+
+    // Derived state.
+    get isVariable() {
+      return state.productType === 'variable';
+    },
+
+    get canAddToCart() {
+      if (state.isAddingToCart || state.stockStatus === 'outofstock') {
+        return false;
+      }
+      if (state.productType === 'simple') {
+        return state.hasProduct;
+      }
+      // Variable: all attributes must be selected.
+      return state.matchedVariationId > 0;
+    },
+
+    get addToCartLabel() {
+      if (state.isAddingToCart) {
+        return 'Adding…';
+      }
+      if (state.stockStatus === 'outofstock') {
+        return 'Out of Stock';
+      }
+      return 'Add to Cart';
+    },
+
+    /**
+     * Whether the current option button (set by data-wp-each) is selected.
+     *
+     * Used with data-wp-class--is-selected on each swatch button.
+     *
+     * @return {boolean}
+     */
+    get isOptionSelected() {
+      const ctx = getContext();
+      if (!ctx.item || !ctx.item.attrSlug) {
+        return false;
+      }
+      return state.selectedAttributes[ctx.item.attrSlug] === ctx.item.slug;
+    },
+
+    /**
+     * Current gallery image object.
+     */
+    get currentImage() {
+      const images = state.productImages;
+      const index = state.activeImageIndex;
+      if (images.length === 0) {
+        return { src: state.productImage, alt: state.productImageAlt };
+      }
+      return images[index] || images[0] || { src: '', alt: '' };
+    },
+
+    /**
+     * Whether there are multiple images to show thumbnails.
+     */
+    get hasMultipleImages() {
+      return state.productImages.length > 1;
+    },
+
+    /**
+     * Whether the current thumbnail is the active one.
+     */
+    get isActiveImage() {
+      const ctx = getContext();
+      if (!ctx.item) {
+        return false;
+      }
+      const index = state.productImages.findIndex(
+        img => img.id === ctx.item.id
+      );
+      return index === state.activeImageIndex;
+    },
+
+    /**
+     * Sale badge text (e.g., "-25%").
+     */
+    get saleBadgeText() {
+      if (state.salePercentage > 0) {
+        return `-${state.salePercentage}%`;
+      }
+      return '';
+    },
+
+    /**
+     * Stock status helpers.
+     */
+    get isInStock() {
+      return state.stockStatus === 'instock';
+    },
+
+    get isLowStock() {
+      return state.stockStatus === 'lowstock';
+    },
+
+    get isOutOfStock() {
+      return state.stockStatus === 'outofstock';
+    },
+
+    /**
+     * Whether the current attribute is a color attribute.
+     */
+    get isColorAttribute() {
+      const ctx = getContext();
+      if (!ctx.item) {
+        return false;
+      }
+      const slug = ctx.item.slug || '';
+      return slug === 'pa_color' || slug === 'color';
+    },
+
+    /**
+     * Whether the current option is a color swatch.
+     */
+    get isColorSwatch() {
+      const ctx = getContext();
+      if (!ctx.item || !ctx.item.slug) {
+        return false;
+      }
+      return !!state.colorSwatchData[ctx.item.slug];
+    },
+
+    /**
+     * Get the color value for the current swatch option.
+     */
+    get colorSwatchValue() {
+      const ctx = getContext();
+      if (!ctx.item || !ctx.item.slug) {
+        return '';
+      }
+      const swatchData = state.colorSwatchData[ctx.item.slug];
+      if (!swatchData || !swatchData.value) {
+        return '';
+      }
+      return swatchData.value;
+    },
+  },
+
+  actions: {
+    open(event) {
+      // Try Interactivity API context first; fall back to reading
+      // the data-wp-context attribute directly so clicks still work
+      // even when hydrateRegions is aborted by a third-party error.
+      let productId;
+      try {
+        const ctx = getContext();
+        productId = ctx.productId;
+      } catch {
+        // Context unavailable — hydration may have failed.
+      }
+
+      if (!productId && event?.target) {
+        const trigger = event.target.closest('[data-wp-context]');
+        if (trigger) {
+          try {
+            const raw = JSON.parse(
+              trigger.getAttribute('data-wp-context') || '{}'
+            );
+            productId = raw.productId;
+          } catch {
+            // Invalid JSON, give up.
+          }
+        }
+      }
+
+      if (!productId) {
+        return;
+      }
+
+      // Store the trigger element for focus restoration.
+      triggerElement = event?.target?.closest('button') || null;
+
+      // Reset all state.
+      state.isOpen = true;
+      state.isLoading = true;
+      state.hasError = false;
+      state.hasProduct = false;
+      state.productId = productId;
+      state.productType = 'simple';
+      state.productImage = '';
+      state.productImageAlt = '';
+      state.productName = '';
+      state.productPrice = '';
+      state.productRegularPrice = '';
+      state.productOnSale = false;
+      state.productDescription = '';
+      state.productLink = '';
+      state.productAttributes = [];
+      state.productVariations = [];
+      state.selectedAttributes = {};
+      state.matchedVariationId = 0;
+      state.quantity = 1;
+      state.addedToCart = false;
+      state.cartError = '';
+      state.productImages = [];
+      state.activeImageIndex = 0;
+      state.stockStatus = 'instock';
+      state.stockQuantity = null;
+      state.stockStatusLabel = '';
+      state.salePercentage = 0;
+      state.showPostCartActions = false;
+      state.announcement = '';
+      document.body.style.overflow = 'hidden';
+
+      // Setup focus trap after modal renders.
+      requestAnimationFrame(() => {
+        const modal = document.querySelector(
+          '.aggressive-apparel-quick-view__modal'
+        );
+        if (modal) {
+          focusTrapCleanup = setupFocusTrap(modal);
+          const closeBtn = modal.querySelector(
+            '.aggressive-apparel-quick-view__close'
+          );
+          closeBtn?.focus();
+        }
+      });
+
+      // Fetch the Store API nonce lazily on first open.
+      if (!state.cartNonce) {
+        const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
+        fetch(cartUrl, { credentials: 'same-origin' })
+          .then(res => {
+            const nonce = res.headers.get('Nonce');
+            if (nonce) {
+              state.cartNonce = nonce;
+            }
+          })
+          .catch(() => {});
+      }
+
+      // Fetch product data.
+      const base = state.restBase || '/wp-json/wc/store/v1/products/';
+      const url = `${base}${productId}`;
+
+      fetch(url)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (!data || !data.name) {
+            state.hasError = true;
+            return;
+          }
+
+          state.productName = data.name;
+          state.productLink = data.permalink || '#';
+          state.productDescription = pickDescription(data);
+          state.productType = data.type || 'simple';
+
+          // Gallery images.
+          state.productImages = buildGalleryImages(data);
+          state.activeImageIndex = 0;
+
+          // Fallback for single image.
+          if (data.images && data.images.length > 0) {
+            state.productImage = data.images[0].src;
+            state.productImageAlt = data.images[0].alt || data.name;
+          }
+
+          // Price.
+          const priceData = parsePrice(data.prices);
+          state.productPrice = priceData.current;
+          state.productRegularPrice = priceData.regular;
+          state.productOnSale = priceData.onSale;
+
+          // Sale percentage.
+          if (data.prices) {
+            const regular = parseInt(data.prices.regular_price, 10);
+            const sale = parseInt(
+              data.prices.sale_price || data.prices.price,
+              10
+            );
+            state.salePercentage = calculateSalePercentage(regular, sale);
+          }
+
+          // Stock status.
+          const stockInfo = getStockInfo(data);
+          state.stockStatus = stockInfo.status;
+          state.stockQuantity = stockInfo.quantity;
+          state.stockStatusLabel = stockInfo.label;
+
+          // Variable product data.
+          if (data.type === 'variable' && data.has_options) {
+            state.productAttributes = buildAttributes(data);
+            state.productVariations = buildVariations(data);
+
+            // Initialise selectedAttributes with empty values.
+            const sel = {};
+            state.productAttributes.forEach(attr => {
+              sel[attr.slug] = '';
+            });
+            state.selectedAttributes = sel;
+          }
+
+          state.hasProduct = true;
+        })
+        .catch(() => {
+          state.hasError = true;
+        })
+        .finally(() => {
+          state.isLoading = false;
+          // Fallback DOM sync for when hydration didn't run.
+          populateModalDOM();
+        });
+    },
+
+    close() {
+      // Cleanup focus trap.
+      if (focusTrapCleanup) {
+        focusTrapCleanup();
+        focusTrapCleanup = null;
+      }
+
+      state.isOpen = false;
+      state.hasProduct = false;
+      state.hasError = false;
+      state.addedToCart = false;
+      state.cartError = '';
+      state.showPostCartActions = false;
+      state.announcement = '';
+      document.body.style.overflow = '';
+
+      // Restore focus to trigger element.
+      if (triggerElement) {
+        triggerElement.focus();
+        triggerElement = null;
+      }
+    },
+
+    selectAttribute() {
+      const ctx = getContext();
+      // `ctx.item` is set by data-wp-each for the option button.
+      // Each option carries its parent `attrSlug`.
+      const attrSlug = ctx.item.attrSlug;
+      const optionSlug = ctx.item.slug;
+
+      if (!attrSlug || !optionSlug) {
+        return;
+      }
+
+      // Toggle: deselect if same option clicked again.
+      const current = state.selectedAttributes[attrSlug];
+      const newSelected = { ...state.selectedAttributes };
+      newSelected[attrSlug] = current === optionSlug ? '' : optionSlug;
+      state.selectedAttributes = newSelected;
+
+      // Try to match a variation.
+      const match = matchVariation(state.productVariations, newSelected);
+
+      if (match) {
+        state.matchedVariationId = match.id;
+
+        // Update image if the variation has its own.
+        if (match.image) {
+          state.productImage = match.image;
+          state.productImageAlt = match.imageAlt || state.productName;
+        }
+
+        // Update price if the variation has different pricing.
+        if (match.prices) {
+          const priceData = parsePrice(match.prices);
+          state.productPrice = priceData.current;
+          state.productRegularPrice = priceData.regular;
+          state.productOnSale = priceData.onSale;
+        }
+      } else {
+        state.matchedVariationId = 0;
+      }
+    },
+
+    incrementQty() {
+      state.quantity = state.quantity + 1;
+    },
+
+    decrementQty() {
+      if (state.quantity > 1) {
+        state.quantity = state.quantity - 1;
+      }
+    },
+
+    /**
+     * Set quantity from direct input.
+     */
+    setQuantity(event) {
+      const value = parseInt(event.target.value, 10);
+      if (!isNaN(value) && value >= 1) {
+        state.quantity = value;
+      } else {
+        // Reset to valid value.
+        event.target.value = state.quantity;
+      }
+    },
+
+    /**
+     * Select a gallery image by thumbnail click.
+     */
+    selectImage() {
+      const ctx = getContext();
+      if (!ctx.item) {
+        return;
+      }
+      const index = state.productImages.findIndex(
+        img => img.id === ctx.item.id
+      );
+      if (index >= 0) {
+        state.activeImageIndex = index;
+      }
+    },
+
+    /**
+     * Navigate to next gallery image.
+     */
+    nextImage() {
+      const max = state.productImages.length - 1;
+      if (max <= 0) {
+        return;
+      }
+      state.activeImageIndex =
+        state.activeImageIndex >= max ? 0 : state.activeImageIndex + 1;
+    },
+
+    /**
+     * Navigate to previous gallery image.
+     */
+    prevImage() {
+      const max = state.productImages.length - 1;
+      if (max <= 0) {
+        return;
+      }
+      state.activeImageIndex =
+        state.activeImageIndex <= 0 ? max : state.activeImageIndex - 1;
+    },
+
+    /**
+     * Handle keyboard events (ESC to close, arrows for gallery).
+     */
+    handleKeydown(event) {
+      if (!state.isOpen) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        actions.close();
+        return;
+      }
+
+      // Arrow keys for gallery navigation.
+      if (state.hasMultipleImages) {
+        if (event.key === 'ArrowLeft') {
+          actions.prevImage();
+        } else if (event.key === 'ArrowRight') {
+          actions.nextImage();
+        }
+      }
+    },
+
+    /**
+     * Continue shopping (close modal after adding to cart).
+     */
+    continueShopping() {
+      state.showPostCartActions = false;
+      state.addedToCart = false;
+      actions.close();
+    },
+
+    /**
+     * Navigate to cart page.
+     */
+    viewCart() {
+      window.location.href = state.cartUrl;
+    },
+
+    addToCart() {
+      if (!state.canAddToCart) {
+        return;
+      }
+
+      state.isAddingToCart = true;
+      state.addedToCart = false;
+      state.cartError = '';
+
+      // Determine the ID to add (variation ID for variable, product ID for simple).
+      const itemId =
+        state.productType === 'variable' && state.matchedVariationId
+          ? state.matchedVariationId
+          : state.productId;
+
+      const body = {
+        id: itemId,
+        quantity: state.quantity,
+      };
+
+      // For variable products, also send the selected variation attributes.
+      if (state.productType === 'variable' && state.matchedVariationId) {
+        body.variation = Object.entries(state.selectedAttributes)
+          .filter(([, value]) => value)
+          .map(([attribute, value]) => ({
+            attribute,
+            value,
+          }));
+      }
+
+      const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
+      const addUrl = `${cartUrl}/add-item`;
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (state.cartNonce) {
+        headers.Nonce = state.cartNonce;
+      }
+
+      fetch(addUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers,
+        body: JSON.stringify(body),
+      })
+        .then(res => {
+          // Capture the refreshed nonce for subsequent requests.
+          const newNonce = res.headers.get('Nonce');
+          if (newNonce) {
+            state.cartNonce = newNonce;
+          }
+
+          if (!res.ok) {
+            return res.json().then(err => {
+              throw new Error(err.message || `HTTP ${res.status}`);
+            });
+          }
+          return res.json();
+        })
+        .then(() => {
+          state.addedToCart = true;
+          state.showPostCartActions = true;
+          state.announcement = 'Product added to cart successfully';
+
+          // Dispatch a custom event so WooCommerce mini-cart can update.
+          document.body.dispatchEvent(
+            new CustomEvent('wc-blocks_added_to_cart', {
+              bubbles: true,
+            })
+          );
+        })
+        .catch(err => {
+          state.cartError = err.message || 'Could not add to cart.';
+          state.announcement = `Error: ${state.cartError}`;
+        })
+        .finally(() => {
+          state.isAddingToCart = false;
+        });
+    },
+  },
+});
+
+/* ------------------------------------------------------------------ */
+/*  Hydration Fallback                                                 */
+/*                                                                     */
+/*  WordPress Interactivity API has no per-region error isolation.      */
+/*  If ANY interactive block (e.g. woocommerce/product-button) throws  */
+/*  during hydrateRegions, every region later in the DOM is skipped.   */
+/*  The Quick View modal lives in wp_footer (very end of DOM) so it    */
+/*  is particularly vulnerable.                                        */
+/*                                                                     */
+/*  This fallback uses event delegation and direct DOM manipulation    */
+/*  so the feature works regardless of hydration status.               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Sync the Quick View modal DOM with store state.
+ *
+ * Handles the subset of directives that are critical for visibility
+ * (hidden/is-open). Product content is populated via the fetch
+ * callbacks in `actions.open` which set state — reactive bindings
+ * handle the rest when hydration succeeds, and the fetch callbacks
+ * also write directly to the DOM via this helper when it doesn't.
+ */
+function syncModalDOM() {
+  const el = document.getElementById('aggressive-apparel-quick-view');
+  if (!el) {
+    return;
+  }
+  el.hidden = !state.isOpen;
+  el.classList.toggle('is-open', state.isOpen);
+}
+
+// Event delegation: catch clicks on trigger buttons even if their
+// data-wp-on--click directive was never hydrated.
+document.addEventListener('click', e => {
+  const trigger = e.target.closest('.aggressive-apparel-quick-view__trigger');
+  if (!trigger) {
+    return;
+  }
+
+  // Prevent duplicate firing if the Interactivity API already handled it.
+  if (state.isOpen) {
+    return;
+  }
+
+  actions.open(e);
+  // Ensure the modal becomes visible even without reactive bindings.
+  syncModalDOM();
+});
+
+// Also handle close clicks via delegation.
+document.addEventListener('click', e => {
+  if (!state.isOpen) {
+    return;
+  }
+  const backdrop = e.target.closest('.aggressive-apparel-quick-view__backdrop');
+  const closeBtn = e.target.closest('.aggressive-apparel-quick-view__close');
+  if (backdrop || closeBtn) {
+    actions.close();
+    syncModalDOM();
+  }
+});
+
+// ESC key to close (fallback for data-wp-on-document--keydown).
+document.addEventListener('keydown', e => {
+  if (state.isOpen && e.key === 'Escape') {
+    actions.close();
+    syncModalDOM();
+  }
+});
+
+// Add to Cart, quantity, and continue-shopping button delegation.
+document.addEventListener('click', e => {
+  if (!state.isOpen) {
+    return;
+  }
+
+  const modal = document.getElementById('aggressive-apparel-quick-view');
+  if (!modal || !modal.contains(e.target)) {
+    return;
+  }
+
+  // Add to Cart.
+  if (e.target.closest('.aggressive-apparel-quick-view__add-to-cart')) {
+    actions.addToCart();
+    return;
+  }
+
+  // Quantity buttons.
+  const qtyBtn = e.target.closest('.aggressive-apparel-quick-view__qty-btn');
+  if (qtyBtn) {
+    if (
+      qtyBtn.textContent.includes('\u2212') ||
+      qtyBtn.textContent.includes('-')
+    ) {
+      actions.decrementQty();
+    } else {
+      actions.incrementQty();
+    }
+    const input = modal.querySelector(
+      '.aggressive-apparel-quick-view__qty-input'
+    );
+    if (input) {
+      input.value = state.quantity;
+    }
+    return;
+  }
+
+  // Continue shopping.
+  if (e.target.closest('.aggressive-apparel-quick-view__btn--continue')) {
+    actions.continueShopping();
+    syncModalDOM();
+  }
+});

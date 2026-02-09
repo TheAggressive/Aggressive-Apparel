@@ -3,7 +3,7 @@
  * Title: Product Showcase Grid
  * Description: A responsive grid layout showcasing featured products in an attractive card format.
  * Slug: aggressive-apparel/product-showcase-grid
- * Categories: aggressive-apparel
+ * Categories: aggressive, aggressive-apparel, aggressive-products
  * Keywords: products, grid, showcase, cards, featured
  * Viewport Width: 1200
  *

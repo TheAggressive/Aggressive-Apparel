@@ -1,0 +1,36 @@
+/**
+ * Marquee Banner Component
+ *
+ * Scrolling text ticker animation for promotional banners.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aggressive-apparel-marquee {
+	overflow: hidden;
+
+	&__track {
+		display: inline-block;
+		white-space: nowrap;
+		animation: aggressive-apparel-marquee 25s linear infinite;
+	}
+}
+
+@keyframes aggressive-apparel-marquee {
+
+	0% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+/* Respect reduced motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-marquee__track {
+		animation: none;
+	}
+}

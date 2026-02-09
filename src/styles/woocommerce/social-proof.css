@@ -1,0 +1,110 @@
+/**
+ * Social Proof Toast Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+.aggressive-apparel-social-proof {
+	position: fixed;
+	bottom: 1.5rem;
+	left: 1.5rem;
+	z-index: 99998;
+	pointer-events: none;
+}
+
+.aggressive-apparel-social-proof__toast {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	max-width: 340px;
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	background-color: var(--wp--preset--color--white, #fff);
+	color: var(--wp--preset--color--black, #000);
+	box-shadow: 0 10px 25px -5px rgb(0 0 0 / 15%);
+	pointer-events: auto;
+	transform: translateY(20px);
+	opacity: 0;
+	transition: transform 0.3s ease, opacity 0.3s ease;
+
+	&.is-visible {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	&[hidden] {
+		display: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		transform: none;
+	}
+}
+
+.aggressive-apparel-social-proof__image {
+	flex-shrink: 0;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.25rem;
+	overflow: hidden;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.aggressive-apparel-social-proof__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.aggressive-apparel-social-proof__message {
+	margin: 0;
+	font-size: 0.8rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.aggressive-apparel-social-proof__time {
+	margin: 0.15rem 0 0;
+	font-size: 0.75rem;
+	color: color-mix(in oklch, currentcolor 50%, transparent);
+}
+
+.aggressive-apparel-social-proof__close {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+	opacity: 0.5;
+
+	&:hover,
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+@media (width <= 480px) {
+
+	.aggressive-apparel-social-proof {
+		left: 0.75rem;
+		right: 0.75rem;
+		bottom: 0.75rem;
+	}
+
+	.aggressive-apparel-social-proof__toast {
+		max-width: 100%;
+	}
+}

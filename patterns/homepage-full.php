@@ -3,7 +3,7 @@
  * Title: Full Homepage
  * Description: Complete homepage composition with hero, sale banner, categories, products, brand story, values, testimonials, newsletter, and social feed.
  * Slug: aggressive-apparel/homepage-full
- * Categories: aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-apparel, aggressive-homepage
  * Keywords: homepage, full page, landing, storefront, complete
  * Viewport Width: 1400
  *
@@ -14,7 +14,7 @@
 <!-- HERO -->
 <!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":80,"minHeightUnit":"vh","contentPosition":"center center","align":"full","isDark":true} -->
 <div class="wp-block-cover alignfull is-dark" style="min-height:80vh">
-	<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span>
+	<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span>
 	<div class="wp-block-cover__inner-container">
 		<!-- wp:group {"layout":{"type":"constrained","contentSize":"800px"}} -->
 		<div class="wp-block-group">
@@ -32,8 +32,8 @@
 				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-red-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop">Shop New Arrivals</a></div>
 				<!-- /wp:button -->
 
-				<!-- wp:button {"className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"border":{"color":"#ffffff"}}} -->
-				<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-border-color wp-element-button" style="border-color:#ffffff;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/lookbook">View Lookbook</a></div>
+				<!-- wp:button {"textColor":"white","className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}}}} -->
+				<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-white-color has-text-color wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/lookbook">View Lookbook</a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

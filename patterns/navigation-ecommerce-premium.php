@@ -2,7 +2,7 @@
 /**
  * Title: E-Commerce Navigation (Premium)
  * Slug: aggressive-apparel/navigation-ecommerce-premium
- * Categories: navigation, aggressive-apparel
+ * Categories: aggressive, navigation, aggressive-apparel
  * Keywords: navigation, menu, ecommerce, shop, mega menu, premium
  * Description: Full-featured e-commerce navigation with mega menus, glassmorphism effects, spring animations, and mobile drill-down navigation.
  *
@@ -52,7 +52,7 @@ declare(strict_types=1);
 <h4>Featured</h4>
 <!-- /wp:heading -->
 <!-- wp:image {"sizeSlug":"medium","linkDestination":"custom","style":{"border":{"radius":"8px"}}} -->
-<figure class="wp-block-image size-medium"><a href="/collections/featured"><img src="" alt="Featured Collection"/></a><figcaption class="wp-element-caption">Shop the Spring Collection</figcaption></figure>
+<figure class="wp-block-image has-custom-border size-medium"><a href="/collections/featured"><img src="" alt="Featured Collection" style="border-radius:8px"/></a><figcaption class="wp-element-caption">Shop the Spring Collection</figcaption></figure>
 <!-- /wp:image -->
 <!-- /wp:column -->
 <!-- /wp:columns -->

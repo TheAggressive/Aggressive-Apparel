@@ -50,3 +50,13 @@ function aggressive_apparel_asset_path( $path ) {
 function aggressive_apparel_is_woocommerce_active() {
 	return class_exists( 'WooCommerce' );
 }
+
+/**
+ * Check whether a WooCommerce enhancement feature is enabled.
+ *
+ * @param string $feature Feature key (e.g. 'product_badges').
+ * @return bool True when the feature is turned on in Appearance > Store Enhancements.
+ */
+function aggressive_apparel_is_feature_enabled( string $feature ): bool {
+	return Aggressive_Apparel\WooCommerce\Feature_Settings::is_enabled( $feature );
+}

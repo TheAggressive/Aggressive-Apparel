@@ -3,7 +3,7 @@
  * Title: New Arrivals Row
  * Description: Product section with header row and WooCommerce product collection showing latest products.
  * Slug: aggressive-apparel/new-arrivals-row
- * Categories: aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
  * Keywords: new arrivals, products, featured, latest, woocommerce
  * Viewport Width: 1200
  *

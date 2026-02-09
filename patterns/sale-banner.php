@@ -3,7 +3,7 @@
  * Title: Sale Banner
  * Description: A full-width promotional banner with bold text and call-to-action for sales and special offers.
  * Slug: aggressive-apparel/sale-banner
- * Categories: aggressive-apparel, aggressive-conversion
+ * Categories: aggressive, aggressive-apparel, aggressive-conversion
  * Keywords: sale, banner, promotion, discount, cta, urgent
  * Viewport Width: 1400
  *

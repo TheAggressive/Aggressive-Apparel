@@ -3,7 +3,7 @@
  * Title: Contact Location
  * Description: Three-column contact section with address, contact details, social links, and a placeholder image.
  * Slug: aggressive-apparel/contact-location
- * Categories: aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-apparel, aggressive-informational
  * Keywords: contact, location, store, address, hours, map
  * Viewport Width: 1200
  *

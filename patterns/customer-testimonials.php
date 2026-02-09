@@ -3,7 +3,7 @@
  * Title: Customer Testimonials
  * Description: Showcase customer reviews and testimonials with star ratings and avatars.
  * Slug: aggressive-apparel/customer-testimonials
- * Categories: aggressive-apparel
+ * Categories: aggressive, aggressive-apparel, aggressive-social-proof
  * Keywords: testimonials, reviews, customers, stars, ratings, social proof
  * Viewport Width: 1200
  *

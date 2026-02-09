@@ -3,7 +3,7 @@
  * Title: Lookbook Grid
  * Description: Asymmetric editorial image grid showcasing collections in a magazine-style layout.
  * Slug: aggressive-apparel/lookbook-grid
- * Categories: aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
  * Keywords: lookbook, lifestyle, gallery, editorial, images, fashion
  * Viewport Width: 1400
  *

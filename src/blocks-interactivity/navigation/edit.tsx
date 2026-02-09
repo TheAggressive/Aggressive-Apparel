@@ -5,9 +5,9 @@
  */
 
 import {
-  InnerBlocks,
   InspectorControls,
   useBlockProps,
+  useInnerBlocksProps,
   useSetting,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
@@ -85,6 +85,12 @@ export default function Edit({
 
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-navigation--editor wp-block-aggressive-apparel-navigation--view-${viewMode}`,
+  });
+
+  const innerBlocksProps = useInnerBlocksProps(blockProps, {
+    allowedBlocks: ALLOWED_BLOCKS,
+    template: TEMPLATE,
+    templateLock: false,
   });
 
   return (
@@ -325,13 +331,7 @@ export default function Edit({
           />
         </PanelBody>
       </InspectorControls>
-      <nav {...blockProps} aria-label={ariaLabel}>
-        <InnerBlocks
-          allowedBlocks={ALLOWED_BLOCKS}
-          template={TEMPLATE}
-          templateLock={false}
-        />
-      </nav>
+      <nav {...innerBlocksProps} aria-label={ariaLabel} />
     </>
   );
 }

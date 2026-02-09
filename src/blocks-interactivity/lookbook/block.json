@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/lookbook",
+  "version": "1.17.0",
+  "title": "Lookbook / Shop the Look",
+  "category": "aggressive-apparel",
+  "icon": "format-image",
+  "description": "A shoppable image with product hotspots. Click hotspots to view and add products to cart.",
+  "keywords": ["lookbook", "shop the look", "shoppable", "hotspot", "outfit"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "align": ["wide", "full"]
+  },
+  "attributes": {
+    "mediaId": {
+      "type": "number",
+      "default": 0
+    },
+    "mediaUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "mediaAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "hotspots": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

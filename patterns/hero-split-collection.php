@@ -3,7 +3,7 @@
  * Title: Hero Split Collection
  * Description: Full-width 50/50 hero with product image and bold text CTA for collection launches.
  * Slug: aggressive-apparel/hero-split-collection
- * Categories: aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-apparel, aggressive-homepage
  * Keywords: hero, split, collection, featured, banner, image
  * Viewport Width: 1400
  *

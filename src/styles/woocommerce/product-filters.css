@@ -1,0 +1,78 @@
+/**
+ * Product Filter Theme Overrides
+ *
+ * Styles the native WooCommerce product filter blocks.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.17.0
+ */
+
+/* General filter headings. */
+.wc-block-product-filter {
+
+	&__title {
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		font-size: 0.8rem;
+	}
+}
+
+/* Chips display. */
+.wc-block-product-filter-chips {
+
+	.wc-block-product-filter-chips__item {
+		border-radius: 0;
+		border: 1px solid currentcolor;
+		text-transform: uppercase;
+		font-size: 0.7rem;
+		letter-spacing: 0.04em;
+		font-weight: 600;
+
+		&--active {
+			background-color: var(--wp--preset--color--black, #000);
+			color: var(--wp--preset--color--white, #fff);
+		}
+	}
+}
+
+/* Color swatch filter enhancement. */
+.aggressive-apparel-filter--color-swatches {
+
+	.wc-block-product-filter-attribute__option {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.wc-block-product-filter-attribute__option-color {
+		width: 1.25rem;
+		height: 1.25rem;
+		border-radius: 50%;
+		border: 2px solid transparent;
+		transition: border-color 0.15s ease;
+	}
+
+	.wc-block-product-filter-attribute__option--active
+		.wc-block-product-filter-attribute__option-color {
+		border-color: currentcolor;
+	}
+}
+
+/* Price slider. */
+.wc-block-product-filter-price-slider {
+
+	.wc-block-product-filter-price-slider__range-input {
+		accent-color: var(--wp--preset--color--red, #dc2626);
+	}
+}
+
+/* Active filter indicators. */
+.wc-block-active-filters {
+
+	.wc-block-active-filters__list-item-type {
+		font-weight: 700;
+		text-transform: uppercase;
+		font-size: 0.7rem;
+	}
+}

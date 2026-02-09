@@ -9,24 +9,6 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 
-/**
- * Escape a string for safe use in HTML attributes.
- *
- * @param {string} str - Raw string.
- * @return {string} Escaped string.
- */
-function escapeHtml(str) {
-  if (!str) {
-    return '';
-  }
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
 store('aggressive-apparel/social-proof', {
   state: {
     get currentMessage() {
@@ -48,13 +30,16 @@ store('aggressive-apparel/social-proof', {
       return `${n.ago} ago`;
     },
 
-    get currentThumbnail() {
+    get currentThumbnailSrc() {
       const ctx = getContext();
       const n = ctx.notifications[ctx.currentIndex];
-      if (!n || !n.thumbnail) {
-        return '';
-      }
-      return `<img src="${escapeHtml(n.thumbnail)}" alt="${escapeHtml(n.product)}" />`;
+      return n && n.thumbnail ? n.thumbnail : '';
+    },
+
+    get currentUrl() {
+      const ctx = getContext();
+      const n = ctx.notifications[ctx.currentIndex];
+      return n && n.url ? n.url : '#';
     },
   },
 
@@ -72,6 +57,16 @@ store('aggressive-apparel/social-proof', {
       } catch {
         // Ignore storage errors.
       }
+    },
+
+    handleMouseEnter() {
+      const ctx = getContext();
+      ctx.isHovered = true;
+    },
+
+    handleMouseLeave() {
+      const ctx = getContext();
+      ctx.isHovered = false;
     },
   },
 
@@ -97,21 +92,81 @@ store('aggressive-apparel/social-proof', {
         return;
       }
 
+      const displayMs = ctx.displayDurationMs || 5000;
+      let hideTimer = null;
+      let remaining = 0;
+      let hideStartedAt = 0;
+
+      /**
+       * Start or resume the hide countdown.
+       *
+       * @param {number} ms Milliseconds until hide.
+       */
+      const startHideTimer = ms => {
+        remaining = ms;
+        hideStartedAt = Date.now();
+        hideTimer = setTimeout(() => {
+          if (ctx.isHovered) {
+            // User is hovering — wait for mouseleave.
+            remaining = 0;
+            return;
+          }
+          ctx.isVisible = false;
+
+          // Advance after the CSS fade-out transition finishes (300ms).
+          setTimeout(() => {
+            ctx.currentIndex =
+              (ctx.currentIndex + 1) % ctx.notifications.length;
+          }, 350);
+        }, ms);
+      };
+
       const showNext = () => {
         if (ctx.isDismissed) {
           return;
         }
 
         ctx.isVisible = true;
-
-        // Hide after display duration.
-        setTimeout(() => {
-          ctx.isVisible = false;
-
-          // Advance to next notification.
-          ctx.currentIndex = (ctx.currentIndex + 1) % ctx.notifications.length;
-        }, ctx.displayDurationMs || 5000);
+        startHideTimer(displayMs);
       };
+
+      const pauseTimer = () => {
+        if (hideTimer && ctx.isVisible) {
+          clearTimeout(hideTimer);
+          hideTimer = null;
+          const elapsed = Date.now() - hideStartedAt;
+          remaining = Math.max(remaining - elapsed, 0);
+        }
+      };
+
+      const resumeTimer = () => {
+        if (ctx.isVisible && !ctx.isDismissed) {
+          if (remaining <= 0) {
+            ctx.isVisible = false;
+            setTimeout(() => {
+              ctx.currentIndex =
+                (ctx.currentIndex + 1) % ctx.notifications.length;
+            }, 350);
+          } else {
+            startHideTimer(remaining);
+          }
+        }
+      };
+
+      // Pause on hover and keyboard focus; resume on leave/blur.
+      const el = document.querySelector(
+        '.aggressive-apparel-social-proof__toast'
+      );
+      if (el) {
+        el.addEventListener('mouseenter', pauseTimer);
+        el.addEventListener('mouseleave', resumeTimer);
+        el.addEventListener('focusin', pauseTimer);
+        el.addEventListener('focusout', e => {
+          if (!el.contains(e.relatedTarget)) {
+            resumeTimer();
+          }
+        });
+      }
 
       // First notification after a short delay.
       setTimeout(showNext, 5000);

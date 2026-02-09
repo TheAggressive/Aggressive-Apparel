@@ -108,6 +108,7 @@ class Social_Proof {
 				'currentIndex'      => 0,
 				'isVisible'         => false,
 				'isDismissed'       => false,
+				'isHovered'         => false,
 				'intervalMs'        => 20000,
 				'displayDurationMs' => 5000,
 			),
@@ -115,11 +116,13 @@ class Social_Proof {
 
 		echo '<div class="aggressive-apparel-social-proof" data-wp-interactive="aggressive-apparel/social-proof" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.startCycle" role="status" aria-live="polite">';
 		echo '<div class="aggressive-apparel-social-proof__toast" data-wp-class--is-visible="context.isVisible" data-wp-bind--hidden="context.isDismissed">';
-		echo '<div class="aggressive-apparel-social-proof__image" data-wp-html="state.currentThumbnail"></div>';
+		echo '<a class="aggressive-apparel-social-proof__link" data-wp-bind--href="state.currentUrl">';
+		echo '<div class="aggressive-apparel-social-proof__image"><img data-wp-bind--src="state.currentThumbnailSrc" alt="" /></div>';
 		echo '<div class="aggressive-apparel-social-proof__body">';
 		echo '<p class="aggressive-apparel-social-proof__message" data-wp-text="state.currentMessage"></p>';
 		echo '<p class="aggressive-apparel-social-proof__time" data-wp-text="state.currentTime"></p>';
 		echo '</div>';
+		echo '</a>';
 		echo '<button type="button" class="aggressive-apparel-social-proof__close" data-wp-on--click="actions.dismiss" aria-label="' . esc_attr__( 'Dismiss', 'aggressive-apparel' ) . '">&times;</button>';
 		echo '</div>';
 		echo '</div>';
@@ -132,12 +135,16 @@ class Social_Proof {
 	 */
 	private function get_notifications(): array {
 		$cached = get_transient( self::TRANSIENT_KEY );
-		if ( is_array( $cached ) ) {
+		if ( is_array( $cached ) && ! empty( $cached ) ) {
 			return $cached;
 		}
 
 		$notifications = $this->build_notifications();
-		set_transient( self::TRANSIENT_KEY, $notifications, self::CACHE_TTL );
+
+		// Only cache non-empty results so we retry on next page load.
+		if ( ! empty( $notifications ) ) {
+			set_transient( self::TRANSIENT_KEY, $notifications, self::CACHE_TTL );
+		}
 
 		return $notifications;
 	}
@@ -145,11 +152,14 @@ class Social_Proof {
 	/**
 	 * Query recent orders and extract notification data.
 	 *
+	 * Falls back to sample notifications built from published products
+	 * when no real orders exist yet.
+	 *
 	 * @return array<int, array{name: string, city: string, product: string, thumbnail: string, ago: string}>
 	 */
 	private function build_notifications(): array {
 		if ( ! function_exists( 'wc_get_orders' ) ) {
-			return array();
+			return $this->get_sample_notifications();
 		}
 
 		$orders = wc_get_orders(
@@ -181,26 +191,109 @@ class Social_Proof {
 			$product_id   = $first_item->get_product_id();
 			$thumbnail    = '';
 
-			if ( $product_id && function_exists( 'get_the_post_thumbnail_url' ) ) {
-				$thumb_url = get_the_post_thumbnail_url( $product_id, 'thumbnail' );
-				if ( $thumb_url ) {
-					$thumbnail = $thumb_url;
+			if ( $product_id && function_exists( 'wc_get_product' ) ) {
+				$product = wc_get_product( $product_id );
+				if ( $product ) {
+					$thumbnail = $this->get_product_thumbnail( $product );
 				}
 			}
 
 			$order_date = $order->get_date_created();
-			$ago        = $order_date ? human_time_diff( $order_date->getTimestamp(), time() ) : '';
+			$ago        = $order_date ? sanitize_text_field( human_time_diff( $order_date->getTimestamp(), time() ) ) : '';
+
+			$permalink = $product_id ? get_permalink( $product_id ) : '';
 
 			$notifications[] = array(
 				'name'      => sanitize_text_field( $first_name ),
 				'city'      => sanitize_text_field( $city ),
 				'product'   => sanitize_text_field( $product_name ),
-				'thumbnail' => esc_url( $thumbnail ),
+				'thumbnail' => esc_url_raw( $thumbnail ),
+				'url'       => esc_url_raw( (string) $permalink ),
 				'ago'       => $ago,
 			);
 		}
 
+		// Fall back to sample data when no real orders exist.
+		if ( empty( $notifications ) ) {
+			return $this->get_sample_notifications();
+		}
+
 		return $notifications;
+	}
+
+	/**
+	 * Generate sample notifications from published products.
+	 *
+	 * Used as a preview when the store has no completed orders yet.
+	 *
+	 * @return array<int, array{name: string, city: string, product: string, thumbnail: string, ago: string}>
+	 */
+	private function get_sample_notifications(): array {
+		if ( ! function_exists( 'wc_get_products' ) ) {
+			return array();
+		}
+
+		$products = wc_get_products(
+			array(
+				'status'  => 'publish',
+				'limit'   => self::MAX_NOTIFICATIONS,
+				'orderby' => 'date',
+				'order'   => 'DESC',
+			),
+		);
+
+		if ( empty( $products ) ) {
+			return array();
+		}
+
+		$names  = array( 'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey' );
+		$cities = array( 'New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami' );
+		$times  = array( '2 minutes', '8 minutes', '23 minutes', '1 hour', '3 hours' );
+
+		$notifications = array();
+
+		foreach ( $products as $index => $product ) {
+			$thumbnail = $this->get_product_thumbnail( $product );
+
+			$notifications[] = array(
+				'name'      => $names[ $index % count( $names ) ],
+				'city'      => $cities[ $index % count( $cities ) ],
+				'product'   => sanitize_text_field( $product->get_name() ),
+				'thumbnail' => esc_url_raw( $thumbnail ),
+				'url'       => esc_url_raw( (string) $product->get_permalink() ),
+				'ago'       => $times[ $index % count( $times ) ],
+			);
+		}
+
+		return $notifications;
+	}
+
+	/**
+	 * Get a product thumbnail URL with fallback.
+	 *
+	 * @param \WC_Product $product Product instance.
+	 * @return string Thumbnail URL or empty string.
+	 */
+	private function get_product_thumbnail( \WC_Product $product ): string {
+		$image_id = $product->get_image_id();
+		if ( $image_id ) {
+			$url = wp_get_attachment_image_url( (int) $image_id, 'thumbnail' );
+			if ( $url ) {
+				return $url;
+			}
+		}
+
+		$thumb_url = get_the_post_thumbnail_url( $product->get_id(), 'thumbnail' );
+		if ( $thumb_url ) {
+			return $thumb_url;
+		}
+
+		// WooCommerce placeholder image.
+		if ( function_exists( 'wc_placeholder_img_src' ) ) {
+			return wc_placeholder_img_src( 'thumbnail' );
+		}
+
+		return '';
 	}
 
 	/**

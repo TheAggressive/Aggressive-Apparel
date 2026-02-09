@@ -834,11 +834,15 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       }
     },
 
-    incrementQty() {
+    incrementQty(event) {
+      // Mark as handled so the delegation fallback doesn't double-fire.
+      if (event) event.preventDefault();
       state.quantity = state.quantity + 1;
     },
 
-    decrementQty() {
+    decrementQty(event) {
+      // Mark as handled so the delegation fallback doesn't double-fire.
+      if (event) event.preventDefault();
       if (state.quantity > 1) {
         state.quantity = state.quantity - 1;
       }
@@ -936,7 +940,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       window.location.href = state.cartUrl;
     },
 
-    addToCart() {
+    addToCart(event) {
+      if (event) event.preventDefault();
       if (!state.canAddToCart) {
         return;
       }
@@ -1101,15 +1106,18 @@ document.addEventListener('click', e => {
     return;
   }
 
-  // Add to Cart.
+  // Add to Cart — skip if the Interactivity API already handled it.
   if (e.target.closest('.aggressive-apparel-quick-view__add-to-cart')) {
-    actions.addToCart();
+    if (!e.defaultPrevented) actions.addToCart();
     return;
   }
 
-  // Quantity buttons.
+  // Quantity buttons — skip if the Interactivity API already handled it.
   const qtyBtn = e.target.closest('.aggressive-apparel-quick-view__qty-btn');
   if (qtyBtn) {
+    if (e.defaultPrevented) {
+      return;
+    }
     if (
       qtyBtn.textContent.includes('\u2212') ||
       qtyBtn.textContent.includes('-')

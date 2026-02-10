@@ -92,7 +92,7 @@ class Feature_Settings {
 			),
 			'size_guide'        => array(
 				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
-				'description' => __( 'Per-product or per-category measurement chart modal.', 'aggressive-apparel' ),
+				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
 				'section'     => 'interactive',
 			),
 			'countdown_timer'   => array(

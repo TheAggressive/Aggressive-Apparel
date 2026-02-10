@@ -3,7 +3,8 @@
  * Size Guide Class
  *
  * Renders a measurement-chart modal on single product pages.
- * Data can be stored per-product, per-category, or as a global fallback.
+ * Guides are managed via the aa_size_guide CPT and assigned
+ * per-product, per-category, or as a global fallback.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
@@ -26,11 +27,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Size_Guide {
 
 	/**
-	 * Option key for the global size guide.
+	 * Legacy option key for the global size guide (raw HTML).
 	 *
 	 * @var string
 	 */
 	private const OPTION_KEY = 'aggressive_apparel_size_guide';
+
+	/**
+	 * Legacy meta key for raw HTML size guides.
+	 *
+	 * @var string
+	 */
+	private const META_KEY = '_aggressive_apparel_size_guide';
+
+	/**
+	 * Meta key for CPT post ID references.
+	 *
+	 * @var string
+	 */
+	private const CPT_META_KEY = '_aggressive_apparel_size_guide_id';
+
+	/**
+	 * Option key for global CPT size guide reference.
+	 *
+	 * @var string
+	 */
+	private const CPT_OPTION_KEY = 'aggressive_apparel_size_guide_id';
+
+	/**
+	 * Nonce action for size guide fields.
+	 *
+	 * @var string
+	 */
+	private const NONCE_ACTION = 'aa_size_guide_save';
+
+	/**
+	 * Nonce field name for size guide fields.
+	 *
+	 * @var string
+	 */
+	private const NONCE_NAME = 'aa_size_guide_nonce';
 
 	/**
 	 * Initialize hooks.
@@ -41,9 +77,17 @@ class Size_Guide {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'render_trigger_and_modal' ) );
 
-		// Admin meta box for per-product size guides.
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
-		add_action( 'save_post_product', array( $this, 'save_meta' ) );
+		// Product data tab for per-product size guides.
+		add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_product_data_tab' ) );
+		add_action( 'woocommerce_product_data_panels', array( $this, 'render_product_data_panel' ) );
+		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product_data' ) );
+		add_action( 'admin_head', array( $this, 'add_tab_icon_style' ) );
+
+		// Category assignment.
+		add_action( 'product_cat_add_form_fields', array( $this, 'render_category_add_field' ) );
+		add_action( 'product_cat_edit_form_fields', array( $this, 'render_category_edit_field' ), 20 );
+		add_action( 'created_product_cat', array( $this, 'save_category_field' ) );
+		add_action( 'edited_product_cat', array( $this, 'save_category_field' ) );
 	}
 
 	/**
@@ -113,93 +157,297 @@ class Size_Guide {
 	/**
 	 * Retrieve the size guide content for a product.
 	 *
-	 * Priority: per-product meta → category term meta → global option.
+	 * Priority: per-product CPT → per-product legacy → category CPT →
+	 * category legacy → global CPT → global legacy.
 	 *
 	 * @param int|false $product_id Product ID.
 	 * @return string HTML content or empty string.
 	 */
 	private function get_size_guide_for_product( $product_id ): string {
 		if ( $product_id ) {
-			$per_product = (string) get_post_meta( $product_id, '_aggressive_apparel_size_guide', true );
-			if ( '' !== $per_product ) {
-				return $per_product;
+			// Per-product: CPT reference.
+			$cpt_id = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
+			if ( $cpt_id > 0 ) {
+				$content = $this->get_cpt_content( $cpt_id );
+				if ( '' !== $content ) {
+					return $content;
+				}
 			}
 
-			// Check product category term meta.
+			// Per-product: legacy raw HTML.
+			$legacy = (string) get_post_meta( $product_id, self::META_KEY, true );
+			if ( '' !== $legacy ) {
+				return $legacy;
+			}
+
+			// Per-category.
 			$cats = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
 			if ( is_array( $cats ) ) {
 				foreach ( $cats as $cat_id ) {
-					$cat_guide = (string) get_term_meta( $cat_id, '_aggressive_apparel_size_guide', true );
-					if ( '' !== $cat_guide ) {
-						return $cat_guide;
+					// Category: CPT reference.
+					$cat_cpt_id = (int) get_term_meta( $cat_id, self::CPT_META_KEY, true );
+					if ( $cat_cpt_id > 0 ) {
+						$content = $this->get_cpt_content( $cat_cpt_id );
+						if ( '' !== $content ) {
+							return $content;
+						}
+					}
+
+					// Category: legacy raw HTML.
+					$cat_legacy = (string) get_term_meta( $cat_id, self::META_KEY, true );
+					if ( '' !== $cat_legacy ) {
+						return $cat_legacy;
 					}
 				}
 			}
 		}
 
+		// Global: CPT reference.
+		$global_cpt_id = (int) get_option( self::CPT_OPTION_KEY, 0 );
+		if ( $global_cpt_id > 0 ) {
+			$content = $this->get_cpt_content( $global_cpt_id );
+			if ( '' !== $content ) {
+				return $content;
+			}
+		}
+
+		// Global: legacy raw HTML.
 		return (string) get_option( self::OPTION_KEY, '' );
 	}
 
 	/**
-	 * Add per-product meta box.
+	 * Get rendered content from a size guide CPT post.
 	 *
-	 * @return void
+	 * @param int $post_id Size guide post ID.
+	 * @return string Rendered HTML or empty string.
 	 */
-	public function add_meta_box(): void {
-		add_meta_box(
-			'aggressive_apparel_size_guide',
-			__( 'Size Guide', 'aggressive-apparel' ),
-			array( $this, 'render_meta_box' ),
-			'product',
-			'normal',
-			'default',
-		);
+	private function get_cpt_content( int $post_id ): string {
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return '';
+		}
+		if ( Size_Guide_Post_Type::POST_TYPE !== $post->post_type ) {
+			return '';
+		}
+		if ( 'publish' !== $post->post_status ) {
+			return '';
+		}
+
+		return wp_kses_post( (string) do_blocks( $post->post_content ) );
 	}
 
 	/**
-	 * Render the meta box.
+	 * Add a "Size Guide" tab to the WooCommerce Product Data panel.
 	 *
-	 * @param \WP_Post $post Current post.
-	 * @return void
+	 * @param array<string, array<string, mixed>> $tabs Existing tabs.
+	 * @return array<string, array<string, mixed>>
 	 */
-	public function render_meta_box( \WP_Post $post ): void {
-		wp_nonce_field( 'aa_size_guide_nonce', '_aa_sg_nonce' );
-		$value = (string) get_post_meta( $post->ID, '_aggressive_apparel_size_guide', true );
-
-		wp_editor(
-			$value,
-			'aa_size_guide_editor',
-			array(
-				'textarea_name' => 'aa_size_guide',
-				'textarea_rows' => 8,
-				'media_buttons' => false,
-			),
+	public function add_product_data_tab( array $tabs ): array {
+		$tabs['aa_size_guide'] = array(
+			'label'    => __( 'Size Guide', 'aggressive-apparel' ),
+			'target'   => 'aa_size_guide_product_data',
+			'class'    => array(),
+			'priority' => 65,
 		);
-		echo '<p class="description">' . esc_html__( 'Paste or build a measurement table here. Leave empty to inherit from category or global setting.', 'aggressive-apparel' ) . '</p>';
+
+		return $tabs;
 	}
 
 	/**
-	 * Save meta box.
+	 * Output inline CSS for the Size Guide tab icon on product edit screens.
 	 *
-	 * @param int $post_id Post ID.
 	 * @return void
 	 */
-	public function save_meta( int $post_id ): void {
-		if ( ! isset( $_POST['_aa_sg_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_aa_sg_nonce'] ) ), 'aa_size_guide_nonce' ) ) {
+	public function add_tab_icon_style(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || 'product' !== $screen->id ) {
 			return;
 		}
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+
+		echo '<style>#woocommerce-product-data ul.wc-tabs li.aa_size_guide_options a::before{content:"\f163";font-family:dashicons}</style>';
+	}
+
+	/**
+	 * Render the Size Guide product data panel.
+	 *
+	 * @return void
+	 */
+	public function render_product_data_panel(): void {
+		global $post;
+
+		if ( ! $post instanceof \WP_Post ) {
 			return;
 		}
+
+		$selected_id = (int) get_post_meta( $post->ID, self::CPT_META_KEY, true );
+		$legacy_html = (string) get_post_meta( $post->ID, self::META_KEY, true );
+
+		$options = array( '' => __( '-- Inherit (category or global) --', 'aggressive-apparel' ) );
+		foreach ( $this->get_published_guides() as $guide ) {
+			$options[ (string) $guide->ID ] = $guide->post_title;
+		}
+
+		echo '<div id="aa_size_guide_product_data" class="panel woocommerce_options_panel">';
+
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
+
+		if ( function_exists( 'woocommerce_wp_select' ) ) {
+			woocommerce_wp_select(
+				array(
+					'id'      => 'aa_size_guide_id',
+					'label'   => __( 'Size Guide', 'aggressive-apparel' ),
+					'options' => $options,
+					'value'   => $selected_id > 0 ? (string) $selected_id : '',
+				),
+			);
+		}
+
+		$new_url = admin_url( 'post-new.php?post_type=' . Size_Guide_Post_Type::POST_TYPE );
+		echo '<p class="form-field" style="padding-left:12px;">';
+		printf(
+			/* translators: %s: link to create a new size guide */
+			esc_html__( 'Select a size guide or %s.', 'aggressive-apparel' ),
+			'<a href="' . esc_url( $new_url ) . '" target="_blank">' .
+				esc_html__( 'create a new one', 'aggressive-apparel' ) .
+			'</a>',
+		);
+		echo '</p>';
+
+		if ( '' !== $legacy_html && 0 === $selected_id ) {
+			echo '<div class="notice notice-warning inline" style="margin:0.5rem 12px;"><p>';
+			esc_html_e(
+				'This product has a legacy inline size guide. Select a size guide above to replace it.',
+				'aggressive-apparel',
+			);
+			echo '</p></div>';
+		}
+
+		echo '</div>';
+	}
+
+	/**
+	 * Save the size guide selection when product meta is processed.
+	 *
+	 * @param int $post_id Product ID.
+	 * @return void
+	 */
+	public function save_product_data( int $post_id ): void {
+		if ( ! isset( $_POST[ self::NONCE_NAME ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION ) ) {
+			return;
+		}
+
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		$value = isset( $_POST['aa_size_guide'] )
-			? wp_kses_post( wp_unslash( $_POST['aa_size_guide'] ) )
-			: '';
+		$guide_id = isset( $_POST['aa_size_guide_id'] )
+			? absint( wp_unslash( $_POST['aa_size_guide_id'] ) )
+			: 0;
 
-		update_post_meta( $post_id, '_aggressive_apparel_size_guide', $value );
+		if ( $guide_id > 0 ) {
+			update_post_meta( $post_id, self::CPT_META_KEY, $guide_id );
+		} else {
+			delete_post_meta( $post_id, self::CPT_META_KEY );
+		}
+	}
+
+	/**
+	 * Render the size guide field on the Add Category form.
+	 *
+	 * @return void
+	 */
+	public function render_category_add_field(): void {
+		$guides = $this->get_published_guides();
+
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
+
+		echo '<div class="form-field">';
+		echo '<label for="aa_cat_size_guide_id">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</label>';
+		echo '<select name="aa_cat_size_guide_id" id="aa_cat_size_guide_id">';
+		echo '<option value="0">' . esc_html__( '-- None --', 'aggressive-apparel' ) . '</option>';
+		foreach ( $guides as $guide ) {
+			printf(
+				'<option value="%d">%s</option>',
+				absint( $guide->ID ),
+				esc_html( $guide->post_title ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Assign a size guide to all products in this category.', 'aggressive-apparel' ) . '</p>';
+		echo '</div>';
+	}
+
+	/**
+	 * Render the size guide field on the Edit Category form.
+	 *
+	 * @param \WP_Term $term Current term.
+	 * @return void
+	 */
+	public function render_category_edit_field( \WP_Term $term ): void {
+		$selected_id = (int) get_term_meta( $term->term_id, self::CPT_META_KEY, true );
+		$guides      = $this->get_published_guides();
+
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
+
+		echo '<tr class="form-field">';
+		echo '<th scope="row"><label for="aa_cat_size_guide_id">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</label></th>';
+		echo '<td>';
+		echo '<select name="aa_cat_size_guide_id" id="aa_cat_size_guide_id" class="postform">';
+		echo '<option value="0">' . esc_html__( '-- None --', 'aggressive-apparel' ) . '</option>';
+		foreach ( $guides as $guide ) {
+			printf(
+				'<option value="%d" %s>%s</option>',
+				absint( $guide->ID ),
+				selected( $selected_id, $guide->ID, false ),
+				esc_html( $guide->post_title ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Assign a size guide to all products in this category.', 'aggressive-apparel' ) . '</p>';
+		echo '</td>';
+		echo '</tr>';
+	}
+
+	/**
+	 * Save the category size guide field.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return void
+	 */
+	public function save_category_field( int $term_id ): void {
+		if ( ! isset( $_POST[ self::NONCE_NAME ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_term', $term_id ) ) {
+			return;
+		}
+
+		$guide_id = isset( $_POST['aa_cat_size_guide_id'] )
+			? absint( wp_unslash( $_POST['aa_cat_size_guide_id'] ) )
+			: 0;
+
+		if ( $guide_id > 0 ) {
+			update_term_meta( $term_id, self::CPT_META_KEY, $guide_id );
+		} else {
+			delete_term_meta( $term_id, self::CPT_META_KEY );
+		}
+	}
+
+	/**
+	 * Query all published size guide posts.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private function get_published_guides(): array {
+		return get_posts(
+			array(
+				'post_type'      => Size_Guide_Post_Type::POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			),
+		);
 	}
 }

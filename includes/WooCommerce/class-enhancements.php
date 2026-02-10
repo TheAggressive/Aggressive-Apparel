@@ -78,6 +78,7 @@ class Enhancements {
 
 		// Interactive features (PHP + Interactivity API).
 		if ( Feature_Settings::is_enabled( 'size_guide' ) ) {
+			( new Size_Guide_Post_Type() )->init();
 			( new Size_Guide() )->init();
 		}
 

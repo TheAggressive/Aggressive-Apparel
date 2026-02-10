@@ -44,7 +44,7 @@ class Social_Proof {
 	 *
 	 * @var int
 	 */
-	private const MAX_NOTIFICATIONS = 5;
+	private const MAX_NOTIFICATIONS = 15;
 
 	/**
 	 * Initialize hooks.
@@ -140,6 +140,9 @@ class Social_Proof {
 		}
 
 		$notifications = $this->build_notifications();
+
+		// Shuffle so the order varies between cache cycles.
+		shuffle( $notifications );
 
 		// Only cache non-empty results so we retry on next page load.
 		if ( ! empty( $notifications ) ) {
@@ -246,9 +249,9 @@ class Social_Proof {
 			return array();
 		}
 
-		$names  = array( 'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey' );
-		$cities = array( 'New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami' );
-		$times  = array( '2 minutes', '8 minutes', '23 minutes', '1 hour', '3 hours' );
+		$names  = array( 'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Quinn', 'Avery', 'Dakota', 'Skyler', 'Reese', 'Finley', 'Sage', 'Blake', 'Rowan' );
+		$cities = array( 'New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'Denver', 'Seattle', 'Atlanta', 'Dallas', 'Phoenix', 'Portland', 'Nashville', 'Boston', 'San Diego', 'Austin' );
+		$times  = array( '2 minutes', '5 minutes', '8 minutes', '14 minutes', '23 minutes', '31 minutes', '42 minutes', '1 hour', '2 hours', '3 hours', '4 hours', '5 hours', '7 hours', '10 hours', '12 hours' );
 
 		$notifications = array();
 

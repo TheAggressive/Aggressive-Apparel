@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/ticker",
+  "version": "1.0.0",
+  "title": "Ticker",
+  "category": "widgets",
+  "icon": "slides",
+  "description": "Infinite scrolling marquee for text, logos, or any content.",
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "align": ["wide", "full"],
+    "color": {
+      "text": true,
+      "background": true,
+      "gradients": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    }
+  },
+  "attributes": {
+    "speed": {
+      "type": "number",
+      "default": 30
+    },
+    "direction": {
+      "type": "string",
+      "default": "left"
+    },
+    "pauseOnHover": {
+      "type": "boolean",
+      "default": true
+    },
+    "gap": {
+      "type": "number",
+      "default": 48
+    },
+    "fadeEdges": {
+      "type": "boolean",
+      "default": false
+    },
+    "fadeWidth": {
+      "type": "number",
+      "default": 64
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

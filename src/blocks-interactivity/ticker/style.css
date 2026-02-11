@@ -1,0 +1,166 @@
+/**
+ * Ticker Block — Frontend Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* -----------------------------------------------
+ * Container
+ * ----------------------------------------------- */
+
+.wp-block-aggressive-apparel-ticker {
+	--ticker-duration: 30s;
+	--ticker-gap: 48px;
+	--ticker-direction: normal;
+	--ticker-fade-width: 64px;
+
+	position: relative;
+	overflow: hidden;
+	user-select: none;
+}
+
+/* -----------------------------------------------
+ * Track (flex row holding two copies of content)
+ * ----------------------------------------------- */
+
+.ticker__track {
+	display: flex;
+	gap: var(--ticker-gap);
+}
+
+/* -----------------------------------------------
+ * Content (each copy of the inner blocks)
+ * ----------------------------------------------- */
+
+.ticker__content {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	min-width: 100%;
+	gap: var(--ticker-gap);
+	animation: ticker-scroll var(--ticker-duration) linear infinite;
+	animation-direction: var(--ticker-direction);
+}
+
+/* Inner blocks should flow inline. */
+.ticker__content > * {
+	flex-shrink: 0;
+	margin: 0;
+}
+
+@keyframes ticker-scroll {
+
+	from {
+		transform: translateX(0);
+	}
+
+	to {
+		transform: translateX(calc(-100% - var(--ticker-gap)));
+	}
+}
+
+/* -----------------------------------------------
+ * Pause states
+ * ----------------------------------------------- */
+
+.wp-block-aggressive-apparel-ticker.is-paused .ticker__content {
+	animation-play-state: paused;
+}
+
+/* -----------------------------------------------
+ * Edge fade (pseudo-element overlays matching background)
+ * ----------------------------------------------- */
+
+.wp-block-aggressive-apparel-ticker.has-fade-edges::before,
+.wp-block-aggressive-apparel-ticker.has-fade-edges::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	width: var(--ticker-fade-width);
+	pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-ticker.has-fade-edges::before {
+	left: 0;
+	background: linear-gradient(
+		to right,
+		var(--ticker-fade-color, transparent),
+		transparent
+	);
+}
+
+.wp-block-aggressive-apparel-ticker.has-fade-edges::after {
+	right: 0;
+	background: linear-gradient(
+		to left,
+		var(--ticker-fade-color, transparent),
+		transparent
+	);
+}
+
+/* -----------------------------------------------
+ * Pause / play button
+ * ----------------------------------------------- */
+
+.ticker__pause {
+	position: absolute;
+	top: 50%;
+	right: 0.75rem;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: color-mix(in oklch, currentcolor 8%, transparent);
+	color: currentcolor;
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(-50%);
+	transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.wp-block-aggressive-apparel-ticker:hover .ticker__pause,
+.wp-block-aggressive-apparel-ticker:focus-within .ticker__pause,
+.ticker__pause:focus-visible {
+	opacity: 1;
+}
+
+.ticker__pause:hover,
+.ticker__pause:focus-visible {
+	background: color-mix(in oklch, currentcolor 15%, transparent);
+}
+
+/* SVG icon states: show pause bars by default, play triangle when paused. */
+.ticker__play-tri {
+	display: none;
+}
+
+.is-paused .ticker__play-tri {
+	display: block;
+}
+
+.is-paused .ticker__pause-bar {
+	display: none;
+}
+
+/* -----------------------------------------------
+ * Accessibility — reduced motion
+ * ----------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.ticker__content {
+		animation: none;
+	}
+
+	.ticker__pause {
+		transition: none;
+	}
+}

@@ -1,654 +1,233 @@
-# Aggressive Apparel Theme
+# Aggressive Apparel
 
-Official WooCommerce Block Theme for Aggressive Apparel
+Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 16 toggleable store enhancements, 19 custom blocks, and 36 block patterns.
 
-## Description
-
-A modern, high-performance WordPress block theme (Full Site Editing) built specifically for WooCommerce stores. This theme follows WordPress and PHP best practices with a professional object-oriented architecture.
+**Version:** 1.16.0 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
 ## Features
 
-- ✅ Full Site Editing (FSE) / Block Theme
-- ✅ WooCommerce Integration with Advanced Color Swatches
-- ✅ GitHub-Based Theme Updates
-- ✅ Security Headers Implementation
-- ✅ Object-Oriented PHP Architecture
-- ✅ PSR-4 Autoloading
-- ✅ Bootstrap Orchestration Pattern
-- ✅ Service Container Pattern
-- ✅ Professional Class Structure
-- ✅ theme.json Configuration
-- ✅ Responsive Design
-- ✅ Performance Optimized
-- ✅ WCAG 2.1 AA Accessibility Compliant
-- ✅ Translation Ready
-- ✅ Extensible with Hooks and Filters
+- **Full Site Editing** — 13 templates, 36 block patterns, complete theme.json configuration
+- **WooCommerce Integration** — product gallery, color swatches, custom templates for shop/cart/checkout
+- **16 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
+- **19 Custom Blocks** — 15 interactive (Interactivity API) + 4 static Gutenberg blocks
+- **Interactivity API** — client-side reactivity without a JavaScript framework
+- **Automatic Updates** — GitHub release-based update system with ETag caching
+- **Accessible** — WCAG 2.1 AA compliant, 44px touch targets, `prefers-reduced-motion` support
+- **Secure** — security headers, nonce verification, output escaping, capability checks
+- **106 PHPUnit Tests** — unit, integration, security, accessibility, and performance suites
 
-## Advanced Color Swatch System
+## Store Enhancements
 
-This theme includes a comprehensive color swatch system for WooCommerce products, enabling visual color and pattern selection:
+All features are managed via **Appearance > Store Enhancements** and default to OFF. The `Feature_Settings::is_enabled()` / `Enhancements` coordinator pattern ensures zero hooks or assets load for disabled features.
 
-### Color Management Features
-- **Visual Color Selection**: Interactive color swatches in product listings and detail pages
-- **Pattern Support**: Both solid colors and image patterns for fabric/texture representation
-- **Admin Interface**: Easy-to-use color and pattern management in WordPress admin
-- **WooCommerce Integration**: Seamless integration with WooCommerce product attributes
-- **Accessibility**: WCAG 2.1 AA compliant with keyboard navigation and screen reader support
+| Feature | Type | Description |
+|---------|------|-------------|
+| Product Badges | Server-side | Sale, new, out-of-stock badges on product cards |
+| Smart Price Display | Server-side | Enhanced price formatting with savings display |
+| Product Tabs Manager | Server-side | Custom product detail tabs |
+| Free Shipping Progress Bar | Server-side | Cart progress bar toward free shipping threshold |
+| Swatch Tooltips | CSS | Hover tooltips on color/size swatches |
+| Mini Cart Styling | CSS | Enhanced mini cart appearance |
+| Product Filter Styling | CSS | Styled product archive filters |
+| Page Transitions | CSS | View Transitions API for smooth cross-page navigation |
+| Size Guide | Interactive | Size guide modal with custom post type |
+| Sale Countdown Timer | Interactive | Urgency timer on sale products |
+| Recently Viewed Products | Interactive | localStorage-based recently viewed section |
+| Predictive Search | Interactive | Live product results as user types |
+| Sticky Add to Cart | Interactive | Fixed bar when main CTA scrolls out of view |
+| Mobile Bottom Navigation | Interactive | Fixed bottom nav bar on mobile devices |
+| Quick View | Rich | Product modal with add-to-cart from archives |
+| Wishlist | Rich | Heart-icon toggle with localStorage and Store API |
+| Social Proof | Rich | Real-time purchase notification toasts |
+| Frequently Bought Together | Rich | Product bundling with combined add-to-cart |
+| Back in Stock Notifications | Rich | Email subscriptions for out-of-stock products |
+| Stock Status | Rich | Enhanced stock status display |
 
-### Technical Implementation
-- **PHP Classes**: Object-oriented color management with secure input validation
-- **TypeScript**: Modern JavaScript with secure DOM manipulation (no innerHTML)
-- **WordPress APIs**: Integration with media library and term management
-- **Security**: Comprehensive input sanitization, capability checks, and XSS prevention
-- **Performance**: Optimized database queries and efficient asset loading
+## Quick Start
 
-### Color Types Supported
-- **Solid Colors**: Hex color codes with visual swatch display
-- **Image Patterns**: Upload patterns from WordPress media library
-- **Admin Management**: Toggle between color types with validation
-- **Responsive Design**: Mobile-friendly swatch layouts
+```bash
+# Install dependencies
+pnpm install
 
-## Theme Update System
+# Build all blocks and assets
+pnpm build
 
-This theme includes a robust update system that automatically checks for and installs updates directly from GitHub releases:
+# Start development (watch mode + wp-env)
+pnpm dev
 
-### GitHub Integration
-- **Automatic updates**: WordPress automatically detects new theme versions
-- **Release assets**: Downloads official theme ZIP files from GitHub releases
-- **Version comparison**: Compares current theme version with latest GitHub release
-- **Secure downloads**: Uses GitHub's official release asset URLs
+# Run full quality assurance
+pnpm qa  # tests + linting + PHPStan
+```
 
-### Update Process
-- **Background checking**: Automatically checks for updates in WordPress admin
-- **One-click updates**: Standard WordPress update process
-- **Package validation**: Ensures downloaded packages are valid theme ZIPs
-- **Rollback safety**: WordPress maintains backup during updates
+### Development Commands
 
-### Configuration
-The update system is automatically configured and requires no setup:
-- **Repository**: `TheAggressive/Aggressive-Apparel`
-- **Update frequency**: Follows WordPress update schedule
-- **ETag caching**: Reduces API calls for better performance
-- **Error handling**: Graceful failure with clear error messages
+| Command | Description |
+|---------|-------------|
+| `pnpm build` | Build blocks, interactivity modules, and assets |
+| `pnpm dev` | Watch mode + wp-env |
+| `pnpm test` | All tests (JS + PHP) |
+| `pnpm test:unit` | PHP unit tests |
+| `pnpm test:integration` | PHP integration tests |
+| `pnpm test:security` | Security header tests |
+| `pnpm test:accessibility` | A11y compliance tests |
+| `pnpm test:performance` | Performance benchmarks |
+| `pnpm lint:all` | ESLint + Stylelint + PHPCS |
+| `pnpm analyse:php` | PHPStan level 6 |
+| `pnpm qa` | Tests + linting + PHPStan |
+| `pnpm env:start` | Start wp-env (port 9910) |
+| `pnpm env:stop` | Stop wp-env |
 
-## Security Features
+## Architecture
 
-This theme implements enterprise-level security measures to protect your WooCommerce store:
-
-### Security Headers
-- **X-Content-Type-Options**: Prevents MIME type sniffing attacks
-- **X-Frame-Options**: Protects against clickjacking attacks
-- **X-XSS-Protection**: Enables browser XSS filtering
-- **Referrer-Policy**: Controls referrer information sharing
-- **Permissions-Policy**: Restricts access to sensitive browser features
-
-### WordPress Security Best Practices
-- **Nonces verification**: All forms include proper nonce validation
-- **Input sanitization**: All user inputs are sanitized and validated
-- **Secure coding**: Follows WordPress security coding standards
-- **Dependency checks**: Safe function existence checks for WooCommerce
-
-### Advanced Security Implementation
-
-#### Input Validation & Sanitization
-- **Color values**: Hex color validation with `sanitize_hex_color()`
-- **Text inputs**: `sanitize_text_field()` and `wp_unslash()` for all inputs
-- **File uploads**: Media library integration (no direct file handling)
-- **Array validation**: Strict type checking for color types and attributes
-
-#### XSS Prevention
-- **Output escaping**: All dynamic HTML uses `esc_attr()`, `esc_url()`, `esc_html()`
-- **DOM manipulation**: Secure JavaScript with `document.createElement()` instead of `innerHTML`
-- **Template literals**: Safe string handling without concatenation vulnerabilities
-
-#### SQL Injection Prevention
-- **WordPress APIs only**: No direct SQL queries or concatenation
-- **Prepared statements**: All database operations use WordPress functions
-- **Meta operations**: `get_term_meta()`, `update_term_meta()`, `delete_term_meta()`
-
-#### Access Control
-- **Capability checks**: `current_user_can('manage_categories')` for all admin operations
-- **Nonce verification**: All AJAX requests and form submissions validated
-- **User validation**: Proper user permission checking before sensitive operations
-
-#### File Security
-- **Media library only**: Pattern images stored in WordPress media library
-- **Attachment validation**: `wp_attachment_is_image()` checks for valid images
-- **No file system access**: All file operations through WordPress APIs
-
-#### JavaScript Security
-- **No innerHTML**: Replaced with secure DOM creation methods
-- **Server trust**: AJAX responses from trusted WordPress endpoints
-- **Input validation**: Client-side validation with server-side verification
-
-## Requirements
-
-- WordPress 6.0 or higher
-- PHP 8.0 or higher
-- WooCommerce 7.0 or higher (recommended)
-
-## Theme Structure
+### Directory Structure
 
 ```
 aggressive-apparel/
-├── includes/
-│   ├── class-autoloader.php      # PSR-4 autoloader
-│   ├── class-bootstrap.php       # Main initialization orchestrator
-│   ├── class-service-container.php # Service container for dependency injection
-│   ├── stubs.php                 # Development stubs for IDE support
-│   ├── Core/                     # Core functionality
-│   │   ├── class-theme-support.php     # Theme support registration
-│   │   ├── class-image-sizes.php       # Image size management
-│   │   ├── class-content-width.php     # Content width setup
-│   │   ├── class-theme-updates.php     # GitHub-based theme updates
-│   │   └── class-block-categories.php  # Block category registration
-│   ├── Assets/                   # Asset management
-│   │   ├── class-styles.php            # Frontend styles
-│   │   ├── class-scripts.php           # Frontend scripts
-│   │   └── class-editor-assets.php     # Editor assets
-│   ├── Blocks/                   # Custom block registration
-│   │   └── class-blocks.php            # Block initialization
-│   ├── WooCommerce/              # WooCommerce integration
-│   │   ├── class-woocommerce-support.php  # WC support registration
-│   │   ├── class-product-loop.php        # Product loop modifications
-│   │   ├── class-cart.php               # Cart functionality
-│   │   ├── class-templates.php          # WC template overrides
-│   │   ├── class-color-block-swatch-manager.php  # Color swatch rendering
-│   │   ├── class-color-admin-ui.php     # Color admin interface
-│   │   ├── class-color-pattern-admin.php # Pattern upload management
-│   │   ├── class-color-attribute-manager.php     # Color attribute setup
-│   │   └── class-color-data-manager.php # Color data operations
-│   ├── Exceptions/               # Custom exception classes
-│   └── helpers.php               # Helper functions
-├── parts/                        # Template parts
-├── patterns/                     # Block patterns
-├── templates/                    # Block templates
-├── src/                          # Source files (build process)
-├── build/                        # Compiled assets
-├── tests/                        # Test suite
-├── functions.php                 # Theme bootstrap
-├── theme.json                    # Theme configuration
-├── style.css                     # Theme header
-└── README.md
+├── assets/interactivity/        # Interactivity API JS modules (11 files)
+├── build/                       # Compiled output (gitignored)
+├── includes/                    # PHP classes (PSR-4 autoloaded)
+│   ├── class-bootstrap.php      # Main orchestrator (singleton)
+│   ├── class-service-container.php
+│   ├── class-autoloader.php
+│   ├── Assets/                  # Script/style loaders (3 classes)
+│   ├── Blocks/                  # Block registration
+│   ├── Core/                    # Theme supports, icons, updates (6 classes)
+│   └── WooCommerce/             # Store features (34 classes)
+├── parts/                       # Template parts (header, footer)
+├── patterns/                    # Block patterns (36 patterns)
+├── src/                         # Source code
+│   ├── blocks/                  # Static Gutenberg blocks (4)
+│   ├── blocks-interactivity/    # Interactive blocks (15)
+│   ├── scripts/                 # Theme JS/TS
+│   └── styles/                  # Theme CSS (Tailwind v4 + PostCSS)
+├── templates/                   # FSE templates (13)
+└── tests/                       # PHPUnit test suites (17 test files)
 ```
 
-## Class Architecture
+### PHP Architecture
 
-### Bootstrap (Main Orchestrator)
-**File:** `includes/class-bootstrap.php`
+The theme uses a **service container pattern** with PSR-4 autoloading under the `Aggressive_Apparel` namespace:
 
-The central initialization class that orchestrates all theme components:
-- Singleton pattern implementation
-- Component initialization in correct order
-- Development stubs loading (WP_DEBUG mode)
-- Service container integration
-
-```php
-// Initialize theme
-Aggressive_Apparel\Bootstrap::get_instance();
+```
+functions.php → Bootstrap (singleton)
+    ├── Autoloader (PSR-4)
+    ├── Service_Container
+    │   ├── Core services (theme support, icons, image sizes, updates)
+    │   ├── Asset services (styles, scripts)
+    │   └── Block registration
+    └── WooCommerce (conditional on class_exists)
+        ├── Core WC support (templates, cart, product loop, color swatches)
+        ├── Feature_Settings (16 toggle definitions)
+        └── Enhancements coordinator → individual feature classes
 ```
 
-### Service Container
-**File:** `includes/class-service-container.php`
+### Custom Blocks
 
-Dependency injection container for managing theme services:
-- Service registration and resolution
-- Singleton and shared service support
-- Lazy loading of components
-- Clean dependency management
+**Interactive Blocks** (Interactivity API):
+`navigation`, `navigation-panel`, `menu-toggle`, `nav-menu`, `nav-link`, `nav-submenu`, `mega-menu-content`, `panel-header`, `panel-body`, `panel-footer`, `panel-close-button`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`
 
-### Autoloader
-**File:** `includes/class-autoloader.php`
+**Static Blocks:**
+`aggressive-apparel-logo`, `dark-mode-toggle`, `menu-group`, `copyright`
 
-PSR-4 compliant autoloader supporting:
-- Flat structure: `includes/class-{name}.php`
-- Namespaced structure: `includes/{Namespace}/class-{name}.php`
-- Automatic class loading with fallback
+### Icon System
 
-### Core Components
+31 SVG icons available via `Icons::get('name')` and `Icons::render('name')`:
 
-#### Theme Support (`includes/Core/class-theme-support.php`)
-Handles WordPress theme support registration:
-- Post thumbnails, title tag, HTML5 markup
-- Custom logo and header support
-- Editor color palette and font sizes
-- Responsive embeds and custom background
+**Navigation:** hamburger, close, chevron-down/up/left/right, arrow-left/right, dots, bars
+**Actions:** home, search, cart, user, heart
+**UI:** check, plus, minus, info, warning, error
+**Social:** facebook, twitter, instagram
 
-#### Image Sizes (`includes/Core/class-image-sizes.php`)
-Modern image size management:
-- Responsive image sizes (1200x1200 products, 1600x900 blog)
-- Performance-optimized dimensions
-- WooCommerce product image integration
+### Color Swatch System
 
-#### Content Width (`includes/Core/class-content-width.php`)
-Responsive content width management:
-- Dynamic content width based on layout
-- Sidebar-aware width calculations
-- Mobile-responsive adjustments
+A comprehensive color attribute system for WooCommerce product variations:
 
-#### Theme Updates (`includes/Core/class-theme-updates.php`)
-GitHub-based automatic theme update system:
-- Automatic update checking from GitHub releases
-- Release asset downloading and installation
-- ETag caching for API efficiency
-- WordPress update integration
+| Class | Purpose |
+|-------|---------|
+| `Color_Attribute_Manager` | WooCommerce color attribute setup |
+| `Color_Data_Manager` | Color data persistence and queries |
+| `Color_Block_Swatch_Manager` | Swatch rendering in product blocks |
+| `Color_Admin_UI` | Admin interface for color management |
+| `Color_Pattern_Admin` | Pattern image upload via media library |
 
-#### Block Categories (`includes/Core/class-block-categories.php`)
-Custom block category registration:
-- Organized block categorization
-- Theme-specific block grouping
-- Block editor organization
+Supports solid hex colors and image patterns with full keyboard navigation and screen reader support.
 
-### Asset Management
+## Testing
 
-#### Styles (`includes/Assets/class-styles.php`)
-Frontend stylesheet management:
-- Theme stylesheet enqueuing
-- WooCommerce style integration
-- Conditional loading based on page type
-- Performance optimizations
+106 tests across 5 suites, run inside wp-env (Docker-based WordPress):
 
-#### Scripts (`includes/Assets/class-scripts.php`)
-JavaScript asset management:
-- Theme script enqueuing
-- Product page specific scripts
-- WooCommerce integration scripts
-- Dependency management
+| Suite | Files | What it covers |
+|-------|-------|----------------|
+| Unit | 9 | Bootstrap, assets, theme support, blocks, WC classes |
+| Integration | 3 | WooCommerce integration, block rendering |
+| Security | 1 | HTTP security headers |
+| Accessibility | 2 | ARIA attributes, keyboard navigation |
+| Performance | 2 | Load time, resource usage |
 
-#### Editor Assets (`includes/Assets/class-editor-assets.php`)
-Block editor asset management:
-- Editor stylesheet enqueuing
-- Block editor JavaScript
-- Custom block registration support
+**Tools:** PHPUnit 9.6, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint
 
-### WooCommerce Integration
+## CI/CD Pipeline
 
-#### WooCommerce Support (`includes/WooCommerce/class-woocommerce-support.php`)
-Core WooCommerce theme support:
-- WooCommerce theme support declaration
-- Product gallery and zoom features
-- Cart and checkout optimizations
+GitHub Actions workflow with semantic-release:
 
-#### Product Loop (`includes/WooCommerce/class-product-loop.php`)
-Product archive customizations:
-- Product grid layouts
-- Loop hooks and filters
-- Performance optimizations
-
-#### Cart (`includes/WooCommerce/class-cart.php`)
-Shopping cart enhancements:
-- AJAX cart updates
-- Cart fragment optimization
-- Mini cart functionality
-
-#### Templates (`includes/WooCommerce/class-templates.php`)
-WooCommerce template overrides:
-- Custom template locations
-- Template hook modifications
-- Layout customizations
-
-#### Color Swatch System
-Advanced visual color selection for WooCommerce products:
-
-**Color Block Swatch Manager** (`includes/WooCommerce/class-color-block-swatch-manager.php`)
-- WooCommerce block integration for color swatches
-- Dynamic HTML injection into product blocks
-- Accessibility-compliant swatch rendering
-- Pattern and solid color support
-
-**Color Admin UI** (`includes/WooCommerce/class-color-admin-ui.php`)
-- WordPress admin interface for color management
-- Color type selection (solid/pattern)
-- Secure form handling with nonces
-- Media library integration for patterns
-
-**Color Pattern Admin** (`includes/WooCommerce/class-color-pattern-admin.php`)
-- Pattern image upload and management
-- AJAX-powered admin interface
-- WordPress media library integration
-- Secure file handling and validation
-
-**Color Attribute Manager** (`includes/WooCommerce/class-color-attribute-manager.php`)
-- WooCommerce product attribute setup
-- Automatic color taxonomy creation
-- Attribute registration and management
-
-**Color Data Manager** (`includes/WooCommerce/class-color-data-manager.php`)
-- Color data operations and queries
-- Term meta management for colors
-- Optimized database interactions
-
-### Block System
-
-#### Blocks (`includes/Blocks/class-blocks.php`)
-Custom block registration and management:
-- Block initialization and setup
-- Block category integration
-- Block editor support
-
-### Exception Handling
-
-#### Exceptions (`includes/Exceptions/`)
-Custom exception classes for error handling:
-- API-related exceptions
-- Cache operation exceptions
-- Database operation exceptions
-- Validation and input exceptions
-
-### Development Tools
-
-#### Stubs (`includes/stubs.php`)
-IDE support for conditional functions:
-- WooCommerce function definitions for development
-- WordPress core function stubs
-- Loaded only in WP_DEBUG mode
-- Prevents undefined function warnings
-
-## Usage
-
-### Initialization
-
-The theme uses a centralized Bootstrap orchestrator for initialization:
-
-```php
-// Single initialization point - handles all components
-Aggressive_Apparel\Bootstrap::get_instance();
+```
+setup → lint (JS, PHP, PHPCS, PHPStan) → release check → build → test suites (5 parallel) → package → release
 ```
 
-The Bootstrap class automatically:
-- Loads development stubs (in WP_DEBUG mode)
-- Initializes core components (theme support, theme updates, etc.)
-- Sets up asset management (styles, scripts, editor assets)
-- Configures WooCommerce integration (if active)
-- Registers all hooks and filters in correct order
+- **Quality checks** run on every push (lint, PHPCS, PHPStan)
+- **Full pipeline** (build, test, package, release) only for `feat:`, `fix:`, `perf:` commits
+- **Semantic release** auto-versions and creates GitHub releases with theme ZIP
+- **Conventional Commits** enforced via commitlint + Husky pre-commit hooks
 
-### Manual Component Access
+### Pre-commit Hook
 
-If you need direct access to specific components:
+Runs automatically on every commit:
+```
+format:fix → lint:js:fix → qa (tests + linting + PHPStan)
+```
+
+## Theme Configuration
+
+### Constants
 
 ```php
-// Get Bootstrap instance
-$bootstrap = Aggressive_Apparel\Bootstrap::get_instance();
-
-// Access specific components (available after initialization)
-$theme_support = new Aggressive_Apparel\Core\Theme_Support();
-$theme_updates = new Aggressive_Apparel\Core\Theme_Updates();
+AGGRESSIVE_APPAREL_VERSION  // Theme version
+AGGRESSIVE_APPAREL_DIR      // Theme directory path
+AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```
 
 ### Helper Functions
 
 ```php
-// Get theme instance
-$theme = aggressive_apparel_theme();
-
-// Get asset URI
-$asset_url = aggressive_apparel_asset_uri('build/scripts/main.js');
-
-// Check WooCommerce
-if (aggressive_apparel_is_woocommerce_active()) {
-    // WooCommerce specific code
-}
-
-// Display cart count
-aggressive_apparel_cart_count();
+aggressive_apparel_theme()                 // Bootstrap instance
+aggressive_apparel_asset_uri($path)        // Asset URL
+aggressive_apparel_asset_path($path)       // Asset file path
+aggressive_apparel_is_woocommerce_active() // WooCommerce check
 ```
 
-### Hooks and Filters
+### Security Headers
 
-#### Theme Hooks
+Added via `Bootstrap::add_security_headers()`:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: SAMEORIGIN`
+- `X-XSS-Protection: 1; mode=block`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: geolocation=(), microphone=(), camera=()`
 
-```php
-// After theme support setup
-do_action('aggressive_apparel_after_theme_support');
+## Requirements
 
-// After WooCommerce support
-do_action('aggressive_apparel_after_woocommerce_support');
-
-// After asset enqueuing
-do_action('aggressive_apparel_after_enqueue_assets');
-```
-
-#### Theme Filters
-
-```php
-// Modify body classes
-apply_filters('aggressive_apparel_body_classes', $classes);
-
-// Modify loop columns
-apply_filters('aggressive_apparel_loop_columns', 3);
-
-// Modify products per page
-apply_filters('aggressive_apparel_products_per_page', 12);
-```
-
-## Customization
-
-### Using theme.json
-
-All theme settings are configured in `theme.json`:
-
-- Colors
-- Typography
-- Spacing
-- Layout
-- Block settings
-- Custom settings
-
-### Creating Custom Classes
-
-Add new classes to the `/includes` directory following the naming convention:
-
-```php
-class-{class-name}.php
-```
-
-The autoloader will automatically load them.
-
-### Example Custom Class
-
-```php
-<?php
-namespace Aggressive_Apparel;
-
-class Custom_Feature {
-    private static $instance = null;
-
-    public static function get_instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    private function __construct() {
-        $this->init_hooks();
-    }
-
-    private function init_hooks() {
-        add_action('init', array($this, 'register_feature'));
-    }
-
-    public function register_feature() {
-        // Your feature code
-    }
-}
-```
-
-Then initialize in `functions.php`:
-
-```php
-Aggressive_Apparel\Custom_Feature::get_instance();
-```
-
-## Development
-
-### Build Process
-
-The theme uses modern development tools:
-- **@wordpress/scripts** - WordPress build tooling with webpack
-- **TypeScript** - Type-safe JavaScript for admin interfaces
-- **Tailwind CSS v4.1** - CSS-first configuration with native nesting
-- **PostCSS** - CSS processing and optimization
-- **Modern CSS** - Native nesting, custom properties, @theme
-- **DOM Security** - XSS-safe JavaScript without innerHTML
-
-See `TAILWIND_V4_GUIDE.md` for complete documentation.
-
-#### Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Start development (watch mode)
-npm run watch
-
-# Build for production
-npm run build
-
-# Start wp-env AND watch (recommended)
-npm run dev
-```
-
-#### File Structure
-
-- `/src/` - Source files (you edit these)
-  - `/src/scripts/` - JavaScript files (ES6+ modules)
-  - `/src/scripts/admin/` - Admin interface TypeScript files
-  - `/src/styles/` - CSS files (with Tailwind + PostCSS)
-  - `/src/styles/admin/` - Admin-specific styles
-  - `/src/styles/woocommerce/` - WooCommerce-specific styles
-  - `/src/blocks/` - Custom blocks (future)
-- `/build/` - Compiled assets (auto-generated)
-  - `/build/scripts/` - Compiled JavaScript and TypeScript
-  - `/build/styles/` - Compiled CSS with optimizations
-
-### Styling Approach
-
-This theme combines modern CSS methodologies:
-1. **Tailwind utilities** - For rapid prototyping and common patterns
-2. **BEM methodology** - For complex components (color swatches, admin interfaces)
-3. **CSS nesting** - Modern, clean syntax with native support
-4. **@apply directive** - Extract utilities into reusable components
-5. **CSS custom properties** - From theme.json for consistent theming
-6. **Security-first CSS** - XSS-safe class naming and structure
-
-```css
-/* Example: BEM + Tailwind + Nesting */
-.product-card {
-  @apply bg-base border border-border p-6 rounded-lg;
-  @apply transition-all duration-300;
-
-  &:hover {
-    @apply -translate-y-1 shadow-xl;
-  }
-
-  &__title {
-    @apply text-xl font-bold text-primary mb-2;
-  }
-
-  &__price {
-    @apply text-2xl font-bold text-accent;
-  }
-}
-```
-
-### Testing Suite
-
-The theme includes a comprehensive testing suite with 59 tests covering core functionality:
-
-#### Test Categories
-- **Unit Tests**: Individual class and function testing (Color swatch system, admin UI, data management)
-- **Integration Tests**: Component interaction testing, including WooCommerce integration
-- **Security Tests**: Input validation, XSS prevention, and sanitization testing
-- **Accessibility Tests**: WCAG 2.1 AA compliance validation (ARIA labels, keyboard navigation)
-- **Performance Tests**: Load time and resource usage benchmarking
-
-#### Color System Test Coverage
-- **Swatch Rendering**: Solid colors and pattern display validation
-- **Admin Interface**: Form validation, AJAX operations, and UI interactions
-- **Security**: Input sanitization, capability checks, and XSS prevention
-- **Accessibility**: ARIA attributes, keyboard navigation, and screen reader support
-- **Data Management**: Term meta operations and color type validation
-
-#### Running Tests
-```bash
-# Run all tests
-composer test
-
-# Run specific test suites
-composer test -- --testsuite=unit
-composer test -- --testsuite=integration
-composer test -- --testsuite=security
-composer test -- --testsuite=accessibility
-composer test -- --testsuite=performance
-
-# Run with code coverage reporting
-composer test:coverage
-# View coverage report in: tests/coverage/index.html
-```
-
-#### Code Quality Tools
-- **PHPStan**: Static analysis with level 8 configuration
-- **PHPCS**: WordPress coding standards enforcement
-- **PHPUnit**: Unit and integration testing framework
-
-### Coding Standards
-
-- Follow WordPress Coding Standards (WPCS)
-- PSR-4 autoloading for class organization
-- Use meaningful variable and function names
-- Document all functions with PHPDoc
-- Use type hinting and return types (PHP 8.1+)
-- Implement proper error handling and logging
-- Use defensive programming for WooCommerce functions
-- **Security-first development**: Input validation, XSS prevention, secure DOM manipulation
-- **Modern JavaScript**: TypeScript for type safety, ES6+ modules, no innerHTML
-- **Accessibility compliance**: WCAG 2.1 AA standards with ARIA support
-
-## Troubleshooting
-
-### Common Issues
-
-#### Theme Updates Not Working
-- **GitHub access**: Ensure server can access `api.github.com`
-- **Rate limits**: GitHub API has rate limits (60 requests/hour for unauthenticated)
-- **Version format**: Ensure theme version in `style.css` matches GitHub release tag format
-- **Debug logs**: Check WordPress debug.log for update-related errors
-
-#### WooCommerce Functions Not Found
-- **Plugin active**: Ensure WooCommerce plugin is installed and activated
-- **Function checks**: The theme safely checks for WooCommerce functions before use
-- **Version compatibility**: Ensure WooCommerce 7.0+ is installed
-
-#### Theme Not Loading Styles/Scripts
-- **Build process**: Run `npm run build` to compile assets
-- **File permissions**: Ensure `build/` directory is writable
-- **Cache issues**: Clear browser cache and WordPress object cache
-
-#### PHPStan Errors in IDE
-- **Stubs loading**: Development stubs are automatically loaded in `WP_DEBUG` mode
-- **PHPStan config**: The theme includes comprehensive PHPStan configuration
-- **Version compatibility**: Ensure PHPStan is configured for PHP 8.1+
-
-### Development Tips
-
-- **Use `WP_DEBUG`**: Enable for development to load function stubs
-- **Check logs**: Debug.log contains detailed error information
-- **Test builds**: Always test after modifying source files
-- **Version control**: Commit frequently with descriptive messages
+- WordPress 6.0+
+- PHP 8.0+
+- Node.js 22+ with pnpm 9+
+- WooCommerce 7.0+ (recommended)
+- Docker (for wp-env test environment)
 
 ## Support
 
-For issues and questions:
-- GitHub: https://github.com/TheAggressive/Aggressive-Apparel/issues
+- Issues: https://github.com/TheAggressive/Aggressive-Apparel/issues
 
 ## License
 
-GNU General Public License v2 or later
-http://www.gnu.org/licenses/gpl-2.0.html
+GNU General Public License v2 or later — http://www.gnu.org/licenses/gpl-2.0.html
 
-## Credits
-
-Developed by The Aggressive Network, LLC
-
+Developed by [The Aggressive Network, LLC](https://aggressive-apparel.com)

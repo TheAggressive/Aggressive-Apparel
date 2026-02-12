@@ -1,4 +1,4 @@
-# Baseline removed - no errors to ignore
+# PHPStan configuration
 
 parameters:
 	level: 8
@@ -8,6 +8,11 @@ parameters:
 	# WordPress bootstrap for analysis
 	bootstrapFiles:
 		- tests/phpstan-bootstrap.php
+
+	# Stub files for WordPress and WooCommerce type information
+	scanFiles:
+		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
 
 	# Treat PHP code as if it always runs on PHP 8.2+
 	phpVersion: 80200
@@ -22,6 +27,11 @@ parameters:
 		-
 			identifier: missingType.iterableValue
 
+		# wp_register_script_module deps array format varies by WP version
+		-
+			identifier: argument.type
+			message: '#Parameter \#3 \$deps of function wp_register_script_module#'
+
 	# Universal object crates - allow dynamic properties on these classes
 	universalObjectCratesClasses:
 		- WP_Post
@@ -29,4 +39,4 @@ parameters:
 		- WP_User
 		- WP_Comment
 		- WP_Query
-
+		- stdClass

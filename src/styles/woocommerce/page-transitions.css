@@ -1,0 +1,120 @@
+/**
+ * Page Transitions
+ *
+ * MPA View Transitions for smooth cross-page navigation.
+ * Progressive enhancement — zero impact on unsupported browsers.
+ *
+ * Browser support: Chrome 126+, Safari 18.2+, Edge 126+.
+ * Firefox and older browsers simply ignore these rules.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.18.0
+ */
+
+/* -----------------------------------------------
+ * Enable MPA View Transitions
+ * ----------------------------------------------- */
+
+@view-transition {
+	navigation: auto;
+}
+
+/* -----------------------------------------------
+ * Persistent elements (no crossfade, stay stable)
+ * ----------------------------------------------- */
+
+header.wp-block-template-part {
+	view-transition-name: site-header;
+}
+
+footer.wp-block-template-part {
+	view-transition-name: site-footer;
+}
+
+/* -----------------------------------------------
+ * Main content transition
+ * ----------------------------------------------- */
+
+main.wp-block-group {
+	view-transition-name: main-content;
+}
+
+/* -----------------------------------------------
+ * Transition animations
+ * ----------------------------------------------- */
+
+/* Old content fades out quickly. */
+::view-transition-old(main-content) {
+	animation: aa-vt-fade-out 150ms ease-out;
+}
+
+/* New content fades in. */
+::view-transition-new(main-content) {
+	animation: aa-vt-fade-in 200ms ease-in 50ms;
+}
+
+@keyframes aa-vt-fade-out {
+
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes aa-vt-fade-in {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+/* Header and footer persist — no animation. */
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+	animation: none;
+}
+
+/* Product image shared element: browser handles position/size morph. */
+::view-transition-group(product-image) {
+	animation-duration: 300ms;
+	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* -----------------------------------------------
+ * Exclusions
+ * ----------------------------------------------- */
+
+/* WordPress admin bar must not participate. */
+#wpadminbar {
+	view-transition-name: none !important;
+}
+
+/* Checkout — never transition payment forms. */
+body.woocommerce-checkout main.wp-block-group {
+	view-transition-name: none !important;
+}
+
+/* Cart — avoid transitioning cart state changes. */
+body.woocommerce-cart main.wp-block-group {
+	view-transition-name: none !important;
+}
+
+/* -----------------------------------------------
+ * Reduced motion — disable all transitions
+ * ----------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+	@view-transition {
+		navigation: none;
+	}
+}

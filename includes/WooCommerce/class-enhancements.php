@@ -76,6 +76,10 @@ class Enhancements {
 			( new Product_Filter_Styling() )->init();
 		}
 
+		if ( Feature_Settings::is_enabled( 'page_transitions' ) ) {
+			( new Page_Transitions() )->init();
+		}
+
 		// Interactive features (PHP + Interactivity API).
 		if ( Feature_Settings::is_enabled( 'size_guide' ) ) {
 			( new Size_Guide_Post_Type() )->init();
@@ -90,6 +94,18 @@ class Enhancements {
 			( new Recently_Viewed() )->init();
 		}
 
+		if ( Feature_Settings::is_enabled( 'predictive_search' ) ) {
+			( new Predictive_Search() )->init();
+		}
+
+		if ( Feature_Settings::is_enabled( 'sticky_add_to_cart' ) ) {
+			( new Sticky_Add_To_Cart() )->init();
+		}
+
+		if ( Feature_Settings::is_enabled( 'mobile_bottom_nav' ) ) {
+			( new Mobile_Bottom_Nav() )->init();
+		}
+
 		// Rich interactivity features.
 		if ( Feature_Settings::is_enabled( 'quick_view' ) ) {
 			( new Quick_View() )->init();
@@ -101,6 +117,18 @@ class Enhancements {
 
 		if ( Feature_Settings::is_enabled( 'social_proof' ) ) {
 			( new Social_Proof() )->init();
+		}
+
+		if ( Feature_Settings::is_enabled( 'frequently_bought_together' ) ) {
+			( new Frequently_Bought_Together() )->init();
+		}
+
+		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
+			( new Back_In_Stock_Installer() )->maybe_install();
+			( new Back_In_Stock() )->init();
+			if ( is_admin() ) {
+				( new Back_In_Stock_Admin() )->init();
+			}
 		}
 	}
 

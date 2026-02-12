@@ -488,16 +488,16 @@ class Quick_View {
 			}
 
 			$manager = new Color_Data_Manager();
-			$terms   = $manager->get_color_terms();
+			$colors  = $manager->get_color_terms();
 			$data    = array();
 
-			foreach ( $terms as $term ) {
-				$color_value = $manager->get_term_color( $term->term_id );
+			foreach ( $colors as $slug => $color_info ) {
+				$color_value = $color_info['value'] ?? '';
 				if ( $color_value ) {
-					$data[ $term->slug ] = array(
+					$data[ $slug ] = array(
 						'value' => $color_value,
-						'type'  => 'color',
-						'name'  => $term->name,
+						'type'  => $color_info['type'] ?? 'color',
+						'name'  => $color_info['name'] ?? (string) $slug,
 					);
 				}
 			}

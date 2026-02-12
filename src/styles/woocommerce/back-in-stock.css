@@ -1,0 +1,220 @@
+/**
+ * Back in Stock Notifications
+ *
+ * Subscribe form for out-of-stock products and archive badge.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.18.0
+ */
+
+/* -----------------------------------------------
+ * Container
+ * ----------------------------------------------- */
+
+.aa-bis {
+	max-width: 28rem;
+	margin-block: var(--wp--preset--spacing--5, 1.25rem);
+}
+
+/* -----------------------------------------------
+ * Out-of-stock message
+ * ----------------------------------------------- */
+
+.aa-bis__out-of-stock {
+	margin: 0 0 var(--wp--preset--spacing--4, 1rem);
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--wp--preset--color--primary, #b91c1c);
+}
+
+/* -----------------------------------------------
+ * Form
+ * ----------------------------------------------- */
+
+.aa-bis__form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.aa-bis__field {
+	display: flex;
+}
+
+.aa-bis__input {
+	flex: 1;
+	min-height: 2.75rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid rgb(0 0 0 / 20%);
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
+	font-family: inherit;
+	background-color: var(--wp--preset--color--white, #fff);
+	color: inherit;
+	transition: border-color 0.15s ease;
+}
+
+.aa-bis__input:focus {
+	outline: 2px solid var(--wp--preset--color--primary, #000);
+	outline-offset: 1px;
+	border-color: transparent;
+}
+
+.aa-bis__input::placeholder {
+	opacity: 0.5;
+}
+
+/* -----------------------------------------------
+ * Consent checkbox
+ * ----------------------------------------------- */
+
+.aa-bis__consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	opacity: 0.7;
+	cursor: pointer;
+}
+
+.aa-bis__consent input[type="checkbox"] {
+	flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
+	margin-top: 0.125rem;
+	accent-color: var(--wp--preset--color--primary, #000);
+	cursor: pointer;
+}
+
+/* -----------------------------------------------
+ * Submit button
+ * ----------------------------------------------- */
+
+.aa-bis__submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.625rem 1.5rem;
+	border: none;
+	border-radius: 0.25rem;
+	background-color: var(--wp--preset--color--primary, #000);
+	color: var(--wp--preset--color--white, #fff);
+	font-size: 0.875rem;
+	font-weight: 700;
+	font-family: inherit;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+	cursor: pointer;
+	transition: opacity 0.15s ease;
+}
+
+.aa-bis__submit:hover {
+	opacity: 0.9;
+}
+
+.aa-bis__submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.aa-bis__submit.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+/* -----------------------------------------------
+ * Messages
+ * ----------------------------------------------- */
+
+.aa-bis__messages {
+	margin-top: 0.5rem;
+}
+
+.aa-bis__success,
+.aa-bis__error {
+	margin: 0;
+	padding: 0.625rem 0.75rem;
+	border-radius: 0.25rem;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+}
+
+.aa-bis__success {
+	background-color: #f0fdf4;
+	color: #15803d;
+	border: 1px solid #bbf7d0;
+}
+
+.aa-bis__error {
+	background-color: #fef2f2;
+	color: #b91c1c;
+	border: 1px solid #fecaca;
+}
+
+/* -----------------------------------------------
+ * Archive badge
+ * ----------------------------------------------- */
+
+.aa-bis__badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.aa-bis__badge span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.25rem;
+	padding: 0.375rem 1rem;
+	border: 1px solid var(--wp--preset--color--primary, #000);
+	border-radius: 0.25rem;
+	background-color: transparent;
+	color: var(--wp--preset--color--primary, #000);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* -----------------------------------------------
+ * Admin status marks
+ * ----------------------------------------------- */
+
+.aa-bis-status {
+	display: inline-block;
+	padding: 0.125rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	background-color: #f3f4f6;
+}
+
+.aa-bis-status--active {
+	background-color: #dbeafe;
+	color: #1d4ed8;
+}
+
+.aa-bis-status--notified {
+	background-color: #f0fdf4;
+	color: #15803d;
+}
+
+.aa-bis-status--unsubscribed {
+	background-color: #f3f4f6;
+	color: #6b7280;
+}
+
+/* -----------------------------------------------
+ * Reduced motion
+ * ----------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-bis__input,
+	.aa-bis__submit {
+		transition: none;
+	}
+}

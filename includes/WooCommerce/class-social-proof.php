@@ -102,7 +102,7 @@ class Social_Proof {
 			return;
 		}
 
-		$context = wp_json_encode(
+		$context = (string) wp_json_encode(
 			array(
 				'notifications'     => $notifications,
 				'currentIndex'      => 0,
@@ -174,6 +174,10 @@ class Social_Proof {
 			),
 		);
 
+		if ( ! is_array( $orders ) ) {
+			return $this->get_sample_notifications();
+		}
+
 		$notifications = array();
 
 		foreach ( $orders as $order ) {
@@ -191,7 +195,7 @@ class Social_Proof {
 
 			$first_item   = reset( $items );
 			$product_name = $first_item->get_name();
-			$product_id   = $first_item->get_product_id();
+			$product_id   = $first_item instanceof \WC_Order_Item_Product ? $first_item->get_product_id() : 0;
 			$thumbnail    = '';
 
 			if ( $product_id && function_exists( 'wc_get_product' ) ) {
@@ -245,7 +249,7 @@ class Social_Proof {
 			),
 		);
 
-		if ( empty( $products ) ) {
+		if ( ! is_array( $products ) || empty( $products ) ) {
 			return array();
 		}
 

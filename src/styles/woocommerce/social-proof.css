@@ -117,12 +117,21 @@
 	}
 }
 
+/* Offset when mobile bottom nav is present. */
+.has-bottom-nav .aggressive-apparel-social-proof {
+	bottom: calc(1.5rem + var(--aa-bottom-nav-height, 0px));
+}
+
 @media (width <= 480px) {
 
 	.aggressive-apparel-social-proof {
 		left: 0.75rem;
 		right: 0.75rem;
 		bottom: 0.75rem;
+	}
+
+	.has-bottom-nav .aggressive-apparel-social-proof {
+		bottom: calc(0.75rem + var(--aa-bottom-nav-height, 0px));
 	}
 
 	.aggressive-apparel-social-proof__toast {

@@ -55,74 +55,104 @@ class Feature_Settings {
 	 */
 	public static function get_feature_definitions(): array {
 		return array(
-			'product_badges'    => array(
+			'product_badges'             => array(
 				'label'       => __( 'Product Badges', 'aggressive-apparel' ),
 				'description' => __( 'Show sale percentage, "New", "Low Stock", and "Bestseller" badges on product cards.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
-			'price_display'     => array(
+			'price_display'              => array(
 				'label'       => __( 'Smart Price Display', 'aggressive-apparel' ),
 				'description' => __( 'Show "From $X" on archives, "Save X%" on sale items.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
-			'product_tabs'      => array(
+			'product_tabs'               => array(
 				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
 				'description' => __( 'Add custom tabs (Care Instructions, Shipping, Sustainability) to product pages.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
-			'free_shipping_bar' => array(
+			'free_shipping_bar'          => array(
 				'label'       => __( 'Free Shipping Progress Bar', 'aggressive-apparel' ),
 				'description' => __( 'Show progress toward free shipping threshold in the cart.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
-			'swatch_tooltips'   => array(
+			'swatch_tooltips'            => array(
 				'label'       => __( 'Swatch Tooltips', 'aggressive-apparel' ),
 				'description' => __( 'Show fabric name and composition on color swatch hover.', 'aggressive-apparel' ),
 				'section'     => 'css',
 			),
-			'mini_cart_styling' => array(
+			'mini_cart_styling'          => array(
 				'label'       => __( 'Mini Cart Styling', 'aggressive-apparel' ),
 				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
 				'section'     => 'css',
 			),
-			'filter_styling'    => array(
+			'filter_styling'             => array(
 				'label'       => __( 'Product Filter Styling', 'aggressive-apparel' ),
 				'description' => __( 'Style native product filter blocks with color swatch integration.', 'aggressive-apparel' ),
 				'section'     => 'css',
 			),
-			'size_guide'        => array(
+			'page_transitions'           => array(
+				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
+				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
+				'section'     => 'css',
+			),
+			'size_guide'                 => array(
 				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
 				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
 				'section'     => 'interactive',
 			),
-			'countdown_timer'   => array(
+			'countdown_timer'            => array(
 				'label'       => __( 'Sale Countdown Timer', 'aggressive-apparel' ),
 				'description' => __( 'Live countdown for products with scheduled sale end dates.', 'aggressive-apparel' ),
 				'section'     => 'interactive',
 			),
-			'recently_viewed'   => array(
+			'recently_viewed'            => array(
 				'label'       => __( 'Recently Viewed Products', 'aggressive-apparel' ),
 				'description' => __( 'Show customers their recently viewed products using browser storage.', 'aggressive-apparel' ),
 				'section'     => 'interactive',
 			),
-			'stock_status'      => array(
+			'predictive_search'          => array(
+				'label'       => __( 'Predictive Search', 'aggressive-apparel' ),
+				'description' => __( 'Show live product search results with thumbnails and prices as users type.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
+			),
+			'sticky_add_to_cart'         => array(
+				'label'       => __( 'Sticky Add to Cart', 'aggressive-apparel' ),
+				'description' => __( 'Fixed bar with product info and add-to-cart when main button scrolls out of view.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
+			),
+			'mobile_bottom_nav'          => array(
+				'label'       => __( 'Mobile Bottom Navigation', 'aggressive-apparel' ),
+				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
+			),
+			'stock_status'               => array(
 				'label'       => __( 'Stock Status', 'aggressive-apparel' ),
 				'description' => __( 'Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View.', 'aggressive-apparel' ),
 				'section'     => 'rich',
 			),
-			'quick_view'        => array(
+			'quick_view'                 => array(
 				'label'       => __( 'Quick View', 'aggressive-apparel' ),
 				'description' => __( 'Preview products in a modal overlay from shop pages.', 'aggressive-apparel' ),
 				'section'     => 'rich',
 			),
-			'wishlist'          => array(
+			'wishlist'                   => array(
 				'label'       => __( 'Wishlist', 'aggressive-apparel' ),
 				'description' => __( 'Save-for-later with heart icon toggle and dedicated wishlist page.', 'aggressive-apparel' ),
 				'section'     => 'rich',
 			),
-			'social_proof'      => array(
+			'social_proof'               => array(
 				'label'       => __( 'Social Proof Notifications', 'aggressive-apparel' ),
 				'description' => __( 'Show recent purchase toast notifications to build urgency.', 'aggressive-apparel' ),
+				'section'     => 'rich',
+			),
+			'frequently_bought_together' => array(
+				'label'       => __( 'Frequently Bought Together', 'aggressive-apparel' ),
+				'description' => __( 'Show recommended products with checkboxes and combined add-to-cart on product pages.', 'aggressive-apparel' ),
+				'section'     => 'rich',
+			),
+			'back_in_stock'              => array(
+				'label'       => __( 'Back in Stock Notifications', 'aggressive-apparel' ),
+				'description' => __( 'Let customers subscribe to out-of-stock products and get notified when restocked.', 'aggressive-apparel' ),
 				'section'     => 'rich',
 			),
 		);

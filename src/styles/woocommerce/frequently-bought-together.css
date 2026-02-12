@@ -1,0 +1,257 @@
+/**
+ * Frequently Bought Together
+ *
+ * Product bundling section on single product pages.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.18.0
+ */
+
+/* -----------------------------------------------
+ * Section
+ * ----------------------------------------------- */
+
+.aa-fbt {
+	margin-block: var(--wp--preset--spacing--8, 3rem);
+	padding: var(--wp--preset--spacing--6, 1.5rem);
+	border: 1px solid rgb(0 0 0 / 8%);
+	border-radius: 0.5rem;
+}
+
+.aa-fbt__heading {
+	margin: 0 0 var(--wp--preset--spacing--5, 1.25rem);
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+
+/* -----------------------------------------------
+ * Products row
+ * ----------------------------------------------- */
+
+.aa-fbt__products {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+/* -----------------------------------------------
+ * Plus separator
+ * ----------------------------------------------- */
+
+.aa-fbt__separator {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	font-size: 1.25rem;
+	font-weight: 300;
+	opacity: 0.4;
+}
+
+/* -----------------------------------------------
+ * Product card
+ * ----------------------------------------------- */
+
+.aa-fbt__card {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 0.375rem;
+	text-align: center;
+}
+
+.aa-fbt__card-link {
+	display: block;
+	text-decoration: none;
+}
+
+.aa-fbt__card-image {
+	width: 5rem;
+	height: 5rem;
+	object-fit: cover;
+	border-radius: 0.25rem;
+}
+
+.aa-fbt__card-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.aa-fbt__card-title {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	line-height: 1.3;
+	color: inherit;
+	text-decoration: none;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.aa-fbt__card-title:hover {
+	text-decoration: underline;
+}
+
+.aa-fbt__card-price {
+	font-size: 0.75rem;
+	opacity: 0.7;
+}
+
+/* -----------------------------------------------
+ * Checkbox
+ * ----------------------------------------------- */
+
+.aa-fbt__checkbox {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.aa-fbt__checkbox input[type="checkbox"] {
+	width: 1.25rem;
+	height: 1.25rem;
+	accent-color: var(--wp--preset--color--primary, #000);
+	cursor: pointer;
+}
+
+.aa-fbt__checkbox input[type="checkbox"]:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* -----------------------------------------------
+ * Footer
+ * ----------------------------------------------- */
+
+.aa-fbt__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: var(--wp--preset--spacing--5, 1.25rem);
+	padding-top: var(--wp--preset--spacing--4, 1rem);
+	border-top: 1px solid rgb(0 0 0 / 8%);
+}
+
+.aa-fbt__total {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.aa-fbt__total-label {
+	font-size: 0.75rem;
+	opacity: 0.6;
+}
+
+.aa-fbt__total-amount {
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+
+/* -----------------------------------------------
+ * Add all button
+ * ----------------------------------------------- */
+
+.aa-fbt__add-all {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.625rem 1.5rem;
+	border: none;
+	border-radius: 0.25rem;
+	background-color: var(--wp--preset--color--primary, #000);
+	color: var(--wp--preset--color--white, #fff);
+	font-size: 0.875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.aa-fbt__add-all:hover {
+	opacity: 0.9;
+}
+
+.aa-fbt__add-all:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.aa-fbt__add-all.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.aa-fbt__add-all.is-success {
+	background-color: #16a34a;
+}
+
+/* -----------------------------------------------
+ * Mobile layout
+ * ----------------------------------------------- */
+
+@media (width < 640px) {
+
+	.aa-fbt__products {
+		flex-direction: column;
+	}
+
+	.aa-fbt__separator {
+		transform: rotate(90deg);
+	}
+
+	.aa-fbt__card {
+		flex-direction: row;
+		text-align: left;
+		width: 100%;
+	}
+
+	.aa-fbt__card-image {
+		width: 3.5rem;
+		height: 3.5rem;
+	}
+
+	.aa-fbt__card-info {
+		flex: 1;
+	}
+
+	.aa-fbt__footer {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.aa-fbt__total {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.aa-fbt__add-all {
+		width: 100%;
+	}
+}
+
+/* -----------------------------------------------
+ * Reduced motion
+ * ----------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-fbt__add-all {
+		transition: none;
+	}
+}

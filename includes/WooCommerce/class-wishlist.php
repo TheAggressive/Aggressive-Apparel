@@ -141,7 +141,7 @@ class Wishlist {
 			$class .= ' aggressive-apparel-wishlist__toggle--large';
 		}
 
-		$context = wp_json_encode( array( 'productId' => $product_id ) );
+		$context = (string) wp_json_encode( array( 'productId' => $product_id ) );
 
 		return sprintf(
 			'<button type="button" class="%s" data-wp-interactive="aggressive-apparel/wishlist" data-wp-context=\'%s\' data-wp-on--click="actions.toggle" data-wp-class--is-active="state.isInWishlist" data-wp-bind--aria-pressed="state.isInWishlist" aria-label="%s" title="%s">
@@ -164,7 +164,7 @@ class Wishlist {
 	 * @return string Shortcode HTML.
 	 */
 	public function render_wishlist_page(): string {
-		$context = wp_json_encode(
+		$context = (string) wp_json_encode(
 			array(
 				'loaded' => false,
 			),

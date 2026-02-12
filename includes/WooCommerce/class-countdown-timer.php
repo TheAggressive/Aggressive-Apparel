@@ -154,7 +154,7 @@ class Countdown_Timer {
 		$minutes = (int) floor( ( $diff % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
 		$seconds = $diff % MINUTE_IN_SECONDS;
 
-		$context = wp_json_encode(
+		$context = (string) wp_json_encode(
 			array(
 				'endTs'   => $end_ts,
 				'days'    => $days,

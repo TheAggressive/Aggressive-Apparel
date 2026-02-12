@@ -78,7 +78,7 @@ class Recently_Viewed {
 
 		$product_id = (int) get_the_ID();
 
-		$context = wp_json_encode(
+		$context = (string) wp_json_encode(
 			array(
 				'currentProductId' => $product_id,
 				'maxDisplay'       => $this->max_display,

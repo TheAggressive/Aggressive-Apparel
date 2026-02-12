@@ -165,7 +165,7 @@ class Free_Shipping_Bar {
 	 * @return float
 	 */
 	private function get_cart_total(): float {
-		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
+		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) { // @phpstan-ignore booleanNot.alwaysFalse
 			return 0.0;
 		}
 

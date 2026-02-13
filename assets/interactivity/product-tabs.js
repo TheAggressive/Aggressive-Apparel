@@ -8,6 +8,59 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
+/* ---------------------------------------------------------------
+ * Accordion animation helpers
+ * ------------------------------------------------------------- */
+
+const ANIM_DURATION = 200;
+
+/**
+ * Animate a panel's height + padding between natural size and zero.
+ *
+ * @param {HTMLElement} content The .aa-product-info__content element.
+ * @param {boolean}     open    True = expand, false = collapse.
+ * @return {Animation}
+ */
+function animatePanel(content, open) {
+  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : ANIM_DURATION;
+
+  const { height, paddingTop, paddingBottom } = getComputedStyle(content);
+  const natural = { height, paddingTop, paddingBottom };
+  const collapsed = { height: '0px', paddingTop: '0px', paddingBottom: '0px' };
+
+  content.style.overflow = 'hidden';
+
+  return content.animate(open ? [collapsed, natural] : [natural, collapsed], {
+    duration,
+    easing: 'ease-out',
+  });
+}
+
+/**
+ * Smoothly close a <details> element.
+ *
+ * @param {HTMLDetailsElement} details
+ */
+function closeDetails(details) {
+  const content = details.querySelector('.aa-product-info__content');
+  if (!content) {
+    details.removeAttribute('open');
+    return;
+  }
+
+  const anim = animatePanel(content, false);
+  anim.onfinish = () => {
+    details.removeAttribute('open');
+    content.style.overflow = '';
+  };
+}
+
+/* ---------------------------------------------------------------
+ * Interactivity store
+ * ------------------------------------------------------------- */
+
 const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
   state: {
     get isActiveTab() {
@@ -25,13 +78,70 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
       return state.activeTab === ctx.tabIndex ? '0' : '-1';
     },
 
+    /**
+     * Returns "true"/"false" string for aria-selected.
+     * data-wp-bind-- removes attributes for falsy values,
+     * but ARIA spec requires aria-selected="false" on inactive tabs.
+     */
+    get ariaSelected() {
+      const ctx = getContext();
+      return state.activeTab === ctx.tabIndex ? 'true' : 'false';
+    },
+
     get isActiveNav() {
       const ctx = getContext();
       return state.activeSection === ctx.sectionId;
     },
+
+    /**
+     * Returns "true"/"false" string for aria-current on scrollspy nav.
+     */
+    get ariaCurrent() {
+      const ctx = getContext();
+      return state.activeSection === ctx.sectionId ? 'true' : 'false';
+    },
   },
 
   actions: {
+    /**
+     * Accordion: animated open/close with single-open behaviour.
+     * Intercepts the <summary> click so we can animate before
+     * the browser toggles the <details> open state.
+     *
+     * @param {Event} event
+     */
+    toggleAccordion(event) {
+      event.preventDefault();
+      const { ref } = getElement();
+      const details = ref.closest('details');
+      if (!details) return;
+
+      if (details.open) {
+        // --- Close ---
+        closeDetails(details);
+      } else {
+        // --- Open: close siblings first ---
+        const parent = details.closest('.aa-product-info--accordion');
+        if (parent) {
+          for (const sibling of parent.querySelectorAll('details[open]')) {
+            if (sibling !== details) {
+              closeDetails(sibling);
+            }
+          }
+        }
+
+        // Open and animate in.
+        details.setAttribute('open', '');
+        const content = details.querySelector('.aa-product-info__content');
+        if (content) {
+          const anim = animatePanel(content, true);
+          anim.onfinish = () => {
+            content.style.overflow = '';
+          };
+        }
+      }
+    },
+
     /**
      * Modern tabs: select a tab by click.
      */

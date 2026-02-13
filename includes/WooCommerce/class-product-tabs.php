@@ -193,7 +193,9 @@ class Product_Tabs {
 
 		// Extract tab content from panels.
 		foreach ( $titles as $tab_info ) {
-			$panel = $xpath->query( '//*[@id="' . $tab_info['id'] . '"]' );
+			// Sanitize the ID for safe use in XPath — strip anything outside [a-zA-Z0-9_-].
+			$safe_id = preg_replace( '/[^a-zA-Z0-9_-]/', '', $tab_info['id'] );
+			$panel   = $xpath->query( '//*[@id="' . $safe_id . '"]' );
 			if ( $panel && $panel->length > 0 ) {
 				$panel_node = $panel->item( 0 );
 				$inner_html = '';
@@ -238,7 +240,7 @@ class Product_Tabs {
 			$open  = 0 === $index ? ' open' : '';
 			$html .= sprintf(
 				'<details class="aa-product-info__section"%s>' .
-				'<summary class="aa-product-info__heading">' .
+				'<summary class="aa-product-info__heading" data-wp-on--click="actions.toggleAccordion">' .
 				'<span>%s</span>' .
 				'<svg class="aa-product-info__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' .
 				'</summary>' .
@@ -301,7 +303,7 @@ class Product_Tabs {
 				'data-wp-on--click="actions.selectTab" ' .
 				'data-wp-on--keydown="actions.handleTabKeydown" ' .
 				'data-wp-class--is-active="state.isActiveTab" ' .
-				'data-wp-bind--aria-selected="state.isActiveTab" ' .
+				'data-wp-bind--aria-selected="state.ariaSelected" ' .
 				'data-wp-bind--tabindex="state.tabTabindex">' .
 				'%s</button>',
 				esc_attr( $tab['id'] ),
@@ -356,7 +358,8 @@ class Product_Tabs {
 				'<a href="#pi-%s" class="aa-product-info__nav-link%s" ' .
 				'data-wp-context=\'%s\' ' .
 				'data-wp-on--click="actions.scrollToSection" ' .
-				'data-wp-class--is-active="state.isActiveNav">' .
+				'data-wp-class--is-active="state.isActiveNav" ' .
+				'data-wp-bind--aria-current="state.ariaCurrent">' .
 				'%s</a>',
 				esc_attr( $tab['id'] ),
 				$is_first,

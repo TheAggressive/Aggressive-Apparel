@@ -237,7 +237,7 @@
 	text-transform: uppercase;
 	text-decoration: none;
 	color: inherit;
-	opacity: 0.5;
+	opacity: 0.6;
 	transition: opacity 0.15s ease, color 0.15s ease;
 	border-left: 2px solid transparent;
 	margin-left: -1px;

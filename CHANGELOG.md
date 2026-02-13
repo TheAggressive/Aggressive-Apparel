@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.18.0...v1.19.0) (2026-02-13)
+
+
+### Features
+
+* enhance product tabs and sticky add-to-cart functionality ([1a80620](https://github.com/TheAggressive/Aggressive-Apparel/commit/1a8062047bb3810f785589541981e0a721727269))
+
 # [1.18.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.17.0...v1.18.0) (2026-02-13)
 
 

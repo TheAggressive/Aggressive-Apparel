@@ -12,6 +12,9 @@
  * ----------------------------------------------- */
 
 .aa-sticky-cart {
+	--aa-sticky-cart-height: 3.75rem;
+	--aa-color-success: #16a34a;
+
 	position: fixed;
 	bottom: var(--aa-bottom-nav-height, 0);
 	left: 0;
@@ -148,7 +151,61 @@
 }
 
 .aa-sticky-cart__button.is-success {
-	background-color: #16a34a;
+	background-color: var(--aa-color-success);
+}
+
+/* -----------------------------------------------
+ * Quantity controls
+ * ----------------------------------------------- */
+
+.aa-sticky-cart__quantity {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	flex-shrink: 0;
+	border: 1.5px solid color-mix(in oklch, currentcolor 20%, transparent);
+	border-radius: 0.25rem;
+	overflow: hidden;
+}
+
+.aa-sticky-cart__qty-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border: none;
+	background: none;
+	font-size: 0.875rem;
+	cursor: pointer;
+	color: inherit;
+	transition: background-color 0.15s ease;
+}
+
+.aa-sticky-cart__qty-btn:hover,
+.aa-sticky-cart__qty-btn:focus-visible {
+	background-color: color-mix(in oklch, currentcolor 8%, transparent);
+}
+
+.aa-sticky-cart__qty-input {
+	width: 2.5rem;
+	height: 2.75rem;
+	padding: 0;
+	border: none;
+	border-inline: 1.5px solid color-mix(in oklch, currentcolor 20%, transparent);
+	text-align: center;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	appearance: textfield;
+	background: transparent;
+	color: inherit;
+}
+
+.aa-sticky-cart__qty-input::-webkit-inner-spin-button,
+.aa-sticky-cart__qty-input::-webkit-outer-spin-button {
+	appearance: none;
+	margin: 0;
 }
 
 /* -----------------------------------------------
@@ -156,6 +213,10 @@
  * ----------------------------------------------- */
 
 @media (width < 640px) {
+
+	.aa-sticky-cart {
+		--aa-sticky-cart-height: 6rem;
+	}
 
 	.aa-sticky-cart__inner {
 		flex-wrap: wrap;
@@ -180,15 +241,20 @@
 		max-width: none;
 	}
 
+	.aa-sticky-cart__quantity {
+		flex-shrink: 0;
+	}
+
 	.aa-sticky-cart__button {
 		flex: 0 0 auto;
 	}
 }
 
-/* Hide variant selectors on very small screens if too cramped. */
+/* Hide variant + quantity selectors on very small screens if too cramped. */
 @media (width < 380px) {
 
-	.aa-sticky-cart__variants {
+	.aa-sticky-cart__variants,
+	.aa-sticky-cart__quantity {
 		display: none;
 	}
 }
@@ -204,6 +270,10 @@
 	}
 
 	.aa-sticky-cart__button {
+		transition: none;
+	}
+
+	.aa-sticky-cart__qty-btn {
 		transition: none;
 	}
 }

@@ -194,7 +194,7 @@ class Product_Tabs {
 		// Extract tab content from panels.
 		foreach ( $titles as $tab_info ) {
 			// Sanitize the ID for safe use in XPath — strip anything outside [a-zA-Z0-9_-].
-			$safe_id = preg_replace( '/[^a-zA-Z0-9_-]/', '', $tab_info['id'] );
+			$safe_id = (string) preg_replace( '/[^a-zA-Z0-9_-]/', '', $tab_info['id'] );
 			$panel   = $xpath->query( '//*[@id="' . $safe_id . '"]' );
 			if ( $panel && $panel->length > 0 ) {
 				$panel_node = $panel->item( 0 );
@@ -216,9 +216,12 @@ class Product_Tabs {
 						$inner_html .= $doc->saveHTML( $child );
 					}
 				}
+				// Use WC's original tab slug (e.g. "tab-reviews") stripped of "tab-" prefix
+				// for stable IDs that don't change with review count.
+				$slug   = (string) preg_replace( '/^tab-/', '', $safe_id );
 				$tabs[] = array(
 					'title'   => $tab_info['title'],
-					'id'      => sanitize_title( $tab_info['title'] ),
+					'id'      => $slug,
 					'content' => trim( $inner_html ),
 				);
 			}
@@ -234,18 +237,19 @@ class Product_Tabs {
 	 * @return string HTML.
 	 */
 	private function render_accordion( array $tabs ): string {
-		$html = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs">';
+		$html = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initHashNav">';
 
 		foreach ( $tabs as $index => $tab ) {
 			$open  = 0 === $index ? ' open' : '';
 			$html .= sprintf(
-				'<details class="aa-product-info__section"%s>' .
+				'<details class="aa-product-info__section" id="pi-%s"%s>' .
 				'<summary class="aa-product-info__heading" data-wp-on--click="actions.toggleAccordion">' .
 				'<span>%s</span>' .
 				'<svg class="aa-product-info__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' .
 				'</summary>' .
 				'<div class="aa-product-info__content">%s</div>' .
 				'</details>',
+				esc_attr( $tab['id'] ),
 				$open,
 				esc_html( $tab['title'] ),
 				$this->kses_tab_content( $tab['content'] ),
@@ -290,7 +294,7 @@ class Product_Tabs {
 	private function render_modern_tabs( array $tabs ): string {
 		$context = (string) wp_json_encode( array( 'tabCount' => count( $tabs ) ) );
 
-		$html  = '<div class="woocommerce aa-product-info aa-product-info--modern-tabs" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-context=\'' . esc_attr( $context ) . '\'>';
+		$html  = '<div class="woocommerce aa-product-info aa-product-info--modern-tabs" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.initHashNav">';
 		$html .= '<nav class="aa-product-info__tab-nav" role="tablist" aria-label="' . esc_attr__( 'Product information', 'aggressive-apparel' ) . '">';
 
 		foreach ( $tabs as $index => $tab ) {
@@ -298,7 +302,7 @@ class Product_Tabs {
 			$selected    = 0 === $index ? 'true' : 'false';
 			$tabindex    = 0 === $index ? '0' : '-1';
 			$html       .= sprintf(
-				'<button role="tab" id="tab-%s" aria-selected="%s" aria-controls="panel-%s" tabindex="%s" ' .
+				'<button role="tab" id="tab-%s" aria-selected="%s" aria-controls="pi-%s" tabindex="%s" ' .
 				'data-wp-context=\'%s\' ' .
 				'data-wp-on--click="actions.selectTab" ' .
 				'data-wp-on--keydown="actions.handleTabKeydown" ' .
@@ -321,7 +325,7 @@ class Product_Tabs {
 			$panel_context = (string) wp_json_encode( array( 'tabIndex' => $index ) );
 			$hidden        = 0 === $index ? '' : ' hidden';
 			$html         .= sprintf(
-				'<div role="tabpanel" id="panel-%s" aria-labelledby="tab-%s" tabindex="0" ' .
+				'<div role="tabpanel" id="pi-%s" aria-labelledby="tab-%s" tabindex="0" ' .
 				'class="aa-product-info__tab-panel" ' .
 				'data-wp-context=\'%s\' ' .
 				'data-wp-bind--hidden="!state.isPanelVisible"%s>' .

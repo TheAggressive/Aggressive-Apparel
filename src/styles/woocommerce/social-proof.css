@@ -11,6 +11,7 @@
 	left: 1.5rem;
 	z-index: 99998;
 	pointer-events: none;
+	transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .aggressive-apparel-social-proof__link {
@@ -136,5 +137,42 @@
 
 	.aggressive-apparel-social-proof__toast {
 		max-width: 100%;
+	}
+}
+
+/* -----------------------------------------------
+ * Reduced motion
+ * ----------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-social-proof {
+		transition: none;
+	}
+}
+
+/* -----------------------------------------------
+ * Offset when sticky add-to-cart is visible
+ * ----------------------------------------------- */
+
+@supports selector(:has(*)) {
+
+	body:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
+		bottom: calc(1.5rem + var(--aa-sticky-cart-height, 3.75rem));
+	}
+
+	body.has-bottom-nav:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
+		bottom: calc(1.5rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
+	}
+
+	@media (width <= 480px) {
+
+		body:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
+			bottom: calc(0.75rem + var(--aa-sticky-cart-height, 3.75rem));
+		}
+
+		body.has-bottom-nav:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
+			bottom: calc(0.75rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
+		}
 	}
 }

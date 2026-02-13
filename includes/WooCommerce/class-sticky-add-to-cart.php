@@ -101,6 +101,7 @@ class Sticky_Add_To_Cart {
 					'attributes'         => $product_data['attributes'],
 					'selectedAttrs'      => $product_data['default_attrs'],
 					'matchedVariationId' => 0,
+					'quantity'           => 1,
 				),
 			);
 		}
@@ -152,6 +153,30 @@ class Sticky_Add_To_Cart {
 						</div>
 					<?php endif; ?>
 
+					<div class="aa-sticky-cart__quantity">
+						<button
+							type="button"
+							class="aa-sticky-cart__qty-btn"
+							data-wp-on--click="actions.decrementQty"
+							aria-label="<?php esc_attr_e( 'Decrease quantity', 'aggressive-apparel' ); ?>"
+						>&minus;</button>
+						<input
+							type="number"
+							class="aa-sticky-cart__qty-input"
+							min="1"
+							value="1"
+							data-wp-bind--value="state.quantity"
+							data-wp-on--change="actions.setQuantity"
+							aria-label="<?php esc_attr_e( 'Quantity', 'aggressive-apparel' ); ?>"
+						/>
+						<button
+							type="button"
+							class="aa-sticky-cart__qty-btn"
+							data-wp-on--click="actions.incrementQty"
+							aria-label="<?php esc_attr_e( 'Increase quantity', 'aggressive-apparel' ); ?>"
+						>&plus;</button>
+					</div>
+
 					<button
 						type="button"
 						class="aa-sticky-cart__button"
@@ -181,7 +206,7 @@ class Sticky_Add_To_Cart {
 	 */
 	private function get_product_data( \WC_Product $product ): array {
 		$data = array(
-			'price_html'    => wp_strip_all_tags( $product->get_price_html() ),
+			'price_html'    => html_entity_decode( wp_strip_all_tags( $product->get_price_html() ), ENT_QUOTES, 'UTF-8' ),
 			'variations'    => array(),
 			'attributes'    => array(),
 			'default_attrs' => array(),
@@ -204,7 +229,7 @@ class Sticky_Add_To_Cart {
 			$data['variations'][] = array(
 				'id'         => $variation->get_id(),
 				'attributes' => $variation->get_variation_attributes(),
-				'price'      => wp_strip_all_tags( $variation->get_price_html() ),
+				'price'      => html_entity_decode( wp_strip_all_tags( $variation->get_price_html() ), ENT_QUOTES, 'UTF-8' ),
 				'in_stock'   => $variation->is_in_stock(),
 			);
 		}

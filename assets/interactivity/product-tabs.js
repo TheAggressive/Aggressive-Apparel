@@ -223,6 +223,48 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
 
   callbacks: {
     /**
+     * Handle URL hash on page load — open the matching accordion
+     * section or switch to the matching modern-tab panel.
+     * Enables deep links like product-url/#pi-reviews.
+     */
+    initHashNav() {
+      const hash = window.location.hash?.slice(1);
+      if (!hash) return;
+
+      const { ref } = getElement();
+      if (!ref) return;
+
+      const target = document.getElementById(hash);
+      if (!target || !ref.contains(target)) return;
+
+      // Accordion: close others, open target.
+      if (ref.classList.contains('aa-product-info--accordion')) {
+        for (const details of ref.querySelectorAll('details[open]')) {
+          details.removeAttribute('open');
+        }
+        const details =
+          target.tagName === 'DETAILS' ? target : target.closest('details');
+        if (details) {
+          details.setAttribute('open', '');
+        }
+      }
+
+      // Modern tabs: switch to the target panel.
+      if (ref.classList.contains('aa-product-info--modern-tabs')) {
+        const panels = Array.from(ref.querySelectorAll('[role="tabpanel"]'));
+        const index = panels.indexOf(target);
+        if (index >= 0) {
+          state.activeTab = index;
+        }
+      }
+
+      // Scroll into view after layout settles.
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+      });
+    },
+
+    /**
      * Scrollspy: set up IntersectionObserver on mount.
      */
     initScrollspy() {
@@ -232,8 +274,15 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
       const sections = ref.querySelectorAll('.aa-product-info__section');
       if (!sections.length) return;
 
-      // Set initial active section.
-      if (sections[0] && sections[0].id) {
+      // Set initial active section (prefer URL hash if it matches).
+      const hash = window.location.hash?.slice(1);
+      const hashTarget = hash && ref.querySelector(`#${CSS.escape(hash)}`);
+      if (hashTarget) {
+        state.activeSection = hashTarget.id;
+        requestAnimationFrame(() => {
+          hashTarget.scrollIntoView({ block: 'start', behavior: 'auto' });
+        });
+      } else if (sections[0] && sections[0].id) {
         state.activeSection = sections[0].id;
       }
 

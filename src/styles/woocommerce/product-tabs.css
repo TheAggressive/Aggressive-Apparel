@@ -25,6 +25,7 @@
 
 .aa-product-info__content {
 	padding: var(--aa-pi-gap) 0;
+	overflow-wrap: break-word;
 }
 
 .aa-product-info__content > *:first-child {
@@ -447,6 +448,61 @@
 .aa-product-info .comment-form input[type="email"] {
 	width: 100%;
 	max-width: 100%;
+}
+
+/* ===================================================================
+ * Mobile
+ * =================================================================== */
+
+@media (width < 768px) {
+
+	/* Tighten spacing */
+	.aa-product-info {
+		--aa-pi-gap: 1.125rem;
+	}
+
+	/* Modern tabs: compact buttons so more fit on screen */
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav {
+		gap: 0;
+		scroll-snap-type: x mandatory;
+	}
+
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
+		padding: 0.75rem 0.875rem;
+		font-size: 0.8125rem;
+		scroll-snap-align: start;
+	}
+
+	/* Horizontal scroll hint — fade trailing edge regardless of background */
+	.aa-product-info--modern-tabs .aa-product-info__tab-nav,
+	.aa-product-info--scrollspy .aa-product-info__sidebar {
+		mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+	}
+
+	/* Review comments: stack avatar + text */
+	.aa-product-info .commentlist .comment_container {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.aa-product-info .commentlist .comment_container > img {
+		width: 40px;
+		height: 40px;
+	}
+}
+
+/* Content overflow: prevent tables from breaking layout */
+.aa-product-info__content table {
+	width: 100%;
+	table-layout: auto;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
+.aa-product-info__content .shop_attributes th,
+.aa-product-info__content .shop_attributes td {
+	padding: 0.5rem 0.75rem;
+	text-align: left;
 }
 
 /* ===================================================================

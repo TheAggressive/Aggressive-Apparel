@@ -1,3 +1,30 @@
+# [1.17.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.16.0...v1.17.0) (2026-02-13)
+
+
+### Bug Fixes
+
+* update QA script in package.json to include PHPStan analysis ([f5b99eb](https://github.com/TheAggressive/Aggressive-Apparel/commit/f5b99eb3c69cb556e623f9ae696e5a2d22c49631))
+
+
+### Features
+
+* add E-Commerce Navigation block with advanced features ([a007796](https://github.com/TheAggressive/Aggressive-Apparel/commit/a007796029984aaaa48f31fe4ba6000508ee29ce))
+* add interactivity features for enhanced user engagement ([71ab10b](https://github.com/TheAggressive/Aggressive-Apparel/commit/71ab10b9d6e2c09d2c901d0d624cc757d99497c7))
+* enhance navigation components with customizable panel styles and attributes ([9f8e3fa](https://github.com/TheAggressive/Aggressive-Apparel/commit/9f8e3fa767cb815482b192383a2d5133afebf131))
+* enhance navigation panel with new components and improved functionality ([5b44be9](https://github.com/TheAggressive/Aggressive-Apparel/commit/5b44be90a0a44b8ab1987c1570e8639ae5488bd2))
+* enhance navigation submenu with customizable styles and context support ([cd812e4](https://github.com/TheAggressive/Aggressive-Apparel/commit/cd812e4552725402c66221a822c2bd9b927425b8))
+* enhance quick view component with new state getters and stock status feature ([2bf5d29](https://github.com/TheAggressive/Aggressive-Apparel/commit/2bf5d2964e1c90f3f029df70803f1a141cf7606b))
+* enhance quick view functionality with event handling improvements ([092e6c6](https://github.com/TheAggressive/Aggressive-Apparel/commit/092e6c6897c65289a142447ca1f9bd18137fdd3c))
+* enhance social proof component with new features and improved interactivity ([8173554](https://github.com/TheAggressive/Aggressive-Apparel/commit/817355433397c7ef65b1a80b30ff5758766f165b))
+* implement back-in-stock notification system for WooCommerce ([3315b37](https://github.com/TheAggressive/Aggressive-Apparel/commit/3315b37e77450becdac752114d1275ea249e6ef7))
+* implement product tabs interactivity and styles ([4e750cf](https://github.com/TheAggressive/Aggressive-Apparel/commit/4e750cfdc58e5692f243b4395821cbe9a98e135c))
+* increase notification limits and enhance randomness in social proof component ([44a5db3](https://github.com/TheAggressive/Aggressive-Apparel/commit/44a5db3512d371f88e082fce7ac07937c06a7136))
+* introduce copyright block for dynamic copyright notices ([18e896b](https://github.com/TheAggressive/Aggressive-Apparel/commit/18e896b42e956e63abd93b50547522ba66321749))
+* introduce new navigation components and enhance existing functionality ([6977e0b](https://github.com/TheAggressive/Aggressive-Apparel/commit/6977e0b8b91167cbcb02df487516af1c763cb7ad))
+* introduce size guide functionality with custom post type and enhancements ([3de3d60](https://github.com/TheAggressive/Aggressive-Apparel/commit/3de3d602eac6a3cca6a0bbff2925d4046acd2089))
+* introduce Ticker block for dynamic content display ([6a00276](https://github.com/TheAggressive/Aggressive-Apparel/commit/6a002761ece224dce1cf771768ea8d73ac2416d1))
+* update dependencies and enhance block categories with new sections ([492309f](https://github.com/TheAggressive/Aggressive-Apparel/commit/492309f06b7beee981310f50b2942b6671e7b343))
+
 # [1.16.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.15.0...v1.16.0) (2025-12-27)
 
 

@@ -67,7 +67,7 @@ class Feature_Settings {
 			),
 			'product_tabs'               => array(
 				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
-				'description' => __( 'Add custom tabs (Care Instructions, Shipping, Sustainability) to product pages.', 'aggressive-apparel' ),
+				'description' => __( 'Replace default WooCommerce tabs with 4 display styles (accordion, inline, modern tabs, scrollspy) and add custom tabs.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
 			'free_shipping_bar'          => array(

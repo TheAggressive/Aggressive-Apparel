@@ -64,6 +64,7 @@
 	position: absolute;
 	inset: 0;
 	background-color: rgb(0 0 0 / 0%);
+	backdrop-filter: blur(4px);
 	transition: background-color var(--quick-view-animation-duration) var(--quick-view-animation-timing);
 
 	.is-open & {
@@ -767,5 +768,83 @@
 		background-color: var(--wp--preset--color--white, #fff);
 		border-top: 1px solid color-mix(in oklch, currentcolor 10%, transparent);
 		z-index: 10;
+	}
+}
+
+/* ========================================
+ * @starting-style ENTRY ANIMATIONS
+ * Smooth entry from display:none → visible.
+ * ======================================== */
+@supports selector(@starting-style) {
+
+	.aggressive-apparel-quick-view {
+		transition: display var(--quick-view-animation-duration) allow-discrete;
+	}
+
+	@starting-style {
+
+		.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__modal {
+			opacity: 0;
+			transform: scale(0.95) translateY(20px);
+		}
+
+		.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__backdrop {
+			background-color: rgb(0 0 0 / 0%);
+		}
+	}
+}
+
+/* ========================================
+ * CONTENT STAGGER
+ * Details children animate in sequentially.
+ * ======================================== */
+@media (prefers-reduced-motion: no-preference) {
+
+	.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__details > * {
+		animation: qv-stagger-in 0.4s ease both;
+		animation-delay: calc(var(--stagger-index, 0) * 60ms);
+	}
+
+	.aggressive-apparel-quick-view__details > :nth-child(1) { --stagger-index: 0; }
+
+	.aggressive-apparel-quick-view__details > :nth-child(2) { --stagger-index: 1; }
+
+	.aggressive-apparel-quick-view__details > :nth-child(3) { --stagger-index: 2; }
+
+	.aggressive-apparel-quick-view__details > :nth-child(4) { --stagger-index: 3; }
+
+	.aggressive-apparel-quick-view__details > :nth-child(5) { --stagger-index: 4; }
+
+	.aggressive-apparel-quick-view__details > :nth-child(6) { --stagger-index: 5; }
+
+	@keyframes qv-stagger-in {
+
+		from {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+}
+
+/* ========================================
+ * REDUCED MOTION
+ * Disable all quick view animations.
+ * ======================================== */
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-quick-view__backdrop {
+		backdrop-filter: none;
+		transition: none;
+	}
+
+	.aggressive-apparel-quick-view__details > * {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
 	}
 }

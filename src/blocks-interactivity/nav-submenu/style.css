@@ -387,7 +387,7 @@
 @supports (backdrop-filter: blur(1px)) {
 
   .wp-block-aggressive-apparel-nav-submenu__panel {
-    background: rgb(255 255 255 / 90%);
+    background: color-mix(in srgb, var(--submenu-bg) 90%, transparent);
     backdrop-filter: blur(16px) saturate(180%);
 
     /* Border only applied when custom values are set via Nav Menu settings */
@@ -407,7 +407,7 @@
   @media (prefers-color-scheme: dark) {
 
     .wp-block-aggressive-apparel-nav-submenu__panel {
-      background: rgb(0 0 0 / 80%);
+      background: color-mix(in srgb, var(--submenu-bg) 80%, transparent);
       border-color: var(--panel-border-color, rgb(255 255 255 / 10%));
     }
 

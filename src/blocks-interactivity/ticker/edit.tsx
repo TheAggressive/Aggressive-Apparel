@@ -38,6 +38,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   const innerBlocksProps = useInnerBlocksProps(
     {
       className: 'ticker-editor__content',
+      style: { gap: `${attributes.gap}px` },
     },
     {
       orientation: 'horizontal' as const,

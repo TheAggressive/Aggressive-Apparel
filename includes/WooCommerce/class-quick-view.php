@@ -185,7 +185,6 @@ class Quick_View {
 			id="aggressive-apparel-quick-view"
 			class="aggressive-apparel-quick-view"
 			data-wp-interactive="aggressive-apparel/quick-view"
-			data-wp-bind--hidden="state.isClosed"
 			data-wp-class--is-open="state.isOpen"
 			data-wp-on-document--keydown="actions.handleKeydown"
 			hidden

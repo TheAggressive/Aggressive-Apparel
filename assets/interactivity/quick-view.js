@@ -105,7 +105,7 @@ function buildGalleryImages(product) {
   return product.images.map((img, index) => ({
     id: img.id || index,
     src: img.src,
-    alt: img.alt || product.name,
+    alt: stripTags(img.alt || product.name),
     thumbnail: img.thumbnail || img.src,
   }));
 }
@@ -560,10 +560,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     // Negated getters for data-wp-bind--hidden directives.
-    get isClosed() {
-      return !state.isOpen;
-    },
-
     get isNotLoading() {
       return !state.isLoading;
     },
@@ -673,6 +669,14 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       // Store the trigger element for focus restoration.
       triggerElement = event?.target?.closest('button') || null;
 
+      // Remove hidden and force a reflow so the browser renders the
+      // "before" state (opacity 0, scale 0.95) before .is-open is added.
+      const modalEl = document.getElementById('aggressive-apparel-quick-view');
+      if (modalEl) {
+        modalEl.hidden = false;
+        void modalEl.offsetHeight; // eslint-disable-line no-void
+      }
+
       // Reset all state.
       state.isOpen = true;
       state.isLoading = true;
@@ -749,7 +753,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             return;
           }
 
-          state.productName = data.name;
+          state.productName = stripTags(data.name);
           state.productLink = data.permalink || '#';
           state.productDescription = pickDescription(data);
           state.productType = data.type || 'simple';
@@ -761,7 +765,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           // Fallback for single image.
           if (data.images && data.images.length > 0) {
             state.productImage = data.images[0].src;
-            state.productImageAlt = data.images[0].alt || data.name;
+            state.productImageAlt = stripTags(data.images[0].alt || data.name);
           }
 
           // Price.
@@ -832,6 +836,16 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         triggerElement.focus();
         triggerElement = null;
       }
+
+      // Delay hiding until the close transition finishes (300ms).
+      setTimeout(() => {
+        if (!state.isOpen) {
+          const modalEl = document.getElementById(
+            'aggressive-apparel-quick-view'
+          );
+          if (modalEl) modalEl.hidden = true;
+        }
+      }, 300);
     },
 
     selectAttribute() {
@@ -1093,8 +1107,17 @@ function syncModalDOM() {
   if (!el) {
     return;
   }
-  el.hidden = !state.isOpen;
-  el.classList.toggle('is-open', state.isOpen);
+
+  if (state.isOpen) {
+    el.hidden = false;
+    void el.offsetHeight; // force reflow so transition plays
+    el.classList.add('is-open');
+  } else {
+    el.classList.remove('is-open');
+    setTimeout(() => {
+      if (!state.isOpen) el.hidden = true;
+    }, 300);
+  }
 }
 
 // Event delegation: catch clicks on trigger buttons even if their

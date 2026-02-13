@@ -36,8 +36,6 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	justify-content: space-around;
-	min-width: 100%;
 	gap: var(--ticker-gap);
 	animation: ticker-scroll var(--ticker-duration) linear infinite;
 	animation-direction: var(--ticker-direction);

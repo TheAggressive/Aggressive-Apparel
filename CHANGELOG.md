@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.17.0...v1.18.0) (2026-02-13)
+
+
+### Features
+
+* enhance product tabs with accordion animations and accessibility improvements ([f28ee5e](https://github.com/TheAggressive/Aggressive-Apparel/commit/f28ee5eb903f7754f0f74d3df19c21a53b6bcbe3))
+
 # [1.17.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.16.0...v1.17.0) (2026-02-13)
 
 

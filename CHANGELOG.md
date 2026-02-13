@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.19.0...v1.20.0) (2026-02-13)
+
+
+### Features
+
+* enhance quick view functionality and styling ([78d8771](https://github.com/TheAggressive/Aggressive-Apparel/commit/78d87713d588a0a170a3a663d36b806208073917))
+
 # [1.19.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.18.0...v1.19.0) (2026-02-13)
 
 

@@ -13,6 +13,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
+import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -707,7 +708,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.salePercentage = 0;
       state.showPostCartActions = false;
       state.announcement = '';
-      document.body.style.overflow = 'hidden';
+      lockScroll();
 
       // Setup focus trap after modal renders.
       requestAnimationFrame(() => {
@@ -829,7 +830,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.cartError = '';
       state.showPostCartActions = false;
       state.announcement = '';
-      document.body.style.overflow = '';
 
       // Restore focus to trigger element.
       if (triggerElement) {
@@ -837,15 +837,35 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         triggerElement = null;
       }
 
-      // Delay hiding until the close transition finishes (300ms).
-      setTimeout(() => {
-        if (!state.isOpen) {
-          const modalEl = document.getElementById(
-            'aggressive-apparel-quick-view'
-          );
-          if (modalEl) modalEl.hidden = true;
-        }
-      }, 300);
+      // Unlock scroll + hide the instant the fade-out transition ends so
+      // the scrollbar doesn't reappear and shift layout mid-animation.
+      const modalEl = document.getElementById('aggressive-apparel-quick-view');
+      const panel = modalEl?.querySelector(
+        '.aggressive-apparel-quick-view__modal'
+      );
+
+      let done = false;
+      const finish = () => {
+        if (done || state.isOpen) return;
+        done = true;
+        unlockScroll();
+        if (modalEl) modalEl.hidden = true;
+      };
+
+      if (panel) {
+        panel.addEventListener(
+          'transitionend',
+          e => {
+            if (e.propertyName === 'opacity') finish();
+          },
+          { once: true }
+        );
+
+        // Safety fallback if transitionend never fires (reduced motion, etc.).
+        setTimeout(finish, 350);
+      } else {
+        finish();
+      }
     },
 
     selectAttribute() {

@@ -114,7 +114,7 @@ class Size_Guide {
 			wp_register_script_module(
 				'@aggressive-apparel/size-guide',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/size-guide.js',
-				array( '@wordpress/interactivity' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/size-guide' );
@@ -139,7 +139,7 @@ class Size_Guide {
 		echo '</button>';
 
 		// Modal.
-		echo '<div class="aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-label="' . esc_attr__( 'Size Guide', 'aggressive-apparel' ) . '" data-wp-bind--hidden="!context.isOpen" data-wp-class--is-open="context.isOpen" hidden>';
+		echo '<div class="aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-label="' . esc_attr__( 'Size Guide', 'aggressive-apparel' ) . '" data-wp-class--is-open="context.isOpen" hidden>';
 		echo '<div class="aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
 		echo '<div class="aggressive-apparel-size-guide__modal">';
 		echo '<div class="aggressive-apparel-size-guide__header">';

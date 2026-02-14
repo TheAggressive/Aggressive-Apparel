@@ -6,6 +6,10 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
+import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+
+/** @type {number} Matches the 0.3s CSS transition duration. */
+const TRANSITION_DURATION = 300;
 
 let triggerElement = null;
 let focusTrapCleanup = null;
@@ -51,11 +55,23 @@ store('aggressive-apparel/size-guide', {
   actions: {
     toggle() {
       const ctx = getContext();
-      ctx.isOpen = !ctx.isOpen;
-      document.body.style.overflow = ctx.isOpen ? 'hidden' : '';
 
-      if (ctx.isOpen) {
+      if (!ctx.isOpen) {
+        // --- Opening ---
         triggerElement = document.activeElement;
+        lockScroll();
+
+        // Remove hidden + force reflow so the browser renders the "before" state.
+        const overlay = document.querySelector(
+          '.aggressive-apparel-size-guide__overlay'
+        );
+        if (overlay) {
+          overlay.hidden = false;
+          void overlay.offsetHeight;
+        }
+
+        ctx.isOpen = true;
+
         requestAnimationFrame(() => {
           const modal = document.querySelector(
             '.aggressive-apparel-size-guide__modal'
@@ -69,21 +85,15 @@ store('aggressive-apparel/size-guide', {
           }
         });
       } else {
-        if (focusTrapCleanup) {
-          focusTrapCleanup();
-          focusTrapCleanup = null;
-        }
-        if (triggerElement) {
-          triggerElement.focus();
-          triggerElement = null;
-        }
+        // --- Closing (delegate to close action) ---
+        const { actions } = store('aggressive-apparel/size-guide');
+        actions.close();
       }
     },
 
     close() {
       const ctx = getContext();
       ctx.isOpen = false;
-      document.body.style.overflow = '';
 
       if (focusTrapCleanup) {
         focusTrapCleanup();
@@ -92,6 +102,37 @@ store('aggressive-apparel/size-guide', {
       if (triggerElement) {
         triggerElement.focus();
         triggerElement = null;
+      }
+
+      // Unlock scroll + hide the instant the fade-out transition ends.
+      const overlay = document.querySelector(
+        '.aggressive-apparel-size-guide__overlay'
+      );
+      const modal = overlay?.querySelector(
+        '.aggressive-apparel-size-guide__modal'
+      );
+
+      let done = false;
+      const finish = () => {
+        if (done || ctx.isOpen) return;
+        done = true;
+        unlockScroll();
+        if (overlay) overlay.hidden = true;
+      };
+
+      if (modal) {
+        modal.addEventListener(
+          'transitionend',
+          e => {
+            if (e.propertyName === 'opacity') finish();
+          },
+          { once: true }
+        );
+
+        // Safety fallback if transitionend never fires (reduced motion, etc.).
+        setTimeout(finish, TRANSITION_DURATION + 50);
+      } else {
+        finish();
       }
     },
   },

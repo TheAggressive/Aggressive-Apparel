@@ -63,7 +63,7 @@ class Mobile_Bottom_Nav {
 			wp_register_script_module(
 				'@aggressive-apparel/bottom-nav',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/bottom-nav.js',
-				array( '@wordpress/interactivity' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/bottom-nav' );

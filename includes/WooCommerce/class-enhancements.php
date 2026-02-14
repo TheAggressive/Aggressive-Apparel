@@ -36,6 +36,9 @@ class Enhancements {
 	 * @return void
 	 */
 	public function init(): void {
+		// Register shared utility modules that multiple features depend on.
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_shared_modules' ) );
+
 		// Provide defensive defaults for WooCommerce shared interactivity
 		// state. The product-button block's quantity getter crashes during
 		// hydrateRegions when the cart store data is missing, which aborts
@@ -130,6 +133,27 @@ class Enhancements {
 				( new Back_In_Stock_Admin() )->init();
 			}
 		}
+	}
+
+	/**
+	 * Register shared script modules used by multiple enhancement features.
+	 *
+	 * Modules registered here are loaded on-demand when a feature that
+	 * declares them as a dependency is enqueued.
+	 *
+	 * @return void
+	 */
+	public function register_shared_modules(): void {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		wp_register_script_module(
+			'@aggressive-apparel/scroll-lock',
+			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/scroll-lock.js',
+			array(),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
 	}
 
 	/**

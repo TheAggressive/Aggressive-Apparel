@@ -107,6 +107,7 @@ const { state } = store('aggressive-apparel/wishlist', {
     toggle() {
       const ctx = getContext();
       const idx = state.items.indexOf(ctx.productId);
+      const isAdding = idx === -1;
 
       if (idx !== -1) {
         // Remove — create a new array so the reactive system detects the change.
@@ -118,6 +119,15 @@ const { state } = store('aggressive-apparel/wishlist', {
 
       // Persist to localStorage.
       writeStorage(state.items);
+
+      // Trigger heartbeat animation when adding to wishlist.
+      // The reactive system applies .is-beating via data-wp-class--is-beating.
+      if (isAdding) {
+        ctx.justAdded = true;
+        setTimeout(() => {
+          ctx.justAdded = false;
+        }, 500);
+      }
     },
   },
 

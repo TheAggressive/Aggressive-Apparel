@@ -157,6 +157,31 @@ WooCommerce_Support →    class-woocommerce-support.php
 - Stylelint for linting
 - BEM-like naming for custom classes
 
+## Modal & Overlay Pattern
+
+All full-screen modals and overlays **must** follow this consistent pattern:
+
+### CSS
+
+1. **Animated backdrop blur**: Base state `backdrop-filter: blur(0)`, transitions to `blur(4px)` on open. Both `background-color` and `backdrop-filter` are in the `transition` list so they animate in and out smoothly.
+2. **`@starting-style`** for entry animation: Wrapped in `@supports selector(@starting-style)`. Defines the initial state (opacity 0, transform, blur 0) so the browser has a "before" state to transition from.
+3. **`prefers-reduced-motion: reduce`**: Disables all transitions, animations, and `backdrop-filter`.
+4. **`[hidden]` override**: `display: none` to ensure the hidden attribute works with flex/grid containers.
+
+### JavaScript
+
+1. **`lockScroll()` on open** (from `@aggressive-apparel/scroll-lock`): Called immediately when opening.
+2. **`unlockScroll()` deferred to `transitionend`** on close: Listen for `transitionend` with `propertyName === 'opacity'` on the modal/panel element. Include a safety `setTimeout` fallback (~50ms after expected duration) for reduced motion or edge cases. Use a `done` flag to prevent double execution.
+3. **`hidden` attribute managed manually**: Remove `hidden` + force reflow (`void el.offsetHeight`) before setting open state. Set `hidden = true` inside the same `finish()` callback as `unlockScroll()`.
+
+### Current Implementations
+
+| Component | CSS | JS | Backdrop Opacity |
+|-----------|-----|-----|-----------------|
+| Quick View | `quick-view.css` | `quick-view.js` | 50% |
+| Size Guide | `size-guide.css` | `size-guide.js` | 80% |
+| Bottom Nav Search | `mobile-bottom-nav.css` | `bottom-nav.js` | 50% |
+
 ## Testing
 
 ### Test Suites

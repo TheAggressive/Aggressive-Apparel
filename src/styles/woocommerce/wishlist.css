@@ -58,6 +58,28 @@
 	transition: fill 0.15s ease, stroke 0.15s ease;
 }
 
+/* Heartbeat animation on like. */
+@media (prefers-reduced-motion: no-preference) {
+
+	.aggressive-apparel-wishlist__toggle.is-beating .aggressive-apparel-wishlist__icon {
+		animation: wishlist-heartbeat 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+		transform-origin: center;
+	}
+
+	@keyframes wishlist-heartbeat {
+
+		0% { transform: scale(1); }
+
+		14% { transform: scale(1.35); }
+
+		28% { transform: scale(0.95); }
+
+		42% { transform: scale(1.25); }
+
+		56% { transform: scale(1); }
+	}
+}
+
 .aggressive-apparel-wishlist__toggle--large .aggressive-apparel-wishlist__icon {
 	width: 1.25rem;
 	height: 1.25rem;

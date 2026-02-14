@@ -8,6 +8,37 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+
+/** @type {number} Matches the 0.3s CSS transition duration. */
+const TRANSITION_DURATION = 300;
+
+/**
+ * Defer unlockScroll until the search panel fade-out finishes.
+ */
+function deferUnlock() {
+  const panel = document.querySelector('.aa-bottom-nav__search-panel');
+
+  let done = false;
+  const finish = () => {
+    if (done || state.isSearchOpen) return;
+    done = true;
+    unlockScroll();
+  };
+
+  if (panel) {
+    panel.addEventListener(
+      'transitionend',
+      e => {
+        if (e.propertyName === 'opacity') finish();
+      },
+      { once: true }
+    );
+    setTimeout(finish, TRANSITION_DURATION + 50);
+  } else {
+    finish();
+  }
+}
 
 const { state, actions } = store('aggressive-apparel/bottom-nav', {
   state: {
@@ -24,7 +55,7 @@ const { state, actions } = store('aggressive-apparel/bottom-nav', {
       state.isSearchOpen = !state.isSearchOpen;
 
       if (state.isSearchOpen) {
-        document.body.style.overflow = 'hidden';
+        lockScroll();
 
         // Focus the search input after a brief delay for DOM update.
         requestAnimationFrame(() => {
@@ -32,13 +63,13 @@ const { state, actions } = store('aggressive-apparel/bottom-nav', {
           if (input) input.focus();
         });
       } else {
-        document.body.style.overflow = '';
+        deferUnlock();
       }
     },
 
     closeSearch() {
       state.isSearchOpen = false;
-      document.body.style.overflow = '';
+      deferUnlock();
     },
 
     refreshCartCount() {

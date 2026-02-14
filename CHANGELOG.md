@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.21.0...v1.22.0) (2026-02-14)
+
+
+### Features
+
+* add shared helpers for interactivity API utilities ([34b9f1b](https://github.com/TheAggressive/Aggressive-Apparel/commit/34b9f1be7a30822ab7433fae1637d5794f0ffbc0))
+
 # [1.21.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.20.0...v1.21.0) (2026-02-14)
 
 

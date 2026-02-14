@@ -126,7 +126,7 @@ const { state } = store('aggressive-apparel/wishlist', {
         ctx.justAdded = true;
         setTimeout(() => {
           ctx.justAdded = false;
-        }, 500);
+        }, 800);
       }
     },
   },

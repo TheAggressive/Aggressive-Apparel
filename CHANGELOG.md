@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.22.0...v1.23.0) (2026-02-14)
+
+
+### Features
+
+* implement AJAX product filters with customizable layouts ([8cf1d59](https://github.com/TheAggressive/Aggressive-Apparel/commit/8cf1d592130cd35b8b1c6217f837c84daa6e87ce))
+
 # [1.22.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.21.0...v1.22.0) (2026-02-14)
 
 

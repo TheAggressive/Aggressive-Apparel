@@ -75,8 +75,8 @@ class Enhancements {
 			( new Mini_Cart_Enhancements() )->init();
 		}
 
-		if ( Feature_Settings::is_enabled( 'filter_styling' ) ) {
-			( new Product_Filter_Styling() )->init();
+		if ( Feature_Settings::is_enabled( 'product_filters' ) ) {
+			( new Product_Filters() )->init();
 		}
 
 		if ( Feature_Settings::is_enabled( 'page_transitions' ) ) {

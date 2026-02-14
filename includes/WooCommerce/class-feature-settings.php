@@ -49,6 +49,13 @@ class Feature_Settings {
 	private const SETTINGS_GROUP = 'aggressive_apparel_features_group';
 
 	/**
+	 * Option key for the product filter layout.
+	 *
+	 * @var string
+	 */
+	public const FILTER_LAYOUT_OPTION = 'aggressive_apparel_filter_layout';
+
+	/**
 	 * Feature definitions with metadata.
 	 *
 	 * @return array<string, array{label: string, description: string, section: string}>
@@ -85,10 +92,10 @@ class Feature_Settings {
 				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
 				'section'     => 'css',
 			),
-			'filter_styling'             => array(
-				'label'       => __( 'Product Filter Styling', 'aggressive-apparel' ),
-				'description' => __( 'Style native product filter blocks with color swatch integration.', 'aggressive-apparel' ),
-				'section'     => 'css',
+			'product_filters'            => array(
+				'label'       => __( 'Product Filters', 'aggressive-apparel' ),
+				'description' => __( 'AJAX product filters with categories, color swatches, sizes, price range, and stock status.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
 			),
 			'page_transitions'           => array(
 				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
@@ -227,6 +234,25 @@ class Feature_Settings {
 				),
 			);
 		}
+
+		// Product filter layout sub-setting.
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::FILTER_LAYOUT_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'drawer',
+				'sanitize_callback' => array( $this, 'sanitize_filter_layout' ),
+			)
+		);
+
+		add_settings_field(
+			'filter_layout',
+			__( 'Filter Layout', 'aggressive-apparel' ),
+			array( $this, 'render_filter_layout_field' ),
+			self::PAGE_SLUG,
+			'aggressive_apparel_features_interactive',
+		);
 	}
 
 	/**
@@ -286,6 +312,43 @@ class Feature_Settings {
 
 		echo '</form>';
 		echo '</div>';
+	}
+
+	/**
+	 * Sanitize the filter layout option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized layout value.
+	 */
+	public function sanitize_filter_layout( $input ): string {
+		$valid = array( 'drawer', 'sidebar', 'horizontal' );
+		return in_array( $input, $valid, true ) ? $input : 'drawer';
+	}
+
+	/**
+	 * Render the filter layout select field.
+	 *
+	 * @return void
+	 */
+	public function render_filter_layout_field(): void {
+		$layout  = get_option( self::FILTER_LAYOUT_OPTION, 'drawer' );
+		$options = array(
+			'drawer'     => __( 'Drawer (slide-out panel)', 'aggressive-apparel' ),
+			'sidebar'    => __( 'Sidebar (persistent column)', 'aggressive-apparel' ),
+			'horizontal' => __( 'Horizontal Bar (dropdown filters)', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::FILTER_LAYOUT_OPTION ) );
+		foreach ( $options as $value => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $value ),
+				selected( $layout, $value, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

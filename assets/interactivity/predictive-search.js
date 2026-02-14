@@ -8,25 +8,10 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { parsePrice } from '@aggressive-apparel/helpers';
 
 let debounceTimer = null;
 let abortController = null;
-
-/**
- * Parse a Store API price (minor units) to display string.
- *
- * @param {Object} prices Store API prices object.
- * @return {string} Formatted price string.
- */
-function parsePrice(prices) {
-  if (!prices) return '';
-  const minorUnit = prices.currency_minor_unit ?? 2;
-  const divisor = Math.pow(10, minorUnit);
-  const prefix = prices.currency_prefix ?? '$';
-  const suffix = prices.currency_suffix ?? '';
-  const val = (parseInt(prices.price, 10) / divisor).toFixed(minorUnit);
-  return `${prefix}${val}${suffix}`;
-}
 
 const { state, actions } = store('aggressive-apparel/predictive-search', {
   state: {
@@ -156,7 +141,7 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
             name: p.name,
             permalink: p.permalink,
             thumbnail: p.images?.[0]?.thumbnail || p.images?.[0]?.src || '',
-            price: parsePrice(p.prices),
+            price: parsePrice(p.prices).current,
           }));
 
           // Extract unique categories from results.

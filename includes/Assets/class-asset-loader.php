@@ -56,15 +56,15 @@ class Asset_Loader {
 	/**
 	 * Enqueue script with asset data
 	 *
-	 * Automatically reads dependencies and version from .asset.php file
+	 * Automatically reads dependencies and version from .asset.php file.
+	 * Uses defer strategy for non-blocking loading (WordPress 6.3+).
 	 *
 	 * @param string $handle         Script handle.
 	 * @param string $src            Path to script file relative to theme root.
 	 * @param array  $additional_deps Additional dependencies not in asset file.
-	 * @param bool   $in_footer       Whether to enqueue in footer.
 	 * @return void
 	 */
-	public static function enqueue_script( $handle, $src, $additional_deps = array(), $in_footer = true ) {
+	public static function enqueue_script( $handle, $src, $additional_deps = array() ) {
 		$asset_data = self::get_asset_data( $src );
 
 		$dependencies = array_merge( $asset_data['dependencies'], $additional_deps );
@@ -74,7 +74,10 @@ class Asset_Loader {
 			aggressive_apparel_asset_uri( $src . '.js' ),
 			$dependencies,
 			$asset_data['version'],
-			$in_footer
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
 	}
 

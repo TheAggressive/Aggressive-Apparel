@@ -7,49 +7,13 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+import { setupFocusTrap } from '@aggressive-apparel/helpers';
 
 /** @type {number} Matches the 0.3s CSS transition duration. */
 const TRANSITION_DURATION = 300;
 
 let triggerElement = null;
 let focusTrapCleanup = null;
-
-/**
- * Setup focus trap within a container element.
- *
- * @param {HTMLElement} container - The container to trap focus within.
- * @return {Function} Cleanup function to remove the trap.
- */
-function setupFocusTrap(container) {
-  const FOCUSABLE =
-    'a[href], button:not([disabled]), input:not([disabled]), ' +
-    'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-  const handler = e => {
-    if (e.key !== 'Tab') {
-      return;
-    }
-    const focusable = Array.from(container.querySelectorAll(FOCUSABLE)).filter(
-      el => !el.closest('[hidden]')
-    );
-    if (focusable.length === 0) {
-      e.preventDefault();
-      return;
-    }
-    const idx = focusable.indexOf(document.activeElement);
-    let next;
-    if (e.shiftKey) {
-      next = idx <= 0 ? focusable.length - 1 : idx - 1;
-    } else {
-      next = idx >= focusable.length - 1 ? 0 : idx + 1;
-    }
-    e.preventDefault();
-    focusable[next].focus();
-  };
-
-  container.addEventListener('keydown', handler);
-  return () => container.removeEventListener('keydown', handler);
-}
 
 store('aggressive-apparel/size-guide', {
   actions: {

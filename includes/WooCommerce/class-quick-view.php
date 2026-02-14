@@ -61,7 +61,7 @@ class Quick_View {
 			wp_register_script_module(
 				'@aggressive-apparel/quick-view',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/quick-view.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/quick-view' );

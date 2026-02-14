@@ -154,6 +154,13 @@ class Enhancements {
 			array(),
 			AGGRESSIVE_APPAREL_VERSION,
 		);
+
+		wp_register_script_module(
+			'@aggressive-apparel/helpers',
+			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/helpers.js',
+			array(),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
 	}
 
 	/**

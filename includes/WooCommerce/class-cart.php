@@ -72,7 +72,10 @@ class Cart {
 			$theme_uri . '/build/scripts/cart.js',
 			array( 'jquery' ),
 			$version,
-			true
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
 	}
 }

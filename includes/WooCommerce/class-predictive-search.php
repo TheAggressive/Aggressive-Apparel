@@ -62,7 +62,7 @@ class Predictive_Search {
 			wp_register_script_module(
 				'@aggressive-apparel/predictive-search',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/predictive-search.js',
-				array( '@wordpress/interactivity' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/helpers' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/predictive-search' );

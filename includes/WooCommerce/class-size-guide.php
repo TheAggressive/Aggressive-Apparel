@@ -69,6 +69,20 @@ class Size_Guide {
 	private const NONCE_NAME = 'aa_size_guide_nonce';
 
 	/**
+	 * Transient prefix for cached size guide content.
+	 *
+	 * @var string
+	 */
+	private const CACHE_PREFIX = 'aa_sg_';
+
+	/**
+	 * Cache TTL in seconds (15 minutes).
+	 *
+	 * @var int
+	 */
+	private const CACHE_TTL = 900;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -88,6 +102,9 @@ class Size_Guide {
 		add_action( 'product_cat_edit_form_fields', array( $this, 'render_category_edit_field' ), 20 );
 		add_action( 'created_product_cat', array( $this, 'save_category_field' ) );
 		add_action( 'edited_product_cat', array( $this, 'save_category_field' ) );
+
+		// Invalidate cache when size guide CPT posts are updated.
+		add_action( 'save_post_' . Size_Guide_Post_Type::POST_TYPE, array( $this, 'flush_all_caches' ) );
 	}
 
 	/**
@@ -114,7 +131,7 @@ class Size_Guide {
 			wp_register_script_module(
 				'@aggressive-apparel/size-guide',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/size-guide.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/size-guide' );
@@ -155,7 +172,7 @@ class Size_Guide {
 	}
 
 	/**
-	 * Retrieve the size guide content for a product.
+	 * Retrieve the size guide content for a product, with transient caching.
 	 *
 	 * Priority: per-product CPT → per-product legacy → category CPT →
 	 * category legacy → global CPT → global legacy.
@@ -164,6 +181,29 @@ class Size_Guide {
 	 * @return string HTML content or empty string.
 	 */
 	private function get_size_guide_for_product( $product_id ): string {
+		if ( $product_id ) {
+			$cache_key = self::CACHE_PREFIX . $product_id;
+			$cached    = get_transient( $cache_key );
+			if ( is_string( $cached ) ) {
+				return $cached;
+			}
+
+			$content = $this->resolve_size_guide( $product_id );
+			set_transient( $cache_key, $content, self::CACHE_TTL );
+			return $content;
+		}
+
+		// No product ID — resolve global only.
+		return $this->resolve_size_guide( false );
+	}
+
+	/**
+	 * Resolve the size guide content without caching.
+	 *
+	 * @param int|false $product_id Product ID.
+	 * @return string HTML content or empty string.
+	 */
+	private function resolve_size_guide( $product_id ): string {
 		if ( $product_id ) {
 			// Per-product: CPT reference.
 			$cpt_id = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
@@ -349,6 +389,8 @@ class Size_Guide {
 		} else {
 			delete_post_meta( $post_id, self::CPT_META_KEY );
 		}
+
+		delete_transient( self::CACHE_PREFIX . $post_id );
 	}
 
 	/**
@@ -432,6 +474,29 @@ class Size_Guide {
 		} else {
 			delete_term_meta( $term_id, self::CPT_META_KEY );
 		}
+
+		// Category change affects all products in the category.
+		$this->flush_all_caches();
+	}
+
+	/**
+	 * Delete all size guide transient caches.
+	 *
+	 * Called when a size guide CPT is updated or a category assignment
+	 * changes, since those affect multiple products.
+	 *
+	 * @return void
+	 */
+	public function flush_all_caches(): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%'
+			)
+		);
 	}
 
 	/**

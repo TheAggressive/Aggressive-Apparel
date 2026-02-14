@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.20.0...v1.21.0) (2026-02-14)
+
+
+### Features
+
+* implement scroll lock utility and enhance modal interactions ([e55427c](https://github.com/TheAggressive/Aggressive-Apparel/commit/e55427ce796550975e3fe0a982b87dc795c99a2d))
+
 # [1.20.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.19.0...v1.20.0) (2026-02-13)
 
 

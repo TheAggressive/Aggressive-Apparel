@@ -89,14 +89,23 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function register_script_module(): void {
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/product-filters',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-filters.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
 		}
+
+		wp_register_script_module(
+			'@aggressive-apparel/product-filters',
+			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-filters.js',
+			array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
+
+		// Enqueue unconditionally so the module appears in the wp_head import
+		// map on shop pages. On non-shop pages the JS loads but does nothing
+		// because no data-wp-interactive directive exists in the HTML.
+		// CSS and interactivity state are still loaded conditionally in
+		// ensure_assets() so non-shop pages have zero visual/data cost.
+		wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 	}
 
 	/**
@@ -134,10 +143,6 @@ class Product_Filters {
 				array(),
 				(string) filemtime( $css_file ),
 			);
-		}
-
-		if ( function_exists( 'wp_enqueue_script_module' ) ) {
-			wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 		}
 
 		// Output interactivity state.

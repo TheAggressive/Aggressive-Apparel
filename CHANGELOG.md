@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.1...v1.24.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* enhance CSS enqueuing for product filters ([b9e8c0c](https://github.com/TheAggressive/Aggressive-Apparel/commit/b9e8c0c547c1161dd1b9da38aabc64e0bfebc1fb))
+
 ## [1.24.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.0...v1.24.1) (2026-02-15)
 
 

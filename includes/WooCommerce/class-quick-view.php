@@ -356,6 +356,12 @@ class Quick_View {
 							></span>
 						</div>
 
+						<!-- Short description (hidden on mobile to save space). -->
+						<p
+							class="aggressive-apparel-quick-view__description"
+							data-wp-text="state.productDescription"
+						></p>
+
 						<!-- Bottom group: attributes + cart actions pushed to bottom. -->
 						<div class="aggressive-apparel-quick-view__bottom-group">
 

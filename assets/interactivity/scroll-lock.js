@@ -12,6 +12,25 @@
 let lockCount = 0;
 
 /**
+ * Measure the real scrollbar width using a probe element.
+ *
+ * This is more reliable than `window.innerWidth - clientWidth` which can
+ * return incorrect non-zero values on mobile devices and in responsive
+ * dev-tools due to browser chrome, viewport scaling, or safe-area insets.
+ *
+ * @return {number} Scrollbar width in pixels (0 on overlay-scrollbar systems).
+ */
+function measureScrollbarWidth() {
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;right:0;overflow-y:scroll;visibility:hidden;pointer-events:none;';
+  document.body.appendChild(probe);
+  const width = probe.offsetWidth - probe.clientWidth;
+  probe.remove();
+  return width;
+}
+
+/**
  * Lock body scroll and compensate for scrollbar removal.
  *
  * Safe to call multiple times (nested overlays). The body stays locked
@@ -21,15 +40,20 @@ export function lockScroll() {
   lockCount++;
   if (lockCount !== 1) return;
 
-  const scrollbarWidth =
-    window.innerWidth - document.documentElement.clientWidth;
+  const scrollbarWidth = measureScrollbarWidth();
 
-  document.documentElement.style.setProperty(
-    '--scrollbar-width',
-    `${scrollbarWidth}px`
-  );
   document.body.style.overflow = 'hidden';
-  document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+  // Only compensate for the scrollbar if there actually is one.
+  // Mobile browsers use overlay scrollbars (width 0), so adding
+  // padding-right there is unnecessary and can cause layout issues.
+  if (scrollbarWidth > 0) {
+    document.documentElement.style.setProperty(
+      '--scrollbar-width',
+      `${scrollbarWidth}px`
+    );
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
 }
 
 /**

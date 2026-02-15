@@ -50,6 +50,7 @@
 
 	position: fixed;
 	inset: 0;
+	max-width: 100vw;
 	z-index: 100000;
 	display: flex;
 	align-items: center;
@@ -448,6 +449,25 @@
 	color: var(--wp--preset--color--primary, inherit);
 }
 
+/* Short description — hidden on small screens where space is tight. */
+.aggressive-apparel-quick-view__description {
+	margin: 0;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	opacity: 0.7;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+@media (width <= 768px) {
+
+	.aggressive-apparel-quick-view__description {
+		display: none;
+	}
+}
+
 /* Bottom group: attributes + actions pushed to bottom. */
 .aggressive-apparel-quick-view__bottom-group {
 	margin-top: auto;
@@ -811,6 +831,18 @@
 /* Mobile sticky footer. */
 @media (width <= 768px) {
 
+	/* Remove transform on mobile so position:fixed on the actions bar
+	   works correctly. A CSS transform creates a containing block that
+	   turns position:fixed into position:absolute relative to the
+	   transformed element. Entrance animation is opacity-only on mobile. */
+	.aggressive-apparel-quick-view__modal {
+		transform: none;
+	}
+
+	.is-open .aggressive-apparel-quick-view__modal {
+		transform: none;
+	}
+
 	.aggressive-apparel-quick-view__close {
 		width: 3rem;
 		height: 3rem;
@@ -853,6 +885,15 @@
 		.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__modal {
 			opacity: 0;
 			transform: scale(0.95) translateY(20px);
+		}
+
+		/* On mobile, skip the transform part of the entry animation
+		   (matches the mobile override that sets transform: none). */
+		@media (width <= 768px) {
+
+			.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__modal {
+				transform: none;
+			}
 		}
 
 		.aggressive-apparel-quick-view.is-open .aggressive-apparel-quick-view__backdrop {

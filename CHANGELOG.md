@@ -1,3 +1,11 @@
+# [1.25.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.2...v1.25.0) (2026-02-15)
+
+
+### Features
+
+* enhance quick view functionality with color swatches and thumbnail navigation ([67e5e51](https://github.com/TheAggressive/Aggressive-Apparel/commit/67e5e51b0ac81d9aeff0cf170e16dfc89f3cf506))
+* improve scroll-lock functionality and enhance quick view display ([f7bfd28](https://github.com/TheAggressive/Aggressive-Apparel/commit/f7bfd285ca5a36759b240c0db0d7f67fb03c7cd4))
+
 ## [1.24.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.1...v1.24.2) (2026-02-15)
 
 

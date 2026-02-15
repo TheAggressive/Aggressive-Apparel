@@ -121,24 +121,38 @@ function calculateSalePercentage(regularPrice, salePrice) {
  * @param {Object} product - Store API product response.
  * @return {Array} Array of `{ name, slug, options: [{ name, slug }] }`.
  */
-function buildAttributes(product) {
+function buildAttributes(product, colorSwatchData) {
   if (!product.attributes || product.attributes.length === 0) {
     return [];
   }
 
   const attrSlugFor = attr => attr.taxonomy || attr.name;
+  const isColor = slug => slug === 'pa_color' || slug === 'color';
 
   return product.attributes
     .filter(attr => attr.has_variations)
-    .map(attr => ({
-      name: attr.name,
-      slug: attrSlugFor(attr),
-      options: (attr.terms || []).map(term => ({
-        name: term.name,
-        slug: term.slug || term.name,
-        attrSlug: attrSlugFor(attr),
-      })),
-    }));
+    .map(attr => {
+      const slug = attrSlugFor(attr);
+      const colorAttr = isColor(slug);
+
+      return {
+        name: attr.name,
+        slug,
+        options: (attr.terms || []).map(term => {
+          const termSlug = term.slug || term.name;
+          // For color attributes, prefer the display name from our
+          // Color_Data_Manager swatch data over the Store API term name
+          // which may return numeric IDs on some configurations.
+          const swatch =
+            colorAttr && colorSwatchData ? colorSwatchData[termSlug] : null;
+          return {
+            name: swatch && swatch.name ? swatch.name : term.name,
+            slug: termSlug,
+            attrSlug: slug,
+          };
+        }),
+      };
+    });
 }
 
 /**
@@ -521,6 +535,18 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
+     * Inverse of isColorAttribute for hidden binding.
+     */
+    get isNotColorAttribute() {
+      const ctx = getContext();
+      if (!ctx.item) {
+        return true;
+      }
+      const slug = ctx.item.slug || '';
+      return slug !== 'pa_color' && slug !== 'color';
+    },
+
+    /**
      * Whether the current option is a color swatch.
      */
     get isColorSwatch() {
@@ -544,6 +570,25 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         return '';
       }
       return swatchData.value;
+    },
+
+    /**
+     * Get the display name for a color swatch option.
+     */
+    get colorSwatchName() {
+      const ctx = getContext();
+      if (!ctx.item) {
+        return '';
+      }
+      const swatchData = state.colorSwatchData[ctx.item.slug];
+      return swatchData && swatchData.name ? swatchData.name : ctx.item.name;
+    },
+
+    /**
+     * Whether all thumbnails fit without scrolling (≤ 5 images).
+     */
+    get thumbnailsFitContainer() {
+      return state.productImages.length <= 5;
     },
   },
 
@@ -704,7 +749,10 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
           // Variable product data.
           if (data.type === 'variable' && data.has_options) {
-            state.productAttributes = buildAttributes(data);
+            state.productAttributes = buildAttributes(
+              data,
+              state.colorSwatchData
+            );
             state.productVariations = buildVariations(data);
 
             // Initialise selectedAttributes with empty values.
@@ -818,6 +866,66 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       } else {
         state.matchedVariationId = 0;
       }
+    },
+
+    /**
+     * Select an attribute from a dropdown <select>.
+     */
+    selectAttributeFromDropdown(event) {
+      const ctx = getContext();
+      const attrSlug = ctx.item ? ctx.item.slug : '';
+      const optionSlug = event.target.value;
+
+      if (!attrSlug) {
+        return;
+      }
+
+      const newSelected = { ...state.selectedAttributes };
+      newSelected[attrSlug] = optionSlug;
+      state.selectedAttributes = newSelected;
+
+      const match = matchVariation(state.productVariations, newSelected);
+
+      if (match) {
+        state.matchedVariationId = match.id;
+        if (match.image) {
+          state.productImage = match.image;
+          state.productImageAlt = match.imageAlt || state.productName;
+        }
+        if (match.prices) {
+          const priceData = parsePrice(match.prices);
+          state.productPrice = priceData.current;
+          state.productRegularPrice = priceData.regular;
+          state.productOnSale = priceData.onSale;
+        }
+      } else {
+        state.matchedVariationId = 0;
+      }
+    },
+
+    /**
+     * Scroll the thumbnail strip left or right.
+     */
+    scrollThumbnails(event) {
+      const btn = event.target.closest('[data-scroll-dir]');
+      if (!btn) {
+        return;
+      }
+      const dir = btn.dataset.scrollDir === 'left' ? -1 : 1;
+      const strip = btn
+        .closest('.aggressive-apparel-quick-view__thumbnail-nav')
+        ?.querySelector('.aggressive-apparel-quick-view__thumbnails');
+      if (!strip) {
+        return;
+      }
+      const step = 72; // 4rem thumb + 0.5rem gap.
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+      strip.scrollBy({
+        left: dir * step,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
     },
 
     incrementQty(event) {

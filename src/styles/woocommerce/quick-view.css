@@ -272,15 +272,57 @@
 	}
 }
 
+/* Thumbnail navigation wrapper. */
+.aggressive-apparel-quick-view__thumbnail-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+/* Thumbnail scroll arrows. */
+.aggressive-apparel-quick-view__thumb-arrow {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: color-mix(in oklch, currentcolor 8%, transparent);
+	cursor: pointer;
+	transition: background-color 0.15s;
+
+	&:hover,
+	&:focus-visible {
+		background: color-mix(in oklch, currentcolor 15%, transparent);
+	}
+
+	& svg {
+		width: 1rem;
+		height: 1rem;
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}
+
 /* Thumbnail strip. */
 .aggressive-apparel-quick-view__thumbnails {
 	display: flex;
 	gap: 0.5rem;
 	overflow-x: auto;
-	scrollbar-width: thin;
+	scrollbar-width: none;
 	padding: 0.25rem 0;
+	min-width: 0;
 
-	&[hidden] {
+	&::-webkit-scrollbar {
 		display: none;
 	}
 }
@@ -406,14 +448,15 @@
 	color: var(--wp--preset--color--primary, inherit);
 }
 
-.aggressive-apparel-quick-view__description {
-	margin: 0;
-	font-size: 0.9rem;
-	line-height: 1.6;
-	opacity: 0.8;
+/* Bottom group: attributes + actions pushed to bottom. */
+.aggressive-apparel-quick-view__bottom-group {
+	margin-top: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 }
 
-/* Attribute swatches (variable products). */
+/* Attribute selectors (variable products). */
 .aggressive-apparel-quick-view__attributes {
 	display: flex;
 	flex-direction: column;
@@ -510,12 +553,33 @@
 	}
 }
 
-/* Actions group — pushed to bottom of details column. */
+/* Attribute dropdown (non-color attributes). */
+.aggressive-apparel-quick-view__attribute-select {
+	display: block;
+	width: 100%;
+	padding: 0.5em 0.75em;
+	border: 1.5px solid color-mix(in oklch, currentcolor 25%, transparent);
+	border-radius: 0.25rem;
+	background: none;
+	font-size: 0.85rem;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+	appearance: auto;
+	margin-top: 0.25rem;
+
+	&:focus-visible {
+		border-color: var(--wp--preset--color--black, #000);
+		outline: 2px solid var(--wp--preset--color--black, #000);
+		outline-offset: 1px;
+	}
+}
+
+/* Actions group. */
 .aggressive-apparel-quick-view__actions {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
-	margin-top: auto;
 }
 
 /* Quantity + Add to Cart inline row. */

@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Icons;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -248,28 +250,70 @@ class Quick_View {
 							></span>
 						</div>
 
-						<!-- Thumbnail navigation. -->
+						<!-- Thumbnail navigation with arrows. -->
 						<div
-							class="aggressive-apparel-quick-view__thumbnails"
+							class="aggressive-apparel-quick-view__thumbnail-nav"
 							data-wp-bind--hidden="state.hasOneImage"
 							hidden
 						>
-							<template data-wp-each="state.productImages">
-								<button
-									type="button"
-									class="aggressive-apparel-quick-view__thumbnail"
-									data-wp-on--click="actions.selectImage"
-									data-wp-class--is-active="state.isActiveImage"
-									aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
-								>
-									<img
-										src=""
-										alt=""
-										data-wp-bind--src="context.item.thumbnail"
-										data-wp-bind--alt="context.item.alt"
-									/>
-								</button>
-							</template>
+							<button
+								type="button"
+								class="aggressive-apparel-quick-view__thumb-arrow aggressive-apparel-quick-view__thumb-arrow--prev"
+								data-wp-on--click="actions.scrollThumbnails"
+								data-scroll-dir="left"
+								data-wp-bind--hidden="state.thumbnailsFitContainer"
+								aria-label="<?php echo esc_attr__( 'Scroll thumbnails left', 'aggressive-apparel' ); ?>"
+								hidden
+							>
+								<?php
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
+								echo Icons::get(
+									'chevron-left',
+									array(
+										'width'  => 16,
+										'height' => 16,
+									)
+								);
+								?>
+							</button>
+							<div class="aggressive-apparel-quick-view__thumbnails">
+								<template data-wp-each="state.productImages">
+									<button
+										type="button"
+										class="aggressive-apparel-quick-view__thumbnail"
+										data-wp-on--click="actions.selectImage"
+										data-wp-class--is-active="state.isActiveImage"
+										aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
+									>
+										<img
+											src=""
+											alt=""
+											data-wp-bind--src="context.item.thumbnail"
+											data-wp-bind--alt="context.item.alt"
+										/>
+									</button>
+								</template>
+							</div>
+							<button
+								type="button"
+								class="aggressive-apparel-quick-view__thumb-arrow aggressive-apparel-quick-view__thumb-arrow--next"
+								data-wp-on--click="actions.scrollThumbnails"
+								data-scroll-dir="right"
+								data-wp-bind--hidden="state.thumbnailsFitContainer"
+								aria-label="<?php echo esc_attr__( 'Scroll thumbnails right', 'aggressive-apparel' ); ?>"
+								hidden
+							>
+								<?php
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
+								echo Icons::get(
+									'chevron-right',
+									array(
+										'width'  => 16,
+										'height' => 16,
+									)
+								);
+								?>
+							</button>
 						</div>
 					</div>
 
@@ -312,12 +356,10 @@ class Quick_View {
 							></span>
 						</div>
 
-						<p
-							class="aggressive-apparel-quick-view__description"
-							data-wp-text="state.productDescription"
-						></p>
+						<!-- Bottom group: attributes + cart actions pushed to bottom. -->
+						<div class="aggressive-apparel-quick-view__bottom-group">
 
-						<!-- Attribute swatches (variable products only). -->
+						<!-- Attribute selectors (variable products only). -->
 						<div
 							class="aggressive-apparel-quick-view__attributes"
 							data-wp-bind--hidden="state.isNotVariable"
@@ -325,32 +367,51 @@ class Quick_View {
 						>
 							<template data-wp-each="state.productAttributes">
 								<div class="aggressive-apparel-quick-view__attribute">
-									<span
-										class="aggressive-apparel-quick-view__attribute-label"
-										data-wp-text="context.item.name"
-									></span>
-									<div
-										class="aggressive-apparel-quick-view__attribute-options"
-										data-wp-class--is-color-attribute="state.isColorAttribute"
-									>
-										<template data-wp-each="context.item.options">
-											<button
-												type="button"
-												class="aggressive-apparel-quick-view__attribute-option"
-												data-wp-on--click="actions.selectAttribute"
-												data-wp-text="context.item.name"
-												data-wp-class--is-selected="state.isOptionSelected"
-												data-wp-class--is-color-swatch="state.isColorSwatch"
-												data-wp-style--background-color="state.colorSwatchValue"
-												data-wp-bind--title="context.item.name"
-											></button>
-										</template>
+									<!-- Color attributes: swatches. -->
+									<div data-wp-bind--hidden="state.isNotColorAttribute">
+										<span
+											class="aggressive-apparel-quick-view__attribute-label"
+											data-wp-text="context.item.name"
+										></span>
+										<div class="aggressive-apparel-quick-view__attribute-options is-color-attribute">
+											<template data-wp-each="context.item.options">
+												<button
+													type="button"
+													class="aggressive-apparel-quick-view__attribute-option is-color-swatch"
+													data-wp-on--click="actions.selectAttribute"
+													data-wp-class--is-selected="state.isOptionSelected"
+													data-wp-style--background-color="state.colorSwatchValue"
+													data-wp-bind--title="state.colorSwatchName"
+													data-wp-bind--aria-label="state.colorSwatchName"
+													data-wp-bind--aria-pressed="state.isOptionSelected"
+												></button>
+											</template>
+										</div>
+									</div>
+									<!-- Non-color attributes: dropdown. -->
+									<div data-wp-bind--hidden="state.isColorAttribute">
+										<label class="aggressive-apparel-quick-view__attribute-label">
+											<span data-wp-text="context.item.name"></span>
+											<select
+												class="aggressive-apparel-quick-view__attribute-select"
+												data-wp-on--change="actions.selectAttributeFromDropdown"
+											>
+												<option value=""><?php echo esc_html__( 'Choose...', 'aggressive-apparel' ); ?></option>
+												<template data-wp-each="context.item.options">
+													<option
+														data-wp-bind--value="context.item.slug"
+														data-wp-text="context.item.name"
+														data-wp-bind--selected="state.isOptionSelected"
+													></option>
+												</template>
+											</select>
+										</label>
 									</div>
 								</div>
 							</template>
 						</div>
 
-						<!-- Cart actions group — pushed to bottom of details column. -->
+						<!-- Cart actions. -->
 						<div class="aggressive-apparel-quick-view__actions">
 							<!-- Quantity + Add to Cart row. -->
 							<div class="aggressive-apparel-quick-view__cart-row" data-wp-bind--hidden="state.showPostCartActions">
@@ -424,6 +485,8 @@ class Quick_View {
 								data-wp-bind--href="state.productLink"
 							><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
 						</div>
+
+						</div><!-- /.aggressive-apparel-quick-view__bottom-group -->
 					</div>
 				</div>
 

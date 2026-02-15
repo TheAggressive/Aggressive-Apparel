@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.25.0...v1.26.0) (2026-02-15)
+
+
+### Features
+
+* enhance quick view with mobile drawer and touch navigation ([6972b06](https://github.com/TheAggressive/Aggressive-Apparel/commit/6972b062770283e6f3cbf2a15a252084da79bd38))
+
 # [1.25.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.2...v1.25.0) (2026-02-15)
 
 

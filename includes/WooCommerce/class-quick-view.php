@@ -175,6 +175,10 @@ class Quick_View {
 					'showPostCartActions' => false,
 					'cartUrl'             => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
 
+					// Mobile drawer.
+					'isDrawerOpen'        => false,
+					'drawerView'          => 'selection',
+
 					// Accessibility.
 					'announcement'        => '',
 				),
@@ -234,7 +238,12 @@ class Quick_View {
 				>
 					<!-- Gallery section (60% width). -->
 					<div class="aggressive-apparel-quick-view__gallery">
-						<div class="aggressive-apparel-quick-view__main-image">
+						<div
+							class="aggressive-apparel-quick-view__main-image"
+							data-wp-on--touchstart="actions.handleTouchStart"
+							data-wp-on--touchmove="actions.handleTouchMove"
+							data-wp-on--touchend="actions.handleTouchEnd"
+						>
 							<img
 								src=""
 								alt=""
@@ -315,6 +324,23 @@ class Quick_View {
 								?>
 							</button>
 						</div>
+
+						<!-- Dot indicators — mobile alternative to thumbnails. -->
+						<div
+							class="aggressive-apparel-quick-view__dots"
+							data-wp-bind--hidden="state.hasOneImage"
+							hidden
+						>
+							<template data-wp-each="state.productImages">
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__dot"
+									data-wp-on--click="actions.selectImage"
+									data-wp-class--is-active="state.isActiveImage"
+									aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
+								></button>
+							</template>
+						</div>
 					</div>
 
 					<!-- Details section (40% width). -->
@@ -368,7 +394,7 @@ class Quick_View {
 						<!-- Attribute selectors (variable products only). -->
 						<div
 							class="aggressive-apparel-quick-view__attributes"
-							data-wp-bind--hidden="state.isNotVariable"
+							data-wp-bind--hidden="state.hideInlineAttributes"
 							hidden
 						>
 							<template data-wp-each="state.productAttributes">
@@ -419,8 +445,17 @@ class Quick_View {
 
 						<!-- Cart actions. -->
 						<div class="aggressive-apparel-quick-view__actions">
+							<!-- Select Options button (mobile variable products). -->
+							<button
+								type="button"
+								class="aggressive-apparel-quick-view__select-options"
+								data-wp-on--click="actions.openDrawer"
+								data-wp-bind--hidden="state.hideSelectOptionsBtn"
+								hidden
+							><?php echo esc_html__( 'Select Options', 'aggressive-apparel' ); ?></button>
+
 							<!-- Quantity + Add to Cart row. -->
-							<div class="aggressive-apparel-quick-view__cart-row" data-wp-bind--hidden="state.showPostCartActions">
+							<div class="aggressive-apparel-quick-view__cart-row" data-wp-bind--hidden="state.hideInlineCartRow">
 								<div class="aggressive-apparel-quick-view__quantity">
 									<button
 										type="button"
@@ -451,6 +486,7 @@ class Quick_View {
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-text="state.addToCartLabel"
 									data-wp-class--is-adding="state.isAddingToCart"
+									data-wp-class--is-success="state.isCartSuccess"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
 							</div>
 
@@ -484,15 +520,181 @@ class Quick_View {
 								data-wp-text="state.cartError"
 								hidden
 							></p>
-
-							<a
-								href="#"
-								class="aggressive-apparel-quick-view__link"
-								data-wp-bind--href="state.productLink"
-							><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
 						</div>
 
+						<!-- View Full Product — outside __actions so it stays in scrollable content on mobile (not in the fixed bar). -->
+						<a
+							href="#"
+							class="aggressive-apparel-quick-view__link"
+							data-wp-bind--href="state.productLink"
+						><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
+
 						</div><!-- /.aggressive-apparel-quick-view__bottom-group -->
+					</div>
+				</div>
+
+				<!-- Mobile bottom drawer for options + success. -->
+				<div
+					class="aggressive-apparel-quick-view__drawer"
+					data-wp-class--is-open="state.isDrawerOpen"
+					data-wp-bind--hidden="state.isDrawerClosed"
+					hidden
+				>
+					<div class="aggressive-apparel-quick-view__drawer-scrim" data-wp-on--click="actions.closeDrawer"></div>
+					<div
+						class="aggressive-apparel-quick-view__drawer-panel"
+						role="dialog"
+						aria-label="<?php echo esc_attr__( 'Select product options', 'aggressive-apparel' ); ?>"
+					>
+						<div class="aggressive-apparel-quick-view__drawer-handle"></div>
+
+						<!-- Selection view (default). -->
+						<div
+							class="aggressive-apparel-quick-view__drawer-selection"
+							data-wp-bind--hidden="state.isDrawerSuccessView"
+						>
+							<!-- Product header row. -->
+							<div class="aggressive-apparel-quick-view__drawer-header">
+								<img
+									src=""
+									alt=""
+									class="aggressive-apparel-quick-view__drawer-thumb"
+									data-wp-bind--src="state.currentImage.src"
+									data-wp-bind--alt="state.currentImage.alt"
+								/>
+								<div class="aggressive-apparel-quick-view__drawer-product-info">
+									<span
+										class="aggressive-apparel-quick-view__drawer-name"
+										data-wp-text="state.productName"
+									></span>
+									<span
+										class="aggressive-apparel-quick-view__drawer-price"
+										data-wp-text="state.productPrice"
+									></span>
+								</div>
+							</div>
+
+							<!-- Attribute selectors (duplicated from inline — shared state). -->
+							<div class="aggressive-apparel-quick-view__drawer-body">
+								<template data-wp-each="state.productAttributes">
+									<div class="aggressive-apparel-quick-view__attribute">
+										<!-- Color attributes: swatches. -->
+										<div data-wp-bind--hidden="state.isNotColorAttribute">
+											<span
+												class="aggressive-apparel-quick-view__attribute-label"
+												data-wp-text="context.item.name"
+											></span>
+											<div class="aggressive-apparel-quick-view__attribute-options is-color-attribute">
+												<template data-wp-each="context.item.options">
+													<button
+														type="button"
+														class="aggressive-apparel-quick-view__attribute-option is-color-swatch"
+														data-wp-on--click="actions.selectAttribute"
+														data-wp-class--is-selected="state.isOptionSelected"
+														data-wp-style--background-color="state.colorSwatchValue"
+														data-wp-bind--title="state.colorSwatchName"
+														data-wp-bind--aria-label="state.colorSwatchName"
+														data-wp-bind--aria-pressed="state.isOptionSelected"
+													></button>
+												</template>
+											</div>
+										</div>
+										<!-- Non-color attributes: dropdown. -->
+										<div data-wp-bind--hidden="state.isColorAttribute">
+											<label class="aggressive-apparel-quick-view__attribute-label">
+												<span data-wp-text="context.item.name"></span>
+												<select
+													class="aggressive-apparel-quick-view__attribute-select"
+													data-wp-on--change="actions.selectAttributeFromDropdown"
+												>
+													<option value=""><?php echo esc_html__( 'Choose...', 'aggressive-apparel' ); ?></option>
+													<template data-wp-each="context.item.options">
+														<option
+															data-wp-bind--value="context.item.slug"
+															data-wp-text="context.item.name"
+															data-wp-bind--selected="state.isOptionSelected"
+														></option>
+													</template>
+												</select>
+											</label>
+										</div>
+									</div>
+								</template>
+							</div>
+
+							<!-- Footer: qty + add to cart. -->
+							<div class="aggressive-apparel-quick-view__drawer-footer">
+								<div class="aggressive-apparel-quick-view__quantity">
+									<button
+										type="button"
+										class="aggressive-apparel-quick-view__qty-btn"
+										data-wp-on--click="actions.decrementQty"
+										aria-label="<?php echo esc_attr__( 'Decrease quantity', 'aggressive-apparel' ); ?>"
+									>&minus;</button>
+									<input
+										type="number"
+										class="aggressive-apparel-quick-view__qty-input"
+										min="1"
+										data-wp-bind--value="state.quantity"
+										data-wp-on--change="actions.setQuantity"
+										aria-label="<?php echo esc_attr__( 'Quantity', 'aggressive-apparel' ); ?>"
+									/>
+									<button
+										type="button"
+										class="aggressive-apparel-quick-view__qty-btn"
+										data-wp-on--click="actions.incrementQty"
+										aria-label="<?php echo esc_attr__( 'Increase quantity', 'aggressive-apparel' ); ?>"
+									>&plus;</button>
+								</div>
+
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__add-to-cart"
+									data-wp-on--click="actions.addToCart"
+									data-wp-bind--disabled="state.cannotAddToCart"
+									data-wp-text="state.addToCartLabel"
+									data-wp-class--is-adding="state.isAddingToCart"
+									data-wp-class--is-success="state.isCartSuccess"
+								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+							</div>
+						</div>
+
+						<!-- Success view (shown after add-to-cart). -->
+						<div
+							class="aggressive-apparel-quick-view__drawer-success"
+							data-wp-bind--hidden="state.hideDrawerSuccess"
+							hidden
+						>
+							<div class="aggressive-apparel-quick-view__drawer-success-icon">&#10003;</div>
+							<p class="aggressive-apparel-quick-view__drawer-success-message">
+								<?php echo esc_html__( 'Added to cart!', 'aggressive-apparel' ); ?>
+							</p>
+							<div class="aggressive-apparel-quick-view__drawer-success-product">
+								<img
+									src=""
+									alt=""
+									class="aggressive-apparel-quick-view__drawer-thumb"
+									data-wp-bind--src="state.currentImage.src"
+									data-wp-bind--alt="state.currentImage.alt"
+								/>
+								<div class="aggressive-apparel-quick-view__drawer-product-info">
+									<span data-wp-text="state.productName"></span>
+									<span data-wp-text="state.selectedOptionsLabel"></span>
+								</div>
+							</div>
+							<div class="aggressive-apparel-quick-view__drawer-success-actions">
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue"
+									data-wp-on--click="actions.continueShopping"
+								><?php echo esc_html__( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
+								<a
+									href="#"
+									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart"
+									data-wp-bind--href="state.cartUrl"
+								><?php echo esc_html__( 'View Cart', 'aggressive-apparel' ); ?></a>
+							</div>
+						</div>
 					</div>
 				</div>
 

@@ -216,6 +216,23 @@ function matchVariation(variations, selected) {
 let focusTrapCleanup = null;
 let triggerElement = null;
 
+/* Touch swipe tracking for mobile gallery. */
+let touchStartX = 0;
+let touchStartY = 0;
+let isSwiping = false;
+
+/**
+ * Briefly fade the main product image to smooth gallery transitions.
+ */
+function fadeImage() {
+  const img = document.querySelector(
+    '.aggressive-apparel-quick-view__main-image'
+  );
+  if (!img) return;
+  img.classList.add('is-fading');
+  setTimeout(() => img.classList.remove('is-fading'), 150);
+}
+
 /**
  * Directly populate the Quick View modal DOM from current store state.
  *
@@ -361,8 +378,13 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     // Cart interaction.
     cartNonce: '',
     isAddingToCart: false,
+    isCartSuccess: false,
     addedToCart: false,
     cartError: '',
+
+    // Mobile drawer.
+    isDrawerOpen: false,
+    drawerView: 'selection', // 'selection' | 'success'
 
     // Gallery support.
     productImages: [],
@@ -403,6 +425,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     get addToCartLabel() {
+      if (state.isCartSuccess) {
+        return '✓ Added!';
+      }
       if (state.isAddingToCart) {
         return 'Adding…';
       }
@@ -523,6 +548,72 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
+     * Whether the viewport matches mobile breakpoint (≤768px).
+     */
+    get isMobile() {
+      return (
+        typeof window !== 'undefined' &&
+        window.matchMedia('(max-width: 768px)').matches
+      );
+    },
+
+    /**
+     * Hide "Select Options" button when not needed:
+     * desktop, simple products, drawer already open, or post-cart showing.
+     */
+    get hideSelectOptionsBtn() {
+      return (
+        !state.isVariable ||
+        !state.isMobile ||
+        state.isDrawerOpen ||
+        state.showPostCartActions ||
+        state.addedToCart
+      );
+    },
+
+    /**
+     * Hide inline cart-row on mobile for variable products
+     * (they use the drawer instead). Desktop always shows inline.
+     */
+    get hideInlineCartRow() {
+      if (!state.isMobile) {
+        return state.showPostCartActions;
+      }
+      return state.isVariable || state.showPostCartActions;
+    },
+
+    /**
+     * Hide inline attributes on mobile (drawer has them).
+     * On desktop, show when product is variable.
+     */
+    get hideInlineAttributes() {
+      if (!state.isMobile) {
+        return !state.isVariable;
+      }
+      return true;
+    },
+
+    get isDrawerClosed() {
+      return !state.isDrawerOpen;
+    },
+
+    get isDrawerSuccessView() {
+      return state.drawerView !== 'selection';
+    },
+
+    get hideDrawerSuccess() {
+      return state.drawerView !== 'success';
+    },
+
+    /**
+     * Label showing selected variation options (e.g. "Red / L").
+     */
+    get selectedOptionsLabel() {
+      const vals = Object.values(state.selectedAttributes).filter(Boolean);
+      return vals.length > 0 ? vals.join(' / ') : '';
+    },
+
+    /**
      * Whether the current attribute is a color attribute.
      */
     get isColorAttribute() {
@@ -585,10 +676,10 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
-     * Whether all thumbnails fit without scrolling (≤ 5 images).
+     * Whether all thumbnails fit without scrolling (≤ 6 images).
      */
     get thumbnailsFitContainer() {
-      return state.productImages.length <= 5;
+      return state.productImages.length <= 6;
     },
   },
 
@@ -663,6 +754,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.stockStatusLabel = '';
       state.salePercentage = 0;
       state.showPostCartActions = false;
+      state.isDrawerOpen = false;
+      state.drawerView = 'selection';
       state.announcement = '';
       lockScroll();
 
@@ -786,8 +879,11 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.hasProduct = false;
       state.hasError = false;
       state.addedToCart = false;
+      state.isCartSuccess = false;
       state.cartError = '';
       state.showPostCartActions = false;
+      state.isDrawerOpen = false;
+      state.drawerView = 'selection';
       state.announcement = '';
 
       // Restore focus to trigger element.
@@ -918,7 +1014,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (!strip) {
         return;
       }
-      const step = 72; // 4rem thumb + 0.5rem gap.
+      const step = 64; // 3.5rem thumb + 0.5rem gap.
       const prefersReducedMotion = window.matchMedia(
         '(prefers-reduced-motion: reduce)'
       ).matches;
@@ -956,7 +1052,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
-     * Select a gallery image by thumbnail click.
+     * Select a gallery image by thumbnail or dot click.
      */
     selectImage() {
       const ctx = getContext();
@@ -966,7 +1062,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       const index = state.productImages.findIndex(
         img => img.id === ctx.item.id
       );
-      if (index >= 0) {
+      if (index >= 0 && index !== state.activeImageIndex) {
+        fadeImage();
         state.activeImageIndex = index;
       }
     },
@@ -979,6 +1076,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (max <= 0) {
         return;
       }
+      fadeImage();
       state.activeImageIndex =
         state.activeImageIndex >= max ? 0 : state.activeImageIndex + 1;
     },
@@ -991,8 +1089,109 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (max <= 0) {
         return;
       }
+      fadeImage();
       state.activeImageIndex =
         state.activeImageIndex <= 0 ? max : state.activeImageIndex - 1;
+    },
+
+    /**
+     * Touch swipe handlers for mobile gallery navigation.
+     */
+    handleTouchStart(event) {
+      if (!state.hasMultipleImages) return;
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      isSwiping = false;
+    },
+
+    handleTouchMove(event) {
+      if (!state.hasMultipleImages) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      // Lock to horizontal swipe once threshold is met.
+      if (
+        !isSwiping &&
+        Math.abs(deltaX) > 10 &&
+        Math.abs(deltaX) > Math.abs(deltaY)
+      ) {
+        isSwiping = true;
+      }
+
+      // Prevent vertical scroll while swiping gallery.
+      if (isSwiping) {
+        event.preventDefault();
+      }
+    },
+
+    handleTouchEnd(event) {
+      if (!state.hasMultipleImages || !isSwiping) return;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const threshold = 50;
+
+      if (Math.abs(deltaX) >= threshold) {
+        if (deltaX < 0) {
+          actions.nextImage();
+        } else {
+          actions.prevImage();
+        }
+      }
+
+      isSwiping = false;
+    },
+
+    /**
+     * Open the mobile bottom drawer for option selection.
+     */
+    openDrawer() {
+      const drawerEl = document.querySelector(
+        '.aggressive-apparel-quick-view__drawer'
+      );
+      if (drawerEl) {
+        drawerEl.hidden = false;
+        void drawerEl.offsetHeight; // eslint-disable-line no-void
+      }
+      state.isDrawerOpen = true;
+      state.drawerView = 'selection';
+    },
+
+    /**
+     * Close the mobile bottom drawer with slide-down animation.
+     */
+    closeDrawer() {
+      state.isDrawerOpen = false;
+
+      const panel = document.querySelector(
+        '.aggressive-apparel-quick-view__drawer-panel'
+      );
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        const el = document.querySelector(
+          '.aggressive-apparel-quick-view__drawer'
+        );
+        if (el && !state.isDrawerOpen) {
+          el.hidden = true;
+        }
+        state.drawerView = 'selection';
+      };
+
+      if (panel) {
+        panel.addEventListener(
+          'transitionend',
+          e => {
+            if (e.propertyName === 'transform') finish();
+          },
+          { once: true }
+        );
+        setTimeout(finish, 400);
+      } else {
+        finish();
+      }
     },
 
     /**
@@ -1004,7 +1203,11 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       }
 
       if (event.key === 'Escape') {
-        actions.close();
+        if (state.isDrawerOpen) {
+          actions.closeDrawer();
+        } else {
+          actions.close();
+        }
         return;
       }
 
@@ -1022,6 +1225,15 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
      * Continue shopping (close modal after adding to cart).
      */
     continueShopping() {
+      if (state.isDrawerOpen) {
+        actions.closeDrawer();
+        setTimeout(() => {
+          state.showPostCartActions = false;
+          state.addedToCart = false;
+          actions.close();
+        }, 300);
+        return;
+      }
       state.showPostCartActions = false;
       state.addedToCart = false;
       actions.close();
@@ -1097,22 +1309,49 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           return res.json();
         })
         .then(() => {
-          state.addedToCart = true;
-          state.showPostCartActions = true;
-          state.announcement = 'Product added to cart successfully';
+          // Show success state on the button briefly before revealing
+          // the post-cart panel for a more satisfying interaction.
+          state.isCartSuccess = true;
+          state.isAddingToCart = false;
 
-          // Dispatch a custom event so WooCommerce mini-cart can update.
-          document.body.dispatchEvent(
-            new CustomEvent('wc-blocks_added_to_cart', {
-              bubbles: true,
-            })
-          );
+          setTimeout(() => {
+            state.isCartSuccess = false;
+
+            if (state.isMobile) {
+              if (state.isDrawerOpen) {
+                // Variable product — switch drawer to success view.
+                state.drawerView = 'success';
+              } else {
+                // Simple product — open drawer with success view.
+                state.drawerView = 'success';
+                const drawerEl = document.querySelector(
+                  '.aggressive-apparel-quick-view__drawer'
+                );
+                if (drawerEl) {
+                  drawerEl.hidden = false;
+                  void drawerEl.offsetHeight; // eslint-disable-line no-void
+                }
+                state.isDrawerOpen = true;
+              }
+            } else {
+              // Desktop — show inline post-cart panel.
+              state.addedToCart = true;
+              state.showPostCartActions = true;
+            }
+
+            state.announcement = 'Product added to cart successfully';
+
+            // Dispatch a custom event so WooCommerce mini-cart can update.
+            document.body.dispatchEvent(
+              new CustomEvent('wc-blocks_added_to_cart', {
+                bubbles: true,
+              })
+            );
+          }, 800);
         })
         .catch(err => {
           state.cartError = err.message || 'Could not add to cart.';
           state.announcement = `Error: ${state.cartError}`;
-        })
-        .finally(() => {
           state.isAddingToCart = false;
         });
     },
@@ -1193,12 +1432,16 @@ document.addEventListener('click', e => {
 // ESC key to close (fallback for data-wp-on-document--keydown).
 document.addEventListener('keydown', e => {
   if (state.isOpen && e.key === 'Escape') {
-    actions.close();
-    syncModalDOM();
+    if (state.isDrawerOpen) {
+      actions.closeDrawer();
+    } else {
+      actions.close();
+      syncModalDOM();
+    }
   }
 });
 
-// Add to Cart, quantity, and continue-shopping button delegation.
+// Add to Cart, quantity, continue-shopping, and drawer delegation.
 document.addEventListener('click', e => {
   if (!state.isOpen) {
     return;
@@ -1206,6 +1449,18 @@ document.addEventListener('click', e => {
 
   const modal = document.getElementById('aggressive-apparel-quick-view');
   if (!modal || !modal.contains(e.target)) {
+    return;
+  }
+
+  // Select Options button.
+  if (e.target.closest('.aggressive-apparel-quick-view__select-options')) {
+    actions.openDrawer();
+    return;
+  }
+
+  // Drawer scrim close.
+  if (e.target.closest('.aggressive-apparel-quick-view__drawer-scrim')) {
+    actions.closeDrawer();
     return;
   }
 

@@ -70,10 +70,33 @@ class Product_Filters {
 	public function init(): void {
 		$this->layout = $this->get_layout();
 
+		// Register script module early so it's included in the wp_head import map.
+		// Enqueuing happens later in ensure_assets() when we know we're on a shop page.
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_script_module' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'render_block', array( $this, 'inject_filter_ui' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'render_drawer_shell' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * Register the script module early so it appears in the wp_head import map.
+	 *
+	 * Must run during wp_enqueue_scripts (which fires inside wp_head) rather
+	 * than during render_block, because the import map is printed in wp_head
+	 * and any modules registered after that are not included.
+	 *
+	 * @return void
+	 */
+	public function register_script_module(): void {
+		if ( function_exists( 'wp_register_script_module' ) ) {
+			wp_register_script_module(
+				'@aggressive-apparel/product-filters',
+				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-filters.js',
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+				AGGRESSIVE_APPAREL_VERSION,
+			);
+		}
 	}
 
 	/**
@@ -113,13 +136,7 @@ class Product_Filters {
 			);
 		}
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/product-filters',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-filters.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
+		if ( function_exists( 'wp_enqueue_script_module' ) ) {
 			wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 		}
 
@@ -190,33 +207,40 @@ class Product_Filters {
 			return $block_content;
 		}
 
-		// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
-		$this->ensure_assets();
+		try {
+			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
+			$this->ensure_assets();
 
-		// Inject filter toggle button into the results-count/sort row.
-		if ( 'woocommerce/product-results-count' === $block['blockName'] ) {
-			$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
-			$button       = sprintf(
-				'<button class="aa-product-filters__trigger%s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" aria-label="%s">%s<span class="aa-product-filters__trigger-label">%s</span><span class="aa-product-filters__trigger-count" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
-				esc_attr( $mobile_class ),
-				esc_attr__( 'Open product filters', 'aggressive-apparel' ),
-				Icons::get(
-					'filter',
-					array(
-						'width'       => 20,
-						'height'      => 20,
-						'aria-hidden' => 'true',
-					)
-				),
-				esc_html__( 'Filter', 'aggressive-apparel' ),
-			);
+			// Inject filter toggle button into the results-count/sort row.
+			if ( 'woocommerce/product-results-count' === $block['blockName'] ) {
+				$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
+				$button       = sprintf(
+					'<button class="aa-product-filters__trigger%s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" aria-label="%s">%s<span class="aa-product-filters__trigger-label">%s</span><span class="aa-product-filters__trigger-count" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
+					esc_attr( $mobile_class ),
+					esc_attr__( 'Open product filters', 'aggressive-apparel' ),
+					Icons::get(
+						'filter',
+						array(
+							'width'       => 20,
+							'height'      => 20,
+							'aria-hidden' => 'true',
+						)
+					),
+					esc_html__( 'Filter', 'aggressive-apparel' ),
+				);
 
-			return $button . $block_content;
-		}
+				return $button . $block_content;
+			}
 
-		// Wrap product-collection with AJAX grid container.
-		if ( 'woocommerce/product-collection' === $block['blockName'] ) {
-			return $this->wrap_product_collection( $block_content );
+			// Wrap product-collection with AJAX grid container.
+			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
+				return $this->wrap_product_collection( $block_content );
+			}
+		} catch ( \Throwable $e ) {
+			// Return original block content on error to avoid breaking the page.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Product Filters inject_filter_ui error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 		}
 
 		return $block_content;
@@ -232,67 +256,74 @@ class Product_Filters {
 			return;
 		}
 
-		$data = $this->gather_filter_data();
-		?>
-		<div
-			id="aa-product-filters-drawer"
-			class="aa-product-filters__drawer"
-			data-wp-interactive="aggressive-apparel/product-filters"
-			data-wp-class--is-open="state.isDrawerOpen"
-			hidden
-			role="dialog"
-			aria-modal="true"
-			aria-label="<?php esc_attr_e( 'Product filters', 'aggressive-apparel' ); ?>"
-		>
+		try {
+			$data = $this->gather_filter_data();
+			?>
 			<div
-				class="aa-product-filters__drawer-backdrop"
-				data-wp-on--click="actions.closeDrawer"
-			></div>
-			<div class="aa-product-filters__drawer-panel">
-				<div class="aa-product-filters__drawer-header">
-					<h2 class="aa-product-filters__drawer-title">
-						<?php esc_html_e( 'Filters', 'aggressive-apparel' ); ?>
-					</h2>
-					<button
-						class="aa-product-filters__close"
-						data-wp-on--click="actions.closeDrawer"
-						aria-label="<?php esc_attr_e( 'Close filters', 'aggressive-apparel' ); ?>"
-					>
-						<?php
-						Icons::render(
-							'close',
-							array(
-								'width'       => 20,
-								'height'      => 20,
-								'aria-hidden' => 'true',
-							)
-						);
-						?>
-					</button>
-				</div>
+				id="aa-product-filters-drawer"
+				class="aa-product-filters__drawer"
+				data-wp-interactive="aggressive-apparel/product-filters"
+				data-wp-class--is-open="state.isDrawerOpen"
+				hidden
+				role="dialog"
+				aria-modal="true"
+				aria-label="<?php esc_attr_e( 'Product filters', 'aggressive-apparel' ); ?>"
+			>
+				<div
+					class="aa-product-filters__drawer-backdrop"
+					data-wp-on--click="actions.closeDrawer"
+				></div>
+				<div class="aa-product-filters__drawer-panel">
+					<div class="aa-product-filters__drawer-header">
+						<h2 class="aa-product-filters__drawer-title">
+							<?php esc_html_e( 'Filters', 'aggressive-apparel' ); ?>
+						</h2>
+						<button
+							class="aa-product-filters__close"
+							data-wp-on--click="actions.closeDrawer"
+							aria-label="<?php esc_attr_e( 'Close filters', 'aggressive-apparel' ); ?>"
+						>
+							<?php
+							Icons::render(
+								'close',
+								array(
+									'width'       => 20,
+									'height'      => 20,
+									'aria-hidden' => 'true',
+								)
+							);
+							?>
+						</button>
+					</div>
 
-				<div class="aa-product-filters__drawer-body">
-					<?php $this->render_filter_sections( $data ); ?>
-				</div>
+					<div class="aa-product-filters__drawer-body">
+						<?php $this->render_filter_sections( $data ); ?>
+					</div>
 
-				<div class="aa-product-filters__drawer-footer">
-					<button
-						class="aa-product-filters__clear-btn"
-						data-wp-on--click="actions.clearAllFilters"
-						data-wp-bind--hidden="state.hasNoActiveFilters"
-					>
-						<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>
-					</button>
-					<button
-						class="aa-product-filters__apply-btn"
-						data-wp-on--click="actions.closeDrawer"
-					>
-						<?php esc_html_e( 'View Results', 'aggressive-apparel' ); ?>
-					</button>
+					<div class="aa-product-filters__drawer-footer">
+						<button
+							class="aa-product-filters__clear-btn"
+							data-wp-on--click="actions.clearAllFilters"
+							data-wp-bind--hidden="state.hasNoActiveFilters"
+						>
+							<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>
+						</button>
+						<button
+							class="aa-product-filters__apply-btn"
+							data-wp-on--click="actions.closeDrawer"
+						>
+							<?php esc_html_e( 'View Results', 'aggressive-apparel' ); ?>
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
-		<?php
+			<?php
+		} catch ( \Throwable $e ) {
+			// Prevent a crash here from killing all subsequent wp_footer hooks.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Product Filters drawer error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+		}
 	}
 
 	/**
@@ -657,11 +688,43 @@ class Product_Filters {
 			return $cached;
 		}
 
+		$default_price = array(
+			'min'            => 0,
+			'max'            => 0,
+			'currencyPrefix' => '$',
+			'currencySuffix' => '',
+			'minorUnit'      => 2,
+		);
+
+		try {
+			$categories = $this->get_categories_with_counts();
+		} catch ( \Throwable $e ) {
+			$categories = array();
+		}
+
+		try {
+			$color_terms = $this->get_color_terms();
+		} catch ( \Throwable $e ) {
+			$color_terms = array();
+		}
+
+		try {
+			$size_terms = $this->get_size_terms();
+		} catch ( \Throwable $e ) {
+			$size_terms = array();
+		}
+
+		try {
+			$price_range = $this->get_price_range();
+		} catch ( \Throwable $e ) {
+			$price_range = $default_price;
+		}
+
 		$data = array(
-			'categories'    => $this->get_categories_with_counts(),
-			'colorTerms'    => $this->get_color_terms(),
-			'sizeTerms'     => $this->get_size_terms(),
-			'priceRange'    => $this->get_price_range(),
+			'categories'    => $categories,
+			'colorTerms'    => $color_terms,
+			'sizeTerms'     => $size_terms,
+			'priceRange'    => $price_range,
 			'stockStatuses' => $this->get_stock_statuses(),
 		);
 

@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.24.0...v1.24.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* improve script module registration for product filters ([66a3b94](https://github.com/TheAggressive/Aggressive-Apparel/commit/66a3b947e1d6747da3861f7d47437efe047f808c))
+
 # [1.24.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.23.0...v1.24.0) (2026-02-15)
 
 

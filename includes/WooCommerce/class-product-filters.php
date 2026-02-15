@@ -89,6 +89,20 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function register_script_module(): void {
+		// Enqueue CSS unconditionally — all selectors are scoped to
+		// .aa-product-filters__* so there is zero visual impact on
+		// non-shop pages. This avoids the is_shop_page() timing issue
+		// where WooCommerce conditional tags may not be available yet.
+		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-filters.css';
+		if ( file_exists( $css_file ) ) {
+			wp_enqueue_style(
+				'aggressive-apparel-product-filters',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-filters.css',
+				array(),
+				(string) filemtime( $css_file ),
+			);
+		}
+
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
@@ -101,10 +115,8 @@ class Product_Filters {
 		);
 
 		// Enqueue unconditionally so the module appears in the wp_head import
-		// map on shop pages. On non-shop pages the JS loads but does nothing
-		// because no data-wp-interactive directive exists in the HTML.
-		// CSS and interactivity state are still loaded conditionally in
-		// ensure_assets() so non-shop pages have zero visual/data cost.
+		// map. On non-shop pages the JS loads but does nothing because no
+		// data-wp-interactive directive exists in the HTML.
 		wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 	}
 
@@ -135,15 +147,9 @@ class Product_Filters {
 		}
 		$this->assets_enqueued = true;
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-filters.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-product-filters',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-filters.css',
-				array(),
-				(string) filemtime( $css_file ),
-			);
-		}
+		// CSS and JS module are enqueued unconditionally in
+		// register_script_module(). Only the interactivity state
+		// needs to be loaded conditionally on shop pages.
 
 		// Output interactivity state.
 		if ( function_exists( 'wp_interactivity_state' ) ) {

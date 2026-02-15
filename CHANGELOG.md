@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.23.0...v1.24.0) (2026-02-15)
+
+
+### Features
+
+* register script module for product filters and improve error handling ([cba2614](https://github.com/TheAggressive/Aggressive-Apparel/commit/cba261413920d7aee814fb12540cc804e9389bcf))
+
 # [1.23.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.22.0...v1.23.0) (2026-02-14)
 
 

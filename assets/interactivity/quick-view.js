@@ -140,6 +140,49 @@ function calculateSalePercentage(regularPrice, salePrice) {
 }
 
 /**
+ * Return a numeric rank for an apparel size string.
+ * Handles: XS, S, M, L, XL, and multiplied variants like 2XS, 3XL, 7XL.
+ * Unknown sizes get Infinity so they sort to the end.
+ *
+ * @param {string} size - Size label (case-insensitive).
+ * @return {number} Sort rank.
+ */
+function sizeRank(size) {
+  const s = size.trim().toUpperCase();
+
+  // Multiplied small: 2XS, 3XS, etc. — smaller means lower rank.
+  // 3XS < 2XS < XS, so we invert: rank = -(multiplier).
+  const xsMatch = s.match(/^(\d+)XS$/);
+  if (xsMatch) return -(parseInt(xsMatch[1], 10));
+
+  const bases = { XS: 1, S: 2, M: 3, L: 4, XL: 5 };
+  if (bases[s] !== undefined) return bases[s];
+
+  // Multiplied large: 2XL, 3XL, 4XL, … 7XL.
+  const xlMatch = s.match(/^(\d+)XL$/);
+  if (xlMatch) return 5 + parseInt(xlMatch[1], 10);
+
+  // Numeric sizes (e.g., shoe sizes): parse directly.
+  const num = parseFloat(s);
+  if (!isNaN(num)) return 100 + num;
+
+  return Infinity;
+}
+
+/**
+ * Check if an attribute is a size attribute.
+ *
+ * @param {string} slug - Attribute slug (e.g. "pa_size").
+ * @param {string} name - Attribute display name (e.g. "Size").
+ * @return {boolean}
+ */
+function isSizeAttr(slug, name) {
+  const s = (slug || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+  return s === 'pa_size' || s === 'size' || n === 'size';
+}
+
+/**
  * Build attribute data from a Store API product for template rendering.
  *
  * @param {Object} product - Store API product response.
@@ -219,44 +262,47 @@ function buildAttributes(product, colorSwatchData, variations) {
       const colorAttr = isColorSlug(slug, attr.name);
       const varValues = varValuesByAttr[slug] || new Set();
 
-      return {
-        name: attr.name,
-        slug,
-        options: (attr.terms || []).map(term => {
-          const termSlug = term.slug || term.name;
-          // For color attributes, prefer the display name from our
-          // Color_Data_Manager swatch data over the Store API term name
-          // which may return numeric IDs on some configurations.
-          // Try slug first, then fall back to term ID.
-          const swatch =
-            colorAttr && colorSwatchData
-              ? colorSwatchData[termSlug] ||
-                (term.id ? colorSwatchData[String(term.id)] : null)
-              : null;
+      const options = (attr.terms || []).map(term => {
+        const termSlug = term.slug || term.name;
+        // For color attributes, prefer the display name from our
+        // Color_Data_Manager swatch data over the Store API term name
+        // which may return numeric IDs on some configurations.
+        // Try slug first, then fall back to term ID.
+        const swatch =
+          colorAttr && colorSwatchData
+            ? colorSwatchData[termSlug] ||
+              (term.id ? colorSwatchData[String(term.id)] : null)
+            : null;
 
-          // Resolve the variation-compatible value for this term.
-          // Try all candidate names (slug, name, swatch name) against
-          // the actual variation values for this attribute.
-          let varValue = termSlug;
-          for (const vv of varValues) {
-            const vvLower = vv.toLowerCase();
-            for (const candidate of termCandidates(term)) {
-              if (vvLower === candidate) {
-                varValue = vv;
-                break;
-              }
+        // Resolve the variation-compatible value for this term.
+        // Try all candidate names (slug, name, swatch name) against
+        // the actual variation values for this attribute.
+        let varValue = termSlug;
+        for (const vv of varValues) {
+          const vvLower = vv.toLowerCase();
+          for (const candidate of termCandidates(term)) {
+            if (vvLower === candidate) {
+              varValue = vv;
+              break;
             }
-            if (varValue !== termSlug) break;
           }
+          if (varValue !== termSlug) break;
+        }
 
-          return {
-            name: swatch && swatch.name ? swatch.name : term.name,
-            slug: termSlug,
-            varValue,
-            attrSlug: slug,
-          };
-        }),
-      };
+        return {
+          name: swatch && swatch.name ? swatch.name : term.name,
+          slug: termSlug,
+          varValue,
+          attrSlug: slug,
+        };
+      });
+
+      // Sort size options in logical apparel order (XS → S → M → … → 7XL).
+      if (isSizeAttr(slug, attr.name)) {
+        options.sort((a, b) => sizeRank(a.name) - sizeRank(b.name));
+      }
+
+      return { name: attr.name, slug, options };
     });
 }
 

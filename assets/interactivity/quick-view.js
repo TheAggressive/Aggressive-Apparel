@@ -389,6 +389,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     // Gallery support.
     productImages: [],
+    _originalImages: [],
     activeImageIndex: 0,
 
     // Stock status.
@@ -744,6 +745,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.addedToCart = false;
       state.cartError = '';
       state.productImages = [];
+      state._originalImages = [];
       state.activeImageIndex = 0;
       state.stockStatus = 'instock';
       state.stockQuantity = null;
@@ -805,7 +807,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           state.productType = data.type || 'simple';
 
           // Gallery images.
-          state.productImages = buildGalleryImages(data);
+          const gallery = buildGalleryImages(data);
+          state.productImages = gallery;
+          state._originalImages = gallery.map(img => ({ ...img }));
           state.activeImageIndex = 0;
 
           // Fallback for single image.
@@ -942,10 +946,25 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (match) {
         state.matchedVariationId = match.id;
 
-        // Update image if the variation has its own.
+        // Update gallery to show the variation image.
         if (match.image) {
+          const alt = match.imageAlt || state.productName;
+          const galleryIndex = state.productImages.findIndex(
+            img => img.src === match.image
+          );
+          if (galleryIndex >= 0) {
+            // Image exists in gallery — just switch to it.
+            state.activeImageIndex = galleryIndex;
+          } else if (state.productImages.length > 0) {
+            // Variation image not in gallery — replace first entry.
+            state.productImages = [
+              { ...state.productImages[0], src: match.image, alt },
+              ...state.productImages.slice(1),
+            ];
+            state.activeImageIndex = 0;
+          }
           state.productImage = match.image;
-          state.productImageAlt = match.imageAlt || state.productName;
+          state.productImageAlt = alt;
         }
 
         // Update price if the variation has different pricing.
@@ -957,6 +976,11 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         }
       } else {
         state.matchedVariationId = 0;
+        // Restore original gallery when no variation is matched.
+        if (state._originalImages.length > 0) {
+          state.productImages = state._originalImages.map(img => ({ ...img }));
+          state.activeImageIndex = 0;
+        }
       }
     },
 

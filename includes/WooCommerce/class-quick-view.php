@@ -503,7 +503,7 @@ class Quick_View {
 							<!-- Large product image — visible on desktop (left column). -->
 							<div class="aggressive-apparel-quick-view__drawer-image">
 								<img
-									src=""
+									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
 									data-wp-bind--src="state.currentImage.src"
 									data-wp-bind--alt="state.currentImage.alt"
@@ -513,7 +513,7 @@ class Quick_View {
 							<!-- Product header row. -->
 							<div class="aggressive-apparel-quick-view__drawer-header">
 								<img
-									src=""
+									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
 									class="aggressive-apparel-quick-view__drawer-thumb"
 									data-wp-bind--src="state.currentImage.src"
@@ -642,7 +642,7 @@ class Quick_View {
 							</p>
 							<div class="aggressive-apparel-quick-view__drawer-success-product">
 								<img
-									src=""
+									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
 									class="aggressive-apparel-quick-view__drawer-thumb"
 									data-wp-bind--src="state.currentImage.src"

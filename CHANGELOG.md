@@ -1,3 +1,15 @@
+# [1.34.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.33.0...v1.34.0) (2026-02-16)
+
+
+### Bug Fixes
+
+* update quick view script registration to use file modification time ([a6f70fa](https://github.com/TheAggressive/Aggressive-Apparel/commit/a6f70fa9a886fd6b3e0982c22e60da782d6e05ef))
+
+
+### Features
+
+* improve candidate name resolution for quick view attributes ([af60757](https://github.com/TheAggressive/Aggressive-Apparel/commit/af60757ed385af1c865a6b4fde9f9e3a9a9f4b57))
+
 # [1.33.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.32.0...v1.33.0) (2026-02-16)
 
 

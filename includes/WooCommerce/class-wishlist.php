@@ -189,7 +189,7 @@ class Wishlist {
 		$html .= '<template data-wp-each="state.wishlistProducts">';
 		$html .= '<div class="aggressive-apparel-wishlist-page__item">';
 		$html .= '<a class="aggressive-apparel-wishlist-page__item-link" data-wp-bind--href="context.item.permalink">';
-		$html .= '<img class="aggressive-apparel-wishlist-page__item-image" src="" alt="" loading="lazy"'
+		$html .= '<img class="aggressive-apparel-wishlist-page__item-image" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" loading="lazy"'
 			. ' data-wp-bind--src="context.item.image"'
 			. ' data-wp-bind--alt="context.item.name" />';
 		$html .= '</a>';

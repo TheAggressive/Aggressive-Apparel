@@ -15,6 +15,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
+import { decodeEntities } from '@aggressive-apparel/helpers';
 
 const STORAGE_KEY = 'aggressive_apparel_wishlist';
 
@@ -71,7 +72,7 @@ function formatPrice(prices) {
 function toWishlistItem(product) {
   return {
     id: product.id,
-    name: product.name || '',
+    name: decodeEntities(product.name) || '',
     image:
       product.images && product.images.length > 0 ? product.images[0].src : '',
     price: formatPrice(product.prices),

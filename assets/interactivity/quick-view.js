@@ -961,41 +961,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
-     * Select an attribute from a dropdown <select>.
-     */
-    selectAttributeFromDropdown(event) {
-      const ctx = getContext();
-      const attrSlug = ctx.item ? ctx.item.slug : '';
-      const optionSlug = event.target.value;
-
-      if (!attrSlug) {
-        return;
-      }
-
-      const newSelected = { ...state.selectedAttributes };
-      newSelected[attrSlug] = optionSlug;
-      state.selectedAttributes = newSelected;
-
-      const match = matchVariation(state.productVariations, newSelected);
-
-      if (match) {
-        state.matchedVariationId = match.id;
-        if (match.image) {
-          state.productImage = match.image;
-          state.productImageAlt = match.imageAlt || state.productName;
-        }
-        if (match.prices) {
-          const priceData = parsePrice(match.prices);
-          state.productPrice = priceData.current;
-          state.productRegularPrice = priceData.regular;
-          state.productOnSale = priceData.onSale;
-        }
-      } else {
-        state.matchedVariationId = 0;
-      }
-    },
-
-    /**
      * Scroll the thumbnail strip left or right.
      */
     scrollThumbnails(event) {

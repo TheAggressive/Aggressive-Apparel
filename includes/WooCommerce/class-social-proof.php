@@ -117,7 +117,7 @@ class Social_Proof {
 		echo '<div class="aggressive-apparel-social-proof" data-wp-interactive="aggressive-apparel/social-proof" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.startCycle" role="status" aria-live="polite">';
 		echo '<div class="aggressive-apparel-social-proof__toast" data-wp-class--is-visible="context.isVisible" data-wp-bind--hidden="context.isDismissed">';
 		echo '<a class="aggressive-apparel-social-proof__link" data-wp-bind--href="state.currentUrl">';
-		echo '<div class="aggressive-apparel-social-proof__image"><img data-wp-bind--src="state.currentThumbnailSrc" alt="" /></div>';
+		echo '<div class="aggressive-apparel-social-proof__image"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-wp-bind--src="state.currentThumbnailSrc" alt="" /></div>';
 		echo '<div class="aggressive-apparel-social-proof__body">';
 		echo '<p class="aggressive-apparel-social-proof__message" data-wp-text="state.currentMessage"></p>';
 		echo '<p class="aggressive-apparel-social-proof__time" data-wp-text="state.currentTime"></p>';

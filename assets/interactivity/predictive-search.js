@@ -8,7 +8,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
-import { parsePrice } from '@aggressive-apparel/helpers';
+import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
 
 let debounceTimer = null;
 let abortController = null;
@@ -138,7 +138,7 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
           const seenCategories = new Map();
 
           state.products = products.map(p => ({
-            name: p.name,
+            name: decodeEntities(p.name),
             permalink: p.permalink,
             thumbnail: p.images?.[0]?.thumbnail || p.images?.[0]?.src || '',
             price: parsePrice(p.prices).current,
@@ -150,7 +150,7 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
               p.categories.forEach(cat => {
                 if (!seenCategories.has(cat.id)) {
                   seenCategories.set(cat.id, {
-                    name: cat.name,
+                    name: decodeEntities(cat.name),
                     permalink: cat.link || cat.permalink || '#',
                   });
                 }

@@ -171,6 +171,7 @@ class Predictive_Search {
 							>
 								<img
 									class="aa-predictive-search__product-image"
+									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									data-wp-bind--src="context.item.thumbnail"
 									data-wp-bind--alt="context.item.name"
 									width="40"

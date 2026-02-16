@@ -609,28 +609,6 @@
 	}
 }
 
-/* Attribute dropdown (non-color attributes). */
-.aggressive-apparel-quick-view__attribute-select {
-	display: block;
-	width: 100%;
-	padding: 0.5em 0.75em;
-	border: 1.5px solid color-mix(in oklch, currentcolor 25%, transparent);
-	border-radius: 0.25rem;
-	background: none;
-	font-size: 0.85rem;
-	font-weight: 500;
-	font-family: inherit;
-	cursor: pointer;
-	appearance: auto;
-	margin-top: 0.25rem;
-
-	&:focus-visible {
-		border-color: var(--wp--preset--color--black, #000);
-		outline: 2px solid var(--wp--preset--color--black, #000);
-		outline-offset: 1px;
-	}
-}
-
 /* Actions group. */
 .aggressive-apparel-quick-view__actions {
 	display: flex;

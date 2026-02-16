@@ -245,7 +245,7 @@ class Quick_View {
 							data-wp-on--touchend="actions.handleTouchEnd"
 						>
 							<img
-								src=""
+								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 								alt=""
 								data-wp-bind--src="state.currentImage.src"
 								data-wp-bind--alt="state.currentImage.alt"
@@ -295,7 +295,7 @@ class Quick_View {
 										aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
 									>
 										<img
-											src=""
+											src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 											alt=""
 											data-wp-bind--src="context.item.thumbnail"
 											data-wp-bind--alt="context.item.alt"
@@ -556,24 +556,24 @@ class Quick_View {
 												</template>
 											</div>
 										</div>
-										<!-- Non-color attributes: dropdown. -->
+										<!-- Non-color attributes: pill buttons. -->
 										<div data-wp-bind--hidden="state.isColorAttribute">
-											<label class="aggressive-apparel-quick-view__attribute-label">
-												<span data-wp-text="context.item.name"></span>
-												<select
-													class="aggressive-apparel-quick-view__attribute-select"
-													data-wp-on--change="actions.selectAttributeFromDropdown"
-												>
-													<option value=""><?php echo esc_html__( 'Choose...', 'aggressive-apparel' ); ?></option>
-													<template data-wp-each="context.item.options">
-														<option
-															data-wp-bind--value="context.item.slug"
-															data-wp-text="context.item.name"
-															data-wp-bind--selected="state.isOptionSelected"
-														></option>
-													</template>
-												</select>
-											</label>
+											<span
+												class="aggressive-apparel-quick-view__attribute-label"
+												data-wp-text="context.item.name"
+											></span>
+											<div class="aggressive-apparel-quick-view__attribute-options">
+												<template data-wp-each="context.item.options">
+													<button
+														type="button"
+														class="aggressive-apparel-quick-view__attribute-option"
+														data-wp-on--click="actions.selectAttribute"
+														data-wp-class--is-selected="state.isOptionSelected"
+														data-wp-text="context.item.name"
+														data-wp-bind--aria-pressed="state.isOptionSelected"
+													></button>
+												</template>
+											</div>
 										</div>
 									</div>
 								</template>

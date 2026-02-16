@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.26.0...v1.27.0) (2026-02-16)
+
+
+### Features
+
+* add HTML entity decoding and enhance quick view error handling ([1db0220](https://github.com/TheAggressive/Aggressive-Apparel/commit/1db0220019808352cbad6ae7a9fa37fb51475019))
+
 # [1.26.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.25.0...v1.26.0) (2026-02-15)
 
 

@@ -1,3 +1,15 @@
+# [1.36.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.35.1...v1.36.0) (2026-02-16)
+
+
+### Bug Fixes
+
+* simplify parsing in sizeRank function ([3f38ba6](https://github.com/TheAggressive/Aggressive-Apparel/commit/3f38ba64199e60e3a6539bcf7412680abece7502))
+
+
+### Features
+
+* add size ranking and attribute checking functions in quick view ([658e399](https://github.com/TheAggressive/Aggressive-Apparel/commit/658e39901d165ffc85979b0427afe54afc643a7d))
+
 ## [1.35.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.35.0...v1.35.1) (2026-02-16)
 
 

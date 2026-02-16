@@ -145,12 +145,38 @@ function calculateSalePercentage(regularPrice, salePrice) {
  * @param {Object} product - Store API product response.
  * @return {Array} Array of `{ name, slug, options: [{ name, slug }] }`.
  */
-function buildAttributes(product, colorSwatchData) {
+function buildAttributes(product, colorSwatchData, variations) {
   if (!product.attributes || product.attributes.length === 0) {
     return [];
   }
 
-  const attrSlugFor = attr => attr.taxonomy || attr.name;
+  // Build a mapping from term values to the attribute keys that
+  // variations actually use (e.g. "red" → "pa_color"). This lets us
+  // resolve the correct slug when product-level attr.taxonomy is empty.
+  const varKeyByValue = {};
+  const rawVariations = variations || product.variations || [];
+  if (rawVariations.length > 0) {
+    for (const v of rawVariations) {
+      for (const va of v.attributes || []) {
+        const key = va.attribute || va.name || '';
+        if (va.value && key) {
+          varKeyByValue[va.value] = key;
+        }
+      }
+    }
+  }
+
+  const attrSlugFor = attr => {
+    if (attr.taxonomy) return attr.taxonomy;
+    // No taxonomy — resolve from variation data by matching term slugs.
+    for (const term of attr.terms || []) {
+      const termSlug = term.slug || term.name;
+      if (varKeyByValue[termSlug]) {
+        return varKeyByValue[termSlug];
+      }
+    }
+    return attr.name;
+  };
 
   return product.attributes
     .filter(attr => attr.has_variations)
@@ -897,11 +923,12 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
           // Variable product data.
           if (data.type === 'variable' && data.has_options) {
+            state.productVariations = buildVariations(data);
             state.productAttributes = buildAttributes(
               data,
-              state.colorSwatchData
+              state.colorSwatchData,
+              data.variations
             );
-            state.productVariations = buildVariations(data);
 
             // Initialise selectedAttributes with empty values.
             const sel = {};

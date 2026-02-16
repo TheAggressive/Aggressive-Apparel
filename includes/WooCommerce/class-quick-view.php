@@ -59,12 +59,13 @@ class Quick_View {
 			);
 		}
 
+		$js_file = AGGRESSIVE_APPAREL_DIR . '/assets/interactivity/quick-view.js';
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/quick-view',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/quick-view.js',
 				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
-				AGGRESSIVE_APPAREL_VERSION,
+				(string) filemtime( $js_file ),
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/quick-view' );
 		}

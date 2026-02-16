@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.37.0...v1.38.0) (2026-02-16)
+
+
+### Features
+
+* enhance category filtering with hierarchical structure ([a2d25e3](https://github.com/TheAggressive/Aggressive-Apparel/commit/a2d25e3db2cc3ecaf1d62b64c514801d27a0433a))
+
 # [1.37.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.36.1...v1.37.0) (2026-02-16)
 
 

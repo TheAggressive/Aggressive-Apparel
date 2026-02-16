@@ -388,75 +388,14 @@ class Quick_View {
 							data-wp-text="state.productDescription"
 						></p>
 
-						<!-- Bottom group: attributes + cart actions pushed to bottom. -->
+						<!-- Bottom group: cart actions pushed to bottom. -->
 						<div class="aggressive-apparel-quick-view__bottom-group">
-
-						<!-- Attribute selectors (variable products only). -->
-						<div
-							class="aggressive-apparel-quick-view__attributes"
-							data-wp-bind--hidden="state.hideInlineAttributes"
-							hidden
-						>
-							<template data-wp-each="state.productAttributes">
-								<div class="aggressive-apparel-quick-view__attribute">
-									<!-- Color attributes: swatches. -->
-									<div data-wp-bind--hidden="state.isNotColorAttribute">
-										<span
-											class="aggressive-apparel-quick-view__attribute-label"
-											data-wp-text="context.item.name"
-										></span>
-										<div class="aggressive-apparel-quick-view__attribute-options is-color-attribute">
-											<template data-wp-each="context.item.options">
-												<button
-													type="button"
-													class="aggressive-apparel-quick-view__attribute-option is-color-swatch"
-													data-wp-on--click="actions.selectAttribute"
-													data-wp-class--is-selected="state.isOptionSelected"
-													data-wp-style--background-color="state.colorSwatchValue"
-													data-wp-bind--title="state.colorSwatchName"
-													data-wp-bind--aria-label="state.colorSwatchName"
-													data-wp-bind--aria-pressed="state.isOptionSelected"
-												></button>
-											</template>
-										</div>
-									</div>
-									<!-- Non-color attributes: dropdown. -->
-									<div data-wp-bind--hidden="state.isColorAttribute">
-										<label class="aggressive-apparel-quick-view__attribute-label">
-											<span data-wp-text="context.item.name"></span>
-											<select
-												class="aggressive-apparel-quick-view__attribute-select"
-												data-wp-on--change="actions.selectAttributeFromDropdown"
-											>
-												<option value=""><?php echo esc_html__( 'Choose...', 'aggressive-apparel' ); ?></option>
-												<template data-wp-each="context.item.options">
-													<option
-														data-wp-bind--value="context.item.slug"
-														data-wp-text="context.item.name"
-														data-wp-bind--selected="state.isOptionSelected"
-													></option>
-												</template>
-											</select>
-										</label>
-									</div>
-								</div>
-							</template>
-						</div>
 
 						<!-- Cart actions. -->
 						<div class="aggressive-apparel-quick-view__actions">
-							<!-- Select Options button (mobile variable products). -->
-							<button
-								type="button"
-								class="aggressive-apparel-quick-view__select-options"
-								data-wp-on--click="actions.openDrawer"
-								data-wp-bind--hidden="state.hideSelectOptionsBtn"
-								hidden
-							><?php echo esc_html__( 'Select Options', 'aggressive-apparel' ); ?></button>
-
-							<!-- Quantity + Add to Cart row. -->
+							<!-- Quantity + action button row. -->
 							<div class="aggressive-apparel-quick-view__cart-row" data-wp-bind--hidden="state.hideInlineCartRow">
-								<div class="aggressive-apparel-quick-view__quantity">
+								<div class="aggressive-apparel-quick-view__quantity" data-wp-bind--hidden="state.hideInlineAddToCart">
 									<button
 										type="button"
 										class="aggressive-apparel-quick-view__qty-btn"
@@ -484,10 +423,20 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__add-to-cart"
 									data-wp-on--click="actions.addToCart"
 									data-wp-bind--disabled="state.cannotAddToCart"
+									data-wp-bind--hidden="state.hideInlineAddToCart"
 									data-wp-text="state.addToCartLabel"
 									data-wp-class--is-adding="state.isAddingToCart"
 									data-wp-class--is-success="state.isCartSuccess"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+
+								<!-- Select Options — replaces Add to Cart for variable products. -->
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__select-options"
+									data-wp-on--click="actions.openDrawer"
+									data-wp-bind--hidden="state.hideSelectOptionsBtn"
+									hidden
+								><?php echo esc_html__( 'Select Options', 'aggressive-apparel' ); ?></button>
 							</div>
 
 							<!-- Post-cart actions panel. -->
@@ -522,7 +471,7 @@ class Quick_View {
 							></p>
 						</div>
 
-						<!-- View Full Product — outside __actions so it stays in scrollable content on mobile (not in the fixed bar). -->
+						<!-- View Full Product. -->
 						<a
 							href="#"
 							class="aggressive-apparel-quick-view__link"

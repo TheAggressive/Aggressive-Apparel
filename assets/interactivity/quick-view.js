@@ -527,10 +527,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       return !state.hasMultipleImages;
     },
 
-    get isNotVariable() {
-      return !state.isVariable;
-    },
-
     get cannotAddToCart() {
       return !state.canAddToCart;
     },
@@ -559,38 +555,30 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     /**
      * Hide "Select Options" button when not needed:
-     * desktop, simple products, drawer already open, or post-cart showing.
+     * simple products, drawer already open, or post-cart showing.
      */
     get hideSelectOptionsBtn() {
       return (
-        !state.isVariable ||
-        !state.isMobile ||
-        state.isDrawerOpen ||
-        state.showPostCartActions ||
-        state.addedToCart
+        !state.isVariable || state.showPostCartActions || state.addedToCart
       );
     },
 
     /**
-     * Hide inline cart-row on mobile for variable products
-     * (they use the drawer instead). Desktop always shows inline.
+     * Hide inline cart-row when post-cart panel is showing.
+     * The row stays visible for both simple and variable products;
+     * which *button* inside it is visible is controlled by
+     * hideInlineAddToCart / hideSelectOptionsBtn.
      */
     get hideInlineCartRow() {
-      if (!state.isMobile) {
-        return state.showPostCartActions;
-      }
-      return state.isVariable || state.showPostCartActions;
+      return state.showPostCartActions;
     },
 
     /**
-     * Hide inline attributes on mobile (drawer has them).
-     * On desktop, show when product is variable.
+     * Hide inline Add to Cart button for variable products
+     * (they use the drawer's Add to Cart instead).
      */
-    get hideInlineAttributes() {
-      if (!state.isMobile) {
-        return !state.isVariable;
-      }
-      return true;
+    get hideInlineAddToCart() {
+      return state.isVariable;
     },
 
     get isDrawerClosed() {
@@ -1317,24 +1305,22 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           setTimeout(() => {
             state.isCartSuccess = false;
 
-            if (state.isMobile) {
-              if (state.isDrawerOpen) {
-                // Variable product — switch drawer to success view.
-                state.drawerView = 'success';
-              } else {
-                // Simple product — open drawer with success view.
-                state.drawerView = 'success';
-                const drawerEl = document.querySelector(
-                  '.aggressive-apparel-quick-view__drawer'
-                );
-                if (drawerEl) {
-                  drawerEl.hidden = false;
-                  void drawerEl.offsetHeight; // eslint-disable-line no-void
-                }
-                state.isDrawerOpen = true;
+            if (state.isDrawerOpen) {
+              // Variable product (any screen) — switch drawer to success view.
+              state.drawerView = 'success';
+            } else if (state.isMobile) {
+              // Simple product on mobile — open drawer with success view.
+              state.drawerView = 'success';
+              const drawerEl = document.querySelector(
+                '.aggressive-apparel-quick-view__drawer'
+              );
+              if (drawerEl) {
+                drawerEl.hidden = false;
+                void drawerEl.offsetHeight; // eslint-disable-line no-void
               }
+              state.isDrawerOpen = true;
             } else {
-              // Desktop — show inline post-cart panel.
+              // Simple product on desktop — inline post-cart panel.
               state.addedToCart = true;
               state.showPostCartActions = true;
             }

@@ -1,3 +1,11 @@
+# [1.32.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.31.0...v1.32.0) (2026-02-16)
+
+
+### Features
+
+* add eye icon to quick view button and update styles ([90d5200](https://github.com/TheAggressive/Aggressive-Apparel/commit/90d5200b590ae765165cd1c7b77998278e1af17a))
+* enhance case-insensitivity in attribute handling for quick view ([1dc309f](https://github.com/TheAggressive/Aggressive-Apparel/commit/1dc309f4c70c867cbbc87e98c4c8823027665189))
+
 # [1.31.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.30.0...v1.31.0) (2026-02-16)
 
 

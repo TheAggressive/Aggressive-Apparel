@@ -99,26 +99,28 @@ class Color_Attribute_Manager {
 	 * @return void
 	 */
 	public function ensure_color_attribute_exists(): void {
-		if ( ! function_exists( 'wc_get_attribute_taxonomies' ) || ! function_exists( 'wc_create_attribute' ) ) {
+		if ( ! function_exists( 'wc_create_attribute' ) ) {
 			return;
 		}
+
+		global $wpdb;
 
 		$attribute_name  = self::ATTRIBUTE_NAME;
 		$attribute_label = self::ATTRIBUTE_LABEL;
 		$attribute_slug  = str_replace( 'pa_', '', $attribute_name );
 
-		// Check if color attribute exists using WooCommerce API.
-		$existing_attributes = wc_get_attribute_taxonomies();
-		$attribute_exists    = false;
+		// Query the DB directly to avoid the woocommerce_attribute_taxonomies
+		// filter, which would always report the attribute as existing and
+		// prevent it from being created in the database.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT attribute_id FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name = %s LIMIT 1",
+				$attribute_slug
+			)
+		);
 
-		foreach ( $existing_attributes as $attribute ) {
-			if ( $attribute->attribute_name === $attribute_slug ) {
-				$attribute_exists = true;
-				break;
-			}
-		}
-
-		if ( ! $attribute_exists ) {
+		if ( ! $exists ) {
 			// Create the WooCommerce attribute using API.
 			$attribute_id = wc_create_attribute(
 				array(
@@ -155,12 +157,22 @@ class Color_Attribute_Manager {
 	 * @return array Modified attribute taxonomies.
 	 */
 	public function register_color_attribute( array $attribute_taxonomies ): array {
-		$attribute_name  = str_replace( 'pa_', '', self::ATTRIBUTE_NAME );
+		$attribute_slug  = str_replace( 'pa_', '', self::ATTRIBUTE_NAME );
 		$attribute_label = self::ATTRIBUTE_LABEL;
 
+		// Don't add a duplicate if the attribute already exists in the
+		// list (e.g. from the database). A duplicate with attribute_id 0
+		// confuses WooCommerce's REST API validation and breaks imports
+		// from services like Printful.
+		foreach ( $attribute_taxonomies as $attr ) {
+			if ( isset( $attr->attribute_name ) && $attr->attribute_name === $attribute_slug ) {
+				return $attribute_taxonomies;
+			}
+		}
+
 		$attribute_taxonomies[] = (object) array(
-			'attribute_id'      => 0, // Will be set by WooCommerce.
-			'attribute_name'    => $attribute_name,
+			'attribute_id'      => 0,
+			'attribute_name'    => $attribute_slug,
 			'attribute_label'   => $attribute_label,
 			'attribute_type'    => 'select',
 			'attribute_orderby' => 'menu_order',

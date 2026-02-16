@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.29.0...v1.30.0) (2026-02-16)
+
+
+### Features
+
+* enhance image synchronization across components ([467dff0](https://github.com/TheAggressive/Aggressive-Apparel/commit/467dff07a9a98c773cb61127c9afe2d4cf8162e6))
+
 # [1.29.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.28.0...v1.29.0) (2026-02-16)
 
 

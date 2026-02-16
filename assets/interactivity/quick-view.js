@@ -1004,7 +1004,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
                 : 'none',
               '| var0 attrs:',
               var0
-                ? var0.map(a => `${a.attribute || a.name}="${a.value}"`).join(', ')
+                ? var0
+                    .map(a => `${a.attribute || a.name}="${a.value}"`)
+                    .join(', ')
                 : 'none',
               '| resolved:',
               JSON.stringify(sel),
@@ -1105,9 +1107,12 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       // TODO: Remove after confirming variation matching works on production.
       console.log(
         '[Quick View] select —',
-        'selected:', JSON.stringify(newSelected),
-        '| item:', `slug="${ctx.item.slug}" varValue="${ctx.item.varValue}" attrSlug="${attrSlug}"`,
-        '| match:', match ? match.id : null
+        'selected:',
+        JSON.stringify(newSelected),
+        '| item:',
+        `slug="${ctx.item.slug}" varValue="${ctx.item.varValue}" attrSlug="${attrSlug}"`,
+        '| match:',
+        match ? match.id : null
       );
 
       if (match) {

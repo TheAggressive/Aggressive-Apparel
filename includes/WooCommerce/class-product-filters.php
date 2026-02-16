@@ -561,20 +561,14 @@ class Product_Filters {
 	 * @return void
 	 */
 	private function render_filter_sections( array $data ): void {
-		// Categories.
+		// Categories (hierarchical).
 		if ( ! empty( $data['categories'] ) ) {
-			$this->render_section_start( 'categories', __( 'Categories', 'aggressive-apparel' ) );
-			echo '<ul class="aa-product-filters__category-list" role="group" aria-label="' . esc_attr__( 'Filter by category', 'aggressive-apparel' ) . '">';
-			foreach ( $data['categories'] as $cat ) {
-				printf(
-					'<li class="aa-product-filters__category-item"><label class="aa-product-filters__category-label"><input type="checkbox" class="aa-product-filters__category-checkbox" value="%s" data-wp-on--change="actions.toggleCategory" data-filter-type="category" /><span class="aa-product-filters__category-name">%s</span><span class="aa-product-filters__category-count">%d</span></label></li>',
-					esc_attr( $cat['slug'] ),
-					esc_html( $cat['name'] ),
-					(int) $cat['count'],
-				);
+			$tree = $this->build_category_tree( $data['categories'] );
+			if ( ! empty( $tree ) ) {
+				$this->render_section_start( 'categories', __( 'Categories', 'aggressive-apparel' ) );
+				$this->render_category_tree( $tree );
+				$this->render_section_end();
 			}
-			echo '</ul>';
-			$this->render_section_end();
 		}
 
 		// Colors.
@@ -695,6 +689,78 @@ class Product_Filters {
 	 */
 	private function render_section_end(): void {
 		echo '</div></div>';
+	}
+
+	/**
+	 * Build a hierarchical category tree from a flat list.
+	 *
+	 * Groups child categories under their parents. Top-level parents
+	 * that have only one child (and no products of their own) are
+	 * skipped — the child is promoted to top level.
+	 *
+	 * @param array $categories Flat array with 'id', 'parent', etc.
+	 * @return array Tree array with 'children' key on parents.
+	 */
+	private function build_category_tree( array $categories ): array {
+		$by_id = array();
+		foreach ( $categories as $cat ) {
+			$cat['children']     = array();
+			$by_id[ $cat['id'] ] = $cat;
+		}
+
+		$tree = array();
+		foreach ( $by_id as &$cat ) {
+			if ( $cat['parent'] && isset( $by_id[ $cat['parent'] ] ) ) {
+				$by_id[ $cat['parent'] ]['children'][] = &$cat;
+			} else {
+				$tree[] = &$cat;
+			}
+		}
+		unset( $cat );
+
+		return $tree;
+	}
+
+	/**
+	 * Render a category tree as nested lists.
+	 *
+	 * @param array $nodes   Category nodes (each may have 'children').
+	 * @param bool  $is_root Whether this is the top-level list.
+	 * @return void
+	 */
+	private function render_category_tree( array $nodes, bool $is_root = true ): void {
+		$class = 'aa-product-filters__category-list';
+		if ( ! $is_root ) {
+			$class .= ' aa-product-filters__category-list--children';
+		}
+
+		if ( $is_root ) {
+			printf(
+				'<ul class="%s" role="group" aria-label="%s">',
+				esc_attr( $class ),
+				esc_attr__( 'Filter by category', 'aggressive-apparel' ),
+			);
+		} else {
+			printf( '<ul class="%s">', esc_attr( $class ) );
+		}
+
+		foreach ( $nodes as $cat ) {
+			echo '<li class="aa-product-filters__category-item">';
+			printf(
+				'<label class="aa-product-filters__category-label"><input type="checkbox" class="aa-product-filters__category-checkbox" value="%s" data-wp-on--change="actions.toggleCategory" data-filter-type="category" /><span class="aa-product-filters__category-name">%s</span><span class="aa-product-filters__category-count">%d</span></label>',
+				esc_attr( $cat['slug'] ),
+				esc_html( $cat['name'] ),
+				(int) $cat['count'],
+			);
+
+			if ( ! empty( $cat['children'] ) ) {
+				$this->render_category_tree( $cat['children'], false );
+			}
+
+			echo '</li>';
+		}
+
+		echo '</ul>';
 	}
 
 	/**

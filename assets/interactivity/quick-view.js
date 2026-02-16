@@ -398,10 +398,44 @@ function matchVariation(variations, selected) {
 let focusTrapCleanup = null;
 let triggerElement = null;
 
+// Cache fetched variation image data so repeated selections don't refetch.
+const variationImageCache = new Map();
+
 /* Touch swipe tracking for mobile gallery. */
 let touchStartX = 0;
 let touchStartY = 0;
 let isSwiping = false;
+
+/**
+ * Apply a variation image to the gallery.
+ *
+ * If the image already exists in the gallery, switch to it.
+ * Otherwise, replace the first gallery entry with the variation image.
+ * Passing null restores the original gallery.
+ *
+ * @param {{ src: string, alt: string } | null} img
+ */
+function applyVariationImage(img) {
+  if (!img || !img.src) return;
+
+  const galleryIndex = state.productImages.findIndex(
+    i => i.src === img.src
+  );
+
+  if (galleryIndex >= 0) {
+    state.activeImageIndex = galleryIndex;
+  } else if (state.productImages.length > 0) {
+    fadeImage();
+    state.productImages = [
+      { ...state.productImages[0], src: img.src, alt: img.alt },
+      ...state.productImages.slice(1),
+    ];
+    state.activeImageIndex = 0;
+  }
+
+  state.productImage = img.src;
+  state.productImageAlt = img.alt;
+}
 
 /**
  * Briefly fade the main product image to smooth gallery transitions.
@@ -914,6 +948,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       }
 
       // Reset all state.
+      variationImageCache.clear();
       state.isOpen = true;
       state.isLoading = true;
       state.hasError = false;
@@ -1159,27 +1194,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (match) {
         state.matchedVariationId = match.id;
 
-        // Update gallery to show the variation image.
-        if (match.image) {
-          const alt = match.imageAlt || state.productName;
-          const galleryIndex = state.productImages.findIndex(
-            img => img.src === match.image
-          );
-          if (galleryIndex >= 0) {
-            // Image exists in gallery — just switch to it.
-            state.activeImageIndex = galleryIndex;
-          } else if (state.productImages.length > 0) {
-            // Variation image not in gallery — replace first entry.
-            state.productImages = [
-              { ...state.productImages[0], src: match.image, alt },
-              ...state.productImages.slice(1),
-            ];
-            state.activeImageIndex = 0;
-          }
-          state.productImage = match.image;
-          state.productImageAlt = alt;
-        }
-
         // Update price if the variation has different pricing.
         if (match.prices) {
           const priceData = parsePrice(match.prices);
@@ -1187,11 +1201,42 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           state.productRegularPrice = priceData.regular;
           state.productOnSale = priceData.onSale;
         }
+
+        // Fetch the variation's own image from the Store API.
+        // The parent product response doesn't include per-variation
+        // images, so we fetch GET /products/{variationId} to get it.
+        const vid = match.id;
+        if (variationImageCache.has(vid)) {
+          applyVariationImage(variationImageCache.get(vid));
+        } else {
+          const base =
+            state.restBase || '/wp-json/wc/store/v1/products/';
+          fetch(`${base}${vid}`)
+            .then(res => (res.ok ? res.json() : null))
+            .then(data => {
+              if (!data) return;
+              const img =
+                data.images && data.images.length > 0
+                  ? {
+                      src: data.images[0].src,
+                      alt: data.images[0].alt || state.productName,
+                    }
+                  : null;
+              variationImageCache.set(vid, img);
+              // Only apply if this variation is still the active match.
+              if (state.matchedVariationId === vid) {
+                applyVariationImage(img);
+              }
+            })
+            .catch(() => {});
+        }
       } else {
         state.matchedVariationId = 0;
         // Restore original gallery when no variation is matched.
         if (state._originalImages.length > 0) {
-          state.productImages = state._originalImages.map(img => ({ ...img }));
+          state.productImages = state._originalImages.map(img => ({
+            ...img,
+          }));
           state.activeImageIndex = 0;
         }
       }

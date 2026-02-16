@@ -91,6 +91,15 @@ class Quick_View {
 			return $block_content;
 		}
 
+		$icon = Icons::get(
+			'eye',
+			array(
+				'width'       => 20,
+				'height'      => 20,
+				'aria-hidden' => 'true',
+			)
+		);
+
 		$button = sprintf(
 			'<button type="button" class="aggressive-apparel-quick-view__trigger" data-wp-interactive="aggressive-apparel/quick-view" data-wp-on--click="actions.open" data-wp-context=\'{"productId":%d}\' aria-label="%s">%s</button>',
 			$product->get_id(),
@@ -101,7 +110,7 @@ class Quick_View {
 					$product->get_name(),
 				),
 			),
-			esc_html__( 'Quick View', 'aggressive-apparel' ),
+			$icon,
 		);
 
 		// Append the button inside the figure/div wrapper.

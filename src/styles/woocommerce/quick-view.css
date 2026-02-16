@@ -13,21 +13,32 @@
 /* Trigger button on product cards. */
 .aggressive-apparel-quick-view__trigger {
 	position: absolute;
-	bottom: 0.5rem;
-	right: 0.5rem;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	z-index: 2;
-	padding: 0.4em 0.8em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
 	border: none;
-	border-radius: 0.25rem;
-	background-color: var(--wp--preset--color--white, #fff);
+	border-radius: 50%;
+	background-color: rgb(255 255 255 / 80%);
 	color: var(--wp--preset--color--black, #000);
-	font-size: 0.7rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	cursor: pointer;
 	opacity: 0;
-	transition: opacity 0.2s ease;
+	transition:
+		opacity 0.2s ease,
+		transform 0.15s ease,
+		background-color 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		transform: translate(-50%, -50%) scale(1.1);
+		background-color: rgb(255 255 255 / 100%);
+	}
 
 	/* Show on hover/touch of the product card parent. */
 	.wp-block-post-featured-image:hover &,
@@ -37,6 +48,10 @@
 
 	@media (pointer: coarse) {
 		opacity: 1;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
 	}
 }
 

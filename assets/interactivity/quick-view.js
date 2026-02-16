@@ -1024,7 +1024,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             const enrichedVar0 = state.productVariations[0]?.attributes;
             console.log(
               '[Quick View] loaded —',
-              'nameToSlug:', JSON.stringify(nameToSlug),
+              'nameToSlug:',
+              JSON.stringify(nameToSlug),
               '| enrichedVar0:',
               enrichedVar0
                 ? enrichedVar0

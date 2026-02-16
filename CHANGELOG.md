@@ -1,3 +1,11 @@
+# [1.39.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.38.0...v1.39.0) (2026-02-16)
+
+
+### Features
+
+* enhance quick view functionality with variation image caching ([d578376](https://github.com/TheAggressive/Aggressive-Apparel/commit/d578376de1054dfb617fa1411f84ad89dd7677e7))
+* streamline image index retrieval in quick view ([439f1db](https://github.com/TheAggressive/Aggressive-Apparel/commit/439f1dbf098a670d26a2b510deecb8490ccc4722))
+
 # [1.38.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.37.0...v1.38.0) (2026-02-16)
 
 

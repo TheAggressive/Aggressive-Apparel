@@ -995,45 +995,44 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           if (data.type === 'variable' && data.has_options) {
             // Build attributes first — this resolves display names
             // (e.g. "Size") to taxonomy slugs (e.g. "pa_size").
-            state.productAttributes = buildAttributes(
+            // Store in a local variable BEFORE assigning to state,
+            // because state values become Interactivity API Proxies
+            // that may not iterate correctly with for..of.
+            const resolvedAttrs = buildAttributes(
               data,
               state.colorSwatchData,
               data.variations
             );
+            state.productAttributes = resolvedAttrs;
 
             // Build a display-name → slug map so buildVariations can
             // enrich each variation attribute with the taxonomy slug.
             const nameToSlug = {};
-            for (const attr of state.productAttributes) {
+            for (const attr of resolvedAttrs) {
               nameToSlug[attr.name.toLowerCase()] = attr.slug;
             }
             state.productVariations = buildVariations(data, nameToSlug);
 
             // Initialise selectedAttributes with empty values.
             const sel = {};
-            state.productAttributes.forEach(attr => {
+            resolvedAttrs.forEach(attr => {
               sel[attr.slug] = '';
             });
             state.selectedAttributes = sel;
 
             // TODO: Remove after confirming variation matching works.
-            const term0 = (data.attributes || [])[0]?.terms?.[0];
-            const var0 = (data.variations || [])[0]?.attributes;
+            const enrichedVar0 = state.productVariations[0]?.attributes;
             console.log(
-              '[Quick View] loaded — term0:',
-              term0
-                ? `id=${term0.id} slug="${term0.slug}" name="${term0.name}"`
-                : 'none',
-              '| var0 attrs:',
-              var0
-                ? var0
-                    .map(a => `${a.attribute || a.name}="${a.value}"`)
+              '[Quick View] loaded —',
+              'nameToSlug:', JSON.stringify(nameToSlug),
+              '| enrichedVar0:',
+              enrichedVar0
+                ? enrichedVar0
+                    .map(a => `${a.attribute}="${a.value}"`)
                     .join(', ')
                 : 'none',
-              '| resolved:',
-              JSON.stringify(sel),
-              '| swatchKeys:',
-              Object.keys(state.colorSwatchData).slice(0, 5).join(',')
+              '| selectedKeys:',
+              JSON.stringify(sel)
             );
           }
 

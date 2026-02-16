@@ -275,9 +275,7 @@ function matchVariation(variations, selected) {
         }
         // Case-insensitive value comparison: term slugs may be
         // lowercase ("red") while variation values may differ ("Red").
-        return (
-          val && val.toLowerCase() === attr.value.toLowerCase()
-        );
+        return val && val.toLowerCase() === attr.value.toLowerCase();
       })
     ) || null
   );

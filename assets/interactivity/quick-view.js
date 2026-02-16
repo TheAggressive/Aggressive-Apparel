@@ -263,17 +263,30 @@ function buildAttributes(product, colorSwatchData, variations) {
 /**
  * Build simplified variation objects from a Store API product.
  *
- * @param {Object} product - Store API product response.
+ * The Store API returns variation attributes with only the display
+ * name (e.g. "Size") but no taxonomy slug. The `nameToSlug` map
+ * (built from resolved product attributes) lets us add the taxonomy
+ * slug so matchVariation() can find the correct selectedAttributes key.
+ *
+ * @param {Object} product     - Store API product response.
+ * @param {Object} nameToSlug  - Map of lowercase display name → taxonomy slug.
  * @return {Array} Array of variation objects.
  */
-function buildVariations(product) {
+function buildVariations(product, nameToSlug = {}) {
   if (!product.variations || product.variations.length === 0) {
     return [];
   }
 
   return product.variations.map(v => ({
     id: v.id,
-    attributes: v.attributes || [],
+    attributes: (v.attributes || []).map(attr => ({
+      ...attr,
+      // Add the resolved taxonomy slug so matchVariation can use it.
+      attribute:
+        attr.attribute ||
+        nameToSlug[(attr.name || '').toLowerCase()] ||
+        attr.name,
+    })),
     image:
       v.image && v.image.src
         ? v.image.src
@@ -980,12 +993,21 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
           // Variable product data.
           if (data.type === 'variable' && data.has_options) {
-            state.productVariations = buildVariations(data);
+            // Build attributes first — this resolves display names
+            // (e.g. "Size") to taxonomy slugs (e.g. "pa_size").
             state.productAttributes = buildAttributes(
               data,
               state.colorSwatchData,
               data.variations
             );
+
+            // Build a display-name → slug map so buildVariations can
+            // enrich each variation attribute with the taxonomy slug.
+            const nameToSlug = {};
+            for (const attr of state.productAttributes) {
+              nameToSlug[attr.name.toLowerCase()] = attr.slug;
+            }
+            state.productVariations = buildVariations(data, nameToSlug);
 
             // Initialise selectedAttributes with empty values.
             const sel = {};

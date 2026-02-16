@@ -168,16 +168,33 @@ function buildAttributes(product, colorSwatchData, variations) {
     }
   }
 
+  // Helper: get all candidate names for a term — slug, name, and the
+  // display name from our Color_Data_Manager swatch data. On some hosts
+  // both term.slug and term.name are numeric IDs ("237") while the
+  // swatch data holds the real name ("Red").
+  const termCandidates = term => {
+    const candidates = [];
+    if (term.slug) candidates.push(term.slug.toLowerCase());
+    if (term.name) candidates.push(term.name.toLowerCase());
+    // Swatch data may have the real display name when slug/name are IDs.
+    if (colorSwatchData) {
+      const sw =
+        colorSwatchData[term.slug] ||
+        colorSwatchData[term.name] ||
+        (term.id ? colorSwatchData[String(term.id)] : null);
+      if (sw && sw.name) candidates.push(sw.name.toLowerCase());
+    }
+    return [...new Set(candidates)];
+  };
+
   const attrSlugFor = attr => {
     if (attr.taxonomy) return attr.taxonomy;
-    // No taxonomy — resolve from variation data by matching term slugs
-    // AND term names. On some configurations term.slug is a numeric ID
-    // (e.g. "237") while variation values use the name ("red").
+    // No taxonomy — resolve from variation data by trying every
+    // candidate name for each term against the varKeyByValue map.
     for (const term of attr.terms || []) {
-      const termSlug = (term.slug || '').toLowerCase();
-      const termName = (term.name || '').toLowerCase();
-      if (termSlug && varKeyByValue[termSlug]) return varKeyByValue[termSlug];
-      if (termName && varKeyByValue[termName]) return varKeyByValue[termName];
+      for (const candidate of termCandidates(term)) {
+        if (varKeyByValue[candidate]) return varKeyByValue[candidate];
+      }
     }
     return attr.name;
   };
@@ -218,19 +235,18 @@ function buildAttributes(product, colorSwatchData, variations) {
               : null;
 
           // Resolve the variation-compatible value for this term.
-          // On some hosts term.slug is a numeric ID ("237") while
-          // variations use the term name as slug ("red").
+          // Try all candidate names (slug, name, swatch name) against
+          // the actual variation values for this attribute.
           let varValue = termSlug;
-          const termNameLower = (term.name || '').toLowerCase();
           for (const vv of varValues) {
-            if (
-              vv === termSlug ||
-              vv.toLowerCase() === termSlug.toLowerCase() ||
-              vv.toLowerCase() === termNameLower
-            ) {
-              varValue = vv;
-              break;
+            const vvLower = vv.toLowerCase();
+            for (const candidate of termCandidates(term)) {
+              if (vvLower === candidate) {
+                varValue = vv;
+                break;
+              }
             }
+            if (varValue !== termSlug) break;
           }
 
           return {
@@ -979,19 +995,22 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             state.selectedAttributes = sel;
 
             // TODO: Remove after confirming variation matching works.
-            console.log('[Quick View] Variable product loaded', {
-              rawAttrs: (data.attributes || []).map(a => ({
-                name: a.name,
-                taxonomy: a.taxonomy,
-                terms: (a.terms || []).slice(0, 3),
-              })),
-              rawVarAttrs: (data.variations || []).slice(0, 2).map(v => ({
-                id: v.id,
-                attributes: v.attributes,
-              })),
-              resolvedAttrs: state.productAttributes,
-              initialSelected: { ...sel },
-            });
+            const term0 = (data.attributes || [])[0]?.terms?.[0];
+            const var0 = (data.variations || [])[0]?.attributes;
+            console.log(
+              '[Quick View] loaded — term0:',
+              term0
+                ? `id=${term0.id} slug="${term0.slug}" name="${term0.name}"`
+                : 'none',
+              '| var0 attrs:',
+              var0
+                ? var0.map(a => `${a.attribute || a.name}="${a.value}"`).join(', ')
+                : 'none',
+              '| resolved:',
+              JSON.stringify(sel),
+              '| swatchKeys:',
+              Object.keys(state.colorSwatchData).slice(0, 5).join(',')
+            );
           }
 
           state.hasProduct = true;
@@ -1084,15 +1103,12 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       const match = matchVariation(state.productVariations, newSelected);
 
       // TODO: Remove after confirming variation matching works on production.
-      console.log('[Quick View] selectAttribute', {
-        selected: { ...newSelected },
-        variationCount: state.productVariations.length,
-        variationAttrs: state.productVariations.slice(0, 2).map(v => ({
-          id: v.id,
-          attributes: v.attributes,
-        })),
-        matchId: match?.id || null,
-      });
+      console.log(
+        '[Quick View] select —',
+        'selected:', JSON.stringify(newSelected),
+        '| item:', `slug="${ctx.item.slug}" varValue="${ctx.item.varValue}" attrSlug="${attrSlug}"`,
+        '| match:', match ? match.id : null
+      );
 
       if (match) {
         state.matchedVariationId = match.id;

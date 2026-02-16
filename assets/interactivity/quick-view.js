@@ -418,9 +418,7 @@ let isSwiping = false;
 function applyVariationImage(img) {
   if (!img || !img.src) return;
 
-  const galleryIndex = state.productImages.findIndex(
-    i => i.src === img.src
-  );
+  const galleryIndex = state.productImages.findIndex(i => i.src === img.src);
 
   if (galleryIndex >= 0) {
     state.activeImageIndex = galleryIndex;
@@ -1209,8 +1207,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         if (variationImageCache.has(vid)) {
           applyVariationImage(variationImageCache.get(vid));
         } else {
-          const base =
-            state.restBase || '/wp-json/wc/store/v1/products/';
+          const base = state.restBase || '/wp-json/wc/store/v1/products/';
           fetch(`${base}${vid}`)
             .then(res => (res.ok ? res.json() : null))
             .then(data => {

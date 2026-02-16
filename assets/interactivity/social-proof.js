@@ -92,6 +92,14 @@ store('aggressive-apparel/social-proof', {
         return;
       }
 
+      // Preload all notification thumbnails so they display instantly.
+      ctx.notifications.forEach(n => {
+        if (n.thumbnail) {
+          const img = new Image();
+          img.src = n.thumbnail;
+        }
+      });
+
       const displayMs = ctx.displayDurationMs || 5000;
       let hideTimer = null;
       let remaining = 0;

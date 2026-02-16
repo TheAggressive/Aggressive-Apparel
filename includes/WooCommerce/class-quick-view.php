@@ -245,6 +245,7 @@ class Quick_View {
 							data-wp-on--touchend="actions.handleTouchEnd"
 						>
 							<img
+								class="no-lazy"
 								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 								alt=""
 								data-wp-bind--src="state.currentImage.src"
@@ -295,6 +296,7 @@ class Quick_View {
 										aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
 									>
 										<img
+											class="no-lazy"
 											src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 											alt=""
 											data-wp-bind--src="context.item.thumbnail"
@@ -513,9 +515,9 @@ class Quick_View {
 							<!-- Product header row. -->
 							<div class="aggressive-apparel-quick-view__drawer-header">
 								<img
+									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
-									class="aggressive-apparel-quick-view__drawer-thumb"
 									data-wp-bind--src="state.currentImage.src"
 									data-wp-bind--alt="state.currentImage.alt"
 								/>
@@ -642,9 +644,9 @@ class Quick_View {
 							</p>
 							<div class="aggressive-apparel-quick-view__drawer-success-product">
 								<img
+									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
-									class="aggressive-apparel-quick-view__drawer-thumb"
 									data-wp-bind--src="state.currentImage.src"
 									data-wp-bind--alt="state.currentImage.alt"
 								/>

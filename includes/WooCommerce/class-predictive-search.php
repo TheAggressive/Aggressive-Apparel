@@ -170,13 +170,12 @@ class Predictive_Search {
 								data-wp-bind--href="context.item.permalink"
 							>
 								<img
-									class="aa-predictive-search__product-image"
+									class="aa-predictive-search__product-image no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									data-wp-bind--src="context.item.thumbnail"
 									data-wp-bind--alt="context.item.name"
 									width="40"
 									height="40"
-									loading="lazy"
 								/>
 								<div class="aa-predictive-search__product-info">
 									<span class="aa-predictive-search__product-name" data-wp-text="context.item.name"></span>

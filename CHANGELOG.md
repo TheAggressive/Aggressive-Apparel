@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.36.0...v1.36.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* improve color attribute existence check in WooCommerce ([fdb44ac](https://github.com/TheAggressive/Aggressive-Apparel/commit/fdb44ac9872fb8eb7b3ac69587ad5cb09191eb75))
+
 # [1.36.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.35.1...v1.36.0) (2026-02-16)
 
 

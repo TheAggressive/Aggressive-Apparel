@@ -1,3 +1,10 @@
+## [1.35.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.35.0...v1.35.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* improve console logging in quick view ([e8b533d](https://github.com/TheAggressive/Aggressive-Apparel/commit/e8b533d14c8bfa43aabf760b82509d2dbf111f6c))
+
 # [1.35.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.34.0...v1.35.0) (2026-02-16)
 
 

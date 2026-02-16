@@ -170,21 +170,37 @@ function buildAttributes(product, colorSwatchData, variations) {
 
   const attrSlugFor = attr => {
     if (attr.taxonomy) return attr.taxonomy;
-    // No taxonomy — resolve from variation data by matching term slugs.
+    // No taxonomy — resolve from variation data by matching term slugs
+    // AND term names. On some configurations term.slug is a numeric ID
+    // (e.g. "237") while variation values use the name ("red").
     for (const term of attr.terms || []) {
-      const termSlug = (term.slug || term.name || '').toLowerCase();
-      if (varKeyByValue[termSlug]) {
-        return varKeyByValue[termSlug];
-      }
+      const termSlug = (term.slug || '').toLowerCase();
+      const termName = (term.name || '').toLowerCase();
+      if (termSlug && varKeyByValue[termSlug]) return varKeyByValue[termSlug];
+      if (termName && varKeyByValue[termName]) return varKeyByValue[termName];
     }
     return attr.name;
   };
+
+  // Collect all variation values keyed by attribute slug so we can
+  // resolve each term to its variation-compatible value.
+  const varValuesByAttr = {};
+  for (const v of rawVariations) {
+    for (const va of v.attributes || []) {
+      const key = va.attribute || va.name || '';
+      if (key && va.value) {
+        if (!varValuesByAttr[key]) varValuesByAttr[key] = new Set();
+        varValuesByAttr[key].add(va.value);
+      }
+    }
+  }
 
   return product.attributes
     .filter(attr => attr.has_variations)
     .map(attr => {
       const slug = attrSlugFor(attr);
       const colorAttr = isColorSlug(slug, attr.name);
+      const varValues = varValuesByAttr[slug] || new Set();
 
       return {
         name: attr.name,
@@ -200,9 +216,27 @@ function buildAttributes(product, colorSwatchData, variations) {
               ? colorSwatchData[termSlug] ||
                 (term.id ? colorSwatchData[String(term.id)] : null)
               : null;
+
+          // Resolve the variation-compatible value for this term.
+          // On some hosts term.slug is a numeric ID ("237") while
+          // variations use the term name as slug ("red").
+          let varValue = termSlug;
+          const termNameLower = (term.name || '').toLowerCase();
+          for (const vv of varValues) {
+            if (
+              vv === termSlug ||
+              vv.toLowerCase() === termSlug.toLowerCase() ||
+              vv.toLowerCase() === termNameLower
+            ) {
+              varValue = vv;
+              break;
+            }
+          }
+
           return {
             name: swatch && swatch.name ? swatch.name : term.name,
             slug: termSlug,
+            varValue,
             attrSlug: slug,
           };
         }),
@@ -523,7 +557,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (!ctx.item || !ctx.item.attrSlug) {
         return false;
       }
-      return state.selectedAttributes[ctx.item.attrSlug] === ctx.item.slug;
+      const val = ctx.item.varValue || ctx.item.slug;
+      return state.selectedAttributes[ctx.item.attrSlug] === val;
     },
 
     /**
@@ -673,13 +708,15 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
      */
     get selectedOptionsLabel() {
       const names = [];
-      for (const [attrSlug, optionSlug] of Object.entries(
+      for (const [attrSlug, optionValue] of Object.entries(
         state.selectedAttributes
       )) {
-        if (!optionSlug) continue;
+        if (!optionValue) continue;
         const attr = state.productAttributes.find(a => a.slug === attrSlug);
-        const opt = attr?.options?.find(o => o.slug === optionSlug);
-        names.push(opt?.name || optionSlug);
+        const opt = attr?.options?.find(
+          o => (o.varValue || o.slug) === optionValue
+        );
+        names.push(opt?.name || optionValue);
       }
       return names.length > 0 ? names.join(' / ') : '';
     },
@@ -1029,16 +1066,18 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       // `ctx.item` is set by data-wp-each for the option button.
       // Each option carries its parent `attrSlug`.
       const attrSlug = ctx.item.attrSlug;
-      const optionSlug = ctx.item.slug;
+      // Use varValue (the variation-compatible value) for matching.
+      // Falls back to slug for attributes where they're identical.
+      const optionValue = ctx.item.varValue || ctx.item.slug;
 
-      if (!attrSlug || !optionSlug) {
+      if (!attrSlug || !optionValue) {
         return;
       }
 
       // Toggle: deselect if same option clicked again.
       const current = state.selectedAttributes[attrSlug];
       const newSelected = { ...state.selectedAttributes };
-      newSelected[attrSlug] = current === optionSlug ? '' : optionSlug;
+      newSelected[attrSlug] = current === optionValue ? '' : optionValue;
       state.selectedAttributes = newSelected;
 
       // Try to match a variation.

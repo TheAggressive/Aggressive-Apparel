@@ -12,7 +12,7 @@
  * @since 1.17.0
  */
 
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
   parsePrice,
@@ -24,6 +24,29 @@ import {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Whether an attribute slug (or name) represents a color attribute.
+ *
+ * Handles taxonomy slugs (`pa_color`), plain names (`Color`), and
+ * British spelling (`colour`) — all case-insensitively.
+ *
+ * @param {string} slug - Attribute slug or taxonomy (e.g. `pa_color`).
+ * @param {string} [name] - Human-readable attribute name (e.g. `Color`).
+ * @return {boolean}
+ */
+function isColorSlug(slug, name) {
+  const s = (slug || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+  return (
+    s === 'pa_color' ||
+    s === 'color' ||
+    s === 'pa_colour' ||
+    s === 'colour' ||
+    n === 'color' ||
+    n === 'colour'
+  );
+}
 
 /**
  * Pick the best description from a Store API product.
@@ -128,13 +151,12 @@ function buildAttributes(product, colorSwatchData) {
   }
 
   const attrSlugFor = attr => attr.taxonomy || attr.name;
-  const isColor = slug => slug === 'pa_color' || slug === 'color';
 
   return product.attributes
     .filter(attr => attr.has_variations)
     .map(attr => {
       const slug = attrSlugFor(attr);
-      const colorAttr = isColor(slug);
+      const colorAttr = isColorSlug(slug, attr.name);
 
       return {
         name: attr.name,
@@ -144,8 +166,12 @@ function buildAttributes(product, colorSwatchData) {
           // For color attributes, prefer the display name from our
           // Color_Data_Manager swatch data over the Store API term name
           // which may return numeric IDs on some configurations.
+          // Try slug first, then fall back to term ID.
           const swatch =
-            colorAttr && colorSwatchData ? colorSwatchData[termSlug] : null;
+            colorAttr && colorSwatchData
+              ? colorSwatchData[termSlug] ||
+                (term.id ? colorSwatchData[String(term.id)] : null)
+              : null;
           return {
             name: swatch && swatch.name ? swatch.name : term.name,
             slug: termSlug,
@@ -194,11 +220,27 @@ function matchVariation(variations, selected) {
     return null;
   }
 
+  // Build a case-insensitive lookup so that keys like "Color" match
+  // variation attribute keys like "pa_color" or "Color".
+  const selectedLower = {};
+  for (const [key, value] of Object.entries(selected)) {
+    selectedLower[key.toLowerCase()] = value;
+  }
+
   return (
     variations.find(v =>
       v.attributes.every(attr => {
-        const key = attr.attribute || attr.name || attr.taxonomy || '';
-        const val = selected[key];
+        // Try every possible key the variation attribute might use.
+        const possibleKeys = [attr.attribute, attr.name, attr.taxonomy].filter(
+          Boolean
+        );
+
+        let val;
+        for (const k of possibleKeys) {
+          val = selected[k] || selectedLower[k.toLowerCase()];
+          if (val) break;
+        }
+
         // "Any" attributes match everything.
         if (!attr.value) {
           return true;
@@ -597,10 +639,19 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     /**
      * Label showing selected variation options (e.g. "Red / L").
+     * Resolves slugs to display names from productAttributes.
      */
     get selectedOptionsLabel() {
-      const vals = Object.values(state.selectedAttributes).filter(Boolean);
-      return vals.length > 0 ? vals.join(' / ') : '';
+      const names = [];
+      for (const [attrSlug, optionSlug] of Object.entries(
+        state.selectedAttributes
+      )) {
+        if (!optionSlug) continue;
+        const attr = state.productAttributes.find(a => a.slug === attrSlug);
+        const opt = attr?.options?.find(o => o.slug === optionSlug);
+        names.push(opt?.name || optionSlug);
+      }
+      return names.length > 0 ? names.join(' / ') : '';
     },
 
     /**
@@ -611,8 +662,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (!ctx.item) {
         return false;
       }
-      const slug = ctx.item.slug || '';
-      return slug === 'pa_color' || slug === 'color';
+      return isColorSlug(ctx.item.slug, ctx.item.name);
     },
 
     /**
@@ -623,8 +673,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (!ctx.item) {
         return true;
       }
-      const slug = ctx.item.slug || '';
-      return slug !== 'pa_color' && slug !== 'color';
+      return !isColorSlug(ctx.item.slug, ctx.item.name);
     },
 
     /**
@@ -802,7 +851,13 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           }
 
           state.productName = stripTags(data.name);
-          state.productLink = data.permalink || '#';
+
+          // Validate permalink is a safe HTTP(S) URL.
+          const permalink = data.permalink || '#';
+          state.productLink =
+            permalink === '#' || /^https?:\/\//i.test(permalink)
+              ? permalink
+              : '#';
           state.productDescription = pickDescription(data);
           state.productType = data.type || 'simple';
 
@@ -1256,14 +1311,21 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         quantity: state.quantity,
       };
 
-      // For variable products, also send the selected variation attributes.
+      // For variable products, send variation attributes using the keys
+      // from the matched variation (which use the proper taxonomy slugs
+      // like "pa_color" that the Store API expects).
       if (state.productType === 'variable' && state.matchedVariationId) {
-        body.variation = Object.entries(state.selectedAttributes)
-          .filter(([, value]) => value)
-          .map(([attribute, value]) => ({
-            attribute,
-            value,
-          }));
+        const matchedVar = state.productVariations.find(
+          v => v.id === state.matchedVariationId
+        );
+        if (matchedVar && matchedVar.attributes) {
+          body.variation = matchedVar.attributes
+            .filter(attr => attr.value)
+            .map(attr => ({
+              attribute: attr.attribute || attr.name || '',
+              value: attr.value,
+            }));
+        }
       }
 
       const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
@@ -1343,6 +1405,33 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           state.announcement = `Error: ${state.cartError}`;
           state.isAddingToCart = false;
         });
+    },
+  },
+
+  callbacks: {
+    /**
+     * Sync an img element's src/alt with state.currentImage.
+     * Used on all images that display the active product image.
+     * Replaces data-wp-bind--src which Breeze's DOMDocument mangles.
+     */
+    syncCurrentImage() {
+      const { ref } = getElement();
+      if (!ref) return;
+      const img = state.currentImage;
+      ref.src = img.src || '';
+      ref.alt = img.alt || '';
+    },
+
+    /**
+     * Sync an img element inside a data-wp-each loop with its
+     * context item thumbnail. Used for gallery thumbnail buttons.
+     */
+    syncThumbnail() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref || !ctx.item) return;
+      ref.src = ctx.item.thumbnail || '';
+      ref.alt = ctx.item.alt || '';
     },
   },
 });

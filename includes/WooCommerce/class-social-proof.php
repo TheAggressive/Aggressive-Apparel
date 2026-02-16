@@ -117,7 +117,8 @@ class Social_Proof {
 		echo '<div class="aggressive-apparel-social-proof" data-wp-interactive="aggressive-apparel/social-proof" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.startCycle" role="status" aria-live="polite">';
 		echo '<div class="aggressive-apparel-social-proof__toast" data-wp-class--is-visible="context.isVisible" data-wp-bind--hidden="context.isDismissed">';
 		echo '<a class="aggressive-apparel-social-proof__link" data-wp-bind--href="state.currentUrl">';
-		echo '<div class="aggressive-apparel-social-proof__image"><img class="no-lazy" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-wp-bind--src="state.currentThumbnailSrc" alt="" /></div>';
+		$first_thumb = ! empty( $notifications[0]['thumbnail'] ) ? $notifications[0]['thumbnail'] : '';
+		echo '<div class="aggressive-apparel-social-proof__image"><img class="no-lazy" src="' . esc_url( $first_thumb ) . '" data-wp-watch="callbacks.syncImage" alt="" /></div>';
 		echo '<div class="aggressive-apparel-social-proof__body">';
 		echo '<p class="aggressive-apparel-social-proof__message" data-wp-text="state.currentMessage"></p>';
 		echo '<p class="aggressive-apparel-social-proof__time" data-wp-text="state.currentTime"></p>';

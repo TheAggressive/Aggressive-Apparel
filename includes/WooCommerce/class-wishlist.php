@@ -190,8 +190,7 @@ class Wishlist {
 		$html .= '<div class="aggressive-apparel-wishlist-page__item">';
 		$html .= '<a class="aggressive-apparel-wishlist-page__item-link" data-wp-bind--href="context.item.permalink">';
 		$html .= '<img class="aggressive-apparel-wishlist-page__item-image no-lazy" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""'
-			. ' data-wp-bind--src="context.item.image"'
-			. ' data-wp-bind--alt="context.item.name" />';
+			. ' data-wp-watch="callbacks.syncItemImage" />';
 		$html .= '</a>';
 		$html .= '<a class="aggressive-apparel-wishlist-page__item-name" data-wp-bind--href="context.item.permalink" data-wp-text="context.item.name"></a>';
 		$html .= '<span class="aggressive-apparel-wishlist-page__item-price" data-wp-text="context.item.price"></span>';

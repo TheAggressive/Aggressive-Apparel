@@ -7,7 +7,7 @@
  * @since 1.18.0
  */
 
-import { store } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
 import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
 
 let debounceTimer = null;
@@ -169,6 +169,16 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
           state.products = [];
           state.categories = [];
         });
+    },
+  },
+
+  callbacks: {
+    syncResultImage() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref || !ctx.item) return;
+      ref.src = ctx.item.thumbnail || '';
+      ref.alt = ctx.item.name || '';
     },
   },
 });

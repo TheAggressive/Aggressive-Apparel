@@ -248,8 +248,7 @@ class Quick_View {
 								class="no-lazy"
 								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 								alt=""
-								data-wp-bind--src="state.currentImage.src"
-								data-wp-bind--alt="state.currentImage.alt"
+								data-wp-watch="callbacks.syncCurrentImage"
 							/>
 							<!-- Sale badge. -->
 							<span
@@ -299,8 +298,7 @@ class Quick_View {
 											class="no-lazy"
 											src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 											alt=""
-											data-wp-bind--src="context.item.thumbnail"
-											data-wp-bind--alt="context.item.alt"
+											data-wp-watch="callbacks.syncThumbnail"
 										/>
 									</button>
 								</template>
@@ -505,10 +503,10 @@ class Quick_View {
 							<!-- Large product image — visible on desktop (left column). -->
 							<div class="aggressive-apparel-quick-view__drawer-image">
 								<img
+									class="no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
-									data-wp-bind--src="state.currentImage.src"
-									data-wp-bind--alt="state.currentImage.alt"
+									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 							</div>
 
@@ -518,8 +516,7 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
-									data-wp-bind--src="state.currentImage.src"
-									data-wp-bind--alt="state.currentImage.alt"
+									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 								<div class="aggressive-apparel-quick-view__drawer-product-info">
 									<span
@@ -647,8 +644,7 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
-									data-wp-bind--src="state.currentImage.src"
-									data-wp-bind--alt="state.currentImage.alt"
+									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 								<div class="aggressive-apparel-quick-view__drawer-product-info">
 									<span data-wp-text="state.productName"></span>
@@ -737,11 +733,18 @@ class Quick_View {
 			foreach ( $colors as $slug => $color_info ) {
 				$color_value = $color_info['value'] ?? '';
 				if ( $color_value ) {
-					$data[ $slug ] = array(
+					$entry         = array(
 						'value' => $color_value,
 						'type'  => $color_info['type'] ?? 'color',
 						'name'  => $color_info['name'] ?? (string) $slug,
 					);
+					$data[ $slug ] = $entry;
+
+					// Also key by term ID so JS can fall back to ID-based lookup
+					// when the Store API returns numeric IDs instead of slugs.
+					if ( ! empty( $color_info['id'] ) ) {
+						$data[ (string) $color_info['id'] ] = $entry;
+					}
 				}
 			}
 

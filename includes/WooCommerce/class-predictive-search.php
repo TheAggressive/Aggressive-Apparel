@@ -172,8 +172,7 @@ class Predictive_Search {
 								<img
 									class="aa-predictive-search__product-image no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-									data-wp-bind--src="context.item.thumbnail"
-									data-wp-bind--alt="context.item.name"
+									data-wp-watch="callbacks.syncResultImage"
 									width="40"
 									height="40"
 								/>

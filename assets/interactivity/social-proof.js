@@ -7,7 +7,7 @@
  * @since 1.17.0
  */
 
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
 
 store('aggressive-apparel/social-proof', {
   state: {
@@ -28,12 +28,6 @@ store('aggressive-apparel/social-proof', {
         return '';
       }
       return `${n.ago} ago`;
-    },
-
-    get currentThumbnailSrc() {
-      const ctx = getContext();
-      const n = ctx.notifications[ctx.currentIndex];
-      return n && n.thumbnail ? n.thumbnail : '';
     },
 
     get currentUrl() {
@@ -71,6 +65,14 @@ store('aggressive-apparel/social-proof', {
   },
 
   callbacks: {
+    syncImage() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref) return;
+      const n = ctx.notifications[ctx.currentIndex];
+      ref.src = n && n.thumbnail ? n.thumbnail : '';
+    },
+
     startCycle() {
       const ctx = getContext();
 

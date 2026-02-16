@@ -14,7 +14,7 @@
  * @since 1.17.0
  */
 
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
 import { decodeEntities } from '@aggressive-apparel/helpers';
 
 const STORAGE_KEY = 'aggressive_apparel_wishlist';
@@ -133,6 +133,14 @@ const { state } = store('aggressive-apparel/wishlist', {
   },
 
   callbacks: {
+    syncItemImage() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref || !ctx.item) return;
+      ref.src = ctx.item.image || '';
+      ref.alt = ctx.item.name || '';
+    },
+
     loadWishlistPage() {
       const ctx = getContext();
       const ids = state.items;

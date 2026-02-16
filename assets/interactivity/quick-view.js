@@ -1065,22 +1065,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
               sel[attr.slug] = '';
             });
             state.selectedAttributes = sel;
-
-            // TODO: Remove after confirming variation matching works.
-            const enrichedVar0 = state.productVariations[0]?.attributes;
-            console.log(
-              '[Quick View] loaded —',
-              'nameToSlug:',
-              JSON.stringify(nameToSlug),
-              '| enrichedVar0:',
-              enrichedVar0
-                ? enrichedVar0
-                    .map(a => `${a.attribute}="${a.value}"`)
-                    .join(', ')
-                : 'none',
-              '| selectedKeys:',
-              JSON.stringify(sel)
-            );
           }
 
           state.hasProduct = true;
@@ -1171,17 +1155,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
       // Try to match a variation.
       const match = matchVariation(state.productVariations, newSelected);
-
-      // TODO: Remove after confirming variation matching works on production.
-      console.log(
-        '[Quick View] select —',
-        'selected:',
-        JSON.stringify(newSelected),
-        '| item:',
-        `slug="${ctx.item.slug}" varValue="${ctx.item.varValue}" attrSlug="${attrSlug}"`,
-        '| match:',
-        match ? match.id : null
-      );
 
       if (match) {
         state.matchedVariationId = match.id;

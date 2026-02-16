@@ -111,7 +111,7 @@ class Color_Data_Manager {
 			// Fallback to hex for backward compatibility.
 			if ( empty( $color_value ) ) {
 				$hex_value    = get_term_meta( $term->term_id, 'color_hex', true );
-				$color_value  = $hex_value ? $hex_value : '#000000';
+				$color_value  = $hex_value ? $hex_value : self::guess_color_from_name( $term->name, $term->slug );
 				$color_format = 'hex';
 			}
 
@@ -294,5 +294,95 @@ class Color_Data_Manager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Guess a hex color from a term name or slug.
+	 *
+	 * Used as a fallback when color terms have no metadata (e.g. imported
+	 * from Printful). Matches common apparel color names to hex values.
+	 *
+	 * @param string $name Term display name.
+	 * @param string $slug Term slug.
+	 * @return string Hex color value.
+	 */
+	private static function guess_color_from_name( string $name, string $slug ): string {
+		static $map = array(
+			'black'        => '#000000',
+			'white'        => '#ffffff',
+			'red'          => '#dc2626',
+			'blue'         => '#2563eb',
+			'navy'         => '#1e3a5f',
+			'navy-blue'    => '#1e3a5f',
+			'green'        => '#16a34a',
+			'yellow'       => '#eab308',
+			'orange'       => '#ea580c',
+			'purple'       => '#9333ea',
+			'pink'         => '#ec4899',
+			'brown'        => '#78350f',
+			'gray'         => '#6b7280',
+			'grey'         => '#6b7280',
+			'charcoal'     => '#374151',
+			'silver'       => '#9ca3af',
+			'gold'         => '#ca8a04',
+			'tan'          => '#d2b48c',
+			'beige'        => '#f5f0dc',
+			'cream'        => '#fffdd0',
+			'ivory'        => '#fffff0',
+			'olive'        => '#65a30d',
+			'maroon'       => '#7f1d1d',
+			'burgundy'     => '#800020',
+			'coral'        => '#f87171',
+			'teal'         => '#0d9488',
+			'cyan'         => '#06b6d4',
+			'indigo'       => '#4f46e5',
+			'lavender'     => '#a78bfa',
+			'mint'         => '#86efac',
+			'peach'        => '#fdba74',
+			'salmon'       => '#fb923c',
+			'sand'         => '#c2b280',
+			'slate'        => '#64748b',
+			'forest-green' => '#166534',
+			'royal-blue'   => '#1d4ed8',
+			'sky-blue'     => '#38bdf8',
+			'baby-blue'    => '#93c5fd',
+			'light-blue'   => '#93c5fd',
+			'dark-blue'    => '#1e3a8a',
+			'light-gray'   => '#d1d5db',
+			'light-grey'   => '#d1d5db',
+			'dark-gray'    => '#374151',
+			'dark-grey'    => '#374151',
+			'heather-gray' => '#9ca3af',
+			'heather-grey' => '#9ca3af',
+			'khaki'        => '#bdb76b',
+			'rust'         => '#b7410e',
+			'wine'         => '#722f37',
+			'aqua'         => '#06b6d4',
+			'magenta'      => '#d946ef',
+			'lilac'        => '#c4b5fd',
+			'rose'         => '#fb7185',
+			'hot-pink'     => '#ec4899',
+		);
+
+		// Try slug first (lowercase, hyphenated), then lowercase name.
+		$key = strtolower( $slug );
+		if ( isset( $map[ $key ] ) ) {
+			return $map[ $key ];
+		}
+
+		$key = strtolower( str_replace( ' ', '-', $name ) );
+		if ( isset( $map[ $key ] ) ) {
+			return $map[ $key ];
+		}
+
+		// Check if the name contains a known color as a substring
+		// (e.g. "Heather Sport Dark Navy" → "navy").
+		foreach ( $map as $color_name => $hex ) {
+			if ( str_contains( strtolower( $name ), str_replace( '-', ' ', $color_name ) ) ) {
+				return $hex;
+			}
+		}
+
+		return '#000000';
 	}
 }

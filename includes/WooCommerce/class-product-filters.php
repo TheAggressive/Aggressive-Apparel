@@ -77,6 +77,22 @@ class Product_Filters {
 		add_filter( 'render_block', array( $this, 'inject_filter_ui' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'render_drawer_shell' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+
+		// Invalidate the filter data cache when products or attributes change.
+		add_action( 'created_term', array( $this, 'flush_cache' ) );
+		add_action( 'edited_term', array( $this, 'flush_cache' ) );
+		add_action( 'delete_term', array( $this, 'flush_cache' ) );
+		add_action( 'woocommerce_update_product', array( $this, 'flush_cache' ) );
+		add_action( 'woocommerce_new_product', array( $this, 'flush_cache' ) );
+	}
+
+	/**
+	 * Delete the cached filter data transient.
+	 *
+	 * @return void
+	 */
+	public function flush_cache(): void {
+		delete_transient( self::CACHE_PREFIX . 'data' );
 	}
 
 	/**

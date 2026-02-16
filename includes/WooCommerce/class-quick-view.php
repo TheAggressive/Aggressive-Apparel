@@ -495,13 +495,21 @@ class Quick_View {
 						role="dialog"
 						aria-label="<?php echo esc_attr__( 'Select product options', 'aggressive-apparel' ); ?>"
 					>
-						<div class="aggressive-apparel-quick-view__drawer-handle"></div>
-
 						<!-- Selection view (default). -->
 						<div
 							class="aggressive-apparel-quick-view__drawer-selection"
 							data-wp-bind--hidden="state.isDrawerSuccessView"
 						>
+							<!-- Large product image — visible on desktop (left column). -->
+							<div class="aggressive-apparel-quick-view__drawer-image">
+								<img
+									src=""
+									alt=""
+									data-wp-bind--src="state.currentImage.src"
+									data-wp-bind--alt="state.currentImage.alt"
+								/>
+							</div>
+
 							<!-- Product header row. -->
 							<div class="aggressive-apparel-quick-view__drawer-header">
 								<img
@@ -605,6 +613,20 @@ class Quick_View {
 									data-wp-class--is-adding="state.isAddingToCart"
 									data-wp-class--is-success="state.isCartSuccess"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+
+								<a
+									href="#"
+									class="aggressive-apparel-quick-view__drawer-view-product"
+									data-wp-bind--href="state.productLink"
+								><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
+
+								<!-- Cart error (shown inside drawer). -->
+								<p
+									class="aggressive-apparel-quick-view__cart-error"
+									data-wp-bind--hidden="state.hasNoCartError"
+									data-wp-text="state.cartError"
+									hidden
+								></p>
 							</div>
 						</div>
 

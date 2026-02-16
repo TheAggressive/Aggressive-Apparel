@@ -17,6 +17,7 @@ import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
   parsePrice,
   stripTags,
+  decodeEntities,
   setupFocusTrap,
 } from '@aggressive-apparel/helpers';
 
@@ -555,7 +556,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     /**
      * Hide "Select Options" button when not needed:
-     * simple products, drawer already open, or post-cart showing.
+     * simple products or post-cart showing.
      */
     get hideSelectOptionsBtn() {
       return (
@@ -648,7 +649,12 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       if (!swatchData || !swatchData.value) {
         return '';
       }
-      return swatchData.value;
+      // Validate color value to prevent CSS injection.
+      const v = swatchData.value;
+      if (/^#[0-9a-f]{3,8}$/i.test(v) || /^oklch\([^;{}]*\)$/i.test(v)) {
+        return v;
+      }
+      return '';
     },
 
     /**
@@ -698,7 +704,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         }
       }
 
-      if (!productId) {
+      // Validate productId is a positive integer to prevent path traversal.
+      productId = parseInt(productId, 10);
+      if (!productId || productId <= 0 || !Number.isFinite(productId)) {
         return;
       }
 
@@ -1015,7 +1023,10 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     incrementQty(event) {
       // Mark as handled so the delegation fallback doesn't double-fire.
       if (event) event.preventDefault();
-      state.quantity = state.quantity + 1;
+      const max = state.stockQuantity || 9999;
+      if (state.quantity < max) {
+        state.quantity = state.quantity + 1;
+      }
     },
 
     decrementQty(event) {
@@ -1031,7 +1042,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
      */
     setQuantity(event) {
       const value = parseInt(event.target.value, 10);
-      if (!isNaN(value) && value >= 1) {
+      const max = state.stockQuantity || 9999;
+      if (!isNaN(value) && value >= 1 && value <= max) {
         state.quantity = value;
       } else {
         // Reset to valid value.
@@ -1336,7 +1348,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           }, 800);
         })
         .catch(err => {
-          state.cartError = err.message || 'Could not add to cart.';
+          console.error('[Quick View] Add to cart failed:', err);
+          state.cartError =
+            decodeEntities(err.message) || 'Could not add to cart.';
           state.announcement = `Error: ${state.cartError}`;
           state.isAddingToCart = false;
         });

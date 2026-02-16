@@ -43,6 +43,26 @@ export function parsePrice(prices) {
 }
 
 /**
+ * Decode common HTML entities to their plain-text equivalents.
+ *
+ * @param {string} str - String with HTML entities.
+ * @return {string} Decoded string.
+ */
+export function decodeEntities(str) {
+  if (!str) {
+    return '';
+  }
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+/**
  * Strip HTML tags and return trimmed plain text.
  *
  * @param {string} html - HTML string.
@@ -52,9 +72,7 @@ export function stripTags(html) {
   if (!html) {
     return '';
   }
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  return (div.textContent || '').trim();
+  return decodeEntities(html.replace(/<[^>]*>/g, '')).trim();
 }
 
 /**

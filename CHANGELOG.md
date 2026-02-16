@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.28.0...v1.29.0) (2026-02-16)
+
+
+### Features
+
+* optimize image loading for social proof and quick view components ([fc3577d](https://github.com/TheAggressive/Aggressive-Apparel/commit/fc3577dfd6909abce4d560da764551e23cafaf28))
+
 # [1.28.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.27.0...v1.28.0) (2026-02-16)
 
 

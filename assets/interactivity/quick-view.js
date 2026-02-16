@@ -153,6 +153,8 @@ function buildAttributes(product, colorSwatchData, variations) {
   // Build a mapping from term values to the attribute keys that
   // variations actually use (e.g. "red" → "pa_color"). This lets us
   // resolve the correct slug when product-level attr.taxonomy is empty.
+  // Build a lowercase mapping so lookups are case-insensitive:
+  // e.g. variation value "Red" → stored as "red" → "pa_color".
   const varKeyByValue = {};
   const rawVariations = variations || product.variations || [];
   if (rawVariations.length > 0) {
@@ -160,7 +162,7 @@ function buildAttributes(product, colorSwatchData, variations) {
       for (const va of v.attributes || []) {
         const key = va.attribute || va.name || '';
         if (va.value && key) {
-          varKeyByValue[va.value] = key;
+          varKeyByValue[va.value.toLowerCase()] = key;
         }
       }
     }
@@ -170,7 +172,7 @@ function buildAttributes(product, colorSwatchData, variations) {
     if (attr.taxonomy) return attr.taxonomy;
     // No taxonomy — resolve from variation data by matching term slugs.
     for (const term of attr.terms || []) {
-      const termSlug = term.slug || term.name;
+      const termSlug = (term.slug || term.name || '').toLowerCase();
       if (varKeyByValue[termSlug]) {
         return varKeyByValue[termSlug];
       }
@@ -271,7 +273,11 @@ function matchVariation(variations, selected) {
         if (!attr.value) {
           return true;
         }
-        return val === attr.value;
+        // Case-insensitive value comparison: term slugs may be
+        // lowercase ("red") while variation values may differ ("Red").
+        return (
+          val && val.toLowerCase() === attr.value.toLowerCase()
+        );
       })
     ) || null
   );
@@ -936,6 +942,21 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
               sel[attr.slug] = '';
             });
             state.selectedAttributes = sel;
+
+            // TODO: Remove after confirming variation matching works.
+            console.log('[Quick View] Variable product loaded', {
+              rawAttrs: (data.attributes || []).map(a => ({
+                name: a.name,
+                taxonomy: a.taxonomy,
+                terms: (a.terms || []).slice(0, 3),
+              })),
+              rawVarAttrs: (data.variations || []).slice(0, 2).map(v => ({
+                id: v.id,
+                attributes: v.attributes,
+              })),
+              resolvedAttrs: state.productAttributes,
+              initialSelected: { ...sel },
+            });
           }
 
           state.hasProduct = true;
@@ -1024,6 +1045,17 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
       // Try to match a variation.
       const match = matchVariation(state.productVariations, newSelected);
+
+      // TODO: Remove after confirming variation matching works on production.
+      console.log('[Quick View] selectAttribute', {
+        selected: { ...newSelected },
+        variationCount: state.productVariations.length,
+        variationAttrs: state.productVariations.slice(0, 2).map(v => ({
+          id: v.id,
+          attributes: v.attributes,
+        })),
+        matchId: match?.id || null,
+      });
 
       if (match) {
         state.matchedVariationId = match.id;

@@ -153,7 +153,7 @@ function sizeRank(size) {
   // Multiplied small: 2XS, 3XS, etc. — smaller means lower rank.
   // 3XS < 2XS < XS, so we invert: rank = -(multiplier).
   const xsMatch = s.match(/^(\d+)XS$/);
-  if (xsMatch) return -(parseInt(xsMatch[1], 10));
+  if (xsMatch) return -parseInt(xsMatch[1], 10);
 
   const bases = { XS: 1, S: 2, M: 3, L: 4, XL: 5 };
   if (bases[s] !== undefined) return bases[s];

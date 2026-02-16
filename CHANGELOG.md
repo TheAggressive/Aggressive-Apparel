@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.27.0...v1.28.0) (2026-02-16)
+
+
+### Features
+
+* enhance quick view image handling and state management ([edbe5eb](https://github.com/TheAggressive/Aggressive-Apparel/commit/edbe5eb7ed80f35a75f8e480c7cbfa6a2c4a9577))
+
 # [1.27.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.26.0...v1.27.0) (2026-02-16)
 
 

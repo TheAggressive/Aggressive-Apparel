@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.34.0...v1.35.0) (2026-02-16)
+
+
+### Features
+
+* enhance variation attribute handling in quick view ([8b97e10](https://github.com/TheAggressive/Aggressive-Apparel/commit/8b97e1038947090294adb9c8a8b3808713ed86df))
+
 # [1.34.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.33.0...v1.34.0) (2026-02-16)
 
 

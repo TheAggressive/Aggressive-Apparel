@@ -1,3 +1,15 @@
+# [1.40.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.39.0...v1.40.0) (2026-02-17)
+
+
+### Bug Fixes
+
+* remove unused cart script enqueue function ([00103e3](https://github.com/TheAggressive/Aggressive-Apparel/commit/00103e3dd70ba795ab11702df8b4f0f8819b460e))
+
+
+### Features
+
+* enhance quick view functionality with abort controller and media query caching ([22183c0](https://github.com/TheAggressive/Aggressive-Apparel/commit/22183c0b2baa3b7006566b08bb3546243e9a4cb4))
+
 # [1.39.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.38.0...v1.39.0) (2026-02-16)
 
 

@@ -1,3 +1,10 @@
+# [1.41.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.40.0...v1.41.0) (2026-02-17)
+
+
+### Features
+
+* update README for version 1.39.0 ([43adfa3](https://github.com/TheAggressive/Aggressive-Apparel/commit/43adfa3625d4c64db9151d21be823823faf4a3b4))
+
 # [1.40.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.39.0...v1.40.0) (2026-02-17)
 
 

@@ -897,14 +897,10 @@ class Product_Filters {
 	 * @return array Size terms array.
 	 */
 	private function get_size_terms(): array {
-		if ( ! taxonomy_exists( 'pa_size' ) ) {
-			return array();
-		}
-
 		$terms = get_terms(
 			array(
 				'taxonomy'   => 'pa_size',
-				'hide_empty' => true,
+				'hide_empty' => false,
 				'orderby'    => 'menu_order',
 				'order'      => 'ASC',
 			)

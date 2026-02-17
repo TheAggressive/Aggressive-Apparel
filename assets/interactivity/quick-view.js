@@ -1230,9 +1230,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             .then(data => {
               if (!data) return;
               const rawSrc =
-                data.images && data.images.length > 0
-                  ? data.images[0].src
-                  : '';
+                data.images && data.images.length > 0 ? data.images[0].src : '';
               const img =
                 rawSrc && /^https?:\/\//i.test(rawSrc)
                   ? {

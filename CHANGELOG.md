@@ -1,3 +1,10 @@
+## [1.41.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.41.0...v1.41.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* update size terms retrieval in product filters ([67a559b](https://github.com/TheAggressive/Aggressive-Apparel/commit/67a559bac0ec76e3a39d68280cb57a047a54a028))
+
 # [1.41.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.40.0...v1.41.0) (2026-02-17)
 
 

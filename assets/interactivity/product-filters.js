@@ -113,6 +113,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       const slug = event.target.value;
       toggleArrayItem(state.selectedCategories, slug);
       syncCheckboxes('category', state.selectedCategories);
+      updateAvailableFilters();
       debouncedFetch();
     },
 
@@ -171,6 +172,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       state.totalProducts = 0;
 
       syncAllControls();
+      updateAvailableFilters();
       syncUrl();
 
       // Announce for screen readers.
@@ -295,6 +297,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       // Pre-select current category on taxonomy pages.
       if (state.currentCategorySlug && state.selectedCategories.length === 0) {
         state.selectedCategories = [state.currentCategorySlug];
+        updateAvailableFilters();
       }
 
       // Handle browser back/forward.
@@ -417,10 +420,10 @@ function fetchProducts() {
     .then(products => {
       state.products = products.map(p => ({
         id: p.id,
-        name: p.name,
+        name: decodeHtml(p.name),
         permalink: p.permalink,
         image: p.images?.[0]?.src || p.images?.[0]?.thumbnail || '',
-        imageAlt: p.images?.[0]?.alt || p.name,
+        imageAlt: decodeHtml(p.images?.[0]?.alt || p.name),
         price: parsePrice(p.prices),
         stockStatus: p.stock_status || 'instock',
       }));
@@ -468,6 +471,7 @@ function setupDelegatedEvents() {
       if (type === 'category') {
         removeArrayItem(state.selectedCategories, slug);
         syncCheckboxes('category', state.selectedCategories);
+        updateAvailableFilters();
       } else if (type === 'color') {
         removeArrayItem(state.selectedColors, slug);
         syncSwatchPressed(state.selectedColors);
@@ -830,6 +834,7 @@ function restoreFromUrl() {
     syncPriceSliders();
     syncPriceRange();
     syncStockCheckboxes(state.inStockOnly);
+    updateAvailableFilters();
   });
 
   // If any filters are active, fetch products immediately.
@@ -880,6 +885,90 @@ function scrollToGrid() {
       block: 'start',
     });
   }
+}
+
+/**
+ * Hide or show filter elements based on a predicate.
+ *
+ * @param {string}   selector  - CSS selector for filter elements.
+ * @param {Function} predicate - Receives the element, returns true to show.
+ */
+function setFilterVisibility(selector, predicate) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.hidden = !predicate(el);
+  });
+}
+
+/**
+ * Update visible sizes and colors based on selected categories.
+ *
+ * When no categories are selected every option is shown. When one or
+ * more categories are selected the visible sizes/colors are the union
+ * of attribute slugs across those categories. Any currently-selected
+ * size/color that becomes hidden is automatically deselected.
+ */
+function updateAvailableFilters() {
+  const map = state.categoryAttributeMap || {};
+  const selected = state.selectedCategories;
+
+  // Show everything when no categories are selected.
+  if (selected.length === 0) {
+    setFilterVisibility('.aa-product-filters__size-chip', () => true);
+    setFilterVisibility('.aa-product-filters__color-swatch', () => true);
+    return;
+  }
+
+  // Build the union of available slugs across selected categories.
+  const availableSizes = new Set();
+  const availableColors = new Set();
+
+  for (const cat of selected) {
+    const entry = map[cat];
+    if (entry) {
+      (entry.sizes || []).forEach(s => availableSizes.add(s));
+      (entry.colors || []).forEach(c => availableColors.add(c));
+    }
+  }
+
+  setFilterVisibility('.aa-product-filters__size-chip', el =>
+    availableSizes.has(el.dataset.filterValue)
+  );
+  setFilterVisibility('.aa-product-filters__color-swatch', el =>
+    availableColors.has(el.dataset.filterValue)
+  );
+
+  // Deselect any items that are now hidden.
+  const sizeBefore = state.selectedSizes.length;
+  const colorBefore = state.selectedColors.length;
+
+  state.selectedSizes = state.selectedSizes.filter(s => availableSizes.has(s));
+  state.selectedColors = state.selectedColors.filter(c =>
+    availableColors.has(c)
+  );
+
+  if (state.selectedSizes.length !== sizeBefore) {
+    syncChipPressed(state.selectedSizes);
+  }
+  if (state.selectedColors.length !== colorBefore) {
+    syncSwatchPressed(state.selectedColors);
+  }
+}
+
+/**
+ * Decode HTML entities (e.g. &#8220; → ") to real characters.
+ *
+ * The WooCommerce Store API returns names with pre-encoded entities
+ * from wptexturize(). Decode once at data-ingestion time so that
+ * escapeHtml() at render time works on actual characters.
+ *
+ * @param {string} str - Entity-encoded string.
+ * @return {string} Decoded string.
+ */
+function decodeHtml(str) {
+  if (!str) return '';
+  const el = document.createElement('textarea');
+  el.innerHTML = str;
+  return el.value;
 }
 
 /**

@@ -182,14 +182,14 @@ class Product_Filters {
 			wp_interactivity_state(
 				'aggressive-apparel/product-filters',
 				array(
-					'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-					'layout'              => $this->layout,
-					'perPage'             => 12,
-					'currentCategorySlug' => $current_cat_slug,
-					'categories'          => $data['categories'],
-					'colorTerms'          => $data['colorTerms'],
-					'sizeTerms'           => $data['sizeTerms'],
-					'priceRange'          => array_merge(
+					'restBase'             => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+					'layout'               => $this->layout,
+					'perPage'              => 12,
+					'currentCategorySlug'  => $current_cat_slug,
+					'categories'           => $data['categories'],
+					'colorTerms'           => $data['colorTerms'],
+					'sizeTerms'            => $data['sizeTerms'],
+					'priceRange'           => array_merge(
 						$data['priceRange'],
 						array(
 							'currencyPrefix' => html_entity_decode(
@@ -199,24 +199,25 @@ class Product_Filters {
 							),
 						)
 					),
-					'stockStatuses'       => $data['stockStatuses'],
-					'selectedCategories'  => array(),
-					'selectedColors'      => array(),
-					'selectedSizes'       => array(),
-					'priceMin'            => $data['priceRange']['min'],
-					'priceMax'            => $data['priceRange']['max'],
-					'inStockOnly'         => false,
-					'orderBy'             => 'date',
-					'orderDir'            => 'desc',
-					'isDrawerOpen'        => false,
-					'isLoading'           => false,
-					'hasError'            => false,
-					'currentPage'         => 1,
-					'totalPages'          => 1,
-					'totalProducts'       => 0,
-					'products'            => array(),
-					'announcement'        => '',
-					'openDropdown'        => '',
+					'stockStatuses'        => $data['stockStatuses'],
+					'categoryAttributeMap' => $data['categoryAttributeMap'],
+					'selectedCategories'   => array(),
+					'selectedColors'       => array(),
+					'selectedSizes'        => array(),
+					'priceMin'             => $data['priceRange']['min'],
+					'priceMax'             => $data['priceRange']['max'],
+					'inStockOnly'          => false,
+					'orderBy'              => 'date',
+					'orderDir'             => 'desc',
+					'isDrawerOpen'         => false,
+					'isLoading'            => false,
+					'hasError'             => false,
+					'currentPage'          => 1,
+					'totalPages'           => 1,
+					'totalProducts'        => 0,
+					'products'             => array(),
+					'announcement'         => '',
+					'openDropdown'         => '',
 				)
 			);
 		}
@@ -776,7 +777,7 @@ class Product_Filters {
 		$cache_key = self::CACHE_PREFIX . 'data';
 		$cached    = get_transient( $cache_key );
 
-		if ( is_array( $cached ) ) {
+		if ( is_array( $cached ) && isset( $cached['categoryAttributeMap'] ) ) {
 			$this->filter_data = $cached;
 			return $cached;
 		}
@@ -813,12 +814,19 @@ class Product_Filters {
 			$price_range = $default_price;
 		}
 
+		try {
+			$category_attribute_map = $this->get_category_attribute_map();
+		} catch ( \Throwable $e ) {
+			$category_attribute_map = array();
+		}
+
 		$data = array(
-			'categories'    => $categories,
-			'colorTerms'    => $color_terms,
-			'sizeTerms'     => $size_terms,
-			'priceRange'    => $price_range,
-			'stockStatuses' => $this->get_stock_statuses(),
+			'categories'           => $categories,
+			'colorTerms'           => $color_terms,
+			'sizeTerms'            => $size_terms,
+			'priceRange'           => $price_range,
+			'stockStatuses'        => $this->get_stock_statuses(),
+			'categoryAttributeMap' => $category_attribute_map,
 		);
 
 		set_transient( $cache_key, $data, self::CACHE_TTL );
@@ -966,6 +974,124 @@ class Product_Filters {
 			'currencySuffix' => '',
 			'minorUnit'      => wc_get_price_decimals(),
 		);
+	}
+
+	/**
+	 * Build a map of category slug → available size/color slugs.
+	 *
+	 * Used by the JS to hide irrelevant filter options when
+	 * a category is selected. Cached in the same transient as
+	 * all other filter data.
+	 *
+	 * @return array<string, array{sizes: string[], colors: string[]}>
+	 */
+	private function get_category_attribute_map(): array {
+		global $wpdb;
+
+		/*
+		 * Three-part UNION covering all WooCommerce attribute storage:
+		 * 1. Attribute terms on the parent product (simple products).
+		 * 2. Attribute terms on variation posts via term_relationships.
+		 * 3. Attribute values in variation postmeta (most common for
+		 *    variable products: attribute_pa_size, attribute_pa_color).
+		 */
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results = $wpdb->get_results(
+			"SELECT t_cat.slug AS cat_slug,
+			        tt_attr.taxonomy AS attr_tax,
+			        t_attr.slug AS attr_slug
+			 FROM {$wpdb->term_relationships} tr_cat
+			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
+			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t_cat
+			   ON tt_cat.term_id = t_cat.term_id
+			 INNER JOIN {$wpdb->term_relationships} tr_attr
+			   ON tr_cat.object_id = tr_attr.object_id
+			 INNER JOIN {$wpdb->term_taxonomy} tt_attr
+			   ON tr_attr.term_taxonomy_id = tt_attr.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t_attr
+			   ON tt_attr.term_id = t_attr.term_id
+			 INNER JOIN {$wpdb->posts} p
+			   ON tr_cat.object_id = p.ID
+			 WHERE tt_cat.taxonomy = 'product_cat'
+			   AND tt_attr.taxonomy IN ('pa_size', 'pa_color')
+			   AND p.post_type = 'product'
+			   AND p.post_status = 'publish'
+
+			 UNION
+
+			 SELECT t_cat.slug AS cat_slug,
+			        tt_attr.taxonomy AS attr_tax,
+			        t_attr.slug AS attr_slug
+			 FROM {$wpdb->posts} v
+			 INNER JOIN {$wpdb->posts} p
+			   ON v.post_parent = p.ID
+			 INNER JOIN {$wpdb->term_relationships} tr_cat
+			   ON p.ID = tr_cat.object_id
+			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
+			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t_cat
+			   ON tt_cat.term_id = t_cat.term_id
+			 INNER JOIN {$wpdb->term_relationships} tr_attr
+			   ON v.ID = tr_attr.object_id
+			 INNER JOIN {$wpdb->term_taxonomy} tt_attr
+			   ON tr_attr.term_taxonomy_id = tt_attr.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t_attr
+			   ON tt_attr.term_id = t_attr.term_id
+			 WHERE tt_cat.taxonomy = 'product_cat'
+			   AND tt_attr.taxonomy IN ('pa_size', 'pa_color')
+			   AND v.post_type = 'product_variation'
+			   AND p.post_type = 'product'
+			   AND p.post_status = 'publish'
+
+			 UNION
+
+			 SELECT t_cat.slug AS cat_slug,
+			        CONCAT('pa_', SUBSTRING(pm.meta_key, 14)) AS attr_tax,
+			        pm.meta_value AS attr_slug
+			 FROM {$wpdb->posts} v
+			 INNER JOIN {$wpdb->posts} p
+			   ON v.post_parent = p.ID
+			 INNER JOIN {$wpdb->term_relationships} tr_cat
+			   ON p.ID = tr_cat.object_id
+			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
+			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t_cat
+			   ON tt_cat.term_id = t_cat.term_id
+			 INNER JOIN {$wpdb->postmeta} pm
+			   ON v.ID = pm.post_id
+			 WHERE tt_cat.taxonomy = 'product_cat'
+			   AND pm.meta_key IN ('attribute_pa_size', 'attribute_pa_color')
+			   AND pm.meta_value != ''
+			   AND v.post_type = 'product_variation'
+			   AND p.post_type = 'product'
+			   AND p.post_status = 'publish'"
+		);
+
+		$map = array();
+		if ( is_array( $results ) ) {
+			foreach ( $results as $row ) {
+				$key = 'pa_size' === $row->attr_tax ? 'sizes' : 'colors';
+
+				if ( ! isset( $map[ $row->cat_slug ] ) ) {
+					$map[ $row->cat_slug ] = array(
+						'sizes'  => array(),
+						'colors' => array(),
+					);
+				}
+
+				$map[ $row->cat_slug ][ $key ][] = $row->attr_slug;
+			}
+
+			// Deduplicate.
+			foreach ( $map as &$entry ) {
+				$entry['sizes']  = array_values( array_unique( $entry['sizes'] ) );
+				$entry['colors'] = array_values( array_unique( $entry['colors'] ) );
+			}
+			unset( $entry );
+		}
+
+		return $map;
 	}
 
 	/**

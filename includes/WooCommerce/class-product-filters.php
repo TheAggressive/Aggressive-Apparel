@@ -871,25 +871,21 @@ class Product_Filters {
 	 * @return array Color terms array.
 	 */
 	private function get_color_terms(): array {
-		if ( ! taxonomy_exists( 'pa_color' ) ) {
-			return array();
-		}
-
 		$manager = new Color_Data_Manager();
 		$colors  = $manager->get_color_terms();
 
-		// Filter to only terms with products and format for frontend.
+		// Format for frontend. Include all terms — term counts can be
+		// stale or zero in "Coming Soon" mode where products exist but
+		// aren't yet publicly visible.
 		$result = array();
 		foreach ( $colors as $color ) {
-			if ( isset( $color['count'] ) && $color['count'] > 0 ) {
-				$result[] = array(
-					'slug'  => $color['slug'],
-					'name'  => $color['name'],
-					'value' => $color['value'] ?? $color['hex'] ?? '#000000',
-					'type'  => $color['type'] ?? 'solid',
-					'count' => $color['count'],
-				);
-			}
+			$result[] = array(
+				'slug'  => $color['slug'],
+				'name'  => $color['name'],
+				'value' => $color['value'] ?? $color['hex'] ?? '#000000',
+				'type'  => $color['type'] ?? 'solid',
+				'count' => $color['count'] ?? 0,
+			);
 		}
 
 		return $result;

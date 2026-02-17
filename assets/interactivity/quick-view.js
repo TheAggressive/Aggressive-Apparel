@@ -398,8 +398,23 @@ function matchVariation(variations, selected) {
 let focusTrapCleanup = null;
 let triggerElement = null;
 
+// AbortController for the main product fetch — cancels stale requests
+// when the user opens a different product before the previous one loads.
+let fetchController = null;
+
 // Cache fetched variation image data so repeated selections don't refetch.
 const variationImageCache = new Map();
+
+// Cached media queries — avoids re-creating MediaQueryList on every call.
+const prefersReducedMotion =
+  typeof window !== 'undefined'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+const mobileBreakpoint =
+  typeof window !== 'undefined'
+    ? window.matchMedia('(max-width: 768px)')
+    : { matches: false };
 
 /* Touch swipe tracking for mobile gallery. */
 let touchStartX = 0;
@@ -763,10 +778,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
      * Whether the viewport matches mobile breakpoint (≤768px).
      */
     get isMobile() {
-      return (
-        typeof window !== 'undefined' &&
-        window.matchMedia('(max-width: 768px)').matches
-      );
+      return mobileBreakpoint.matches;
     },
 
     /**
@@ -946,7 +958,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       }
 
       // Reset all state.
-      variationImageCache.clear();
       state.isOpen = true;
       state.isLoading = true;
       state.hasError = false;
@@ -1008,11 +1019,15 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           .catch(() => {});
       }
 
+      // Cancel any in-flight product fetch from a previous open.
+      if (fetchController) fetchController.abort();
+      fetchController = new AbortController();
+
       // Fetch product data.
       const base = state.restBase || '/wp-json/wc/store/v1/products/';
       const url = `${base}${productId}`;
 
-      fetch(url)
+      fetch(url, { signal: fetchController.signal })
         .then(res => {
           if (!res.ok) {
             throw new Error(`HTTP ${res.status}`);
@@ -1102,7 +1117,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
           state.hasProduct = true;
         })
-        .catch(() => {
+        .catch(err => {
+          // Aborted fetches are expected (user opened a different product).
+          if (err?.name === 'AbortError') return;
           state.hasError = true;
         })
         .finally(() => {
@@ -1212,10 +1229,14 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             .then(res => (res.ok ? res.json() : null))
             .then(data => {
               if (!data) return;
-              const img =
+              const rawSrc =
                 data.images && data.images.length > 0
+                  ? data.images[0].src
+                  : '';
+              const img =
+                rawSrc && /^https?:\/\//i.test(rawSrc)
                   ? {
-                      src: data.images[0].src,
+                      src: rawSrc,
                       alt: data.images[0].alt || state.productName,
                     }
                   : null;
@@ -1255,12 +1276,9 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         return;
       }
       const step = 64; // 3.5rem thumb + 0.5rem gap.
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
       strip.scrollBy({
         left: dir * step,
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
       });
     },
 

@@ -1,14 +1,14 @@
 # Aggressive Apparel
 
-Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 16 toggleable store enhancements, 19 custom blocks, and 36 block patterns.
+Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 20 toggleable store enhancements, 19 custom blocks, and 36 block patterns.
 
-**Version:** 1.16.0 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
+**Version:** 1.39.0 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
 ## Features
 
 - **Full Site Editing** — 13 templates, 36 block patterns, complete theme.json configuration
 - **WooCommerce Integration** — product gallery, color swatches, custom templates for shop/cart/checkout
-- **16 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
+- **20 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
 - **19 Custom Blocks** — 15 interactive (Interactivity API) + 4 static Gutenberg blocks
 - **Interactivity API** — client-side reactivity without a JavaScript framework
 - **Automatic Updates** — GitHub release-based update system with ETag caching
@@ -28,7 +28,7 @@ All features are managed via **Appearance > Store Enhancements** and default to 
 | Free Shipping Progress Bar | Server-side | Cart progress bar toward free shipping threshold |
 | Swatch Tooltips | CSS | Hover tooltips on color/size swatches |
 | Mini Cart Styling | CSS | Enhanced mini cart appearance |
-| Product Filter Styling | CSS | Styled product archive filters |
+| Product Filters | Interactive | AJAX product filters with categories, color swatches, sizes, price range, and stock status |
 | Page Transitions | CSS | View Transitions API for smooth cross-page navigation |
 | Size Guide | Interactive | Size guide modal with custom post type |
 | Sale Countdown Timer | Interactive | Urgency timer on sale products |
@@ -117,7 +117,7 @@ functions.php → Bootstrap (singleton)
     │   └── Block registration
     └── WooCommerce (conditional on class_exists)
         ├── Core WC support (templates, cart, product loop, color swatches)
-        ├── Feature_Settings (16 toggle definitions)
+        ├── Feature_Settings (20 toggle definitions)
         └── Enhancements coordinator → individual feature classes
 ```
 
@@ -131,11 +131,11 @@ functions.php → Bootstrap (singleton)
 
 ### Icon System
 
-31 SVG icons available via `Icons::get('name')` and `Icons::render('name')`:
+30 SVG icons available via `Icons::get('name')` and `Icons::render('name')`:
 
 **Navigation:** hamburger, close, chevron-down/up/left/right, arrow-left/right, dots, bars
-**Actions:** home, search, cart, user, heart
-**UI:** check, plus, minus, info, warning, error
+**Actions:** home, search, cart, user, heart, eye
+**UI:** filter, check, plus, minus, info, warning, error
 **Social:** facebook, twitter, instagram
 
 ### Color Swatch System

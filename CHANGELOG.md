@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.41.1...v1.42.0) (2026-02-17)
+
+
+### Features
+
+* enhance product filters functionality ([880eeae](https://github.com/TheAggressive/Aggressive-Apparel/commit/880eeae33186e9dac524c2c02ef7b356dc08c6f1))
+
 ## [1.41.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.41.0...v1.41.1) (2026-02-17)
 
 

@@ -110,9 +110,11 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
     // ── Filter Toggles ──────────────────────────────
 
     toggleCategory(event) {
-      const slug = event.target.value;
+      const btn = event.target.closest('.aa-product-filters__category-chip');
+      if (!btn) return;
+      const slug = btn.dataset.filterValue;
       toggleArrayItem(state.selectedCategories, slug);
-      syncCheckboxes('category', state.selectedCategories);
+      syncCategoryChips(state.selectedCategories);
       updateAvailableFilters();
       debouncedFetch();
     },
@@ -470,7 +472,7 @@ function setupDelegatedEvents() {
 
       if (type === 'category') {
         removeArrayItem(state.selectedCategories, slug);
-        syncCheckboxes('category', state.selectedCategories);
+        syncCategoryChips(state.selectedCategories);
         updateAvailableFilters();
       } else if (type === 'color') {
         removeArrayItem(state.selectedColors, slug);
@@ -646,15 +648,19 @@ function renderHorizontalDropdowns() {
 }
 
 /**
- * Sync checkbox states to match selected arrays.
+ * Sync aria-pressed and is-selected class on category chips.
  *
- * @param {string}   type     - Filter type ("category").
  * @param {string[]} selected - Array of selected slugs.
  */
-function syncCheckboxes(type, selected) {
-  document.querySelectorAll(`[data-filter-type="${type}"]`).forEach(el => {
-    el.checked = selected.includes(el.value);
-  });
+function syncCategoryChips(selected) {
+  document
+    .querySelectorAll('.aa-product-filters__category-chip')
+    .forEach(el => {
+      const slug = el.dataset.filterValue;
+      const isSelected = selected.includes(slug);
+      el.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+      el.classList.toggle('is-selected', isSelected);
+    });
 }
 
 /**
@@ -735,7 +741,7 @@ function syncStockCheckboxes(checked) {
  * Sync all filter controls to current state (used by clearAll).
  */
 function syncAllControls() {
-  syncCheckboxes('category', []);
+  syncCategoryChips([]);
   syncSwatchPressed([]);
   syncChipPressed([]);
   syncPriceSliders();
@@ -828,7 +834,7 @@ function restoreFromUrl() {
 
   // Sync DOM controls to restored state.
   requestAnimationFrame(() => {
-    syncCheckboxes('category', state.selectedCategories);
+    syncCategoryChips(state.selectedCategories);
     syncSwatchPressed(state.selectedColors);
     syncChipPressed(state.selectedSizes);
     syncPriceSliders();
@@ -887,15 +893,89 @@ function scrollToGrid() {
   }
 }
 
+/** Stagger delay (ms) between each filter element animation. */
+const FILTER_STAGGER_MS = 40;
+
+/** Duration (ms) for a single filter element enter/exit animation. */
+const FILTER_ANIM_MS = 250;
+
 /**
- * Hide or show filter elements based on a predicate.
+ * Check whether the user prefers reduced motion.
+ *
+ * @return {boolean}
+ */
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Hide or show filter elements with staggered animations.
+ *
+ * Elements leaving shrink out one-by-one, then elements entering pop in
+ * with a cascading stagger. Falls back to instant toggle when the user
+ * prefers reduced motion.
  *
  * @param {string}   selector  - CSS selector for filter elements.
  * @param {Function} predicate - Receives the element, returns true to show.
  */
 function setFilterVisibility(selector, predicate) {
-  document.querySelectorAll(selector).forEach(el => {
-    el.hidden = !predicate(el);
+  const all = document.querySelectorAll(selector);
+  const toShow = [];
+  const toHide = [];
+
+  all.forEach(el => {
+    const shouldShow = predicate(el);
+    const isVisible = !el.hidden;
+
+    if (shouldShow && !isVisible) toShow.push(el);
+    else if (!shouldShow && isVisible) toHide.push(el);
+  });
+
+  // Nothing changed — bail early.
+  if (toShow.length === 0 && toHide.length === 0) return;
+
+  // Instant toggle for reduced motion.
+  if (prefersReducedMotion()) {
+    toHide.forEach(el => {
+      el.hidden = true;
+      el.classList.remove('is-filter-entering', 'is-filter-exiting');
+    });
+    toShow.forEach(el => {
+      el.hidden = false;
+      el.classList.remove('is-filter-entering', 'is-filter-exiting');
+    });
+    return;
+  }
+
+  // Phase 1: Stagger exits.
+  toHide.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('is-filter-exiting');
+      setTimeout(() => {
+        el.hidden = true;
+        el.classList.remove('is-filter-exiting');
+      }, FILTER_ANIM_MS);
+    }, i * FILTER_STAGGER_MS);
+  });
+
+  // Phase 2: Stagger entrances after all exits complete.
+  const exitDuration = toHide.length * FILTER_STAGGER_MS + FILTER_ANIM_MS;
+  const enterDelay = toHide.length > 0 ? exitDuration : 0;
+
+  toShow.forEach((el, i) => {
+    setTimeout(
+      () => {
+        el.classList.add('is-filter-entering');
+        el.hidden = false;
+        // Force reflow so the browser paints the "from" state.
+        void el.offsetHeight;
+        // Remove the class on the next frame to trigger the transition.
+        requestAnimationFrame(() => {
+          el.classList.remove('is-filter-entering');
+        });
+      },
+      enterDelay + i * FILTER_STAGGER_MS
+    );
   });
 }
 

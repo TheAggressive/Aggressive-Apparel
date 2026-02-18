@@ -577,9 +577,15 @@ class Product_Filters {
 			$this->render_section_start( 'colors', __( 'Color', 'aggressive-apparel' ) );
 			echo '<div class="aa-product-filters__color-list" role="group" aria-label="' . esc_attr__( 'Filter by color', 'aggressive-apparel' ) . '">';
 			foreach ( $data['colorTerms'] as $color ) {
-				$style = 'pattern' === $color['type']
-					? sprintf( 'background-image:url(%s);background-size:cover;', esc_url( $color['value'] ) )
-					: sprintf( 'background-color:%s;', esc_attr( $color['value'] ) );
+				if ( 'pattern' === $color['type'] ) {
+					$style = sprintf( 'background-image:url(%s);background-size:cover;', esc_url( $color['value'] ) );
+				} else {
+					$style = sprintf(
+						'background-color:%s;--swatch-color:%s;',
+						esc_attr( $color['value'] ),
+						esc_attr( $color['value'] ),
+					);
+				}
 
 				printf(
 					'<button class="aa-product-filters__color-swatch" data-wp-on--click="actions.toggleColor" data-filter-value="%s" style="%s" title="%s" aria-label="%s" aria-pressed="false"><span class="screen-reader-text">%s</span></button>',
@@ -748,7 +754,7 @@ class Product_Filters {
 		foreach ( $nodes as $cat ) {
 			echo '<li class="aa-product-filters__category-item">';
 			printf(
-				'<label class="aa-product-filters__category-label"><input type="checkbox" class="aa-product-filters__category-checkbox" value="%s" data-wp-on--change="actions.toggleCategory" data-filter-type="category" /><span class="aa-product-filters__category-name">%s</span><span class="aa-product-filters__category-count">%d</span></label>',
+				'<button class="aa-product-filters__category-chip" data-wp-on--click="actions.toggleCategory" data-filter-value="%s" data-filter-type="category" aria-pressed="false"><span class="aa-product-filters__category-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__category-chip-name">%s</span><span class="aa-product-filters__category-chip-count">%d</span></button>',
 				esc_attr( $cat['slug'] ),
 				esc_html( $cat['name'] ),
 				(int) $cat['count'],

@@ -239,8 +239,8 @@ class Product_Filters {
 			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
 			$this->ensure_assets();
 
-			// Inject filter toggle button into the results-count/sort row.
-			if ( 'woocommerce/product-results-count' === $block['blockName'] ) {
+			// Inject filter toggle button before the catalog sorting dropdown.
+			if ( 'woocommerce/catalog-sorting' === $block['blockName'] ) {
 				$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
 				$button       = sprintf(
 					'<button class="aa-product-filters__trigger%s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" aria-label="%s">%s<span class="aa-product-filters__trigger-label">%s</span><span class="aa-product-filters__trigger-count" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
@@ -607,7 +607,7 @@ class Product_Filters {
 			echo '<div class="aa-product-filters__size-list" role="group" aria-label="' . esc_attr__( 'Filter by size', 'aggressive-apparel' ) . '">';
 			foreach ( $data['sizeTerms'] as $size ) {
 				printf(
-					'<button class="aa-product-filters__size-chip" data-wp-on--click="actions.toggleSize" data-filter-value="%s" aria-pressed="false" aria-label="%s">%s</button>',
+					'<button class="aa-product-filters__size-chip" data-wp-on--click="actions.toggleSize" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__size-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__size-chip-name">%s</span></button>',
 					esc_attr( $size['slug'] ),
 					/* translators: %s: size name */
 					esc_attr( sprintf( __( 'Filter by size %s', 'aggressive-apparel' ), $size['name'] ) ),
@@ -690,7 +690,7 @@ class Product_Filters {
 				)
 			),
 		);
-		echo '<div class="aa-product-filters__section-body">';
+		echo '<div class="aa-product-filters__section-body"><div class="aa-product-filters__section-inner">';
 	}
 
 	/**
@@ -699,7 +699,7 @@ class Product_Filters {
 	 * @return void
 	 */
 	private function render_section_end(): void {
-		echo '</div></div>';
+		echo '</div></div></div>';
 	}
 
 	/**

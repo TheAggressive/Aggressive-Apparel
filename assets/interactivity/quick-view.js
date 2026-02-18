@@ -1649,6 +1649,26 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       ref.src = ctx.item.thumbnail || '';
       ref.alt = ctx.item.alt || '';
     },
+
+    /**
+     * Set the --swatch-color CSS custom property on a color swatch button.
+     *
+     * The Interactivity API's data-wp-style-- directive uses
+     * element.style[prop] assignment which doesn't work for CSS custom
+     * properties (they need setProperty). This callback runs once per
+     * swatch via data-wp-init to set the property correctly.
+     */
+    syncSwatchColor() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref || !ctx.item) return;
+      const swatchData = state.colorSwatchData[ctx.item.slug];
+      if (!swatchData || !swatchData.value) return;
+      const v = swatchData.value;
+      if (/^#[0-9a-f]{3,8}$/i.test(v) || /^oklch\([^;{}]*\)$/i.test(v)) {
+        ref.style.setProperty('--swatch-color', v);
+      }
+    },
   },
 });
 

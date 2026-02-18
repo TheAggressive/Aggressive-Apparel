@@ -188,15 +188,9 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
     toggleSection(event) {
       const btn = event.target.closest('.aa-product-filters__section-toggle');
       if (!btn) return;
-      const section = btn.closest('.aa-product-filters__section');
-      if (!section) return;
-
-      const body = section.querySelector('.aa-product-filters__section-body');
-      if (!body) return;
 
       const isExpanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-      body.hidden = isExpanded;
     },
 
     // ── Drawer ──────────────────────────────────────
@@ -674,28 +668,13 @@ function renderHorizontalDropdowns() {
 }
 
 /**
- * Sync aria-pressed and is-selected class on category chips.
+ * Sync aria-pressed and is-selected class on toggle elements.
  *
+ * @param {string}   selector - CSS selector for the toggle elements.
  * @param {string[]} selected - Array of selected slugs.
  */
-function syncCategoryChips(selected) {
-  document
-    .querySelectorAll('.aa-product-filters__category-chip')
-    .forEach(el => {
-      const slug = el.dataset.filterValue;
-      const isSelected = selected.includes(slug);
-      el.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-      el.classList.toggle('is-selected', isSelected);
-    });
-}
-
-/**
- * Sync aria-pressed and is-selected class on color swatches.
- *
- * @param {string[]} selected - Array of selected slugs.
- */
-function syncSwatchPressed(selected) {
-  document.querySelectorAll('.aa-product-filters__color-swatch').forEach(el => {
+function syncPressed(selector, selected) {
+  document.querySelectorAll(selector).forEach(el => {
     const slug = el.dataset.filterValue;
     const isSelected = selected.includes(slug);
     el.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
@@ -703,19 +682,13 @@ function syncSwatchPressed(selected) {
   });
 }
 
-/**
- * Sync aria-pressed and is-selected class on size chips.
- *
- * @param {string[]} selected - Array of selected slugs.
- */
-function syncChipPressed(selected) {
-  document.querySelectorAll('.aa-product-filters__size-chip').forEach(el => {
-    const slug = el.dataset.filterValue;
-    const isSelected = selected.includes(slug);
-    el.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-    el.classList.toggle('is-selected', isSelected);
-  });
-}
+/** Convenience wrappers for readability at call sites. */
+const syncCategoryChips = selected =>
+  syncPressed('.aa-product-filters__category-chip', selected);
+const syncSwatchPressed = selected =>
+  syncPressed('.aa-product-filters__color-swatch', selected);
+const syncChipPressed = selected =>
+  syncPressed('.aa-product-filters__size-chip', selected);
 
 /**
  * Sync the visual position of the price range highlight.

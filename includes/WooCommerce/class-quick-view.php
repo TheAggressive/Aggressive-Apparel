@@ -229,6 +229,7 @@ class Quick_View {
 				<div
 					class="aggressive-apparel-quick-view__skeleton"
 					data-wp-bind--hidden="state.isNotLoading"
+					aria-hidden="true"
 				>
 					<div class="aggressive-apparel-quick-view__skeleton-image"></div>
 					<div class="aggressive-apparel-quick-view__skeleton-details">
@@ -544,13 +545,13 @@ class Quick_View {
 							<div class="aggressive-apparel-quick-view__drawer-body">
 								<template data-wp-each="state.productAttributes">
 									<div class="aggressive-apparel-quick-view__attribute">
-										<!-- Color attributes: swatches. -->
+										<!-- Color attributes: shrink-reveal swatches. -->
 										<div data-wp-bind--hidden="state.isNotColorAttribute">
 											<span
 												class="aggressive-apparel-quick-view__attribute-label"
 												data-wp-text="context.item.name"
 											></span>
-											<div class="aggressive-apparel-quick-view__attribute-options is-color-attribute">
+											<div class="aggressive-apparel-quick-view__attribute-options is-color-attribute" role="group" data-wp-bind--aria-label="context.item.name">
 												<template data-wp-each="context.item.options">
 													<button
 														type="button"
@@ -558,29 +559,29 @@ class Quick_View {
 														data-wp-on--click="actions.selectAttribute"
 														data-wp-class--is-selected="state.isOptionSelected"
 														data-wp-style--background-color="state.colorSwatchValue"
+														data-wp-init="callbacks.syncSwatchColor"
 														data-wp-bind--title="state.colorSwatchName"
 														data-wp-bind--aria-label="state.colorSwatchName"
 														data-wp-bind--aria-pressed="state.isOptionSelected"
-													></button>
+													><span class="screen-reader-text" data-wp-text="state.colorSwatchName"></span></button>
 												</template>
 											</div>
 										</div>
-										<!-- Non-color attributes: pill buttons. -->
+										<!-- Non-color attributes: morphing pill buttons. -->
 										<div data-wp-bind--hidden="state.isColorAttribute">
 											<span
 												class="aggressive-apparel-quick-view__attribute-label"
 												data-wp-text="context.item.name"
 											></span>
-											<div class="aggressive-apparel-quick-view__attribute-options">
+											<div class="aggressive-apparel-quick-view__attribute-options" role="group" data-wp-bind--aria-label="context.item.name">
 												<template data-wp-each="context.item.options">
 													<button
 														type="button"
 														class="aggressive-apparel-quick-view__attribute-option"
 														data-wp-on--click="actions.selectAttribute"
 														data-wp-class--is-selected="state.isOptionSelected"
-														data-wp-text="context.item.name"
 														data-wp-bind--aria-pressed="state.isOptionSelected"
-													></button>
+													><span class="aggressive-apparel-quick-view__option-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aggressive-apparel-quick-view__option-name" data-wp-text="context.item.name"></span></button>
 												</template>
 											</div>
 										</div>

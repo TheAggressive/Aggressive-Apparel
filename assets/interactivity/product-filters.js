@@ -141,6 +141,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       const val = parseInt(event.target.value, 10);
       state.priceMin = Math.min(val, state.priceMax - 1);
       event.target.value = state.priceMin;
+      event.target.setAttribute('aria-valuenow', state.priceMin);
       syncPriceRange();
       debouncedFetch();
     },
@@ -149,6 +150,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       const val = parseInt(event.target.value, 10);
       state.priceMax = Math.max(val, state.priceMin + 1);
       event.target.value = state.priceMax;
+      event.target.setAttribute('aria-valuenow', state.priceMax);
       syncPriceRange();
       debouncedFetch();
     },
@@ -295,6 +297,7 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
       restoreFromUrl();
       captureSortDropdown();
       setupDelegatedEvents();
+      setupScrollbarAutoHide();
 
       // Pre-select current category on taxonomy pages.
       if (state.currentCategorySlug && state.selectedCategories.length === 0) {
@@ -457,6 +460,29 @@ function fetchProducts() {
 
 /**
  * Set up event delegation for dynamically rendered content.
+ * Auto-hide scrollbar on the drawer body.
+ *
+ * Adds the `is-scrolling` class while actively scrolling, then removes it
+ * after a short idle period. CSS uses this class to reveal the scrollbar thumb.
+ */
+function setupScrollbarAutoHide() {
+  let scrollTimer = 0;
+  document.querySelectorAll('.aa-product-filters__drawer-body').forEach(el => {
+    el.addEventListener(
+      'scroll',
+      () => {
+        el.classList.add('is-scrolling');
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          el.classList.remove('is-scrolling');
+        }, 800);
+      },
+      { passive: true }
+    );
+  });
+}
+
+/**
  * Pills, pagination, and horizontal dropdown content use innerHTML,
  * so data-wp-on--click directives won't be processed by the Interactivity API.
  */
@@ -705,6 +731,12 @@ function syncPriceRange() {
   document.querySelectorAll('.aa-product-filters__price-range').forEach(el => {
     el.style.left = `${minPct}%`;
     el.style.right = `${100 - maxPct}%`;
+  });
+
+  // Update tooltip positions via CSS custom properties.
+  document.querySelectorAll('.aa-product-filters__price-slider').forEach(el => {
+    el.style.setProperty('--pf-min-pct', minPct);
+    el.style.setProperty('--pf-max-pct', maxPct);
   });
 }
 

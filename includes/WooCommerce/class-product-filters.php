@@ -628,24 +628,28 @@ class Product_Filters {
 				(int) $range['max'],
 			);
 			echo '<div class="aa-product-filters__price-track"><div class="aa-product-filters__price-range"></div></div>';
+			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--min" data-wp-text="state.priceMinDisplay" aria-hidden="true"></span>';
+			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--max" data-wp-text="state.priceMaxDisplay" aria-hidden="true"></span>';
 			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--min" min="%d" max="%d" value="%d" data-wp-on--input="actions.setPriceMin" aria-label="%s" />',
+				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--min" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMin" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
 				(int) $range['min'],
 				(int) $range['max'],
 				(int) $range['min'],
 				esc_attr__( 'Minimum price', 'aggressive-apparel' ),
+				(int) $range['min'],
+				(int) $range['max'],
+				(int) $range['min'],
 			);
 			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--max" min="%d" max="%d" value="%d" data-wp-on--input="actions.setPriceMax" aria-label="%s" />',
+				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--max" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMax" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
 				(int) $range['min'],
 				(int) $range['max'],
 				(int) $range['max'],
 				esc_attr__( 'Maximum price', 'aggressive-apparel' ),
+				(int) $range['min'],
+				(int) $range['max'],
+				(int) $range['max'],
 			);
-			echo '<div class="aa-product-filters__price-labels">';
-			echo '<span class="aa-product-filters__price-label" data-wp-text="state.priceMinDisplay"></span>';
-			echo '<span class="aa-product-filters__price-label" data-wp-text="state.priceMaxDisplay"></span>';
-			echo '</div>';
 			echo '</div>';
 			$this->render_section_end();
 		}

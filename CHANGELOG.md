@@ -1,3 +1,10 @@
+## [1.44.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.0...v1.44.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* enhance product filters and quick view functionality ([77d08d4](https://github.com/TheAggressive/Aggressive-Apparel/commit/77d08d4bf4a2b748ce3d414d747db1e13e6d3480))
+
 # [1.44.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.43.0...v1.44.0) (2026-02-18)
 
 

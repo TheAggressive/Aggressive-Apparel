@@ -1283,7 +1283,7 @@
  * ======================================== */
 @media (width <= 768px) {
 
-	/* Full-screen sheet. */
+	/* Full-screen sheet — scrollable content. */
 	.aggressive-apparel-quick-view__modal {
 		width: 100vw;
 		max-width: 100vw;
@@ -1310,14 +1310,14 @@
 	}
 
 	.aggressive-apparel-quick-view__skeleton-image {
-		aspect-ratio: 4 / 3;
-		max-height: 38vh;
+		aspect-ratio: 1;
+		max-height: none;
 	}
 
-	/* Constrained image — save vertical space vs. 1:1. */
+	/* Let image take its natural shape — user scrolls for details. */
 	.aggressive-apparel-quick-view__main-image {
-		aspect-ratio: 4 / 3;
-		max-height: 38vh;
+		aspect-ratio: unset;
+		max-height: none;
 	}
 
 	/* Hide thumbnails on mobile, show dot indicators instead. */

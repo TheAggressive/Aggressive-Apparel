@@ -899,31 +899,26 @@ function scrollToGrid() {
 }
 
 /**
- * Show or hide filter elements via the `.is-unavailable` CSS class.
+ * Fade and disable filter elements via the `.is-unavailable` CSS class.
  *
- * CSS handles all animation: opacity + transform fade, then width/height
- * collapse to zero. A subtle per-item stagger is achieved via the
- * `--filter-index` custom property (20ms per item in CSS).
+ * Items stay in place (no layout reflow) — just dimmed and non-interactive.
+ * CSS transitions the opacity change; JS toggles the class and a11y attrs.
  *
  * @param {string}   selector  - CSS selector for filter elements.
  * @param {Function} predicate - Receives the element, returns true to show.
  */
 function setFilterVisibility(selector, predicate) {
   const all = document.querySelectorAll(selector);
-  let exitIndex = 0;
-  let enterIndex = 0;
 
   all.forEach(el => {
     const shouldShow = predicate(el);
     const isUnavailable = el.classList.contains('is-unavailable');
 
     if (!shouldShow && !isUnavailable) {
-      el.style.setProperty('--filter-index', String(exitIndex++));
       el.classList.add('is-unavailable');
       el.setAttribute('aria-hidden', 'true');
       el.tabIndex = -1;
     } else if (shouldShow && isUnavailable) {
-      el.style.setProperty('--filter-index', String(enterIndex++));
       el.classList.remove('is-unavailable');
       el.removeAttribute('aria-hidden');
       el.removeAttribute('tabindex');

@@ -1,3 +1,10 @@
+## [1.44.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.1...v1.44.2) (2026-02-19)
+
+
+### Bug Fixes
+
+* refine product filters and quick view CSS ([b387392](https://github.com/TheAggressive/Aggressive-Apparel/commit/b387392cc253c0c9417bfd32203efe7e366b99e9))
+
 ## [1.44.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.0...v1.44.1) (2026-02-18)
 
 

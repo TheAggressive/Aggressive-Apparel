@@ -1,3 +1,10 @@
+## [1.44.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.4...v1.44.5) (2026-02-19)
+
+
+### Bug Fixes
+
+* enhance filter visibility and animations ([c28dd95](https://github.com/TheAggressive/Aggressive-Apparel/commit/c28dd95b7bc2197f391a5ab28c2b7e51a9e88411))
+
 ## [1.44.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.3...v1.44.4) (2026-02-19)
 
 

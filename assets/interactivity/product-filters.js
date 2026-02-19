@@ -898,89 +898,36 @@ function scrollToGrid() {
   }
 }
 
-/** Stagger delay (ms) between each filter element animation. */
-const FILTER_STAGGER_MS = 40;
-
-/** Duration (ms) for a single filter element enter/exit animation. */
-const FILTER_ANIM_MS = 250;
-
 /**
- * Check whether the user prefers reduced motion.
+ * Show or hide filter elements via the `.is-unavailable` CSS class.
  *
- * @return {boolean}
- */
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/**
- * Hide or show filter elements with staggered animations.
- *
- * Elements leaving shrink out one-by-one, then elements entering pop in
- * with a cascading stagger. Falls back to instant toggle when the user
- * prefers reduced motion.
+ * CSS handles all animation: opacity + transform fade, then width/height
+ * collapse to zero. A subtle per-item stagger is achieved via the
+ * `--filter-index` custom property (20ms per item in CSS).
  *
  * @param {string}   selector  - CSS selector for filter elements.
  * @param {Function} predicate - Receives the element, returns true to show.
  */
 function setFilterVisibility(selector, predicate) {
   const all = document.querySelectorAll(selector);
-  const toShow = [];
-  const toHide = [];
+  let exitIndex = 0;
+  let enterIndex = 0;
 
   all.forEach(el => {
     const shouldShow = predicate(el);
-    const isVisible = !el.hidden;
+    const isUnavailable = el.classList.contains('is-unavailable');
 
-    if (shouldShow && !isVisible) toShow.push(el);
-    else if (!shouldShow && isVisible) toHide.push(el);
-  });
-
-  // Nothing changed — bail early.
-  if (toShow.length === 0 && toHide.length === 0) return;
-
-  // Instant toggle for reduced motion.
-  if (prefersReducedMotion()) {
-    toHide.forEach(el => {
-      el.hidden = true;
-      el.classList.remove('is-filter-entering', 'is-filter-exiting');
-    });
-    toShow.forEach(el => {
-      el.hidden = false;
-      el.classList.remove('is-filter-entering', 'is-filter-exiting');
-    });
-    return;
-  }
-
-  // Phase 1: Stagger exits.
-  toHide.forEach((el, i) => {
-    setTimeout(() => {
-      el.classList.add('is-filter-exiting');
-      setTimeout(() => {
-        el.hidden = true;
-        el.classList.remove('is-filter-exiting');
-      }, FILTER_ANIM_MS);
-    }, i * FILTER_STAGGER_MS);
-  });
-
-  // Phase 2: Stagger entrances after all exits complete.
-  const exitDuration = toHide.length * FILTER_STAGGER_MS + FILTER_ANIM_MS;
-  const enterDelay = toHide.length > 0 ? exitDuration : 0;
-
-  toShow.forEach((el, i) => {
-    setTimeout(
-      () => {
-        el.classList.add('is-filter-entering');
-        el.hidden = false;
-        // Force reflow so the browser paints the "from" state.
-        void el.offsetHeight;
-        // Remove the class on the next frame to trigger the transition.
-        requestAnimationFrame(() => {
-          el.classList.remove('is-filter-entering');
-        });
-      },
-      enterDelay + i * FILTER_STAGGER_MS
-    );
+    if (!shouldShow && !isUnavailable) {
+      el.style.setProperty('--filter-index', String(exitIndex++));
+      el.classList.add('is-unavailable');
+      el.setAttribute('aria-hidden', 'true');
+      el.tabIndex = -1;
+    } else if (shouldShow && isUnavailable) {
+      el.style.setProperty('--filter-index', String(enterIndex++));
+      el.classList.remove('is-unavailable');
+      el.removeAttribute('aria-hidden');
+      el.removeAttribute('tabindex');
+    }
   });
 }
 

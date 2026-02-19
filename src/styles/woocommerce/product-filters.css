@@ -280,6 +280,11 @@ body.has-product-filters {
 		transform: none;
 	}
 
+	button.aa-product-filters__color-swatch.is-unavailable,
+	button.aa-product-filters__size-chip.is-unavailable {
+		transition: none;
+	}
+
 	.aa-product-filters__section-body {
 		transition: none;
 	}
@@ -424,7 +429,14 @@ button.aa-product-filters__size-chip {
 		box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 		color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
 		transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+		width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		border-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 	/* Wipe fill — slides in from left on select. */
 	&::before {
@@ -530,24 +542,32 @@ button.aa-product-filters__size-chip {
 	min-width: 2.75rem;
 }
 
-/* ── Filter Enter / Exit Animations ────────────────── */
+/* ── Filter Availability Collapse ──────────────────── */
 
 /*
- * Staggered cascade for color swatches and size chips when categories
- * change. JS adds/removes these classes with per-element delays.
+ * Smooth collapse for color swatches and size chips when categories
+ * change which attributes are available.
  *
- *   .is-filter-exiting  → shrink + fade out (applied, then element hidden)
- *   .is-filter-entering → starting state (scale 0, opacity 0), removed on
- *                          next frame so the element transitions to defaults.
+ * JS toggles `.is-unavailable` — CSS handles all animation:
+ *   1. opacity + scale fade out
+ *   2. width/height/padding/margin collapse to zero (removes from flow)
+ *   3. transition-delay via --filter-index for subtle stagger
  */
-.is-filter-exiting {
-	opacity: 0 !important;
-	transform: scale(0) !important;
-}
-
-.is-filter-entering {
-	opacity: 0 !important;
-	transform: scale(0) !important;
+button.aa-product-filters__color-swatch.is-unavailable,
+button.aa-product-filters__size-chip.is-unavailable {
+	opacity: 0;
+	transform: scale(0);
+	width: 0;
+	height: 0;
+	min-width: 0;
+	min-height: 0;
+	padding: 0;
+	margin: 0;
+	border-width: 0;
+	box-shadow: none;
+	overflow: hidden;
+	pointer-events: none;
+	transition-delay: calc(var(--filter-index, 0) * 20ms);
 }
 
 /* ── Color Swatches ─────────────────────────────────── */
@@ -585,7 +605,14 @@ button.aa-product-filters__color-swatch {
 	transition:
 		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
 		opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+		width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		border-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&.is-selected {
 		transform: scale(0.78);

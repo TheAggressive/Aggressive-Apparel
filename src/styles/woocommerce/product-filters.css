@@ -177,7 +177,7 @@ body.has-product-filters {
 	flex: 1;
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	padding: 0.5rem 0;
+	padding: 0;
 
 	/* Firefox: thin scrollbar, transparent until scrolling. */
 	scrollbar-width: thin;
@@ -352,7 +352,23 @@ body.has-product-filters {
 .aa-product-filters__section-inner {
 	overflow: hidden;
 	min-height: 0;
-	padding: 0 1.25rem 1rem;
+	padding: 0 1.25rem;
+
+	/* Vertical spacing as clippable content instead of padding,
+	   so the grid collapse hides it completely. */
+	&::before,
+	&::after {
+		content: "";
+		display: block;
+	}
+
+	&::before {
+		height: 0.5rem;
+	}
+
+	&::after {
+		height: 1rem;
+	}
 }
 
 /* ── Morphing Chips (shared: categories + sizes) ───── */

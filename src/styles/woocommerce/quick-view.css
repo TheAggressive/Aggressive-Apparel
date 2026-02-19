@@ -702,9 +702,6 @@
 
 	&:hover:not(.is-selected) {
 		transform: scale(1.1);
-	}
-
-	&:hover {
 		box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
 	}
 

@@ -1,3 +1,10 @@
+## [1.44.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.2...v1.44.3) (2026-02-19)
+
+
+### Bug Fixes
+
+* update quick view CSS for improved mobile experience ([34788e1](https://github.com/TheAggressive/Aggressive-Apparel/commit/34788e1f02c5e9f03e9dc0ad824dccdfd88113ab))
+
 ## [1.44.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.1...v1.44.2) (2026-02-19)
 
 

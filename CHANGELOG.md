@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.5...v1.45.0) (2026-02-20)
+
+
+### Features
+
+* enhance navigation functionality and structure ([5a75fe8](https://github.com/TheAggressive/Aggressive-Apparel/commit/5a75fe8d881869db74ecdde2c396f66c136bbc8e))
+
 ## [1.44.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.4...v1.44.5) (2026-02-19)
 
 

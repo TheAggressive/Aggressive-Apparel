@@ -12,7 +12,7 @@
   --submenu-shadow: var(--aa-nav-shadow, 0 4px 20px rgb(0 0 0 / 15%));
   --submenu-radius: var(--aa-nav-radius-lg, 8px);
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
-  --submenu-transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --submenu-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --submenu-min-width: 200px;
 
   position: relative;
@@ -121,15 +121,6 @@
     transform: translateY(0);
   }
 
-  /* CSS-only hover fallback for when JS isn't loaded */
-  &--dropdown:hover > &__panel,
-  &--dropdown:focus-within > &__panel {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
   /* Panel links styling. */
   &__panel .wp-block-aggressive-apparel-nav-link {
     --nav-link-color: var(--submenu-color, currentcolor);
@@ -167,9 +158,7 @@
   }
 
   &--mega.is-open &__panel,
-  &--mega.is-visible &__panel,
-  &--mega:hover > &__panel,
-  &--mega:focus-within > &__panel {
+  &--mega.is-visible &__panel {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -295,36 +284,16 @@
 }
 
 /* ========================================
- * CSS :has() HOVER STATES
- * CSS-only hover/focus visibility (reduces JavaScript).
+ * INDICATOR-AS-BACKGROUND
+ * When the sliding indicator morphs into the panel
+ * background, the panel's own visuals become transparent
+ * so the indicator shows through underneath.
  * ======================================== */
-@supports selector(:has(*)) {
-
-  /* Show dropdown when trigger is hovered/focused */
-  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
-  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
-  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
-  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]) {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
-  /* Keep open when hovering the panel itself */
-  .wp-block-aggressive-apparel-nav-submenu--dropdown:has(.wp-block-aggressive-apparel-nav-submenu__panel:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]),
-  .wp-block-aggressive-apparel-nav-submenu--mega:has(.wp-block-aggressive-apparel-nav-submenu__panel:hover) > .wp-block-aggressive-apparel-nav-submenu__panel:not([popover]) {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
-  /* Arrow rotation on hover using :has() */
-  .wp-block-aggressive-apparel-nav-submenu:has(.wp-block-aggressive-apparel-nav-submenu__link:hover) .wp-block-aggressive-apparel-nav-submenu__arrow,
-  .wp-block-aggressive-apparel-nav-submenu:has(.wp-block-aggressive-apparel-nav-submenu__link:focus-visible) .wp-block-aggressive-apparel-nav-submenu__arrow {
-    transform: rotate(180deg);
-  }
+.wp-block-aggressive-apparel-nav-submenu__panel[data-indicator-bg] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
 }
 
 /* ========================================
@@ -360,9 +329,27 @@
 
 @media (prefers-reduced-motion: no-preference) {
 
-  .wp-block-aggressive-apparel-nav-submenu.is-open .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
-    animation: submenu-stagger-in 300ms ease forwards;
-    animation-delay: calc(var(--item-index, 0) * 50ms);
+  /* Keep items hidden by default — the stagger animation (.is-items-revealed)
+     brings them in. Scoped to [data-wp-interactive] so editor items stay visible.
+     Items revert to opacity 0 on close, preventing flash during panel fade. */
+  [data-wp-interactive] .wp-block-aggressive-apparel-nav-submenu .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    opacity: 0;
+  }
+
+  /* Mobile panel: items should be visible immediately — no indicator expansion
+     or stagger reveal on mobile. The desktop stagger-hide above doesn't apply
+     because the mobile panel uses accordion (max-height) instead of indicator. */
+  .aa-nav__panel-menu .wp-block-aggressive-apparel-nav-submenu .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    opacity: 1;
+    animation: none;
+  }
+
+  /* Items cascade in only after the indicator expansion is complete.
+     The .is-items-revealed class is added by JS after the expansion
+     transition finishes. */
+  .wp-block-aggressive-apparel-nav-submenu.is-open.is-items-revealed .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    animation: submenu-stagger-in 200ms ease forwards;
+    animation-delay: calc(var(--item-index, 0) * 40ms);
     opacity: 0;
   }
 

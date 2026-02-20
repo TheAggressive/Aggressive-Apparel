@@ -1,8 +1,8 @@
 /**
- * Navigation Block System — Shared Constants
+ * Navigation Block System — Shared Constants (v2)
  *
- * Centralized constants and selectors for the navigation block system.
- * This file ensures consistency across all navigation blocks and simplifies maintenance.
+ * Centralized constants and selectors for the consolidated 3-block navigation.
+ * Uses aa-nav__ prefix for elements rendered by navigation/render.php.
  *
  * @package Aggressive_Apparel
  */
@@ -13,31 +13,40 @@
 
 /**
  * CSS selectors for navigation block elements.
- * Use data attributes where possible for stability.
  */
 export const SELECTORS = {
-  // Block root elements
+  // Block root
   navigation: '.wp-block-aggressive-apparel-navigation',
-  navigationPanel: '.wp-block-aggressive-apparel-navigation-panel',
-  menuToggle: '.wp-block-aggressive-apparel-menu-toggle',
-  navMenu: '.wp-block-aggressive-apparel-nav-menu',
-  navLink: '.wp-block-aggressive-apparel-nav-link',
-  navSubmenu: '.wp-block-aggressive-apparel-nav-submenu',
-  megaMenuContent: '.wp-block-aggressive-apparel-mega-menu-content',
 
-  // Interactive elements
+  // Desktop menubar (rendered by navigation/render.php)
+  menubar: '.aa-nav__menubar',
+  indicator: '.aa-nav__indicator',
+
+  // Nav-link elements
+  navLink: '.wp-block-aggressive-apparel-nav-link',
   navLinkAnchor: '.wp-block-aggressive-apparel-nav-link__link',
+
+  // Nav-submenu elements
+  navSubmenu: '.wp-block-aggressive-apparel-nav-submenu',
   submenuLink: '.wp-block-aggressive-apparel-nav-submenu__link',
   submenuTrigger: '.wp-block-aggressive-apparel-nav-submenu__trigger',
   submenuPanel: '.wp-block-aggressive-apparel-nav-submenu__panel',
   submenuLabel: '.wp-block-aggressive-apparel-nav-submenu__label',
 
-  // Panel elements
-  panelContent: '.wp-block-aggressive-apparel-navigation-panel__content',
-  panelHeader: '.wp-block-aggressive-apparel-navigation-panel__header',
-  panelBody: '.wp-block-aggressive-apparel-panel-body',
-  panelOverlay: '.wp-block-aggressive-apparel-navigation-panel__overlay',
-  panelClose: '.wp-block-aggressive-apparel-navigation-panel__close',
+  // Toggle (rendered by navigation/render.php)
+  toggle: '.aa-nav__toggle',
+
+  // Panel (portaled to wp_footer by navigation/render.php)
+  panel: '.aa-nav__panel',
+  panelContent: '.aa-nav__panel-content',
+  panelHeader: '.aa-nav__panel-header',
+  panelBody: '.aa-nav__panel-body',
+  panelMenu: '.aa-nav__panel-menu',
+  panelOverlay: '.aa-nav__panel-overlay',
+  panelClose: '.aa-nav__panel-close',
+  mobileIndicator: '.aa-nav__mobile-indicator',
+
+  // Drilldown
   drilldownHeader: '.wp-block-aggressive-apparel-nav-submenu__drilldown-header',
   drilldownBack: '.wp-block-aggressive-apparel-nav-submenu__back',
   drilldownTitle: '.wp-block-aggressive-apparel-nav-submenu__drilldown-title',
@@ -45,13 +54,10 @@ export const SELECTORS = {
   // State classes
   isOpen: 'is-open',
   isActive: 'is-active',
+  isCurrent: 'is-current',
   hasDrillStack: 'has-drill-stack',
 
-  // Orientation classes
-  menuHorizontal: 'wp-block-aggressive-apparel-nav-menu--horizontal',
-  menuVertical: 'wp-block-aggressive-apparel-nav-menu--vertical',
-
-  // Menu type classes
+  // Submenu type classes
   submenuDropdown: 'wp-block-aggressive-apparel-nav-submenu--dropdown',
   submenuMega: 'wp-block-aggressive-apparel-nav-submenu--mega',
   submenuDrilldown: 'wp-block-aggressive-apparel-nav-submenu--drilldown',
@@ -65,14 +71,14 @@ export const FOCUSABLE_SELECTOR =
   'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Selector for menu items in the panel body.
+ * Selector for menu items in the mobile panel.
  */
 export const PANEL_MENU_ITEM_SELECTOR =
-  `${SELECTORS.panelBody} ${SELECTORS.navLinkAnchor}, ` +
-  `${SELECTORS.panelBody} ${SELECTORS.submenuLink}`;
+  `${SELECTORS.panelMenu} ${SELECTORS.navLinkAnchor}, ` +
+  `${SELECTORS.panelMenu} ${SELECTORS.submenuLink}`;
 
 /**
- * Selector for top-level menu items (direct children).
+ * Selector for top-level menu items in the desktop menubar.
  */
 export const TOP_LEVEL_MENU_ITEM_SELECTOR =
   `:scope > li > ${SELECTORS.navLinkAnchor}, ` +
@@ -93,16 +99,24 @@ export const SUBMENU_ITEM_SELECTOR = `${SELECTORS.navLinkAnchor}, ${SELECTORS.su
 export const TRANSITION_DURATION_MS = 300;
 
 /**
+ * Indicator animation timing.
+ */
+export const INDICATOR_DURATION_MS = 250;
+
+/**
  * Hover intent delays.
  */
 export const HOVER_INTENT = {
-  /** Delay before opening on hover (ms) */
-  openDelay: 50,
+  /** Delay before opening on initial hover — requires dwell (ms) */
+  openDelay: 200,
+  /** Shorter delay when switching between open submenus (ms) */
+  switchDelay: 80,
   /** Delay before closing on hover leave (ms) */
-  closeDelay: 150,
+  closeDelay: 300,
   /** Reduced motion variants */
   reducedMotion: {
     openDelay: 0,
+    switchDelay: 0,
     closeDelay: 50,
   },
 } as const;

@@ -9,7 +9,7 @@
   "keywords": ["link", "menu", "navigation", "item"],
   "textdomain": "aggressive-apparel",
   "icon": "admin-links",
-  "parent": ["aggressive-apparel/nav-menu", "aggressive-apparel/nav-submenu"],
+  "parent": ["aggressive-apparel/navigation", "aggressive-apparel/nav-submenu"],
   "attributes": {
     "label": {
       "type": "string",
@@ -54,10 +54,7 @@
     },
     "className": true
   },
-  "usesContext": [
-    "aggressive-apparel/navMenuOrientation",
-    "aggressive-apparel/isInsidePanel"
-  ],
+  "usesContext": ["aggressive-apparel/navigationId"],
   "render": "file:./render.php",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

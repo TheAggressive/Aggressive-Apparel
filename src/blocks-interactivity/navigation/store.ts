@@ -1,8 +1,10 @@
 /**
- * Navigation Block System — Interactivity Store
+ * Navigation Block System — Interactivity Store (v3)
  *
- * IMPORTANT: This is the ONLY file that defines the navigation store.
- * All other navigation blocks import from here. Never extend or redefine the store elsewhere.
+ * Portal architecture: the mobile panel renders outside .wp-site-blocks
+ * via wp_footer so position: fixed is not trapped by ancestor stacking
+ * contexts. Mutable state lives in state._panels[navId] (global store),
+ * shared between the <nav> and the portaled panel.
  *
  * @package Aggressive_Apparel
  */
@@ -16,15 +18,15 @@ import {
 import {
   ARROW_KEYS,
   DEFAULT_BREAKPOINT,
-  EVENTS,
   HOVER_INTENT,
+  INDICATOR_DURATION_MS,
   KEYS,
   PANEL_MENU_ITEM_SELECTOR,
   SELECTORS,
   SUBMENU_ITEM_SELECTOR,
   TOP_LEVEL_MENU_ITEM_SELECTOR,
 } from './constants';
-import type { NavigationContext, NavigationState } from './types';
+import type { NavigationContext, NavigationState, PanelState } from './types';
 import {
   addBodyClass,
   announce,
@@ -34,7 +36,6 @@ import {
   focusDrilldownTrigger,
   focusMenuItem,
   generateNavId,
-  getPanelId,
   getTransitionDuration,
   isValidNavId,
   logError,
@@ -69,161 +70,189 @@ interface MediaQueryRegistryEntry {
 }
 const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
 
-// Event delegation handlers registry for cleanup.
-interface EventDelegationEntry {
-  panelClickHandler: (e: MouseEvent) => void;
-  stateChangeHandler: (e: Event) => void;
-}
-const eventDelegationRegistry = new WeakMap<Element, EventDelegationEntry>();
-
 // ============================================================================
-// Shared State Registry
+// Nav State Helper
 // ============================================================================
 
-// This allows the navigation and its panel (which may be separate DOM elements) to share state.
-interface SharedNavState {
-  isOpen: boolean;
-  isMobile: boolean;
-  activeSubmenuId: string | null;
-  drillStack: string[];
+/**
+ * Get the mutable panel state for a navigation instance.
+ * Lazily initializes if the entry doesn't exist yet.
+ */
+function getNavState(navId: string): PanelState {
+  const panels = navigationStore.state._panels;
+  if (!panels[navId]) {
+    panels[navId] = {
+      isOpen: false,
+      isMobile: false,
+      activeSubmenuId: null,
+      drillStack: [],
+    };
+  }
+  return panels[navId];
 }
 
-// IMPORTANT: Use a global registry on window to ensure all bundled modules share the same state.
-// Each block (navigation, menu-toggle, navigation-panel) is bundled separately, so module-level
-// variables like `const registry = new Map()` would create separate instances per bundle.
-// By attaching to window, all bundles share the same registry.
-declare global {
-  interface Window {
-    __aaNavSharedStateRegistry?: Map<string, SharedNavState>;
-  }
-}
+// ============================================================================
+// Indicator Registry
+// ============================================================================
 
 /**
- * Get the global shared state registry, creating it if needed.
+ * Per-navigation indicator references and helpers.
+ * Stored so actions (openSubmenu, closeSubmenu, hover) can update the indicator.
  */
-function getSharedStateRegistry(): Map<string, SharedNavState> {
-  if (!window.__aaNavSharedStateRegistry) {
-    window.__aaNavSharedStateRegistry = new Map<string, SharedNavState>();
-  }
-  return window.__aaNavSharedStateRegistry;
+interface IndicatorInstance {
+  menubar: HTMLElement;
+  indicator: HTMLElement;
+  /** Move indicator to match an item's bounds. */
+  updateToItem: (item: HTMLElement) => void;
+  /** Expand indicator to match a submenu panel's bounds. */
+  expandToPanel: (panel: HTMLElement) => void;
+  /** Reset indicator to .is-current item or hide. */
+  reset: () => void;
 }
 
-/** Default shared state values. */
-const DEFAULT_SHARED_STATE: SharedNavState = {
-  isOpen: false,
-  isMobile: false,
-  activeSubmenuId: null,
-  drillStack: [],
-};
+const indicatorRegistry = new Map<string, IndicatorInstance>();
 
 /**
- * Get or create shared state for a navigation instance.
+ * Sync the sliding indicator with the active submenu.
+ *
+ * Opening: expands the underline to match the dropdown panel, creating a
+ * visual bridge between trigger and content.
+ *
+ * Closing: hands the background back to the panel (removing data-indicator-bg),
+ * hides the indicator, and lets the panel's CSS transition fade everything.
+ * After the fade, snaps the indicator back to its resting position.
  */
-function getSharedState(navId: string): SharedNavState {
-  if (!isValidNavId(navId)) {
-    logWarning('getSharedState: Invalid navId provided', { navId });
-    return { ...DEFAULT_SHARED_STATE };
-  }
-
-  const registry = getSharedStateRegistry();
-
-  if (!registry.has(navId)) {
-    registry.set(navId, { ...DEFAULT_SHARED_STATE });
-  }
-  return registry.get(navId)!;
-}
-
-/**
- * Reset navigation state to defaults.
- * Updates both shared state and local context.
- */
-function resetNavigationState(
-  shared: SharedNavState,
-  context: NavigationContext,
-  options: { preserveIsMobile?: boolean } = {}
+function syncIndicatorWithSubmenu(
+  navId: string,
+  submenuId: string | null
 ): void {
-  const isMobile = options.preserveIsMobile ? shared.isMobile : false;
+  // Desktop-only: the mobile panel uses a separate vertical accent bar
+  // managed by initPanel's focusin/touchstart listeners. Running this on
+  // mobile would set data-indicator-bg (making panels transparent) and
+  // try to expand the hidden desktop indicator to a portaled element.
+  const ns = getNavState(navId);
+  if (ns.isMobile) return;
 
-  shared.isOpen = false;
-  shared.isMobile = isMobile;
-  shared.activeSubmenuId = null;
-  shared.drillStack = [];
+  const inst = indicatorRegistry.get(navId);
+  if (!inst) return;
 
-  context.isOpen = false;
-  context.isMobile = isMobile;
-  context.activeSubmenuId = null;
-  context.drillStack = [];
-}
+  if (!submenuId) {
+    // ── Submenu closing ──────────────────────────────────────────
+    // Foolproof approach: hand the background back to the panel,
+    // hide the indicator instantly, and let the panel's OWN CSS
+    // transition (opacity 1→0) fade everything out in one go.
+    // No JS timing coordination between indicator and items needed.
 
-/**
- * Sync context values from shared state.
- */
-function syncContextFromShared(
-  context: NavigationContext,
-  shared: SharedNavState
-): void {
-  context.isOpen = shared.isOpen;
-  context.isMobile = shared.isMobile;
-  context.activeSubmenuId = shared.activeSubmenuId;
-  context.drillStack = shared.drillStack;
-}
+    const nav = inst.menubar.closest('.wp-block-aggressive-apparel-navigation');
+    if (nav) {
+      // Stop stagger animation so items revert to base opacity: 0.
+      nav.querySelectorAll('.is-items-revealed').forEach(el => {
+        el.classList.remove('is-items-revealed');
+      });
 
-/**
- * Get a value from shared state or fall back to context.
- */
-function getSharedOrContextValue<K extends keyof SharedNavState>(
-  context: NavigationContext,
-  key: K
-): SharedNavState[K] {
-  return isValidNavId(context.navId)
-    ? getSharedState(context.navId)[key]
-    : context[key];
-}
+      // Give the panel its own background back (white, shadow, etc.)
+      // so the panel's CSS close transition fades it all as one unit.
+      nav.querySelectorAll('[data-indicator-bg]').forEach(el => {
+        el.removeAttribute('data-indicator-bg');
+      });
+    }
 
-/**
- * Sync shared state to all elements with the same navId.
- * Dispatches a custom event synchronously to avoid race conditions.
- */
-function syncSharedStateToElements(navId: string): void {
-  if (!isValidNavId(navId)) {
+    // Hide the indicator instantly — the panel now has its own bg,
+    // so removing the indicator causes no visual change.
+    inst.indicator.style.setProperty('--indicator-opacity', '0');
+    inst.indicator.classList.remove('is-expanded');
+    inst.indicator.classList.remove('has-accent');
+
+    // After the panel's CSS close transition finishes (~250ms),
+    // snap indicator back to its resting position without animation.
+    setTimeout(() => {
+      const ind = inst.indicator;
+      ind.style.transition = 'none';
+      ind.style.setProperty('--indicator-height', '3px');
+      ind.style.setProperty('--indicator-y', '-3px');
+      ind.style.setProperty('--indicator-radius', '1.5px');
+
+      // Position at hovered item or current-page item.
+      const hoveredLi = inst.menubar.querySelector(
+        ':scope > li:hover'
+      ) as HTMLElement | null;
+      const targetLi =
+        hoveredLi && !hoveredLi.classList.contains('aa-nav__indicator-wrap')
+          ? hoveredLi
+          : (inst.menubar.querySelector(
+              ':scope > li.is-current'
+            ) as HTMLElement | null);
+
+      if (targetLi) {
+        const menubarRect = inst.menubar.getBoundingClientRect();
+        const itemRect = targetLi.getBoundingClientRect();
+        ind.style.setProperty(
+          '--indicator-x',
+          `${itemRect.left - menubarRect.left}px`
+        );
+        ind.style.setProperty('--indicator-width', `${itemRect.width}px`);
+      }
+
+      // Re-enable transitions next frame, then fade back in if needed.
+      requestAnimationFrame(() => {
+        ind.style.removeProperty('transition');
+        if (targetLi) {
+          ind.style.setProperty('--indicator-opacity', '1');
+        }
+      });
+    }, INDICATOR_DURATION_MS);
+
     return;
   }
 
-  // Dispatch synchronously to avoid race conditions.
-  // Using requestAnimationFrame only for DOM updates that need it.
-  window.dispatchEvent(
-    new CustomEvent(EVENTS.stateChange, {
-      detail: { navId },
-    })
-  );
+  // Find the panel by its ID (submenuId is used as the panel's id attribute).
+  const panel = document.getElementById(submenuId) as HTMLElement | null;
+  if (!panel) return;
+
+  // Immediately strip the panel's own background/shadow so it doesn't
+  // flash white before the indicator expands to replace it.
+  panel.setAttribute('data-indicator-bg', '');
+
+  // Brief pause so the underline settles at the item before expanding.
+  // The indicator already slid here during the hover intent delay, so
+  // we just need a short beat before morphing into the panel shape.
+  setTimeout(() => {
+    // Guard: submenu may have closed while we waited.
+    if (!panel.closest('.wp-block-aggressive-apparel-nav-submenu.is-open'))
+      return;
+
+    requestAnimationFrame(() => {
+      const panelRect = panel.getBoundingClientRect();
+      if (panelRect.width > 0) {
+        inst.expandToPanel(panel);
+      }
+    });
+  }, 100);
 }
 
 // ============================================================================
-// Panel Close/DrillBack Helpers
+// Panel Helpers
 // ============================================================================
-// These functions handle panel operations that need to work both from
-// Interactivity API actions (with context) and from event delegation (without).
+
+/**
+ * Find the panel element for this navigation instance.
+ * Panel is portaled to wp_footer, found by ID (DOM-position independent).
+ */
+function findPanel(navId: string): HTMLElement | null {
+  return safeGetElementById(`${navId}-panel`, false);
+}
 
 /**
  * Close the navigation panel with full cleanup.
- * Used by both event delegation and Interactivity API actions.
  */
-function closePanelWithCleanup(
-  navId: string,
-  panel: HTMLElement,
-  shared: SharedNavState,
-  context: NavigationContext
-): void {
-  // Reset navigation state.
-  resetNavigationState(shared, context, { preserveIsMobile: true });
+function closePanelWithCleanup(navId: string, panel: HTMLElement): void {
+  const ns = getNavState(navId);
+  ns.isOpen = false;
+  ns.activeSubmenuId = null;
+  ns.drillStack = [];
   setBodyOverflow(false);
 
-  // Trigger panel close animation first (removes .is-open class).
-  // This starts the CSS transitions for the panel sliding out.
   setPanelVisibility(panel, false);
-
-  // Remove body classes for push/reveal animations.
-  // This happens immediately so .wp-site-blocks animates back simultaneously.
   removeAllBodyClasses();
 
   // Clean up focus trap.
@@ -234,9 +263,7 @@ function closePanelWithCleanup(
   }
 
   // Remove inert from main content.
-  const supportsInert =
-    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
-  if (supportsInert) {
+  if ('inert' in HTMLElement.prototype) {
     const mainContent = document.querySelector(
       '.wp-site-blocks'
     ) as HTMLElement | null;
@@ -248,32 +275,24 @@ function closePanelWithCleanup(
   // Reset drilldown panels.
   updateDrilldownInertState(panel, []);
 
-  // Clean up CSS variable after transition completes.
+  // Clean up CSS variable after transition.
   setTimeout(() => {
     document.body.style.removeProperty('--push-panel-width');
   }, getTransitionDuration());
 
-  // Announce and sync.
   announce('Navigation menu closed', { assertive: true, navId });
-  syncSharedStateToElements(navId);
   restoreFocus(navId);
 }
 
 /**
  * Open the navigation panel with full setup.
- * Used by event delegation for portal-rendered panels.
  */
-function openPanelWithSetup(
-  navId: string,
-  panel: HTMLElement,
-  shared: SharedNavState
-): void {
-  // Get animation settings first.
+function openPanelWithSetup(navId: string, panel: HTMLElement): void {
+  const ns = getNavState(navId);
   const animationStyle = panel.getAttribute('data-animation-style') || 'slide';
   const position = panel.getAttribute('data-position') || 'right';
 
-  // Set body classes for push/reveal BEFORE triggering panel animation.
-  // This ensures .wp-site-blocks has the body class so it can animate.
+  // Set body classes for push/reveal BEFORE panel animation.
   if (animationStyle === 'push' || animationStyle === 'reveal') {
     const panelWidth =
       window.getComputedStyle(panel).getPropertyValue('--panel-width').trim() ||
@@ -282,8 +301,6 @@ function openPanelWithSetup(
     addBodyClass(animationStyle, position);
   }
 
-  // Set up panel visibility (triggers CSS animations via .is-open class).
-  // Note: setPanelVisibility already adds .is-open, no need for redundant call.
   setPanelVisibility(panel, true);
 
   // Set up focus trap.
@@ -295,10 +312,9 @@ function openPanelWithSetup(
   const cleanup = setupFocusTrap(panel);
   focusTrapRegistry.set(panel, cleanup);
 
-  // Apply inert to main content.
-  const supportsInert =
-    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
-  if (supportsInert) {
+  // Apply inert to main content. Panel is outside .wp-site-blocks
+  // so it won't be affected by the inert attribute.
+  if ('inert' in HTMLElement.prototype) {
     const mainContent = document.querySelector(
       '.wp-site-blocks'
     ) as HTMLElement | null;
@@ -308,7 +324,7 @@ function openPanelWithSetup(
   }
 
   // Initialize inert state for drilldown panels.
-  updateDrilldownInertState(panel, shared.drillStack);
+  updateDrilldownInertState(panel, ns.drillStack);
 
   // Focus first focusable element in panel.
   requestAnimationFrame(() => {
@@ -323,55 +339,10 @@ function openPanelWithSetup(
   });
 }
 
-/**
- * Perform drill back navigation with full cleanup.
- * Used by both event delegation and Interactivity API actions.
- */
-function performDrillBack(
-  navId: string,
-  panel: HTMLElement,
-  shared: SharedNavState,
-  context: NavigationContext
-): void {
-  const currentStack = shared.drillStack;
-
-  if (currentStack.length === 0) {
-    return; // Nothing to drill back from.
-  }
-
-  // Get the ID of the panel we're leaving (for focus restoration).
-  const leavingPanelId = currentStack[currentStack.length - 1];
-  const newStack = currentStack.slice(0, -1);
-
-  // Update shared state and context.
-  shared.drillStack = newStack;
-  context.drillStack = newStack;
-
-  // Announce navigation back.
-  if (newStack.length === 0) {
-    announce('Back to main menu', { navId });
-  } else {
-    announce(`Back to level ${newStack.length}`, { navId });
-  }
-
-  syncSharedStateToElements(navId);
-
-  // Update inert state on drilldown panels.
-  updateDrilldownInertState(panel, newStack);
-
-  // Focus the trigger that opened the panel we just left.
-  if (leavingPanelId) {
-    focusDrilldownTrigger(panel, leavingPanelId);
-  }
-}
-
 // ============================================================================
 // Menu Item Helpers
 // ============================================================================
 
-/**
- * Get all focusable menu items within a menu container.
- */
 function getMenuItems(container: Element): HTMLElement[] {
   return safeQuerySelectorAll<HTMLElement>(
     container,
@@ -379,9 +350,6 @@ function getMenuItems(container: Element): HTMLElement[] {
   );
 }
 
-/**
- * Get all focusable items within a submenu panel.
- */
 function getSubmenuItems(panel: Element): HTMLElement[] {
   return safeQuerySelectorAll<HTMLElement>(panel, SUBMENU_ITEM_SELECTOR);
 }
@@ -392,42 +360,41 @@ function getSubmenuItems(panel: Element): HTMLElement[] {
 
 const navigationStore = store('aggressive-apparel/navigation', {
   state: {
-    // State getters read from context (which is synced via onStateChange).
-    // This ensures reactivity works with the Interactivity API.
     get isOpen() {
       try {
-        const context = getContext<NavigationContext>();
-        return context?.isOpen ?? false;
+        const { navId } = getContext<NavigationContext>();
+        return getNavState(navId).isOpen;
       } catch {
         return false;
       }
     },
     get isMobile() {
       try {
-        const context = getContext<NavigationContext>();
-        return context?.isMobile ?? false;
+        const { navId } = getContext<NavigationContext>();
+        return getNavState(navId).isMobile;
       } catch {
         return false;
       }
     },
     get activeSubmenuId() {
       try {
-        const context = getContext<NavigationContext>();
-        return context?.activeSubmenuId ?? null;
+        const { navId } = getContext<NavigationContext>();
+        return getNavState(navId).activeSubmenuId;
       } catch {
         return null;
       }
     },
     get drillStack() {
       try {
-        const context = getContext<NavigationContext>();
-        return context?.drillStack ?? [];
+        const { navId } = getContext<NavigationContext>();
+        return getNavState(navId).drillStack;
       } catch {
         return [];
       }
     },
 
     announcement: '',
+    _panels: {} as Record<string, PanelState>,
   } as NavigationState,
 
   actions: {
@@ -437,85 +404,50 @@ const navigationStore = store('aggressive-apparel/navigation', {
     toggle(): void {
       try {
         const context = getContext<NavigationContext>();
-        if (!context) {
-          logWarning('toggle: No context available');
+        if (!context || !isValidNavId(context.navId)) {
+          logWarning('toggle: Invalid context or navId');
           return;
         }
 
-        if (!isValidNavId(context.navId)) {
-          logWarning('toggle: Invalid navId', { navId: context.navId });
+        const panel = findPanel(context.navId);
+        if (!panel) {
+          logWarning('toggle: Panel not found');
           return;
         }
 
-        const shared = getSharedState(context.navId);
-        const willBeOpen = !shared.isOpen;
-
-        if (willBeOpen) {
-          shared.isOpen = true;
-          context.isOpen = true;
+        const ns = getNavState(context.navId);
+        if (ns.isOpen) {
+          closePanelWithCleanup(context.navId, panel);
+        } else {
+          ns.isOpen = true;
           setBodyOverflow(true);
+          openPanelWithSetup(context.navId, panel);
           announce('Navigation menu opened', {
             assertive: true,
             navId: context.navId,
           });
-        } else {
-          resetNavigationState(shared, context, { preserveIsMobile: true });
-          setBodyOverflow(false);
-          announce('Navigation menu closed', {
-            assertive: true,
-            navId: context.navId,
-          });
         }
-
-        syncSharedStateToElements(context.navId);
       } catch (error) {
         logError('toggle: Failed to toggle navigation', error);
       }
     },
 
     /**
-     * Open mobile panel.
-     */
-    open(): void {
-      try {
-        const context = getContext<NavigationContext>();
-        if (!context || !isValidNavId(context.navId)) {
-          logWarning('open: Invalid context or navId');
-          return;
-        }
-
-        const shared = getSharedState(context.navId);
-        shared.isOpen = true;
-        context.isOpen = true;
-        setBodyOverflow(true);
-
-        syncSharedStateToElements(context.navId);
-      } catch (error) {
-        logError('open: Failed to open navigation', error);
-      }
-    },
-
-    /**
-     * Close mobile panel and reset state.
+     * Close mobile panel.
      */
     close(): void {
       try {
         const context = getContext<NavigationContext>();
         if (!context || !isValidNavId(context.navId)) {
-          logWarning('close: Invalid context or navId');
           return;
         }
 
-        const shared = getSharedState(context.navId);
-        resetNavigationState(shared, context, { preserveIsMobile: true });
-        setBodyOverflow(false);
-        announce('Navigation menu closed', {
-          assertive: true,
-          navId: context.navId,
-        });
+        const panel = findPanel(context.navId);
+        if (!panel) {
+          return;
+        }
 
-        syncSharedStateToElements(context.navId);
-        restoreFocus(context.navId);
+        closePanelWithCleanup(context.navId, panel);
       } catch (error) {
         logError('close: Failed to close navigation', error);
       }
@@ -533,16 +465,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
+        ns.activeSubmenuId = context.submenuId ?? null;
+        syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
 
-        const submenuId = context.submenuId ?? null;
-        if (isValidNavId(context.navId)) {
-          const shared = getSharedState(context.navId);
-          shared.activeSubmenuId = submenuId;
-        }
-        context.activeSubmenuId = submenuId;
-
-        if (submenuId) {
+        if (context.submenuId) {
           announce('Submenu opened', { navId: context.navId });
         }
       } catch (error) {
@@ -560,13 +488,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
-
-        if (isValidNavId(context.navId)) {
-          const shared = getSharedState(context.navId);
-          shared.activeSubmenuId = null;
-        }
-        context.activeSubmenuId = null;
+        // Hide items BEFORE removing .is-open so they disappear
+        // before the panel's CSS close transition starts.
+        syncIndicatorWithSubmenu(context.navId, null);
+        ns.activeSubmenuId = null;
       } catch (error) {
         logError('closeSubmenu: Failed to close submenu', error);
       }
@@ -584,30 +511,20 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Prevent default link navigation when toggling submenu.
         if (event) {
           event.preventDefault();
         }
 
+        const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
 
-        const currentActiveId = isValidNavId(context.navId)
-          ? getSharedState(context.navId).activeSubmenuId
-          : context.activeSubmenuId;
+        const wasOpen = ns.activeSubmenuId === context.submenuId;
+        ns.activeSubmenuId = wasOpen ? null : (context.submenuId ?? null);
+        syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
 
-        const wasOpen = currentActiveId === context.submenuId;
-        const newActiveId = wasOpen ? null : (context.submenuId ?? null);
-
-        if (isValidNavId(context.navId)) {
-          const shared = getSharedState(context.navId);
-          shared.activeSubmenuId = newActiveId;
-        }
-        context.activeSubmenuId = newActiveId;
-
-        // Announce state change.
         if (wasOpen) {
           announce('Submenu closed', { navId: context.navId });
-        } else if (newActiveId) {
+        } else if (ns.activeSubmenuId) {
           announce('Submenu opened', { navId: context.navId });
         }
       } catch (error) {
@@ -632,18 +549,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
         }
 
         if (context.submenuId) {
-          const currentStack = isValidNavId(context.navId)
-            ? getSharedState(context.navId).drillStack
-            : context.drillStack;
-          const newStack = [...currentStack, context.submenuId];
+          const ns = getNavState(context.navId);
+          const newStack = [...ns.drillStack, context.submenuId];
+          ns.drillStack = newStack;
 
-          if (isValidNavId(context.navId)) {
-            const shared = getSharedState(context.navId);
-            shared.drillStack = newStack;
-          }
-          context.drillStack = newStack;
-
-          // Get the submenu label from the clicked element for announcement.
+          // Get the submenu label for announcement.
           let submenuLabel = 'submenu';
           if (event?.target) {
             const trigger = (event.target as HTMLElement).closest(
@@ -661,17 +571,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
             }
           }
 
-          // Announce with context and drill depth.
-          const depth = newStack.length;
-          announce(`Opened ${submenuLabel}, level ${depth}`, {
+          announce(`Opened ${submenuLabel}, level ${newStack.length}`, {
             navId: context.navId,
           });
 
-          syncSharedStateToElements(context.navId);
-
-          // Update inert state on drilldown panels to trap focus in current level.
-          const panelId = getPanelId(context.navId);
-          const panel = safeGetElementById(panelId, false);
+          // Update inert state on drilldown panels.
+          const panel = findPanel(context.navId);
           if (panel) {
             updateDrilldownInertState(panel, newStack);
           }
@@ -694,18 +599,31 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        const panelId = getPanelId(context.navId);
-        const panel = safeGetElementById(panelId, false);
-        if (!panel) {
+        const ns = getNavState(context.navId);
+
+        if (ns.drillStack.length === 0) {
           return;
         }
 
-        performDrillBack(
-          context.navId,
-          panel,
-          getSharedState(context.navId),
-          context
-        );
+        const leavingPanelId = ns.drillStack[ns.drillStack.length - 1];
+        const newStack = ns.drillStack.slice(0, -1);
+        ns.drillStack = newStack;
+
+        if (newStack.length === 0) {
+          announce('Back to main menu', { navId: context.navId });
+        } else {
+          announce(`Back to level ${newStack.length}`, {
+            navId: context.navId,
+          });
+        }
+
+        const panel = findPanel(context.navId);
+        if (panel) {
+          updateDrilldownInertState(panel, newStack);
+          if (leavingPanelId) {
+            focusDrilldownTrigger(panel, leavingPanelId);
+          }
+        }
       } catch (error) {
         logError('drillBack: Failed to drill back', error);
       }
@@ -721,13 +639,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
-
-        if (isValidNavId(context.navId)) {
-          const shared = getSharedState(context.navId);
-          shared.activeSubmenuId = null;
-        }
-        context.activeSubmenuId = null;
+        // Hide items BEFORE removing .is-open so they disappear
+        // before the panel's CSS close transition starts.
+        syncIndicatorWithSubmenu(context.navId, null);
+        ns.activeSubmenuId = null;
       } catch (error) {
         logError('closeAllSubmenus: Failed to close submenus', error);
       }
@@ -736,7 +653,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
   callbacks: {
     /**
-     * Initialize navigation on mount.
+     * Initialize navigation on mount (runs on the <nav> element).
      */
     init(): void {
       try {
@@ -754,10 +671,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           context.navId = generateNavId();
         }
 
-        const shared = getSharedState(context.navId);
-
         // Reset state on load.
-        resetNavigationState(shared, context);
+        const ns = getNavState(context.navId);
+        ns.isOpen = false;
+        ns.isMobile = false;
+        ns.activeSubmenuId = null;
+        ns.drillStack = [];
         setBodyOverflow(false);
 
         if (!element?.ref) {
@@ -769,248 +688,454 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
 
         const handler = (e: MediaQueryListEvent | MediaQueryList) => {
-          const wasMobile = context.isMobile;
-          context.isMobile = e.matches;
-          shared.isMobile = e.matches;
+          const navState = getNavState(context.navId);
+          const wasMobile = navState.isMobile;
+          navState.isMobile = e.matches;
 
           // Reset state when switching to desktop.
-          if (wasMobile && !context.isMobile) {
-            resetNavigationState(shared, context, { preserveIsMobile: true });
+          if (wasMobile && !navState.isMobile) {
+            navState.isOpen = false;
+            navState.activeSubmenuId = null;
+            navState.drillStack = [];
             setBodyOverflow(false);
-          }
+            removeAllBodyClasses();
 
-          syncSharedStateToElements(context.navId);
+            const panel = findPanel(context.navId);
+            if (panel) {
+              setPanelVisibility(panel, false);
+              const existingCleanup = focusTrapRegistry.get(panel);
+              if (existingCleanup) {
+                existingCleanup();
+                focusTrapRegistry.delete(panel);
+              }
+            }
+
+            if ('inert' in HTMLElement.prototype) {
+              const mainContent = document.querySelector(
+                '.wp-site-blocks'
+              ) as HTMLElement | null;
+              if (mainContent) {
+                mainContent.inert = false;
+              }
+            }
+          }
         };
 
         // Set initial state and listen for changes.
         handler(mql);
         mql.addEventListener('change', handler);
-
-        // Store cleanup info.
         mediaQueryRegistry.set(element.ref, { mql, handler });
 
         // ================================================================
-        // Event delegation for portal-rendered panel
+        // Desktop Sliding Indicator
         // ================================================================
-        // The navigation-panel is rendered via wp_footer (outside the normal
-        // block tree) for push/reveal animations. Because the Interactivity API
-        // initializes on DOMContentLoaded before wp_footer runs, the panel's
-        // data-wp-on--click directives are never processed.
-        //
-        // We use event delegation to handle clicks on panel buttons.
-        // This listener is scoped to this navigation instance via navId.
-        const panelId = getPanelId(context.navId);
+        const nav = element.ref;
+        const menubar = nav.querySelector(
+          SELECTORS.menubar
+        ) as HTMLElement | null;
+        const indicator = nav.querySelector(
+          SELECTORS.indicator
+        ) as HTMLElement | null;
 
-        const handlePanelClick = (e: MouseEvent) => {
-          const target = e.target as HTMLElement;
-          if (!target) return;
-
-          // Only handle clicks within this navigation's panel.
-          const panel = target.closest(`#${CSS.escape(panelId)}`);
-          if (!panel) return;
-
-          // Check for close button or overlay click.
-          const closeButton = target.closest(SELECTORS.panelClose);
-          const overlay = target.closest(SELECTORS.panelOverlay);
-          // Check for drilldown header click (the entire header is a clickable back button).
-          const drilldownHeader = target.closest(SELECTORS.drilldownHeader);
-
-          // Check for drilldown trigger click.
-          // Only handle triggers inside drilldown-type submenus.
-          const drilldownSubmenu = target.closest(
-            `.${SELECTORS.submenuDrilldown}`
-          );
-          const drilldownTrigger = drilldownSubmenu
-            ? target.closest(SELECTORS.submenuTrigger)
-            : null;
-
-          if (closeButton || overlay) {
-            e.preventDefault();
-            closePanelWithCleanup(
-              context.navId,
-              panel as HTMLElement,
-              getSharedState(context.navId),
-              context
+        if (menubar && indicator) {
+          // Contract indicator to match a menu item (3px underline).
+          const updateToItem = (item: HTMLElement) => {
+            const menubarRect = menubar.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            indicator.style.setProperty(
+              '--indicator-x',
+              `${itemRect.left - menubarRect.left}px`
             );
-          } else if (drilldownHeader) {
-            e.preventDefault();
-            performDrillBack(
-              context.navId,
-              panel as HTMLElement,
-              getSharedState(context.navId),
-              context
+            indicator.style.setProperty('--indicator-y', '-3px');
+            indicator.style.setProperty(
+              '--indicator-width',
+              `${itemRect.width}px`
             );
-          } else if (drilldownTrigger && drilldownSubmenu) {
-            e.preventDefault();
+            indicator.style.setProperty('--indicator-height', '3px');
+            indicator.style.setProperty('--indicator-opacity', '1');
+            indicator.style.setProperty('--indicator-radius', '1.5px');
+            indicator.classList.remove('is-expanded');
+          };
 
-            // Extract submenuId from the data-wp-context attribute.
-            const contextAttr =
-              drilldownSubmenu.getAttribute('data-wp-context');
-            if (!contextAttr) return;
+          // Expand indicator to morph into the submenu panel background.
+          // Grows from a 3px line into a full rectangle matching the panel,
+          // creating the illusion that the underline becomes the dropdown.
+          const expandToPanel = (panelEl: HTMLElement) => {
+            const menubarRect = menubar.getBoundingClientRect();
+            const panelRect = panelEl.getBoundingClientRect();
 
-            // Parse context with robust error handling.
-            let submenuContext: { submenuId?: string } | null = null;
-            try {
-              submenuContext = JSON.parse(contextAttr);
-            } catch (parseError) {
-              logError('handlePanelClick: Invalid JSON in submenu context', {
-                contextAttr,
-                error: parseError,
+            // Keep top edge aligned with the underline position (-3px from
+            // menubar bottom). Grow downward to cover the full panel.
+            const x = panelRect.left - menubarRect.left;
+            const height = panelRect.bottom - menubarRect.bottom + 3;
+
+            indicator.style.setProperty('--indicator-x', `${x}px`);
+            indicator.style.setProperty('--indicator-y', '-3px');
+            indicator.style.setProperty(
+              '--indicator-width',
+              `${panelRect.width}px`
+            );
+            indicator.style.setProperty('--indicator-height', `${height}px`);
+            indicator.style.setProperty('--indicator-opacity', '1');
+            indicator.style.setProperty(
+              '--indicator-radius',
+              `0 0 ${window.getComputedStyle(panelEl).borderRadius || '8px'}`
+            );
+            indicator.classList.add('is-expanded');
+
+            // Toggle accent line based on the submenu's setting.
+            const submenuEl = panelEl.closest(
+              '.wp-block-aggressive-apparel-nav-submenu'
+            );
+            indicator.classList.toggle(
+              'has-accent',
+              !!submenuEl?.classList.contains('has-indicator-accent')
+            );
+
+            // Make the panel transparent so the indicator shows through.
+            panelEl.setAttribute('data-indicator-bg', '');
+
+            // Set stagger indices for sequential item reveal.
+            const panelInner = panelEl.querySelector(
+              '.wp-block-aggressive-apparel-nav-submenu__panel-inner'
+            ) as HTMLElement | null;
+            if (panelInner) {
+              Array.from(panelInner.children).forEach((child, i) => {
+                (child as HTMLElement).style.setProperty(
+                  '--item-index',
+                  String(i)
+                );
               });
-              return;
             }
 
-            // Validate the parsed context structure.
-            if (
-              !submenuContext ||
-              typeof submenuContext !== 'object' ||
-              typeof submenuContext.submenuId !== 'string' ||
-              !submenuContext.submenuId
-            ) {
-              logWarning('handlePanelClick: Missing or invalid submenuId', {
-                submenuContext,
-              });
-              return;
-            }
-
-            const shared = getSharedState(context.navId);
-            const newStack = [...shared.drillStack, submenuContext.submenuId];
-            shared.drillStack = newStack;
-            context.drillStack = newStack;
-
-            // Get the submenu label for announcement.
-            const labelEl = drilldownSubmenu.querySelector(
-              SELECTORS.submenuLabel
+            // After the expansion transition is nearly complete, reveal
+            // items with a stagger cascade.
+            const submenu = panelEl.closest(
+              '.wp-block-aggressive-apparel-nav-submenu'
             );
-            const submenuLabel = labelEl?.textContent?.trim() || 'submenu';
+            if (submenu) {
+              setTimeout(() => {
+                if (submenu.classList.contains('is-open')) {
+                  submenu.classList.add('is-items-revealed');
+                }
+              }, 200);
+            }
+          };
 
-            // Announce navigation.
-            announce(`Opened ${submenuLabel}, level ${newStack.length}`, {
-              navId: context.navId,
+          // Reset to .is-current item or hide completely.
+          const reset = () => {
+            indicator.classList.remove('is-expanded');
+
+            const currentLi = menubar.querySelector(
+              ':scope > li.is-current'
+            ) as HTMLElement | null;
+            if (currentLi) {
+              updateToItem(currentLi);
+            } else {
+              indicator.style.setProperty('--indicator-opacity', '0');
+              indicator.style.setProperty('--indicator-height', '3px');
+              indicator.style.setProperty('--indicator-y', '-3px');
+              indicator.style.setProperty('--indicator-radius', '1.5px');
+            }
+          };
+
+          // Register instance so actions can expand/contract the indicator.
+          indicatorRegistry.set(context.navId, {
+            menubar,
+            indicator,
+            updateToItem,
+            expandToPanel,
+            reset,
+          });
+
+          // Set initial position.
+          reset();
+
+          // Listen for hover/focus on top-level items.
+          // Close active submenu and slide indicator from the trigger
+          // to a new (non-submenu) item. Hands the background back to
+          // the panel so its CSS transition fades content, then snaps
+          // the indicator to underline at the trigger and slides it.
+          const closeAndSlideTo = (targetLi: HTMLElement) => {
+            const navState = getNavState(context.navId);
+
+            // Find the active submenu trigger <li> via the panel element.
+            const activePanel = navState.activeSubmenuId
+              ? document.getElementById(navState.activeSubmenuId)
+              : null;
+            const activeTrigger = activePanel
+              ? (activePanel.closest(
+                  '.wp-block-aggressive-apparel-nav-submenu'
+                ) as HTMLElement | null)
+              : null;
+
+            // Hand background back to panel.
+            nav.querySelectorAll('.is-items-revealed').forEach(el => {
+              el.classList.remove('is-items-revealed');
+            });
+            nav.querySelectorAll('[data-indicator-bg]').forEach(el => {
+              el.removeAttribute('data-indicator-bg');
             });
 
-            syncSharedStateToElements(context.navId);
+            // Snap indicator to underline at the trigger position (no transition).
+            indicator.style.transition = 'none';
+            indicator.classList.remove('is-expanded');
+            indicator.classList.remove('has-accent');
+            indicator.style.setProperty('--indicator-height', '3px');
+            indicator.style.setProperty('--indicator-y', '-3px');
+            indicator.style.setProperty('--indicator-radius', '1.5px');
+            indicator.style.setProperty('--indicator-opacity', '1');
 
-            // Update inert state and focus.
-            updateDrilldownInertState(panel as HTMLElement, newStack);
-            focusDrilldownPanel(submenuContext.submenuId);
-          }
-        };
+            if (activeTrigger) {
+              const mbRect = menubar.getBoundingClientRect();
+              const triggerRect = activeTrigger.getBoundingClientRect();
+              indicator.style.setProperty(
+                '--indicator-x',
+                `${triggerRect.left - mbRect.left}px`
+              );
+              indicator.style.setProperty(
+                '--indicator-width',
+                `${triggerRect.width}px`
+              );
+            }
 
-        // Clean up any existing event handlers before adding new ones.
-        // This prevents accumulation when navigation blocks are re-initialized.
-        const existingDelegation = eventDelegationRegistry.get(element.ref);
-        if (existingDelegation) {
-          document.removeEventListener(
-            'click',
-            existingDelegation.panelClickHandler
-          );
-          window.removeEventListener(
-            EVENTS.stateChange,
-            existingDelegation.stateChangeHandler
-          );
+            // Force reflow so the snap is committed before we animate.
+            void indicator.offsetHeight;
+
+            // Re-enable transitions and slide to the new item.
+            indicator.style.removeProperty('transition');
+            const mbRect = menubar.getBoundingClientRect();
+            const targetRect = targetLi.getBoundingClientRect();
+            indicator.style.setProperty(
+              '--indicator-x',
+              `${targetRect.left - mbRect.left}px`
+            );
+            indicator.style.setProperty(
+              '--indicator-width',
+              `${targetRect.width}px`
+            );
+
+            // Close the submenu (reactive — removes .is-open).
+            navState.activeSubmenuId = null;
+            hoverIntent.activeId = null;
+            clearHoverTimeouts(hoverIntent);
+          };
+
+          const topLevelItems = menubar.querySelectorAll(':scope > li');
+          topLevelItems.forEach(li => {
+            const link = li.querySelector('a, button') as HTMLElement | null;
+            if (!link || li.classList.contains('aa-nav__indicator-wrap'))
+              return;
+
+            li.addEventListener('mouseenter', () => {
+              const navState = getNavState(context.navId);
+              if (
+                navState.activeSubmenuId &&
+                !li.classList.contains(
+                  'wp-block-aggressive-apparel-nav-submenu'
+                )
+              ) {
+                closeAndSlideTo(li as HTMLElement);
+                return;
+              }
+              updateToItem(li as HTMLElement);
+            });
+            li.addEventListener('focusin', () => {
+              const navState = getNavState(context.navId);
+              if (
+                navState.activeSubmenuId &&
+                !li.classList.contains(
+                  'wp-block-aggressive-apparel-nav-submenu'
+                )
+              ) {
+                closeAndSlideTo(li as HTMLElement);
+                return;
+              }
+              updateToItem(li as HTMLElement);
+            });
+          });
+
+          menubar.addEventListener('mouseleave', () => {
+            const navState = getNavState(context.navId);
+            // Only reset if no submenu is open.
+            if (!navState.activeSubmenuId) {
+              reset();
+            }
+          });
+          menubar.addEventListener('focusout', (e: FocusEvent) => {
+            const related = e.relatedTarget as HTMLElement | null;
+            if (!related || !menubar.contains(related)) {
+              const navState = getNavState(context.navId);
+              if (!navState.activeSubmenuId) {
+                reset();
+              }
+            }
+          });
+
+          // Update on window resize.
+          window.addEventListener('resize', reset, { passive: true });
         }
-
-        document.addEventListener('click', handlePanelClick);
-
-        // ================================================================
-        // State change listener for portal-rendered panel
-        // ================================================================
-        // Listen for state changes and update the panel accordingly.
-        // This handles both opening and closing the panel.
-        let wasOpen = false;
-
-        // Retry configuration for panel initialization.
-        const PANEL_RETRY_DELAY = 50;
-        const PANEL_MAX_RETRIES = 20; // 1 second total
-
-        const handleStateChange = (e: Event) => {
-          const event = e as CustomEvent<{ navId: string }>;
-          if (event.detail?.navId !== context.navId) {
-            return;
-          }
-
-          const shared = getSharedState(context.navId);
-          let panel = safeGetElementById<HTMLElement>(panelId, false);
-
-          // If panel not found and we're trying to open, retry with exponential backoff.
-          // This handles the race condition where toggle is clicked before wp_footer renders the panel.
-          if (!panel && shared.isOpen) {
-            let retryCount = 0;
-
-            const retryFindPanel = () => {
-              panel = safeGetElementById<HTMLElement>(panelId, false);
-              if (panel) {
-                // Panel found, apply the state.
-                applyPanelState(panel);
-              } else if (retryCount < PANEL_MAX_RETRIES) {
-                retryCount++;
-                setTimeout(retryFindPanel, PANEL_RETRY_DELAY);
-              } else {
-                logError('handleStateChange: Panel not found after retries', {
-                  panelId,
-                  retriesAttempted: retryCount,
-                });
-                // Reset state since panel couldn't be found.
-                shared.isOpen = false;
-                context.isOpen = false;
-                setBodyOverflow(false);
-              }
-            };
-
-            retryFindPanel();
-            return;
-          }
-
-          if (!panel) {
-            // Panel doesn't exist and we're not trying to open, safe to skip.
-            return;
-          }
-
-          applyPanelState(panel);
-
-          function applyPanelState(panelEl: HTMLElement) {
-            const isOpen = shared.isOpen;
-
-            // Only act on state changes.
-            if (wasOpen !== isOpen) {
-              // Update wasOpen BEFORE calling setup/cleanup functions to prevent
-              // infinite recursion. These functions call syncSharedStateToElements()
-              // which dispatches events synchronously.
-              wasOpen = isOpen;
-
-              if (isOpen) {
-                openPanelWithSetup(context.navId, panelEl, shared);
-              } else {
-                // Handle closing from any source (actions.close, escape key, etc.)
-                closePanelWithCleanup(context.navId, panelEl, shared, context);
-              }
-            }
-
-            // Update drilldown state when drill stack changes.
-            if (isOpen) {
-              updateDrilldownInertState(panelEl, shared.drillStack);
-            }
-          }
-        };
-
-        window.addEventListener(EVENTS.stateChange, handleStateChange);
-
-        // Store handlers for cleanup on re-initialization.
-        eventDelegationRegistry.set(element.ref, {
-          panelClickHandler: handlePanelClick,
-          stateChangeHandler: handleStateChange,
-        });
-
-        // Track that we've set up delegation.
-        element.ref.setAttribute('data-panel-delegation', 'true');
       } catch (error) {
         logError('init: Failed to initialize navigation', error);
       }
     },
 
     /**
-     * Handle Escape key to close navigation elements.
+     * Initialize panel (runs on the portal wrapper element).
+     * Sets up mobile indicator and stagger indices.
+     */
+    initPanel(): void {
+      try {
+        const context = getContext<NavigationContext>();
+        if (!context || !isValidNavId(context.navId)) {
+          return;
+        }
+
+        const panel = findPanel(context.navId);
+        if (!panel) {
+          return;
+        }
+
+        // ================================================================
+        // Mobile Vertical Accent Bar
+        // ================================================================
+        const panelMenu = panel.querySelector(
+          SELECTORS.panelMenu
+        ) as HTMLElement | null;
+        const mobileIndicator = panel.querySelector(
+          SELECTORS.mobileIndicator
+        ) as HTMLElement | null;
+
+        if (panelMenu && mobileIndicator) {
+          const TRIGGER_SELECTOR =
+            '.wp-block-aggressive-apparel-nav-submenu__link, .wp-block-aggressive-apparel-nav-link__link';
+
+          const updateMobileIndicator = (topLevelLi: HTMLElement) => {
+            // Measure the trigger link/button, not the full <li>. For submenus
+            // the <li> grows when the accordion expands — the indicator should
+            // stay at the trigger's fixed height (44px), not stretch.
+            const trigger = topLevelLi.querySelector(
+              TRIGGER_SELECTOR
+            ) as HTMLElement | null;
+            const target = trigger || topLevelLi;
+            const menuRect = panelMenu.getBoundingClientRect();
+            const itemRect = target.getBoundingClientRect();
+            mobileIndicator.style.setProperty(
+              '--mobile-indicator-y',
+              `${itemRect.top - menuRect.top}px`
+            );
+            mobileIndicator.style.setProperty(
+              '--mobile-indicator-height',
+              `${itemRect.height}px`
+            );
+            mobileIndicator.style.setProperty(
+              '--mobile-indicator-opacity',
+              '1'
+            );
+          };
+
+          // Track the indicator through accordion transitions.
+          // When toggling submenus, the collapsing accordion shifts items
+          // vertically over ~250ms. Recalculate each frame so the indicator
+          // follows the target smoothly instead of jumping to a stale position.
+          let trackingRAF: number | null = null;
+
+          const trackMobileIndicator = (topLevelLi: HTMLElement) => {
+            if (trackingRAF !== null) {
+              cancelAnimationFrame(trackingRAF);
+            }
+
+            // Disable CSS transition during tracking so the indicator
+            // snaps to each rAF position instead of lagging behind and
+            // overshooting when accordion reflows shift items vertically.
+            mobileIndicator.style.transition = 'opacity 200ms ease';
+
+            updateMobileIndicator(topLevelLi);
+
+            const startTime = performance.now();
+            const trackDuration = 350; // slightly longer than --navigation-transition (250ms)
+
+            const track = () => {
+              updateMobileIndicator(topLevelLi);
+              if (performance.now() - startTime < trackDuration) {
+                trackingRAF = requestAnimationFrame(track);
+              } else {
+                // Re-enable CSS transitions for normal item-to-item slides.
+                mobileIndicator.style.removeProperty('transition');
+                trackingRAF = null;
+              }
+            };
+            trackingRAF = requestAnimationFrame(track);
+          };
+
+          const resetMobileIndicator = () => {
+            if (trackingRAF !== null) {
+              cancelAnimationFrame(trackingRAF);
+              trackingRAF = null;
+            }
+            mobileIndicator.style.setProperty(
+              '--mobile-indicator-opacity',
+              '0'
+            );
+          };
+
+          // Find the top-level <li> in the panel menu that contains the target.
+          // Even when focus/touch is on a child item inside an expanded accordion,
+          // the indicator stays on the trigger's <li>.
+          const findTopLevelItem = (
+            target: HTMLElement
+          ): HTMLElement | null => {
+            for (const child of panelMenu.children) {
+              if (child instanceof HTMLElement && child.contains(target)) {
+                return child;
+              }
+            }
+            return null;
+          };
+
+          panelMenu.addEventListener('focusin', (e: FocusEvent) => {
+            const li = findTopLevelItem(e.target as HTMLElement);
+            if (li) {
+              trackMobileIndicator(li);
+            }
+          });
+
+          panelMenu.addEventListener('focusout', (e: FocusEvent) => {
+            const related = e.relatedTarget as HTMLElement | null;
+            if (!related || !panelMenu.contains(related)) {
+              resetMobileIndicator();
+            }
+          });
+
+          // Touch: highlight on touch.
+          panelMenu.addEventListener(
+            'touchstart',
+            (e: TouchEvent) => {
+              const li = findTopLevelItem(e.target as HTMLElement);
+              if (li) {
+                trackMobileIndicator(li);
+              }
+            },
+            { passive: true }
+          );
+        }
+
+        // ================================================================
+        // Stagger index: set --item-index on each panel menu item
+        // ================================================================
+        const panelItems = panel.querySelectorAll(
+          `${SELECTORS.panelMenu} > li`
+        );
+        panelItems.forEach((li, index) => {
+          (li as HTMLElement).style.setProperty('--item-index', String(index));
+        });
+      } catch (error) {
+        logError('initPanel: Failed to initialize panel', error);
+      }
+    },
+
+    /**
+     * Handle Escape key.
      */
     onEscape(event: KeyboardEvent): void {
       if (event.key !== KEYS.escape) {
@@ -1023,15 +1148,15 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        const ns = getNavState(context.navId);
         const { actions } = navigationStore;
 
-        // Close in order: drill stack → submenu → panel.
-        if (context.drillStack.length > 0) {
+        if (ns.drillStack.length > 0) {
           actions.drillBack();
-        } else if (context.activeSubmenuId) {
+        } else if (ns.activeSubmenuId) {
           actions.closeSubmenu();
           announce('Submenu closed', { navId: context.navId });
-        } else if (context.isOpen) {
+        } else if (ns.isOpen) {
           actions.close();
         }
       } catch (error) {
@@ -1049,8 +1174,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        const key = event.key;
+        const ns = getNavState(context.navId);
 
+        const key = event.key;
         if (!ARROW_KEYS.includes(key as (typeof ARROW_KEYS)[number])) {
           return;
         }
@@ -1060,32 +1186,28 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Determine if we're in a horizontal menu (top-level) or vertical menu (submenu/panel).
+        // Determine if we're in a submenu or the top-level menubar.
         const submenuPanel = activeElement.closest(SELECTORS.submenuPanel);
-        const navMenu = activeElement.closest(SELECTORS.navMenu);
+        const menubar = activeElement.closest(SELECTORS.menubar);
+        const panelMenu = activeElement.closest(SELECTORS.panelMenu);
         const isInSubmenu = !!submenuPanel;
 
-        // Determine menu orientation with robust fallback.
-        // Check for explicit horizontal class first, then vertical class.
-        // If neither is found, check if we're in a panel body (vertical) or use computed styles.
-        let isHorizontal = true; // Default fallback for desktop nav.
-        if (navMenu) {
-          if (navMenu.classList.contains(SELECTORS.menuHorizontal)) {
-            isHorizontal = true;
-          } else if (navMenu.classList.contains(SELECTORS.menuVertical)) {
-            isHorizontal = false;
-          } else {
-            // Fallback: Check if menu is in a navigation panel (always vertical).
-            const isInPanel = !!navMenu.closest(SELECTORS.navigationPanel);
-            if (isInPanel) {
-              isHorizontal = false;
-            } else {
-              // Last resort: check computed flex-direction.
-              const computedStyle = window.getComputedStyle(navMenu);
-              isHorizontal =
-                computedStyle.flexDirection === 'row' ||
-                computedStyle.flexDirection === 'row-reverse';
-            }
+        // Determine orientation: menubar is horizontal, panel menu is vertical.
+        let isHorizontal = true;
+        if (panelMenu) {
+          isHorizontal = false;
+        } else if (menubar) {
+          isHorizontal = true;
+        } else {
+          // Fallback: check computed style.
+          const parent = activeElement.closest(
+            'ul, [role="menubar"], [role="menu"]'
+          );
+          if (parent) {
+            const computedStyle = window.getComputedStyle(parent);
+            isHorizontal =
+              computedStyle.flexDirection === 'row' ||
+              computedStyle.flexDirection === 'row-reverse';
           }
         }
 
@@ -1093,15 +1215,16 @@ const navigationStore = store('aggressive-apparel/navigation', {
         let items: HTMLElement[] = [];
         if (isInSubmenu && submenuPanel) {
           items = getSubmenuItems(submenuPanel);
-        } else if (navMenu) {
-          items = getMenuItems(navMenu);
+        } else if (menubar) {
+          items = getMenuItems(menubar);
+        } else if (panelMenu) {
+          items = getMenuItems(panelMenu);
         }
 
         if (items.length === 0) {
           return;
         }
 
-        // Find current index.
         const currentIndex = items.indexOf(activeElement);
         if (currentIndex === -1) {
           return;
@@ -1112,11 +1235,8 @@ const navigationStore = store('aggressive-apparel/navigation', {
         switch (key) {
           case KEYS.arrowRight:
             if (isHorizontal && !isInSubmenu) {
-              // Move to next item in horizontal menu.
-              const nextIndex = (currentIndex + 1) % items.length;
-              focusMenuItem(items, nextIndex);
+              focusMenuItem(items, (currentIndex + 1) % items.length);
             } else if (isInSubmenu) {
-              // Open nested submenu if present.
               const submenuTrigger = activeElement.closest(
                 SELECTORS.navSubmenu
               );
@@ -1128,15 +1248,13 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
           case KEYS.arrowLeft:
             if (isHorizontal && !isInSubmenu) {
-              // Move to previous item in horizontal menu.
-              const prevIndex =
-                (currentIndex - 1 + items.length) % items.length;
-              focusMenuItem(items, prevIndex);
+              focusMenuItem(
+                items,
+                (currentIndex - 1 + items.length) % items.length
+              );
             } else if (isInSubmenu) {
-              // Close submenu and return focus to parent.
               navigationStore.actions.closeSubmenu();
               announce('Submenu closed', { navId: context.navId });
-              // Focus should return to the trigger that opened this submenu.
               const parentSubmenu = submenuPanel?.closest(SELECTORS.navSubmenu);
               if (parentSubmenu) {
                 const trigger = safeQuerySelector<HTMLElement>(
@@ -1144,34 +1262,27 @@ const navigationStore = store('aggressive-apparel/navigation', {
                   SELECTORS.submenuLink,
                   false
                 );
-                if (trigger) {
-                  trigger.focus();
-                }
+                trigger?.focus();
               }
             }
             break;
 
           case KEYS.arrowDown:
             if (isInSubmenu || !isHorizontal) {
-              // Move to next item in vertical menu/submenu.
-              const nextIndex = (currentIndex + 1) % items.length;
-              focusMenuItem(items, nextIndex);
+              focusMenuItem(items, (currentIndex + 1) % items.length);
             } else {
-              // Open submenu if on a submenu trigger.
               const submenuTrigger = activeElement.closest(
                 SELECTORS.navSubmenu
               );
               if (submenuTrigger) {
-                // Check if submenu is not already open.
                 const panel = safeQuerySelector<HTMLElement>(
                   submenuTrigger,
                   SELECTORS.submenuPanel,
                   false
                 );
-                if (panel && context.activeSubmenuId !== panel.id) {
+                if (panel && ns.activeSubmenuId !== panel.id) {
                   navigationStore.actions.openSubmenu();
                   announce('Submenu opened', { navId: context.navId });
-                  // Focus first item in submenu after a brief delay.
                   setTimeout(() => {
                     const submenuItems = getSubmenuItems(panel);
                     if (submenuItems.length > 0) {
@@ -1185,32 +1296,29 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
           case KEYS.arrowUp:
             if (isInSubmenu || !isHorizontal) {
-              // In drill-down mode, pressing ArrowUp on first item goes back.
               const isInDrilldown = activeElement.closest(
-                SELECTORS.submenuDrilldown
+                `.${SELECTORS.submenuDrilldown}`
               );
               if (
                 isInDrilldown &&
                 currentIndex === 0 &&
-                context.drillStack.length > 0
+                ns.drillStack.length > 0
               ) {
                 navigationStore.actions.drillBack();
               } else {
-                // Move to previous item in vertical menu/submenu.
-                const prevIndex =
-                  (currentIndex - 1 + items.length) % items.length;
-                focusMenuItem(items, prevIndex);
+                focusMenuItem(
+                  items,
+                  (currentIndex - 1 + items.length) % items.length
+                );
               }
             }
             break;
 
           case KEYS.home:
-            // Jump to first item.
             focusMenuItem(items, 0);
             break;
 
           case KEYS.end:
-            // Jump to last item.
             focusMenuItem(items, items.length - 1);
             break;
         }
@@ -1231,45 +1339,42 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Check isMobile from shared state.
-        const isMobile = isValidNavId(context.navId)
-          ? getSharedState(context.navId).isMobile
-          : context.isMobile;
+        const ns = getNavState(context.navId);
 
-        // Skip hover behavior on mobile or if openOn is click.
-        if (isMobile || context.openOn !== 'hover') {
+        if (ns.isMobile || context.openOn !== 'hover') {
           return;
         }
 
-        // Clear any pending close timeout.
         if (hoverIntent.closeTimeout) {
           clearTimeout(hoverIntent.closeTimeout);
           hoverIntent.closeTimeout = null;
         }
 
-        // Clear any pending open timeout before setting a new one.
         if (hoverIntent.openTimeout) {
           clearTimeout(hoverIntent.openTimeout);
           hoverIntent.openTimeout = null;
         }
 
-        // Set a small delay before opening (hover intent).
+        // Use a shorter delay when switching between submenus (one is
+        // already open) so navigation feels responsive. Use the longer
+        // delay for the initial open so passing through doesn't trigger.
+        const hasActiveSubmenu = !!hoverIntent.activeId;
         const openDelay = prefersReducedMotion()
-          ? HOVER_INTENT.reducedMotion.openDelay
-          : HOVER_INTENT.openDelay;
+          ? HOVER_INTENT.reducedMotion[
+              hasActiveSubmenu ? 'switchDelay' : 'openDelay'
+            ]
+          : hasActiveSubmenu
+            ? HOVER_INTENT.switchDelay
+            : HOVER_INTENT.openDelay;
 
         hoverIntent.openTimeout = setTimeout(() => {
-          // Re-check context validity inside timeout
           try {
-            const submenuId = context.submenuId ?? null;
-            if (isValidNavId(context.navId)) {
-              const shared = getSharedState(context.navId);
-              shared.activeSubmenuId = submenuId;
-            }
-            context.activeSubmenuId = submenuId;
-            hoverIntent.activeId = submenuId;
+            const navState = getNavState(context.navId);
+            navState.activeSubmenuId = context.submenuId ?? null;
+            hoverIntent.activeId = context.submenuId ?? null;
+            syncIndicatorWithSubmenu(context.navId, navState.activeSubmenuId);
           } catch {
-            // Context may no longer be valid
+            // Context may no longer be valid.
           }
         }, openDelay);
       } catch (error) {
@@ -1278,7 +1383,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     },
 
     /**
-     * Handle hover/focus leave with delay to prevent flicker.
+     * Handle hover/focus leave with delay.
      */
     onHoverLeave: withSyncEvent((event: MouseEvent | FocusEvent): void => {
       try {
@@ -1289,17 +1394,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Check isMobile from shared state.
-        const isMobile = isValidNavId(context.navId)
-          ? getSharedState(context.navId).isMobile
-          : context.isMobile;
+        const ns = getNavState(context.navId);
 
-        // Skip hover behavior on mobile or if openOn is click.
-        if (isMobile || context.openOn !== 'hover') {
+        if (ns.isMobile || context.openOn !== 'hover') {
           return;
         }
 
-        // Check if moving within the same submenu.
         const relatedTarget = event.relatedTarget as HTMLElement | null;
         const currentTarget = event.currentTarget as HTMLElement;
         const submenuContainer = currentTarget.closest(SELECTORS.navSubmenu);
@@ -1308,33 +1408,27 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Clear any pending open timeout.
         if (hoverIntent.openTimeout) {
           clearTimeout(hoverIntent.openTimeout);
           hoverIntent.openTimeout = null;
         }
 
-        // Delay closing to allow moving to submenu panel.
         const closeDelay = prefersReducedMotion()
           ? HOVER_INTENT.reducedMotion.closeDelay
           : HOVER_INTENT.closeDelay;
 
         hoverIntent.closeTimeout = setTimeout(() => {
           try {
-            const currentActiveId = isValidNavId(context.navId)
-              ? getSharedState(context.navId).activeSubmenuId
-              : context.activeSubmenuId;
-
-            if (currentActiveId === context.submenuId) {
-              if (isValidNavId(context.navId)) {
-                const shared = getSharedState(context.navId);
-                shared.activeSubmenuId = null;
-              }
-              context.activeSubmenuId = null;
+            const navState = getNavState(context.navId);
+            if (navState.activeSubmenuId === context.submenuId) {
+              // Hide items BEFORE removing .is-open so they disappear
+              // before the panel's CSS close transition starts.
+              syncIndicatorWithSubmenu(context.navId, null);
+              navState.activeSubmenuId = null;
               hoverIntent.activeId = null;
             }
           } catch {
-            // Context may no longer be valid
+            // Context may no longer be valid.
           }
         }, closeDelay);
       } catch (error) {
@@ -1344,9 +1438,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
     /**
      * Handle native Popover API toggle events.
-     * Syncs popover state with Interactivity API state.
-     * This allows native popover behavior (light-dismiss, focus management)
-     * while keeping state in sync with our store.
      */
     onPopoverToggle(event: ToggleEvent): void {
       try {
@@ -1357,36 +1448,26 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        const ns = getNavState(context.navId);
         const isOpening = event.newState === 'open';
         const submenuId = context.submenuId;
 
         if (isOpening) {
-          // Sync opening state with shared registry
-          if (isValidNavId(context.navId) && submenuId) {
-            const shared = getSharedState(context.navId);
-            shared.activeSubmenuId = submenuId;
-          }
           if (submenuId) {
-            context.activeSubmenuId = submenuId;
+            ns.activeSubmenuId = submenuId;
             hoverIntent.activeId = submenuId;
           }
+          syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
           announce('Submenu opened', { navId: context.navId });
         } else {
-          // Sync closing state - only clear if this is the currently active submenu
-          if (isValidNavId(context.navId) && submenuId) {
-            const shared = getSharedState(context.navId);
-            if (shared.activeSubmenuId === submenuId) {
-              shared.activeSubmenuId = null;
-            }
-          }
-          if (context.activeSubmenuId === submenuId) {
-            context.activeSubmenuId = null;
+          if (ns.activeSubmenuId === submenuId) {
+            ns.activeSubmenuId = null;
             hoverIntent.activeId = null;
           }
+          syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
           announce('Submenu closed', { navId: context.navId });
         }
 
-        // Clear any pending hover timeouts since popover handled the interaction
         clearHoverTimeouts(hoverIntent);
       } catch (error) {
         logError('onPopoverToggle: Failed to handle popover toggle', error);
@@ -1394,78 +1475,17 @@ const navigationStore = store('aggressive-apparel/navigation', {
     },
 
     /**
-     * Initialize panel and sync with navigation's shared state.
-     */
-    initPanel(): void {
-      try {
-        const context = getContext<NavigationContext>();
-        if (!context) {
-          logWarning('initPanel: No context available');
-          return;
-        }
-
-        if (!isValidNavId(context.navId)) {
-          logWarning('initPanel: Invalid navId');
-          return;
-        }
-
-        syncContextFromShared(context, getSharedState(context.navId));
-      } catch (error) {
-        logError('initPanel: Failed to initialize panel', error);
-      }
-    },
-
-    /**
-     * Handle state sync event from other navigation elements.
-     *
-     * Note: Panel-specific updates (visibility, focus trap, inert, body classes)
-     * are now handled via event delegation in the navigation block's init callback.
-     * This is necessary because the panel is rendered via wp_footer, and the
-     * Interactivity API doesn't process directives for content added after
-     * DOMContentLoaded.
-     *
-     * This callback is still used by menu-toggle and navigation blocks to sync
-     * their context with shared state for reactive bindings (e.g., aria-expanded).
+     * Handle state change events (for toggle button aria-expanded sync).
      */
     onStateChange(event: CustomEvent<{ navId: string }>): void {
       try {
         const context = getContext<NavigationContext>();
-        if (!context) {
+        if (!context || event.detail?.navId !== context.navId) {
           return;
         }
-
-        // Only sync if this element belongs to the same navigation.
-        if (event.detail?.navId !== context.navId) {
-          return;
-        }
-
-        // Sync context with shared state for reactive bindings.
-        syncContextFromShared(context, getSharedState(context.navId));
+        // State is shared via state._panels — no sync needed.
       } catch (error) {
         logError('onStateChange: Failed to handle state change', error);
-      }
-    },
-
-    /**
-     * Watch panel state - syncs context with shared state.
-     *
-     * Note: This callback is defined for the panel's data-wp-watch directive,
-     * but since the panel is rendered via wp_footer, the directive is never
-     * processed. Panel state is now managed via event delegation in the
-     * navigation block's init callback. This callback is kept for potential
-     * future use if the panel is rendered within the normal block tree.
-     */
-    watchPanelState(): void {
-      try {
-        const context = getContext<NavigationContext>();
-        if (!context || !isValidNavId(context.navId)) {
-          return;
-        }
-
-        // Sync context with shared state for reactive bindings.
-        syncContextFromShared(context, getSharedState(context.navId));
-      } catch (error) {
-        logError('watchPanelState: Failed to sync panel state', error);
       }
     },
 
@@ -1480,17 +1500,15 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (!context) {
           return false;
         }
-        return (
-          getSharedOrContextValue(context, 'activeSubmenuId') ===
-          context.submenuId
-        );
+        const ns = getNavState(context.navId);
+        return ns.activeSubmenuId === context.submenuId;
       } catch {
         return false;
       }
     },
 
     /**
-     * Check if drill-down has history (for back button visibility).
+     * Check if drill-down has history.
      */
     hasDrillHistory(): boolean {
       try {
@@ -1498,25 +1516,10 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (!context) {
           return false;
         }
-        return getSharedOrContextValue(context, 'drillStack').length > 0;
+        const ns = getNavState(context.navId);
+        return ns.drillStack.length > 0;
       } catch {
         return false;
-      }
-    },
-
-    /**
-     * Get the current drill level menu ID.
-     */
-    getCurrentDrillId(): string | undefined {
-      try {
-        const context = getContext<NavigationContext>();
-        if (!context) {
-          return undefined;
-        }
-        const drillStack = getSharedOrContextValue(context, 'drillStack');
-        return drillStack[drillStack.length - 1];
-      } catch {
-        return undefined;
       }
     },
 
@@ -1531,9 +1534,8 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (!context) {
           return false;
         }
-        return getSharedOrContextValue(context, 'drillStack').includes(
-          context.submenuId ?? ''
-        );
+        const ns = getNavState(context.navId);
+        return ns.drillStack.includes(context.submenuId ?? '');
       } catch {
         return false;
       }
@@ -1550,25 +1552,10 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (!context) {
           return false;
         }
-        const drillStack = getSharedOrContextValue(context, 'drillStack');
-        return drillStack[drillStack.length - 1] === context.submenuId;
+        const ns = getNavState(context.navId);
+        return ns.drillStack[ns.drillStack.length - 1] === context.submenuId;
       } catch {
         return false;
-      }
-    },
-
-    /**
-     * Get the drill depth for animation offset.
-     */
-    getDrillDepth(): number {
-      try {
-        const context = getContext<NavigationContext>();
-        if (!context) {
-          return 0;
-        }
-        return getSharedOrContextValue(context, 'drillStack').length;
-      } catch {
-        return 0;
       }
     },
 
@@ -1580,12 +1567,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const context = getContext<
           NavigationContext & { submenuId?: string; menuType?: string }
         >();
-        if (!context) {
-          return;
-        }
-
-        // Only process if navId matches and this is a drilldown submenu.
-        if (event.detail?.navId !== context.navId) {
+        if (!context || event.detail?.navId !== context.navId) {
           return;
         }
         if (context.menuType !== 'drilldown') {
@@ -1597,17 +1579,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        // Get the drillStack from shared state.
-        const shared = getSharedState(context.navId);
-        const isInStack = shared.drillStack.includes(context.submenuId ?? '');
-
-        // Manually toggle is-open class.
+        const ns = getNavState(context.navId);
+        const isInStack = ns.drillStack.includes(context.submenuId ?? '');
         element.ref.classList.toggle(SELECTORS.isOpen, isInStack);
       } catch (error) {
-        logError(
-          'onSubmenuStateChange: Failed to handle submenu state change',
-          error
-        );
+        logError('onSubmenuStateChange: Failed to handle state change', error);
       }
     },
   },

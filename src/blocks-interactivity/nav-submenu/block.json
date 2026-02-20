@@ -2,17 +2,24 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/nav-submenu",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "title": "Nav Submenu",
   "category": "aggressive-apparel",
   "description": "Navigation item with dropdown, mega menu, or drill-down submenu.",
   "keywords": ["submenu", "dropdown", "mega", "navigation"],
   "textdomain": "aggressive-apparel",
   "icon": "arrow-down-alt2",
-  "parent": ["aggressive-apparel/nav-menu"],
+  "parent": ["aggressive-apparel/navigation"],
   "allowedBlocks": [
     "aggressive-apparel/nav-link",
-    "aggressive-apparel/mega-menu-content"
+    "core/columns",
+    "core/column",
+    "core/group",
+    "core/heading",
+    "core/paragraph",
+    "core/image",
+    "core/buttons",
+    "core/separator"
   ],
   "attributes": {
     "label": {
@@ -38,6 +45,23 @@
       "default": ""
     },
     "showArrow": {
+      "type": "boolean",
+      "default": true
+    },
+    "megaLayout": {
+      "type": "string",
+      "enum": ["columns", "grid", "flex"],
+      "default": "columns"
+    },
+    "megaColumns": {
+      "type": "number",
+      "default": 4
+    },
+    "megaFullWidth": {
+      "type": "boolean",
+      "default": true
+    },
+    "showIndicatorAccent": {
       "type": "boolean",
       "default": true
     }
@@ -74,7 +98,6 @@
   "usesContext": [
     "aggressive-apparel/navigationId",
     "aggressive-apparel/navigationOpenOn",
-    "aggressive-apparel/navMenuOrientation",
     "aggressive-apparel/submenuBackgroundColor",
     "aggressive-apparel/submenuTextColor",
     "aggressive-apparel/submenuBorderRadius",

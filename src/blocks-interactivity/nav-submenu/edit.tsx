@@ -55,7 +55,15 @@ export default function Edit({
   isSelected,
   context,
 }: BlockEditProps<NavSubmenuAttributes> & { context: NavSubmenuContext }) {
-  const { label, url, menuType, openOn, submenuId, showArrow } = attributes;
+  const {
+    label,
+    url,
+    menuType,
+    openOn,
+    submenuId,
+    showArrow,
+    showIndicatorAccent,
+  } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -83,15 +91,22 @@ export default function Edit({
   // Determine which blocks to show based on menu type.
   const getAllowedBlocks = () => {
     if (menuType === 'mega') {
-      return ['aggressive-apparel/mega-menu-content'];
+      return [
+        'aggressive-apparel/nav-link',
+        'core/columns',
+        'core/column',
+        'core/group',
+        'core/heading',
+        'core/paragraph',
+        'core/image',
+        'core/buttons',
+        'core/separator',
+      ];
     }
     return ['aggressive-apparel/nav-link'];
   };
 
   const getTemplate = (): [string, Record<string, unknown>?][] => {
-    if (menuType === 'mega') {
-      return [['aggressive-apparel/mega-menu-content']];
-    }
     return TEMPLATE;
   };
 
@@ -189,6 +204,15 @@ export default function Edit({
             label={__('Show Arrow Icon', 'aggressive-apparel')}
             checked={showArrow}
             onChange={value => setAttributes({ showArrow: value })}
+          />
+          <ToggleControl
+            label={__('Show Indicator Accent', 'aggressive-apparel')}
+            help={__(
+              'Show a colored accent line at the top of the dropdown panel.',
+              'aggressive-apparel'
+            )}
+            checked={showIndicatorAccent}
+            onChange={value => setAttributes({ showIndicatorAccent: value })}
           />
         </PanelBody>
       </InspectorControls>

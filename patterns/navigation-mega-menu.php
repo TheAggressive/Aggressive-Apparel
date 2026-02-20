@@ -11,12 +11,9 @@
 
 declare(strict_types=1);
 ?>
-<!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover"} -->
-<!-- wp:aggressive-apparel/menu-toggle {"label":"Menu","iconStyle":"hamburger-spin","animationType":"spin"} /-->
-<!-- wp:aggressive-apparel/nav-menu {"orientation":"horizontal"} -->
+<!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover","panelPosition":"right","showPanelOverlay":true,"toggleAnimationType":"spin"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"mega","openOn":"hover","showArrow":true} -->
-<!-- wp:aggressive-apparel/mega-menu-content {"layout":"columns","fullWidth":true} -->
+<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"mega","showArrow":true,"megaFullWidth":true,"megaLayout":"columns"} -->
 <!-- wp:columns {"isStackedOnMobile":true} -->
 <!-- wp:column -->
 <!-- wp:heading {"level":4} -->
@@ -54,46 +51,11 @@ declare(strict_types=1);
 <!-- /wp:image -->
 <!-- /wp:column -->
 <!-- /wp:columns -->
-<!-- /wp:aggressive-apparel/mega-menu-content -->
 <!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"dropdown","openOn":"hover","showArrow":true} -->
+<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"dropdown","showArrow":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Sustainability","url":"/sustainability"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers"} /-->
 <!-- /wp:aggressive-apparel/nav-submenu -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
-<!-- /wp:aggressive-apparel/nav-menu -->
-<!-- wp:aggressive-apparel/navigation-panel {"position":"right","showOverlay":true} -->
-<!-- wp:aggressive-apparel/panel-header -->
-<!-- wp:aggressive-apparel/panel-close-button /-->
-<!-- /wp:aggressive-apparel/panel-header -->
-<!-- wp:aggressive-apparel/panel-body -->
-<!-- wp:aggressive-apparel/nav-menu {"orientation":"vertical"} -->
-<!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"drilldown","showArrow":true} -->
-<!-- wp:heading {"level":4} -->
-<h4>Men</h4>
-<!-- /wp:heading -->
-<!-- wp:aggressive-apparel/nav-link {"label":"T-Shirts","url":"/shop/men/t-shirts"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Hoodies","url":"/shop/men/hoodies"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Pants","url":"/shop/men/pants"} /-->
-<!-- wp:separator -->
-<hr class="wp-block-separator"/>
-<!-- /wp:separator -->
-<!-- wp:heading {"level":4} -->
-<h4>Women</h4>
-<!-- /wp:heading -->
-<!-- wp:aggressive-apparel/nav-link {"label":"T-Shirts","url":"/shop/women/t-shirts"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Hoodies","url":"/shop/women/hoodies"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Leggings","url":"/shop/women/leggings"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"drilldown","showArrow":true} -->
-<!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Sustainability","url":"/sustainability"} /-->
-<!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
-<!-- /wp:aggressive-apparel/nav-menu -->
-<!-- /wp:aggressive-apparel/panel-body -->
-<!-- /wp:aggressive-apparel/navigation-panel -->
 <!-- /wp:aggressive-apparel/navigation -->

@@ -11,11 +11,12 @@
 
 declare(strict_types=1);
 
-$label      = $attributes['label'] ?? '';
-$url        = $attributes['url'] ?? '';
-$menu_type  = $attributes['menuType'] ?? 'dropdown';
-$submenu_id = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
-$show_arrow = $attributes['showArrow'] ?? true;
+$label                 = $attributes['label'] ?? '';
+$url                   = $attributes['url'] ?? '';
+$menu_type             = $attributes['menuType'] ?? 'dropdown';
+$submenu_id            = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
+$show_arrow            = $attributes['showArrow'] ?? true;
+$show_indicator_accent = $attributes['showIndicatorAccent'] ?? true;
 
 // Inherit from parent navigation context.
 $nav_id  = $block->context['aggressive-apparel/navigationId'] ?? '';
@@ -45,6 +46,10 @@ $classes = array(
 	'wp-block-aggressive-apparel-nav-submenu',
 	'wp-block-aggressive-apparel-nav-submenu--' . sanitize_html_class( $menu_type ),
 );
+
+if ( $show_indicator_accent ) {
+	$classes[] = 'has-indicator-accent';
+}
 
 // Determine hover/click bindings.
 // Drill-down uses drillInto action on click (handled on trigger).

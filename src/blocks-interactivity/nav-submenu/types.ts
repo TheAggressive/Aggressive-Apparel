@@ -14,6 +14,7 @@ export interface NavSubmenuAttributes {
   openOn: OpenTrigger;
   submenuId: string;
   showArrow: boolean;
+  showIndicatorAccent: boolean;
 }
 
 export interface NavSubmenuContext {

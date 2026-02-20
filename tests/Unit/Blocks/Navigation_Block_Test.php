@@ -199,16 +199,12 @@ class Navigation_Block_Test extends WP_UnitTestCase {
             'Context should include openOn value'
         );
 
-        $this->assertStringContainsString(
-            '&quot;isOpen&quot;:false',
+        // isOpen and isMobile are now in state._panels[navId], not in context.
+        // Context only contains immutable config: navId, breakpoint, openOn.
+        $this->assertStringNotContainsString(
+            '&quot;isOpen&quot;',
             $block_content,
-            'Context should include isOpen as false'
-        );
-
-        $this->assertStringContainsString(
-            '&quot;isMobile&quot;:false',
-            $block_content,
-            'Context should include isMobile as false'
+            'Mutable state should not be in context (moved to state._panels)'
         );
     }
 

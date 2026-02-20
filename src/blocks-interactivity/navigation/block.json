@@ -2,10 +2,10 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/navigation",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "title": "Navigation",
   "category": "aggressive-apparel",
-  "description": "Responsive navigation container with mobile panel support.",
+  "description": "Responsive navigation with built-in mobile panel, toggle, and sliding indicator.",
   "keywords": ["menu", "navigation", "header", "nav"],
   "textdomain": "aggressive-apparel",
   "icon": "menu",
@@ -26,6 +26,63 @@
       "type": "string",
       "enum": ["hover", "click"],
       "default": "hover"
+    },
+    "toggleLabel": {
+      "type": "string",
+      "default": "Menu"
+    },
+    "toggleIconStyle": {
+      "type": "string",
+      "enum": ["hamburger", "dots", "squeeze", "arrow", "collapse"],
+      "default": "hamburger"
+    },
+    "toggleAnimationType": {
+      "type": "string",
+      "enum": [
+        "to-x",
+        "spin",
+        "squeeze",
+        "arrow-left",
+        "arrow-right",
+        "collapse",
+        "none"
+      ],
+      "default": "to-x"
+    },
+    "showToggleLabel": {
+      "type": "boolean",
+      "default": false
+    },
+    "panelPosition": {
+      "type": "string",
+      "enum": ["left", "right"],
+      "default": "right"
+    },
+    "panelAnimationStyle": {
+      "type": "string",
+      "enum": ["slide", "push", "reveal", "fade"],
+      "default": "slide"
+    },
+    "panelWidth": {
+      "type": "string",
+      "default": "min(320px, 85vw)"
+    },
+    "showPanelOverlay": {
+      "type": "boolean",
+      "default": true
+    },
+    "mobileSyncMode": {
+      "type": "string",
+      "enum": ["auto", "custom"],
+      "default": "auto"
+    },
+    "scrollBehavior": {
+      "type": "string",
+      "enum": ["none", "sticky", "hide-on-scroll", "transparent-to-opaque"],
+      "default": "none"
+    },
+    "indicatorColor": {
+      "type": "string"
     },
     "submenuBackgroundColor": {
       "type": "string"

@@ -232,11 +232,11 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
         $this->assertEquals('json-test', $context['navId']);
         $this->assertEquals(1024, $context['breakpoint']);
         $this->assertEquals('hover', $context['openOn']);
-        $this->assertFalse($context['isOpen']);
-        $this->assertFalse($context['isMobile']);
-        $this->assertNull($context['activeSubmenuId']);
-        $this->assertIsArray($context['drillStack']);
-        $this->assertEmpty($context['drillStack']);
+
+        // Mutable state (isOpen, isMobile, activeSubmenuId, drillStack) is now
+        // in state._panels[navId] instead of context.
+        $this->assertArrayNotHasKey('isOpen', $context);
+        $this->assertArrayNotHasKey('isMobile', $context);
     }
 
     /**

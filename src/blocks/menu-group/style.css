@@ -64,11 +64,11 @@
 }
 
 /* Within navigation panels - compact layout */
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-menu-group {
+.aa-nav__panel .wp-block-aggressive-apparel-menu-group {
   --menu-group-gap: 0.5rem;
 }
 
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-menu-group__title {
+.aa-nav__panel .wp-block-aggressive-apparel-menu-group__title {
   margin-bottom: 0.25rem;
   font-size: 0.75rem;
   font-weight: 700;

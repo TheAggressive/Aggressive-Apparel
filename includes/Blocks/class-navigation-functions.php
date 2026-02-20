@@ -19,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Build the navigation context array for Interactivity API.
  *
- * Creates a consistent context structure used by navigation, menu-toggle,
- * navigation-panel, and other navigation child blocks.
+ * Creates a consistent context structure used by the navigation block
+ * and its child blocks (nav-link, nav-submenu).
  *
  * @param string $nav_id     The navigation instance ID.
  * @param int    $breakpoint The mobile breakpoint in pixels.
@@ -28,14 +28,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array The context array for Interactivity API.
  */
 function aggressive_apparel_build_nav_context( string $nav_id, int $breakpoint = 1024, string $open_on = 'hover' ): array {
+	// Context holds immutable config only. Mutable state (isOpen, isMobile,
+	// activeSubmenuId, drillStack) lives in the global store state._panels[navId],
+	// shared between the <nav> and the portaled panel outside .wp-site-blocks.
 	return array(
-		'navId'           => $nav_id,
-		'breakpoint'      => $breakpoint,
-		'openOn'          => $open_on,
-		'isOpen'          => false,
-		'isMobile'        => false,
-		'activeSubmenuId' => null,
-		'drillStack'      => array(),
+		'navId'      => $nav_id,
+		'breakpoint' => $breakpoint,
+		'openOn'     => $open_on,
 	);
 }
 
@@ -125,4 +124,53 @@ function aggressive_apparel_get_toggle_id( string $nav_id ): string {
  */
 function aggressive_apparel_get_announcer_id( string $nav_id ): string {
 	return $nav_id ? 'navigation-announcer-' . $nav_id : 'navigation-announcer';
+}
+
+/**
+ * Buffer panel HTML for output via wp_footer.
+ *
+ * The mobile panel is portaled outside .wp-site-blocks so that
+ * position: fixed is not trapped by ancestor stacking contexts.
+ * Each call stores panel HTML keyed by nav_id and registers the
+ * flush hook once.
+ *
+ * @param string $nav_id     The navigation instance ID.
+ * @param string $panel_html The fully-built panel HTML.
+ */
+function aggressive_apparel_buffer_panel_html( string $nav_id, string $panel_html ): void {
+	static $panels = array();
+	static $hooked = false;
+
+	$panels[ $nav_id ] = $panel_html;
+
+	if ( ! $hooked ) {
+		$hooked = true;
+		add_action(
+			'wp_footer',
+			static function () use ( &$panels ) {
+				aggressive_apparel_flush_nav_panels( $panels );
+			},
+			5
+		);
+	}
+}
+
+/**
+ * Flush all buffered navigation panels in wp_footer.
+ *
+ * Outputs each panel inside a portal wrapper with its own
+ * data-wp-interactive and data-wp-context for Interactivity API.
+ *
+ * @param array $panels Associative array of nav_id => panel_html.
+ */
+function aggressive_apparel_flush_nav_panels( array $panels ): void {
+	foreach ( $panels as $nav_id => $panel_html ) {
+		$context = aggressive_apparel_encode_nav_context( array( 'navId' => $nav_id ) );
+
+		printf(
+			'<div class="aa-nav__panel-portal" data-wp-interactive="aggressive-apparel/navigation" data-wp-context=\'%s\' data-wp-init="callbacks.initPanel" data-wp-class--is-mobile="state.isMobile" data-wp-class--is-open="state.isOpen">%s</div>',
+			esc_attr( $context ),
+			$panel_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Panel HTML already escaped in render.php.
+		);
+	}
 }

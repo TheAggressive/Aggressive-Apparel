@@ -1,13 +1,25 @@
 /**
- * Navigation Block Styles
+ * Navigation Block Styles (v2)
+ *
+ * Consolidated styles for the 3-block navigation system:
+ * - navigation (container + toggle + panel + indicator)
+ * - nav-link
+ * - nav-submenu
+ *
+ * Features:
+ * - Sliding underline indicator (desktop)
+ * - Vertical accent bar (mobile)
+ * - Toggle bar animations
+ * - Panel slide/push/reveal/fade
+ * - Stagger reveal on panel open
+ * - Drilldown with 3D depth perspective
+ * - Glassmorphism dropdown panels
  *
  * @package Aggressive_Apparel
  */
 
 /* ========================================
- * SHARED CSS VARIABLES
- * Used across all navigation blocks.
- * Defined at :root for fixed-position elements (panel).
+ * CSS CUSTOM PROPERTIES
  * ======================================== */
 :root {
 
@@ -20,10 +32,10 @@
   --aa-nav-shadow: 0 4px 20px rgb(0 0 0 / 15%);
   --aa-nav-overlay-bg: rgb(0 0 0 / 50%);
 
-  /* Transitions - standard easing */
+  /* Transitions — on :root so the portaled panel inherits them */
   --aa-nav-transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --aa-nav-transition-fast: 150ms ease;
-
+  --navigation-transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Radii */
   --aa-nav-radius-sm: 2px;
@@ -36,8 +48,7 @@
   --aa-nav-focus-offset: 2px;
 }
 
-
-/* Screen reader only text utility. */
+/* Screen reader only text. */
 .screen-reader-text {
   position: absolute !important;
   width: 1px !important;
@@ -50,16 +61,16 @@
   border: 0 !important;
 }
 
+/* ========================================
+ * NAVIGATION CONTAINER
+ * ======================================== */
 .wp-block-aggressive-apparel-navigation {
   --navigation-gap: var(--wp--preset--spacing--6, 1.5rem);
-  --navigation-transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --navigation-breakpoint: 1024px;
 
   position: relative;
   width: 100%;
 
-  /* Flex properties are handled by WordPress layout support.
-   * Only set fallbacks for when layout classes aren't present. */
   &:not(.is-layout-flex) {
     display: flex;
     flex-wrap: wrap;
@@ -67,160 +78,65 @@
     gap: var(--navigation-gap);
   }
 
-  /* Default: toggle and panel hidden on desktop, handled by is-mobile/is-desktop classes */
-  & .wp-block-aggressive-apparel-menu-toggle {
+  /* Default: toggle hidden on desktop */
+  & .aa-nav__toggle {
     display: none;
   }
 
-  /* Fallback: Show toggle on mobile when no JS classes are present yet */
-  @media (width <= 1023px) {
-
-    & .wp-block-aggressive-apparel-menu-toggle {
-      display: flex;
-    }
-  }
-
-  /* Navigation panel: Layout reset only. Visibility is controlled by the panel's own styles. */
-  & .wp-block-aggressive-apparel-navigation-panel {
-    display: block;
-  }
-
-  /* JS-controlled mobile state via is-mobile class. */
+  /* JS-controlled mobile state */
   &.is-mobile {
 
-    /* Show toggle button on mobile */
-    & .wp-block-aggressive-apparel-menu-toggle {
+    & .aa-nav__toggle {
       display: flex;
     }
 
-    /* Hide desktop nav-menu on mobile (but not ones inside the panel). */
-    & > .wp-block-aggressive-apparel-nav-menu,
-    & > .is-layout-flex > .wp-block-aggressive-apparel-nav-menu {
+    /* Hide desktop menubar on mobile */
+    & .aa-nav__menubar {
       display: none;
     }
-
-    /* Show the mobile navigation panel container */
-    & .wp-block-aggressive-apparel-navigation-panel {
-      display: block;
-      height: auto;
-      overflow: visible;
-
-      /* Visibility controlled by panel's own state (is-open) */
-    }
-
-    /* Nav menus inside the panel must be vertical regardless of layout settings.
-     * This intentionally overrides WordPress layout classes for mobile panel. */
-    & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-menu {
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 0 !important;
-    }
-
-    /* Mobile touch target sizing - ensure 44px minimum for accessibility. */
-    & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-link__link {
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 0;
-    }
-
-    /* Mobile submenu behavior: accordion style inside panel. */
-    & .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu {
-      display: block;
-      position: static;
-      width: 100%;
-
-      & .wp-block-aggressive-apparel-nav-submenu__trigger {
-        width: 100%;
-      }
-
-      & .wp-block-aggressive-apparel-nav-submenu__link {
-        width: 100%;
-        justify-content: space-between;
-        min-height: 44px;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--aa-nav-border-subtle);
-      }
-
-      /* Override hidden behavior for accordion animation. */
-      & .wp-block-aggressive-apparel-nav-submenu__panel {
-        position: static;
-        width: 100%;
-        max-height: 0;
-        overflow: hidden;
-        box-shadow: none;
-        border-radius: 0;
-        background: transparent;
-        opacity: 1;
-        visibility: visible;
-        pointer-events: none;
-        transform: none;
-        transition: max-height var(--navigation-transition);
-
-        /* Override [hidden] to allow accordion animation via max-height. */
-        &[hidden] {
-          display: block !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          max-height: 0;
-          pointer-events: none;
-        }
-      }
-
-      &.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
-        max-height: 2000px;
-        pointer-events: auto;
-
-        &[hidden] {
-          max-height: 2000px;
-          pointer-events: auto;
-        }
-      }
-
-      & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
-        padding: var(--wp--preset--spacing--4, 1rem) 0;
-        padding-inline-start: var(--wp--preset--spacing--6, 1.5rem);
-      }
-    }
   }
-
-  /* Desktop state is handled by the default CSS rules above (lines 32-68).
-     The .is-mobile class toggles mobile-specific behavior.
-     When .is-mobile is removed, the default desktop styles apply automatically. */
 }
 
-/* ========================================
- * CSS FALLBACK: Works before JS loads
- * Media query fallback for default 1024px breakpoint.
- * For custom breakpoints, JavaScript handles the responsive behavior.
- * ======================================== */
+/* CSS-only fallback before JS loads */
 @media (width <= 1023px) {
 
   .wp-block-aggressive-apparel-navigation:not(.is-mobile) {
 
-    /* Show toggle before JS initializes. */
-    & .wp-block-aggressive-apparel-menu-toggle {
+    & .aa-nav__toggle {
       display: flex;
     }
 
-    /* Hide desktop nav-menu before JS initializes. */
-    & > .wp-block-aggressive-apparel-nav-menu,
-    & > .is-layout-flex > .wp-block-aggressive-apparel-nav-menu {
+    & .aa-nav__menubar {
       display: none;
-    }
-
-    /* Show panel container (but it's still hidden until opened). */
-    & .wp-block-aggressive-apparel-navigation-panel {
-      display: block;
     }
   }
 }
 
 /* ========================================
- * CONTAINER QUERIES
- * Component-based responsiveness (not just viewport).
+ * PANEL PORTAL
+ *
+ * The mobile panel is rendered via wp_footer outside .wp-site-blocks
+ * to escape ancestor stacking contexts. The portal wrapper provides
+ * the Interactivity API context and controls visibility.
  * ======================================== */
+.aa-nav__panel-portal {
+  display: contents; /* No visual box — just a directive wrapper */
+}
+
+/* Hidden until JS sets is-mobile class via state.isMobile */
+.aa-nav__panel-portal:not(.is-mobile) .aa-nav__panel {
+  display: none;
+}
+
+/* CSS-only fallback before JS loads */
+@media (width <= 1023px) {
+
+  .aa-nav__panel-portal:not(.is-mobile) .aa-nav__panel {
+    display: block;
+  }
+}
+
+/* Container queries */
 @supports (container-type: inline-size) {
 
   .wp-block-aggressive-apparel-navigation {
@@ -228,7 +144,6 @@
     container-name: navigation;
   }
 
-  /* Compact mode for narrow containers */
   @container navigation (max-width: 600px) {
 
     .wp-block-aggressive-apparel-navigation {
@@ -238,25 +153,690 @@
 }
 
 /* ========================================
+ * DESKTOP MENUBAR
+ * ======================================== */
+.aa-nav__menubar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--navigation-gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* ========================================
+ * SLIDING INDICATOR (Desktop)
+ *
+ * A 3px underline that slides between menu items,
+ * then morphs into the submenu panel background
+ * when a dropdown opens.
+ *
+ * Position/size controlled via CSS custom properties
+ * set by JavaScript on hover/focus/submenu-open.
+ * ======================================== */
+.aa-nav__indicator-wrap {
+  display: contents;
+}
+
+.aa-nav__indicator {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  height: var(--indicator-height, 3px);
+  background: var(--indicator-color, var(--wp--preset--color--primary, currentColor));
+  border-radius: var(--indicator-radius, 1.5px);
+  width: var(--indicator-width, 0);
+  transform: translateX(var(--indicator-x, 0)) translateY(var(--indicator-y, -3px));
+  opacity: var(--indicator-opacity, 0);
+  z-index: 99;
+  transition:
+    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    height 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms ease;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+/* Expanded state: indicator morphs into panel background */
+.aa-nav__indicator.is-expanded {
+  background: var(--wp--preset--color--white, #fff);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+}
+
+/* Red accent line persists at the top of the expanded panel (opt-in per submenu) */
+.aa-nav__indicator.is-expanded.has-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--indicator-color, var(--wp--preset--color--primary, currentColor));
+  border-radius: 1.5px 1.5px 0 0;
+  z-index: 1;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+
+  .aa-nav__indicator.is-expanded {
+    background: color-mix(in srgb, var(--wp--preset--color--white, #fff) 90%, transparent);
+    backdrop-filter: blur(16px) saturate(180%);
+  }
+}
+
+/* ========================================
+ * TOGGLE BUTTON (absorbed from menu-toggle)
+ * ======================================== */
+.aa-nav__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.aa-nav__toggle-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
+
+/* Hamburger bars */
+.aa-nav__toggle-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: currentcolor;
+  border-radius: 1px;
+  transition:
+    transform var(--aa-nav-transition),
+    opacity var(--aa-nav-transition-fast);
+  position: absolute;
+
+  &:nth-child(1) { top: 4px; }
+
+  &:nth-child(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &:nth-child(3) { bottom: 4px; }
+}
+
+/* Toggle animation: to-x */
+.aa-nav__toggle--anim-to-x.is-active .aa-nav__toggle-bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  &:nth-child(2) { opacity: 0; }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+  }
+}
+
+/* Toggle animation: spin */
+.aa-nav__toggle--anim-spin.is-active {
+  transform: rotate(180deg);
+
+  & .aa-nav__toggle-bar {
+
+    &:nth-child(1) {
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    &:nth-child(2) { opacity: 0; }
+
+    &:nth-child(3) {
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%) rotate(-45deg);
+    }
+  }
+}
+
+/* Toggle animation: squeeze */
+.aa-nav__toggle--anim-squeeze.is-active .aa-nav__toggle-bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 100%;
+  }
+
+  &:nth-child(2) {
+    transform: translateY(-50%) scaleX(0);
+    opacity: 0;
+  }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+    width: 100%;
+  }
+}
+
+/* Toggle animation: collapse */
+.aa-nav__toggle--anim-collapse.is-active .aa-nav__toggle-bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80%;
+    opacity: 0;
+  }
+
+  &:nth-child(2) { transform: translateY(-50%) scaleX(1.2); }
+
+  &:nth-child(3) {
+    bottom: 50%;
+    transform: translateY(50%);
+    width: 80%;
+    opacity: 0;
+  }
+}
+
+/* Toggle animation: arrow-left / arrow-right */
+.aa-nav__toggle--anim-arrow-left.is-active .aa-nav__toggle-bar,
+.aa-nav__toggle--anim-arrow-right.is-active .aa-nav__toggle-bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    width: 60%;
+    transform: translateY(-50%) rotate(-40deg);
+    transform-origin: left center;
+  }
+
+  &:nth-child(2) { width: 100%; }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    width: 60%;
+    transform: translateY(-50%) rotate(40deg);
+    transform-origin: left center;
+  }
+}
+
+.aa-nav__toggle--anim-arrow-right.is-active .aa-nav__toggle-bar {
+
+  &:nth-child(1) {
+    transform: translateY(-50%) rotate(40deg);
+    transform-origin: right center;
+  }
+
+  &:nth-child(3) {
+    transform: translateY(-50%) rotate(-40deg);
+    transform-origin: right center;
+  }
+}
+
+/* Dots icon style */
+.aa-nav__toggle-icon--dots {
+  flex-direction: row;
+  gap: 3px;
+}
+
+.aa-nav__toggle-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentcolor;
+  transition: transform var(--aa-nav-transition);
+}
+
+.aa-nav__toggle--dots.is-active .aa-nav__toggle-dot {
+
+  &:nth-child(1) {
+    transform: translateX(4px) scale(0.5);
+    opacity: 0;
+  }
+
+  &:nth-child(2) { transform: scale(1.5); }
+
+  &:nth-child(3) {
+    transform: translateX(-4px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Toggle label */
+.aa-nav__toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ========================================
+ * MOBILE PANEL
+ *
+ * Portaled outside .wp-site-blocks via wp_footer.
+ * Minimal dark panel — clean lines, restrained
+ * contrast, single brand accent (indicator).
+ * ======================================== */
+.aa-nav__panel {
+  --_panel-accent: var(--indicator-color, var(--wp--preset--color--red, oklch(57.7% 0.245 27.325deg)));
+
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+  width: var(--panel-width, min(320px, 85vw));
+  background: var(--panel-bg, #141414);
+  color: var(--panel-color, #e0e0e0);
+  pointer-events: none;
+  transition:
+    transform var(--aa-nav-transition),
+    opacity var(--aa-nav-transition);
+}
+
+.aa-nav__panel.is-open {
+  box-shadow: -1px 0 0 rgb(255 255 255 / 5%);
+}
+
+/* Position: right */
+.aa-nav__panel--right {
+  right: 0;
+}
+
+/* Position: left */
+.aa-nav__panel--left {
+  left: 0;
+}
+
+/* Animation: slide */
+.aa-nav__panel--slide.aa-nav__panel--right {
+  transform: translateX(100%);
+}
+
+.aa-nav__panel--slide.aa-nav__panel--left {
+  transform: translateX(-100%);
+}
+
+.aa-nav__panel--slide.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Animation: fade */
+.aa-nav__panel--fade {
+  opacity: 0;
+}
+
+.aa-nav__panel--fade.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Animation: push */
+.aa-nav__panel--push.aa-nav__panel--right {
+  transform: translateX(100%);
+}
+
+.aa-nav__panel--push.aa-nav__panel--left {
+  transform: translateX(-100%);
+}
+
+.aa-nav__panel--push.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Animation: reveal */
+.aa-nav__panel--reveal {
+  z-index: 9998;
+}
+
+.aa-nav__panel--reveal.aa-nav__panel--right {
+  transform: translateX(0);
+}
+
+.aa-nav__panel--reveal.aa-nav__panel--left {
+  transform: translateX(0);
+}
+
+.aa-nav__panel--reveal.is-open {
+  pointer-events: auto;
+}
+
+/* Push/reveal body animation */
+.has-navigation-panel-open--push-right .wp-site-blocks,
+.has-navigation-panel-open--reveal-right .wp-site-blocks {
+  transform: translateX(calc(-1 * var(--push-panel-width, min(320px, 85vw))));
+  transition: transform var(--aa-nav-transition);
+}
+
+.has-navigation-panel-open--push-left .wp-site-blocks,
+.has-navigation-panel-open--reveal-left .wp-site-blocks {
+  transform: translateX(var(--push-panel-width, min(320px, 85vw)));
+  transition: transform var(--aa-nav-transition);
+}
+
+.wp-site-blocks {
+  transition: transform var(--aa-nav-transition);
+}
+
+/* ========================================
+ * PANEL OVERLAY
+ *
+ * Rendered as a SIBLING of the panel (not a child) so
+ * position: fixed is relative to the viewport, not trapped
+ * by the panel's transform containing block.
+ * Visibility controlled via .is-open on the portal wrapper.
+ * ======================================== */
+.aa-nav__panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: var(--panel-overlay-bg, rgb(0 0 0 / 50%));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--aa-nav-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.aa-nav__panel-portal.is-open .aa-nav__panel-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========================================
+ * PANEL CONTENT
+ * ======================================== */
+.aa-nav__panel-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Panel header */
+.aa-nav__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+}
+
+/* Close button */
+.aa-nav__panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: rgb(255 255 255 / 50%);
+  transition:
+    color var(--aa-nav-transition-fast);
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    color: #e0e0e0;
+  }
+
+  &:active {
+    color: #fff;
+  }
+
+  & svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Panel body */
+.aa-nav__panel-body {
+  flex: 1;
+  padding: 0.5rem 0;
+  perspective: 1200px;
+}
+
+/* Panel menu */
+.aa-nav__panel-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  color: #e0e0e0;
+}
+
+/* ========================================
+ * MOBILE VERTICAL ACCENT LINE (Indicator)
+ *
+ * 2px red accent on the left edge. Slides between
+ * items tracking focus/touch.
+ * ======================================== */
+.aa-nav__mobile-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: var(--mobile-indicator-height, 0);
+  transform: translateY(var(--mobile-indicator-y, 0));
+  background: var(--_panel-accent, var(--wp--preset--color--red, oklch(57.7% 0.245 27.325deg)));
+  border-radius: 0 1px 1px 0;
+  opacity: var(--mobile-indicator-opacity, 0);
+  transition:
+    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    height 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms ease;
+  pointer-events: none;
+}
+
+/* ========================================
+ * STAGGER REVEAL (Panel items entrance)
+ *
+ * When the panel opens, items fade in with
+ * a stagger delay based on --item-index.
+ * ======================================== */
+.aa-nav__panel-menu > li {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.aa-nav__panel.is-open .aa-nav__panel-menu > li {
+  animation: aa-nav-stagger-in 250ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 40ms + 80ms);
+}
+
+@keyframes aa-nav-stagger-in {
+
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile touch targets */
+.aa-nav__panel-menu .wp-block-aggressive-apparel-nav-link__link {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: 0;
+  transition: color var(--aa-nav-transition-fast);
+
+  &:hover,
+  &:focus {
+    color: #fff;
+  }
+}
+
+.aa-nav__panel-menu .wp-block-aggressive-apparel-nav-submenu {
+  --submenu-bg: transparent;
+  --submenu-color: #e0e0e0;
+  --nav-link-color: #e0e0e0;
+
+  display: block;
+  position: static;
+  width: 100%;
+
+  & .wp-block-aggressive-apparel-nav-submenu__trigger {
+    width: 100%;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__link {
+    width: 100%;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-bottom: none;
+    background: none;
+    color: #e0e0e0;
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color var(--aa-nav-transition-fast);
+    -webkit-tap-highlight-color: transparent;
+    text-transform: none;
+    letter-spacing: normal;
+    border-radius: 0;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      background: none;
+    }
+  }
+
+  /* Arrow icon */
+  & .wp-block-aggressive-apparel-nav-submenu__arrow {
+    color: rgb(255 255 255 / 30%);
+    transition: color var(--aa-nav-transition-fast);
+  }
+
+  &:hover .wp-block-aggressive-apparel-nav-submenu__arrow,
+  &.is-open .wp-block-aggressive-apparel-nav-submenu__arrow {
+    color: rgb(255 255 255 / 60%);
+  }
+
+  /* Drilldown panel — recessed area */
+  &.wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
+    position: static;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    border-top: 1px solid rgb(255 255 255 / 6%);
+    border-radius: 0;
+    background: rgb(0 0 0 / 40%);
+    color: #e0e0e0;
+    box-shadow: none;
+    backdrop-filter: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: none;
+    transform: none;
+    transition: max-height var(--navigation-transition);
+
+    &[hidden] {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      max-height: 0;
+      pointer-events: none;
+    }
+  }
+
+  &.wp-block-aggressive-apparel-nav-submenu--drilldown.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
+    max-height: 2000px;
+    pointer-events: auto;
+
+    &[hidden] {
+      max-height: 2000px;
+      pointer-events: auto;
+    }
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
+    padding: 0.25rem 0;
+    padding-inline-start: 1rem;
+  }
+
+  /* Submenu items */
+  & .wp-block-aggressive-apparel-nav-submenu__panel-inner .wp-block-aggressive-apparel-nav-link__link {
+    color: rgb(255 255 255 / 65%);
+    font-size: 0.875rem;
+    font-weight: 400;
+    min-height: 40px;
+    padding: 0.5rem 1.25rem;
+
+    &:hover,
+    &:focus {
+      color: #e0e0e0;
+    }
+  }
+}
+
+/* Dividers — single-pixel rule */
+.aa-nav__panel-menu > li + li {
+  border-top: 1px solid rgb(255 255 255 / 6%);
+}
+
+/* ========================================
  * ENHANCED FOCUS-VISIBLE
- * Better focus indicators for keyboard users.
  * ======================================== */
 @supports selector(:focus-visible) {
 
-  .wp-block-aggressive-apparel-navigation :focus:not(:focus-visible) {
+  .wp-block-aggressive-apparel-navigation :focus:not(:focus-visible),
+  .aa-nav__panel-portal :focus:not(:focus-visible) {
     outline: none;
   }
 
-  .wp-block-aggressive-apparel-navigation :focus-visible {
+  .wp-block-aggressive-apparel-navigation :focus-visible,
+  .aa-nav__panel-portal :focus-visible {
     outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
     outline-offset: var(--aa-nav-focus-offset, 2px);
     border-radius: var(--aa-nav-radius-sm, 2px);
   }
 
-  /* Focus glow animation (respects reduced motion) */
   @media (prefers-reduced-motion: no-preference) {
 
-    .wp-block-aggressive-apparel-navigation :focus-visible {
+    .wp-block-aggressive-apparel-navigation :focus-visible,
+    .aa-nav__panel-portal :focus-visible {
       animation: aa-nav-focus-glow 300ms ease-out;
     }
 
@@ -272,10 +852,10 @@
     }
   }
 
-  /* High contrast mode enhancement */
   @media (forced-colors: active) {
 
-    .wp-block-aggressive-apparel-navigation :focus-visible {
+    .wp-block-aggressive-apparel-navigation :focus-visible,
+    .aa-nav__panel-portal :focus-visible {
       outline: 3px solid CanvasText;
       outline-offset: 3px;
     }
@@ -284,28 +864,52 @@
 
 /* ========================================
  * REDUCED MOTION
- * Instant state changes for vestibular safety.
+ *
+ * All indicators snap instantly, no stagger
+ * reveals, no drilldown perspective.
  * ======================================== */
 @media (prefers-reduced-motion: reduce) {
 
-  .wp-block-aggressive-apparel-navigation {
+  :root {
     --navigation-transition: 0ms;
   }
 
   /* Disable all animations and transitions */
   .wp-block-aggressive-apparel-navigation *,
   .wp-block-aggressive-apparel-navigation *::before,
-  .wp-block-aggressive-apparel-navigation *::after {
+  .wp-block-aggressive-apparel-navigation *::after,
+  .aa-nav__panel-portal *,
+  .aa-nav__panel-portal *::before,
+  .aa-nav__panel-portal *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
-  /* Disable View Transitions for navigation elements */
+  /* Indicator snaps instantly */
+  .aa-nav__indicator,
+  .aa-nav__mobile-indicator {
+    transition: none !important;
+  }
+
+  /* Stagger items appear immediately */
+  .aa-nav__panel-menu > li {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* No 3D perspective */
+  .aa-nav__panel-body {
+    perspective: none;
+  }
+
+  /* Disable View Transitions */
   @supports (view-transition-name: none) {
 
     .wp-block-aggressive-apparel-navigation,
-    .wp-block-aggressive-apparel-navigation-panel {
+    .aa-nav__panel-portal,
+    .aa-nav__panel {
       view-transition-name: none !important;
     }
   }

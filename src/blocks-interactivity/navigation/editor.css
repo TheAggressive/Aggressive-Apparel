@@ -1,10 +1,8 @@
 /**
- * Navigation Block Editor Styles
+ * Navigation Block Editor Styles (v2)
  *
- * Provides view mode switching between desktop and mobile navigation
- * for easier editing of each navigation type.
- *
- * IMPORTANT: Use direct child selectors to avoid hiding nav-menus inside panel-body.
+ * Simplified for the 3-block architecture.
+ * Desktop/mobile view switching in the editor.
  *
  * @package Aggressive_Apparel
  */
@@ -16,40 +14,32 @@
 
 /* ========================================
  * DESKTOP VIEW MODE
- * Show direct-child nav-menu, hide panel and toggle.
+ * Show nav-links and nav-submenus as horizontal menubar.
  * ======================================== */
+.wp-block-aggressive-apparel-navigation--view-desktop {
 
-/* Show the main desktop nav-menu (direct child of navigation's inner blocks) */
-.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks .wp-block-aggressive-apparel-nav-menu:not(.wp-block-aggressive-apparel-panel-body .wp-block-aggressive-apparel-nav-menu) {
-  display: flex;
-}
-
-/* Hide menu-toggle and navigation-panel in desktop view */
-.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-menu-toggle,
-.wp-block-aggressive-apparel-navigation--view-desktop > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-navigation-panel {
-  display: none !important;
+  & > .block-editor-inner-blocks > .block-editor-block-list__layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wp--preset--spacing--6, 1.5rem);
+  }
 }
 
 /* ========================================
  * MOBILE VIEW MODE
- * Show panel and toggle, hide ONLY the direct-child nav-menu.
- * Nav-menus inside panel-body must remain visible!
+ * Show nav-links and nav-submenus as vertical list.
  * ======================================== */
+.wp-block-aggressive-apparel-navigation--view-mobile {
 
-/* Show menu-toggle in mobile view */
-.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-menu-toggle {
-  display: flex;
+  & > .block-editor-inner-blocks > .block-editor-block-list__layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    max-width: min(320px, 85vw);
+    border: 1px dashed rgb(0 0 0 / 15%);
+    border-radius: 4px;
+    padding: var(--wp--preset--spacing--4, 1rem);
+  }
 }
-
-/* Show navigation-panel in mobile view */
-.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-navigation-panel {
-  display: block;
-}
-
-/* Hide ONLY the main desktop nav-menu (direct child), NOT the one inside panel-body */
-.wp-block-aggressive-apparel-navigation--view-mobile > .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block-aggressive-apparel-nav-menu {
-  display: none !important;
-}
-
-/* Note: Nav-menu visibility inside panel-body is handled by panel-body/editor.css */
-

@@ -182,7 +182,11 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation context includes accessibility-related state.
+     * Test navigation context includes accessibility-related config.
+     *
+     * Mutable state (isOpen, isMobile, activeSubmenuId, drillStack) has been
+     * moved to state._panels[navId] so both the <nav> and the portaled panel
+     * share reactive state. Context now only holds immutable config.
      */
     public function test_context_accessibility_state(): void {
         $block_content = render_block([
@@ -190,18 +194,18 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
             'attrs' => [],
         ]);
 
-        // Context should include isOpen state (important for screen readers)
+        // Context should include navId for ARIA relationships
         $this->assertStringContainsString(
-            '&quot;isOpen&quot;:false',
+            '&quot;navId&quot;',
             $block_content,
-            'Context should include isOpen state'
+            'Context should include navId'
         );
 
-        // Context should include activeSubmenuId for tracking focus
+        // aria-expanded is bound via state.isOpen (store-level, not context)
         $this->assertStringContainsString(
-            '&quot;activeSubmenuId&quot;:null',
+            'data-wp-bind--aria-expanded="state.isOpen"',
             $block_content,
-            'Context should include activeSubmenuId'
+            'Toggle should bind aria-expanded to state.isOpen'
         );
     }
 

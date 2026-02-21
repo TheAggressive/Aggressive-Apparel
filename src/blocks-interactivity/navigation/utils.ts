@@ -496,6 +496,118 @@ export function clearHoverTimeouts(hoverIntent: HoverIntentState): void {
 }
 
 // ============================================================================
+// Mega-Content Focus & Inert Management
+// ============================================================================
+
+/**
+ * Update inert state when a mega-content overlay is active on mobile.
+ *
+ * The overlay covers the panel with position:fixed but items behind it
+ * remain keyboard-focusable. This function inerts everything outside the
+ * active overlay (panel header, sibling menu items, and the trigger inside
+ * the active item) so the focus trap only cycles through overlay content.
+ *
+ * @param panel - The navigation panel element
+ * @param activeSubmenuId - The submenu panel ID that is open, or null to clear
+ */
+export function updateMegaContentInertState(
+  panel: HTMLElement,
+  activeSubmenuId: string | null
+): void {
+  if (!('inert' in HTMLElement.prototype)) {
+    return;
+  }
+
+  const panelHeader = safeQuerySelector<HTMLElement>(
+    panel,
+    '.aa-nav__panel-header',
+    false
+  );
+  const menuItems = safeQuerySelectorAll<HTMLElement>(
+    panel,
+    '.aa-nav__panel-menu > li'
+  );
+
+  if (!activeSubmenuId) {
+    // Clear all inert state.
+    if (panelHeader) {
+      panelHeader.inert = false;
+    }
+    menuItems.forEach(li => {
+      li.inert = false;
+      const trigger = safeQuerySelector<HTMLElement>(
+        li,
+        '.wp-block-aggressive-apparel-nav-submenu__trigger',
+        false
+      );
+      if (trigger) {
+        trigger.inert = false;
+      }
+    });
+    return;
+  }
+
+  // Find the <li> that contains the active overlay panel.
+  const activePanel = safeGetElementById(activeSubmenuId, false);
+  if (!activePanel) {
+    return;
+  }
+  const activeLi = activePanel.closest(
+    '.aa-nav__panel-menu > li'
+  ) as HTMLElement | null;
+  if (!activeLi) {
+    return;
+  }
+
+  // Inert the panel header (close button).
+  if (panelHeader) {
+    panelHeader.inert = true;
+  }
+
+  // Inert sibling items completely; inert only the trigger inside the
+  // active item (the overlay panel must stay interactive).
+  menuItems.forEach(li => {
+    if (li === activeLi) {
+      const trigger = safeQuerySelector<HTMLElement>(
+        li,
+        '.wp-block-aggressive-apparel-nav-submenu__trigger',
+        false
+      );
+      if (trigger) {
+        trigger.inert = true;
+      }
+    } else {
+      li.inert = true;
+    }
+  });
+}
+
+/**
+ * Move focus into a mega-content overlay panel (targets the back button).
+ * Uses double-rAF to ensure the CSS transition has started and the panel
+ * is visible before focusing.
+ *
+ * @param submenuId - The ID of the submenu panel element
+ */
+export function focusMegaContentPanel(submenuId: string): void {
+  const panel = safeGetElementById(submenuId, false);
+  if (!panel) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const firstFocusable = safeQuerySelector<HTMLElement>(
+        panel,
+        FOCUSABLE_SELECTOR,
+        false
+      );
+      firstFocusable?.focus();
+    });
+  });
+}
+
+// ============================================================================
 // Drilldown Focus Management
 // ============================================================================
 

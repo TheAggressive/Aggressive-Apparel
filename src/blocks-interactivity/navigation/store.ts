@@ -34,6 +34,7 @@ import {
   createHoverIntent,
   focusDrilldownPanel,
   focusDrilldownTrigger,
+  focusMegaContentPanel,
   focusMenuItem,
   generateNavId,
   getTransitionDuration,
@@ -50,6 +51,7 @@ import {
   setPanelVisibility,
   setupFocusTrap,
   updateDrilldownInertState,
+  updateMegaContentInertState,
   type HoverIntentState,
 } from './utils';
 
@@ -217,8 +219,9 @@ function closePanelWithCleanup(navId: string, panel: HTMLElement): void {
     }
   }
 
-  // Reset drilldown panels.
+  // Reset drilldown and mega-content inert state.
   updateDrilldownInertState(panel, []);
+  updateMegaContentInertState(panel, null);
 
   // Clean up CSS variable after transition.
   setTimeout(() => {
@@ -440,9 +443,31 @@ const navigationStore = store('aggressive-apparel/navigation', {
         }
 
         const ns = getNavState(context.navId);
+        const closingSubmenuId = ns.activeSubmenuId;
+
         clearHoverTimeouts(hoverIntent);
         resetIndicatorOnClose(context.navId);
         ns.activeSubmenuId = null;
+
+        // Mobile: restore inert and return focus to the trigger.
+        if (ns.isMobile && closingSubmenuId) {
+          const navPanel = findPanel(context.navId);
+          if (navPanel) {
+            updateMegaContentInertState(navPanel, null);
+
+            // Focus the trigger that opened this submenu.
+            const trigger = safeQuerySelector<HTMLElement>(
+              navPanel,
+              `[aria-controls="${CSS.escape(closingSubmenuId)}"]`,
+              false
+            );
+            requestAnimationFrame(() => {
+              trigger?.focus();
+            });
+          }
+        }
+
+        announce('Submenu closed', { navId: context.navId });
       } catch (error) {
         logError('closeSubmenu: Failed to close submenu', error);
       }
@@ -454,7 +479,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     toggleSubmenu: withSyncEvent((event?: Event): void => {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & { submenuId?: string; menuType?: string }
         >();
         if (!context) {
           return;
@@ -475,9 +500,29 @@ const navigationStore = store('aggressive-apparel/navigation', {
           expandIndicatorForSubmenu(context.navId, context.submenuId);
         }
 
-        // In mobile mode, the accordion reflow shifts items vertically.
-        // Track the indicator via rAF so it follows the focused trigger.
         if (ns.isMobile) {
+          // Mega-content overlays: manage inert state and focus.
+          // Only mega submenus open as full-screen overlays — dropdown-
+          // turned-drilldown items are inline accordions that must NOT
+          // inert siblings (the mobile clone rewrites the class/context
+          // but not the click handler, so both types call toggleSubmenu).
+          if (context.menuType === 'mega') {
+            const navPanel = findPanel(context.navId);
+            if (navPanel) {
+              if (wasOpen) {
+                // Closing: restore inert state so all items are reachable.
+                updateMegaContentInertState(navPanel, null);
+              } else if (context.submenuId) {
+                // Opening: inert everything outside the overlay and move
+                // focus to the back button inside the overlay panel.
+                updateMegaContentInertState(navPanel, context.submenuId);
+                focusMegaContentPanel(context.submenuId);
+              }
+            }
+          }
+
+          // Track the indicator via rAF so it follows the focused trigger
+          // through accordion reflows that shift items vertically.
           mobileIndicatorRegistry.get(context.navId)?.trackFocused();
         }
 
@@ -1026,7 +1071,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
           actions.drillBack();
         } else if (ns.activeSubmenuId) {
           actions.closeSubmenu();
-          announce('Submenu closed', { navId: context.navId });
         } else if (ns.isOpen) {
           actions.close();
         }
@@ -1125,7 +1169,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
               );
             } else if (isInSubmenu) {
               navigationStore.actions.closeSubmenu();
-              announce('Submenu closed', { navId: context.navId });
               const parentSubmenu = submenuPanel?.closest(SELECTORS.navSubmenu);
               if (parentSubmenu) {
                 const trigger = safeQuerySelector<HTMLElement>(

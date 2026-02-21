@@ -826,8 +826,6 @@
    * escapes to .aa-nav__panel (the next ancestor with transform).
    * ======================================== */
 
-  /* Disable stagger animation — transform on <li> creates a containing
-     block that traps position: fixed descendants inside the <li> box. */
   &.wp-block-aggressive-apparel-nav-submenu--mega-content {
     opacity: 1 !important;
     transform: none !important;
@@ -838,13 +836,9 @@
     position: fixed;
     inset: 0;
     z-index: 10;
-    width: 100%;
-    height: 100%;
     display: flex !important;
     flex-direction: column;
-    grid-template-rows: none;
-    overflow: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
     background: var(--panel-bg, #141414);
     color: var(--panel-color, #e0e0e0);
     border-radius: 0;

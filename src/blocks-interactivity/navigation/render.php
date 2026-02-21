@@ -245,7 +245,7 @@ $close_button_html = sprintf(
 );
 
 // Auto-sync: clone desktop menu items for mobile panel.
-// Transform dropdown/mega → drilldown for mobile.
+// Dropdown → drilldown accordion, mega → full-screen overlay.
 // Prefix IDs with "mobile-" to avoid duplicate DOM IDs.
 $mobile_menu_html = $menu_items_html;
 if ( ! empty( $mobile_menu_html ) ) {

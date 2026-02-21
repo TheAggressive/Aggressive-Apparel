@@ -493,6 +493,23 @@
   pointer-events: auto;
 }
 
+/* Responsive panel width:
+   - Small screens (phones): full viewport width
+   - Medium screens (tablets): 80% viewport width */
+@media (width < 768px) {
+
+  .aa-nav__panel {
+    width: 100% !important;
+  }
+}
+
+@media (768px <= width < 1024px) {
+
+  .aa-nav__panel {
+    width: 60vw !important;
+  }
+}
+
 /* Push/reveal body animation */
 .has-navigation-panel-open--push-right .wp-site-blocks,
 .has-navigation-panel-open--reveal-right .wp-site-blocks {
@@ -541,7 +558,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+  overflow: clip auto;
 }
 
 /* Panel header */
@@ -792,6 +809,91 @@
     &:focus {
       color: #e0e0e0;
     }
+  }
+
+  /* ========================================
+   * MEGA-CONTENT OVERLAY
+   *
+   * Mega menus on mobile open as a full-screen slide-in
+   * overlay instead of an inline accordion. Preserves the
+   * rich inner block content (columns, images, headings)
+   * in a scrollable single-column layout.
+   *
+   * CRITICAL: The stagger animation sets transform: translateY(0)
+   * on <li> items, which creates a CSS containing block. This traps
+   * position: fixed descendants inside the tiny <li> box. We must
+   * disable the stagger on mega-content items so position: fixed
+   * escapes to .aa-nav__panel (the next ancestor with transform).
+   * ======================================== */
+
+  /* Disable stagger animation — transform on <li> creates a containing
+     block that traps position: fixed descendants inside the <li> box. */
+  &.wp-block-aggressive-apparel-nav-submenu--mega-content {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  &.wp-block-aggressive-apparel-nav-submenu--mega-content .wp-block-aggressive-apparel-nav-submenu__panel {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column;
+    grid-template-rows: none;
+    overflow: hidden;
+    overflow-y: auto;
+    background: var(--panel-bg, #141414);
+    color: var(--panel-color, #e0e0e0);
+    border-radius: 0;
+    box-shadow: none;
+    clip-path: none;
+    backdrop-filter: none;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(100%);
+    transition: transform var(--aa-nav-transition);
+    pointer-events: none;
+
+    &[hidden] {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      transform: translateX(100%);
+    }
+  }
+
+  &.wp-block-aggressive-apparel-nav-submenu--mega-content.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
+    transform: translateX(0);
+    pointer-events: auto;
+
+    &[hidden] {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+  }
+
+  /* Show back button header for mega-content overlays. */
+  &.wp-block-aggressive-apparel-nav-submenu--mega-content .wp-block-aggressive-apparel-nav-submenu__drilldown-header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--panel-bg, #141414);
+    border-bottom: 1px solid rgb(255 255 255 / 6%);
+  }
+
+  /* Scrollable content area with single-column layout. */
+  &.wp-block-aggressive-apparel-nav-submenu--mega-content .wp-block-aggressive-apparel-nav-submenu__panel-inner {
+    flex: 1;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    padding: var(--wp--preset--spacing--4, 1rem);
+    background: transparent;
+    border-top: none;
   }
 }
 

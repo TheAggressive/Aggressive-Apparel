@@ -249,12 +249,18 @@ $close_button_html = sprintf(
 // Prefix IDs with "mobile-" to avoid duplicate DOM IDs.
 $mobile_menu_html = $menu_items_html;
 if ( ! empty( $mobile_menu_html ) ) {
+	// Dropdown → drilldown (accordion).
 	$mobile_menu_html = str_replace(
-		array(
-			'wp-block-aggressive-apparel-nav-submenu--dropdown',
-			'wp-block-aggressive-apparel-nav-submenu--mega',
-		),
+		'wp-block-aggressive-apparel-nav-submenu--dropdown',
 		'wp-block-aggressive-apparel-nav-submenu--drilldown',
+		$mobile_menu_html
+	);
+
+	// Mega → mega-content (full-screen overlay preserving rich inner blocks).
+	// NOT drilldown — avoids accordion CSS (grid-template-rows) and inert conflicts.
+	$mobile_menu_html = str_replace(
+		'wp-block-aggressive-apparel-nav-submenu--mega',
+		'wp-block-aggressive-apparel-nav-submenu--mega-content',
 		$mobile_menu_html
 	);
 
@@ -288,9 +294,9 @@ if ( ! empty( $mobile_menu_html ) ) {
 		$mobile_menu_html
 	);
 
-	// Fix context values: dropdown/mega → drilldown, hover → click.
+	// Fix context values: dropdown → drilldown (mega keeps its type), hover → click.
 	$mobile_menu_html = preg_replace(
-		'/"menuType"\s*:\s*"(?:dropdown|mega)"/',
+		'/"menuType"\s*:\s*"dropdown"/',
 		'"menuType":"drilldown"',
 		$mobile_menu_html
 	);

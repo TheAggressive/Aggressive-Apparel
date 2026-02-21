@@ -140,12 +140,16 @@ function expandIndicatorForSubmenu(navId: string, submenuId: string): void {
   if (!panel) return;
 
   // Position mega menu panels to span the full viewport width.
+  // Uses clientWidth instead of 100vw to exclude scrollbar width
+  // and prevent horizontal overflow.
   const megaSubmenu = panel.closest(
     `.${SELECTORS.submenuMega}`
   ) as HTMLElement | null;
   if (megaSubmenu) {
     const liRect = megaSubmenu.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth;
     panel.style.setProperty('--mega-panel-left', `${-liRect.left}px`);
+    panel.style.setProperty('--mega-panel-width', `${viewportWidth}px`);
   }
 
   const inst = indicatorRegistry.get(navId);
@@ -797,8 +801,19 @@ const navigationStore = store('aggressive-apparel/navigation', {
             }
           });
 
-          // Update on window resize.
-          window.addEventListener('resize', reset, { passive: true });
+          // Update on window resize: reset indicator and recalculate
+          // mega panel width if a mega submenu is open.
+          const onResize = () => {
+            reset();
+            const navState = getNavState(context.navId);
+            if (navState.activeSubmenuId) {
+              expandIndicatorForSubmenu(
+                context.navId,
+                navState.activeSubmenuId
+              );
+            }
+          };
+          window.addEventListener('resize', onResize, { passive: true });
         }
       } catch (error) {
         logError('init: Failed to initialize navigation', error);

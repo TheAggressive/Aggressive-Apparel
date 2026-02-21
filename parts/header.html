@@ -1,10 +1,41 @@
 <!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--4);padding-bottom:var(--wp--preset--spacing--4)">
-	<!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover","panelPosition":"right","showPanelOverlay":true} -->
+	<!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover","panelPosition":"right","showPanelOverlay":true,"toggleAnimationType":"spin"} -->
 	<!-- wp:site-logo {"width":120} /-->
 	<!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-	<!-- wp:aggressive-apparel/nav-link {"label":"Shop","url":"/shop"} /-->
-	<!-- wp:aggressive-apparel/nav-link {"label":"About","url":"/about"} /-->
+	<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"mega","showArrow":true,"megaFullWidth":true,"megaLayout":"columns"} -->
+	<!-- wp:columns {"isStackedOnMobile":true} -->
+	<!-- wp:column -->
+	<!-- wp:heading {"level":4} -->
+	<h4>Men</h4>
+	<!-- /wp:heading -->
+	<!-- wp:aggressive-apparel/nav-link {"label":"T-Shirts","url":"/shop/men/t-shirts"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Hoodies","url":"/shop/men/hoodies"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Pants","url":"/shop/men/pants"} /-->
+	<!-- /wp:column -->
+	<!-- wp:column -->
+	<!-- wp:heading {"level":4} -->
+	<h4>Women</h4>
+	<!-- /wp:heading -->
+	<!-- wp:aggressive-apparel/nav-link {"label":"T-Shirts","url":"/shop/women/t-shirts"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Hoodies","url":"/shop/women/hoodies"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Leggings","url":"/shop/women/leggings"} /-->
+	<!-- /wp:column -->
+	<!-- wp:column -->
+	<!-- wp:heading {"level":4} -->
+	<h4>Collections</h4>
+	<!-- /wp:heading -->
+	<!-- wp:aggressive-apparel/nav-link {"label":"New Arrivals","url":"/collections/new"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Best Sellers","url":"/collections/best-sellers"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Sale","url":"/collections/sale"} /-->
+	<!-- /wp:column -->
+	<!-- /wp:columns -->
+	<!-- /wp:aggressive-apparel/nav-submenu -->
+	<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"dropdown","showArrow":true} -->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Sustainability","url":"/sustainability"} /-->
+	<!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers"} /-->
+	<!-- /wp:aggressive-apparel/nav-submenu -->
 	<!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 	<!-- /wp:aggressive-apparel/navigation -->
 </div>

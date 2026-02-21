@@ -150,12 +150,14 @@ $has_url = ! empty( $url );
 $panel_visibility_binding = 'drilldown' === $menu_type ? 'callbacks.isCurrentDrillLevel' : 'callbacks.isSubmenuOpen';
 
 // Drilldown header - shows back button and current level title.
-// Only rendered for drilldown menu type.
-// The entire header is a button for better touch target / UX.
+// Rendered for drilldown and mega types. Mega menus use the header
+// on mobile (full-screen overlay with back button); hidden on desktop via CSS.
+// Drilldown uses drillBack (drillStack), mega uses closeSubmenu (activeSubmenuId).
 $drilldown_header = '';
-if ( 'drilldown' === $menu_type ) {
+if ( 'drilldown' === $menu_type || 'mega' === $menu_type ) {
+	$header_action    = 'drilldown' === $menu_type ? 'actions.drillBack' : 'actions.closeSubmenu';
 	$drilldown_header = sprintf(
-		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__drilldown-header" aria-label="%s" data-wp-on--click="actions.drillBack">
+		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__drilldown-header" aria-label="%s" data-wp-on--click="%s">
 			<span class="wp-block-aggressive-apparel-nav-submenu__back" aria-hidden="true">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M15 18l-6-6 6-6"/>
@@ -164,6 +166,7 @@ if ( 'drilldown' === $menu_type ) {
 			<span class="wp-block-aggressive-apparel-nav-submenu__drilldown-title">%s</span>
 		</button>',
 		esc_attr__( 'Go back', 'aggressive-apparel' ),
+		esc_attr( $header_action ),
 		esc_html( $label )
 	);
 }

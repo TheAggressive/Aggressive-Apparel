@@ -502,7 +502,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
               }
             }
           }
-
         }
 
         if (wasOpen) {

@@ -139,19 +139,19 @@
 
   /* ========================================
    * MEGA MENU TYPE
+   *
+   * Full-viewport-width panel. JS sets --mega-panel-left
+   * to the negative of the <li>'s viewport offset so the
+   * panel starts at the left edge of the viewport.
    * ======================================== */
   &--mega &__panel {
-
-    /* Use left:0 as base, let container width determine positioning */
-    left: 0;
+    top: calc(100% + 5px);
+    left: var(--mega-panel-left, 0);
     right: auto;
-    width: max-content;
-    max-width: min(1200px, calc(100vw - 2rem));
-
-    /* Prevent overflow off viewport edges */
-    @supports (inset-inline-start: 0) {
-      inset-inline-start: max(1rem, calc(50% - 600px));
-    }
+    transform: none;
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 0;
   }
 
   &--mega.is-open &__panel,

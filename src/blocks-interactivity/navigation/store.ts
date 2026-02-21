@@ -126,16 +126,30 @@ const indicatorRegistry = new Map<string, IndicatorInstance>();
 
 /**
  * Widen the indicator to match the submenu panel when it opens.
+ * Works for both dropdown and mega menu panels — the indicator
+ * stretches to match the panel's rendered width.
+ *
+ * For mega menus, also positions the panel at the viewport's left
+ * edge by setting --mega-panel-left on the panel element.
  */
 function expandIndicatorForSubmenu(navId: string, submenuId: string): void {
   const ns = getNavState(navId);
   if (ns.isMobile) return;
 
-  const inst = indicatorRegistry.get(navId);
-  if (!inst) return;
-
   const panel = document.getElementById(submenuId) as HTMLElement | null;
   if (!panel) return;
+
+  // Position mega menu panels to span the full viewport width.
+  const megaSubmenu = panel.closest(
+    `.${SELECTORS.submenuMega}`
+  ) as HTMLElement | null;
+  if (megaSubmenu) {
+    const liRect = megaSubmenu.getBoundingClientRect();
+    panel.style.setProperty('--mega-panel-left', `${-liRect.left}px`);
+  }
+
+  const inst = indicatorRegistry.get(navId);
+  if (!inst) return;
 
   // Measure after the browser has laid out the .is-open panel.
   requestAnimationFrame(() => {

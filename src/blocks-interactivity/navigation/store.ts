@@ -70,6 +70,18 @@ interface MediaQueryRegistryEntry {
 }
 const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
 
+// Mobile indicator helpers: registered by initPanel, called by openPanelWithSetup
+// and toggleSubmenu.
+interface MobileIndicatorInstance {
+  /** Position indicator on .is-current item (no transition). */
+  seedCurrent: () => void;
+  /** Track the currently-focused item through accordion reflows (rAF loop). */
+  trackFocused: () => void;
+  /** Hide indicator. */
+  reset: () => void;
+}
+const mobileIndicatorRegistry = new Map<string, MobileIndicatorInstance>();
+
 // ============================================================================
 // Nav State Helper
 // ============================================================================
@@ -102,10 +114,10 @@ function getNavState(navId: string): PanelState {
 interface IndicatorInstance {
   menubar: HTMLElement;
   indicator: HTMLElement;
-  /** Move indicator to match an item's bounds. */
+  /** Move indicator underline to match an item's bounds. */
   updateToItem: (item: HTMLElement) => void;
-  /** Expand indicator to match a submenu panel's bounds. */
-  expandToPanel: (panel: HTMLElement) => void;
+  /** Widen indicator to match a submenu panel's width. */
+  widenToPanel: (panel: HTMLElement) => void;
   /** Reset indicator to .is-current item or hide. */
   reset: () => void;
 }
@@ -113,121 +125,36 @@ interface IndicatorInstance {
 const indicatorRegistry = new Map<string, IndicatorInstance>();
 
 /**
- * Sync the sliding indicator with the active submenu.
- *
- * Opening: expands the underline to match the dropdown panel, creating a
- * visual bridge between trigger and content.
- *
- * Closing: hands the background back to the panel (removing data-indicator-bg),
- * hides the indicator, and lets the panel's CSS transition fade everything.
- * After the fade, snaps the indicator back to its resting position.
+ * Widen the indicator to match the submenu panel when it opens.
  */
-function syncIndicatorWithSubmenu(
-  navId: string,
-  submenuId: string | null
-): void {
-  // Desktop-only: the mobile panel uses a separate vertical accent bar
-  // managed by initPanel's focusin/touchstart listeners. Running this on
-  // mobile would set data-indicator-bg (making panels transparent) and
-  // try to expand the hidden desktop indicator to a portaled element.
+function expandIndicatorForSubmenu(navId: string, submenuId: string): void {
   const ns = getNavState(navId);
   if (ns.isMobile) return;
 
   const inst = indicatorRegistry.get(navId);
   if (!inst) return;
 
-  if (!submenuId) {
-    // ── Submenu closing ──────────────────────────────────────────
-    // Foolproof approach: hand the background back to the panel,
-    // hide the indicator instantly, and let the panel's OWN CSS
-    // transition (opacity 1→0) fade everything out in one go.
-    // No JS timing coordination between indicator and items needed.
-
-    const nav = inst.menubar.closest('.wp-block-aggressive-apparel-navigation');
-    if (nav) {
-      // Stop stagger animation so items revert to base opacity: 0.
-      nav.querySelectorAll('.is-items-revealed').forEach(el => {
-        el.classList.remove('is-items-revealed');
-      });
-
-      // Give the panel its own background back (white, shadow, etc.)
-      // so the panel's CSS close transition fades it all as one unit.
-      nav.querySelectorAll('[data-indicator-bg]').forEach(el => {
-        el.removeAttribute('data-indicator-bg');
-      });
-    }
-
-    // Hide the indicator instantly — the panel now has its own bg,
-    // so removing the indicator causes no visual change.
-    inst.indicator.style.setProperty('--indicator-opacity', '0');
-    inst.indicator.classList.remove('is-expanded');
-    inst.indicator.classList.remove('has-accent');
-
-    // After the panel's CSS close transition finishes (~250ms),
-    // snap indicator back to its resting position without animation.
-    setTimeout(() => {
-      const ind = inst.indicator;
-      ind.style.transition = 'none';
-      ind.style.setProperty('--indicator-height', '3px');
-      ind.style.setProperty('--indicator-y', '-3px');
-      ind.style.setProperty('--indicator-radius', '1.5px');
-
-      // Position at hovered item or current-page item.
-      const hoveredLi = inst.menubar.querySelector(
-        ':scope > li:hover'
-      ) as HTMLElement | null;
-      const targetLi =
-        hoveredLi && !hoveredLi.classList.contains('aa-nav__indicator-wrap')
-          ? hoveredLi
-          : (inst.menubar.querySelector(
-              ':scope > li.is-current'
-            ) as HTMLElement | null);
-
-      if (targetLi) {
-        const menubarRect = inst.menubar.getBoundingClientRect();
-        const itemRect = targetLi.getBoundingClientRect();
-        ind.style.setProperty(
-          '--indicator-x',
-          `${itemRect.left - menubarRect.left}px`
-        );
-        ind.style.setProperty('--indicator-width', `${itemRect.width}px`);
-      }
-
-      // Re-enable transitions next frame, then fade back in if needed.
-      requestAnimationFrame(() => {
-        ind.style.removeProperty('transition');
-        if (targetLi) {
-          ind.style.setProperty('--indicator-opacity', '1');
-        }
-      });
-    }, INDICATOR_DURATION_MS);
-
-    return;
-  }
-
-  // Find the panel by its ID (submenuId is used as the panel's id attribute).
   const panel = document.getElementById(submenuId) as HTMLElement | null;
   if (!panel) return;
 
-  // Immediately strip the panel's own background/shadow so it doesn't
-  // flash white before the indicator expands to replace it.
-  panel.setAttribute('data-indicator-bg', '');
+  // Measure after the browser has laid out the .is-open panel.
+  requestAnimationFrame(() => {
+    inst.widenToPanel(panel);
+  });
+}
 
-  // Brief pause so the underline settles at the item before expanding.
-  // The indicator already slid here during the hover intent delay, so
-  // we just need a short beat before morphing into the panel shape.
-  setTimeout(() => {
-    // Guard: submenu may have closed while we waited.
-    if (!panel.closest('.wp-block-aggressive-apparel-nav-submenu.is-open'))
-      return;
+/**
+ * Reset the desktop indicator to its underline position when a submenu
+ * closes.
+ */
+function resetIndicatorOnClose(navId: string): void {
+  const ns = getNavState(navId);
+  if (ns.isMobile) return;
 
-    requestAnimationFrame(() => {
-      const panelRect = panel.getBoundingClientRect();
-      if (panelRect.width > 0) {
-        inst.expandToPanel(panel);
-      }
-    });
-  }, 100);
+  const inst = indicatorRegistry.get(navId);
+  if (!inst) return;
+
+  inst.reset();
 }
 
 // ============================================================================
@@ -280,6 +207,9 @@ function closePanelWithCleanup(navId: string, panel: HTMLElement): void {
     document.body.style.removeProperty('--push-panel-width');
   }, getTransitionDuration());
 
+  // Reset mobile indicator so it can be re-seeded on next open.
+  mobileIndicatorRegistry.get(navId)?.reset();
+
   announce('Navigation menu closed', { assertive: true, navId });
   restoreFocus(navId);
 }
@@ -326,9 +256,12 @@ function openPanelWithSetup(navId: string, panel: HTMLElement): void {
   // Initialize inert state for drilldown panels.
   updateDrilldownInertState(panel, ns.drillStack);
 
-  // Focus first focusable element in panel.
+  // Focus first focusable element and seed mobile indicator on current page.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      // Seed the indicator on .is-current before focus moves it.
+      mobileIndicatorRegistry.get(navId)?.seedCurrent();
+
       const firstFocusable = safeQuerySelector<HTMLElement>(
         panel,
         PANEL_MENU_ITEM_SELECTOR,
@@ -468,9 +401,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
         ns.activeSubmenuId = context.submenuId ?? null;
-        syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
 
         if (context.submenuId) {
+          expandIndicatorForSubmenu(context.navId, context.submenuId);
           announce('Submenu opened', { navId: context.navId });
         }
       } catch (error) {
@@ -490,9 +423,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
-        // Hide items BEFORE removing .is-open so they disappear
-        // before the panel's CSS close transition starts.
-        syncIndicatorWithSubmenu(context.navId, null);
+        resetIndicatorOnClose(context.navId);
         ns.activeSubmenuId = null;
       } catch (error) {
         logError('closeSubmenu: Failed to close submenu', error);
@@ -520,7 +451,17 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const wasOpen = ns.activeSubmenuId === context.submenuId;
         ns.activeSubmenuId = wasOpen ? null : (context.submenuId ?? null);
-        syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
+        if (wasOpen) {
+          resetIndicatorOnClose(context.navId);
+        } else if (context.submenuId) {
+          expandIndicatorForSubmenu(context.navId, context.submenuId);
+        }
+
+        // In mobile mode, the accordion reflow shifts items vertically.
+        // Track the indicator via rAF so it follows the focused trigger.
+        if (ns.isMobile) {
+          mobileIndicatorRegistry.get(context.navId)?.trackFocused();
+        }
 
         if (wasOpen) {
           announce('Submenu closed', { navId: context.navId });
@@ -641,9 +582,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
-        // Hide items BEFORE removing .is-open so they disappear
-        // before the panel's CSS close transition starts.
-        syncIndicatorWithSubmenu(context.navId, null);
+        resetIndicatorOnClose(context.navId);
         ns.activeSubmenuId = null;
       } catch (error) {
         logError('closeAllSubmenus: Failed to close submenus', error);
@@ -738,7 +677,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
         ) as HTMLElement | null;
 
         if (menubar && indicator) {
-          // Contract indicator to match a menu item (3px underline).
+          // Slide indicator underline to match a menu item.
           const updateToItem = (item: HTMLElement) => {
             const menubarRect = menubar.getBoundingClientRect();
             const itemRect = item.getBoundingClientRect();
@@ -746,86 +685,29 @@ const navigationStore = store('aggressive-apparel/navigation', {
               '--indicator-x',
               `${itemRect.left - menubarRect.left}px`
             );
-            indicator.style.setProperty('--indicator-y', '-3px');
             indicator.style.setProperty(
               '--indicator-width',
               `${itemRect.width}px`
             );
-            indicator.style.setProperty('--indicator-height', '3px');
             indicator.style.setProperty('--indicator-opacity', '1');
-            indicator.style.setProperty('--indicator-radius', '1.5px');
-            indicator.classList.remove('is-expanded');
           };
 
-          // Expand indicator to morph into the submenu panel background.
-          // Grows from a 3px line into a full rectangle matching the panel,
-          // creating the illusion that the underline becomes the dropdown.
-          const expandToPanel = (panelEl: HTMLElement) => {
+          // Widen indicator to match a submenu panel's width.
+          const widenToPanel = (panelEl: HTMLElement) => {
             const menubarRect = menubar.getBoundingClientRect();
             const panelRect = panelEl.getBoundingClientRect();
-
-            // Keep top edge aligned with the underline position (-3px from
-            // menubar bottom). Grow downward to cover the full panel.
-            const x = panelRect.left - menubarRect.left;
-            const height = panelRect.bottom - menubarRect.bottom + 3;
-
-            indicator.style.setProperty('--indicator-x', `${x}px`);
-            indicator.style.setProperty('--indicator-y', '-3px');
+            indicator.style.setProperty(
+              '--indicator-x',
+              `${panelRect.left - menubarRect.left}px`
+            );
             indicator.style.setProperty(
               '--indicator-width',
               `${panelRect.width}px`
             );
-            indicator.style.setProperty('--indicator-height', `${height}px`);
-            indicator.style.setProperty('--indicator-opacity', '1');
-            indicator.style.setProperty(
-              '--indicator-radius',
-              `0 0 ${window.getComputedStyle(panelEl).borderRadius || '8px'}`
-            );
-            indicator.classList.add('is-expanded');
-
-            // Toggle accent line based on the submenu's setting.
-            const submenuEl = panelEl.closest(
-              '.wp-block-aggressive-apparel-nav-submenu'
-            );
-            indicator.classList.toggle(
-              'has-accent',
-              !!submenuEl?.classList.contains('has-indicator-accent')
-            );
-
-            // Make the panel transparent so the indicator shows through.
-            panelEl.setAttribute('data-indicator-bg', '');
-
-            // Set stagger indices for sequential item reveal.
-            const panelInner = panelEl.querySelector(
-              '.wp-block-aggressive-apparel-nav-submenu__panel-inner'
-            ) as HTMLElement | null;
-            if (panelInner) {
-              Array.from(panelInner.children).forEach((child, i) => {
-                (child as HTMLElement).style.setProperty(
-                  '--item-index',
-                  String(i)
-                );
-              });
-            }
-
-            // After the expansion transition is nearly complete, reveal
-            // items with a stagger cascade.
-            const submenu = panelEl.closest(
-              '.wp-block-aggressive-apparel-nav-submenu'
-            );
-            if (submenu) {
-              setTimeout(() => {
-                if (submenu.classList.contains('is-open')) {
-                  submenu.classList.add('is-items-revealed');
-                }
-              }, 200);
-            }
           };
 
           // Reset to .is-current item or hide completely.
           const reset = () => {
-            indicator.classList.remove('is-expanded');
-
             const currentLi = menubar.querySelector(
               ':scope > li.is-current'
             ) as HTMLElement | null;
@@ -833,92 +715,41 @@ const navigationStore = store('aggressive-apparel/navigation', {
               updateToItem(currentLi);
             } else {
               indicator.style.setProperty('--indicator-opacity', '0');
-              indicator.style.setProperty('--indicator-height', '3px');
-              indicator.style.setProperty('--indicator-y', '-3px');
-              indicator.style.setProperty('--indicator-radius', '1.5px');
             }
           };
 
-          // Register instance so actions can expand/contract the indicator.
+          // Register instance for actions to update the indicator.
           indicatorRegistry.set(context.navId, {
             menubar,
             indicator,
             updateToItem,
-            expandToPanel,
+            widenToPanel,
             reset,
           });
 
           // Set initial position.
           reset();
 
-          // Listen for hover/focus on top-level items.
-          // Close active submenu and slide indicator from the trigger
-          // to a new (non-submenu) item. Hands the background back to
-          // the panel so its CSS transition fades content, then snaps
-          // the indicator to underline at the trigger and slides it.
+          // Close active submenu and slide indicator to the new item.
           const closeAndSlideTo = (targetLi: HTMLElement) => {
             const navState = getNavState(context.navId);
-
-            // Find the active submenu trigger <li> via the panel element.
-            const activePanel = navState.activeSubmenuId
-              ? document.getElementById(navState.activeSubmenuId)
-              : null;
-            const activeTrigger = activePanel
-              ? (activePanel.closest(
-                  '.wp-block-aggressive-apparel-nav-submenu'
-                ) as HTMLElement | null)
-              : null;
-
-            // Hand background back to panel.
-            nav.querySelectorAll('.is-items-revealed').forEach(el => {
-              el.classList.remove('is-items-revealed');
-            });
-            nav.querySelectorAll('[data-indicator-bg]').forEach(el => {
-              el.removeAttribute('data-indicator-bg');
-            });
-
-            // Snap indicator to underline at the trigger position (no transition).
-            indicator.style.transition = 'none';
-            indicator.classList.remove('is-expanded');
-            indicator.classList.remove('has-accent');
-            indicator.style.setProperty('--indicator-height', '3px');
-            indicator.style.setProperty('--indicator-y', '-3px');
-            indicator.style.setProperty('--indicator-radius', '1.5px');
-            indicator.style.setProperty('--indicator-opacity', '1');
-
-            if (activeTrigger) {
-              const mbRect = menubar.getBoundingClientRect();
-              const triggerRect = activeTrigger.getBoundingClientRect();
-              indicator.style.setProperty(
-                '--indicator-x',
-                `${triggerRect.left - mbRect.left}px`
-              );
-              indicator.style.setProperty(
-                '--indicator-width',
-                `${triggerRect.width}px`
-              );
-            }
-
-            // Force reflow so the snap is committed before we animate.
-            void indicator.offsetHeight;
-
-            // Re-enable transitions and slide to the new item.
-            indicator.style.removeProperty('transition');
-            const mbRect = menubar.getBoundingClientRect();
-            const targetRect = targetLi.getBoundingClientRect();
-            indicator.style.setProperty(
-              '--indicator-x',
-              `${targetRect.left - mbRect.left}px`
-            );
-            indicator.style.setProperty(
-              '--indicator-width',
-              `${targetRect.width}px`
-            );
-
-            // Close the submenu (reactive — removes .is-open).
             navState.activeSubmenuId = null;
             hoverIntent.activeId = null;
             clearHoverTimeouts(hoverIntent);
+            updateToItem(targetLi);
+          };
+
+          // Shared handler for mouseenter/focusin on top-level items.
+          const handleItemEnter = (li: HTMLElement) => {
+            const navState = getNavState(context.navId);
+            if (
+              navState.activeSubmenuId &&
+              !li.classList.contains('wp-block-aggressive-apparel-nav-submenu')
+            ) {
+              closeAndSlideTo(li);
+              return;
+            }
+            updateToItem(li);
           };
 
           const topLevelItems = menubar.querySelectorAll(':scope > li');
@@ -927,32 +758,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
             if (!link || li.classList.contains('aa-nav__indicator-wrap'))
               return;
 
-            li.addEventListener('mouseenter', () => {
-              const navState = getNavState(context.navId);
-              if (
-                navState.activeSubmenuId &&
-                !li.classList.contains(
-                  'wp-block-aggressive-apparel-nav-submenu'
-                )
-              ) {
-                closeAndSlideTo(li as HTMLElement);
-                return;
-              }
-              updateToItem(li as HTMLElement);
-            });
-            li.addEventListener('focusin', () => {
-              const navState = getNavState(context.navId);
-              if (
-                navState.activeSubmenuId &&
-                !li.classList.contains(
-                  'wp-block-aggressive-apparel-nav-submenu'
-                )
-              ) {
-                closeAndSlideTo(li as HTMLElement);
-                return;
-              }
-              updateToItem(li as HTMLElement);
-            });
+            li.addEventListener('mouseenter', () =>
+              handleItemEnter(li as HTMLElement)
+            );
+            li.addEventListener('focusin', () =>
+              handleItemEnter(li as HTMLElement)
+            );
           });
 
           menubar.addEventListener('mouseleave', () => {
@@ -1093,10 +904,13 @@ const navigationStore = store('aggressive-apparel/navigation', {
             return null;
           };
 
+          // Focus/touch: slide indicator via CSS transitions.
+          // trackMobileIndicator (rAF loop) is reserved for accordion
+          // reflows where items shift vertically during animation.
           panelMenu.addEventListener('focusin', (e: FocusEvent) => {
             const li = findTopLevelItem(e.target as HTMLElement);
             if (li) {
-              trackMobileIndicator(li);
+              updateMobileIndicator(li);
             }
           });
 
@@ -1113,11 +927,39 @@ const navigationStore = store('aggressive-apparel/navigation', {
             (e: TouchEvent) => {
               const li = findTopLevelItem(e.target as HTMLElement);
               if (li) {
-                trackMobileIndicator(li);
+                updateMobileIndicator(li);
               }
             },
             { passive: true }
           );
+
+          // Register helpers so openPanelWithSetup can seed the indicator
+          // on the current-page item when the panel opens.
+          mobileIndicatorRegistry.set(context.navId, {
+            seedCurrent: () => {
+              const currentItem = panelMenu.querySelector(
+                `:scope > li.${SELECTORS.isCurrent}, :scope > li:has(.${SELECTORS.isCurrent})`
+              ) as HTMLElement | null;
+              if (currentItem) {
+                // Position without transition so it appears instantly.
+                mobileIndicator.style.transition = 'none';
+                updateMobileIndicator(currentItem);
+                // Force reflow, then re-enable transitions for future slides.
+                void mobileIndicator.offsetHeight;
+                mobileIndicator.style.removeProperty('transition');
+              }
+            },
+            trackFocused: () => {
+              const focused = document.activeElement as HTMLElement | null;
+              if (focused) {
+                const li = findTopLevelItem(focused);
+                if (li) {
+                  trackMobileIndicator(li);
+                }
+              }
+            },
+            reset: resetMobileIndicator,
+          });
         }
 
         // ================================================================
@@ -1370,9 +1212,33 @@ const navigationStore = store('aggressive-apparel/navigation', {
         hoverIntent.openTimeout = setTimeout(() => {
           try {
             const navState = getNavState(context.navId);
-            navState.activeSubmenuId = context.submenuId ?? null;
-            hoverIntent.activeId = context.submenuId ?? null;
-            syncIndicatorWithSubmenu(context.navId, navState.activeSubmenuId);
+            const previousId = navState.activeSubmenuId;
+
+            // If switching between submenus, close the current one first
+            // and wait for its exit animation before opening the new one.
+            if (previousId && previousId !== context.submenuId) {
+              navState.activeSubmenuId = null;
+
+              // Wait for the panel close transition before opening the new one.
+              setTimeout(() => {
+                try {
+                  const ns = getNavState(context.navId);
+                  ns.activeSubmenuId = context.submenuId ?? null;
+                  hoverIntent.activeId = context.submenuId ?? null;
+                  if (context.submenuId) {
+                    expandIndicatorForSubmenu(context.navId, context.submenuId);
+                  }
+                } catch {
+                  // Context may no longer be valid.
+                }
+              }, INDICATOR_DURATION_MS);
+            } else {
+              navState.activeSubmenuId = context.submenuId ?? null;
+              hoverIntent.activeId = context.submenuId ?? null;
+              if (context.submenuId) {
+                expandIndicatorForSubmenu(context.navId, context.submenuId);
+              }
+            }
           } catch {
             // Context may no longer be valid.
           }
@@ -1421,9 +1287,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
           try {
             const navState = getNavState(context.navId);
             if (navState.activeSubmenuId === context.submenuId) {
-              // Hide items BEFORE removing .is-open so they disappear
-              // before the panel's CSS close transition starts.
-              syncIndicatorWithSubmenu(context.navId, null);
+              resetIndicatorOnClose(context.navId);
               navState.activeSubmenuId = null;
               hoverIntent.activeId = null;
             }
@@ -1456,15 +1320,15 @@ const navigationStore = store('aggressive-apparel/navigation', {
           if (submenuId) {
             ns.activeSubmenuId = submenuId;
             hoverIntent.activeId = submenuId;
+            expandIndicatorForSubmenu(context.navId, submenuId);
           }
-          syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
           announce('Submenu opened', { navId: context.navId });
         } else {
           if (ns.activeSubmenuId === submenuId) {
+            resetIndicatorOnClose(context.navId);
             ns.activeSubmenuId = null;
             hoverIntent.activeId = null;
           }
-          syncIndicatorWithSubmenu(context.navId, ns.activeSubmenuId);
           announce('Submenu closed', { navId: context.navId });
         }
 

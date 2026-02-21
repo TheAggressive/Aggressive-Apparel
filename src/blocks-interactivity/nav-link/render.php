@@ -43,8 +43,8 @@ if ( ! $is_current && ! empty( $url ) ) {
 	}
 }
 
-// Build class list.
-$classes = array( 'wp-block-aggressive-apparel-nav-link' );
+// Build class list (base class added automatically by get_block_wrapper_attributes).
+$classes = array();
 if ( $is_current ) {
 	$classes[] = 'is-current';
 }

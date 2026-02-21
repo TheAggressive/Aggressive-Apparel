@@ -279,6 +279,26 @@ if ( ! empty( $mobile_menu_html ) ) {
 		'aria-controls="mobile-$1"',
 		$mobile_menu_html
 	);
+
+	// Strip desktop hover event bindings — on mobile, focusout triggers
+	// onHoverLeave which closes the accordion immediately after opening.
+	$mobile_menu_html = preg_replace(
+		'/ data-wp-on--(?:mouseenter|mouseleave|focusin|focusout)="[^"]*"/',
+		'',
+		$mobile_menu_html
+	);
+
+	// Fix context values: dropdown/mega → drilldown, hover → click.
+	$mobile_menu_html = preg_replace(
+		'/"menuType"\s*:\s*"(?:dropdown|mega)"/',
+		'"menuType":"drilldown"',
+		$mobile_menu_html
+	);
+	$mobile_menu_html = preg_replace(
+		'/"openOn"\s*:\s*"hover"/',
+		'"openOn":"click"',
+		$mobile_menu_html
+	);
 }
 
 // Panel content: header + body with mobile indicator.

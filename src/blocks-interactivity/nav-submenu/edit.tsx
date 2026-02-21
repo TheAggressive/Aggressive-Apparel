@@ -6,7 +6,6 @@
 
 import {
   BlockControls,
-  InnerBlocks,
   InspectorControls,
   LinkControl,
   RichText,
@@ -55,15 +54,7 @@ export default function Edit({
   isSelected,
   context,
 }: BlockEditProps<NavSubmenuAttributes> & { context: NavSubmenuContext }) {
-  const {
-    label,
-    url,
-    menuType,
-    openOn,
-    submenuId,
-    showArrow,
-    showIndicatorAccent,
-  } = attributes;
+  const { label, url, menuType, openOn, submenuId, showArrow } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -143,7 +134,6 @@ export default function Edit({
       allowedBlocks: getAllowedBlocks(),
       template: getTemplate(),
       templateLock: false,
-      renderAppender: InnerBlocks.ButtonBlockAppender,
     }
   );
 
@@ -204,15 +194,6 @@ export default function Edit({
             label={__('Show Arrow Icon', 'aggressive-apparel')}
             checked={showArrow}
             onChange={value => setAttributes({ showArrow: value })}
-          />
-          <ToggleControl
-            label={__('Show Indicator Accent', 'aggressive-apparel')}
-            help={__(
-              'Show a colored accent line at the top of the dropdown panel.',
-              'aggressive-apparel'
-            )}
-            checked={showIndicatorAccent}
-            onChange={value => setAttributes({ showIndicatorAccent: value })}
           />
         </PanelBody>
       </InspectorControls>

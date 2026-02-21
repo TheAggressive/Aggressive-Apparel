@@ -60,10 +60,6 @@
     "megaFullWidth": {
       "type": "boolean",
       "default": true
-    },
-    "showIndicatorAccent": {
-      "type": "boolean",
-      "default": true
     }
   },
   "supports": {

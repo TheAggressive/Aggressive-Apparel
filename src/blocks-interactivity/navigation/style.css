@@ -169,9 +169,8 @@
 /* ========================================
  * SLIDING INDICATOR (Desktop)
  *
- * A 3px underline that slides between menu items,
- * then morphs into the submenu panel background
- * when a dropdown opens.
+ * A 3px underline that slides between menu items
+ * and widens to match the submenu panel on open.
  *
  * Position/size controlled via CSS custom properties
  * set by JavaScript on hover/focus/submenu-open.
@@ -190,45 +189,15 @@
   width: var(--indicator-width, 0);
   transform: translateX(var(--indicator-x, 0)) translateY(var(--indicator-y, -3px));
   opacity: var(--indicator-opacity, 0);
-  z-index: 99;
+  z-index: 101;
   transition:
     transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
     width 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    height 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-radius 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
     opacity 150ms ease;
   pointer-events: none;
-  will-change: transform, width, height;
+  will-change: transform, width;
 }
 
-/* Expanded state: indicator morphs into panel background */
-.aa-nav__indicator.is-expanded {
-  background: var(--wp--preset--color--white, #fff);
-  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
-}
-
-/* Red accent line persists at the top of the expanded panel (opt-in per submenu) */
-.aa-nav__indicator.is-expanded.has-accent::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--indicator-color, var(--wp--preset--color--primary, currentColor));
-  border-radius: 1.5px 1.5px 0 0;
-  z-index: 1;
-}
-
-@supports (backdrop-filter: blur(1px)) {
-
-  .aa-nav__indicator.is-expanded {
-    background: color-mix(in srgb, var(--wp--preset--color--white, #fff) 90%, transparent);
-    backdrop-filter: blur(16px) saturate(180%);
-  }
-}
 
 /* ========================================
  * TOGGLE BUTTON (absorbed from menu-toggle)
@@ -444,7 +413,7 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: 9999;
+  z-index: 100000;
   overflow: hidden;
   width: var(--panel-width, min(320px, 85vw));
   background: var(--panel-bg, #141414);
@@ -507,9 +476,9 @@
   pointer-events: auto;
 }
 
-/* Animation: reveal */
+/* Animation: reveal — below overlay (99999) but above everything else */
 .aa-nav__panel--reveal {
-  z-index: 9998;
+  z-index: 99999;
 }
 
 .aa-nav__panel--reveal.aa-nav__panel--right {
@@ -552,7 +521,7 @@
 .aa-nav__panel-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: 99999;
   background: var(--panel-overlay-bg, rgb(0 0 0 / 50%));
   opacity: 0;
   pointer-events: none;
@@ -573,7 +542,6 @@
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Panel header */
@@ -591,8 +559,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: transparent;
   border: none;
@@ -620,8 +588,6 @@
 /* Panel body */
 .aa-nav__panel-body {
   flex: 1;
-  padding: 0.5rem 0;
-  perspective: 1200px;
 }
 
 /* Panel menu */
@@ -687,9 +653,11 @@
 
 /* Mobile touch targets */
 .aa-nav__panel-menu .wp-block-aggressive-apparel-nav-link__link {
+  width: 100%;
   min-height: 48px;
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  text-align: left;
   padding: 0.75rem 1.25rem;
   color: #e0e0e0;
   text-decoration: none;
@@ -713,6 +681,7 @@
   position: static;
   width: 100%;
 
+  /* Trigger */
   & .wp-block-aggressive-apparel-nav-submenu__trigger {
     width: 100%;
   }
@@ -723,7 +692,6 @@
     min-height: 48px;
     padding: 0.75rem 1.25rem;
     border: none;
-    border-bottom: none;
     background: none;
     color: #e0e0e0;
     font: inherit;
@@ -743,7 +711,6 @@
     }
   }
 
-  /* Arrow icon */
   & .wp-block-aggressive-apparel-nav-submenu__arrow {
     color: rgb(255 255 255 / 30%);
     transition: color var(--aa-nav-transition-fast);
@@ -754,49 +721,66 @@
     color: rgb(255 255 255 / 60%);
   }
 
-  /* Drilldown panel — recessed area */
+  /* Accordion panel — grid-template-rows: 0fr/1fr keeps children in
+     the layout tree so Chrome properly paints them on expand.
+     The --drilldown qualifier is needed for specificity against
+     nav-submenu's display: block !important on .is-open. */
   &.wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
     position: static;
     width: 100%;
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     overflow: hidden;
-    border-top: 1px solid rgb(255 255 255 / 6%);
     border-radius: 0;
-    background: rgb(0 0 0 / 40%);
-    color: #e0e0e0;
+    background: transparent;
     box-shadow: none;
     backdrop-filter: none;
     opacity: 1;
     visibility: visible;
     pointer-events: none;
     transform: none;
-    transition: max-height var(--navigation-transition);
+    transition: grid-template-rows var(--navigation-transition);
 
     &[hidden] {
-      display: block !important;
+      display: grid !important;
+      grid-template-rows: 0fr;
       opacity: 1 !important;
       visibility: visible !important;
-      max-height: 0;
       pointer-events: none;
     }
   }
 
   &.wp-block-aggressive-apparel-nav-submenu--drilldown.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
-    max-height: 2000px;
+    grid-template-rows: 1fr;
     pointer-events: auto;
 
     &[hidden] {
-      max-height: 2000px;
+      grid-template-rows: 1fr;
       pointer-events: auto;
     }
   }
 
+  /* Panel content — overflow:hidden on the grid item collapses it
+     at 0fr; background/border live here so they're fully clipped
+     when the accordion is closed. */
   & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
-    padding: 0.25rem 0;
+    overflow: hidden;
+    padding: 0;
     padding-inline-start: 1rem;
+    background: rgb(0 0 0 / 40%);
+    border-top: 1px solid rgb(255 255 255 / 6%);
   }
 
-  /* Submenu items */
+  /* Disable desktop stagger animation — mobile uses the grid
+     accordion, not indicator-based stagger reveals. */
+  & .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    opacity: 1 !important;
+    animation: none !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  /* Submenu link items */
   & .wp-block-aggressive-apparel-nav-submenu__panel-inner .wp-block-aggressive-apparel-nav-link__link {
     color: rgb(255 255 255 / 65%);
     font-size: 0.875rem;
@@ -897,11 +881,6 @@
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
-  }
-
-  /* No 3D perspective */
-  .aa-nav__panel-body {
-    perspective: none;
   }
 
   /* Disable View Transitions */

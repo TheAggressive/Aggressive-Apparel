@@ -11,13 +11,11 @@
 
 declare(strict_types=1);
 
-$label                 = $attributes['label'] ?? '';
-$url                   = $attributes['url'] ?? '';
-$menu_type             = $attributes['menuType'] ?? 'dropdown';
-$submenu_id            = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
-$show_arrow            = $attributes['showArrow'] ?? true;
-$show_indicator_accent = $attributes['showIndicatorAccent'] ?? true;
-
+$label      = $attributes['label'] ?? '';
+$url        = $attributes['url'] ?? '';
+$menu_type  = $attributes['menuType'] ?? 'dropdown';
+$submenu_id = $attributes['submenuId'] ?? wp_unique_id( 'submenu-' );
+$show_arrow = $attributes['showArrow'] ?? true;
 // Inherit from parent navigation context.
 $nav_id  = $block->context['aggressive-apparel/navigationId'] ?? '';
 $open_on = $block->context['aggressive-apparel/navigationOpenOn'] ?? ( $attributes['openOn'] ?? 'hover' );
@@ -41,15 +39,10 @@ $context = wp_json_encode(
 	JSON_HEX_TAG | JSON_HEX_AMP
 );
 
-// Build class list.
+// Build class list (base class added automatically by get_block_wrapper_attributes).
 $classes = array(
-	'wp-block-aggressive-apparel-nav-submenu',
 	'wp-block-aggressive-apparel-nav-submenu--' . sanitize_html_class( $menu_type ),
 );
-
-if ( $show_indicator_accent ) {
-	$classes[] = 'has-indicator-accent';
-}
 
 // Determine hover/click bindings.
 // Drill-down uses drillInto action on click (handled on trigger).

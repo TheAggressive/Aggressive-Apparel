@@ -67,11 +67,17 @@
     display: none;
   }
 
-  /* Show panel when submenu or any child within is selected */
+  /* Show panel when submenu or any child within is selected.
+     Override front-end clip-path/visibility/pointer-events that
+     also load in the editor and would otherwise keep the panel
+     invisible and unclickable. */
   &.is-selected &__panel,
   &:has(.is-selected) &__panel,
   &:focus-within &__panel {
     display: block;
+    clip-path: none;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   &__panel-inner {

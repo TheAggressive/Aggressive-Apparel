@@ -121,11 +121,6 @@ export const HOVER_INTENT = {
   },
 } as const;
 
-/**
- * Announcement clear delay for screen readers (ms).
- */
-export const ANNOUNCEMENT_CLEAR_DELAY = 5000;
-
 // ============================================================================
 // Body Classes
 // ============================================================================
@@ -186,11 +181,6 @@ export const ARROW_KEYS = [
  */
 export const DEFAULT_BREAKPOINT = 1024;
 
-/**
- * Default panel width.
- */
-export const DEFAULT_PANEL_WIDTH = 'min(320px, 85vw)';
-
 // ============================================================================
 // ID Generation
 // ============================================================================
@@ -206,19 +196,7 @@ export const ID_PREFIXES = {
 } as const;
 
 // ============================================================================
-// Custom Events
-// ============================================================================
-
-/**
- * Custom event names for navigation state sync.
- */
-export const EVENTS = {
-  stateChange: 'aa-nav-state-change',
-} as const;
-
-// ============================================================================
 // Type Exports
 // ============================================================================
 
 export type BodyClassKey = keyof typeof BODY_CLASSES;
-export type SelectorKey = keyof typeof SELECTORS;

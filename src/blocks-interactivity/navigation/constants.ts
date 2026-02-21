@@ -44,7 +44,6 @@ export const SELECTORS = {
   panelMenu: '.aa-nav__panel-menu',
   panelOverlay: '.aa-nav__panel-overlay',
   panelClose: '.aa-nav__panel-close',
-  mobileIndicator: '.aa-nav__mobile-indicator',
 
   // Drilldown
   drilldownHeader: '.wp-block-aggressive-apparel-nav-submenu__drilldown-header',

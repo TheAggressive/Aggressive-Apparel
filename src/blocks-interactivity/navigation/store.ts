@@ -72,20 +72,6 @@ interface MediaQueryRegistryEntry {
 }
 const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
 
-// Mobile indicator helpers: registered by initPanel, called by openPanelWithSetup
-// and toggleSubmenu.
-interface MobileIndicatorInstance {
-  /** Position indicator on .is-current item (no transition). */
-  seedCurrent: () => void;
-  /** Track the currently-focused item through accordion reflows (rAF loop). */
-  trackFocused: () => void;
-  /** Track a specific <li> through accordion reflows (rAF loop). */
-  trackItem: (li: HTMLElement) => void;
-  /** Hide indicator. */
-  reset: () => void;
-}
-const mobileIndicatorRegistry = new Map<string, MobileIndicatorInstance>();
-
 // ============================================================================
 // Nav State Helper
 // ============================================================================
@@ -230,9 +216,6 @@ function closePanelWithCleanup(navId: string, panel: HTMLElement): void {
     document.body.style.removeProperty('--push-panel-width');
   }, getTransitionDuration());
 
-  // Reset mobile indicator so it can be re-seeded on next open.
-  mobileIndicatorRegistry.get(navId)?.reset();
-
   announce('Navigation menu closed', { assertive: true, navId });
   restoreFocus(navId);
 }
@@ -279,12 +262,9 @@ function openPanelWithSetup(navId: string, panel: HTMLElement): void {
   // Initialize inert state for drilldown panels.
   updateDrilldownInertState(panel, ns.drillStack);
 
-  // Focus first focusable element and seed mobile indicator on current page.
+  // Focus first focusable element after panel animation starts.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // Seed the indicator on .is-current before focus moves it.
-      mobileIndicatorRegistry.get(navId)?.seedCurrent();
-
       const firstFocusable = safeQuerySelector<HTMLElement>(
         panel,
         PANEL_MENU_ITEM_SELECTOR,
@@ -523,20 +503,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
             }
           }
 
-          // Track the indicator to the clicked item through accordion
-          // reflows that shift items vertically. Prefer event.target over
-          // document.activeElement — on touch devices activeElement may not
-          // have updated yet when this runs synchronously.
-          const eventTarget = event?.target as HTMLElement | null;
-          const targetLi = eventTarget?.closest(
-            '.aa-nav__panel-menu > li'
-          ) as HTMLElement | null;
-          const indicator = mobileIndicatorRegistry.get(context.navId);
-          if (targetLi && indicator) {
-            indicator.trackItem(targetLi);
-          } else {
-            indicator?.trackFocused();
-          }
         }
 
         if (wasOpen) {
@@ -880,7 +846,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
     /**
      * Initialize panel (runs on the portal wrapper element).
-     * Sets up mobile indicator and stagger indices.
+     * Sets up stagger indices for menu items.
      */
     initPanel(): void {
       try {
@@ -892,172 +858,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const panel = findPanel(context.navId);
         if (!panel) {
           return;
-        }
-
-        // ================================================================
-        // Mobile Vertical Accent Bar
-        // ================================================================
-        const panelMenu = panel.querySelector(
-          SELECTORS.panelMenu
-        ) as HTMLElement | null;
-        const mobileIndicator = panel.querySelector(
-          SELECTORS.mobileIndicator
-        ) as HTMLElement | null;
-
-        if (panelMenu && mobileIndicator) {
-          const TRIGGER_SELECTOR =
-            '.wp-block-aggressive-apparel-nav-submenu__link, .wp-block-aggressive-apparel-nav-link__link';
-
-          const updateMobileIndicator = (topLevelLi: HTMLElement) => {
-            // Measure the trigger link/button, not the full <li>. For submenus
-            // the <li> grows when the accordion expands — the indicator should
-            // stay at the trigger's fixed height (44px), not stretch.
-            const trigger = topLevelLi.querySelector(
-              TRIGGER_SELECTOR
-            ) as HTMLElement | null;
-            const target = trigger || topLevelLi;
-            const menuRect = panelMenu.getBoundingClientRect();
-            const itemRect = target.getBoundingClientRect();
-            mobileIndicator.style.setProperty(
-              '--mobile-indicator-y',
-              `${itemRect.top - menuRect.top}px`
-            );
-            mobileIndicator.style.setProperty(
-              '--mobile-indicator-height',
-              `${itemRect.height}px`
-            );
-            mobileIndicator.style.setProperty(
-              '--mobile-indicator-opacity',
-              '1'
-            );
-          };
-
-          // Track the indicator through accordion transitions.
-          // When toggling submenus, the collapsing accordion shifts items
-          // vertically over ~250ms. Recalculate each frame so the indicator
-          // follows the target smoothly instead of jumping to a stale position.
-          let trackingRAF: number | null = null;
-
-          const trackMobileIndicator = (topLevelLi: HTMLElement) => {
-            if (trackingRAF !== null) {
-              cancelAnimationFrame(trackingRAF);
-            }
-
-            // Keep the default CSS transition (transform 250ms eased) so
-            // the indicator smoothly slides toward the target. Each rAF
-            // frame retargets the position, and the browser's transition
-            // retargeting creates a smooth follow-through as accordion
-            // reflows shift items vertically over ~250ms. Without this,
-            // the indicator would snap to the item's pre-reflow position
-            // (pushed down by the still-expanded accordion above) and
-            // then have to chase it back up — causing a visible overshoot.
-            const startTime = performance.now();
-            const trackDuration = 350; // slightly longer than --navigation-transition (250ms)
-
-            const track = () => {
-              updateMobileIndicator(topLevelLi);
-              if (performance.now() - startTime < trackDuration) {
-                trackingRAF = requestAnimationFrame(track);
-              } else {
-                trackingRAF = null;
-              }
-            };
-            trackingRAF = requestAnimationFrame(track);
-          };
-
-          const resetMobileIndicator = () => {
-            if (trackingRAF !== null) {
-              cancelAnimationFrame(trackingRAF);
-              trackingRAF = null;
-            }
-            mobileIndicator.style.setProperty(
-              '--mobile-indicator-opacity',
-              '0'
-            );
-          };
-
-          // Find the top-level <li> in the panel menu that contains the target.
-          // Even when focus/touch is on a child item inside an expanded accordion,
-          // the indicator stays on the trigger's <li>.
-          const findTopLevelItem = (
-            target: HTMLElement
-          ): HTMLElement | null => {
-            for (const child of panelMenu.children) {
-              if (child instanceof HTMLElement && child.contains(target)) {
-                return child;
-              }
-            }
-            return null;
-          };
-
-          // Focus/touch: slide indicator via CSS transitions.
-          // trackMobileIndicator (rAF loop) is reserved for accordion
-          // reflows where items shift vertically during animation.
-          panelMenu.addEventListener('focusin', (e: FocusEvent) => {
-            const li = findTopLevelItem(e.target as HTMLElement);
-            if (li) {
-              updateMobileIndicator(li);
-            }
-          });
-
-          panelMenu.addEventListener('focusout', (e: FocusEvent) => {
-            const related = e.relatedTarget as HTMLElement | null;
-            if (!related || !panelMenu.contains(related)) {
-              resetMobileIndicator();
-            }
-          });
-
-          // Touch: highlight on touch.
-          panelMenu.addEventListener(
-            'touchstart',
-            (e: TouchEvent) => {
-              const li = findTopLevelItem(e.target as HTMLElement);
-              if (li) {
-                updateMobileIndicator(li);
-              }
-            },
-            { passive: true }
-          );
-
-          // Register helpers so openPanelWithSetup can seed the indicator
-          // on the current-page item when the panel opens.
-          mobileIndicatorRegistry.set(context.navId, {
-            seedCurrent: () => {
-              const currentItem = panelMenu.querySelector(
-                `:scope > li.${SELECTORS.isCurrent}, :scope > li:has(.${SELECTORS.isCurrent})`
-              ) as HTMLElement | null;
-              if (currentItem) {
-                // Skip the stagger animation on the current item so
-                // getBoundingClientRect() returns its final position.
-                // Without this, items still have transform: translateY(8px)
-                // at measurement time (~32ms) since stagger delays start
-                // at 80ms — the indicator would be offset by 8px.
-                currentItem.style.opacity = '1';
-                currentItem.style.transform = 'none';
-                currentItem.style.animation = 'none';
-
-                // Position without transition so it appears instantly.
-                mobileIndicator.style.transition = 'none';
-                updateMobileIndicator(currentItem);
-                // Force reflow, then re-enable transitions for future slides.
-                void mobileIndicator.offsetHeight;
-                mobileIndicator.style.removeProperty('transition');
-              }
-            },
-            trackFocused: () => {
-              const focused = document.activeElement as HTMLElement | null;
-              if (focused) {
-                const li = findTopLevelItem(focused);
-                if (li) {
-                  trackMobileIndicator(li);
-                }
-              }
-            },
-            trackItem: (li: HTMLElement) => {
-              trackMobileIndicator(li);
-            },
-            reset: resetMobileIndicator,
-          });
         }
 
         // ================================================================

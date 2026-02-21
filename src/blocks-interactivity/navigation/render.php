@@ -307,9 +307,9 @@ if ( ! empty( $mobile_menu_html ) ) {
 	);
 }
 
-// Panel content: header + body with mobile indicator.
+// Panel content: header + body.
 $panel_content_html = sprintf(
-	'<div class="aa-nav__panel-header">%s</div><div class="aa-nav__panel-body"><ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey"><span class="aa-nav__mobile-indicator" aria-hidden="true"></span>%s</ul></div>',
+	'<div class="aa-nav__panel-header">%s</div><div class="aa-nav__panel-body"><ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">%s</ul></div>',
 	$close_button_html,
 	$mobile_menu_html
 );

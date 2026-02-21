@@ -617,29 +617,6 @@
 }
 
 /* ========================================
- * MOBILE VERTICAL ACCENT LINE (Indicator)
- *
- * 2px red accent on the left edge. Slides between
- * items tracking focus/touch.
- * ======================================== */
-.aa-nav__mobile-indicator {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2px;
-  height: var(--mobile-indicator-height, 0);
-  transform: translateY(var(--mobile-indicator-y, 0));
-  background: var(--_panel-accent, var(--wp--preset--color--red, oklch(57.7% 0.245 27.325deg)));
-  border-radius: 0 1px 1px 0;
-  opacity: var(--mobile-indicator-opacity, 0);
-  transition:
-    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    height 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 200ms ease;
-  pointer-events: none;
-}
-
-/* ========================================
  * STAGGER REVEAL (Panel items entrance)
  *
  * When the panel opens, items fade in with
@@ -968,8 +945,7 @@
   }
 
   /* Indicator snaps instantly */
-  .aa-nav__indicator,
-  .aa-nav__mobile-indicator {
+  .aa-nav__indicator {
     transition: none !important;
   }
 

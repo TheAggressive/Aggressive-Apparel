@@ -751,6 +751,7 @@
     border-radius: 0;
     background: transparent;
     box-shadow: none;
+    clip-path: none;
     backdrop-filter: none;
     opacity: 1;
     visibility: visible;

@@ -79,6 +79,8 @@ interface MobileIndicatorInstance {
   seedCurrent: () => void;
   /** Track the currently-focused item through accordion reflows (rAF loop). */
   trackFocused: () => void;
+  /** Track a specific <li> through accordion reflows (rAF loop). */
+  trackItem: (li: HTMLElement) => void;
   /** Hide indicator. */
   reset: () => void;
 }
@@ -521,9 +523,20 @@ const navigationStore = store('aggressive-apparel/navigation', {
             }
           }
 
-          // Track the indicator via rAF so it follows the focused trigger
-          // through accordion reflows that shift items vertically.
-          mobileIndicatorRegistry.get(context.navId)?.trackFocused();
+          // Track the indicator to the clicked item through accordion
+          // reflows that shift items vertically. Prefer event.target over
+          // document.activeElement — on touch devices activeElement may not
+          // have updated yet when this runs synchronously.
+          const eventTarget = event?.target as HTMLElement | null;
+          const targetLi = eventTarget?.closest(
+            '.aa-nav__panel-menu > li'
+          ) as HTMLElement | null;
+          const indicator = mobileIndicatorRegistry.get(context.navId);
+          if (targetLi && indicator) {
+            indicator.trackItem(targetLi);
+          } else {
+            indicator?.trackFocused();
+          }
         }
 
         if (wasOpen) {
@@ -930,13 +943,14 @@ const navigationStore = store('aggressive-apparel/navigation', {
               cancelAnimationFrame(trackingRAF);
             }
 
-            // Disable CSS transition during tracking so the indicator
-            // snaps to each rAF position instead of lagging behind and
-            // overshooting when accordion reflows shift items vertically.
-            mobileIndicator.style.transition = 'opacity 200ms ease';
-
-            updateMobileIndicator(topLevelLi);
-
+            // Keep the default CSS transition (transform 250ms eased) so
+            // the indicator smoothly slides toward the target. Each rAF
+            // frame retargets the position, and the browser's transition
+            // retargeting creates a smooth follow-through as accordion
+            // reflows shift items vertically over ~250ms. Without this,
+            // the indicator would snap to the item's pre-reflow position
+            // (pushed down by the still-expanded accordion above) and
+            // then have to chase it back up — causing a visible overshoot.
             const startTime = performance.now();
             const trackDuration = 350; // slightly longer than --navigation-transition (250ms)
 
@@ -945,8 +959,6 @@ const navigationStore = store('aggressive-apparel/navigation', {
               if (performance.now() - startTime < trackDuration) {
                 trackingRAF = requestAnimationFrame(track);
               } else {
-                // Re-enable CSS transitions for normal item-to-item slides.
-                mobileIndicator.style.removeProperty('transition');
                 trackingRAF = null;
               }
             };
@@ -1015,6 +1027,15 @@ const navigationStore = store('aggressive-apparel/navigation', {
                 `:scope > li.${SELECTORS.isCurrent}, :scope > li:has(.${SELECTORS.isCurrent})`
               ) as HTMLElement | null;
               if (currentItem) {
+                // Skip the stagger animation on the current item so
+                // getBoundingClientRect() returns its final position.
+                // Without this, items still have transform: translateY(8px)
+                // at measurement time (~32ms) since stagger delays start
+                // at 80ms — the indicator would be offset by 8px.
+                currentItem.style.opacity = '1';
+                currentItem.style.transform = 'none';
+                currentItem.style.animation = 'none';
+
                 // Position without transition so it appears instantly.
                 mobileIndicator.style.transition = 'none';
                 updateMobileIndicator(currentItem);
@@ -1031,6 +1052,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
                   trackMobileIndicator(li);
                 }
               }
+            },
+            trackItem: (li: HTMLElement) => {
+              trackMobileIndicator(li);
             },
             reset: resetMobileIndicator,
           });

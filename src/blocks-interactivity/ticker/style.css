@@ -20,12 +20,13 @@
 }
 
 /* -----------------------------------------------
- * Track (flex row holding two copies of content)
+ * Track — animated via rAF loop in JS.
  * ----------------------------------------------- */
 
 .ticker__track {
 	display: flex;
 	gap: var(--ticker-gap);
+	will-change: transform;
 }
 
 /* -----------------------------------------------
@@ -37,33 +38,12 @@
 	display: flex;
 	align-items: center;
 	gap: var(--ticker-gap);
-	animation: ticker-scroll var(--ticker-duration) linear infinite;
-	animation-direction: var(--ticker-direction);
 }
 
 /* Inner blocks should flow inline. */
 .ticker__content > * {
 	flex-shrink: 0;
 	margin: 0;
-}
-
-@keyframes ticker-scroll {
-
-	from {
-		transform: translateX(0);
-	}
-
-	to {
-		transform: translateX(calc(-100% - var(--ticker-gap)));
-	}
-}
-
-/* -----------------------------------------------
- * Pause states
- * ----------------------------------------------- */
-
-.wp-block-aggressive-apparel-ticker.is-paused .ticker__content {
-	animation-play-state: paused;
 }
 
 /* -----------------------------------------------
@@ -153,10 +133,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
-	.ticker__content {
-		animation: none;
-	}
 
 	.ticker__pause {
 		transition: none;

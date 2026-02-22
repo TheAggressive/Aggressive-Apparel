@@ -80,7 +80,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		data-wp-bind--aria-pressed="state.isPausedString"
 		aria-pressed="false"
 	>
-		<span class="ticker__pause-icon" data-wp-class--is-playing="state.isPlaying">
+		<span class="ticker__pause-icon">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
 				<rect class="ticker__pause-bar" x="6" y="4" width="4" height="16" />
 				<rect class="ticker__pause-bar" x="14" y="4" width="4" height="16" />

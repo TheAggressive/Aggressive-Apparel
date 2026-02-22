@@ -1,3 +1,10 @@
+## [1.45.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.45.0...v1.45.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* streamline cart nonce handling in quick view ([948dd10](https://github.com/TheAggressive/Aggressive-Apparel/commit/948dd10af9fbb59c092dce0577707fe7241352a3))
+
 # [1.45.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.44.5...v1.45.0) (2026-02-20)
 
 

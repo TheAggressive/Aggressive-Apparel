@@ -20,6 +20,19 @@
   margin: 0;
   padding: 0;
 
+  /* Hover bridge: extends the <li> hit area below its bottom edge
+     to cover the ~8px gap (5px panel offset + indicator height).
+     Without this, mouseleave fires when moving from trigger to
+     dropdown because the indicator is a sibling, not a descendant. */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+
   /* Trigger container. */
   &__trigger {
     display: flex;

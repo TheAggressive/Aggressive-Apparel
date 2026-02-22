@@ -161,7 +161,7 @@ class Quick_View {
 					'selectedAttributes'  => (object) array(),
 					'matchedVariationId'  => 0,
 					'quantity'            => 1,
-					'cartNonce'           => '',
+					'cartNonce'           => wp_create_nonce( 'wc_store_api' ),
 					'isAddingToCart'      => false,
 					'addedToCart'         => false,
 					'cartError'           => '',

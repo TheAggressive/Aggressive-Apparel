@@ -1006,19 +1006,6 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         }
       });
 
-      // Fetch the Store API nonce lazily on first open.
-      if (!state.cartNonce) {
-        const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
-        fetch(cartUrl, { credentials: 'same-origin' })
-          .then(res => {
-            const nonce = res.headers.get('Nonce');
-            if (nonce) {
-              state.cartNonce = nonce;
-            }
-          })
-          .catch(() => {});
-      }
-
       // Cancel any in-flight product fetch from a previous open.
       if (fetchController) fetchController.abort();
       fetchController = new AbortController();
@@ -1549,11 +1536,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
       const headers = {
         'Content-Type': 'application/json',
+        Nonce: state.cartNonce,
       };
-
-      if (state.cartNonce) {
-        headers.Nonce = state.cartNonce;
-      }
 
       fetch(addUrl, {
         method: 'POST',

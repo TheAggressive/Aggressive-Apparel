@@ -737,29 +737,7 @@ class Quick_View {
 				return array();
 			}
 
-			$manager = new Color_Data_Manager();
-			$colors  = $manager->get_color_terms();
-			$data    = array();
-
-			foreach ( $colors as $slug => $color_info ) {
-				$color_value = $color_info['value'] ?? '';
-				if ( $color_value ) {
-					$entry         = array(
-						'value' => $color_value,
-						'type'  => $color_info['type'] ?? 'color',
-						'name'  => $color_info['name'] ?? (string) $slug,
-					);
-					$data[ $slug ] = $entry;
-
-					// Also key by term ID so JS can fall back to ID-based lookup
-					// when the Store API returns numeric IDs instead of slugs.
-					if ( ! empty( $color_info['id'] ) ) {
-						$data[ (string) $color_info['id'] ] = $entry;
-					}
-				}
-			}
-
-			return $data;
+			return ( new Color_Data_Manager() )->get_swatch_data();
 		} catch ( \Throwable $e ) {
 			return array();
 		}

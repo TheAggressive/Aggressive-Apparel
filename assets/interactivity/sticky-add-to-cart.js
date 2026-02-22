@@ -20,15 +20,10 @@ const FORM_SELECTORS = [
   '.variations_form',
 ].join(', ');
 
-const ATTR_SELECT_SELECTORS = [
+const ATTR_SELECTORS = [
   'select[data-attribute_name]',
   'select[name^="attribute_"]',
-].join(', ');
-
-const ATTR_INPUT_SELECTORS = [
   'input[name^="attribute_"]:checked',
-  'select[data-attribute_name]',
-  'select[name^="attribute_"]',
 ].join(', ');
 
 /**
@@ -39,20 +34,35 @@ const ATTR_INPUT_SELECTORS = [
  */
 function readFormAttributes(form) {
   const attrs = {};
-  // Selects (classic WC + block dropdown fallback).
-  form.querySelectorAll(ATTR_SELECT_SELECTORS).forEach(sel => {
-    const name = sel.getAttribute('data-attribute_name') || sel.name;
-    if (name && sel.value) {
-      attrs[name] = sel.value;
-    }
-  });
-  // Radio pill inputs (block-based form).
-  form.querySelectorAll('input[name^="attribute_"]:checked').forEach(input => {
-    if (input.name && input.value) {
-      attrs[input.name] = input.value;
+  form.querySelectorAll(ATTR_SELECTORS).forEach(el => {
+    const name = el.getAttribute('data-attribute_name') || el.name || '';
+    const value =
+      el.type === 'radio' || el.type === 'checkbox' ? el.value : el.value;
+    if (name && value) {
+      attrs[name] = value;
     }
   });
   return attrs;
+}
+
+/**
+ * Sync drawer pill button visual states with current selectedAttrs.
+ */
+function syncDrawerOptions() {
+  document.querySelectorAll('.aa-sticky-cart__drawer-option').forEach(btn => {
+    const attrName = btn.dataset.attribute;
+    const attrValue = btn.dataset.value;
+    const isSelected = state.selectedAttrs[attrName] === attrValue;
+    btn.classList.toggle('is-selected', isSelected);
+
+    // Set --swatch-color for the color swatch selection ring.
+    if (
+      btn.classList.contains('is-color-swatch') &&
+      btn.style.backgroundColor
+    ) {
+      btn.style.setProperty('--swatch-color', btn.style.backgroundColor);
+    }
+  });
 }
 
 /* ---------------------------------------------------------------
@@ -66,8 +76,8 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
     },
     get isAddDisabled() {
       if (state.isAdding) return true;
-      if (state.productType === 'variable' && !state.matchedVariationId)
-        return true;
+      // Variable products without matched variation can still be clicked
+      // to open the drawer — not disabled.
       return false;
     },
     get buttonText() {
@@ -79,11 +89,34 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       }
       return 'Add to Cart';
     },
+    get isDrawerAddDisabled() {
+      if (state.isAdding) return true;
+      if (state.productType === 'variable' && !state.matchedVariationId)
+        return true;
+      return false;
+    },
+    get drawerButtonText() {
+      if (state.isAdding) return '…';
+      if (state.isSuccess) return '✓ Added';
+      if (state.hasError) return 'Error';
+      if (state.productType === 'variable' && !state.matchedVariationId) {
+        return 'Select options';
+      }
+      return 'Add to Cart';
+    },
   },
 
   actions: {
     addToCart() {
-      if (state.isAdding || state.isAddDisabled) return;
+      if (state.isAdding) return;
+
+      // Variable product without matched variation → open drawer.
+      if (state.productType === 'variable' && !state.matchedVariationId) {
+        if (!state.isDrawerOpen) {
+          actions.openDrawer();
+        }
+        return;
+      }
 
       state.isAdding = true;
       state.isSuccess = false;
@@ -98,6 +131,8 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         state.isAdding = false;
         return;
       }
+
+      const wasDrawerOpen = state.isDrawerOpen;
 
       fetch(state.cartApiUrl, {
         method: 'POST',
@@ -123,9 +158,14 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
             })
           );
 
+          // Close drawer after brief success feedback, or just reset.
+          const delay = wasDrawerOpen ? 1200 : 2000;
           setTimeout(() => {
             state.isSuccess = false;
-          }, 2000);
+            if (wasDrawerOpen && state.isDrawerOpen) {
+              actions.closeDrawer();
+            }
+          }, delay);
         })
         .catch(() => {
           state.isAdding = false;
@@ -165,26 +205,6 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
     /* -----------------------------------------------------------
      * Variant selection + sync
      * --------------------------------------------------------- */
-
-    selectAttribute(event) {
-      const select = event.target;
-      const attrName = select.dataset.attribute;
-      const attrValue = select.value;
-
-      const newAttrs = { ...state.selectedAttrs };
-      if (attrValue) {
-        newAttrs[attrName] = attrValue;
-      } else {
-        delete newAttrs[attrName];
-      }
-      state.selectedAttrs = newAttrs;
-
-      // Find matching variation.
-      actions.matchVariation();
-
-      // Push change to the main product form.
-      actions.syncToMainForm(attrName, attrValue);
-    },
 
     matchVariation() {
       const selected = state.selectedAttrs;
@@ -247,6 +267,95 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
 
       state._syncing = false;
     },
+
+    /* -----------------------------------------------------------
+     * Drawer (variant bottom sheet)
+     * --------------------------------------------------------- */
+
+    openDrawer() {
+      if (state.isDrawerOpen) return;
+
+      const drawer = document.querySelector('.aa-sticky-cart__drawer');
+      if (!drawer) return;
+
+      drawer.hidden = false;
+      void drawer.offsetHeight; // force reflow for transition
+      drawer.classList.add('is-open');
+      state.isDrawerOpen = true;
+
+      // Lock page scroll.
+      document.documentElement.style.overflow = 'hidden';
+
+      // Sync pill button visuals with current selections.
+      syncDrawerOptions();
+    },
+
+    closeDrawer() {
+      const drawer = document.querySelector('.aa-sticky-cart__drawer');
+      if (!drawer) return;
+
+      drawer.classList.remove('is-open');
+      state.isDrawerOpen = false;
+
+      // Sync all drawer selections to the main form now that the
+      // drawer is closing (deferred to avoid triggering WooCommerce
+      // navigation while the drawer is open).
+      const selected = state.selectedAttrs;
+      for (const attrName of Object.keys(selected)) {
+        actions.syncToMainForm(attrName, selected[attrName]);
+      }
+
+      // Wait for slide-out transition, then hide + unlock scroll.
+      const panel = drawer.querySelector('.aa-sticky-cart__drawer-panel');
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        drawer.hidden = true;
+        document.documentElement.style.overflow = '';
+      };
+
+      if (panel) {
+        panel.addEventListener(
+          'transitionend',
+          e => {
+            if (e.propertyName === 'transform') finish();
+          },
+          { once: true }
+        );
+      }
+
+      // Safety fallback for reduced-motion or missed events.
+      setTimeout(finish, 350);
+    },
+
+    selectDrawerOption(event) {
+      event.stopPropagation();
+      const button = event.target.closest('.aa-sticky-cart__drawer-option');
+      if (!button) return;
+
+      const attrName = button.dataset.attribute;
+      const clickedValue = button.dataset.value;
+
+      // Toggle: clicking the same option deselects it.
+      const newAttrs = { ...state.selectedAttrs };
+      if (newAttrs[attrName] === clickedValue) {
+        delete newAttrs[attrName];
+      } else {
+        newAttrs[attrName] = clickedValue;
+      }
+      state.selectedAttrs = newAttrs;
+
+      // Update pill button visuals.
+      syncDrawerOptions();
+
+      // Match variation.
+      actions.matchVariation();
+
+      // Do NOT sync to main form here — dispatching change events
+      // on the WooCommerce form triggers its own variation handler
+      // which can cause page navigation. Sync happens on close.
+    },
   },
 
   callbacks: {
@@ -288,9 +397,25 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
           state._syncing = true;
           state.selectedAttrs = readFormAttributes(form);
           actions.matchVariation();
+
+          // Sync drawer pills if open.
+          if (state.isDrawerOpen) {
+            syncDrawerOptions();
+          }
+
           state._syncing = false;
         });
       }
+
+      /* ---------------------------------------------------------
+       * Escape key closes drawer
+       * ------------------------------------------------------- */
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && state.isDrawerOpen) {
+          actions.closeDrawer();
+        }
+      });
     },
   },
 });

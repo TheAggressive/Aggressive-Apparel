@@ -129,6 +129,39 @@ class Color_Data_Manager {
 	}
 
 	/**
+	 * Get a simplified swatch data map for use in Interactivity API stores.
+	 *
+	 * Returns a slug-keyed (and term-ID-keyed fallback) map of color
+	 * display values suitable for rendering swatches in JS or PHP.
+	 *
+	 * @return array<string, array{value: string, type: string, name: string}>
+	 */
+	public function get_swatch_data(): array {
+		$colors = $this->get_color_terms();
+		$data   = array();
+
+		foreach ( $colors as $slug => $color_info ) {
+			$color_value = $color_info['value'] ?? '';
+			if ( $color_value ) {
+				$entry         = array(
+					'value' => $color_value,
+					'type'  => $color_info['type'] ?? 'solid',
+					'name'  => $color_info['name'] ?? (string) $slug,
+				);
+				$data[ $slug ] = $entry;
+
+				// Also key by term ID so JS can fall back to ID-based lookup
+				// when the Store API returns numeric IDs instead of slugs.
+				if ( ! empty( $color_info['id'] ) ) {
+					$data[ (string) $color_info['id'] ] = $entry;
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Add custom color term
 	 *
 	 * @param string $name   Color name.

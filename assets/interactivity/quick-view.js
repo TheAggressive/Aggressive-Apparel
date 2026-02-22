@@ -604,8 +604,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     // Quantity.
     quantity: 1,
 
-    // Cart interaction.
-    cartNonce: '',
+    // Cart interaction (cartNonce provided by PHP via wp_interactivity_state).
     isAddingToCart: false,
     isCartSuccess: false,
     addedToCart: false,
@@ -1493,7 +1492,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       window.location.href = state.cartUrl;
     },
 
-    addToCart(event) {
+    async addToCart(event) {
       if (event) event.preventDefault();
       if (!state.canAddToCart) {
         return;
@@ -1533,6 +1532,27 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
       const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
       const addUrl = `${cartUrl}/add-item`;
+
+      // Ensure we have a valid nonce before sending.
+      // If the server-rendered nonce is missing (e.g. page cache),
+      // fetch a fresh one from the Store API cart endpoint.
+      if (!state.cartNonce) {
+        try {
+          const cartRes = await fetch(cartUrl, { credentials: 'same-origin' });
+          const freshNonce = cartRes.headers.get('Nonce');
+          if (freshNonce) {
+            state.cartNonce = freshNonce;
+          }
+        } catch {
+          // Fall through — request will fail with a clear nonce error.
+        }
+      }
+
+      if (!state.cartNonce) {
+        state.cartError = 'Session expired. Please reload the page.';
+        state.isAddingToCart = false;
+        return;
+      }
 
       const headers = {
         'Content-Type': 'application/json',

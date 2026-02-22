@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.45.2...v1.46.0) (2026-02-22)
+
+
+### Features
+
+* implement variant selection drawer for sticky add-to-cart ([3930c05](https://github.com/TheAggressive/Aggressive-Apparel/commit/3930c05cd448ea9c97191a97ecdf908c22ceb01e))
+
 ## [1.45.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.45.1...v1.45.2) (2026-02-22)
 
 

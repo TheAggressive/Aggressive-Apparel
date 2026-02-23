@@ -33,7 +33,7 @@
   --aa-nav-overlay-bg: rgb(0 0 0 / 50%);
 
   /* Transitions — on :root so the portaled panel inherits them */
-  --aa-nav-transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --aa-nav-transition: 400ms cubic-bezier(0.22, 1, 0.36, 1);
   --aa-nav-transition-fast: 150ms ease;
   --navigation-transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -419,6 +419,7 @@
   background: var(--panel-bg, #141414);
   color: var(--panel-color, #e0e0e0);
   pointer-events: none;
+  will-change: transform;
   transition:
     transform var(--aa-nav-transition),
     opacity var(--aa-nav-transition);
@@ -624,19 +625,19 @@
  * ======================================== */
 .aa-nav__panel-menu > li {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(4px);
 }
 
 .aa-nav__panel.is-open .aa-nav__panel-menu > li {
-  animation: aa-nav-stagger-in 250ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--item-index, 0) * 40ms + 80ms);
+  animation: aa-nav-stagger-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
 }
 
 @keyframes aa-nav-stagger-in {
 
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
 
   to {
@@ -720,21 +721,23 @@
      The --drilldown qualifier is needed for specificity against
      nav-submenu's display: block !important on .is-open. */
   &.wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
-    position: static;
+    position: static !important;
     width: 100%;
-    display: grid;
+    display: grid !important;
     grid-template-rows: 0fr;
     overflow: hidden;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
-    clip-path: none;
+    clip-path: none !important;
     backdrop-filter: none;
     opacity: 1;
-    visibility: visible;
+    visibility: visible !important;
     pointer-events: none;
-    transform: none;
-    transition: grid-template-rows var(--navigation-transition);
+    transform: none !important;
+    transition: grid-template-rows 350ms cubic-bezier(0.22, 1, 0.36, 1);
+    inset: auto !important;
+    z-index: auto;
 
     &[hidden] {
       display: grid !important;
@@ -760,6 +763,7 @@
      when the accordion is closed. */
   & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
     overflow: hidden;
+    min-height: 0;
     padding: 0;
     padding-inline-start: 1rem;
     background: rgb(0 0 0 / 40%);
@@ -826,7 +830,8 @@
     visibility: visible;
     opacity: 1;
     transform: translateX(100%);
-    transition: transform var(--aa-nav-transition);
+    will-change: transform;
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1) !important;
     pointer-events: none;
 
     &[hidden] {

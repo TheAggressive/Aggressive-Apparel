@@ -1,43 +1,147 @@
 /**
- * Color Swatches for WooCommerce Blocks - BEM CSS
+ * Color Swatches for WooCommerce Blocks
+ *
+ * Shrink-reveal animation matching quick view / sticky cart drawers.
+ * Selection is driven by WooCommerce's radio input :checked state,
+ * so we target `input:checked ~ .swatch` instead of `.is-selected`.
  *
  * @package Aggressive_Apparel
  */
 
-/* Block: Color swatch base styles */
-.aggressive-apparel-color-swatch {
-	display: inline-block;
-	transition: all 0.2s ease;
+/*
+ * 1. Override WooCommerce pill label when it wraps a color swatch.
+ *    Strip the rectangular pill styling so only the circle shows.
+ */
+.wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill:has(
+	.aggressive-apparel-color-swatch
+) {
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	overflow: visible;
+	line-height: 0;
 
-	/* Element: The visual color circle (now applied to the swatch itself) */
-	&__circle {
-		width: 2.5rem;
-		height: 2.5rem;
-		border-radius: 50%;
-		border: 2px solid #ccc;
-		display: inline-block;
-		cursor: pointer;
-
-		/* Modifier: Interactive swatches (clickable/focusable) */
-		&:focus,
-		&:hover {
-			transform: scale(1.1);
-			box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
-		}
+	/* Kill WooCommerce's default pill hover/focus/checked backgrounds. */
+	&:hover,
+	&:focus-within {
+		background: transparent;
 	}
 
-	/* Modifier: When labels are shown */
-	&--with-label {
-		margin-right: 0.5rem;
-	}
+	/* WooCommerce uses :has(:checked) for selected pill background. */
+	&:has(input:checked) {
+		--pill-background-color: transparent;
 
-	/* Modifier: Pattern swatches */
-	&--pattern {
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-position: center;
+		background: transparent;
 	}
 }
 
+/*
+ * 2. Hide the radio input visually (WooCommerce already does this,
+ *    but reinforce it so the swatch is the only visible element).
+ */
+.wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill
+	.aggressive-apparel-color-swatch {
+	display: block;
+}
 
+/*
+ * 3. Color swatch base — the visual circle.
+ */
+.aggressive-apparel-color-swatch__circle {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	border: none;
+	display: block;
+	cursor: pointer;
+	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+	overflow: visible;
+	transform: scale(1);
+	transition:
+		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+/*
+ * 4. Hover — gentle scale-up.
+ */
+.aggressive-apparel-color-swatch__circle:hover {
+	transform: scale(1.1);
+	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+}
+
+/*
+ * 5. Selected state — shrink-reveal with colored ring.
+ *    Radio :checked is a sibling BEFORE the swatch span inside the label.
+ */
+input:checked ~ .aggressive-apparel-color-swatch__circle {
+	transform: scale(0.78);
+	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+	outline: 3px solid
+		color-mix(
+			in oklch,
+			var(--swatch-color, rgb(0 0 0 / 40%)) 60%,
+			#000
+		);
+	outline-offset: 4px;
+}
+
+/* Don't scale up on hover when already selected. */
+input:checked ~ .aggressive-apparel-color-swatch__circle:hover {
+	transform: scale(0.78);
+}
+
+/*
+ * 6. Focus-visible — keyboard accessibility ring.
+ */
+.aggressive-apparel-color-swatch__circle:focus-visible {
+	outline: 2px solid var(--wp--preset--color--black, #000);
+	outline-offset: 3px;
+}
+
+input:checked ~ .aggressive-apparel-color-swatch__circle:focus-visible {
+	outline-width: 3px;
+}
+
+/*
+ * 7. Pattern swatches (texture images).
+ */
+.aggressive-apparel-color-swatch--pattern {
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+}
+
+/*
+ * 8. With label text alongside the swatch.
+ */
+.aggressive-apparel-color-swatch--with-label {
+	margin-right: 0.5rem;
+}
+
+/*
+ * 9. Reduced motion — disable all animations.
+ */
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-color-swatch__circle {
+		transition: none;
+	}
+
+	.aggressive-apparel-color-swatch__circle:hover {
+		transform: none;
+	}
+
+	input:checked ~ .aggressive-apparel-color-swatch__circle {
+		transform: none;
+		box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+		outline: 3px solid
+			color-mix(
+				in oklch,
+				var(--swatch-color, rgb(0 0 0 / 40%)) 60%,
+				#000
+			);
+		outline-offset: 3px;
+	}
+}

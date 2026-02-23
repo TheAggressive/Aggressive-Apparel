@@ -37,6 +37,83 @@ class Quick_View {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'render_block', array( $this, 'inject_trigger_button' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'render_modal_shell' ) );
+		add_action( 'rest_api_init', array( $this, 'register_store_api_extension' ) );
+	}
+
+	/**
+	 * Extend the Store API product response with per-variation prices.
+	 *
+	 * The embedded variations in the Store API only include id + attributes.
+	 * This adds a keyed map of variation prices so the quick view JS can
+	 * read them directly — same pattern as the sticky cart PHP data.
+	 *
+	 * @return void
+	 */
+	public function register_store_api_extension(): void {
+		if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' ) ) {
+			return;
+		}
+
+		woocommerce_store_api_register_endpoint_data(
+			array(
+				'endpoint'        => 'product',
+				'namespace'       => 'aggressive-apparel/variation-prices',
+				'data_callback'   => array( $this, 'get_variation_prices_data' ),
+				'schema_callback' => static function () {
+					return array();
+				},
+				'schema_type'     => ARRAY_A,
+			)
+		);
+	}
+
+	/**
+	 * Build per-variation price data for the Store API extension.
+	 *
+	 * @param \WC_Product $product The product object.
+	 * @return array<int, array{price: string, regular_price: string, sale_price: string, currency_minor_unit: int, currency_prefix: string, currency_suffix: string}> Keyed by variation ID.
+	 */
+	public function get_variation_prices_data( \WC_Product $product ): array {
+		if ( ! $product instanceof \WC_Product_Variable ) {
+			return array();
+		}
+
+		$decimals   = wc_get_price_decimals();
+		$minor_unit = pow( 10, $decimals );
+
+		// Derive currency prefix/suffix from WooCommerce settings so the
+		// values work for any currency, not just USD.
+		$symbol   = html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' );
+		$position = get_option( 'woocommerce_currency_pos', 'left' );
+		$prefix   = in_array( $position, array( 'left', 'left_space' ), true ) ? $symbol : '';
+		$suffix   = in_array( $position, array( 'right', 'right_space' ), true ) ? $symbol : '';
+
+		$result = array();
+
+		foreach ( $product->get_visible_children() as $variation_id ) {
+			$variation = wc_get_product( $variation_id );
+			if ( ! $variation ) {
+				continue;
+			}
+
+			$price         = (string) (int) round( (float) $variation->get_price() * $minor_unit );
+			$regular_price = (string) (int) round( (float) $variation->get_regular_price() * $minor_unit );
+			$sale_raw      = $variation->get_sale_price();
+			$sale_price    = '' !== $sale_raw
+				? (string) (int) round( (float) $sale_raw * $minor_unit )
+				: $price;
+
+			$result[ $variation_id ] = array(
+				'price'               => $price,
+				'regular_price'       => $regular_price,
+				'sale_price'          => $sale_price,
+				'currency_minor_unit' => $decimals,
+				'currency_prefix'     => $prefix,
+				'currency_suffix'     => $suffix,
+			);
+		}
+
+		return $result;
 	}
 
 	/**
@@ -534,10 +611,18 @@ class Quick_View {
 										class="aggressive-apparel-quick-view__drawer-name"
 										data-wp-text="state.productName"
 									></span>
-									<span
-										class="aggressive-apparel-quick-view__drawer-price"
-										data-wp-text="state.productPrice"
-									></span>
+									<span class="aggressive-apparel-quick-view__drawer-price">
+										<del
+											class="aggressive-apparel-quick-view__price-regular"
+											data-wp-text="state.productRegularPrice"
+											data-wp-bind--hidden="state.isNotOnSale"
+											hidden
+										></del>
+										<ins
+											class="aggressive-apparel-quick-view__price-current"
+											data-wp-text="state.productPrice"
+										></ins>
+									</span>
 								</div>
 							</div>
 
@@ -732,14 +817,6 @@ class Quick_View {
 	 * @return array<string, array{value: string, type: string, name: string}>
 	 */
 	private function get_color_swatch_data(): array {
-		try {
-			if ( ! class_exists( Color_Data_Manager::class ) ) {
-				return array();
-			}
-
-			return ( new Color_Data_Manager() )->get_swatch_data();
-		} catch ( \Throwable $e ) {
-			return array();
-		}
+		return Color_Data_Manager::get_safe_swatch_data();
 	}
 }

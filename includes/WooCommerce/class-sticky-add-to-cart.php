@@ -88,21 +88,26 @@ class Sticky_Add_To_Cart {
 			wp_interactivity_state(
 				'aggressive-apparel/sticky-add-to-cart',
 				array(
-					'productId'          => $product->get_id(),
-					'productType'        => $product->get_type(),
-					'isVisible'          => false,
-					'isAdding'           => false,
-					'isSuccess'          => false,
-					'hasError'           => false,
-					'displayPrice'       => $product_data['price_html'],
-					'cartApiUrl'         => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
-					'nonce'              => wp_create_nonce( 'wc_store_api' ),
-					'variations'         => $product_data['variations'],
-					'attributes'         => $product_data['attributes'],
-					'selectedAttrs'      => $product_data['default_attrs'],
-					'matchedVariationId' => 0,
-					'quantity'           => 1,
-					'isDrawerOpen'       => false,
+					'productId'            => $product->get_id(),
+					'productType'          => $product->get_type(),
+					'isVisible'            => false,
+					'isAdding'             => false,
+					'isSuccess'            => false,
+					'hasError'             => false,
+					'displayPrice'         => $product_data['price_html'],
+					'originalPrice'        => $product_data['price_html'],
+					'regularPrice'         => $product_data['regular_price_html'],
+					'originalRegularPrice' => $product_data['regular_price_html'],
+					'cartApiUrl'           => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
+					'nonce'                => wp_create_nonce( 'wc_store_api' ),
+					'variations'           => $product_data['variations'],
+					'attributes'           => $product_data['attributes'],
+					'selectedAttrs'        => $product_data['default_attrs'],
+					'matchedVariationId'   => 0,
+					'quantity'             => 1,
+					'isDrawerOpen'         => false,
+					'drawerView'           => 'selection',
+					'cartUrl'              => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
 				),
 			);
 		}
@@ -129,8 +134,14 @@ class Sticky_Add_To_Cart {
 					<?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML. ?>
 					<div class="aa-sticky-cart__info">
 						<span class="aa-sticky-cart__title"><?php echo esc_html( $product->get_name() ); ?></span>
-						<span class="aa-sticky-cart__price" data-wp-text="state.displayPrice">
-							<?php echo $product_data['price_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML. ?>
+						<span class="aa-sticky-cart__price">
+							<del
+								class="aa-sticky-cart__price-regular"
+								data-wp-text="state.regularPrice"
+								data-wp-bind--hidden="!state.isOnSale"
+								<?php echo $product_data['regular_price_html'] === $product_data['price_html'] ? 'hidden' : ''; ?>
+							><?php echo esc_html( $product_data['regular_price_html'] ); ?></del>
+							<ins class="aa-sticky-cart__price-current" data-wp-text="state.displayPrice"><?php echo esc_html( $product_data['price_html'] ); ?></ins>
 						</span>
 					</div>
 				</div>
@@ -172,7 +183,15 @@ class Sticky_Add_To_Cart {
 						<?php endif; ?>
 					>
 						<span class="aa-sticky-cart__button-text" data-wp-text="state.buttonText">
-							<?php echo $product->is_in_stock() ? esc_html__( 'Add to Cart', 'aggressive-apparel' ) : esc_html__( 'Out of Stock', 'aggressive-apparel' ); ?>
+							<?php
+							if ( ! $product->is_in_stock() ) {
+								esc_html_e( 'Out of Stock', 'aggressive-apparel' );
+							} elseif ( $product->is_type( 'variable' ) ) {
+								esc_html_e( 'Select options', 'aggressive-apparel' );
+							} else {
+								esc_html_e( 'Add to Cart', 'aggressive-apparel' );
+							}
+							?>
 						</span>
 					</button>
 				</div>
@@ -189,7 +208,6 @@ class Sticky_Add_To_Cart {
 			>
 				<div class="aa-sticky-cart__drawer-backdrop" data-wp-on--click="actions.closeDrawer"></div>
 				<div class="aa-sticky-cart__drawer-panel">
-					<div class="aa-sticky-cart__drawer-handle" aria-hidden="true"></div>
 					<div class="aa-sticky-cart__drawer-header">
 						<?php
 						echo $product->get_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML.
@@ -199,8 +217,14 @@ class Sticky_Add_To_Cart {
 						?>
 						<div class="aa-sticky-cart__drawer-info">
 							<span class="aa-sticky-cart__drawer-title"><?php echo esc_html( $product->get_name() ); ?></span>
-							<span class="aa-sticky-cart__drawer-price" data-wp-text="state.displayPrice">
-								<?php echo $product_data['price_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML. ?>
+							<span class="aa-sticky-cart__drawer-price">
+								<del
+									class="aa-sticky-cart__price-regular"
+									data-wp-text="state.regularPrice"
+									data-wp-bind--hidden="!state.isOnSale"
+									<?php echo $product_data['regular_price_html'] === $product_data['price_html'] ? 'hidden' : ''; ?>
+								><?php echo esc_html( $product_data['regular_price_html'] ); ?></del>
+								<ins class="aa-sticky-cart__price-current" data-wp-text="state.displayPrice"><?php echo esc_html( $product_data['price_html'] ); ?></ins>
 							</span>
 						</div>
 						<button
@@ -216,91 +240,125 @@ class Sticky_Add_To_Cart {
 						</button>
 					</div>
 
-					<div class="aa-sticky-cart__drawer-body">
-						<?php foreach ( $product_data['attributes'] as $attr ) : ?>
-							<div class="aa-sticky-cart__drawer-attribute">
-								<span class="aa-sticky-cart__drawer-attribute-label"><?php echo esc_html( $attr['label'] ); ?></span>
-								<div class="aa-sticky-cart__drawer-options<?php echo $attr['is_color'] ? ' is-color-attribute' : ''; ?>" role="group" aria-label="<?php echo esc_attr( $attr['label'] ); ?>">
-									<?php foreach ( $attr['options'] as $option ) : ?>
-										<?php if ( $attr['is_color'] && ! empty( $attr['swatch_data'][ $option ] ) ) : ?>
-											<?php
-											$swatch       = $attr['swatch_data'][ $option ];
-											$swatch_name  = $swatch['name'];
-											$is_pattern   = 'pattern' === ( $swatch['type'] ?? 'solid' );
-											$swatch_style = $is_pattern
-												? 'background-image: url(' . esc_url( $swatch['value'] ) . '); background-size: cover; background-position: center;'
-												: 'background-color: ' . esc_attr( $swatch['value'] ) . ';';
-											?>
-											<button
-												type="button"
-												class="aa-sticky-cart__drawer-option is-color-swatch"
-												data-wp-on--click="actions.selectDrawerOption"
-												data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
-												data-value="<?php echo esc_attr( $option ); ?>"
-												style="<?php echo $swatch_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>"
-												title="<?php echo esc_attr( $swatch_name ); ?>"
-												aria-label="<?php echo esc_attr( $swatch_name ); ?>"
-											>
-												<span class="screen-reader-text"><?php echo esc_html( $swatch_name ); ?></span>
-											</button>
-										<?php else : ?>
-											<button
-												type="button"
-												class="aa-sticky-cart__drawer-option"
-												data-wp-on--click="actions.selectDrawerOption"
-												data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
-												data-value="<?php echo esc_attr( $option ); ?>"
-											>
-												<span class="aa-sticky-cart__drawer-option-check" aria-hidden="true">
-													<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-														<polyline points="2.5 6.5 5 9 9.5 3.5" />
-													</svg>
-												</span>
-												<span class="aa-sticky-cart__drawer-option-name"><?php echo esc_html( $option ); ?></span>
-											</button>
-										<?php endif; ?>
-									<?php endforeach; ?>
+					<!-- Selection view (options + add to cart). -->
+					<div
+						class="aa-sticky-cart__drawer-selection"
+						data-wp-bind--hidden="state.hideDrawerSelection"
+					>
+						<div class="aa-sticky-cart__drawer-body">
+							<?php foreach ( $product_data['attributes'] as $attr ) : ?>
+								<div class="aa-sticky-cart__drawer-attribute">
+									<span class="aa-sticky-cart__drawer-attribute-label"><?php echo esc_html( $attr['label'] ); ?></span>
+									<div class="aa-sticky-cart__drawer-options<?php echo $attr['is_color'] ? ' is-color-attribute' : ''; ?>" role="group" aria-label="<?php echo esc_attr( $attr['label'] ); ?>">
+										<?php foreach ( $attr['options'] as $option ) : ?>
+											<?php if ( $attr['is_color'] && ! empty( $attr['swatch_data'][ $option ] ) ) : ?>
+												<?php
+												$swatch       = $attr['swatch_data'][ $option ];
+												$swatch_name  = $swatch['name'];
+												$is_pattern   = 'pattern' === ( $swatch['type'] ?? 'solid' );
+												$swatch_style = $is_pattern
+													? 'background-image: url(' . esc_url( $swatch['value'] ) . '); background-size: cover; background-position: center;'
+													: 'background-color: ' . esc_attr( $swatch['value'] ) . ';';
+												?>
+												<button
+													type="button"
+													class="aa-sticky-cart__drawer-option is-color-swatch"
+													data-wp-on--click="actions.selectDrawerOption"
+													data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
+													data-value="<?php echo esc_attr( $option ); ?>"
+													style="<?php echo $swatch_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>"
+													title="<?php echo esc_attr( $swatch_name ); ?>"
+													aria-label="<?php echo esc_attr( $swatch_name ); ?>"
+												>
+													<span class="screen-reader-text"><?php echo esc_html( $swatch_name ); ?></span>
+												</button>
+											<?php else : ?>
+												<button
+													type="button"
+													class="aa-sticky-cart__drawer-option"
+													data-wp-on--click="actions.selectDrawerOption"
+													data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
+													data-value="<?php echo esc_attr( $option ); ?>"
+												>
+													<span class="aa-sticky-cart__drawer-option-check" aria-hidden="true">
+														<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+															<polyline points="2.5 6.5 5 9 9.5 3.5" />
+														</svg>
+													</span>
+													<span class="aa-sticky-cart__drawer-option-name"><?php echo esc_html( $option ); ?></span>
+												</button>
+											<?php endif; ?>
+										<?php endforeach; ?>
+									</div>
 								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<div class="aa-sticky-cart__drawer-footer">
+							<div class="aa-sticky-cart__quantity">
+								<button
+									type="button"
+									class="aa-sticky-cart__qty-btn"
+									data-wp-on--click="actions.decrementQty"
+									aria-label="<?php esc_attr_e( 'Decrease quantity', 'aggressive-apparel' ); ?>"
+								>&minus;</button>
+								<input
+									type="number"
+									class="aa-sticky-cart__qty-input"
+									min="1"
+									value="1"
+									data-wp-bind--value="state.quantity"
+									data-wp-on--change="actions.setQuantity"
+									aria-label="<?php esc_attr_e( 'Quantity', 'aggressive-apparel' ); ?>"
+								/>
+								<button
+									type="button"
+									class="aa-sticky-cart__qty-btn"
+									data-wp-on--click="actions.incrementQty"
+									aria-label="<?php esc_attr_e( 'Increase quantity', 'aggressive-apparel' ); ?>"
+								>&plus;</button>
 							</div>
-						<?php endforeach; ?>
+							<button
+								type="button"
+								class="aa-sticky-cart__drawer-add"
+								data-wp-on--click="actions.addToCart"
+								data-wp-bind--disabled="state.isDrawerAddDisabled"
+								data-wp-class--is-loading="state.isAdding"
+								data-wp-class--is-success="state.isSuccess"
+							>
+								<span data-wp-text="state.drawerButtonText">
+									<?php esc_html_e( 'Add to Cart', 'aggressive-apparel' ); ?>
+								</span>
+							</button>
+						</div>
 					</div>
 
-					<div class="aa-sticky-cart__drawer-footer">
-						<div class="aa-sticky-cart__quantity">
-							<button
-								type="button"
-								class="aa-sticky-cart__qty-btn"
-								data-wp-on--click="actions.decrementQty"
-								aria-label="<?php esc_attr_e( 'Decrease quantity', 'aggressive-apparel' ); ?>"
-							>&minus;</button>
-							<input
-								type="number"
-								class="aa-sticky-cart__qty-input"
-								min="1"
-								value="1"
-								data-wp-bind--value="state.quantity"
-								data-wp-on--change="actions.setQuantity"
-								aria-label="<?php esc_attr_e( 'Quantity', 'aggressive-apparel' ); ?>"
-							/>
-							<button
-								type="button"
-								class="aa-sticky-cart__qty-btn"
-								data-wp-on--click="actions.incrementQty"
-								aria-label="<?php esc_attr_e( 'Increase quantity', 'aggressive-apparel' ); ?>"
-							>&plus;</button>
+					<!-- Success view (shown after add to cart). -->
+					<div
+						class="aa-sticky-cart__drawer-success"
+						data-wp-bind--hidden="state.hideDrawerSuccess"
+						hidden
+					>
+						<div class="aa-sticky-cart__drawer-success-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="4 12 10 18 20 6" />
+							</svg>
 						</div>
-						<button
-							type="button"
-							class="aa-sticky-cart__drawer-add"
-							data-wp-on--click="actions.addToCart"
-							data-wp-bind--disabled="state.isDrawerAddDisabled"
-							data-wp-class--is-loading="state.isAdding"
-							data-wp-class--is-success="state.isSuccess"
-						>
-							<span data-wp-text="state.drawerButtonText">
-								<?php esc_html_e( 'Add to Cart', 'aggressive-apparel' ); ?>
-							</span>
-						</button>
+						<p class="aa-sticky-cart__drawer-success-message">
+							<?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?>
+						</p>
+						<div class="aa-sticky-cart__drawer-success-actions">
+							<button
+								type="button"
+								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--continue"
+								data-wp-on--click="actions.continueShopping"
+							><?php esc_html_e( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
+							<a
+								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--cart"
+								data-wp-bind--href="state.cartUrl"
+								href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/' ); ?>"
+							><?php esc_html_e( 'View Cart', 'aggressive-apparel' ); ?></a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -312,14 +370,15 @@ class Sticky_Add_To_Cart {
 	 * Extract product data for the sticky bar.
 	 *
 	 * @param \WC_Product $product Product object.
-	 * @return array{price_html: string, variations: array, attributes: array, default_attrs: array}
+	 * @return array{price_html: string, regular_price_html: string, variations: array, attributes: array, default_attrs: array}
 	 */
 	private function get_product_data( \WC_Product $product ): array {
 		$data = array(
-			'price_html'    => html_entity_decode( wp_strip_all_tags( $product->get_price_html() ), ENT_QUOTES, 'UTF-8' ),
-			'variations'    => array(),
-			'attributes'    => array(),
-			'default_attrs' => array(),
+			'price_html'         => self::format_plain_price( $product ),
+			'regular_price_html' => self::format_plain_price( $product, true ),
+			'variations'         => array(),
+			'attributes'         => array(),
+			'default_attrs'      => array(),
 		);
 
 		if ( ! $product->is_type( 'variable' ) ) {
@@ -337,10 +396,11 @@ class Sticky_Add_To_Cart {
 		/** @var \WC_Product_Variation[] $available_variations */
 		foreach ( $available_variations as $variation ) {
 			$data['variations'][] = array(
-				'id'         => $variation->get_id(),
-				'attributes' => $variation->get_variation_attributes(),
-				'price'      => html_entity_decode( wp_strip_all_tags( $variation->get_price_html() ), ENT_QUOTES, 'UTF-8' ),
-				'in_stock'   => $variation->is_in_stock(),
+				'id'           => $variation->get_id(),
+				'attributes'   => $variation->get_variation_attributes(),
+				'price'        => self::format_plain_price( $variation ),
+				'regularPrice' => self::format_plain_price( $variation, true ),
+				'in_stock'     => $variation->is_in_stock(),
 			);
 		}
 
@@ -378,37 +438,62 @@ class Sticky_Add_To_Cart {
 	/**
 	 * Get color swatch data for all color terms.
 	 *
-	 * Delegates to Color_Data_Manager::get_swatch_data().
-	 *
 	 * @return array<string, array{value: string, type: string, name: string}>
 	 */
 	private function get_color_swatch_data(): array {
-		try {
-			if ( ! class_exists( Color_Data_Manager::class ) ) {
-				return array();
-			}
-
-			return ( new Color_Data_Manager() )->get_swatch_data();
-		} catch ( \Throwable $e ) {
-			return array();
-		}
+		return Color_Data_Manager::get_safe_swatch_data();
 	}
 
 	/**
 	 * Check if a taxonomy slug is a color attribute.
 	 *
-	 * Mirrors the isColorSlug() helper from quick-view.js.
-	 *
 	 * @param string $taxonomy Taxonomy slug (e.g. 'pa_color').
 	 * @return bool
 	 */
 	private function is_color_attribute( string $taxonomy ): bool {
-		$slug = strtolower( $taxonomy );
-		return in_array(
-			$slug,
-			array( 'pa_color', 'pa_colour', 'color', 'colour' ),
-			true,
-		);
+		return Color_Data_Manager::is_color_attribute( $taxonomy );
+	}
+
+	/**
+	 * Format a product's price as a clean plain-text string.
+	 *
+	 * WooCommerce's get_price_html() includes screen-reader text that
+	 * produces garbled output after wp_strip_all_tags(). This method
+	 * builds a clean price from the numeric value via wc_price().
+	 *
+	 * For variable products, returns a "min – max" range.
+	 *
+	 * @param \WC_Product $product Product or variation.
+	 * @param bool        $regular When true, return the regular (pre-sale) price.
+	 * @return string Plain-text price (e.g. "$12.00" or "$12.00 – $15.00").
+	 */
+	private static function format_plain_price( \WC_Product $product, bool $regular = false ): string {
+		if ( $product instanceof \WC_Product_Variable ) {
+			$prices = $product->get_variation_prices( true );
+			$key    = $regular ? 'regular_price' : 'price';
+			$active = $prices[ $key ] ?? array();
+
+			if ( empty( $active ) ) {
+				return '';
+			}
+
+			$min = min( $active );
+			$max = max( $active );
+
+			$formatted = $min === $max
+				? wc_price( (float) $min )
+				: wc_price( (float) $min ) . ' – ' . wc_price( (float) $max );
+
+			return html_entity_decode( wp_strip_all_tags( $formatted ), ENT_QUOTES, 'UTF-8' );
+		}
+
+		$price = $regular ? $product->get_regular_price() : $product->get_price();
+
+		if ( '' === $price ) {
+			return '';
+		}
+
+		return html_entity_decode( wp_strip_all_tags( wc_price( (float) $price ) ), ENT_QUOTES, 'UTF-8' );
 	}
 
 	/**

@@ -30,6 +30,21 @@ use WP_Term;
  */
 class Color_Block_Swatch_Manager {
 	/**
+	 * Input name values that identify a color attribute.
+	 *
+	 * Covers both WooCommerce taxonomy-based (pa_color, pa_colour) and
+	 * custom product-level attributes (color, colour).
+	 *
+	 * @var string[]
+	 */
+	private const COLOR_INPUT_NAMES = array(
+		'attribute_pa_color',
+		'attribute_pa_colour',
+		'attribute_color',
+		'attribute_colour',
+	);
+
+	/**
 	 * Whether to show text labels alongside color swatches
 	 *
 	 * @var bool
@@ -86,14 +101,25 @@ class Color_Block_Swatch_Manager {
 	 */
 	public function inject_color_swatches_in_block( string $block_content, array $block ): string {
 		// Only process WooCommerce color attribute blocks that contain color attributes.
-		if ( isset( $block['blockName'] ) &&
-			'woocommerce/add-to-cart-with-options-variation-selector-attribute-options' === $block['blockName'] &&
-			strpos( $block_content, 'attribute_pa_color' ) !== false ) {
-
-			return $this->inject_swatches_with_html_processor( $block_content );
+		if ( ! isset( $block['blockName'] ) ||
+			'woocommerce/add-to-cart-with-options-variation-selector-attribute-options' !== $block['blockName'] ) {
+			return $block_content;
 		}
 
-		return $block_content;
+		// Match taxonomy-based (pa_color, pa_colour) and custom (color, colour) attributes.
+		$has_color = false;
+		foreach ( self::COLOR_INPUT_NAMES as $name ) {
+			if ( strpos( $block_content, $name ) !== false ) {
+				$has_color = true;
+				break;
+			}
+		}
+
+		if ( ! $has_color ) {
+			return $block_content;
+		}
+
+		return $this->inject_swatches_with_html_processor( $block_content );
 	}
 
 	/**
@@ -135,7 +161,7 @@ class Color_Block_Swatch_Manager {
 
 			$target_input = null;
 			foreach ( $inputs as $input ) {
-				if ( 'attribute_pa_color' === $input->getAttribute( 'name' ) ) {
+				if ( in_array( $input->getAttribute( 'name' ), self::COLOR_INPUT_NAMES, true ) ) {
 					$target_input = $input;
 					break;
 				}
@@ -150,20 +176,18 @@ class Color_Block_Swatch_Manager {
 				continue;
 			}
 
-			$color_term = get_term_by( 'slug', $color_slug, 'pa_color' );
-			if ( ! $color_term ) {
+			// Try taxonomy term first, then fall back to swatch data map.
+			$color_data = $this->resolve_color_data( $color_slug );
+			if ( ! $color_data ) {
 				continue;
 			}
 
-			$color_data = $this->get_color_display_data_for_term( $color_term );
-			if ( ! $color_data['is_valid'] || empty( $color_data['value'] ) ) {
-				continue;
-			}
+			$color_name = $color_data['name'];
 
 			$aria_label = sprintf(
 				/* translators: %s: color name */
 				__( 'Color option: %s', 'aggressive-apparel' ),
-				$color_term->name
+				$color_name
 			);
 
 			$classes = 'aggressive-apparel-color-swatch aggressive-apparel-color-swatch--interactive';
@@ -176,16 +200,16 @@ class Color_Block_Swatch_Manager {
 			$swatch->setAttribute( 'aria-label', $aria_label );
 			$swatch->setAttribute( 'role', 'img' );
 			$swatch->setAttribute( 'tabindex', '0' );
-			$swatch->setAttribute( 'title', $color_term->name );
-			$swatch->setAttribute( 'data-color-name', $color_term->name );
+			$swatch->setAttribute( 'title', $color_name );
+			$swatch->setAttribute( 'data-color-name', $color_name );
 
 			if ( 'pattern' === $color_data['type'] ) {
 				$swatch->setAttribute( 'data-pattern-url', $color_data['value'] );
-				$swatch->setAttribute( 'style', 'background-image: url(' . esc_url( $color_data['value'] ) . ');' );
+				$swatch->setAttribute( 'style', 'background-image: url(' . esc_url( $color_data['value'] ) . '); --swatch-color: rgb(0 0 0 / 40%);' );
 				$swatch->setAttribute( 'class', $swatch->getAttribute( 'class' ) . ' aggressive-apparel-color-swatch--pattern' );
 			} else {
 				$swatch->setAttribute( 'data-color', $color_data['value'] );
-				$swatch->setAttribute( 'style', 'background-color: ' . esc_attr( $color_data['value'] ) . ';' );
+				$swatch->setAttribute( 'style', 'background-color: ' . esc_attr( $color_data['value'] ) . '; --swatch-color: ' . esc_attr( $color_data['value'] ) . ';' );
 			}
 
 			// Preserve original label text (trimmed) to re-append when show_label is true.
@@ -213,6 +237,38 @@ class Color_Block_Swatch_Manager {
 		$output = $dom->saveHTML();
 
 		return $output ? $output : $block_content;
+	}
+
+	/**
+	 * Resolve color display data from a slug/value.
+	 *
+	 * Tries the pa_color taxonomy first, then falls back to Color_Data_Manager
+	 * swatch data (which covers both taxonomy and custom attributes).
+	 *
+	 * @param string $slug The color slug or option value.
+	 * @return array{type: string, value: string, name: string}|null Color data or null if not found.
+	 */
+	private function resolve_color_data( string $slug ): ?array {
+		// 1. Try taxonomy term (pa_color).
+		$term = get_term_by( 'slug', $slug, 'pa_color' );
+		if ( $term instanceof WP_Term ) {
+			$data = $this->get_color_display_data_for_term( $term );
+			if ( $data['is_valid'] && ! empty( $data['value'] ) ) {
+				return array(
+					'type'  => $data['type'],
+					'value' => $data['value'],
+					'name'  => $term->name,
+				);
+			}
+		}
+
+		// 2. Fall back to Color_Data_Manager swatch data.
+		$swatch_data = ( new Color_Data_Manager() )->get_swatch_data();
+		if ( isset( $swatch_data[ $slug ] ) && ! empty( $swatch_data[ $slug ]['value'] ) ) {
+			return $swatch_data[ $slug ];
+		}
+
+		return null;
 	}
 
 	/**

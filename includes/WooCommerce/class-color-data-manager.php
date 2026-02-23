@@ -162,6 +162,46 @@ class Color_Data_Manager {
 	}
 
 	/**
+	 * Color attribute slugs (without 'attribute_' prefix).
+	 *
+	 * Shared list used by Quick_View, Sticky_Add_To_Cart, and
+	 * Color_Block_Swatch_Manager to identify color attributes.
+	 *
+	 * @var string[]
+	 */
+	private const COLOR_SLUGS = array( 'pa_color', 'pa_colour', 'color', 'colour' );
+
+	/**
+	 * Check whether an attribute taxonomy/slug is a color attribute.
+	 *
+	 * Accepts both prefixed ('attribute_pa_color') and bare ('pa_color')
+	 * slugs and normalises before comparison.
+	 *
+	 * @param string $slug Attribute slug or input name.
+	 * @return bool
+	 */
+	public static function is_color_attribute( string $slug ): bool {
+		$bare = strtolower( (string) preg_replace( '/^attribute_/', '', $slug ) );
+		return in_array( $bare, self::COLOR_SLUGS, true );
+	}
+
+	/**
+	 * Get swatch data with defensive error handling.
+	 *
+	 * Wraps get_swatch_data() in a try-catch so callers like Quick_View
+	 * and Sticky_Add_To_Cart don't need their own duplicate wrapper.
+	 *
+	 * @return array<string, array{value: string, type: string, name: string}>
+	 */
+	public static function get_safe_swatch_data(): array {
+		try {
+			return ( new self() )->get_swatch_data();
+		} catch ( \Throwable $e ) {
+			return array();
+		}
+	}
+
+	/**
 	 * Add custom color term
 	 *
 	 * @param string $name   Color name.

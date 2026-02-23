@@ -692,10 +692,9 @@
 
 	&.is-selected {
 		transform: scale(0.78);
-		box-shadow:
-			inset 0 0 0 1px rgb(0 0 0 / 25%),
-			0 0 0 4px var(--wp--preset--color--white, #fff),
-			0 0 0 7px color-mix(in oklch, var(--swatch-color, rgb(0 0 0 / 40%)) 60%, #000);
+		box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+		outline: 3px solid color-mix(in oklch, var(--swatch-color, rgb(0 0 0 / 40%)) 60%, #000);
+		outline-offset: 4px;
 		background-color: inherit;
 		color: transparent;
 	}
@@ -712,7 +711,6 @@
 
 	&.is-selected:focus-visible {
 		outline-width: 3px;
-		outline-offset: 4px;
 	}
 }
 
@@ -1068,6 +1066,9 @@
 }
 
 .aggressive-apparel-quick-view__drawer-price {
+	display: flex;
+	align-items: baseline;
+	gap: 0.375em;
 	font-weight: 700;
 	font-size: 0.85rem;
 }

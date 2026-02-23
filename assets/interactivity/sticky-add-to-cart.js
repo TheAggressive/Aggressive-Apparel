@@ -8,7 +8,7 @@
  * @since 1.18.0
  */
 
-import { store, getContext } from '@wordpress/interactivity';
+import { store } from '@wordpress/interactivity';
 
 /* ---------------------------------------------------------------
  * Main form selectors
@@ -36,8 +36,7 @@ function readFormAttributes(form) {
   const attrs = {};
   form.querySelectorAll(ATTR_SELECTORS).forEach(el => {
     const name = el.getAttribute('data-attribute_name') || el.name || '';
-    const value =
-      el.type === 'radio' || el.type === 'checkbox' ? el.value : el.value;
+    const value = el.value;
     if (name && value) {
       attrs[name] = value;
     }
@@ -81,12 +80,10 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       return false;
     },
     get buttonText() {
+      if (state.productType === 'variable') return 'Select options';
       if (state.isAdding) return '…';
       if (state.isSuccess) return '✓';
       if (state.hasError) return 'Error';
-      if (state.productType === 'variable' && !state.matchedVariationId) {
-        return 'Select options';
-      }
       return 'Add to Cart';
     },
     get isDrawerAddDisabled() {
@@ -94,6 +91,9 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       if (state.productType === 'variable' && !state.matchedVariationId)
         return true;
       return false;
+    },
+    get isOnSale() {
+      return !!state.regularPrice && state.regularPrice !== state.displayPrice;
     },
     get drawerButtonText() {
       if (state.isAdding) return '…';
@@ -104,17 +104,23 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       }
       return 'Add to Cart';
     },
+    get hideDrawerSelection() {
+      return state.drawerView !== 'selection';
+    },
+    get hideDrawerSuccess() {
+      return state.drawerView !== 'success';
+    },
   },
 
   actions: {
     addToCart() {
       if (state.isAdding) return;
 
-      // Variable product without matched variation → open drawer.
-      if (state.productType === 'variable' && !state.matchedVariationId) {
-        if (!state.isDrawerOpen) {
-          actions.openDrawer();
-        }
+      // Variable products: open the drawer first so the user can pick options.
+      // Once the drawer is open the button inside it calls this same action,
+      // so we only bail when the drawer still needs to be opened.
+      if (state.productType === 'variable' && !state.isDrawerOpen) {
+        actions.openDrawer();
         return;
       }
 
@@ -134,16 +140,46 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
 
       const wasDrawerOpen = state.isDrawerOpen;
 
+      // Build the request body.
+      const body = { id: itemId, quantity: state.quantity };
+
+      // For variable products, include variation attributes so the
+      // Store API can validate the selection.
+      if (state.productType === 'variable' && state.matchedVariationId) {
+        const matchedVar = state.variations.find(
+          v => v.id === state.matchedVariationId
+        );
+        if (matchedVar && matchedVar.attributes) {
+          body.variation = Object.entries(matchedVar.attributes)
+            .filter(([, val]) => val)
+            .map(([key, val]) => ({
+              attribute: key.replace(/^attribute_/, ''),
+              value: val,
+            }));
+        }
+      }
+
       fetch(state.cartApiUrl, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           Nonce: state.nonce,
         },
-        body: JSON.stringify({ id: itemId, quantity: state.quantity }),
+        body: JSON.stringify(body),
       })
         .then(res => {
-          if (!res.ok) throw new Error('Add to cart failed');
+          // Capture refreshed nonce for subsequent requests.
+          const newNonce = res.headers.get('Nonce');
+          if (newNonce) {
+            state.nonce = newNonce;
+          }
+
+          if (!res.ok) {
+            return res.json().then(err => {
+              throw new Error(err.message || `HTTP ${res.status}`);
+            });
+          }
           return res.json();
         })
         .then(() => {
@@ -151,23 +187,32 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
           state.isSuccess = true;
           state.quantity = 1;
 
-          // Dispatch event for other components (mini-cart, bottom nav).
-          document.dispatchEvent(
+          // Dispatch on document.body with bubbles so WooCommerce
+          // mini-cart block picks it up and refreshes.
+          document.body.dispatchEvent(
             new CustomEvent('wc-blocks_added_to_cart', {
-              detail: { productId: itemId },
+              bubbles: true,
             })
           );
 
-          // Close drawer after brief success feedback, or just reset.
-          const delay = wasDrawerOpen ? 1200 : 2000;
-          setTimeout(() => {
-            state.isSuccess = false;
-            if (wasDrawerOpen && state.isDrawerOpen) {
-              actions.closeDrawer();
-            }
-          }, delay);
+          // Switch drawer to success view.
+          if (wasDrawerOpen) {
+            setTimeout(() => {
+              state.isSuccess = false;
+              state.drawerView = 'success';
+            }, 600);
+          } else {
+            setTimeout(() => {
+              state.isSuccess = false;
+            }, 2000);
+          }
         })
-        .catch(() => {
+        .catch(err => {
+          console.error('[sticky-cart] Add to cart failed:', err.message, {
+            url: state.cartApiUrl,
+            itemId,
+            body,
+          });
           state.isAdding = false;
           state.hasError = true;
 
@@ -229,8 +274,11 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       if (match) {
         state.matchedVariationId = match.id;
         state.displayPrice = match.price;
+        state.regularPrice = match.regularPrice || '';
       } else {
         state.matchedVariationId = 0;
+        state.displayPrice = state.originalPrice;
+        state.regularPrice = state.originalRegularPrice || '';
       }
     },
 
@@ -290,12 +338,18 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       syncDrawerOptions();
     },
 
+    continueShopping() {
+      state.drawerView = 'selection';
+      actions.closeDrawer();
+    },
+
     closeDrawer() {
       const drawer = document.querySelector('.aa-sticky-cart__drawer');
       if (!drawer) return;
 
       drawer.classList.remove('is-open');
       state.isDrawerOpen = false;
+      state.drawerView = 'selection';
 
       // Sync all drawer selections to the main form now that the
       // drawer is closing (deferred to avoid triggering WooCommerce

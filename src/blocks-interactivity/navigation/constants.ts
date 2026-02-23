@@ -95,7 +95,7 @@ export const SUBMENU_ITEM_SELECTOR = `${SELECTORS.navLinkAnchor}, ${SELECTORS.su
 /**
  * Default transition duration in milliseconds (matches CSS).
  */
-export const TRANSITION_DURATION_MS = 300;
+export const TRANSITION_DURATION_MS = 400;
 
 /**
  * Indicator animation timing.

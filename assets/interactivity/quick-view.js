@@ -323,25 +323,39 @@ function buildVariations(product, nameToSlug = {}) {
     return [];
   }
 
-  return product.variations.map(v => ({
-    id: v.id,
-    attributes: (v.attributes || []).map(attr => ({
-      ...attr,
-      // Add the resolved taxonomy slug so matchVariation can use it.
-      attribute:
-        attr.attribute ||
-        nameToSlug[(attr.name || '').toLowerCase()] ||
-        attr.name,
-    })),
-    image:
-      v.image && v.image.src
-        ? v.image.src
-        : product.images && product.images.length > 0
-          ? product.images[0].src
-          : '',
-    imageAlt: v.image && v.image.alt ? v.image.alt : product.name || '',
-    prices: v.prices || product.prices,
-  }));
+  // Per-variation prices provided by our PHP ExtendSchema extension.
+  // Keyed by variation ID string.
+  const varPrices =
+    product.extensions?.['aggressive-apparel/variation-prices'] || {};
+
+  return product.variations.map(v => {
+    // Merge per-variation prices with parent currency metadata so
+    // parsePrice() has everything it needs.
+    const extPrices = varPrices[String(v.id)];
+    const prices = extPrices
+      ? { ...product.prices, ...extPrices }
+      : v.prices || product.prices;
+
+    return {
+      id: v.id,
+      attributes: (v.attributes || []).map(attr => ({
+        ...attr,
+        // Add the resolved taxonomy slug so matchVariation can use it.
+        attribute:
+          attr.attribute ||
+          nameToSlug[(attr.name || '').toLowerCase()] ||
+          attr.name,
+      })),
+      image:
+        v.image && v.image.src
+          ? v.image.src
+          : product.images && product.images.length > 0
+            ? product.images[0].src
+            : '',
+      imageAlt: v.image && v.image.alt ? v.image.alt : product.name || '',
+      prices,
+    };
+  });
 }
 
 /**
@@ -451,6 +465,39 @@ function applyVariationImage(img) {
 }
 
 /**
+ * Force-sync price elements in the Quick View modal DOM.
+ *
+ * Belt-and-suspenders fallback for the data-wp-text reactive binding.
+ * Ensures the price visually updates even if the Interactivity API's
+ * reactivity has an edge case issue (e.g. inside hidden drawers or
+ * after populateModalDOM runs).
+ */
+function syncPriceDOM() {
+  const modal = document.getElementById('aggressive-apparel-quick-view');
+  if (!modal) return;
+  modal
+    .querySelectorAll('.aggressive-apparel-quick-view__price-current')
+    .forEach(el => {
+      el.textContent = state.productPrice;
+    });
+  modal
+    .querySelectorAll('.aggressive-apparel-quick-view__price-regular')
+    .forEach(el => {
+      el.textContent = state.productRegularPrice;
+      el.hidden = !state.productOnSale;
+    });
+  // Sale badge — data-wp-text has the same reactivity issue as prices.
+  const badge = modal.querySelector(
+    '.aggressive-apparel-quick-view__sale-badge'
+  );
+  if (badge) {
+    badge.hidden = !state.productOnSale;
+    badge.textContent =
+      state.salePercentage > 0 ? `-${state.salePercentage}%` : '';
+  }
+}
+
+/**
  * Briefly fade the main product image to smooth gallery transitions.
  */
 function fadeImage() {
@@ -505,16 +552,18 @@ function populateModalDOM() {
     name.textContent = state.productName;
   }
 
-  const priceCurrent = q('.aggressive-apparel-quick-view__price-current');
-  if (priceCurrent) {
-    priceCurrent.textContent = state.productPrice;
-  }
+  modal
+    .querySelectorAll('.aggressive-apparel-quick-view__price-current')
+    .forEach(el => {
+      el.textContent = state.productPrice;
+    });
 
-  const priceRegular = q('.aggressive-apparel-quick-view__price-regular');
-  if (priceRegular) {
-    priceRegular.textContent = state.productRegularPrice;
-    priceRegular.hidden = !state.productOnSale;
-  }
+  modal
+    .querySelectorAll('.aggressive-apparel-quick-view__price-regular')
+    .forEach(el => {
+      el.textContent = state.productRegularPrice;
+      el.hidden = !state.productOnSale;
+    });
 
   const desc = q('.aggressive-apparel-quick-view__description');
   if (desc) {
@@ -626,6 +675,10 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
 
     // Sale badge.
     salePercentage: 0,
+
+    // Stored initial price range for variable products (e.g. "$12.00 – $15.00").
+    // Used to restore the range display when a variation is deselected.
+    productPriceRange: '',
 
     // Color swatch data (from PHP).
     colorSwatchData: {},
@@ -978,6 +1031,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.quantity = 1;
       state.addedToCart = false;
       state.cartError = '';
+      variationImageCache.clear();
       state.productImages = [];
       state._originalImages = [];
       state.activeImageIndex = 0;
@@ -985,6 +1039,7 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       state.stockQuantity = null;
       state.stockStatusLabel = '';
       state.salePercentage = 0;
+      state.productPriceRange = '';
       state.showPostCartActions = false;
       state.isDrawerOpen = false;
       state.drawerView = 'selection';
@@ -1049,20 +1104,44 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
             state.productImageAlt = stripTags(data.images[0].alt || data.name);
           }
 
-          // Price.
+          // Price — show a range for variable products with differing
+          // variation prices (e.g. "$12.00 – $15.00").
           const priceData = parsePrice(data.prices);
-          state.productPrice = priceData.current;
-          state.productRegularPrice = priceData.regular;
-          state.productOnSale = priceData.onSale;
+          const range = data.prices?.price_range;
+          if (
+            data.type === 'variable' &&
+            range &&
+            range.min_amount &&
+            range.max_amount &&
+            range.min_amount !== range.max_amount
+          ) {
+            const mu = data.prices.currency_minor_unit ?? 2;
+            const div = Math.pow(10, mu);
+            const pre = data.prices.currency_prefix ?? '$';
+            const suf = data.prices.currency_suffix ?? '';
+            const lo = (parseInt(range.min_amount, 10) / div).toFixed(mu);
+            const hi = (parseInt(range.max_amount, 10) / div).toFixed(mu);
+            const rangeStr = `${pre}${lo}${suf} – ${pre}${hi}${suf}`;
+            state.productPrice = rangeStr;
+            state.productPriceRange = rangeStr;
+            state.productRegularPrice = '';
+            state.productOnSale = false;
+            state.salePercentage = 0;
+          } else {
+            state.productPrice = priceData.current;
+            state.productRegularPrice = priceData.regular;
+            state.productOnSale = priceData.onSale;
+            state.productPriceRange = '';
 
-          // Sale percentage.
-          if (data.prices) {
-            const regular = parseInt(data.prices.regular_price, 10);
-            const sale = parseInt(
-              data.prices.sale_price || data.prices.price,
-              10
-            );
-            state.salePercentage = calculateSalePercentage(regular, sale);
+            // Sale percentage.
+            if (data.prices) {
+              const regular = parseInt(data.prices.regular_price, 10);
+              const sale = parseInt(
+                data.prices.sale_price || data.prices.price,
+                10
+              );
+              state.salePercentage = calculateSalePercentage(regular, sale);
+            }
           }
 
           // Stock status.
@@ -1189,19 +1268,64 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
       newSelected[attrSlug] = current === optionValue ? '' : optionValue;
       state.selectedAttributes = newSelected;
 
+      // Deep-copy variations out of the Interactivity API proxy so
+      // matchVariation sees plain objects (avoids potential proxy
+      // iteration edge cases with nested arrays/objects).
+      const plainVariations = state.productVariations.map(v => ({
+        id: v.id,
+        attributes: (v.attributes || []).map(a => ({
+          attribute: a.attribute,
+          name: a.name,
+          value: a.value,
+          taxonomy: a.taxonomy,
+        })),
+        prices: v.prices
+          ? {
+              price: v.prices.price,
+              regular_price: v.prices.regular_price,
+              sale_price: v.prices.sale_price,
+              currency_minor_unit: v.prices.currency_minor_unit,
+              currency_prefix: v.prices.currency_prefix,
+              currency_suffix: v.prices.currency_suffix,
+            }
+          : null,
+        image: v.image,
+        imageAlt: v.imageAlt,
+      }));
+
       // Try to match a variation.
-      const match = matchVariation(state.productVariations, newSelected);
+      const match = matchVariation(plainVariations, newSelected);
 
       if (match) {
         state.matchedVariationId = match.id;
 
-        // Update price if the variation has different pricing.
+        // Update price from the variation's own pricing data.
+        // Per-variation prices are provided by our PHP ExtendSchema
+        // extension, so match.prices is always correct — no async
+        // fetch needed (same pattern as the sticky cart).
         if (match.prices) {
           const priceData = parsePrice(match.prices);
           state.productPrice = priceData.current;
           state.productRegularPrice = priceData.regular;
           state.productOnSale = priceData.onSale;
+
+          // Update sale badge.
+          if (priceData.onSale) {
+            const regular = parseInt(match.prices.regular_price, 10);
+            const sale = parseInt(
+              match.prices.sale_price || match.prices.price,
+              10
+            );
+            state.salePercentage = calculateSalePercentage(regular, sale);
+          } else {
+            state.salePercentage = 0;
+          }
         }
+
+        // Force DOM sync — ensures the price updates visually even
+        // if the Interactivity API's data-wp-text reactive binding
+        // doesn't trigger (e.g. inside drawers or after populateModalDOM).
+        syncPriceDOM();
 
         // Fetch the variation's own image from the Store API.
         // The parent product response doesn't include per-variation
@@ -1234,6 +1358,15 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         }
       } else {
         state.matchedVariationId = 0;
+
+        // Restore range price when no variation is matched.
+        if (state.productPriceRange) {
+          state.productPrice = state.productPriceRange;
+          state.productRegularPrice = '';
+          state.productOnSale = false;
+          state.salePercentage = 0;
+        }
+
         // Restore original gallery when no variation is matched.
         if (state._originalImages.length > 0) {
           state.productImages = state._originalImages.map(img => ({
@@ -1241,6 +1374,8 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           }));
           state.activeImageIndex = 0;
         }
+
+        syncPriceDOM();
       }
     },
 

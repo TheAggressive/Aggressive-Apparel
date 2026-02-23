@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.46.0...v1.47.0) (2026-02-23)
+
+
+### Features
+
+* enhance quick view and sticky add-to-cart components ([8af0f0d](https://github.com/TheAggressive/Aggressive-Apparel/commit/8af0f0d34fd783ac3b8c1afa596af321482fc8fe))
+
 # [1.46.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.45.2...v1.46.0) (2026-02-22)
 
 

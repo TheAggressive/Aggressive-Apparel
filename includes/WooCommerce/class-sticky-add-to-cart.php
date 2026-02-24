@@ -439,6 +439,15 @@ class Sticky_Add_To_Cart {
 			$label    = wc_attribute_label( $taxonomy, $product );
 			$is_color = $this->is_color_attribute( $taxonomy );
 
+			// Sort size options in logical apparel order (XS → S → M → … → 7XL).
+			if ( Size_Option_Sorter::is_size_attribute( $taxonomy ) ) {
+				usort(
+					$options,
+					static fn( string $a, string $b ): int =>
+						Size_Option_Sorter::size_rank( $a ) <=> Size_Option_Sorter::size_rank( $b )
+				);
+			}
+
 			$swatch_data = array();
 			if ( $is_color && ! empty( $color_swatch_data ) ) {
 				foreach ( $options as $option_slug ) {

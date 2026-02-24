@@ -148,6 +148,8 @@ class Bootstrap {
 			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
+			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
+			$this->container->register( 'variation_pill_enhancer', fn() => new WooCommerce\Variation_Pill_Enhancer() );
 
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
@@ -236,6 +238,12 @@ class Bootstrap {
 		}
 		if ( $this->container->has( 'color_pattern_admin' ) ) {
 			$this->container->get( 'color_pattern_admin' )->register_hooks();
+		}
+		if ( $this->container->has( 'size_option_sorter' ) ) {
+			$this->container->get( 'size_option_sorter' )->init();
+		}
+		if ( $this->container->has( 'variation_pill_enhancer' ) ) {
+			$this->container->get( 'variation_pill_enhancer' )->init();
 		}
 
 		// Initialize feature settings page and enhancement coordinator.

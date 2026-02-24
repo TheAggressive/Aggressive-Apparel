@@ -68,6 +68,11 @@ class Styles {
 				'build/styles/woocommerce/color-swatches',
 				array()
 			);
+			Asset_Loader::enqueue_style(
+				'aggressive-apparel-variation-pills',
+				'build/styles/woocommerce/variation-pills',
+				array()
+			);
 		}
 
 		/**

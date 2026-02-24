@@ -380,7 +380,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 2.25rem;
+	min-height: 2.75rem; /* 44px WCAG touch target */
 	min-width: 2.75rem;
 	padding: 0.375rem 0.75rem;
 	border: none;
@@ -484,8 +484,8 @@
  * down to reveal a darker-shade frame via color-mix().
  */
 .aa-sticky-cart__drawer-option.is-color-swatch {
-	width: 2.5rem;
-	height: 2.5rem;
+	width: 2.75rem;
+	height: 2.75rem;
 	padding: 0;
 	border-radius: 50%;
 	border: none;

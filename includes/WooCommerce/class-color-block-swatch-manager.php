@@ -101,8 +101,7 @@ class Color_Block_Swatch_Manager {
 	 */
 	public function inject_color_swatches_in_block( string $block_content, array $block ): string {
 		// Only process WooCommerce color attribute blocks that contain color attributes.
-		if ( ! isset( $block['blockName'] ) ||
-			'woocommerce/add-to-cart-with-options-variation-selector-attribute-options' !== $block['blockName'] ) {
+		if ( ! Block_Pill_Helper::is_attribute_options_block( $block ) ) {
 			return $block_content;
 		}
 
@@ -123,37 +122,21 @@ class Color_Block_Swatch_Manager {
 	}
 
 	/**
-	 * Inject color swatches using WP_HTML_Processor
+	 * Inject color swatches using DOMDocument via Block_Pill_Helper.
 	 *
 	 * @param string $block_content The block content to modify.
 	 * @return string Modified block content.
 	 */
 	private function inject_swatches_with_html_processor( string $block_content ): string {
-		$dom    = new \DOMDocument();
-		$loaded = $dom->loadHTML(
-			$block_content,
-			LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-		);
-
-		if ( ! $loaded ) {
+		$dom = Block_Pill_Helper::load_dom( $block_content );
+		if ( ! $dom ) {
 			return $block_content;
 		}
 
-		$labels   = $dom->getElementsByTagName( 'label' );
+		$pills    = Block_Pill_Helper::get_pill_labels( $dom );
 		$modified = false;
 
-		// NodeList is live, so copy to array before mutations.
-		$label_nodes = array();
-		foreach ( $labels as $label ) {
-			$label_nodes[] = $label;
-		}
-
-		foreach ( $label_nodes as $label ) {
-			$class_attr = $label->getAttribute( 'class' );
-			if ( false === strpos( $class_attr, 'wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill' ) ) {
-				continue;
-			}
-
+		foreach ( $pills as $label ) {
 			$inputs = $label->getElementsByTagName( 'input' );
 			if ( 0 === $inputs->length ) {
 				continue;
@@ -234,9 +217,7 @@ class Color_Block_Swatch_Manager {
 			return $block_content;
 		}
 
-		$output = $dom->saveHTML();
-
-		return $output ? $output : $block_content;
+		return Block_Pill_Helper::save_dom( $dom, $block_content );
 	}
 
 	/**

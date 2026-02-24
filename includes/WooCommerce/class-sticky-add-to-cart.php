@@ -84,30 +84,40 @@ class Sticky_Add_To_Cart {
 
 		$product_data = $this->get_product_data( $product );
 
+		// Resolve the default product image for the drawer.
+		$drawer_image_id  = $product->get_image_id();
+		$drawer_image_src = $drawer_image_id
+			? (string) wp_get_attachment_image_url( (int) $drawer_image_id, 'woocommerce_gallery_thumbnail' )
+			: (string) wc_placeholder_img_src( 'woocommerce_gallery_thumbnail' );
+
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			wp_interactivity_state(
 				'aggressive-apparel/sticky-add-to-cart',
 				array(
-					'productId'            => $product->get_id(),
-					'productType'          => $product->get_type(),
-					'isVisible'            => false,
-					'isAdding'             => false,
-					'isSuccess'            => false,
-					'hasError'             => false,
-					'displayPrice'         => $product_data['price_html'],
-					'originalPrice'        => $product_data['price_html'],
-					'regularPrice'         => $product_data['regular_price_html'],
-					'originalRegularPrice' => $product_data['regular_price_html'],
-					'cartApiUrl'           => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
-					'nonce'                => wp_create_nonce( 'wc_store_api' ),
-					'variations'           => $product_data['variations'],
-					'attributes'           => $product_data['attributes'],
-					'selectedAttrs'        => $product_data['default_attrs'],
-					'matchedVariationId'   => 0,
-					'quantity'             => 1,
-					'isDrawerOpen'         => false,
-					'drawerView'           => 'selection',
-					'cartUrl'              => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+					'productId'              => $product->get_id(),
+					'productType'            => $product->get_type(),
+					'isVisible'              => false,
+					'isAdding'               => false,
+					'isSuccess'              => false,
+					'hasError'               => false,
+					'displayPrice'           => $product_data['price_html'],
+					'originalPrice'          => $product_data['price_html'],
+					'regularPrice'           => $product_data['regular_price_html'],
+					'originalRegularPrice'   => $product_data['regular_price_html'],
+					'cartApiUrl'             => esc_url_raw( rest_url( 'wc/store/v1/cart/add-item' ) ),
+					'nonce'                  => wp_create_nonce( 'wc_store_api' ),
+					'variations'             => $product_data['variations'],
+					'attributes'             => $product_data['attributes'],
+					'selectedAttrs'          => $product_data['default_attrs'],
+					'matchedVariationId'     => 0,
+					'quantity'               => 1,
+					'isDrawerOpen'           => false,
+					'drawerView'             => 'selection',
+					'cartUrl'                => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+					'drawerImage'            => $drawer_image_src,
+					'drawerImageAlt'         => $product->get_name(),
+					'originalDrawerImage'    => $drawer_image_src,
+					'originalDrawerImageAlt' => $product->get_name(),
 				),
 			);
 		}
@@ -209,12 +219,16 @@ class Sticky_Add_To_Cart {
 				<div class="aa-sticky-cart__drawer-backdrop" data-wp-on--click="actions.closeDrawer"></div>
 				<div class="aa-sticky-cart__drawer-panel">
 					<div class="aa-sticky-cart__drawer-header">
-						<?php
-						echo $product->get_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML.
-							'woocommerce_gallery_thumbnail',
-							array( 'class' => 'aa-sticky-cart__drawer-image' )
-						);
-						?>
+						<img
+							class="aa-sticky-cart__drawer-image"
+							src="<?php echo esc_url( $drawer_image_src ); ?>"
+							alt="<?php echo esc_attr( $product->get_name() ); ?>"
+							width="100"
+							height="100"
+							loading="lazy"
+							data-wp-bind--src="state.drawerImage"
+							data-wp-bind--alt="state.drawerImageAlt"
+						/>
 						<div class="aa-sticky-cart__drawer-info">
 							<span class="aa-sticky-cart__drawer-title"><?php echo esc_html( $product->get_name() ); ?></span>
 							<span class="aa-sticky-cart__drawer-price">
@@ -395,12 +409,25 @@ class Sticky_Add_To_Cart {
 		// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
 		/** @var \WC_Product_Variation[] $available_variations */
 		foreach ( $available_variations as $variation ) {
+			$image_id  = $variation->get_image_id();
+			$image_src = '';
+			$image_alt = '';
+			if ( $image_id ) {
+				$src = wp_get_attachment_image_url( (int) $image_id, 'woocommerce_gallery_thumbnail' );
+				if ( $src ) {
+					$image_src = $src;
+					$image_alt = (string) get_post_meta( (int) $image_id, '_wp_attachment_image_alt', true );
+				}
+			}
+
 			$data['variations'][] = array(
 				'id'           => $variation->get_id(),
 				'attributes'   => $variation->get_variation_attributes(),
 				'price'        => self::format_plain_price( $variation ),
 				'regularPrice' => self::format_plain_price( $variation, true ),
 				'in_stock'     => $variation->is_in_stock(),
+				'image'        => $image_src,
+				'imageAlt'     => ! empty( $image_alt ) ? $image_alt : $product->get_name(),
 			);
 		}
 

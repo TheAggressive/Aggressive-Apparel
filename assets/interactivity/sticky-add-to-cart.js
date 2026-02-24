@@ -257,6 +257,8 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
 
       if (selectedKeys.length === 0) {
         state.matchedVariationId = 0;
+        state.drawerImage = state.originalDrawerImage;
+        state.drawerImageAlt = state.originalDrawerImageAlt;
         return;
       }
 
@@ -275,10 +277,20 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         state.matchedVariationId = match.id;
         state.displayPrice = match.price;
         state.regularPrice = match.regularPrice || '';
+
+        // Swap drawer image if the variation has its own image.
+        if (match.image) {
+          state.drawerImage = match.image;
+          state.drawerImageAlt = match.imageAlt || state.originalDrawerImageAlt;
+        }
       } else {
         state.matchedVariationId = 0;
         state.displayPrice = state.originalPrice;
         state.regularPrice = state.originalRegularPrice || '';
+
+        // Restore original product image.
+        state.drawerImage = state.originalDrawerImage;
+        state.drawerImageAlt = state.originalDrawerImageAlt;
       }
     },
 

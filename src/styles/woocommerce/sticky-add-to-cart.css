@@ -290,6 +290,7 @@
 	object-fit: cover;
 	border-radius: 0.375rem;
 	flex-shrink: 0;
+	transition: opacity 0.2s ease;
 }
 
 .aa-sticky-cart__drawer-info {

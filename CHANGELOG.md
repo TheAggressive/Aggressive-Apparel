@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.47.0...v1.48.0) (2026-02-24)
+
+
+### Features
+
+* enhance sticky add-to-cart component with image handling ([a4a4843](https://github.com/TheAggressive/Aggressive-Apparel/commit/a4a48433dcb6b947de34a9b5ccca380a02f0e6d2))
+
 # [1.47.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.46.0...v1.47.0) (2026-02-23)
 
 

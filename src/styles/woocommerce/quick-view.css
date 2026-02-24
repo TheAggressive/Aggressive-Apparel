@@ -1043,8 +1043,8 @@
 }
 
 .aggressive-apparel-quick-view__drawer-thumb {
-	width: 3.5rem;
-	height: 3.5rem;
+	width: 6rem;
+	height: 6rem;
 	object-fit: cover;
 	border-radius: 0.25rem;
 	flex-shrink: 0;

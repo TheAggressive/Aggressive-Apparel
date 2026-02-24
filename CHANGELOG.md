@@ -1,3 +1,10 @@
+# [1.49.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.48.0...v1.49.0) (2026-02-24)
+
+
+### Features
+
+* enhance WooCommerce components with new size and variation features ([2fec064](https://github.com/TheAggressive/Aggressive-Apparel/commit/2fec06468f2d1f98b1c3e0f8d5e17d4f0aca96c4))
+
 # [1.48.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.47.0...v1.48.0) (2026-02-24)
 
 

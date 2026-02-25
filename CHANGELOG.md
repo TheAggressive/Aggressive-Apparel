@@ -1,3 +1,11 @@
+## [1.49.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.49.0...v1.49.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* improve variation matching logic in sticky add-to-cart component ([a1396f9](https://github.com/TheAggressive/Aggressive-Apparel/commit/a1396f9945d9a5801195dacb5138d7b0edc8eeb0))
+* streamline attribute normalization in sticky add-to-cart component ([9f5a5ba](https://github.com/TheAggressive/Aggressive-Apparel/commit/9f5a5ba1601e38cae180ccad96d8b44548aada34))
+
 # [1.49.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.48.0...v1.49.0) (2026-02-24)
 
 

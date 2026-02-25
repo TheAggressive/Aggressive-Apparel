@@ -266,9 +266,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       const selectedNorm = {};
       for (const [key, value] of Object.entries(selected)) {
         if (!value) continue;
-        const norm = key.startsWith('attribute_')
-          ? key
-          : `attribute_${key}`;
+        const norm = key.startsWith('attribute_') ? key : `attribute_${key}`;
         selectedNorm[norm.toLowerCase()] = value;
       }
 

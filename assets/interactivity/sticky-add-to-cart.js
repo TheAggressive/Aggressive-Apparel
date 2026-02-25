@@ -253,25 +253,39 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
 
     matchVariation() {
       const selected = state.selectedAttrs;
-      const selectedKeys = Object.keys(selected);
+      const activeKeys = Object.keys(selected).filter(k => selected[k]);
 
-      if (selectedKeys.length === 0) {
+      if (activeKeys.length === 0) {
         state.matchedVariationId = 0;
         state.drawerImage = state.originalDrawerImage;
         state.drawerImageAlt = state.originalDrawerImageAlt;
         return;
       }
 
-      const match = state.variations.find(v => {
-        return selectedKeys.every(key => {
-          const normalizedKey = key.startsWith('attribute_')
-            ? key
-            : `attribute_${key}`;
-          const vAttrValue = v.attributes[normalizedKey] || '';
-          // Empty value in variation means "any".
-          return vAttrValue === '' || vAttrValue === selected[key];
-        });
-      });
+      // Build a normalised lookup: always attribute_-prefixed, lowercase.
+      const selectedNorm = {};
+      for (const [key, value] of Object.entries(selected)) {
+        if (!value) continue;
+        const norm = key.startsWith('attribute_')
+          ? key
+          : `attribute_${key}`;
+        selectedNorm[norm.toLowerCase()] = value;
+      }
+
+      // Match from the VARIATION's perspective: every variation attribute
+      // must be satisfied — mirrors quick view's matchVariation logic.
+      const match = state.variations.find(v =>
+        Object.entries(v.attributes).every(([key, vValue]) => {
+          // Empty value means "any" — always matches.
+          if (!vValue) return true;
+
+          const selectedValue = selectedNorm[key.toLowerCase()];
+          if (!selectedValue) return false;
+
+          // Case-insensitive value comparison.
+          return selectedValue.toLowerCase() === vValue.toLowerCase();
+        })
+      );
 
       if (match) {
         state.matchedVariationId = match.id;

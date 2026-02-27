@@ -46,22 +46,37 @@ class Sticky_Add_To_Cart {
 			return;
 		}
 
+		$pills_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/option-pills.css';
+		if ( file_exists( $pills_css ) ) {
+			wp_enqueue_style(
+				'aggressive-apparel-option-pills',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/option-pills.css',
+				array(),
+				(string) filemtime( $pills_css ),
+			);
+		}
+
 		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/sticky-add-to-cart.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'aggressive-apparel-sticky-add-to-cart',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/sticky-add-to-cart.css',
-				array(),
+				array( 'aggressive-apparel-option-pills' ),
 				(string) filemtime( $css_file ),
 			);
 		}
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
+		$js_file = AGGRESSIVE_APPAREL_DIR . '/assets/interactivity/sticky-add-to-cart.js';
+		if ( function_exists( 'wp_register_script_module' ) && file_exists( $js_file ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/sticky-add-to-cart',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/sticky-add-to-cart.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
+				array(
+					'@wordpress/interactivity',
+					'@aggressive-apparel/scroll-lock',
+					'@aggressive-apparel/helpers',
+				),
+				(string) filemtime( $js_file ),
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/sticky-add-to-cart' );
 		}

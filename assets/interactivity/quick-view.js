@@ -19,6 +19,7 @@ import {
   stripTags,
   decodeEntities,
   setupFocusTrap,
+  matchVariation,
 } from '@aggressive-apparel/helpers';
 
 /* ------------------------------------------------------------------ */
@@ -356,52 +357,6 @@ function buildVariations(product, nameToSlug = {}) {
       prices,
     };
   });
-}
-
-/**
- * Find a variation matching the selected attributes.
- *
- * @param {Array}  variations - Array from buildVariations().
- * @param {Object} selected   - Map of slug -> value.
- * @return {Object|null} Matching variation or null.
- */
-function matchVariation(variations, selected) {
-  const selectedKeys = Object.keys(selected).filter(k => selected[k]);
-  if (selectedKeys.length === 0) {
-    return null;
-  }
-
-  // Build a case-insensitive lookup so that keys like "Color" match
-  // variation attribute keys like "pa_color" or "Color".
-  const selectedLower = {};
-  for (const [key, value] of Object.entries(selected)) {
-    selectedLower[key.toLowerCase()] = value;
-  }
-
-  return (
-    variations.find(v =>
-      v.attributes.every(attr => {
-        // Try every possible key the variation attribute might use.
-        const possibleKeys = [attr.attribute, attr.name, attr.taxonomy].filter(
-          Boolean
-        );
-
-        let val;
-        for (const k of possibleKeys) {
-          val = selected[k] || selectedLower[k.toLowerCase()];
-          if (val) break;
-        }
-
-        // "Any" attributes match everything.
-        if (!attr.value) {
-          return true;
-        }
-        // Case-insensitive value comparison: term slugs may be
-        // lowercase ("red") while variation values may differ ("Red").
-        return val && val.toLowerCase() === attr.value.toLowerCase();
-      })
-    ) || null
-  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -1754,7 +1709,10 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           }, 800);
         })
         .catch(err => {
-          console.error('[Quick View] Add to cart failed:', err);
+          if (typeof window.SCRIPT_DEBUG !== 'undefined') {
+            // eslint-disable-next-line no-console
+            console.error('[Quick View] Add to cart failed:', err);
+          }
           state.cartError =
             decodeEntities(err.message) || 'Could not add to cart.';
           state.announcement = `Error: ${state.cartError}`;

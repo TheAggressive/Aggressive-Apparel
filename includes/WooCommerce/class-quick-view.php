@@ -126,18 +126,28 @@ class Quick_View {
 			return;
 		}
 
+		$pills_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/option-pills.css';
+		if ( file_exists( $pills_css ) ) {
+			wp_enqueue_style(
+				'aggressive-apparel-option-pills',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/option-pills.css',
+				array(),
+				(string) filemtime( $pills_css ),
+			);
+		}
+
 		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/quick-view.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'aggressive-apparel-quick-view',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/quick-view.css',
-				array(),
+				array( 'aggressive-apparel-option-pills' ),
 				(string) filemtime( $css_file ),
 			);
 		}
 
 		$js_file = AGGRESSIVE_APPAREL_DIR . '/assets/interactivity/quick-view.js';
-		if ( function_exists( 'wp_register_script_module' ) ) {
+		if ( function_exists( 'wp_register_script_module' ) && file_exists( $js_file ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/quick-view',
 				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/quick-view.js',

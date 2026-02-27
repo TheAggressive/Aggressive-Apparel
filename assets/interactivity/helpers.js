@@ -78,6 +78,73 @@ export function stripTags(html) {
 }
 
 /**
+ * Find a variation matching the selected attributes.
+ *
+ * Handles both data formats:
+ * - Store API (quick view): `{ attributes: [{attribute, name, taxonomy, value}] }`
+ * - PHP state (sticky cart): `{ attributes: {attribute_pa_color: "red"} }`
+ *
+ * Matching iterates from the **variation's** perspective: every non-empty
+ * variation attribute must be satisfied by the selection. Empty variation
+ * values mean "any" and always match.
+ *
+ * @param {Array}  variations - Array of variation objects with `id` and `attributes`.
+ * @param {Object} selected   - Map of attribute key → selected value.
+ * @return {Object|null} Matching variation or null.
+ */
+export function matchVariation(variations, selected) {
+  const activeEntries = Object.entries(selected).filter(([, v]) => v);
+  if (activeEntries.length === 0) {
+    return null;
+  }
+
+  // Build normalised lookup: lowercase keys in both bare and attribute_-prefixed forms.
+  const norm = {};
+  for (const [key, value] of activeEntries) {
+    const lower = key.toLowerCase();
+    norm[lower] = value;
+    // Ensure attribute_-prefixed form exists for object-format matching.
+    if (!lower.startsWith('attribute_')) {
+      norm[`attribute_${lower}`] = value;
+    }
+  }
+
+  return (
+    variations.find(v => {
+      const attrs = v.attributes;
+
+      // Array format (Store API): [{attribute, name, taxonomy, value}]
+      if (Array.isArray(attrs)) {
+        return attrs.every(attr => {
+          if (!attr.value) return true;
+
+          const possibleKeys = [
+            attr.attribute,
+            attr.name,
+            attr.taxonomy,
+          ].filter(Boolean);
+          let val;
+          for (const k of possibleKeys) {
+            val = norm[k.toLowerCase()];
+            if (val) break;
+          }
+
+          return val && val.toLowerCase() === attr.value.toLowerCase();
+        });
+      }
+
+      // Object format (PHP state): {attribute_pa_color: "red"}
+      return Object.entries(attrs).every(([key, vValue]) => {
+        if (!vValue) return true;
+        const selectedValue = norm[key.toLowerCase()];
+        if (!selectedValue) return false;
+        return selectedValue.toLowerCase() === vValue.toLowerCase();
+      });
+    }) || null
+  );
+}
+
+/**
  * Setup focus trap within a container element.
  *
  * @param {HTMLElement} container - The container to trap focus within.

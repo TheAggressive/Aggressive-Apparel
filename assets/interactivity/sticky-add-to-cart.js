@@ -9,6 +9,8 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+import { matchVariation, setupFocusTrap } from '@aggressive-apparel/helpers';
 
 /* ---------------------------------------------------------------
  * Main form selectors
@@ -25,6 +27,9 @@ const ATTR_SELECTORS = [
   'select[name^="attribute_"]',
   'input[name^="attribute_"]:checked',
 ].join(', ');
+
+// Focus trap cleanup reference.
+let focusTrapCleanup = null;
 
 /**
  * Read all current attribute selections from a form element.
@@ -62,6 +67,35 @@ function syncDrawerOptions() {
       btn.style.setProperty('--swatch-color', btn.style.backgroundColor);
     }
   });
+}
+
+/**
+ * Defer unlockScroll until the drawer slide-out transition finishes.
+ *
+ * @param {Element} drawer The drawer container element.
+ */
+function deferUnlock(drawer) {
+  const panel = drawer.querySelector('.aa-sticky-cart__drawer-panel');
+  let done = false;
+  const finish = () => {
+    if (done || state.isDrawerOpen) return;
+    done = true;
+    drawer.hidden = true;
+    unlockScroll();
+  };
+
+  if (panel) {
+    panel.addEventListener(
+      'transitionend',
+      e => {
+        if (e.propertyName === 'transform') finish();
+      },
+      { once: true }
+    );
+  }
+
+  // Safety fallback for reduced-motion or missed events.
+  setTimeout(finish, 350);
 }
 
 /* ---------------------------------------------------------------
@@ -207,12 +241,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
             }, 2000);
           }
         })
-        .catch(err => {
-          console.error('[sticky-cart] Add to cart failed:', err.message, {
-            url: state.cartApiUrl,
-            itemId,
-            body,
-          });
+        .catch(() => {
           state.isAdding = false;
           state.hasError = true;
 
@@ -262,28 +291,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         return;
       }
 
-      // Build a normalised lookup: always attribute_-prefixed, lowercase.
-      const selectedNorm = {};
-      for (const [key, value] of Object.entries(selected)) {
-        if (!value) continue;
-        const norm = key.startsWith('attribute_') ? key : `attribute_${key}`;
-        selectedNorm[norm.toLowerCase()] = value;
-      }
-
-      // Match from the VARIATION's perspective: every variation attribute
-      // must be satisfied — mirrors quick view's matchVariation logic.
-      const match = state.variations.find(v =>
-        Object.entries(v.attributes).every(([key, vValue]) => {
-          // Empty value means "any" — always matches.
-          if (!vValue) return true;
-
-          const selectedValue = selectedNorm[key.toLowerCase()];
-          if (!selectedValue) return false;
-
-          // Case-insensitive value comparison.
-          return selectedValue.toLowerCase() === vValue.toLowerCase();
-        })
-      );
+      const match = matchVariation(state.variations, selected);
 
       if (match) {
         state.matchedVariationId = match.id;
@@ -355,11 +363,20 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       drawer.classList.add('is-open');
       state.isDrawerOpen = true;
 
-      // Lock page scroll.
-      document.documentElement.style.overflow = 'hidden';
+      lockScroll();
 
       // Sync pill button visuals with current selections.
       syncDrawerOptions();
+
+      // Setup focus trap after drawer renders.
+      requestAnimationFrame(() => {
+        const panel = drawer.querySelector('.aa-sticky-cart__drawer-panel');
+        if (panel) {
+          focusTrapCleanup = setupFocusTrap(panel);
+          const closeBtn = panel.querySelector('.aa-sticky-cart__drawer-close');
+          closeBtn?.focus();
+        }
+      });
     },
 
     continueShopping() {
@@ -370,6 +387,12 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
     closeDrawer() {
       const drawer = document.querySelector('.aa-sticky-cart__drawer');
       if (!drawer) return;
+
+      // Clean up focus trap.
+      if (focusTrapCleanup) {
+        focusTrapCleanup();
+        focusTrapCleanup = null;
+      }
 
       drawer.classList.remove('is-open');
       state.isDrawerOpen = false;
@@ -383,28 +406,8 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         actions.syncToMainForm(attrName, selected[attrName]);
       }
 
-      // Wait for slide-out transition, then hide + unlock scroll.
-      const panel = drawer.querySelector('.aa-sticky-cart__drawer-panel');
-      let done = false;
-      const finish = () => {
-        if (done) return;
-        done = true;
-        drawer.hidden = true;
-        document.documentElement.style.overflow = '';
-      };
-
-      if (panel) {
-        panel.addEventListener(
-          'transitionend',
-          e => {
-            if (e.propertyName === 'transform') finish();
-          },
-          { once: true }
-        );
-      }
-
-      // Safety fallback for reduced-motion or missed events.
-      setTimeout(finish, 350);
+      // Defer unlockScroll until the slide-out transition finishes.
+      deferUnlock(drawer);
     },
 
     selectDrawerOption(event) {

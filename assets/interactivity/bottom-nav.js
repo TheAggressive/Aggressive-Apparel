@@ -45,6 +45,11 @@ const { state, actions } = store('aggressive-apparel/bottom-nav', {
     get hasEmptyCart() {
       return state.cartCount === 0;
     },
+    get cartAriaLabel() {
+      return state.cartCount > 0
+        ? `Cart (${state.cartCount} ${state.cartCount === 1 ? 'item' : 'items'})`
+        : 'Cart';
+    },
     get isSearchClosed() {
       return !state.isSearchOpen;
     },

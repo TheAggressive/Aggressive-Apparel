@@ -88,9 +88,15 @@ class Quick_View {
 		$prefix   = in_array( $position, array( 'left', 'left_space' ), true ) ? $symbol : '';
 		$suffix   = in_array( $position, array( 'right', 'right_space' ), true ) ? $symbol : '';
 
-		$result = array();
+		$result        = array();
+		$variation_ids = $product->get_visible_children();
 
-		foreach ( $product->get_visible_children() as $variation_id ) {
+		// Batch-prime the post cache to avoid N+1 queries.
+		if ( function_exists( '_prime_post_caches' ) ) {
+			_prime_post_caches( $variation_ids );
+		}
+
+		foreach ( $variation_ids as $variation_id ) {
 			$variation = wc_get_product( $variation_id );
 			if ( ! $variation ) {
 				continue;
@@ -346,6 +352,7 @@ class Quick_View {
 								class="no-lazy"
 								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 								alt=""
+								data-wp-bind--alt="state.productName"
 								data-wp-watch="callbacks.syncCurrentImage"
 							/>
 							<!-- Sale badge. -->
@@ -391,6 +398,8 @@ class Quick_View {
 										data-wp-on--click="actions.selectImage"
 										data-wp-class--is-active="state.isActiveImage"
 										aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
+										data-wp-bind--aria-label="state.imagePositionLabel"
+										data-wp-bind--aria-current="state.isActiveImage ? 'true' : null"
 									>
 										<img
 											class="no-lazy"
@@ -436,6 +445,8 @@ class Quick_View {
 									data-wp-on--click="actions.selectImage"
 									data-wp-class--is-active="state.isActiveImage"
 									aria-label="<?php echo esc_attr__( 'View image', 'aggressive-apparel' ); ?>"
+									data-wp-bind--aria-label="state.imagePositionLabel"
+									data-wp-bind--aria-current="state.isActiveImage ? 'true' : null"
 								></button>
 							</template>
 						</div>
@@ -604,6 +615,7 @@ class Quick_View {
 									class="no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
+									data-wp-bind--alt="state.productName"
 									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 							</div>
@@ -614,6 +626,7 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
+									data-wp-bind--alt="state.productName"
 									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 								<div class="aggressive-apparel-quick-view__drawer-product-info">
@@ -750,6 +763,7 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
+									data-wp-bind--alt="state.productName"
 									data-wp-watch="callbacks.syncCurrentImage"
 								/>
 								<div class="aggressive-apparel-quick-view__drawer-product-info">

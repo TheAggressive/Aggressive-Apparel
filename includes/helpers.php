@@ -8,6 +8,8 @@
  * @since 1.0.0
  */
 
+declare(strict_types=1);
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

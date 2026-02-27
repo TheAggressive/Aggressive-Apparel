@@ -8,6 +8,8 @@
  * @package Aggressive_Apparel\Core
  */
 
+declare(strict_types=1);
+
 namespace Aggressive_Apparel\Core;
 
 // Exit if accessed directly.

@@ -222,6 +222,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         .then(() => {
           state.isAdding = false;
           state.isSuccess = true;
+          state.announcement = 'Added to cart';
           state.quantity = 1;
 
           // Dispatch on document.body with bubbles so WooCommerce
@@ -247,9 +248,11 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         .catch(() => {
           state.isAdding = false;
           state.hasError = true;
+          state.announcement = 'Error adding to cart';
 
           setTimeout(() => {
             state.hasError = false;
+            state.announcement = '';
           }, 3000);
         });
     },

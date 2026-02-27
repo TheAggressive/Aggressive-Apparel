@@ -724,6 +724,19 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     /**
+     * Aria label for the current thumbnail/dot (e.g., "Image 2 of 5").
+     */
+    get imagePositionLabel() {
+      const ctx = getContext();
+      if (!ctx.item) return '';
+      const index = state.productImages.findIndex(
+        img => img.id === ctx.item.id
+      );
+      if (index < 0) return '';
+      return `Image ${index + 1} of ${state.productImages.length}`;
+    },
+
+    /**
      * Sale badge text (e.g., "-25%").
      */
     get saleBadgeText() {

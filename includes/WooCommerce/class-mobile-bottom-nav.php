@@ -136,7 +136,7 @@ class Mobile_Bottom_Nav {
 				<span class="aa-bottom-nav__label"><?php esc_html_e( 'Search', 'aggressive-apparel' ); ?></span>
 			</button>
 
-			<a href="<?php echo esc_url( $cart_url ); ?>" class="aa-bottom-nav__item aa-bottom-nav__item--cart" aria-label="<?php esc_attr_e( 'Cart', 'aggressive-apparel' ); ?>">
+			<a href="<?php echo esc_url( $cart_url ); ?>" class="aa-bottom-nav__item aa-bottom-nav__item--cart" aria-label="<?php esc_attr_e( 'Cart', 'aggressive-apparel' ); ?>" data-wp-bind--aria-label="state.cartAriaLabel">
 				<?php Icons::render( 'cart', $icon_attrs ); ?>
 				<span
 					class="aa-bottom-nav__badge"

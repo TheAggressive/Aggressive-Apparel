@@ -662,7 +662,9 @@ function renderHorizontalDropdowns() {
     );
 
     if (section && dd.children.length === 0) {
-      dd.innerHTML = section.innerHTML;
+      for (const child of section.childNodes) {
+        dd.appendChild(child.cloneNode(true));
+      }
     }
   });
 }

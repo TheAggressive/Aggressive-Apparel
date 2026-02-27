@@ -107,11 +107,11 @@ class Back_In_Stock_Admin {
 			return;
 		}
 
+		check_admin_referer( 'bulk-subscribers' );
+
 		if ( ! isset( $_GET['subscriber'] ) || ! is_array( $_GET['subscriber'] ) ) {
 			return;
 		}
-
-		check_admin_referer( 'bulk-subscribers' );
 
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();

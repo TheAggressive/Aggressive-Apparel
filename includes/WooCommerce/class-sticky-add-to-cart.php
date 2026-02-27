@@ -128,6 +128,7 @@ class Sticky_Add_To_Cart {
 					'quantity'               => 1,
 					'isDrawerOpen'           => false,
 					'drawerView'             => 'selection',
+					'announcement'           => '',
 					'cartUrl'                => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
 					'drawerImage'            => $drawer_image_src,
 					'drawerImageAlt'         => $product->get_name(),
@@ -396,6 +397,15 @@ class Sticky_Add_To_Cart {
 				</div>
 			</div>
 		<?php endif; ?>
+
+		<div
+			class="aa-sticky-cart__announcer"
+			data-wp-interactive="aggressive-apparel/sticky-add-to-cart"
+			role="status"
+			aria-live="polite"
+			aria-atomic="true"
+			data-wp-text="state.announcement"
+		></div>
 		<?php
 	}
 

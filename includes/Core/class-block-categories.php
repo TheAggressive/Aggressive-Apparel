@@ -5,6 +5,8 @@
  * @package Aggressive_Apparel
  */
 
+declare(strict_types=1);
+
 namespace Aggressive_Apparel\Core;
 
 /**

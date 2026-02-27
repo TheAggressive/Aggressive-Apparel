@@ -18,7 +18,7 @@
 	position: fixed;
 	bottom: var(--aa-bottom-nav-height, 0);
 	left: 0;
-	right: var(--scrollbar-width, 0px);
+	right: var(--scrollbar-width, 0);
 	z-index: 99996;
 	background-color: var(--wp--preset--color--white, #fff);
 	color: var(--wp--preset--color--black, #000);
@@ -239,7 +239,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 .aa-sticky-cart__drawer {
 	position: fixed;
 	inset: 0;
-	right: var(--scrollbar-width, 0px);
+	right: var(--scrollbar-width, 0);
 	z-index: 100000;
 	display: flex;
 	align-items: flex-end;

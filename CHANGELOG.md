@@ -1,3 +1,15 @@
+# [1.50.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.49.1...v1.50.0) (2026-02-27)
+
+
+### Bug Fixes
+
+* update scrollbar width in sticky add-to-cart CSS ([30baf7a](https://github.com/TheAggressive/Aggressive-Apparel/commit/30baf7a3f1753a965ae5f6bfbdf3de713752d119))
+
+
+### Features
+
+* implement matchVariation function for improved variation matching ([83d844e](https://github.com/TheAggressive/Aggressive-Apparel/commit/83d844e320e0fd89871f6896d7b4810aae4f9052))
+
 ## [1.49.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.49.0...v1.49.1) (2026-02-25)
 
 

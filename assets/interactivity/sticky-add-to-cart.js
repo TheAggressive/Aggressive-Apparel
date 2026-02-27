@@ -107,6 +107,9 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
     get ariaHidden() {
       return state.isVisible ? 'false' : 'true';
     },
+    get isVariable() {
+      return state.productType === 'variable';
+    },
     get isAddDisabled() {
       if (state.isAdding) return true;
       // Variable products without matched variation can still be clicked

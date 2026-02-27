@@ -540,6 +540,27 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 }
 
 /* -----------------------------------------------
+ * Desktop drawer — right-anchored popover
+ * ----------------------------------------------- */
+
+@media (width >= 768px) {
+
+	.aa-sticky-cart__drawer {
+		align-items: flex-end;
+		justify-content: flex-end;
+		padding: 0 1.5rem;
+		padding-bottom: calc(var(--aa-sticky-cart-height) + 0.75rem);
+	}
+
+	.aa-sticky-cart__drawer-panel {
+		width: 26rem;
+		max-height: 80dvh;
+		border-radius: 0.75rem;
+		box-shadow: 0 8px 32px rgb(0 0 0 / 18%);
+	}
+}
+
+/* -----------------------------------------------
  * Mobile layout
  * ----------------------------------------------- */
 

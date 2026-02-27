@@ -172,7 +172,11 @@ class Sticky_Add_To_Cart {
 				</div>
 
 				<div class="aa-sticky-cart__actions">
-					<div class="aa-sticky-cart__quantity">
+					<div
+						class="aa-sticky-cart__quantity"
+						data-wp-bind--hidden="state.isVariable"
+						<?php echo $product->is_type( 'variable' ) ? 'hidden' : ''; ?>
+					>
 						<button
 							type="button"
 							class="aa-sticky-cart__qty-btn"

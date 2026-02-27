@@ -1,3 +1,10 @@
+# [1.51.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.50.0...v1.51.0) (2026-02-27)
+
+
+### Features
+
+* add variable product handling and enhance sticky cart styles ([390e951](https://github.com/TheAggressive/Aggressive-Apparel/commit/390e9517dfaaaf721163b6fbe53884d4cfff88d9))
+
 # [1.50.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.49.1...v1.50.0) (2026-02-27)
 
 

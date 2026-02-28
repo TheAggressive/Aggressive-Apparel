@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.51.0...v1.52.0) (2026-02-28)
+
+
+### Features
+
+* enhance accessibility and user feedback in cart and quick view components ([e910ff6](https://github.com/TheAggressive/Aggressive-Apparel/commit/e910ff6d18b0683e971edcfbdd0c75193902df16))
+
 # [1.51.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.50.0...v1.51.0) (2026-02-27)
 
 

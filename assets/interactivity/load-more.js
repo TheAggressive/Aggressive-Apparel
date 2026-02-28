@@ -28,10 +28,6 @@ const { state } = store('aggressive-apparel/load-more', {
       return state.mode !== 'infinite_scroll' || state.allLoaded;
     },
 
-    get notAllLoaded() {
-      return !state.allLoaded;
-    },
-
     get statusText() {
       if (state.totalProducts === 0) return '';
       return `Showing ${state.loadedCount} of ${state.totalProducts} products`;

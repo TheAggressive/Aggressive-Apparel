@@ -69,125 +69,134 @@ class Feature_Settings {
 	 */
 	public static function get_feature_definitions(): array {
 		return array(
+			// ── Catalog & Browsing ──────────────────────────────.
 			'product_badges'             => array(
 				'label'       => __( 'Product Badges', 'aggressive-apparel' ),
 				'description' => __( 'Show sale percentage, "New", "Low Stock", and "Bestseller" badges on product cards.', 'aggressive-apparel' ),
-				'section'     => 'server',
+				'section'     => 'catalog',
 			),
 			'price_display'              => array(
 				'label'       => __( 'Smart Price Display', 'aggressive-apparel' ),
 				'description' => __( 'Show "From $X" on archives, "Save X%" on sale items.', 'aggressive-apparel' ),
-				'section'     => 'server',
-			),
-			'product_tabs'               => array(
-				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
-				'description' => __( 'Replace default WooCommerce tabs with 4 display styles (accordion, inline, modern tabs, scrollspy) and add custom tabs.', 'aggressive-apparel' ),
-				'section'     => 'server',
+				'section'     => 'catalog',
 			),
 			'advanced_sorting'           => array(
 				'label'       => __( 'Advanced Sorting Options', 'aggressive-apparel' ),
 				'description' => __( 'Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog.', 'aggressive-apparel' ),
-				'section'     => 'server',
-			),
-			'free_shipping_bar'          => array(
-				'label'       => __( 'Free Shipping Progress Bar', 'aggressive-apparel' ),
-				'description' => __( 'Show progress toward free shipping threshold in the cart.', 'aggressive-apparel' ),
-				'section'     => 'server',
-			),
-			'swatch_tooltips'            => array(
-				'label'       => __( 'Swatch Tooltips', 'aggressive-apparel' ),
-				'description' => __( 'Show fabric name and composition on color swatch hover.', 'aggressive-apparel' ),
-				'section'     => 'css',
-			),
-			'mini_cart_styling'          => array(
-				'label'       => __( 'Mini Cart Styling', 'aggressive-apparel' ),
-				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
-				'section'     => 'css',
+				'section'     => 'catalog',
 			),
 			'grid_list_toggle'           => array(
 				'label'       => __( 'Grid/List View Toggle', 'aggressive-apparel' ),
 				'description' => __( 'Toggle between grid and list view on shop archive pages.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
+				'section'     => 'catalog',
 			),
 			'product_filters'            => array(
 				'label'       => __( 'Product Filters', 'aggressive-apparel' ),
 				'description' => __( 'AJAX product filters with categories, color swatches, sizes, price range, and stock status.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'page_transitions'           => array(
-				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
-				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
-				'section'     => 'css',
+				'section'     => 'catalog',
 			),
 			'load_more'                  => array(
 				'label'       => __( 'Load More / Infinite Scroll', 'aggressive-apparel' ),
 				'description' => __( 'Replace pagination with a Load More button or automatic infinite scroll.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'exit_intent'                => array(
-				'label'       => __( 'Exit Intent Email Capture', 'aggressive-apparel' ),
-				'description' => __( 'Show an email signup popup when visitors are about to leave. Configurable text and re-show interval.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'size_guide'                 => array(
-				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
-				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'countdown_timer'            => array(
-				'label'       => __( 'Sale Countdown Timer', 'aggressive-apparel' ),
-				'description' => __( 'Live countdown for products with scheduled sale end dates.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'recently_viewed'            => array(
-				'label'       => __( 'Recently Viewed Products', 'aggressive-apparel' ),
-				'description' => __( 'Show customers their recently viewed products using browser storage.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
+				'section'     => 'catalog',
 			),
 			'predictive_search'          => array(
 				'label'       => __( 'Predictive Search', 'aggressive-apparel' ),
 				'description' => __( 'Show live product search results with thumbnails and prices as users type.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
+				'section'     => 'catalog',
+			),
+			'page_transitions'           => array(
+				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
+				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
+				'section'     => 'catalog',
+			),
+
+			// ── Product Page ────────────────────────────────────.
+			'product_tabs'               => array(
+				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
+				'description' => __( 'Replace default WooCommerce tabs with 4 display styles (accordion, inline, modern tabs, scrollspy) and add custom tabs.', 'aggressive-apparel' ),
+				'section'     => 'product',
+			),
+			'size_guide'                 => array(
+				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
+				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
+				'section'     => 'product',
+			),
+			'countdown_timer'            => array(
+				'label'       => __( 'Sale Countdown Timer', 'aggressive-apparel' ),
+				'description' => __( 'Live countdown for products with scheduled sale end dates.', 'aggressive-apparel' ),
+				'section'     => 'product',
 			),
 			'sticky_add_to_cart'         => array(
 				'label'       => __( 'Sticky Add to Cart', 'aggressive-apparel' ),
 				'description' => __( 'Fixed bar with product info and add-to-cart when main button scrolls out of view.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
-			),
-			'mobile_bottom_nav'          => array(
-				'label'       => __( 'Mobile Bottom Navigation', 'aggressive-apparel' ),
-				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
-				'section'     => 'interactive',
+				'section'     => 'product',
 			),
 			'stock_status'               => array(
 				'label'       => __( 'Stock Status', 'aggressive-apparel' ),
 				'description' => __( 'Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View.', 'aggressive-apparel' ),
-				'section'     => 'rich',
+				'section'     => 'product',
 			),
 			'quick_view'                 => array(
 				'label'       => __( 'Quick View', 'aggressive-apparel' ),
 				'description' => __( 'Preview products in a modal overlay from shop pages.', 'aggressive-apparel' ),
-				'section'     => 'rich',
-			),
-			'wishlist'                   => array(
-				'label'       => __( 'Wishlist', 'aggressive-apparel' ),
-				'description' => __( 'Save-for-later with heart icon toggle and dedicated wishlist page.', 'aggressive-apparel' ),
-				'section'     => 'rich',
-			),
-			'social_proof'               => array(
-				'label'       => __( 'Social Proof Notifications', 'aggressive-apparel' ),
-				'description' => __( 'Show recent purchase toast notifications to build urgency.', 'aggressive-apparel' ),
-				'section'     => 'rich',
+				'section'     => 'product',
 			),
 			'frequently_bought_together' => array(
 				'label'       => __( 'Frequently Bought Together', 'aggressive-apparel' ),
 				'description' => __( 'Show recommended products with checkboxes and combined add-to-cart on product pages.', 'aggressive-apparel' ),
-				'section'     => 'rich',
+				'section'     => 'product',
+			),
+
+			// ── Cart & Mini Cart ────────────────────────────────.
+			'free_shipping_bar'          => array(
+				'label'       => __( 'Free Shipping Progress Bar', 'aggressive-apparel' ),
+				'description' => __( 'Show progress toward free shipping threshold in the cart.', 'aggressive-apparel' ),
+				'section'     => 'cart',
+			),
+			'mini_cart_styling'          => array(
+				'label'       => __( 'Mini Cart Styling', 'aggressive-apparel' ),
+				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
+				'section'     => 'cart',
+			),
+
+			// ── Customer Engagement ─────────────────────────────.
+			'recently_viewed'            => array(
+				'label'       => __( 'Recently Viewed Products', 'aggressive-apparel' ),
+				'description' => __( 'Show customers their recently viewed products using browser storage.', 'aggressive-apparel' ),
+				'section'     => 'engagement',
+			),
+			'wishlist'                   => array(
+				'label'       => __( 'Wishlist', 'aggressive-apparel' ),
+				'description' => __( 'Save-for-later with heart icon toggle and dedicated wishlist page.', 'aggressive-apparel' ),
+				'section'     => 'engagement',
+			),
+			'social_proof'               => array(
+				'label'       => __( 'Social Proof Notifications', 'aggressive-apparel' ),
+				'description' => __( 'Show recent purchase toast notifications to build urgency.', 'aggressive-apparel' ),
+				'section'     => 'engagement',
 			),
 			'back_in_stock'              => array(
 				'label'       => __( 'Back in Stock Notifications', 'aggressive-apparel' ),
 				'description' => __( 'Let customers subscribe to out-of-stock products and get notified when restocked.', 'aggressive-apparel' ),
-				'section'     => 'rich',
+				'section'     => 'engagement',
+			),
+			'exit_intent'                => array(
+				'label'       => __( 'Exit Intent Email Capture', 'aggressive-apparel' ),
+				'description' => __( 'Show an email signup popup when visitors are about to leave. Configurable text and re-show interval.', 'aggressive-apparel' ),
+				'section'     => 'engagement',
+			),
+
+			// ── Mobile & UI ─────────────────────────────────────.
+			'swatch_tooltips'            => array(
+				'label'       => __( 'Swatch Tooltips', 'aggressive-apparel' ),
+				'description' => __( 'Show fabric name and composition on color swatch hover.', 'aggressive-apparel' ),
+				'section'     => 'ui',
+			),
+			'mobile_bottom_nav'          => array(
+				'label'       => __( 'Mobile Bottom Navigation', 'aggressive-apparel' ),
+				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
+				'section'     => 'ui',
 			),
 		);
 	}
@@ -233,10 +242,11 @@ class Feature_Settings {
 		);
 
 		$sections = array(
-			'server'      => __( 'Server-Side Features', 'aggressive-apparel' ),
-			'css'         => __( 'Style Enhancements', 'aggressive-apparel' ),
-			'interactive' => __( 'Interactive Features', 'aggressive-apparel' ),
-			'rich'        => __( 'Rich Interactivity', 'aggressive-apparel' ),
+			'catalog'    => __( 'Catalog & Browsing', 'aggressive-apparel' ),
+			'product'    => __( 'Product Page', 'aggressive-apparel' ),
+			'cart'       => __( 'Cart & Mini Cart', 'aggressive-apparel' ),
+			'engagement' => __( 'Customer Engagement', 'aggressive-apparel' ),
+			'ui'         => __( 'Mobile & UI', 'aggressive-apparel' ),
 		);
 
 		foreach ( $sections as $id => $title ) {
@@ -247,6 +257,27 @@ class Feature_Settings {
 				self::PAGE_SLUG,
 			);
 		}
+
+		// Register sub-setting options (always, so saved values persist).
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::FILTER_LAYOUT_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'drawer',
+				'sanitize_callback' => array( $this, 'sanitize_filter_layout' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::LOAD_MORE_MODE_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'load_more',
+				'sanitize_callback' => array( $this, 'sanitize_load_more_mode' ),
+			)
+		);
 
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
@@ -260,45 +291,28 @@ class Feature_Settings {
 					'description' => $feature['description'],
 				),
 			);
+
+			// Sub-settings rendered immediately after their parent toggle.
+			if ( 'product_filters' === $key && self::is_enabled( 'product_filters' ) ) {
+				add_settings_field(
+					'filter_layout',
+					__( 'Filter Layout', 'aggressive-apparel' ),
+					array( $this, 'render_filter_layout_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+			}
+
+			if ( 'load_more' === $key && self::is_enabled( 'load_more' ) ) {
+				add_settings_field(
+					'load_more_mode',
+					__( 'Load More Mode', 'aggressive-apparel' ),
+					array( $this, 'render_load_more_mode_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+			}
 		}
-
-		// Product filter layout sub-setting.
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::FILTER_LAYOUT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'drawer',
-				'sanitize_callback' => array( $this, 'sanitize_filter_layout' ),
-			)
-		);
-
-		add_settings_field(
-			'filter_layout',
-			__( 'Filter Layout', 'aggressive-apparel' ),
-			array( $this, 'render_filter_layout_field' ),
-			self::PAGE_SLUG,
-			'aggressive_apparel_features_interactive',
-		);
-
-		// Load more mode sub-setting.
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::LOAD_MORE_MODE_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'load_more',
-				'sanitize_callback' => array( $this, 'sanitize_load_more_mode' ),
-			)
-		);
-
-		add_settings_field(
-			'load_more_mode',
-			__( 'Load More Mode', 'aggressive-apparel' ),
-			array( $this, 'render_load_more_mode_field' ),
-			self::PAGE_SLUG,
-			'aggressive_apparel_features_interactive',
-		);
 	}
 
 	/**

@@ -67,8 +67,11 @@ body.aa-list-view .wp-block-woocommerce-product-template {
 body.aa-list-view .wp-block-woocommerce-product-template > li {
   display: grid;
   grid-template-columns: 200px 1fr;
+  grid-template-rows: auto auto auto;
   gap: 0 1.5rem;
   align-items: start;
+  width: 100% !important;
+  max-width: none !important;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgb(0 0 0 / 8%);
 }
@@ -80,6 +83,7 @@ body.aa-list-view .wp-block-woocommerce-product-template > li:last-child {
 /* Image spans full left column */
 body.aa-list-view .wp-block-woocommerce-product-template > li .wc-block-components-product-image,
 body.aa-list-view .wp-block-woocommerce-product-template > li figure {
+  grid-column: 1;
   grid-row: 1 / -1;
   margin: 0;
 }
@@ -91,6 +95,17 @@ body.aa-list-view .wp-block-woocommerce-product-template > li figure img {
   height: 200px;
   object-fit: cover;
   border-radius: 0.25rem;
+}
+
+/* Title, price, button stack in the right column */
+body.aa-list-view .wp-block-woocommerce-product-template > li .wp-block-post-title,
+body.aa-list-view .wp-block-woocommerce-product-template > li .wp-block-woocommerce-product-price,
+body.aa-list-view .wp-block-woocommerce-product-template > li .wp-block-woocommerce-product-button {
+  grid-column: 2;
+}
+
+body.aa-list-view .wp-block-woocommerce-product-template > li .wp-block-woocommerce-product-button {
+  justify-self: start;
 }
 
 /* ── AJAX Grid — List View Override ─────────────────── */

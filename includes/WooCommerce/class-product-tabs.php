@@ -502,7 +502,7 @@ class Product_Tabs {
 			__( 'Product Info Display Style', 'aggressive-apparel' ),
 			array( $this, 'render_style_setting' ),
 			'aggressive-apparel-features',
-			'aggressive_apparel_features_server',
+			'aggressive_apparel_features_product',
 			array( 'label_for' => 'aa_product_tabs_style' ),
 		);
 	}

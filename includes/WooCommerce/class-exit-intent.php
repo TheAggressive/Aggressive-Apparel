@@ -280,7 +280,7 @@ class Exit_Intent {
 			__( 'Exit Intent Settings', 'aggressive-apparel' ),
 			array( $this, 'render_settings_fields' ),
 			'aggressive-apparel-features',
-			'aggressive_apparel_features_interactive',
+			'aggressive_apparel_features_engagement',
 		);
 	}
 

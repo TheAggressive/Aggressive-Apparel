@@ -88,7 +88,7 @@ class Load_More {
 		$load_more_html = '<div class="aa-load-more" data-wp-interactive="aggressive-apparel/load-more" data-wp-init="callbacks.init">';
 
 		// Status text.
-		$load_more_html .= '<div class="aa-load-more__status" data-wp-bind--hidden="state.allLoaded">';
+		$load_more_html .= '<div class="aa-load-more__status">';
 		$load_more_html .= '<span class="aa-load-more__count" data-wp-text="state.statusText"></span>';
 		$load_more_html .= '</div>';
 
@@ -106,12 +106,6 @@ class Load_More {
 		if ( 'infinite_scroll' === $mode ) {
 			$load_more_html .= '<div class="aa-load-more__sentinel" data-wp-bind--hidden="state.hideSentinel" aria-hidden="true"></div>';
 		}
-
-		// All loaded message.
-		$load_more_html .= sprintf(
-			'<p class="aa-load-more__all-loaded" data-wp-bind--hidden="state.notAllLoaded">%s</p>',
-			esc_html__( 'All products loaded', 'aggressive-apparel' )
-		);
 
 		// Screen reader announcements.
 		$load_more_html .= '<div class="aa-load-more__announcer screen-reader-text" role="status" aria-live="polite" data-wp-text="state.announcement"></div>';

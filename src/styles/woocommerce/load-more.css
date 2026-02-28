@@ -74,14 +74,6 @@
   width: 100%;
 }
 
-/* ── All Loaded ─────────────────────────────────────── */
-
-.aa-load-more__all-loaded {
-  font-size: 0.813rem;
-  color: rgb(0 0 0 / 40%);
-  margin: 0;
-}
-
 /* ── Spinner Keyframes ──────────────────────────────── */
 
 @keyframes aa-load-more-spin {
@@ -113,9 +105,6 @@
     outline-color: var(--wp--preset--color--white, #fff);
   }
 
-  .aa-load-more__all-loaded {
-    color: rgb(255 255 255 / 40%);
-  }
 }
 
 [data-theme="dark"] .aa-load-more__status {
@@ -130,10 +119,6 @@
 [data-theme="dark"] .aa-load-more__btn:hover {
   background: var(--wp--preset--color--white, #fff);
   color: var(--wp--preset--color--black, #000);
-}
-
-[data-theme="dark"] .aa-load-more__all-loaded {
-  color: rgb(255 255 255 / 40%);
 }
 
 /* ── Reduced Motion ─────────────────────────────────── */

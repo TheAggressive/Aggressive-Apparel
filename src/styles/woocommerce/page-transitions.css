@@ -1,27 +1,23 @@
 /**
  * Page Transitions
  *
- * MPA View Transitions for smooth cross-page navigation.
- * Progressive enhancement — zero impact on unsupported browsers.
+ * MPA View Transitions for smooth cross-page navigation with shared
+ * element morphing and staggered content entry.
  *
+ * Progressive enhancement — zero impact on unsupported browsers.
  * Browser support: Chrome 126+, Safari 18.2+, Edge 126+.
- * Firefox and older browsers simply ignore these rules.
  *
  * @package Aggressive_Apparel
  * @since 1.18.0
  */
 
-/* -----------------------------------------------
- * Enable MPA View Transitions
- * ----------------------------------------------- */
+/* ── Enable MPA View Transitions ──────────────────── */
 
 @view-transition {
 	navigation: auto;
 }
 
-/* -----------------------------------------------
- * Persistent elements (no crossfade, stay stable)
- * ----------------------------------------------- */
+/* ── Named Elements ───────────────────────────────── */
 
 header.wp-block-template-part {
 	view-transition-name: site-header;
@@ -31,27 +27,45 @@ footer.wp-block-template-part {
 	view-transition-name: site-footer;
 }
 
-/* -----------------------------------------------
- * Main content transition
- * ----------------------------------------------- */
-
 main.wp-block-group {
 	view-transition-name: main-content;
 }
 
-/* -----------------------------------------------
- * Transition animations
- * ----------------------------------------------- */
+/* ── Shared Element Morph (images + titles) ───────── */
 
-/* Old content fades out quickly. */
-::view-transition-old(main-content) {
-	animation: aa-vt-fade-out 150ms ease-out;
+/* Standard decelerate for all view-transition groups.
+ * Controls position/size interpolation between old and new
+ * snapshots — the "flying" morph for product images and titles.
+ * Header/footer/main-content are unaffected (stable position or
+ * explicit old/new overrides). overflow:clip prevents image
+ * overflow during aspect-ratio morph. */
+::view-transition-group(*) {
+	animation-duration: 400ms;
+	animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+	overflow: clip;
 }
 
-/* New content fades in. */
-::view-transition-new(main-content) {
-	animation: aa-vt-fade-in 200ms ease-in 50ms;
+/* ── Image Morph Guards ──────────────────────────── */
+
+/* Ensure old/new snapshots fill the morphing group container
+ * cleanly during image size transitions. Prevents aspect-ratio
+ * mismatch artifacts. Harmless for non-image groups. */
+::view-transition-old(*),
+::view-transition-new(*) {
+	height: 100%;
+	overflow: clip;
 }
+
+/* ── Header & Footer — Stable, No Animation ──────── */
+
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+	animation: none;
+}
+
+/* ── Main Content — Slide + Fade ──────────────────── */
 
 @keyframes aa-vt-fade-out {
 
@@ -64,57 +78,151 @@ main.wp-block-group {
 	}
 }
 
-@keyframes aa-vt-fade-in {
+@keyframes aa-vt-slide-up-in {
 
 	from {
 		opacity: 0;
+		transform: translateY(16px);
 	}
 
 	to {
 		opacity: 1;
+		transform: translateY(0);
 	}
 }
 
-/* Header and footer persist — no animation. */
-::view-transition-old(site-header),
-::view-transition-new(site-header),
-::view-transition-old(site-footer),
-::view-transition-new(site-footer) {
-	animation: none;
+/* Old content dissolves with accelerate — speeds up as it exits. */
+::view-transition-old(main-content) {
+	animation: aa-vt-fade-out 200ms cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* Product image shared element: browser handles position/size morph. */
-::view-transition-group(product-image) {
-	animation-duration: 300ms;
-	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* New content rises into view with decelerate — starts fast, lands softly. */
+::view-transition-new(main-content) {
+	animation: aa-vt-slide-up-in 400ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* -----------------------------------------------
- * Exclusions
- * ----------------------------------------------- */
+/* ── Product Detail Stagger ───────────────────────── */
 
-/* WordPress admin bar must not participate. */
+/* On single product pages, the right column content (title,
+ * rating, price, excerpt, add-to-cart, meta) staggers in
+ * with 50ms offsets for a deliberate reveal effect.
+ * Scoped to @supports so it only fires in VT-capable browsers. */
+
+@supports (view-transition-name: none) {
+
+	@keyframes aa-vt-stagger-in {
+
+		from {
+			opacity: 0;
+			transform: translateY(16px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	body.single-product .wp-block-column:last-child > * {
+		animation: aa-vt-stagger-in 400ms cubic-bezier(0, 0, 0.2, 1) both;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(1) {
+		animation-delay: 60ms;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(2) {
+		animation-delay: 120ms;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(3) {
+		animation-delay: 180ms;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(4) {
+		animation-delay: 240ms;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(5) {
+		animation-delay: 300ms;
+	}
+
+	body.single-product .wp-block-column:last-child > :nth-child(n + 6) {
+		animation-delay: 360ms;
+	}
+}
+
+/* ── Navigation Progress Bar ─────────────────────── */
+
+/* Thin top bar for visual feedback during slow navigations.
+ * Hidden by default (width:0, opacity:0). JS adds .is-navigating
+ * to <body> after 150ms — skipped for prerendered pages.
+ * view-transition-name:none prevents morph artifacts. */
+body::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 3px;
+	background: var(--wp--preset--color--primary);
+	z-index: 999999;
+	pointer-events: none;
+	opacity: 0;
+	view-transition-name: none;
+}
+
+@keyframes aa-progress-bar {
+
+	0% {
+		width: 0;
+		opacity: 1;
+	}
+
+	5% {
+		width: 5%;
+		opacity: 1;
+	}
+
+	100% {
+		width: 90%;
+		opacity: 1;
+	}
+}
+
+body.is-navigating::after {
+	animation: aa-progress-bar 4s cubic-bezier(0.1, 0.5, 0, 1) forwards;
+}
+
+/* ── Exclusions ───────────────────────────────────── */
+
 #wpadminbar {
 	view-transition-name: none !important;
 }
 
-/* Checkout — never transition payment forms. */
 body.woocommerce-checkout main.wp-block-group {
 	view-transition-name: none !important;
 }
 
-/* Cart — avoid transitioning cart state changes. */
 body.woocommerce-cart main.wp-block-group {
 	view-transition-name: none !important;
 }
 
-/* -----------------------------------------------
- * Reduced motion — disable all transitions
- * ----------------------------------------------- */
+/* ── Reduced Motion ───────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
 
 	@view-transition {
 		navigation: none;
+	}
+
+	body.single-product .wp-block-column:last-child > * {
+		animation: none;
+	}
+
+	body.is-navigating::after {
+		animation: none;
+		width: 100%;
+		opacity: 0.3;
 	}
 }

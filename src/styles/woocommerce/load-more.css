@@ -1,0 +1,150 @@
+/**
+ * Load More / Infinite Scroll Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.51.0
+ */
+
+/* ── Container ──────────────────────────────────────── */
+
+.aa-load-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+/* ── Status Text ────────────────────────────────────── */
+
+.aa-load-more__status {
+  font-size: 0.813rem;
+  color: rgb(0 0 0 / 50%);
+}
+
+/* ── Load More Button ───────────────────────────────── */
+
+.aa-load-more__btn {
+  padding: 0.75rem 2rem;
+  min-height: 2.75rem;
+  border: 2px solid var(--wp--preset--color--black, #000);
+  background: transparent;
+  color: var(--wp--preset--color--black, #000);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.aa-load-more__btn:hover {
+  background: var(--wp--preset--color--black, #000);
+  color: var(--wp--preset--color--white, #fff);
+}
+
+.aa-load-more__btn:focus-visible {
+  outline: 2px solid var(--wp--preset--color--black, #000);
+  outline-offset: 2px;
+}
+
+.aa-load-more__btn.is-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Loading spinner inside button */
+.aa-load-more__btn.is-loading::after {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  border: 2px solid transparent;
+  border-top-color: currentcolor;
+  border-radius: 50%;
+  animation: aa-load-more-spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+
+/* ── Sentinel ───────────────────────────────────────── */
+
+.aa-load-more__sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+/* ── All Loaded ─────────────────────────────────────── */
+
+.aa-load-more__all-loaded {
+  font-size: 0.813rem;
+  color: rgb(0 0 0 / 40%);
+  margin: 0;
+}
+
+/* ── Spinner Keyframes ──────────────────────────────── */
+
+@keyframes aa-load-more-spin {
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Dark Mode ──────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+
+  .aa-load-more__status {
+    color: rgb(255 255 255 / 50%);
+  }
+
+  .aa-load-more__btn {
+    border-color: var(--wp--preset--color--white, #fff);
+    color: var(--wp--preset--color--white, #fff);
+  }
+
+  .aa-load-more__btn:hover {
+    background: var(--wp--preset--color--white, #fff);
+    color: var(--wp--preset--color--black, #000);
+  }
+
+  .aa-load-more__btn:focus-visible {
+    outline-color: var(--wp--preset--color--white, #fff);
+  }
+
+  .aa-load-more__all-loaded {
+    color: rgb(255 255 255 / 40%);
+  }
+}
+
+[data-theme="dark"] .aa-load-more__status {
+  color: rgb(255 255 255 / 50%);
+}
+
+[data-theme="dark"] .aa-load-more__btn {
+  border-color: var(--wp--preset--color--white, #fff);
+  color: var(--wp--preset--color--white, #fff);
+}
+
+[data-theme="dark"] .aa-load-more__btn:hover {
+  background: var(--wp--preset--color--white, #fff);
+  color: var(--wp--preset--color--black, #000);
+}
+
+[data-theme="dark"] .aa-load-more__all-loaded {
+  color: rgb(255 255 255 / 40%);
+}
+
+/* ── Reduced Motion ─────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-load-more__btn {
+    transition: none;
+  }
+
+  .aa-load-more__btn.is-loading::after {
+    animation: none;
+  }
+}

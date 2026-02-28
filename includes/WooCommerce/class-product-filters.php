@@ -209,6 +209,7 @@ class Product_Filters {
 					'inStockOnly'          => false,
 					'orderBy'              => 'date',
 					'orderDir'             => 'desc',
+					'_customSort'          => '',
 					'isDrawerOpen'         => false,
 					'isLoading'            => false,
 					'hasError'             => false,

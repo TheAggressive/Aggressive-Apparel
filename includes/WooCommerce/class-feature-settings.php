@@ -56,6 +56,13 @@ class Feature_Settings {
 	public const FILTER_LAYOUT_OPTION = 'aggressive_apparel_filter_layout';
 
 	/**
+	 * Option key for the load more mode.
+	 *
+	 * @var string
+	 */
+	public const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
+
+	/**
 	 * Feature definitions with metadata.
 	 *
 	 * @return array<string, array{label: string, description: string, section: string}>
@@ -77,6 +84,11 @@ class Feature_Settings {
 				'description' => __( 'Replace default WooCommerce tabs with 4 display styles (accordion, inline, modern tabs, scrollspy) and add custom tabs.', 'aggressive-apparel' ),
 				'section'     => 'server',
 			),
+			'advanced_sorting'           => array(
+				'label'       => __( 'Advanced Sorting Options', 'aggressive-apparel' ),
+				'description' => __( 'Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog.', 'aggressive-apparel' ),
+				'section'     => 'server',
+			),
 			'free_shipping_bar'          => array(
 				'label'       => __( 'Free Shipping Progress Bar', 'aggressive-apparel' ),
 				'description' => __( 'Show progress toward free shipping threshold in the cart.', 'aggressive-apparel' ),
@@ -92,6 +104,11 @@ class Feature_Settings {
 				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
 				'section'     => 'css',
 			),
+			'grid_list_toggle'           => array(
+				'label'       => __( 'Grid/List View Toggle', 'aggressive-apparel' ),
+				'description' => __( 'Toggle between grid and list view on shop archive pages.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
+			),
 			'product_filters'            => array(
 				'label'       => __( 'Product Filters', 'aggressive-apparel' ),
 				'description' => __( 'AJAX product filters with categories, color swatches, sizes, price range, and stock status.', 'aggressive-apparel' ),
@@ -101,6 +118,16 @@ class Feature_Settings {
 				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
 				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
 				'section'     => 'css',
+			),
+			'load_more'                  => array(
+				'label'       => __( 'Load More / Infinite Scroll', 'aggressive-apparel' ),
+				'description' => __( 'Replace pagination with a Load More button or automatic infinite scroll.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
+			),
+			'exit_intent'                => array(
+				'label'       => __( 'Exit Intent Email Capture', 'aggressive-apparel' ),
+				'description' => __( 'Show an email signup popup when visitors are about to leave. Configurable text and re-show interval.', 'aggressive-apparel' ),
+				'section'     => 'interactive',
 			),
 			'size_guide'                 => array(
 				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
@@ -253,6 +280,25 @@ class Feature_Settings {
 			self::PAGE_SLUG,
 			'aggressive_apparel_features_interactive',
 		);
+
+		// Load more mode sub-setting.
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::LOAD_MORE_MODE_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'load_more',
+				'sanitize_callback' => array( $this, 'sanitize_load_more_mode' ),
+			)
+		);
+
+		add_settings_field(
+			'load_more_mode',
+			__( 'Load More Mode', 'aggressive-apparel' ),
+			array( $this, 'render_load_more_mode_field' ),
+			self::PAGE_SLUG,
+			'aggressive_apparel_features_interactive',
+		);
 	}
 
 	/**
@@ -349,6 +395,42 @@ class Feature_Settings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Sanitize the load more mode option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized mode value.
+	 */
+	public function sanitize_load_more_mode( $input ): string {
+		$valid = array( 'load_more', 'infinite_scroll' );
+		return in_array( $input, $valid, true ) ? $input : 'load_more';
+	}
+
+	/**
+	 * Render the load more mode select field.
+	 *
+	 * @return void
+	 */
+	public function render_load_more_mode_field(): void {
+		$mode    = get_option( self::LOAD_MORE_MODE_OPTION, 'load_more' );
+		$options = array(
+			'load_more'       => __( 'Load More Button', 'aggressive-apparel' ),
+			'infinite_scroll' => __( 'Infinite Scroll', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::LOAD_MORE_MODE_OPTION ) );
+		foreach ( $options as $value => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $value ),
+				selected( $mode, $value, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Load More shows a button; Infinite Scroll loads automatically as users scroll down.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

@@ -1,0 +1,236 @@
+/**
+ * Grid/List View Toggle Styles
+ *
+ * Toggle button styling and list-view layout overrides for both
+ * SSR (WooCommerce product template) and AJAX (product filters) grids.
+ *
+ * @package Aggressive_Apparel
+ * @since 1.51.0
+ */
+
+/* ── Toggle Buttons ─────────────────────────────────── */
+
+.aa-grid-list-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 0.375rem;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+.aa-grid-list-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: rgb(0 0 0 / 50%);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.aa-grid-list-toggle__btn:hover {
+  background: rgb(0 0 0 / 6%);
+  color: rgb(0 0 0 / 80%);
+}
+
+.aa-grid-list-toggle__btn.is-active {
+  background: var(--wp--preset--color--black, #000);
+  color: var(--wp--preset--color--white, #fff);
+}
+
+.aa-grid-list-toggle__btn:focus-visible {
+  outline: 2px solid var(--wp--preset--color--black, #000);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* Divider between buttons */
+.aa-grid-list-toggle__btn + .aa-grid-list-toggle__btn {
+  border-left: 1px solid rgb(0 0 0 / 12%);
+}
+
+/* ── SSR Grid — List View Override ──────────────────── */
+
+body.aa-list-view .wp-block-woocommerce-product-template {
+  display: flex !important;
+  flex-direction: column;
+  gap: 1rem;
+  columns: unset !important;
+}
+
+body.aa-list-view .wp-block-woocommerce-product-template > li {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0 1.5rem;
+  align-items: start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(0 0 0 / 8%);
+}
+
+body.aa-list-view .wp-block-woocommerce-product-template > li:last-child {
+  border-bottom: none;
+}
+
+/* Image spans full left column */
+body.aa-list-view .wp-block-woocommerce-product-template > li .wc-block-components-product-image,
+body.aa-list-view .wp-block-woocommerce-product-template > li figure {
+  grid-row: 1 / -1;
+  margin: 0;
+}
+
+body.aa-list-view .wp-block-woocommerce-product-template > li .wc-block-components-product-image img,
+body.aa-list-view .wp-block-woocommerce-product-template > li figure img {
+  aspect-ratio: 1;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+/* ── AJAX Grid — List View Override ─────────────────── */
+
+.aa-product-filters.is-list-view .aa-product-filters__products {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.aa-product-filters.is-list-view .aa-product-filters__product-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 0 1.5rem;
+  align-items: start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(0 0 0 / 8%);
+}
+
+.aa-product-filters.is-list-view .aa-product-filters__product-card:last-child {
+  border-bottom: none;
+}
+
+.aa-product-filters.is-list-view .aa-product-filters__product-link {
+  grid-row: 1 / -1;
+}
+
+.aa-product-filters.is-list-view .aa-product-filters__product-image {
+  aspect-ratio: 1;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+/* Short description — hidden in grid, visible in list */
+.aa-product-filters__product-description {
+  display: none;
+}
+
+.aa-product-filters.is-list-view .aa-product-filters__product-description {
+  display: block;
+  font-size: 0.813rem;
+  color: rgb(0 0 0 / 50%);
+  margin-top: 0.25rem;
+  line-height: 1.5;
+}
+
+/* ── Mobile Responsive ──────────────────────────────── */
+
+@media (width <= 768px) {
+
+  body.aa-list-view .wp-block-woocommerce-product-template > li {
+    grid-template-columns: 120px 1fr;
+    gap: 0 1rem;
+  }
+
+  body.aa-list-view .wp-block-woocommerce-product-template > li .wc-block-components-product-image img,
+  body.aa-list-view .wp-block-woocommerce-product-template > li figure img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .aa-product-filters.is-list-view .aa-product-filters__product-card {
+    grid-template-columns: 120px 1fr;
+    gap: 0 1rem;
+  }
+
+  .aa-product-filters.is-list-view .aa-product-filters__product-image {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* ── Dark Mode ──────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+
+  .aa-grid-list-toggle {
+    border-color: rgb(255 255 255 / 15%);
+  }
+
+  .aa-grid-list-toggle__btn {
+    color: rgb(255 255 255 / 50%);
+  }
+
+  .aa-grid-list-toggle__btn:hover {
+    background: rgb(255 255 255 / 10%);
+    color: rgb(255 255 255 / 80%);
+  }
+
+  .aa-grid-list-toggle__btn.is-active {
+    background: var(--wp--preset--color--white, #fff);
+    color: var(--wp--preset--color--black, #000);
+  }
+
+  .aa-grid-list-toggle__btn:focus-visible {
+    outline-color: var(--wp--preset--color--white, #fff);
+  }
+
+  .aa-grid-list-toggle__btn + .aa-grid-list-toggle__btn {
+    border-left-color: rgb(255 255 255 / 15%);
+  }
+
+  body.aa-list-view .wp-block-woocommerce-product-template > li {
+    border-bottom-color: rgb(255 255 255 / 10%);
+  }
+
+  .aa-product-filters.is-list-view .aa-product-filters__product-card {
+    border-bottom-color: rgb(255 255 255 / 10%);
+  }
+
+  .aa-product-filters.is-list-view .aa-product-filters__product-description {
+    color: rgb(255 255 255 / 50%);
+  }
+}
+
+[data-theme="dark"] .aa-grid-list-toggle {
+  border-color: rgb(255 255 255 / 15%);
+}
+
+[data-theme="dark"] .aa-grid-list-toggle__btn {
+  color: rgb(255 255 255 / 50%);
+}
+
+[data-theme="dark"] .aa-grid-list-toggle__btn:hover {
+  background: rgb(255 255 255 / 10%);
+  color: rgb(255 255 255 / 80%);
+}
+
+[data-theme="dark"] .aa-grid-list-toggle__btn.is-active {
+  background: var(--wp--preset--color--white, #fff);
+  color: var(--wp--preset--color--black, #000);
+}
+
+/* ── Reduced Motion ─────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-grid-list-toggle__btn {
+    transition: none;
+  }
+}

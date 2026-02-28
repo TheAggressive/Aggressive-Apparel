@@ -10,7 +10,11 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
-import { parsePrice, setupFocusTrap } from '@aggressive-apparel/helpers';
+import {
+  parsePrice,
+  stripTags,
+  setupFocusTrap,
+} from '@aggressive-apparel/helpers';
 
 /** @type {number|null} */
 let debounceTimer = null;
@@ -313,6 +317,13 @@ const { state, actions } = store('aggressive-apparel/product-filters', {
           renderPagination();
         }
       });
+
+      // Listen for load-more requesting the next page.
+      document.addEventListener('aa:load-more-page', e => {
+        const { page } = e.detail;
+        state.currentPage = page;
+        fetchProducts({ append: true });
+      });
     },
   },
 });
@@ -351,26 +362,19 @@ function removeArrayItem(arr, item) {
 function debouncedFetch() {
   if (debounceTimer) clearTimeout(debounceTimer);
   state.currentPage = 1;
+  document.dispatchEvent(new CustomEvent('aa:filters-changed'));
   debounceTimer = setTimeout(() => {
     fetchProducts();
   }, 300);
 }
 
 /**
- * Fetch products from the WooCommerce Store API.
+ * Build common filter query params for Store API requests.
+ *
+ * @returns {URLSearchParams}
  */
-function fetchProducts() {
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
-
-  state.isLoading = true;
-  state.hasError = false;
-
+function buildFilterParams() {
   const params = new URLSearchParams();
-  params.set('per_page', String(state.perPage));
-  params.set('page', String(state.currentPage));
-  params.set('orderby', state.orderBy);
-  params.set('order', state.orderDir);
 
   if (state.selectedCategories.length > 0) {
     params.set('category', state.selectedCategories.join(','));
@@ -402,6 +406,143 @@ function fetchProducts() {
     params.set('stock_status', 'instock');
   }
 
+  return params;
+}
+
+/**
+ * Fetch sorted product IDs from the custom REST endpoint, then
+ * load full product data from the Store API using the `include` param.
+ *
+ * @param {string} sortType - 'featured' or 'savings'.
+ */
+function fetchCustomSorted(sortType) {
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+
+  state.isLoading = true;
+  state.hasError = false;
+
+  // Derive REST base from Store API URL.
+  const restBase = state.restBase.replace(/\/wc\/store\/v1\/products$/, '');
+  const sortParams = new URLSearchParams();
+  sortParams.set('sort', sortType);
+  sortParams.set('per_page', String(state.perPage));
+  sortParams.set('page', String(state.currentPage));
+
+  if (state.selectedCategories.length > 0) {
+    sortParams.set('category', state.selectedCategories.join(','));
+  }
+
+  const sortUrl = `${restBase}/aggressive-apparel/v1/sorted-products?${sortParams}`;
+
+  fetch(sortUrl, { signal: abortController.signal })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      state.totalProducts = data.total;
+      state.totalPages = data.totalPages;
+
+      if (data.ids.length === 0) {
+        state.products = [];
+        state.isLoading = false;
+        announceResults();
+        syncUrl();
+        renderProducts();
+        renderPills();
+        renderPagination();
+        renderHorizontalDropdowns();
+        return;
+      }
+
+      // Fetch full product data from Store API using sorted IDs.
+      const storeParams = buildFilterParams();
+      storeParams.set('include', data.ids.join(','));
+      storeParams.set('orderby', 'include');
+      storeParams.set('per_page', String(data.ids.length));
+
+      return fetch(`${state.restBase}?${storeParams}`, {
+        signal: abortController.signal,
+      })
+        .then(res2 => res2.json())
+        .then(products => {
+          // Preserve the custom sort order from the IDs.
+          const idOrder = data.ids;
+          const mapped = products.map(p => ({
+            id: p.id,
+            name: decodeHtml(p.name),
+            permalink: p.permalink,
+            image: p.images?.[0]?.src || p.images?.[0]?.thumbnail || '',
+            imageAlt: decodeHtml(p.images?.[0]?.alt || p.name),
+            price: parsePrice(p.prices),
+            shortDescription: stripTags(p.short_description || '').slice(
+              0,
+              120
+            ),
+            stockStatus: p.stock_status || 'instock',
+          }));
+
+          // Sort mapped products to match the ID order.
+          state.products = idOrder
+            .map(id => mapped.find(p => p.id === id))
+            .filter(Boolean);
+
+          state.isLoading = false;
+          announceResults();
+          syncUrl();
+          renderProducts();
+          renderPills();
+          renderPagination();
+          renderHorizontalDropdowns();
+        });
+    })
+    .catch(err => {
+      if (err.name === 'AbortError') return;
+      state.isLoading = false;
+      state.hasError = true;
+      state.products = [];
+    });
+}
+
+/**
+ * Announce product count to screen readers.
+ */
+function announceResults() {
+  if (state.totalProducts === 0) {
+    state._announcement = 'No products found.';
+  } else if (state.totalProducts === 1) {
+    state._announcement = '1 product found.';
+  } else {
+    state._announcement = `${state.totalProducts} products found.`;
+  }
+}
+
+/**
+ * Fetch products from the WooCommerce Store API.
+ *
+ * @param {Object} [opts]
+ * @param {boolean} [opts.append=false] - Append products instead of replacing.
+ */
+function fetchProducts({ append = false } = {}) {
+  // Delegate to custom sort handler for featured/savings.
+  if (state._customSort) {
+    fetchCustomSorted(state._customSort);
+    return;
+  }
+
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+
+  state.isLoading = true;
+  state.hasError = false;
+
+  const params = buildFilterParams();
+  params.set('per_page', String(state.perPage));
+  params.set('page', String(state.currentPage));
+  params.set('orderby', state.orderBy);
+  params.set('order', state.orderDir);
+
   const url = `${state.restBase}?${params.toString()}`;
 
   fetch(url, { signal: abortController.signal })
@@ -417,32 +558,48 @@ function fetchProducts() {
       return res.json();
     })
     .then(products => {
-      state.products = products.map(p => ({
+      const mapped = products.map(p => ({
         id: p.id,
         name: decodeHtml(p.name),
         permalink: p.permalink,
         image: p.images?.[0]?.src || p.images?.[0]?.thumbnail || '',
         imageAlt: decodeHtml(p.images?.[0]?.alt || p.name),
         price: parsePrice(p.prices),
+        shortDescription: stripTags(p.short_description || '').slice(0, 120),
         stockStatus: p.stock_status || 'instock',
       }));
 
-      state.isLoading = false;
-
-      // Announce results for screen readers.
-      if (state.totalProducts === 0) {
-        state._announcement = 'No products found.';
-      } else if (state.totalProducts === 1) {
-        state._announcement = '1 product found.';
+      if (append) {
+        state.products = [...state.products, ...mapped];
       } else {
-        state._announcement = `${state.totalProducts} products found.`;
+        state.products = mapped;
       }
 
+      state.isLoading = false;
+      announceResults();
       syncUrl();
-      renderProducts();
+      renderProducts({ append });
       renderPills();
-      renderPagination();
+
+      // Hide numbered pagination when load-more is active.
+      if (!document.querySelector('.aa-load-more')) {
+        renderPagination();
+      }
+
       renderHorizontalDropdowns();
+
+      // Notify load-more store.
+      document.dispatchEvent(
+        new CustomEvent('aa:products-fetched', {
+          detail: {
+            page: state.currentPage,
+            totalPages: state.totalPages,
+            totalProducts: state.totalProducts,
+            append,
+            productsCount: mapped.length,
+          },
+        })
+      );
     })
     .catch(err => {
       if (err.name === 'AbortError') return;
@@ -530,36 +687,53 @@ function setupDelegatedEvents() {
 }
 
 /**
- * Render product cards into the AJAX grid container.
+ * Build HTML for a single product card.
+ *
+ * @param {Object} p Product data.
+ * @returns {string}
  */
-function renderProducts() {
+function buildCardHtml(p) {
+  const priceHtml = p.price.onSale
+    ? `<del>${escapeHtml(p.price.regular)}</del> <ins>${escapeHtml(p.price.current)}</ins>`
+    : escapeHtml(p.price.current);
+
+  return `<div class="aa-product-filters__product-card">
+    <a href="${escapeHtml(p.permalink)}" class="aa-product-filters__product-link">
+      <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.imageAlt)}" class="aa-product-filters__product-image" loading="lazy" width="400" height="400" />
+    </a>
+    <h3 class="aa-product-filters__product-title">
+      <a href="${escapeHtml(p.permalink)}">${escapeHtml(p.name)}</a>
+    </h3>
+    <div class="aa-product-filters__product-price">${priceHtml}</div>
+    ${p.shortDescription ? `<p class="aa-product-filters__product-description">${escapeHtml(p.shortDescription)}</p>` : ''}
+  </div>`;
+}
+
+/**
+ * Render product cards into the AJAX grid container.
+ *
+ * @param {Object} [opts]
+ * @param {boolean} [opts.append=false] - Append to existing content.
+ */
+function renderProducts({ append = false } = {}) {
   const container = document.querySelector('.aa-product-filters__products');
   if (!container) return;
 
-  if (state.products.length === 0) {
+  if (state.products.length === 0 && !append) {
     container.innerHTML = '';
     return;
   }
 
-  const html = state.products
-    .map(p => {
-      const priceHtml = p.price.onSale
-        ? `<del>${escapeHtml(p.price.regular)}</del> <ins>${escapeHtml(p.price.current)}</ins>`
-        : escapeHtml(p.price.current);
-
-      return `<div class="aa-product-filters__product-card">
-        <a href="${escapeHtml(p.permalink)}" class="aa-product-filters__product-link">
-          <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.imageAlt)}" class="aa-product-filters__product-image" loading="lazy" width="400" height="400" />
-        </a>
-        <h3 class="aa-product-filters__product-title">
-          <a href="${escapeHtml(p.permalink)}">${escapeHtml(p.name)}</a>
-        </h3>
-        <div class="aa-product-filters__product-price">${priceHtml}</div>
-      </div>`;
-    })
-    .join('');
-
-  container.innerHTML = html;
+  if (append) {
+    // Only render the newly added products (at the end of state.products).
+    const existingCount = container.children.length;
+    const newProducts = state.products.slice(existingCount);
+    const html = newProducts.map(buildCardHtml).join('');
+    container.insertAdjacentHTML('beforeend', html);
+  } else {
+    const html = state.products.map(buildCardHtml).join('');
+    container.innerHTML = html;
+  }
 }
 
 /**
@@ -871,10 +1045,19 @@ function captureSortDropdown() {
         date: { orderBy: 'date', orderDir: 'desc' },
         price: { orderBy: 'price', orderDir: 'asc' },
         'price-desc': { orderBy: 'price', orderDir: 'desc' },
+        'title-asc': { orderBy: 'title', orderDir: 'asc' },
+        'title-desc': { orderBy: 'title', orderDir: 'desc' },
+        featured: {
+          orderBy: 'include',
+          orderDir: 'asc',
+          customSort: 'featured',
+        },
+        savings: { orderBy: 'include', orderDir: 'asc', customSort: 'savings' },
       };
       const sort = sortMap[val] || { orderBy: 'date', orderDir: 'desc' };
       state.orderBy = sort.orderBy;
       state.orderDir = sort.orderDir;
+      state._customSort = sort.customSort || '';
 
       if (state.hasActiveFilters) {
         state.currentPage = 1;

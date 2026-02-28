@@ -62,6 +62,10 @@ class Enhancements {
 			( new Product_Tabs() )->init();
 		}
 
+		if ( Feature_Settings::is_enabled( 'advanced_sorting' ) ) {
+			( new Advanced_Sorting() )->init();
+		}
+
 		if ( Feature_Settings::is_enabled( 'free_shipping_bar' ) ) {
 			( new Free_Shipping_Bar() )->init();
 		}
@@ -75,6 +79,10 @@ class Enhancements {
 			( new Mini_Cart_Enhancements() )->init();
 		}
 
+		if ( Feature_Settings::is_enabled( 'grid_list_toggle' ) ) {
+			( new Grid_List_Toggle() )->init();
+		}
+
 		if ( Feature_Settings::is_enabled( 'product_filters' ) ) {
 			( new Product_Filters() )->init();
 		}
@@ -84,6 +92,10 @@ class Enhancements {
 		}
 
 		// Interactive features (PHP + Interactivity API).
+		if ( Feature_Settings::is_enabled( 'load_more' ) ) {
+			( new Load_More() )->init();
+		}
+
 		if ( Feature_Settings::is_enabled( 'size_guide' ) ) {
 			( new Size_Guide_Post_Type() )->init();
 			( new Size_Guide() )->init();
@@ -107,6 +119,10 @@ class Enhancements {
 
 		if ( Feature_Settings::is_enabled( 'mobile_bottom_nav' ) ) {
 			( new Mobile_Bottom_Nav() )->init();
+		}
+
+		if ( Feature_Settings::is_enabled( 'exit_intent' ) ) {
+			( new Exit_Intent() )->init();
 		}
 
 		// Rich interactivity features.

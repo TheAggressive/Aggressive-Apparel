@@ -1,0 +1,421 @@
+/**
+ * Exit Intent Email Capture Modal Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.51.0
+ */
+
+/* ── Overlay ───────────────────────────────────────── */
+
+.aa-exit-intent {
+  --exit-intent-duration: 0.3s;
+  --exit-intent-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* ── Backdrop ──────────────────────────────────────── */
+
+.aa-exit-intent__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0%);
+  backdrop-filter: blur(0);
+  transition:
+    background-color var(--exit-intent-duration) var(--exit-intent-timing),
+    backdrop-filter var(--exit-intent-duration) var(--exit-intent-timing);
+
+  .is-open & {
+    background-color: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* ── Modal ─────────────────────────────────────────── */
+
+.aa-exit-intent__modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90vw;
+  max-width: 440px;
+  padding: 2.5rem 2rem;
+  background-color: var(--wp--preset--color--white, #fff);
+  color: var(--wp--preset--color--black, #000);
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.95) translateY(20px);
+  transition:
+    opacity var(--exit-intent-duration) var(--exit-intent-timing),
+    transform var(--exit-intent-duration) var(--exit-intent-timing);
+
+  .is-open & {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Close Button ──────────────────────────────────── */
+
+.aa-exit-intent__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+
+  & svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--wp--preset--color--black, #000);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Content ───────────────────────────────────────── */
+
+.aa-exit-intent__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.aa-exit-intent__heading {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.aa-exit-intent__body {
+  margin: 0;
+  font-size: 0.938rem;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+/* ── Form ──────────────────────────────────────────── */
+
+.aa-exit-intent__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.aa-exit-intent__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid rgb(0 0 0 / 15%);
+  border-radius: 0.375rem;
+  font-size: 0.938rem;
+  background: transparent;
+  color: inherit;
+  transition: border-color 0.15s ease;
+
+  &::placeholder {
+    color: rgb(0 0 0 / 40%);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--wp--preset--color--black, #000);
+  }
+}
+
+.aa-exit-intent__submit {
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  min-height: 2.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: var(--wp--preset--color--black, #000);
+  color: var(--wp--preset--color--white, #fff);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--wp--preset--color--black, #000);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/* Loading spinner inside submit button */
+.aa-exit-intent__submit.is-loading::after {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  border: 2px solid transparent;
+  border-top-color: currentcolor;
+  border-radius: 50%;
+  animation: aa-exit-intent-spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+
+/* ── Error Message ─────────────────────────────────── */
+
+.aa-exit-intent__error {
+  margin: 0;
+  font-size: 0.813rem;
+  font-weight: 500;
+  color: #dc2626;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* ── Success State ─────────────────────────────────── */
+
+.aa-exit-intent__success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.aa-exit-intent__success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  background: color-mix(in oklch, #15803d 12%, transparent);
+  color: #15803d;
+  border-radius: 50%;
+
+  & svg {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.aa-exit-intent__success-message {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ── Screen Reader Announcer ───────────────────────── */
+
+.aa-exit-intent__announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Spinner Keyframes ─────────────────────────────── */
+
+@keyframes aa-exit-intent-spin {
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Mobile ────────────────────────────────────────── */
+
+@media (width <= 768px) {
+
+  .aa-exit-intent__modal {
+    width: 95vw;
+    padding: 2rem 1.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .aa-exit-intent__heading {
+    font-size: 1.25rem;
+    padding-right: 2rem;
+  }
+
+  .aa-exit-intent__close {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+/* ── @starting-style Entry Animation ───────────────── */
+
+@supports selector(@starting-style) {
+
+  .aa-exit-intent {
+    transition: display var(--exit-intent-duration) allow-discrete;
+  }
+
+  @starting-style {
+
+    .aa-exit-intent.is-open .aa-exit-intent__modal {
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+    }
+
+    .aa-exit-intent.is-open .aa-exit-intent__backdrop {
+      background-color: rgb(0 0 0 / 0%);
+      backdrop-filter: blur(0);
+    }
+  }
+}
+
+/* ── Dark Mode ─────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+
+  .aa-exit-intent__modal {
+    background-color: var(--wp--preset--color--black, #1a1a1a);
+    color: var(--wp--preset--color--white, #fff);
+  }
+
+  .aa-exit-intent__input {
+    border-color: rgb(255 255 255 / 20%);
+
+    &::placeholder {
+      color: rgb(255 255 255 / 40%);
+    }
+
+    &:focus {
+      border-color: var(--wp--preset--color--white, #fff);
+    }
+  }
+
+  .aa-exit-intent__submit {
+    background-color: var(--wp--preset--color--white, #fff);
+    color: var(--wp--preset--color--black, #000);
+  }
+
+  .aa-exit-intent__close:focus-visible {
+    outline-color: var(--wp--preset--color--white, #fff);
+  }
+
+  .aa-exit-intent__submit:focus-visible {
+    outline-color: var(--wp--preset--color--white, #fff);
+  }
+}
+
+[data-theme="dark"] .aa-exit-intent__modal {
+  background-color: var(--wp--preset--color--black, #1a1a1a);
+  color: var(--wp--preset--color--white, #fff);
+}
+
+[data-theme="dark"] .aa-exit-intent__input {
+  border-color: rgb(255 255 255 / 20%);
+}
+
+[data-theme="dark"] .aa-exit-intent__input::placeholder {
+  color: rgb(255 255 255 / 40%);
+}
+
+[data-theme="dark"] .aa-exit-intent__input:focus {
+  border-color: var(--wp--preset--color--white, #fff);
+}
+
+[data-theme="dark"] .aa-exit-intent__submit {
+  background-color: var(--wp--preset--color--white, #fff);
+  color: var(--wp--preset--color--black, #000);
+}
+
+/* ── Reduced Motion ────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-exit-intent__backdrop {
+    backdrop-filter: none;
+    transition: none;
+  }
+
+  .aa-exit-intent__modal {
+    transition: none;
+    transform: none;
+  }
+
+  .is-open .aa-exit-intent__modal {
+    transform: none;
+  }
+
+  .aa-exit-intent__close {
+    transition: none;
+  }
+
+  .aa-exit-intent__input {
+    transition: none;
+  }
+
+  .aa-exit-intent__submit {
+    transition: none;
+  }
+
+  .aa-exit-intent__submit.is-loading::after {
+    animation: none;
+  }
+}

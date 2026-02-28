@@ -32,11 +32,6 @@ parameters:
 			identifier: argument.type
 			message: '#Parameter \#3 \$deps of function wp_register_script_module#'
 
-		# WP_REST_Request is generic but WordPress code rarely annotates the type param
-		-
-			identifier: missingType.generics
-			message: '#WP_REST_Request#'
-
 		# WP_Query->posts is int[]|WP_Post[] — strval/intval accept all scalar types
 		-
 			identifier: argument.type

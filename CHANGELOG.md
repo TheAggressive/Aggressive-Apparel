@@ -1,3 +1,11 @@
+# [1.53.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.52.0...v1.53.0) (2026-02-28)
+
+
+### Features
+
+* enhance page transitions with shared element morphing and speculation rules ([0bc8b78](https://github.com/TheAggressive/Aggressive-Apparel/commit/0bc8b78214129ee4ad0f05e955c9a63579942d06))
+* implement advanced sorting and load more features in product filters ([05c2c48](https://github.com/TheAggressive/Aggressive-Apparel/commit/05c2c48cdbde8d1a2230e2e18a3c97d189f212f9))
+
 # [1.52.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.51.0...v1.52.0) (2026-02-28)
 
 

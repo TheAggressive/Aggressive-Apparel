@@ -31,31 +31,6 @@ main.wp-block-group {
 	view-transition-name: main-content;
 }
 
-/* ── Shared Element Morph (images + titles) ───────── */
-
-/* Standard decelerate for all view-transition groups.
- * Controls position/size interpolation between old and new
- * snapshots — the "flying" morph for product images and titles.
- * Header/footer/main-content are unaffected (stable position or
- * explicit old/new overrides). overflow:clip prevents image
- * overflow during aspect-ratio morph. */
-::view-transition-group(*) {
-	animation-duration: 400ms;
-	animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-	overflow: clip;
-}
-
-/* ── Image Morph Guards ──────────────────────────── */
-
-/* Ensure old/new snapshots fill the morphing group container
- * cleanly during image size transitions. Prevents aspect-ratio
- * mismatch artifacts. Harmless for non-image groups. */
-::view-transition-old(*),
-::view-transition-new(*) {
-	height: 100%;
-	overflow: clip;
-}
-
 /* ── Header & Footer — Stable, No Animation ──────── */
 
 ::view-transition-old(site-header),
@@ -65,48 +40,46 @@ main.wp-block-group {
 	animation: none;
 }
 
-/* ── Main Content — Slide + Fade ──────────────────── */
+/* ── Main Content — Quick Cross-Fade ─────────────── */
 
-@keyframes aa-vt-fade-out {
-
-	from {
-		opacity: 1;
-	}
-
-	to {
-		opacity: 0;
-	}
-}
-
-@keyframes aa-vt-slide-up-in {
-
-	from {
-		opacity: 0;
-		transform: translateY(16px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-/* Old content dissolves with accelerate — speeds up as it exits. */
+/* Shorter than the default 250ms so the image morph is
+ * the focal point. No custom keyframes — browser default
+ * cross-fade handles height differences cleanly. */
 ::view-transition-old(main-content) {
-	animation: aa-vt-fade-out 200ms cubic-bezier(0.4, 0, 1, 1);
+	animation-duration: 150ms;
 }
 
-/* New content rises into view with decelerate — starts fast, lands softly. */
 ::view-transition-new(main-content) {
-	animation: aa-vt-slide-up-in 400ms cubic-bezier(0, 0, 0.2, 1);
+	animation-duration: 200ms;
+}
+
+/* ── Product Image Morph ─────────────────────────── */
+
+/* Scoped via view-transition-class (set in PHP) so these
+ * rules only affect product images — not main-content or
+ * header/footer. The image "flies" between grid thumbnail
+ * and single product hero. */
+::view-transition-group(.product-img) {
+	animation-duration: 350ms;
+	animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+	overflow: clip;
+}
+
+::view-transition-old(.product-img),
+::view-transition-new(.product-img) {
+	height: 100%;
+	overflow: clip;
 }
 
 /* ── Product Detail Stagger ───────────────────────── */
 
 /* On single product pages, the right column content (title,
  * rating, price, excerpt, add-to-cart, meta) staggers in
- * with 50ms offsets for a deliberate reveal effect.
- * Scoped to @supports so it only fires in VT-capable browsers. */
+ * with 60ms offsets for a deliberate reveal effect.
+ *
+ * Scoped to .vt-navigated (set by pagereveal script) so the
+ * stagger only fires when arriving via a view transition —
+ * direct page loads and refreshes render normally. */
 
 @supports (view-transition-name: none) {
 
@@ -123,31 +96,31 @@ main.wp-block-group {
 		}
 	}
 
-	body.single-product .wp-block-column:last-child > * {
+	.vt-navigated body.single-product .wp-block-column:last-child > * {
 		animation: aa-vt-stagger-in 400ms cubic-bezier(0, 0, 0.2, 1) both;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(1) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(1) {
 		animation-delay: 60ms;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(2) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(2) {
 		animation-delay: 120ms;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(3) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(3) {
 		animation-delay: 180ms;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(4) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(4) {
 		animation-delay: 240ms;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(5) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(5) {
 		animation-delay: 300ms;
 	}
 
-	body.single-product .wp-block-column:last-child > :nth-child(n + 6) {
+	.vt-navigated body.single-product .wp-block-column:last-child > :nth-child(n + 6) {
 		animation-delay: 360ms;
 	}
 }
@@ -216,7 +189,7 @@ body.woocommerce-cart main.wp-block-group {
 		navigation: none;
 	}
 
-	body.single-product .wp-block-column:last-child > * {
+	.vt-navigated body.single-product .wp-block-column:last-child > * {
 		animation: none;
 	}
 

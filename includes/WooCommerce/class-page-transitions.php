@@ -3,8 +3,8 @@
  * Page Transitions Class
  *
  * Enables smooth cross-page navigation via the View Transitions API.
- * Adds view-transition-name properties to product images and titles
- * for shared element transitions between archive and single product pages.
+ * Adds view-transition-name to product images for shared element
+ * morphing between archive and single product pages.
  *
  * Progressive enhancement — unsupported browsers get normal page loads.
  *
@@ -29,6 +29,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Page_Transitions {
 
 	/**
+	 * Track used view-transition-names to prevent duplicates.
+	 *
+	 * View transition names must be unique per page. A product can appear
+	 * both as the main content and in related/recommended sections — only
+	 * the first occurrence gets a transition name.
+	 *
+	 * @var array<string, true>
+	 */
+	private array $used_names = array();
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -37,6 +48,7 @@ class Page_Transitions {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ) );
 		add_action( 'wp_head', array( $this, 'output_speculation_rules' ) );
+		add_action( 'wp_head', array( $this, 'output_direction_script' ) );
 		add_filter( 'render_block', array( $this, 'inject_transition_names' ), 10, 2 );
 	}
 
@@ -148,11 +160,34 @@ class Page_Transitions {
 	}
 
 	/**
-	 * Inject view-transition-name on product images and titles for shared
-	 * element transitions.
+	 * Output inline script to detect view-transition navigations.
 	 *
-	 * On archive pages: targets core/post-featured-image and core/post-title.
-	 * On single product: targets woocommerce/product-image-gallery and core/post-title.
+	 * Must be parser-blocking in <head> (not deferred) because the
+	 * pagereveal event fires before first render. Adds 'vt-navigated'
+	 * class to <html> so CSS can scope stagger animations to view
+	 * transition navigations only (not direct loads/refreshes).
+	 *
+	 * @return void
+	 */
+	public function output_direction_script(): void {
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return;
+		}
+
+		?>
+		<script>
+		addEventListener('pagereveal',function(e){
+			if(e.viewTransition)document.documentElement.classList.add('vt-navigated');
+		});
+		</script>
+		<?php
+	}
+
+	/**
+	 * Inject view-transition-name on product images for shared element morphing.
+	 *
+	 * On archive pages: targets core/post-featured-image.
+	 * On single product: targets woocommerce/product-image-gallery.
 	 *
 	 * @param string $block_content Rendered block HTML.
 	 * @param array  $block         Block data including blockName.
@@ -167,10 +202,6 @@ class Page_Transitions {
 
 		if ( 'woocommerce/product-image-gallery' === $block_name ) {
 			return $this->handle_single_gallery( $block_content );
-		}
-
-		if ( 'core/post-title' === $block_name ) {
-			return $this->handle_title( $block_content );
 		}
 
 		return $block_content;
@@ -195,9 +226,14 @@ class Page_Transitions {
 			return $block_content;
 		}
 
-		$transition_style = sprintf( 'view-transition-name:product-img-%d', $product_id );
+		$name = sprintf( 'product-img-%d', $product_id );
+		if ( ! $this->claim_name( $name ) ) {
+			return $block_content;
+		}
 
-		return $this->inject_style_on_img( $block_content, $transition_style );
+		$style = sprintf( 'view-transition-name:%s;view-transition-class:product-img', $name );
+
+		return $this->inject_style_on_img( $block_content, $style );
 	}
 
 	/**
@@ -218,31 +254,14 @@ class Page_Transitions {
 			return $block_content;
 		}
 
-		$transition_style = sprintf( 'view-transition-name:product-img-%d', $product_id );
-
-		return $this->inject_style_on_img( $block_content, $transition_style );
-	}
-
-	/**
-	 * Add transition name to the product title on both listing and single pages.
-	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @return string Modified HTML.
-	 */
-	private function handle_title( string $block_content ): string {
-		$product_id = (int) get_the_ID();
-		if ( $product_id <= 0 ) {
+		$name = sprintf( 'product-img-%d', $product_id );
+		if ( ! $this->claim_name( $name ) ) {
 			return $block_content;
 		}
 
-		// Only inject on product listing pages or single product pages.
-		if ( ! $this->is_listing_page() && ! ( function_exists( 'is_product' ) && is_product() ) ) {
-			return $block_content;
-		}
+		$style = sprintf( 'view-transition-name:%s;view-transition-class:product-img', $name );
 
-		$transition_style = sprintf( 'view-transition-name:product-title-%d', $product_id );
-
-		return $this->inject_inline_style( $block_content, $transition_style );
+		return $this->inject_style_on_img( $block_content, $style );
 	}
 
 	/**
@@ -329,5 +348,25 @@ class Page_Transitions {
 		}
 
 		return is_shop() || is_product_category() || is_product_tag() || is_search();
+	}
+
+	/**
+	 * Claim a view-transition-name, returning false if already used.
+	 *
+	 * View transition names must be unique per page. This prevents
+	 * duplicates when a product appears in both the main content and
+	 * a related/recommended products section.
+	 *
+	 * @param string $name The transition name to claim.
+	 * @return bool True if claimed, false if already taken.
+	 */
+	private function claim_name( string $name ): bool {
+		if ( isset( $this->used_names[ $name ] ) ) {
+			return false;
+		}
+
+		$this->used_names[ $name ] = true;
+
+		return true;
 	}
 }

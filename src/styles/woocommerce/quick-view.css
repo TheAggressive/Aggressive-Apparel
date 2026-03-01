@@ -978,33 +978,29 @@
 	background: var(--wp--preset--color--white, #fff);
 	position: sticky;
 	bottom: 0;
+
+	& .aggressive-apparel-quick-view__add-to-cart,
+	& .aggressive-apparel-quick-view__buy-now {
+		flex: 1;
+	}
 }
 
 .aggressive-apparel-quick-view__drawer-view-product {
+	width: 100%;
 	font-size: 0.8rem;
 	font-weight: 600;
 	color: inherit;
 	opacity: 0.6;
 	text-decoration: none;
+	text-align: center;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	transition: opacity 0.15s ease;
-	flex-shrink: 0;
 
 	&:hover,
 	&:focus-visible {
 		opacity: 1;
 		text-decoration: underline;
-	}
-}
-
-/* Mobile: full-width link below qty + add-to-cart. */
-@media (width <= 768px) {
-
-	.aggressive-apparel-quick-view__drawer-view-product {
-		width: 100%;
-		text-align: center;
-		padding-top: 0.25rem;
 	}
 }
 
@@ -1242,6 +1238,12 @@
 	}
 
 	.aggressive-apparel-quick-view__buy-now {
+		width: 100%;
+	}
+
+	/* Undo equal-width in drawer — Buy Now goes full-width below. */
+	.aggressive-apparel-quick-view__drawer-footer .aggressive-apparel-quick-view__buy-now {
+		flex: none;
 		width: 100%;
 	}
 }

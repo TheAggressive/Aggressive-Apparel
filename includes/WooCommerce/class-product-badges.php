@@ -26,6 +26,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Product_Badges {
 
 	/**
+	 * Block names that receive badge injection.
+	 *
+	 * @var array<int, string>
+	 */
+	private const TARGET_BLOCKS = array(
+		'core/post-featured-image',
+		'woocommerce/product-image',
+	);
+
+	/**
 	 * Number of days a product is considered "new".
 	 *
 	 * @var int
@@ -53,6 +63,8 @@ class Product_Badges {
 	 */
 	public function init(): void {
 		add_filter( 'render_block', array( $this, 'inject_badges' ), 10, 2 );
+		add_filter( 'render_block', array( $this, 'suppress_native_sale_badge' ), 10, 2 );
+		add_filter( 'woocommerce_sale_flash', '__return_empty_string' );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		/**
@@ -83,7 +95,7 @@ class Product_Badges {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		if ( ! $this->is_product_listing_page() ) {
+		if ( ! $this->is_product_page() ) {
 			return;
 		}
 
@@ -112,13 +124,14 @@ class Product_Badges {
 			return $block_content;
 		}
 
-		// Target the featured-image block inside a product template context.
-		if ( 'core/post-featured-image' !== $block['blockName'] ) {
+		// Target product image blocks (archives use core/post-featured-image,
+		// single product related/cross-sells use woocommerce/product-image).
+		if ( ! in_array( $block['blockName'], self::TARGET_BLOCKS, true ) ) {
 			return $block_content;
 		}
 
-		// Must be on a product-listing page.
-		if ( ! $this->is_product_listing_page() ) {
+		// Must be on a page that displays products.
+		if ( ! $this->is_product_page() ) {
 			return $block_content;
 		}
 
@@ -142,54 +155,156 @@ class Product_Badges {
 	}
 
 	/**
+	 * Suppress the native WooCommerce sale badge block.
+	 *
+	 * The custom badge system renders a sale-percentage badge (e.g. "-25%").
+	 * The native "Sale!" badge from woocommerce/product-sale-badge is redundant.
+	 *
+	 * @param string               $block_content Rendered block HTML.
+	 * @param array<string, mixed> $block         Block data.
+	 * @return string Empty string for sale badge blocks, original content otherwise.
+	 */
+	public function suppress_native_sale_badge( string $block_content, array $block ): string {
+		if ( isset( $block['blockName'] ) && 'woocommerce/product-sale-badge' === $block['blockName'] ) {
+			return '';
+		}
+		return $block_content;
+	}
+
+	/**
 	 * Build the combined badges HTML for a product.
+	 *
+	 * System badges (sale, new, low-stock, bestseller) are styled via their
+	 * taxonomy term data and auto-applied based on product conditions.
+	 * Custom badges render in their configured position. All badges within
+	 * the same position group are sorted by priority.
 	 *
 	 * @param \WC_Product $product Product object.
 	 * @return string Badge markup or empty string.
 	 */
 	private function build_badges_html( \WC_Product $product ): string {
-		$badges = array();
+		$groups = array(
+			'top-left'     => array(),
+			'top-right'    => array(),
+			'bottom-left'  => array(),
+			'bottom-right' => array(),
+		);
 
-		// Sale percentage badge.
-		if ( $product->is_on_sale() ) {
-			$percentage = $this->get_sale_percentage( $product );
-			if ( $percentage > 0 ) {
-				$badges[] = sprintf(
-					'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--sale">-%d%%</span>',
-					$percentage,
-				);
+		// --- System badges (condition-based, styled via taxonomy term) ---
+		$system_badges = Custom_Badge_Taxonomy::get_system_badges();
+		$sale_pct      = $product->is_on_sale() ? $this->get_sale_percentage( $product ) : 0;
+
+		$system_conditions = array(
+			'sale'       => $sale_pct > 0,
+			'new'        => $this->is_new_product( $product ),
+			'low_stock'  => $this->is_low_stock( $product ),
+			'bestseller' => $this->is_bestseller( $product ),
+		);
+
+		foreach ( $system_conditions as $type => $active ) {
+			if ( ! $active || ! isset( $system_badges[ $type ] ) ) {
+				continue;
 			}
+
+			$badge = $system_badges[ $type ];
+			$label = 'sale' === $type ? sprintf( '-%d%%', $sale_pct ) : $badge['name'];
+
+			$this->add_badge_to_group( $groups, $badge, $label );
 		}
 
-		// New badge.
-		if ( $this->is_new_product( $product ) ) {
-			$badges[] = sprintf(
-				'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--new">%s</span>',
-				esc_html__( 'New', 'aggressive-apparel' ),
+		// --- Custom badges (taxonomy-assigned to products) ---
+		$custom_badges = Custom_Badge_Taxonomy::get_product_badges( $product->get_id() );
+		foreach ( $custom_badges as $badge ) {
+			// Skip system badges — they are applied by condition, not taxonomy.
+			if ( 'custom' !== $badge['badge_type'] ) {
+				continue;
+			}
+
+			$this->add_badge_to_group( $groups, $badge, $badge['name'] );
+		}
+
+		// Sort each position group by priority, then build output.
+		$output = '';
+		foreach ( $groups as $position => $badges ) {
+			if ( empty( $badges ) ) {
+				continue;
+			}
+
+			usort( $badges, fn( array $a, array $b ): int => $a['priority'] <=> $b['priority'] );
+
+			$output .= sprintf(
+				'<div class="aggressive-apparel-product-badge__wrapper aggressive-apparel-product-badge__wrapper--%s">%s</div>',
+				esc_attr( $position ),
+				implode( '', array_column( $badges, 'html' ) ),
 			);
 		}
 
-		// Low stock badge.
-		if ( $this->is_low_stock( $product ) ) {
-			$badges[] = sprintf(
-				'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--low-stock">%s</span>',
-				esc_html__( 'Low Stock', 'aggressive-apparel' ),
-			);
+		return $output;
+	}
+
+	/**
+	 * Build a single badge <span> from badge data.
+	 *
+	 * @param array<string, mixed> $badge Badge data from get_badge_data().
+	 * @param string               $label Display text.
+	 * @return string Badge HTML.
+	 */
+	private function build_badge_span( array $badge, string $label ): string {
+		$icon_html = Custom_Badge_Taxonomy::build_badge_icon_html(
+			$badge['svg_icon'],
+			$badge['library_icon'],
+			$badge['icon'],
+			$badge['icon_color'],
+			$badge['icon_size'],
+		);
+
+		$style_parts = array(
+			'--badge-bg:' . $badge['bg_color'],
+			'--badge-text:' . $badge['text_color'],
+		);
+
+		if ( $badge['border_width'] > 0 && '' !== $badge['border_color'] && 'none' !== $badge['border_style'] ) {
+			$style_parts[] = '--badge-border-width:' . $badge['border_width'] . 'px';
+			$style_parts[] = '--badge-border-style:' . $badge['border_style'];
+			$style_parts[] = '--badge-border-color:' . $badge['border_color'];
 		}
 
-		// Bestseller badge.
-		if ( $this->is_bestseller( $product ) ) {
-			$badges[] = sprintf(
-				'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--bestseller">%s</span>',
-				esc_html__( 'Bestseller', 'aggressive-apparel' ),
-			);
-		}
+		$style_parts[] = sprintf(
+			'--badge-radius:%dpx %dpx %dpx %dpx',
+			$badge['radius_tl'],
+			$badge['radius_tr'],
+			$badge['radius_br'],
+			$badge['radius_bl'],
+		);
 
-		if ( empty( $badges ) ) {
-			return '';
-		}
+		$style_parts[] = sprintf(
+			'--badge-padding:%dpx %dpx',
+			$badge['padding_y'],
+			$badge['padding_x'],
+		);
 
-		return '<div class="aggressive-apparel-product-badge__wrapper">' . implode( '', $badges ) . '</div>';
+		return sprintf(
+			'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--custom" style="%s">%s%s</span>',
+			esc_attr( implode( ';', $style_parts ) ),
+			$icon_html,
+			esc_html( $label ),
+		);
+	}
+
+	/**
+	 * Add a badge to the appropriate position group.
+	 *
+	 * @param array<string, array<int, array{priority: int, html: string}>> $groups Position groups (by reference).
+	 * @param array<string, mixed>                                          $badge  Badge data.
+	 * @param string                                                        $label  Display text.
+	 * @return void
+	 */
+	private function add_badge_to_group( array &$groups, array $badge, string $label ): void {
+		$pos              = isset( $groups[ $badge['position'] ] ) ? $badge['position'] : 'top-left';
+		$groups[ $pos ][] = array(
+			'priority' => $badge['priority'],
+			'html'     => $this->build_badge_span( $badge, $label ),
+		);
 	}
 
 	/**
@@ -273,15 +388,18 @@ class Product_Badges {
 	}
 
 	/**
-	 * Determine if the current page is a product listing.
+	 * Determine if the current page displays products.
+	 *
+	 * Covers shop archives, category/tag pages, single product pages,
+	 * cart (cross-sells), and search results.
 	 *
 	 * @return bool
 	 */
-	private function is_product_listing_page(): bool {
+	private function is_product_page(): bool {
 		if ( ! function_exists( 'is_shop' ) ) {
 			return false;
 		}
 
-		return is_shop() || is_product_category() || is_product_tag() || is_search();
+		return is_shop() || is_product_category() || is_product_tag() || is_product() || is_cart() || is_search();
 	}
 }

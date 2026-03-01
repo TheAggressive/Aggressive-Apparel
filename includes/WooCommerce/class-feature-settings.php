@@ -63,6 +63,34 @@ class Feature_Settings {
 	public const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 
 	/**
+	 * Settings page sections with tab metadata.
+	 *
+	 * @var array<string, array{label: string, icon: string}>
+	 */
+	private const SECTIONS = array(
+		'catalog'    => array(
+			'label' => 'Catalog & Browsing',
+			'icon'  => 'dashicons-store',
+		),
+		'product'    => array(
+			'label' => 'Product Page',
+			'icon'  => 'dashicons-products',
+		),
+		'cart'       => array(
+			'label' => 'Cart & Mini Cart',
+			'icon'  => 'dashicons-cart',
+		),
+		'engagement' => array(
+			'label' => 'Customer Engagement',
+			'icon'  => 'dashicons-groups',
+		),
+		'ui'         => array(
+			'label' => 'Mobile & UI',
+			'icon'  => 'dashicons-smartphone',
+		),
+	);
+
+	/**
 	 * Feature definitions with metadata.
 	 *
 	 * @return array<string, array{label: string, description: string, section: string}>
@@ -217,12 +245,35 @@ class Feature_Settings {
 	 * @return void
 	 */
 	public function add_settings_page(): void {
-		add_theme_page(
+		$hook = add_theme_page(
 			__( 'Store Enhancements', 'aggressive-apparel' ),
 			__( 'Store Enhancements', 'aggressive-apparel' ),
 			'edit_theme_options',
 			self::PAGE_SLUG,
 			array( $this, 'render_settings_page' ),
+		);
+
+		if ( $hook ) {
+			add_action( 'admin_print_styles-' . $hook, array( $this, 'enqueue_admin_styles' ) );
+		}
+	}
+
+	/**
+	 * Enqueue admin styles for the settings page.
+	 *
+	 * @return void
+	 */
+	public function enqueue_admin_styles(): void {
+		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/store-enhancements-admin.css';
+		if ( ! file_exists( $css_file ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'aggressive-apparel-store-enhancements-admin',
+			AGGRESSIVE_APPAREL_URI . '/build/styles/admin/store-enhancements-admin.css',
+			array(),
+			(string) filemtime( $css_file ),
 		);
 	}
 
@@ -241,18 +292,10 @@ class Feature_Settings {
 			)
 		);
 
-		$sections = array(
-			'catalog'    => __( 'Catalog & Browsing', 'aggressive-apparel' ),
-			'product'    => __( 'Product Page', 'aggressive-apparel' ),
-			'cart'       => __( 'Cart & Mini Cart', 'aggressive-apparel' ),
-			'engagement' => __( 'Customer Engagement', 'aggressive-apparel' ),
-			'ui'         => __( 'Mobile & UI', 'aggressive-apparel' ),
-		);
-
-		foreach ( $sections as $id => $title ) {
+		foreach ( self::SECTIONS as $id => $meta ) {
 			add_settings_section(
 				'aggressive_apparel_features_' . $id,
-				$title,
+				$meta['label'],
 				'__return_false',
 				self::PAGE_SLUG,
 			);
@@ -352,7 +395,7 @@ class Feature_Settings {
 	}
 
 	/**
-	 * Render the settings page.
+	 * Render the settings page with tabbed sections.
 	 *
 	 * @return void
 	 */
@@ -361,17 +404,96 @@ class Feature_Settings {
 			return;
 		}
 
-		echo '<div class="wrap">';
+		$section_counts = $this->get_section_counts();
+		$first_key      = array_key_first( self::SECTIONS );
+
+		echo '<div class="wrap aa-features-wrap">';
 		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
+		settings_errors();
 		echo '<p>' . esc_html__( 'Enable or disable individual WooCommerce enhancements. Disabled features have zero performance overhead.', 'aggressive-apparel' ) . '</p>';
 		echo '<form method="post" action="options.php">';
 
 		settings_fields( self::SETTINGS_GROUP );
-		do_settings_sections( self::PAGE_SLUG );
+
+		// Tab navigation.
+		echo '<nav class="nav-tab-wrapper aa-features-tabs">';
+		foreach ( self::SECTIONS as $id => $meta ) {
+			$active = ( $id === $first_key ) ? ' nav-tab-active' : '';
+			$counts = $section_counts[ $id ];
+
+			printf(
+				'<a href="#" class="nav-tab%s" data-tab="%s"><span class="dashicons %s"></span> %s <span class="aa-features-tab-count">%d/%d</span></a>',
+				esc_attr( $active ),
+				esc_attr( $id ),
+				esc_attr( $meta['icon'] ),
+				esc_html( $meta['label'] ),
+				absint( $counts['enabled'] ),
+				absint( $counts['total'] ),
+			);
+		}
+		echo '</nav>';
+
+		// Tab panels.
+		foreach ( self::SECTIONS as $id => $meta ) {
+			$hidden     = ( $id !== $first_key ) ? ' hidden' : '';
+			$section_id = 'aggressive_apparel_features_' . $id;
+
+			printf( '<div class="aa-features-tab-panel" id="tab-%s"%s>', esc_attr( $id ), esc_attr( $hidden ) );
+			echo '<table class="form-table" role="presentation">';
+			do_settings_fields( self::PAGE_SLUG, $section_id );
+			echo '</table>';
+			echo '</div>';
+		}
+
 		submit_button( __( 'Save Changes', 'aggressive-apparel' ) );
 
 		echo '</form>';
+
+		// Inline tab-switching script.
+		$this->render_tab_script();
+
 		echo '</div>';
+	}
+
+	/**
+	 * Render inline JavaScript for tab switching.
+	 *
+	 * @return void
+	 */
+	private function render_tab_script(): void {
+		?>
+		<script>
+		(function() {
+			var KEY = 'aa_features_tab';
+			var tabs = document.querySelectorAll('.aa-features-tabs .nav-tab');
+			var panels = document.querySelectorAll('.aa-features-tab-panel');
+
+			function activate(id) {
+				tabs.forEach(function(t) {
+					t.classList.toggle('nav-tab-active', t.dataset.tab === id);
+				});
+				panels.forEach(function(p) {
+					p.hidden = p.id !== 'tab-' + id;
+				});
+				try { localStorage.setItem(KEY, id); } catch(e) {}
+			}
+
+			tabs.forEach(function(t) {
+				t.addEventListener('click', function(e) {
+					e.preventDefault();
+					activate(t.dataset.tab);
+				});
+			});
+
+			try {
+				var saved = localStorage.getItem(KEY);
+				if (saved && document.getElementById('tab-' + saved)) {
+					activate(saved);
+				}
+			} catch(e) {}
+		})();
+		</script>
+		<?php
 	}
 
 	/**
@@ -445,6 +567,35 @@ class Feature_Settings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Load More shows a button; Infinite Scroll loads automatically as users scroll down.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Get enabled/total feature counts per section.
+	 *
+	 * @return array<string, array{enabled: int, total: int}>
+	 */
+	private function get_section_counts(): array {
+		$counts = array();
+		foreach ( self::SECTIONS as $id => $meta ) {
+			$counts[ $id ] = array(
+				'enabled' => 0,
+				'total'   => 0,
+			);
+		}
+
+		foreach ( self::get_feature_definitions() as $key => $feature ) {
+			$section = $feature['section'];
+			if ( ! isset( $counts[ $section ] ) ) {
+				continue;
+			}
+
+			++$counts[ $section ]['total'];
+			if ( self::is_enabled( $key ) ) {
+				++$counts[ $section ]['enabled'];
+			}
+		}
+
+		return $counts;
 	}
 
 	/**

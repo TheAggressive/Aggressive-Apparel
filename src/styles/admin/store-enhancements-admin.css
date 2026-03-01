@@ -1,0 +1,45 @@
+/**
+ * Store Enhancements Admin Styles
+ *
+ * @package Aggressive_Apparel
+ * @since 1.54.0
+ */
+
+.aa-features-tabs .nav-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+}
+
+.aa-features-tabs .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 1;
+}
+
+.aa-features-tab-count {
+	display: inline-block;
+	min-width: 1.6em;
+	padding: 0 0.4em;
+	border-radius: 9999px;
+	background: #dcdcde;
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
+	text-align: center;
+}
+
+.nav-tab-active .aa-features-tab-count {
+	background: #2271b1;
+	color: #fff;
+}
+
+.aa-features-tab-panel {
+	padding-top: 0.5rem;
+}
+
+.aa-features-tab-panel[hidden] {
+	display: none;
+}

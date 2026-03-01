@@ -7,19 +7,41 @@
 
 .aggressive-apparel-product-badge__wrapper {
 	position: absolute;
-	top: 0.5rem;
-	left: 0.5rem;
 	z-index: 2;
 	display: flex;
 	flex-direction: column;
 	gap: 0.25rem;
 	pointer-events: none;
+
+	&--top-left {
+		top: 0.5rem;
+		left: 0.5rem;
+		align-items: flex-start;
+	}
+
+	&--top-right {
+		top: 0.5rem;
+		right: 0.5rem;
+		align-items: flex-end;
+	}
+
+	&--bottom-left {
+		bottom: 0.5rem;
+		left: 0.5rem;
+		align-items: flex-start;
+	}
+
+	&--bottom-right {
+		bottom: 0.5rem;
+		right: 0.5rem;
+		align-items: flex-end;
+	}
 }
 
 .aggressive-apparel-product-badge {
-	--badge-low-stock: #f59e0b;
-
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
 	padding: 0.2em 0.6em;
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
@@ -29,24 +51,24 @@
 	letter-spacing: 0.04em;
 	pointer-events: auto;
 
-	&--sale {
-		background-color: var(--wp--preset--color--red, #dc2626);
-		color: var(--wp--preset--color--white, #fff);
+	&--custom {
+		background-color: var(--badge-bg, #000);
+		color: var(--badge-text, #fff);
+		border: var(--badge-border-width, 0) var(--badge-border-style, none) var(--badge-border-color, transparent);
+		border-radius: var(--badge-radius, 0.25rem);
+		padding: var(--badge-padding, 0.2em 0.6em);
 	}
+}
 
-	&--new {
-		background-color: var(--wp--preset--color--black, #000);
-		color: var(--wp--preset--color--white, #fff);
-	}
+.aggressive-apparel-product-badge__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
 
-	&--low-stock {
-		background-color: var(--badge-low-stock);
-		color: var(--wp--preset--color--black, #000);
-	}
-
-	&--bestseller {
-		background-color: var(--wp--preset--color--white, #fff);
-		color: var(--wp--preset--color--black, #000);
-		border: 1px solid currentcolor;
+	& svg {
+		width: 1.25em;
+		height: 1.25em;
+		fill: currentcolor;
 	}
 }

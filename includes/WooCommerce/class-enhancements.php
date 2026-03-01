@@ -51,6 +51,8 @@ class Enhancements {
 
 		// Server-side features (PHP only, no JS).
 		if ( Feature_Settings::is_enabled( 'product_badges' ) ) {
+			( new Custom_Badge_Taxonomy() )->init();
+			add_action( 'init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );
 			( new Product_Badges() )->init();
 		}
 

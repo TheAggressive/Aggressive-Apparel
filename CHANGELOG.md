@@ -1,3 +1,11 @@
+# [1.54.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.53.0...v1.54.0) (2026-03-01)
+
+
+### Features
+
+* enhance page transitions with improved shared element morphing ([7afa177](https://github.com/TheAggressive/Aggressive-Apparel/commit/7afa17740cfe336d2f0ad7365aaf96ec73ceed61))
+* enhance product badges and settings UI ([f4ed787](https://github.com/TheAggressive/Aggressive-Apparel/commit/f4ed7872e354d59764de5fc2c586e9a9885043bc))
+
 # [1.53.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.52.0...v1.53.0) (2026-02-28)
 
 

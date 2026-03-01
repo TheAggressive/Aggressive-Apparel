@@ -1,3 +1,10 @@
+## [1.55.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.55.0...v1.55.1) (2026-03-01)
+
+
+### Bug Fixes
+
+* improve quick view component layout and button styling ([169581f](https://github.com/TheAggressive/Aggressive-Apparel/commit/169581f9a904b63c5c0f4ffe89f1f6086f73499d))
+
 # [1.55.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.54.0...v1.55.0) (2026-03-01)
 
 

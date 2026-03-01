@@ -1,3 +1,10 @@
+# [1.55.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.54.0...v1.55.0) (2026-03-01)
+
+
+### Features
+
+* add 'Buy Now' functionality to quick view and sticky add-to-cart components ([d009e60](https://github.com/TheAggressive/Aggressive-Apparel/commit/d009e60cb938896ae5c23d9fae1554656a62adcb))
+
 # [1.54.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.53.0...v1.54.0) (2026-03-01)
 
 

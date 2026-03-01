@@ -169,6 +169,43 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	background-color: var(--aa-color-success);
 }
 
+.aa-sticky-cart__buy-now {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.5rem 1rem;
+	border: 1.5px solid currentcolor;
+	border-radius: 0.25rem;
+	background: none;
+	color: inherit;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: opacity 0.15s ease;
+}
+
+.aa-sticky-cart__buy-now:hover {
+	opacity: 0.7;
+}
+
+.aa-sticky-cart__buy-now:active {
+	transform: scale(0.97);
+}
+
+.aa-sticky-cart__buy-now:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.aa-sticky-cart__buy-now.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
 /* -----------------------------------------------
  * Quantity controls
  * ----------------------------------------------- */
@@ -441,6 +478,43 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	background-color: var(--aa-color-success);
 }
 
+.aa-sticky-cart__drawer-buy-now {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.5rem 1rem;
+	border: 1.5px solid var(--wp--preset--color--black, #000);
+	border-radius: 0.25rem;
+	background: none;
+	color: var(--wp--preset--color--black, #000);
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: opacity 0.15s ease;
+}
+
+.aa-sticky-cart__drawer-buy-now:hover {
+	opacity: 0.7;
+}
+
+.aa-sticky-cart__drawer-buy-now:active {
+	transform: scale(0.97);
+}
+
+.aa-sticky-cart__drawer-buy-now:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.aa-sticky-cart__drawer-buy-now.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
 /* Selection view wrapper — hidden attr override. */
 .aa-sticky-cart__drawer-selection {
 	display: contents;
@@ -592,6 +666,15 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	.aa-sticky-cart__button {
 		flex-shrink: 0;
 		padding: 0.5rem 1rem;
+	}
+
+	/* Buy Now on its own line in drawer so it doesn't crowd Add to Cart. */
+	.aa-sticky-cart__drawer-footer {
+		flex-wrap: wrap;
+	}
+
+	.aa-sticky-cart__drawer-buy-now {
+		width: 100%;
 	}
 }
 

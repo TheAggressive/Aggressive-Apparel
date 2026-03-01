@@ -651,7 +651,11 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
     },
 
     get canAddToCart() {
-      if (state.isAddingToCart || state.stockStatus === 'outofstock') {
+      if (
+        state.isAddingToCart ||
+        state.isBuyingNow ||
+        state.stockStatus === 'outofstock'
+      ) {
         return false;
       }
       if (state.productType === 'simple') {
@@ -672,6 +676,13 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
         return 'Out of Stock';
       }
       return 'Add to Cart';
+    },
+
+    get buyNowLabel() {
+      if (state.isBuyingNow) {
+        return 'Redirecting…';
+      }
+      return 'Buy Now';
     },
 
     /**
@@ -1731,6 +1742,101 @@ const { state, actions } = store('aggressive-apparel/quick-view', {
           state.announcement = `Error: ${state.cartError}`;
           state.isAddingToCart = false;
         });
+    },
+
+    /**
+     * Add item to cart and redirect to checkout immediately.
+     *
+     * Mirrors addToCart logic but navigates to the checkout page on
+     * success instead of showing post-cart actions.
+     */
+    async buyNow(event) {
+      if (event) event.preventDefault();
+      if (!state.canAddToCart) {
+        return;
+      }
+
+      state.isBuyingNow = true;
+      state.cartError = '';
+
+      const itemId =
+        state.productType === 'variable' && state.matchedVariationId
+          ? state.matchedVariationId
+          : state.productId;
+
+      const body = {
+        id: itemId,
+        quantity: state.quantity,
+      };
+
+      if (state.productType === 'variable' && state.matchedVariationId) {
+        const matchedVar = state.productVariations.find(
+          v => v.id === state.matchedVariationId
+        );
+        if (matchedVar && matchedVar.attributes) {
+          body.variation = matchedVar.attributes
+            .filter(attr => attr.value)
+            .map(attr => ({
+              attribute: attr.attribute || attr.name || '',
+              value: attr.value,
+            }));
+        }
+      }
+
+      const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
+      const addUrl = `${cartUrl}/add-item`;
+
+      if (!state.cartNonce) {
+        try {
+          const cartRes = await fetch(cartUrl, { credentials: 'same-origin' });
+          const freshNonce = cartRes.headers.get('Nonce');
+          if (freshNonce) {
+            state.cartNonce = freshNonce;
+          }
+        } catch {
+          // Fall through.
+        }
+      }
+
+      if (!state.cartNonce) {
+        state.cartError = 'Session expired. Please reload the page.';
+        state.isBuyingNow = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(addUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            Nonce: state.cartNonce,
+          },
+          body: JSON.stringify(body),
+        });
+
+        const newNonce = res.headers.get('Nonce');
+        if (newNonce) {
+          state.cartNonce = newNonce;
+        }
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || `HTTP ${res.status}`);
+        }
+
+        // Redirect to checkout.
+        window.location.href = state.checkoutUrl;
+      } catch (err) {
+        if (typeof window.SCRIPT_DEBUG !== 'undefined') {
+          // eslint-disable-next-line no-console
+          console.error('[Quick View] Buy now failed:', err);
+        }
+        state.cartError =
+          decodeEntities(err.message) || 'Could not add to cart.';
+        state.announcement = `Error: ${state.cartError}`;
+        state.isBuyingNow = false;
+      }
     },
   },
 

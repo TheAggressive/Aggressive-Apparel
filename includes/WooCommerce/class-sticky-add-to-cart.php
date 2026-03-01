@@ -130,6 +130,8 @@ class Sticky_Add_To_Cart {
 					'drawerView'             => 'selection',
 					'announcement'           => '',
 					'cartUrl'                => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+					'checkoutUrl'            => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
+					'isBuyingNow'            => false,
 					'drawerImage'            => $drawer_image_src,
 					'drawerImageAlt'         => $product->get_name(),
 					'originalDrawerImage'    => $drawer_image_src,
@@ -224,6 +226,22 @@ class Sticky_Add_To_Cart {
 							?>
 						</span>
 					</button>
+
+					<?php if ( $product->is_in_stock() ) : ?>
+					<button
+						type="button"
+						class="aa-sticky-cart__buy-now"
+						data-wp-on--click="actions.buyNow"
+						data-wp-class--is-loading="state.isBuyingNow"
+						data-wp-bind--disabled="state.isAddDisabled"
+						data-wp-bind--hidden="state.isVariable"
+						<?php echo $product->is_type( 'variable' ) ? 'hidden' : ''; ?>
+					>
+						<span data-wp-text="state.buyNowLabel">
+							<?php esc_html_e( 'Buy Now', 'aggressive-apparel' ); ?>
+						</span>
+					</button>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
@@ -362,6 +380,17 @@ class Sticky_Add_To_Cart {
 							>
 								<span data-wp-text="state.drawerButtonText">
 									<?php esc_html_e( 'Add to Cart', 'aggressive-apparel' ); ?>
+								</span>
+							</button>
+							<button
+								type="button"
+								class="aa-sticky-cart__drawer-buy-now"
+								data-wp-on--click="actions.buyNow"
+								data-wp-bind--disabled="state.isDrawerAddDisabled"
+								data-wp-class--is-loading="state.isBuyingNow"
+							>
+								<span data-wp-text="state.buyNowLabel">
+									<?php esc_html_e( 'Buy Now', 'aggressive-apparel' ); ?>
 								</span>
 							</button>
 						</div>

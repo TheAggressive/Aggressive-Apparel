@@ -111,7 +111,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       return state.productType === 'variable';
     },
     get isAddDisabled() {
-      if (state.isAdding) return true;
+      if (state.isAdding || state.isBuyingNow) return true;
       // Variable products without matched variation can still be clicked
       // to open the drawer — not disabled.
       return false;
@@ -124,7 +124,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       return 'Add to Cart';
     },
     get isDrawerAddDisabled() {
-      if (state.isAdding) return true;
+      if (state.isAdding || state.isBuyingNow) return true;
       if (state.productType === 'variable' && !state.matchedVariationId)
         return true;
       return false;
@@ -141,6 +141,10 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
       }
       return 'Add to Cart';
     },
+    get buyNowLabel() {
+      if (state.isBuyingNow) return 'Redirecting…';
+      return 'Buy Now';
+    },
     get hideDrawerSelection() {
       return state.drawerView !== 'selection';
     },
@@ -151,7 +155,7 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
 
   actions: {
     addToCart() {
-      if (state.isAdding) return;
+      if (state.isAdding || state.isBuyingNow) return;
 
       // Variable products: open the drawer first so the user can pick options.
       // Once the drawer is open the button inside it calls this same action,
@@ -247,6 +251,82 @@ const { state, actions } = store('aggressive-apparel/sticky-add-to-cart', {
         })
         .catch(() => {
           state.isAdding = false;
+          state.hasError = true;
+          state.announcement = 'Error adding to cart';
+
+          setTimeout(() => {
+            state.hasError = false;
+            state.announcement = '';
+          }, 3000);
+        });
+    },
+
+    /**
+     * Add item to cart and redirect to checkout.
+     */
+    buyNow() {
+      if (state.isBuyingNow || state.isAdding) return;
+
+      // Variable products: open drawer first if not already open.
+      if (state.productType === 'variable' && !state.isDrawerOpen) {
+        // Set flag so that when the drawer's Buy Now is clicked,
+        // we know to redirect after adding.
+        actions.openDrawer();
+        return;
+      }
+
+      const itemId =
+        state.productType === 'variable'
+          ? state.matchedVariationId
+          : state.productId;
+
+      if (!itemId) return;
+
+      state.isBuyingNow = true;
+      state.hasError = false;
+
+      const body = { id: itemId, quantity: state.quantity };
+
+      if (state.productType === 'variable' && state.matchedVariationId) {
+        const matchedVar = state.variations.find(
+          v => v.id === state.matchedVariationId
+        );
+        if (matchedVar && matchedVar.attributes) {
+          body.variation = Object.entries(matchedVar.attributes)
+            .filter(([, val]) => val)
+            .map(([key, val]) => ({
+              attribute: key.replace(/^attribute_/, ''),
+              value: val,
+            }));
+        }
+      }
+
+      fetch(state.cartApiUrl, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          Nonce: state.nonce,
+        },
+        body: JSON.stringify(body),
+      })
+        .then(res => {
+          const newNonce = res.headers.get('Nonce');
+          if (newNonce) {
+            state.nonce = newNonce;
+          }
+          if (!res.ok) {
+            return res.json().then(err => {
+              throw new Error(err.message || `HTTP ${res.status}`);
+            });
+          }
+          return res.json();
+        })
+        .then(() => {
+          window.location.href = state.checkoutUrl;
+        })
+        .catch(() => {
+          state.isBuyingNow = false;
           state.hasError = true;
           state.announcement = 'Error adding to cart';
 

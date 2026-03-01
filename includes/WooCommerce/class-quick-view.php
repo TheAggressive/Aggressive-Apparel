@@ -277,6 +277,8 @@ class Quick_View {
 					// Post-cart actions.
 					'showPostCartActions' => false,
 					'cartUrl'             => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+					'checkoutUrl'         => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
+					'isBuyingNow'         => false,
 
 					// Mobile drawer.
 					'isDrawerOpen'        => false,
@@ -538,6 +540,16 @@ class Quick_View {
 									data-wp-class--is-success="state.isCartSuccess"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
 
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__buy-now"
+									data-wp-on--click="actions.buyNow"
+									data-wp-bind--disabled="state.cannotAddToCart"
+									data-wp-bind--hidden="state.hideInlineAddToCart"
+									data-wp-text="state.buyNowLabel"
+									data-wp-class--is-adding="state.isBuyingNow"
+								><?php echo esc_html__( 'Buy Now', 'aggressive-apparel' ); ?></button>
+
 								<!-- Select Options — replaces Add to Cart for variable products. -->
 								<button
 									type="button"
@@ -731,6 +743,15 @@ class Quick_View {
 									data-wp-class--is-adding="state.isAddingToCart"
 									data-wp-class--is-success="state.isCartSuccess"
 								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+
+								<button
+									type="button"
+									class="aggressive-apparel-quick-view__buy-now"
+									data-wp-on--click="actions.buyNow"
+									data-wp-bind--disabled="state.cannotAddToCart"
+									data-wp-text="state.buyNowLabel"
+									data-wp-class--is-adding="state.isBuyingNow"
+								><?php echo esc_html__( 'Buy Now', 'aggressive-apparel' ); ?></button>
 
 								<a
 									href="#"

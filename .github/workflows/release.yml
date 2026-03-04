@@ -1,4 +1,4 @@
-name: CI/CD Pipeline (Optimized)
+name: CI/CD Pipeline
 
 on:
   push:
@@ -26,120 +26,27 @@ env:
 
 jobs:
   # ============================================================================
-  # JOB 1: Setup Dependencies (Runs once, shared by all jobs)
-  # ============================================================================
-  setup:
-    name: 📦 Setup Dependencies
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    outputs:
-      pnpm-cache-key: ${{ steps.pnpm-cache.outputs.cache-hit }}
-      composer-cache-key: ${{ steps.composer-cache.outputs.cache-hit }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Get pnpm store directory
-        id: pnpm-store
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm dependencies
-        id: pnpm-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install pnpm dependencies
-        if: steps.pnpm-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          tools: composer:v2
-
-      - name: Get Composer cache directory
-        id: composer-cache-dir
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache Composer dependencies
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.composer-cache-dir.outputs.dir }}
-            vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-      - name: Cache vendor
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-
-  # ============================================================================
-  # PARALLEL JOBS: Quality Checks (Fast fail)
+  # PARALLEL: Quality Checks (no setup dependency — each job self-caches)
   # ============================================================================
   lint-js:
     name: 🔍 Lint JavaScript
     runs-on: ubuntu-latest
-    needs: setup
     timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Restore pnpm cache
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.local/share/pnpm/store/v3
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies (if cache miss)
-        run: pnpm install --frozen-lockfile --offline || pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
         run: pnpm lint:js
@@ -150,7 +57,6 @@ jobs:
   lint-php:
     name: 🔍 Lint PHP
     runs-on: ubuntu-latest
-    needs: setup
     timeout-minutes: 5
 
     steps:
@@ -161,80 +67,36 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
 
-      - name: Restore Composer cache
+      - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-vendor-
 
-      - name: Install dependencies (if cache miss)
-        run: composer install --no-interaction --prefer-dist || true
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: PHP Syntax Check
-        run: find includes/ -name "*.php" -exec php -l {} \; > /dev/null && echo "✅ PHP syntax valid"
-
-  phpcs:
-    name: 🔍 PHPCS
-    runs-on: ubuntu-latest
-    needs: setup
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          tools: composer:v2
-
-      - name: Restore Composer cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-
-      - name: Install dependencies (if cache miss)
-        run: composer install --no-interaction --prefer-dist || true
+        run: find includes/ -name "*.php" -exec php -l {} \; > /dev/null && echo "PHP syntax valid"
 
       - name: Run PHPCS
         run: ./vendor/bin/phpcs --standard=phpcs.xml.dist includes/ src/
-
-  phpstan:
-    name: 🔍 PHPStan
-    runs-on: ubuntu-latest
-    needs: setup
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          tools: composer:v2
-
-      - name: Restore Composer cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-
-      - name: Install dependencies (if cache miss)
-        run: composer install --no-interaction --prefer-dist || true
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --verbose
 
   # ============================================================================
-  # JOB: Check if release-worthy (Conditional build trigger)
+  # Build Assets (includes release-trigger check inline)
   # ============================================================================
-  check-release-trigger:
-    name: 🔍 Check Release Trigger
+  build:
+    name: 🔨 Build
     runs-on: ubuntu-latest
-    needs: [lint-js, lint-php, phpcs, phpstan]
+    needs: [lint-js, lint-php]
+    timeout-minutes: 5
+
     outputs:
-      should_build: ${{ steps.check.outputs.should_build }}
-    timeout-minutes: 2
+      should_release: ${{ steps.check.outputs.should_release }}
 
     steps:
       - uses: actions/checkout@v4
@@ -244,56 +106,38 @@ jobs:
       - name: Check if commit triggers release
         id: check
         run: |
-          echo "Checking latest commits for release triggers..."
-
-          # Get the latest commit message
           LATEST_COMMIT=$(git log -1 --pretty=format:"%s")
-
           echo "Latest commit: $LATEST_COMMIT"
 
-          # Check if commit contains release-triggering keywords
           if echo "$LATEST_COMMIT" | grep -qE '^(feat|fix|perf)!?:|^(feat|fix|perf).*BREAKING CHANGE'; then
-            echo "✅ Release-triggering commit detected"
-            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Release-triggering commit detected"
+            echo "should_release=true" >> $GITHUB_OUTPUT
           else
-            echo "ℹ️  Non-release commit (docs/style/refactor/test/etc)"
-            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "Non-release commit (docs/style/refactor/test/etc)"
+            echo "should_release=false" >> $GITHUB_OUTPUT
           fi
 
-  # ============================================================================
-  # JOB: Build Assets (Runs before tests — blocks/styles required by PHPUnit)
-  # ============================================================================
-  build:
-    name: 🔨 Build Assets
-    runs-on: ubuntu-latest
-    needs: [check-release-trigger]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - uses: pnpm/action-setup@v4
+        if: steps.check.outputs.should_release == 'true'
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.should_release == 'true'
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
-      - name: Install dependencies (if cache miss)
-        run: pnpm install --frozen-lockfile || true
+      - name: Install dependencies
+        if: steps.check.outputs.should_release == 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Build assets
+        if: steps.check.outputs.should_release == 'true'
         run: pnpm build
 
       - name: Upload build artifacts
+        if: steps.check.outputs.should_release == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
@@ -301,25 +145,26 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # PARALLEL JOBS: Test Suites (Only for release-worthy commits)
+  # Test: All PHPUnit suites in a single wp-env instance
   # ============================================================================
-  test-unit:
-    name: 🧪 Unit Tests
+  test:
+    name: 🧪 Tests
     runs-on: ubuntu-latest
-    needs: [check-release-trigger, build]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 10
+    needs: [build]
+    if: needs.build.outputs.should_release == 'true'
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -327,17 +172,16 @@ jobs:
           extensions: mbstring, xml, zip, xdebug
           coverage: xdebug
 
-      - name: Restore caches
+      - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            vendor
-            node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/composer.lock', '**/pnpm-lock.yaml') }}
+          path: vendor
+          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-vendor-
 
       - name: Install dependencies
         run: |
-          composer install --no-interaction --prefer-dist
+          composer install --no-interaction --prefer-dist --no-progress
           pnpm install --frozen-lockfile
 
       - name: Download build artifacts
@@ -349,11 +193,10 @@ jobs:
       - name: Start wp-env
         run: |
           pnpm env:start
-          sleep 10
+          pnpm wp-env run tests-cli -- wp --info
 
       - name: Setup theme directory
         run: |
-          # Create symlink from actual directory to expected theme slug for WordPress
           pnpm wp-env run tests-cli -- bash -c "
             cd /var/www/html/wp-content/themes/
             if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
@@ -365,10 +208,23 @@ jobs:
       - name: Install dependencies in wp-env
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests (with coverage)
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=unit --coverage-clover=coverage-unit.xml"
 
+      - name: Run integration tests
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=integration --verbose"
+
+      - name: Run security tests
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=security --verbose"
+
+      - name: Run accessibility tests
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=accessibility --verbose"
+
+      - name: Run performance tests
+        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
+
       - name: Upload coverage
+        if: always()
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage-unit.xml
@@ -379,294 +235,14 @@ jobs:
         if: always()
         run: pnpm env:stop
 
-  test-integration:
-    name: 🔗 Integration Tests
-    runs-on: ubuntu-latest
-    needs: [check-release-trigger, build]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: mbstring, xml, zip
-
-      - name: Restore caches
-        uses: actions/cache@v4
-        with:
-          path: |
-            vendor
-            node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/composer.lock', '**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist
-          pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Start wp-env
-        run: |
-          pnpm env:start
-          sleep 10
-
-      - name: Setup theme directory
-        run: |
-          # Create symlink from actual directory to expected theme slug for WordPress
-          pnpm wp-env run tests-cli -- bash -c "
-            cd /var/www/html/wp-content/themes/
-            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
-              ln -sf Aggressive-Apparel aggressive-apparel
-              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
-            fi
-          "
-
-      - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
-
-      - name: Run integration tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=integration --verbose"
-
-      - name: Stop wp-env
-        if: always()
-        run: pnpm env:stop
-
-  test-security:
-    name: 🔒 Security Tests
-    runs-on: ubuntu-latest
-    needs: [check-release-trigger, build]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: mbstring, xml, zip
-
-      - name: Restore caches
-        uses: actions/cache@v4
-        with:
-          path: |
-            vendor
-            node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/composer.lock', '**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist
-          pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Start wp-env
-        run: |
-          pnpm env:start
-          sleep 10
-
-      - name: Setup theme directory
-        run: |
-          # Create symlink from actual directory to expected theme slug for WordPress
-          pnpm wp-env run tests-cli -- bash -c "
-            cd /var/www/html/wp-content/themes/
-            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
-              ln -sf Aggressive-Apparel aggressive-apparel
-              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
-            fi
-          "
-
-      - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
-
-      - name: Run security tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=security --verbose"
-
-      - name: Stop wp-env
-        if: always()
-        run: pnpm env:stop
-
-  test-accessibility:
-    name: ♿ Accessibility Tests
-    runs-on: ubuntu-latest
-    needs: [check-release-trigger, build]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: mbstring, xml, zip
-
-      - name: Restore caches
-        uses: actions/cache@v4
-        with:
-          path: |
-            vendor
-            node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/composer.lock', '**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist
-          pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Start wp-env
-        run: |
-          pnpm env:start
-          sleep 10
-
-      - name: Setup theme directory
-        run: |
-          # Create symlink from actual directory to expected theme slug for WordPress
-          pnpm wp-env run tests-cli -- bash -c "
-            cd /var/www/html/wp-content/themes/
-            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
-              ln -sf Aggressive-Apparel aggressive-apparel
-              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
-            fi
-          "
-
-      - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
-
-      - name: Run accessibility tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=accessibility --verbose"
-
-      - name: Stop wp-env
-        if: always()
-        run: pnpm env:stop
-
-  test-performance:
-    name: ⚡ Performance Tests
-    runs-on: ubuntu-latest
-    needs: [check-release-trigger, build]
-    if: needs.check-release-trigger.outputs.should_build == 'true'
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: mbstring, xml, zip
-
-      - name: Restore caches
-        uses: actions/cache@v4
-        with:
-          path: |
-            vendor
-            node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/composer.lock', '**/pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist
-          pnpm install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: build/
-
-      - name: Start wp-env
-        run: |
-          pnpm env:start
-          sleep 10
-
-      - name: Setup theme directory
-        run: |
-          # Create symlink from actual directory to expected theme slug for WordPress
-          pnpm wp-env run tests-cli -- bash -c "
-            cd /var/www/html/wp-content/themes/
-            if [ -d 'Aggressive-Apparel' ] && [ ! -d 'aggressive-apparel' ]; then
-              ln -sf Aggressive-Apparel aggressive-apparel
-              echo 'Created symlink: Aggressive-Apparel -> aggressive-apparel'
-            fi
-          "
-
-      - name: Install dependencies in wp-env
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && composer install --no-interaction --prefer-dist"
-
-      - name: Run performance tests
-        run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
-
-      - name: Stop wp-env
-        if: always()
-        run: pnpm env:stop
-
   # ============================================================================
-  # JOB: Package (After build and all tests pass)
+  # Package Theme
   # ============================================================================
   package:
     name: 📦 Package Theme
     runs-on: ubuntu-latest
-    needs:
-      [
-        build,
-        test-unit,
-        test-integration,
-        test-security,
-        test-accessibility,
-        test-performance,
-      ]
-    if: success() && needs.build.result == 'success'
+    needs: [build, test]
+    if: success() && needs.build.outputs.should_release == 'true'
     timeout-minutes: 5
 
     steps:
@@ -688,13 +264,13 @@ jobs:
 
       - name: Verify build artifacts exist
         run: |
-          echo "📦 Checking build artifacts..."
+          echo "Checking build artifacts..."
           ls -la build/
-          echo "✅ Build artifacts verified"
+          echo "Build artifacts verified"
 
       - name: Clean development files
         run: |
-          echo "🧹 Removing development files..."
+          echo "Removing development files..."
           # Remove directories
           rm -rf node_modules src tests .github .husky .vscode bin
 
@@ -712,11 +288,11 @@ jobs:
           # Remove dev dependency files
           rm -f package.json composer.json
 
-          echo "✅ Development files removed"
+          echo "Development files removed"
 
       - name: Create theme package
         run: |
-          echo "📦 Creating theme package..."
+          echo "Creating theme package..."
 
           # Use lowercase name for WordPress theme directory inside ZIP
           THEME_SLUG_LOWER=$(echo "${{ env.THEME_SLUG }}" | tr '[:upper:]' '[:lower:]')
@@ -745,7 +321,7 @@ jobs:
           # Return to theme directory
           cd ${{ env.THEME_SLUG }}
 
-          echo "✅ Package created: $(ls -lh aggressive-apparel.zip)"
+          echo "Package created: $(ls -lh aggressive-apparel.zip)"
 
       - name: Upload theme package
         uses: actions/upload-artifact@v4
@@ -755,7 +331,7 @@ jobs:
           retention-days: 30
 
   # ============================================================================
-  # JOB: Release (Only on main/master)
+  # Release (Only on main/master)
   # ============================================================================
   release:
     name: 🚀 Release
@@ -774,13 +350,14 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -798,87 +375,64 @@ jobs:
 
       - name: Verify package exists
         run: |
-          echo "📦 Verifying package..."
+          echo "Verifying package..."
           ls -lh aggressive-apparel.zip
-          echo "✅ Package verified"
+          echo "Package verified"
 
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: 0
-        run: |
-          echo "🚀 Running semantic release..."
-          pnpm semantic-release
+        run: pnpm semantic-release
 
   # ============================================================================
   # Summary
   # ============================================================================
   summary:
-    name: ✅ CI Summary
+    name: CI Summary
     runs-on: ubuntu-latest
-    needs:
-      [
-        lint-js,
-        lint-php,
-        phpcs,
-        phpstan,
-        check-release-trigger,
-        build,
-        test-unit,
-        test-integration,
-        test-security,
-        test-accessibility,
-        test-performance,
-        package,
-      ]
+    needs: [lint-js, lint-php, build, test, package]
     if: always()
 
     steps:
       - name: Check status
         run: |
-          echo "## 📊 CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "## CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Check if this was a release-worthy commit
-          RELEASE_TRIGGER="${{ needs.check-release-trigger.outputs.should_build }}"
-          if [ "$RELEASE_TRIGGER" = "true" ]; then
-            echo "🚀 **Release-worthy commit detected** - Full pipeline executed" >> $GITHUB_STEP_SUMMARY
+          SHOULD_RELEASE="${{ needs.build.outputs.should_release }}"
+          if [ "$SHOULD_RELEASE" = "true" ]; then
+            echo "**Release-worthy commit detected** — Full pipeline executed" >> $GITHUB_STEP_SUMMARY
           else
-            echo "ℹ️ **Non-release commit** - Only quality checks executed" >> $GITHUB_STEP_SUMMARY
+            echo "**Non-release commit** — Only quality checks executed" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| JavaScript Lint | ${{ needs.lint-js.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PHP Lint | ${{ needs.lint-php.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PHPCS | ${{ needs.phpcs.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PHPStan | ${{ needs.phpstan.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Release Check | ${{ needs.check-release-trigger.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PHP Lint (syntax + PHPCS + PHPStan) | ${{ needs.lint-php.result }} |" >> $GITHUB_STEP_SUMMARY
 
-          # Show build/test status based on release trigger
-          if [ "$RELEASE_TRIGGER" = "true" ]; then
+          if [ "$SHOULD_RELEASE" = "true" ]; then
             echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Unit Tests | ${{ needs.test-unit.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Integration Tests | ${{ needs.test-integration.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Security Tests | ${{ needs.test-security.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Accessibility Tests | ${{ needs.test-accessibility.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Performance Tests | ${{ needs.test-performance.result }} |" >> $GITHUB_STEP_SUMMARY
+            echo "| Tests (unit + integration + security + a11y + perf) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
             echo "| Package | ${{ needs.package.result }} |" >> $GITHUB_STEP_SUMMARY
 
             if [ "${{ needs.lint-js.result }}" = "success" ] && \
-               [ "${{ needs.test-unit.result }}" = "success" ] && \
+               [ "${{ needs.test.result }}" = "success" ] && \
                [ "${{ needs.package.result }}" = "success" ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### ✅ Full pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
+              echo "### Full pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "| Build | ⏭️ Skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-            echo "| Tests | ⏭️ Skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-            echo "| Package | ⏭️ Skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Build | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Tests | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Package | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
 
-            if [ "${{ needs.lint-js.result }}" = "success" ]; then
+            if [ "${{ needs.lint-js.result }}" = "success" ] && \
+               [ "${{ needs.lint-php.result }}" = "success" ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### ✅ Quality checks passed - Ready for merge!" >> $GITHUB_STEP_SUMMARY
+              echo "### Quality checks passed — Ready for merge!" >> $GITHUB_STEP_SUMMARY
             fi
           fi

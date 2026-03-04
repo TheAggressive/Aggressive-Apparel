@@ -68,25 +68,29 @@ class Feature_Settings {
 	 * @var array<string, array{label: string, icon: string}>
 	 */
 	private const SECTIONS = array(
-		'catalog'    => array(
+		'catalog'      => array(
 			'label' => 'Catalog & Browsing',
 			'icon'  => 'dashicons-store',
 		),
-		'product'    => array(
+		'product'      => array(
 			'label' => 'Product Page',
 			'icon'  => 'dashicons-products',
 		),
-		'cart'       => array(
+		'cart'         => array(
 			'label' => 'Cart & Mini Cart',
 			'icon'  => 'dashicons-cart',
 		),
-		'engagement' => array(
+		'engagement'   => array(
 			'label' => 'Customer Engagement',
 			'icon'  => 'dashicons-groups',
 		),
-		'ui'         => array(
+		'ui'           => array(
 			'label' => 'Mobile & UI',
 			'icon'  => 'dashicons-smartphone',
+		),
+		'experimental' => array(
+			'label' => 'Experimental',
+			'icon'  => 'dashicons-admin-tools',
 		),
 	);
 
@@ -225,6 +229,13 @@ class Feature_Settings {
 				'label'       => __( 'Mobile Bottom Navigation', 'aggressive-apparel' ),
 				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
 				'section'     => 'ui',
+			),
+
+			// ── Experimental ────────────────────────────────────.
+			'adaptive_colors'            => array(
+				'label'       => __( 'Adaptive Colors', 'aggressive-apparel' ),
+				'description' => __( 'Per-block light/dark color overrides and auto-generated adaptive palette using CSS light-dark().', 'aggressive-apparel' ),
+				'section'     => 'experimental',
 			),
 		);
 	}

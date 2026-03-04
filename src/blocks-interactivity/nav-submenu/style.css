@@ -7,8 +7,8 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu {
-  --submenu-bg: var(--wp--preset--color--white, #fff);
-  --submenu-color: var(--wp--preset--color--black, #000);
+  --submenu-bg: light-dark(#fff, #1a1a1a);
+  --submenu-color: light-dark(#000, #e0e0e0);
   --submenu-shadow: var(--aa-nav-shadow, 0 4px 20px rgb(0 0 0 / 15%));
   --submenu-radius: var(--aa-nav-radius-lg, 8px);
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
@@ -311,7 +311,7 @@
     /* Border only applied when custom values are set via Nav Menu settings */
     border-width: var(--panel-border-width, 0);
     border-style: var(--panel-border-style, solid);
-    border-color: var(--panel-border-color, currentcolor);
+    border-color: var(--panel-border-color, light-dark(currentcolor, rgb(255 255 255 / 10%)));
   }
 
   /* Drilldown panels don't use glassmorphism border */
@@ -319,19 +319,6 @@
     border: none;
     backdrop-filter: none;
     background: var(--submenu-bg);
-  }
-
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-
-    .wp-block-aggressive-apparel-nav-submenu__panel {
-      background: color-mix(in srgb, var(--submenu-bg) 80%, transparent);
-      border-color: var(--panel-border-color, rgb(255 255 255 / 10%));
-    }
-
-    .wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel {
-      background: var(--submenu-bg);
-    }
   }
 }
 

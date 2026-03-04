@@ -15,7 +15,6 @@ import {
   useSetting,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
-import type { Color } from '@wordpress/components';
 import {
   BaseControl,
   Button,
@@ -29,7 +28,11 @@ import {
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
+import {
+  useEditorColorScheme,
+  ColorModeToggle,
+} from '../../utils/editor-color-scheme';
 import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import type {
@@ -58,6 +61,76 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/nav-link', { label: 'About', url: '/about' }],
   ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
 ];
+
+/**
+ * Parse a CSS color value that may contain light-dark().
+ * Returns the light and dark components, or both as the same value for plain colors.
+ */
+function parseLightDark(value: string | undefined): {
+  light?: string;
+  dark?: string;
+} {
+  if (!value) return {};
+
+  if (value.startsWith('light-dark(') && value.endsWith(')')) {
+    const inner = value.slice(11, -1);
+    let depth = 0;
+    for (let i = 0; i < inner.length; i++) {
+      if (inner[i] === '(') depth++;
+      else if (inner[i] === ')') depth--;
+      else if (inner[i] === ',' && depth === 0) {
+        return {
+          light: inner.slice(0, i).trim(),
+          dark: inner.slice(i + 1).trim(),
+        };
+      }
+    }
+  }
+
+  // Plain color — same for both modes.
+  return { light: value, dark: value };
+}
+
+/**
+ * Compose light and dark colors into a CSS value.
+ * Returns light-dark() when both differ, a plain color when equal, or undefined when empty.
+ */
+function composeLightDark(light?: string, dark?: string): string | undefined {
+  if (light && dark) {
+    return light === dark ? light : `light-dark(${light}, ${dark})`;
+  }
+  return light || dark || undefined;
+}
+
+/**
+ * Adaptive color picker that reads/writes a specific mode (light or dark)
+ * from a combined light-dark() CSS value.
+ */
+function AdaptiveColorPicker({
+  mode,
+  value,
+  onChange,
+  colors,
+}: {
+  mode: 'light' | 'dark';
+  value: string | undefined;
+  onChange: (value: string | undefined) => void;
+  colors: Array<{ name: string; slug: string; color: string }> | undefined;
+}) {
+  const parsed = parseLightDark(value);
+  return (
+    <ColorPalette
+      colors={colors}
+      value={mode === 'light' ? parsed.light : parsed.dark}
+      onChange={color => {
+        const newLight = mode === 'light' ? color : parsed.light;
+        const newDark = mode === 'dark' ? color : parsed.dark;
+        onChange(composeLightDark(newLight, newDark));
+      }}
+      clearable
+    />
+  );
+}
 
 export default function Edit({
   attributes,
@@ -96,11 +169,20 @@ export default function Edit({
     panelOverlayOpacity,
   } = attributes;
 
-  // Get theme color palette for color controls.
-  const colorPalette = useSetting('color.palette') as Color[] | undefined;
+  // Get theme color palette, filtering out adaptive (light-dark) entries.
+  const allColors = useSetting('color.palette') as
+    | Array<{ name: string; slug: string; color: string }>
+    | undefined;
+  const colors = useMemo(
+    () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
+    [allColors]
+  );
 
   // Track which view mode is active: 'desktop' or 'mobile'.
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+
+  // Shared color scheme state — synced across all adaptive panels.
+  const { colorMode, switchColorMode } = useEditorColorScheme();
 
   // Ensure unique ID exists for context sharing.
   if (!navId) {
@@ -319,7 +401,7 @@ export default function Edit({
             label={__('Color', 'aggressive-apparel')}
           >
             <ColorPalette
-              colors={colorPalette}
+              colors={colors}
               value={indicatorColor}
               onChange={(value: string | undefined) =>
                 setAttributes({ indicatorColor: value })
@@ -347,28 +429,33 @@ export default function Edit({
           title={__('Submenu Colors', 'aggressive-apparel')}
           initialOpen={false}
         >
+          <p style={{ fontSize: '12px', color: '#757575', marginTop: 0 }}>
+            {__(
+              'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
+              'aggressive-apparel'
+            )}
+          </p>
+          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
           <BaseControl
-            id='submenu-background-color'
             label={__('Background', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={submenuBackgroundColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ submenuBackgroundColor: value })
-              }
+              onChange={v => setAttributes({ submenuBackgroundColor: v })}
+              colors={colors}
             />
           </BaseControl>
           <BaseControl
-            id='submenu-text-color'
             label={__('Text', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={submenuTextColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ submenuTextColor: value })
-              }
+              onChange={v => setAttributes({ submenuTextColor: v })}
+              colors={colors}
             />
           </BaseControl>
         </PanelBody>
@@ -415,16 +502,16 @@ export default function Edit({
               setAttributes({ submenuBorderStyle: value as BorderStyle })
             }
           />
+          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
           <BaseControl
-            id='submenu-border-color'
             label={__('Border Color', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={submenuBorderColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ submenuBorderColor: value })
-              }
+              onChange={v => setAttributes({ submenuBorderColor: v })}
+              colors={colors}
             />
           </BaseControl>
         </PanelBody>
@@ -433,60 +520,63 @@ export default function Edit({
           title={__('Mobile Panel Colors', 'aggressive-apparel')}
           initialOpen={false}
         >
+          <p style={{ fontSize: '12px', color: '#757575', marginTop: 0 }}>
+            {__(
+              'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
+              'aggressive-apparel'
+            )}
+          </p>
+          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
           <BaseControl
-            id='panel-background-color'
             label={__('Background', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={panelBackgroundColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelBackgroundColor: value })
-              }
+              onChange={v => setAttributes({ panelBackgroundColor: v })}
+              colors={colors}
             />
           </BaseControl>
           <BaseControl
-            id='panel-text-color'
             label={__('Text', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={panelTextColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelTextColor: value })
-              }
+              onChange={v => setAttributes({ panelTextColor: v })}
+              colors={colors}
             />
           </BaseControl>
           <BaseControl
-            id='panel-link-hover-color'
             label={__('Link Hover Color', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={panelLinkHoverColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelLinkHoverColor: value })
-              }
+              onChange={v => setAttributes({ panelLinkHoverColor: v })}
+              colors={colors}
             />
           </BaseControl>
           <BaseControl
-            id='panel-link-hover-bg'
             label={__('Link Hover Background', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
-            <ColorPalette
-              colors={colorPalette}
+            <AdaptiveColorPicker
+              mode={colorMode}
               value={panelLinkHoverBg}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelLinkHoverBg: value })
-              }
+              onChange={v => setAttributes({ panelLinkHoverBg: v })}
+              colors={colors}
             />
           </BaseControl>
           <BaseControl
-            id='panel-overlay-color'
             label={__('Overlay Color', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
           >
             <ColorPalette
-              colors={colorPalette}
+              colors={colors}
               value={panelOverlayColor}
               onChange={(value: string | undefined) =>
                 setAttributes({ panelOverlayColor: value })

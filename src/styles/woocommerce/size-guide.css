@@ -95,8 +95,8 @@
 	max-width: 740px;
 	max-height: 85vh;
 	overflow-y: auto;
-	background-color: var(--wp--preset--color--light-dark-white-black, #fff);
-	color: var(--wp--preset--color--light-dark-black-white, #000);
+	background-color: var(--wp--preset--color--surface, #fff);
+	color: var(--wp--preset--color--on-surface, #000);
 	border-radius: 0;
 	box-shadow:
 		0 25px 50px -12px rgb(0 0 0 / 30%),
@@ -221,8 +221,8 @@
 		text-transform: uppercase;
 		font-size: 0.65rem;
 		letter-spacing: 0.08em;
-		background-color: var(--wp--preset--color--light-dark-black-white, #000);
-		color: var(--wp--preset--color--light-dark-white-black, #fff);
+		background-color: var(--wp--preset--color--on-surface, #000);
+		color: var(--wp--preset--color--surface, #fff);
 		border: none;
 	}
 

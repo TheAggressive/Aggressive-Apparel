@@ -151,6 +151,11 @@ class Enhancements {
 				( new Back_In_Stock_Admin() )->init();
 			}
 		}
+
+		// Experimental features.
+		if ( Feature_Settings::is_enabled( 'adaptive_colors' ) ) {
+			( new \Aggressive_Apparel\Core\Adaptive_Colors() )->init();
+		}
 	}
 
 	/**

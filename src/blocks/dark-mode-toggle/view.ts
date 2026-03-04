@@ -127,10 +127,12 @@ class DarkModeToggle {
     const html = document.documentElement;
 
     if (this.state.isDark) {
+      html.style.colorScheme = 'dark';
       html.setAttribute('data-theme', 'dark');
       html.classList.add('is-dark-mode');
       html.classList.remove('is-light-mode');
     } else {
+      html.style.colorScheme = this.state.isSystemPreference ? '' : 'light';
       html.setAttribute('data-theme', 'light');
       html.classList.add('is-light-mode');
       html.classList.remove('is-dark-mode');

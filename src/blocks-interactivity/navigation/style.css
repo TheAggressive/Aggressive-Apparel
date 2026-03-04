@@ -24,11 +24,11 @@
 :root {
 
   /* Borders */
-  --aa-nav-border-subtle: rgb(0 0 0 / 8%);
-  --aa-nav-border-light: rgb(0 0 0 / 10%);
+  --aa-nav-border-subtle: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 8%));
+  --aa-nav-border-light: light-dark(rgb(0 0 0 / 10%), rgb(255 255 255 / 10%));
 
   /* Overlays & Hover */
-  --aa-nav-hover-bg: rgb(0 0 0 / 5%);
+  --aa-nav-hover-bg: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 5%));
   --aa-nav-shadow: 0 4px 20px rgb(0 0 0 / 15%);
   --aa-nav-overlay-bg: rgb(0 0 0 / 50%);
 
@@ -404,11 +404,21 @@
  * MOBILE PANEL
  *
  * Portaled outside .wp-site-blocks via wp_footer.
- * Minimal dark panel — clean lines, restrained
- * contrast, single brand accent (indicator).
+ * Adaptive panel — automatically switches between
+ * light and dark via CSS light-dark(). Block attribute
+ * overrides (--panel-bg, --panel-color) still win.
  * ======================================== */
 .aa-nav__panel {
   --_panel-accent: var(--indicator-color, var(--wp--preset--color--red, oklch(57.7% 0.245 27.325deg)));
+
+  /* Private adaptive tokens — referenced by panel descendants */
+  --_text: light-dark(#1a1a1a, #e0e0e0);
+  --_text-strong: light-dark(#000, #fff);
+  --_text-muted: light-dark(rgb(0 0 0 / 50%), rgb(255 255 255 / 50%));
+  --_text-subtle: light-dark(rgb(0 0 0 / 30%), rgb(255 255 255 / 30%));
+  --_border: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 6%));
+  --_drilldown-bg: light-dark(rgb(0 0 0 / 5%), rgb(0 0 0 / 40%));
+  --_drilldown-text: light-dark(rgb(0 0 0 / 65%), rgb(255 255 255 / 65%));
 
   position: fixed;
   top: 0;
@@ -416,8 +426,8 @@
   z-index: 100000;
   overflow: hidden;
   width: var(--panel-width, min(320px, 85vw));
-  background: var(--panel-bg, #141414);
-  color: var(--panel-color, #e0e0e0);
+  background: var(--panel-bg, light-dark(#fff, #141414));
+  color: var(--panel-color, var(--_text));
   pointer-events: none;
   will-change: transform;
   transition:
@@ -426,7 +436,7 @@
 }
 
 .aa-nav__panel.is-open {
-  box-shadow: -1px 0 0 rgb(255 255 255 / 5%);
+  box-shadow: -1px 0 0 light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 5%));
 }
 
 /* Position: right */
@@ -569,7 +579,7 @@
   justify-content: flex-end;
   flex-shrink: 0;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgb(255 255 255 / 6%);
+  border-bottom: 1px solid var(--_border);
 }
 
 /* Close button */
@@ -584,17 +594,17 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: rgb(255 255 255 / 50%);
+  color: var(--_text-muted);
   transition:
     color var(--aa-nav-transition-fast);
   -webkit-tap-highlight-color: transparent;
 
   &:hover {
-    color: #e0e0e0;
+    color: var(--_text);
   }
 
   &:active {
-    color: #fff;
+    color: var(--_text-strong);
   }
 
   & svg {
@@ -614,7 +624,7 @@
   margin: 0;
   padding: 0;
   position: relative;
-  color: #e0e0e0;
+  color: var(--_text);
 }
 
 /* ========================================
@@ -654,7 +664,7 @@
   align-items: baseline;
   text-align: left;
   padding: 0.75rem 1.25rem;
-  color: #e0e0e0;
+  color: var(--_text);
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -663,14 +673,14 @@
 
   &:hover,
   &:focus {
-    color: #fff;
+    color: var(--_text-strong);
   }
 }
 
 .aa-nav__panel-menu .wp-block-aggressive-apparel-nav-submenu {
   --submenu-bg: transparent;
-  --submenu-color: #e0e0e0;
-  --nav-link-color: #e0e0e0;
+  --submenu-color: var(--_text);
+  --nav-link-color: var(--_text);
 
   display: block;
   position: static;
@@ -688,7 +698,7 @@
     padding: 0.75rem 1.25rem;
     border: none;
     background: none;
-    color: #e0e0e0;
+    color: var(--_text);
     font: inherit;
     font-size: 0.9375rem;
     font-weight: 500;
@@ -701,19 +711,19 @@
 
     &:hover,
     &:focus {
-      color: #fff;
+      color: var(--_text-strong);
       background: none;
     }
   }
 
   & .wp-block-aggressive-apparel-nav-submenu__arrow {
-    color: rgb(255 255 255 / 30%);
+    color: var(--_text-subtle);
     transition: color var(--aa-nav-transition-fast);
   }
 
   &:hover .wp-block-aggressive-apparel-nav-submenu__arrow,
   &.is-open .wp-block-aggressive-apparel-nav-submenu__arrow {
-    color: rgb(255 255 255 / 60%);
+    color: var(--_text-muted);
   }
 
   /* Accordion panel — grid-template-rows: 0fr/1fr keeps children in
@@ -766,8 +776,8 @@
     min-height: 0;
     padding: 0;
     padding-inline-start: 1rem;
-    background: rgb(0 0 0 / 40%);
-    border-top: 1px solid rgb(255 255 255 / 6%);
+    background: var(--_drilldown-bg);
+    border-top: 1px solid var(--_border);
   }
 
   /* Disable desktop stagger animation — mobile uses the grid
@@ -781,7 +791,7 @@
 
   /* Submenu link items */
   & .wp-block-aggressive-apparel-nav-submenu__panel-inner .wp-block-aggressive-apparel-nav-link__link {
-    color: rgb(255 255 255 / 65%);
+    color: var(--_drilldown-text);
     font-size: 0.875rem;
     font-weight: 400;
     min-height: 40px;
@@ -789,7 +799,7 @@
 
     &:hover,
     &:focus {
-      color: #e0e0e0;
+      color: var(--_text);
     }
   }
 
@@ -821,8 +831,8 @@
     display: flex !important;
     flex-direction: column;
     overflow: hidden auto;
-    background: var(--panel-bg, #141414);
-    color: var(--panel-color, #e0e0e0);
+    background: var(--panel-bg, light-dark(#fff, #141414));
+    color: var(--panel-color, var(--_text));
     border-radius: 0;
     box-shadow: none;
     clip-path: none;
@@ -858,8 +868,8 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--panel-bg, #141414);
-    border-bottom: 1px solid rgb(255 255 255 / 6%);
+    background: var(--panel-bg, light-dark(#fff, #141414));
+    border-bottom: 1px solid var(--_border);
   }
 
   /* Scrollable content area with single-column layout. */
@@ -876,7 +886,7 @@
 
 /* Dividers — single-pixel rule */
 .aa-nav__panel-menu > li + li {
-  border-top: 1px solid rgb(255 255 255 / 6%);
+  border-top: 1px solid var(--_border);
 }
 
 /* ========================================

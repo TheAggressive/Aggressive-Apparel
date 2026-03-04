@@ -10,8 +10,8 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"base-2","className":"customer-testimonials-section"} -->
-<div class="wp-block-group alignfull customer-testimonials-section has-base-2-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)">
+?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"surface-alt","className":"customer-testimonials-section"} -->
+<div class="wp-block-group alignfull customer-testimonials-section has-surface-alt-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80)">
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} -->
 	<div class="wp-block-group">
 		<!-- wp:heading {"textAlign":"center","level":2,"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}},"className":"testimonials-title"} -->
@@ -22,8 +22,8 @@
 		<div class="wp-block-columns alignwide">
 			<!-- wp:column -->
 			<div class="wp-block-column">
-				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"base","className":"testimonial-card"} -->
-				<div class="wp-block-group testimonial-card has-base-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
+				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"surface","className":"testimonial-card"} -->
+				<div class="wp-block-group testimonial-card has-surface-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
 					<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"18px"}},"className":"testimonial-quote"} -->
 					<p class="has-text-align-center testimonial-quote" style="font-size:18px">"The quality of these clothes is unmatched. Every piece feels premium and the fit is perfect. Highly recommend for anyone who values quality over quantity."</p>
 					<!-- /wp:paragraph -->
@@ -54,8 +54,8 @@
 
 			<!-- wp:column -->
 			<div class="wp-block-column">
-				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"base","className":"testimonial-card"} -->
-				<div class="wp-block-group testimonial-card has-base-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
+				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"surface","className":"testimonial-card"} -->
+				<div class="wp-block-group testimonial-card has-surface-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
 					<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"18px"}},"className":"testimonial-quote"} -->
 					<p class="has-text-align-center testimonial-quote" style="font-size:18px">"I've been shopping here for 2 years now. The customer service is exceptional and the products always exceed my expectations. Worth every penny!"</p>
 					<!-- /wp:paragraph -->
@@ -86,8 +86,8 @@
 
 			<!-- wp:column -->
 			<div class="wp-block-column">
-				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"base","className":"testimonial-card"} -->
-				<div class="wp-block-group testimonial-card has-base-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
+				<!-- wp:group {"style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"surface","className":"testimonial-card"} -->
+				<div class="wp-block-group testimonial-card has-surface-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
 					<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"18px"}},"className":"testimonial-quote"} -->
 					<p class="has-text-align-center testimonial-quote" style="font-size:18px">"The style and comfort level is incredible. I get compliments every time I wear something from this brand. Fast shipping and great packaging too!"</p>
 					<!-- /wp:paragraph -->

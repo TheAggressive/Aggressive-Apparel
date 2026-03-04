@@ -51,8 +51,14 @@ jobs:
       - name: Run ESLint
         run: pnpm lint:js
 
+      - name: Run Stylelint
+        run: pnpm lint:css
+
       - name: Run Prettier
         run: pnpm format:check
+
+      - name: Run JS tests
+        run: pnpm test:js
 
   lint-php:
     name: 🔍 Lint PHP

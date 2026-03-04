@@ -1,3 +1,10 @@
+# [1.56.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.55.1...v1.56.0) (2026-03-04)
+
+
+### Features
+
+* implement adaptive colors feature for light/dark mode support ([f7dadde](https://github.com/TheAggressive/Aggressive-Apparel/commit/f7daddebba68a8fdb76dc537301147bf0bb6d2b5))
+
 ## [1.55.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.55.0...v1.55.1) (2026-03-01)
 
 

@@ -1,3 +1,11 @@
+## [1.56.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.56.0...v1.56.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* add missing keyframe to ticker CSS animation ([39f8396](https://github.com/TheAggressive/Aggressive-Apparel/commit/39f83966417ba9661cefbbdb6a15ffe38f09dbe7))
+* update ticker component to use CSS animations instead of JS ([892d6ea](https://github.com/TheAggressive/Aggressive-Apparel/commit/892d6eab13dd14c119a4eb9fb8589b53662cef2e))
+
 # [1.56.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.55.1...v1.56.0) (2026-03-04)
 
 

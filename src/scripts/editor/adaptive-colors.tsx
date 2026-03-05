@@ -24,7 +24,25 @@ import { getBlockType } from '@wordpress/blocks';
 import {
   useEditorColorScheme,
   ColorModeToggle,
+  injectEditorStyle,
 } from '../../utils/editor-color-scheme';
+
+/**
+ * CSS rules for adaptive color overrides in the editor.
+ * Uses !important to beat normal inline styles from WordPress core.
+ */
+const ADAPTIVE_EDITOR_CSS = `
+.aa-has-adaptive-bg { background-color: var(--aa-adaptive-bg) !important; }
+.aa-has-adaptive-color { color: var(--aa-adaptive-color) !important; }
+`;
+
+/**
+ * Inject adaptive color CSS into the editor iframe.
+ * Idempotent — no-ops if the style element already exists.
+ */
+function injectAdaptiveCSS(): void {
+  injectEditorStyle('aa-adaptive-colors-css', ADAPTIVE_EDITOR_CSS);
+}
 
 interface AdaptiveColor {
   light?: string;
@@ -298,6 +316,12 @@ addFilter(
 
 /**
  * Filter 4: Apply adaptive styles to block wrapper in the editor preview.
+ *
+ * Uses CSS custom properties + marker classes instead of setting
+ * backgroundColor/color directly, because WordPress core merges
+ * block inline styles into the same element and would overwrite ours.
+ * A stylesheet rule with !important (injected into the iframe) beats
+ * normal inline styles.
  */
 const withAdaptiveColorPreview = createHigherOrderComponent(
   (BlockListBlock: any) => {
@@ -308,12 +332,31 @@ const withAdaptiveColorPreview = createHigherOrderComponent(
         return <BlockListBlock {...props} />;
       }
 
+      // Ensure the editor iframe has our CSS rules.
+      injectAdaptiveCSS();
+
+      const cssVars: Record<string, string> = {};
+      const classes: string[] = [];
+
+      if (adaptiveStyles.backgroundColor) {
+        cssVars['--aa-adaptive-bg'] = adaptiveStyles.backgroundColor;
+        classes.push('aa-has-adaptive-bg');
+      }
+
+      if (adaptiveStyles.color) {
+        cssVars['--aa-adaptive-color'] = adaptiveStyles.color;
+        classes.push('aa-has-adaptive-color');
+      }
+
+      const existingClassName = props.wrapperProps?.className || '';
+
       const wrapperProps = {
         ...(props.wrapperProps || {}),
         style: {
           ...(props.wrapperProps?.style || {}),
-          ...adaptiveStyles,
+          ...cssVars,
         },
+        className: [existingClassName, ...classes].filter(Boolean).join(' '),
       };
 
       return <BlockListBlock {...props} wrapperProps={wrapperProps} />;

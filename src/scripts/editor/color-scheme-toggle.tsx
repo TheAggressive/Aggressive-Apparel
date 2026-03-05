@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 import {
   useEditorColorScheme,
   applySchemeToCanvas,
+  getEditorIframe,
 } from '../../utils/editor-color-scheme';
 
 /**
@@ -30,9 +31,7 @@ function ColorSchemeToggle() {
   useEffect(() => {
     applySchemeToCanvas(colorMode);
 
-    const iframe = document.querySelector<HTMLIFrameElement>(
-      'iframe[name="editor-canvas"]'
-    );
+    const iframe = getEditorIframe();
     const handleLoad = () => applySchemeToCanvas(colorMode);
     iframe?.addEventListener('load', handleLoad);
 

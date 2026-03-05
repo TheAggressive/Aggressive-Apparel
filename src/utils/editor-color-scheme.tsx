@@ -16,6 +16,37 @@ import { __ } from '@wordpress/i18n';
 
 const STORAGE_KEY = 'aggressive-apparel-editor-color-scheme';
 const EVENT_NAME = 'aa-editor-color-scheme-change';
+const IFRAME_SELECTOR = 'iframe[name="editor-canvas"]';
+
+/**
+ * Get the editor canvas document (inside the iframe).
+ * Returns null if the iframe hasn't loaded yet.
+ */
+export function getEditorDocument(): Document | null {
+  const iframe = document.querySelector<HTMLIFrameElement>(IFRAME_SELECTOR);
+  return iframe?.contentDocument ?? null;
+}
+
+/**
+ * Get the editor canvas iframe element.
+ */
+export function getEditorIframe(): HTMLIFrameElement | null {
+  return document.querySelector<HTMLIFrameElement>(IFRAME_SELECTOR);
+}
+
+/**
+ * Inject a stylesheet into the editor iframe.
+ * Idempotent — no-ops if a style element with the given ID already exists.
+ */
+export function injectEditorStyle(id: string, css: string): void {
+  const doc = getEditorDocument();
+  if (!doc || doc.getElementById(id)) return;
+
+  const style = doc.createElement('style');
+  style.id = id;
+  style.textContent = css;
+  doc.head.appendChild(style);
+}
 
 /**
  * Read persisted color scheme preference from localStorage.
@@ -44,10 +75,7 @@ export function storeScheme(mode: 'light' | 'dark'): void {
  * Falls back to the current document if no iframe is found.
  */
 export function applySchemeToCanvas(mode: 'light' | 'dark'): void {
-  const iframe = document.querySelector<HTMLIFrameElement>(
-    'iframe[name="editor-canvas"]'
-  );
-  const doc = iframe?.contentDocument ?? document;
+  const doc = getEditorDocument() ?? document;
   doc.documentElement.style.colorScheme = mode;
   doc.documentElement.setAttribute('data-theme', mode);
 }

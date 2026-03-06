@@ -1,19 +1,20 @@
 # Aggressive Apparel
 
-Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 20 toggleable store enhancements, 19 custom blocks, and 36 block patterns.
+Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, 11 custom blocks, and 36 block patterns.
 
-**Version:** 1.39.0 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
+**Version:** 1.56.1 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
 ## Features
 
 - **Full Site Editing** — 13 templates, 36 block patterns, complete theme.json configuration
 - **WooCommerce Integration** — product gallery, color swatches, custom templates for shop/cart/checkout
-- **20 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
-- **19 Custom Blocks** — 15 interactive (Interactivity API) + 4 static Gutenberg blocks
+- **24 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
+- **11 Custom Blocks** — 7 interactive (Interactivity API) + 4 static Gutenberg blocks
 - **Interactivity API** — client-side reactivity without a JavaScript framework
 - **Automatic Updates** — GitHub release-based update system with ETag caching
-- **Accessible** — WCAG 2.1 AA compliant, 44px touch targets, `prefers-reduced-motion` support
+- **Accessible** — WCAG 2.2 AA compliant, 44px touch targets, `prefers-reduced-motion` support
 - **Secure** — security headers, nonce verification, output escaping, capability checks
+- **Performance** — deferred scripts, conditional asset loading, Speculation Rules API prefetch
 - **106 PHPUnit Tests** — unit, integration, security, accessibility, and performance suites
 
 ## Store Enhancements
@@ -25,23 +26,27 @@ All features are managed via **Appearance > Store Enhancements** and default to 
 | Product Badges | Server-side | Sale, new, out-of-stock badges on product cards |
 | Smart Price Display | Server-side | Enhanced price formatting with savings display |
 | Product Tabs Manager | Server-side | Custom product detail tabs |
+| Advanced Sorting | Server-side | Featured and savings-based product sorting |
 | Free Shipping Progress Bar | Server-side | Cart progress bar toward free shipping threshold |
+| Adaptive Colors | CSS | `light-dark()` adaptive color tokens for dark mode |
 | Swatch Tooltips | CSS | Hover tooltips on color/size swatches |
 | Mini Cart Styling | CSS | Enhanced mini cart appearance |
+| Grid / List Toggle | CSS | Switch between grid and list views on archives |
 | Product Filters | Interactive | AJAX product filters with categories, color swatches, sizes, price range, and stock status |
-| Page Transitions | CSS | View Transitions API for smooth cross-page navigation |
+| Page Transitions | CSS | View Transitions API + Speculation Rules for smooth navigation |
+| Load More | Interactive | Infinite scroll with Intersection Observer |
 | Size Guide | Interactive | Size guide modal with custom post type |
 | Sale Countdown Timer | Interactive | Urgency timer on sale products |
 | Recently Viewed Products | Interactive | localStorage-based recently viewed section |
-| Predictive Search | Interactive | Live product results as user types |
+| Predictive Search | Interactive | Live product search with query highlighting and dark mode |
 | Sticky Add to Cart | Interactive | Fixed bar when main CTA scrolls out of view |
 | Mobile Bottom Navigation | Interactive | Fixed bottom nav bar on mobile devices |
+| Exit Intent Popup | Interactive | Promotional popup on mouse-leave |
 | Quick View | Rich | Product modal with add-to-cart from archives |
 | Wishlist | Rich | Heart-icon toggle with localStorage and Store API |
 | Social Proof | Rich | Real-time purchase notification toasts |
 | Frequently Bought Together | Rich | Product bundling with combined add-to-cart |
 | Back in Stock Notifications | Rich | Email subscriptions for out-of-stock products |
-| Stock Status | Rich | Enhanced stock status display |
 
 ## Quick Start
 
@@ -83,7 +88,7 @@ pnpm qa  # tests + linting + PHPStan
 
 ```
 aggressive-apparel/
-├── assets/interactivity/        # Interactivity API JS modules (11 files)
+├── assets/interactivity/        # Interactivity API JS modules (19 files)
 ├── build/                       # Compiled output (gitignored)
 ├── includes/                    # PHP classes (PSR-4 autoloaded)
 │   ├── class-bootstrap.php      # Main orchestrator (singleton)
@@ -91,13 +96,13 @@ aggressive-apparel/
 │   ├── class-autoloader.php
 │   ├── Assets/                  # Script/style loaders (3 classes)
 │   ├── Blocks/                  # Block registration
-│   ├── Core/                    # Theme supports, icons, updates (6 classes)
-│   └── WooCommerce/             # Store features (34 classes)
+│   ├── Core/                    # Theme supports, icons, updates (7 classes)
+│   └── WooCommerce/             # Store features (42 classes)
 ├── parts/                       # Template parts (header, footer)
 ├── patterns/                    # Block patterns (36 patterns)
 ├── src/                         # Source code
 │   ├── blocks/                  # Static Gutenberg blocks (4)
-│   ├── blocks-interactivity/    # Interactive blocks (15)
+│   ├── blocks-interactivity/    # Interactive blocks (7)
 │   ├── scripts/                 # Theme JS/TS
 │   └── styles/                  # Theme CSS (Tailwind v4 + PostCSS)
 ├── templates/                   # FSE templates (13)
@@ -117,14 +122,14 @@ functions.php → Bootstrap (singleton)
     │   └── Block registration
     └── WooCommerce (conditional on class_exists)
         ├── Core WC support (templates, cart, product loop, color swatches)
-        ├── Feature_Settings (20 toggle definitions)
+        ├── Feature_Settings (24 toggle definitions)
         └── Enhancements coordinator → individual feature classes
 ```
 
 ### Custom Blocks
 
 **Interactive Blocks** (Interactivity API):
-`navigation`, `navigation-panel`, `menu-toggle`, `nav-menu`, `nav-link`, `nav-submenu`, `mega-menu-content`, `panel-header`, `panel-body`, `panel-footer`, `panel-close-button`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`
+`navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`
 
 **Static Blocks:**
 `aggressive-apparel-logo`, `dark-mode-toggle`, `menu-group`, `copyright`

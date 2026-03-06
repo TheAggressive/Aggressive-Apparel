@@ -171,7 +171,6 @@ function loadSsrPage(page) {
     });
 }
 
-
 /**
  * Escape HTML special characters.
  *

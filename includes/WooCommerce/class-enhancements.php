@@ -173,14 +173,14 @@ class Enhancements {
 
 		wp_register_script_module(
 			'@aggressive-apparel/scroll-lock',
-			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/scroll-lock.js',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/scroll-lock.js',
 			array(),
 			AGGRESSIVE_APPAREL_VERSION,
 		);
 
 		wp_register_script_module(
 			'@aggressive-apparel/helpers',
-			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/helpers.js',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/helpers.js',
 			array(),
 			AGGRESSIVE_APPAREL_VERSION,
 		);

@@ -9,29 +9,66 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 
-const { state } = store('aggressive-apparel/back-in-stock', {
+interface BackInStockContext {
+  productId: string;
+}
+
+interface AjaxResponse {
+  success: boolean;
+  data?: {
+    message?: string;
+  };
+}
+
+interface BackInStockState {
+  // Server-injected (from wp_interactivity_state())
+  nonce: string;
+  ajaxUrl: string;
+  productId: string;
+  // Imperative state set in actions
+  isSubmitting: boolean;
+  isSuccess: boolean;
+  hasError: boolean;
+  errorMessage: string;
+  _successMessage: string;
+  // Getters
+  readonly isNotSuccess: boolean;
+  readonly isNotError: boolean;
+  readonly successMessage: string;
+}
+
+interface BackInStockStore {
+  state: BackInStockState;
+  actions: Record<string, (...args: any[]) => any>;
+}
+
+const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
   state: {
-    get isNotSuccess() {
+    get isNotSuccess(): boolean {
       return !state.isSuccess;
     },
-    get isNotError() {
+    get isNotError(): boolean {
       return !state.hasError;
     },
-    get successMessage() {
+    get successMessage(): string {
       return state._successMessage || '';
     },
   },
 
   actions: {
-    async submit(event) {
+    async submit(event: Event): Promise<void> {
       event.preventDefault();
 
       if (state.isSubmitting) return;
 
-      const form = event.target;
-      const email = form.querySelector('.aa-bis__input')?.value?.trim();
-      const consent = form.querySelector(
-        '.aa-bis__consent input[type="checkbox"]'
+      const form = event.target as HTMLFormElement;
+      const email = (
+        form.querySelector('.aa-bis__input') as HTMLInputElement | null
+      )?.value?.trim();
+      const consent = (
+        form.querySelector(
+          '.aa-bis__consent input[type="checkbox"]'
+        ) as HTMLInputElement | null
       )?.checked;
 
       if (!email) {
@@ -46,7 +83,7 @@ const { state } = store('aggressive-apparel/back-in-stock', {
         return;
       }
 
-      const ctx = getContext();
+      const ctx = getContext<BackInStockContext>();
 
       state.isSubmitting = true;
       state.isSuccess = false;
@@ -66,7 +103,7 @@ const { state } = store('aggressive-apparel/back-in-stock', {
           body,
         });
 
-        const json = await res.json();
+        const json: AjaxResponse = await res.json();
 
         if (json.success) {
           state.isSuccess = true;
@@ -86,7 +123,7 @@ const { state } = store('aggressive-apparel/back-in-stock', {
       }
     },
 
-    clearMessages() {
+    clearMessages(): void {
       state.isSuccess = false;
       state.hasError = false;
       state.errorMessage = '';

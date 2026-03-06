@@ -63,7 +63,7 @@ class Countdown_Timer {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/countdown',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/countdown.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/countdown.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

@@ -10,14 +10,14 @@
 
 import { store } from '@wordpress/interactivity';
 
+type ViewMode = 'grid' | 'list';
+
 const STORAGE_KEY = 'aa_view_mode';
 
 /**
  * Read view mode from localStorage.
- *
- * @returns {'grid'|'list'}
  */
-function readViewMode() {
+function readViewMode(): ViewMode {
   try {
     const val = localStorage.getItem(STORAGE_KEY);
     return val === 'list' ? 'list' : 'grid';
@@ -28,10 +28,8 @@ function readViewMode() {
 
 /**
  * Write view mode to localStorage.
- *
- * @param {'grid'|'list'} mode
  */
-function writeViewMode(mode) {
+function writeViewMode(mode: ViewMode): void {
   try {
     localStorage.setItem(STORAGE_KEY, mode);
   } catch {
@@ -41,10 +39,8 @@ function writeViewMode(mode) {
 
 /**
  * Apply view mode CSS classes to grid containers and body.
- *
- * @param {'grid'|'list'} mode
  */
-function applyViewMode(mode) {
+function applyViewMode(mode: ViewMode): void {
   const isList = mode === 'list';
 
   document.body.classList.toggle('aa-list-view', isList);
@@ -60,25 +56,25 @@ function applyViewMode(mode) {
 
 const { state } = store('aggressive-apparel/grid-list-toggle', {
   state: {
-    viewMode: 'grid',
+    viewMode: 'grid' as ViewMode,
 
-    get isGridView() {
+    get isGridView(): boolean {
       return state.viewMode === 'grid';
     },
 
-    get isListView() {
+    get isListView(): boolean {
       return state.viewMode === 'list';
     },
   },
 
   actions: {
-    setGrid() {
+    setGrid(): void {
       state.viewMode = 'grid';
       writeViewMode('grid');
       applyViewMode('grid');
     },
 
-    setList() {
+    setList(): void {
       state.viewMode = 'list';
       writeViewMode('list');
       applyViewMode('list');
@@ -86,7 +82,7 @@ const { state } = store('aggressive-apparel/grid-list-toggle', {
   },
 
   callbacks: {
-    init() {
+    init(): void {
       const mode = readViewMode();
       state.viewMode = mode;
       applyViewMode(mode);

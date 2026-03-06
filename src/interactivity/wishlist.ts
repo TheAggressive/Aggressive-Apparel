@@ -19,12 +19,44 @@ import { decodeEntities } from '@aggressive-apparel/helpers';
 
 const STORAGE_KEY = 'aggressive_apparel_wishlist';
 
+interface StoreApiImage {
+  src: string;
+}
+
+interface StoreApiPrices {
+  price: string;
+  currency_minor_unit?: number;
+  currency_prefix?: string;
+  currency_suffix?: string;
+}
+
+interface StoreApiProduct {
+  id: number;
+  name: string;
+  permalink: string;
+  images?: StoreApiImage[];
+  prices: StoreApiPrices;
+}
+
+interface WishlistDisplayItem {
+  id: number;
+  name: string;
+  image: string;
+  price: string;
+  permalink: string;
+}
+
+interface WishlistContext {
+  productId: number;
+  justAdded: boolean;
+  item: WishlistDisplayItem;
+  loaded: boolean;
+}
+
 /**
  * Read wishlist product IDs from localStorage.
- *
- * @return {number[]} Array of product IDs.
  */
-function readStorage() {
+function readStorage(): number[] {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   } catch {
@@ -34,10 +66,8 @@ function readStorage() {
 
 /**
  * Persist the reactive items array to localStorage.
- *
- * @param {number[]} items - Array of product IDs.
  */
-function writeStorage(items) {
+function writeStorage(items: number[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   } catch {
@@ -47,11 +77,8 @@ function writeStorage(items) {
 
 /**
  * Format a Store API raw price (minor units) into a display string.
- *
- * @param {Object} prices - The `prices` object from the Store API response.
- * @return {string} Formatted price string, e.g. "$19.99".
  */
-function formatPrice(prices) {
+function formatPrice(prices: StoreApiPrices | null): string {
   if (!prices || !prices.price) {
     return '';
   }
@@ -65,11 +92,8 @@ function formatPrice(prices) {
 
 /**
  * Transform a Store API product into a simple object for template rendering.
- *
- * @param {Object} product - Store API product response.
- * @return {Object} Simplified item with name, image, price, permalink.
  */
-function toWishlistItem(product) {
+function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
   return {
     id: product.id,
     name: decodeEntities(product.name) || '',
@@ -81,7 +105,7 @@ function toWishlistItem(product) {
 }
 
 // Hydrate the reactive array from localStorage on module load.
-const initialItems = readStorage();
+const initialItems: number[] = readStorage();
 
 const { state } = store('aggressive-apparel/wishlist', {
   state: {
@@ -92,27 +116,27 @@ const { state } = store('aggressive-apparel/wishlist', {
     items: initialItems,
 
     // Wishlist page product objects (populated by loadWishlistPage callback).
-    wishlistProducts: [],
+    wishlistProducts: [] as WishlistDisplayItem[],
 
-    get isInWishlist() {
-      const ctx = getContext();
+    get isInWishlist(): boolean {
+      const ctx = getContext<WishlistContext>();
       return state.items.includes(ctx.productId);
     },
 
-    get hasWishlistItems() {
+    get hasWishlistItems(): boolean {
       return state.items.length > 0;
     },
   },
 
   actions: {
-    toggle() {
-      const ctx = getContext();
+    toggle(): void {
+      const ctx = getContext<WishlistContext>();
       const idx = state.items.indexOf(ctx.productId);
       const isAdding = idx === -1;
 
       if (idx !== -1) {
         // Remove — create a new array so the reactive system detects the change.
-        state.items = state.items.filter(id => id !== ctx.productId);
+        state.items = state.items.filter((id: number) => id !== ctx.productId);
       } else {
         // Add — spread into a new array for reactivity.
         state.items = [...state.items, ctx.productId];
@@ -133,16 +157,16 @@ const { state } = store('aggressive-apparel/wishlist', {
   },
 
   callbacks: {
-    syncItemImage() {
-      const ctx = getContext();
+    syncItemImage(): void {
+      const ctx = getContext<WishlistContext>();
       const { ref } = getElement();
       if (!ref || !ctx.item) return;
-      ref.src = ctx.item.image || '';
-      ref.alt = ctx.item.name || '';
+      (ref as HTMLImageElement).src = ctx.item.image || '';
+      (ref as HTMLImageElement).alt = ctx.item.name || '';
     },
 
-    loadWishlistPage() {
-      const ctx = getContext();
+    loadWishlistPage(): void {
+      const ctx = getContext<WishlistContext>();
       const ids = state.items;
 
       if (ids.length === 0) {
@@ -150,12 +174,13 @@ const { state } = store('aggressive-apparel/wishlist', {
         return;
       }
 
-      const base = state.productsApiUrl || '/wp-json/wc/store/v1/products';
+      const base: string =
+        state.productsApiUrl || '/wp-json/wc/store/v1/products';
       const param = ids.join(',');
 
       fetch(`${base}?include=${param}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: Response) => res.json())
+        .then((data: unknown) => {
           if (Array.isArray(data)) {
             state.wishlistProducts = data.map(toWishlistItem);
           }

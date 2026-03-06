@@ -11,45 +11,94 @@
 
 import { store } from '@wordpress/interactivity';
 import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
+import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
 
-/** @type {AbortController|null} */
-let abortController = null;
+interface LoadMoreState {
+  mode: string;
+  allLoaded: boolean;
+  isLoading: boolean;
+  totalProducts: number;
+  totalPages: number;
+  currentPage: number;
+  loadedCount: number;
+  perPage: number;
+  restBase: string;
+  currentCategory: string;
+  filtersActive: boolean;
+  announcement: string;
+  readonly hideButton: boolean;
+  readonly hideSentinel: boolean;
+  readonly statusText: string;
+}
 
-/** @type {IntersectionObserver|null} */
-let observer = null;
+interface ProductsFetchedDetail {
+  page: number;
+  totalPages: number;
+  totalProducts: number;
+  append: boolean;
+  productsCount: number;
+}
 
-const { state } = store('aggressive-apparel/load-more', {
+interface StoreApiProduct {
+  id: number;
+  name: string;
+  permalink: string;
+  images?: Array<{ src?: string; thumbnail?: string; alt?: string }>;
+  prices: StoreApiPrices;
+  short_description?: string;
+  stock_status?: string;
+}
+
+interface SortEntry {
+  orderby: string;
+  order: string;
+}
+
+interface LoadMoreStore {
+  state: LoadMoreState;
+  actions: Record<string, (...args: any[]) => any>;
+  callbacks: Record<string, (...args: any[]) => any>;
+}
+
+let abortController: AbortController | null = null;
+
+let observer: IntersectionObserver | null = null;
+
+const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
-    get hideButton() {
+    get hideButton(): boolean {
       return state.mode !== 'load_more' || state.allLoaded;
     },
 
-    get hideSentinel() {
+    get hideSentinel(): boolean {
       return state.mode !== 'infinite_scroll' || state.allLoaded;
     },
 
-    get statusText() {
+    get statusText(): string {
       if (state.totalProducts === 0) return '';
       return `Showing ${state.loadedCount} of ${state.totalProducts} products`;
     },
   },
 
   actions: {
-    loadMore() {
+    loadMore(): void {
       if (state.isLoading || state.allLoaded) return;
       loadNextPage();
     },
   },
 
   callbacks: {
-    init() {
+    init(): void {
       // Set up IntersectionObserver for infinite scroll.
       if (state.mode === 'infinite_scroll') {
         setupIntersectionObserver();
       }
 
       // Listen for product-filters events.
-      document.addEventListener('aa:products-fetched', handleProductsFetched);
+      document.addEventListener(
+        'aa:products-fetched',
+        handleProductsFetched as EventListener
+      );
       document.addEventListener('aa:filters-changed', handleFiltersChanged);
     },
   },
@@ -57,10 +106,8 @@ const { state } = store('aggressive-apparel/load-more', {
 
 /**
  * Handle product-filters fetch completion.
- *
- * @param {CustomEvent} e
  */
-function handleProductsFetched(e) {
+function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
   const { page, totalPages, totalProducts, append, productsCount } = e.detail;
   state.filtersActive = true;
   state.currentPage = page;
@@ -78,7 +125,7 @@ function handleProductsFetched(e) {
 /**
  * Handle filter change — reset to page 1.
  */
-function handleFiltersChanged() {
+function handleFiltersChanged(): void {
   state.currentPage = 1;
   state.allLoaded = false;
   state.filtersActive = true;
@@ -87,7 +134,7 @@ function handleFiltersChanged() {
 /**
  * Load the next page of products.
  */
-function loadNextPage() {
+function loadNextPage(): void {
   state.isLoading = true;
   const nextPage = state.currentPage + 1;
 
@@ -105,10 +152,8 @@ function loadNextPage() {
 
 /**
  * Fetch a page of products in SSR mode (no filters active).
- *
- * @param {number} page
  */
-function loadSsrPage(page) {
+function loadSsrPage(page: number): void {
   if (abortController) abortController.abort();
   abortController = new AbortController();
 
@@ -117,11 +162,11 @@ function loadSsrPage(page) {
   params.set('page', String(page));
 
   // Respect current sort from the dropdown.
-  const sortSelect = document.querySelector(
+  const sortSelect = document.querySelector<HTMLSelectElement>(
     '.woocommerce-ordering select, select[name="orderby"]'
   );
   if (sortSelect) {
-    const sortMap = {
+    const sortMap: Record<string, SortEntry> = {
       popularity: { orderby: 'popularity', order: 'desc' },
       rating: { orderby: 'rating', order: 'desc' },
       date: { orderby: 'date', order: 'desc' },
@@ -130,7 +175,7 @@ function loadSsrPage(page) {
       'title-asc': { orderby: 'title', order: 'asc' },
       'title-desc': { orderby: 'title', order: 'desc' },
     };
-    const sort = sortMap[sortSelect.value] || {
+    const sort: SortEntry = sortMap[sortSelect.value] || {
       orderby: 'date',
       order: 'desc',
     };
@@ -146,7 +191,7 @@ function loadSsrPage(page) {
   const url = `${state.restBase}?${params}`;
 
   fetch(url, { signal: abortController.signal })
-    .then(res => {
+    .then((res: Response) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       state.totalProducts = parseInt(res.headers.get('X-WP-Total') || '0', 10);
@@ -157,7 +202,7 @@ function loadSsrPage(page) {
 
       return res.json();
     })
-    .then(products => {
+    .then((products: StoreApiProduct[]) => {
       appendProductsToSsrGrid(products);
       state.currentPage = page;
       state.loadedCount += products.length;
@@ -165,7 +210,7 @@ function loadSsrPage(page) {
       state.isLoading = false;
       state.announcement = `${products.length} more products loaded.`;
     })
-    .catch(err => {
+    .catch((err: Error) => {
       if (err.name === 'AbortError') return;
       state.isLoading = false;
     });
@@ -173,11 +218,8 @@ function loadSsrPage(page) {
 
 /**
  * Escape HTML special characters.
- *
- * @param {string} str
- * @returns {string}
  */
-function escapeHtml(str) {
+function escapeHtml(str: string): string {
   if (!str) return '';
   const el = document.createElement('div');
   el.appendChild(document.createTextNode(str));
@@ -186,20 +228,18 @@ function escapeHtml(str) {
 
 /**
  * Append products to the SSR grid container.
- *
- * @param {Array} products Store API product objects.
  */
-function appendProductsToSsrGrid(products) {
-  const ssrGrid = document.querySelector(
+function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
+  const ssrGrid = document.querySelector<HTMLElement>(
     '.wp-block-woocommerce-product-template'
   );
   if (!ssrGrid) return;
 
-  products.forEach(p => {
+  products.forEach((p: StoreApiProduct) => {
     const name = decodeEntities(p.name);
     const imgSrc = p.images?.[0]?.src || p.images?.[0]?.thumbnail || '';
     const imgAlt = decodeEntities(p.images?.[0]?.alt || p.name);
-    const price = parsePrice(p.prices);
+    const price: PriceResult = parsePrice(p.prices);
     const priceHtml = price.onSale
       ? `<del>${escapeHtml(price.regular)}</del> <ins>${escapeHtml(price.current)}</ins>`
       : escapeHtml(price.current);
@@ -216,8 +256,10 @@ function appendProductsToSsrGrid(products) {
 /**
  * Set up IntersectionObserver for infinite scroll.
  */
-function setupIntersectionObserver() {
-  const sentinel = document.querySelector('.aa-load-more__sentinel');
+function setupIntersectionObserver(): void {
+  const sentinel = document.querySelector<HTMLElement>(
+    '.aa-load-more__sentinel'
+  );
   if (!sentinel) return;
 
   // Respect reduced motion preference — fall back to button.
@@ -227,7 +269,7 @@ function setupIntersectionObserver() {
   }
 
   observer = new IntersectionObserver(
-    entries => {
+    (entries: IntersectionObserverEntry[]) => {
       if (entries[0].isIntersecting && !state.isLoading && !state.allLoaded) {
         loadNextPage();
       }

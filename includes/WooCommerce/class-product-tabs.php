@@ -92,7 +92,7 @@ class Product_Tabs {
 		if ( 'inline' !== $style && function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/product-tabs',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-tabs.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/product-tabs.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

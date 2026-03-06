@@ -7,16 +7,24 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 
+interface CountdownContext {
+  endTs: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
 store('aggressive-apparel/countdown', {
   callbacks: {
-    startTicker() {
-      const ctx = getContext();
+    startTicker(): void {
+      const ctx = getContext<CountdownContext>();
       const endTs = ctx.endTs;
       if (!endTs) {
         return;
       }
 
-      const tick = () => {
+      const tick = (): void => {
         const now = Math.floor(Date.now() / 1000);
         const diff = Math.max(0, endTs - now);
 

@@ -130,7 +130,7 @@ class Size_Guide {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/size-guide',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/size-guide.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/size-guide.js',
 				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

@@ -79,7 +79,7 @@ class Social_Proof {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/social-proof',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/social-proof.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/social-proof.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

@@ -8,6 +8,11 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
+interface TabContext {
+  tabIndex: number;
+  sectionId: string;
+}
+
 /* ---------------------------------------------------------------
  * Accordion animation helpers
  * ------------------------------------------------------------- */
@@ -16,12 +21,8 @@ const ANIM_DURATION = 200;
 
 /**
  * Animate a panel's height + padding between natural size and zero.
- *
- * @param {HTMLElement} content The .aa-product-info__content element.
- * @param {boolean}     open    True = expand, false = collapse.
- * @return {Animation}
  */
-function animatePanel(content, open) {
+function animatePanel(content: HTMLElement, open: boolean): Animation {
   const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
     : ANIM_DURATION;
@@ -40,11 +41,11 @@ function animatePanel(content, open) {
 
 /**
  * Smoothly close a <details> element.
- *
- * @param {HTMLDetailsElement} details
  */
-function closeDetails(details) {
-  const content = details.querySelector('.aa-product-info__content');
+function closeDetails(details: HTMLDetailsElement): void {
+  const content = details.querySelector(
+    '.aa-product-info__content'
+  ) as HTMLElement | null;
   if (!content) {
     details.removeAttribute('open');
     return;
@@ -61,20 +62,39 @@ function closeDetails(details) {
  * Interactivity store
  * ------------------------------------------------------------- */
 
-const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
+interface ProductTabsState {
+  // Imperative state set in actions/callbacks
+  activeTab: number;
+  activeSection: string;
+  // Getters
+  readonly isActiveTab: boolean;
+  readonly isPanelVisible: boolean;
+  readonly tabTabindex: string;
+  readonly ariaSelected: string;
+  readonly isActiveNav: boolean;
+  readonly ariaCurrent: string;
+}
+
+interface ProductTabsStore {
+  state: ProductTabsState;
+  actions: Record<string, (...args: any[]) => any>;
+  callbacks: Record<string, (...args: any[]) => any>;
+}
+
+const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
   state: {
-    get isActiveTab() {
-      const ctx = getContext();
+    get isActiveTab(): boolean {
+      const ctx = getContext<TabContext>();
       return state.activeTab === ctx.tabIndex;
     },
 
-    get isPanelVisible() {
-      const ctx = getContext();
+    get isPanelVisible(): boolean {
+      const ctx = getContext<TabContext>();
       return state.activeTab === ctx.tabIndex;
     },
 
-    get tabTabindex() {
-      const ctx = getContext();
+    get tabTabindex(): string {
+      const ctx = getContext<TabContext>();
       return state.activeTab === ctx.tabIndex ? '0' : '-1';
     },
 
@@ -83,21 +103,21 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
      * data-wp-bind-- removes attributes for falsy values,
      * but ARIA spec requires aria-selected="false" on inactive tabs.
      */
-    get ariaSelected() {
-      const ctx = getContext();
+    get ariaSelected(): string {
+      const ctx = getContext<TabContext>();
       return state.activeTab === ctx.tabIndex ? 'true' : 'false';
     },
 
-    get isActiveNav() {
-      const ctx = getContext();
+    get isActiveNav(): boolean {
+      const ctx = getContext<TabContext>();
       return state.activeSection === ctx.sectionId;
     },
 
     /**
      * Returns "true"/"false" string for aria-current on scrollspy nav.
      */
-    get ariaCurrent() {
-      const ctx = getContext();
+    get ariaCurrent(): string {
+      const ctx = getContext<TabContext>();
       return state.activeSection === ctx.sectionId ? 'true' : 'false';
     },
   },
@@ -107,13 +127,11 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
      * Accordion: animated open/close with single-open behaviour.
      * Intercepts the <summary> click so we can animate before
      * the browser toggles the <details> open state.
-     *
-     * @param {Event} event
      */
-    toggleAccordion(event) {
+    toggleAccordion(event: Event): void {
       event.preventDefault();
       const { ref } = getElement();
-      const details = ref.closest('details');
+      const details = ref?.closest('details') as HTMLDetailsElement | null;
       if (!details) return;
 
       if (details.open) {
@@ -125,14 +143,16 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
         if (parent) {
           for (const sibling of parent.querySelectorAll('details[open]')) {
             if (sibling !== details) {
-              closeDetails(sibling);
+              closeDetails(sibling as HTMLDetailsElement);
             }
           }
         }
 
         // Open and animate in.
         details.setAttribute('open', '');
-        const content = details.querySelector('.aa-product-info__content');
+        const content = details.querySelector(
+          '.aa-product-info__content'
+        ) as HTMLElement | null;
         if (content) {
           const anim = animatePanel(content, true);
           anim.onfinish = () => {
@@ -145,8 +165,8 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
     /**
      * Modern tabs: select a tab by click.
      */
-    selectTab() {
-      const ctx = getContext();
+    selectTab(): void {
+      const ctx = getContext<TabContext>();
       state.activeTab = ctx.tabIndex;
 
       const { ref } = getElement();
@@ -157,17 +177,16 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
 
     /**
      * Modern tabs: keyboard navigation (Arrow keys, Home, End).
-     *
-     * @param {KeyboardEvent} event
      */
-    handleTabKeydown(event) {
-      const ctx = getContext();
-      const tabNav = event.target.closest('[role="tablist"]');
+    handleTabKeydown(event: KeyboardEvent): void {
+      const tabNav = (event.target as HTMLElement).closest('[role="tablist"]');
       if (!tabNav) return;
 
-      const tabs = Array.from(tabNav.querySelectorAll('[role="tab"]'));
+      const tabs = Array.from(
+        tabNav.querySelectorAll('[role="tab"]')
+      ) as HTMLElement[];
       const count = tabs.length;
-      let newIndex = state.activeTab;
+      let newIndex: number = state.activeTab;
 
       switch (event.key) {
         case 'ArrowRight':
@@ -200,12 +219,10 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
 
     /**
      * Scrollspy: scroll to a section on nav click.
-     *
-     * @param {Event} event
      */
-    scrollToSection(event) {
+    scrollToSection(event: Event): void {
       event.preventDefault();
-      const ctx = getContext();
+      const ctx = getContext<TabContext>();
       const target = document.getElementById(ctx.sectionId);
       if (!target) return;
 
@@ -227,7 +244,7 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
      * section or switch to the matching modern-tab panel.
      * Enables deep links like product-url/#pi-reviews.
      */
-    initHashNav() {
+    initHashNav(): void {
       const hash = window.location.hash?.slice(1);
       if (!hash) return;
 
@@ -267,7 +284,7 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
     /**
      * Scrollspy: set up IntersectionObserver on mount.
      */
-    initScrollspy() {
+    initScrollspy(): void {
       const { ref } = getElement();
       if (!ref) return;
 
@@ -278,19 +295,19 @@ const { state, actions, callbacks } = store('aggressive-apparel/product-tabs', {
       const hash = window.location.hash?.slice(1);
       const hashTarget = hash && ref.querySelector(`#${CSS.escape(hash)}`);
       if (hashTarget) {
-        state.activeSection = hashTarget.id;
+        state.activeSection = (hashTarget as HTMLElement).id;
         requestAnimationFrame(() => {
           hashTarget.scrollIntoView({ block: 'start', behavior: 'auto' });
         });
-      } else if (sections[0] && sections[0].id) {
-        state.activeSection = sections[0].id;
+      } else if (sections[0] && (sections[0] as HTMLElement).id) {
+        state.activeSection = (sections[0] as HTMLElement).id;
       }
 
       const observer = new IntersectionObserver(
-        entries => {
+        (entries: IntersectionObserverEntry[]) => {
           for (const entry of entries) {
-            if (entry.isIntersecting && entry.target.id) {
-              state.activeSection = entry.target.id;
+            if (entry.isIntersecting && (entry.target as HTMLElement).id) {
+              state.activeSection = (entry.target as HTMLElement).id;
             }
           }
         },

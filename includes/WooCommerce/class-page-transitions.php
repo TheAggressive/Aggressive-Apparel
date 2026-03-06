@@ -90,14 +90,14 @@ class Page_Transitions {
 			return;
 		}
 
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/assets/interactivity/page-transitions.js';
+		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/interactivity/page-transitions.js';
 		if ( ! file_exists( $js_file ) ) {
 			return;
 		}
 
 		wp_register_script_module(
 			'@aggressive-apparel/page-transitions',
-			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/page-transitions.js',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/page-transitions.js',
 			array(),
 			(string) filemtime( $js_file ),
 		);

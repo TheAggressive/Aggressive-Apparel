@@ -91,7 +91,7 @@ class Back_In_Stock {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/back-in-stock',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/back-in-stock.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/back-in-stock.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

@@ -68,7 +68,7 @@ class Frequently_Bought_Together {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/frequently-bought-together',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/frequently-bought-together.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/frequently-bought-together.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

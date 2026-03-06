@@ -59,7 +59,7 @@ class Grid_List_Toggle {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/grid-list-toggle',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/grid-list-toggle.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/grid-list-toggle.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

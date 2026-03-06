@@ -9,21 +9,55 @@
 
 import { store } from '@wordpress/interactivity';
 
-const { state, actions } = store(
+interface FbtItem {
+  id: number;
+  name: string;
+  price: number;
+  isSelected: boolean;
+  isCurrent: boolean;
+}
+
+interface FbtState {
+  // Server-injected (from wp_interactivity_state())
+  currencyPrefix: string;
+  currencySuffix: string;
+  currencyMinorUnit: number;
+  cartApiUrl: string;
+  nonce: string;
+  // Imperative state set in actions
+  items: FbtItem[];
+  totalPrice: number;
+  selectedCount: number;
+  isAdding: boolean;
+  isSuccess: boolean;
+  hasError: boolean;
+  errorMessage: string;
+  // Getters
+  readonly formattedTotal: string;
+  readonly buttonText: string;
+  readonly announcement: string;
+}
+
+interface FbtStore {
+  state: FbtState;
+  actions: Record<string, (...args: any[]) => any>;
+}
+
+const { state } = store<FbtStore>(
   'aggressive-apparel/frequently-bought-together',
   {
     state: {
-      get formattedTotal() {
-        const prefix = state.currencyPrefix || '$';
+      get formattedTotal(): string {
+        const prefix: string = state.currencyPrefix || '$';
         return `${prefix}${state.totalPrice.toFixed(2)}`;
       },
-      get buttonText() {
-        if (state.isAdding) return 'Adding…';
+      get buttonText(): string {
+        if (state.isAdding) return 'Adding\u2026';
         if (state.isSuccess) return 'Added!';
-        if (state.hasError) return 'Error — try again';
+        if (state.hasError) return 'Error \u2014 try again';
         return `Add all ${state.selectedCount} items to cart`;
       },
-      get announcement() {
+      get announcement(): string {
         if (state.isSuccess) return 'All items have been added to your cart.';
         if (state.hasError) return 'There was an error adding items to cart.';
         return '';
@@ -31,11 +65,13 @@ const { state, actions } = store(
     },
 
     actions: {
-      toggleItem(event) {
-        const checkbox = event.target;
-        const productId = parseInt(checkbox.dataset.productId, 10);
+      toggleItem(event: Event): void {
+        const checkbox = event.target as HTMLInputElement;
+        const productId = parseInt(checkbox.dataset.productId!, 10);
 
-        const item = state.items.find(i => i.id === productId);
+        const item: FbtItem | undefined = state.items.find(
+          (i: FbtItem) => i.id === productId
+        );
         if (!item || item.isCurrent) return;
 
         item.isSelected = checkbox.checked;
@@ -43,7 +79,7 @@ const { state, actions } = store(
         // Recalculate total and count.
         let total = 0;
         let count = 0;
-        state.items.forEach(i => {
+        state.items.forEach((i: FbtItem) => {
           if (i.isSelected) {
             total += i.price;
             count += 1;
@@ -53,14 +89,16 @@ const { state, actions } = store(
         state.selectedCount = count;
       },
 
-      async addAllToCart() {
+      async addAllToCart(): Promise<void> {
         if (state.isAdding || state.selectedCount === 0) return;
 
         state.isAdding = true;
         state.isSuccess = false;
         state.hasError = false;
 
-        const selectedItems = state.items.filter(i => i.isSelected);
+        const selectedItems: FbtItem[] = state.items.filter(
+          (i: FbtItem) => i.isSelected
+        );
 
         try {
           for (const item of selectedItems) {

@@ -66,11 +66,11 @@ class Sticky_Add_To_Cart {
 			);
 		}
 
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/assets/interactivity/sticky-add-to-cart.js';
+		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/interactivity/sticky-add-to-cart.js';
 		if ( function_exists( 'wp_register_script_module' ) && file_exists( $js_file ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/sticky-add-to-cart',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/sticky-add-to-cart.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/sticky-add-to-cart.js',
 				array(
 					'@wordpress/interactivity',
 					'@aggressive-apparel/scroll-lock',

@@ -8,14 +8,38 @@
  * @since 1.22.0
  */
 
-/**
- * Parse a Store API raw price (minor units) into display strings.
- *
- * @param {Object} prices - The `prices` object from the Store API.
- * @return {Object} `{ current, regular, onSale }`.
- */
-export function parsePrice(prices) {
-  const result = { current: '', regular: '', onSale: false };
+export interface StoreApiPrices {
+  price: string;
+  regular_price?: string;
+  sale_price?: string;
+  currency_minor_unit?: number;
+  currency_prefix?: string;
+  currency_suffix?: string;
+}
+
+export interface PriceResult {
+  current: string;
+  regular: string;
+  onSale: boolean;
+}
+
+interface StoreApiAttribute {
+  attribute?: string;
+  name?: string;
+  taxonomy?: string;
+  value?: string;
+}
+
+export interface Variation {
+  id: number;
+  attributes: StoreApiAttribute[] | Record<string, string>;
+  [key: string]: unknown;
+}
+
+export function parsePrice(
+  prices: StoreApiPrices | null | undefined
+): PriceResult {
+  const result: PriceResult = { current: '', regular: '', onSale: false };
   if (!prices || !prices.price) {
     return result;
   }
@@ -42,21 +66,17 @@ export function parsePrice(prices) {
   return result;
 }
 
-/**
- * Decode common HTML entities to their plain-text equivalents.
- *
- * @param {string} str - String with HTML entities.
- * @return {string} Decoded string.
- */
-export function decodeEntities(str) {
+export function decodeEntities(str: string | null | undefined): string {
   if (!str) {
     return '';
   }
   return str
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
       String.fromCodePoint(parseInt(hex, 16))
     )
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&#(\d+);/g, (_, dec: string) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -64,46 +84,26 @@ export function decodeEntities(str) {
     .replace(/&nbsp;/g, ' ');
 }
 
-/**
- * Strip HTML tags and return trimmed plain text.
- *
- * @param {string} html - HTML string.
- * @return {string} Plain text.
- */
-export function stripTags(html) {
+export function stripTags(html: string | null | undefined): string {
   if (!html) {
     return '';
   }
   return decodeEntities(html.replace(/<[^>]*>/g, '')).trim();
 }
 
-/**
- * Find a variation matching the selected attributes.
- *
- * Handles both data formats:
- * - Store API (quick view): `{ attributes: [{attribute, name, taxonomy, value}] }`
- * - PHP state (sticky cart): `{ attributes: {attribute_pa_color: "red"} }`
- *
- * Matching iterates from the **variation's** perspective: every non-empty
- * variation attribute must be satisfied by the selection. Empty variation
- * values mean "any" and always match.
- *
- * @param {Array}  variations - Array of variation objects with `id` and `attributes`.
- * @param {Object} selected   - Map of attribute key → selected value.
- * @return {Object|null} Matching variation or null.
- */
-export function matchVariation(variations, selected) {
+export function matchVariation(
+  variations: Variation[],
+  selected: Record<string, string>
+): Variation | null {
   const activeEntries = Object.entries(selected).filter(([, v]) => v);
   if (activeEntries.length === 0) {
     return null;
   }
 
-  // Build normalised lookup: lowercase keys in both bare and attribute_-prefixed forms.
-  const norm = {};
+  const norm: Record<string, string> = {};
   for (const [key, value] of activeEntries) {
     const lower = key.toLowerCase();
     norm[lower] = value;
-    // Ensure attribute_-prefixed form exists for object-format matching.
     if (!lower.startsWith('attribute_')) {
       norm[`attribute_${lower}`] = value;
     }
@@ -113,7 +113,6 @@ export function matchVariation(variations, selected) {
     variations.find(v => {
       const attrs = v.attributes;
 
-      // Array format (Store API): [{attribute, name, taxonomy, value}]
       if (Array.isArray(attrs)) {
         return attrs.every(attr => {
           if (!attr.value) return true;
@@ -122,8 +121,8 @@ export function matchVariation(variations, selected) {
             attr.attribute,
             attr.name,
             attr.taxonomy,
-          ].filter(Boolean);
-          let val;
+          ].filter(Boolean) as string[];
+          let val: string | undefined;
           for (const k of possibleKeys) {
             val = norm[k.toLowerCase()];
             if (val) break;
@@ -133,35 +132,30 @@ export function matchVariation(variations, selected) {
         });
       }
 
-      // Object format (PHP state): {attribute_pa_color: "red"}
-      return Object.entries(attrs).every(([key, vValue]) => {
-        if (!vValue) return true;
-        const selectedValue = norm[key.toLowerCase()];
-        if (!selectedValue) return false;
-        return selectedValue.toLowerCase() === vValue.toLowerCase();
-      });
+      return Object.entries(attrs as Record<string, string>).every(
+        ([key, vValue]) => {
+          if (!vValue) return true;
+          const selectedValue = norm[key.toLowerCase()];
+          if (!selectedValue) return false;
+          return selectedValue.toLowerCase() === vValue.toLowerCase();
+        }
+      );
     }) || null
   );
 }
 
-/**
- * Setup focus trap within a container element.
- *
- * @param {HTMLElement} container - The container to trap focus within.
- * @return {Function} Cleanup function to remove the trap.
- */
-export function setupFocusTrap(container) {
+export function setupFocusTrap(container: HTMLElement): () => void {
   const FOCUSABLE_SELECTOR =
     'a[href], button:not([disabled]), input:not([disabled]), ' +
     'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-  const handleKeydown = e => {
+  const handleKeydown = (e: KeyboardEvent): void => {
     if (e.key !== 'Tab') {
       return;
     }
 
     const focusable = Array.from(
-      container.querySelectorAll(FOCUSABLE_SELECTOR)
+      container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
     ).filter(el => !el.closest('[hidden]') && !el.closest('[inert]'));
 
     if (focusable.length === 0) {
@@ -169,8 +163,10 @@ export function setupFocusTrap(container) {
       return;
     }
 
-    const currentIndex = focusable.indexOf(document.activeElement);
-    let nextIndex;
+    const currentIndex = focusable.indexOf(
+      document.activeElement as HTMLElement
+    );
+    let nextIndex: number;
 
     if (e.shiftKey) {
       nextIndex = currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1;

@@ -15,13 +15,36 @@ import { store, getContext } from '@wordpress/interactivity';
 const STORAGE_KEY = 'aggressive_apparel_recently_viewed';
 const MAX_STORED = 12;
 
+interface StoreApiImage {
+  src: string;
+}
+
+interface StoreApiPrices {
+  price: string;
+  currency_minor_unit?: number;
+  currency_prefix?: string;
+  currency_suffix?: string;
+}
+
+interface StoreApiProduct {
+  name: string;
+  permalink: string;
+  images?: StoreApiImage[];
+  prices: StoreApiPrices;
+}
+
+interface RecentlyViewedContext {
+  currentProductId: number;
+  maxDisplay: number;
+  restBase: string;
+  products: StoreApiProduct[];
+  loaded: boolean;
+}
+
 /**
  * Escape a string for safe use in HTML attributes and text content.
- *
- * @param {string} str - Raw string.
- * @return {string} Escaped string.
  */
-function escapeHtml(str) {
+function escapeHtml(str: string): string {
   if (!str) {
     return '';
   }
@@ -35,11 +58,8 @@ function escapeHtml(str) {
 
 /**
  * Format a Store API raw price into a display string.
- *
- * @param {Object} prices - The `prices` object from the Store API response.
- * @return {string} Formatted price string.
  */
-function formatPrice(prices) {
+function formatPrice(prices: StoreApiPrices | null): string {
   if (!prices || !prices.price) {
     return '';
   }
@@ -53,13 +73,13 @@ function formatPrice(prices) {
 
 store('aggressive-apparel/recently-viewed', {
   state: {
-    get productsHtml() {
-      const ctx = getContext();
+    get productsHtml(): string {
+      const ctx = getContext<RecentlyViewedContext>();
       if (!ctx.products || ctx.products.length === 0) {
         return '';
       }
       return ctx.products
-        .map(p => {
+        .map((p: StoreApiProduct): string => {
           const image =
             p.images && p.images.length > 0 ? escapeHtml(p.images[0].src) : '';
           const name = escapeHtml(p.name || '');
@@ -82,14 +102,18 @@ store('aggressive-apparel/recently-viewed', {
   },
 
   callbacks: {
-    init() {
-      const ctx = getContext();
+    init(): void {
+      const ctx = getContext<RecentlyViewedContext>();
 
       // Record current product.
       if (ctx.currentProductId) {
         try {
-          const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-          const filtered = stored.filter(id => id !== ctx.currentProductId);
+          const stored: number[] = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || '[]'
+          );
+          const filtered = stored.filter(
+            (id: number) => id !== ctx.currentProductId
+          );
           filtered.unshift(ctx.currentProductId);
           localStorage.setItem(
             STORAGE_KEY,
@@ -101,10 +125,10 @@ store('aggressive-apparel/recently-viewed', {
       }
 
       // Fetch recently viewed (excluding current product).
-      let ids;
+      let ids: number[];
       try {
         ids = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').filter(
-          id => id !== ctx.currentProductId
+          (id: number) => id !== ctx.currentProductId
         );
       } catch {
         ids = [];
@@ -119,8 +143,8 @@ store('aggressive-apparel/recently-viewed', {
       const param = displayIds.join(',');
 
       fetch(`${base}?include=${param}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: Response) => res.json())
+        .then((data: unknown) => {
           if (Array.isArray(data) && data.length > 0) {
             ctx.products = data;
             ctx.loaded = true;

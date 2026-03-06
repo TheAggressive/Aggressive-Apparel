@@ -59,7 +59,7 @@ class Load_More {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/load-more',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/load-more.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/load-more.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

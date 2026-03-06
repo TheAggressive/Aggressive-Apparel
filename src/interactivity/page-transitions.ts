@@ -13,16 +13,18 @@
  * @since 1.51.0
  */
 
-const EXCLUDE_PATHS = ['/checkout', '/cart', '/wp-admin', '/wp-login.php'];
-const prefetched = new Set();
+const EXCLUDE_PATHS: string[] = [
+  '/checkout',
+  '/cart',
+  '/wp-admin',
+  '/wp-login.php',
+];
+const prefetched = new Set<string>();
 
 /**
  * Check if a link is eligible for prefetch / progress bar.
- *
- * @param {HTMLAnchorElement} anchor
- * @return {boolean}
  */
-function isEligible(anchor) {
+function isEligible(anchor: HTMLAnchorElement | null): boolean {
   if (!anchor?.href) return false;
 
   try {
@@ -30,21 +32,25 @@ function isEligible(anchor) {
     if (url.origin !== location.origin) return false;
     if (url.pathname === location.pathname && url.hash) return false;
     if (anchor.target === '_blank') return false;
-    return !EXCLUDE_PATHS.some(p => url.pathname.startsWith(p));
+    return !EXCLUDE_PATHS.some((p: string) => url.pathname.startsWith(p));
   } catch {
     return false;
   }
 }
 
-/* ── Progress Bar ───────────────────────────────────── */
+/* -- Progress Bar -- */
 
-let showTimerId = 0;
-let safetyTimerId = 0;
+let showTimerId: ReturnType<typeof setTimeout> = 0 as unknown as ReturnType<
+  typeof setTimeout
+>;
+let safetyTimerId: ReturnType<typeof setTimeout> = 0 as unknown as ReturnType<
+  typeof setTimeout
+>;
 
 document.addEventListener(
   'click',
-  e => {
-    const anchor = e.target.closest('a');
+  (e: MouseEvent) => {
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
     if (
       !anchor ||
       e.defaultPrevented ||
@@ -87,9 +93,9 @@ window.addEventListener('pagehide', () => {
   clearTimeout(safetyTimerId);
 });
 
-/* ── Pointerdown Prefetch ───────────────────────────── */
+/* -- Pointerdown Prefetch -- */
 
-function prefetchUrl(href) {
+function prefetchUrl(href: string): void {
   if (prefetched.has(href)) return;
   prefetched.add(href);
 
@@ -101,9 +107,9 @@ function prefetchUrl(href) {
 
 document.addEventListener(
   'mousedown',
-  e => {
+  (e: MouseEvent) => {
     if (e.button !== 0) return;
-    const anchor = e.target.closest('a');
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
     if (anchor && isEligible(anchor)) prefetchUrl(anchor.href);
   },
   { passive: true }
@@ -111,8 +117,8 @@ document.addEventListener(
 
 document.addEventListener(
   'touchstart',
-  e => {
-    const anchor = e.target.closest('a');
+  (e: TouchEvent) => {
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
     if (anchor && isEligible(anchor)) prefetchUrl(anchor.href);
   },
   { passive: true }

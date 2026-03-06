@@ -125,7 +125,7 @@ class Product_Filters {
 
 		wp_register_script_module(
 			'@aggressive-apparel/product-filters',
-			AGGRESSIVE_APPAREL_URI . '/assets/interactivity/product-filters.js',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/product-filters.js',
 			array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 			AGGRESSIVE_APPAREL_VERSION,
 		);

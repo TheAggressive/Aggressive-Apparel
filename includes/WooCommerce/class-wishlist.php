@@ -60,7 +60,7 @@ class Wishlist {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/wishlist',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/wishlist.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/wishlist.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

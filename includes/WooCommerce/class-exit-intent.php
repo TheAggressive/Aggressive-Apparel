@@ -92,7 +92,7 @@ class Exit_Intent {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/exit-intent',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/exit-intent.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/exit-intent.js',
 				array(
 					'@wordpress/interactivity',
 					'@aggressive-apparel/scroll-lock',

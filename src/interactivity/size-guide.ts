@@ -9,24 +9,33 @@ import { store, getContext } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import { setupFocusTrap } from '@aggressive-apparel/helpers';
 
-/** @type {number} Matches the 0.3s CSS transition duration. */
-const TRANSITION_DURATION = 300;
+interface SizeGuideContext {
+  isOpen: boolean;
+}
 
-let triggerElement = null;
-let focusTrapCleanup = null;
+interface SizeGuideStore {
+  state: Record<string, never>;
+  actions: Record<string, (...args: any[]) => any>;
+}
 
-store('aggressive-apparel/size-guide', {
+/** Matches the 0.3s CSS transition duration. */
+const TRANSITION_DURATION: number = 300;
+
+let triggerElement: HTMLElement | null = null;
+let focusTrapCleanup: (() => void) | null = null;
+
+store<SizeGuideStore>('aggressive-apparel/size-guide', {
   actions: {
-    toggle() {
-      const ctx = getContext();
+    toggle(): void {
+      const ctx = getContext<SizeGuideContext>();
 
       if (!ctx.isOpen) {
         // --- Opening ---
-        triggerElement = document.activeElement;
+        triggerElement = document.activeElement as HTMLElement | null;
         lockScroll();
 
         // Remove hidden + force reflow so the browser renders the "before" state.
-        const overlay = document.querySelector(
+        const overlay = document.querySelector<HTMLElement>(
           '.aggressive-apparel-size-guide__overlay'
         );
         if (overlay) {
@@ -37,12 +46,12 @@ store('aggressive-apparel/size-guide', {
         ctx.isOpen = true;
 
         requestAnimationFrame(() => {
-          const modal = document.querySelector(
+          const modal = document.querySelector<HTMLElement>(
             '.aggressive-apparel-size-guide__modal'
           );
           if (modal) {
             focusTrapCleanup = setupFocusTrap(modal);
-            const closeBtn = modal.querySelector(
+            const closeBtn = modal.querySelector<HTMLElement>(
               '.aggressive-apparel-size-guide__close'
             );
             closeBtn?.focus();
@@ -50,13 +59,15 @@ store('aggressive-apparel/size-guide', {
         });
       } else {
         // --- Closing (delegate to close action) ---
-        const { actions } = store('aggressive-apparel/size-guide');
-        actions.close();
+        const storeRef = store('aggressive-apparel/size-guide') as unknown as {
+          actions: { close: () => void };
+        };
+        storeRef.actions.close();
       }
     },
 
-    close() {
-      const ctx = getContext();
+    close(): void {
+      const ctx = getContext<SizeGuideContext>();
       ctx.isOpen = false;
 
       if (focusTrapCleanup) {
@@ -69,15 +80,15 @@ store('aggressive-apparel/size-guide', {
       }
 
       // Unlock scroll + hide the instant the fade-out transition ends.
-      const overlay = document.querySelector(
+      const overlay = document.querySelector<HTMLElement>(
         '.aggressive-apparel-size-guide__overlay'
       );
-      const modal = overlay?.querySelector(
+      const modal = overlay?.querySelector<HTMLElement>(
         '.aggressive-apparel-size-guide__modal'
       );
 
       let done = false;
-      const finish = () => {
+      const finish = (): void => {
         if (done || ctx.isOpen) return;
         done = true;
         unlockScroll();
@@ -87,8 +98,8 @@ store('aggressive-apparel/size-guide', {
       if (modal) {
         modal.addEventListener(
           'transitionend',
-          e => {
-            if (e.propertyName === 'opacity') finish();
+          (e: Event) => {
+            if ((e as TransitionEvent).propertyName === 'opacity') finish();
           },
           { once: true }
         );

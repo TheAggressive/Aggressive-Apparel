@@ -55,7 +55,7 @@ class Recently_Viewed {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/recently-viewed',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/recently-viewed.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/recently-viewed.js',
 				array( '@wordpress/interactivity' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);

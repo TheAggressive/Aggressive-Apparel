@@ -13,25 +13,44 @@ import { store } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import { setupFocusTrap } from '@aggressive-apparel/helpers';
 
+interface ExitIntentState {
+  isOpen: boolean;
+  isSubmitting: boolean;
+  isSuccess: boolean;
+  hasError: boolean;
+  errorMessage: string;
+  successMessage: string;
+  announcement: string;
+  nonce: string;
+  ajaxUrl: string;
+  reshowDays: number;
+  readonly hasNoError: boolean;
+  readonly isNotSuccess: boolean;
+}
+
+interface AjaxResponse {
+  success: boolean;
+  data: {
+    message?: string;
+  };
+}
+
 const DISMISS_KEY = 'aa_exit_intent_dismissed';
 const SESSION_KEY = 'aa_exit_intent_shown';
-const TRANSITION_DURATION = 300;
+const TRANSITION_DURATION: number = 300;
 
-/** @type {Function|null} */
-let focusTrapCleanup = null;
+let focusTrapCleanup: (() => void) | null = null;
 
 /** Gate: only trigger once per page load. */
 let hasTriggered = false;
 
 /** Track the element that had focus before the modal opened. */
-let previousFocus = null;
+let previousFocus: HTMLElement | null = null;
 
 /**
  * Check if popup was dismissed within the reshow window.
- *
- * @returns {boolean}
  */
-function isDismissed() {
+function isDismissed(): boolean {
   try {
     const ts = localStorage.getItem(DISMISS_KEY);
     if (!ts) return false;
@@ -45,7 +64,7 @@ function isDismissed() {
 /**
  * Mark the popup as dismissed with current timestamp.
  */
-function markDismissed() {
+function markDismissed(): void {
   try {
     localStorage.setItem(DISMISS_KEY, String(Date.now()));
   } catch {
@@ -55,10 +74,8 @@ function markDismissed() {
 
 /**
  * Check if already shown this session.
- *
- * @returns {boolean}
  */
-function wasShownThisSession() {
+function wasShownThisSession(): boolean {
   try {
     return sessionStorage.getItem(SESSION_KEY) === '1';
   } catch {
@@ -69,7 +86,7 @@ function wasShownThisSession() {
 /**
  * Mark as shown this session.
  */
-function markShownThisSession() {
+function markShownThisSession(): void {
   try {
     sessionStorage.setItem(SESSION_KEY, '1');
   } catch {
@@ -77,24 +94,34 @@ function markShownThisSession() {
   }
 }
 
-const { state } = store('aggressive-apparel/exit-intent', {
+interface ExitIntentStore {
+  state: ExitIntentState;
+  actions: {
+    open: () => void;
+    close: () => void;
+    [key: string]: (...args: any[]) => any;
+  };
+  callbacks: Record<string, (...args: any[]) => any>;
+}
+
+const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
   state: {
-    get hasNoError() {
+    get hasNoError(): boolean {
       return !state.hasError;
     },
 
-    get isNotSuccess() {
+    get isNotSuccess(): boolean {
       return !state.isSuccess;
     },
   },
 
   actions: {
-    open() {
+    open(): void {
       if (hasTriggered || isDismissed() || wasShownThisSession()) return;
       hasTriggered = true;
       markShownThisSession();
 
-      previousFocus = document.activeElement;
+      previousFocus = document.activeElement as HTMLElement | null;
 
       const overlay = document.getElementById('aa-exit-intent');
       if (overlay) {
@@ -106,16 +133,20 @@ const { state } = store('aggressive-apparel/exit-intent', {
       state.isOpen = true;
 
       requestAnimationFrame(() => {
-        const modal = overlay?.querySelector('.aa-exit-intent__modal');
+        const modal = overlay?.querySelector<HTMLElement>(
+          '.aa-exit-intent__modal'
+        );
         if (modal) {
           focusTrapCleanup = setupFocusTrap(modal);
-          const input = modal.querySelector('.aa-exit-intent__input');
+          const input = modal.querySelector<HTMLInputElement>(
+            '.aa-exit-intent__input'
+          );
           if (input) input.focus();
         }
       });
     },
 
-    close() {
+    close(): void {
       state.isOpen = false;
       markDismissed();
 
@@ -125,10 +156,12 @@ const { state } = store('aggressive-apparel/exit-intent', {
       }
 
       const overlay = document.getElementById('aa-exit-intent');
-      const modal = overlay?.querySelector('.aa-exit-intent__modal');
+      const modal = overlay?.querySelector<HTMLElement>(
+        '.aa-exit-intent__modal'
+      );
 
       let done = false;
-      const finish = () => {
+      const finish = (): void => {
         if (done || state.isOpen) return;
         done = true;
         unlockScroll();
@@ -141,8 +174,8 @@ const { state } = store('aggressive-apparel/exit-intent', {
       if (modal) {
         modal.addEventListener(
           'transitionend',
-          e => {
-            if (e.propertyName === 'opacity') finish();
+          (e: Event) => {
+            if ((e as TransitionEvent).propertyName === 'opacity') finish();
           },
           { once: true }
         );
@@ -153,10 +186,12 @@ const { state } = store('aggressive-apparel/exit-intent', {
       }
     },
 
-    async submit(event) {
+    async submit(event: Event): Promise<void> {
       event.preventDefault();
-      const form = event.target;
-      const emailInput = form.querySelector('input[type="email"]');
+      const form = event.target as HTMLFormElement;
+      const emailInput = form.querySelector<HTMLInputElement>(
+        'input[type="email"]'
+      );
       const email = emailInput?.value?.trim();
 
       if (!email) {
@@ -175,12 +210,12 @@ const { state } = store('aggressive-apparel/exit-intent', {
         fd.append('email', email);
 
         const res = await fetch(state.ajaxUrl, { method: 'POST', body: fd });
-        const data = await res.json();
+        const data: AjaxResponse = await res.json();
 
         if (data.success) {
           state.isSuccess = true;
-          state.successMessage = data.data.message;
-          state.announcement = data.data.message;
+          state.successMessage = data.data.message || '';
+          state.announcement = data.data.message || '';
         } else {
           state.hasError = true;
           state.errorMessage =
@@ -194,24 +229,27 @@ const { state } = store('aggressive-apparel/exit-intent', {
       }
     },
 
-    clearError() {
+    clearError(): void {
       state.hasError = false;
       state.errorMessage = '';
     },
 
-    handleKeydown(event) {
+    handleKeydown(event: KeyboardEvent): void {
       if (event.key === 'Escape' && state.isOpen) {
-        const { close } = store('aggressive-apparel/exit-intent').actions;
-        close();
+        (
+          store('aggressive-apparel/exit-intent') as unknown as ExitIntentStore
+        ).actions.close();
       }
     },
   },
 
   callbacks: {
-    init() {
+    init(): void {
       if (isDismissed() || wasShownThisSession()) return;
 
-      const { open } = store('aggressive-apparel/exit-intent').actions;
+      const {
+        actions: { open },
+      } = store('aggressive-apparel/exit-intent') as unknown as ExitIntentStore;
 
       // Arm after 5-second delay to prevent false triggers on page load.
       hasTriggered = true;
@@ -220,14 +258,14 @@ const { state } = store('aggressive-apparel/exit-intent', {
       }, 5000);
 
       // Desktop: mouse leaving viewport top.
-      document.addEventListener('mouseout', e => {
+      document.addEventListener('mouseout', (e: MouseEvent) => {
         if (e.clientY <= 0 && !hasTriggered) {
           open();
         }
       });
 
       // Mobile: rapid upward scroll detection.
-      let lastScrollY = window.scrollY;
+      let lastScrollY: number = window.scrollY;
       let scrollUpDistance = 0;
       const SCROLL_THRESHOLD = 300;
 

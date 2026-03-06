@@ -38,15 +38,15 @@
 	opacity: 0;
 	transform: translateY(-6px) scale(0.98);
 	transition: opacity 0.18s ease, transform 0.18s ease;
+
+	/* Prevent flash during Interactivity API hydration. */
+	display: none;
 }
 
-.aa-predictive-search__results:not([hidden]) {
+.aa-predictive-search__results.is-open {
+	display: block !important;
 	opacity: 1;
 	transform: translateY(0) scale(1);
-}
-
-.aa-predictive-search__results[hidden] {
-	display: none;
 }
 
 /* -----------------------------------------------
@@ -76,6 +76,11 @@
 
 .aa-predictive-search__loading {
 	padding: 0.5rem 0;
+	display: none;
+}
+
+.aa-predictive-search__loading:not([hidden]) {
+	display: block !important;
 }
 
 .aa-predictive-search__loading[hidden] {
@@ -359,7 +364,7 @@
 		transform: translateY(8px);
 	}
 
-	.aa-predictive-search__results:not([hidden]) {
+	.aa-predictive-search__results.is-open {
 		transform: translateY(0);
 	}
 }

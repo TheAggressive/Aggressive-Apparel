@@ -61,7 +61,7 @@ class Predictive_Search {
 		if ( function_exists( 'wp_register_script_module' ) ) {
 			wp_register_script_module(
 				'@aggressive-apparel/predictive-search',
-				AGGRESSIVE_APPAREL_URI . '/assets/interactivity/predictive-search.js',
+				AGGRESSIVE_APPAREL_URI . '/build/interactivity/predictive-search.js',
 				array( '@wordpress/interactivity', '@aggressive-apparel/helpers' ),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
@@ -99,9 +99,20 @@ class Predictive_Search {
 		$dropdown = $this->build_dropdown_html( $instance_id );
 
 		// Wrap everything in an interactive container.
+		// Per-instance data lives in context so multiple search blocks are independent.
+		$context = array(
+			'instanceId'   => $instance_id,
+			'query'        => '',
+			'products'     => array(),
+			'categories'   => array(),
+			'isOpen'       => false,
+			'isLoading'    => false,
+			'focusedIndex' => -1,
+			'totalResults' => 0,
+		);
 		$wrapper = sprintf(
 			'<div data-wp-interactive="aggressive-apparel/predictive-search" data-wp-context=\'%s\' class="aa-predictive-search" data-wp-on-document--click="actions.handleClickOutside">',
-			wp_json_encode( array( 'instanceId' => $instance_id ) )
+			wp_json_encode( $context )
 		);
 
 		return $wrapper . $block_content . $dropdown . '</div>';
@@ -124,15 +135,8 @@ class Predictive_Search {
 		wp_interactivity_state(
 			'aggressive-apparel/predictive-search',
 			array(
-				'restBase'     => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-				'query'        => '',
-				'products'     => array(),
-				'categories'   => array(),
-				'isOpen'       => false,
-				'isLoading'    => false,
-				'focusedIndex' => -1,
-				'totalResults' => 0,
-				'searchUrl'    => home_url( '/' ),
+				'restBase'  => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+				'searchUrl' => home_url( '/' ),
 			),
 		);
 	}
@@ -153,10 +157,11 @@ class Predictive_Search {
 			class="aa-predictive-search__results"
 			role="listbox"
 			aria-label="<?php esc_attr_e( 'Search suggestions', 'aggressive-apparel' ); ?>"
-			data-wp-bind--hidden="state.isClosed"
+			data-wp-watch="callbacks.syncResultsVisibility"
+			style="display:none"
 			hidden
 		>
-			<div class="aa-predictive-search__loading" data-wp-bind--hidden="state.isNotLoading" aria-hidden="true">
+			<div class="aa-predictive-search__loading" data-wp-bind--hidden="state.isNotLoading" aria-hidden="true" style="display:none" hidden>
 				<?php for ( $i = 0; $i < 3; $i++ ) : ?>
 				<div class="aa-predictive-search__skeleton-row">
 					<div class="aa-predictive-search__skeleton-image"></div>
@@ -169,10 +174,10 @@ class Predictive_Search {
 				<span class="screen-reader-text"><?php esc_html_e( 'Searching…', 'aggressive-apparel' ); ?></span>
 			</div>
 
-			<div class="aa-predictive-search__products" data-wp-bind--hidden="state.hasNoProducts">
+			<div class="aa-predictive-search__products" data-wp-bind--hidden="state.hasNoProducts" hidden>
 				<h3 class="aa-predictive-search__heading"><?php esc_html_e( 'Products', 'aggressive-apparel' ); ?></h3>
 				<ul class="aa-predictive-search__product-list" role="group" aria-label="<?php esc_attr_e( 'Products', 'aggressive-apparel' ); ?>">
-					<template data-wp-each="state.products">
+					<template data-wp-each="context.products">
 						<li class="aa-predictive-search__product-item" role="option" data-wp-watch="callbacks.syncOptionAttrs">
 							<a
 								class="aa-predictive-search__product-link"
@@ -202,10 +207,10 @@ class Predictive_Search {
 				</ul>
 			</div>
 
-			<div class="aa-predictive-search__categories" data-wp-bind--hidden="state.hasNoCategories">
+			<div class="aa-predictive-search__categories" data-wp-bind--hidden="state.hasNoCategories" hidden>
 				<h3 class="aa-predictive-search__heading"><?php esc_html_e( 'Categories', 'aggressive-apparel' ); ?></h3>
 				<ul class="aa-predictive-search__category-list" role="group" aria-label="<?php esc_attr_e( 'Categories', 'aggressive-apparel' ); ?>">
-					<template data-wp-each="state.categories">
+					<template data-wp-each="context.categories">
 						<li class="aa-predictive-search__category-item" role="option" data-wp-watch="callbacks.syncOptionAttrs">
 							<a
 								class="aa-predictive-search__category-link"
@@ -218,11 +223,11 @@ class Predictive_Search {
 				</ul>
 			</div>
 
-			<div class="aa-predictive-search__empty" data-wp-bind--hidden="state.hasResults">
+			<div class="aa-predictive-search__empty" data-wp-bind--hidden="state.hasResults" hidden>
 				<p><?php esc_html_e( 'No products found.', 'aggressive-apparel' ); ?></p>
 			</div>
 
-			<div class="aa-predictive-search__footer" data-wp-bind--hidden="state.hasNoProducts">
+			<div class="aa-predictive-search__footer" data-wp-bind--hidden="state.hasNoProducts" hidden>
 				<a class="aa-predictive-search__view-all" data-wp-bind--href="state.viewAllUrl">
 					<?php esc_html_e( 'View all results', 'aggressive-apparel' ); ?> →
 				</a>

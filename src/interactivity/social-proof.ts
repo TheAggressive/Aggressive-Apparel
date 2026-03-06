@@ -9,10 +9,29 @@
 
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
+interface SocialProofNotification {
+  name: string;
+  city?: string;
+  product: string;
+  ago?: string;
+  url?: string;
+  thumbnail?: string;
+}
+
+interface SocialProofContext {
+  notifications: SocialProofNotification[];
+  currentIndex: number;
+  isDismissed: boolean;
+  isVisible: boolean;
+  isHovered: boolean;
+  displayDurationMs: number;
+  intervalMs: number;
+}
+
 store('aggressive-apparel/social-proof', {
   state: {
-    get currentMessage() {
-      const ctx = getContext();
+    get currentMessage(): string {
+      const ctx = getContext<SocialProofContext>();
       const n = ctx.notifications[ctx.currentIndex];
       if (!n) {
         return '';
@@ -21,8 +40,8 @@ store('aggressive-apparel/social-proof', {
       return `${n.name}${location} purchased ${n.product}`;
     },
 
-    get currentTime() {
-      const ctx = getContext();
+    get currentTime(): string {
+      const ctx = getContext<SocialProofContext>();
       const n = ctx.notifications[ctx.currentIndex];
       if (!n || !n.ago) {
         return '';
@@ -30,16 +49,16 @@ store('aggressive-apparel/social-proof', {
       return `${n.ago} ago`;
     },
 
-    get currentUrl() {
-      const ctx = getContext();
+    get currentUrl(): string {
+      const ctx = getContext<SocialProofContext>();
       const n = ctx.notifications[ctx.currentIndex];
       return n && n.url ? n.url : '#';
     },
   },
 
   actions: {
-    dismiss() {
-      const ctx = getContext();
+    dismiss(): void {
+      const ctx = getContext<SocialProofContext>();
       ctx.isDismissed = true;
       ctx.isVisible = false;
       // Remember dismissal for this session.
@@ -53,28 +72,28 @@ store('aggressive-apparel/social-proof', {
       }
     },
 
-    handleMouseEnter() {
-      const ctx = getContext();
+    handleMouseEnter(): void {
+      const ctx = getContext<SocialProofContext>();
       ctx.isHovered = true;
     },
 
-    handleMouseLeave() {
-      const ctx = getContext();
+    handleMouseLeave(): void {
+      const ctx = getContext<SocialProofContext>();
       ctx.isHovered = false;
     },
   },
 
   callbacks: {
-    syncImage() {
-      const ctx = getContext();
+    syncImage(): void {
+      const ctx = getContext<SocialProofContext>();
       const { ref } = getElement();
       if (!ref) return;
       const n = ctx.notifications[ctx.currentIndex];
-      ref.src = n && n.thumbnail ? n.thumbnail : '';
+      (ref as HTMLImageElement).src = n && n.thumbnail ? n.thumbnail : '';
     },
 
-    startCycle() {
-      const ctx = getContext();
+    startCycle(): void {
+      const ctx = getContext<SocialProofContext>();
 
       // Check if previously dismissed.
       try {
@@ -95,7 +114,7 @@ store('aggressive-apparel/social-proof', {
       }
 
       // Preload all notification thumbnails so they display instantly.
-      ctx.notifications.forEach(n => {
+      ctx.notifications.forEach((n: SocialProofNotification) => {
         if (n.thumbnail) {
           const img = new Image();
           img.src = n.thumbnail;
@@ -103,16 +122,14 @@ store('aggressive-apparel/social-proof', {
       });
 
       const displayMs = ctx.displayDurationMs || 5000;
-      let hideTimer = null;
+      let hideTimer: ReturnType<typeof setTimeout> | null = null;
       let remaining = 0;
       let hideStartedAt = 0;
 
       /**
        * Start or resume the hide countdown.
-       *
-       * @param {number} ms Milliseconds until hide.
        */
-      const startHideTimer = ms => {
+      const startHideTimer = (ms: number): void => {
         remaining = ms;
         hideStartedAt = Date.now();
         hideTimer = setTimeout(() => {
@@ -131,7 +148,7 @@ store('aggressive-apparel/social-proof', {
         }, ms);
       };
 
-      const showNext = () => {
+      const showNext = (): void => {
         if (ctx.isDismissed) {
           return;
         }
@@ -140,7 +157,7 @@ store('aggressive-apparel/social-proof', {
         startHideTimer(displayMs);
       };
 
-      const pauseTimer = () => {
+      const pauseTimer = (): void => {
         if (hideTimer && ctx.isVisible) {
           clearTimeout(hideTimer);
           hideTimer = null;
@@ -149,7 +166,7 @@ store('aggressive-apparel/social-proof', {
         }
       };
 
-      const resumeTimer = () => {
+      const resumeTimer = (): void => {
         if (ctx.isVisible && !ctx.isDismissed) {
           if (remaining <= 0) {
             ctx.isVisible = false;
@@ -171,8 +188,8 @@ store('aggressive-apparel/social-proof', {
         el.addEventListener('mouseenter', pauseTimer);
         el.addEventListener('mouseleave', resumeTimer);
         el.addEventListener('focusin', pauseTimer);
-        el.addEventListener('focusout', e => {
-          if (!el.contains(e.relatedTarget)) {
+        el.addEventListener('focusout', (e: Event) => {
+          if (!el.contains((e as FocusEvent).relatedTarget as Node | null)) {
             resumeTimer();
           }
         });

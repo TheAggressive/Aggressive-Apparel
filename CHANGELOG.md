@@ -1,3 +1,11 @@
+## [1.56.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.56.1...v1.56.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* enhance product interactivity and improve predictive search functionality ([ad7f404](https://github.com/TheAggressive/Aggressive-Apparel/commit/ad7f404cb48451df9e22d4f5bdfd58bbe378103e))
+* update README.md to reflect version 1.56.1 changes ([5a97f50](https://github.com/TheAggressive/Aggressive-Apparel/commit/5a97f50e49622be26f7537800804fbae18bcd455))
+
 ## [1.56.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.56.0...v1.56.1) (2026-03-05)
 
 

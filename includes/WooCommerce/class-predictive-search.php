@@ -90,7 +90,7 @@ class Predictive_Search {
 		// Add interactivity directives to the search input.
 		$block_content = (string) preg_replace(
 			'/<input([^>]*type=["\']search["\'][^>]*)>/i',
-			'<input$1 data-wp-on--input="actions.handleInput" data-wp-on--focus="actions.handleFocus" data-wp-on--keydown="actions.handleKeydown" autocomplete="off" role="combobox" aria-expanded="false" data-wp-bind--aria-expanded="state.ariaExpanded" aria-controls="' . esc_attr( $instance_id ) . '-results" aria-autocomplete="list" aria-activedescendant="" data-wp-bind--aria-activedescendant="state.activeDescendant">',
+			'<input$1 data-wp-bind--value="state.query" data-wp-on--input="actions.handleInput" data-wp-on--focus="actions.handleFocus" data-wp-on--keydown="actions.handleKeydown" autocomplete="off" role="combobox" aria-expanded="false" data-wp-bind--aria-expanded="state.ariaExpanded" aria-controls="' . esc_attr( $instance_id ) . '-results" aria-autocomplete="list" aria-activedescendant="" data-wp-bind--aria-activedescendant="state.activeDescendant">',
 			$block_content,
 			1
 		);
@@ -156,29 +156,45 @@ class Predictive_Search {
 			data-wp-bind--hidden="state.isClosed"
 			hidden
 		>
-			<div class="aa-predictive-search__loading" data-wp-bind--hidden="state.isNotLoading">
-				<span><?php esc_html_e( 'Searching…', 'aggressive-apparel' ); ?></span>
+			<div class="aa-predictive-search__loading" data-wp-bind--hidden="state.isNotLoading" aria-hidden="true">
+				<?php for ( $i = 0; $i < 3; $i++ ) : ?>
+				<div class="aa-predictive-search__skeleton-row">
+					<div class="aa-predictive-search__skeleton-image"></div>
+					<div class="aa-predictive-search__skeleton-text">
+						<div class="aa-predictive-search__skeleton-line" style="width:<?php echo esc_attr( ( 60 + $i * 10 ) . '%' ); ?>"></div>
+						<div class="aa-predictive-search__skeleton-line" style="width:35%"></div>
+					</div>
+				</div>
+				<?php endfor; ?>
+				<span class="screen-reader-text"><?php esc_html_e( 'Searching…', 'aggressive-apparel' ); ?></span>
 			</div>
 
 			<div class="aa-predictive-search__products" data-wp-bind--hidden="state.hasNoProducts">
 				<h3 class="aa-predictive-search__heading"><?php esc_html_e( 'Products', 'aggressive-apparel' ); ?></h3>
-				<ul class="aa-predictive-search__product-list" role="group">
+				<ul class="aa-predictive-search__product-list" role="group" aria-label="<?php esc_attr_e( 'Products', 'aggressive-apparel' ); ?>">
 					<template data-wp-each="state.products">
-						<li class="aa-predictive-search__product-item" role="option">
+						<li class="aa-predictive-search__product-item" role="option" data-wp-watch="callbacks.syncOptionAttrs">
 							<a
 								class="aa-predictive-search__product-link"
 								data-wp-bind--href="context.item.permalink"
+								tabindex="-1"
 							>
 								<img
 									class="aa-predictive-search__product-image no-lazy"
 									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									data-wp-watch="callbacks.syncResultImage"
-									width="40"
-									height="40"
+									alt=""
+									width="56"
+									height="56"
 								/>
 								<div class="aa-predictive-search__product-info">
-									<span class="aa-predictive-search__product-name" data-wp-text="context.item.name"></span>
-									<span class="aa-predictive-search__product-price" data-wp-text="context.item.price"></span>
+									<span class="aa-predictive-search__product-name" data-wp-watch="callbacks.highlightName"></span>
+									<span class="aa-predictive-search__product-price">
+										<span class="screen-reader-text" data-wp-bind--hidden="!context.item.onSale"><?php esc_html_e( 'Regular price:', 'aggressive-apparel' ); ?> </span>
+										<span class="aa-predictive-search__regular-price" data-wp-text="context.item.regularPrice"></span>
+										<span class="screen-reader-text" data-wp-bind--hidden="!context.item.onSale"><?php esc_html_e( 'Sale price:', 'aggressive-apparel' ); ?> </span>
+										<span data-wp-text="context.item.price"></span>
+									</span>
 								</div>
 							</a>
 						</li>
@@ -188,13 +204,14 @@ class Predictive_Search {
 
 			<div class="aa-predictive-search__categories" data-wp-bind--hidden="state.hasNoCategories">
 				<h3 class="aa-predictive-search__heading"><?php esc_html_e( 'Categories', 'aggressive-apparel' ); ?></h3>
-				<ul class="aa-predictive-search__category-list" role="group">
+				<ul class="aa-predictive-search__category-list" role="group" aria-label="<?php esc_attr_e( 'Categories', 'aggressive-apparel' ); ?>">
 					<template data-wp-each="state.categories">
-						<li role="option">
+						<li class="aa-predictive-search__category-item" role="option" data-wp-watch="callbacks.syncOptionAttrs">
 							<a
 								class="aa-predictive-search__category-link"
 								data-wp-bind--href="context.item.permalink"
 								data-wp-text="context.item.name"
+								tabindex="-1"
 							></a>
 						</li>
 					</template>

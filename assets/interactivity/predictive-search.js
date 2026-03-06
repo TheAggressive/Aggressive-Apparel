@@ -13,6 +13,12 @@ import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
 let debounceTimer = null;
 let abortController = null;
 
+function clearFocusClasses() {
+  document.querySelectorAll('.aa-predictive-search .is-focused').forEach(el => {
+    el.classList.remove('is-focused');
+  });
+}
+
 const { state, actions } = store('aggressive-apparel/predictive-search', {
   state: {
     get isClosed() {
@@ -109,7 +115,21 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
         case 'Escape':
           state.isOpen = false;
           state.focusedIndex = -1;
-          break;
+          clearFocusClasses();
+          return;
+      }
+
+      // Highlight the focused result item, sync aria-selected, and scroll into view.
+      const container = event.target.closest('.aa-predictive-search');
+      if (!container) return;
+      const items = container.querySelectorAll('[role="option"]');
+      items.forEach((item, i) => {
+        const isFocused = i === state.focusedIndex;
+        item.classList.toggle('is-focused', isFocused);
+        item.setAttribute('aria-selected', isFocused ? 'true' : 'false');
+      });
+      if (state.focusedIndex >= 0 && items[state.focusedIndex]) {
+        items[state.focusedIndex].scrollIntoView({ block: 'nearest' });
       }
     },
 
@@ -120,6 +140,7 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
       if (!container) {
         state.isOpen = false;
         state.focusedIndex = -1;
+        clearFocusClasses();
       }
     },
 
@@ -127,7 +148,7 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
       if (abortController) abortController.abort();
       abortController = new AbortController();
 
-      const url = `${state.restBase}?search=${encodeURIComponent(state.query)}&per_page=6&type=simple,variable`;
+      const url = `${state.restBase}?search=${encodeURIComponent(state.query)}&per_page=6`;
 
       fetch(url, { signal: abortController.signal })
         .then(res => {
@@ -137,12 +158,17 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
         .then(products => {
           const seenCategories = new Map();
 
-          state.products = products.map(p => ({
-            name: decodeEntities(p.name),
-            permalink: p.permalink,
-            thumbnail: p.images?.[0]?.thumbnail || p.images?.[0]?.src || '',
-            price: parsePrice(p.prices).current,
-          }));
+          state.products = products.map(p => {
+            const priceData = parsePrice(p.prices);
+            return {
+              name: decodeEntities(p.name),
+              permalink: p.permalink,
+              thumbnail: p.images?.[0]?.thumbnail || p.images?.[0]?.src || '',
+              price: priceData.current,
+              regularPrice: priceData.regular,
+              onSale: priceData.onSale,
+            };
+          });
 
           // Extract unique categories from results.
           products.forEach(p => {
@@ -177,8 +203,47 @@ const { state, actions } = store('aggressive-apparel/predictive-search', {
       const ctx = getContext();
       const { ref } = getElement();
       if (!ref || !ctx.item) return;
-      ref.src = ctx.item.thumbnail || '';
-      ref.alt = ctx.item.name || '';
+      if (ctx.item.thumbnail) {
+        ref.src = ctx.item.thumbnail;
+        ref.alt = ctx.item.name || '';
+      } else {
+        ref.removeAttribute('src');
+        ref.alt = '';
+        ref.classList.add('no-image');
+      }
+    },
+    syncOptionAttrs() {
+      const { ref } = getElement();
+      if (!ref) return;
+      // Assign a stable ID based on DOM position so aria-activedescendant can reference it.
+      const listbox = ref.closest('[role="listbox"]');
+      if (!listbox) return;
+      const allOptions = listbox.querySelectorAll('[role="option"]');
+      const index = Array.prototype.indexOf.call(allOptions, ref);
+      ref.id = `ps-result-${index}`;
+      ref.setAttribute(
+        'aria-selected',
+        index === state.focusedIndex ? 'true' : 'false'
+      );
+    },
+    highlightName() {
+      const ctx = getContext();
+      const { ref } = getElement();
+      if (!ref || !ctx.item) return;
+      const name = ctx.item.name;
+      const query = state.query;
+      if (!query || query.length < 2) {
+        ref.textContent = name;
+        return;
+      }
+      // Escape HTML in the name, then wrap query matches in <mark>.
+      const safe = name
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escaped})`, 'gi');
+      ref.innerHTML = safe.replace(regex, '<mark>$1</mark>');
     },
   },
 });

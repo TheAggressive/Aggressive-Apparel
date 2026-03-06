@@ -10,7 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
-import { parsePrice } from '@aggressive-apparel/helpers';
+import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
 
 /** @type {AbortController|null} */
 let abortController = null;
@@ -171,18 +171,6 @@ function loadSsrPage(page) {
     });
 }
 
-/**
- * Decode HTML entities in a string.
- *
- * @param {string} str
- * @returns {string}
- */
-function decodeHtml(str) {
-  if (!str) return '';
-  const el = document.createElement('textarea');
-  el.innerHTML = str;
-  return el.value;
-}
 
 /**
  * Escape HTML special characters.
@@ -209,9 +197,9 @@ function appendProductsToSsrGrid(products) {
   if (!ssrGrid) return;
 
   products.forEach(p => {
-    const name = decodeHtml(p.name);
+    const name = decodeEntities(p.name);
     const imgSrc = p.images?.[0]?.src || p.images?.[0]?.thumbnail || '';
-    const imgAlt = decodeHtml(p.images?.[0]?.alt || p.name);
+    const imgAlt = decodeEntities(p.images?.[0]?.alt || p.name);
     const price = parsePrice(p.prices);
     const priceHtml = price.onSale
       ? `<del>${escapeHtml(price.regular)}</del> <ins>${escapeHtml(price.current)}</ins>`

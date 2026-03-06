@@ -14,6 +14,7 @@ import {
   parsePrice,
   stripTags,
   setupFocusTrap,
+  decodeEntities,
 } from '@aggressive-apparel/helpers';
 
 /** @type {number|null} */
@@ -471,10 +472,10 @@ function fetchCustomSorted(sortType) {
           const idOrder = data.ids;
           const mapped = products.map(p => ({
             id: p.id,
-            name: decodeHtml(p.name),
+            name: decodeEntities(p.name),
             permalink: p.permalink,
             image: p.images?.[0]?.src || p.images?.[0]?.thumbnail || '',
-            imageAlt: decodeHtml(p.images?.[0]?.alt || p.name),
+            imageAlt: decodeEntities(p.images?.[0]?.alt || p.name),
             price: parsePrice(p.prices),
             shortDescription: stripTags(p.short_description || '').slice(
               0,
@@ -560,10 +561,10 @@ function fetchProducts({ append = false } = {}) {
     .then(products => {
       const mapped = products.map(p => ({
         id: p.id,
-        name: decodeHtml(p.name),
+        name: decodeEntities(p.name),
         permalink: p.permalink,
         image: p.images?.[0]?.src || p.images?.[0]?.thumbnail || '',
-        imageAlt: decodeHtml(p.images?.[0]?.alt || p.name),
+        imageAlt: decodeEntities(p.images?.[0]?.alt || p.name),
         price: parsePrice(p.prices),
         shortDescription: stripTags(p.short_description || '').slice(0, 120),
         stockStatus: p.stock_status || 'instock',
@@ -1164,23 +1165,6 @@ function updateAvailableFilters() {
   if (state.selectedColors.length !== colorBefore) {
     syncSwatchPressed(state.selectedColors);
   }
-}
-
-/**
- * Decode HTML entities (e.g. &#8220; → ") to real characters.
- *
- * The WooCommerce Store API returns names with pre-encoded entities
- * from wptexturize(). Decode once at data-ingestion time so that
- * escapeHtml() at render time works on actual characters.
- *
- * @param {string} str - Entity-encoded string.
- * @return {string} Decoded string.
- */
-function decodeHtml(str) {
-  if (!str) return '';
-  const el = document.createElement('textarea');
-  el.innerHTML = str;
-  return el.value;
 }
 
 /**

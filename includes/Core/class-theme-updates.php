@@ -523,13 +523,24 @@ class Theme_Updates {
 	 * @return string Formatted HTML content.
 	 */
 	private function format_release_body( string $body ): string {
-		// Basic markdown to HTML conversion.
+		// Escape first — body comes from an external API (GitHub).
+		$body = esc_html( $body );
+
+		// Basic markdown to HTML conversion (on already-escaped content).
 		$body = (string) preg_replace( '/\*\*(.*?)\*\*/', '<strong>$1</strong>', $body );
 		$body = (string) preg_replace( '/\*(.*?)\*/', '<em>$1</em>', $body );
 		$body = (string) preg_replace( '/`(.*?)`/', '<code>$1</code>', $body );
 
-		// Convert line breaks.
-		return (string) nl2br( $body );
+		// Convert line breaks and sanitize the final HTML.
+		return wp_kses(
+			(string) nl2br( $body ),
+			array(
+				'strong' => array(),
+				'em'     => array(),
+				'code'   => array(),
+				'br'     => array(),
+			)
+		);
 	}
 
 	/**

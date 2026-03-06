@@ -26,6 +26,7 @@ class DarkModeToggle {
   private button: HTMLButtonElement;
   private storageKey = 'aggressive-apparel-dark-mode';
   private state: DarkModeState;
+  private transitionTimer = 0;
 
   constructor(button: HTMLButtonElement) {
     this.button = button;
@@ -126,6 +127,10 @@ class DarkModeToggle {
   private applyTheme(): void {
     const html = document.documentElement;
 
+    // Enable smooth color transitions for the toggle, then remove the
+    // class so the universal transition doesn't cause jank elsewhere.
+    html.classList.add('is-theme-transitioning');
+
     if (this.state.isDark) {
       html.style.colorScheme = 'dark';
       html.setAttribute('data-theme', 'dark');
@@ -137,6 +142,12 @@ class DarkModeToggle {
       html.classList.add('is-light-mode');
       html.classList.remove('is-dark-mode');
     }
+
+    // Remove after transition completes (matches 0.3s in CSS).
+    clearTimeout(this.transitionTimer);
+    this.transitionTimer = window.setTimeout(() => {
+      html.classList.remove('is-theme-transitioning');
+    }, 350);
   }
 
   private saveState(): void {

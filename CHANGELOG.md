@@ -1,3 +1,10 @@
+## [1.57.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.0...v1.57.1) (2026-03-08)
+
+
+### Bug Fixes
+
+* improve interactivity API handling ([c25a38b](https://github.com/TheAggressive/Aggressive-Apparel/commit/c25a38b95d5f9b8eb78aa2758ff3f31aa0cc199d))
+
 # [1.57.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.56.2...v1.57.0) (2026-03-06)
 
 

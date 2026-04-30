@@ -1,3 +1,10 @@
+## [1.57.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.1...v1.57.2) (2026-04-30)
+
+
+### Bug Fixes
+
+* update .prettierignore and modify page-checkout template ([dd4175a](https://github.com/TheAggressive/Aggressive-Apparel/commit/dd4175aeb459b27fa3a60347ef0352a8a297294e))
+
 ## [1.57.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.0...v1.57.1) (2026-03-08)
 
 

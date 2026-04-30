@@ -16,3 +16,9 @@ vendor/
 # Generated files
 *.min.css
 *.min.js
+
+# WordPress FSE templates and patterns — Prettier reformats multi-line divs
+# and converts self-closing block comments, both of which break the block parser
+templates/
+patterns/
+parts/

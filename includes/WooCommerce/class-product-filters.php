@@ -183,6 +183,7 @@ class Product_Filters {
 				'aggressive-apparel/product-filters',
 				array(
 					'restBase'             => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+					'shopUrl'              => esc_url_raw( wc_get_page_permalink( 'shop' ) ),
 					'layout'               => $this->layout,
 					'perPage'              => 12,
 					'currentCategorySlug'  => $current_cat_slug,
@@ -872,12 +873,14 @@ class Product_Filters {
 				continue;
 			}
 
+			$link         = get_term_link( $term );
 			$categories[] = array(
 				'id'     => $term->term_id,
 				'name'   => $term->name,
 				'slug'   => $term->slug,
 				'count'  => $term->count,
 				'parent' => $term->parent,
+				'link'   => is_wp_error( $link ) ? '' : esc_url_raw( $link ),
 			);
 		}
 

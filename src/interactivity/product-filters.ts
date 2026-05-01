@@ -32,6 +32,7 @@ interface PriceRange {
 interface CategoryTerm {
   slug: string;
   name: string;
+  link?: string;
 }
 
 interface ColorTerm {
@@ -108,6 +109,7 @@ interface ProductFiltersState {
   orderBy: string;
   orderDir: string;
   restBase: string;
+  shopUrl: string;
   layout: string;
   categories: CategoryTerm[];
   colorTerms: ColorTerm[];
@@ -440,6 +442,7 @@ const { state, actions } = store<ProductFiltersStore>(
         ) {
           state.selectedCategories = [state.currentCategorySlug];
           updateAvailableFilters();
+          fetchProducts();
         }
 
         // Handle browser back/forward.
@@ -1082,23 +1085,69 @@ function syncAllControls(): void {
 /**
  * Push current filter state to the URL.
  */
-function syncUrl(): void {
-  const params = new URLSearchParams(window.location.search);
-
-  // Remove old filter params.
-  [
-    'cat',
-    'color',
-    'size',
-    'min_price',
-    'max_price',
-    'stock',
-    'pf_page',
-  ].forEach((k: string) => params.delete(k));
-
-  if (state.selectedCategories.length > 0) {
-    params.set('cat', state.selectedCategories.join(','));
+/** Returns the pathname of the shop root, derived from the PHP-injected shopUrl. */
+function getShopPath(): string {
+  try {
+    return new URL(state.shopUrl).pathname;
+  } catch {
+    return '/shop/';
   }
+}
+
+/** Returns the pathname for a category slug using its PHP-injected permalink. */
+function getCategoryPath(slug: string): string | null {
+  const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
+  if (!cat?.link) return null;
+  try {
+    return new URL(cat.link).pathname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns the category slug whose permalink matches the current URL path.
+ * Used by restoreFromUrl() so that pushState navigation between category
+ * pages survives browser back/forward without a full page reload.
+ */
+function getCategorySlugFromPath(): string | null {
+  const path = window.location.pathname;
+  for (const cat of state.categories) {
+    if (!cat.link) continue;
+    try {
+      if (new URL(cat.link).pathname === path) return cat.slug;
+    } catch {
+      // Invalid URL — skip this category.
+    }
+  }
+  return null;
+}
+
+function syncUrl(): void {
+  const params = new URLSearchParams();
+
+  // Determine the canonical base path:
+  //   - 1 category with a known permalink → use that category's path
+  //   - 0 or 2+ categories              → use the shop root
+  let basePath: string;
+
+  if (state.selectedCategories.length === 1) {
+    const slug = state.selectedCategories[0];
+    const catPath = getCategoryPath(slug);
+    if (catPath) {
+      basePath = catPath;
+      // Category is implicit in the path — no ?cat= needed.
+    } else {
+      basePath = getShopPath();
+      params.set('cat', slug);
+    }
+  } else if (state.selectedCategories.length > 1) {
+    basePath = getShopPath();
+    params.set('cat', state.selectedCategories.join(','));
+  } else {
+    basePath = getShopPath();
+  }
+
   if (state.selectedColors.length > 0) {
     params.set('color', state.selectedColors.join(','));
   }
@@ -1119,10 +1168,7 @@ function syncUrl(): void {
   }
 
   const qs = params.toString();
-  const url = qs
-    ? `${window.location.pathname}?${qs}`
-    : window.location.pathname;
-
+  const url = qs ? `${basePath}?${qs}` : basePath;
   window.history.pushState(null, '', url);
 }
 
@@ -1132,11 +1178,13 @@ function syncUrl(): void {
 function restoreFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
 
-  if (params.has('cat')) {
-    state.selectedCategories = (params.get('cat') || '')
-      .split(',')
-      .filter(Boolean);
-  }
+  // Detect active category from URL path (handles pushState navigation).
+  // e.g. /shop/hoodies/ → 'hoodies', even after the page was loaded as /shop/clothing/.
+  const catFromPath = getCategorySlugFromPath();
+  const catFromParam = (params.get('cat') || '').split(',').filter(Boolean);
+  state.selectedCategories = [
+    ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
+  ];
   if (params.has('color')) {
     state.selectedColors = (params.get('color') || '')
       .split(',')

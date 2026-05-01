@@ -148,6 +148,9 @@ let focusTrapCleanup: (() => void) | null = null;
 
 let drawerTrigger: HTMLElement | null = null;
 
+/** Cross-category URL waiting to be consumed when the drawer closes. */
+let pendingNavUrl: string | null = null;
+
 /** Transition duration for drawer animations (ms). */
 const TRANSITION_DURATION: number = 300;
 
@@ -355,6 +358,11 @@ const { state, actions } = store<ProductFiltersStore>(
       },
 
       closeDrawer(): void {
+        if (pendingNavUrl) {
+          window.location.href = pendingNavUrl;
+          return;
+        }
+
         state.isDrawerOpen = false;
 
         if (focusTrapCleanup) {
@@ -1085,6 +1093,7 @@ function syncAllControls(): void {
 /**
  * Push current filter state to the URL.
  */
+
 /** Returns the pathname of the shop root, derived from the PHP-injected shopUrl. */
 function getShopPath(): string {
   try {
@@ -1169,7 +1178,20 @@ function syncUrl(): void {
 
   const qs = params.toString();
   const url = qs ? `${basePath}?${qs}` : basePath;
-  window.history.pushState(null, '', url);
+  // Cross-category switches require a full page navigation so title, breadcrumbs,
+  // and canonical are correct. For the drawer layout, defer until the drawer
+  // closes (View Results / backdrop / Escape) so the user can finish selecting.
+  // Sidebar and bar layouts have no apply step, so navigate immediately.
+  if (basePath !== window.location.pathname) {
+    if (state.layout === 'drawer') {
+      pendingNavUrl = url;
+    } else {
+      window.location.href = url;
+    }
+  } else {
+    pendingNavUrl = null;
+    window.history.pushState(null, '', url);
+  }
 }
 
 /**

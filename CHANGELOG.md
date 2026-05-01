@@ -1,3 +1,10 @@
+# [1.59.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.58.0...v1.59.0) (2026-05-01)
+
+
+### Features
+
+* implement deferred navigation for drawer layout in product filters ([d0749fc](https://github.com/TheAggressive/Aggressive-Apparel/commit/d0749fc206088843d321fb631ccf81a0dd5905e8))
+
 # [1.58.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.2...v1.58.0) (2026-05-01)
 
 

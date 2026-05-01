@@ -1,3 +1,10 @@
+# [1.58.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.2...v1.58.0) (2026-05-01)
+
+
+### Features
+
+* enhance product filters with shop URL and category links ([0739472](https://github.com/TheAggressive/Aggressive-Apparel/commit/0739472b24cfb6a993d417d7089b8ddca471401f))
+
 ## [1.57.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.57.1...v1.57.2) (2026-04-30)
 
 

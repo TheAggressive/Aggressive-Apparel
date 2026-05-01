@@ -1,3 +1,10 @@
+# [1.60.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.59.0...v1.60.0) (2026-05-01)
+
+
+### Features
+
+* enhance product cards with countdown and badge support ([d525e0d](https://github.com/TheAggressive/Aggressive-Apparel/commit/d525e0dcabe35b2c95b1123fc546d495de3ea8e6))
+
 # [1.59.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.58.0...v1.59.0) (2026-05-01)
 
 

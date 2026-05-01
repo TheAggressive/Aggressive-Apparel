@@ -67,6 +67,20 @@ class Product_Badges {
 		add_filter( 'woocommerce_sale_flash', '__return_empty_string' );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
+		$this->apply_threshold_filters();
+	}
+
+	/**
+	 * Apply the badge threshold filters.
+	 *
+	 * Split out from `init()` so the Store API extension
+	 * (`Card_Enhancements`) can build its own renderer without
+	 * re-registering the `render_block` filter, which would cause
+	 * duplicate badge injection on server-rendered pages.
+	 *
+	 * @return void
+	 */
+	public function apply_threshold_filters(): void {
 		/**
 		 * Filter the number of days a product is considered new.
 		 *
@@ -169,6 +183,22 @@ class Product_Badges {
 			return '';
 		}
 		return $block_content;
+	}
+
+	/**
+	 * Public accessor used by the Store API extension so AJAX-rendered
+	 * cards (product-filters, load-more) can render the same badge HTML
+	 * as server-rendered cards.
+	 *
+	 * Re-uses the threshold filters initialized in `init()`. When the badge
+	 * feature is disabled the class is never instantiated and this method
+	 * is unreachable, so callers don't need a feature-flag check.
+	 *
+	 * @param \WC_Product $product Product object.
+	 * @return string Badge markup or empty string.
+	 */
+	public function get_badges_html( \WC_Product $product ): string {
+		return $this->build_badges_html( $product );
 	}
 
 	/**

@@ -10,7 +10,17 @@
  */
 
 import { store } from '@wordpress/interactivity';
-import { parsePrice, decodeEntities } from '@aggressive-apparel/helpers';
+import {
+  parsePrice,
+  decodeEntities,
+  buildQuickViewTriggerHtml,
+  buildWishlistHeartHtml,
+  notifyCardsRendered,
+  getCardEnhancements,
+  applyViewTransitionToImgTag,
+  buildBadgesHtml,
+  buildCountdownHtml,
+} from '@aggressive-apparel/helpers';
 import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
 
 interface LoadMoreState {
@@ -47,6 +57,7 @@ interface StoreApiProduct {
   prices: StoreApiPrices;
   short_description?: string;
   stock_status?: string;
+  extensions?: Record<string, unknown>;
 }
 
 interface SortEntry {
@@ -228,6 +239,15 @@ function escapeHtml(str: string): string {
 
 /**
  * Append products to the SSR grid container.
+ *
+ * Mirrors the SSR card output enough to inherit existing styling,
+ * and embeds every card-level enhancement (Quick View trigger,
+ * Wishlist heart, Product Badges, view-transition name, sale Countdown)
+ * so dynamically appended cards behave identically to the initial
+ * server-rendered ones.
+ *
+ * The image wrapper carries `wp-block-post-featured-image` so the
+ * existing positioning/hover CSS for those buttons applies cleanly.
  */
 function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
   const ssrGrid = document.querySelector<HTMLElement>(
@@ -244,13 +264,30 @@ function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
       ? `<del>${escapeHtml(price.regular)}</del> <ins>${escapeHtml(price.current)}</ins>`
       : escapeHtml(price.current);
 
+    const enhancements = getCardEnhancements(p);
+    const quickViewBtn = buildQuickViewTriggerHtml(p.id, name);
+    const wishlistBtn = buildWishlistHeartHtml(p.id);
+    const badgesHtml = buildBadgesHtml(enhancements);
+    const countdownHtml = buildCountdownHtml(enhancements);
+
+    const imgTag = applyViewTransitionToImgTag(
+      `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(imgAlt)}" loading="lazy" width="400" height="400" />`,
+      enhancements
+    );
+
     const li = document.createElement('li');
     li.className = 'product wc-block-product';
-    li.innerHTML = `<figure class="wc-block-components-product-image"><a href="${escapeHtml(p.permalink)}"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(imgAlt)}" loading="lazy" width="400" height="400" /></a></figure>
-      <h3 class="wc-block-components-product-name"><a href="${escapeHtml(p.permalink)}">${escapeHtml(name)}</a></h3>
-      <div class="wc-block-components-product-price">${priceHtml}</div>`;
+    li.innerHTML =
+      `<figure class="wc-block-components-product-image wp-block-post-featured-image">` +
+      `<a href="${escapeHtml(p.permalink)}">${imgTag}</a>` +
+      `${badgesHtml}${quickViewBtn}${wishlistBtn}` +
+      `</figure>` +
+      `<h3 class="wc-block-components-product-name"><a href="${escapeHtml(p.permalink)}">${escapeHtml(name)}</a></h3>` +
+      `<div class="wc-block-components-product-price">${priceHtml}${countdownHtml}</div>`;
     ssrGrid.appendChild(li);
   });
+
+  notifyCardsRendered(ssrGrid);
 }
 
 /**

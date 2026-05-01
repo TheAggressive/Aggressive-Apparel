@@ -156,6 +156,17 @@ class Enhancements {
 		if ( Feature_Settings::is_enabled( 'adaptive_colors' ) ) {
 			( new \Aggressive_Apparel\Core\Adaptive_Colors() )->init();
 		}
+
+		// Bridges PHP-only card enhancements (badges, page transitions,
+		// countdown timer) onto AJAX-rendered cards via a Store API
+		// extension. Loaded whenever any contributing feature is on.
+		if (
+			Feature_Settings::is_enabled( 'product_badges' ) ||
+			Feature_Settings::is_enabled( 'page_transitions' ) ||
+			Feature_Settings::is_enabled( 'countdown_timer' )
+		) {
+			( new Card_Enhancements() )->init();
+		}
 	}
 
 	/**

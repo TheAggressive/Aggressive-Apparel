@@ -107,6 +107,78 @@ function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
 // Hydrate the reactive array from localStorage on module load.
 const initialItems: number[] = readStorage();
 
+/**
+ * Toggle a product ID in the wishlist + persist + re-sync hearts.
+ *
+ * Mirrors the IA `actions.toggle` so the document-level delegate can
+ * call into the same code path without depending on getContext.
+ */
+function toggleWishlistId(productId: number): boolean {
+  const current = readStorage();
+  const idx = current.indexOf(productId);
+  const isAdding = idx === -1;
+  const next = isAdding
+    ? [...current, productId]
+    : current.filter(id => id !== productId);
+  writeStorage(next);
+  // Mirror into the reactive store so SSR hearts also update instantly.
+  state.items = next;
+  return isAdding;
+}
+
+/**
+ * Animate a heart with the heartbeat effect briefly after adding.
+ */
+function pulseHeart(button: HTMLElement): void {
+  button.classList.add('is-beating');
+  setTimeout(() => button.classList.remove('is-beating'), 800);
+}
+
+/**
+ * Sync `is-active` / `aria-pressed` on every heart button currently in
+ * the DOM with the latest wishlist contents. Targets both SSR-rendered
+ * (`data-wp-context` JSON) and AJAX-rendered (`data-aa-product-id`)
+ * markup so the two render paths stay in lockstep.
+ */
+function syncDynamicHearts(root: ParentNode = document): void {
+  const ids = readStorage();
+  const set = new Set<number>(ids);
+  root
+    .querySelectorAll<HTMLElement>('.aggressive-apparel-wishlist__toggle')
+    .forEach(btn => {
+      const productId = readProductIdFromButton(btn);
+      if (!productId) return;
+      const isActive = set.has(productId);
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+/**
+ * Read the productId that a heart button refers to. Tries the explicit
+ * `data-aa-product-id` attribute first (AJAX cards), then falls back to
+ * parsing the IA `data-wp-context` JSON used by SSR cards.
+ */
+function readProductIdFromButton(btn: HTMLElement): number | null {
+  const direct = btn.dataset.aaProductId;
+  if (direct) {
+    const n = parseInt(direct, 10);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  const ctxAttr = btn.getAttribute('data-wp-context');
+  if (ctxAttr) {
+    try {
+      const ctx = JSON.parse(ctxAttr) as { productId?: number };
+      if (typeof ctx.productId === 'number' && ctx.productId > 0) {
+        return ctx.productId;
+      }
+    } catch {
+      // Invalid JSON — fall through.
+    }
+  }
+  return null;
+}
+
 const { state } = store('aggressive-apparel/wishlist', {
   state: {
     // Provided by PHP via wp_interactivity_state().
@@ -192,3 +264,51 @@ const { state } = store('aggressive-apparel/wishlist', {
     },
   },
 });
+
+/* ------------------------------------------------------------------ */
+/*  Dynamic-card support                                               */
+/*                                                                     */
+/*  AJAX-rendered product cards (product-filters, load-more) inject    */
+/*  heart buttons via innerHTML, which the Interactivity API does NOT  */
+/*  hydrate. The document-level delegate below handles their clicks,   */
+/*  and `syncDynamicHearts` keeps their visual state in sync with      */
+/*  localStorage when new cards are rendered.                          */
+/* ------------------------------------------------------------------ */
+
+document.addEventListener('click', (e: MouseEvent) => {
+  const btn = (e.target as HTMLElement).closest<HTMLElement>(
+    '.aggressive-apparel-wishlist__toggle'
+  );
+  if (!btn) return;
+
+  // Only handle dynamic cards; SSR ones are managed by the IA so we
+  // skip them here to avoid double-toggling.
+  if (!btn.dataset.aaProductId) return;
+
+  const productId = readProductIdFromButton(btn);
+  if (!productId) return;
+
+  e.preventDefault();
+  const isAdding = toggleWishlistId(productId);
+  syncDynamicHearts();
+  if (isAdding) {
+    pulseHeart(btn);
+  }
+});
+
+document.addEventListener('aa:cards-rendered', ((
+  e: CustomEvent<{ container: HTMLElement | null }>
+) => {
+  const container = e.detail?.container ?? document;
+  syncDynamicHearts(container);
+}) as EventListener);
+
+// Initial sync so any wishlist hearts already in the DOM (e.g. from
+// page-transitions cache) reflect the current localStorage state.
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => syncDynamicHearts());
+  } else {
+    syncDynamicHearts();
+  }
+}

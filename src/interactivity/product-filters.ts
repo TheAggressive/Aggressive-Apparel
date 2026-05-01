@@ -15,8 +15,19 @@ import {
   stripTags,
   setupFocusTrap,
   decodeEntities,
+  buildQuickViewTriggerHtml,
+  buildWishlistHeartHtml,
+  notifyCardsRendered,
+  getCardEnhancements,
+  applyViewTransitionToImgTag,
+  buildBadgesHtml,
+  buildCountdownHtml,
 } from '@aggressive-apparel/helpers';
-import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
+import type {
+  PriceResult,
+  StoreApiPrices,
+  CardEnhancementData,
+} from '@aggressive-apparel/helpers';
 
 interface DropdownContext {
   dropdownId: string;
@@ -54,6 +65,7 @@ interface MappedProduct {
   price: PriceResult;
   shortDescription: string;
   stockStatus: string;
+  enhancements: CardEnhancementData;
 }
 
 interface FilterPill {
@@ -70,6 +82,7 @@ interface StoreApiProduct {
   prices: StoreApiPrices;
   short_description?: string;
   stock_status?: string;
+  extensions?: Record<string, unknown>;
 }
 
 interface SortedProductsResponse {
@@ -625,6 +638,7 @@ function fetchCustomSorted(sortType: string): void {
                 120
               ),
               stockStatus: p.stock_status || 'instock',
+              enhancements: getCardEnhancements(p),
             })
           );
 
@@ -709,6 +723,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
         price: parsePrice(p.prices),
         shortDescription: stripTags(p.short_description || '').slice(0, 120),
         stockStatus: p.stock_status || 'instock',
+        enhancements: getCardEnhancements(p),
       }));
 
       if (append) {
@@ -842,20 +857,43 @@ function setupDelegatedEvents(): void {
 
 /**
  * Build HTML for a single product card.
+ *
+ * The media wrapper carries `wp-block-post-featured-image` so the
+ * existing Quick View / Wishlist / badge hover/positioning CSS — which
+ * targets SSR cards — applies to AJAX cards without duplicate selectors.
+ *
+ * Server-side enhancements (badges, view-transition name, sale countdown)
+ * are pulled off the Store API extension payload and rendered inline so
+ * AJAX cards mirror their server-rendered counterparts pixel-for-pixel.
  */
 function buildCardHtml(p: MappedProduct): string {
   const priceHtml = p.price.onSale
     ? `<del>${escapeHtml(p.price.regular)}</del> <ins>${escapeHtml(p.price.current)}</ins>`
     : escapeHtml(p.price.current);
 
+  const quickViewBtn = buildQuickViewTriggerHtml(p.id, p.name);
+  const wishlistBtn = buildWishlistHeartHtml(p.id);
+  const badgesHtml = buildBadgesHtml(p.enhancements);
+  const countdownHtml = buildCountdownHtml(p.enhancements);
+
+  const imgTag = applyViewTransitionToImgTag(
+    `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.imageAlt)}" class="aa-product-filters__product-image" loading="lazy" width="400" height="400" />`,
+    p.enhancements
+  );
+
   return `<div class="aa-product-filters__product-card">
-    <a href="${escapeHtml(p.permalink)}" class="aa-product-filters__product-link">
-      <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.imageAlt)}" class="aa-product-filters__product-image" loading="lazy" width="400" height="400" />
-    </a>
+    <div class="aa-product-filters__product-media wp-block-post-featured-image">
+      <a href="${escapeHtml(p.permalink)}" class="aa-product-filters__product-link">
+        ${imgTag}
+      </a>
+      ${badgesHtml}
+      ${quickViewBtn}
+      ${wishlistBtn}
+    </div>
     <h3 class="aa-product-filters__product-title">
       <a href="${escapeHtml(p.permalink)}">${escapeHtml(p.name)}</a>
     </h3>
-    <div class="aa-product-filters__product-price">${priceHtml}</div>
+    <div class="aa-product-filters__product-price">${priceHtml}${countdownHtml}</div>
     ${p.shortDescription ? `<p class="aa-product-filters__product-description">${escapeHtml(p.shortDescription)}</p>` : ''}
   </div>`;
 }
@@ -884,6 +922,8 @@ function renderProducts({ append = false }: { append?: boolean } = {}): void {
     const html = state.products.map(buildCardHtml).join('');
     container.innerHTML = html;
   }
+
+  notifyCardsRendered(container);
 }
 
 /**

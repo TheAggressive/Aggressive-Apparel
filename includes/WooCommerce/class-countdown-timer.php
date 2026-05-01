@@ -141,6 +141,41 @@ class Countdown_Timer {
 	}
 
 	/**
+	 * Compute countdown payload for a product, suitable for JSON output.
+	 *
+	 * Returns null when the product is not on sale or the sale window has
+	 * already ended. Used by the Store API card-enhancements extension so
+	 * AJAX-rendered cards can show the same compact countdown as SSR ones.
+	 *
+	 * @param \WC_Product $product Product object.
+	 * @return array{end_ts: int, days: int, hours: int, minutes: int, seconds: int}|null
+	 */
+	public static function get_countdown_data( \WC_Product $product ): ?array {
+		if ( ! $product->is_on_sale() ) {
+			return null;
+		}
+
+		$end_date = $product->get_date_on_sale_to();
+		if ( ! $end_date ) {
+			return null;
+		}
+
+		$end_ts = $end_date->getTimestamp();
+		$diff   = $end_ts - time();
+		if ( $diff <= 0 ) {
+			return null;
+		}
+
+		return array(
+			'end_ts'  => $end_ts,
+			'days'    => (int) floor( $diff / DAY_IN_SECONDS ),
+			'hours'   => (int) floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS ),
+			'minutes' => (int) floor( ( $diff % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS ),
+			'seconds' => $diff % MINUTE_IN_SECONDS,
+		);
+	}
+
+	/**
 	 * Output the countdown HTML with Interactivity API directives.
 	 *
 	 * @param int  $end_ts  Unix timestamp of sale end.

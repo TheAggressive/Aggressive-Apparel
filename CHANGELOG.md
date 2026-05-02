@@ -1,3 +1,15 @@
+# [1.62.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.61.0...v1.62.0) (2026-05-02)
+
+
+### Bug Fixes
+
+* standardize JSON formatting and improve code readability for wishlist button ([4987e6c](https://github.com/TheAggressive/Aggressive-Apparel/commit/4987e6c31312a62fe662f607e6250952ed0da40c))
+
+
+### Features
+
+* add wishlist button placement option and enhance wishlist functionality ([74cdeb8](https://github.com/TheAggressive/Aggressive-Apparel/commit/74cdeb811bdf805d018c692ef0ec8f1079cd0726))
+
 # [1.61.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.60.0...v1.61.0) (2026-05-02)
 
 

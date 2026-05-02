@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Icons;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -88,6 +90,131 @@ class Feature_Settings {
 	 * @var string
 	 */
 	public const WISHLIST_BUTTON_PLACEMENT_OPTION = 'aggressive_apparel_wishlist_button_placement';
+
+	/**
+	 * Option key for the social proof source mix.
+	 *
+	 * Stored as an associative array of `source_key => weight (int 0–10)`.
+	 * Weight 0 disables a source. Higher weights make a source appear more
+	 * often in the rotation. Recognised source keys:
+	 *
+	 *   - `trust`         → admin-edited trust messages
+	 *   - `purchases`     → real anonymized recent orders
+	 *   - `announcements` → admin-edited promotional / seasonal messages
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_SOURCES_OPTION = 'aggressive_apparel_social_proof_sources';
+
+	/**
+	 * Option key for the trust messages list.
+	 *
+	 * Stored as a single string with one message per line. Empty lines and
+	 * lines starting with `#` are ignored at render time so admins can
+	 * leave comments / blank groupings.
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_TRUST_MESSAGES_OPTION = 'aggressive_apparel_social_proof_trust_messages';
+
+	/**
+	 * Option key for the custom announcements list.
+	 *
+	 * Same parsing rules as trust messages. Intended for short-term
+	 * promos / seasonal copy you want to manage separately from the
+	 * always-on Trust Messages list.
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_ANNOUNCEMENTS_OPTION = 'aggressive_apparel_social_proof_announcements';
+
+	/**
+	 * Option key for the admin-only demo preview toggle.
+	 *
+	 * When true AND the current viewer has `edit_theme_options`, the
+	 * social proof toast renders a sample notification first so the
+	 * admin can preview the design without waiting for real orders.
+	 * Customers never see this even when the toggle is on.
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_DEMO_OPTION = 'aggressive_apparel_social_proof_demo';
+
+	/**
+	 * Option key for the minimum order age (minutes) before a real
+	 * purchase is eligible for the social proof rotation.
+	 *
+	 * Defaults to 5 minutes. Higher values make individual purchases
+	 * harder to cross-reference (city + product + exact time can
+	 * uniquely identify a customer in small markets).
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_MIN_ORDER_AGE_OPTION = 'aggressive_apparel_social_proof_min_order_age';
+
+	/**
+	 * Option key for the social proof display mode.
+	 *
+	 *   - `anonymous`  → "Someone in [Location] purchased X" (default, recommended)
+	 *   - `initial`    → "S. in [Location] purchased X"
+	 *   - `first_name` → "Sarah from [Location] purchased X"
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_DISPLAY_MODE_OPTION = 'aggressive_apparel_social_proof_display_mode';
+
+	/**
+	 * Option key for how much location granularity to expose.
+	 *
+	 *   - `city`    → "Portland" (default)
+	 *   - `state`   → "Oregon"
+	 *   - `country` → "United States"
+	 *   - `hidden`  → no location at all
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION = 'aggressive_apparel_social_proof_location_granularity';
+
+	/**
+	 * Optional theme icon slug shown as a badge on purchase / demo thumbnails.
+	 *
+	 * Empty string disables the badge after saving "None".
+	 *
+	 * If the option has never been saved yet, Social Proof treats the slug as
+	 * `SOCIAL_PROOF_PURCHASE_BADGE_FALLBACK_SLUG` instead of hiding the badge.
+	 * Trust messages and announcements use PREFIX| lines in textareas instead.
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION = 'aggressive_apparel_social_proof_purchase_badge_icon';
+
+	/**
+	 * Default badge slug on first load when the merchant has not saved Features yet.
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_PURCHASE_BADGE_FALLBACK_SLUG = 'check';
+
+	/**
+	 * Minimum lifetime unit sales (`WC_Product::get_total_sales()`) required
+	 * before a product can surface in Engagement rotation.
+	 *
+	 * Honest POD guardrail — avoids calling one-off orders a "favorite".
+	 *
+	 * @var string
+	 */
+	public const SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION = 'aggressive_apparel_social_proof_engagement_min_sales';
+
+	/**
+	 * Default trust messages shipped with new installs.
+	 *
+	 * Intentionally generic and true for any POD apparel brand — no
+	 * location claims (production may vary), no specific blank brands,
+	 * no dollar amounts (shipping policy is store-specific).
+	 *
+	 * @var string
+	 */
+	private const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "check|Made to order with care\ninfo|Print quality guaranteed\nheart|Premium quality materials\ninfo|Honest sizing guide on every product\nhome|Independent brand\ngrid-view|Designed with attention to detail\ncheck|Quality you can feel";
 
 	/**
 	 * Settings page sections with tab metadata.
@@ -380,6 +507,95 @@ class Feature_Settings {
 			)
 		);
 
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_SOURCES_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_sources' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES,
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_messages' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_messages' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_DEMO_OPTION,
+			array(
+				'type'              => 'boolean',
+				'default'           => false,
+				'sanitize_callback' => static fn ( $v ): bool => (bool) $v,
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION,
+			array(
+				'type'              => 'integer',
+				'default'           => 5,
+				'sanitize_callback' => static fn ( $v ): int => max( 0, min( 1440, (int) $v ) ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_DISPLAY_MODE_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'anonymous',
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_display_mode' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'city',
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_location_granularity' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_social_proof_purchase_badge_icon' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION,
+			array(
+				'type'              => 'integer',
+				'default'           => 3,
+				'sanitize_callback' => static fn ( $v ): int => max( 1, min( 999999, (int) $v ) ),
+			)
+		);
+
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
 				'feature_' . $key,
@@ -427,6 +643,88 @@ class Feature_Settings {
 					'wishlist_button_placement',
 					__( 'Wishlist Button Placement', 'aggressive-apparel' ),
 					array( $this, 'render_wishlist_button_placement_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+			}
+
+			if ( 'social_proof' === $key && self::is_enabled( 'social_proof' ) ) {
+				add_settings_field(
+					'social_proof_sources',
+					__( 'Notification Sources', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_sources_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_trust_messages',
+					__( 'Trust Messages', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_trust_messages_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_announcements',
+					__( 'Custom Announcements', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_announcements_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_purchase_badge_icon',
+					__( 'Badge on Purchase Thumbnails', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_purchase_badge_icon_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_icon_help',
+					__( 'Icons: reference & customization', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_icon_help_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_engagement_min_sales',
+					__( 'Engagement: Minimum Lifetime Sales', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_engagement_min_sales_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_display_mode',
+					__( 'Purchase Display Mode', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_display_mode_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_location_granularity',
+					__( 'Location Granularity', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_location_granularity_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_min_order_age',
+					__( 'Minimum Order Age (Minutes)', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_min_order_age_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
+				);
+
+				add_settings_field(
+					'social_proof_demo',
+					__( 'Demo Preview (Admin Only)', 'aggressive-apparel' ),
+					array( $this, 'render_social_proof_demo_field' ),
 					self::PAGE_SLUG,
 					'aggressive_apparel_features_engagement',
 				);
@@ -679,6 +977,469 @@ class Feature_Settings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Automatic injects the heart on product cards and on the single product page. Manual suppresses both auto-injections so you can place the "Wishlist Button" block anywhere — inside a Product Collection, single product template, or even a custom layout.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	// -- Social Proof — sub-settings --
+
+	/**
+	 * Available social proof sources with their human-readable labels
+	 * and descriptions. Demo is intentionally NOT a "source" here — it
+	 * lives in its own toggle because of the admin-only visibility gate.
+	 *
+	 * @return array<string, array{label: string, description: string}>
+	 */
+	private static function get_social_proof_source_definitions(): array {
+		return array(
+			'trust'         => array(
+				'label'       => __( 'Trust Messages', 'aggressive-apparel' ),
+				'description' => __( 'Always-on brand trust signals from your Trust Messages list. Works at zero orders.', 'aggressive-apparel' ),
+			),
+			'purchases'     => array(
+				'label'       => __( 'Real Purchases', 'aggressive-apparel' ),
+				'description' => __( 'Anonymized recent orders. Skipped silently when you have no eligible orders.', 'aggressive-apparel' ),
+			),
+			'announcements' => array(
+				'label'       => __( 'Custom Announcements', 'aggressive-apparel' ),
+				'description' => __( 'Short-term promos / seasonal copy from your Announcements list.', 'aggressive-apparel' ),
+			),
+			'engagement'    => array(
+				'label'       => __( 'Engagement (sales signal)', 'aggressive-apparel' ),
+				'description' => __( 'Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices.', 'aggressive-apparel' ),
+			),
+		);
+	}
+
+	/**
+	 * Default source mix for new installs.
+	 *
+	 * Trust messages dominate by default so brand-new stores see useful
+	 * content immediately. Purchases are enabled but at lower weight so
+	 * they participate in the rotation as soon as orders start coming in.
+	 *
+	 * @return array<string, int>
+	 */
+	private static function get_default_social_proof_sources(): array {
+		return array(
+			'trust'         => 5,
+			'purchases'     => 5,
+			'announcements' => 0,
+			'engagement'    => 3,
+		);
+	}
+
+	/**
+	 * Public accessor: trust messages with defaults applied.
+	 *
+	 * Falls through cleanly on the frontend where `register_setting()`
+	 * has not run and `default_option_*` filters are absent. Returns the
+	 * shipped POD-friendly default list when the admin hasn't customised
+	 * it, the customised list otherwise.
+	 *
+	 * @return string Raw textarea contents (newline-separated).
+	 */
+	public static function get_social_proof_trust_messages(): string {
+		$saved = get_option( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION, null );
+		if ( null === $saved || false === $saved ) {
+			return self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES;
+		}
+		return (string) $saved;
+	}
+
+	/**
+	 * Public accessor: custom announcements with defaults applied.
+	 *
+	 * @return string Raw textarea contents (newline-separated).
+	 */
+	public static function get_social_proof_announcements(): string {
+		$saved = get_option( self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION, null );
+		if ( null === $saved || false === $saved ) {
+			return '';
+		}
+		return (string) $saved;
+	}
+
+	/**
+	 * Minimum WooCommerce lifetime sales gate for Engagement toasts.
+	 *
+	 * @return int
+	 */
+	public static function get_social_proof_engagement_min_sales(): int {
+		$option = get_option( self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION, null );
+
+		if ( null === $option || false === $option ) {
+			return 3;
+		}
+
+		return max( 1, min( 999999, (int) $option ) );
+	}
+
+	/**
+	 * Resolve the thumbnail badge slug (unset DB row uses the bundled fallback icon).
+	 *
+	 * Stored empty string hides the thumbnail badge deliberately.
+	 *
+	 * @return string Sanitized theme icon slug — empty when suppressed.
+	 */
+	public static function resolve_social_proof_purchase_badge_icon_slug(): string {
+		$stored = get_option( self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION, null );
+
+		if ( null === $stored || false === $stored ) {
+			return self::SOCIAL_PROOF_PURCHASE_BADGE_FALLBACK_SLUG;
+		}
+
+		return sanitize_key( (string) $stored );
+	}
+
+	/**
+	 * Public accessor: resolved source mix (defaults applied).
+	 *
+	 * @return array<string, int>
+	 */
+	public static function get_social_proof_sources(): array {
+		$saved    = get_option( self::SOCIAL_PROOF_SOURCES_OPTION, array() );
+		$defaults = self::get_default_social_proof_sources();
+
+		if ( ! is_array( $saved ) || empty( $saved ) ) {
+			return $defaults;
+		}
+
+		$resolved = array();
+		foreach ( $defaults as $key => $weight ) {
+			$resolved[ $key ] = isset( $saved[ $key ] ) ? max( 0, min( 10, (int) $saved[ $key ] ) ) : $weight;
+		}
+
+		return $resolved;
+	}
+
+	/**
+	 * Sanitize the source mix array.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return array<string, int> Sanitized mix.
+	 */
+	public function sanitize_social_proof_sources( $input ): array {
+		$valid_keys = array_keys( self::get_social_proof_source_definitions() );
+		$sanitized  = array();
+
+		foreach ( $valid_keys as $key ) {
+			$weight = isset( $input[ $key ] ) ? (int) $input[ $key ] : 0;
+			// Clamp to 0–10 so we can't accidentally store absurd weights.
+			$sanitized[ $key ] = max( 0, min( 10, $weight ) );
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a multiline messages textarea.
+	 *
+	 * Preserves line breaks; strips tags and per-line whitespace.
+	 * Caps total length defensively.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_social_proof_messages( $input ): string {
+		if ( ! is_string( $input ) ) {
+			return '';
+		}
+
+		// Cap defensive max length so the option stays small.
+		if ( strlen( $input ) > 8192 ) {
+			$input = substr( $input, 0, 8192 );
+		}
+
+		// Normalise line endings, then sanitise each line.
+		$lines = preg_split( '/\r\n|\r|\n/', $input );
+		if ( ! is_array( $lines ) ) {
+			return '';
+		}
+
+		$cleaned = array();
+		foreach ( $lines as $line ) {
+			$line = sanitize_text_field( $line );
+			// Cap per-line length for sane toast widths.
+			if ( strlen( $line ) > 200 ) {
+				$line = substr( $line, 0, 200 );
+			}
+			$cleaned[] = $line;
+		}
+
+		return implode( "\n", $cleaned );
+	}
+
+	/**
+	 * Sanitize the purchase display mode option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_social_proof_display_mode( $input ): string {
+		$valid = array( 'anonymous', 'initial', 'first_name' );
+		return in_array( $input, $valid, true ) ? $input : 'anonymous';
+	}
+
+	/**
+	 * Sanitize the location granularity option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_social_proof_location_granularity( $input ): string {
+		$valid = array( 'city', 'state', 'country', 'hidden' );
+		return in_array( $input, $valid, true ) ? $input : 'city';
+	}
+
+	/**
+	 * Sanitize the optional purchase-thumbnail badge icon slug.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Empty string or valid icon slug from the theme library.
+	 */
+	public function sanitize_social_proof_purchase_badge_icon( $input ): string {
+		$key = sanitize_key( (string) $input );
+
+		return ( '' !== $key && Icons::exists( $key ) ) ? $key : '';
+	}
+
+	/**
+	 * Render the source mix table (checkbox + weight slider per source).
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_sources_field(): void {
+		$current_sources = self::get_social_proof_sources();
+		$definitions     = self::get_social_proof_source_definitions();
+
+		echo '<table class="widefat aa-social-proof-sources" style="max-width: 600px; margin-bottom: 0.5em;">';
+		echo '<thead><tr>';
+		echo '<th style="width: 40%;">' . esc_html__( 'Source', 'aggressive-apparel' ) . '</th>';
+		echo '<th style="width: 20%;">' . esc_html__( 'Weight', 'aggressive-apparel' ) . '</th>';
+		echo '<th>' . esc_html__( 'Notes', 'aggressive-apparel' ) . '</th>';
+		echo '</tr></thead><tbody>';
+
+		foreach ( $definitions as $key => $meta ) {
+			$weight = isset( $current_sources[ $key ] ) ? (int) $current_sources[ $key ] : 0;
+
+			echo '<tr>';
+			echo '<td><strong>' . esc_html( $meta['label'] ) . '</strong></td>';
+			echo '<td>';
+			printf(
+				'<input type="number" min="0" max="10" step="1" name="%s[%s]" value="%d" style="width: 5em;" />',
+				esc_attr( self::SOCIAL_PROOF_SOURCES_OPTION ),
+				esc_attr( $key ),
+				absint( $weight ),
+			);
+			echo '</td>';
+			echo '<td><span class="description">' . esc_html( $meta['description'] ) . '</span></td>';
+			echo '</tr>';
+		}
+
+		echo '</tbody></table>';
+		echo '<p class="description">' . esc_html__( 'Weight 0 disables a source. Higher weights appear more often in the random rotation. Engagement uses catalog sales totals (requires the minimum sales threshold below). Set Engagement to 0 until you have steady sales. Set Purchases to 0 on day one if you prefer only trust + engagement + announcements.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the trust messages textarea.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_trust_messages_field(): void {
+		$value = self::get_social_proof_trust_messages();
+
+		printf(
+			'<textarea name="%s" rows="8" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;">%s</textarea>',
+			esc_attr( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION ),
+			esc_textarea( $value ),
+		);
+		echo '<p class="description">' . esc_html__( 'One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the announcements textarea.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_announcements_field(): void {
+		$value = self::get_social_proof_announcements();
+
+		printf(
+			'<textarea name="%s" rows="5" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;" placeholder="%s">%s</textarea>',
+			esc_attr( self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION ),
+			esc_attr__( "gift|Spring drop launches Friday\nhttps://cdn.example.com/sale-dot.png | Free shipping today only", 'aggressive-apparel' ),
+			esc_textarea( $value ),
+		);
+		echo '<p class="description">' . esc_html__( 'Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render optional purchase-notification thumbnail badge picker.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_purchase_badge_icon_field(): void {
+		$value = self::resolve_social_proof_purchase_badge_icon_slug();
+
+		printf(
+			'<select name="%s">',
+			esc_attr( self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION ),
+		);
+		printf(
+			'<option value="" %s>%s</option>',
+			selected( $value, '', false ),
+			esc_html__( 'None', 'aggressive-apparel' ),
+		);
+
+		$icons = Icons::list();
+
+		sort( $icons );
+
+		foreach ( $icons as $slug ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $slug ),
+				selected( $value, $slug, false ),
+				esc_html( $slug ),
+			);
+		}
+
+		echo '</select>';
+
+		echo '<p class="description">' . esc_html__( 'Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Explain social proof PREFIX lines, thumbnail badges, and icon extension points.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_icon_help_field(): void {
+		$icon_slugs = Icons::list();
+		sort( $icon_slugs );
+		$list = implode( ', ', $icon_slugs );
+
+		echo '<ul class="description" style="list-style:disc;margin-left:1.25em;max-width:42rem;">';
+		echo '<li>' . esc_html__( 'Trust Messages and Custom Announcements: each line uses PREFIX|message. PREFIX is either a slug from the expandable list below (same slugs appear in the badge dropdown) or a full https URL to your own PNG/SVG/WebP badge. Prefix none| to force plain text on that row.', 'aggressive-apparel' ) . '</li>';
+		echo '<li>' . esc_html__( 'Slides that include a WooCommerce thumbnail only show icons as the thumbnail-corner badge—not the PREFIX column—to avoid crowding.', 'aggressive-apparel' ) . '</li>';
+		echo '</ul>';
+
+		echo '<details style="max-width:42rem;margin-top:0.75em;">';
+		echo '<summary style="cursor:pointer;">' . esc_html__( 'Built-in icon slugs (copy into PREFIX|)', 'aggressive-apparel' ) . '</summary>';
+		echo '<p class="description" style="margin:0.75em 0 0;"><code style="white-space:normal;word-break:break-word;">' . esc_html( $list ) . '</code></p>';
+		echo '</details>';
+
+		echo '<p class="description">';
+		echo wp_kses_post(
+			sprintf(
+				/* translators: %s: Inline code snippet with PHP filter name. */
+				__( 'Developers — register additional slug → SVG-path pairs via the %s filter (child theme recommended). Paths must describe a single d attribute tuned for viewBox="0 0 24 24".', 'aggressive-apparel' ),
+				'<code>aggressive_apparel_icon_definitions</code>'
+			),
+		);
+		echo '</p>';
+	}
+
+	/**
+	 * Render Engagement minimum lifetime sales threshold.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_engagement_min_sales_field(): void {
+		$value = self::get_social_proof_engagement_min_sales();
+
+		printf(
+			'<input type="number" name="%s" value="%d" min="1" max="999999" step="1" style="width: 8em;" />',
+			esc_attr( self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION ),
+			absint( $value ),
+		);
+
+		echo '<p class="description">' . esc_html__( 'Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the purchase display mode select.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_display_mode_field(): void {
+		$mode    = (string) get_option( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
+		$options = array(
+			'anonymous'  => __( 'Anonymous — "Someone in [Location] purchased X" (recommended)', 'aggressive-apparel' ),
+			'initial'    => __( 'Initial only — "S. in [Location] purchased X"', 'aggressive-apparel' ),
+			'first_name' => __( 'First name — "Sarah from [Location] purchased X" (requires checkout consent)', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION ) );
+		foreach ( $options as $value => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $value ),
+				selected( $mode, $value, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the location granularity select.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_location_granularity_field(): void {
+		$value   = (string) get_option( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
+		$options = array(
+			'city'    => __( 'City — "Portland"', 'aggressive-apparel' ),
+			'state'   => __( 'State / Region — "Oregon"', 'aggressive-apparel' ),
+			'country' => __( 'Country — "United States"', 'aggressive-apparel' ),
+			'hidden'  => __( 'Hide location entirely', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION ) );
+		foreach ( $options as $key => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $key ),
+				selected( $value, $key, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the minimum order age input.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_min_order_age_field(): void {
+		$value = (int) get_option( self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION, 5 );
+
+		printf(
+			'<input type="number" name="%s" value="%d" min="0" max="1440" step="1" style="width: 6em;" />',
+			esc_attr( self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION ),
+			absint( $value ),
+		);
+		echo '<p class="description">' . esc_html__( 'Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Render the demo preview checkbox.
+	 *
+	 * @return void
+	 */
+	public function render_social_proof_demo_field(): void {
+		$enabled = (bool) get_option( self::SOCIAL_PROOF_DEMO_OPTION, false );
+
+		printf(
+			'<label><input type="checkbox" name="%s" value="1" %s /> %s</label>',
+			esc_attr( self::SOCIAL_PROOF_DEMO_OPTION ),
+			checked( $enabled, true, false ),
+			esc_html__( 'Show a sample notification first in the rotation so I can preview the design.', 'aggressive-apparel' ),
+		);
+		echo '<p class="description">' . esc_html__( 'Visible only to logged-in users with the "Edit Theme Options" capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

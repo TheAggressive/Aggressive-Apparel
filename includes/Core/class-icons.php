@@ -32,9 +32,11 @@ class Icons {
 	);
 
 	/**
-	 * Icon definitions (path data only)
+	 * Icon definitions (path data only — merged with filter below).
 	 *
-	 * @var array
+	 * Slugs may be expanded from PHP via the `aggressive_apparel_icon_definitions` filter.
+	 *
+	 * @var array<string, string>
 	 */
 	private const ICONS = array(
 		// Navigation icons.
@@ -81,6 +83,33 @@ class Icons {
 	);
 
 	/**
+	 * Icon map after the `aggressive_apparel_icon_definitions` filter runs.
+	 *
+	 * Cached per-request so filters only execute once.
+	 *
+	 * @return array<string, string> Slug => SVG path data.
+	 */
+	private static function all_icons(): array {
+		static $cache = null;
+
+		if ( null !== $cache ) {
+			return $cache;
+		}
+
+		// Themes/plugins append icons without editing core SVG definitions.
+		// Filter docblock lives next to Feature_Settings::render_social_proof_icon_help_field().
+		$merged = apply_filters( 'aggressive_apparel_icon_definitions', self::ICONS );
+
+		if ( ! is_array( $merged ) || array() === $merged ) {
+			$merged = self::ICONS;
+		}
+
+		$cache = $merged;
+
+		return $cache;
+	}
+
+	/**
 	 * Get SVG icon markup
 	 *
 	 * @param string $icon  Icon name.
@@ -88,7 +117,9 @@ class Icons {
 	 * @return string SVG markup or empty string if icon not found.
 	 */
 	public static function get( string $icon, array $attrs = array() ): string {
-		if ( ! isset( self::ICONS[ $icon ] ) ) {
+		$definitions = self::all_icons();
+
+		if ( ! isset( $definitions[ $icon ] ) ) {
 			return '';
 		}
 
@@ -109,7 +140,7 @@ class Icons {
 			$svg_attrs .= sprintf( ' aria-hidden="%s"', esc_attr( $attrs['aria-hidden'] ) );
 		}
 
-		return sprintf( '<svg %s><path d="%s"/></svg>', $svg_attrs, self::ICONS[ $icon ] );
+		return sprintf( '<svg %s><path d="%s"/></svg>', $svg_attrs, $definitions[ $icon ] );
 	}
 
 	/**
@@ -130,15 +161,15 @@ class Icons {
 	 * @return bool
 	 */
 	public static function exists( string $icon ): bool {
-		return isset( self::ICONS[ $icon ] );
+		return isset( self::all_icons()[ $icon ] );
 	}
 
 	/**
 	 * Get all available icon names
 	 *
-	 * @return array
+	 * @return array<int, string>
 	 */
 	public static function list(): array {
-		return array_keys( self::ICONS );
+		return array_keys( self::all_icons() );
 	}
 }

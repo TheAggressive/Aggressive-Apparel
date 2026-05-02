@@ -41,17 +41,17 @@ interface EditProps {
 
 const FilterIcon = (): JSX.Element => (
   <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
+    width='20'
+    height='20'
+    viewBox='0 0 24 24'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='2'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    aria-hidden='true'
   >
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3' />
   </svg>
 );
 
@@ -136,8 +136,7 @@ export default function Edit({
             value={mobileOnly}
             onChange={value =>
               setAttributes({
-                mobileOnly:
-                  (value as 'auto' | 'always' | 'never') || 'auto',
+                mobileOnly: (value as 'auto' | 'always' | 'never') || 'auto',
               })
             }
             options={[
@@ -168,7 +167,7 @@ export default function Edit({
           title={__('Where this appears', 'aggressive-apparel')}
           initialOpen={false}
         >
-          <Notice status="info" isDismissible={false}>
+          <Notice status='info' isDismissible={false}>
             {__(
               'This button only renders on shop, product category, and product tag archives. On other pages it is hidden automatically. The Product Filters feature must be enabled in Theme Settings.',
               'aggressive-apparel'
@@ -179,21 +178,21 @@ export default function Edit({
 
       <div {...blockProps}>
         <button
-          type="button"
+          type='button'
           className={`aa-product-filters__trigger${
-            iconOnly ? ' aa-product-filters__trigger--icon-only' : ''
+            iconOnly ? 'aa-product-filters__trigger--icon-only' : ''
           }`}
           onClick={e => e.preventDefault()}
-          aria-haspopup="dialog"
+          aria-haspopup='dialog'
           aria-expanded={false}
-          aria-controls="aa-product-filters-drawer"
+          aria-controls='aa-product-filters-drawer'
         >
           {effectiveShowIcon && <FilterIcon />}
           {effectiveShowLabel && label.trim() !== '' && (
-            <span className="aa-product-filters__trigger-label">{label}</span>
+            <span className='aa-product-filters__trigger-label'>{label}</span>
           )}
           {!effectiveShowLabel && label.trim() !== '' && (
-            <span className="screen-reader-text">{label}</span>
+            <span className='screen-reader-text'>{label}</span>
           )}
         </button>
       </div>

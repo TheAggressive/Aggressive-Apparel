@@ -233,8 +233,8 @@ const { state, actions } = store<ProductFiltersStore>(
 
         const template =
           count === 1
-            ? state.i18n?.filtersAppliedSingular ?? '(%s filter applied)'
-            : state.i18n?.filtersAppliedPlural ?? '(%s filters applied)';
+            ? (state.i18n?.filtersAppliedSingular ?? '(%s filter applied)')
+            : (state.i18n?.filtersAppliedPlural ?? '(%s filters applied)');
 
         return ' ' + template.replace('%s', String(count));
       },

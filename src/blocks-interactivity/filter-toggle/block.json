@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/filter-toggle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Product Filter Toggle",
   "category": "aggressive-apparel",
   "icon": "filter",
@@ -23,17 +23,41 @@
     "align": ["left", "center", "right"],
     "spacing": {
       "margin": true,
-      "padding": true
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "margin": true,
+        "padding": true
+      }
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true,
+      "__experimentalDefaultControls": {
+        "color": true,
+        "radius": true,
+        "style": true,
+        "width": true
+      }
     },
     "typography": {
       "fontSize": true,
       "lineHeight": true,
-      "fontWeight": true
+      "fontWeight": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true,
+        "fontWeight": true
+      }
     },
     "color": {
       "text": true,
       "background": true,
-      "link": false
+      "link": false,
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      }
     }
   },
   "attributes": {

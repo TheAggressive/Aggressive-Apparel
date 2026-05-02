@@ -148,7 +148,10 @@ export default function Edit({
                 value: 'default',
               },
               {
-                label: __('Large (use on single product pages)', 'aggressive-apparel'),
+                label: __(
+                  'Large (use on single product pages)',
+                  'aggressive-apparel'
+                ),
                 value: 'large',
               },
             ]}

@@ -7,7 +7,14 @@
   "category": "aggressive-apparel",
   "icon": "heart",
   "description": "Adds an Add-to-Wishlist heart for the current product. Place this block in the Single Product template or inside a Product Collection / Query Loop to manually control where the wishlist heart appears.",
-  "keywords": ["wishlist", "favorite", "heart", "save", "woocommerce", "product"],
+  "keywords": [
+    "wishlist",
+    "favorite",
+    "heart",
+    "save",
+    "woocommerce",
+    "product"
+  ],
   "example": {
     "attributes": {
       "label": "Add to Wishlist",

@@ -86,6 +86,36 @@ body.has-product-filters {
 	}
 }
 
+/* Icon-only variant: square, label-less button with a corner count badge. */
+.aa-product-filters__trigger--icon-only {
+	position: relative;
+	width: 2.75rem;
+	min-width: 2.75rem;
+	padding: 0;
+	gap: 0;
+	justify-content: center;
+
+	/* The label span is suppressed by the renderer, but if any consumer
+	 * forces it back into the markup we still want the icon-only chrome
+	 * to win visually. */
+	& .aa-product-filters__trigger-label {
+		display: none;
+	}
+
+	/* Count badge sits as a corner pill instead of inline. */
+	& .aa-product-filters__trigger-count {
+		position: absolute;
+		top: -0.375rem;
+		right: -0.375rem;
+		min-width: 1.125rem;
+		height: 1.125rem;
+		font-size: 0.6875rem;
+		padding: 0 0.25rem;
+		border: 2px solid var(--pf-bg);
+		box-sizing: content-box;
+	}
+}
+
 /* ── Drawer Overlay ─────────────────────────────────── */
 
 .aa-product-filters__drawer {

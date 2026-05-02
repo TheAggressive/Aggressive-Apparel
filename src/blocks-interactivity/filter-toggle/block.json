@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/filter-toggle",
+  "version": "1.0.0",
+  "title": "Product Filter Toggle",
+  "category": "aggressive-apparel",
+  "icon": "filter",
+  "description": "Opens the product filters drawer. Place this block anywhere on a shop, category, or tag archive to control where the filter button appears. Replaces the automatic placement before the catalog sorting dropdown.",
+  "keywords": ["filter", "shop", "woocommerce", "product"],
+  "example": {
+    "attributes": {
+      "label": "Filter",
+      "showLabel": true,
+      "showIcon": true,
+      "iconOnly": false
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "align": ["left", "center", "right"],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "fontWeight": true
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "link": false
+    }
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "Filter"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": true
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "iconOnly": {
+      "type": "boolean",
+      "default": false
+    },
+    "mobileOnly": {
+      "type": "string",
+      "default": "auto",
+      "enum": ["auto", "always", "never"]
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left",
+      "enum": ["left", "center", "right"]
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

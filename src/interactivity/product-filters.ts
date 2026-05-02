@@ -129,6 +129,10 @@ interface ProductFiltersState {
   sizeTerms: SizeTerm[];
   currentCategorySlug: string;
   categoryAttributeMap: Record<string, CategoryAttributeMapEntry>;
+  i18n: {
+    filtersAppliedSingular: string;
+    filtersAppliedPlural: string;
+  };
   _announcement: string;
   _customSort: string;
   readonly hasActiveFilters: boolean;
@@ -137,6 +141,7 @@ interface ProductFiltersState {
   readonly hasSinglePage: boolean;
   readonly isNotLoading: boolean;
   readonly activeFilterCount: number | string;
+  readonly triggerCountLabel: string;
   readonly priceMinDisplay: string;
   readonly priceMaxDisplay: string;
   readonly announcement: string;
@@ -212,6 +217,26 @@ const { state, actions } = store<ProductFiltersStore>(
           count++;
         if (state.inStockOnly) count++;
         return count || '';
+      },
+
+      /*
+       * Localized accessible-name suffix for the filter trigger button.
+       * Empty when no filters are active so the button's accessible name
+       * stays as just its visible label. When filters are applied this
+       * appends e.g. "(3 filters applied)" — wrapped in parentheses by
+       * the i18n template so AT renders a natural pause between the
+       * label and the count.
+       */
+      get triggerCountLabel(): string {
+        const count = state.activeFilterCount;
+        if (typeof count !== 'number' || count === 0) return '';
+
+        const template =
+          count === 1
+            ? state.i18n?.filtersAppliedSingular ?? '(%s filter applied)'
+            : state.i18n?.filtersAppliedPlural ?? '(%s filters applied)';
+
+        return ' ' + template.replace('%s', String(count));
       },
 
       get priceMinDisplay(): string {

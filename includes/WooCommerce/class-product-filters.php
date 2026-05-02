@@ -63,12 +63,32 @@ class Product_Filters {
 	private ?array $filter_data = null;
 
 	/**
+	 * Whether the Filter Toggle block has rendered during the current request.
+	 *
+	 * When true, automatic injection of the trigger before
+	 * `woocommerce/catalog-sorting` is suppressed so the user-placed
+	 * block is the sole source of truth.
+	 *
+	 * @var bool
+	 */
+	private static bool $trigger_block_rendered = false;
+
+	/**
+	 * Active layout for the current request, cached statically so it can be
+	 * exposed via `get_active_layout()` without re-querying options.
+	 *
+	 * @var string|null
+	 */
+	private static ?string $active_layout = null;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
-		$this->layout = $this->get_layout();
+		$this->layout        = $this->get_layout();
+		self::$active_layout = $this->layout;
 
 		// Register script module early so it's included in the wp_head import map.
 		// Enqueuing happens later in ensure_assets() when we know we're on a shop page.
@@ -220,6 +240,20 @@ class Product_Filters {
 					'products'             => array(),
 					'announcement'         => '',
 					'openDropdown'         => '',
+
+					/*
+					 * Translatable strings consumed by the Interactivity store.
+					 * Sprintf-style templates use `%s` for the active count.
+					 * Wrapping copy in parentheses keeps the screen-reader
+					 * announcement separated from the visible button label
+					 * when the two are concatenated by the AT name algorithm.
+					 */
+					'i18n'                 => array(
+						/* translators: %s is the number of currently active filters (always 1). */
+						'filtersAppliedSingular' => __( '(%s filter applied)', 'aggressive-apparel' ),
+						/* translators: %s is the number of currently active filters (2 or more). */
+						'filtersAppliedPlural'   => __( '(%s filters applied)', 'aggressive-apparel' ),
+					),
 				)
 			);
 		}
@@ -243,11 +277,36 @@ class Product_Filters {
 
 			// Inject filter toggle button before the catalog sorting dropdown.
 			if ( 'woocommerce/catalog-sorting' === $block['blockName'] ) {
+				// Admin setting wins: when set to "block", the user is fully
+				// in charge of placement via the Filter Toggle block.
+				$placement = get_option( Feature_Settings::FILTER_TRIGGER_PLACEMENT_OPTION, 'auto' );
+				if ( 'block' === $placement ) {
+					return $block_content;
+				}
+
+				/**
+				 * Filters whether to automatically inject the trigger before catalog-sorting.
+				 *
+				 * Set to false (or place the `aggressive-apparel/filter-toggle`
+				 * block earlier in the template) to suppress the legacy
+				 * automatic placement. When the Filter Toggle block has
+				 * rendered earlier in the request, this is short-circuited
+				 * to false automatically.
+				 *
+				 * @since 1.22.0
+				 *
+				 * @param bool $auto_inject Whether to auto-inject. Default true.
+				 */
+				$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_filter_trigger', true );
+
+				if ( self::$trigger_block_rendered || ! $auto_inject ) {
+					return $block_content;
+				}
+
 				$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
 				$button       = sprintf(
-					'<button class="aa-product-filters__trigger%s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" aria-label="%s">%s<span class="aa-product-filters__trigger-label">%s</span><span class="aa-product-filters__trigger-count" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
+					'<button type="button" class="aa-product-filters__trigger%1$s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" data-wp-bind--aria-expanded="state.isDrawerOpen" aria-expanded="false" aria-haspopup="dialog" aria-controls="aa-product-filters-drawer">%2$s<span class="aa-product-filters__trigger-label">%3$s</span><span class="screen-reader-text" data-wp-text="state.triggerCountLabel"></span><span class="aa-product-filters__trigger-count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
 					esc_attr( $mobile_class ),
-					esc_attr__( 'Open product filters', 'aggressive-apparel' ),
 					Icons::get(
 						'filter',
 						array(
@@ -1151,5 +1210,62 @@ class Product_Filters {
 			return false;
 		}
 		return is_shop() || is_product_category() || is_product_tag();
+	}
+
+	/**
+	 * Public wrapper around `is_shop_page()` so other components — including
+	 * the Filter Toggle block render callback — can decide whether to emit
+	 * filter-related markup.
+	 *
+	 * @since 1.22.0
+	 *
+	 * @return bool True when the current request is a shop, product category,
+	 *              or product tag archive.
+	 */
+	public static function is_filterable_archive(): bool {
+		if ( ! function_exists( 'is_shop' ) ) {
+			return false;
+		}
+		return is_shop() || is_product_category() || is_product_tag();
+	}
+
+	/**
+	 * Get the active layout for the current request, mirroring the
+	 * instance-side resolution used by `init()`.
+	 *
+	 * Used by the Filter Toggle block to apply the same "mobile-only"
+	 * default behavior as the legacy automatic placement.
+	 *
+	 * @since 1.22.0
+	 *
+	 * @return string One of `drawer`, `sidebar`, `horizontal`.
+	 */
+	public static function get_active_layout(): string {
+		if ( null !== self::$active_layout ) {
+			return self::$active_layout;
+		}
+
+		$layout = get_option( Feature_Settings::FILTER_LAYOUT_OPTION, 'drawer' );
+		$valid  = array( 'drawer', 'sidebar', 'horizontal' );
+
+		self::$active_layout = in_array( $layout, $valid, true ) ? $layout : 'drawer';
+
+		return self::$active_layout;
+	}
+
+	/**
+	 * Marks the Filter Toggle block as rendered for the current request,
+	 * suppressing the automatic injection of the trigger before the
+	 * `woocommerce/catalog-sorting` block.
+	 *
+	 * Called from the block's `render.php` so users get exactly one
+	 * trigger button in the location they chose.
+	 *
+	 * @since 1.22.0
+	 *
+	 * @return void
+	 */
+	public static function mark_trigger_block_rendered(): void {
+		self::$trigger_block_rendered = true;
 	}
 }

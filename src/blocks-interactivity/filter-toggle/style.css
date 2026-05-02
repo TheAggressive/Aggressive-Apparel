@@ -1,0 +1,13 @@
+/*
+ * Product Filter Toggle Block — Frontend Styles
+ *
+ * Visual styles for the trigger button live in
+ * src/styles/woocommerce/product-filters.css under the
+ * `.aa-product-filters__trigger` selector. That stylesheet is loaded
+ * on every front-end request whenever the Product Filters feature is
+ * active, so we don't duplicate styles here.
+ *
+ * This file exists so wp-scripts emits a `style-index.css` sibling
+ * for `block.json`'s `style` declaration, which keeps the block
+ * registration consistent with the other theme blocks.
+ */

@@ -63,6 +63,19 @@ class Feature_Settings {
 	public const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 
 	/**
+	 * Option key for the filter trigger placement.
+	 *
+	 * `auto`  → Theme injects the trigger before the catalog sorting dropdown
+	 *           (legacy behavior).
+	 * `block` → Theme suppresses the automatic injection; the user is expected
+	 *           to place the `aggressive-apparel/filter-toggle` block wherever
+	 *           they want the trigger to appear.
+	 *
+	 * @var string
+	 */
+	public const FILTER_TRIGGER_PLACEMENT_OPTION = 'aggressive_apparel_filter_trigger_placement';
+
+	/**
 	 * Settings page sections with tab metadata.
 	 *
 	 * @var array<string, array{label: string, icon: string}>
@@ -333,6 +346,16 @@ class Feature_Settings {
 			)
 		);
 
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::FILTER_TRIGGER_PLACEMENT_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'auto',
+				'sanitize_callback' => array( $this, 'sanitize_filter_trigger_placement' ),
+			)
+		);
+
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
 				'feature_' . $key,
@@ -352,6 +375,14 @@ class Feature_Settings {
 					'filter_layout',
 					__( 'Filter Layout', 'aggressive-apparel' ),
 					array( $this, 'render_filter_layout_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+
+				add_settings_field(
+					'filter_trigger_placement',
+					__( 'Filter Trigger Placement', 'aggressive-apparel' ),
+					array( $this, 'render_filter_trigger_placement_field' ),
 					self::PAGE_SLUG,
 					'aggressive_apparel_features_catalog',
 				);
@@ -542,6 +573,42 @@ class Feature_Settings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Sanitize the filter trigger placement option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized placement value (`auto` or `block`).
+	 */
+	public function sanitize_filter_trigger_placement( $input ): string {
+		$valid = array( 'auto', 'block' );
+		return in_array( $input, $valid, true ) ? $input : 'auto';
+	}
+
+	/**
+	 * Render the filter trigger placement select field.
+	 *
+	 * @return void
+	 */
+	public function render_filter_trigger_placement_field(): void {
+		$placement = get_option( self::FILTER_TRIGGER_PLACEMENT_OPTION, 'auto' );
+		$options   = array(
+			'auto'  => __( 'Automatic (before catalog sorting)', 'aggressive-apparel' ),
+			'block' => __( 'Manual placement (use Filter Toggle block)', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::FILTER_TRIGGER_PLACEMENT_OPTION ) );
+		foreach ( $options as $value => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $value ),
+				selected( $placement, $value, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Automatic mirrors the legacy behavior. Manual lets you place the "Product Filter Toggle" block anywhere in the Site Editor — useful for sidebars, custom toolbars, or above the title.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

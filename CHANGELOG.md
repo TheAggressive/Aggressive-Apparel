@@ -1,3 +1,15 @@
+# [1.61.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.60.0...v1.61.0) (2026-05-02)
+
+
+### Bug Fixes
+
+* standardize JSX attributes and improve code readability ([47892a3](https://github.com/TheAggressive/Aggressive-Apparel/commit/47892a35a2208c9e0592f3543a4e34700fc4a503))
+
+
+### Features
+
+* add filter trigger placement option and enhance product filters ([3b7b4ca](https://github.com/TheAggressive/Aggressive-Apparel/commit/3b7b4ca0dc8b831d0cf35d10a4bd312340f6ccf4))
+
 # [1.60.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.59.0...v1.60.0) (2026-05-01)
 
 

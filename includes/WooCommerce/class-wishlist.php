@@ -28,6 +28,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Wishlist {
 
 	/**
+	 * Per-request flag set when the `aggressive-apparel/wishlist-button` block
+	 * has rendered for the current product context. Used to short-circuit the
+	 * legacy auto-injection on single product pages so we don't render the
+	 * heart twice when the user has explicitly placed the block.
+	 *
+	 * @var bool
+	 */
+	private static bool $button_block_rendered = false;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -81,6 +91,10 @@ class Wishlist {
 	/**
 	 * Inject heart icon on product card images in archives.
 	 *
+	 * Skipped when the admin has set the placement option to `block`,
+	 * so the user can manually drop the wishlist button into their
+	 * Product Collection / Query Loop template instead.
+	 *
 	 * @param string $block_content Block HTML.
 	 * @param array  $block         Block data.
 	 * @return string Modified HTML.
@@ -91,6 +105,31 @@ class Wishlist {
 		}
 
 		if ( ! $this->is_wc_context() ) {
+			return $block_content;
+		}
+
+		// Admin setting wins: when set to `block`, the user is fully in
+		// charge of placement via the Wishlist Button block.
+		$placement = get_option( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		if ( 'block' === $placement ) {
+			return $block_content;
+		}
+
+		/**
+		 * Filters whether to automatically inject the wishlist heart on
+		 * product card featured images.
+		 *
+		 * Set to false (or place the `aggressive-apparel/wishlist-button`
+		 * block inside your card template) to suppress the legacy
+		 * automatic placement.
+		 *
+		 * @since 1.17.0
+		 *
+		 * @param bool  $auto_inject Whether to inject. Defaults to true.
+		 * @param array $block       The block being rendered.
+		 */
+		$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_wishlist_card', true, $block );
+		if ( ! $auto_inject ) {
 			return $block_content;
 		}
 
@@ -112,6 +151,12 @@ class Wishlist {
 	/**
 	 * Render heart icon on single product pages (next to title area).
 	 *
+	 * Skipped entirely when:
+	 *   - The admin has set the placement option to `block`, OR
+	 *   - The Wishlist Button block has already rendered earlier in the
+	 *     request for this product (per-request opt-out for hybrid mode), OR
+	 *   - A developer filter has explicitly suppressed auto-injection.
+	 *
 	 * @return void
 	 */
 	public function render_single_heart(): void {
@@ -124,6 +169,24 @@ class Wishlist {
 			return;
 		}
 
+		$placement = get_option( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		if ( 'block' === $placement ) {
+			return;
+		}
+
+		/**
+		 * Filters whether to automatically inject the wishlist heart on
+		 * the single product summary.
+		 *
+		 * @since 1.17.0
+		 *
+		 * @param bool $auto_inject Whether to inject. Defaults to true.
+		 */
+		$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_wishlist_single', true );
+		if ( self::$button_block_rendered || ! $auto_inject ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML built with esc_ functions.
 		echo $this->get_heart_button_html( $product_id, true );
 	}
@@ -131,11 +194,16 @@ class Wishlist {
 	/**
 	 * Build heart button HTML with Interactivity API directives.
 	 *
+	 * Public so the `aggressive-apparel/wishlist-button` block's render.php
+	 * could reuse it if desired; the block currently renders its own
+	 * markup so it can apply the editor's design controls (border, color,
+	 * spacing) via `get_block_wrapper_attributes()`.
+	 *
 	 * @param int  $product_id Product ID.
 	 * @param bool $large      Whether to use the large variant.
 	 * @return string
 	 */
-	private function get_heart_button_html( int $product_id, bool $large = false ): string {
+	public function get_heart_button_html( int $product_id, bool $large = false ): string {
 		$class = 'aggressive-apparel-wishlist__toggle';
 		if ( $large ) {
 			$class .= ' aggressive-apparel-wishlist__toggle--large';
@@ -215,6 +283,64 @@ class Wishlist {
 		// phpcs:enable Generic.WhiteSpace.ScopeIndent
 
 		return $html;
+	}
+
+	/**
+	 * Resolve the product ID for the current rendering context.
+	 *
+	 * Works on:
+	 *   - Single product pages (uses the queried object).
+	 *   - Inside Query Loop / Product Collection blocks (uses the
+	 *     in-loop post via `get_the_ID()` once the block has set up
+	 *     post data for the current iteration).
+	 *
+	 * Returns 0 when no product context is available — callers should
+	 * treat that as "do not render".
+	 *
+	 * @return int Product post ID, or 0 when unavailable.
+	 */
+	public static function get_current_product_id(): int {
+		if ( ! function_exists( 'get_post_type' ) ) {
+			return 0;
+		}
+
+		$post_id = (int) get_the_ID();
+		if ( $post_id > 0 && 'product' === get_post_type( $post_id ) ) {
+			return $post_id;
+		}
+
+		// Fallback: queried object on single product pages, in case the
+		// block renders before the loop has set up post data.
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			$queried = get_queried_object_id();
+			if ( $queried > 0 && 'product' === get_post_type( $queried ) ) {
+				return $queried;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Mark the Wishlist Button block as rendered for the current request.
+	 *
+	 * Allows the legacy single-product auto-injection to short-circuit
+	 * once the user has placed the block earlier in the same request,
+	 * preventing duplicate hearts.
+	 *
+	 * @return void
+	 */
+	public static function mark_button_block_rendered(): void {
+		self::$button_block_rendered = true;
+	}
+
+	/**
+	 * Whether the Wishlist Button block has already rendered this request.
+	 *
+	 * @return bool
+	 */
+	public static function has_button_block_rendered(): bool {
+		return self::$button_block_rendered;
 	}
 
 	/**

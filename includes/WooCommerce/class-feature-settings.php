@@ -76,6 +76,20 @@ class Feature_Settings {
 	public const FILTER_TRIGGER_PLACEMENT_OPTION = 'aggressive_apparel_filter_trigger_placement';
 
 	/**
+	 * Option key for the wishlist button placement.
+	 *
+	 * `auto`  → Theme injects the heart on product cards (top-right of the
+	 *           featured image) and on the single product summary
+	 *           (above the title) automatically (legacy behavior).
+	 * `block` → Theme suppresses both auto-injections; the user is
+	 *           expected to place the `aggressive-apparel/wishlist-button`
+	 *           block wherever they want the heart to appear.
+	 *
+	 * @var string
+	 */
+	public const WISHLIST_BUTTON_PLACEMENT_OPTION = 'aggressive_apparel_wishlist_button_placement';
+
+	/**
 	 * Settings page sections with tab metadata.
 	 *
 	 * @var array<string, array{label: string, icon: string}>
@@ -356,6 +370,16 @@ class Feature_Settings {
 			)
 		);
 
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::WISHLIST_BUTTON_PLACEMENT_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'auto',
+				'sanitize_callback' => array( $this, 'sanitize_wishlist_button_placement' ),
+			)
+		);
+
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
 				'feature_' . $key,
@@ -395,6 +419,16 @@ class Feature_Settings {
 					array( $this, 'render_load_more_mode_field' ),
 					self::PAGE_SLUG,
 					'aggressive_apparel_features_catalog',
+				);
+			}
+
+			if ( 'wishlist' === $key && self::is_enabled( 'wishlist' ) ) {
+				add_settings_field(
+					'wishlist_button_placement',
+					__( 'Wishlist Button Placement', 'aggressive-apparel' ),
+					array( $this, 'render_wishlist_button_placement_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_engagement',
 				);
 			}
 		}
@@ -609,6 +643,42 @@ class Feature_Settings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Automatic mirrors the legacy behavior. Manual lets you place the "Product Filter Toggle" block anywhere in the Site Editor — useful for sidebars, custom toolbars, or above the title.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Sanitize the wishlist button placement option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized placement value (`auto` or `block`).
+	 */
+	public function sanitize_wishlist_button_placement( $input ): string {
+		$valid = array( 'auto', 'block' );
+		return in_array( $input, $valid, true ) ? $input : 'auto';
+	}
+
+	/**
+	 * Render the wishlist button placement select field.
+	 *
+	 * @return void
+	 */
+	public function render_wishlist_button_placement_field(): void {
+		$placement = get_option( self::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		$options   = array(
+			'auto'  => __( 'Automatic (cards + single product page)', 'aggressive-apparel' ),
+			'block' => __( 'Manual placement (use Wishlist Button block)', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::WISHLIST_BUTTON_PLACEMENT_OPTION ) );
+		foreach ( $options as $value => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $value ),
+				selected( $placement, $value, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Automatic injects the heart on product cards and on the single product page. Manual suppresses both auto-injections so you can place the "Wishlist Button" block anywhere — inside a Product Collection, single product template, or even a custom layout.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

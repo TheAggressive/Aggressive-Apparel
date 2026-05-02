@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist-button",
+  "version": "1.0.0",
+  "title": "Wishlist Button",
+  "category": "aggressive-apparel",
+  "icon": "heart",
+  "description": "Adds an Add-to-Wishlist heart for the current product. Place this block in the Single Product template or inside a Product Collection / Query Loop to manually control where the wishlist heart appears.",
+  "keywords": ["wishlist", "favorite", "heart", "save", "woocommerce", "product"],
+  "example": {
+    "attributes": {
+      "label": "Add to Wishlist",
+      "showLabel": false,
+      "showIcon": true,
+      "iconOnly": true,
+      "size": "default"
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "align": ["left", "center", "right"],
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "margin": true,
+        "padding": true
+      }
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true,
+      "__experimentalDefaultControls": {
+        "color": true,
+        "radius": true,
+        "style": true,
+        "width": true
+      }
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "fontWeight": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true,
+        "fontWeight": true
+      }
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "link": false,
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      }
+    }
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "Add to Wishlist"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": false
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "iconOnly": {
+      "type": "boolean",
+      "default": true
+    },
+    "size": {
+      "type": "string",
+      "default": "default",
+      "enum": ["default", "large"]
+    },
+    "alignment": {
+      "type": "string",
+      "default": "left",
+      "enum": ["left", "center", "right"]
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

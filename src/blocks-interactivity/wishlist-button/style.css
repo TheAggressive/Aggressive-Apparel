@@ -1,0 +1,10 @@
+/*
+ * Wishlist Button Block — Frontend Styles
+ *
+ * Intentionally empty. The actual button styles live in the
+ * shared wishlist stylesheet (build/styles/woocommerce/wishlist.css)
+ * which is enqueued by the Wishlist class on relevant pages.
+ *
+ * This placeholder ensures wp-scripts emits a `style-index.css`
+ * file so the block.json `style` reference resolves cleanly.
+ */

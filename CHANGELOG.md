@@ -1,3 +1,10 @@
+## [1.63.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.0...v1.63.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* improve social proof functionality and rendering ([35c180d](https://github.com/TheAggressive/Aggressive-Apparel/commit/35c180dd4d094aa2dadb2b65d1c388854c608fde))
+
 # [1.63.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.62.0...v1.63.0) (2026-05-02)
 
 

@@ -45,6 +45,8 @@ interface SocialProofContext {
 const DISMISSED_KEY = 'aggressive_apparel_social_proof_dismissed';
 const SOCIAL_PROOF_STORE = 'aggressive-apparel/social-proof';
 
+let started = false;
+
 const currentNotification = (
   ctx: SocialProofContext
 ): SocialProofNotification | undefined => ctx.notifications[ctx.currentIndex];
@@ -193,6 +195,11 @@ store(SOCIAL_PROOF_STORE, {
     },
 
     startCycle(): void {
+      if (started) {
+        return;
+      }
+      started = true;
+
       const ctx = getContext<SocialProofContext>();
 
       try {
@@ -225,39 +232,34 @@ store(SOCIAL_PROOF_STORE, {
       });
 
       const displayMs = ctx.displayDurationMs || 5000;
+      // Gap between notifications: total interval minus display time, minimum 1 s.
+      const gapMs = Math.max((ctx.intervalMs || 20000) - displayMs, 1000);
       let hideTimer: ReturnType<typeof setTimeout> | null = null;
       let remaining = 0;
       let hideStartedAt = 0;
 
-      /**
-       * Start or resume the hide countdown.
-       */
       const startHideTimer = (ms: number): void => {
+        if (hideTimer) {
+          clearTimeout(hideTimer);
+        }
         remaining = ms;
         hideStartedAt = Date.now();
         hideTimer = setTimeout(() => {
+          hideTimer = null;
           if (ctx.isHovered) {
-            // User is hovering — wait for mouseleave to resume.
+            // Timer expired during hover — dismiss on mouse leave.
             remaining = 0;
             return;
           }
           ctx.isVisible = false;
-
-          // Advance after the CSS fade-out transition finishes (300ms).
           setTimeout(() => {
             ctx.currentIndex =
               (ctx.currentIndex + 1) % ctx.notifications.length;
+            if (!ctx.isDismissed) {
+              setTimeout(showNext, gapMs);
+            }
           }, 350);
         }, ms);
-      };
-
-      const showNext = (): void => {
-        if (ctx.isDismissed) {
-          return;
-        }
-
-        ctx.isVisible = true;
-        startHideTimer(displayMs);
       };
 
       const pauseTimer = (): void => {
@@ -270,17 +272,29 @@ store(SOCIAL_PROOF_STORE, {
       };
 
       const resumeTimer = (): void => {
-        if (ctx.isVisible && !ctx.isDismissed) {
-          if (remaining <= 0) {
-            ctx.isVisible = false;
-            setTimeout(() => {
-              ctx.currentIndex =
-                (ctx.currentIndex + 1) % ctx.notifications.length;
-            }, 350);
-          } else {
-            startHideTimer(remaining);
-          }
+        if (!ctx.isVisible || ctx.isDismissed) {
+          return;
         }
+        if (remaining <= 0) {
+          ctx.isVisible = false;
+          setTimeout(() => {
+            ctx.currentIndex =
+              (ctx.currentIndex + 1) % ctx.notifications.length;
+            if (!ctx.isDismissed) {
+              setTimeout(showNext, gapMs);
+            }
+          }, 350);
+        } else {
+          startHideTimer(remaining);
+        }
+      };
+
+      const showNext = (): void => {
+        if (ctx.isDismissed || ctx.isVisible) {
+          return;
+        }
+        ctx.isVisible = true;
+        startHideTimer(displayMs);
       };
 
       // Pause on hover and keyboard focus; resume on leave/blur.
@@ -299,8 +313,6 @@ store(SOCIAL_PROOF_STORE, {
       }
 
       setTimeout(showNext, 5000);
-
-      setInterval(showNext, ctx.intervalMs || 20000);
     },
   },
 });

@@ -246,7 +246,7 @@ class Social_Proof {
 			$queue[] = $item;
 		}
 
-		return array_slice( $queue, 0, self::MAX_NOTIFICATIONS + 1 );
+		return array_slice( $queue, 0, self::MAX_NOTIFICATIONS );
 	}
 
 	/**
@@ -327,7 +327,7 @@ class Social_Proof {
 			$out[]  = array(
 				'message'    => sanitize_text_field( $parsed['message'] ),
 				'time'       => '',
-				'url'        => '',
+				'url'        => $parsed['url'],
 				'thumbnail'  => '',
 				'decor_html' => $parsed['decor_html'],
 				'badge_html' => '',
@@ -357,7 +357,7 @@ class Social_Proof {
 			$out[]  = array(
 				'message'    => sanitize_text_field( $parsed['message'] ),
 				'time'       => '',
-				'url'        => '',
+				'url'        => $parsed['url'],
 				'thumbnail'  => '',
 				'decor_html' => $parsed['decor_html'],
 				'badge_html' => '',
@@ -369,7 +369,7 @@ class Social_Proof {
 	}
 
 	/**
-	 * Parses PREFIX|MESSAGE into visible copy + optional LEFT-COLUMN decor.
+	 * Parses PREFIX|MESSAGE or PREFIX|MESSAGE|URL into visible copy + optional decor + optional link.
 	 *
 	 * When PREFIX is omitted the entire line is plain text with no badge.
 	 * When PREFIX resolves to neither a recognised theme icon slug nor an
@@ -379,14 +379,18 @@ class Social_Proof {
 	 * PREFIX may be explicit none|, -|, 0| to deliberately hide an icon while
 	 * still using structured lines.
 	 *
+	 * The optional third segment URL accepts absolute http(s) URLs or
+	 * root-relative paths (starting with /).
+	 *
 	 * @param string $single_line Trimmed textarea line contents.
-	 * @return array{message: string, decor_html: string}
+	 * @return array{message: string, decor_html: string, url: string}
 	 */
 	private function decode_decorated_proof_line( string $single_line ): array {
 		if ( '' === $single_line ) {
 			return array(
 				'message'    => '',
 				'decor_html' => '',
+				'url'        => '',
 			);
 		}
 
@@ -394,17 +398,20 @@ class Social_Proof {
 			return array(
 				'message'    => sanitize_text_field( $single_line ),
 				'decor_html' => '',
+				'url'        => '',
 			);
 		}
 
-		$parts      = explode( '|', $single_line, 2 );
+		$parts      = explode( '|', $single_line, 3 );
 		$left_token = trim( (string) ( $parts[0] ?? '' ) );
 		$right_text = trim( (string) ( $parts[1] ?? '' ) );
+		$url        = $this->sanitize_proof_line_url( trim( (string) ( $parts[2] ?? '' ) ) );
 
 		if ( '' === $right_text ) {
 			return array(
 				'message'    => sanitize_text_field( $single_line ),
 				'decor_html' => '',
+				'url'        => '',
 			);
 		}
 
@@ -412,6 +419,7 @@ class Social_Proof {
 			return array(
 				'message'    => sanitize_text_field( $right_text ),
 				'decor_html' => '',
+				'url'        => $url,
 			);
 		}
 
@@ -421,13 +429,38 @@ class Social_Proof {
 			return array(
 				'message'    => sanitize_text_field( $single_line ),
 				'decor_html' => '',
+				'url'        => '',
 			);
 		}
 
 		return array(
 			'message'    => sanitize_text_field( $right_text ),
 			'decor_html' => $decor_markup,
+			'url'        => $url,
 		);
+	}
+
+	/**
+	 * Sanitize a URL from a proof line — allows root-relative paths and http(s) only.
+	 *
+	 * @param string $raw Raw URL string from the textarea.
+	 * @return string Sanitized URL or empty string.
+	 */
+	private function sanitize_proof_line_url( string $raw ): string {
+		if ( '' === $raw ) {
+			return '';
+		}
+
+		if ( str_starts_with( $raw, '/' ) ) {
+			return esc_url_raw( $raw );
+		}
+
+		$scheme = wp_parse_url( $raw, PHP_URL_SCHEME );
+		if ( ! is_string( $scheme ) || ! in_array( strtolower( $scheme ), array( 'http', 'https' ), true ) ) {
+			return '';
+		}
+
+		return esc_url_raw( $raw );
 	}
 
 	/**
@@ -666,7 +699,8 @@ class Social_Proof {
 
 			$out[] = array(
 				'message'    => sanitize_text_field( $message ),
-				'time'       => sanitize_text_field( human_time_diff( $date->getTimestamp(), time() ) . ' ago' ),
+				/* translators: %s: human-readable time difference, e.g. "5 minutes". */
+				'time'       => sanitize_text_field( sprintf( __( '%s ago', 'aggressive-apparel' ), human_time_diff( $date->getTimestamp(), time() ) ) ),
 				'url'        => esc_url_raw( $permalink ),
 				'thumbnail'  => esc_url_raw( $thumbnail ),
 				'decor_html' => '',
@@ -803,11 +837,9 @@ class Social_Proof {
 				return '';
 			}
 			// Try to expand state code to full name when WC provides the lookup.
-			if ( function_exists( 'WC' ) ) {
-				$states = WC()->countries->get_states( $country );
-				if ( is_array( $states ) && isset( $states[ $state_code ] ) ) {
-					return (string) $states[ $state_code ];
-				}
+			$states = WC()->countries->get_states( $country );
+			if ( isset( $states[ $state_code ] ) ) {
+				return (string) $states[ $state_code ];
 			}
 			return $state_code;
 		}
@@ -817,11 +849,9 @@ class Social_Proof {
 			if ( '' === $country ) {
 				return '';
 			}
-			if ( function_exists( 'WC' ) ) {
-				$countries = WC()->countries->get_countries();
-				if ( is_array( $countries ) && isset( $countries[ $country ] ) ) {
-					return (string) $countries[ $country ];
-				}
+			$countries = WC()->countries->get_countries();
+			if ( isset( $countries[ $country ] ) ) {
+				return (string) $countries[ $country ];
 			}
 			return $country;
 		}

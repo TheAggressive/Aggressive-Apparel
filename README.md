@@ -1,6 +1,6 @@
 # Aggressive Apparel
 
-Official WooCommerce Block Theme for [Aggressive Apparel](https://aggressive-apparel.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, 11 custom blocks, and 36 block patterns.
+Official WooCommerce Block Theme for [Aggressive Apparel](https://theaggressive.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, 11 custom blocks, and 36 block patterns.
 
 **Version:** 1.56.1 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
@@ -235,4 +235,4 @@ Added via `Bootstrap::add_security_headers()`:
 
 GNU General Public License v2 or later — http://www.gnu.org/licenses/gpl-2.0.html
 
-Developed by [The Aggressive Network, LLC](https://aggressive-apparel.com)
+Developed by [The Aggressive Network, LLC](https://theaggressive.com)

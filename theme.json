@@ -303,39 +303,39 @@
       "adaptiveColors": [
         {
           "slug": "surface",
-          "name": "White / Near-Black",
-          "light": "#ffffff",
-          "dark": "#1a1a1a"
+          "name": "Light Gray / Near-Black",
+          "light": "oklch(87% 0 0)",
+          "dark": "oklch(20.5% 0 0)"
         },
         {
           "slug": "surface-alt",
           "name": "Light Gray / Black",
-          "light": "#f5f5f5",
-          "dark": "#0f0f0f"
+          "light": "oklch(87% 0 0)",
+          "dark": "oklch(0 0 0)"
         },
         {
           "slug": "on-surface",
           "name": "Black / White",
-          "light": "#000000",
-          "dark": "#ffffff"
+          "light": "oklch(0 0 0)",
+          "dark": "oklch(1 0 0)"
         },
         {
           "slug": "on-surface-muted",
           "name": "Gray / Light Gray",
-          "light": "#666666",
-          "dark": "#a0a0a0"
+          "light": "oklch(55.6% 0 0)",
+          "dark": "oklch(87% 0 0)"
         },
         {
           "slug": "accent",
           "name": "Red / Light Red",
-          "light": "oklch(57.7% 0.245 27.325)",
-          "dark": "oklch(67.7% 0.245 27.325)"
+          "light": "oklch(44.4% 0.177 26.899)",
+          "dark": "oklch(57.7% 0.245 27.325)"
         },
         {
           "slug": "border",
           "name": "Silver / Dark Gray",
-          "light": "#e0e0e0",
-          "dark": "#333333"
+          "light": "oklch(70.8% 0 0)",
+          "dark": "oklch(43.9% 0 0)"
         }
       ]
     },
@@ -352,12 +352,12 @@
         {
           "name": "White",
           "slug": "white",
-          "color": "#ffffff"
+          "color": "oklch(1 0 0)"
         },
         {
           "name": "Black",
           "slug": "black",
-          "color": "#000000"
+          "color": "oklab(0 0 0)"
         },
         {
           "name": "Red",

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/product-color-swatches",
+  "version": "1.0.0",
+  "title": "Product Color Swatches",
+  "category": "aggressive-apparel",
+  "icon": "color-picker",
+  "description": "Displays color variation swatches on product cards in archive and collection pages. Click a swatch to preview that variation's image.",
+  "keywords": ["color", "swatch", "variation", "product", "woocommerce"],
+  "example": {
+    "attributes": {
+      "swatchShape": "circle",
+      "swatchSize": "md",
+      "maxVisible": 5,
+      "showTooltip": true,
+      "linkToVariation": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "margin": false,
+        "padding": false
+      }
+    }
+  },
+  "usesContext": ["postId", "postType"],
+  "attributes": {
+    "swatchShape": {
+      "type": "string",
+      "default": "circle",
+      "enum": ["circle", "square", "diamond"]
+    },
+    "swatchSize": {
+      "type": "string",
+      "default": "md",
+      "enum": ["xs", "sm", "md", "lg"]
+    },
+    "maxVisible": {
+      "type": "number",
+      "default": 5
+    },
+    "showTooltip": {
+      "type": "boolean",
+      "default": true
+    },
+    "linkToVariation": {
+      "type": "boolean",
+      "default": true
+    },
+    "swatchTransition": {
+      "type": "string",
+      "default": "blur",
+      "enum": [
+        "fade",
+        "blur",
+        "zoom-in",
+        "zoom-out",
+        "slide-up",
+        "slide-down",
+        "slide-left",
+        "flip",
+        "blur-zoom",
+        "flash",
+        "wipe",
+        "squeeze",
+        "rotate",
+        "tilt",
+        "desaturate",
+        "elastic",
+        "glitch",
+        "iris",
+        "dissolve",
+        "swing"
+      ]
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScriptModule": "file:./view.js",
+  "render": "file:./render.php"
+}

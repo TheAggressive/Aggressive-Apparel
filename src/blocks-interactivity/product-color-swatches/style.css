@@ -1,0 +1,576 @@
+/**
+ * Product Color Swatches — Front-end Styles
+ *
+ * Three shapes (circle, square, diamond) × three sizes (sm, md, lg).
+ * Selection uses a shrink-reveal ring matching the existing single-product
+ * color-swatches.css pattern for visual consistency.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ─── Container ─────────────────────────────────────────────────────────── */
+
+.aa-product-color-swatches {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+/* ─── Swatch base ────────────────────────────────────────────────────────── */
+
+.aa-product-color-swatches__swatch {
+	flex-shrink: 0;
+	padding: 0;
+	border: none;
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 22%);
+	transform: scale(1);
+	transition:
+		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		outline-color 0.15s ease;
+
+	/* Force block-level so size applies predictably. */
+	display: block;
+}
+
+.aa-product-color-swatches__swatch:hover {
+	transform: scale(1.12);
+}
+
+/* Focus ring — keyboard accessibility. */
+.aa-product-color-swatches__swatch:focus-visible {
+	outline: 2px solid var(--wp--preset--color--black, #000);
+	outline-offset: 3px;
+}
+
+/* ─── Active (selected) state ────────────────────────────────────────────── */
+
+.aa-product-color-swatches__swatch.is-active {
+	transform: scale(0.8);
+	outline: 3px solid
+		color-mix(
+			in oklch,
+			var(--swatch-color, rgb(0 0 0 / 50%)) 55%,
+			#000
+		);
+	outline-offset: 3px;
+}
+
+.aa-product-color-swatches__swatch.is-active:hover {
+	transform: scale(0.8);
+}
+
+.aa-product-color-swatches__swatch.is-active:focus-visible {
+	outline-width: 3px;
+}
+
+/* ─── Sizes ──────────────────────────────────────────────────────────────── */
+
+.is-size-xs .aa-product-color-swatches__swatch {
+	width: 1rem;     /* 16px */
+	height: 1rem;
+}
+
+.is-size-sm .aa-product-color-swatches__swatch {
+	width: 1.5rem;   /* 24px */
+	height: 1.5rem;
+}
+
+.is-size-md .aa-product-color-swatches__swatch {
+	width: 2rem;     /* 32px */
+	height: 2rem;
+}
+
+.is-size-lg .aa-product-color-swatches__swatch {
+	width: 2.75rem;  /* 44px — standard tap target */
+	height: 2.75rem;
+}
+
+/* ─── Circle shape (default) ─────────────────────────────────────────────── */
+
+.is-shape-circle .aa-product-color-swatches__swatch {
+	border-radius: 50%;
+}
+
+/* ─── Square shape ───────────────────────────────────────────────────────── */
+
+.is-shape-square .aa-product-color-swatches__swatch {
+	border-radius: 3px;
+}
+
+/* ─── Diamond shape ──────────────────────────────────────────────────────── */
+
+.is-shape-diamond .aa-product-color-swatches__swatch {
+	border-radius: 3px;
+	transform: rotate(45deg) scale(0.82);
+}
+
+.is-shape-diamond .aa-product-color-swatches__swatch:hover {
+	transform: rotate(45deg) scale(0.92);
+}
+
+.is-shape-diamond .aa-product-color-swatches__swatch.is-active {
+	transform: rotate(45deg) scale(0.68);
+}
+
+.is-shape-diamond .aa-product-color-swatches__swatch.is-active:hover {
+	transform: rotate(45deg) scale(0.68);
+}
+
+.is-shape-diamond .aa-product-color-swatches__swatch:focus-visible {
+	outline-offset: 4px;
+}
+
+/*
+ * Diamond: the container needs extra vertical breathing room since the
+ * rotated corners poke outside the normal bounding box.
+ */
+.is-shape-diamond {
+	padding-block: 0.35rem;
+}
+
+/* ─── Overflow badge ─────────────────────────────────────────────────────── */
+
+.aa-product-color-swatches__overflow {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-inline: 0.4rem;
+	min-width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 600;
+	line-height: 1;
+	color: var(--wp--preset--color--black, #111);
+	background-color: var(--wp--preset--color--light-gray, #e5e7eb);
+	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+	user-select: none;
+}
+
+/* ─── CSS tooltip (shown when .has-tooltips is on the container) ─────────── */
+
+.has-tooltips .aa-product-color-swatches__swatch {
+	position: relative;
+}
+
+.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	bottom: calc(100% + 6px);
+	left: 50%;
+	translate: -50% 0;
+	white-space: nowrap;
+	padding: 0.2rem 0.45rem;
+	border-radius: 4px;
+	font-size: 0.7rem;
+	font-weight: 500;
+	line-height: 1.4;
+	color: #fff;
+	background-color: rgb(0 0 0 / 80%);
+	pointer-events: none;
+	opacity: 0;
+	scale: 0.85;
+	transform-origin: bottom center;
+	transition:
+		opacity 0.15s ease,
+		scale 0.15s ease;
+	z-index: 10;
+}
+
+.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]:hover::after,
+.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]:focus-visible::after {
+	opacity: 1;
+	scale: 1;
+}
+
+/*
+ * Diamond tooltips: counter-rotate so text stays upright.
+ */
+.is-shape-diamond.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]::after {
+	rotate: -45deg;
+}
+
+/* ─── Image swap animations ──────────────────────────────────────────────── */
+
+/*
+ * Each animation class defines two rules:
+ *   1. Base (.aa-cs-anim-*): the entrance TRANSITION applied after load.
+ *   2. Loading (.aa-cs-anim-*.aa-cs-loading): exit state + `transition: none`
+ *      so the dim/warp is instant while the new src is fetching.
+ *
+ * Both classes are added synchronously on click so the browser paints them
+ * together (no intermediate frame). Removing .aa-cs-loading on image load
+ * triggers the entrance animation defined by the base class.
+ */
+
+/* 1. Fade */
+.aa-cs-anim-fade {
+	transition: opacity 0.4s ease;
+}
+
+.aa-cs-anim-fade.aa-cs-loading {
+	opacity: 0;
+	transition: none;
+}
+
+/* 2. Blur */
+.aa-cs-anim-blur {
+	transition:
+		opacity 0.5s ease,
+		filter  0.5s ease,
+		scale   0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aa-cs-anim-blur.aa-cs-loading {
+	opacity: 0.08;
+	filter: blur(10px);
+	scale: 1.04;
+	transition: none;
+}
+
+/* 3. Zoom In — new image lands from slightly larger */
+.aa-cs-anim-zoom-in {
+	transition:
+		opacity 0.45s ease,
+		scale   0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aa-cs-anim-zoom-in.aa-cs-loading {
+	opacity: 0;
+	scale: 1.15;
+	transition: none;
+}
+
+/* 4. Zoom Out — new image expands from slightly smaller */
+.aa-cs-anim-zoom-out {
+	transition:
+		opacity 0.45s ease,
+		scale   0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aa-cs-anim-zoom-out.aa-cs-loading {
+	opacity: 0;
+	scale: 0.85;
+	transition: none;
+}
+
+/* 5. Slide Up — new image rises into place */
+.aa-cs-anim-slide-up {
+	transition:
+		opacity   0.4s ease,
+		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.aa-cs-anim-slide-up.aa-cs-loading {
+	opacity: 0;
+	translate: 0 20px;
+	transition: none;
+}
+
+/* 6. Slide Down — new image falls into place */
+.aa-cs-anim-slide-down {
+	transition:
+		opacity   0.4s ease,
+		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.aa-cs-anim-slide-down.aa-cs-loading {
+	opacity: 0;
+	translate: 0 -20px;
+	transition: none;
+}
+
+/* 7. Slide Left — new image sweeps in from the right */
+.aa-cs-anim-slide-left {
+	transition:
+		opacity   0.4s ease,
+		translate 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.aa-cs-anim-slide-left.aa-cs-loading {
+	opacity: 0;
+	translate: 20px 0;
+	transition: none;
+}
+
+/* 8. Flip — genuine 3D card-flip using perspective + rotateY.
+ * The image snaps to 90° (edge-on, invisible) then rotates back to 0°
+ * with the new image loaded — you only see the second half of the flip. */
+.aa-cs-anim-flip {
+	backface-visibility: hidden;
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aa-cs-anim-flip.aa-cs-loading {
+	transform: perspective(700px) rotateY(90deg);
+	transition: none;
+}
+
+/* 9. Blur + Zoom */
+.aa-cs-anim-blur-zoom {
+	transition:
+		opacity 0.55s ease,
+		filter  0.55s ease,
+		scale   0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aa-cs-anim-blur-zoom.aa-cs-loading {
+	opacity: 0.04;
+	filter: blur(14px);
+	scale: 1.1;
+	transition: none;
+}
+
+/* 10. Flash — brightness burst then settle */
+.aa-cs-anim-flash {
+	transition:
+		opacity 0.35s ease,
+		filter  0.55s ease;
+}
+
+.aa-cs-anim-flash.aa-cs-loading {
+	opacity: 0;
+	filter: brightness(2.5) blur(3px);
+	transition: none;
+}
+
+/* 11. Wipe — curtain sweeps left to right via clip-path */
+.aa-cs-anim-wipe {
+	clip-path: inset(0 0 0 0);
+	transition: clip-path 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+}
+
+.aa-cs-anim-wipe.aa-cs-loading {
+	clip-path: inset(0 100% 0 0);
+	opacity: 0.5;
+	transition: none;
+}
+
+/* 12. Squeeze — genuine 3D flip on the horizontal axis */
+.aa-cs-anim-squeeze {
+	backface-visibility: hidden;
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease;
+}
+
+.aa-cs-anim-squeeze.aa-cs-loading {
+	transform: perspective(700px) rotateX(90deg);
+	opacity: 0;
+	transition: none;
+}
+
+/* 13. Rotate — Z-axis spin while fading in */
+.aa-cs-anim-rotate {
+	transition:
+		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+		opacity   0.4s ease;
+}
+
+.aa-cs-anim-rotate.aa-cs-loading {
+	transform: rotate(180deg) scale(0.6);
+	opacity: 0;
+	transition: none;
+}
+
+/* 14. Tilt — 3D perspective tilt on the X axis (looking up into the image) */
+.aa-cs-anim-tilt {
+	backface-visibility: hidden;
+	transition:
+		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+		scale     0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+		opacity   0.35s ease;
+}
+
+.aa-cs-anim-tilt.aa-cs-loading {
+	transform: perspective(500px) rotateX(-35deg);
+	scale: 0.9;
+	opacity: 0;
+	transition: none;
+}
+
+/* 15. Desaturate — color drains during load, then floods back */
+.aa-cs-anim-desaturate {
+	transition: filter 0.6s ease, opacity 0.35s ease;
+}
+
+.aa-cs-anim-desaturate.aa-cs-loading {
+	filter: grayscale(1) blur(4px) brightness(0.7);
+	opacity: 0.4;
+	transition: none;
+}
+
+/* 16. Elastic — zoom-in with spring overshoot past natural size */
+.aa-cs-anim-elastic {
+	transition:
+		scale   0.55s cubic-bezier(0.34, 1.8, 0.64, 1),
+		opacity 0.35s ease;
+}
+
+.aa-cs-anim-elastic.aa-cs-loading {
+	scale: 0.5;
+	opacity: 0;
+	transition: none;
+}
+
+/* 17. Glitch — keyframe-driven distortion: color shifts, spatial jitter, then settle */
+
+@keyframes aa-glitch-reveal {
+
+	0% {
+		opacity: 0;
+		transform: translate(-8px, 0) skewX(-6deg);
+		filter: hue-rotate(110deg) saturate(3) contrast(1.8) brightness(0.5);
+		animation-timing-function: steps(1, end);
+	}
+
+	8% {
+		opacity: 0.9;
+		transform: translate(6px, -2px) skewX(4deg) scaleY(0.98);
+		filter: hue-rotate(220deg) saturate(4) contrast(2) brightness(1.4);
+		animation-timing-function: steps(1, end);
+	}
+
+	16% {
+		opacity: 0.3;
+		transform: translate(-4px, 1px) skewX(-8deg) scaleY(1.02);
+		filter: hue-rotate(0deg) saturate(0.5) contrast(0.8) brightness(0.7);
+		animation-timing-function: steps(1, end);
+	}
+
+	24% {
+		opacity: 1;
+		transform: translate(3px, 0) skewX(6deg);
+		filter: hue-rotate(320deg) saturate(5) contrast(2.5) brightness(1.8);
+		animation-timing-function: steps(1, end);
+	}
+
+	32% {
+		opacity: 0.6;
+		transform: translate(-6px, 2px) skewX(-4deg) scaleY(0.97);
+		filter: hue-rotate(160deg) saturate(3.5) contrast(1.5) brightness(0.6);
+		animation-timing-function: steps(1, end);
+	}
+
+	42% {
+		opacity: 0.85;
+		transform: translate(2px, -1px) skewX(3deg);
+		filter: hue-rotate(60deg) saturate(2) contrast(1.2) brightness(1.2);
+		animation-timing-function: ease-out;
+	}
+
+	60% {
+		opacity: 0.97;
+		transform: translate(-1px, 0) skewX(-0.5deg);
+		filter: hue-rotate(10deg) saturate(1.2) contrast(1.05) brightness(1.05);
+	}
+
+	100% {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}
+
+.aa-cs-anim-glitch {
+	will-change: transform, filter, opacity;
+}
+
+.aa-cs-anim-glitch:not(.aa-cs-loading) {
+	animation: aa-glitch-reveal 0.62s linear forwards;
+}
+
+.aa-cs-anim-glitch.aa-cs-loading {
+	opacity: 0;
+	transform: translate(-8px, 0) skewX(-6deg);
+	filter: hue-rotate(110deg) saturate(3) contrast(1.8) brightness(0.5);
+	animation: none;
+	transition: none;
+}
+
+/* 18. Iris — circular reveal expanding from the image center */
+.aa-cs-anim-iris {
+	clip-path: circle(150% at 50% 50%);
+	transition: clip-path 0.55s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+}
+
+.aa-cs-anim-iris.aa-cs-loading {
+	clip-path: circle(0% at 50% 50%);
+	opacity: 0.3;
+	transition: none;
+}
+
+/* 19. Dissolve — overexposed contrast burst that clears to the new image */
+.aa-cs-anim-dissolve {
+	transition: filter 0.5s ease, opacity 0.4s ease;
+}
+
+.aa-cs-anim-dissolve.aa-cs-loading {
+	filter: contrast(3) blur(8px) brightness(2);
+	opacity: 0.1;
+	transition: none;
+}
+
+/* 20. Swing — rotateY door-swing with spring overshoot */
+.aa-cs-anim-swing {
+	backface-visibility: hidden;
+	transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aa-cs-anim-swing.aa-cs-loading {
+	transform: perspective(700px) rotateY(-80deg);
+	transition: none;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-product-color-swatches__swatch {
+		transition: none;
+	}
+
+	.aa-product-color-swatches__swatch:hover {
+		transform: none;
+	}
+
+	.is-shape-diamond .aa-product-color-swatches__swatch:hover {
+		transform: rotate(45deg) scale(0.82);
+	}
+
+	.aa-product-color-swatches__swatch.is-active {
+		transform: none;
+		outline: 3px solid
+			color-mix(
+				in oklch,
+				var(--swatch-color, rgb(0 0 0 / 50%)) 55%,
+				#000
+			);
+	}
+
+	.is-shape-diamond .aa-product-color-swatches__swatch.is-active {
+		transform: rotate(45deg) scale(0.82);
+	}
+
+	.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]::after {
+		transition: none;
+	}
+
+	[class*="aa-cs-anim-"] {
+		transition: none;
+		animation: none !important;
+	}
+
+	[class*="aa-cs-anim-"].aa-cs-loading {
+		opacity: 0;
+		filter: none;
+		scale: 1;
+		translate: 0 0;
+		transform: none;
+		clip-path: none;
+	}
+}

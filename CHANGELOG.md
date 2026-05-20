@@ -1,3 +1,10 @@
+## [1.63.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.1...v1.63.2) (2026-05-20)
+
+
+### Bug Fixes
+
+* enhance color definitions in theme.json for improved accessibility ([4d90068](https://github.com/TheAggressive/Aggressive-Apparel/commit/4d90068097feef5f3c86fa7b1bae813999ed0eae))
+
 ## [1.63.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.0...v1.63.1) (2026-05-03)
 
 

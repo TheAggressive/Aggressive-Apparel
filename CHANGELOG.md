@@ -1,3 +1,10 @@
+# [1.66.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.65.0...v1.66.0) (2026-05-23)
+
+
+### Features
+
+* add fade transition effect for catalog hover images ([6ee34a2](https://github.com/TheAggressive/Aggressive-Apparel/commit/6ee34a266ebc0026b05f59ed3a623d4adfbb7948))
+
 # [1.65.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.64.0...v1.65.0) (2026-05-23)
 
 

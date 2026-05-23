@@ -1,3 +1,10 @@
+## [1.66.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.66.0...v1.66.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* update catalog hover image handling and styles ([c9a563b](https://github.com/TheAggressive/Aggressive-Apparel/commit/c9a563ba4e51a72ec1667f1ea0bb843bb6ad5b99))
+
 # [1.66.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.65.0...v1.66.0) (2026-05-23)
 
 

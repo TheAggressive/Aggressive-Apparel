@@ -148,18 +148,21 @@ class Load_More {
 		wp_interactivity_state(
 			'aggressive-apparel/load-more',
 			array(
-				'mode'            => $mode,
-				'restBase'        => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-				'perPage'         => $per_page,
-				'currentPage'     => 1,
-				'totalPages'      => $total_pages,
-				'totalProducts'   => $total_products,
-				'loadedCount'     => min( $per_page, $total_products ),
-				'isLoading'       => false,
-				'allLoaded'       => $total_pages <= 1,
-				'announcement'    => '',
-				'currentCategory' => $current_cat_slug,
-				'filtersActive'   => false,
+				'mode'                => $mode,
+				'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+				'perPage'             => $per_page,
+				'currentPage'         => 1,
+				'totalPages'          => $total_pages,
+				'totalProducts'       => $total_products,
+				'loadedCount'         => min( $per_page, $total_products ),
+				'isLoading'           => false,
+				'allLoaded'           => $total_pages <= 1,
+				'announcement'        => '',
+				'currentCategory'     => $current_cat_slug,
+				'filtersActive'       => false,
+				'hoverImageAnimation' => Feature_Settings::is_enabled( 'catalog_hover_image' )
+					? (string) get_option( Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION, 'fade' )
+					: '',
 			)
 		);
 	}

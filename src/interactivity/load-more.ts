@@ -36,6 +36,7 @@ interface LoadMoreState {
   currentCategory: string;
   filtersActive: boolean;
   announcement: string;
+  hoverImageAnimation: string;
   readonly hideButton: boolean;
   readonly hideSentinel: boolean;
   readonly statusText: string;
@@ -355,12 +356,22 @@ function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
       enhancements
     );
 
+    // Mirror the PHP hover-image injection for dynamically loaded cards.
+    // images[0] is the featured image; images[1] is the first gallery image.
+    const hoverSrc = p.images?.[1]?.thumbnail || p.images?.[1]?.src || '';
+    const hoverImgHtml =
+      state.hoverImageAnimation && hoverSrc
+        ? `<div class="aa-hover-img aa-hover-img--${escapeHtml(state.hoverImageAnimation)}" aria-hidden="true">` +
+          `<img class="aa-hover-img__secondary" src="${escapeHtml(hoverSrc)}" alt="" loading="lazy" width="400" height="400" />` +
+          `</div>`
+        : '';
+
     const li = document.createElement('li');
     li.className = 'product wc-block-product';
     li.innerHTML =
       `<figure class="wc-block-components-product-image wp-block-post-featured-image">` +
       `<a href="${escapeHtml(p.permalink)}">${imgTag}</a>` +
-      `${badgesHtml}${quickViewBtn}${wishlistBtn}` +
+      `${badgesHtml}${quickViewBtn}${wishlistBtn}${hoverImgHtml}` +
       `</figure>` +
       `<h3 class="wc-block-components-product-name"><a href="${escapeHtml(p.permalink)}">${escapeHtml(name)}</a></h3>` +
       `<div class="wc-block-components-product-price">${priceHtml}${countdownHtml}</div>`;

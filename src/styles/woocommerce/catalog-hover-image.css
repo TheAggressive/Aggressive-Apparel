@@ -12,6 +12,15 @@
 	overflow: hidden;
 }
 
+/* Fade the primary image out while the secondary comes in. */
+.wp-block-post-featured-image:has(.aa-hover-img) > a {
+	transition: opacity 350ms ease-in-out;
+}
+
+.wp-block-post-featured-image:has(.aa-hover-img):hover > a {
+	opacity: 0;
+}
+
 .aa-hover-img {
 	position: absolute;
 	inset: 0;
@@ -219,6 +228,10 @@
 /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+
+	.wp-block-post-featured-image:has(.aa-hover-img) > a {
+		transition: opacity 0.01ms !important;
+	}
 
 	.aa-hover-img {
 		opacity: 0;

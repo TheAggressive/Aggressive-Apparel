@@ -1,3 +1,15 @@
+# [1.65.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.64.0...v1.65.0) (2026-05-23)
+
+
+### Bug Fixes
+
+* update GitHub Actions workflow to include GITHUB_TOKEN for checkout ([4ebadae](https://github.com/TheAggressive/Aggressive-Apparel/commit/4ebadaee4116d435f8820633e81e6d81b23f3854))
+
+
+### Features
+
+* integrate hover image animation into load more functionality ([fc9f98d](https://github.com/TheAggressive/Aggressive-Apparel/commit/fc9f98d398309e9f966825f6b319e9f6946062a4))
+
 # [1.64.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.2...v1.64.0) (2026-05-23)
 
 

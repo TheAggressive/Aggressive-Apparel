@@ -358,7 +358,8 @@ function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
 
     // Mirror the PHP hover-image injection for dynamically loaded cards.
     // images[0] is the featured image; images[1] is the first gallery image.
-    const hoverSrc = p.images?.[1]?.thumbnail || p.images?.[1]?.src || '';
+    // Prefer src (medium/full) over thumbnail to avoid upscale blurriness.
+    const hoverSrc = p.images?.[1]?.src || p.images?.[1]?.thumbnail || '';
     const hoverImgHtml =
       state.hoverImageAnimation && hoverSrc
         ? `<div class="aa-hover-img aa-hover-img--${escapeHtml(state.hoverImageAnimation)}" aria-hidden="true">` +

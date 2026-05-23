@@ -88,12 +88,15 @@ class Catalog_Hover_Image {
 
 		$hover_img = wp_get_attachment_image(
 			$hover_image_id,
-			'woocommerce_thumbnail',
+			'aggressive-apparel-product-thumbnail',
 			false,
 			array(
 				'class'       => 'aa-hover-img__secondary',
 				'aria-hidden' => 'true',
 				'alt'         => '',
+				// Match the grid layout so the browser picks the right srcset
+				// entry rather than defaulting to the 300px woocommerce_thumbnail.
+				'sizes'       => '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
 			)
 		);
 

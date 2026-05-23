@@ -12,11 +12,14 @@
 	overflow: hidden;
 }
 
-/* Fade the primary image out while the secondary comes in. */
+/* Fade the primary image out while the secondary comes in.
+ * Target both > img (no-link template) and > a (linked template / JS cards). */
+.wp-block-post-featured-image:has(.aa-hover-img) > img,
 .wp-block-post-featured-image:has(.aa-hover-img) > a {
 	transition: opacity 350ms ease-in-out;
 }
 
+.wp-block-post-featured-image:has(.aa-hover-img):hover > img,
 .wp-block-post-featured-image:has(.aa-hover-img):hover > a {
 	opacity: 0;
 }
@@ -229,6 +232,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 
+	.wp-block-post-featured-image:has(.aa-hover-img) > img,
 	.wp-block-post-featured-image:has(.aa-hover-img) > a {
 		transition: opacity 0.01ms !important;
 	}

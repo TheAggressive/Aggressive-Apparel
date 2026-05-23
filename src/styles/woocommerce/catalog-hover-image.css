@@ -219,6 +219,7 @@
 /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+
 	.aa-hover-img {
 		opacity: 0;
 		transform: none !important;

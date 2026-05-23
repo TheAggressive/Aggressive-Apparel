@@ -93,6 +93,10 @@ class Enhancements {
 			( new Page_Transitions() )->init();
 		}
 
+		if ( Feature_Settings::is_enabled( 'catalog_hover_image' ) ) {
+			( new Catalog_Hover_Image() )->init();
+		}
+
 		// Interactive features (PHP + Interactivity API).
 		if ( Feature_Settings::is_enabled( 'load_more' ) ) {
 			( new Load_More() )->init();

@@ -51,6 +51,13 @@ class Feature_Settings {
 	private const SETTINGS_GROUP = 'aggressive_apparel_features_group';
 
 	/**
+	 * Option key for the catalog hover image animation style.
+	 *
+	 * @var string
+	 */
+	public const HOVER_IMAGE_ANIMATION_OPTION = 'aggressive_apparel_hover_image_animation';
+
+	/**
 	 * Option key for the product filter layout.
 	 *
 	 * @var string
@@ -294,6 +301,11 @@ class Feature_Settings {
 			'page_transitions'           => array(
 				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
 				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
+				'section'     => 'catalog',
+			),
+			'catalog_hover_image'        => array(
+				'label'       => __( 'Catalog Hover Image', 'aggressive-apparel' ),
+				'description' => __( 'Show the first gallery image on hover for products that have additional gallery photos.', 'aggressive-apparel' ),
 				'section'     => 'catalog',
 			),
 
@@ -596,6 +608,16 @@ class Feature_Settings {
 			)
 		);
 
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::HOVER_IMAGE_ANIMATION_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'fade',
+				'sanitize_callback' => array( $this, 'sanitize_hover_image_animation' ),
+			)
+		);
+
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
 				'feature_' . $key,
@@ -633,6 +655,16 @@ class Feature_Settings {
 					'load_more_mode',
 					__( 'Load More Mode', 'aggressive-apparel' ),
 					array( $this, 'render_load_more_mode_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+			}
+
+			if ( 'catalog_hover_image' === $key && self::is_enabled( 'catalog_hover_image' ) ) {
+				add_settings_field(
+					'hover_image_animation',
+					__( 'Hover Animation', 'aggressive-apparel' ),
+					array( $this, 'render_hover_image_animation_field' ),
 					self::PAGE_SLUG,
 					'aggressive_apparel_features_catalog',
 				);
@@ -868,6 +900,71 @@ class Feature_Settings {
 		})();
 		</script>
 		<?php
+	}
+
+	/**
+	 * Sanitize the hover image animation option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized animation slug.
+	 */
+	public function sanitize_hover_image_animation( $input ): string {
+		$valid = array(
+			'fade',
+			'slide-right',
+			'slide-left',
+			'slide-up',
+			'slide-down',
+			'zoom-in',
+			'zoom-out',
+			'flip-h',
+			'flip-v',
+			'wipe-right',
+			'wipe-left',
+			'wipe-up',
+			'blur-reveal',
+			'diagonal-wipe',
+			'rotate-fade',
+		);
+		return in_array( $input, $valid, true ) ? $input : 'fade';
+	}
+
+	/**
+	 * Render the hover image animation select field.
+	 *
+	 * @return void
+	 */
+	public function render_hover_image_animation_field(): void {
+		$value   = (string) get_option( self::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
+		$options = array(
+			'fade'          => __( 'Fade', 'aggressive-apparel' ),
+			'slide-right'   => __( 'Slide from Right', 'aggressive-apparel' ),
+			'slide-left'    => __( 'Slide from Left', 'aggressive-apparel' ),
+			'slide-up'      => __( 'Slide from Bottom', 'aggressive-apparel' ),
+			'slide-down'    => __( 'Slide from Top', 'aggressive-apparel' ),
+			'zoom-in'       => __( 'Zoom In', 'aggressive-apparel' ),
+			'zoom-out'      => __( 'Zoom Out', 'aggressive-apparel' ),
+			'flip-h'        => __( 'Flip Horizontal', 'aggressive-apparel' ),
+			'flip-v'        => __( 'Flip Vertical', 'aggressive-apparel' ),
+			'wipe-right'    => __( 'Wipe Left to Right', 'aggressive-apparel' ),
+			'wipe-left'     => __( 'Wipe Right to Left', 'aggressive-apparel' ),
+			'wipe-up'       => __( 'Wipe Bottom to Top', 'aggressive-apparel' ),
+			'blur-reveal'   => __( 'Blur Reveal', 'aggressive-apparel' ),
+			'diagonal-wipe' => __( 'Diagonal Wipe', 'aggressive-apparel' ),
+			'rotate-fade'   => __( 'Rotate & Fade', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::HOVER_IMAGE_ANIMATION_OPTION ) );
+		foreach ( $options as $slug => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $slug ),
+				selected( $value, $slug, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Transition used when the secondary image appears on hover. Only applies to products that have at least one gallery image.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

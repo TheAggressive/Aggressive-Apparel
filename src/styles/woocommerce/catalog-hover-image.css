@@ -1,0 +1,234 @@
+/**
+ * Catalog Hover Image
+ *
+ * Reveals a product's first gallery image on card hover using one of 15
+ * CSS-only transition animations chosen in Store Enhancements.
+ */
+
+/* ── Base setup ─────────────────────────────────────────────────────────── */
+
+.wp-block-post-featured-image:has(.aa-hover-img) {
+	position: relative;
+	overflow: hidden;
+}
+
+.aa-hover-img {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.aa-hover-img img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* ── 1. Fade ─────────────────────────────────────────────────────────────── */
+
+.aa-hover-img--fade {
+	opacity: 0;
+	transition: opacity 350ms ease-in-out;
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--fade {
+	opacity: 1;
+}
+
+/* ── 2. Slide from Right ─────────────────────────────────────────────────── */
+
+.aa-hover-img--slide-right {
+	opacity: 0;
+	transform: translateX(100%);
+	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--slide-right {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+/* ── 3. Slide from Left ──────────────────────────────────────────────────── */
+
+.aa-hover-img--slide-left {
+	opacity: 0;
+	transform: translateX(-100%);
+	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--slide-left {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+/* ── 4. Slide from Bottom ────────────────────────────────────────────────── */
+
+.aa-hover-img--slide-up {
+	opacity: 0;
+	transform: translateY(100%);
+	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--slide-up {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* ── 5. Slide from Top ───────────────────────────────────────────────────── */
+
+.aa-hover-img--slide-down {
+	opacity: 0;
+	transform: translateY(-100%);
+	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--slide-down {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* ── 6. Zoom In ──────────────────────────────────────────────────────────── */
+
+/* Secondary image starts oversized and shrinks into place */
+.aa-hover-img--zoom-in {
+	opacity: 0;
+	transform: scale(1.2);
+	transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--zoom-in {
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* ── 7. Zoom Out ─────────────────────────────────────────────────────────── */
+
+/* Secondary image starts small and grows to fill */
+.aa-hover-img--zoom-out {
+	opacity: 0;
+	transform: scale(0.8);
+	transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--zoom-out {
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* ── 8. Flip Horizontal ──────────────────────────────────────────────────── */
+
+.wp-block-post-featured-image:has(.aa-hover-img--flip-h) {
+	perspective: 800px;
+}
+
+.aa-hover-img--flip-h {
+	transform: rotateY(90deg);
+	transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--flip-h {
+	transform: rotateY(0deg);
+}
+
+/* ── 9. Flip Vertical ────────────────────────────────────────────────────── */
+
+.wp-block-post-featured-image:has(.aa-hover-img--flip-v) {
+	perspective: 800px;
+}
+
+.aa-hover-img--flip-v {
+	transform: rotateX(90deg);
+	transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--flip-v {
+	transform: rotateX(0deg);
+}
+
+/* ── 10. Wipe Left to Right ──────────────────────────────────────────────── */
+
+.aa-hover-img--wipe-right {
+	clip-path: inset(0 100% 0 0);
+	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--wipe-right {
+	clip-path: inset(0 0% 0 0);
+}
+
+/* ── 11. Wipe Right to Left ──────────────────────────────────────────────── */
+
+.aa-hover-img--wipe-left {
+	clip-path: inset(0 0 0 100%);
+	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--wipe-left {
+	clip-path: inset(0 0 0 0%);
+}
+
+/* ── 12. Wipe Bottom to Top ──────────────────────────────────────────────── */
+
+.aa-hover-img--wipe-up {
+	clip-path: inset(100% 0 0 0);
+	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--wipe-up {
+	clip-path: inset(0% 0 0 0);
+}
+
+/* ── 13. Blur Reveal ─────────────────────────────────────────────────────── */
+
+.aa-hover-img--blur-reveal {
+	opacity: 0;
+	filter: blur(12px);
+	transition: opacity 400ms ease, filter 400ms ease;
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--blur-reveal {
+	opacity: 1;
+	filter: blur(0);
+}
+
+/* ── 14. Diagonal Wipe ───────────────────────────────────────────────────── */
+
+.aa-hover-img--diagonal-wipe {
+	clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+	transition: clip-path 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--diagonal-wipe {
+	clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ── 15. Rotate & Fade ───────────────────────────────────────────────────── */
+
+.aa-hover-img--rotate-fade {
+	opacity: 0;
+	transform: rotate(4deg) scale(1.06);
+	transition: opacity 400ms cubic-bezier(0.34, 1.56, 0.64, 1), transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wp-block-post-featured-image:hover .aa-hover-img--rotate-fade {
+	opacity: 1;
+	transform: rotate(0deg) scale(1);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+	.aa-hover-img {
+		opacity: 0;
+		transform: none !important;
+		clip-path: none !important;
+		filter: none !important;
+		transition: opacity 0.01ms !important;
+	}
+
+	.wp-block-post-featured-image:hover .aa-hover-img {
+		opacity: 1;
+		clip-path: none !important;
+	}
+}

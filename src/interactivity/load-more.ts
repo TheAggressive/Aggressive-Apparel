@@ -71,7 +71,28 @@ interface LoadMoreStore {
   callbacks: Record<string, (...args: any[]) => any>;
 }
 
+interface PrefetchEntry {
+  products: StoreApiProduct[];
+  totalProducts: number;
+  totalPages: number;
+}
+
+/** Sort param map — module-level so buildUrl and loadSsrPage share it. */
+const SORT_MAP: Record<string, SortEntry> = {
+  popularity: { orderby: 'popularity', order: 'desc' },
+  rating: { orderby: 'rating', order: 'desc' },
+  date: { orderby: 'date', order: 'desc' },
+  price: { orderby: 'price', order: 'asc' },
+  'price-desc': { orderby: 'price', order: 'desc' },
+  'title-asc': { orderby: 'title', order: 'asc' },
+  'title-desc': { orderby: 'title', order: 'desc' },
+};
+
 let abortController: AbortController | null = null;
+let prefetchController: AbortController | null = null;
+
+/** Cache of pre-fetched pages keyed by page number. */
+const prefetchCache = new Map<number, PrefetchEntry>();
 
 let observer: IntersectionObserver | null = null;
 
@@ -105,6 +126,12 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
         setupIntersectionObserver();
       }
 
+      // Prefetch page 2 in the background so the first scroll trigger is
+      // near-instant. Delay slightly so the initial paint isn't competing.
+      if (!state.allLoaded && !state.filtersActive) {
+        setTimeout(prefetchNextPage, 150);
+      }
+
       // Listen for product-filters events.
       document.addEventListener(
         'aa:products-fetched',
@@ -134,12 +161,17 @@ function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
 }
 
 /**
- * Handle filter change — reset to page 1.
+ * Handle filter change — reset to page 1 and discard stale prefetch cache.
  */
 function handleFiltersChanged(): void {
   state.currentPage = 1;
   state.allLoaded = false;
   state.filtersActive = true;
+  prefetchCache.clear();
+  if (prefetchController) {
+    prefetchController.abort();
+    prefetchController = null;
+  }
 }
 
 /**
@@ -162,31 +194,18 @@ function loadNextPage(): void {
 }
 
 /**
- * Fetch a page of products in SSR mode (no filters active).
+ * Build a Store API URL for the given page, matching current sort/category.
  */
-function loadSsrPage(page: number): void {
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
-
+function buildUrl(page: number): string {
   const params = new URLSearchParams();
   params.set('per_page', String(state.perPage));
   params.set('page', String(page));
 
-  // Respect current sort from the dropdown.
   const sortSelect = document.querySelector<HTMLSelectElement>(
     '.woocommerce-ordering select, select[name="orderby"]'
   );
   if (sortSelect) {
-    const sortMap: Record<string, SortEntry> = {
-      popularity: { orderby: 'popularity', order: 'desc' },
-      rating: { orderby: 'rating', order: 'desc' },
-      date: { orderby: 'date', order: 'desc' },
-      price: { orderby: 'price', order: 'asc' },
-      'price-desc': { orderby: 'price', order: 'desc' },
-      'title-asc': { orderby: 'title', order: 'asc' },
-      'title-desc': { orderby: 'title', order: 'desc' },
-    };
-    const sort: SortEntry = sortMap[sortSelect.value] || {
+    const sort: SortEntry = SORT_MAP[sortSelect.value] || {
       orderby: 'date',
       order: 'desc',
     };
@@ -194,14 +213,70 @@ function loadSsrPage(page: number): void {
     params.set('order', sort.order);
   }
 
-  // Include current category if on taxonomy page.
   if (state.currentCategory) {
     params.set('category', state.currentCategory);
   }
 
-  const url = `${state.restBase}?${params}`;
+  return `${state.restBase}?${params}`;
+}
 
-  fetch(url, { signal: abortController.signal })
+/**
+ * Silently prefetch the next page in the background so it is ready
+ * before the IntersectionObserver fires. Uses fetch priority "low" to
+ * avoid competing with foreground requests.
+ */
+async function prefetchNextPage(): Promise<void> {
+  if (state.filtersActive || state.allLoaded) return;
+
+  const nextPage = state.currentPage + 1;
+  if (nextPage > state.totalPages || prefetchCache.has(nextPage)) return;
+
+  if (prefetchController) prefetchController.abort();
+  prefetchController = new AbortController();
+
+  try {
+    const res = await fetch(buildUrl(nextPage), {
+      signal: prefetchController.signal,
+      priority: 'low',
+    } as RequestInit);
+
+    if (!res.ok) return;
+
+    const totalProducts = parseInt(res.headers.get('X-WP-Total') || '0', 10);
+    const totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
+    const products: StoreApiProduct[] = await res.json();
+
+    prefetchCache.set(nextPage, { products, totalProducts, totalPages });
+  } catch {
+    // Silently discard — loadSsrPage will fetch again when needed.
+  }
+}
+
+/**
+ * Fetch a page of products in SSR mode (no filters active).
+ * Serves from the prefetch cache when available for near-instant rendering.
+ */
+function loadSsrPage(page: number): void {
+  // Serve instantly from prefetch cache if the page is already in memory.
+  const cached = prefetchCache.get(page);
+  if (cached) {
+    prefetchCache.delete(page);
+    state.totalProducts = cached.totalProducts;
+    state.totalPages = cached.totalPages;
+    appendProductsToSsrGrid(cached.products);
+    state.currentPage = page;
+    state.loadedCount += cached.products.length;
+    state.allLoaded = page >= state.totalPages;
+    state.isLoading = false;
+    state.announcement = `${cached.products.length} more products loaded.`;
+    prefetchNextPage();
+    return;
+  }
+
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+
+  fetch(buildUrl(page), { signal: abortController.signal })
     .then((res: Response) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -220,6 +295,7 @@ function loadSsrPage(page: number): void {
       state.allLoaded = page >= state.totalPages;
       state.isLoading = false;
       state.announcement = `${products.length} more products loaded.`;
+      prefetchNextPage();
     })
     .catch((err: Error) => {
       if (err.name === 'AbortError') return;
@@ -255,6 +331,10 @@ function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
   );
   if (!ssrGrid) return;
 
+  // Collect all cards into a fragment before touching the live DOM so
+  // the browser only does one reflow/repaint for the whole batch.
+  const fragment = document.createDocumentFragment();
+
   products.forEach((p: StoreApiProduct) => {
     const name = decodeEntities(p.name);
     const imgSrc = p.images?.[0]?.src || p.images?.[0]?.thumbnail || '';
@@ -284,9 +364,10 @@ function appendProductsToSsrGrid(products: StoreApiProduct[]): void {
       `</figure>` +
       `<h3 class="wc-block-components-product-name"><a href="${escapeHtml(p.permalink)}">${escapeHtml(name)}</a></h3>` +
       `<div class="wc-block-components-product-price">${priceHtml}${countdownHtml}</div>`;
-    ssrGrid.appendChild(li);
+    fragment.appendChild(li);
   });
 
+  ssrGrid.appendChild(fragment);
   notifyCardsRendered(ssrGrid);
 }
 
@@ -311,7 +392,7 @@ function setupIntersectionObserver(): void {
         loadNextPage();
       }
     },
-    { rootMargin: '200px' }
+    { rootMargin: '500px' }
   );
 
   observer.observe(sentinel);

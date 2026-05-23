@@ -1,3 +1,11 @@
+# [1.64.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.2...v1.64.0) (2026-05-23)
+
+
+### Features
+
+* add catalog hover image feature with customizable animation ([16f6aed](https://github.com/TheAggressive/Aggressive-Apparel/commit/16f6aed809a24e7cf1f72bbef0ec77ff41b479f5))
+* add missing margin for reduced motion in catalog hover image CSS ([b9350d2](https://github.com/TheAggressive/Aggressive-Apparel/commit/b9350d2313a7c2ccdd2fde33da26c5c7a6c22753))
+
 ## [1.63.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.63.1...v1.63.2) (2026-05-20)
 
 

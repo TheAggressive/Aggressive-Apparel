@@ -1,3 +1,10 @@
+# [1.68.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.67.0...v1.68.0) (2026-05-24)
+
+
+### Features
+
+* enhance catalog hover image functionality with opacity and exit animations ([8ff1f2e](https://github.com/TheAggressive/Aggressive-Apparel/commit/8ff1f2e2e0ed9f2cf414a9c610744b66c42aeef4))
+
 # [1.67.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.66.1...v1.67.0) (2026-05-24)
 
 

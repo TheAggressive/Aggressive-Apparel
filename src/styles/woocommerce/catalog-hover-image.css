@@ -1,7 +1,7 @@
 /**
  * Catalog Hover Image
  *
- * Reveals a product's first gallery image on card hover using one of 15
+ * Reveals a product's first gallery image on card hover/focus using one of 15
  * CSS-only transition animations chosen in Store Enhancements.
  */
 
@@ -19,8 +19,8 @@
 	transition: opacity 350ms ease-in-out;
 }
 
-.wp-block-post-featured-image:has(.aa-hover-img):hover > img,
-.wp-block-post-featured-image:has(.aa-hover-img):hover > a {
+.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > a {
 	opacity: 0;
 }
 
@@ -44,7 +44,7 @@
 	transition: opacity 350ms ease-in-out;
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--fade {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--fade {
 	opacity: 1;
 }
 
@@ -56,7 +56,7 @@
 	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--slide-right {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--slide-right {
 	opacity: 1;
 	transform: translateX(0);
 }
@@ -69,7 +69,7 @@
 	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--slide-left {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--slide-left {
 	opacity: 1;
 	transform: translateX(0);
 }
@@ -82,7 +82,7 @@
 	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--slide-up {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--slide-up {
 	opacity: 1;
 	transform: translateY(0);
 }
@@ -95,7 +95,7 @@
 	transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--slide-down {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--slide-down {
 	opacity: 1;
 	transform: translateY(0);
 }
@@ -109,7 +109,7 @@
 	transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--zoom-in {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--zoom-in {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -123,7 +123,7 @@
 	transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--zoom-out {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--zoom-out {
 	opacity: 1;
 	transform: scale(1);
 }
@@ -139,7 +139,7 @@
 	transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--flip-h {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--flip-h {
 	transform: rotateY(0deg);
 }
 
@@ -154,7 +154,7 @@
 	transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--flip-v {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--flip-v {
 	transform: rotateX(0deg);
 }
 
@@ -165,7 +165,7 @@
 	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--wipe-right {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--wipe-right {
 	clip-path: inset(0 0% 0 0);
 }
 
@@ -176,7 +176,7 @@
 	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--wipe-left {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--wipe-left {
 	clip-path: inset(0 0 0 0%);
 }
 
@@ -187,7 +187,7 @@
 	transition: clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--wipe-up {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--wipe-up {
 	clip-path: inset(0% 0 0 0);
 }
 
@@ -199,7 +199,7 @@
 	transition: opacity 400ms ease, filter 400ms ease;
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--blur-reveal {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--blur-reveal {
 	opacity: 1;
 	filter: blur(0);
 }
@@ -211,7 +211,7 @@
 	transition: clip-path 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--diagonal-wipe {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--diagonal-wipe {
 	clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
@@ -223,7 +223,7 @@
 	transition: opacity 400ms cubic-bezier(0.34, 1.56, 0.64, 1), transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.wp-block-post-featured-image:hover .aa-hover-img--rotate-fade {
+.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img--rotate-fade {
 	opacity: 1;
 	transform: rotate(0deg) scale(1);
 }
@@ -245,7 +245,7 @@
 		transition: opacity 0.01ms !important;
 	}
 
-	.wp-block-post-featured-image:hover .aa-hover-img {
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img {
 		opacity: 1;
 		clip-path: none !important;
 	}

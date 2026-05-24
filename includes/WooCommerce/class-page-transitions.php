@@ -343,6 +343,9 @@ class Page_Transitions {
 	 * @return bool
 	 */
 	private function is_listing_page(): bool {
+		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
+			return true;
+		}
 		if ( ! function_exists( 'is_shop' ) ) {
 			return false;
 		}

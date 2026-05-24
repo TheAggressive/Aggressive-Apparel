@@ -100,6 +100,7 @@ class Enhancements {
 		// Interactive features (PHP + Interactivity API).
 		if ( Feature_Settings::is_enabled( 'load_more' ) ) {
 			( new Load_More() )->init();
+			( new Load_More_Renderer() )->init();
 		}
 
 		if ( Feature_Settings::is_enabled( 'size_guide' ) ) {

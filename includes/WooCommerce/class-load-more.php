@@ -148,21 +148,19 @@ class Load_More {
 		wp_interactivity_state(
 			'aggressive-apparel/load-more',
 			array(
-				'mode'                => $mode,
-				'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-				'perPage'             => $per_page,
-				'currentPage'         => 1,
-				'totalPages'          => $total_pages,
-				'totalProducts'       => $total_products,
-				'loadedCount'         => min( $per_page, $total_products ),
-				'isLoading'           => false,
-				'allLoaded'           => $total_pages <= 1,
-				'announcement'        => '',
-				'currentCategory'     => $current_cat_slug,
-				'filtersActive'       => false,
-				'hoverImageAnimation' => Feature_Settings::is_enabled( 'catalog_hover_image' )
-					? (string) get_option( Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION, 'fade' )
-					: '',
+				'mode'            => $mode,
+				'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
+				'templateSlug'    => $this->get_current_template_slug(),
+				'perPage'         => $per_page,
+				'currentPage'     => 1,
+				'totalPages'      => $total_pages,
+				'totalProducts'   => $total_products,
+				'loadedCount'     => min( $per_page, $total_products ),
+				'isLoading'       => false,
+				'allLoaded'       => $total_pages <= 1,
+				'announcement'    => '',
+				'currentCategory' => $current_cat_slug,
+				'filtersActive'   => false,
 			)
 		);
 	}
@@ -178,5 +176,20 @@ class Load_More {
 		}
 
 		return is_shop() || is_product_category() || is_product_tag();
+	}
+
+	/**
+	 * Return the FSE template slug for the current page.
+	 *
+	 * @return string
+	 */
+	private function get_current_template_slug(): string {
+		if ( is_product_category() ) {
+			return 'taxonomy-product_cat';
+		}
+		if ( is_product_tag() ) {
+			return 'taxonomy-product_tag';
+		}
+		return 'archive-product';
 	}
 }

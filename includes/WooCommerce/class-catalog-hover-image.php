@@ -2,9 +2,11 @@
 /**
  * Catalog Hover Image Class
  *
- * Injects a product's first gallery image onto cards in WooCommerce archive
- * pages. The secondary image is revealed on hover using a CSS-only transition
- * chosen in Store Enhancements.
+ * Injects a product's first gallery image onto product card featured-image
+ * blocks wherever they appear: archives, category pages, search results,
+ * single-product related/upsell rows, home-page product blocks, and
+ * REST-rendered infinite-scroll cards.  The secondary image is revealed on
+ * hover using a CSS-only transition chosen in Store Enhancements.
  *
  * @package Aggressive_Apparel
  * @since 1.64.0
@@ -37,15 +39,15 @@ class Catalog_Hover_Image {
 	}
 
 	/**
-	 * Enqueue the hover image stylesheet on listing pages.
+	 * Enqueue the hover image stylesheet.
+	 *
+	 * Loaded on every frontend page: the CSS only activates when the
+	 * .aa-hover-img element is present, so there is no visual cost on pages
+	 * that do not contain product cards.
 	 *
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! $this->is_listing_page() ) {
-			return;
-		}
-
 		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/catalog-hover-image.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
@@ -60,16 +62,15 @@ class Catalog_Hover_Image {
 	/**
 	 * Inject the secondary gallery image into product card featured image blocks.
 	 *
+	 * Runs on every core/post-featured-image render; exits early when there is
+	 * no current product or no gallery image, so it is safe on non-product pages.
+	 *
 	 * @param string               $block_content Block HTML.
 	 * @param array<string, mixed> $block         Block data.
 	 * @return string Modified HTML.
 	 */
 	public function inject_hover_image( string $block_content, array $block ): string {
 		if ( ! isset( $block['blockName'] ) || 'core/post-featured-image' !== $block['blockName'] ) {
-			return $block_content;
-		}
-
-		if ( ! $this->is_listing_page() ) {
 			return $block_content;
 		}
 
@@ -130,17 +131,5 @@ class Catalog_Hover_Image {
 		}
 		$product = wc_get_product( get_the_ID() );
 		return $product instanceof \WC_Product ? $product : null;
-	}
-
-	/**
-	 * Check whether the current page is a product listing.
-	 *
-	 * @return bool
-	 */
-	private function is_listing_page(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag() || is_search();
 	}
 }

@@ -1,3 +1,10 @@
+# [1.67.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.66.1...v1.67.0) (2026-05-24)
+
+
+### Features
+
+* enhance product rendering and load more functionality ([116aa60](https://github.com/TheAggressive/Aggressive-Apparel/commit/116aa6027f72e27dc4939cd6a83ca4bd91c32dcc))
+
 ## [1.66.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.66.0...v1.66.1) (2026-05-23)
 
 

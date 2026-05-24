@@ -12,16 +12,24 @@
 	overflow: hidden;
 }
 
-/* Fade the primary image out while the secondary comes in.
+/* Primary image exit. The exit animation slug is stored as data-aa-exit on the
+ * injected .aa-hover-img div; CSS uses :has([data-aa-exit="..."]) on the parent
+ * to apply the correct exit state — no PHP-generated CSS required.
+ * --aa-hover-primary-opacity (default 0) is the only inline variable emitted.
+ * clip-path: inset(0 0 0 0) is set explicitly so wipe exits can transition.
  * Target both > img (no-link template) and > a (linked template / JS cards). */
 .wp-block-post-featured-image:has(.aa-hover-img) > img,
 .wp-block-post-featured-image:has(.aa-hover-img) > a {
-	transition: opacity 350ms ease-in-out;
+	clip-path: inset(0 0 0 0);
+	transition: opacity 350ms ease-in-out,
+		transform 400ms cubic-bezier(0.4, 0, 0.2, 1),
+		filter 350ms ease,
+		clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > img,
 .wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > a {
-	opacity: 0;
+	opacity: var(--aa-hover-primary-opacity, 0);
 }
 
 .aa-hover-img {
@@ -130,7 +138,9 @@
 
 /* ── 8. Flip Horizontal ──────────────────────────────────────────────────── */
 
-.wp-block-post-featured-image:has(.aa-hover-img--flip-h) {
+/* Perspective needed for both entrance and exit flip — combined selector. */
+.wp-block-post-featured-image:has(.aa-hover-img--flip-h),
+.wp-block-post-featured-image:has([data-aa-exit="flip-h"]) {
 	perspective: 800px;
 }
 
@@ -145,7 +155,9 @@
 
 /* ── 9. Flip Vertical ────────────────────────────────────────────────────── */
 
-.wp-block-post-featured-image:has(.aa-hover-img--flip-v) {
+/* Perspective needed for both entrance and exit flip — combined selector. */
+.wp-block-post-featured-image:has(.aa-hover-img--flip-v),
+.wp-block-post-featured-image:has([data-aa-exit="flip-v"]) {
 	perspective: 800px;
 }
 
@@ -228,6 +240,96 @@
 	transform: rotate(0deg) scale(1);
 }
 
+/* ── Exit animations (primary image) ────────────────────────────────────── */
+
+/* Keyed by data-aa-exit on the .aa-hover-img div. Fade (1) is the default — */
+
+/* handled by the base opacity rule above; no transform/filter needed.        */
+
+/* 2. Exit: Slide Right */
+.wp-block-post-featured-image:has([data-aa-exit="slide-right"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="slide-right"]):is(:hover, :focus-within) > a {
+	transform: translateX(100%);
+}
+
+/* 3. Exit: Slide Left */
+.wp-block-post-featured-image:has([data-aa-exit="slide-left"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="slide-left"]):is(:hover, :focus-within) > a {
+	transform: translateX(-100%);
+}
+
+/* 4. Exit: Slide Up */
+.wp-block-post-featured-image:has([data-aa-exit="slide-up"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="slide-up"]):is(:hover, :focus-within) > a {
+	transform: translateY(-100%);
+}
+
+/* 5. Exit: Slide Down */
+.wp-block-post-featured-image:has([data-aa-exit="slide-down"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="slide-down"]):is(:hover, :focus-within) > a {
+	transform: translateY(100%);
+}
+
+/* 6. Exit: Zoom In (grows as it exits) */
+.wp-block-post-featured-image:has([data-aa-exit="zoom-in"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="zoom-in"]):is(:hover, :focus-within) > a {
+	transform: scale(1.2);
+}
+
+/* 7. Exit: Zoom Out (shrinks as it exits) */
+.wp-block-post-featured-image:has([data-aa-exit="zoom-out"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="zoom-out"]):is(:hover, :focus-within) > a {
+	transform: scale(0.8);
+}
+
+/* 8. Exit: Flip Horizontal */
+.wp-block-post-featured-image:has([data-aa-exit="flip-h"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="flip-h"]):is(:hover, :focus-within) > a {
+	transform: rotateY(-90deg);
+}
+
+/* 9. Exit: Flip Vertical */
+.wp-block-post-featured-image:has([data-aa-exit="flip-v"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="flip-v"]):is(:hover, :focus-within) > a {
+	transform: rotateX(-90deg);
+}
+
+/* 10. Exit: Wipe Right */
+.wp-block-post-featured-image:has([data-aa-exit="wipe-right"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="wipe-right"]):is(:hover, :focus-within) > a {
+	clip-path: inset(0 0 0 100%);
+}
+
+/* 11. Exit: Wipe Left */
+.wp-block-post-featured-image:has([data-aa-exit="wipe-left"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="wipe-left"]):is(:hover, :focus-within) > a {
+	clip-path: inset(0 100% 0 0);
+}
+
+/* 12. Exit: Wipe Up */
+.wp-block-post-featured-image:has([data-aa-exit="wipe-up"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="wipe-up"]):is(:hover, :focus-within) > a {
+	clip-path: inset(0 0 100% 0);
+}
+
+/* 13. Exit: Blur Out */
+.wp-block-post-featured-image:has([data-aa-exit="blur-reveal"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="blur-reveal"]):is(:hover, :focus-within) > a {
+	filter: blur(12px);
+}
+
+/* 14. Exit: Diagonal Wipe */
+.wp-block-post-featured-image:has([data-aa-exit="diagonal-wipe"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="diagonal-wipe"]):is(:hover, :focus-within) > a {
+	clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+}
+
+/* 15. Exit: Rotate & Fade */
+.wp-block-post-featured-image:has([data-aa-exit="rotate-fade"]):is(:hover, :focus-within) > img,
+.wp-block-post-featured-image:has([data-aa-exit="rotate-fade"]):is(:hover, :focus-within) > a {
+	transform: rotate(-4deg) scale(0.94);
+}
+
 /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -243,6 +345,14 @@
 		clip-path: none !important;
 		filter: none !important;
 		transition: opacity 0.01ms !important;
+	}
+
+	.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > img,
+	.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > a {
+		opacity: var(--aa-hover-primary-opacity, 0);
+		transform: none !important;
+		filter: none !important;
+		clip-path: inset(0 0 0 0) !important;
 	}
 
 	.wp-block-post-featured-image:is(:hover, :focus-within) .aa-hover-img {

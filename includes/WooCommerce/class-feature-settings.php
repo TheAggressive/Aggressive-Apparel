@@ -58,6 +58,20 @@ class Feature_Settings {
 	public const HOVER_IMAGE_ANIMATION_OPTION = 'aggressive_apparel_hover_image_animation';
 
 	/**
+	 * Option key for the primary image opacity on hover (0–100 integer, 0 = fully hidden).
+	 *
+	 * @var string
+	 */
+	public const HOVER_IMAGE_PRIMARY_OPACITY_OPTION = 'aggressive_apparel_hover_image_primary_opacity';
+
+	/**
+	 * Option key for the primary image exit animation style.
+	 *
+	 * @var string
+	 */
+	public const HOVER_IMAGE_EXIT_ANIMATION_OPTION = 'aggressive_apparel_hover_image_exit_animation';
+
+	/**
 	 * Option key for the product filter layout.
 	 *
 	 * @var string
@@ -618,6 +632,26 @@ class Feature_Settings {
 			)
 		);
 
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION,
+			array(
+				'type'              => 'integer',
+				'default'           => 0,
+				'sanitize_callback' => array( $this, 'sanitize_hover_image_primary_opacity' ),
+			)
+		);
+
+		register_setting(
+			self::SETTINGS_GROUP,
+			self::HOVER_IMAGE_EXIT_ANIMATION_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'fade',
+				'sanitize_callback' => array( $this, 'sanitize_hover_image_exit_animation' ),
+			)
+		);
+
 		foreach ( self::get_feature_definitions() as $key => $feature ) {
 			add_settings_field(
 				'feature_' . $key,
@@ -661,6 +695,22 @@ class Feature_Settings {
 			}
 
 			if ( 'catalog_hover_image' === $key && self::is_enabled( 'catalog_hover_image' ) ) {
+				add_settings_field(
+					'hover_image_primary_opacity',
+					__( 'Primary Image Opacity on Hover', 'aggressive-apparel' ),
+					array( $this, 'render_hover_image_primary_opacity_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+
+				add_settings_field(
+					'hover_image_exit_animation',
+					__( 'Primary Image Exit Animation', 'aggressive-apparel' ),
+					array( $this, 'render_hover_image_exit_animation_field' ),
+					self::PAGE_SLUG,
+					'aggressive_apparel_features_catalog',
+				);
+
 				add_settings_field(
 					'hover_image_animation',
 					__( 'Hover Animation', 'aggressive-apparel' ),
@@ -900,6 +950,101 @@ class Feature_Settings {
 		})();
 		</script>
 		<?php
+	}
+
+	/**
+	 * Sanitize the primary image opacity option (0–100).
+	 *
+	 * @param mixed $input Raw input.
+	 * @return int Clamped integer 0–100.
+	 */
+	public function sanitize_hover_image_primary_opacity( $input ): int {
+		return max( 0, min( 100, (int) $input ) );
+	}
+
+	/**
+	 * Render the primary image opacity slider field.
+	 *
+	 * @return void
+	 */
+	public function render_hover_image_primary_opacity_field(): void {
+		$value = (int) get_option( self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION, 0 );
+		printf(
+			'<div style="display:flex;align-items:center;gap:10px;">'
+			. '<input type="range" name="%1$s" id="%1$s" min="0" max="100" step="1" value="%2$d"'
+			. ' oninput="document.getElementById(\'%1$s_display\').textContent=this.value+\'%%\'"'
+			. ' style="width:180px;">'
+			. '<span id="%1$s_display" style="min-width:3.5em;font-weight:600;">%2$d%%</span>'
+			. '</div>',
+			esc_attr( self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION ),
+			absint( $value ),
+		);
+		echo '<p class="description">' . esc_html__( 'How visible the original image remains when hovering. 0% = fully hidden (default), 50% = half visible, 100% = no change.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
+	 * Sanitize the primary image exit animation option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized exit animation slug.
+	 */
+	public function sanitize_hover_image_exit_animation( $input ): string {
+		$valid = array(
+			'fade',
+			'slide-right',
+			'slide-left',
+			'slide-up',
+			'slide-down',
+			'zoom-in',
+			'zoom-out',
+			'flip-h',
+			'flip-v',
+			'wipe-right',
+			'wipe-left',
+			'wipe-up',
+			'blur-reveal',
+			'diagonal-wipe',
+			'rotate-fade',
+		);
+		return in_array( $input, $valid, true ) ? $input : 'fade';
+	}
+
+	/**
+	 * Render the primary image exit animation select field.
+	 *
+	 * @return void
+	 */
+	public function render_hover_image_exit_animation_field(): void {
+		$value   = (string) get_option( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
+		$options = array(
+			'fade'          => __( 'Fade Out (default)', 'aggressive-apparel' ),
+			'slide-right'   => __( 'Slide Out Right', 'aggressive-apparel' ),
+			'slide-left'    => __( 'Slide Out Left', 'aggressive-apparel' ),
+			'slide-up'      => __( 'Slide Out Up', 'aggressive-apparel' ),
+			'slide-down'    => __( 'Slide Out Down', 'aggressive-apparel' ),
+			'zoom-in'       => __( 'Zoom Out (grows)', 'aggressive-apparel' ),
+			'zoom-out'      => __( 'Zoom In (shrinks)', 'aggressive-apparel' ),
+			'flip-h'        => __( 'Flip Out Horizontal', 'aggressive-apparel' ),
+			'flip-v'        => __( 'Flip Out Vertical', 'aggressive-apparel' ),
+			'wipe-right'    => __( 'Wipe Out Right', 'aggressive-apparel' ),
+			'wipe-left'     => __( 'Wipe Out Left', 'aggressive-apparel' ),
+			'wipe-up'       => __( 'Wipe Out Up', 'aggressive-apparel' ),
+			'blur-reveal'   => __( 'Blur Out', 'aggressive-apparel' ),
+			'diagonal-wipe' => __( 'Diagonal Wipe Out', 'aggressive-apparel' ),
+			'rotate-fade'   => __( 'Rotate & Fade Out', 'aggressive-apparel' ),
+		);
+
+		printf( '<select name="%s">', esc_attr( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION ) );
+		foreach ( $options as $slug => $label ) {
+			printf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $slug ),
+				selected( $value, $slug, false ),
+				esc_html( $label ),
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'How the original image exits when the secondary image appears. Pair with the entrance animation below for complementary or contrasting effects.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

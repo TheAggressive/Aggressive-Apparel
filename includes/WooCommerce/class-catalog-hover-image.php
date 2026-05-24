@@ -56,6 +56,17 @@ class Catalog_Hover_Image {
 				array(),
 				(string) filemtime( $css_file ),
 			);
+
+			// Exit animation lives as a data attribute on the injected element;
+			// all exit CSS rules are in the stylesheet — no inline CSS needed.
+			$raw_opacity = (int) get_option( Feature_Settings::HOVER_IMAGE_PRIMARY_OPACITY_OPTION, 0 );
+			if ( $raw_opacity > 0 ) {
+				$opacity = round( $raw_opacity / 100, 2 );
+				wp_add_inline_style(
+					'aggressive-apparel-catalog-hover-image',
+					':root{--aa-hover-primary-opacity:' . $opacity . '}'
+				);
+			}
 		}
 	}
 
@@ -86,6 +97,7 @@ class Catalog_Hover_Image {
 
 		$hover_image_id = (int) $gallery_ids[0];
 		$animation      = (string) get_option( Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
+		$exit           = (string) get_option( Feature_Settings::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
 
 		$hover_img = wp_get_attachment_image(
 			$hover_image_id,
@@ -106,8 +118,9 @@ class Catalog_Hover_Image {
 		}
 
 		$hover_html = sprintf(
-			'<div class="aa-hover-img aa-hover-img--%s" aria-hidden="true">%s</div>',
+			'<div class="aa-hover-img aa-hover-img--%s" data-aa-exit="%s" aria-hidden="true">%s</div>',
 			esc_attr( $animation ),
+			esc_attr( $exit ),
 			$hover_img,
 		);
 

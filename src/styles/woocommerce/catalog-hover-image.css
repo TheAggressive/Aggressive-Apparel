@@ -21,15 +21,15 @@
 .wp-block-post-featured-image:has(.aa-hover-img) > img,
 .wp-block-post-featured-image:has(.aa-hover-img) > a {
 	clip-path: inset(0 0 0 0);
-	transition: opacity 350ms ease-in-out,
-		transform 400ms cubic-bezier(0.4, 0, 0.2, 1),
-		filter 350ms ease,
-		clip-path 450ms cubic-bezier(0.4, 0, 0.2, 1);
+	transition: opacity var(--aa-primary-exit-duration, 350ms) ease-in-out,
+		transform var(--aa-primary-exit-duration, 350ms) cubic-bezier(0.4, 0, 0.2, 1),
+		filter var(--aa-primary-exit-duration, 350ms) ease,
+		clip-path var(--aa-primary-exit-duration, 350ms) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > img,
 .wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > a {
-	opacity: var(--aa-hover-primary-opacity, 0);
+	opacity: 0;
 }
 
 .aa-hover-img {
@@ -349,7 +349,7 @@
 
 	.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > img,
 	.wp-block-post-featured-image:has(.aa-hover-img):is(:hover, :focus-within) > a {
-		opacity: var(--aa-hover-primary-opacity, 0);
+		opacity: 0;
 		transform: none !important;
 		filter: none !important;
 		clip-path: inset(0 0 0 0) !important;

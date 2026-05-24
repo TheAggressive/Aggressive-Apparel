@@ -58,11 +58,11 @@ class Feature_Settings {
 	public const HOVER_IMAGE_ANIMATION_OPTION = 'aggressive_apparel_hover_image_animation';
 
 	/**
-	 * Option key for the primary image opacity on hover (0–100 integer, 0 = fully hidden).
+	 * Option key for the primary image exit transition duration in milliseconds (50–1500).
 	 *
 	 * @var string
 	 */
-	public const HOVER_IMAGE_PRIMARY_OPACITY_OPTION = 'aggressive_apparel_hover_image_primary_opacity';
+	public const HOVER_IMAGE_EXIT_DURATION_OPTION = 'aggressive_apparel_hover_image_exit_duration';
 
 	/**
 	 * Option key for the primary image exit animation style.
@@ -634,11 +634,11 @@ class Feature_Settings {
 
 		register_setting(
 			self::SETTINGS_GROUP,
-			self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION,
+			self::HOVER_IMAGE_EXIT_DURATION_OPTION,
 			array(
 				'type'              => 'integer',
-				'default'           => 0,
-				'sanitize_callback' => array( $this, 'sanitize_hover_image_primary_opacity' ),
+				'default'           => 350,
+				'sanitize_callback' => array( $this, 'sanitize_hover_image_exit_duration' ),
 			)
 		);
 
@@ -696,9 +696,9 @@ class Feature_Settings {
 
 			if ( 'catalog_hover_image' === $key && self::is_enabled( 'catalog_hover_image' ) ) {
 				add_settings_field(
-					'hover_image_primary_opacity',
-					__( 'Primary Image Opacity on Hover', 'aggressive-apparel' ),
-					array( $this, 'render_hover_image_primary_opacity_field' ),
+					'hover_image_exit_duration',
+					__( 'Primary Image Exit Duration', 'aggressive-apparel' ),
+					array( $this, 'render_hover_image_exit_duration_field' ),
 					self::PAGE_SLUG,
 					'aggressive_apparel_features_catalog',
 				);
@@ -953,33 +953,33 @@ class Feature_Settings {
 	}
 
 	/**
-	 * Sanitize the primary image opacity option (0–100).
+	 * Sanitize the primary image exit duration option (50–1500 ms).
 	 *
 	 * @param mixed $input Raw input.
-	 * @return int Clamped integer 0–100.
+	 * @return int Clamped integer 50–1500.
 	 */
-	public function sanitize_hover_image_primary_opacity( $input ): int {
-		return max( 0, min( 100, (int) $input ) );
+	public function sanitize_hover_image_exit_duration( $input ): int {
+		return max( 50, min( 1500, (int) $input ) );
 	}
 
 	/**
-	 * Render the primary image opacity slider field.
+	 * Render the primary image exit duration slider field.
 	 *
 	 * @return void
 	 */
-	public function render_hover_image_primary_opacity_field(): void {
-		$value = (int) get_option( self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION, 0 );
+	public function render_hover_image_exit_duration_field(): void {
+		$value = (int) get_option( self::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
 		printf(
 			'<div style="display:flex;align-items:center;gap:10px;">'
-			. '<input type="range" name="%1$s" id="%1$s" min="0" max="100" step="1" value="%2$d"'
-			. ' oninput="document.getElementById(\'%1$s_display\').textContent=this.value+\'%%\'"'
-			. ' style="width:180px;">'
-			. '<span id="%1$s_display" style="min-width:3.5em;font-weight:600;">%2$d%%</span>'
+			. '<input type="range" name="%1$s" id="%1$s" min="50" max="1500" step="50" value="%2$d"'
+			. ' oninput="document.getElementById(\'%1$s_display\').textContent=this.value+\'ms\'"'
+			. ' style="width:220px;">'
+			. '<span id="%1$s_display" style="min-width:4em;font-weight:600;">%2$dms</span>'
 			. '</div>',
-			esc_attr( self::HOVER_IMAGE_PRIMARY_OPACITY_OPTION ),
+			esc_attr( self::HOVER_IMAGE_EXIT_DURATION_OPTION ),
 			absint( $value ),
 		);
-		echo '<p class="description">' . esc_html__( 'How visible the original image remains when hovering. 0% = fully hidden (default), 50% = half visible, 100% = no change.', 'aggressive-apparel' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'How long the original image takes to exit when hovering. 50ms = near instant, 350ms = default, 1500ms = very slow fade.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

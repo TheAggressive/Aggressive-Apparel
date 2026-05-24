@@ -57,14 +57,14 @@ class Catalog_Hover_Image {
 				(string) filemtime( $css_file ),
 			);
 
-			// Exit animation lives as a data attribute on the injected element;
-			// all exit CSS rules are in the stylesheet — no inline CSS needed.
-			$raw_opacity = (int) get_option( Feature_Settings::HOVER_IMAGE_PRIMARY_OPACITY_OPTION, 0 );
-			if ( $raw_opacity > 0 ) {
-				$opacity = round( $raw_opacity / 100, 2 );
+			// Exit duration is user-configurable; emit CSS variable only when it
+			// differs from the stylesheet default (350ms) to avoid no-op output.
+			$raw_duration = (int) get_option( Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+			if ( 350 !== $raw_duration ) {
+				$duration = max( 50, min( 1500, $raw_duration ) );
 				wp_add_inline_style(
 					'aggressive-apparel-catalog-hover-image',
-					':root{--aa-hover-primary-opacity:' . $opacity . '}'
+					':root{--aa-primary-exit-duration:' . $duration . 'ms}'
 				);
 			}
 		}

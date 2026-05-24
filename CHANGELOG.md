@@ -1,3 +1,10 @@
+# [1.69.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.68.0...v1.69.0) (2026-05-24)
+
+
+### Features
+
+* update catalog hover image settings for exit duration ([d90cc68](https://github.com/TheAggressive/Aggressive-Apparel/commit/d90cc68a0afb6265de434e8122afb7788abac723))
+
 # [1.68.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.67.0...v1.68.0) (2026-05-24)
 
 

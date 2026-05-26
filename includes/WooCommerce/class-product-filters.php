@@ -203,7 +203,7 @@ class Product_Filters {
 				'aggressive-apparel/product-filters',
 				array(
 					'restBase'             => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-					'shopUrl'              => esc_url_raw( wc_get_page_permalink( 'shop' ) ),
+					'shopUrl'              => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
 					'layout'               => $this->layout,
 					'perPage'              => 12,
 					'currentCategorySlug'  => $current_cat_slug,
@@ -863,31 +863,31 @@ class Product_Filters {
 
 		try {
 			$categories = $this->get_categories_with_counts();
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$categories = array();
 		}
 
 		try {
 			$color_terms = $this->get_color_terms();
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$color_terms = array();
 		}
 
 		try {
 			$size_terms = $this->get_size_terms();
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$size_terms = array();
 		}
 
 		try {
 			$price_range = $this->get_price_range();
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$price_range = $default_price;
 		}
 
 		try {
 			$category_attribute_map = $this->get_category_attribute_map();
-		} catch ( \Throwable $e ) {
+		} catch ( \Throwable ) {
 			$category_attribute_map = array();
 		}
 
@@ -961,7 +961,6 @@ class Product_Filters {
 		$result = array();
 		foreach ( $colors as $color ) {
 			$result[] = array(
-				'id'    => (int) ( $color['id'] ?? 0 ),
 				'slug'  => $color['slug'],
 				'name'  => $color['name'],
 				'value' => $color['value'] ?? $color['hex'] ?? '#000000',
@@ -1045,9 +1044,9 @@ class Product_Filters {
 		return array(
 			'min'            => (int) $result->min_price,
 			'max'            => (int) $result->max_price,
-			'currencyPrefix' => html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
+			'currencyPrefix' => html_entity_decode( \get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
 			'currencySuffix' => '',
-			'minorUnit'      => wc_get_price_decimals(),
+			'minorUnit'      => \wc_get_price_decimals(),
 		);
 	}
 

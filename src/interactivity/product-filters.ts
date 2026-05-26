@@ -47,11 +47,13 @@ interface CategoryTerm {
 }
 
 interface ColorTerm {
+  id: number;
   slug: string;
   name: string;
 }
 
 interface SizeTerm {
+  id: number;
   slug: string;
   name: string;
 }
@@ -564,17 +566,27 @@ function buildFilterParams(): URLSearchParams {
   }
 
   if (state.selectedColors.length > 0) {
-    params.set('attribute', 'pa_color');
-    params.set('attribute_term', state.selectedColors.join(','));
+    const colorIds = state.selectedColors
+      .map(slug => state.colorTerms.find(t => t.slug === slug)?.id)
+      .filter((id): id is number => id !== undefined && id > 0);
+    if (colorIds.length > 0) {
+      params.set('attribute', 'pa_color');
+      params.set('attribute_term', colorIds.join(','));
+    }
   }
 
   if (state.selectedSizes.length > 0) {
-    if (state.selectedColors.length > 0) {
-      params.append('attribute', 'pa_size');
-      params.append('attribute_term', state.selectedSizes.join(','));
-    } else {
-      params.set('attribute', 'pa_size');
-      params.set('attribute_term', state.selectedSizes.join(','));
+    const sizeIds = state.selectedSizes
+      .map(slug => state.sizeTerms.find(t => t.slug === slug)?.id)
+      .filter((id): id is number => id !== undefined && id > 0);
+    if (sizeIds.length > 0) {
+      if (state.selectedColors.length > 0) {
+        params.append('attribute', 'pa_size');
+        params.append('attribute_term', sizeIds.join(','));
+      } else {
+        params.set('attribute', 'pa_size');
+        params.set('attribute_term', sizeIds.join(','));
+      }
     }
   }
 

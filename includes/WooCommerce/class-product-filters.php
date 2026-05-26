@@ -32,7 +32,7 @@ class Product_Filters {
 	 *
 	 * @var string
 	 */
-	private const CACHE_PREFIX = 'aa_pf_';
+	private const CACHE_PREFIX = 'aa_pf_v2_';
 
 	/**
 	 * Cache TTL in seconds (15 minutes).
@@ -961,6 +961,7 @@ class Product_Filters {
 		$result = array();
 		foreach ( $colors as $color ) {
 			$result[] = array(
+				'id'    => (int) ( $color['id'] ?? 0 ),
 				'slug'  => $color['slug'],
 				'name'  => $color['name'],
 				'value' => $color['value'] ?? $color['hex'] ?? '#000000',
@@ -994,6 +995,7 @@ class Product_Filters {
 		$sizes = array();
 		foreach ( $terms as $term ) {
 			$sizes[] = array(
+				'id'    => (int) $term->term_id,
 				'slug'  => $term->slug,
 				'name'  => $term->name,
 				'count' => $term->count,

@@ -7,12 +7,32 @@
 
 declare(strict_types=1);
 
+// Sanitize a CSS color: accepts hex, CSS color functions (oklch, rgb, etc.),
+// and WordPress preset variable references. Closure avoids redeclaration
+// fatal errors when multiple logo blocks appear on the same page.
+$sanitize_color = static function ( string $color, string $fallback ): string {
+	$hex = sanitize_hex_color( $color );
+	if ( null !== $hex ) {
+		return $hex;
+	}
+	if ( 1 === preg_match( '/^(?:rgba?|hsla?|oklch|oklab|lch|lab|color)\s*\([\d\s.,\/%a-z-]+\)$/i', $color ) ) {
+		return $color;
+	}
+	if ( 1 === preg_match( '/^var\(--wp--preset--color--[a-z0-9-]+\)$/', $color ) ) {
+		return $color;
+	}
+	if ( 1 === preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/', $color, $matches ) ) {
+		return 'var(--wp--preset--color--' . sanitize_key( $matches[1] ) . ')';
+	}
+	return $fallback;
+};
+
 // Extract and sanitize attributes.
 $alt               = isset( $attributes['alt'] ) ? sanitize_text_field( $attributes['alt'] ) : 'Aggressive Apparel';
-$light_color       = isset( $attributes['lightColor'] ) ? sanitize_hex_color( $attributes['lightColor'] ) : '#000000';
-$light_hover_color = isset( $attributes['lightHoverColor'] ) ? sanitize_hex_color( $attributes['lightHoverColor'] ) : '#333333';
-$dark_color        = isset( $attributes['darkColor'] ) ? sanitize_hex_color( $attributes['darkColor'] ) : '#ffffff';
-$dark_hover_color  = isset( $attributes['darkHoverColor'] ) ? sanitize_hex_color( $attributes['darkHoverColor'] ) : '#cccccc';
+$light_color       = $sanitize_color( $attributes['lightColor'] ?? '', '#000000' );
+$light_hover_color = $sanitize_color( $attributes['lightHoverColor'] ?? '', '#333333' );
+$dark_color        = $sanitize_color( $attributes['darkColor'] ?? '', '#ffffff' );
+$dark_hover_color  = $sanitize_color( $attributes['darkHoverColor'] ?? '', '#cccccc' );
 $breakpoint        = isset( $attributes['breakpoint'] ) ? sanitize_key( $attributes['breakpoint'] ) : 'tablet';
 $large_width       = isset( $attributes['largeWidth'] ) ? absint( $attributes['largeWidth'] ) : 200;
 $large_height      = isset( $attributes['largeHeight'] ) && $attributes['largeHeight'] > 0 ? absint( $attributes['largeHeight'] ) : null;
@@ -51,23 +71,33 @@ $svg_small = sprintf(
 	esc_attr( $small_style )
 );
 
-// CSS custom properties for colors (including hover).
+// Build CSS custom properties string (trailing ; ensures clean separation
+// from any style WordPress appends via get_block_wrapper_attributes, which
+// joins style strings with a space — not a semicolon).
 $css_vars = sprintf(
-	'--logo-light-color:%s;--logo-light-hover:%s;--logo-dark-color:%s;--logo-dark-hover:%s',
+	'--logo-light-color:%s;--logo-light-hover:%s;--logo-dark-color:%s;--logo-dark-hover:%s;',
 	esc_attr( $light_color ),
 	esc_attr( $light_hover_color ),
 	esc_attr( $dark_color ),
 	esc_attr( $dark_hover_color )
 );
 
-// Build wrapper attributes.
+// Get wrapper attrs without our CSS vars so WP spacing styles don't
+// space-concatenate into ours and corrupt the custom property values.
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
 		'class'           => 'aggressive-apparel-logo',
-		'style'           => $css_vars,
 		'data-breakpoint' => $breakpoint,
 	)
 );
+
+// Prepend our CSS vars into the style attribute that WP generates (from
+// spacing support). If no style attr exists yet, add one.
+if ( str_contains( $wrapper_attrs, 'style="' ) ) {
+	$wrapper_attrs = str_replace( 'style="', 'style="' . $css_vars, $wrapper_attrs );
+} else {
+	$wrapper_attrs .= ' style="' . $css_vars . '"';
+}
 
 // Build the inner content.
 // Includes visually-hidden text for SEO (search engines can read it, users can't see it).

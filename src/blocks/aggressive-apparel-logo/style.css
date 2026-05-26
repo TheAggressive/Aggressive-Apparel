@@ -7,15 +7,25 @@
  *   --logo-dark-color
  *   --logo-dark-hover
  *
- * Uses light-dark() for automatic color scheme switching.
- * Default display state is set via inline styles on SVGs.
+ * Active color tokens (--_logo-color, --_logo-hover) are resolved via the
+ * same dark-mode selectors used throughout the theme: the OS media query
+ * scoped with :not([data-theme]) so the manual toggle always wins, plus
+ * [data-theme="dark"]/is-dark-mode and [data-theme="light"]/is-light-mode
+ * for the explicit overrides.
+ *
+ * light-dark() is intentionally avoided here: it requires color-scheme to
+ * be declared on an ancestor and does not respond to the theme's data-theme
+ * toggle — CSS custom properties solve both problems cleanly.
  */
 
 .aggressive-apparel-logo {
+  --_logo-color: var(--logo-light-color, #000);
+  --_logo-hover: var(--logo-light-hover, #333);
+
   display: inline-flex;
   align-items: center;
   line-height: 1;
-  color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff));
+  color: var(--_logo-color);
 
   /* Inner wrapper. */
   &__inner {
@@ -25,8 +35,9 @@
 
   /* SVG base styles. */
   &__svg {
-    fill: currentcolor;
+    fill: var(--_logo-color);
     height: auto;
+    transition: fill 0.2s ease;
   }
 
   /**
@@ -82,22 +93,62 @@
   & > a {
     display: inline-flex;
     align-items: center;
-    color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
+    color: var(--_logo-color) !important;
     text-decoration: none !important;
     transition: color 0.2s ease;
 
     &:visited {
-      color: light-dark(var(--logo-light-color, #000), var(--logo-dark-color, #fff)) !important;
+      color: var(--_logo-color) !important;
     }
 
     &:hover,
     &:focus {
-      color: light-dark(var(--logo-light-hover, #333), var(--logo-dark-hover, #ccc)) !important;
+      color: var(--_logo-hover) !important;
+
+      .aggressive-apparel-logo__svg {
+        fill: var(--_logo-hover);
+      }
     }
 
     &:focus-visible {
       outline: 2px solid currentcolor;
       outline-offset: 4px;
     }
+  }
+}
+
+/* ── Dark mode: OS preference (only when no manual override is active) ── */
+
+@media (prefers-color-scheme: dark) {
+
+  :root:not([data-theme]) .aggressive-apparel-logo {
+    --_logo-color: var(--logo-dark-color, #fff);
+    --_logo-hover: var(--logo-dark-hover, #ccc);
+  }
+}
+
+/* ── Dark mode: manual toggle ────────────────────────────────────────── */
+
+:root[data-theme="dark"] .aggressive-apparel-logo,
+html.is-dark-mode .aggressive-apparel-logo {
+  --_logo-color: var(--logo-dark-color, #fff);
+  --_logo-hover: var(--logo-dark-hover, #ccc);
+}
+
+/* ── Light mode: manual override ─────────────────────────────────────── */
+
+:root[data-theme="light"] .aggressive-apparel-logo,
+html.is-light-mode .aggressive-apparel-logo {
+  --_logo-color: var(--logo-light-color, #000);
+  --_logo-hover: var(--logo-light-hover, #333);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aggressive-apparel-logo > a,
+  .aggressive-apparel-logo__svg {
+    transition: none;
   }
 }

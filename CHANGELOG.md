@@ -1,3 +1,10 @@
+# [1.70.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.69.0...v1.70.0) (2026-05-26)
+
+
+### Features
+
+* enhance aggressive apparel logo block with color sanitization and dark mode support ([87f37d7](https://github.com/TheAggressive/Aggressive-Apparel/commit/87f37d79e41a0620f0c9fc44ca1f061c27db89ab))
+
 # [1.69.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.68.0...v1.69.0) (2026-05-24)
 
 

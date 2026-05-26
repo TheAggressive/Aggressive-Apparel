@@ -1,3 +1,15 @@
+# [1.71.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.70.0...v1.71.0) (2026-05-26)
+
+
+### Bug Fixes
+
+* streamline error handling and improve product filter parameters ([9e90f33](https://github.com/TheAggressive/Aggressive-Apparel/commit/9e90f33b2857b126836f2b6c437125873a13f829))
+
+
+### Features
+
+* update product filters to include IDs for colors and sizes ([98ad12e](https://github.com/TheAggressive/Aggressive-Apparel/commit/98ad12e6a3b21d3b49cf740adf658da57c7bc158))
+
 # [1.70.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.69.0...v1.70.0) (2026-05-26)
 
 

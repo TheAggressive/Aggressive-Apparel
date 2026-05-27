@@ -1,3 +1,10 @@
+# [1.72.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.71.1...v1.72.0) (2026-05-27)
+
+
+### Features
+
+* add line filtering functionality to product filters ([5f1abd2](https://github.com/TheAggressive/Aggressive-Apparel/commit/5f1abd25758d610f66f1810ff306fa4229b3ad01))
+
 ## [1.71.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.71.0...v1.71.1) (2026-05-27)
 
 

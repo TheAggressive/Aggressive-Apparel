@@ -124,11 +124,10 @@ $wrapper_classes = implode(
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'               => trim( $wrapper_classes ),
-		'data-wp-interactive' => 'aggressive-apparel/product-color-swatches',
-		'data-wp-context'     => wp_json_encode( $container_context ),
-		'role'                => 'group',
-		'aria-label'          => __( 'Color options', 'aggressive-apparel' ),
+		'class'           => trim( $wrapper_classes ),
+		'data-wp-context' => wp_json_encode( $container_context ),
+		'role'            => 'group',
+		'aria-label'      => __( 'Color options', 'aggressive-apparel' ),
 	)
 );
 ?>
@@ -169,9 +168,6 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			class="<?php echo esc_attr( $swatch_classes ); ?>"
 			style="<?php echo esc_attr( $inline_style ); ?>"
 			data-wp-context="<?php echo esc_attr( wp_json_encode( $button_context ) ); ?>"
-			data-wp-on--click="actions.selectSwatch"
-			data-wp-class--is-active="state.isCurrentActive"
-			data-wp-bind--aria-pressed="state.isCurrentActive"
 			aria-pressed="false"
 			aria-label="<?php echo $aria_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?>"
 			<?php if ( $show_tooltip ) : ?>

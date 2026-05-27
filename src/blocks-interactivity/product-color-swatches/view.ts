@@ -1,19 +1,23 @@
-/// <reference types="@wordpress/interactivity" />
-
-import { store, getContext, getElement } from '@wordpress/interactivity';
+/**
+ * Product Color Swatches — View Script
+ *
+ * Uses pure event delegation so swatch clicks work on both SSR-rendered
+ * cards and cards inserted dynamically by load-more / filter AJAX. The
+ * Interactivity API is not used for click handling because it only
+ * processes elements present at initial page load.
+ *
+ * Data for each swatch (slug, imageUrl, etc.) is stored in the
+ * data-wp-context attribute rendered by PHP and read here via
+ * getAttribute — no hydration required.
+ */
 
 interface ContainerContext {
-  productId: number;
-  activeSlug: string | null;
   linkToVariation: boolean;
   transition: string;
 }
 
-interface SwatchContext extends ContainerContext {
+interface SwatchContext {
   slug: string;
-  colorValue: string;
-  colorType: string;
-  colorName: string;
   imageUrl: string;
   imageSrcset: string;
   imageAlt: string;
@@ -34,14 +38,6 @@ function findProductImage(card: Element): HTMLImageElement | null {
   );
 }
 
-/**
- * Swap a product image using the chosen animation.
- *
- * Both `aa-cs-anim-{name}` and `aa-cs-loading` are added synchronously so the
- * browser applies them in one paint — the dim is instant because each animation's
- * loading rule sets `transition: none`. Removing `aa-cs-loading` on image load
- * triggers the entrance transition defined by `aa-cs-anim-{name}`.
- */
 function swapImage(
   img: HTMLImageElement,
   url: string,
@@ -84,46 +80,55 @@ function updateProductLink(card: Element, slug: string): void {
   }
 }
 
-store('aggressive-apparel/product-color-swatches', {
-  state: {
-    get isCurrentActive(): boolean {
-      const { activeSlug, slug } = getContext<SwatchContext>();
-      return activeSlug !== null && activeSlug === slug;
-    },
-  },
-  actions: {
-    selectSwatch(): void {
-      const ctx = getContext<SwatchContext>();
-      const {
-        slug,
-        imageUrl,
-        imageSrcset,
-        imageAlt,
-        linkToVariation,
-        transition,
-      } = ctx;
+function readContext<T>(el: HTMLElement): Partial<T> {
+  try {
+    return JSON.parse(el.getAttribute('data-wp-context') || '{}') as T;
+  } catch {
+    return {};
+  }
+}
 
-      // Update active swatch — no deselect, stays active until another is chosen.
-      ctx.activeSlug = slug;
+document.addEventListener('click', (e: MouseEvent) => {
+  const btn = (e.target as HTMLElement).closest<HTMLElement>(
+    '.aa-product-color-swatches__swatch'
+  );
+  if (!btn) return;
 
-      const el = getElement().ref as HTMLElement;
-      const card = findProductCard(el);
-      if (!card) {
-        return;
-      }
+  const container = btn.closest<HTMLElement>('.aa-product-color-swatches');
+  if (!container) return;
 
-      // Swap product image if the variation has one.
-      if (imageUrl) {
-        const img = findProductImage(card);
-        if (img) {
-          swapImage(img, imageUrl, imageSrcset, imageAlt, transition);
-        }
-      }
+  const containerCtx = readContext<ContainerContext>(container);
+  const btnCtx = readContext<SwatchContext>(btn);
 
-      // Update the product link to pre-select this variation on the product page.
-      if (linkToVariation) {
-        updateProductLink(card, slug);
-      }
-    },
-  },
+  const slug = btnCtx.slug;
+  if (!slug) return;
+
+  // Update aria-pressed and active class on all sibling swatches.
+  container
+    .querySelectorAll<HTMLElement>('.aa-product-color-swatches__swatch')
+    .forEach(s => {
+      const isActive = s === btn;
+      s.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      s.classList.toggle('is-active', isActive);
+    });
+
+  const card = findProductCard(btn);
+  if (!card) return;
+
+  const imageUrl = btnCtx.imageUrl || '';
+  const imageSrcset = btnCtx.imageSrcset || '';
+  const imageAlt = btnCtx.imageAlt || '';
+  const transition = containerCtx.transition || 'blur';
+  const linkToVariation = containerCtx.linkToVariation !== false;
+
+  if (imageUrl) {
+    const img = findProductImage(card);
+    if (img) {
+      swapImage(img, imageUrl, imageSrcset, imageAlt, transition);
+    }
+  }
+
+  if (linkToVariation) {
+    updateProductLink(card, slug);
+  }
 });

@@ -1,3 +1,10 @@
+## [1.71.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.71.0...v1.71.1) (2026-05-27)
+
+
+### Bug Fixes
+
+* improve product color swatches interactivity and code structure ([365b421](https://github.com/TheAggressive/Aggressive-Apparel/commit/365b421a52c5f86fa5c7dfcc785f6972f5426bf8))
+
 # [1.71.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.70.0...v1.71.0) (2026-05-26)
 
 

@@ -38,6 +38,7 @@ interface PriceRange {
   max: number;
   currencyPrefix?: string;
   currencySuffix?: string;
+  minorUnit?: number;
 }
 
 interface CategoryTerm {
@@ -52,6 +53,11 @@ interface ColorTerm {
 }
 
 interface SizeTerm {
+  slug: string;
+  name: string;
+}
+
+interface LineTerm {
   slug: string;
   name: string;
 }
@@ -127,6 +133,8 @@ interface ProductFiltersState {
   categories: CategoryTerm[];
   colorTerms: ColorTerm[];
   sizeTerms: SizeTerm[];
+  lineTerms: LineTerm[];
+  selectedLines: string[];
   currentCategorySlug: string;
   categoryAttributeMap: Record<string, CategoryAttributeMapEntry>;
   i18n: {
@@ -148,6 +156,7 @@ interface ProductFiltersState {
   readonly isCategoryDropdownOpen: boolean;
   readonly isColorDropdownOpen: boolean;
   readonly isSizeDropdownOpen: boolean;
+  readonly isLineDropdownOpen: boolean;
   readonly isPriceDropdownOpen: boolean;
   readonly isStockDropdownOpen: boolean;
 }
@@ -183,6 +192,7 @@ const { state, actions } = store<ProductFiltersStore>(
           state.selectedCategories.length > 0 ||
           state.selectedColors.length > 0 ||
           state.selectedSizes.length > 0 ||
+          state.selectedLines.length > 0 ||
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max ||
           state.inStockOnly
@@ -210,6 +220,7 @@ const { state, actions } = store<ProductFiltersStore>(
         count += state.selectedCategories.length;
         count += state.selectedColors.length;
         count += state.selectedSizes.length;
+        count += state.selectedLines.length;
         if (
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max
@@ -265,6 +276,9 @@ const { state, actions } = store<ProductFiltersStore>(
       get isSizeDropdownOpen(): boolean {
         return state.openDropdown === 'sizes';
       },
+      get isLineDropdownOpen(): boolean {
+        return state.openDropdown === 'lines';
+      },
       get isPriceDropdownOpen(): boolean {
         return state.openDropdown === 'price';
       },
@@ -296,6 +310,17 @@ const { state, actions } = store<ProductFiltersStore>(
         const slug = btn.dataset.filterValue;
         if (slug) toggleArrayItem(state.selectedColors, slug);
         syncSwatchPressed(state.selectedColors);
+        debouncedFetch();
+      },
+
+      toggleLine(event: MouseEvent): void {
+        const btn = (event.target as HTMLElement).closest<HTMLElement>(
+          '.aa-product-filters__line-chip'
+        );
+        if (!btn) return;
+        const slug = btn.dataset.filterValue;
+        if (slug) toggleArrayItem(state.selectedLines, slug);
+        syncLineChipPressed(state.selectedLines);
         debouncedFetch();
       },
 
@@ -342,6 +367,7 @@ const { state, actions } = store<ProductFiltersStore>(
         state.selectedCategories = [];
         state.selectedColors = [];
         state.selectedSizes = [];
+        state.selectedLines = [];
         state.priceMin = state.priceRange.min;
         state.priceMax = state.priceRange.max;
         state.inStockOnly = false;
@@ -569,12 +595,16 @@ function buildFilterParams(): URLSearchParams {
   if (state.selectedSizes.length > 0) {
     params.set('_unstable_tax_pa_size', state.selectedSizes.join(','));
   }
+  if (state.selectedLines.length > 0) {
+    params.set('_unstable_tax_pa_line', state.selectedLines.join(','));
+  }
 
+  const minorFactor = Math.pow(10, state.priceRange.minorUnit ?? 2);
   if (state.priceMin > state.priceRange.min) {
-    params.set('min_price', String(state.priceMin));
+    params.set('min_price', String(Math.round(state.priceMin * minorFactor)));
   }
   if (state.priceMax < state.priceRange.max) {
-    params.set('max_price', String(state.priceMax));
+    params.set('max_price', String(Math.round(state.priceMax * minorFactor)));
   }
 
   if (state.inStockOnly) {
@@ -839,6 +869,9 @@ function setupDelegatedEvents(): void {
         } else if (type === 'size' && slug) {
           removeArrayItem(state.selectedSizes, slug);
           syncChipPressed(state.selectedSizes);
+        } else if (type === 'line' && slug) {
+          removeArrayItem(state.selectedLines, slug);
+          syncLineChipPressed(state.selectedLines);
         } else if (type === 'price') {
           state.priceMin = state.priceRange.min;
           state.priceMax = state.priceRange.max;
@@ -969,6 +1002,11 @@ function renderPills(): void {
     pills.push({ type: 'size', slug, label: sz?.name || slug });
   });
 
+  state.selectedLines.forEach((slug: string) => {
+    const ln = state.lineTerms.find((l: LineTerm) => l.slug === slug);
+    pills.push({ type: 'line', slug, label: ln?.name || slug });
+  });
+
   if (
     state.priceMin > state.priceRange.min ||
     state.priceMax < state.priceRange.max
@@ -1078,6 +1116,8 @@ const syncSwatchPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__color-swatch', selected);
 const syncChipPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__size-chip', selected);
+const syncLineChipPressed = (selected: string[]): void =>
+  syncPressed('.aa-product-filters__line-chip', selected);
 
 /**
  * Sync the visual position of the price range highlight.
@@ -1140,6 +1180,7 @@ function syncAllControls(): void {
   syncCategoryChips([]);
   syncSwatchPressed([]);
   syncChipPressed([]);
+  syncLineChipPressed([]);
   syncPriceSliders();
   syncPriceRange();
   syncStockCheckboxes(false);
@@ -1220,6 +1261,9 @@ function syncUrl(): void {
   if (state.selectedSizes.length > 0) {
     params.set('size', state.selectedSizes.join(','));
   }
+  if (state.selectedLines.length > 0) {
+    params.set('line', state.selectedLines.join(','));
+  }
   if (state.priceMin > state.priceRange.min) {
     params.set('min_price', String(state.priceMin));
   }
@@ -1264,13 +1308,31 @@ function restoreFromUrl(): void {
   state.selectedCategories = [
     ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
   ];
-  if (params.has('color')) {
-    state.selectedColors = (params.get('color') || '')
-      .split(',')
-      .filter(Boolean);
+  const colorParam =
+    params.get('color') ||
+    params.get('filter_color') ||
+    params.get('filter_pa_color') ||
+    '';
+  if (colorParam) {
+    state.selectedColors = colorParam.split(',').filter(Boolean);
   }
-  if (params.has('size')) {
-    state.selectedSizes = (params.get('size') || '').split(',').filter(Boolean);
+
+  const sizeParam =
+    params.get('size') ||
+    params.get('filter_size') ||
+    params.get('filter_pa_size') ||
+    '';
+  if (sizeParam) {
+    state.selectedSizes = sizeParam.split(',').filter(Boolean);
+  }
+
+  const lineParam =
+    params.get('line') ||
+    params.get('filter_line') ||
+    params.get('filter_pa_line') ||
+    '';
+  if (lineParam) {
+    state.selectedLines = lineParam.split(',').filter(Boolean);
   }
   if (params.has('min_price')) {
     state.priceMin = Math.max(
@@ -1299,6 +1361,7 @@ function restoreFromUrl(): void {
     syncCategoryChips(state.selectedCategories);
     syncSwatchPressed(state.selectedColors);
     syncChipPressed(state.selectedSizes);
+    syncLineChipPressed(state.selectedLines);
     syncPriceSliders();
     syncPriceRange();
     syncStockCheckboxes(state.inStockOnly);
@@ -1405,12 +1468,23 @@ function updateAvailableFilters(): void {
   const map = state.categoryAttributeMap || {};
   const selected = state.selectedCategories;
 
-  // Show everything when no categories are selected.
+  const sizeHint = document.querySelector<HTMLElement>(
+    '.aa-product-filters__size-hint'
+  );
+  const sizeList = document.querySelector<HTMLElement>(
+    '.aa-product-filters__size-list'
+  );
+
+  // When no category is selected, hide the size list and show the hint.
   if (selected.length === 0) {
-    setFilterVisibility('.aa-product-filters__size-chip', () => true);
+    if (sizeList) sizeList.hidden = true;
+    if (sizeHint) sizeHint.hidden = false;
     setFilterVisibility('.aa-product-filters__color-swatch', () => true);
     return;
   }
+
+  if (sizeList) sizeList.hidden = false;
+  if (sizeHint) sizeHint.hidden = true;
 
   // Build the union of available slugs across selected categories.
   const availableSizes = new Set<string>();

@@ -60,7 +60,6 @@ export const Debug = {
 
     // Log to console only if enabled or critical
     if (this.enabled || critical) {
-       
       console.log('[Modal Debug]', message);
     }
   },

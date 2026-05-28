@@ -83,7 +83,7 @@ function getAnnouncer(id: string): HTMLElement | null {
 function openModal(id: string, modalsState: Record<string, ModalState>): void {
   if (!id || !modalsState[id]) return;
 
-  console.log( '[modal] openModal', id );
+  console.log('[modal] openModal', id);
 
   modalRefs.set(id, {
     triggerElement: document.activeElement as HTMLElement | null,
@@ -93,7 +93,7 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
   lockScroll();
 
   const shell = getShell(id);
-  console.log( '[modal] shell', shell );
+  console.log('[modal] shell', shell);
   if (shell) {
     shell.hidden = false;
     void shell.offsetHeight; // Force reflow so the browser captures the "before" state.
@@ -101,7 +101,7 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
   }
 
   modalsState[id].isOpen = true;
-  console.log( '[modal] isOpen set to true, shell classes:', shell?.className );
+  console.log('[modal] isOpen set to true, shell classes:', shell?.className);
 
   // Announce to screen readers that do not fire on programmatic focus alone.
   const announcer = getAnnouncer(id);
@@ -114,7 +114,7 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
 
   requestAnimationFrame(() => {
     const dialog = getDialog(id);
-    console.log( '[modal] dialog', dialog );
+    console.log('[modal] dialog', dialog);
     if (dialog) {
       const refs = modalRefs.get(id);
       if (refs) refs.focusTrapCleanup = setupFocusTrap(dialog);
@@ -218,12 +218,12 @@ function setupExitIntent(
   // Desktop: cursor leaving the viewport through the top edge (toward browser chrome).
   // relatedTarget === null confirms the cursor left the document entirely.
   document.addEventListener('mouseout', (e: MouseEvent) => {
-    if ( armed && ! triggered && e.relatedTarget === null && e.clientY <= 0 ) {
+    if (armed && !triggered && e.relatedTarget === null && e.clientY <= 0) {
       triggered = true;
-      openModal( id, modalsState );
-      markExitIntentDismissed( id );
+      openModal(id, modalsState);
+      markExitIntentDismissed(id);
     }
-  } );
+  });
 }
 
 // ── Store ─────────────────────────────────────────────────────────────────────
@@ -236,7 +236,7 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
     /** Called via data-wp-init. Binds external triggers and handles openOnLoad. */
     init(): void {
       const { id } = getContext<ModalContext>();
-      console.log( '[modal] init', id, state.modals[ id ] );
+      console.log('[modal] init', id, state.modals[id]);
       if (!id || !state.modals[id]) return;
 
       document
@@ -253,7 +253,7 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
       }
 
       if (state.modals[id].exitIntentTrigger) {
-        console.log( '[modal] setting up exit intent for', id );
+        console.log('[modal] setting up exit intent for', id);
         setupExitIntent(id, state.modals);
       }
     },

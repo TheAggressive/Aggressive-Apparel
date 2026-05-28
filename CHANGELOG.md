@@ -1,3 +1,10 @@
+# [1.73.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.72.0...v1.73.0) (2026-05-28)
+
+
+### Features
+
+* enhance product color swatches with alignment control ([16e7f8a](https://github.com/TheAggressive/Aggressive-Apparel/commit/16e7f8a49bad7f5bf8a70c0bc776732022547740))
+
 # [1.72.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.71.1...v1.72.0) (2026-05-27)
 
 

@@ -1,0 +1,358 @@
+/* ============================================================
+ * Modal Block Styles
+ * Follows the theme's modal/overlay pattern:
+ *  - CSS transitions (not keyframes) so transitionend fires on 'opacity'.
+ *  - @starting-style for smooth entry from display:none.
+ *  - Animated backdrop blur: blur(0) → blur(4px).
+ *  - [hidden] override for flex/grid containers.
+ *  - prefers-reduced-motion: disables all transitions and backdrop-filter.
+ * ============================================================ */
+
+/* ──────────────────────────────────────────────
+ * Wrapper (data-wp-interactive root)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal {
+
+	/* Inline trigger sits naturally in document flow. */
+	display: inline-block;
+}
+
+/* ──────────────────────────────────────────────
+ * Screen-reader announcer (visually hidden)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__announcer {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ──────────────────────────────────────────────
+ * Built-in trigger button (optional)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.6em 1.25em;
+	border: 1px solid currentcolor;
+	background: transparent;
+	color: currentcolor;
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		background-color: color-mix(in oklch, currentcolor 8%, transparent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+
+/* ──────────────────────────────────────────────
+ * Modal shell — the hidden/is-open container
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__shell {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+/* ──────────────────────────────────────────────
+ * Backdrop
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background-color: rgb(0 0 0 / 0%);
+	backdrop-filter: blur(0);
+	cursor: pointer;
+	transition:
+		background-color var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+		backdrop-filter var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+
+	.wp-block-aggressive-apparel-modal__shell.is-open & {
+		background-color: rgb(0 0 0 / 50%);
+		backdrop-filter: blur(4px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		backdrop-filter: none;
+	}
+}
+
+/* ──────────────────────────────────────────────
+ * Dialog panel
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__dialog {
+	position: relative;
+	z-index: 1;
+	width: min(90vw, 40rem);
+	max-height: 85vh;
+	overflow-y: auto;
+	background-color: var(--wp--preset--color--light-dark-white-black, #fff);
+	color: var(--wp--preset--color--light-dark-black-white, #000);
+
+	/* Entrance/exit animation — always transition opacity so transitionend fires. */
+	opacity: 0;
+	transition:
+		opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+		transform var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+
+	.wp-block-aggressive-apparel-modal__shell.is-open & {
+		opacity: 1;
+		transform: none;
+	}
+
+	/* ── Position variants ────── */
+
+	&.modal-position-center {
+
+		/* Use CSS 'translate' property for positioning so 'transform' stays
+		   free for the animation (the two CSS properties compose independently). */
+		translate: -50% -50%;
+		top: 50%;
+		left: 50%;
+
+		/* Remove from flex centering since we position manually. */
+		position: absolute;
+	}
+
+	&.modal-position-top-left {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	&.modal-position-top-right {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+
+	&.modal-position-bottom-left {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+	}
+
+	&.modal-position-bottom-right {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+	}
+
+	/* ── Drawer / sheet positions ────── */
+
+	&.modal-position-bottom {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		max-width: none;
+		max-height: 90dvh;
+		border-radius: 1rem 1rem 0 0;
+		transform: translateY(100%); /* Closed: off-screen below. */
+	}
+
+	&.modal-position-top {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		max-width: none;
+		max-height: 90dvh;
+		border-radius: 0 0 1rem 1rem;
+		transform: translateY(-100%); /* Closed: off-screen above. */
+	}
+
+	&.modal-position-left {
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: min(90vw, 24rem);
+		max-width: none;
+		max-height: 100%;
+		height: 100%;
+		border-radius: 0 1rem 1rem 0;
+		transform: translateX(-100%); /* Closed: off-screen left. */
+	}
+
+	&.modal-position-right {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: min(90vw, 24rem);
+		max-width: none;
+		max-height: 100%;
+		height: 100%;
+		border-radius: 1rem 0 0 1rem;
+		transform: translateX(100%); /* Closed: off-screen right. */
+	}
+
+	/* ── Enter animation initial (closed) states ────── */
+
+	&.modal-enter-slide-down {
+		transform: translateY(-2rem);
+	}
+
+	&.modal-enter-slide-up {
+		transform: translateY(2rem);
+	}
+
+	&.modal-enter-zoom-in {
+		transform: scale(0.92);
+	}
+
+	/* Center-positioned variants compose with 'translate' cleanly. */
+	&.modal-position-center.modal-enter-slide-down {
+		transform: translateY(-2rem);
+	}
+
+	&.modal-position-center.modal-enter-slide-up {
+		transform: translateY(2rem);
+	}
+
+	&.modal-position-center.modal-enter-zoom-in {
+		transform: scale(0.92);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		transform: none !important;
+	}
+}
+
+/* ──────────────────────────────────────────────
+ * Close button (rendered by save.js / InnerBlocks)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__close,
+.wp-block-laao-modal-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-end;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: currentcolor;
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		background-color: var(--wp--preset--color--red, #dc2626);
+		color: var(--wp--preset--color--white, #fff);
+		outline: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+
+/* ============================================================
+ * @starting-style — smooth entry from display:none → visible.
+ * Mirrors the quick-view pattern exactly.
+ * ============================================================ */
+
+@supports selector(@starting-style) {
+
+	.wp-block-aggressive-apparel-modal__shell {
+
+		/* Animate the display:none → flex transition discretely. */
+		transition: display var(--aa-modal-duration, 300ms) allow-discrete;
+	}
+
+	@starting-style {
+
+		/* Dialog fades in from opacity:0 on first paint. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog {
+			opacity: 0;
+		}
+
+		/* Slide-down: enter from above. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-down {
+			transform: translateY(-2rem);
+		}
+
+		/* Slide-up: enter from below. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-up {
+			transform: translateY(2rem);
+		}
+
+		/* Zoom-in: enter at reduced scale. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-zoom-in {
+			transform: scale(0.92);
+		}
+
+		/* Bottom sheet: starts off-screen below. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-position-bottom {
+			transform: translateY(100%);
+		}
+
+		/* Top drawer: starts off-screen above. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-position-top {
+			transform: translateY(-100%);
+		}
+
+		/* Left panel: starts off-screen left. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-position-left {
+			transform: translateX(-100%);
+		}
+
+		/* Right panel: starts off-screen right. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-position-right {
+			transform: translateX(100%);
+		}
+
+		/* Backdrop starts fully transparent. */
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__backdrop {
+			background-color: rgb(0 0 0 / 0%);
+			backdrop-filter: blur(0);
+		}
+	}
+}

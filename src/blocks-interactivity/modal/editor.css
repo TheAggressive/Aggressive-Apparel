@@ -1,0 +1,35 @@
+/**
+ * Modal Block — Editor Styles
+ *
+ * Applied in the block editor only (not on the front end).
+ */
+
+.wp-block-aggressive-apparel-modal {
+	margin-bottom: 1rem;
+
+	&.is-selected,
+	&.is-hovered {
+		box-shadow: 0 0 0 2px #3b82f6 !important;
+	}
+
+	.wp-block-aggressive-apparel-modal__container {
+		position: relative;
+		display: block;
+		background: transparent;
+	}
+
+	.modal-editor-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1rem;
+		background-color: var(--wp--preset--color--light-gray, #f3f4f6);
+		font-size: 0.75rem;
+	}
+
+	.modal-editor-footer-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+}

@@ -1,3 +1,15 @@
+# [1.74.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.73.0...v1.74.0) (2026-05-28)
+
+
+### Bug Fixes
+
+* clean up console log formatting in modal view and debug utility ([923f8b4](https://github.com/TheAggressive/Aggressive-Apparel/commit/923f8b4e2bff7a63aac90b8c30f964dd1f6c5c02))
+
+
+### Features
+
+* add interactive modal block with customizable attributes ([ece44a8](https://github.com/TheAggressive/Aggressive-Apparel/commit/ece44a811d1480a56a02ed56b9e74555c900629d))
+
 # [1.73.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.72.0...v1.73.0) (2026-05-28)
 
 

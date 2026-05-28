@@ -25,8 +25,8 @@
       "margin": true,
       "padding": true,
       "__experimentalDefaultControls": {
-        "margin": false,
-        "padding": false
+        "margin": true,
+        "padding": true
       }
     }
   },
@@ -53,6 +53,11 @@
     "linkToVariation": {
       "type": "boolean",
       "default": true
+    },
+    "swatchAlignment": {
+      "type": "string",
+      "default": "left",
+      "enum": ["left", "center", "right"]
     },
     "swatchTransition": {
       "type": "string",

@@ -94,9 +94,11 @@ $max_visible    = isset( $attributes['maxVisible'] ) ? max( 1, (int) $attributes
 $show_tooltip   = ! isset( $attributes['showTooltip'] ) || (bool) $attributes['showTooltip'];
 $link_variation = ! isset( $attributes['linkToVariation'] ) || (bool) $attributes['linkToVariation'];
 $transition     = isset( $attributes['swatchTransition'] ) ? (string) $attributes['swatchTransition'] : 'blur';
+$alignment      = isset( $attributes['swatchAlignment'] ) ? (string) $attributes['swatchAlignment'] : 'left';
 
 $shape             = in_array( $shape, array( 'circle', 'square', 'diamond' ), true ) ? $shape : 'circle';
 $size              = in_array( $size, array( 'xs', 'sm', 'md', 'lg' ), true ) ? $size : 'md';
+$alignment         = in_array( $alignment, array( 'left', 'center', 'right' ), true ) ? $alignment : 'left';
 $valid_transitions = array( 'fade', 'blur', 'zoom-in', 'zoom-out', 'slide-up', 'slide-down', 'slide-left', 'flip', 'blur-zoom', 'flash', 'wipe', 'squeeze', 'rotate', 'tilt', 'desaturate', 'elastic', 'glitch', 'iris', 'dissolve', 'swing' );
 $transition        = in_array( $transition, $valid_transitions, true ) ? $transition : 'blur';
 
@@ -118,6 +120,7 @@ $wrapper_classes = implode(
 		'aa-product-color-swatches',
 		'is-shape-' . $shape,
 		'is-size-' . $size,
+		'is-justify-' . $alignment,
 		$show_tooltip ? 'has-tooltips' : '',
 	)
 );

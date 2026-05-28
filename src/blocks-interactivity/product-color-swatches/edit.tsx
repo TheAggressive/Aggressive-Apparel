@@ -10,7 +10,12 @@
 import type { CSSProperties } from 'react';
 
 import { __ } from '@wordpress/i18n';
-import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import {
+  useBlockProps,
+  InspectorControls,
+  BlockControls,
+  AlignmentControl,
+} from '@wordpress/block-editor';
 import {
   PanelBody,
   SelectControl,
@@ -50,6 +55,7 @@ interface ProductColorSwatchesAttributes {
   showTooltip: boolean;
   linkToVariation: boolean;
   swatchTransition: SwatchTransition;
+  swatchAlignment: 'left' | 'center' | 'right';
 }
 
 interface EditProps {
@@ -88,6 +94,7 @@ export default function Edit({
     showTooltip,
     linkToVariation,
     swatchTransition,
+    swatchAlignment,
   } = attributes;
 
   const size = SIZE_PX[swatchSize] ?? '2rem';
@@ -120,8 +127,27 @@ export default function Edit({
     className: 'aa-product-color-swatches-editor-preview',
   });
 
+  const alignmentMap: Record<string, CSSProperties['justifyContent']> = {
+    left: 'flex-start',
+    center: 'center',
+    right: 'flex-end',
+  };
+
   return (
     <>
+      <BlockControls group='block'>
+        <AlignmentControl
+          value={swatchAlignment}
+          onChange={value =>
+            setAttributes({
+              swatchAlignment:
+                (value as ProductColorSwatchesAttributes['swatchAlignment']) ??
+                'left',
+            })
+          }
+        />
+      </BlockControls>
+
       <InspectorControls>
         <PanelBody title={__('Color Swatch Settings', 'aggressive-apparel')}>
           <SelectControl
@@ -269,6 +295,7 @@ export default function Edit({
             flexWrap: 'wrap',
             gap: '0.375rem',
             alignItems: 'center',
+            justifyContent: alignmentMap[swatchAlignment] ?? 'flex-start',
             paddingBlock: swatchShape === 'diamond' ? '0.35rem' : undefined,
           }}
         >
@@ -301,9 +328,6 @@ export default function Edit({
             </span>
           )}
         </div>
-        <p className='aa-product-color-swatches-editor-preview__label'>
-          {__('Product Color Swatches', 'aggressive-apparel')}
-        </p>
       </div>
     </>
   );

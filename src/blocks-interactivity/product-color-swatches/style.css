@@ -17,6 +17,14 @@
 	gap: 0.375rem;
 }
 
+.aa-product-color-swatches.is-justify-center {
+	justify-content: center;
+}
+
+.aa-product-color-swatches.is-justify-right {
+	justify-content: flex-end;
+}
+
 /* ─── Swatch base ────────────────────────────────────────────────────────── */
 
 .aa-product-color-swatches__swatch {

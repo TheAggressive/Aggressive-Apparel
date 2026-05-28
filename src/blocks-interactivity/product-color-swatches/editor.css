@@ -7,15 +7,4 @@
 .aa-product-color-swatches-editor-preview {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
-	padding: 0.5rem;
-	border: 1px dashed var(--wp-admin-theme-color-darker-10, #c3c4c7);
-	border-radius: 4px;
-}
-
-.aa-product-color-swatches-editor-preview__label {
-	margin: 0;
-	font-size: 0.7rem;
-	color: #757575;
-	text-align: center;
 }

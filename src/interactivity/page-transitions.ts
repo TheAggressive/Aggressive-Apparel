@@ -40,12 +40,8 @@ function isEligible(anchor: HTMLAnchorElement | null): boolean {
 
 /* -- Progress Bar -- */
 
-let showTimerId: ReturnType<typeof setTimeout> = 0 as unknown as ReturnType<
-  typeof setTimeout
->;
-let safetyTimerId: ReturnType<typeof setTimeout> = 0 as unknown as ReturnType<
-  typeof setTimeout
->;
+let showTimerId: ReturnType<typeof setTimeout> | undefined;
+let safetyTimerId: ReturnType<typeof setTimeout> | undefined;
 
 document.addEventListener(
   'click',

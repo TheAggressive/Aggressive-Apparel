@@ -41,10 +41,9 @@ const initializeParallaxContext = (
   const ctxWithDefaults = applyParallaxDefaults(context);
   const validation = validateConfiguration(ctxWithDefaults);
   if (!validation.isValid) {
-    ParallaxLogger.error(
-      'Parallax configuration validation failed:',
-      validation.errors
-    );
+    ParallaxLogger.error('Parallax configuration validation failed:', {
+      errors: validation.errors,
+    });
   }
   return ctxWithDefaults;
 };

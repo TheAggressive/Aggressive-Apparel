@@ -4,12 +4,12 @@
  * @package Aggressive_Apparel
  */
 
-import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import type { InnerBlockTemplate } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
 import Save from './save';
 import type { NavigationAttributes } from './types';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 /**
  * Block variation type with partial attributes.
@@ -24,16 +24,6 @@ interface NavigationVariation {
   attributes: Partial<NavigationAttributes>;
   innerBlocks: InnerBlockTemplate[];
   scope: ('inserter' | 'block' | 'transform')[];
-}
-
-/**
- * Extended block settings that includes variations.
- * The @wordpress/blocks types are incomplete and don't include variations.
- */
-interface BlockSettingsWithVariations {
-  edit: typeof Edit;
-  save: typeof Save;
-  variations: NavigationVariation[];
 }
 
 // Import styles for webpack to bundle.
@@ -255,11 +245,8 @@ const variations: NavigationVariation[] = [
   },
 ];
 
-registerBlockType(
-  metadata as unknown as BlockConfiguration<NavigationAttributes>,
-  {
-    edit: Edit,
-    save: Save,
-    variations,
-  } as BlockSettingsWithVariations
-);
+registerThemeBlock<NavigationAttributes>(metadata, {
+  edit: Edit,
+  save: Save,
+  variations,
+});

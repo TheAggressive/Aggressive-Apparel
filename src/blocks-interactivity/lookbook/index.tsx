@@ -5,13 +5,12 @@
  * @since 1.17.0
  */
 
-import { registerBlockType } from '@wordpress/blocks';
 import metadata from './block.json';
-import Edit from './edit';
+import Edit, { type LookbookAttributes } from './edit';
 import Save from './save';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
-registerBlockType(metadata.name, {
-  ...metadata,
+registerThemeBlock<LookbookAttributes>(metadata, {
   edit: Edit,
   save: Save,
-} as Record<string, unknown>);
+});

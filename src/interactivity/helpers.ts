@@ -214,12 +214,16 @@ const WISHLIST_STORAGE_KEY = 'aggressive_apparel_wishlist';
 /**
  * Read wishlist product IDs from localStorage (best-effort).
  */
+function isWishlistIdArray(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'number');
+}
+
 function readWishlistIds(): number[] {
   try {
-    const raw = JSON.parse(
+    const raw: unknown = JSON.parse(
       localStorage.getItem(WISHLIST_STORAGE_KEY) || '[]'
-    ) as unknown;
-    return Array.isArray(raw) ? (raw as number[]) : [];
+    );
+    return isWishlistIdArray(raw) ? raw : [];
   } catch {
     return [];
   }

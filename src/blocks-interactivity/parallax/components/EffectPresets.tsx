@@ -76,7 +76,7 @@ export interface PresetConfig {
     direction: string;
     delay: number;
     easing: string;
-    effects: Record<string, any>;
+    effects: Record<string, unknown>;
   };
 }
 

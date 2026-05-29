@@ -17,6 +17,11 @@ interface TabContext {
  * Accordion animation helpers
  * ------------------------------------------------------------- */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 const ANIM_DURATION = 200;
 
 /**
@@ -77,8 +82,8 @@ interface ProductTabsState {
 
 interface ProductTabsStore {
   state: ProductTabsState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {

@@ -42,6 +42,16 @@ interface SocialProofContext {
   intervalMs: number;
 }
 
+/**
+ * Subset of the store's derived state accessed from data-wp-watch callbacks.
+ */
+interface SocialProofStore {
+  state: {
+    currentDecorHtml: string;
+    currentBadgeHtml: string;
+  };
+}
+
 const DISMISSED_KEY = 'aggressive_apparel_social_proof_dismissed';
 const SOCIAL_PROOF_STORE = 'aggressive-apparel/social-proof';
 
@@ -181,7 +191,7 @@ store(SOCIAL_PROOF_STORE, {
       if (!ref) {
         return;
       }
-      const { state: st } = store(SOCIAL_PROOF_STORE);
+      const { state: st } = store<SocialProofStore>(SOCIAL_PROOF_STORE);
       ref.innerHTML = st.currentDecorHtml;
     },
 
@@ -190,7 +200,7 @@ store(SOCIAL_PROOF_STORE, {
       if (!ref) {
         return;
       }
-      const { state: st } = store(SOCIAL_PROOF_STORE);
+      const { state: st } = store<SocialProofStore>(SOCIAL_PROOF_STORE);
       ref.innerHTML = st.currentBadgeHtml;
     },
 

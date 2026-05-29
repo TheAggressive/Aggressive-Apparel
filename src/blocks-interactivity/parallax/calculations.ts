@@ -220,10 +220,15 @@ export function getElementStableId(
 /**
  * Debounces a function call.
  */
-export function debounce<T extends Function>(func: T, wait: number): Function {
-  let timeout: number;
-  return (...args: any[]) => {
-    clearTimeout(timeout);
+export function debounce<T extends (...args: never[]) => void>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  return (...args: Parameters<T>) => {
+    if (timeout !== undefined) {
+      clearTimeout(timeout);
+    }
     timeout = window.setTimeout(() => func(...args), wait);
   };
 }
@@ -303,9 +308,12 @@ export function calculateMagneticForce(
 /**
  * Throttles a function call.
  */
-export function throttle<T extends Function>(func: T, limit: number): Function {
+export function throttle<T extends (...args: never[]) => void>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
-  return (...args: any[]) => {
+  return (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;

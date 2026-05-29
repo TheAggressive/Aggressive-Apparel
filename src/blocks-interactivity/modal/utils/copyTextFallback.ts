@@ -1,16 +1,17 @@
-import { Debug } from './debug.js';
+import { Debug } from './debug';
+
 /**
  * Fallback function to copy text when Clipboard API is not available
  *
- * @param {string} text - The text to copy
- * @return {boolean} Whether the operation was successful
+ * @param text - The text to copy
+ * @return Whether the operation was successful
  */
-export const copyTextFallback = text => {
-  // Create a temporary textarea element
+export const copyTextFallback = (text: string): boolean => {
+  // Create a temporary textarea element.
   const textarea = document.createElement('textarea');
   textarea.value = text;
 
-  // Make the textarea out of viewport
+  // Make the textarea out of viewport.
   textarea.style.position = 'fixed';
   textarea.style.left = '-999999px';
   textarea.style.top = '-999999px';
@@ -21,16 +22,16 @@ export const copyTextFallback = text => {
 
   let successful = false;
   try {
-    // Execute the copy command
+    // Execute the copy command.
     successful = document.execCommand('copy');
     if (!successful) {
       Debug.add('Fallback clipboard copy failed', true);
     }
   } catch (err) {
-    Debug.add(`Fallback clipboard copy error: ${err.message}`, true);
+    Debug.add(`Fallback clipboard copy error: ${(err as Error).message}`, true);
   }
 
-  // Clean up
+  // Clean up.
   document.body.removeChild(textarea);
   return successful;
 };

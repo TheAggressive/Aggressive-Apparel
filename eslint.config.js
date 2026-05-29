@@ -134,6 +134,7 @@ export default [
         Response: 'readonly',
         Image: 'readonly',
         location: 'readonly',
+        navigator: 'readonly',
         getComputedStyle: 'readonly',
         MutationObserver: 'readonly',
         IntersectionObserver: 'readonly',

@@ -57,6 +57,10 @@
       "type": "string",
       "default": "fade"
     },
+    "exitAnimation": {
+      "type": "string",
+      "default": "fade"
+    },
     "animationDuration": {
       "type": "number",
       "default": 300
@@ -80,6 +84,58 @@
     "exitIntentReshowDays": {
       "type": "number",
       "default": 7
+    },
+    "closeButtonPlacement": {
+      "type": "string",
+      "default": "inside-top-right"
+    },
+    "closeButtonIcon": {
+      "type": "string",
+      "default": "close"
+    },
+    "closeButtonSize": {
+      "type": "string",
+      "default": "md"
+    },
+    "closeButtonVariant": {
+      "type": "string",
+      "default": "ghost"
+    },
+    "closeButtonLabel": {
+      "type": "string",
+      "default": ""
+    },
+    "closeButtonColor": {
+      "type": "string",
+      "default": ""
+    },
+    "closeButtonBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "closeButtonHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "closeButtonHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "scrollDepthTrigger": {
+      "type": "boolean",
+      "default": false
+    },
+    "scrollDepthPercent": {
+      "type": "number",
+      "default": 50
+    },
+    "openOnLoadOnce": {
+      "type": "boolean",
+      "default": false
+    },
+    "dialogMaxWidth": {
+      "type": "string",
+      "default": ""
     },
     "style": {
       "type": "object",

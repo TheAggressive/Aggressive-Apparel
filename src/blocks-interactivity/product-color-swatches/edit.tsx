@@ -48,7 +48,7 @@ type SwatchTransition =
   | 'dissolve'
   | 'swing';
 
-interface ProductColorSwatchesAttributes {
+export interface ProductColorSwatchesAttributes {
   swatchShape: 'circle' | 'square' | 'diamond';
   swatchSize: 'xs' | 'sm' | 'md' | 'lg';
   maxVisible: number;

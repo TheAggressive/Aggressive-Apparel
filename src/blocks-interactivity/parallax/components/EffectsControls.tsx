@@ -2,6 +2,7 @@
  * EffectsControls - Advanced effects configuration UI
  */
 
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
   PanelBody,
   RangeControl,
@@ -12,6 +13,12 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { EffectTimingControls } from './EffectTimingControls';
+import {
+  isParallaxEffectName,
+  setParallaxEffectProperty,
+  toggleParallaxEffect,
+  type ParallaxEffectName,
+} from '../utils/effects-editor';
 
 interface EffectsControlsProps {
   clientId: string;
@@ -19,7 +26,7 @@ interface EffectsControlsProps {
 
 export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
   const block = useSelect(
-    (select: any) => select('core/block-editor').getBlock(clientId),
+    select => select(blockEditorStore).getBlock(clientId),
     [clientId]
   );
 
@@ -27,8 +34,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
 
   // Check if this block is inside a parallax container
   const isInsideParallax = useSelect(
-    (select: any) => {
-      const { getBlockParents, getBlock } = select('core/block-editor');
+    select => {
+      const { getBlockParents, getBlock } = select(blockEditorStore);
       const parents = getBlockParents(clientId);
       return parents.some((parentId: string) => {
         const parentBlock = getBlock(parentId);
@@ -40,8 +47,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
 
   // Check if mouse interaction is enabled on the container
   const isMouseInteractionEnabled = useSelect(
-    (select: any) => {
-      const { getBlockParents, getBlock } = select('core/block-editor');
+    select => {
+      const { getBlockParents, getBlock } = select(blockEditorStore);
       const parents = getBlockParents(clientId);
       return parents.some((parentId: string) => {
         const parentBlock = getBlock(parentId);
@@ -94,12 +101,17 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
   const parallaxSettings = block.attributes.aggressiveApparelParallax;
   const effects = parallaxSettings.effects || {};
 
-  const updateEffect = (effectType: string, key: string, value: any) => {
-    const newEffects = { ...effects };
-    if (!newEffects[effectType]) {
-      newEffects[effectType] = {};
-    }
-    newEffects[effectType][key] = value;
+  const updateEffect = (
+    effectType: ParallaxEffectName,
+    key: string,
+    value: string | number | boolean | undefined
+  ) => {
+    const newEffects = setParallaxEffectProperty(
+      effects,
+      effectType,
+      key,
+      value
+    );
 
     updateBlockAttributes(clientId, {
       aggressiveApparelParallax: {
@@ -110,16 +122,16 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
   };
 
   const toggleEffect = (effectType: string, enabled: boolean) => {
-    const newEffects = { ...effects };
-    if (enabled) {
-      // Use centralized default properties function
-      newEffects[effectType] = {
-        enabled: true,
-        ...getDefaultEffectProperties(effectType),
-      };
-    } else {
-      delete newEffects[effectType];
+    if (!isParallaxEffectName(effectType)) {
+      return;
     }
+
+    const newEffects = toggleParallaxEffect(
+      effects,
+      effectType,
+      enabled,
+      Boolean(parallaxSettings.enabled)
+    );
 
     updateBlockAttributes(clientId, {
       aggressiveApparelParallax: {
@@ -127,36 +139,6 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         effects: newEffects,
       },
     });
-  };
-
-  // Centralized function for default effect properties
-  const getDefaultEffectProperties = (effectType: string) => {
-    const defaults: Record<string, any> = {
-      zoom: { type: 'in', intensity: 0.1 },
-      depthLevel: { value: parallaxSettings.enabled ? 1.5 : 1 },
-      scrollOpacity: { startOpacity: 0, endOpacity: 1, fadeRange: 'full' },
-      velocityBlur: { maxBlur: 10, sensitivity: 0.5, direction: 'vertical' },
-      magneticMouse: { strength: 0.5, range: 200, mode: 'attract' },
-      blur: { startBlur: 5, endBlur: 0, fadeRange: 'full' },
-      colorTransition: {
-        startColor: '#ffffff',
-        endColor: '#000000',
-        transitionType: 'background',
-      },
-      dynamicShadow: {
-        startShadow: '0px 0px 0px rgba(0,0,0,0)',
-        endShadow: '10px 10px 20px rgba(0,0,0,0.3)',
-        shadowType: 'box-shadow',
-      },
-      rotation: {
-        startRotation: 0,
-        endRotation: 45,
-        axis: 'z',
-        speed: 1.0,
-        mode: 'range',
-      },
-    };
-    return defaults[effectType] || {};
   };
 
   return (

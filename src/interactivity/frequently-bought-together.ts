@@ -7,6 +7,8 @@
  * @since 1.18.0
  */
 
+import type { InteractivityActions } from '../../types/interactivity-shared';
+
 import { store } from '@wordpress/interactivity';
 
 interface FbtItem {
@@ -40,7 +42,7 @@ interface FbtState {
 
 interface FbtStore {
   state: FbtState;
-  actions: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
 }
 
 const { state } = store<FbtStore>(

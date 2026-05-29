@@ -20,8 +20,9 @@ import {
   TextControl,
   Placeholder,
 } from '@wordpress/components';
-import { useState, type MouseEvent } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import type { BlockEditProps } from '@wordpress/blocks';
+import type { MouseEvent } from 'react';
 
 interface Hotspot {
   x: number;
@@ -30,7 +31,7 @@ interface Hotspot {
   productName: string;
 }
 
-interface LookbookAttributes {
+export interface LookbookAttributes {
   mediaId: number;
   mediaUrl: string;
   mediaAlt: string;

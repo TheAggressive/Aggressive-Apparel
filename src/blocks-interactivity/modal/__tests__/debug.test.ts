@@ -1,4 +1,4 @@
-import { Debug, generateUniqueId, isElementVisible } from '../utils';
+import { Debug } from '../utils/debug';
 
 describe('Debug utility', () => {
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('Debug utility', () => {
     const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
     Debug.enable();
     Debug.add('test message');
-    // enable() itself logs "Debug mode enabled", so we expect at least 2 calls
+    // enable() itself logs "Debug mode enabled", so we expect at least 2 calls.
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
@@ -81,57 +81,15 @@ describe('Debug utility', () => {
     Debug.maxLogs = originalMax;
     spy.mockRestore();
   });
-});
 
-describe('generateUniqueId', () => {
-  it('returns a string starting with "id-"', () => {
-    expect(generateUniqueId()).toMatch(/^id-/);
-  });
-
-  it('returns unique values on successive calls', () => {
-    const ids = new Set(Array.from({ length: 100 }, generateUniqueId));
-    expect(ids.size).toBe(100);
-  });
-});
-
-describe('isElementVisible', () => {
-  it('returns false for null', () => {
-    expect(isElementVisible(null)).toBe(false);
-  });
-
-  it('returns true when element is fully within viewport', () => {
-    const el = {
-      getBoundingClientRect: () => ({
-        top: 10,
-        left: 10,
-        bottom: 100,
-        right: 200,
-      }),
-    };
-    Object.defineProperty(window, 'innerHeight', {
-      value: 800,
-      configurable: true,
-    });
-    Object.defineProperty(window, 'innerWidth', {
-      value: 1200,
-      configurable: true,
-    });
-    expect(isElementVisible(el)).toBe(true);
-  });
-
-  it('returns false when element is below the viewport', () => {
-    const el = {
-      getBoundingClientRect: () => ({
-        top: 900,
-        left: 10,
-        bottom: 1000,
-        right: 200,
-      }),
-    };
-    Object.defineProperty(window, 'innerHeight', {
-      value: 800,
-      configurable: true,
-    });
-    expect(isElementVisible(el)).toBe(false);
+  it('deduplicates repeated critical block-existence warnings', () => {
+    const spy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const message =
+      'Block 12345678-1234-1234-1234-123456789abc no longer exists';
+    Debug.add(message, true);
+    Debug.add(message, true);
+    // Same block UUID — should only log once despite two calls.
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });

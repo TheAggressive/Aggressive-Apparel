@@ -15,7 +15,10 @@ interface SizeGuideContext {
 
 interface SizeGuideStore {
   state: Record<string, never>;
-  actions: Record<string, (...args: any[]) => any>;
+  actions: {
+    toggle: () => void;
+    close: () => void;
+  };
 }
 
 /** Matches the 0.3s CSS transition duration. */
@@ -59,10 +62,10 @@ store<SizeGuideStore>('aggressive-apparel/size-guide', {
         });
       } else {
         // --- Closing (delegate to close action) ---
-        const storeRef = store('aggressive-apparel/size-guide') as unknown as {
-          actions: { close: () => void };
-        };
-        storeRef.actions.close();
+        const { actions } = store<SizeGuideStore>(
+          'aggressive-apparel/size-guide'
+        );
+        actions.close();
       }
     },
 

@@ -10,6 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import type { InteractivityCallbacks } from '../../types/interactivity-shared';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import { setupFocusTrap } from '@aggressive-apparel/helpers';
 
@@ -99,9 +100,11 @@ interface ExitIntentStore {
   actions: {
     open: () => void;
     close: () => void;
-    [key: string]: (...args: any[]) => any;
+    submit: (event: Event) => Promise<void>;
+    clearError: () => void;
+    handleKeydown: (event: KeyboardEvent) => void;
   };
-  callbacks: Record<string, (...args: any[]) => any>;
+  callbacks: InteractivityCallbacks;
 }
 
 const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
@@ -236,8 +239,8 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
 
     handleKeydown(event: KeyboardEvent): void {
       if (event.key === 'Escape' && state.isOpen) {
-        (
-          store('aggressive-apparel/exit-intent') as unknown as ExitIntentStore
+        store<ExitIntentStore>(
+          'aggressive-apparel/exit-intent'
         ).actions.close();
       }
     },
@@ -249,7 +252,7 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
 
       const {
         actions: { open },
-      } = store('aggressive-apparel/exit-intent') as unknown as ExitIntentStore;
+      } = store<ExitIntentStore>('aggressive-apparel/exit-intent');
 
       // Arm after 5-second delay to prevent false triggers on page load.
       hasTriggered = true;

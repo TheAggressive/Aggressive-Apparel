@@ -4,9 +4,9 @@
  * @package Aggressive_Apparel
  */
 
-import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 import './style.css';
 
@@ -19,9 +19,6 @@ interface FilterToggleAttributes {
   alignment: 'left' | 'center' | 'right';
 }
 
-registerBlockType(
-  metadata as unknown as BlockConfiguration<FilterToggleAttributes>,
-  {
-    edit: Edit,
-  }
-);
+registerThemeBlock<FilterToggleAttributes>(metadata, {
+  edit: Edit,
+});

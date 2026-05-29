@@ -16,6 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
+      "jest",
       "@types/react",
       "@types/react-dom",
       "@types/wordpress__block-editor",

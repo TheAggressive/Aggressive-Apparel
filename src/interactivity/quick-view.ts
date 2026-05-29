@@ -12,6 +12,11 @@
  * @since 1.17.0
  */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
@@ -552,8 +557,8 @@ function buildVariations(
 
 interface QuickViewStore {
   state: QuickViewState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 // Store reference for focus trap cleanup.

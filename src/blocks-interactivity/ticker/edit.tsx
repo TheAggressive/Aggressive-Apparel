@@ -66,7 +66,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             )}
           />
 
-          <SelectControl
+          <SelectControl<string>
             label={__('Direction', 'aggressive-apparel')}
             value={attributes.direction}
             options={[

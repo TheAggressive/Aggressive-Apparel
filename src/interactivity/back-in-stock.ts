@@ -7,6 +7,8 @@
  * @since 1.18.0
  */
 
+import type { InteractivityActions } from '../../types/interactivity-shared';
+
 import { store, getContext } from '@wordpress/interactivity';
 
 interface BackInStockContext {
@@ -39,7 +41,7 @@ interface BackInStockState {
 
 interface BackInStockStore {
   state: BackInStockState;
-  actions: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
 }
 
 const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {

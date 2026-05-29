@@ -19,8 +19,9 @@ import {
   ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import type { CSSProperties } from 'react';
 
-interface CopyrightAttributes {
+export interface CopyrightAttributes {
   ownerName: string;
   showStartYear: boolean;
   startYear: string;
@@ -53,7 +54,9 @@ export default function Edit({
   const copyrightText = `${prefix} ${yearDisplay} ${ownerName}`;
 
   const blockProps = useBlockProps({
-    style: { textAlign: textAlign || undefined },
+    style: {
+      textAlign: (textAlign || undefined) as CSSProperties['textAlign'],
+    },
   });
 
   return (
@@ -93,7 +96,7 @@ export default function Edit({
                 value={startYear}
                 onChange={value => setAttributes({ startYear: value })}
               />
-              <SelectControl
+              <SelectControl<string>
                 label={__('Year Separator', 'aggressive-apparel')}
                 value={separator}
                 options={[

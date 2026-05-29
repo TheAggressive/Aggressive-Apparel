@@ -112,9 +112,10 @@
 .wp-block-aggressive-apparel-modal__dialog {
 	position: relative;
 	z-index: 1;
-	width: min(90vw, 40rem);
+	display: flex;
+	flex-direction: column;
+	width: min(90vw, var(--aa-dialog-max-width, 40rem));
 	max-height: 85vh;
-	overflow-y: auto;
 	background-color: var(--wp--preset--color--light-dark-white-black, #fff);
 	color: var(--wp--preset--color--light-dark-black-white, #000);
 
@@ -219,65 +220,261 @@
 		transform: translateX(100%); /* Closed: off-screen right. */
 	}
 
-	/* ── Enter animation initial (closed) states ────── */
+	/* ── Enter animation initial (closed) states ─────────────────────────────
+	   All values are the "before" state. The base transition animates FROM
+	   these values TO the open state (opacity: 1; transform: none).
+	   ─────────────────────────────────────────────────────────────────────── */
 
-	&.modal-enter-slide-down {
-		transform: translateY(-2rem);
+	/* Directional slides — all four cardinal directions. */
+	&.modal-enter-slide-down  { transform: translateY(-2rem); }
+
+	&.modal-enter-slide-up    { transform: translateY(2rem); }
+
+	&.modal-enter-slide-left  { transform: translateX(2rem); }
+
+	&.modal-enter-slide-right { transform: translateX(-2rem); }
+
+	/* Scale variants. */
+	&.modal-enter-zoom-in { transform: scale(0.92); }
+
+	&.modal-enter-expand  { transform: scale(0.96); }
+
+	&.modal-enter-recede  { transform: scale(1.04); }
+
+	/* Lift — ultra-subtle native dropdown feel; fixed 150ms ignores the duration setting. */
+	&.modal-enter-lift {
+		transform: translateY(4px) scale(0.98);
+		transition:
+			opacity 150ms ease-out,
+			transform 150ms ease-out;
 	}
 
-	&.modal-enter-slide-up {
-		transform: translateY(2rem);
+	/* Spring — elastic bezier overshoots then settles back.
+	   Both opacity and transform use the same duration so transitionend fires
+	   only when the full animation (including overshoot) has completed. */
+	&.modal-enter-spring {
+		transform: translateY(1.5rem) scale(0.96);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
 
-	&.modal-enter-zoom-in {
-		transform: scale(0.92);
+	/* Pop — pure scale spring, no translate. */
+	&.modal-enter-pop {
+		transform: scale(0.88);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
 
-	/* Center-positioned variants compose with 'translate' cleanly. */
-	&.modal-position-center.modal-enter-slide-down {
-		transform: translateY(-2rem);
+	/* Warp — expo-out: opens almost instantly then decelerates to rest. */
+	&.modal-enter-warp {
+		transform: scale(0.92) translateY(8px);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
-	&.modal-position-center.modal-enter-slide-up {
-		transform: translateY(2rem);
+	/* Material — Material Design 3 "emphasized decelerate" easing. */
+	&.modal-enter-material {
+		transform: translateY(1rem) scale(0.94);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.2, 0, 0, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.2, 0, 0, 1);
 	}
 
-	&.modal-position-center.modal-enter-zoom-in {
-		transform: scale(0.92);
+	/* Float — weighted, editorial. expo-out gives it a sense of mass decelerating. */
+	&.modal-enter-float {
+		transform: translateY(1.5rem) scale(0.94);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1);
 	}
+
+	/* Drift — content materializes (expo-out opacity) then glides to position. */
+	&.modal-enter-drift {
+		transform: translateY(-1rem) scale(0.94);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	/* Flip up — 3D perspective flip. Same duration as opacity so finish() fires
+	   only after the full flip completes, not mid-rotation. */
+	&.modal-enter-flip-up {
+		transform: perspective(800px) rotateX(-80deg);
+		transform-origin: bottom center;
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	/* Blur — filter-based; adds filter to the transition list. */
+	&.modal-enter-blur {
+		filter: blur(16px);
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+			filter var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+			transform var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	/* Blur must be cleared while open — otherwise dialog content stays blurry. */
+	.wp-block-aggressive-apparel-modal__shell.is-open &.modal-enter-blur {
+		filter: blur(0);
+	}
+
+	/* Center variants — 'translate' (positioning) and 'transform' (animation) are
+	   independent CSS properties so these are technically redundant, kept for parity. */
+	&.modal-position-center.modal-enter-slide-down  { transform: translateY(-2rem); }
+
+	&.modal-position-center.modal-enter-slide-up    { transform: translateY(2rem); }
+
+	&.modal-position-center.modal-enter-spring      { transform: translateY(1.5rem) scale(0.96); }
+
+	&.modal-position-center.modal-enter-flip-up     { transform: perspective(800px) rotateX(-80deg); }
+
+	/* Exit animations are applied imperatively via inline styles in view.ts
+	   (buildExitAnimation), independent of these enter classes — so enter and
+	   exit can be mixed freely. No modal-exit-* classes are used. */
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;
 		transform: none !important;
+		filter: none !important;
+		clip-path: none !important;
 	}
 }
 
 /* ──────────────────────────────────────────────
- * Close button (rendered by save.js / InnerBlocks)
+ * Dialog body — the scrollable content area
  * ────────────────────────────────────────────── */
 
-.wp-block-aggressive-apparel-modal__close,
-.wp-block-laao-modal-close {
-	display: flex;
+.wp-block-aggressive-apparel-modal__dialog-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+/* ──────────────────────────────────────────────
+ * Close button (server-rendered by render.php)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__close {
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	align-self: flex-end;
-	min-width: 2.75rem;
-	min-height: 2.75rem;
+	gap: 0.375em;
+	flex-shrink: 0;
 	padding: 0;
 	border: none;
-	background: transparent;
-	color: currentcolor;
-	font-size: 1.25rem;
+	background: var(--aa-close-btn-bg, transparent);
+	color: var(--aa-close-btn-color, currentcolor);
+	font-size: 1rem;
+	font-weight: 600;
 	line-height: 1;
 	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease;
 
 	&:hover,
 	&:focus-visible {
-		background-color: var(--wp--preset--color--red, #dc2626);
-		color: var(--wp--preset--color--white, #fff);
+		background-color: var(--aa-close-btn-hover-bg, var(--wp--preset--color--red, #dc2626));
+		color: var(--aa-close-btn-hover-color, var(--wp--preset--color--white, #fff));
+		border-color: transparent;
 		outline: none;
+	}
+
+	/* ── Size variants ────── */
+
+	&.close-size-sm {
+		min-width: 2rem;
+		min-height: 2rem;
+		font-size: 0.875rem;
+	}
+
+	&.close-size-md {
+		min-width: 2.75rem;
+		min-height: 2.75rem;
+		font-size: 1.125rem;
+	}
+
+	&.close-size-lg {
+		min-width: 3.5rem;
+		min-height: 3.5rem;
+		font-size: 1.375rem;
+	}
+
+	/* ── Style variants ────── */
+
+	&.close-variant-ghost {
+		border: none;
+		border-radius: 0.25rem;
+	}
+
+	&.close-variant-outlined {
+		padding: 0.375rem;
+		border: 1px solid currentcolor;
+		border-radius: 0.25rem;
+	}
+
+	&.close-variant-filled {
+		padding: 0.375rem;
+		background: var(--aa-close-btn-bg, rgb(0 0 0 / 8%));
+		border: none;
+		border-radius: 0.25rem;
+	}
+
+	/* ── Inside placements ────── */
+
+	&.close-placement-inside-top-right { align-self: flex-end; }
+
+	&.close-placement-inside-top-left { align-self: flex-start; }
+
+	&.close-placement-inside-bottom-right {
+		align-self: flex-end;
+		margin-top: auto;
+	}
+
+	&.close-placement-inside-bottom-left {
+		align-self: flex-start;
+		margin-top: auto;
+	}
+
+	/* Sticky — stays visible when scrolling long modal content. */
+	&.close-placement-sticky-top-right {
+		align-self: flex-end;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+	}
+
+	/* ── Outside placements — absolutely positioned in the shell ────── */
+
+	&.close-placement-outside-top-right,
+	&.close-placement-outside-top-left {
+		position: absolute;
+		z-index: 2;
+		opacity: 0;
+		transition:
+			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
+			background-color 0.15s ease,
+			color 0.15s ease;
+
+		.wp-block-aggressive-apparel-modal__shell.is-open & {
+			opacity: 1;
+		}
+	}
+
+	&.close-placement-outside-top-right {
+		top: 1rem;
+		right: 1rem;
+	}
+
+	&.close-placement-outside-top-left {
+		top: 1rem;
+		left: 1rem;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -306,23 +503,54 @@
 			opacity: 0;
 		}
 
-		/* Slide-down: enter from above. */
+		/* Enter animation starting states — one per animation type. */
 		.wp-block-aggressive-apparel-modal__shell.is-open
-		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-down {
-			transform: translateY(-2rem);
-		}
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-down { transform: translateY(-2rem); }
 
-		/* Slide-up: enter from below. */
 		.wp-block-aggressive-apparel-modal__shell.is-open
-		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-up {
-			transform: translateY(2rem);
-		}
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-up { transform: translateY(2rem); }
 
-		/* Zoom-in: enter at reduced scale. */
 		.wp-block-aggressive-apparel-modal__shell.is-open
-		.wp-block-aggressive-apparel-modal__dialog.modal-enter-zoom-in {
-			transform: scale(0.92);
-		}
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-left { transform: translateX(2rem); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-slide-right { transform: translateX(-2rem); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-zoom-in { transform: scale(0.92); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-expand { transform: scale(0.96); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-recede { transform: scale(1.04); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-lift { transform: translateY(4px) scale(0.98); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-spring { transform: translateY(1.5rem) scale(0.96); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-pop { transform: scale(0.88); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-warp { transform: scale(0.92) translateY(8px); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-material { transform: translateY(1rem) scale(0.94); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-float { transform: translateY(1.5rem) scale(0.94); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-drift { transform: translateY(-1rem) scale(0.94); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-flip-up { transform: perspective(800px) rotateX(-80deg); }
+
+		.wp-block-aggressive-apparel-modal__shell.is-open
+		.wp-block-aggressive-apparel-modal__dialog.modal-enter-blur { filter: blur(16px); }
 
 		/* Bottom sheet: starts off-screen below. */
 		.wp-block-aggressive-apparel-modal__shell.is-open

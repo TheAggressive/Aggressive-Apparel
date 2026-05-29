@@ -13,6 +13,11 @@
  * @since 1.51.0
  */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 import { store } from '@wordpress/interactivity';
 import { notifyCardsRendered } from '@aggressive-apparel/helpers';
 
@@ -52,8 +57,8 @@ interface RenderedEntry {
 
 interface LoadMoreStore {
   state: LoadMoreState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 let abortController: AbortController | null = null;

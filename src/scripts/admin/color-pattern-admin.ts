@@ -7,11 +7,23 @@
  * @since 1.0.0
  */
 
+import type {
+  ColorPatternUploadResponse,
+  WpMediaAttachmentJson,
+  WpMediaFrame,
+} from '../../../types/wordpress-admin-globals';
+
+interface WpAjaxEnvelope<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
 /**
  * Color Pattern Admin Class
  */
 class AggressiveApparelColorPatternAdmin {
-  private mediaFrame: any;
+  private mediaFrame: WpMediaFrame | null = null;
   private uploadButton!: HTMLButtonElement | null;
   private changeButton!: HTMLButtonElement | null;
   private removeButton!: HTMLButtonElement | null;
@@ -89,10 +101,10 @@ class AggressiveApparelColorPatternAdmin {
     }
 
     // Create media frame
-    this.mediaFrame = (window as any).wp.media({
-      title: (window as any).aggressiveApparelPattern.strings.selectImage,
+    this.mediaFrame = window.wp.media({
+      title: window.aggressiveApparelPattern.strings.selectImage,
       button: {
-        text: (window as any).aggressiveApparelPattern.strings.useThisImage,
+        text: window.aggressiveApparelPattern.strings.useThisImage,
       },
       multiple: false,
       library: {
@@ -102,11 +114,11 @@ class AggressiveApparelColorPatternAdmin {
 
     // Handle selection
     this.mediaFrame.on('select', () => {
-      const attachment = this.mediaFrame
-        .state()
-        .get('selection')
-        .first()
-        .toJSON();
+      const frame = this.mediaFrame;
+      if (!frame) {
+        return;
+      }
+      const attachment = frame.state().get('selection').first().toJSON();
       this.handleImageSelection(attachment);
     });
 
@@ -116,48 +128,50 @@ class AggressiveApparelColorPatternAdmin {
   /**
    * Handle image selection from media library
    */
-  private handleImageSelection(attachment: any): void {
+  private handleImageSelection(attachment: WpMediaAttachmentJson): void {
     const formData = new FormData();
     formData.append('action', 'upload_color_pattern');
-    formData.append('nonce', (window as any).aggressiveApparelPattern.nonce);
+    formData.append('nonce', window.aggressiveApparelPattern.nonce);
     formData.append('term_id', this.termId.toString());
-    formData.append('attachment_id', attachment.id);
+    formData.append('attachment_id', String(attachment.id));
 
     // Show loading state
     this.showLoadingState();
 
     // Upload via XMLHttpRequest
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', (window as any).aggressiveApparelPattern.ajaxUrl);
+    xhr.open('POST', window.aggressiveApparelPattern.ajaxUrl);
 
     xhr.onload = () => {
       if (xhr.status === 200) {
         try {
-          const response = JSON.parse(xhr.responseText);
-          if (response.success) {
+          const response = JSON.parse(
+            xhr.responseText
+          ) as WpAjaxEnvelope<ColorPatternUploadResponse>;
+          if (response.success && response.data) {
             this.updatePreview(response.data);
             this.showSuccessMessage('Pattern uploaded successfully');
           } else {
             this.showErrorMessage(
-              response.data?.message ||
-                (window as any).aggressiveApparelPattern.strings.uploadError
+              response.message ||
+                window.aggressiveApparelPattern.strings.uploadError
             );
           }
         } catch {
           this.showErrorMessage(
-            (window as any).aggressiveApparelPattern.strings.uploadError
+            window.aggressiveApparelPattern.strings.uploadError
           );
         }
       } else {
         this.showErrorMessage(
-          (window as any).aggressiveApparelPattern.strings.uploadError
+          window.aggressiveApparelPattern.strings.uploadError
         );
       }
       this.hideLoadingState();
     };
     xhr.onerror = () => {
       this.showErrorMessage(
-        (window as any).aggressiveApparelPattern.strings.uploadError
+        window.aggressiveApparelPattern.strings.uploadError
       );
       this.hideLoadingState();
     };
@@ -186,14 +200,14 @@ class AggressiveApparelColorPatternAdmin {
   private removePattern(): void {
     const formData = new FormData();
     formData.append('action', 'delete_color_pattern');
-    formData.append('nonce', (window as any).aggressiveApparelPattern.nonce);
+    formData.append('nonce', window.aggressiveApparelPattern.nonce);
     formData.append('term_id', this.termId.toString());
 
     // Show loading state
     this.showLoadingState();
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', (window as any).aggressiveApparelPattern.ajaxUrl);
+    xhr.open('POST', window.aggressiveApparelPattern.ajaxUrl);
     xhr.onload = () => {
       if (xhr.status === 200) {
         try {
@@ -224,7 +238,7 @@ class AggressiveApparelColorPatternAdmin {
   /**
    * Update preview with new pattern
    */
-  private updatePreview(data: any): void {
+  private updatePreview(data: ColorPatternUploadResponse): void {
     if (!this.previewContainer) {
       return;
     }
@@ -248,9 +262,8 @@ class AggressiveApparelColorPatternAdmin {
     changeButton.type = 'button';
     changeButton.className =
       'button aggressive-apparel-color-pattern-admin__change-button';
-    changeButton.textContent = (
-      window as any
-    ).aggressiveApparelPattern.strings.changePattern;
+    changeButton.textContent =
+      window.aggressiveApparelPattern.strings.changePattern;
     actionsDiv.appendChild(changeButton);
 
     // Create remove button
@@ -258,9 +271,8 @@ class AggressiveApparelColorPatternAdmin {
     removeButton.type = 'button';
     removeButton.className =
       'button aggressive-apparel-color-pattern-admin__remove-button';
-    removeButton.textContent = (
-      window as any
-    ).aggressiveApparelPattern.strings.removePattern;
+    removeButton.textContent =
+      window.aggressiveApparelPattern.strings.removePattern;
     actionsDiv.appendChild(removeButton);
 
     this.previewContainer.appendChild(actionsDiv);
@@ -301,9 +313,8 @@ class AggressiveApparelColorPatternAdmin {
     uploadButton.type = 'button';
     uploadButton.className =
       'button aggressive-apparel-color-pattern-admin__upload-button';
-    uploadButton.textContent = (
-      window as any
-    ).aggressiveApparelPattern.strings.uploadPattern;
+    uploadButton.textContent =
+      window.aggressiveApparelPattern.strings.uploadPattern;
     noPatternDiv.appendChild(uploadButton);
 
     this.previewContainer.appendChild(noPatternDiv);

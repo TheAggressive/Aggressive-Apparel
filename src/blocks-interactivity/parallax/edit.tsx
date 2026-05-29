@@ -9,6 +9,7 @@
 import {
   InnerBlocks,
   InspectorControls,
+  store as blockEditorStore,
   useBlockProps,
 } from '@wordpress/block-editor';
 import { BlockEditProps } from '@wordpress/blocks';
@@ -28,7 +29,7 @@ import { __ } from '@wordpress/i18n';
 import { DirectionPicker } from './components/DirectionPicker';
 import { EffectPresets, PresetConfig } from './components/EffectPresets';
 import { EffectsControls } from './components/EffectsControls';
-import { ParallaxAttributes } from './types';
+import { ElementParallaxSettings, ParallaxAttributes } from './types';
 
 /**
  * Hook to detect blocks inside parallax containers and add parallax controls
@@ -44,7 +45,7 @@ const useParallaxBlockEnhancer = () => {
  */
 export const ParallaxControls = ({ clientId }: { clientId: string }) => {
   const block = useSelect(
-    (select: any) => select('core/block-editor').getBlock(clientId),
+    select => select(blockEditorStore).getBlock(clientId),
     [clientId]
   );
 
@@ -82,7 +83,10 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
     return null;
   }
 
-  const updateParallaxSetting = (key: string, value: any) => {
+  const updateParallaxSetting = (
+    key: keyof ElementParallaxSettings,
+    value: ElementParallaxSettings[keyof ElementParallaxSettings] | string
+  ) => {
     updateBlockAttributes(clientId, {
       aggressiveApparelParallax: {
         ...parallaxSettings,

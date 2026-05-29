@@ -9,9 +9,11 @@
  * @since 1.56.0
  */
 
+import type { ComponentType } from 'react';
+import type { BlockEditProps } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls, useSetting } from '@wordpress/block-editor';
+import { InspectorControls, useSettings } from '@wordpress/block-editor';
 import {
   PanelBody,
   ColorPalette,
@@ -52,6 +54,28 @@ interface AdaptiveColor {
 interface BlockAttributes {
   adaptiveBackground?: AdaptiveColor;
   adaptiveText?: AdaptiveColor;
+  [key: string]: unknown;
+}
+
+interface SaveExtraProps {
+  className?: string;
+  style?: Record<string, string>;
+  [key: string]: string | Record<string, string> | undefined;
+}
+
+interface RegisteredBlockType {
+  name: string;
+  attributes?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface BlockListBlockWrapperProps {
+  attributes: BlockAttributes;
+  wrapperProps?: {
+    className?: string;
+    style?: Record<string, string>;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -122,9 +146,9 @@ function AdaptiveColorPanel({
   supportsBackground: boolean;
   supportsText: boolean;
 }) {
-  const allColors = useSetting('color.palette') as
-    | Array<{ name: string; slug: string; color: string }>
-    | undefined;
+  const [allColors] = useSettings('color.palette') as [
+    Array<{ name: string; slug: string; color: string }> | undefined,
+  ];
 
   // Filter out adaptive (light-dark) palette entries — they shouldn't appear
   // in per-mode pickers since each slot expects a single concrete color value.
@@ -228,8 +252,10 @@ function AdaptiveColorPanel({
  * Filter 2: Add Adaptive Colors panel to block sidebar.
  */
 const withAdaptiveColorControls = createHigherOrderComponent(
-  (BlockEdit: any) => {
-    function EnhancedBlockEdit(props: any) {
+  (BlockEdit: ComponentType<BlockEditProps<BlockAttributes>>) => {
+    function EnhancedBlockEdit(
+      props: BlockEditProps<BlockAttributes> & { name: string }
+    ) {
       const blockType = getBlockType(props.name);
       const background = !!blockType?.attributes?.adaptiveBackground;
       const text = !!blockType?.attributes?.adaptiveText;
@@ -297,7 +323,11 @@ function buildAdaptiveStyles(
 addFilter(
   'blocks.getSaveContent.extraProps',
   'aggressive-apparel/save-adaptive-color-styles',
-  (extraProps: any, blockType: any, attributes: BlockAttributes) => {
+  (
+    extraProps: SaveExtraProps,
+    _blockType: RegisteredBlockType,
+    attributes: BlockAttributes
+  ) => {
     const adaptiveStyles = buildAdaptiveStyles(attributes);
 
     if (Object.keys(adaptiveStyles).length === 0) {
@@ -324,8 +354,8 @@ addFilter(
  * normal inline styles.
  */
 const withAdaptiveColorPreview = createHigherOrderComponent(
-  (BlockListBlock: any) => {
-    function EnhancedBlockListBlock(props: any) {
+  (BlockListBlock: ComponentType<BlockListBlockWrapperProps>) => {
+    function EnhancedBlockListBlock(props: BlockListBlockWrapperProps) {
       const adaptiveStyles = buildAdaptiveStyles(props.attributes);
 
       if (Object.keys(adaptiveStyles).length === 0) {

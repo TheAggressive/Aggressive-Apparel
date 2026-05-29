@@ -4,10 +4,10 @@
  * @package Aggressive_Apparel
  */
 
-import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import { createElement } from '@wordpress/element';
 import metadata from './block.json';
 import Edit from './edit';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 // Import styles for webpack to bundle.
 import './style.css';
@@ -39,7 +39,7 @@ const icon = createElement(
   })
 );
 
-registerBlockType(metadata as unknown as BlockConfiguration<LogoAttributes>, {
+registerThemeBlock<LogoAttributes>(metadata, {
   icon,
   edit: Edit,
 });

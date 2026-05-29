@@ -7,6 +7,11 @@
  * @since 1.18.0
  */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 import { store } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 
@@ -61,8 +66,8 @@ function deferUnlock(): void {
 
 interface BottomNavStore {
   state: BottomNavState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 const { state, actions } = store<BottomNavStore>(

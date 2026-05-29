@@ -4,15 +4,12 @@
  * @package Aggressive_Apparel
  */
 
-import {
-  createBlock,
-  registerBlockType,
-  type BlockConfiguration,
-} from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
 import Save from './save';
 import type { NavLinkAttributes } from './types';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 // Import styles for webpack to bundle.
 import './editor.css';
@@ -50,11 +47,8 @@ const transforms = {
   ],
 };
 
-registerBlockType(
-  metadata as unknown as BlockConfiguration<NavLinkAttributes>,
-  {
-    edit: Edit,
-    save: Save,
-    transforms,
-  } as BlockConfiguration<NavLinkAttributes> & { transforms: typeof transforms }
-);
+registerThemeBlock<NavLinkAttributes>(metadata, {
+  edit: Edit,
+  save: Save,
+  transforms,
+});

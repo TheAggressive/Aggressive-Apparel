@@ -10,7 +10,7 @@ interface EffectTimingControlsProps {
   effectStart?: number;
   effectEnd?: number;
   effectMode?: 'sustain' | 'peek' | 'reverse';
-  onUpdate: (_key: string, _value: any) => void;
+  onUpdate: (_key: string, _value: string | number) => void;
 }
 
 export const EffectTimingControls = ({

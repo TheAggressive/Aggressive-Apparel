@@ -6,6 +6,22 @@
 
 import { addFilter } from '@wordpress/hooks';
 import { DEFAULT_ELEMENT_SETTINGS } from './config';
+import type { BlockAttributesWithParallax } from './types';
+
+interface BlockRegistrationSettings {
+  attributes?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface SaveExtraProps {
+  className?: string;
+  style?: Record<string, string>;
+  [key: string]: string | Record<string, string> | undefined;
+}
+
+interface BlockTypeSaveContext {
+  name: string;
+}
 
 /**
  * Add parallax attributes to all block types (except our own parallax block)
@@ -13,7 +29,7 @@ import { DEFAULT_ELEMENT_SETTINGS } from './config';
 addFilter(
   'blocks.registerBlockType',
   'aggressive-apparel/add-parallax-attributes',
-  (settings: any, name: string) => {
+  (settings: BlockRegistrationSettings, name: string) => {
     // Skip our own parallax block to avoid self-referencing
     if (name === 'aggressive-apparel/parallax') {
       return settings;
@@ -39,7 +55,11 @@ addFilter(
 addFilter(
   'blocks.getSaveContent.extraProps',
   'aggressive-apparel/save-parallax-attributes',
-  (extraProps: any, blockType: any, attributes: any) => {
+  (
+    extraProps: SaveExtraProps,
+    blockType: BlockTypeSaveContext,
+    attributes: BlockAttributesWithParallax
+  ) => {
     // Skip our own parallax block
     if (blockType.name === 'aggressive-apparel/parallax') {
       return extraProps;
@@ -79,16 +99,9 @@ addFilter(
         const effects = attributes.aggressiveApparelParallax.effects;
 
         // Check if any effects are configured (including default values for layering control)
-        const hasAnyEffects =
-          effects.zoom ||
-          effects.depthLevel ||
-          effects.zIndex ||
-          effects.opacity ||
-          effects.rotation ||
-          effects.scrollOpacity ||
-          effects.velocityBlur ||
-          effects.magneticMouse ||
-          effects.inertia;
+        const hasAnyEffects = Object.values(effects).some(
+          effect => effect !== undefined && effect !== null
+        );
 
         if (hasAnyEffects) {
           extraProps['data-parallax-effects'] = JSON.stringify(effects);

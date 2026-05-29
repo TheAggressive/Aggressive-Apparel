@@ -53,6 +53,9 @@ jobs:
       - name: Run ESLint
         run: pnpm lint:js
 
+      - name: Run TypeScript typecheck
+        run: pnpm typecheck
+
       - name: Run Stylelint
         run: pnpm lint:css
 

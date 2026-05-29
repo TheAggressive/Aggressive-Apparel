@@ -8,6 +8,11 @@
  * @since 1.18.0
  */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 import {
   store,
   getContext,
@@ -89,8 +94,8 @@ interface PredictiveSearchStoreState {
 
 interface PredictiveSearchStore {
   state: PredictiveSearchStoreState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 /** Per-instance timers and abort controllers, keyed by instanceId. */

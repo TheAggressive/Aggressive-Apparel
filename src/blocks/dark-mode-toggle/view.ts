@@ -196,5 +196,5 @@ if (typeof wp !== 'undefined' && wp.hooks) {
 }
 
 // Export for potential external use
-(window as any).DarkModeToggle = DarkModeToggle;
-(window as any).initDarkModeToggles = initDarkModeToggles;
+window.DarkModeToggle = DarkModeToggle;
+window.initDarkModeToggles = initDarkModeToggles;

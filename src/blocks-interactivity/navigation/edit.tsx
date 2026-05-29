@@ -12,7 +12,7 @@ import {
   InspectorControls,
   useBlockProps,
   useInnerBlocksProps,
-  useSetting,
+  useSettings,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
@@ -170,9 +170,9 @@ export default function Edit({
   } = attributes;
 
   // Get theme color palette, filtering out adaptive (light-dark) entries.
-  const allColors = useSetting('color.palette') as
-    | Array<{ name: string; slug: string; color: string }>
-    | undefined;
+  const [allColors] = useSettings('color.palette') as [
+    Array<{ name: string; slug: string; color: string }> | undefined,
+  ];
   const colors = useMemo(
     () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
     [allColors]

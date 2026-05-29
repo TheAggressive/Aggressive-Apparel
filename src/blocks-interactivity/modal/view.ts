@@ -27,9 +27,12 @@ import { setupFocusTrap } from '../../interactivity/helpers';
 interface ModalState {
   isOpen: boolean;
   openOnLoad: boolean;
+  openOnLoadOnce: boolean;
   animationDuration: number;
   exitIntentTrigger: boolean;
   exitIntentReshowDays: number;
+  scrollDepthTrigger: boolean;
+  scrollDepthPercent: number;
 }
 
 interface ModalContext {
@@ -40,7 +43,12 @@ interface ModalStore {
   state: {
     modals: Record<string, ModalState>;
   };
-  actions: Record<string, (...args: any[]) => any>;
+  actions: {
+    init: () => void;
+    openModal: () => void;
+    closeModal: () => void;
+    handleKeydown: (event?: Event) => void;
+  };
 }
 
 // ── Module-level references ───────────────────────────────────────────────────
@@ -78,12 +86,117 @@ function getAnnouncer(id: string): HTMLElement | null {
   );
 }
 
+// ── Exit animation engine ─────────────────────────────────────────────────────
+
+const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
+interface ExitAnimDef {
+  /** Full CSS transition string. */
+  transition: string;
+  /** Inline style properties to apply as the exit target. */
+  styles: Partial<CSSStyleDeclaration>;
+}
+
+function buildExitAnimation(name: string, duration: number): ExitAnimDef {
+  const d = `${duration}ms`;
+  const t = `${d} ${EASE}`;
+
+  // Every exit explicitly sets opacity, transform AND filter so the exit is
+  // fully self-contained. The enter-animation class stays on the dialog during
+  // close; without these explicit resets its leftover transform/filter "before"
+  // state would bleed into the exit (making the exit appear to mirror the enter).
+  switch (name) {
+    case 'slide-up':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: {
+          opacity: '0',
+          transform: 'translateY(-2rem)',
+          filter: 'none',
+        },
+      };
+    case 'slide-down':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'translateY(2rem)', filter: 'none' },
+      };
+    case 'slide-left':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: {
+          opacity: '0',
+          transform: 'translateX(-2rem)',
+          filter: 'none',
+        },
+      };
+    case 'slide-right':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'translateX(2rem)', filter: 'none' },
+      };
+    case 'zoom-out':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'scale(0.9)', filter: 'none' },
+      };
+    case 'zoom-in':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'scale(1.1)', filter: 'none' },
+      };
+    case 'expand':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'scale(0.96)', filter: 'none' },
+      };
+    case 'recede':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'scale(1.04)', filter: 'none' },
+      };
+    case 'pop':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: { opacity: '0', transform: 'scale(0.88)', filter: 'none' },
+      };
+    case 'flip-down':
+      return {
+        transition: `opacity ${t}, transform ${t}`,
+        styles: {
+          opacity: '0',
+          transform: 'perspective(800px) rotateX(80deg)',
+          filter: 'none',
+        },
+      };
+    case 'blur':
+      return {
+        transition: `opacity ${t}, filter ${t}`,
+        styles: { opacity: '0', transform: 'none', filter: 'blur(16px)' },
+      };
+    case 'none':
+      return {
+        transition: 'opacity 0ms',
+        styles: { opacity: '0', transform: 'none', filter: 'none' },
+      };
+    default: // 'fade'
+      return {
+        transition: `opacity ${t}`,
+        styles: { opacity: '0', transform: 'none', filter: 'none' },
+      };
+  }
+}
+
+function clearExitStyles(dialog: HTMLElement): void {
+  dialog.style.removeProperty('transition');
+  dialog.style.removeProperty('opacity');
+  dialog.style.removeProperty('transform');
+  dialog.style.removeProperty('filter');
+}
+
 // ── Core open / close ─────────────────────────────────────────────────────────
 
 function openModal(id: string, modalsState: Record<string, ModalState>): void {
   if (!id || !modalsState[id]) return;
-
-  console.log('[modal] openModal', id);
 
   modalRefs.set(id, {
     triggerElement: document.activeElement as HTMLElement | null,
@@ -91,9 +204,14 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
   });
 
   lockScroll();
+  document.dispatchEvent(new CustomEvent('aa:modal:open', { detail: { id } }));
+
+  // Clear any stale exit-animation inline styles from a previous close so
+  // the CSS enter animation starts from a clean state.
+  const dialogEl = getDialog(id);
+  if (dialogEl) clearExitStyles(dialogEl);
 
   const shell = getShell(id);
-  console.log('[modal] shell', shell);
   if (shell) {
     shell.hidden = false;
     void shell.offsetHeight; // Force reflow so the browser captures the "before" state.
@@ -101,7 +219,6 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
   }
 
   modalsState[id].isOpen = true;
-  console.log('[modal] isOpen set to true, shell classes:', shell?.className);
 
   // Announce to screen readers that do not fire on programmatic focus alone.
   const announcer = getAnnouncer(id);
@@ -114,7 +231,6 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
 
   requestAnimationFrame(() => {
     const dialog = getDialog(id);
-    console.log('[modal] dialog', dialog);
     if (dialog) {
       const refs = modalRefs.get(id);
       if (refs) refs.focusTrapCleanup = setupFocusTrap(dialog);
@@ -129,6 +245,7 @@ function closeModal(id: string, modalsState: Record<string, ModalState>): void {
   if (!id || !modalsState[id]) return;
 
   modalsState[id].isOpen = false;
+  document.dispatchEvent(new CustomEvent('aa:modal:close', { detail: { id } }));
 
   const announcer = getAnnouncer(id);
   if (announcer) announcer.textContent = '';
@@ -148,15 +265,26 @@ function closeModal(id: string, modalsState: Record<string, ModalState>): void {
   const shell = getShell(id);
   const dialog = getDialog(id);
 
+  // Remove is-open to dismiss backdrop and shell while the exit animation plays.
+  if (shell) shell.classList.remove('is-open');
+
+  // Apply exit animation via inline styles — completely independent of the CSS
+  // enter-animation classes, so enter and exit can be mixed freely.
+  if (dialog) {
+    const exitName = dialog.dataset.exitAnimation ?? 'fade';
+    const { transition, styles } = buildExitAnimation(exitName, duration);
+    dialog.style.transition = transition;
+    Object.assign(dialog.style, styles);
+  }
+
   let done = false;
   const finish = (): void => {
     if (done) return;
     done = true;
+    // Clear inline exit styles so the next open starts from clean CSS state.
+    if (dialog) clearExitStyles(dialog);
     unlockScroll();
-    if (shell) {
-      shell.classList.remove('is-open');
-      shell.hidden = true;
-    }
+    if (shell) shell.hidden = true;
     modalRefs.delete(id);
   };
 
@@ -226,6 +354,32 @@ function setupExitIntent(
   });
 }
 
+// ── Scroll depth detection ────────────────────────────────────────────────────
+
+function setupScrollDepthTrigger(
+  id: string,
+  modalsState: Record<string, ModalState>
+): void {
+  const modal = modalsState[id];
+  if (!modal) return;
+
+  const percent = modal.scrollDepthPercent ?? 50;
+  let triggered = false;
+
+  const handleScroll = (): void => {
+    if (triggered) return;
+    const scrolled = window.scrollY + window.innerHeight;
+    const total = document.documentElement.scrollHeight;
+    if ((scrolled / total) * 100 >= percent) {
+      triggered = true;
+      window.removeEventListener('scroll', handleScroll);
+      openModal(id, modalsState);
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+}
+
 // ── Store ─────────────────────────────────────────────────────────────────────
 
 const { state } = store<ModalStore>('aggressive-apparel/modal', {
@@ -236,7 +390,6 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
     /** Called via data-wp-init. Binds external triggers and handles openOnLoad. */
     init(): void {
       const { id } = getContext<ModalContext>();
-      console.log('[modal] init', id, state.modals[id]);
       if (!id || !state.modals[id]) return;
 
       document
@@ -249,12 +402,26 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
         });
 
       if (state.modals[id].openOnLoad) {
-        openModal(id, state.modals);
+        const once = state.modals[id].openOnLoadOnce;
+        const seenKey = `aa_modal_seen_${id}`;
+        let alreadySeen = false;
+        if (once) {
+          try {
+            alreadySeen = !!localStorage.getItem(seenKey);
+            if (!alreadySeen) localStorage.setItem(seenKey, '1');
+          } catch {
+            // Private browsing — treat as not seen.
+          }
+        }
+        if (!alreadySeen) openModal(id, state.modals);
       }
 
       if (state.modals[id].exitIntentTrigger) {
-        console.log('[modal] setting up exit intent for', id);
         setupExitIntent(id, state.modals);
+      }
+
+      if (state.modals[id].scrollDepthTrigger) {
+        setupScrollDepthTrigger(id, state.modals);
       }
     },
 

@@ -4,20 +4,17 @@
  * @package Aggressive_Apparel
  */
 
-import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
 import Save from './save';
 import type { AnimateOnScrollAttributes } from './types';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 // Import styles for webpack to bundle.
 import './editor.css';
 import './style.css';
 
-registerBlockType(
-  metadata as unknown as BlockConfiguration<AnimateOnScrollAttributes>,
-  {
-    edit: Edit,
-    save: Save,
-  }
-);
+registerThemeBlock<AnimateOnScrollAttributes>(metadata, {
+  edit: Edit,
+  save: Save,
+});

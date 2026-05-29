@@ -8,6 +8,11 @@
  * @since 1.22.0
  */
 
+import type {
+  InteractivityActions,
+  InteractivityCallbacks,
+} from '../../types/interactivity-shared';
+
 import { store, getContext } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
@@ -163,8 +168,8 @@ interface ProductFiltersState {
 
 interface ProductFiltersStore {
   state: ProductFiltersState;
-  actions: Record<string, (...args: any[]) => any>;
-  callbacks: Record<string, (...args: any[]) => any>;
+  actions: InteractivityActions;
+  callbacks: InteractivityCallbacks;
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -821,9 +826,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
  * after a short idle period. CSS uses this class to reveal the scrollbar thumb.
  */
 function setupScrollbarAutoHide(): void {
-  let scrollTimer: ReturnType<typeof setTimeout> = 0 as unknown as ReturnType<
-    typeof setTimeout
-  >;
+  let scrollTimer: ReturnType<typeof setTimeout> | undefined;
   document
     .querySelectorAll<HTMLElement>('.aa-product-filters__drawer-body')
     .forEach(el => {

@@ -4,10 +4,10 @@
  * @package Aggressive_Apparel
  */
 
-import { registerBlockType, type BlockConfiguration } from '@wordpress/blocks';
 import metadata from './block.json';
 import Edit from './edit';
 import Save from './save';
+import { registerThemeBlock } from '../../utils/register-theme-block';
 
 // Block attributes type derived from block.json.
 interface MenuGroupAttributes {
@@ -18,10 +18,7 @@ interface MenuGroupAttributes {
   showTitle: boolean;
 }
 
-registerBlockType(
-  metadata as unknown as BlockConfiguration<MenuGroupAttributes>,
-  {
-    edit: Edit,
-    save: Save,
-  }
-);
+registerThemeBlock<MenuGroupAttributes>(metadata, {
+  edit: Edit,
+  save: Save,
+});

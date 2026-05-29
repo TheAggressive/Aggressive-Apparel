@@ -302,6 +302,16 @@ function closeModal(id: string, modalsState: Record<string, ModalState>): void {
   setTimeout(finish, duration + FALLBACK_BUFFER_MS);
 }
 
+// ── Auto-trigger registry ─────────────────────────────────────────────────────
+// Add entries here to wire up new automatic open triggers without touching init().
+
+type TriggerSetup = (id: string, modals: Record<string, ModalState>) => void;
+
+const AUTO_TRIGGERS: Array<{ flag: keyof ModalState; setup: TriggerSetup }> = [
+  { flag: 'exitIntentTrigger', setup: setupExitIntent },
+  { flag: 'scrollDepthTrigger', setup: setupScrollDepthTrigger },
+];
+
 // ── Exit intent detection ─────────────────────────────────────────────────────
 
 function getExitIntentKey(id: string): string {
@@ -416,12 +426,8 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
         if (!alreadySeen) openModal(id, state.modals);
       }
 
-      if (state.modals[id].exitIntentTrigger) {
-        setupExitIntent(id, state.modals);
-      }
-
-      if (state.modals[id].scrollDepthTrigger) {
-        setupScrollDepthTrigger(id, state.modals);
+      for (const { flag, setup } of AUTO_TRIGGERS) {
+        if (state.modals[id][flag]) setup(id, state.modals);
       }
     },
 

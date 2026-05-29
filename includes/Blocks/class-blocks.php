@@ -118,26 +118,11 @@ class Blocks {
 	 * @return array<string> Array of block directory paths.
 	 */
 	private static function get_block_directories( string $build_dir ): array {
-		$directories = array();
-
-		$items = scandir( $build_dir );
-		if ( ! is_array( $items ) ) {
-			return $directories;
+		$dirs = glob( rtrim( $build_dir, '/' ) . '/*', GLOB_ONLYDIR );
+		if ( ! is_array( $dirs ) ) {
+			return array();
 		}
-
-		foreach ( $items as $item ) {
-			if ( '.' === $item || '..' === $item ) {
-				continue;
-			}
-
-			$block_path = $build_dir . $item;
-
-			if ( is_dir( $block_path ) && is_readable( $block_path ) ) {
-				$directories[] = $block_path;
-			}
-		}
-
-		return $directories;
+		return array_values( array_filter( $dirs, 'is_readable' ) );
 	}
 
 	/**

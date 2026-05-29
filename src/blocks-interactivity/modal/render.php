@@ -44,6 +44,7 @@ $exit_intent_reshow_days = absint( $attributes['exitIntentReshowDays'] ?? 7 );
 $scroll_depth_trigger    = ! empty( $attributes['scrollDepthTrigger'] );
 $scroll_depth_percent    = absint( $attributes['scrollDepthPercent'] ?? 50 );
 $dialog_max_width        = sanitize_text_field( $attributes['dialogMaxWidth'] ?? '' );
+$show_dialog_title       = ! empty( $attributes['showDialogTitle'] );
 
 // ── Close button attributes ───────────────────────────────────────────────────
 
@@ -59,6 +60,32 @@ $close_hover_bg_color = sanitize_text_field( $attributes['closeButtonHoverBgColo
 
 $show_close_btn = 'none' !== $close_placement;
 $is_outside     = str_starts_with( $close_placement, 'outside-' );
+
+// ── Trigger button attributes ─────────────────────────────────────────────────
+
+$trigger_variant       = sanitize_html_class( $attributes['triggerVariant'] ?? 'outlined' );
+$trigger_size          = sanitize_html_class( $attributes['triggerSize'] ?? 'md' );
+$trigger_full_width    = ! empty( $attributes['triggerFullWidth'] );
+$trigger_border_radius = sanitize_text_field( $attributes['triggerBorderRadius'] ?? '' );
+$trigger_bg_color      = sanitize_text_field( $attributes['triggerBgColor'] ?? '' );
+$trigger_text_color    = sanitize_text_field( $attributes['triggerTextColor'] ?? '' );
+$trigger_hover_bg      = sanitize_text_field( $attributes['triggerHoverBgColor'] ?? '' );
+$trigger_hover_text    = sanitize_text_field( $attributes['triggerHoverTextColor'] ?? '' );
+
+// ── Dialog design attributes ──────────────────────────────────────────────────
+
+$dialog_padding       = sanitize_text_field( $attributes['dialogPadding'] ?? '' );
+$dialog_border_radius = sanitize_text_field( $attributes['dialogBorderRadius'] ?? '' );
+$overlay_opacity      = absint( $attributes['overlayOpacity'] ?? 50 );
+$overlay_blur         = absint( $attributes['overlayBlur'] ?? 4 );
+
+// ── Forward WP block supports (color.background, color.text, border) to dialog.
+// get_block_wrapper_attributes() applies these to the wrapper; we also need
+// them on the fixed-position dialog div so they actually render visually.
+
+$style_attr   = $attributes['style'] ?? array();
+$color_style  = $style_attr['color'] ?? array();
+$border_style = $style_attr['border'] ?? array();
 
 // Build close button HTML when needed.
 $close_btn_html = '';
@@ -137,11 +164,98 @@ if ( $show_close_btn ) {
 	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
-// Dialog inline style (duration + optional max-width CSS var).
-$dialog_inline_style = '--aa-modal-duration: ' . esc_attr( (string) $animation_duration ) . 'ms;';
-if ( $dialog_max_width ) {
-	$dialog_inline_style .= ' --aa-dialog-max-width: ' . esc_attr( $dialog_max_width ) . ';';
+// ── Trigger button inline style + classes ─────────────────────────────────────
+
+$trigger_css_vars = array();
+if ( $trigger_bg_color ) {
+	$trigger_css_vars[] = '--aa-trigger-bg: ' . esc_attr( $trigger_bg_color );
 }
+if ( $trigger_text_color ) {
+	$trigger_css_vars[] = '--aa-trigger-text: ' . esc_attr( $trigger_text_color );
+}
+if ( $trigger_hover_bg ) {
+	$trigger_css_vars[] = '--aa-trigger-hover-bg: ' . esc_attr( $trigger_hover_bg );
+}
+if ( $trigger_hover_text ) {
+	$trigger_css_vars[] = '--aa-trigger-hover-text: ' . esc_attr( $trigger_hover_text );
+}
+if ( $trigger_border_radius ) {
+	$trigger_css_vars[] = '--aa-trigger-radius: ' . esc_attr( $trigger_border_radius );
+}
+
+$trigger_style   = $trigger_css_vars ? ' style="' . implode( '; ', $trigger_css_vars ) . '"' : '';
+$trigger_classes = implode(
+	' ',
+	array_filter(
+		array(
+			'wp-block-aggressive-apparel-modal__trigger',
+			'trigger-variant-' . $trigger_variant,
+			'trigger-size-' . $trigger_size,
+			$trigger_full_width ? 'trigger-full-width' : '',
+		)
+	)
+);
+
+// ── Dialog inline style ───────────────────────────────────────────────────────
+// Combines: animation duration, max-width, and forwarded WP block-support values.
+
+$dialog_css_vars = array(
+	'--aa-modal-duration: ' . esc_attr( (string) $animation_duration ) . 'ms',
+);
+
+if ( $dialog_max_width ) {
+	$dialog_css_vars[] = '--aa-dialog-max-width: ' . esc_attr( $dialog_max_width );
+}
+if ( $dialog_padding ) {
+	$dialog_css_vars[] = '--aa-dialog-padding: ' . esc_attr( $dialog_padding );
+}
+if ( $dialog_border_radius ) {
+	$dialog_css_vars[] = '--aa-dialog-radius: ' . esc_attr( $dialog_border_radius );
+}
+
+// Forward color.background from WP block supports.
+if ( ! empty( $color_style['background'] ) ) {
+	$dialog_css_vars[] = '--aa-dialog-bg: ' . esc_attr( $color_style['background'] );
+}
+
+// Forward color.text from WP block supports.
+if ( ! empty( $color_style['text'] ) ) {
+	$dialog_css_vars[] = '--aa-dialog-text: ' . esc_attr( $color_style['text'] );
+}
+
+// Forward __experimentalBorder from WP block supports.
+if ( ! empty( $border_style['color'] ) ) {
+	$dialog_css_vars[] = '--aa-dialog-border-color: ' . esc_attr( $border_style['color'] );
+}
+if ( ! empty( $border_style['style'] ) ) {
+	$dialog_css_vars[] = '--aa-dialog-border-style: ' . esc_attr( $border_style['style'] );
+}
+if ( ! empty( $border_style['width'] ) ) {
+	$dialog_css_vars[] = '--aa-dialog-border-width: ' . esc_attr( $border_style['width'] );
+}
+if ( ! empty( $border_style['radius'] ) ) {
+	// Only set if no custom dialogBorderRadius is provided (custom takes precedence).
+	if ( ! $dialog_border_radius ) {
+		$dialog_css_vars[] = '--aa-dialog-border-radius: ' . esc_attr( $border_style['radius'] );
+	}
+}
+
+$dialog_inline_style = implode( '; ', $dialog_css_vars );
+
+// ── Backdrop/shell inline style for overlay vars ──────────────────────────────
+
+$backdrop_css_vars = array();
+// Only emit opacity var when it differs from the default (50).
+if ( 50 !== $overlay_opacity ) {
+	$backdrop_css_vars[] = '--aa-overlay-opacity: ' . esc_attr( (string) $overlay_opacity ) . '%';
+}
+// Only emit blur var when it differs from the default (4).
+if ( 4 !== $overlay_blur ) {
+	$backdrop_css_vars[] = '--aa-overlay-blur: ' . esc_attr( (string) $overlay_blur ) . 'px';
+}
+$backdrop_style = $backdrop_css_vars ? ' style="' . implode( '; ', $backdrop_css_vars ) . '"' : '';
+
+// ── Miscellaneous ─────────────────────────────────────────────────────────────
 
 // Drawer positions exit off-screen via their position transform — JS skips exit animation for them.
 $drawer_positions = array( 'bottom', 'top', 'left', 'right' );
@@ -179,12 +293,13 @@ $wrapper_attrs = get_block_wrapper_attributes(
 
 	<?php if ( empty( $trigger_block_id ) && ! $exit_intent_trigger && ! $scroll_depth_trigger ) : ?>
 	<button
-		class="wp-block-aggressive-apparel-modal__trigger"
+		class="<?php echo esc_attr( $trigger_classes ); ?>"
 		type="button"
 		data-wp-on--click="actions.openModal"
 		aria-controls="<?php echo esc_attr( $unique_id ); ?>"
 		aria-haspopup="dialog"
 		data-wp-bind--aria-expanded="state.modals[context.id].isOpen"
+		<?php echo $trigger_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	>
 		<?php echo esc_html( $trigger_label ); ?>
 	</button>
@@ -208,6 +323,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			class="wp-block-aggressive-apparel-modal__backdrop"
 			data-wp-on--click="actions.closeModal"
 			aria-hidden="true"
+			<?php echo $backdrop_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		></div>
 		<?php endif; ?>
 
@@ -225,6 +341,15 @@ $wrapper_attrs = get_block_wrapper_attributes(
 		>
 			<?php if ( $show_close_btn && ! $is_outside ) : ?>
 				<?php echo $close_btn_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php endif; ?>
+
+			<?php if ( $show_dialog_title ) : ?>
+			<h2
+				id="<?php echo esc_attr( $unique_id ); ?>-label"
+				class="wp-block-aggressive-apparel-modal__dialog-title"
+			>
+				<?php echo esc_html( $trigger_label ); ?>
+			</h2>
 			<?php endif; ?>
 
 			<div class="wp-block-aggressive-apparel-modal__dialog-body">

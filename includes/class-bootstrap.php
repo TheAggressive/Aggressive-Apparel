@@ -66,15 +66,27 @@ class Bootstrap {
 	}
 
 	/**
+	 * Detect whether the current request is running inside a test environment.
+	 *
+	 * Used by both init_security_headers() and add_security_headers() to avoid
+	 * duplicating the condition in two places.
+	 *
+	 * @return bool
+	 */
+	private function is_testing_environment(): bool {
+		return defined( 'WP_TESTS_DIR' ) ||
+			defined( 'WP_PHPUNIT__TEST' ) ||
+			( defined( 'WP_DEBUG' ) && WP_DEBUG &&
+				strpos( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ), 'phpunit' ) !== false );
+	}
+
+	/**
 	 * Initialize security headers
 	 */
 	private function init_security_headers(): void {
-		// Don't add security headers hook in testing environments.
-		if ( defined( 'WP_TESTS_DIR' ) || defined( 'WP_PHPUNIT__TEST' ) ||
-			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ), 'phpunit' ) !== false ) ) {
+		if ( $this->is_testing_environment() ) {
 			return;
 		}
-
 		add_action( 'send_headers', array( $this, 'add_security_headers' ) );
 	}
 
@@ -84,13 +96,7 @@ class Bootstrap {
 	 * @return void
 	 */
 	public function add_security_headers(): void {
-		// Don't send headers in testing environments, CLI, or if headers already sent.
-		if ( headers_sent() ||
-			defined( 'WP_TESTS_DIR' ) ||
-			defined( 'WP_PHPUNIT__TEST' ) ||
-			( defined( 'WP_DEBUG' ) && WP_DEBUG && strpos( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ), 'phpunit' ) !== false ) ||
-			( php_sapi_name() === 'cli' ) ||
-			! isset( $_SERVER['REQUEST_METHOD'] ) ) {
+		if ( headers_sent() || $this->is_testing_environment() || php_sapi_name() === 'cli' || ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
 		}
 
@@ -217,44 +223,22 @@ class Bootstrap {
 		// Always initialize product loop for theme flexibility.
 		$this->container->get( 'product_loop' )->init();
 
-		// Only initialize other WooCommerce services if WooCommerce is active.
+		// WooCommerce services are only registered when WooCommerce is active
+		// (see register_services()), so no has() checks are needed here.
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
-		// Initialize WooCommerce-specific services.
-		if ( $this->container->has( 'wc_support' ) ) {
-			$this->container->get( 'wc_support' )->init();
-		}
-		if ( $this->container->has( 'cart' ) ) {
-			$this->container->get( 'cart' )->init();
-		}
-		if ( $this->container->has( 'wc_templates' ) ) {
-			$this->container->get( 'wc_templates' )->init();
-		}
-		if ( $this->container->has( 'color_attributes' ) ) {
-			$this->container->get( 'color_attributes' )->init();
-		}
-		if ( $this->container->has( 'color_block_swatch_manager' ) ) {
-			$this->container->get( 'color_block_swatch_manager' )->init();
-		}
-		if ( $this->container->has( 'color_pattern_admin' ) ) {
-			$this->container->get( 'color_pattern_admin' )->register_hooks();
-		}
-		if ( $this->container->has( 'size_option_sorter' ) ) {
-			$this->container->get( 'size_option_sorter' )->init();
-		}
-		if ( $this->container->has( 'variation_pill_enhancer' ) ) {
-			$this->container->get( 'variation_pill_enhancer' )->init();
-		}
-
-		// Initialize feature settings page and enhancement coordinator.
-		if ( $this->container->has( 'wc_feature_settings' ) ) {
-			$this->container->get( 'wc_feature_settings' )->init();
-		}
-		if ( $this->container->has( 'wc_enhancements' ) ) {
-			$this->container->get( 'wc_enhancements' )->init();
-		}
+		$this->container->get( 'wc_support' )->init();
+		$this->container->get( 'cart' )->init();
+		$this->container->get( 'wc_templates' )->init();
+		$this->container->get( 'color_attributes' )->init();
+		$this->container->get( 'color_block_swatch_manager' )->init();
+		$this->container->get( 'color_pattern_admin' )->register_hooks();
+		$this->container->get( 'size_option_sorter' )->init();
+		$this->container->get( 'variation_pill_enhancer' )->init();
+		$this->container->get( 'wc_feature_settings' )->init();
+		$this->container->get( 'wc_enhancements' )->init();
 	}
 
 	/**

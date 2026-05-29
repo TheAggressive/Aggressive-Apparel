@@ -20,56 +20,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Service Container for dependency management
  *
+ * All services are singletons: the factory is invoked once and the instance
+ * is cached for every subsequent get() call.
+ *
  * @since 1.0.0
  */
 class Service_Container {
 
 	/**
-	 * Registered services
+	 * Registered service factories
 	 *
 	 * @var array<string, callable>
 	 */
 	private array $services = array();
 
 	/**
-	 * Shared service flags (whether instances should be cached)
-	 *
-	 * @var array<string, bool>
-	 */
-	private array $shared = array();
-
-	/**
-	 * Stored instances for shared services
+	 * Cached service instances (all services are singletons)
 	 *
 	 * @var array<string, mixed>
 	 */
 	private array $instances = array();
 
 	/**
-	 * Register a service
+	 * Register a service factory
 	 *
 	 * @param string   $key     Service identifier.
-	 * @param callable $factory Factory function that returns the service.
-	 * @param bool     $shared  Whether to share the instance.
+	 * @param callable $factory Factory function that returns the service instance.
 	 * @return void
 	 */
-	public function register( string $key, callable $factory, bool $shared = false ): void {
+	public function register( string $key, callable $factory ): void {
 		$this->services[ $key ] = $factory;
-		if ( $shared ) {
-			$this->shared[ $key ] = true;
-		}
 	}
 
 	/**
 	 * Get a service instance
+	 *
+	 * The factory is invoked on first access; subsequent calls return the cached instance.
 	 *
 	 * @param string $key Service identifier.
 	 * @return mixed Service instance.
 	 * @throws \InvalidArgumentException If service not registered.
 	 */
 	public function get( string $key ): mixed {
-		// Return shared instance if available.
-		if ( isset( $this->shared[ $key ] ) && isset( $this->instances[ $key ] ) ) {
+		if ( isset( $this->instances[ $key ] ) ) {
 			return $this->instances[ $key ];
 		}
 
@@ -78,13 +71,8 @@ class Service_Container {
 			throw new \InvalidArgumentException( "Service '{$key}' not registered" );
 		}
 
-		$instance = $this->services[ $key ]( $this );
-
-		// Cache shared instances.
-		if ( isset( $this->shared[ $key ] ) ) {
-			$this->instances[ $key ] = $instance;
-		}
-
+		$instance                = $this->services[ $key ]( $this );
+		$this->instances[ $key ] = $instance;
 		return $instance;
 	}
 

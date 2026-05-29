@@ -37,44 +37,25 @@ class Styles {
 	}
 
 	/**
+	 * Enqueue the core stylesheets shared between frontend and editor contexts.
+	 *
+	 * @return void
+	 */
+	private function enqueue_core_styles(): void {
+		Asset_Loader::enqueue_style( 'aggressive-apparel-main', 'build/styles/main' );
+	}
+
+	/**
 	 * Enqueue frontend styles
 	 *
 	 * @return void
 	 */
 	public function enqueue_styles() {
-		// Main theme stylesheet.
-		Asset_Loader::enqueue_style(
-			'aggressive-apparel-main',
-			'build/styles/main'
-		);
-
-		// Navigation styles (conditional).
-		if ( has_nav_menu( 'primary' ) ) {
-			Asset_Loader::enqueue_style(
-				'aggressive-apparel-navigation',
-				'build/styles/navigation',
-				array( 'aggressive-apparel-main' )
-			);
-		}
-
-		// Block styles.
-		Asset_Loader::enqueue_style(
-			'aggressive-apparel-blocks',
-			'build/styles/blocks',
-			array( 'aggressive-apparel-main' )
-		);
+		$this->enqueue_core_styles();
 
 		if ( is_singular( 'product' ) ) {
-			Asset_Loader::enqueue_style(
-				'aggressive-apparel-product',
-				'build/styles/woocommerce/color-swatches',
-				array()
-			);
-			Asset_Loader::enqueue_style(
-				'aggressive-apparel-variation-pills',
-				'build/styles/woocommerce/variation-pills',
-				array()
-			);
+			Asset_Loader::enqueue_style( 'aggressive-apparel-product', 'build/styles/woocommerce/color-swatches' );
+			Asset_Loader::enqueue_style( 'aggressive-apparel-variation-pills', 'build/styles/woocommerce/variation-pills' );
 		}
 
 		/**
@@ -91,18 +72,7 @@ class Styles {
 	 * @return void
 	 */
 	public function enqueue_block_assets() {
-		// Main theme stylesheet for editor context.
-		Asset_Loader::enqueue_style(
-			'aggressive-apparel-main',
-			'build/styles/main'
-		);
-
-		// Block styles for editor context.
-		Asset_Loader::enqueue_style(
-			'aggressive-apparel-blocks',
-			'build/styles/blocks',
-			array( 'aggressive-apparel-main' )
-		);
+		$this->enqueue_core_styles();
 
 		/**
 		 * Hook: After block assets enqueued

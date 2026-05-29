@@ -41,10 +41,5 @@ class TestStyles extends WP_UnitTestCase {
 			wp_style_is( 'aggressive-apparel-main', 'registered' ),
 			'Main stylesheet should be registered'
 		);
-
-		$this->assertTrue(
-			wp_style_is( 'aggressive-apparel-blocks', 'registered' ),
-			'Block stylesheet should be registered'
-		);
 	}
 }

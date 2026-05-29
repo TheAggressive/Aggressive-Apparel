@@ -75,6 +75,19 @@ export default function Edit({
     scrollDepthPercent = 50,
     openOnLoadOnce = false,
     dialogMaxWidth = '',
+    dialogPadding = '',
+    dialogBorderRadius = '',
+    overlayOpacity = 50,
+    overlayBlur = 4,
+    triggerVariant = 'outlined',
+    triggerSize = 'md',
+    triggerFullWidth = false,
+    triggerBorderRadius = '',
+    triggerBgColor = '',
+    triggerTextColor = '',
+    triggerHoverBgColor = '',
+    triggerHoverTextColor = '',
+    showDialogTitle = false,
     closeButtonPlacement = 'inside-top-right',
     closeButtonIcon = 'close',
     closeButtonSize = 'md',
@@ -832,6 +845,183 @@ export default function Edit({
           />
         </PanelBody>
       )}
+
+      {/* Trigger Button panel — only relevant when using the built-in trigger */}
+      {!safeTriggerBlockId && (
+        <PanelBody
+          title={__('Trigger Button', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <SelectControl<string>
+            label={__('Variant', 'aggressive-apparel')}
+            value={triggerVariant}
+            options={[
+              {
+                label: __('Outlined', 'aggressive-apparel'),
+                value: 'outlined',
+              },
+              { label: __('Filled', 'aggressive-apparel'), value: 'filled' },
+              { label: __('Ghost', 'aggressive-apparel'), value: 'ghost' },
+              { label: __('Text', 'aggressive-apparel'), value: 'text' },
+            ]}
+            onChange={value => setAttributes({ triggerVariant: value })}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
+
+          <SelectControl<string>
+            label={__('Size', 'aggressive-apparel')}
+            value={triggerSize}
+            options={[
+              {
+                label: __('Small (32px)', 'aggressive-apparel'),
+                value: 'sm',
+              },
+              {
+                label: __('Medium (44px)', 'aggressive-apparel'),
+                value: 'md',
+              },
+              {
+                label: __('Large (52px)', 'aggressive-apparel'),
+                value: 'lg',
+              },
+            ]}
+            onChange={value => setAttributes({ triggerSize: value })}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
+
+          <ToggleControl
+            label={__('Full Width', 'aggressive-apparel')}
+            checked={triggerFullWidth}
+            onChange={value => setAttributes({ triggerFullWidth: value })}
+            help={__(
+              'Stretch the button to fill its container.',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
+
+          <TextControl
+            label={__('Border Radius', 'aggressive-apparel')}
+            value={triggerBorderRadius}
+            placeholder='0.25rem'
+            onChange={value => setAttributes({ triggerBorderRadius: value })}
+            help={__(
+              'e.g. 0.25rem, 9999px for pill. Leave empty for square.',
+              'aggressive-apparel'
+            )}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
+
+          <PanelColorSettings
+            __experimentalIsRenderedInSidebar
+            title={__('Colors', 'aggressive-apparel')}
+            colorSettings={[
+              {
+                value: triggerBgColor,
+                onChange: (value: string | undefined) =>
+                  setAttributes({ triggerBgColor: value ?? '' }),
+                label: __('Background', 'aggressive-apparel'),
+              },
+              {
+                value: triggerTextColor,
+                onChange: (value: string | undefined) =>
+                  setAttributes({ triggerTextColor: value ?? '' }),
+                label: __('Text', 'aggressive-apparel'),
+              },
+              {
+                value: triggerHoverBgColor,
+                onChange: (value: string | undefined) =>
+                  setAttributes({ triggerHoverBgColor: value ?? '' }),
+                label: __('Hover background', 'aggressive-apparel'),
+              },
+              {
+                value: triggerHoverTextColor,
+                onChange: (value: string | undefined) =>
+                  setAttributes({ triggerHoverTextColor: value ?? '' }),
+                label: __('Hover text', 'aggressive-apparel'),
+              },
+            ]}
+          />
+        </PanelBody>
+      )}
+
+      {/* Modal Design panel */}
+      <PanelBody
+        title={__('Modal Design', 'aggressive-apparel')}
+        initialOpen={false}
+      >
+        <p className='components-base-control__help' style={{ marginTop: 0 }}>
+          {__(
+            'Use theme color presets for automatic light/dark mode adaptation.',
+            'aggressive-apparel'
+          )}
+        </p>
+
+        <ToggleControl
+          label={__('Show Title in Modal', 'aggressive-apparel')}
+          checked={showDialogTitle}
+          onChange={value => setAttributes({ showDialogTitle: value })}
+          help={__(
+            'Renders the trigger label as a heading inside the modal dialog.',
+            'aggressive-apparel'
+          )}
+          __nextHasNoMarginBottom
+        />
+
+        <TextControl
+          label={__('Padding', 'aggressive-apparel')}
+          value={dialogPadding}
+          placeholder='2rem'
+          onChange={value => setAttributes({ dialogPadding: value })}
+          help={__(
+            'e.g. 2rem, 1.5rem 2rem. Leave empty for no padding.',
+            'aggressive-apparel'
+          )}
+          __next40pxDefaultSize
+          __nextHasNoMarginBottom
+        />
+
+        <TextControl
+          label={__('Border Radius', 'aggressive-apparel')}
+          value={dialogBorderRadius}
+          placeholder='0.5rem'
+          onChange={value => setAttributes({ dialogBorderRadius: value })}
+          help={__(
+            'Overrides the border radius set in the Border panel above.',
+            'aggressive-apparel'
+          )}
+          __next40pxDefaultSize
+          __nextHasNoMarginBottom
+        />
+
+        <RangeControl
+          label={__('Overlay Opacity (%)', 'aggressive-apparel')}
+          value={overlayOpacity}
+          onChange={value => setAttributes({ overlayOpacity: value })}
+          min={0}
+          max={90}
+          step={5}
+          help={__('Darkness of the backdrop overlay.', 'aggressive-apparel')}
+          __nextHasNoMarginBottom
+        />
+
+        <RangeControl
+          label={__('Overlay Blur (px)', 'aggressive-apparel')}
+          value={overlayBlur}
+          onChange={value => setAttributes({ overlayBlur: value })}
+          min={0}
+          max={20}
+          step={1}
+          help={__(
+            'Backdrop blur behind the overlay. Set to 0 to disable.',
+            'aggressive-apparel'
+          )}
+          __nextHasNoMarginBottom
+        />
+      </PanelBody>
     </InspectorControls>
   );
 

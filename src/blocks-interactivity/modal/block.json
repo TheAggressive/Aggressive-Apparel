@@ -31,7 +31,7 @@
     "shadow": true,
     "color": {
       "background": true,
-      "text": false
+      "text": true
     }
   },
   "textdomain": "aggressive-apparel",
@@ -136,6 +136,58 @@
     "dialogMaxWidth": {
       "type": "string",
       "default": ""
+    },
+    "dialogPadding": {
+      "type": "string",
+      "default": ""
+    },
+    "dialogBorderRadius": {
+      "type": "string",
+      "default": ""
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 50
+    },
+    "overlayBlur": {
+      "type": "number",
+      "default": 4
+    },
+    "triggerVariant": {
+      "type": "string",
+      "default": "outlined"
+    },
+    "triggerSize": {
+      "type": "string",
+      "default": "md"
+    },
+    "triggerFullWidth": {
+      "type": "boolean",
+      "default": false
+    },
+    "triggerBorderRadius": {
+      "type": "string",
+      "default": ""
+    },
+    "triggerBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "triggerTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "triggerHoverBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "triggerHoverTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "showDialogTitle": {
+      "type": "boolean",
+      "default": false
     },
     "style": {
       "type": "object",

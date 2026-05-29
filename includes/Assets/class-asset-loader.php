@@ -37,6 +37,11 @@ class Asset_Loader {
 		$asset_file = aggressive_apparel_asset_path( $asset_path . '.asset.php' );
 
 		if ( ! file_exists( $asset_file ) ) {
+			// Log in production so misconfigured deploys are not silent.
+			if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Aggressive Apparel: missing asset manifest — ' . $asset_file );
+			}
 			return array(
 				'dependencies' => array(),
 				'version'      => wp_get_theme()->get( 'Version' ),
@@ -86,25 +91,41 @@ class Asset_Loader {
 	/**
 	 * Enqueue style with asset data
 	 *
-	 * Automatically reads dependencies and version from .asset.php file
+	 * Automatically reads dependencies and version from .asset.php file.
+	 * Automatically serves the RTL variant on RTL sites when it exists.
 	 *
 	 * @param string $handle         Style handle.
-	 * @param string $src            Path to style file relative to theme root.
+	 * @param string $src            Path to style file relative to theme root (no extension).
 	 * @param array  $additional_deps Additional dependencies not in asset file.
 	 * @param string $media          Media attribute.
 	 * @return void
 	 */
 	public static function enqueue_style( $handle, $src, $additional_deps = array(), $media = 'all' ) {
-		$asset_data = self::get_asset_data( $src );
+		// Resolve RTL variant automatically.
+		$resolved_src = ( function_exists( 'is_rtl' ) && is_rtl() )
+			? self::resolve_rtl( $src )
+			: $src;
 
+		$asset_data   = self::get_asset_data( $src );
 		$dependencies = array_merge( $asset_data['dependencies'], $additional_deps );
 
 		wp_enqueue_style(
 			$handle,
-			aggressive_apparel_asset_uri( $src . '.css' ),
+			aggressive_apparel_asset_uri( $resolved_src . '.css' ),
 			$dependencies,
 			$asset_data['version'],
 			$media
 		);
+	}
+
+	/**
+	 * Return the RTL src path if an RTL file exists, otherwise return the original.
+	 *
+	 * @param string $src Path to style file (no extension).
+	 * @return string Resolved path (no extension).
+	 */
+	private static function resolve_rtl( string $src ): string {
+		$rtl = $src . '-rtl';
+		return file_exists( aggressive_apparel_asset_path( $rtl . '.css' ) ) ? $rtl : $src;
 	}
 }

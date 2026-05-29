@@ -41,26 +41,114 @@
 .wp-block-aggressive-apparel-modal__trigger {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 0.5em;
-	padding: 0.6em 1.25em;
-	border: 1px solid currentcolor;
-	background: transparent;
-	color: currentcolor;
-	font-size: 0.875rem;
+	cursor: pointer;
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	background: var(--aa-trigger-bg, transparent);
+	color: var(--aa-trigger-text, currentcolor);
+	border-radius: var(--aa-trigger-radius, 0);
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease,
+		opacity 0.15s ease;
 
 	&:hover,
 	&:focus-visible {
-		background-color: color-mix(in oklch, currentcolor 8%, transparent);
+		background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 10%, transparent));
+		color: var(--aa-trigger-hover-text, currentcolor);
+		outline: none;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;
 	}
+
+	/* ── Size variants ────── */
+
+	&.trigger-size-sm {
+		padding: 0.4em 0.875em;
+		font-size: 0.75rem;
+		min-height: 2rem;
+	}
+
+	&.trigger-size-md {
+		padding: 0.6em 1.25em;
+		font-size: 0.875rem;
+		min-height: 2.75rem;
+	}
+
+	&.trigger-size-lg {
+		padding: 0.75em 1.75em;
+		font-size: 1rem;
+		min-height: 3.25rem;
+	}
+
+	/* ── Style variants ────── */
+
+	/* Outlined: border using currentcolor (or custom) */
+	&.trigger-variant-outlined {
+		border: 1px solid var(--aa-trigger-border, currentcolor);
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--aa-trigger-hover-border, currentcolor);
+		}
+	}
+
+	/* Filled: solid background, no border */
+	&.trigger-variant-filled {
+		border: none;
+		background: var(--aa-trigger-bg, currentcolor);
+		color: var(--aa-trigger-text, canvas);
+
+		&:hover,
+		&:focus-visible {
+			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 85%, transparent));
+			color: var(--aa-trigger-hover-text, canvas);
+		}
+	}
+
+	/* Ghost: no border, transparent bg — hover adds a tint */
+	&.trigger-variant-ghost {
+		border: none;
+		background: transparent;
+
+		&:hover,
+		&:focus-visible {
+			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 10%, transparent));
+		}
+	}
+
+	/* Text: no border, no bg, no padding — behaves like a styled link */
+	&.trigger-variant-text {
+		border: none;
+		background: transparent;
+		padding: 0;
+		min-height: unset;
+		letter-spacing: normal;
+
+		&:hover,
+		&:focus-visible {
+			background: transparent;
+			text-decoration: underline;
+			color: var(--aa-trigger-hover-text, currentcolor);
+		}
+	}
+
+	/* ── Full width ────── */
+
+	&.trigger-full-width {
+		width: 100%;
+	}
+}
+
+/* When trigger is full width the wrapper needs to match. */
+.wp-block-aggressive-apparel-modal:has(.trigger-full-width) {
+	display: block;
 }
 
 /* ──────────────────────────────────────────────
@@ -95,8 +183,11 @@
 		backdrop-filter var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
 
 	.wp-block-aggressive-apparel-modal__shell.is-open & {
-		background-color: rgb(0 0 0 / 50%);
-		backdrop-filter: blur(4px);
+		background-color: var(
+			--aa-overlay-color,
+			rgb(0 0 0 / var(--aa-overlay-opacity, 50%))
+		);
+		backdrop-filter: blur(var(--aa-overlay-blur, 4px));
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -116,8 +207,22 @@
 	flex-direction: column;
 	width: min(90vw, var(--aa-dialog-max-width, 40rem));
 	max-height: 85vh;
-	background-color: var(--wp--preset--color--light-dark-white-black, #fff);
-	color: var(--wp--preset--color--light-dark-black-white, #000);
+
+	/* Colors — WP block supports (color.background / color.text) are forwarded
+	   from render.php as --aa-dialog-bg / --aa-dialog-text CSS vars on this element.
+	   The theme's adaptive presets are the fallback so light/dark mode works
+	   without any custom color being set. */
+	background-color: var(--aa-dialog-bg, var(--wp--preset--color--light-dark-white-black, #fff));
+	color: var(--aa-dialog-text, var(--wp--preset--color--light-dark-black-white, #000));
+
+	/* Border forwarded from WP __experimentalBorder support. */
+	border-color: var(--aa-dialog-border-color);
+	border-style: var(--aa-dialog-border-style);
+	border-width: var(--aa-dialog-border-width);
+	border-radius: var(--aa-dialog-radius, var(--aa-dialog-border-radius));
+
+	/* Optional padding. */
+	padding: var(--aa-dialog-padding, 0);
 
 	/* Entrance/exit animation — always transition opacity so transitionend fires. */
 	opacity: 0;
@@ -343,6 +448,19 @@
 		filter: none !important;
 		clip-path: none !important;
 	}
+}
+
+/* ──────────────────────────────────────────────
+ * Dialog title (optional rendered heading)
+ * ────────────────────────────────────────────── */
+
+.wp-block-aggressive-apparel-modal__dialog-title {
+	flex-shrink: 0;
+	padding: 1.25rem 1.5rem 0;
+	font-size: 1.125rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0;
 }
 
 /* ──────────────────────────────────────────────

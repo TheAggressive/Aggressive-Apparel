@@ -8,8 +8,6 @@ import metadata from './block.json';
 import Edit from './edit';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
-import './style.css';
-
 interface WishlistButtonAttributes {
   label: string;
   showLabel: boolean;

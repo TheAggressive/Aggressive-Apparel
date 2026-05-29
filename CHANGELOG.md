@@ -1,3 +1,10 @@
+# [1.75.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.74.0...v1.75.0) (2026-05-29)
+
+
+### Features
+
+* enhance modal block with new attributes and type checking ([e8eedfb](https://github.com/TheAggressive/Aggressive-Apparel/commit/e8eedfbb040533b71a2eef219326f1f702a89011))
+
 # [1.74.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.73.0...v1.74.0) (2026-05-28)
 
 

@@ -1,3 +1,10 @@
+## [1.76.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.76.0...v1.76.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* remove showDialogTitle attribute and related logic ([ab8c0e9](https://github.com/TheAggressive/Aggressive-Apparel/commit/ab8c0e9a1eef0b89509b2a5b72c6b6d3fa407d10))
+
 # [1.76.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.75.0...v1.76.0) (2026-05-29)
 
 

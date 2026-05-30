@@ -1,3 +1,10 @@
+## [1.77.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.77.0...v1.77.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* update sticky cart dimensions for improved layout ([7c6816a](https://github.com/TheAggressive/Aggressive-Apparel/commit/7c6816a606a96d784ac98760ee56745e8708aa1a))
+
 # [1.77.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.76.1...v1.77.0) (2026-05-30)
 
 

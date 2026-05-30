@@ -87,7 +87,6 @@ export default function Edit({
     triggerTextColor = '',
     triggerHoverBgColor = '',
     triggerHoverTextColor = '',
-    showDialogTitle = false,
     closeButtonPlacement = 'inside-top-right',
     closeButtonIcon = 'close',
     closeButtonSize = 'md',
@@ -959,17 +958,6 @@ export default function Edit({
             'aggressive-apparel'
           )}
         </p>
-
-        <ToggleControl
-          label={__('Show Title in Modal', 'aggressive-apparel')}
-          checked={showDialogTitle}
-          onChange={value => setAttributes({ showDialogTitle: value })}
-          help={__(
-            'Renders the trigger label as a heading inside the modal dialog.',
-            'aggressive-apparel'
-          )}
-          __nextHasNoMarginBottom
-        />
 
         <TextControl
           label={__('Padding', 'aggressive-apparel')}

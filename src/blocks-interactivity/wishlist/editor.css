@@ -1,0 +1,15 @@
+/* ============================================================
+ * Wishlist Block — Editor Styles
+ * ============================================================ */
+
+.aa-wishlist-editor .components-notice {
+	margin: 0 0 1rem;
+}
+
+/* Card preview wrapper — gives the InnerBlocks a card-like context in the editor */
+.aa-wishlist-editor__card {
+	border: 1px dashed color-mix(in oklch, currentcolor 25%, transparent);
+	border-radius: 2px;
+	padding: 0.5rem;
+	max-width: 16rem;
+}

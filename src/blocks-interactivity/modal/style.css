@@ -496,14 +496,6 @@
 		color 0.15s ease,
 		border-color 0.15s ease;
 
-	&:hover,
-	&:focus-visible {
-		background-color: var(--aa-close-btn-hover-bg, var(--wp--preset--color--red, #dc2626));
-		color: var(--aa-close-btn-hover-color, var(--wp--preset--color--white, #fff));
-		border-color: transparent;
-		outline: none;
-	}
-
 	/* ── Size variants ────── */
 
 	&.close-size-sm {
@@ -539,9 +531,20 @@
 
 	&.close-variant-filled {
 		padding: 0.375rem;
-		background: var(--aa-close-btn-bg, rgb(0 0 0 / 8%));
+		background-color: var(--aa-close-btn-bg, rgb(0 0 0 / 8%));
 		border: none;
 		border-radius: 0.25rem;
+	}
+
+	/* ── Hover / focus — declared after variants so same-specificity source
+	   order guarantees this wins over variant background rules on hover. ── */
+
+	&:hover,
+	&:focus-visible {
+		background-color: var(--aa-close-btn-hover-bg, var(--wp--preset--color--red, #dc2626));
+		color: var(--aa-close-btn-hover-color, var(--wp--preset--color--white, #fff));
+		border-color: transparent;
+		outline: none;
 	}
 
 	/* ── Inside placements ────── */

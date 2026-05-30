@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist",
+  "version": "2.0.0",
+  "title": "Wishlist",
+  "category": "aggressive-apparel",
+  "icon": "heart",
+  "description": "Displays the visitor's saved wishlist items. Customize the card layout using the inner blocks.",
+  "keywords": ["wishlist", "favorites", "saved products"],
+  "example": {},
+  "supports": {
+    "html": false,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "attributes": {
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "mobileColumns": {
+      "type": "number",
+      "default": 1
+    },
+    "gap": {
+      "type": "string",
+      "default": ""
+    },
+    "showCount": {
+      "type": "boolean",
+      "default": false
+    },
+    "emptyMessage": {
+      "type": "string",
+      "default": "Your wishlist is empty."
+    }
+  }
+}

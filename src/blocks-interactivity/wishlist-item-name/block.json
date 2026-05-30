@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist-item-name",
+  "version": "1.0.0",
+  "title": "Wishlist Item Name",
+  "category": "aggressive-apparel",
+  "icon": "editor-textcolor",
+  "description": "Product name / link for a wishlist item card.",
+  "parent": ["aggressive-apparel/wishlist"],
+  "supports": {
+    "html": false,
+    "color": { "text": true, "background": false },
+    "spacing": { "margin": true, "padding": true },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true,
+      "lineHeight": true,
+      "__experimentalFontStyle": true
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
+}

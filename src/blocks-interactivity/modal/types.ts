@@ -75,7 +75,6 @@ export interface ModalAttributes {
   triggerTextColor: string;
   triggerHoverBgColor: string;
   triggerHoverTextColor: string;
-  showDialogTitle: boolean;
   closeButtonPlacement: string;
   closeButtonIcon: string;
   closeButtonSize: string;

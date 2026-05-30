@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist-item-image",
+  "version": "1.0.0",
+  "title": "Wishlist Item Image",
+  "category": "aggressive-apparel",
+  "icon": "format-image",
+  "description": "Product image for a wishlist item card.",
+  "parent": ["aggressive-apparel/wishlist"],
+  "supports": {
+    "html": false,
+    "spacing": { "margin": true, "padding": true },
+    "__experimentalBorder": {
+      "radius": true,
+      "color": true,
+      "width": true,
+      "style": true
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php",
+  "attributes": {
+    "imageRatio": { "type": "string", "default": "1/1" },
+    "linkToProduct": { "type": "boolean", "default": true }
+  }
+}

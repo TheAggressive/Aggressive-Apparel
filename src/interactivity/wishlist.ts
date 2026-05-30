@@ -30,12 +30,17 @@ interface StoreApiPrices {
   currency_suffix?: string;
 }
 
+interface StoreApiAddToCart {
+  url?: string;
+}
+
 interface StoreApiProduct {
   id: number;
   name: string;
   permalink: string;
   images?: StoreApiImage[];
   prices: StoreApiPrices;
+  add_to_cart?: StoreApiAddToCart;
 }
 
 interface WishlistDisplayItem {
@@ -44,6 +49,7 @@ interface WishlistDisplayItem {
   image: string;
   price: string;
   permalink: string;
+  addToCartUrl: string;
 }
 
 interface WishlistContext {
@@ -101,6 +107,7 @@ function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
       product.images && product.images.length > 0 ? product.images[0].src : '',
     price: formatPrice(product.prices),
     permalink: product.permalink || '#',
+    addToCartUrl: product.add_to_cart?.url || '',
   };
 }
 
@@ -201,6 +208,22 @@ const { state } = store('aggressive-apparel/wishlist', {
   },
 
   actions: {
+    /**
+     * Remove a specific item from the wishlist page grid.
+     * Uses context.item.id (set by data-wp-each) rather than context.productId.
+     */
+    removeItem(): void {
+      const ctx = getContext<WishlistContext>();
+      const id = ctx.item?.id;
+      if (!id) return;
+      state.items = state.items.filter((i: number) => i !== id);
+      writeStorage(state.items);
+      // Re-sync state so the grid re-renders without the removed item.
+      state.wishlistProducts = state.wishlistProducts.filter(
+        (p: WishlistDisplayItem) => p.id !== id
+      );
+    },
+
     toggle(): void {
       const ctx = getContext<WishlistContext>();
       const idx = state.items.indexOf(ctx.productId);

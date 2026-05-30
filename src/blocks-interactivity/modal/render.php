@@ -44,7 +44,6 @@ $exit_intent_reshow_days = absint( $attributes['exitIntentReshowDays'] ?? 7 );
 $scroll_depth_trigger    = ! empty( $attributes['scrollDepthTrigger'] );
 $scroll_depth_percent    = absint( $attributes['scrollDepthPercent'] ?? 50 );
 $dialog_max_width        = sanitize_text_field( $attributes['dialogMaxWidth'] ?? '' );
-$show_dialog_title       = ! empty( $attributes['showDialogTitle'] );
 
 // ── Close button attributes ───────────────────────────────────────────────────
 
@@ -341,15 +340,6 @@ $wrapper_attrs = get_block_wrapper_attributes(
 		>
 			<?php if ( $show_close_btn && ! $is_outside ) : ?>
 				<?php echo $close_btn_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			<?php endif; ?>
-
-			<?php if ( $show_dialog_title ) : ?>
-			<h2
-				id="<?php echo esc_attr( $unique_id ); ?>-label"
-				class="wp-block-aggressive-apparel-modal__dialog-title"
-			>
-				<?php echo esc_html( $trigger_label ); ?>
-			</h2>
 			<?php endif; ?>
 
 			<div class="wp-block-aggressive-apparel-modal__dialog-body">

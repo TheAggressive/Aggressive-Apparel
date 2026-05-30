@@ -1,0 +1,8 @@
+.aa-wl-item-image-preview__box {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: color-mix(in oklch, currentcolor 8%, transparent);
+	width: 100%;
+	color: color-mix(in oklch, currentcolor 35%, transparent);
+}

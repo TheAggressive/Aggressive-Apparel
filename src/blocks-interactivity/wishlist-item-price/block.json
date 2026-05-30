@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist-item-price",
+  "version": "1.0.0",
+  "title": "Wishlist Item Price",
+  "category": "aggressive-apparel",
+  "icon": "cart",
+  "description": "Product price for a wishlist item card.",
+  "parent": ["aggressive-apparel/wishlist"],
+  "supports": {
+    "html": false,
+    "color": { "text": true, "background": false },
+    "spacing": { "margin": true, "padding": true },
+    "typography": { "fontSize": true, "fontWeight": true, "lineHeight": true }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/wishlist-item-actions",
+  "version": "1.0.0",
+  "title": "Wishlist Item Actions",
+  "category": "aggressive-apparel",
+  "icon": "button",
+  "description": "Remove and/or Add to Cart buttons for a wishlist item card.",
+  "parent": ["aggressive-apparel/wishlist"],
+  "supports": {
+    "html": false,
+    "spacing": { "margin": true, "padding": true },
+    "color": { "background": false, "text": false }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php",
+  "attributes": {
+    "showRemove": { "type": "boolean", "default": true },
+    "showAddToCart": { "type": "boolean", "default": false },
+    "addToCartLabel": { "type": "string", "default": "Add to Cart" },
+    "removeLabel": { "type": "string", "default": "" }
+  }
+}

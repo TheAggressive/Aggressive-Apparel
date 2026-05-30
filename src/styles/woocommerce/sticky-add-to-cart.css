@@ -627,7 +627,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	}
 
 	.aa-sticky-cart__drawer-panel {
-		width: 26rem;
+		width: 28rem;
 		max-height: 80dvh;
 		border-radius: 0.75rem;
 		box-shadow: 0 8px 32px rgb(0 0 0 / 18%);
@@ -641,7 +641,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 @media (width < 640px) {
 
 	.aa-sticky-cart {
-		--aa-sticky-cart-height: 3.5rem;
+		--aa-sticky-cart-height: 3.75rem;
 	}
 
 	.aa-sticky-cart__inner {

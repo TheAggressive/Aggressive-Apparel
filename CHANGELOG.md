@@ -1,3 +1,10 @@
+# [1.77.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.76.1...v1.77.0) (2026-05-30)
+
+
+### Features
+
+* implement wishlist page functionality ([7fb2ef7](https://github.com/TheAggressive/Aggressive-Apparel/commit/7fb2ef7c7de484788315c4ed4688b1e59c025703))
+
 ## [1.76.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.76.0...v1.76.1) (2026-05-30)
 
 

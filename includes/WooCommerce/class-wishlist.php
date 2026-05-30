@@ -28,6 +28,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Wishlist {
 
 	/**
+	 * Option key storing the auto-created wishlist page ID.
+	 *
+	 * @var string
+	 */
+	public const PAGE_ID_OPTION = 'aggressive_apparel_wishlist_page_id';
+
+	/**
+	 * Default wishlist page slug.
+	 *
+	 * @var string
+	 */
+	public const PAGE_SLUG = 'wishlist';
+
+	/**
 	 * Per-request flag set when the `aggressive-apparel/wishlist-button` block
 	 * has rendered for the current product context. Used to short-circuit the
 	 * legacy auto-injection on single product pages so we don't render the
@@ -43,10 +57,191 @@ class Wishlist {
 	 * @return void
 	 */
 	public function init(): void {
+		add_action( 'init', array( $this, 'maybe_create_page' ), 20 );
+		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'render_block', array( $this, 'inject_heart_icon' ), 10, 2 );
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_single_heart' ), 6 );
 		add_shortcode( 'aggressive_apparel_wishlist', array( $this, 'render_wishlist_page' ) );
+	}
+
+	/**
+	 * Create the wishlist page when the feature is enabled and none exists.
+	 *
+	 * @return void
+	 */
+	public function maybe_create_page(): void {
+		if ( ! Feature_Settings::is_enabled( 'wishlist' ) ) {
+			return;
+		}
+
+		if ( self::get_page_id() > 0 ) {
+			return;
+		}
+
+		$existing_id = self::find_existing_page_id();
+		if ( $existing_id > 0 ) {
+			update_option( self::PAGE_ID_OPTION, $existing_id );
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
+		self::create_page();
+	}
+
+	/**
+	 * Ensure a wishlist page exists when the feature flag is turned on.
+	 *
+	 * @param mixed $old_value Previous option value.
+	 * @param mixed $value     New option value.
+	 * @return void
+	 */
+	public function on_features_updated( $old_value, $value ): void {
+		if ( ! is_array( $value ) || empty( $value['wishlist'] ) ) {
+			return;
+		}
+
+		$this->maybe_create_page();
+	}
+
+	/**
+	 * Get the stored wishlist page ID when the page still exists.
+	 *
+	 * @return int Page ID, or 0 when unavailable.
+	 */
+	public static function get_page_id(): int {
+		$page_id = (int) get_option( self::PAGE_ID_OPTION, 0 );
+		if ( $page_id <= 0 ) {
+			return 0;
+		}
+
+		$post = get_post( $page_id );
+		if ( ! $post instanceof \WP_Post || 'page' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return 0;
+		}
+
+		return $page_id;
+	}
+
+	/**
+	 * Resolve the public wishlist page URL.
+	 *
+	 * @return string
+	 */
+	public static function get_page_url(): string {
+		$page_id = self::get_page_id();
+		if ( $page_id > 0 ) {
+			$url = get_permalink( $page_id );
+			if ( is_string( $url ) && '' !== $url ) {
+				return $url;
+			}
+		}
+
+		$existing_id = self::find_existing_page_id();
+		if ( $existing_id > 0 ) {
+			$url = get_permalink( $existing_id );
+			if ( is_string( $url ) && '' !== $url ) {
+				return $url;
+			}
+		}
+
+		return home_url( '/' . self::PAGE_SLUG . '/' );
+	}
+
+	/**
+	 * Find an existing published page that can serve as the wishlist page.
+	 *
+	 * @return int Page ID, or 0 when none is found.
+	 */
+	public static function find_existing_page_id(): int {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off lookup for page discovery.
+		$page_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
+				WHERE post_type = 'page'
+				AND post_status = 'publish'
+				AND post_content LIKE %s
+				LIMIT 1",
+				'%' . $wpdb->esc_like( 'aggressive-apparel/wishlist' ) . '%'
+			)
+		);
+
+		if ( $page_id > 0 ) {
+			return $page_id;
+		}
+
+		$page = get_page_by_path( self::PAGE_SLUG );
+		if ( $page instanceof \WP_Post && 'publish' === $page->post_status ) {
+			return (int) $page->ID;
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Create and publish the default wishlist page.
+	 *
+	 * @return int Created page ID, or 0 on failure.
+	 */
+	public static function create_page(): int {
+		$page_args = array(
+			'post_title'   => __( 'Wishlist', 'aggressive-apparel' ),
+			'post_name'    => self::PAGE_SLUG,
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+			'post_content' => self::get_default_page_content(),
+		);
+
+		/**
+		 * Filters the arguments used when auto-creating the wishlist page.
+		 *
+		 * @since 1.77.0
+		 *
+		 * @param array<string, mixed> $page_args Page creation arguments.
+		 */
+		$page_args = apply_filters( 'aggressive_apparel_wishlist_page_args', $page_args );
+
+		$page_id = wp_insert_post( $page_args, true );
+		if ( is_wp_error( $page_id ) ) {
+			return 0;
+		}
+
+		update_option( self::PAGE_ID_OPTION, (int) $page_id );
+
+		return (int) $page_id;
+	}
+
+	/**
+	 * Default block markup for the auto-created wishlist page.
+	 *
+	 * @return string Block content.
+	 */
+	public static function get_default_page_content(): string {
+		$content = <<<'BLOCKS'
+<!-- wp:aggressive-apparel/wishlist -->
+<!-- wp:aggressive-apparel/wishlist-item-image /-->
+
+<!-- wp:aggressive-apparel/wishlist-item-name /-->
+
+<!-- wp:aggressive-apparel/wishlist-item-price /-->
+
+<!-- wp:aggressive-apparel/wishlist-item-actions /-->
+<!-- /wp:aggressive-apparel/wishlist -->
+BLOCKS;
+
+		/**
+		 * Filters the default block content for the auto-created wishlist page.
+		 *
+		 * @since 1.77.0
+		 *
+		 * @param string $content Block markup.
+		 */
+		return (string) apply_filters( 'aggressive_apparel_wishlist_page_content', $content );
 	}
 
 	/**

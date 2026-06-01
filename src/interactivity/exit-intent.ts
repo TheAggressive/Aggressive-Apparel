@@ -135,7 +135,9 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
 
       state.isOpen = true;
 
-      const modal = overlay?.querySelector<HTMLElement>('.aa-exit-intent__modal');
+      const modal = overlay?.querySelector<HTMLElement>(
+        '.aa-exit-intent__modal'
+      );
       if (modal) {
         focusTrapCleanup = activateOverlayFocus({
           shell: overlay!,
@@ -150,7 +152,9 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
       markDismissed();
 
       const overlay = document.getElementById('aa-exit-intent');
-      const modal = overlay?.querySelector<HTMLElement>('.aa-exit-intent__modal');
+      const modal = overlay?.querySelector<HTMLElement>(
+        '.aa-exit-intent__modal'
+      );
 
       if (!overlay || !modal) {
         focusTrapCleanup?.();

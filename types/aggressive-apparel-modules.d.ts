@@ -117,8 +117,6 @@ declare module '@aggressive-apparel/use-overlay' {
     shell: HTMLElement,
     options?: PrepareOverlayOpenOptions
   ): void;
-  export function activateOverlayFocus(
-    options: OpenOverlayOptions
-  ): () => void;
+  export function activateOverlayFocus(options: OpenOverlayOptions): () => void;
   export function closeOverlay(options: CloseOverlayOptions): void;
 }

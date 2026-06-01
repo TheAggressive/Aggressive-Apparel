@@ -95,7 +95,10 @@
       }
     },
     {
-      "files": ["src/styles/components/field.css", "src/styles/components/layout.css"],
+      "files": [
+        "src/styles/components/field.css",
+        "src/styles/components/layout.css"
+      ],
       "rules": {
         "color-no-hex": [
           true,

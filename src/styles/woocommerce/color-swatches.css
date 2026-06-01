@@ -55,7 +55,6 @@
 	border: none;
 	display: block;
 	cursor: pointer;
-	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 	overflow: visible;
 	transform: scale(1);
 	transition:
@@ -68,7 +67,6 @@
  */
 .aggressive-apparel-color-swatch__circle:hover {
 	transform: scale(1.1);
-	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 }
 
 /*
@@ -77,11 +75,10 @@
  */
 input:checked ~ .aggressive-apparel-color-swatch__circle {
 	transform: scale(0.78);
-	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 	outline: 3px solid
 		color-mix(
 			in oklch,
-			var(--swatch-color, var(--aa-color-muted-40)) 60%,
+			var(--swatch-color, var(--aa-color-muted-40)) 100%,
 			var(--aa-color-foreground)
 		);
 	outline-offset: 4px;

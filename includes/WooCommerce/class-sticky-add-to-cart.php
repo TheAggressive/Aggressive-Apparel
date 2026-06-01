@@ -258,7 +258,7 @@ class Sticky_Add_To_Cart {
 			>
 				<div class="aggressive-apparel-overlay__backdrop aa-sticky-cart__drawer-backdrop" data-wp-on--click="actions.closeDrawer"></div>
 				<div class="aggressive-apparel-panel aggressive-apparel-panel--drawer-bottom aa-sticky-cart__drawer-panel">
-					<div class="aa-sticky-cart__drawer-header">
+					<div class="aa-sticky-cart__drawer-header" data-wp-bind--hidden="state.hideDrawerHeader">
 						<img
 							class="aa-sticky-cart__drawer-image"
 							src="<?php echo esc_url( $drawer_image_src ); ?>"
@@ -412,6 +412,30 @@ class Sticky_Add_To_Cart {
 						<p class="aa-sticky-cart__drawer-success-message">
 							<?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?>
 						</p>
+						<div class="aa-sticky-cart__drawer-success-product">
+							<img
+								class="aa-sticky-cart__drawer-success-image"
+								src="<?php echo esc_url( $drawer_image_src ); ?>"
+								alt="<?php echo esc_attr( $product->get_name() ); ?>"
+								width="72"
+								height="72"
+								loading="lazy"
+								data-wp-bind--src="state.drawerImage"
+								data-wp-bind--alt="state.drawerImageAlt"
+							/>
+							<div class="aa-sticky-cart__drawer-success-info">
+								<span class="aa-sticky-cart__drawer-success-title"><?php echo esc_html( $product->get_name() ); ?></span>
+								<span class="aa-sticky-cart__drawer-success-price">
+									<del
+										class="aa-sticky-cart__price-regular"
+										data-wp-text="state.regularPrice"
+										data-wp-bind--hidden="!state.isOnSale"
+										<?php echo $product_data['regular_price_html'] === $product_data['price_html'] ? 'hidden' : ''; ?>
+									><?php echo esc_html( $product_data['regular_price_html'] ); ?></del>
+									<ins class="aa-sticky-cart__price-current" data-wp-text="state.displayPrice"><?php echo esc_html( $product_data['price_html'] ); ?></ins>
+								</span>
+							</div>
+						</div>
 						<div class="aa-sticky-cart__drawer-success-actions">
 							<button
 								type="button"

@@ -355,7 +355,10 @@
         "sticky": 200,
         "overlay": 300,
         "modal": 400,
-        "toast": 500
+        "toast": 500,
+        "stickyCart": 99996,
+        "bottomNav": 99997,
+        "commerceDrawer": 99998
       },
       "size": {
         "buttonHeight": {
@@ -388,6 +391,88 @@
         "md": "0 10px 25px -5px var(--aa-color-shadow)",
         "lg": "0 12px 40px var(--aa-color-shadow-strong)",
         "panel": "0 25px 50px -12px var(--aa-color-shadow-strong)"
+      },
+      "typeRole": {
+        "eyebrow": {
+          "fontSize": "var:preset|font-size|x-small",
+          "fontWeight": "700",
+          "lineHeight": "1.2",
+          "letterSpacing": "0.08em"
+        },
+        "caption": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "400",
+          "lineHeight": "1.5"
+        },
+        "meta": {
+          "fontSize": "var:preset|font-size|x-small",
+          "fontWeight": "600",
+          "lineHeight": "1.4",
+          "letterSpacing": "0.04em"
+        },
+        "legal": {
+          "fontSize": "var:preset|font-size|x-small",
+          "fontWeight": "400",
+          "lineHeight": "1.5"
+        },
+        "price": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700",
+          "lineHeight": "1.2",
+          "letterSpacing": "0.01em"
+        },
+        "productTitle": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700",
+          "lineHeight": "1.2"
+        }
+      },
+      "density": {
+        "compact": {
+          "controlPaddingY": "var:preset|spacing|2",
+          "controlPaddingX": "var:preset|spacing|5",
+          "cardPadding": "var:preset|spacing|5",
+          "sectionGap": "var:preset|spacing|6"
+        },
+        "comfortable": {
+          "controlPaddingY": "var:preset|spacing|3",
+          "controlPaddingX": "var:preset|spacing|8",
+          "cardPadding": "var:preset|spacing|8",
+          "sectionGap": "var:preset|spacing|8"
+        },
+        "spacious": {
+          "controlPaddingY": "var:preset|spacing|4",
+          "controlPaddingX": "var:preset|spacing|10",
+          "cardPadding": "var:preset|spacing|10",
+          "sectionGap": "var:preset|spacing|12"
+        }
+      },
+      "commerceState": {
+        "sale": {
+          "color": "var(--aa-color-error)",
+          "background": "var(--aa-color-error-bg)",
+          "border": "var(--aa-color-error-border)"
+        },
+        "new": {
+          "color": "var(--aa-color-info)",
+          "background": "var(--aa-color-info-bg)",
+          "border": "var(--aa-color-info-border)"
+        },
+        "featured": {
+          "color": "var(--aa-color-accent)",
+          "background": "color-mix(in oklch, var(--aa-color-accent) 12%, transparent)",
+          "border": "color-mix(in oklch, var(--aa-color-accent) 30%, transparent)"
+        },
+        "lowStock": {
+          "color": "var(--aa-color-warning)",
+          "background": "var(--aa-color-warning-bg)",
+          "border": "var(--aa-color-warning-border)"
+        },
+        "outOfStock": {
+          "color": "var(--aa-color-neutral-muted)",
+          "background": "var(--aa-color-neutral-bg)",
+          "border": "var(--aa-color-border-default)"
+        }
       },
       "statusColors": {
         "success": "#15803d",
@@ -835,6 +920,120 @@
       "core/columns": {
         "spacing": {
           "blockGap": "var:preset|spacing|2"
+        }
+      },
+      "woocommerce/product-collection": {
+        "spacing": {
+          "blockGap": "var:preset|spacing|8"
+        },
+        "color": {
+          "text": "var:preset|color|foreground"
+        }
+      },
+      "woocommerce/product-template": {
+        "spacing": {
+          "blockGap": "var:preset|spacing|5"
+        }
+      },
+      "woocommerce/product-image": {
+        "border": {
+          "radius": "var(--wp--custom--radius--card)"
+        }
+      },
+      "woocommerce/product-title": {
+        "color": {
+          "text": "var:preset|color|foreground"
+        },
+        "typography": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700",
+          "lineHeight": "1.2"
+        },
+        "elements": {
+          "link": {
+            "color": {
+              "text": "var:preset|color|foreground"
+            },
+            ":hover": {
+              "color": {
+                "text": "var:preset|color|accent"
+              }
+            }
+          }
+        }
+      },
+      "woocommerce/product-price": {
+        "color": {
+          "text": "var:preset|color|foreground"
+        },
+        "typography": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700",
+          "letterSpacing": "0.01em"
+        }
+      },
+      "woocommerce/product-button": {
+        "typography": {
+          "fontSize": "var:preset|font-size|small",
+          "fontWeight": "700",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
+        },
+        "border": {
+          "radius": "var(--wp--custom--radius--button)"
+        }
+      },
+      "woocommerce/product-rating": {
+        "color": {
+          "text": "var(--aa-color-warning)"
+        }
+      },
+      "woocommerce/product-sale-badge": {
+        "color": {
+          "background": "var(--aa-color-error-bg)",
+          "text": "var(--aa-color-error)"
+        },
+        "typography": {
+          "fontSize": "var:preset|font-size|x-small",
+          "fontWeight": "700",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.08em"
+        },
+        "border": {
+          "color": "var(--aa-color-error-border)",
+          "radius": "var(--wp--custom--radius--control)",
+          "width": "1px"
+        },
+        "spacing": {
+          "padding": {
+            "top": "var:preset|spacing|2",
+            "right": "var:preset|spacing|4",
+            "bottom": "var:preset|spacing|2",
+            "left": "var:preset|spacing|4"
+          }
+        }
+      },
+      "woocommerce/cart": {
+        "spacing": {
+          "blockGap": "var:preset|spacing|8"
+        },
+        "color": {
+          "text": "var:preset|color|foreground"
+        }
+      },
+      "woocommerce/checkout": {
+        "spacing": {
+          "blockGap": "var:preset|spacing|8"
+        },
+        "color": {
+          "text": "var:preset|color|foreground"
+        }
+      },
+      "woocommerce/mini-cart": {
+        "typography": {
+          "fontWeight": "700",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
         }
       },
       "core/separator": {

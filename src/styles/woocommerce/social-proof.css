@@ -9,7 +9,7 @@
 	position: fixed;
 	bottom: 1.5rem;
 	left: 1.5rem;
-	z-index: 99998;
+	z-index: var(--aa-z-toast);
 	pointer-events: none;
 	transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

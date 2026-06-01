@@ -11,7 +11,7 @@
 	align-items: center;
 	justify-content: center;
 	min-height: var(--aa-button-height-md);
-	padding: 0.625rem 1.5rem;
+	padding: var(--aa-density-control-padding-y) var(--aa-density-control-padding-x);
 	border: none;
 	border-radius: var(--aa-radius-button);
 	font-size: 0.875rem;

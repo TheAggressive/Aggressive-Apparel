@@ -27,6 +27,22 @@ interface SizeGuideStore {
 let triggerElement: HTMLElement | null = null;
 let focusTrapCleanup: (() => void) | null = null;
 
+function getSizeGuideRoot(ref: Element | null): HTMLElement | null {
+  return (
+    ref?.closest<HTMLElement>(
+      '[data-wp-interactive="aggressive-apparel/size-guide"]'
+    ) ?? null
+  );
+}
+
+function getSizeGuideOverlay(ref: Element | null): HTMLElement | null {
+  return (
+    getSizeGuideRoot(ref)?.querySelector<HTMLElement>(
+      '.aggressive-apparel-size-guide__overlay'
+    ) ?? null
+  );
+}
+
 store<SizeGuideStore>('aggressive-apparel/size-guide', {
   actions: {
     toggle(): void {
@@ -36,10 +52,7 @@ store<SizeGuideStore>('aggressive-apparel/size-guide', {
       if (!ctx.isOpen) {
         triggerElement = document.activeElement as HTMLElement | null;
 
-        const overlay =
-          ref?.querySelector<HTMLElement>(
-            '.aggressive-apparel-size-guide__overlay'
-          ) ?? null;
+        const overlay = getSizeGuideOverlay(ref);
 
         if (overlay) {
           prepareOverlayOpen(overlay, { manageOpenClass: false });
@@ -72,10 +85,7 @@ store<SizeGuideStore>('aggressive-apparel/size-guide', {
 
       ctx.isOpen = false;
 
-      const overlay =
-        ref?.querySelector<HTMLElement>(
-          '.aggressive-apparel-size-guide__overlay'
-        ) ?? null;
+      const overlay = getSizeGuideOverlay(ref);
       const modal = overlay?.querySelector<HTMLElement>(
         '.aggressive-apparel-size-guide__modal'
       );

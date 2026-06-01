@@ -34,6 +34,7 @@ interface StickyCartState {
   matchedVariationId: number;
   quantity: number;
   selectedAttrs: Record<string, string>;
+  attributes: ProductAttribute[];
   variations: Variation[];
   displayPrice: string;
   regularPrice: string;
@@ -57,6 +58,7 @@ interface StickyCartState {
   readonly isOnSale: boolean;
   readonly drawerButtonText: string;
   readonly buyNowLabel: string;
+  readonly hideDrawerHeader: boolean;
   readonly hideDrawerSelection: boolean;
   readonly hideDrawerSuccess: boolean;
 }
@@ -65,6 +67,10 @@ interface CartAddBody {
   id: number;
   quantity: number;
   variation?: Array<{ attribute: string; value: string }>;
+}
+
+interface ProductAttribute {
+  name: string;
 }
 
 /* ---------------------------------------------------------------
@@ -128,6 +134,90 @@ function syncDrawerOptions(): void {
     });
 }
 
+/**
+ * Variable products should only submit once every configured attribute
+ * has a selected value. A matched variation alone is not enough because
+ * WooCommerce can expose "Any ..." variation attributes as empty strings.
+ */
+function hasSelectedRequiredAttributes(): boolean {
+  if (state.productType !== 'variable') {
+    return true;
+  }
+
+  const requiredAttributes = (state.attributes || [])
+    .map(attr => attr.name)
+    .filter(Boolean);
+
+  if (requiredAttributes.length === 0) {
+    return !!state.matchedVariationId;
+  }
+
+  return requiredAttributes.every(attrName => {
+    const selectedValue =
+      state.selectedAttrs[attrName] ||
+      state.selectedAttrs[attrName.replace(/^attribute_/, '')] ||
+      state.selectedAttrs[`attribute_${attrName}`];
+
+    return !!selectedValue;
+  });
+}
+
+/**
+ * Build the Store API variation payload from the user's actual selected
+ * attributes, not only the matched variation record. This keeps "Any ..."
+ * variations valid because WooCommerce still receives the selected option.
+ */
+function buildSelectedVariationPayload(): Array<{
+  attribute: string;
+  value: string;
+}> {
+  const requiredAttributes = (state.attributes || [])
+    .map(attr => attr.name)
+    .filter(Boolean);
+
+  if (requiredAttributes.length > 0) {
+    return requiredAttributes
+      .map(attrName => {
+        const value =
+          state.selectedAttrs[attrName] ||
+          state.selectedAttrs[attrName.replace(/^attribute_/, '')] ||
+          state.selectedAttrs[`attribute_${attrName}`] ||
+          '';
+
+        return {
+          attribute: attrName.replace(/^attribute_/, ''),
+          value,
+        };
+      })
+      .filter(item => item.value);
+  }
+
+  const matchedVar = state.variations.find(
+    (v: Variation) => v.id === state.matchedVariationId
+  );
+
+  if (!matchedVar || !matchedVar.attributes) {
+    return [];
+  }
+
+  if (Array.isArray(matchedVar.attributes)) {
+    return matchedVar.attributes
+      .filter(attr => attr.value)
+      .map(attr => ({
+        attribute: attr.attribute || attr.name || attr.taxonomy || '',
+        value: attr.value || '',
+      }))
+      .filter(item => item.attribute && item.value);
+  }
+
+  return Object.entries(matchedVar.attributes as Record<string, string>)
+    .filter(([, val]: [string, string]) => val)
+    .map(([key, val]: [string, string]) => ({
+      attribute: key.replace(/^attribute_/, ''),
+      value: val,
+    }));
+}
+
 /* ---------------------------------------------------------------
  * Interactivity store
  * ------------------------------------------------------------- */
@@ -163,7 +253,10 @@ const { state, actions } = store<StickyCartStore>(
       },
       get isDrawerAddDisabled(): boolean {
         if (state.isAdding || state.isBuyingNow) return true;
-        if (state.productType === 'variable' && !state.matchedVariationId)
+        if (
+          state.productType === 'variable' &&
+          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
+        )
           return true;
         return false;
       },
@@ -176,7 +269,10 @@ const { state, actions } = store<StickyCartStore>(
         if (state.isAdding) return '…';
         if (state.isSuccess) return '✓ Added';
         if (state.hasError) return 'Error';
-        if (state.productType === 'variable' && !state.matchedVariationId) {
+        if (
+          state.productType === 'variable' &&
+          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
+        ) {
           return 'Select options';
         }
         return 'Add to Cart';
@@ -184,6 +280,9 @@ const { state, actions } = store<StickyCartStore>(
       get buyNowLabel(): string {
         if (state.isBuyingNow) return 'Redirecting…';
         return 'Buy Now';
+      },
+      get hideDrawerHeader(): boolean {
+        return state.drawerView === 'success';
       },
       get hideDrawerSelection(): boolean {
         return state.drawerView !== 'selection';
@@ -202,6 +301,13 @@ const { state, actions } = store<StickyCartStore>(
         // so we only bail when the drawer still needs to be opened.
         if (state.productType === 'variable' && !state.isDrawerOpen) {
           actions.openDrawer();
+          return;
+        }
+
+        if (
+          state.productType === 'variable' &&
+          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
+        ) {
           return;
         }
 
@@ -227,19 +333,7 @@ const { state, actions } = store<StickyCartStore>(
         // For variable products, include variation attributes so the
         // Store API can validate the selection.
         if (state.productType === 'variable' && state.matchedVariationId) {
-          const matchedVar = state.variations.find(
-            (v: Variation) => v.id === state.matchedVariationId
-          );
-          if (matchedVar && matchedVar.attributes) {
-            body.variation = Object.entries(
-              matchedVar.attributes as Record<string, string>
-            )
-              .filter(([, val]: [string, string]) => val)
-              .map(([key, val]: [string, string]) => ({
-                attribute: key.replace(/^attribute_/, ''),
-                value: val,
-              }));
-          }
+          body.variation = buildSelectedVariationPayload();
         }
 
         fetch(state.cartApiUrl, {
@@ -317,6 +411,13 @@ const { state, actions } = store<StickyCartStore>(
           return;
         }
 
+        if (
+          state.productType === 'variable' &&
+          (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
+        ) {
+          return;
+        }
+
         const itemId: number =
           state.productType === 'variable'
             ? state.matchedVariationId
@@ -330,19 +431,7 @@ const { state, actions } = store<StickyCartStore>(
         const body: CartAddBody = { id: itemId, quantity: state.quantity };
 
         if (state.productType === 'variable' && state.matchedVariationId) {
-          const matchedVar = state.variations.find(
-            (v: Variation) => v.id === state.matchedVariationId
-          );
-          if (matchedVar && matchedVar.attributes) {
-            body.variation = Object.entries(
-              matchedVar.attributes as Record<string, string>
-            )
-              .filter(([, val]: [string, string]) => val)
-              .map(([key, val]: [string, string]) => ({
-                attribute: key.replace(/^attribute_/, ''),
-                value: val,
-              }));
-          }
+          body.variation = buildSelectedVariationPayload();
         }
 
         fetch(state.cartApiUrl, {

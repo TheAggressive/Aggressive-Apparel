@@ -19,8 +19,8 @@
 <p class="has-text-align-center wp-block-paragraph product-showcase-description">Discover our latest collection of premium apparel designed for those who demand the best.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:woocommerce/product-collection {"queryId":7,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection","queryContextIncludes":["collection"],"__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on current WooCommerce products in the store."}} -->
-<div class="wp-block-woocommerce-product-collection"></div>
+<!-- wp:woocommerce/product-collection {"queryId":7,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection","queryContextIncludes":["collection"],"__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on current WooCommerce products in the store."},"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid"></div>
 <!-- /wp:woocommerce/product-collection -->
 
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->

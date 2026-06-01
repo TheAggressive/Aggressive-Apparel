@@ -18,7 +18,7 @@
 	bottom: var(--aa-bottom-nav-height, 0);
 	left: 0;
 	right: var(--scrollbar-width, 0);
-	z-index: 99996;
+	z-index: var(--aa-z-sticky-cart);
 	background-color: var(--aa-color-surface);
 	color: var(--aa-color-foreground);
 	border-top: 1px solid var(--aa-color-border-subtle);
@@ -276,6 +276,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 
 .aa-sticky-cart__drawer {
 	right: var(--scrollbar-width, 0);
+	z-index: var(--aa-z-commerce-drawer);
 }
 
 .aa-sticky-cart__drawer-panel {
@@ -290,6 +291,10 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	gap: 0.75rem;
 	padding: 0.75rem;
 	flex-shrink: 0;
+
+	&[hidden] {
+		display: none;
+	}
 }
 
 .aa-sticky-cart__drawer-image {
@@ -342,7 +347,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	cursor: pointer;
 	flex-shrink: 0;
 	transition: background-color 0.15s ease;
-  align-self: start;
+	align-self: start;
 }
 
 .aa-sticky-cart__drawer-close:hover,
@@ -352,9 +357,11 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 
 /* Body — scrollable attribute options */
 .aa-sticky-cart__drawer-body {
+	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
+	min-height: 0;
 	padding: 0.5rem 1.25rem 1rem;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
@@ -479,7 +486,11 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 
 /* Selection view wrapper — hidden attr override. */
 .aa-sticky-cart__drawer-selection {
-	display: contents;
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
 
 	&[hidden] {
 		display: none;
@@ -490,10 +501,13 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
  * Success view
  * ----------------------------------------------- */
 .aa-sticky-cart__drawer-success {
+	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 	gap: 1rem;
+	min-height: 0;
 	padding: 2rem 1.25rem;
 	padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
 
@@ -518,6 +532,52 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 700;
+}
+
+.aa-sticky-cart__drawer-success-product {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-card);
+	background-color: var(--aa-color-hover-subtle);
+}
+
+.aa-sticky-cart__drawer-success-image {
+	width: 4.5rem;
+	height: 4.5rem;
+	object-fit: cover;
+	border-radius: var(--aa-radius-control);
+	flex-shrink: 0;
+}
+
+.aa-sticky-cart__drawer-success-info {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+	text-align: left;
+}
+
+.aa-sticky-cart__drawer-success-title {
+	overflow: hidden;
+	font-size: 0.875rem;
+	font-weight: 700;
+	line-height: 1.25;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aa-sticky-cart__drawer-success-price {
+	display: flex;
+	align-items: baseline;
+	gap: 0.375rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--aa-color-foreground-muted);
 }
 
 .aa-sticky-cart__drawer-success-actions {

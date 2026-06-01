@@ -41,6 +41,9 @@
 	--aa-z-overlay: var(--wp--custom--z-index--overlay, 300);
 	--aa-z-modal: var(--wp--custom--z-index--modal, 400);
 	--aa-z-toast: var(--wp--custom--z-index--toast, 500);
+	--aa-z-sticky-cart: var(--wp--custom--z-index--sticky-cart, 99996);
+	--aa-z-bottom-nav: var(--wp--custom--z-index--bottom-nav, 99997);
+	--aa-z-commerce-drawer: var(--wp--custom--z-index--commerce-drawer, 99998);
 
 	/* Component sizing (from settings.custom.size). */
 	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);
@@ -69,6 +72,47 @@
 	--aa-shadow-md: var(--wp--custom--shadow--md, 0 10px 25px -5px var(--aa-color-shadow));
 	--aa-shadow-lg: var(--wp--custom--shadow--lg, 0 12px 40px var(--aa-color-shadow-strong));
 	--aa-shadow-panel: var(--wp--custom--shadow--panel, 0 25px 50px -12px var(--aa-color-shadow-strong));
+
+	/* Typography roles. */
+	--aa-type-eyebrow-size: var(--wp--custom--type-role--eyebrow--font-size, var(--wp--preset--font-size--x-small));
+	--aa-type-eyebrow-weight: var(--wp--custom--type-role--eyebrow--font-weight, 700);
+	--aa-type-eyebrow-line-height: var(--wp--custom--type-role--eyebrow--line-height, 1.2);
+	--aa-type-eyebrow-letter-spacing: var(--wp--custom--type-role--eyebrow--letter-spacing, 0.08em);
+	--aa-type-caption-size: var(--wp--custom--type-role--caption--font-size, var(--wp--preset--font-size--small));
+	--aa-type-caption-weight: var(--wp--custom--type-role--caption--font-weight, 400);
+	--aa-type-caption-line-height: var(--wp--custom--type-role--caption--line-height, 1.5);
+	--aa-type-meta-size: var(--wp--custom--type-role--meta--font-size, var(--wp--preset--font-size--x-small));
+	--aa-type-meta-weight: var(--wp--custom--type-role--meta--font-weight, 600);
+	--aa-type-meta-line-height: var(--wp--custom--type-role--meta--line-height, 1.4);
+	--aa-type-meta-letter-spacing: var(--wp--custom--type-role--meta--letter-spacing, 0.04em);
+	--aa-type-legal-size: var(--wp--custom--type-role--legal--font-size, var(--wp--preset--font-size--x-small));
+	--aa-type-legal-weight: var(--wp--custom--type-role--legal--font-weight, 400);
+	--aa-type-legal-line-height: var(--wp--custom--type-role--legal--line-height, 1.5);
+	--aa-type-price-size: var(--wp--custom--type-role--price--font-size, var(--wp--preset--font-size--small));
+	--aa-type-price-weight: var(--wp--custom--type-role--price--font-weight, 700);
+	--aa-type-price-line-height: var(--wp--custom--type-role--price--line-height, 1.2);
+	--aa-type-price-letter-spacing: var(--wp--custom--type-role--price--letter-spacing, 0.01em);
+	--aa-type-product-title-size: var(--wp--custom--type-role--product-title--font-size, var(--wp--preset--font-size--small));
+	--aa-type-product-title-weight: var(--wp--custom--type-role--product-title--font-weight, 700);
+	--aa-type-product-title-line-height: var(--wp--custom--type-role--product-title--line-height, 1.2);
+
+	/* Density roles. */
+	--aa-density-compact-control-padding-y: var(--wp--custom--density--compact--control-padding-y, var(--wp--preset--spacing--2));
+	--aa-density-compact-control-padding-x: var(--wp--custom--density--compact--control-padding-x, var(--wp--preset--spacing--5));
+	--aa-density-compact-card-padding: var(--wp--custom--density--compact--card-padding, var(--wp--preset--spacing--5));
+	--aa-density-compact-section-gap: var(--wp--custom--density--compact--section-gap, var(--wp--preset--spacing--6));
+	--aa-density-comfortable-control-padding-y: var(--wp--custom--density--comfortable--control-padding-y, var(--wp--preset--spacing--3));
+	--aa-density-comfortable-control-padding-x: var(--wp--custom--density--comfortable--control-padding-x, var(--wp--preset--spacing--8));
+	--aa-density-comfortable-card-padding: var(--wp--custom--density--comfortable--card-padding, var(--wp--preset--spacing--8));
+	--aa-density-comfortable-section-gap: var(--wp--custom--density--comfortable--section-gap, var(--wp--preset--spacing--8));
+	--aa-density-spacious-control-padding-y: var(--wp--custom--density--spacious--control-padding-y, var(--wp--preset--spacing--4));
+	--aa-density-spacious-control-padding-x: var(--wp--custom--density--spacious--control-padding-x, var(--wp--preset--spacing--10));
+	--aa-density-spacious-card-padding: var(--wp--custom--density--spacious--card-padding, var(--wp--preset--spacing--10));
+	--aa-density-spacious-section-gap: var(--wp--custom--density--spacious--section-gap, var(--wp--preset--spacing--12));
+	--aa-density-control-padding-y: var(--aa-density-comfortable-control-padding-y);
+	--aa-density-control-padding-x: var(--aa-density-comfortable-control-padding-x);
+	--aa-density-card-padding: var(--aa-density-comfortable-card-padding);
+	--aa-density-section-gap: var(--aa-density-comfortable-section-gap);
 
 	/* Focus ring. */
 	--aa-focus-ring: 0 0 0 2px var(--aa-color-surface),
@@ -107,6 +151,21 @@
 	--aa-color-info-bg: color-mix(in oklch, var(--aa-color-info) 12%, transparent);
 	--aa-color-info-border: color-mix(in oklch, var(--aa-color-info) 30%, transparent);
 	--aa-color-neutral-bg: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+	--aa-commerce-sale: var(--wp--custom--commerce-state--sale--color, var(--aa-color-error));
+	--aa-commerce-sale-bg: var(--wp--custom--commerce-state--sale--background, var(--aa-color-error-bg));
+	--aa-commerce-sale-border: var(--wp--custom--commerce-state--sale--border, var(--aa-color-error-border));
+	--aa-commerce-new: var(--wp--custom--commerce-state--new--color, var(--aa-color-info));
+	--aa-commerce-new-bg: var(--wp--custom--commerce-state--new--background, var(--aa-color-info-bg));
+	--aa-commerce-new-border: var(--wp--custom--commerce-state--new--border, var(--aa-color-info-border));
+	--aa-commerce-featured: var(--wp--custom--commerce-state--featured--color, var(--aa-color-accent));
+	--aa-commerce-featured-bg: var(--wp--custom--commerce-state--featured--background, color-mix(in oklch, var(--aa-color-accent) 12%, transparent));
+	--aa-commerce-featured-border: var(--wp--custom--commerce-state--featured--border, color-mix(in oklch, var(--aa-color-accent) 30%, transparent));
+	--aa-commerce-low-stock: var(--wp--custom--commerce-state--low-stock--color, var(--aa-color-warning));
+	--aa-commerce-low-stock-bg: var(--wp--custom--commerce-state--low-stock--background, var(--aa-color-warning-bg));
+	--aa-commerce-low-stock-border: var(--wp--custom--commerce-state--low-stock--border, var(--aa-color-warning-border));
+	--aa-commerce-out-of-stock: var(--wp--custom--commerce-state--out-of-stock--color, var(--aa-color-neutral-muted));
+	--aa-commerce-out-of-stock-bg: var(--wp--custom--commerce-state--out-of-stock--background, var(--aa-color-neutral-bg));
+	--aa-commerce-out-of-stock-border: var(--wp--custom--commerce-state--out-of-stock--border, var(--aa-color-border-default));
 	--aa-color-scrim: color-mix(in oklch, var(--aa-color-foreground) 80%, transparent);
 	--aa-color-on-scrim: var(--aa-color-white);
 	--aa-color-on-scrim-90: color-mix(in oklch, var(--aa-color-white) 90%, transparent);

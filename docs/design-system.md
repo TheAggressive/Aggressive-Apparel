@@ -53,6 +53,9 @@ Defined in `theme.json` → `settings.custom`. Exposed as `--wp--custom--*`.
 | `size` | `--wp--custom--size--button-height--md` | Component sizing |
 | `radius` | `--wp--custom--radius--control` | Shared control/card/panel corners |
 | `shadow` | `--wp--custom--shadow--panel` | Shared elevation |
+| `typeRole` | `--wp--custom--type-role--eyebrow--font-size` | Semantic typography roles |
+| `density` | `--wp--custom--density--comfortable--card-padding` | Compact, comfortable, spacious rhythm |
+| `commerceState` | `--wp--custom--commerce-state--sale--color` | Sale, new, featured, stock states |
 | `statusColors` | `--wp--custom--status-colors--success` | Success, warning, error, info states |
 
 Aliases in `src/styles/base/tokens.css` use `--aa-*` prefix.
@@ -64,9 +67,11 @@ Aliases in `src/styles/base/tokens.css` use `--aa-*` prefix.
 | Brand colors, adaptive pairs | `theme.json` → `settings.custom.adaptiveColors` |
 | Static brand red/white/black | `theme.json` → `settings.color.palette` |
 | Global button/link/heading | `theme.json` → `styles.elements` or Site Editor → Styles → Elements |
+| WooCommerce block defaults | `theme.json` → `styles.blocks.woocommerce/*` |
 | Spacing/typography scale | `theme.json` → `settings.spacing` / `settings.typography` |
 | Motion, z-index, overlay | `theme.json` → `settings.custom` |
 | Radius, shadows, status colors, component sizing | `theme.json` → `settings.custom` |
+| Type roles, density, commerce states | `theme.json` → `settings.custom` |
 | Editor-side control chrome | `src/utils/editor-style-tokens.ts` |
 | Block style recipes | `src/styles/components/block-styles.css` + `Theme_Support::register_block_styles()` |
 | Feature-specific layout | That feature's CSS only — use tokens, no raw hex |
@@ -79,8 +84,12 @@ Registered in `includes/Core/class-theme-support.php`:
 |-------|------------|
 | `core/button` | ghost, text, small, cta, cta-small, outline-on-dark |
 | `core/group` | surface-card, bordered |
-| `core/paragraph` | badge, badge-muted |
+| `core/paragraph` | badge, badge-muted, eyebrow, caption, meta, legal, price |
 | `core/separator` | subtle |
+| `woocommerce/product-collection` | commerce-grid |
+| `woocommerce/product-template` | commerce-cards |
+| `woocommerce/product-image` | product-frame |
+| `woocommerce/product-price` | commerce-price |
 
 ## Usage Rules
 
@@ -97,6 +106,8 @@ Registered in `includes/Core/class-theme-support.php`:
 4. Use font presets instead of raw `font-size` values unless a pattern genuinely needs a one-off display treatment.
 5. Use Badge / Badge Muted for pills, labels, payment methods, and small metadata chips.
 6. Use `surface-card` or `bordered` for framed content instead of rebuilding card chrome inline.
+7. Use WooCommerce block styles for product grids: Commerce Grid, Commerce Cards, Product Frame, and Commerce Price.
+8. Use the Design System Preview pattern after token or primitive changes to visually check the system.
 
 ## UI Consistency Contract
 
@@ -115,7 +126,10 @@ All user-facing UI should be built from the same primitives, tokens, and state r
 | Component sizing | `settings.custom.size` | `--aa-button-height-*`, `--aa-input-height`, `--aa-panel-width-*` |
 | Radius | `settings.custom.radius` | `--aa-radius-*` |
 | Elevation | `settings.custom.shadow` | `--aa-shadow-sm`, `--aa-shadow-md`, `--aa-shadow-lg`, `--aa-shadow-panel` |
+| Typography roles | `settings.custom.typeRole` | `--aa-type-eyebrow-*`, `--aa-type-caption-*`, `--aa-type-meta-*`, `--aa-type-legal-*`, `--aa-type-price-*` |
+| Density | `settings.custom.density` | `--aa-density-compact-*`, `--aa-density-comfortable-*`, `--aa-density-spacious-*` |
 | Status colors | `settings.custom.statusColors` | `--aa-color-success`, `--aa-color-warning`, `--aa-color-error`, `--aa-color-info` |
+| Commerce states | `settings.custom.commerceState` | `--aa-commerce-sale-*`, `--aa-commerce-new-*`, `--aa-commerce-low-stock-*` |
 | Block editor control chrome | `src/utils/editor-style-tokens.ts` | `EDITOR_HELP_TEXT_STYLE`, `EDITOR_FIELDSET_STYLE`, `EDITOR_INFO_NOTICE_STYLE` |
 
 ### Primitive mapping
@@ -128,6 +142,12 @@ All user-facing UI should be built from the same primitives, tokens, and state r
 | Hero or merchandising CTA | registered `core/button` CTA / CTA Small styles |
 | CTA over dark media | registered `core/button` Outline on Dark style, composed with CTA sizing when needed |
 | Badges, labels, payment pills | registered `core/paragraph` Badge / Badge Muted styles |
+| Eyebrow, caption, meta, legal, price copy | registered `core/paragraph` type-role styles |
+| Commerce state chip | Badge style plus `aa-commerce-state-*` class |
+| Product collection grid | registered `woocommerce/product-collection` Commerce Grid style |
+| Product card list item | registered `woocommerce/product-template` Commerce Cards style |
+| Product media frame | registered `woocommerce/product-image` Product Frame style |
+| Product price text | registered `woocommerce/product-price` Commerce Price style |
 | Inputs, selects, textareas | `.aggressive-apparel-field__input` inside `.aggressive-apparel-field` |
 | Checkbox/radio groups | `.aggressive-apparel-field--checkbox` or a feature wrapper that reuses field tokens |
 | Validation, success, async feedback | `.aggressive-apparel-message--success` / `--error` |
@@ -150,7 +170,7 @@ Every interactive element should expose the same state language:
 
 ### Configuration rule
 
-When a UI decision should be user-configurable, expose it as a token or block setting first. Do not solve configurability by adding feature-specific CSS values. Feature CSS should compose tokens; `theme.json`, style variations, and block controls should own configuration.
+When a UI decision should be user-configurable, expose it as a token or block setting first. Do not solve configurability by adding feature-specific CSS values. Feature CSS should compose tokens; `theme.json` and block controls should own configuration.
 
 ## Composable Primitives
 
@@ -161,8 +181,13 @@ When a UI decision should be user-configurable, expose it as a token or block se
 | `components/field.css` | `.aggressive-apparel-field`, `__input`, `__error`, `--checkbox` | Form inputs and validation |
 | `components/buttons.css` | `.aggressive-apparel-button`, `--primary`, `--accent`, `--outline` | Custom PHP buttons |
 | `components/layout.css` | `.aggressive-apparel-stack`, `.aggressive-apparel-cluster`, `.aggressive-apparel-inline-form` | Flex layout recipes |
+| `woocommerce/blocks.css` | `wp-block-woocommerce-*`, `wc-block-*` | Native WooCommerce block skin |
 | `utils/editor-style-tokens.ts` | `EDITOR_*` style objects | Shared React inline styles for block editor controls |
 | `interactivity/use-overlay.ts` | `prepareOverlayOpen`, `closeOverlay` | Shared open/close JS behavior |
+
+## Preview Pattern
+
+Use `patterns/design-system-preview.php` as the living QA surface. It displays CTA styles, badges, commerce states, type roles, card styles, and WooCommerce product collection styling in one place.
 
 Compose in PHP/HTML:
 
@@ -180,18 +205,6 @@ Compose in PHP/HTML:
 
 Reference migrations: exit-intent, back-in-stock, load-more.
 
-## Style Variations
-
-Global style presets in `styles/` — selectable in Site Editor → Styles.
-
-| Slug | Title | What it changes |
-|------|-------|-----------------|
-| `high-contrast` | High Contrast | Sharper adaptive color pairs, square buttons, bolder headings |
-| `compact` | Compact | Tighter block gap, smaller body/button/nav typography |
-| `minimal` | Minimal | Softer surfaces, sentence-case buttons/headings, underlined links |
-
-Variations that define `settings.custom.adaptiveColors` override the base palette via `Adaptive_Colors` (merged theme.json data).
-
 ## Lint Enforcement
 
 | Check | Command |
@@ -199,6 +212,9 @@ Variations that define `settings.custom.adaptiveColors` override the base palett
 | Stylelint (theme, block, and editor CSS) | `pnpm lint:css` |
 | Hex ban in feature CSS and patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 | Editor UI chrome literals | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Registered `is-style-*` usage in patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| Woo product collections use Commerce Grid | `bin/check-design-system-css.sh` (runs with `lint:css`) |
+| High-risk raw CTA sizing in patterns | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 | BEM class names | `bin/check-design-system-css.sh` (runs with `lint:css`) |
 
 Hex colors are allowed only in `src/styles/base/tokens.css`, `src/styles/admin/`, and content values like color-picker defaults. Editor control surfaces, borders, radii, help text, and notices should use `src/utils/editor-style-tokens.ts`.
@@ -208,4 +224,4 @@ Hex colors are allowed only in `src/styles/base/tokens.css`, `src/styles/admin/`
 - [x] Week 1: Token foundation, slug rename, block styles, tokens.css
 - [x] Week 2: Overlay + panel primitives, use-overlay.ts, all modal/drawer migrations
 - [x] Week 3: All WooCommerce CSS → semantic `--aa-*` tokens (no hardcoded hex or dark-mode blocks)
-- [x] Week 4: field/button/layout primitives, style variations, Stylelint + BEM CI checks
+- [x] Week 4: field/button/layout primitives, Stylelint + BEM CI checks

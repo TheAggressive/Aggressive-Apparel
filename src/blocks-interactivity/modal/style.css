@@ -186,11 +186,12 @@
 	border-width: var(--aa-dialog-border-width);
 	border-radius: var(--aa-dialog-radius, var(--aa-dialog-border-radius));
 
-	/* Optional padding. */
-	padding: var(--aa-dialog-padding, 0);
+		/* Optional padding. */
+		padding: var(--aa-dialog-padding, 0);
+		outline: none;
 
-	/* Entrance/exit animation — always transition opacity so transitionend fires. */
-	opacity: 0;
+		/* Entrance/exit animation — always transition opacity so transitionend fires. */
+		opacity: 0;
 	transition:
 		opacity var(--aa-modal-duration) var(--aa-ease-default),
 		transform var(--aa-modal-duration) var(--aa-ease-default);
@@ -435,6 +436,7 @@
 .wp-block-aggressive-apparel-modal__dialog-body {
 	flex: 1 1 auto;
 	min-height: 0;
+	outline: none;
 	overflow-y: auto;
 }
 

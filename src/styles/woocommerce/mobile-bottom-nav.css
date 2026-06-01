@@ -20,7 +20,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	z-index: 99997;
+	z-index: var(--aa-z-bottom-nav);
 	height: var(--aa-bottom-nav-height);
 	padding-bottom: env(safe-area-inset-bottom, 0);
 	background-color: var(--aa-color-surface);

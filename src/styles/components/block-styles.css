@@ -44,7 +44,7 @@
 /* core/button — CTA */
 .is-style-cta .wp-block-button__link {
 	min-height: var(--aa-button-height-lg);
-	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--12);
+	padding: var(--aa-density-spacious-control-padding-y) var(--wp--preset--spacing--12);
 	font-size: var(--wp--preset--font-size--small);
 	font-weight: 700;
 	line-height: 1.1;
@@ -55,7 +55,7 @@
 /* core/button — CTA Small */
 .is-style-cta-small .wp-block-button__link {
 	min-height: var(--aa-button-height-sm);
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8);
+	padding: var(--aa-density-compact-control-padding-y) var(--aa-density-comfortable-control-padding-x);
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	line-height: 1.1;
@@ -81,14 +81,14 @@
 	color: var(--aa-color-foreground);
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-card);
-	padding: var(--wp--preset--spacing--8);
+	padding: var(--aa-density-card-padding);
 }
 
 /* core/group — Bordered */
 .is-style-bordered {
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-card);
-	padding: var(--wp--preset--spacing--6);
+	padding: var(--aa-density-compact-card-padding);
 }
 
 /* core/paragraph — Badge */
@@ -99,7 +99,7 @@
 	justify-content: center;
 	width: fit-content;
 	margin: 0;
-	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--4);
+	padding: var(--aa-density-compact-control-padding-y) var(--wp--preset--spacing--4);
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-control);
 	background-color: var(--aa-color-surface-elevated);
@@ -113,6 +113,78 @@
 
 .is-style-badge-muted {
 	color: var(--aa-color-foreground-muted);
+}
+
+.aa-commerce-state-sale {
+	border-color: var(--aa-commerce-sale-border);
+	background-color: var(--aa-commerce-sale-bg);
+	color: var(--aa-commerce-sale);
+}
+
+.aa-commerce-state-new {
+	border-color: var(--aa-commerce-new-border);
+	background-color: var(--aa-commerce-new-bg);
+	color: var(--aa-commerce-new);
+}
+
+.aa-commerce-state-featured {
+	border-color: var(--aa-commerce-featured-border);
+	background-color: var(--aa-commerce-featured-bg);
+	color: var(--aa-commerce-featured);
+}
+
+.aa-commerce-state-low-stock {
+	border-color: var(--aa-commerce-low-stock-border);
+	background-color: var(--aa-commerce-low-stock-bg);
+	color: var(--aa-commerce-low-stock);
+}
+
+.aa-commerce-state-out-of-stock {
+	border-color: var(--aa-commerce-out-of-stock-border);
+	background-color: var(--aa-commerce-out-of-stock-bg);
+	color: var(--aa-commerce-out-of-stock);
+}
+
+/* core/paragraph — Type Roles */
+.is-style-eyebrow {
+	margin-bottom: var(--wp--preset--spacing--3);
+	color: var(--aa-color-accent);
+	font-size: var(--aa-type-eyebrow-size);
+	font-weight: var(--aa-type-eyebrow-weight);
+	line-height: var(--aa-type-eyebrow-line-height);
+	text-transform: uppercase;
+	letter-spacing: var(--aa-type-eyebrow-letter-spacing);
+}
+
+.is-style-caption {
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--aa-type-caption-size);
+	font-weight: var(--aa-type-caption-weight);
+	line-height: var(--aa-type-caption-line-height);
+}
+
+.is-style-meta {
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--aa-type-meta-size);
+	font-weight: var(--aa-type-meta-weight);
+	line-height: var(--aa-type-meta-line-height);
+	text-transform: uppercase;
+	letter-spacing: var(--aa-type-meta-letter-spacing);
+}
+
+.is-style-legal {
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--aa-type-legal-size);
+	font-weight: var(--aa-type-legal-weight);
+	line-height: var(--aa-type-legal-line-height);
+}
+
+.is-style-price {
+	color: var(--aa-color-foreground);
+	font-size: var(--aa-type-price-size);
+	font-weight: var(--aa-type-price-weight);
+	line-height: var(--aa-type-price-line-height);
+	letter-spacing: var(--aa-type-price-letter-spacing);
 }
 
 /* core/separator — Subtle */

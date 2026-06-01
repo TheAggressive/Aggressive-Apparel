@@ -19,6 +19,23 @@
 	}
 }
 
+/* Badge. WooCommerce injects badge colors inline, so color tokens need priority. */
+.wc-block-mini-cart__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.25rem;
+	height: 1.25rem;
+	padding: 0 var(--wp--preset--spacing--2);
+	border-radius: var(--aa-radius-control);
+	background-color: var(--aa-color-accent) !important;
+	color: var(--aa-color-white) !important;
+	box-shadow: var(--aa-shadow-sm);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1;
+}
+
 /* Product rows inside the drawer. */
 .wc-block-mini-cart__products-table {
 

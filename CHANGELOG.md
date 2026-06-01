@@ -1,3 +1,15 @@
+# [1.78.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.77.1...v1.78.0) (2026-06-01)
+
+
+### Bug Fixes
+
+* improve code formatting and consistency in overlay components ([f6e326d](https://github.com/TheAggressive/Aggressive-Apparel/commit/f6e326dae9e356ef38622981e3d1138a07b5238c))
+
+
+### Features
+
+* enhance design system with adaptive colors and block styles ([dab93cb](https://github.com/TheAggressive/Aggressive-Apparel/commit/dab93cba2bc3eeafe6e08e445e3d9eaf15c86915))
+
 ## [1.77.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.77.0...v1.77.1) (2026-05-30)
 
 

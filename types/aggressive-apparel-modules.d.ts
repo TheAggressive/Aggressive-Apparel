@@ -88,3 +88,37 @@ declare module '@aggressive-apparel/scroll-lock' {
   export function lockScroll(): void;
   export function unlockScroll(): void;
 }
+
+declare module '@aggressive-apparel/use-overlay' {
+  export interface PrepareOverlayOpenOptions {
+    manageOpenClass?: boolean;
+    lockScroll?: boolean;
+  }
+
+  export interface OpenOverlayOptions {
+    shell: HTMLElement;
+    panel: HTMLElement;
+    triggerElement?: HTMLElement | null;
+    focusSelector?: string;
+  }
+
+  export interface CloseOverlayOptions {
+    shell: HTMLElement;
+    panel: HTMLElement;
+    focusTrapCleanup?: (() => void) | null;
+    triggerElement?: HTMLElement | null;
+    isStillOpen?: () => boolean;
+    onFinish?: () => void;
+    manageOpenClass?: boolean;
+    transitionProperty?: 'opacity' | 'transform';
+  }
+
+  export function prepareOverlayOpen(
+    shell: HTMLElement,
+    options?: PrepareOverlayOpenOptions
+  ): void;
+  export function activateOverlayFocus(
+    options: OpenOverlayOptions
+  ): () => void;
+  export function closeOverlay(options: CloseOverlayOptions): void;
+}

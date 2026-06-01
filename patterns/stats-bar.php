@@ -10,8 +10,8 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|14","bottom":"var:preset|spacing|14"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"#e5e7eb","width":"1px"},"bottom":{"color":"#e5e7eb","width":"1px"}}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull" style="border-top-color:#e5e7eb;border-top-width:1px;border-bottom-color:#e5e7eb;border-bottom-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--14);padding-bottom:var(--wp--preset--spacing--14)">
+?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|14","bottom":"var:preset|spacing|14"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"var:preset|color|border","width":"1px"},"bottom":{"color":"var:preset|color|border","width":"1px"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull" style="border-top-color:var(--wp--preset--color--border);border-top-width:1px;border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--14);padding-bottom:var(--wp--preset--spacing--14)">
 	<!-- wp:columns {"verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|10"}}}} -->
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center"} -->

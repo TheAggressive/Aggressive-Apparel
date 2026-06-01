@@ -24,8 +24,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px","width":"1px","color":"#e5e7eb"}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:heading {"textAlign":"center","level":3,"fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-xx-large-font-size">&#x2709;&#xFE0F;</h3>
 				<!-- /wp:heading -->
@@ -48,8 +48,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px","width":"1px","color":"#e5e7eb"}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:heading {"textAlign":"center","level":3,"fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-xx-large-font-size">&#x1F4F1;</h3>
 				<!-- /wp:heading -->
@@ -72,8 +72,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px","width":"1px","color":"#e5e7eb"}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:heading {"textAlign":"center","level":3,"fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-xx-large-font-size">&#x1F4CD;</h3>
 				<!-- /wp:heading -->
@@ -96,8 +96,8 @@
 	</div>
 	<!-- /wp:columns -->
 
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|10","right":"var:preset|spacing|10"},"margin":{"top":"var:preset|spacing|14"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;margin-top:var(--wp--preset--spacing--14);padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--10)">
+	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|10","right":"var:preset|spacing|10"},"margin":{"top":"var:preset|spacing|14"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);margin-top:var(--wp--preset--spacing--14);padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--10)">
 		<!-- wp:heading {"textAlign":"center","level":3,"textColor":"white","fontSize":"large"} -->
 		<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-large-font-size">Wholesale &amp; Partnerships</h3>
 		<!-- /wp:heading -->
@@ -108,8 +108,8 @@
 
 		<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
 		<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)">
-			<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-			<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-red-background-color has-white-color has-text-color has-background wp-element-button" href="mailto:wholesale@aggressiveapparel.com" style="border-radius:8px;padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--8)">Email Wholesale Team</a></div>
+			<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"border":{"radius":"var(--wp--custom--radius--button)"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
+			<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-red-background-color has-white-color has-text-color has-background wp-element-button" href="mailto:wholesale@aggressiveapparel.com" style="border-radius:var(--wp--custom--radius--button);padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--8)">Email Wholesale Team</a></div>
 			<!-- /wp:button -->
 		</div>
 		<!-- /wp:buttons -->

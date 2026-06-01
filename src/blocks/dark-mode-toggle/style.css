@@ -6,7 +6,8 @@
  */
 
 .wp-block-aggressive-apparel-dark-mode-toggle {
-	background-color: #21759b;
-	color: #fff;
-	padding: 2px;
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+	padding: var(--wp--preset--spacing--1);
+	border-radius: var(--aa-radius-control);
 }

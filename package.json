@@ -120,7 +120,7 @@
     "lint:js": "eslint src/**/*.{js,jsx,ts,tsx} --max-warnings 0",
     "lint:js:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix",
     "typecheck": "tsc --noEmit",
-    "lint:css": "stylelint src/styles/**/*.css",
+    "lint:css": "stylelint 'src/styles/**/*.css' 'src/blocks/**/style.css' 'src/blocks/**/editor.css' 'src/blocks-interactivity/**/style.css' 'src/blocks-interactivity/**/editor.css' && bash bin/check-design-system-css.sh",
     "lint:css:fix": "wp-scripts lint-style --fix",
     "lint:php": "composer lint:php",
     "lint:php:fix": "composer lint:php:fix",

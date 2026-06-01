@@ -409,8 +409,14 @@ Icons::list();
 | Red | `red` | `oklch(57.7% 0.245 27.325)` |
 | White | `white` | `#ffffff` |
 | Black | `black` | `#000000` |
-| Light/Dark White-Black | `light-dark-white-black` | Adapts to color scheme |
-| Light/Dark Black-White | `light-dark-black-white` | Adapts to color scheme |
+| Background | `surface` | Adaptive page/section background |
+| Background Elevated | `surface-elevated` | Higher-contrast surface |
+| Text | `foreground` | Adaptive primary text |
+| Text Muted | `foreground-muted` | Adaptive secondary text |
+| Accent | `accent` | Adaptive brand interactive color |
+| Border | `border` | Adaptive borders/dividers |
+| Brand | `primary` | Alias to brand red |
+| Brand Red | `red` | Static brand red |
 
 ### Spacing Scale
 47 spacing presets from `0.5` (0.125rem) to `96` (24rem), including fluid variants with `clamp()` for responsive spacing.

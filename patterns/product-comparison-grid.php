@@ -24,8 +24,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#e5e7eb"}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Essential</h4>
 				<!-- /wp:heading -->
@@ -34,8 +34,8 @@
 				<p class="has-text-align-center has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><strong>$65</strong></p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#f3f4f6"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
-				<div class="wp-block-cover is-light" style="background-color:#f3f4f6;margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
+				<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
 					<p class="has-text-align-center has-small-font-size">Product image</p>
 					<!-- /wp:paragraph -->
@@ -74,8 +74,8 @@
 				<p class="has-text-align-center has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><strong>$95</strong></p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#f3f4f6"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
-				<div class="wp-block-cover is-light" style="background-color:#f3f4f6;margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
+				<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
 					<p class="has-text-align-center has-small-font-size">Product image</p>
 					<!-- /wp:paragraph -->
@@ -100,8 +100,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#e5e7eb"}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Elite Limited</h4>
 				<!-- /wp:heading -->
@@ -110,8 +110,8 @@
 				<p class="has-text-align-center has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><strong>$145</strong></p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#f3f4f6"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
-				<div class="wp-block-cover is-light" style="background-color:#f3f4f6;margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+				<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"},"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}}} -->
+				<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
 					<p class="has-text-align-center has-small-font-size">Product image</p>
 					<!-- /wp:paragraph -->

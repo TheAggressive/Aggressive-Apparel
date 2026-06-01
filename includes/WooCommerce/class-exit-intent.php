@@ -97,6 +97,7 @@ class Exit_Intent {
 					'@wordpress/interactivity',
 					'@aggressive-apparel/scroll-lock',
 					'@aggressive-apparel/helpers',
+					'@aggressive-apparel/use-overlay',
 				),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
@@ -146,13 +147,13 @@ class Exit_Intent {
 		);
 		?>
 		<div id="aa-exit-intent"
-			class="aa-exit-intent"
+			class="aggressive-apparel-overlay aa-exit-intent"
 			data-wp-interactive="aggressive-apparel/exit-intent"
 			data-wp-class--is-open="state.isOpen"
 			data-wp-on--keydown="actions.handleKeydown"
 			hidden>
-			<div class="aa-exit-intent__backdrop" data-wp-on--click="actions.close"></div>
-			<div class="aa-exit-intent__modal"
+			<div class="aggressive-apparel-overlay__backdrop aa-exit-intent__backdrop" data-wp-on--click="actions.close"></div>
+			<div class="aggressive-apparel-panel aggressive-apparel-panel--md aa-exit-intent__modal"
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="aa-exit-intent-heading">
@@ -167,19 +168,19 @@ class Exit_Intent {
 						<?php echo esc_html( (string) $settings['heading'] ); ?>
 					</h2>
 					<p class="aa-exit-intent__body"><?php echo esc_html( (string) $settings['body'] ); ?></p>
-					<form class="aa-exit-intent__form" data-wp-on--submit="actions.submit">
+					<form class="aa-exit-intent__form aggressive-apparel-stack aggressive-apparel-stack--md aggressive-apparel-stack--full" data-wp-on--submit="actions.submit">
 						<input type="email"
-							class="aa-exit-intent__input"
+							class="aa-exit-intent__input aggressive-apparel-field__input"
 							placeholder="<?php esc_attr_e( 'Enter your email', 'aggressive-apparel' ); ?>"
 							required />
 						<button type="submit"
-							class="aa-exit-intent__submit"
+							class="aa-exit-intent__submit aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
 							data-wp-bind--disabled="state.isSubmitting"
 							data-wp-class--is-loading="state.isSubmitting">
 							<?php echo esc_html( (string) $settings['button_text'] ); ?>
 						</button>
 					</form>
-					<p class="aa-exit-intent__error"
+					<p class="aa-exit-intent__error aggressive-apparel-field__error"
 						data-wp-bind--hidden="!state.hasError"
 						data-wp-text="state.errorMessage"></p>
 				</div>

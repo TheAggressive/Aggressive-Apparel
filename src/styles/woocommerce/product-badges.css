@@ -52,8 +52,8 @@
 	pointer-events: auto;
 
 	&--custom {
-		background-color: var(--badge-bg, #000);
-		color: var(--badge-text, #fff);
+		background-color: var(--badge-bg, var(--aa-color-foreground));
+		color: var(--badge-text, var(--aa-color-surface));
 		border: var(--badge-border-width, 0) var(--badge-border-style, none) var(--badge-border-color, transparent);
 		border-radius: var(--badge-radius, 0.25rem);
 		padding: var(--badge-padding, 0.2em 0.6em);

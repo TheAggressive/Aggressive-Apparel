@@ -35,7 +35,7 @@
   &__arrow {
     display: flex;
     align-items: center;
-    transition: transform 0.2s ease;
+    transition: transform var(--aa-duration-fast) var(--aa-ease-default);
 
     & svg {
       width: 1em;
@@ -54,9 +54,9 @@
 
     /* Match frontend styling */
     padding: var(--wp--preset--spacing--4, 1rem);
-    background: var(--wp--preset--color--white, #fff);
-    border-radius: var(--aa-nav-radius-lg, 8px);
-    box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+    background: var(--aa-color-surface-elevated);
+    border-radius: var(--aa-nav-radius-lg);
+    box-shadow: 0 4px 20px var(--aa-color-shadow);
 
     /* Border only applied when custom values are set via Nav Menu settings */
     border-width: var(--panel-border-width, 0);
@@ -97,9 +97,9 @@
   /* Selected state - highlight the trigger area. */
   &.is-selected > &__trigger,
   &:has(.is-selected) > &__trigger {
-    outline: 2px solid var(--wp-admin-theme-color, #007cba);
+    outline: 2px solid var(--wp-admin-theme-color, var(--aa-color-info));
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--aa-radius-sm);
   }
 
   /* Rotate the existing arrow icon when panel is visible */
@@ -109,4 +109,3 @@
     transform: rotate(180deg);
   }
 }
-

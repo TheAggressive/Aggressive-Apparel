@@ -6,7 +6,7 @@
  */
 
 .aggressive-apparel-shipping-bar {
-	--shipping-bar-complete: #15803d;
+	--shipping-bar-complete: var(--aa-color-success);
 
 	margin-bottom: 1rem;
 
@@ -19,7 +19,7 @@
 
 	&__progress {
 		height: 100%;
-		background-color: var(--wp--preset--color--red, #dc2626);
+		background-color: var(--aa-color-brand-red);
 		border-radius: 3px;
 		transition: width 0.4s ease;
 	}

@@ -19,14 +19,14 @@
 	padding: 0;
 	border: none;
 	border-radius: 50%;
-	background-color: rgb(255 255 255 / 80%);
+	background-color: var(--aa-color-surface-80);
 	cursor: pointer;
 	transition: transform 0.15s ease, background-color 0.15s ease;
 
 	&:hover,
 	&:focus-visible {
 		transform: scale(1.1);
-		background-color: rgb(255 255 255 / 100%);
+		background-color: var(--aa-color-surface);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -36,8 +36,8 @@
 	&.is-active {
 
 		.aggressive-apparel-wishlist__icon {
-			fill: var(--wp--preset--color--red, #dc2626);
-			stroke: var(--wp--preset--color--red, #dc2626);
+			fill: var(--aa-color-brand-red);
+			stroke: var(--aa-color-brand-red);
 		}
 	}
 

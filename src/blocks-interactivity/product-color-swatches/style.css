@@ -35,12 +35,12 @@
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center;
-	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 22%);
+	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 	transform: scale(1);
 	transition:
-		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-		box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		outline-color 0.15s ease;
+		transform var(--aa-duration-normal) var(--aa-ease-default),
+		box-shadow var(--aa-duration-normal) var(--aa-ease-default),
+		outline-color var(--aa-duration-fast) var(--aa-ease-default);
 
 	/* Force block-level so size applies predictably. */
 	display: block;
@@ -52,7 +52,7 @@
 
 /* Focus ring — keyboard accessibility. */
 .aa-product-color-swatches__swatch:focus-visible {
-	outline: 2px solid var(--wp--preset--color--black, #000);
+	outline: 2px solid var(--aa-color-foreground);
 	outline-offset: 3px;
 }
 
@@ -63,8 +63,8 @@
 	outline: 3px solid
 		color-mix(
 			in oklch,
-			var(--swatch-color, rgb(0 0 0 / 50%)) 55%,
-			#000
+			var(--swatch-color, var(--aa-color-muted-50)) 55%,
+			var(--aa-color-black)
 		);
 	outline-offset: 3px;
 }
@@ -151,13 +151,13 @@
 	padding-inline: 0.4rem;
 	min-width: 1.75rem;
 	height: 1.75rem;
-	border-radius: 999px;
+	border-radius: var(--aa-radius-full);
 	font-size: 0.7rem;
 	font-weight: 600;
 	line-height: 1;
-	color: var(--wp--preset--color--black, #111);
-	background-color: var(--wp--preset--color--light-gray, #e5e7eb);
-	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+	color: var(--aa-color-foreground);
+	background-color: var(--aa-color-surface-elevated);
+	box-shadow: inset 0 0 0 1px var(--aa-color-border-default);
 	user-select: none;
 }
 
@@ -175,19 +175,19 @@
 	translate: -50% 0;
 	white-space: nowrap;
 	padding: 0.2rem 0.45rem;
-	border-radius: 4px;
+	border-radius: var(--aa-radius-sm);
 	font-size: 0.7rem;
 	font-weight: 500;
 	line-height: 1.4;
-	color: #fff;
-	background-color: rgb(0 0 0 / 80%);
+	color: var(--aa-color-white);
+	background-color: var(--aa-color-scrim);
 	pointer-events: none;
 	opacity: 0;
 	scale: 0.85;
 	transform-origin: bottom center;
 	transition:
-		opacity 0.15s ease,
-		scale 0.15s ease;
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		scale var(--aa-duration-fast) var(--aa-ease-default);
 	z-index: 10;
 }
 
@@ -555,8 +555,8 @@
 		outline: 3px solid
 			color-mix(
 				in oklch,
-				var(--swatch-color, rgb(0 0 0 / 50%)) 55%,
-				#000
+				var(--swatch-color, var(--aa-color-muted-50)) 55%,
+				var(--aa-color-black)
 			);
 	}
 

@@ -2,7 +2,7 @@
   position: relative;
   margin-bottom: 1rem;
   border: 1px dashed currentcolor;
-  border-radius: 4px;
+  border-radius: var(--aa-radius-control);
   padding: 0.75rem;
 }
 
@@ -12,9 +12,9 @@
   position: absolute;
   top: -0.5rem;
   left: 0.5rem;
-  background: var(--wp--preset--color--base, #fff);
+  background: var(--aa-color-surface);
   padding: 0 0.5rem;
-  font-size: 11px;
+  font-size: var(--wp--preset--font-size--x-small);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.6;
@@ -22,28 +22,27 @@
 
 .wp-block-aggressive-apparel-menu-group__title {
   border: 1px dashed currentcolor;
-  border-radius: 2px;
+  border-radius: var(--aa-radius-sm);
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.5rem;
-  background: rgb(0 0 0 / 2%);
+  background: var(--aa-color-hover-subtle);
   font-style: italic;
   opacity: 0.7;
 }
 
 .wp-block-aggressive-apparel-menu-group__content {
   min-height: 2rem;
-  border: 1px dashed rgb(0 0 0 / 20%);
-  border-radius: 2px;
+  border: 1px dashed var(--aa-color-border-input);
+  border-radius: var(--aa-radius-sm);
   padding: 0.5rem;
-  background: rgb(0 0 0 / 1%);
+  background: var(--aa-color-hover-subtle);
 }
 
 .wp-block-aggressive-apparel-menu-group__content:empty::after {
   content: 'Add menu items here...';
   display: block;
-  color: rgb(0 0 0 / 40%);
+  color: var(--aa-color-muted-40);
   font-style: italic;
   text-align: center;
 }
-
 

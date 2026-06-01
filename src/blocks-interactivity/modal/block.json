@@ -189,7 +189,7 @@
       "type": "object",
       "default": {
         "color": {
-          "background": "var(--wp--preset--color--light-dark-white-black)"
+          "background": "var(--wp--preset--color--surface)"
         }
       }
     }

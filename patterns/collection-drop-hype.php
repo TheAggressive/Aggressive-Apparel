@@ -44,8 +44,8 @@
 <div class="wp-block-columns alignfull" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:0">
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#1a1a1a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#1a1a1a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Teaser 01</p>
 			<!-- /wp:paragraph -->
@@ -56,8 +56,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#2a2a2a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#2a2a2a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Teaser 02</p>
 			<!-- /wp:paragraph -->
@@ -68,8 +68,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#3a3a3a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#3a3a3a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Teaser 03</p>
 			<!-- /wp:paragraph -->

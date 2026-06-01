@@ -23,7 +23,7 @@
 			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">Premium streetwear crafted for those who refuse to blend in. Built tough, designed bold.</p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:social-links {"iconColor":"white","iconColorValue":"#ffffff","size":"has-small-icon-size","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":{"left":"var:preset|spacing|4"}}},"className":"is-style-logos-only"} -->
+			<!-- wp:social-links {"iconColor":"white","iconColorValue":"var(--wp--preset--color--white)","size":"has-small-icon-size","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"},"blockGap":{"left":"var:preset|spacing|4"}}},"className":"is-style-logos-only"} -->
 			<ul class="wp-block-social-links has-small-icon-size has-icon-color is-style-logos-only" style="margin-top:var(--wp--preset--spacing--8)">
 				<!-- wp:social-link {"url":"#","service":"instagram"} /-->
 				<!-- wp:social-link {"url":"#","service":"x"} /-->

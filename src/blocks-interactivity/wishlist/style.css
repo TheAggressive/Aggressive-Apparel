@@ -157,8 +157,8 @@
 	&:hover,
 	&:focus-visible {
 		opacity: 1;
-		color: var(--wp--preset--color--red, #dc2626);
-		border-color: var(--wp--preset--color--red, #dc2626);
+		color: var(--aa-color-accent);
+		border-color: var(--aa-color-accent);
 		outline: none;
 	}
 

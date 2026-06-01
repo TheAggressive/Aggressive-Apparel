@@ -16,7 +16,7 @@
 	--aa-pi-radius: 0.5rem;
 	--aa-pi-gap: 1.5rem;
 	--aa-pi-heading-size: 1rem;
-	--aa-pi-accent: var(--wp--preset--color--primary, oklch(57.7% 0.245 27.325deg));
+	--aa-pi-accent: var(--aa-color-brand);
 
 	width: 100%;
 	font-size: 1rem;
@@ -476,7 +476,7 @@
 	/* Horizontal scroll hint — fade trailing edge regardless of background */
 	.aa-product-info--modern-tabs .aa-product-info__tab-nav,
 	.aa-product-info--scrollspy .aa-product-info__sidebar {
-		mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+		mask-image: linear-gradient(to right, var(--aa-color-foreground) calc(100% - 1.5rem), transparent);
 	}
 
 	/* Review comments: stack avatar + text */

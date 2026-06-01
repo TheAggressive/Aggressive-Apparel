@@ -1,0 +1,82 @@
+/**
+ * Layout Primitives
+ *
+ * Composable flex layouts for stacks, clusters, and inline forms.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aggressive-apparel-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--aa-stack-gap, 0.75rem);
+
+	&--xs {
+		--aa-stack-gap: 0.375rem;
+	}
+
+	&--sm {
+		--aa-stack-gap: 0.5rem;
+	}
+
+	&--md {
+		--aa-stack-gap: 0.75rem;
+	}
+
+	&--lg {
+		--aa-stack-gap: 1rem;
+	}
+
+	&--xl {
+		--aa-stack-gap: 1.5rem;
+	}
+
+	&--center {
+		align-items: center;
+		text-align: center;
+	}
+
+	&--full {
+		width: 100%;
+	}
+}
+
+.aggressive-apparel-cluster {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--aa-cluster-gap, 0.5rem);
+
+	&--sm {
+		--aa-cluster-gap: 0.375rem;
+	}
+
+	&--md {
+		--aa-cluster-gap: 0.5rem;
+	}
+
+	&--lg {
+		--aa-cluster-gap: 0.75rem;
+	}
+
+	&--center {
+		justify-content: center;
+	}
+
+	&--between {
+		justify-content: space-between;
+	}
+}
+
+.aggressive-apparel-inline-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 0.5rem;
+	width: 100%;
+
+	& .aggressive-apparel-field__input {
+		flex: 1;
+		min-width: 12rem;
+	}
+}

@@ -1,0 +1,162 @@
+/**
+ * Panel Primitive
+ *
+ * Shared dialog/drawer container. Size modifiers control width/height.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aggressive-apparel-panel {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	background-color: var(--aa-color-surface);
+	color: var(--aa-color-foreground);
+	border-radius: var(--aa-radius-panel);
+	box-shadow: var(--aa-shadow-panel);
+	opacity: 0;
+	transform: scale(0.95) translateY(20px);
+	transition:
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
+		transform var(--aa-duration-normal) var(--aa-ease-default);
+
+	.aggressive-apparel-overlay.is-open & {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+
+	&--md {
+		width: min(90vw, var(--aa-panel-width-md));
+		max-height: 85vh;
+	}
+
+	&--lg {
+		width: min(90vw, var(--aa-panel-width-lg));
+		max-height: 85vh;
+	}
+
+	&--xl {
+		width: min(90vw, var(--aa-panel-width-xl));
+		max-height: 85vh;
+	}
+
+	/* Size guide: slide-up only (no scale), wider flat panel. */
+	&--guide {
+		width: min(90vw, var(--aa-panel-width-guide));
+		max-height: 85vh;
+		overflow-y: auto;
+		border-radius: 0;
+		box-shadow:
+			var(--aa-shadow-panel),
+			0 0 0 1px var(--aa-color-border-subtle);
+		transform: translateY(20px);
+
+		.aggressive-apparel-overlay.is-open & {
+			transform: translateY(0);
+		}
+	}
+
+	/* Left-edge drawer (product filters). */
+	&--drawer-left {
+		width: var(--aa-panel-width-drawer);
+		max-width: 90vw;
+		height: 100dvh;
+		max-height: none;
+		border-radius: 0;
+		opacity: 1;
+		transform: translateX(-100%);
+		box-shadow: 4px 0 24px var(--aa-color-shadow);
+		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+
+		.aggressive-apparel-overlay.is-open & {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	/* Bottom sheet (sticky cart variant picker). */
+	&--drawer-bottom {
+		width: 100%;
+		max-width: none;
+		max-height: 70dvh;
+		border-radius: var(--aa-radius-panel) var(--aa-radius-panel) 0 0;
+		opacity: 1;
+		transform: translateY(100%);
+		box-shadow: 0 -4px 24px var(--aa-color-shadow);
+		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+
+		.aggressive-apparel-overlay.is-open & {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Top search bar (mobile bottom nav). */
+	&--search-bar {
+		width: 100%;
+		max-width: none;
+		max-height: none;
+		border-radius: 0;
+		box-shadow: 0 4px 12px var(--aa-color-shadow);
+		transform: translateY(-10px);
+
+		.aggressive-apparel-overlay.is-open & {
+			transform: translateY(0);
+		}
+	}
+}
+
+@supports selector(@starting-style) {
+
+	.aggressive-apparel-panel {
+
+		@starting-style {
+			opacity: 0;
+			transform: scale(0.95) translateY(20px);
+		}
+	}
+
+	.aggressive-apparel-panel--guide {
+
+		@starting-style {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+	}
+
+	.aggressive-apparel-panel--drawer-left {
+
+		@starting-style {
+			transform: translateX(-100%);
+		}
+	}
+
+	.aggressive-apparel-panel--drawer-bottom {
+
+		@starting-style {
+			transform: translateY(100%);
+		}
+	}
+
+	.aggressive-apparel-panel--search-bar {
+
+		@starting-style {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-panel {
+		transition: none;
+		transform: none;
+
+		.aggressive-apparel-overlay.is-open & {
+			transform: none;
+		}
+	}
+}

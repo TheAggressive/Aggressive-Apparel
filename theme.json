@@ -303,41 +303,99 @@
       "adaptiveColors": [
         {
           "slug": "surface",
-          "name": "Light Gray / Near-Black",
+          "name": "Background",
           "light": "oklch(87% 0 0)",
           "dark": "oklch(20.5% 0 0)"
         },
         {
-          "slug": "surface-alt",
-          "name": "Light Gray / Black",
+          "slug": "surface-elevated",
+          "name": "Background Elevated",
           "light": "oklch(87% 0 0)",
           "dark": "oklch(0 0 0)"
         },
         {
-          "slug": "on-surface",
-          "name": "Black / White",
+          "slug": "foreground",
+          "name": "Text",
           "light": "oklch(0 0 0)",
           "dark": "oklch(1 0 0)"
         },
         {
-          "slug": "on-surface-muted",
-          "name": "Gray / Light Gray",
+          "slug": "foreground-muted",
+          "name": "Text Muted",
           "light": "oklch(55.6% 0 0)",
           "dark": "oklch(87% 0 0)"
         },
         {
           "slug": "accent",
-          "name": "Red / Light Red",
+          "name": "Accent",
           "light": "oklch(44.4% 0.177 26.899)",
           "dark": "oklch(57.7% 0.245 27.325)"
         },
         {
           "slug": "border",
-          "name": "Silver / Dark Gray",
+          "name": "Border",
           "light": "oklch(70.8% 0 0)",
           "dark": "oklch(43.9% 0 0)"
         }
-      ]
+      ],
+      "motion": {
+        "duration": {
+          "fast": "150ms",
+          "normal": "300ms",
+          "slow": "500ms"
+        },
+        "ease": "cubic-bezier(0.4, 0, 0.2, 1)"
+      },
+      "overlay": {
+        "blur": "4px",
+        "opacity": "0.5"
+      },
+      "zIndex": {
+        "dropdown": 100,
+        "sticky": 200,
+        "overlay": 300,
+        "modal": 400,
+        "toast": 500
+      },
+      "size": {
+        "buttonHeight": {
+          "sm": "2rem",
+          "md": "2.75rem",
+          "lg": "3.25rem"
+        },
+        "panelWidth": {
+          "sm": "20rem",
+          "md": "28rem",
+          "lg": "40rem",
+          "xl": "56.25rem",
+          "guide": "46.25rem",
+          "drawer": "21.25rem"
+        },
+        "inputHeight": "2.75rem"
+      },
+      "radius": {
+        "sm": "0.25rem",
+        "md": "0.375rem",
+        "lg": "0.5rem",
+        "full": "calc(infinity * 1px)",
+        "button": "calc(infinity * 1px)",
+        "control": "0.375rem",
+        "panel": "0.5rem",
+        "card": "0.375rem"
+      },
+      "shadow": {
+        "sm": "0 2px 8px var(--aa-color-shadow)",
+        "md": "0 10px 25px -5px var(--aa-color-shadow)",
+        "lg": "0 12px 40px var(--aa-color-shadow-strong)",
+        "panel": "0 25px 50px -12px var(--aa-color-shadow-strong)"
+      },
+      "statusColors": {
+        "success": "#15803d",
+        "warning": "#c2410c",
+        "error": "#dc2626",
+        "info": "#1d4ed8",
+        "neutralMuted": "#6b7280"
+      }
     },
     "color": {
       "defaultPalette": false,
@@ -345,7 +403,7 @@
       "defaultDuotone": false,
       "palette": [
         {
-          "name": "Primary",
+          "name": "Brand",
           "slug": "primary",
           "color": "var(--wp--preset--color--red)"
         },
@@ -360,31 +418,31 @@
           "color": "oklab(0 0 0)"
         },
         {
-          "name": "Red",
+          "name": "Brand Red",
           "slug": "red",
           "color": "oklch(57.7% 0.245 27.325)"
         }
       ],
       "gradients": [
         {
-          "name": "Primary to Secondary",
-          "slug": "primary-secondary",
-          "gradient": "linear-gradient(135deg, var(--wp--preset--color--primary) 0%, var(--wp--preset--color--secondary) 100%)"
+          "name": "Brand Fade",
+          "slug": "brand-fade",
+          "gradient": "linear-gradient(135deg, var(--wp--preset--color--accent) 0%, var(--wp--preset--color--red) 100%)"
         },
         {
-          "name": "Primary to Secondary Dark",
-          "slug": "primary-secondary-dark",
-          "gradient": "linear-gradient(135deg, var(--wp--preset--color--primary-dark) 0%, var(--wp--preset--color--secondary-dark) 100%)"
+          "name": "Surface Fade",
+          "slug": "surface-fade",
+          "gradient": "linear-gradient(180deg, var(--wp--preset--color--surface) 0%, var(--wp--preset--color--surface-elevated) 100%)"
         },
         {
-          "name": "Accent to Accent Secondary",
-          "slug": "accent-gradient",
-          "gradient": "linear-gradient(135deg, var(--wp--preset--color--accent) 0%, var(--wp--preset--color--accent-secondary) 100%)"
+          "name": "Dark Overlay",
+          "slug": "dark-overlay",
+          "gradient": "linear-gradient(180deg, transparent 0%, oklch(0 0 0 / 60%) 100%)"
         },
         {
-          "name": "Accent to Accent Secondary Dark",
-          "slug": "accent-gradient-dark",
-          "gradient": "linear-gradient(135deg, var(--wp--preset--color--accent-dark) 0%, var(--wp--preset--color--accent-secondary-dark) 100%)"
+          "name": "Light Overlay",
+          "slug": "light-overlay",
+          "gradient": "linear-gradient(180deg, transparent 0%, oklch(1 0 0 / 60%) 100%)"
         }
       ]
     },
@@ -607,14 +665,6 @@
       ]
     },
     "blocks": {
-      "core/button": {
-        "border": {
-          "radius": false
-        },
-        "color": {
-          "palette": []
-        }
-      },
       "core/heading": {
         "typography": {
           "fontWeight": true
@@ -636,7 +686,7 @@
     "css": ":root { color-scheme: light dark; } ::selection { background-color: var(--wp--preset--color--red); color: var(--wp--preset--color--white); }",
     "color": {
       "background": "var:preset|color|surface",
-      "text": "var:preset|color|on-surface"
+      "text": "var:preset|color|foreground"
     },
     "typography": {
       "fontFamily": "var:preset|font-family|system-sans-serif",
@@ -674,7 +724,7 @@
           "letterSpacing": "0.05em"
         },
         "border": {
-          "radius": "calc(infinity * 1px)"
+          "radius": "var(--wp--custom--radius--button)"
         },
         ":hover": {
           "color": {

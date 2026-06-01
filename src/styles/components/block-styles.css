@@ -1,0 +1,124 @@
+/**
+ * Block Style Variations
+ *
+ * Design system recipes registered via register_block_style() in Theme_Support.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* core/button — Ghost */
+.is-style-ghost .wp-block-button__link {
+	background-color: transparent;
+	color: var(--aa-color-foreground);
+	border: 1.5px solid var(--aa-color-foreground);
+}
+
+.is-style-ghost .wp-block-button__link:hover {
+	background-color: var(--aa-color-foreground);
+	color: var(--aa-color-surface);
+}
+
+/* core/button — Text */
+.is-style-text .wp-block-button__link {
+	background-color: transparent;
+	color: var(--aa-color-accent);
+	border: none;
+	padding-left: 0;
+	padding-right: 0;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.is-style-text .wp-block-button__link:hover {
+	color: var(--aa-color-brand-red);
+	background-color: transparent;
+}
+
+/* core/button — Small */
+.is-style-small .wp-block-button__link {
+	min-height: var(--aa-button-height-sm);
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5) var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+/* core/button — CTA */
+.is-style-cta .wp-block-button__link {
+	min-height: var(--aa-button-height-lg);
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--12);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* core/button — CTA Small */
+.is-style-cta-small .wp-block-button__link {
+	min-height: var(--aa-button-height-sm);
+	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* core/button — Outline on Dark */
+.is-style-outline-on-dark .wp-block-button__link {
+	background-color: transparent;
+	color: var(--aa-color-white);
+	border: 1.5px solid var(--aa-color-white);
+}
+
+.is-style-outline-on-dark .wp-block-button__link:hover {
+	background-color: var(--aa-color-white);
+	color: var(--aa-color-black);
+}
+
+/* core/group — Surface Card */
+.is-style-surface-card {
+	background-color: var(--aa-color-surface);
+	color: var(--aa-color-foreground);
+	border: 1px solid var(--aa-color-border);
+	border-radius: var(--aa-radius-card);
+	padding: var(--wp--preset--spacing--8);
+}
+
+/* core/group — Bordered */
+.is-style-bordered {
+	border: 1px solid var(--aa-color-border);
+	border-radius: var(--aa-radius-card);
+	padding: var(--wp--preset--spacing--6);
+}
+
+/* core/paragraph — Badge */
+.is-style-badge,
+.is-style-badge-muted {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	margin: 0;
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--4);
+	border: 1px solid var(--aa-color-border);
+	border-radius: var(--aa-radius-control);
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.is-style-badge-muted {
+	color: var(--aa-color-foreground-muted);
+}
+
+/* core/separator — Subtle */
+.is-style-subtle {
+	border: none;
+	height: 1px;
+	background-color: var(--aa-color-border);
+	opacity: 0.6;
+}

@@ -313,16 +313,16 @@ $wrapper_attrs = get_block_wrapper_attributes(
 	></div>
 
 	<div
-		class="wp-block-aggressive-apparel-modal__shell"
+		class="aggressive-apparel-overlay wp-block-aggressive-apparel-modal__shell"
 		data-modal-id="<?php echo esc_attr( $unique_id ); ?>"
 		hidden
+		<?php echo $backdrop_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	>
 		<?php if ( ! $disable_overlay ) : ?>
 		<div
-			class="wp-block-aggressive-apparel-modal__backdrop"
+			class="aggressive-apparel-overlay__backdrop wp-block-aggressive-apparel-modal__backdrop"
 			data-wp-on--click="actions.closeModal"
 			aria-hidden="true"
-			<?php echo $backdrop_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		></div>
 		<?php endif; ?>
 

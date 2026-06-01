@@ -14,8 +14,12 @@ import type {
 } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
-import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
-import { matchVariation, setupFocusTrap } from '@aggressive-apparel/helpers';
+import {
+  prepareOverlayOpen,
+  activateOverlayFocus,
+  closeOverlay,
+} from '@aggressive-apparel/use-overlay';
+import { matchVariation } from '@aggressive-apparel/helpers';
 import type { Variation } from '@aggressive-apparel/helpers';
 
 interface StickyCartState {
@@ -122,35 +126,6 @@ function syncDrawerOptions(): void {
         btn.style.setProperty('--swatch-color', btn.style.backgroundColor);
       }
     });
-}
-
-/**
- * Defer unlockScroll until the drawer slide-out transition finishes.
- */
-function deferUnlock(drawer: HTMLElement): void {
-  const panel = drawer.querySelector<HTMLElement>(
-    '.aa-sticky-cart__drawer-panel'
-  );
-  let done = false;
-  const finish = (): void => {
-    if (done || state.isDrawerOpen) return;
-    done = true;
-    drawer.hidden = true;
-    unlockScroll();
-  };
-
-  if (panel) {
-    panel.addEventListener(
-      'transitionend',
-      (e: Event) => {
-        if ((e as TransitionEvent).propertyName === 'transform') finish();
-      },
-      { once: true }
-    );
-  }
-
-  // Safety fallback for reduced-motion or missed events.
-  setTimeout(finish, 350);
 }
 
 /* ---------------------------------------------------------------
@@ -516,29 +491,22 @@ const { state, actions } = store<StickyCartStore>(
         );
         if (!drawer) return;
 
-        drawer.hidden = false;
-        void drawer.offsetHeight; // force reflow for transition
-        drawer.classList.add('is-open');
+        prepareOverlayOpen(drawer);
         state.isDrawerOpen = true;
 
-        lockScroll();
-
-        // Sync pill button visuals with current selections.
         syncDrawerOptions();
 
-        // Setup focus trap after drawer renders.
-        requestAnimationFrame(() => {
-          const panel = drawer.querySelector<HTMLElement>(
-            '.aa-sticky-cart__drawer-panel'
-          );
-          if (panel) {
-            focusTrapCleanup = setupFocusTrap(panel);
-            const closeBtn = panel.querySelector<HTMLElement>(
-              '.aa-sticky-cart__drawer-close'
-            );
-            closeBtn?.focus();
-          }
-        });
+        const panel = drawer.querySelector<HTMLElement>(
+          '.aa-sticky-cart__drawer-panel'
+        );
+
+        if (panel) {
+          focusTrapCleanup = activateOverlayFocus({
+            shell: drawer,
+            panel,
+            focusSelector: '.aa-sticky-cart__drawer-close',
+          });
+        }
       },
 
       continueShopping(): void {
@@ -552,26 +520,34 @@ const { state, actions } = store<StickyCartStore>(
         );
         if (!drawer) return;
 
-        // Clean up focus trap.
-        if (focusTrapCleanup) {
-          focusTrapCleanup();
-          focusTrapCleanup = null;
-        }
-
-        drawer.classList.remove('is-open');
         state.isDrawerOpen = false;
         state.drawerView = 'selection';
 
-        // Sync all drawer selections to the main form now that the
-        // drawer is closing (deferred to avoid triggering WooCommerce
-        // navigation while the drawer is open).
         const selected = state.selectedAttrs;
         for (const attrName of Object.keys(selected)) {
           actions.syncToMainForm(attrName, selected[attrName]);
         }
 
-        // Defer unlockScroll until the slide-out transition finishes.
-        deferUnlock(drawer);
+        const panel = drawer.querySelector<HTMLElement>(
+          '.aa-sticky-cart__drawer-panel'
+        );
+
+        if (!panel) {
+          focusTrapCleanup?.();
+          focusTrapCleanup = null;
+          return;
+        }
+
+        closeOverlay({
+          shell: drawer,
+          panel,
+          focusTrapCleanup,
+          manageOpenClass: true,
+          transitionProperty: 'transform',
+          isStillOpen: () => state.isDrawerOpen,
+        });
+
+        focusTrapCleanup = null;
       },
 
       selectDrawerOption(event: MouseEvent): void {

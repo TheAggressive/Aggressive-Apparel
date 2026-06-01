@@ -75,6 +75,7 @@ class Sticky_Add_To_Cart {
 					'@wordpress/interactivity',
 					'@aggressive-apparel/scroll-lock',
 					'@aggressive-apparel/helpers',
+					'@aggressive-apparel/use-overlay',
 				),
 				(string) filemtime( $js_file ),
 			);
@@ -248,14 +249,15 @@ class Sticky_Add_To_Cart {
 
 		<?php if ( $product->is_type( 'variable' ) && ! empty( $product_data['attributes'] ) ) : ?>
 			<div
-				class="aa-sticky-cart__drawer"
+				class="aggressive-apparel-overlay aggressive-apparel-overlay--drawer-bottom aa-sticky-cart__drawer"
 				data-wp-interactive="aggressive-apparel/sticky-add-to-cart"
 				hidden
 				role="dialog"
+				aria-modal="true"
 				aria-label="<?php esc_attr_e( 'Select product options', 'aggressive-apparel' ); ?>"
 			>
-				<div class="aa-sticky-cart__drawer-backdrop" data-wp-on--click="actions.closeDrawer"></div>
-				<div class="aa-sticky-cart__drawer-panel">
+				<div class="aggressive-apparel-overlay__backdrop aa-sticky-cart__drawer-backdrop" data-wp-on--click="actions.closeDrawer"></div>
+				<div class="aggressive-apparel-panel aggressive-apparel-panel--drawer-bottom aa-sticky-cart__drawer-panel">
 					<div class="aa-sticky-cart__drawer-header">
 						<img
 							class="aa-sticky-cart__drawer-image"

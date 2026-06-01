@@ -16,8 +16,8 @@
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
-			<!-- wp:cover {"dimRatio":0,"minHeight":500,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#e5e7eb"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#e5e7eb;min-height:500px">
+			<!-- wp:cover {"dimRatio":0,"minHeight":500,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:500px">
 				<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","fontSize":"large"} -->

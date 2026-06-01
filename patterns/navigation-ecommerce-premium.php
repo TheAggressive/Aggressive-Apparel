@@ -48,8 +48,8 @@ declare(strict_types=1);
 <!-- wp:heading {"level":4,"style":{"typography":{"fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"margin":{"bottom":"var:preset|spacing|3"}}}} -->
 <h4>Featured</h4>
 <!-- /wp:heading -->
-<!-- wp:image {"sizeSlug":"medium","linkDestination":"custom","style":{"border":{"radius":"8px"}}} -->
-<figure class="wp-block-image has-custom-border size-medium"><a href="/collections/featured"><img src="" alt="Featured Collection" style="border-radius:8px"/></a><figcaption class="wp-element-caption">Shop the Spring Collection</figcaption></figure>
+<!-- wp:image {"sizeSlug":"medium","linkDestination":"custom","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
+<figure class="wp-block-image has-custom-border size-medium"><a href="/collections/featured"><img src="" alt="Featured Collection" style="border-radius:var(--wp--custom--radius--card)"/></a><figcaption class="wp-element-caption">Shop the Spring Collection</figcaption></figure>
 <!-- /wp:image -->
 <!-- /wp:column -->
 <!-- /wp:columns -->

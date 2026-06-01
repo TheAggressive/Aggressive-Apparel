@@ -73,8 +73,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":350,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#e5e7eb"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#e5e7eb;min-height:350px">
+			<!-- wp:cover {"dimRatio":0,"minHeight":350,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:350px">
 				<span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->

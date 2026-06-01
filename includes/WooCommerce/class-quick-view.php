@@ -157,7 +157,7 @@ class Quick_View {
 			wp_register_script_module(
 				'@aggressive-apparel/quick-view',
 				AGGRESSIVE_APPAREL_URI . '/build/interactivity/quick-view.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers', '@aggressive-apparel/use-overlay' ),
 				(string) filemtime( $js_file ),
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/quick-view' );
@@ -294,16 +294,16 @@ class Quick_View {
 		?>
 		<div
 			id="aggressive-apparel-quick-view"
-			class="aggressive-apparel-quick-view"
+			class="aggressive-apparel-overlay aggressive-apparel-quick-view"
 			data-wp-interactive="aggressive-apparel/quick-view"
 			data-wp-class--is-open="state.isOpen"
 			data-wp-on-document--keydown="actions.handleKeydown"
 			hidden
 		>
-			<div class="aggressive-apparel-quick-view__backdrop" data-wp-on--click="actions.close"></div>
+			<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-quick-view__backdrop" data-wp-on--click="actions.close"></div>
 
 			<div
-				class="aggressive-apparel-quick-view__modal"
+				class="aggressive-apparel-panel aggressive-apparel-panel--xl aggressive-apparel-quick-view__modal"
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="aggressive-apparel-quick-view-title"

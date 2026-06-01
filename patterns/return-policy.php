@@ -28,8 +28,8 @@
 	<div class="wp-block-columns" style="margin-bottom:var(--wp--preset--spacing--20)">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
 				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">1</p>
 				<!-- /wp:paragraph -->
@@ -48,8 +48,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
 				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">2</p>
 				<!-- /wp:paragraph -->
@@ -68,8 +68,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
 				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">3</p>
 				<!-- /wp:paragraph -->
@@ -124,8 +124,8 @@
 	<p class="has-medium-font-size" style="margin-bottom:var(--wp--preset--spacing--14);line-height:1.8">Need a different size or color? We recommend returning the original item and placing a new order to guarantee availability. If you need help, our support team can walk you through the process.</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)">
+	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)">
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"medium"} -->
 		<p class="has-white-color has-text-color has-medium-font-size" style="font-style:normal;font-weight:600">Need help with a return?</p>
 		<!-- /wp:paragraph -->

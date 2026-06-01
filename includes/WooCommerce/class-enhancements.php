@@ -200,6 +200,13 @@ class Enhancements {
 			array(),
 			AGGRESSIVE_APPAREL_VERSION,
 		);
+
+		wp_register_script_module(
+			'@aggressive-apparel/use-overlay',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/use-overlay.js',
+			array( '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
 	}
 
 	/**

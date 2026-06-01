@@ -7,12 +7,12 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu {
-  --submenu-bg: light-dark(#fff, #1a1a1a);
-  --submenu-color: light-dark(#000, #e0e0e0);
-  --submenu-shadow: var(--aa-nav-shadow, 0 4px 20px rgb(0 0 0 / 15%));
-  --submenu-radius: var(--aa-nav-radius-lg, 8px);
+  --submenu-bg: var(--aa-color-surface-elevated);
+  --submenu-color: var(--aa-color-foreground);
+  --submenu-shadow: var(--aa-nav-shadow);
+  --submenu-radius: var(--aa-nav-radius-lg);
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
-  --submenu-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --submenu-transition: var(--aa-duration-fast) var(--aa-ease-default);
   --submenu-min-width: 200px;
 
   position: relative;
@@ -61,9 +61,9 @@
     }
 
     &:focus-visible {
-      outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
-      outline-offset: var(--aa-nav-focus-offset, 2px);
-      border-radius: var(--aa-nav-radius-sm, 2px);
+      outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
+      outline-offset: var(--aa-nav-focus-offset);
+      border-radius: var(--aa-nav-radius-sm);
     }
   }
 
@@ -142,11 +142,11 @@
   &__panel .wp-block-aggressive-apparel-nav-link .wp-block-aggressive-apparel-nav-link__link {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border-radius: var(--aa-nav-radius-md, 4px);
+    border-radius: var(--aa-nav-radius-md);
     color: var(--nav-link-color);
 
     &:hover {
-      background: var(--aa-nav-hover-bg, rgb(0 0 0 / 5%));
+      background: var(--aa-nav-hover-bg);
     }
   }
 
@@ -252,7 +252,7 @@
     padding: 0;
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--aa-nav-border-light, rgb(0 0 0 / 10%));
+    border-bottom: 1px solid var(--aa-nav-border-light);
     color: inherit;
     font: inherit;
     cursor: pointer;
@@ -266,8 +266,8 @@
     }
 
     &:focus-visible {
-      outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentColor);
-      outline-offset: var(--aa-nav-focus-offset, -2px);
+      outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
+      outline-offset: calc(var(--aa-nav-focus-offset) * -1);
     }
   }
 
@@ -311,7 +311,7 @@
     /* Border only applied when custom values are set via Nav Menu settings */
     border-width: var(--panel-border-width, 0);
     border-style: var(--panel-border-style, solid);
-    border-color: var(--panel-border-color, light-dark(currentcolor, rgb(255 255 255 / 10%)));
+    border-color: var(--panel-border-color, var(--aa-color-border-subtle));
   }
 
   /* Drilldown panels don't use glassmorphism border */

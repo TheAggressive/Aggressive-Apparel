@@ -16,8 +16,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":400,"minHeightUnit":"px","contentPosition":"center center","style":{"border":{"radius":"12px"}}} -->
-			<div class="wp-block-cover" style="border-radius:12px;min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"360px"}} -->
+			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":400,"minHeightUnit":"px","contentPosition":"center center","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
+			<div class="wp-block-cover" style="border-radius:var(--wp--custom--radius--card);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"360px"}} -->
 			<div class="wp-block-group">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
 				<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">New Season</p>
@@ -42,8 +42,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":400,"minHeightUnit":"px","contentPosition":"center center","style":{"border":{"radius":"12px"}}} -->
-			<div class="wp-block-cover" style="border-radius:12px;min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"360px"}} -->
+			<!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":400,"minHeightUnit":"px","contentPosition":"center center","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
+			<div class="wp-block-cover" style="border-radius:var(--wp--custom--radius--card);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"360px"}} -->
 			<div class="wp-block-group">
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
 				<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">New Season</p>

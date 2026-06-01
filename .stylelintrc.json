@@ -86,5 +86,58 @@
         "ignore": ["consecutive-duplicates"]
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/styles/base/tokens.css", "src/styles/admin/**/*.css"],
+      "rules": {
+        "color-no-hex": null
+      }
+    },
+    {
+      "files": ["src/styles/components/field.css", "src/styles/components/layout.css"],
+      "rules": {
+        "color-no-hex": [
+          true,
+          {
+            "ignore": ["transparent"]
+          }
+        ],
+        "selector-class-pattern": [
+          "^aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?$",
+          {
+            "message": "Component classes must follow BEM: aggressive-apparel-block__element--modifier"
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/styles/components/buttons.css",
+        "src/styles/components/overlay.css",
+        "src/styles/components/panel.css",
+        "src/styles/components/marquee.css",
+        "src/styles/components/block-styles.css"
+      ],
+      "rules": {
+        "color-no-hex": [
+          true,
+          {
+            "ignore": ["transparent"]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/styles/woocommerce/**/*.css"],
+      "rules": {
+        "color-no-hex": [
+          true,
+          {
+            "ignore": ["transparent"]
+          }
+        ]
+      }
+    }
+  ]
 }

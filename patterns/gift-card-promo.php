@@ -26,32 +26,32 @@
 
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|6"}}} -->
 	<div class="wp-block-group">
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px","width":"1px","color":"#333333"}},"layout":{"type":"constrained"}} -->
-		<div class="wp-block-group has-border-color" style="border-color:#333333;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+		<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"large"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-large-font-size" style="font-style:normal;font-weight:700">$25</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
 
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px","width":"1px","color":"#333333"}},"layout":{"type":"constrained"}} -->
-		<div class="wp-block-group has-border-color" style="border-color:#333333;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+		<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"large"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-large-font-size" style="font-style:normal;font-weight:700">$50</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
 
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px","width":"2px"}},"borderColor":"red","layout":{"type":"constrained"}} -->
-		<div class="wp-block-group has-border-color has-red-border-color" style="border-width:2px;border-radius:12px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"2px"}},"borderColor":"red","layout":{"type":"constrained"}} -->
+		<div class="wp-block-group has-border-color has-red-border-color" style="border-width:2px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"red","fontSize":"large"} -->
 			<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:700">$100</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
 
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px","width":"1px","color":"#333333"}},"layout":{"type":"constrained"}} -->
-		<div class="wp-block-group has-border-color" style="border-color:#333333;border-width:1px;border-radius:12px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)","width":"1px","color":"var:preset|color|border"}},"layout":{"type":"constrained"}} -->
+		<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"large"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-large-font-size" style="font-style:normal;font-weight:700">$250</p>
 			<!-- /wp:paragraph -->
@@ -62,8 +62,8 @@
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|14"}}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--14)">
-		<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"border":{"radius":"8px"},"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-		<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-red-background-color has-white-color has-text-color has-background wp-element-button" href="/shop/gift-cards" style="border-radius:8px;padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--10)">Shop Gift Cards</a></div>
+		<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"border":{"radius":"var(--wp--custom--radius--button)"},"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
+		<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-red-background-color has-white-color has-text-color has-background wp-element-button" href="/shop/gift-cards" style="border-radius:var(--wp--custom--radius--button);padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--10)">Shop Gift Cards</a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

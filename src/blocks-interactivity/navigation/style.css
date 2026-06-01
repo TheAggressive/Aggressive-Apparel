@@ -24,26 +24,26 @@
 :root {
 
   /* Borders */
-  --aa-nav-border-subtle: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 8%));
-  --aa-nav-border-light: light-dark(rgb(0 0 0 / 10%), rgb(255 255 255 / 10%));
+  --aa-nav-border-subtle: var(--aa-color-border-subtle);
+  --aa-nav-border-light: var(--aa-color-border-default);
 
   /* Overlays & Hover */
-  --aa-nav-hover-bg: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 5%));
-  --aa-nav-shadow: 0 4px 20px rgb(0 0 0 / 15%);
-  --aa-nav-overlay-bg: rgb(0 0 0 / 50%);
+  --aa-nav-hover-bg: var(--aa-color-hover-subtle);
+  --aa-nav-shadow: 0 4px 20px var(--aa-color-shadow);
+  --aa-nav-overlay-bg: var(--aa-color-scrim);
 
   /* Transitions — on :root so the portaled panel inherits them */
-  --aa-nav-transition: 400ms cubic-bezier(0.22, 1, 0.36, 1);
-  --aa-nav-transition-fast: 150ms ease;
-  --navigation-transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --aa-nav-transition: var(--aa-duration-normal) var(--aa-ease-default);
+  --aa-nav-transition-fast: var(--aa-duration-fast) var(--aa-ease-default);
+  --navigation-transition: var(--aa-duration-normal) var(--aa-ease-default);
 
   /* Radii */
-  --aa-nav-radius-sm: 2px;
-  --aa-nav-radius-md: 4px;
-  --aa-nav-radius-lg: 8px;
+  --aa-nav-radius-sm: var(--aa-radius-sm);
+  --aa-nav-radius-md: var(--aa-radius-md);
+  --aa-nav-radius-lg: var(--aa-radius-panel);
 
   /* Focus */
-  --aa-nav-focus-color: var(--wp--preset--color--primary, currentColor);
+  --aa-nav-focus-color: var(--aa-color-accent);
   --aa-nav-focus-width: 2px;
   --aa-nav-focus-offset: 2px;
 }
@@ -409,16 +409,16 @@
  * overrides (--panel-bg, --panel-color) still win.
  * ======================================== */
 .aa-nav__panel {
-  --_panel-accent: var(--indicator-color, var(--wp--preset--color--red, oklch(57.7% 0.245 27.325deg)));
+  --_panel-accent: var(--indicator-color, var(--aa-color-accent));
 
   /* Private adaptive tokens — referenced by panel descendants */
-  --_text: light-dark(#1a1a1a, #e0e0e0);
-  --_text-strong: light-dark(#000, #fff);
-  --_text-muted: light-dark(rgb(0 0 0 / 50%), rgb(255 255 255 / 50%));
-  --_text-subtle: light-dark(rgb(0 0 0 / 30%), rgb(255 255 255 / 30%));
-  --_border: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 6%));
-  --_drilldown-bg: light-dark(rgb(0 0 0 / 5%), rgb(0 0 0 / 40%));
-  --_drilldown-text: light-dark(rgb(0 0 0 / 65%), rgb(255 255 255 / 65%));
+  --_text: var(--aa-color-foreground);
+  --_text-strong: var(--aa-color-foreground);
+  --_text-muted: var(--aa-color-muted-50);
+  --_text-subtle: var(--aa-color-muted-40);
+  --_border: var(--aa-color-border-subtle);
+  --_drilldown-bg: var(--aa-color-hover-subtle);
+  --_drilldown-text: var(--aa-color-foreground-muted);
 
   position: fixed;
   top: 0;
@@ -426,7 +426,7 @@
   z-index: 100000;
   overflow: hidden;
   width: var(--panel-width, min(320px, 85vw));
-  background: var(--panel-bg, light-dark(#fff, #141414));
+  background: var(--panel-bg, var(--aa-color-surface-elevated));
   color: var(--panel-color, var(--_text));
   pointer-events: none;
   will-change: transform;
@@ -436,7 +436,7 @@
 }
 
 .aa-nav__panel.is-open {
-  box-shadow: -1px 0 0 light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 5%));
+  box-shadow: -1px 0 0 var(--aa-color-border-subtle);
 }
 
 /* Position: right */
@@ -550,7 +550,7 @@
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: var(--panel-overlay-bg, rgb(0 0 0 / 50%));
+  background: var(--panel-overlay-bg, var(--aa-nav-overlay-bg));
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--aa-nav-transition);
@@ -831,7 +831,7 @@
     display: flex !important;
     flex-direction: column;
     overflow: hidden auto;
-    background: var(--panel-bg, light-dark(#fff, #141414));
+    background: var(--panel-bg, var(--aa-color-surface-elevated));
     color: var(--panel-color, var(--_text));
     border-radius: 0;
     box-shadow: none;
@@ -841,7 +841,7 @@
     opacity: 1;
     transform: translateX(100%);
     will-change: transform;
-    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+    transition: transform var(--aa-nav-transition) !important;
     pointer-events: none;
 
     &[hidden] {
@@ -868,7 +868,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--panel-bg, light-dark(#fff, #141414));
+    background: var(--panel-bg, var(--aa-color-surface-elevated));
     border-bottom: 1px solid var(--_border);
   }
 

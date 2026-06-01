@@ -11,17 +11,17 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"#e5e7eb","width":"1px"}}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull" style="border-top-color:#e5e7eb;border-top-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10)">
+?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"var:preset|color|border","width":"1px"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull" style="border-top-color:var(--wp--preset--color--border);border-top-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10)">
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 	<div class="wp-block-group">
 		<!-- wp:site-title {"level":0,"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"medium"} /-->
 
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.8125rem"}},"textColor":"light-dark-black-white"} -->
-		<p class="has-light-dark-black-white-color has-text-color" style="font-size:0.8125rem">&copy; 2026 Aggressive Apparel. All rights reserved.</p>
+		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.8125rem"}},"textColor":"foreground"} -->
+		<p class="has-foreground-color has-text-color" style="font-size:0.8125rem">&copy; 2026 Aggressive Apparel. All rights reserved.</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:social-links {"iconColor":"light-dark-black-white","iconColorValue":"currentColor","size":"has-small-icon-size","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4"}}},"className":"is-style-logos-only"} -->
+		<!-- wp:social-links {"iconColor":"foreground","iconColorValue":"currentColor","size":"has-small-icon-size","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4"}}},"className":"is-style-logos-only"} -->
 		<ul class="wp-block-social-links has-small-icon-size has-icon-color is-style-logos-only">
 			<!-- wp:social-link {"url":"#","service":"instagram"} /-->
 			<!-- wp:social-link {"url":"#","service":"x"} /-->

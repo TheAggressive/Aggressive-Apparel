@@ -14,8 +14,8 @@
 <div class="wp-block-columns alignfull" style="margin-top:0;margin-bottom:0">
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":60,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"#1a1a1a"}}} -->
-		<div class="wp-block-cover is-dark" style="background-color:#1a1a1a;min-height:60vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":60,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--black);min-height:60vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
 			<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase">Collection</p>
 			<!-- /wp:paragraph -->
@@ -38,8 +38,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":60,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"#2a2a2a"}}} -->
-		<div class="wp-block-cover is-dark" style="background-color:#2a2a2a;min-height:60vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":50,"overlayColor":"black","minHeight":60,"minHeightUnit":"vh","contentPosition":"center center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--black);min-height:60vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
 			<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase">Collection</p>
 			<!-- /wp:paragraph -->

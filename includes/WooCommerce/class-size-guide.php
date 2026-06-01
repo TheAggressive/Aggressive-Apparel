@@ -131,7 +131,12 @@ class Size_Guide {
 			wp_register_script_module(
 				'@aggressive-apparel/size-guide',
 				AGGRESSIVE_APPAREL_URI . '/build/interactivity/size-guide.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+				array(
+					'@wordpress/interactivity',
+					'@aggressive-apparel/scroll-lock',
+					'@aggressive-apparel/helpers',
+					'@aggressive-apparel/use-overlay',
+				),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/size-guide' );
@@ -156,9 +161,9 @@ class Size_Guide {
 		echo '</button>';
 
 		// Modal.
-		echo '<div class="aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-label="' . esc_attr__( 'Size Guide', 'aggressive-apparel' ) . '" data-wp-class--is-open="context.isOpen" hidden>';
-		echo '<div class="aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
-		echo '<div class="aggressive-apparel-size-guide__modal">';
+		echo '<div class="aggressive-apparel-overlay aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-label="' . esc_attr__( 'Size Guide', 'aggressive-apparel' ) . '" data-wp-class--is-open="context.isOpen" hidden>';
+		echo '<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
+		echo '<div class="aggressive-apparel-panel aggressive-apparel-panel--guide aggressive-apparel-size-guide__modal">';
 		echo '<div class="aggressive-apparel-size-guide__header">';
 		echo '<h2 class="aggressive-apparel-size-guide__title">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</h2>';
 		echo '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">&times;</button>';

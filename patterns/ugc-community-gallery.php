@@ -30,8 +30,8 @@
 <div class="wp-block-columns is-not-stacked-on-mobile alignfull" style="margin-top:0;margin-bottom:0">
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#1a1a1a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#1a1a1a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@sarah_lifts</p>
 			<!-- /wp:paragraph -->
@@ -42,8 +42,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#2a2a2a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#2a2a2a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@mike_runs</p>
 			<!-- /wp:paragraph -->
@@ -54,8 +54,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#3a3a3a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#3a3a3a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@emma_streetstyle</p>
 			<!-- /wp:paragraph -->
@@ -66,8 +66,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#4a4a4a"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#4a4a4a;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@jay_drip</p>
 			<!-- /wp:paragraph -->
@@ -78,8 +78,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#333333"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#333333;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@alex_grind</p>
 			<!-- /wp:paragraph -->
@@ -90,8 +90,8 @@
 
 	<!-- wp:column -->
 	<div class="wp-block-column">
-		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#222222"}}} -->
-		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#222222;min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+		<!-- wp:cover {"dimRatio":0,"minHeight":300,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:300px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"small"} -->
 			<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:600">@nina_fierce</p>
 			<!-- /wp:paragraph -->

@@ -14,6 +14,12 @@ import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { EffectTimingControls } from './EffectTimingControls';
 import {
+  EDITOR_COLOR_TOKENS,
+  EDITOR_HELP_TEXT_STYLE,
+  EDITOR_INFO_NOTICE_STYLE,
+  EDITOR_RADIUS_TOKENS,
+} from '../../../utils/editor-style-tokens';
+import {
   isParallaxEffectName,
   setParallaxEffectProperty,
   toggleParallaxEffect,
@@ -186,7 +192,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           <div
             style={{
               marginTop: '16px',
-              borderTop: '1px solid #ddd',
+              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
               paddingTop: '16px',
             }}
           >
@@ -299,7 +305,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
             <div
               style={{
                 marginTop: '16px',
-                borderTop: '1px solid #ddd',
+                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
                 paddingTop: '16px',
               }}
             >
@@ -375,13 +381,10 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           {!isMouseInteractionEnabled && (
             <div
               style={{
+                ...EDITOR_INFO_NOTICE_STYLE,
                 marginBottom: '12px',
                 padding: '8px',
-                backgroundColor: '#f0f8ff',
-                border: '1px solid #b3d9ff',
-                borderRadius: '4px',
                 fontSize: '12px',
-                color: '#0066cc',
               }}
             >
               💡{' '}
@@ -408,7 +411,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
               'aggressive-apparel'
             )}
           />
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+          <div style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: '8px' }}>
             {(() => {
               const depth =
                 effects.depthLevel?.value ??
@@ -518,7 +521,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         <div
           style={{
             marginTop: '16px',
-            borderTop: '1px solid #ddd',
+            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             paddingTop: '16px',
           }}
         >
@@ -585,7 +588,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         <div
           style={{
             marginTop: '16px',
-            borderTop: '1px solid #ddd',
+            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             paddingTop: '16px',
           }}
         >
@@ -613,8 +616,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                   style={{
                     width: '100%',
                     height: '32px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
+                    borderRadius: EDITOR_RADIUS_TOKENS.control,
                   }}
                 />
               </div>
@@ -631,8 +634,8 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                   style={{
                     width: '100%',
                     height: '32px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
+                    border: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
+                    borderRadius: EDITOR_RADIUS_TOKENS.control,
                   }}
                 />
               </div>
@@ -675,7 +678,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         <div
           style={{
             marginTop: '16px',
-            borderTop: '1px solid #ddd',
+            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             paddingTop: '16px',
           }}
         >

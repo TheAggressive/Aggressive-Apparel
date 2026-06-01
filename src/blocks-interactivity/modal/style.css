@@ -152,48 +152,13 @@
 }
 
 /* ──────────────────────────────────────────────
- * Modal shell — the hidden/is-open container
+ * Modal shell — uses shared aggressive-apparel-overlay primitive
  * ────────────────────────────────────────────── */
 
 .wp-block-aggressive-apparel-modal__shell {
-	position: fixed;
-	inset: 0;
-	z-index: 100000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 
-	&[hidden] {
-		display: none;
-	}
-}
-
-/* ──────────────────────────────────────────────
- * Backdrop
- * ────────────────────────────────────────────── */
-
-.wp-block-aggressive-apparel-modal__backdrop {
-	position: absolute;
-	inset: 0;
-	background-color: rgb(0 0 0 / 0%);
-	backdrop-filter: blur(0);
-	cursor: pointer;
-	transition:
-		background-color var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
-		backdrop-filter var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
-
-	.wp-block-aggressive-apparel-modal__shell.is-open & {
-		background-color: var(
-			--aa-overlay-color,
-			rgb(0 0 0 / var(--aa-overlay-opacity, 50%))
-		);
-		backdrop-filter: blur(var(--aa-overlay-blur, 4px));
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-		backdrop-filter: none;
-	}
+	/* Per-block overlay token overrides (--aa-overlay-opacity, --aa-overlay-blur). */
+	--aa-modal-duration: var(--aa-duration-normal);
 }
 
 /* ──────────────────────────────────────────────
@@ -212,8 +177,8 @@
 	   from render.php as --aa-dialog-bg / --aa-dialog-text CSS vars on this element.
 	   The theme's adaptive presets are the fallback so light/dark mode works
 	   without any custom color being set. */
-	background-color: var(--aa-dialog-bg, var(--wp--preset--color--light-dark-white-black, #fff));
-	color: var(--aa-dialog-text, var(--wp--preset--color--light-dark-black-white, #000));
+	background-color: var(--aa-dialog-bg, var(--aa-color-surface));
+	color: var(--aa-dialog-text, var(--aa-color-foreground));
 
 	/* Border forwarded from WP __experimentalBorder support. */
 	border-color: var(--aa-dialog-border-color);
@@ -227,8 +192,8 @@
 	/* Entrance/exit animation — always transition opacity so transitionend fires. */
 	opacity: 0;
 	transition:
-		opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
-		transform var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+		opacity var(--aa-modal-duration) var(--aa-ease-default),
+		transform var(--aa-modal-duration) var(--aa-ease-default);
 
 	.wp-block-aggressive-apparel-modal__shell.is-open & {
 		opacity: 1;
@@ -526,14 +491,14 @@
 	&.close-variant-outlined {
 		padding: 0.375rem;
 		border: 1px solid currentcolor;
-		border-radius: 0.25rem;
+		border-radius: var(--aa-radius-control);
 	}
 
 	&.close-variant-filled {
 		padding: 0.375rem;
-		background-color: var(--aa-close-btn-bg, rgb(0 0 0 / 8%));
+		background-color: var(--aa-close-btn-bg, var(--aa-color-hover-default));
 		border: none;
-		border-radius: 0.25rem;
+		border-radius: var(--aa-radius-control);
 	}
 
 	/* ── Hover / focus — declared after variants so same-specificity source
@@ -541,8 +506,8 @@
 
 	&:hover,
 	&:focus-visible {
-		background-color: var(--aa-close-btn-hover-bg, var(--wp--preset--color--red, #dc2626));
-		color: var(--aa-close-btn-hover-color, var(--wp--preset--color--white, #fff));
+		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-accent));
+		color: var(--aa-close-btn-hover-color, var(--aa-color-white));
 		border-color: transparent;
 		outline: none;
 	}
@@ -604,17 +569,11 @@
 }
 
 /* ============================================================
- * @starting-style — smooth entry from display:none → visible.
- * Mirrors the quick-view pattern exactly.
+ * @starting-style — dialog entry from display:none → visible.
+ * Backdrop entry handled by components/overlay.css.
  * ============================================================ */
 
 @supports selector(@starting-style) {
-
-	.wp-block-aggressive-apparel-modal__shell {
-
-		/* Animate the display:none → flex transition discretely. */
-		transition: display var(--aa-modal-duration, 300ms) allow-discrete;
-	}
 
 	@starting-style {
 
@@ -695,13 +654,6 @@
 		.wp-block-aggressive-apparel-modal__shell.is-open
 		.wp-block-aggressive-apparel-modal__dialog.modal-position-right {
 			transform: translateX(100%);
-		}
-
-		/* Backdrop starts fully transparent. */
-		.wp-block-aggressive-apparel-modal__shell.is-open
-		.wp-block-aggressive-apparel-modal__backdrop {
-			background-color: rgb(0 0 0 / 0%);
-			backdrop-filter: blur(0);
 		}
 	}
 }

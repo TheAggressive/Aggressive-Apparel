@@ -94,21 +94,36 @@ class Adaptive_Colors {
 		}
 
 		$colors = $data['settings']['custom']['adaptiveColors'] ?? array();
+
+		$this->pairs = $this->extract_pairs( $colors );
+	}
+
+	/**
+	 * Extract validated adaptive color pairs from theme.json settings.
+	 *
+	 * @param mixed $colors Raw adaptiveColors array from theme.json.
+	 * @return array<int, array{slug: string, name: string, light: string, dark: string}>
+	 */
+	private function extract_pairs( $colors ): array {
 		if ( ! is_array( $colors ) ) {
-			return;
+			return array();
 		}
 
-		// Validate each pair has required keys.
+		$pairs = array();
+
 		foreach ( $colors as $pair ) {
 			if (
+				is_array( $pair ) &&
 				! empty( $pair['slug'] ) &&
 				! empty( $pair['name'] ) &&
 				isset( $pair['light'] ) &&
 				isset( $pair['dark'] )
 			) {
-				$this->pairs[] = $pair;
+				$pairs[] = $pair;
 			}
 		}
+
+		return $pairs;
 	}
 
 	/**
@@ -119,6 +134,19 @@ class Adaptive_Colors {
 	 */
 	public function inject_adaptive_palette( $theme_json ) {
 		$data = $theme_json->get_data();
+
+		// Prefer merged theme.json data (includes active style variation overrides).
+		$pairs = $this->extract_pairs(
+			$data['settings']['custom']['adaptiveColors'] ?? array()
+		);
+
+		if ( empty( $pairs ) ) {
+			$pairs = $this->pairs;
+		}
+
+		if ( empty( $pairs ) ) {
+			return $theme_json;
+		}
 
 		// Internally, WP_Theme_JSON stores presets under origin keys
 		// (e.g. ['theme' => [...]]). Extract the flat array from the
@@ -132,7 +160,7 @@ class Adaptive_Colors {
 		}
 
 		$adaptive_entries = array();
-		foreach ( $this->pairs as $pair ) {
+		foreach ( $pairs as $pair ) {
 			$adaptive_entries[] = array(
 				'name'  => $pair['name'],
 				'slug'  => $pair['slug'],

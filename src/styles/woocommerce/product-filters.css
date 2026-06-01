@@ -20,12 +20,12 @@ body.has-product-filters {
 	--pf-chip-height: 2.75rem;
 	--pf-slider-track: 4px;
 	--pf-slider-thumb: 1.5rem;
-	--pf-bg: var(--wp--preset--color--white, #fff);
-	--pf-fg: var(--wp--preset--color--black, #000);
-	--pf-accent: var(--wp--preset--color--red, #dc2626);
-	--pf-border: rgb(0 0 0 / 12%);
-	--pf-hover: rgb(0 0 0 / 6%);
-	--pf-muted: rgb(0 0 0 / 40%);
+	--pf-bg: var(--aa-color-surface);
+	--pf-fg: var(--aa-color-foreground);
+	--pf-accent: var(--aa-color-brand-red);
+	--pf-border: var(--aa-color-border-default);
+	--pf-hover: var(--aa-color-hover-subtle);
+	--pf-muted: var(--aa-color-muted-40);
 }
 
 /* ── Filter Trigger Button ──────────────────────────── */
@@ -116,51 +116,15 @@ body.has-product-filters {
 	}
 }
 
-/* ── Drawer Overlay ─────────────────────────────────── */
+/* ── Drawer shell — overlay/panel base in components/ ─ */
 
 .aa-product-filters__drawer {
-	position: fixed;
-	inset: 0;
-	z-index: 100000;
-	display: flex;
-
-	&[hidden] {
-		display: none;
-	}
-}
-
-.aa-product-filters__drawer-backdrop {
-	position: absolute;
-	inset: 0;
-	background-color: rgb(0 0 0 / 0%);
-	backdrop-filter: blur(0);
-	transition:
-		background-color var(--pf-duration) var(--pf-timing),
-		backdrop-filter var(--pf-duration) var(--pf-timing);
-
-	.is-open & {
-		background-color: rgb(0 0 0 / 50%);
-		backdrop-filter: blur(4px);
-	}
+	--aa-panel-width-drawer: var(--pf-drawer-width, 340px);
 }
 
 .aa-product-filters__drawer-panel {
-	position: relative;
-	width: var(--pf-drawer-width);
-	max-width: 90vw;
-	height: 100dvh;
 	background-color: var(--pf-bg);
 	color: var(--pf-fg);
-	display: flex;
-	flex-direction: column;
-	transform: translateX(-100%);
-	transition: transform var(--pf-duration) var(--pf-timing);
-	box-shadow: 4px 0 24px rgb(0 0 0 / 10%);
-	z-index: 1;
-
-	.is-open & {
-		transform: translateX(0);
-	}
 }
 
 .aa-product-filters__drawer-header {
@@ -247,33 +211,10 @@ body.has-product-filters {
 	flex-shrink: 0;
 }
 
-/* ── @starting-style for drawer entry ───────────────── */
-
-@supports selector(@starting-style) {
-
-	.aa-product-filters__drawer {
-		transition: display var(--pf-duration) allow-discrete;
-	}
-
-	@starting-style {
-
-		.aa-product-filters__drawer.is-open .aa-product-filters__drawer-panel {
-			transform: translateX(-100%);
-		}
-
-		.aa-product-filters__drawer.is-open .aa-product-filters__drawer-backdrop {
-			background-color: rgb(0 0 0 / 0%);
-			backdrop-filter: blur(0);
-		}
-	}
-}
-
 /* ── Reduced Motion ─────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aa-product-filters__drawer-backdrop,
-	.aa-product-filters__drawer-panel,
 	.aa-product-filters__trigger,
 	.aa-product-filters__section-icon,
 	.aa-product-filters__color-swatch,
@@ -621,7 +562,7 @@ button.aa-product-filters__color-swatch {
 	height: var(--pf-swatch-size);
 	border-radius: 50%;
 	border: none;
-	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 25%);
+	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 	cursor: pointer;
 	padding: 0;
 	outline-offset: 2px;
@@ -635,9 +576,9 @@ button.aa-product-filters__color-swatch {
 	&.is-selected {
 		transform: scale(0.78);
 		box-shadow:
-			inset 0 0 0 1px rgb(0 0 0 / 25%),
+			inset 0 0 0 1px var(--aa-color-border-input),
 			0 0 0 4px var(--pf-bg),
-			0 0 0 7px color-mix(in oklch, var(--swatch-color, var(--pf-muted)) 60%, #000);
+			0 0 0 7px color-mix(in oklch, var(--swatch-color, var(--pf-muted)) 60%, var(--aa-color-foreground));
 	}
 
 	&:hover:not(.is-selected) {
@@ -667,7 +608,7 @@ button.aa-product-filters__color-swatch {
 .aa-product-filters__size-hint {
 	margin: 0;
 	font-size: 0.8125rem;
-	color: var(--wp--preset--color--light-dark-black-white, currentcolor);
+	color: var(--aa-color-foreground);
 	opacity: 0.55;
 	font-style: italic;
 }
@@ -780,7 +721,7 @@ button.aa-product-filters__color-swatch {
 		border-radius: 50%;
 		background: var(--pf-accent);
 		border: 2px solid var(--pf-bg);
-		box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+		box-shadow: 0 1px 3px var(--aa-color-border-input);
 		pointer-events: all;
 		cursor: grab;
 		position: relative;
@@ -802,7 +743,7 @@ button.aa-product-filters__color-swatch {
 		border-radius: 50%;
 		background: var(--pf-accent);
 		border: 2px solid var(--pf-bg);
-		box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+		box-shadow: 0 1px 3px var(--aa-color-border-input);
 		pointer-events: all;
 		cursor: grab;
 		transition:
@@ -813,24 +754,24 @@ button.aa-product-filters__color-swatch {
 	/* Hover — subtle scale-up. */
 	&:hover::-webkit-slider-thumb {
 		transform: scale(1.2);
-		box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
+		box-shadow: 0 2px 6px var(--aa-color-border-input);
 	}
 
 	&:hover::-moz-range-thumb {
 		transform: scale(1.2);
-		box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
+		box-shadow: 0 2px 6px var(--aa-color-border-input);
 	}
 
 	/* Dragging — larger scale + ring pulse. */
 	&:active::-webkit-slider-thumb {
 		transform: scale(1.35);
-		box-shadow: 0 0 0 6px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 25%);
+		box-shadow: 0 0 0 6px var(--aa-color-border-subtle), 0 2px 6px var(--aa-color-border-input);
 		cursor: grabbing;
 	}
 
 	&:active::-moz-range-thumb {
 		transform: scale(1.35);
-		box-shadow: 0 0 0 6px rgb(0 0 0 / 8%), 0 2px 6px rgb(0 0 0 / 25%);
+		box-shadow: 0 0 0 6px var(--aa-color-border-subtle), 0 2px 6px var(--aa-color-border-input);
 		cursor: grabbing;
 	}
 }
@@ -874,7 +815,7 @@ button.aa-product-filters__color-swatch {
 		height: 1.125rem;
 		background: var(--pf-bg);
 		border-radius: 50%;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 15%);
+		box-shadow: 0 1px 3px var(--aa-color-border-strong);
 		transition: transform 0.2s ease;
 	}
 
@@ -1128,7 +1069,7 @@ button.aa-product-filters__color-swatch {
 
 .aa-product-filters__skeleton-image {
 	aspect-ratio: 1;
-	background: linear-gradient(90deg, var(--pf-border) 25%, rgb(0 0 0 / 6%) 50%, var(--pf-border) 75%);
+	background: linear-gradient(90deg, var(--pf-border) 25%, var(--aa-color-hover-subtle) 50%, var(--pf-border) 75%);
 	background-size: 200% 100%;
 	animation: aa-skeleton-pulse 1.5s ease-in-out infinite;
 }
@@ -1366,7 +1307,7 @@ button.aa-product-filters__color-swatch {
 
 	background: var(--pf-bg);
 	border: 1px solid var(--pf-border);
-	box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
+	box-shadow: 0 4px 16px var(--aa-color-shadow);
 	padding: 0.75rem;
 	margin-top: 0.25rem;
 

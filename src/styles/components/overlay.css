@@ -1,0 +1,78 @@
+/**
+ * Overlay Primitive
+ *
+ * Shared modal/drawer shell: fixed backdrop, blur fade, z-index, open state.
+ * Compose with .aggressive-apparel-panel for dialog content.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aggressive-apparel-overlay {
+	position: fixed;
+	inset: 0;
+	max-width: 100vw;
+	z-index: var(--aa-z-modal);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&[hidden] {
+		display: none;
+	}
+
+	&--drawer-left {
+		align-items: stretch;
+		justify-content: flex-start;
+	}
+
+	&--drawer-bottom {
+		align-items: flex-end;
+		justify-content: center;
+	}
+
+	&--top-panel {
+		align-items: stretch;
+		justify-content: flex-start;
+		flex-direction: column;
+	}
+}
+
+.aggressive-apparel-overlay__backdrop {
+	position: absolute;
+	inset: 0;
+	background-color: transparent;
+	opacity: 0;
+	backdrop-filter: blur(0);
+	cursor: pointer;
+	transition: var(--aa-transition-overlay);
+
+	.aggressive-apparel-overlay.is-open & {
+		background-color: var(--aa-color-scrim);
+		opacity: var(--aa-overlay-opacity);
+		backdrop-filter: blur(var(--aa-overlay-blur));
+	}
+}
+
+@supports selector(@starting-style) {
+
+	.aggressive-apparel-overlay__backdrop {
+
+		@starting-style {
+			background-color: transparent;
+			opacity: 0;
+			backdrop-filter: blur(0);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-overlay__backdrop {
+		transition: none;
+		backdrop-filter: none;
+
+		.aggressive-apparel-overlay.is-open & {
+			backdrop-filter: none;
+		}
+	}
+}

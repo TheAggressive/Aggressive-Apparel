@@ -11,8 +11,11 @@
 
 import { store } from '@wordpress/interactivity';
 import type { InteractivityCallbacks } from '../../types/interactivity-shared';
-import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
-import { setupFocusTrap } from '@aggressive-apparel/helpers';
+import {
+  prepareOverlayOpen,
+  activateOverlayFocus,
+  closeOverlay,
+} from '@aggressive-apparel/use-overlay';
 
 interface ExitIntentState {
   isOpen: boolean;
@@ -38,7 +41,6 @@ interface AjaxResponse {
 
 const DISMISS_KEY = 'aa_exit_intent_dismissed';
 const SESSION_KEY = 'aa_exit_intent_shown';
-const TRANSITION_DURATION: number = 300;
 
 let focusTrapCleanup: (() => void) | null = null;
 
@@ -128,65 +130,47 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
 
       const overlay = document.getElementById('aa-exit-intent');
       if (overlay) {
-        overlay.hidden = false;
-        void overlay.offsetHeight; // Force reflow for CSS transition.
+        prepareOverlayOpen(overlay, { manageOpenClass: false });
       }
 
-      lockScroll();
       state.isOpen = true;
 
-      requestAnimationFrame(() => {
-        const modal = overlay?.querySelector<HTMLElement>(
-          '.aa-exit-intent__modal'
-        );
-        if (modal) {
-          focusTrapCleanup = setupFocusTrap(modal);
-          const input = modal.querySelector<HTMLInputElement>(
-            '.aa-exit-intent__input'
-          );
-          if (input) input.focus();
-        }
-      });
+      const modal = overlay?.querySelector<HTMLElement>('.aa-exit-intent__modal');
+      if (modal) {
+        focusTrapCleanup = activateOverlayFocus({
+          shell: overlay!,
+          panel: modal,
+          focusSelector: '.aa-exit-intent__input',
+        });
+      }
     },
 
     close(): void {
       state.isOpen = false;
       markDismissed();
 
-      if (focusTrapCleanup) {
-        focusTrapCleanup();
-        focusTrapCleanup = null;
-      }
-
       const overlay = document.getElementById('aa-exit-intent');
-      const modal = overlay?.querySelector<HTMLElement>(
-        '.aa-exit-intent__modal'
-      );
+      const modal = overlay?.querySelector<HTMLElement>('.aa-exit-intent__modal');
 
-      let done = false;
-      const finish = (): void => {
-        if (done || state.isOpen) return;
-        done = true;
-        unlockScroll();
-        if (overlay) overlay.hidden = true;
-        if (previousFocus && typeof previousFocus.focus === 'function') {
-          previousFocus.focus();
-        }
-      };
-
-      if (modal) {
-        modal.addEventListener(
-          'transitionend',
-          (e: Event) => {
-            if ((e as TransitionEvent).propertyName === 'opacity') finish();
-          },
-          { once: true }
-        );
-        // Safety fallback for reduced motion or edge cases.
-        setTimeout(finish, TRANSITION_DURATION + 50);
-      } else {
-        finish();
+      if (!overlay || !modal) {
+        focusTrapCleanup?.();
+        focusTrapCleanup = null;
+        return;
       }
+
+      closeOverlay({
+        shell: overlay,
+        panel: modal,
+        focusTrapCleanup,
+        triggerElement: previousFocus,
+        manageOpenClass: false,
+        isStillOpen: () => state.isOpen,
+        onFinish: () => {
+          previousFocus = null;
+        },
+      });
+
+      focusTrapCleanup = null;
     },
 
     async submit(event: Event): Promise<void> {

@@ -4,6 +4,11 @@
 
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import {
+  EDITOR_COLOR_TOKENS,
+  EDITOR_META_TEXT_STYLE,
+  EDITOR_RADIUS_TOKENS,
+} from '../../../utils/editor-style-tokens';
 
 interface DirectionPickerProps {
   value: string;
@@ -25,7 +30,7 @@ export const DirectionPicker = ({ value, onChange }: DirectionPickerProps) => {
           fontSize: '11px',
           fontWeight: 500,
           marginBottom: '8px',
-          color: '#1e1e1e',
+          color: EDITOR_COLOR_TOKENS.foreground,
         }}
       >
         {__('Scroll Direction', 'aggressive-apparel')}
@@ -84,10 +89,10 @@ export const DirectionPicker = ({ value, onChange }: DirectionPickerProps) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '4px',
+            backgroundColor: EDITOR_COLOR_TOKENS.neutralBg,
+            borderRadius: EDITOR_RADIUS_TOKENS.control,
             fontSize: '12px',
-            color: '#757575',
+            color: EDITOR_COLOR_TOKENS.muted,
           }}
         >
           ●
@@ -133,8 +138,7 @@ export const DirectionPicker = ({ value, onChange }: DirectionPickerProps) => {
       </div>
       <div
         style={{
-          fontSize: '11px',
-          color: '#757575',
+          ...EDITOR_META_TEXT_STYLE,
           textAlign: 'center',
           marginTop: '8px',
         }}

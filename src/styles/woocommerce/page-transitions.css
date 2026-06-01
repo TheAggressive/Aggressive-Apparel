@@ -138,7 +138,7 @@ body::after {
 	left: 0;
 	width: 0;
 	height: 3px;
-	background: var(--wp--preset--color--primary);
+	background: var(--aa-color-accent);
 	z-index: 999999;
 	pointer-events: none;
 	opacity: 0;

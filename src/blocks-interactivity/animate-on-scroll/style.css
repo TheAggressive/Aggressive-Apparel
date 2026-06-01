@@ -4,12 +4,12 @@
 
 /* Debug overlay colors - globally available */
 :root {
-	--wp-block-animate-on-scroll-debug-red: rgb(239 68 68);
-	--wp-block-animate-on-scroll-debug-yellow: rgb(234 179 8);
-	--wp-block-animate-on-scroll-debug-green: rgb(34 197 94);
-	--wp-block-animate-on-scroll-debug-red-bg: rgb(239 68 68 / 20%);
-	--wp-block-animate-on-scroll-debug-yellow-bg: rgb(234 179 8 / 20%);
-	--wp-block-animate-on-scroll-debug-green-bg: rgb(34 197 94 / 20%);
+	--wp-block-animate-on-scroll-debug-red: var(--aa-color-error);
+	--wp-block-animate-on-scroll-debug-yellow: var(--aa-color-warning);
+	--wp-block-animate-on-scroll-debug-green: var(--aa-color-success);
+	--wp-block-animate-on-scroll-debug-red-bg: var(--aa-color-error-bg);
+	--wp-block-animate-on-scroll-debug-yellow-bg: var(--aa-color-warning-bg);
+	--wp-block-animate-on-scroll-debug-green-bg: var(--aa-color-success-bg);
 }
 
 /**
@@ -749,10 +749,10 @@
 	position: fixed;
 	pointer-events: none;
 	z-index: 999;
-	border: 2px dashed rgb(59 130 246 / 60%);
-	background: rgb(59 130 246 / 8%);
+	border: 2px dashed var(--aa-color-info-border);
+	background: var(--aa-color-info-bg);
 	backdrop-filter: blur(4px);
-	box-shadow: inset 0 0 20px rgb(59 130 246 / 20%);
+	box-shadow: inset 0 0 20px var(--aa-color-info-bg);
 
 	/* Inset is set via JavaScript to match rootMargin values */
 
@@ -762,14 +762,14 @@
 		top: 50%;
 		transform: translate(-50%, -50%);
 		content: "Detection Boundary";
-		background: rgb(59 130 246);
-		color: rgb(255 255 255);
+		background: var(--aa-color-info);
+		color: var(--aa-color-on-scrim);
 		padding: 0.375rem 0.75rem;
-		border-radius: 0.375rem;
+		border-radius: var(--aa-radius-control);
 		font-size: 0.75rem;
 		font-weight: 600;
 		white-space: nowrap;
-		box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+		box-shadow: var(--aa-shadow-sm);
 	}
 }
 
@@ -786,17 +786,17 @@
 [class*="wp-block-animate-on-scroll-debug-panel"] {
 	position: fixed;
 	z-index: 10000;
-	background: rgb(0 0 0 / 85%);
+	background: var(--aa-color-scrim);
 	backdrop-filter: blur(12px) saturate(180%);
-	border: 1px solid rgb(255 255 255 / 10%);
-	border-radius: 0.75rem;
-	box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+	border: 1px solid var(--aa-color-scrim-border);
+	border-radius: var(--aa-radius-panel);
+	box-shadow: var(--aa-shadow-lg);
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+	transition: transform var(--aa-duration-fast) var(--aa-ease-default), opacity var(--aa-duration-fast) var(--aa-ease-default);
 
 	&:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 12px 40px rgb(0 0 0 / 40%);
+		box-shadow: var(--aa-shadow-lg);
 	}
 
 	.debug-panel-header {
@@ -804,30 +804,30 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.75rem 1rem;
-		border-bottom: 1px solid rgb(255 255 255 / 10%);
+		border-bottom: 1px solid var(--aa-color-scrim-border);
 	}
 
 	.debug-panel-title {
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: rgb(255 255 255);
+		color: var(--aa-color-on-scrim);
 		letter-spacing: 0.025em;
 	}
 
 	.debug-panel-toggle {
 		background: transparent;
 		border: none;
-		color: rgb(255 255 255 / 70%);
+		color: var(--aa-color-on-scrim-70);
 		cursor: pointer;
 		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
+		border-radius: var(--aa-radius-sm);
 		font-size: 1rem;
 		line-height: 1;
-		transition: color 0.2s, background-color 0.2s;
+		transition: color var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-fast) var(--aa-ease-default);
 
 		&:hover {
-			color: rgb(255 255 255);
-			background: rgb(255 255 255 / 10%);
+			color: var(--aa-color-on-scrim);
+			background: var(--aa-color-scrim-border);
 		}
 	}
 
@@ -849,32 +849,32 @@
 		justify-content: space-between;
 		padding: 0.5rem 0.75rem;
 		cursor: pointer;
-		border-radius: 0.375rem;
-		transition: background-color 0.2s;
+		border-radius: var(--aa-radius-control);
+		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
 
 		&:hover {
-			background: rgb(255 255 255 / 5%);
+			background: var(--aa-color-scrim-hover-subtle);
 		}
 
 		span {
 			font-size: 0.8125rem;
 			font-weight: 500;
-			color: rgb(255 255 255 / 90%);
+			color: var(--aa-color-on-scrim-90);
 		}
 
 		.section-toggle {
 			background: transparent;
 			border: none;
-			color: rgb(255 255 255 / 60%);
+			color: var(--aa-color-on-scrim-60);
 			cursor: pointer;
 			padding: 0.125rem 0.375rem;
-			border-radius: 0.25rem;
+			border-radius: var(--aa-radius-sm);
 			font-size: 0.875rem;
 			line-height: 1;
-			transition: color 0.2s;
+			transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
 			&:hover {
-				color: rgb(255 255 255 / 90%);
+				color: var(--aa-color-on-scrim-90);
 			}
 		}
 	}
@@ -891,43 +891,43 @@
 		font-size: 0.8125rem;
 
 		.metric-label {
-			color: rgb(255 255 255 / 70%);
+			color: var(--aa-color-on-scrim-70);
 		}
 
 		.metric-value {
 			font-weight: 600;
-			color: rgb(255 255 255);
+			color: var(--aa-color-on-scrim);
 			font-variant-numeric: tabular-nums;
 
 
 			&.direction-down {
-				color: rgb(34 197 94);
+				color: var(--aa-color-success);
 			}
 
 			&.direction-up {
-				color: rgb(251 146 60);
+				color: var(--aa-color-warning);
 			}
 
 			&.performance-good {
-				color: rgb(34 197 94);
+				color: var(--aa-color-success);
 			}
 
 			&.performance-lag {
-				color: rgb(251 146 60);
+				color: var(--aa-color-warning);
 			}
 
 			&.performance-jitter {
-				color: rgb(234 179 8);
+				color: var(--aa-color-warning);
 			}
 
 			&		.performance-poor {
-			color: rgb(239 68 68);
+			color: var(--aa-color-error);
 		}
 
 		.intersection-state-value {
 			font-weight: 600;
 			padding: 0.125rem 0.375rem;
-			border-radius: 0.25rem;
+			border-radius: var(--aa-radius-sm);
 			display: inline-block;
 
 			/* Red: Not intersecting */
@@ -969,7 +969,7 @@
 	width: 100%;
 	pointer-events: none;
 	z-index: 9998;
-	transition: top 0.2s ease-out, height 0.2s ease-out, background-color 0.3s ease-out;
+	transition: top var(--aa-duration-fast) var(--aa-ease-default), height var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default);
 
 	/* Red: Not intersecting */
 	&--not-intersecting {
@@ -996,7 +996,7 @@
 	height: 2px;
 	pointer-events: none;
 	z-index: 9999;
-	transition: top 0.1s ease-out, background-color 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+	transition: top var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default), border-color var(--aa-duration-normal) var(--aa-ease-default), box-shadow var(--aa-duration-normal) var(--aa-ease-default);
 
 	/* Red: Not intersecting (outside detection boundary) */
 	&.trigger-line--not-intersecting {
@@ -1024,16 +1024,16 @@
 	position: absolute;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	color: rgb(255 255 255);
+	color: var(--aa-color-on-scrim);
 	padding: 0.25rem 0.5rem;
-	border-radius: 0.375rem;
+	border-radius: var(--aa-radius-control);
 	font-size: 0.75rem;
 	font-weight: 600;
 	white-space: nowrap;
 	pointer-events: none;
 	z-index: 10000;
-	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-	transition: top 0.1s ease-out, background-color 0.3s ease-out;
+	box-shadow: var(--aa-shadow-sm);
+	transition: top var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default);
 
 	/* Red: Not intersecting (outside detection boundary) */
 	&.trigger-label--not-intersecting {

@@ -18,12 +18,15 @@ import type {
 } from '../../types/interactivity-shared';
 
 import { store, getContext, getElement } from '@wordpress/interactivity';
-import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+import {
+  prepareOverlayOpen,
+  activateOverlayFocus,
+  closeOverlay,
+} from '@aggressive-apparel/use-overlay';
 import {
   parsePrice,
   stripTags,
   decodeEntities,
-  setupFocusTrap,
   matchVariation,
 } from '@aggressive-apparel/helpers';
 import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
@@ -1210,14 +1213,12 @@ const { state, actions } = store<QuickViewStore>(
           (event?.target as HTMLElement)?.closest<HTMLElement>('button') ||
           null;
 
-        // Remove hidden and force a reflow so the browser renders the
-        // "before" state (opacity 0, scale 0.95) before .is-open is added.
+        // Prepare overlay shell for open animation.
         const modalEl = document.getElementById(
           'aggressive-apparel-quick-view'
         );
         if (modalEl) {
-          modalEl.hidden = false;
-          void modalEl.offsetHeight;
+          prepareOverlayOpen(modalEl);
         }
 
         // Reset all state.
@@ -1255,19 +1256,17 @@ const { state, actions } = store<QuickViewStore>(
         state.isDrawerOpen = false;
         state.drawerView = 'selection';
         state.announcement = '';
-        lockScroll();
-
         // Setup focus trap after modal renders.
         requestAnimationFrame(() => {
           const modal = document.querySelector<HTMLElement>(
             '.aggressive-apparel-quick-view__modal'
           );
-          if (modal) {
-            focusTrapCleanup = setupFocusTrap(modal);
-            const closeBtn = modal.querySelector<HTMLElement>(
-              '.aggressive-apparel-quick-view__close'
-            );
-            closeBtn?.focus();
+          if (modal && modalEl) {
+            focusTrapCleanup = activateOverlayFocus({
+              shell: modalEl,
+              panel: modal,
+              focusSelector: '.aggressive-apparel-quick-view__close',
+            });
           }
         });
 
@@ -1407,11 +1406,8 @@ const { state, actions } = store<QuickViewStore>(
       },
 
       close(): void {
-        // Cleanup focus trap.
-        if (focusTrapCleanup) {
-          focusTrapCleanup();
-          focusTrapCleanup = null;
-        }
+        const trap = focusTrapCleanup;
+        focusTrapCleanup = null;
 
         state.isOpen = false;
         state.hasProduct = false;
@@ -1424,14 +1420,6 @@ const { state, actions } = store<QuickViewStore>(
         state.drawerView = 'selection';
         state.announcement = '';
 
-        // Restore focus to trigger element.
-        if (triggerElement) {
-          triggerElement.focus();
-          triggerElement = null;
-        }
-
-        // Unlock scroll + hide the instant the fade-out transition ends so
-        // the scrollbar doesn't reappear and shift layout mid-animation.
         const modalEl = document.getElementById(
           'aggressive-apparel-quick-view'
         );
@@ -1439,27 +1427,20 @@ const { state, actions } = store<QuickViewStore>(
           '.aggressive-apparel-quick-view__modal'
         );
 
-        let done = false;
-        const finish = (): void => {
-          if (done || state.isOpen) return;
-          done = true;
-          unlockScroll();
-          if (modalEl) modalEl.hidden = true;
-        };
-
-        if (panel) {
-          panel.addEventListener(
-            'transitionend',
-            (e: Event) => {
-              if ((e as TransitionEvent).propertyName === 'opacity') finish();
+        if (modalEl && panel) {
+          closeOverlay({
+            shell: modalEl,
+            panel,
+            focusTrapCleanup: trap,
+            triggerElement,
+            isStillOpen: () => state.isOpen,
+            onFinish: () => {
+              triggerElement = null;
             },
-            { once: true }
-          );
-
-          // Safety fallback if transitionend never fires (reduced motion, etc.).
-          setTimeout(finish, 350);
+          });
         } else {
-          finish();
+          triggerElement?.focus();
+          triggerElement = null;
         }
       },
 

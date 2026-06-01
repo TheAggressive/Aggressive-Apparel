@@ -146,7 +146,12 @@ class Product_Filters {
 		wp_register_script_module(
 			'@aggressive-apparel/product-filters',
 			AGGRESSIVE_APPAREL_URI . '/build/interactivity/product-filters.js',
-			array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
+			array(
+				'@wordpress/interactivity',
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			),
 			AGGRESSIVE_APPAREL_VERSION,
 		);
 
@@ -352,7 +357,7 @@ class Product_Filters {
 			?>
 			<div
 				id="aa-product-filters-drawer"
-				class="aa-product-filters__drawer"
+				class="aggressive-apparel-overlay aggressive-apparel-overlay--drawer-left aa-product-filters__drawer"
 				data-wp-interactive="aggressive-apparel/product-filters"
 				data-wp-class--is-open="state.isDrawerOpen"
 				hidden
@@ -361,10 +366,10 @@ class Product_Filters {
 				aria-label="<?php esc_attr_e( 'Product filters', 'aggressive-apparel' ); ?>"
 			>
 				<div
-					class="aa-product-filters__drawer-backdrop"
+					class="aggressive-apparel-overlay__backdrop aa-product-filters__drawer-backdrop"
 					data-wp-on--click="actions.closeDrawer"
 				></div>
-				<div class="aa-product-filters__drawer-panel">
+				<div class="aggressive-apparel-panel aggressive-apparel-panel--drawer-left aa-product-filters__drawer-panel">
 					<div class="aa-product-filters__drawer-header">
 						<h2 class="aa-product-filters__drawer-title">
 							<?php esc_html_e( 'Filters', 'aggressive-apparel' ); ?>

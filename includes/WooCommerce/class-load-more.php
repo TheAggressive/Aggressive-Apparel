@@ -85,7 +85,7 @@ class Load_More {
 
 		$mode = get_option( Feature_Settings::LOAD_MORE_MODE_OPTION, 'load_more' );
 
-		$load_more_html = '<div class="aa-load-more" data-wp-interactive="aggressive-apparel/load-more" data-wp-init="callbacks.init">';
+		$load_more_html = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center" data-wp-interactive="aggressive-apparel/load-more" data-wp-init="callbacks.init">';
 
 		// Status text.
 		$load_more_html .= '<div class="aa-load-more__status">';
@@ -94,7 +94,7 @@ class Load_More {
 
 		// Load More button (hidden in infinite scroll mode or when all loaded).
 		$load_more_html .= sprintf(
-			'<button class="aa-load-more__btn" data-wp-on--click="actions.loadMore"'
+			'<button class="aa-load-more__btn aggressive-apparel-button aggressive-apparel-button--outline" data-wp-on--click="actions.loadMore"'
 			. ' data-wp-bind--hidden="state.hideButton"'
 			. ' data-wp-bind--disabled="state.isLoading"'
 			. ' data-wp-class--is-loading="state.isLoading"'

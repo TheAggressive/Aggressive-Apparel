@@ -27,12 +27,12 @@
     align-items: center;
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--aa-color-border-default);
 
     span {
       font-size: 12px;
       font-weight: 600;
-      color: #1e1e1e;
+      color: var(--aa-color-foreground);
     }
   }
 
@@ -41,21 +41,24 @@
     padding: 6px 12px;
     font-size: 12px;
     font-weight: 500;
-    color: #1e1e1e;
+    color: var(--aa-color-foreground);
     cursor: pointer;
-    background: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    transition: all 0.15s ease;
+    background: var(--aa-color-neutral-bg);
+    border: 1px solid var(--aa-color-border-default);
+    border-radius: var(--aa-radius-control);
+    transition:
+      background-color var(--aa-duration-fast) var(--aa-ease-default),
+      border-color var(--aa-duration-fast) var(--aa-ease-default),
+      color var(--aa-duration-fast) var(--aa-ease-default);
 
     &:hover {
-      background: #e0e0e0;
+      background: var(--aa-color-hover-default);
     }
 
     &.is-active {
-      color: #fff;
-      background: #007cba;
-      border-color: #007cba;
+      color: var(--aa-color-on-scrim);
+      background: var(--wp-admin-theme-color, var(--aa-color-info));
+      border-color: var(--wp-admin-theme-color, var(--aa-color-info));
     }
   }
 
@@ -63,15 +66,15 @@
   &__size-group {
     padding: 12px;
     margin-bottom: 16px;
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+    background: var(--aa-color-neutral-bg);
+    border: 1px solid var(--aa-color-border-default);
+    border-radius: var(--aa-radius-control);
 
     h4 {
       margin: 0 0 12px;
       font-size: 13px;
       font-weight: 600;
-      color: #1e1e1e;
+      color: var(--aa-color-foreground);
     }
 
     &:last-child {

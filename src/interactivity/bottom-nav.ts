@@ -13,7 +13,11 @@ import type {
 } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
-import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+import {
+  prepareOverlayOpen,
+  activateOverlayFocus,
+  closeOverlay,
+} from '@aggressive-apparel/use-overlay';
 
 interface JQueryLike {
   on(events: string, handler: () => void): void;
@@ -27,41 +31,52 @@ interface BottomNavState {
   cartApiUrl: string;
   readonly hasEmptyCart: boolean;
   readonly cartAriaLabel: string;
-  readonly isSearchClosed: boolean;
 }
 
 interface CartApiResponse {
   items_count?: number;
 }
 
-/** Matches the 0.3s CSS transition duration. */
-const TRANSITION_DURATION: number = 300;
+function getSearchOverlay(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('.aa-bottom-nav__search-overlay');
+}
 
-/**
- * Defer unlockScroll until the search panel fade-out finishes.
- */
-function deferUnlock(): void {
-  const panel = document.querySelector('.aa-bottom-nav__search-panel');
+function openSearchOverlay(): void {
+  const overlay = getSearchOverlay();
+  if (!overlay) return;
 
-  let done = false;
-  const finish = (): void => {
-    if (done || state.isSearchOpen) return;
-    done = true;
-    unlockScroll();
-  };
+  prepareOverlayOpen(overlay, { manageOpenClass: false });
+  state.isSearchOpen = true;
+
+  const panel = overlay.querySelector<HTMLElement>(
+    '.aa-bottom-nav__search-panel'
+  );
 
   if (panel) {
-    panel.addEventListener(
-      'transitionend',
-      (e: Event) => {
-        if ((e as TransitionEvent).propertyName === 'opacity') finish();
-      },
-      { once: true }
-    );
-    setTimeout(finish, TRANSITION_DURATION + 50);
-  } else {
-    finish();
+    activateOverlayFocus({
+      shell: overlay,
+      panel,
+      focusSelector: '.aa-bottom-nav__search-input',
+    });
   }
+}
+
+function closeSearchOverlay(): void {
+  state.isSearchOpen = false;
+
+  const overlay = getSearchOverlay();
+  const panel = overlay?.querySelector<HTMLElement>(
+    '.aa-bottom-nav__search-panel'
+  );
+
+  if (!overlay || !panel) return;
+
+  closeOverlay({
+    shell: overlay,
+    panel,
+    manageOpenClass: false,
+    isStillOpen: () => state.isSearchOpen,
+  });
 }
 
 interface BottomNavStore {
@@ -82,33 +97,20 @@ const { state, actions } = store<BottomNavStore>(
           ? `Cart (${state.cartCount} ${state.cartCount === 1 ? 'item' : 'items'})`
           : 'Cart';
       },
-      get isSearchClosed(): boolean {
-        return !state.isSearchOpen;
-      },
     },
 
     actions: {
       toggleSearch(): void {
-        state.isSearchOpen = !state.isSearchOpen;
-
         if (state.isSearchOpen) {
-          lockScroll();
-
-          // Focus the search input after a brief delay for DOM update.
-          requestAnimationFrame(() => {
-            const input = document.querySelector<HTMLInputElement>(
-              '.aa-bottom-nav__search-input'
-            );
-            if (input) input.focus();
-          });
+          closeSearchOverlay();
         } else {
-          deferUnlock();
+          openSearchOverlay();
         }
       },
 
       closeSearch(): void {
-        state.isSearchOpen = false;
-        deferUnlock();
+        if (!state.isSearchOpen) return;
+        closeSearchOverlay();
       },
 
       refreshCartCount(): void {

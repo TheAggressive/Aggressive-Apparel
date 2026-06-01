@@ -4,6 +4,10 @@
 
 import { Button, ButtonGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import {
+  EDITOR_FIELDSET_STYLE,
+  EDITOR_META_TEXT_STYLE,
+} from '../../../utils/editor-style-tokens';
 
 // Custom icons matching WordPress icon style (24x24 viewBox, scaled to 32px)
 const subtleIcon = (
@@ -146,20 +150,17 @@ export const EffectPresets = ({
   return (
     <div
       style={{
+        ...EDITOR_FIELDSET_STYLE,
         marginBottom: '16px',
-        padding: '12px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '8px',
-        border: '1px solid #e2e4e7',
       }}
     >
       <div
         style={{
+          ...EDITOR_META_TEXT_STYLE,
           fontSize: '11px',
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          color: '#757575',
           marginBottom: '8px',
         }}
       >

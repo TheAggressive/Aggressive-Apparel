@@ -19,8 +19,8 @@
  */
 
 .aggressive-apparel-logo {
-  --_logo-color: var(--logo-light-color, #000);
-  --_logo-hover: var(--logo-light-hover, #333);
+  --_logo-color: var(--logo-light-color, var(--aa-color-black));
+  --_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
 
   display: inline-flex;
   align-items: center;
@@ -37,7 +37,7 @@
   &__svg {
     fill: var(--_logo-color);
     height: auto;
-    transition: fill 0.2s ease;
+    transition: fill var(--aa-duration-fast) var(--aa-ease-default);
   }
 
   /**
@@ -95,7 +95,7 @@
     align-items: center;
     color: var(--_logo-color) !important;
     text-decoration: none !important;
-    transition: color 0.2s ease;
+    transition: color var(--aa-duration-fast) var(--aa-ease-default);
 
     &:visited {
       color: var(--_logo-color) !important;
@@ -122,8 +122,8 @@
 @media (prefers-color-scheme: dark) {
 
   :root:not([data-theme]) .aggressive-apparel-logo {
-    --_logo-color: var(--logo-dark-color, #fff);
-    --_logo-hover: var(--logo-dark-hover, #ccc);
+    --_logo-color: var(--logo-dark-color, var(--aa-color-white));
+    --_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
   }
 }
 
@@ -131,16 +131,16 @@
 
 :root[data-theme="dark"] .aggressive-apparel-logo,
 html.is-dark-mode .aggressive-apparel-logo {
-  --_logo-color: var(--logo-dark-color, #fff);
-  --_logo-hover: var(--logo-dark-hover, #ccc);
+  --_logo-color: var(--logo-dark-color, var(--aa-color-white));
+  --_logo-hover: var(--logo-dark-hover, var(--aa-color-foreground-muted));
 }
 
 /* ── Light mode: manual override ─────────────────────────────────────── */
 
 :root[data-theme="light"] .aggressive-apparel-logo,
 html.is-light-mode .aggressive-apparel-logo {
-  --_logo-color: var(--logo-light-color, #000);
-  --_logo-hover: var(--logo-light-hover, #333);
+  --_logo-color: var(--logo-light-color, var(--aa-color-black));
+  --_logo-hover: var(--logo-light-hover, var(--aa-color-muted-50));
 }
 
 /* ── Reduced motion ──────────────────────────────────────────────────── */

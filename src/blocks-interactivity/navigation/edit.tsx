@@ -33,6 +33,7 @@ import {
   useEditorColorScheme,
   ColorModeToggle,
 } from '../../utils/editor-color-scheme';
+import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import type {
@@ -206,8 +207,7 @@ export default function Edit({
         <PanelBody title={__('Editor View', 'aggressive-apparel')}>
           <p
             style={{
-              fontSize: '12px',
-              color: '#757575',
+              ...EDITOR_HELP_TEXT_STYLE,
               marginBottom: '12px',
             }}
           >
@@ -386,8 +386,7 @@ export default function Edit({
         >
           <p
             style={{
-              fontSize: '12px',
-              color: '#757575',
+              ...EDITOR_HELP_TEXT_STYLE,
               marginBottom: '12px',
             }}
           >
@@ -429,7 +428,7 @@ export default function Edit({
           title={__('Submenu Colors', 'aggressive-apparel')}
           initialOpen={false}
         >
-          <p style={{ fontSize: '12px', color: '#757575', marginTop: 0 }}>
+          <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
             {__(
               'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
               'aggressive-apparel'
@@ -520,7 +519,7 @@ export default function Edit({
           title={__('Mobile Panel Colors', 'aggressive-apparel')}
           initialOpen={false}
         >
-          <p style={{ fontSize: '12px', color: '#757575', marginTop: 0 }}>
+          <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
             {__(
               'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
               'aggressive-apparel'

@@ -26,6 +26,11 @@ import type {
   EasingType,
   StaggerPattern,
 } from './types';
+import {
+  EDITOR_COLOR_TOKENS,
+  EDITOR_FIELDSET_STYLE,
+  EDITOR_HELP_TEXT_STYLE,
+} from '../../utils/editor-style-tokens';
 
 type EditProps = BlockEditProps<AnimateOnScrollAttributes>;
 
@@ -257,13 +262,11 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                 <div
                   key={index}
                   style={{
+                    ...EDITOR_FIELDSET_STYLE,
                     display: 'flex',
                     gap: '12px',
                     alignItems: 'flex-start',
                     marginBottom: '16px',
-                    padding: '12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
                   }}
                 >
                   <div style={{ flex: 1 }}>
@@ -509,11 +512,9 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                 <div
                   key={index}
                   style={{
+                    ...EDITOR_FIELDSET_STYLE,
                     marginBottom: '16px',
-                    padding: '12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    backgroundColor: '#f9f9f9',
+                    backgroundColor: EDITOR_COLOR_TOKENS.surface,
                   }}
                 >
                   <label
@@ -1007,11 +1008,10 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           <p
             className='components-base-control__help'
             style={{
+              ...EDITOR_HELP_TEXT_STYLE,
               marginTop: '0',
               marginBottom: '16px',
-              fontSize: '12px',
               fontStyle: 'normal',
-              color: 'rgb(117,117,117)',
             }}
           >
             {__(

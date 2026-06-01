@@ -14,11 +14,14 @@ import type {
 } from '../../types/interactivity-shared';
 
 import { store, getContext } from '@wordpress/interactivity';
-import { lockScroll, unlockScroll } from '@aggressive-apparel/scroll-lock';
+import {
+  prepareOverlayOpen,
+  activateOverlayFocus,
+  closeOverlay,
+} from '@aggressive-apparel/use-overlay';
 import {
   parsePrice,
   stripTags,
-  setupFocusTrap,
   decodeEntities,
   buildQuickViewTriggerHtml,
   buildWishlistHeartHtml,
@@ -182,9 +185,6 @@ let drawerTrigger: HTMLElement | null = null;
 
 /** Cross-category URL waiting to be consumed when the drawer closes. */
 let pendingNavUrl: string | null = null;
-
-/** Transition duration for drawer animations (ms). */
-const TRANSITION_DURATION: number = 300;
 
 const { state, actions } = store<ProductFiltersStore>(
   'aggressive-apparel/product-filters',
@@ -405,25 +405,25 @@ const { state, actions } = store<ProductFiltersStore>(
 
       openDrawer(): void {
         drawerTrigger = document.activeElement as HTMLElement | null;
-        lockScroll();
 
         const drawer = document.getElementById('aa-product-filters-drawer');
         if (drawer) {
-          drawer.hidden = false;
-          void drawer.offsetHeight; // Force reflow for animation.
+          prepareOverlayOpen(drawer, { manageOpenClass: false });
         }
 
         state.isDrawerOpen = true;
 
-        requestAnimationFrame(() => {
-          if (drawer) {
-            focusTrapCleanup = setupFocusTrap(drawer);
-            const closeBtn = drawer.querySelector<HTMLElement>(
-              '.aa-product-filters__close'
-            );
-            closeBtn?.focus();
-          }
-        });
+        const panel = drawer?.querySelector<HTMLElement>(
+          '.aa-product-filters__drawer-panel'
+        );
+
+        if (panel) {
+          focusTrapCleanup = activateOverlayFocus({
+            shell: drawer!,
+            panel,
+            focusSelector: '.aa-product-filters__close',
+          });
+        }
       },
 
       closeDrawer(): void {
@@ -434,41 +434,30 @@ const { state, actions } = store<ProductFiltersStore>(
 
         state.isDrawerOpen = false;
 
-        if (focusTrapCleanup) {
-          focusTrapCleanup();
-          focusTrapCleanup = null;
-        }
-
-        if (drawerTrigger) {
-          drawerTrigger.focus();
-          drawerTrigger = null;
-        }
-
         const drawer = document.getElementById('aa-product-filters-drawer');
         const panel = drawer?.querySelector<HTMLElement>(
           '.aa-product-filters__drawer-panel'
         );
 
-        let done = false;
-        const finish = (): void => {
-          if (done || state.isDrawerOpen) return;
-          done = true;
-          unlockScroll();
-          if (drawer) drawer.hidden = true;
-        };
-
-        if (panel) {
-          panel.addEventListener(
-            'transitionend',
-            (e: Event) => {
-              if ((e as TransitionEvent).propertyName === 'transform') finish();
-            },
-            { once: true }
-          );
-          setTimeout(finish, TRANSITION_DURATION + 50);
-        } else {
-          finish();
+        if (!drawer || !panel) {
+          focusTrapCleanup?.();
+          focusTrapCleanup = null;
+          drawerTrigger = null;
+          return;
         }
+
+        closeOverlay({
+          shell: drawer,
+          panel,
+          focusTrapCleanup,
+          triggerElement: drawerTrigger,
+          manageOpenClass: false,
+          transitionProperty: 'transform',
+          isStillOpen: () => state.isDrawerOpen,
+        });
+
+        focusTrapCleanup = null;
+        drawerTrigger = null;
       },
 
       // -- Horizontal Dropdowns --

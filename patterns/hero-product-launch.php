@@ -20,13 +20,13 @@
 <p class="has-text-align-center hero-description" style="margin-bottom:3rem;font-size:1.25rem;line-height:1.6">Elevate your style with our premium apparel collection. Designed for those who demand excellence in every thread and stitch.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center","orientation":"horizontal"},"className":"hero-ctas","style":{"spacing":{"margin":{"top":"2rem","bottom":"2rem"}}}} -->
-<div class="wp-block-buttons hero-ctas" style="margin-top:2rem;margin-bottom:2rem"><!-- wp:button {"className":"hero-cta-primary","style":{"typography":{"fontSize":"1.1rem","fontWeight":"600"},"spacing":{"padding":{"left":"3rem","right":"3rem","top":"1.2rem","bottom":"1.2rem"}}}} -->
-<div class="wp-block-button hero-cta-primary"><a class="wp-block-button__link wp-element-button has-custom-font-size" href="#" style="font-size:1.1rem;font-weight:600;padding-top:1.2rem;padding-right:3rem;padding-bottom:1.2rem;padding-left:3rem">Shop New Arrivals</a></div>
+<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center","orientation":"horizontal"},"className":"hero-ctas","style":{"spacing":{"margin":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8"}}}} -->
+<div class="wp-block-buttons hero-ctas" style="margin-top:var(--wp--preset--spacing--8);margin-bottom:var(--wp--preset--spacing--8)"><!-- wp:button {"className":"is-style-cta hero-cta-primary"} -->
+<div class="wp-block-button is-style-cta hero-cta-primary"><a class="wp-block-button__link wp-element-button" href="#">Shop New Arrivals</a></div>
 <!-- /wp:button -->
 
-<!-- wp:button {"className":"hero-cta-secondary is-style-outline","style":{"typography":{"fontSize":"1.1rem","fontWeight":"600"},"spacing":{"padding":{"left":"3rem","right":"3rem","top":"1.2rem","bottom":"1.2rem"}}},"backgroundColor":"transparent","textColor":"white"} -->
-<div class="wp-block-button hero-cta-secondary is-style-outline"><a class="wp-block-button__link wp-element-button has-white-color has-transparent-background-color has-text-color has-background has-custom-font-size" href="#" style="font-size:1.1rem;font-weight:600;padding-top:1.2rem;padding-right:3rem;padding-bottom:1.2rem;padding-left:3rem">View Lookbook</a></div>
+<!-- wp:button {"className":"is-style-cta is-style-outline-on-dark hero-cta-secondary"} -->
+<div class="wp-block-button is-style-cta is-style-outline-on-dark hero-cta-secondary"><a class="wp-block-button__link wp-element-button" href="#">View Lookbook</a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group --></div></div>

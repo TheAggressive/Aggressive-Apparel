@@ -28,13 +28,13 @@
 	max-height: 70vh;
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	background-color: light-dark(#fff, #1c1c1e);
-	color: light-dark(#1a1a1a, #f0f0f0);
-	border: 1px solid light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 10%));
+	background-color: var(--aa-color-surface);
+	color: var(--aa-color-foreground);
+	border: 1px solid var(--aa-color-border-subtle);
 	border-radius: 0.75rem;
 	box-shadow:
-		0 4px 6px -1px light-dark(rgb(0 0 0 / 8%), rgb(0 0 0 / 30%)),
-		0 12px 24px -4px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 50%));
+		0 4px 6px -1px var(--aa-color-border-subtle),
+		0 12px 24px -4px var(--aa-color-shadow);
 	opacity: 0;
 	transform: translateY(-6px) scale(0.98);
 	transition: opacity 0.18s ease, transform 0.18s ease;
@@ -59,7 +59,7 @@
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	color: light-dark(rgb(0 0 0 / 40%), rgb(255 255 255 / 40%));
+	color: var(--aa-color-muted-40);
 	margin: 0;
 }
 
@@ -118,9 +118,9 @@
 .aa-predictive-search__skeleton-line {
 	background: linear-gradient(
 		90deg,
-		light-dark(#f0f0f0, #2a2a2c) 25%,
-		light-dark(#e4e4e4, #3a3a3c) 50%,
-		light-dark(#f0f0f0, #2a2a2c) 75%
+		var(--aa-color-skeleton-from) 25%,
+		var(--aa-color-skeleton-mid) 50%,
+		var(--aa-color-skeleton-from) 75%
 	);
 	background-size: 200% 100%;
 	animation: predictive-search-shimmer 1.5s ease-in-out infinite;
@@ -180,19 +180,19 @@
 }
 
 .aa-predictive-search__product-link:hover {
-	background-color: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 8%));
+	background-color: var(--aa-color-hover-subtle);
 }
 
 .aa-predictive-search__product-link:focus-visible {
-	background-color: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 8%));
-	outline: 2px solid light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 30%));
+	background-color: var(--aa-color-hover-subtle);
+	outline: 2px solid var(--aa-color-border-input);
 	outline-offset: -2px;
 }
 
 /* Keyboard-navigated active item. */
 .aa-predictive-search__product-item.is-focused .aa-predictive-search__product-link,
 .aa-predictive-search__category-item.is-focused .aa-predictive-search__category-link {
-	background-color: light-dark(rgb(0 0 0 / 6%), rgb(255 255 255 / 10%));
+	background-color: var(--aa-color-hover-subtle);
 }
 
 /* -----------------------------------------------
@@ -205,7 +205,7 @@
 	object-fit: cover;
 	border-radius: 0.5rem;
 	flex-shrink: 0;
-	background-color: light-dark(#f5f5f5, #2a2a2c);
+	background-color: var(--aa-color-skeleton-image);
 }
 
 /* No-image fallback: show a package icon placeholder. */
@@ -250,7 +250,7 @@
 	gap: 0.375rem;
 	font-size: 0.75rem;
 	font-weight: 500;
-	color: light-dark(rgb(0 0 0 / 50%), rgb(255 255 255 / 50%));
+	color: var(--aa-color-muted-50);
 }
 
 /* Original price crossed out when on sale. */
@@ -261,7 +261,7 @@
 
 /* Sale price gets emphasis. */
 .aa-predictive-search__regular-price:not(:empty) + span {
-	color: light-dark(#b91c1c, #f87171);
+	color: var(--aa-color-accent);
 	font-weight: 600;
 }
 
@@ -270,7 +270,7 @@
  * ----------------------------------------------- */
 
 .aa-predictive-search__categories {
-	border-top: 1px solid light-dark(rgb(0 0 0 / 6%), rgb(255 255 255 / 8%));
+	border-top: 1px solid var(--aa-color-border-subtle);
 }
 
 .aa-predictive-search__category-link {
@@ -302,12 +302,12 @@
 }
 
 .aa-predictive-search__category-link:hover {
-	background-color: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 8%));
+	background-color: var(--aa-color-hover-subtle);
 }
 
 .aa-predictive-search__category-link:focus-visible {
-	background-color: light-dark(rgb(0 0 0 / 5%), rgb(255 255 255 / 8%));
-	outline: 2px solid light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 30%));
+	background-color: var(--aa-color-hover-subtle);
+	outline: 2px solid var(--aa-color-border-input);
 	outline-offset: -2px;
 }
 
@@ -323,7 +323,7 @@
 .aa-predictive-search__empty p {
 	margin: 0;
 	font-size: 0.8125rem;
-	color: light-dark(rgb(0 0 0 / 45%), rgb(255 255 255 / 45%));
+	color: var(--aa-color-muted-40);
 }
 
 /* -----------------------------------------------
@@ -331,7 +331,7 @@
  * ----------------------------------------------- */
 
 .aa-predictive-search__footer {
-	border-top: 1px solid light-dark(rgb(0 0 0 / 6%), rgb(255 255 255 / 8%));
+	border-top: 1px solid var(--aa-color-border-subtle);
 	padding: 0.625rem 1rem;
 	text-align: center;
 }
@@ -340,7 +340,7 @@
 	font-size: 0.8125rem;
 	font-weight: 600;
 	text-decoration: none;
-	color: light-dark(rgb(0 0 0 / 55%), rgb(255 255 255 / 55%));
+	color: var(--aa-color-muted-55);
 	transition: color 0.12s ease;
 }
 
@@ -360,7 +360,7 @@
 		top: auto;
 		max-height: 60vh;
 		border-radius: 0.75rem 0.75rem 0 0;
-		box-shadow: 0 -10px 40px -5px light-dark(rgb(0 0 0 / 15%), rgb(0 0 0 / 50%));
+		box-shadow: 0 -10px 40px -5px var(--aa-color-shadow);
 		transform: translateY(8px);
 	}
 

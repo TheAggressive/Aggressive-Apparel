@@ -22,14 +22,14 @@
 	<div class="wp-block-group">
 		<!-- wp:post-author-name {"style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"fontSize":"small"} /-->
 
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"light-dark-black-white"} -->
-		<p class="has-light-dark-black-white-color has-text-color" style="font-size:0.75rem">&middot;</p>
+		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"foreground"} -->
+		<p class="has-foreground-color has-text-color" style="font-size:0.75rem">&middot;</p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:post-date {"style":{"typography":{"fontSize":"0.75rem"}}} /-->
 
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"light-dark-black-white"} -->
-		<p class="has-light-dark-black-white-color has-text-color" style="font-size:0.75rem">&middot;</p>
+		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"foreground"} -->
+		<p class="has-foreground-color has-text-color" style="font-size:0.75rem">&middot;</p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}}} -->
@@ -42,6 +42,6 @@
 
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|14","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained","contentSize":"1200px"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--14);padding-bottom:var(--wp--preset--spacing--20)">
-	<!-- wp:post-featured-image {"aspectRatio":"21/9","style":{"border":{"radius":"12px"}}} /-->
+	<!-- wp:post-featured-image {"aspectRatio":"21/9","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} /-->
 </div>
 <!-- /wp:group -->

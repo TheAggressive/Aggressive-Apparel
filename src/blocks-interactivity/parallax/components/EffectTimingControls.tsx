@@ -4,6 +4,12 @@
 
 import { RangeControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import {
+  EDITOR_COLOR_TOKENS,
+  EDITOR_FIELDSET_STYLE,
+  EDITOR_META_TEXT_STYLE,
+  EDITOR_RADIUS_TOKENS,
+} from '../../../utils/editor-style-tokens';
 
 interface EffectTimingControlsProps {
   effectType: string;
@@ -45,11 +51,8 @@ export const EffectTimingControls = ({
   return (
     <div
       style={{
+        ...EDITOR_FIELDSET_STYLE,
         marginTop: '16px',
-        padding: '12px',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '4px',
-        border: '1px solid #ddd',
       }}
     >
       <div
@@ -57,7 +60,7 @@ export const EffectTimingControls = ({
           fontWeight: '600',
           marginBottom: '12px',
           fontSize: '13px',
-          color: '#1e1e1e',
+          color: EDITOR_COLOR_TOKENS.foreground,
         }}
       >
         {__('Effect Timing', 'aggressive-apparel')}
@@ -146,7 +149,11 @@ export const EffectTimingControls = ({
           />
           {hasValidationError && (
             <div
-              style={{ color: '#cc1818', fontSize: '12px', marginTop: '8px' }}
+              style={{
+                color: EDITOR_COLOR_TOKENS.error,
+                fontSize: '12px',
+                marginTop: '8px',
+              }}
             >
               ⚠️{' '}
               {__(
@@ -184,7 +191,7 @@ export const EffectTimingControls = ({
 
       {/* Visual Preview */}
       <div style={{ marginTop: '12px' }}>
-        <div style={{ fontSize: '11px', color: '#666', marginBottom: '4px' }}>
+        <div style={{ ...EDITOR_META_TEXT_STYLE, marginBottom: '4px' }}>
           {__('Preview:', 'aggressive-apparel')}
         </div>
         <div
@@ -192,9 +199,9 @@ export const EffectTimingControls = ({
             display: 'flex',
             alignItems: 'center',
             height: '24px',
-            backgroundColor: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: '2px',
+            backgroundColor: EDITOR_COLOR_TOKENS.surface,
+            border: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
+            borderRadius: EDITOR_RADIUS_TOKENS.control,
             overflow: 'hidden',
             position: 'relative',
           }}
@@ -219,7 +226,7 @@ export const EffectTimingControls = ({
                   top: 0,
                   bottom: 0,
                   width: '1px',
-                  backgroundColor: '#ddd',
+                  backgroundColor: EDITOR_COLOR_TOKENS.border,
                 }}
               />
             ))}
@@ -233,12 +240,18 @@ export const EffectTimingControls = ({
               height: '100%',
               backgroundColor:
                 effectMode === 'peek'
-                  ? 'rgba(0, 123, 255, 0.3)'
-                  : 'rgba(0, 200, 83, 0.3)',
+                  ? EDITOR_COLOR_TOKENS.infoBg
+                  : EDITOR_COLOR_TOKENS.successBg,
               borderLeft:
-                '2px solid ' + (effectMode === 'peek' ? '#007bff' : '#00c853'),
+                '2px solid ' +
+                (effectMode === 'peek'
+                  ? EDITOR_COLOR_TOKENS.info
+                  : EDITOR_COLOR_TOKENS.success),
               borderRight:
-                '2px solid ' + (effectMode === 'peek' ? '#007bff' : '#00c853'),
+                '2px solid ' +
+                (effectMode === 'peek'
+                  ? EDITOR_COLOR_TOKENS.info
+                  : EDITOR_COLOR_TOKENS.success),
             }}
           />
         </div>
@@ -247,7 +260,7 @@ export const EffectTimingControls = ({
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: '10px',
-            color: '#999',
+            color: EDITOR_COLOR_TOKENS.subtle,
             marginTop: '2px',
           }}
         >

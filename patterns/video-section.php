@@ -30,8 +30,8 @@
 
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"960px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:video {"style":{"border":{"radius":"12px"}}} -->
-		<figure class="wp-block-video" style="border-radius:12px"><video controls src=""></video><figcaption class="wp-element-caption">Replace with your brand video or use a YouTube/Vimeo embed block.</figcaption></figure>
+		<!-- wp:video {"style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} -->
+		<figure class="wp-block-video" style="border-radius:var(--wp--custom--radius--card)"><video controls src=""></video><figcaption class="wp-element-caption">Replace with your brand video or use a YouTube/Vimeo embed block.</figcaption></figure>
 		<!-- /wp:video -->
 	</div>
 	<!-- /wp:group -->

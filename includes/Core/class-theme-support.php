@@ -33,6 +33,7 @@ class Theme_Support {
 	 */
 	public function init() {
 		$this->register_theme_support();
+		$this->register_block_styles();
 	}
 
 	/**
@@ -94,5 +95,100 @@ class Theme_Support {
 		 * @since 1.0.0
 		 */
 		do_action( 'aggressive_apparel_after_theme_support' );
+	}
+
+	/**
+	 * Register design system block style variations.
+	 *
+	 * @return void
+	 */
+	private function register_block_styles(): void {
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'ghost',
+				'label' => __( 'Ghost', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'text',
+				'label' => __( 'Text', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'small',
+				'label' => __( 'Small', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'cta',
+				'label' => __( 'CTA', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'cta-small',
+				'label' => __( 'CTA Small', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'outline-on-dark',
+				'label' => __( 'Outline on Dark', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/group',
+			array(
+				'name'  => 'surface-card',
+				'label' => __( 'Surface Card', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/group',
+			array(
+				'name'  => 'bordered',
+				'label' => __( 'Bordered', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/paragraph',
+			array(
+				'name'  => 'badge',
+				'label' => __( 'Badge', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/paragraph',
+			array(
+				'name'  => 'badge-muted',
+				'label' => __( 'Badge Muted', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/separator',
+			array(
+				'name'  => 'subtle',
+				'label' => __( 'Subtle', 'aggressive-apparel' ),
+			)
+		);
 	}
 }

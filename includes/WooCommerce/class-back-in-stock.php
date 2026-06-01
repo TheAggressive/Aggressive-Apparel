@@ -466,29 +466,29 @@ class Back_In_Stock {
 		>
 			<p class="aa-bis__out-of-stock"><?php esc_html_e( 'This product is currently out of stock.', 'aggressive-apparel' ); ?></p>
 
-			<form class="aa-bis__form" data-wp-on--submit="actions.submit">
-				<div class="aa-bis__field">
+			<form class="aa-bis__form aggressive-apparel-stack aggressive-apparel-stack--md" data-wp-on--submit="actions.submit">
+				<div class="aa-bis__field aggressive-apparel-field">
 					<label for="aa-bis-email-<?php echo esc_attr( (string) $product_id ); ?>" class="screen-reader-text">
 						<?php esc_html_e( 'Email address', 'aggressive-apparel' ); ?>
 					</label>
 					<input
 						type="email"
 						id="aa-bis-email-<?php echo esc_attr( (string) $product_id ); ?>"
-						class="aa-bis__input"
+						class="aa-bis__input aggressive-apparel-field__input"
 						placeholder="<?php esc_attr_e( 'Enter your email', 'aggressive-apparel' ); ?>"
 						required
 						data-wp-on--input="actions.clearMessages"
 					/>
 				</div>
 
-				<label class="aa-bis__consent">
+				<label class="aa-bis__consent aggressive-apparel-field aggressive-apparel-field--checkbox">
 					<input type="checkbox" required data-wp-on--change="actions.clearMessages" />
 					<?php esc_html_e( 'I agree to receive a one-time email when this product is restocked.', 'aggressive-apparel' ); ?>
 				</label>
 
 				<button
 					type="submit"
-					class="aa-bis__submit"
+					class="aa-bis__submit aggressive-apparel-button aggressive-apparel-button--accent"
 					data-wp-class--is-loading="state.isSubmitting"
 					data-wp-bind--disabled="state.isSubmitting"
 				>
@@ -497,8 +497,8 @@ class Back_In_Stock {
 			</form>
 
 			<div class="aa-bis__messages" role="status" aria-live="polite">
-				<p class="aa-bis__success" data-wp-bind--hidden="state.isNotSuccess" hidden data-wp-text="state.successMessage"></p>
-				<p class="aa-bis__error" data-wp-bind--hidden="state.isNotError" hidden data-wp-text="state.errorMessage"></p>
+				<p class="aa-bis__success aggressive-apparel-message aggressive-apparel-message--success" data-wp-bind--hidden="state.isNotSuccess" hidden data-wp-text="state.successMessage"></p>
+				<p class="aa-bis__error aggressive-apparel-message aggressive-apparel-message--error" data-wp-bind--hidden="state.isNotError" hidden data-wp-text="state.errorMessage"></p>
 			</div>
 		</div>
 		<?php

@@ -24,8 +24,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#ffffff33"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#ffffff33;border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">R</h3>
 				<!-- /wp:heading -->
@@ -52,8 +52,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#ffffff33"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#ffffff33;border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">S</h3>
 				<!-- /wp:heading -->
@@ -80,8 +80,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#ffffff33"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#ffffff33;border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">O</h3>
 				<!-- /wp:heading -->

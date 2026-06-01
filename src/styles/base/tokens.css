@@ -1,0 +1,118 @@
+/**
+ * Design System Token Aliases
+ *
+ * Thin alias layer over WordPress-generated CSS variables from theme.json.
+ * Do not define raw color values here — edit theme.json instead.
+ *
+ * @package Aggressive_Apparel
+ */
+
+:root {
+
+	/* Adaptive semantic colors (light-dark() injected by Adaptive_Colors). */
+	--aa-color-surface: var(--wp--preset--color--surface);
+	--aa-color-surface-elevated: var(--wp--preset--color--surface-elevated);
+	--aa-color-foreground: var(--wp--preset--color--foreground);
+	--aa-color-foreground-muted: var(--wp--preset--color--foreground-muted);
+	--aa-color-accent: var(--wp--preset--color--accent);
+	--aa-color-border: var(--wp--preset--color--border);
+
+	/* Static brand colors. */
+	--aa-color-brand: var(--wp--preset--color--primary);
+	--aa-color-brand-red: var(--wp--preset--color--red);
+	--aa-color-white: var(--wp--preset--color--white);
+	--aa-color-black: var(--wp--preset--color--black);
+
+	/* Motion (from settings.custom.motion). */
+	--aa-duration-fast: var(--wp--custom--motion--duration--fast, 150ms);
+	--aa-duration-normal: var(--wp--custom--motion--duration--normal, 300ms);
+	--aa-duration-slow: var(--wp--custom--motion--duration--slow, 500ms);
+	--aa-ease-default: var(--wp--custom--motion--ease, cubic-bezier(0.4, 0, 0.2, 1));
+	--aa-transition-overlay: opacity var(--aa-duration-normal) var(--aa-ease-default),
+		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
+
+	/* Overlay (from settings.custom.overlay). */
+	--aa-overlay-blur: var(--wp--custom--overlay--blur, 4px);
+	--aa-overlay-opacity: var(--wp--custom--overlay--opacity, 0.5);
+
+	/* Z-index scale (from settings.custom.zIndex). */
+	--aa-z-dropdown: var(--wp--custom--z-index--dropdown, 100);
+	--aa-z-sticky: var(--wp--custom--z-index--sticky, 200);
+	--aa-z-overlay: var(--wp--custom--z-index--overlay, 300);
+	--aa-z-modal: var(--wp--custom--z-index--modal, 400);
+	--aa-z-toast: var(--wp--custom--z-index--toast, 500);
+
+	/* Component sizing (from settings.custom.size). */
+	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);
+	--aa-button-height-md: var(--wp--custom--size--button-height--md, 2.75rem);
+	--aa-button-height-lg: var(--wp--custom--size--button-height--lg, 3.25rem);
+	--aa-input-height: var(--wp--custom--size--input-height, 2.75rem);
+	--aa-panel-width-sm: var(--wp--custom--size--panel-width--sm, 20rem);
+	--aa-panel-width-md: var(--wp--custom--size--panel-width--md, 28rem);
+	--aa-panel-width-lg: var(--wp--custom--size--panel-width--lg, 40rem);
+	--aa-panel-width-xl: var(--wp--custom--size--panel-width--xl, 56.25rem);
+	--aa-panel-width-guide: var(--wp--custom--size--panel-width--guide, 46.25rem);
+	--aa-panel-width-drawer: var(--wp--custom--size--panel-width--drawer, 21.25rem);
+
+	/* Border radius. */
+	--aa-radius-sm: var(--wp--custom--radius--sm, 0.25rem);
+	--aa-radius-md: var(--wp--custom--radius--md, 0.375rem);
+	--aa-radius-lg: var(--wp--custom--radius--lg, 0.5rem);
+	--aa-radius-full: var(--wp--custom--radius--full, calc(infinity * 1px));
+	--aa-radius-button: var(--wp--custom--radius--button, var(--aa-radius-full));
+	--aa-radius-control: var(--wp--custom--radius--control, var(--aa-radius-md));
+	--aa-radius-panel: var(--wp--custom--radius--panel, var(--aa-radius-lg));
+	--aa-radius-card: var(--wp--custom--radius--card, var(--aa-radius-md));
+
+	/* Elevation. */
+	--aa-shadow-sm: var(--wp--custom--shadow--sm, 0 2px 8px var(--aa-color-shadow));
+	--aa-shadow-md: var(--wp--custom--shadow--md, 0 10px 25px -5px var(--aa-color-shadow));
+	--aa-shadow-lg: var(--wp--custom--shadow--lg, 0 12px 40px var(--aa-color-shadow-strong));
+	--aa-shadow-panel: var(--wp--custom--shadow--panel, 0 25px 50px -12px var(--aa-color-shadow-strong));
+
+	/* Focus ring. */
+	--aa-focus-ring: 0 0 0 2px var(--aa-color-surface),
+		0 0 0 4px var(--aa-color-accent);
+
+	/* Derived foreground mixes (adapt with color scheme). */
+	--aa-color-border-subtle: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+	--aa-color-border-default: color-mix(in oklch, var(--aa-color-foreground) 12%, transparent);
+	--aa-color-border-strong: color-mix(in oklch, var(--aa-color-foreground) 15%, transparent);
+	--aa-color-border-input: color-mix(in oklch, var(--aa-color-foreground) 20%, transparent);
+	--aa-color-hover-subtle: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
+	--aa-color-hover-default: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+	--aa-color-muted-40: color-mix(in oklch, var(--aa-color-foreground) 40%, transparent);
+	--aa-color-muted-50: color-mix(in oklch, var(--aa-color-foreground) 50%, transparent);
+	--aa-color-muted-55: color-mix(in oklch, var(--aa-color-foreground) 55%, transparent);
+	--aa-color-shadow: color-mix(in oklch, var(--aa-color-foreground) 15%, transparent);
+	--aa-color-shadow-strong: color-mix(in oklch, var(--aa-color-foreground) 30%, transparent);
+	--aa-color-surface-80: color-mix(in oklch, var(--aa-color-surface) 80%, transparent);
+	--aa-color-surface-90: color-mix(in oklch, var(--aa-color-surface) 90%, transparent);
+	--aa-color-skeleton-from: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+	--aa-color-skeleton-mid: color-mix(in oklch, var(--aa-color-foreground) 11%, var(--aa-color-surface));
+	--aa-color-skeleton-image: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
+
+	/* Static status colors (stock, alerts — not adaptive). */
+	--aa-color-success: var(--wp--custom--status-colors--success, #15803d);
+	--aa-color-warning: var(--wp--custom--status-colors--warning, #c2410c);
+	--aa-color-error: var(--wp--custom--status-colors--error, #dc2626);
+	--aa-color-info: var(--wp--custom--status-colors--info, #1d4ed8);
+	--aa-color-neutral-muted: var(--wp--custom--status-colors--neutral-muted, #6b7280);
+	--aa-color-success-bg: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
+	--aa-color-success-border: color-mix(in oklch, var(--aa-color-success) 30%, transparent);
+	--aa-color-warning-bg: color-mix(in oklch, var(--aa-color-warning) 12%, transparent);
+	--aa-color-warning-border: color-mix(in oklch, var(--aa-color-warning) 30%, transparent);
+	--aa-color-error-bg: color-mix(in oklch, var(--aa-color-error) 12%, transparent);
+	--aa-color-error-border: color-mix(in oklch, var(--aa-color-error) 30%, transparent);
+	--aa-color-info-bg: color-mix(in oklch, var(--aa-color-info) 12%, transparent);
+	--aa-color-info-border: color-mix(in oklch, var(--aa-color-info) 30%, transparent);
+	--aa-color-neutral-bg: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+	--aa-color-scrim: color-mix(in oklch, var(--aa-color-foreground) 80%, transparent);
+	--aa-color-on-scrim: var(--aa-color-white);
+	--aa-color-on-scrim-90: color-mix(in oklch, var(--aa-color-white) 90%, transparent);
+	--aa-color-on-scrim-70: color-mix(in oklch, var(--aa-color-white) 70%, transparent);
+	--aa-color-on-scrim-60: color-mix(in oklch, var(--aa-color-white) 60%, transparent);
+	--aa-color-scrim-border: color-mix(in oklch, var(--aa-color-white) 10%, transparent);
+	--aa-color-scrim-hover: color-mix(in oklch, var(--aa-color-white) 10%, transparent);
+	--aa-color-scrim-hover-subtle: color-mix(in oklch, var(--aa-color-white) 5%, transparent);
+}

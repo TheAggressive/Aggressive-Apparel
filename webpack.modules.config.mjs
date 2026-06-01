@@ -67,6 +67,7 @@ export default (env = {}, argv = {}) => {
       '@wordpress/interactivity': '@wordpress/interactivity',
       '@aggressive-apparel/helpers': '@aggressive-apparel/helpers',
       '@aggressive-apparel/scroll-lock': '@aggressive-apparel/scroll-lock',
+      '@aggressive-apparel/use-overlay': '@aggressive-apparel/use-overlay',
     },
     optimization: {
       splitChunks: false,

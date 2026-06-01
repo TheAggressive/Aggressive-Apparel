@@ -24,7 +24,7 @@
 	border: none;
 	border-radius: 999px;
 	background: transparent;
-	color: var(--wp--preset--color--black, #000);
+	color: var(--aa-color-foreground);
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -46,7 +46,7 @@
 		content: "";
 		position: absolute;
 		inset: 0;
-		background: var(--wp--preset--color--black, #000);
+		background: var(--aa-color-foreground);
 		transform: scaleX(0);
 		transform-origin: left;
 		opacity: 0;
@@ -66,7 +66,7 @@
 	}
 
 	&:has(input:focus-visible) {
-		outline: 2px solid var(--wp--preset--color--black, #000);
+		outline: 2px solid var(--aa-color-foreground);
 		outline-offset: 2px;
 	}
 
@@ -74,8 +74,8 @@
 	&:has(input:checked) {
 		--pill-background-color: transparent;
 
-		box-shadow: inset 0 0 0 1px var(--wp--preset--color--black, #000);
-		color: var(--wp--preset--color--white, #fff);
+		box-shadow: inset 0 0 0 1px var(--aa-color-foreground);
+		color: var(--aa-color-surface);
 		background: transparent;
 
 		&::before {
@@ -105,7 +105,7 @@
 	svg {
 		width: 0.75rem;
 		height: 0.75rem;
-		stroke: var(--wp--preset--color--white, #fff);
+		stroke: var(--aa-color-surface);
 		stroke-width: 2.5;
 		stroke-linecap: round;
 		stroke-linejoin: round;

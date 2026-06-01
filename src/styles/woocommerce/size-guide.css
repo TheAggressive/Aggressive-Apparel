@@ -6,6 +6,14 @@
  */
 
 /* -----------------------------------------------
+ * Feature tokens — overlay/panel base in components/.
+ * ----------------------------------------------- */
+
+.aggressive-apparel-size-guide__overlay {
+	--aa-overlay-opacity: 0.8;
+}
+
+/* -----------------------------------------------
  * Trigger button
  * ----------------------------------------------- */
 
@@ -46,78 +54,6 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;
-	}
-}
-
-/* -----------------------------------------------
- * Overlay
- * ----------------------------------------------- */
-
-.aggressive-apparel-size-guide__overlay {
-	position: fixed;
-	inset: 0;
-	z-index: 100000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	&[hidden] {
-		display: none;
-	}
-}
-
-.aggressive-apparel-size-guide__backdrop {
-	position: absolute;
-	inset: 0;
-	background-color: rgb(0 0 0 / 0%);
-	backdrop-filter: blur(0);
-	transition:
-		background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-	.is-open & {
-		background-color: rgb(0 0 0 / 80%);
-		backdrop-filter: blur(4px);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-	}
-}
-
-/* -----------------------------------------------
- * Modal
- * ----------------------------------------------- */
-
-.aggressive-apparel-size-guide__modal {
-	position: relative;
-	width: 90vw;
-	max-width: 740px;
-	max-height: 85vh;
-	overflow-y: auto;
-	background-color: var(--wp--preset--color--surface, #fff);
-	color: var(--wp--preset--color--on-surface, #000);
-	border-radius: 0;
-	box-shadow:
-		0 25px 50px -12px rgb(0 0 0 / 30%),
-		0 0 0 1px rgb(0 0 0 / 5%);
-
-	/* Entrance: slide up + fade in. */
-	opacity: 0;
-	transform: translateY(20px);
-	transition:
-		opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-	.is-open & {
-		opacity: 1;
-		transform: translateY(0);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-		opacity: 1;
-		transform: none;
 	}
 }
 
@@ -221,8 +157,8 @@
 		text-transform: uppercase;
 		font-size: 0.75rem;
 		letter-spacing: 0.08em;
-		background-color: var(--wp--preset--color--on-surface, #000);
-		color: var(--wp--preset--color--surface, #fff);
+		background-color: var(--aa-color-foreground);
+		color: var(--aa-color-surface);
 		border: none;
 	}
 
@@ -284,30 +220,6 @@
 }
 
 /* -----------------------------------------------
- * @starting-style entry animations
- * Smooth entry from display:none → visible.
- * ----------------------------------------------- */
-@supports selector(@starting-style) {
-
-	.aggressive-apparel-size-guide__overlay {
-		transition: display 0.3s allow-discrete;
-	}
-
-	@starting-style {
-
-		.aggressive-apparel-size-guide__overlay.is-open .aggressive-apparel-size-guide__backdrop {
-			background-color: rgb(0 0 0 / 0%);
-			backdrop-filter: blur(0);
-		}
-
-		.aggressive-apparel-size-guide__overlay.is-open .aggressive-apparel-size-guide__modal {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-	}
-}
-
-/* -----------------------------------------------
  * Table row stagger
  * Rows fade in sequentially on open (opacity-only
  * to avoid scrollbar from transform overflow).
@@ -351,11 +263,6 @@
  * Reduced motion — disable all size guide animations
  * ----------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-
-	.aggressive-apparel-size-guide__backdrop {
-		backdrop-filter: none;
-		transition: none;
-	}
 
 	.aggressive-apparel-size-guide__body tbody tr {
 		animation: none !important;

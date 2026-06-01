@@ -63,7 +63,11 @@ class Mobile_Bottom_Nav {
 			wp_register_script_module(
 				'@aggressive-apparel/bottom-nav',
 				AGGRESSIVE_APPAREL_URI . '/build/interactivity/bottom-nav.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock' ),
+				array(
+					'@wordpress/interactivity',
+					'@aggressive-apparel/scroll-lock',
+					'@aggressive-apparel/use-overlay',
+				),
 				AGGRESSIVE_APPAREL_VERSION,
 			);
 			wp_enqueue_script_module( '@aggressive-apparel/bottom-nav' );
@@ -161,13 +165,13 @@ class Mobile_Bottom_Nav {
 		</nav>
 
 		<div
-			class="aa-bottom-nav__search-overlay"
+			class="aggressive-apparel-overlay aggressive-apparel-overlay--top-panel aa-bottom-nav__search-overlay"
 			data-wp-interactive="aggressive-apparel/bottom-nav"
-			data-wp-bind--hidden="state.isSearchClosed"
+			data-wp-class--is-open="state.isSearchOpen"
 			hidden
 		>
-			<div class="aa-bottom-nav__search-backdrop" data-wp-on--click="actions.closeSearch"></div>
-			<div class="aa-bottom-nav__search-panel">
+			<div class="aggressive-apparel-overlay__backdrop aa-bottom-nav__search-backdrop" data-wp-on--click="actions.closeSearch"></div>
+			<div class="aggressive-apparel-panel aggressive-apparel-panel--search-bar aa-bottom-nav__search-panel">
 				<form role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" class="aa-bottom-nav__search-form">
 					<input
 						type="search"

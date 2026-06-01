@@ -10,8 +10,8 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"#e5e7eb","width":"1px"}}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull" style="border-top-color:#e5e7eb;border-top-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)">
+?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}},"border":{"top":{"color":"var:preset|color|border","width":"1px"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull" style="border-top-color:var(--wp--preset--color--border);border-top-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)">
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"bottom"},"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|12"}}}} -->
 	<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--12)">
 		<!-- wp:heading {"fontSize":"fluid-xxx-large"} -->
@@ -26,7 +26,7 @@
 
 	<!-- wp:woocommerce/product-collection {"queryId":10,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"popularity","search":"","exclude":[],"inherit":false,"taxQuery":{},"isProductCollectionBlock":true,"woocommerceAttributes":[]},"displayLayout":{"type":"flex","columns":4},"collection":"woocommerce/product-collection/best-sellers"} -->
 		<!-- wp:woocommerce/product-template -->
-			<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","style":{"border":{"radius":"8px"}}} /-->
+			<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} /-->
 			<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"}},"fontSize":"small"} /-->
 			<!-- wp:woocommerce/product-price {"textAlign":"left","fontSize":"small"} /-->
 		<!-- /wp:woocommerce/product-template -->

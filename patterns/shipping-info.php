@@ -44,8 +44,8 @@
 	<p class="has-medium-font-size" style="margin-bottom:var(--wp--preset--spacing--14);line-height:1.8">Once your order ships, you'll receive a confirmation email with a tracking number. You can also track your order anytime from your <a href="/my-account/orders">account dashboard</a>.</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"12px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:12px;padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)">
+	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)">
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"medium"} -->
 		<p class="has-white-color has-text-color has-medium-font-size" style="font-style:normal;font-weight:600">Have a question about your shipment?</p>
 		<!-- /wp:paragraph -->

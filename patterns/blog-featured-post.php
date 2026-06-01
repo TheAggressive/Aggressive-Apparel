@@ -18,7 +18,7 @@
 		<div class="wp-block-columns are-vertically-aligned-center">
 			<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 			<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
-				<!-- wp:post-featured-image {"isLink":true,"aspectRatio":"16/10","style":{"border":{"radius":"12px"}}} /-->
+				<!-- wp:post-featured-image {"isLink":true,"aspectRatio":"16/10","style":{"border":{"radius":"var(--wp--custom--radius--card)"}}} /-->
 			</div>
 			<!-- /wp:column -->
 

@@ -28,8 +28,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column {"width":"60%"} -->
 		<div class="wp-block-column" style="flex-basis:60%">
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":600,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#1a1a1a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#1a1a1a;min-height:600px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":600,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:600px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
@@ -43,8 +43,8 @@
 
 		<!-- wp:column {"width":"40%","style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
 		<div class="wp-block-column" style="flex-basis:40%">
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":290,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#2a2a2a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#2a2a2a;min-height:290px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":290,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:290px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
@@ -54,8 +54,8 @@
 			</div>
 			<!-- /wp:cover -->
 
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":290,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#3a3a3a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#3a3a3a;min-height:290px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":290,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:290px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
@@ -73,8 +73,8 @@
 	<div class="wp-block-columns" style="margin-top:var(--wp--preset--spacing--4)">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#4a4a4a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#4a4a4a;min-height:300px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:300px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
@@ -88,8 +88,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#333333"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#333333;min-height:300px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:300px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
@@ -103,8 +103,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"#222222"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:#222222;min-height:300px">
+			<!-- wp:cover {"dimRatio":20,"overlayColor":"black","minHeight":300,"minHeightUnit":"px","contentPosition":"bottom left","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);min-height:300px">
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->

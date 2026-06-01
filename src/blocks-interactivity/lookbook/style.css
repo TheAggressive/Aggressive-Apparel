@@ -39,13 +39,13 @@
 	width: 2.75rem;
 	height: 2.75rem;
 	border-radius: 50%;
-	background-color: var(--wp--preset--color--white, #fff);
-	color: var(--wp--preset--color--black, #000);
+	background-color: var(--aa-color-white);
+	color: var(--aa-color-black);
 	font-size: 0.75rem;
 	font-weight: 700;
-	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-	transition: transform 0.2s ease;
-	animation: aggressive-apparel-hotspot-pulse 2s ease-in-out infinite;
+	box-shadow: var(--aa-shadow-sm);
+	transition: transform var(--aa-duration-fast) var(--aa-ease-default);
+	animation: aggressive-apparel-hotspot-pulse 2s var(--aa-ease-default) infinite;
 }
 
 .aggressive-apparel-lookbook__hotspot:hover .aggressive-apparel-lookbook__hotspot-dot,
@@ -58,12 +58,12 @@
 
 	0%,
 	100% {
-		box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+		box-shadow: var(--aa-shadow-sm);
 	}
 
 	50% {
-		box-shadow: 0 2px 8px rgb(0 0 0 / 20%),
-			0 0 0 6px rgb(255 255 255 / 30%);
+		box-shadow: var(--aa-shadow-sm),
+			0 0 0 6px color-mix(in oklch, var(--aa-color-white) 30%, transparent);
 	}
 }
 
@@ -85,17 +85,17 @@
 	padding: 0.75rem;
 	min-width: 260px;
 	max-width: 320px;
-	background-color: var(--wp--preset--color--white, #fff);
-	color: var(--wp--preset--color--black, #000);
-	border-radius: 0.5rem;
-	box-shadow: 0 10px 25px -5px rgb(0 0 0 / 15%);
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+	border-radius: var(--aa-radius-card);
+	box-shadow: var(--aa-shadow-md);
 }
 
 .aggressive-apparel-lookbook__product-image {
 	width: 4rem;
 	height: 4rem;
 	object-fit: cover;
-	border-radius: 0.25rem;
+	border-radius: var(--aa-radius-sm);
 	flex-shrink: 0;
 }
 

@@ -67,8 +67,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#1a1a1a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#1a1a1a;min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Hoodies</h3>
 				<!-- /wp:heading -->
@@ -79,8 +79,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#2a2a2a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#2a2a2a;min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Tees</h3>
 				<!-- /wp:heading -->
@@ -91,8 +91,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"#3a3a3a"}}} -->
-			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:#3a3a3a;min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<!-- wp:cover {"dimRatio":40,"overlayColor":"black","minHeight":350,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:350px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
 				<h3 class="wp-block-heading has-text-align-center has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Bottoms</h3>
 				<!-- /wp:heading -->
@@ -141,8 +141,8 @@
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
-			<!-- wp:cover {"dimRatio":0,"minHeight":450,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#e5e7eb"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#e5e7eb;min-height:450px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+			<!-- wp:cover {"dimRatio":0,"minHeight":450,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:450px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
 				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
 				<p class="has-text-align-center has-medium-font-size">Lifestyle image placeholder</p>
 				<!-- /wp:paragraph -->
@@ -251,8 +251,8 @@
 	<div class="wp-block-columns" style="margin-top:var(--wp--preset--spacing--14)">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#e5e7eb"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
 				<p class="has-text-align-center has-medium-font-size">"The quality is unmatched. Every piece feels premium and the fit is perfect."</p>
 				<!-- /wp:paragraph -->
@@ -267,8 +267,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#e5e7eb"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
 				<p class="has-text-align-center has-medium-font-size">"Been shopping here for 2 years. Customer service is exceptional and products exceed expectations."</p>
 				<!-- /wp:paragraph -->
@@ -283,8 +283,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"#e5e7eb"}}} -->
-			<div class="wp-block-group has-border-color" style="border-color:#e5e7eb;border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border"}}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
 				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
 				<p class="has-text-align-center has-medium-font-size">"Style and comfort level is incredible. I get compliments every time I wear something from this brand."</p>
 				<!-- /wp:paragraph -->
@@ -345,48 +345,48 @@
 	<div class="wp-block-columns is-not-stacked-on-mobile">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#1a1a1a"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#1a1a1a;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#2a2a2a"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#2a2a2a;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#3a3a3a"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#3a3a3a;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#4a4a4a"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#4a4a4a;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#333333"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#333333;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"#222222"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:#222222;min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
+			<!-- wp:cover {"dimRatio":0,"minHeight":200,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|black"}}} -->
+			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--black);min-height:200px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center"></p><!-- /wp:paragraph --></div></div>
 			<!-- /wp:cover -->
 		</div>
 		<!-- /wp:column -->

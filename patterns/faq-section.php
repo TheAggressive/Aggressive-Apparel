@@ -40,8 +40,8 @@
 
 		<!-- wp:column {"width":"65%"} -->
 		<div class="wp-block-column" style="flex-basis:65%">
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>What is your shipping policy?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">We offer free standard shipping on all orders over $100. Standard delivery takes 3–5 business days. Express shipping is available at checkout for 1–2 business day delivery.</p>
@@ -49,8 +49,8 @@
 			</details>
 			<!-- /wp:details -->
 
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>What is your return policy?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">We accept returns within 30 days of purchase. Items must be unworn with original tags attached. Refunds are processed within 5–7 business days of receiving the return.</p>
@@ -58,8 +58,8 @@
 			</details>
 			<!-- /wp:details -->
 
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>How do I find my size?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">Check our size guide on each product page for detailed measurements. We recommend measuring yourself and comparing against our charts. If you're between sizes, we suggest sizing up for a more relaxed fit.</p>
@@ -67,8 +67,8 @@
 			</details>
 			<!-- /wp:details -->
 
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>How should I care for my apparel?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">Machine wash cold with like colors, tumble dry low. Avoid bleach and ironing directly on prints. Following these care instructions will keep your gear looking fresh for years.</p>
@@ -76,8 +76,8 @@
 			</details>
 			<!-- /wp:details -->
 
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>Do you ship internationally?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">Yes, we ship to over 50 countries worldwide. International shipping rates and delivery times vary by destination. You'll see the exact cost at checkout.</p>
@@ -85,8 +85,8 @@
 			</details>
 			<!-- /wp:details -->
 
-			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"#e5e7eb","width":"1px"}}}} -->
-			<details class="wp-block-details" style="border-bottom-color:#e5e7eb;border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
+			<!-- wp:details {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}},"border":{"bottom":{"color":"var:preset|color|border","width":"1px"}}}} -->
+			<details class="wp-block-details" style="border-bottom-color:var(--wp--preset--color--border);border-bottom-width:1px;padding-top:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6)">
 				<summary>Can I cancel or modify my order?</summary>
 				<!-- wp:paragraph {"fontSize":"medium"} -->
 				<p class="has-medium-font-size">Orders can be modified or cancelled within 1 hour of placement. After that, orders enter our fulfillment process. Contact support immediately if you need changes.</p>

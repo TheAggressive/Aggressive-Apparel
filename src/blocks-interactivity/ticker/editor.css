@@ -8,7 +8,7 @@
 
 .wp-block-aggressive-apparel-ticker--editor {
 	border: 1px dashed currentcolor;
-	border-radius: 2px;
+	border-radius: var(--aa-radius-sm);
 	padding: 1rem;
 	opacity: 0.85;
 }

@@ -28,6 +28,7 @@ import {
   ColorModeToggle,
   injectEditorStyle,
 } from '../../utils/editor-color-scheme';
+import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 
 /**
  * CSS rules for adaptive color overrides in the editor.
@@ -200,7 +201,7 @@ function AdaptiveColorPanel({
       title={__('Adaptive Colors', 'aggressive-apparel')}
       initialOpen={false}
     >
-      <p style={{ fontSize: '12px', color: '#757575', marginTop: 0 }}>
+      <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
         {__(
           'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
           'aggressive-apparel'

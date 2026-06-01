@@ -30,6 +30,12 @@ import { DirectionPicker } from './components/DirectionPicker';
 import { EffectPresets, PresetConfig } from './components/EffectPresets';
 import { EffectsControls } from './components/EffectsControls';
 import { ElementParallaxSettings, ParallaxAttributes } from './types';
+import {
+  EDITOR_COLOR_TOKENS,
+  EDITOR_FIELDSET_STYLE,
+  EDITOR_HELP_TEXT_STYLE,
+  EDITOR_INFO_NOTICE_STYLE,
+} from '../../utils/editor-style-tokens';
 
 /**
  * Hook to detect blocks inside parallax containers and add parallax controls
@@ -202,16 +208,14 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
               style={{
                 margin: '16px 0',
                 border: 'none',
-                borderTop: '1px solid #ddd',
+                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
               }}
             />
 
             <div
               style={{
+                ...EDITOR_FIELDSET_STYLE,
                 marginTop: '16px',
-                padding: '12px',
-                backgroundColor: '#f0f0f0',
-                borderRadius: '4px',
                 fontSize: '12px',
               }}
             >
@@ -324,7 +328,7 @@ function Edit({
             style={{
               margin: '16px 0',
               border: 'none',
-              borderTop: '1px solid #ddd',
+              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             }}
           />
 
@@ -364,7 +368,7 @@ function Edit({
                 style={{
                   margin: '16px 0',
                   border: 'none',
-                  borderTop: '1px solid #ddd',
+                  borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
                 }}
               />
 
@@ -485,21 +489,18 @@ function Edit({
 
               <div
                 style={{
+                  ...EDITOR_INFO_NOTICE_STYLE,
                   marginTop: '16px',
-                  padding: '12px',
-                  backgroundColor: '#f0f9ff',
-                  borderRadius: '4px',
-                  border: '1px solid #0ea5e9',
                 }}
               >
-                <strong style={{ color: '#0c4a6e' }}>
+                <strong style={{ color: EDITOR_COLOR_TOKENS.info }}>
                   {__('💡 Pro Tip:', 'aggressive-apparel')}
                 </strong>
                 <p
                   style={{
                     margin: '8px 0 0 0',
                     fontSize: '12px',
-                    color: '#0c4a6e',
+                    color: EDITOR_COLOR_TOKENS.info,
                   }}
                 >
                   {__(
@@ -533,12 +534,9 @@ function Edit({
 
           <div
             style={{
+              ...EDITOR_FIELDSET_STYLE,
               marginTop: '16px',
               marginBottom: '8px',
-              padding: '12px',
-              backgroundColor: '#f0f0f0',
-              borderRadius: '4px',
-              border: '1px solid #ddd',
             }}
           >
             <label
@@ -546,7 +544,7 @@ function Edit({
                 display: 'block',
                 fontWeight: '600',
                 marginBottom: '8px',
-                color: '#1e1e1e',
+                color: EDITOR_COLOR_TOKENS.foreground,
               }}
             >
               {__('Detection Boundary', 'aggressive-apparel')}
@@ -609,9 +607,8 @@ function Edit({
             </div>
             <p
               style={{
+                ...EDITOR_HELP_TEXT_STYLE,
                 margin: '8px 0 0 0',
-                fontSize: '12px',
-                color: '#666',
               }}
             >
               {__(
@@ -635,7 +632,7 @@ function Edit({
             style={{
               margin: '16px 0',
               border: 'none',
-              borderTop: '1px solid #ddd',
+              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             }}
           />
         </PanelBody>

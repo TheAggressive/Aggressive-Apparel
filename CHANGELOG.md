@@ -1,3 +1,10 @@
+# [1.79.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.78.0...v1.79.0) (2026-06-01)
+
+
+### Features
+
+* enhance design system with new typography roles, density settings, and WooCommerce styles ([33d6744](https://github.com/TheAggressive/Aggressive-Apparel/commit/33d6744c016dc00e7df67994d7a707c61caef8a2))
+
 # [1.78.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.77.1...v1.78.0) (2026-06-01)
 
 

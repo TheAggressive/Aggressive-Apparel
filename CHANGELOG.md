@@ -1,3 +1,10 @@
+## [1.79.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.0...v1.79.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* update WooCommerce styles for improved hover effects and transitions ([9b73c3f](https://github.com/TheAggressive/Aggressive-Apparel/commit/9b73c3f282ad8792da0afc7caab246a74f84f434))
+
 # [1.79.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.78.0...v1.79.0) (2026-06-01)
 
 

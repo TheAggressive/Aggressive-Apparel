@@ -1,13 +1,14 @@
 # Aggressive Apparel
 
-Official WooCommerce Block Theme for [Aggressive Apparel](https://theaggressive.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, 11 custom blocks, and 36 block patterns.
+Official WooCommerce Block Theme for [Aggressive Apparel](https://theaggressive.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, custom blocks, a shared design system, and WooCommerce-first patterns.
 
-**Version:** 1.56.1 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
+**Version:** 1.79.1 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
 ## Features
 
 - **Full Site Editing** — 13 templates, 36 block patterns, complete theme.json configuration
 - **WooCommerce Integration** — product gallery, color swatches, custom templates for shop/cart/checkout
+- **Design System Tokens** — `theme.json` source tokens with a compiled `--aa-*` alias layer
 - **24 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
 - **11 Custom Blocks** — 7 interactive (Interactivity API) + 4 static Gutenberg blocks
 - **Interactivity API** — client-side reactivity without a JavaScript framework
@@ -77,10 +78,47 @@ pnpm qa  # tests + linting + PHPStan
 | `pnpm test:accessibility` | A11y compliance tests |
 | `pnpm test:performance` | Performance benchmarks |
 | `pnpm lint:all` | ESLint + Stylelint + PHPCS |
+| `pnpm lint:css` | Stylelint + design-system CSS checks |
+| `pnpm build:assets` | Build theme CSS/JS assets into `build/styles` and `build/scripts` |
+| `pnpm build:interactivity` | Build Interactivity API blocks and frontend modules |
 | `pnpm analyse:php` | PHPStan level 6 |
 | `pnpm qa` | Tests + linting + PHPStan |
 | `pnpm env:start` | Start wp-env (port 9910) |
 | `pnpm env:stop` | Stop wp-env |
+
+## Design System
+
+The theme uses `theme.json` as the single source of truth for user-configurable design decisions. WordPress exposes those values as preset and custom CSS variables, while `src/styles/base/tokens.css` provides a thin `--aa-*` alias layer for readable component CSS.
+
+### Token Contract
+
+| Layer | Owns | Use |
+|-------|------|-----|
+| `theme.json` | Palette, spacing, typography, motion, radius, shadows, z-index, density, status, commerce states | Source of truth and Site Editor configuration |
+| `src/styles/base/tokens.css` | `--aa-*` aliases and safe runtime defaults | Component-facing token API |
+| Feature CSS | Component layout and state composition | Use tokens; avoid raw values unless truly local |
+| Build output | Minified compiled assets in `build/styles` | Generated; do not edit directly |
+
+Rules:
+
+- In `theme.json`, use `var:preset|...`, `--wp--preset--...`, or `--wp--custom--...`; do not depend on `--aa-*`.
+- In CSS, prefer `--aa-*` aliases for theme primitives and component state.
+- Runtime variables such as measured scrollbar width, sticky cart height, ticker copies, navigation indicators, and parallax transforms must have safe defaults before JavaScript overrides them.
+- New spacing, color, font, radius, shadow, or commerce-state values should be added to `theme.json` first, then exposed through `tokens.css` only if component CSS needs a shorter alias.
+
+### Token Verification
+
+After token changes, run:
+
+```bash
+pnpm run lint:css
+pnpm run build:assets
+pnpm run build:interactivity
+```
+
+The design-system checks guard against hardcoded feature colors, unregistered block styles, raw CTA recipes, and non-BEM theme classes. A healthy token graph has no undefined custom-property references in source or build output, and `build/styles/base/tokens.css` should contain the same token definitions as `src/styles/base/tokens.css` after minification.
+
+More detail lives in [`docs/design-system.md`](docs/design-system.md).
 
 ## Architecture
 

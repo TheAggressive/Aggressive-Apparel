@@ -1,3 +1,11 @@
+## [1.79.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.1...v1.79.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* 1.79.1 [skip ci] ([2dd8f2d](https://github.com/TheAggressive/Aggressive-Apparel/commit/2dd8f2d919c85b6039eba28a0b9919e000bf1226))
+* update README to reflect enhancements in version 1.79.1 ([ba48b37](https://github.com/TheAggressive/Aggressive-Apparel/commit/ba48b37197f932d9dd8e8852fa7ede3e83783bce))
+
 ## [1.79.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.0...v1.79.1) (2026-06-01)
 
 

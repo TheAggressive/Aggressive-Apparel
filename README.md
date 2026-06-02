@@ -1,22 +1,22 @@
 # Aggressive Apparel
 
-Official WooCommerce Block Theme for [Aggressive Apparel](https://theaggressive.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, custom blocks, a shared design system, and WooCommerce-first patterns.
+Official WooCommerce Block Theme for [Aggressive Apparel](https://theaggressive.com) — a modern Full Site Editing (FSE) theme with 24 toggleable store enhancements, 20 custom block folders, a shared design system, and WooCommerce-first patterns.
 
 **Version:** 1.79.1 &middot; **Requires:** WordPress 6.0+ / PHP 8.0+ &middot; **License:** GPL-2.0-or-later
 
 ## Features
 
-- **Full Site Editing** — 13 templates, 36 block patterns, complete theme.json configuration
+- **Full Site Editing** — 13 templates, 68 block patterns, complete theme.json configuration
 - **WooCommerce Integration** — product gallery, color swatches, custom templates for shop/cart/checkout
 - **Design System Tokens** — `theme.json` source tokens with a compiled `--aa-*` alias layer
 - **24 Store Enhancements** — premium features behind toggle flags, zero overhead when disabled
-- **11 Custom Blocks** — 7 interactive (Interactivity API) + 4 static Gutenberg blocks
+- **20 Custom Block Folders** — 16 Interactivity API block folders + 4 static Gutenberg blocks
 - **Interactivity API** — client-side reactivity without a JavaScript framework
 - **Automatic Updates** — GitHub release-based update system with ETag caching
 - **Accessible** — WCAG 2.2 AA compliant, 44px touch targets, `prefers-reduced-motion` support
 - **Secure** — security headers, nonce verification, output escaping, capability checks
 - **Performance** — deferred scripts, conditional asset loading, Speculation Rules API prefetch
-- **106 PHPUnit Tests** — unit, integration, security, accessibility, and performance suites
+- **PHPUnit Test Suites** — unit, integration, security, accessibility, and performance coverage
 
 ## Store Enhancements
 
@@ -126,7 +126,6 @@ More detail lives in [`docs/design-system.md`](docs/design-system.md).
 
 ```
 aggressive-apparel/
-├── assets/interactivity/        # Interactivity API JS modules (19 files)
 ├── build/                       # Compiled output (gitignored)
 ├── includes/                    # PHP classes (PSR-4 autoloaded)
 │   ├── class-bootstrap.php      # Main orchestrator (singleton)
@@ -135,16 +134,17 @@ aggressive-apparel/
 │   ├── Assets/                  # Script/style loaders (3 classes)
 │   ├── Blocks/                  # Block registration
 │   ├── Core/                    # Theme supports, icons, updates (7 classes)
-│   └── WooCommerce/             # Store features (42 classes)
+│   └── WooCommerce/             # Store features and WooCommerce integrations
 ├── parts/                       # Template parts (header, footer)
-├── patterns/                    # Block patterns (36 patterns)
+├── patterns/                    # Block patterns (68 patterns)
 ├── src/                         # Source code
 │   ├── blocks/                  # Static Gutenberg blocks (4)
-│   ├── blocks-interactivity/    # Interactive blocks (7)
-│   ├── scripts/                 # Theme JS/TS
+│   ├── blocks-interactivity/    # Interactivity API blocks (16)
+│   ├── interactivity/           # Store enhancement frontend modules
+│   ├── scripts/                 # Admin, editor, shared, and main JS/TS
 │   └── styles/                  # Theme CSS (Tailwind v4 + PostCSS)
 ├── templates/                   # FSE templates (13)
-└── tests/                       # PHPUnit test suites (17 test files)
+└── tests/                       # PHPUnit test suites
 ```
 
 ### PHP Architecture
@@ -167,7 +167,7 @@ functions.php → Bootstrap (singleton)
 ### Custom Blocks
 
 **Interactive Blocks** (Interactivity API):
-`navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`
+`navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`, `modal`, `filter-toggle`, `product-color-swatches`, `wishlist`, and wishlist item/action child blocks
 
 **Static Blocks:**
 `aggressive-apparel-logo`, `dark-mode-toggle`, `menu-group`, `copyright`
@@ -197,15 +197,15 @@ Supports solid hex colors and image patterns with full keyboard navigation and s
 
 ## Testing
 
-106 tests across 5 suites, run inside wp-env (Docker-based WordPress):
+Tests run inside wp-env (Docker-based WordPress):
 
-| Suite | Files | What it covers |
-|-------|-------|----------------|
-| Unit | 9 | Bootstrap, assets, theme support, blocks, WC classes |
-| Integration | 3 | WooCommerce integration, block rendering |
-| Security | 1 | HTTP security headers |
-| Accessibility | 2 | ARIA attributes, keyboard navigation |
-| Performance | 2 | Load time, resource usage |
+| Suite | What it covers |
+|-------|----------------|
+| Unit | Bootstrap, assets, theme support, blocks, WC classes |
+| Integration | WooCommerce integration, block rendering |
+| Security | HTTP security headers |
+| Accessibility | ARIA attributes, keyboard navigation |
+| Performance | Load time, resource usage |
 
 **Tools:** PHPUnit 9.6, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint
 

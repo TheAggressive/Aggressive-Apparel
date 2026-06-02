@@ -35,8 +35,16 @@ import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
  * Uses !important to beat normal inline styles from WordPress core.
  */
 const ADAPTIVE_EDITOR_CSS = `
-.aa-has-adaptive-bg { background-color: var(--aa-adaptive-bg) !important; }
-.aa-has-adaptive-color { color: var(--aa-adaptive-color) !important; }
+.aa-has-adaptive-bg {
+  --aa-adaptive-bg: inherit;
+
+  background-color: var(--aa-adaptive-bg) !important;
+}
+.aa-has-adaptive-color {
+  --aa-adaptive-color: currentColor;
+
+  color: var(--aa-adaptive-color) !important;
+}
 `;
 
 /**

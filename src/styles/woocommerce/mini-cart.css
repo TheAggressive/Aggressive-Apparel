@@ -10,7 +10,7 @@
 
 /* Drawer container. */
 .wc-block-mini-cart__drawer {
-	font-family: var(--wp--preset--font-family--body, inherit);
+	font-family: var(--wp--preset--font-family--system-sans-serif, inherit);
 
 	.wc-block-mini-cart__title {
 		font-weight: 700;

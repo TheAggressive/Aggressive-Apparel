@@ -58,6 +58,7 @@
 /* Feature tokens — overlay/panel base styles live in components/overlay.css + panel.css. */
 .aggressive-apparel-quick-view {
 	--aa-overlay-opacity: 0.8;
+	--quick-view-animation-duration: var(--aa-duration-normal);
 	--quick-view-stock-in: var(--aa-color-success);
 	--quick-view-stock-low: var(--aa-color-warning);
 	--quick-view-stock-out: var(--aa-color-error);

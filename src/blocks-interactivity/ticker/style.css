@@ -13,6 +13,7 @@
 	--ticker-gap: 48px;
 	--ticker-direction: normal;
 	--ticker-fade-width: 64px;
+	--ticker-copies: 1;
 
 	position: relative;
 	overflow: hidden;

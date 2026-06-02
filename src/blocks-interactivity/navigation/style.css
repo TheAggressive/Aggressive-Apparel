@@ -46,6 +46,14 @@
   --aa-nav-focus-color: var(--aa-color-accent);
   --aa-nav-focus-width: 2px;
   --aa-nav-focus-offset: 2px;
+  --indicator-height: 3px;
+  --indicator-opacity: 0;
+  --indicator-radius: 1.5px;
+  --indicator-width: 0;
+  --indicator-x: 0;
+  --indicator-y: -3px;
+  --item-index: 0;
+  --push-panel-width: min(320px, 85vw);
 }
 
 /* Screen reader only text. */

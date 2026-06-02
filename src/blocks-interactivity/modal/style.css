@@ -39,6 +39,9 @@
  * ────────────────────────────────────────────── */
 
 .wp-block-aggressive-apparel-modal__trigger {
+	--aa-trigger-border: currentcolor;
+	--aa-trigger-hover-border: currentcolor;
+
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;

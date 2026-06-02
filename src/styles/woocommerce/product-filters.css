@@ -562,7 +562,6 @@ button.aa-product-filters__color-swatch {
 	height: var(--pf-swatch-size);
 	border-radius: 50%;
 	border: none;
-	box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 	cursor: pointer;
 	padding: 0;
 	outline-offset: 2px;
@@ -576,9 +575,8 @@ button.aa-product-filters__color-swatch {
 	&.is-selected {
 		transform: scale(0.78);
 		box-shadow:
-			inset 0 0 0 1px var(--aa-color-border-input),
 			0 0 0 4px var(--pf-bg),
-			0 0 0 7px color-mix(in oklch, var(--swatch-color, var(--pf-muted)) 60%, var(--aa-color-foreground));
+			0 0 0 7px color-mix(in oklch, var(--swatch-color, var(--pf-muted)) 100%, var(--aa-color-foreground));
 	}
 
 	&:hover:not(.is-selected) {

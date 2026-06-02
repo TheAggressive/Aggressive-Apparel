@@ -5,6 +5,8 @@
  */
 
 .wp-block-aggressive-apparel-nav-submenu {
+  --panel-link-color: currentcolor;
+
   position: relative;
   display: flex;
   flex-direction: column;

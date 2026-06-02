@@ -9,6 +9,19 @@
 /* Parallax container base styles */
 .wp-block-aggressive-apparel-parallax,
 .aggressive-apparel-parallax {
+	--parallax-blur-x: 0;
+	--parallax-blur-y: 0;
+	--parallax-card-rotate-x: 0deg;
+	--parallax-card-rotate-y: 0deg;
+	--parallax-mouse-x: 0;
+	--parallax-mouse-y: 0;
+	--parallax-opacity: 1;
+	--parallax-scale: 1;
+	--parallax-transition-delay: 0s;
+	--parallax-translate-x: 0;
+	--parallax-translate-y: 0;
+	--parallax-z-index: auto;
+
 	position: relative;
 	overflow: visible;
 	min-height: 100px;

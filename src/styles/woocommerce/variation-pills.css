@@ -56,7 +56,7 @@
 	}
 
 	/* Hover ring — opacity fades over the stable base ring to avoid shadow interpolation flicker. */
-	&::after {
+	&:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch))::after {
 		content: "";
 		position: absolute;
 		inset: 0;
@@ -68,7 +68,7 @@
 		transition: opacity 0.2s ease;
 	}
 
-	&:hover::after {
+	&:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch)):hover::after {
 		opacity: 1;
 	}
 
@@ -97,6 +97,18 @@
 		&::after {
 			opacity: 0;
 		}
+	}
+
+	&.is-color-swatch,
+	&:has(.aggressive-apparel-color-swatch) {
+		box-shadow: none;
+	}
+
+	&.is-color-swatch::before,
+	&.is-color-swatch::after,
+	&:has(.aggressive-apparel-color-swatch)::before,
+	&:has(.aggressive-apparel-color-swatch)::after {
+		display: none;
 	}
 }
 

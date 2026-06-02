@@ -56,6 +56,9 @@
 	--aa-panel-width-xl: var(--wp--custom--size--panel-width--xl, 56.25rem);
 	--aa-panel-width-guide: var(--wp--custom--size--panel-width--guide, 46.25rem);
 	--aa-panel-width-drawer: var(--wp--custom--size--panel-width--drawer, 21.25rem);
+	--aa-bottom-nav-height: 0;
+	--aa-sticky-cart-height: 0;
+	--scrollbar-width: 0;
 
 	/* Border radius. */
 	--aa-radius-sm: var(--wp--custom--radius--sm, 0.25rem);
@@ -128,8 +131,8 @@
 	--aa-color-muted-40: color-mix(in oklch, var(--aa-color-foreground) 40%, transparent);
 	--aa-color-muted-50: color-mix(in oklch, var(--aa-color-foreground) 50%, transparent);
 	--aa-color-muted-55: color-mix(in oklch, var(--aa-color-foreground) 55%, transparent);
-	--aa-color-shadow: color-mix(in oklch, var(--aa-color-foreground) 15%, transparent);
-	--aa-color-shadow-strong: color-mix(in oklch, var(--aa-color-foreground) 30%, transparent);
+	--aa-color-shadow: var(--wp--custom--shadow--color, color-mix(in oklch, var(--aa-color-foreground) 15%, transparent));
+	--aa-color-shadow-strong: var(--wp--custom--shadow--color-strong, color-mix(in oklch, var(--aa-color-foreground) 30%, transparent));
 	--aa-color-surface-80: color-mix(in oklch, var(--aa-color-surface) 80%, transparent);
 	--aa-color-surface-90: color-mix(in oklch, var(--aa-color-surface) 90%, transparent);
 	--aa-color-skeleton-from: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
@@ -142,15 +145,15 @@
 	--aa-color-error: var(--wp--custom--status-colors--error, #dc2626);
 	--aa-color-info: var(--wp--custom--status-colors--info, #1d4ed8);
 	--aa-color-neutral-muted: var(--wp--custom--status-colors--neutral-muted, #6b7280);
-	--aa-color-success-bg: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
-	--aa-color-success-border: color-mix(in oklch, var(--aa-color-success) 30%, transparent);
-	--aa-color-warning-bg: color-mix(in oklch, var(--aa-color-warning) 12%, transparent);
-	--aa-color-warning-border: color-mix(in oklch, var(--aa-color-warning) 30%, transparent);
-	--aa-color-error-bg: color-mix(in oklch, var(--aa-color-error) 12%, transparent);
-	--aa-color-error-border: color-mix(in oklch, var(--aa-color-error) 30%, transparent);
-	--aa-color-info-bg: color-mix(in oklch, var(--aa-color-info) 12%, transparent);
-	--aa-color-info-border: color-mix(in oklch, var(--aa-color-info) 30%, transparent);
-	--aa-color-neutral-bg: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+	--aa-color-success-bg: var(--wp--custom--status-colors--success-background, color-mix(in oklch, var(--aa-color-success) 12%, transparent));
+	--aa-color-success-border: var(--wp--custom--status-colors--success-border, color-mix(in oklch, var(--aa-color-success) 30%, transparent));
+	--aa-color-warning-bg: var(--wp--custom--status-colors--warning-background, color-mix(in oklch, var(--aa-color-warning) 12%, transparent));
+	--aa-color-warning-border: var(--wp--custom--status-colors--warning-border, color-mix(in oklch, var(--aa-color-warning) 30%, transparent));
+	--aa-color-error-bg: var(--wp--custom--status-colors--error-background, color-mix(in oklch, var(--aa-color-error) 12%, transparent));
+	--aa-color-error-border: var(--wp--custom--status-colors--error-border, color-mix(in oklch, var(--aa-color-error) 30%, transparent));
+	--aa-color-info-bg: var(--wp--custom--status-colors--info-background, color-mix(in oklch, var(--aa-color-info) 12%, transparent));
+	--aa-color-info-border: var(--wp--custom--status-colors--info-border, color-mix(in oklch, var(--aa-color-info) 30%, transparent));
+	--aa-color-neutral-bg: var(--wp--custom--status-colors--neutral-background, color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface)));
 	--aa-commerce-sale: var(--wp--custom--commerce-state--sale--color, var(--aa-color-error));
 	--aa-commerce-sale-bg: var(--wp--custom--commerce-state--sale--background, var(--aa-color-error-bg));
 	--aa-commerce-sale-border: var(--wp--custom--commerce-state--sale--border, var(--aa-color-error-border));

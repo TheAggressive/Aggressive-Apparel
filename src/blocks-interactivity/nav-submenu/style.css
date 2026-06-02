@@ -14,6 +14,8 @@
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
   --submenu-transition: var(--aa-duration-fast) var(--aa-ease-default);
   --submenu-min-width: 200px;
+  --mega-panel-left: 0;
+  --mega-panel-width: 0;
 
   position: relative;
   display: flex;

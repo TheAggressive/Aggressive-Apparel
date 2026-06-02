@@ -1,3 +1,10 @@
+# [1.80.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.2...v1.80.0) (2026-06-02)
+
+
+### Features
+
+* add wishlist support and enhance asset loading ([11e6f43](https://github.com/TheAggressive/Aggressive-Apparel/commit/11e6f43b274b7aad12402c7b57080b8f85652ffa))
+
 ## [1.79.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.1...v1.79.2) (2026-06-02)
 
 

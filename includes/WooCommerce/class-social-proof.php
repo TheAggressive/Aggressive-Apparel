@@ -96,7 +96,7 @@ class Social_Proof {
 			wp_enqueue_style(
 				'aggressive-apparel-social-proof',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/social-proof.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

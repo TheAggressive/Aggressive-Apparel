@@ -51,7 +51,7 @@ class Load_More {
 			wp_enqueue_style(
 				'aggressive-apparel-load-more',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/load-more.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

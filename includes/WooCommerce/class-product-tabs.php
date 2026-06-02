@@ -81,7 +81,7 @@ class Product_Tabs {
 			wp_enqueue_style(
 				'aggressive-apparel-product-tabs',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-tabs.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

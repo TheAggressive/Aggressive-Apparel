@@ -32,6 +32,8 @@ class Styles {
 	 * @return void
 	 */
 	public function init() {
+		add_action( 'wp_enqueue_scripts', array( Asset_Loader::class, 'enqueue_tokens' ), 0 );
+		add_action( 'enqueue_block_assets', array( Asset_Loader::class, 'enqueue_tokens' ), 0 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ), 10 );
 	}
@@ -42,6 +44,7 @@ class Styles {
 	 * @return void
 	 */
 	private function enqueue_core_styles(): void {
+		Asset_Loader::enqueue_tokens();
 		Asset_Loader::enqueue_style( 'aggressive-apparel-main', 'build/styles/main' );
 	}
 

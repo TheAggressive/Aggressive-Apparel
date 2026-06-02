@@ -374,6 +374,11 @@
           "guide": "46.25rem",
           "drawer": "21.25rem"
         },
+        "wishlist": {
+          "columns": 3,
+          "mobileColumns": 1,
+          "gap": "var(--wp--preset--spacing--6)"
+        },
         "inputHeight": "2.75rem"
       },
       "radius": {

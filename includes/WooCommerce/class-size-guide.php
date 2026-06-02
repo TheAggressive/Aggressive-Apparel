@@ -122,7 +122,7 @@ class Size_Guide {
 			wp_enqueue_style(
 				'aggressive-apparel-size-guide',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/size-guide.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

@@ -54,7 +54,7 @@ class Mobile_Bottom_Nav {
 			wp_enqueue_style(
 				'aggressive-apparel-mobile-bottom-nav',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/mobile-bottom-nav.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

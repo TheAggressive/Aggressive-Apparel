@@ -56,6 +56,9 @@
 	--aa-panel-width-xl: var(--wp--custom--size--panel-width--xl, 56.25rem);
 	--aa-panel-width-guide: var(--wp--custom--size--panel-width--guide, 46.25rem);
 	--aa-panel-width-drawer: var(--wp--custom--size--panel-width--drawer, 21.25rem);
+	--aa-wl-columns: var(--wp--custom--size--wishlist--columns, 3);
+	--aa-wl-columns-mobile: var(--wp--custom--size--wishlist--mobile-columns, 1);
+	--aa-wl-gap: var(--wp--custom--size--wishlist--gap, var(--wp--preset--spacing--6));
 	--aa-bottom-nav-height: 0;
 	--aa-sticky-cart-height: 0;
 	--scrollbar-width: 0;

@@ -49,7 +49,7 @@ class Mini_Cart_Enhancements {
 		wp_enqueue_style(
 			'aggressive-apparel-mini-cart',
 			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/mini-cart.css',
-			array(),
+			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 			(string) filemtime( $css_file ),
 		);
 	}

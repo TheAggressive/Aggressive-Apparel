@@ -138,6 +138,7 @@ class Bootstrap {
 		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
 		$this->container->register( 'theme_updates', fn() => Core\Theme_Updates::get_instance() );
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
+		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
@@ -199,6 +200,7 @@ class Bootstrap {
 		$this->container->get( 'content_width' )->init();
 		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates.
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
+		$this->container->get( 'adaptive_colors' )->init();
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

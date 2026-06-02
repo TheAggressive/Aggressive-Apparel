@@ -62,7 +62,7 @@ class Swatch_Tooltips {
 		wp_enqueue_style(
 			'aggressive-apparel-swatch-tooltips',
 			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/swatch-tooltips.css',
-			array(),
+			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 			(string) filemtime( $css_file ),
 		);
 	}

@@ -28,6 +28,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Asset_Loader {
 
 	/**
+	 * Global token stylesheet handle.
+	 *
+	 * @var string
+	 */
+	public const TOKENS_HANDLE = 'aggressive-apparel-tokens';
+
+	/**
 	 * Get asset data from .asset.php file
 	 *
 	 * @param string $asset_path Path to asset file (without extension).
@@ -109,6 +116,10 @@ class Asset_Loader {
 		$asset_data   = self::get_asset_data( $src );
 		$dependencies = array_merge( $asset_data['dependencies'], $additional_deps );
 
+		if ( self::should_depend_on_tokens( $handle, $src ) && ! in_array( self::TOKENS_HANDLE, $dependencies, true ) ) {
+			$dependencies[] = self::TOKENS_HANDLE;
+		}
+
 		wp_enqueue_style(
 			$handle,
 			aggressive_apparel_asset_uri( $resolved_src . '.css' ),
@@ -116,6 +127,39 @@ class Asset_Loader {
 			$asset_data['version'],
 			$media
 		);
+	}
+
+	/**
+	 * Enqueue the design token alias layer.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tokens(): void {
+		$src          = 'build/styles/base/tokens';
+		$resolved_src = ( function_exists( 'is_rtl' ) && is_rtl() )
+			? self::resolve_rtl( $src )
+			: $src;
+		$asset_data   = self::get_asset_data( $src );
+
+		wp_enqueue_style(
+			self::TOKENS_HANDLE,
+			aggressive_apparel_asset_uri( $resolved_src . '.css' ),
+			$asset_data['dependencies'],
+			$asset_data['version']
+		);
+	}
+
+	/**
+	 * Determine whether a style should depend on the global token layer.
+	 *
+	 * @param string $handle Style handle.
+	 * @param string $src    Path to style file relative to theme root.
+	 * @return bool
+	 */
+	private static function should_depend_on_tokens( string $handle, string $src ): bool {
+		return self::TOKENS_HANDLE !== $handle
+			&& 'build/styles/base/tokens' !== $src
+			&& str_starts_with( $src, 'build/styles/' );
 	}
 
 	/**

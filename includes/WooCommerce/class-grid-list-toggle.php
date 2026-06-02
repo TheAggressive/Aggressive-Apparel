@@ -51,7 +51,7 @@ class Grid_List_Toggle {
 			wp_enqueue_style(
 				'aggressive-apparel-grid-list-toggle',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/grid-list-toggle.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

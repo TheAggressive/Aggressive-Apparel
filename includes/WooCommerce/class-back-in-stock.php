@@ -83,7 +83,7 @@ class Back_In_Stock {
 			wp_enqueue_style(
 				'aggressive-apparel-back-in-stock',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/back-in-stock.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

@@ -157,11 +157,6 @@ class Enhancements {
 			}
 		}
 
-		// Experimental features.
-		if ( Feature_Settings::is_enabled( 'adaptive_colors' ) ) {
-			( new \Aggressive_Apparel\Core\Adaptive_Colors() )->init();
-		}
-
 		// Bridges PHP-only card enhancements (badges, page transitions,
 		// countdown timer) onto AJAX-rendered cards via a Store API
 		// extension. Loaded whenever any contributing feature is on.

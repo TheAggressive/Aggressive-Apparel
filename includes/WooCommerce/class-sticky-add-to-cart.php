@@ -51,7 +51,7 @@ class Sticky_Add_To_Cart {
 			wp_enqueue_style(
 				'aggressive-apparel-option-pills',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/option-pills.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $pills_css ),
 			);
 		}

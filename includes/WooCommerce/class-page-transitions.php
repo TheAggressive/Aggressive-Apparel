@@ -67,7 +67,7 @@ class Page_Transitions {
 			wp_enqueue_style(
 				'aggressive-apparel-page-transitions',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/page-transitions.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

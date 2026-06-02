@@ -121,7 +121,7 @@ class Product_Badges {
 		wp_enqueue_style(
 			'aggressive-apparel-product-badges',
 			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-badges.css',
-			array(),
+			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 			(string) filemtime( $css_file ),
 		);
 	}

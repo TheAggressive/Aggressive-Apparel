@@ -55,7 +55,7 @@ class Countdown_Timer {
 			wp_enqueue_style(
 				'aggressive-apparel-countdown-timer',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/countdown-timer.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

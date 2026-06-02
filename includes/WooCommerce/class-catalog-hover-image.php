@@ -53,7 +53,7 @@ class Catalog_Hover_Image {
 			wp_enqueue_style(
 				'aggressive-apparel-catalog-hover-image',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/catalog-hover-image.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 

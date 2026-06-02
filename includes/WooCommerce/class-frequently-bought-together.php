@@ -60,7 +60,7 @@ class Frequently_Bought_Together {
 			wp_enqueue_style(
 				'aggressive-apparel-fbt',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/frequently-bought-together.css',
-				array(),
+				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
 				(string) filemtime( $css_file ),
 			);
 		}

@@ -1,3 +1,10 @@
+## [1.80.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.0...v1.80.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* remove box-shadow from option pills for cleaner design ([24dc2ea](https://github.com/TheAggressive/Aggressive-Apparel/commit/24dc2ea99136cf0307e6d75414c494515a278672))
+
 # [1.80.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.79.2...v1.80.0) (2026-06-02)
 
 

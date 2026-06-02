@@ -1,3 +1,10 @@
+## [1.80.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.1...v1.80.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* improve hover effects and transitions in option pills ([c483416](https://github.com/TheAggressive/Aggressive-Apparel/commit/c483416b732b9e7901c51413817fb1bffa3a9d3c))
+
 ## [1.80.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.0...v1.80.1) (2026-06-02)
 
 

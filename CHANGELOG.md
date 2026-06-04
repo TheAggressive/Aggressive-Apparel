@@ -1,3 +1,10 @@
+# [1.81.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.2...v1.81.0) (2026-06-04)
+
+
+### Features
+
+* enhance product tabs with custom layouts and admin styles ([b4d140f](https://github.com/TheAggressive/Aggressive-Apparel/commit/b4d140fa322448d027160c71b972829767d36877))
+
 ## [1.80.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.1...v1.80.2) (2026-06-02)
 
 

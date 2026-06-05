@@ -1,3 +1,10 @@
+# [1.82.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.81.0...v1.82.0) (2026-06-05)
+
+
+### Features
+
+* enhance product tabs and asset management ([5fbfae5](https://github.com/TheAggressive/Aggressive-Apparel/commit/5fbfae5b10a17c867f4b1e13fabdc0bc289fe372))
+
 # [1.81.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.80.2...v1.81.0) (2026-06-04)
 
 

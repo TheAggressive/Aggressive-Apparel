@@ -52,51 +52,6 @@ function aggressive_apparel_encode_nav_context( array $context ): string {
 }
 
 /**
- * Get navigation ID from block context or global fallback.
- *
- * Child blocks need access to the parent navigation's ID for state sharing.
- * This function checks block context first, then falls back to the global
- * runtime ID set by the parent navigation block.
- *
- * @param WP_Block $block The block instance.
- * @return string The navigation ID.
- */
-function aggressive_apparel_get_nav_id_from_context( WP_Block $block ): string {
-	global $aggressive_apparel_current_nav_id;
-
-	// Try block context first (for saved navId attribute).
-	$nav_id = $block->context['aggressive-apparel/navigationId'] ?? '';
-
-	// Fall back to global runtime navId from parent navigation.
-	if ( empty( $nav_id ) && ! empty( $aggressive_apparel_current_nav_id ) ) {
-		$nav_id = $aggressive_apparel_current_nav_id;
-	}
-
-	return $nav_id;
-}
-
-/**
- * Get navigation breakpoint from block context or global fallback.
- *
- * @param WP_Block $block         The block instance.
- * @param int      $default_value Default breakpoint if not found.
- * @return int The breakpoint in pixels.
- */
-function aggressive_apparel_get_nav_breakpoint_from_context( WP_Block $block, int $default_value = 1024 ): int {
-	global $aggressive_apparel_current_nav_breakpoint;
-
-	// Try block context first.
-	$breakpoint = $block->context['aggressive-apparel/navigationBreakpoint'] ?? null;
-
-	// Fall back to global runtime breakpoint.
-	if ( null === $breakpoint && ! empty( $aggressive_apparel_current_nav_breakpoint ) ) {
-		$breakpoint = $aggressive_apparel_current_nav_breakpoint;
-	}
-
-	return (int) ( $breakpoint ?? $default_value );
-}
-
-/**
  * Build panel ID from navigation ID.
  *
  * @param string $nav_id The navigation instance ID.

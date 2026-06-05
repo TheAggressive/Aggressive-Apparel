@@ -48,33 +48,34 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation block global context propagation.
+     * Test navigation block exposes context for child blocks.
      */
-    public function test_navigation_block_sets_global_context(): void {
-        global $aggressive_apparel_current_nav_id, $aggressive_apparel_current_nav_breakpoint;
-
-        // Reset globals
-        $aggressive_apparel_current_nav_id = null;
-        $aggressive_apparel_current_nav_breakpoint = null;
-
-        render_block([
+    public function test_navigation_block_exposes_child_context(): void {
+        $block_content = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
-                'navId' => 'global-context-test',
+                'navId' => 'child-context-test',
                 'breakpoint' => 768,
+                'openOn' => 'click',
             ],
         ]);
 
-        $this->assertEquals(
-            'global-context-test',
-            $aggressive_apparel_current_nav_id,
-            'Global nav ID should be set after rendering'
+        $this->assertStringContainsString(
+            '&quot;navId&quot;:&quot;child-context-test&quot;',
+            $block_content,
+            'Navigation context should include navId for child blocks'
         );
 
-        $this->assertEquals(
-            768,
-            $aggressive_apparel_current_nav_breakpoint,
-            'Global breakpoint should be set after rendering'
+        $this->assertStringContainsString(
+            '&quot;breakpoint&quot;:768',
+            $block_content,
+            'Navigation context should include breakpoint for child blocks'
+        );
+
+        $this->assertStringContainsString(
+            '&quot;openOn&quot;:&quot;click&quot;',
+            $block_content,
+            'Navigation context should include openOn for child blocks'
         );
     }
 

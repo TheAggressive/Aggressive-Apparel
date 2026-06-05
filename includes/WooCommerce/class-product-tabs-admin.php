@@ -590,8 +590,8 @@ class Product_Tabs_Admin {
 		$content_name  = sprintf( '%s[%d][content]', $name_prefix, $index );
 		$source        = (string) ( $tab['source'] ?? 'manual' );
 		$layout        = (string) ( $tab['layout'] ?? 'rich_text' );
-		$sources       = $this->get_tab_source_labels();
-		$layouts       = $this->get_tab_layout_labels();
+		$sources       = Product_Tabs_Config::get_tab_source_labels();
+		$layouts       = Product_Tabs_Config::get_tab_layout_labels();
 		$title         = '' !== (string) ( $tab['title'] ?? '' ) ? (string) $tab['title'] : __( 'Untitled tab', 'aggressive-apparel' );
 		$is_enabled    = ! empty( $tab['enabled'] );
 
@@ -649,24 +649,6 @@ class Product_Tabs_Admin {
 				$this->render_custom_tab_preview();
 				echo '</div>';
 				echo '</div>';
-	}
-
-	/**
-	 * Get custom tab source labels.
-	 *
-	 * @return array<string, string> Source key => label.
-	 */
-	public function get_tab_source_labels(): array {
-		return Product_Tabs_Config::get_tab_source_labels();
-	}
-
-	/**
-	 * Get custom tab layout labels.
-	 *
-	 * @return array<string, string> Layout key => label.
-	 */
-	public function get_tab_layout_labels(): array {
-		return Product_Tabs_Config::get_tab_layout_labels();
 	}
 
 	/**
@@ -859,8 +841,8 @@ class Product_Tabs_Admin {
 	public function get_script_localization_data(): array {
 		return array(
 			'layoutHelp' => Product_Tabs_Config::get_tab_layout_help(),
-			'layouts'    => $this->get_tab_layout_labels(),
-			'sources'    => $this->get_tab_source_labels(),
+			'layouts'    => Product_Tabs_Config::get_tab_layout_labels(),
+			'sources'    => Product_Tabs_Config::get_tab_source_labels(),
 			'templates'  => Product_Tabs_Config::get_tab_templates(),
 			'strings'    => array(
 				'productDetails'       => __( 'Product Details', 'aggressive-apparel' ),

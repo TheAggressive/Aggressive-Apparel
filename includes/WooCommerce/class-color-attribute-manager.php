@@ -49,11 +49,6 @@ class Color_Attribute_Manager {
 	 *
 	 * @var Color_Admin_UI
 	 */
-	/**
-	 * Color Admin UI instance
-	 *
-	 * @var Color_Admin_UI
-	 */
 	private Color_Admin_UI $admin_ui;
 
 	/**
@@ -65,10 +60,12 @@ class Color_Attribute_Manager {
 
 	/**
 	 * Constructor
+	 *
+	 * @param Color_Pattern_Admin $pattern_admin Shared pattern admin service.
 	 */
-	public function __construct() {
+	public function __construct( Color_Pattern_Admin $pattern_admin ) {
 		$this->data_manager  = new Color_Data_Manager();
-		$this->pattern_admin = new Color_Pattern_Admin();
+		$this->pattern_admin = $pattern_admin;
 		$this->admin_ui      = new Color_Admin_UI( $this->pattern_admin );
 	}
 
@@ -90,6 +87,8 @@ class Color_Attribute_Manager {
 		add_action( 'init', array( $this, 'ensure_color_attribute_exists' ), 10 );
 		add_action( 'init', array( $this, 'add_default_color_terms' ), 15 );
 		add_filter( 'woocommerce_attribute_taxonomies', array( $this, 'register_color_attribute' ), 10, 1 );
+
+		$this->pattern_admin->register_hooks();
 
 		// Initialize admin UI.
 		$this->admin_ui->register_hooks();

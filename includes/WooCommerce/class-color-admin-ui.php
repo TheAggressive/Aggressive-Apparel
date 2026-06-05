@@ -103,21 +103,6 @@ class Color_Admin_UI {
 			<label><?php esc_html_e( 'Pattern Image', 'aggressive-apparel' ); ?></label>
 			<?php $this->pattern_admin->render_pattern_upload_ui(); ?>
 		</div>
-
-		<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			$('.color-type-radio').on('change', function() {
-				var selectedType = $(this).val();
-				if (selectedType === 'solid') {
-					$('.color-field-solid').removeAttr('style');
-					$('.color-field-pattern').attr('style', 'display: none;');
-				} else if (selectedType === 'pattern') {
-					$('.color-field-solid').attr('style', 'display: none;');
-					$('.color-field-pattern').removeAttr('style');
-				}
-			});
-		});
-		</script>
 		<?php
 	}
 
@@ -183,21 +168,6 @@ class Color_Admin_UI {
 				<?php $this->pattern_admin->render_pattern_upload_ui( $term->term_id ); ?>
 			</td>
 		</tr>
-
-		<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			$('.color-type-radio').on('change', function() {
-				var selectedType = $(this).val();
-				if (selectedType === 'solid') {
-					$('.color-field-solid').removeAttr('style');
-					$('.color-field-pattern').attr('style', 'display: none;');
-				} else if (selectedType === 'pattern') {
-					$('.color-field-solid').attr('style', 'display: none;');
-					$('.color-field-pattern').removeAttr('style');
-				}
-			});
-		});
-		</script>
 		<?php
 	}
 

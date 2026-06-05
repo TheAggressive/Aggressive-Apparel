@@ -9,31 +9,9 @@
  * the import map emitted in <head>.
  */
 
-import fg from 'fast-glob';
 import path from 'path';
 import wpConfig from '@wordpress/scripts/config/webpack.config.js';
-
-function toPosix(p) {
-  return p.split('\\').join('/');
-}
-
-function buildEntries() {
-  const cwd = process.cwd();
-  const entries = {};
-
-  const files = fg.sync('src/interactivity/*.{js,ts}', { cwd });
-  files.forEach(file => {
-    const name = toPosix(
-      path.relative(
-        path.join(cwd, 'src/interactivity'),
-        path.join(cwd, file)
-      )
-    ).replace(/\.(js|ts)$/i, '');
-    entries[name] = path.resolve(cwd, file);
-  });
-
-  return entries;
-}
+import { getInteractivityModuleEntries } from './bin/lib/build-manifest.mjs';
 
 export default (env = {}, argv = {}) => {
   const base = typeof wpConfig === 'function' ? wpConfig(env, argv) : wpConfig;
@@ -44,7 +22,7 @@ export default (env = {}, argv = {}) => {
   return {
     ...template,
     name: 'modules',
-    entry: buildEntries(),
+    entry: getInteractivityModuleEntries(),
     output: {
       path: path.resolve(process.cwd(), 'build/interactivity'),
       filename: '[name].js',

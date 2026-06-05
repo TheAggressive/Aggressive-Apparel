@@ -9,6 +9,7 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use WP_UnitTestCase;
 use Aggressive_Apparel\WooCommerce\Color_Attribute_Manager;
+use Aggressive_Apparel\WooCommerce\Color_Pattern_Admin;
 use ReflectionClass;
 
 /**
@@ -33,7 +34,7 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 			define( 'WC_VERSION', '8.0.0' );
 		}
 
-		$this->color_manager = new Color_Attribute_Manager();
+		$this->color_manager = new Color_Attribute_Manager( new Color_Pattern_Admin() );
 		$this->color_manager->init();
 	}
 

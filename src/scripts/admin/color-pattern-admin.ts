@@ -399,7 +399,44 @@ class AggressiveApparelColorPatternAdmin {
   }
 }
 
+function initColorTypeToggle(): void {
+  const toggleFields = (selectedType: string): void => {
+    const solidFields =
+      document.querySelectorAll<HTMLElement>('.color-field-solid');
+    const patternFields = document.querySelectorAll<HTMLElement>(
+      '.color-field-pattern'
+    );
+
+    solidFields.forEach(field => {
+      if (selectedType === 'solid') {
+        field.removeAttribute('style');
+      } else {
+        field.style.display = 'none';
+      }
+    });
+
+    patternFields.forEach(field => {
+      if (selectedType === 'pattern') {
+        field.removeAttribute('style');
+      } else {
+        field.style.display = 'none';
+      }
+    });
+  };
+
+  document
+    .querySelectorAll<HTMLInputElement>('.color-type-radio')
+    .forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          toggleFields(radio.value);
+        }
+      });
+    });
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   new AggressiveApparelColorPatternAdmin();
+  initColorTypeToggle();
 });

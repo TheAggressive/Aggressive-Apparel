@@ -97,18 +97,14 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 |-------|-------------|
 | `aggressive-apparel-logo` | Brand logo component |
 | `dark-mode-toggle` | Light/dark theme switcher |
-| `menu-group` | Menu item container |
+| `copyright` | Footer copyright line |
 
 **Interactive Blocks** (`src/blocks-interactivity/`):
 | Block | Description |
 |-------|-------------|
-| `navigation` | Main responsive navigation container |
-| `navigation-panel` | Mobile slide-out drawer |
-| `menu-toggle` | Hamburger button with animations |
-| `nav-menu` | Navigation menu container |
-| `nav-link` | Single navigation link |
-| `nav-submenu` | Dropdown/mega menu support |
-| `mega-menu-content` | Rich mega menu content area |
+| `navigation` | Responsive navigation (toggle, mobile panel, menu bar) |
+| `nav-link` | Single navigation link (child of navigation or nav-submenu) |
+| `nav-submenu` | Dropdown and mega menu support |
 | `parallax` | Advanced parallax effects |
 | `animate-on-scroll` | Scroll-triggered animations |
 
@@ -251,17 +247,14 @@ The theme includes a comprehensive color attribute system for product variations
 
 ## Navigation System
 
-The navigation blocks use WordPress Interactivity API with centralized state management:
+The navigation block is a single monolithic block. Mobile drawer, hamburger toggle, and desktop menu markup are rendered inside `navigation/render.php`. Child blocks `nav-link` and `nav-submenu` receive parent context via block context (`aggressive-apparel/navigationId`, etc.).
 
 ```
-navigation/                 # Main container
+navigation/                 # Main container + toggle + mobile panel
 ├── store.ts               # Interactivity state (open/close, focus)
-├── navigation-panel/      # Mobile drawer
-├── menu-toggle/           # Hamburger button
-├── nav-menu/              # Menu container
+├── render.php             # Server render (absorbed panel/toggle markup)
 ├── nav-link/              # Single links
-├── nav-submenu/           # Dropdowns
-└── mega-menu-content/     # Mega menu areas
+└── nav-submenu/           # Dropdowns and mega menus
 ```
 
 **Key Attributes:**
@@ -354,10 +347,8 @@ AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ## Helper Functions
 
 ```php
-aggressive_apparel_theme()              // Get Bootstrap instance
 aggressive_apparel_asset_uri($path)     // Get asset URL
 aggressive_apparel_asset_path($path)    // Get asset file path
-aggressive_apparel_is_woocommerce_active() // Check WooCommerce status
 ```
 
 ## Custom Image Sizes

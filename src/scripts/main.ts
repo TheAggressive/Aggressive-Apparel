@@ -1,5 +1,0 @@
-/**
- * Main Theme JavaScript
- *
- * @package
- */

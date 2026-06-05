@@ -75,14 +75,4 @@ class Service_Container {
 		$this->instances[ $key ] = $instance;
 		return $instance;
 	}
-
-	/**
-	 * Check if service is registered
-	 *
-	 * @param string $key Service identifier.
-	 * @return bool True if registered.
-	 */
-	public function has( string $key ): bool {
-		return isset( $this->services[ $key ] );
-	}
 }

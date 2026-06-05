@@ -26,7 +26,7 @@ class TestScripts extends WP_UnitTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->scripts = new Scripts( '1.0.0' );
+		$this->scripts = new Scripts();
 		$this->scripts->init();
 	}
 

@@ -53,11 +53,6 @@ $indicator_color = $attributes['indicatorColor'] ?? '';
 
 $nav_id = ! empty( $attributes['navId'] ) ? $attributes['navId'] : wp_unique_id( 'nav-' );
 
-// Store globally for child blocks (nav-link, nav-submenu) that use context.
-global $aggressive_apparel_current_nav_id, $aggressive_apparel_current_nav_breakpoint;
-$aggressive_apparel_current_nav_id         = $nav_id;
-$aggressive_apparel_current_nav_breakpoint = $breakpoint;
-
 $panel_id  = aggressive_apparel_get_panel_id( $nav_id );
 $toggle_id = aggressive_apparel_get_toggle_id( $nav_id );
 

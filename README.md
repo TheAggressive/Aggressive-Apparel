@@ -170,7 +170,7 @@ functions.php → Bootstrap (singleton)
 `navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`, `modal`, `filter-toggle`, `product-color-swatches`, `wishlist`, and wishlist item/action child blocks
 
 **Static Blocks:**
-`aggressive-apparel-logo`, `dark-mode-toggle`, `menu-group`, `copyright`
+`aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`
 
 ### Icon System
 
@@ -242,10 +242,8 @@ AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ### Helper Functions
 
 ```php
-aggressive_apparel_theme()                 // Bootstrap instance
 aggressive_apparel_asset_uri($path)        // Asset URL
 aggressive_apparel_asset_path($path)       // Asset file path
-aggressive_apparel_is_woocommerce_active() // WooCommerce check
 ```
 
 ### Security Headers

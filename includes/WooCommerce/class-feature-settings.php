@@ -445,26 +445,41 @@ class Feature_Settings {
 		);
 
 		if ( $hook ) {
-			add_action( 'admin_print_styles-' . $hook, array( $this, 'enqueue_admin_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		}
 	}
 
 	/**
-	 * Enqueue admin styles for the settings page.
+	 * Enqueue admin assets for the settings page.
 	 *
+	 * @param string $hook_suffix Current admin page hook suffix.
 	 * @return void
 	 */
-	public function enqueue_admin_styles(): void {
+	public function enqueue_admin_assets( string $hook_suffix = '' ): void {
+		if ( 'appearance_page_' . self::PAGE_SLUG !== $hook_suffix ) {
+			return;
+		}
 		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/store-enhancements-admin.css';
-		if ( ! file_exists( $css_file ) ) {
+		if ( file_exists( $css_file ) ) {
+			wp_enqueue_style(
+				'aggressive-apparel-store-enhancements-admin',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/admin/store-enhancements-admin.css',
+				array(),
+				(string) filemtime( $css_file ),
+			);
+		}
+
+		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/scripts/admin/store-enhancements-admin.js';
+		if ( ! file_exists( $js_file ) ) {
 			return;
 		}
 
-		wp_enqueue_style(
+		wp_enqueue_script(
 			'aggressive-apparel-store-enhancements-admin',
-			AGGRESSIVE_APPAREL_URI . '/build/styles/admin/store-enhancements-admin.css',
+			AGGRESSIVE_APPAREL_URI . '/build/scripts/admin/store-enhancements-admin.js',
 			array(),
-			(string) filemtime( $css_file ),
+			(string) filemtime( $js_file ),
+			true
 		);
 	}
 
@@ -905,51 +920,7 @@ class Feature_Settings {
 
 		echo '</form>';
 
-		// Inline tab-switching script.
-		$this->render_tab_script();
-
 		echo '</div>';
-	}
-
-	/**
-	 * Render inline JavaScript for tab switching.
-	 *
-	 * @return void
-	 */
-	private function render_tab_script(): void {
-		?>
-		<script>
-		(function() {
-			var KEY = 'aa_features_tab';
-			var tabs = document.querySelectorAll('.aa-features-tabs .nav-tab');
-			var panels = document.querySelectorAll('.aa-features-tab-panel');
-
-			function activate(id) {
-				tabs.forEach(function(t) {
-					t.classList.toggle('nav-tab-active', t.dataset.tab === id);
-				});
-				panels.forEach(function(p) {
-					p.hidden = p.id !== 'tab-' + id;
-				});
-				try { localStorage.setItem(KEY, id); } catch(e) {}
-			}
-
-			tabs.forEach(function(t) {
-				t.addEventListener('click', function(e) {
-					e.preventDefault();
-					activate(t.dataset.tab);
-				});
-			});
-
-			try {
-				var saved = localStorage.getItem(KEY);
-				if (saved && document.getElementById('tab-' + saved)) {
-					activate(saved);
-				}
-			} catch(e) {}
-		})();
-		</script>
-		<?php
 	}
 
 	/**

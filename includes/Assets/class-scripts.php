@@ -41,11 +41,16 @@ class Scripts {
 	 * @return void
 	 */
 	public function enqueue_scripts() {
-		// Main theme script.
-		Asset_Loader::enqueue_script(
+		wp_register_script(
 			'aggressive-apparel-main',
-			'build/scripts/main'
+			false,
+			array(),
+			AGGRESSIVE_APPAREL_VERSION,
+			array(
+				'in_footer' => true,
+			)
 		);
+		wp_enqueue_script( 'aggressive-apparel-main' );
 
 		// Localize script data.
 		wp_localize_script(

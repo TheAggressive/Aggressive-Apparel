@@ -154,7 +154,7 @@ class Bootstrap {
 			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
 
 			// Register color attribute services.
-			$this->container->register( 'color_attributes', fn() => new WooCommerce\Color_Attribute_Manager() );
+			$this->container->register( 'color_attributes', fn( Service_Container $container ) => new WooCommerce\Color_Attribute_Manager( $container->get( 'color_pattern_admin' ) ) );
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
@@ -236,7 +236,6 @@ class Bootstrap {
 		$this->container->get( 'wc_templates' )->init();
 		$this->container->get( 'color_attributes' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();
-		$this->container->get( 'color_pattern_admin' )->register_hooks();
 		$this->container->get( 'size_option_sorter' )->init();
 		$this->container->get( 'variation_pill_enhancer' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();

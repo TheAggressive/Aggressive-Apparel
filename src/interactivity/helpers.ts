@@ -232,26 +232,17 @@ function readWishlistIds(): number[] {
 /**
  * Build the Wishlist heart toggle HTML for a product.
  *
- * Matches the markup emitted by `Wishlist::inject_heart_icon()`.
- * Wishlist clicks on dynamically inserted hearts are handled by a
- * document-level delegate registered in `wishlist.ts`. The initial
- * `is-active` class is set here from localStorage so the heart
- * renders correctly on first paint.
+ * Matches the markup emitted by `Wishlist::get_heart_button_html()`.
+ * Clicks are handled by the document delegate in `wishlist.ts`.
  */
 export function buildWishlistHeartHtml(productId: number): string {
   const isActive = readWishlistIds().includes(productId);
-  const ctx = JSON.stringify({ productId, justAdded: false });
+  const ariaLabel = isActive ? 'Remove from wishlist' : 'Add to wishlist';
   return (
     `<button type="button" class="aggressive-apparel-wishlist__toggle${isActive ? ' is-active' : ''}" ` +
-    `data-wp-interactive="aggressive-apparel/wishlist" ` +
-    `data-wp-context='${escapeHtml(ctx)}' ` +
-    `data-wp-on--click="actions.toggle" ` +
-    `data-wp-class--is-active="state.isInWishlist" ` +
-    `data-wp-class--is-beating="context.justAdded" ` +
-    `data-wp-bind--aria-pressed="state.isInWishlist" ` +
     `data-aa-product-id="${productId}" ` +
     `aria-pressed="${isActive ? 'true' : 'false'}" ` +
-    `aria-label="Add to wishlist" title="Wishlist">${WISHLIST_HEART_SVG}</button>`
+    `aria-label="${ariaLabel}" title="Wishlist">${WISHLIST_HEART_SVG}</button>`
   );
 }
 

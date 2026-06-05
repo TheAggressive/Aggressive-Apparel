@@ -113,4 +113,18 @@ class TestWishlistPage extends WP_UnitTestCase {
 
 		$this->assertSame( get_permalink( $page_id ), $url );
 	}
+
+	/**
+	 * Heart toggle markup should use the unified document-delegate contract.
+	 *
+	 * @return void
+	 */
+	public function test_heart_button_html_uses_data_aa_product_id(): void {
+		$wishlist = new Wishlist();
+		$html     = $wishlist->get_heart_button_html( 42 );
+
+		$this->assertStringContainsString( 'data-aa-product-id="42"', $html );
+		$this->assertStringContainsString( 'aggressive-apparel-wishlist__toggle', $html );
+		$this->assertStringNotContainsString( 'data-wp-on--click', $html );
+	}
 }

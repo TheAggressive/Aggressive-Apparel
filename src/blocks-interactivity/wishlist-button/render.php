@@ -5,15 +5,13 @@
  * Emits an Add-to-Wishlist heart button bound to the current
  * product context (single product pages or items inside a
  * Query Loop / Product Collection). The button reuses the
- * existing `aggressive-apparel/wishlist` Interactivity API
- * store, so this block only needs to emit the right markup
- * — no separate view script module is required.
+ * shared wishlist script module. Clicks are handled by the document
+ * delegate in `wishlist.ts` — no separate view script module is required.
  *
  * Accessibility model:
  *   - `<button type="button">` so the trigger never accidentally
  *     submits a parent form (e.g. a single-product variation form).
- *   - `aria-pressed` is bound to the live `state.isInWishlist`
- *     state via the Interactivity API.
+ *   - `aria-pressed` is synced client-side after each toggle.
  *   - The accessible name is sourced from visible content (or a
  *     `screen-reader-text` span when the icon-only preset is used)
  *     so WCAG 2.5.3 "Label in Name" is satisfied for voice control.
@@ -67,24 +65,12 @@ $button_classes  = 'aggressive-apparel-wishlist__toggle';
 $button_classes .= $icon_only ? ' aggressive-apparel-wishlist__toggle--icon-only' : '';
 $button_classes .= 'large' === $size ? ' aggressive-apparel-wishlist__toggle--large' : '';
 
-$context = (string) wp_json_encode(
-	array(
-		'productId' => $product_id,
-		'justAdded' => false,
-	)
-);
-
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'                      => $button_classes,
-		'type'                       => 'button',
-		'data-wp-interactive'        => 'aggressive-apparel/wishlist',
-		'data-wp-context'            => $context,
-		'data-wp-on--click'          => 'actions.toggle',
-		'data-wp-class--is-active'   => 'state.isInWishlist',
-		'data-wp-class--is-beating'  => 'context.justAdded',
-		'data-wp-bind--aria-pressed' => 'state.isInWishlist',
-		'aria-pressed'               => 'false',
+		'class'              => $button_classes,
+		'type'               => 'button',
+		'data-aa-product-id' => (string) $product_id,
+		'aria-pressed'       => 'false',
 	)
 );
 

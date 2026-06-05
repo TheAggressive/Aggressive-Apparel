@@ -299,7 +299,13 @@ BLOCKS;
 			return $block_content;
 		}
 
-		if ( ! $this->is_wc_context() ) {
+		// Only product cards in loops/collections — skip blog posts and other CPTs.
+		if ( 'product' !== get_post_type() ) {
+			return $block_content;
+		}
+
+		// Single product pages use the summary hook / Wishlist Button block.
+		if ( function_exists( 'is_product' ) && is_product() ) {
 			return $block_content;
 		}
 
@@ -328,7 +334,7 @@ BLOCKS;
 			return $block_content;
 		}
 
-		$product_id = (int) get_the_ID();
+		$product_id = self::get_current_product_id();
 		if ( $product_id <= 0 ) {
 			return $block_content;
 		}
@@ -387,36 +393,31 @@ BLOCKS;
 	}
 
 	/**
-	 * Build heart button HTML with Interactivity API directives.
+	 * Build heart button HTML for the unified document-delegate contract.
 	 *
-	 * Public so the `aggressive-apparel/wishlist-button` block's render.php
-	 * could reuse it if desired; the block currently renders its own
-	 * markup so it can apply the editor's design controls (border, color,
-	 * spacing) via `get_block_wrapper_attributes()`.
+	 * Public so callers (auto-injection, AJAX helpers) share one markup shape.
+	 * Clicks are handled by `@aggressive-apparel/wishlist` — no IA click bindings.
 	 *
-	 * @param int  $product_id Product ID.
-	 * @param bool $large      Whether to use the large variant.
+	 * @param int    $product_id    Product ID.
+	 * @param bool   $large         Whether to use the large variant.
+	 * @param string $extra_classes Optional BEM modifier classes.
 	 * @return string
 	 */
-	public function get_heart_button_html( int $product_id, bool $large = false ): string {
+	public function get_heart_button_html( int $product_id, bool $large = false, string $extra_classes = '' ): string {
 		$class = 'aggressive-apparel-wishlist__toggle';
 		if ( $large ) {
 			$class .= ' aggressive-apparel-wishlist__toggle--large';
 		}
-
-		$context = (string) wp_json_encode(
-			array(
-				'productId' => $product_id,
-				'justAdded' => false,
-			)
-		);
+		if ( '' !== $extra_classes ) {
+			$class .= ' ' . $extra_classes;
+		}
 
 		return sprintf(
-			'<button type="button" class="%s" data-wp-interactive="aggressive-apparel/wishlist" data-wp-context=\'%s\' data-wp-on--click="actions.toggle" data-wp-class--is-active="state.isInWishlist" data-wp-class--is-beating="context.justAdded" data-wp-bind--aria-pressed="state.isInWishlist" aria-label="%s" title="%s">
+			'<button type="button" class="%1$s" data-aa-product-id="%2$d" aria-pressed="false" aria-label="%3$s" title="%4$s">
 				<svg class="aggressive-apparel-wishlist__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
 			</button>',
 			esc_attr( $class ),
-			esc_attr( $context ),
+			$product_id,
 			esc_attr__( 'Add to wishlist', 'aggressive-apparel' ),
 			esc_attr__( 'Wishlist', 'aggressive-apparel' ),
 		);
@@ -536,20 +537,5 @@ BLOCKS;
 	 */
 	public static function has_button_block_rendered(): bool {
 		return self::$button_block_rendered;
-	}
-
-	/**
-	 * Check if we are on a WooCommerce context page.
-	 *
-	 * @return bool
-	 */
-	private function is_wc_context(): bool {
-		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag() || is_search() || is_product();
 	}
 }

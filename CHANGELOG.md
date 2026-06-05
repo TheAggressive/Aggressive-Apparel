@@ -1,3 +1,10 @@
+## [1.82.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.0...v1.82.1) (2026-06-05)
+
+
+### Bug Fixes
+
+* streamline navigation block and remove deprecated components ([6b0d674](https://github.com/TheAggressive/Aggressive-Apparel/commit/6b0d674faaa640b2e496229489c7d1731e7813e3))
+
 # [1.82.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.81.0...v1.82.0) (2026-06-05)
 
 

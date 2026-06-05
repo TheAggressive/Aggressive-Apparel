@@ -1,3 +1,10 @@
+## [1.82.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.1...v1.82.2) (2026-06-05)
+
+
+### Bug Fixes
+
+* unify wishlist button functionality and improve accessibility ([c9ddfb3](https://github.com/TheAggressive/Aggressive-Apparel/commit/c9ddfb3fd03b0a8a905c67ef1223d4d933c9f6ee))
+
 ## [1.82.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.0...v1.82.1) (2026-06-05)
 
 

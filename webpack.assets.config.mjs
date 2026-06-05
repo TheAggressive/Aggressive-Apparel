@@ -14,7 +14,10 @@ function buildEntries() {
   const entries = {};
 
   // Scripts: src/scripts/**/*.js -> dist/scripts/**/*.js (preserve structure)
-  const jsFiles = fg.sync('src/scripts/**/*.{js,ts,tsx}', { cwd });
+  const jsFiles = fg.sync('src/scripts/**/*.{js,ts,tsx}', {
+    cwd,
+    ignore: ['src/scripts/**/_*.{js,ts,tsx}'],
+  });
   jsFiles.forEach(file => {
     // Keep the full relative path from src/scripts
     const rel = toPosix(

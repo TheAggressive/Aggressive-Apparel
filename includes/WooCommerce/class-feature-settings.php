@@ -326,7 +326,7 @@ class Feature_Settings {
 			// ── Product Page ────────────────────────────────────.
 			'product_tabs'               => array(
 				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
-				'description' => __( 'Replace default WooCommerce tabs with 4 display styles (accordion, inline, modern tabs, scrollspy) and add custom tabs.', 'aggressive-apparel' ),
+				'description' => __( 'Replace default WooCommerce tabs with 4 display styles and add custom tabs. Configure active tabs under Products → Product Tabs.', 'aggressive-apparel' ),
 				'section'     => 'product',
 			),
 			'size_guide'                 => array(

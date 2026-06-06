@@ -1,3 +1,10 @@
+# [1.84.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.83.0...v1.84.0) (2026-06-06)
+
+
+### Features
+
+* register and initialize product gallery navigation service ([9e3e4a6](https://github.com/TheAggressive/Aggressive-Apparel/commit/9e3e4a66ac5f71c3809ffa37df82176518ba3257))
+
 # [1.83.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.2...v1.83.0) (2026-06-06)
 
 

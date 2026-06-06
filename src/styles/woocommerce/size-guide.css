@@ -11,6 +11,49 @@
 
 .aggressive-apparel-size-guide__overlay {
 	--aa-overlay-opacity: 0.8;
+	--aa-size-guide-exit-duration: var(--aa-duration-fast);
+	--aa-size-guide-exit-ease: cubic-bezier(0.4, 0, 1, 1);
+	--aa-size-guide-exit-transition:
+		opacity var(--aa-size-guide-exit-duration) var(--aa-ease-default),
+		backdrop-filter var(--aa-size-guide-exit-duration) var(--aa-ease-default);
+}
+
+/* Phase 1 close: fade and slide the panel off-screen; is-open keeps the scrim up. */
+.aggressive-apparel-size-guide__overlay.is-open.is-closing .aggressive-apparel-panel--guide {
+	opacity: 0;
+	transform: translateY(calc(100% + 2rem));
+	transition:
+		transform var(--aa-size-guide-exit-duration) var(--aa-size-guide-exit-ease),
+		opacity var(--aa-size-guide-exit-duration) var(--aa-size-guide-exit-ease);
+}
+
+/* Phase 2 close: keep panel off-screen, hide it, fade the scrim. */
+.aggressive-apparel-size-guide__overlay.is-backdrop-closing .aggressive-apparel-panel--guide {
+	transform: translateY(calc(100% + 2rem));
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: none;
+}
+
+/* Must beat .aggressive-apparel-overlay.is-open .aggressive-apparel-overlay__backdrop
+ * while is-open stays true through the close sequence. Do not clear background-color
+ * here — it is not in --aa-transition-overlay and would snap off instantly. */
+.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+	opacity: 0;
+	backdrop-filter: blur(0);
+	transition: var(--aa-size-guide-exit-transition);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-size-guide__overlay.is-open.is-closing .aggressive-apparel-panel--guide {
+		transition: none;
+	}
+
+	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+		transition: none;
+	}
 }
 
 /* -----------------------------------------------

@@ -51,9 +51,12 @@
 		box-shadow:
 			var(--aa-shadow-panel),
 			0 0 0 1px var(--aa-color-border-subtle);
+		opacity: 1;
 		transform: translateY(20px);
+		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 
 		.aggressive-apparel-overlay.is-open & {
+			opacity: 1;
 			transform: translateY(0);
 		}
 	}

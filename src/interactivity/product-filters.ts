@@ -836,6 +836,7 @@ function setupScrollbarAutoHide(): void {
 /**
  * Pills, pagination, and horizontal dropdown content use innerHTML,
  * so data-wp-on--click directives won't be processed by the Interactivity API.
+ * Visibility bindings live on wrapper elements so imperative DOM updates stay intact.
  */
 function setupDelegatedEvents(): void {
   // Pill remove buttons.

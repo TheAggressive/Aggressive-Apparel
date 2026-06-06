@@ -13,7 +13,7 @@ import type {
   InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
-import { store } from '@wordpress/interactivity';
+import { store, withSyncEvent } from '@wordpress/interactivity';
 import {
   prepareOverlayOpen,
   activateOverlayFocus,
@@ -639,7 +639,7 @@ const { state, actions } = store<StickyCartStore>(
         focusTrapCleanup = null;
       },
 
-      selectDrawerOption(event: MouseEvent): void {
+      selectDrawerOption: withSyncEvent((event: MouseEvent): void => {
         event.stopPropagation();
         const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
           '.aa-sticky-cart__drawer-option'
@@ -669,7 +669,7 @@ const { state, actions } = store<StickyCartStore>(
         // Do NOT sync to main form here — dispatching change events
         // on the WooCommerce form triggers its own variation handler
         // which can cause page navigation. Sync happens on close.
-      },
+      }),
     },
 
     callbacks: {

@@ -459,7 +459,7 @@ class Product_Filters {
 
 		// Active filter pills bar (visible when filters are active).
 		$output .= '<div class="aa-product-filters__active-bar" data-wp-bind--hidden="state.hasNoActiveFilters">';
-		$output .= '<div class="aa-product-filters__pills" data-wp-ignore>';
+		$output .= '<div class="aa-product-filters__pills">';
 		$output .= '</div>';
 		$output .= '<button class="aa-product-filters__clear-all" data-wp-on--click="actions.clearAllFilters">' . esc_html__( 'Clear All', 'aggressive-apparel' ) . '</button>';
 		$output .= '</div>';
@@ -486,8 +486,9 @@ class Product_Filters {
 		$output .= '</div>';
 
 		// Product grid (populated by JS via innerHTML).
-		$output .= '<div class="aa-product-filters__products" data-wp-bind--hidden="state.isLoading" data-wp-ignore>';
-		$output .= '</div>';
+		$output .= '<div data-wp-bind--hidden="state.isLoading">';
+		$output .= '<div class="aa-product-filters__products">';
+		$output .= '</div></div>';
 
 		// No results.
 		$output .= '<div class="aa-product-filters__no-results" data-wp-bind--hidden="state.hasProducts">';
@@ -495,8 +496,9 @@ class Product_Filters {
 		$output .= '</div>';
 
 		// Pagination.
-		$output .= '<nav class="aa-product-filters__pagination" data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '" data-wp-ignore>';
-		$output .= '</nav>';
+		$output .= '<nav data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '">';
+		$output .= '<div class="aa-product-filters__pagination">';
+		$output .= '</div></nav>';
 
 		$output .= '</div>'; // End .aa-product-filters__ajax-grid.
 
@@ -604,10 +606,11 @@ class Product_Filters {
 		);
 		$html .= '</button>';
 		$html .= sprintf(
-			'<div class="aa-product-filters__bar-dropdown" data-wp-bind--hidden="!%s" data-wp-ignore>',
+			'<div data-wp-bind--hidden="!%s">',
 			esc_attr( $state ),
 		);
-		$html .= '</div>';
+		$html .= '<div class="aa-product-filters__bar-dropdown">';
+		$html .= '</div></div>';
 		$html .= '</div>';
 
 		return $html;

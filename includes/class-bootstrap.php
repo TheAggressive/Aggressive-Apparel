@@ -154,6 +154,7 @@ class Bootstrap {
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
+		$this->container->register( 'scripts', fn() => new Assets\Scripts() );
 
 		// Register product loop (always available for theme flexibility).
 		$this->container->register( 'product_loop', fn() => new WooCommerce\Product_Loop( 3, 12 ) );
@@ -228,6 +229,7 @@ class Bootstrap {
 	private function init_asset_components(): void {
 		// Initialize asset services using the container.
 		$this->container->get( 'styles' )->init();
+		$this->container->get( 'scripts' )->init();
 	}
 
 	/**

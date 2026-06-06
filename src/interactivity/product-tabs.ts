@@ -6,7 +6,12 @@
  *
  * @since 1.17.0
  */
-import { store, getContext, getElement } from '@wordpress/interactivity';
+import {
+  store,
+  getContext,
+  getElement,
+  withSyncEvent,
+} from '@wordpress/interactivity';
 
 interface TabContext {
   tabIndex: number;
@@ -133,7 +138,7 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
      * Intercepts the <summary> click so we can animate before
      * the browser toggles the <details> open state.
      */
-    toggleAccordion(event: Event): void {
+    toggleAccordion: withSyncEvent((event: Event): void => {
       event.preventDefault();
       const { ref } = getElement();
       const details = ref?.closest('details') as HTMLDetailsElement | null;
@@ -165,7 +170,7 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
           };
         }
       }
-    },
+    }),
 
     /**
      * Modern tabs: select a tab by click.

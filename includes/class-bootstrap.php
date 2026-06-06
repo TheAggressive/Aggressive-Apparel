@@ -164,6 +164,7 @@ class Bootstrap {
 			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
 			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
 			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
+			$this->container->register( 'product_gallery_nav', fn() => new WooCommerce\Product_Gallery_Nav() );
 
 			// Register color attribute services.
 			$this->container->register( 'color_attributes', fn( Service_Container $container ) => new WooCommerce\Color_Attribute_Manager( $container->get( 'color_pattern_admin' ) ) );
@@ -246,6 +247,7 @@ class Bootstrap {
 		$this->container->get( 'wc_support' )->init();
 		$this->container->get( 'cart' )->init();
 		$this->container->get( 'wc_templates' )->init();
+		$this->container->get( 'product_gallery_nav' )->init();
 		$this->container->get( 'color_attributes' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();
 		$this->container->get( 'size_option_sorter' )->init();

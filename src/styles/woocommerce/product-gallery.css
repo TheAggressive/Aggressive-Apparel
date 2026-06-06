@@ -1,0 +1,70 @@
+/**
+ * Product Gallery Navigation
+ *
+ * Block-scoped overrides registered via wp_enqueue_block_style() so this
+ * loads after WooCommerce's product-gallery-large-image-next-previous CSS.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wc-block-next-previous-buttons {
+
+	.wc-block-next-previous-buttons__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 3rem;
+		height: 3rem;
+		min-width: 3rem;
+		min-height: 3rem;
+		padding: 0;
+		border: none;
+		border-radius: 50%;
+		background-color: color-mix(in oklch, var(--aa-color-surface) 92%, transparent);
+		color: inherit;
+		font-size: inherit;
+		font-weight: inherit;
+		line-height: 0;
+		text-transform: none;
+		letter-spacing: normal;
+		cursor: pointer;
+		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+		&:hover:not([aria-disabled='true']),
+		&:focus-visible:not([aria-disabled='true']) {
+			background-color: color-mix(in oklch, var(--aa-color-surface) 78%, transparent);
+		}
+
+		&:focus-visible {
+			outline: none;
+			box-shadow: var(--aa-focus-ring);
+		}
+
+		&[aria-disabled='true'] {
+			cursor: not-allowed;
+		}
+	}
+
+	.wc-block-next-previous-buttons__icon,
+	.wc-block-next-previous-buttons__icon--left,
+	.wc-block-next-previous-buttons__icon--right {
+		display: block;
+		flex-shrink: 0;
+		width: 1.375rem;
+		height: 1.375rem;
+		padding: 0;
+		margin: 0;
+	}
+
+	.wc-block-next-previous-buttons__button[aria-disabled='true'] .wc-block-next-previous-buttons__icon {
+		opacity: 0.3;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wc-block-next-previous-buttons .wc-block-next-previous-buttons__button {
+		transition: none;
+	}
+}

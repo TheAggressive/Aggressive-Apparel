@@ -1,3 +1,10 @@
+# [1.85.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.84.0...v1.85.0) (2026-06-06)
+
+
+### Features
+
+* enhance quick view image display and layout ([43a40b7](https://github.com/TheAggressive/Aggressive-Apparel/commit/43a40b7c60058cd7ee599421553db6fb697244b9))
+
 # [1.84.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.83.0...v1.84.0) (2026-06-06)
 
 

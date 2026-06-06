@@ -433,7 +433,9 @@ class WooCommerce_Block_Detector {
 	/**
 	 * Recursively detect WooCommerce blocks, including reusable block refs.
 	 *
-	 * @param array<int|string, array<string, array|string>> $blocks Parsed blocks.
+	 * WordPress `parse_blocks()` may include null values (e.g. `blockName`).
+	 *
+	 * @param array<int|string, array<string, mixed>> $blocks Parsed blocks.
 	 * @return bool
 	 */
 	private static function blocks_contain_woocommerce( array $blocks ): bool {

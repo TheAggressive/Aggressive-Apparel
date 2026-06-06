@@ -1,3 +1,11 @@
+# [1.83.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.2...v1.83.0) (2026-06-06)
+
+
+### Features
+
+* enhance asset loading and security header management ([ad0d444](https://github.com/TheAggressive/Aggressive-Apparel/commit/ad0d444fd4cf4631b8bac8ff6285ac6760e41475))
+* implement two-phase close animation for size guide overlay ([fdb7cb5](https://github.com/TheAggressive/Aggressive-Apparel/commit/fdb7cb5fcc65aa71b52fe8bfcdae0f42136ae0a0))
+
 ## [1.82.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.82.1...v1.82.2) (2026-06-05)
 
 

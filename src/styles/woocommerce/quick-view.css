@@ -855,11 +855,15 @@
 /* Large drawer image — hidden on mobile, left column on desktop. */
 .aggressive-apparel-quick-view__drawer-image {
 	display: none;
+	background-color: color-mix(in oklch, currentcolor 5%, transparent);
 
 	& img {
+		display: block;
 		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		height: auto;
+		max-height: 100%;
+		object-fit: contain;
+		object-position: center;
 	}
 }
 
@@ -961,10 +965,13 @@
 	}
 
 	.aggressive-apparel-quick-view__drawer-image {
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		grid-column: 1;
 		grid-row: 1 / -1;
 		overflow: hidden;
+		min-height: 0;
 		max-height: 22rem;
 	}
 

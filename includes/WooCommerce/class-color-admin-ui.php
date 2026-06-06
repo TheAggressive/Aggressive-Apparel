@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -471,37 +473,15 @@ class Color_Admin_UI {
 			return;
 		}
 
-		// Enqueue WordPress color picker.
+		// Enqueue WordPress color picker styles (scripts load via dependency).
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'wp-color-picker' );
 
-		// Initialize color picker.
-		wp_add_inline_script(
-			'wp-color-picker',
-			'jQuery(document).ready(function($){
-				$(".color-picker").wpColorPicker({
-					change: function(event, ui) {
-						// Update the input value when color changes
-						$(this).val(ui.color.toString());
-					}
-				});
-
-				// Handle color swatch interactions
-				$(document).on("click", ".color-swatch-interactive", function() {
-					var $swatch = $(this);
-					var $radio = $swatch.prev("input[type=radio]");
-					if ($radio.length) {
-						$radio.prop("checked", true).trigger("change");
-					}
-				});
-
-				$(document).on("keydown", ".color-swatch-interactive", function(e) {
-					if (e.key === "Enter" || e.key === " ") {
-						e.preventDefault();
-						$(this).trigger("click");
-					}
-				});
-			});'
+		// Enqueue the compiled color swatch admin script following the theme's
+		// admin asset convention (filemtime cache-busting, build/ output).
+		Asset_Loader::enqueue_admin_script(
+			'aggressive-apparel-color-swatch-admin',
+			'build/scripts/admin/woocommerce/color-swatch-admin',
+			array( 'wp-color-picker' )
 		);
 	}
 }

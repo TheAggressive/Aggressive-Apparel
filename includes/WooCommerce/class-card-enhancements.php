@@ -64,20 +64,9 @@ class Card_Enhancements {
 	 * @return void
 	 */
 	public function register_extension(): void {
-		if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' ) ) {
-			return;
-		}
-
-		woocommerce_store_api_register_endpoint_data(
-			array(
-				'endpoint'        => 'product',
-				'namespace'       => self::NAMESPACE,
-				'data_callback'   => array( $this, 'build_payload' ),
-				'schema_callback' => static function (): array {
-					return array();
-				},
-				'schema_type'     => ARRAY_A,
-			),
+		Store_Api_Extension::register_product_data(
+			self::NAMESPACE,
+			array( $this, 'build_payload' )
 		);
 	}
 

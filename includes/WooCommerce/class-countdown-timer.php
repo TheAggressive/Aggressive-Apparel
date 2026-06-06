@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -42,33 +44,19 @@ class Countdown_Timer {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! function_exists( 'is_product' ) ) {
+		if ( ! Product_Context::is_single_product() && ! Product_Context::is_product_archive() ) {
 			return;
 		}
 
-		if ( ! is_product() && ! is_shop() && ! is_product_category() && ! is_product_tag() ) {
-			return;
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-countdown-timer',
+			'build/styles/woocommerce/countdown-timer'
+		);
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/countdown-timer.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-countdown-timer',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/countdown-timer.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
-
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/countdown',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/countdown.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/countdown' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/countdown',
+			'build/interactivity/countdown'
+		);
 	}
 
 	/**
@@ -111,11 +99,7 @@ class Countdown_Timer {
 			return $block_content;
 		}
 
-		if ( ! function_exists( 'is_shop' ) ) {
-			return $block_content;
-		}
-
-		if ( ! is_shop() && ! is_product_category() && ! is_product_tag() ) {
+		if ( ! Product_Context::is_product_archive() ) {
 			return $block_content;
 		}
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -49,29 +50,19 @@ class Mobile_Bottom_Nav {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/mobile-bottom-nav.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-mobile-bottom-nav',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/mobile-bottom-nav.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-mobile-bottom-nav',
+			'build/styles/woocommerce/mobile-bottom-nav'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/bottom-nav',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/bottom-nav.js',
-				array(
-					'@wordpress/interactivity',
-					'@aggressive-apparel/scroll-lock',
-					'@aggressive-apparel/use-overlay',
-				),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/bottom-nav' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/bottom-nav',
+			'build/interactivity/bottom-nav',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -50,20 +51,9 @@ class Quick_View {
 	 * @return void
 	 */
 	public function register_store_api_extension(): void {
-		if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' ) ) {
-			return;
-		}
-
-		woocommerce_store_api_register_endpoint_data(
-			array(
-				'endpoint'        => 'product',
-				'namespace'       => 'aggressive-apparel/variation-prices',
-				'data_callback'   => array( $this, 'get_variation_prices_data' ),
-				'schema_callback' => static function () {
-					return array();
-				},
-				'schema_type'     => ARRAY_A,
-			)
+		Store_Api_Extension::register_product_data(
+			'aggressive-apparel/variation-prices',
+			array( $this, 'get_variation_prices_data' )
 		);
 	}
 
@@ -132,36 +122,26 @@ class Quick_View {
 			return;
 		}
 
-		$pills_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/option-pills.css';
-		if ( file_exists( $pills_css ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-option-pills',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/option-pills.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $pills_css ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-option-pills',
+			'build/styles/woocommerce/option-pills'
+		);
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/quick-view.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-quick-view',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/quick-view.css',
-				array( 'aggressive-apparel-option-pills' ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-quick-view',
+			'build/styles/woocommerce/quick-view',
+			array( 'aggressive-apparel-option-pills' )
+		);
 
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/interactivity/quick-view.js';
-		if ( function_exists( 'wp_register_script_module' ) && file_exists( $js_file ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/quick-view',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/quick-view.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers', '@aggressive-apparel/use-overlay' ),
-				(string) filemtime( $js_file ),
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/quick-view' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/quick-view',
+			'build/interactivity/quick-view',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**
@@ -172,7 +152,7 @@ class Quick_View {
 	 * @return string Modified HTML.
 	 */
 	public function inject_trigger_button( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || 'core/post-featured-image' !== $block['blockName'] ) {
+		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
 			return $block_content;
 		}
 
@@ -208,12 +188,7 @@ class Quick_View {
 		);
 
 		// Append the button inside the figure/div wrapper.
-		return preg_replace(
-			'/(<\/(?:figure|div)>\s*)$/i',
-			$button . '$1',
-			$block_content,
-			1,
-		) ?? $block_content;
+		return Block_Render_Helper::append_before_wrapper_close( $block_content, $button );
 	}
 
 	/**
@@ -837,11 +812,7 @@ class Quick_View {
 	 * @return \WC_Product|null
 	 */
 	private function get_current_product(): ?\WC_Product {
-		if ( ! function_exists( 'wc_get_product' ) ) {
-			return null;
-		}
-		$product = wc_get_product( get_the_ID() );
-		return $product instanceof \WC_Product ? $product : null;
+		return Product_Context::get_current_product();
 	}
 
 	/**
@@ -850,13 +821,7 @@ class Quick_View {
 	 * @return bool
 	 */
 	private function is_listing_page(): bool {
-		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag() || is_search();
+		return Product_Context::is_product_listing();
 	}
 
 	/**

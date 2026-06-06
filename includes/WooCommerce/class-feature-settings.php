@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
-use Aggressive_Apparel\Core\Icons;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,8 +20,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Feature Settings Class
  *
- * Provides a settings page and helper to toggle individual WooCommerce
- * enhancements on or off. Stores all flags in a single option row.
+ * Single source of truth for WooCommerce enhancement configuration: option
+ * keys, feature/section definitions, defaults, and the public read API
+ * (`is_enabled()` and the `get_social_proof_*` accessors) consumed across the
+ * theme. The admin UI is delegated to focused collaborators:
+ *
+ *   - Feature_Settings_Page      → menu, assets, Settings API wiring, chrome
+ *   - Feature_Settings_Sanitizer → sanitize_callback implementations
+ *   - Feature_Settings_Fields    → individual field renderers
  *
  * @since 1.17.0
  */
@@ -41,14 +45,14 @@ class Feature_Settings {
 	 *
 	 * @var string
 	 */
-	private const PAGE_SLUG = 'aggressive-apparel-features';
+	public const PAGE_SLUG = 'aggressive-apparel-features';
 
 	/**
 	 * Settings group name.
 	 *
 	 * @var string
 	 */
-	private const SETTINGS_GROUP = 'aggressive_apparel_features_group';
+	public const SETTINGS_GROUP = 'aggressive_apparel_features_group';
 
 	/**
 	 * Option key for the catalog hover image animation style.
@@ -235,7 +239,7 @@ class Feature_Settings {
 	 *
 	 * @var string
 	 */
-	private const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "check|Made to order with care\ninfo|Print quality guaranteed\nheart|Premium quality materials\ninfo|Honest sizing guide on every product\nhome|Independent brand\ngrid-view|Designed with attention to detail\ncheck|Quality you can feel";
+	public const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "check|Made to order with care\ninfo|Print quality guaranteed\nheart|Premium quality materials\ninfo|Honest sizing guide on every product\nhome|Independent brand\ngrid-view|Designed with attention to detail\ncheck|Quality you can feel";
 
 	/**
 	 * Settings page sections with tab metadata.
@@ -268,6 +272,15 @@ class Feature_Settings {
 			'icon'  => 'dashicons-admin-tools',
 		),
 	);
+
+	/**
+	 * Settings page sections with tab metadata.
+	 *
+	 * @return array<string, array{label: string, icon: string}>
+	 */
+	public static function get_sections(): array {
+		return self::SECTIONS;
+	}
 
 	/**
 	 * Feature definitions with metadata.
@@ -423,776 +436,14 @@ class Feature_Settings {
 	/**
 	 * Initialize settings hooks.
 	 *
+	 * Delegates the admin page lifecycle to Feature_Settings_Page so this
+	 * class can stay focused on configuration and the public read API.
+	 *
 	 * @return void
 	 */
 	public function init(): void {
-		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		( new Feature_Settings_Page() )->init();
 	}
-
-	/**
-	 * Add the settings page under Appearance.
-	 *
-	 * @return void
-	 */
-	public function add_settings_page(): void {
-		$hook = add_theme_page(
-			__( 'Store Enhancements', 'aggressive-apparel' ),
-			__( 'Store Enhancements', 'aggressive-apparel' ),
-			'edit_theme_options',
-			self::PAGE_SLUG,
-			array( $this, 'render_settings_page' ),
-		);
-
-		if ( $hook ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
-		}
-	}
-
-	/**
-	 * Enqueue admin assets for the settings page.
-	 *
-	 * @param string $hook_suffix Current admin page hook suffix.
-	 * @return void
-	 */
-	public function enqueue_admin_assets( string $hook_suffix = '' ): void {
-		if ( 'appearance_page_' . self::PAGE_SLUG !== $hook_suffix ) {
-			return;
-		}
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/store-enhancements-admin.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-store-enhancements-admin',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/admin/store-enhancements-admin.css',
-				array(),
-				(string) filemtime( $css_file ),
-			);
-		}
-
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/scripts/admin/store-enhancements-admin.js';
-		if ( ! file_exists( $js_file ) ) {
-			return;
-		}
-
-		wp_enqueue_script(
-			'aggressive-apparel-store-enhancements-admin',
-			AGGRESSIVE_APPAREL_URI . '/build/scripts/admin/store-enhancements-admin.js',
-			array(),
-			(string) filemtime( $js_file ),
-			true
-		);
-	}
-
-	/**
-	 * Register the single option and settings sections.
-	 *
-	 * @return void
-	 */
-	public function register_settings(): void {
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::OPTION_KEY,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( $this, 'sanitize_features' ),
-			)
-		);
-
-		foreach ( self::SECTIONS as $id => $meta ) {
-			add_settings_section(
-				'aggressive_apparel_features_' . $id,
-				$meta['label'],
-				'__return_false',
-				self::PAGE_SLUG,
-			);
-		}
-
-		// Register sub-setting options (always, so saved values persist).
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::FILTER_LAYOUT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'drawer',
-				'sanitize_callback' => array( $this, 'sanitize_filter_layout' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::LOAD_MORE_MODE_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'load_more',
-				'sanitize_callback' => array( $this, 'sanitize_load_more_mode' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::FILTER_TRIGGER_PLACEMENT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'auto',
-				'sanitize_callback' => array( $this, 'sanitize_filter_trigger_placement' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::WISHLIST_BUTTON_PLACEMENT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'auto',
-				'sanitize_callback' => array( $this, 'sanitize_wishlist_button_placement' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_SOURCES_OPTION,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_sources' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES,
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_messages' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_messages' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_DEMO_OPTION,
-			array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => static fn ( $v ): bool => (bool) $v,
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 5,
-				'sanitize_callback' => static fn ( $v ): int => max( 0, min( 1440, (int) $v ) ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_DISPLAY_MODE_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'anonymous',
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_display_mode' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'city',
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_location_granularity' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => array( $this, 'sanitize_social_proof_purchase_badge_icon' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 3,
-				'sanitize_callback' => static fn ( $v ): int => max( 1, min( 999999, (int) $v ) ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::HOVER_IMAGE_ANIMATION_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'fade',
-				'sanitize_callback' => array( $this, 'sanitize_hover_image_animation' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::HOVER_IMAGE_EXIT_DURATION_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 350,
-				'sanitize_callback' => array( $this, 'sanitize_hover_image_exit_duration' ),
-			)
-		);
-
-		register_setting(
-			self::SETTINGS_GROUP,
-			self::HOVER_IMAGE_EXIT_ANIMATION_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'fade',
-				'sanitize_callback' => array( $this, 'sanitize_hover_image_exit_animation' ),
-			)
-		);
-
-		foreach ( self::get_feature_definitions() as $key => $feature ) {
-			add_settings_field(
-				'feature_' . $key,
-				$feature['label'],
-				array( $this, 'render_toggle_field' ),
-				self::PAGE_SLUG,
-				'aggressive_apparel_features_' . $feature['section'],
-				array(
-					'key'         => $key,
-					'description' => $feature['description'],
-				),
-			);
-
-			// Sub-settings rendered immediately after their parent toggle.
-			if ( 'product_filters' === $key && self::is_enabled( 'product_filters' ) ) {
-				add_settings_field(
-					'filter_layout',
-					__( 'Filter Layout', 'aggressive-apparel' ),
-					array( $this, 'render_filter_layout_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-
-				add_settings_field(
-					'filter_trigger_placement',
-					__( 'Filter Trigger Placement', 'aggressive-apparel' ),
-					array( $this, 'render_filter_trigger_placement_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-			}
-
-			if ( 'load_more' === $key && self::is_enabled( 'load_more' ) ) {
-				add_settings_field(
-					'load_more_mode',
-					__( 'Load More Mode', 'aggressive-apparel' ),
-					array( $this, 'render_load_more_mode_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-			}
-
-			if ( 'catalog_hover_image' === $key && self::is_enabled( 'catalog_hover_image' ) ) {
-				add_settings_field(
-					'hover_image_exit_duration',
-					__( 'Primary Image Exit Duration', 'aggressive-apparel' ),
-					array( $this, 'render_hover_image_exit_duration_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-
-				add_settings_field(
-					'hover_image_exit_animation',
-					__( 'Primary Image Exit Animation', 'aggressive-apparel' ),
-					array( $this, 'render_hover_image_exit_animation_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-
-				add_settings_field(
-					'hover_image_animation',
-					__( 'Hover Animation', 'aggressive-apparel' ),
-					array( $this, 'render_hover_image_animation_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_catalog',
-				);
-			}
-
-			if ( 'wishlist' === $key && self::is_enabled( 'wishlist' ) ) {
-				add_settings_field(
-					'wishlist_button_placement',
-					__( 'Wishlist Button Placement', 'aggressive-apparel' ),
-					array( $this, 'render_wishlist_button_placement_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-			}
-
-			if ( 'social_proof' === $key && self::is_enabled( 'social_proof' ) ) {
-				add_settings_field(
-					'social_proof_sources',
-					__( 'Notification Sources', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_sources_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_trust_messages',
-					__( 'Trust Messages', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_trust_messages_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_announcements',
-					__( 'Custom Announcements', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_announcements_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_purchase_badge_icon',
-					__( 'Badge on Purchase Thumbnails', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_purchase_badge_icon_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_icon_help',
-					__( 'Icons: reference & customization', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_icon_help_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_engagement_min_sales',
-					__( 'Engagement: Minimum Lifetime Sales', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_engagement_min_sales_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_display_mode',
-					__( 'Purchase Display Mode', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_display_mode_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_location_granularity',
-					__( 'Location Granularity', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_location_granularity_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_min_order_age',
-					__( 'Minimum Order Age (Minutes)', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_min_order_age_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-
-				add_settings_field(
-					'social_proof_demo',
-					__( 'Demo Preview (Admin Only)', 'aggressive-apparel' ),
-					array( $this, 'render_social_proof_demo_field' ),
-					self::PAGE_SLUG,
-					'aggressive_apparel_features_engagement',
-				);
-			}
-		}
-	}
-
-	/**
-	 * Sanitize the feature flags array.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return array<string, bool> Sanitized flags.
-	 */
-	public function sanitize_features( $input ): array {
-		$valid     = array_keys( self::get_feature_definitions() );
-		$sanitized = array();
-
-		foreach ( $valid as $key ) {
-			$sanitized[ $key ] = ! empty( $input[ $key ] );
-		}
-
-		return $sanitized;
-	}
-
-	/**
-	 * Render a single toggle checkbox field.
-	 *
-	 * @param array $args Field arguments containing key and description.
-	 * @return void
-	 */
-	public function render_toggle_field( array $args ): void {
-		$key     = $args['key'];
-		$enabled = self::is_enabled( $key );
-
-		printf(
-			'<label><input type="checkbox" name="%s[%s]" value="1" %s /> %s</label>',
-			esc_attr( self::OPTION_KEY ),
-			esc_attr( $key ),
-			checked( $enabled, true, false ),
-			esc_html( $args['description'] )
-		);
-	}
-
-	/**
-	 * Render the settings page with tabbed sections.
-	 *
-	 * @return void
-	 */
-	public function render_settings_page(): void {
-		if ( ! current_user_can( 'edit_theme_options' ) ) {
-			return;
-		}
-
-		$section_counts = $this->get_section_counts();
-		$first_key      = array_key_first( self::SECTIONS );
-
-		echo '<div class="wrap aa-features-wrap">';
-		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
-		settings_errors();
-		echo '<p>' . esc_html__( 'Enable or disable individual WooCommerce enhancements. Disabled features have zero performance overhead.', 'aggressive-apparel' ) . '</p>';
-		echo '<form method="post" action="options.php">';
-
-		settings_fields( self::SETTINGS_GROUP );
-
-		// Tab navigation.
-		echo '<nav class="nav-tab-wrapper aa-features-tabs">';
-		foreach ( self::SECTIONS as $id => $meta ) {
-			$active = ( $id === $first_key ) ? ' nav-tab-active' : '';
-			$counts = $section_counts[ $id ];
-
-			printf(
-				'<a href="#" class="nav-tab%s" data-tab="%s"><span class="dashicons %s"></span> %s <span class="aa-features-tab-count">%d/%d</span></a>',
-				esc_attr( $active ),
-				esc_attr( $id ),
-				esc_attr( $meta['icon'] ),
-				esc_html( $meta['label'] ),
-				absint( $counts['enabled'] ),
-				absint( $counts['total'] ),
-			);
-		}
-		echo '</nav>';
-
-		// Tab panels.
-		foreach ( self::SECTIONS as $id => $meta ) {
-			$hidden     = ( $id !== $first_key ) ? ' hidden' : '';
-			$section_id = 'aggressive_apparel_features_' . $id;
-
-			printf( '<div class="aa-features-tab-panel" id="tab-%s"%s>', esc_attr( $id ), esc_attr( $hidden ) );
-			echo '<table class="form-table" role="presentation">';
-			do_settings_fields( self::PAGE_SLUG, $section_id );
-			echo '</table>';
-			echo '</div>';
-		}
-
-		submit_button( __( 'Save Changes', 'aggressive-apparel' ) );
-
-		echo '</form>';
-
-		echo '</div>';
-	}
-
-	/**
-	 * Sanitize the primary image exit duration option (50–1500 ms).
-	 *
-	 * @param mixed $input Raw input.
-	 * @return int Clamped integer 50–1500.
-	 */
-	public function sanitize_hover_image_exit_duration( $input ): int {
-		return max( 50, min( 1500, (int) $input ) );
-	}
-
-	/**
-	 * Render the primary image exit duration slider field.
-	 *
-	 * @return void
-	 */
-	public function render_hover_image_exit_duration_field(): void {
-		$value = (int) get_option( self::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
-		printf(
-			'<div style="display:flex;align-items:center;gap:10px;">'
-			. '<input type="range" name="%1$s" id="%1$s" min="50" max="1500" step="50" value="%2$d"'
-			. ' oninput="document.getElementById(\'%1$s_display\').textContent=this.value+\'ms\'"'
-			. ' style="width:220px;">'
-			. '<span id="%1$s_display" style="min-width:4em;font-weight:600;">%2$dms</span>'
-			. '</div>',
-			esc_attr( self::HOVER_IMAGE_EXIT_DURATION_OPTION ),
-			absint( $value ),
-		);
-		echo '<p class="description">' . esc_html__( 'How long the original image takes to exit when hovering. 50ms = near instant, 350ms = default, 1500ms = very slow fade.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the primary image exit animation option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized exit animation slug.
-	 */
-	public function sanitize_hover_image_exit_animation( $input ): string {
-		$valid = array(
-			'fade',
-			'slide-right',
-			'slide-left',
-			'slide-up',
-			'slide-down',
-			'zoom-in',
-			'zoom-out',
-			'flip-h',
-			'flip-v',
-			'wipe-right',
-			'wipe-left',
-			'wipe-up',
-			'blur-reveal',
-			'diagonal-wipe',
-			'rotate-fade',
-		);
-		return in_array( $input, $valid, true ) ? $input : 'fade';
-	}
-
-	/**
-	 * Render the primary image exit animation select field.
-	 *
-	 * @return void
-	 */
-	public function render_hover_image_exit_animation_field(): void {
-		$value   = (string) get_option( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
-		$options = array(
-			'fade'          => __( 'Fade Out (default)', 'aggressive-apparel' ),
-			'slide-right'   => __( 'Slide Out Right', 'aggressive-apparel' ),
-			'slide-left'    => __( 'Slide Out Left', 'aggressive-apparel' ),
-			'slide-up'      => __( 'Slide Out Up', 'aggressive-apparel' ),
-			'slide-down'    => __( 'Slide Out Down', 'aggressive-apparel' ),
-			'zoom-in'       => __( 'Zoom Out (grows)', 'aggressive-apparel' ),
-			'zoom-out'      => __( 'Zoom In (shrinks)', 'aggressive-apparel' ),
-			'flip-h'        => __( 'Flip Out Horizontal', 'aggressive-apparel' ),
-			'flip-v'        => __( 'Flip Out Vertical', 'aggressive-apparel' ),
-			'wipe-right'    => __( 'Wipe Out Right', 'aggressive-apparel' ),
-			'wipe-left'     => __( 'Wipe Out Left', 'aggressive-apparel' ),
-			'wipe-up'       => __( 'Wipe Out Up', 'aggressive-apparel' ),
-			'blur-reveal'   => __( 'Blur Out', 'aggressive-apparel' ),
-			'diagonal-wipe' => __( 'Diagonal Wipe Out', 'aggressive-apparel' ),
-			'rotate-fade'   => __( 'Rotate & Fade Out', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION ) );
-		foreach ( $options as $slug => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $slug ),
-				selected( $value, $slug, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'How the original image exits when the secondary image appears. Pair with the entrance animation below for complementary or contrasting effects.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the hover image animation option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized animation slug.
-	 */
-	public function sanitize_hover_image_animation( $input ): string {
-		$valid = array(
-			'fade',
-			'slide-right',
-			'slide-left',
-			'slide-up',
-			'slide-down',
-			'zoom-in',
-			'zoom-out',
-			'flip-h',
-			'flip-v',
-			'wipe-right',
-			'wipe-left',
-			'wipe-up',
-			'blur-reveal',
-			'diagonal-wipe',
-			'rotate-fade',
-		);
-		return in_array( $input, $valid, true ) ? $input : 'fade';
-	}
-
-	/**
-	 * Render the hover image animation select field.
-	 *
-	 * @return void
-	 */
-	public function render_hover_image_animation_field(): void {
-		$value   = (string) get_option( self::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
-		$options = array(
-			'fade'          => __( 'Fade', 'aggressive-apparel' ),
-			'slide-right'   => __( 'Slide from Right', 'aggressive-apparel' ),
-			'slide-left'    => __( 'Slide from Left', 'aggressive-apparel' ),
-			'slide-up'      => __( 'Slide from Bottom', 'aggressive-apparel' ),
-			'slide-down'    => __( 'Slide from Top', 'aggressive-apparel' ),
-			'zoom-in'       => __( 'Zoom In', 'aggressive-apparel' ),
-			'zoom-out'      => __( 'Zoom Out', 'aggressive-apparel' ),
-			'flip-h'        => __( 'Flip Horizontal', 'aggressive-apparel' ),
-			'flip-v'        => __( 'Flip Vertical', 'aggressive-apparel' ),
-			'wipe-right'    => __( 'Wipe Left to Right', 'aggressive-apparel' ),
-			'wipe-left'     => __( 'Wipe Right to Left', 'aggressive-apparel' ),
-			'wipe-up'       => __( 'Wipe Bottom to Top', 'aggressive-apparel' ),
-			'blur-reveal'   => __( 'Blur Reveal', 'aggressive-apparel' ),
-			'diagonal-wipe' => __( 'Diagonal Wipe', 'aggressive-apparel' ),
-			'rotate-fade'   => __( 'Rotate & Fade', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::HOVER_IMAGE_ANIMATION_OPTION ) );
-		foreach ( $options as $slug => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $slug ),
-				selected( $value, $slug, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Transition used when the secondary image appears on hover. Only applies to products that have at least one gallery image.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the filter layout option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized layout value.
-	 */
-	public function sanitize_filter_layout( $input ): string {
-		$valid = array( 'drawer', 'sidebar', 'horizontal' );
-		return in_array( $input, $valid, true ) ? $input : 'drawer';
-	}
-
-	/**
-	 * Render the filter layout select field.
-	 *
-	 * @return void
-	 */
-	public function render_filter_layout_field(): void {
-		$layout  = get_option( self::FILTER_LAYOUT_OPTION, 'drawer' );
-		$options = array(
-			'drawer'     => __( 'Drawer (slide-out panel)', 'aggressive-apparel' ),
-			'sidebar'    => __( 'Sidebar (persistent column)', 'aggressive-apparel' ),
-			'horizontal' => __( 'Horizontal Bar (dropdown filters)', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::FILTER_LAYOUT_OPTION ) );
-		foreach ( $options as $value => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $value ),
-				selected( $layout, $value, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the filter trigger placement option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized placement value (`auto` or `block`).
-	 */
-	public function sanitize_filter_trigger_placement( $input ): string {
-		$valid = array( 'auto', 'block' );
-		return in_array( $input, $valid, true ) ? $input : 'auto';
-	}
-
-	/**
-	 * Render the filter trigger placement select field.
-	 *
-	 * @return void
-	 */
-	public function render_filter_trigger_placement_field(): void {
-		$placement = get_option( self::FILTER_TRIGGER_PLACEMENT_OPTION, 'auto' );
-		$options   = array(
-			'auto'  => __( 'Automatic (before catalog sorting)', 'aggressive-apparel' ),
-			'block' => __( 'Manual placement (use Filter Toggle block)', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::FILTER_TRIGGER_PLACEMENT_OPTION ) );
-		foreach ( $options as $value => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $value ),
-				selected( $placement, $value, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Automatic mirrors the legacy behavior. Manual lets you place the "Product Filter Toggle" block anywhere in the Site Editor — useful for sidebars, custom toolbars, or above the title.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the wishlist button placement option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized placement value (`auto` or `block`).
-	 */
-	public function sanitize_wishlist_button_placement( $input ): string {
-		$valid = array( 'auto', 'block' );
-		return in_array( $input, $valid, true ) ? $input : 'auto';
-	}
-
-	/**
-	 * Render the wishlist button placement select field.
-	 *
-	 * @return void
-	 */
-	public function render_wishlist_button_placement_field(): void {
-		$placement = get_option( self::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
-		$options   = array(
-			'auto'  => __( 'Automatic (cards + single product page)', 'aggressive-apparel' ),
-			'block' => __( 'Manual placement (use Wishlist Button block)', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::WISHLIST_BUTTON_PLACEMENT_OPTION ) );
-		foreach ( $options as $value => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $value ),
-				selected( $placement, $value, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Automatic injects the heart on product cards and on the single product page. Manual suppresses both auto-injections so you can place the "Wishlist Button" block anywhere — inside a Product Collection, single product template, or even a custom layout.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	// -- Social Proof — sub-settings --
 
 	/**
 	 * Available social proof sources with their human-readable labels
@@ -1201,7 +452,7 @@ class Feature_Settings {
 	 *
 	 * @return array<string, array{label: string, description: string}>
 	 */
-	private static function get_social_proof_source_definitions(): array {
+	public static function get_social_proof_source_definitions(): array {
 		return array(
 			'trust'         => array(
 				'label'       => __( 'Trust Messages', 'aggressive-apparel' ),
@@ -1325,399 +576,66 @@ class Feature_Settings {
 	}
 
 	/**
-	 * Sanitize the source mix array.
+	 * Social proof display mode (e.g. 'anonymous', 'named').
 	 *
-	 * @param mixed $input Raw input.
-	 * @return array<string, int> Sanitized mix.
-	 */
-	public function sanitize_social_proof_sources( $input ): array {
-		$valid_keys = array_keys( self::get_social_proof_source_definitions() );
-		$sanitized  = array();
-
-		foreach ( $valid_keys as $key ) {
-			$weight = isset( $input[ $key ] ) ? (int) $input[ $key ] : 0;
-			// Clamp to 0–10 so we can't accidentally store absurd weights.
-			$sanitized[ $key ] = max( 0, min( 10, $weight ) );
-		}
-
-		return $sanitized;
-	}
-
-	/**
-	 * Sanitize a multiline messages textarea.
-	 *
-	 * Preserves line breaks; strips tags and per-line whitespace.
-	 * Caps total length defensively.
-	 *
-	 * @param mixed $input Raw input.
 	 * @return string
 	 */
-	public function sanitize_social_proof_messages( $input ): string {
-		if ( ! is_string( $input ) ) {
-			return '';
-		}
-
-		// Cap defensive max length so the option stays small.
-		if ( strlen( $input ) > 8192 ) {
-			$input = substr( $input, 0, 8192 );
-		}
-
-		// Normalise line endings, then sanitise each line.
-		$lines = preg_split( '/\r\n|\r|\n/', $input );
-		if ( ! is_array( $lines ) ) {
-			return '';
-		}
-
-		$cleaned = array();
-		foreach ( $lines as $line ) {
-			$line = sanitize_text_field( $line );
-			// Cap per-line length for sane toast widths.
-			if ( strlen( $line ) > 200 ) {
-				$line = substr( $line, 0, 200 );
-			}
-			$cleaned[] = $line;
-		}
-
-		return implode( "\n", $cleaned );
+	public static function get_social_proof_display_mode(): string {
+		return (string) get_option( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
 	}
 
 	/**
-	 * Sanitize the purchase display mode option.
+	 * Social proof location granularity (e.g. 'city', 'region', 'country').
 	 *
-	 * @param mixed $input Raw input.
 	 * @return string
 	 */
-	public function sanitize_social_proof_display_mode( $input ): string {
-		$valid = array( 'anonymous', 'initial', 'first_name' );
-		return in_array( $input, $valid, true ) ? $input : 'anonymous';
+	public static function get_social_proof_location_granularity(): string {
+		return (string) get_option( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
 	}
 
 	/**
-	 * Sanitize the location granularity option.
+	 * Wishlist button placement mode (e.g. 'auto', 'block').
 	 *
-	 * @param mixed $input Raw input.
 	 * @return string
 	 */
-	public function sanitize_social_proof_location_granularity( $input ): string {
-		$valid = array( 'city', 'state', 'country', 'hidden' );
-		return in_array( $input, $valid, true ) ? $input : 'city';
+	public static function get_wishlist_button_placement(): string {
+		return (string) get_option( self::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
 	}
 
 	/**
-	 * Sanitize the optional purchase-thumbnail badge icon slug.
+	 * Load More display mode (e.g. 'load_more', 'infinite').
 	 *
-	 * @param mixed $input Raw input.
-	 * @return string Empty string or valid icon slug from the theme library.
+	 * @return string
 	 */
-	public function sanitize_social_proof_purchase_badge_icon( $input ): string {
-		$key = sanitize_key( (string) $input );
-
-		return ( '' !== $key && Icons::exists( $key ) ) ? $key : '';
+	public static function get_load_more_mode(): string {
+		return (string) get_option( self::LOAD_MORE_MODE_OPTION, 'load_more' );
 	}
 
 	/**
-	 * Render the source mix table (checkbox + weight slider per source).
+	 * Catalog hover image entry animation slug.
 	 *
-	 * @return void
+	 * @return string
 	 */
-	public function render_social_proof_sources_field(): void {
-		$current_sources = self::get_social_proof_sources();
-		$definitions     = self::get_social_proof_source_definitions();
-
-		echo '<table class="widefat aa-social-proof-sources" style="max-width: 600px; margin-bottom: 0.5em;">';
-		echo '<thead><tr>';
-		echo '<th style="width: 40%;">' . esc_html__( 'Source', 'aggressive-apparel' ) . '</th>';
-		echo '<th style="width: 20%;">' . esc_html__( 'Weight', 'aggressive-apparel' ) . '</th>';
-		echo '<th>' . esc_html__( 'Notes', 'aggressive-apparel' ) . '</th>';
-		echo '</tr></thead><tbody>';
-
-		foreach ( $definitions as $key => $meta ) {
-			$weight = isset( $current_sources[ $key ] ) ? (int) $current_sources[ $key ] : 0;
-
-			echo '<tr>';
-			echo '<td><strong>' . esc_html( $meta['label'] ) . '</strong></td>';
-			echo '<td>';
-			printf(
-				'<input type="number" min="0" max="10" step="1" name="%s[%s]" value="%d" style="width: 5em;" />',
-				esc_attr( self::SOCIAL_PROOF_SOURCES_OPTION ),
-				esc_attr( $key ),
-				absint( $weight ),
-			);
-			echo '</td>';
-			echo '<td><span class="description">' . esc_html( $meta['description'] ) . '</span></td>';
-			echo '</tr>';
-		}
-
-		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__( 'Weight 0 disables a source. Higher weights appear more often in the random rotation. Engagement uses catalog sales totals (requires the minimum sales threshold below). Set Engagement to 0 until you have steady sales. Set Purchases to 0 on day one if you prefer only trust + engagement + announcements.', 'aggressive-apparel' ) . '</p>';
+	public static function get_hover_image_animation(): string {
+		return (string) get_option( self::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
 	}
 
 	/**
-	 * Render the trust messages textarea.
+	 * Catalog hover image exit animation slug.
 	 *
-	 * @return void
+	 * @return string
 	 */
-	public function render_social_proof_trust_messages_field(): void {
-		$value = self::get_social_proof_trust_messages();
-
-		printf(
-			'<textarea name="%s" rows="8" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;">%s</textarea>',
-			esc_attr( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION ),
-			esc_textarea( $value ),
-		);
-		echo '<p class="description">' . esc_html__( 'One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored.', 'aggressive-apparel' ) . '</p>';
+	public static function get_hover_image_exit_animation(): string {
+		return (string) get_option( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
 	}
 
 	/**
-	 * Render the announcements textarea.
+	 * Catalog hover image exit duration in milliseconds.
 	 *
-	 * @return void
+	 * @return int
 	 */
-	public function render_social_proof_announcements_field(): void {
-		$value = self::get_social_proof_announcements();
-
-		printf(
-			'<textarea name="%s" rows="5" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;" placeholder="%s">%s</textarea>',
-			esc_attr( self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION ),
-			esc_attr__( "gift|Spring drop launches Friday\nhttps://cdn.example.com/sale-dot.png | Free shipping today only", 'aggressive-apparel' ),
-			esc_textarea( $value ),
-		);
-		echo '<p class="description">' . esc_html__( 'Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Render optional purchase-notification thumbnail badge picker.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_purchase_badge_icon_field(): void {
-		$value = self::resolve_social_proof_purchase_badge_icon_slug();
-
-		printf(
-			'<select name="%s">',
-			esc_attr( self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION ),
-		);
-		printf(
-			'<option value="" %s>%s</option>',
-			selected( $value, '', false ),
-			esc_html__( 'None', 'aggressive-apparel' ),
-		);
-
-		$icons = Icons::list();
-
-		sort( $icons );
-
-		foreach ( $icons as $slug ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $slug ),
-				selected( $value, $slug, false ),
-				esc_html( $slug ),
-			);
-		}
-
-		echo '</select>';
-
-		echo '<p class="description">' . esc_html__( 'Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Explain social proof PREFIX lines, thumbnail badges, and icon extension points.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_icon_help_field(): void {
-		$icon_slugs = Icons::list();
-		sort( $icon_slugs );
-		$list = implode( ', ', $icon_slugs );
-
-		echo '<ul class="description" style="list-style:disc;margin-left:1.25em;max-width:42rem;">';
-		echo '<li>' . esc_html__( 'Trust Messages and Custom Announcements: each line uses PREFIX|message. PREFIX is either a slug from the expandable list below (same slugs appear in the badge dropdown) or a full https URL to your own PNG/SVG/WebP badge. Prefix none| to force plain text on that row.', 'aggressive-apparel' ) . '</li>';
-		echo '<li>' . esc_html__( 'Slides that include a WooCommerce thumbnail only show icons as the thumbnail-corner badge—not the PREFIX column—to avoid crowding.', 'aggressive-apparel' ) . '</li>';
-		echo '</ul>';
-
-		echo '<details style="max-width:42rem;margin-top:0.75em;">';
-		echo '<summary style="cursor:pointer;">' . esc_html__( 'Built-in icon slugs (copy into PREFIX|)', 'aggressive-apparel' ) . '</summary>';
-		echo '<p class="description" style="margin:0.75em 0 0;"><code style="white-space:normal;word-break:break-word;">' . esc_html( $list ) . '</code></p>';
-		echo '</details>';
-
-		echo '<p class="description">';
-		echo wp_kses_post(
-			sprintf(
-				/* translators: %s: Inline code snippet with PHP filter name. */
-				__( 'Developers — register additional slug → SVG-path pairs via the %s filter (child theme recommended). Paths must describe a single d attribute tuned for viewBox="0 0 24 24".', 'aggressive-apparel' ),
-				'<code>aggressive_apparel_icon_definitions</code>'
-			),
-		);
-		echo '</p>';
-	}
-
-	/**
-	 * Render Engagement minimum lifetime sales threshold.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_engagement_min_sales_field(): void {
-		$value = self::get_social_proof_engagement_min_sales();
-
-		printf(
-			'<input type="number" name="%s" value="%d" min="1" max="999999" step="1" style="width: 8em;" />',
-			esc_attr( self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION ),
-			absint( $value ),
-		);
-
-		echo '<p class="description">' . esc_html__( 'Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Render the purchase display mode select.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_display_mode_field(): void {
-		$mode    = (string) get_option( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
-		$options = array(
-			'anonymous'  => __( 'Anonymous — "Someone in [Location] purchased X" (recommended)', 'aggressive-apparel' ),
-			'initial'    => __( 'Initial only — "S. in [Location] purchased X"', 'aggressive-apparel' ),
-			'first_name' => __( 'First name — "Sarah from [Location] purchased X" (requires checkout consent)', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION ) );
-		foreach ( $options as $value => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $value ),
-				selected( $mode, $value, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Render the location granularity select.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_location_granularity_field(): void {
-		$value   = (string) get_option( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
-		$options = array(
-			'city'    => __( 'City — "Portland"', 'aggressive-apparel' ),
-			'state'   => __( 'State / Region — "Oregon"', 'aggressive-apparel' ),
-			'country' => __( 'Country — "United States"', 'aggressive-apparel' ),
-			'hidden'  => __( 'Hide location entirely', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION ) );
-		foreach ( $options as $key => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $key ),
-				selected( $value, $key, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Render the minimum order age input.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_min_order_age_field(): void {
-		$value = (int) get_option( self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION, 5 );
-
-		printf(
-			'<input type="number" name="%s" value="%d" min="0" max="1440" step="1" style="width: 6em;" />',
-			esc_attr( self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION ),
-			absint( $value ),
-		);
-		echo '<p class="description">' . esc_html__( 'Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Render the demo preview checkbox.
-	 *
-	 * @return void
-	 */
-	public function render_social_proof_demo_field(): void {
-		$enabled = (bool) get_option( self::SOCIAL_PROOF_DEMO_OPTION, false );
-
-		printf(
-			'<label><input type="checkbox" name="%s" value="1" %s /> %s</label>',
-			esc_attr( self::SOCIAL_PROOF_DEMO_OPTION ),
-			checked( $enabled, true, false ),
-			esc_html__( 'Show a sample notification first in the rotation so I can preview the design.', 'aggressive-apparel' ),
-		);
-		echo '<p class="description">' . esc_html__( 'Visible only to logged-in users with the "Edit Theme Options" capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Sanitize the load more mode option.
-	 *
-	 * @param mixed $input Raw input.
-	 * @return string Sanitized mode value.
-	 */
-	public function sanitize_load_more_mode( $input ): string {
-		$valid = array( 'load_more', 'infinite_scroll' );
-		return in_array( $input, $valid, true ) ? $input : 'load_more';
-	}
-
-	/**
-	 * Render the load more mode select field.
-	 *
-	 * @return void
-	 */
-	public function render_load_more_mode_field(): void {
-		$mode    = get_option( self::LOAD_MORE_MODE_OPTION, 'load_more' );
-		$options = array(
-			'load_more'       => __( 'Load More Button', 'aggressive-apparel' ),
-			'infinite_scroll' => __( 'Infinite Scroll', 'aggressive-apparel' ),
-		);
-
-		printf( '<select name="%s">', esc_attr( self::LOAD_MORE_MODE_OPTION ) );
-		foreach ( $options as $value => $label ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $value ),
-				selected( $mode, $value, false ),
-				esc_html( $label ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Load More shows a button; Infinite Scroll loads automatically as users scroll down.', 'aggressive-apparel' ) . '</p>';
-	}
-
-	/**
-	 * Get enabled/total feature counts per section.
-	 *
-	 * @return array<string, array{enabled: int, total: int}>
-	 */
-	private function get_section_counts(): array {
-		$counts = array();
-		foreach ( self::SECTIONS as $id => $meta ) {
-			$counts[ $id ] = array(
-				'enabled' => 0,
-				'total'   => 0,
-			);
-		}
-
-		foreach ( self::get_feature_definitions() as $key => $feature ) {
-			$section = $feature['section'];
-			if ( ! isset( $counts[ $section ] ) ) {
-				continue;
-			}
-
-			++$counts[ $section ]['total'];
-			if ( self::is_enabled( $key ) ) {
-				++$counts[ $section ]['enabled'];
-			}
-		}
-
-		return $counts;
+	public static function get_hover_image_exit_duration(): int {
+		return (int) get_option( self::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
 	}
 
 	/**

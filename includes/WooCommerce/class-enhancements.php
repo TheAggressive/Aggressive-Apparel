@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Service_Container;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,11 +24,78 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Enhancements Coordinator
  *
  * Acts as a single entry point that checks feature flags and only
- * instantiates / initializes services the admin has enabled.
+ * resolves / initializes services the admin has enabled. Every feature
+ * service is created through the shared Service_Container so instantiation
+ * is consistent with the rest of the theme and individual services remain
+ * overridable for tests.
  *
  * @since 1.17.0
  */
 class Enhancements {
+
+	/**
+	 * Map of feature flag => ordered list of service classes to initialize.
+	 *
+	 * Each listed class exposes an `init()` method and has no constructor
+	 * dependencies, so it can be resolved generically through the container.
+	 * Features needing bespoke wiring (installers, admin-only services,
+	 * cross-feature bridges) are handled in init_special_features().
+	 *
+	 * @var array<string, array<int, class-string>>
+	 */
+	private const FEATURE_SERVICES = array(
+		'product_badges'             => array( Custom_Badge_Taxonomy::class, Product_Badges::class ),
+		'price_display'              => array( Price_Display::class ),
+		'product_tabs'               => array( Product_Tabs::class ),
+		'advanced_sorting'           => array( Advanced_Sorting::class ),
+		'free_shipping_bar'          => array( Free_Shipping_Bar::class ),
+		'swatch_tooltips'            => array( Swatch_Tooltips::class ),
+		'mini_cart_styling'          => array( Mini_Cart_Enhancements::class ),
+		'grid_list_toggle'           => array( Grid_List_Toggle::class ),
+		'product_filters'            => array( Product_Filters::class ),
+		'page_transitions'           => array( Page_Transitions::class ),
+		'catalog_hover_image'        => array( Catalog_Hover_Image::class ),
+		'load_more'                  => array( Load_More::class, Load_More_Renderer::class ),
+		'size_guide'                 => array( Size_Guide_Post_Type::class, Size_Guide::class ),
+		'countdown_timer'            => array( Countdown_Timer::class ),
+		'recently_viewed'            => array( Recently_Viewed::class ),
+		'predictive_search'          => array( Predictive_Search::class ),
+		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
+		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),
+		'exit_intent'                => array( Exit_Intent::class ),
+		'quick_view'                 => array( Quick_View::class ),
+		'wishlist'                   => array( Wishlist::class ),
+		'social_proof'               => array( Social_Proof::class ),
+		'frequently_bought_together' => array( Frequently_Bought_Together::class ),
+	);
+
+	/**
+	 * Service classes that need bespoke wiring beyond a simple init().
+	 *
+	 * @var array<int, class-string>
+	 */
+	private const SPECIAL_SERVICES = array(
+		Back_In_Stock_Installer::class,
+		Back_In_Stock::class,
+		Back_In_Stock_Admin::class,
+		Card_Enhancements::class,
+	);
+
+	/**
+	 * Shared service container used to resolve every enhancement service.
+	 *
+	 * @var Service_Container
+	 */
+	private Service_Container $container;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Service_Container $container Shared DI container.
+	 */
+	public function __construct( Service_Container $container ) {
+		$this->container = $container;
+	}
 
 	/**
 	 * Initialize all enabled enhancements.
@@ -49,111 +118,62 @@ class Enhancements {
 		// when it runs during block rendering.
 		add_action( 'wp_enqueue_scripts', array( $this, 'ensure_wc_interactivity_defaults' ) );
 
-		// Server-side features (PHP only, no JS).
+		$this->register_feature_services();
+		$this->init_flagged_features();
+		$this->init_special_features();
+	}
+
+	/**
+	 * Register every enhancement service class with the container.
+	 *
+	 * Classes are keyed by their fully-qualified name, so the container
+	 * acts as a lazy, single-instance factory for each one.
+	 *
+	 * @return void
+	 */
+	private function register_feature_services(): void {
+		$classes = array_merge( ...array_values( self::FEATURE_SERVICES ) );
+		$classes = array_merge( $classes, self::SPECIAL_SERVICES );
+
+		foreach ( array_unique( $classes ) as $class ) {
+			$this->container->register( $class, static fn() => new $class() );
+		}
+	}
+
+	/**
+	 * Resolve and initialize the services for each enabled feature flag.
+	 *
+	 * @return void
+	 */
+	private function init_flagged_features(): void {
+		foreach ( self::FEATURE_SERVICES as $feature => $classes ) {
+			if ( ! Feature_Settings::is_enabled( $feature ) ) {
+				continue;
+			}
+
+			foreach ( $classes as $class ) {
+				$this->container->get( $class )->init();
+			}
+		}
+	}
+
+	/**
+	 * Wire up features that need more than a uniform init() call.
+	 *
+	 * @return void
+	 */
+	private function init_special_features(): void {
+		// Seed system badges once the taxonomy exists.
 		if ( Feature_Settings::is_enabled( 'product_badges' ) ) {
-			( new Custom_Badge_Taxonomy() )->init();
 			add_action( 'init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );
-			( new Product_Badges() )->init();
 		}
 
-		if ( Feature_Settings::is_enabled( 'price_display' ) ) {
-			( new Price_Display() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'product_tabs' ) ) {
-			( new Product_Tabs() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'advanced_sorting' ) ) {
-			( new Advanced_Sorting() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'free_shipping_bar' ) ) {
-			( new Free_Shipping_Bar() )->init();
-		}
-
-		// CSS-only enhancements.
-		if ( Feature_Settings::is_enabled( 'swatch_tooltips' ) ) {
-			( new Swatch_Tooltips() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'mini_cart_styling' ) ) {
-			( new Mini_Cart_Enhancements() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'grid_list_toggle' ) ) {
-			( new Grid_List_Toggle() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'product_filters' ) ) {
-			( new Product_Filters() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'page_transitions' ) ) {
-			( new Page_Transitions() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'catalog_hover_image' ) ) {
-			( new Catalog_Hover_Image() )->init();
-		}
-
-		// Interactive features (PHP + Interactivity API).
-		if ( Feature_Settings::is_enabled( 'load_more' ) ) {
-			( new Load_More() )->init();
-			( new Load_More_Renderer() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'size_guide' ) ) {
-			( new Size_Guide_Post_Type() )->init();
-			( new Size_Guide() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'countdown_timer' ) ) {
-			( new Countdown_Timer() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'recently_viewed' ) ) {
-			( new Recently_Viewed() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'predictive_search' ) ) {
-			( new Predictive_Search() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'sticky_add_to_cart' ) ) {
-			( new Sticky_Add_To_Cart() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'mobile_bottom_nav' ) ) {
-			( new Mobile_Bottom_Nav() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'exit_intent' ) ) {
-			( new Exit_Intent() )->init();
-		}
-
-		// Rich interactivity features.
-		if ( Feature_Settings::is_enabled( 'quick_view' ) ) {
-			( new Quick_View() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'wishlist' ) ) {
-			( new Wishlist() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'social_proof' ) ) {
-			( new Social_Proof() )->init();
-		}
-
-		if ( Feature_Settings::is_enabled( 'frequently_bought_together' ) ) {
-			( new Frequently_Bought_Together() )->init();
-		}
-
+		// Back in Stock: install schema, boot frontend, then admin (admin-only).
 		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
-			( new Back_In_Stock_Installer() )->maybe_install();
-			( new Back_In_Stock() )->init();
+			$this->container->get( Back_In_Stock_Installer::class )->maybe_install();
+			$this->container->get( Back_In_Stock::class )->init();
 			if ( is_admin() ) {
-				( new Back_In_Stock_Admin() )->init();
+				$this->container->get( Back_In_Stock_Admin::class )->init();
 			}
 		}
 
@@ -165,7 +185,7 @@ class Enhancements {
 			Feature_Settings::is_enabled( 'page_transitions' ) ||
 			Feature_Settings::is_enabled( 'countdown_timer' )
 		) {
-			( new Card_Enhancements() )->init();
+			$this->container->get( Card_Enhancements::class )->init();
 		}
 	}
 

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -52,15 +54,10 @@ class Recently_Viewed {
 			return;
 		}
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/recently-viewed',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/recently-viewed.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/recently-viewed' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/recently-viewed',
+			'build/interactivity/recently-viewed'
+		);
 	}
 
 	/**

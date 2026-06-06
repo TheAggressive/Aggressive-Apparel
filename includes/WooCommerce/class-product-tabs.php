@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -124,26 +126,18 @@ class Product_Tabs {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-tabs.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-product-tabs',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-tabs.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-product-tabs',
+			'build/styles/woocommerce/product-tabs'
+		);
 
 		$style = $this->get_display_style();
 
-		if ( 'inline' !== $style && function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
+		if ( 'inline' !== $style ) {
+			Asset_Loader::enqueue_interactivity_module(
 				'@aggressive-apparel/product-tabs',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/product-tabs.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
+				'build/interactivity/product-tabs'
 			);
-			wp_enqueue_script_module( '@aggressive-apparel/product-tabs' );
 		}
 
 		if ( function_exists( 'wp_interactivity_state' ) ) {
@@ -348,45 +342,7 @@ class Product_Tabs {
 			return $this->render_product_id;
 		}
 
-		if ( $block_instance instanceof \WP_Block && isset( $block_instance->context['postId'] ) ) {
-			$context_product_id = absint( $block_instance->context['postId'] );
-
-			if ( $context_product_id > 0 && 'product' === get_post_type( $context_product_id ) ) {
-				return $context_product_id;
-			}
-		}
-
-		if ( isset( $block['context']['postId'] ) ) {
-			$block_product_id = absint( $block['context']['postId'] );
-
-			if ( $block_product_id > 0 && 'product' === get_post_type( $block_product_id ) ) {
-				return $block_product_id;
-			}
-		}
-
-		global $product;
-
-		if ( $product instanceof \WC_Product ) {
-			return (int) $product->get_id();
-		}
-
-		$queried_product_id = get_queried_object_id();
-		if ( $queried_product_id > 0 && 'product' === get_post_type( $queried_product_id ) ) {
-			return (int) $queried_product_id;
-		}
-
-		global $post;
-
-		if ( $post instanceof \WP_Post && 'product' === $post->post_type ) {
-			return (int) $post->ID;
-		}
-
-		$loop_product_id = get_the_ID();
-		if ( $loop_product_id > 0 && 'product' === get_post_type( $loop_product_id ) ) {
-			return (int) $loop_product_id;
-		}
-
-		return 0;
+		return Product_Context::resolve_product_id( $block, $block_instance );
 	}
 
 	/**
@@ -395,6 +351,6 @@ class Product_Tabs {
 	 * @return bool
 	 */
 	private function is_product_page(): bool {
-		return function_exists( 'is_product' ) && is_product();
+		return Product_Context::is_single_product();
 	}
 }

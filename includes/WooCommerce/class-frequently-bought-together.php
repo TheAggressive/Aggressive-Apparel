@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -55,25 +57,15 @@ class Frequently_Bought_Together {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/frequently-bought-together.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-fbt',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/frequently-bought-together.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-fbt',
+			'build/styles/woocommerce/frequently-bought-together'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/frequently-bought-together',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/frequently-bought-together.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/frequently-bought-together' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/frequently-bought-together',
+			'build/interactivity/frequently-bought-together'
+		);
 	}
 
 	/**
@@ -342,6 +334,6 @@ class Frequently_Bought_Together {
 	 * @return bool
 	 */
 	private function is_product_page(): bool {
-		return function_exists( 'is_product' ) && is_product();
+		return Product_Context::is_single_product();
 	}
 }

@@ -100,7 +100,7 @@ jobs:
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --verbose
 
   # ============================================================================
-  # Build Assets (includes release-trigger check inline)
+  # Build Assets (always runs so tests have artifacts; release check inline)
   # ============================================================================
   build:
     name: 🔨 Build
@@ -132,26 +132,21 @@ jobs:
           fi
 
       - uses: pnpm/action-setup@v4
-        if: steps.check.outputs.should_release == 'true'
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
-        if: steps.check.outputs.should_release == 'true'
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
       - name: Install dependencies
-        if: steps.check.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build assets
-        if: steps.check.outputs.should_release == 'true'
         run: pnpm build
 
       - name: Upload build artifacts
-        if: steps.check.outputs.should_release == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
@@ -159,13 +154,12 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # Test: All PHPUnit suites in a single wp-env instance
+  # Test: All PHPUnit suites in a single wp-env instance (runs on every PR/push)
   # ============================================================================
   test:
     name: 🧪 Tests
     runs-on: ubuntu-latest
     needs: [build]
-    if: needs.build.outputs.should_release == 'true'
     timeout-minutes: 15
 
     steps:
@@ -421,9 +415,9 @@ jobs:
           # Check if this was a release-worthy commit
           SHOULD_RELEASE="${{ needs.build.outputs.should_release }}"
           if [ "$SHOULD_RELEASE" = "true" ]; then
-            echo "**Release-worthy commit detected** — Full pipeline executed" >> $GITHUB_STEP_SUMMARY
+            echo "**Release-worthy commit detected** — Full pipeline (incl. packaging) executed" >> $GITHUB_STEP_SUMMARY
           else
-            echo "**Non-release commit** — Only quality checks executed" >> $GITHUB_STEP_SUMMARY
+            echo "**Non-release commit** — Quality checks, build and tests executed (packaging skipped)" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -431,26 +425,19 @@ jobs:
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend (ESLint + Stylelint + Prettier + JS Tests) | ${{ needs.lint-frontend.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| PHP Lint (syntax + PHPCS + PHPStan) | ${{ needs.lint-php.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests (unit + integration + security + a11y + perf) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
 
           if [ "$SHOULD_RELEASE" = "true" ]; then
-            echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Tests (unit + integration + security + a11y + perf) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
             echo "| Package | ${{ needs.package.result }} |" >> $GITHUB_STEP_SUMMARY
-
-            if [ "${{ needs.lint-frontend.result }}" = "success" ] && \
-               [ "${{ needs.test.result }}" = "success" ] && \
-               [ "${{ needs.package.result }}" = "success" ]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### Full pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
-            fi
           else
-            echo "| Build | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-            echo "| Tests | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
             echo "| Package | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
+          fi
 
-            if [ "${{ needs.lint-frontend.result }}" = "success" ] && \
-               [ "${{ needs.lint-php.result }}" = "success" ]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### Quality checks passed — Ready for merge!" >> $GITHUB_STEP_SUMMARY
-            fi
+          if [ "${{ needs.lint-frontend.result }}" = "success" ] && \
+             [ "${{ needs.lint-php.result }}" = "success" ] && \
+             [ "${{ needs.build.result }}" = "success" ] && \
+             [ "${{ needs.test.result }}" = "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Quality checks, build and tests passed!" >> $GITHUB_STEP_SUMMARY
           fi

@@ -21,56 +21,44 @@ import {
   HOVER_INTENT,
   INDICATOR_DURATION_MS,
   KEYS,
-  PANEL_MENU_ITEM_SELECTOR,
   SELECTORS,
-  SUBMENU_ITEM_SELECTOR,
-  TOP_LEVEL_MENU_ITEM_SELECTOR,
 } from './constants';
 import type { NavigationContext, NavigationState, PanelState } from './types';
 import {
-  addBodyClass,
   announce,
   clearHoverTimeouts,
-  createHoverIntent,
   focusDrilldownPanel,
   focusDrilldownTrigger,
   focusMegaContentPanel,
   focusMenuItem,
   generateNavId,
-  getTransitionDuration,
   isValidNavId,
   logError,
   logWarning,
   prefersReducedMotion,
   removeAllBodyClasses,
-  restoreFocus,
-  safeGetElementById,
   safeQuerySelector,
-  safeQuerySelectorAll,
   setBodyOverflow,
   setPanelVisibility,
-  setupFocusTrap,
   updateDrilldownInertState,
   updateMegaContentInertState,
-  type HoverIntentState,
 } from './utils';
-
-// ============================================================================
-// Module State
-// ============================================================================
-
-// Hover intent state (prevents race conditions).
-const hoverIntent: HoverIntentState = createHoverIntent();
-
-// Focus trap cleanup registry using WeakMap for proper garbage collection.
-const focusTrapRegistry = new WeakMap<Element, () => void>();
-
-// MediaQueryList reference for cleanup.
-interface MediaQueryRegistryEntry {
-  mql: MediaQueryList;
-  handler: (event: MediaQueryListEvent | MediaQueryList) => void;
-}
-const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
+import {
+  focusTrapRegistry,
+  hoverIntent,
+  mediaQueryRegistry,
+} from './registries';
+import {
+  expandIndicatorForSubmenu,
+  resetIndicatorOnClose,
+  setupDesktopIndicator,
+} from './indicator';
+import { getMenuItems, getSubmenuItems } from './menu-items';
+import {
+  closePanelWithCleanup,
+  findPanel,
+  openPanelWithSetup,
+} from './panel';
 
 // ============================================================================
 // Nav State Helper
@@ -79,6 +67,10 @@ const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
 /**
  * Get the mutable panel state for a navigation instance.
  * Lazily initializes if the entry doesn't exist yet.
+ *
+ * Lives here (rather than a helper module) because it reads the reactive
+ * store state; the panel/indicator helpers receive the resolved PanelState
+ * so they stay decoupled from the store.
  */
 function getNavState(navId: string): PanelState {
   const panels = navigationStore.state._panels;
@@ -91,203 +83,6 @@ function getNavState(navId: string): PanelState {
     };
   }
   return panels[navId];
-}
-
-// ============================================================================
-// Indicator Registry
-// ============================================================================
-
-/**
- * Per-navigation indicator references and helpers.
- * Stored so actions (openSubmenu, closeSubmenu, hover) can update the indicator.
- */
-interface IndicatorInstance {
-  menubar: HTMLElement;
-  indicator: HTMLElement;
-  /** Move indicator underline to match an item's bounds. */
-  updateToItem: (item: HTMLElement) => void;
-  /** Widen indicator to match a submenu panel's width. */
-  widenToPanel: (panel: HTMLElement) => void;
-  /** Reset indicator to .is-current item or hide. */
-  reset: () => void;
-}
-
-const indicatorRegistry = new Map<string, IndicatorInstance>();
-
-/**
- * Widen the indicator to match the submenu panel when it opens.
- * Works for both dropdown and mega menu panels — the indicator
- * stretches to match the panel's rendered width.
- *
- * For mega menus, also positions the panel at the viewport's left
- * edge by setting --mega-panel-left on the panel element.
- */
-function expandIndicatorForSubmenu(navId: string, submenuId: string): void {
-  const ns = getNavState(navId);
-  if (ns.isMobile) return;
-
-  const panel = document.getElementById(submenuId) as HTMLElement | null;
-  if (!panel) return;
-
-  // Position mega menu panels to span the full viewport width.
-  // Uses clientWidth instead of 100vw to exclude scrollbar width
-  // and prevent horizontal overflow.
-  const megaSubmenu = panel.closest(
-    `.${SELECTORS.submenuMega}`
-  ) as HTMLElement | null;
-  if (megaSubmenu) {
-    const liRect = megaSubmenu.getBoundingClientRect();
-    const viewportWidth = document.documentElement.clientWidth;
-    panel.style.setProperty('--mega-panel-left', `${-liRect.left}px`);
-    panel.style.setProperty('--mega-panel-width', `${viewportWidth}px`);
-  }
-
-  const inst = indicatorRegistry.get(navId);
-  if (!inst) return;
-
-  // Measure after the browser has laid out the .is-open panel.
-  requestAnimationFrame(() => {
-    inst.widenToPanel(panel);
-  });
-}
-
-/**
- * Reset the desktop indicator to its underline position when a submenu
- * closes.
- */
-function resetIndicatorOnClose(navId: string): void {
-  const ns = getNavState(navId);
-  if (ns.isMobile) return;
-
-  const inst = indicatorRegistry.get(navId);
-  if (!inst) return;
-
-  inst.reset();
-}
-
-// ============================================================================
-// Panel Helpers
-// ============================================================================
-
-/**
- * Find the panel element for this navigation instance.
- * Panel is portaled to wp_footer, found by ID (DOM-position independent).
- */
-function findPanel(navId: string): HTMLElement | null {
-  return safeGetElementById(`${navId}-panel`, false);
-}
-
-/**
- * Close the navigation panel with full cleanup.
- */
-function closePanelWithCleanup(navId: string, panel: HTMLElement): void {
-  const ns = getNavState(navId);
-  ns.isOpen = false;
-  ns.activeSubmenuId = null;
-  ns.drillStack = [];
-  setBodyOverflow(false);
-
-  setPanelVisibility(panel, false);
-  removeAllBodyClasses();
-
-  // Clean up focus trap.
-  const existingCleanup = focusTrapRegistry.get(panel);
-  if (existingCleanup) {
-    existingCleanup();
-    focusTrapRegistry.delete(panel);
-  }
-
-  // Remove inert from main content.
-  if ('inert' in HTMLElement.prototype) {
-    const mainContent = document.querySelector(
-      '.wp-site-blocks'
-    ) as HTMLElement | null;
-    if (mainContent) {
-      mainContent.inert = false;
-    }
-  }
-
-  // Reset drilldown and mega-content inert state.
-  updateDrilldownInertState(panel, []);
-  updateMegaContentInertState(panel, null);
-
-  // Clean up CSS variable after transition.
-  setTimeout(() => {
-    document.body.style.removeProperty('--push-panel-width');
-  }, getTransitionDuration());
-
-  announce('Navigation menu closed', { assertive: true, navId });
-  restoreFocus(navId);
-}
-
-/**
- * Open the navigation panel with full setup.
- */
-function openPanelWithSetup(navId: string, panel: HTMLElement): void {
-  const ns = getNavState(navId);
-  const animationStyle = panel.getAttribute('data-animation-style') || 'slide';
-  const position = panel.getAttribute('data-position') || 'right';
-
-  // Set body classes for push/reveal BEFORE panel animation.
-  if (animationStyle === 'push' || animationStyle === 'reveal') {
-    const panelWidth =
-      window.getComputedStyle(panel).getPropertyValue('--panel-width').trim() ||
-      'min(320px, 85vw)';
-    document.body.style.setProperty('--push-panel-width', panelWidth);
-    addBodyClass(animationStyle, position);
-  }
-
-  setPanelVisibility(panel, true);
-
-  // Set up focus trap.
-  const existingCleanup = focusTrapRegistry.get(panel);
-  if (existingCleanup) {
-    existingCleanup();
-    focusTrapRegistry.delete(panel);
-  }
-  const cleanup = setupFocusTrap(panel);
-  focusTrapRegistry.set(panel, cleanup);
-
-  // Apply inert to main content. Panel is outside .wp-site-blocks
-  // so it won't be affected by the inert attribute.
-  if ('inert' in HTMLElement.prototype) {
-    const mainContent = document.querySelector(
-      '.wp-site-blocks'
-    ) as HTMLElement | null;
-    if (mainContent) {
-      mainContent.inert = true;
-    }
-  }
-
-  // Initialize inert state for drilldown panels.
-  updateDrilldownInertState(panel, ns.drillStack);
-
-  // Focus first focusable element after panel animation starts.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        PANEL_MENU_ITEM_SELECTOR,
-        false
-      );
-      firstFocusable?.focus();
-    });
-  });
-}
-
-// ============================================================================
-// Menu Item Helpers
-// ============================================================================
-
-function getMenuItems(container: Element): HTMLElement[] {
-  return safeQuerySelectorAll<HTMLElement>(
-    container,
-    TOP_LEVEL_MENU_ITEM_SELECTOR
-  );
-}
-
-function getSubmenuItems(panel: Element): HTMLElement[] {
-  return safeQuerySelectorAll<HTMLElement>(panel, SUBMENU_ITEM_SELECTOR);
 }
 
 // ============================================================================
@@ -353,11 +148,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         if (ns.isOpen) {
-          closePanelWithCleanup(context.navId, panel);
+          closePanelWithCleanup(context.navId, panel, ns);
         } else {
           ns.isOpen = true;
           setBodyOverflow(true);
-          openPanelWithSetup(context.navId, panel);
+          openPanelWithSetup(context.navId, panel, ns);
           announce('Navigation menu opened', {
             assertive: true,
             navId: context.navId,
@@ -383,7 +178,8 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
-        closePanelWithCleanup(context.navId, panel);
+        const ns = getNavState(context.navId);
+        closePanelWithCleanup(context.navId, panel, ns);
       } catch (error) {
         logError('close: Failed to close navigation', error);
       }
@@ -406,7 +202,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
         ns.activeSubmenuId = context.submenuId ?? null;
 
         if (context.submenuId) {
-          expandIndicatorForSubmenu(context.navId, context.submenuId);
+          expandIndicatorForSubmenu(context.navId, context.submenuId, ns.isMobile);
           announce('Submenu opened', { navId: context.navId });
         }
       } catch (error) {
@@ -428,7 +224,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const closingSubmenuId = ns.activeSubmenuId;
 
         clearHoverTimeouts(hoverIntent);
-        resetIndicatorOnClose(context.navId);
+        resetIndicatorOnClose(context.navId, ns.isMobile);
         ns.activeSubmenuId = null;
 
         // Mobile: restore inert and return focus to the trigger.
@@ -477,9 +273,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const wasOpen = ns.activeSubmenuId === context.submenuId;
         ns.activeSubmenuId = wasOpen ? null : (context.submenuId ?? null);
         if (wasOpen) {
-          resetIndicatorOnClose(context.navId);
+          resetIndicatorOnClose(context.navId, ns.isMobile);
         } else if (context.submenuId) {
-          expandIndicatorForSubmenu(context.navId, context.submenuId);
+          expandIndicatorForSubmenu(context.navId, context.submenuId, ns.isMobile);
         }
 
         if (ns.isMobile) {
@@ -623,7 +419,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         clearHoverTimeouts(hoverIntent);
-        resetIndicatorOnClose(context.navId);
+        resetIndicatorOnClose(context.navId, ns.isMobile);
         ns.activeSubmenuId = null;
       } catch (error) {
         logError('closeAllSubmenus: Failed to close submenus', error);
@@ -706,138 +502,8 @@ const navigationStore = store('aggressive-apparel/navigation', {
         mql.addEventListener('change', handler);
         mediaQueryRegistry.set(element.ref, { mql, handler });
 
-        // ================================================================
-        // Desktop Sliding Indicator
-        // ================================================================
-        const nav = element.ref;
-        const menubar = nav.querySelector(
-          SELECTORS.menubar
-        ) as HTMLElement | null;
-        const indicator = nav.querySelector(
-          SELECTORS.indicator
-        ) as HTMLElement | null;
-
-        if (menubar && indicator) {
-          // Slide indicator underline to match a menu item.
-          const updateToItem = (item: HTMLElement) => {
-            const menubarRect = menubar.getBoundingClientRect();
-            const itemRect = item.getBoundingClientRect();
-            indicator.style.setProperty(
-              '--indicator-x',
-              `${itemRect.left - menubarRect.left}px`
-            );
-            indicator.style.setProperty(
-              '--indicator-width',
-              `${itemRect.width}px`
-            );
-            indicator.style.setProperty('--indicator-opacity', '1');
-          };
-
-          // Widen indicator to match a submenu panel's width.
-          const widenToPanel = (panelEl: HTMLElement) => {
-            const menubarRect = menubar.getBoundingClientRect();
-            const panelRect = panelEl.getBoundingClientRect();
-            indicator.style.setProperty(
-              '--indicator-x',
-              `${panelRect.left - menubarRect.left}px`
-            );
-            indicator.style.setProperty(
-              '--indicator-width',
-              `${panelRect.width}px`
-            );
-          };
-
-          // Reset to .is-current item or hide completely.
-          const reset = () => {
-            const currentLi = menubar.querySelector(
-              ':scope > li.is-current'
-            ) as HTMLElement | null;
-            if (currentLi) {
-              updateToItem(currentLi);
-            } else {
-              indicator.style.setProperty('--indicator-opacity', '0');
-            }
-          };
-
-          // Register instance for actions to update the indicator.
-          indicatorRegistry.set(context.navId, {
-            menubar,
-            indicator,
-            updateToItem,
-            widenToPanel,
-            reset,
-          });
-
-          // Set initial position.
-          reset();
-
-          // Close active submenu and slide indicator to the new item.
-          const closeAndSlideTo = (targetLi: HTMLElement) => {
-            const navState = getNavState(context.navId);
-            navState.activeSubmenuId = null;
-            hoverIntent.activeId = null;
-            clearHoverTimeouts(hoverIntent);
-            updateToItem(targetLi);
-          };
-
-          // Shared handler for mouseenter/focusin on top-level items.
-          const handleItemEnter = (li: HTMLElement) => {
-            const navState = getNavState(context.navId);
-            if (
-              navState.activeSubmenuId &&
-              !li.classList.contains('wp-block-aggressive-apparel-nav-submenu')
-            ) {
-              closeAndSlideTo(li);
-              return;
-            }
-            updateToItem(li);
-          };
-
-          const topLevelItems = menubar.querySelectorAll(':scope > li');
-          topLevelItems.forEach(li => {
-            const link = li.querySelector('a, button') as HTMLElement | null;
-            if (!link || li.classList.contains('aa-nav__indicator-wrap'))
-              return;
-
-            li.addEventListener('mouseenter', () =>
-              handleItemEnter(li as HTMLElement)
-            );
-            li.addEventListener('focusin', () =>
-              handleItemEnter(li as HTMLElement)
-            );
-          });
-
-          menubar.addEventListener('mouseleave', () => {
-            const navState = getNavState(context.navId);
-            // Only reset if no submenu is open.
-            if (!navState.activeSubmenuId) {
-              reset();
-            }
-          });
-          menubar.addEventListener('focusout', (e: FocusEvent) => {
-            const related = e.relatedTarget as HTMLElement | null;
-            if (!related || !menubar.contains(related)) {
-              const navState = getNavState(context.navId);
-              if (!navState.activeSubmenuId) {
-                reset();
-              }
-            }
-          });
-
-          // Update on window resize: reset indicator and recalculate
-          // mega panel width if a mega submenu is open.
-          const onResize = () => {
-            reset();
-            const navState = getNavState(context.navId);
-            if (navState.activeSubmenuId) {
-              expandIndicatorForSubmenu(
-                context.navId,
-                navState.activeSubmenuId
-              );
-            }
-          };
-          window.addEventListener('resize', onResize, { passive: true });
-        }
+        // Desktop sliding indicator (hover/focus/resize wiring).
+        setupDesktopIndicator(context.navId, element.ref, getNavState);
       } catch (error) {
         logError('init: Failed to initialize navigation', error);
       }
@@ -1121,7 +787,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
                   ns.activeSubmenuId = context.submenuId ?? null;
                   hoverIntent.activeId = context.submenuId ?? null;
                   if (context.submenuId) {
-                    expandIndicatorForSubmenu(context.navId, context.submenuId);
+                    expandIndicatorForSubmenu(
+                      context.navId,
+                      context.submenuId,
+                      ns.isMobile
+                    );
                   }
                 } catch {
                   // Context may no longer be valid.
@@ -1131,7 +801,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
               navState.activeSubmenuId = context.submenuId ?? null;
               hoverIntent.activeId = context.submenuId ?? null;
               if (context.submenuId) {
-                expandIndicatorForSubmenu(context.navId, context.submenuId);
+                expandIndicatorForSubmenu(
+                  context.navId,
+                  context.submenuId,
+                  navState.isMobile
+                );
               }
             }
           } catch {
@@ -1182,7 +856,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
           try {
             const navState = getNavState(context.navId);
             if (navState.activeSubmenuId === context.submenuId) {
-              resetIndicatorOnClose(context.navId);
+              resetIndicatorOnClose(context.navId, navState.isMobile);
               navState.activeSubmenuId = null;
               hoverIntent.activeId = null;
             }
@@ -1215,12 +889,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           if (submenuId) {
             ns.activeSubmenuId = submenuId;
             hoverIntent.activeId = submenuId;
-            expandIndicatorForSubmenu(context.navId, submenuId);
+            expandIndicatorForSubmenu(context.navId, submenuId, ns.isMobile);
           }
           announce('Submenu opened', { navId: context.navId });
         } else {
           if (ns.activeSubmenuId === submenuId) {
-            resetIndicatorOnClose(context.navId);
+            resetIndicatorOnClose(context.navId, ns.isMobile);
             ns.activeSubmenuId = null;
             hoverIntent.activeId = null;
           }

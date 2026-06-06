@@ -48,19 +48,29 @@ class TestPerformance extends WP_UnitTestCase {
 			$this->markTestSkipped( 'Build directory not found. Run npm run build first.' );
 		}
 
-		$js_files = glob( $build_dir . '/*.js' );
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $build_dir, \RecursiveDirectoryIterator::SKIP_DOTS )
+		);
 
-		foreach ( $js_files as $file ) {
-			$size    = filesize( $file );
-			$size_kb = $size / 1024;
+		$files_checked = 0;
 
-			// JS files should be under 150KB (reasonable for production)
+		foreach ( $iterator as $file ) {
+			if ( 'js' !== strtolower( $file->getExtension() ) ) {
+				continue;
+			}
+
+			++$files_checked;
+			$size_kb = $file->getSize() / 1024;
+
+			// JS files should be under 150KB (reasonable for production).
 			$this->assertLessThan(
 				150,
 				$size_kb,
-				basename( $file ) . " is {$size_kb}KB, should be under 150KB"
+				$file->getFilename() . " is {$size_kb}KB, should be under 150KB"
 			);
 		}
+
+		$this->assertGreaterThan( 0, $files_checked, 'Expected to find compiled JS files to size-check.' );
 	}
 
 	/**

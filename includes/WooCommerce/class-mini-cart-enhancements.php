@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -41,16 +43,9 @@ class Mini_Cart_Enhancements {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/mini-cart.css';
-		if ( ! file_exists( $css_file ) ) {
-			return;
-		}
-
-		wp_enqueue_style(
+		Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-mini-cart',
-			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/mini-cart.css',
-			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-			(string) filemtime( $css_file ),
+			'build/styles/woocommerce/mini-cart'
 		);
 	}
 

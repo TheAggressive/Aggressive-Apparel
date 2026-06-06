@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -113,16 +115,9 @@ class Product_Badges {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-badges.css';
-		if ( ! file_exists( $css_file ) ) {
-			return;
-		}
-
-		wp_enqueue_style(
+		Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-product-badges',
-			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-badges.css',
-			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-			(string) filemtime( $css_file ),
+			'build/styles/woocommerce/product-badges'
 		);
 	}
 
@@ -134,13 +129,9 @@ class Product_Badges {
 	 * @return string Modified HTML.
 	 */
 	public function inject_badges( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) ) {
-			return $block_content;
-		}
-
 		// Target product image blocks (archives use core/post-featured-image,
 		// single product related/cross-sells use woocommerce/product-image).
-		if ( ! in_array( $block['blockName'], self::TARGET_BLOCKS, true ) ) {
+		if ( ! Block_Render_Helper::block_name_in( $block, self::TARGET_BLOCKS ) ) {
 			return $block_content;
 		}
 
@@ -160,12 +151,7 @@ class Product_Badges {
 		}
 
 		// Append badges before closing tag of the wrapper figure/div.
-		return preg_replace(
-			'/(<\/(?:figure|div)>\s*)$/i',
-			$badges_html . '$1',
-			$block_content,
-			1,
-		) ?? $block_content;
+		return Block_Render_Helper::append_before_wrapper_close( $block_content, $badges_html );
 	}
 
 	/**
@@ -409,12 +395,7 @@ class Product_Badges {
 	 * @return \WC_Product|null
 	 */
 	private function get_current_product(): ?\WC_Product {
-		if ( ! function_exists( 'wc_get_product' ) ) {
-			return null;
-		}
-
-		$product = wc_get_product( get_the_ID() );
-		return $product instanceof \WC_Product ? $product : null;
+		return Product_Context::get_current_product();
 	}
 
 	/**
@@ -426,13 +407,6 @@ class Product_Badges {
 	 * @return bool
 	 */
 	private function is_product_page(): bool {
-		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-
-		return is_shop() || is_product_category() || is_product_tag() || is_product() || is_cart() || is_search();
+		return Product_Context::is_product_display_page();
 	}
 }

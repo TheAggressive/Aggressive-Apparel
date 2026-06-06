@@ -130,6 +130,112 @@ class Asset_Loader {
 	}
 
 	/**
+	 * Enqueue a feature stylesheet by relative build path.
+	 *
+	 * Versioned via `filemtime` (these standalone CSS bundles have no
+	 * `.asset.php` manifest). The global token layer is added as a dependency
+	 * automatically. Returns whether the file existed so callers can guard
+	 * follow-up work such as `wp_add_inline_style()`.
+	 *
+	 * @param string $handle        Style handle.
+	 * @param string $relative_path Path relative to theme root, without extension
+	 *                              (e.g. 'build/styles/woocommerce/size-guide').
+	 * @param array  $deps          Additional style dependencies.
+	 * @return bool True when the file existed and was enqueued.
+	 */
+	public static function enqueue_feature_style( string $handle, string $relative_path, array $deps = array() ): bool {
+		$file = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path . '.css';
+
+		if ( ! file_exists( $file ) ) {
+			return false;
+		}
+
+		if ( self::TOKENS_HANDLE !== $handle && ! in_array( self::TOKENS_HANDLE, $deps, true ) ) {
+			$deps[] = self::TOKENS_HANDLE;
+		}
+
+		wp_enqueue_style(
+			$handle,
+			AGGRESSIVE_APPAREL_URI . '/' . $relative_path . '.css',
+			$deps,
+			(string) filemtime( $file )
+		);
+
+		return true;
+	}
+
+	/**
+	 * Register and enqueue an Interactivity API script module.
+	 *
+	 * `@wordpress/interactivity` is prepended to the dependency list
+	 * automatically unless `$with_interactivity` is false. No-ops gracefully
+	 * on WordPress versions without the Script Modules API or when the build
+	 * artifact is missing.
+	 *
+	 * @param string $module_id          Module identifier (e.g. '@aggressive-apparel/size-guide').
+	 * @param string $relative_path      Path relative to theme root, without extension
+	 *                                   (e.g. 'build/interactivity/size-guide').
+	 * @param array  $deps               Additional module dependencies.
+	 * @param bool   $with_interactivity Whether to depend on the Interactivity API runtime.
+	 * @return void
+	 */
+	public static function enqueue_interactivity_module( string $module_id, string $relative_path, array $deps = array(), bool $with_interactivity = true ): void {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		$file = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path . '.js';
+
+		if ( ! file_exists( $file ) ) {
+			return;
+		}
+
+		if ( $with_interactivity && ! in_array( '@wordpress/interactivity', $deps, true ) ) {
+			array_unshift( $deps, '@wordpress/interactivity' );
+		}
+
+		wp_register_script_module(
+			$module_id,
+			AGGRESSIVE_APPAREL_URI . '/' . $relative_path . '.js',
+			$deps,
+			AGGRESSIVE_APPAREL_VERSION
+		);
+		wp_enqueue_script_module( $module_id );
+	}
+
+	/**
+	 * Enqueue a compiled admin script by relative build path.
+	 *
+	 * Versioned via `filemtime` (admin bundles have no `.asset.php` manifest).
+	 * Returns whether the file existed so callers can guard follow-up work such
+	 * as `wp_localize_script()`.
+	 *
+	 * @param string $handle        Script handle.
+	 * @param string $relative_path Path relative to theme root, without extension
+	 *                              (e.g. 'build/scripts/admin/color-pattern-admin').
+	 * @param array  $deps          Script dependencies.
+	 * @param bool   $in_footer     Whether to print the script in the footer.
+	 * @return bool True when the file existed and was enqueued.
+	 */
+	public static function enqueue_admin_script( string $handle, string $relative_path, array $deps = array(), bool $in_footer = true ): bool {
+		$file = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path . '.js';
+
+		if ( ! file_exists( $file ) ) {
+			return false;
+		}
+
+		wp_enqueue_script(
+			$handle,
+			AGGRESSIVE_APPAREL_URI . '/' . $relative_path . '.js',
+			$deps,
+			(string) filemtime( $file ),
+			$in_footer
+		);
+
+		return true;
+	}
+
+	/**
 	 * Enqueue the design token alias layer.
 	 *
 	 * @return void

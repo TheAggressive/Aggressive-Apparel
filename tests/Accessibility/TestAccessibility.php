@@ -2,6 +2,9 @@
 /**
  * Accessibility Tests
  *
+ * These exercise the theme's actual templates, parts and configuration rather
+ * than asserting against hardcoded HTML strings.
+ *
  * @package Aggressive_Apparel
  */
 
@@ -13,121 +16,126 @@ use WP_UnitTestCase;
  * Accessibility Test Case
  */
 class TestAccessibility extends WP_UnitTestCase {
+
 	/**
-	 * Test skip to content link exists
+	 * The header template part must expose a skip-to-content link.
 	 */
-	public function test_skip_link_class_exists() {
-		$this->assertTrue( class_exists( 'DOMDocument' ), 'DOMDocument should be available' );
+	public function test_header_part_has_skip_link() {
+		$header = get_template_directory() . '/parts/header.html';
+		$this->assertFileExists( $header );
+
+		$markup = (string) file_get_contents( $header );
+		$this->assertStringContainsString(
+			'skip-to-content',
+			$markup,
+			'Header part should include a skip-to-content link.'
+		);
+		$this->assertStringContainsString(
+			'screen-reader-text',
+			$markup,
+			'Skip link should be visually hidden via screen-reader-text.'
+		);
 	}
 
 	/**
-	 * Test images have alt attributes
+	 * Every page-level template must declare a <main> landmark.
 	 */
-	public function test_images_should_have_alt_text() {
-		$image_html = '<img src="test.jpg" alt="Test image">';
+	public function test_all_templates_have_main_landmark() {
+		$templates = glob( get_template_directory() . '/templates/*.html' );
+		$this->assertNotEmpty( $templates, 'Theme should ship block templates.' );
 
-		$this->assertStringContainsString( 'alt=', $image_html );
+		foreach ( $templates as $template ) {
+			$markup = (string) file_get_contents( $template );
+
+			// Email templates under templates/emails are not page documents.
+			if ( false !== strpos( $markup, '<!DOCTYPE' ) ) {
+				continue;
+			}
+
+			$this->assertStringContainsString(
+				'<main',
+				$markup,
+				sprintf( 'Template %s should contain a <main> landmark.', basename( $template ) )
+			);
+		}
 	}
 
 	/**
-	 * Test form labels exist for inputs
+	 * Every image in the theme's block patterns must declare an alt attribute.
+	 *
+	 * Patterns are rendered (so PHP-embedded src values resolve) and parsed
+	 * with DOMDocument, which is robust against markup that regex cannot
+	 * reliably tokenise.
 	 */
-	public function test_form_inputs_have_labels() {
-		$form_html = '<label for="email">Email</label><input type="email" id="email" name="email">';
+	public function test_pattern_images_have_alt_text() {
+		if ( ! class_exists( '\WP_Block_Patterns_Registry' ) ) {
+			$this->markTestSkipped( 'Block pattern registry unavailable.' );
+		}
 
-		$this->assertStringContainsString( '<label for="email">', $form_html );
-		$this->assertStringContainsString( 'id="email"', $form_html );
+		$patterns = \WP_Block_Patterns_Registry::get_instance()->get_all_registered();
+		$theme_patterns = array_filter(
+			$patterns,
+			static fn( $pattern ) => isset( $pattern['name'] )
+				&& 0 === strpos( (string) $pattern['name'], 'aggressive-apparel/' )
+		);
+
+		$this->assertNotEmpty( $theme_patterns, 'Theme should register block patterns.' );
+
+		$images_checked = 0;
+
+		foreach ( $theme_patterns as $pattern ) {
+			$html = do_blocks( (string) ( $pattern['content'] ?? '' ) );
+			if ( '' === trim( $html ) || false === strpos( $html, '<img' ) ) {
+				continue;
+			}
+
+			$doc = new \DOMDocument();
+			libxml_use_internal_errors( true );
+			$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $html );
+			libxml_clear_errors();
+
+			foreach ( $doc->getElementsByTagName( 'img' ) as $img ) {
+				++$images_checked;
+				$this->assertTrue(
+					$img->hasAttribute( 'alt' ),
+					sprintf( 'Image without alt attribute in pattern %s', $pattern['name'] )
+				);
+			}
+		}
+
+		$this->assertGreaterThan( 0, $images_checked, 'Expected to validate at least one pattern image.' );
 	}
 
 	/**
-	 * Test ARIA landmarks
+	 * theme.json must define a colour palette so users get accessible presets.
 	 */
-	public function test_aria_landmarks() {
-		$html = '<main role="main" aria-label="Content">Content</main>';
-
-		$this->assertStringContainsString( 'role="main"', $html );
-		$this->assertStringContainsString( 'aria-label=', $html );
-	}
-
-	/**
-	 * Test heading hierarchy
-	 */
-	public function test_heading_hierarchy() {
-		$content = '<h1>Title</h1><h2>Subtitle</h2><h3>Section</h3>';
-
-		$h1_count = substr_count( $content, '<h1>' );
-		$this->assertEquals( 1, $h1_count, 'Should have exactly one H1' );
-	}
-
-	/**
-	 * Test color contrast helpers exist
-	 */
-	public function test_theme_json_has_colors() {
+	public function test_theme_json_defines_color_palette() {
 		$theme_json_path = get_template_directory() . '/theme.json';
 		$this->assertFileExists( $theme_json_path );
 
-		$theme_json = json_decode( file_get_contents( $theme_json_path ), true );
+		$theme_json = json_decode( (string) file_get_contents( $theme_json_path ), true );
+		$this->assertIsArray( $theme_json, 'theme.json should be valid JSON.' );
 		$this->assertArrayHasKey( 'settings', $theme_json );
 		$this->assertArrayHasKey( 'color', $theme_json['settings'] );
-	}
+		$this->assertArrayHasKey( 'palette', $theme_json['settings']['color'] );
 
-	/**
-	 * Test focus states for interactive elements
-	 */
-	public function test_focus_styles_defined() {
-		// For block themes, check if theme.json exists and has focus-related settings
-		$theme_json_path = get_template_directory() . '/theme.json';
-		$this->assertFileExists( $theme_json_path, 'theme.json should exist for block theme' );
+		$palette = $theme_json['settings']['color']['palette'];
+		$this->assertNotEmpty( $palette, 'Colour palette should define at least one colour.' );
 
-		$theme_json = json_decode( file_get_contents( $theme_json_path ), true );
-		$this->assertIsArray( $theme_json, 'theme.json should be valid JSON' );
-
-		// Check if theme.json has styles defined (focus styles are typically in global styles)
-		$this->assertArrayHasKey( 'styles', $theme_json, 'theme.json should have styles defined' );
-
-		// Check for main stylesheet existence
-		$stylesheet_path = get_template_directory() . '/style.css';
-		$this->assertFileExists( $stylesheet_path, 'Main stylesheet should exist' );
-
-		// For block themes, focus styles are typically handled by WordPress core or theme.json
-		// The important thing is that the theme is properly configured
-		$this->assertTrue( current_theme_supports( 'wp-block-styles' ), 'Theme should support block styles' );
-	}
-
-	/**
-	 * Test keyboard navigation support
-	 */
-	public function test_navigation_menu_keyboard_accessible() {
-		// Test that navigation menu functions work (menus may not be set up in test environment)
-		$this->assertTrue( function_exists( 'has_nav_menu' ) );
-		$this->assertTrue( function_exists( 'wp_nav_menu' ) );
-
-		// In test environment, menus might not be registered yet, so we test the functions work
-		$this->assertIsBool( has_nav_menu( 'primary' ) );
-		$this->assertIsBool( has_nav_menu( 'footer' ) );
-
-		// Test that we can register a navigation menu location (accessibility requirement)
-		$this->assertTrue( function_exists( 'register_nav_menu' ) );
-
-		// Test that menu registration functions are available (accessibility requirement)
-		$this->assertTrue( function_exists( 'register_nav_menus' ), 'register_nav_menus function should exist' );
-		$this->assertTrue( function_exists( 'get_registered_nav_menus' ), 'get_registered_nav_menus function should exist' );
-
-		// Test that menu registration can be attempted (theme setup requirement)
-		if ( function_exists( 'register_nav_menus' ) ) {
-			// Test that the function can be called without throwing exceptions
-			try {
-				$result = register_nav_menus(
-					array(
-						'primary' => 'Primary Navigation',
-						'footer'  => 'Footer Navigation',
-					)
-				);
-				// register_nav_menus doesn't return a value, so we just check it doesn't throw
-				$this->assertTrue( true, 'register_nav_menus executed without errors' );
-			} catch ( \Exception $e ) {
-				$this->fail( 'register_nav_menus threw an exception: ' . $e->getMessage() );
-			}
+		foreach ( $palette as $color ) {
+			$this->assertArrayHasKey( 'slug', $color );
+			$this->assertArrayHasKey( 'color', $color );
 		}
+	}
+
+	/**
+	 * theme.json must define global styles where focus/element styling lives.
+	 */
+	public function test_theme_json_defines_styles() {
+		$theme_json_path = get_template_directory() . '/theme.json';
+		$theme_json      = json_decode( (string) file_get_contents( $theme_json_path ), true );
+
+		$this->assertIsArray( $theme_json );
+		$this->assertArrayHasKey( 'styles', $theme_json, 'theme.json should define global styles.' );
 	}
 }

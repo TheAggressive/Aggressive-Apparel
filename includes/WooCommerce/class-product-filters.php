@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -129,36 +130,23 @@ class Product_Filters {
 		// .aa-product-filters__* so there is zero visual impact on
 		// non-shop pages. This avoids the is_shop_page() timing issue
 		// where WooCommerce conditional tags may not be available yet.
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-filters.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-product-filters',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-filters.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
-
-		if ( ! function_exists( 'wp_register_script_module' ) ) {
-			return;
-		}
-
-		wp_register_script_module(
-			'@aggressive-apparel/product-filters',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/product-filters.js',
-			array(
-				'@wordpress/interactivity',
-				'@aggressive-apparel/scroll-lock',
-				'@aggressive-apparel/helpers',
-				'@aggressive-apparel/use-overlay',
-			),
-			AGGRESSIVE_APPAREL_VERSION,
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-product-filters',
+			'build/styles/woocommerce/product-filters'
 		);
 
 		// Enqueue unconditionally so the module appears in the wp_head import
 		// map. On non-shop pages the JS loads but does nothing because no
 		// data-wp-interactive directive exists in the HTML.
-		wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/product-filters',
+			'build/interactivity/product-filters',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**
@@ -195,14 +183,7 @@ class Product_Filters {
 		// Output interactivity state.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			$data             = $this->gather_filter_data();
-			$current_cat_slug = '';
-
-			if ( is_product_category() ) {
-				$term = get_queried_object();
-				if ( $term instanceof \WP_Term ) {
-					$current_cat_slug = $term->slug;
-				}
-			}
+			$current_cat_slug = Product_Context::get_current_category_slug();
 
 			wp_interactivity_state(
 				'aggressive-apparel/product-filters',
@@ -1279,10 +1260,7 @@ class Product_Filters {
 	 * @return bool
 	 */
 	private function is_shop_page(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag();
+		return Product_Context::is_product_archive();
 	}
 
 	/**
@@ -1296,10 +1274,7 @@ class Product_Filters {
 	 *              or product tag archive.
 	 */
 	public static function is_filterable_archive(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag();
+		return Product_Context::is_product_archive();
 	}
 
 	/**

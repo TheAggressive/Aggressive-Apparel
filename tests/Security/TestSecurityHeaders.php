@@ -14,15 +14,46 @@ use WP_UnitTestCase;
  */
 class TestSecurityHeaders extends WP_UnitTestCase {
 	/**
-	 * Test security headers functionality exists
+	 * Test the theme defines the expected hardening headers with correct values.
+	 */
+	public function test_security_headers_map_contains_expected_values() {
+		$headers = \Aggressive_Apparel\Bootstrap::get_security_headers();
+
+		$this->assertIsArray( $headers );
+
+		$expected = array(
+			'X-Content-Type-Options' => 'nosniff',
+			'X-Frame-Options'        => 'SAMEORIGIN',
+			'X-XSS-Protection'       => '1; mode=block',
+			'Referrer-Policy'        => 'strict-origin-when-cross-origin',
+			'Permissions-Policy'     => 'geolocation=(), microphone=(), camera=()',
+		);
+
+		foreach ( $expected as $name => $value ) {
+			$this->assertArrayHasKey( $name, $headers, "Missing security header: {$name}" );
+			$this->assertSame( $value, $headers[ $name ], "Unexpected value for header: {$name}" );
+		}
+	}
+
+	/**
+	 * Test the Permissions-Policy locks down powerful browser features.
+	 */
+	public function test_permissions_policy_restricts_sensitive_features() {
+		$headers = \Aggressive_Apparel\Bootstrap::get_security_headers();
+		$policy  = $headers['Permissions-Policy'] ?? '';
+
+		foreach ( array( 'geolocation=()', 'microphone=()', 'camera=()' ) as $directive ) {
+			$this->assertStringContainsString( $directive, $policy );
+		}
+	}
+
+	/**
+	 * Test the security headers emitter is wired and callable.
 	 */
 	public function test_security_headers_functionality_exists() {
 		$bootstrap = \Aggressive_Apparel\Bootstrap::get_instance();
 
-		// Test that Bootstrap has the security headers method
 		$this->assertTrue( method_exists( $bootstrap, 'add_security_headers' ) );
-
-		// Test that the method exists and is callable (don't actually call it to avoid header issues)
 		$this->assertIsCallable( array( $bootstrap, 'add_security_headers' ) );
 	}
 

@@ -88,16 +88,25 @@ class Color_Pattern_Admin {
 
 		// Enqueue media uploader.
 		wp_enqueue_media();
-		wp_enqueue_script( 'jquery' );
 
-		// Enqueue custom pattern script.
-		wp_enqueue_script(
+		// Enqueue styles.
+		\Aggressive_Apparel\Assets\Asset_Loader::enqueue_style(
 			'aggressive-apparel-pattern-admin',
-			get_template_directory_uri() . '/build/scripts/admin/color-pattern-admin.js',
-			array( 'media-upload', 'thickbox' ),
-			wp_get_theme()->get( 'Version' ),
-			true
+			'build/styles/admin/color-pattern-admin'
 		);
+
+		// Enqueue the compiled pattern admin script following the theme's admin
+		// asset convention (filemtime cache-busting, build/ output). The script
+		// is vanilla TypeScript and does not depend on jQuery.
+		$enqueued = \Aggressive_Apparel\Assets\Asset_Loader::enqueue_admin_script(
+			'aggressive-apparel-pattern-admin',
+			'build/scripts/admin/color-pattern-admin',
+			array( 'media-upload', 'thickbox' )
+		);
+
+		if ( ! $enqueued ) {
+			return;
+		}
 
 		// Localize script with data.
 		wp_localize_script(
@@ -119,12 +128,6 @@ class Color_Pattern_Admin {
 				'allowedTypes' => self::ALLOWED_MIME_TYPES,
 				'maxFileSize'  => self::MAX_FILE_SIZE,
 			)
-		);
-
-		// Enqueue styles.
-		\Aggressive_Apparel\Assets\Asset_Loader::enqueue_style(
-			'aggressive-apparel-pattern-admin',
-			'build/styles/admin/color-pattern-admin'
 		);
 	}
 

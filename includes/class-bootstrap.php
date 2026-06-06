@@ -30,23 +30,23 @@ class Bootstrap {
 	/**
 	 * The single instance of the class
 	 *
-	 * @var Bootstrap
+	 * @var Bootstrap|null
 	 */
-	private static $instance = null;
+	private static ?Bootstrap $instance = null;
 
 	/**
 	 * Service container for dependency management
 	 *
 	 * @var Service_Container
 	 */
-	private $container;
+	private Service_Container $container;
 
 	/**
 	 * Get the singleton instance
 	 *
 	 * @return Bootstrap
 	 */
-	public static function get_instance() {
+	public static function get_instance(): Bootstrap {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -91,6 +91,29 @@ class Bootstrap {
 	}
 
 	/**
+	 * Security headers applied to front-end HTTP responses.
+	 *
+	 * Exposed as a static map so the values can be asserted in tests without
+	 * emitting real headers (which is not possible under PHPUnit).
+	 *
+	 * @return array<string, string> Map of header name => header value.
+	 */
+	public static function get_security_headers(): array {
+		return array(
+			// Prevent MIME type sniffing.
+			'X-Content-Type-Options' => 'nosniff',
+			// Prevent clickjacking attacks.
+			'X-Frame-Options'        => 'SAMEORIGIN',
+			// Enable legacy XSS filtering.
+			'X-XSS-Protection'       => '1; mode=block',
+			// Referrer Policy.
+			'Referrer-Policy'        => 'strict-origin-when-cross-origin',
+			// Permissions Policy (restrict powerful features).
+			'Permissions-Policy'     => 'geolocation=(), microphone=(), camera=()',
+		);
+	}
+
+	/**
 	 * Add security headers to HTTP responses
 	 *
 	 * @return void
@@ -100,20 +123,9 @@ class Bootstrap {
 			return;
 		}
 
-		// Prevent MIME type sniffing.
-		header( 'X-Content-Type-Options: nosniff' );
-
-		// Prevent clickjacking attacks.
-		header( 'X-Frame-Options: SAMEORIGIN' );
-
-		// Enable XSS filtering.
-		header( 'X-XSS-Protection: 1; mode=block' );
-
-		// Referrer Policy.
-		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
-
-		// Feature Policy / Permissions Policy (restrict features).
-		header( 'Permissions-Policy: geolocation=(), microphone=(), camera=()' );
+		foreach ( self::get_security_headers() as $name => $value ) {
+			header( $name . ': ' . $value );
+		}
 	}
 
 
@@ -162,7 +174,7 @@ class Bootstrap {
 
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
-			$this->container->register( 'wc_enhancements', fn() => new WooCommerce\Enhancements() );
+			$this->container->register( 'wc_enhancements', fn( Service_Container $container ) => new WooCommerce\Enhancements( $container ) );
 		}
 	}
 
@@ -247,17 +259,17 @@ class Bootstrap {
 	 *
 	 * @return void
 	 */
-	private function init_hooks() {
+	private function init_hooks(): void {
 		add_filter( 'body_class', array( $this, 'add_body_classes' ), 10, 1 );
 	}
 
 	/**
 	 * Add custom body classes
 	 *
-	 * @param array $classes Existing body classes.
-	 * @return array Modified body classes.
+	 * @param array<int, string> $classes Existing body classes.
+	 * @return array<int, string> Modified body classes.
 	 */
-	public function add_body_classes( $classes ) {
+	public function add_body_classes( array $classes ): array {
 		// Add has-sidebar class if applicable.
 		if ( \is_active_sidebar( 'sidebar-1' ) ) {
 			$classes[] = 'has-sidebar';

@@ -853,9 +853,14 @@ class Custom_Badge_Taxonomy {
 		}
 
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'wp-color-picker' );
 
-		wp_add_inline_script( 'wp-color-picker', self::get_inline_script() );
+		// Enqueue the compiled badge preview admin script following the theme's
+		// admin asset convention (filemtime cache-busting, build/ output).
+		\Aggressive_Apparel\Assets\Asset_Loader::enqueue_admin_script(
+			'aggressive-apparel-badge-preview-admin',
+			'build/scripts/admin/woocommerce/badge-preview-admin',
+			array( 'wp-color-picker' )
+		);
 	}
 
 	/**
@@ -1098,63 +1103,6 @@ class Custom_Badge_Taxonomy {
 			'all_items'     => __( 'All Badges', 'aggressive-apparel' ),
 			'back_to_items' => __( 'Back to Badges', 'aggressive-apparel' ),
 		);
-	}
-
-	/**
-	 * Get inline JS for color picker initialization and live preview.
-	 *
-	 * @return string JavaScript code.
-	 */
-	private static function get_inline_script(): string {
-		return <<<'JS'
-jQuery(document).ready(function($){
-	function updatePreview(){
-		var bg=$('#badge_bg_color').val()||'#000000';
-		var text=$('#badge_text_color').val()||'#ffffff';
-		var emoji=$('#badge_icon').val()||'';
-		var libIcon=$('#badge_library_icon').val()||'';
-		var svgRaw=$('#badge_svg_icon').val()||'';
-		var name=$('#tag-name').val()||$('input[name="name"]').val()||'Badge Name';
-		var iconColor=$('#badge_icon_color').val()||'';
-		var iconSize=parseInt($('#badge_icon_size').val(),10)||0;
-		var iconStyle='display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;';
-		if(iconColor)iconStyle+='color:'+iconColor+';';
-		if(iconSize>0)iconStyle+='font-size:'+iconSize+'px;';
-		var iconHtml='';
-		if(svgRaw){
-			iconHtml='<span class="aggressive-apparel-product-badge__icon" aria-hidden="true" style="'+iconStyle+'">'+svgRaw+'</span>';
-		}else if(libIcon){
-			var libSvg=$('#badge_library_icon option:selected').data('svg')||'';
-			iconHtml='<span class="aggressive-apparel-product-badge__icon" aria-hidden="true" style="'+iconStyle+'">'+libSvg+'</span>';
-		}else if(emoji){
-			iconHtml='<span class="aggressive-apparel-product-badge__icon" aria-hidden="true" style="'+iconStyle+'">'+$('<span>').text(emoji).html()+'</span>';
-		}
-		var borderColor=$('#badge_border_color').val()||'';
-		var borderWidth=parseInt($('#badge_border_width').val(),10)||0;
-		var borderStyle=$('#badge_border_style').val()||'none';
-		var rTL=parseInt($('#badge_radius_tl').val(),10)||0;
-		var rTR=parseInt($('#badge_radius_tr').val(),10)||0;
-		var rBR=parseInt($('#badge_radius_br').val(),10)||0;
-		var rBL=parseInt($('#badge_radius_bl').val(),10)||0;
-		var css={'display':'inline-flex','align-items':'center','gap':'0.25em','background-color':bg,'color':text};
-		if(borderWidth>0&&borderColor&&borderStyle!=='none'){
-			css['border']=borderWidth+'px '+borderStyle+' '+borderColor;
-		}else{
-			css['border']='none';
-		}
-		css['border-radius']=rTL+'px '+rTR+'px '+rBR+'px '+rBL+'px';
-		var pX=parseInt($('#badge_padding_x').val(),10);
-		var pY=parseInt($('#badge_padding_y').val(),10);
-		if(isNaN(pX))pX=8;
-		if(isNaN(pY))pY=3;
-		css['padding']=pY+'px '+pX+'px';
-		$('#aa-badge-preview-el').css(css).html(iconHtml+$('<span>').text(name).html());
-	}
-	$('.aa-badge-color-picker').wpColorPicker({change:function(){setTimeout(updatePreview,50);}});
-	$('#badge_icon,#badge_library_icon,#badge_svg_icon,#tag-name,input[name="name"],#badge_border_width,#badge_border_style,#badge_radius_tl,#badge_radius_tr,#badge_radius_br,#badge_radius_bl,#badge_padding_x,#badge_padding_y,#badge_icon_size').on('input change',updatePreview);
-	updatePreview();
-});
-JS;
 	}
 
 	/**

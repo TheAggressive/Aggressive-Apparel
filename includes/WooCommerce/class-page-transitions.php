@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -62,15 +64,10 @@ class Page_Transitions {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/page-transitions.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-page-transitions',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/page-transitions.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-page-transitions',
+			'build/styles/woocommerce/page-transitions'
+		);
 	}
 
 	/**
@@ -86,22 +83,14 @@ class Page_Transitions {
 			return;
 		}
 
-		if ( ! function_exists( 'wp_register_script_module' ) ) {
-			return;
-		}
-
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/interactivity/page-transitions.js';
-		if ( ! file_exists( $js_file ) ) {
-			return;
-		}
-
-		wp_register_script_module(
+		// No Interactivity API dependency — this module is a standalone
+		// navigation progress bar + prefetch helper.
+		Asset_Loader::enqueue_interactivity_module(
 			'@aggressive-apparel/page-transitions',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/page-transitions.js',
+			'build/interactivity/page-transitions',
 			array(),
-			(string) filemtime( $js_file ),
+			false
 		);
-		wp_enqueue_script_module( '@aggressive-apparel/page-transitions' );
 	}
 
 	/**
@@ -343,14 +332,7 @@ class Page_Transitions {
 	 * @return bool
 	 */
 	private function is_listing_page(): bool {
-		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-
-		return is_shop() || is_product_category() || is_product_tag() || is_search();
+		return Product_Context::is_product_listing();
 	}
 
 	/**

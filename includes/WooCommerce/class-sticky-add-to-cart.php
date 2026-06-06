@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,41 +48,26 @@ class Sticky_Add_To_Cart {
 			return;
 		}
 
-		$pills_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/option-pills.css';
-		if ( file_exists( $pills_css ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-option-pills',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/option-pills.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $pills_css ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-option-pills',
+			'build/styles/woocommerce/option-pills'
+		);
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/sticky-add-to-cart.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-sticky-add-to-cart',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/sticky-add-to-cart.css',
-				array( 'aggressive-apparel-option-pills' ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-sticky-add-to-cart',
+			'build/styles/woocommerce/sticky-add-to-cart',
+			array( 'aggressive-apparel-option-pills' )
+		);
 
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/interactivity/sticky-add-to-cart.js';
-		if ( function_exists( 'wp_register_script_module' ) && file_exists( $js_file ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/sticky-add-to-cart',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/sticky-add-to-cart.js',
-				array(
-					'@wordpress/interactivity',
-					'@aggressive-apparel/scroll-lock',
-					'@aggressive-apparel/helpers',
-					'@aggressive-apparel/use-overlay',
-				),
-				(string) filemtime( $js_file ),
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/sticky-add-to-cart' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/sticky-add-to-cart',
+			'build/interactivity/sticky-add-to-cart',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**
@@ -622,6 +609,6 @@ class Sticky_Add_To_Cart {
 	 * @return bool
 	 */
 	private function is_product_page(): bool {
-		return function_exists( 'is_product' ) && is_product();
+		return Product_Context::is_single_product();
 	}
 }

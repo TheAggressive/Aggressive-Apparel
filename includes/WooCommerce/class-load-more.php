@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,25 +48,15 @@ class Load_More {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/load-more.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-load-more',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/load-more.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-load-more',
+			'build/styles/woocommerce/load-more'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/load-more',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/load-more.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/load-more' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/load-more',
+			'build/interactivity/load-more'
+		);
 	}
 
 	/**
@@ -83,7 +75,7 @@ class Load_More {
 			return $block_content;
 		}
 
-		$mode = get_option( Feature_Settings::LOAD_MORE_MODE_OPTION, 'load_more' );
+		$mode = Feature_Settings::get_load_more_mode();
 
 		$load_more_html = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center" data-wp-interactive="aggressive-apparel/load-more" data-wp-init="callbacks.init">';
 
@@ -131,19 +123,13 @@ class Load_More {
 
 		global $wp_query;
 
-		$mode           = get_option( Feature_Settings::LOAD_MORE_MODE_OPTION, 'load_more' );
+		$mode           = Feature_Settings::get_load_more_mode();
 		$per_page       = (int) get_option( 'posts_per_page', 12 );
 		$total_products = (int) ( $wp_query->found_posts ?? 0 );
 		$total_pages    = (int) ( $wp_query->max_num_pages ?? 1 );
 
 		// Detect current category for SSR mode API calls.
-		$current_cat_slug = '';
-		if ( is_product_category() ) {
-			$term = get_queried_object();
-			if ( $term instanceof \WP_Term ) {
-				$current_cat_slug = $term->slug;
-			}
-		}
+		$current_cat_slug = Product_Context::get_current_category_slug();
 
 		wp_interactivity_state(
 			'aggressive-apparel/load-more',
@@ -171,11 +157,7 @@ class Load_More {
 	 * @return bool
 	 */
 	private function is_shop_page(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-
-		return is_shop() || is_product_category() || is_product_tag();
+		return Product_Context::is_product_archive();
 	}
 
 	/**

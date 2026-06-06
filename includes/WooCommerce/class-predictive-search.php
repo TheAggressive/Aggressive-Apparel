@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -48,25 +50,16 @@ class Predictive_Search {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/predictive-search.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-predictive-search',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/predictive-search.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-predictive-search',
+			'build/styles/woocommerce/predictive-search'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/predictive-search',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/predictive-search.js',
-				array( '@wordpress/interactivity', '@aggressive-apparel/helpers' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/predictive-search' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/predictive-search',
+			'build/interactivity/predictive-search',
+			array( '@aggressive-apparel/helpers' )
+		);
 	}
 
 	/**

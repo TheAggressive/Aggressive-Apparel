@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -43,16 +45,9 @@ class Free_Shipping_Bar {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/free-shipping-bar.css';
-		if ( ! file_exists( $css_file ) ) {
-			return;
-		}
-
-		wp_enqueue_style(
+		Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-free-shipping-bar',
-			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/free-shipping-bar.css',
-			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-			(string) filemtime( $css_file ),
+			'build/styles/woocommerce/free-shipping-bar'
 		);
 	}
 

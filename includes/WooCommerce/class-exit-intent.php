@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -79,30 +80,20 @@ class Exit_Intent {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/exit-intent.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-exit-intent',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/exit-intent.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-exit-intent',
+			'build/styles/woocommerce/exit-intent'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/exit-intent',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/exit-intent.js',
-				array(
-					'@wordpress/interactivity',
-					'@aggressive-apparel/scroll-lock',
-					'@aggressive-apparel/helpers',
-					'@aggressive-apparel/use-overlay',
-				),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/exit-intent' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/exit-intent',
+			'build/interactivity/exit-intent',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**
@@ -392,27 +383,11 @@ class Exit_Intent {
 			return false;
 		}
 
-		// Show on shop, product, and cart pages.
-		if ( function_exists( 'is_shop' ) && is_shop() ) {
-			return true;
-		}
+		// Show on shop, category, tag, product, and cart pages.
+		$is_cart = function_exists( 'is_cart' ) && is_cart();
 
-		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
-			return true;
-		}
-
-		if ( function_exists( 'is_product_tag' ) && is_product_tag() ) {
-			return true;
-		}
-
-		if ( function_exists( 'is_product' ) && is_product() ) {
-			return true;
-		}
-
-		if ( function_exists( 'is_cart' ) && is_cart() ) {
-			return true;
-		}
-
-		return false;
+		return Product_Context::is_product_archive()
+			|| Product_Context::is_single_product()
+			|| $is_cart;
 	}
 }

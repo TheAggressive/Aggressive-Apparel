@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -78,25 +80,15 @@ class Back_In_Stock {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/back-in-stock.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-back-in-stock',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/back-in-stock.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-back-in-stock',
+			'build/styles/woocommerce/back-in-stock'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/back-in-stock',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/back-in-stock.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/back-in-stock' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/back-in-stock',
+			'build/interactivity/back-in-stock'
+		);
 	}
 
 	/**
@@ -533,12 +525,6 @@ class Back_In_Stock {
 	 * @return bool
 	 */
 	private function is_listing_page(): bool {
-		if ( (bool) apply_filters( 'aggressive_apparel_is_listing_page', false ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-		return is_shop() || is_product_category() || is_product_tag() || is_search();
+		return Product_Context::is_product_listing();
 	}
 }

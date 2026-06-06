@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -250,27 +252,14 @@ BLOCKS;
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/wishlist.css';
-		if ( ! file_exists( $css_file ) ) {
+		if ( ! Asset_Loader::enqueue_feature_style( 'aggressive-apparel-wishlist', 'build/styles/woocommerce/wishlist' ) ) {
 			return;
 		}
 
-		wp_enqueue_style(
-			'aggressive-apparel-wishlist',
-			AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/wishlist.css',
-			array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-			(string) filemtime( $css_file ),
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/wishlist',
+			'build/interactivity/wishlist'
 		);
-
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/wishlist',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/wishlist.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/wishlist' );
-		}
 
 		// Provide the public Store API URL so the wishlist page can fetch product details.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
@@ -295,7 +284,7 @@ BLOCKS;
 	 * @return string Modified HTML.
 	 */
 	public function inject_heart_icon( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || 'core/post-featured-image' !== $block['blockName'] ) {
+		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
 			return $block_content;
 		}
 
@@ -311,7 +300,7 @@ BLOCKS;
 
 		// Admin setting wins: when set to `block`, the user is fully in
 		// charge of placement via the Wishlist Button block.
-		$placement = get_option( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		$placement = Feature_Settings::get_wishlist_button_placement();
 		if ( 'block' === $placement ) {
 			return $block_content;
 		}
@@ -341,12 +330,7 @@ BLOCKS;
 
 		$button = $this->get_heart_button_html( $product_id );
 
-		return preg_replace(
-			'/(<\/(?:figure|div)>\s*)$/i',
-			$button . '$1',
-			$block_content,
-			1,
-		) ?? $block_content;
+		return Block_Render_Helper::append_before_wrapper_close( $block_content, $button );
 	}
 
 	/**
@@ -370,7 +354,7 @@ BLOCKS;
 			return;
 		}
 
-		$placement = get_option( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		$placement = Feature_Settings::get_wishlist_button_placement();
 		if ( 'block' === $placement ) {
 			return;
 		}
@@ -496,25 +480,7 @@ BLOCKS;
 	 * @return int Product post ID, or 0 when unavailable.
 	 */
 	public static function get_current_product_id(): int {
-		if ( ! function_exists( 'get_post_type' ) ) {
-			return 0;
-		}
-
-		$post_id = (int) get_the_ID();
-		if ( $post_id > 0 && 'product' === get_post_type( $post_id ) ) {
-			return $post_id;
-		}
-
-		// Fallback: queried object on single product pages, in case the
-		// block renders before the loop has set up post data.
-		if ( function_exists( 'is_product' ) && is_product() ) {
-			$queried = get_queried_object_id();
-			if ( $queried > 0 && 'product' === get_post_type( $queried ) ) {
-				return $queried;
-			}
-		}
-
-		return 0;
+		return Product_Context::resolve_product_id();
 	}
 
 	/**

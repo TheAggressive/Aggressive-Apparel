@@ -813,18 +813,15 @@ class Product_Tabs_Admin {
 			);
 		}
 
-		$js_file = AGGRESSIVE_APPAREL_DIR . '/build/scripts/admin/product-tabs-repeater.js';
-		if ( ! file_exists( $js_file ) ) {
+		$enqueued = \Aggressive_Apparel\Assets\Asset_Loader::enqueue_admin_script(
+			'aggressive-apparel-product-tabs-admin',
+			'build/scripts/admin/product-tabs-repeater',
+			array()
+		);
+
+		if ( ! $enqueued ) {
 			return;
 		}
-
-		wp_enqueue_script(
-			'aggressive-apparel-product-tabs-admin',
-			AGGRESSIVE_APPAREL_URI . '/build/scripts/admin/product-tabs-repeater.js',
-			array(),
-			(string) filemtime( $js_file ),
-			true
-		);
 
 		wp_localize_script(
 			'aggressive-apparel-product-tabs-admin',

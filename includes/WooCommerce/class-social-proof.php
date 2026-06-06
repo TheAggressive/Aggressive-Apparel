@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -91,25 +92,15 @@ class Social_Proof {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/social-proof.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-social-proof',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/social-proof.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-social-proof',
+			'build/styles/woocommerce/social-proof'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/social-proof',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/social-proof.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/social-proof' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/social-proof',
+			'build/interactivity/social-proof'
+		);
 	}
 
 	/**
@@ -634,8 +625,8 @@ class Social_Proof {
 		$min_age_seconds = $min_age_minutes * MINUTE_IN_SECONDS;
 		$cutoff_ts       = time() - $min_age_seconds;
 
-		$display_mode = (string) get_option( Feature_Settings::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
-		$location_key = (string) get_option( Feature_Settings::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
+		$display_mode = Feature_Settings::get_social_proof_display_mode();
+		$location_key = Feature_Settings::get_social_proof_location_granularity();
 
 		$orders = wc_get_orders(
 			array(
@@ -944,8 +935,8 @@ class Social_Proof {
 		$product_name = (string) $product->get_name();
 		$thumbnail    = $this->get_product_thumbnail( $product );
 		$permalink    = (string) $product->get_permalink();
-		$display_mode = (string) get_option( Feature_Settings::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
-		$location_key = (string) get_option( Feature_Settings::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
+		$display_mode = Feature_Settings::get_social_proof_display_mode();
+		$location_key = Feature_Settings::get_social_proof_location_granularity();
 
 		$identity = '';
 		if ( 'initial' === $display_mode ) {
@@ -1021,10 +1012,6 @@ class Social_Proof {
 	 * @return bool
 	 */
 	private function should_show(): bool {
-		if ( ! function_exists( 'is_shop' ) ) {
-			return false;
-		}
-
-		return is_shop() || is_product_category() || is_product_tag() || is_product();
+		return Product_Context::is_product_archive() || Product_Context::is_single_product();
 	}
 }

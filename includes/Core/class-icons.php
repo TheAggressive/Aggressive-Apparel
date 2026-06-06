@@ -91,7 +91,7 @@ class Icons {
 		}
 
 		// Themes/plugins append icons without editing core SVG definitions.
-		// Filter docblock lives next to Feature_Settings::render_social_proof_icon_help_field().
+		// Filter docblock lives next to Feature_Settings_Fields::render_social_proof_icon_help_field().
 		$merged = apply_filters( 'aggressive_apparel_icon_definitions', self::ICONS );
 
 		if ( ! is_array( $merged ) || array() === $merged ) {

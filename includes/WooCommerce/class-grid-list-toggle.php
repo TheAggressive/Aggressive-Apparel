@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
@@ -46,25 +47,15 @@ class Grid_List_Toggle {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/grid-list-toggle.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-grid-list-toggle',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/grid-list-toggle.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-grid-list-toggle',
+			'build/styles/woocommerce/grid-list-toggle'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/grid-list-toggle',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/grid-list-toggle.js',
-				array( '@wordpress/interactivity' ),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/grid-list-toggle' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/grid-list-toggle',
+			'build/interactivity/grid-list-toggle'
+		);
 	}
 
 	/**

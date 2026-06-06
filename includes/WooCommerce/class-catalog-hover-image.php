@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -48,18 +50,15 @@ class Catalog_Hover_Image {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/catalog-hover-image.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-catalog-hover-image',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/catalog-hover-image.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
+		$enqueued = Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-catalog-hover-image',
+			'build/styles/woocommerce/catalog-hover-image'
+		);
 
+		if ( $enqueued ) {
 			// Exit duration is user-configurable; emit CSS variable only when it
 			// differs from the stylesheet default (350ms) to avoid no-op output.
-			$raw_duration = (int) get_option( Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+			$raw_duration = Feature_Settings::get_hover_image_exit_duration();
 			if ( 350 !== $raw_duration ) {
 				$duration = max( 50, min( 1500, $raw_duration ) );
 				wp_add_inline_style(
@@ -81,7 +80,7 @@ class Catalog_Hover_Image {
 	 * @return string Modified HTML.
 	 */
 	public function inject_hover_image( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || 'core/post-featured-image' !== $block['blockName'] ) {
+		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
 			return $block_content;
 		}
 
@@ -96,8 +95,8 @@ class Catalog_Hover_Image {
 		}
 
 		$hover_image_id = (int) $gallery_ids[0];
-		$animation      = (string) get_option( Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
-		$exit           = (string) get_option( Feature_Settings::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
+		$animation      = Feature_Settings::get_hover_image_animation();
+		$exit           = Feature_Settings::get_hover_image_exit_animation();
 
 		$hover_img = wp_get_attachment_image(
 			$hover_image_id,
@@ -125,12 +124,7 @@ class Catalog_Hover_Image {
 		);
 
 		// Inject before the last closing </figure> or </div> in the block.
-		return preg_replace(
-			'/(<\/(?:figure|div)>\s*)$/i',
-			$hover_html . '$1',
-			$block_content,
-			1,
-		) ?? $block_content;
+		return Block_Render_Helper::append_before_wrapper_close( $block_content, $hover_html );
 	}
 
 	/**
@@ -139,10 +133,6 @@ class Catalog_Hover_Image {
 	 * @return \WC_Product|null
 	 */
 	private function get_current_product(): ?\WC_Product {
-		if ( ! function_exists( 'wc_get_product' ) ) {
-			return null;
-		}
-		$product = wc_get_product( get_the_ID() );
-		return $product instanceof \WC_Product ? $product : null;
+		return Product_Context::get_current_product();
 	}
 }

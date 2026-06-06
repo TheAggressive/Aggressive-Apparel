@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+use Aggressive_Apparel\Core\Cache_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -117,30 +120,20 @@ class Size_Guide {
 			return;
 		}
 
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/size-guide.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'aggressive-apparel-size-guide',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/size-guide.css',
-				array( \Aggressive_Apparel\Assets\Asset_Loader::TOKENS_HANDLE ),
-				(string) filemtime( $css_file ),
-			);
-		}
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-size-guide',
+			'build/styles/woocommerce/size-guide'
+		);
 
-		if ( function_exists( 'wp_register_script_module' ) ) {
-			wp_register_script_module(
-				'@aggressive-apparel/size-guide',
-				AGGRESSIVE_APPAREL_URI . '/build/interactivity/size-guide.js',
-				array(
-					'@wordpress/interactivity',
-					'@aggressive-apparel/scroll-lock',
-					'@aggressive-apparel/helpers',
-					'@aggressive-apparel/use-overlay',
-				),
-				AGGRESSIVE_APPAREL_VERSION,
-			);
-			wp_enqueue_script_module( '@aggressive-apparel/size-guide' );
-		}
+		Asset_Loader::enqueue_interactivity_module(
+			'@aggressive-apparel/size-guide',
+			'build/interactivity/size-guide',
+			array(
+				'@aggressive-apparel/scroll-lock',
+				'@aggressive-apparel/helpers',
+				'@aggressive-apparel/use-overlay',
+			)
+		);
 	}
 
 	/**
@@ -187,15 +180,12 @@ class Size_Guide {
 	 */
 	private function get_size_guide_for_product( $product_id ): string {
 		if ( $product_id ) {
-			$cache_key = self::CACHE_PREFIX . $product_id;
-			$cached    = get_transient( $cache_key );
-			if ( is_string( $cached ) ) {
-				return $cached;
-			}
-
-			$content = $this->resolve_size_guide( $product_id );
-			set_transient( $cache_key, $content, self::CACHE_TTL );
-			return $content;
+			return Cache_Helper::remember(
+				self::CACHE_PREFIX . $product_id,
+				self::CACHE_TTL,
+				fn(): string => $this->resolve_size_guide( $product_id ),
+				'is_string'
+			);
 		}
 
 		// No product ID — resolve global only.

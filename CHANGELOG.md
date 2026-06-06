@@ -1,3 +1,16 @@
+# [1.86.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.85.0...v1.86.0) (2026-06-06)
+
+
+### Bug Fixes
+
+* update parameter type hint for block detection method ([aaf0828](https://github.com/TheAggressive/Aggressive-Apparel/commit/aaf0828df7c9b20faad9168794ad7e2af11e645e))
+
+
+### Features
+
+* enhance asset management and UI structure in WooCommerce components ([434a9c8](https://github.com/TheAggressive/Aggressive-Apparel/commit/434a9c87231ea78c4c5978945ef636bb192b331e))
+* streamline WooCommerce block handling and asset management ([6be8d05](https://github.com/TheAggressive/Aggressive-Apparel/commit/6be8d0569f135572eecfe7218438e1da3cd061d3))
+
 # [1.85.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.84.0...v1.85.0) (2026-06-06)
 
 

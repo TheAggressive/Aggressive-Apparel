@@ -54,11 +54,7 @@ import {
   setupDesktopIndicator,
 } from './indicator';
 import { getMenuItems, getSubmenuItems } from './menu-items';
-import {
-  closePanelWithCleanup,
-  findPanel,
-  openPanelWithSetup,
-} from './panel';
+import { closePanelWithCleanup, findPanel, openPanelWithSetup } from './panel';
 
 // ============================================================================
 // Nav State Helper
@@ -202,7 +198,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
         ns.activeSubmenuId = context.submenuId ?? null;
 
         if (context.submenuId) {
-          expandIndicatorForSubmenu(context.navId, context.submenuId, ns.isMobile);
+          expandIndicatorForSubmenu(
+            context.navId,
+            context.submenuId,
+            ns.isMobile
+          );
           announce('Submenu opened', { navId: context.navId });
         }
       } catch (error) {
@@ -275,7 +275,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
         if (wasOpen) {
           resetIndicatorOnClose(context.navId, ns.isMobile);
         } else if (context.submenuId) {
-          expandIndicatorForSubmenu(context.navId, context.submenuId, ns.isMobile);
+          expandIndicatorForSubmenu(
+            context.navId,
+            context.submenuId,
+            ns.isMobile
+          );
         }
 
         if (ns.isMobile) {

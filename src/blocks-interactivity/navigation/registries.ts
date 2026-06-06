@@ -25,7 +25,10 @@ export interface MediaQueryRegistryEntry {
   handler: (event: MediaQueryListEvent | MediaQueryList) => void;
 }
 
-export const mediaQueryRegistry = new WeakMap<Element, MediaQueryRegistryEntry>();
+export const mediaQueryRegistry = new WeakMap<
+  Element,
+  MediaQueryRegistryEntry
+>();
 
 /**
  * Per-navigation indicator references and helpers.

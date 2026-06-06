@@ -37,7 +37,7 @@ class Catalog_Hover_Image {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_hover_image' ), 20, 2 );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_hover_image' ), 20 );
 	}
 
 	/**
@@ -72,17 +72,15 @@ class Catalog_Hover_Image {
 	/**
 	 * Inject the secondary gallery image into product card featured image blocks.
 	 *
-	 * Runs on every core/post-featured-image render; exits early when there is
-	 * no current product or no gallery image, so it is safe on non-product pages.
+	 * Registered on the featured-image block filter; exits early when there is
+	 * no current product or no gallery image.
 	 *
 	 * @param string               $block_content Block HTML.
 	 * @param array<string, mixed> $block         Block data.
 	 * @return string Modified HTML.
 	 */
 	public function inject_hover_image( string $block_content, array $block ): string {
-		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
-			return $block_content;
-		}
+		unset( $block );
 
 		$product = $this->get_current_product();
 		if ( ! $product ) {

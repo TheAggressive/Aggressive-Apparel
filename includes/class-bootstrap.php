@@ -154,7 +154,6 @@ class Bootstrap {
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
-		$this->container->register( 'scripts', fn() => new Assets\Scripts() );
 
 		// Register product loop (always available for theme flexibility).
 		$this->container->register( 'product_loop', fn() => new WooCommerce\Product_Loop( 3, 12 ) );
@@ -164,6 +163,9 @@ class Bootstrap {
 			$this->container->register( 'wc_support', fn() => new WooCommerce\WooCommerce_Support() );
 			$this->container->register( 'cart', fn() => new WooCommerce\Cart() );
 			$this->container->register( 'wc_templates', fn() => new WooCommerce\Templates() );
+			$this->container->register( 'wc_block_styles', fn() => new WooCommerce\WooCommerce_Block_Styles() );
+			$this->container->register( 'wc_interactivity_defaults', fn() => new WooCommerce\WooCommerce_Interactivity_Defaults() );
+			$this->container->register( 'wc_block_asset_bailout', fn() => new WooCommerce\WooCommerce_Block_Asset_Bailout() );
 			$this->container->register( 'product_gallery_nav', fn() => new WooCommerce\Product_Gallery_Nav() );
 
 			// Register color attribute services.
@@ -226,7 +228,6 @@ class Bootstrap {
 	private function init_asset_components(): void {
 		// Initialize asset services using the container.
 		$this->container->get( 'styles' )->init();
-		$this->container->get( 'scripts' )->init();
 	}
 
 	/**
@@ -247,6 +248,9 @@ class Bootstrap {
 		$this->container->get( 'wc_support' )->init();
 		$this->container->get( 'cart' )->init();
 		$this->container->get( 'wc_templates' )->init();
+		$this->container->get( 'wc_block_styles' )->init();
+		$this->container->get( 'wc_interactivity_defaults' )->init();
+		$this->container->get( 'wc_block_asset_bailout' )->init();
 		$this->container->get( 'product_gallery_nav' )->init();
 		$this->container->get( 'color_attributes' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();

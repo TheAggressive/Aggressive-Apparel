@@ -34,7 +34,7 @@ function getMainCssImportPartials(cwd) {
 }
 
 /** Style stubs that are not imported or enqueued anywhere. */
-const UNUSED_STYLE_STUBS = new Set(['navigation.css', 'blocks.css']);
+const UNUSED_STYLE_STUBS = new Set();
 
 /**
  * Build webpack entry map for theme scripts and styles.

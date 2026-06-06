@@ -36,7 +36,7 @@ class Quick_View {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_trigger_button' ), 10, 2 );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_trigger_button' ) );
 		add_action( 'wp_footer', array( $this, 'render_modal_shell' ) );
 		add_action( 'rest_api_init', array( $this, 'register_store_api_extension' ) );
 	}
@@ -53,7 +53,11 @@ class Quick_View {
 	public function register_store_api_extension(): void {
 		Store_Api_Extension::register_product_data(
 			'aggressive-apparel/variation-prices',
-			array( $this, 'get_variation_prices_data' )
+			array( $this, 'get_variation_prices_data' ),
+			array(
+				'cache' => true,
+				'ttl'   => 15 * MINUTE_IN_SECONDS,
+			)
 		);
 	}
 
@@ -152,9 +156,7 @@ class Quick_View {
 	 * @return string Modified HTML.
 	 */
 	public function inject_trigger_button( string $block_content, array $block ): string {
-		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
-			return $block_content;
-		}
+		unset( $block );
 
 		if ( ! $this->is_listing_page() ) {
 			return $block_content;

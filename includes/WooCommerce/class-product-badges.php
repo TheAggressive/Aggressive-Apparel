@@ -3,7 +3,7 @@
  * Product Badges Class
  *
  * Injects sale-percentage, "New", "Low Stock", and "Bestseller" badges
- * onto WooCommerce product cards via the render_block filter.
+ * onto WooCommerce product cards via block-specific render filters.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
@@ -26,16 +26,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.17.0
  */
 class Product_Badges {
-
-	/**
-	 * Block names that receive badge injection.
-	 *
-	 * @var array<int, string>
-	 */
-	private const TARGET_BLOCKS = array(
-		'core/post-featured-image',
-		'woocommerce/product-image',
-	);
 
 	/**
 	 * Number of days a product is considered "new".
@@ -64,8 +54,12 @@ class Product_Badges {
 	 * @return void
 	 */
 	public function init(): void {
-		add_filter( 'render_block', array( $this, 'inject_badges' ), 10, 2 );
-		add_filter( 'render_block', array( $this, 'suppress_native_sale_badge' ), 10, 2 );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_badges' ) );
+		Block_Filter_Hooks::add( 'woocommerce/product-image', array( $this, 'inject_badges' ) );
+		Block_Filter_Hooks::add(
+			'woocommerce/product-sale-badge',
+			array( $this, 'suppress_native_sale_badge' )
+		);
 		add_filter( 'woocommerce_sale_flash', '__return_empty_string' );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
@@ -129,11 +123,7 @@ class Product_Badges {
 	 * @return string Modified HTML.
 	 */
 	public function inject_badges( string $block_content, array $block ): string {
-		// Target product image blocks (archives use core/post-featured-image,
-		// single product related/cross-sells use woocommerce/product-image).
-		if ( ! Block_Render_Helper::block_name_in( $block, self::TARGET_BLOCKS ) ) {
-			return $block_content;
-		}
+		unset( $block );
 
 		// Must be on a page that displays products.
 		if ( ! $this->is_product_page() ) {
@@ -165,10 +155,9 @@ class Product_Badges {
 	 * @return string Empty string for sale badge blocks, original content otherwise.
 	 */
 	public function suppress_native_sale_badge( string $block_content, array $block ): string {
-		if ( isset( $block['blockName'] ) && 'woocommerce/product-sale-badge' === $block['blockName'] ) {
-			return '';
-		}
-		return $block_content;
+		unset( $block );
+
+		return '';
 	}
 
 	/**

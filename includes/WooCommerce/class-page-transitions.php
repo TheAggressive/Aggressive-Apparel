@@ -51,7 +51,11 @@ class Page_Transitions {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ) );
 		add_action( 'wp_head', array( $this, 'output_speculation_rules' ) );
 		add_action( 'wp_head', array( $this, 'output_direction_script' ) );
-		add_filter( 'render_block', array( $this, 'inject_transition_names' ), 10, 2 );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_archive_transition_name' ) );
+		Block_Filter_Hooks::add(
+			'woocommerce/product-image-gallery',
+			array( $this, 'inject_single_gallery_transition_name' )
+		);
 	}
 
 	/**
@@ -60,7 +64,7 @@ class Page_Transitions {
 	 * @return void
 	 */
 	public function enqueue_styles(): void {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		if ( ! $this->should_load_assets() ) {
 			return;
 		}
 
@@ -79,7 +83,7 @@ class Page_Transitions {
 	 * @return void
 	 */
 	public function enqueue_script(): void {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		if ( ! $this->should_load_assets() ) {
 			return;
 		}
 
@@ -108,11 +112,7 @@ class Page_Transitions {
 	 * @return void
 	 */
 	public function output_speculation_rules(): void {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
-			return;
-		}
-
-		if ( function_exists( 'is_cart' ) && is_cart() ) {
+		if ( ! $this->should_load_assets() ) {
 			return;
 		}
 
@@ -159,7 +159,7 @@ class Page_Transitions {
 	 * @return void
 	 */
 	public function output_direction_script(): void {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		if ( ! $this->should_load_assets() ) {
 			return;
 		}
 
@@ -173,27 +173,49 @@ class Page_Transitions {
 	}
 
 	/**
-	 * Inject view-transition-name on product images for shared element morphing.
+	 * Inject view-transition-name on archive product card featured images.
 	 *
-	 * On archive pages: targets core/post-featured-image.
-	 * On single product: targets woocommerce/product-image-gallery.
-	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @param array  $block         Block data including blockName.
+	 * @param string               $block_content Rendered block HTML.
+	 * @param array<string, mixed> $block         Block data.
 	 * @return string Modified block HTML.
 	 */
-	public function inject_transition_names( string $block_content, array $block ): string {
-		$block_name = $block['blockName'] ?? '';
+	public function inject_archive_transition_name( string $block_content, array $block ): string {
+		unset( $block );
 
-		if ( 'core/post-featured-image' === $block_name ) {
-			return $this->handle_archive_image( $block_content );
+		return $this->handle_archive_image( $block_content );
+	}
+
+	/**
+	 * Inject view-transition-name on the single-product image gallery block.
+	 *
+	 * @param string               $block_content Rendered block HTML.
+	 * @param array<string, mixed> $block         Block data.
+	 * @return string Modified block HTML.
+	 */
+	public function inject_single_gallery_transition_name( string $block_content, array $block ): string {
+		unset( $block );
+
+		return $this->handle_single_gallery( $block_content );
+	}
+
+	/**
+	 * Whether page-transition assets and speculation rules should load.
+	 *
+	 * Limited to product display routes so blog posts and static pages
+	 * do not prefetch/prerender unrelated links.
+	 *
+	 * @return bool
+	 */
+	private function should_load_assets(): bool {
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return false;
 		}
 
-		if ( 'woocommerce/product-image-gallery' === $block_name ) {
-			return $this->handle_single_gallery( $block_content );
+		if ( function_exists( 'is_cart' ) && is_cart() ) {
+			return false;
 		}
 
-		return $block_content;
+		return Product_Context::is_product_display_page();
 	}
 
 	/**

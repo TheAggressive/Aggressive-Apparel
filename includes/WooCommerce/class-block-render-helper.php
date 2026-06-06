@@ -28,27 +28,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Block_Render_Helper {
 
 	/**
-	 * Whether the rendered block is the core post featured image block.
-	 *
-	 * @param array<string, mixed> $block Block data from the `render_block` filter.
-	 * @return bool
-	 */
-	public static function is_featured_image_block( array $block ): bool {
-		return isset( $block['blockName'] ) && 'core/post-featured-image' === $block['blockName'];
-	}
-
-	/**
-	 * Whether the rendered block's name is in the provided allow-list.
-	 *
-	 * @param array<string, mixed> $block Block data from the `render_block` filter.
-	 * @param array<int, string>   $names Block names to match against.
-	 * @return bool
-	 */
-	public static function block_name_in( array $block, array $names ): bool {
-		return isset( $block['blockName'] ) && in_array( $block['blockName'], $names, true );
-	}
-
-	/**
 	 * Inject markup immediately before the wrapper's closing tag.
 	 *
 	 * Targets the final `</figure>` or `</div>` in the block HTML — the

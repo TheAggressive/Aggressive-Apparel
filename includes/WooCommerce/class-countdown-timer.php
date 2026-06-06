@@ -35,7 +35,10 @@ class Countdown_Timer {
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_countdown' ), 11 );
-		add_filter( 'render_block', array( $this, 'inject_archive_countdown' ), 10, 2 );
+		Block_Filter_Hooks::add(
+			'woocommerce/product-price',
+			array( $this, 'inject_archive_countdown' )
+		);
 	}
 
 	/**
@@ -95,9 +98,7 @@ class Countdown_Timer {
 	 * @return string Modified HTML.
 	 */
 	public function inject_archive_countdown( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || 'woocommerce/product-price' !== $block['blockName'] ) {
-			return $block_content;
-		}
+		unset( $block );
 
 		if ( ! Product_Context::is_product_archive() ) {
 			return $block_content;

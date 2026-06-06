@@ -62,7 +62,7 @@ class Wishlist {
 		add_action( 'init', array( $this, 'maybe_create_page' ), 20 );
 		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_heart_icon' ), 10, 2 );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_heart_icon' ) );
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_single_heart' ), 6 );
 		add_shortcode( 'aggressive_apparel_wishlist', array( $this, 'render_wishlist_page' ) );
 	}
@@ -284,10 +284,6 @@ BLOCKS;
 	 * @return string Modified HTML.
 	 */
 	public function inject_heart_icon( string $block_content, array $block ): string {
-		if ( ! Block_Render_Helper::is_featured_image_block( $block ) ) {
-			return $block_content;
-		}
-
 		// Only product cards in loops/collections — skip blog posts and other CPTs.
 		if ( 'product' !== get_post_type() ) {
 			return $block_content;

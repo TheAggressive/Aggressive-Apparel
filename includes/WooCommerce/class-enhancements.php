@@ -108,16 +108,6 @@ class Enhancements {
 		// Register shared utility modules that multiple features depend on.
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_shared_modules' ) );
 
-		// Provide defensive defaults for WooCommerce shared interactivity
-		// state. The product-button block's quantity getter crashes during
-		// hydrateRegions when the cart store data is missing, which aborts
-		// hydration for every interactive region that follows in the DOM
-		// (including Quick View, Wishlist, etc.). Registering fallback
-		// values here ensures the data structure always exists; WooCommerce's
-		// own register_cart_interactivity() will overwrite with real data
-		// when it runs during block rendering.
-		add_action( 'wp_enqueue_scripts', array( $this, 'ensure_wc_interactivity_defaults' ) );
-
 		$this->register_feature_services();
 		$this->init_flagged_features();
 		$this->init_special_features();
@@ -221,37 +211,6 @@ class Enhancements {
 			AGGRESSIVE_APPAREL_URI . '/build/interactivity/use-overlay.js',
 			array( '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 			AGGRESSIVE_APPAREL_VERSION,
-		);
-	}
-
-	/**
-	 * Register fallback WooCommerce interactivity state defaults.
-	 *
-	 * WooCommerce's BlocksSharedState::register_cart_interactivity() sets
-	 * the cart data during block rendering. If that call fails or runs
-	 * after the product-button block attempts hydration, the quantity
-	 * getter throws because cart.items is undefined.
-	 *
-	 * This runs during wp_enqueue_scripts (before block rendering) so the
-	 * fallback is always present. WooCommerce's own call uses
-	 * array_replace_recursive, so real data overwrites these defaults.
-	 *
-	 * @return void
-	 */
-	public function ensure_wc_interactivity_defaults(): void {
-		if ( ! function_exists( 'wp_interactivity_state' ) ) {
-			return;
-		}
-
-		wp_interactivity_state(
-			'woocommerce',
-			array(
-				'restUrl' => esc_url_raw( get_rest_url() ),
-				'nonce'   => wp_create_nonce( 'wc_store_api' ),
-				'cart'    => array(
-					'items' => array(),
-				),
-			)
 		);
 	}
 }

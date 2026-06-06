@@ -66,7 +66,11 @@ class Card_Enhancements {
 	public function register_extension(): void {
 		Store_Api_Extension::register_product_data(
 			self::NAMESPACE,
-			array( $this, 'build_payload' )
+			array( $this, 'build_payload' ),
+			array(
+				'cache' => true,
+				'ttl'   => 15 * MINUTE_IN_SECONDS,
+			)
 		);
 	}
 

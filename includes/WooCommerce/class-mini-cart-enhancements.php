@@ -2,8 +2,7 @@
 /**
  * Mini Cart Enhancements Class
  *
- * Styles the native WooCommerce mini-cart block to match the theme design
- * and optionally injects the free-shipping progress bar.
+ * Styles the native WooCommerce mini-cart block to match the theme design.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
@@ -34,7 +33,6 @@ class Mini_Cart_Enhancements {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-		add_filter( 'render_block', array( $this, 'inject_shipping_bar' ), 10, 2 );
 	}
 
 	/**
@@ -47,43 +45,5 @@ class Mini_Cart_Enhancements {
 			'aggressive-apparel-mini-cart',
 			'build/styles/woocommerce/mini-cart'
 		);
-	}
-
-	/**
-	 * Inject the free-shipping bar at the top of the mini-cart drawer contents.
-	 *
-	 * @param string $block_content Block HTML.
-	 * @param array  $block         Block data.
-	 * @return string Modified HTML.
-	 */
-	public function inject_shipping_bar( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || 'woocommerce/mini-cart-contents' !== $block['blockName'] ) {
-			return $block_content;
-		}
-
-		if ( ! Feature_Settings::is_enabled( 'free_shipping_bar' ) ) {
-			return $block_content;
-		}
-
-		// Render the shipping bar and prepend it.
-		ob_start();
-		try {
-			( new Free_Shipping_Bar() )->render();
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Intentionally silent; buffer cleaned by ob_get_clean.
-			unset( $e );
-		}
-		$bar = (string) ob_get_clean();
-
-		if ( $bar ) {
-			// Inject after the first opening tag.
-			$block_content = preg_replace(
-				'/^(<[^>]+>)/',
-				'$1' . $bar,
-				$block_content,
-				1,
-			) ?? $block_content;
-		}
-
-		return $block_content;
 	}
 }

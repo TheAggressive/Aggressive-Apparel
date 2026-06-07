@@ -855,7 +855,6 @@
 /* Large drawer image — hidden on mobile, left column on desktop. */
 .aggressive-apparel-quick-view__drawer-image {
 	display: none;
-	background-color: color-mix(in oklch, currentcolor 5%, transparent);
 
 	& img {
 		display: block;
@@ -972,7 +971,6 @@
 		grid-row: 1 / -1;
 		overflow: hidden;
 		min-height: 0;
-		max-height: 22rem;
 	}
 
 	.aggressive-apparel-quick-view__drawer-header {

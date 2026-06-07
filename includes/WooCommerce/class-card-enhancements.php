@@ -2,8 +2,8 @@
 /**
  * Card Enhancements Store API Extension
  *
- * Bridges PHP-only card-level enhancements (badges, countdown timer,
- * view-transition names) to AJAX-rendered cards by exposing them on the
+ * Bridges PHP-only card-level enhancements (badges, view-transition names)
+ * to AJAX-rendered cards by exposing them on the
  * WooCommerce Store API product response under a single namespace.
  *
  * This decouples the JS card builders (product-filters, load-more) from
@@ -99,13 +99,6 @@ class Card_Enhancements {
 			// AJAX cards share the same per-product transition name and the
 			// archive→single morph still works on dynamically loaded cards.
 			$payload['view_transition_name'] = sprintf( 'product-img-%d', $product->get_id() );
-		}
-
-		if ( Feature_Settings::is_enabled( 'countdown_timer' ) ) {
-			$countdown = Countdown_Timer::get_countdown_data( $product );
-			if ( null !== $countdown ) {
-				$payload['countdown'] = $countdown;
-			}
 		}
 
 		return $payload;

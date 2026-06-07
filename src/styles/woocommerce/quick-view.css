@@ -342,10 +342,6 @@
 	justify-content: center;
 	gap: 0.5rem;
 	padding: 0.5rem 0;
-
-	&[hidden] {
-		display: none;
-	}
 }
 
 .aggressive-apparel-quick-view__dot {
@@ -398,10 +394,6 @@
 
 .aggressive-apparel-quick-view__stock.is-in-stock {
 	color: var(--quick-view-stock-in);
-
-	& .aggressive-apparel-quick-view__stock-dot {
-		background-color: var(--quick-view-stock-in);
-	}
 }
 
 .aggressive-apparel-quick-view__stock.is-low-stock {
@@ -457,8 +449,7 @@
 
 /* Short description — hidden on small screens where space is tight. */
 .aggressive-apparel-quick-view__description {
-	margin: 0;
-	margin-top: 0.25rem;
+	margin: 0.25rem 0 0;
 	font-size: 0.875rem;
 	line-height: 1.6;
 	opacity: 0.7;
@@ -467,6 +458,7 @@
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
+
 
 
 /* Bottom group: attributes + actions pushed to bottom. */

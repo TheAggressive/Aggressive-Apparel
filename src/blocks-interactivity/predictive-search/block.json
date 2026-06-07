@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/predictive-search",
+  "version": "1.0.0",
+  "title": "Predictive Search",
+  "category": "woocommerce",
+  "icon": "search",
+  "description": "Live product search with thumbnail results and category suggestions as the user types.",
+  "keywords": ["search", "predictive", "live", "autocomplete"],
+  "supports": {
+    "html": false,
+    "interactivity": true
+  },
+  "attributes": {
+    "placeholder": {
+      "type": "string",
+      "default": "Search products…"
+    },
+    "buttonLabel": {
+      "type": "string",
+      "default": "Search"
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

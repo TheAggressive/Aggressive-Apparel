@@ -4,7 +4,14 @@
  * @package Aggressive_Apparel
  */
 
-/* Import partials */
+/* Layer order declaration — must come before any @layer usage.
+ * Later layers win over earlier ones at equal specificity.
+ * Tailwind's own layers (theme, base, components, utilities) sit
+ * between our tokens and our overrides. */
+@layer aa-tokens, aa-base, aa-components, aa-blocks, aa-woocommerce, aa-utilities;
+
+/* Import partials — each file is responsible for assigning itself
+ * to the right layer via @layer aa-<name> { … } */
 @import './base/typography.css';
 @import './components/buttons.css';
 @import './components/field.css';

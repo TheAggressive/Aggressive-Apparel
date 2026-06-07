@@ -153,6 +153,10 @@
       "type": "number",
       "default": 4
     },
+    "overlayColor": {
+      "type": "string",
+      "default": ""
+    },
     "triggerVariant": {
       "type": "string",
       "default": "outlined"

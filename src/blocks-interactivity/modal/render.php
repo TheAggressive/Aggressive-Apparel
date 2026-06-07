@@ -77,6 +77,7 @@ $dialog_padding       = sanitize_text_field( $attributes['dialogPadding'] ?? '' 
 $dialog_border_radius = sanitize_text_field( $attributes['dialogBorderRadius'] ?? '' );
 $overlay_opacity      = absint( $attributes['overlayOpacity'] ?? 50 );
 $overlay_blur         = absint( $attributes['overlayBlur'] ?? 4 );
+$overlay_color        = sanitize_text_field( $attributes['overlayColor'] ?? '' );
 
 // ── Forward WP block supports (color.background, color.text, border) to dialog.
 // get_block_wrapper_attributes() applies these to the wrapper; we also need
@@ -251,6 +252,10 @@ if ( 50 !== $overlay_opacity ) {
 // Only emit blur var when it differs from the default (4).
 if ( 4 !== $overlay_blur ) {
 	$backdrop_css_vars[] = '--aa-overlay-blur: ' . esc_attr( (string) $overlay_blur ) . 'px';
+}
+// Override the scrim color when the editor sets one.
+if ( $overlay_color ) {
+	$backdrop_css_vars[] = '--aa-color-scrim: ' . esc_attr( $overlay_color );
 }
 $backdrop_style = $backdrop_css_vars ? ' style="' . implode( '; ', $backdrop_css_vars ) . '"' : '';
 

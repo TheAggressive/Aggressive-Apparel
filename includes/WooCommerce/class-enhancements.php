@@ -46,9 +46,7 @@ class Enhancements {
 	private const FEATURE_SERVICES = array(
 		'product_badges'             => array( Custom_Badge_Taxonomy::class, Product_Badges::class ),
 		'price_display'              => array( Price_Display::class ),
-		'product_tabs'               => array( Product_Tabs::class ),
 		'advanced_sorting'           => array( Advanced_Sorting::class ),
-		'free_shipping_bar'          => array( Free_Shipping_Bar::class ),
 		'swatch_tooltips'            => array( Swatch_Tooltips::class ),
 		'mini_cart_styling'          => array( Mini_Cart_Enhancements::class ),
 		'grid_list_toggle'           => array( Grid_List_Toggle::class ),
@@ -57,9 +55,6 @@ class Enhancements {
 		'catalog_hover_image'        => array( Catalog_Hover_Image::class ),
 		'load_more'                  => array( Load_More::class, Load_More_Renderer::class ),
 		'size_guide'                 => array( Size_Guide_Post_Type::class, Size_Guide::class ),
-		'countdown_timer'            => array( Countdown_Timer::class ),
-		'recently_viewed'            => array( Recently_Viewed::class ),
-		'predictive_search'          => array( Predictive_Search::class ),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
 		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),
 		'exit_intent'                => array( Exit_Intent::class ),
@@ -158,6 +153,12 @@ class Enhancements {
 			add_action( 'init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );
 		}
 
+		// Product Tabs admin: always available since it backs a Gutenberg block.
+		// The block's render.php handles frontend rendering; admin hooks must
+		// still register so per-product tab config and the settings page work.
+		$this->container->register( Product_Tabs::class, static fn() => new Product_Tabs() );
+		$this->container->get( Product_Tabs::class )->init_admin_only();
+
 		// Back in Stock: install schema, boot frontend, then admin (admin-only).
 		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
 			$this->container->get( Back_In_Stock_Installer::class )->maybe_install();
@@ -172,8 +173,7 @@ class Enhancements {
 		// extension. Loaded whenever any contributing feature is on.
 		if (
 			Feature_Settings::is_enabled( 'product_badges' ) ||
-			Feature_Settings::is_enabled( 'page_transitions' ) ||
-			Feature_Settings::is_enabled( 'countdown_timer' )
+			Feature_Settings::is_enabled( 'page_transitions' )
 		) {
 			$this->container->get( Card_Enhancements::class )->init();
 		}

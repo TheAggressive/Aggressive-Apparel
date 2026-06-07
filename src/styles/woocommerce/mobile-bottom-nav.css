@@ -39,7 +39,11 @@
 		justify-content: space-around;
 	}
 
-	/* Prevent content from hiding behind the bar. */
+	/* Prevent content from hiding behind the bar.
+	   :has() means JS no longer needs to add .has-bottom-nav to body —
+	   CSS detects the nav element directly. The JS class is kept as a
+	   fallback for browsers that don't support :has(). */
+	body:has(.aa-bottom-nav),
 	body.has-bottom-nav {
 		padding-bottom: var(--aa-bottom-nav-height, 3.5rem);
 	}

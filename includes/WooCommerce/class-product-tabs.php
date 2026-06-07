@@ -87,6 +87,19 @@ class Product_Tabs {
 		add_filter( 'woocommerce_product_tabs', array( $this, 'add_custom_tabs' ), 20 );
 		add_filter( 'render_block', array( $this, 'transform_product_details_block' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		$this->init_admin_only();
+	}
+
+	/**
+	 * Register only the admin hooks (meta box, settings page).
+	 *
+	 * Called unconditionally when WooCommerce is active so the per-product
+	 * tab configuration UI and global settings page are always available,
+	 * regardless of whether the feature toggle or the block are in use.
+	 *
+	 * @return void
+	 */
+	public function init_admin_only(): void {
 		add_action( 'add_meta_boxes', array( $this->admin, 'add_meta_box' ) );
 		add_action( 'save_post_product', array( $this->admin, 'save_meta' ) );
 		add_action( 'woocommerce_process_product_meta', array( $this->admin, 'save_meta' ) );

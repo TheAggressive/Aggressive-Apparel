@@ -154,6 +154,14 @@ class Theme_Support {
 		register_block_style(
 			'core/group',
 			array(
+				'name'  => 'frosted',
+				'label' => __( 'Frosted Glass', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/group',
+			array(
 				'name'  => 'surface-card',
 				'label' => __( 'Surface Card', 'aggressive-apparel' ),
 			)
@@ -164,6 +172,30 @@ class Theme_Support {
 			array(
 				'name'  => 'bordered',
 				'label' => __( 'Bordered', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'display',
+				'label' => __( 'Display', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/image',
+			array(
+				'name'  => 'editorial',
+				'label' => __( 'Editorial', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/separator',
+			array(
+				'name'  => 'brand-stripe',
+				'label' => __( 'Brand Stripe', 'aggressive-apparel' ),
 			)
 		);
 

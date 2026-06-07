@@ -3,6 +3,13 @@
  * Covers the outer grid shell, card wrapper, and all inner blocks.
  * ============================================================ */
 
+/* ── Block wrapper — container context for the grid ───────────────────────── */
+
+.wp-block-aggressive-apparel-wishlist {
+	container-type: inline-size;
+	container-name: wishlist;
+}
+
 /* ── Grid ──────────────────────────────────────────────────────────────────── */
 
 .aa-wishlist-page__grid {
@@ -11,11 +18,14 @@
 	gap: var(--aa-wl-gap, 1.5rem);
 	width: 100%;
 
-	@media (width >= 640px) {
+	&[hidden] { display: none; }
+}
+
+@container wishlist (width >= 640px) {
+
+	.aa-wishlist-page__grid {
 		grid-template-columns: repeat(var(--aa-wl-columns, 3), 1fr);
 	}
-
-	&[hidden] { display: none; }
 }
 
 /* ── Card wrapper ──────────────────────────────────────────────────────────── */

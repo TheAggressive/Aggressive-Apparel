@@ -105,21 +105,6 @@
   }
 }
 
-/* CSS-only fallback before JS loads */
-@media (width <= 1023px) {
-
-  .wp-block-aggressive-apparel-navigation:not(.is-mobile) {
-
-    & .aa-nav__toggle {
-      display: flex;
-    }
-
-    & .aa-nav__menubar {
-      display: none;
-    }
-  }
-}
-
 /* ========================================
  * PANEL PORTAL
  *
@@ -136,7 +121,9 @@
   display: none;
 }
 
-/* CSS-only fallback before JS loads */
+/* CSS-only panel-portal fallback before JS loads.
+   Kept as @media — the panel is portaled via wp_footer outside
+   the navigation block, so no ancestor container is available. */
 @media (width <= 1023px) {
 
   .aa-nav__panel-portal:not(.is-mobile) .aa-nav__panel {
@@ -144,7 +131,9 @@
   }
 }
 
-/* Container queries */
+/* ========================================
+ * CONTAINER QUERIES
+ * ======================================== */
 @supports (container-type: inline-size) {
 
   .wp-block-aggressive-apparel-navigation {
@@ -152,10 +141,29 @@
     container-name: navigation;
   }
 
-  @container navigation (max-width: 600px) {
+  /* Tighten gap on very narrow instances */
+  @container navigation (width <= 600px) {
 
     .wp-block-aggressive-apparel-navigation {
       --navigation-gap: var(--wp--preset--spacing--3, 0.75rem);
+    }
+  }
+
+  /* CSS-only toggle/menubar fallback before JS loads.
+     Uses container query so the nav adapts to its container
+     width, not the viewport — correct when placed in a narrow
+     column or off-canvas context. */
+  @container navigation (width <= 1023px) {
+
+    .wp-block-aggressive-apparel-navigation:not(.is-mobile) {
+
+      & .aa-nav__toggle {
+        display: flex;
+      }
+
+      & .aa-nav__menubar {
+        display: none;
+      }
     }
   }
 }
@@ -512,9 +520,11 @@
   pointer-events: auto;
 }
 
-/* Responsive panel width:
-   - Small screens (phones): full viewport width
-   - Medium screens (tablets): 80% viewport width */
+/* Panel width: kept as viewport @media — the panel is position:fixed
+   and portaled outside the nav block, so its sizing is always
+   relative to the viewport, not any ancestor container.
+   - Phones (< 768px): full-width feels native
+   - Tablets (768–1023px): 60vw leaves visible content behind */
 @media (width < 768px) {
 
   .aa-nav__panel {
@@ -529,13 +539,20 @@
   }
 }
 
-/* Push/reveal body animation */
+/* Push/reveal body animation.
+   :has() selectors detect open state directly from the panel element,
+   removing the need for JS to write these classes to <body>.
+   Legacy body classes kept as fallback for non-:has() browsers. */
+body:has(.aa-nav__panel--push.aa-nav__panel--right.is-open) .wp-site-blocks,
+body:has(.aa-nav__panel--reveal.aa-nav__panel--right.is-open) .wp-site-blocks,
 .has-navigation-panel-open--push-right .wp-site-blocks,
 .has-navigation-panel-open--reveal-right .wp-site-blocks {
   transform: translateX(calc(-1 * var(--push-panel-width, min(320px, 85vw))));
   transition: transform var(--aa-nav-transition);
 }
 
+body:has(.aa-nav__panel--push.aa-nav__panel--left.is-open) .wp-site-blocks,
+body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
 .has-navigation-panel-open--push-left .wp-site-blocks,
 .has-navigation-panel-open--reveal-left .wp-site-blocks {
   transform: translateX(var(--push-panel-width, min(320px, 85vw)));

@@ -9,6 +9,9 @@
 /* Parallax container base styles */
 .wp-block-aggressive-apparel-parallax,
 .aggressive-apparel-parallax {
+	container-type: inline-size;
+	container-name: parallax-block;
+
 	--parallax-blur-x: 0;
 	--parallax-blur-y: 0;
 	--parallax-card-rotate-x: 0deg;
@@ -495,9 +498,9 @@
 	position: absolute;
 }
 
-/* Mobile Responsive */
-
-@media (width <= 767px) {
+/* Debug panel compact layout — container query so the panel
+   responds to block width, not viewport (e.g. narrow column). */
+@container parallax-block (width <= 767px) {
 
 	[class*="wp-block-parallax-debug-panel"] {
 		font-size: 0.8125rem;

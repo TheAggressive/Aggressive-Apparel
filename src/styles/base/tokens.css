@@ -7,6 +7,65 @@
  * @package Aggressive_Apparel
  */
 
+/* ============================================================
+ * @property — typed custom properties
+ *
+ * Registers animatable custom properties so CSS transitions can
+ * interpolate them. Without @property, custom property transitions
+ * snap instead of interpolating.
+ * ============================================================ */
+
+/* Navigation sliding indicator */
+@property --indicator-width {
+	syntax: '<length>';
+	inherits: true;
+	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
+}
+
+@property --indicator-x {
+	syntax: '<length>';
+	inherits: true;
+	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
+}
+
+@property --indicator-opacity {
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0;
+}
+
+/* Parallax transforms */
+@property --parallax-translate-x {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
+}
+
+@property --parallax-translate-y {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px; /* stylelint-disable-line length-zero-no-unit -- @property <length> requires a unit on zero */
+}
+
+@property --parallax-scale {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 1;
+}
+
+@property --parallax-opacity {
+	syntax: '<number>';
+	inherits: false;
+	initial-value: 1;
+}
+
+/* Overlay / modal backdrop */
+@property --aa-overlay-opacity {
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0.5;
+}
+
 :root {
 
 	/* Adaptive semantic colors (light-dark() injected by Adaptive_Colors). */
@@ -101,24 +160,6 @@
 	--aa-type-product-title-size: var(--wp--custom--type-role--product-title--font-size, var(--wp--preset--font-size--small));
 	--aa-type-product-title-weight: var(--wp--custom--type-role--product-title--font-weight, 700);
 	--aa-type-product-title-line-height: var(--wp--custom--type-role--product-title--line-height, 1.2);
-
-	/* Density roles. */
-	--aa-density-compact-control-padding-y: var(--wp--custom--density--compact--control-padding-y, var(--wp--preset--spacing--2));
-	--aa-density-compact-control-padding-x: var(--wp--custom--density--compact--control-padding-x, var(--wp--preset--spacing--5));
-	--aa-density-compact-card-padding: var(--wp--custom--density--compact--card-padding, var(--wp--preset--spacing--5));
-	--aa-density-compact-section-gap: var(--wp--custom--density--compact--section-gap, var(--wp--preset--spacing--6));
-	--aa-density-comfortable-control-padding-y: var(--wp--custom--density--comfortable--control-padding-y, var(--wp--preset--spacing--3));
-	--aa-density-comfortable-control-padding-x: var(--wp--custom--density--comfortable--control-padding-x, var(--wp--preset--spacing--8));
-	--aa-density-comfortable-card-padding: var(--wp--custom--density--comfortable--card-padding, var(--wp--preset--spacing--8));
-	--aa-density-comfortable-section-gap: var(--wp--custom--density--comfortable--section-gap, var(--wp--preset--spacing--8));
-	--aa-density-spacious-control-padding-y: var(--wp--custom--density--spacious--control-padding-y, var(--wp--preset--spacing--4));
-	--aa-density-spacious-control-padding-x: var(--wp--custom--density--spacious--control-padding-x, var(--wp--preset--spacing--10));
-	--aa-density-spacious-card-padding: var(--wp--custom--density--spacious--card-padding, var(--wp--preset--spacing--10));
-	--aa-density-spacious-section-gap: var(--wp--custom--density--spacious--section-gap, var(--wp--preset--spacing--12));
-	--aa-density-control-padding-y: var(--aa-density-comfortable-control-padding-y);
-	--aa-density-control-padding-x: var(--aa-density-comfortable-control-padding-x);
-	--aa-density-card-padding: var(--aa-density-comfortable-card-padding);
-	--aa-density-section-gap: var(--aa-density-comfortable-section-gap);
 
 	/* Focus ring. */
 	--aa-focus-ring: 0 0 0 2px var(--aa-color-surface),

@@ -30,6 +30,8 @@
  */
 
 .wp-block-animate-on-scroll {
+	container-type: inline-size;
+	container-name: aos-block;
 
 	/* CSS Custom Properties - Optimized with logical grouping */
 
@@ -1056,9 +1058,96 @@
 	position: absolute;
 }
 
-/* Mobile Responsive */
+/* ============================================================
+ * SCROLL-DRIVEN ANIMATIONS — CSS progressive enhancement
+ *
+ * @supports guard ensures this only fires in browsers that
+ * support animation-timeline (Chrome 115+, Safari 18+).
+ * When active, a simple fade-up plays via CSS with zero JS.
+ * The JS IntersectionObserver still handles complex animation
+ * types, sequencing, and replay — these rules only run if the
+ * block has the default 'fade-up' animation and no JS-managed
+ * state has fired yet (no .has-animated class).
+ * ============================================================ */
+@supports (animation-timeline: view()) {
 
-@media (width <= 767px) {
+	@media (prefers-reduced-motion: no-preference) {
+
+		.wp-block-animate-on-scroll[data-animation-type="fade-up"]:not(.has-animated) {
+			animation: aa-scroll-fade-up linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 40%;
+		}
+
+		.wp-block-animate-on-scroll[data-animation-type="fade-in"]:not(.has-animated) {
+			animation: aa-scroll-fade-in linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 35%;
+		}
+
+		.wp-block-animate-on-scroll[data-animation-type="slide-left"]:not(.has-animated) {
+			animation: aa-scroll-slide-left linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 40%;
+		}
+
+		.wp-block-animate-on-scroll[data-animation-type="slide-right"]:not(.has-animated) {
+			animation: aa-scroll-slide-right linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 40%;
+		}
+	}
+}
+
+@keyframes aa-scroll-fade-up {
+
+	from {
+		opacity: 0;
+		translate: 0 2rem;
+	}
+
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+@keyframes aa-scroll-fade-in {
+
+	from { opacity: 0; }
+
+	to { opacity: 1; }
+}
+
+@keyframes aa-scroll-slide-left {
+
+	from {
+		opacity: 0;
+		translate: -2rem 0;
+	}
+
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+@keyframes aa-scroll-slide-right {
+
+	from {
+		opacity: 0;
+		translate: 2rem 0;
+	}
+
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+/* Debug panel compact layout — container query so it responds
+   to block width, not viewport. */
+@container aos-block (width <= 767px) {
 
 	[class*="wp-block-animate-on-scroll-debug-panel"] {
 		font-size: 0.8125rem;

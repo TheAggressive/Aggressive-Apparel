@@ -13,6 +13,7 @@ import {
   InspectorControls,
   MediaUpload,
   MediaUploadCheck,
+  PanelColorSettings,
 } from '@wordpress/block-editor';
 import {
   PanelBody,
@@ -36,13 +37,26 @@ export interface LookbookAttributes {
   mediaUrl: string;
   mediaAlt: string;
   hotspots: Hotspot[];
+  hotspotBgColor: string;
+  hotspotTextColor: string;
+  cardBgColor: string;
+  cardTextColor: string;
 }
 
 export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<LookbookAttributes>) {
-  const { mediaId, mediaUrl, mediaAlt, hotspots } = attributes;
+  const {
+    mediaId,
+    mediaUrl,
+    mediaAlt,
+    hotspots,
+    hotspotBgColor = '',
+    hotspotTextColor = '',
+    cardBgColor = '',
+    cardTextColor = '',
+  } = attributes;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const blockProps = useBlockProps({
     className: 'aggressive-apparel-lookbook',
@@ -147,6 +161,37 @@ export default function Edit({
             />
           </MediaUploadCheck>
         </PanelBody>
+
+        <PanelColorSettings
+          __experimentalIsRenderedInSidebar
+          title={__('Colors', 'aggressive-apparel')}
+          colorSettings={[
+            {
+              value: hotspotBgColor,
+              onChange: (value: string | undefined) =>
+                setAttributes({ hotspotBgColor: value ?? '' }),
+              label: __('Hotspot background', 'aggressive-apparel'),
+            },
+            {
+              value: hotspotTextColor,
+              onChange: (value: string | undefined) =>
+                setAttributes({ hotspotTextColor: value ?? '' }),
+              label: __('Hotspot text', 'aggressive-apparel'),
+            },
+            {
+              value: cardBgColor,
+              onChange: (value: string | undefined) =>
+                setAttributes({ cardBgColor: value ?? '' }),
+              label: __('Card background', 'aggressive-apparel'),
+            },
+            {
+              value: cardTextColor,
+              onChange: (value: string | undefined) =>
+                setAttributes({ cardTextColor: value ?? '' }),
+              label: __('Card text', 'aggressive-apparel'),
+            },
+          ]}
+        />
 
         <PanelBody title={__('Hotspots', 'aggressive-apparel')} initialOpen>
           <p>

@@ -12,9 +12,13 @@
 
 declare(strict_types=1);
 
-$media_url = $attributes['mediaUrl'] ?? '';
-$media_alt = $attributes['mediaAlt'] ?? '';
-$hotspots  = $attributes['hotspots'] ?? array();
+$media_url         = $attributes['mediaUrl'] ?? '';
+$media_alt         = $attributes['mediaAlt'] ?? '';
+$hotspots          = $attributes['hotspots'] ?? array();
+$hotspot_bg_color  = sanitize_text_field( $attributes['hotspotBgColor'] ?? '' );
+$hotspot_txt_color = sanitize_text_field( $attributes['hotspotTextColor'] ?? '' );
+$card_bg_color     = sanitize_text_field( $attributes['cardBgColor'] ?? '' );
+$card_txt_color    = sanitize_text_field( $attributes['cardTextColor'] ?? '' );
 
 if ( empty( $media_url ) ) {
 	return;
@@ -39,13 +43,30 @@ $context = wp_json_encode(
 	),
 );
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'               => 'aggressive-apparel-lookbook',
-		'data-wp-interactive' => 'aggressive-apparel/lookbook',
-		'data-wp-context'     => $context,
-	),
+$css_vars = array();
+if ( $hotspot_bg_color ) {
+	$css_vars[] = '--aa-lookbook-hotspot-bg: ' . esc_attr( $hotspot_bg_color );
+}
+if ( $hotspot_txt_color ) {
+	$css_vars[] = '--aa-lookbook-hotspot-color: ' . esc_attr( $hotspot_txt_color );
+}
+if ( $card_bg_color ) {
+	$css_vars[] = '--aa-lookbook-card-bg: ' . esc_attr( $card_bg_color );
+}
+if ( $card_txt_color ) {
+	$css_vars[] = '--aa-lookbook-card-text: ' . esc_attr( $card_txt_color );
+}
+
+$wrapper_extra = array(
+	'class'               => 'aggressive-apparel-lookbook',
+	'data-wp-interactive' => 'aggressive-apparel/lookbook',
+	'data-wp-context'     => $context,
 );
+if ( $css_vars ) {
+	$wrapper_extra['style'] = implode( '; ', $css_vars );
+}
+
+$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra );
 
 // $wrapper_attributes is pre-escaped by get_block_wrapper_attributes().
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output from get_block_wrapper_attributes().

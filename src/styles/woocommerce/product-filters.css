@@ -969,6 +969,8 @@ button.aa-product-filters__color-swatch {
 /* ── AJAX Product Grid ──────────────────────────────── */
 
 .aa-product-filters__ajax-grid {
+	container-type: inline-size;
+	container-name: product-filters-ajax;
 
 	&[hidden] {
 		display: none;
@@ -1041,7 +1043,7 @@ button.aa-product-filters__color-swatch {
 	}
 }
 
-@media (width <= 768px) {
+@container product-filters-ajax (width <= 768px) {
 
 	.aa-product-filters__products {
 		grid-template-columns: repeat(2, 1fr);
@@ -1097,7 +1099,7 @@ button.aa-product-filters__color-swatch {
 	100% { background-position: -200% 0; }
 }
 
-@media (width <= 768px) {
+@container product-filters-ajax (width <= 768px) {
 
 	.aa-product-filters__skeleton {
 		grid-template-columns: repeat(2, 1fr);

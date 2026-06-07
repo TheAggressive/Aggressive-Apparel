@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/product-tabs",
+  "version": "1.0.0",
+  "title": "Product Tabs",
+  "category": "woocommerce",
+  "icon": "layout",
+  "description": "Displays WooCommerce product tabs (Description, Reviews, etc.) in four configurable styles. Place on the single product template in place of the Product Details block.",
+  "keywords": ["tabs", "product", "details", "accordion", "woocommerce"],
+  "supports": {
+    "html": false,
+    "interactivity": true
+  },
+  "attributes": {
+    "displayStyle": {
+      "type": "string",
+      "default": "accordion",
+      "enum": ["accordion", "inline", "modern-tabs", "scrollspy"]
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

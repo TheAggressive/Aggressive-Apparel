@@ -44,7 +44,7 @@
 /* core/button — CTA */
 .is-style-cta .wp-block-button__link {
 	min-height: var(--aa-button-height-lg);
-	padding: var(--aa-density-spacious-control-padding-y) var(--wp--preset--spacing--12);
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--12);
 	font-size: var(--wp--preset--font-size--small);
 	font-weight: 700;
 	line-height: 1.1;
@@ -55,7 +55,7 @@
 /* core/button — CTA Small */
 .is-style-cta-small .wp-block-button__link {
 	min-height: var(--aa-button-height-sm);
-	padding: var(--aa-density-compact-control-padding-y) var(--aa-density-comfortable-control-padding-x);
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--8);
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	line-height: 1.1;
@@ -75,20 +75,28 @@
 	color: var(--aa-color-black);
 }
 
+/* core/group — Frosted Glass */
+.is-style-frosted {
+	background-color: color-mix(in oklch, var(--aa-color-surface-elevated) 75%, transparent);
+	backdrop-filter: blur(16px) saturate(1.6);
+	border: 1px solid color-mix(in oklch, var(--aa-color-border) 50%, transparent);
+	border-radius: var(--aa-radius-card);
+}
+
 /* core/group — Surface Card */
 .is-style-surface-card {
 	background-color: var(--aa-color-surface);
 	color: var(--aa-color-foreground);
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-card);
-	padding: var(--aa-density-card-padding);
+	padding: var(--wp--preset--spacing--8);
 }
 
 /* core/group — Bordered */
 .is-style-bordered {
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-card);
-	padding: var(--aa-density-compact-card-padding);
+	padding: var(--wp--preset--spacing--5);
 }
 
 /* core/paragraph — Badge */
@@ -99,7 +107,7 @@
 	justify-content: center;
 	width: fit-content;
 	margin: 0;
-	padding: var(--aa-density-compact-control-padding-y) var(--wp--preset--spacing--4);
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--4);
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-control);
 	background-color: var(--aa-color-surface-elevated);
@@ -185,6 +193,7 @@
 	font-weight: var(--aa-type-price-weight);
 	line-height: var(--aa-type-price-line-height);
 	letter-spacing: var(--aa-type-price-letter-spacing);
+	font-variant-numeric: tabular-nums;
 }
 
 /* core/separator — Subtle */
@@ -194,3 +203,34 @@
 	background-color: var(--aa-color-border);
 	opacity: 0.6;
 }
+
+/* core/separator — Brand Stripe */
+.is-style-brand-stripe {
+	border: none;
+	height: 4px;
+	width: 4rem;
+	background-color: var(--aa-color-accent);
+	opacity: 1;
+	margin-inline: 0;
+}
+
+/* core/heading — Display / Editorial */
+.wp-block-heading.is-style-display {
+	font-size: var(--wp--preset--font-size--fluid-xxxxx-large);
+	font-weight: 900;
+	letter-spacing: -0.03em;
+	line-height: 0.95;
+	text-transform: uppercase;
+}
+
+/* core/image — Editorial (greyscale → colour on hover) */
+.wp-block-image.is-style-editorial img {
+	filter: grayscale(100%);
+	transition: filter var(--aa-duration-normal) var(--aa-ease-default);
+}
+
+.wp-block-image.is-style-editorial:hover img,
+.wp-block-image.is-style-editorial:focus-within img {
+	filter: grayscale(0%);
+}
+

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/free-shipping-bar",
+  "version": "1.0.0",
+  "title": "Free Shipping Bar",
+  "category": "woocommerce",
+  "icon": "cart",
+  "description": "Progress bar toward the free shipping threshold. Updates live when items are added to cart.",
+  "keywords": ["shipping", "free", "cart", "progress"],
+  "supports": {
+    "html": false,
+    "interactivity": true
+  },
+  "attributes": {
+    "customThreshold": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

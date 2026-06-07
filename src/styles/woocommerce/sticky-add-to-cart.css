@@ -14,6 +14,8 @@
 .aa-sticky-cart {
 	--aa-sticky-cart-height: 3.75rem;
 
+	container-type: inline-size;
+	container-name: sticky-cart;
 	position: fixed;
 	bottom: var(--aa-bottom-nav-height, 0);
 	left: 0;
@@ -642,14 +644,13 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 }
 
 /* -----------------------------------------------
- * Mobile layout
+ * Narrow layout — hides image + quantity when bar < 640px.
+ * The sticky bar is fixed/full-viewport, so this fires at the same
+ * breakpoints as a viewport @media — container queries are used here
+ * for architectural consistency and forward-compatibility.
  * ----------------------------------------------- */
 
-@media (width < 640px) {
-
-	.aa-sticky-cart {
-		--aa-sticky-cart-height: 3.75rem;
-	}
+@container sticky-cart (width < 640px) {
 
 	.aa-sticky-cart__inner {
 		flex-wrap: nowrap;

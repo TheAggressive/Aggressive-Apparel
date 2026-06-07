@@ -11,7 +11,11 @@
   "supports": {
     "html": false,
     "interactivity": true,
-    "align": ["wide", "full"]
+    "align": ["wide", "full"],
+    "color": {
+      "background": true,
+      "text": false
+    }
   },
   "attributes": {
     "mediaId": {
@@ -32,6 +36,22 @@
       "items": {
         "type": "object"
       }
+    },
+    "hotspotBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "hotspotTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "cardTextColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "aggressive-apparel",

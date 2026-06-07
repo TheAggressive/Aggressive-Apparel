@@ -79,6 +79,7 @@ export default function Edit({
     dialogBorderRadius = '',
     overlayOpacity = 50,
     overlayBlur = 4,
+    overlayColor = '',
     triggerVariant = 'outlined',
     triggerSize = 'md',
     triggerFullWidth = false,
@@ -1008,6 +1009,19 @@ export default function Edit({
             'aggressive-apparel'
           )}
           __nextHasNoMarginBottom
+        />
+
+        <PanelColorSettings
+          __experimentalIsRenderedInSidebar
+          title={__('Overlay Color', 'aggressive-apparel')}
+          colorSettings={[
+            {
+              value: overlayColor,
+              onChange: (value: string | undefined) =>
+                setAttributes({ overlayColor: value ?? '' }),
+              label: __('Backdrop color', 'aggressive-apparel'),
+            },
+          ]}
         />
       </PanelBody>
     </InspectorControls>

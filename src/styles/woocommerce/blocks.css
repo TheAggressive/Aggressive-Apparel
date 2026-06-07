@@ -9,17 +9,23 @@
 
 /* Product collection rhythm. */
 .wp-block-woocommerce-product-collection {
-	--aa-wc-product-card-padding: var(--aa-density-compact-card-padding);
+	--aa-wc-product-card-padding: var(--wp--preset--spacing--5);
 
 	color: var(--aa-color-foreground);
 }
 
+/* Product template — each <li> is a container so inner blocks
+   (title, price, button) can adapt to their card's actual width,
+   not the viewport. Enables correct stacking when the collection
+   is placed in a narrow column or sidebar. */
 .wp-block-woocommerce-product-template {
 	gap: var(--wp--preset--spacing--8);
 }
 
 .wp-block-woocommerce-product-template > li,
 .wc-block-grid__product {
+	container-type: inline-size;
+	container-name: product-card;
 	position: relative;
 }
 
@@ -281,5 +287,41 @@
 	.wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
 	.wc-block-grid__product:hover .wc-block-grid__product-image img {
 		transform: none;
+	}
+}
+
+/* ── Product card container queries ───────────────────────────────────────── */
+
+/* Narrow slot (< 200px) — hide non-essential meta, tighten spacing.
+   Handles sidebar placements and very small grid columns. */
+@container product-card (width < 200px) {
+
+	.wp-block-woocommerce-product-rating,
+	.wc-block-components-product-rating {
+		display: none;
+	}
+
+	.wp-block-woocommerce-product-title,
+	.wc-block-components-product-name {
+		font-size: var(--wp--preset--font-size--x-small);
+	}
+}
+
+/* Standard slot (200–320px) — compact button, tighter price. */
+@container product-card (200px <= width < 320px) {
+
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link {
+		padding-block: var(--wp--preset--spacing--2);
+		font-size: var(--wp--preset--font-size--x-small);
+	}
+}
+
+/* Wide slot (>= 320px) — full padding and type scale. */
+@container product-card (width >= 320px) {
+
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link {
+		width: 100%;
 	}
 }

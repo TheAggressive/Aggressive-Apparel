@@ -12,6 +12,8 @@
  * ----------------------------------------------- */
 
 .aa-fbt {
+	container-type: inline-size;
+	container-name: fbt;
 	margin-block: var(--wp--preset--spacing--8, 3rem);
 	padding: var(--wp--preset--spacing--6, 1.5rem);
 	border: 1px solid var(--aa-color-border-subtle);
@@ -201,10 +203,10 @@
 }
 
 /* -----------------------------------------------
- * Mobile layout
+ * Narrow layout — products stack when container is under 640px.
  * ----------------------------------------------- */
 
-@media (width < 640px) {
+@container fbt (width < 640px) {
 
 	.aa-fbt__products {
 		flex-direction: column;

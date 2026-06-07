@@ -67,6 +67,7 @@ export interface ModalAttributes {
   dialogBorderRadius: string;
   overlayOpacity: number;
   overlayBlur: number;
+  overlayColor: string;
   triggerVariant: string;
   triggerSize: string;
   triggerFullWidth: boolean;

@@ -18,6 +18,8 @@
 	--aa-pi-heading-size: 1rem;
 	--aa-pi-accent: var(--aa-color-brand);
 
+	container-type: inline-size;
+	container-name: product-info;
 	width: 100%;
 	font-size: 1rem;
 	line-height: 1.6;
@@ -284,41 +286,14 @@
 	padding: 0;
 }
 
-/* Mobile: scrollspy degrades to stacked sections */
+/* Scrollspy: collapse from side-nav to horizontal scroll bar.
+ * display:block on the container element itself must stay @media — container
+ * queries cannot target the query root. Descendant rules are below in
+ * @container product-info. */
 @media (width < 768px) {
 
 	.aa-product-info--scrollspy {
 		display: block;
-	}
-
-	.aa-product-info--scrollspy .aa-product-info__sidebar {
-		position: static;
-		flex-direction: row;
-		overflow-x: auto;
-		scrollbar-width: none;
-		border-right: none;
-		border-bottom: 1px solid var(--aa-pi-border);
-		padding-right: 0;
-		padding-bottom: 0;
-		margin-bottom: var(--aa-pi-gap);
-		gap: 0;
-	}
-
-	.aa-product-info--scrollspy .aa-product-info__sidebar::-webkit-scrollbar {
-		display: none;
-	}
-
-	.aa-product-info--scrollspy .aa-product-info__nav-link {
-		white-space: nowrap;
-		border-left: none;
-		margin-left: 0;
-		padding: 0.75rem 1rem;
-		border-bottom: 2px solid transparent;
-	}
-
-	.aa-product-info--scrollspy .aa-product-info__nav-link.is-active {
-		border-left-color: transparent;
-		border-bottom-color: var(--aa-pi-accent);
 	}
 }
 
@@ -604,14 +579,50 @@
 }
 
 /* ===================================================================
- * Mobile
+ * Narrow layout — container-aware children + viewport fallback
  * =================================================================== */
 
+/* Spacing tighten on the container element — must stay @media. */
 @media (width < 768px) {
 
-	/* Tighten spacing */
 	.aa-product-info {
 		--aa-pi-gap: 1.125rem;
+	}
+}
+
+/* All descendant rules use container queries so the component adapts
+ * when placed in a narrow column regardless of viewport width. */
+@container product-info (width < 768px) {
+
+	/* Scrollspy sidebar: horizontal scroll row */
+	.aa-product-info--scrollspy .aa-product-info__sidebar {
+		position: static;
+		flex-direction: row;
+		overflow-x: auto;
+		scrollbar-width: none;
+		border-right: none;
+		border-bottom: 1px solid var(--aa-pi-border);
+		padding-right: 0;
+		padding-bottom: 0;
+		margin-bottom: var(--aa-pi-gap);
+		gap: 0;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__sidebar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__nav-link {
+		white-space: nowrap;
+		border-left: none;
+		margin-left: 0;
+		padding: 0.75rem 1rem;
+		border-bottom: 2px solid transparent;
+	}
+
+	.aa-product-info--scrollspy .aa-product-info__nav-link.is-active {
+		border-left-color: transparent;
+		border-bottom-color: var(--aa-pi-accent);
 	}
 
 	/* Modern tabs: compact buttons so more fit on screen */
@@ -626,7 +637,7 @@
 		scroll-snap-align: start;
 	}
 
-	/* Horizontal scroll hint — fade trailing edge regardless of background */
+	/* Horizontal scroll hint — fade trailing edge */
 	.aa-product-info--modern-tabs .aa-product-info__tab-nav,
 	.aa-product-info--scrollspy .aa-product-info__sidebar {
 		mask-image: linear-gradient(to right, var(--aa-color-foreground) calc(100% - 1.5rem), transparent);

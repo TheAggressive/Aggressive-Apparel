@@ -320,11 +320,6 @@ class Feature_Settings {
 				'description' => __( 'Replace pagination with a Load More button or automatic infinite scroll.', 'aggressive-apparel' ),
 				'section'     => 'catalog',
 			),
-			'predictive_search'          => array(
-				'label'       => __( 'Predictive Search', 'aggressive-apparel' ),
-				'description' => __( 'Show live product search results with thumbnails and prices as users type.', 'aggressive-apparel' ),
-				'section'     => 'catalog',
-			),
 			'page_transitions'           => array(
 				'label'       => __( 'Page Transitions', 'aggressive-apparel' ),
 				'description' => __( 'Smooth crossfade between pages with product image morphing (Chrome/Safari).', 'aggressive-apparel' ),
@@ -337,19 +332,9 @@ class Feature_Settings {
 			),
 
 			// ── Product Page ────────────────────────────────────.
-			'product_tabs'               => array(
-				'label'       => __( 'Product Tabs Manager', 'aggressive-apparel' ),
-				'description' => __( 'Replace default WooCommerce tabs with 4 display styles and add custom tabs. Configure active tabs under Products → Product Tabs.', 'aggressive-apparel' ),
-				'section'     => 'product',
-			),
 			'size_guide'                 => array(
 				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
 				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
-				'section'     => 'product',
-			),
-			'countdown_timer'            => array(
-				'label'       => __( 'Sale Countdown Timer', 'aggressive-apparel' ),
-				'description' => __( 'Live countdown for products with scheduled sale end dates.', 'aggressive-apparel' ),
 				'section'     => 'product',
 			),
 			'sticky_add_to_cart'         => array(
@@ -374,11 +359,6 @@ class Feature_Settings {
 			),
 
 			// ── Cart & Mini Cart ────────────────────────────────.
-			'free_shipping_bar'          => array(
-				'label'       => __( 'Free Shipping Progress Bar', 'aggressive-apparel' ),
-				'description' => __( 'Show progress toward free shipping threshold in the cart.', 'aggressive-apparel' ),
-				'section'     => 'cart',
-			),
 			'mini_cart_styling'          => array(
 				'label'       => __( 'Mini Cart Styling', 'aggressive-apparel' ),
 				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
@@ -386,11 +366,6 @@ class Feature_Settings {
 			),
 
 			// ── Customer Engagement ─────────────────────────────.
-			'recently_viewed'            => array(
-				'label'       => __( 'Recently Viewed Products', 'aggressive-apparel' ),
-				'description' => __( 'Show customers their recently viewed products using browser storage.', 'aggressive-apparel' ),
-				'section'     => 'engagement',
-			),
 			'wishlist'                   => array(
 				'label'       => __( 'Wishlist', 'aggressive-apparel' ),
 				'description' => __( 'Save-for-later with heart icon toggle and dedicated wishlist page.', 'aggressive-apparel' ),

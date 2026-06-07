@@ -399,11 +399,13 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 /* Footer — sticky quantity + add to cart */
 .aa-sticky-cart__drawer-footer {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.75rem;
 	padding: 0.75rem 1.25rem;
 	padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 	border-top: 1px solid color-mix(in oklch, currentcolor 8%, transparent);
+	background-color: var(--aa-color-surface);
 	flex-shrink: 0;
 }
 
@@ -453,6 +455,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	flex: 0 0 100%;
 	min-height: 2.75rem;
 	padding: 0.5rem 1rem;
 	border: 1.5px solid var(--aa-color-foreground);
@@ -676,15 +679,8 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 		padding: 0.5rem 1rem;
 	}
 
-	/* Buy Now on its own line in drawer so it doesn't crowd Add to Cart. */
-	.aa-sticky-cart__drawer-footer {
-		flex-wrap: wrap;
-	}
-
-	.aa-sticky-cart__drawer-buy-now {
-		width: 100%;
-	}
 }
+
 
 /* -----------------------------------------------
  * Reduced motion

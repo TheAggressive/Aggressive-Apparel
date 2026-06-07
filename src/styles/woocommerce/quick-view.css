@@ -59,6 +59,7 @@
 .aggressive-apparel-quick-view {
 	--aa-overlay-opacity: 0.8;
 	--quick-view-animation-duration: var(--aa-duration-normal);
+	--quick-view-panel-bg: var(--aa-color-surface);
 	--quick-view-stock-in: var(--aa-color-success);
 	--quick-view-stock-low: var(--aa-color-warning);
 	--quick-view-stock-out: var(--aa-color-error);
@@ -834,7 +835,7 @@
 	left: 0;
 	right: 0;
 	max-height: 85%;
-	background: var(--aa-color-surface);
+	background: var(--quick-view-panel-bg);
 	border-radius: 1rem 1rem 0 0;
 	overflow-y: auto;
 	transform: translateY(100%);
@@ -859,9 +860,8 @@
 	& img {
 		display: block;
 		width: 100%;
-		height: auto;
-		max-height: 100%;
-		object-fit: contain;
+		height: 100%;
+		object-fit: cover;
 		object-position: center;
 	}
 }
@@ -920,9 +920,10 @@
 	padding: 0.75rem 1rem;
 	padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
 	border-top: 1px solid color-mix(in oklch, currentcolor 8%, transparent);
-	background: var(--aa-color-surface);
+	background: var(--quick-view-panel-bg);
 	position: sticky;
 	bottom: 0;
+	z-index: 9;
 
 	& .aggressive-apparel-quick-view__add-to-cart,
 	& .aggressive-apparel-quick-view__buy-now {
@@ -952,11 +953,19 @@
 /* Desktop two-column drawer layout. */
 @media (width > 768px) {
 
+	/* Rigid container — only the body column scrolls, so the image stays fixed. */
+	.aggressive-apparel-quick-view__drawer-panel {
+		overflow: hidden;
+		height: 85%;
+	}
+
 	.aggressive-apparel-quick-view__drawer-selection {
 		display: grid;
 		grid-template-columns: minmax(0, 14rem) 1fr;
 		grid-template-rows: auto 1fr auto;
+		height: 100%;
 		min-height: 0;
+		overflow: hidden;
 
 		&[hidden] {
 			display: none;
@@ -964,13 +973,10 @@
 	}
 
 	.aggressive-apparel-quick-view__drawer-image {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: block;
 		grid-column: 1;
 		grid-row: 1 / -1;
 		overflow: hidden;
-		min-height: 0;
 	}
 
 	.aggressive-apparel-quick-view__drawer-header {
@@ -984,6 +990,8 @@
 
 	.aggressive-apparel-quick-view__drawer-body {
 		grid-column: 2;
+		overflow-y: auto;
+		min-height: 0;
 	}
 
 	.aggressive-apparel-quick-view__drawer-footer {

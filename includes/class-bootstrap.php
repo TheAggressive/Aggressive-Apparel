@@ -151,6 +151,7 @@ class Bootstrap {
 		$this->container->register( 'theme_updates', fn() => Core\Theme_Updates::get_instance() );
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
+		$this->container->register( 'favicon', fn() => new Core\Favicon() );
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
@@ -217,6 +218,7 @@ class Bootstrap {
 		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates.
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		$this->container->get( 'adaptive_colors' )->init();
+		$this->container->get( 'favicon' )->init();
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

@@ -1,3 +1,10 @@
+# [1.89.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.88.0...v1.89.0) (2026-06-08)
+
+
+### Features
+
+* remove mini cart enhancements and update styles ([db0a332](https://github.com/TheAggressive/Aggressive-Apparel/commit/db0a332ff0ca7d064e4f6658e7e868a20000f591))
+
 # [1.88.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.3...v1.88.0) (2026-06-08)
 
 

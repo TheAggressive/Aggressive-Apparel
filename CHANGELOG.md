@@ -1,3 +1,11 @@
+## [1.87.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.0...v1.87.1) (2026-06-08)
+
+
+### Bug Fixes
+
+* adjust z-index for toast notifications ([23c5964](https://github.com/TheAggressive/Aggressive-Apparel/commit/23c59648a4424c667ebec78ef932154d56454954))
+* enhance quick view and sticky cart components ([8da137c](https://github.com/TheAggressive/Aggressive-Apparel/commit/8da137c29e2e229dc487a5521c06af0678110485))
+
 # [1.87.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.86.0...v1.87.0) (2026-06-07)
 
 

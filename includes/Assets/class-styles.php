@@ -56,6 +56,10 @@ class Styles {
 	public function enqueue_styles() {
 		$this->enqueue_core_styles();
 
+		if ( function_exists( 'WC' ) ) {
+			Asset_Loader::enqueue_style( 'aggressive-apparel-mini-cart', 'build/styles/woocommerce/mini-cart' );
+		}
+
 		if ( is_singular( 'product' ) ) {
 			Asset_Loader::enqueue_style( 'aggressive-apparel-product', 'build/styles/woocommerce/color-swatches' );
 			Asset_Loader::enqueue_style( 'aggressive-apparel-variation-pills', 'build/styles/woocommerce/variation-pills' );

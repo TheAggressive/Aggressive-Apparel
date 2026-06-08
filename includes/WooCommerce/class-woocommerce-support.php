@@ -33,6 +33,25 @@ class WooCommerce_Support {
 	 */
 	public function init() {
 		$this->register_woocommerce_support();
+		add_filter( 'gettext', array( $this, 'filter_mini_cart_items_counter_text' ), 10, 3 );
+	}
+
+	/**
+	 * Collapse the mini-cart items counter to "(N)" regardless of WooCommerce's
+	 * string format. Matches any parenthesized woocommerce string containing %d,
+	 * e.g. the current "(items: %d)" or the planned "(%d items)".
+	 *
+	 * @param string $translation Translated text.
+	 * @param string $text        Original text.
+	 * @param string $domain      Text domain.
+	 *
+	 * @return string
+	 */
+	public function filter_mini_cart_items_counter_text( string $translation, string $text, string $domain ): string {
+		if ( 'woocommerce' === $domain && 1 === preg_match( '/^\(.*%d.*\)$/', $text ) ) {
+			return '(%d)';
+		}
+		return $translation;
 	}
 
 	/**

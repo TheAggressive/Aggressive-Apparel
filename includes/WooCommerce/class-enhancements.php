@@ -48,7 +48,6 @@ class Enhancements {
 		'price_display'              => array( Price_Display::class ),
 		'advanced_sorting'           => array( Advanced_Sorting::class ),
 		'swatch_tooltips'            => array( Swatch_Tooltips::class ),
-		'mini_cart_styling'          => array( Mini_Cart_Enhancements::class ),
 		'grid_list_toggle'           => array( Grid_List_Toggle::class ),
 		'product_filters'            => array( Product_Filters::class ),
 		'page_transitions'           => array( Page_Transitions::class ),

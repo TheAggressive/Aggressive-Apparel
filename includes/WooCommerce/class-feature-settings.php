@@ -255,10 +255,6 @@ class Feature_Settings {
 			'label' => 'Product Page',
 			'icon'  => 'dashicons-products',
 		),
-		'cart'         => array(
-			'label' => 'Cart & Mini Cart',
-			'icon'  => 'dashicons-cart',
-		),
 		'engagement'   => array(
 			'label' => 'Customer Engagement',
 			'icon'  => 'dashicons-groups',
@@ -356,13 +352,6 @@ class Feature_Settings {
 				'label'       => __( 'Frequently Bought Together', 'aggressive-apparel' ),
 				'description' => __( 'Show recommended products with checkboxes and combined add-to-cart on product pages.', 'aggressive-apparel' ),
 				'section'     => 'product',
-			),
-
-			// ── Cart & Mini Cart ────────────────────────────────.
-			'mini_cart_styling'          => array(
-				'label'       => __( 'Mini Cart Styling', 'aggressive-apparel' ),
-				'description' => __( 'Style the native WooCommerce mini-cart to match the theme design.', 'aggressive-apparel' ),
-				'section'     => 'cart',
 			),
 
 			// ── Customer Engagement ─────────────────────────────.

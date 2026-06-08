@@ -99,7 +99,7 @@
 	--aa-z-sticky: var(--wp--custom--z-index--sticky, 200);
 	--aa-z-overlay: var(--wp--custom--z-index--overlay, 300);
 	--aa-z-modal: var(--wp--custom--z-index--modal, 400);
-	--aa-z-toast: var(--wp--custom--z-index--toast, 500);
+	--aa-z-toast: var(--wp--custom--z-index--toast, 350);
 	--aa-z-sticky-cart: var(--wp--custom--z-index--sticky-cart, 99996);
 	--aa-z-bottom-nav: var(--wp--custom--z-index--bottom-nav, 99997);
 	--aa-z-commerce-drawer: var(--wp--custom--z-index--commerce-drawer, 99998);

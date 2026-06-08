@@ -355,7 +355,7 @@
         "sticky": 200,
         "overlay": 300,
         "modal": 400,
-        "toast": 500,
+        "toast": 350,
         "stickyCart": 99996,
         "bottomNav": 99997,
         "commerceDrawer": 99998

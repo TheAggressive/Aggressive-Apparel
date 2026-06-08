@@ -1,3 +1,10 @@
+## [1.87.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.1...v1.87.2) (2026-06-08)
+
+
+### Bug Fixes
+
+* update quick view styles for improved layout and animations ([8679ccc](https://github.com/TheAggressive/Aggressive-Apparel/commit/8679cccc2b9d01f32a567b2330094d3dfcd2f549))
+
 ## [1.87.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.0...v1.87.1) (2026-06-08)
 
 

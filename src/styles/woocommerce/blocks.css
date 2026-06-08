@@ -56,7 +56,6 @@
 .wc-block-components-product-image {
 	overflow: hidden;
 	border-radius: var(--aa-radius-card);
-	background-color: var(--aa-color-neutral-bg);
 }
 
 .wp-block-woocommerce-product-image.is-style-product-frame,

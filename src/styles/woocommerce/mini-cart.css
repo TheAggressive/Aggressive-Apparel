@@ -129,22 +129,24 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 1.5rem !important;
-	width: 1.5rem;
-	height: 1.5rem;
+	min-width: 1.25rem !important;
+	width: 1.25rem;
+	height: 1.25rem;
 	padding: 0;
   left: 0.5rem;
   top: 0.25rem;
 	border-radius: var(--aa-radius-full);
 	background-color: transparent !important;
 	color: transparent !important;
-	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 400;
+	font-size: 0.65rem;
+	font-weight: 500;
 	line-height: 1;
 	overflow: visible;
+	scale: 1;
 	transition:
 		background-color var(--aa-duration-fast) var(--aa-ease-default),
-		color var(--aa-duration-fast) var(--aa-ease-default);
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		scale var(--aa-duration-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
 
 	/* Visible 0.5rem notification dot, centered inside the bounding box. */
 	&::before {
@@ -173,6 +175,7 @@
 			background-color: var(--aa-color-accent) !important;
 			color: var(--aa-color-white) !important;
 			box-shadow: var(--aa-shadow-sm);
+			scale: 1.25;
 
 			&::before {
 				opacity: 0;
@@ -183,6 +186,13 @@
 				opacity: 0;
 			}
 		}
+	}
+}
+
+@starting-style {
+
+	.wc-block-mini-cart__badge {
+		scale: 0;
 	}
 }
 
@@ -200,6 +210,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
+	.wc-block-mini-cart__badge {
+		transition: none;
+	}
 
 	.wc-block-mini-cart__badge::after {
 		animation: none;

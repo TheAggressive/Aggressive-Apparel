@@ -145,7 +145,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	letter-spacing: 0.04em;
 	cursor: pointer;
 	white-space: nowrap;
-	transition: all 0.15s ease;
+	transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .aa-sticky-cart__button:hover {
@@ -187,7 +187,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	letter-spacing: 0.04em;
 	cursor: pointer;
 	white-space: nowrap;
-	transition: all 0.15s ease;
+	transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .aa-sticky-cart__buy-now:hover {

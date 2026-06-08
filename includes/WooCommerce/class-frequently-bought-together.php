@@ -37,6 +37,14 @@ class Frequently_Bought_Together {
 	private const MAX_COMPANIONS = 3;
 
 	/**
+	 * Cached companion products so inject_fbt_section and
+	 * output_interactivity_state share one DB round-trip.
+	 *
+	 * @var \WC_Product[]|null
+	 */
+	private ?array $companion_cache = null;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -89,7 +97,7 @@ class Frequently_Bought_Together {
 			return $block_content;
 		}
 
-		$companions = $this->get_companion_products( $product );
+		$companions = $this->get_cached_companions( $product );
 		if ( empty( $companions ) ) {
 			return $block_content;
 		}
@@ -118,7 +126,7 @@ class Frequently_Bought_Together {
 			return;
 		}
 
-		$companions = $this->get_companion_products( $product );
+		$companions = $this->get_cached_companions( $product );
 		if ( empty( $companions ) ) {
 			return;
 		}
@@ -169,6 +177,19 @@ class Frequently_Bought_Together {
 	}
 
 	/**
+	 * Return companion products, computing once per request.
+	 *
+	 * @param \WC_Product $product Current product.
+	 * @return \WC_Product[]
+	 */
+	private function get_cached_companions( \WC_Product $product ): array {
+		if ( null === $this->companion_cache ) {
+			$this->companion_cache = $this->get_companion_products( $product );
+		}
+		return $this->companion_cache;
+	}
+
+	/**
 	 * Get companion product IDs using cross-sells first, then related products.
 	 *
 	 * @param \WC_Product $product Current product.
@@ -183,6 +204,13 @@ class Frequently_Bought_Together {
 		}
 
 		$companion_ids = array_slice( $companion_ids, 0, self::MAX_COMPANIONS );
+
+		if ( empty( $companion_ids ) ) {
+			return array();
+		}
+
+		// Prime the post cache so each wc_get_product() below is a cache hit.
+		_prime_post_caches( $companion_ids, false, false );
 
 		$companions = array();
 		foreach ( $companion_ids as $id ) {

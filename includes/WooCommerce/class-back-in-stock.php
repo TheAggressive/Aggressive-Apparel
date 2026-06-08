@@ -282,6 +282,9 @@ class Back_In_Stock {
 			return;
 		}
 
+		// Prime the post cache so the email trigger's wc_get_product() call is a cache hit.
+		_prime_post_caches( array( $product_id ), false, false );
+
 		$mailer = WC()->mailer();
 		$emails = $mailer->get_emails();
 

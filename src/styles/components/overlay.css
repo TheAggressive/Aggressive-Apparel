@@ -42,14 +42,23 @@
 	inset: 0;
 	background-color: transparent;
 	opacity: 0;
-	backdrop-filter: blur(0);
 	cursor: pointer;
 	transition: var(--aa-transition-overlay);
 
 	.aggressive-apparel-overlay.is-open & {
 		background-color: var(--aa-color-scrim);
 		opacity: var(--aa-overlay-opacity);
-		backdrop-filter: blur(var(--aa-overlay-blur));
+	}
+}
+
+@supports (backdrop-filter: blur(1px)) {
+
+	.aggressive-apparel-overlay__backdrop {
+		backdrop-filter: blur(0);
+
+		.aggressive-apparel-overlay.is-open & {
+			backdrop-filter: blur(var(--aa-overlay-blur));
+		}
 	}
 }
 
@@ -60,7 +69,16 @@
 		@starting-style {
 			background-color: transparent;
 			opacity: 0;
-			backdrop-filter: blur(0);
+		}
+	}
+
+	@supports (backdrop-filter: blur(1px)) {
+
+		.aggressive-apparel-overlay__backdrop {
+
+			@starting-style {
+				backdrop-filter: blur(0);
+			}
 		}
 	}
 }
@@ -69,10 +87,16 @@
 
 	.aggressive-apparel-overlay__backdrop {
 		transition: none;
-		backdrop-filter: none;
+	}
 
-		.aggressive-apparel-overlay.is-open & {
+	@supports (backdrop-filter: blur(1px)) {
+
+		.aggressive-apparel-overlay__backdrop {
 			backdrop-filter: none;
+
+			.aggressive-apparel-overlay.is-open & {
+				backdrop-filter: none;
+			}
 		}
 	}
 }

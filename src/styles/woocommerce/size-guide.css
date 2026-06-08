@@ -41,8 +41,14 @@
  * here — it is not in --aa-transition-overlay and would snap off instantly. */
 .aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
 	opacity: 0;
-	backdrop-filter: blur(0);
 	transition: var(--aa-size-guide-exit-transition);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+
+	.aggressive-apparel-size-guide__overlay.is-open.is-backdrop-closing .aggressive-apparel-overlay__backdrop {
+		backdrop-filter: blur(0);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

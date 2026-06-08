@@ -121,21 +121,89 @@
 	}
 }
 
-/* Badge. WooCommerce injects badge colors inline, so color tokens need priority. */
+/* Badge — pulsing notification dot that reveals count as a circle on hover.
+   Bounding box stays 1.5rem × 1.5rem at all times — no layout shift.
+   WooCommerce injects colors inline so !important is required on bg/color. */
 .wc-block-mini-cart__badge {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 1.25rem;
-	height: 1.25rem;
-	padding: 0 var(--wp--preset--spacing--2);
-	border-radius: var(--aa-radius-control);
-	background-color: var(--aa-color-accent) !important;
-	color: var(--aa-color-white) !important;
-	box-shadow: var(--aa-shadow-sm);
+	min-width: 1.5rem !important;
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+  left: 0.5rem;
+  top: 0.25rem;
+	border-radius: var(--aa-radius-full);
+	background-color: transparent !important;
+	color: transparent !important;
 	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 700;
+	font-weight: 400;
 	line-height: 1;
+	overflow: visible;
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
+
+	/* Visible 0.5rem notification dot, centered inside the bounding box. */
+	&::before {
+		content: "";
+		position: absolute;
+		inset: calc(50% - 0.25rem);
+		border-radius: 50%;
+		background-color: var(--aa-color-accent);
+		transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
+	}
+
+	/* Ping ring — fills the bounding box and scales outward. */
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		background-color: var(--aa-color-accent);
+		animation: aa-badge-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+	}
+
+	/* Desktop only: fill circle and reveal count, hide dot + ping. */
+	@media (hover: hover) {
+
+		&:hover {
+			background-color: var(--aa-color-accent) !important;
+			color: var(--aa-color-white) !important;
+			box-shadow: var(--aa-shadow-sm);
+
+			&::before {
+				opacity: 0;
+			}
+
+			&::after {
+				animation-play-state: paused;
+				opacity: 0;
+			}
+		}
+	}
+}
+
+@keyframes aa-badge-ping {
+
+	0% {
+		transform: scale(1);
+		opacity: 0.6;
+	}
+
+	80%, 100% {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wc-block-mini-cart__badge::after {
+		animation: none;
+	}
 }
 
 /* Totals. */
@@ -378,7 +446,6 @@
 			width: 2.5rem;
 			text-align: center;
 			border: 0;
-			border-inline: 1px solid var(--aa-color-border-subtle);
 			background: transparent;
 			font-size: var(--wp--preset--font-size--small);
 			font-weight: 600;
@@ -399,10 +466,14 @@
 
 		.wc-block-components-quantity-selector__button--minus {
 			order: 1;
+			border-top-left-radius: var(--aa-radius-full);
+			border-bottom-left-radius: var(--aa-radius-full);
 		}
 
 		.wc-block-components-quantity-selector__button--plus {
 			order: 3;
+			border-top-right-radius: var(--aa-radius-full);
+			border-bottom-right-radius: var(--aa-radius-full);
 		}
 
 		button {
@@ -475,7 +546,6 @@
 
 		.wc-block-components-product-price {
 			font-size: var(--wp--preset--font-size--small);
-			font-weight: 700;
 			letter-spacing: 0.01em;
 		}
 

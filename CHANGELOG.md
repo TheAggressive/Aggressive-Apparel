@@ -1,3 +1,10 @@
+## [1.87.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.2...v1.87.3) (2026-06-08)
+
+
+### Bug Fixes
+
+* update product image styles for consistency ([be32bbc](https://github.com/TheAggressive/Aggressive-Apparel/commit/be32bbc313ee1fddfc545953053da72c450ab888))
+
 ## [1.87.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.87.1...v1.87.2) (2026-06-08)
 
 

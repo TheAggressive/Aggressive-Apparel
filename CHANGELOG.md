@@ -1,3 +1,10 @@
+# [1.90.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.89.0...v1.90.0) (2026-06-08)
+
+
+### Features
+
+* enhance mini cart badge styles and animations ([4cc6e8c](https://github.com/TheAggressive/Aggressive-Apparel/commit/4cc6e8c29042d76783a0f1098506408dd88fc5b2))
+
 # [1.89.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.88.0...v1.89.0) (2026-06-08)
 
 

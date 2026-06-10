@@ -73,7 +73,7 @@
  * NAVIGATION CONTAINER
  * ======================================== */
 .wp-block-aggressive-apparel-navigation {
-  --navigation-gap: var(--wp--preset--spacing--6, 1.5rem);
+  --navigation-gap: var(--wp--preset--spacing--6);
   --navigation-breakpoint: 1024px;
 
   position: relative;
@@ -221,7 +221,7 @@
 .aa-nav__toggle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--wp--preset--spacing--2);
   padding: 0.5rem;
   background: none;
   border: none;
@@ -384,7 +384,7 @@
 /* Dots icon style */
 .aa-nav__toggle-icon--dots {
   flex-direction: row;
-  gap: 3px;
+  gap: var(--wp--preset--spacing--0-5);
 }
 
 .aa-nav__toggle-dot {
@@ -412,7 +412,7 @@
 
 /* Toggle label */
 .aa-nav__toggle-label {
-  font-size: 0.875rem;
+  font-size: var(--wp--preset--font-size--small);
   font-weight: 500;
 }
 
@@ -691,7 +691,7 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
   padding: 0.75rem 1.25rem;
   color: var(--_text);
   text-decoration: none;
-  font-size: 0.9375rem;
+  font-size: inherit;
   font-weight: 500;
   border-radius: 0;
   transition: color var(--aa-nav-transition-fast);
@@ -725,7 +725,7 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
     background: none;
     color: var(--_text);
     font: inherit;
-    font-size: 0.9375rem;
+    font-size: inherit;
     font-weight: 500;
     cursor: pointer;
     transition: color var(--aa-nav-transition-fast);
@@ -817,7 +817,7 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
   /* Submenu link items */
   & .wp-block-aggressive-apparel-nav-submenu__panel-inner .wp-block-aggressive-apparel-nav-link__link {
     color: var(--_drilldown-text);
-    font-size: 0.875rem;
+    font-size: var(--wp--preset--font-size--small);
     font-weight: 400;
     min-height: 40px;
     padding: 0.5rem 1.25rem;

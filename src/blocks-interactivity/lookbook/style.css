@@ -41,7 +41,7 @@
 	border-radius: 50%;
 	background-color: var(--aa-lookbook-hotspot-bg, var(--aa-color-white));
 	color: var(--aa-lookbook-hotspot-color, var(--aa-color-black));
-	font-size: 0.75rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	box-shadow: var(--aa-shadow-sm);
 	transition: transform var(--aa-duration-fast) var(--aa-ease-default);
@@ -106,20 +106,20 @@
 
 .aggressive-apparel-lookbook__product-name {
 	margin: 0;
-	font-size: 0.85rem;
+	font-size: var(--wp--preset--font-size--small);
 	font-weight: 700;
 	line-height: 1.3;
 }
 
 .aggressive-apparel-lookbook__product-price {
 	margin: 0.2rem 0;
-	font-size: 0.8rem;
+	font-size: var(--wp--preset--font-size--x-small);
 }
 
 .aggressive-apparel-lookbook__product-link {
 	display: inline-block;
 	margin-top: 0.25rem;
-	font-size: 0.75rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -129,7 +129,7 @@
 
 .aggressive-apparel-lookbook__loading {
 	padding: 1rem;
-	font-size: 0.8rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	text-align: center;
 }
 

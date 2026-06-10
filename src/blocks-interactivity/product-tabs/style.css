@@ -21,8 +21,8 @@
 	container-type: inline-size;
 	container-name: product-info;
 	width: 100%;
-	font-size: 1rem;
-	line-height: 1.6;
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: inherit;
 }
 
 .aa-product-info__content {
@@ -233,7 +233,7 @@
 	padding: 0.625rem 0;
 	min-height: 2.75rem;
 	align-items: center;
-	font-size: 0.875rem;
+	font-size: var(--wp--preset--font-size--small);
 	font-weight: 500;
 	letter-spacing: 0.02em;
 	text-transform: uppercase;
@@ -352,7 +352,7 @@
 
 .aa-product-tab-layout__meta {
 	margin: 0 0 0.25rem;
-	font-size: 0.75rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -361,7 +361,7 @@
 
 .aa-product-tab-layout__title {
 	margin: 0 0 0.25rem;
-	font-size: 0.95rem;
+	font-size: var(--wp--preset--font-size--small);
 	font-weight: 700;
 	line-height: 1.35;
 }
@@ -499,7 +499,7 @@
 }
 
 .aa-product-info .woocommerce-review-link {
-	font-size: 0.875rem;
+	font-size: var(--wp--preset--font-size--small);
 }
 
 .aa-product-info .commentlist {
@@ -535,7 +535,7 @@
 }
 
 .aa-product-info .commentlist .comment-text .meta {
-	font-size: 0.875rem;
+	font-size: var(--wp--preset--font-size--small);
 	margin-bottom: 0.5em;
 	opacity: 0.7;
 }
@@ -624,7 +624,7 @@
 
 	.aa-product-info--modern-tabs .aa-product-info__tab-nav [role="tab"] {
 		padding: 0.75rem 0.875rem;
-		font-size: 0.8125rem;
+		font-size: var(--wp--preset--font-size--x-small);
 		scroll-snap-align: start;
 	}
 

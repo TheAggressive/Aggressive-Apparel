@@ -116,6 +116,19 @@ if ( ! empty( $panel_border_color ) ) {
 if ( ! empty( $panel_border_style ) && 'solid' !== $panel_border_style ) {
 	$panel_styles[] = '--panel-border-style: ' . esc_attr( $panel_border_style );
 }
+// Forward blockGap to --submenu-panel-gap so panel-inner item spacing responds
+// to the editor's block gap control. The inner containers are too deeply nested
+// for WordPress's --wp--style--block-gap cascade to reach reliably.
+$block_gap = $block->parsed_block['attrs']['style']['spacing']['blockGap'] ?? null;
+if ( null !== $block_gap ) {
+	if ( str_starts_with( $block_gap, 'var:preset|spacing|' ) ) {
+		$gap_slug  = str_replace( 'var:preset|spacing|', '', $block_gap );
+		$gap_value = '0' === $gap_slug ? '0' : 'var(--wp--preset--spacing--' . esc_attr( $gap_slug ) . ')';
+	} else {
+		$gap_value = esc_attr( $block_gap );
+	}
+	$panel_styles[] = '--submenu-panel-gap: ' . $gap_value;
+}
 $panel_style_attr = ! empty( $panel_styles ) ? ' style="' . implode( '; ', $panel_styles ) . '"' : '';
 
 // Arrow icon SVG - different for drill-down (chevron right) vs dropdown (chevron down).

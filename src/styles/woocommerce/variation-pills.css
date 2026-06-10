@@ -25,7 +25,7 @@
 	border-radius: 999px;
 	background: transparent;
 	color: var(--aa-color-foreground);
-	font-size: 0.75rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.03em;

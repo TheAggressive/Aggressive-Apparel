@@ -39,7 +39,7 @@
 
 .aa-wishlist-page__loading,
 .aa-wishlist-page__empty {
-	font-size: 0.9375rem;
+	font-size: var(--wp--preset--font-size--small);
 	opacity: 0.65;
 	margin: 0;
 
@@ -47,7 +47,7 @@
 }
 
 .aa-wishlist-page__count {
-	font-size: 0.875rem;
+	font-size: var(--wp--preset--font-size--small);
 	font-weight: 600;
 	opacity: 0.7;
 	margin: 0 0 1rem;
@@ -88,15 +88,18 @@
 
 .aa-wl-item-name {
 	display: block;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	line-height: 1.3;
 }
 
 .aa-wl-item-name__link {
 	display: block;
-	font-weight: 600;
-	font-size: 0.9375rem;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
 	color: inherit;
 	text-decoration: none;
-	line-height: 1.3;
 
 	&:hover {
 		text-decoration: underline;
@@ -107,11 +110,12 @@
 
 .aa-wl-item-price {
 	display: block;
+	font-size: var(--wp--preset--font-size--small);
 }
 
 .aa-wl-item-price__text {
 	display: block;
-	font-size: 0.875rem;
+	font-size: inherit;
 	opacity: 0.75;
 }
 
@@ -130,7 +134,7 @@
 	justify-content: center;
 	flex: 1;
 	padding: 0.5em 1em;
-	font-size: 0.8125rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
@@ -160,7 +164,7 @@
 	color: currentcolor;
 	cursor: pointer;
 	opacity: 0.6;
-	font-size: 0.8125rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 600;
 	transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 

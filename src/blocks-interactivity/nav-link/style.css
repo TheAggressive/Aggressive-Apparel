@@ -17,8 +17,8 @@
     position: relative; /* Required for ::after current page indicator */
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
-    padding: 0.5rem 0;
+    gap: var(--wp--preset--spacing--0-5);
+    padding: var(--wp--preset--spacing--2) 0;
     color: var(--nav-link-color);
     text-decoration: none;
     transition:

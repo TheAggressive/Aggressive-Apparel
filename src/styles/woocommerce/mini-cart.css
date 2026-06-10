@@ -18,7 +18,7 @@
 	flex-direction: column;
 	gap: var(--wp--preset--spacing--3);
 	padding: 0;
-  margin-bottom: -1rem !important;
+	margin-bottom: -1rem;
 
 	&:has(.wc-block-components-notice-banner) {
 		display: flex;
@@ -138,7 +138,7 @@
 	border-radius: var(--aa-radius-full);
 	background-color: transparent !important;
 	color: transparent !important;
-	font-size: 0.65rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 500;
 	line-height: 1;
 	overflow: visible;
@@ -186,6 +186,22 @@
 				opacity: 0;
 			}
 		}
+	}
+}
+
+/* Keyboard focus: reveal badge count when the parent cart button is focused. */
+.wc-block-mini-cart__button:focus-visible .wc-block-mini-cart__badge {
+	background-color: var(--aa-color-accent) !important;
+	color: var(--aa-color-white) !important;
+	scale: 1.25;
+
+	&::before {
+		opacity: 0;
+	}
+
+	&::after {
+		animation-play-state: paused;
+		opacity: 0;
 	}
 }
 
@@ -273,7 +289,7 @@
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
 
 		:not(.is-mobile) & {
-			padding: var(--wp--preset--spacing--5) !important;
+			padding: var(--wp--preset--spacing--5);
       column-gap: 0;
 		}
 
@@ -498,7 +514,7 @@
 			border: 0;
 			background: transparent;
 			color: var(--aa-color-foreground-muted);
-			font-size: 1rem;
+			font-size: var(--wp--preset--font-size--medium);
 			line-height: 1;
 			cursor: pointer;
 			transition:
@@ -564,7 +580,7 @@
 		}
 
 		.wc-block-components-sale-badge {
-			font-size: 0.6875rem;
+			font-size: var(--wp--preset--font-size--x-small);
 		}
 	}
 }

@@ -81,12 +81,20 @@
 
 /* Product text hierarchy. */
 .wp-block-woocommerce-product-title,
-.wc-block-components-product-name,
 .wc-block-grid__product-title {
 	color: var(--aa-color-foreground);
 	font-weight: 700;
 	font-size: var(--aa-type-product-title-size);
 	line-height: var(--aa-type-product-title-line-height);
+	text-decoration: none;
+}
+
+/* Same nested-context pattern as price — beats WooCommerce's own default styles. */
+.wp-block-woocommerce-product-title .wc-block-components-product-name {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
 	text-decoration: none;
 }
 
@@ -103,16 +111,29 @@
 	color: var(--aa-color-accent);
 }
 
-/* Price language. */
+/* Price language.
+   font-size is only set on the outermost block wrappers so the editor's
+   .has-X-font-size class (which targets those same elements with !important)
+   can cascade into the inner elements via inheritance. */
 .wp-block-woocommerce-product-price,
-.wc-block-components-product-price,
-.wc-block-grid__product-price,
-.woocommerce-Price-amount {
+.wc-block-grid__product-price {
 	color: var(--aa-color-foreground);
 	font-size: var(--aa-type-price-size);
 	font-weight: var(--aa-type-price-weight);
 	line-height: var(--aa-type-price-line-height);
 	letter-spacing: var(--aa-type-price-letter-spacing);
+}
+
+/* Nested context gives (0,2,0) specificity — beats WooCommerce's own
+   `:root :where(...)` rule (0,1,0) that re-applies font-size: small on
+   these inner elements, which would otherwise block editor overrides. */
+.wp-block-woocommerce-product-price .wc-block-components-product-price,
+.wp-block-woocommerce-product-price .woocommerce-Price-amount {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
 }
 
 .wp-block-woocommerce-product-price.is-style-commerce-price,

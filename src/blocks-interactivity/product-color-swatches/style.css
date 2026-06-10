@@ -152,7 +152,7 @@
 	min-width: 1.75rem;
 	height: 1.75rem;
 	border-radius: var(--aa-radius-full);
-	font-size: 0.7rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 600;
 	line-height: 1;
 	color: var(--aa-color-foreground);
@@ -176,7 +176,7 @@
 	white-space: nowrap;
 	padding: 0.2rem 0.45rem;
 	border-radius: var(--aa-radius-sm);
-	font-size: 0.7rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 500;
 	line-height: 1.4;
 	color: var(--aa-color-white);

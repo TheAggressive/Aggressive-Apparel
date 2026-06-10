@@ -347,6 +347,20 @@ if ( $indicator_color ) {
 	$nav_style .= ' --indicator-color: ' . esc_attr( $indicator_color ) . ';';
 }
 
+// Forward blockGap to --navigation-gap so the menubar item spacing responds to
+// the editor's block gap control. WordPress sets --wp--style--block-gap on the
+// wrapper but the menubar is a nested container and can't reliably consume it.
+$block_gap = $block->parsed_block['attrs']['style']['spacing']['blockGap'] ?? null;
+if ( null !== $block_gap ) {
+	if ( str_starts_with( $block_gap, 'var:preset|spacing|' ) ) {
+		$gap_slug  = str_replace( 'var:preset|spacing|', '', $block_gap );
+		$gap_value = '0' === $gap_slug ? '0' : 'var(--wp--preset--spacing--' . esc_attr( $gap_slug ) . ')';
+	} else {
+		$gap_value = esc_attr( $block_gap );
+	}
+	$nav_style .= ' --navigation-gap: ' . $gap_value . ';';
+}
+
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
 		'id'                                     => $nav_id,

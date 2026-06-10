@@ -212,7 +212,6 @@
 }
 
 /* Quantity and form controls. */
-.wc-block-components-quantity-selector,
 .wc-block-components-text-input input,
 .wc-block-components-combobox .wc-block-components-combobox-control input,
 .wc-block-components-form .wc-block-components-text-input input {
@@ -222,8 +221,77 @@
 	color: var(--aa-color-foreground);
 }
 
-.wc-block-components-quantity-selector button {
+.wc-block-components-quantity-selector {
+	display: inline-flex;
+	align-items: stretch;
+	height: 2.75rem;
+	border: 2px solid color-mix(in oklch, currentcolor 20%, transparent);
+	border-radius: 100rem;
+	overflow: hidden;
+	background-color: var(--aa-color-surface);
 	color: var(--aa-color-foreground);
+}
+
+.wc-block-components-quantity-selector .wc-block-components-quantity-selector__input {
+	order: 2;
+	width: 2.5rem;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	text-align: center;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: inherit;
+	appearance: textfield;
+
+	&::-webkit-inner-spin-button,
+	&::-webkit-outer-spin-button {
+		appearance: none;
+		margin: 0;
+	}
+
+	&:focus,
+	&:focus-visible {
+		outline: none;
+		background-color: color-mix(in oklch, currentcolor 5%, transparent);
+	}
+}
+
+.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 0.875rem;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		background-color: color-mix(in oklch, currentcolor 8%, transparent);
+	}
+
+	&:active {
+		transform: scale(0.97);
+	}
+
+	&:disabled {
+		opacity: 0.35;
+		cursor: default;
+	}
+}
+
+.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--minus {
+  order: 1;
+}
+
+.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--plus {
+	order: 3;
 }
 
 .wc-block-components-text-input label,

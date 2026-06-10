@@ -518,8 +518,8 @@
 	gap: 0;
 	width: fit-content;
 	flex-shrink: 0;
-	border: 1.5px solid color-mix(in oklch, currentcolor 20%, transparent);
-	border-radius: 0.25rem;
+	border: 2px solid color-mix(in oklch, currentcolor 20%, transparent);
+	border-radius: 100rem;
 	overflow: hidden;
 }
 
@@ -527,13 +527,14 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
+	width: 2.75rem;
+	height: 2.75rem;
 	padding: 0;
 	border: none;
 	background: none;
-	font-size: 1rem;
+	font-size: 0.875rem;
 	cursor: pointer;
+	color: inherit;
 	transition: background-color 0.15s ease;
 
 	&:hover,
@@ -547,16 +548,16 @@
 }
 
 .aggressive-apparel-quick-view__qty-input {
-	width: 3.5rem;
-	height: 2.25rem;
+	width: 2.5rem;
+	height: 2.75rem;
 	padding: 0;
 	border: none;
-	border-inline: 1.5px solid color-mix(in oklch, currentcolor 20%, transparent);
 	text-align: center;
-	font-size: 0.9rem;
+	font-size: 0.8125rem;
 	font-weight: 600;
 	appearance: textfield;
 	background: transparent;
+	color: inherit;
 
 	&::-webkit-inner-spin-button,
 	&::-webkit-outer-spin-button {

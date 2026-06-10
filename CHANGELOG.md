@@ -1,3 +1,10 @@
+## [1.90.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.90.1...v1.90.2) (2026-06-10)
+
+
+### Bug Fixes
+
+* standardize font sizes across various components ([e157370](https://github.com/TheAggressive/Aggressive-Apparel/commit/e157370dcf44dcfb1a6fce59e706d9e213e759ee))
+
 ## [1.90.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.90.0...v1.90.1) (2026-06-08)
 
 

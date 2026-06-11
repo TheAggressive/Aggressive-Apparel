@@ -1,3 +1,15 @@
+# [1.93.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.92.0...v1.93.0) (2026-06-11)
+
+
+### Bug Fixes
+
+* update product tabs to include hide tab title option ([31deb5d](https://github.com/TheAggressive/Aggressive-Apparel/commit/31deb5d7a9640338c24c25c08e8820803274bdfa))
+
+
+### Features
+
+* add option to hide section headings in product tabs ([a802b76](https://github.com/TheAggressive/Aggressive-Apparel/commit/a802b76768a757f7e6cbcdf5aa2510c3eee8e0f4))
+
 # [1.92.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.91.0...v1.92.0) (2026-06-11)
 
 

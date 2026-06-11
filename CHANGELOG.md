@@ -1,3 +1,10 @@
+# [1.92.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.91.0...v1.92.0) (2026-06-11)
+
+
+### Features
+
+* refine quantity selector styles for improved consistency ([cb475fd](https://github.com/TheAggressive/Aggressive-Apparel/commit/cb475fda62551cf4c851122ed2bcce212bbd83c6))
+
 # [1.91.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.90.2...v1.91.0) (2026-06-11)
 
 

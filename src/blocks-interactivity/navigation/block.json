@@ -137,7 +137,8 @@
     },
     "typography": {
       "fontSize": true,
-      "lineHeight": true
+      "lineHeight": true,
+      "fontFamily": true
     },
     "spacing": {
       "padding": true,

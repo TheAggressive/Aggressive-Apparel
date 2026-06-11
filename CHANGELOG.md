@@ -1,3 +1,10 @@
+# [1.91.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.90.2...v1.91.0) (2026-06-11)
+
+
+### Features
+
+* add fontFamily option to typography settings in navigation block ([8fb444f](https://github.com/TheAggressive/Aggressive-Apparel/commit/8fb444fe7cbc03e87a6e13c753870ca91a0af434))
+
 ## [1.90.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.90.1...v1.90.2) (2026-06-10)
 
 

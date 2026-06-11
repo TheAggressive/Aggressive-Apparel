@@ -197,7 +197,7 @@ class Product_Tabs {
 			return $block_content;
 		}
 
-		return $this->renderer->render_tabs_by_style( $tabs, $block_content );
+		return $this->renderer->render_tabs_by_style( $tabs, $block_content, $hide_tab_title );
 	}
 
 	/**

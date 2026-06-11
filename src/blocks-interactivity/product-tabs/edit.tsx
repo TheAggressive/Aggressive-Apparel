@@ -52,7 +52,7 @@ export default function Edit({
           <ToggleControl
             label={__('Hide section headings', 'aggressive-apparel')}
             help={__(
-              'Removes the title shown above each tab\'s content. Affects Inline and Scrollspy layouts.',
+              "Removes the title shown above each tab's content. Affects Inline and Scrollspy layouts.",
               'aggressive-apparel'
             )}
             checked={hideContentTitles}

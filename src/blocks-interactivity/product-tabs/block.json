@@ -20,7 +20,7 @@
     },
     "hideContentTitles": {
       "type": "boolean",
-      "default": false
+      "default": true
     }
   },
   "textdomain": "aggressive-apparel",

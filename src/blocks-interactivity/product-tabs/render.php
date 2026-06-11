@@ -83,7 +83,9 @@ $renderer = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Renderer(
 	$product_tabs_service
 );
 
-$renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array(), false );
+$hide_content_titles = ! empty( $attributes['hideContentTitles'] );
+
+$renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array(), $hide_content_titles );
 
 if ( empty( $renderable_tabs ) ) {
 	return;
@@ -91,4 +93,4 @@ if ( empty( $renderable_tabs ) ) {
 
 // Render without a wrapper so the Product_Tabs_Renderer controls the root element.
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output from renderer is already escaped via kses inside.
-echo $renderer->render_tabs_by_style( $renderable_tabs, '' );
+echo $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles );

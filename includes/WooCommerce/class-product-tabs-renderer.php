@@ -49,20 +49,21 @@ class Product_Tabs_Renderer {
 	/**
 	 * Render tabs using the configured display style.
 	 *
-	 * @param array  $tabs     Renderable tab data.
-	 * @param string $fallback Original Product Details block HTML.
+	 * @param array  $tabs         Renderable tab data.
+	 * @param string $fallback     Original Product Details block HTML.
+	 * @param bool   $hide_titles  Whether to hide the section heading above each tab's content.
 	 * @return string Rendered HTML.
 	 */
-	public function render_tabs_by_style( array $tabs, string $fallback ): string {
+	public function render_tabs_by_style( array $tabs, string $fallback, bool $hide_titles = false ): string {
 		switch ( $this->tabs->get_display_style() ) {
 			case 'accordion':
 				return $this->render_accordion( $tabs );
 			case 'inline':
-				return $this->render_inline( $tabs );
+				return $this->render_inline( $tabs, $hide_titles );
 			case 'modern-tabs':
 				return $this->render_modern_tabs( $tabs );
 			case 'scrollspy':
-				return $this->render_scrollspy( $tabs );
+				return $this->render_scrollspy( $tabs, $hide_titles );
 			default:
 				return $fallback;
 		}
@@ -101,20 +102,19 @@ class Product_Tabs_Renderer {
 	/**
 	 * Render tabs inline.
 	 *
-	 * @param array $tabs Renderable tab data.
+	 * @param array $tabs         Renderable tab data.
+	 * @param bool  $hide_titles  Whether to omit the heading above each section.
 	 * @return string Rendered HTML.
 	 */
-	public function render_inline( array $tabs ): string {
+	public function render_inline( array $tabs, bool $hide_titles = false ): string {
 		$html = '<div class="woocommerce aa-product-info aa-product-info--inline">';
 
 		foreach ( $tabs as $tab ) {
-			$html .= sprintf(
-				'<section class="aa-product-info__section" id="pi-%s">' .
-				'<h3 class="aa-product-info__heading">%s</h3>' .
-				'<div class="aa-product-info__content">%s</div>' .
-				'</section>',
+			$heading = $hide_titles ? '' : sprintf( '<h3 class="aa-product-info__heading">%s</h3>', esc_html( $tab['title'] ) );
+			$html   .= sprintf(
+				'<section class="aa-product-info__section" id="pi-%s">%s<div class="aa-product-info__content">%s</div></section>',
 				esc_attr( $tab['id'] ),
-				esc_html( $tab['title'] ),
+				$heading,
 				$this->content->kses_tab_content( $tab['content'] ),
 			);
 		}
@@ -184,10 +184,11 @@ class Product_Tabs_Renderer {
 	/**
 	 * Render tabs with a scrollspy navigation.
 	 *
-	 * @param array $tabs Renderable tab data.
+	 * @param array $tabs         Renderable tab data.
+	 * @param bool  $hide_titles  Whether to omit the heading above each section.
 	 * @return string Rendered HTML.
 	 */
-	public function render_scrollspy( array $tabs ): string {
+	public function render_scrollspy( array $tabs, bool $hide_titles = false ): string {
 		$html = '<div class="woocommerce aa-product-info aa-product-info--scrollspy" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initScrollspy">';
 
 		// Sidebar nav.
@@ -216,13 +217,11 @@ class Product_Tabs_Renderer {
 		$html .= '<div class="aa-product-info__main">';
 
 		foreach ( $tabs as $tab ) {
-			$html .= sprintf(
-				'<section id="pi-%s" class="aa-product-info__section">' .
-				'<h3 class="aa-product-info__heading">%s</h3>' .
-				'<div class="aa-product-info__content">%s</div>' .
-				'</section>',
+			$heading = $hide_titles ? '' : sprintf( '<h3 class="aa-product-info__heading">%s</h3>', esc_html( $tab['title'] ) );
+			$html   .= sprintf(
+				'<section id="pi-%s" class="aa-product-info__section">%s<div class="aa-product-info__content">%s</div></section>',
 				esc_attr( $tab['id'] ),
-				esc_html( $tab['title'] ),
+				$heading,
 				$this->content->kses_tab_content( $tab['content'] ),
 			);
 		}

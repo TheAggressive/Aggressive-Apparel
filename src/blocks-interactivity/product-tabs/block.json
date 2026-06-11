@@ -17,6 +17,10 @@
       "type": "string",
       "default": "accordion",
       "enum": ["accordion", "inline", "modern-tabs", "scrollspy"]
+    },
+    "hideContentTitles": {
+      "type": "boolean",
+      "default": false
     }
   },
   "textdomain": "aggressive-apparel",

@@ -7,11 +7,12 @@
 
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 interface ProductTabsAttributes {
   displayStyle: string;
+  hideContentTitles: boolean;
 }
 
 const STYLE_OPTIONS = [
@@ -25,7 +26,7 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<ProductTabsAttributes>) {
-  const { displayStyle } = attributes;
+  const { displayStyle, hideContentTitles } = attributes;
   const blockProps = useBlockProps({
     className: 'aa-product-info',
   });
@@ -48,6 +49,17 @@ export default function Edit({
               'aggressive-apparel'
             )}
           </p>
+          <ToggleControl
+            label={__('Hide section headings', 'aggressive-apparel')}
+            help={__(
+              'Removes the title shown above each tab\'s content. Affects Inline and Scrollspy layouts.',
+              'aggressive-apparel'
+            )}
+            checked={hideContentTitles}
+            onChange={(val: boolean) =>
+              setAttributes({ hideContentTitles: val })
+            }
+          />
         </PanelBody>
       </InspectorControls>
       <div {...blockProps}>

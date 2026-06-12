@@ -1,11 +1,12 @@
+/// <reference types="@wordpress/interactivity" />
+
 /**
- * Grid/List View Toggle — Interactivity API Store
+ * Grid / List Toggle — Interactivity API Store
  *
  * Switches between grid and list view on shop archive pages.
- * Preference is persisted in localStorage.
+ * Visitor preference is persisted in localStorage.
  *
  * @package Aggressive_Apparel
- * @since 1.51.0
  */
 
 import { store } from '@wordpress/interactivity';
@@ -14,9 +15,6 @@ type ViewMode = 'grid' | 'list';
 
 const STORAGE_KEY = 'aa_view_mode';
 
-/**
- * Read view mode from localStorage.
- */
 function readViewMode(): ViewMode {
   try {
     const val = localStorage.getItem(STORAGE_KEY);
@@ -26,9 +24,6 @@ function readViewMode(): ViewMode {
   }
 }
 
-/**
- * Write view mode to localStorage.
- */
 function writeViewMode(mode: ViewMode): void {
   try {
     localStorage.setItem(STORAGE_KEY, mode);
@@ -37,16 +32,11 @@ function writeViewMode(mode: ViewMode): void {
   }
 }
 
-/**
- * Apply view mode CSS classes to grid containers and body.
- */
 function applyViewMode(mode: ViewMode): void {
   const isList = mode === 'list';
-
   document.body.classList.toggle('aa-list-view', isList);
   document.body.classList.toggle('aa-grid-view', !isList);
 
-  // Toggle on product filters container (AJAX grid).
   const filters = document.querySelector('.aa-product-filters');
   if (filters) {
     filters.classList.toggle('is-list-view', isList);
@@ -54,7 +44,24 @@ function applyViewMode(mode: ViewMode): void {
   }
 }
 
-const { state } = store('aggressive-apparel/grid-list-toggle', {
+interface GridListState {
+  viewMode: ViewMode;
+  readonly isGridView: boolean;
+  readonly isListView: boolean;
+}
+
+interface GridListStore {
+  state: GridListState;
+  actions: {
+    setGrid: () => void;
+    setList: () => void;
+  };
+  callbacks: {
+    init: () => void;
+  };
+}
+
+const { state } = store<GridListStore>('aggressive-apparel/grid-list-toggle', {
   state: {
     viewMode: 'grid' as ViewMode,
 

@@ -1,0 +1,9 @@
+/**
+ * Grid / List Toggle Block — Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-grid-list-toggle.aa-grid-list-toggle {
+	pointer-events: none;
+}

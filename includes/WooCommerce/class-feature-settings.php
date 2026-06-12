@@ -301,11 +301,6 @@ class Feature_Settings {
 				'description' => __( 'Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog.', 'aggressive-apparel' ),
 				'section'     => 'catalog',
 			),
-			'grid_list_toggle'           => array(
-				'label'       => __( 'Grid/List View Toggle', 'aggressive-apparel' ),
-				'description' => __( 'Toggle between grid and list view on shop archive pages.', 'aggressive-apparel' ),
-				'section'     => 'catalog',
-			),
 			'product_filters'            => array(
 				'label'       => __( 'Product Filters', 'aggressive-apparel' ),
 				'description' => __( 'AJAX product filters with categories, color swatches, sizes, price range, and stock status.', 'aggressive-apparel' ),

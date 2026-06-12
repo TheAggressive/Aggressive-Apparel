@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/grid-list-toggle",
+  "version": "1.0.0",
+  "title": "Grid / List Toggle",
+  "category": "aggressive-apparel",
+  "icon": "layout",
+  "description": "Switch between grid and list view on shop and category archive pages. Visitor preference is remembered in localStorage.",
+  "keywords": [
+    "grid",
+    "list",
+    "view",
+    "toggle",
+    "shop",
+    "woocommerce",
+    "layout"
+  ],
+  "example": {
+    "attributes": {
+      "showLabels": false
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "spacing": {
+      "margin": true,
+      "padding": false
+    },
+    "color": {
+      "text": false,
+      "background": false,
+      "link": false
+    }
+  },
+  "attributes": {
+    "showLabels": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScriptModule": "file:./view.js",
+  "render": "file:./render.php"
+}

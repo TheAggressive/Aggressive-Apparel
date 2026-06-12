@@ -1,3 +1,11 @@
+## [1.95.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.0...v1.95.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* adjust mini-cart and size guide styles for improved layout ([3690fe7](https://github.com/TheAggressive/Aggressive-Apparel/commit/3690fe76164437093b7f4ddfddd1a619550b4567))
+* update size guide button border for improved styling ([6f7d438](https://github.com/TheAggressive/Aggressive-Apparel/commit/6f7d438f09098f636bd297054c07e065c7c13224))
+
 # [1.95.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.94.1...v1.95.0) (2026-06-12)
 
 

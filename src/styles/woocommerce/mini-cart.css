@@ -110,8 +110,10 @@
 	}
 }
 
-/* Drawer container. */
+/* Drawer container. WooCommerce's own z-index is lower than our toast (350),
+ * so we force it above all overlays in our z-index scale. */
 .wc-block-mini-cart__drawer {
+	z-index: var(--aa-z-commerce-drawer);
 	font-family: var(--wp--preset--font-family--system-sans-serif, inherit);
 
 	.wc-block-mini-cart__title {

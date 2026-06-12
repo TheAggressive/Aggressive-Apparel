@@ -1,0 +1,17 @@
+/* Horizontal Scroll Block — Editor Styles
+ * Shows as a horizontal strip in the editor; no scroll hijacking. */
+
+.wp-block-aggressive-apparel-horizontal-scroll {
+  border: 1px dashed color-mix(in oklch, currentcolor 30%, transparent);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__viewport {
+  position: static !important;
+  overflow-x: auto;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__track {
+  transform: none !important;
+}

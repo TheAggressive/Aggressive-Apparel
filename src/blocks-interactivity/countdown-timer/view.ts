@@ -27,6 +27,7 @@ interface CountdownContext {
   hours: number;
   minutes: number;
   seconds: number;
+  dropPageUrl?: string;
 }
 
 store('aggressive-apparel/countdown', {
@@ -49,6 +50,28 @@ store('aggressive-apparel/countdown', {
 
         if (diff <= 0) {
           clearInterval(intervalId);
+          if (ctx.dropPageUrl) {
+            document.dispatchEvent(
+              new CustomEvent('aa:drop-live', { bubbles: false })
+            );
+
+            // Announce to screen readers before redirecting.
+            // The live region must be in the DOM before text is set — rAF ensures that.
+            const live = document.createElement('div');
+            live.setAttribute('aria-live', 'assertive');
+            live.setAttribute('aria-atomic', 'true');
+            live.style.cssText =
+              'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap';
+            document.body.appendChild(live);
+            requestAnimationFrame(() => {
+              live.textContent = 'Drop is live. Redirecting now.';
+            });
+
+            const url = ctx.dropPageUrl;
+            setTimeout(() => {
+              window.location.href = url;
+            }, 500);
+          }
         }
       };
 

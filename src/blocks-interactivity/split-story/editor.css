@@ -1,0 +1,10 @@
+/* Split Story Block — Editor Styles */
+
+.wp-block-aggressive-apparel-split-story .aa-split-story__media {
+  position: static !important;
+  min-height: 300px;
+}
+
+.wp-block-aggressive-apparel-split-story .aa-split-story {
+  min-height: 0;
+}

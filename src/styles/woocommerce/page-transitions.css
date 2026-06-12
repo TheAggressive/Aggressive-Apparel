@@ -40,17 +40,32 @@ main.wp-block-group {
 	animation: none;
 }
 
-/* ── Main Content — Quick Cross-Fade ─────────────── */
+/* ── Main Content — Brand Wipe ───────────────────── */
 
-/* Shorter than the default 250ms so the image morph is
- * the focal point. No custom keyframes — browser default
- * cross-fade handles height differences cleanly. */
+/* Old page clips out from the left; new page reveals from the right.
+ * Product image morph layers on top via its own view-transition-name.
+ * `mix-blend-mode: normal` and `isolation: isolate` on the group
+ * prevent alpha bleed between old/new layers. */
+@keyframes aa-vt-wipe-out {
+
+	from { clip-path: inset(0 0 0 0); }
+
+	to { clip-path: inset(0 0 0 100%); }
+}
+
+@keyframes aa-vt-wipe-in {
+
+	from { clip-path: inset(0 100% 0 0); }
+
+	to { clip-path: inset(0 0 0 0); }
+}
+
 ::view-transition-old(main-content) {
-	animation-duration: 150ms;
+	animation: aa-vt-wipe-out 350ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
 ::view-transition-new(main-content) {
-	animation-duration: 200ms;
+	animation: aa-vt-wipe-in 350ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
 /* ── Product Image Morph ─────────────────────────── */
@@ -189,6 +204,12 @@ body.woocommerce-cart main.wp-block-group {
 
 	@view-transition {
 		navigation: none;
+	}
+
+	/* Fall back to instant swap — no wipe, no stagger */
+	::view-transition-old(main-content),
+	::view-transition-new(main-content) {
+		animation: none;
 	}
 
 	.vt-navigated body.single-product .wp-block-column:last-child > * {

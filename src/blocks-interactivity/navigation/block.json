@@ -125,6 +125,11 @@
     "panelOverlayOpacity": {
       "type": "number",
       "default": 50
+    },
+    "menuStyle": {
+      "type": "string",
+      "enum": ["panel", "fullscreen"],
+      "default": "panel"
     }
   },
   "supports": {

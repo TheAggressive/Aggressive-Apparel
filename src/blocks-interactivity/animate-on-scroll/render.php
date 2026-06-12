@@ -74,6 +74,16 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 		$wrapper_attributes_array['data-animation-sequence'] = wp_json_encode( $attributes['animationSequence'] );
 	}
 
+	// Expose animation type as a data attribute so the CSS scroll-driven
+	// progressive-enhancement path can target specific animation types.
+	if ( ! $use_sequence && ! empty( $attributes['animation'] ) ) {
+		$anim_type = $attributes['animation'];
+		if ( ! empty( $attributes['direction'] ) ) {
+			$anim_type .= '-' . $attributes['direction'];
+		}
+		$wrapper_attributes_array['data-animation-type'] = esc_attr( $anim_type );
+	}
+
 	$wrapper_attributes = get_block_wrapper_attributes( $wrapper_attributes_array );
 	?>
 

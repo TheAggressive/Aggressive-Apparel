@@ -1,0 +1,134 @@
+/**
+ * Custom Cursor
+ *
+ * Only active on pointer:fine (mouse) devices.
+ * State driven by body[data-aa-cursor] set by cursor.ts.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Hide native cursor whenever our cursor is present */
+@media (pointer: fine) {
+
+	body:has(.aa-cursor) {
+		cursor: none;
+	}
+
+	body:has(.aa-cursor) *:not(.aa-cursor, .aa-cursor *) {
+		cursor: none !important;
+	}
+}
+
+/* ── Cursor shell ───────────────────────────────── */
+
+.aa-cursor {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 999999;
+	pointer-events: none;
+	translate: -50% -50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--aa-cursor-size, 12px);
+	height: var(--aa-cursor-size, 12px);
+	transition:
+		width var(--aa-cursor-speed, 180ms) var(--aa-ease-default),
+		height var(--aa-cursor-speed, 180ms) var(--aa-ease-default);
+
+	/* Hide on touch devices */
+	@media (pointer: coarse) {
+		display: none;
+	}
+}
+
+/* ── Inner dot / ring ───────────────────────────── */
+
+.aa-cursor__inner {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background-color: var(--aa-color-accent);
+	border: 1.5px solid transparent;
+	transition:
+		background-color var(--aa-cursor-speed, 180ms) var(--aa-ease-default),
+		border-color var(--aa-cursor-speed, 180ms) var(--aa-ease-default),
+		transform var(--aa-cursor-speed, 180ms) var(--aa-ease-default);
+}
+
+/* ── Label (View / Drag) ────────────────────────── */
+
+.aa-cursor__label {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 0.6rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--aa-color-white);
+	white-space: nowrap;
+	opacity: 0;
+	transition: opacity var(--aa-cursor-speed, 180ms) var(--aa-ease-default);
+}
+
+/* ── State: hover ───────────────────────────────── */
+
+body[data-aa-cursor='hover'] .aa-cursor {
+	--aa-cursor-size: 36px;
+}
+
+body[data-aa-cursor='hover'] .aa-cursor__inner {
+	background-color: transparent;
+	border-color: var(--aa-color-accent);
+}
+
+/* ── State: product ─────────────────────────────── */
+
+body[data-aa-cursor='product'] .aa-cursor {
+	--aa-cursor-size: 52px;
+}
+
+body[data-aa-cursor='product'] .aa-cursor__inner {
+	background-color: color-mix(in oklch, var(--aa-color-accent) 85%, transparent);
+	border-color: var(--aa-color-accent);
+}
+
+body[data-aa-cursor='product'] .aa-cursor__label {
+	opacity: 1;
+}
+
+/* ── State: drag ────────────────────────────────── */
+
+body[data-aa-cursor='drag'] .aa-cursor {
+	--aa-cursor-size: 52px;
+}
+
+body[data-aa-cursor='drag'] .aa-cursor__inner {
+	background-color: color-mix(in oklch, var(--aa-color-foreground) 80%, transparent);
+	border-color: var(--aa-color-foreground);
+}
+
+body[data-aa-cursor='drag'] .aa-cursor__label {
+	opacity: 1;
+	color: var(--aa-color-surface);
+}
+
+/* ── Pressed ────────────────────────────────────── */
+
+.aa-cursor.is-pressed .aa-cursor__inner {
+	transform: scale(0.82);
+}
+
+/* ── Reduced motion ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-cursor,
+	.aa-cursor__inner,
+	.aa-cursor__label {
+		transition: none;
+	}
+}

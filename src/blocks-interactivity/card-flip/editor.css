@@ -1,0 +1,16 @@
+/* Card Flip Block — Editor Styles
+ * Show both faces stacked (no 3D in editor). */
+
+.wp-block-aggressive-apparel-card-flip .aa-card-flip__inner {
+  position: static;
+  transform: none !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wp-block-aggressive-apparel-card-flip .aa-card-flip__inner > * {
+  position: static;
+  backface-visibility: visible;
+  transform: none !important;
+}

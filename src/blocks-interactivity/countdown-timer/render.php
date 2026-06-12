@@ -43,13 +43,16 @@ $hours   = (int) floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
 $minutes = (int) floor( ( $diff % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
 $seconds = $diff % MINUTE_IN_SECONDS;
 
+$drop_page_url = ! empty( $attributes['dropPageUrl'] ) ? esc_url( $attributes['dropPageUrl'] ) : '';
+
 $context = (string) wp_json_encode(
 	array(
-		'endTs'   => $end_ts,
-		'days'    => $days,
-		'hours'   => $hours,
-		'minutes' => $minutes,
-		'seconds' => $seconds,
+		'endTs'       => $end_ts,
+		'days'        => $days,
+		'hours'       => $hours,
+		'minutes'     => $minutes,
+		'seconds'     => $seconds,
+		'dropPageUrl' => $drop_page_url,
 	)
 );
 

@@ -294,5 +294,38 @@ class Theme_Support {
 				'label' => __( 'Commerce Price', 'aggressive-apparel' ),
 			)
 		);
+
+		// ── Display / editorial styles ───────────────────────────────────.
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'overflow',
+				'label' => __( 'Overflow', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/heading',
+			array(
+				'name'  => 'text-mask',
+				'label' => __( 'Text Mask', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/cover',
+			array(
+				'name'  => 'cinematic',
+				'label' => __( 'Cinematic', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/group',
+			array(
+				'name'  => 'frosted-dark',
+				'label' => __( 'Frosted Dark', 'aggressive-apparel' ),
+			)
+		);
 	}
 }

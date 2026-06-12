@@ -38,6 +38,7 @@ import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import type {
   BorderStyle,
+  MenuStyle,
   NavigationAttributes,
   PanelAnimationStyle,
   PanelPosition,
@@ -148,6 +149,7 @@ export default function Edit({
     toggleAnimationType,
     showToggleLabel,
     // Panel
+    menuStyle,
     panelPosition,
     panelAnimationStyle,
     panelWidth,
@@ -335,6 +337,18 @@ export default function Edit({
           title={__('Mobile Panel', 'aggressive-apparel')}
           initialOpen={false}
         >
+          <SelectControl
+            label={__('Menu Style', 'aggressive-apparel')}
+            value={menuStyle}
+            options={[
+              { label: __('Side Panel', 'aggressive-apparel'), value: 'panel' },
+              {
+                label: __('Fullscreen Overlay', 'aggressive-apparel'),
+                value: 'fullscreen',
+              },
+            ]}
+            onChange={value => setAttributes({ menuStyle: value as MenuStyle })}
+          />
           <SelectControl
             label={__('Position', 'aggressive-apparel')}
             value={panelPosition}

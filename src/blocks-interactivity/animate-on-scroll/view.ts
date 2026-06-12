@@ -377,6 +377,11 @@ const updateAnimationState = (
       ctx.isVisible = true;
       state.animationState = 'entering';
 
+      // Prevent CSS scroll-driven animation from double-firing
+      if (ref) {
+        ref.classList.add('has-animated');
+      }
+
       // Accessibility announcement
       if (ref && ctx.announceToScreenReader) {
         announceToScreenReader('Content animated into view');

@@ -223,6 +223,84 @@
 	text-transform: uppercase;
 }
 
+/* core/heading — Overflow (type escapes the container grid) */
+.wp-block-heading.is-style-overflow {
+	overflow: visible;
+	width: max-content;
+	max-width: none;
+	white-space: nowrap;
+}
+
+/* core/heading — Text Mask (brand gradient fills the letterforms) */
+.wp-block-heading.is-style-text-mask {
+	background: linear-gradient(
+		135deg,
+		var(--aa-color-accent) 0%,
+		var(--aa-color-foreground) 100%
+	);
+	background-clip: text;
+	color: transparent;
+}
+
+/* core/cover — Cinematic (full-viewport with scroll-driven image shrink) */
+.wp-block-cover.is-style-cinematic {
+	min-height: 100svh;
+	position: relative;
+}
+
+/* Subtle film-grain texture overlay */
+.wp-block-cover.is-style-cinematic::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	opacity: 0.04;
+	mix-blend-mode: overlay;
+	pointer-events: none;
+	z-index: 1;
+}
+
+/* Scroll-driven background shrink — Chrome 115+, Safari 18+ */
+@supports (animation-timeline: scroll()) {
+
+	.wp-block-cover.is-style-cinematic .wp-block-cover__image-background,
+	.wp-block-cover.is-style-cinematic .wp-block-cover__video-background {
+		animation: aa-cinematic-shrink linear both;
+		animation-timeline: scroll(root);
+		animation-range: 0 60vh;
+	}
+
+	@keyframes aa-cinematic-shrink {
+
+		from {
+			transform: scale(1);
+			opacity: 1;
+		}
+
+		to {
+			transform: scale(0.9);
+			opacity: 0.5;
+		}
+	}
+}
+
+/* core/group — Frosted Dark */
+.wp-block-group.is-style-frosted-dark {
+	backdrop-filter: blur(16px) saturate(180%);
+	background-color: color-mix(in oklch, var(--aa-color-black) 65%, transparent);
+	border: 1px solid color-mix(in oklch, var(--aa-color-white) 12%, transparent);
+	border-radius: var(--aa-radius-card);
+	color: var(--aa-color-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wp-block-cover.is-style-cinematic .wp-block-cover__image-background,
+	.wp-block-cover.is-style-cinematic .wp-block-cover__video-background {
+		animation: none;
+	}
+}
+
 /* core/image — Editorial (greyscale → colour on hover) */
 .wp-block-image.is-style-editorial img {
 	filter: grayscale(100%);

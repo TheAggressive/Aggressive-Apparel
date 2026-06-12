@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Assets;
 
+use Aggressive_Apparel\WooCommerce\Feature_Settings;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -72,6 +74,33 @@ class Scripts {
 		);
 
 		$this->localize_theme_data( self::HANDLE );
+		$this->enqueue_cursor();
+	}
+
+	/**
+	 * Enqueue the custom cursor script module when the feature is enabled.
+	 *
+	 * @return void
+	 */
+	private function enqueue_cursor(): void {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( Feature_Settings::class ) ) {
+			return;
+		}
+
+		if ( ! Feature_Settings::is_enabled( 'custom_cursor' ) ) {
+			return;
+		}
+
+		wp_enqueue_script_module(
+			'@aggressive-apparel/cursor',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/cursor.js',
+			array(),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
 	}
 
 	/**

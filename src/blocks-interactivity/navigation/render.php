@@ -33,7 +33,8 @@ $show_toggle_label = $attributes['showToggleLabel'] ?? false;
 // Panel attributes (absorbed from navigation-panel).
 $panel_position        = $attributes['panelPosition'] ?? 'right';
 $panel_animation_style = $attributes['panelAnimationStyle'] ?? 'slide';
-$panel_width           = $attributes['panelWidth'] ?? 'min(320px, 85vw)';
+$menu_style            = $attributes['menuStyle'] ?? 'panel';
+$panel_width           = 'fullscreen' === $menu_style ? '100vw' : ( $attributes['panelWidth'] ?? 'min(320px, 85vw)' );
 $show_panel_overlay    = $attributes['showPanelOverlay'] ?? true;
 
 // Panel colors.
@@ -193,6 +194,10 @@ $panel_classes = array(
 	'aa-nav__panel--' . sanitize_html_class( $panel_position ),
 	'aa-nav__panel--' . sanitize_html_class( $panel_animation_style ),
 );
+
+if ( 'fullscreen' === $menu_style ) {
+	$panel_classes[] = 'aa-nav--fullscreen';
+}
 
 $panel_style_parts = array(
 	sprintf( '--panel-width: %s', esc_attr( $panel_width ) ),

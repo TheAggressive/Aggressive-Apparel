@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/split-story",
+  "version": "1.0.0",
+  "title": "Split Story",
+  "category": "aggressive-apparel",
+  "icon": "columns",
+  "description": "Sticky media column alongside scrolling content. Classic editorial layout with InnerBlocks for both sides.",
+  "keywords": ["split", "sticky", "story", "media", "editorial"],
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"],
+    "spacing": {
+      "blockGap": true
+    }
+  },
+  "attributes": {
+    "mediaColumn": {
+      "type": "string",
+      "enum": ["left", "right"],
+      "default": "left"
+    },
+    "mediaRatio": {
+      "type": "number",
+      "default": 50
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

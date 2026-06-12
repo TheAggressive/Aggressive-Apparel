@@ -1006,3 +1006,89 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
     }
   }
 }
+
+/* ── Fullscreen overlay menu ────────────────────── */
+
+.aa-nav__panel.aa-nav--fullscreen {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--wp--preset--spacing--20) var(--wp--preset--spacing--16);
+  background: var(--panel-bg, var(--aa-color-black));
+  color: var(--panel-color, var(--aa-color-white));
+
+  --_text: var(--aa-color-white);
+}
+
+/* Override box-shadow that looks wrong on full-bleed */
+.aa-nav__panel.aa-nav--fullscreen.is-open {
+  box-shadow: none;
+}
+
+/* Giant nav links */
+.aa-nav--fullscreen .aa-nav__panel-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.aa-nav--fullscreen .aa-nav__panel-menu > li > a,
+.aa-nav--fullscreen .aa-nav__panel-menu > li > button {
+  display: block;
+  font-size: clamp(2.5rem, 1.5rem + 6vw, 7rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--panel-color, var(--aa-color-white));
+  text-decoration: none;
+  padding: 0.1em 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aa-nav--fullscreen .aa-nav__panel-menu > li > a:hover,
+.aa-nav--fullscreen .aa-nav__panel-menu > li > button:hover {
+  opacity: 0.5;
+}
+
+/* Staggered entry animation for fullscreen links */
+@supports selector(@starting-style) {
+
+  .aa-nav--fullscreen .aa-nav__panel-menu > li {
+    transition:
+      opacity 400ms var(--aa-ease-default),
+      translate 400ms var(--aa-ease-default);
+  }
+
+  @starting-style {
+
+    .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+  }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(1) { transition-delay: 80ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(2) { transition-delay: 130ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(3) { transition-delay: 180ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(4) { transition-delay: 230ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(n + 5) { transition-delay: 280ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-nav--fullscreen .aa-nav__panel-menu > li {
+    transition: none;
+  }
+}

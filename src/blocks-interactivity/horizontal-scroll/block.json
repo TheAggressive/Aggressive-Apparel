@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/horizontal-scroll",
+  "version": "1.0.0",
+  "title": "Horizontal Scroll",
+  "category": "aggressive-apparel",
+  "icon": "slides",
+  "description": "Pins a section and drives horizontal scroll via vertical scroll progress. Falls back to native scroll-snap on touch.",
+  "keywords": ["scroll", "horizontal", "parallax", "story"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "align": ["full"],
+    "color": {
+      "background": true
+    },
+    "spacing": {
+      "padding": true
+    }
+  },
+  "attributes": {
+    "itemWidth": {
+      "type": "string",
+      "default": "60vw"
+    },
+    "speed": {
+      "type": "number",
+      "default": 1
+    },
+    "showProgress": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

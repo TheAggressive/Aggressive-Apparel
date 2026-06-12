@@ -382,6 +382,11 @@ class Feature_Settings {
 				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
 				'section'     => 'ui',
 			),
+			'custom_cursor'              => array(
+				'label'       => __( 'Custom Cursor', 'aggressive-apparel' ),
+				'description' => __( 'Branded cursor that morphs on product cards and interactive areas. Desktop only.', 'aggressive-apparel' ),
+				'section'     => 'ui',
+			),
 
 			// ── Experimental ────────────────────────────────────.
 			'adaptive_colors'            => array(

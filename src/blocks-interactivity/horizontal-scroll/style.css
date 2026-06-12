@@ -1,0 +1,97 @@
+/* Horizontal Scroll Block — Frontend Styles */
+
+.aa-hscroll {
+  position: relative;
+  height: calc(var(--aa-hscroll-multiplier, 3) * 100vh);
+}
+
+/* Viewport: sticky window that the track slides through */
+.aa-hscroll__viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Track: houses InnerBlocks laid out horizontally */
+.aa-hscroll__track {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100%;
+  will-change: transform;
+  gap: var(--wp--preset--spacing--8, 2rem);
+
+  /* Items */
+  > * {
+    flex: 0 0 var(--aa-hscroll-item-width, 60vw);
+    height: 100%;
+    scroll-snap-align: start;
+  }
+}
+
+/* Progress bar — overlays the bottom edge of the sticky viewport */
+.aa-hscroll__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: color-mix(in oklch, var(--aa-color-border) 40%, transparent);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.aa-hscroll__progress.is-active {
+  opacity: 1;
+}
+
+.aa-hscroll__progress-bar {
+  height: 100%;
+  background-color: var(--aa-color-accent);
+  transition: width 60ms linear;
+  max-width: 100%;
+}
+
+/* ── Touch / coarse pointer: CSS scroll-snap ─────── */
+@media (pointer: coarse) {
+
+  .aa-hscroll {
+    height: auto;
+  }
+
+  .aa-hscroll__viewport {
+    position: static;
+    height: 100svh;
+    overflow: auto hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .aa-hscroll__track {
+    transform: none !important;
+  }
+
+  .aa-hscroll__progress {
+    display: none;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hscroll__track {
+    transition: none;
+  }
+
+  .aa-hscroll__progress,
+  .aa-hscroll__progress-bar {
+    transition: none;
+  }
+}

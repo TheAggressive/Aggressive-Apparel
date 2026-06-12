@@ -12,7 +12,12 @@
     "html": false,
     "interactivity": true
   },
-  "attributes": {},
+  "attributes": {
+    "dropPageUrl": {
+      "type": "string",
+      "default": ""
+    }
+  },
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",
   "style": "file:./style-index.css",

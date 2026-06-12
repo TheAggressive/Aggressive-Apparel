@@ -23,6 +23,7 @@ export type ToggleAnimationType =
   | 'none';
 export type PanelPosition = 'left' | 'right';
 export type PanelAnimationStyle = 'slide' | 'push' | 'reveal' | 'fade';
+export type MenuStyle = 'panel' | 'fullscreen';
 export type MobileSyncMode = 'auto' | 'custom';
 export type ScrollBehavior =
   | 'none'
@@ -58,6 +59,8 @@ export interface NavigationAttributes {
   submenuBorderWidth?: string;
   submenuBorderColor?: string;
   submenuBorderStyle?: BorderStyle;
+  // Menu style
+  menuStyle: MenuStyle;
   // Panel colors
   panelBackgroundColor?: string;
   panelTextColor?: string;

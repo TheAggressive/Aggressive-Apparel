@@ -296,6 +296,16 @@
           "name": "Fluid 96",
           "size": "clamp(16.0rem, 16.0rem + ((1vw - 0.2rem) * 11.852), 24.0rem)",
           "slug": "fluid-96"
+        },
+        {
+          "name": "Display",
+          "size": "clamp(4rem, 3rem + 12vw, 22rem)",
+          "slug": "display"
+        },
+        {
+          "name": "Display Giant",
+          "size": "clamp(5rem, 4rem + 18vw, 32rem)",
+          "slug": "display-giant"
         }
       ]
     },

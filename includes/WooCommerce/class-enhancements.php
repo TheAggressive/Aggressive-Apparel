@@ -210,5 +210,13 @@ class Enhancements {
 			array( '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
 			AGGRESSIVE_APPAREL_VERSION,
 		);
+
+		// Add-to-cart burst animation: always-on when WooCommerce is active.
+		wp_enqueue_script_module(
+			'@aggressive-apparel/cart-burst',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/cart-burst.js',
+			array(),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
 	}
 }

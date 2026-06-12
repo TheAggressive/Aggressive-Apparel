@@ -1,0 +1,65 @@
+/* Split Story Block — Frontend Styles
+ *
+ * First direct child = media column (sticky).
+ * Second direct child = content column (scrolls normally).
+ */
+
+.aa-split-story {
+  display: grid;
+  grid-template-columns: var(--aa-split-media-ratio, 50%) 1fr;
+  align-items: start;
+}
+
+/* Media column (first child) — sticky */
+.aa-split-story > :first-child,
+.aa-split-story .aa-split-story__media {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+
+  /* Stretch media children to fill the sticky column */
+  img,
+  video,
+  figure {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Media right variant: swap column order */
+.aa-split-story--media-right {
+  grid-template-columns: 1fr var(--aa-split-media-ratio, 50%);
+}
+
+.aa-split-story--media-right > :first-child,
+.aa-split-story--media-right .aa-split-story__media {
+  order: 2;
+}
+
+.aa-split-story--media-right > :last-child,
+.aa-split-story--media-right .aa-split-story__content {
+  order: 1;
+}
+
+/* ── Mobile: stack vertically ─────────────────── */
+@media (width <= 768px) {
+
+  .aa-split-story,
+  .aa-split-story--media-right {
+    grid-template-columns: 1fr;
+  }
+
+  .aa-split-story > :first-child,
+  .aa-split-story .aa-split-story__media {
+    position: static;
+    height: 60vw;
+    order: 0 !important;
+  }
+
+  .aa-split-story > :last-child,
+  .aa-split-story .aa-split-story__content {
+    order: 1 !important;
+  }
+}

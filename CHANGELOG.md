@@ -1,3 +1,15 @@
+# [1.95.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.94.1...v1.95.0) (2026-06-12)
+
+
+### Bug Fixes
+
+* update mini-cart drawer z-index for proper overlay stacking ([bb29e3b](https://github.com/TheAggressive/Aggressive-Apparel/commit/bb29e3bc29853871279c2e2beb2a43b211cb5722))
+
+
+### Features
+
+* enhance theme styles and interactivity features ([8738e9f](https://github.com/TheAggressive/Aggressive-Apparel/commit/8738e9f50afca1fcf50073db95f217197b0ad901))
+
 ## [1.94.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.94.0...v1.94.1) (2026-06-12)
 
 

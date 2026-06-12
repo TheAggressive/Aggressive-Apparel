@@ -1,3 +1,10 @@
+## [1.94.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.94.0...v1.94.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* remove grid/list toggle feature from WooCommerce ([e899c2d](https://github.com/TheAggressive/Aggressive-Apparel/commit/e899c2d7763a6b2cd7c1a8ab94018fc0cd3e58be))
+
 # [1.94.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.93.0...v1.94.0) (2026-06-12)
 
 

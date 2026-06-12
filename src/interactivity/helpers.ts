@@ -378,6 +378,50 @@ export function buildCountdownHtml(enhancements: CardEnhancementData): string {
   );
 }
 
+/**
+ * Whether the user prefers reduced motion.
+ */
+export function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Whether unsolicited overlays (exit intent, scroll depth, open on load) may run.
+ */
+export function shouldAllowAutoOpenOverlay(): boolean {
+  return !prefersReducedMotion();
+}
+
+/**
+ * Toggle inert on the main page content so focus stays in an overlay.
+ */
+export function setMainContentInert(inert: boolean): void {
+  if (!('inert' in HTMLElement.prototype)) {
+    return;
+  }
+
+  const mainContent = document.querySelector(
+    '.wp-site-blocks'
+  ) as HTMLElement | null;
+
+  if (mainContent) {
+    mainContent.inert = inert;
+
+    // When making the page inert, any visible overlays (modals, drawers)
+    // that are already open inside .wp-site-blocks must remain interactive
+    // so the user can still close them.
+    if (inert) {
+      document
+        .querySelectorAll<HTMLElement>(
+          '.aggressive-apparel-overlay:not([hidden])'
+        )
+        .forEach(overlay => {
+          overlay.inert = false;
+        });
+    }
+  }
+}
+
 export function setupFocusTrap(container: HTMLElement): () => void {
   const FOCUSABLE_SELECTOR =
     'a[href], button:not([disabled]), input:not([disabled]), ' +

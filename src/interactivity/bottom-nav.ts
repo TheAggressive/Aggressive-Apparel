@@ -37,6 +37,9 @@ interface CartApiResponse {
   items_count?: number;
 }
 
+let focusTrapCleanup: (() => void) | null = null;
+let searchTrigger: HTMLElement | null = null;
+
 function getSearchOverlay(): HTMLElement | null {
   return document.querySelector<HTMLElement>('.aa-bottom-nav__search-overlay');
 }
@@ -44,6 +47,8 @@ function getSearchOverlay(): HTMLElement | null {
 function openSearchOverlay(): void {
   const overlay = getSearchOverlay();
   if (!overlay) return;
+
+  searchTrigger = document.activeElement as HTMLElement | null;
 
   prepareOverlayOpen(overlay, { manageOpenClass: false });
   state.isSearchOpen = true;
@@ -53,7 +58,7 @@ function openSearchOverlay(): void {
   );
 
   if (panel) {
-    activateOverlayFocus({
+    focusTrapCleanup = activateOverlayFocus({
       shell: overlay,
       panel,
       focusSelector: '.aa-bottom-nav__search-input',
@@ -69,14 +74,26 @@ function closeSearchOverlay(): void {
     '.aa-bottom-nav__search-panel'
   );
 
-  if (!overlay || !panel) return;
+  if (!overlay || !panel) {
+    focusTrapCleanup?.();
+    focusTrapCleanup = null;
+    searchTrigger = null;
+    return;
+  }
 
   closeOverlay({
     shell: overlay,
     panel,
+    focusTrapCleanup,
+    triggerElement: searchTrigger,
     manageOpenClass: false,
     isStillOpen: () => state.isSearchOpen,
+    onFinish: () => {
+      searchTrigger = null;
+    },
   });
+
+  focusTrapCleanup = null;
 }
 
 interface BottomNavStore {

@@ -160,12 +160,19 @@ class Exit_Intent {
 					</h2>
 					<p class="aa-exit-intent__body"><?php echo esc_html( (string) $settings['body'] ); ?></p>
 					<form class="aa-exit-intent__form aggressive-apparel-stack aggressive-apparel-stack--md aggressive-apparel-stack--full" data-wp-on--submit="actions.submit">
-						<input type="email"
+						<label for="aa-exit-intent-email" class="screen-reader-text">
+							<?php esc_html_e( 'Email address', 'aggressive-apparel' ); ?>
+						</label>
+						<input
+							type="email"
+							id="aa-exit-intent-email"
 							class="aa-exit-intent__input aggressive-apparel-field__input"
 							placeholder="<?php esc_attr_e( 'Enter your email', 'aggressive-apparel' ); ?>"
-							required />
+							autocomplete="email"
+							required
+						/>
 						<button type="submit"
-							class="aa-exit-intent__submit aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full"
+							class="aa-exit-intent__submit aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--full wp-element-button"
 							data-wp-bind--disabled="state.isSubmitting"
 							data-wp-class--is-loading="state.isSubmitting">
 							<?php echo esc_html( (string) $settings['button_text'] ); ?>

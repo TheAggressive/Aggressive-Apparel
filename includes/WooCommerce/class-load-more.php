@@ -86,7 +86,7 @@ class Load_More {
 
 		// Load More button (hidden in infinite scroll mode or when all loaded).
 		$load_more_html .= sprintf(
-			'<button class="aa-load-more__btn aggressive-apparel-button aggressive-apparel-button--outline" data-wp-on--click="actions.loadMore"'
+			'<button class="aa-load-more__btn aggressive-apparel-button aggressive-apparel-button--outline wp-element-button" data-wp-on--click="actions.loadMore"'
 			. ' data-wp-bind--hidden="state.hideButton"'
 			. ' data-wp-bind--disabled="state.isLoading"'
 			. ' data-wp-class--is-loading="state.isLoading"'

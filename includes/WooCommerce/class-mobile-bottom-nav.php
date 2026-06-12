@@ -126,7 +126,15 @@ class Mobile_Bottom_Nav {
 				<span class="aa-bottom-nav__label"><?php esc_html_e( 'Home', 'aggressive-apparel' ); ?></span>
 			</a>
 
-			<button type="button" class="aa-bottom-nav__item" data-wp-on--click="actions.toggleSearch" aria-label="<?php esc_attr_e( 'Search', 'aggressive-apparel' ); ?>">
+			<button
+				type="button"
+				class="aa-bottom-nav__item"
+				data-wp-on--click="actions.toggleSearch"
+				aria-label="<?php esc_attr_e( 'Search', 'aggressive-apparel' ); ?>"
+				aria-haspopup="dialog"
+				aria-controls="aa-bottom-nav-search-panel"
+				data-wp-bind--aria-expanded="state.isSearchOpen"
+			>
 				<?php Icons::render( 'search', $icon_attrs ); ?>
 				<span class="aa-bottom-nav__label"><?php esc_html_e( 'Search', 'aggressive-apparel' ); ?></span>
 			</button>
@@ -162,7 +170,14 @@ class Mobile_Bottom_Nav {
 			hidden
 		>
 			<div class="aggressive-apparel-overlay__backdrop aa-bottom-nav__search-backdrop" data-wp-on--click="actions.closeSearch"></div>
-			<div class="aggressive-apparel-panel aggressive-apparel-panel--search-bar aa-bottom-nav__search-panel">
+			<div
+				id="aa-bottom-nav-search-panel"
+				class="aggressive-apparel-panel aggressive-apparel-panel--search-bar aa-bottom-nav__search-panel"
+				role="dialog"
+				aria-modal="true"
+				aria-label="<?php esc_attr_e( 'Search products', 'aggressive-apparel' ); ?>"
+				tabindex="-1"
+			>
 				<form role="search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" class="aa-bottom-nav__search-form">
 					<input
 						type="search"

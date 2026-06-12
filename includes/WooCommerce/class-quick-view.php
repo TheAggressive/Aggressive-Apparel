@@ -508,7 +508,7 @@ class Quick_View {
 
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__add-to-cart"
+									class="aggressive-apparel-quick-view__add-to-cart wp-element-button"
 									data-wp-on--click="actions.addToCart"
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-bind--hidden="state.hideInlineAddToCart"
@@ -519,7 +519,7 @@ class Quick_View {
 
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__buy-now"
+									class="aggressive-apparel-quick-view__buy-now wp-element-button"
 									data-wp-on--click="actions.buyNow"
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-bind--hidden="state.hideInlineAddToCart"
@@ -530,7 +530,7 @@ class Quick_View {
 								<!-- Select Options — replaces Add to Cart for variable products. -->
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__select-options"
+									class="aggressive-apparel-quick-view__select-options wp-element-button"
 									data-wp-on--click="actions.openDrawer"
 									data-wp-bind--hidden="state.hideSelectOptionsBtn"
 									hidden
@@ -549,12 +549,12 @@ class Quick_View {
 								<div class="aggressive-apparel-quick-view__post-cart-actions">
 									<button
 										type="button"
-										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue"
+										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue wp-element-button"
 										data-wp-on--click="actions.continueShopping"
 									><?php echo esc_html__( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
 									<a
 										href="#"
-										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart"
+										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart wp-element-button"
 										data-wp-bind--href="state.cartUrl"
 									><?php echo esc_html__( 'View Cart', 'aggressive-apparel' ); ?></a>
 								</div>
@@ -713,7 +713,7 @@ class Quick_View {
 
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__add-to-cart"
+									class="aggressive-apparel-quick-view__add-to-cart wp-element-button"
 									data-wp-on--click="actions.addToCart"
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-text="state.addToCartLabel"
@@ -723,7 +723,7 @@ class Quick_View {
 
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__buy-now"
+									class="aggressive-apparel-quick-view__buy-now wp-element-button"
 									data-wp-on--click="actions.buyNow"
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-text="state.buyNowLabel"
@@ -772,12 +772,12 @@ class Quick_View {
 							<div class="aggressive-apparel-quick-view__drawer-success-actions">
 								<button
 									type="button"
-									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue"
+									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue wp-element-button"
 									data-wp-on--click="actions.continueShopping"
 								><?php echo esc_html__( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
 								<a
 									href="#"
-									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart"
+									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart wp-element-button"
 									data-wp-bind--href="state.cartUrl"
 								><?php echo esc_html__( 'View Cart', 'aggressive-apparel' ); ?></a>
 							</div>

@@ -483,7 +483,7 @@ class Back_In_Stock {
 
 				<button
 					type="submit"
-					class="aa-bis__submit aggressive-apparel-button aggressive-apparel-button--accent"
+					class="aa-bis__submit aggressive-apparel-button aggressive-apparel-button--accent wp-element-button"
 					data-wp-class--is-loading="state.isSubmitting"
 					data-wp-bind--disabled="state.isSubmitting"
 				>

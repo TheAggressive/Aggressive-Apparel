@@ -61,6 +61,8 @@ declare module '@aggressive-apparel/helpers' {
     selected: Record<string, string>
   ): Variation | null;
   export function setupFocusTrap(container: HTMLElement): () => void;
+  export function shouldAllowAutoOpenOverlay(): boolean;
+  export function setMainContentInert(inert: boolean): void;
 
   export function escapeHtml(str: string | null | undefined): string;
   export function buildQuickViewTriggerHtml(

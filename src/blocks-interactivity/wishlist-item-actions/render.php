@@ -31,7 +31,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 
 	<?php if ( $show_add_to_cart ) : ?>
 	<a
-		class="aa-wl-item-actions__atc"
+		class="aa-wl-item-actions__atc wp-element-button"
 		data-wp-bind--href="context.item.addToCartUrl"
 	>
 		<?php echo esc_html( $atc_label ); ?>

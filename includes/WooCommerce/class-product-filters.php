@@ -293,7 +293,7 @@ class Product_Filters {
 
 				$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
 				$button       = sprintf(
-					'<button type="button" class="aa-product-filters__trigger%1$s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" data-wp-bind--aria-expanded="state.isDrawerOpen" aria-expanded="false" aria-haspopup="dialog" aria-controls="aa-product-filters-drawer">%2$s<span class="aa-product-filters__trigger-label">%3$s</span><span class="screen-reader-text" data-wp-text="state.triggerCountLabel"></span><span class="aa-product-filters__trigger-count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
+					'<button type="button" class="aa-product-filters__trigger wp-element-button%1$s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" data-wp-bind--aria-expanded="state.isDrawerOpen" aria-expanded="false" aria-haspopup="dialog" aria-controls="aa-product-filters-drawer">%2$s<span class="aa-product-filters__trigger-label">%3$s</span><span class="screen-reader-text" data-wp-text="state.triggerCountLabel"></span><span class="aa-product-filters__trigger-count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
 					esc_attr( $mobile_class ),
 					Icons::get(
 						'filter',
@@ -379,14 +379,14 @@ class Product_Filters {
 
 					<div class="aa-product-filters__drawer-footer">
 						<button
-							class="aa-product-filters__clear-btn"
+							class="aa-product-filters__clear-btn wp-element-button"
 							data-wp-on--click="actions.clearAllFilters"
 							data-wp-bind--hidden="state.hasNoActiveFilters"
 						>
 							<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>
 						</button>
 						<button
-							class="aa-product-filters__apply-btn"
+							class="aa-product-filters__apply-btn wp-element-button"
 							data-wp-on--click="actions.closeDrawer"
 						>
 							<?php esc_html_e( 'View Results', 'aggressive-apparel' ); ?>
@@ -436,7 +436,7 @@ class Product_Filters {
 			$this->render_filter_sections( $data );
 			$sidebar_html .= ob_get_clean();
 
-			$sidebar_html .= '<button class="aa-product-filters__clear-btn aa-product-filters__clear-btn--sidebar" data-wp-on--click="actions.clearAllFilters" data-wp-bind--hidden="state.hasNoActiveFilters">';
+			$sidebar_html .= '<button class="aa-product-filters__clear-btn aa-product-filters__clear-btn--sidebar wp-element-button" data-wp-on--click="actions.clearAllFilters" data-wp-bind--hidden="state.hasNoActiveFilters">';
 			$sidebar_html .= esc_html__( 'Clear All Filters', 'aggressive-apparel' );
 			$sidebar_html .= '</button>';
 			$sidebar_html .= '</div></aside>';
@@ -461,7 +461,7 @@ class Product_Filters {
 		$output .= '<div class="aa-product-filters__active-bar" data-wp-bind--hidden="state.hasNoActiveFilters">';
 		$output .= '<div class="aa-product-filters__pills">';
 		$output .= '</div>';
-		$output .= '<button class="aa-product-filters__clear-all" data-wp-on--click="actions.clearAllFilters">' . esc_html__( 'Clear All', 'aggressive-apparel' ) . '</button>';
+		$output .= '<button class="aa-product-filters__clear-all wp-element-button" data-wp-on--click="actions.clearAllFilters">' . esc_html__( 'Clear All', 'aggressive-apparel' ) . '</button>';
 		$output .= '</div>';
 
 		$output .= '<div class="aa-product-filters__grid-wrapper' . esc_attr( $grid_class ) . '">';

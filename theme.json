@@ -354,7 +354,7 @@
         "dropdown": 100,
         "sticky": 200,
         "overlay": 300,
-        "modal": 400,
+        "modal": 99999,
         "toast": 350,
         "stickyCart": 99996,
         "bottomNav": 99997,

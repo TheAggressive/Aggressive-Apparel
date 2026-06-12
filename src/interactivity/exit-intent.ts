@@ -13,9 +13,12 @@ import { store } from '@wordpress/interactivity';
 import type { InteractivityCallbacks } from '../../types/interactivity-shared';
 import {
   prepareOverlayOpen,
-  activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
+import {
+  shouldAllowAutoOpenOverlay,
+  setMainContentInert,
+} from '@aggressive-apparel/helpers';
 
 interface ExitIntentState {
   isOpen: boolean;
@@ -41,8 +44,6 @@ interface AjaxResponse {
 
 const DISMISS_KEY = 'aa_exit_intent_dismissed';
 const SESSION_KEY = 'aa_exit_intent_shown';
-
-let focusTrapCleanup: (() => void) | null = null;
 
 /** Gate: only trigger once per page load. */
 let hasTriggered = false;
@@ -134,17 +135,7 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
       }
 
       state.isOpen = true;
-
-      const modal = overlay?.querySelector<HTMLElement>(
-        '.aa-exit-intent__modal'
-      );
-      if (modal) {
-        focusTrapCleanup = activateOverlayFocus({
-          shell: overlay!,
-          panel: modal,
-          focusSelector: '.aa-exit-intent__input',
-        });
-      }
+      setMainContentInert(true);
     },
 
     close(): void {
@@ -157,24 +148,22 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
       );
 
       if (!overlay || !modal) {
-        focusTrapCleanup?.();
-        focusTrapCleanup = null;
+        setMainContentInert(false);
+        previousFocus = null;
         return;
       }
 
       closeOverlay({
         shell: overlay,
         panel: modal,
-        focusTrapCleanup,
         triggerElement: previousFocus,
         manageOpenClass: false,
         isStillOpen: () => state.isOpen,
         onFinish: () => {
+          setMainContentInert(false);
           previousFocus = null;
         },
       });
-
-      focusTrapCleanup = null;
     },
 
     async submit(event: Event): Promise<void> {
@@ -236,7 +225,13 @@ const { state } = store<ExitIntentStore>('aggressive-apparel/exit-intent', {
 
   callbacks: {
     init(): void {
-      if (isDismissed() || wasShownThisSession()) return;
+      if (
+        !shouldAllowAutoOpenOverlay() ||
+        isDismissed() ||
+        wasShownThisSession()
+      ) {
+        return;
+      }
 
       const {
         actions: { open },

@@ -1,3 +1,10 @@
+## [1.95.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.1...v1.95.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* remove price-related typography tokens and adjust product price styles ([069ab3f](https://github.com/TheAggressive/Aggressive-Apparel/commit/069ab3fb96736151f1c294320d2e24f39479aefc))
+
 ## [1.95.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.0...v1.95.1) (2026-06-12)
 
 

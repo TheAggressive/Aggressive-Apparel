@@ -117,11 +117,10 @@
    can cascade into the inner elements via inheritance. */
 .wp-block-woocommerce-product-price,
 .wc-block-grid__product-price {
-	color: var(--aa-color-foreground);
-	font-size: var(--aa-type-price-size);
-	font-weight: var(--aa-type-price-weight);
-	line-height: var(--aa-type-price-line-height);
-	letter-spacing: var(--aa-type-price-letter-spacing);
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
 }
 
 /* Nested context gives (0,2,0) specificity — beats WooCommerce's own

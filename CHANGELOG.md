@@ -1,3 +1,10 @@
+# [1.94.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.93.0...v1.94.0) (2026-06-12)
+
+
+### Features
+
+* enhance button styles and accessibility across WooCommerce components ([14f45c3](https://github.com/TheAggressive/Aggressive-Apparel/commit/14f45c31105829037165bd147c1ac6fd8069d1f7))
+
 # [1.93.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.92.0...v1.93.0) (2026-06-11)
 
 

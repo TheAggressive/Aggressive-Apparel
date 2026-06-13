@@ -1,3 +1,16 @@
+# [1.96.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.2...v1.96.0) (2026-06-13)
+
+
+### Bug Fixes
+
+* streamline label style assignment in edit component ([140a145](https://github.com/TheAggressive/Aggressive-Apparel/commit/140a1458aaa5aaab95a2a283e3cc7710d451dc9b))
+* **ticker:** update type imports and enhance pattern options ([079486a](https://github.com/TheAggressive/Aggressive-Apparel/commit/079486a744fbf863d17e9b76be27b5b4551a5cae))
+
+
+### Features
+
+* **ticker:** enhance ticker block with new label and pattern options ([293c54d](https://github.com/TheAggressive/Aggressive-Apparel/commit/293c54df816e072470b17128723b160fd0355715))
+
 ## [1.95.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.1...v1.95.2) (2026-06-12)
 
 

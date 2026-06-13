@@ -1,3 +1,10 @@
+## [1.96.7](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.6...v1.96.7) (2026-06-13)
+
+
+### Bug Fixes
+
+* update padding in mini-cart styles for improved layout ([aa835e4](https://github.com/TheAggressive/Aggressive-Apparel/commit/aa835e4d26022e3940653ccb83af1e1fb0d64f2e))
+
 ## [1.96.6](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.5...v1.96.6) (2026-06-13)
 
 

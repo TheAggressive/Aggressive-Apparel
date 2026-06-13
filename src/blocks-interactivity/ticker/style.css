@@ -132,7 +132,6 @@
 	padding-inline: 1.25rem;
 	line-height: 1;
 	white-space: nowrap;
-	border-inline-end: 1px solid color-mix(in oklch, currentcolor 30%, transparent);
 }
 
 /* Background bleeds through parent padding using overflow:hidden on the wrapper as the clip. */

@@ -1,3 +1,10 @@
+## [1.96.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.1...v1.96.2) (2026-06-13)
+
+
+### Bug Fixes
+
+* rename line terms to fit terms for improved clarity ([f501d28](https://github.com/TheAggressive/Aggressive-Apparel/commit/f501d289b4e3cfbc23f8055d872ddeb10a5cd504))
+
 ## [1.96.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.0...v1.96.1) (2026-06-13)
 
 

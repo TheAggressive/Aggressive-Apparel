@@ -1,3 +1,11 @@
+## [1.96.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.0...v1.96.1) (2026-06-13)
+
+
+### Bug Fixes
+
+* replace existing screenshot with a new version ([99a7596](https://github.com/TheAggressive/Aggressive-Apparel/commit/99a7596cf1cbd82b48ff0b739a3ea2befcdcbf5d))
+* **sticky-cart:** adjust padding for improved layout consistency ([19b807e](https://github.com/TheAggressive/Aggressive-Apparel/commit/19b807e4c83ff3682a069022a4c0afb4afb4df10))
+
 # [1.96.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.95.2...v1.96.0) (2026-06-13)
 
 

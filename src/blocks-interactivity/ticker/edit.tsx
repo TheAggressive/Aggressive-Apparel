@@ -4,7 +4,7 @@
  * @package Aggressive_Apparel
  */
 
-import React from 'react';
+import type { CSSProperties } from 'react';
 import {
   InspectorControls,
   useBlockProps,
@@ -25,8 +25,8 @@ import type { TickerAttributes } from './types';
 
 type EditProps = BlockEditProps<TickerAttributes>;
 
-/** CSS custom properties that TypeScript doesn't include in React.CSSProperties. */
-type EditorStyle = React.CSSProperties & { [key: `--${string}`]: string };
+/** CSS custom properties that TypeScript doesn't include in CSSProperties. */
+type EditorStyle = CSSProperties & { [key: `--${string}`]: string };
 
 const INNER_BLOCKS_TEMPLATE: Array<[string, Record<string, unknown>]> = [
   [
@@ -80,6 +80,10 @@ const PATTERNS = [
   { label: __('Grain', 'aggressive-apparel'), value: 'grain' },
   { label: __('Scratch', 'aggressive-apparel'), value: 'scratch' },
   { label: __('Grunge', 'aggressive-apparel'), value: 'grunge' },
+  { label: __('Herringbone', 'aggressive-apparel'), value: 'herringbone' },
+  { label: __('Carbon', 'aggressive-apparel'), value: 'carbon' },
+  { label: __('Honeycomb', 'aggressive-apparel'), value: 'honeycomb' },
+  { label: __('Linen', 'aggressive-apparel'), value: 'linen' },
 ];
 
 export default function Edit({ attributes, setAttributes }: EditProps) {
@@ -138,14 +142,14 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   if (labelFontSize > 0) labelStyle.fontSize = `${labelFontSize}px`;
   if (labelFontWeight)
     labelStyle.fontWeight =
-      labelFontWeight as React.CSSProperties['fontWeight'];
+      labelFontWeight as CSSProperties['fontWeight'];
   if (labelLetterSpacing) labelStyle.letterSpacing = `${labelLetterSpacing}em`;
   if (labelTextTransform)
     labelStyle.textTransform =
-      labelTextTransform as React.CSSProperties['textTransform'];
+      labelTextTransform as CSSProperties['textTransform'];
 
   // Indicator color flows through `color` so currentcolor works on ::after.
-  const indicatorStyle: React.CSSProperties = {};
+  const indicatorStyle: CSSProperties = {};
   if (indicatorColor) indicatorStyle.color = indicatorColor;
 
   const innerBlocksProps = useInnerBlocksProps(
@@ -459,7 +463,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
         {hasPattern && (
           <span
             className='ticker__pattern'
-            style={patternStyle as React.CSSProperties}
+            style={patternStyle as CSSProperties}
             aria-hidden={true}
           />
         )}
@@ -468,7 +472,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
         {showLabel && (
           <div
             className='ticker__label'
-            style={labelStyle as React.CSSProperties}
+            style={labelStyle as CSSProperties}
           >
             {showIndicator && indicatorShape !== 'none' && (
               <span

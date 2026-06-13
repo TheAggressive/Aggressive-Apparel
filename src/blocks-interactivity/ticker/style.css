@@ -320,7 +320,6 @@
 /* ── Scratch — heavy multi-angle wear marks with surface glare ── */
 .has-pattern-scratch .ticker__pattern {
 	background-image:
-		/* Primary 2px scratches */
 		repeating-linear-gradient(
 			132deg,
 			transparent 0,
@@ -330,7 +329,6 @@
 			transparent 7px,
 			transparent 22px
 		),
-		/* Medium cross-direction scratches */
 		repeating-linear-gradient(
 			154deg,
 			transparent 0,
@@ -340,7 +338,6 @@
 			transparent 16px,
 			transparent 38px
 		),
-		/* Fine hair scratches */
 		repeating-linear-gradient(
 			126deg,
 			transparent 0,
@@ -408,6 +405,106 @@
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.7'/%3E%3C/svg%3E");
 	mix-blend-mode: overlay;
 	opacity: 0.55;
+}
+
+/* ── Herringbone — ±45° stripes half-offset to form V-junctions ── */
+.has-pattern-herringbone .ticker__pattern {
+	background-image:
+		repeating-linear-gradient(
+			45deg,
+			transparent 0,
+			transparent 9px,
+			var(--_tp) 9px,
+			var(--_tp) 12px,
+			transparent 12px,
+			transparent 21px
+		),
+		repeating-linear-gradient(
+			-45deg,
+			transparent 0,
+			transparent 9px,
+			var(--_tp) 9px,
+			var(--_tp) 12px,
+			transparent 12px,
+			transparent 21px
+		);
+	background-size: 42px 42px;
+	background-position: 0 0, 21px 0;
+}
+
+/* ── Carbon — tight ±45° weave at 5px pitch with 2×2 gloss blocks ── */
+.has-pattern-carbon .ticker__pattern {
+	background-image:
+		repeating-linear-gradient(
+			45deg,
+			transparent 0,
+			transparent 3px,
+			var(--_tp) 3px,
+			var(--_tp) 5px
+		),
+		repeating-linear-gradient(
+			-45deg,
+			transparent 0,
+			transparent 3px,
+			var(--_tp) 3px,
+			var(--_tp) 5px
+		);
+	background-size: 10px 10px;
+	background-position: 0 0, 5px 0;
+}
+
+/* Woven gloss — each 2×2 block catches light at a slightly different angle */
+.has-pattern-carbon .ticker__pattern::after {
+	background-image:
+		radial-gradient(ellipse 8px 8px at 5px 5px, rgb(255 255 255 / 22%) 0%, transparent 100%),
+		radial-gradient(ellipse 8px 8px at 15px 15px, rgb(255 255 255 / 22%) 0%, transparent 100%);
+	background-size: 20px 20px;
+	mix-blend-mode: screen;
+}
+
+/* ── Honeycomb — three-axis line grid at 0°, ±60° forming hexagonal cells ── */
+.has-pattern-honeycomb .ticker__pattern {
+	background-image:
+		repeating-linear-gradient(
+			0deg,
+			transparent 0,
+			transparent 17px,
+			var(--_tp) 17px,
+			var(--_tp) 19px
+		),
+		repeating-linear-gradient(
+			60deg,
+			transparent 0,
+			transparent 17px,
+			var(--_tp) 17px,
+			var(--_tp) 19px
+		),
+		repeating-linear-gradient(
+			-60deg,
+			transparent 0,
+			transparent 17px,
+			var(--_tp) 17px,
+			var(--_tp) 19px
+		);
+}
+
+/* ── Linen — anisotropic fractalNoise: horizontal warp + vertical weft fibers ── */
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-linen .ticker__pattern {
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65 0.035' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+	background-color: var(--_tp);
+	background-blend-mode: soft-light;
+	background-size: 200px 200px;
+}
+
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-linen .ticker__pattern::after {
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+	background-size: 200px 200px;
+	mix-blend-mode: overlay;
+	opacity: 0.5;
 }
 
 /* -----------------------------------------------

@@ -1060,7 +1060,7 @@
 	flex: 1;
 	padding: 0.7em 1.5em;
 	border: none;
-	border-radius: 0.25rem;
+	border-radius: var(--aa-radius-full);
 	background-color: var(--aa-color-foreground);
 	color: var(--aa-color-surface);
 	font-size: 0.85rem;

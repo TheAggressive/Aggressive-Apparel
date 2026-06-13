@@ -65,7 +65,7 @@ interface SizeTerm {
   name: string;
 }
 
-interface LineTerm {
+interface FitTerm {
   slug: string;
   name: string;
 }
@@ -141,8 +141,8 @@ interface ProductFiltersState {
   categories: CategoryTerm[];
   colorTerms: ColorTerm[];
   sizeTerms: SizeTerm[];
-  lineTerms: LineTerm[];
-  selectedLines: string[];
+  fitTerms: FitTerm[];
+  selectedFit: string[];
   currentCategorySlug: string;
   categoryAttributeMap: Record<string, CategoryAttributeMapEntry>;
   i18n: {
@@ -164,7 +164,7 @@ interface ProductFiltersState {
   readonly isCategoryDropdownOpen: boolean;
   readonly isColorDropdownOpen: boolean;
   readonly isSizeDropdownOpen: boolean;
-  readonly isLineDropdownOpen: boolean;
+  readonly isFitDropdownOpen: boolean;
   readonly isPriceDropdownOpen: boolean;
   readonly isStockDropdownOpen: boolean;
 }
@@ -197,7 +197,7 @@ const { state, actions } = store<ProductFiltersStore>(
           state.selectedCategories.length > 0 ||
           state.selectedColors.length > 0 ||
           state.selectedSizes.length > 0 ||
-          state.selectedLines.length > 0 ||
+          state.selectedFit.length > 0 ||
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max ||
           state.inStockOnly
@@ -225,7 +225,7 @@ const { state, actions } = store<ProductFiltersStore>(
         count += state.selectedCategories.length;
         count += state.selectedColors.length;
         count += state.selectedSizes.length;
-        count += state.selectedLines.length;
+        count += state.selectedFit.length;
         if (
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max
@@ -281,8 +281,8 @@ const { state, actions } = store<ProductFiltersStore>(
       get isSizeDropdownOpen(): boolean {
         return state.openDropdown === 'sizes';
       },
-      get isLineDropdownOpen(): boolean {
-        return state.openDropdown === 'lines';
+      get isFitDropdownOpen(): boolean {
+        return state.openDropdown === 'fit';
       },
       get isPriceDropdownOpen(): boolean {
         return state.openDropdown === 'price';
@@ -318,14 +318,14 @@ const { state, actions } = store<ProductFiltersStore>(
         debouncedFetch();
       },
 
-      toggleLine(event: MouseEvent): void {
+      toggleFit(event: MouseEvent): void {
         const btn = (event.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__line-chip'
+          '.aa-product-filters__fit-chip'
         );
         if (!btn) return;
         const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedLines, slug);
-        syncLineChipPressed(state.selectedLines);
+        if (slug) toggleArrayItem(state.selectedFit, slug);
+        syncFitChipPressed(state.selectedFit);
         debouncedFetch();
       },
 
@@ -372,7 +372,7 @@ const { state, actions } = store<ProductFiltersStore>(
         state.selectedCategories = [];
         state.selectedColors = [];
         state.selectedSizes = [];
-        state.selectedLines = [];
+        state.selectedFit = [];
         state.priceMin = state.priceRange.min;
         state.priceMax = state.priceRange.max;
         state.inStockOnly = false;
@@ -589,8 +589,8 @@ function buildFilterParams(): URLSearchParams {
   if (state.selectedSizes.length > 0) {
     params.set('_unstable_tax_pa_size', state.selectedSizes.join(','));
   }
-  if (state.selectedLines.length > 0) {
-    params.set('_unstable_tax_pa_line', state.selectedLines.join(','));
+  if (state.selectedFit.length > 0) {
+    params.set('_unstable_tax_pa_fit', state.selectedFit.join(','));
   }
 
   const minorFactor = Math.pow(10, state.priceRange.minorUnit ?? 2);
@@ -862,9 +862,9 @@ function setupDelegatedEvents(): void {
         } else if (type === 'size' && slug) {
           removeArrayItem(state.selectedSizes, slug);
           syncChipPressed(state.selectedSizes);
-        } else if (type === 'line' && slug) {
-          removeArrayItem(state.selectedLines, slug);
-          syncLineChipPressed(state.selectedLines);
+        } else if (type === 'fit' && slug) {
+          removeArrayItem(state.selectedFit, slug);
+          syncFitChipPressed(state.selectedFit);
         } else if (type === 'price') {
           state.priceMin = state.priceRange.min;
           state.priceMax = state.priceRange.max;
@@ -995,9 +995,9 @@ function renderPills(): void {
     pills.push({ type: 'size', slug, label: sz?.name || slug });
   });
 
-  state.selectedLines.forEach((slug: string) => {
-    const ln = state.lineTerms.find((l: LineTerm) => l.slug === slug);
-    pills.push({ type: 'line', slug, label: ln?.name || slug });
+  state.selectedFit.forEach((slug: string) => {
+    const term = state.fitTerms.find((t: FitTerm) => t.slug === slug);
+    pills.push({ type: 'fit', slug, label: term?.name || slug });
   });
 
   if (
@@ -1109,8 +1109,8 @@ const syncSwatchPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__color-swatch', selected);
 const syncChipPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__size-chip', selected);
-const syncLineChipPressed = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__line-chip', selected);
+const syncFitChipPressed = (selected: string[]): void =>
+  syncPressed('.aa-product-filters__fit-chip', selected);
 
 /**
  * Sync the visual position of the price range highlight.
@@ -1173,7 +1173,7 @@ function syncAllControls(): void {
   syncCategoryChips([]);
   syncSwatchPressed([]);
   syncChipPressed([]);
-  syncLineChipPressed([]);
+  syncFitChipPressed([]);
   syncPriceSliders();
   syncPriceRange();
   syncStockCheckboxes(false);
@@ -1254,8 +1254,8 @@ function syncUrl(): void {
   if (state.selectedSizes.length > 0) {
     params.set('size', state.selectedSizes.join(','));
   }
-  if (state.selectedLines.length > 0) {
-    params.set('line', state.selectedLines.join(','));
+  if (state.selectedFit.length > 0) {
+    params.set('fit', state.selectedFit.join(','));
   }
   if (state.priceMin > state.priceRange.min) {
     params.set('min_price', String(state.priceMin));
@@ -1320,12 +1320,12 @@ function restoreFromUrl(): void {
   }
 
   const lineParam =
-    params.get('line') ||
-    params.get('filter_line') ||
-    params.get('filter_pa_line') ||
+    params.get('fit') ||
+    params.get('filter_fit') ||
+    params.get('filter_pa_fit') ||
     '';
   if (lineParam) {
-    state.selectedLines = lineParam.split(',').filter(Boolean);
+    state.selectedFit = lineParam.split(',').filter(Boolean);
   }
   if (params.has('min_price')) {
     state.priceMin = Math.max(
@@ -1354,7 +1354,7 @@ function restoreFromUrl(): void {
     syncCategoryChips(state.selectedCategories);
     syncSwatchPressed(state.selectedColors);
     syncChipPressed(state.selectedSizes);
-    syncLineChipPressed(state.selectedLines);
+    syncFitChipPressed(state.selectedFit);
     syncPriceSliders();
     syncPriceRange();
     syncStockCheckboxes(state.inStockOnly);

@@ -10,7 +10,7 @@
 .is-style-ghost .wp-block-button__link {
 	background-color: transparent;
 	color: var(--aa-color-foreground);
-	border: 1.5px solid var(--aa-color-foreground);
+	border: 2px solid var(--aa-color-foreground);
 }
 
 .is-style-ghost .wp-block-button__link:hover {
@@ -67,7 +67,7 @@
 .is-style-outline-on-dark .wp-block-button__link {
 	background-color: transparent;
 	color: var(--aa-color-white);
-	border: 1.5px solid var(--aa-color-white);
+	border: 2px solid var(--aa-color-white);
 }
 
 .is-style-outline-on-dark .wp-block-button__link:hover {

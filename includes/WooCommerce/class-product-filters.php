@@ -196,7 +196,7 @@ class Product_Filters {
 					'categories'           => $data['categories'],
 					'colorTerms'           => $data['colorTerms'],
 					'sizeTerms'            => $data['sizeTerms'],
-					'lineTerms'            => $data['lineTerms'],
+					'fitTerms'             => $data['fitTerms'],
 					'priceRange'           => array_merge(
 						$data['priceRange'],
 						array(
@@ -212,7 +212,7 @@ class Product_Filters {
 					'selectedCategories'   => array(),
 					'selectedColors'       => array(),
 					'selectedSizes'        => array(),
-					'selectedLines'        => array(),
+					'selectedFit'          => array(),
 					'priceMin'             => $data['priceRange']['min'],
 					'priceMax'             => $data['priceRange']['max'],
 					'inStockOnly'          => false,
@@ -532,12 +532,12 @@ class Product_Filters {
 			);
 		}
 
-		// Line dropdown.
-		if ( ! empty( $data['lineTerms'] ) ) {
+		// Fit dropdown.
+		if ( ! empty( $data['fitTerms'] ) ) {
 			$bar .= $this->build_bar_dropdown(
-				'lines',
-				__( 'Line', 'aggressive-apparel' ),
-				'state.isLineDropdownOpen',
+				'fit',
+				__( 'Fit', 'aggressive-apparel' ),
+				'state.isFitDropdownOpen',
 			);
 		}
 
@@ -633,17 +633,17 @@ class Product_Filters {
 			}
 		}
 
-		// Line (Mens / Womens).
-		if ( ! empty( $data['lineTerms'] ) ) {
-			$this->render_section_start( 'lines', __( 'Line', 'aggressive-apparel' ) );
-			echo '<div class="aa-product-filters__line-list" role="group" aria-label="' . esc_attr__( 'Filter by line', 'aggressive-apparel' ) . '">';
-			foreach ( $data['lineTerms'] as $line ) {
+		// Fit.
+		if ( ! empty( $data['fitTerms'] ) ) {
+			$this->render_section_start( 'fit', __( 'Fit', 'aggressive-apparel' ) );
+			echo '<div class="aa-product-filters__fit-list" role="group" aria-label="' . esc_attr__( 'Filter by fit', 'aggressive-apparel' ) . '">';
+			foreach ( $data['fitTerms'] as $fit ) {
 				printf(
-					'<button class="aa-product-filters__line-chip" data-wp-on--click="actions.toggleLine" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__line-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__line-chip-name">%s</span></button>',
-					esc_attr( $line['slug'] ),
-					/* translators: %s: line name */
-					esc_attr( sprintf( __( 'Filter by %s line', 'aggressive-apparel' ), $line['name'] ) ),
-					esc_html( $line['name'] ),
+					'<button class="aa-product-filters__fit-chip" data-wp-on--click="actions.toggleFit" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__fit-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__fit-chip-name">%s</span></button>',
+					esc_attr( $fit['slug'] ),
+					/* translators: %s: fit name */
+					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $fit['name'] ) ),
+					esc_html( $fit['name'] ),
 				);
 			}
 			echo '</div>';
@@ -866,7 +866,7 @@ class Product_Filters {
 		$cache_key = self::CACHE_PREFIX . 'data';
 		$cached    = get_transient( $cache_key );
 
-		if ( is_array( $cached ) && isset( $cached['categoryAttributeMap'], $cached['lineTerms'] ) ) {
+		if ( is_array( $cached ) && isset( $cached['categoryAttributeMap'], $cached['fitTerms'] ) ) {
 			$this->filter_data = $cached;
 			return $cached;
 		}
@@ -898,9 +898,9 @@ class Product_Filters {
 		}
 
 		try {
-			$line_terms = $this->get_line_terms();
+			$fit_terms = $this->get_fit_terms();
 		} catch ( \Throwable ) {
-			$line_terms = array();
+			$fit_terms = array();
 		}
 
 		try {
@@ -919,7 +919,7 @@ class Product_Filters {
 			'categories'           => $categories,
 			'colorTerms'           => $color_terms,
 			'sizeTerms'            => $size_terms,
-			'lineTerms'            => $line_terms,
+			'fitTerms'             => $fit_terms,
 			'priceRange'           => $price_range,
 			'stockStatuses'        => $this->get_stock_statuses(),
 			'categoryAttributeMap' => $category_attribute_map,
@@ -1030,14 +1030,14 @@ class Product_Filters {
 	}
 
 	/**
-	 * Get line attribute terms (pa_line).
+	 * Get fit attribute terms (pa_fit).
 	 *
 	 * @return array Line terms array.
 	 */
-	private function get_line_terms(): array {
+	private function get_fit_terms(): array {
 		$terms = get_terms(
 			array(
-				'taxonomy'   => 'pa_line',
+				'taxonomy'   => 'pa_fit',
 				'hide_empty' => false,
 				'orderby'    => 'name',
 				'order'      => 'ASC',

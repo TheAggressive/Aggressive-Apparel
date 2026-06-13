@@ -35,7 +35,6 @@ body.has-product-filters {
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	border: 1px solid var(--pf-border);
 	background: var(--pf-bg);
 	color: var(--pf-fg);
 	font-size: 0.8rem;
@@ -69,7 +68,8 @@ body.has-product-filters {
 	color: var(--pf-bg);
 	border-radius: 999px;
 
-	&[hidden] {
+	&[hidden],
+	&:empty {
 		display: none;
 	}
 }
@@ -137,10 +137,8 @@ body.has-product-filters {
 }
 
 .aa-product-filters__drawer-title {
-	font-size: 0.85rem;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
 	margin: 0;
 }
 
@@ -219,7 +217,7 @@ body.has-product-filters {
 	.aa-product-filters__section-icon,
 	.aa-product-filters__color-swatch,
 	.aa-product-filters__size-chip,
-	.aa-product-filters__line-chip,
+	.aa-product-filters__fit-chip,
 	.aa-product-filters__stock-switch,
 	.aa-product-filters__stock-switch::after,
 	.aa-product-filters__apply-btn,
@@ -236,30 +234,30 @@ body.has-product-filters {
 	.aa-product-filters__category-chip,
 	.aa-product-filters__category-chip::before,
 	.aa-product-filters__size-chip::before,
-	.aa-product-filters__line-chip::before,
+	.aa-product-filters__fit-chip::before,
 	.aa-product-filters__category-chip-check,
 	.aa-product-filters__size-chip-check,
-	.aa-product-filters__line-chip-check,
+	.aa-product-filters__fit-chip-check,
 	.aa-product-filters__category-chip-name,
 	.aa-product-filters__size-chip-name,
-	.aa-product-filters__line-chip-name,
+	.aa-product-filters__fit-chip-name,
 	.aa-product-filters__category-chip-count {
 		transition: none;
 	}
 
 	.aa-product-filters__category-chip-check,
 	.aa-product-filters__size-chip-check,
-	.aa-product-filters__line-chip-check,
+	.aa-product-filters__fit-chip-check,
 	.aa-product-filters__category-chip-name,
 	.aa-product-filters__size-chip-name,
-	.aa-product-filters__line-chip-name,
+	.aa-product-filters__fit-chip-name,
 	.aa-product-filters__category-chip-count {
 		transform: none;
 	}
 
 	button.aa-product-filters__color-swatch.is-unavailable,
 	button.aa-product-filters__size-chip.is-unavailable,
-	button.aa-product-filters__line-chip.is-unavailable {
+	button.aa-product-filters__fit-chip.is-unavailable {
 		transition: none;
 	}
 
@@ -386,7 +384,7 @@ body.has-product-filters {
  * WordPress global button styles from theme.json. */
 button.aa-product-filters__category-chip,
 button.aa-product-filters__size-chip,
-button.aa-product-filters__line-chip {
+button.aa-product-filters__fit-chip {
 	position: relative;
 	display: inline-flex;
 	align-items: center;
@@ -427,7 +425,7 @@ button.aa-product-filters__line-chip {
 	}
 
 	&:hover {
-		box-shadow: inset 0 0 0 1px var(--pf-fg);
+		box-shadow: inset 0 0 0 2px var(--pf-fg);
 	}
 
 	&:focus-visible {
@@ -436,7 +434,7 @@ button.aa-product-filters__line-chip {
 	}
 
 	&.is-selected {
-		box-shadow: inset 0 0 0 1px var(--pf-fg);
+		box-shadow: inset 0 0 0 2px var(--pf-fg);
 		color: var(--pf-bg);
 
 		&::before {
@@ -449,7 +447,7 @@ button.aa-product-filters__line-chip {
 /* Checkmark icon — shared. */
 .aa-product-filters__category-chip-check,
 .aa-product-filters__size-chip-check,
-.aa-product-filters__line-chip-check {
+.aa-product-filters__fit-chip-check {
 	position: relative;
 	z-index: 1;
 	display: flex;
@@ -481,7 +479,7 @@ button.aa-product-filters__line-chip {
 /* Chip label — shared. */
 .aa-product-filters__category-chip-name,
 .aa-product-filters__size-chip-name,
-.aa-product-filters__line-chip-name {
+.aa-product-filters__fit-chip-name {
 	position: relative;
 	z-index: 1;
 	transform: translateX(-0.5625rem);
@@ -517,7 +515,7 @@ button.aa-product-filters__line-chip {
 }
 
 /* Line chips are wider — labels like "Men's" need more room. */
-.aa-product-filters__line-chip {
+.aa-product-filters__fit-chip {
 	min-width: 4rem;
 }
 
@@ -530,7 +528,7 @@ button.aa-product-filters__line-chip {
  */
 button.aa-product-filters__color-swatch.is-unavailable,
 button.aa-product-filters__size-chip.is-unavailable,
-button.aa-product-filters__line-chip.is-unavailable {
+button.aa-product-filters__fit-chip.is-unavailable {
 	opacity: 0.2;
 	pointer-events: none;
 	cursor: default;
@@ -597,7 +595,7 @@ button.aa-product-filters__color-swatch {
 /* ── Size / Line Lists ──────────────────────────────── */
 
 .aa-product-filters__size-list,
-.aa-product-filters__line-list {
+.aa-product-filters__fit-list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.375rem;

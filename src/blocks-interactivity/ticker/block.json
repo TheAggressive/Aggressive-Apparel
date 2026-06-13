@@ -49,6 +49,70 @@
     "fadeWidth": {
       "type": "number",
       "default": 64
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": false
+    },
+    "labelText": {
+      "type": "string",
+      "default": "LIVE"
+    },
+    "labelBg": {
+      "type": "string",
+      "default": ""
+    },
+    "labelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "showIndicator": {
+      "type": "boolean",
+      "default": true
+    },
+    "indicatorShape": {
+      "type": "string",
+      "default": "square"
+    },
+    "indicatorColor": {
+      "type": "string",
+      "default": ""
+    },
+    "pattern": {
+      "type": "string",
+      "default": "none"
+    },
+    "patternColor": {
+      "type": "string",
+      "default": ""
+    },
+    "patternBlendMode": {
+      "type": "string",
+      "default": "normal"
+    },
+    "patternOpacity": {
+      "type": "number",
+      "default": 100
+    },
+    "patternScale": {
+      "type": "number",
+      "default": 100
+    },
+    "labelFontSize": {
+      "type": "number",
+      "default": 0
+    },
+    "labelFontWeight": {
+      "type": "string",
+      "default": ""
+    },
+    "labelLetterSpacing": {
+      "type": "number",
+      "default": 0
+    },
+    "labelTextTransform": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "aggressive-apparel",

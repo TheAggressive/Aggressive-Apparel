@@ -16,8 +16,25 @@
 	--ticker-copies: 1;
 
 	position: relative;
+	display: flex;
+	align-items: stretch;
 	overflow: hidden;
 	user-select: none;
+}
+
+/* -----------------------------------------------
+ * Scroll area — flex sibling to the label.
+ * Owns overflow:hidden so the label sits outside
+ * the clipping region in flow.
+ * ----------------------------------------------- */
+
+.ticker__scroll {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	position: relative;
 }
 
 /* -----------------------------------------------
@@ -35,6 +52,7 @@
 
 .ticker__track {
 	display: flex;
+	flex-shrink: 0;
 	width: max-content;
 	will-change: transform;
 }
@@ -68,11 +86,11 @@
 }
 
 /* -----------------------------------------------
- * Edge fade (pseudo-element overlays matching background)
+ * Edge fade (pseudo-element overlays on scroll area)
  * ----------------------------------------------- */
 
-.wp-block-aggressive-apparel-ticker.has-fade-edges::before,
-.wp-block-aggressive-apparel-ticker.has-fade-edges::after {
+.ticker__scroll.has-fade-edges::before,
+.ticker__scroll.has-fade-edges::after {
 	content: "";
 	position: absolute;
 	top: 0;
@@ -82,7 +100,7 @@
 	pointer-events: none;
 }
 
-.wp-block-aggressive-apparel-ticker.has-fade-edges::before {
+.ticker__scroll.has-fade-edges::before {
 	left: 0;
 	background: linear-gradient(
 		to right,
@@ -91,13 +109,305 @@
 	);
 }
 
-.wp-block-aggressive-apparel-ticker.has-fade-edges::after {
+.ticker__scroll.has-fade-edges::after {
 	right: 0;
 	background: linear-gradient(
 		to left,
 		var(--ticker-fade-color, transparent),
 		transparent
 	);
+}
+
+/* -----------------------------------------------
+ * Label — pinned left, sits in normal flex flow
+ * ----------------------------------------------- */
+
+.ticker__label {
+	flex-shrink: 0;
+	position: relative;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding-inline: 1.25rem;
+	line-height: 1;
+	white-space: nowrap;
+	border-inline-end: 1px solid color-mix(in oklch, currentcolor 30%, transparent);
+}
+
+/* Background bleeds through parent padding using overflow:hidden on the wrapper as the clip. */
+.ticker__label::before {
+	content: "";
+	position: absolute;
+	inset: -9999px 0;
+	z-index: -1;
+	background-color: var(--tl-bg, transparent);
+	pointer-events: none;
+}
+
+/* -----------------------------------------------
+ * Indicator — animated shape in the label
+ * ----------------------------------------------- */
+
+@keyframes ticker-indicator-pulse {
+
+	0% {
+		transform: scale(0.6);
+		opacity: 0.7;
+	}
+
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
+
+.ticker__indicator {
+	flex-shrink: 0;
+	display: inline-block;
+	width: 0.5rem;
+	height: 0.5rem;
+	background: var(--ti-color, currentcolor);
+	position: relative;
+  margin-right: 0.5rem;
+}
+
+.ticker__indicator::after {
+	content: "";
+	position: absolute;
+	inset: -0.25rem;
+	background: var(--ti-color, currentcolor);
+	opacity: 0.5;
+	animation: ticker-indicator-pulse 1.4s ease-out infinite;
+}
+
+/* Circle */
+.ticker__indicator--circle,
+.ticker__indicator--circle::after {
+	border-radius: 50%;
+}
+
+/* Diamond — rotate the element; ::after inherits the transform context */
+.ticker__indicator--diamond {
+	rotate: 45deg;
+}
+
+/* -----------------------------------------------
+ * Background pattern — absolutely covers the wrapper
+ * ----------------------------------------------- */
+
+/* --_tp: the active pattern color. Defaults to white 55% — visible on most colored/dark backgrounds. */
+.ticker__pattern {
+	position: absolute;
+
+	/* Scale-compensated inset: extends beyond parent for downscaling, fills for upscaling (parent clips). */
+	inset: calc((1 - 1 / var(--tp-scale, 1)) * 50%);
+	transform: scale(var(--tp-scale, 1));
+	transform-origin: center;
+	pointer-events: none;
+	z-index: 0;
+	mix-blend-mode: var(--tp-blend, normal);
+	opacity: var(--tp-opacity, 1);
+
+	--_tp: var(--tp-color, rgb(255 255 255 / 55%));
+}
+
+/* Shared base for pattern pseudo-element depth layers */
+.ticker__pattern::before,
+.ticker__pattern::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+/* ── Diagonal stripes — embossed via highlight + shadow edges ── */
+.has-pattern-diagonal .ticker__pattern {
+	background-image: repeating-linear-gradient(
+		135deg,
+		transparent 0,
+		transparent 10px,
+		rgb(255 255 255 / 35%) 10px,
+		rgb(255 255 255 / 35%) 11px,
+		var(--_tp) 11px,
+		var(--_tp) 13px,
+		rgb(0 0 0 / 18%) 13px,
+		rgb(0 0 0 / 18%) 14px
+	);
+}
+
+/* ── Crosshatch — 2px woven threads with offset highlight weave ── */
+.has-pattern-crosshatch .ticker__pattern {
+	background-image:
+		repeating-linear-gradient(
+			135deg,
+			transparent 0,
+			transparent 10px,
+			var(--_tp) 10px,
+			var(--_tp) 12px
+		),
+		repeating-linear-gradient(
+			45deg,
+			transparent 0,
+			transparent 10px,
+			var(--_tp) 10px,
+			var(--_tp) 12px
+		);
+}
+
+.has-pattern-crosshatch .ticker__pattern::after {
+
+	/* Mid-thread highlight lines at half pitch for woven depth */
+	background-image:
+		repeating-linear-gradient(
+			135deg,
+			transparent 0,
+			transparent 4px,
+			rgb(255 255 255 / 28%) 4px,
+			rgb(255 255 255 / 28%) 5px,
+			transparent 5px,
+			transparent 17px
+		),
+		repeating-linear-gradient(
+			45deg,
+			transparent 0,
+			transparent 4px,
+			rgb(255 255 255 / 28%) 4px,
+			rgb(255 255 255 / 28%) 5px,
+			transparent 5px,
+			transparent 17px
+		);
+}
+
+/* ── Dots — CSS circles: vector, scales cleanly with Pattern Scale ── */
+.has-pattern-dots .ticker__pattern {
+	background-image: radial-gradient(circle, var(--_tp) 12px, transparent 12px);
+	background-size: 36px 36px;
+}
+
+/* ── Halftone — CSS offset circle grid: vector, scales cleanly ── */
+.has-pattern-halftone .ticker__pattern {
+	background-image:
+		radial-gradient(circle, var(--_tp) 9px, transparent 9px),
+		radial-gradient(circle, var(--_tp) 9px, transparent 9px);
+	background-size: 28px 28px;
+	background-position: 0 0, 14px 14px;
+}
+
+/* ── Noise — SVG mask cuts blob shapes out of tp_color background ── */
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-noise .ticker__pattern {
+	background: var(--_tp);
+
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.008' numOctaves='3' seed='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  2 0 0 0 -0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+	mask-size: 400px 400px;
+	mask-mode: alpha;
+}
+
+/* ── Grain — CSS quasi-random dots via prime-number tile sizes ── */
+.has-pattern-grain .ticker__pattern {
+
+	/* Four dot layers at prime tile sizes — LCM is enormous so it never visibly repeats */
+	background-image:
+		radial-gradient(circle, var(--_tp) 5px, transparent 5px),
+		radial-gradient(circle, var(--_tp) 4px, transparent 4px),
+		radial-gradient(circle, var(--_tp) 6px, transparent 6px),
+		radial-gradient(circle, var(--_tp) 4px, transparent 4px);
+	background-size: 53px 47px, 37px 61px, 43px 53px, 59px 41px;
+	background-position: 0 0, 19px 23px, 31px 11px, 7px 38px;
+}
+
+/* ── Scratch — heavy multi-angle wear marks with surface glare ── */
+.has-pattern-scratch .ticker__pattern {
+	background-image:
+		/* Primary 2px scratches */
+		repeating-linear-gradient(
+			132deg,
+			transparent 0,
+			transparent 5px,
+			var(--_tp) 5px,
+			var(--_tp) 7px,
+			transparent 7px,
+			transparent 22px
+		),
+		/* Medium cross-direction scratches */
+		repeating-linear-gradient(
+			154deg,
+			transparent 0,
+			transparent 14px,
+			var(--_tp) 14px,
+			var(--_tp) 16px,
+			transparent 16px,
+			transparent 38px
+		),
+		/* Fine hair scratches */
+		repeating-linear-gradient(
+			126deg,
+			transparent 0,
+			transparent 32px,
+			rgb(255 255 255 / 40%) 32px,
+			rgb(255 255 255 / 40%) 33px,
+			transparent 33px,
+			transparent 52px
+		);
+}
+
+.has-pattern-scratch .ticker__pattern::before {
+
+	/* Glare lines — worn surface reflections */
+	background-image:
+		repeating-linear-gradient(
+			140deg,
+			transparent 0,
+			transparent 18px,
+			rgb(255 255 255 / 24%) 18px,
+			rgb(255 255 255 / 24%) 19.5px,
+			transparent 19.5px,
+			transparent 42px
+		),
+		repeating-linear-gradient(
+			148deg,
+			transparent 0,
+			transparent 54px,
+			rgb(255 255 255 / 15%) 54px,
+			rgb(255 255 255 / 15%) 55px
+		);
+}
+
+.has-pattern-scratch .ticker__pattern::after {
+
+	/* Center-weighted glare — worn area catches light */
+	background: radial-gradient(ellipse 80% 60% at 40% 50%, rgb(255 255 255 / 10%) 0%, transparent 70%);
+	mix-blend-mode: screen;
+}
+
+/* ── Grunge — high-contrast concrete: multi-scale fractal + aggregate stones + surface grain ── */
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-grunge .ticker__pattern {
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+	background-color: var(--_tp);
+
+	/* hard-light: dark fractal areas crush to black, bright areas blow to white — concrete contrast */
+	background-blend-mode: hard-light;
+}
+
+/* Dark aggregate blobs — simulate stones/pebbles in concrete mix */
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-grunge .ticker__pattern::before {
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.025' numOctaves='2' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  5 0 0 0 -2.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+	mix-blend-mode: multiply;
+	opacity: 0.75;
+}
+
+/* Fine surface grain — concrete paste texture */
+/* stylelint-disable-next-line function-url-quotes */
+.has-pattern-grunge .ticker__pattern::after {
+	/* stylelint-disable-next-line value-no-vendor-prefix */
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.7'/%3E%3C/svg%3E");
+	mix-blend-mode: overlay;
+	opacity: 0.55;
 }
 
 /* -----------------------------------------------
@@ -108,7 +418,7 @@
 	position: absolute;
 	top: 50%;
 	right: 0.75rem;
-	z-index: 2;
+	z-index: 4;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -159,7 +469,9 @@
 		animation: none;
 	}
 
-	.ticker__pause {
+	.ticker__pause,
+	.ticker__indicator::after {
 		transition: none;
+		animation: none;
 	}
 }

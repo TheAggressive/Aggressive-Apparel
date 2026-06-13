@@ -1,16 +1,30 @@
 /**
  * Ticker Block — Editor Styles
  *
- * Shows a static horizontal flex preview without animation.
+ * Shows a static horizontal flex preview with label, pattern, and content.
  *
  * @package Aggressive_Apparel
  */
 
 .wp-block-aggressive-apparel-ticker--editor {
-	border: 1px dashed currentcolor;
-	border-radius: var(--aa-radius-sm);
-	padding: 1rem;
-	opacity: 0.85;
+	display: flex;
+	align-items: stretch;
+	overflow: hidden;
+	position: relative;
+	border: 1px dashed color-mix(in oklch, currentcolor 30%, transparent);
+	border-radius: var(--aa-radius-sm, 0.25rem);
+	opacity: 0.9;
+	min-height: 3rem;
+}
+
+/* Scroll area — fills remaining width, shows inner blocks horizontally. */
+.ticker-editor__scroll {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	padding-inline: 0.75rem;
 }
 
 .ticker-editor__content {

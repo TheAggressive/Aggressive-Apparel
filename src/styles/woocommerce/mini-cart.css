@@ -243,7 +243,8 @@
 
 /* Totals. */
 .wc-block-mini-cart__footer {
-	border-top: 2px solid currentcolor;
+background-color: var(--aa-color-surface-elevated);
+border-top: none;
 
 	.wc-block-mini-cart__footer-subtotal {
 		font-weight: 700;

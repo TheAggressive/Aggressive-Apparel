@@ -12,6 +12,14 @@
  * @package Aggressive_Apparel
  */
 
+/**
+ * Template variables.
+ *
+ * @var array    $attributes Block attributes.
+ * @var string   $content    Inner blocks HTML.
+ * @var WP_Block $block      Block instance.
+ */
+
 $speed          = absint( $attributes['speed'] ?? 30 );
 $direction      = 'right' === ( $attributes['direction'] ?? 'left' ) ? 'reverse' : 'normal';
 $gap            = absint( $attributes['gap'] ?? 48 );
@@ -19,19 +27,40 @@ $fade_edges     = ! empty( $attributes['fadeEdges'] );
 $fade_width     = absint( $attributes['fadeWidth'] ?? 64 );
 $pause_on_hover = ! empty( $attributes['pauseOnHover'] );
 
+// Label attributes.
+$show_label      = ! empty( $attributes['showLabel'] );
+$label_text      = $attributes['labelText'] ?? 'LIVE';
+$label_bg        = $attributes['labelBg'] ?? '';
+$label_color     = $attributes['labelColor'] ?? '';
+$show_indicator  = ! empty( $attributes['showIndicator'] );
+$indicator_shape = $attributes['indicatorShape'] ?? 'square';
+$indicator_color = $attributes['indicatorColor'] ?? '';
+
+// Pattern attributes.
+$pattern         = $attributes['pattern'] ?? 'none';
+$pattern_color   = $attributes['patternColor'] ?? '';
+$pattern_blend   = $attributes['patternBlendMode'] ?? 'normal';
+$pattern_opacity = (int) ( $attributes['patternOpacity'] ?? 100 );
+$pattern_scale   = (int) ( $attributes['patternScale'] ?? 100 );
+$has_pattern     = 'none' !== $pattern;
+
+// Label typography attributes.
+$label_font_size      = absint( $attributes['labelFontSize'] ?? 0 );
+$label_font_weight    = $attributes['labelFontWeight'] ?? '';
+$label_letter_spacing = (float) ( $attributes['labelLetterSpacing'] ?? 0 );
+$label_text_transform = $attributes['labelTextTransform'] ?? '';
+
 // Resolve the block's background color for edge fade overlays.
 $fade_color = '';
 if ( $fade_edges ) {
 	if ( ! empty( $attributes['backgroundColor'] ) ) {
-		// Preset color — reference the CSS custom property.
 		$fade_color = 'var(--wp--preset--color--' . esc_attr( $attributes['backgroundColor'] ) . ')';
 	} elseif ( ! empty( $attributes['style']['color']['background'] ) ) {
-		// Custom color — use the literal value.
 		$fade_color = esc_attr( $attributes['style']['color']['background'] );
 	}
 }
 
-// Build CSS custom properties.
+// Build wrapper inline styles.
 $inline_style = sprintf(
 	'--ticker-duration:%ds;--ticker-gap:%dpx;--ticker-direction:%s;--ticker-fade-width:%dpx;',
 	$speed,
@@ -44,10 +73,54 @@ if ( $fade_color ) {
 	$inline_style .= '--ticker-fade-color:' . $fade_color . ';';
 }
 
-// Build classes.
+// Pattern CSS custom properties applied directly to the .ticker__pattern element.
+$pattern_style = '';
+if ( $has_pattern ) {
+	if ( $pattern_color ) {
+		$pattern_style .= '--tp-color:' . esc_attr( $pattern_color ) . ';';
+	}
+	if ( 'normal' !== $pattern_blend ) {
+		$pattern_style .= '--tp-blend:' . esc_attr( $pattern_blend ) . ';';
+	}
+	if ( 100 !== $pattern_opacity ) {
+		$pattern_style .= '--tp-opacity:' . ( $pattern_opacity / 100 ) . ';';
+	}
+	if ( 100 !== $pattern_scale ) {
+		$pattern_style .= '--tp-scale:' . ( $pattern_scale / 100 ) . ';';
+	}
+}
+
+// Build label and indicator inline styles applied directly on their elements.
+$label_style     = '';
+$indicator_style = '';
+if ( $show_label ) {
+	if ( $label_bg ) {
+		$label_style .= '--tl-bg:' . esc_attr( $label_bg ) . ';';
+	}
+	if ( $label_color ) {
+		$label_style .= 'color:' . esc_attr( $label_color ) . ';';
+	}
+	if ( $label_font_size > 0 ) {
+		$label_style .= 'font-size:' . $label_font_size . 'px;';
+	}
+	if ( $label_font_weight ) {
+		$label_style .= 'font-weight:' . esc_attr( $label_font_weight ) . ';';
+	}
+	if ( 0.0 !== $label_letter_spacing ) {
+		$label_style .= 'letter-spacing:' . $label_letter_spacing . 'em;';
+	}
+	if ( $label_text_transform ) {
+		$label_style .= 'text-transform:' . esc_attr( $label_text_transform ) . ';';
+	}
+	if ( $indicator_color ) {
+		$indicator_style = 'color:' . esc_attr( $indicator_color ) . ';';
+	}
+}
+
+// Build wrapper classes.
 $classes = array( 'wp-block-aggressive-apparel-ticker' );
-if ( $fade_edges ) {
-	$classes[] = 'has-fade-edges';
+if ( $has_pattern ) {
+	$classes[] = 'has-pattern-' . sanitize_html_class( $pattern );
 }
 
 $wrapper_attributes = get_block_wrapper_attributes(
@@ -74,6 +147,41 @@ $wrapper_attributes = get_block_wrapper_attributes(
 ?>
 
 <div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
+
+	<?php if ( $has_pattern ) : ?>
+	<span class="ticker__pattern"<?php echo $pattern_style ? ' style="' . esc_attr( $pattern_style ) . '"' : ''; ?> aria-hidden="true" inert></span>
+	<?php endif; ?>
+
+	<?php if ( $show_label ) : ?>
+	<div class="ticker__label"<?php echo $label_style ? ' style="' . esc_attr( $label_style ) . '"' : ''; ?>>
+		<?php if ( $show_indicator && 'none' !== $indicator_shape ) : ?>
+		<span
+			class="ticker__indicator ticker__indicator--<?php echo esc_attr( $indicator_shape ); ?>"
+			<?php echo $indicator_style ? 'style="' . esc_attr( $indicator_style ) . '"' : ''; ?>
+			aria-hidden="true"
+		></span>
+		<?php endif; ?>
+		<?php echo esc_html( $label_text ); ?>
+	</div>
+	<?php endif; ?>
+
+	<div class="ticker__scroll<?php echo $fade_edges ? ' has-fade-edges' : ''; ?>">
+		<div class="ticker__track">
+			<div class="ticker__content">
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped by the block editor
+				echo $content;
+				?>
+			</div>
+			<div class="ticker__content" aria-hidden="true" inert>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Duplicate for seamless loop, original is escaped by block editor
+				echo $content;
+				?>
+			</div>
+		</div>
+	</div>
+
 	<button
 		class="ticker__pause"
 		data-wp-on--click="actions.togglePause"
@@ -92,18 +200,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		</span>
 	</button>
 
-	<div class="ticker__track">
-		<div class="ticker__content">
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped by the block editor
-			echo $content;
-			?>
-		</div>
-		<div class="ticker__content" aria-hidden="true" inert>
-			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Duplicate for seamless loop, original is escaped by block editor
-			echo $content;
-			?>
-		</div>
-	</div>
 </div>

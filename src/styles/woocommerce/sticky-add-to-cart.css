@@ -656,7 +656,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 
 	.aa-sticky-cart__inner {
 		flex-wrap: nowrap;
-		padding: 0.9rem 1rem;
+		padding: 1.25rem 1.5rem;
 		gap: 0.625rem;
 	}
 

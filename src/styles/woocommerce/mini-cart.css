@@ -293,6 +293,8 @@ border-top: none;
 		border: 0;
 		border-bottom: 1px solid var(--aa-color-border-subtle);
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
 
 		:not(.is-mobile) & {
 			padding: var(--wp--preset--spacing--5);
@@ -332,7 +334,6 @@ border-top: none;
 			height: 5rem;
 			object-fit: cover;
 			border-radius: var(--aa-radius-card);
-			border: 1px solid var(--aa-color-border-subtle);
 		}
 	}
 

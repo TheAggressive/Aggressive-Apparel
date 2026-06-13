@@ -1,3 +1,10 @@
+## [1.96.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.4...v1.96.5) (2026-06-13)
+
+
+### Bug Fixes
+
+* update padding in woocommerce blocks for improved layout ([61266f6](https://github.com/TheAggressive/Aggressive-Apparel/commit/61266f6b8d691c392436d832338af47a6f24cde2))
+
 ## [1.96.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.3...v1.96.4) (2026-06-13)
 
 

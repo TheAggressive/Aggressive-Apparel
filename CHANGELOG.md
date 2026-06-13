@@ -1,3 +1,10 @@
+## [1.96.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.2...v1.96.3) (2026-06-13)
+
+
+### Bug Fixes
+
+* update border-radius to use CSS variable for consistency ([b051bd0](https://github.com/TheAggressive/Aggressive-Apparel/commit/b051bd06686021208e3f00f25a27af7904930d98))
+
 ## [1.96.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.1...v1.96.2) (2026-06-13)
 
 

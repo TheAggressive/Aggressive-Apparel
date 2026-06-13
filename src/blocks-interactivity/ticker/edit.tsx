@@ -141,8 +141,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   if (labelColor) labelStyle.color = labelColor;
   if (labelFontSize > 0) labelStyle.fontSize = `${labelFontSize}px`;
   if (labelFontWeight)
-    labelStyle.fontWeight =
-      labelFontWeight as CSSProperties['fontWeight'];
+    labelStyle.fontWeight = labelFontWeight as CSSProperties['fontWeight'];
   if (labelLetterSpacing) labelStyle.letterSpacing = `${labelLetterSpacing}em`;
   if (labelTextTransform)
     labelStyle.textTransform =
@@ -470,10 +469,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 
         {/* Label */}
         {showLabel && (
-          <div
-            className='ticker__label'
-            style={labelStyle as CSSProperties}
-          >
+          <div className='ticker__label' style={labelStyle as CSSProperties}>
             {showIndicator && indicatorShape !== 'none' && (
               <span
                 className={`ticker__indicator ticker__indicator--${indicatorShape}`}

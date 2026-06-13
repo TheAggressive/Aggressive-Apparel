@@ -330,7 +330,7 @@
 .wc-block-components-panel {
 	border-radius: var(--aa-radius-panel);
 	background-color: var(--aa-color-surface-elevated);
-	box-shadow: var(--aa-shadow-sm);
+  padding: var(--wp--preset--spacing--8);
 }
 
 .wc-block-components-totals-footer-item,

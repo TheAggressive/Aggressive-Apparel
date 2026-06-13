@@ -1,3 +1,10 @@
+## [1.96.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.3...v1.96.4) (2026-06-13)
+
+
+### Bug Fixes
+
+* update product filter styles for improved design consistency ([ef4f90b](https://github.com/TheAggressive/Aggressive-Apparel/commit/ef4f90b7ace501a03bcd5be089dabd6edd4bf44a))
+
 ## [1.96.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.2...v1.96.3) (2026-06-13)
 
 

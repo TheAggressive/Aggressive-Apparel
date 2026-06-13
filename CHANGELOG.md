@@ -1,3 +1,10 @@
+## [1.96.8](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.7...v1.96.8) (2026-06-13)
+
+
+### Bug Fixes
+
+* remove unnecessary border from ticker styles ([fc69320](https://github.com/TheAggressive/Aggressive-Apparel/commit/fc69320ff124ebbc784049edbddd85710ff1d928))
+
 ## [1.96.7](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.6...v1.96.7) (2026-06-13)
 
 

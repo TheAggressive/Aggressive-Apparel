@@ -1,3 +1,10 @@
+## [1.96.6](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.5...v1.96.6) (2026-06-13)
+
+
+### Bug Fixes
+
+* enhance quick view and sticky cart styles for improved layout ([8cccdde](https://github.com/TheAggressive/Aggressive-Apparel/commit/8cccdde7b88e8f0d336f8ab747124e3630802993))
+
 ## [1.96.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.4...v1.96.5) (2026-06-13)
 
 

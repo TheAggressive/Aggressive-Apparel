@@ -1,3 +1,10 @@
+## [1.96.10](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.9...v1.96.10) (2026-06-14)
+
+
+### Bug Fixes
+
+* enhance navigation submenu behavior and styles ([a58e87a](https://github.com/TheAggressive/Aggressive-Apparel/commit/a58e87af32a5d83a97fbb70e9df7ada6e7376f5e))
+
 ## [1.96.9](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.8...v1.96.9) (2026-06-14)
 
 

@@ -1,3 +1,10 @@
+## [1.96.9](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.8...v1.96.9) (2026-06-14)
+
+
+### Bug Fixes
+
+* update animation logic and remove unused CSS variables ([f6a3695](https://github.com/TheAggressive/Aggressive-Apparel/commit/f6a36951e2d04532d1e5e5195927efa02024b094))
+
 ## [1.96.8](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.7...v1.96.8) (2026-06-13)
 
 

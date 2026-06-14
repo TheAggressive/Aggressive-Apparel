@@ -159,9 +159,6 @@ foreach ( $trigger_attrs as $attr => $value ) {
 // Use button when there's no URL (action-only), link when there's a destination.
 $has_url = ! empty( $url );
 
-// Panel visibility binding - different for drill-down.
-$panel_visibility_binding = 'drilldown' === $menu_type ? 'callbacks.isCurrentDrillLevel' : 'callbacks.isSubmenuOpen';
-
 // Drilldown header - shows back button and current level title.
 // Rendered for drilldown and mega types. Mega menus use the header
 // on mobile (full-screen overlay with back button); hidden on desktop via CSS.
@@ -217,9 +214,9 @@ printf(
 		<div class="wp-block-aggressive-apparel-nav-submenu__trigger"%s>
 			%s
 		</div>
-		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="menu" aria-label="%s" data-wp-class--is-visible="%s"%s%s>
+		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s"%s%s>
 			%s
-			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu">
+			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu" aria-label="%s">
 				%s
 			</ul>
 		</div>
@@ -228,10 +225,9 @@ printf(
 	$trigger_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
 	$trigger_element, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
-	esc_attr( $label ),
-	esc_attr( $panel_visibility_binding ),
 	$panel_popover_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains only safe attributes.
 	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.
 	$drilldown_header, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
+	esc_attr( $label ),
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are already escaped.
 );

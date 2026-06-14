@@ -126,8 +126,7 @@
   }
 
   /* Open state - dropdown panel visibility (JS-controlled) */
-  &.is-open &__panel,
-  &.is-visible &__panel {
+  &.is-open &__panel {
     clip-path: inset(0 0 0 0);
     visibility: visible;
     pointer-events: auto;
@@ -175,8 +174,7 @@
     border-radius: 0;
   }
 
-  &--mega.is-open &__panel,
-  &--mega.is-visible &__panel {
+  &--mega.is-open &__panel {
     clip-path: inset(0 0 0 0);
     visibility: visible;
     pointer-events: auto;

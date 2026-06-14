@@ -213,22 +213,38 @@ export default function Edit({
               placeholder={__('Add label…', 'aggressive-apparel')}
               allowedFormats={[]}
             />
-            {showArrow && (
-              <span
-                className='wp-block-aggressive-apparel-nav-submenu__arrow'
-                aria-hidden='true'
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  width='16'
-                  height='16'
-                  fill='currentColor'
+            {showArrow &&
+              (menuType === 'drilldown' ? (
+                <span
+                  className='wp-block-aggressive-apparel-nav-submenu__arrow wp-block-aggressive-apparel-nav-submenu__arrow--right'
+                  aria-hidden='true'
                 >
-                  <path d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z' />
-                </svg>
-              </span>
-            )}
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    width='16'
+                    height='16'
+                    fill='currentColor'
+                  >
+                    <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+                  </svg>
+                </span>
+              ) : (
+                <span
+                  className='wp-block-aggressive-apparel-nav-submenu__arrow'
+                  aria-hidden='true'
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    width='16'
+                    height='16'
+                    fill='currentColor'
+                  >
+                    <path d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z' />
+                  </svg>
+                </span>
+              ))}
           </div>
           {isSelected && isLinkOpen && (
             <Popover

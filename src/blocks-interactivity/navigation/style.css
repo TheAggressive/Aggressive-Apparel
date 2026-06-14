@@ -802,7 +802,6 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
     padding: 0;
     padding-inline-start: 1rem;
     background: var(--_drilldown-bg);
-    border-top: 1px solid var(--_border);
   }
 
   /* Disable desktop stagger animation — mobile uses the grid

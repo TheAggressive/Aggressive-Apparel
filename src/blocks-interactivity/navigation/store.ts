@@ -145,6 +145,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const ns = getNavState(context.navId);
         if (ns.isOpen) {
           closePanelWithCleanup(context.navId, panel, ns);
+          window.dispatchEvent(
+            new CustomEvent('aa-nav-state-change', {
+              detail: { navId: context.navId },
+            })
+          );
         } else {
           ns.isOpen = true;
           setBodyOverflow(true);
@@ -176,6 +181,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         closePanelWithCleanup(context.navId, panel, ns);
+        window.dispatchEvent(
+          new CustomEvent('aa-nav-state-change', {
+            detail: { navId: context.navId },
+          })
+        );
       } catch (error) {
         logError('close: Failed to close navigation', error);
       }
@@ -334,6 +344,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
           const ns = getNavState(context.navId);
           const newStack = [...ns.drillStack, context.submenuId];
           ns.drillStack = newStack;
+          window.dispatchEvent(
+            new CustomEvent('aa-nav-state-change', {
+              detail: { navId: context.navId },
+            })
+          );
 
           // Get the submenu label for announcement.
           let submenuLabel = 'submenu';
@@ -390,6 +405,11 @@ const navigationStore = store('aggressive-apparel/navigation', {
         const leavingPanelId = ns.drillStack[ns.drillStack.length - 1];
         const newStack = ns.drillStack.slice(0, -1);
         ns.drillStack = newStack;
+        window.dispatchEvent(
+          new CustomEvent('aa-nav-state-change', {
+            detail: { navId: context.navId },
+          })
+        );
 
         if (newStack.length === 0) {
           announce('Back to main menu', { navId: context.navId });

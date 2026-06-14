@@ -13,7 +13,6 @@
 	--ticker-gap: 48px;
 	--ticker-direction: normal;
 	--ticker-fade-width: 64px;
-	--ticker-copies: 1;
 
 	position: relative;
 	display: flex;
@@ -38,33 +37,16 @@
 }
 
 /* -----------------------------------------------
- * Track — animated via CSS keyframes.
- * JS measures the stride (one copy width + gap) and sets
- * --ticker-stride, then adds .is-ready to start the animation.
+ * Track — animated by view.ts with a JS-managed transform.
+ * JS clones enough copies to cover the viewport, then recycles
+ * offscreen copies to avoid a visible loop reset.
  * ----------------------------------------------- */
-
-@keyframes ticker-scroll {
-
-	to {
-		transform: translateX(calc(-100% / var(--ticker-copies)));
-	}
-}
 
 .ticker__track {
 	display: flex;
 	flex-shrink: 0;
 	width: max-content;
 	will-change: transform;
-}
-
-/* stylelint-disable-next-line rule-empty-line-before -- grouped with .ticker__track */
-.ticker__track.is-ready {
-	animation: ticker-scroll var(--ticker-duration) linear infinite;
-	animation-direction: var(--ticker-direction, normal);
-}
-
-.is-paused .ticker__track {
-	animation-play-state: paused;
 }
 
 /* -----------------------------------------------
@@ -560,10 +542,6 @@
  * ----------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-
-	.ticker__track {
-		animation: none;
-	}
 
 	.ticker__pause,
 	.ticker__indicator::after {

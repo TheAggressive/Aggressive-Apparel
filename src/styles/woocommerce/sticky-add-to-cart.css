@@ -598,7 +598,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 	min-height: 2.75rem;
 	padding: 0.5rem 1rem;
 	border: none;
-	border-radius: 0.25rem;
+	border-radius: var(--aa-radius-full);
 	font-size: 0.85rem;
 	font-weight: 600;
 	text-transform: uppercase;

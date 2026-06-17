@@ -76,67 +76,6 @@
   font-weight: 500;
 }
 
-/* Smaller links inside submenu panels */
-.wp-block-aggressive-apparel-navigation-panel
-  .wp-block-aggressive-apparel-nav-submenu__panel
-  .wp-block-aggressive-apparel-nav-link__link {
-  min-height: 40px;
-  padding: 0.5rem 1.25rem !important;
-  font-size: var(--wp--preset--font-size--small, 0.875rem);
-  font-weight: 400;
-}
-
-/* Nav-submenu: collapse desktop dropdown into inline accordion */
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu {
-  position: static !important;
-  display: block !important;
-  width: 100%;
-  margin: 0;
-}
-
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu::after {
-  display: none;
-}
-
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__trigger {
-  width: 100%;
-}
-
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__link {
-  display: flex !important;
-  width: 100% !important;
-  min-height: 48px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.25rem !important;
-  border-radius: 0 !important;
-  font-weight: 500;
-}
-
-/* Show submenu panel inline (open accordion) in the editor */
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__panel {
-  position: static !important;
-  clip-path: none !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  transform: none !important;
-  inset: auto !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  max-width: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border: none !important;
-  backdrop-filter: none !important;
-  background: var(--aa-color-surface) !important;
-  border-top: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 8%)) !important;
-  overflow: visible !important;
-}
-
-.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__panel-inner {
-  padding: 0.25rem 0 !important;
-  padding-inline-start: 0 !important;
-}
 
 /* Editor-only hint shown below the inner blocks */
 .aa-nav-panel__editor-hint {

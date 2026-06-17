@@ -25,7 +25,7 @@ $context = wp_json_encode(
 	array(
 		'submenuId' => $submenu_id,
 		'panelSlug' => $nav_id,
-		'menuType'  => 'dropdown',
+		'menuType'  => 'accordion',
 	),
 	JSON_HEX_TAG | JSON_HEX_AMP
 );

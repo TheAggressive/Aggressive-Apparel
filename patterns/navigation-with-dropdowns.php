@@ -13,16 +13,16 @@ declare(strict_types=1);
 ?>
 <!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover","panelPosition":"right","showPanelOverlay":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Products","menuType":"dropdown","showArrow":true} -->
+<!-- wp:aggressive-apparel/nav-submenu-dropdown {"label":"Products","showArrow":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"All Products","url":"/products"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"New Arrivals","url":"/products/new"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Best Sellers","url":"/products/best-sellers"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Sale","url":"/products/sale"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"dropdown","showArrow":true} -->
+<!-- /wp:aggressive-apparel/nav-submenu-dropdown -->
+<!-- wp:aggressive-apparel/nav-submenu-dropdown {"label":"About","showArrow":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Team","url":"/about/team"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
+<!-- /wp:aggressive-apparel/nav-submenu-dropdown -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/navigation -->

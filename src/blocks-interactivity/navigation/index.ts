@@ -50,12 +50,8 @@ const simpleNavTemplate: InnerBlockTemplate[] = [
 const dropdownNavTemplate: InnerBlockTemplate[] = [
   ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
   [
-    'aggressive-apparel/nav-submenu',
-    {
-      label: 'Products',
-      menuType: 'dropdown',
-      showArrow: true,
-    },
+    'aggressive-apparel/nav-submenu-dropdown',
+    { label: 'Products', showArrow: true },
     [
       [
         'aggressive-apparel/nav-link',
@@ -73,12 +69,8 @@ const dropdownNavTemplate: InnerBlockTemplate[] = [
     ],
   ],
   [
-    'aggressive-apparel/nav-submenu',
-    {
-      label: 'About',
-      menuType: 'dropdown',
-      showArrow: true,
-    },
+    'aggressive-apparel/nav-submenu-dropdown',
+    { label: 'About', showArrow: true },
     [
       ['aggressive-apparel/nav-link', { label: 'Our Story', url: '/about' }],
       ['aggressive-apparel/nav-link', { label: 'Team', url: '/about/team' }],
@@ -96,14 +88,8 @@ const dropdownNavTemplate: InnerBlockTemplate[] = [
 const ecommerceNavTemplate: InnerBlockTemplate[] = [
   ['aggressive-apparel/nav-link', { label: 'Home', url: '/' }],
   [
-    'aggressive-apparel/nav-submenu',
-    {
-      label: 'Shop',
-      menuType: 'mega',
-      showArrow: true,
-      megaFullWidth: true,
-      megaLayout: 'columns',
-    },
+    'aggressive-apparel/nav-submenu-mega',
+    { label: 'Shop', showArrow: true },
     [
       [
         'core/columns',
@@ -183,12 +169,8 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
     ],
   ],
   [
-    'aggressive-apparel/nav-submenu',
-    {
-      label: 'About',
-      menuType: 'dropdown',
-      showArrow: true,
-    },
+    'aggressive-apparel/nav-submenu-dropdown',
+    { label: 'About', showArrow: true },
     [
       ['aggressive-apparel/nav-link', { label: 'Our Story', url: '/about' }],
       [

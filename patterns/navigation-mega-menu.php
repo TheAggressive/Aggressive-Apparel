@@ -13,7 +13,7 @@ declare(strict_types=1);
 ?>
 <!-- wp:aggressive-apparel/navigation {"ariaLabel":"Main navigation","openOn":"hover","panelPosition":"right","showPanelOverlay":true,"toggleAnimationType":"spin"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"mega","showArrow":true,"megaFullWidth":true,"megaLayout":"columns"} -->
+<!-- wp:aggressive-apparel/nav-submenu-mega {"label":"Shop","showArrow":true} -->
 <!-- wp:columns {"isStackedOnMobile":true} -->
 <!-- wp:column -->
 <!-- wp:heading {"level":4} -->
@@ -51,11 +51,11 @@ declare(strict_types=1);
 <!-- /wp:image -->
 <!-- /wp:column -->
 <!-- /wp:columns -->
-<!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"About","menuType":"dropdown","showArrow":true} -->
+<!-- /wp:aggressive-apparel/nav-submenu-mega -->
+<!-- wp:aggressive-apparel/nav-submenu-dropdown {"label":"About","showArrow":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Sustainability","url":"/sustainability"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
+<!-- /wp:aggressive-apparel/nav-submenu-dropdown -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/navigation -->

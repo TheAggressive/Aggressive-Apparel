@@ -41,7 +41,6 @@ import type {
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/nav-link',
-  'aggressive-apparel/nav-submenu',
   'aggressive-apparel/nav-submenu-accordion',
   'aggressive-apparel/nav-submenu-drilldown',
   'aggressive-apparel/nav-panel-header',

@@ -13,7 +13,7 @@ declare(strict_types=1);
 ?>
 <!-- wp:aggressive-apparel/navigation {"ariaLabel":"Shop navigation","openOn":"hover","breakpoint":1024,"panelPosition":"right","panelAnimationStyle":"push","showPanelOverlay":true,"panelWidth":"min(360px, 90vw)","toggleAnimationType":"spin"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Home","url":"/"} /-->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Shop","menuType":"mega","showArrow":true,"megaFullWidth":true,"megaLayout":"columns"} -->
+<!-- wp:aggressive-apparel/nav-submenu-mega {"label":"Shop","showArrow":true} -->
 <!-- wp:columns {"isStackedOnMobile":true,"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|6"}}}} -->
 <!-- wp:column -->
 <!-- wp:heading {"level":4,"style":{"typography":{"fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"margin":{"bottom":"var:preset|spacing|3"}}}} -->
@@ -53,13 +53,13 @@ declare(strict_types=1);
 <!-- /wp:image -->
 <!-- /wp:column -->
 <!-- /wp:columns -->
-<!-- /wp:aggressive-apparel/nav-submenu -->
-<!-- wp:aggressive-apparel/nav-submenu {"label":"Brand","menuType":"dropdown","showArrow":true} -->
+<!-- /wp:aggressive-apparel/nav-submenu-mega -->
+<!-- wp:aggressive-apparel/nav-submenu-dropdown {"label":"Brand","showArrow":true} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Our Story","url":"/about","description":"How we started"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Sustainability","url":"/sustainability","description":"Our commitment"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Athletes","url":"/athletes","description":"Team Aggressive"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Careers","url":"/careers","description":"Join the team"} /-->
-<!-- /wp:aggressive-apparel/nav-submenu -->
+<!-- /wp:aggressive-apparel/nav-submenu-dropdown -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Blog","url":"/blog"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
 <!-- /wp:aggressive-apparel/navigation -->

@@ -36,7 +36,6 @@ import type { BorderStyle, NavigationAttributes } from './types';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/nav-link',
-  'aggressive-apparel/nav-submenu',
   'aggressive-apparel/nav-submenu-dropdown',
   'aggressive-apparel/nav-submenu-mega',
   'aggressive-apparel/navigation-trigger',

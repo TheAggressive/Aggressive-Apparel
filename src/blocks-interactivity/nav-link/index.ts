@@ -23,19 +23,17 @@ const transforms = {
   to: [
     {
       type: 'block' as const,
-      blocks: ['aggressive-apparel/nav-submenu'],
+      blocks: ['aggressive-apparel/nav-submenu-dropdown'],
       transform: (attributes: NavLinkAttributes) => {
         return createBlock(
-          'aggressive-apparel/nav-submenu',
+          'aggressive-apparel/nav-submenu-dropdown',
           {
             label: attributes.label,
             url: attributes.url,
-            menuType: 'dropdown',
             openOn: 'hover',
             showArrow: true,
           },
           [
-            // Add a default child link
             createBlock('aggressive-apparel/nav-link', {
               label: 'Submenu Item',
               url: '#',

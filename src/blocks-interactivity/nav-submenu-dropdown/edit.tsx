@@ -24,7 +24,11 @@ import {
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
-import type { NavDropdownAttributes, NavDropdownContext, OpenTrigger } from './types';
+import type {
+  NavDropdownAttributes,
+  NavDropdownContext,
+  OpenTrigger,
+} from './types';
 
 const TEMPLATE: [string, Record<string, unknown>][] = [
   ['aggressive-apparel/nav-link', { label: 'Item 1', url: '#' }],
@@ -46,7 +50,8 @@ export default function Edit({
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get panel styling from parent navigation context.
-  const panelBackgroundColor = context['aggressive-apparel/submenuBackgroundColor'];
+  const panelBackgroundColor =
+    context['aggressive-apparel/submenuBackgroundColor'];
   const panelTextColor = context['aggressive-apparel/submenuTextColor'];
   const panelBorderRadius = context['aggressive-apparel/submenuBorderRadius'];
   const panelBorderWidth = context['aggressive-apparel/submenuBorderWidth'];
@@ -105,7 +110,10 @@ export default function Edit({
         <PanelBody title={__('Dropdown Settings', 'aggressive-apparel')}>
           <SelectControl
             label={__('Open on', 'aggressive-apparel')}
-            help={__('How the dropdown opens. Hover also responds to focus-in.', 'aggressive-apparel')}
+            help={__(
+              'How the dropdown opens. Hover also responds to focus-in.',
+              'aggressive-apparel'
+            )}
             value={openOn}
             options={[
               { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
@@ -139,7 +147,10 @@ export default function Edit({
               allowedFormats={[]}
             />
             {showArrow && (
-              <span className='wp-block-aggressive-apparel-nav-submenu__arrow' aria-hidden='true'>
+              <span
+                className='wp-block-aggressive-apparel-nav-submenu__arrow'
+                aria-hidden='true'
+              >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'

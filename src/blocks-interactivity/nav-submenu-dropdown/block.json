@@ -38,7 +38,12 @@
     "color": { "background": true, "text": true },
     "typography": { "fontSize": true },
     "spacing": { "blockGap": true },
-    "__experimentalBorder": { "radius": true, "width": true, "color": true, "style": true },
+    "__experimentalBorder": {
+      "radius": true,
+      "width": true,
+      "color": true,
+      "style": true
+    },
     "shadow": true,
     "className": true
   },

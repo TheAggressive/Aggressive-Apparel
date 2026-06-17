@@ -42,7 +42,7 @@
     clip-path: none;
     visibility: visible;
     pointer-events: auto;
-    border: 1px dashed var(--wp--preset--color--border, #e0e0e0);
+    border: 1px dashed var(--wp--preset--color--border);
     border-radius: 4px;
     margin-block-start: 0.25rem;
     min-width: 200px;

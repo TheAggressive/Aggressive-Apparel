@@ -6,7 +6,14 @@
   "title": "Nav Mega Menu",
   "category": "aggressive-apparel",
   "description": "Desktop mega menu with a full-viewport-width panel. Supports rich inner content including columns, images, and headings. Place inside a Desktop Navigation block.",
-  "keywords": ["navigation", "desktop", "mega", "menu", "submenu", "full-width"],
+  "keywords": [
+    "navigation",
+    "desktop",
+    "mega",
+    "menu",
+    "submenu",
+    "full-width"
+  ],
   "textdomain": "aggressive-apparel",
   "icon": "grid-view",
   "ancestor": ["aggressive-apparel/navigation"],

@@ -96,22 +96,23 @@ export default function Edit({
   const wpTextPreset = wpAttrs['textColor'] as string | undefined;
   const wpFontSizePreset = wpAttrs['fontSize'] as string | undefined;
   const wpStyle = wpAttrs['style'] as Record<string, unknown> | undefined;
-  const wpPadding = (wpStyle?.['spacing'] as Record<string, unknown> | undefined)?.['padding'] as
-    | Record<string, string>
-    | undefined;
+  const wpPadding = (
+    wpStyle?.['spacing'] as Record<string, unknown> | undefined
+  )?.['padding'] as Record<string, string> | undefined;
 
   const resolvedBg =
     (wpBgPreset ? `var(--wp--preset--color--${wpBgPreset})` : undefined) ||
-    ((wpStyle?.['color'] as Record<string, string> | undefined)?.['background']);
+    (wpStyle?.['color'] as Record<string, string> | undefined)?.['background'];
 
   const resolvedColor =
     (wpTextPreset ? `var(--wp--preset--color--${wpTextPreset})` : undefined) ||
-    ((wpStyle?.['color'] as Record<string, string> | undefined)?.['text']);
+    (wpStyle?.['color'] as Record<string, string> | undefined)?.['text'];
 
-  const resolvedFontSize =
-    wpFontSizePreset
-      ? `var(--wp--preset--font-size--${wpFontSizePreset})`
-      : ((wpStyle?.['typography'] as Record<string, string> | undefined)?.['fontSize']);
+  const resolvedFontSize = wpFontSizePreset
+    ? `var(--wp--preset--font-size--${wpFontSizePreset})`
+    : (wpStyle?.['typography'] as Record<string, string> | undefined)?.[
+        'fontSize'
+      ];
 
   // Convert wp:preset spacing values to CSS custom properties in the editor.
   const resolvePaddingValue = (val: string) =>
@@ -121,7 +122,10 @@ export default function Edit({
     ? Object.fromEntries(
         (['top', 'right', 'bottom', 'left'] as const)
           .filter(side => wpPadding[side])
-          .map(side => [`padding${side.charAt(0).toUpperCase() + side.slice(1)}`, resolvePaddingValue(wpPadding[side])])
+          .map(side => [
+            `padding${side.charAt(0).toUpperCase() + side.slice(1)}`,
+            resolvePaddingValue(wpPadding[side]),
+          ])
       )
     : {};
 
@@ -260,9 +264,7 @@ export default function Edit({
             <ColorPalette
               colors={colors}
               value={panelLinkHoverColor}
-              onChange={value =>
-                setAttributes({ panelLinkHoverColor: value })
-              }
+              onChange={value => setAttributes({ panelLinkHoverColor: value })}
               clearable
             />
           </BaseControl>

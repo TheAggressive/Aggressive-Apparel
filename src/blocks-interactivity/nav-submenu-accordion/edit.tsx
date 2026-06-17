@@ -56,7 +56,8 @@ export default function Edit({
 
   const innerBlocksProps = useInnerBlocksProps(
     {
-      className: 'wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner',
+      className:
+        'wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner',
       role: 'menu',
     },
     {
@@ -67,7 +68,14 @@ export default function Edit({
   );
 
   const chevronDown = (
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='currentColor' aria-hidden='true'>
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 24 24'
+      width='16'
+      height='16'
+      fill='currentColor'
+      aria-hidden='true'
+    >
       <path d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z' />
     </svg>
   );

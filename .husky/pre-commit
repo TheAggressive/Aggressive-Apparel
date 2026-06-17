@@ -1,1 +1,2 @@
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 pnpm run format:fix && pnpm run lint:js:fix && pnpm run qa

@@ -186,10 +186,7 @@ export default function Edit({
           />
           <SelectControl
             label={__('Open Submenus On', 'aggressive-apparel')}
-            help={__(
-              'How submenus open on desktop.',
-              'aggressive-apparel'
-            )}
+            help={__('How submenus open on desktop.', 'aggressive-apparel')}
             value={openOn}
             options={[
               { label: __('Hover', 'aggressive-apparel'), value: 'hover' },

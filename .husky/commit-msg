@@ -1,1 +1,2 @@
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 pnpm exec commitlint --edit $1

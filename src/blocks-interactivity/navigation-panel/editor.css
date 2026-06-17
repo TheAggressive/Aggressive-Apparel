@@ -13,8 +13,8 @@
   bottom: 0;
   right: 0;
   width: min(var(--aa-editor-panel-width, 320px), 85vw);
-  background: var(--aa-editor-panel-bg, var(--aa-color-surface-elevated, #fff));
-  color: var(--aa-editor-panel-color, var(--aa-color-foreground, #111));
+  background: var(--aa-editor-panel-bg, var(--aa-color-surface-elevated));
+  color: var(--aa-editor-panel-color, var(--aa-color-foreground));
   box-shadow: -1px 0 0 var(--aa-color-border-subtle, rgb(0 0 0 / 10%));
   display: flex;
   flex-direction: column;

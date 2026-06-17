@@ -141,7 +141,10 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test state change event handler for accessibility.
+     * Test state initialization handler for accessibility.
+     *
+     * onStateChange was removed when panel moved to a separate block.
+     * The nav still runs callbacks.init to initialize reactive state.
      */
     public function test_state_change_handler(): void {
         $block_content = render_block([
@@ -149,16 +152,17 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
             'attrs' => [],
         ]);
 
-        // Verify state change event handler exists
         $this->assertStringContainsString(
-            'data-wp-on-window--aa-nav-state-change="callbacks.onStateChange"',
+            'data-wp-init="callbacks.init"',
             $block_content,
-            'Block should handle state change events'
+            'Block should initialize state via callbacks.init'
         );
     }
 
     /**
      * Test dynamic class bindings for state.
+     *
+     * is-open moved to navigation-panel block; nav tracks isMobile only.
      */
     public function test_dynamic_state_classes(): void {
         $block_content = render_block([
@@ -166,14 +170,6 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
             'attrs' => [],
         ]);
 
-        // Test is-open class binding
-        $this->assertStringContainsString(
-            'data-wp-class--is-open="state.isOpen"',
-            $block_content,
-            'Block should have is-open class binding'
-        );
-
-        // Test is-mobile class binding
         $this->assertStringContainsString(
             'data-wp-class--is-mobile="state.isMobile"',
             $block_content,
@@ -201,12 +197,7 @@ class Navigation_Block_Accessibility_Test extends WP_UnitTestCase {
             'Context should include navId'
         );
 
-        // aria-expanded is bound via state.isOpen (store-level, not context)
-        $this->assertStringContainsString(
-            'data-wp-bind--aria-expanded="state.isOpen"',
-            $block_content,
-            'Toggle should bind aria-expanded to state.isOpen'
-        );
+        // aria-expanded lives on the navigation-trigger block, not the nav element.
     }
 
     /**

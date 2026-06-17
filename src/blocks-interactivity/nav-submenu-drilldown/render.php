@@ -39,11 +39,11 @@ $classes = array( 'wp-block-aggressive-apparel-nav-submenu-drilldown--' . saniti
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class'                                  => implode( ' ', $classes ),
-		'role'                                   => 'none',
-		'data-wp-interactive'                    => 'aggressive-apparel/navigation-panel',
-		'data-wp-context'                        => $context,
-		'data-wp-class--is-open'                 => 'callbacks.isInDrillStack',
+		'class'                                        => implode( ' ', $classes ),
+		'role'                                         => 'none',
+		'data-wp-interactive'                          => 'aggressive-apparel/navigation-panel',
+		'data-wp-context'                              => $context,
+		'data-wp-class--is-open'                       => 'callbacks.isInDrillStack',
 		// React to state changes dispatched by the panel store (portal boundary workaround).
 		'data-wp-on-window--aa-nav-panel-state-change' => 'callbacks.onSubmenuStateChange',
 	)

@@ -19,11 +19,11 @@ declare(strict_types=1);
 // Extract attributes
 // ============================================================================
 
-$icon_style  = $attributes['iconStyle'] ?? 'hamburger';
-$anim_type   = $attributes['animationType'] ?? 'to-x';
-$label       = $attributes['label'] ?? __( 'Menu', 'aggressive-apparel' );
-$show_label  = $attributes['showLabel'] ?? false;
-$panel_slug  = ! empty( $attributes['panelSlug'] ) ? (string) $attributes['panelSlug'] : 'mobile-nav';
+$icon_style = $attributes['iconStyle'] ?? 'hamburger';
+$anim_type  = $attributes['animationType'] ?? 'to-x';
+$label      = $attributes['label'] ?? __( 'Menu', 'aggressive-apparel' );
+$show_label = $attributes['showLabel'] ?? false;
+$panel_slug = ! empty( $attributes['panelSlug'] ) ? (string) $attributes['panelSlug'] : 'mobile-nav';
 
 // ============================================================================
 // Generate IDs

@@ -329,7 +329,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
             if (!isInSubmenu) {
               focusMenuItem(items, (currentIndex + 1) % items.length);
             } else {
-              const submenuTrigger = activeElement.closest(SELECTORS.navSubmenu);
+              const submenuTrigger = activeElement.closest(
+                SELECTORS.navSubmenu
+              );
               if (submenuTrigger) {
                 navigationStore.actions.toggleSubmenu();
               }
@@ -360,7 +362,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
             if (isInSubmenu) {
               focusMenuItem(items, (currentIndex + 1) % items.length);
             } else {
-              const submenuTrigger = activeElement.closest(SELECTORS.navSubmenu);
+              const submenuTrigger = activeElement.closest(
+                SELECTORS.navSubmenu
+              );
               if (submenuTrigger) {
                 const panel = safeQuerySelector<HTMLElement>(
                   submenuTrigger,

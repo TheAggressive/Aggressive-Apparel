@@ -39,7 +39,7 @@
     position: relative;
     transform: none;
     pointer-events: auto;
-    border: 1px dashed var(--wp--preset--color--border, #e0e0e0);
+    border: 1px dashed var(--wp--preset--color--border);
     border-radius: 4px;
     margin-block-start: 0.25rem;
   }

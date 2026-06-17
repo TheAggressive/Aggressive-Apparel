@@ -19,12 +19,12 @@
     width: 100%;
     min-height: 48px;
     padding: 0.75rem 1.25rem;
+    font: inherit;
     font-weight: 500;
     text-decoration: none;
     background: none;
     border: none;
     cursor: pointer;
-    font: inherit;
   }
 
   &__arrow svg {
@@ -36,7 +36,7 @@
   /* In the editor, always show inner blocks expanded */
   &__panel {
     display: block;
-    border-inline-start: 2px solid var(--wp--preset--color--border, #e0e0e0);
+    border-inline-start: 2px solid var(--wp--preset--color--border);
     margin-inline-start: 1.25rem;
     padding-block: 0.25rem;
   }

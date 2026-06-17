@@ -234,18 +234,14 @@ class Navigation_Block_Test extends WP_UnitTestCase {
 
     /**
      * Test navigation block includes state binding classes.
+     *
+     * is-open state moved to navigation-panel block; the nav only tracks isMobile.
      */
     public function test_navigation_block_includes_state_bindings(): void {
         $block_content = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [],
         ]);
-
-        $this->assertStringContainsString(
-            'data-wp-class--is-open="state.isOpen"',
-            $block_content,
-            'Block should bind is-open class to state'
-        );
 
         $this->assertStringContainsString(
             'data-wp-class--is-mobile="state.isMobile"',
@@ -256,6 +252,8 @@ class Navigation_Block_Test extends WP_UnitTestCase {
 
     /**
      * Test navigation block includes window event handlers.
+     *
+     * onStateChange was removed when the panel moved to a separate block.
      */
     public function test_navigation_block_includes_event_handlers(): void {
         $block_content = render_block([
@@ -267,12 +265,6 @@ class Navigation_Block_Test extends WP_UnitTestCase {
             'data-wp-on-window--keydown="callbacks.onEscape"',
             $block_content,
             'Block should handle window keydown for escape'
-        );
-
-        $this->assertStringContainsString(
-            'data-wp-on-window--aa-nav-state-change="callbacks.onStateChange"',
-            $block_content,
-            'Block should handle custom state change event'
         );
     }
 

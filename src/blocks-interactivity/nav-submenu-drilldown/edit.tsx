@@ -57,7 +57,8 @@ export default function Edit({
 
   const innerBlocksProps = useInnerBlocksProps(
     {
-      className: 'wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner',
+      className:
+        'wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner',
       role: 'menu',
     },
     {
@@ -100,10 +101,18 @@ export default function Edit({
             label={__('Animation style', 'aggressive-apparel')}
             value={animationStyle}
             options={[
-              { label: __('Overlay (slide over)', 'aggressive-apparel'), value: 'overlay' },
-              { label: __('Push (slide push)', 'aggressive-apparel'), value: 'push' },
+              {
+                label: __('Overlay (slide over)', 'aggressive-apparel'),
+                value: 'overlay',
+              },
+              {
+                label: __('Push (slide push)', 'aggressive-apparel'),
+                value: 'push',
+              },
             ]}
-            onChange={value => setAttributes({ animationStyle: value as AnimationStyle })}
+            onChange={value =>
+              setAttributes({ animationStyle: value as AnimationStyle })
+            }
           />
           <ToggleControl
             label={__('Show arrow icon', 'aggressive-apparel')}

@@ -216,12 +216,13 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 		if ( ! wp_style_is( $style_handle, 'done' ) ) {
 			$registered = wp_styles()->registered;
 			if ( isset( $registered[ $style_handle ] ) && ! empty( $registered[ $style_handle ]->src ) ) {
-				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Late fallback: wp_head already fired so wp_enqueue_style cannot output a <link> tag.
+				// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Late fallback: wp_head already fired so wp_enqueue_style cannot output a <link> tag.
 				printf(
 					'<link rel="stylesheet" id="%s-css" href="%s">',
 					esc_attr( $style_handle ),
 					esc_url( $registered[ $style_handle ]->src )
 				);
+				// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
 			}
 		}
 	}

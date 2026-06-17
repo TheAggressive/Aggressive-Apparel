@@ -62,7 +62,8 @@ export default function Edit({
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get panel styling from parent navigation context.
-  const panelBackgroundColor = context['aggressive-apparel/submenuBackgroundColor'];
+  const panelBackgroundColor =
+    context['aggressive-apparel/submenuBackgroundColor'];
   const panelTextColor = context['aggressive-apparel/submenuTextColor'];
   const panelBorderWidth = context['aggressive-apparel/submenuBorderWidth'];
   const panelBorderColor = context['aggressive-apparel/submenuBorderColor'];
@@ -128,7 +129,10 @@ export default function Edit({
           />
           <SelectControl
             label={__('Open on', 'aggressive-apparel')}
-            help={__('How the mega menu opens. Hover also responds to focus-in.', 'aggressive-apparel')}
+            help={__(
+              'How the mega menu opens. Hover also responds to focus-in.',
+              'aggressive-apparel'
+            )}
             value={openOn}
             options={[
               { label: __('Hover', 'aggressive-apparel'), value: 'hover' },
@@ -162,7 +166,10 @@ export default function Edit({
               allowedFormats={[]}
             />
             {showArrow && (
-              <span className='wp-block-aggressive-apparel-nav-submenu__arrow' aria-hidden='true'>
+              <span
+                className='wp-block-aggressive-apparel-nav-submenu__arrow'
+                aria-hidden='true'
+              >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'

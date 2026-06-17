@@ -668,8 +668,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
           return false;
         }
         return (
-          getPanelState(context.panelSlug).activeSubmenuId ===
-          context.submenuId
+          getPanelState(context.panelSlug).activeSubmenuId === context.submenuId
         );
       } catch {
         return false;

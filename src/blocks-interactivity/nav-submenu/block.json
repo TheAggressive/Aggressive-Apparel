@@ -9,7 +9,10 @@
   "keywords": ["submenu", "dropdown", "mega", "navigation"],
   "textdomain": "aggressive-apparel",
   "icon": "arrow-down-alt2",
-  "parent": ["aggressive-apparel/navigation"],
+  "parent": [
+    "aggressive-apparel/navigation",
+    "aggressive-apparel/navigation-panel"
+  ],
   "allowedBlocks": [
     "aggressive-apparel/nav-link",
     "core/columns",
@@ -94,6 +97,7 @@
   "usesContext": [
     "aggressive-apparel/navigationId",
     "aggressive-apparel/navigationOpenOn",
+    "aggressive-apparel/panelSubmenuStyle",
     "aggressive-apparel/submenuBackgroundColor",
     "aggressive-apparel/submenuTextColor",
     "aggressive-apparel/submenuBorderRadius",

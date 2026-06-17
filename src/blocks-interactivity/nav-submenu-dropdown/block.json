@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-submenu-dropdown",
+  "version": "1.0.0",
+  "title": "Nav Dropdown",
+  "category": "aggressive-apparel",
+  "description": "Desktop dropdown submenu with a floating panel. Supports hover and click triggers. Place inside a Desktop Navigation block.",
+  "keywords": ["navigation", "desktop", "dropdown", "submenu", "flyout"],
+  "textdomain": "aggressive-apparel",
+  "icon": "arrow-down-alt2",
+  "ancestor": ["aggressive-apparel/navigation"],
+  "allowedBlocks": ["aggressive-apparel/nav-link"],
+  "attributes": {
+    "label": { "type": "string", "default": "" },
+    "url": { "type": "string", "default": "" },
+    "submenuId": { "type": "string", "default": "" },
+    "showArrow": { "type": "boolean", "default": true },
+    "openOn": {
+      "type": "string",
+      "enum": ["hover", "click"],
+      "default": "hover"
+    }
+  },
+  "usesContext": [
+    "aggressive-apparel/navigationId",
+    "aggressive-apparel/navigationOpenOn",
+    "aggressive-apparel/submenuBackgroundColor",
+    "aggressive-apparel/submenuTextColor",
+    "aggressive-apparel/submenuBorderRadius",
+    "aggressive-apparel/submenuBorderWidth",
+    "aggressive-apparel/submenuBorderColor",
+    "aggressive-apparel/submenuBorderStyle"
+  ],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": { "background": true, "text": true },
+    "typography": { "fontSize": true },
+    "spacing": { "blockGap": true },
+    "__experimentalBorder": { "radius": true, "width": true, "color": true, "style": true },
+    "shadow": true,
+    "className": true
+  },
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

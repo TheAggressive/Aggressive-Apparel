@@ -1,9 +1,9 @@
 /**
- * Navigation Block Edit Component (v2)
+ * Navigation Block Edit Component (v3)
  *
- * Consolidated editor with controls for toggle, panel, indicator,
- * and submenu styling. No manual mobile duplication — render.php
- * auto-syncs the mobile panel from desktop menu items.
+ * Desktop navigation editor. Controls for breakpoint, submenu open mode,
+ * indicator, submenu colors/borders, and accessibility label. The mobile
+ * panel and trigger are now separate blocks.
  *
  * @package Aggressive_Apparel
  */
@@ -17,38 +17,29 @@ import {
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
   BaseControl,
-  Button,
-  ButtonGroup,
   ColorPalette,
   PanelBody,
   RangeControl,
   SelectControl,
   TextControl,
-  ToggleControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import {
   useEditorColorScheme,
   ColorModeToggle,
 } from '../../utils/editor-color-scheme';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
-import { desktop, mobile } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import type {
-  BorderStyle,
-  MenuStyle,
-  NavigationAttributes,
-  PanelAnimationStyle,
-  PanelPosition,
-  ToggleAnimationType,
-  ToggleIconStyle,
-} from './types';
+import type { BorderStyle, NavigationAttributes } from './types';
 
 const ALLOWED_BLOCKS = [
   'aggressive-apparel/nav-link',
   'aggressive-apparel/nav-submenu',
+  'aggressive-apparel/nav-submenu-dropdown',
+  'aggressive-apparel/nav-submenu-mega',
+  'aggressive-apparel/navigation-trigger',
   'core/site-logo',
   'core/site-title',
   'core/search',
@@ -62,11 +53,11 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/nav-link', { label: 'Shop', url: '/shop' }],
   ['aggressive-apparel/nav-link', { label: 'About', url: '/about' }],
   ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
+  ['aggressive-apparel/navigation-trigger'],
 ];
 
 /**
  * Parse a CSS color value that may contain light-dark().
- * Returns the light and dark components, or both as the same value for plain colors.
  */
 function parseLightDark(value: string | undefined): {
   light?: string;
@@ -89,13 +80,11 @@ function parseLightDark(value: string | undefined): {
     }
   }
 
-  // Plain color — same for both modes.
   return { light: value, dark: value };
 }
 
 /**
  * Compose light and dark colors into a CSS value.
- * Returns light-dark() when both differ, a plain color when equal, or undefined when empty.
  */
 function composeLightDark(light?: string, dark?: string): string | undefined {
   if (light && dark) {
@@ -105,8 +94,8 @@ function composeLightDark(light?: string, dark?: string): string | undefined {
 }
 
 /**
- * Adaptive color picker that reads/writes a specific mode (light or dark)
- * from a combined light-dark() CSS value.
+ * Adaptive color picker that reads/writes a specific mode from a combined
+ * light-dark() CSS value.
  */
 function AdaptiveColorPicker({
   mode,
@@ -143,36 +132,15 @@ export default function Edit({
     ariaLabel,
     openOn,
     navId,
-    // Toggle
-    toggleLabel,
-    toggleIconStyle,
-    toggleAnimationType,
-    showToggleLabel,
-    // Panel
-    menuStyle,
-    panelPosition,
-    panelAnimationStyle,
-    panelWidth,
-    showPanelOverlay,
-    // Indicator
     indicatorColor,
-    // Submenu
     submenuBackgroundColor,
     submenuTextColor,
     submenuBorderRadius,
     submenuBorderWidth,
     submenuBorderColor,
     submenuBorderStyle,
-    // Panel colors
-    panelBackgroundColor,
-    panelTextColor,
-    panelLinkHoverColor,
-    panelLinkHoverBg,
-    panelOverlayColor,
-    panelOverlayOpacity,
   } = attributes;
 
-  // Get theme color palette, filtering out adaptive (light-dark) entries.
   const [allColors] = useSettings('color.palette') as [
     Array<{ name: string; slug: string; color: string }> | undefined,
   ];
@@ -181,20 +149,17 @@ export default function Edit({
     [allColors]
   );
 
-  // Track which view mode is active: 'desktop' or 'mobile'.
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
-
   // Shared color scheme state — synced across all adaptive panels.
   const { colorMode, switchColorMode } = useEditorColorScheme();
 
-  // Ensure unique ID exists for context sharing.
+  // Ensure a unique ID exists for context sharing.
   if (!navId) {
     const newId = `nav-${Math.random().toString(36).slice(2, 9)}`;
     setAttributes({ navId: newId });
   }
 
   const blockProps = useBlockProps({
-    className: `wp-block-aggressive-apparel-navigation--editor wp-block-aggressive-apparel-navigation--view-${viewMode}`,
+    className: 'wp-block-aggressive-apparel-navigation--editor',
   });
 
   const innerBlocksProps = useInnerBlocksProps(blockProps, {
@@ -206,43 +171,11 @@ export default function Edit({
   return (
     <>
       <InspectorControls>
-        <PanelBody title={__('Editor View', 'aggressive-apparel')}>
-          <p
-            style={{
-              ...EDITOR_HELP_TEXT_STYLE,
-              marginBottom: '12px',
-            }}
-          >
-            {__(
-              'Switch between desktop and mobile views. Mobile panel content is auto-synced from the desktop menu.',
-              'aggressive-apparel'
-            )}
-          </p>
-          <ButtonGroup style={{ display: 'flex' }}>
-            <Button
-              icon={desktop}
-              isPressed={viewMode === 'desktop'}
-              onClick={() => setViewMode('desktop')}
-              style={{ flex: 1, justifyContent: 'center' }}
-            >
-              {__('Desktop', 'aggressive-apparel')}
-            </Button>
-            <Button
-              icon={mobile}
-              isPressed={viewMode === 'mobile'}
-              onClick={() => setViewMode('mobile')}
-              style={{ flex: 1, justifyContent: 'center' }}
-            >
-              {__('Mobile', 'aggressive-apparel')}
-            </Button>
-          </ButtonGroup>
-        </PanelBody>
-
         <PanelBody title={__('Responsive Settings', 'aggressive-apparel')}>
           <RangeControl
             label={__('Mobile Breakpoint (px)', 'aggressive-apparel')}
             help={__(
-              'Screen width below which mobile navigation is shown.',
+              'Screen width below which the desktop menubar is hidden and the trigger is shown.',
               'aggressive-apparel'
             )}
             value={breakpoint}
@@ -254,7 +187,7 @@ export default function Edit({
           <SelectControl
             label={__('Open Submenus On', 'aggressive-apparel')}
             help={__(
-              'How submenus open on desktop. Mobile always uses click/tap.',
+              'How submenus open on desktop.',
               'aggressive-apparel'
             )}
             value={openOn}
@@ -269,132 +202,6 @@ export default function Edit({
         </PanelBody>
 
         <PanelBody
-          title={__('Toggle Button', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <SelectControl
-            label={__('Icon Style', 'aggressive-apparel')}
-            value={toggleIconStyle}
-            options={[
-              {
-                label: __('Hamburger', 'aggressive-apparel'),
-                value: 'hamburger',
-              },
-              { label: __('Dots', 'aggressive-apparel'), value: 'dots' },
-              { label: __('Squeeze', 'aggressive-apparel'), value: 'squeeze' },
-              { label: __('Arrow', 'aggressive-apparel'), value: 'arrow' },
-              {
-                label: __('Collapse', 'aggressive-apparel'),
-                value: 'collapse',
-              },
-            ]}
-            onChange={value =>
-              setAttributes({ toggleIconStyle: value as ToggleIconStyle })
-            }
-          />
-          <SelectControl
-            label={__('Animation', 'aggressive-apparel')}
-            value={toggleAnimationType}
-            options={[
-              { label: __('To X', 'aggressive-apparel'), value: 'to-x' },
-              { label: __('Spin', 'aggressive-apparel'), value: 'spin' },
-              { label: __('Squeeze', 'aggressive-apparel'), value: 'squeeze' },
-              {
-                label: __('Arrow Left', 'aggressive-apparel'),
-                value: 'arrow-left',
-              },
-              {
-                label: __('Arrow Right', 'aggressive-apparel'),
-                value: 'arrow-right',
-              },
-              {
-                label: __('Collapse', 'aggressive-apparel'),
-                value: 'collapse',
-              },
-              { label: __('None', 'aggressive-apparel'), value: 'none' },
-            ]}
-            onChange={value =>
-              setAttributes({
-                toggleAnimationType: value as ToggleAnimationType,
-              })
-            }
-          />
-          <ToggleControl
-            label={__('Show Label', 'aggressive-apparel')}
-            checked={showToggleLabel}
-            onChange={value => setAttributes({ showToggleLabel: value })}
-          />
-          {showToggleLabel && (
-            <TextControl
-              label={__('Label Text', 'aggressive-apparel')}
-              value={toggleLabel}
-              onChange={value => setAttributes({ toggleLabel: value })}
-            />
-          )}
-        </PanelBody>
-
-        <PanelBody
-          title={__('Mobile Panel', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <SelectControl
-            label={__('Menu Style', 'aggressive-apparel')}
-            value={menuStyle}
-            options={[
-              { label: __('Side Panel', 'aggressive-apparel'), value: 'panel' },
-              {
-                label: __('Fullscreen Overlay', 'aggressive-apparel'),
-                value: 'fullscreen',
-              },
-            ]}
-            onChange={value => setAttributes({ menuStyle: value as MenuStyle })}
-          />
-          <SelectControl
-            label={__('Position', 'aggressive-apparel')}
-            value={panelPosition}
-            options={[
-              { label: __('Right', 'aggressive-apparel'), value: 'right' },
-              { label: __('Left', 'aggressive-apparel'), value: 'left' },
-            ]}
-            onChange={value =>
-              setAttributes({ panelPosition: value as PanelPosition })
-            }
-          />
-          <SelectControl
-            label={__('Animation Style', 'aggressive-apparel')}
-            value={panelAnimationStyle}
-            options={[
-              { label: __('Slide', 'aggressive-apparel'), value: 'slide' },
-              { label: __('Push', 'aggressive-apparel'), value: 'push' },
-              { label: __('Reveal', 'aggressive-apparel'), value: 'reveal' },
-              { label: __('Fade', 'aggressive-apparel'), value: 'fade' },
-            ]}
-            onChange={value =>
-              setAttributes({
-                panelAnimationStyle: value as PanelAnimationStyle,
-              })
-            }
-          />
-          <UnitControl
-            label={__('Panel Width', 'aggressive-apparel')}
-            value={panelWidth}
-            onChange={(value: string | undefined) =>
-              setAttributes({ panelWidth: value ?? 'min(320px, 85vw)' })
-            }
-            units={[
-              { value: 'px', label: 'px', default: 320 },
-              { value: 'vw', label: 'vw', default: 85 },
-              { value: '%', label: '%', default: 85 },
-            ]}
-          />
-          <ToggleControl
-            label={__('Show Overlay', 'aggressive-apparel')}
-            checked={showPanelOverlay}
-            onChange={value => setAttributes({ showPanelOverlay: value })}
-          />
-        </PanelBody>
-
-        <PanelBody
           title={__('Indicator', 'aggressive-apparel')}
           initialOpen={false}
         >
@@ -405,7 +212,7 @@ export default function Edit({
             }}
           >
             {__(
-              'Sliding underline on desktop, vertical accent bar on mobile. Follows the active menu item.',
+              'Sliding underline on desktop that follows the active menu item.',
               'aggressive-apparel'
             )}
           </p>
@@ -527,85 +334,6 @@ export default function Edit({
               colors={colors}
             />
           </BaseControl>
-        </PanelBody>
-
-        <PanelBody
-          title={__('Mobile Panel Colors', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
-            {__(
-              'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
-              'aggressive-apparel'
-            )}
-          </p>
-          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
-          <BaseControl
-            label={__('Background', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <AdaptiveColorPicker
-              mode={colorMode}
-              value={panelBackgroundColor}
-              onChange={v => setAttributes({ panelBackgroundColor: v })}
-              colors={colors}
-            />
-          </BaseControl>
-          <BaseControl
-            label={__('Text', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <AdaptiveColorPicker
-              mode={colorMode}
-              value={panelTextColor}
-              onChange={v => setAttributes({ panelTextColor: v })}
-              colors={colors}
-            />
-          </BaseControl>
-          <BaseControl
-            label={__('Link Hover Color', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <AdaptiveColorPicker
-              mode={colorMode}
-              value={panelLinkHoverColor}
-              onChange={v => setAttributes({ panelLinkHoverColor: v })}
-              colors={colors}
-            />
-          </BaseControl>
-          <BaseControl
-            label={__('Link Hover Background', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <AdaptiveColorPicker
-              mode={colorMode}
-              value={panelLinkHoverBg}
-              onChange={v => setAttributes({ panelLinkHoverBg: v })}
-              colors={colors}
-            />
-          </BaseControl>
-          <BaseControl
-            label={__('Overlay Color', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <ColorPalette
-              colors={colors}
-              value={panelOverlayColor}
-              onChange={(value: string | undefined) =>
-                setAttributes({ panelOverlayColor: value })
-              }
-            />
-          </BaseControl>
-          <RangeControl
-            label={__('Overlay Opacity', 'aggressive-apparel')}
-            value={panelOverlayOpacity ?? 50}
-            onChange={value =>
-              setAttributes({ panelOverlayOpacity: value ?? 50 })
-            }
-            min={0}
-            max={100}
-            step={1}
-          />
         </PanelBody>
       </InspectorControls>
       <nav {...innerBlocksProps} aria-label={ariaLabel} />

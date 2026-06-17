@@ -1,0 +1,29 @@
+/**
+ * Nav Panel Header Block Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-nav-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.wp-block-aggressive-apparel-nav-panel-header__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-block-aggressive-apparel-nav-panel-header__close-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--aa-color-foreground-muted, rgb(0 0 0 / 45%));
+  opacity: 0.6;
+}

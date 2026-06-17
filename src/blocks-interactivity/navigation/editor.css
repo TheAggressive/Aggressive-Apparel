@@ -1,8 +1,8 @@
 /**
- * Navigation Block Editor Styles (v2)
+ * Navigation Block Editor Styles (v3)
  *
- * Simplified for the 3-block architecture.
- * Desktop/mobile view switching in the editor.
+ * Desktop-only editor layout. The mobile panel is edited in its own block
+ * (navigation-panel) inside the Mobile Navigation template part.
  *
  * @package Aggressive_Apparel
  */
@@ -10,36 +10,11 @@
 .wp-block-aggressive-apparel-navigation--editor {
   position: relative;
   width: 100%;
-}
-
-/* ========================================
- * DESKTOP VIEW MODE
- * Show nav-links and nav-submenus as horizontal menubar.
- * ======================================== */
-.wp-block-aggressive-apparel-navigation--view-desktop {
 
   & > .block-editor-inner-blocks > .block-editor-block-list__layout {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--wp--preset--spacing--6, 1.5rem);
-  }
-}
-
-/* ========================================
- * MOBILE VIEW MODE
- * Show nav-links and nav-submenus as vertical list.
- * ======================================== */
-.wp-block-aggressive-apparel-navigation--view-mobile {
-
-  & > .block-editor-inner-blocks > .block-editor-block-list__layout {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    max-width: min(320px, 85vw);
-    border: 1px dashed var(--aa-color-border-strong);
-    border-radius: var(--aa-radius-card);
-    padding: var(--wp--preset--spacing--4, 1rem);
   }
 }

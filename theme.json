@@ -1107,6 +1107,11 @@
       "name": "footer",
       "title": "Footer",
       "area": "footer"
+    },
+    {
+      "name": "mobile-nav",
+      "title": "Mobile Navigation",
+      "area": "uncategorized"
     }
   ],
   "customTemplates": [

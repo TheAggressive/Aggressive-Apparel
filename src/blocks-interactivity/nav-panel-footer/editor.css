@@ -1,0 +1,13 @@
+/**
+ * Nav Panel Footer Block Editor Styles
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-nav-panel-footer {
+  width: 100%;
+}
+
+.wp-block-aggressive-apparel-nav-panel-footer__content {
+  width: 100%;
+}

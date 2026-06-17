@@ -2,11 +2,11 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/navigation",
-  "version": "2.0.0",
-  "title": "Navigation",
+  "version": "3.0.0",
+  "title": "Desktop Navigation",
   "category": "aggressive-apparel",
-  "description": "Responsive navigation with built-in mobile panel, toggle, and sliding indicator.",
-  "keywords": ["menu", "navigation", "header", "nav"],
+  "description": "Responsive desktop navigation with a sliding indicator and submenus. Add a Navigation Trigger to open the mobile panel.",
+  "keywords": ["menu", "navigation", "header", "nav", "desktop"],
   "textdomain": "aggressive-apparel",
   "icon": "menu",
   "attributes": {
@@ -26,55 +26,6 @@
       "type": "string",
       "enum": ["hover", "click"],
       "default": "hover"
-    },
-    "toggleLabel": {
-      "type": "string",
-      "default": "Menu"
-    },
-    "toggleIconStyle": {
-      "type": "string",
-      "enum": ["hamburger", "dots", "squeeze", "arrow", "collapse"],
-      "default": "hamburger"
-    },
-    "toggleAnimationType": {
-      "type": "string",
-      "enum": [
-        "to-x",
-        "spin",
-        "squeeze",
-        "arrow-left",
-        "arrow-right",
-        "collapse",
-        "none"
-      ],
-      "default": "to-x"
-    },
-    "showToggleLabel": {
-      "type": "boolean",
-      "default": false
-    },
-    "panelPosition": {
-      "type": "string",
-      "enum": ["left", "right"],
-      "default": "right"
-    },
-    "panelAnimationStyle": {
-      "type": "string",
-      "enum": ["slide", "push", "reveal", "fade"],
-      "default": "slide"
-    },
-    "panelWidth": {
-      "type": "string",
-      "default": "min(320px, 85vw)"
-    },
-    "showPanelOverlay": {
-      "type": "boolean",
-      "default": true
-    },
-    "mobileSyncMode": {
-      "type": "string",
-      "enum": ["auto", "custom"],
-      "default": "auto"
     },
     "scrollBehavior": {
       "type": "string",
@@ -106,30 +57,6 @@
       "type": "string",
       "enum": ["solid", "dashed", "dotted", "none"],
       "default": "solid"
-    },
-    "panelBackgroundColor": {
-      "type": "string"
-    },
-    "panelTextColor": {
-      "type": "string"
-    },
-    "panelLinkHoverColor": {
-      "type": "string"
-    },
-    "panelLinkHoverBg": {
-      "type": "string"
-    },
-    "panelOverlayColor": {
-      "type": "string"
-    },
-    "panelOverlayOpacity": {
-      "type": "number",
-      "default": 50
-    },
-    "menuStyle": {
-      "type": "string",
-      "enum": ["panel", "fullscreen"],
-      "default": "panel"
     }
   },
   "supports": {
@@ -182,13 +109,7 @@
     "aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
     "aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
     "aggressive-apparel/submenuBorderColor": "submenuBorderColor",
-    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle",
-    "aggressive-apparel/panelBackgroundColor": "panelBackgroundColor",
-    "aggressive-apparel/panelTextColor": "panelTextColor",
-    "aggressive-apparel/panelLinkHoverColor": "panelLinkHoverColor",
-    "aggressive-apparel/panelLinkHoverBg": "panelLinkHoverBg",
-    "aggressive-apparel/panelOverlayColor": "panelOverlayColor",
-    "aggressive-apparel/panelOverlayOpacity": "panelOverlayOpacity"
+    "aggressive-apparel/submenuBorderStyle": "submenuBorderStyle"
   },
   "viewScriptModule": "file:./view.js",
   "render": "file:./render.php",

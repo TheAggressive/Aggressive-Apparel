@@ -67,12 +67,6 @@ $wrapper_attributes_array = array(
 	'data-wp-class--is-open' => $is_open_callback,
 );
 
-// Drilldown submenus need to listen for state changes to update their is-open class.
-// This is necessary because the shared state registry isn't reactive with the Interactivity API.
-if ( 'drilldown' === $menu_type ) {
-	$wrapper_attributes_array['data-wp-on-window--aa-nav-state-change'] = 'callbacks.onSubmenuStateChange';
-}
-
 // Merge interactive attributes.
 $wrapper_attributes_array = array_merge( $wrapper_attributes_array, $wrapper_interactive_attrs );
 
@@ -86,14 +80,6 @@ if ( 'drilldown' === $menu_type ) {
 	// Toggle on click for accessible interaction even in hover mode.
 	$trigger_attrs['data-wp-on--click'] = 'actions.toggleSubmenu';
 }
-
-// Panel attributes - use popover only for click mode to avoid conflicts with CSS hover.
-// Note: Popover API requires popovertarget on a button, but our trigger is an <a>.
-// For now, we only use popover styling for click mode, relying on JS + CSS for hover.
-$panel_popover_attrs = '';
-// Disabled popover attribute for now - conflicts with hover mode CSS.
-// The Popover API works best with button triggers and click-only interaction.
-// Our CSS :has() and JS hover intent provide the dropdown behavior instead.
 
 // Build panel inline styles from color and border attributes.
 // Border uses CSS custom properties to override the glassmorphism defaults.
@@ -214,7 +200,7 @@ printf(
 		<div class="wp-block-aggressive-apparel-nav-submenu__trigger"%s>
 			%s
 		</div>
-		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s"%s%s>
+		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s"%s>
 			%s
 			<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu" aria-label="%s">
 				%s
@@ -225,7 +211,6 @@ printf(
 	$trigger_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
 	$trigger_element, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
-	$panel_popover_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains only safe attributes.
 	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.
 	$drilldown_header, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $label ),

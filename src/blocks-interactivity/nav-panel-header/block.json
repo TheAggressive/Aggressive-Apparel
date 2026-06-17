@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-panel-header",
+  "version": "1.0.0",
+  "title": "Nav Panel Header",
+  "category": "aggressive-apparel",
+  "description": "Optional block area in the mobile panel header, to the left of the close button. If empty, nothing is rendered.",
+  "keywords": ["navigation", "mobile", "panel", "header"],
+  "textdomain": "aggressive-apparel",
+  "icon": "align-left",
+  "parent": ["aggressive-apparel/navigation-panel"],
+  "supports": {
+    "html": false,
+    "reusable": false,
+    "lock": false
+  },
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css"
+}

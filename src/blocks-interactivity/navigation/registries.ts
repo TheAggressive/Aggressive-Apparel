@@ -13,9 +13,6 @@ import { createHoverIntent, type HoverIntentState } from './utils';
 // Hover intent state (prevents race conditions between open/close timers).
 export const hoverIntent: HoverIntentState = createHoverIntent();
 
-// Focus trap cleanup registry using WeakMap for proper garbage collection.
-export const focusTrapRegistry = new WeakMap<Element, () => void>();
-
 /**
  * MediaQueryList reference plus its change handler, stored per <nav> element
  * so listeners can be cleaned up on unmount.

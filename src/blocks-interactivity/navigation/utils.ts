@@ -1,13 +1,13 @@
 /**
  * Navigation Block System — Shared Utilities
  *
- * Common utility functions for the navigation block system.
- * Includes error handling, DOM helpers, and focus management.
+ * Error handling, DOM helpers, and focus/announcement helpers for the desktop
+ * navigation block.
  *
  * @package Aggressive_Apparel
  */
 
-// Type declaration for process in webpack environment
+// Type declaration for process in webpack environment.
 declare const process:
   | {
       env: {
@@ -16,14 +16,7 @@ declare const process:
     }
   | undefined;
 
-import {
-  ALL_BODY_CLASSES,
-  BODY_CLASSES,
-  FOCUSABLE_SELECTOR,
-  ID_PREFIXES,
-  TRANSITION_DURATION_MS,
-  type BodyClassKey,
-} from './constants';
+import { ID_PREFIXES } from './constants';
 
 // ============================================================================
 // Error Handling
@@ -31,7 +24,6 @@ import {
 
 /**
  * Log a warning message in development mode.
- * Silent in production to avoid console noise.
  */
 export function logWarning(
   message: string,
@@ -44,15 +36,13 @@ export function logWarning(
 
 /**
  * Log an error message.
- * Always logs errors regardless of environment.
  */
 export function logError(message: string, error?: unknown): void {
   console.error(`[Navigation] ${message}`, error ?? '');
 }
 
 /**
- * Safely get an element by ID with type checking.
- * Returns null and logs warning if not found.
+ * Safely get an element by ID.
  */
 export function safeGetElementById<T extends HTMLElement = HTMLElement>(
   id: string,
@@ -112,31 +102,20 @@ export function safeQuerySelectorAll<T extends HTMLElement = HTMLElement>(
 // Reduced Motion
 // ============================================================================
 
-/** Cached reduced motion preference. */
 let _prefersReducedMotion: boolean | null = null;
 
 /**
  * Check if user prefers reduced motion.
- * Caches the result and updates on change.
  */
 export function prefersReducedMotion(): boolean {
   if (_prefersReducedMotion === null) {
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     _prefersReducedMotion = mql.matches;
-
-    // Update on change
     mql.addEventListener('change', e => {
       _prefersReducedMotion = e.matches;
     });
   }
   return _prefersReducedMotion;
-}
-
-/**
- * Get the effective transition duration respecting reduced motion preference.
- */
-export function getTransitionDuration(): number {
-  return prefersReducedMotion() ? 0 : TRANSITION_DURATION_MS;
 }
 
 // ============================================================================
@@ -148,27 +127,6 @@ export function getTransitionDuration(): number {
  */
 export function generateNavId(): string {
   return `${ID_PREFIXES.navigation}${Math.random().toString(36).slice(2, 9)}`;
-}
-
-/**
- * Get the panel ID for a navigation ID.
- */
-export function getPanelId(navId: string): string {
-  if (!navId) {
-    logWarning('getPanelId called with empty navId');
-    return 'navigation-panel';
-  }
-  return `${navId}${ID_PREFIXES.panel}`;
-}
-
-/**
- * Get the toggle ID for a navigation ID.
- */
-export function getToggleId(navId: string): string {
-  if (!navId) {
-    return '';
-  }
-  return `${ID_PREFIXES.menuToggle}${navId}`;
 }
 
 /**
@@ -186,213 +144,8 @@ export function isValidNavId(navId: unknown): navId is string {
 }
 
 // ============================================================================
-// Body Class Management
-// ============================================================================
-
-/**
- * Remove all navigation body classes.
- */
-export function removeAllBodyClasses(): void {
-  document.body.classList.remove(...ALL_BODY_CLASSES);
-}
-
-/**
- * Add the appropriate body class for push/reveal animations.
- */
-export function addBodyClass(animationStyle: string, position: string): void {
-  const key =
-    `${animationStyle}${position.charAt(0).toUpperCase()}${position.slice(1)}` as BodyClassKey;
-  const className = BODY_CLASSES[key];
-  if (className) {
-    document.body.classList.add(className);
-  }
-}
-
-/**
- * Set body overflow to prevent scrolling.
- */
-export function setBodyOverflow(hidden: boolean): void {
-  document.body.style.overflow = hidden ? 'hidden' : '';
-}
-
-// ============================================================================
-// Panel Visibility
-// ============================================================================
-
-/**
- * Manage panel visibility with animation support.
- *
- * The panel is always visible in the DOM but positioned off-screen via CSS transform.
- * The .is-open class triggers the transform animation to slide/push/reveal the panel.
- * We don't use visibility:hidden because it prevents CSS transitions from working.
- *
- * For opening: Remove pointer-events:none and add .is-open to animate in.
- * For closing: Remove .is-open to animate out, then restore pointer-events:none.
- */
-export function setPanelVisibility(panel: HTMLElement, isOpen: boolean): void {
-  if (isOpen) {
-    // Enable pointer events and add class to trigger CSS transition animation.
-    panel.style.removeProperty('pointer-events');
-    panel.classList.add('is-open');
-  } else {
-    // Remove class to trigger exit animation.
-    panel.classList.remove('is-open');
-
-    // Wait for animation to complete before disabling pointer events.
-    const duration = getTransitionDuration();
-    setTimeout(() => {
-      // Only disable if still closed (user might have reopened).
-      if (!panel.classList.contains('is-open')) {
-        panel.style.pointerEvents = 'none';
-      }
-    }, duration);
-  }
-}
-
-// ============================================================================
 // Focus Management
 // ============================================================================
-
-/**
- * Get all focusable elements within a container.
- * Filters out elements inside inert ancestors since they can't receive focus.
- */
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  const elements = safeQuerySelectorAll<HTMLElement>(
-    container,
-    FOCUSABLE_SELECTOR
-  );
-
-  // Filter out elements that are inside an inert ancestor.
-  return elements.filter(el => {
-    let parent: HTMLElement | null = el.parentElement;
-    while (parent && parent !== container) {
-      if (parent.inert) {
-        return false;
-      }
-      parent = parent.parentElement;
-    }
-    return true;
-  });
-}
-
-/**
- * Setup focus trap within a container element.
- * Returns cleanup function to remove the trap.
- *
- * Best practices implemented:
- * - ALWAYS intercepts Tab and manages focus manually (bulletproof approach)
- * - Dynamically queries focusable elements on each Tab (handles DOM changes)
- * - Uses focusin listener as backup to catch any focus escape
- * - Capture phase ensures we handle events before they bubble
- */
-export function setupFocusTrap(container: HTMLElement): () => void {
-  /**
-   * Handle Tab key - ALWAYS prevent default and manage focus manually.
-   * This is the bulletproof approach: instead of only intercepting at boundaries,
-   * we intercept ALL Tab presses and calculate the next focus target ourselves.
-   */
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key !== 'Tab') {
-      return;
-    }
-
-    // Dynamically get focusable elements on each Tab press.
-    const focusable = getFocusableElements(container);
-
-    if (focusable.length === 0) {
-      e.preventDefault();
-      return;
-    }
-
-    const active = document.activeElement as HTMLElement | null;
-
-    // Find current index in focusable list.
-    const currentIndex = active ? focusable.indexOf(active) : -1;
-
-    // Calculate next focus target.
-    let nextIndex: number;
-
-    if (e.shiftKey) {
-      // Shift+Tab: move backwards, wrap to last if at start or outside.
-      if (currentIndex <= 0) {
-        nextIndex = focusable.length - 1;
-      } else {
-        nextIndex = currentIndex - 1;
-      }
-    } else {
-      // Tab: move forwards, wrap to first if at end or outside.
-      if (currentIndex === -1 || currentIndex >= focusable.length - 1) {
-        nextIndex = 0;
-      } else {
-        nextIndex = currentIndex + 1;
-      }
-    }
-
-    // Always prevent default and manually focus the next element.
-    e.preventDefault();
-    focusable[nextIndex].focus();
-  };
-
-  /**
-   * Backup: If focus somehow escapes (click, programmatic focus, etc.),
-   * bring it back into the container.
-   */
-  const handleFocusin = (e: FocusEvent) => {
-    const target = e.target as HTMLElement;
-
-    // If focus moved to something outside the container, redirect it back.
-    if (!container.contains(target)) {
-      const focusable = getFocusableElements(container);
-      if (focusable.length > 0) {
-        // Focus the first element in the container.
-        focusable[0].focus();
-      }
-    }
-  };
-
-  // Capture phase ensures we handle events before they bubble.
-  document.addEventListener('keydown', handleKeydown, true);
-  document.addEventListener('focusin', handleFocusin, true);
-
-  return () => {
-    document.removeEventListener('keydown', handleKeydown, true);
-    document.removeEventListener('focusin', handleFocusin, true);
-  };
-}
-
-/**
- * Restore focus to toggle button or fallback element after closing panel.
- */
-export function restoreFocus(navId: string): void {
-  const toggleId = getToggleId(navId);
-
-  if (toggleId) {
-    const toggle = safeGetElementById(toggleId, false);
-    if (toggle) {
-      toggle.focus();
-      return;
-    }
-  }
-
-  // Fallback: focus main content area.
-  const main = safeQuerySelector<HTMLElement>(
-    document,
-    'main, [role="main"], .wp-site-blocks',
-    false
-  );
-
-  if (main) {
-    const hadTabindex = main.hasAttribute('tabindex');
-    if (!hadTabindex) {
-      main.setAttribute('tabindex', '-1');
-    }
-    main.focus();
-    if (!hadTabindex) {
-      main.removeAttribute('tabindex');
-    }
-  }
-}
 
 /**
  * Move focus to a menu item by index with roving tabindex.
@@ -402,15 +155,12 @@ export function focusMenuItem(items: HTMLElement[], index: number): void {
     return;
   }
 
-  // Clamp index to valid range.
   const targetIndex = Math.max(0, Math.min(index, items.length - 1));
 
-  // Update tabindex: remove from all, add to target.
   items.forEach((item, i) => {
     item.setAttribute('tabindex', i === targetIndex ? '0' : '-1');
   });
 
-  // Focus the target item.
   items[targetIndex].focus();
 }
 
@@ -418,11 +168,10 @@ export function focusMenuItem(items: HTMLElement[], index: number): void {
 // Announcements
 // ============================================================================
 
-/** Timeout ID for clearing announcements. */
 let announcementClearTimeout: ReturnType<typeof setTimeout> | null = null;
 
 /**
- * Announce message to screen readers via live region.
+ * Announce message to screen readers via a per-nav live region.
  */
 export function announce(
   message: string,
@@ -431,7 +180,6 @@ export function announce(
   const { assertive = false, navId } = options;
   const id = getAnnouncerId(navId ?? '');
 
-  // Try to find specific announcer first, then fallback.
   let announcer = safeGetElementById(id, false);
   if (!announcer) {
     announcer = safeGetElementById('navigation-announcer', false);
@@ -442,16 +190,13 @@ export function announce(
     return;
   }
 
-  // Clear any pending clear timeout.
   if (announcementClearTimeout) {
     clearTimeout(announcementClearTimeout);
   }
 
-  // Set aria-live mode based on importance.
   announcer.setAttribute('aria-live', assertive ? 'assertive' : 'polite');
   announcer.textContent = message;
 
-  // Clear after a delay to allow re-announcements.
   announcementClearTimeout = setTimeout(() => {
     if (announcer) {
       announcer.textContent = '';
@@ -493,215 +238,4 @@ export function clearHoverTimeouts(hoverIntent: HoverIntentState): void {
     clearTimeout(hoverIntent.closeTimeout);
     hoverIntent.closeTimeout = null;
   }
-}
-
-// ============================================================================
-// Mega-Content Focus & Inert Management
-// ============================================================================
-
-/**
- * Update inert state when a mega-content overlay is active on mobile.
- *
- * The overlay covers the panel with position:fixed but items behind it
- * remain keyboard-focusable. This function inerts everything outside the
- * active overlay (panel header, sibling menu items, and the trigger inside
- * the active item) so the focus trap only cycles through overlay content.
- *
- * @param panel - The navigation panel element
- * @param activeSubmenuId - The submenu panel ID that is open, or null to clear
- */
-export function updateMegaContentInertState(
-  panel: HTMLElement,
-  activeSubmenuId: string | null
-): void {
-  if (!('inert' in HTMLElement.prototype)) {
-    return;
-  }
-
-  const panelHeader = safeQuerySelector<HTMLElement>(
-    panel,
-    '.aa-nav__panel-header',
-    false
-  );
-  const menuItems = safeQuerySelectorAll<HTMLElement>(
-    panel,
-    '.aa-nav__panel-menu > li'
-  );
-
-  if (!activeSubmenuId) {
-    // Clear all inert state.
-    if (panelHeader) {
-      panelHeader.inert = false;
-    }
-    menuItems.forEach(li => {
-      li.inert = false;
-      const trigger = safeQuerySelector<HTMLElement>(
-        li,
-        '.wp-block-aggressive-apparel-nav-submenu__trigger',
-        false
-      );
-      if (trigger) {
-        trigger.inert = false;
-      }
-    });
-    return;
-  }
-
-  // Find the <li> that contains the active overlay panel.
-  const activePanel = safeGetElementById(activeSubmenuId, false);
-  if (!activePanel) {
-    return;
-  }
-  const activeLi = activePanel.closest(
-    '.aa-nav__panel-menu > li'
-  ) as HTMLElement | null;
-  if (!activeLi) {
-    return;
-  }
-
-  // Inert the panel header (close button).
-  if (panelHeader) {
-    panelHeader.inert = true;
-  }
-
-  // Inert sibling items completely; inert only the trigger inside the
-  // active item (the overlay panel must stay interactive).
-  menuItems.forEach(li => {
-    if (li === activeLi) {
-      const trigger = safeQuerySelector<HTMLElement>(
-        li,
-        '.wp-block-aggressive-apparel-nav-submenu__trigger',
-        false
-      );
-      if (trigger) {
-        trigger.inert = true;
-      }
-    } else {
-      li.inert = true;
-    }
-  });
-}
-
-/**
- * Move focus into a mega-content overlay panel (targets the back button).
- * Uses double-rAF to ensure the CSS transition has started and the panel
- * is visible before focusing.
- *
- * @param submenuId - The ID of the submenu panel element
- */
-export function focusMegaContentPanel(submenuId: string): void {
-  const panel = safeGetElementById(submenuId, false);
-  if (!panel) {
-    return;
-  }
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        FOCUSABLE_SELECTOR,
-        false
-      );
-      firstFocusable?.focus();
-    });
-  });
-}
-
-// ============================================================================
-// Drilldown Focus Management
-// ============================================================================
-
-/**
- * Update inert state on drilldown panels based on the current drill stack.
- * Panels not in the current view should be inert to prevent focus escape.
- *
- * @param container - The navigation panel container
- * @param drillStack - Array of currently active submenu IDs
- */
-export function updateDrilldownInertState(
-  container: HTMLElement,
-  drillStack: string[]
-): void {
-  // Check if inert is supported.
-  const supportsInert =
-    typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
-
-  if (!supportsInert) {
-    return;
-  }
-
-  // Get all drilldown submenu panels.
-  const drilldownPanels = safeQuerySelectorAll<HTMLElement>(
-    container,
-    '.wp-block-aggressive-apparel-nav-submenu--drilldown .wp-block-aggressive-apparel-nav-submenu__panel'
-  );
-
-  // Current active panel is the last in the stack (or none if stack is empty).
-  const currentActiveId = drillStack[drillStack.length - 1] ?? null;
-
-  drilldownPanels.forEach(panel => {
-    const panelId = panel.id;
-    // Panel should be inert if it's NOT the current active panel.
-    // If no panel is active (drillStack empty), all panels should be inert.
-    const shouldBeInert = panelId !== currentActiveId;
-    panel.inert = shouldBeInert;
-  });
-}
-
-/**
- * Focus the first focusable item in a drilldown panel.
- *
- * @param panelId - The ID of the panel to focus into
- */
-export function focusDrilldownPanel(panelId: string): void {
-  const panel = safeGetElementById(panelId, false);
-  if (!panel) {
-    return;
-  }
-
-  // Use double rAF to ensure CSS transitions have started
-  // and the panel is visible before focusing.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        FOCUSABLE_SELECTOR,
-        false
-      );
-      firstFocusable?.focus();
-    });
-  });
-}
-
-/**
- * Focus the trigger that opened the current drilldown level when going back.
- *
- * @param container - The navigation panel container
- * @param previousId - The ID of the panel we're leaving
- */
-export function focusDrilldownTrigger(
-  container: HTMLElement,
-  previousId: string
-): void {
-  // Find the submenu element that has this panel.
-  const submenu = safeQuerySelector<HTMLElement>(
-    container,
-    `.wp-block-aggressive-apparel-nav-submenu--drilldown:has(#${CSS.escape(previousId)})`,
-    false
-  );
-
-  if (!submenu) {
-    return;
-  }
-
-  // Focus the trigger link/button.
-  const trigger = safeQuerySelector<HTMLElement>(
-    submenu,
-    '.wp-block-aggressive-apparel-nav-submenu__link',
-    false
-  );
-
-  requestAnimationFrame(() => {
-    trigger?.focus();
-  });
 }

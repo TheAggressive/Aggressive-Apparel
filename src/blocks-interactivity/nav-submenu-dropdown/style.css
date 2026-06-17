@@ -1,0 +1,170 @@
+/**
+ * Nav Dropdown Block Styles
+ *
+ * Desktop floating dropdown with clip-path reveal animation.
+ * Uses the same element class names as the legacy nav-submenu block
+ * (wp-block-aggressive-apparel-nav-submenu__*) so the navigation store's
+ * CSS and JS selectors continue to work without changes.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* The block wrapper gets the legacy nav-submenu classes via render.php,
+   so all selectors here target the old element classes. */
+.wp-block-aggressive-apparel-nav-submenu-dropdown {
+  --submenu-bg: var(--aa-color-surface-elevated);
+  --submenu-color: var(--aa-color-foreground);
+  --submenu-shadow: var(--aa-nav-shadow);
+  --submenu-radius: var(--aa-nav-radius-lg);
+  --submenu-padding: var(--wp--preset--spacing--4, 1rem);
+  --submenu-transition: var(--aa-duration-fast) var(--aa-ease-default);
+  --submenu-min-width: 200px;
+
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+
+  /* Hover bridge: extends the hit area below the trigger to cover the
+     ~8px gap (5px panel offset + indicator height). Without this,
+     mouseleave fires when moving from trigger to dropdown. */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__trigger {
+    display: flex;
+    align-items: center;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--wp--preset--spacing--1);
+    padding: 0;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--submenu-transition);
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      color: var(--wp--preset--color--primary, currentColor);
+    }
+
+    &:focus-visible {
+      outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
+      outline-offset: var(--aa-nav-focus-offset);
+      border-radius: var(--aa-nav-radius-sm);
+    }
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__label {
+    font-weight: inherit;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__arrow {
+    display: flex;
+    align-items: center;
+    transition: transform var(--submenu-transition);
+
+    & svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  &.is-open .wp-block-aggressive-apparel-nav-submenu__arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Floating panel — clip-path reveal */
+  & .wp-block-aggressive-apparel-nav-submenu__panel {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    z-index: 100;
+    min-width: var(--submenu-min-width);
+    background: var(--submenu-bg);
+    color: var(--submenu-color);
+    border-radius: var(--submenu-radius);
+    box-shadow: var(--submenu-shadow);
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      clip-path var(--submenu-transition),
+      visibility var(--submenu-transition);
+    border-width: var(--panel-border-width, 0);
+    border-style: var(--panel-border-style, solid);
+    border-color: var(--panel-border-color, currentcolor);
+  }
+
+  &.is-open .wp-block-aggressive-apparel-nav-submenu__panel {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
+    padding: var(--submenu-padding);
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--submenu-panel-gap, var(--wp--preset--spacing--1));
+  }
+
+  /* Panel link styling */
+  & .wp-block-aggressive-apparel-nav-submenu__panel .wp-block-aggressive-apparel-nav-link {
+    --nav-link-color: var(--submenu-color, currentcolor);
+
+    margin: 0;
+  }
+
+  & .wp-block-aggressive-apparel-nav-submenu__panel .wp-block-aggressive-apparel-nav-link .wp-block-aggressive-apparel-nav-link__link {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--aa-nav-radius-md);
+    color: var(--nav-link-color);
+
+    &:hover {
+      background: var(--aa-nav-hover-bg);
+    }
+  }
+}
+
+/* Glassmorphism effect */
+@supports (backdrop-filter: blur(1px)) {
+
+  .wp-block-aggressive-apparel-nav-submenu-dropdown .wp-block-aggressive-apparel-nav-submenu__panel {
+    background: color-mix(in srgb, var(--submenu-bg) 90%, transparent);
+    backdrop-filter: blur(16px) saturate(180%);
+    border-width: var(--panel-border-width, 0);
+    border-style: var(--panel-border-style, solid);
+    border-color: var(--panel-border-color, var(--aa-color-border-subtle));
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .wp-block-aggressive-apparel-nav-submenu-dropdown {
+    --submenu-transition: 0ms;
+  }
+
+  .wp-block-aggressive-apparel-nav-submenu-dropdown .wp-block-aggressive-apparel-nav-submenu__panel-inner > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

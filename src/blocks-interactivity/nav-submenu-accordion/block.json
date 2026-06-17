@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-submenu-accordion",
+  "version": "1.0.0",
+  "title": "Nav Accordion",
+  "category": "aggressive-apparel",
+  "description": "Mobile accordion submenu. Expands inline below the trigger. Place inside a Navigation Panel block.",
+  "keywords": ["navigation", "mobile", "accordion", "submenu"],
+  "textdomain": "aggressive-apparel",
+  "icon": "list-view",
+  "ancestor": ["aggressive-apparel/navigation-panel"],
+  "allowedBlocks": ["aggressive-apparel/nav-link"],
+  "attributes": {
+    "label": { "type": "string", "default": "" },
+    "url": { "type": "string", "default": "" },
+    "submenuId": { "type": "string", "default": "" },
+    "showArrow": { "type": "boolean", "default": true }
+  },
+  "usesContext": ["aggressive-apparel/navigationId"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": { "background": true, "text": true },
+    "typography": { "fontSize": true },
+    "spacing": { "blockGap": true },
+    "className": true
+  },
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

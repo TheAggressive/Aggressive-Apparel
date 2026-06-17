@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/navigation-panel",
+  "version": "1.0.0",
+  "title": "Navigation Panel",
+  "category": "aggressive-apparel",
+  "description": "Mobile navigation panel. Place in the Mobile Navigation template part. Portaled to the page footer and opened by a Navigation Trigger.",
+  "keywords": ["navigation", "mobile", "panel", "menu", "drawer"],
+  "textdomain": "aggressive-apparel",
+  "icon": "menu-alt",
+  "allowedBlocks": [
+    "aggressive-apparel/nav-link",
+    "aggressive-apparel/nav-submenu-accordion",
+    "aggressive-apparel/nav-submenu-drilldown",
+    "aggressive-apparel/nav-panel-header",
+    "aggressive-apparel/nav-panel-footer",
+    "core/site-logo",
+    "core/social-links",
+    "core/buttons",
+    "core/group",
+    "core/separator"
+  ],
+  "attributes": {
+    "panelSlug": {
+      "type": "string",
+      "default": "mobile-nav"
+    },
+    "position": {
+      "type": "string",
+      "enum": ["left", "right"],
+      "default": "right"
+    },
+    "animationStyle": {
+      "type": "string",
+      "enum": ["slide", "push", "reveal", "fade"],
+      "default": "slide"
+    },
+    "menuStyle": {
+      "type": "string",
+      "enum": ["panel", "fullscreen"],
+      "default": "panel"
+    },
+    "panelWidth": {
+      "type": "string",
+      "default": "min(320px, 85vw)"
+    },
+    "showOverlay": {
+      "type": "boolean",
+      "default": true
+    },
+    "panelLinkHoverColor": {
+      "type": "string"
+    },
+    "panelLinkHoverBg": {
+      "type": "string"
+    },
+    "overlayColor": {
+      "type": "string"
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 50
+    },
+    "indicatorColor": {
+      "type": "string"
+    },
+    "submenuStyle": {
+      "type": "string",
+      "enum": ["drilldown", "mega-content-overlay"],
+      "default": "drilldown"
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "fontFamily": true
+    },
+    "spacing": {
+      "padding": true,
+      "blockGap": true
+    },
+    "className": true
+  },
+  "providesContext": {
+    "aggressive-apparel/navigationId": "panelSlug",
+    "aggressive-apparel/panelSubmenuStyle": "submenuStyle",
+    "aggressive-apparel/panelLinkHoverColor": "panelLinkHoverColor",
+    "aggressive-apparel/panelLinkHoverBg": "panelLinkHoverBg"
+  },
+  "viewScriptModule": "file:./view.js",
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

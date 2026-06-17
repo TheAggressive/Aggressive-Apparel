@@ -40,6 +40,7 @@ const simpleNavTemplate: InnerBlockTemplate[] = [
   ['aggressive-apparel/nav-link', { label: 'About', url: '/about' }],
   ['aggressive-apparel/nav-link', { label: 'Services', url: '/services' }],
   ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
+  ['aggressive-apparel/navigation-trigger', {}],
 ];
 
 /**
@@ -85,6 +86,7 @@ const dropdownNavTemplate: InnerBlockTemplate[] = [
     ],
   ],
   ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
+  ['aggressive-apparel/navigation-trigger', {}],
 ];
 
 /**
@@ -197,6 +199,7 @@ const ecommerceNavTemplate: InnerBlockTemplate[] = [
     ],
   ],
   ['aggressive-apparel/nav-link', { label: 'Contact', url: '/contact' }],
+  ['aggressive-apparel/navigation-trigger', {}],
 ];
 
 /**
@@ -238,7 +241,6 @@ const variations: NavigationVariation[] = [
     attributes: {
       ariaLabel: 'Shop navigation',
       openOn: 'hover',
-      toggleAnimationType: 'spin',
     },
     innerBlocks: ecommerceNavTemplate,
     scope: ['inserter', 'block'],

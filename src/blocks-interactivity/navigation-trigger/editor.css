@@ -1,0 +1,23 @@
+/**
+ * Navigation Trigger Block Editor Styles
+ *
+ * In the block editor the trigger is always shown as a hamburger button so it
+ * is selectable/editable, regardless of the responsive display rules used on
+ * the frontend.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-nav-trigger--editor {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}

@@ -1,8 +1,7 @@
 /**
- * Navigation Block System — Shared Constants (v2)
+ * Navigation Block System — Shared Constants (v3)
  *
- * Centralized constants and selectors for the consolidated 3-block navigation.
- * Uses aa-nav__ prefix for elements rendered by navigation/render.php.
+ * Centralized constants and selectors for the desktop navigation block.
  *
  * @package Aggressive_Apparel
  */
@@ -11,14 +10,11 @@
 // Block Selectors
 // ============================================================================
 
-/**
- * CSS selectors for navigation block elements.
- */
 export const SELECTORS = {
   // Block root
   navigation: '.wp-block-aggressive-apparel-navigation',
 
-  // Desktop menubar (rendered by navigation/render.php)
+  // Desktop menubar
   menubar: '.aa-nav__menubar',
   indicator: '.aa-nav__indicator',
 
@@ -33,33 +29,14 @@ export const SELECTORS = {
   submenuPanel: '.wp-block-aggressive-apparel-nav-submenu__panel',
   submenuLabel: '.wp-block-aggressive-apparel-nav-submenu__label',
 
-  // Toggle (rendered by navigation/render.php)
-  toggle: '.aa-nav__toggle',
-
-  // Panel (portaled to wp_footer by navigation/render.php)
-  panel: '.aa-nav__panel',
-  panelContent: '.aa-nav__panel-content',
-  panelHeader: '.aa-nav__panel-header',
-  panelBody: '.aa-nav__panel-body',
-  panelMenu: '.aa-nav__panel-menu',
-  panelOverlay: '.aa-nav__panel-overlay',
-  panelClose: '.aa-nav__panel-close',
-
-  // Drilldown
-  drilldownHeader: '.wp-block-aggressive-apparel-nav-submenu__drilldown-header',
-  drilldownBack: '.wp-block-aggressive-apparel-nav-submenu__back',
-  drilldownTitle: '.wp-block-aggressive-apparel-nav-submenu__drilldown-title',
-
   // State classes
   isOpen: 'is-open',
   isActive: 'is-active',
   isCurrent: 'is-current',
-  hasDrillStack: 'has-drill-stack',
 
   // Submenu type classes
   submenuDropdown: 'wp-block-aggressive-apparel-nav-submenu--dropdown',
   submenuMega: 'wp-block-aggressive-apparel-nav-submenu--mega',
-  submenuDrilldown: 'wp-block-aggressive-apparel-nav-submenu--drilldown',
 } as const;
 
 /**
@@ -68,13 +45,6 @@ export const SELECTORS = {
 export const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), ' +
   'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-/**
- * Selector for menu items in the mobile panel.
- */
-export const PANEL_MENU_ITEM_SELECTOR =
-  `${SELECTORS.panelMenu} ${SELECTORS.navLinkAnchor}, ` +
-  `${SELECTORS.panelMenu} ${SELECTORS.submenuLink}`;
 
 /**
  * Selector for top-level menu items in the desktop menubar.
@@ -121,31 +91,9 @@ export const HOVER_INTENT = {
 } as const;
 
 // ============================================================================
-// Body Classes
-// ============================================================================
-
-/**
- * Body classes for push/reveal animations.
- */
-export const BODY_CLASSES = {
-  pushLeft: 'has-navigation-panel-open--push-left',
-  pushRight: 'has-navigation-panel-open--push-right',
-  revealLeft: 'has-navigation-panel-open--reveal-left',
-  revealRight: 'has-navigation-panel-open--reveal-right',
-} as const;
-
-/**
- * All body animation classes as an array for easy removal.
- */
-export const ALL_BODY_CLASSES = Object.values(BODY_CLASSES);
-
-// ============================================================================
 // Keyboard Keys
 // ============================================================================
 
-/**
- * Keyboard keys used for navigation.
- */
 export const KEYS = {
   escape: 'Escape',
   tab: 'Tab',
@@ -189,13 +137,5 @@ export const DEFAULT_BREAKPOINT = 1024;
  */
 export const ID_PREFIXES = {
   navigation: 'nav-',
-  panel: '-panel',
-  menuToggle: 'menu-toggle-',
   announcer: 'navigation-announcer-',
 } as const;
-
-// ============================================================================
-// Type Exports
-// ============================================================================
-
-export type BodyClassKey = keyof typeof BODY_CLASSES;

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/navigation-trigger",
+  "version": "1.0.0",
+  "title": "Navigation Trigger",
+  "category": "aggressive-apparel",
+  "description": "Hamburger button that opens the mobile navigation panel. Visible on mobile, hidden on desktop.",
+  "keywords": ["hamburger", "toggle", "menu", "navigation", "trigger"],
+  "textdomain": "aggressive-apparel",
+  "icon": "menu",
+  "parent": ["aggressive-apparel/navigation"],
+  "attributes": {
+    "iconStyle": {
+      "type": "string",
+      "enum": ["hamburger", "dots", "squeeze", "arrow", "collapse"],
+      "default": "hamburger"
+    },
+    "animationType": {
+      "type": "string",
+      "enum": [
+        "to-x",
+        "spin",
+        "squeeze",
+        "arrow-left",
+        "arrow-right",
+        "collapse",
+        "none"
+      ],
+      "default": "to-x"
+    },
+    "label": {
+      "type": "string",
+      "default": "Menu"
+    },
+    "showLabel": {
+      "type": "boolean",
+      "default": false
+    },
+    "panelSlug": {
+      "type": "string",
+      "default": "mobile-nav"
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "className": true
+  },
+  "viewScriptModule": "file:./view.js",
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

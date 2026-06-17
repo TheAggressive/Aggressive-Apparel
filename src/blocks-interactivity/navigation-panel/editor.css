@@ -1,0 +1,146 @@
+/**
+ * Navigation Panel Block Editor Styles
+ *
+ * Renders the panel as a fixed-position drawer in the Site Editor so editing
+ * parts/mobile-nav.html looks like the real open panel.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-navigation-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(var(--aa-editor-panel-width, 320px), 85vw);
+  background: var(--aa-editor-panel-bg, var(--aa-color-surface-elevated, #fff));
+  color: var(--aa-editor-panel-color, var(--aa-color-foreground, #111));
+  box-shadow: -1px 0 0 var(--aa-color-border-subtle, rgb(0 0 0 / 10%));
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 100000;
+}
+
+/* Position: left */
+.wp-block-aggressive-apparel-navigation-panel--left {
+  right: auto;
+  left: 0;
+  box-shadow: 1px 0 0 var(--aa-color-border-subtle, rgb(0 0 0 / 10%));
+}
+
+/* Fullscreen overlay menu preview */
+.wp-block-aggressive-apparel-navigation-panel--fullscreen {
+  width: 100%;
+  right: 0;
+  left: 0;
+}
+
+/* Inner blocks stack vertically as touch targets */
+.wp-block-aggressive-apparel-navigation-panel > .block-editor-block-list__layout {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+}
+
+/* Panel header block separator */
+.wp-block-aggressive-apparel-navigation-panel [data-type="aggressive-apparel/nav-panel-header"] {
+  border-bottom: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 10%));
+  padding: 0.25rem 0.75rem 0.25rem 1rem;
+}
+
+/* Panel footer block separator */
+.wp-block-aggressive-apparel-navigation-panel [data-type="aggressive-apparel/nav-panel-footer"] {
+  border-top: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 10%));
+  margin-top: auto;
+  padding: 0.25rem 1rem;
+}
+
+/* Full-width nav-link touch targets */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-link {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-link__link {
+  display: flex !important;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 0 !important;
+  font-weight: 500;
+}
+
+/* Smaller links inside submenu panels */
+.wp-block-aggressive-apparel-navigation-panel
+  .wp-block-aggressive-apparel-nav-submenu__panel
+  .wp-block-aggressive-apparel-nav-link__link {
+  min-height: 40px;
+  padding: 0.5rem 1.25rem !important;
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 400;
+}
+
+/* Nav-submenu: collapse desktop dropdown into inline accordion */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu {
+  position: static !important;
+  display: block !important;
+  width: 100%;
+  margin: 0;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu::after {
+  display: none;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__trigger {
+  width: 100%;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__link {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 0 !important;
+  font-weight: 500;
+}
+
+/* Show submenu panel inline (open accordion) in the editor */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__panel {
+  position: static !important;
+  clip-path: none !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  inset: auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  background: var(--aa-color-surface) !important;
+  border-top: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 8%)) !important;
+  overflow: visible !important;
+}
+
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu__panel-inner {
+  padding: 0.25rem 0 !important;
+  padding-inline-start: 0 !important;
+}
+
+/* Editor-only hint shown below the inner blocks */
+.aa-nav-panel__editor-hint {
+  padding: 0.75rem 1rem;
+  margin: auto 0 0;
+  border-top: 1px solid var(--aa-color-border-subtle, rgb(0 0 0 / 8%));
+}

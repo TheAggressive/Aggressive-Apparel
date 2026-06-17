@@ -1,0 +1,628 @@
+/**
+ * Navigation Panel Block Styles
+ *
+ * The mobile navigation panel, portaled to wp_footer. Includes:
+ * - Panel slide/push/reveal/fade animations
+ * - Stagger reveal on panel open
+ * - Drilldown accordion
+ * - Mega-content full-screen overlay
+ * - Push/reveal body animation
+ * - Fullscreen overlay menu
+ * - All reduced-motion overrides
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ========================================
+ * CSS CUSTOM PROPERTIES
+ * Kept on :root so the portaled panel (outside .wp-site-blocks) inherits them.
+ * ======================================== */
+:root {
+  --aa-nav-border-subtle: var(--aa-color-border-subtle);
+  --aa-nav-border-light: var(--aa-color-border-default);
+  --aa-nav-hover-bg: var(--aa-color-hover-subtle);
+  --aa-nav-shadow: 0 4px 20px var(--aa-color-shadow);
+  --aa-nav-overlay-bg: var(--aa-color-scrim);
+  --aa-nav-transition: var(--aa-duration-normal) var(--aa-ease-default);
+  --aa-nav-transition-fast: var(--aa-duration-fast) var(--aa-ease-default);
+  --navigation-transition: var(--aa-duration-normal) var(--aa-ease-default);
+  --aa-nav-radius-sm: var(--aa-radius-sm);
+  --aa-nav-radius-md: var(--aa-radius-md);
+  --aa-nav-radius-lg: var(--aa-radius-panel);
+  --aa-nav-focus-color: var(--aa-color-accent);
+  --aa-nav-focus-width: 2px;
+  --aa-nav-focus-offset: 2px;
+  --indicator-color-fallback: var(--aa-color-accent);
+  --item-index: 0;
+  --push-panel-width: min(320px, 85vw);
+}
+
+/* Screen reader only text. */
+.screen-reader-text {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ========================================
+ * PANEL PORTAL
+ *
+ * The panel is rendered via wp_footer outside .wp-site-blocks to escape
+ * ancestor stacking contexts. The portal wrapper provides the Interactivity
+ * API context and controls visibility.
+ * ======================================== */
+.aa-nav-panel__portal {
+  display: contents; /* No visual box — just a directive wrapper */
+}
+
+/* ========================================
+ * MOBILE PANEL
+ *
+ * Adaptive panel — automatically switches between light and dark via
+ * light-dark(). Block attribute overrides (--panel-bg, --panel-color) win.
+ * ======================================== */
+.aa-nav__panel {
+  --_panel-accent: var(--indicator-color, var(--aa-color-accent));
+
+  /* Private adaptive tokens — referenced by panel descendants */
+  --_text: var(--aa-color-foreground);
+  --_text-strong: var(--aa-color-foreground);
+  --_text-muted: var(--aa-color-muted-50);
+  --_text-subtle: var(--aa-color-muted-40);
+  --_border: var(--aa-color-border-subtle);
+  --_drilldown-bg: var(--aa-color-hover-subtle);
+  --_drilldown-text: var(--aa-color-foreground-muted);
+
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 100000;
+  overflow: hidden;
+  width: var(--panel-width, min(320px, 85vw));
+  background: var(--panel-bg, var(--aa-color-surface-elevated));
+  color: var(--panel-color, var(--_text));
+  pointer-events: none;
+  will-change: transform;
+  transition:
+    transform var(--aa-nav-transition),
+    opacity var(--aa-nav-transition);
+}
+
+/* WordPress's social-links logos-only rule (.wp-block-social-links.is-style-logos-only
+   .wp-social-link svg) has specificity 0-3-1 and would override fill: currentcolor
+   on its own. !important ensures the panel's color cascade always wins, letting
+   has-*-color classes set on individual blocks in the editor control icon color. */
+.aa-nav__panel svg {
+  fill: currentcolor !important; /* stylelint-disable-line declaration-no-important */
+}
+
+.aa-nav__panel.is-open {
+  box-shadow: -1px 0 0 var(--aa-color-border-subtle);
+}
+
+/* Position: right */
+.aa-nav__panel--right {
+  right: 0;
+}
+
+/* Position: left */
+.aa-nav__panel--left {
+  left: 0;
+}
+
+/* Animation: slide */
+.aa-nav__panel--slide.aa-nav__panel--right {
+  transform: translateX(100%);
+}
+
+.aa-nav__panel--slide.aa-nav__panel--left {
+  transform: translateX(-100%);
+}
+
+.aa-nav__panel--slide.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Animation: fade */
+.aa-nav__panel--fade {
+  opacity: 0;
+}
+
+.aa-nav__panel--fade.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Animation: push */
+.aa-nav__panel--push.aa-nav__panel--right {
+  transform: translateX(100%);
+}
+
+.aa-nav__panel--push.aa-nav__panel--left {
+  transform: translateX(-100%);
+}
+
+.aa-nav__panel--push.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Animation: reveal — below overlay (99999) but above everything else */
+.aa-nav__panel--reveal {
+  z-index: 99999;
+}
+
+.aa-nav__panel--reveal.aa-nav__panel--right {
+  transform: translateX(0);
+}
+
+.aa-nav__panel--reveal.aa-nav__panel--left {
+  transform: translateX(0);
+}
+
+.aa-nav__panel--reveal.is-open {
+  pointer-events: auto;
+}
+
+/* Panel width: kept as viewport @media — the panel is position:fixed and
+   portaled outside the nav block, so its sizing is always relative to the
+   viewport, not any ancestor container.
+   - Phones (< 768px): full-width feels native
+   - Tablets (768–1023px): 60vw leaves visible content behind */
+@media (width < 768px) {
+
+  .aa-nav__panel {
+    width: 100% !important;
+  }
+}
+
+@media (768px <= width < 1024px) {
+
+  .aa-nav__panel {
+    width: 60vw !important;
+  }
+}
+
+/* Push/reveal body animation. :has() detects open state directly from the
+   panel element. Legacy body classes kept as fallback for non-:has() browsers. */
+body:has(.aa-nav__panel--push.aa-nav__panel--right.is-open) .wp-site-blocks,
+body:has(.aa-nav__panel--reveal.aa-nav__panel--right.is-open) .wp-site-blocks,
+.has-navigation-panel-open--push-right .wp-site-blocks,
+.has-navigation-panel-open--reveal-right .wp-site-blocks {
+  transform: translateX(calc(-1 * var(--push-panel-width, min(320px, 85vw))));
+  transition: transform var(--aa-nav-transition);
+}
+
+body:has(.aa-nav__panel--push.aa-nav__panel--left.is-open) .wp-site-blocks,
+body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
+.has-navigation-panel-open--push-left .wp-site-blocks,
+.has-navigation-panel-open--reveal-left .wp-site-blocks {
+  transform: translateX(var(--push-panel-width, min(320px, 85vw)));
+  transition: transform var(--aa-nav-transition);
+}
+
+.wp-site-blocks {
+  transition: transform var(--aa-nav-transition);
+}
+
+/* ========================================
+ * PANEL OVERLAY
+ *
+ * Rendered as a SIBLING of the panel (not a child) so position: fixed is
+ * relative to the viewport, not trapped by the panel's transform containing
+ * block. Visibility controlled via .is-open on the portal wrapper.
+ * ======================================== */
+.aa-nav__panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--panel-overlay-bg, var(--aa-nav-overlay-bg));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--aa-nav-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.aa-nav-panel__portal.is-open .aa-nav__panel-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========================================
+ * PANEL CONTENT
+ * ======================================== */
+.aa-nav__panel-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Panel header */
+.aa-nav__panel-header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--_border);
+}
+
+/* Optional user content left of the close button */
+.aa-nav__panel-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Close button */
+.aa-nav__panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--_text-muted);
+  transition: color var(--aa-nav-transition-fast);
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    color: var(--_text);
+  }
+
+  &:active {
+    color: var(--_text-strong);
+  }
+
+  & svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* Panel body — scrolls independently so header and footer stay fixed.
+   position: relative makes it the containing block for drilldown overlays. */
+.aa-nav__panel-body {
+  flex: 1;
+  overflow: hidden auto;
+  position: relative;
+}
+
+/* Optional utility area rendered above the panel menu */
+.aa-nav__panel-utility {
+  padding: 0.5rem 1.25rem;
+}
+
+/* Panel footer — sticky at the bottom, fully unstyled by default */
+.aa-nav__panel-footer {
+  flex-shrink: 0;
+}
+
+/* Strip social link brand backgrounds inside the panel so the icon shape is
+   visible on any panel background. Color is intentionally not touched here —
+   has-*-color on each .wp-social-link is what the editor writes, and those
+   values cascade correctly to the SVG via fill: currentcolor above. */
+.aa-nav__panel-footer .wp-block-social-links .wp-social-link {
+  background-color: transparent;
+}
+
+/* Panel menu — position: static so drilldown panels position relative to
+   aa-nav__panel-body above, not the menu itself. */
+.aa-nav__panel-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: static;
+  color: var(--_text);
+}
+
+/* ========================================
+ * STAGGER REVEAL (Panel items entrance)
+ *
+ * Two constraints to respect:
+ * 1. `translate` on a <li> creates a containing block — traps position:absolute
+ *    drilldown panels inside the 48px trigger row. Translate goes on children.
+ * 2. `opacity < 1` on a <li> creates a stacking context — later sibling <li>
+ *    elements paint on top of the drilldown panel regardless of its z-index.
+ *    Fix: drilldown/accordion <li> stays at opacity:1 always; opacity fade goes
+ *    on their __trigger child instead. nav-link <li> is safe (no abs children).
+ *
+ * --item-index is set on the <li> via JS and cascades to children.
+ * ======================================== */
+
+/* nav-link items: fade the <li> itself (safe — no absolutely-positioned children) */
+.aa-nav__panel-menu > li:not(:is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown,
+  .wp-block-aggressive-apparel-nav-submenu-accordion
+)) {
+  opacity: 0;
+}
+
+/* Drilldown/accordion: <li> stays at opacity:1 — only the __trigger child fades */
+.aa-nav__panel-menu > :is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown,
+  .wp-block-aggressive-apparel-nav-submenu-accordion
+) > :is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__trigger
+) {
+  opacity: 0;
+}
+
+/* All trigger/link children start slightly low */
+.aa-nav__panel-menu > li > :is(
+  .wp-block-aggressive-apparel-nav-link__link,
+  .wp-block-aggressive-apparel-nav-submenu__trigger,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__trigger,
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger
+) {
+  translate: 0 4px;
+}
+
+/* Stagger: fade nav-link / other <li> items */
+.aa-nav__panel.is-open .aa-nav__panel-menu > li:not(:is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown,
+  .wp-block-aggressive-apparel-nav-submenu-accordion
+)) {
+  animation: aa-nav-stagger-fade 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
+}
+
+/* Stagger: drilldown/accordion trigger children — fade + slide together */
+.aa-nav__panel.is-open .aa-nav__panel-menu > :is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown,
+  .wp-block-aggressive-apparel-nav-submenu-accordion
+) > :is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__trigger
+) {
+  animation:
+    aa-nav-stagger-fade 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    aa-nav-stagger-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
+}
+
+/* Stagger: slide-up on all other trigger/link children */
+.aa-nav__panel.is-open .aa-nav__panel-menu > li:not(:is(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown,
+  .wp-block-aggressive-apparel-nav-submenu-accordion
+)) > :is(
+  .wp-block-aggressive-apparel-nav-link__link,
+  .wp-block-aggressive-apparel-nav-submenu__trigger
+) {
+  animation: aa-nav-stagger-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
+}
+
+@keyframes aa-nav-stagger-fade {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes aa-nav-stagger-in {
+
+  from {
+    translate: 0 4px;
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Mobile touch targets. Color is `inherit` so WordPress block-support colors
+   applied to the <li> wrapper cascade through to the link. */
+.aa-nav__panel-menu .wp-block-aggressive-apparel-nav-link__link {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: baseline;
+  text-align: left;
+  padding: 0.75rem 1.25rem;
+  color: inherit;
+  text-decoration: none;
+  font-size: inherit;
+  font-weight: 500;
+  border-radius: 0;
+  transition: color var(--aa-nav-transition-fast);
+
+  &:hover,
+  &:focus {
+    color: var(--panel-link-hover-color, var(--_text-strong));
+    background: var(--panel-link-hover-bg, transparent);
+  }
+}
+
+/* Dividers — single-pixel rule */
+.aa-nav__panel-menu > li + li {
+  border-top: 1px solid var(--_border);
+}
+
+/* ========================================
+ * ENHANCED FOCUS-VISIBLE
+ * ======================================== */
+@supports selector(:focus-visible) {
+
+  .aa-nav-panel__portal :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .aa-nav-panel__portal :focus-visible {
+    outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentcolor);
+    outline-offset: var(--aa-nav-focus-offset, 2px);
+    border-radius: var(--aa-nav-radius-sm, 2px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+
+    .aa-nav-panel__portal :focus-visible {
+      animation: aa-nav-panel-focus-glow 300ms ease-out;
+    }
+
+    @keyframes aa-nav-panel-focus-glow {
+
+      from {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--aa-nav-focus-color) 50%, transparent);
+      }
+
+      to {
+        box-shadow: 0 0 0 4px transparent;
+      }
+    }
+  }
+
+  @media (forced-colors: active) {
+
+    .aa-nav-panel__portal :focus-visible {
+      outline: 3px solid CanvasText;
+      outline-offset: 3px;
+    }
+  }
+}
+
+/* ========================================
+ * REDUCED MOTION
+ * ======================================== */
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-nav-panel__portal *,
+  .aa-nav-panel__portal *::before,
+  .aa-nav-panel__portal *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Stagger items appear immediately */
+  .aa-nav__panel-menu > li {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .aa-nav__panel-menu > li > :is(
+    .wp-block-aggressive-apparel-nav-link__link,
+    .wp-block-aggressive-apparel-nav-submenu__trigger,
+    .wp-block-aggressive-apparel-nav-submenu-accordion__trigger,
+    .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger
+  ),
+  .aa-nav__panel-menu > :is(
+    .wp-block-aggressive-apparel-nav-submenu-drilldown,
+    .wp-block-aggressive-apparel-nav-submenu-accordion
+  ) > :is(
+    .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger,
+    .wp-block-aggressive-apparel-nav-submenu-accordion__trigger
+  ) {
+    opacity: 1 !important;
+    translate: none !important;
+    animation: none !important;
+  }
+
+  /* Disable View Transitions */
+  @supports (view-transition-name: none) {
+
+    .aa-nav-panel__portal,
+    .aa-nav__panel {
+      view-transition-name: none !important;
+    }
+  }
+}
+
+/* ── Fullscreen overlay menu ────────────────────── */
+.aa-nav__panel.aa-nav--fullscreen {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--wp--preset--spacing--20) var(--wp--preset--spacing--16);
+  background: var(--panel-bg, var(--aa-color-black));
+  color: var(--panel-color, var(--aa-color-white));
+
+  --_text: var(--aa-color-white);
+}
+
+.aa-nav__panel.aa-nav--fullscreen.is-open {
+  box-shadow: none;
+}
+
+.aa-nav--fullscreen .aa-nav__panel-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.aa-nav--fullscreen .aa-nav__panel-menu > li > a,
+.aa-nav--fullscreen .aa-nav__panel-menu > li > button {
+  display: block;
+  font-size: clamp(2.5rem, 1.5rem + 6vw, 7rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--panel-color, var(--aa-color-white));
+  text-decoration: none;
+  padding: 0.1em 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aa-nav--fullscreen .aa-nav__panel-menu > li > a:hover,
+.aa-nav--fullscreen .aa-nav__panel-menu > li > button:hover {
+  opacity: 0.5;
+}
+
+/* Staggered entry animation for fullscreen links */
+@supports selector(@starting-style) {
+
+  .aa-nav--fullscreen .aa-nav__panel-menu > li {
+    transition:
+      opacity 400ms var(--aa-ease-default),
+      translate 400ms var(--aa-ease-default);
+  }
+
+  @starting-style {
+
+    .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+  }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(1) { transition-delay: 80ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(2) { transition-delay: 130ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(3) { transition-delay: 180ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(4) { transition-delay: 230ms; }
+
+  .aa-nav--fullscreen.is-open .aa-nav__panel-menu > li:nth-child(n + 5) { transition-delay: 280ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-nav--fullscreen .aa-nav__panel-menu > li {
+    transition: none;
+  }
+}

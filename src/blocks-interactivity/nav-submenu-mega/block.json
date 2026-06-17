@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/nav-submenu-mega",
+  "version": "1.0.0",
+  "title": "Nav Mega Menu",
+  "category": "aggressive-apparel",
+  "description": "Desktop mega menu with a full-viewport-width panel. Supports rich inner content including columns, images, and headings. Place inside a Desktop Navigation block.",
+  "keywords": ["navigation", "desktop", "mega", "menu", "submenu", "full-width"],
+  "textdomain": "aggressive-apparel",
+  "icon": "grid-view",
+  "ancestor": ["aggressive-apparel/navigation"],
+  "allowedBlocks": [
+    "aggressive-apparel/nav-link",
+    "core/columns",
+    "core/column",
+    "core/group",
+    "core/heading",
+    "core/paragraph",
+    "core/image",
+    "core/buttons",
+    "core/separator"
+  ],
+  "attributes": {
+    "label": { "type": "string", "default": "" },
+    "url": { "type": "string", "default": "" },
+    "submenuId": { "type": "string", "default": "" },
+    "showArrow": { "type": "boolean", "default": true },
+    "openOn": {
+      "type": "string",
+      "enum": ["hover", "click"],
+      "default": "hover"
+    },
+    "columns": { "type": "number", "default": 4 }
+  },
+  "usesContext": [
+    "aggressive-apparel/navigationId",
+    "aggressive-apparel/navigationOpenOn",
+    "aggressive-apparel/submenuBackgroundColor",
+    "aggressive-apparel/submenuTextColor",
+    "aggressive-apparel/submenuBorderRadius",
+    "aggressive-apparel/submenuBorderWidth",
+    "aggressive-apparel/submenuBorderColor",
+    "aggressive-apparel/submenuBorderStyle"
+  ],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": { "background": true, "text": true },
+    "typography": { "fontSize": true },
+    "spacing": { "blockGap": true, "padding": true },
+    "__experimentalBorder": { "width": true, "color": true, "style": true },
+    "shadow": true,
+    "className": true
+  },
+  "render": "file:./render.php",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

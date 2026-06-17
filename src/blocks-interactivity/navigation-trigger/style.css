@@ -1,0 +1,232 @@
+/**
+ * Navigation Trigger Block Styles
+ *
+ * The hamburger/toggle button. Hidden by default (desktop); shown when the
+ * parent navigation block has the .is-mobile class (set by JS) or — before JS
+ * loads — via a container query on the navigation container.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-nav-trigger {
+  display: none; /* Hidden on desktop by default */
+  align-items: center;
+  gap: var(--wp--preset--spacing--2);
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Shown on mobile: JS sets .is-mobile on the navigation block parent. */
+.wp-block-aggressive-apparel-navigation.is-mobile .aa-nav-trigger {
+  display: flex;
+}
+
+/* CSS-only fallback before JS loads: container query on the navigation block. */
+@supports (container-type: inline-size) {
+
+  @container navigation (width <= 1023px) {
+
+    .wp-block-aggressive-apparel-navigation:not(.is-mobile) .aa-nav-trigger {
+      display: flex;
+    }
+  }
+}
+
+.aa-nav-trigger__icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
+
+/* Hamburger bars */
+.aa-nav-trigger__bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: currentcolor;
+  border-radius: 1px;
+  transition:
+    transform var(--aa-nav-transition, 0.3s ease),
+    opacity var(--aa-nav-transition-fast, 0.2s ease);
+  position: absolute;
+
+  &:nth-child(1) { top: 4px; }
+
+  &:nth-child(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &:nth-child(3) { bottom: 4px; }
+}
+
+/* Animation: to-x */
+.aa-nav-trigger--anim-to-x.is-active .aa-nav-trigger__bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  &:nth-child(2) { opacity: 0; }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+  }
+}
+
+/* Animation: spin */
+.aa-nav-trigger--anim-spin.is-active {
+  transform: rotate(180deg);
+
+  & .aa-nav-trigger__bar {
+
+    &:nth-child(1) {
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    &:nth-child(2) { opacity: 0; }
+
+    &:nth-child(3) {
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%) rotate(-45deg);
+    }
+  }
+}
+
+/* Animation: squeeze */
+.aa-nav-trigger--anim-squeeze.is-active .aa-nav-trigger__bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 100%;
+  }
+
+  &:nth-child(2) {
+    transform: translateY(-50%) scaleX(0);
+    opacity: 0;
+  }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+    width: 100%;
+  }
+}
+
+/* Animation: collapse */
+.aa-nav-trigger--anim-collapse.is-active .aa-nav-trigger__bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80%;
+    opacity: 0;
+  }
+
+  &:nth-child(2) { transform: translateY(-50%) scaleX(1.2); }
+
+  &:nth-child(3) {
+    bottom: 50%;
+    transform: translateY(50%);
+    width: 80%;
+    opacity: 0;
+  }
+}
+
+/* Animation: arrow-left / arrow-right */
+.aa-nav-trigger--anim-arrow-left.is-active .aa-nav-trigger__bar,
+.aa-nav-trigger--anim-arrow-right.is-active .aa-nav-trigger__bar {
+
+  &:nth-child(1) {
+    top: 50%;
+    width: 60%;
+    transform: translateY(-50%) rotate(-40deg);
+    transform-origin: left center;
+  }
+
+  &:nth-child(2) { width: 100%; }
+
+  &:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    width: 60%;
+    transform: translateY(-50%) rotate(40deg);
+    transform-origin: left center;
+  }
+}
+
+.aa-nav-trigger--anim-arrow-right.is-active .aa-nav-trigger__bar {
+
+  &:nth-child(1) {
+    transform: translateY(-50%) rotate(40deg);
+    transform-origin: right center;
+  }
+
+  &:nth-child(3) {
+    transform: translateY(-50%) rotate(-40deg);
+    transform-origin: right center;
+  }
+}
+
+/* Dots icon style */
+.aa-nav-trigger__icon--dots {
+  flex-direction: row;
+  gap: var(--wp--preset--spacing--0-5);
+}
+
+.aa-nav-trigger__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentcolor;
+  transition: transform var(--aa-nav-transition, 0.3s ease);
+}
+
+.aa-nav-trigger--dots.is-active .aa-nav-trigger__dot {
+
+  &:nth-child(1) {
+    transform: translateX(4px) scale(0.5);
+    opacity: 0;
+  }
+
+  &:nth-child(2) { transform: scale(1.5); }
+
+  &:nth-child(3) {
+    transform: translateX(-4px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Label */
+.aa-nav-trigger__label {
+  font-size: var(--wp--preset--font-size--small);
+  font-weight: 500;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-nav-trigger,
+  .aa-nav-trigger * {
+    transition-duration: 0.01ms !important;
+  }
+}

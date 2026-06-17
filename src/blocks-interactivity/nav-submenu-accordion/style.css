@@ -1,0 +1,131 @@
+/**
+ * Nav Accordion Block Styles
+ *
+ * Mobile inline accordion. Uses CSS grid-template-rows: 0fr/1fr collapse so
+ * the transition is height-independent — no JS measurement needed.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-nav-submenu-accordion {
+  display: block;
+  width: 100%;
+
+  &__trigger {
+    width: 100%;
+  }
+
+  /* Trigger link or button */
+  &__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--wp--preset--spacing--2, 0.5rem);
+    width: 100%;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    color: inherit;
+    font: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    background: none;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--aa-nav-transition-fast, 150ms ease);
+
+    &:hover,
+    &:focus {
+      color: var(--panel-link-hover-color, inherit);
+      background: var(--panel-link-hover-bg, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+      outline-offset: 2px;
+    }
+  }
+
+  /* Chevron arrow — rotates 180° when open */
+  &__arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--aa-color-muted-40, currentcolor);
+    transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    & svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &.is-open &__arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Grid-collapse panel. grid-template-rows: 0fr collapses the single child
+     to 0 height; 1fr expands it. overflow: hidden clips during transition. */
+  &__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 350ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Prevent the hidden attribute from fighting display: grid */
+    &[hidden] {
+      display: grid;
+    }
+  }
+
+  &.is-open &__panel {
+    grid-template-rows: 1fr;
+  }
+
+  /* Single grid child — must have min-height: 0 for the collapse to work */
+  &__panel-content {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__panel-inner {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-inline-start: 1rem;
+    background: var(--accordion-content-bg, var(--aa-color-hover-subtle));
+  }
+
+  /* Sub-items (nav-link blocks inside the accordion) */
+  & .wp-block-aggressive-apparel-nav-link__link {
+    font-size: var(--wp--preset--font-size--small, 0.875rem);
+    font-weight: 400;
+    min-height: 40px;
+    padding: 0.5rem 1.25rem;
+    color: var(--aa-color-foreground-muted, inherit);
+
+    &:hover,
+    &:focus {
+      color: var(--aa-color-foreground, inherit);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .wp-block-aggressive-apparel-nav-submenu-accordion {
+
+    &__arrow {
+      transition: none;
+    }
+
+    &__panel {
+      transition: none;
+    }
+  }
+}

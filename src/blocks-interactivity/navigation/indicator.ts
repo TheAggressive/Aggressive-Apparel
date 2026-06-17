@@ -10,7 +10,7 @@
  */
 
 import { SELECTORS } from './constants';
-import type { PanelState } from './types';
+import type { NavState } from './types';
 import { clearHoverTimeouts } from './utils';
 import { hoverIntent, indicatorRegistry } from './registries';
 
@@ -89,7 +89,7 @@ export function resetIndicatorOnClose(navId: string, isMobile: boolean): void {
 export function setupDesktopIndicator(
   navId: string,
   nav: HTMLElement,
-  getNavState: (navId: string) => PanelState
+  getNavState: (navId: string) => NavState
 ): void {
   const menubar = nav.querySelector(SELECTORS.menubar) as HTMLElement | null;
   const indicator = nav.querySelector(

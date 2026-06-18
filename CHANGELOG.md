@@ -1,3 +1,10 @@
+## [1.97.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.97.0...v1.97.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* streamline navigation submenu components and update context handling ([3a19b53](https://github.com/TheAggressive/Aggressive-Apparel/commit/3a19b53d03f89136d93ae8d311d1b33e43137ecb))
+
 # [1.97.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.96.10...v1.97.0) (2026-06-18)
 
 

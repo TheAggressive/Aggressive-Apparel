@@ -241,10 +241,6 @@ jobs:
           flags: unit
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Stop wp-env
-        if: always()
-        run: pnpm env:stop
-
   # ============================================================================
   # Package Theme
   # ============================================================================

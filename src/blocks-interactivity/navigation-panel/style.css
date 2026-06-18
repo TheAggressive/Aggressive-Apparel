@@ -363,7 +363,6 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
 /* All trigger/link children start slightly low */
 .aa-nav__panel-menu > li > :is(
   .wp-block-aggressive-apparel-nav-link__link,
-  .wp-block-aggressive-apparel-nav-submenu__trigger,
   .wp-block-aggressive-apparel-nav-submenu-accordion__trigger,
   .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger
 ) {
@@ -393,14 +392,11 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
   animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
 }
 
-/* Stagger: slide-up on all other trigger/link children */
+/* Stagger: slide-up on nav-link children */
 .aa-nav__panel.is-open .aa-nav__panel-menu > li:not(:is(
   .wp-block-aggressive-apparel-nav-submenu-drilldown,
   .wp-block-aggressive-apparel-nav-submenu-accordion
-)) > :is(
-  .wp-block-aggressive-apparel-nav-link__link,
-  .wp-block-aggressive-apparel-nav-submenu__trigger
-) {
+)) > .wp-block-aggressive-apparel-nav-link__link {
   animation: aa-nav-stagger-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
 }
@@ -518,7 +514,6 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
 
   .aa-nav__panel-menu > li > :is(
     .wp-block-aggressive-apparel-nav-link__link,
-    .wp-block-aggressive-apparel-nav-submenu__trigger,
     .wp-block-aggressive-apparel-nav-submenu-accordion__trigger,
     .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger
   ),

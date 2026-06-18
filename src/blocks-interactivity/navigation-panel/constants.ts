@@ -15,18 +15,18 @@ export const SELECTORS = {
   navLink: '.wp-block-aggressive-apparel-nav-link',
   navLinkAnchor: '.wp-block-aggressive-apparel-nav-link__link',
 
-  // Nav-submenu elements — selectors cover the legacy nav-submenu block AND
-  // the new dedicated accordion/drilldown blocks.
+  // Nav-submenu elements — accordion and drilldown are the only submenu blocks
+  // allowed in the navigation panel.
   navSubmenu:
-    ':is(.wp-block-aggressive-apparel-nav-submenu, .wp-block-aggressive-apparel-nav-submenu-accordion, .wp-block-aggressive-apparel-nav-submenu-drilldown)',
+    ':is(.wp-block-aggressive-apparel-nav-submenu-accordion, .wp-block-aggressive-apparel-nav-submenu-drilldown)',
   submenuLink:
-    ':is(.wp-block-aggressive-apparel-nav-submenu__link, .wp-block-aggressive-apparel-nav-submenu-accordion__link, .wp-block-aggressive-apparel-nav-submenu-drilldown__link)',
+    ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__link, .wp-block-aggressive-apparel-nav-submenu-drilldown__link)',
   submenuTrigger:
-    ':is(.wp-block-aggressive-apparel-nav-submenu__trigger, .wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
+    ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
   submenuPanel:
-    ':is(.wp-block-aggressive-apparel-nav-submenu__panel, .wp-block-aggressive-apparel-nav-submenu-accordion__panel, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel)',
+    ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__panel, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel)',
   submenuLabel:
-    ':is(.wp-block-aggressive-apparel-nav-submenu__label, .wp-block-aggressive-apparel-nav-submenu-accordion__label, .wp-block-aggressive-apparel-nav-submenu-drilldown__label)',
+    ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__label, .wp-block-aggressive-apparel-nav-submenu-drilldown__label)',
 
   // Panel (portaled to wp_footer by navigation-panel/render.php)
   panel: '.aa-nav__panel',
@@ -38,9 +38,10 @@ export const SELECTORS = {
   panelClose: '.aa-nav__panel-close',
 
   // Drilldown
-  drilldownHeader: '.wp-block-aggressive-apparel-nav-submenu__drilldown-header',
-  drilldownBack: '.wp-block-aggressive-apparel-nav-submenu__back',
-  drilldownTitle: '.wp-block-aggressive-apparel-nav-submenu__drilldown-title',
+  drilldownBackButton:
+    '.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button',
+  drilldownBackLabel:
+    '.wp-block-aggressive-apparel-nav-submenu-drilldown__back-label',
 
   // State classes
   isOpen: 'is-open',
@@ -48,8 +49,7 @@ export const SELECTORS = {
   hasDrillStack: 'has-drill-stack',
 
   // Submenu type classes
-  submenuDrilldown:
-    ':is(.wp-block-aggressive-apparel-nav-submenu--drilldown, .wp-block-aggressive-apparel-nav-submenu-drilldown)',
+  submenuDrilldown: '.wp-block-aggressive-apparel-nav-submenu-drilldown',
   submenuMegaContent: 'wp-block-aggressive-apparel-nav-submenu--mega-content',
 } as const;
 

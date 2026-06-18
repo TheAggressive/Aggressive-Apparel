@@ -31,13 +31,33 @@ export interface NavigationAttributes {
 }
 
 /**
- * Immutable per-instance config passed via data-wp-context.
+ * Immutable per-instance config set by the navigation block via data-wp-context.
  * Mutable state lives in the global store (state._navs[navId]).
+ *
+ * Context inheritance chain:
+ *   navigation/render.php sets:       { navId, breakpoint, openOn }
+ *   nav-submenu-{type}/render.php adds: { submenuId, menuType }
+ *   store callbacks call getContext<NavigationContext & SubmenuContext>() and
+ *   see both — the Interactivity API merges ancestor context into child context.
+ *   Fields cannot be reactive; all mutable per-nav state goes into _navs[navId].
  */
 export interface NavigationContext {
   navId: string;
   breakpoint: number;
   openOn: 'hover' | 'click';
+}
+
+/**
+ * Extra context fields injected by nav-submenu-dropdown and nav-submenu-mega.
+ * These blocks use data-wp-context to add submenuId and menuType on top of the
+ * inherited navigation context. Store callbacks read both by widening the type:
+ *   getContext<NavigationContext & SubmenuContext>()
+ */
+export interface SubmenuContext {
+  /** Matches the id attribute on the .wp-block-...-nav-submenu panel element. */
+  submenuId: string;
+  /** Selects the close/indicator behaviour: 'dropdown' clips; 'mega' spans viewport. */
+  menuType: 'dropdown' | 'mega';
 }
 
 /**

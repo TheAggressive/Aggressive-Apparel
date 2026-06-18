@@ -5,9 +5,10 @@
  * Desktop-only floating dropdown submenu. Supports hover and click triggers.
  * Uses clip-path reveal animation.
  *
- * COMPAT: Adds legacy wp-block-aggressive-apparel-nav-submenu classes so the
- * navigation store's CSS selectors and JS selectors continue to work without
- * changes.
+ * The wrapper element carries both the block-specific class and the shared
+ * wp-block-aggressive-apparel-nav-submenu class. The navigation store's CSS
+ * and JS selectors target the shared class to handle all submenu variants
+ * (dropdown, mega) with a single selector.
  *
  * @package Aggressive_Apparel
  *
@@ -45,7 +46,7 @@ $context = wp_json_encode(
 
 // Hover bindings on wrapper for hover mode.
 $wrapper_attrs = array(
-	// Legacy compat: navigation store targets these classes.
+	// Shared class lets the navigation store target all submenu variants with one selector.
 	'class'                  => 'wp-block-aggressive-apparel-nav-submenu wp-block-aggressive-apparel-nav-submenu--dropdown',
 	'role'                   => 'none',
 	'data-wp-interactive'    => 'aggressive-apparel/navigation',

@@ -464,7 +464,7 @@ export function updateMegaContentInertState(
       li.inert = false;
       const trigger = safeQuerySelector<HTMLElement>(
         li,
-        '.wp-block-aggressive-apparel-nav-submenu__trigger',
+        ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
         false
       );
       if (trigger) {
@@ -493,7 +493,7 @@ export function updateMegaContentInertState(
     if (li === activeLi) {
       const trigger = safeQuerySelector<HTMLElement>(
         li,
-        '.wp-block-aggressive-apparel-nav-submenu__trigger',
+        ':is(.wp-block-aggressive-apparel-nav-submenu-accordion__trigger, .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger)',
         false
       );
       if (trigger) {
@@ -546,7 +546,7 @@ export function updateDrilldownInertState(
 
   const drilldownPanels = safeQuerySelectorAll<HTMLElement>(
     container,
-    ':is(.wp-block-aggressive-apparel-nav-submenu--drilldown, .wp-block-aggressive-apparel-nav-submenu-drilldown) :is(.wp-block-aggressive-apparel-nav-submenu__panel, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel)'
+    '.wp-block-aggressive-apparel-nav-submenu-drilldown .wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
   );
 
   const currentActiveId = drillStack[drillStack.length - 1] ?? null;
@@ -586,7 +586,7 @@ export function focusDrilldownTrigger(
 ): void {
   const submenu = safeQuerySelector<HTMLElement>(
     container,
-    `:is(.wp-block-aggressive-apparel-nav-submenu--drilldown, .wp-block-aggressive-apparel-nav-submenu-drilldown):has(#${CSS.escape(previousId)})`,
+    `.wp-block-aggressive-apparel-nav-submenu-drilldown:has(#${CSS.escape(previousId)})`,
     false
   );
 
@@ -596,7 +596,7 @@ export function focusDrilldownTrigger(
 
   const trigger = safeQuerySelector<HTMLElement>(
     submenu,
-    ':is(.wp-block-aggressive-apparel-nav-submenu__link, .wp-block-aggressive-apparel-nav-submenu-drilldown__link)',
+    '.wp-block-aggressive-apparel-nav-submenu-drilldown__link',
     false
   );
 

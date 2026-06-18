@@ -5,8 +5,14 @@
  * and keyboard navigation for the menubar. The mobile panel is a separate
  * block (navigation-panel) with its own store.
  *
- * Mutable state lives in state._navs[navId] (global store):
- * - isMobile: disables hover-based submenu opening below the breakpoint.
+ * Context chain (read-only, set in PHP render.php files):
+ *   navigation:          { navId, breakpoint, openOn }
+ *   nav-submenu-*:       inherits above and adds { submenuId, menuType }
+ *   callbacks/actions:   call getContext<NavigationContext & SubmenuContext>()
+ *
+ * Mutable state lives in state._navs[navId] (global store) because context is
+ * immutable once set in data-wp-context — only the store can change at runtime:
+ * - isMobile: set by matchMedia; disables hover below the breakpoint.
  * - activeSubmenuId: tracks which desktop dropdown/mega is open.
  *
  * @package Aggressive_Apparel
@@ -26,7 +32,12 @@ import {
   KEYS,
   SELECTORS,
 } from './constants';
-import type { NavigationContext, NavigationState, NavState } from './types';
+import type {
+  NavigationContext,
+  NavigationState,
+  NavState,
+  SubmenuContext,
+} from './types';
 import {
   announce,
   clearHoverTimeouts,
@@ -98,7 +109,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     openSubmenu(): void {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return;
@@ -148,7 +159,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     toggleSubmenu: withSyncEvent((event?: Event): void => {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string; menuType?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return;
@@ -413,7 +424,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     onHoverEnter(): void {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return;
@@ -494,7 +505,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     onHoverLeave: withSyncEvent((event: MouseEvent | FocusEvent): void => {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return;
@@ -546,7 +557,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     onPopoverToggle(event: ToggleEvent): void {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return;
@@ -584,7 +595,7 @@ const navigationStore = store('aggressive-apparel/navigation', {
     isSubmenuOpen(): boolean {
       try {
         const context = getContext<
-          NavigationContext & { submenuId?: string }
+          NavigationContext & Partial<SubmenuContext>
         >();
         if (!context) {
           return false;

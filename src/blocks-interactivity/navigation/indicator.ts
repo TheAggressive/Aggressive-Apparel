@@ -113,6 +113,8 @@ export function setupDesktopIndicator(
   };
 
   // Widen indicator to match a submenu panel's width.
+  // panelRect.left - menubarRect.left gives the same coordinate space as
+  // updateToItem (both relative to the menubar's left edge, not the viewport).
   const widenToPanel = (panelEl: HTMLElement) => {
     const menubarRect = menubar.getBoundingClientRect();
     const panelRect = panelEl.getBoundingClientRect();

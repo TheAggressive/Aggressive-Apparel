@@ -76,7 +76,10 @@ function addMediaChangeListener(
   return () => legacyMediaQueryList.removeListener?.(handler);
 }
 
-function setupHorizontalScroll(ref: HTMLElement, ctx: HScrollContext): () => void {
+function setupHorizontalScroll(
+  ref: HTMLElement,
+  ctx: HScrollContext
+): () => void {
   runtimes.get(ref)?.destroy();
 
   const viewport = ref.querySelector<HTMLElement>('.aa-hscroll__viewport');

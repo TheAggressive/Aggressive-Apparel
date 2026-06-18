@@ -1,97 +1,156 @@
 /* Horizontal Scroll Block — Frontend Styles */
 
 .aa-hscroll {
+  --aa-hscroll-distance: calc(0 * 1px);
+  --aa-hscroll-gap: var(--wp--preset--spacing--8, 2rem);
+  --aa-hscroll-sticky-top: calc(0 * 1px);
+  --aa-hscroll-x: calc(0 * 1px);
+
   position: relative;
-  height: calc(var(--aa-hscroll-multiplier, 3) * 100vh);
 }
 
-/* Viewport: sticky window that the track slides through */
+/* Baseline/no-JS fallback: normal readable document flow. */
 .aa-hscroll__viewport {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
   width: 100%;
 }
 
-/* Track: houses InnerBlocks laid out horizontally */
 .aa-hscroll__track {
+  display: grid;
+  gap: var(--aa-hscroll-gap);
+  min-width: 0;
+}
+
+.aa-hscroll__track > * {
+  min-width: 0;
+}
+
+/* Shared horizontal layout, enabled only by JS/editor preview classes. */
+.aa-hscroll.is-horizontal .aa-hscroll__track {
   display: flex;
   flex-wrap: nowrap;
-  height: 100%;
-  will-change: transform;
-  gap: var(--wp--preset--spacing--8, 2rem);
+  gap: var(--aa-hscroll-gap);
+}
 
-  /* Items */
-  > * {
-    flex: 0 0 var(--aa-hscroll-item-width, 60vw);
-    height: 100%;
-    scroll-snap-align: start;
+.aa-hscroll.is-horizontal .aa-hscroll__track > * {
+  flex: 0 0 var(--aa-hscroll-item-width, 60vw);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+/* Desktop enhanced mode: sticky viewport plus scroll-distance sentinel. */
+.aa-hscroll.is-enhanced {
+  height: calc(100vh + var(--aa-hscroll-distance));
+  min-height: 100vh;
+}
+
+.aa-hscroll.is-enhanced .aa-hscroll__viewport {
+  position: sticky;
+  top: var(--aa-hscroll-sticky-top);
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@supports (height: 100svh) {
+
+  .aa-hscroll.is-enhanced {
+    height: calc(100svh + var(--aa-hscroll-distance));
+    min-height: 100svh;
+  }
+
+  .aa-hscroll.is-enhanced .aa-hscroll__viewport {
+    height: 100svh;
   }
 }
 
-/* Progress bar — overlays the bottom edge of the sticky viewport */
+.aa-hscroll.is-enhanced .aa-hscroll__track {
+  height: 100%;
+  transform: translate3d(var(--aa-hscroll-x), 0, 0);
+  will-change: transform;
+}
+
+.aa-hscroll.is-enhanced .aa-hscroll__track > * {
+  height: 100%;
+}
+
+/* Touch/coarse-pointer mode: native horizontal scrolling, no pinning. */
+.aa-hscroll.is-snap .aa-hscroll__viewport {
+  position: relative;
+  overflow: auto hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.aa-hscroll.is-snap .aa-hscroll__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.aa-hscroll.is-snap .aa-hscroll__track {
+  transform: none;
+}
+
+/* Progress bar — overlays the bottom edge of the sticky viewport. */
 .aa-hscroll__progress {
+  display: none;
+}
+
+.aa-hscroll.is-enhanced .aa-hscroll__progress {
   position: absolute;
   bottom: 0;
   left: 0;
+  z-index: 10;
+  display: block;
   width: 100%;
   height: 3px;
   background-color: color-mix(in oklch, var(--aa-color-border) 40%, transparent);
-  z-index: 10;
   opacity: 0;
   transition: opacity 500ms ease;
 }
 
-.aa-hscroll__progress.is-active {
+.aa-hscroll.is-enhanced .aa-hscroll__progress.is-active {
   opacity: 1;
 }
 
 .aa-hscroll__progress-bar {
+  width: 100%;
   height: 100%;
-  background-color: var(--aa-color-accent);
-  transition: width 60ms linear;
   max-width: 100%;
+  background-color: var(--aa-color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 80ms linear;
+  will-change: transform;
 }
 
-/* ── Touch / coarse pointer: CSS scroll-snap ─────── */
-@media (pointer: coarse) {
-
-  .aa-hscroll {
-    height: auto;
-  }
-
-  .aa-hscroll__viewport {
-    position: static;
-    height: 100svh;
-    overflow: auto hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .aa-hscroll__track {
-    transform: none !important;
-  }
-
-  .aa-hscroll__progress {
-    display: none;
-  }
-}
-
-/* ── Reduced motion ──────────────────────────────── */
+/* Reduced motion: force normal document flow if CSS loads before JS adapts. */
 @media (prefers-reduced-motion: reduce) {
 
-  .aa-hscroll__track {
-    transition: none;
+  .aa-hscroll.is-enhanced {
+    height: auto;
+    min-height: 0;
+  }
+
+  .aa-hscroll.is-enhanced .aa-hscroll__viewport {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  .aa-hscroll.is-horizontal .aa-hscroll__track {
+    display: grid;
+    transform: none;
+    will-change: auto;
+  }
+
+  .aa-hscroll.is-horizontal .aa-hscroll__track > * {
+    flex-basis: auto;
+    height: auto;
   }
 
   .aa-hscroll__progress,
   .aa-hscroll__progress-bar {
+    display: none;
     transition: none;
   }
 }

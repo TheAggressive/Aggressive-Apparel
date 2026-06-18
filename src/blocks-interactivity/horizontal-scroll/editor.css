@@ -13,5 +13,13 @@
 }
 
 .wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--aa-hscroll-gap, var(--wp--preset--spacing--8, 2rem));
   transform: none !important;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__track > * {
+  flex: 0 0 var(--aa-hscroll-item-width, 60vw);
+  min-width: 0;
 }

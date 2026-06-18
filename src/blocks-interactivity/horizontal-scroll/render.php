@@ -17,13 +17,15 @@ declare(strict_types=1);
 
 defined( 'ABSPATH' ) || exit;
 
-$item_width    = ! empty( $attributes['itemWidth'] ) ? $attributes['itemWidth'] : '60vw';
-$speed         = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.0;
-$show_progress = ! empty( $attributes['showProgress'] );
+$item_width = ! empty( $attributes['itemWidth'] ) ? (string) $attributes['itemWidth'] : '60vw';
+if ( ! preg_match( '/^\d+(?:\.\d+)?(?:px|vw|%)$/', $item_width ) ) {
+	$item_width = '60vw';
+}
 
-// Speed multiplier: how many "screen heights" of vertical scroll the section claims.
-// 3 panels at 60vw ≈ 2.5 scroll-heights feels good; speed nudges this.
-$scroll_multiplier = max( 1.5, 3 * $speed );
+$speed = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.0;
+$speed = min( 3.0, max( 0.5, $speed ) );
+
+$show_progress = ! empty( $attributes['showProgress'] );
 
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
@@ -34,14 +36,15 @@ $wrapper_attrs = get_block_wrapper_attributes(
 		'data-wp-context'      => wp_json_encode(
 			array(
 				'itemWidth' => $item_width,
+				'speed'     => $speed,
 				'progress'  => 0,
 			)
 		),
 		'data-wp-init'         => 'callbacks.init',
 		'style'                => sprintf(
-			'--aa-hscroll-item-width: %s; --aa-hscroll-multiplier: %s;',
+			'--aa-hscroll-item-width: %s; --aa-hscroll-speed: %s;',
 			esc_attr( $item_width ),
-			esc_attr( (string) $scroll_multiplier )
+			esc_attr( (string) $speed )
 		),
 	)
 );

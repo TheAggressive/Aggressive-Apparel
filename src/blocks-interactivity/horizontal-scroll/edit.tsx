@@ -18,6 +18,7 @@ import {
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
+import type { CSSProperties } from 'react';
 
 interface HScrollAttributes {
   itemWidth: string;
@@ -30,8 +31,14 @@ export default function Edit({
   setAttributes,
 }: BlockEditProps<HScrollAttributes>) {
   const { itemWidth, speed, showProgress } = attributes;
+  const previewStyle = {
+    '--aa-hscroll-item-width': itemWidth,
+  } as CSSProperties;
 
-  const blockProps = useBlockProps({ className: 'aa-hscroll' });
+  const blockProps = useBlockProps({
+    className: 'aa-hscroll is-horizontal',
+    style: previewStyle,
+  });
   const innerBlocksProps = useInnerBlocksProps(
     { className: 'aa-hscroll__track' },
     {

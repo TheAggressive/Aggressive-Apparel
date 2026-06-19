@@ -1,3 +1,10 @@
+# [1.99.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.98.0...v1.99.0) (2026-06-19)
+
+
+### Features
+
+* refactor navigation system for improved modularity and performance ([77b18c5](https://github.com/TheAggressive/Aggressive-Apparel/commit/77b18c5f8413c4a4bbb647765bce162373e0108c))
+
 # [1.98.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.97.1...v1.98.0) (2026-06-18)
 
 

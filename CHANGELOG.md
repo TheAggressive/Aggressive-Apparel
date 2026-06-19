@@ -1,3 +1,10 @@
+# [1.101.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.100.0...v1.101.0) (2026-06-19)
+
+
+### Features
+
+* enhance product button text customization and add rate limiting for stock notifications ([0e22036](https://github.com/TheAggressive/Aggressive-Apparel/commit/0e2203613b158be0bb85ed26551213d006e4c945))
+
 # [1.100.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.99.0...v1.100.0) (2026-06-19)
 
 

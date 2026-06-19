@@ -1,14 +1,33 @@
 /**
  * Nav Drilldown Block Styles
  *
- * Slides in from the right to cover aa-nav__panel-body (position: relative).
+ * Slides in from the right to cover its scroll container, revealing a back
+ * button and child links. Supports unlimited nesting: a drilldown placed
+ * inside another drilldown slides over its parent panel using the same
+ * absolute/translate pattern. All open-state selectors use the child
+ * combinator (`>`) so each level only animates its own panel.
+ *
  * Two animation variants controlled by a modifier class:
  *
- *   --overlay  submenu slides over; main list stays visible behind it
- *   --push     main list slides out left simultaneously via :has()
+ *   --overlay  submenu slides over; the list behind it stays put
+ *   --push     the list behind slides out left as the submenu slides in
+ *
+ * Scrollbars are hidden on the scroll containers so the slide distance
+ * (translateX(100%)) is identical on desktop (classic scrollbars) and mobile
+ * (overlay scrollbars). Without this the reserved desktop scrollbar gutter
+ * shifts where the off-screen panel parks and clips.
  *
  * @package Aggressive_Apparel
  */
+
+/* Push-variant motion tokens live on the panel body so BOTH the drilldown
+   (a descendant) and the level behind it — the panel menu / utility row, which
+   are ancestors of the drilldown and so can't inherit from the block — share
+   one source of truth for the recede distance and easing. */
+.aa-nav__panel-body {
+  --dd-push-parallax: -28%; /* recede distance of the level behind (push) */
+  --dd-push-ease: 420ms cubic-bezier(0.32, 0.72, 0, 1);
+}
 
 .wp-block-aggressive-apparel-nav-submenu-drilldown {
   display: block;
@@ -68,21 +87,34 @@
   }
 
   /* Slide-over panel.
-     position: absolute; inset: 0 fills aa-nav__panel-body exactly.
-     The body's overflow: hidden clips the off-screen panel.
-     Uses translate individual property on the menu (see push variant below). */
+     position: absolute; inset: 0 fills the nearest positioned ancestor — the
+     panel body at the top level, or the parent drilldown panel when nested.
+     That ancestor's overflow clips the off-screen panel.
+     Scrollbar hidden so translateX(100%) parks it exactly one full width away
+     regardless of the platform's scrollbar style. */
   &__panel {
     position: absolute;
     inset: 0;
     z-index: 1;
     display: flex !important;
     flex-direction: column;
-    overflow: hidden auto;
+    overflow: clip auto;
     background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
     color: var(--panel-color, inherit);
+
+    /* Leading-edge shadow: sells the layered "slides over the level behind"
+       look for both variants. Off-screen (invisible) at rest, seen mid-slide. */
+    box-shadow: -12px 0 28px -8px rgb(0 0 0 / 25%);
     transform: translateX(100%);
-    transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform var(--aa-nav-transition, 350ms cubic-bezier(0.22, 1, 0.36, 1));
     pointer-events: none;
+    will-change: transform;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none; /* WebKit/Blink */
+    }
 
     /* Keep display: flex when PHP outputs [hidden] as a no-JS fallback */
     &[hidden] {
@@ -91,14 +123,16 @@
     }
   }
 
-  &.is-open &__panel {
+  /* Child combinator: each level opens only its own panel, never a nested
+     descendant's panel. */
+  &.is-open > &__panel {
     transform: translateX(0);
     pointer-events: auto;
   }
 
   /* Back button — full-width tap target, sticky so it stays visible while
      the sub-list scrolls. position: sticky is safe here because the panel
-     is its own scroll container (overflow: hidden auto above). */
+     is its own scroll container (overflow-y: auto above). */
   &__back-button {
     display: flex;
     align-items: center;
@@ -118,7 +152,9 @@
     cursor: pointer;
     text-align: left;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color var(--aa-nav-transition-fast, 150ms ease);
+    transition:
+      background-color var(--aa-nav-transition-fast, 150ms ease),
+      margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
 
     &:hover {
       background: var(--panel-link-hover-bg, var(--aa-color-hover-subtle));
@@ -149,11 +185,32 @@
     white-space: nowrap;
   }
 
+  /* "View all in {label}" link to the parent's own URL — surfaces the
+     otherwise-unreachable trigger destination at the top of the panel. */
+  &__view-all {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    color: var(--panel-link-hover-color, inherit);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+      outline-offset: -2px;
+    }
+  }
+
   &__panel-inner {
     list-style: none;
     margin: 0;
     padding: 0;
     flex: 1;
+    transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
   }
 
   /* Sub-items */
@@ -164,38 +221,79 @@
   }
 }
 
-/* ── Push variant ──────────────────────────────────────────────────────────
-   Slide the main panel menu out to the left when a push drilldown is open.
-   IMPORTANT: `translate` and `transform` create a containing block even on
-   position:static elements, which would drag the absolutely-positioned
-   drilldown panel off-screen with the menu. `margin-inline-start` does NOT
-   create a containing block, so the panel stays anchored to aa-nav__panel-body.
-   The transition is set on the default state so the close animation also runs.
+/* ── Push variant (iOS-style parallax) ─────────────────────────────────────
+   Where overlay slides the panel over a STATIONARY level, push makes the level
+   behind RECEDE: it slides left at a fraction of the incoming panel's speed
+   (--dd-push-parallax), so the old screen appears to be pushed back while the
+   new one comes forward. The slower recede + distinct easing is what reads as
+   clearly different from overlay.
+
+   IMPORTANT: `translate`/`transform` create a containing block even on
+   position:static elements, which would drag the absolutely-positioned panel
+   off-screen with the list. `margin-inline-start` does NOT create a containing
+   block, so the panel stays anchored. Transitions are declared on the base
+   state (on __panel-inner and __back-button above) so the close animation runs
+   too.
    ──────────────────────────────────────────────────────────────────────── */
-.aa-nav__panel-body:has(.wp-block-aggressive-apparel-nav-submenu-drilldown--push) > .aa-nav__panel-menu {
-  transition: margin-inline-start 350ms cubic-bezier(0.22, 1, 0.36, 1);
+
+/* Push uses a slower, flatter easing than overlay for an unmistakably
+   different motion character. */
+.wp-block-aggressive-apparel-nav-submenu-drilldown--push > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
+  transition: transform var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
 }
 
-.aa-nav__panel-body:has(
-  .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open
-) > .aa-nav__panel-menu {
-  margin-inline-start: -100%;
+/* Base transition on the level behind so it animates in BOTH directions —
+   recede on open AND return on close. Declaring the transition here (not inside
+   the :has rule) is what fixes the close: a transition that only exists while
+   :has matches vanishes the instant the drilldown closes, so the margin would
+   otherwise snap back to 0 with no animation. */
+.aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+  transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
 }
 
+/* Top level: the open push drilldown is a direct child of the panel menu.
+   The menu and the utility row above it recede together (parallax). */
+.aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+  margin-inline-start: var(--dd-push-parallax, -28%);
+}
+
+/* Nested level: the open push drilldown is a direct child of a parent
+   drilldown's inner list. That parent panel's back button + inner list recede
+   together. (Base transitions live on __back-button / __panel-inner above.) */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner) {
+  margin-inline-start: var(--dd-push-parallax, -28%);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────
+   Replace the slide with a gentle opacity fade. The panel is pinned at its
+   final position (translateX(0)) for both states so the fade plays in BOTH
+   directions; show/hide is driven purely by opacity. The two panel selectors
+   match the base and the push-specific transition rules so this wins for both
+   variants regardless of source order/specificity. The level behind does not
+   move (parallax/lockstep margins are zeroed) — it simply fades underneath.
+   ──────────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 
-  .wp-block-aggressive-apparel-nav-submenu-drilldown {
-
-    &__panel {
-      transition: none;
-    }
-
-    &__back-button {
-      transition: none;
-    }
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel,
+  .wp-block-aggressive-apparel-nav-submenu-drilldown--push > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
+    transform: translateX(0);
+    opacity: 0;
+    transition: opacity var(--aa-nav-transition-fast, 150ms ease);
   }
 
-  .aa-nav__panel-body:has(.wp-block-aggressive-apparel-nav-submenu-drilldown--push) > .aa-nav__panel-menu {
+  .wp-block-aggressive-apparel-nav-submenu-drilldown.is-open > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel {
+    opacity: 1;
+  }
+
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__back-button,
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner,
+  .aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+    transition: none;
+  }
+
+  .aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-utility),
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner) {
+    margin-inline-start: 0;
     transition: none;
   }
 }

@@ -89,21 +89,19 @@ if ( ! empty( $block_padding ) ) {
 $extra_class = ! empty( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '';
 
 // ============================================================================
-// Explicitly enqueue panel assets.
+// Explicitly enqueue panel styles.
 //
 // This block outputs nothing inline (all HTML is buffered to wp_footer via the
 // portal pattern), so WordPress's automatic block-style detection skips it.
-// We enqueue here, before wp_head fires, to guarantee CSS and the view module
-// are always present on any page that contains the mobile-nav template part.
+// We enqueue here to guarantee the CSS is present on any page that contains the
+// mobile-nav template part. The panel's JS (Interactivity store) is enqueued as
+// the shared @aggressive-apparel/navigation-panel-store module in
+// includes/Blocks/class-navigation-functions.php.
 // ============================================================================
 
 // Block styles are registered by register_block_type_from_metadata() at init.
 // The auto-generated handle follows WordPress's naming convention.
 wp_enqueue_style( 'aggressive-apparel-navigation-panel-style' );
-
-if ( function_exists( 'wp_enqueue_script_module' ) ) {
-	wp_enqueue_script_module( '@aggressive-apparel/navigation-panel/view' );
-}
 
 // ============================================================================
 // Generate IDs

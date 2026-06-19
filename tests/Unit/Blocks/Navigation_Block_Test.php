@@ -141,9 +141,12 @@ class Navigation_Block_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation block includes breakpoint CSS variable.
+     * Test navigation block exposes the breakpoint in its Interactivity context.
+     *
+     * The breakpoint drives mobile detection in JS (matchMedia on the context
+     * value); it is no longer emitted as a CSS variable.
      */
-    public function test_navigation_block_includes_breakpoint_style(): void {
+    public function test_navigation_block_includes_breakpoint_context(): void {
         $block_content = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
@@ -152,9 +155,9 @@ class Navigation_Block_Test extends WP_UnitTestCase {
         ]);
 
         $this->assertStringContainsString(
-            '--navigation-breakpoint: 768px',
+            '&quot;breakpoint&quot;:768',
             $block_content,
-            'Block should include breakpoint CSS variable'
+            'Block should include the breakpoint in its context'
         );
     }
 
@@ -168,7 +171,7 @@ class Navigation_Block_Test extends WP_UnitTestCase {
         ]);
 
         $this->assertStringContainsString(
-            '--navigation-breakpoint: 1024px',
+            '&quot;breakpoint&quot;:1024',
             $block_content,
             'Block should use default 1024px breakpoint'
         );

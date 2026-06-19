@@ -10,7 +10,10 @@
   "textdomain": "aggressive-apparel",
   "icon": "arrow-right-alt",
   "ancestor": ["aggressive-apparel/navigation-panel"],
-  "allowedBlocks": ["aggressive-apparel/nav-link"],
+  "allowedBlocks": [
+    "aggressive-apparel/nav-link",
+    "aggressive-apparel/nav-submenu-drilldown"
+  ],
   "attributes": {
     "label": { "type": "string", "default": "" },
     "url": { "type": "string", "default": "" },

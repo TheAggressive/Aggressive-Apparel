@@ -370,7 +370,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
               false
             );
             requestAnimationFrame(() => {
-              trigger?.focus();
+              trigger?.focus({ preventScroll: true });
             });
           }
         }
@@ -605,6 +605,13 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         const ps = getPanelState(context.panelSlug);
         const isInStack = ps.drillStack.includes(context.submenuId ?? '');
         element.ref.classList.toggle(SELECTORS.isOpen, isInStack);
+
+        // data-wp-bind isn't reactive across the portal boundary, so keep the
+        // trigger's aria-expanded in sync manually for screen readers.
+        const trigger = element.ref.querySelector(
+          ':scope > .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger > .wp-block-aggressive-apparel-nav-submenu-drilldown__link'
+        );
+        trigger?.setAttribute('aria-expanded', isInStack ? 'true' : 'false');
       } catch (error) {
         logError('onSubmenuStateChange: Failed to handle state change', error);
       }
@@ -620,39 +627,6 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
           return false;
         }
         return getPanelState(context.panelSlug).drillStack.length > 0;
-      } catch {
-        return false;
-      }
-    },
-
-    /**
-     * Whether this submenu is in the current drill stack.
-     */
-    isInDrillStack(): boolean {
-      try {
-        const context = getContext<PanelContext & { submenuId?: string }>();
-        if (!context) {
-          return false;
-        }
-        return getPanelState(context.panelSlug).drillStack.includes(
-          context.submenuId ?? ''
-        );
-      } catch {
-        return false;
-      }
-    },
-
-    /**
-     * Whether this submenu is the current (deepest) drill level.
-     */
-    isCurrentDrillLevel(): boolean {
-      try {
-        const context = getContext<PanelContext & { submenuId?: string }>();
-        if (!context) {
-          return false;
-        }
-        const ps = getPanelState(context.panelSlug);
-        return ps.drillStack[ps.drillStack.length - 1] === context.submenuId;
       } catch {
         return false;
       }

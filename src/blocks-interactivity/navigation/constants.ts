@@ -6,6 +6,15 @@
  * @package Aggressive_Apparel
  */
 
+// Shared across both navigation subsystems — re-exported so existing
+// `from './constants'` imports keep resolving.
+export {
+  ARROW_KEYS,
+  FOCUSABLE_SELECTOR,
+  KEYS,
+  TRANSITION_DURATION_MS,
+} from '../nav-shared/keys';
+
 // ============================================================================
 // Block Selectors
 // ============================================================================
@@ -40,13 +49,6 @@ export const SELECTORS = {
 } as const;
 
 /**
- * Selector for all focusable elements.
- */
-export const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), input:not([disabled]), ' +
-  'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-/**
  * Selector for top-level menu items in the desktop menubar.
  */
 export const TOP_LEVEL_MENU_ITEM_SELECTOR =
@@ -61,11 +63,6 @@ export const SUBMENU_ITEM_SELECTOR = `${SELECTORS.navLinkAnchor}, ${SELECTORS.su
 // ============================================================================
 // Timing Constants
 // ============================================================================
-
-/**
- * Default transition duration in milliseconds (matches CSS).
- */
-export const TRANSITION_DURATION_MS = 400;
 
 /**
  * Indicator animation timing.
@@ -89,35 +86,6 @@ export const HOVER_INTENT = {
     closeDelay: 50,
   },
 } as const;
-
-// ============================================================================
-// Keyboard Keys
-// ============================================================================
-
-export const KEYS = {
-  escape: 'Escape',
-  tab: 'Tab',
-  enter: 'Enter',
-  space: ' ',
-  arrowUp: 'ArrowUp',
-  arrowDown: 'ArrowDown',
-  arrowLeft: 'ArrowLeft',
-  arrowRight: 'ArrowRight',
-  home: 'Home',
-  end: 'End',
-} as const;
-
-/**
- * Arrow keys for menu navigation.
- */
-export const ARROW_KEYS = [
-  KEYS.arrowUp,
-  KEYS.arrowDown,
-  KEYS.arrowLeft,
-  KEYS.arrowRight,
-  KEYS.home,
-  KEYS.end,
-] as const;
 
 // ============================================================================
 // Default Values

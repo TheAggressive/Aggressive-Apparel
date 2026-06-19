@@ -115,9 +115,11 @@ $menubar_html = sprintf(
 // Compose the nav element
 // ============================================================================
 
-$nav_style = '--navigation-breakpoint: ' . esc_attr( (string) $breakpoint ) . 'px;';
+// The mobile breakpoint is applied by JS (matchMedia on the `breakpoint`
+// attribute), so it is intentionally not emitted as a CSS variable here.
+$nav_style = '';
 if ( $indicator_color ) {
-	$nav_style .= ' --indicator-color: ' . esc_attr( $indicator_color ) . ';';
+	$nav_style .= '--indicator-color: ' . esc_attr( $indicator_color ) . ';';
 }
 
 // Forward blockGap to --navigation-gap so the menubar item spacing responds to
@@ -142,7 +144,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		'data-wp-init'               => 'callbacks.init',
 		'data-wp-on-window--keydown' => 'callbacks.onEscape',
 		'data-wp-class--is-mobile'   => 'state.isMobile',
-		'style'                      => $nav_style,
+		'style'                      => trim( $nav_style ),
 	)
 );
 

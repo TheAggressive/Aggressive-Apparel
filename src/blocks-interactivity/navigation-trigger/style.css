@@ -2,8 +2,9 @@
  * Navigation Trigger Block Styles
  *
  * The hamburger/toggle button. Hidden by default (desktop); shown when the
- * parent navigation block has the .is-mobile class (set by JS) or — before JS
- * loads — via a container query on the navigation container.
+ * parent navigation block has the .is-mobile class (set by JS from the
+ * configurable breakpoint) or — before JS loads — via a viewport media-query
+ * fallback (scoped to :not(.is-hydrated) so JS stays authoritative after).
  *
  * @package Aggressive_Apparel
  */
@@ -29,14 +30,12 @@
   display: flex;
 }
 
-/* CSS-only fallback before JS loads: container query on the navigation block. */
-@supports (container-type: inline-size) {
+/* Pre-hydration fallback: show the trigger below the default breakpoint, based
+   on the viewport. After hydration JS controls visibility via .is-mobile. */
+@media (width <= 1023px) {
 
-  @container navigation (width <= 1023px) {
-
-    .wp-block-aggressive-apparel-navigation:not(.is-mobile) .aa-nav-trigger {
-      display: flex;
-    }
+  .wp-block-aggressive-apparel-navigation:not(.is-hydrated) .aa-nav-trigger {
+    display: flex;
   }
 }
 

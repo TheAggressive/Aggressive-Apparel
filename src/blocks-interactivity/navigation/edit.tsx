@@ -19,11 +19,12 @@ import {
   BaseControl,
   ColorPalette,
   PanelBody,
-  RangeControl,
   SelectControl,
   TextControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
+  __experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import {
@@ -171,17 +172,22 @@ export default function Edit({
     <>
       <InspectorControls>
         <PanelBody title={__('Responsive Settings', 'aggressive-apparel')}>
-          <RangeControl
+          <NumberControl
             label={__('Mobile Breakpoint (px)', 'aggressive-apparel')}
             help={__(
               'Screen width below which the desktop menubar is hidden and the trigger is shown.',
               'aggressive-apparel'
             )}
             value={breakpoint}
-            onChange={value => setAttributes({ breakpoint: value ?? 1024 })}
+            onChange={value =>
+              setAttributes({
+                breakpoint: value ? parseInt(value, 10) || 1024 : 1024,
+              })
+            }
             min={320}
             max={1920}
             step={1}
+            spinControls='custom'
           />
           <SelectControl
             label={__('Open Submenus On', 'aggressive-apparel')}

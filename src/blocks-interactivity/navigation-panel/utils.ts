@@ -7,15 +7,6 @@
  * @package Aggressive_Apparel
  */
 
-// Type declaration for process in webpack environment.
-declare const process:
-  | {
-      env: {
-        NODE_ENV: string;
-      };
-    }
-  | undefined;
-
 import {
   ALL_BODY_CLASSES,
   BODY_CLASSES,
@@ -26,105 +17,25 @@ import {
   type BodyClassKey,
 } from './constants';
 
-// ============================================================================
-// Error Handling
-// ============================================================================
+import {
+  logError,
+  logWarning,
+  prefersReducedMotion,
+  safeGetElementById,
+  safeQuerySelector,
+  safeQuerySelectorAll,
+} from '../nav-shared/dom';
 
-/**
- * Log a warning message in development mode.
- */
-export function logWarning(
-  message: string,
-  context?: Record<string, unknown>
-): void {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    console.warn(`[NavigationPanel] ${message}`, context ?? '');
-  }
-}
-
-/**
- * Log an error message.
- */
-export function logError(message: string, error?: unknown): void {
-  console.error(`[NavigationPanel] ${message}`, error ?? '');
-}
-
-/**
- * Safely get an element by ID.
- */
-export function safeGetElementById<T extends HTMLElement = HTMLElement>(
-  id: string,
-  warnIfMissing = true
-): T | null {
-  if (!id) {
-    if (warnIfMissing) {
-      logWarning('safeGetElementById called with empty ID');
-    }
-    return null;
-  }
-
-  const element = document.getElementById(id);
-  if (!element && warnIfMissing) {
-    logWarning(`Element not found: #${id}`);
-  }
-
-  return element as T | null;
-}
-
-/**
- * Safely query for an element within a container.
- */
-export function safeQuerySelector<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string,
-  warnIfMissing = false
-): T | null {
-  try {
-    const element = container.querySelector<T>(selector);
-    if (!element && warnIfMissing) {
-      logWarning(`Element not found: ${selector}`);
-    }
-    return element;
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return null;
-  }
-}
-
-/**
- * Safely query for all elements matching a selector.
- */
-export function safeQuerySelectorAll<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string
-): T[] {
-  try {
-    return Array.from(container.querySelectorAll<T>(selector));
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return [];
-  }
-}
-
-// ============================================================================
-// Reduced Motion
-// ============================================================================
-
-let _prefersReducedMotion: boolean | null = null;
-
-/**
- * Check if user prefers reduced motion.
- */
-export function prefersReducedMotion(): boolean {
-  if (_prefersReducedMotion === null) {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    _prefersReducedMotion = mql.matches;
-    mql.addEventListener('change', e => {
-      _prefersReducedMotion = e.matches;
-    });
-  }
-  return _prefersReducedMotion;
-}
+// Re-export the shared DOM/logging helpers so existing `from './utils'` imports
+// across this subsystem keep resolving unchanged.
+export {
+  logError,
+  logWarning,
+  prefersReducedMotion,
+  safeGetElementById,
+  safeQuerySelector,
+  safeQuerySelectorAll,
+};
 
 /**
  * Get the effective transition duration respecting reduced motion preference.
@@ -253,7 +164,7 @@ export function setupFocusTrap(container: HTMLElement): () => void {
     }
 
     e.preventDefault();
-    focusable[nextIndex].focus();
+    focusable[nextIndex].focus({ preventScroll: true });
   };
 
   const handleFocusin = (e: FocusEvent) => {
@@ -261,7 +172,7 @@ export function setupFocusTrap(container: HTMLElement): () => void {
     if (!container.contains(target)) {
       const focusable = getFocusableElements(container);
       if (focusable.length > 0) {
-        focusable[0].focus();
+        focusable[0].focus({ preventScroll: true });
       }
     }
   };
@@ -283,7 +194,7 @@ export function restoreFocus(panelSlug: string): void {
   const triggerId = getTriggerId(panelSlug);
   const trigger = safeGetElementById(triggerId, false);
   if (trigger) {
-    trigger.focus();
+    trigger.focus({ preventScroll: true });
     return;
   }
 
@@ -298,7 +209,7 @@ export function restoreFocus(panelSlug: string): void {
     if (!hadTabindex) {
       main.setAttribute('tabindex', '-1');
     }
-    main.focus();
+    main.focus({ preventScroll: true });
     if (!hadTabindex) {
       main.removeAttribute('tabindex');
     }
@@ -319,7 +230,7 @@ export function focusMenuItem(items: HTMLElement[], index: number): void {
     item.setAttribute('tabindex', i === targetIndex ? '0' : '-1');
   });
 
-  items[targetIndex].focus();
+  items[targetIndex].focus({ preventScroll: true });
 }
 
 // ============================================================================
@@ -521,7 +432,7 @@ export function focusMegaContentPanel(submenuId: string): void {
         FOCUSABLE_SELECTOR,
         false
       );
-      firstFocusable?.focus();
+      firstFocusable?.focus({ preventScroll: true });
     });
   });
 }
@@ -531,7 +442,28 @@ export function focusMegaContentPanel(submenuId: string): void {
 // ============================================================================
 
 /**
- * Update inert state on drilldown panels based on the current drill stack.
+ * Update inert state based on the current drill stack.
+ *
+ * Only the active (deepest) drilldown panel should be interactive; everything
+ * behind it — sibling menu items, the triggers that opened each level, and the
+ * back buttons / lists of ancestor panels — must be inert so keyboard and
+ * screen-reader focus can't leak to content hidden by the slide-over.
+ *
+ * `inert` is inherited and cannot be undone on a descendant of an inert
+ * subtree, so we never inert an ancestor of the active panel. Two passes:
+ *
+ *  1. Every drilldown panel that is NOT currently open (its id is not in the
+ *     stack) is made inert. Closed panels are positioned off-screen with a
+ *     transform, which hides them visually but leaves their contents in the tab
+ *     order and reading order — inert removes them. Ancestors and the active
+ *     panel are in the stack, so they are never inerted (no inheritance trap),
+ *     and this also covers nested closed panels inside the active one.
+ *  2. When a panel is open, walk up from it and inert every sibling on the
+ *     active path (sibling menu links, the triggers, ancestor back buttons),
+ *     stopping at the panel body so the header close button stays reachable.
+ *
+ * Inerted elements are tagged with `data-aa-inert` so they can be cleared on
+ * the next update.
  */
 export function updateDrilldownInertState(
   container: HTMLElement,
@@ -544,16 +476,56 @@ export function updateDrilldownInertState(
     return;
   }
 
-  const drilldownPanels = safeQuerySelectorAll<HTMLElement>(
-    container,
-    '.wp-block-aggressive-apparel-nav-submenu-drilldown .wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
-  );
-
-  const currentActiveId = drillStack[drillStack.length - 1] ?? null;
-
-  drilldownPanels.forEach(panel => {
-    panel.inert = panel.id !== currentActiveId;
+  // Clear anything we previously made inert.
+  container.querySelectorAll<HTMLElement>('[data-aa-inert]').forEach(el => {
+    el.inert = false;
+    el.removeAttribute('data-aa-inert');
   });
+
+  // Pass 1: inert every closed (not-open) drilldown panel.
+  const openIds = new Set(drillStack);
+  container
+    .querySelectorAll<HTMLElement>(
+      '.wp-block-aggressive-apparel-nav-submenu-drilldown__panel'
+    )
+    .forEach(panel => {
+      if (!openIds.has(panel.id)) {
+        panel.inert = true;
+        panel.setAttribute('data-aa-inert', '');
+      }
+    });
+
+  if (drillStack.length === 0) {
+    return;
+  }
+
+  const activeId = drillStack[drillStack.length - 1];
+  const activePanel = activeId ? safeGetElementById(activeId, false) : null;
+  if (!activePanel) {
+    return;
+  }
+
+  let node: HTMLElement = activePanel;
+  let parent = node.parentElement;
+
+  while (parent && container.contains(parent)) {
+    for (const child of Array.from(parent.children)) {
+      if (child !== node) {
+        const el = child as HTMLElement;
+        el.inert = true;
+        el.setAttribute('data-aa-inert', '');
+      }
+    }
+
+    // Stop at the scroll container; the header (close button) lives outside it
+    // and must stay reachable.
+    if (parent.classList.contains('aa-nav__panel-body')) {
+      break;
+    }
+
+    node = parent;
+    parent = node.parentElement;
+  }
 }
 
 /**
@@ -572,7 +544,7 @@ export function focusDrilldownPanel(panelId: string): void {
         FOCUSABLE_SELECTOR,
         false
       );
-      firstFocusable?.focus();
+      firstFocusable?.focus({ preventScroll: true });
     });
   });
 }
@@ -584,23 +556,23 @@ export function focusDrilldownTrigger(
   container: HTMLElement,
   previousId: string
 ): void {
-  const submenu = safeQuerySelector<HTMLElement>(
-    container,
-    `.wp-block-aggressive-apparel-nav-submenu-drilldown:has(#${CSS.escape(previousId)})`,
-    false
+  // Resolve the panel by id, then its owning drilldown's own trigger. Using
+  // closest() (not :has) is nesting-safe: :has would match every ancestor
+  // drilldown and querySelector would return the outermost one's trigger.
+  const panel = safeGetElementById(previousId, false);
+  const submenu = panel?.closest<HTMLElement>(
+    '.wp-block-aggressive-apparel-nav-submenu-drilldown'
   );
 
-  if (!submenu) {
+  if (!submenu || !container.contains(submenu)) {
     return;
   }
 
-  const trigger = safeQuerySelector<HTMLElement>(
-    submenu,
-    '.wp-block-aggressive-apparel-nav-submenu-drilldown__link',
-    false
+  const trigger = submenu.querySelector<HTMLElement>(
+    ':scope > .wp-block-aggressive-apparel-nav-submenu-drilldown__trigger > .wp-block-aggressive-apparel-nav-submenu-drilldown__link'
   );
 
   requestAnimationFrame(() => {
-    trigger?.focus();
+    trigger?.focus({ preventScroll: true });
   });
 }

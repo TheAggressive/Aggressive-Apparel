@@ -62,7 +62,10 @@ export default function Edit({
       role: 'menu',
     },
     {
-      allowedBlocks: ['aggressive-apparel/nav-link'],
+      allowedBlocks: [
+        'aggressive-apparel/nav-link',
+        'aggressive-apparel/nav-submenu-drilldown',
+      ],
       template: TEMPLATE,
       templateLock: false,
     }

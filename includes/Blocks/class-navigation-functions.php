@@ -17,19 +17,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // ============================================================================
-// Eagerly enqueue navigation-panel and child block assets on wp_enqueue_scripts.
+// Eagerly enqueue navigation-panel and child block styles on wp_enqueue_scripts.
 //
 // The navigation-panel block outputs nothing inline (it portals to wp_footer),
 // so WordPress's block-style auto-detection never marks it as "used" on the
 // page. Styles enqueued from render.php also miss wp_head because template
 // parts in the body render after wp_head fires. Enqueueing here (priority 11,
-// after block style registration at priority 10) guarantees the panel CSS and
-// view module are in wp_head on every page that has the navigation-panel block
-// registered — which is always the case for this theme.
+// after block style registration at priority 10) guarantees the panel CSS is in
+// wp_head on every page that has the navigation-panel block registered — which
+// is always the case for this theme.
 //
 // Accordion and drilldown styles are included here for the same reason: their
 // blocks render inside the portaled panel, so WordPress never auto-detects them
 // as "in use" during the main template pass.
+//
+// The panel's JavaScript (Interactivity store) is loaded via the shared
+// @aggressive-apparel/navigation-panel-store module registered below, not a
+// per-block view module.
 // ============================================================================
 add_action(
 	'wp_enqueue_scripts',
@@ -45,12 +49,57 @@ add_action(
 		wp_enqueue_style( 'aggressive-apparel-navigation-panel-style' );
 		wp_enqueue_style( 'aggressive-apparel-nav-submenu-accordion-style' );
 		wp_enqueue_style( 'aggressive-apparel-nav-submenu-drilldown-style' );
-
-		if ( function_exists( 'wp_enqueue_script_module' ) ) {
-			wp_enqueue_script_module( '@aggressive-apparel/navigation-panel/view' );
-		}
 	},
 	11
+);
+
+// ============================================================================
+// Enqueue the navigation Interactivity stores as shared, standalone script
+// modules — ONE per subsystem instead of bundling the store into every block's
+// view module (which previously shipped the ~32KB store 2–3× per page).
+//
+// The blocks have no view module: their render.php emits the data-wp-* directives
+// and `supports.interactivity` loads the @wordpress/interactivity runtime, while
+// these store modules (enqueued directly as <script type="module">) call store()
+// to register the namespace before the runtime hydrates. This mirrors how the
+// WooCommerce interactivity features load their stores.
+//
+// Gated on each block type being registered (always true for this theme — the
+// desktop nav is in the header, the panel is portaled to the footer).
+// ============================================================================
+add_action(
+	'wp_enqueue_scripts',
+	static function (): void {
+		if ( ! function_exists( 'wp_register_script_module' ) || ! function_exists( 'wp_enqueue_script_module' ) ) {
+			return;
+		}
+		if ( ! class_exists( 'WP_Block_Type_Registry' ) ) {
+			return;
+		}
+
+		wp_register_script_module(
+			'@aggressive-apparel/navigation-store',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/navigation-store.js',
+			array( '@wordpress/interactivity' ),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
+		wp_register_script_module(
+			'@aggressive-apparel/navigation-panel-store',
+			AGGRESSIVE_APPAREL_URI . '/build/interactivity/navigation-panel-store.js',
+			array( '@wordpress/interactivity' ),
+			AGGRESSIVE_APPAREL_VERSION,
+		);
+
+		$registry = \WP_Block_Type_Registry::get_instance();
+
+		if ( $registry->is_registered( 'aggressive-apparel/navigation' ) ) {
+			wp_enqueue_script_module( '@aggressive-apparel/navigation-store' );
+		}
+		if ( $registry->is_registered( 'aggressive-apparel/navigation-panel' ) ) {
+			wp_enqueue_script_module( '@aggressive-apparel/navigation-panel-store' );
+		}
+	},
+	5
 );
 
 /**

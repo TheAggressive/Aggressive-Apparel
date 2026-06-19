@@ -43,8 +43,9 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		'role'                                         => 'none',
 		'data-wp-interactive'                          => 'aggressive-apparel/navigation-panel',
 		'data-wp-context'                              => $context,
-		'data-wp-class--is-open'                       => 'callbacks.isInDrillStack',
-		// React to state changes dispatched by the panel store (portal boundary workaround).
+		// The is-open class and the trigger's aria-expanded are toggled imperatively
+		// in callbacks.onSubmenuStateChange: data-wp-bind / data-wp-class are not
+		// reactive across the wp_footer portal boundary this panel lives in.
 		'data-wp-on-window--aa-nav-panel-state-change' => 'callbacks.onSubmenuStateChange',
 	)
 );
@@ -63,7 +64,7 @@ $has_url = ! empty( $url );
 
 if ( $has_url ) {
 	$trigger_el = sprintf(
-		'<a class="wp-block-aggressive-apparel-nav-submenu-drilldown__link" href="%s" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isInDrillStack" data-wp-on--click="actions.drillInto">
+		'<a class="wp-block-aggressive-apparel-nav-submenu-drilldown__link" href="%s" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-on--click="actions.drillInto">
 			<span class="wp-block-aggressive-apparel-nav-submenu-drilldown__label">%s</span>
 			%s
 		</a>',
@@ -74,7 +75,7 @@ if ( $has_url ) {
 	);
 } else {
 	$trigger_el = sprintf(
-		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu-drilldown__link" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isInDrillStack" data-wp-on--click="actions.drillInto">
+		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu-drilldown__link" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-on--click="actions.drillInto">
 			<span class="wp-block-aggressive-apparel-nav-submenu-drilldown__label">%s</span>
 			%s
 		</button>',
@@ -102,12 +103,24 @@ $back_button = sprintf(
 	esc_html( sprintf( __( 'Back from %s', 'aggressive-apparel' ), $label ) )
 );
 
+// "View all in {label}" — surfaces the parent's own URL, which is otherwise
+// unreachable because drillInto() prevents default navigation on the trigger.
+$view_all_html = '';
+if ( $has_url ) {
+	$view_all_html = sprintf(
+		'<li role="none"><a class="wp-block-aggressive-apparel-nav-submenu-drilldown__view-all" href="%s" role="menuitem">%s</a></li>',
+		esc_url( $url ),
+		/* translators: %s: submenu name, e.g. "View all in Shop" */
+		esc_html( sprintf( __( 'View all in %s', 'aggressive-apparel' ), $label ) )
+	);
+}
+
 printf(
 	'<li %s>
 		<div class="wp-block-aggressive-apparel-nav-submenu-drilldown__trigger">%s</div>
-		<div class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel" id="%s" role="region" aria-label="%s">
+		<div class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel" id="%s" role="group" aria-label="%s">
 			%s
-			<ul class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner" role="menu" aria-label="%s">%s</ul>
+			<ul class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner" role="menu" aria-label="%s">%s%s</ul>
 		</div>
 	</li>',
 	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
@@ -116,5 +129,6 @@ printf(
 	esc_attr( $label ),
 	$back_button, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $label ),
+	$view_all_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
 );

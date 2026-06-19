@@ -243,6 +243,12 @@ const navigationStore = store('aggressive-apparel/navigation', {
           return;
         }
 
+        // Mark as hydrated so the CSS (viewport) fallback stops applying and the
+        // JS breakpoint below — which reads the configurable `breakpoint`
+        // attribute and tracks the viewport — becomes the single source of truth
+        // for showing the mobile trigger vs. the desktop menubar.
+        element.ref.classList.add('is-hydrated');
+
         // Use matchMedia for efficient breakpoint detection.
         const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
 

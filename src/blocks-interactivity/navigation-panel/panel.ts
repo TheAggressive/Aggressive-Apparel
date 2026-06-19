@@ -180,7 +180,9 @@ export function openPanelWithSetup(
         PANEL_MENU_ITEM_SELECTOR,
         false
       );
-      firstFocusable?.focus();
+      // preventScroll: the panel slides in from off-screen; letting focus
+      // scroll it into view cancels the slide animation.
+      firstFocusable?.focus({ preventScroll: true });
     });
   });
 }

@@ -9,7 +9,6 @@
 export type PanelPosition = 'left' | 'right';
 export type PanelAnimationStyle = 'slide' | 'push' | 'reveal' | 'fade';
 export type MenuStyle = 'panel' | 'fullscreen';
-export type PanelSubmenuStyle = 'drilldown' | 'mega-content-overlay';
 
 export interface NavigationPanelAttributes {
   panelSlug: string;
@@ -23,7 +22,6 @@ export interface NavigationPanelAttributes {
   overlayColor?: string;
   overlayOpacity?: number;
   indicatorColor?: string;
-  submenuStyle: PanelSubmenuStyle;
 }
 
 /**

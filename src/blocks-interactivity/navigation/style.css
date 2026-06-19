@@ -63,7 +63,6 @@
  * ======================================== */
 .wp-block-aggressive-apparel-navigation {
   --navigation-gap: var(--wp--preset--spacing--6);
-  --navigation-breakpoint: 1024px;
 
   position: relative;
   width: 100%;
@@ -85,30 +84,29 @@
 }
 
 /* ========================================
- * CONTAINER QUERIES
+ * RESPONSIVE (viewport-based)
+ *
+ * Mobile vs. desktop is driven by the VIEWPORT, not the nav's container width.
+ * Once JS hydrates, the store adds `.is-hydrated` and toggles `.is-mobile` using
+ * the block's configurable `breakpoint` attribute via matchMedia — that is the
+ * single source of truth. The media queries below are only a pre-hydration
+ * fallback (scoped to :not(.is-hydrated)) using the 1024px default, so the menu
+ * looks right before the script loads without fighting the JS decision after.
  * ======================================== */
-@supports (container-type: inline-size) {
+
+/* Tighten gap on small viewports */
+@media (width <= 600px) {
 
   .wp-block-aggressive-apparel-navigation {
-    container-type: inline-size;
-    container-name: navigation;
+    --navigation-gap: var(--wp--preset--spacing--3, 0.75rem);
   }
+}
 
-  /* Tighten gap on very narrow instances */
-  @container navigation (width <= 600px) {
+/* Pre-hydration fallback: hide the desktop menubar below the default breakpoint. */
+@media (width <= 1023px) {
 
-    .wp-block-aggressive-apparel-navigation {
-      --navigation-gap: var(--wp--preset--spacing--3, 0.75rem);
-    }
-  }
-
-  /* CSS-only menubar fallback before JS loads. Uses a container query so the
-     nav adapts to its container width, not the viewport. */
-  @container navigation (width <= 1023px) {
-
-    .wp-block-aggressive-apparel-navigation:not(.is-mobile) .aa-nav__menubar {
-      display: none;
-    }
+  .wp-block-aggressive-apparel-navigation:not(.is-hydrated) .aa-nav__menubar {
+    display: none;
   }
 }
 

@@ -64,11 +64,6 @@
     },
     "indicatorColor": {
       "type": "string"
-    },
-    "submenuStyle": {
-      "type": "string",
-      "enum": ["drilldown", "mega-content-overlay"],
-      "default": "drilldown"
     }
   },
   "supports": {
@@ -91,11 +86,9 @@
   },
   "providesContext": {
     "aggressive-apparel/navigationId": "panelSlug",
-    "aggressive-apparel/panelSubmenuStyle": "submenuStyle",
     "aggressive-apparel/panelLinkHoverColor": "panelLinkHoverColor",
     "aggressive-apparel/panelLinkHoverBg": "panelLinkHoverBg"
   },
-  "viewScriptModule": "file:./view.js",
   "render": "file:./render.php",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

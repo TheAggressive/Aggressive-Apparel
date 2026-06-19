@@ -247,20 +247,66 @@ The theme includes a comprehensive color attribute system for product variations
 
 ## Navigation System
 
-The navigation block is a single monolithic block. Mobile drawer, hamburger toggle, and desktop menu markup are rendered inside `navigation/render.php`. Child blocks `nav-link` and `nav-submenu` receive parent context via block context (`aggressive-apparel/navigationId`, etc.).
+Navigation is split into **two independent block subsystems**, each with its own
+root block and Interactivity store. `nav-link` is the shared leaf used by both.
 
-```
-navigation/                 # Main container + toggle + mobile panel
-├── store.ts               # Interactivity state (open/close, focus)
-├── render.php             # Server render (absorbed panel/toggle markup)
-├── nav-link/              # Single links
-└── nav-submenu/           # Dropdowns and mega menus
-```
+### Desktop subsystem — `aggressive-apparel/navigation`
+Horizontal menu bar. Store: `aggressive-apparel/navigation` ([navigation/store.ts](src/blocks-interactivity/navigation/store.ts)).
+
+| Block | Role |
+|-------|------|
+| `navigation` | Root container. Provides submenu theming context (`navigationId`, `submenuBackgroundColor`, border/radius, etc.). |
+| `navigation-trigger` | Hamburger button. Lives in the desktop nav but drives the **mobile panel** store (opens the drawer). |
+| `nav-submenu-dropdown` | Click/hover dropdown (`ancestor: navigation`). |
+| `nav-submenu-mega` | Full-width mega menu with arbitrary inner blocks (`ancestor: navigation`). |
+
+### Mobile subsystem — `aggressive-apparel/navigation-panel`
+Slide-in drawer, **portaled to `wp_footer`** so `position: fixed` escapes ancestor
+stacking/transform contexts. Store: `aggressive-apparel/navigation-panel`
+([navigation-panel/store.ts](src/blocks-interactivity/navigation-panel/store.ts)).
+Mutable state lives in `state._panels[panelSlug]`, shared between the trigger and
+the portaled panel.
+
+| Block | Role |
+|-------|------|
+| `navigation-panel` | Root drawer. Provides `navigationId` (= panelSlug) + panel hover color context. |
+| `nav-panel-header` / `nav-panel-footer` | Optional drawer chrome (`parent: navigation-panel`). |
+| `nav-submenu-accordion` | Expand-in-place submenu (`ancestor: navigation-panel`). |
+| `nav-submenu-drilldown` | Slide-over submenu, supports nesting + overlay/push animation (`ancestor: navigation-panel`). |
+
+### Shared leaf
+- `nav-link` — single link. `parent` of every container above. Consumes `navigationId` context.
+
+### Shared code
+- `nav-shared/dom.ts` + `nav-shared/keys.ts` hold the helpers/constants that are
+  byte-identical across both subsystems (`logError`/`logWarning`,
+  `safeQuerySelector*`, `safeGetElementById`, `prefersReducedMotion`, `KEYS`,
+  `ARROW_KEYS`, `FOCUSABLE_SELECTOR`, `TRANSITION_DURATION_MS`). Each subsystem's
+  `utils.ts`/`constants.ts` re-exports them, so internal `from './utils'` /
+  `from './constants'` imports are unchanged. Subsystem-specific things
+  (`SELECTORS`, `announce`, `focusMenuItem`, state classes, timing, ID helpers)
+  intentionally stay per-subsystem because they differ.
+
+### Cross-subsystem gotchas
+- Because the panel is portaled, **`data-wp-bind` / `data-wp-class` directives don't
+  react across the portal boundary**. Drilldown open-state class and the trigger's
+  `aria-expanded` are toggled imperatively in `callbacks.onSubmenuStateChange`.
+- `focus()` on an element inside an off-screen sliding panel cancels the slide —
+  always pass `{ preventScroll: true }` for in-panel focus moves.
+- The blocks have **no view modules**. Each subsystem's store is shipped once as a
+  shared script module (`@aggressive-apparel/navigation-store` /
+  `-panel-store`, built from `src/interactivity/`) and enqueued directly in
+  `class-navigation-functions.php`; the store self-registers via `store()` before
+  hydration. `supports.interactivity` loads the runtime; `render.php` emits the
+  directives. Don't add per-block `viewScriptModule`s back — `wp_enqueue_script_module`
+  alone doesn't add a bare specifier to the import map (only declared deps of
+  enqueued modules get mapped), so a view module importing the store would fail.
 
 **Key Attributes:**
 - `breakpoint`: Mobile breakpoint (default: 1024px)
-- `openOn`: "hover" or "click" for submenus
-- `position`: "left" or "right" for mobile panel
+- `openOn`: "hover" or "click" for desktop submenus
+- `position`: "left" or "right" for the mobile panel
+- drilldown `animationStyle`: "overlay" or "push" (iOS-style parallax)
 
 ## WordPress Hooks
 

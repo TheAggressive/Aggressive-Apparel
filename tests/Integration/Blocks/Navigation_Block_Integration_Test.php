@@ -94,12 +94,6 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
             ]);
 
             $this->assertStringContainsString(
-                "--navigation-breakpoint: {$breakpoint}px",
-                $block_content,
-                "Block should include {$breakpoint}px breakpoint"
-            );
-
-            $this->assertStringContainsString(
                 "&quot;breakpoint&quot;:{$breakpoint}",
                 $block_content,
                 "Context should include {$breakpoint} breakpoint"

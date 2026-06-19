@@ -7,116 +7,26 @@
  * @package Aggressive_Apparel
  */
 
-// Type declaration for process in webpack environment.
-declare const process:
-  | {
-      env: {
-        NODE_ENV: string;
-      };
-    }
-  | undefined;
-
 import { ID_PREFIXES } from './constants';
+import {
+  logError,
+  logWarning,
+  prefersReducedMotion,
+  safeGetElementById,
+  safeQuerySelector,
+  safeQuerySelectorAll,
+} from '../nav-shared/dom';
 
-// ============================================================================
-// Error Handling
-// ============================================================================
-
-/**
- * Log a warning message in development mode.
- */
-export function logWarning(
-  message: string,
-  context?: Record<string, unknown>
-): void {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    console.warn(`[Navigation] ${message}`, context ?? '');
-  }
-}
-
-/**
- * Log an error message.
- */
-export function logError(message: string, error?: unknown): void {
-  console.error(`[Navigation] ${message}`, error ?? '');
-}
-
-/**
- * Safely get an element by ID.
- */
-export function safeGetElementById<T extends HTMLElement = HTMLElement>(
-  id: string,
-  warnIfMissing = true
-): T | null {
-  if (!id) {
-    if (warnIfMissing) {
-      logWarning('safeGetElementById called with empty ID');
-    }
-    return null;
-  }
-
-  const element = document.getElementById(id);
-  if (!element && warnIfMissing) {
-    logWarning(`Element not found: #${id}`);
-  }
-
-  return element as T | null;
-}
-
-/**
- * Safely query for an element within a container.
- */
-export function safeQuerySelector<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string,
-  warnIfMissing = false
-): T | null {
-  try {
-    const element = container.querySelector<T>(selector);
-    if (!element && warnIfMissing) {
-      logWarning(`Element not found: ${selector}`);
-    }
-    return element;
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return null;
-  }
-}
-
-/**
- * Safely query for all elements matching a selector.
- */
-export function safeQuerySelectorAll<T extends HTMLElement = HTMLElement>(
-  container: Element | Document,
-  selector: string
-): T[] {
-  try {
-    return Array.from(container.querySelectorAll<T>(selector));
-  } catch (error) {
-    logError(`Invalid selector: ${selector}`, error);
-    return [];
-  }
-}
-
-// ============================================================================
-// Reduced Motion
-// ============================================================================
-
-let _prefersReducedMotion: boolean | null = null;
-
-/**
- * Check if user prefers reduced motion.
- */
-export function prefersReducedMotion(): boolean {
-  if (_prefersReducedMotion === null) {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    _prefersReducedMotion = mql.matches;
-    mql.addEventListener('change', e => {
-      _prefersReducedMotion = e.matches;
-    });
-  }
-  return _prefersReducedMotion;
-}
+// Re-export the shared DOM/logging helpers so existing `from './utils'` imports
+// across this subsystem keep resolving unchanged.
+export {
+  logError,
+  logWarning,
+  prefersReducedMotion,
+  safeGetElementById,
+  safeQuerySelector,
+  safeQuerySelectorAll,
+};
 
 // ============================================================================
 // ID Generation & Validation

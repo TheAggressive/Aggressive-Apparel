@@ -36,7 +36,6 @@ import type {
   NavigationPanelAttributes,
   PanelAnimationStyle,
   PanelPosition,
-  PanelSubmenuStyle,
 } from './types';
 
 const ALLOWED_BLOCKS = [
@@ -76,7 +75,6 @@ export default function Edit({
     overlayColor,
     overlayOpacity,
     indicatorColor,
-    submenuStyle,
   } = attributes;
 
   const [allColors] = useSettings('color.palette') as [
@@ -222,33 +220,6 @@ export default function Edit({
             label={__('Show Overlay', 'aggressive-apparel')}
             checked={showOverlay}
             onChange={value => setAttributes({ showOverlay: value })}
-          />
-        </PanelBody>
-
-        <PanelBody
-          title={__('Submenu Behavior', 'aggressive-apparel')}
-          initialOpen={false}
-        >
-          <SelectControl
-            label={__('Submenu Style', 'aggressive-apparel')}
-            help={__(
-              'How submenus open inside the panel.',
-              'aggressive-apparel'
-            )}
-            value={submenuStyle}
-            options={[
-              {
-                label: __('Drilldown', 'aggressive-apparel'),
-                value: 'drilldown',
-              },
-              {
-                label: __('Mega Content Overlay', 'aggressive-apparel'),
-                value: 'mega-content-overlay',
-              },
-            ]}
-            onChange={value =>
-              setAttributes({ submenuStyle: value as PanelSubmenuStyle })
-            }
           />
         </PanelBody>
 

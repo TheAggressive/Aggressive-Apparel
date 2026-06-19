@@ -292,11 +292,21 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
 }
 
 /* Panel body — scrolls independently so header and footer stay fixed.
-   position: relative makes it the containing block for drilldown overlays. */
+   position: relative makes it the containing block for drilldown overlays.
+   The scrollbar is hidden (overflow-x: clip + no visible scrollbar) so the
+   body width is identical on desktop (classic scrollbars) and mobile (overlay
+   scrollbars). A reserved desktop gutter otherwise shifts where the
+   absolutely-positioned drilldown panel parks and clips, so the slide-in
+   appears to start partway in rather than fully off the right edge. */
 .aa-nav__panel-body {
   flex: 1;
-  overflow: hidden auto;
+  overflow: clip auto;
   position: relative;
+  scrollbar-width: none; /* Firefox */
+}
+
+.aa-nav__panel-body::-webkit-scrollbar {
+  display: none; /* WebKit/Blink */
 }
 
 /* Optional utility area rendered above the panel menu */

@@ -231,7 +231,11 @@ function setupHorizontalScroll(
     parseFloat(window.getComputedStyle(viewport).top) || 0;
 
   const getScrollProgress = (): number =>
-    computeProgress(getStickyTop(), ref.getBoundingClientRect().top, scrollDistance);
+    computeProgress(
+      getStickyTop(),
+      ref.getBoundingClientRect().top,
+      scrollDistance
+    );
 
   const getSlideLeft = (slide: HTMLElement): number =>
     slide.offsetLeft - track.offsetLeft;

@@ -91,7 +91,9 @@ describe('pickMode', () => {
     expect(pickMode({ ...base, pinned: false, reducedMotion: true })).toBe(
       'static'
     );
-    expect(pickMode({ ...base, pinned: false, maxTranslate: 0 })).toBe('static');
+    expect(pickMode({ ...base, pinned: false, maxTranslate: 0 })).toBe(
+      'static'
+    );
   });
 });
 

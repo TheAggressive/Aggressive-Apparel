@@ -202,6 +202,22 @@ export function setupDesktopIndicator(
   const onResize = () => {
     reset();
     const navState = getNavState(navId);
+
+    // Drop the full-width inline vars from any CLOSED mega panel. They are only
+    // valid for the size they were measured at; left stale, a previously-opened
+    // panel could reintroduce horizontal overflow after the window shrinks. They
+    // fall back to the safe closed CSS default and are recomputed on next open.
+    nav
+      .querySelectorAll<HTMLElement>(
+        `.${SELECTORS.submenuMega} ${SELECTORS.submenuPanel}`
+      )
+      .forEach(panel => {
+        if (panel.id !== navState.activeSubmenuId) {
+          panel.style.removeProperty('--mega-panel-left');
+          panel.style.removeProperty('--mega-panel-width');
+        }
+      });
+
     if (navState.activeSubmenuId) {
       expandIndicatorForSubmenu(
         navId,

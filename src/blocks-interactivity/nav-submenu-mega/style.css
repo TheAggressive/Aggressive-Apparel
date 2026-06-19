@@ -18,7 +18,12 @@
   --submenu-padding: var(--wp--preset--spacing--6, 1.5rem);
   --submenu-transition: var(--aa-duration-fast) var(--aa-ease-default);
   --mega-panel-left: 0;
-  --mega-panel-width: 100vw;
+
+  /* Closed default: panel is only as wide as its trigger so a never-opened mega
+     menu can't extend the page width (it's hidden anyway). JS sets the real
+     full-viewport width + left offset (via clientWidth, excluding the scrollbar)
+     when the menu opens — see expandIndicatorForSubmenu in navigation/indicator. */
+  --mega-panel-width: 100%;
   --mega-columns: 4;
 
   position: relative;

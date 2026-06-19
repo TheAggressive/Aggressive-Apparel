@@ -31,6 +31,16 @@
     "showProgress": {
       "type": "boolean",
       "default": true
+    },
+    "activation": {
+      "type": "string",
+      "enum": ["top", "center", "bottom"],
+      "default": "top"
+    },
+    "desktopBehavior": {
+      "type": "string",
+      "enum": ["pinned", "inline"],
+      "default": "pinned"
     }
   },
   "textdomain": "aggressive-apparel",

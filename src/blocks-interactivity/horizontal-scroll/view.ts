@@ -14,6 +14,8 @@ interface HScrollContext {
   itemWidth: string;
   speed: number;
   progress: number;
+  desktopBehavior?: 'pinned' | 'inline';
+  pinnedStyle?: 'deck' | 'scrub';
 }
 
 interface HScrollStore {
@@ -35,17 +37,68 @@ const MODE_CLASSES = ['is-enhanced', 'is-horizontal', 'is-snap', 'is-static'];
 
 const runtimes = new WeakMap<HTMLElement, HScrollRuntime>();
 
-function clamp(value: number, min: number, max: number): number {
+export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function getSlides(track: HTMLElement): HTMLElement[] {
+/**
+ * Resolve the effective scroll-speed multiplier: prefer a valid context value,
+ * else the CSS variable, else 1 — clamped to the supported [0.5, 3] range.
+ */
+export function resolveSpeed(contextSpeed: number, cssSpeed: number): number {
+  const base =
+    Number.isFinite(contextSpeed) && contextSpeed > 0
+      ? contextSpeed
+      : cssSpeed || 1;
+  return clamp(base, 0.5, 3);
+}
+
+/**
+ * Decide the runtime mode from environment + measurements.
+ * static — reduced motion or nothing to scroll; desktop — pinned scroll-jack;
+ * snap — native horizontal scroll (touch/coarse pointer).
+ */
+export function pickMode(params: {
+  reducedMotion: boolean;
+  desktopMatches: boolean;
+  maxTranslate: number;
+  scrollDistance: number;
+  pinned?: boolean;
+}): HScrollMode {
+  const {
+    reducedMotion,
+    desktopMatches,
+    maxTranslate,
+    scrollDistance,
+    pinned = true,
+  } = params;
+  if (reducedMotion || maxTranslate <= 1 || scrollDistance <= 1) {
+    return 'static';
+  }
+  // Inline (non-pinned) desktop uses the native snap carousel instead of the
+  // scroll-jacked pin.
+  return desktopMatches && pinned ? 'desktop' : 'snap';
+}
+
+/**
+ * Map vertical scroll position to 0–1 horizontal progress.
+ */
+export function computeProgress(
+  stickyTop: number,
+  rectTop: number,
+  scrollDistance: number
+): number {
+  if (scrollDistance <= 0) return 0;
+  return clamp((stickyTop - rectTop) / scrollDistance, 0, 1);
+}
+
+export function getSlides(track: HTMLElement): HTMLElement[] {
   return Array.from(track.children).filter(
     (child): child is HTMLElement => child instanceof HTMLElement
   );
 }
 
-function isEditableTarget(target: EventTarget | null): boolean {
+export function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
 
   const tagName = target.tagName.toLowerCase();
@@ -57,7 +110,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
-function addMediaChangeListener(
+export function addMediaChangeListener(
   mediaQueryList: MediaQueryList,
   listener: () => void
 ): () => void {
@@ -106,20 +159,13 @@ function setupHorizontalScroll(
   let isNearViewport = true;
   let isDestroyed = false;
 
-  const readSpeed = (): number => {
-    const contextSpeed = Number(ctx.speed);
-    const cssSpeed = parseFloat(
-      window.getComputedStyle(ref).getPropertyValue('--aa-hscroll-speed')
+  const readSpeed = (): number =>
+    resolveSpeed(
+      Number(ctx.speed),
+      parseFloat(
+        window.getComputedStyle(ref).getPropertyValue('--aa-hscroll-speed')
+      )
     );
-
-    return clamp(
-      Number.isFinite(contextSpeed) && contextSpeed > 0
-        ? contextSpeed
-        : cssSpeed || 1,
-      0.5,
-      3
-    );
-  };
 
   const enableTabstop = (): void => {
     if (!hadTabindex) {
@@ -184,12 +230,8 @@ function setupHorizontalScroll(
   const getStickyTop = (): number =>
     parseFloat(window.getComputedStyle(viewport).top) || 0;
 
-  const getScrollProgress = (): number => {
-    if (scrollDistance <= 0) return 0;
-
-    const rect = ref.getBoundingClientRect();
-    return clamp((getStickyTop() - rect.top) / scrollDistance, 0, 1);
-  };
+  const getScrollProgress = (): number =>
+    computeProgress(getStickyTop(), ref.getBoundingClientRect().top, scrollDistance);
 
   const getSlideLeft = (slide: HTMLElement): number =>
     slide.offsetLeft - track.offsetLeft;
@@ -296,16 +338,18 @@ function setupHorizontalScroll(
       : 0;
     scrollDistance = Math.ceil(maxTranslate * readSpeed());
 
-    if (reducedMotionMql.matches || maxTranslate <= 1 || scrollDistance <= 1) {
-      setMode('static');
-      return;
-    }
+    const nextMode = pickMode({
+      reducedMotion: reducedMotionMql.matches,
+      desktopMatches: desktopMql.matches,
+      maxTranslate,
+      scrollDistance,
+      pinned: ctx.desktopBehavior !== 'inline',
+    });
+    setMode(nextMode);
 
-    setMode(desktopMql.matches ? 'desktop' : 'snap');
-
-    if (mode === 'desktop') {
+    if (nextMode === 'desktop') {
       update();
-    } else {
+    } else if (nextMode === 'snap') {
       updateNativeProgress();
     }
   };

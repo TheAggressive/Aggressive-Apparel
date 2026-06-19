@@ -27,17 +27,39 @@ $speed = min( 3.0, max( 0.5, $speed ) );
 
 $show_progress = ! empty( $attributes['showProgress'] );
 
+// Where the section pins (and horizontal scroll begins) relative to the
+// viewport on desktop: top | center | bottom. Drives --aa-hscroll-sticky-top
+// and --aa-hscroll-pin-height via the modifier class in style.css.
+$activation = $attributes['activation'] ?? 'top';
+if ( ! in_array( $activation, array( 'top', 'center', 'bottom' ), true ) ) {
+	$activation = 'top';
+}
+
+// Desktop behaviour: 'pinned' scroll-jacks vertical scroll into horizontal
+// movement; 'inline' uses the native swipe/snap carousel (no pinning) on
+// desktop too. Touch always uses native snap regardless.
+$desktop_behavior = $attributes['desktopBehavior'] ?? 'pinned';
+if ( ! in_array( $desktop_behavior, array( 'pinned', 'inline' ), true ) ) {
+	$desktop_behavior = 'pinned';
+}
+
+$classes = 'aa-hscroll aa-hscroll--' . $activation;
+if ( 'inline' === $desktop_behavior ) {
+	$classes .= ' aa-hscroll--inline';
+}
+
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
-		'class'                => 'aa-hscroll',
+		'class'                => $classes,
 		'aria-roledescription' => 'carousel',
 		'aria-label'           => __( 'Scrolling gallery', 'aggressive-apparel' ),
 		'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
 		'data-wp-context'      => wp_json_encode(
 			array(
-				'itemWidth' => $item_width,
-				'speed'     => $speed,
-				'progress'  => 0,
+				'itemWidth'       => $item_width,
+				'speed'           => $speed,
+				'progress'        => 0,
+				'desktopBehavior' => $desktop_behavior,
 			)
 		),
 		'data-wp-init'         => 'callbacks.init',

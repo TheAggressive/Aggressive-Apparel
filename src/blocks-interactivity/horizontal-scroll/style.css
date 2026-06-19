@@ -6,12 +6,41 @@
   --aa-hscroll-sticky-top: calc(0 * 1px);
   --aa-hscroll-x: calc(0 * 1px);
 
+  /* Height of the pinned viewport on desktop (= where horizontal scroll plays
+     out). Activation presets shrink this for center/bottom so there is room
+     above/below the pinned panel. */
+  --aa-hscroll-pin-height: 100vh;
+
   position: relative;
 }
 
-/* Baseline/no-JS fallback: normal readable document flow. */
+@supports (height: 100svh) {
+
+  .aa-hscroll {
+    --aa-hscroll-pin-height: 100svh;
+  }
+}
+
+/* Activation position — where the section pins before horizontal scroll begins.
+   `top` is the default (pin at the very top). center/bottom offset the sticky
+   position and use a shorter pinned panel. Affects desktop pinned mode only;
+   touch uses native horizontal scroll regardless. */
+.aa-hscroll--center {
+  --aa-hscroll-pin-height: 80svh;
+  --aa-hscroll-sticky-top: 10svh;
+}
+
+.aa-hscroll--bottom {
+  --aa-hscroll-pin-height: 80svh;
+  --aa-hscroll-sticky-top: 20svh;
+}
+
+/* Baseline/no-JS fallback: normal readable document flow. overflow-x: clip
+   guarantees the block can never push the page into a horizontal scrollbar,
+   regardless of mode/timing (snap mode re-enables horizontal scroll below). */
 .aa-hscroll__viewport {
   width: 100%;
+  overflow-x: clip;
 }
 
 .aa-hscroll__track {
@@ -37,30 +66,20 @@
   scroll-snap-align: start;
 }
 
-/* Desktop enhanced mode: sticky viewport plus scroll-distance sentinel. */
+/* Desktop enhanced mode: sticky viewport plus scroll-distance sentinel.
+   Heights derive from --aa-hscroll-pin-height so activation presets can shrink
+   the pinned panel. */
 .aa-hscroll.is-enhanced {
-  height: calc(100vh + var(--aa-hscroll-distance));
-  min-height: 100vh;
+  height: calc(var(--aa-hscroll-pin-height) + var(--aa-hscroll-distance));
+  min-height: var(--aa-hscroll-pin-height);
 }
 
 .aa-hscroll.is-enhanced .aa-hscroll__viewport {
   position: sticky;
   top: var(--aa-hscroll-sticky-top);
   width: 100%;
-  height: 100vh;
+  height: var(--aa-hscroll-pin-height);
   overflow: hidden;
-}
-
-@supports (height: 100svh) {
-
-  .aa-hscroll.is-enhanced {
-    height: calc(100svh + var(--aa-hscroll-distance));
-    min-height: 100svh;
-  }
-
-  .aa-hscroll.is-enhanced .aa-hscroll__viewport {
-    height: 100svh;
-  }
 }
 
 .aa-hscroll.is-enhanced .aa-hscroll__track {
@@ -90,18 +109,39 @@
   transform: none;
 }
 
-/* Progress bar — overlays the bottom edge of the sticky viewport. */
+/* Inline (non-pinned) carousel: keep a visible scrollbar as a scroll affordance
+   for mouse users on desktop (plain snap hides it, which is fine for touch). */
+.aa-hscroll--inline.is-snap .aa-hscroll__viewport {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.aa-hscroll--inline.is-snap .aa-hscroll__viewport::-webkit-scrollbar {
+  display: block;
+  height: 8px;
+}
+
+.aa-hscroll--inline.is-snap .aa-hscroll__viewport::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklch, var(--aa-color-border) 60%, transparent);
+  border-radius: 4px;
+}
+
+/* Progress bar — pinned to the bottom of the screen while scrolling.
+   position: fixed (not absolute) so it stays at the viewport bottom regardless
+   of the activation position (which can shorten/offset the pinned panel). The
+   bar isn't inside a transformed ancestor (the track holds the transform, not
+   the viewport), so fixed resolves against the window and isn't clipped. */
 .aa-hscroll__progress {
   display: none;
 }
 
 .aa-hscroll.is-enhanced .aa-hscroll__progress {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
   z-index: 10;
   display: block;
-  width: 100%;
   height: 3px;
   background-color: color-mix(in oklch, var(--aa-color-border) 40%, transparent);
   opacity: 0;

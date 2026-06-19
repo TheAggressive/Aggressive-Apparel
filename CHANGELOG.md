@@ -1,3 +1,15 @@
+# [1.100.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.99.0...v1.100.0) (2026-06-19)
+
+
+### Bug Fixes
+
+* improve code formatting for readability in horizontal scroll component ([aafb96f](https://github.com/TheAggressive/Aggressive-Apparel/commit/aafb96f751f30f178b1deec8b26e5b4e2ae8494a))
+
+
+### Features
+
+* enhance horizontal scroll block with new activation and desktop behavior options ([a434cc1](https://github.com/TheAggressive/Aggressive-Apparel/commit/a434cc1d6b7ae95f7e0c5e7c80f22e34059b32e4))
+
 # [1.99.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.98.0...v1.99.0) (2026-06-19)
 
 

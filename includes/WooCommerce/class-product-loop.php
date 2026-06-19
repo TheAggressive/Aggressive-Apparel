@@ -62,6 +62,7 @@ class Product_Loop {
 		// Register filters regardless of WooCommerce status for theme flexibility.
 		add_filter( 'loop_shop_columns', array( $this, 'set_loop_columns' ), 10 );
 		add_filter( 'loop_shop_per_page', array( $this, 'set_products_per_page' ), 20 );
+		add_filter( 'woocommerce_product_add_to_cart_text', array( $this, 'set_product_button_text' ), 10, 2 );
 	}
 
 	/**
@@ -82,5 +83,36 @@ class Product_Loop {
 	 */
 	public function set_products_per_page( $per_page ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return apply_filters( 'aggressive_apparel_products_per_page', $this->per_page );
+	}
+
+	/**
+	 * Customize the product-loop button text.
+	 *
+	 * @param string $text    Current button text.
+	 * @param mixed  $product Product object.
+	 * @return string Modified button text.
+	 */
+	public function set_product_button_text( $text, $product = null ) {
+		if ( ! is_object( $product ) ) {
+			return $text;
+		}
+
+		if ( method_exists( $product, 'is_in_stock' ) && ! $product->is_in_stock() ) {
+			return Feature_Settings::get_out_of_stock_button_text();
+		}
+
+		if ( method_exists( $product, 'is_purchasable' ) && ! $product->is_purchasable() ) {
+			return $text;
+		}
+
+		if ( method_exists( $product, 'is_type' ) && $product->is_type( 'variable' ) ) {
+			return Feature_Settings::get_variable_product_button_text();
+		}
+
+		if ( method_exists( $product, 'is_type' ) && $product->is_type( 'simple' ) ) {
+			return Feature_Settings::get_simple_product_button_text();
+		}
+
+		return $text;
 	}
 }

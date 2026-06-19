@@ -398,8 +398,8 @@ BLOCKS;
 			</button>',
 			esc_attr( $class ),
 			$product_id,
-			esc_attr__( 'Add to wishlist', 'aggressive-apparel' ),
-			esc_attr__( 'Wishlist', 'aggressive-apparel' ),
+			esc_attr( Feature_Settings::get_wishlist_button_text() ),
+			esc_attr( Feature_Settings::get_wishlist_button_text() ),
 		);
 	}
 

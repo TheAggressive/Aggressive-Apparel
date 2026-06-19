@@ -176,16 +176,19 @@ class Quick_View {
 			)
 		);
 
+		$quick_view_text = Feature_Settings::get_quick_view_button_text();
+
 		$button = sprintf(
-			'<button type="button" class="aggressive-apparel-quick-view__trigger" data-wp-interactive="aggressive-apparel/quick-view" data-wp-on--click="actions.open" data-wp-context=\'{"productId":%d}\' aria-label="%s">%s</button>',
+			'<button type="button" class="aggressive-apparel-quick-view__trigger" data-wp-interactive="aggressive-apparel/quick-view" data-wp-on--click="actions.open" data-wp-context=\'{"productId":%d}\' aria-label="%s" title="%s">%s</button>',
 			$product->get_id(),
 			esc_attr(
 				sprintf(
-					/* translators: %s: product name. */
-					__( 'Quick view %s', 'aggressive-apparel' ),
+					'%1$s %2$s',
+					$quick_view_text,
 					$product->get_name(),
 				),
 			),
+			esc_attr( $quick_view_text ),
 			$icon,
 		);
 
@@ -263,6 +266,19 @@ class Quick_View {
 
 					// Accessibility.
 					'announcement'        => '',
+					'i18n'                => array(
+						'addToCartText'        => Feature_Settings::get_simple_product_button_text(),
+						'addingToCartText'     => __( 'Adding…', 'aggressive-apparel' ),
+						'addedToCartText'      => __( '✓ Added!', 'aggressive-apparel' ),
+						'outOfStockButtonText' => Feature_Settings::get_out_of_stock_button_text(),
+						'variableButtonText'   => Feature_Settings::get_variable_product_button_text(),
+						'buyNowText'           => Feature_Settings::get_buy_now_button_text(),
+						'redirectingText'      => __( 'Redirecting…', 'aggressive-apparel' ),
+						'viewCartText'         => Feature_Settings::get_view_cart_button_text(),
+						'continueShoppingText' => Feature_Settings::get_continue_shopping_button_text(),
+						'viewProductText'      => Feature_Settings::get_view_product_button_text(),
+						'addedToCartMessage'   => __( 'Added to cart!', 'aggressive-apparel' ),
+					),
 				),
 			);
 		}
@@ -515,7 +531,7 @@ class Quick_View {
 									data-wp-text="state.addToCartLabel"
 									data-wp-class--is-adding="state.isAddingToCart"
 									data-wp-class--is-success="state.isCartSuccess"
-								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+								><?php echo esc_html( Feature_Settings::get_simple_product_button_text() ); ?></button>
 
 								<button
 									type="button"
@@ -525,7 +541,7 @@ class Quick_View {
 									data-wp-bind--hidden="state.hideInlineAddToCart"
 									data-wp-text="state.buyNowLabel"
 									data-wp-class--is-adding="state.isBuyingNow"
-								><?php echo esc_html__( 'Buy Now', 'aggressive-apparel' ); ?></button>
+								><?php echo esc_html( Feature_Settings::get_buy_now_button_text() ); ?></button>
 
 								<!-- Select Options — replaces Add to Cart for variable products. -->
 								<button
@@ -533,8 +549,9 @@ class Quick_View {
 									class="aggressive-apparel-quick-view__select-options wp-element-button"
 									data-wp-on--click="actions.openDrawer"
 									data-wp-bind--hidden="state.hideSelectOptionsBtn"
+									data-wp-text="state.selectOptionsLabel"
 									hidden
-								><?php echo esc_html__( 'Select Options', 'aggressive-apparel' ); ?></button>
+								><?php echo esc_html( Feature_Settings::get_variable_product_button_text() ); ?></button>
 							</div>
 
 							<!-- Post-cart actions panel. -->
@@ -544,19 +561,21 @@ class Quick_View {
 								hidden
 							>
 								<p class="aggressive-apparel-quick-view__post-cart-message">
-									<?php echo esc_html__( 'Added to cart!', 'aggressive-apparel' ); ?>
+									<span data-wp-text="state.addedToCartMessage"><?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?></span>
 								</p>
 								<div class="aggressive-apparel-quick-view__post-cart-actions">
 									<button
 										type="button"
 										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue wp-element-button"
 										data-wp-on--click="actions.continueShopping"
-									><?php echo esc_html__( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
+										data-wp-text="state.continueShoppingLabel"
+									><?php echo esc_html( Feature_Settings::get_continue_shopping_button_text() ); ?></button>
 									<a
 										href="#"
 										class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart wp-element-button"
 										data-wp-bind--href="state.cartUrl"
-									><?php echo esc_html__( 'View Cart', 'aggressive-apparel' ); ?></a>
+										data-wp-text="state.viewCartLabel"
+									><?php echo esc_html( Feature_Settings::get_view_cart_button_text() ); ?></a>
 								</div>
 							</div>
 
@@ -574,7 +593,8 @@ class Quick_View {
 							href="#"
 							class="aggressive-apparel-quick-view__link"
 							data-wp-bind--href="state.productLink"
-						><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
+							data-wp-text="state.viewProductLabel"
+						><?php echo esc_html( Feature_Settings::get_view_product_button_text() ); ?></a>
 
 						</div><!-- /.aggressive-apparel-quick-view__bottom-group -->
 					</div>
@@ -719,7 +739,7 @@ class Quick_View {
 									data-wp-text="state.addToCartLabel"
 									data-wp-class--is-adding="state.isAddingToCart"
 									data-wp-class--is-success="state.isCartSuccess"
-								><?php echo esc_html__( 'Add to Cart', 'aggressive-apparel' ); ?></button>
+								><?php echo esc_html( Feature_Settings::get_simple_product_button_text() ); ?></button>
 
 								<button
 									type="button"
@@ -728,13 +748,14 @@ class Quick_View {
 									data-wp-bind--disabled="state.cannotAddToCart"
 									data-wp-text="state.buyNowLabel"
 									data-wp-class--is-adding="state.isBuyingNow"
-								><?php echo esc_html__( 'Buy Now', 'aggressive-apparel' ); ?></button>
+								><?php echo esc_html( Feature_Settings::get_buy_now_button_text() ); ?></button>
 
 								<a
 									href="#"
 									class="aggressive-apparel-quick-view__drawer-view-product"
 									data-wp-bind--href="state.productLink"
-								><?php echo esc_html__( 'View Full Product', 'aggressive-apparel' ); ?></a>
+									data-wp-text="state.viewProductLabel"
+								><?php echo esc_html( Feature_Settings::get_view_product_button_text() ); ?></a>
 
 								<!-- Cart error (shown inside drawer). -->
 								<p
@@ -754,7 +775,7 @@ class Quick_View {
 						>
 							<div class="aggressive-apparel-quick-view__drawer-success-icon">&#10003;</div>
 							<p class="aggressive-apparel-quick-view__drawer-success-message">
-								<?php echo esc_html__( 'Added to cart!', 'aggressive-apparel' ); ?>
+								<span data-wp-text="state.addedToCartMessage"><?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?></span>
 							</p>
 							<div class="aggressive-apparel-quick-view__drawer-success-product">
 								<img
@@ -774,12 +795,14 @@ class Quick_View {
 									type="button"
 									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--continue wp-element-button"
 									data-wp-on--click="actions.continueShopping"
-								><?php echo esc_html__( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
+									data-wp-text="state.continueShoppingLabel"
+								><?php echo esc_html( Feature_Settings::get_continue_shopping_button_text() ); ?></button>
 								<a
 									href="#"
 									class="aggressive-apparel-quick-view__btn aggressive-apparel-quick-view__btn--view-cart wp-element-button"
 									data-wp-bind--href="state.cartUrl"
-								><?php echo esc_html__( 'View Cart', 'aggressive-apparel' ); ?></a>
+									data-wp-text="state.viewCartLabel"
+								><?php echo esc_html( Feature_Settings::get_view_cart_button_text() ); ?></a>
 							</div>
 						</div>
 					</div>

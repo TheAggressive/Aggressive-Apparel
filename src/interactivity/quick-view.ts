@@ -156,9 +156,24 @@ interface CartAddBody {
   variation?: Array<{ attribute: string; value: string }>;
 }
 
+interface QuickViewLabels {
+  addToCartText?: string;
+  addingToCartText?: string;
+  addedToCartText?: string;
+  outOfStockButtonText?: string;
+  variableButtonText?: string;
+  buyNowText?: string;
+  redirectingText?: string;
+  viewCartText?: string;
+  continueShoppingText?: string;
+  viewProductText?: string;
+  addedToCartMessage?: string;
+}
+
 interface QuickViewState {
   restBase: string;
   cartApiUrl: string;
+  i18n: QuickViewLabels;
   isOpen: boolean;
   isLoading: boolean;
   hasError: boolean;
@@ -203,6 +218,11 @@ interface QuickViewState {
   readonly canAddToCart: boolean;
   readonly addToCartLabel: string;
   readonly buyNowLabel: string;
+  readonly selectOptionsLabel: string;
+  readonly viewCartLabel: string;
+  readonly continueShoppingLabel: string;
+  readonly viewProductLabel: string;
+  readonly addedToCartMessage: string;
   readonly isOptionSelected: boolean;
   readonly currentImage: { src: string; alt: string };
   readonly hasMultipleImages: boolean;
@@ -239,6 +259,13 @@ interface QuickViewState {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Resolve server-provided copy with a local fallback for cached markup.
+ */
+function getLabel(key: keyof QuickViewLabels, fallback: string): string {
+  return state.i18n?.[key] || fallback;
+}
 
 /**
  * Whether an attribute slug (or name) represents a color attribute.
@@ -801,6 +828,7 @@ const { state, actions } = store<QuickViewStore>(
       // Provided by PHP via wp_interactivity_state().
       restBase: '',
       cartApiUrl: '',
+      i18n: {},
 
       // Modal visibility.
       isOpen: false,
@@ -888,22 +916,42 @@ const { state, actions } = store<QuickViewStore>(
 
       get addToCartLabel(): string {
         if (state.isCartSuccess) {
-          return '✓ Added!';
+          return getLabel('addedToCartText', '✓ Added!');
         }
         if (state.isAddingToCart) {
-          return 'Adding…';
+          return getLabel('addingToCartText', 'Adding…');
         }
         if (state.stockStatus === 'outofstock') {
-          return 'Out of Stock';
+          return getLabel('outOfStockButtonText', 'Out of Stock');
         }
-        return 'Add to Cart';
+        return getLabel('addToCartText', 'Add to Cart');
       },
 
       get buyNowLabel(): string {
         if (state.isBuyingNow) {
-          return 'Redirecting…';
+          return getLabel('redirectingText', 'Redirecting…');
         }
-        return 'Buy Now';
+        return getLabel('buyNowText', 'Buy Now');
+      },
+
+      get selectOptionsLabel(): string {
+        return getLabel('variableButtonText', 'Choose');
+      },
+
+      get viewCartLabel(): string {
+        return getLabel('viewCartText', 'View Cart');
+      },
+
+      get continueShoppingLabel(): string {
+        return getLabel('continueShoppingText', 'Continue Shopping');
+      },
+
+      get viewProductLabel(): string {
+        return getLabel('viewProductText', 'View Full Product');
+      },
+
+      get addedToCartMessage(): string {
+        return getLabel('addedToCartMessage', 'Added to cart!');
       },
 
       /**

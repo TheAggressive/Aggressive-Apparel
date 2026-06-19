@@ -55,7 +55,6 @@ class Enhancements {
 		'size_guide'                 => array( Size_Guide_Post_Type::class, Size_Guide::class ),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
 		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),
-		'exit_intent'                => array( Exit_Intent::class ),
 		'quick_view'                 => array( Quick_View::class ),
 		'wishlist'                   => array( Wishlist::class ),
 		'social_proof'               => array( Social_Proof::class ),

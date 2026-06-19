@@ -91,7 +91,7 @@ class Load_More {
 			. ' data-wp-bind--disabled="state.isLoading"'
 			. ' data-wp-class--is-loading="state.isLoading"'
 			. ' data-wp-bind--aria-busy="state.isLoading">%s</button>',
-			esc_html__( 'Load More Products', 'aggressive-apparel' )
+			esc_html( Feature_Settings::get_load_more_button_text() )
 		);
 
 		// Infinite scroll sentinel.

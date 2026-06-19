@@ -43,6 +43,20 @@ class Advanced_Sorting {
 	private const TRANSIENT_TTL = 900;
 
 	/**
+	 * Maximum category slugs accepted by public sorting requests.
+	 *
+	 * @var int
+	 */
+	private const MAX_CATEGORY_FILTERS = 10;
+
+	/**
+	 * Maximum raw category query length accepted by public sorting requests.
+	 *
+	 * @var int
+	 */
+	private const MAX_CATEGORY_QUERY_LENGTH = 300;
+
+	/**
 	 * REST namespace.
 	 *
 	 * @var string
@@ -181,7 +195,7 @@ class Advanced_Sorting {
 		$sort     = $request->get_param( 'sort' );
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
-		$category = $request->get_param( 'category' );
+		$category = self::normalize_category_filter( (string) $request->get_param( 'category' ) );
 
 		$all_ids = 'featured' === $sort
 			? $this->get_featured_sorted_ids( $category )
@@ -214,6 +228,7 @@ class Advanced_Sorting {
 	 */
 	private function get_featured_sorted_ids( string $category = '' ): array {
 		$featured_ids = wc_get_featured_product_ids();
+		$slugs        = self::get_category_slugs( $category );
 
 		$query_args = array(
 			'post_type'      => 'product',
@@ -224,8 +239,7 @@ class Advanced_Sorting {
 			'order'          => 'DESC',
 		);
 
-		if ( ! empty( $category ) ) {
-			$slugs                   = array_map( 'trim', explode( ',', $category ) );
+		if ( ! empty( $slugs ) ) {
 			$query_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
 					'taxonomy' => 'product_cat',
@@ -252,6 +266,8 @@ class Advanced_Sorting {
 	 * @return int[] Ordered product IDs.
 	 */
 	private function get_savings_sorted_ids( string $category = '' ): array {
+		$slugs         = self::get_category_slugs( $category );
+		$category      = implode( ',', $slugs );
 		$transient_key = self::SAVINGS_TRANSIENT . ( $category ? '_' . md5( $category ) : '' );
 		$cached        = get_transient( $transient_key );
 
@@ -264,8 +280,7 @@ class Advanced_Sorting {
 		$category_join  = '';
 		$category_where = '';
 
-		if ( ! empty( $category ) ) {
-			$slugs        = array_map( 'trim', explode( ',', $category ) );
+		if ( ! empty( $slugs ) ) {
 			$placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
 
 			$category_join  = "INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id";
@@ -307,8 +322,7 @@ class Advanced_Sorting {
 			'post__not_in'   => $sale_ids, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
 		);
 
-		if ( ! empty( $category ) ) {
-			$slugs                      = array_map( 'trim', explode( ',', $category ) );
+		if ( ! empty( $slugs ) ) {
 			$non_sale_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
 					'taxonomy' => 'product_cat',
@@ -326,6 +340,65 @@ class Advanced_Sorting {
 		set_transient( $transient_key, $result, self::TRANSIENT_TTL );
 
 		return $result;
+	}
+
+	/**
+	 * Normalize public category filters to known product category slugs.
+	 *
+	 * @param string $category Raw comma-separated category slugs.
+	 * @return string Canonical comma-separated category slugs.
+	 */
+	private static function normalize_category_filter( string $category ): string {
+		$slugs = self::get_category_slugs( $category );
+
+		return implode( ',', $slugs );
+	}
+
+	/**
+	 * Parse, bound, and validate category slugs.
+	 *
+	 * @param string $category Raw comma-separated category slugs.
+	 * @return string[] Existing product category slugs.
+	 */
+	private static function get_category_slugs( string $category ): array {
+		$category = substr( $category, 0, self::MAX_CATEGORY_QUERY_LENGTH );
+
+		$slugs = array_filter(
+			array_unique(
+				array_map(
+					static fn( string $slug ): string => sanitize_title( trim( $slug ) ),
+					explode( ',', $category )
+				)
+			)
+		);
+
+		$slugs = array_slice( array_values( $slugs ), 0, self::MAX_CATEGORY_FILTERS );
+
+		if ( empty( $slugs ) ) {
+			return array();
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'product_cat',
+				'hide_empty' => false,
+				'fields'     => 'slugs',
+				'slug'       => $slugs,
+			)
+		);
+
+		if ( is_wp_error( $terms ) || empty( $terms ) || ! is_array( $terms ) ) {
+			return array();
+		}
+
+		$valid = array_flip( array_map( 'strval', $terms ) );
+
+		return array_values(
+			array_filter(
+				$slugs,
+				static fn( string $slug ): bool => isset( $valid[ $slug ] )
+			)
+		);
 	}
 
 	/**

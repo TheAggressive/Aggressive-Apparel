@@ -99,6 +99,7 @@ class Sticky_Add_To_Cart {
 				array(
 					'productId'              => $product->get_id(),
 					'productType'            => $product->get_type(),
+					'isInStock'              => $product->is_in_stock(),
 					'isVisible'              => false,
 					'isAdding'               => false,
 					'isSuccess'              => false,
@@ -124,6 +125,16 @@ class Sticky_Add_To_Cart {
 					'drawerImageAlt'         => $product->get_name(),
 					'originalDrawerImage'    => $drawer_image_src,
 					'originalDrawerImageAlt' => $product->get_name(),
+					'i18n'                   => array(
+						'addToCartText'        => Feature_Settings::get_simple_product_button_text(),
+						'outOfStockButtonText' => Feature_Settings::get_out_of_stock_button_text(),
+						'variableButtonText'   => Feature_Settings::get_variable_product_button_text(),
+						'buyNowText'           => Feature_Settings::get_buy_now_button_text(),
+						'redirectingText'      => __( 'Redirecting…', 'aggressive-apparel' ),
+						'viewCartText'         => Feature_Settings::get_view_cart_button_text(),
+						'continueShoppingText' => Feature_Settings::get_continue_shopping_button_text(),
+						'addedToCartMessage'   => __( 'Added to cart!', 'aggressive-apparel' ),
+					),
 				),
 			);
 		}
@@ -205,11 +216,11 @@ class Sticky_Add_To_Cart {
 						<span class="aa-sticky-cart__button-text" data-wp-text="state.buttonText">
 							<?php
 							if ( ! $product->is_in_stock() ) {
-								esc_html_e( 'Out of Stock', 'aggressive-apparel' );
+								echo esc_html( Feature_Settings::get_out_of_stock_button_text() );
 							} elseif ( $product->is_type( 'variable' ) ) {
-								esc_html_e( 'Select options', 'aggressive-apparel' );
+								echo esc_html( Feature_Settings::get_variable_product_button_text() );
 							} else {
-								esc_html_e( 'Add to Cart', 'aggressive-apparel' );
+								echo esc_html( Feature_Settings::get_simple_product_button_text() );
 							}
 							?>
 						</span>
@@ -226,7 +237,7 @@ class Sticky_Add_To_Cart {
 						<?php echo $product->is_type( 'variable' ) ? 'hidden' : ''; ?>
 					>
 						<span data-wp-text="state.buyNowLabel">
-							<?php esc_html_e( 'Buy Now', 'aggressive-apparel' ); ?>
+							<?php echo esc_html( Feature_Settings::get_buy_now_button_text() ); ?>
 						</span>
 					</button>
 					<?php endif; ?>
@@ -368,7 +379,7 @@ class Sticky_Add_To_Cart {
 								data-wp-class--is-success="state.isSuccess"
 							>
 								<span data-wp-text="state.drawerButtonText">
-									<?php esc_html_e( 'Add to Cart', 'aggressive-apparel' ); ?>
+									<?php echo esc_html( Feature_Settings::get_simple_product_button_text() ); ?>
 								</span>
 							</button>
 							<button
@@ -379,7 +390,7 @@ class Sticky_Add_To_Cart {
 								data-wp-class--is-loading="state.isBuyingNow"
 							>
 								<span data-wp-text="state.buyNowLabel">
-									<?php esc_html_e( 'Buy Now', 'aggressive-apparel' ); ?>
+									<?php echo esc_html( Feature_Settings::get_buy_now_button_text() ); ?>
 								</span>
 							</button>
 						</div>
@@ -397,7 +408,7 @@ class Sticky_Add_To_Cart {
 							</svg>
 						</div>
 						<p class="aa-sticky-cart__drawer-success-message">
-							<?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?>
+							<span data-wp-text="state.addedToCartMessage"><?php esc_html_e( 'Added to cart!', 'aggressive-apparel' ); ?></span>
 						</p>
 						<div class="aa-sticky-cart__drawer-success-product">
 							<img
@@ -428,12 +439,14 @@ class Sticky_Add_To_Cart {
 								type="button"
 								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--continue wp-element-button"
 								data-wp-on--click="actions.continueShopping"
-							><?php esc_html_e( 'Continue Shopping', 'aggressive-apparel' ); ?></button>
+								data-wp-text="state.continueShoppingLabel"
+							><?php echo esc_html( Feature_Settings::get_continue_shopping_button_text() ); ?></button>
 							<a
 								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--cart wp-element-button"
 								data-wp-bind--href="state.cartUrl"
 								href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/' ); ?>"
-							><?php esc_html_e( 'View Cart', 'aggressive-apparel' ); ?></a>
+								data-wp-text="state.viewCartLabel"
+							><?php echo esc_html( Feature_Settings::get_view_cart_button_text() ); ?></a>
 						</div>
 					</div>
 				</div>

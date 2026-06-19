@@ -8,14 +8,20 @@
 
 declare(strict_types=1);
 
+use Aggressive_Apparel\WooCommerce\Feature_Settings;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 $show_remove      = ! isset( $attributes['showRemove'] ) || (bool) $attributes['showRemove'];
 $show_add_to_cart = ! empty( $attributes['showAddToCart'] );
-$atc_label        = sanitize_text_field( $attributes['addToCartLabel'] ?? __( 'Add to Cart', 'aggressive-apparel' ) );
-$remove_label     = sanitize_text_field( $attributes['removeLabel'] ?? '' );
+$default_atc      = class_exists( Feature_Settings::class ) ? Feature_Settings::get_simple_product_button_text() : __( 'Add to Cart', 'aggressive-apparel' );
+$atc_label        = sanitize_text_field( $attributes['addToCartLabel'] ?? $default_atc );
+if ( __( 'Add to Cart', 'aggressive-apparel' ) === $atc_label ) {
+	$atc_label = $default_atc;
+}
+$remove_label = sanitize_text_field( $attributes['removeLabel'] ?? '' );
 
 if ( ! $show_remove && ! $show_add_to_cart ) {
 	return;

@@ -50,7 +50,11 @@ if ( $product_id <= 0 ) {
 // single product pages can short-circuit and avoid duplicates.
 Wishlist::mark_button_block_rendered();
 
-$label      = isset( $attributes['label'] ) ? (string) $attributes['label'] : __( 'Add to Wishlist', 'aggressive-apparel' );
+$default_label = Feature_Settings::get_wishlist_button_text();
+$label         = isset( $attributes['label'] ) ? (string) $attributes['label'] : $default_label;
+if ( __( 'Add to Wishlist', 'aggressive-apparel' ) === $label ) {
+	$label = $default_label;
+}
 $show_label = ! empty( $attributes['showLabel'] );
 $show_icon  = ! isset( $attributes['showIcon'] ) || (bool) $attributes['showIcon'];
 $icon_only  = ! isset( $attributes['iconOnly'] ) || (bool) $attributes['iconOnly'];

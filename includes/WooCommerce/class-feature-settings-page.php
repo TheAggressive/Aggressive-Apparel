@@ -136,6 +136,7 @@ class Feature_Settings_Page {
 
 		$this->register_sub_settings();
 		$this->register_feature_fields();
+		$this->register_store_copy_fields();
 	}
 
 	/**
@@ -145,6 +146,18 @@ class Feature_Settings_Page {
 	 */
 	private function register_sub_settings(): void {
 		$group = Feature_Settings::SETTINGS_GROUP;
+
+		foreach ( Feature_Settings::get_store_copy_definitions() as $definition ) {
+			register_setting(
+				$group,
+				$definition['option'],
+				array(
+					'type'              => 'string',
+					'default'           => $definition['default'],
+					'sanitize_callback' => array( $this->sanitizer, 'sanitize_store_copy_text' ),
+				)
+			);
+		}
 
 		register_setting(
 			$group,
@@ -330,6 +343,24 @@ class Feature_Settings_Page {
 	}
 
 	/**
+	 * Register Store Copy fields.
+	 *
+	 * @return void
+	 */
+	private function register_store_copy_fields(): void {
+		foreach ( Feature_Settings::get_store_copy_definitions() as $id => $definition ) {
+			add_settings_field(
+				'store_copy_' . $id,
+				$definition['label'],
+				array( $this->fields, 'render_store_copy_text_field' ),
+				Feature_Settings::PAGE_SLUG,
+				'aggressive_apparel_features_copy',
+				$definition,
+			);
+		}
+	}
+
+	/**
 	 * Register sub-fields rendered immediately after a parent toggle.
 	 *
 	 * Only emitted when the parent feature is enabled.
@@ -462,17 +493,25 @@ class Feature_Settings_Page {
 		// Tab navigation.
 		echo '<nav class="nav-tab-wrapper aa-features-tabs">';
 		foreach ( $sections as $id => $meta ) {
-			$active = ( $id === $first_key ) ? ' nav-tab-active' : '';
-			$counts = $section_counts[ $id ];
+			$active     = ( $id === $first_key ) ? ' nav-tab-active' : '';
+			$counts     = $section_counts[ $id ];
+			$count_html = '';
+
+			if ( $counts['total'] > 0 ) {
+				$count_html = sprintf(
+					' <span class="aa-features-tab-count">%d/%d</span>',
+					absint( $counts['enabled'] ),
+					absint( $counts['total'] ),
+				);
+			}
 
 			printf(
-				'<a href="#" class="nav-tab%s" data-tab="%s"><span class="dashicons %s"></span> %s <span class="aa-features-tab-count">%d/%d</span></a>',
+				'<a href="#" class="nav-tab%s" data-tab="%s"><span class="dashicons %s"></span> %s%s</a>',
 				esc_attr( $active ),
 				esc_attr( $id ),
 				esc_attr( $meta['icon'] ),
 				esc_html( $meta['label'] ),
-				absint( $counts['enabled'] ),
-				absint( $counts['total'] ),
+				$count_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed markup with escaped integers.
 			);
 		}
 		echo '</nav>';

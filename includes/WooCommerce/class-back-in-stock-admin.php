@@ -107,6 +107,10 @@ class Back_In_Stock_Admin {
 			return;
 		}
 
+		if ( ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce capability.
+			wp_die( esc_html__( 'Sorry, you are not allowed to manage stock subscribers.', 'aggressive-apparel' ) );
+		}
+
 		check_admin_referer( 'bulk-subscribers' );
 
 		if ( ! isset( $_GET['subscriber'] ) || ! is_array( $_GET['subscriber'] ) ) {

@@ -36,6 +36,20 @@ class Back_In_Stock {
 	private const MAX_SUBSCRIPTIONS_PER_EMAIL = 3;
 
 	/**
+	 * Maximum subscribe attempts during the rate-limit window.
+	 *
+	 * @var int
+	 */
+	private const RATE_LIMIT_MAX_ATTEMPTS = 10;
+
+	/**
+	 * Subscribe attempt rate-limit window in seconds.
+	 *
+	 * @var int
+	 */
+	private const RATE_LIMIT_WINDOW = 600;
+
+	/**
 	 * Maximum notifications to send per batch.
 	 *
 	 * @var int
@@ -149,6 +163,13 @@ class Back_In_Stock {
 		$product_id = absint( $_POST['product_id'] ?? 0 );
 		$consent    = ! empty( $_POST['consent'] );
 
+		if ( $this->is_rate_limited( $email ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Too many requests. Please wait a few minutes and try again.', 'aggressive-apparel' ) ),
+				429
+			);
+		}
+
 		if ( ! is_email( $email ) ) {
 			wp_send_json_error( array( 'message' => __( 'Please enter a valid email address.', 'aggressive-apparel' ) ) );
 		}
@@ -157,11 +178,16 @@ class Back_In_Stock {
 			wp_send_json_error( array( 'message' => __( 'Invalid product.', 'aggressive-apparel' ) ) );
 		}
 
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : false;
+		if ( ! $product || 'publish' !== get_post_status( $product->get_id() ) || $product->is_in_stock() ) {
+			wp_send_json_error( array( 'message' => __( 'This product is not available for stock notifications.', 'aggressive-apparel' ) ) );
+		}
+
 		if ( ! $consent ) {
 			wp_send_json_error( array( 'message' => __( 'You must agree to receive the notification.', 'aggressive-apparel' ) ) );
 		}
 
-		// Rate limit check.
+		// Active subscription cap.
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
@@ -216,6 +242,111 @@ class Back_In_Stock {
 		}
 
 		wp_send_json_success( array( 'message' => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ) ) );
+	}
+
+	/**
+	 * Check and increment hashed email/IP subscribe attempt counters.
+	 *
+	 * @param string $email Submitted email address.
+	 * @return bool
+	 */
+	private function is_rate_limited( string $email ): bool {
+		$identifiers = array(
+			'ip' => self::get_client_ip(),
+		);
+
+		if ( is_email( $email ) ) {
+			$identifiers['email'] = strtolower( $email );
+		}
+
+		foreach ( $identifiers as $scope => $identifier ) {
+			if ( self::get_rate_limit_count( $scope, $identifier ) >= self::get_rate_limit_max_attempts() ) {
+				return true;
+			}
+		}
+
+		foreach ( $identifiers as $scope => $identifier ) {
+			self::increment_rate_limit_count( $scope, $identifier );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the current attempt count for a rate-limit identifier.
+	 *
+	 * @param string $scope      Identifier scope.
+	 * @param string $identifier Identifier value.
+	 * @return int
+	 */
+	private static function get_rate_limit_count( string $scope, string $identifier ): int {
+		return (int) get_transient( self::get_rate_limit_key( $scope, $identifier ) );
+	}
+
+	/**
+	 * Increment the attempt count for a rate-limit identifier.
+	 *
+	 * @param string $scope      Identifier scope.
+	 * @param string $identifier Identifier value.
+	 * @return void
+	 */
+	private static function increment_rate_limit_count( string $scope, string $identifier ): void {
+		$key   = self::get_rate_limit_key( $scope, $identifier );
+		$count = self::get_rate_limit_count( $scope, $identifier );
+
+		set_transient( $key, $count + 1, self::get_rate_limit_window() );
+	}
+
+	/**
+	 * Build a privacy-preserving transient key for a rate-limit identifier.
+	 *
+	 * @param string $scope      Identifier scope.
+	 * @param string $identifier Identifier value.
+	 * @return string
+	 */
+	private static function get_rate_limit_key( string $scope, string $identifier ): string {
+		return 'aa_bis_rate_limit_' . hash( 'sha256', $scope . '|' . strtolower( $identifier ) );
+	}
+
+	/**
+	 * Get the current request IP address.
+	 *
+	 * @return string
+	 */
+	private static function get_client_ip(): string {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+
+		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : 'unknown';
+	}
+
+	/**
+	 * Get the subscribe attempt limit.
+	 *
+	 * @return int
+	 */
+	private static function get_rate_limit_max_attempts(): int {
+		return max(
+			1,
+			(int) apply_filters(
+				'aggressive_apparel_back_in_stock_rate_limit_max_attempts',
+				self::RATE_LIMIT_MAX_ATTEMPTS
+			)
+		);
+	}
+
+	/**
+	 * Get the subscribe attempt window in seconds.
+	 *
+	 * @return int
+	 */
+	private static function get_rate_limit_window(): int {
+		return max(
+			60,
+			(int) apply_filters(
+				'aggressive_apparel_back_in_stock_rate_limit_window',
+				self::RATE_LIMIT_WINDOW
+			)
+		);
 	}
 
 	/**
@@ -487,7 +618,7 @@ class Back_In_Stock {
 					data-wp-class--is-loading="state.isSubmitting"
 					data-wp-bind--disabled="state.isSubmitting"
 				>
-					<?php esc_html_e( 'Notify Me', 'aggressive-apparel' ); ?>
+					<?php echo esc_html( Feature_Settings::get_back_in_stock_button_text() ); ?>
 				</button>
 			</form>
 
@@ -518,7 +649,7 @@ class Back_In_Stock {
 
 		return sprintf(
 			'<div class="aa-bis__badge"><span>%s</span></div>',
-			esc_html__( 'Notify Me', 'aggressive-apparel' )
+			esc_html( Feature_Settings::get_back_in_stock_button_text() )
 		);
 	}
 

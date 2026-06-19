@@ -49,6 +49,30 @@ class Feature_Settings_Fields {
 	}
 
 	/**
+	 * Render a Store Copy text field.
+	 *
+	 * @param array $args Field arguments containing option, default, and description.
+	 * @return void
+	 */
+	public function render_store_copy_text_field( array $args ): void {
+		$option_name = (string) $args['option'];
+		$default     = (string) $args['default'];
+		$value       = Feature_Settings::get_store_copy_text( $option_name );
+
+		printf(
+			'<input type="text" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" />',
+			esc_attr( $option_name ),
+			esc_attr( $value ),
+			esc_attr( $default ),
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			esc_html( $args['description'] )
+		);
+	}
+
+	/**
 	 * Render the primary image exit duration slider field.
 	 *
 	 * @return void

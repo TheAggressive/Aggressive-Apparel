@@ -303,7 +303,7 @@ class Product_Filters {
 							'aria-hidden' => 'true',
 						)
 					),
-					esc_html__( 'Filter', 'aggressive-apparel' ),
+					esc_html( Feature_Settings::get_filter_toggle_text() ),
 				);
 
 				return $button . $block_content;

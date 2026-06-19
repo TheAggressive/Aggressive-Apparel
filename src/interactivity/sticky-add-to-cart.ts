@@ -29,6 +29,7 @@ interface StickyCartState {
   isSuccess: boolean;
   hasError: boolean;
   isDrawerOpen: boolean;
+  isInStock: boolean;
   productType: string;
   productId: number;
   matchedVariationId: number;
@@ -49,6 +50,7 @@ interface StickyCartState {
   checkoutUrl: string;
   nonce: string;
   announcement: string;
+  i18n: StickyCartLabels;
   _syncing: boolean;
   readonly ariaHidden: string;
   readonly isVariable: boolean;
@@ -58,9 +60,23 @@ interface StickyCartState {
   readonly isOnSale: boolean;
   readonly drawerButtonText: string;
   readonly buyNowLabel: string;
+  readonly viewCartLabel: string;
+  readonly continueShoppingLabel: string;
+  readonly addedToCartMessage: string;
   readonly hideDrawerHeader: boolean;
   readonly hideDrawerSelection: boolean;
   readonly hideDrawerSuccess: boolean;
+}
+
+interface StickyCartLabels {
+  addToCartText?: string;
+  outOfStockButtonText?: string;
+  variableButtonText?: string;
+  buyNowText?: string;
+  redirectingText?: string;
+  viewCartText?: string;
+  continueShoppingText?: string;
+  addedToCartMessage?: string;
 }
 
 interface CartAddBody {
@@ -71,6 +87,13 @@ interface CartAddBody {
 
 interface ProductAttribute {
   name: string;
+}
+
+/**
+ * Resolve server-provided copy with a local fallback for cached markup.
+ */
+function getLabel(key: keyof StickyCartLabels, fallback: string): string {
+  return state.i18n?.[key] || fallback;
 }
 
 /* ---------------------------------------------------------------
@@ -245,11 +268,16 @@ const { state, actions } = store<StickyCartStore>(
         return false;
       },
       get buttonText(): string {
-        if (state.productType === 'variable') return 'Select options';
+        if (!state.isInStock) {
+          return getLabel('outOfStockButtonText', 'Out of Stock');
+        }
+        if (state.productType === 'variable') {
+          return getLabel('variableButtonText', 'Choose');
+        }
         if (state.isAdding) return '…';
         if (state.isSuccess) return '✓';
         if (state.hasError) return 'Error';
-        return 'Add to Cart';
+        return getLabel('addToCartText', 'Add to Cart');
       },
       get isDrawerAddDisabled(): boolean {
         if (state.isAdding || state.isBuyingNow) return true;
@@ -273,13 +301,24 @@ const { state, actions } = store<StickyCartStore>(
           state.productType === 'variable' &&
           (!hasSelectedRequiredAttributes() || !state.matchedVariationId)
         ) {
-          return 'Select options';
+          return getLabel('variableButtonText', 'Choose');
         }
-        return 'Add to Cart';
+        return getLabel('addToCartText', 'Add to Cart');
       },
       get buyNowLabel(): string {
-        if (state.isBuyingNow) return 'Redirecting…';
-        return 'Buy Now';
+        if (state.isBuyingNow) {
+          return getLabel('redirectingText', 'Redirecting…');
+        }
+        return getLabel('buyNowText', 'Buy Now');
+      },
+      get viewCartLabel(): string {
+        return getLabel('viewCartText', 'View Cart');
+      },
+      get continueShoppingLabel(): string {
+        return getLabel('continueShoppingText', 'Continue Shopping');
+      },
+      get addedToCartMessage(): string {
+        return getLabel('addedToCartMessage', 'Added to cart!');
       },
       get hideDrawerHeader(): boolean {
         return state.drawerView === 'success';

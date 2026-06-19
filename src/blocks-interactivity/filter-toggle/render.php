@@ -50,7 +50,11 @@ if ( ! Product_Filters::is_filterable_archive() ) {
 	return;
 }
 
-$label       = isset( $attributes['label'] ) ? (string) $attributes['label'] : __( 'Filter', 'aggressive-apparel' );
+$default_label = Feature_Settings::get_filter_toggle_text();
+$label         = isset( $attributes['label'] ) ? (string) $attributes['label'] : $default_label;
+if ( __( 'Filter', 'aggressive-apparel' ) === $label ) {
+	$label = $default_label;
+}
 $show_label  = ! isset( $attributes['showLabel'] ) || (bool) $attributes['showLabel'];
 $show_icon   = ! isset( $attributes['showIcon'] ) || (bool) $attributes['showIcon'];
 $icon_only   = isset( $attributes['iconOnly'] ) && (bool) $attributes['iconOnly'];

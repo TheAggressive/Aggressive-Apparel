@@ -55,6 +55,13 @@ class Feature_Settings {
 	public const SETTINGS_GROUP = 'aggressive_apparel_features_group';
 
 	/**
+	 * String Translation context for Store Copy values.
+	 *
+	 * @var string
+	 */
+	public const STORE_COPY_TRANSLATION_CONTEXT = 'Aggressive Apparel Store Copy';
+
+	/**
 	 * Option key for the catalog hover image animation style.
 	 *
 	 * @var string
@@ -115,6 +122,90 @@ class Feature_Settings {
 	 * @var string
 	 */
 	public const WISHLIST_BUTTON_PLACEMENT_OPTION = 'aggressive_apparel_wishlist_button_placement';
+
+	/**
+	 * Option key for the variable product button text on product cards.
+	 *
+	 * @var string
+	 */
+	public const VARIABLE_PRODUCT_BUTTON_TEXT_OPTION = 'aggressive_apparel_variable_product_button_text';
+
+	/**
+	 * Option key for the simple product button text on product cards.
+	 *
+	 * @var string
+	 */
+	public const SIMPLE_PRODUCT_BUTTON_TEXT_OPTION = 'aggressive_apparel_simple_product_button_text';
+
+	/**
+	 * Option key for the product card button text when a product is out of stock.
+	 *
+	 * @var string
+	 */
+	public const OUT_OF_STOCK_BUTTON_TEXT_OPTION = 'aggressive_apparel_out_of_stock_button_text';
+
+	/**
+	 * Option key for the product filter trigger button text.
+	 *
+	 * @var string
+	 */
+	public const FILTER_TOGGLE_TEXT_OPTION = 'aggressive_apparel_filter_toggle_text';
+
+	/**
+	 * Option key for the load more button text.
+	 *
+	 * @var string
+	 */
+	public const LOAD_MORE_BUTTON_TEXT_OPTION = 'aggressive_apparel_load_more_button_text';
+
+	/**
+	 * Option key for the quick view trigger button text.
+	 *
+	 * @var string
+	 */
+	public const QUICK_VIEW_BUTTON_TEXT_OPTION = 'aggressive_apparel_quick_view_button_text';
+
+	/**
+	 * Option key for the buy now button text.
+	 *
+	 * @var string
+	 */
+	public const BUY_NOW_BUTTON_TEXT_OPTION = 'aggressive_apparel_buy_now_button_text';
+
+	/**
+	 * Option key for the view cart button text.
+	 *
+	 * @var string
+	 */
+	public const VIEW_CART_BUTTON_TEXT_OPTION = 'aggressive_apparel_view_cart_button_text';
+
+	/**
+	 * Option key for the continue shopping button text.
+	 *
+	 * @var string
+	 */
+	public const CONTINUE_SHOPPING_BUTTON_TEXT_OPTION = 'aggressive_apparel_continue_shopping_button_text';
+
+	/**
+	 * Option key for the view product button text.
+	 *
+	 * @var string
+	 */
+	public const VIEW_PRODUCT_BUTTON_TEXT_OPTION = 'aggressive_apparel_view_product_button_text';
+
+	/**
+	 * Option key for the back-in-stock button text.
+	 *
+	 * @var string
+	 */
+	public const BACK_IN_STOCK_BUTTON_TEXT_OPTION = 'aggressive_apparel_back_in_stock_button_text';
+
+	/**
+	 * Option key for the wishlist button text.
+	 *
+	 * @var string
+	 */
+	public const WISHLIST_BUTTON_TEXT_OPTION = 'aggressive_apparel_wishlist_button_text';
 
 	/**
 	 * Option key for the social proof source mix.
@@ -251,6 +342,10 @@ class Feature_Settings {
 			'label' => 'Catalog & Browsing',
 			'icon'  => 'dashicons-store',
 		),
+		'copy'         => array(
+			'label' => 'Store Copy',
+			'icon'  => 'dashicons-edit',
+		),
 		'product'      => array(
 			'label' => 'Product Page',
 			'icon'  => 'dashicons-products',
@@ -365,11 +460,6 @@ class Feature_Settings {
 				'description' => __( 'Let customers subscribe to out-of-stock products and get notified when restocked.', 'aggressive-apparel' ),
 				'section'     => 'engagement',
 			),
-			'exit_intent'                => array(
-				'label'       => __( 'Exit Intent Email Capture', 'aggressive-apparel' ),
-				'description' => __( 'Show an email signup popup when visitors are about to leave. Configurable text and re-show interval.', 'aggressive-apparel' ),
-				'section'     => 'engagement',
-			),
 
 			// ── Mobile & UI ─────────────────────────────────────.
 			'swatch_tooltips'            => array(
@@ -398,6 +488,225 @@ class Feature_Settings {
 	}
 
 	/**
+	 * Storefront microcopy settings with labels, defaults, and admin help.
+	 *
+	 * @return array<string, array{option: string, label: string, default: string, description: string}>
+	 */
+	public static function get_store_copy_definitions(): array {
+		return array(
+			'variable_product_button_text'  => array(
+				'option'      => self::VARIABLE_PRODUCT_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Variable Product Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Choose', 'aggressive-apparel' ),
+				'description' => __( 'Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen.', 'aggressive-apparel' ),
+			),
+			'simple_product_button_text'    => array(
+				'option'      => self::SIMPLE_PRODUCT_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Simple Product Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Add to Cart', 'aggressive-apparel' ),
+				'description' => __( 'Product-card button text for simple products that can be added directly.', 'aggressive-apparel' ),
+			),
+			'out_of_stock_button_text'      => array(
+				'option'      => self::OUT_OF_STOCK_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Out of Stock Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Out of Stock', 'aggressive-apparel' ),
+				'description' => __( 'Button text shown when product-card or sticky-cart products are out of stock.', 'aggressive-apparel' ),
+			),
+			'filter_toggle_text'            => array(
+				'option'      => self::FILTER_TOGGLE_TEXT_OPTION,
+				'label'       => __( 'Filter Toggle Text', 'aggressive-apparel' ),
+				'default'     => __( 'Filter', 'aggressive-apparel' ),
+				'description' => __( 'Visible text for the automatic product-filter trigger and default Filter Toggle block label.', 'aggressive-apparel' ),
+			),
+			'load_more_button_text'         => array(
+				'option'      => self::LOAD_MORE_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Load More Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Load More Products', 'aggressive-apparel' ),
+				'description' => __( 'Button text for loading the next page of catalog products.', 'aggressive-apparel' ),
+			),
+			'quick_view_button_text'        => array(
+				'option'      => self::QUICK_VIEW_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Quick View Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Quick View', 'aggressive-apparel' ),
+				'description' => __( 'Label used by Quick View triggers on product cards.', 'aggressive-apparel' ),
+			),
+			'buy_now_button_text'           => array(
+				'option'      => self::BUY_NOW_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Buy Now Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Buy Now', 'aggressive-apparel' ),
+				'description' => __( 'Button text for checkout-forward purchase actions in Sticky Cart and Quick View.', 'aggressive-apparel' ),
+			),
+			'view_cart_button_text'         => array(
+				'option'      => self::VIEW_CART_BUTTON_TEXT_OPTION,
+				'label'       => __( 'View Cart Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'View Cart', 'aggressive-apparel' ),
+				'description' => __( 'Button text shown after an item is added to the cart.', 'aggressive-apparel' ),
+			),
+			'continue_shopping_button_text' => array(
+				'option'      => self::CONTINUE_SHOPPING_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Continue Shopping Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Continue Shopping', 'aggressive-apparel' ),
+				'description' => __( 'Button text for closing post-cart panels and returning to browsing.', 'aggressive-apparel' ),
+			),
+			'view_product_button_text'      => array(
+				'option'      => self::VIEW_PRODUCT_BUTTON_TEXT_OPTION,
+				'label'       => __( 'View Product Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'View Full Product', 'aggressive-apparel' ),
+				'description' => __( 'Link text for opening the full product page from custom overlays.', 'aggressive-apparel' ),
+			),
+			'back_in_stock_button_text'     => array(
+				'option'      => self::BACK_IN_STOCK_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Back in Stock Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Notify Me', 'aggressive-apparel' ),
+				'description' => __( 'Button and badge text for out-of-stock notification signups.', 'aggressive-apparel' ),
+			),
+			'wishlist_button_text'          => array(
+				'option'      => self::WISHLIST_BUTTON_TEXT_OPTION,
+				'label'       => __( 'Wishlist Button Text', 'aggressive-apparel' ),
+				'default'     => __( 'Add to Wishlist', 'aggressive-apparel' ),
+				'description' => __( 'Accessible label and optional visible text for wishlist buttons.', 'aggressive-apparel' ),
+			),
+		);
+	}
+
+	/**
+	 * Resolve a Store Copy value by option name, falling back to its default.
+	 *
+	 * @param string $option_name Store Copy option key.
+	 * @return string
+	 */
+	public static function get_store_copy_text( string $option_name ): string {
+		$definition = self::get_store_copy_definition_by_option( $option_name );
+		$default    = isset( $definition['default'] ) ? $definition['default'] : '';
+		$value      = self::get_store_copy_base_text( $option_name, $default );
+		$translated = self::translate_store_copy_text( $value, $option_name );
+
+		/**
+		 * Filter the final Store Copy text used by WooCommerce enhancement UI.
+		 *
+		 * @param string               $translated  Translated Store Copy value.
+		 * @param string               $option_name Store Copy option key.
+		 * @param string               $default     Registered default value.
+		 * @param string               $value       Saved/default base value before multilingual translation.
+		 * @param array<string,string> $definition  Store Copy definition metadata.
+		 */
+		$filtered = apply_filters(
+			'aggressive_apparel_store_copy_text',
+			$translated,
+			$option_name,
+			$default,
+			$value,
+			$definition
+		);
+
+		return self::normalize_store_copy_text( $filtered, $translated );
+	}
+
+	/**
+	 * Register Store Copy values with multilingual string-translation plugins.
+	 *
+	 * @return void
+	 */
+	public static function register_store_copy_translation_strings(): void {
+		foreach ( self::get_store_copy_definitions() as $definition ) {
+			$option_name = $definition['option'];
+			$value       = self::get_store_copy_base_text( $option_name, $definition['default'] );
+
+			do_action(
+				'wpml_register_single_string',
+				self::STORE_COPY_TRANSLATION_CONTEXT,
+				$option_name,
+				$value
+			);
+
+			if ( function_exists( 'pll_register_string' ) ) {
+				\pll_register_string(
+					$option_name,
+					$value,
+					self::STORE_COPY_TRANSLATION_CONTEXT,
+					false
+				);
+			}
+		}
+	}
+
+	/**
+	 * Get a Store Copy definition by option name.
+	 *
+	 * @param string $option_name Store Copy option key.
+	 * @return array<string,string>
+	 */
+	private static function get_store_copy_definition_by_option( string $option_name ): array {
+		foreach ( self::get_store_copy_definitions() as $definition ) {
+			if ( $option_name === $definition['option'] ) {
+				return $definition;
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Resolve the saved/default Store Copy value before multilingual filters.
+	 *
+	 * @param string $option_name Store Copy option key.
+	 * @param string $fallback    Registered default value.
+	 * @return string
+	 */
+	private static function get_store_copy_base_text( string $option_name, string $fallback ): string {
+		$value = get_option( $option_name, $fallback );
+
+		return self::normalize_store_copy_text( $value, $fallback );
+	}
+
+	/**
+	 * Normalize a Store Copy text value.
+	 *
+	 * @param mixed  $value    Raw value.
+	 * @param string $fallback Fallback when the raw value is not usable.
+	 * @return string
+	 */
+	private static function normalize_store_copy_text( $value, string $fallback ): string {
+		if ( ! is_string( $value ) ) {
+			return $fallback;
+		}
+
+		$value = trim( wp_strip_all_tags( $value ) );
+
+		return '' === $value ? $fallback : $value;
+	}
+
+	/**
+	 * Translate a Store Copy value with supported multilingual plugins.
+	 *
+	 * @param string $value       Store Copy value.
+	 * @param string $option_name Store Copy option key.
+	 * @return string
+	 */
+	private static function translate_store_copy_text( string $value, string $option_name ): string {
+		$wpml_value = apply_filters(
+			'wpml_translate_single_string',
+			$value,
+			self::STORE_COPY_TRANSLATION_CONTEXT,
+			$option_name
+		);
+
+		if ( is_string( $wpml_value ) ) {
+			$value = $wpml_value;
+		}
+
+		if ( function_exists( 'pll__' ) ) {
+			$polylang_value = \pll__( $value );
+
+			if ( is_string( $polylang_value ) ) {
+				$value = $polylang_value;
+			}
+		}
+
+		return $value;
+	}
+
+	/**
 	 * Initialize settings hooks.
 	 *
 	 * Delegates the admin page lifecycle to Feature_Settings_Page so this
@@ -406,6 +715,8 @@ class Feature_Settings {
 	 * @return void
 	 */
 	public function init(): void {
+		add_action( 'init', array( self::class, 'register_store_copy_translation_strings' ) );
+
 		( new Feature_Settings_Page() )->init();
 	}
 
@@ -600,6 +911,123 @@ class Feature_Settings {
 	 */
 	public static function get_hover_image_exit_duration(): int {
 		return (int) get_option( self::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+	}
+
+	/**
+	 * Product-card button text for variable products.
+	 *
+	 * @return string
+	 */
+	public static function get_variable_product_button_text(): string {
+		return self::get_store_copy_text( self::VARIABLE_PRODUCT_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Product-card button text for simple products.
+	 *
+	 * @return string
+	 */
+	public static function get_simple_product_button_text(): string {
+		return self::get_store_copy_text( self::SIMPLE_PRODUCT_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Product-card and sticky-cart button text for out-of-stock products.
+	 *
+	 * @return string
+	 */
+	public static function get_out_of_stock_button_text(): string {
+		return self::get_store_copy_text( self::OUT_OF_STOCK_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Sticky add-to-cart text before choosing variable-product options.
+	 *
+	 * @return string
+	 */
+	public static function get_sticky_cart_variable_button_text(): string {
+		return self::get_variable_product_button_text();
+	}
+
+	/**
+	 * Product-filter trigger button text.
+	 *
+	 * @return string
+	 */
+	public static function get_filter_toggle_text(): string {
+		return self::get_store_copy_text( self::FILTER_TOGGLE_TEXT_OPTION );
+	}
+
+	/**
+	 * Load More button text.
+	 *
+	 * @return string
+	 */
+	public static function get_load_more_button_text(): string {
+		return self::get_store_copy_text( self::LOAD_MORE_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Quick View trigger button text.
+	 *
+	 * @return string
+	 */
+	public static function get_quick_view_button_text(): string {
+		return self::get_store_copy_text( self::QUICK_VIEW_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Buy Now button text.
+	 *
+	 * @return string
+	 */
+	public static function get_buy_now_button_text(): string {
+		return self::get_store_copy_text( self::BUY_NOW_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * View Cart button text.
+	 *
+	 * @return string
+	 */
+	public static function get_view_cart_button_text(): string {
+		return self::get_store_copy_text( self::VIEW_CART_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Continue Shopping button text.
+	 *
+	 * @return string
+	 */
+	public static function get_continue_shopping_button_text(): string {
+		return self::get_store_copy_text( self::CONTINUE_SHOPPING_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * View Product button text.
+	 *
+	 * @return string
+	 */
+	public static function get_view_product_button_text(): string {
+		return self::get_store_copy_text( self::VIEW_PRODUCT_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Back in Stock button text.
+	 *
+	 * @return string
+	 */
+	public static function get_back_in_stock_button_text(): string {
+		return self::get_store_copy_text( self::BACK_IN_STOCK_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * Wishlist button text.
+	 *
+	 * @return string
+	 */
+	public static function get_wishlist_button_text(): string {
+		return self::get_store_copy_text( self::WISHLIST_BUTTON_TEXT_OPTION );
 	}
 
 	/**

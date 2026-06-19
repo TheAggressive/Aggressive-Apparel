@@ -148,6 +148,27 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize a Store Copy text field.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_store_copy_text( $input ): string {
+		if ( ! is_string( $input ) ) {
+			return '';
+		}
+
+		$text = sanitize_text_field( $input );
+		$text = trim( $text );
+
+		if ( strlen( $text ) > 60 ) {
+			$text = substr( $text, 0, 60 );
+		}
+
+		return $text;
+	}
+
+	/**
 	 * Sanitize the source mix array.
 	 *
 	 * @param mixed $input Raw input.

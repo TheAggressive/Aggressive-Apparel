@@ -1,3 +1,10 @@
+# [1.102.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.101.0...v1.102.0) (2026-06-20)
+
+
+### Features
+
+* add snap-to-next and swipe hint style options to horizontal scroll block ([7a9172b](https://github.com/TheAggressive/Aggressive-Apparel/commit/7a9172b9d8fa887e6f36689c3377837eab498629))
+
 # [1.101.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.100.0...v1.101.0) (2026-06-19)
 
 

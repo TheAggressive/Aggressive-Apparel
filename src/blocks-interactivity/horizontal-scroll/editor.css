@@ -7,8 +7,10 @@
   overflow: hidden;
 }
 
+/* Non-sticky in the editor, but still a positioning context so the
+   absolutely-positioned swipe-hint preview anchors to the viewport. */
 .wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__viewport {
-  position: static !important;
+  position: relative !important;
   overflow-x: auto;
 }
 
@@ -22,4 +24,15 @@
 .wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__track > * {
   flex: 0 0 var(--aa-hscroll-item-width, 60vw);
   min-width: 0;
+
+  /* Editor-only preview height; frontend snap mode uses natural content height. */
+  min-height: 50vh;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__swipe-hint {
+  display: flex;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__swipe-hint--label {
+  display: flex;
 }

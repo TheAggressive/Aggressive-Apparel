@@ -15,7 +15,8 @@ interface HScrollContext {
   speed: number;
   progress: number;
   desktopBehavior?: 'pinned' | 'inline';
-  pinnedStyle?: 'deck' | 'scrub';
+  snapToNext?: boolean;
+  swipeHintStyle?: SwipeHintStyle;
 }
 
 interface HScrollStore {
@@ -34,6 +35,15 @@ type HScrollMode = 'desktop' | 'snap' | 'static';
 const DESKTOP_QUERY = '(pointer: fine) and (min-width: 782px)';
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const MODE_CLASSES = ['is-enhanced', 'is-horizontal', 'is-snap', 'is-static'];
+const SLIDE_ANIMATION_FALLBACK_MS = 800;
+const SCROLL_COMMIT_MS = 150;
+const GESTURE_THRESHOLD = 40;
+// Progress tolerance for "am I at the first/last slide?" boundary checks. The
+// snap-to-next smooth scroll lands a sub-pixel short of an exact 0/1 progress,
+// so a strict comparison would never release the wheel and lock the scroll.
+const BOUNDARY_EPSILON = 0.02;
+const WHEEL_GESTURE_IDLE_MS = 120;
+const TOUCH_GESTURE_IDLE_MS = 120;
 
 const runtimes = new WeakMap<HTMLElement, HScrollRuntime>();
 
@@ -92,6 +102,109 @@ export function computeProgress(
   return clamp((stickyTop - rectTop) / scrollDistance, 0, 1);
 }
 
+/** Map a slide index to normalized horizontal progress (0–1). */
+export function slideProgress(slideIndex: number, slideCount: number): number {
+  if (slideCount <= 1) return 0;
+  return clamp(slideIndex, 0, slideCount - 1) / (slideCount - 1);
+}
+
+/** Nearest slide index for a given scroll progress. */
+export function getSlideIndexFromProgress(
+  progress: number,
+  slideCount: number
+): number {
+  if (slideCount <= 1) return 0;
+  return Math.round(clamp(progress, 0, 1) * (slideCount - 1));
+}
+
+/** Vertical scroll delta needed to reach a target slide from the current progress. */
+export function slideScrollDelta(
+  currentProgress: number,
+  targetIndex: number,
+  slideCount: number,
+  scrollDistance: number
+): number {
+  if (slideCount <= 1 || scrollDistance <= 0) return 0;
+
+  const targetProgress = slideProgress(targetIndex, slideCount);
+  return (targetProgress - clamp(currentProgress, 0, 1)) * scrollDistance;
+}
+
+/**
+ * Whether a wheel event at the section boundary should scroll the page normally.
+ */
+export function shouldAllowWheelThrough(
+  progress: number,
+  direction: 1 | -1,
+  slideCount: number
+): boolean {
+  if (slideCount <= 1) return true;
+
+  const index = getSlideIndexFromProgress(progress, slideCount);
+  const atFirst = index <= 0 && progress <= BOUNDARY_EPSILON;
+  const atLast = index >= slideCount - 1 && progress >= 1 - BOUNDARY_EPSILON;
+
+  return (direction < 0 && atFirst) || (direction > 0 && atLast);
+}
+
+/** Whether accumulated wheel delta has crossed the gesture threshold. */
+export function getWheelGestureDirection(
+  accumulatedDelta: number,
+  threshold: number = GESTURE_THRESHOLD
+): 1 | -1 | null {
+  if (accumulatedDelta >= threshold) return 1;
+  if (accumulatedDelta <= -threshold) return -1;
+  return null;
+}
+
+/**
+ * Resolve a completed touch swipe to a horizontal slide direction.
+ * Returns null for vertical-dominant or sub-threshold swipes.
+ */
+export function getTouchSwipeDirection(
+  deltaX: number,
+  deltaY: number,
+  threshold: number = GESTURE_THRESHOLD
+): 1 | -1 | null {
+  if (Math.abs(deltaX) <= Math.abs(deltaY)) return null;
+  if (deltaX >= threshold) return 1;
+  if (deltaX <= -threshold) return -1;
+  return null;
+}
+
+/** Build the screen-reader announcement for the active slide. */
+export function formatSlideAnnouncement(
+  slideIndex: number,
+  slideCount: number
+): string {
+  return `Slide ${slideIndex + 1} of ${slideCount}`;
+}
+
+/** Swipe hint presentation on mobile carousel. */
+export type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
+
+/** Whether the mobile swipe hint should be visible. */
+export function shouldShowSwipeHint(params: {
+  mode: HScrollMode;
+  slideCount: number;
+  currentIndex: number;
+  dismissed: boolean;
+  style: SwipeHintStyle;
+}): boolean {
+  const { mode, slideCount, currentIndex, dismissed, style } = params;
+
+  if ('off' === style) {
+    return false;
+  }
+
+  return (
+    !dismissed &&
+    mode === 'snap' &&
+    slideCount > 1 &&
+    currentIndex < slideCount - 1
+  );
+}
+
 export function getSlides(track: HTMLElement): HTMLElement[] {
   return Array.from(track.children).filter(
     (child): child is HTMLElement => child instanceof HTMLElement
@@ -138,6 +251,8 @@ function setupHorizontalScroll(
   const viewport = ref.querySelector<HTMLElement>('.aa-hscroll__viewport');
   const track = ref.querySelector<HTMLElement>('.aa-hscroll__track');
   const progressEl = ref.querySelector<HTMLElement>('.aa-hscroll__progress');
+  const liveRegion = ref.querySelector<HTMLElement>('.aa-hscroll__live-region');
+  const swipeHintEl = ref.querySelector<HTMLElement>('.aa-hscroll__swipe-hint');
 
   if (!viewport || !track) return () => {};
 
@@ -158,6 +273,24 @@ function setupHorizontalScroll(
   let measureFrame = 0;
   let isNearViewport = true;
   let isDestroyed = false;
+  let isAnimatingSlide = false;
+  let slideAnimationTimer = 0;
+  let scrollCommitTimer = 0;
+  let wheelEnabled = false;
+  let touchEnabled = false;
+  let wheelAccum = 0;
+  let wheelGestureLocked = false;
+  let wheelIdleTimer = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStartIndex = 0;
+  let touchTracking = false;
+  let touchGestureLocked = false;
+  let touchIdleTimer = 0;
+  let cachedStickyTop: number | null = null;
+  let announcedIndex = -1;
+  let swipeHintDismissed = false;
+  const supportsScrollEnd = 'onscrollend' in window;
 
   const readSpeed = (): number =>
     resolveSpeed(
@@ -208,8 +341,12 @@ function setupHorizontalScroll(
       ref.style.setProperty('--aa-hscroll-distance', `${scrollDistance}px`);
       viewport.scrollLeft = 0;
       enableTabstop();
+      setWheelEnabled(Boolean(ctx.snapToNext));
+      setTouchEnabled(false);
       return;
     }
+
+    setWheelEnabled(false);
 
     ref.style.removeProperty('--aa-hscroll-distance');
     ref.style.removeProperty('--aa-hscroll-x');
@@ -219,16 +356,29 @@ function setupHorizontalScroll(
       ref.classList.remove('is-static');
       ref.classList.add('is-horizontal', 'is-snap');
       enableTabstop();
+      setTouchEnabled(Boolean(ctx.snapToNext));
+      updateSwipeHint();
       return;
     }
+
+    setTouchEnabled(false);
 
     restoreTabstop();
     viewport.scrollLeft = 0;
     setProgress(0);
+    updateSwipeHint();
   };
 
-  const getStickyTop = (): number =>
-    parseFloat(window.getComputedStyle(viewport).top) || 0;
+  const getStickyTop = (): number => {
+    if (cachedStickyTop === null) {
+      cachedStickyTop = parseFloat(window.getComputedStyle(viewport).top) || 0;
+    }
+    return cachedStickyTop;
+  };
+
+  const invalidateStickyTop = (): void => {
+    cachedStickyTop = null;
+  };
 
   const getScrollProgress = (): number =>
     computeProgress(
@@ -236,6 +386,231 @@ function setupHorizontalScroll(
       ref.getBoundingClientRect().top,
       scrollDistance
     );
+
+  const resetWheelGesture = (): void => {
+    wheelAccum = 0;
+    wheelGestureLocked = false;
+    if (wheelIdleTimer) {
+      window.clearTimeout(wheelIdleTimer);
+      wheelIdleTimer = 0;
+    }
+  };
+
+  const scheduleWheelGestureReset = (): void => {
+    if (wheelIdleTimer) {
+      window.clearTimeout(wheelIdleTimer);
+    }
+
+    wheelIdleTimer = window.setTimeout(
+      resetWheelGesture,
+      WHEEL_GESTURE_IDLE_MS
+    );
+  };
+
+  const setActiveSlideIndex = (
+    index: number,
+    options: { announce?: boolean } = {}
+  ): void => {
+    if (slides.length === 0) return;
+
+    const { announce = true } = options;
+    const nextIndex = clamp(index, 0, slides.length - 1);
+    currentIndex = nextIndex;
+
+    slides.forEach((slide, slideIndex) => {
+      slide.toggleAttribute('aria-hidden', slideIndex !== nextIndex);
+    });
+
+    updateSwipeHint();
+
+    if (!announce || announcedIndex === nextIndex) return;
+
+    announcedIndex = nextIndex;
+
+    if (liveRegion) {
+      liveRegion.textContent = formatSlideAnnouncement(
+        nextIndex,
+        slides.length
+      );
+    }
+  };
+
+  const updateSwipeHint = (): void => {
+    const hintStyle = (ctx.swipeHintStyle ?? 'cue') as SwipeHintStyle;
+    const shouldShow = shouldShowSwipeHint({
+      mode,
+      slideCount: slides.length,
+      currentIndex,
+      dismissed: swipeHintDismissed,
+      style: hintStyle,
+    });
+
+    ref.classList.toggle('is-swipe-hint-visible', shouldShow);
+    swipeHintEl?.toggleAttribute('hidden', !shouldShow);
+  };
+
+  const dismissSwipeHint = (): void => {
+    if (swipeHintDismissed) return;
+
+    swipeHintDismissed = true;
+    updateSwipeHint();
+  };
+
+  const clearSlideAnimationFallback = (): void => {
+    if (slideAnimationTimer) {
+      window.clearTimeout(slideAnimationTimer);
+      slideAnimationTimer = 0;
+    }
+  };
+
+  const finishSlideAnimation = (): void => {
+    clearSlideAnimationFallback();
+    isAnimatingSlide = false;
+  };
+
+  const startSlideAnimationFallback = (): void => {
+    clearSlideAnimationFallback();
+
+    if (reducedMotionMql.matches) {
+      finishSlideAnimation();
+      return;
+    }
+
+    slideAnimationTimer = window.setTimeout(
+      finishSlideAnimation,
+      SLIDE_ANIMATION_FALLBACK_MS
+    );
+  };
+
+  const setWheelEnabled = (enabled: boolean): void => {
+    if (enabled === wheelEnabled) return;
+
+    if (enabled) {
+      ref.addEventListener('wheel', onWheel, { passive: false });
+    } else {
+      ref.removeEventListener('wheel', onWheel);
+    }
+
+    wheelEnabled = enabled;
+  };
+
+  const resetTouchGesture = (): void => {
+    touchTracking = false;
+    touchGestureLocked = false;
+    if (touchIdleTimer) {
+      window.clearTimeout(touchIdleTimer);
+      touchIdleTimer = 0;
+    }
+  };
+
+  const scheduleTouchGestureReset = (): void => {
+    if (touchIdleTimer) {
+      window.clearTimeout(touchIdleTimer);
+    }
+
+    touchIdleTimer = window.setTimeout(
+      resetTouchGesture,
+      TOUCH_GESTURE_IDLE_MS
+    );
+  };
+
+  const setTouchEnabled = (enabled: boolean): void => {
+    if (enabled === touchEnabled) return;
+
+    if (enabled) {
+      viewport.addEventListener('touchstart', onTouchStart, { passive: true });
+      viewport.addEventListener('touchend', onTouchEnd, { passive: true });
+      viewport.addEventListener('touchcancel', onTouchCancel, {
+        passive: true,
+      });
+    } else {
+      viewport.removeEventListener('touchstart', onTouchStart);
+      viewport.removeEventListener('touchend', onTouchEnd);
+      viewport.removeEventListener('touchcancel', onTouchCancel);
+      resetTouchGesture();
+    }
+
+    touchEnabled = enabled;
+  };
+
+  const scrollToNativeSlide = (targetIndex: number): void => {
+    if (slides.length === 0 || isAnimatingSlide) return;
+
+    const target = clamp(targetIndex, 0, slides.length - 1);
+    const targetLeft = getSlideLeft(slides[target]);
+
+    if (Math.abs(viewport.scrollLeft - targetLeft) < 1) {
+      setActiveSlideIndex(target, { announce: false });
+      return;
+    }
+
+    isAnimatingSlide = true;
+    resetTouchGesture();
+
+    viewport.scrollTo({
+      left: targetLeft,
+      behavior: reducedMotionMql.matches ? 'auto' : 'smooth',
+    });
+
+    startSlideAnimationFallback();
+  };
+
+  const commitToNearestNativeSlide = (): void => {
+    if (
+      !ctx.snapToNext ||
+      mode !== 'snap' ||
+      isAnimatingSlide ||
+      slides.length <= 1
+    ) {
+      return;
+    }
+
+    scrollToNativeSlide(getNearestSlideIndex());
+  };
+
+  const scrollToSlide = (targetIndex: number): void => {
+    if (slides.length <= 1 || scrollDistance <= 0 || isAnimatingSlide) return;
+
+    const maxIndex = slides.length - 1;
+    const target = clamp(targetIndex, 0, maxIndex);
+    const scrollDelta = slideScrollDelta(
+      getScrollProgress(),
+      target,
+      slides.length,
+      scrollDistance
+    );
+
+    if (Math.abs(scrollDelta) < 1) return;
+
+    isAnimatingSlide = true;
+    resetWheelGesture();
+
+    window.scrollBy({
+      top: scrollDelta,
+      behavior: reducedMotionMql.matches ? 'auto' : 'smooth',
+    });
+
+    startSlideAnimationFallback();
+  };
+
+  const commitToNearestSlide = (): void => {
+    if (
+      !ctx.snapToNext ||
+      mode !== 'desktop' ||
+      isAnimatingSlide ||
+      slides.length <= 1
+    ) {
+      return;
+    }
+
+    const progress = getScrollProgress();
+    const nearestIndex = getSlideIndexFromProgress(progress, slides.length);
+    const nearestProgress = slideProgress(nearestIndex, slides.length);
+
+    if (Math.abs(progress - nearestProgress) > 0.02) {
+      scrollToSlide(nearestIndex);
+    }
+  };
 
   const getSlideLeft = (slide: HTMLElement): number =>
     slide.offsetLeft - track.offsetLeft;
@@ -263,6 +638,18 @@ function setupHorizontalScroll(
       slide.setAttribute('aria-roledescription', 'slide');
       slide.setAttribute('aria-label', `${index + 1} of ${total}`);
     });
+
+    announcedIndex = -1;
+    if (mode === 'desktop') {
+      setActiveSlideIndex(
+        getSlideIndexFromProgress(getScrollProgress(), slides.length),
+        { announce: false }
+      );
+    } else if (mode === 'snap') {
+      setActiveSlideIndex(getNearestSlideIndex(), { announce: false });
+    } else if (total > 0) {
+      setActiveSlideIndex(0, { announce: false });
+    }
   };
 
   const resizeObserver =
@@ -304,7 +691,7 @@ function setupHorizontalScroll(
   const updateNativeProgress = (): void => {
     if (mode !== 'snap') return;
 
-    currentIndex = getNearestSlideIndex();
+    setActiveSlideIndex(getNearestSlideIndex(), { announce: false });
     setProgress(maxTranslate > 0 ? viewport.scrollLeft / maxTranslate : 0);
   };
 
@@ -317,7 +704,9 @@ function setupHorizontalScroll(
       '--aa-hscroll-x',
       `${Math.round(-progress * maxTranslate * 100) / 100}px`
     );
-    currentIndex = Math.round(progress * Math.max(slides.length - 1, 0));
+    setActiveSlideIndex(getSlideIndexFromProgress(progress, slides.length), {
+      announce: !isAnimatingSlide && !ctx.snapToNext,
+    });
     setProgress(progress);
   };
 
@@ -329,6 +718,8 @@ function setupHorizontalScroll(
   const measure = (): void => {
     measureFrame = 0;
     if (isDestroyed) return;
+
+    invalidateStickyTop();
 
     const wantsHorizontalLayout = !reducedMotionMql.matches;
     ref.classList.toggle('is-horizontal', wantsHorizontalLayout);
@@ -366,21 +757,195 @@ function setupHorizontalScroll(
   const scrollToIndex = (index: number): void => {
     if (slides.length === 0) return;
 
-    currentIndex = clamp(index, 0, slides.length - 1);
+    const target = clamp(index, 0, slides.length - 1);
+
+    if (ctx.snapToNext && mode === 'snap') {
+      scrollToNativeSlide(target);
+      return;
+    }
+
     viewport.scrollTo({
-      left: getSlideLeft(slides[currentIndex]),
+      left: getSlideLeft(slides[target]),
       behavior: reducedMotionMql.matches ? 'auto' : 'smooth',
     });
   };
 
+  const onTouchStart = (event: TouchEvent): void => {
+    if (
+      mode !== 'snap' ||
+      !ctx.snapToNext ||
+      slides.length <= 1 ||
+      isAnimatingSlide ||
+      touchGestureLocked
+    ) {
+      return;
+    }
+
+    const touch = event.changedTouches[0] ?? event.touches[0];
+    if (!touch) return;
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartIndex = getNearestSlideIndex();
+    touchTracking = true;
+    dismissSwipeHint();
+  };
+
+  const onTouchCancel = (): void => {
+    touchTracking = false;
+  };
+
+  const onTouchEnd = (event: TouchEvent): void => {
+    if (
+      !touchTracking ||
+      mode !== 'snap' ||
+      !ctx.snapToNext ||
+      slides.length <= 1 ||
+      isAnimatingSlide ||
+      touchGestureLocked
+    ) {
+      touchTracking = false;
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    if (!touch) {
+      touchTracking = false;
+      return;
+    }
+
+    touchTracking = false;
+
+    const deltaX = touchStartX - touch.clientX;
+    const deltaY = touchStartY - touch.clientY;
+    const swipeDirection = getTouchSwipeDirection(deltaX, deltaY);
+
+    if (swipeDirection === null) {
+      commitToNearestNativeSlide();
+      return;
+    }
+
+    touchGestureLocked = true;
+    scheduleTouchGestureReset();
+
+    scrollToNativeSlide(touchStartIndex + swipeDirection);
+  };
+
+  const onScrollEnd = (): void => {
+    if (isDestroyed) return;
+
+    finishSlideAnimation();
+
+    if (mode === 'desktop') {
+      setActiveSlideIndex(
+        getSlideIndexFromProgress(getScrollProgress(), slides.length),
+        { announce: true }
+      );
+      return;
+    }
+
+    if (mode === 'snap') {
+      if (ctx.snapToNext && !isAnimatingSlide) {
+        const nearest = getNearestSlideIndex();
+        const targetLeft = getSlideLeft(slides[nearest]);
+
+        if (Math.abs(viewport.scrollLeft - targetLeft) > 2) {
+          scrollToNativeSlide(nearest);
+          return;
+        }
+      }
+
+      setActiveSlideIndex(getNearestSlideIndex(), { announce: true });
+      setProgress(maxTranslate > 0 ? viewport.scrollLeft / maxTranslate : 0);
+    }
+  };
+
+  // Debounced "settle to the nearest slide once scrolling pauses" used by both
+  // the pinned (window) and native (viewport) snap-to-next scroll handlers.
+  const scheduleScrollCommit = (commit: () => void): void => {
+    if (scrollCommitTimer) {
+      window.clearTimeout(scrollCommitTimer);
+    }
+
+    scrollCommitTimer = window.setTimeout(() => {
+      scrollCommitTimer = 0;
+      commit();
+    }, SCROLL_COMMIT_MS);
+  };
+
   const onScroll = (): void => {
     if (mode !== 'desktop' || !isNearViewport) return;
+
     scheduleUpdate();
+
+    if (!ctx.snapToNext || isAnimatingSlide) return;
+
+    scheduleScrollCommit(commitToNearestSlide);
+  };
+
+  const onWheel = (event: WheelEvent): void => {
+    if (
+      mode !== 'desktop' ||
+      !ctx.snapToNext ||
+      !isNearViewport ||
+      slides.length <= 1
+    ) {
+      return;
+    }
+
+    if (isAnimatingSlide) {
+      event.preventDefault();
+      return;
+    }
+
+    const progress = getScrollProgress();
+    wheelAccum += event.deltaY;
+    scheduleWheelGestureReset();
+
+    const gestureDirection = getWheelGestureDirection(wheelAccum);
+
+    if (gestureDirection !== null) {
+      if (shouldAllowWheelThrough(progress, gestureDirection, slides.length)) {
+        resetWheelGesture();
+        return;
+      }
+
+      if (wheelGestureLocked) {
+        event.preventDefault();
+        return;
+      }
+
+      event.preventDefault();
+      wheelGestureLocked = true;
+      wheelAccum = 0;
+
+      const currentSlide = getSlideIndexFromProgress(progress, slides.length);
+      scrollToSlide(currentSlide + gestureDirection);
+      return;
+    }
+
+    const tentativeDirection = event.deltaY > 0 ? 1 : -1;
+    if (shouldAllowWheelThrough(progress, tentativeDirection, slides.length)) {
+      resetWheelGesture();
+      return;
+    }
+
+    event.preventDefault();
   };
 
   const onNativeScroll = (): void => {
     if (mode !== 'snap') return;
+
+    const previousIndex = currentIndex;
     updateNativeProgress();
+
+    if (currentIndex > 0 || previousIndex > 0) {
+      dismissSwipeHint();
+    }
+
+    if (!ctx.snapToNext || isAnimatingSlide) return;
+
+    scheduleScrollCommit(commitToNearestNativeSlide);
   };
 
   const onResize = (): void => scheduleMeasure();
@@ -392,6 +957,15 @@ function setupHorizontalScroll(
     if (mode === 'desktop') {
       event.preventDefault();
       if (scrollDistance <= 0) return;
+
+      const progress = getScrollProgress();
+      const currentSlide = getSlideIndexFromProgress(progress, slides.length);
+      const nextSlide = currentSlide + (event.key === 'ArrowRight' ? 1 : -1);
+
+      if (ctx.snapToNext) {
+        scrollToSlide(nextSlide);
+        return;
+      }
 
       const perSlide = scrollDistance / Math.max(slides.length - 1, 1);
       window.scrollBy({
@@ -434,9 +1008,22 @@ function setupHorizontalScroll(
     isDestroyed = true;
     window.cancelAnimationFrame(updateFrame);
     window.cancelAnimationFrame(measureFrame);
+    if (scrollCommitTimer) window.clearTimeout(scrollCommitTimer);
+    if (touchIdleTimer) window.clearTimeout(touchIdleTimer);
+    clearSlideAnimationFallback();
+    resetWheelGesture();
+    resetTouchGesture();
+    setWheelEnabled(false);
+    setTouchEnabled(false);
     window.removeEventListener('scroll', onScroll);
+    if (supportsScrollEnd) {
+      window.removeEventListener('scrollend', onScrollEnd);
+    }
     window.removeEventListener('resize', onResize);
     viewport.removeEventListener('scroll', onNativeScroll);
+    if (supportsScrollEnd) {
+      viewport.removeEventListener('scrollend', onScrollEnd);
+    }
     ref.removeEventListener('keydown', onKeydown);
     resizeObserver?.disconnect();
     mutationObserver?.disconnect();
@@ -468,9 +1055,15 @@ function setupHorizontalScroll(
   );
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onResize, { passive: true });
+  if (supportsScrollEnd) {
+    window.addEventListener('scrollend', onScrollEnd);
+  }
   viewport.addEventListener('scroll', onNativeScroll, { passive: true });
+  if (supportsScrollEnd) {
+    viewport.addEventListener('scrollend', onScrollEnd);
+  }
   ref.addEventListener('keydown', onKeydown);
+  window.addEventListener('resize', onResize, { passive: true });
 
   if (document.fonts) {
     document.fonts.ready.then(() => {

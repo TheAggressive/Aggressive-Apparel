@@ -15,6 +15,8 @@
 
 declare(strict_types=1);
 
+use Aggressive_Apparel\Core\Icons;
+
 defined( 'ABSPATH' ) || exit;
 
 $item_width = ! empty( $attributes['itemWidth'] ) ? (string) $attributes['itemWidth'] : '60vw';
@@ -26,6 +28,13 @@ $speed = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.0;
 $speed = min( 3.0, max( 0.5, $speed ) );
 
 $show_progress = ! empty( $attributes['showProgress'] );
+
+$snap_to_next = ! empty( $attributes['snapToNext'] );
+
+$swipe_hint_style = $attributes['swipeHintStyle'] ?? 'cue';
+if ( ! in_array( $swipe_hint_style, array( 'off', 'cue', 'label', 'badge' ), true ) ) {
+	$swipe_hint_style = 'cue';
+}
 
 // Where the section pins (and horizontal scroll begins) relative to the
 // viewport on desktop: top | center | bottom. Drives --aa-hscroll-sticky-top
@@ -47,6 +56,9 @@ $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
 	$classes .= ' aa-hscroll--inline';
 }
+if ( $snap_to_next ) {
+	$classes .= ' aa-hscroll--snap-next';
+}
 
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
@@ -60,6 +72,8 @@ $wrapper_attrs = get_block_wrapper_attributes(
 				'speed'           => $speed,
 				'progress'        => 0,
 				'desktopBehavior' => $desktop_behavior,
+				'snapToNext'      => $snap_to_next,
+				'swipeHintStyle'  => $swipe_hint_style,
 			)
 		),
 		'data-wp-init'         => 'callbacks.init',
@@ -91,5 +105,48 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			></div>
 		</div>
 		<?php endif; ?>
+		<?php if ( 'off' !== $swipe_hint_style ) : ?>
+		<div
+			class="aa-hscroll__swipe-hint aa-hscroll__swipe-hint--<?php echo esc_attr( $swipe_hint_style ); ?>"
+			aria-hidden="true"
+			hidden
+		>
+			<?php if ( 'label' === $swipe_hint_style ) : ?>
+			<span class="aa-hscroll__swipe-hint-label">
+				<?php esc_html_e( 'Swipe', 'aggressive-apparel' ); ?>
+			</span>
+			<?php endif; ?>
+			<span class="aa-hscroll__swipe-hint-icon">
+				<?php
+				$chevron_markup  = Icons::get(
+					'chevron-right',
+					array(
+						'width'  => 36,
+						'height' => 36,
+					)
+				);
+				$chevron_classes = array(
+					'aa-hscroll__swipe-hint-chevron',
+					'aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail',
+				);
+				foreach ( $chevron_classes as $chevron_class ) :
+					?>
+				<span class="<?php echo esc_attr( $chevron_class ); ?>">
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
+					echo $chevron_markup;
+					?>
+				</span>
+					<?php
+				endforeach;
+				?>
+			</span>
+		</div>
+		<?php endif; ?>
 	</div>
+	<div
+		class="aa-hscroll__live-region"
+		aria-live="polite"
+		aria-atomic="true"
+	></div>
 </section>

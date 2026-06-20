@@ -109,6 +109,43 @@
   transform: none;
 }
 
+/* Mobile / touch carousel: natural content height — users swipe to see more. */
+@media (width <= 781px), (pointer: coarse) {
+
+  .aa-hscroll.is-snap .aa-hscroll__viewport {
+    height: auto;
+  }
+
+  .aa-hscroll.is-snap .aa-hscroll__track {
+    align-items: flex-start;
+    height: auto;
+  }
+
+  .aa-hscroll.is-snap .aa-hscroll__track > * {
+    height: auto;
+    align-self: flex-start;
+
+    /* Override editor template min-heights (e.g. 60vh) saved on slide groups. */
+    min-height: auto !important;
+  }
+}
+
+/* Snap-to-next: smooth animated transitions between slides in native scroll mode. */
+.aa-hscroll--snap-next.is-snap .aa-hscroll__viewport {
+  scroll-behavior: smooth;
+}
+
+.aa-hscroll--snap-next.is-snap .aa-hscroll__track > * {
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hscroll--snap-next.is-snap .aa-hscroll__viewport {
+    scroll-behavior: auto;
+  }
+}
+
 /* Inline (non-pinned) carousel: keep a visible scrollbar as a scroll affordance
    for mouse users on desktop (plain snap hides it, which is fine for touch). */
 .aa-hscroll--inline.is-snap .aa-hscroll__viewport {
@@ -161,6 +198,173 @@
   transform-origin: left center;
   transition: transform 80ms linear;
   will-change: transform;
+}
+
+.aa-hscroll__live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(100%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mobile swipe hint — decorative animation cue on the carousel edge. */
+.aa-hscroll__swipe-hint {
+  display: none;
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--wp--preset--spacing--4, 1rem);
+  z-index: 2;
+  translate: 0 -50%;
+  pointer-events: none;
+  user-select: none;
+
+  --aa-hscroll-swipe-hint-size: 2.25rem;
+  --aa-hscroll-swipe-hint-contrast-filter:
+    drop-shadow(0 0 1px rgb(0 0 0 / 50%))
+    drop-shadow(0 0 4px rgb(0 0 0 / 40%))
+    drop-shadow(0 2px 6px rgb(0 0 0 / 28%))
+    drop-shadow(0 0 3px rgb(255 255 255 / 35%));
+  --aa-hscroll-swipe-hint-text-shadow:
+    0 0 1px rgb(0 0 0 / 50%),
+    0 0 4px rgb(0 0 0 / 40%),
+    0 2px 6px rgb(0 0 0 / 28%);
+}
+
+.aa-hscroll__swipe-hint-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aa-hscroll__swipe-hint-chevron {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.aa-hscroll__swipe-hint-chevron + .aa-hscroll__swipe-hint-chevron {
+  margin-inline-start: -1.35rem;
+}
+
+.aa-hscroll__swipe-hint-chevron--trail {
+  opacity: 0.55;
+}
+
+.aa-hscroll__swipe-hint-chevron svg {
+  width: var(--aa-hscroll-swipe-hint-size);
+  height: var(--aa-hscroll-swipe-hint-size);
+}
+
+/* Default: bare chevron — reads as motion cue, not a control. */
+.aa-hscroll__swipe-hint--cue .aa-hscroll__swipe-hint-icon {
+  color: var(--wp--preset--color--white);
+}
+
+.aa-hscroll__swipe-hint--cue .aa-hscroll__swipe-hint-chevron {
+  animation: aa-hscroll-swipe-hint-float 1.35s ease-in-out infinite;
+}
+
+.aa-hscroll__swipe-hint--cue .aa-hscroll__swipe-hint-chevron--trail {
+  animation-delay: 0.12s;
+}
+
+.aa-hscroll__swipe-hint--cue .aa-hscroll__swipe-hint-chevron svg {
+  filter: var(--aa-hscroll-swipe-hint-contrast-filter);
+}
+
+/* Text + chevron — explicit instruction without button chrome. */
+.aa-hscroll__swipe-hint--label {
+  display: none;
+  align-items: center;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+}
+
+.aa-hscroll__swipe-hint--label .aa-hscroll__swipe-hint-label {
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wp--preset--color--white);
+  text-shadow: var(--aa-hscroll-swipe-hint-text-shadow);
+}
+
+.aa-hscroll__swipe-hint--label .aa-hscroll__swipe-hint-icon {
+  color: var(--wp--preset--color--white);
+}
+
+.aa-hscroll__swipe-hint--label .aa-hscroll__swipe-hint-chevron {
+  animation: aa-hscroll-swipe-hint-float 1.35s ease-in-out infinite;
+}
+
+.aa-hscroll__swipe-hint--label .aa-hscroll__swipe-hint-chevron--trail {
+  animation-delay: 0.12s;
+}
+
+.aa-hscroll__swipe-hint--label .aa-hscroll__swipe-hint-chevron svg {
+  filter: var(--aa-hscroll-swipe-hint-contrast-filter);
+}
+
+/* Optional badge — circular background (can read as a button). */
+.aa-hscroll__swipe-hint--badge {
+  --aa-hscroll-swipe-hint-size: 1.35rem;
+}
+
+.aa-hscroll__swipe-hint--badge .aa-hscroll__swipe-hint-icon {
+  width: auto;
+  min-width: 3.5rem;
+  height: 3.5rem;
+  padding-inline: 0.35rem;
+  border: 1px solid var(--aa-color-border);
+  border-radius: var(--aa-radius-full);
+  background-color: var(--aa-color-surface-elevated);
+  color: var(--aa-color-accent);
+  box-shadow: var(--aa-shadow-sm);
+  animation: aa-hscroll-swipe-hint-float 1.35s ease-in-out infinite;
+}
+
+.aa-hscroll__swipe-hint--badge .aa-hscroll__swipe-hint-chevron + .aa-hscroll__swipe-hint-chevron {
+  margin-inline-start: -0.75rem;
+}
+
+.aa-hscroll__swipe-hint--badge .aa-hscroll__swipe-hint-chevron--trail {
+  opacity: 0.7;
+}
+
+@keyframes aa-hscroll-swipe-hint-float {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(0.5rem);
+  }
+}
+
+@media (width <= 781px), (pointer: coarse) {
+
+  .aa-hscroll.is-snap.is-swipe-hint-visible .aa-hscroll__swipe-hint {
+    display: flex;
+  }
+
+  .aa-hscroll.is-snap.is-swipe-hint-visible .aa-hscroll__swipe-hint--label {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hscroll__swipe-hint-chevron,
+  .aa-hscroll__swipe-hint--badge .aa-hscroll__swipe-hint-icon {
+    animation: none;
+  }
 }
 
 /* Reduced motion: force normal document flow if CSS loads before JS adapts. */

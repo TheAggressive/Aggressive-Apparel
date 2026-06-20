@@ -23,6 +23,7 @@ import type { CSSProperties } from 'react';
 
 type HScrollActivation = 'top' | 'center' | 'bottom';
 type HScrollDesktopBehavior = 'pinned' | 'inline';
+type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
 
 interface HScrollAttributes {
   itemWidth: string;
@@ -30,14 +31,23 @@ interface HScrollAttributes {
   showProgress: boolean;
   activation: HScrollActivation;
   desktopBehavior: HScrollDesktopBehavior;
+  snapToNext: boolean;
+  swipeHintStyle: SwipeHintStyle;
 }
 
 export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<HScrollAttributes>) {
-  const { itemWidth, speed, showProgress, activation, desktopBehavior } =
-    attributes;
+  const {
+    itemWidth,
+    speed,
+    showProgress,
+    activation,
+    desktopBehavior,
+    snapToNext,
+    swipeHintStyle = 'cue',
+  } = attributes;
   const previewStyle = {
     '--aa-hscroll-item-width': itemWidth,
   } as CSSProperties;
@@ -51,9 +61,9 @@ export default function Edit({
     {
       orientation: 'horizontal',
       template: [
-        ['core/group', { style: { dimensions: { minHeight: '60vh' } } }],
-        ['core/group', { style: { dimensions: { minHeight: '60vh' } } }],
-        ['core/group', { style: { dimensions: { minHeight: '60vh' } } }],
+        ['core/group', {}],
+        ['core/group', {}],
+        ['core/group', {}],
       ],
     }
   );
@@ -144,15 +154,86 @@ export default function Edit({
             </>
           )}
           <ToggleControl
+            label={__('Snap to Next Slide', 'aggressive-apparel')}
+            help={__(
+              'Each scroll or swipe smoothly animates to the next or previous slide instead of scrubbing continuously.',
+              'aggressive-apparel'
+            )}
+            checked={snapToNext}
+            onChange={(val: boolean) => setAttributes({ snapToNext: val })}
+          />
+          <ToggleControl
             label={__('Show Progress Bar', 'aggressive-apparel')}
             checked={showProgress}
             onChange={(val: boolean) => setAttributes({ showProgress: val })}
+          />
+          <SelectControl
+            label={__('Mobile Swipe Hint', 'aggressive-apparel')}
+            help={__(
+              'Animation cue uses a bare chevron so it does not look like a button. Badge adds a circular background.',
+              'aggressive-apparel'
+            )}
+            value={swipeHintStyle}
+            options={[
+              { label: __('Off', 'aggressive-apparel'), value: 'off' },
+              {
+                label: __('Animation cue', 'aggressive-apparel'),
+                value: 'cue',
+              },
+              {
+                label: __('Cue with "Swipe" label', 'aggressive-apparel'),
+                value: 'label',
+              },
+              {
+                label: __('Badge (circle)', 'aggressive-apparel'),
+                value: 'badge',
+              },
+            ]}
+            onChange={(val: string) =>
+              setAttributes({ swipeHintStyle: val as SwipeHintStyle })
+            }
           />
         </PanelBody>
       </InspectorControls>
       <section {...blockProps}>
         <div className='aa-hscroll__viewport'>
           <div {...innerBlocksProps} />
+          {swipeHintStyle !== 'off' && (
+            <div
+              className={`aa-hscroll__swipe-hint aa-hscroll__swipe-hint--${swipeHintStyle}`}
+              aria-hidden='true'
+            >
+              {swipeHintStyle === 'label' && (
+                <span className='aa-hscroll__swipe-hint-label'>
+                  {__('Swipe', 'aggressive-apparel')}
+                </span>
+              )}
+              <span className='aa-hscroll__swipe-hint-icon'>
+                <span className='aa-hscroll__swipe-hint-chevron'>
+                  <svg
+                    width='36'
+                    height='36'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    aria-hidden='true'
+                  >
+                    <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+                  </svg>
+                </span>
+                <span className='aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail'>
+                  <svg
+                    width='36'
+                    height='36'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    aria-hidden='true'
+                  >
+                    <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+                  </svg>
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </section>
     </>

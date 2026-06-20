@@ -41,6 +41,15 @@
       "type": "string",
       "enum": ["pinned", "inline"],
       "default": "pinned"
+    },
+    "snapToNext": {
+      "type": "boolean",
+      "default": false
+    },
+    "swipeHintStyle": {
+      "type": "string",
+      "enum": ["off", "cue", "label", "badge"],
+      "default": "cue"
     }
   },
   "textdomain": "aggressive-apparel",

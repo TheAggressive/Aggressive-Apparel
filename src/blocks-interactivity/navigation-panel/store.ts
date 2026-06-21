@@ -34,6 +34,7 @@ import {
   setBodyOverflow,
   updateDrilldownInertState,
   updateMegaContentInertState,
+  watchMaxWidth,
 } from './utils';
 import { getMenuItems, getSubmenuItems } from './menu-items';
 import { closePanelWithCleanup, findPanel, openPanelWithSetup } from './panel';
@@ -451,6 +452,36 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         });
       } catch (error) {
         logError('initPanel: Failed to initialize panel', error);
+      }
+    },
+
+    /**
+     * Initialize a navigation-trigger button's responsive visibility.
+     *
+     * The trigger is self-contained: it shows/hides from its own breakpoint via
+     * matchMedia, regardless of where it is placed, so it no longer depends on a
+     * parent navigation block's .is-mobile class. Returns a cleanup that removes
+     * the media-query listener.
+     */
+    initTrigger(): (() => void) | void {
+      try {
+        const el = getElement()?.ref as HTMLElement | null;
+        if (!el) {
+          return;
+        }
+
+        // JS now controls visibility — disable the pre-hydration CSS fallback.
+        el.classList.add('is-hydrated');
+
+        const context = getContext<PanelContext>();
+        const breakpoint =
+          typeof context?.breakpoint === 'number' ? context.breakpoint : 1024;
+        // Shared breakpoint watcher (same convention as the navigation store).
+        return watchMaxWidth(breakpoint, matches => {
+          el.classList.toggle('is-visible', matches);
+        });
+      } catch (error) {
+        logError('initTrigger: Failed to initialize trigger', error);
       }
     },
 

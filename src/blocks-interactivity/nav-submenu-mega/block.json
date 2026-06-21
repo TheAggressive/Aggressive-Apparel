@@ -45,6 +45,8 @@
     "aggressive-apparel/navigationOpenOn",
     "aggressive-apparel/submenuBackgroundColor",
     "aggressive-apparel/submenuTextColor",
+    "aggressive-apparel/submenuLinkHoverColor",
+    "aggressive-apparel/submenuLinkHoverBg",
     "aggressive-apparel/submenuBorderRadius",
     "aggressive-apparel/submenuBorderWidth",
     "aggressive-apparel/submenuBorderColor",

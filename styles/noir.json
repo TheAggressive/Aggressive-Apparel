@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "title": "Noir",
+  "description": "High-contrast monochrome with sharp corners. A harder, editorial take on the brand — black-and-white surfaces, mono accents, zero radius.",
+  "settings": {
+    "custom": {
+      "radius": {
+        "sm": "0px",
+        "md": "0px",
+        "lg": "0px",
+        "full": "0px",
+        "button": "0px",
+        "control": "0px",
+        "panel": "0px",
+        "card": "0px"
+      },
+      "adaptiveColors": [
+        {
+          "slug": "surface",
+          "name": "Background",
+          "light": "oklch(98% 0 0)",
+          "dark": "oklch(12% 0 0)"
+        },
+        {
+          "slug": "surface-elevated",
+          "name": "Background Elevated",
+          "light": "oklch(100% 0 0)",
+          "dark": "oklch(16% 0 0)"
+        },
+        {
+          "slug": "foreground",
+          "name": "Text",
+          "light": "oklch(10% 0 0)",
+          "dark": "oklch(98% 0 0)"
+        },
+        {
+          "slug": "foreground-muted",
+          "name": "Text Muted",
+          "light": "oklch(45% 0 0)",
+          "dark": "oklch(68% 0 0)"
+        },
+        {
+          "slug": "accent",
+          "name": "Accent",
+          "light": "oklch(10% 0 0)",
+          "dark": "oklch(98% 0 0)"
+        },
+        {
+          "slug": "border",
+          "name": "Border",
+          "light": "oklch(80% 0 0)",
+          "dark": "oklch(35% 0 0)"
+        }
+      ]
+    }
+  }
+}

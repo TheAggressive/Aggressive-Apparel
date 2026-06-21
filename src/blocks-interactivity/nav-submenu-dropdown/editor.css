@@ -1,56 +1,24 @@
 /**
  * Nav Dropdown Block — Editor Styles
  *
- * Show the panel visible below the trigger in the editor
- * so editors can manage inner blocks.
+ * The block's frontend styles (style.css) are also loaded in the editor, so the
+ * panel keeps its floating, hidden-by-default appearance. We reveal it only when
+ * this submenu — or one of its inner blocks — is selected (the `is-editor-open`
+ * class is added by edit.tsx), so editors aren't faced with every dropdown open
+ * at once. The reveal mirrors the frontend `.is-open` state, so the panel looks
+ * like it does on the frontend while staying fully editable.
  *
  * @package Aggressive_Apparel
  */
 
-.wp-block-aggressive-apparel-nav-submenu-dropdown {
-  position: relative;
+.wp-block-aggressive-apparel-nav-submenu-dropdown.is-editor-open
+  .wp-block-aggressive-apparel-nav-submenu__panel {
+  clip-path: inset(0 0 0 0);
+  visibility: visible;
+  pointer-events: auto;
+}
 
-  & .wp-block-aggressive-apparel-nav-submenu__trigger {
-    display: flex;
-    align-items: center;
-  }
-
-  & .wp-block-aggressive-apparel-nav-submenu__link {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    min-height: 44px;
-    font: inherit;
-    font-weight: inherit;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
-    text-decoration: none;
-  }
-
-  & .wp-block-aggressive-apparel-nav-submenu__arrow svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    opacity: 0.5;
-  }
-
-  /* Always show panel expanded in editor */
-  & .wp-block-aggressive-apparel-nav-submenu__panel {
-    position: relative;
-    top: auto;
-    clip-path: none;
-    visibility: visible;
-    pointer-events: auto;
-    border: 1px dashed var(--wp--preset--color--border);
-    border-radius: 4px;
-    margin-block-start: 0.25rem;
-    min-width: 200px;
-  }
-
-  & .wp-block-aggressive-apparel-nav-submenu__panel-inner {
-    padding: 0.5rem;
-    list-style: none;
-    margin: 0;
-  }
+.wp-block-aggressive-apparel-nav-submenu-dropdown.is-editor-open
+  .wp-block-aggressive-apparel-nav-submenu__arrow {
+  transform: rotate(180deg);
 }

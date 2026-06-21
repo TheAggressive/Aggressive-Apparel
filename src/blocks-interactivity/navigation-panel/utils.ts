@@ -24,6 +24,7 @@ import {
   safeGetElementById,
   safeQuerySelector,
   safeQuerySelectorAll,
+  watchMaxWidth,
 } from '../nav-shared/dom';
 
 // Re-export the shared DOM/logging helpers so existing `from './utils'` imports
@@ -35,6 +36,7 @@ export {
   safeGetElementById,
   safeQuerySelector,
   safeQuerySelectorAll,
+  watchMaxWidth,
 };
 
 /**

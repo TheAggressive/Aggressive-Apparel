@@ -120,3 +120,20 @@ export function prefersReducedMotion(): boolean {
   }
   return _prefersReducedMotion;
 }
+
+/**
+ * Watch whether the viewport is below a breakpoint (the shared
+ * `max-width: breakpoint - 1` convention used by both navigation subsystems to
+ * decide mobile vs. desktop). Invokes `onChange` immediately and on every
+ * change; returns a cleanup that removes the listener.
+ */
+export function watchMaxWidth(
+  breakpoint: number,
+  onChange: (matches: boolean) => void
+): () => void {
+  const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+  const handler = (): void => onChange(mql.matches);
+  handler();
+  mql.addEventListener('change', handler);
+  return () => mql.removeEventListener('change', handler);
+}

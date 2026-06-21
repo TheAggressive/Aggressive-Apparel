@@ -26,4 +26,6 @@ export interface NavigationTriggerAttributes {
   label: string;
   showLabel: boolean;
   panelSlug: string;
+  /** Width (px) below which the trigger shows. Used when placed outside a nav. */
+  breakpoint: number;
 }

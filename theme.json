@@ -403,11 +403,7 @@
       },
       "shadow": {
         "color": "color-mix(in oklch, var(--wp--preset--color--foreground) 15%, transparent)",
-        "colorStrong": "color-mix(in oklch, var(--wp--preset--color--foreground) 30%, transparent)",
-        "sm": "0 2px 8px var(--wp--custom--shadow--color)",
-        "md": "0 10px 25px -5px var(--wp--custom--shadow--color)",
-        "lg": "0 12px 40px var(--wp--custom--shadow--color-strong)",
-        "panel": "0 25px 50px -12px var(--wp--custom--shadow--color-strong)"
+        "colorStrong": "color-mix(in oklch, var(--wp--preset--color--foreground) 30%, transparent)"
       },
       "typeRole": {
         "eyebrow": {
@@ -443,50 +439,6 @@
           "fontWeight": "700",
           "lineHeight": "1.2"
         }
-      },
-      "commerceState": {
-        "sale": {
-          "color": "var(--wp--custom--status-colors--error)",
-          "background": "var(--wp--custom--status-colors--error-background)",
-          "border": "var(--wp--custom--status-colors--error-border)"
-        },
-        "new": {
-          "color": "var(--wp--custom--status-colors--info)",
-          "background": "var(--wp--custom--status-colors--info-background)",
-          "border": "var(--wp--custom--status-colors--info-border)"
-        },
-        "featured": {
-          "color": "var(--wp--preset--color--accent)",
-          "background": "color-mix(in oklch, var(--wp--preset--color--accent) 12%, transparent)",
-          "border": "color-mix(in oklch, var(--wp--preset--color--accent) 30%, transparent)"
-        },
-        "lowStock": {
-          "color": "var(--wp--custom--status-colors--warning)",
-          "background": "var(--wp--custom--status-colors--warning-background)",
-          "border": "var(--wp--custom--status-colors--warning-border)"
-        },
-        "outOfStock": {
-          "color": "var(--wp--custom--status-colors--neutral-muted)",
-          "background": "var(--wp--custom--status-colors--neutral-background)",
-          "border": "var(--wp--custom--status-colors--neutral-border)"
-        }
-      },
-      "statusColors": {
-        "success": "#15803d",
-        "successBackground": "color-mix(in oklch, var(--wp--custom--status-colors--success) 12%, transparent)",
-        "successBorder": "color-mix(in oklch, var(--wp--custom--status-colors--success) 30%, transparent)",
-        "warning": "#c2410c",
-        "warningBackground": "color-mix(in oklch, var(--wp--custom--status-colors--warning) 12%, transparent)",
-        "warningBorder": "color-mix(in oklch, var(--wp--custom--status-colors--warning) 30%, transparent)",
-        "error": "#dc2626",
-        "errorBackground": "color-mix(in oklch, var(--wp--custom--status-colors--error) 12%, transparent)",
-        "errorBorder": "color-mix(in oklch, var(--wp--custom--status-colors--error) 30%, transparent)",
-        "info": "#1d4ed8",
-        "infoBackground": "color-mix(in oklch, var(--wp--custom--status-colors--info) 12%, transparent)",
-        "infoBorder": "color-mix(in oklch, var(--wp--custom--status-colors--info) 30%, transparent)",
-        "neutralMuted": "#6b7280",
-        "neutralBackground": "color-mix(in oklch, var(--wp--preset--color--foreground) 6%, var(--wp--preset--color--surface))",
-        "neutralBorder": "color-mix(in oklch, var(--wp--preset--color--foreground) 12%, transparent)"
       }
     },
     "color": {
@@ -513,6 +465,31 @@
           "name": "Brand Red",
           "slug": "red",
           "color": "oklch(57.7% 0.245 27.325)"
+        },
+        {
+          "name": "Success",
+          "slug": "success",
+          "color": "#15803d"
+        },
+        {
+          "name": "Warning",
+          "slug": "warning",
+          "color": "#c2410c"
+        },
+        {
+          "name": "Error",
+          "slug": "error",
+          "color": "#dc2626"
+        },
+        {
+          "name": "Info",
+          "slug": "info",
+          "color": "#1d4ed8"
+        },
+        {
+          "name": "Neutral",
+          "slug": "neutral",
+          "color": "#6b7280"
         }
       ],
       "gradients": [
@@ -779,22 +756,22 @@
         {
           "name": "Small",
           "slug": "small",
-          "shadow": "0 1px 2px var(--wp--custom--shadow--color), 0 2px 6px var(--wp--custom--shadow--color)"
+          "shadow": "0 2px 8px var(--wp--custom--shadow--color)"
         },
         {
           "name": "Medium",
           "slug": "medium",
-          "shadow": "0 2px 4px var(--wp--custom--shadow--color), 0 6px 20px var(--wp--custom--shadow--color)"
+          "shadow": "0 10px 25px -5px var(--wp--custom--shadow--color)"
         },
         {
           "name": "Large",
           "slug": "large",
-          "shadow": "0 4px 8px var(--wp--custom--shadow--color), 0 16px 40px var(--wp--custom--shadow--color-strong)"
+          "shadow": "0 12px 40px var(--wp--custom--shadow--color-strong)"
         },
         {
-          "name": "X-Large",
+          "name": "Panel",
           "slug": "x-large",
-          "shadow": "0 8px 16px var(--wp--custom--shadow--color), 0 32px 64px var(--wp--custom--shadow--color-strong)"
+          "shadow": "0 25px 50px -12px var(--wp--custom--shadow--color-strong)"
         },
         {
           "name": "Brand Glow",
@@ -969,6 +946,27 @@
       "core/group": {
         "spacing": {
           "blockGap": "var:preset|spacing|12"
+        },
+        "variations": {
+          "card": {
+            "color": {
+              "background": "var:preset|color|surface-elevated"
+            },
+            "border": {
+              "color": "var:preset|color|border",
+              "width": "1px",
+              "radius": "var:custom|radius|card"
+            },
+            "spacing": {
+              "padding": {
+                "top": "var:preset|spacing|6",
+                "right": "var:preset|spacing|6",
+                "bottom": "var:preset|spacing|6",
+                "left": "var:preset|spacing|6"
+              }
+            },
+            "shadow": "var:preset|shadow|small"
+          }
         }
       },
       "core/columns": {

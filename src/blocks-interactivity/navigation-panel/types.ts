@@ -30,6 +30,8 @@ export interface NavigationPanelAttributes {
  */
 export interface PanelContext {
   panelSlug: string;
+  /** Trigger-only: width below which the trigger button is shown. */
+  breakpoint?: number;
 }
 
 /**

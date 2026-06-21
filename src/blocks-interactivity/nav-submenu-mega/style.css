@@ -134,6 +134,7 @@
   /* Panel links */
   & .wp-block-aggressive-apparel-nav-submenu__panel .wp-block-aggressive-apparel-nav-link {
     --nav-link-color: var(--submenu-color, currentcolor);
+    --nav-link-hover-color: var(--submenu-link-hover-color, var(--wp--preset--color--primary, currentColor));
 
     margin: 0;
   }
@@ -145,7 +146,7 @@
     color: var(--nav-link-color);
 
     &:hover {
-      background: var(--aa-nav-hover-bg);
+      background: var(--submenu-link-hover-bg, var(--aa-nav-hover-bg));
     }
   }
 }

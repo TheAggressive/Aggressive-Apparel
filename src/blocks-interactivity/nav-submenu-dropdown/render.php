@@ -29,6 +29,8 @@ $open_on    = $block->context['aggressive-apparel/navigationOpenOn'] ?? ( $attri
 // Inherit panel styling from navigation context.
 $panel_background_color = $block->context['aggressive-apparel/submenuBackgroundColor'] ?? '';
 $panel_text_color       = $block->context['aggressive-apparel/submenuTextColor'] ?? '';
+$panel_link_hover_color = $block->context['aggressive-apparel/submenuLinkHoverColor'] ?? '';
+$panel_link_hover_bg    = $block->context['aggressive-apparel/submenuLinkHoverBg'] ?? '';
 $panel_border_radius    = $block->context['aggressive-apparel/submenuBorderRadius'] ?? '';
 $panel_border_width     = $block->context['aggressive-apparel/submenuBorderWidth'] ?? '';
 $panel_border_color     = $block->context['aggressive-apparel/submenuBorderColor'] ?? '';
@@ -70,6 +72,12 @@ if ( ! empty( $panel_background_color ) ) {
 }
 if ( ! empty( $panel_text_color ) ) {
 	$panel_styles[] = '--submenu-color: ' . esc_attr( $panel_text_color );
+}
+if ( ! empty( $panel_link_hover_color ) ) {
+	$panel_styles[] = '--submenu-link-hover-color: ' . esc_attr( $panel_link_hover_color );
+}
+if ( ! empty( $panel_link_hover_bg ) ) {
+	$panel_styles[] = '--submenu-link-hover-bg: ' . esc_attr( $panel_link_hover_bg );
 }
 if ( ! empty( $panel_border_radius ) ) {
 	$panel_styles[] = 'border-radius: ' . esc_attr( $panel_border_radius );

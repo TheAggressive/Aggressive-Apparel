@@ -9,7 +9,7 @@
   "keywords": ["hamburger", "toggle", "menu", "navigation", "trigger"],
   "textdomain": "aggressive-apparel",
   "icon": "menu",
-  "parent": ["aggressive-apparel/navigation"],
+  "usesContext": ["aggressive-apparel/navigationBreakpoint"],
   "attributes": {
     "iconStyle": {
       "type": "string",
@@ -40,6 +40,10 @@
     "panelSlug": {
       "type": "string",
       "default": "mobile-nav"
+    },
+    "breakpoint": {
+      "type": "number",
+      "default": 1024
     }
   },
   "supports": {

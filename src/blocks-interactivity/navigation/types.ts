@@ -19,11 +19,17 @@ export interface NavigationAttributes {
   openOn: 'hover' | 'click';
   navId?: string;
   scrollBehavior: ScrollBehavior;
+  /** When true the desktop nav auto-renders the mobile panel template part. */
+  autoLoadMobilePanel: boolean;
+  /** Slug of the template part holding the mobile navigation panel. */
+  mobileNavPart: string;
   // Indicator
   indicatorColor?: string;
   // Submenu styling
   submenuBackgroundColor?: string;
   submenuTextColor?: string;
+  submenuLinkHoverColor?: string;
+  submenuLinkHoverBg?: string;
   submenuBorderRadius?: string;
   submenuBorderWidth?: string;
   submenuBorderColor?: string;

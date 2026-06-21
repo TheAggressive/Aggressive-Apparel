@@ -1,0 +1,205 @@
+/**
+ * Global Form Controls
+ *
+ * Token-driven baseline for every form control on the site — native inputs,
+ * WordPress core (search, comments), plugin forms, and WooCommerce (classic
+ * forms + the React checkout/cart blocks). Pulls all of them into the design
+ * system using the same tokens as the .aggressive-apparel-field primitive.
+ *
+ * Layering matters: the NATIVE baseline lives in @layer aa-components so it sits
+ * at low priority (and uses :where() for 0 specificity) — anything overrides it
+ * trivially. The WooCommerce / select2 overrides are intentionally
+ * UNLAYERED, because WooCommerce ships its CSS unlayered and unlayered styles
+ * beat any @layer regardless of specificity; only unlayered rules can reliably
+ * win against WC's defaults.
+ *
+ * @package Aggressive_Apparel
+ */
+
+@layer aa-components {
+
+  /* ----------------------------------------------------------------------
+   * Native baseline — input / select / textarea (0 specificity via :where).
+   * `number` and `file` are excluded so quantity steppers and upload controls
+   * keep their existing (single-product / theme) styling untouched.
+   * -------------------------------------------------------------------- */
+  :where(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='color'],
+      [type='number'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset'],
+      [type='image'],
+      [type='hidden']
+    ),
+    select,
+    textarea
+  ) {
+    width: 100%;
+    min-height: var(--aa-input-height);
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    color: var(--aa-color-foreground);
+    font-family: inherit;
+    font-size: var(--wp--preset--font-size--small);
+    line-height: 1.4;
+    transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+  }
+
+  :where(input, select, textarea)::placeholder {
+    color: var(--aa-color-muted-40);
+  }
+
+  :where(input, select, textarea):focus {
+    outline: none;
+    border-color: var(--aa-color-foreground);
+  }
+
+  :where(input, select, textarea):focus-visible {
+    outline: 2px solid var(--aa-color-accent);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  :where(input, select, textarea):disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Error state — only after the user has interacted (not on first paint). */
+  :where(input, select, textarea):user-invalid {
+    border-color: var(--aa-color-error);
+  }
+
+  :where(textarea) {
+    min-height: calc(var(--aa-input-height) * 2);
+    resize: vertical;
+  }
+
+  /* Checkboxes, radios and range share the brand accent. */
+  :where(input[type='checkbox'], input[type='radio'], input[type='range']) {
+    accent-color: var(--aa-color-accent);
+  }
+
+  /* File input + its button. */
+  :where(input[type='file']) {
+    width: 100%;
+    font-family: inherit;
+    font-size: var(--wp--preset--font-size--small);
+    color: var(--aa-color-foreground);
+  }
+
+  input[type='file']::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    color: var(--aa-color-foreground);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  /* Browser autofill — repaint the field so it keeps the system colours
+   * instead of the UA's yellow/white background (which breaks dark mode). The
+   * inset box-shadow is the only reliable way to override the autofill bg.
+   * The two pseudo-classes are kept in SEPARATE rules on purpose: a rule-level
+   * comma list is not forgiving, so combining them would drop the whole rule in
+   * browsers that support only :-webkit-autofill (e.g. Safari < 15). */
+  :where(input, select, textarea):-webkit-autofill {
+    -webkit-text-fill-color: var(--aa-color-foreground);
+    box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
+    caret-color: var(--aa-color-foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  :where(input, select, textarea):autofill {
+    -webkit-text-fill-color: var(--aa-color-foreground);
+    box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
+    caret-color: var(--aa-color-foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
+}
+
+/* ========================================================================
+ * UNLAYERED overrides — must beat WooCommerce's (unlayered) stylesheet.
+ * ====================================================================== */
+
+/* WooCommerce — React checkout / cart blocks. Quantity steppers are
+ * intentionally left alone (handled by the product/cart styling). */
+.wc-block-components-text-input input,
+.wc-block-components-text-input textarea,
+.wc-block-components-select .wc-block-components-select__select {
+  min-height: var(--aa-input-height);
+  border: 1.5px solid var(--aa-color-border-strong);
+  border-radius: var(--aa-radius-control);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+
+.wc-block-components-text-input input:focus,
+.wc-block-components-text-input textarea:focus,
+.wc-block-components-select .wc-block-components-select__select:focus {
+  outline: 2px solid var(--aa-color-accent);
+  outline-offset: 1px;
+  border-color: var(--aa-color-foreground);
+}
+
+.wc-block-components-text-input label,
+.wc-block-components-checkout-step__title {
+  color: var(--aa-color-foreground-muted);
+}
+
+.wc-block-components-validation-error {
+  color: var(--aa-color-error);
+}
+
+/* WooCommerce — classic (non-block) forms: my-account, login, reviews. */
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce-input-wrapper input {
+  min-height: var(--aa-input-height);
+  border: 1.5px solid var(--aa-color-border-strong);
+  border-radius: var(--aa-radius-control);
+  background: transparent;
+  color: inherit;
+}
+
+/* WooCommerce classic country/state dropdowns render as select2, not a native
+ * <select> — style the select2 box + dropdown to match the inputs. */
+.woocommerce .select2-container--default .select2-selection--single,
+.woocommerce .select2-container--default .select2-selection--multiple {
+  min-height: var(--aa-input-height);
+  border: 1.5px solid var(--aa-color-border-strong);
+  border-radius: var(--aa-radius-control);
+  background: transparent;
+}
+
+.woocommerce
+  .select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: var(--aa-input-height);
+  color: var(--aa-color-foreground);
+}
+
+.select2-dropdown {
+  border: 1.5px solid var(--aa-color-border-strong);
+  background: var(--aa-color-surface-elevated);
+  color: var(--aa-color-foreground);
+}
+
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
+  background: var(--aa-color-accent);
+  color: var(--aa-color-surface);
+}

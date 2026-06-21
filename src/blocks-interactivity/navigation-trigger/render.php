@@ -25,6 +25,10 @@ $label      = $attributes['label'] ?? __( 'Menu', 'aggressive-apparel' );
 $show_label = $attributes['showLabel'] ?? false;
 $panel_slug = ! empty( $attributes['panelSlug'] ) ? (string) $attributes['panelSlug'] : 'mobile-nav';
 
+// Effective breakpoint: inherit the parent navigation's breakpoint when placed
+// inside one; otherwise use this trigger's own attribute (it can live anywhere).
+$breakpoint = (int) ( $block->context['aggressive-apparel/navigationBreakpoint'] ?? $attributes['breakpoint'] ?? 1024 );
+
 // ============================================================================
 // Generate IDs
 // ============================================================================
@@ -83,7 +87,13 @@ if ( $show_label ) {
 // Build the button
 // ============================================================================
 
-$context = wp_json_encode( array( 'panelSlug' => $panel_slug ), JSON_HEX_TAG | JSON_HEX_AMP );
+$context = wp_json_encode(
+	array(
+		'panelSlug'  => $panel_slug,
+		'breakpoint' => $breakpoint,
+	),
+	JSON_HEX_TAG | JSON_HEX_AMP
+);
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
@@ -102,10 +112,21 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		'aria-label'                  => esc_attr( $label ),
 		'data-wp-interactive'         => 'aggressive-apparel/navigation-panel',
 		'data-wp-context'             => $context ? $context : '{}',
+		'data-wp-init'                => 'callbacks.initTrigger',
 		'data-wp-on--click'           => 'actions.toggle',
 		'data-wp-bind--aria-expanded' => 'state.isOpen',
 		'data-wp-class--is-active'    => 'state.isOpen',
 	)
+);
+
+// Pre-hydration visibility: show the trigger below its configured breakpoint
+// until callbacks.initTrigger adds .is-hydrated and JS takes over. Scoped to this
+// trigger's id so it honours a custom breakpoint — a static CSS media query in
+// style.css can't read the per-instance breakpoint attribute.
+printf(
+	'<style>@media (max-width:%1$dpx){#%2$s:not(.is-hydrated){display:flex}}</style>',
+	(int) ( $breakpoint - 1 ),
+	esc_attr( $trigger_id ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr applied; breakpoint is an int.
 );
 
 printf(

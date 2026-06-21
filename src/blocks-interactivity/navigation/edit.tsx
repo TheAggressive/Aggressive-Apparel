@@ -17,21 +17,29 @@ import {
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
   BaseControl,
+  Button,
   ColorPalette,
   PanelBody,
   SelectControl,
   TextControl,
+  ToggleControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
   __experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { addQueryArgs } from '@wordpress/url';
 import { useMemo } from '@wordpress/element';
 import {
   useEditorColorScheme,
   ColorModeToggle,
 } from '../../utils/editor-color-scheme';
-import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
+import {
+  EDITOR_HELP_TEXT_STYLE,
+  EDITOR_META_TEXT_STYLE,
+} from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
 import type { BorderStyle, NavigationAttributes } from './types';
 
@@ -94,32 +102,59 @@ function composeLightDark(light?: string, dark?: string): string | undefined {
 }
 
 /**
- * Adaptive color picker that reads/writes a specific mode from a combined
- * light-dark() CSS value.
+ * Adaptive color picker.
+ *
+ * Two ways to pick:
+ *  1. "Theme colors" — the palette's adaptive (light-dark) colors as one-click
+ *     swatches. Picking one applies its full light/dark pairing at once, so you
+ *     usually never touch the manual controls. This is the common case and the
+ *     reason the adaptive theme colors are now visible here.
+ *  2. Manual — pick a flat color for the current light/dark mode (advanced:
+ *     two arbitrary non-theme colors).
  */
 function AdaptiveColorPicker({
   mode,
   value,
   onChange,
   colors,
+  adaptiveColors,
 }: {
   mode: 'light' | 'dark';
   value: string | undefined;
   onChange: (value: string | undefined) => void;
   colors: Array<{ name: string; slug: string; color: string }> | undefined;
+  adaptiveColors:
+    | Array<{ name: string; slug: string; color: string }>
+    | undefined;
 }) {
   const parsed = parseLightDark(value);
   return (
-    <ColorPalette
-      colors={colors}
-      value={mode === 'light' ? parsed.light : parsed.dark}
-      onChange={color => {
-        const newLight = mode === 'light' ? color : parsed.light;
-        const newDark = mode === 'dark' ? color : parsed.dark;
-        onChange(composeLightDark(newLight, newDark));
-      }}
-      clearable
-    />
+    <>
+      {adaptiveColors && adaptiveColors.length > 0 && (
+        <div style={{ marginBottom: '8px' }}>
+          <span style={EDITOR_META_TEXT_STYLE}>
+            {__('Theme colors (adapt automatically)', 'aggressive-apparel')}
+          </span>
+          <ColorPalette
+            colors={adaptiveColors}
+            value={value}
+            onChange={color => onChange(color)}
+            disableCustomColors
+            clearable={false}
+          />
+        </div>
+      )}
+      <ColorPalette
+        colors={colors}
+        value={mode === 'light' ? parsed.light : parsed.dark}
+        onChange={color => {
+          const newLight = mode === 'light' ? color : parsed.light;
+          const newDark = mode === 'dark' ? color : parsed.dark;
+          onChange(composeLightDark(newLight, newDark));
+        }}
+        clearable
+      />
+    </>
   );
 }
 
@@ -132,9 +167,13 @@ export default function Edit({
     ariaLabel,
     openOn,
     navId,
+    autoLoadMobilePanel,
+    mobileNavPart,
     indicatorColor,
     submenuBackgroundColor,
     submenuTextColor,
+    submenuLinkHoverColor,
+    submenuLinkHoverBg,
     submenuBorderRadius,
     submenuBorderWidth,
     submenuBorderColor,
@@ -144,13 +183,40 @@ export default function Edit({
   const [allColors] = useSettings('color.palette') as [
     Array<{ name: string; slug: string; color: string }> | undefined,
   ];
+  // Flat colors (for manual per-mode picks) vs adaptive theme colors (shown as
+  // one-click swatches that carry their own light/dark pairing).
   const colors = useMemo(
     () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
+    [allColors]
+  );
+  const adaptiveColors = useMemo(
+    () => allColors?.filter(c => c.color.startsWith('light-dark(')),
     [allColors]
   );
 
   // Shared color scheme state — synced across all adaptive panels.
   const { colorMode, switchColorMode } = useEditorColorScheme();
+
+  // Active theme stylesheet, needed to build the Site Editor link to the mobile
+  // navigation template part (template part IDs are "<stylesheet>//<slug>").
+  const stylesheet = useSelect(
+    select =>
+      (
+        select(coreStore).getCurrentTheme() as
+          | { stylesheet?: string }
+          | undefined
+      )?.stylesheet,
+    []
+  );
+
+  const partSlug = mobileNavPart || 'mobile-nav';
+  const editPanelUrl = stylesheet
+    ? addQueryArgs('site-editor.php', {
+        postType: 'wp_template_part',
+        postId: `${stylesheet}//${partSlug}`,
+        canvas: 'edit',
+      })
+    : undefined;
 
   // Ensure a unique ID exists for context sharing.
   if (!navId) {
@@ -201,6 +267,37 @@ export default function Edit({
               setAttributes({ openOn: value as 'hover' | 'click' })
             }
           />
+        </PanelBody>
+
+        <PanelBody title={__('Mobile Menu', 'aggressive-apparel')}>
+          <ToggleControl
+            __nextHasNoMarginBottom
+            label={__('Auto-place mobile menu', 'aggressive-apparel')}
+            help={__(
+              'Render the Mobile Navigation template part on the frontend automatically, so you don’t have to place it in your header yourself.',
+              'aggressive-apparel'
+            )}
+            checked={autoLoadMobilePanel}
+            onChange={value => setAttributes({ autoLoadMobilePanel: value })}
+          />
+          <BaseControl
+            id='edit-mobile-nav-part'
+            __nextHasNoMarginBottom
+            help={__(
+              'Opens the Mobile Navigation template part in the Site Editor to edit its links and panel settings.',
+              'aggressive-apparel'
+            )}
+          >
+            <Button
+              __next40pxDefaultSize
+              variant='secondary'
+              href={editPanelUrl}
+              disabled={!editPanelUrl}
+              aria-disabled={!editPanelUrl}
+            >
+              {__('Edit Mobile Navigation', 'aggressive-apparel')}
+            </Button>
+          </BaseControl>
         </PanelBody>
 
         <PanelBody
@@ -267,6 +364,7 @@ export default function Edit({
               value={submenuBackgroundColor}
               onChange={v => setAttributes({ submenuBackgroundColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
@@ -278,6 +376,31 @@ export default function Edit({
               value={submenuTextColor}
               onChange={v => setAttributes({ submenuTextColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
+            />
+          </BaseControl>
+          <BaseControl
+            label={__('Link Hover Text', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
+          >
+            <AdaptiveColorPicker
+              mode={colorMode}
+              value={submenuLinkHoverColor}
+              onChange={v => setAttributes({ submenuLinkHoverColor: v })}
+              colors={colors}
+              adaptiveColors={adaptiveColors}
+            />
+          </BaseControl>
+          <BaseControl
+            label={__('Link Hover Background', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
+          >
+            <AdaptiveColorPicker
+              mode={colorMode}
+              value={submenuLinkHoverBg}
+              onChange={v => setAttributes({ submenuLinkHoverBg: v })}
+              colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>
@@ -334,6 +457,7 @@ export default function Edit({
               value={submenuBorderColor}
               onChange={v => setAttributes({ submenuBorderColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>

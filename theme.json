@@ -403,11 +403,7 @@
       },
       "shadow": {
         "color": "color-mix(in oklch, var(--wp--preset--color--foreground) 15%, transparent)",
-        "colorStrong": "color-mix(in oklch, var(--wp--preset--color--foreground) 30%, transparent)",
-        "sm": "0 2px 8px var(--wp--custom--shadow--color)",
-        "md": "0 10px 25px -5px var(--wp--custom--shadow--color)",
-        "lg": "0 12px 40px var(--wp--custom--shadow--color-strong)",
-        "panel": "0 25px 50px -12px var(--wp--custom--shadow--color-strong)"
+        "colorStrong": "color-mix(in oklch, var(--wp--preset--color--foreground) 30%, transparent)"
       },
       "typeRole": {
         "eyebrow": {
@@ -760,22 +756,22 @@
         {
           "name": "Small",
           "slug": "small",
-          "shadow": "0 1px 2px var(--wp--custom--shadow--color), 0 2px 6px var(--wp--custom--shadow--color)"
+          "shadow": "0 2px 8px var(--wp--custom--shadow--color)"
         },
         {
           "name": "Medium",
           "slug": "medium",
-          "shadow": "0 2px 4px var(--wp--custom--shadow--color), 0 6px 20px var(--wp--custom--shadow--color)"
+          "shadow": "0 10px 25px -5px var(--wp--custom--shadow--color)"
         },
         {
           "name": "Large",
           "slug": "large",
-          "shadow": "0 4px 8px var(--wp--custom--shadow--color), 0 16px 40px var(--wp--custom--shadow--color-strong)"
+          "shadow": "0 12px 40px var(--wp--custom--shadow--color-strong)"
         },
         {
-          "name": "X-Large",
+          "name": "Panel",
           "slug": "x-large",
-          "shadow": "0 8px 16px var(--wp--custom--shadow--color), 0 32px 64px var(--wp--custom--shadow--color-strong)"
+          "shadow": "0 25px 50px -12px var(--wp--custom--shadow--color-strong)"
         },
         {
           "name": "Brand Glow",

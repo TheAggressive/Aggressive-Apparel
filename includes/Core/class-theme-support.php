@@ -60,6 +60,16 @@ class Theme_Support {
 		// Add support for Block Styles.
 		add_theme_support( 'wp-block-styles' );
 
+		// Load the design-token layer into the block editor canvas so --aa-*
+		// custom properties resolve there (matching the front end). WordPress
+		// injects this into the editor iframe and scopes :root to
+		// .editor-styles-wrapper — the reliable channel that enqueue_block_assets
+		// does not guarantee. Only tokens.css is loaded this way; the heavier
+		// main.css/Tailwind stays on enqueue_block_assets to avoid the editor's
+		// CSS selector-prefixer choking on modern syntax.
+		add_theme_support( 'editor-styles' );
+		add_editor_style( 'build/styles/base/tokens.css' );
+
 		// Add support for full and wide align images.
 		add_theme_support( 'align-wide' );
 

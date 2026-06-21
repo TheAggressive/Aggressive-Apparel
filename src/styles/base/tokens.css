@@ -181,11 +181,11 @@
 	--aa-color-skeleton-image: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
 
 	/* Static status colors (stock, alerts — not adaptive). */
-	--aa-color-success: var(--wp--preset--color--success, #15803d);
-	--aa-color-warning: var(--wp--preset--color--warning, #c2410c);
-	--aa-color-error: var(--wp--preset--color--error, #dc2626);
-	--aa-color-info: var(--wp--preset--color--info, #1d4ed8);
-	--aa-color-neutral-muted: var(--wp--preset--color--neutral, #6b7280);
+	--aa-color-success: var(--wp--preset--color--success, oklch(52.7% 0.137 150.1deg));
+	--aa-color-warning: var(--wp--preset--color--warning, oklch(55.3% 0.174 38.4deg));
+	--aa-color-error: var(--wp--preset--color--error, oklch(57.7% 0.215 27.3deg));
+	--aa-color-info: var(--wp--preset--color--info, oklch(48.8% 0.217 264.4deg));
+	--aa-color-neutral-muted: var(--wp--preset--color--neutral, oklch(55.1% 0.023 264.4deg));
 	--aa-color-success-bg: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
 	--aa-color-success-border: color-mix(in oklch, var(--aa-color-success) 30%, transparent);
 	--aa-color-warning-bg: color-mix(in oklch, var(--aa-color-warning) 12%, transparent);

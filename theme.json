@@ -459,7 +459,7 @@
         {
           "name": "Black",
           "slug": "black",
-          "color": "oklab(0 0 0)"
+          "color": "oklch(0 0 0)"
         },
         {
           "name": "Red",
@@ -469,27 +469,27 @@
         {
           "name": "Success",
           "slug": "success",
-          "color": "#15803d"
+          "color": "oklch(52.7% 0.137 150.1)"
         },
         {
           "name": "Warning",
           "slug": "warning",
-          "color": "#c2410c"
+          "color": "oklch(55.3% 0.174 38.4)"
         },
         {
           "name": "Error",
           "slug": "error",
-          "color": "#dc2626"
+          "color": "oklch(57.7% 0.215 27.3)"
         },
         {
           "name": "Info",
           "slug": "info",
-          "color": "#1d4ed8"
+          "color": "oklch(48.8% 0.217 264.4)"
         },
         {
           "name": "Neutral",
           "slug": "neutral",
-          "color": "#6b7280"
+          "color": "oklch(55.1% 0.023 264.4)"
         }
       ],
       "gradients": [

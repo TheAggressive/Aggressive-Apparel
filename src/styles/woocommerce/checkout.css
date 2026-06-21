@@ -12,13 +12,29 @@
  */
 
 /* Floating field labels on WooCommerce's (always-white) fields: one consistent
- * light grey in every state (resting and floated). Fixed (built from
- * --aa-color-black) so it stays readable on the white field in BOTH colour modes
- * — an adaptive colour would flip light in dark mode and vanish. */
+ * light grey, fixed (built from --aa-color-black) so it stays readable on the
+ * white field in BOTH colour modes — an adaptive colour would flip light in dark
+ * mode and vanish. Covers text inputs AND the select-based fields (State,
+ * Country, etc.), which use a different wrapper. */
 .wc-block-checkout .wc-block-components-text-input label,
+.wc-block-checkout .wc-block-components-select label,
 .wc-block-checkout .wc-block-components-combobox label,
-.wc-block-cart .wc-block-components-text-input label {
+.wc-block-cart .wc-block-components-text-input label,
+.wc-block-cart .wc-block-components-select label {
   color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
+}
+
+/* Focused or filled (label floated up): same grey, thicker weight. */
+.wc-block-checkout .wc-block-components-text-input.is-active label,
+.wc-block-checkout .wc-block-components-text-input:focus-within label,
+.wc-block-checkout .wc-block-components-select.is-active label,
+.wc-block-checkout .wc-block-components-select:focus-within label,
+.wc-block-checkout .wc-block-components-combobox.is-active label,
+.wc-block-cart .wc-block-components-text-input.is-active label,
+.wc-block-cart .wc-block-components-text-input:focus-within label,
+.wc-block-cart .wc-block-components-select.is-active label,
+.wc-block-cart .wc-block-components-select:focus-within label {
+  font-weight: 600;
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need

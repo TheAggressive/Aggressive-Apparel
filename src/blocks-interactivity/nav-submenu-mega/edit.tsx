@@ -22,6 +22,8 @@ import {
   ToolbarButton,
   ToolbarGroup,
 } from '@wordpress/components';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
@@ -55,16 +57,56 @@ export default function Edit({
   attributes,
   setAttributes,
   isSelected,
+  clientId,
   context,
 }: BlockEditProps<NavMegaAttributes> & { context: NavMegaContext }) {
   const { label, url, submenuId, showArrow, openOn, columns } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
+  const megaRef = useRef<HTMLLIElement>(null);
+
+  // Reveal the panel only when this submenu — or one of its inner blocks — is
+  // selected, so the editor isn't cluttered with every mega menu open at once.
+  const hasSelectedChild = useSelect(
+    select => select(blockEditorStore).hasSelectedInnerBlock(clientId, true),
+    [clientId]
+  );
+  const isEditorOpen = isSelected || hasSelectedChild;
+
+  // Replicate the frontend full-bleed: the panel is positioned absolutely
+  // relative to its trigger <li>, so to span the full canvas width starting at
+  // its left edge we set --mega-panel-left to the negative of the trigger's
+  // viewport offset and --mega-panel-width to the canvas width — exactly what
+  // the frontend's navigation store computes on open. (That JS doesn't run in
+  // the editor, so we measure here instead.)
+  const [megaMetrics, setMegaMetrics] = useState<{
+    left: string;
+    width: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const el = megaRef.current;
+    if (!isEditorOpen || !el) {
+      return;
+    }
+    const view = el.ownerDocument.defaultView;
+    const measure = (): void => {
+      const rect = el.getBoundingClientRect();
+      const docWidth = el.ownerDocument.documentElement.clientWidth;
+      setMegaMetrics({ left: `${-rect.left}px`, width: `${docWidth}px` });
+    };
+    measure();
+    view?.addEventListener('resize', measure);
+    return () => view?.removeEventListener('resize', measure);
+  }, [isEditorOpen]);
 
   // Get panel styling from parent navigation context.
   const panelBackgroundColor =
     context['aggressive-apparel/submenuBackgroundColor'];
   const panelTextColor = context['aggressive-apparel/submenuTextColor'];
+  const panelLinkHoverColor =
+    context['aggressive-apparel/submenuLinkHoverColor'];
+  const panelLinkHoverBg = context['aggressive-apparel/submenuLinkHoverBg'];
   const panelBorderWidth = context['aggressive-apparel/submenuBorderWidth'];
   const panelBorderColor = context['aggressive-apparel/submenuBorderColor'];
   const panelBorderStyle = context['aggressive-apparel/submenuBorderStyle'];
@@ -77,7 +119,10 @@ export default function Edit({
   }, [submenuId]);
 
   const blockProps = useBlockProps({
-    className: 'wp-block-aggressive-apparel-nav-submenu-mega',
+    ref: megaRef,
+    className: `wp-block-aggressive-apparel-nav-submenu-mega${
+      isEditorOpen ? ' is-editor-open' : ''
+    }`,
     style: { '--mega-columns': columns } as React.CSSProperties,
   });
 
@@ -85,8 +130,16 @@ export default function Edit({
   const panelStyle: Record<string, string | number> = {
     '--mega-columns': columns,
   };
+  if (megaMetrics) {
+    panelStyle['--mega-panel-left'] = megaMetrics.left;
+    panelStyle['--mega-panel-width'] = megaMetrics.width;
+  }
   if (panelBackgroundColor) panelStyle.backgroundColor = panelBackgroundColor;
   if (panelTextColor) panelStyle.color = panelTextColor;
+  if (panelLinkHoverColor)
+    panelStyle['--submenu-link-hover-color'] = panelLinkHoverColor;
+  if (panelLinkHoverBg)
+    panelStyle['--submenu-link-hover-bg'] = panelLinkHoverBg;
   if (panelBorderWidth) panelStyle['--panel-border-width'] = panelBorderWidth;
   if (panelBorderColor) panelStyle['--panel-border-color'] = panelBorderColor;
   if (panelBorderStyle && panelBorderStyle !== 'solid') {

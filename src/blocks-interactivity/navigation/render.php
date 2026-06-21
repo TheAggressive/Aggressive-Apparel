@@ -24,6 +24,9 @@ $breakpoint = (int) ( $attributes['breakpoint'] ?? 1024 );
 $aria_label = $attributes['ariaLabel'] ?? __( 'Main navigation', 'aggressive-apparel' );
 $open_on    = $attributes['openOn'] ?? 'hover';
 
+$auto_load_panel = $attributes['autoLoadMobilePanel'] ?? true;
+$mobile_nav_part = (string) ( $attributes['mobileNavPart'] ?? 'mobile-nav' );
+
 $indicator_color = $attributes['indicatorColor'] ?? '';
 
 // ============================================================================
@@ -162,3 +165,13 @@ printf(
 	$utility_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
 	$menubar_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
 );
+
+// ============================================================================
+// Auto-place the mobile navigation panel
+// ============================================================================
+// Render the Mobile Navigation template part so the desktop nav carries its own
+// mobile panel — no manually positioned template-part block needed. The panel
+// portals itself to wp_footer; this emits nothing inline.
+if ( $auto_load_panel && function_exists( 'aggressive_apparel_render_mobile_nav_part' ) ) {
+	aggressive_apparel_render_mobile_nav_part( $mobile_nav_part );
+}

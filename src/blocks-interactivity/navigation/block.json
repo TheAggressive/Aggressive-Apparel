@@ -27,6 +27,14 @@
       "enum": ["hover", "click"],
       "default": "hover"
     },
+    "autoLoadMobilePanel": {
+      "type": "boolean",
+      "default": true
+    },
+    "mobileNavPart": {
+      "type": "string",
+      "default": "mobile-nav"
+    },
     "scrollBehavior": {
       "type": "string",
       "enum": ["none", "sticky", "hide-on-scroll", "transparent-to-opaque"],
@@ -39,6 +47,12 @@
       "type": "string"
     },
     "submenuTextColor": {
+      "type": "string"
+    },
+    "submenuLinkHoverColor": {
+      "type": "string"
+    },
+    "submenuLinkHoverBg": {
       "type": "string"
     },
     "submenuBorderRadius": {
@@ -106,6 +120,8 @@
     "aggressive-apparel/navigationId": "navId",
     "aggressive-apparel/submenuBackgroundColor": "submenuBackgroundColor",
     "aggressive-apparel/submenuTextColor": "submenuTextColor",
+    "aggressive-apparel/submenuLinkHoverColor": "submenuLinkHoverColor",
+    "aggressive-apparel/submenuLinkHoverBg": "submenuLinkHoverBg",
     "aggressive-apparel/submenuBorderRadius": "submenuBorderRadius",
     "aggressive-apparel/submenuBorderWidth": "submenuBorderWidth",
     "aggressive-apparel/submenuBorderColor": "submenuBorderColor",

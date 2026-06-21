@@ -19,6 +19,8 @@ export interface NavDropdownContext {
   'aggressive-apparel/navigationOpenOn'?: OpenTrigger;
   'aggressive-apparel/submenuBackgroundColor'?: string;
   'aggressive-apparel/submenuTextColor'?: string;
+  'aggressive-apparel/submenuLinkHoverColor'?: string;
+  'aggressive-apparel/submenuLinkHoverBg'?: string;
   'aggressive-apparel/submenuBorderRadius'?: string;
   'aggressive-apparel/submenuBorderWidth'?: string;
   'aggressive-apparel/submenuBorderColor'?: string;

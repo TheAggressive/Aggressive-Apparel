@@ -156,6 +156,47 @@ function aggressive_apparel_get_announcer_id( string $nav_id ): string {
 // panel is portaled to wp_footer to escape ancestor stacking contexts.
 
 /**
+ * Auto-render the mobile navigation panel template part.
+ *
+ * Called from the desktop navigation block's render so the mobile panel is
+ * placed on the frontend automatically — no manually positioned
+ * `core/template-part` block required. The part holds an
+ * aggressive-apparel/navigation-panel block which buffers itself to wp_footer
+ * via the portal pattern, so this emits nothing inline (we discard do_blocks'
+ * empty return).
+ *
+ * Idempotent per request: the same part slug is only rendered once even when
+ * several navigation blocks share it. Output is additionally deduplicated by
+ * panel slug in aggressive_apparel_buffer_nav_panel_html(), so a manually
+ * placed template part with the same panel never double-prints.
+ *
+ * @param string $part_slug Template part slug (e.g. 'mobile-nav').
+ */
+function aggressive_apparel_render_mobile_nav_part( string $part_slug ): void {
+	$part_slug = sanitize_title( $part_slug );
+	if ( '' === $part_slug ) {
+		return;
+	}
+
+	static $rendered = array();
+	if ( isset( $rendered[ $part_slug ] ) ) {
+		return;
+	}
+	$rendered[ $part_slug ] = true;
+
+	if ( ! function_exists( 'get_block_template' ) ) {
+		return;
+	}
+
+	$template_part = get_block_template( get_stylesheet() . '//' . $part_slug, 'wp_template_part' );
+	if ( $template_part instanceof WP_Block_Template && ! empty( $template_part->content ) ) {
+		// Renders the navigation-panel block inside, which buffers itself to
+		// wp_footer. The returned string is empty (portal pattern), so discard it.
+		do_blocks( $template_part->content );
+	}
+}
+
+/**
  * Build the panel element ID from a panel slug.
  *
  * @param string $panel_slug The panel slug.

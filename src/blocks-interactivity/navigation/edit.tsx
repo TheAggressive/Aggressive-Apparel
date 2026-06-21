@@ -17,15 +17,20 @@ import {
 import type { BlockEditProps } from '@wordpress/blocks';
 import {
   BaseControl,
+  Button,
   ColorPalette,
   PanelBody,
   SelectControl,
   TextControl,
+  ToggleControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for unit input
   __experimentalUnitControl as UnitControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
   __experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { addQueryArgs } from '@wordpress/url';
 import { useMemo } from '@wordpress/element';
 import {
   useEditorColorScheme,
@@ -132,9 +137,13 @@ export default function Edit({
     ariaLabel,
     openOn,
     navId,
+    autoLoadMobilePanel,
+    mobileNavPart,
     indicatorColor,
     submenuBackgroundColor,
     submenuTextColor,
+    submenuLinkHoverColor,
+    submenuLinkHoverBg,
     submenuBorderRadius,
     submenuBorderWidth,
     submenuBorderColor,
@@ -151,6 +160,27 @@ export default function Edit({
 
   // Shared color scheme state — synced across all adaptive panels.
   const { colorMode, switchColorMode } = useEditorColorScheme();
+
+  // Active theme stylesheet, needed to build the Site Editor link to the mobile
+  // navigation template part (template part IDs are "<stylesheet>//<slug>").
+  const stylesheet = useSelect(
+    select =>
+      (
+        select(coreStore).getCurrentTheme() as
+          | { stylesheet?: string }
+          | undefined
+      )?.stylesheet,
+    []
+  );
+
+  const partSlug = mobileNavPart || 'mobile-nav';
+  const editPanelUrl = stylesheet
+    ? addQueryArgs('site-editor.php', {
+        postType: 'wp_template_part',
+        postId: `${stylesheet}//${partSlug}`,
+        canvas: 'edit',
+      })
+    : undefined;
 
   // Ensure a unique ID exists for context sharing.
   if (!navId) {
@@ -201,6 +231,37 @@ export default function Edit({
               setAttributes({ openOn: value as 'hover' | 'click' })
             }
           />
+        </PanelBody>
+
+        <PanelBody title={__('Mobile Menu', 'aggressive-apparel')}>
+          <ToggleControl
+            __nextHasNoMarginBottom
+            label={__('Auto-place mobile menu', 'aggressive-apparel')}
+            help={__(
+              'Render the Mobile Navigation template part on the frontend automatically, so you don’t have to place it in your header yourself.',
+              'aggressive-apparel'
+            )}
+            checked={autoLoadMobilePanel}
+            onChange={value => setAttributes({ autoLoadMobilePanel: value })}
+          />
+          <BaseControl
+            id='edit-mobile-nav-part'
+            __nextHasNoMarginBottom
+            help={__(
+              'Opens the Mobile Navigation template part in the Site Editor to edit its links and panel settings.',
+              'aggressive-apparel'
+            )}
+          >
+            <Button
+              __next40pxDefaultSize
+              variant='secondary'
+              href={editPanelUrl}
+              disabled={!editPanelUrl}
+              aria-disabled={!editPanelUrl}
+            >
+              {__('Edit Mobile Navigation', 'aggressive-apparel')}
+            </Button>
+          </BaseControl>
         </PanelBody>
 
         <PanelBody
@@ -277,6 +338,28 @@ export default function Edit({
               mode={colorMode}
               value={submenuTextColor}
               onChange={v => setAttributes({ submenuTextColor: v })}
+              colors={colors}
+            />
+          </BaseControl>
+          <BaseControl
+            label={__('Link Hover Text', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
+          >
+            <AdaptiveColorPicker
+              mode={colorMode}
+              value={submenuLinkHoverColor}
+              onChange={v => setAttributes({ submenuLinkHoverColor: v })}
+              colors={colors}
+            />
+          </BaseControl>
+          <BaseControl
+            label={__('Link Hover Background', 'aggressive-apparel')}
+            __nextHasNoMarginBottom
+          >
+            <AdaptiveColorPicker
+              mode={colorMode}
+              value={submenuLinkHoverBg}
+              onChange={v => setAttributes({ submenuLinkHoverBg: v })}
               colors={colors}
             />
           </BaseControl>

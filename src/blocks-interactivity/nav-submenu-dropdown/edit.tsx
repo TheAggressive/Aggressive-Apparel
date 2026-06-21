@@ -21,6 +21,8 @@ import {
   ToolbarButton,
   ToolbarGroup,
 } from '@wordpress/components';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
@@ -43,16 +45,28 @@ export default function Edit({
   attributes,
   setAttributes,
   isSelected,
+  clientId,
   context,
 }: BlockEditProps<NavDropdownAttributes> & { context: NavDropdownContext }) {
   const { label, url, submenuId, showArrow, openOn } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Reveal the panel only when this submenu — or one of its inner blocks — is
+  // selected, so the editor isn't cluttered with every dropdown open at once.
+  const hasSelectedChild = useSelect(
+    select => select(blockEditorStore).hasSelectedInnerBlock(clientId, true),
+    [clientId]
+  );
+  const isEditorOpen = isSelected || hasSelectedChild;
+
   // Get panel styling from parent navigation context.
   const panelBackgroundColor =
     context['aggressive-apparel/submenuBackgroundColor'];
   const panelTextColor = context['aggressive-apparel/submenuTextColor'];
+  const panelLinkHoverColor =
+    context['aggressive-apparel/submenuLinkHoverColor'];
+  const panelLinkHoverBg = context['aggressive-apparel/submenuLinkHoverBg'];
   const panelBorderRadius = context['aggressive-apparel/submenuBorderRadius'];
   const panelBorderWidth = context['aggressive-apparel/submenuBorderWidth'];
   const panelBorderColor = context['aggressive-apparel/submenuBorderColor'];
@@ -66,13 +80,19 @@ export default function Edit({
   }, [submenuId]);
 
   const blockProps = useBlockProps({
-    className: 'wp-block-aggressive-apparel-nav-submenu-dropdown',
+    className: `wp-block-aggressive-apparel-nav-submenu-dropdown${
+      isEditorOpen ? ' is-editor-open' : ''
+    }`,
   });
 
   // Build panel styles from context.
   const panelStyle: Record<string, string> = {};
   if (panelBackgroundColor) panelStyle.backgroundColor = panelBackgroundColor;
   if (panelTextColor) panelStyle.color = panelTextColor;
+  if (panelLinkHoverColor)
+    panelStyle['--submenu-link-hover-color'] = panelLinkHoverColor;
+  if (panelLinkHoverBg)
+    panelStyle['--submenu-link-hover-bg'] = panelLinkHoverBg;
   if (panelBorderRadius) panelStyle.borderRadius = panelBorderRadius;
   if (panelBorderWidth) panelStyle['--panel-border-width'] = panelBorderWidth;
   if (panelBorderColor) panelStyle['--panel-border-color'] = panelBorderColor;

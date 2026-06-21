@@ -1,0 +1,128 @@
+/**
+ * Global Form Controls
+ *
+ * Token-driven baseline for every form control on the site — native inputs,
+ * WordPress core (search, comments), plugin forms, and WooCommerce (classic
+ * forms + the React checkout/cart blocks). This pulls all of them into the
+ * design system using the same tokens as the .aggressive-apparel-field
+ * primitive, so the field a customer types their checkout details into matches
+ * the brand.
+ *
+ * Native selectors use :where() to keep specificity at 0 so WooCommerce, plugins
+ * and users can override trivially. WooCommerce block selectors are written at
+ * normal specificity because their own (encapsulated) styles must be beaten.
+ *
+ * @package Aggressive_Apparel
+ */
+
+@layer aa-components {
+
+  /* ----------------------------------------------------------------------
+   * Native baseline — input / select / textarea (specificity 0 via :where)
+   * -------------------------------------------------------------------- */
+  :where(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='color'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset'],
+      [type='image'],
+      [type='hidden']
+    ),
+    select,
+    textarea
+  ) {
+    width: 100%;
+    min-height: var(--aa-input-height);
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    color: var(--aa-color-foreground);
+    font-family: inherit;
+    font-size: var(--wp--preset--font-size--small);
+    line-height: 1.4;
+    transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+  }
+
+  :where(input, select, textarea)::placeholder {
+    color: var(--aa-color-muted-40);
+  }
+
+  :where(input, select, textarea):focus {
+    outline: none;
+    border-color: var(--aa-color-foreground);
+  }
+
+  :where(input, select, textarea):focus-visible {
+    outline: 2px solid var(--aa-color-accent);
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  :where(input, select, textarea):disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  :where(textarea) {
+    min-height: calc(var(--aa-input-height) * 2);
+    resize: vertical;
+  }
+
+  /* Checkboxes, radios and range share the brand accent. */
+  :where(input[type='checkbox'], input[type='radio'], input[type='range']) {
+    accent-color: var(--aa-color-accent);
+  }
+
+  /* ----------------------------------------------------------------------
+   * WooCommerce — React checkout / cart blocks (need real specificity)
+   * -------------------------------------------------------------------- */
+  .wc-block-components-text-input input,
+  .wc-block-components-text-input textarea,
+  .wc-block-components-select .wc-block-components-select__select,
+  .wc-block-components-quantity-selector input.wc-block-components-quantity-selector__input {
+    min-height: var(--aa-input-height);
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    color: var(--aa-color-foreground);
+    font-family: inherit;
+  }
+
+  .wc-block-components-text-input input:focus,
+  .wc-block-components-text-input textarea:focus,
+  .wc-block-components-select .wc-block-components-select__select:focus {
+    outline: 2px solid var(--aa-color-accent);
+    outline-offset: 1px;
+    border-color: var(--aa-color-foreground);
+  }
+
+  /* Floating label colour to match the system. */
+  .wc-block-components-text-input label,
+  .wc-block-components-checkout-step__title {
+    color: var(--aa-color-foreground-muted);
+  }
+
+  .wc-block-components-validation-error {
+    color: var(--aa-color-error);
+  }
+
+  /* ----------------------------------------------------------------------
+   * WooCommerce — classic (non-block) forms: my-account, login, reviews
+   * -------------------------------------------------------------------- */
+  .woocommerce form .form-row input.input-text,
+  .woocommerce form .form-row textarea,
+  .woocommerce form .form-row select,
+  .woocommerce-input-wrapper input {
+    min-height: var(--aa-input-height);
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    color: var(--aa-color-foreground);
+  }
+}

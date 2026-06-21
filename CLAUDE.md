@@ -454,6 +454,54 @@ Icons::list();
 | Border | `border` | Adaptive borders/dividers |
 | Brand | `primary` | Alias to brand red |
 | Brand Red | `red` | Static brand red |
+| Success | `success` | `#15803d` (status) |
+| Warning | `warning` | `#c2410c` (status) |
+| Error | `error` | `#dc2626` (status) |
+| Info | `info` | `#1d4ed8` (status) |
+| Neutral | `neutral` | `#6b7280` (status) |
+
+Adaptive colors (`surface`, `foreground`, `accent`, etc.) are injected as
+`light-dark()` palette entries by `Core/Adaptive_Colors` from
+`settings.custom.adaptiveColors`. Status colors are plain palette swatches.
+
+### Source of Truth & Token Layer
+
+**theme.json `settings` is the single source of truth.** `src/styles/base/tokens.css`
+(`--aa-*`) is a thin **consumer/alias + derivation + `@property`** layer on top of
+the WordPress-generated `--wp--preset--*` / `--wp--custom--*` variables — not the
+source. Don't move values out of theme.json into tokens.css.
+
+Slot rule: values an editor should be able to pick live in **UI-backed preset
+slots** (`color.palette`, `shadow.presets`, `spacing.spacingSizes`,
+`typography.fontSizes`); CSS-only internals (radius, motion, z-index) stay in
+`settings.custom`. Status colors → palette; shadows → `shadow.presets`; the
+matching `--aa-*` tokens repoint at those presets.
+
+**Three editor surfaces:** front end; the editor **canvas iframe** (gets theme.json
+presets + tokens via `add_theme_support('editor-styles')` + `add_editor_style('build/styles/base/tokens.css')` in `Core/Theme_Support`); and the editor **chrome**
+(sidebar/popovers — no presets, so `var(--aa-*)` can't resolve there — use the JS
+map in `src/utils/editor-style-tokens.ts`).
+
+**Override principle:** the design system must NOT style what the block editor
+controls (buttons, element/block styling), and our CSS must stay overridable by
+the editor. Style only what the editor can't reach (raw inputs, WC-encapsulated
+fields, select2, autofill); keep it low priority (`@layer` + `:where()`); never use
+`!important` or unlayered/high-specificity to beat editor/theme.json output. WC
+overrides may be unlayered only to beat WooCommerce's own unlayered CSS, and set
+only structural props (use `color: inherit` so editor colors win).
+
+### Forms
+
+`src/styles/components/forms.css` is the single token-driven form layer: native
+`input`/`select`/`textarea` baseline (layered + `:where()`), plus unlayered
+WooCommerce (block + classic), select2, file input, autofill, and `:user-invalid`
+coverage. Buttons are intentionally NOT styled here (editor-controlled).
+
+### Style Variations (FSE)
+
+Theme style variations live in `/styles/*.json` (e.g. `styles/noir.json`). Block
+style variations are defined in theme.json `styles.blocks.*.variations` (e.g. the
+`core/group` "Card") or via `register_block_style` in `Core/Theme_Support`.
 
 ### Spacing Scale
 47 spacing presets from `0.5` (0.125rem) to `96` (24rem), including fluid variants with `clamp()` for responsive spacing.

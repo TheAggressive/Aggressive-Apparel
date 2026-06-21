@@ -40,11 +40,13 @@
     select,
     textarea
   ) {
+    box-sizing: border-box;
     width: 100%;
     min-height: var(--aa-input-height);
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.5rem; /* generous sides push text past the pill curve */
     border: 1.5px solid var(--aa-color-border-strong);
-    border-radius: var(--aa-radius-control);
+    border-left-width: 3px; /* reserved so focus is a colour change, no shift */
+    border-radius: var(--aa-radius-full);
     background: transparent;
     color: var(--aa-color-foreground);
     font-family: inherit;
@@ -57,15 +59,11 @@
     color: var(--aa-color-muted-40);
   }
 
+  /* Focus: no outline — the reserved 3px left border turns the brand accent
+   * (red), giving a left-cap accent that suits the pill shape. */
   :where(input, select, textarea):focus {
     outline: none;
-    border-color: var(--aa-color-foreground);
-  }
-
-  :where(input, select, textarea):focus-visible {
-    outline: 2px solid var(--aa-color-accent);
-    outline-offset: 1px;
-    border-color: transparent;
+    border-left-color: var(--aa-color-accent);
   }
 
   :where(input, select, textarea):disabled {
@@ -78,8 +76,11 @@
     border-color: var(--aa-color-error);
   }
 
+  /* Textarea: a soft radius instead of the full pill (a pill multi-line box
+   * looks odd); keeps the reserved left border + red focus cap. */
   :where(textarea) {
     min-height: calc(var(--aa-input-height) * 2);
+    border-radius: var(--aa-radius-lg);
     resize: vertical;
   }
 

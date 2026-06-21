@@ -1,55 +1,25 @@
 /**
  * WooCommerce Checkout & Cart — dark-mode readability
  *
- * WooCommerce's block checkout hard-codes a white field background and fixed
- * label/badge colours that ignore the colour scheme, so on a dark checkout the
- * fields are white boxes with invisible (white-on-white) floating labels. Force
- * adaptive --aa-* colours, scoped under .wc-block-checkout / .wc-block-cart for
- * enough specificity to beat WooCommerce's own (unlayered) styles. Enqueued only
- * on checkout/cart.
+ * IMPORTANT: WooCommerce keeps the checkout fields white in BOTH colour modes
+ * (a white background with dark text), and the floating <label> inherits that
+ * dark text — readable on the white field. So we deliberately do NOT recolour
+ * the field labels: forcing an adaptive (light-in-dark) colour made them vanish
+ * on the white field. We only recolour elements that actually sit on the dark
+ * page/panel and would otherwise be unreadable.
  *
  * @package Aggressive_Apparel
  */
 
-/* Fields — make the surface adaptive (transparent) instead of a fixed white box,
- * so they're dark in dark mode and the adaptive border (from forms.css) + text
- * read correctly. This is the root fix: white fields hid the floating labels. */
-.wc-block-checkout .wc-block-components-text-input,
-.wc-block-checkout .wc-block-components-text-input input,
-.wc-block-checkout .wc-block-components-text-input textarea,
-.wc-block-checkout .wc-block-components-combobox-input,
-.wc-block-checkout .wc-block-components-select .wc-block-components-select__select,
-.wc-block-cart .wc-block-components-text-input,
-.wc-block-cart .wc-block-components-text-input input {
-  background: transparent;
-  color: var(--aa-color-foreground);
-}
-
-/* Floating field labels — full adaptive contrast in both the resting
- * (placeholder) and floated states. WooCommerce's floating-label pattern moves
- * the same <label> from inside the field (empty) to above it (focused/filled). */
-.wc-block-checkout .wc-block-components-text-input label,
-.wc-block-checkout .wc-block-components-combobox label,
-.wc-block-checkout .wc-block-components-select label,
+/* Checkbox labels sit on the dark page (not inside a white field), so they need
+ * the adaptive light colour to be readable. */
 .wc-block-checkout .wc-block-components-checkbox__label,
-.wc-block-cart .wc-block-components-text-input label {
+.wc-block-cart .wc-block-components-checkbox__label {
   color: var(--aa-color-foreground);
 }
 
-/* Country/state combobox dropdown panel — adaptive so options are readable. */
-.wc-block-components-combobox-list {
-  background: var(--aa-color-surface-elevated);
-  color: var(--aa-color-foreground);
-}
-
-.wc-block-components-combobox-list-option--active,
-.wc-block-components-combobox-list-option:hover {
-  background: var(--aa-color-accent);
-  color: var(--aa-color-surface);
-}
-
-/* Order-summary line-item quantity badge — adaptive so the count is readable on
- * both light and dark surfaces (used on checkout and cart). */
+/* Order-summary line-item quantity badge — adaptive so the count reads on the
+ * dark summary panel (used on checkout and cart). */
 .wc-block-components-order-summary
   .wc-block-components-order-summary-item__quantity {
   background: var(--aa-color-surface-elevated);

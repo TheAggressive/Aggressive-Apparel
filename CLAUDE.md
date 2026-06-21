@@ -457,11 +457,11 @@ so it's clear they shift with the color scheme.
 | Foreground Muted (Adaptive) | `foreground-muted` | Adaptive secondary text |
 | Accent (Adaptive) | `accent` | Adaptive brand interactive color |
 | Border (Adaptive) | `border` | Adaptive borders/dividers |
-| Success | `success` | `#15803d` (status) |
-| Warning | `warning` | `#c2410c` (status) |
-| Error | `error` | `#dc2626` (status) |
-| Info | `info` | `#1d4ed8` (status) |
-| Neutral | `neutral` | `#6b7280` (status) |
+| Success | `success` | `oklch(52.7% 0.137 150.1)` (status) |
+| Warning | `warning` | `oklch(55.3% 0.174 38.4)` (status) |
+| Error | `error` | `oklch(57.7% 0.215 27.3)` (status) |
+| Info | `info` | `oklch(48.8% 0.217 264.4)` (status) |
+| Neutral | `neutral` | `oklch(55.1% 0.023 264.4)` (status) |
 
 Adaptive colors are injected as `light-dark()` palette entries by
 `Core/Adaptive_Colors` from `settings.custom.adaptiveColors` (edit their `light`/

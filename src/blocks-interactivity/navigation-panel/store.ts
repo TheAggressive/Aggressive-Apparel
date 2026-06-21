@@ -455,6 +455,39 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
     },
 
     /**
+     * Initialize a navigation-trigger button's responsive visibility.
+     *
+     * The trigger is self-contained: it shows/hides from its own breakpoint via
+     * matchMedia, regardless of where it is placed, so it no longer depends on a
+     * parent navigation block's .is-mobile class. Returns a cleanup that removes
+     * the media-query listener.
+     */
+    initTrigger(): (() => void) | void {
+      try {
+        const el = getElement()?.ref as HTMLElement | null;
+        if (!el) {
+          return;
+        }
+
+        // JS now controls visibility — disable the pre-hydration CSS fallback.
+        el.classList.add('is-hydrated');
+
+        const context = getContext<PanelContext>();
+        const breakpoint =
+          typeof context?.breakpoint === 'number' ? context.breakpoint : 1024;
+        const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+        const apply = (): void => {
+          el.classList.toggle('is-visible', mql.matches);
+        };
+        apply();
+        mql.addEventListener('change', apply);
+        return () => mql.removeEventListener('change', apply);
+      } catch (error) {
+        logError('initTrigger: Failed to initialize trigger', error);
+      }
+    },
+
+    /**
      * Handle the Escape key.
      */
     onEscape(event: KeyboardEvent): void {

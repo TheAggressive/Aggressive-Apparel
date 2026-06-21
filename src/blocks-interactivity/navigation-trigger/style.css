@@ -25,16 +25,18 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Shown on mobile: JS sets .is-mobile on the navigation block parent. */
-.wp-block-aggressive-apparel-navigation.is-mobile .aa-nav-trigger {
+/* Shown when JS (callbacks.initTrigger) decides the viewport is below the
+   trigger's own breakpoint. Self-contained: works whether the trigger sits
+   inside the navigation block or anywhere else on the page. */
+.aa-nav-trigger.is-visible {
   display: flex;
 }
 
-/* Pre-hydration fallback: show the trigger below the default breakpoint, based
-   on the viewport. After hydration JS controls visibility via .is-mobile. */
+/* Pre-hydration fallback: show the trigger below the default breakpoint until
+   JS runs. initTrigger adds .is-hydrated, after which JS is authoritative. */
 @media (width <= 1023px) {
 
-  .wp-block-aggressive-apparel-navigation:not(.is-hydrated) .aa-nav-trigger {
+  .aa-nav-trigger:not(.is-hydrated) {
     display: flex;
   }
 }

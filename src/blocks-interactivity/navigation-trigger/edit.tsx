@@ -14,6 +14,8 @@ import {
   SelectControl,
   TextControl,
   ToggleControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API for numeric input
+  __experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import type {
@@ -26,7 +28,8 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<NavigationTriggerAttributes>) {
-  const { iconStyle, animationType, label, showLabel, panelSlug } = attributes;
+  const { iconStyle, animationType, label, showLabel, panelSlug, breakpoint } =
+    attributes;
 
   const blockProps = useBlockProps({
     className: [
@@ -115,6 +118,28 @@ export default function Edit({
               onChange={value => setAttributes({ label: value })}
             />
           )}
+        </PanelBody>
+        <PanelBody
+          title={__('Visibility', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <NumberControl
+            label={__('Show below width (px)', 'aggressive-apparel')}
+            help={__(
+              'Viewport width below which the trigger appears. Used when the trigger is placed outside a Navigation block; inside one it follows the navigation’s breakpoint.',
+              'aggressive-apparel'
+            )}
+            value={breakpoint}
+            onChange={value =>
+              setAttributes({
+                breakpoint: value ? parseInt(value, 10) || 1024 : 1024,
+              })
+            }
+            min={320}
+            max={1920}
+            step={1}
+            spinControls='custom'
+          />
         </PanelBody>
         <PanelBody
           title={__('Panel Connection', 'aggressive-apparel')}

@@ -11,6 +11,17 @@
  * @package Aggressive_Apparel
  */
 
+/* Floating field labels: dark at rest (inherited from WC, readable on the white
+ * field), then the brand accent (red) once the field is focused or filled — WC
+ * adds .is-active and floats the label up in exactly those cases. */
+.wc-block-checkout .wc-block-components-text-input.is-active label,
+.wc-block-checkout .wc-block-components-text-input:focus-within label,
+.wc-block-checkout .wc-block-components-combobox.is-active label,
+.wc-block-cart .wc-block-components-text-input.is-active label,
+.wc-block-cart .wc-block-components-text-input:focus-within label {
+  color: var(--aa-color-accent);
+}
+
 /* Checkbox labels sit on the dark page (not inside a white field), so they need
  * the adaptive light colour to be readable. */
 .wc-block-checkout .wc-block-components-checkbox__label,

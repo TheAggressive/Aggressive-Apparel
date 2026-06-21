@@ -134,10 +134,10 @@
 
 	/* Elevation — sourced from the theme.json shadow presets (also pickable in
 	   the editor's shadow control). */
-	--aa-shadow-sm: var(--wp--preset--shadow--small);
-	--aa-shadow-md: var(--wp--preset--shadow--medium);
-	--aa-shadow-lg: var(--wp--preset--shadow--large);
-	--aa-shadow-panel: var(--wp--preset--shadow--x-large);
+	--aa-shadow-sm: var(--wp--preset--shadow--small, 0 2px 8px var(--aa-color-shadow));
+	--aa-shadow-md: var(--wp--preset--shadow--medium, 0 10px 25px -5px var(--aa-color-shadow));
+	--aa-shadow-lg: var(--wp--preset--shadow--large, 0 12px 40px var(--aa-color-shadow-strong));
+	--aa-shadow-panel: var(--wp--preset--shadow--x-large, 0 25px 50px -12px var(--aa-color-shadow-strong));
 
 	/* Typography roles. */
 	--aa-type-eyebrow-size: var(--wp--custom--type-role--eyebrow--font-size, var(--wp--preset--font-size--x-small));
@@ -181,11 +181,11 @@
 	--aa-color-skeleton-image: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
 
 	/* Static status colors (stock, alerts — not adaptive). */
-	--aa-color-success: var(--wp--preset--color--success);
-	--aa-color-warning: var(--wp--preset--color--warning);
-	--aa-color-error: var(--wp--preset--color--error);
-	--aa-color-info: var(--wp--preset--color--info);
-	--aa-color-neutral-muted: var(--wp--preset--color--neutral);
+	--aa-color-success: var(--wp--preset--color--success, #15803d);
+	--aa-color-warning: var(--wp--preset--color--warning, #c2410c);
+	--aa-color-error: var(--wp--preset--color--error, #dc2626);
+	--aa-color-info: var(--wp--preset--color--info, #1d4ed8);
+	--aa-color-neutral-muted: var(--wp--preset--color--neutral, #6b7280);
 	--aa-color-success-bg: color-mix(in oklch, var(--aa-color-success) 12%, transparent);
 	--aa-color-success-border: color-mix(in oklch, var(--aa-color-success) 30%, transparent);
 	--aa-color-warning-bg: color-mix(in oklch, var(--aa-color-warning) 12%, transparent);

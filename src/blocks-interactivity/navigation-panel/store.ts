@@ -34,6 +34,7 @@ import {
   setBodyOverflow,
   updateDrilldownInertState,
   updateMegaContentInertState,
+  watchMaxWidth,
 } from './utils';
 import { getMenuItems, getSubmenuItems } from './menu-items';
 import { closePanelWithCleanup, findPanel, openPanelWithSetup } from './panel';
@@ -475,13 +476,10 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         const context = getContext<PanelContext>();
         const breakpoint =
           typeof context?.breakpoint === 'number' ? context.breakpoint : 1024;
-        const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-        const apply = (): void => {
-          el.classList.toggle('is-visible', mql.matches);
-        };
-        apply();
-        mql.addEventListener('change', apply);
-        return () => mql.removeEventListener('change', apply);
+        // Shared breakpoint watcher (same convention as the navigation store).
+        return watchMaxWidth(breakpoint, matches => {
+          el.classList.toggle('is-visible', matches);
+        });
       } catch (error) {
         logError('initTrigger: Failed to initialize trigger', error);
       }

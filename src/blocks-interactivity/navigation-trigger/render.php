@@ -119,6 +119,16 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	)
 );
 
+// Pre-hydration visibility: show the trigger below its configured breakpoint
+// until callbacks.initTrigger adds .is-hydrated and JS takes over. Scoped to this
+// trigger's id so it honours a custom breakpoint — a static CSS media query in
+// style.css can't read the per-instance breakpoint attribute.
+printf(
+	'<style>@media (max-width:%1$dpx){#%2$s:not(.is-hydrated){display:flex}}</style>',
+	(int) ( $breakpoint - 1 ),
+	esc_attr( $trigger_id ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr applied; breakpoint is an int.
+);
+
 printf(
 	'<button %s>%s%s</button>',
 	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.

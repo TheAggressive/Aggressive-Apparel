@@ -131,9 +131,7 @@ export default function Edit({
             )}
             value={breakpoint}
             onChange={value =>
-              setAttributes({
-                breakpoint: value ? parseInt(value, 10) || 1024 : 1024,
-              })
+              setAttributes({ breakpoint: parseInt(value ?? '', 10) || 1024 })
             }
             min={320}
             max={1920}

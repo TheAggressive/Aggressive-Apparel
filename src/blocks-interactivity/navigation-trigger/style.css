@@ -32,14 +32,10 @@
   display: flex;
 }
 
-/* Pre-hydration fallback: show the trigger below the default breakpoint until
-   JS runs. initTrigger adds .is-hydrated, after which JS is authoritative. */
-@media (width <= 1023px) {
-
-  .aa-nav-trigger:not(.is-hydrated) {
-    display: flex;
-  }
-}
+/* Pre-hydration fallback: render.php emits a per-instance scoped media query
+   (#<trigger-id>:not(.is-hydrated)) using the configured breakpoint, so the
+   trigger shows at the right width before JS runs. initTrigger then adds
+   .is-hydrated and JS becomes authoritative. */
 
 .aa-nav-trigger__icon {
   display: flex;

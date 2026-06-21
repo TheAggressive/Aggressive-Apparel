@@ -11,16 +11,24 @@
  * @package Aggressive_Apparel
  */
 
-/* Floating field labels on WooCommerce's (always-white) fields: one consistent
- * light grey, fixed (built from --aa-color-black) so it stays readable on the
- * white field in BOTH colour modes — an adaptive colour would flip light in dark
- * mode and vanish. Covers text inputs AND the select-based fields (State,
- * Country, etc.), whose label WC colours white-on-white (invisible) — note the
- * select uses the `wc-blocks-` (plural) prefix + a __label class. */
+/* SINGLE CONTROL POINT for the checkout field-label look. Both the text-input
+ * labels and the select (State/Country) labels read from these variables, so the
+ * styling lives in one place — adjust here and every field follows. Greys are
+ * fixed (built from --aa-color-black) so they stay readable on WooCommerce's
+ * always-white field in BOTH colour modes (an adaptive colour would flip light in
+ * dark mode and vanish). */
+.wc-block-checkout,
+.wc-block-cart {
+  --aa-field-label-color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
+  --aa-field-label-weight-active: 600;
+}
+
+/* Every field label (text inputs + the wc-blocks- select __label, which WC
+ * otherwise colours white-on-white) reads the shared variable. */
 .wc-block-checkout .wc-block-components-text-input label,
 .wc-block-cart .wc-block-components-text-input label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
-  color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
+  color: var(--aa-field-label-color);
 }
 
 /* Focused or filled (label floated up): same grey, thicker weight. */
@@ -29,7 +37,7 @@
 .wc-block-cart .wc-block-components-text-input.is-active label,
 .wc-block-cart .wc-block-components-text-input:focus-within label,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__label {
-  font-weight: 600;
+  font-weight: var(--aa-field-label-weight-active);
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need

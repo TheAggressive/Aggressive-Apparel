@@ -1,0 +1,34 @@
+/**
+ * WooCommerce Checkout & Cart — readability fixes
+ *
+ * The block checkout/cart put field labels INSIDE the input (floating) and use
+ * small badges that WooCommerce colours with fixed values, so they become
+ * unreadable in dark mode. Force adaptive --aa-* colours, scoped tightly enough
+ * to beat WooCommerce's own (unlayered) styles. Enqueued only on checkout/cart.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Floating field labels — sit inside the field; legible in light AND dark. */
+.wc-block-checkout .wc-block-components-text-input label,
+.wc-block-checkout .wc-block-components-combobox label,
+.wc-block-checkout .wc-block-components-select label,
+.wc-block-checkout .wc-block-components-checkbox__label,
+.wc-block-cart .wc-block-components-text-input label {
+  color: var(--aa-color-foreground-muted);
+}
+
+/* When the field is focused/filled the label floats up — give it full contrast. */
+.wc-block-checkout .wc-block-components-text-input.is-active label,
+.wc-block-cart .wc-block-components-text-input.is-active label {
+  color: var(--aa-color-foreground);
+}
+
+/* Order-summary line-item quantity badge — adaptive so the count is readable on
+ * both light and dark surfaces (used on checkout and cart). */
+.wc-block-components-order-summary
+  .wc-block-components-order-summary-item__quantity {
+  background: var(--aa-color-surface-elevated);
+  border: 1px solid var(--aa-color-border);
+  color: var(--aa-color-foreground);
+}

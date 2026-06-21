@@ -58,6 +58,15 @@ class Styles {
 
 		if ( function_exists( 'WC' ) ) {
 			Asset_Loader::enqueue_style( 'aggressive-apparel-mini-cart', 'build/styles/woocommerce/mini-cart' );
+
+			// Checkout/cart readability fixes (floating labels, order-summary
+			// badges) for the block checkout & cart.
+			if (
+				( function_exists( 'is_checkout' ) && is_checkout() ) ||
+				( function_exists( 'is_cart' ) && is_cart() )
+			) {
+				Asset_Loader::enqueue_style( 'aggressive-apparel-checkout', 'build/styles/woocommerce/checkout' );
+			}
 		}
 
 		if ( is_singular( 'product' ) ) {

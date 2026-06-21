@@ -9,18 +9,15 @@
  * @package Aggressive_Apparel
  */
 
-/* Floating field labels — sit inside the field; legible in light AND dark. */
+/* Floating field labels — full adaptive contrast in both the resting
+ * (placeholder) and floated states, so they're clearly readable in light AND
+ * dark mode. WooCommerce's floating-label pattern moves the same <label> from
+ * inside the field (empty) to above it (focused/filled); both states use this. */
 .wc-block-checkout .wc-block-components-text-input label,
 .wc-block-checkout .wc-block-components-combobox label,
 .wc-block-checkout .wc-block-components-select label,
 .wc-block-checkout .wc-block-components-checkbox__label,
 .wc-block-cart .wc-block-components-text-input label {
-  color: var(--aa-color-foreground-muted);
-}
-
-/* When the field is focused/filled the label floats up — give it full contrast. */
-.wc-block-checkout .wc-block-components-text-input.is-active label,
-.wc-block-cart .wc-block-components-text-input.is-active label {
   color: var(--aa-color-foreground);
 }
 

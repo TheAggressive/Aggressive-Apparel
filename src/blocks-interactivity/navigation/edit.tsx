@@ -36,7 +36,10 @@ import {
   useEditorColorScheme,
   ColorModeToggle,
 } from '../../utils/editor-color-scheme';
-import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
+import {
+  EDITOR_HELP_TEXT_STYLE,
+  EDITOR_META_TEXT_STYLE,
+} from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
 import type { BorderStyle, NavigationAttributes } from './types';
 
@@ -99,32 +102,59 @@ function composeLightDark(light?: string, dark?: string): string | undefined {
 }
 
 /**
- * Adaptive color picker that reads/writes a specific mode from a combined
- * light-dark() CSS value.
+ * Adaptive color picker.
+ *
+ * Two ways to pick:
+ *  1. "Theme colors" — the palette's adaptive (light-dark) colors as one-click
+ *     swatches. Picking one applies its full light/dark pairing at once, so you
+ *     usually never touch the manual controls. This is the common case and the
+ *     reason the adaptive theme colors are now visible here.
+ *  2. Manual — pick a flat color for the current light/dark mode (advanced:
+ *     two arbitrary non-theme colors).
  */
 function AdaptiveColorPicker({
   mode,
   value,
   onChange,
   colors,
+  adaptiveColors,
 }: {
   mode: 'light' | 'dark';
   value: string | undefined;
   onChange: (value: string | undefined) => void;
   colors: Array<{ name: string; slug: string; color: string }> | undefined;
+  adaptiveColors:
+    | Array<{ name: string; slug: string; color: string }>
+    | undefined;
 }) {
   const parsed = parseLightDark(value);
   return (
-    <ColorPalette
-      colors={colors}
-      value={mode === 'light' ? parsed.light : parsed.dark}
-      onChange={color => {
-        const newLight = mode === 'light' ? color : parsed.light;
-        const newDark = mode === 'dark' ? color : parsed.dark;
-        onChange(composeLightDark(newLight, newDark));
-      }}
-      clearable
-    />
+    <>
+      {adaptiveColors && adaptiveColors.length > 0 && (
+        <div style={{ marginBottom: '8px' }}>
+          <span style={EDITOR_META_TEXT_STYLE}>
+            {__('Theme colors (adapt automatically)', 'aggressive-apparel')}
+          </span>
+          <ColorPalette
+            colors={adaptiveColors}
+            value={value}
+            onChange={color => onChange(color)}
+            disableCustomColors
+            clearable={false}
+          />
+        </div>
+      )}
+      <ColorPalette
+        colors={colors}
+        value={mode === 'light' ? parsed.light : parsed.dark}
+        onChange={color => {
+          const newLight = mode === 'light' ? color : parsed.light;
+          const newDark = mode === 'dark' ? color : parsed.dark;
+          onChange(composeLightDark(newLight, newDark));
+        }}
+        clearable
+      />
+    </>
   );
 }
 
@@ -153,8 +183,14 @@ export default function Edit({
   const [allColors] = useSettings('color.palette') as [
     Array<{ name: string; slug: string; color: string }> | undefined,
   ];
+  // Flat colors (for manual per-mode picks) vs adaptive theme colors (shown as
+  // one-click swatches that carry their own light/dark pairing).
   const colors = useMemo(
     () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
+    [allColors]
+  );
+  const adaptiveColors = useMemo(
+    () => allColors?.filter(c => c.color.startsWith('light-dark(')),
     [allColors]
   );
 
@@ -328,6 +364,7 @@ export default function Edit({
               value={submenuBackgroundColor}
               onChange={v => setAttributes({ submenuBackgroundColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
@@ -339,6 +376,7 @@ export default function Edit({
               value={submenuTextColor}
               onChange={v => setAttributes({ submenuTextColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
@@ -350,6 +388,7 @@ export default function Edit({
               value={submenuLinkHoverColor}
               onChange={v => setAttributes({ submenuLinkHoverColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
@@ -361,6 +400,7 @@ export default function Edit({
               value={submenuLinkHoverBg}
               onChange={v => setAttributes({ submenuLinkHoverBg: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>
@@ -417,6 +457,7 @@ export default function Edit({
               value={submenuBorderColor}
               onChange={v => setAttributes({ submenuBorderColor: v })}
               colors={colors}
+              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>

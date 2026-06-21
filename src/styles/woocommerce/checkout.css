@@ -35,12 +35,14 @@
   font-weight: var(--aa-field-label-weight);
 }
 
-/* Focused or filled (label floated up): same grey, thicker weight. */
+/* Active weight (label floated up): text inputs once focused or filled (WC adds
+ * .is-active), AND all selects — a select always has a value, so its label is
+ * always floated, including on page load. */
 .wc-block-checkout .wc-block-components-text-input.is-active label,
 .wc-block-checkout .wc-block-components-text-input:focus-within label,
 .wc-block-cart .wc-block-components-text-input.is-active label,
 .wc-block-cart .wc-block-components-text-input:focus-within label,
-.wc-blocks-components-select:focus-within .wc-blocks-components-select__label {
+.wc-blocks-components-select .wc-blocks-components-select__label {
   font-weight: var(--aa-field-label-weight-active);
 }
 

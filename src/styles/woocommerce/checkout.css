@@ -61,3 +61,46 @@
   border: 1px solid var(--aa-color-border);
   color: var(--aa-color-foreground);
 }
+
+/* ---- Pill field shape (matches the native form baseline) ------------------
+ * The block editor can't control form styling and WooCommerce's field CSS is
+ * very specific (it floats labels via dynamic vertical padding), so !important
+ * forces the pill shape reliably. Only the radius, horizontal padding and left
+ * border are overridden — WC keeps the vertical padding that positions the
+ * floating label. Quantity inputs are NOT matched (they use the
+ * quantity-selector component, not a text-input) and stay untouched. */
+
+/* Text inputs + the select box: full pill. */
+.wc-block-checkout .wc-block-components-text-input input,
+.wc-block-cart .wc-block-components-text-input input,
+.wc-blocks-components-select .wc-blocks-components-select__container,
+.wc-blocks-components-select .wc-blocks-components-select__select {
+  border-radius: var(--aa-radius-full) !important;
+  padding-left: 1.5rem !important;
+}
+
+/* Reserved 3px left border (so focus is a colour change, no shift). */
+.wc-block-checkout .wc-block-components-text-input input,
+.wc-block-cart .wc-block-components-text-input input,
+.wc-blocks-components-select .wc-blocks-components-select__select {
+  border-left-width: 3px !important;
+}
+
+/* Right padding on text inputs (selects keep room for their chevron). */
+.wc-block-checkout .wc-block-components-text-input input,
+.wc-block-cart .wc-block-components-text-input input {
+  padding-right: 1.5rem !important;
+}
+
+/* Red left-cap on focus, replacing WC's focus border. */
+.wc-block-checkout .wc-block-components-text-input input:focus,
+.wc-block-cart .wc-block-components-text-input input:focus,
+.wc-blocks-components-select .wc-blocks-components-select__select:focus {
+  border-left-color: var(--aa-color-accent) !important;
+}
+
+/* Order-notes textarea: soft radius, not a full pill. */
+.wc-block-checkout textarea,
+.wc-block-cart textarea {
+  border-radius: var(--aa-radius-lg) !important;
+}

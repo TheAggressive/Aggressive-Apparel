@@ -20,15 +20,19 @@
 .wc-block-checkout,
 .wc-block-cart {
   --aa-field-label-color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
+  --aa-field-label-weight: 400;
   --aa-field-label-weight-active: 600;
 }
 
 /* Every field label (text inputs + the wc-blocks- select __label, which WC
- * otherwise colours white-on-white) reads the shared variable. */
+ * otherwise colours white-on-white) reads the shared variables. WC sets both to
+ * font-weight:inherit, so they pick up different weights from their different
+ * wrappers — pin an explicit resting weight here so they match. */
 .wc-block-checkout .wc-block-components-text-input label,
 .wc-block-cart .wc-block-components-text-input label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
   color: var(--aa-field-label-color);
+  font-weight: var(--aa-field-label-weight);
 }
 
 /* Focused or filled (label floated up): same grey, thicker weight. */

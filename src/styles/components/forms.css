@@ -130,7 +130,7 @@
   border: 1.5px solid var(--aa-color-border-strong);
   border-radius: var(--aa-radius-control);
   background: transparent;
-  color: var(--aa-color-foreground);
+  color: inherit;
   font-family: inherit;
 }
 
@@ -160,7 +160,7 @@
   border: 1.5px solid var(--aa-color-border-strong);
   border-radius: var(--aa-radius-control);
   background: transparent;
-  color: var(--aa-color-foreground);
+  color: inherit;
 }
 
 /* WooCommerce classic country/state dropdowns render as select2, not a native
@@ -191,51 +191,4 @@
   .select2-results__option--highlighted[aria-selected] {
   background: var(--aa-color-accent);
   color: var(--aa-color-surface);
-}
-
-/* Form submit buttons + WooCommerce buttons — brand button look (mirrors the
- * .aggressive-apparel-button--primary). Scoped to form/WC buttons so it never
- * touches icon buttons, the nav trigger, swatches, etc. */
-input[type='submit'],
-input[type='reset'],
-.woocommerce a.button,
-.woocommerce button.button,
-.woocommerce input.button,
-.wc-block-components-button:not(.is-link) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--aa-button-height-md);
-  padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8);
-  border: none;
-  border-radius: var(--aa-radius-button);
-  background-color: var(--aa-color-foreground);
-  color: var(--aa-color-surface);
-  font-family: inherit;
-  font-size: var(--wp--preset--font-size--small);
-  font-weight: 600;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition:
-    opacity var(--aa-duration-fast) var(--aa-ease-default),
-    background-color var(--aa-duration-fast) var(--aa-ease-default);
-}
-
-input[type='submit']:hover:not(:disabled),
-input[type='reset']:hover:not(:disabled),
-.woocommerce a.button:hover,
-.woocommerce button.button:hover:not(:disabled),
-.woocommerce input.button:hover:not(:disabled),
-.wc-block-components-button:not(.is-link):hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-input[type='submit']:focus-visible,
-input[type='reset']:focus-visible,
-.woocommerce .button:focus-visible,
-.wc-block-components-button:not(.is-link):focus-visible {
-  outline: 2px solid var(--aa-color-foreground);
-  outline-offset: 2px;
 }

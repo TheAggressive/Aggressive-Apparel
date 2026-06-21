@@ -440,29 +440,32 @@ Icons::list();
 - **Wide Width:** 1400px
 
 ### Color Palette
-| Name | Slug | Value |
+
+The editor swatch **name matches the slug** (so `var(--aa-color-foreground)` ↔
+"Foreground"), and adaptive (light/dark) colors carry an **"(Adaptive)"** suffix
+so it's clear they shift with the color scheme.
+
+| Editor name | Slug (= CSS) | Value |
 |------|------|-------|
-| Primary | `primary` | Red (brand color) |
-| Red | `red` | `oklch(57.7% 0.245 27.325)` |
+| Primary | `primary` | Brand red (`var(--wp--preset--color--red)`); token `--aa-color-brand` |
+| Red | `red` | `oklch(57.7% 0.245 27.325)`; token `--aa-color-brand-red` |
 | White | `white` | `#ffffff` |
 | Black | `black` | `#000000` |
-| Background | `surface` | Adaptive page/section background |
-| Background Elevated | `surface-elevated` | Higher-contrast surface |
-| Text | `foreground` | Adaptive primary text |
-| Text Muted | `foreground-muted` | Adaptive secondary text |
-| Accent | `accent` | Adaptive brand interactive color |
-| Border | `border` | Adaptive borders/dividers |
-| Brand | `primary` | Alias to brand red |
-| Brand Red | `red` | Static brand red |
+| Surface (Adaptive) | `surface` | Adaptive page/section background |
+| Surface Elevated (Adaptive) | `surface-elevated` | Adaptive higher-contrast surface |
+| Foreground (Adaptive) | `foreground` | Adaptive primary text |
+| Foreground Muted (Adaptive) | `foreground-muted` | Adaptive secondary text |
+| Accent (Adaptive) | `accent` | Adaptive brand interactive color |
+| Border (Adaptive) | `border` | Adaptive borders/dividers |
 | Success | `success` | `#15803d` (status) |
 | Warning | `warning` | `#c2410c` (status) |
 | Error | `error` | `#dc2626` (status) |
 | Info | `info` | `#1d4ed8` (status) |
 | Neutral | `neutral` | `#6b7280` (status) |
 
-Adaptive colors (`surface`, `foreground`, `accent`, etc.) are injected as
-`light-dark()` palette entries by `Core/Adaptive_Colors` from
-`settings.custom.adaptiveColors`. Status colors are plain palette swatches.
+Adaptive colors are injected as `light-dark()` palette entries by
+`Core/Adaptive_Colors` from `settings.custom.adaptiveColors` (edit their `light`/
+`dark` values there). Status colors are plain palette swatches.
 
 ### Source of Truth & Token Layer
 

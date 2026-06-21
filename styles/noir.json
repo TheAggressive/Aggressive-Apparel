@@ -18,37 +18,37 @@
       "adaptiveColors": [
         {
           "slug": "surface",
-          "name": "Background",
+          "name": "Surface (Adaptive)",
           "light": "oklch(98% 0 0)",
           "dark": "oklch(12% 0 0)"
         },
         {
           "slug": "surface-elevated",
-          "name": "Background Elevated",
+          "name": "Surface Elevated (Adaptive)",
           "light": "oklch(100% 0 0)",
           "dark": "oklch(16% 0 0)"
         },
         {
           "slug": "foreground",
-          "name": "Text",
+          "name": "Foreground (Adaptive)",
           "light": "oklch(10% 0 0)",
           "dark": "oklch(98% 0 0)"
         },
         {
           "slug": "foreground-muted",
-          "name": "Text Muted",
+          "name": "Foreground Muted (Adaptive)",
           "light": "oklch(45% 0 0)",
           "dark": "oklch(68% 0 0)"
         },
         {
           "slug": "accent",
-          "name": "Accent",
+          "name": "Accent (Adaptive)",
           "light": "oklch(10% 0 0)",
           "dark": "oklch(98% 0 0)"
         },
         {
           "slug": "border",
-          "name": "Border",
+          "name": "Border (Adaptive)",
           "light": "oklch(80% 0 0)",
           "dark": "oklch(35% 0 0)"
         }

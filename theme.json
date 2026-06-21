@@ -313,37 +313,37 @@
       "adaptiveColors": [
         {
           "slug": "surface",
-          "name": "Background",
+          "name": "Surface (Adaptive)",
           "light": "oklch(87% 0 0)",
           "dark": "oklch(20.5% 0 0)"
         },
         {
           "slug": "surface-elevated",
-          "name": "Background Elevated",
+          "name": "Surface Elevated (Adaptive)",
           "light": "oklch(87% 0 0)",
           "dark": "oklch(0 0 0)"
         },
         {
           "slug": "foreground",
-          "name": "Text",
+          "name": "Foreground (Adaptive)",
           "light": "oklch(0 0 0)",
           "dark": "oklch(1 0 0)"
         },
         {
           "slug": "foreground-muted",
-          "name": "Text Muted",
+          "name": "Foreground Muted (Adaptive)",
           "light": "oklch(55.6% 0 0)",
           "dark": "oklch(87% 0 0)"
         },
         {
           "slug": "accent",
-          "name": "Accent",
+          "name": "Accent (Adaptive)",
           "light": "oklch(44.4% 0.177 26.899)",
           "dark": "oklch(57.7% 0.245 27.325)"
         },
         {
           "slug": "border",
-          "name": "Border",
+          "name": "Border (Adaptive)",
           "light": "oklch(70.8% 0 0)",
           "dark": "oklch(43.9% 0 0)"
         }
@@ -447,7 +447,7 @@
       "defaultDuotone": false,
       "palette": [
         {
-          "name": "Brand",
+          "name": "Primary",
           "slug": "primary",
           "color": "var(--wp--preset--color--red)"
         },
@@ -462,7 +462,7 @@
           "color": "oklab(0 0 0)"
         },
         {
-          "name": "Brand Red",
+          "name": "Red",
           "slug": "red",
           "color": "oklch(57.7% 0.245 27.325)"
         },

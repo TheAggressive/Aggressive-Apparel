@@ -11,27 +11,14 @@
  * @package Aggressive_Apparel
  */
 
-/* Floating field labels on WooCommerce's (always-white) fields. Fixed greys
- * (built from --aa-color-black) so they stay readable on the white field in BOTH
- * colour modes — an adaptive colour would flip light in dark mode and vanish.
- * Quiet medium grey at rest; when the field is focused or filled the label gets
- * darker AND bolder so it reads as a confirmed caption (no error-looking red). */
-
-/* Resting (empty): medium grey. */
+/* Floating field labels on WooCommerce's (always-white) fields: one consistent
+ * light grey in every state (resting and floated). Fixed (built from
+ * --aa-color-black) so it stays readable on the white field in BOTH colour modes
+ * — an adaptive colour would flip light in dark mode and vanish. */
 .wc-block-checkout .wc-block-components-text-input label,
 .wc-block-checkout .wc-block-components-combobox label,
 .wc-block-cart .wc-block-components-text-input label {
-  color: color-mix(in oklch, var(--aa-color-black) 55%, transparent);
-}
-
-/* Focused or filled (label floated up): darker + bolder. */
-.wc-block-checkout .wc-block-components-text-input.is-active label,
-.wc-block-checkout .wc-block-components-text-input:focus-within label,
-.wc-block-checkout .wc-block-components-combobox.is-active label,
-.wc-block-cart .wc-block-components-text-input.is-active label,
-.wc-block-cart .wc-block-components-text-input:focus-within label {
-  color: color-mix(in oklch, var(--aa-color-black) 90%, transparent);
-  font-weight: 600;
+  color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need

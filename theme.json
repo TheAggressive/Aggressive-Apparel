@@ -946,6 +946,27 @@
       "core/group": {
         "spacing": {
           "blockGap": "var:preset|spacing|12"
+        },
+        "variations": {
+          "card": {
+            "color": {
+              "background": "var:preset|color|surface-elevated"
+            },
+            "border": {
+              "color": "var:preset|color|border",
+              "width": "1px",
+              "radius": "var:custom|radius|card"
+            },
+            "spacing": {
+              "padding": {
+                "top": "var:preset|spacing|6",
+                "right": "var:preset|spacing|6",
+                "bottom": "var:preset|spacing|6",
+                "left": "var:preset|spacing|6"
+              }
+            },
+            "shadow": "var:preset|shadow|small"
+          }
         }
       },
       "core/columns": {

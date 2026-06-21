@@ -8,7 +8,7 @@
  *
  * Layering matters: the NATIVE baseline lives in @layer aa-components so it sits
  * at low priority (and uses :where() for 0 specificity) — anything overrides it
- * trivially. The WooCommerce / select2 / button overrides are intentionally
+ * trivially. The WooCommerce / select2 overrides are intentionally
  * UNLAYERED, because WooCommerce ships its CSS unlayered and unlayered styles
  * beat any @layer regardless of specificity; only unlayered rules can reliably
  * win against WC's defaults.
@@ -19,7 +19,9 @@
 @layer aa-components {
 
   /* ----------------------------------------------------------------------
-   * Native baseline — input / select / textarea (0 specificity via :where)
+   * Native baseline — input / select / textarea (0 specificity via :where).
+   * `number` and `file` are excluded so quantity steppers and upload controls
+   * keep their existing (single-product / theme) styling untouched.
    * -------------------------------------------------------------------- */
   :where(
     input:not(
@@ -27,6 +29,8 @@
       [type='radio'],
       [type='range'],
       [type='color'],
+      [type='number'],
+      [type='file'],
       [type='submit'],
       [type='button'],
       [type='reset'],
@@ -105,14 +109,21 @@
 
   /* Browser autofill — repaint the field so it keeps the system colours
    * instead of the UA's yellow/white background (which breaks dark mode). The
-   * inset box-shadow is the only reliable way to override the autofill bg. */
-  :where(input, select, textarea):autofill,
+   * inset box-shadow is the only reliable way to override the autofill bg.
+   * The two pseudo-classes are kept in SEPARATE rules on purpose: a rule-level
+   * comma list is not forgiving, so combining them would drop the whole rule in
+   * browsers that support only :-webkit-autofill (e.g. Safari < 15). */
   :where(input, select, textarea):-webkit-autofill {
     -webkit-text-fill-color: var(--aa-color-foreground);
     box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
     caret-color: var(--aa-color-foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
 
-    /* Delay the UA background swap effectively forever. */
+  :where(input, select, textarea):autofill {
+    -webkit-text-fill-color: var(--aa-color-foreground);
+    box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
+    caret-color: var(--aa-color-foreground);
     transition: background-color 9999s ease-in-out 0s;
   }
 }
@@ -121,11 +132,11 @@
  * UNLAYERED overrides — must beat WooCommerce's (unlayered) stylesheet.
  * ====================================================================== */
 
-/* WooCommerce — React checkout / cart blocks. */
+/* WooCommerce — React checkout / cart blocks. Quantity steppers are
+ * intentionally left alone (handled by the product/cart styling). */
 .wc-block-components-text-input input,
 .wc-block-components-text-input textarea,
-.wc-block-components-select .wc-block-components-select__select,
-.wc-block-components-quantity-selector input.wc-block-components-quantity-selector__input {
+.wc-block-components-select .wc-block-components-select__select {
   min-height: var(--aa-input-height);
   border: 1.5px solid var(--aa-color-border-strong);
   border-radius: var(--aa-radius-control);

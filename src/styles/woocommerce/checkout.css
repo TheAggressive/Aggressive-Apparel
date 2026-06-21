@@ -15,25 +15,20 @@
  * light grey, fixed (built from --aa-color-black) so it stays readable on the
  * white field in BOTH colour modes — an adaptive colour would flip light in dark
  * mode and vanish. Covers text inputs AND the select-based fields (State,
- * Country, etc.), which use a different wrapper. */
+ * Country, etc.), whose label WC colours white-on-white (invisible) — note the
+ * select uses the `wc-blocks-` (plural) prefix + a __label class. */
 .wc-block-checkout .wc-block-components-text-input label,
-.wc-block-checkout .wc-block-components-select label,
-.wc-block-checkout .wc-block-components-combobox label,
 .wc-block-cart .wc-block-components-text-input label,
-.wc-block-cart .wc-block-components-select label {
+.wc-blocks-components-select .wc-blocks-components-select__label {
   color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
 }
 
 /* Focused or filled (label floated up): same grey, thicker weight. */
 .wc-block-checkout .wc-block-components-text-input.is-active label,
 .wc-block-checkout .wc-block-components-text-input:focus-within label,
-.wc-block-checkout .wc-block-components-select.is-active label,
-.wc-block-checkout .wc-block-components-select:focus-within label,
-.wc-block-checkout .wc-block-components-combobox.is-active label,
 .wc-block-cart .wc-block-components-text-input.is-active label,
 .wc-block-cart .wc-block-components-text-input:focus-within label,
-.wc-block-cart .wc-block-components-select.is-active label,
-.wc-block-cart .wc-block-components-select:focus-within label {
+.wc-blocks-components-select:focus-within .wc-blocks-components-select__label {
   font-weight: 600;
 }
 

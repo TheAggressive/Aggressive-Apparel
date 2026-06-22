@@ -56,8 +56,22 @@ class Styles {
 	public function enqueue_styles() {
 		$this->enqueue_core_styles();
 
+		// Native form-element baseline — frontend only. main.css loads in the
+		// editor canvas, so the form styles live in their own file enqueued here
+		// (wp_enqueue_scripts) to keep them off the editor.
+		Asset_Loader::enqueue_style( 'aggressive-apparel-forms', 'build/styles/components/forms' );
+
 		if ( function_exists( 'WC' ) ) {
 			Asset_Loader::enqueue_style( 'aggressive-apparel-mini-cart', 'build/styles/woocommerce/mini-cart' );
+
+			// Checkout/cart readability fixes (floating labels, order-summary
+			// badges) for the block checkout & cart.
+			if (
+				( function_exists( 'is_checkout' ) && is_checkout() ) ||
+				( function_exists( 'is_cart' ) && is_cart() )
+			) {
+				Asset_Loader::enqueue_style( 'aggressive-apparel-checkout', 'build/styles/woocommerce/checkout' );
+			}
 		}
 
 		if ( is_singular( 'product' ) ) {

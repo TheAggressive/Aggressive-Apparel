@@ -40,11 +40,13 @@
     select,
     textarea
   ) {
+    box-sizing: border-box;
     width: 100%;
     min-height: var(--aa-input-height);
-    padding: 0.75rem 1rem;
-    border: 1.5px solid var(--aa-color-border-strong);
-    border-radius: var(--aa-radius-control);
+    padding: 0.75rem 1.5rem; /* clears the pill curve */
+    border: none;
+    border-left: 3px solid transparent; /* accent bar; shows on focus only */
+    border-radius: var(--aa-radius-full);
     background: transparent;
     color: var(--aa-color-foreground);
     font-family: inherit;
@@ -57,15 +59,11 @@
     color: var(--aa-color-muted-40);
   }
 
+  /* Focus: no outline — the 3px left bar turns the brand accent (red). At rest
+   * the bar is transparent, so there's no visible border until focus. */
   :where(input, select, textarea):focus {
     outline: none;
-    border-color: var(--aa-color-foreground);
-  }
-
-  :where(input, select, textarea):focus-visible {
-    outline: 2px solid var(--aa-color-accent);
-    outline-offset: 1px;
-    border-color: transparent;
+    border-left-color: var(--aa-color-accent);
   }
 
   :where(input, select, textarea):disabled {
@@ -75,11 +73,13 @@
 
   /* Error state — only after the user has interacted (not on first paint). */
   :where(input, select, textarea):user-invalid {
-    border-color: var(--aa-color-error);
+    border-left-color: var(--aa-color-error);
   }
 
+  /* Textarea: soft radius, not a full pill (a pill multi-line box looks odd). */
   :where(textarea) {
     min-height: calc(var(--aa-input-height) * 2);
+    border-radius: var(--aa-radius-lg);
     resize: vertical;
   }
 
@@ -105,6 +105,56 @@
     color: var(--aa-color-foreground);
     font: inherit;
     cursor: pointer;
+  }
+
+  /* Labels — adaptive colour so they stay legible in light AND dark mode. */
+  :where(label) {
+    color: var(--aa-color-foreground);
+  }
+
+  /* Form output element. */
+  :where(output) {
+    color: var(--aa-color-foreground-muted);
+  }
+
+  /* Single-select: hide the native arrow (often invisible in dark mode) and
+   * draw a neutral chevron that reads on both light and dark surfaces. */
+  :where(select:not([multiple], [size])) {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 0.75rem;
+  }
+
+  /* Colour picker — small swatch, same frame as the inputs. */
+  :where(input[type='color']) {
+    width: 3rem;
+    height: var(--aa-input-height);
+    padding: 0.25rem;
+    border: 1.5px solid var(--aa-color-border-strong);
+    border-radius: var(--aa-radius-control);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* Progress + meter share the brand accent. */
+  :where(progress, meter) {
+    accent-color: var(--aa-color-accent);
+  }
+
+  /* Grouped controls. */
+  :where(fieldset) {
+    border: 1px solid var(--aa-color-border);
+    border-radius: var(--aa-radius-control);
+    padding: var(--wp--preset--spacing--4);
+  }
+
+  :where(legend) {
+    padding-inline: 0.5rem;
+    color: var(--aa-color-foreground);
+    font-weight: 600;
   }
 
   /* Browser autofill — repaint the field so it keeps the system colours
@@ -153,7 +203,9 @@
   border-color: var(--aa-color-foreground);
 }
 
-.wc-block-components-text-input label,
+/* NOTE: do NOT recolour .wc-block-components-text-input label here — WC keeps the
+ * field white in both modes and the label inherits its dark text (readable). An
+ * adaptive colour would turn the label white and hide it on the white field. */
 .wc-block-components-checkout-step__title {
   color: var(--aa-color-foreground-muted);
 }
@@ -172,6 +224,14 @@
   border-radius: var(--aa-radius-control);
   background: transparent;
   color: inherit;
+}
+
+/* Classic WooCommerce labels — adaptive colour so they're legible in both
+ * modes (WC's own label CSS is unlayered and would beat the native baseline). */
+.woocommerce form .form-row label,
+.woocommerce-form-row label,
+.woocommerce-EditAccountForm label {
+  color: var(--aa-color-foreground);
 }
 
 /* WooCommerce classic country/state dropdowns render as select2, not a native

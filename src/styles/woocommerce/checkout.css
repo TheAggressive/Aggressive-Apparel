@@ -1,0 +1,138 @@
+/**
+ * WooCommerce Checkout & Cart — branded dark form fields
+ *
+ * Replaces WooCommerce's flat white checkout fields with the theme's look: a
+ * dark, adaptive translucent fill, adaptive value text + labels, uppercase
+ * tracked floating labels, and a red left bar that animates in on focus. WC's
+ * field CSS is very specific, so !important is used to override it (acceptable —
+ * the block editor can't control form styling). Only loaded on checkout/cart.
+ *
+ * `:is(.wc-block-checkout, .wc-block-cart)` scopes the rules to both contexts in
+ * one selector (same specificity as a single class).
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* SINGLE CONTROL POINT for the checkout field-label look. Both the text-input
+ * labels and the select (State/Country) labels read from these variables, so the
+ * styling lives in one place — adjust here and every field follows. */
+.wc-block-checkout,
+.wc-block-cart {
+  --aa-field-label-color: var(--aa-color-foreground-muted);
+  --aa-field-label-weight: 500;
+  --aa-field-label-weight-active: 600;
+}
+
+/* Every field label (text inputs + the wc-blocks- select __label, which WC
+ * otherwise colours white-on-white) reads the shared variables. WC sets both to
+ * font-weight:inherit, so they pick up different weights from their different
+ * wrappers — pin an explicit resting weight here so they match. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input label,
+.wc-blocks-components-select .wc-blocks-components-select__label {
+  color: var(--aa-field-label-color);
+  font-weight: var(--aa-field-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Active weight (label floated up): text inputs once focused or filled (WC adds
+ * .is-active), AND all selects — a select always has a value, so its label is
+ * always floated, including on page load. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.is-active label,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input:focus-within label,
+.wc-blocks-components-select .wc-blocks-components-select__label {
+  font-weight: var(--aa-field-label-weight-active);
+  scale: 0.75;
+  letter-spacing: 0.15em;
+  transform-origin: top left; /* select label has no origin -> drifts right */
+}
+
+/* Checkbox labels sit on the dark page (not inside a white field), so they need
+ * the adaptive light colour to be readable. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkbox__label {
+  color: var(--aa-color-foreground);
+}
+
+/* Step headings ("Contact information", "Shipping address", …) — WC sets these
+ * to 1em; bump them up and uppercase them for a stronger, on-brand hierarchy. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step__title {
+  font-size: var(--wp--preset--font-size--x-large) !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Order-summary line-item quantity badge — adaptive so the count reads on the
+ * dark summary panel (used on checkout and cart). */
+.wc-block-components-order-summary
+  .wc-block-components-order-summary-item__quantity {
+  background: var(--aa-color-surface-elevated);
+  border: 1px solid var(--aa-color-border);
+  color: var(--aa-color-foreground);
+}
+
+/* ---- Field treatment ------------------------------------------------------
+ * No border or outline — just a 3px brand-accent left bar that animates in on
+ * focus. WC's field CSS is very specific, so !important strips it reliably
+ * (the block editor can't control form styling). Covers text inputs, textarea
+ * and the selects; quantity inputs use a different component and are NOT
+ * matched. */
+
+/* Reset: strip WC's border + its focus outline/box-shadow (so only our red bar
+ * shows), soft radius, adaptive value text, animated focus border. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
+:is(.wc-block-checkout, .wc-block-cart) textarea,
+.wc-blocks-components-select .wc-blocks-components-select__container,
+.wc-blocks-components-select .wc-blocks-components-select__select {
+  border: none !important;
+  border-radius: var(--aa-radius-lg) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--aa-color-foreground) !important;
+  transition: border-color 0.15s var(--aa-ease-default) !important;
+}
+
+/* The native <select> stays transparent so the tinted container shows through. */
+.wc-blocks-components-select .wc-blocks-components-select__select {
+  background: transparent !important;
+}
+
+/* The native dropdown (option list) is OS-rendered and was falling back to a
+ * white popup — white-on-white with the light value text. Give the options an
+ * explicit dark surface so they're readable. */
+.wc-blocks-components-select .wc-blocks-components-select__select option {
+  background-color: var(--aa-color-surface-elevated);
+  color: var(--aa-color-foreground);
+}
+
+/* Dropdown chevron — adaptive so it shows on the dark field. */
+.wc-blocks-components-select .wc-blocks-components-select__expand {
+  fill: var(--aa-color-foreground-muted) !important;
+}
+
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input::placeholder,
+:is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
+  color: var(--aa-color-foreground-muted) !important;
+}
+
+/* Reserved transparent 3px left bar + dark translucent fill that adapts to the
+ * colour scheme (instead of WC's flat white box). The native <select> above
+ * stays transparent so this tinted container shows through. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
+:is(.wc-block-checkout, .wc-block-cart) textarea,
+.wc-blocks-components-select .wc-blocks-components-select__container {
+  border-left: 3px solid transparent !important;
+  background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
+}
+
+/* Text inputs need right room for the curve (selects keep their chevron space). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input {
+  padding-right: 1.5rem !important;
+}
+
+/* Red left bar ONLY on focus (not on filled fields at rest). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input:focus,
+:is(.wc-block-checkout, .wc-block-cart) textarea:focus,
+.wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
+  border-left-color: var(--aa-color-accent) !important;
+}

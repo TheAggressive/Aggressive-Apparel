@@ -1,3 +1,25 @@
+# [1.103.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.102.0...v1.103.0) (2026-06-22)
+
+
+### Bug Fixes
+
+* **design-system:** address code-review findings ([f4d4496](https://github.com/TheAggressive/Aggressive-Apparel/commit/f4d4496605fefd30645f8b7d554358df89a7b130)), closes [#6](https://github.com/TheAggressive/Aggressive-Apparel/issues/6) [#5](https://github.com/TheAggressive/Aggressive-Apparel/issues/5) [#7](https://github.com/TheAggressive/Aggressive-Apparel/issues/7) [#10](https://github.com/TheAggressive/Aggressive-Apparel/issues/10)
+* **design-system:** don't override editor-controlled styling in forms ([87c3fb2](https://github.com/TheAggressive/Aggressive-Apparel/commit/87c3fb270409f97433b4a617ae40bc78a3f30d91))
+* **design-system:** expand form coverage + fix WC override layering ([72a2558](https://github.com/TheAggressive/Aggressive-Apparel/commit/72a25587a389aed492def863dd0da2f2656fdc58))
+* **design-system:** update brand and monochrome colors to oklch format ([51d3e18](https://github.com/TheAggressive/Aggressive-Apparel/commit/51d3e1832b85474c35a64b5aba67a32e35a18131))
+* **forms:** leave quantity inputs + buttons alone; split autofill rule ([ec0536e](https://github.com/TheAggressive/Aggressive-Apparel/commit/ec0536ec0cba6f52439def6bb573aa218c331fff))
+
+
+### Features
+
+* branded checkout forms and design-system overhaul ([038a37e](https://github.com/TheAggressive/Aggressive-Apparel/commit/038a37e9689464658d4de160cd5c8d4eefb610da))
+* **design-system:** add Noir style variation + Card block style variation ([925b2cc](https://github.com/TheAggressive/Aggressive-Apparel/commit/925b2ccbc0cc62f8e2d06918d6f5259224a882f8)), closes [hi#contrast](https://github.com/hi/issues/contrast)
+* **design-system:** load token layer into the block editor canvas ([42eee89](https://github.com/TheAggressive/Aggressive-Apparel/commit/42eee89c6b27da1585b9a80c8ee1cc1351b2ab42))
+* **design-system:** surface adaptive theme colors in submenu pickers ([7673572](https://github.com/TheAggressive/Aggressive-Apparel/commit/7673572b8c888c19193efbdb582f29077f2d4745))
+* **design-system:** token-driven global form styling ([0f33d63](https://github.com/TheAggressive/Aggressive-Apparel/commit/0f33d637b0ba506d9844ace254fa98a7eb812505))
+* enhance navigation blocks with mobile panel auto-rendering and hover styles ([3008425](https://github.com/TheAggressive/Aggressive-Apparel/commit/3008425e0305e105d3c89174b961d7c3728dbbeb))
+* **navigation:** make the trigger placeable anywhere with its own breakpoint ([40603fe](https://github.com/TheAggressive/Aggressive-Apparel/commit/40603fee9c7ba02c01e6362087cf1515de12b563))
+
 # [1.102.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.101.0...v1.102.0) (2026-06-20)
 
 

@@ -94,8 +94,8 @@ The theme uses `theme.json` as the single source of truth for user-configurable 
 
 | Layer | Owns | Use |
 |-------|------|-----|
-| `theme.json` | Palette, spacing, typography, motion, radius, shadows, z-index, density, status, commerce states | Source of truth and Site Editor configuration |
-| `src/styles/base/tokens.css` | `--aa-*` aliases and safe runtime defaults | Component-facing token API |
+| `theme.json` | Palette (brand, adaptive, and status colors), spacing, typography, motion, radius, shadow presets, z-index, density | Source of truth and Site Editor configuration |
+| `src/styles/base/tokens.css` | `--aa-*` aliases, derived colors (commerce states, tints), and safe runtime defaults | Component-facing token API |
 | Feature CSS | Component layout and state composition | Use tokens; avoid raw values unless truly local |
 | Build output | Minified compiled assets in `build/styles` | Generated; do not edit directly |
 
@@ -104,7 +104,7 @@ Rules:
 - In `theme.json`, use `var:preset|...`, `--wp--preset--...`, or `--wp--custom--...`; do not depend on `--aa-*`.
 - In CSS, prefer `--aa-*` aliases for theme primitives and component state.
 - Runtime variables such as measured scrollbar width, sticky cart height, ticker copies, navigation indicators, and parallax transforms must have safe defaults before JavaScript overrides them.
-- New spacing, color, font, radius, shadow, or commerce-state values should be added to `theme.json` first, then exposed through `tokens.css` only if component CSS needs a shorter alias.
+- New spacing, color, font, radius, or shadow values should be added to `theme.json` first (colors as palette entries or `settings.custom`), then exposed through `tokens.css` only if component CSS needs a shorter alias. Commerce-state colors are derived in `tokens.css` from the status palette.
 
 ### Token Verification
 

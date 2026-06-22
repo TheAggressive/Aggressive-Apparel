@@ -42,6 +42,9 @@
 .wc-block-cart .wc-block-components-text-input:focus-within label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
   font-weight: var(--aa-field-label-weight-active);
+  scale: 0.75;
+  letter-spacing: 0.15em;
+  transform-origin: top left; /* select label has no origin -> drifts right */
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need

@@ -43,10 +43,10 @@
     box-sizing: border-box;
     width: 100%;
     min-height: var(--aa-input-height);
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 1.5rem; /* clears the pill curve */
     border: none;
     border-left: 3px solid transparent; /* accent bar; shows on focus only */
-    border-radius: 0;
+    border-radius: var(--aa-radius-full);
     background: transparent;
     color: var(--aa-color-foreground);
     font-family: inherit;
@@ -76,8 +76,10 @@
     border-left-color: var(--aa-color-error);
   }
 
+  /* Textarea: soft radius, not a full pill (a pill multi-line box looks odd). */
   :where(textarea) {
     min-height: calc(var(--aa-input-height) * 2);
+    border-radius: var(--aa-radius-lg);
     resize: vertical;
   }
 

@@ -68,34 +68,42 @@
  * border reliably (acceptable: the block editor can't control form styling).
  * Quantity inputs use a different component and are NOT matched. */
 
-/* Strip WC's border + radius on the fields. */
+/* Strip WC's border; full pill on inputs + selects (textarea gets a soft
+ * radius below); reserve a transparent 3px left bar. */
 .wc-block-checkout .wc-block-components-text-input input,
-.wc-block-checkout textarea,
 .wc-block-cart .wc-block-components-text-input input,
-.wc-block-cart textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
   border: none !important;
-  border-radius: 0 !important;
+  border-radius: var(--aa-radius-full) !important;
 }
 
-/* Reserved transparent 3px left bar on the visible field edge (no shift). */
 .wc-block-checkout .wc-block-components-text-input input,
-.wc-block-checkout textarea,
 .wc-block-cart .wc-block-components-text-input input,
-.wc-block-cart textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container {
   border-left: 3px solid transparent !important;
+  padding-left: 1.5rem !important;
 }
 
-/* Active → red bar: focused/filled text inputs + textareas (WC adds .is-active),
- * and selects (a select always has a value, so it's always active). */
-.wc-block-checkout .wc-block-components-text-input.is-active input,
+/* Text inputs need right room for the pill curve (selects keep chevron space). */
+.wc-block-checkout .wc-block-components-text-input input,
+.wc-block-cart .wc-block-components-text-input input {
+  padding-right: 1.5rem !important;
+}
+
+/* Order-notes textarea: soft radius, reserved left bar. */
+.wc-block-checkout textarea,
+.wc-block-cart textarea {
+  border: none !important;
+  border-left: 3px solid transparent !important;
+  border-radius: var(--aa-radius-lg) !important;
+}
+
+/* Red left bar ONLY on focus (not on filled fields at rest). */
 .wc-block-checkout .wc-block-components-text-input input:focus,
 .wc-block-checkout textarea:focus,
-.wc-block-cart .wc-block-components-text-input.is-active input,
 .wc-block-cart .wc-block-components-text-input input:focus,
 .wc-block-cart textarea:focus,
-.wc-blocks-components-select .wc-blocks-components-select__container {
+.wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
 }

@@ -1,25 +1,20 @@
 /**
- * WooCommerce Checkout & Cart — dark-mode readability
+ * WooCommerce Checkout & Cart — branded dark form fields
  *
- * IMPORTANT: WooCommerce keeps the checkout fields white in BOTH colour modes
- * (a white background with dark text), and the floating <label> inherits that
- * dark text — readable on the white field. So we deliberately do NOT recolour
- * the field labels: forcing an adaptive (light-in-dark) colour made them vanish
- * on the white field. We only recolour elements that actually sit on the dark
- * page/panel and would otherwise be unreadable.
+ * Replaces WooCommerce's flat white checkout fields with the theme's look: a
+ * dark, adaptive translucent fill, adaptive value text + labels, uppercase
+ * tracked floating labels, and a red left bar that animates in on focus. WC's
+ * field CSS is very specific, so !important is used to override it (acceptable —
+ * the block editor can't control form styling). Only loaded on checkout/cart.
  *
  * @package Aggressive_Apparel
  */
 
 /* SINGLE CONTROL POINT for the checkout field-label look. Both the text-input
  * labels and the select (State/Country) labels read from these variables, so the
- * styling lives in one place — adjust here and every field follows. Greys are
- * fixed (built from --aa-color-black) so they stay readable on WooCommerce's
- * always-white field in BOTH colour modes (an adaptive colour would flip light in
- * dark mode and vanish). */
+ * styling lives in one place — adjust here and every field follows. */
 .wc-block-checkout,
 .wc-block-cart {
-  /* Adaptive now that the fields are dark/translucent (not white). */
   --aa-field-label-color: var(--aa-color-foreground-muted);
   --aa-field-label-weight: 500;
   --aa-field-label-weight-active: 600;

@@ -86,6 +86,14 @@
   background: transparent !important;
 }
 
+/* The native dropdown (option list) is OS-rendered and was falling back to a
+ * white popup — white-on-white with the light value text. Give the options an
+ * explicit dark surface so they're readable. */
+.wc-blocks-components-select .wc-blocks-components-select__select option {
+  background-color: var(--aa-color-surface-elevated);
+  color: var(--aa-color-foreground);
+}
+
 /* Dropdown chevron — adaptive so it shows on the dark field. */
 .wc-blocks-components-select .wc-blocks-components-select__expand {
   fill: var(--aa-color-foreground-muted) !important;
@@ -103,7 +111,6 @@
 .wc-block-cart .wc-block-components-text-input input,
 .wc-blocks-components-select .wc-blocks-components-select__container {
   border-left: 3px solid transparent !important;
-  padding-left: 1.5rem !important;
   background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
 }
 

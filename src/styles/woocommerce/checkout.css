@@ -54,10 +54,12 @@
 }
 
 /* Step headings ("Contact information", "Shipping address", …) — WC sets these
- * to 1em; bump them up for a stronger section hierarchy. */
+ * to 1em; bump them up and uppercase them for a stronger, on-brand hierarchy. */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step__title {
   font-size: var(--wp--preset--font-size--x-large) !important;
   line-height: 1.2 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 /* Order-summary line-item quantity badge — adaptive so the count reads on the

@@ -62,45 +62,40 @@
   color: var(--aa-color-foreground);
 }
 
-/* ---- Pill field shape (matches the native form baseline) ------------------
- * The block editor can't control form styling and WooCommerce's field CSS is
- * very specific (it floats labels via dynamic vertical padding), so !important
- * forces the pill shape reliably. Only the radius, horizontal padding and left
- * border are overridden — WC keeps the vertical padding that positions the
- * floating label. Quantity inputs are NOT matched (they use the
- * quantity-selector component, not a text-input) and stay untouched. */
+/* ---- Minimal field treatment (matches the native baseline) ----------------
+ * No border or outline — just a 3px brand-accent left bar when the field is
+ * active. WooCommerce's field CSS is very specific, so !important strips its
+ * border reliably (acceptable: the block editor can't control form styling).
+ * Quantity inputs use a different component and are NOT matched. */
 
-/* Text inputs + the select box: full pill. */
+/* Strip WC's border + radius on the fields. */
 .wc-block-checkout .wc-block-components-text-input input,
+.wc-block-checkout textarea,
 .wc-block-cart .wc-block-components-text-input input,
+.wc-block-cart textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
-  border-radius: var(--aa-radius-full) !important;
-  padding-left: 1.5rem !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
-/* Reserved 3px left border (so focus is a colour change, no shift). */
+/* Reserved transparent 3px left bar on the visible field edge (no shift). */
 .wc-block-checkout .wc-block-components-text-input input,
-.wc-block-cart .wc-block-components-text-input input,
-.wc-blocks-components-select .wc-blocks-components-select__select {
-  border-left-width: 3px !important;
-}
-
-/* Right padding on text inputs (selects keep room for their chevron). */
-.wc-block-checkout .wc-block-components-text-input input,
-.wc-block-cart .wc-block-components-text-input input {
-  padding-right: 1.5rem !important;
-}
-
-/* Red left-cap on focus, replacing WC's focus border. */
-.wc-block-checkout .wc-block-components-text-input input:focus,
-.wc-block-cart .wc-block-components-text-input input:focus,
-.wc-blocks-components-select .wc-blocks-components-select__select:focus {
-  border-left-color: var(--aa-color-accent) !important;
-}
-
-/* Order-notes textarea: soft radius, not a full pill. */
 .wc-block-checkout textarea,
-.wc-block-cart textarea {
-  border-radius: var(--aa-radius-lg) !important;
+.wc-block-cart .wc-block-components-text-input input,
+.wc-block-cart textarea,
+.wc-blocks-components-select .wc-blocks-components-select__container {
+  border-left: 3px solid transparent !important;
+}
+
+/* Active → red bar: focused/filled text inputs + textareas (WC adds .is-active),
+ * and selects (a select always has a value, so it's always active). */
+.wc-block-checkout .wc-block-components-text-input.is-active input,
+.wc-block-checkout .wc-block-components-text-input input:focus,
+.wc-block-checkout textarea:focus,
+.wc-block-cart .wc-block-components-text-input.is-active input,
+.wc-block-cart .wc-block-components-text-input input:focus,
+.wc-block-cart textarea:focus,
+.wc-blocks-components-select .wc-blocks-components-select__container {
+  border-left-color: var(--aa-color-accent) !important;
 }

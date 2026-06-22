@@ -43,10 +43,10 @@
     box-sizing: border-box;
     width: 100%;
     min-height: var(--aa-input-height);
-    padding: 0.75rem 1.5rem; /* generous sides push text past the pill curve */
-    border: 1.5px solid var(--aa-color-border-strong);
-    border-left-width: 3px; /* reserved so focus is a colour change, no shift */
-    border-radius: var(--aa-radius-full);
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-left: 3px solid transparent; /* accent bar; shows on focus only */
+    border-radius: 0;
     background: transparent;
     color: var(--aa-color-foreground);
     font-family: inherit;
@@ -59,8 +59,8 @@
     color: var(--aa-color-muted-40);
   }
 
-  /* Focus: no outline — the reserved 3px left border turns the brand accent
-   * (red), giving a left-cap accent that suits the pill shape. */
+  /* Focus: no outline — the 3px left bar turns the brand accent (red). At rest
+   * the bar is transparent, so there's no visible border until focus. */
   :where(input, select, textarea):focus {
     outline: none;
     border-left-color: var(--aa-color-accent);
@@ -73,14 +73,11 @@
 
   /* Error state — only after the user has interacted (not on first paint). */
   :where(input, select, textarea):user-invalid {
-    border-color: var(--aa-color-error);
+    border-left-color: var(--aa-color-error);
   }
 
-  /* Textarea: a soft radius instead of the full pill (a pill multi-line box
-   * looks odd); keeps the reserved left border + red focus cap. */
   :where(textarea) {
     min-height: calc(var(--aa-input-height) * 2);
-    border-radius: var(--aa-radius-lg);
     resize: vertical;
   }
 

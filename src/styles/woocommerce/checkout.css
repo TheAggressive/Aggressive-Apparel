@@ -68,14 +68,18 @@
  * border reliably (acceptable: the block editor can't control form styling).
  * Quantity inputs use a different component and are NOT matched. */
 
-/* Strip WC's border; full pill on inputs + selects (textarea gets a soft
- * radius below); reserve a transparent 3px left bar. */
+/* Strip WC's border + its focus outline/box-shadow (so only our red bar shows);
+ * full pill on inputs + selects (textarea gets a soft radius below); reserve a
+ * transparent 3px left bar. The outline/box-shadow are killed here on the base
+ * rule (with !important) so they're suppressed in every state, incl. :focus. */
 .wc-block-checkout .wc-block-components-text-input input,
 .wc-block-cart .wc-block-components-text-input input,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
   border: none !important;
   border-radius: var(--aa-radius-full) !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .wc-block-checkout .wc-block-components-text-input input,
@@ -91,12 +95,14 @@
   padding-right: 1.5rem !important;
 }
 
-/* Order-notes textarea: soft radius, reserved left bar. */
+/* Order-notes textarea: soft radius, reserved left bar, no WC outline/shadow. */
 .wc-block-checkout textarea,
 .wc-block-cart textarea {
   border: none !important;
   border-left: 3px solid transparent !important;
   border-radius: var(--aa-radius-lg) !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Red left bar ONLY on focus (not on filled fields at rest). */

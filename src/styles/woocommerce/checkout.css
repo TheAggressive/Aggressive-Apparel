@@ -19,8 +19,9 @@
  * dark mode and vanish). */
 .wc-block-checkout,
 .wc-block-cart {
-  --aa-field-label-color: color-mix(in oklch, var(--aa-color-black) 45%, transparent);
-  --aa-field-label-weight: 400;
+  /* Adaptive now that the fields are dark/translucent (not white). */
+  --aa-field-label-color: var(--aa-color-foreground-muted);
+  --aa-field-label-weight: 500;
   --aa-field-label-weight-active: 600;
 }
 
@@ -33,6 +34,8 @@
 .wc-blocks-components-select .wc-blocks-components-select__label {
   color: var(--aa-field-label-color);
   font-weight: var(--aa-field-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
@@ -77,16 +80,36 @@
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
   border: none !important;
-  border-radius: var(--aa-radius-full) !important;
+  border-radius: var(--aa-radius-lg) !important;
   outline: none !important;
   box-shadow: none !important;
+  color: var(--aa-color-foreground) !important;
+  transition: border-color 0.15s var(--aa-ease-default) !important;
 }
 
+.wc-blocks-components-select .wc-blocks-components-select__select {
+  background: transparent !important;
+}
+
+/* Dropdown chevron — adaptive so it shows on the dark field. */
+.wc-blocks-components-select .wc-blocks-components-select__expand {
+  fill: var(--aa-color-foreground-muted) !important;
+}
+
+.wc-block-checkout .wc-block-components-text-input input::placeholder,
+.wc-block-cart .wc-block-components-text-input input::placeholder {
+  color: var(--aa-color-foreground-muted) !important;
+}
+
+/* Reserved 3px left bar, side padding, and a dark translucent fill that adapts
+ * to the colour scheme (instead of WC's flat white box). The native <select>
+ * above stays transparent so this tinted container shows through. */
 .wc-block-checkout .wc-block-components-text-input input,
 .wc-block-cart .wc-block-components-text-input input,
 .wc-blocks-components-select .wc-blocks-components-select__container {
   border-left: 3px solid transparent !important;
   padding-left: 1.5rem !important;
+  background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
 }
 
 /* Text inputs need right room for the pill curve (selects keep chevron space). */

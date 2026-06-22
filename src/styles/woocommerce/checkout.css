@@ -7,6 +7,9 @@
  * field CSS is very specific, so !important is used to override it (acceptable —
  * the block editor can't control form styling). Only loaded on checkout/cart.
  *
+ * `:is(.wc-block-checkout, .wc-block-cart)` scopes the rules to both contexts in
+ * one selector (same specificity as a single class).
+ *
  * @package Aggressive_Apparel
  */
 
@@ -24,8 +27,7 @@
  * otherwise colours white-on-white) reads the shared variables. WC sets both to
  * font-weight:inherit, so they pick up different weights from their different
  * wrappers — pin an explicit resting weight here so they match. */
-.wc-block-checkout .wc-block-components-text-input label,
-.wc-block-cart .wc-block-components-text-input label,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
   color: var(--aa-field-label-color);
   font-weight: var(--aa-field-label-weight);
@@ -36,10 +38,8 @@
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
  * .is-active), AND all selects — a select always has a value, so its label is
  * always floated, including on page load. */
-.wc-block-checkout .wc-block-components-text-input.is-active label,
-.wc-block-checkout .wc-block-components-text-input:focus-within label,
-.wc-block-cart .wc-block-components-text-input.is-active label,
-.wc-block-cart .wc-block-components-text-input:focus-within label,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.is-active label,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input:focus-within label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
   font-weight: var(--aa-field-label-weight-active);
   scale: 0.75;
@@ -49,8 +49,7 @@
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need
  * the adaptive light colour to be readable. */
-.wc-block-checkout .wc-block-components-checkbox__label,
-.wc-block-cart .wc-block-components-checkbox__label {
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkbox__label {
   color: var(--aa-color-foreground);
 }
 
@@ -63,18 +62,17 @@
   color: var(--aa-color-foreground);
 }
 
-/* ---- Minimal field treatment (matches the native baseline) ----------------
- * No border or outline — just a 3px brand-accent left bar when the field is
- * active. WooCommerce's field CSS is very specific, so !important strips its
- * border reliably (acceptable: the block editor can't control form styling).
- * Quantity inputs use a different component and are NOT matched. */
+/* ---- Field treatment ------------------------------------------------------
+ * No border or outline — just a 3px brand-accent left bar that animates in on
+ * focus. WC's field CSS is very specific, so !important strips it reliably
+ * (the block editor can't control form styling). Covers text inputs, textarea
+ * and the selects; quantity inputs use a different component and are NOT
+ * matched. */
 
-/* Strip WC's border + its focus outline/box-shadow (so only our red bar shows);
- * full pill on inputs + selects (textarea gets a soft radius below); reserve a
- * transparent 3px left bar. The outline/box-shadow are killed here on the base
- * rule (with !important) so they're suppressed in every state, incl. :focus. */
-.wc-block-checkout .wc-block-components-text-input input,
-.wc-block-cart .wc-block-components-text-input input,
+/* Reset: strip WC's border + its focus outline/box-shadow (so only our red bar
+ * shows), soft radius, adaptive value text, animated focus border. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
+:is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
   border: none !important;
@@ -85,6 +83,7 @@
   transition: border-color 0.15s var(--aa-ease-default) !important;
 }
 
+/* The native <select> stays transparent so the tinted container shows through. */
 .wc-blocks-components-select .wc-blocks-components-select__select {
   background: transparent !important;
 }
@@ -102,42 +101,29 @@
   fill: var(--aa-color-foreground-muted) !important;
 }
 
-.wc-block-checkout .wc-block-components-text-input input::placeholder,
-.wc-block-cart .wc-block-components-text-input input::placeholder {
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input::placeholder,
+:is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
   color: var(--aa-color-foreground-muted) !important;
 }
 
-/* Reserved 3px left bar, side padding, and a dark translucent fill that adapts
- * to the colour scheme (instead of WC's flat white box). The native <select>
- * above stays transparent so this tinted container shows through. */
-.wc-block-checkout .wc-block-components-text-input input,
-.wc-block-cart .wc-block-components-text-input input,
+/* Reserved transparent 3px left bar + dark translucent fill that adapts to the
+ * colour scheme (instead of WC's flat white box). The native <select> above
+ * stays transparent so this tinted container shows through. */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
+:is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container {
   border-left: 3px solid transparent !important;
   background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
 }
 
-/* Text inputs need right room for the pill curve (selects keep chevron space). */
-.wc-block-checkout .wc-block-components-text-input input,
-.wc-block-cart .wc-block-components-text-input input {
+/* Text inputs need right room for the curve (selects keep their chevron space). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input {
   padding-right: 1.5rem !important;
 }
 
-/* Order-notes textarea: soft radius, reserved left bar, no WC outline/shadow. */
-.wc-block-checkout textarea,
-.wc-block-cart textarea {
-  border: none !important;
-  border-left: 3px solid transparent !important;
-  border-radius: var(--aa-radius-lg) !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 /* Red left bar ONLY on focus (not on filled fields at rest). */
-.wc-block-checkout .wc-block-components-text-input input:focus,
-.wc-block-checkout textarea:focus,
-.wc-block-cart .wc-block-components-text-input input:focus,
-.wc-block-cart textarea:focus,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input:focus,
+:is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
 }

@@ -56,6 +56,11 @@ class Styles {
 	public function enqueue_styles() {
 		$this->enqueue_core_styles();
 
+		// Native form-element baseline — frontend only. main.css loads in the
+		// editor canvas, so the form styles live in their own file enqueued here
+		// (wp_enqueue_scripts) to keep them off the editor.
+		Asset_Loader::enqueue_style( 'aggressive-apparel-forms', 'build/styles/components/forms' );
+
 		if ( function_exists( 'WC' ) ) {
 			Asset_Loader::enqueue_style( 'aggressive-apparel-mini-cart', 'build/styles/woocommerce/mini-cart' );
 

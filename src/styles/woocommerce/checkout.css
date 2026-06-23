@@ -54,8 +54,12 @@
 }
 
 /* Step headings ("Contact information", "Shipping address", …) — WC sets these
- * to 1em; bump them up and uppercase them for a stronger, on-brand hierarchy. */
-:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step__title {
+ * to 1em; bump them up and uppercase them for a stronger, on-brand hierarchy.
+ * The payment step is excluded: its heading sits above provider-rendered
+ * (iframe) payment methods and the large size looks out of place there. */
+:is(.wc-block-checkout, .wc-block-cart)
+  .wc-block-components-checkout-step:not(.wp-block-woocommerce-checkout-payment-block)
+  .wc-block-components-checkout-step__title {
   font-size: var(--wp--preset--font-size--x-large) !important;
   line-height: 1.2 !important;
   text-transform: uppercase;

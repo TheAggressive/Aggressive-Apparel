@@ -75,6 +75,17 @@
   color: var(--aa-color-foreground);
 }
 
+/* Order-summary panel — drop WooCommerce's border. */
+.wp-block-woocommerce-checkout-order-summary-block {
+  border: none !important;
+}
+
+/* Order-summary heading ("Order summary") — uppercase to match the step headings. */
+.wc-block-components-checkout-order-summary__title {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 /* ---- Field treatment ------------------------------------------------------
  * No border or outline — just a 3px brand-accent left bar that animates in on
  * focus. WC's field CSS is very specific, so !important strips it reliably

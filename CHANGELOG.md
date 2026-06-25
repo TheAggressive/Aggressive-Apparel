@@ -1,3 +1,15 @@
+# [1.104.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.103.0...v1.104.0) (2026-06-25)
+
+
+### Bug Fixes
+
+* **checkout:** don't enlarge the payment step heading ([6578e80](https://github.com/TheAggressive/Aggressive-Apparel/commit/6578e8092637219f331f41e7ff2068ae1ba89000))
+
+
+### Features
+
+* add search functionality and remove predictive search block ([d4e8179](https://github.com/TheAggressive/Aggressive-Apparel/commit/d4e81794359107387433047820750002f4a9c26b))
+
 # [1.103.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.102.0...v1.103.0) (2026-06-22)
 
 

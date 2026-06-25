@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
+use Aggressive_Apparel\Core\Client_IP;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -251,8 +252,9 @@ class Back_In_Stock {
 	 * @return bool
 	 */
 	private function is_rate_limited( string $email ): bool {
+		$ip          = Client_IP::get();
 		$identifiers = array(
-			'ip' => self::get_client_ip(),
+			'ip' => '' !== $ip ? $ip : 'unknown',
 		);
 
 		if ( is_email( $email ) ) {
@@ -308,16 +310,6 @@ class Back_In_Stock {
 		return 'aa_bis_rate_limit_' . hash( 'sha256', $scope . '|' . strtolower( $identifier ) );
 	}
 
-	/**
-	 * Get the current request IP address.
-	 *
-	 * @return string
-	 */
-	private static function get_client_ip(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : 'unknown';
-	}
 
 	/**
 	 * Get the subscribe attempt limit.

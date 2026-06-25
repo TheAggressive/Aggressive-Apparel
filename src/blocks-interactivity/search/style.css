@@ -1,0 +1,651 @@
+/**
+ * Search Block Styles
+ *
+ * The trigger button (placed in templates/parts) plus the full-screen search
+ * modal (portaled to wp_footer). Adaptive via the --aa-* token layer, so it
+ * follows the active light/dark colour scheme automatically. Follows the
+ * theme's modal/overlay pattern: animated backdrop blur, @starting-style entry,
+ * prefers-reduced-motion + [hidden] handling.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* -----------------------------------------------------------------------------
+ * Trigger button
+ * -------------------------------------------------------------------------- */
+.aa-search-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.375rem;
+	border: none;
+	background: none;
+	color: currentcolor;
+	cursor: pointer;
+	border-radius: var(--aa-radius-md);
+	line-height: 0;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover,
+	&:focus-visible {
+		color: var(--aa-color-accent);
+	}
+
+	&__label {
+		font-size: var(--wp--preset--font-size--small);
+		line-height: 1;
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Modal shell + backdrop
+ * -------------------------------------------------------------------------- */
+.aa-search {
+	--aa-search-pad: clamp(1rem, 4vw, 2rem);
+
+	position: fixed;
+	inset: 0;
+	z-index: var(--aa-z-modal);
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	opacity: 0;
+
+	/* pointer-events (not visibility) gates interaction when closed: visibility
+	 * hidden would make the input unfocusable, and we focus it on open before the
+	 * Interactivity runtime has applied .is-open. The [hidden] attribute handles
+	 * the fully-closed (display:none) state. */
+	pointer-events: none;
+	background-color: color-mix(in oklch, var(--aa-color-surface) 0%, transparent);
+	backdrop-filter: blur(0);
+	transition: opacity var(--aa-duration-normal) var(--aa-ease-default),
+		background-color var(--aa-duration-normal) var(--aa-ease-default),
+		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
+
+	&.is-open {
+		opacity: 1;
+		pointer-events: auto;
+		background-color: color-mix(in oklch, var(--aa-color-surface) 65%, transparent);
+		backdrop-filter: blur(4px);
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.aa-search__overlay {
+	position: absolute;
+	inset: 0;
+	cursor: pointer;
+}
+
+/* -----------------------------------------------------------------------------
+ * Dialog
+ * -------------------------------------------------------------------------- */
+.aa-search__dialog {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: min(720px, 100%);
+	max-height: min(80vh, 720px);
+	margin: clamp(1rem, 8vh, 6rem) var(--aa-search-pad) 0;
+	background-color: var(--aa-color-surface-elevated);
+	border: 1px solid var(--aa-color-border);
+	border-radius: var(--aa-radius-lg);
+	box-shadow: var(--aa-shadow-lg);
+	overflow: hidden;
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	transition: opacity var(--aa-duration-normal) var(--aa-ease-default),
+		transform var(--aa-duration-normal) var(--aa-ease-default);
+}
+
+.aa-search:not(.is-open) .aa-search__dialog {
+	opacity: 0;
+	transform: translateY(-1rem) scale(0.98);
+}
+
+@supports selector(@starting-style) {
+
+	@starting-style {
+
+		.aa-search.is-open .aa-search__dialog {
+			opacity: 0;
+			transform: translateY(-1rem) scale(0.98);
+		}
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Search bar — recessed pill field + a distinct close control
+ * -------------------------------------------------------------------------- */
+.aa-search__bar {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: var(--aa-search-pad) var(--aa-search-pad) 0.875rem;
+}
+
+/* The pill sits on a lower elevation (surface) than the dialog
+ * (surface-elevated), so it reads as a recessed input well. */
+.aa-search__field {
+	flex: 1 1 auto;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+	padding: 0.375rem 0.5rem 0.375rem 0.875rem;
+	background-color: var(--aa-color-surface);
+	border: 1px solid var(--aa-color-border);
+	border-radius: var(--aa-radius-full);
+	transition: border-color var(--aa-duration-fast) var(--aa-ease-default),
+		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:focus-within {
+		border-color: var(--aa-color-accent);
+		box-shadow: 0 0 0 3px color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
+	}
+}
+
+.aa-search__field-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	color: var(--aa-color-foreground-muted);
+	line-height: 0;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default);
+
+	.aa-search__field:focus-within & {
+		color: var(--aa-color-accent);
+	}
+}
+
+.aa-search__input {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: 1.4;
+	outline: none;
+
+	&::placeholder {
+		color: var(--aa-color-foreground-muted);
+	}
+
+	/* Hide the native search clear control; we provide our own. */
+	&::-webkit-search-cancel-button {
+		appearance: none;
+	}
+}
+
+/* Clear (×) lives inside the pill, on the right. */
+.aa-search__clear {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+	border: none;
+	background-color: color-mix(in oklch, var(--aa-color-foreground) 12%, transparent);
+	color: var(--aa-color-foreground-muted);
+	cursor: pointer;
+	border-radius: var(--aa-radius-full);
+	line-height: 0;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover,
+	&:focus-visible {
+		color: var(--aa-color-foreground);
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 22%, transparent);
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+/* Close — icon button (X). */
+.aa-search__close {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--aa-color-foreground-muted);
+	cursor: pointer;
+	border-radius: var(--aa-radius-full);
+	line-height: 0;
+	transition: color var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover,
+	&:focus-visible {
+		color: var(--aa-color-foreground);
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Scope tabs
+ * -------------------------------------------------------------------------- */
+.aa-search__tabs {
+	display: flex;
+	gap: 0.5rem;
+	padding: 0 var(--aa-search-pad) 0.75rem;
+	border-bottom: 1px solid var(--aa-color-border);
+	overflow-x: auto;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+/* Scope tabs reuse the product-variation pill language: ghost ring at rest,
+ * a wipe-fill on the active tab, and inverted (surface-on-foreground) text. */
+.aa-search__tab {
+	position: relative;
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.4rem 0.875rem;
+	border: none;
+	background: transparent;
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	white-space: nowrap;
+	cursor: pointer;
+	overflow: hidden;
+	border-radius: var(--aa-radius-full);
+	box-shadow: inset 0 0 0 2px color-mix(in oklch, currentcolor 15%, transparent);
+	transition: color 0.35s ease-in-out;
+
+	/* Wipe fill — slides in from the left on the active tab. */
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		border-radius: inherit;
+		background: var(--aa-color-foreground);
+		transform: scaleX(0);
+		transform-origin: left;
+		opacity: 0;
+		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	/* Hover ring fades over the stable base ring. */
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		border-radius: inherit;
+		pointer-events: none;
+		box-shadow: inset 0 0 0 2px var(--aa-color-foreground);
+		opacity: 0;
+		transition: opacity 0.2s ease;
+	}
+
+	&:hover::after {
+		opacity: 1;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-foreground);
+		outline-offset: 2px;
+	}
+
+	&.is-active {
+		color: var(--aa-color-surface);
+		box-shadow: inset 0 0 0 2px var(--aa-color-foreground);
+	}
+
+	&.is-active::before {
+		transform: scaleX(1);
+		opacity: 1;
+	}
+
+	&.is-active::after {
+		opacity: 0;
+	}
+
+	/* Checkmark bounces in on the active tab (mirrors the variation pills). */
+	&.is-active .aa-search__tab-check {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+
+	/* Label slides right to make room for the checkmark. */
+	&.is-active .aa-search__tab-label {
+		transform: translateX(0);
+	}
+}
+
+.aa-search__tab-check {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	width: 0.75rem;
+	margin-right: 0.375rem;
+	opacity: 0;
+	transform: translateX(-0.5625rem) scale(0);
+	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
+		opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+	& svg {
+		width: 0.75rem;
+		height: 0.75rem;
+		stroke: var(--aa-color-surface);
+		stroke-width: 2.5;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		flex-shrink: 0;
+	}
+}
+
+.aa-search__tab-label {
+	position: relative;
+	z-index: 1;
+	transform: translateX(-0.5625rem);
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* -----------------------------------------------------------------------------
+ * Body + states
+ * -------------------------------------------------------------------------- */
+.aa-search__body {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: var(--aa-search-pad);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: var(--aa-color-border) transparent;
+
+	&::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: var(--aa-color-border);
+		border: 3px solid transparent;
+		border-radius: var(--aa-radius-full);
+		background-clip: padding-box;
+	}
+}
+
+.aa-search__hint,
+.aa-search__loading,
+.aa-search__empty {
+	margin: 0;
+	padding: 1.5rem 0;
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--wp--preset--font-size--small);
+	text-align: center;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Results
+ * -------------------------------------------------------------------------- */
+.aa-search__group + .aa-search__group {
+	margin-top: 1rem;
+}
+
+/* Sticky, consistent group headers so the type stays visible while scrolling. */
+.aa-search__group-title {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 0 0 0.25rem;
+	padding: 0.4rem 0;
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.aa-search__result {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.625rem 0.75rem;
+	margin: 0 -0.75rem;
+	border-radius: var(--aa-radius-md);
+
+	/* Pin the colour so the theme's global link-hover colour can't tint the
+	 * title; only the <mark> highlight uses the accent. */
+	color: var(--aa-color-foreground);
+	text-decoration: none;
+	transition: background-color var(--aa-duration-fast) var(--aa-ease-default),
+		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
+
+	&:hover,
+	&:focus,
+	&:focus-visible {
+		color: var(--aa-color-foreground);
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
+	}
+
+	/* Keyboard-focused row: stronger fill + a brand accent edge so arrow-key
+	 * users can track position distinctly from mouse hover. */
+	&.is-focused {
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 9%, transparent);
+		box-shadow: inset 3px 0 0 var(--aa-color-accent);
+	}
+
+	mark {
+		background: none;
+		color: var(--aa-color-accent);
+		font-weight: 700;
+	}
+}
+
+.aa-search__result--page {
+	justify-content: space-between;
+}
+
+.aa-search__thumb {
+	flex: 0 0 auto;
+	width: 52px;
+	height: 52px;
+	object-fit: cover;
+	border-radius: var(--aa-radius-md);
+	background-color: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
+
+	&--empty {
+		display: block;
+	}
+}
+
+.aa-search__result-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.aa-search__result-title {
+	color: inherit;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+/* Product price / sale, stacked at the right edge of the row. */
+.aa-search__result-end {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.25rem;
+	flex: 0 0 auto;
+	margin-left: auto;
+	text-align: right;
+}
+
+.aa-search__price {
+	color: var(--aa-color-foreground);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.aa-search__badge {
+	padding: 0.05rem 0.4rem;
+	background-color: var(--aa-color-accent);
+	color: var(--aa-color-white);
+	font-size: 0.625rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-radius: var(--aa-radius-full);
+}
+
+.aa-search__excerpt {
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.4;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.aa-search__date {
+	color: var(--aa-color-foreground-muted);
+	font-size: 0.75rem;
+}
+
+.aa-search__result-kind {
+	flex: 0 0 auto;
+	color: var(--aa-color-foreground-muted);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+/* -----------------------------------------------------------------------------
+ * Footer — View all + keyboard hints
+ * -------------------------------------------------------------------------- */
+.aa-search__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.75rem var(--aa-search-pad);
+	border-top: 1px solid var(--aa-color-border);
+}
+
+.aa-search__view-all {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	color: var(--aa-color-accent);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	text-decoration: none;
+	line-height: 1;
+
+	svg {
+		transition: transform var(--aa-duration-fast) var(--aa-ease-default);
+	}
+
+	&:hover svg,
+	&:focus-visible svg {
+		transform: translateX(3px);
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.aa-search__hints {
+	display: flex;
+	gap: 1rem;
+	margin-left: auto;
+}
+
+.aa-search__hint-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	color: var(--aa-color-foreground-muted);
+	font-size: 0.75rem;
+
+	kbd {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.25rem;
+		padding: 0.05rem 0.3rem;
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 10%, transparent);
+		color: var(--aa-color-foreground-muted);
+		border-radius: 0.25rem;
+		font-family: inherit;
+		font-size: 0.6875rem;
+		line-height: 1.5;
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Responsive — full-bleed sheet on small screens
+ * -------------------------------------------------------------------------- */
+@media (width <= 600px) {
+
+	.aa-search__dialog {
+		width: 100%;
+		max-height: 100dvh;
+		height: 100dvh;
+		margin: 0;
+		border: none;
+		border-radius: 0;
+	}
+
+	.aa-search__hints {
+		display: none;
+	}
+}
+
+/* -----------------------------------------------------------------------------
+ * Reduced motion
+ * -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-search,
+	.aa-search__dialog {
+		transition-duration: 0.01ms;
+	}
+
+	.aa-search.is-open {
+		backdrop-filter: none;
+	}
+}

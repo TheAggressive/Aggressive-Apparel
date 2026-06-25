@@ -152,6 +152,7 @@ class Bootstrap {
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
 		$this->container->register( 'favicon', fn() => new Core\Favicon() );
+		$this->container->register( 'search', fn() => new Core\Search() );
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
@@ -219,6 +220,7 @@ class Bootstrap {
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		$this->container->get( 'adaptive_colors' )->init();
 		$this->container->get( 'favicon' )->init();
+		$this->container->get( 'search' )->init();
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}

@@ -1,5 +1,5 @@
 /**
- * Predictive Search Block Registration.
+ * Search Block Registration.
  *
  * @package Aggressive_Apparel
  */

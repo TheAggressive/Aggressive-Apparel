@@ -26,6 +26,15 @@
         </properties>
     </rule>
 
+    <!-- Register WooCommerce capabilities the project relies on. -->
+    <rule ref="WordPress.WP.Capabilities">
+        <properties>
+            <property name="custom_capabilities" type="array">
+                <element value="manage_woocommerce"/>
+            </property>
+        </properties>
+    </rule>
+
     <!-- Exclude certain rules that might be too strict for theme development -->
     <rule ref="WordPress.Security.NonceVerification">
         <exclude-pattern>*/admin/*</exclude-pattern>

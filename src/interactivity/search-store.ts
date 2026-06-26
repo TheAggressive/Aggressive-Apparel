@@ -36,7 +36,6 @@ interface SearchGroup {
 
 interface SearchResponse {
   groups: SearchGroup[];
-  total: number;
   viewAll?: string;
 }
 

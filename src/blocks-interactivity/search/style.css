@@ -46,10 +46,16 @@
 
 	position: fixed;
 	inset: 0;
+
+	/* Cap to the viewport so a transformed/overflowing ancestor can't make the
+	 * shell (and the overlay/dialog inside it) wider/taller than the device. */
+	max-width: 100dvw;
+	max-height: 100dvh;
 	z-index: var(--aa-z-modal);
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
+	overflow: hidden; /* clip anything that would exceed the viewport */
 	opacity: 0;
 
 	/* pointer-events (not visibility) gates interaction when closed: visibility
@@ -88,11 +94,13 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	width: min(720px, 100%);
+
+	/* Subtract the side margins so width + margins never exceed the viewport
+	 * (a plain width:100% + margin overflows on narrow/tablet widths). */
+	width: min(720px, calc(100dvw - 2 * var(--aa-search-pad)));
 	max-height: min(80vh, 720px);
 	margin: clamp(1rem, 8vh, 6rem) var(--aa-search-pad) 0;
 	background-color: var(--aa-color-surface-elevated);
-	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-lg);
 	box-shadow: var(--aa-shadow-lg);
 	overflow: hidden;
@@ -137,7 +145,7 @@
 	align-items: center;
 	gap: 0.5rem;
 	min-width: 0;
-	padding: 0.375rem 0.875rem;
+	padding: 0 0.875rem;
 	background-color: var(--aa-color-surface);
 	border: 1px solid var(--aa-color-border);
 	border-radius: var(--aa-radius-full);
@@ -378,14 +386,18 @@
  * Body + states
  * -------------------------------------------------------------------------- */
 .aa-search__body {
+	display: flex;
 	flex: 1 1 auto;
+	flex-direction: column;
 	min-height: 0;
 
 	/* No top padding: it would sit above the sticky group header's stuck
 	 * position and let rows scroll through the gap. Spacing comes from the
 	 * header bar itself. */
 	padding: 0 var(--aa-search-pad) var(--aa-search-pad);
-	overflow-y: auto;
+
+	/* hidden x / auto y — only ever scroll vertically, never horizontally. */
+	overflow: hidden auto;
 	overscroll-behavior: contain;
 	scrollbar-width: thin;
 	scrollbar-color: var(--aa-color-border) transparent;
@@ -409,8 +421,11 @@
 .aa-search__hint,
 .aa-search__loading,
 .aa-search__empty {
-	margin: 0;
-	padding: 1.5rem 0;
+
+	/* auto vertical margins center the message in the flex-column body, so the
+	 * idle prompt sits in the middle on every screen size. */
+	margin: auto 0;
+	padding: 2rem 0;
 	color: var(--aa-color-foreground-muted);
 	font-size: var(--wp--preset--font-size--small);
 	text-align: center;
@@ -663,7 +678,10 @@
 @media (width <= 600px) {
 
 	.aa-search__dialog {
-		width: 100%;
+
+		/* dvw pins the sheet to the device width regardless of the containing
+		 * block (a transformed/overflowing ancestor can make 100% wider). */
+		width: 100dvw;
 		max-height: 100dvh;
 		height: 100dvh;
 		margin: 0;

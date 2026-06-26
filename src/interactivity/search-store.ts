@@ -235,7 +235,7 @@ function startTypewriter(): void {
 function visibleGroups(): SearchGroup[] {
   return state.scope === 'all'
     ? state.groups
-    : state.groups.filter((group) => group.type === state.scope);
+    : state.groups.filter(group => group.type === state.scope);
 }
 
 function visibleTotal(): number {

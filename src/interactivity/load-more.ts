@@ -32,11 +32,16 @@ interface LoadMoreState {
   perPage: number;
   restBase: string;
   templateSlug: string;
-  currentCategory: string;
+  currentTaxonomy: string;
+  currentTerm: string;
   filtersActive: boolean;
   announcement: string;
+  loadingText: string;
+  statusFormat: string;
+  loadedFormat: string;
   readonly hideButton: boolean;
   readonly hideSentinel: boolean;
+  readonly showSentinelLoader: boolean;
   readonly statusText: string;
 }
 
@@ -72,6 +77,8 @@ let observer: IntersectionObserver | null = null;
 const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
     get hideButton(): boolean {
+      // Kept visible (disabled) while loading so keyboard focus isn't lost; the
+      // button shows an in-place spinner via its is-loading class.
       return state.mode !== 'load_more' || state.allLoaded;
     },
 
@@ -79,9 +86,17 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
       return state.mode !== 'infinite_scroll' || state.allLoaded;
     },
 
+    // Standalone spinner is only for infinite-scroll mode (button mode shows its
+    // own in-place spinner).
+    get showSentinelLoader(): boolean {
+      return state.isLoading && state.mode === 'infinite_scroll';
+    },
+
     get statusText(): string {
       if (state.totalProducts === 0) return '';
-      return `Showing ${state.loadedCount} of ${state.totalProducts} products`;
+      return state.statusFormat
+        .replace('%1$d', String(state.loadedCount))
+        .replace('%2$d', String(state.totalProducts));
     },
   },
 
@@ -124,6 +139,9 @@ function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
   state.loadedCount = append
     ? state.loadedCount + (productsCount || 0)
     : productsCount || 0;
+  // The filter-driven fetch has completed — clear the loading state so the
+  // spinner hides and the button re-enables.
+  state.isLoading = false;
 }
 
 /**
@@ -145,6 +163,8 @@ function handleFiltersChanged(): void {
  */
 function loadNextPage(): void {
   state.isLoading = true;
+  // Announce the wait to assistive tech (the spinner itself is aria-hidden).
+  state.announcement = state.loadingText;
   const nextPage = state.currentPage + 1;
 
   if (state.filtersActive) {
@@ -172,8 +192,9 @@ function buildUrl(page: number): string {
     params.set('orderby', sortSelect.value);
   }
 
-  if (state.currentCategory) {
-    params.set('category', state.currentCategory);
+  if (state.currentTaxonomy && state.currentTerm) {
+    params.set('taxonomy', state.currentTaxonomy);
+    params.set('term', state.currentTerm);
   }
 
   if (state.templateSlug) {
@@ -246,7 +267,12 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   const grid = document.querySelector<HTMLElement>(
     '.wp-block-woocommerce-product-template'
   );
-  if (!grid || !data.html) return;
+  if (!grid || !data.html) {
+    // Empty page (no more products, or gated) — settle the UI cleanly.
+    state.isLoading = false;
+    state.allLoaded = true;
+    return;
+  }
 
   // Count inserted <li> elements to update loadedCount accurately.
   const temp = document.createElement('ul');
@@ -262,7 +288,7 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   state.loadedCount += count;
   state.allLoaded = page >= data.total_pages;
   state.isLoading = false;
-  state.announcement = `${count} more products loaded.`;
+  state.announcement = state.loadedFormat.replace('%d', String(count));
 
   prefetchNextPage();
 }

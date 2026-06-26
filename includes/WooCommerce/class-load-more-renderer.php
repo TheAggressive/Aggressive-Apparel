@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Rate_Limiter;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -87,10 +89,15 @@ class Load_More_Renderer {
 						'enum'              => array( 'date', 'popularity', 'rating', 'price', 'price-desc', 'title-asc', 'title-desc' ),
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'category' => array(
+					'taxonomy' => array(
 						'default'           => '',
 						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => 'sanitize_key',
+					),
+					'term'     => array(
+						'default'           => '',
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_title',
 					),
 					'template' => array(
 						'default'           => 'archive-product',
@@ -111,10 +118,36 @@ class Load_More_Renderer {
 	 * @return \WP_REST_Response
 	 */
 	public function handle( \WP_REST_Request $request ): \WP_REST_Response {
+		// Don't expose unreleased catalogue to the public while the store is in
+		// coming-soon mode (return an empty page rather than products).
+		if ( ! Product_Context::products_are_public() ) {
+			return new \WP_REST_Response(
+				array(
+					'html'           => '',
+					'total_products' => 0,
+					'total_pages'    => 0,
+				)
+			);
+		}
+
+		// Throttle anonymous traffic. Logged-in users are exempt; the limit is
+		// generous so infinite-scroll + prefetch never trips it for real users.
+		$allowed = Rate_Limiter::allow(
+			'load_more',
+			(int) apply_filters( 'aggressive_apparel_load_more_rate_limit_max', 120 ),
+			(int) apply_filters( 'aggressive_apparel_load_more_rate_limit_window', MINUTE_IN_SECONDS )
+		);
+		if ( ! $allowed ) {
+			$response = new \WP_REST_Response( array( 'error' => 'rate_limited' ), 429 );
+			$response->header( 'Retry-After', '60' );
+			return $response;
+		}
+
 		$page          = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page      = min( 100, max( 1, (int) $request->get_param( 'per_page' ) ) );
 		$orderby       = (string) $request->get_param( 'orderby' );
-		$category      = (string) $request->get_param( 'category' );
+		$taxonomy      = (string) $request->get_param( 'taxonomy' );
+		$term          = (string) $request->get_param( 'term' );
 		$template_slug = (string) $request->get_param( 'template' );
 
 		if ( ! in_array( $template_slug, self::PRODUCT_TEMPLATES, true ) ) {
@@ -122,11 +155,18 @@ class Load_More_Renderer {
 		}
 
 		$inner_blocks = $this->get_template_inner_blocks( $template_slug );
+
+		// Tag / brand / attribute archives have no template of their own and
+		// render via archive-product — fall back to its product grid.
+		if ( empty( $inner_blocks ) && 'archive-product' !== $template_slug ) {
+			$inner_blocks = $this->get_template_inner_blocks( 'archive-product' );
+		}
+
 		if ( empty( $inner_blocks ) ) {
 			return new \WP_REST_Response( array( 'error' => 'Template not found' ), 404 );
 		}
 
-		$query = new \WP_Query( $this->build_query_args( $page, $per_page, $orderby, $category ) );
+		$query = new \WP_Query( $this->build_query_args( $page, $per_page, $orderby, $taxonomy, $term ) );
 
 		if ( ! $query->have_posts() ) {
 			return new \WP_REST_Response(
@@ -267,10 +307,11 @@ class Load_More_Renderer {
 	 * @param int    $page     Page number.
 	 * @param int    $per_page Posts per page.
 	 * @param string $orderby  WooCommerce sort value.
-	 * @param string $category Product category slug.
+	 * @param string $taxonomy Product taxonomy to filter by (or '').
+	 * @param string $term     Term slug within that taxonomy (or '').
 	 * @return array<string, mixed>
 	 */
-	private function build_query_args( int $page, int $per_page, string $orderby, string $category ): array {
+	private function build_query_args( int $page, int $per_page, string $orderby, string $taxonomy, string $term ): array {
 		$args = array(
 			'post_type'      => 'product',
 			'posts_per_page' => $per_page,
@@ -318,16 +359,32 @@ class Load_More_Renderer {
 				$args['order']   = 'DESC';
 		}
 
-		if ( $category ) {
+		// Filter by the current taxonomy term archive (category, tag, brand or a
+		// product attribute), validated against an allow-list so an arbitrary or
+		// internal taxonomy can't be queried.
+		if ( '' !== $taxonomy && '' !== $term && in_array( $taxonomy, $this->allowed_taxonomies(), true ) ) {
 			$args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
-					'taxonomy' => 'product_cat',
+					'taxonomy' => $taxonomy,
 					'field'    => 'slug',
-					'terms'    => $category,
+					'terms'    => $term,
 				),
 			);
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Product taxonomies that may be used to filter the load-more query.
+	 *
+	 * @return array<int, string>
+	 */
+	private function allowed_taxonomies(): array {
+		$attributes = function_exists( 'wc_get_attribute_taxonomy_names' )
+			? wc_get_attribute_taxonomy_names()
+			: array();
+
+		return array_merge( array( 'product_cat', 'product_tag', 'product_brand' ), $attributes );
 	}
 }

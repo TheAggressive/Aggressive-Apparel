@@ -42,6 +42,23 @@ class Product_Context {
 	}
 
 	/**
+	 * Whether published products may be exposed to the current requester.
+	 *
+	 * False for the public while the store is in WooCommerce "coming soon" mode,
+	 * so unreleased catalogue isn't served (e.g. through REST) before launch.
+	 * Shop managers / administrators always pass so they can preview.
+	 *
+	 * @return bool
+	 */
+	public static function products_are_public(): bool {
+		if ( 'yes' === get_option( 'woocommerce_coming_soon' ) && ! current_user_can( 'manage_woocommerce' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Whether the current request is a single product page.
 	 *
 	 * @return bool
@@ -169,5 +186,35 @@ class Product_Context {
 		$term = get_queried_object();
 
 		return $term instanceof \WP_Term ? $term->slug : '';
+	}
+
+	/**
+	 * Get the taxonomy + term slug for the current product taxonomy archive.
+	 *
+	 * Covers product categories, tags, brands and attribute archives (pa_*) —
+	 * anything WooCommerce treats as a product taxonomy archive.
+	 *
+	 * @return array{taxonomy: string, term: string} Empty strings when not on
+	 *                                                a product taxonomy archive.
+	 */
+	public static function get_current_product_term_archive(): array {
+		$empty = array(
+			'taxonomy' => '',
+			'term'     => '',
+		);
+
+		if ( ! function_exists( 'is_product_taxonomy' ) || ! is_product_taxonomy() ) {
+			return $empty;
+		}
+
+		$term = get_queried_object();
+		if ( ! $term instanceof \WP_Term ) {
+			return $empty;
+		}
+
+		return array(
+			'taxonomy' => $term->taxonomy,
+			'term'     => $term->slug,
+		);
 	}
 }

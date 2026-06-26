@@ -88,11 +88,22 @@ class Load_More {
 		$load_more_html .= sprintf(
 			'<button class="aa-load-more__btn aggressive-apparel-button aggressive-apparel-button--outline wp-element-button" data-wp-on--click="actions.loadMore"'
 			. ' data-wp-bind--hidden="state.hideButton"'
-			. ' data-wp-bind--disabled="state.isLoading"'
+			// aria-disabled (not the disabled attribute) so the button keeps
+			// keyboard focus while loading; the loadMore action already no-ops
+			// when isLoading, preventing duplicate requests.
+			. ' data-wp-bind--aria-disabled="state.isLoading"'
 			. ' data-wp-class--is-loading="state.isLoading"'
 			. ' data-wp-bind--aria-busy="state.isLoading">%s</button>',
 			esc_html( Feature_Settings::get_load_more_button_text() )
 		);
+
+		// Loading spinner (purely visual; aria-hidden). The loading status is
+		// announced to assistive tech via the live region below. In button mode
+		// the button hides while a page loads and this replaces it; in
+		// infinite-scroll mode it's the only on-screen "more loading" cue.
+		$load_more_html .= '<div class="aa-load-more__loading" data-wp-bind--hidden="!state.showSentinelLoader" aria-hidden="true">'
+			. '<span class="aa-load-more__spinner"></span>'
+			. '</div>';
 
 		// Infinite scroll sentinel.
 		if ( 'infinite_scroll' === $mode ) {
@@ -128,8 +139,9 @@ class Load_More {
 		$total_products = (int) ( $wp_query->found_posts ?? 0 );
 		$total_pages    = (int) ( $wp_query->max_num_pages ?? 1 );
 
-		// Detect current category for SSR mode API calls.
-		$current_cat_slug = Product_Context::get_current_category_slug();
+		// Current taxonomy term archive (category, tag, brand or attribute) so the
+		// REST endpoint can reproduce the same query when loading further pages.
+		$term_archive = Product_Context::get_current_product_term_archive();
 
 		wp_interactivity_state(
 			'aggressive-apparel/load-more',
@@ -145,7 +157,13 @@ class Load_More {
 				'isLoading'       => false,
 				'allLoaded'       => $total_pages <= 1,
 				'announcement'    => '',
-				'currentCategory' => $current_cat_slug,
+				'loadingText'     => __( 'Loading more products…', 'aggressive-apparel' ),
+				/* translators: 1: number loaded so far, 2: total products. */
+				'statusFormat'    => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
+				/* translators: %d: number of products just loaded. */
+				'loadedFormat'    => __( '%d more products loaded.', 'aggressive-apparel' ),
+				'currentTaxonomy' => $term_archive['taxonomy'],
+				'currentTerm'     => $term_archive['term'],
 				'filtersActive'   => false,
 			)
 		);
@@ -157,20 +175,23 @@ class Load_More {
 	 * @return bool
 	 */
 	private function is_shop_page(): bool {
-		return Product_Context::is_product_archive();
+		// Shop, plus any product taxonomy archive — category, tag, brand and
+		// product-attribute (pa_*) archives all render a product grid.
+		return Product_Context::is_product_archive()
+			|| ( function_exists( 'is_product_taxonomy' ) && is_product_taxonomy() );
 	}
 
 	/**
-	 * Return the FSE template slug for the current page.
+	 * Return the FSE template slug used to render the product grid.
+	 *
+	 * Only product categories have a dedicated template; tag, brand and
+	 * attribute archives fall through WordPress's hierarchy to archive-product.
 	 *
 	 * @return string
 	 */
 	private function get_current_template_slug(): string {
-		if ( is_product_category() ) {
+		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
 			return 'taxonomy-product_cat';
-		}
-		if ( is_product_tag() ) {
-			return 'taxonomy-product_tag';
 		}
 		return 'archive-product';
 	}

@@ -699,26 +699,9 @@ class Search {
 	 * @return bool
 	 */
 	private function is_rate_limited(): bool {
-		if ( is_user_logged_in() ) {
-			return false;
-		}
-
-		$ip = Client_IP::get();
-		if ( '' === $ip ) {
-			return false;
-		}
-
 		$max    = max( 1, (int) apply_filters( 'aggressive_apparel_search_rate_limit_max', self::RATE_LIMIT_MAX ) );
 		$window = max( 10, (int) apply_filters( 'aggressive_apparel_search_rate_limit_window', self::RATE_LIMIT_WINDOW ) );
-		$key    = 'aa_search_rl_' . hash( 'sha256', $ip );
-		$count  = (int) get_transient( $key );
 
-		if ( $count >= $max ) {
-			return true;
-		}
-
-		set_transient( $key, $count + 1, $window );
-
-		return false;
+		return ! Rate_Limiter::allow( 'search', $max, $window );
 	}
 }

@@ -1,3 +1,17 @@
+# [1.105.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.104.0...v1.105.0) (2026-06-26)
+
+
+### Bug Fixes
+
+* adjust submenu panel positioning for improved layout ([9369d39](https://github.com/TheAggressive/Aggressive-Apparel/commit/9369d399db3def15fae5ffd471672bdfb4b5a51f))
+* improve dialog and body styles for better responsiveness ([3884995](https://github.com/TheAggressive/Aggressive-Apparel/commit/3884995fcceba446cb996da0979484029a9afdb2))
+* simplify filter syntax in visibleGroups function ([8a481e0](https://github.com/TheAggressive/Aggressive-Apparel/commit/8a481e04439653a4f176a07bc2c9b903192be59a))
+
+
+### Features
+
+* enhance search functionality with animated placeholders and improved text handling ([bd399a0](https://github.com/TheAggressive/Aggressive-Apparel/commit/bd399a0b355ba885322d91815db237fa365e6791))
+
 # [1.104.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.103.0...v1.104.0) (2026-06-25)
 
 

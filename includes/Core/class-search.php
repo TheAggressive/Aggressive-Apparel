@@ -55,7 +55,7 @@ class Search {
 	 *
 	 * @var int
 	 */
-	private const PER_TYPE = 5;
+	private const PER_TYPE = 8;
 
 	/**
 	 * Maximum anonymous requests allowed per rate-limit window.
@@ -238,7 +238,7 @@ class Search {
 
 			$items[] = array(
 				'id'        => $product->get_id(),
-				'title'     => wp_strip_all_tags( $product->get_name() ),
+				'title'     => $this->clean_text( $product->get_name() ),
 				'url'       => get_permalink( $product->get_id() ),
 				'thumbnail' => $thumb ? $thumb : '',
 				'price'     => $this->format_product_price( $product ),
@@ -273,7 +273,22 @@ class Search {
 			$html = wc_price( (float) wc_get_price_to_display( $product ) );
 		}
 
-		return html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' );
+		return $this->clean_text( $html );
+	}
+
+	/**
+	 * Strip tags and decode HTML entities to plain text.
+	 *
+	 * Titles run through wptexturize/the_title, so an ampersand comes back as
+	 * "&amp;". Decoding here means the client escapes it exactly once before
+	 * injecting it as text — otherwise it double-encodes to "&amp;amp;" and the
+	 * raw entity shows on screen.
+	 *
+	 * @param string $text Raw text.
+	 * @return string
+	 */
+	private function clean_text( string $text ): string {
+		return html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES, 'UTF-8' );
 	}
 
 	/**
@@ -291,10 +306,10 @@ class Search {
 
 			$items[] = array(
 				'id'        => $id,
-				'title'     => wp_strip_all_tags( get_the_title( $id ) ),
+				'title'     => $this->clean_text( get_the_title( $id ) ),
 				'url'       => get_permalink( $id ),
 				'thumbnail' => $thumb ? $thumb : '',
-				'excerpt'   => wp_strip_all_tags( $this->get_excerpt( $id ) ),
+				'excerpt'   => $this->clean_text( $this->get_excerpt( $id ) ),
 				'date'      => get_the_date( '', $id ),
 			);
 		}
@@ -315,7 +330,7 @@ class Search {
 		foreach ( $ids as $id ) {
 			$items[] = array(
 				'id'    => $id,
-				'title' => wp_strip_all_tags( get_the_title( $id ) ),
+				'title' => $this->clean_text( get_the_title( $id ) ),
 				'url'   => get_permalink( $id ),
 			);
 		}
@@ -414,16 +429,22 @@ class Search {
 			wp_interactivity_state(
 				self::STORE,
 				array(
-					'restUrl'        => esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_ROUTE ) ),
-					'isOpen'         => false,
-					'query'          => '',
-					'scope'          => 'all',
-					'isLoading'      => false,
-					'hasSearched'    => false,
-					'groups'         => array(),
-					'total'          => 0,
-					'viewAllUrl'     => '',
-					'productsActive' => $this->products_are_public(),
+					'restUrl'      => esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_ROUTE ) ),
+					'isOpen'       => false,
+					'query'        => '',
+					'scope'        => 'all',
+					'isLoading'    => false,
+					'hasSearched'  => false,
+					'groups'       => array(),
+					'total'        => 0,
+					'viewAllUrl'   => '',
+					'placeholders' => $this->get_placeholder_phrases(),
+					'i18n'         => array(
+						'noResults'      => __( 'No results found.', 'aggressive-apparel' ),
+						'resultSingular' => __( '1 result found.', 'aggressive-apparel' ),
+						/* translators: %d: number of search results. */
+						'resultPlural'   => __( '%d results found.', 'aggressive-apparel' ),
+					),
 				)
 			);
 		}
@@ -577,7 +598,7 @@ class Search {
 			esc_attr( self::STORE ),
 			esc_attr__( 'Search', 'aggressive-apparel' ),
 			$icon_search,
-			esc_attr__( 'Search products, articles and pages…', 'aggressive-apparel' ),
+			esc_attr__( 'Search', 'aggressive-apparel' ),
 			esc_attr__( 'Clear search', 'aggressive-apparel' ),
 			$icon_clear,
 			esc_attr__( 'Close search', 'aggressive-apparel' ),
@@ -612,6 +633,31 @@ class Search {
 		}
 
 		return (bool) apply_filters( 'aggressive_apparel_load_search_assets', true );
+	}
+
+	/**
+	 * Animated placeholder phrases for the search field.
+	 *
+	 * Translatable and filterable. The Products phrase is dropped when products
+	 * aren't returnable to this requester (coming-soon mode) so we don't tease
+	 * hidden catalogue.
+	 *
+	 * @return array<int, string>
+	 */
+	private function get_placeholder_phrases(): array {
+		$phrases = array();
+		if ( $this->products_are_public() ) {
+			$phrases[] = __( 'Search for Products…', 'aggressive-apparel' );
+		}
+		$phrases[] = __( 'Search for Articles…', 'aggressive-apparel' );
+		$phrases[] = __( 'Find Pages…', 'aggressive-apparel' );
+
+		/**
+		 * Filter the animated search placeholder phrases.
+		 *
+		 * @param array<int, string> $phrases Placeholder phrases.
+		 */
+		return array_values( (array) apply_filters( 'aggressive_apparel_search_placeholders', $phrases ) );
 	}
 
 	/**

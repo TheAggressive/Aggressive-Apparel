@@ -3,11 +3,18 @@
   "apiVersion": 3,
   "name": "aggressive-apparel/search",
   "version": "1.0.0",
-  "title": "Search",
+  "title": "Aggressive Search",
   "category": "design",
   "icon": "search",
   "description": "A search icon that opens a full-screen modal with live results across products, articles and pages.",
-  "keywords": ["search", "find", "modal", "products", "predictive"],
+  "keywords": [
+    "search",
+    "find",
+    "modal",
+    "products",
+    "predictive",
+    "aggressive"
+  ],
   "supports": {
     "html": false,
     "interactivity": true,

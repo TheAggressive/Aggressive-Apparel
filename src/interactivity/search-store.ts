@@ -48,9 +48,13 @@ interface SearchState {
   isLoading: boolean;
   hasSearched: boolean;
   groups: SearchGroup[];
-  total: number;
   viewAllUrl: string;
-  productsActive: boolean;
+  placeholders: string[];
+  i18n: {
+    noResults: string;
+    resultSingular: string;
+    resultPlural: string;
+  };
   readonly hasResults: boolean;
   readonly hasQuery: boolean;
   readonly hideHint: boolean;
@@ -138,10 +142,110 @@ function setActiveOption(index: number): void {
   }
 }
 
+// --- Animated placeholder (typewriter) -------------------------------------
+const TYPE_MS = 38;
+const ERASE_MS = 20;
+const HOLD_FULL_MS = 1100;
+const HOLD_EMPTY_MS = 220;
+const START_DELAY_MS = 180;
+
+let typeTimer: ReturnType<typeof setTimeout> | null = null;
+let phraseIndex = 0;
+let charIndex = 0;
+let erasing = false;
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
+function stopTypewriter(): void {
+  if (typeTimer) {
+    clearTimeout(typeTimer);
+    typeTimer = null;
+  }
+}
+
+/**
+ * Cycle the input placeholder through the configured phrases with a type/erase
+ * effect. Pauses while the user has a query (placeholder is hidden anyway), and
+ * falls back to a static phrase when reduced motion is requested.
+ */
+function startTypewriter(): void {
+  stopTypewriter();
+  const input = getInput();
+  const phrases = state.placeholders;
+  if (!input || !Array.isArray(phrases) || phrases.length === 0) return;
+
+  if (prefersReducedMotion()) {
+    input.placeholder = phrases[0];
+    return;
+  }
+
+  phraseIndex = 0;
+  charIndex = 0;
+  erasing = false;
+  input.placeholder = '';
+
+  const tick = (): void => {
+    const el = getInput();
+    if (!el) {
+      stopTypewriter();
+      return;
+    }
+    // Pause while the user is typing — the placeholder isn't visible then.
+    if (state.query.length > 0) {
+      typeTimer = setTimeout(tick, HOLD_FULL_MS);
+      return;
+    }
+
+    const phrase = phrases[phraseIndex % phrases.length];
+
+    if (!erasing) {
+      charIndex += 1;
+      el.placeholder = phrase.slice(0, charIndex);
+      if (charIndex >= phrase.length) {
+        erasing = true;
+        typeTimer = setTimeout(tick, HOLD_FULL_MS);
+      } else {
+        typeTimer = setTimeout(tick, TYPE_MS);
+      }
+    } else {
+      charIndex -= 1;
+      el.placeholder = phrase.slice(0, Math.max(0, charIndex));
+      if (charIndex <= 0) {
+        erasing = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        typeTimer = setTimeout(tick, HOLD_EMPTY_MS);
+      } else {
+        typeTimer = setTimeout(tick, ERASE_MS);
+      }
+    }
+  };
+
+  typeTimer = setTimeout(tick, START_DELAY_MS);
+}
+
+// A search fetches every type at once; the scope tabs are a client-side filter
+// of that already-loaded data, so switching tabs is instant (no refetch, no
+// blank flash). Reading state.scope here makes the result watch + getters react
+// to tab changes.
+function visibleGroups(): SearchGroup[] {
+  return state.scope === 'all'
+    ? state.groups
+    : state.groups.filter((group) => group.type === state.scope);
+}
+
+function visibleTotal(): number {
+  return visibleGroups().reduce((sum, group) => sum + group.items.length, 0);
+}
+
 const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
   state: {
     get hasResults(): boolean {
-      return state.total > 0;
+      return visibleTotal() > 0;
     },
     get hasQuery(): boolean {
       return state.query.length > 0;
@@ -153,16 +257,18 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       return (
         state.hasSearched &&
         !state.isLoading &&
-        state.total === 0 &&
-        state.query.length >= MIN_CHARS
+        state.query.length >= MIN_CHARS &&
+        visibleTotal() === 0
       );
     },
     get announcement(): string {
       if (state.isLoading) return '';
       if (state.query.length < MIN_CHARS) return '';
-      if (state.total === 0) return 'No results found.';
-      if (state.total === 1) return '1 result found.';
-      return `${state.total} results found.`;
+      const total = visibleTotal();
+      const { noResults, resultSingular, resultPlural } = state.i18n;
+      if (total === 0) return noResults;
+      if (total === 1) return resultSingular;
+      return resultPlural.replace('%d', String(total));
     },
   },
 
@@ -183,6 +289,8 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
         panel: dialog,
         focusSelector: '.aa-search__input',
       });
+
+      startTypewriter();
     },
 
     close(): void {
@@ -190,6 +298,7 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       const dialog = getDialog();
       if (!modal || !dialog || !state.isOpen) return;
 
+      stopTypewriter();
       state.isOpen = false;
 
       closeOverlay({
@@ -211,7 +320,6 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
 
       if (value.length < MIN_CHARS) {
         state.groups = [];
-        state.total = 0;
         state.isLoading = false;
         state.hasSearched = false;
         focusedIndex = -1;
@@ -230,18 +338,15 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
     setScope(event: Event): void {
       const scope = (event.currentTarget as HTMLElement).dataset.scope;
       if (!scope || scope === state.scope) return;
+      // Pure client-side filter — the data for every type is already loaded, so
+      // no refetch (the result watch re-renders from the new scope instantly).
       state.scope = scope;
-      if (state.query.length >= MIN_CHARS) {
-        state.isLoading = true;
-        actions.performSearch();
-      }
       getInput()?.focus({ preventScroll: true });
     },
 
     clear(): void {
       state.query = '';
       state.groups = [];
-      state.total = 0;
       state.isLoading = false;
       state.hasSearched = false;
       focusedIndex = -1;
@@ -291,9 +396,10 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       if (controller) controller.abort();
       controller = new AbortController();
 
+      // Always fetch every type so the scope tabs can filter client-side.
       const url = `${state.restUrl}?query=${encodeURIComponent(
         state.query
-      )}&scope=${encodeURIComponent(state.scope)}`;
+      )}&scope=all`;
 
       fetch(url, { signal: controller.signal })
         .then((res: Response) => {
@@ -303,7 +409,6 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
         .then(
           withScope((data: SearchResponse) => {
             state.groups = Array.isArray(data.groups) ? data.groups : [];
-            state.total = typeof data.total === 'number' ? data.total : 0;
             state.viewAllUrl = data.viewAll ?? '';
             state.isLoading = false;
             state.hasSearched = true;
@@ -314,7 +419,6 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
           withScope((error: Error) => {
             if (error.name === 'AbortError') return;
             state.groups = [];
-            state.total = 0;
             state.isLoading = false;
             state.hasSearched = true;
           })
@@ -333,9 +437,10 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       const container = ref as HTMLElement;
       if (!container) return;
 
-      // Touch reactive signals so the watch re-runs on change.
-      const groups = state.groups;
+      // Touch reactive signals (query + scope via visibleGroups) so the watch
+      // re-runs when the query OR the active tab changes.
       const query = state.query;
+      const groups = visibleGroups();
 
       if (groups.length === 0) {
         container.innerHTML = '';
@@ -371,6 +476,15 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
   },
 });
 
+/** Result thumbnail (image when present, otherwise an empty placeholder box). */
+function renderThumb(url?: string): string {
+  return url
+    ? `<img class="aa-search__thumb" src="${escapeHtml(
+        url
+      )}" alt="" loading="lazy" width="52" height="52" />`
+    : `<span class="aa-search__thumb aa-search__thumb--empty" aria-hidden="true"></span>`;
+}
+
 /**
  * Build the markup for a single result, branching on content type so each kind
  * is displayed sensibly (product: thumb + price; post: thumb + excerpt + date;
@@ -386,11 +500,7 @@ function renderItem(
   const title = highlight(item.title, query);
 
   if (type === 'product') {
-    const media = item.thumbnail
-      ? `<img class="aa-search__thumb" src="${escapeHtml(
-          item.thumbnail
-        )}" alt="" loading="lazy" width="56" height="56" />`
-      : `<span class="aa-search__thumb aa-search__thumb--empty" aria-hidden="true"></span>`;
+    const media = renderThumb(item.thumbnail);
     const sale = item.onSale
       ? `<span class="aa-search__badge">Sale</span>`
       : '';
@@ -410,11 +520,7 @@ function renderItem(
   }
 
   if (type === 'post') {
-    const media = item.thumbnail
-      ? `<img class="aa-search__thumb" src="${escapeHtml(
-          item.thumbnail
-        )}" alt="" loading="lazy" width="56" height="56" />`
-      : `<span class="aa-search__thumb aa-search__thumb--empty" aria-hidden="true"></span>`;
+    const media = renderThumb(item.thumbnail);
     const excerpt = item.excerpt
       ? `<span class="aa-search__excerpt">${escapeHtml(item.excerpt)}</span>`
       : '';

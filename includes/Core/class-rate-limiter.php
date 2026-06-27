@@ -27,6 +27,16 @@ class Rate_Limiter {
 	 * Cloudflare-aware Client_IP helper), so different endpoints throttle
 	 * independently.
 	 *
+	 * The window is fixed: its reset time is pinned when the first request of a
+	 * window arrives, and the transient TTL tracks the *remaining* time. This
+	 * means the counter decays on a real clock rather than being pushed forward
+	 * by each request — a continuously active client isn't falsely throttled for
+	 * never going idle a full window.
+	 *
+	 * Note: the read-then-write is not atomic, so under heavy concurrency the
+	 * limiter fails open (slightly undercounts). That's an acceptable trade-off
+	 * for a defensive throttle backed by transients.
+	 *
 	 * @param string $scope  Short identifier for the limited action (e.g. 'search').
 	 * @param int    $max    Maximum requests allowed within the window.
 	 * @param int    $window Window length in seconds.
@@ -42,14 +52,30 @@ class Rate_Limiter {
 			return true;
 		}
 
-		$key   = 'aa_rl_' . sanitize_key( $scope ) . '_' . hash( 'sha256', $ip );
-		$count = (int) get_transient( $key );
+		$max    = max( 1, $max );
+		$window = max( 1, $window );
+		$key    = 'aa_rl_' . sanitize_key( $scope ) . '_' . hash( 'sha256', $ip );
+		$now    = time();
 
-		if ( $count >= max( 1, $max ) ) {
+		$bucket = get_transient( $key );
+
+		// Start a fresh window when none is active or the current one has elapsed.
+		if ( ! is_array( $bucket ) || ! isset( $bucket['count'], $bucket['reset'] ) || $bucket['reset'] <= $now ) {
+			$bucket = array(
+				'count' => 0,
+				'reset' => $now + $window,
+			);
+		}
+
+		if ( (int) $bucket['count'] >= $max ) {
 			return false;
 		}
 
-		set_transient( $key, $count + 1, max( 1, $window ) );
+		++$bucket['count'];
+
+		// TTL is the time left in the current window, so the counter resets on
+		// schedule instead of from the most recent request.
+		set_transient( $key, $bucket, max( 1, (int) $bucket['reset'] - $now ) );
 
 		return true;
 	}

@@ -36,6 +36,13 @@ class Advanced_Sorting {
 	private const SAVINGS_TRANSIENT = 'aa_savings_sorted_ids';
 
 	/**
+	 * Transient key for featured-sorted product IDs.
+	 *
+	 * @var string
+	 */
+	private const FEATURED_TRANSIENT = 'aa_featured_sorted_ids';
+
+	/**
 	 * Transient TTL in seconds (15 minutes).
 	 *
 	 * @var int
@@ -74,8 +81,8 @@ class Advanced_Sorting {
 		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
 
 		// Cache invalidation.
-		add_action( 'woocommerce_update_product', array( $this, 'flush_savings_cache' ) );
-		add_action( 'woocommerce_new_product', array( $this, 'flush_savings_cache' ) );
+		add_action( 'woocommerce_update_product', array( $this, 'flush_sort_caches' ) );
+		add_action( 'woocommerce_new_product', array( $this, 'flush_sort_caches' ) );
 	}
 
 	/**
@@ -227,16 +234,27 @@ class Advanced_Sorting {
 	 * @return int[] Ordered product IDs.
 	 */
 	private function get_featured_sorted_ids( string $category = '' ): array {
+		$slugs         = self::get_category_slugs( $category );
+		$category      = implode( ',', $slugs );
+		$transient_key = self::FEATURED_TRANSIENT . ( $category ? '_' . md5( $category ) : '' );
+		$cached        = get_transient( $transient_key );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
 		$featured_ids = wc_get_featured_product_ids();
-		$slugs        = self::get_category_slugs( $category );
 
 		$query_args = array(
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'post_type'              => 'product',
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'fields'                 => 'ids',
+			'orderby'                => 'date',
+			'order'                  => 'DESC',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
 		);
 
 		if ( ! empty( $slugs ) ) {
@@ -256,7 +274,11 @@ class Advanced_Sorting {
 		$featured_in_set = array_intersect( $featured_ids, $all_ids );
 		$non_featured    = array_diff( $all_ids, $featured_ids );
 
-		return array_merge( array_values( $featured_in_set ), array_values( $non_featured ) );
+		$result = array_merge( array_values( $featured_in_set ), array_values( $non_featured ) );
+
+		set_transient( $transient_key, $result, self::TRANSIENT_TTL );
+
+		return $result;
 	}
 
 	/**
@@ -313,13 +335,16 @@ class Advanced_Sorting {
 
 		// Append non-sale products sorted by date.
 		$non_sale_args = array(
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'post__not_in'   => $sale_ids, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
+			'post_type'              => 'product',
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'fields'                 => 'ids',
+			'orderby'                => 'date',
+			'order'                  => 'DESC',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'post__not_in'           => $sale_ids, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
 		);
 
 		if ( ! empty( $slugs ) ) {
@@ -402,19 +427,20 @@ class Advanced_Sorting {
 	}
 
 	/**
-	 * Flush the savings sort cache.
+	 * Flush the precomputed sort caches (savings + featured).
 	 *
 	 * @return void
 	 */
-	public function flush_savings_cache(): void {
+	public function flush_sort_caches(): void {
 		global $wpdb;
 
-		// Delete all savings transients (base + per-category).
+		// Delete all savings + featured transients (base + per-category).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk transient cleanup requires direct query.
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like( '_transient_' . self::SAVINGS_TRANSIENT ) . '%'
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				$wpdb->esc_like( '_transient_' . self::SAVINGS_TRANSIENT ) . '%',
+				$wpdb->esc_like( '_transient_' . self::FEATURED_TRANSIENT ) . '%'
 			)
 		);
 	}

@@ -1,3 +1,10 @@
+# [1.106.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.105.0...v1.106.0) (2026-06-27)
+
+
+### Features
+
+* enhance load more functionality with rate limiting and improved taxonomy handling ([59967b7](https://github.com/TheAggressive/Aggressive-Apparel/commit/59967b7d150640fc94c2ef854df38bd61cf0abfd))
+
 # [1.105.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.104.0...v1.105.0) (2026-06-26)
 
 

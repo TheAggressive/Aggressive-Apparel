@@ -1,3 +1,10 @@
+# [1.108.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.107.0...v1.108.0) (2026-06-28)
+
+
+### Features
+
+* add icon gap feature and enhance badge editor ([12c0971](https://github.com/TheAggressive/Aggressive-Apparel/commit/12c0971f39fc9601d6ffec3af4fb3c15c72f0740))
+
 # [1.107.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.106.0...v1.107.0) (2026-06-28)
 
 

@@ -67,8 +67,8 @@
 	flex-shrink: 0;
 
 	& svg {
-		width: 1.25em;
-		height: 1.25em;
+		width: var(--badge-icon-size, 1.25em);
+		height: var(--badge-icon-size, 1.25em);
 		fill: currentcolor;
 	}
 }

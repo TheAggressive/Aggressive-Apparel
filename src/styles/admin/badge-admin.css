@@ -1,0 +1,322 @@
+/**
+ * Product Badge Editor Admin Styles
+ *
+ * Modern, sectioned UI for the custom product badge taxonomy add/edit
+ * screens, plus the icon-sizing rule the front-end stylesheet provides
+ * (front-end CSS is not loaded in wp-admin, so the live preview needs it
+ * here to size SVG icons).
+ *
+ * @package Aggressive_Apparel
+ * @since 1.108.0
+ */
+
+/* -------------------------------------------------------------------------
+ * Icon sizing (mirrors build/styles/woocommerce/product-badges.css so the
+ * admin preview + list-table column size SVGs correctly without the
+ * front-end bundle). Size is driven by --badge-icon-size; default 1.25em.
+ * ---------------------------------------------------------------------- */
+.aggressive-apparel-product-badge__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.aggressive-apparel-product-badge__icon svg {
+	width: var(--badge-icon-size, 1.25em);
+	height: var(--badge-icon-size, 1.25em);
+	fill: currentcolor;
+}
+
+/* -------------------------------------------------------------------------
+ * Editor shell — responsive two-pane layout (fields + sticky preview).
+ * Container query keeps it correct on the narrow "Add" column too.
+ * ---------------------------------------------------------------------- */
+.aa-badge-editor-wrap {
+	container-type: inline-size;
+	display: block;
+}
+
+/* The edit panel renders after the core form-table (full content width). */
+.aa-badge-editor-wrap--edit {
+	margin-top: 4px;
+	padding-top: 16px;
+	border-top: 1px solid #dcdcde;
+}
+
+.aa-badge-editor {
+	--aa-admin-border: #dcdcde;
+	--aa-admin-bg: #fff;
+	--aa-admin-muted: #646970;
+	--aa-admin-text: #1d2327;
+	--aa-admin-accent: #2271b1;
+
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+	max-width: 1100px;
+	margin: 0;
+	color: var(--aa-admin-text);
+}
+
+.aa-badge-editor__preview-col {
+	grid-row: 1;
+}
+
+@container (min-width: 700px) {
+
+	.aa-badge-editor {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		align-items: start;
+		gap: 24px;
+	}
+
+	.aa-badge-editor__fields {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.aa-badge-editor__preview-col {
+		grid-column: 2;
+		grid-row: 1;
+		position: sticky;
+		top: 46px;
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * Preview card
+ * ---------------------------------------------------------------------- */
+.aa-badge-editor__preview {
+	border: 1px solid var(--aa-admin-border);
+	border-radius: 8px;
+	background: var(--aa-admin-bg);
+	overflow: hidden;
+}
+
+.aa-badge-editor__preview-label {
+	display: block;
+	padding: 8px 12px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--aa-admin-muted);
+	border-bottom: 1px solid var(--aa-admin-border);
+}
+
+.aa-badge-editor__stage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 120px;
+	padding: 24px 16px;
+	background-color: #f0f0f1;
+	background-image:
+		linear-gradient(45deg, #e4e4e7 25%, transparent 25%),
+		linear-gradient(-45deg, #e4e4e7 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, #e4e4e7 75%),
+		linear-gradient(-45deg, transparent 75%, #e4e4e7 75%);
+	background-size: 16px 16px;
+	background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+/* The live preview badge itself (id #aa-badge-preview-el) keeps its inline
+ * colours/border/padding from the markup + JS; we only normalise typography. */
+#aa-badge-preview-el {
+	font-family: inherit;
+	line-height: 1.4;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+}
+
+/* -------------------------------------------------------------------------
+ * Field sections
+ * ---------------------------------------------------------------------- */
+.aa-badge-editor__fields {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+}
+
+.aa-badge-section {
+	margin: 0;
+	padding: 16px;
+	border: 1px solid var(--aa-admin-border);
+	border-radius: 8px;
+	background: var(--aa-admin-bg);
+}
+
+.aa-badge-section__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+	padding: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--aa-admin-text);
+}
+
+.aa-badge-section__title .dashicons {
+	color: var(--aa-admin-accent);
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.aa-badge-section__note {
+	margin: -4px 0 12px;
+	font-size: 12px;
+	color: var(--aa-admin-muted);
+}
+
+/* Grid of controls inside a section. */
+.aa-badge-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 12px 16px;
+}
+
+.aa-badge-control {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.aa-badge-control > label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--aa-admin-text);
+}
+
+.aa-badge-control .description,
+.aa-badge-control__help {
+	margin: 2px 0 0;
+	font-size: 11px;
+	font-style: normal;
+	color: var(--aa-admin-muted);
+}
+
+.aa-badge-control input[type="text"],
+.aa-badge-control input[type="number"],
+.aa-badge-control select,
+.aa-badge-control textarea {
+	max-width: 100%;
+}
+
+.aa-badge-control textarea {
+	width: 100%;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+}
+
+/* System-badge type callout. */
+.aa-badge-systype {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	padding: 10px 14px;
+	border: 1px solid #c5d9ed;
+	border-left: 3px solid var(--aa-admin-accent);
+	border-radius: 6px;
+	background: #f0f6fc;
+	font-size: 12px;
+	color: #0a4b78;
+}
+
+.aa-badge-systype strong {
+	text-transform: capitalize;
+}
+
+/* -------------------------------------------------------------------------
+ * Compact paired number inputs (radius corners / padding X-Y).
+ * ---------------------------------------------------------------------- */
+.aa-badge-mini-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aa-badge-mini {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--aa-admin-muted);
+}
+
+.aa-badge-mini input {
+	width: 64px;
+}
+
+/* -------------------------------------------------------------------------
+ * Icon source segmented control (progressive enhancement).
+ * Without JS every icon input shows; with .is-enhanced only the active one.
+ * ---------------------------------------------------------------------- */
+.aa-badge-icon-source {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 14px;
+	padding: 4px;
+	border: 1px solid var(--aa-admin-border);
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.aa-badge-icon-source label {
+	margin: 0;
+	cursor: pointer;
+}
+
+.aa-badge-icon-source label span {
+	display: inline-block;
+	padding: 5px 12px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--aa-admin-muted);
+	transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.aa-badge-icon-source input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.aa-badge-icon-source label:hover span {
+	color: var(--aa-admin-text);
+}
+
+.aa-badge-icon-source input:checked + span {
+	background: var(--aa-admin-accent);
+	color: #fff;
+}
+
+.aa-badge-icon-source input:focus-visible + span {
+	outline: 2px solid var(--aa-admin-accent);
+	outline-offset: 2px;
+}
+
+/* Source-specific controls are only collapsed once JS has enhanced the form. */
+.aa-badge-editor.is-enhanced [data-icon-source][hidden] {
+	display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-badge-icon-source label span {
+		transition: none;
+	}
+}

@@ -259,6 +259,7 @@ class Product_Badges {
 			$badge['icon'],
 			$badge['icon_color'],
 			$badge['icon_size'],
+			$badge['icon_gap'],
 		);
 
 		$style_parts = array(

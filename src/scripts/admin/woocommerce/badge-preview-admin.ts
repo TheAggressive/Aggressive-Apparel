@@ -33,6 +33,7 @@ const WATCHED_SELECTORS = [
   '#badge_padding_x',
   '#badge_padding_y',
   '#badge_icon_size',
+  '#badge_icon_gap',
 ].join(',');
 
 /**
@@ -91,7 +92,15 @@ function buildIconStyle(): string {
 
   const iconSize = intValue('badge_icon_size');
   if (iconSize > 0) {
+    // font-size sizes emoji glyphs; --badge-icon-size sizes SVGs (1:1) via the
+    // badge-admin.css rule, so the preview matches the front end.
     style += `font-size:${iconSize}px;`;
+    style += `--badge-icon-size:${iconSize}px;`;
+  }
+
+  const iconGap = intValue('badge_icon_gap');
+  if (iconGap > 0) {
+    style += `margin-right:${iconGap}px;`;
   }
 
   return style;
@@ -181,6 +190,90 @@ function updatePreview(): void {
   preview.appendChild(label);
 }
 
+const ICON_SOURCES = ['none', 'emoji', 'library', 'svg'] as const;
+type IconSource = (typeof ICON_SOURCES)[number];
+
+/**
+ * Type guard for the icon-source union.
+ *
+ * @param value Candidate string.
+ */
+function isIconSource(value: string): value is IconSource {
+  return (ICON_SOURCES as readonly string[]).includes(value);
+}
+
+/**
+ * Show only the controls for the active icon source.
+ *
+ * @param source      The selected source.
+ * @param clearOthers When true, empty the inputs of the hidden sources so the
+ *                    saved badge has a single, honest icon source.
+ */
+function applyIconSource(source: IconSource, clearOthers: boolean): void {
+  const editor = document.querySelector<HTMLElement>('.aa-badge-editor');
+  if (!editor) {
+    return;
+  }
+
+  editor.querySelectorAll<HTMLElement>('[data-icon-source]').forEach(el => {
+    const group = el.dataset.iconSource ?? '';
+
+    // The shared controls (icon colour/size) show for any real source.
+    if (group === 'shared') {
+      el.hidden = source === 'none';
+      return;
+    }
+
+    if (!isIconSource(group)) {
+      return;
+    }
+
+    const active = group === source;
+    el.hidden = !active;
+
+    if (!active && clearOthers) {
+      el.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >('input, select, textarea').forEach(input => {
+        input.value = '';
+      });
+    }
+  });
+}
+
+/**
+ * Wire up the icon-source segmented control (progressive enhancement).
+ */
+function initIconSource(): void {
+  const editor = document.querySelector<HTMLElement>('.aa-badge-editor');
+  if (!editor) {
+    return;
+  }
+
+  editor.classList.add('is-enhanced');
+
+  const radios = editor.querySelectorAll<HTMLInputElement>(
+    'input[name="aa_badge_icon_source"]'
+  );
+  if (!radios.length) {
+    return;
+  }
+
+  const checked = Array.from(radios).find(radio => radio.checked);
+  const initial =
+    checked && isIconSource(checked.value) ? checked.value : 'none';
+  applyIconSource(initial, false);
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.checked && isIconSource(radio.value)) {
+        applyIconSource(radio.value, true);
+        updatePreview();
+      }
+    });
+  });
+}
+
 /**
  * Bootstrap wpColorPicker on the badge colour fields.
  */
@@ -218,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initColorPickers();
+  initIconSource();
   bindFieldListeners();
   updatePreview();
 });

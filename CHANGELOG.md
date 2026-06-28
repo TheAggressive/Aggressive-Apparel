@@ -1,3 +1,11 @@
+# [1.107.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.106.0...v1.107.0) (2026-06-28)
+
+
+### Features
+
+* enhance WooCommerce integration with brand icons and improved search placeholders ([04c0487](https://github.com/TheAggressive/Aggressive-Apparel/commit/04c0487977fdff4e7f2c44851d955cd12d0a8c10))
+* improve rate limiting and caching for product sorting ([14c737d](https://github.com/TheAggressive/Aggressive-Apparel/commit/14c737dfb4545650c1bab9c8e2596ef36c409954))
+
 # [1.106.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.105.0...v1.106.0) (2026-06-27)
 
 

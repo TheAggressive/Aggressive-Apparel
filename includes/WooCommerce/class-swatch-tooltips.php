@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
-use Aggressive_Apparel\Assets\Asset_Loader;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -42,36 +40,24 @@ class Swatch_Tooltips {
 		add_action( 'created_pa_color', array( $this, 'save_term_fields' ) );
 		add_action( 'edited_pa_color', array( $this, 'save_term_fields' ) );
 
-		// Enqueue tooltip CSS.
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-	}
-
-	/**
-	 * Enqueue tooltip styles on single product pages.
-	 *
-	 * @return void
-	 */
-	public function enqueue_styles(): void {
-		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
-			return;
-		}
-
-		Asset_Loader::enqueue_feature_style(
-			'aggressive-apparel-swatch-tooltips',
-			'build/styles/woocommerce/swatch-tooltips'
-		);
+		// Tooltip styling lives in color-swatches.css (always loaded on product
+		// pages) so the colour-name tooltip works even when this optional feature
+		// is off; this class only enriches it with fabric details.
 	}
 
 	/**
 	 * Inject data-tooltip attributes onto swatch elements.
+	 *
+	 * The tooltip always carries the colour name (so colour-blind users can
+	 * identify a swatch without permanent visible labels — WCAG 1.4.1), with the
+	 * fabric name / composition appended when configured on the term.
 	 *
 	 * @param string $block_content Block HTML.
 	 * @param array  $block         Block data.
 	 * @return string Modified HTML.
 	 */
 	public function add_tooltip_data( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) ||
-			'woocommerce/add-to-cart-with-options-variation-selector-attribute-options' !== $block['blockName'] ) {
+		if ( ! Block_Pill_Helper::is_attribute_options_block( $block ) ) {
 			return $block_content;
 		}
 
@@ -79,32 +65,32 @@ class Swatch_Tooltips {
 			return $block_content;
 		}
 
-		// Find each swatch span and add tooltip data attribute.
+		// Find each swatch span and add a tooltip built from the colour name
+		// (always) plus any fabric details.
 		return (string) preg_replace_callback(
 			'/data-color-name="([^"]+)"/',
 			function ( $matches ) {
 				$color_name = $matches[1];
-				$term       = get_term_by( 'name', $color_name, 'pa_color' );
-				if ( ! $term ) {
-					return $matches[0];
+				$tooltip    = $color_name;
+
+				$term = get_term_by( 'name', $color_name, 'pa_color' );
+				if ( $term ) {
+					$fabric = get_term_meta( $term->term_id, 'fabric_name', true );
+					$comp   = get_term_meta( $term->term_id, 'fabric_composition', true );
+
+					$details = '';
+					if ( $fabric ) {
+						$details .= $fabric;
+					}
+					if ( $comp ) {
+						$details .= $details ? ' · ' . $comp : $comp;
+					}
+					if ( '' !== $details ) {
+						$tooltip .= ' — ' . $details;
+					}
 				}
 
-				$fabric = get_term_meta( $term->term_id, 'fabric_name', true );
-				$comp   = get_term_meta( $term->term_id, 'fabric_composition', true );
-
-				$tooltip = '';
-				if ( $fabric ) {
-					$tooltip .= esc_attr( $fabric );
-				}
-				if ( $comp ) {
-					$tooltip .= $tooltip ? ' — ' . esc_attr( $comp ) : esc_attr( $comp );
-				}
-
-				if ( '' === $tooltip ) {
-					return $matches[0];
-				}
-
-				return $matches[0] . ' data-tooltip="' . $tooltip . '"';
+				return $matches[0] . ' data-tooltip="' . esc_attr( $tooltip ) . '"';
 			},
 			$block_content,
 		);

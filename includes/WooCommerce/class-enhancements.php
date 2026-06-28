@@ -70,7 +70,6 @@ class Enhancements {
 		Back_In_Stock_Installer::class,
 		Back_In_Stock::class,
 		Back_In_Stock_Admin::class,
-		Card_Enhancements::class,
 	);
 
 	/**
@@ -163,16 +162,6 @@ class Enhancements {
 			if ( is_admin() ) {
 				$this->container->get( Back_In_Stock_Admin::class )->init();
 			}
-		}
-
-		// Bridges PHP-only card enhancements (badges, page transitions,
-		// countdown timer) onto AJAX-rendered cards via a Store API
-		// extension. Loaded whenever any contributing feature is on.
-		if (
-			Feature_Settings::is_enabled( 'product_badges' ) ||
-			Feature_Settings::is_enabled( 'page_transitions' )
-		) {
-			$this->container->get( Card_Enhancements::class )->init();
 		}
 	}
 

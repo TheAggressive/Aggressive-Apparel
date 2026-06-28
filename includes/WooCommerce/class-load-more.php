@@ -148,6 +148,9 @@ class Load_More {
 			array(
 				'mode'            => $mode,
 				'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
+				// REST nonce so logged-in admins/shop managers stay authenticated
+				// for the rendered-products endpoint during "coming soon" mode.
+				'restNonce'       => wp_create_nonce( 'wp_rest' ),
 				'templateSlug'    => $this->get_current_template_slug(),
 				'perPage'         => $per_page,
 				'currentPage'     => 1,
@@ -190,9 +193,6 @@ class Load_More {
 	 * @return string
 	 */
 	private function get_current_template_slug(): string {
-		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
-			return 'taxonomy-product_cat';
-		}
-		return 'archive-product';
+		return Product_Context::get_current_template_slug();
 	}
 }

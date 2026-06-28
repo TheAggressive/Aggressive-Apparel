@@ -100,7 +100,7 @@ class Product_Tabs_Sanitizer {
 
 			$output[] = array(
 				'key'       => $key,
-				'enabled'   => isset( $tab['enabled'] ) && '0' !== (string) $tab['enabled'],
+				'enabled'   => isset( $tab['enabled'] ) && wp_validate_boolean( $tab['enabled'] ),
 				'title'     => $title,
 				'priority'  => max( 1, min( 999, absint( $tab['priority'] ?? 40 ) ) ),
 				'source'    => $source,

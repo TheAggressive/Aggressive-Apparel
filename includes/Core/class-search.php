@@ -647,10 +647,10 @@ class Search {
 	private function get_placeholder_phrases(): array {
 		$phrases = array();
 		if ( $this->products_are_public() ) {
-			$phrases[] = __( 'Search for Products…', 'aggressive-apparel' );
+			$phrases[] = __( 'Find Your Fit…', 'aggressive-apparel' );
 		}
-		$phrases[] = __( 'Search for Articles…', 'aggressive-apparel' );
-		$phrases[] = __( 'Find Pages…', 'aggressive-apparel' );
+		$phrases[] = __( 'Read the Noise…', 'aggressive-apparel' );
+		$phrases[] = __( 'Find Your Way…', 'aggressive-apparel' );
 
 		/**
 		 * Filter the animated search placeholder phrases.

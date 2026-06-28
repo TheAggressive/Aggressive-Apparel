@@ -184,6 +184,22 @@ class Feature_Settings_Fields {
 	}
 
 	/**
+	 * Render the active-filter bar placement select field.
+	 *
+	 * @return void
+	 */
+	public function render_filter_active_bar_placement_field(): void {
+		$placement = (string) get_option( Feature_Settings::FILTER_ACTIVE_BAR_PLACEMENT_OPTION, 'auto' );
+		$options   = array(
+			'auto'  => __( 'Automatic (top of the filter UI)', 'aggressive-apparel' ),
+			'block' => __( 'Manual placement (use Active Filter Bar block)', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::FILTER_ACTIVE_BAR_PLACEMENT_OPTION, $options, $placement );
+		echo '<p class="description">' . esc_html__( 'Automatic renders the active filters (pills + Clear All) above the product grid. Manual suppresses it so you can place the "Active Filter Bar" block anywhere in the Site Editor.', 'aggressive-apparel' ) . '</p>';
+	}
+
+	/**
 	 * Render the wishlist button placement select field.
 	 *
 	 * @return void
@@ -345,7 +361,7 @@ class Feature_Settings_Fields {
 		echo wp_kses_post(
 			sprintf(
 				/* translators: %s: Inline code snippet with PHP filter name. */
-				__( 'Developers — register additional slug → SVG-path pairs via the %s filter (child theme recommended). Paths must describe a single d attribute tuned for viewBox="0 0 24 24".', 'aggressive-apparel' ),
+				__( 'Developers — register additional icons via the %s filter (child theme recommended). Use a string for a single path (viewBox 0 0 24 24), or an array with viewBox, paths, and optional circles, polygons, and rects.', 'aggressive-apparel' ),
 				'<code>aggressive_apparel_icon_definitions</code>'
 			),
 		);

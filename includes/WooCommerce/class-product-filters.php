@@ -188,16 +188,25 @@ class Product_Filters {
 			wp_interactivity_state(
 				'aggressive-apparel/product-filters',
 				array(
-					'restBase'             => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-					'shopUrl'              => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
-					'layout'               => $this->layout,
-					'perPage'              => 12,
-					'currentCategorySlug'  => $current_cat_slug,
-					'categories'           => $data['categories'],
-					'colorTerms'           => $data['colorTerms'],
-					'sizeTerms'            => $data['sizeTerms'],
-					'fitTerms'             => $data['fitTerms'],
-					'priceRange'           => array_merge(
+					'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+					// REST nonce so logged-in shop managers/admins are authenticated
+					// for the rendered-products endpoint while the store is in
+					// "coming soon" mode (otherwise the fetch is treated as
+					// anonymous and the gated catalogue comes back empty).
+					'restNonce'           => wp_create_nonce( 'wp_rest' ),
+					'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
+					'layout'              => $this->layout,
+					'perPage'             => 12,
+					'currentCategorySlug' => $current_cat_slug,
+					// Render filtered cards from the same template the current page
+					// uses (e.g. a customised "Products by Category" template),
+					// not the default archive-product card.
+					'templateSlug'        => Product_Context::get_current_template_slug(),
+					'categories'          => $data['categories'],
+					'colorTerms'          => $data['colorTerms'],
+					'sizeTerms'           => $data['sizeTerms'],
+					'fitTerms'            => $data['fitTerms'],
+					'priceRange'          => array_merge(
 						$data['priceRange'],
 						array(
 							'currencyPrefix' => html_entity_decode(
@@ -207,27 +216,26 @@ class Product_Filters {
 							),
 						)
 					),
-					'stockStatuses'        => $data['stockStatuses'],
-					'categoryAttributeMap' => $data['categoryAttributeMap'],
-					'selectedCategories'   => array(),
-					'selectedColors'       => array(),
-					'selectedSizes'        => array(),
-					'selectedFit'          => array(),
-					'priceMin'             => $data['priceRange']['min'],
-					'priceMax'             => $data['priceRange']['max'],
-					'inStockOnly'          => false,
-					'orderBy'              => 'date',
-					'orderDir'             => 'desc',
-					'_customSort'          => '',
-					'isDrawerOpen'         => false,
-					'isLoading'            => false,
-					'hasError'             => false,
-					'currentPage'          => 1,
-					'totalPages'           => 1,
-					'totalProducts'        => 0,
-					'products'             => array(),
-					'announcement'         => '',
-					'openDropdown'         => '',
+					'stockStatuses'       => $data['stockStatuses'],
+					'selectedCategories'  => array(),
+					'selectedColors'      => array(),
+					'selectedSizes'       => array(),
+					'selectedFit'         => array(),
+					'priceMin'            => $data['priceRange']['min'],
+					'priceMax'            => $data['priceRange']['max'],
+					'inStockOnly'         => false,
+					'orderBy'             => 'date',
+					'orderDir'            => 'desc',
+					'_customSort'         => '',
+					'isDrawerOpen'        => false,
+					'isLoading'           => false,
+					'hasError'            => false,
+					'currentPage'         => 1,
+					'totalPages'          => 1,
+					'totalProducts'       => 0,
+					'products'            => array(),
+					'announcement'        => '',
+					'openDropdown'        => '',
 
 					/*
 					 * Translatable strings consumed by the Interactivity store.
@@ -236,7 +244,7 @@ class Product_Filters {
 					 * announcement separated from the visible button label
 					 * when the two are concatenated by the AT name algorithm.
 					 */
-					'i18n'                 => array(
+					'i18n'                => array(
 						/* translators: %s is the number of currently active filters (always 1). */
 						'filtersAppliedSingular' => __( '(%s filter applied)', 'aggressive-apparel' ),
 						/* translators: %s is the number of currently active filters (2 or more). */
@@ -436,6 +444,12 @@ class Product_Filters {
 			$this->render_filter_sections( $data );
 			$sidebar_html .= ob_get_clean();
 
+			// Sidebar has no panel to close, so results apply via this button
+			// (selections only stage until it's pressed).
+			$sidebar_html .= '<button class="aa-product-filters__apply-btn aa-product-filters__apply-btn--sidebar wp-element-button" data-wp-on--click="actions.applyFilters">';
+			$sidebar_html .= esc_html__( 'View Results', 'aggressive-apparel' );
+			$sidebar_html .= '</button>';
+
 			$sidebar_html .= '<button class="aa-product-filters__clear-btn aa-product-filters__clear-btn--sidebar wp-element-button" data-wp-on--click="actions.clearAllFilters" data-wp-bind--hidden="state.hasNoActiveFilters">';
 			$sidebar_html .= esc_html__( 'Clear All Filters', 'aggressive-apparel' );
 			$sidebar_html .= '</button>';
@@ -457,12 +471,13 @@ class Product_Filters {
 
 		$output .= $bar_html;
 
-		// Active filter pills bar (visible when filters are active).
-		$output .= '<div class="aa-product-filters__active-bar" data-wp-bind--hidden="state.hasNoActiveFilters">';
-		$output .= '<div class="aa-product-filters__pills">';
-		$output .= '</div>';
-		$output .= '<button class="aa-product-filters__clear-all wp-element-button" data-wp-on--click="actions.clearAllFilters">' . esc_html__( 'Clear All', 'aggressive-apparel' ) . '</button>';
-		$output .= '</div>';
+		// Active filter pills bar — auto-injected unless the admin opted to place
+		// the `aggressive-apparel/filter-active-bar` block manually.
+		if ( 'block' !== Feature_Settings::get_filter_active_bar_placement() ) {
+			$output .= '<div class="aa-product-filters__active-bar" data-wp-bind--hidden="state.hasNoActiveFilters">';
+			$output .= self::render_active_bar_inner();
+			$output .= '</div>';
+		}
 
 		$output .= '<div class="aa-product-filters__grid-wrapper' . esc_attr( $grid_class ) . '">';
 
@@ -470,37 +485,40 @@ class Product_Filters {
 
 		$output .= '<div class="aa-product-filters__main">';
 
-		// Original SSR grid — hidden when filters are active.
-		$output .= '<div class="aa-product-filters__ssr-grid" data-wp-bind--hidden="state.hasActiveFilters">';
-		$output .= $block_content;
-		$output .= '</div>';
-
-		// AJAX grid — shown when filters are active.
-		$output .= '<div class="aa-product-filters__ajax-grid" data-wp-bind--hidden="state.hasNoActiveFilters">';
-
-		// Loading skeleton.
+		// Loading skeleton — overlays the grid only while a filtered request is
+		// in flight.
 		$output .= '<div class="aa-product-filters__skeleton" data-wp-bind--hidden="state.isNotLoading" aria-hidden="true">';
 		for ( $i = 0; $i < 6; $i++ ) {
 			$output .= '<div class="aa-product-filters__skeleton-card" role="presentation"><div class="aa-product-filters__skeleton-image"></div><div class="aa-product-filters__skeleton-title"></div><div class="aa-product-filters__skeleton-price"></div></div>';
 		}
 		$output .= '</div>';
 
-		// Product grid (populated by JS via innerHTML).
-		$output .= '<div data-wp-bind--hidden="state.isLoading">';
-		$output .= '<div class="aa-product-filters__products">';
-		$output .= '</div></div>';
+		// The real, native product-collection grid. Filtered/sorted results are
+		// injected by JS straight into its product-template <ul> — the same
+		// element infinite-scroll appends to — so columns, gap, alignment and the
+		// "Inner blocks use content width" constraint are always exactly what the
+		// block editor produced. Hidden only while a request is loading.
+		$output .= '<div class="aa-product-filters__grid" data-wp-bind--hidden="state.isLoading">';
+		$output .= $block_content;
+		$output .= '</div>';
 
-		// No results.
-		$output .= '<div class="aa-product-filters__no-results" data-wp-bind--hidden="state.hasProducts">';
+		// No results — only while filters are active and the grid came back empty.
+		$output .= '<div class="aa-product-filters__no-results" data-wp-bind--hidden="state.hideNoResults">';
 		$output .= '<p>' . esc_html__( 'No products were found matching your selection.', 'aggressive-apparel' ) . '</p>';
+		$output .= '</div>';
+
+		// Error notice with retry — shown when a request fails.
+		$output .= '<div class="aa-product-filters__error" role="alert" data-wp-bind--hidden="state.hideError">';
+		$output .= '<p>' . esc_html__( 'Something went wrong loading products.', 'aggressive-apparel' ) . '</p>';
+		$output .= '<button type="button" class="aa-product-filters__retry wp-element-button" data-wp-on--click="actions.retry">';
+		$output .= esc_html__( 'Try again', 'aggressive-apparel' );
+		$output .= '</button>';
 		$output .= '</div>';
 
 		// Pagination.
 		$output .= '<nav data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '">';
 		$output .= '<div class="aa-product-filters__pagination">';
 		$output .= '</div></nav>';
-
-		$output .= '</div>'; // End .aa-product-filters__ajax-grid.
 
 		$output .= '</div>'; // End .aa-product-filters__main.
 		$output .= '</div>'; // End .aa-product-filters__grid-wrapper.
@@ -866,7 +884,7 @@ class Product_Filters {
 		$cache_key = self::CACHE_PREFIX . 'data';
 		$cached    = get_transient( $cache_key );
 
-		if ( is_array( $cached ) && isset( $cached['categoryAttributeMap'], $cached['fitTerms'] ) ) {
+		if ( is_array( $cached ) && isset( $cached['colorTerms'], $cached['fitTerms'] ) ) {
 			$this->filter_data = $cached;
 			return $cached;
 		}
@@ -909,20 +927,13 @@ class Product_Filters {
 			$price_range = $default_price;
 		}
 
-		try {
-			$category_attribute_map = $this->get_category_attribute_map();
-		} catch ( \Throwable ) {
-			$category_attribute_map = array();
-		}
-
 		$data = array(
-			'categories'           => $categories,
-			'colorTerms'           => $color_terms,
-			'sizeTerms'            => $size_terms,
-			'fitTerms'             => $fit_terms,
-			'priceRange'           => $price_range,
-			'stockStatuses'        => $this->get_stock_statuses(),
-			'categoryAttributeMap' => $category_attribute_map,
+			'categories'    => $categories,
+			'colorTerms'    => $color_terms,
+			'sizeTerms'     => $size_terms,
+			'fitTerms'      => $fit_terms,
+			'priceRange'    => $price_range,
+			'stockStatuses' => $this->get_stock_statuses(),
 		);
 
 		set_transient( $cache_key, $data, self::CACHE_TTL );
@@ -1107,124 +1118,6 @@ class Product_Filters {
 	}
 
 	/**
-	 * Build a map of category slug → available size/color slugs.
-	 *
-	 * Used by the JS to hide irrelevant filter options when
-	 * a category is selected. Cached in the same transient as
-	 * all other filter data.
-	 *
-	 * @return array<string, array{sizes: string[], colors: string[]}>
-	 */
-	private function get_category_attribute_map(): array {
-		global $wpdb;
-
-		/*
-		 * Three-part UNION covering all WooCommerce attribute storage:
-		 * 1. Attribute terms on the parent product (simple products).
-		 * 2. Attribute terms on variation posts via term_relationships.
-		 * 3. Attribute values in variation postmeta (most common for
-		 *    variable products: attribute_pa_size, attribute_pa_color).
-		 */
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$results = $wpdb->get_results(
-			"SELECT t_cat.slug AS cat_slug,
-			        tt_attr.taxonomy AS attr_tax,
-			        t_attr.slug AS attr_slug
-			 FROM {$wpdb->term_relationships} tr_cat
-			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
-			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
-			 INNER JOIN {$wpdb->terms} t_cat
-			   ON tt_cat.term_id = t_cat.term_id
-			 INNER JOIN {$wpdb->term_relationships} tr_attr
-			   ON tr_cat.object_id = tr_attr.object_id
-			 INNER JOIN {$wpdb->term_taxonomy} tt_attr
-			   ON tr_attr.term_taxonomy_id = tt_attr.term_taxonomy_id
-			 INNER JOIN {$wpdb->terms} t_attr
-			   ON tt_attr.term_id = t_attr.term_id
-			 INNER JOIN {$wpdb->posts} p
-			   ON tr_cat.object_id = p.ID
-			 WHERE tt_cat.taxonomy = 'product_cat'
-			   AND tt_attr.taxonomy IN ('pa_size', 'pa_color')
-			   AND p.post_type = 'product'
-			   AND p.post_status = 'publish'
-
-			 UNION
-
-			 SELECT t_cat.slug AS cat_slug,
-			        tt_attr.taxonomy AS attr_tax,
-			        t_attr.slug AS attr_slug
-			 FROM {$wpdb->posts} v
-			 INNER JOIN {$wpdb->posts} p
-			   ON v.post_parent = p.ID
-			 INNER JOIN {$wpdb->term_relationships} tr_cat
-			   ON p.ID = tr_cat.object_id
-			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
-			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
-			 INNER JOIN {$wpdb->terms} t_cat
-			   ON tt_cat.term_id = t_cat.term_id
-			 INNER JOIN {$wpdb->term_relationships} tr_attr
-			   ON v.ID = tr_attr.object_id
-			 INNER JOIN {$wpdb->term_taxonomy} tt_attr
-			   ON tr_attr.term_taxonomy_id = tt_attr.term_taxonomy_id
-			 INNER JOIN {$wpdb->terms} t_attr
-			   ON tt_attr.term_id = t_attr.term_id
-			 WHERE tt_cat.taxonomy = 'product_cat'
-			   AND tt_attr.taxonomy IN ('pa_size', 'pa_color')
-			   AND v.post_type = 'product_variation'
-			   AND p.post_type = 'product'
-			   AND p.post_status = 'publish'
-
-			 UNION
-
-			 SELECT t_cat.slug AS cat_slug,
-			        CONCAT('pa_', SUBSTRING(pm.meta_key, 14)) AS attr_tax,
-			        pm.meta_value AS attr_slug
-			 FROM {$wpdb->posts} v
-			 INNER JOIN {$wpdb->posts} p
-			   ON v.post_parent = p.ID
-			 INNER JOIN {$wpdb->term_relationships} tr_cat
-			   ON p.ID = tr_cat.object_id
-			 INNER JOIN {$wpdb->term_taxonomy} tt_cat
-			   ON tr_cat.term_taxonomy_id = tt_cat.term_taxonomy_id
-			 INNER JOIN {$wpdb->terms} t_cat
-			   ON tt_cat.term_id = t_cat.term_id
-			 INNER JOIN {$wpdb->postmeta} pm
-			   ON v.ID = pm.post_id
-			 WHERE tt_cat.taxonomy = 'product_cat'
-			   AND pm.meta_key IN ('attribute_pa_size', 'attribute_pa_color')
-			   AND pm.meta_value != ''
-			   AND v.post_type = 'product_variation'
-			   AND p.post_type = 'product'
-			   AND p.post_status = 'publish'"
-		);
-
-		$map = array();
-		if ( is_array( $results ) ) {
-			foreach ( $results as $row ) {
-				$key = 'pa_size' === $row->attr_tax ? 'sizes' : 'colors';
-
-				if ( ! isset( $map[ $row->cat_slug ] ) ) {
-					$map[ $row->cat_slug ] = array(
-						'sizes'  => array(),
-						'colors' => array(),
-					);
-				}
-
-				$map[ $row->cat_slug ][ $key ][] = $row->attr_slug;
-			}
-
-			// Deduplicate.
-			foreach ( $map as &$entry ) {
-				$entry['sizes']  = array_values( array_unique( $entry['sizes'] ) );
-				$entry['colors'] = array_values( array_unique( $entry['colors'] ) );
-			}
-			unset( $entry );
-		}
-
-		return $map;
-	}
-
-	/**
 	 * Get stock status options.
 	 *
 	 * @return array Stock statuses.
@@ -1318,5 +1211,23 @@ class Product_Filters {
 	 */
 	public static function mark_trigger_block_rendered(): void {
 		self::$trigger_block_rendered = true;
+	}
+
+	/**
+	 * Render the inner contents of the active-filter bar.
+	 *
+	 * Shared by the auto-injected bar (inside the main `.aa-product-filters`
+	 * interactive wrapper) and the standalone `filter-active-bar` block: an empty
+	 * pills container that JS populates on filter change, plus the Clear All
+	 * button wired to the store action. Both pieces work anywhere within an
+	 * interactive region of the `aggressive-apparel/product-filters` store.
+	 *
+	 * @return string Active-bar inner HTML.
+	 */
+	public static function render_active_bar_inner(): string {
+		return '<div class="aa-product-filters__pills"></div>'
+			. '<button class="aa-product-filters__clear-all wp-element-button" data-wp-on--click="actions.clearAllFilters">'
+			. esc_html__( 'Clear All', 'aggressive-apparel' )
+			. '</button>';
 	}
 }

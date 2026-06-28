@@ -1,0 +1,43 @@
+/*
+ * Active Filter Bar Block — Editor Styles
+ *
+ * Mirrors the bare minimum of the frontend `.aa-product-filters__active-bar`
+ * appearance so the block preview is meaningful inside the block editor, where
+ * the theme's frontend stylesheet may not be loaded.
+ */
+
+.wp-block-aggressive-apparel-filter-active-bar .aa-product-filters__active-bar,
+.wp-block-aggressive-apparel-filter-active-bar.aa-product-filters__active-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wp-block-aggressive-apparel-filter-active-bar .aa-product-filters__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wp-block-aggressive-apparel-filter-active-bar .aa-product-filters__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid currentcolor;
+  border-radius: var(--aa-radius-control, 999px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wp-block-aggressive-apparel-filter-active-bar .aa-product-filters__clear-all {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

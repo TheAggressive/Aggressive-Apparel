@@ -35,22 +35,6 @@ declare module '@aggressive-apparel/helpers' {
     [key: string]: unknown;
   }
 
-  export interface CardCountdown {
-    end_ts: number;
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  }
-
-  export interface CardEnhancementData {
-    badges_html?: string;
-    view_transition_name?: string;
-    countdown?: CardCountdown;
-  }
-
-  export const CARD_ENHANCEMENTS_NS: string;
-
   export function parsePrice(
     prices: StoreApiPrices | null | undefined
   ): PriceResult;
@@ -65,25 +49,7 @@ declare module '@aggressive-apparel/helpers' {
   export function setMainContentInert(inert: boolean): void;
 
   export function escapeHtml(str: string | null | undefined): string;
-  export function buildQuickViewTriggerHtml(
-    productId: number,
-    productName: string
-  ): string;
-  export function buildWishlistHeartHtml(productId: number): string;
   export function notifyCardsRendered(container: HTMLElement | null): void;
-
-  export function getCardEnhancements(product: {
-    extensions?: Record<string, unknown>;
-  }): CardEnhancementData;
-  export function buildViewTransitionStyle(
-    enhancements: CardEnhancementData
-  ): string;
-  export function applyViewTransitionToImgTag(
-    imgTag: string,
-    enhancements: CardEnhancementData
-  ): string;
-  export function buildBadgesHtml(enhancements: CardEnhancementData): string;
-  export function buildCountdownHtml(enhancements: CardEnhancementData): string;
 }
 
 declare module '@aggressive-apparel/scroll-lock' {

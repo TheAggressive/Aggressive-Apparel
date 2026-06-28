@@ -21,9 +21,9 @@ namespace Aggressive_Apparel\Core;
 class Icons {
 
 	/**
-	 * Default SVG attributes
+	 * Default SVG attributes.
 	 *
-	 * @var array
+	 * @var array<string, int|string>
 	 */
 	private const DEFAULT_ATTRS = array(
 		'width'  => 24,
@@ -32,11 +32,41 @@ class Icons {
 	);
 
 	/**
+	 * Default viewBox for single-path and unspecified multi-path icons.
+	 */
+	private const DEFAULT_VIEWBOX = '0 0 24 24';
+
+	/**
+	 * Allowed optional attributes on path/circle primitives.
+	 *
+	 * @var array<int, string>
+	 */
+	private const SHAPE_ATTRS = array(
+		'fill',
+		'fill-rule',
+		'stroke',
+		'stroke-width',
+		'opacity',
+		'transform',
+	);
+
+	/**
+	 * Per-request icon map cache (cleared when filter runs in tests).
+	 *
+	 * @var array<string, string|array<string, mixed>>|null
+	 */
+	private static ?array $definitions_cache = null;
+
+	/**
 	 * Icon definitions (path data only — merged with filter below).
 	 *
 	 * Slugs may be expanded from PHP via the `aggressive_apparel_icon_definitions` filter.
 	 *
-	 * @var array<string, string>
+	 * Each slug maps to either:
+	 * - a string: single path `d` for viewBox `0 0 24 24`, or
+	 * - an array: `viewBox`, `paths`, optional `circles`, `polygons`, and `rects`.
+	 *
+	 * @var array<string, string|array<string, mixed>>
 	 */
 	private const ICONS = array(
 		// Navigation icons.
@@ -56,7 +86,7 @@ class Icons {
 		'search'        => 'M13 5c-3.3 0-6 2.7-6 6 0 1.4.5 2.7 1.3 3.7l-3.8 3.8 1.1 1.1 3.8-3.8c1 .8 2.3 1.3 3.7 1.3 3.3 0 6-2.7 6-6S16.3 5 13 5zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z',
 		'cart'          => 'M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1V2m6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m9-7 2.78-5H6.14l2.36 5H16z',
 		'user'          => 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
-		'heart'         => 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+		'heart'         => 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3 1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
 		'eye'           => 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z',
 
 		// UI icons.
@@ -81,13 +111,11 @@ class Icons {
 	 *
 	 * Cached per-request so filters only execute once.
 	 *
-	 * @return array<string, string> Slug => SVG path data.
+	 * @return array<string, string|array<string, mixed>>
 	 */
 	private static function all_icons(): array {
-		static $cache = null;
-
-		if ( null !== $cache ) {
-			return $cache;
+		if ( null !== self::$definitions_cache ) {
+			return self::$definitions_cache;
 		}
 
 		// Themes/plugins append icons without editing core SVG definitions.
@@ -98,16 +126,16 @@ class Icons {
 			$merged = self::ICONS;
 		}
 
-		$cache = $merged;
+		self::$definitions_cache = $merged;
 
-		return $cache;
+		return self::$definitions_cache;
 	}
 
 	/**
-	 * Get SVG icon markup
+	 * Get SVG icon markup.
 	 *
-	 * @param string $icon  Icon name.
-	 * @param array  $attrs Optional SVG attributes.
+	 * @param string               $icon  Icon name.
+	 * @param array<string, mixed> $attrs Optional SVG attributes.
 	 * @return string SVG markup or empty string if icon not found.
 	 */
 	public static function get( string $icon, array $attrs = array() ): string {
@@ -117,53 +145,611 @@ class Icons {
 			return '';
 		}
 
+		$normalized = self::normalize_definition( $definitions[ $icon ] );
+
+		if ( null === $normalized ) {
+			return '';
+		}
+
 		$attrs = wp_parse_args( $attrs, self::DEFAULT_ATTRS );
 
-		$svg_attrs = sprintf(
-			'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="%d" height="%d" fill="%s"',
-			absint( $attrs['width'] ),
-			absint( $attrs['height'] ),
-			esc_attr( $attrs['fill'] )
-		);
+		$svg_attrs = self::build_root_svg_attrs( $attrs, $normalized['viewBox'] );
+		$inner     = self::build_inner_markup( $normalized );
 
-		// Add any additional attributes.
-		if ( isset( $attrs['class'] ) ) {
-			$svg_attrs .= sprintf( ' class="%s"', esc_attr( $attrs['class'] ) );
-		}
-		if ( isset( $attrs['aria-hidden'] ) ) {
-			$svg_attrs .= sprintf( ' aria-hidden="%s"', esc_attr( $attrs['aria-hidden'] ) );
+		if ( '' === $inner ) {
+			return '';
 		}
 
-		return sprintf( '<svg %s><path d="%s"/></svg>', $svg_attrs, $definitions[ $icon ] );
+		return sprintf( '<svg %s>%s</svg>', $svg_attrs, $inner );
 	}
 
 	/**
-	 * Echo SVG icon
+	 * Echo SVG icon.
 	 *
-	 * @param string $icon  Icon name.
-	 * @param array  $attrs Optional SVG attributes.
+	 * @param string               $icon  Icon name.
+	 * @param array<string, mixed> $attrs Optional SVG attributes.
 	 */
 	public static function render( string $icon, array $attrs = array() ): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG output.
 		echo self::get( $icon, $attrs );
 	}
 
 	/**
-	 * Check if an icon exists
+	 * Check if an icon exists.
 	 *
 	 * @param string $icon Icon name.
 	 * @return bool
 	 */
 	public static function exists( string $icon ): bool {
-		return isset( self::all_icons()[ $icon ] );
+		if ( ! isset( self::all_icons()[ $icon ] ) ) {
+			return false;
+		}
+
+		return null !== self::normalize_definition( self::all_icons()[ $icon ] );
 	}
 
 	/**
-	 * Get all available icon names
+	 * Get all available icon names.
 	 *
 	 * @return array<int, string>
 	 */
 	public static function list(): array {
-		return array_keys( self::all_icons() );
+		$slugs = array();
+
+		foreach ( array_keys( self::all_icons() ) as $slug ) {
+			if ( ! is_string( $slug ) ) {
+				continue;
+			}
+
+			if ( self::exists( $slug ) ) {
+				$slugs[] = $slug;
+			}
+		}
+
+		return $slugs;
+	}
+
+	/**
+	 * Normalize a slug definition into render-ready primitives.
+	 *
+	 * @param string|array<string, mixed> $definition Icon definition.
+	 * @return array{
+	 *     viewBox: string,
+	 *     paths: array<int, array<string, string>>,
+	 *     circles: array<int, array<string, string>>,
+	 *     polygons: array<int, array<string, string>>,
+	 *     rects: array<int, array<string, string>>
+	 * }|null
+	 */
+	private static function normalize_definition( string|array $definition ): ?array {
+		if ( is_string( $definition ) ) {
+			$path_data = trim( $definition );
+
+			if ( '' === $path_data ) {
+				return null;
+			}
+
+			return array(
+				'viewBox'  => self::DEFAULT_VIEWBOX,
+				'paths'    => array(
+					array( 'd' => $path_data ),
+				),
+				'circles'  => array(),
+				'polygons' => array(),
+				'rects'    => array(),
+			);
+		}
+
+		if ( ! is_array( $definition ) ) {
+			return null;
+		}
+
+		$view_box = self::DEFAULT_VIEWBOX;
+
+		if ( isset( $definition['viewBox'] ) && is_string( $definition['viewBox'] ) ) {
+			$sanitized_view_box = self::sanitize_view_box( $definition['viewBox'] );
+
+			if ( null === $sanitized_view_box ) {
+				return null;
+			}
+
+			$view_box = $sanitized_view_box;
+		}
+
+		$paths    = self::normalize_paths( $definition['paths'] ?? array() );
+		$circles  = self::normalize_circles( $definition['circles'] ?? array() );
+		$polygons = self::normalize_polygons( $definition['polygons'] ?? array() );
+		$rects    = self::normalize_rects( $definition['rects'] ?? array() );
+
+		if ( array() === $paths && array() === $circles && array() === $polygons && array() === $rects ) {
+			return null;
+		}
+
+		return array(
+			'viewBox'  => $view_box,
+			'paths'    => $paths,
+			'circles'  => $circles,
+			'polygons' => $polygons,
+			'rects'    => $rects,
+		);
+	}
+
+	/**
+	 * Normalize path entries from string or attribute arrays.
+	 *
+	 * @param mixed $paths Raw paths value.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function normalize_paths( mixed $paths ): array {
+		if ( ! is_array( $paths ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		foreach ( $paths as $path ) {
+			if ( is_string( $path ) ) {
+				$path_data = trim( $path );
+
+				if ( '' !== $path_data ) {
+					$normalized[] = array( 'd' => $path_data );
+				}
+
+				continue;
+			}
+
+			if ( ! is_array( $path ) || ! isset( $path['d'] ) || ! is_string( $path['d'] ) ) {
+				continue;
+			}
+
+			$path_data = trim( $path['d'] );
+
+			if ( '' === $path_data ) {
+				continue;
+			}
+
+			$entry = array( 'd' => $path_data );
+
+			foreach ( self::SHAPE_ATTRS as $attr ) {
+				if ( ! isset( $path[ $attr ] ) || ! is_string( $path[ $attr ] ) ) {
+					continue;
+				}
+
+				$value = trim( $path[ $attr ] );
+
+				if ( '' !== $value ) {
+					$entry[ $attr ] = $value;
+				}
+			}
+
+			$normalized[] = $entry;
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize circle entries from coordinate arrays or attribute maps.
+	 *
+	 * @param mixed $circles Raw circles value.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function normalize_circles( mixed $circles ): array {
+		if ( ! is_array( $circles ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		foreach ( $circles as $circle ) {
+			if ( is_array( $circle ) && isset( $circle['cx'], $circle['cy'], $circle['r'] ) ) {
+				$entry = array(
+					'cx' => self::stringify_coordinate( $circle['cx'] ),
+					'cy' => self::stringify_coordinate( $circle['cy'] ),
+					'r'  => self::stringify_coordinate( $circle['r'] ),
+				);
+
+				if ( null === $entry['cx'] || null === $entry['cy'] || null === $entry['r'] ) {
+					continue;
+				}
+
+				foreach ( self::SHAPE_ATTRS as $attr ) {
+					if ( ! isset( $circle[ $attr ] ) || ! is_string( $circle[ $attr ] ) ) {
+						continue;
+					}
+
+					$value = trim( $circle[ $attr ] );
+
+					if ( '' !== $value ) {
+						$entry[ $attr ] = $value;
+					}
+				}
+
+				$normalized[] = $entry;
+
+				continue;
+			}
+
+			if ( is_array( $circle ) && array_is_list( $circle ) && count( $circle ) >= 3 ) {
+				$entry = array(
+					'cx' => self::stringify_coordinate( $circle[0] ),
+					'cy' => self::stringify_coordinate( $circle[1] ),
+					'r'  => self::stringify_coordinate( $circle[2] ),
+				);
+
+				if ( null === $entry['cx'] || null === $entry['cy'] || null === $entry['r'] ) {
+					continue;
+				}
+
+				$normalized[] = $entry;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize polygon entries from string or attribute arrays.
+	 *
+	 * @param mixed $polygons Raw polygons value.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function normalize_polygons( mixed $polygons ): array {
+		if ( ! is_array( $polygons ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		foreach ( $polygons as $polygon ) {
+			if ( is_string( $polygon ) ) {
+				$points = trim( $polygon );
+
+				if ( '' !== $points ) {
+					$normalized[] = array( 'points' => $points );
+				}
+
+				continue;
+			}
+
+			if ( ! is_array( $polygon ) || ! isset( $polygon['points'] ) || ! is_string( $polygon['points'] ) ) {
+				continue;
+			}
+
+			$points = trim( $polygon['points'] );
+
+			if ( '' === $points ) {
+				continue;
+			}
+
+			$entry = array( 'points' => $points );
+
+			foreach ( self::SHAPE_ATTRS as $attr ) {
+				if ( ! isset( $polygon[ $attr ] ) || ! is_string( $polygon[ $attr ] ) ) {
+					continue;
+				}
+
+				$value = trim( $polygon[ $attr ] );
+
+				if ( '' !== $value ) {
+					$entry[ $attr ] = $value;
+				}
+			}
+
+			$normalized[] = $entry;
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize rect entries from coordinate arrays or attribute maps.
+	 *
+	 * @param mixed $rects Raw rects value.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function normalize_rects( mixed $rects ): array {
+		if ( ! is_array( $rects ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		foreach ( $rects as $rect ) {
+			if ( ! is_array( $rect ) ) {
+				continue;
+			}
+
+			if ( isset( $rect['x'], $rect['y'], $rect['width'], $rect['height'] ) ) {
+				$entry = array(
+					'x'      => self::stringify_coordinate( $rect['x'] ),
+					'y'      => self::stringify_coordinate( $rect['y'] ),
+					'width'  => self::stringify_coordinate( $rect['width'] ),
+					'height' => self::stringify_coordinate( $rect['height'] ),
+				);
+
+				if ( in_array( null, $entry, true ) ) {
+					continue;
+				}
+
+				if ( isset( $rect['transform'] ) && is_string( $rect['transform'] ) ) {
+					$transform = trim( $rect['transform'] );
+
+					if ( '' !== $transform ) {
+						$entry['transform'] = $transform;
+					}
+				}
+
+				foreach ( self::SHAPE_ATTRS as $attr ) {
+					if ( ! isset( $rect[ $attr ] ) || ! is_string( $rect[ $attr ] ) ) {
+						continue;
+					}
+
+					$value = trim( $rect[ $attr ] );
+
+					if ( '' !== $value ) {
+						$entry[ $attr ] = $value;
+					}
+				}
+
+				$normalized[] = $entry;
+
+				continue;
+			}
+
+			if ( array_is_list( $rect ) && count( $rect ) >= 4 ) {
+				$entry = array(
+					'x'      => self::stringify_coordinate( $rect[0] ),
+					'y'      => self::stringify_coordinate( $rect[1] ),
+					'width'  => self::stringify_coordinate( $rect[2] ),
+					'height' => self::stringify_coordinate( $rect[3] ),
+				);
+
+				if ( in_array( null, $entry, true ) ) {
+					continue;
+				}
+
+				if ( isset( $rect[4] ) && is_string( $rect[4] ) ) {
+					$transform = trim( $rect[4] );
+
+					if ( '' !== $transform ) {
+						$entry['transform'] = $transform;
+					}
+				}
+
+				$normalized[] = $entry;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Build sanitized root <svg> attributes.
+	 *
+	 * @param array<string, mixed> $attrs    Render attributes.
+	 * @param string               $view_box View box string.
+	 * @return string
+	 */
+	private static function build_root_svg_attrs( array $attrs, string $view_box ): string {
+		$svg_attrs = sprintf(
+			'xmlns="http://www.w3.org/2000/svg" viewBox="%s" width="%d" height="%d" fill="%s"',
+			esc_attr( $view_box ),
+			absint( $attrs['width'] ),
+			absint( $attrs['height'] ),
+			esc_attr( is_string( $attrs['fill'] ) ? $attrs['fill'] : 'currentColor' )
+		);
+
+		if ( isset( $attrs['class'] ) && is_string( $attrs['class'] ) ) {
+			$svg_attrs .= sprintf( ' class="%s"', esc_attr( $attrs['class'] ) );
+		}
+
+		if ( isset( $attrs['aria-hidden'] ) ) {
+			$svg_attrs .= sprintf( ' aria-hidden="%s"', esc_attr( (string) $attrs['aria-hidden'] ) );
+		}
+
+		return $svg_attrs;
+	}
+
+	/**
+	 * Build inner SVG primitives markup.
+	 *
+	 * @param array{viewBox:string,paths:array<int,array<string,string>>,circles:array<int,array<string,string>>,polygons:array<int,array<string,string>>,rects:array<int,array<string,string>>} $definition Normalized icon.
+	 * @return string
+	 */
+	private static function build_inner_markup( array $definition ): string {
+		$parts = array();
+
+		foreach ( $definition['paths'] as $path ) {
+			$markup = self::build_path_markup( $path );
+
+			if ( '' !== $markup ) {
+				$parts[] = $markup;
+			}
+		}
+
+		foreach ( $definition['polygons'] as $polygon ) {
+			$markup = self::build_polygon_markup( $polygon );
+
+			if ( '' !== $markup ) {
+				$parts[] = $markup;
+			}
+		}
+
+		foreach ( $definition['rects'] as $rect ) {
+			$markup = self::build_rect_markup( $rect );
+
+			if ( '' !== $markup ) {
+				$parts[] = $markup;
+			}
+		}
+
+		foreach ( $definition['circles'] as $circle ) {
+			$markup = self::build_circle_markup( $circle );
+
+			if ( '' !== $markup ) {
+				$parts[] = $markup;
+			}
+		}
+
+		return implode( '', $parts );
+	}
+
+	/**
+	 * Build a single <path /> element.
+	 *
+	 * @param array<string, string> $path Path attributes.
+	 * @return string
+	 */
+	private static function build_path_markup( array $path ): string {
+		if ( ! isset( $path['d'] ) || '' === trim( $path['d'] ) ) {
+			return '';
+		}
+
+		$attrs = sprintf( 'd="%s"', esc_attr( $path['d'] ) );
+
+		foreach ( self::SHAPE_ATTRS as $attr ) {
+			if ( ! isset( $path[ $attr ] ) || '' === trim( $path[ $attr ] ) ) {
+				continue;
+			}
+
+			$attrs .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $path[ $attr ] ) );
+		}
+
+		return sprintf( '<path %s/>', $attrs );
+	}
+
+	/**
+	 * Build a single <polygon /> element.
+	 *
+	 * @param array<string, string> $polygon Polygon attributes.
+	 * @return string
+	 */
+	private static function build_polygon_markup( array $polygon ): string {
+		if ( ! isset( $polygon['points'] ) || '' === trim( $polygon['points'] ) ) {
+			return '';
+		}
+
+		$attrs = sprintf( 'points="%s"', esc_attr( $polygon['points'] ) );
+
+		foreach ( self::SHAPE_ATTRS as $attr ) {
+			if ( ! isset( $polygon[ $attr ] ) || '' === trim( $polygon[ $attr ] ) ) {
+				continue;
+			}
+
+			$attrs .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $polygon[ $attr ] ) );
+		}
+
+		return sprintf( '<polygon %s/>', $attrs );
+	}
+
+	/**
+	 * Build a single <rect /> element.
+	 *
+	 * @param array<string, string> $rect Rect attributes.
+	 * @return string
+	 */
+	private static function build_rect_markup( array $rect ): string {
+		if ( ! isset( $rect['x'], $rect['y'], $rect['width'], $rect['height'] ) ) {
+			return '';
+		}
+
+		$attrs = sprintf(
+			'x="%s" y="%s" width="%s" height="%s"',
+			esc_attr( $rect['x'] ),
+			esc_attr( $rect['y'] ),
+			esc_attr( $rect['width'] ),
+			esc_attr( $rect['height'] )
+		);
+
+		if ( isset( $rect['transform'] ) && '' !== trim( $rect['transform'] ) ) {
+			$attrs .= sprintf( ' transform="%s"', esc_attr( $rect['transform'] ) );
+		}
+
+		foreach ( self::SHAPE_ATTRS as $attr ) {
+			if ( ! isset( $rect[ $attr ] ) || '' === trim( $rect[ $attr ] ) ) {
+				continue;
+			}
+
+			$attrs .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $rect[ $attr ] ) );
+		}
+
+		return sprintf( '<rect %s/>', $attrs );
+	}
+
+	/**
+	 * Build a single <circle /> element.
+	 *
+	 * @param array<string, string> $circle Circle attributes.
+	 * @return string
+	 */
+	private static function build_circle_markup( array $circle ): string {
+		if ( ! isset( $circle['cx'], $circle['cy'], $circle['r'] ) ) {
+			return '';
+		}
+
+		$attrs = sprintf(
+			'cx="%s" cy="%s" r="%s"',
+			esc_attr( $circle['cx'] ),
+			esc_attr( $circle['cy'] ),
+			esc_attr( $circle['r'] )
+		);
+
+		foreach ( self::SHAPE_ATTRS as $attr ) {
+			if ( ! isset( $circle[ $attr ] ) || '' === trim( $circle[ $attr ] ) ) {
+				continue;
+			}
+
+			$attrs .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $circle[ $attr ] ) );
+		}
+
+		return sprintf( '<circle %s/>', $attrs );
+	}
+
+	/**
+	 * Sanitize an SVG viewBox value.
+	 *
+	 * @param string $view_box Raw viewBox.
+	 * @return string|null
+	 */
+	private static function sanitize_view_box( string $view_box ): ?string {
+		$view_box = trim( preg_replace( '/\s+/', ' ', $view_box ) ?? '' );
+
+		if ( ! preg_match( '/^-?\d+(?:\.\d+)?(?:\s-?\d+(?:\.\d+)?){3}$/', $view_box ) ) {
+			return null;
+		}
+
+		return $view_box;
+	}
+
+	/**
+	 * Convert a numeric coordinate to a safe string.
+	 *
+	 * @param mixed $value Coordinate value.
+	 * @return string|null
+	 */
+	private static function stringify_coordinate( mixed $value ): ?string {
+		if ( is_int( $value ) ) {
+			return (string) $value;
+		}
+
+		if ( is_float( $value ) ) {
+			return rtrim( rtrim( sprintf( '%.4F', $value ), '0' ), '.' );
+		}
+
+		if ( is_string( $value ) && is_numeric( $value ) ) {
+			return self::stringify_coordinate( (float) $value );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Reset the per-request icon cache (tests only).
+	 *
+	 * @internal
+	 */
+	public static function flush_cache_for_tests(): void {
+		self::$definitions_cache = null;
 	}
 }

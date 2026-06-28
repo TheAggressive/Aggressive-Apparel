@@ -176,7 +176,6 @@ class Bootstrap {
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
-			$this->container->register( 'variation_pill_enhancer', fn() => new WooCommerce\Variation_Pill_Enhancer() );
 
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
@@ -221,6 +220,7 @@ class Bootstrap {
 		$this->container->get( 'adaptive_colors' )->init();
 		$this->container->get( 'favicon' )->init();
 		$this->container->get( 'search' )->init();
+		Core\Brand_Icons::init();
 		// Custom blocks.
 		Blocks\Blocks::init();
 	}
@@ -261,7 +261,6 @@ class Bootstrap {
 		$this->container->get( 'color_attributes' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();
 		$this->container->get( 'size_option_sorter' )->init();
-		$this->container->get( 'variation_pill_enhancer' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();
 		$this->container->get( 'wc_enhancements' )->init();
 	}

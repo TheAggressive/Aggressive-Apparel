@@ -2,9 +2,10 @@
 /**
  * Block Pill Helper
  *
- * Shared utilities for WooCommerce variation pill block modifiers.
- * Used by Color_Block_Swatch_Manager, Size_Option_Sorter, and
- * Variation_Pill_Enhancer to avoid duplicating DOMDocument boilerplate.
+ * Shared utilities for WooCommerce variation chip block modifiers.
+ * Used by Color_Block_Swatch_Manager and Size_Option_Sorter to avoid
+ * duplicating DOMDocument boilerplate. (Pill styling is CSS-only — see
+ * variation-pills.css — so no enhancer class is needed.)
  *
  * @package Aggressive_Apparel
  * @since 1.45.0
@@ -30,21 +31,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Block_Pill_Helper {
 
 	/**
-	 * The WooCommerce block name for variation attribute options.
+	 * The WooCommerce block name for a single variation attribute.
+	 *
+	 * As of WooCommerce 10.x the "Add to Cart with Options" variation selector
+	 * renders each attribute as this block, and its options as
+	 * `wc-block-product-filter-chips__item` <button> chips (via the Interactivity
+	 * API), replacing the old `…-attribute-options` block with `<label>`/`<input>`
+	 * pills.
 	 *
 	 * @var string
 	 */
-	public const BLOCK_NAME = 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options';
+	public const BLOCK_NAME = 'woocommerce/add-to-cart-with-options-variation-selector-attribute';
 
 	/**
-	 * The CSS class WooCommerce applies to each pill label.
+	 * The CSS class WooCommerce applies to each option chip button.
 	 *
 	 * @var string
 	 */
-	public const PILL_CLASS = 'wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill';
+	public const PILL_CLASS = 'wc-block-product-filter-chips__item';
 
 	/**
-	 * Check if a block is the variation attribute options block.
+	 * Check if a block is a variation attribute block.
 	 *
 	 * @param array<string, mixed> $block The block data.
 	 * @return bool
@@ -91,40 +98,40 @@ class Block_Pill_Helper {
 	}
 
 	/**
-	 * Collect all pill label elements from a DOMDocument.
+	 * Collect all option chip <button> elements from a DOMDocument.
 	 *
 	 * Returns an array (not a live NodeList) so callers can safely
 	 * mutate the DOM while iterating.
 	 *
 	 * @param \DOMDocument $dom The loaded document.
-	 * @return \DOMElement[] Array of pill label elements.
+	 * @return \DOMElement[] Array of chip button elements.
 	 */
-	public static function get_pill_labels( \DOMDocument $dom ): array {
-		$labels = $dom->getElementsByTagName( 'label' );
-		$pills  = array();
+	public static function get_option_buttons( \DOMDocument $dom ): array {
+		$buttons = $dom->getElementsByTagName( 'button' );
+		$chips   = array();
 
-		foreach ( $labels as $label ) {
-			if ( false !== strpos( $label->getAttribute( 'class' ), self::PILL_CLASS ) ) {
-				$pills[] = $label;
+		foreach ( $buttons as $button ) {
+			if ( false !== strpos( $button->getAttribute( 'class' ), self::PILL_CLASS ) ) {
+				$chips[] = $button;
 			}
 		}
 
-		return $pills;
+		return $chips;
 	}
 
 	/**
-	 * Check if a pill label contains a color swatch.
+	 * Check if a chip button already contains a color swatch.
 	 *
-	 * @param \DOMElement $label The pill label element.
+	 * @param \DOMElement $button The option chip <button> element.
 	 * @return bool
 	 */
-	public static function has_color_swatch( \DOMElement $label ): bool {
-		$class_attr = $label->getAttribute( 'class' );
+	public static function has_color_swatch( \DOMElement $button ): bool {
+		$class_attr = $button->getAttribute( 'class' );
 		if ( false !== strpos( $class_attr, 'aggressive-apparel-color-swatch' ) ) {
 			return true;
 		}
 
-		$spans = $label->getElementsByTagName( 'span' );
+		$spans = $button->getElementsByTagName( 'span' );
 		foreach ( $spans as $span ) {
 			if ( false !== strpos( $span->getAttribute( 'class' ), 'aggressive-apparel-color-swatch' ) ) {
 				return true;

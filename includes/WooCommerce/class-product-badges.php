@@ -69,10 +69,8 @@ class Product_Badges {
 	/**
 	 * Apply the badge threshold filters.
 	 *
-	 * Split out from `init()` so the Store API extension
-	 * (`Card_Enhancements`) can build its own renderer without
-	 * re-registering the `render_block` filter, which would cause
-	 * duplicate badge injection on server-rendered pages.
+	 * Registers the `render_block` filter that injects badge markup onto
+	 * server-rendered product cards.
 	 *
 	 * @return void
 	 */

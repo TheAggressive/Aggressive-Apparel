@@ -135,29 +135,18 @@ class Color_Block_Swatch_Manager {
 			return $block_content;
 		}
 
-		$pills    = Block_Pill_Helper::get_pill_labels( $dom );
+		$buttons  = Block_Pill_Helper::get_option_buttons( $dom );
 		$modified = false;
 
-		foreach ( $pills as $label ) {
-			$inputs = $label->getElementsByTagName( 'input' );
-			if ( 0 === $inputs->length ) {
+		foreach ( $buttons as $button ) {
+			// Skip chips already carrying a swatch (idempotency).
+			if ( Block_Pill_Helper::has_color_swatch( $button ) ) {
 				continue;
 			}
 
-			$target_input = null;
-			foreach ( $inputs as $input ) {
-				if ( in_array( $input->getAttribute( 'name' ), self::COLOR_INPUT_NAMES, true ) ) {
-					$target_input = $input;
-					break;
-				}
-			}
-
-			if ( ! $target_input ) {
-				continue;
-			}
-
-			$color_slug = $target_input->getAttribute( 'value' );
-			if ( ! $color_slug ) {
+			// WooCommerce stores the option's term slug on the chip's value attr.
+			$color_slug = $button->getAttribute( 'value' );
+			if ( '' === $color_slug ) {
 				continue;
 			}
 
@@ -169,12 +158,6 @@ class Color_Block_Swatch_Manager {
 
 			$color_name = $color_data['name'];
 
-			$aria_label = sprintf(
-				/* translators: %s: color name */
-				__( 'Color option: %s', 'aggressive-apparel' ),
-				$color_name
-			);
-
 			$classes = 'aggressive-apparel-color-swatch aggressive-apparel-color-swatch--interactive';
 			if ( $this->show_label ) {
 				$classes .= ' aggressive-apparel-color-swatch--with-label';
@@ -182,10 +165,13 @@ class Color_Block_Swatch_Manager {
 
 			$swatch = $dom->createElement( 'span' );
 			$swatch->setAttribute( 'class', $classes . ' aggressive-apparel-color-swatch__circle' );
-			$swatch->setAttribute( 'aria-label', $aria_label );
-			$swatch->setAttribute( 'role', 'img' );
-			$swatch->setAttribute( 'tabindex', '0' );
-			$swatch->setAttribute( 'title', $color_name );
+
+			// Decorative: WooCommerce's chip <button> already carries the colour
+			// name in its aria-label, so the swatch is hidden from assistive tech
+			// to avoid a duplicate announcement. The name stays available to
+			// sighted (incl. colour-blind) users via the hover/focus tooltip
+			// driven by data-color-name (see swatch-tooltips.css).
+			$swatch->setAttribute( 'aria-hidden', 'true' );
 			$swatch->setAttribute( 'data-color-name', $color_name );
 
 			if ( 'pattern' === $color_data['type'] ) {
@@ -197,20 +183,15 @@ class Color_Block_Swatch_Manager {
 				$swatch->setAttribute( 'style', 'background-color: ' . esc_attr( $color_data['value'] ) . '; --swatch-color: ' . esc_attr( $color_data['value'] ) . ';' );
 			}
 
-			// Preserve original label text (trimmed) to re-append when show_label is true.
-			$label_text = trim( $label->textContent ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-			// Rebuild label content: input + swatch (+ text when configured).
-			while ( $label->firstChild ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$label->removeChild( $label->firstChild ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			}
-
-			$label->appendChild( $target_input->cloneNode( true ) );
-			$label->appendChild( $swatch );
-
-			if ( $this->show_label && '' !== $label_text ) {
-				$label->appendChild( $dom->createTextNode( $label_text ) );
-			}
+			// Mark the chip as a color chip and prepend the swatch, leaving
+			// WooCommerce's own chip label/text intact (CSS hides the text unless
+			// "show label" is enabled). Keeping the structure avoids fighting the
+			// block's Interactivity bindings.
+			$button->setAttribute(
+				'class',
+				trim( $button->getAttribute( 'class' ) . ' aggressive-apparel-color-chip' )
+			);
+			$button->insertBefore( $swatch, $button->firstChild ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			$modified = true;
 		}

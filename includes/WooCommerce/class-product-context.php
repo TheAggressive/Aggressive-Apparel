@@ -189,6 +189,28 @@ class Product_Context {
 	}
 
 	/**
+	 * Resolve the block-template slug for the current product archive.
+	 *
+	 * Used by the rendered-products endpoint so Load More, infinite scroll and
+	 * filtering all render cards from the same template WordPress uses for the
+	 * current page (e.g. a customised "Products by Category" template), rather
+	 * than always falling back to `archive-product`.
+	 *
+	 * @return string One of the supported product template slugs.
+	 */
+	public static function get_current_template_slug(): string {
+		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
+			return 'taxonomy-product_cat';
+		}
+
+		if ( function_exists( 'is_product_tag' ) && is_product_tag() ) {
+			return 'taxonomy-product_tag';
+		}
+
+		return 'archive-product';
+	}
+
+	/**
 	 * Get the taxonomy + term slug for the current product taxonomy archive.
 	 *
 	 * Covers product categories, tags, brands and attribute archives (pa_*) —

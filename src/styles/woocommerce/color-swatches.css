@@ -2,46 +2,60 @@
  * Color Swatches for WooCommerce Blocks
  *
  * Shrink-reveal animation matching quick view / sticky cart drawers.
- * Selection is driven by WooCommerce's radio input :checked state,
- * so we target `input:checked ~ .swatch` instead of `.is-selected`.
+ * WooCommerce 10.x renders options as <button aria-checked> chips, so selection
+ * is keyed off the chip's [aria-checked="true"] state (no radio input).
  *
  * @package Aggressive_Apparel
  */
 
 /*
- * 1. Override WooCommerce pill label when it wraps a color swatch.
- *    Strip the rectangular pill styling so only the circle shows.
+ * 1. Color chip button (WooCommerce 10.x renders options as
+ *    wc-block-product-filter-chips__item buttons; our PHP tags color ones with
+ *    .aggressive-apparel-color-chip). Strip the chip styling so only the circle
+ *    shows.
  */
-.wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill:has(
-	.aggressive-apparel-color-swatch
-) {
+.aggressive-apparel-color-chip {
 	padding: 0;
 	border: none;
 	border-radius: 50%;
 	background: transparent;
 	overflow: visible;
 	line-height: 0;
+	min-width: 0;
+	box-shadow: none;
 
-	/* Kill WooCommerce's default pill hover/focus/checked backgrounds. */
+	/* Kill WooCommerce's default chip hover/focus/selected backgrounds. */
 	&:hover,
 	&:focus-within {
 		background: transparent;
 	}
 
-	/* WooCommerce uses :has(:checked) for selected pill background. */
-	&:has(input:checked) {
-		--pill-background-color: transparent;
-
+	&[aria-checked="true"] {
 		background: transparent;
 	}
 }
 
 /*
- * 2. Hide the radio input visually (WooCommerce already does this,
- *    but reinforce it so the swatch is the only visible element).
+ * 2. The swatch is the only visible element; hide WooCommerce's option name.
+ *    WooCommerce 10.x renders the name in `.wc-block-product-filter-chips__text`
+ *    (in our markup it ends up nested inside the injected swatch); older/other
+ *    layouts wrap it in `__label`. Hide both unconditionally; the rare
+ *    show-label case re-reveals them below.
  */
-.wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill
-	.aggressive-apparel-color-swatch {
+.aggressive-apparel-color-chip .wc-block-product-filter-chips__text,
+.aggressive-apparel-color-chip .wc-block-product-filter-chips__label {
+	display: none;
+}
+
+/* Re-show the name when a swatch is explicitly configured to show its label. */
+.aggressive-apparel-color-chip:has(.aggressive-apparel-color-swatch--with-label)
+	.wc-block-product-filter-chips__text,
+.aggressive-apparel-color-chip:has(.aggressive-apparel-color-swatch--with-label)
+	.wc-block-product-filter-chips__label {
+	display: revert;
+}
+
+.aggressive-apparel-color-chip .aggressive-apparel-color-swatch {
 	display: block;
 }
 
@@ -73,7 +87,7 @@
  * 5. Selected state — shrink-reveal with colored ring.
  *    Radio :checked is a sibling BEFORE the swatch span inside the label.
  */
-input:checked ~ .aggressive-apparel-color-swatch__circle {
+.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 	transform: scale(0.78);
 	outline: 3px solid
 		color-mix(
@@ -85,19 +99,25 @@ input:checked ~ .aggressive-apparel-color-swatch__circle {
 }
 
 /* Don't scale up on hover when already selected. */
-input:checked ~ .aggressive-apparel-color-swatch__circle:hover {
+.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle:hover {
 	transform: scale(0.78);
 }
 
 /*
- * 6. Focus-visible — keyboard accessibility ring.
+ * 6. Focus-visible — keyboard accessibility ring. The chip <button> is the
+ *    focusable control, so reflect its focus on the swatch circle.
  */
-.aggressive-apparel-color-swatch__circle:focus-visible {
+.aggressive-apparel-color-chip:focus-visible {
+	outline: none;
+}
+
+.aggressive-apparel-color-chip:focus-visible .aggressive-apparel-color-swatch__circle {
 	outline: 2px solid var(--aa-color-foreground);
 	outline-offset: 3px;
 }
 
-input:checked ~ .aggressive-apparel-color-swatch__circle:focus-visible {
+.aggressive-apparel-color-chip[aria-checked="true"]:focus-visible
+	.aggressive-apparel-color-swatch__circle {
 	outline-width: 3px;
 }
 
@@ -130,7 +150,7 @@ input:checked ~ .aggressive-apparel-color-swatch__circle:focus-visible {
 		transform: none;
 	}
 
-	input:checked ~ .aggressive-apparel-color-swatch__circle {
+	.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 		transform: none;
 		box-shadow: inset 0 0 0 1px var(--aa-color-border-input);
 		outline: 3px solid
@@ -140,5 +160,55 @@ input:checked ~ .aggressive-apparel-color-swatch__circle:focus-visible {
 				var(--aa-color-foreground)
 			);
 		outline-offset: 3px;
+	}
+}
+
+/*
+ * 10. Colour-name tooltip.
+ *
+ * Swatches carry no visible label, so the name is shown on hover and keyboard
+ * focus — required for colour-blind users to tell swatches apart (WCAG 1.4.1).
+ * Driven by `data-color-name` (always injected) so it works regardless of the
+ * optional Swatch Tooltips feature; that feature, when on, upgrades the same
+ * pseudo-element to richer `data-tooltip` text (name + fabric). The trigger is
+ * the chip <button> because the swatch itself is decorative/aria-hidden.
+ */
+.aggressive-apparel-color-swatch[data-color-name] {
+	position: relative;
+
+	&::after {
+		content: attr(data-color-name);
+		position: absolute;
+		bottom: calc(100% + 6px);
+		left: 50%;
+		transform: translateX(-50%);
+		padding: 0.3em 0.6em;
+		border-radius: 0.25rem;
+		background-color: var(--aa-color-foreground);
+		color: var(--aa-color-surface);
+		font-size: var(--wp--preset--font-size--x-small);
+		line-height: 1.3;
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.15s ease;
+		z-index: 5;
+	}
+}
+
+/* Richer text when the Swatch Tooltips feature has added fabric details. */
+.aggressive-apparel-color-swatch[data-tooltip]::after {
+	content: attr(data-tooltip);
+}
+
+.aggressive-apparel-color-chip:hover .aggressive-apparel-color-swatch::after,
+.aggressive-apparel-color-chip:focus-visible .aggressive-apparel-color-swatch::after {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-color-swatch[data-color-name]::after {
+		transition: none;
 	}
 }

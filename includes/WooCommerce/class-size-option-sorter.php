@@ -102,56 +102,29 @@ class Size_Option_Sorter {
 			return $block_content;
 		}
 
-		$pills = Block_Pill_Helper::get_pill_labels( $dom );
+		$buttons = Block_Pill_Helper::get_option_buttons( $dom );
 
-		// Collect pill labels with their size values.
-		$label_data = array();
-		foreach ( $pills as $label ) {
-			$inputs = $label->getElementsByTagName( 'input' );
-			if ( 0 === $inputs->length ) {
+		// Apply ordering via CSS `order` rather than moving nodes: the options are
+		// rendered through the block's `data-wp-each` directive, which associates
+		// each DOM child with its data item positionally — physically reordering
+		// the buttons would desync selection. CSS order is purely visual and safe.
+		$modified = false;
+		foreach ( $buttons as $button ) {
+			$size_value = $button->getAttribute( 'value' );
+			if ( '' === $size_value ) {
 				continue;
 			}
 
-			// Find the size input.
-			$size_value = null;
-			foreach ( $inputs as $input ) {
-				if ( in_array( $input->getAttribute( 'name' ), self::SIZE_INPUT_NAMES, true ) ) {
-					$size_value = $input->getAttribute( 'value' );
-					break;
-				}
-			}
-
-			if ( null === $size_value ) {
-				continue;
-			}
-
-			$label_data[] = array(
-				'node' => $label,
-				'rank' => self::size_rank( $size_value ),
+			$existing_style = $button->getAttribute( 'style' );
+			$button->setAttribute(
+				'style',
+				trim( $existing_style . ';order:' . self::size_rank( $size_value ) . ';', '; ' )
 			);
+			$modified = true;
 		}
 
-		// Need at least 2 labels to sort.
-		if ( count( $label_data ) < 2 ) {
+		if ( ! $modified ) {
 			return $block_content;
-		}
-
-		// Sort by rank.
-		usort(
-			$label_data,
-			static function ( array $a, array $b ): int {
-				return $a['rank'] <=> $b['rank'];
-			}
-		);
-
-		// Re-append labels in sorted order to their parent.
-		$parent = $label_data[0]['node']->parentNode; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		if ( ! $parent ) {
-			return $block_content;
-		}
-
-		foreach ( $label_data as $item ) {
-			$parent->appendChild( $item['node'] );
 		}
 
 		return Block_Pill_Helper::save_dom( $dom, $block_content );

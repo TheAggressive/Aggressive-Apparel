@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/filter-active-bar",
+  "version": "1.0.0",
+  "title": "Active Filter Bar",
+  "category": "aggressive-apparel",
+  "icon": "tag",
+  "description": "Shows the currently active product filters as removable pills with a Clear All button. Place it anywhere on a shop, category, or tag archive to control where active filters appear. Replaces the automatic bar above the product grid.",
+  "keywords": ["filter", "pills", "active", "shop", "woocommerce", "product"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "reusable": false,
+    "align": ["wide", "full"],
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "blockGap": true,
+      "__experimentalDefaultControls": {
+        "margin": true,
+        "padding": true
+      }
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "fontWeight": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true
+      }
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "link": false,
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      }
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php"
+}

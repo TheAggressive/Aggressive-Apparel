@@ -126,6 +126,17 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize the active-filter bar placement option.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string Sanitized placement value (`auto` or `block`).
+	 */
+	public function sanitize_filter_active_bar_placement( $input ): string {
+		$valid = array( 'auto', 'block' );
+		return in_array( $input, $valid, true ) ? $input : 'auto';
+	}
+
+	/**
 	 * Sanitize the wishlist button placement option.
 	 *
 	 * @param mixed $input Raw input.

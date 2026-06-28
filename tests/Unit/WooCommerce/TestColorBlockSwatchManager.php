@@ -2,13 +2,21 @@
 /**
  * Test Color Block Swatch Manager Class
  *
+ * Fixtures mirror the real WooCommerce 10.x "Add to Cart with Options" variation
+ * selector markup: each option is a `wc-block-product-filter-chips__item`
+ * <button> (with a static `value` slug + aria-checked), not the old
+ * `<label>/<input>` pill. The contract test below fails loudly if WooCommerce
+ * renames the block again, so this can't silently rot.
+ *
  * @package Aggressive_Apparel
  */
 
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use WP_UnitTestCase;
+use WP_Block_Type_Registry;
 use Aggressive_Apparel\WooCommerce\Color_Block_Swatch_Manager;
+use Aggressive_Apparel\WooCommerce\Block_Pill_Helper;
 
 /**
  * Color Block Swatch Manager Test Case
@@ -27,10 +35,15 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		// WooCommerce registers pa_color; register it here so the unit test is
+		// self-contained when WooCommerce isn't loaded in the test environment.
+		if ( ! taxonomy_exists( 'pa_color' ) ) {
+			register_taxonomy( 'pa_color', 'product', array( 'hierarchical' => false ) );
+		}
+
 		$this->swatch_manager = new Color_Block_Swatch_Manager();
 		$this->swatch_manager->init();
 
-		// Create test color terms
 		$this->create_test_color_terms();
 	}
 
@@ -38,199 +51,184 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	 * Tear down test
 	 */
 	public function tearDown(): void {
-		parent::tearDown();
-
-		// Clean up test terms
 		$this->cleanup_test_color_terms();
+
+		parent::tearDown();
 	}
 
 	/**
-	 * Test that the swatch manager initializes properly
+	 * Build a colour attribute block in the WooCommerce 10.x chip format.
+	 *
+	 * @param array<string, string> $options slug => label.
+	 * @return string Block HTML.
+	 */
+	private function color_attribute_block( array $options = array( 'blue' => 'Blue' ) ): string {
+		$buttons = '';
+		foreach ( $options as $slug => $label ) {
+			$buttons .= sprintf(
+				'<button class="wc-block-product-filter-chips__item" type="button" role="radio" id="attribute_pa_color-%1$s" aria-label="%2$s" value="%1$s" aria-checked="false" data-wp-context="{&quot;item&quot;:{&quot;label&quot;:&quot;%2$s&quot;}}">'
+					. '<span class="wc-block-product-filter-chips__text" data-wp-text="context.item.label">%2$s</span>'
+					. '</button>',
+				$slug,
+				$label
+			);
+		}
+
+		return '<div class="wp-block-woocommerce-add-to-cart-with-options-variation-selector-attribute">'
+			. '<div class="wc-block-product-filter-chips"><fieldset class="wc-block-product-filter-chips__fieldset">'
+			. '<div class="wc-block-product-filter-chips__items">' . $buttons . '</div>'
+			. '</fieldset></div>'
+			. '<input type="hidden" name="attribute_pa_color" value="">'
+			. '</div>';
+	}
+
+	/**
+	 * The attribute block array passed to render_block.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function color_block_args(): array {
+		return array(
+			'blockName' => Block_Pill_Helper::BLOCK_NAME,
+			'attrs'     => array(),
+		);
+	}
+
+	/**
+	 * Hooks are registered on init.
 	 */
 	public function test_swatch_manager_initialization(): void {
 		$this->assertInstanceOf( Color_Block_Swatch_Manager::class, $this->swatch_manager );
-
-		// Test that hooks are registered
 		$this->assertNotFalse( has_filter( 'render_block', array( $this->swatch_manager, 'inject_color_swatches_in_block' ) ) );
 	}
 
 	/**
-	 * Test JSON context modification for WooCommerce blocks
+	 * A colour block with no option buttons is returned untouched.
 	 */
-	public function test_non_color_blocks_not_modified(): void {
-		// Test that blocks without actual HTML labels are not modified
-		$original_content = '<div class="wc-block-add-to-cart-with-options-variation-selector-attribute-options" data-wp-context="{&quot;name&quot;:&quot;attribute_pa_color&quot;,&quot;options&quot;:[{&quot;value&quot;:&quot;blue&quot;,&quot;label&quot;:&quot;Blue&quot;,&quot;isSelected&quot;:false},{&quot;value&quot;:&quot;red&quot;,&quot;label&quot;:&quot;Red&quot;,&quot;isSelected&quot;:false}],&quot;selectedValue&quot;:null}"></div>';
+	public function test_color_block_without_buttons_not_modified(): void {
+		$original = '<div class="wp-block-woocommerce-add-to-cart-with-options-variation-selector-attribute">'
+			. '<input type="hidden" name="attribute_pa_color" value=""></div>';
 
-		$result = $this->swatch_manager->inject_color_swatches_in_block(
-			$original_content,
-			array(
-				'blockName' => 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options',
-				'attrs' => array(
-					'attributeName' => 'pa_color',
-				),
-			)
-		);
+		$result = $this->swatch_manager->inject_color_swatches_in_block( $original, $this->color_block_args() );
 
-		// Content without actual HTML labels should not be modified
-		$this->assertEquals( $original_content, $result );
+		$this->assertEquals( $original, $result );
 	}
 
 	/**
-	 * Test that non-color blocks are not modified
+	 * Blocks that aren't the variation attribute block are ignored.
 	 */
 	public function test_different_blocks_not_modified(): void {
-		$original_content = '<div class="some-other-block">Content</div>';
+		$original = '<div class="some-other-block">Content</div>';
 
 		$result = $this->swatch_manager->inject_color_swatches_in_block(
-			$original_content,
+			$original,
 			array(
 				'blockName' => 'core/paragraph',
-				'attrs' => array(),
+				'attrs'     => array(),
 			)
 		);
 
-		$this->assertEquals( $original_content, $result );
+		$this->assertEquals( $original, $result );
 	}
 
 	/**
-	 * Test block processing for render_block filter with rendered HTML
+	 * Swatches are injected into the chip buttons for a solid colour attribute.
 	 */
 	public function test_block_processing_solid_colors(): void {
-		// HTML content that mimics what WooCommerce blocks render (with labels and inputs)
-		$block_content = '<div class="wc-block-add-to-cart-with-options-variation-selector-attribute-options">
-			<label class="wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill">
-				<input type="radio" name="attribute_pa_color" value="blue">Blue
-			</label>
-			<label class="wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill">
-				<input type="radio" name="attribute_pa_color" value="red">Red
-			</label>
-		</div>';
-
-		$block = array(
-			'blockName' => 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options',
-			'attrs' => array(
-				'attributeName' => 'pa_color',
+		$result = $this->swatch_manager->inject_color_swatches_in_block(
+			$this->color_attribute_block(
+				array(
+					'blue' => 'Blue',
+					'red'  => 'Red',
+				)
 			),
+			$this->color_block_args()
 		);
 
-		$result = $this->swatch_manager->inject_color_swatches_in_block( $block_content, $block );
-
-		// Should contain swatch spans injected into the labels
-		$this->assertStringContainsString( 'aggressive-apparel-color-swatch', $result );
+		// Swatch markup.
 		$this->assertStringContainsString( 'aggressive-apparel-color-swatch__circle', $result );
 		$this->assertStringContainsString( 'background-color:', $result );
 
-		// Test accessibility attributes
-		$this->assertStringContainsString( 'aria-label="Color option: Blue"', $result );
-		$this->assertStringContainsString( 'role="img"', $result );
-		$this->assertStringContainsString( 'tabindex="0"', $result );
-		$this->assertStringContainsString( 'title="Blue"', $result );
+		// The chip button is tagged so CSS can restyle it.
+		$this->assertStringContainsString( 'aggressive-apparel-color-chip', $result );
+
+		// The swatch is decorative — the chip <button>'s own aria-label carries
+		// the name, so the swatch is aria-hidden (no duplicate announcement) and
+		// has no role/title/tabindex of its own.
+		$this->assertStringContainsString( 'aria-hidden="true"', $result );
+		$this->assertStringContainsString( 'aria-label="Blue"', $result, 'button name preserved' );
+		$this->assertStringNotContainsString( 'role="img"', $result );
+		$this->assertStringNotContainsString( 'tabindex', $result );
+
+		// Data attributes drive the styling + the hover/focus colour-name tooltip.
 		$this->assertStringContainsString( 'data-color="#0000FF"', $result );
 		$this->assertStringContainsString( 'data-color-name="Blue"', $result );
+
+		// Both options got a swatch.
+		$this->assertSame( 2, substr_count( $result, 'aggressive-apparel-color-swatch__circle' ) );
 	}
 
 	/**
-	 * Test pattern rendering functionality (skipped - tested via integration)
-	 * Pattern functionality is tested through the admin interface and AJAX handlers.
-	 * This unit test would require complex attachment setup that's better handled
-	 * in integration tests.
+	 * The swatch is idempotent — re-running doesn't double-inject.
 	 */
-	public function test_pattern_rendering_placeholder(): void {
-		// Placeholder test - pattern functionality tested via integration tests
-		$this->assertTrue( true, 'Pattern rendering tested via integration tests' );
+	public function test_injection_is_idempotent(): void {
+		$once  = $this->swatch_manager->inject_color_swatches_in_block( $this->color_attribute_block(), $this->color_block_args() );
+		$twice = $this->swatch_manager->inject_color_swatches_in_block( $once, $this->color_block_args() );
+
+		$this->assertSame(
+			substr_count( $once, 'aggressive-apparel-color-swatch__circle' ),
+			substr_count( $twice, 'aggressive-apparel-color-swatch__circle' )
+		);
 	}
 
 	/**
-	 * Test show/hide label functionality
+	 * show_label toggles the `--with-label` modifier (the chip text is always
+	 * kept in the markup; CSS hides it when labels are off).
 	 */
 	public function test_show_label_functionality(): void {
-		$block_content = '<div class="wc-block-add-to-cart-with-options-variation-selector-attribute-options">
-			<label class="wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill">
-				<input type="radio" name="attribute_pa_color" value="blue">Blue
-			</label>
-		</div>';
-
-		$block = array(
-			'blockName' => 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options',
-			'attrs' => array(
-				'attributeName' => 'pa_color',
-			),
-		);
-
-		// Test with show_label = false (default)
 		$this->swatch_manager->set_show_label( false );
-		$result_no_label = $this->swatch_manager->inject_color_swatches_in_block( $block_content, $block );
+		$no_label = $this->swatch_manager->inject_color_swatches_in_block( $this->color_attribute_block(), $this->color_block_args() );
+		$this->assertStringNotContainsString( 'aggressive-apparel-color-swatch--with-label', $no_label );
 
-		$this->assertStringNotContainsString( 'aggressive-apparel-color-swatch--with-label', $result_no_label );
-		$this->assertStringContainsString( '</span></label>', $result_no_label ); // Text should be removed, only swatch remains
-
-		// Test with show_label = true
 		$this->swatch_manager->set_show_label( true );
-		$result_with_label = $this->swatch_manager->inject_color_swatches_in_block( $block_content, $block );
-
-		$this->assertStringContainsString( 'aggressive-apparel-color-swatch--with-label', $result_with_label );
-		$this->assertStringContainsString( '</span>Blue', $result_with_label ); // Text should be preserved after swatch
+		$with_label = $this->swatch_manager->inject_color_swatches_in_block( $this->color_attribute_block(), $this->color_block_args() );
+		$this->assertStringContainsString( 'aggressive-apparel-color-swatch--with-label', $with_label );
 	}
 
 	/**
-	 * Test CSS class structure and accessibility features
+	 * Contract guard: WooCommerce must still register the block we target.
+	 *
+	 * This is the check that would have caught the silent break when WooCommerce
+	 * renamed the variation selector block. Skips where WooCommerce is inactive.
 	 */
-	public function test_css_classes_and_accessibility(): void {
-		$block_content = '<div class="wc-block-add-to-cart-with-options-variation-selector-attribute-options">
-			<label class="wc-block-add-to-cart-with-options-variation-selector-attribute-options__pill">
-				<input type="radio" name="attribute_pa_color" value="blue">Blue
-			</label>
-		</div>';
+	public function test_block_contract_matches_woocommerce(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
 
-		$block = array(
-			'blockName' => 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options',
-			'attrs' => array(
-				'attributeName' => 'pa_color',
-			),
+		$this->assertTrue(
+			WP_Block_Type_Registry::get_instance()->is_registered( Block_Pill_Helper::BLOCK_NAME ),
+			'WooCommerce no longer registers "' . Block_Pill_Helper::BLOCK_NAME . '". The variation swatch/pill/tooltip integration (Block_Pill_Helper, Color_Block_Swatch_Manager, Size_Option_Sorter, Swatch_Tooltips, variation-pills.css) must be updated to the new block.'
 		);
-
-		$result = $this->swatch_manager->inject_color_swatches_in_block( $block_content, $block );
-
-		// Test base CSS classes
-		$this->assertStringContainsString( 'aggressive-apparel-color-swatch', $result );
-		$this->assertStringContainsString( 'aggressive-apparel-color-swatch--interactive', $result );
-		$this->assertStringContainsString( 'aggressive-apparel-color-swatch__circle', $result );
-
-		// Test accessibility attributes
-		$this->assertStringContainsString( 'aria-label=', $result );
-		$this->assertStringContainsString( 'role="img"', $result );
-		$this->assertStringContainsString( 'tabindex="0"', $result );
-		$this->assertStringContainsString( 'title=', $result );
-
-		// Test data attributes
-		$this->assertStringContainsString( 'data-color=', $result );
-		$this->assertStringContainsString( 'data-color-name=', $result );
 	}
 
 	/**
-	 * Test that content without color blocks is not modified
-	 */
-	public function test_content_without_color_blocks_not_modified(): void {
-		$content_without_color = '<div>Some regular content</div><p>More content</p>';
-
-		// Test that render_block filter doesn't modify non-matching blocks
-		$result = $this->swatch_manager->inject_color_swatches_in_block( $content_without_color, array(
-			'blockName' => 'core/paragraph',
-			'attrs' => array(),
-		) );
-
-		$this->assertEquals( $content_without_color, $result );
-	}
-
-	/**
-	 * Create test color terms for testing
+	 * Create test color terms.
 	 */
 	private function create_test_color_terms(): void {
-		// Create color terms with hex values
 		$terms = array(
-			'blue' => array( 'name' => 'Blue', 'color' => '#0000FF' ),
-			'red' => array( 'name' => 'Red', 'color' => '#FF0000' ),
-			'green' => array( 'name' => 'Green', 'color' => '#00FF00' ),
+			'blue'  => array(
+				'name'  => 'Blue',
+				'color' => '#0000FF',
+			),
+			'red'   => array(
+				'name'  => 'Red',
+				'color' => '#FF0000',
+			),
+			'green' => array(
+				'name'  => 'Green',
+				'color' => '#00FF00',
+			),
 		);
 
 		foreach ( $terms as $slug => $data ) {
@@ -242,13 +240,15 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Clean up test color terms
+	 * Clean up test color terms.
 	 */
 	private function cleanup_test_color_terms(): void {
-		$terms = get_terms( array(
-			'taxonomy' => 'pa_color',
-			'hide_empty' => false,
-		) );
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'pa_color',
+				'hide_empty' => false,
+			)
+		);
 
 		foreach ( $terms as $term ) {
 			wp_delete_term( $term->term_id, 'pa_color' );

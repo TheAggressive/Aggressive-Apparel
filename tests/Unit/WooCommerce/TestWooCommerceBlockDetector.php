@@ -188,8 +188,15 @@ class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 
 		$this->assertFalse( WooCommerce_Block_Detector::request_needs_assets() );
 
-		apply_filters(
-			'render_block',
+		// The bailout is wired to render_block at priority 1.
+		$this->assertNotFalse( has_filter( 'render_block', array( $bailout, 'maybe_bailout' ) ) );
+
+		// Invoke the callback directly rather than firing the global render_block
+		// filter: doing the latter would also run core callbacks (e.g.
+		// WP_Duotone::render_duotone_support, which requires the 3rd WP_Block arg)
+		// and fatal on an incomplete 2-arg call. This keeps the test focused on
+		// the bailout's own behaviour.
+		$bailout->maybe_bailout(
 			'<div class="wc-block-test"></div>',
 			array(
 				'blockName' => 'woocommerce/product-button',

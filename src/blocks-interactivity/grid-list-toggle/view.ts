@@ -34,14 +34,11 @@ function writeViewMode(mode: ViewMode): void {
 
 function applyViewMode(mode: ViewMode): void {
   const isList = mode === 'list';
+  // List-view layout is driven entirely by the body class — the rules target the
+  // native `.wp-block-woocommerce-product-template` grid, which is shared by the
+  // initial archive and the filtered/sorted results.
   document.body.classList.toggle('aa-list-view', isList);
   document.body.classList.toggle('aa-grid-view', !isList);
-
-  const filters = document.querySelector('.aa-product-filters');
-  if (filters) {
-    filters.classList.toggle('is-list-view', isList);
-    filters.classList.toggle('is-grid-view', !isList);
-  }
 }
 
 interface GridListState {

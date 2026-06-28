@@ -37,7 +37,6 @@
       [type='image'],
       [type='hidden']
     ),
-    select,
     textarea
   ) {
     box-sizing: border-box;
@@ -55,25 +54,88 @@
     transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
   }
 
-  :where(input, select, textarea)::placeholder {
+  /* Native <select> — separate from pill inputs; appearance:none needs an
+   * explicit surface and frame or dark-mode text vanishes on UA light fills. */
+  :where(select) {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: var(--aa-input-height);
+    padding: 0.625rem 2.25rem 0.625rem 1rem;
+    border: 1px solid var(--aa-color-border-default);
+    border-radius: var(--aa-radius-control);
+    background-color: var(--aa-color-surface);
+    color: var(--aa-color-foreground);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+      border-color var(--aa-duration-fast) var(--aa-ease-default),
+      background-color var(--aa-duration-fast) var(--aa-ease-default);
+  }
+
+  :where(select:hover) {
+    border-color: var(--aa-color-border-strong);
+    background-color: var(--aa-color-hover-subtle);
+  }
+
+  :where(select option) {
+    background-color: var(--aa-color-surface-elevated);
+    color: var(--aa-color-foreground);
+  }
+
+  /* Single-select: custom chevron (native arrows often break in dark mode). */
+  :where(select:not([multiple], [size])) {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 0.75rem;
+  }
+
+  html[data-theme='dark'] :where(select:not([multiple], [size])) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+  }
+
+  :where(input, textarea)::placeholder {
     color: var(--aa-color-muted-40);
   }
 
   /* Focus: no outline — the 3px left bar turns the brand accent (red). At rest
    * the bar is transparent, so there's no visible border until focus. */
-  :where(input, select, textarea):focus {
+  :where(input, textarea):focus {
     outline: none;
     border-left-color: var(--aa-color-accent);
   }
 
-  :where(input, select, textarea):disabled {
+  :where(select:focus) {
+    outline: none;
+    border-color: var(--aa-color-foreground);
+  }
+
+  :where(select:focus-visible) {
+    outline: 2px solid var(--aa-color-foreground);
+    outline-offset: 2px;
+  }
+
+  :where(input, textarea):disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  :where(select:disabled) {
     opacity: 0.6;
     cursor: not-allowed;
   }
 
   /* Error state — only after the user has interacted (not on first paint). */
-  :where(input, select, textarea):user-invalid {
+  :where(input, textarea):user-invalid {
     border-left-color: var(--aa-color-error);
+  }
+
+  :where(select:user-invalid) {
+    border-color: var(--aa-color-error);
   }
 
   /* Textarea: soft radius, not a full pill (a pill multi-line box looks odd). */
@@ -83,8 +145,13 @@
     resize: vertical;
   }
 
-  /* Checkboxes, radios and range share the brand accent. */
-  :where(input[type='checkbox'], input[type='radio'], input[type='range']) {
+  /* Checkboxes, radios and range share the brand accent — but not WC Blocks
+   * checkout/cart controls (payment methods, shipping options, etc.). */
+  :where(
+    input[type='checkbox']:not([class*='wc-block-components-']),
+    input[type='radio']:not([class*='wc-block-components-']),
+    input[type='range']:not([class*='wc-block-components-'])
+  ) {
     accent-color: var(--aa-color-accent);
   }
 
@@ -107,25 +174,15 @@
     cursor: pointer;
   }
 
-  /* Labels — adaptive colour so they stay legible in light AND dark mode. */
-  :where(label) {
+  /* Labels — adaptive colour so they stay legible in light AND dark mode.
+   * WC Blocks (checkout payment/shipping radios, etc.) manage their own. */
+  :where(label:not([class*='wc-block-components-'])) {
     color: var(--aa-color-foreground);
   }
 
   /* Form output element. */
   :where(output) {
     color: var(--aa-color-foreground-muted);
-  }
-
-  /* Single-select: hide the native arrow (often invisible in dark mode) and
-   * draw a neutral chevron that reads on both light and dark surfaces. */
-  :where(select:not([multiple], [size])) {
-    appearance: none;
-    padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.9rem center;
-    background-size: 0.75rem;
   }
 
   /* Colour picker — small swatch, same frame as the inputs. */
@@ -163,14 +220,14 @@
    * The two pseudo-classes are kept in SEPARATE rules on purpose: a rule-level
    * comma list is not forgiving, so combining them would drop the whole rule in
    * browsers that support only :-webkit-autofill (e.g. Safari < 15). */
-  :where(input, select, textarea):-webkit-autofill {
+  :where(input, textarea):-webkit-autofill {
     -webkit-text-fill-color: var(--aa-color-foreground);
     box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
     caret-color: var(--aa-color-foreground);
     transition: background-color 9999s ease-in-out 0s;
   }
 
-  :where(input, select, textarea):autofill {
+  :where(input, textarea):autofill {
     -webkit-text-fill-color: var(--aa-color-foreground);
     box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
     caret-color: var(--aa-color-foreground);
@@ -214,16 +271,82 @@
   color: var(--aa-color-error);
 }
 
+/* WC Blocks — leave payment/shipping option radios + checkboxes on WC chrome. */
+.wc-block-components-radio-control__input,
+.wc-block-components-checkbox__input {
+  accent-color: revert;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.wc-block-components-radio-control__option,
+.wc-block-components-checkbox__label {
+  color: revert;
+}
+
 /* WooCommerce — classic (non-block) forms: my-account, login, reviews. */
 .woocommerce form .form-row input.input-text,
 .woocommerce form .form-row textarea,
-.woocommerce form .form-row select,
 .woocommerce-input-wrapper input {
   min-height: var(--aa-input-height);
   border: 1.5px solid var(--aa-color-border-strong);
   border-radius: var(--aa-radius-control);
   background: transparent;
   color: inherit;
+}
+
+/* Native <select> anywhere in WooCommerce — catalog sort (.orderby),
+ * widgets, my-account, etc. Excludes block checkout/cart selects. */
+.woocommerce form .form-row select,
+.woocommerce select:not([multiple], [size], .wc-block-components-select__select) {
+  box-sizing: border-box;
+  min-height: var(--aa-input-height);
+  padding: 0.625rem 2.25rem 0.625rem 1rem;
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-radius-control);
+  background-color: var(--aa-color-surface);
+  color: var(--aa-color-foreground);
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.woocommerce select:not(.wc-block-components-select__select) option {
+  background-color: var(--aa-color-surface-elevated);
+  color: var(--aa-color-foreground);
+}
+
+/* Catalog toolbar — match filter trigger + grid/list toggle chrome. */
+.wc-block-catalog-sorting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-block: 0 var(--wp--preset--spacing--4);
+}
+
+.wc-block-catalog-sorting .woocommerce-ordering {
+  display: inline-flex;
+  margin: 0;
+}
+
+.wc-block-catalog-sorting select.orderby {
+  width: auto;
+  min-width: 11rem;
+  max-width: min(100%, 20rem);
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 2.25rem 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  background-position: right 0.75rem center;
 }
 
 /* Classic WooCommerce labels — adaptive colour so they're legible in both

@@ -66,9 +66,9 @@ function _aggressive_apparel_manually_load_environment() {
 		aggressive_apparel_init();
 	}
 
-	// If WooCommerce is needed, activate it
+	// If WooCommerce is present (added to the tests env via .wp-env.json),
+	// activate it so its classes/blocks load during the test run.
 	if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
-		// Activate WooCommerce plugin
 		$plugins = get_option( 'active_plugins', array() );
 		if ( ! in_array( 'woocommerce/woocommerce.php', $plugins, true ) ) {
 			$plugins[] = 'woocommerce/woocommerce.php';
@@ -77,6 +77,22 @@ function _aggressive_apparel_manually_load_environment() {
 	}
 }
 tests_add_filter( 'muplugins_loaded', '_aggressive_apparel_manually_load_environment' );
+
+/**
+ * Install WooCommerce's schema once it has loaded.
+ *
+ * Runs after plugins load (so WC_Install exists), creating WC's tables + roles
+ * so tests that create products — and the variation-block contract test — run
+ * instead of skipping. No-op when WooCommerce is absent.
+ *
+ * @return void
+ */
+function _aggressive_apparel_install_woocommerce() {
+	if ( class_exists( 'WC_Install' ) && ! get_option( 'woocommerce_db_version' ) ) {
+		\WC_Install::install();
+	}
+}
+tests_add_filter( 'setup_theme', '_aggressive_apparel_install_woocommerce' );
 
 // Start up the WP testing environment
 require $_tests_dir . '/includes/bootstrap.php';

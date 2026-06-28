@@ -15,7 +15,8 @@
     "tests": {
       "port": 9920,
       "phpmyadminPort": 9922,
-      "themes": ["."]
+      "themes": ["."],
+      "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"]
     }
   }
 }

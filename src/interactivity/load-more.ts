@@ -31,6 +31,7 @@ interface LoadMoreState {
   loadedCount: number;
   perPage: number;
   restBase: string;
+  restNonce: string;
   templateSlug: string;
   currentTaxonomy: string;
   currentTerm: string;
@@ -221,6 +222,7 @@ async function prefetchNextPage(): Promise<void> {
     const res = await fetch(buildUrl(nextPage), {
       signal: prefetchController.signal,
       priority: 'low',
+      headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
     } as RequestInit);
 
     if (!res.ok) return;
@@ -246,7 +248,10 @@ function loadSsrPage(page: number): void {
   if (abortController) abortController.abort();
   abortController = new AbortController();
 
-  fetch(buildUrl(page), { signal: abortController.signal })
+  fetch(buildUrl(page), {
+    signal: abortController.signal,
+    headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
+  })
     .then((res: Response) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json() as Promise<RenderedEntry>;

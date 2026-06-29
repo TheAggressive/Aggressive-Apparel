@@ -82,7 +82,7 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: 100000;
+  z-index: var(--aa-z-nav-panel);
   overflow: hidden;
   width: var(--panel-width, min(320px, 85vw));
   background: var(--panel-bg, var(--aa-color-surface-elevated));

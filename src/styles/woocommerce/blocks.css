@@ -34,7 +34,7 @@
 .is-style-commerce-cards .wc-block-grid__product {
 	padding: var(--aa-wc-product-card-padding);
 	border: 1px solid var(--aa-color-border-default);
-	border-radius: var(--aa-radius-card);
+	border-radius: var(--aa-radius-card) !important;
 	background-color: var(--aa-color-surface);
 	box-shadow: none;
 	transition:
@@ -325,12 +325,17 @@
 	border-color: var(--aa-color-border-default);
 }
 
-.wc-block-components-sidebar,
-.wc-block-components-order-summary,
-.wc-block-components-panel {
-	border-radius: var(--aa-radius-panel);
+/* The order-summary "card" — one surface on the summary block itself (checkout
+ * + cart), not the layout column, inner line-item list, or generic panel, so it
+ * stays a single panel (no nested surfaces / double padding) and applies
+ * consistently on desktop (sidebar) and mobile (top collapsible). Uses the
+ * shared card radius so it matches the site's other content cards (Card block
+ * style, reviews, product cards, mini-cart). */
+.wp-block-woocommerce-checkout-order-summary-block,
+.wp-block-woocommerce-cart-order-summary-block {
+	border-radius: var(--aa-radius-card);
 	background-color: var(--aa-color-surface-elevated);
-  padding: var(--wp--preset--spacing--8);
+	padding: var(--wp--preset--spacing--8);
 }
 
 .wc-block-components-totals-footer-item,

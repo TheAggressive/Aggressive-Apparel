@@ -320,7 +320,7 @@
         {
           "slug": "surface-elevated",
           "name": "Surface Elevated (Adaptive)",
-          "light": "oklch(87% 0 0)",
+          "light": "oklch(1 0 0)",
           "dark": "oklch(0 0 0)"
         },
         {
@@ -368,7 +368,9 @@
         "toast": 350,
         "stickyCart": 99996,
         "bottomNav": 99997,
-        "commerceDrawer": 99998
+        "commerceDrawer": 99998,
+        "navPanel": 100000,
+        "searchModal": 100001
       },
       "size": {
         "buttonHeight": {

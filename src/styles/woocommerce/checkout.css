@@ -33,6 +33,11 @@
   font-weight: var(--aa-field-label-weight);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
+  /* !important: WC sizes the select label at 13px with the same specificity as
+   * this rule, so without it the base size is a load-order tie (selects end up
+   * a hair different from text inputs). Pin both to `small` so they match. */
+  font-size: var(--wp--preset--font-size--small) !important;
 }
 
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
@@ -41,10 +46,14 @@
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.is-active label,
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input:focus-within label,
 .wc-blocks-components-select .wc-blocks-components-select__label {
-  font-weight: var(--aa-field-label-weight-active);
-  scale: 0.75;
-  letter-spacing: 0.15em;
+  scale: 0.85;
   transform-origin: top left; /* select label has no origin -> drifts right */
+
+  /* WC also shrinks the *text-input* floated label with `transform: scale(.82)`,
+   * which selects don't get — so their floated labels ended up larger. Strip
+   * that extra transform so both float at the same `scale(0.85)` size. (No-op on
+   * selects, which have no transform.) */
+  transform: none !important;
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need
@@ -59,19 +68,36 @@
  * (iframe) payment methods and the large size looks out of place there. */
 :is(.wc-block-checkout, .wc-block-cart)
   .wc-block-components-checkout-step:not(.wp-block-woocommerce-checkout-payment-block)
-  .wc-block-components-checkout-step__title {
-  font-size: var(--wp--preset--font-size--x-large) !important;
+  .wc-block-components-checkout-step__title, .wc-block-components-title {
+  font-size: var(--wp--preset--font-size--xx-large) !important;
   line-height: 1.2 !important;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  color: var(--wp--preset--color--foreground);
+
+  &::before {
+    color: var(--aa-color-brand-red);
+  }
 }
 
-/* Order-summary line-item quantity badge — adaptive so the count reads on the
- * dark summary panel (used on checkout and cart). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step {
+  margin-bottom: var(--wp--preset--spacing--12);
+}
+
+/* Order-summary line-item quantity badge — adaptive so the count reads in both
+ * colour schemes (used on checkout and cart). WC fills the badge with
+ * currentColor and colours the number with the (white) `background` preset,
+ * which disappears on our light-mode elevated surface — so recolour both the
+ * badge and the number span. */
 .wc-block-components-order-summary
   .wc-block-components-order-summary-item__quantity {
   background: var(--aa-color-surface-elevated);
   border: 1px solid var(--aa-color-border);
+  color: var(--aa-color-foreground);
+}
+
+.wc-block-components-order-summary
+  .wc-block-components-order-summary-item__quantity span {
   color: var(--aa-color-foreground);
 }
 
@@ -84,6 +110,54 @@
 .wc-block-components-checkout-order-summary__title {
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+/* ---- Mobile collapsed order summary ---------------------------------------
+ * Below 700px WC collapses the summary into a tappable header (text + total +
+ * chevron). Lead with the total — that's what shoppers check when it's
+ * collapsed — and drop "Order summary" to a quiet uppercase eyebrow, with a
+ * comfortable tap target. !important overrides WC's deep title selectors. */
+@media (width <= 700px) {
+
+  .wp-block-woocommerce-checkout-order-summary-block {
+    margin-bottom: var(--wp--preset--spacing--8);
+  }
+
+  .wc-block-components-checkout-order-summary__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0 !important;
+    margin-top: 0 !important;
+
+    /* Drop WC's top + bottom hairlines on the collapsed header. */
+    border-block: none !important;
+  }
+
+  /* "Order summary" → quiet eyebrow. */
+  .wc-block-components-checkout-order-summary__title-text {
+    flex-grow: 1;
+    color: var(--aa-color-foreground-muted);
+    font-size: var(--wp--preset--font-size--small) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em;
+  }
+
+  /* The total → the hero. */
+  .wc-block-components-checkout-order-summary__title-price {
+    color: var(--aa-color-foreground);
+    font-size: var(--wp--preset--font-size--large) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+  }
+
+  /* Chevron toggle — clear, muted affordance. */
+  .wc-block-components-checkout-order-summary__title-open-close {
+    display: inline-flex;
+    align-items: center;
+    color: var(--aa-color-foreground-muted);
+  }
 }
 
 /* ---- Field treatment ------------------------------------------------------
@@ -150,19 +224,4 @@
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
-}
-
-/* ---- Payment gateway card fields ------------------------------------------
- * The card gateway (card number / expiration / security code) renders WC
- * text-input fields but never toggles WC's `.is-active`, so their floating
- * labels stay at the resting (placeholder) position and overlap the field —
- * the broken grey "EXPIRATION DATE" / "SECURITY CODE" boxes. Pin these labels
- * to the lifted position (matching WC's is-active + our float treatment) so the
- * card fields read like every other field in the form. */
-.wp-block-woocommerce-checkout-payment-block .wc-block-components-text-input label {
-  top: 6px !important;
-  transform: scale(0.82) !important;
-  scale: 0.75 !important;
-  letter-spacing: 0.15em !important;
-  transform-origin: top left !important;
 }

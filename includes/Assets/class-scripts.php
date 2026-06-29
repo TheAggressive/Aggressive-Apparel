@@ -52,6 +52,7 @@ class Scripts {
 	 */
 	public function enqueue_scripts(): void {
 		$this->enqueue_core_scripts();
+		$this->enqueue_payment_appearance();
 
 		/**
 		 * Fires after core theme scripts are enqueued.
@@ -59,6 +60,28 @@ class Scripts {
 		 * @since 1.0.0
 		 */
 		do_action( 'aggressive_apparel_after_enqueue_scripts' );
+	}
+
+	/**
+	 * Tune the WooPayments / Stripe Payment Element appearance on checkout.
+	 *
+	 * The card fields render in a cross-origin Stripe iframe; WooPayments copies
+	 * the theme's computed form styles into the Element's appearance. This filter
+	 * script trims that (smaller labels, brand focus colour) so the card field
+	 * matches the rest of the form. Checkout only.
+	 *
+	 * @return void
+	 */
+	private function enqueue_payment_appearance(): void {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+			return;
+		}
+
+		Asset_Loader::enqueue_script(
+			'aggressive-apparel-payment-appearance',
+			'build/scripts/checkout/payment-appearance',
+			array( 'wp-hooks' )
+		);
 	}
 
 	/**

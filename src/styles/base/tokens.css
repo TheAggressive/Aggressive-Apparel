@@ -103,6 +103,8 @@
 	--aa-z-sticky-cart: var(--wp--custom--z-index--sticky-cart, 99996);
 	--aa-z-bottom-nav: var(--wp--custom--z-index--bottom-nav, 99997);
 	--aa-z-commerce-drawer: var(--wp--custom--z-index--commerce-drawer, 99998);
+	--aa-z-nav-panel: var(--wp--custom--z-index--nav-panel, 100000);
+	--aa-z-search-modal: var(--wp--custom--z-index--search-modal, 100001);
 
 	/* Component sizing (from settings.custom.size). */
 	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);

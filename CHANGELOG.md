@@ -1,3 +1,10 @@
+# [1.109.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.108.1...v1.109.0) (2026-06-29)
+
+
+### Features
+
+* enhance product rating block with brand mark integration ([8b0145d](https://github.com/TheAggressive/Aggressive-Apparel/commit/8b0145d7ce886335513abea6c054d2000f3c6dec))
+
 ## [1.108.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.108.0...v1.108.1) (2026-06-29)
 
 

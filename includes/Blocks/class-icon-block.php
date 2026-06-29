@@ -35,6 +35,11 @@ class Icon_Block {
 	private const MAX_SIZE = 128;
 
 	/**
+	 * Size (px) of the thumbnails shown beside each option in the editor picker.
+	 */
+	private const PREVIEW_SIZE = 24;
+
+	/**
 	 * Hook REST routes.
 	 */
 	public static function init(): void {
@@ -94,13 +99,53 @@ class Icon_Block {
 	}
 
 	/**
-	 * Return sorted icon slugs for the block editor combobox.
+	 * Build the icon SVG markup shared by the editor preview and the front-end
+	 * render, so the two can never drift apart. Size is clamped to the block's
+	 * allowed range.
+	 *
+	 * @param string $slug Icon slug.
+	 * @param mixed  $size Icon size in pixels (clamped).
+	 * @return string SVG markup, or empty string if the icon does not exist.
+	 */
+	public static function render_svg( string $slug, mixed $size ): string {
+		$slug = sanitize_key( $slug );
+
+		if ( '' === $slug || ! Icons::exists( $slug ) ) {
+			return '';
+		}
+
+		$size = self::sanitize_size( $size );
+
+		return Icons::get(
+			$slug,
+			array(
+				'width'       => $size,
+				'height'      => $size,
+				'class'       => 'aggressive-apparel-icon__svg',
+				'fill'        => 'currentColor',
+				'aria-hidden' => 'true',
+			)
+		);
+	}
+
+	/**
+	 * Return sorted icons (slug + thumbnail SVG) for the block editor combobox.
 	 *
 	 * @return WP_REST_Response
 	 */
 	public static function get_icon_list(): WP_REST_Response {
-		$icons = Icons::list();
-		sort( $icons );
+		$slugs = Icons::list();
+		sort( $slugs );
+
+		$icons = array_map(
+			static function ( string $slug ): array {
+				return array(
+					'slug' => $slug,
+					'svg'  => self::render_svg( $slug, self::PREVIEW_SIZE ),
+				);
+			},
+			$slugs
+		);
 
 		return new WP_REST_Response(
 			array(
@@ -119,32 +164,12 @@ class Icon_Block {
 	 */
 	public static function get_icon_preview( WP_REST_Request $request ): WP_REST_Response {
 		$slug = sanitize_key( (string) $request->get_param( 'slug' ) );
-		$size = self::sanitize_size( $request->get_param( 'size' ) );
-
-		if ( '' === $slug || ! Icons::exists( $slug ) ) {
-			return new WP_REST_Response(
-				array(
-					'message' => __( 'Icon not found.', 'aggressive-apparel' ),
-				),
-				404
-			);
-		}
-
-		$svg = Icons::get(
-			$slug,
-			array(
-				'width'       => $size,
-				'height'      => $size,
-				'class'       => 'aggressive-apparel-icon__svg',
-				'fill'        => 'currentColor',
-				'aria-hidden' => 'true',
-			)
-		);
+		$svg  = self::render_svg( $slug, $request->get_param( 'size' ) );
 
 		if ( '' === $svg ) {
 			return new WP_REST_Response(
 				array(
-					'message' => __( 'Icon could not be rendered.', 'aggressive-apparel' ),
+					'message' => __( 'Icon not found.', 'aggressive-apparel' ),
 				),
 				404
 			);

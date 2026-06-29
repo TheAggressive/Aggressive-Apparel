@@ -29,11 +29,16 @@ export interface IconBlockAttributes {
   iconSize: number;
   label: string;
   isDecorative: boolean;
-  align?: string;
+  textAlign?: string;
+}
+
+interface IconListItem {
+  slug: string;
+  svg: string;
 }
 
 interface IconListResponse {
-  icons: string[];
+  icons: IconListItem[];
 }
 
 interface IconPreviewResponse {
@@ -48,9 +53,9 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<IconBlockAttributes>) {
-  const { icon, iconSize, label, isDecorative, align } = attributes;
+  const { icon, iconSize, label, isDecorative, textAlign } = attributes;
 
-  const [iconSlugs, setIconSlugs] = useState<string[]>([]);
+  const [iconList, setIconList] = useState<IconListItem[]>([]);
   const [iconsLoading, setIconsLoading] = useState(true);
   const [iconsError, setIconsError] = useState('');
   const [previewSvg, setPreviewSvg] = useState('');
@@ -72,7 +77,7 @@ export default function Edit({
           return;
         }
 
-        setIconSlugs(response.icons ?? []);
+        setIconList(response.icons ?? []);
       } catch {
         if (!cancelled) {
           setIconsError(
@@ -105,8 +110,11 @@ export default function Edit({
       setPreviewLoading(true);
 
       try {
+        // The mark's shape is size-independent (size is just width/height), so
+        // fetch once per icon and let CSS scale it — no refetch while dragging
+        // the size slider.
         const response = await apiFetch<IconPreviewResponse>({
-          path: `/aggressive-apparel/v1/icons/${encodeURIComponent(icon)}?size=${iconSize}`,
+          path: `/aggressive-apparel/v1/icons/${encodeURIComponent(icon)}`,
         });
 
         if (!cancelled) {
@@ -128,19 +136,20 @@ export default function Edit({
     return () => {
       cancelled = true;
     };
-  }, [icon, iconSize]);
+  }, [icon]);
 
   const iconOptions = useMemo(
     () =>
-      iconSlugs.map(slug => ({
+      iconList.map(({ slug, svg }) => ({
         label: slug,
         value: slug,
+        svg,
       })),
-    [iconSlugs]
+    [iconList]
   );
 
   const blockProps = useBlockProps({
-    className: 'aggressive-apparel-icon',
+    className: `aggressive-apparel-icon${textAlign ? ` has-text-align-${textAlign}` : ''}`,
   });
 
   const showLabelNotice = !isDecorative && !label.trim();
@@ -149,8 +158,8 @@ export default function Edit({
     <>
       <BlockControls>
         <AlignmentControl
-          onChange={value => setAttributes({ align: value ?? '' })}
-          value={align || undefined}
+          onChange={value => setAttributes({ textAlign: value ?? '' })}
+          value={textAlign || undefined}
         />
       </BlockControls>
 
@@ -174,6 +183,18 @@ export default function Edit({
               help={__(
                 'Search by slug. Brand and UI icons share the same library.',
                 'aggressive-apparel'
+              )}
+              __experimentalRenderItem={({ item }) => (
+                <span className='aggressive-apparel-icon-option'>
+                  <span
+                    className='aggressive-apparel-icon-option__icon'
+                    aria-hidden='true'
+                    dangerouslySetInnerHTML={{ __html: String(item.svg ?? '') }}
+                  />
+                  <span className='aggressive-apparel-icon-option__label'>
+                    {item.label}
+                  </span>
+                </span>
               )}
             />
           )}
@@ -238,6 +259,7 @@ export default function Edit({
         ) : previewSvg ? (
           <span
             className='aggressive-apparel-icon__svg-wrap'
+            style={{ width: iconSize, height: iconSize }}
             dangerouslySetInnerHTML={{ __html: previewSvg }}
           />
         ) : (

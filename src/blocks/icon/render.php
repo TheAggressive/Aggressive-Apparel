@@ -11,33 +11,28 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\Core\Icons;
+use Aggressive_Apparel\Blocks\Icon_Block;
 
 $icon_slug     = sanitize_key( $attributes['icon'] ?? 'shipping-box' );
-$icon_size     = max( 16, min( 128, absint( $attributes['iconSize'] ?? 48 ) ) );
 $is_decorative = (bool) ( $attributes['isDecorative'] ?? true );
 $label         = sanitize_text_field( $attributes['label'] ?? '' );
+$text_align    = sanitize_key( $attributes['textAlign'] ?? '' );
 
-if ( ! Icons::exists( $icon_slug ) ) {
-	return;
-}
-
-$svg_attrs = array(
-	'width'       => $icon_size,
-	'height'      => $icon_size,
-	'class'       => 'aggressive-apparel-icon__svg',
-	'fill'        => 'currentColor',
-	'aria-hidden' => 'true',
-);
-
-$svg_markup = Icons::get( $icon_slug, $svg_attrs );
+// Shared with the editor preview so the two render identically.
+$svg_markup = Icon_Block::render_svg( $icon_slug, $attributes['iconSize'] ?? 48 );
 
 if ( '' === $svg_markup ) {
 	return;
 }
 
+$wrapper_class = 'aggressive-apparel-icon';
+
+if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
+	$wrapper_class .= ' has-text-align-' . $text_align;
+}
+
 $wrapper_attrs = array(
-	'class' => 'aggressive-apparel-icon',
+	'class' => $wrapper_class,
 );
 
 if ( $is_decorative || '' === $label ) {

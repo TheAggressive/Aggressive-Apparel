@@ -39,7 +39,7 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Editors can list icon slugs.
+	 * Editors can list icons (slug + thumbnail SVG), sorted by slug.
 	 */
 	public function test_get_icon_list_returns_sorted_slugs(): void {
 		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
@@ -50,11 +50,19 @@ class Icon_Block_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertIsArray( $data['icons'] ?? null );
-		$this->assertContains( 'cart', $data['icons'] );
-		$this->assertContains( 'shipping-box', $data['icons'] );
-		$sorted = $data['icons'];
+
+		// Each entry carries a slug and a rendered SVG thumbnail.
+		$this->assertArrayHasKey( 'slug', $data['icons'][0] );
+		$this->assertArrayHasKey( 'svg', $data['icons'][0] );
+		$this->assertStringContainsString( '<svg', $data['icons'][0]['svg'] );
+
+		$slugs = array_column( $data['icons'], 'slug' );
+		$this->assertContains( 'cart', $slugs );
+		$this->assertContains( 'shipping-box', $slugs );
+
+		$sorted = $slugs;
 		sort( $sorted );
-		$this->assertSame( $sorted, $data['icons'] );
+		$this->assertSame( $sorted, $slugs );
 	}
 
 	/**

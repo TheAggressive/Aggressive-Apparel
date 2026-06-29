@@ -26,14 +26,13 @@
       "type": "boolean",
       "default": true
     },
-    "align": {
+    "textAlign": {
       "type": "string",
       "default": ""
     }
   },
   "supports": {
     "html": false,
-    "align": ["left", "center", "right"],
     "color": {
       "text": true,
       "background": false

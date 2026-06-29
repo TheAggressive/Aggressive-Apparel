@@ -1,31 +1,36 @@
 /**
  * Aggressive Icon Block — front end and editor canvas.
  *
+ * Targets the `aggressive-apparel-icon` BEM class (added in both render.php and
+ * the editor's useBlockProps), so one rule set covers both contexts. The block
+ * is block-level and uses `text-align` for left/center/right placement, driven
+ * by the `has-text-align-*` class the alignment toolbar emits.
+ *
  * @package Aggressive_Apparel
  */
 
-.wp-block-aggressive-apparel-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+.aggressive-apparel-icon {
+	display: block;
 	line-height: 0;
-	vertical-align: middle;
 	color: currentcolor;
-
-	&__svg {
-		display: block;
-		flex-shrink: 0;
-	}
 }
 
-.has-text-align-left.wp-block-aggressive-apparel-icon {
-	justify-content: flex-start;
+.aggressive-apparel-icon__svg,
+.aggressive-apparel-icon__svg-wrap {
+	display: inline-block;
+	vertical-align: middle;
 }
 
-.has-text-align-center.wp-block-aggressive-apparel-icon {
-	justify-content: center;
+/* Alignment — `has-text-align-*` is emitted by the alignment toolbar. Default
+   (no class) falls back to the document's natural start edge. */
+.aggressive-apparel-icon.has-text-align-left {
+	text-align: left;
 }
 
-.has-text-align-right.wp-block-aggressive-apparel-icon {
-	justify-content: flex-end;
+.aggressive-apparel-icon.has-text-align-center {
+	text-align: center;
+}
+
+.aggressive-apparel-icon.has-text-align-right {
+	text-align: right;
 }

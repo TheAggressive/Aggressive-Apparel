@@ -1,0 +1,28 @@
+/**
+ * Aggressive Icon Block — editor-only chrome.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-icon {
+	min-width: 1.5rem;
+	min-height: 1.5rem;
+
+	&.is-selected {
+		outline: 1px dashed var(--aa-color-border-default, currentcolor);
+		outline-offset: 2px;
+	}
+}
+
+.aggressive-apparel-icon-block__placeholder {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+	border: 1px dashed var(--aa-color-border-default, currentcolor);
+	border-radius: var(--aa-radius-control, 0.375rem);
+	color: var(--aa-color-foreground-muted, currentcolor);
+	font-size: 0.75rem;
+	line-height: 1.4;
+	text-align: center;
+}

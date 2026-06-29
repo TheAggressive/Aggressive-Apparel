@@ -1,0 +1,31 @@
+/**
+ * Aggressive Icon Block — front end and editor canvas.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.wp-block-aggressive-apparel-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 0;
+	vertical-align: middle;
+	color: currentcolor;
+
+	&__svg {
+		display: block;
+		flex-shrink: 0;
+	}
+}
+
+.has-text-align-left.wp-block-aggressive-apparel-icon {
+	justify-content: flex-start;
+}
+
+.has-text-align-center.wp-block-aggressive-apparel-icon {
+	justify-content: center;
+}
+
+.has-text-align-right.wp-block-aggressive-apparel-icon {
+	justify-content: flex-end;
+}

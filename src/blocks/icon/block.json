@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/icon",
+  "version": "1.0.0",
+  "title": "Aggressive Icon",
+  "category": "aggressive-apparel",
+  "description": "Display an icon from the Aggressive Apparel icon library with adjustable size and color.",
+  "keywords": ["icon", "svg", "aggressive", "brand", "symbol"],
+  "textdomain": "aggressive-apparel",
+  "icon": "art",
+  "attributes": {
+    "icon": {
+      "type": "string",
+      "default": "shipping-box"
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 48
+    },
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "isDecorative": {
+      "type": "boolean",
+      "default": true
+    },
+    "align": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": ["left", "center", "right"],
+    "color": {
+      "text": true,
+      "background": false
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "className": true
+  },
+  "example": {
+    "attributes": {
+      "icon": "shield-check",
+      "iconSize": 48,
+      "isDecorative": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

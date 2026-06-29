@@ -225,6 +225,7 @@ class Bootstrap {
 		Core\Brand_Icons::init();
 		// Custom blocks.
 		Blocks\Blocks::init();
+		Blocks\Icon_Block::init();
 	}
 
 	/**

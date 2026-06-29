@@ -151,3 +151,18 @@
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
 }
+
+/* ---- Payment gateway card fields ------------------------------------------
+ * The card gateway (card number / expiration / security code) renders WC
+ * text-input fields but never toggles WC's `.is-active`, so their floating
+ * labels stay at the resting (placeholder) position and overlap the field —
+ * the broken grey "EXPIRATION DATE" / "SECURITY CODE" boxes. Pin these labels
+ * to the lifted position (matching WC's is-active + our float treatment) so the
+ * card fields read like every other field in the form. */
+.wp-block-woocommerce-checkout-payment-block .wc-block-components-text-input label {
+  top: 6px !important;
+  transform: scale(0.82) !important;
+  scale: 0.75 !important;
+  letter-spacing: 0.15em !important;
+  transform-origin: top left !important;
+}

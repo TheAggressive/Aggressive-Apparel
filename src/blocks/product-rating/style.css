@@ -1,0 +1,111 @@
+/**
+ * Product Rating block + shared rating marks.
+ *
+ * `.aa-rating` is the reusable marks component (also used by the reviews-tab
+ * per-review rating via the WC template override): a muted "track" of brand
+ * marks under a brand-red "fill" clipped to the rating percentage. `.aa-product-
+ * rating` is the block wrapper (marks + reviews-count link).
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-product-rating {
+	--aa-rating-size: 1.5rem;
+}
+
+.aa-product-rating__container {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.aa-product-rating__count {
+	color: var(--aa-color-foreground-muted, inherit);
+	font-size: var(--wp--preset--font-size--small, 0.875rem);
+}
+
+.aa-product-rating__count a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.aa-product-rating__count a:hover,
+.aa-product-rating__count a:focus-visible {
+	text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+ * Rating marks
+ * ------------------------------------------------------------------------- */
+
+.aa-rating {
+	--aa-rating-size: 1.5rem;
+
+	/*
+	 * `--aa-rating-mark` (the brand mark, as a mask image) is injected from the
+	 * Icons system by Blocks::enqueue_rating_mark_var(), so the icon stays a
+	 * single source of truth. The marks are empty spans drawn with this mask, so
+	 * they survive the reviews-tab `wp_kses` pass (which strips inline SVG).
+	 */
+	position: relative;
+	display: inline-flex;
+	flex: none;
+	vertical-align: middle;
+	line-height: 0;
+}
+
+.aa-rating__track,
+.aa-rating__fill {
+	display: flex;
+}
+
+/* Muted, full-width row of marks. */
+.aa-rating__track {
+	color: var(--aa-color-border-strong, color-mix(in oklch, currentColor 25%, transparent));
+}
+
+/* Brand-red marks, clipped to the rating % (width set inline by the renderer). */
+.aa-rating__fill {
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	overflow: hidden;
+	color: var(--aa-color-brand-red, var(--aa-color-brand, currentColor));
+}
+
+.aa-rating__mark {
+	flex: 0 0 var(--aa-rating-size, 1.5rem);
+	width: var(--aa-rating-size, 1.5rem);
+	height: var(--aa-rating-size, 1.5rem);
+	background-color: currentcolor;
+
+	/* 80% leaves a small gap between marks (the source mark has no padding). */
+	mask: var(--aa-rating-mark) center / 80% no-repeat;
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll-triggered reveal — the fill "wipes" in from 0 to the rating as it
+ * enters the viewport. Progressive enhancement: only where scroll-driven
+ * timelines are supported and motion is allowed; otherwise the fill is static
+ * at its inline width.
+ * ------------------------------------------------------------------------- */
+
+@keyframes aa-rating-fill-in {
+
+	from {
+		width: 0;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+	@supports (animation-timeline: view()) {
+
+		.aa-rating__fill {
+			animation: aa-rating-fill-in linear both;
+			animation-timeline: view();
+			animation-range: entry 15% entry 65%;
+		}
+	}
+}

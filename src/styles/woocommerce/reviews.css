@@ -3,8 +3,8 @@
  *
  * Editorial treatment for WooCommerce's classic (non-block) review markup. The
  * customer's own words are the hero: large body copy on a lifted card, a
- * brand-red spine as the signature, gold stars, and a compact byline. The
- * "Add a review" form is restyled to match.
+ * brand-red spine as the signature, the brand mark as the rating, and a compact
+ * byline. The "Add a review" form is restyled to match.
  *
  * WooCommerce ships deeply-specific unlayered CSS for `#reviews`
  * (e.g. `.woocommerce #reviews #comments ol.commentlist li .comment-text`), so
@@ -36,6 +36,10 @@
 
 /* ---------------------------------------------------------------------------
  * Review list
+ *
+ * Per-review ratings render as `.aa-rating` (our brand-mark component) via the
+ * `woocommerce/single-product/review-rating.php` template override — styled in
+ * the product-rating block's stylesheet; here we only place it in the column.
  * ------------------------------------------------------------------------- */
 
 .woocommerce #reviews #comments ol.commentlist {
@@ -117,21 +121,13 @@
 		border: none;
 		border-radius: 0;
 
-		/*
-		 * Star rating — gold, prominent, first in the stack. WooCommerce sizes
-		 * this with a fixed `width: 5.4em` + `overflow: hidden` (that's how
-		 * partial fills work), so don't add letter-spacing — it overflows that
-		 * width and clips the last star. A slightly taller height keeps the glyph
-		 * bottoms from clipping.
-		 */
-		& .star-rating {
+		/* Rating marks (.aa-rating) — styled in the product-rating block CSS;
+		   here we only place it in the flex column. align-self keeps it from
+		   stretching to full width (which would skew the fill percentage). */
+		& .aa-rating {
 			order: 1;
-			height: 1.3em;
+			align-self: start;
 			margin-block: 0 var(--wp--preset--spacing--3);
-			color: var(--aa-color-warning);
-			font-size: 1.15rem;
-			line-height: 1.3;
-			letter-spacing: normal;
 		}
 
 		/* The review body is the hero: large and tight-leading. */
@@ -239,7 +235,7 @@
 		}
 	}
 
-	& .children .comment-text .star-rating {
+	& .children .comment-text .aa-rating {
 		display: none;
 	}
 

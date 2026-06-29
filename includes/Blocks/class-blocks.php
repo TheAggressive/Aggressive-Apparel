@@ -49,6 +49,57 @@ class Blocks {
 	 */
 	public static function init(): void {
 		\add_action( 'init', array( __CLASS__, 'register' ) );
+		\add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_rating_mark_var' ) );
+	}
+
+	/**
+	 * Feed the product-rating block its brand mark from the icon system.
+	 *
+	 * The rating draws its marks with a CSS `mask`; this injects the mark as a
+	 * `--aa-rating-mark` custom property on the block's stylesheet (front end and
+	 * editor), sourced from `Icons`. That keeps the icon a single source of truth
+	 * — swap the 'brand-mark' definition (or this slug) and the rating follows —
+	 * while the marks themselves stay empty spans that survive the reviews-tab
+	 * `wp_kses` pass.
+	 *
+	 * @since 1.17.0
+	 * @return void
+	 */
+	public static function enqueue_rating_mark_var(): void {
+		if ( ! function_exists( 'wp_add_inline_style' ) || ! class_exists( '\WP_Block_Type_Registry' ) ) {
+			return;
+		}
+
+		$block = \WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAMESPACE . 'product-rating' );
+
+		if ( ! $block ) {
+			return;
+		}
+
+		// Resolve the block's front-end style handle (array since WP 6.1,
+		// falling back to the older scalar `style` property).
+		$handle = '';
+		if ( ! empty( $block->style_handles ) ) {
+			$handles = (array) $block->style_handles;
+			$handle  = (string) reset( $handles );
+		} elseif ( ! empty( $block->style ) ) {
+			$styles = (array) $block->style;
+			$handle = (string) reset( $styles );
+		}
+
+		if ( '' === $handle || ! \wp_style_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		$svg = \Aggressive_Apparel\Core\Icons::get( 'brand-mark' );
+
+		if ( '' === $svg ) {
+			return;
+		}
+
+		$data_uri = 'data:image/svg+xml,' . rawurlencode( $svg );
+
+		\wp_add_inline_style( $handle, '.aa-rating{--aa-rating-mark:url("' . $data_uri . '")}' );
 	}
 
 	/**

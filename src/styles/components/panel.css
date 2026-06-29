@@ -42,12 +42,11 @@
 		max-height: 85vh;
 	}
 
-	/* Size guide: slide-up only (no scale), wider flat panel. */
+	/* Size guide: slide-up only (no scale), wider panel. */
 	&--guide {
 		width: min(90vw, var(--aa-panel-width-guide));
 		max-height: 85vh;
 		overflow-y: auto;
-		border-radius: 0;
 		box-shadow:
 			var(--aa-shadow-panel),
 			0 0 0 1px var(--aa-color-border-subtle);

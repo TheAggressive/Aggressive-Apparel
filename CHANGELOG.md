@@ -1,3 +1,10 @@
+## [1.108.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.108.0...v1.108.1) (2026-06-29)
+
+
+### Bug Fixes
+
+* update theme metadata and enhance security features ([667dd84](https://github.com/TheAggressive/Aggressive-Apparel/commit/667dd84407bf70c100fd12a8736b739c3f305580))
+
 # [1.108.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.107.0...v1.108.0) (2026-06-28)
 
 

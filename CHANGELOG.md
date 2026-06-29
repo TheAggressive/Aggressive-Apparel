@@ -1,3 +1,10 @@
+# [1.112.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.111.0...v1.112.0) (2026-06-29)
+
+
+### Features
+
+* update theme styles and enhance payment appearance ([baf9369](https://github.com/TheAggressive/Aggressive-Apparel/commit/baf936974765e17be07c7429bf0cddcc8f560a6e))
+
 # [1.111.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.110.0...v1.111.0) (2026-06-29)
 
 

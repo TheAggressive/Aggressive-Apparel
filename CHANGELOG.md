@@ -1,3 +1,10 @@
+# [1.111.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.110.0...v1.111.0) (2026-06-29)
+
+
+### Features
+
+* enhance Icon block with SVG rendering and improved icon list ([3762f98](https://github.com/TheAggressive/Aggressive-Apparel/commit/3762f98b9cb7189b0945a8c6837ff10ffff9fa9f))
+
 # [1.110.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.109.0...v1.110.0) (2026-06-29)
 
 

@@ -1,3 +1,10 @@
+# [1.110.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.109.0...v1.110.0) (2026-06-29)
+
+
+### Features
+
+* add Aggressive Icon block with REST API integration ([ef86fde](https://github.com/TheAggressive/Aggressive-Apparel/commit/ef86fde054dba94ba1b8e2ea125236f95e18995f))
+
 # [1.109.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.108.1...v1.109.0) (2026-06-29)
 
 

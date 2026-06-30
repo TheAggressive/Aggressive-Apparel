@@ -247,7 +247,7 @@ function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
 }
 
 /**
- * Input rule with brand-red left border (filled or focused states).
+ * Input rule with brand-red left border (focus-only).
  */
 function inputWithBrandBorder(
   inputBase: Record<string, string>,
@@ -296,7 +296,7 @@ function buildAppearanceRules(
   };
 
   return {
-    '.Input': brandBorder,
+    '.Input': inputBase,
     '.Input--empty': inputBase,
     '.Input:focus': brandBorder,
     '.Input--empty:focus': brandBorder,

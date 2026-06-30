@@ -176,11 +176,10 @@
 }
 
 /* ---- Field treatment ------------------------------------------------------
- * No border or outline — just a 3px brand-red left bar on focus or when the
- * field is active (filled). WC's field CSS is very specific, so !important strips it reliably
- * (the block editor can't control form styling). Covers text inputs, textarea
- * and the selects; quantity inputs use a different component and are NOT
- * matched. */
+ * No border or outline — just a 3px brand-red left bar on focus. WC's field
+ * CSS is very specific, so !important strips it reliably (the block editor
+ * can't control form styling). Covers text inputs, textarea and the selects;
+ * quantity inputs use a different component and are NOT matched. */
 
 /* Reset: strip WC's border + its focus outline/box-shadow (so only our red bar
  * shows), soft radius, adaptive value text, animated focus border. */

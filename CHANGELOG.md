@@ -1,3 +1,10 @@
+## [1.117.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.3...v1.117.4) (2026-06-30)
+
+
+### Bug Fixes
+
+* update selector for express payment event buttons in checkout.css ([e5b7a16](https://github.com/TheAggressive/Aggressive-Apparel/commit/e5b7a162e8aceafdd3428fe47629fc2c2ed4e7b1))
+
 ## [1.117.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.2...v1.117.3) (2026-06-30)
 
 

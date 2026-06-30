@@ -223,10 +223,7 @@ function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
     labelFontSize: labelStyles.fontSize,
     floatingLabelFontSize: `calc(${labelStyles.fontSize} * 0.85)`,
     accentColor: toOpaqueRgb(focusedStyles.borderLeftColor, fieldBackground),
-    errorColor: toOpaqueRgb(
-      resolveToken('--aa-color-error'),
-      fieldBackground
-    ),
+    errorColor: toOpaqueRgb(resolveToken('--aa-color-error'), fieldBackground),
     borderRadius: inputStyles.borderRadius,
     fontFamily: inputStyles.fontFamily,
     pageBackground: toOpaqueRgb(pageBackground, pageBackground),

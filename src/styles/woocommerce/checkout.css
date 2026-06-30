@@ -135,6 +135,7 @@
 /* Express payment event buttons */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment__event-buttons>li>div {
   border-radius: var(--aa-radius-full);
+  overflow: hidden;
 }
 
 /* ---- Mobile collapsed order summary ---------------------------------------

@@ -4,6 +4,9 @@
  * @package Aggressive_Apparel
  */
 
+/* Breakpoints first — @custom-media must precede @layer (Lightning CSS). */
+@import './base/breakpoints.css';
+
 /* Layer order declaration — must come before any @layer usage.
  * Later layers win over earlier ones at equal specificity.
  * Tailwind's own layers (theme, base, components, utilities) sit

@@ -16,3 +16,24 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ---------------------------------------------------------------------------
+ * Responsive visibility (WordPress @wordpress/viewport `medium` = 782px).
+ *
+ * Matches core queries: `< medium` vs `>= medium`. Breakpoints: breakpoints.css.
+ * Add via block Additional CSS class(es) in the editor.
+ * ------------------------------------------------------------------------- */
+
+/* Hide below the WP medium breakpoint (< 782px). */
+.aa-hidden-mobile {
+  @media (--aa-wp-below-medium) {
+    display: none !important;
+  }
+}
+
+/* Hide from the WP medium breakpoint up (>= 782px). */
+.aa-hidden-desktop {
+  @media (--aa-wp-medium-up) {
+    display: none !important;
+  }
+}

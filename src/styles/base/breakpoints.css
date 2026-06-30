@@ -1,0 +1,19 @@
+/**
+ * WordPress viewport breakpoints (@wordpress/viewport).
+ *
+ * Single source of truth for responsive @media in theme CSS. Values match
+ * core: mobile 480, small 600, medium 782, large 960, wide 1280, huge 1440.
+ *
+ * Use as `@media (--aa-wp-below-medium) { … }` — compiled by Lightning CSS.
+ * Do not wrap in @layer (Lightning custom-media scope requirement).
+ *
+ * @package Aggressive_Apparel
+ */
+
+@custom-media --aa-wp-mobile-up (width >= 480px);
+@custom-media --aa-wp-small-up (width >= 600px);
+@custom-media --aa-wp-below-medium (width < 782px);
+@custom-media --aa-wp-medium-up (width >= 782px);
+@custom-media --aa-wp-large-up (width >= 960px);
+@custom-media --aa-wp-wide-up (width >= 1280px);
+@custom-media --aa-wp-huge-up (width >= 1440px);

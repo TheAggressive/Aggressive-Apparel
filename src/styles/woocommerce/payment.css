@@ -18,4 +18,6 @@
 /* The method list — drop WC's outer box + dividers; stack as spaced tiles.
  * WC draws the box + the lines between options with absolutely-positioned
  * `::after` pseudo-elements (not real borders), so they must be removed there. */
-
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after, .wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
+  border: none !important;
+}

@@ -21,7 +21,6 @@
   --aa-field-label-color: var(--aa-color-foreground-muted);
   --aa-field-label-weight: 500;
   --aa-field-label-weight-active: 600;
-  --colorBackground: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
 }
 
 /* Every field label (text inputs + the wc-blocks- select __label, which WC

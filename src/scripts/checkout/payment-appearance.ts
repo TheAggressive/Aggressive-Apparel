@@ -49,6 +49,13 @@ addFilter(
   'wcpay.payment-fields.appearance',
   'aggressive-apparel/payment-appearance',
   (appearance: StripeAppearance = {}): StripeAppearance => {
+    // TEMP DEBUG — confirms the filter fires and shows the appearance object
+    // WooPayments passes (so we set the right keys). Remove once styling works.
+    console.log(
+      '[aa] wcpay appearance (incoming):',
+      JSON.parse(JSON.stringify(appearance ?? {}))
+    );
+
     const accent = resolveColor('var(--aa-color-accent)', '#cc0000');
     const surface = resolveColor('var(--aa-color-surface-elevated)', '#1a1a1a');
     const fieldBg = resolveColor(

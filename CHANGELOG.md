@@ -1,3 +1,10 @@
+## [1.117.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.0...v1.117.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* update input styling rules in wcpay-appearance.ts and checkout.css ([0690045](https://github.com/TheAggressive/Aggressive-Apparel/commit/06900456942fd684d28701141f64064cf279bd88))
+
 # [1.117.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.116.0...v1.117.0) (2026-06-30)
 
 

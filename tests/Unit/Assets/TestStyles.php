@@ -26,7 +26,7 @@ class TestStyles extends WP_UnitTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->styles = new Styles( '1.0.0' );
+		$this->styles = new Styles();
 		$this->styles->init();
 	}
 

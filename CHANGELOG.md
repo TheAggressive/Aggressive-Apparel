@@ -1,3 +1,10 @@
+## [1.114.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.0...v1.114.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* update payment appearance script loading ([a866331](https://github.com/TheAggressive/Aggressive-Apparel/commit/a866331eb7a78701e1b8422a85ec07394bf0f8b3))
+
 # [1.114.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.4...v1.114.0) (2026-06-30)
 
 

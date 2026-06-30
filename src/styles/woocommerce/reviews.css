@@ -37,9 +37,10 @@
 /* ---------------------------------------------------------------------------
  * Review list
  *
- * Per-review ratings render as `.aa-rating` (our brand-mark component) via the
- * `woocommerce/single-product/review-rating.php` template override — styled in
- * the product-rating block's stylesheet; here we only place it in the column.
+ * Per-review ratings render as `.aa-rating` (our brand-mark component) via
+ * `Rating::display_for_comment()` on `woocommerce_review_before_comment_meta` —
+ * styled in the product-rating block's stylesheet; here we only place it in
+ * the column.
  * ------------------------------------------------------------------------- */
 
 .woocommerce #reviews #comments ol.commentlist {

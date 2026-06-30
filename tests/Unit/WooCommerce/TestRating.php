@@ -103,4 +103,65 @@ class TestRating extends WP_UnitTestCase {
 	public function test_marks_contain_no_inline_svg(): void {
 		$this->assertStringNotContainsString( '<svg', Rating::stars( 4.0 ) );
 	}
+
+	/**
+	 * Review comments with a rating meta value render brand-mark output.
+	 */
+	public function test_display_for_comment_renders_rating(): void {
+		$post_id    = $this->factory->post->create( array( 'post_type' => 'product' ) );
+		$comment_id = $this->factory->comment->create(
+			array(
+				'comment_post_ID'  => $post_id,
+				'comment_approved' => '1',
+			)
+		);
+		update_comment_meta( $comment_id, 'rating', 4 );
+
+		$comment = get_comment( $comment_id );
+		$this->assertInstanceOf( \WP_Comment::class, $comment );
+
+		ob_start();
+		Rating::display_for_comment( $comment );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'aa-rating', $html );
+		$this->assertStringContainsString( 'aria-label="Rated 4 out of 5"', $html );
+	}
+
+	/**
+	 * Review comments without a rating meta value render nothing.
+	 */
+	public function test_display_for_comment_skips_when_no_rating(): void {
+		$post_id    = $this->factory->post->create( array( 'post_type' => 'product' ) );
+		$comment_id = $this->factory->comment->create(
+			array(
+				'comment_post_ID'  => $post_id,
+				'comment_approved' => '1',
+			)
+		);
+
+		$comment = get_comment( $comment_id );
+		$this->assertInstanceOf( \WP_Comment::class, $comment );
+
+		ob_start();
+		Rating::display_for_comment( $comment );
+		$html = (string) ob_get_clean();
+
+		$this->assertSame( '', $html );
+	}
+
+	/**
+	 * The default WooCommerce review rating callback is replaced on hook registration.
+	 */
+	public function test_register_review_hooks_replaces_default_callback(): void {
+		Rating::register_review_hooks();
+
+		$this->assertFalse(
+			has_action( 'woocommerce_review_before_comment_meta', 'woocommerce_review_display_rating' )
+		);
+		$this->assertSame(
+			10,
+			has_action( 'woocommerce_review_before_comment_meta', array( Rating::class, 'display_for_comment' ) )
+		);
+	}
 }

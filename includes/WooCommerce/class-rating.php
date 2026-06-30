@@ -42,6 +42,52 @@ class Rating {
 	private const MARKS = 5;
 
 	/**
+	 * Register WooCommerce review-rating hooks.
+	 *
+	 * @return void
+	 */
+	public static function init(): void {
+		add_action( 'woocommerce_init', array( self::class, 'register_review_hooks' ) );
+	}
+
+	/**
+	 * Replace WooCommerce star glyphs with brand-mark ratings in review comments.
+	 *
+	 * @return void
+	 */
+	public static function register_review_hooks(): void {
+		if ( ! function_exists( 'woocommerce_review_display_rating' ) ) {
+			return;
+		}
+
+		remove_action( 'woocommerce_review_before_comment_meta', 'woocommerce_review_display_rating', 10 );
+		add_action( 'woocommerce_review_before_comment_meta', array( self::class, 'display_for_comment' ), 10 );
+	}
+
+	/**
+	 * Echo the per-review rating for a product comment.
+	 *
+	 * Hooked to `woocommerce_review_before_comment_meta` in place of
+	 * WooCommerce's default star template.
+	 *
+	 * @param \WP_Comment $comment Review comment.
+	 * @return void
+	 */
+	public static function display_for_comment( $comment ): void {
+		if ( ! $comment instanceof \WP_Comment ) {
+			return;
+		}
+
+		$rating = (int) get_comment_meta( absint( $comment->comment_ID ), 'rating', true );
+
+		if ( ! $rating || ! function_exists( 'wc_review_ratings_enabled' ) || ! wc_review_ratings_enabled() ) {
+			return;
+		}
+
+		echo self::stars( (float) $rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted renderer; scalars escaped inside.
+	}
+
+	/**
 	 * Render the rating marks.
 	 *
 	 * @param float $rating Rating value (0–5; clamped).

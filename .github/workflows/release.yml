@@ -290,6 +290,9 @@ jobs:
           rm -f phpunit.xml* phpstan.* phpcs.xml* commitlint.config.mjs .releaserc.json
           rm -f jest.config.mjs
 
+          # Remove AI assistant / dev-only docs
+          rm -f CLAUDE.md
+
           # Remove specific dotfiles
           rm -f .wp-env.json .editorconfig .gitignore .gitattributes
 

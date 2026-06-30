@@ -257,6 +257,7 @@ class Bootstrap {
 		}
 
 		$this->container->get( 'wc_support' )->init();
+		WooCommerce\Rating::init();
 		$this->container->get( 'cart' )->init();
 		$this->container->get( 'wc_templates' )->init();
 		$this->container->get( 'wc_block_styles' )->init();

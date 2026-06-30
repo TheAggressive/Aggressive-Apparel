@@ -1,3 +1,10 @@
+## [1.113.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.1...v1.113.2) (2026-06-30)
+
+
+### Bug Fixes
+
+* clean up payment method styles by removing unnecessary CSS rules ([4160cbc](https://github.com/TheAggressive/Aggressive-Apparel/commit/4160cbccb8a91a470a6b3d0d7ed2c733b1e852bf))
+
 ## [1.113.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.0...v1.113.1) (2026-06-30)
 
 

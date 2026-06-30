@@ -1,3 +1,15 @@
+# [1.115.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.2...v1.115.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* streamline error color assignment in payment appearance ([effdc7b](https://github.com/TheAggressive/Aggressive-Apparel/commit/effdc7b785897f669ffc8da03d991105484c9240))
+
+
+### Features
+
+* enhance payment appearance handling ([d71a41c](https://github.com/TheAggressive/Aggressive-Apparel/commit/d71a41cb8e7b8a83b6e3f3e9c90db841664625dc))
+
 ## [1.114.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.1...v1.114.2) (2026-06-30)
 
 

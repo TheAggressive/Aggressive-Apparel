@@ -545,17 +545,17 @@
         {
           "name": "Brand: Red and Black",
           "slug": "brand-red-black",
-          "colors": ["oklch(0.14 0 0)", "oklch(0.54 0.21 31.93)"]
+          "colors": ["#090909", "#cc1c00"]
         },
         {
           "name": "Brand: White and Red",
           "slug": "brand-white-red",
-          "colors": ["oklch(0.54 0.21 31.93)", "oklch(1 0 0)"]
+          "colors": ["#cc1c00", "#ffffff"]
         },
         {
           "name": "Monochrome: Black and White",
           "slug": "monochrome",
-          "colors": ["oklch(0.14 0 0)", "oklch(1 0 0)"]
+          "colors": ["#090909", "#ffffff"]
         }
       ]
     },

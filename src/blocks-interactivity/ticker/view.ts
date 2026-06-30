@@ -15,7 +15,30 @@ interface TickerMetrics {
   trackWidth: number;
 }
 
+interface TickerAnimationState {
+  isDestroyed: boolean;
+  isIntersecting: boolean;
+  isDocumentVisible: boolean;
+  reducedMotion: boolean;
+  isPaused: boolean;
+  pxPerMs: number;
+}
+
 const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
+
+/**
+ * Whether a ticker should consume animation frames right now.
+ */
+export function shouldAnimateTicker(state: TickerAnimationState): boolean {
+  return (
+    !state.isDestroyed &&
+    state.isIntersecting &&
+    state.isDocumentVisible &&
+    !state.reducedMotion &&
+    !state.isPaused &&
+    state.pxPerMs > 0
+  );
+}
 
 /**
  * Clone enough `.ticker__content` copies to cover the scroll area and animate
@@ -37,26 +60,25 @@ function setupTicker(ticker: HTMLElement): void {
   let reverse = false;
   let isDestroyed = false;
   let resizeFrameId = 0;
+  let contents: HTMLElement[] = [];
+  let contentWidths = new Map<HTMLElement, number>();
+  let isIntersecting = !('IntersectionObserver' in window);
+  let isDocumentVisible = !document.hidden;
+  let isPaused = ticker.classList.contains('is-paused');
   const watchedImages = new WeakSet<HTMLImageElement>();
+  const reducedMotionMql = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
 
   const getContents = (): HTMLElement[] =>
-    Array.from(track.querySelectorAll<HTMLElement>('.ticker__content'));
+    Array.from(track.children).filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement &&
+        child.classList.contains('ticker__content')
+    );
 
   const getContentWidth = (content: HTMLElement): number =>
     content.getBoundingClientRect().width;
-
-  const getMetrics = (): TickerMetrics =>
-    getContents().reduce<TickerMetrics>(
-      (metrics, content) => {
-        const width = getContentWidth(content);
-
-        return {
-          maxContentWidth: Math.max(metrics.maxContentWidth, width),
-          trackWidth: metrics.trackWidth + width,
-        };
-      },
-      { maxContentWidth: 0, trackWidth: 0 }
-    );
 
   const getSpeedSeconds = (): number => {
     const styles = window.getComputedStyle(ticker);
@@ -68,29 +90,98 @@ function setupTicker(ticker: HTMLElement): void {
   };
 
   const recycleForward = (): void => {
-    let firstContent = getContents()[0];
-    let firstWidth = firstContent ? getContentWidth(firstContent) : 0;
+    let firstContent = contents[0];
+    let firstWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
 
     while (firstContent && firstWidth > 0 && offset >= firstWidth) {
       track.appendChild(firstContent);
       offset -= firstWidth;
-      firstContent = getContents()[0];
-      firstWidth = firstContent ? getContentWidth(firstContent) : 0;
+
+      const movedContent = contents.shift();
+      if (movedContent) {
+        contents.push(movedContent);
+      }
+
+      firstContent = contents[0];
+      firstWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
     }
   };
 
   const recycleBackward = (): void => {
-    let contents = getContents();
     let lastContent = contents[contents.length - 1];
-    let lastWidth = lastContent ? getContentWidth(lastContent) : 0;
+    let lastWidth = lastContent ? (contentWidths.get(lastContent) ?? 0) : 0;
 
     while (lastContent && lastWidth > 0 && offset <= 0) {
       track.insertBefore(lastContent, track.firstElementChild);
       offset += lastWidth;
-      contents = getContents();
+
+      const movedContent = contents.pop();
+      if (movedContent) {
+        contents.unshift(movedContent);
+      }
+
       lastContent = contents[contents.length - 1];
-      lastWidth = lastContent ? getContentWidth(lastContent) : 0;
+      lastWidth = lastContent ? (contentWidths.get(lastContent) ?? 0) : 0;
     }
+  };
+
+  const canAnimate = (): boolean =>
+    shouldAnimateTicker({
+      isDestroyed,
+      isIntersecting,
+      isDocumentVisible,
+      reducedMotion: reducedMotionMql.matches,
+      isPaused,
+      pxPerMs,
+    });
+
+  const stopAnimation = (): void => {
+    if (frameId) {
+      window.cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+
+    previousTime = 0;
+    track.style.removeProperty('will-change');
+  };
+
+  const tick = (time: number): void => {
+    frameId = 0;
+
+    if (!canAnimate()) {
+      stopAnimation();
+      return;
+    }
+
+    if (!previousTime) {
+      previousTime = time;
+    }
+
+    const delta = time - previousTime;
+    previousTime = time;
+    offset += (reverse ? -1 : 1) * delta * pxPerMs;
+
+    if (reverse) {
+      recycleBackward();
+    } else {
+      recycleForward();
+    }
+
+    setTransform();
+    frameId = window.requestAnimationFrame(tick);
+  };
+
+  const syncAnimation = (): void => {
+    if (!canAnimate()) {
+      stopAnimation();
+      return;
+    }
+
+    if (frameId) return;
+
+    previousTime = 0;
+    track.style.willChange = 'transform';
+    frameId = window.requestAnimationFrame(tick);
   };
 
   const watchImages = (): void => {
@@ -106,14 +197,38 @@ function setupTicker(ticker: HTMLElement): void {
   };
 
   const measure = (): void => {
-    const contents = getContents();
-    const firstContent = contents[0];
-    const template = contents[1] || contents[0];
-    const containerWidth = scroll.getBoundingClientRect().width;
-    if (!firstContent || !template || containerWidth <= 0) return;
+    if (isDestroyed) return;
 
-    const firstWidth = getContentWidth(firstContent);
-    if (firstWidth <= 0) return;
+    const nextContents = getContents();
+    const firstContent = nextContents[0];
+    const template = nextContents[1] || nextContents[0];
+    const containerWidth = scroll.getBoundingClientRect().width;
+    if (!firstContent || !template || containerWidth <= 0) {
+      pxPerMs = 0;
+      syncAnimation();
+      return;
+    }
+
+    const nextContentWidths = new Map<HTMLElement, number>();
+    const metrics = nextContents.reduce<TickerMetrics>(
+      (result, content) => {
+        const width = getContentWidth(content);
+        nextContentWidths.set(content, width);
+
+        return {
+          maxContentWidth: Math.max(result.maxContentWidth, width),
+          trackWidth: result.trackWidth + width,
+        };
+      },
+      { maxContentWidth: 0, trackWidth: 0 }
+    );
+
+    const firstWidth = nextContentWidths.get(firstContent) ?? 0;
+    if (firstWidth <= 0) {
+      pxPerMs = 0;
+      syncAnimation();
+      return;
+    }
 
     pxPerMs = containerWidth / (getSpeedSeconds() * 1000);
     reverse =
@@ -122,7 +237,6 @@ function setupTicker(ticker: HTMLElement): void {
         .getPropertyValue('--ticker-direction')
         .trim() === 'reverse';
 
-    const metrics = getMetrics();
     let trackWidth = metrics.trackWidth;
     let maxContentWidth = metrics.maxContentWidth || firstWidth;
     const minTrackWidth = containerWidth + maxContentWidth * 2;
@@ -132,9 +246,14 @@ function setupTicker(ticker: HTMLElement): void {
       clone.setAttribute('inert', '');
       track.appendChild(clone);
       const cloneWidth = getContentWidth(clone) || maxContentWidth;
+      nextContents.push(clone);
+      nextContentWidths.set(clone, cloneWidth);
       trackWidth += cloneWidth;
       maxContentWidth = Math.max(maxContentWidth, cloneWidth);
     }
+
+    contents = nextContents;
+    contentWidths = nextContentWidths;
 
     if (reverse && offset === 0) {
       offset = firstWidth;
@@ -148,32 +267,12 @@ function setupTicker(ticker: HTMLElement): void {
 
     watchImages();
     setTransform();
-  };
-
-  const tick = (time: number): void => {
-    if (isDestroyed) return;
-
-    if (!previousTime) {
-      previousTime = time;
-    }
-
-    const delta = time - previousTime;
-    previousTime = time;
-
-    if (!ticker.classList.contains('is-paused') && pxPerMs > 0) {
-      offset += (reverse ? -1 : 1) * delta * pxPerMs;
-      if (reverse) {
-        recycleBackward();
-      } else {
-        recycleForward();
-      }
-      setTransform();
-    }
-
-    frameId = window.requestAnimationFrame(tick);
+    syncAnimation();
   };
 
   const scheduleMeasure = (): void => {
+    if (isDestroyed) return;
+
     if (resizeFrameId) {
       window.cancelAnimationFrame(resizeFrameId);
     }
@@ -188,6 +287,35 @@ function setupTicker(ticker: HTMLElement): void {
   resizeObserver.observe(ticker);
   resizeObserver.observe(scroll);
 
+  const intersectionObserver =
+    'IntersectionObserver' in window
+      ? new IntersectionObserver(entries => {
+          isIntersecting = entries.some(entry => entry.isIntersecting);
+          syncAnimation();
+        })
+      : null;
+  intersectionObserver?.observe(ticker);
+
+  const pauseObserver = new MutationObserver(() => {
+    isPaused = ticker.classList.contains('is-paused');
+    syncAnimation();
+  });
+  pauseObserver.observe(ticker, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  const handleVisibilityChange = (): void => {
+    isDocumentVisible = !document.hidden;
+    syncAnimation();
+  };
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  const handleReducedMotionChange = (): void => {
+    syncAnimation();
+  };
+  reducedMotionMql.addEventListener('change', handleReducedMotionChange);
+
   watchImages();
 
   tickerRuntimes.set(ticker, {
@@ -196,15 +324,21 @@ function setupTicker(ticker: HTMLElement): void {
       window.cancelAnimationFrame(frameId);
       window.cancelAnimationFrame(resizeFrameId);
       resizeObserver.disconnect();
+      intersectionObserver?.disconnect();
+      pauseObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      reducedMotionMql.removeEventListener('change', handleReducedMotionChange);
+      track.style.removeProperty('will-change');
       track.querySelectorAll('img').forEach(image => {
         image.removeEventListener('load', scheduleMeasure);
         image.removeEventListener('error', scheduleMeasure);
       });
+      tickerRuntimes.delete(ticker);
     },
   });
 
   measure();
-  frameId = window.requestAnimationFrame(tick);
+  syncAnimation();
 }
 
 store('aggressive-apparel/ticker', {
@@ -252,7 +386,11 @@ store('aggressive-apparel/ticker', {
       // Defer measurement until fonts are loaded so content widths are final.
       const { ref } = getElement();
       if (ref instanceof HTMLElement) {
-        document.fonts.ready.then(() => setupTicker(ref));
+        document.fonts.ready.then(() => {
+          if (ref.isConnected) {
+            setupTicker(ref);
+          }
+        });
       }
     },
   },

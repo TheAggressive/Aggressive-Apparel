@@ -46,7 +46,7 @@
 	display: flex;
 	flex-shrink: 0;
 	width: max-content;
-	will-change: transform;
+	will-change: auto;
 }
 
 /* -----------------------------------------------

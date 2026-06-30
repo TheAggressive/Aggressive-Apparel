@@ -87,6 +87,57 @@ $style_attr   = $attributes['style'] ?? array();
 $color_style  = $style_attr['color'] ?? array();
 $border_style = $style_attr['border'] ?? array();
 
+/**
+ * Normalize the scalar or per-corner shape emitted by WordPress border support
+ * into a valid CSS border-radius value.
+ *
+ * @param mixed $radius Raw block-support radius value.
+ * @return string Normalized CSS value, or an empty string when invalid.
+ */
+$normalize_border_radius = static function ( $radius ): string {
+	if ( is_string( $radius ) || is_int( $radius ) || is_float( $radius ) ) {
+		return sanitize_text_field( (string) $radius );
+	}
+
+	if ( ! is_array( $radius ) ) {
+		return '';
+	}
+
+	$corner_keys = array( 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' );
+	$values      = array();
+	$has_value   = false;
+
+	foreach ( $corner_keys as $index => $corner_key ) {
+		if ( array_key_exists( $corner_key, $radius ) ) {
+			$value = $radius[ $corner_key ];
+		} elseif ( array_key_exists( $index, $radius ) ) {
+			$value = $radius[ $index ];
+		} else {
+			$value = '';
+		}
+
+		if ( is_string( $value ) || is_int( $value ) || is_float( $value ) ) {
+			$value = sanitize_text_field( (string) $value );
+		} else {
+			$value = '';
+		}
+
+		if ( '' !== $value ) {
+			$has_value = true;
+		}
+
+		$values[] = '' !== $value ? $value : '0';
+	}
+
+	if ( ! $has_value ) {
+		return '';
+	}
+
+	return 1 === count( array_unique( $values ) )
+		? $values[0]
+		: implode( ' ', $values );
+};
+
 // Build close button HTML when needed.
 $close_btn_html = '';
 if ( $show_close_btn ) {
@@ -233,11 +284,9 @@ if ( ! empty( $border_style['style'] ) ) {
 if ( ! empty( $border_style['width'] ) ) {
 	$dialog_css_vars[] = '--aa-dialog-border-width: ' . esc_attr( $border_style['width'] );
 }
-if ( ! empty( $border_style['radius'] ) ) {
-	// Only set if no custom dialogBorderRadius is provided (custom takes precedence).
-	if ( ! $dialog_border_radius ) {
-		$dialog_css_vars[] = '--aa-dialog-border-radius: ' . esc_attr( $border_style['radius'] );
-	}
+$block_border_radius = $normalize_border_radius( $border_style['radius'] ?? '' );
+if ( ! $dialog_border_radius && '' !== $block_border_radius ) {
+	$dialog_css_vars[] = '--aa-dialog-border-radius: ' . esc_attr( $block_border_radius );
 }
 
 $dialog_inline_style = implode( '; ', $dialog_css_vars );
@@ -287,7 +336,7 @@ wp_interactivity_state(
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
 		'data-wp-interactive' => 'aggressive-apparel/modal',
-		'data-wp-context'     => wp_json_encode( array( 'id' => $unique_id ) ),
+		'data-wp-context'     => (string) wp_json_encode( array( 'id' => $unique_id ) ),
 		'data-wp-init'        => 'actions.init',
 	)
 );

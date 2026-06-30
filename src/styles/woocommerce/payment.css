@@ -21,9 +21,3 @@
 .wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after, .wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
   border: none !important;
 }
-
-:is(.wc-block-checkout, .wc-block-cart) .wcpay-payment-element input {
-  background: inherit !important;
-  box-shadow: none !important;
-  border: none !important;
-}

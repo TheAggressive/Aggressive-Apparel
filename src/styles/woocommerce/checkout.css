@@ -45,6 +45,12 @@
   font-size: var(--wp--preset--font-size--xxx-large);
 }
 
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment-continue-rule {
+  font-size: var(--wp--preset--font-size--medium);
+  margin: var(--wp--preset--spacing--8) 0 var(--wp--preset--spacing--8);
+  text-transform: capitalize;
+}
+
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
  * .is-active), AND all selects — a select always has a value, so its label is
  * always floated, including on page load. */

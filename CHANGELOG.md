@@ -1,3 +1,10 @@
+# [1.117.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.116.0...v1.117.0) (2026-06-30)
+
+
+### Features
+
+* add WCPay appearance integration ([3e57b46](https://github.com/TheAggressive/Aggressive-Apparel/commit/3e57b467eee2419f52ef8da2a6be3c83e15614f2))
+
 # [1.116.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.115.0...v1.116.0) (2026-06-30)
 
 

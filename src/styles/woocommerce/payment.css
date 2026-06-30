@@ -23,3 +23,20 @@
 .wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after, .wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
   border: none !important;
 }
+
+/* Expanded card form panel — drop WC's selected-method highlight box so the
+ * Stripe iframe sits flush with our borderless payment tiles. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted,
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-content {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* WooPayments root — no extra chrome around the iframe. */
+.wc-block-checkout__payment-method .wcpay-upe-element {
+  margin-block-start: var(--wp--preset--spacing--4);
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}

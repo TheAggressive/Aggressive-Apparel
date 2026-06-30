@@ -15,12 +15,20 @@
  * @package Aggressive_Apparel
  */
 
-/* The method list — drop WC's outer box + dividers; stack as spaced tiles. */
+/* The method list — drop WC's outer box + dividers; stack as spaced tiles.
+ * WC draws the box + the lines between options with absolutely-positioned
+ * `::after` pseudo-elements (not real borders), so they must be removed there. */
 .wc-block-components-radio-control--highlight-checked {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   border: none;
+}
+
+.wc-block-components-radio-control--highlight-checked::after,
+.wc-block-components-radio-control-accordion-option::after,
+.wc-block-components-radio-control__option::after {
+  content: none !important;
 }
 
 /* Each method = a tile (the wrapper holds the clickable header + any accordion

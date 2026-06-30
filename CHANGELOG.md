@@ -1,3 +1,10 @@
+## [1.117.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.2...v1.117.3) (2026-06-30)
+
+
+### Bug Fixes
+
+* add border-radius to express payment event buttons in checkout.css ([4c97f47](https://github.com/TheAggressive/Aggressive-Apparel/commit/4c97f47ddb5ffc2ef0494904df42c9b0df62214d))
+
 ## [1.117.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.1...v1.117.2) (2026-06-30)
 
 

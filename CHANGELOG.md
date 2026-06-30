@@ -1,3 +1,10 @@
+# [1.114.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.4...v1.114.0) (2026-06-30)
+
+
+### Features
+
+* add debug logging for payment appearance filter ([d0e7483](https://github.com/TheAggressive/Aggressive-Apparel/commit/d0e7483a577bddac101116f3cbbce13851f6e34f))
+
 ## [1.113.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.3...v1.113.4) (2026-06-30)
 
 

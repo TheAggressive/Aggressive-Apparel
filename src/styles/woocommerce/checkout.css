@@ -132,6 +132,11 @@
   text-align: center;
 }
 
+/* Express payment event buttons */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment__event-buttons>li {
+  border-radius: var(--aa-radius-full);
+}
+
 /* ---- Mobile collapsed order summary ---------------------------------------
  * Below 700px WC collapses the summary into a tappable header (text + total +
  * chevron). Lead with the total — that's what shoppers check when it's

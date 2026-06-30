@@ -50,6 +50,13 @@ addFilter(
   'aggressive-apparel/payment-appearance',
   (appearance: StripeAppearance = {}): StripeAppearance => {
     const accent = resolveColor('var(--aa-color-accent)', '#cc0000');
+    const surface = resolveColor('var(--aa-color-surface-elevated)', '#1a1a1a');
+    const fieldBg = resolveColor(
+      'color-mix(in oklch, var(--aa-color-foreground) 8%, transparent)',
+      'rgba(255, 255, 255, 0.08)'
+    );
+    const text = resolveColor('var(--aa-color-foreground)', '#ffffff');
+    const muted = resolveColor('var(--aa-color-foreground-muted)', '#9aa0a6');
 
     return {
       ...appearance,
@@ -57,21 +64,40 @@ addFilter(
         ...appearance.variables,
         // Focus/active accent — replaces the stray green.
         colorPrimary: accent,
+        colorBackground: surface,
+        colorText: text,
+        colorTextPlaceholder: muted,
+        borderRadius: '8px',
       },
       rules: {
         ...appearance.rules,
+        // Small uppercase labels, matching the rest of the checkout form.
         '.Label': {
           ...(appearance.rules?.['.Label'] ?? {}),
+          color: muted,
           fontSize: '0.75rem',
           fontWeight: '600',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         },
+        // Dark translucent fill, no border — like our text inputs.
+        '.Input': {
+          ...(appearance.rules?.['.Input'] ?? {}),
+          backgroundColor: fieldBg,
+          border: 'none',
+          boxShadow: 'none',
+          color: text,
+        },
+        // No green ring on focus.
         '.Input:focus': {
           ...(appearance.rules?.['.Input:focus'] ?? {}),
+          border: 'none',
           outline: 'none',
           boxShadow: 'none',
-          borderColor: accent,
+        },
+        '.Input::placeholder': {
+          ...(appearance.rules?.['.Input::placeholder'] ?? {}),
+          color: muted,
         },
       },
     };

@@ -71,6 +71,11 @@ class Styles {
 				( function_exists( 'is_cart' ) && is_cart() )
 			) {
 				Asset_Loader::enqueue_style( 'aggressive-apparel-checkout', 'build/styles/woocommerce/checkout' );
+
+				// Payment-method selector redesign — checkout only.
+				if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+					Asset_Loader::enqueue_style( 'aggressive-apparel-payment', 'build/styles/woocommerce/payment' );
+				}
 			}
 		}
 

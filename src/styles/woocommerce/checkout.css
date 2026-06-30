@@ -40,6 +40,11 @@
   font-size: var(--wp--preset--font-size--small) !important;
 }
 
+/* Express payment title */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-express-payment--checkout .wc-block-components-express-payment__title {
+  font-size: var(--wp--preset--font-size--xxx-large);
+}
+
 /* Active weight (label floated up): text inputs once focused or filled (WC adds
  * .is-active), AND all selects — a select always has a value, so its label is
  * always floated, including on page load. */
@@ -75,11 +80,13 @@
   letter-spacing: 0.03em;
   color: var(--wp--preset--color--foreground);
 
+  /* Order-summary step title */
   &::before {
     color: var(--aa-color-brand-red);
   }
 }
 
+/* Order-summary step */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkout-step {
   margin-bottom: var(--wp--preset--spacing--12);
 }
@@ -96,6 +103,7 @@
   color: var(--aa-color-foreground);
 }
 
+/* Order-summary line-item quantity number */
 .wc-block-components-order-summary
   .wc-block-components-order-summary-item__quantity span {
   color: var(--aa-color-foreground);
@@ -117,12 +125,13 @@
  * chevron). Lead with the total — that's what shoppers check when it's
  * collapsed — and drop "Order summary" to a quiet uppercase eyebrow, with a
  * comfortable tap target. !important overrides WC's deep title selectors. */
-@media (width <= 700px) {
+@media (width <= 781px) {
 
   .wp-block-woocommerce-checkout-order-summary-block {
     margin-bottom: var(--wp--preset--spacing--8);
   }
 
+  /* Order-summary title */
   .wc-block-components-checkout-order-summary__title {
     display: flex;
     align-items: center;

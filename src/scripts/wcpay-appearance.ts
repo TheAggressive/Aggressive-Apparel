@@ -148,9 +148,9 @@ function sampleFromInput(input: HTMLInputElement): SampledFieldStyles {
     'rgb(255, 255, 255)'
   );
   const inputStyles = getComputedStyle(input);
-  const label = input.closest('.wc-block-components-text-input')?.querySelector(
-    'label'
-  );
+  const label = input
+    .closest('.wc-block-components-text-input')
+    ?.querySelector('label');
   const labelStyles = label ? getComputedStyle(label) : inputStyles;
 
   const rawBackground = inputStyles.backgroundColor;
@@ -175,10 +175,7 @@ function sampleFromInput(input: HTMLInputElement): SampledFieldStyles {
       fieldBackground
     ),
     brandColor,
-    errorColor: toOpaqueRgb(
-      resolveToken('--aa-color-error'),
-      fieldBackground
-    ),
+    errorColor: toOpaqueRgb(resolveToken('--aa-color-error'), fieldBackground),
     borderRadius: inputStyles.borderRadius,
     fontFamily: inputStyles.fontFamily,
     pageBackground,

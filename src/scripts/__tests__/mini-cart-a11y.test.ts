@@ -20,10 +20,7 @@ beforeAll(() => {
   }
 });
 
-import {
-  shouldInertDrawer,
-  syncDrawerInert,
-} from '../mini-cart-a11y';
+import { shouldInertDrawer, syncDrawerInert } from '../mini-cart-a11y';
 
 describe('mini-cart drawer inert sync', () => {
   it('inerts closed drawers', () => {

@@ -1,3 +1,10 @@
+## [1.114.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.1...v1.114.2) (2026-06-30)
+
+
+### Bug Fixes
+
+* streamline payment appearance handling ([f259c72](https://github.com/TheAggressive/Aggressive-Apparel/commit/f259c72ae82ad3e39fc70c6a1a1eccdaa273e2fb))
+
 ## [1.114.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.0...v1.114.1) (2026-06-30)
 
 

@@ -1,3 +1,10 @@
+## [1.120.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.120.0...v1.120.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* adjust positioning of mini cart badge in CSS ([9f3ee9d](https://github.com/TheAggressive/Aggressive-Apparel/commit/9f3ee9db85bd8795f29c10abee9934feecf6e2b7))
+
 # [1.120.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.119.0...v1.120.0) (2026-06-30)
 
 

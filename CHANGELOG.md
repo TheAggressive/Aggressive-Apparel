@@ -1,3 +1,10 @@
+## [1.117.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.1...v1.117.2) (2026-06-30)
+
+
+### Bug Fixes
+
+* update terms and conditions styling in checkout.css ([155c91e](https://github.com/TheAggressive/Aggressive-Apparel/commit/155c91e961673dd36614a48a5088b58132002119))
+
 ## [1.117.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.0...v1.117.1) (2026-06-30)
 
 

@@ -11,8 +11,6 @@
 
 const WCPAY_CACHE_PREFIX = 'wcpay_appearance_';
 const DARK_MODE_STORAGE_KEY = 'aggressive-apparel-dark-mode';
-const APPEARANCE_CACHE_KEY = 'aa-wcpay-appearance-v';
-const APPEARANCE_VERSION = '2';
 const CHECKOUT_SCOPE = '.wc-block-checkout, .wc-block-cart';
 const THEME_REFRESH_DELAY_MS = 400;
 
@@ -47,11 +45,12 @@ interface SampledFieldStyles {
   labelFontSize: string;
   floatingLabelFontSize: string;
   accentColor: string;
+  brandColor: string;
   errorColor: string;
   borderRadius: string;
   fontFamily: string;
   pageBackground: string;
-  isLightSurface: boolean;
+  borderColor: string;
 }
 
 /**
@@ -127,21 +126,6 @@ function toOpaqueRgb(color: string, background: string): string {
 }
 
 /**
- * Whether a color reads as a light surface (Stripe theme selection).
- */
-function isColorLight(color: string, background: string): boolean {
-  const opaque = toOpaqueRgb(color, background);
-  const rgb = parseRgb(opaque);
-
-  if (!rgb) {
-    return false;
-  }
-
-  const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-  return brightness > 125;
-}
-
-/**
  * Resolve a CSS custom property to a computed value.
  */
 function resolveToken(token: string, property = 'color'): string {
@@ -153,6 +137,58 @@ function resolveToken(token: string, property = 'color'): string {
   const resolved = getComputedStyle(probe).getPropertyValue(property).trim();
   document.body.removeChild(probe);
   return resolved;
+}
+
+/**
+ * Sample styles from a checkout text input element.
+ */
+function sampleFromInput(input: HTMLInputElement): SampledFieldStyles {
+  const pageBackground = toOpaqueRgb(
+    resolveToken('--aa-color-surface', 'background-color'),
+    'rgb(255, 255, 255)'
+  );
+  const inputStyles = getComputedStyle(input);
+  const label = input.closest('.wc-block-components-text-input')?.querySelector(
+    'label'
+  );
+  const labelStyles = label ? getComputedStyle(label) : inputStyles;
+
+  const rawBackground = inputStyles.backgroundColor;
+  const fieldBackground = toOpaqueRgb(rawBackground, pageBackground);
+  const brandColor = toOpaqueRgb(
+    resolveToken('--aa-color-brand-red'),
+    fieldBackground
+  );
+
+  const sampled: SampledFieldStyles = {
+    fieldBackground,
+    fieldText: toOpaqueRgb(inputStyles.color, fieldBackground),
+    fieldPlaceholder: toOpaqueRgb(
+      resolveToken('--aa-color-foreground-muted'),
+      fieldBackground
+    ),
+    labelColor: toOpaqueRgb(labelStyles.color, fieldBackground),
+    labelFontSize: labelStyles.fontSize,
+    floatingLabelFontSize: `calc(${labelStyles.fontSize} * 0.85)`,
+    accentColor: toOpaqueRgb(
+      resolveToken('--aa-color-accent'),
+      fieldBackground
+    ),
+    brandColor,
+    errorColor: toOpaqueRgb(
+      resolveToken('--aa-color-error'),
+      fieldBackground
+    ),
+    borderRadius: inputStyles.borderRadius,
+    fontFamily: inputStyles.fontFamily,
+    pageBackground,
+    borderColor: toOpaqueRgb(
+      resolveToken('--aa-color-border-default'),
+      pageBackground
+    ),
+  };
+
+  return sampled;
 }
 
 /**
@@ -180,9 +216,17 @@ function getCheckoutSampleHost(): { host: Element; cleanup: () => void } {
 }
 
 /**
- * Sample checkout field styles from a hidden probe inside the checkout scope.
+ * Sample checkout field styles — prefer a live checkout input when available.
  */
 function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
+  const liveInput = document.querySelector(
+    `${CHECKOUT_SCOPE} .wc-block-components-text-input input`
+  );
+
+  if (liveInput instanceof HTMLInputElement) {
+    return sampleFromInput(liveInput);
+  }
+
   const { host, cleanup } = getCheckoutSampleHost();
 
   const wrapper = document.createElement('div');
@@ -202,35 +246,8 @@ function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
   wrapper.append(label, input);
   host.appendChild(wrapper);
 
-  const pageBackground = resolveToken('--aa-color-surface', 'background-color');
-  const inputStyles = getComputedStyle(input);
-  const labelStyles = getComputedStyle(label);
+  const sampled = sampleFromInput(input);
 
-  input.focus();
-  const focusedStyles = getComputedStyle(input);
-
-  const rawBackground = inputStyles.backgroundColor;
-  const fieldBackground = toOpaqueRgb(rawBackground, pageBackground);
-
-  const sampled: SampledFieldStyles = {
-    fieldBackground,
-    fieldText: toOpaqueRgb(inputStyles.color, fieldBackground),
-    fieldPlaceholder: toOpaqueRgb(
-      resolveToken('--aa-color-foreground-muted'),
-      fieldBackground
-    ),
-    labelColor: toOpaqueRgb(labelStyles.color, fieldBackground),
-    labelFontSize: labelStyles.fontSize,
-    floatingLabelFontSize: `calc(${labelStyles.fontSize} * 0.85)`,
-    accentColor: toOpaqueRgb(focusedStyles.borderLeftColor, fieldBackground),
-    errorColor: toOpaqueRgb(resolveToken('--aa-color-error'), fieldBackground),
-    borderRadius: inputStyles.borderRadius,
-    fontFamily: inputStyles.fontFamily,
-    pageBackground: toOpaqueRgb(pageBackground, pageBackground),
-    isLightSurface: isColorLight(fieldBackground, pageBackground),
-  };
-
-  input.blur();
   wrapper.remove();
   cleanup();
 
@@ -261,6 +278,11 @@ function buildAppearanceRules(
     fontSize: styles.labelFontSize,
   };
 
+  const textBase = {
+    color: styles.fieldText,
+    fontFamily: styles.fontFamily,
+  };
+
   const blockBase = {
     backgroundColor: 'transparent',
     boxShadow: 'none',
@@ -268,10 +290,22 @@ function buildAppearanceRules(
   };
 
   return {
-    '.Input': inputBase,
+    '.Input': {
+      ...inputBase,
+      borderLeft: `3px solid ${styles.brandColor}`,
+    },
+    '.Input--empty': inputBase,
     '.Input:focus': {
       ...inputBase,
-      borderLeft: `3px solid ${styles.accentColor}`,
+      borderLeft: `3px solid ${styles.brandColor}`,
+    },
+    '.Input--empty:focus': {
+      ...inputBase,
+      borderLeft: `3px solid ${styles.brandColor}`,
+    },
+    '.Input:focus-visible': {
+      ...inputBase,
+      borderLeft: `3px solid ${styles.brandColor}`,
     },
     '.Input--invalid': {
       ...inputBase,
@@ -287,6 +321,31 @@ function buildAppearanceRules(
     },
     '.Block': blockBase,
     '.AccordionItem': blockBase,
+    '.ToggleItem': {
+      backgroundColor: 'transparent',
+      color: styles.fieldText,
+      border: 'none',
+      boxShadow: 'none',
+    },
+    '.Link': {
+      color: styles.brandColor,
+    },
+    '.SecondaryLink': {
+      color: styles.labelColor,
+    },
+    '.RedirectText': textBase,
+    '.TermsText': textBase,
+    '.TermsLink': {
+      color: styles.brandColor,
+    },
+    '.CheckboxLabel': textBase,
+    '.CheckboxInput': {
+      backgroundColor: styles.pageBackground,
+      border: `1px solid ${styles.borderColor}`,
+    },
+    '.Checkbox': {
+      color: styles.fieldText,
+    },
     '.Tab': {
       backgroundColor: 'transparent',
       color: styles.fieldText,
@@ -309,14 +368,8 @@ function buildAppearanceRules(
     '.TabIcon:hover': {
       color: styles.fieldText,
     },
-    '.Text': {
-      color: styles.fieldText,
-      fontFamily: styles.fontFamily,
-    },
-    '.Text--redirect': {
-      color: styles.fieldText,
-      fontFamily: styles.fontFamily,
-    },
+    '.Text': textBase,
+    '.Text--redirect': textBase,
   };
 }
 
@@ -329,18 +382,23 @@ function applyCheckoutAppearance(appearance: StripeAppearance): void {
     return;
   }
 
-  appearance.theme = styles.isLightSurface ? 'stripe' : 'night';
+  const scheme = getCurrentColorScheme();
+
+  appearance.theme = scheme === 'light' ? 'stripe' : 'night';
   appearance.labels = 'floating';
   appearance.variables = {
     fontFamily: styles.fontFamily,
     fontWeightNormal: '500',
     borderRadius: styles.borderRadius,
     colorBackground: styles.fieldBackground,
-    colorPrimary: styles.accentColor,
+    colorPrimary: styles.brandColor,
     colorText: styles.fieldText,
     colorTextSecondary: styles.labelColor,
     colorTextPlaceholder: styles.fieldPlaceholder,
     fontSizeBase: styles.labelFontSize,
+    colorDanger: styles.errorColor,
+    iconColor: styles.labelColor,
+    logoColor: scheme === 'light' ? 'dark' : 'light',
   };
   appearance.rules = buildAppearanceRules(styles);
 }
@@ -358,28 +416,6 @@ function clearWcpayAppearanceCache(): void {
   }
 }
 
-/**
- * Invalidate WooPayments cache when our version or color scheme changes.
- *
- * Runs synchronously at parse time so it executes before WooPayments mounts.
- */
-function ensureAppearanceCacheFresh(): void {
-  const scheme = getCurrentColorScheme();
-  const token = `${APPEARANCE_VERSION}:${scheme}`;
-
-  try {
-    const cached = sessionStorage.getItem(APPEARANCE_CACHE_KEY);
-    if (cached === token) {
-      return;
-    }
-
-    clearWcpayAppearanceCache();
-    sessionStorage.setItem(APPEARANCE_CACHE_KEY, token);
-  } catch {
-    clearWcpayAppearanceCache();
-  }
-}
-
 let themeRefreshTimer = 0;
 
 /**
@@ -390,12 +426,6 @@ function scheduleAppearanceRefresh(): void {
     return;
   }
 
-  try {
-    sessionStorage.removeItem(APPEARANCE_CACHE_KEY);
-  } catch {
-    // Ignore storage access errors.
-  }
-
   clearWcpayAppearanceCache();
 
   window.clearTimeout(themeRefreshTimer);
@@ -404,7 +434,8 @@ function scheduleAppearanceRefresh(): void {
   }, THEME_REFRESH_DELAY_MS);
 }
 
-ensureAppearanceCacheFresh();
+/** Always bust cache on load so our listener runs on every checkout visit. */
+clearWcpayAppearanceCache();
 
 document.addEventListener('wcpay_elements_appearance', (event: Event) => {
   const { appearance, elementsLocation } = (event as WcpayAppearanceEvent)

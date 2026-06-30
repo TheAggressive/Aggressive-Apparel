@@ -2,41 +2,66 @@
  * WooCommerce Checkout — Payment Options
  *
  * Restyles the block-checkout payment-method selector (Card / Affirm / Afterpay
- * / Klarna) into a clean, borderless, logo-forward list of tiles: WC's outer box
- * and inter-option dividers are dropped, each method becomes a soft surface tile,
- * and the selected one is shown with a brand-red ring instead of WC's highlight
- * box. The method *names* are visually hidden (the brand logos carry the
- * identity) but remain in the accessibility tree via the logo `alt` text.
- *
- * NOTE: card INPUT fields (number / expiry / CVC) render inside a cross-origin
- * Stripe iframe and CANNOT be styled here. Theme overrides live in
- * `src/scripts/wcpay-appearance.ts` via WooPayments' `wcpay_elements_appearance`
- * event + Stripe's Appearance API (adaptive light/dark tokens, red focus bar).
- * Any green focus styling is Stripe Link's own UI.
+ * / Klarna) into a bordered list with adaptive dividers. Card INPUT fields render
+ * inside a cross-origin Stripe iframe — see `src/scripts/wcpay-appearance.ts`.
  *
  * @package Aggressive_Apparel
  */
 
-/* The method list — drop WC's outer box + dividers; stack as spaced tiles.
- * WC draws the box + the lines between options with absolutely-positioned
- * `::after` pseudo-elements (not real borders), so they must be removed there. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after, .wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
-  border: none !important;
+/* Payment method list — single bordered container with consistent dividers. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control {
+  border: 1px solid var(--aa-color-border-default) !important;
+  border-radius: var(--aa-radius-lg);
+  overflow: hidden;
+  background: transparent;
 }
 
-/* Expanded card form panel — drop WC's selected-method highlight box so the
- * Stripe iframe sits flush with our borderless payment tiles. */
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted,
-.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-content {
-  border: none !important;
-  box-shadow: none !important;
+/* WC draws dividers with absolutely-positioned ::after pseudo-elements. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option::after,
+.wc-block-checkout__payment-method .wc-block-components-radio-control__option::after {
+  border-color: var(--aa-color-border-default) !important;
+}
+
+/* Keep the bottom divider on the last option (Affirm / PayPal stack). */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option:last-child::after,
+.wc-block-checkout__payment-method .wc-block-components-radio-control__option:last-child::after {
+  border-block-end: 1px solid var(--aa-color-border-default) !important;
+}
+
+/* Expanded card panel — drop WC highlight fill, keep structure + dividers. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted {
   background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-/* WooPayments root — no extra chrome around the iframe. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-inline: var(--wp--preset--spacing--4);
+  padding-block-end: var(--wp--preset--spacing--4);
+}
+
+/* Divider between expanded card panel and the next method (Affirm, etc.). */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option--checked-option-highlighted::after {
+  display: block !important;
+  border-block-end: 1px solid var(--aa-color-border-default) !important;
+}
+
+/* Divider between stacked payment methods. */
+.wc-block-checkout__payment-method .wc-block-components-radio-control-accordion-option + .wc-block-components-radio-control-accordion-option {
+  border-block-start: 1px solid var(--aa-color-border-default);
+}
+
+/* WooPayments iframe host — no extra chrome. */
 .wc-block-checkout__payment-method .wcpay-upe-element {
-  margin-block-start: var(--wp--preset--spacing--4);
+  margin-block-start: var(--wp--preset--spacing--2);
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
+}
+
+/* Save-card checkbox (outside iframe) — match checkout foreground. */
+.wc-block-checkout__payment-method .wc-block-components-checkbox__label {
+  color: var(--aa-color-foreground);
 }

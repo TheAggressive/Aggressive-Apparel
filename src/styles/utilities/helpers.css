@@ -26,6 +26,7 @@
 
 /* Hide below the WP medium breakpoint (< 782px). */
 .aa-hidden-mobile {
+
   @media (--aa-wp-below-medium) {
     display: none !important;
   }
@@ -33,6 +34,7 @@
 
 /* Hide from the WP medium breakpoint up (>= 782px). */
 .aa-hidden-desktop {
+
   @media (--aa-wp-medium-up) {
     display: none !important;
   }

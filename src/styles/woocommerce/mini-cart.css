@@ -130,7 +130,7 @@
    Bounding box stays 1.5rem × 1.5rem at all times — no layout shift.
    WooCommerce injects colors inline so !important is required on bg/color. */
 .wc-block-mini-cart__badge {
-	position: relative;
+	position: absolute;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -138,7 +138,7 @@
 	width: 1.25rem;
 	height: 1.25rem;
 	padding: 0;
-  left: 0.5rem;
+  left: 1.5rem;
   top: 0.25rem;
 	border-radius: var(--aa-radius-full);
 	background-color: transparent !important;

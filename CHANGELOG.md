@@ -1,3 +1,11 @@
+# [1.119.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.118.0...v1.119.0) (2026-06-30)
+
+
+### Features
+
+* add mini cart accessibility features ([ca1b0c4](https://github.com/TheAggressive/Aggressive-Apparel/commit/ca1b0c488696cd398779955e2d4220b1291d9336))
+* implement admin-only lifecycle for database provisioning and enhance mini-cart accessibility ([927a303](https://github.com/TheAggressive/Aggressive-Apparel/commit/927a303da69f730d8cbf42ae8577f06617179558))
+
 # [1.118.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.4...v1.118.0) (2026-06-30)
 
 

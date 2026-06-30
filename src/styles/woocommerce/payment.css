@@ -8,9 +8,11 @@
  * box. The method *names* are visually hidden (the brand logos carry the
  * identity) but remain in the accessibility tree via the logo `alt` text.
  *
- * NOTE: the card INPUT fields (number / expiry / CVC) render inside a
- * cross-origin Stripe iframe and CANNOT be styled here — their look is set in JS
- * via the WooPayments appearance API (src/scripts/checkout/payment-appearance.ts).
+ * NOTE: card INPUT fields (number / expiry / CVC) render inside a cross-origin
+ * Stripe iframe and CANNOT be styled here. Theme overrides live in
+ * `src/scripts/wcpay-appearance.ts` via WooPayments' `wcpay_elements_appearance`
+ * event + Stripe's Appearance API (adaptive light/dark tokens, red focus bar).
+ * Any green focus styling is Stripe Link's own UI.
  *
  * @package Aggressive_Apparel
  */

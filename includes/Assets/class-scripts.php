@@ -42,6 +42,7 @@ class Scripts {
 	 * @return void
 	 */
 	public function init(): void {
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wcpay_appearance' ), 5 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 	}
 
@@ -52,7 +53,6 @@ class Scripts {
 	 */
 	public function enqueue_scripts(): void {
 		$this->enqueue_core_scripts();
-		$this->enqueue_payment_appearance();
 
 		/**
 		 * Fires after core theme scripts are enqueued.
@@ -60,41 +60,6 @@ class Scripts {
 		 * @since 1.0.0
 		 */
 		do_action( 'aggressive_apparel_after_enqueue_scripts' );
-	}
-
-	/**
-	 * Tune the WooPayments / Stripe Payment Element appearance on checkout.
-	 *
-	 * The card fields render in a cross-origin Stripe iframe; WooPayments copies
-	 * the theme's computed form styles into the Element's appearance. This filter
-	 * script trims that (smaller labels, brand focus colour) so the card field
-	 * matches the rest of the form. Checkout only.
-	 *
-	 * @return void
-	 */
-	private function enqueue_payment_appearance(): void {
-		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
-			return;
-		}
-
-		// Loaded in the head, non-deferred (NOT via Asset_Loader, which forces
-		// footer + defer): the appearance filter must be registered before
-		// WooPayments builds and applies it, or our override never runs.
-		$asset_file = aggressive_apparel_asset_path( 'build/scripts/checkout/payment-appearance.asset.php' );
-		$asset      = file_exists( $asset_file )
-			? require $asset_file
-			: array(
-				'dependencies' => array( 'wp-hooks' ),
-				'version'      => AGGRESSIVE_APPAREL_VERSION,
-			);
-
-		wp_enqueue_script(
-			'aggressive-apparel-payment-appearance',
-			aggressive_apparel_asset_uri( 'build/scripts/checkout/payment-appearance.js' ),
-			$asset['dependencies'] ?? array( 'wp-hooks' ),
-			$asset['version'] ?? AGGRESSIVE_APPAREL_VERSION,
-			array( 'in_footer' => false )
-		);
 	}
 
 	/**
@@ -111,6 +76,36 @@ class Scripts {
 
 		$this->localize_theme_data( self::HANDLE );
 		$this->enqueue_cursor();
+	}
+
+	/**
+	 * Enqueue WooPayments Stripe Elements appearance overrides on checkout.
+	 *
+	 * Registers the `wcpay_elements_appearance` listener before WooPayments
+	 * initializes checkout (priority 5, footer, no defer).
+	 *
+	 * @return void
+	 */
+	public function enqueue_wcpay_appearance(): void {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+			return;
+		}
+
+		$src         = 'build/scripts/wcpay-appearance';
+		$asset_data  = Asset_Loader::get_asset_data( $src );
+		$script_path = AGGRESSIVE_APPAREL_DIR . '/' . $src . '.js';
+
+		if ( ! file_exists( $script_path ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'aggressive-apparel-wcpay-appearance',
+			aggressive_apparel_asset_uri( $src . '.js' ),
+			$asset_data['dependencies'],
+			$asset_data['version'],
+			true
+		);
 	}
 
 	/**

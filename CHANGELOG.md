@@ -1,3 +1,10 @@
+# [1.113.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.112.0...v1.113.0) (2026-06-30)
+
+
+### Features
+
+* enhance checkout payment appearance and styles ([9ebc92e](https://github.com/TheAggressive/Aggressive-Apparel/commit/9ebc92e907d0cd11ccfcc008f6645584d56b3840))
+
 # [1.112.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.111.0...v1.112.0) (2026-06-29)
 
 

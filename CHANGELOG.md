@@ -1,3 +1,16 @@
+# [1.118.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.4...v1.118.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* add overflow hidden to express payment event buttons in checkout.css ([81566e2](https://github.com/TheAggressive/Aggressive-Apparel/commit/81566e261873fcd39f2a398310b71356b94f9066))
+* refine CSS selector for express payment event buttons in checkout.css ([1fdefba](https://github.com/TheAggressive/Aggressive-Apparel/commit/1fdefba50e8c8b1e8702d0dfe2cec65910076c2a))
+
+
+### Features
+
+* enhance mobile bottom navigation and panel accessibility ([fb1c610](https://github.com/TheAggressive/Aggressive-Apparel/commit/fb1c6102f577b566e84473bde382abfeca503d82))
+
 ## [1.117.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.117.3...v1.117.4) (2026-06-30)
 
 

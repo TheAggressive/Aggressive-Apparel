@@ -1,3 +1,10 @@
+# [1.120.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.119.0...v1.120.0) (2026-06-30)
+
+
+### Features
+
+* implement brand-mark ratings in WooCommerce reviews ([ca2dfe8](https://github.com/TheAggressive/Aggressive-Apparel/commit/ca2dfe8ab236f39fed30f6166567f78f8cfedeb8))
+
 # [1.119.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.118.0...v1.119.0) (2026-06-30)
 
 

@@ -19,6 +19,7 @@ import {
   safeGetElementById,
   safeQuerySelector,
   setBodyOverflow,
+  setPanelInert,
   setPanelVisibility,
   setupFocusTrap,
   setupSwipeToClose,
@@ -62,6 +63,7 @@ export function closePanelWithCleanup(
   }
 
   setPanelVisibility(panel, false);
+  setPanelInert(panel, true);
 
   // Reset scroll position so the next open always starts at the top.
   const panelBody = safeQuerySelector<HTMLElement>(
@@ -137,6 +139,7 @@ export function openPanelWithSetup(
   }
 
   setPanelVisibility(panel, true);
+  setPanelInert(panel, false);
 
   // Set up focus trap.
   const existingCleanup = focusTrapRegistry.get(panel);

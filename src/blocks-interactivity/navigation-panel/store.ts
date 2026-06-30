@@ -32,6 +32,7 @@ import {
   logWarning,
   safeQuerySelector,
   setBodyOverflow,
+  setPanelInert,
   updateDrilldownInertState,
   updateMegaContentInertState,
   watchMaxWidth,
@@ -442,6 +443,8 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         if (!panel) {
           return;
         }
+
+        setPanelInert(panel, true);
 
         // Set --item-index on each panel menu item for the stagger animation.
         const panelItems = panel.querySelectorAll(

@@ -110,6 +110,22 @@ export function setPanelVisibility(panel: HTMLElement, isOpen: boolean): void {
   }
 }
 
+/**
+ * Toggle panel inert so closed dialogs cannot receive focus (a11y + PSI).
+ */
+export function setPanelInert(panel: HTMLElement, isInert: boolean): void {
+  if ('inert' in HTMLElement.prototype) {
+    panel.inert = isInert;
+    return;
+  }
+
+  if (isInert) {
+    panel.setAttribute('inert', '');
+  } else {
+    panel.removeAttribute('inert');
+  }
+}
+
 // ============================================================================
 // Focus Management
 // ============================================================================

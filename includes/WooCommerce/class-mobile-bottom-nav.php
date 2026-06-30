@@ -35,9 +35,23 @@ class Mobile_Bottom_Nav {
 	 * @return void
 	 */
 	public function init(): void {
+		add_action( 'wp_head', array( $this, 'print_critical_css' ), 1 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( $this, 'render_bottom_nav' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
+	}
+
+	/**
+	 * Inline critical mobile bottom-nav spacing so body padding exists before footer markup.
+	 *
+	 * @return void
+	 */
+	public function print_critical_css(): void {
+		if ( is_admin() ) {
+			return;
+		}
+
+		echo '<style id="aa-bottom-nav-critical">@media(width<1024px){:root{--aa-bottom-nav-height:calc(3.5rem + env(safe-area-inset-bottom,0px))}body{padding-bottom:var(--aa-bottom-nav-height)}}</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static critical CSS.
 	}
 
 	/**

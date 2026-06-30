@@ -74,6 +74,19 @@
 	transition: transform var(--aa-duration-normal) var(--aa-ease-default);
 }
 
+/* Square media slot on listing cards — reserves space before images load (CLS). */
+.wp-block-woocommerce-product-template .wp-block-post-featured-image {
+	aspect-ratio: 1;
+	overflow: hidden;
+}
+
+.wp-block-woocommerce-product-template .wp-block-post-featured-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.wp-block-woocommerce-product-template > li:hover .wp-block-post-featured-image img,
 .wp-block-woocommerce-product-template > li:hover .wp-block-woocommerce-product-image img,
 .wc-block-grid__product:hover .wc-block-grid__product-image img {
 	transform: scale(1.03);

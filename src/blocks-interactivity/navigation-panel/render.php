@@ -304,7 +304,7 @@ $announcer_html = sprintf(
 // ============================================================================
 
 $panel_html = sprintf(
-	'%s%s<div id="%s" class="%s" style="%s" role="dialog" aria-modal="true" aria-label="%s" aria-hidden="true" data-panel-slug="%s" data-animation-style="%s" data-position="%s" data-wp-bind--aria-hidden="!state.isOpen" data-wp-class--is-open="state.isOpen" data-wp-class--has-drill-stack="callbacks.hasDrillHistory"><div class="aa-nav__panel-content">%s</div></div>',
+	'%s%s<div id="%s" class="%s" style="%s" role="dialog" aria-modal="true" aria-label="%s" aria-hidden="true" inert data-panel-slug="%s" data-animation-style="%s" data-position="%s" data-wp-bind--aria-hidden="!state.isOpen" data-wp-bind--inert="!state.isOpen" data-wp-class--is-open="state.isOpen" data-wp-class--has-drill-stack="callbacks.hasDrillHistory"><div class="aa-nav__panel-content">%s</div></div>',
 	$announcer_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
 	$overlay_html,   // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML. Must be outside panel for fixed positioning.
 	esc_attr( $panel_id ),

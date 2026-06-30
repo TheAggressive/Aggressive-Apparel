@@ -1,3 +1,10 @@
+# [1.122.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.121.0...v1.122.0) (2026-06-30)
+
+
+### Features
+
+* add border radius normalization and unit tests for modal block ([2b825e6](https://github.com/TheAggressive/Aggressive-Apparel/commit/2b825e6407af48b7254ff9977a52b50af695c5ff))
+
 # [1.121.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.120.1...v1.121.0) (2026-06-30)
 
 

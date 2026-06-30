@@ -126,6 +126,12 @@
   letter-spacing: 0.03em;
 }
 
+/* Terms and conditions */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-checkout__terms {
+  margin: calc(var(--wp--preset--spacing--12) * -0.5) 0 var(--wp--preset--spacing--14);
+  text-align: center;
+}
+
 /* ---- Mobile collapsed order summary ---------------------------------------
  * Below 700px WC collapses the summary into a tappable header (text + total +
  * chevron). Lead with the total — that's what shoppers check when it's

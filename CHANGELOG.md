@@ -1,3 +1,11 @@
+## [1.113.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.2...v1.113.3) (2026-06-30)
+
+
+### Bug Fixes
+
+* remove border from last payment method option ([cc4e6dc](https://github.com/TheAggressive/Aggressive-Apparel/commit/cc4e6dcc0b420d25e49671f031d708dfd0ba45ea))
+* update payment element input styles for checkout and cart ([0446580](https://github.com/TheAggressive/Aggressive-Apparel/commit/0446580eac7c1ae570f740bd8505dda2acae2b47))
+
 ## [1.113.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.1...v1.113.2) (2026-06-30)
 
 

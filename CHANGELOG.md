@@ -1,3 +1,15 @@
+# [1.116.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.115.0...v1.116.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* improve code readability in wcpay-appearance.ts ([724eecf](https://github.com/TheAggressive/Aggressive-Apparel/commit/724eecf153aede53c12f60317326c86b1a0fcd18))
+
+
+### Features
+
+* enhance WooPayments appearance handling ([dfb96fa](https://github.com/TheAggressive/Aggressive-Apparel/commit/dfb96faf70b5bda567b2489095d5156cadd17973))
+
 # [1.115.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.114.2...v1.115.0) (2026-06-30)
 
 

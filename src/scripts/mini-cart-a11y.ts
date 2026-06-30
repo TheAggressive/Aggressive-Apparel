@@ -10,7 +10,9 @@
 
 const DRAWER_SELECTOR = '.wc-block-mini-cart__drawer';
 const FOCUSABLE_SELECTOR =
-  'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [data-aa-mini-cart-tabindex]';
+const drawerObservers = new WeakMap<HTMLElement, MutationObserver>();
+let bodyObserver: MutationObserver | null = null;
 
 /**
  * Whether the drawer should be removed from interaction.
@@ -61,10 +63,14 @@ export function syncDrawerInert(drawer: HTMLElement): void {
   const closed = shouldInertDrawer(drawer);
 
   if ('inert' in HTMLElement.prototype) {
-    drawer.inert = closed;
+    if (drawer.inert !== closed) {
+      drawer.inert = closed;
+    }
   } else if (closed) {
-    drawer.setAttribute('inert', '');
-  } else {
+    if (!drawer.hasAttribute('inert')) {
+      drawer.setAttribute('inert', '');
+    }
+  } else if (drawer.hasAttribute('inert')) {
     drawer.removeAttribute('inert');
   }
 
@@ -75,6 +81,11 @@ export function syncDrawerInert(drawer: HTMLElement): void {
  * Observe drawer aria state and keep accessibility props in sync after hydration.
  */
 function watchDrawer(drawer: HTMLElement): void {
+  if (drawerObservers.has(drawer)) {
+    syncDrawerInert(drawer);
+    return;
+  }
+
   syncDrawerInert(drawer);
 
   const observer = new MutationObserver(() => {
@@ -83,8 +94,12 @@ function watchDrawer(drawer: HTMLElement): void {
 
   observer.observe(drawer, {
     attributes: true,
-    attributeFilter: ['aria-hidden', 'aria-modal', 'class', 'inert'],
+    // aria-hidden is the source of truth. Observing inert here would make the
+    // callback observe its own writes and can create an endless microtask loop.
+    attributeFilter: ['aria-hidden'],
   });
+
+  drawerObservers.set(drawer, observer);
 }
 
 /**
@@ -96,13 +111,7 @@ export function initMiniCartDrawers(root: ParentNode = document): void {
       return;
     }
 
-    if (!node.dataset.aaMiniCartA11yInit) {
-      node.dataset.aaMiniCartA11yInit = 'true';
-      watchDrawer(node);
-      return;
-    }
-
-    syncDrawerInert(node);
+    watchDrawer(node);
   });
 }
 
@@ -112,7 +121,11 @@ export function initMiniCartDrawers(root: ParentNode = document): void {
 export function initMiniCartA11y(): void {
   initMiniCartDrawers();
 
-  const bodyObserver = new MutationObserver(mutations => {
+  if (bodyObserver || !document.body) {
+    return;
+  }
+
+  bodyObserver = new MutationObserver(mutations => {
     for (const mutation of mutations) {
       mutation.addedNodes.forEach(node => {
         if (!(node instanceof HTMLElement)) {
@@ -129,9 +142,7 @@ export function initMiniCartA11y(): void {
     }
   });
 
-  if (document.body) {
-    bodyObserver.observe(document.body, { childList: true, subtree: true });
-  }
+  bodyObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 if (document.readyState === 'loading') {
@@ -139,8 +150,3 @@ if (document.readyState === 'loading') {
 } else {
   initMiniCartA11y();
 }
-
-window.addEventListener('load', () => {
-  initMiniCartDrawers();
-  window.setTimeout(() => initMiniCartDrawers(), 250);
-});

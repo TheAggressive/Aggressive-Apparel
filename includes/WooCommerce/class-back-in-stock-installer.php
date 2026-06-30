@@ -40,17 +40,38 @@ class Back_In_Stock_Installer {
 	private const VERSION_OPTION = 'aggressive_apparel_bis_db_version';
 
 	/**
+	 * Register the schema check on the admin lifecycle only.
+	 *
+	 * @return void
+	 */
+	public function init(): void {
+		add_action( 'admin_init', array( $this, 'maybe_install' ), 5 );
+	}
+
+	/**
 	 * Install the database table if not already at the current version.
 	 *
 	 * @return void
 	 */
 	public function maybe_install(): void {
-		if ( get_option( self::VERSION_OPTION ) === self::DB_VERSION ) {
+		if ( $this->is_current() ) {
 			return;
 		}
 
 		$this->create_table();
 		update_option( self::VERSION_OPTION, self::DB_VERSION );
+	}
+
+	/**
+	 * Whether the installed schema matches the code's expected version.
+	 *
+	 * Frontend feature boot uses this cheap option check to fail closed while
+	 * an admin migration is pending, rather than querying an outdated table.
+	 *
+	 * @return bool Whether the schema is current.
+	 */
+	public function is_current(): bool {
+		return get_option( self::VERSION_OPTION ) === self::DB_VERSION;
 	}
 
 	/**

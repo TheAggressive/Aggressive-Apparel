@@ -146,7 +146,7 @@ class Enhancements {
 	private function init_special_features(): void {
 		// Seed system badges once the taxonomy exists.
 		if ( Feature_Settings::is_enabled( 'product_badges' ) ) {
-			add_action( 'init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );
+			add_action( 'admin_init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );
 		}
 
 		// Product Tabs admin: always available since it backs a Gutenberg block.
@@ -157,10 +157,17 @@ class Enhancements {
 
 		// Back in Stock: install schema, boot frontend, then admin (admin-only).
 		if ( Feature_Settings::is_enabled( 'back_in_stock' ) ) {
-			$this->container->get( Back_In_Stock_Installer::class )->maybe_install();
-			$this->container->get( Back_In_Stock::class )->init();
-			if ( is_admin() ) {
-				$this->container->get( Back_In_Stock_Admin::class )->init();
+			$installer = $this->container->get( Back_In_Stock_Installer::class );
+			$installer->init();
+
+			// Fail closed while a schema migration is pending. The admin_init hook
+			// above completes it without adding database maintenance to customer
+			// requests; the feature resumes automatically on the next request.
+			if ( $installer->is_current() ) {
+				$this->container->get( Back_In_Stock::class )->init();
+				if ( is_admin() ) {
+					$this->container->get( Back_In_Stock_Admin::class )->init();
+				}
 			}
 		}
 	}

@@ -59,7 +59,7 @@ class Wishlist {
 	 * @return void
 	 */
 	public function init(): void {
-		add_action( 'init', array( $this, 'maybe_create_page' ), 20 );
+		add_action( 'admin_init', array( $this, 'maybe_create_page' ), 20 );
 		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_heart_icon' ) );

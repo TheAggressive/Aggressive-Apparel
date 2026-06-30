@@ -28,6 +28,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Color_Attribute_Manager {
 
 	/**
+	 * Option used to record the completed color-data setup version.
+	 */
+	public const SETUP_VERSION_OPTION = 'aggressive_apparel_color_setup_version';
+
+	/**
+	 * Bump when the color attribute or seeded term schema changes.
+	 */
+	private const SETUP_VERSION = '1.0.0';
+
+	/**
 	 * Color attribute name
 	 */
 	private const ATTRIBUTE_NAME = 'pa_color';
@@ -84,14 +94,44 @@ class Color_Attribute_Manager {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_action( 'init', array( $this, 'ensure_color_attribute_exists' ), 10 );
-		add_action( 'init', array( $this, 'add_default_color_terms' ), 15 );
+		// Database provisioning belongs to the admin lifecycle. Running these
+		// checks on `init` added direct SQL and term lookups to every storefront
+		// request, even after setup had completed successfully.
+		add_action( 'admin_init', array( $this, 'maybe_run_setup' ), 5 );
 		add_filter( 'woocommerce_attribute_taxonomies', array( $this, 'register_color_attribute' ), 10, 1 );
 
 		$this->pattern_admin->register_hooks();
 
 		// Initialize admin UI.
 		$this->admin_ui->register_hooks();
+	}
+
+	/**
+	 * Provision the color attribute and default terms once per setup version.
+	 *
+	 * This runs only during admin requests. If provisioning fails, the version
+	 * marker is deliberately left untouched so a later admin request can retry.
+	 *
+	 * @return void
+	 */
+	public function maybe_run_setup(): void {
+		if ( get_option( self::SETUP_VERSION_OPTION ) === self::SETUP_VERSION ) {
+			return;
+		}
+
+		$this->ensure_color_attribute_exists();
+
+		if ( ! $this->color_attribute_exists() ) {
+			return;
+		}
+
+		$this->add_default_color_terms();
+
+		if ( ! $this->default_color_terms_exist() ) {
+			return;
+		}
+
+		update_option( self::SETUP_VERSION_OPTION, self::SETUP_VERSION );
 	}
 
 	/**
@@ -104,24 +144,11 @@ class Color_Attribute_Manager {
 			return;
 		}
 
-		global $wpdb;
-
 		$attribute_name  = self::ATTRIBUTE_NAME;
 		$attribute_label = self::ATTRIBUTE_LABEL;
 		$attribute_slug  = str_replace( 'pa_', '', $attribute_name );
 
-		// Query the DB directly to avoid the woocommerce_attribute_taxonomies
-		// filter, which would always report the attribute as existing and
-		// prevent it from being created in the database.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$exists = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT attribute_id FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name = %s LIMIT 1",
-				$attribute_slug
-			)
-		);
-
-		if ( ! $exists ) {
+		if ( ! $this->color_attribute_exists() ) {
 			// Create the WooCommerce attribute using API.
 			$attribute_id = wc_create_attribute(
 				array(
@@ -149,6 +176,46 @@ class Color_Attribute_Manager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check the stored WooCommerce attribute table without applying the theme's
+	 * virtual attribute filter.
+	 *
+	 * @return bool Whether the color attribute exists in the database.
+	 */
+	private function color_attribute_exists(): bool {
+		global $wpdb;
+
+		$attribute_slug = str_replace( 'pa_', '', self::ATTRIBUTE_NAME );
+
+		// Direct SQL is intentional here: the filtered WooCommerce attribute list
+		// always includes the theme's virtual fallback. This method is now called
+		// only by the versioned admin setup path, never on storefront requests.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$attribute_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT attribute_id FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name = %s LIMIT 1",
+				$attribute_slug
+			)
+		);
+
+		return ! empty( $attribute_id );
+	}
+
+	/**
+	 * Verify the required seed data before recording setup as complete.
+	 *
+	 * @return bool Whether the default black color term is ready for use.
+	 */
+	private function default_color_terms_exist(): bool {
+		$term = get_term_by( 'slug', 'black', self::ATTRIBUTE_NAME );
+
+		if ( ! $term instanceof \WP_Term ) {
+			return false;
+		}
+
+		return '#000000' === get_term_meta( $term->term_id, 'color_value', true );
 	}
 
 	/**

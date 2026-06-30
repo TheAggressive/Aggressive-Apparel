@@ -39,8 +39,6 @@ class Mini_Cart_A11y {
 	 */
 	public function init(): void {
 		add_filter( 'render_block', array( $this, 'inject_drawer_inert' ), 10, 2 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ), 10 );
-		add_action( 'wp_footer', array( $this, 'print_footer_bootstrap' ), 1 );
 	}
 
 	/**
@@ -59,6 +57,10 @@ class Mini_Cart_A11y {
 			return $content;
 		}
 
+		// The bundle is footer-based, so it can be enqueued when the block is
+		// actually rendered instead of loading on every WooCommerce page.
+		$this->enqueue_script();
+
 		if ( preg_match( '/\bwc-block-mini-cart__drawer\b[^>]*\binert\b/', $content ) ) {
 			return $content;
 		}
@@ -74,7 +76,7 @@ class Mini_Cart_A11y {
 	}
 
 	/**
-	 * Enqueue the drawer inert sync script on the frontend.
+	 * Enqueue the drawer inert sync script when a mini-cart is rendered.
 	 *
 	 * @return void
 	 */
@@ -87,18 +89,5 @@ class Mini_Cart_A11y {
 			self::SCRIPT_HANDLE,
 			'build/scripts/mini-cart-a11y'
 		);
-	}
-
-	/**
-	 * Re-sync drawer inert after WooCommerce Interactivity hydrates.
-	 *
-	 * @return void
-	 */
-	public function print_footer_bootstrap(): void {
-		if ( is_admin() || ! function_exists( 'WC' ) ) {
-			return;
-		}
-
-		echo '<script>(function(){var s=".wc-block-mini-cart__drawer";function c(d){if(d.getAttribute("aria-hidden")!=="true"){return}if("inert" in HTMLElement.prototype){d.inert=true}else{d.setAttribute("inert","")}d.querySelectorAll("a,button,input,select,textarea,[tabindex]:not([tabindex=\'-1\'])").forEach(function(e){if(!e.hasAttribute("data-aa-mini-cart-tabindex")){e.setAttribute("data-aa-mini-cart-tabindex",e.getAttribute("tabindex")||"")}e.tabIndex=-1})}function i(){document.querySelectorAll(s).forEach(c)}i();document.addEventListener("DOMContentLoaded",i);window.addEventListener("load",function(){i();setTimeout(i,250)})})();</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline bootstrap.
 	}
 }

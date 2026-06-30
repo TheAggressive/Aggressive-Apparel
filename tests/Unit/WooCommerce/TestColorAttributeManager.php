@@ -44,6 +44,8 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
+		delete_option( Color_Attribute_Manager::SETUP_VERSION_OPTION );
+
 		// Clean up any created terms
 		$terms = get_terms( [
 			'taxonomy'   => 'pa_color',
@@ -60,6 +62,35 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		global $wpdb;
 		$wpdb->delete( $wpdb->prefix . 'woocommerce_attribute_taxonomies', [ 'attribute_name' => 'color' ] );
 		delete_transient( 'wc_attribute_taxonomies' );
+	}
+
+	/**
+	 * Database provisioning must never run during the public init lifecycle.
+	 */
+	public function test_database_setup_is_registered_for_admin_only(): void {
+		$this->assertFalse(
+			has_action( 'init', array( $this->color_manager, 'ensure_color_attribute_exists' ) )
+		);
+		$this->assertFalse(
+			has_action( 'init', array( $this->color_manager, 'add_default_color_terms' ) )
+		);
+		$this->assertSame(
+			5,
+			has_action( 'admin_init', array( $this->color_manager, 'maybe_run_setup' ) )
+		);
+	}
+
+	/**
+	 * Successful setup should be versioned so later admin requests are cheap.
+	 */
+	public function test_database_setup_records_completed_version(): void {
+		$this->create_color_taxonomy();
+		$this->color_manager->maybe_run_setup();
+
+		$this->assertSame(
+			'1.0.0',
+			get_option( Color_Attribute_Manager::SETUP_VERSION_OPTION )
+		);
 	}
 
 	/**

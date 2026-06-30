@@ -1,3 +1,15 @@
+# [1.121.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.120.1...v1.121.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* add missing line breaks for responsive visibility utilities in CSS ([23a7b5e](https://github.com/TheAggressive/Aggressive-Apparel/commit/23a7b5e4c12d1310f20eeabc34fea37e13b9bd3f))
+
+
+### Features
+
+* enhance PostCSS configuration and add responsive visibility utilities ([a40972e](https://github.com/TheAggressive/Aggressive-Apparel/commit/a40972e25643b638cb8e52e579228c702b223599))
+
 ## [1.120.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.120.0...v1.120.1) (2026-06-30)
 
 

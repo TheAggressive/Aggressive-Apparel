@@ -1,3 +1,10 @@
+## [1.113.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.113.0...v1.113.1) (2026-06-30)
+
+
+### Bug Fixes
+
+* remove pseudo-elements from payment method list for improved styling ([da858f6](https://github.com/TheAggressive/Aggressive-Apparel/commit/da858f6abd6fd4e693ef5e7be4f81c6efa9217d9))
+
 # [1.113.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.112.0...v1.113.0) (2026-06-30)
 
 

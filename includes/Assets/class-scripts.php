@@ -42,8 +42,6 @@ class Scripts {
 	 * @return void
 	 */
 	public function init(): void {
-		add_action( 'wp_head', array( $this, 'print_wcpay_appearance_bootstrap' ), 1 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wcpay_appearance' ), 5 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 	}
 
@@ -77,51 +75,6 @@ class Scripts {
 
 		$this->localize_theme_data( self::HANDLE );
 		$this->enqueue_cursor();
-	}
-
-	/**
-	 * Clear WooPayments appearance cache before any checkout scripts run.
-	 *
-	 * Inline in head so it executes before WooPayments reads localStorage.
-	 *
-	 * @return void
-	 */
-	public function print_wcpay_appearance_bootstrap(): void {
-		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
-			return;
-		}
-
-		echo '<script>(function(){try{Object.keys(localStorage).filter(function(k){return k.indexOf("wcpay_appearance_")===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}})();</script>' . "\n";
-	}
-
-	/**
-	 * Enqueue WooPayments Stripe Elements appearance overrides on checkout.
-	 *
-	 * Registers the `wcpay_elements_appearance` listener before WooPayments
-	 * initializes checkout (priority 5, footer, no defer).
-	 *
-	 * @return void
-	 */
-	public function enqueue_wcpay_appearance(): void {
-		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
-			return;
-		}
-
-		$src         = 'build/scripts/wcpay-appearance';
-		$asset_data  = Asset_Loader::get_asset_data( $src );
-		$script_path = AGGRESSIVE_APPAREL_DIR . '/' . $src . '.js';
-
-		if ( ! file_exists( $script_path ) ) {
-			return;
-		}
-
-		wp_enqueue_script(
-			'aggressive-apparel-wcpay-appearance',
-			aggressive_apparel_asset_uri( $src . '.js' ),
-			$asset_data['dependencies'],
-			$asset_data['version'],
-			true
-		);
 	}
 
 	/**

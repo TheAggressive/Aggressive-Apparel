@@ -181,6 +181,7 @@ class Bootstrap {
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
 			$this->container->register( 'wc_enhancements', fn( Service_Container $container ) => new WooCommerce\Enhancements( $container ) );
+			$this->container->register( 'wcpay_appearance', fn() => new WooCommerce\Wcpay_Appearance() );
 		}
 	}
 
@@ -266,6 +267,7 @@ class Bootstrap {
 		$this->container->get( 'size_option_sorter' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();
 		$this->container->get( 'wc_enhancements' )->init();
+		$this->container->get( 'wcpay_appearance' )->init();
 	}
 
 	/**

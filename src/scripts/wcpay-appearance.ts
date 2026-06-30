@@ -44,7 +44,6 @@ interface SampledFieldStyles {
   labelColor: string;
   labelFontSize: string;
   floatingLabelFontSize: string;
-  accentColor: string;
   brandColor: string;
   errorColor: string;
   borderRadius: string;
@@ -170,10 +169,6 @@ function sampleFromInput(input: HTMLInputElement): SampledFieldStyles {
     labelColor: toOpaqueRgb(labelStyles.color, fieldBackground),
     labelFontSize: labelStyles.fontSize,
     floatingLabelFontSize: `calc(${labelStyles.fontSize} * 0.85)`,
-    accentColor: toOpaqueRgb(
-      resolveToken('--aa-color-accent'),
-      fieldBackground
-    ),
     brandColor,
     errorColor: toOpaqueRgb(resolveToken('--aa-color-error'), fieldBackground),
     borderRadius: inputStyles.borderRadius,
@@ -252,6 +247,19 @@ function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
 }
 
 /**
+ * Input rule with brand-red left border (filled or focused states).
+ */
+function inputWithBrandBorder(
+  inputBase: Record<string, string>,
+  brandColor: string
+): Record<string, string> {
+  return {
+    ...inputBase,
+    borderLeft: `3px solid ${brandColor}`,
+  };
+}
+
+/**
  * Build a complete Stripe rules map (replaces WooPayments auto-detected rules).
  */
 function buildAppearanceRules(
@@ -263,9 +271,10 @@ function buildAppearanceRules(
     boxShadow: 'none',
     borderRadius: styles.borderRadius,
     color: styles.fieldText,
-    borderLeft: '3px solid transparent',
     outline: 'none',
   };
+
+  const brandBorder = inputWithBrandBorder(inputBase, styles.brandColor);
 
   const labelBase = {
     color: styles.labelColor,
@@ -287,23 +296,11 @@ function buildAppearanceRules(
   };
 
   return {
-    '.Input': {
-      ...inputBase,
-      borderLeft: `3px solid ${styles.brandColor}`,
-    },
+    '.Input': brandBorder,
     '.Input--empty': inputBase,
-    '.Input:focus': {
-      ...inputBase,
-      borderLeft: `3px solid ${styles.brandColor}`,
-    },
-    '.Input--empty:focus': {
-      ...inputBase,
-      borderLeft: `3px solid ${styles.brandColor}`,
-    },
-    '.Input:focus-visible': {
-      ...inputBase,
-      borderLeft: `3px solid ${styles.brandColor}`,
-    },
+    '.Input:focus': brandBorder,
+    '.Input--empty:focus': brandBorder,
+    '.Input:focus-visible': brandBorder,
     '.Input--invalid': {
       ...inputBase,
       borderLeft: `3px solid ${styles.errorColor}`,
@@ -325,10 +322,20 @@ function buildAppearanceRules(
       boxShadow: 'none',
     },
     '.Link': {
-      color: styles.brandColor,
+      color: styles.fieldText,
+      fill: styles.fieldText,
     },
     '.SecondaryLink': {
       color: styles.labelColor,
+      fill: styles.labelColor,
+    },
+    '.BlockAction': {
+      color: styles.fieldText,
+      fill: styles.fieldText,
+    },
+    '.Action': {
+      color: styles.fieldText,
+      fill: styles.fieldText,
     },
     '.RedirectText': textBase,
     '.TermsText': textBase,
@@ -380,6 +387,8 @@ function applyCheckoutAppearance(appearance: StripeAppearance): void {
   }
 
   const scheme = getCurrentColorScheme();
+  // Stripe logo variants are named for the surface they sit on, not the ink color.
+  const logoVariant = scheme === 'light' ? 'light' : 'dark';
 
   appearance.theme = scheme === 'light' ? 'stripe' : 'night';
   appearance.labels = 'floating';
@@ -395,7 +404,8 @@ function applyCheckoutAppearance(appearance: StripeAppearance): void {
     fontSizeBase: styles.labelFontSize,
     colorDanger: styles.errorColor,
     iconColor: styles.labelColor,
-    logoColor: scheme === 'light' ? 'dark' : 'light',
+    logoColor: logoVariant,
+    blockLogoColor: logoVariant,
   };
   appearance.rules = buildAppearanceRules(styles);
 }

@@ -33,7 +33,7 @@ All features are managed via **Appearance > Store Enhancements** and default to 
 | Swatch Tooltips | CSS | Hover tooltips on color/size swatches |
 | Mini Cart Styling | CSS | Enhanced mini cart appearance |
 | Grid / List Toggle | CSS | Switch between grid and list views on archives |
-| Product Filters | Interactive | AJAX product filters with categories, color swatches, sizes, price range, and stock status |
+| Product Filters | Interactive | AJAX product filters with categories, color swatches, sizes, price range, and stock status. Place `filter-toggle` and `filter-active-bar` blocks in templates. |
 | Page Transitions | CSS | View Transitions API + Speculation Rules for smooth navigation |
 | Load More | Interactive | Infinite scroll with Intersection Observer |
 | Size Guide | Interactive | Size guide modal with custom post type |
@@ -167,7 +167,9 @@ functions.php → Bootstrap (singleton)
 ### Custom Blocks
 
 **Interactive Blocks** (Interactivity API):
-`navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`, `modal`, `filter-toggle`, `product-color-swatches`, `wishlist`, and wishlist item/action child blocks
+`navigation`, `nav-link`, `nav-submenu`, `parallax`, `animate-on-scroll`, `lookbook`, `ticker`, `modal`, `filter-toggle`, `filter-active-bar`, `product-color-swatches`, `wishlist`, and wishlist item/action child blocks
+
+Both product filter blocks are **block-placed only** — place `filter-toggle` (opens the drawer) and `filter-active-bar` (active filter pills) wherever you need them on shop, category, and tag archives. Each block ships its own frontend CSS.
 
 **Static Blocks:**
 `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`

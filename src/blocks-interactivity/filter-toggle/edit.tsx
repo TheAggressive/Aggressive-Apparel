@@ -23,8 +23,6 @@ import {
   Notice,
 } from '@wordpress/components';
 
-import './editor.css';
-
 interface FilterToggleAttributes {
   label: string;
   showLabel: boolean;
@@ -66,8 +64,8 @@ export default function Edit({
   const effectiveShowLabel = iconOnly ? false : showLabel;
 
   const blockProps = useBlockProps({
-    className: `aa-product-filters__trigger${
-      iconOnly ? ' aa-product-filters__trigger--icon-only' : ''
+    className: `aa-filter-toggle${
+      iconOnly ? ' aa-filter-toggle--icon-only' : ''
     }`,
     style: {
       display: 'inline-flex',
@@ -157,7 +155,7 @@ export default function Edit({
               },
             ]}
             help={__(
-              '"Auto" mirrors the legacy automatic placement: the button only shows on small screens when the desktop layout is "Sidebar" or "Horizontal Bar".',
+              '"Auto" hides the button on desktop when the filter layout is Sidebar or Horizontal Bar (filters are already visible).',
               'aggressive-apparel'
             )}
           />
@@ -179,8 +177,8 @@ export default function Edit({
       <div {...blockProps}>
         <button
           type='button'
-          className={`aa-product-filters__trigger${
-            iconOnly ? 'aa-product-filters__trigger--icon-only' : ''
+          className={`aa-filter-toggle${
+            iconOnly ? 'aa-filter-toggle--icon-only' : ''
           }`}
           onClick={e => e.preventDefault()}
           aria-haspopup='dialog'
@@ -189,7 +187,7 @@ export default function Edit({
         >
           {effectiveShowIcon && <FilterIcon />}
           {effectiveShowLabel && label.trim() !== '' && (
-            <span className='aa-product-filters__trigger-label'>{label}</span>
+            <span className='aa-filter-toggle__label'>{label}</span>
           )}
           {!effectiveShowLabel && label.trim() !== '' && (
             <span className='screen-reader-text'>{label}</span>

@@ -15,6 +15,11 @@
         order: 1;
         display: flex;
         justify-content: flex-start !important;
+
+        & > svg.wc-block-mini-cart__icon {
+          width: 2rem;
+          height: 2rem;
+        }
     }
 
     /* 4. Reorder: Logo to the center */

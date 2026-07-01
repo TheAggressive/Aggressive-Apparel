@@ -144,7 +144,7 @@ main.wp-block-group {
 
 /* Thin top bar for visual feedback during slow navigations.
  * Hidden by default (width:0, opacity:0). JS adds .is-navigating
- * to <body> after 150ms — skipped for prerendered pages.
+ * to <body> after 150ms, avoiding flashes during fast navigations.
  * view-transition-name:none prevents morph artifacts. */
 body::after {
 	content: '';

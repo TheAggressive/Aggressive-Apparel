@@ -1,11 +1,11 @@
 /**
- * Page Transitions — Progress Bar & Pointerdown Prefetch
+ * Page Transitions — Progress Bar & Prefetch Fallback
  *
  * Enhances MPA view transitions with visual loading feedback and
- * eager prefetching to make navigation feel like an SPA.
+ * intent-driven prefetching to make navigation feel responsive.
  *
  * - Progress bar: thin top bar appears during slow navigations
- * - Pointerdown prefetch: injects <link rel="prefetch"> on mousedown/touchstart
+ * - Prefetch fallback: pointerdown fetch for browsers without speculation rules
  *
  * No Interactivity API dependency — pure DOM event listeners.
  *
@@ -16,26 +16,114 @@
 const EXCLUDE_PATHS: string[] = [
   '/checkout',
   '/cart',
+  '/my-account',
   '/wp-admin',
   '/wp-login.php',
 ];
 const prefetched = new Set<string>();
 
+interface NetworkInformation {
+  effectiveType?: string;
+  saveData?: boolean;
+}
+
+type NavigatorWithConnection = Navigator & {
+  connection?: NetworkInformation;
+};
+
+function isExcludedPath(pathname: string): boolean {
+  return EXCLUDE_PATHS.some(
+    path => pathname === path || pathname.startsWith(`${path}/`)
+  );
+}
+
 /**
- * Check if a link is eligible for prefetch / progress bar.
+ * Resolve an anchor that will navigate the current tab.
  */
-function isEligible(anchor: HTMLAnchorElement | null): boolean {
-  if (!anchor?.href) return false;
+function getNavigationUrl(anchor: HTMLAnchorElement | null): URL | null {
+  if (!anchor?.href) return null;
+
+  if (
+    anchor.target === '_blank' ||
+    anchor.hasAttribute('download') ||
+    anchor.matches(
+      '.add_to_cart_button, .ajax_add_to_cart, .remove, .restore-item'
+    )
+  ) {
+    return null;
+  }
 
   try {
     const url = new URL(anchor.href, location.origin);
-    if (url.origin !== location.origin) return false;
-    if (url.pathname === location.pathname && url.hash) return false;
-    if (anchor.target === '_blank') return false;
-    return !EXCLUDE_PATHS.some((p: string) => url.pathname.startsWith(p));
+    if (url.origin !== location.origin) return null;
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (url.pathname === location.pathname && url.search === location.search)
+      return null;
+    return url;
   } catch {
+    return null;
+  }
+}
+
+/**
+ * Whether a click represents a full-page navigation that may need feedback.
+ */
+export function isNavigationEligible(
+  anchor: HTMLAnchorElement | null
+): boolean {
+  return getNavigationUrl(anchor) !== null;
+}
+
+/**
+ * Whether a navigation is safe and useful to fetch speculatively.
+ */
+export function isPrefetchEligible(anchor: HTMLAnchorElement | null): boolean {
+  const url = getNavigationUrl(anchor);
+  if (!url) return false;
+
+  if (
+    anchor?.relList.contains('nofollow') ||
+    anchor?.closest('.no-prefetch, [data-no-prefetch]')
+  ) {
     return false;
   }
+
+  return !url.search && !isExcludedPath(url.pathname);
+}
+
+/**
+ * Whether the browser can consume the rules emitted by WordPress itself.
+ */
+export function supportsNativeSpeculationRules(): boolean {
+  const scriptElement = HTMLScriptElement as typeof HTMLScriptElement & {
+    supports?: (type: string) => boolean;
+  };
+
+  return scriptElement.supports?.('speculationrules') ?? false;
+}
+
+/**
+ * Respect explicit reduced-data preferences in fallback-only browsers.
+ */
+export function connectionAllowsPrefetch(): boolean {
+  const connection = (navigator as NavigatorWithConnection).connection;
+
+  if (connection?.saveData) return false;
+  if (connection?.effectiveType?.includes('2g')) return false;
+
+  return !window.matchMedia?.('(prefers-reduced-data: reduce)').matches;
+}
+
+/**
+ * Use the manual fallback only when WordPress emitted rules that this browser
+ * cannot consume. No rules tag means WordPress intentionally disabled loading.
+ */
+export function shouldUseFallbackPrefetch(): boolean {
+  return (
+    !supportsNativeSpeculationRules() &&
+    connectionAllowsPrefetch() &&
+    document.querySelector('script[type="speculationrules"]') !== null
+  );
 }
 
 /* -- Progress Bar -- */
@@ -56,13 +144,13 @@ document.addEventListener(
       e.shiftKey
     )
       return;
-    if (!isEligible(anchor)) return;
+    if (!isNavigationEligible(anchor)) return;
 
     clearTimeout(showTimerId);
     clearTimeout(safetyTimerId);
 
-    // Delay 150ms — if page is prerendered, pageswap fires before
-    // this timeout and we cancel it. No bar flash on instant nav.
+    // Delay 150ms. Fast navigations reach pageswap before this timeout, so
+    // the bar only appears when it provides useful loading feedback.
     showTimerId = setTimeout(() => {
       document.body.classList.add('is-navigating');
     }, 150);
@@ -104,9 +192,9 @@ function prefetchUrl(href: string): void {
 document.addEventListener(
   'mousedown',
   (e: MouseEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || !shouldUseFallbackPrefetch()) return;
     const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
-    if (anchor && isEligible(anchor)) prefetchUrl(anchor.href);
+    if (anchor && isPrefetchEligible(anchor)) prefetchUrl(anchor.href);
   },
   { passive: true }
 );
@@ -114,8 +202,9 @@ document.addEventListener(
 document.addEventListener(
   'touchstart',
   (e: TouchEvent) => {
+    if (!shouldUseFallbackPrefetch()) return;
     const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
-    if (anchor && isEligible(anchor)) prefetchUrl(anchor.href);
+    if (anchor && isPrefetchEligible(anchor)) prefetchUrl(anchor.href);
   },
   { passive: true }
 );

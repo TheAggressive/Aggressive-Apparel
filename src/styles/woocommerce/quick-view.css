@@ -5,11 +5,6 @@
  * @since 1.17.0
  */
 
-/* Positioning context for overlay buttons on product images. */
-.wp-block-post-featured-image {
-	position: relative;
-}
-
 /* Trigger button on product cards. */
 .aggressive-apparel-quick-view__trigger {
 	position: absolute;

@@ -1,0 +1,107 @@
+/**
+ * Product Filter Toggle Block — Front-end Styles
+ *
+ * Loaded automatically whenever the block is on the page.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-filter-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--aa-color-border-default);
+	border-radius: 0.375rem;
+	background: var(--aa-color-surface);
+	color: var(--aa-color-foreground);
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	transition:
+		border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	min-height: 2.75rem;
+	height: 2.75rem;
+	box-sizing: border-box;
+
+	&:hover {
+		border-color: var(--aa-color-foreground);
+		background: var(--aa-color-hover-subtle);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-foreground);
+		outline-offset: 2px;
+	}
+}
+
+.aa-filter-toggle__count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	width: 1.25rem;
+	height: 1.25rem;
+	min-width: 1.25rem;
+	padding: 0;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	line-height: 1;
+	background: var(--aa-color-foreground);
+	color: var(--aa-color-surface);
+	border-radius: var(--aa-radius-full);
+
+	&[hidden],
+	&:empty {
+		display: none;
+	}
+}
+
+/* Mobile-only trigger for sidebar/horizontal layouts. */
+.aa-filter-toggle--mobile-only {
+	display: none;
+}
+
+@media (width <= 1024px) {
+
+	.aa-filter-toggle--mobile-only {
+		display: inline-flex;
+	}
+}
+
+.aa-filter-toggle--icon-only {
+	position: relative;
+	width: 2.75rem;
+	min-width: 2.75rem;
+	padding: 0;
+	gap: 0;
+	justify-content: center;
+
+	& .aa-filter-toggle__label {
+		display: none;
+	}
+
+	& .aa-filter-toggle__count {
+		position: absolute;
+		top: -0.375rem;
+		right: -0.375rem;
+		width: 1.125rem;
+		height: 1.125rem;
+		min-width: 1.125rem;
+		font-size: 0.625rem;
+		padding: 0;
+		border: 2px solid var(--aa-color-surface);
+		box-sizing: content-box;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-filter-toggle {
+		transition: none;
+	}
+}

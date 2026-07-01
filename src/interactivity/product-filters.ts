@@ -158,6 +158,7 @@ interface ProductFiltersState {
   i18n: {
     filtersAppliedSingular: string;
     filtersAppliedPlural: string;
+    activeFiltersOverflowTooltip: string;
   };
   _announcement: string;
   _customSort: string;
@@ -448,9 +449,16 @@ const { state, actions } = store<ProductFiltersStore>(
         restoreOriginalGrid();
 
         syncAllControls();
-        // Everything is selectable again with no filters; refresh availability.
-        fetchFacets();
-        syncUrl();
+
+        const shopPath = getShopPath();
+        const leavingShopContext =
+          window.location.pathname !== shopPath ||
+          window.location.search !== '';
+        if (!leavingShopContext) {
+          fetchFacets();
+        }
+
+        navigateToShopAfterClear();
 
         // Announce for screen readers.
         state._announcement = 'All filters cleared.';
@@ -1042,11 +1050,11 @@ function setupScrollbarAutoHide(): void {
 function setupDelegatedEvents(): void {
   // Pill remove buttons.
   document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pills')
+    .querySelectorAll<HTMLElement>('.aa-filter-active-bar__pills')
     .forEach(el => {
       el.addEventListener('click', (e: MouseEvent) => {
         const btn = (e.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__pill'
+          '.aa-filter-active-bar__pill'
         );
         if (!btn) return;
 
@@ -1147,11 +1155,34 @@ function injectProductsHtml(html: string, append: boolean): number {
 }
 
 /**
+ * Maximum removable pills shown before collapsing the rest into a "+N" badge.
+ */
+const MAX_VISIBLE_PILLS = 3;
+
+function renderPillButton(pill: FilterPill): string {
+  return `<button class="aa-filter-active-bar__pill" data-filter-type="${escapeHtml(pill.type)}" data-filter-slug="${escapeHtml(pill.slug)}" aria-label="Remove ${escapeHtml(pill.label)} filter">${escapeHtml(pill.label)}<span class="aa-filter-active-bar__pill-x" aria-hidden="true">&times;</span></button>`;
+}
+
+function renderPillOverflowBadge(overflowPills: FilterPill[]): string {
+  const count = overflowPills.length;
+  if (count === 0) {
+    return '';
+  }
+
+  const labelList = overflowPills.map(pill => pill.label).join(', ');
+  const tooltipTemplate =
+    state.i18n?.activeFiltersOverflowTooltip ?? 'Additional filters: %s';
+  const ariaLabel = tooltipTemplate.replace('%s', labelList);
+
+  return `<span class="aa-filter-active-bar__overflow" tabindex="0" role="note" aria-label="${escapeHtml(ariaLabel)}" data-tooltip="${escapeHtml(labelList)}">+${count}</span>`;
+}
+
+/**
  * Render active filter pills.
  */
 function renderPills(): void {
   const containers = document.querySelectorAll<HTMLElement>(
-    '.aa-product-filters__pills'
+    '.aa-filter-active-bar__pills'
   );
   if (!containers.length) return;
 
@@ -1193,12 +1224,13 @@ function renderPills(): void {
     pills.push({ type: 'stock', slug: 'stock', label: 'In Stock Only' });
   }
 
-  const html = pills
-    .map(
-      (p: FilterPill) =>
-        `<button class="aa-product-filters__pill" data-filter-type="${escapeHtml(p.type)}" data-filter-slug="${escapeHtml(p.slug)}" aria-label="Remove ${escapeHtml(p.label)} filter">${escapeHtml(p.label)}<span class="aa-product-filters__pill-x" aria-hidden="true">&times;</span></button>`
-    )
-    .join('');
+  const visiblePills = pills.slice(0, MAX_VISIBLE_PILLS);
+  const overflowPills = pills.slice(MAX_VISIBLE_PILLS);
+
+  let html = visiblePills.map(renderPillButton).join('');
+  if (overflowPills.length > 0) {
+    html += renderPillOverflowBadge(overflowPills);
+  }
 
   containers.forEach((c: HTMLElement) => {
     c.innerHTML = html;
@@ -1355,12 +1387,7 @@ function syncAllControls(): void {
   syncPriceRange();
   syncStockCheckboxes(false);
   renderPills();
-  syncUrl();
 }
-
-/**
- * Push current filter state to the URL.
- */
 
 /** Returns the pathname of the shop root, derived from the PHP-injected shopUrl. */
 function getShopPath(): string {
@@ -1371,36 +1398,34 @@ function getShopPath(): string {
   }
 }
 
-/** Returns the pathname for a category slug using its PHP-injected permalink. */
-function getCategoryPath(slug: string): string | null {
-  const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
-  if (!cat?.link) return null;
+/** Full shop URL (origin + path) for hard navigations after Clear All. */
+function getCanonicalShopUrl(): string {
   try {
-    return new URL(cat.link).pathname;
+    return new URL(state.shopUrl, window.location.origin).href;
   } catch {
-    return null;
+    return `${window.location.origin}${getShopPath()}`;
   }
 }
 
 /**
- * Returns the category slug whose permalink matches the current URL path.
- * Used by restoreFromUrl() so that pushState navigation between category
- * pages survives browser back/forward without a full page reload.
+ * After Clear All, land on the unfiltered shop URL so the address bar matches
+ * what recipients see. Same-path clears strip query params via replaceState;
+ * category archives and other paths get a full navigation to the shop root.
  */
-function getCategorySlugFromPath(): string | null {
-  const path = window.location.pathname;
-  for (const cat of state.categories) {
-    if (!cat.link) continue;
-    try {
-      if (new URL(cat.link).pathname === path) return cat.slug;
-    } catch {
-      // Invalid URL — skip this category.
-    }
+function navigateToShopAfterClear(): void {
+  pendingNavUrl = null;
+  const shopPath = getShopPath();
+
+  if (window.location.pathname !== shopPath || window.location.search !== '') {
+    window.location.assign(getCanonicalShopUrl());
+    return;
   }
-  return null;
+
+  window.history.replaceState(null, '', shopPath);
 }
 
-function syncUrl(): void {
+/** Build the canonical pathname + query for the current filter state. */
+function buildFilterUrl(): string {
   const params = new URLSearchParams();
 
   // Determine the canonical base path:
@@ -1445,7 +1470,42 @@ function syncUrl(): void {
   }
 
   const qs = params.toString();
-  const url = qs ? `${basePath}?${qs}` : basePath;
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+/** Returns the pathname for a category slug using its PHP-injected permalink. */
+function getCategoryPath(slug: string): string | null {
+  const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
+  if (!cat?.link) return null;
+  try {
+    return new URL(cat.link).pathname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns the category slug whose permalink matches the current URL path.
+ * Used by restoreFromUrl() so that pushState navigation between category
+ * pages survives browser back/forward without a full page reload.
+ */
+function getCategorySlugFromPath(): string | null {
+  const path = window.location.pathname;
+  for (const cat of state.categories) {
+    if (!cat.link) continue;
+    try {
+      if (new URL(cat.link).pathname === path) return cat.slug;
+    } catch {
+      // Invalid URL — skip this category.
+    }
+  }
+  return null;
+}
+
+function syncUrl(): void {
+  const url = buildFilterUrl();
+  const basePath = url.split('?')[0] ?? url;
+
   // Cross-category switches require a full page navigation so title, breadcrumbs,
   // and canonical are correct. For the drawer layout, defer until the drawer
   // closes (View Results / backdrop / Escape) so the user can finish selecting.

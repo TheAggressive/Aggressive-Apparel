@@ -6,7 +6,7 @@
   "title": "Product Filter Toggle",
   "category": "aggressive-apparel",
   "icon": "filter",
-  "description": "Opens the product filters drawer. Place this block anywhere on a shop, category, or tag archive to control where the filter button appears. Replaces the automatic placement before the catalog sorting dropdown.",
+  "description": "Opens the product filters drawer. Place on shop, category, or tag archives wherever the filter button should appear.",
   "keywords": ["filter", "shop", "woocommerce", "product"],
   "example": {
     "attributes": {
@@ -91,5 +91,6 @@
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
   "render": "file:./render.php"
 }

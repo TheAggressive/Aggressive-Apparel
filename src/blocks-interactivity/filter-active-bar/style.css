@@ -1,0 +1,177 @@
+/**
+ * Active Filter Bar Block — Front-end Styles
+ *
+ * Loaded automatically whenever the block is on the page.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-filter-active-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.5rem;
+	padding: 0.75rem 0;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.aa-filter-active-bar__pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	flex: 1;
+}
+
+.aa-filter-active-bar__pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.375rem 1rem;
+	border: 1px solid var(--aa-color-border-default);
+	border-radius: var(--aa-radius-full);
+	background-color: var(--aa-color-hover-subtle);
+	color: var(--aa-color-foreground);
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	cursor: pointer;
+	transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
+	min-height: var(--aa-button-height-md);
+
+	&:hover {
+		background-color: transparent;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-foreground);
+		outline-offset: 2px;
+	}
+}
+
+.aa-filter-active-bar__pill-x {
+	font-size: 1.25rem;
+	line-height: 1;
+	opacity: 0.5;
+}
+
+.aa-filter-active-bar__overflow {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	align-self: center;
+	flex-shrink: 0;
+	min-height: var(--aa-button-height-md);
+	padding: 0.375rem 0.875rem;
+	border: 1px solid var(--aa-color-border-default);
+	border-radius: var(--aa-radius-full);
+	background-color: var(--aa-color-hover-subtle);
+	color: var(--aa-color-foreground-muted);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	cursor: default;
+	outline: none;
+
+	&[data-tooltip]::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		bottom: calc(100% + 0.375rem);
+		left: 50%;
+		z-index: var(--aa-z-dropdown);
+		max-width: 14rem;
+		padding: 0.375rem 0.625rem;
+		border-radius: var(--aa-radius-control);
+		background-color: var(--aa-color-foreground);
+		color: var(--aa-color-surface);
+		box-shadow: var(--aa-shadow-sm);
+		font-size: 0.6875rem;
+		font-weight: 500;
+		line-height: 1.4;
+		text-align: center;
+		text-transform: none;
+		letter-spacing: normal;
+		white-space: normal;
+		pointer-events: none;
+		opacity: 0;
+		translate: -50% 0;
+		scale: 0.92;
+		transform-origin: bottom center;
+		transition:
+			opacity var(--aa-duration-fast) var(--aa-ease-default),
+			scale var(--aa-duration-fast) var(--aa-ease-default);
+	}
+
+	&[data-tooltip]:hover::after,
+	&[data-tooltip]:focus-visible::after {
+		opacity: 1;
+		scale: 1;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-foreground);
+		outline-offset: 2px;
+	}
+}
+
+.aa-filter-active-bar__clear-all {
+	display: inline;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	appearance: none;
+	font: inherit;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	line-height: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	color: var(--aa-color-foreground);
+	cursor: pointer;
+	flex-shrink: 0;
+
+	&:hover {
+		opacity: 0.7;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-foreground);
+		outline-offset: 2px;
+	}
+}
+
+/* Mobile: hidden — users manage/clear filters via the filter drawer. */
+@media (width <= 767px) {
+
+	.aa-filter-active-bar {
+		display: none;
+	}
+}
+
+/* Tablet: Clear All only — pills and overflow hidden to save header space. */
+@media (768px <= width <= 1023px) {
+
+	.aa-filter-active-bar__pills {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-filter-active-bar__pill {
+		transition: none;
+	}
+
+	.aa-filter-active-bar__overflow[data-tooltip]::after {
+		transition: none;
+	}
+}

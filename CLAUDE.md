@@ -107,6 +107,10 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 | `nav-submenu` | Dropdown and mega menu support |
 | `parallax` | Advanced parallax effects |
 | `animate-on-scroll` | Scroll-triggered animations |
+| `filter-toggle` | Opens the product filters drawer (block-placed; ships own CSS) |
+| `filter-active-bar` | Active filter pills + Clear All (block-placed; ships own CSS) |
+
+**Product filter blocks:** When Product Filters is enabled, place `aggressive-apparel/filter-toggle` and `aggressive-apparel/filter-active-bar` on shop, category, and tag archive templates. There is no automatic injection — both blocks wire into the shared `aggressive-apparel/product-filters` Interactivity store. CSS lives in each block's `style.css`, not the global product-filters stylesheet.
 
 **Creating New Blocks:**
 ```bash

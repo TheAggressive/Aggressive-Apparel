@@ -64,17 +64,6 @@ class Product_Filters {
 	private ?array $filter_data = null;
 
 	/**
-	 * Whether the Filter Toggle block has rendered during the current request.
-	 *
-	 * When true, automatic injection of the trigger before
-	 * `woocommerce/catalog-sorting` is suppressed so the user-placed
-	 * block is the sole source of truth.
-	 *
-	 * @var bool
-	 */
-	private static bool $trigger_block_rendered = false;
-
-	/**
 	 * Active layout for the current request, cached statically so it can be
 	 * exposed via `get_active_layout()` without re-querying options.
 	 *
@@ -247,9 +236,11 @@ class Product_Filters {
 					 */
 					'i18n'                => array(
 						/* translators: %s is the number of currently active filters (always 1). */
-						'filtersAppliedSingular' => __( '(%s filter applied)', 'aggressive-apparel' ),
+						'filtersAppliedSingular'       => __( '(%s filter applied)', 'aggressive-apparel' ),
 						/* translators: %s is the number of currently active filters (2 or more). */
-						'filtersAppliedPlural'   => __( '(%s filters applied)', 'aggressive-apparel' ),
+						'filtersAppliedPlural'         => __( '(%s filters applied)', 'aggressive-apparel' ),
+						/* translators: %s is a comma-separated list of filter names not shown in the pill row. */
+						'activeFiltersOverflowTooltip' => __( 'Additional filters: %s', 'aggressive-apparel' ),
 					),
 				)
 			);
@@ -271,52 +262,6 @@ class Product_Filters {
 		try {
 			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
 			$this->ensure_assets();
-
-			// Inject filter toggle button before the catalog sorting dropdown.
-			if ( 'woocommerce/catalog-sorting' === $block['blockName'] ) {
-				// Admin setting wins: when set to "block", the user is fully
-				// in charge of placement via the Filter Toggle block.
-				$placement = get_option( Feature_Settings::FILTER_TRIGGER_PLACEMENT_OPTION, 'auto' );
-				if ( 'block' === $placement ) {
-					return $block_content;
-				}
-
-				/**
-				 * Filters whether to automatically inject the trigger before catalog-sorting.
-				 *
-				 * Set to false (or place the `aggressive-apparel/filter-toggle`
-				 * block earlier in the template) to suppress the legacy
-				 * automatic placement. When the Filter Toggle block has
-				 * rendered earlier in the request, this is short-circuited
-				 * to false automatically.
-				 *
-				 * @since 1.22.0
-				 *
-				 * @param bool $auto_inject Whether to auto-inject. Default true.
-				 */
-				$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_filter_trigger', true );
-
-				if ( self::$trigger_block_rendered || ! $auto_inject ) {
-					return $block_content;
-				}
-
-				$mobile_class = 'drawer' === $this->layout ? '' : ' aa-product-filters__trigger--mobile-only';
-				$button       = sprintf(
-					'<button type="button" class="aa-product-filters__trigger wp-element-button%1$s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-on--click="actions.openDrawer" data-wp-bind--aria-expanded="state.isDrawerOpen" aria-expanded="false" aria-haspopup="dialog" aria-controls="aa-product-filters-drawer">%2$s<span class="aa-product-filters__trigger-label">%3$s</span><span class="screen-reader-text" data-wp-text="state.triggerCountLabel"></span><span class="aa-product-filters__trigger-count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span></button>',
-					esc_attr( $mobile_class ),
-					Icons::get(
-						'filter',
-						array(
-							'width'       => 20,
-							'height'      => 20,
-							'aria-hidden' => 'true',
-						)
-					),
-					esc_html( Feature_Settings::get_filter_toggle_text() ),
-				);
-
-				return $button . $block_content;
-			}
 
 			// Wrap product-collection with AJAX grid container.
 			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
@@ -471,14 +416,6 @@ class Product_Filters {
 		);
 
 		$output .= $bar_html;
-
-		// Active filter pills bar — auto-injected unless the admin opted to place
-		// the `aggressive-apparel/filter-active-bar` block manually.
-		if ( 'block' !== Feature_Settings::get_filter_active_bar_placement() ) {
-			$output .= '<div class="aa-product-filters__active-bar" data-wp-bind--hidden="state.hasNoActiveFilters">';
-			$output .= self::render_active_bar_inner();
-			$output .= '</div>';
-		}
 
 		$output .= '<div class="aa-product-filters__grid-wrapper' . esc_attr( $grid_class ) . '">';
 
@@ -1196,39 +1133,5 @@ class Product_Filters {
 		self::$active_layout = in_array( $layout, $valid, true ) ? $layout : 'drawer';
 
 		return self::$active_layout;
-	}
-
-	/**
-	 * Marks the Filter Toggle block as rendered for the current request,
-	 * suppressing the automatic injection of the trigger before the
-	 * `woocommerce/catalog-sorting` block.
-	 *
-	 * Called from the block's `render.php` so users get exactly one
-	 * trigger button in the location they chose.
-	 *
-	 * @since 1.22.0
-	 *
-	 * @return void
-	 */
-	public static function mark_trigger_block_rendered(): void {
-		self::$trigger_block_rendered = true;
-	}
-
-	/**
-	 * Render the inner contents of the active-filter bar.
-	 *
-	 * Shared by the auto-injected bar (inside the main `.aa-product-filters`
-	 * interactive wrapper) and the standalone `filter-active-bar` block: an empty
-	 * pills container that JS populates on filter change, plus the Clear All
-	 * button wired to the store action. Both pieces work anywhere within an
-	 * interactive region of the `aggressive-apparel/product-filters` store.
-	 *
-	 * @return string Active-bar inner HTML.
-	 */
-	public static function render_active_bar_inner(): string {
-		return '<div class="aa-product-filters__pills"></div>'
-			. '<button class="aa-product-filters__clear-all wp-element-button" data-wp-on--click="actions.clearAllFilters">'
-			. esc_html__( 'Clear All', 'aggressive-apparel' )
-			. '</button>';
 	}
 }

@@ -181,26 +181,6 @@ class Feature_Settings_Page {
 
 		register_setting(
 			$group,
-			Feature_Settings::FILTER_TRIGGER_PLACEMENT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'auto',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_filter_trigger_placement' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::FILTER_ACTIVE_BAR_PLACEMENT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'auto',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_filter_active_bar_placement' ),
-			)
-		);
-
-		register_setting(
-			$group,
 			Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION,
 			array(
 				'type'              => 'string',
@@ -388,21 +368,6 @@ class Feature_Settings_Page {
 				'aggressive_apparel_features_catalog',
 			);
 
-			add_settings_field(
-				'filter_trigger_placement',
-				__( 'Filter Trigger Placement', 'aggressive-apparel' ),
-				array( $this->fields, 'render_filter_trigger_placement_field' ),
-				Feature_Settings::PAGE_SLUG,
-				'aggressive_apparel_features_catalog',
-			);
-
-			add_settings_field(
-				'filter_active_bar_placement',
-				__( 'Active Filter Bar Placement', 'aggressive-apparel' ),
-				array( $this->fields, 'render_filter_active_bar_placement_field' ),
-				Feature_Settings::PAGE_SLUG,
-				'aggressive_apparel_features_catalog',
-			);
 		}
 
 		if ( 'load_more' === $key && Feature_Settings::is_enabled( 'load_more' ) ) {

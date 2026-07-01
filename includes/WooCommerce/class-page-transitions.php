@@ -31,6 +31,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Page_Transitions {
 
 	/**
+	 * Commerce routes that must never be speculatively requested.
+	 *
+	 * @var string[]
+	 */
+	private const SPECULATION_EXCLUDE_PATHS = array(
+		'/cart',
+		'/cart/*',
+		'/checkout',
+		'/checkout/*',
+		'/my-account',
+		'/my-account/*',
+	);
+
+	/**
 	 * Track used view-transition-names to prevent duplicates.
 	 *
 	 * View transition names must be unique per page. A product can appear
@@ -49,8 +63,10 @@ class Page_Transitions {
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_script' ) );
-		add_action( 'wp_head', array( $this, 'output_speculation_rules' ) );
 		add_action( 'wp_head', array( $this, 'output_direction_script' ) );
+		add_filter( 'wp_speculation_rules_configuration', array( $this, 'configure_speculative_loading' ) );
+		add_filter( 'wp_speculation_rules_href_exclude_paths', array( $this, 'exclude_sensitive_paths' ), 10, 2 );
+
 		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_archive_transition_name' ) );
 		Block_Filter_Hooks::add(
 			'woocommerce/product-image-gallery',
@@ -77,8 +93,8 @@ class Page_Transitions {
 	/**
 	 * Register and enqueue the page transitions script module.
 	 *
-	 * Provides a navigation progress bar and pointerdown prefetch
-	 * for faster perceived navigation. No Interactivity API dependency.
+	 * Provides a navigation progress bar and a pointerdown prefetch fallback for
+	 * browsers without native speculation-rules support.
 	 *
 	 * @return void
 	 */
@@ -98,54 +114,43 @@ class Page_Transitions {
 	}
 
 	/**
-	 * Output two-tier speculation rules for SPA-like navigation speed.
+	 * Configure WordPress core speculative loading on product display routes.
 	 *
-	 * Tier 1 (prefetch/eager): All in-viewport same-origin links get their
-	 * HTML prefetched immediately — lightweight, just a document fetch.
+	 * Core owns validation, URL prefixing, logged-in behavior, query-string
+	 * exclusions, and final script output. The theme only makes eligible links
+	 * hover-driven and explicitly disables the more expensive prerender mode.
 	 *
-	 * Tier 2 (prerender/moderate): Hovered links get fully prerendered in
-	 * a hidden tab (~200ms delay) — heavier but near-instant navigation.
-	 *
-	 * Browsers that don't support speculation rules ignore the unknown
-	 * script type — zero impact on unsupported browsers.
-	 *
-	 * @return void
+	 * @param array<string, string>|null $configuration Core configuration.
+	 * @return array<string, string>|null Filtered configuration.
 	 */
-	public function output_speculation_rules(): void {
-		if ( ! $this->should_load_assets() ) {
-			return;
+	public function configure_speculative_loading( ?array $configuration ): ?array {
+		if ( null === $configuration || ! $this->should_load_assets() ) {
+			return $configuration;
 		}
 
-		$where = array(
-			'and' => array(
-				array( 'href_matches' => '/*' ),
-				array( 'not' => array( 'href_matches' => '/checkout/*' ) ),
-				array( 'not' => array( 'href_matches' => '/cart/*' ) ),
-				array( 'not' => array( 'href_matches' => '/wp-admin/*' ) ),
-				array( 'not' => array( 'href_matches' => '/wp-login.php' ) ),
-				array( 'not' => array( 'selector_matches' => '[target=_blank]' ) ),
-			),
+		return array(
+			'mode'      => 'prefetch',
+			'eagerness' => 'moderate',
 		);
+	}
 
-		$rules = array(
-			'prefetch'  => array(
-				array(
-					'where'     => $where,
-					'eagerness' => 'eager',
-				),
-			),
-			'prerender' => array(
-				array(
-					'where'     => $where,
-					'eagerness' => 'moderate',
-				),
-			),
-		);
+	/**
+	 * Add commerce routes that must not be prefetched.
+	 *
+	 * WordPress core already excludes admin, login, asset, nonce, query-string,
+	 * nofollow, and `.no-prefetch` URLs. These additions cover personalized and
+	 * transaction-oriented WooCommerce routes.
+	 *
+	 * @param string[] $paths Existing excluded path patterns.
+	 * @param string   $mode  Active speculative loading mode.
+	 * @return string[] Filtered path patterns.
+	 */
+	public function exclude_sensitive_paths( array $paths, string $mode ): array {
+		if ( 'prefetch' !== $mode && 'prerender' !== $mode ) {
+			return $paths;
+		}
 
-		printf(
-			'<script type="speculationrules">%s</script>' . "\n",
-			wp_json_encode( $rules, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG )
-		);
+		return array_values( array_unique( array_merge( $paths, self::SPECULATION_EXCLUDE_PATHS ) ) );
 	}
 
 	/**
@@ -201,8 +206,8 @@ class Page_Transitions {
 	/**
 	 * Whether page-transition assets and speculation rules should load.
 	 *
-	 * Limited to product display routes so blog posts and static pages
-	 * do not prefetch/prerender unrelated links.
+	 * Limited to product display routes so blog posts and static pages do not
+	 * load transition assets for unrelated links.
 	 *
 	 * @return bool
 	 */

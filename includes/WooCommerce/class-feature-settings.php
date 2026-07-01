@@ -97,32 +97,6 @@ class Feature_Settings {
 	public const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 
 	/**
-	 * Option key for the filter trigger placement.
-	 *
-	 * `auto`  → Theme injects the trigger before the catalog sorting dropdown
-	 *           (legacy behavior).
-	 * `block` → Theme suppresses the automatic injection; the user is expected
-	 *           to place the `aggressive-apparel/filter-toggle` block wherever
-	 *           they want the trigger to appear.
-	 *
-	 * @var string
-	 */
-	public const FILTER_TRIGGER_PLACEMENT_OPTION = 'aggressive_apparel_filter_trigger_placement';
-
-	/**
-	 * Option key for the active-filter bar placement.
-	 *
-	 * `auto`  → Theme renders the active-filter bar (pills + Clear All) at the
-	 *           top of the filter UI automatically (legacy behavior).
-	 * `block` → Theme suppresses the automatic bar; the user is expected to
-	 *           place the `aggressive-apparel/filter-active-bar` block wherever
-	 *           they want the active filters to appear.
-	 *
-	 * @var string
-	 */
-	public const FILTER_ACTIVE_BAR_PLACEMENT_OPTION = 'aggressive_apparel_filter_active_bar_placement';
-
-	/**
 	 * Option key for the wishlist button placement.
 	 *
 	 * `auto`  → Theme injects the heart on product cards (top-right of the
@@ -888,15 +862,6 @@ class Feature_Settings {
 	 */
 	public static function get_wishlist_button_placement(): string {
 		return (string) get_option( self::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
-	}
-
-	/**
-	 * Active-filter bar placement mode (e.g. 'auto', 'block').
-	 *
-	 * @return string
-	 */
-	public static function get_filter_active_bar_placement(): string {
-		return (string) get_option( self::FILTER_ACTIVE_BAR_PLACEMENT_OPTION, 'auto' );
 	}
 
 	/**

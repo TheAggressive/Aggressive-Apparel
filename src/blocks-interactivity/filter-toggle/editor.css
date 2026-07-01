@@ -1,46 +1,11 @@
-/*
+/**
  * Product Filter Toggle Block — Editor Styles
  *
- * Mirrors the bare minimum of the frontend `.aa-product-filters__trigger`
- * appearance so the block is visually meaningful inside the block editor,
- * where the theme's frontend stylesheet may not be loaded.
+ * Front-end appearance lives in style.css. Editor-only tweaks below.
+ *
+ * @package Aggressive_Apparel
  */
 
-.wp-block-aggressive-apparel-filter-toggle .aa-product-filters__trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid currentcolor;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  border-radius: var(--aa-radius-control);
-}
-
-.wp-block-aggressive-apparel-filter-toggle
-  .aa-product-filters__trigger:hover {
-  opacity: 0.85;
-}
-
-.wp-block-aggressive-apparel-filter-toggle
-  .aa-product-filters__trigger-label {
-  white-space: nowrap;
-}
-
-.wp-block-aggressive-apparel-filter-toggle
-  .aa-product-filters__trigger--icon-only {
-  width: 2.75rem;
-  min-width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  gap: 0;
-  justify-content: center;
-}
-
-.wp-block-aggressive-apparel-filter-toggle
-  .aa-product-filters__trigger--icon-only
-  .aa-product-filters__trigger-label {
-  display: none;
+.wp-block-aggressive-apparel-filter-toggle .aa-filter-toggle {
+	pointer-events: none;
 }

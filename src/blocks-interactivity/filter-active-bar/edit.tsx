@@ -12,17 +12,15 @@ import { __ } from '@wordpress/i18n';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, Notice } from '@wordpress/components';
 
-import './editor.css';
-
 export default function Edit(): JSX.Element {
   const blockProps = useBlockProps({
-    className: 'aa-product-filters__active-bar',
+    className: 'aa-filter-active-bar',
   });
 
   const samplePills = [
-    __('Category: Shirts', 'aggressive-apparel'),
-    __('Color: Black', 'aggressive-apparel'),
-    __('Size: M', 'aggressive-apparel'),
+    __('T-Shirts', 'aggressive-apparel'),
+    __('Black', 'aggressive-apparel'),
+    __('Mens', 'aggressive-apparel'),
   ];
 
   return (
@@ -34,7 +32,7 @@ export default function Edit(): JSX.Element {
         >
           <Notice status='info' isDismissible={false}>
             {__(
-              'Shows the active product filters as removable pills with a Clear All button. It only renders on shop, product category, and product tag archives, and stays hidden until a filter is applied. The Product Filters feature must be enabled in Theme Settings, with "Active Filter Bar Placement" set to Manual.',
+              'Desktop-only pills on shop, category, and tag archives (1024px+): up to three removable pills, a "+N" chip with tooltip for the rest, and underlined Clear All. Tablet (768–1023px) shows Clear All only. Hidden on mobile — use the filter drawer there instead.',
               'aggressive-apparel'
             )}
           </Notice>
@@ -42,24 +40,36 @@ export default function Edit(): JSX.Element {
       </InspectorControls>
 
       <div {...blockProps}>
-        <div className='aa-product-filters__pills'>
+        <div className='aa-filter-active-bar__pills'>
           {samplePills.map(label => (
             <button
               key={label}
               type='button'
-              className='aa-product-filters__pill'
+              className='aa-filter-active-bar__pill'
               onClick={e => e.preventDefault()}
             >
               {label}
-              <span className='aa-product-filters__pill-x' aria-hidden='true'>
+              <span className='aa-filter-active-bar__pill-x' aria-hidden='true'>
                 ×
               </span>
             </button>
           ))}
+          <span
+            className='aa-filter-active-bar__overflow'
+            tabIndex={0}
+            role='note'
+            aria-label={__(
+              'Additional filters: Large, In Stock Only',
+              'aggressive-apparel'
+            )}
+            data-tooltip={__('Large, In Stock Only', 'aggressive-apparel')}
+          >
+            +2
+          </span>
         </div>
         <button
           type='button'
-          className='aa-product-filters__clear-all wp-element-button'
+          className='aa-filter-active-bar__clear-all'
           onClick={e => e.preventDefault()}
         >
           {__('Clear All', 'aggressive-apparel')}

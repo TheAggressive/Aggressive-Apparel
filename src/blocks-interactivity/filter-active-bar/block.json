@@ -6,7 +6,7 @@
   "title": "Active Filter Bar",
   "category": "aggressive-apparel",
   "icon": "tag",
-  "description": "Shows the currently active product filters as removable pills with a Clear All button. Place it anywhere on a shop, category, or tag archive to control where active filters appear. Replaces the automatic bar above the product grid.",
+  "description": "Shows the currently active product filters as removable pills with a Clear All button. Place it anywhere on a shop, category, or tag archive.",
   "keywords": ["filter", "pills", "active", "shop", "woocommerce", "product"],
   "supports": {
     "html": false,
@@ -49,5 +49,6 @@
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
   "render": "file:./render.php"
 }

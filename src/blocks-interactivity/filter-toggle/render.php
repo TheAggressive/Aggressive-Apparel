@@ -65,19 +65,18 @@ if ( $icon_only ) {
 	$show_label = false;
 }
 
-Product_Filters::mark_trigger_block_rendered();
+$layout = Product_Filters::get_active_layout();
 
-$layout            = Product_Filters::get_active_layout();
 $mobile_only_class = '';
 if ( 'always' === $mobile_only ) {
-	$mobile_only_class = ' aa-product-filters__trigger--mobile-only';
+	$mobile_only_class = ' aa-filter-toggle--mobile-only';
 } elseif ( 'auto' === $mobile_only && 'drawer' !== $layout ) {
-	$mobile_only_class = ' aa-product-filters__trigger--mobile-only';
+	$mobile_only_class = ' aa-filter-toggle--mobile-only';
 }
 
-$icon_only_class = $icon_only ? ' aa-product-filters__trigger--icon-only' : '';
+$icon_only_class = $icon_only ? ' aa-filter-toggle--icon-only' : '';
 
-$wrapper_classes = 'aa-product-filters__trigger' . $mobile_only_class . $icon_only_class;
+$wrapper_classes = 'aa-filter-toggle' . $mobile_only_class . $icon_only_class;
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
@@ -113,7 +112,7 @@ $label_html = '';
 if ( '' !== $trimmed_label ) {
 	if ( $show_label ) {
 		$label_html = sprintf(
-			'<span class="aa-product-filters__trigger-label">%s</span>',
+			'<span class="aa-filter-toggle__label">%s</span>',
 			esc_html( $trimmed_label )
 		);
 	} else {
@@ -131,7 +130,7 @@ $sr_count_html = '<span class="screen-reader-text" data-wp-text="state.triggerCo
 
 // Visual count badge — purely decorative; the screen-reader span
 // above carries the real meaning to AT.
-$visual_count_html = '<span class="aa-product-filters__trigger-count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span>';
+$visual_count_html = '<span class="aa-filter-toggle__count" aria-hidden="true" data-wp-text="state.activeFilterCount" data-wp-bind--hidden="state.hasNoActiveFilters" hidden></span>';
 
 printf(
 	'<button %1$s>%2$s%3$s%4$s%5$s</button>',

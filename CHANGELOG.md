@@ -1,3 +1,10 @@
+# [1.123.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.122.0...v1.123.0) (2026-07-01)
+
+
+### Features
+
+* introduce lazy icon definition providers and enhance icon handling ([186a815](https://github.com/TheAggressive/Aggressive-Apparel/commit/186a81596b49fd9d15a8d602763a2955b0f4c1b5))
+
 # [1.122.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.121.0...v1.122.0) (2026-06-30)
 
 

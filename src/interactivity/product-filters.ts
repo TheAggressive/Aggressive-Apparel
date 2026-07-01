@@ -168,7 +168,6 @@ interface ProductFiltersState {
   readonly hideNoResults: boolean;
   readonly hideError: boolean;
   readonly hasSinglePage: boolean;
-  readonly isNotLoading: boolean;
   readonly activeFilterCount: number | string;
   readonly triggerCountLabel: string;
   readonly priceMinDisplay: string;
@@ -277,10 +276,6 @@ const { state, actions } = store<ProductFiltersStore>(
 
       get hasSinglePage(): boolean {
         return state.totalPages <= 1;
-      },
-
-      get isNotLoading(): boolean {
-        return !state.isLoading;
       },
 
       get activeFilterCount(): number | string {
@@ -603,6 +598,7 @@ const { state, actions } = store<ProductFiltersStore>(
         captureSortDropdown();
         setupDelegatedEvents();
         setupScrollbarAutoHide();
+        hideFilterPagination();
 
         // Pre-select current category on taxonomy pages.
         if (
@@ -987,11 +983,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       announceResults();
       renderPills();
 
-      // Hide numbered pagination when load-more is active.
-      if (!document.querySelector('.aa-load-more')) {
-        renderPagination();
-      }
-
+      renderPagination();
       renderHorizontalDropdowns();
 
       // Notify load-more store.
@@ -1238,9 +1230,35 @@ function renderPills(): void {
 }
 
 /**
+ * Hide numbered filter pagination when Load More / Infinite Scroll is active.
+ */
+function hideFilterPagination(): void {
+  if (!document.querySelector('.aa-product-filters .aa-load-more')) {
+    return;
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination-nav')
+    .forEach(nav => {
+      nav.hidden = true;
+    });
+
+  document
+    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination')
+    .forEach(container => {
+      container.innerHTML = '';
+    });
+}
+
+/**
  * Render pagination controls.
  */
 function renderPagination(): void {
+  if (document.querySelector('.aa-product-filters .aa-load-more')) {
+    hideFilterPagination();
+    return;
+  }
+
   const container = document.querySelector<HTMLElement>(
     '.aa-product-filters__pagination'
   );

@@ -192,6 +192,24 @@ export default [
       },
     },
   },
+  // Node-based build and maintenance tools.
+  {
+    files: ['bin/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        AbortSignal: 'readonly',
+        Buffer: 'readonly',
+        URL: 'readonly',
+        clearTimeout: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+  },
   // Test files configuration
   {
     files: [

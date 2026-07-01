@@ -425,7 +425,7 @@ class Product_Filters {
 
 		// Loading skeleton — overlays the grid only while a filtered request is
 		// in flight.
-		$output .= '<div class="aa-product-filters__skeleton" data-wp-bind--hidden="state.isNotLoading" aria-hidden="true">';
+		$output .= '<div class="aa-product-filters__skeleton" data-wp-bind--hidden="!state.isLoading" aria-hidden="true" hidden>';
 		for ( $i = 0; $i < 6; $i++ ) {
 			$output .= '<div class="aa-product-filters__skeleton-card" role="presentation"><div class="aa-product-filters__skeleton-image"></div><div class="aa-product-filters__skeleton-title"></div><div class="aa-product-filters__skeleton-price"></div></div>';
 		}
@@ -453,8 +453,9 @@ class Product_Filters {
 		$output .= '</button>';
 		$output .= '</div>';
 
-		// Pagination.
-		$output .= '<nav data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '">';
+		// Fallback pagination for filtered results. The frontend suppresses it only
+		// when this collection actually rendered a Load More control.
+		$output .= '<nav class="aa-product-filters__pagination-nav" data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '">';
 		$output .= '<div class="aa-product-filters__pagination">';
 		$output .= '</div></nav>';
 

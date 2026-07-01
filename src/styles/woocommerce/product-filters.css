@@ -907,6 +907,11 @@ button.aa-product-filters__color-swatch {
 
 /* ── Pagination ─────────────────────────────────────── */
 
+/* Load More / Infinite Scroll replaces numbered pagination. */
+.aa-product-filters__main:has(.aa-load-more) > .aa-product-filters__pagination-nav {
+	display: none;
+}
+
 .aa-product-filters__pagination {
 	display: flex;
 	justify-content: center;
@@ -1114,4 +1119,3 @@ button.aa-product-filters__color-swatch {
 		display: none;
 	}
 }
-

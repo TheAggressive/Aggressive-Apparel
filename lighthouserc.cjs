@@ -4,6 +4,7 @@ const baseUrl = (process.env.LHCI_BASE_URL || 'http://localhost:9910').replace(
   ''
 );
 const productUrl = process.env.LHCI_PRODUCT_URL || '';
+const chromeProfile = process.env.LHCI_CHROME_PROFILE || '';
 const isBudget = mode === 'budget';
 const isReport = mode === 'report';
 const aggregationMethod = isBudget ? 'median' : 'optimistic';
@@ -59,7 +60,13 @@ module.exports = {
       numberOfRuns: isBudget ? 3 : 1,
       url: urls,
       settings: {
-        chromeFlags: '--headless=new --disable-gpu',
+        chromeFlags: [
+          '--headless=new',
+          '--disable-gpu',
+          chromeProfile ? `--user-data-dir=${chromeProfile}` : '',
+        ]
+          .filter(Boolean)
+          .join(' '),
         maxWaitForLoad: 45000,
         onlyCategories: ['performance'],
         preset: 'desktop',

@@ -14,7 +14,6 @@
 .wp-block-aggressive-apparel-nav-submenu-dropdown {
   --submenu-bg: var(--aa-color-surface-elevated);
   --submenu-color: var(--aa-color-foreground);
-  --submenu-shadow: var(--aa-nav-shadow);
   --submenu-radius: var(--aa-nav-radius-lg);
   --submenu-padding: var(--wp--preset--spacing--4, 1rem);
   --submenu-transition: var(--aa-duration-fast) var(--aa-ease-default);
@@ -97,7 +96,6 @@
     background: var(--submenu-bg);
     color: var(--submenu-color);
     border-radius: var(--submenu-radius);
-    box-shadow: var(--submenu-shadow);
     clip-path: inset(0 0 100% 0);
     visibility: hidden;
     pointer-events: none;

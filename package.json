@@ -95,6 +95,11 @@
     "webpack-merge": "^6.0.1",
     "webpack-remove-empty-scripts": "^1.0.4"
   },
+  "pnpm": {
+    "overrides": {
+      "@lhci/cli>lighthouse": "13.4.0"
+    }
+  },
   "scripts": {
     "// 🧱 BLOCK DEVELOPMENT": "_",
     "create-block": "npx @wordpress/create-block@latest --no-plugin --namespace aggressive-apparel",
@@ -123,8 +128,8 @@
     "// 🔍 LINT SCRIPTS": "_",
     "lint:all": "pnpm run format:check && pnpm run lint:js && pnpm run typecheck && pnpm run lint:css && pnpm run lint:php",
     "lint:fix": "pnpm run format:fix && pnpm run lint:js:fix && pnpm run lint:css:fix && pnpm run lint:php:fix",
-    "lint:js": "eslint src/**/*.{js,jsx,ts,tsx} bin/**/*.mjs --max-warnings 0",
-    "lint:js:fix": "eslint src/**/*.{js,jsx,ts,tsx} bin/**/*.mjs --fix",
+    "lint:js": "eslint 'src/**/*.{js,jsx,ts,tsx}' 'bin/**/*.mjs' --max-warnings 0",
+    "lint:js:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' 'bin/**/*.mjs' --fix",
     "typecheck": "tsc --noEmit && tsc --project tsconfig.tools.json",
     "lint:css": "stylelint 'src/styles/**/*.css' 'src/blocks/**/style.css' 'src/blocks/**/editor.css' 'src/blocks-interactivity/**/style.css' 'src/blocks-interactivity/**/editor.css' && bash bin/check-design-system-css.sh",
     "lint:css:fix": "wp-scripts lint-style --fix",
@@ -151,11 +156,16 @@
     "analyse:php": "pnpm run phpstan",
     "analyse:php:baseline": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --generate-baseline --memory-limit=2G'",
     "phpstan": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --memory-limit=2G --verbose'",
+    "perf:setup": "node bin/setup-chrome-deps.mjs",
     "perf:quick": "node bin/run-performance.mjs quick",
     "perf:report": "node bin/run-performance.mjs report",
     "perf:budget": "node bin/run-performance.mjs budget",
+    "perf:auto:quick": "LHCI_ENSURE_SITE=1 node bin/run-performance.mjs quick",
+    "perf:auto:report": "LHCI_ENSURE_SITE=1 node bin/run-performance.mjs report",
+    "perf:auto:budget": "LHCI_ENSURE_SITE=1 node bin/run-performance.mjs budget",
+    "perf:auto": "pnpm run build && LHCI_ENSURE_SITE=1 node bin/run-performance.mjs budget",
     "perf": "pnpm run build && pnpm run perf:budget",
-    "preflight": "pnpm run qa && pnpm run build && pnpm run perf:budget",
+    "preflight": "pnpm run qa && pnpm run perf:auto",
     "// 🔧 WORDPRESS SCRIPTS": "_",
     "packages-update": "wp-scripts packages-update",
     "plugin-zip": "wp-scripts plugin-zip",

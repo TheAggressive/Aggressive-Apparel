@@ -1,3 +1,10 @@
+# [1.125.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.124.0...v1.125.0) (2026-07-01)
+
+
+### Features
+
+* add wrapped SVG rendering for icons and enhance icon handling ([8b24285](https://github.com/TheAggressive/Aggressive-Apparel/commit/8b24285077db7b62284f4c5d92f04446491187f4))
+
 # [1.124.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.123.0...v1.124.0) (2026-07-01)
 
 

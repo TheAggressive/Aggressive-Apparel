@@ -1,3 +1,10 @@
+## [1.125.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.125.0...v1.125.1) (2026-07-01)
+
+
+### Bug Fixes
+
+* restore mini-cart globally and refresh header navigation ([fff3c68](https://github.com/TheAggressive/Aggressive-Apparel/commit/fff3c68aef79159613ded214a22dbaabdcac0930))
+
 # [1.125.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.124.0...v1.125.0) (2026-07-01)
 
 

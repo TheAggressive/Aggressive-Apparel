@@ -6,7 +6,7 @@
   "title": "Ticker",
   "category": "widgets",
   "icon": "slides",
-  "description": "Infinite scrolling marquee for text, logos, or any content.",
+  "description": "Infinite scrolling marquee for text, logos, or any content. Add the Free Shipping Message block for live cart thresholds.",
   "supports": {
     "html": false,
     "interactivity": true,

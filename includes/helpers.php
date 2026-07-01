@@ -34,3 +34,12 @@ function aggressive_apparel_asset_uri( $path ) {
 function aggressive_apparel_asset_path( $path ) {
 	return AGGRESSIVE_APPAREL_DIR . '/' . ltrim( $path, '/' );
 }
+
+/**
+ * Auto-detect the lowest free-shipping threshold from WooCommerce shipping zones.
+ *
+ * @return float Threshold in store currency, or 0 when none configured.
+ */
+function aggressive_apparel_free_shipping_threshold(): float {
+	return \Aggressive_Apparel\WooCommerce\Free_Shipping::get_threshold();
+}

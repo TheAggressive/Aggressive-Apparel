@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/free-shipping-message",
+  "version": "1.0.0",
+  "title": "Free Shipping Message",
+  "category": "woocommerce",
+  "icon": "cart",
+  "description": "Live free-shipping amount message with optional prefix and suffix icons. Designed for the Ticker block.",
+  "keywords": ["shipping", "free", "ticker", "marquee", "message"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "color": {
+      "text": true,
+      "background": false
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "fontWeight": true,
+      "letterSpacing": true,
+      "textTransform": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {
+    "customThreshold": {
+      "type": "number",
+      "default": 0
+    },
+    "emphasisText": {
+      "type": "string",
+      "default": "FREE Shipping"
+    },
+    "prefixIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "suffixIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "iconSize": {
+      "type": "number",
+      "default": 24
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

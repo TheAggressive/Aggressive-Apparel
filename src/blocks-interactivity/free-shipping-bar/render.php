@@ -10,6 +10,10 @@
  * @package Aggressive_Apparel
  */
 
+declare(strict_types=1);
+
+use Aggressive_Apparel\WooCommerce\Free_Shipping;
+
 defined( 'ABSPATH' ) || exit;
 
 if ( ! function_exists( 'WC' ) || ! function_exists( 'wc_price' ) ) {
@@ -17,25 +21,34 @@ if ( ! function_exists( 'WC' ) || ! function_exists( 'wc_price' ) ) {
 }
 
 $custom_threshold = isset( $attributes['customThreshold'] ) ? (float) $attributes['customThreshold'] : 0.0;
-$threshold        = $custom_threshold > 0 ? $custom_threshold : aggressive_apparel_free_shipping_threshold();
+$progress         = Free_Shipping::get_cart_progress( $custom_threshold );
 
-if ( $threshold <= 0 ) {
+if ( null === $progress ) {
 	return;
 }
 
-$cart_total = ( function_exists( 'WC' ) && \WC()->cart ) ? (float) \WC()->cart->get_displayed_subtotal() : 0.0;
-$remaining  = max( 0.0, $threshold - $cart_total );
-$percent    = min( 100.0, ( $cart_total / $threshold ) * 100 );
-$complete   = $remaining <= 0;
+$threshold  = $progress['threshold'];
+$cart_total = $progress['cart_total'];
+$remaining  = $progress['remaining'];
+$percent    = $progress['percent'];
+$complete   = $progress['complete'];
+$message    = Free_Shipping::format_bar_message( $remaining, $complete );
+
+$currency_code   = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'USD';
+$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol( $currency_code ) : '$';
 
 $context = (string) wp_json_encode(
 	array(
-		'threshold' => $threshold,
-		'cartTotal' => $cart_total,
-		'percent'   => $percent,
-		'remaining' => $remaining,
-		'complete'  => $complete,
-		'restBase'  => esc_url_raw( rest_url( 'wc/store/v1' ) ),
+		'threshold'         => $threshold,
+		'cartTotal'         => $cart_total,
+		'percent'           => $percent,
+		'remaining'         => $remaining,
+		'complete'          => $complete,
+		'restBase'          => esc_url_raw( rest_url( 'wc/store/v1' ) ),
+		'currencyPrefix'    => $currency_symbol,
+		'currencySuffix'    => '',
+		'currencyMinorUnit' => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
+		'i18n'              => Free_Shipping::get_bar_message_i18n(),
 	)
 );
 
@@ -80,64 +93,6 @@ echo wp_kses(
 		></div>
 	</div>
 	<p class="aggressive-apparel-shipping-bar__message" data-wp-text="state.message">
-		<?php
-		if ( $complete ) {
-			echo esc_html__( "You've unlocked free shipping!", 'aggressive-apparel' );
-		} else {
-			printf(
-				/* translators: %s: formatted remaining amount for free shipping. */
-				esc_html__( "You're %s away from free shipping!", 'aggressive-apparel' ),
-				wp_kses_post( wc_price( $remaining ) ),
-			);
-		}
-		?>
+		<?php echo esc_html( $message ); ?>
 	</p>
 </div>
-<?php
-
-/**
- * Auto-detect the lowest free-shipping threshold from WooCommerce shipping zones.
- *
- * @return float Threshold in store currency, or 0 when none configured.
- */
-function aggressive_apparel_free_shipping_threshold(): float {
-	static $cached = null;
-	if ( null !== $cached ) {
-		return $cached;
-	}
-
-	$threshold = (float) apply_filters( 'aggressive_apparel_free_shipping_threshold', 0.0 );
-	if ( $threshold > 0 ) {
-		$cached = $threshold;
-		return $cached;
-	}
-
-	if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
-		$cached = 0.0;
-		return $cached;
-	}
-
-	$zones   = \WC_Shipping_Zones::get_zones();
-	$zones[] = array( 'zone_id' => 0 );
-	$min     = 0.0;
-
-	foreach ( $zones as $zone_data ) {
-		$zone    = new \WC_Shipping_Zone( $zone_data['zone_id'] );
-		$methods = $zone->get_shipping_methods( true );
-
-		foreach ( $methods as $method ) {
-			if ( 'free_shipping' === $method->id ) {
-				$requires = $method->get_option( 'requires', '' );
-				if ( in_array( $requires, array( 'min_amount', 'either', 'both' ), true ) ) {
-					$amount = (float) $method->get_option( 'min_amount', 0 );
-					if ( $amount > 0 && ( 0.0 === $min || $amount < $min ) ) {
-						$min = $amount;
-					}
-				}
-			}
-		}
-	}
-
-	$cached = $min;
-	return $cached;
-}

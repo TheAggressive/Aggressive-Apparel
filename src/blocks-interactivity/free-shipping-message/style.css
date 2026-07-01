@@ -1,0 +1,26 @@
+/**
+ * Free Shipping Message — front-end and editor styles.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aggressive-apparel-free-shipping-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  white-space: nowrap;
+  margin: 0;
+
+  &__text {
+    line-height: 1.2;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    color: currentcolor;
+    line-height: 0;
+  }
+}

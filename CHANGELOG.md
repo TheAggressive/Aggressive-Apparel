@@ -1,3 +1,11 @@
+# [1.124.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.123.0...v1.124.0) (2026-07-01)
+
+
+### Features
+
+* enhance free shipping functionality and interactivity ([23f76ff](https://github.com/TheAggressive/Aggressive-Apparel/commit/23f76ff1f153c6a58c8dfa7bc5291a6fb20d3f10))
+* enhance search block interactivity and navigation behavior ([89d796e](https://github.com/TheAggressive/Aggressive-Apparel/commit/89d796efcfcd7d8eb094cb6e1d9c4c87aa688771))
+
 # [1.123.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.122.0...v1.123.0) (2026-07-01)
 
 

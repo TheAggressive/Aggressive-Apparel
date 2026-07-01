@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Cache_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,6 +26,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.79.0
  */
 class WooCommerce_Block_Detector {
+
+	/**
+	 * Option key storing a global cache version for detector transients.
+	 *
+	 * @var string
+	 */
+	private const CACHE_VERSION_OPTION = 'aggressive_apparel_wc_block_detector_version';
+
+	/**
+	 * TTL for cached template, widget, and route detection results.
+	 *
+	 * @var int
+	 */
+	private const CACHE_TTL = DAY_IN_SECONDS;
 
 	/**
 	 * Cached parse results keyed by a hash of the content string.
@@ -40,6 +56,20 @@ class WooCommerce_Block_Detector {
 	private static array $resolving_refs = array();
 
 	/**
+	 * Memoized detect() result for the current request.
+	 *
+	 * @var bool|null
+	 */
+	private static ?bool $detect_result = null;
+
+	/**
+	 * Whether invalidation hooks have been registered.
+	 *
+	 * @var bool
+	 */
+	private static bool $hooks_registered = false;
+
+	/**
 	 * Whether WooCommerce frontend assets should load on this request.
 	 *
 	 * @return bool
@@ -48,6 +78,8 @@ class WooCommerce_Block_Detector {
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return false;
 		}
+
+		self::register_invalidation_hooks();
 
 		$detected = self::detect();
 
@@ -67,35 +99,48 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function detect(): bool {
+		if ( null !== self::$detect_result ) {
+			return self::$detect_result;
+		}
+
 		if ( self::is_wc_route() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( Product_Context::is_product_display_page() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( self::queried_content_has_woocommerce_blocks() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( self::resolved_template_has_woocommerce_blocks() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( self::theme_template_parts_have_woocommerce_blocks() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( self::widget_areas_have_woocommerce_blocks() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
 		if ( self::index_template_has_woocommerce_blocks() ) {
-			return true;
+			self::$detect_result = true;
+			return self::$detect_result;
 		}
 
-		return false;
+		self::$detect_result = false;
+
+		return self::$detect_result;
 	}
 
 	/**
@@ -222,13 +267,30 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function theme_template_parts_have_woocommerce_blocks(): bool {
-		foreach ( self::get_theme_template_part_slugs() as $slug ) {
-			if ( self::block_template_has_woocommerce_blocks( $slug, 'wp_template_part' ) ) {
-				return true;
-			}
-		}
+		$cache_key = sprintf(
+			'aa_wc_detector_parts_%d_%s',
+			self::get_cache_version(),
+			md5( get_stylesheet() . '|' . self::get_theme_parts_fingerprint() )
+		);
 
-		return false;
+		$cached = Cache_Helper::remember(
+			$cache_key,
+			self::CACHE_TTL,
+			static function (): int {
+				foreach ( self::get_theme_template_part_slugs() as $slug ) {
+					if ( self::block_template_has_woocommerce_blocks( $slug, 'wp_template_part' ) ) {
+						return 1;
+					}
+				}
+
+				return 0;
+			},
+			static function ( $value ): bool {
+				return is_int( $value );
+			}
+		);
+
+		return 1 === (int) $cached;
 	}
 
 	/**
@@ -237,43 +299,60 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function widget_areas_have_woocommerce_blocks(): bool {
-		$sidebars_widgets = wp_get_sidebars_widgets();
+		$cache_key = sprintf(
+			'aa_wc_detector_widgets_%d_%s',
+			self::get_cache_version(),
+			self::get_widgets_fingerprint()
+		);
 
-		if ( ! is_array( $sidebars_widgets ) ) {
-			return false;
-		}
+		$cached = Cache_Helper::remember(
+			$cache_key,
+			self::CACHE_TTL,
+			static function (): int {
+				$sidebars_widgets = wp_get_sidebars_widgets();
 
-		$block_widgets = get_option( 'widget_block', array() );
+				if ( ! is_array( $sidebars_widgets ) ) {
+					return 0;
+				}
 
-		if ( ! is_array( $block_widgets ) ) {
-			return false;
-		}
+				$block_widgets = get_option( 'widget_block', array() );
 
-		foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
-			if ( ! is_array( $widgets ) || 'wp_inactive_widgets' === $sidebar_id ) {
-				continue;
+				if ( ! is_array( $block_widgets ) ) {
+					return 0;
+				}
+
+				foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
+					if ( ! is_array( $widgets ) || 'wp_inactive_widgets' === $sidebar_id ) {
+						continue;
+					}
+
+					foreach ( $widgets as $widget_id ) {
+						if ( ! is_string( $widget_id ) || ! str_starts_with( $widget_id, 'block-' ) ) {
+							continue;
+						}
+
+						$instance_id = (int) substr( $widget_id, 6 );
+
+						if ( $instance_id <= 0 || ! isset( $block_widgets[ $instance_id ]['content'] ) ) {
+							continue;
+						}
+
+						$widget_content = $block_widgets[ $instance_id ]['content'];
+
+						if ( is_string( $widget_content ) && self::content_has_woocommerce_blocks( $widget_content ) ) {
+							return 1;
+						}
+					}
+				}
+
+				return 0;
+			},
+			static function ( $value ): bool {
+				return is_int( $value );
 			}
+		);
 
-			foreach ( $widgets as $widget_id ) {
-				if ( ! is_string( $widget_id ) || ! str_starts_with( $widget_id, 'block-' ) ) {
-					continue;
-				}
-
-				$instance_id = (int) substr( $widget_id, 6 );
-
-				if ( $instance_id <= 0 || ! isset( $block_widgets[ $instance_id ]['content'] ) ) {
-					continue;
-				}
-
-				$widget_content = $block_widgets[ $instance_id ]['content'];
-
-				if ( is_string( $widget_content ) && self::content_has_woocommerce_blocks( $widget_content ) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return 1 === (int) $cached;
 	}
 
 	/**
@@ -331,6 +410,36 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function block_template_has_woocommerce_blocks( string $slug, string $type ): bool {
+		$cache_key = sprintf(
+			'aa_wc_btpl_%d_%s_%s_%s',
+			self::get_cache_version(),
+			sanitize_key( $type ),
+			sanitize_key( $slug ),
+			self::get_block_template_source_fingerprint( $slug, $type )
+		);
+
+		$cached = Cache_Helper::remember(
+			$cache_key,
+			self::CACHE_TTL,
+			static function () use ( $slug, $type ): int {
+				return self::scan_block_template_for_woocommerce_blocks( $slug, $type ) ? 1 : 0;
+			},
+			static function ( $value ): bool {
+				return is_int( $value );
+			}
+		);
+
+		return 1 === (int) $cached;
+	}
+
+	/**
+	 * Scan a theme or customized template for WooCommerce blocks.
+	 *
+	 * @param string $slug Template slug without extension.
+	 * @param string $type `wp_template` or `wp_template_part`.
+	 * @return bool
+	 */
+	private static function scan_block_template_for_woocommerce_blocks( string $slug, string $type ): bool {
 		if ( function_exists( 'get_block_template' ) ) {
 			$template_id = get_stylesheet() . '//' . $slug;
 			$template    = 'wp_template_part' === $type
@@ -544,5 +653,171 @@ class WooCommerce_Block_Detector {
 		$block_name = $block['blockName'] ?? '';
 
 		return is_string( $block_name ) && str_starts_with( $block_name, 'woocommerce/' );
+	}
+
+	/**
+	 * Bump the detector cache version so persisted scan results are invalidated.
+	 *
+	 * @return void
+	 */
+	public static function bump_cache_version(): void {
+		$version = self::get_cache_version();
+		update_option( self::CACHE_VERSION_OPTION, $version + 1, false );
+		self::reset_runtime_state();
+	}
+
+	/**
+	 * Clear per-request memoization without touching persisted transients.
+	 *
+	 * @return void
+	 */
+	public static function reset_runtime_state(): void {
+		self::$detect_result      = null;
+		self::$content_scan_cache = array();
+		self::$resolving_refs     = array();
+	}
+
+	/**
+	 * Reset all detector caches. Intended for PHPUnit only.
+	 *
+	 * @return void
+	 */
+	public static function reset_caches_for_tests(): void {
+		self::reset_runtime_state();
+		self::$hooks_registered = false;
+		self::bump_cache_version();
+	}
+
+	/**
+	 * Register hooks that invalidate cached template and widget scans.
+	 *
+	 * @return void
+	 */
+	private static function register_invalidation_hooks(): void {
+		if ( self::$hooks_registered ) {
+			return;
+		}
+
+		self::$hooks_registered = true;
+
+		add_action( 'save_post_wp_template', array( self::class, 'handle_template_save' ) );
+		add_action( 'save_post_wp_template_part', array( self::class, 'handle_template_save' ) );
+		add_action( 'switch_theme', array( self::class, 'bump_cache_version' ) );
+		add_action( 'updated_option', array( self::class, 'handle_option_update' ), 10, 3 );
+	}
+
+	/**
+	 * Invalidate cached scans when a block template is saved.
+	 *
+	 * @param int $post_id Saved post ID.
+	 * @return void
+	 */
+	public static function handle_template_save( int $post_id ): void {
+		unset( $post_id );
+		self::bump_cache_version();
+	}
+
+	/**
+	 * Invalidate cached widget scans when sidebar widgets change.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Previous option value.
+	 * @param mixed  $value     New option value.
+	 * @return void
+	 */
+	public static function handle_option_update( string $option, $old_value, $value ): void {
+		unset( $old_value, $value );
+
+		if ( in_array( $option, array( 'widget_block', 'sidebars_widgets' ), true ) ) {
+			self::bump_cache_version();
+		}
+	}
+
+	/**
+	 * Return the persisted detector cache version.
+	 *
+	 * @return int
+	 */
+	private static function get_cache_version(): int {
+		return (int) get_option( self::CACHE_VERSION_OPTION, 1 );
+	}
+
+	/**
+	 * Build a fingerprint for all theme template part files.
+	 *
+	 * @return string
+	 */
+	private static function get_theme_parts_fingerprint(): string {
+		$parts = array();
+
+		foreach ( self::get_theme_template_part_slugs() as $slug ) {
+			$file_path = get_theme_file_path( 'parts/' . $slug . '.html' );
+
+			if ( ! is_readable( $file_path ) ) {
+				continue;
+			}
+
+			$parts[] = $slug . ':' . (string) filemtime( $file_path ) . ':' . (string) filesize( $file_path );
+		}
+
+		sort( $parts );
+
+		return md5( implode( '|', $parts ) );
+	}
+
+	/**
+	 * Build a fingerprint for block widget sidebars.
+	 *
+	 * @return string
+	 */
+	private static function get_widgets_fingerprint(): string {
+		$sidebars_widgets = wp_get_sidebars_widgets();
+		$block_widgets    = get_option( 'widget_block', array() );
+
+		$encoded_widgets = wp_json_encode(
+			array(
+				'sidebars' => $sidebars_widgets,
+				'widgets'  => is_array( $block_widgets ) ? $block_widgets : array(),
+			)
+		);
+
+		if ( false === $encoded_widgets ) {
+			return md5( '' );
+		}
+
+		return md5( $encoded_widgets );
+	}
+
+	/**
+	 * Build a fingerprint for a template source without scanning its blocks.
+	 *
+	 * @param string $slug Template slug without extension.
+	 * @param string $type `wp_template` or `wp_template_part`.
+	 * @return string
+	 */
+	private static function get_block_template_source_fingerprint( string $slug, string $type ): string {
+		if ( function_exists( 'get_block_template' ) ) {
+			$template_id = get_stylesheet() . '//' . $slug;
+			$template    = 'wp_template_part' === $type
+				? get_block_template( $template_id, 'wp_template_part' )
+				: get_block_template( $template_id, 'wp_template' );
+
+			if ( $template && ! empty( $template->content ) ) {
+				$modified = isset( $template->modified ) ? (string) $template->modified : '';
+
+				return md5( $modified . '|' . $template->content );
+			}
+		}
+
+		$relative_path = 'wp_template_part' === $type
+			? 'parts/' . $slug . '.html'
+			: 'templates/' . $slug . '.html';
+		$file_path     = get_theme_file_path( $relative_path );
+
+		if ( ! is_readable( $file_path ) ) {
+			return 'missing';
+		}
+
+		return md5( (string) filemtime( $file_path ) . '|' . (string) filesize( $file_path ) );
 	}
 }

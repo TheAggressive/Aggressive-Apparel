@@ -17,6 +17,7 @@
 declare(strict_types=1);
 
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
+use Aggressive_Apparel\WooCommerce\Wishlist;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,14 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if (
 	! class_exists( Feature_Settings::class ) ||
+	! class_exists( Wishlist::class ) ||
 	! Feature_Settings::is_enabled( 'wishlist' )
 ) {
 	return;
 }
 
-if ( function_exists( 'wp_enqueue_script_module' ) ) {
-	wp_enqueue_script_module( '@aggressive-apparel/wishlist' );
-}
+Wishlist::ensure_assets();
 
 // ── Attributes ────────────────────────────────────────────────────────────────
 

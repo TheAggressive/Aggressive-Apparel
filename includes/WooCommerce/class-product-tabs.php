@@ -85,7 +85,7 @@ class Product_Tabs {
 	 */
 	public function init(): void {
 		add_filter( 'woocommerce_product_tabs', array( $this, 'add_custom_tabs' ), 20 );
-		add_filter( 'render_block', array( $this, 'transform_product_details_block' ), 10, 3 );
+		add_filter( 'render_block_woocommerce/product-details', array( $this, 'transform_product_details_block' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		$this->init_admin_only();
 	}

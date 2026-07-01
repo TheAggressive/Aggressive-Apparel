@@ -38,7 +38,7 @@ class Load_More {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'replace_pagination' ), 20, 2 );
+		add_filter( 'render_block_core/query-pagination', array( $this, 'replace_pagination' ), 20, 2 );
 		add_action( 'wp_footer', array( $this, 'output_interactivity_state' ) );
 	}
 
@@ -48,6 +48,23 @@ class Load_More {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
+		if ( ! $this->request_needs_assets() ) {
+			return;
+		}
+
+		$this->ensure_assets();
+	}
+
+	/**
+	 * Enqueue the Load More assets once the feature is known to render.
+	 *
+	 * Kept separate from request detection so a dynamically rendered archive
+	 * template can recover even when it was not detectable during
+	 * `wp_enqueue_scripts`.
+	 *
+	 * @return void
+	 */
+	private function ensure_assets(): void {
 		Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-load-more',
 			'build/styles/woocommerce/load-more'
@@ -74,6 +91,8 @@ class Load_More {
 		if ( ! $this->is_shop_page() ) {
 			return $block_content;
 		}
+
+		$this->ensure_assets();
 
 		$mode = Feature_Settings::get_load_more_mode();
 
@@ -181,7 +200,28 @@ class Load_More {
 		// Shop, plus any product taxonomy archive — category, tag, brand and
 		// product-attribute (pa_*) archives all render a product grid.
 		return Product_Context::is_product_archive()
-			|| ( function_exists( 'is_product_taxonomy' ) && is_product_taxonomy() );
+			|| ( function_exists( 'is_product_taxonomy' ) && \is_product_taxonomy() );
+	}
+
+	/**
+	 * Whether this request is expected to render the Load More control.
+	 *
+	 * @return bool
+	 */
+	private function request_needs_assets(): bool {
+		$needed = ! is_admin() && $this->is_shop_page();
+
+		/**
+		 * Filters whether Load More frontend assets should load.
+		 *
+		 * Useful for custom product archive routes that intentionally reuse the
+		 * theme's archive pagination replacement.
+		 *
+		 * @since 1.80.0
+		 *
+		 * @param bool $needed Whether the current request needs the assets.
+		 */
+		return (bool) apply_filters( 'aggressive_apparel_load_more_needs_assets', $needed );
 	}
 
 	/**

@@ -51,7 +51,7 @@ class Frequently_Bought_Together {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_fbt_section' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/product-details', array( $this, 'inject_fbt_section' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'output_interactivity_state' ) );
 	}
 

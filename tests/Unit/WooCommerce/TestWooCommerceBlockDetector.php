@@ -21,6 +21,26 @@ use WP_UnitTestCase;
 class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 
 	/**
+	 * Reset detector caches between tests.
+	 *
+	 * @return void
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		WooCommerce_Block_Detector::reset_caches_for_tests();
+	}
+
+	/**
+	 * Clear detector caches after each test.
+	 *
+	 * @return void
+	 */
+	public function tearDown(): void {
+		WooCommerce_Block_Detector::reset_caches_for_tests();
+		parent::tearDown();
+	}
+
+	/**
 	 * Detect WooCommerce blocks from a direct block comment.
 	 */
 	public function test_content_detects_direct_woocommerce_block(): void {
@@ -89,9 +109,11 @@ class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Blog posts without WooCommerce blocks should not need assets.
+	 * Blog posts inherit WooCommerce assets when the header includes a mini-cart.
+	 *
+	 * @return void
 	 */
-	public function test_blog_post_without_woo_blocks_does_not_need_assets(): void {
+	public function test_blog_post_needs_assets_when_header_includes_mini_cart(): void {
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			$this->markTestSkipped( 'WooCommerce is not active.' );
 		}
@@ -105,7 +127,7 @@ class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 
 		$this->go_to( get_permalink( $post_id ) );
 
-		$this->assertFalse( WooCommerce_Block_Detector::request_needs_assets() );
+		$this->assertTrue( WooCommerce_Block_Detector::request_needs_assets() );
 	}
 
 	/**
@@ -186,7 +208,7 @@ class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 
 		$this->go_to( get_permalink( $post_id ) );
 
-		$this->assertFalse( WooCommerce_Block_Detector::request_needs_assets() );
+		$this->assertTrue( WooCommerce_Block_Detector::request_needs_assets() );
 
 		// The bailout is wired to render_block at priority 1.
 		$this->assertNotFalse( has_filter( 'render_block', array( $bailout, 'maybe_bailout' ) ) );
@@ -221,5 +243,68 @@ class TestWooCommerceBlockDetector extends WP_UnitTestCase {
 
 		$this->assertIsString( $content );
 		$this->assertTrue( WooCommerce_Block_Detector::content_has_woocommerce_blocks( $content ) );
+	}
+
+	/**
+	 * Persisted template scans should survive per-request memo resets.
+	 */
+	public function test_template_scan_uses_transient_cache(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'    => 'post',
+				'post_content' => '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->',
+			)
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$first_result = WooCommerce_Block_Detector::request_needs_assets();
+
+		$version = (int) get_option( 'aggressive_apparel_wc_block_detector_version', 1 );
+		$parts   = glob( get_theme_file_path( 'parts' ) . '/*.html' );
+		$this->assertIsArray( $parts );
+
+		$fingerprint_parts = array();
+		foreach ( $parts as $file ) {
+			if ( ! is_string( $file ) || ! is_readable( $file ) ) {
+				continue;
+			}
+
+			$slug = basename( $file, '.html' );
+			if ( '' !== $slug ) {
+				$fingerprint_parts[] = $slug . ':' . (string) filemtime( $file ) . ':' . (string) filesize( $file );
+			}
+		}
+
+		sort( $fingerprint_parts );
+
+		$cache_key = sprintf(
+			'aa_wc_detector_parts_%d_%s',
+			$version,
+			md5( get_stylesheet() . '|' . md5( implode( '|', $fingerprint_parts ) ) )
+		);
+
+		$this->assertNotFalse( get_transient( $cache_key ) );
+
+		WooCommerce_Block_Detector::reset_runtime_state();
+		$second_result = WooCommerce_Block_Detector::request_needs_assets();
+
+		$this->assertSame( $first_result, $second_result );
+		$this->assertNotFalse( get_transient( $cache_key ) );
+	}
+
+	/**
+	 * Saving templates should bump the detector cache version.
+	 */
+	public function test_bump_cache_version_increments_option(): void {
+		update_option( 'aggressive_apparel_wc_block_detector_version', 4, false );
+
+		WooCommerce_Block_Detector::bump_cache_version();
+
+		$this->assertSame( 5, (int) get_option( 'aggressive_apparel_wc_block_detector_version' ) );
 	}
 }

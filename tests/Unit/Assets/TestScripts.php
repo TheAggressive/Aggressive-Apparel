@@ -34,29 +34,32 @@ class TestScripts extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Core theme scripts should enqueue the main bundle.
+	 * The empty global theme bundle should not be registered or enqueued.
 	 */
-	public function test_scripts_enqueued(): void {
+	public function test_empty_global_script_is_not_enqueued(): void {
 		do_action( 'wp_enqueue_scripts' );
 
-		$this->assertTrue(
-			wp_script_is( Scripts::HANDLE, 'enqueued' ),
-			'Main script should be enqueued'
+		$this->assertFalse(
+			wp_script_is( 'aggressive-apparel-main', 'registered' ),
+			'Empty main script should not be registered'
 		);
 	}
 
 	/**
-	 * Global theme data should be localized on the main handle.
+	 * The extension hook should still fire without a global bundle.
 	 */
-	public function test_script_localization(): void {
+	public function test_after_enqueue_scripts_hook_still_fires(): void {
+		$did_fire = false;
+
+		add_action(
+			'aggressive_apparel_after_enqueue_scripts',
+			static function () use ( &$did_fire ): void {
+				$did_fire = true;
+			}
+		);
+
 		do_action( 'wp_enqueue_scripts' );
 
-		global $wp_scripts;
-
-		$script_data = $wp_scripts->get_data( Scripts::HANDLE, 'data' );
-
-		$this->assertNotEmpty( $script_data, 'Script should have localized data' );
-		$this->assertStringContainsString( 'aggressiveApparelData', $script_data, 'Should contain localized object name' );
-		$this->assertStringContainsString( 'restUrl', $script_data, 'Should expose the REST API URL' );
+		$this->assertTrue( $did_fire );
 	}
 }

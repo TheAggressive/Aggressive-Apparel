@@ -13,7 +13,7 @@ use Aggressive_Apparel\WooCommerce\Mini_Cart_A11y;
 use WP_UnitTestCase;
 
 /**
- * Verify mini-cart assets load only when the block is rendered.
+ * Verify the mini-cart accessibility script follows the rendered block.
  */
 class TestMiniCartA11y extends WP_UnitTestCase {
 
@@ -23,7 +23,19 @@ class TestMiniCartA11y extends WP_UnitTestCase {
 	private const SCRIPT_HANDLE = 'aggressive-apparel-mini-cart-a11y';
 
 	/**
-	 * Clean up the script queue between tests.
+	 * Clean up the asset queue between tests.
+	 *
+	 * @return void
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		wp_dequeue_script( self::SCRIPT_HANDLE );
+		wp_deregister_script( self::SCRIPT_HANDLE );
+	}
+
+	/**
+	 * Clean up the asset queue between tests.
 	 *
 	 * @return void
 	 */
@@ -35,36 +47,30 @@ class TestMiniCartA11y extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Unrelated blocks must not load the mini-cart bundle.
+	 * The integration should use a block-specific filter.
 	 *
 	 * @return void
 	 */
-	public function test_unrelated_blocks_do_not_enqueue_script(): void {
+	public function test_uses_block_specific_render_hook(): void {
 		$integration = new Mini_Cart_A11y();
+		$integration->init();
 
-		$integration->inject_drawer_inert(
-			'<p>Content</p>',
-			array( 'blockName' => 'core/paragraph' )
-		);
-
-		$this->assertFalse( wp_script_is( self::SCRIPT_HANDLE, 'enqueued' ) );
+		$this->assertNotFalse( has_filter( 'render_block_woocommerce/mini-cart', array( $integration, 'enqueue_script_for_block' ) ) );
+		$this->assertFalse( has_filter( 'render_block', array( $integration, 'enqueue_script_for_block' ) ) );
 	}
 
 	/**
-	 * Rendering a mini-cart should add inert and enqueue its footer bundle.
+	 * The header trigger must enqueue the script even when Woo portals the drawer.
 	 *
 	 * @return void
 	 */
-	public function test_rendered_mini_cart_enqueues_script(): void {
+	public function test_mini_cart_block_enqueues_script(): void {
 		$integration = new Mini_Cart_A11y();
-		$content     = '<div class="wc-block-mini-cart__drawer" aria-hidden="true"></div>';
+		$content     = '<div class="wc-block-mini-cart"><button class="wc-block-mini-cart__button">Cart</button></div>';
 
-		$result = $integration->inject_drawer_inert(
-			$content,
-			array( 'blockName' => 'woocommerce/mini-cart' )
-		);
+		$result = $integration->enqueue_script_for_block( $content );
 
-		$this->assertStringContainsString( ' inert', $result );
+		$this->assertSame( $content, $result );
 		$this->assertTrue( wp_script_is( self::SCRIPT_HANDLE, 'enqueued' ) );
 	}
 }

@@ -122,8 +122,6 @@ class Search {
 	public function init(): void {
 		add_action( 'rest_api_init', array( $this, 'register_route' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ), 5 );
-		add_filter( 'pre_render_block', array( $this, 'on_pre_render_block' ), 10, 2 );
-		add_filter( 'render_block', array( $this, 'on_render_block' ), 5, 2 );
 		add_action( 'aggressive_apparel_search_block_rendered', array( $this, 'mark_block_rendered' ) );
 		add_action( 'wp_footer', array( $this, 'render_modal_shell' ) );
 	}
@@ -136,43 +134,6 @@ class Search {
 	public function mark_block_rendered(): void {
 		$this->block_rendered = true;
 		$this->ensure_assets();
-	}
-
-	/**
-	 * Prepare assets before the block enqueues its viewScriptModule.
-	 *
-	 * @param string|null $pre_render Short-circuit return value.
-	 * @param array       $block      Parsed block data.
-	 * @return string|null Unchanged pre-render value.
-	 */
-	public function on_pre_render_block( $pre_render, array $block ) {
-		if ( self::BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
-			return $pre_render;
-		}
-
-		$this->mark_block_rendered();
-
-		return $pre_render;
-	}
-
-	/**
-	 * Detect the search block during render and prepare assets lazily.
-	 *
-	 * `has_block()` during wp_enqueue_scripts often misses blocks in FSE template
-	 * parts (header), so the modal shell and store state must be wired here.
-	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @param array  $block         Block data.
-	 * @return string Unmodified block HTML.
-	 */
-	public function on_render_block( string $block_content, array $block ): string {
-		if ( self::BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
-			return $block_content;
-		}
-
-		$this->mark_block_rendered();
-
-		return $block_content;
 	}
 
 	/**

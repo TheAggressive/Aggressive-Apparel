@@ -59,7 +59,7 @@ class Size_Option_Sorter {
 	 */
 	public function init(): void {
 		// Priority 20: after Color_Block_Swatch_Manager (priority 10).
-		add_filter( 'render_block', array( $this, 'sort_size_options_in_block' ), 20, 2 );
+		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'sort_size_options_in_block' ), 20, 2 );
 	}
 
 	/**

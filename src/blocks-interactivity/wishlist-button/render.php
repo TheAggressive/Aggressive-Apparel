@@ -46,6 +46,8 @@ if ( $product_id <= 0 ) {
 	return;
 }
 
+Wishlist::ensure_assets();
+
 // Mark the block as rendered so the legacy auto-injection on
 // single product pages can short-circuit and avoid duplicates.
 Wishlist::mark_button_block_rendered();

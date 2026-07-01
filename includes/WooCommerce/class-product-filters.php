@@ -95,7 +95,8 @@ class Product_Filters {
 		// Enqueuing happens later in ensure_assets() when we know we're on a shop page.
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_script_module' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_filter_ui' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/catalog-sorting', array( $this, 'inject_filter_ui' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/product-collection', array( $this, 'inject_filter_ui' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'render_drawer_shell' ) );
 		add_filter( 'body_class', array( $this, 'add_body_class' ) );
 

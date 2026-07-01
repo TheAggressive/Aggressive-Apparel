@@ -252,6 +252,27 @@ BLOCKS;
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
+		if ( ! $this->request_needs_assets() ) {
+			return;
+		}
+
+		self::ensure_assets();
+	}
+
+	/**
+	 * Ensure wishlist CSS, module, and shared state are available.
+	 *
+	 * This is public so dynamic block render callbacks and auto-injected product
+	 * card buttons can safely recover when a wishlist surface was not detectable
+	 * during `wp_enqueue_scripts`. WordPress de-duplicates repeated enqueues.
+	 *
+	 * @return void
+	 */
+	public static function ensure_assets(): void {
+		if ( is_admin() || ! Feature_Settings::is_enabled( 'wishlist' ) ) {
+			return;
+		}
+
 		if ( ! Asset_Loader::enqueue_feature_style( 'aggressive-apparel-wishlist', 'build/styles/woocommerce/wishlist' ) ) {
 			return;
 		}
@@ -270,6 +291,76 @@ BLOCKS;
 				),
 			);
 		}
+	}
+
+	/**
+	 * Whether the current request is expected to render a wishlist surface.
+	 *
+	 * Product routes cover automatic card/single-product buttons. Stored content
+	 * detection covers blocks, the legacy shortcode, and Product Collections on
+	 * otherwise ordinary pages. Render-time calls to ensure_assets() remain the
+	 * final fallback for template parts and other dynamic output.
+	 *
+	 * @return bool
+	 */
+	private function request_needs_assets(): bool {
+		$needed = false;
+
+		if ( ! is_admin() ) {
+			$needed = Product_Context::is_product_display_page()
+				|| $this->is_wishlist_page()
+				|| $this->queried_content_needs_assets();
+		}
+
+		/**
+		 * Filters whether wishlist frontend assets should load.
+		 *
+		 * @since 1.80.0
+		 *
+		 * @param bool $needed Whether the current request needs the assets.
+		 */
+		return (bool) apply_filters( 'aggressive_apparel_wishlist_needs_assets', $needed );
+	}
+
+	/**
+	 * Whether this is the configured wishlist page.
+	 *
+	 * @return bool
+	 */
+	private function is_wishlist_page(): bool {
+		$page_id = self::get_page_id();
+
+		return $page_id > 0 && is_page( $page_id );
+	}
+
+	/**
+	 * Check queried post content for known wishlist-producing surfaces.
+	 *
+	 * @return bool
+	 */
+	private function queried_content_needs_assets(): bool {
+		$post_id = get_queried_object_id();
+		if ( $post_id <= 0 && is_home() && ! is_front_page() ) {
+			$post_id = (int) get_option( 'page_for_posts' );
+		}
+
+		if ( $post_id <= 0 ) {
+			return false;
+		}
+
+		$content = get_post_field( 'post_content', $post_id );
+		if ( ! is_string( $content ) || '' === $content ) {
+			return false;
+		}
+
+		return str_contains( $content, '<!-- wp:aggressive-apparel/wishlist' )
+			|| str_contains( $content, '[aggressive_apparel_wishlist' )
+			|| str_contains( $content, '<!-- wp:woocommerce/product-collection' )
+			|| str_contains( $content, '<!-- wp:woocommerce/all-products' )
+			|| str_contains( $content, '<!-- wp:woocommerce/handpicked-products' )
+			|| str_contains( $content, '<!-- wp:woocommerce/product-new' )
+			|| str_contains( $content, '<!-- wp:woocommerce/product-best-sellers' )
+			|| str_contains( $content, '<!-- wp:woocommerce/product-on-sale' );
 	}
 
 	/**
@@ -384,6 +475,8 @@ BLOCKS;
 	 * @return string
 	 */
 	public function get_heart_button_html( int $product_id, bool $large = false, string $extra_classes = '' ): string {
+		self::ensure_assets();
+
 		$class = 'aggressive-apparel-wishlist__toggle';
 		if ( $large ) {
 			$class .= ' aggressive-apparel-wishlist__toggle--large';
@@ -413,6 +506,8 @@ BLOCKS;
 	 * @return string Shortcode HTML.
 	 */
 	public function render_wishlist_page(): string {
+		self::ensure_assets();
+
 		$context = (string) wp_json_encode(
 			array(
 				'loaded' => false,

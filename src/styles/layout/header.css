@@ -3,3 +3,31 @@
  *
  * @package Aggressive_Apparel
  */
+@media (width <= 1000px) {
+
+    /* 2. Give all items equal width so the logo stays perfectly centered */
+    .site-header > * {
+        flex: 1;
+    }
+
+    /* 3. Reorder: Cart (customer-links) to the far left */
+    .site-header__customer-links {
+        order: 1;
+        display: flex;
+        justify-content: flex-start !important;
+    }
+
+    /* 4. Reorder: Logo to the center */
+    .site-header__aggressive-logo {
+        order: 2;
+        display: flex;
+        justify-content: center !important;
+    }
+
+    /* 5. Reorder: Menu to the far right */
+    .site-header__main-nav {
+        order: 3;
+        display: flex;
+        justify-content: flex-end !important;
+    }
+}

@@ -32,7 +32,7 @@ class Swatch_Tooltips {
 	 */
 	public function init(): void {
 		// Inject tooltip data attributes into already-rendered swatch HTML.
-		add_filter( 'render_block', array( $this, 'add_tooltip_data' ), 15, 2 );
+		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'add_tooltip_data' ), 15, 2 );
 
 		// Admin: add extra fields to color term forms.
 		add_action( 'pa_color_add_form_fields', array( $this, 'add_term_fields' ) );

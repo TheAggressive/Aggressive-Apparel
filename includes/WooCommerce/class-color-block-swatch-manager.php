@@ -90,8 +90,7 @@ class Color_Block_Swatch_Manager {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		// Use render_block filter as the primary method for WooCommerce blocks.
-		add_filter( 'render_block', array( $this, 'inject_color_swatches_in_block' ), 10, 2 );
+		add_filter( 'render_block_' . Block_Pill_Helper::BLOCK_NAME, array( $this, 'inject_color_swatches_in_block' ), 10, 2 );
 	}
 
 	/**

@@ -99,7 +99,13 @@ class TestColorBlockSwatchManager extends WP_UnitTestCase {
 	 */
 	public function test_swatch_manager_initialization(): void {
 		$this->assertInstanceOf( Color_Block_Swatch_Manager::class, $this->swatch_manager );
-		$this->assertNotFalse( has_filter( 'render_block', array( $this->swatch_manager, 'inject_color_swatches_in_block' ) ) );
+		$this->assertNotFalse(
+			has_filter(
+				'render_block_' . Block_Pill_Helper::BLOCK_NAME,
+				array( $this->swatch_manager, 'inject_color_swatches_in_block' )
+			)
+		);
+		$this->assertFalse( has_filter( 'render_block', array( $this->swatch_manager, 'inject_color_swatches_in_block' ) ) );
 	}
 
 	/**

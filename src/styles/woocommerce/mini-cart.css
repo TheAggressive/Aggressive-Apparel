@@ -8,6 +8,14 @@
  * @since 1.17.0
  */
 
+/* Header mini-cart replaces the bottom-nav cart link on mobile. */
+@media (width < 1024px) {
+
+	body:has(.wp-block-woocommerce-mini-cart) .aa-bottom-nav__item--cart {
+		display: none;
+	}
+}
+
 .wc-block-components-drawer {
 	border-left: none;
 }
@@ -25,7 +33,6 @@
 	}
 
 	.wc-block-components-notice-banner {
-		display: flex;
 		align-items: flex-start;
 		gap: var(--wp--preset--spacing--3);
 		padding: var(--wp--preset--spacing--4);
@@ -35,7 +42,6 @@
 		background-color: var(--aa-color-info-bg);
 		border-left-color: var(--aa-color-info);
 		font-size: var(--wp--preset--font-size--small);
-		line-height: 1.5;
 
 		&.is-success {
 			background-color: var(--aa-color-success-bg);
@@ -57,7 +63,6 @@
 
 		/* Status icon */
 		> svg {
-			flex-shrink: 0;
 			width: 1.125rem;
 			height: 1.125rem;
 			margin-top: 0.125rem;
@@ -73,16 +78,9 @@
 
 		/* Dismiss × button */
 		&__dismiss {
-			flex-shrink: 0;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
 			width: 1.5rem;
 			height: 1.5rem;
-			padding: 0;
-			border: 0;
 			border-radius: var(--aa-radius-sm);
-			background: transparent;
 			color: var(--aa-color-foreground-muted);
 			cursor: pointer;
 			transition:
@@ -130,10 +128,6 @@
    Bounding box stays 1.5rem × 1.5rem at all times — no layout shift.
    WooCommerce injects colors inline so !important is required on bg/color. */
 .wc-block-mini-cart__badge {
-	position: absolute;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	min-width: 1.25rem !important;
 	width: 1.25rem;
 	height: 1.25rem;
@@ -461,7 +455,6 @@ border-top: none;
 
 	/* Quantity + remove row */
 	.wc-block-cart-item__quantity {
-		display: flex;
 		align-items: center;
 		gap: var(--wp--preset--spacing--3);
 		margin-top: var(--wp--preset--spacing--2);
@@ -480,21 +473,10 @@ border-top: none;
 	}
 
 	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__input {
-		order: 2;
 		width: 2.5rem;
 		padding: 0;
-		border: 0;
-		background: transparent;
-		text-align: center;
 		font-size: 0.8125rem;
 		font-weight: 600;
-		color: inherit;
-		appearance: textfield;
-
-		&::-webkit-inner-spin-button,
-		&::-webkit-outer-spin-button {
-			appearance: none;
-		}
 
 		&:focus-visible {
 			outline: none;
@@ -507,14 +489,9 @@ border-top: none;
 		align-items: center;
 		justify-content: center;
 		width: 2.75rem;
-		padding: 0;
-		border: 0;
 		border-radius: var(--aa-radius-full);
-		background: transparent;
-		color: inherit;
 		font-size: 0.875rem;
 		line-height: 1;
-		cursor: pointer;
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
 
 		&:hover,
@@ -528,20 +505,17 @@ border-top: none;
 
 		&:disabled {
 			opacity: 0.35;
-			cursor: default;
 		}
 	}
 
 	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--minus {
     border-bottom-left-radius: var(--aa-radius-full);
     border-top-left-radius: var(--aa-radius-full);
-		order: 1;
 	}
 
 	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--plus {
     border-bottom-right-radius: var(--aa-radius-full);
     border-top-right-radius: var(--aa-radius-full);
-		order: 3;
 	}
 
 	/* Remove button — SVG trash icon, styled as a small icon button. */
@@ -552,12 +526,8 @@ border-top: none;
 		flex-shrink: 0;
 		width: 2rem;
 		height: 2rem;
-		padding: 0;
-		border: 0;
 		border-radius: var(--aa-radius-sm);
-		background: transparent;
 		color: var(--aa-color-foreground-muted);
-		cursor: pointer;
 		transition:
 			background-color var(--aa-duration-fast) var(--aa-ease-default),
 			color var(--aa-duration-fast) var(--aa-ease-default);
@@ -576,12 +546,8 @@ border-top: none;
 
 	/* ── Line total column ── */
 	.wc-block-cart-item__total {
-		text-align: right;
 
 		.wc-block-cart-item__total-price-and-sale-badge-wrapper {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
 			gap: 0.25rem;
 		}
 

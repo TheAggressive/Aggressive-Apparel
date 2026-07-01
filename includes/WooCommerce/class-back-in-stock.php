@@ -64,7 +64,8 @@ class Back_In_Stock {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_filter( 'render_block', array( $this, 'inject_subscribe_form' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/add-to-cart-with-options', array( $this, 'inject_subscribe_form' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/product-button', array( $this, 'inject_subscribe_form' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'output_interactivity_state' ) );
 
 		// AJAX handlers.

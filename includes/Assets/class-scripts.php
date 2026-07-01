@@ -30,13 +30,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Scripts {
 
 	/**
-	 * Handle for the global theme script bundle.
-	 *
-	 * @var string
-	 */
-	public const HANDLE = 'aggressive-apparel-main';
-
-	/**
 	 * Initialize scripts.
 	 *
 	 * @return void
@@ -51,7 +44,7 @@ class Scripts {
 	 * @return void
 	 */
 	public function enqueue_scripts(): void {
-		$this->enqueue_core_scripts();
+		$this->enqueue_cursor();
 
 		/**
 		 * Fires after core theme scripts are enqueued.
@@ -59,22 +52,6 @@ class Scripts {
 		 * @since 1.0.0
 		 */
 		do_action( 'aggressive_apparel_after_enqueue_scripts' );
-	}
-
-	/**
-	 * Enqueue shared frontend scripts.
-	 *
-	 * @return void
-	 */
-	private function enqueue_core_scripts(): void {
-		Asset_Loader::enqueue_script(
-			self::HANDLE,
-			'build/scripts/main',
-			array( 'wp-dom-ready' )
-		);
-
-		$this->localize_theme_data( self::HANDLE );
-		$this->enqueue_cursor();
 	}
 
 	/**
@@ -100,24 +77,6 @@ class Scripts {
 			AGGRESSIVE_APPAREL_URI . '/build/interactivity/cursor.js',
 			array(),
 			AGGRESSIVE_APPAREL_VERSION,
-		);
-	}
-
-	/**
-	 * Attach global theme data to a script handle.
-	 *
-	 * @param string $handle Script handle.
-	 * @return void
-	 */
-	private function localize_theme_data( string $handle ): void {
-		wp_localize_script(
-			$handle,
-			'aggressiveApparelData',
-			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'aggressive_apparel_nonce' ),
-				'restUrl' => esc_url_raw( rest_url() ),
-			)
 		);
 	}
 }

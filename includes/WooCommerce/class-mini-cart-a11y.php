@@ -2,8 +2,8 @@
 /**
  * WooCommerce mini-cart drawer accessibility.
  *
- * Adds inert to the closed mini-cart drawer so aria-hidden subtrees cannot
- * receive focus (PageSpeed Agent Accessibility / WCAG).
+ * Loads the closed-drawer inert synchronizer only when the mini-cart block is
+ * rendered so aria-hidden subtrees cannot receive focus.
  *
  * @package Aggressive_Apparel
  * @since 1.16.0
@@ -38,41 +38,22 @@ class Mini_Cart_A11y {
 	 * @return void
 	 */
 	public function init(): void {
-		add_filter( 'render_block', array( $this, 'inject_drawer_inert' ), 10, 2 );
+		add_filter( 'render_block_woocommerce/mini-cart', array( $this, 'enqueue_script_for_block' ) );
 	}
 
 	/**
-	 * Add inert to the drawer in SSR HTML before Interactivity API hydrates.
+	 * Enqueue the accessibility script for a rendered mini-cart block.
 	 *
-	 * @param string               $content Rendered block HTML.
-	 * @param array<string, mixed> $block   Block data.
-	 * @return string
+	 * WooCommerce portals the drawer separately from the header trigger, so the
+	 * client script observes that portal and synchronizes inert after it appears.
+	 *
+	 * @param string $content Rendered mini-cart block HTML.
+	 * @return string Unmodified block HTML.
 	 */
-	public function inject_drawer_inert( string $content, array $block ): string {
-		if ( 'woocommerce/mini-cart' !== ( $block['blockName'] ?? '' ) ) {
-			return $content;
-		}
-
-		if ( false === strpos( $content, 'wc-block-mini-cart__drawer' ) ) {
-			return $content;
-		}
-
-		// The bundle is footer-based, so it can be enqueued when the block is
-		// actually rendered instead of loading on every WooCommerce page.
+	public function enqueue_script_for_block( string $content ): string {
 		$this->enqueue_script();
 
-		if ( preg_match( '/\bwc-block-mini-cart__drawer\b[^>]*\binert\b/', $content ) ) {
-			return $content;
-		}
-
-		$updated = preg_replace(
-			'/(<div\b(?=[^>]*\bwc-block-mini-cart__drawer\b)(?![^>]*\binert\b)[^>]*)(>)/',
-			'$1 inert$2',
-			$content,
-			1
-		);
-
-		return is_string( $updated ) ? $updated : $content;
+		return $content;
 	}
 
 	/**

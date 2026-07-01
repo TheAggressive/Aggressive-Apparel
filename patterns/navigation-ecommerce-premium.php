@@ -62,4 +62,5 @@ declare(strict_types=1);
 <!-- /wp:aggressive-apparel/nav-submenu-dropdown -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Blog","url":"/blog"} /-->
 <!-- wp:aggressive-apparel/nav-link {"label":"Contact","url":"/contact"} /-->
+<!-- wp:aggressive-apparel/navigation-trigger {"panelSlug":"mobile-nav","iconStyle":"hamburger","animationType":"spin"} /-->
 <!-- /wp:aggressive-apparel/navigation -->

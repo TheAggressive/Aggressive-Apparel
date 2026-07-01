@@ -6,7 +6,8 @@
  *
  *  - Registers a public REST endpoint that searches products, posts and pages
  *    in a single request and returns grouped, type-aware results.
- *  - Registers / enqueues the shared Interactivity modules + the search store.
+ *  - Registers shared overlay modules and seeds store state when the search
+ *    block is on the page (the store JS loads via viewScriptModule).
  *  - Renders the modal shell once in wp_footer (portaled out of the header so
  *    position: fixed escapes any sticky-header transform/stacking context).
  *
@@ -19,8 +20,6 @@
 declare( strict_types=1 );
 
 namespace Aggressive_Apparel\Core;
-
-use Aggressive_Apparel\Assets\Asset_Loader;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -51,6 +50,29 @@ class Search {
 	public const STORE = 'aggressive-apparel/search';
 
 	/**
+	 * Modal shell element id (must match nav-shared overlay-coordination).
+	 *
+	 * @var string
+	 */
+	private const MODAL_ID = 'aa-search-modal';
+
+	/**
+	 * Attribute marking the search modal as an overlay above the nav panel.
+	 *
+	 * Must match nav-shared/overlay-coordination YIELDS_NAV_FOCUS_ATTR.
+	 *
+	 * @var string
+	 */
+	private const YIELDS_NAV_FOCUS_ATTR = 'data-aa-yields-nav-focus';
+
+	/**
+	 * Block name for the search trigger.
+	 *
+	 * @var string
+	 */
+	private const BLOCK_NAME = 'aggressive-apparel/search';
+
+	/**
 	 * Results returned per content type.
 	 *
 	 * @var int
@@ -79,6 +101,20 @@ class Search {
 	private bool $shell_rendered = false;
 
 	/**
+	 * Whether the search trigger block has rendered this request.
+	 *
+	 * @var bool
+	 */
+	private bool $block_rendered = false;
+
+	/**
+	 * Whether shared modules, state, and styles are prepared.
+	 *
+	 * @var bool
+	 */
+	private bool $assets_prepared = false;
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
@@ -86,7 +122,57 @@ class Search {
 	public function init(): void {
 		add_action( 'rest_api_init', array( $this, 'register_route' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ), 5 );
+		add_filter( 'pre_render_block', array( $this, 'on_pre_render_block' ), 10, 2 );
+		add_filter( 'render_block', array( $this, 'on_render_block' ), 5, 2 );
+		add_action( 'aggressive_apparel_search_block_rendered', array( $this, 'mark_block_rendered' ) );
 		add_action( 'wp_footer', array( $this, 'render_modal_shell' ) );
+	}
+
+	/**
+	 * Mark the search block as present once its render callback runs.
+	 *
+	 * @return void
+	 */
+	public function mark_block_rendered(): void {
+		$this->block_rendered = true;
+		$this->ensure_assets();
+	}
+
+	/**
+	 * Prepare assets before the block enqueues its viewScriptModule.
+	 *
+	 * @param string|null $pre_render Short-circuit return value.
+	 * @param array       $block      Parsed block data.
+	 * @return string|null Unchanged pre-render value.
+	 */
+	public function on_pre_render_block( $pre_render, array $block ) {
+		if ( self::BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
+			return $pre_render;
+		}
+
+		$this->mark_block_rendered();
+
+		return $pre_render;
+	}
+
+	/**
+	 * Detect the search block during render and prepare assets lazily.
+	 *
+	 * `has_block()` during wp_enqueue_scripts often misses blocks in FSE template
+	 * parts (header), so the modal shell and store state must be wired here.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @param array  $block         Block data.
+	 * @return string Unmodified block HTML.
+	 */
+	public function on_render_block( string $block_content, array $block ): string {
+		if ( self::BLOCK_NAME !== ( $block['blockName'] ?? '' ) ) {
+			return $block_content;
+		}
+
+		$this->mark_block_rendered();
+
+		return $block_content;
 	}
 
 	/**
@@ -397,32 +483,41 @@ class Search {
 	}
 
 	/**
-	 * Register shared Interactivity modules + the search store, then enqueue
-	 * the store and the block style. Runs on every front-end page (the trigger
-	 * lives in the global header).
+	 * Early asset prep when the block is discoverable before render.
 	 *
 	 * @return void
 	 */
 	public function register_assets(): void {
-		if ( ! $this->should_load() || ! function_exists( 'wp_register_script_module' ) ) {
+		if ( is_admin() || ! $this->is_block_on_page() ) {
 			return;
 		}
 
-		// Register the shared modules the store depends on. wp_register_script_module
-		// is a no-op if a module id is already registered (e.g. by the WooCommerce
-		// Enhancements coordinator), so this is safe to call unconditionally and
-		// guarantees the import map is complete even when WooCommerce is inactive.
+		$this->ensure_assets();
+	}
+
+	/**
+	 * Register shared overlay modules, seed store state, and enqueue block styles.
+	 *
+	 * Idempotent — safe from wp_enqueue_scripts and render_block.
+	 *
+	 * @return void
+	 */
+	private function ensure_assets(): void {
+		if ( $this->assets_prepared || ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+		$this->assets_prepared = true;
+
+		// Register shared modules the block view depends on via import map.
+		// wp_register_script_module is a no-op when already registered (e.g. by
+		// Enhancements), so this is safe when WooCommerce is active.
 		$this->register_shared_modules();
 
-		Asset_Loader::enqueue_interactivity_module(
-			self::STORE . '-store',
-			'build/interactivity/search-store',
-			array(
-				'@aggressive-apparel/scroll-lock',
-				'@aggressive-apparel/helpers',
-				'@aggressive-apparel/use-overlay',
-			)
-		);
+		// The block view imports @aggressive-apparel/use-overlay (external). Enqueue
+		// the overlay chain so the import map is complete before view.js loads.
+		if ( function_exists( 'wp_enqueue_script_module' ) ) {
+			wp_enqueue_script_module( '@aggressive-apparel/use-overlay' );
+		}
 
 		// Seed REST + i18n state for the store before hydration.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
@@ -548,22 +643,23 @@ class Search {
 		printf(
 			'<div
 				class="aa-search"
-				id="aa-search-modal"
+				id="%1$s"
 				hidden
-				data-wp-interactive="%1$s"
+				%2$s
+				data-wp-interactive="%3$s"
 				data-wp-class--is-open="state.isOpen"
 				data-wp-on-document--keydown="actions.handleKeydown"
 			>
 				<div class="aa-search__overlay" data-wp-on--click="actions.close" aria-hidden="true"></div>
-				<div class="aa-search__dialog" role="dialog" aria-modal="true" aria-label="%2$s">
+				<div class="aa-search__dialog" role="dialog" aria-modal="true" aria-label="%4$s">
 					<div class="aa-search__bar">
 						<div class="aa-search__field" data-wp-class--is-filled="state.hasQuery">
-							<span class="aa-search__field-icon" aria-hidden="true">%3$s</span>
+							<span class="aa-search__field-icon" aria-hidden="true">%5$s</span>
 							<input
 								type="search"
 								class="aa-search__input"
-								placeholder="%4$s"
-								aria-label="%4$s"
+								placeholder="%6$s"
+								aria-label="%6$s"
 								autocomplete="off"
 								spellcheck="false"
 								enterkeyhint="search"
@@ -573,28 +669,30 @@ class Search {
 								data-wp-bind--aria-expanded="state.hasResults"
 								data-wp-on--input="actions.handleInput"
 							/>
-							<button type="button" class="aa-search__clear" aria-label="%5$s" hidden data-wp-bind--hidden="!state.hasQuery" data-wp-on--click="actions.clear">%6$s</button>
+							<button type="button" class="aa-search__clear" aria-label="%7$s" hidden data-wp-bind--hidden="!state.hasQuery" data-wp-on--click="actions.clear">%8$s</button>
 						</div>
-						<button type="button" class="aa-search__close" aria-label="%7$s" data-wp-on--click="actions.close">%8$s</button>
+						<button type="button" class="aa-search__close" aria-label="%9$s" data-wp-on--click="actions.close">%10$s</button>
 					</div>
-					<div class="aa-search__tabs" role="tablist" aria-label="%9$s">%10$s</div>
+					<div class="aa-search__tabs" role="tablist" aria-label="%11$s">%12$s</div>
 					<div class="aa-search__body">
-						<p class="aa-search__hint" data-wp-bind--hidden="state.hideHint">%11$s</p>
-						<p class="aa-search__loading" hidden data-wp-bind--hidden="!state.isLoading" aria-hidden="true">%12$s</p>
-						<p class="aa-search__empty" hidden data-wp-bind--hidden="!state.showEmpty" role="status">%13$s</p>
-						<div id="aa-search-results" class="aa-search__results" role="listbox" aria-label="%14$s" data-wp-watch="callbacks.renderResults"></div>
+						<p class="aa-search__hint" data-wp-bind--hidden="state.hideHint">%13$s</p>
+						<p class="aa-search__loading" hidden data-wp-bind--hidden="!state.isLoading" aria-hidden="true">%14$s</p>
+						<p class="aa-search__empty" hidden data-wp-bind--hidden="!state.showEmpty" role="status">%15$s</p>
+						<div id="aa-search-results" class="aa-search__results" role="listbox" aria-label="%16$s" data-wp-watch="callbacks.renderResults"></div>
 					</div>
 					<div class="aa-search__footer">
-						<a class="aa-search__view-all" hidden data-wp-bind--hidden="!state.hasResults" data-wp-bind--href="state.viewAllUrl">%15$s %16$s</a>
+						<a class="aa-search__view-all" hidden data-wp-bind--hidden="!state.hasResults" data-wp-bind--href="state.viewAllUrl">%17$s %18$s</a>
 						<div class="aa-search__hints" aria-hidden="true">
-							<span class="aa-search__hint-item"><kbd>&uarr;</kbd><kbd>&darr;</kbd> %17$s</span>
-							<span class="aa-search__hint-item"><kbd>&crarr;</kbd> %18$s</span>
-							<span class="aa-search__hint-item"><kbd>esc</kbd> %19$s</span>
+							<span class="aa-search__hint-item"><kbd>&uarr;</kbd><kbd>&darr;</kbd> %19$s</span>
+							<span class="aa-search__hint-item"><kbd>&crarr;</kbd> %20$s</span>
+							<span class="aa-search__hint-item"><kbd>esc</kbd> %21$s</span>
 						</div>
 					</div>
 				</div>
 				<div class="screen-reader-text" aria-live="polite" data-wp-text="state.announcement"></div>
 			</div>',
+			esc_attr( self::MODAL_ID ),
+			esc_attr( self::YIELDS_NAV_FOCUS_ATTR ),
 			esc_attr( self::STORE ),
 			esc_attr__( 'Search', 'aggressive-apparel' ),
 			$icon_search,
@@ -622,8 +720,8 @@ class Search {
 	 * Whether the search assets + modal shell should load on this request.
 	 *
 	 * Front end only. The search trigger normally lives in the global header, so
-	 * this loads site-wide by default; the filter lets a site disable it on
-	 * specific requests (e.g. landing pages) where the block isn't used.
+	 * Requires the search block on the page; the filter can force-disable on
+	 * specific requests.
 	 *
 	 * @return bool
 	 */
@@ -632,7 +730,24 @@ class Search {
 			return false;
 		}
 
+		if ( ! $this->block_rendered && ! $this->is_block_on_page() ) {
+			return false;
+		}
+
 		return (bool) apply_filters( 'aggressive_apparel_load_search_assets', true );
+	}
+
+	/**
+	 * Whether the search trigger block is present in the current template.
+	 *
+	 * @return bool
+	 */
+	private function is_block_on_page(): bool {
+		if ( ! function_exists( 'has_block' ) ) {
+			return false;
+		}
+
+		return has_block( self::BLOCK_NAME );
 	}
 
 	/**

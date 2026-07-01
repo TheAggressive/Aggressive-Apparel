@@ -297,6 +297,8 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 			. '.aa-nav__panel-overlay{position:fixed;inset:0;opacity:0;pointer-events:none;z-index:99999;'
 			. 'transition:opacity .35s cubic-bezier(.22,1,.36,1)}'
 			. '.aa-nav-panel__portal.is-open .aa-nav__panel-overlay{opacity:1;pointer-events:auto}'
+			. 'body.has-search-modal-open .aa-nav__panel-overlay,'
+			. 'body.has-search-modal-open .aa-nav__panel.is-open{pointer-events:none!important}'
 			. '@media(prefers-reduced-motion:reduce){.aa-nav__panel{transition:none}.aa-nav__panel-overlay{transition:none}}'
 			. '</style>';
 

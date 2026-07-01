@@ -130,7 +130,10 @@ class Product_Tabs {
 	}
 
 	/**
-	 * Enqueue styles and Interactivity API script module on single product pages.
+	 * Enqueue legacy product-tabs stylesheet on single product pages.
+	 *
+	 * Interactivity state and the view module are owned by the
+	 * aggressive-apparel/product-tabs block (viewScriptModule + render.php).
 	 *
 	 * @return void
 	 */
@@ -143,26 +146,6 @@ class Product_Tabs {
 			'aggressive-apparel-product-tabs',
 			'build/styles/woocommerce/product-tabs'
 		);
-
-		$style = $this->get_display_style();
-
-		if ( 'inline' !== $style ) {
-			Asset_Loader::enqueue_interactivity_module(
-				'@aggressive-apparel/product-tabs',
-				'build/interactivity/product-tabs'
-			);
-		}
-
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			wp_interactivity_state(
-				'aggressive-apparel/product-tabs',
-				array(
-					'style'         => $style,
-					'activeTab'     => 0,
-					'activeSection' => '',
-				),
-			);
-		}
 	}
 
 	/**

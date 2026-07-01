@@ -53,8 +53,9 @@
 	max-height: 100dvh;
 
 	/* Above the mobile navigation panel (--aa-z-nav-panel) so opening search
-	 * while the menu is open brings it to the front. */
-	z-index: var(--aa-z-search-modal);
+	 * while the menu is open brings it to the front. !important beats the nav
+	 * panel critical CSS injected in wp_footer. */
+	z-index: var(--aa-z-search-modal, 100001) !important; /* stylelint-disable-line declaration-no-important */
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
@@ -87,14 +88,15 @@
 .aa-search__overlay {
 	position: absolute;
 	inset: 0;
+	z-index: 0;
 	cursor: pointer;
+	pointer-events: auto;
 }
 
-/* -----------------------------------------------------------------------------
- * Dialog
- * -------------------------------------------------------------------------- */
 .aa-search__dialog {
 	position: relative;
+	z-index: 1;
+	pointer-events: auto;
 	display: flex;
 	flex-direction: column;
 

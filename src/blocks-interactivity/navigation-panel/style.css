@@ -235,6 +235,13 @@ body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
   pointer-events: auto;
 }
 
+/* When search is open (see nav-shared/overlay-coordination SEARCH_OPEN_BODY_CLASS),
+ * the nav stays mounted but must not intercept taps. */
+body.has-search-modal-open .aa-nav__panel-overlay,
+body.has-search-modal-open .aa-nav__panel.is-open {
+  pointer-events: none !important; /* stylelint-disable-line declaration-no-important */
+}
+
 /* ========================================
  * PANEL CONTENT
  * ======================================== */

@@ -27,6 +27,8 @@ import {
   watchMaxWidth,
 } from '../nav-shared/dom';
 
+import { isWithinOverlayThatYieldsNavFocus } from '../nav-shared/overlay-coordination';
+
 // Re-export the shared DOM/logging helpers so existing `from './utils'` imports
 // across this subsystem keep resolving unchanged.
 export {
@@ -160,6 +162,11 @@ export function setupFocusTrap(container: HTMLElement): () => void {
       return;
     }
 
+    const active = document.activeElement as HTMLElement | null;
+    if (active && isWithinOverlayThatYieldsNavFocus(active)) {
+      return;
+    }
+
     const focusable = getFocusableElements(container);
 
     if (focusable.length === 0) {
@@ -167,7 +174,6 @@ export function setupFocusTrap(container: HTMLElement): () => void {
       return;
     }
 
-    const active = document.activeElement as HTMLElement | null;
     const currentIndex = active ? focusable.indexOf(active) : -1;
 
     let nextIndex: number;
@@ -188,6 +194,10 @@ export function setupFocusTrap(container: HTMLElement): () => void {
   const handleFocusin = (e: FocusEvent) => {
     const target = e.target as HTMLElement;
     if (!container.contains(target)) {
+      if (isWithinOverlayThatYieldsNavFocus(target)) {
+        return;
+      }
+
       const focusable = getFocusableElements(container);
       if (focusable.length > 0) {
         focusable[0].focus({ preventScroll: true });

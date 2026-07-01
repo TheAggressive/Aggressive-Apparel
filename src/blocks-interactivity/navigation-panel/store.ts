@@ -60,10 +60,6 @@ function getPanelState(panelSlug: string): PanelState {
   return panels[panelSlug];
 }
 
-// ============================================================================
-// Store Definition
-// ============================================================================
-
 const panelStore = store('aggressive-apparel/navigation-panel', {
   state: {
     get isOpen() {

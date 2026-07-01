@@ -5,7 +5,8 @@
  * Outputs the search trigger button (a search icon). Clicking it opens the
  * full-screen search modal, which is rendered once in wp_footer by
  * Aggressive_Apparel\Core\Search (portal pattern) and shares the
- * aggressive-apparel/search Interactivity store with this trigger.
+ * aggressive-apparel/search Interactivity store with this trigger via
+ * viewScriptModule.
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  *
@@ -17,6 +18,14 @@
 use Aggressive_Apparel\Core\Icons;
 
 defined( 'ABSPATH' ) || exit;
+
+/**
+ * Fires when the search trigger block render callback runs.
+ *
+ * Ensures modal shell + store state load even when has_block() misses FSE
+ * template parts during wp_enqueue_scripts.
+ */
+do_action( 'aggressive_apparel_search_block_rendered' );
 
 $label      = isset( $attributes['label'] ) ? sanitize_text_field( (string) $attributes['label'] ) : __( 'Search', 'aggressive-apparel' );
 $show_label = ! empty( $attributes['showLabel'] );

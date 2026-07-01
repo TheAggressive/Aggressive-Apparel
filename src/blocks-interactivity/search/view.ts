@@ -1,13 +1,12 @@
 /**
- * Site Search — Interactivity API Store.
+ * Search Block — Interactivity API Store.
  *
  * Drives the full-screen search modal: a debounced REST search across products,
  * articles and pages, scope tabs, keyboard navigation, and an imperative,
- * type-aware result renderer. Shared by the trigger button (header) and the
- * portaled modal (wp_footer) via global store state.
+ * type-aware result renderer. Shared by the trigger button and the portaled
+ * modal (wp_footer) via global store state.
  *
  * @package Aggressive_Apparel
- * @since 1.104.0
  */
 
 import { store, getElement, withScope } from '@wordpress/interactivity';
@@ -16,6 +15,10 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
+import {
+  SEARCH_MODAL_ID,
+  SEARCH_OPEN_BODY_CLASS,
+} from '../nav-shared/overlay-coordination';
 
 interface SearchResultItem {
   id: number;
@@ -67,8 +70,9 @@ interface SearchStore {
   callbacks: Record<string, (...args: never[]) => unknown>;
 }
 
-const MODAL_ID = 'aa-search-modal';
+const MODAL_ID = SEARCH_MODAL_ID;
 const RESULTS_ID = 'aa-search-results';
+const BODY_OPEN_CLASS = SEARCH_OPEN_BODY_CLASS;
 const DEBOUNCE_MS = 300;
 const MIN_CHARS = 2;
 
@@ -116,6 +120,15 @@ function getInput(): HTMLInputElement | null {
   return (
     getModal()?.querySelector<HTMLInputElement>('.aa-search__input') ?? null
   );
+}
+
+/** Move focus into the search field after the shell is painted and interactive. */
+function focusSearchInput(): void {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      getInput()?.focus({ preventScroll: true });
+    });
+  });
 }
 
 function getOptions(): HTMLElement[] {
@@ -281,6 +294,8 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       triggerElement = (ref as HTMLElement) ?? null;
 
       prepareOverlayOpen(modal, { manageOpenClass: false });
+      modal.classList.add('is-open');
+      document.body.classList.add(BODY_OPEN_CLASS);
       state.isOpen = true;
 
       focusTrapCleanup = activateOverlayFocus({
@@ -288,6 +303,8 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
         panel: dialog,
         focusSelector: '.aa-search__input',
       });
+
+      focusSearchInput();
 
       startTypewriter();
     },
@@ -299,6 +316,8 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
 
       stopTypewriter();
       state.isOpen = false;
+      modal.classList.remove('is-open');
+      document.body.classList.remove(BODY_OPEN_CLASS);
 
       closeOverlay({
         shell: modal,
@@ -307,6 +326,10 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
         triggerElement,
         manageOpenClass: false,
         isStillOpen: () => state.isOpen,
+        onFinish: () => {
+          document.body.classList.remove(BODY_OPEN_CLASS);
+          modal.classList.remove('is-open');
+        },
       });
       focusTrapCleanup = null;
     },

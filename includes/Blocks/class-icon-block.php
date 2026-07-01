@@ -129,6 +129,57 @@ class Icon_Block {
 	}
 
 	/**
+	 * Render icon SVG inside a sized wrapper span.
+	 *
+	 * Shared by blocks that embed icons beside text (ticker label, free-shipping, etc.).
+	 *
+	 * @param string               $slug Icon slug.
+	 * @param mixed                $size Icon size in pixels (clamped).
+	 * @param array<string, mixed> $args {
+	 *     Optional wrapper arguments.
+	 *
+	 *     @type string $class       Additional wrapper classes.
+	 *     @type bool   $aria_hidden Whether to add aria-hidden. Default true.
+	 * }
+	 * @return string Wrapper HTML, or empty string if the icon does not exist.
+	 */
+	public static function render_wrapped_svg( string $slug, mixed $size, array $args = array() ): string {
+		$svg = self::render_svg( $slug, $size );
+
+		if ( '' === $svg ) {
+			return '';
+		}
+
+		$args = wp_parse_args(
+			$args,
+			array(
+				'class'       => '',
+				'aria_hidden' => true,
+			)
+		);
+
+		$size    = self::sanitize_size( $size );
+		$classes = trim( 'aggressive-apparel-icon__svg-wrap ' . (string) $args['class'] );
+		$style   = sprintf( 'width:%1$dpx;height:%1$dpx;', $size );
+
+		$attributes = sprintf(
+			'class="%1$s" style="%2$s"',
+			esc_attr( $classes ),
+			esc_attr( $style )
+		);
+
+		if ( ! empty( $args['aria_hidden'] ) ) {
+			$attributes .= ' aria-hidden="true"';
+		}
+
+		return sprintf(
+			'<span %1$s>%2$s</span>',
+			$attributes,
+			$svg
+		);
+	}
+
+	/**
 	 * Return sorted icons (slug + thumbnail SVG) for the block editor combobox.
 	 *
 	 * @return WP_REST_Response

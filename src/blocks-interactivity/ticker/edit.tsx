@@ -21,12 +21,23 @@ import {
   ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import {
+  ICON_SIZE_INLINE_MAX,
+  ICON_SIZE_INLINE_MIN,
+} from '../../utils/icon-constants';
+import { IconEditorPreview } from '../../utils/icon-editor-preview';
+import { IconComboboxControl } from '../../utils/icon-combobox-control';
 import type { TickerAttributes } from './types';
 
 type EditProps = BlockEditProps<TickerAttributes>;
 
 /** CSS custom properties that TypeScript doesn't include in CSSProperties. */
 type EditorStyle = CSSProperties & { [key: `--${string}`]: string };
+
+const LABEL_TYPES = [
+  { label: __('Text', 'aggressive-apparel'), value: 'text' },
+  { label: __('Icon', 'aggressive-apparel'), value: 'icon' },
+];
 
 const INNER_BLOCKS_TEMPLATE: Array<[string, Record<string, unknown>]> = [
   [
@@ -95,7 +106,10 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     fadeEdges,
     fadeWidth,
     showLabel,
+    labelType,
     labelText,
+    labelIcon,
+    labelIconSize,
     labelBg,
     labelColor,
     showIndicator,
@@ -111,6 +125,8 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     labelLetterSpacing,
     labelTextTransform,
   } = attributes;
+
+  const isIconLabel = labelType === 'icon';
 
   const hasPattern = pattern !== 'none';
 
@@ -139,13 +155,16 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   const labelStyle: EditorStyle = {};
   if (labelBg) labelStyle['--tl-bg'] = labelBg;
   if (labelColor) labelStyle.color = labelColor;
-  if (labelFontSize > 0) labelStyle.fontSize = `${labelFontSize}px`;
-  if (labelFontWeight)
-    labelStyle.fontWeight = labelFontWeight as CSSProperties['fontWeight'];
-  if (labelLetterSpacing) labelStyle.letterSpacing = `${labelLetterSpacing}em`;
-  if (labelTextTransform)
-    labelStyle.textTransform =
-      labelTextTransform as CSSProperties['textTransform'];
+  if (!isIconLabel) {
+    if (labelFontSize > 0) labelStyle.fontSize = `${labelFontSize}px`;
+    if (labelFontWeight)
+      labelStyle.fontWeight = labelFontWeight as CSSProperties['fontWeight'];
+    if (labelLetterSpacing)
+      labelStyle.letterSpacing = `${labelLetterSpacing}em`;
+    if (labelTextTransform)
+      labelStyle.textTransform =
+        labelTextTransform as CSSProperties['textTransform'];
+  }
 
   // Indicator color flows through `color` so currentcolor works on ::after.
   const indicatorStyle: CSSProperties = {};
@@ -260,12 +279,46 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
 
           {showLabel && (
             <>
-              <TextControl
-                label={__('Label Text', 'aggressive-apparel')}
-                value={labelText}
-                onChange={val => setAttributes({ labelText: val })}
+              <SelectControl<string>
+                label={__('Label Type', 'aggressive-apparel')}
+                value={labelType}
+                options={LABEL_TYPES}
+                onChange={val => setAttributes({ labelType: val })}
+                __next40pxDefaultSize
                 __nextHasNoMarginBottom
               />
+
+              {isIconLabel ? (
+                <>
+                  <IconComboboxControl
+                    label={__('Label Icon', 'aggressive-apparel')}
+                    value={labelIcon}
+                    onChange={value => setAttributes({ labelIcon: value })}
+                    help={__(
+                      'Search by slug. Brand and UI icons share the same library.',
+                      'aggressive-apparel'
+                    )}
+                  />
+
+                  <RangeControl
+                    label={__('Icon Size (px)', 'aggressive-apparel')}
+                    value={labelIconSize}
+                    onChange={val =>
+                      setAttributes({ labelIconSize: val ?? labelIconSize })
+                    }
+                    min={ICON_SIZE_INLINE_MIN}
+                    max={ICON_SIZE_INLINE_MAX}
+                    step={1}
+                  />
+                </>
+              ) : (
+                <TextControl
+                  label={__('Label Text', 'aggressive-apparel')}
+                  value={labelText}
+                  onChange={val => setAttributes({ labelText: val })}
+                  __nextHasNoMarginBottom
+                />
+              )}
 
               <BaseControl
                 label={__('Label Background', 'aggressive-apparel')}
@@ -282,7 +335,11 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               </BaseControl>
 
               <BaseControl
-                label={__('Label Text Color', 'aggressive-apparel')}
+                label={
+                  isIconLabel
+                    ? __('Label Color', 'aggressive-apparel')
+                    : __('Label Text Color', 'aggressive-apparel')
+                }
                 id='ticker-label-color'
                 __nextHasNoMarginBottom
               >
@@ -331,51 +388,55 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                 </>
               )}
 
-              <RangeControl
-                label={__('Font Size (px)', 'aggressive-apparel')}
-                value={labelFontSize || 0}
-                onChange={val => setAttributes({ labelFontSize: val ?? 0 })}
-                min={0}
-                max={48}
-                step={1}
-                allowReset
-                resetFallbackValue={0}
-                help={__(
-                  '0 inherits from the ticker block.',
-                  'aggressive-apparel'
-                )}
-              />
+              {!isIconLabel && (
+                <>
+                  <RangeControl
+                    label={__('Font Size (px)', 'aggressive-apparel')}
+                    value={labelFontSize || 0}
+                    onChange={val => setAttributes({ labelFontSize: val ?? 0 })}
+                    min={0}
+                    max={48}
+                    step={1}
+                    allowReset
+                    resetFallbackValue={0}
+                    help={__(
+                      '0 inherits from the ticker block.',
+                      'aggressive-apparel'
+                    )}
+                  />
 
-              <SelectControl<string>
-                label={__('Font Weight', 'aggressive-apparel')}
-                value={labelFontWeight}
-                options={FONT_WEIGHTS}
-                onChange={val => setAttributes({ labelFontWeight: val })}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
+                  <SelectControl<string>
+                    label={__('Font Weight', 'aggressive-apparel')}
+                    value={labelFontWeight}
+                    options={FONT_WEIGHTS}
+                    onChange={val => setAttributes({ labelFontWeight: val })}
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
+                  />
 
-              <RangeControl
-                label={__('Letter Spacing (em)', 'aggressive-apparel')}
-                value={labelLetterSpacing}
-                onChange={val =>
-                  setAttributes({ labelLetterSpacing: val ?? 0 })
-                }
-                min={-0.1}
-                max={0.5}
-                step={0.01}
-                allowReset
-                resetFallbackValue={0}
-              />
+                  <RangeControl
+                    label={__('Letter Spacing (em)', 'aggressive-apparel')}
+                    value={labelLetterSpacing}
+                    onChange={val =>
+                      setAttributes({ labelLetterSpacing: val ?? 0 })
+                    }
+                    min={-0.1}
+                    max={0.5}
+                    step={0.01}
+                    allowReset
+                    resetFallbackValue={0}
+                  />
 
-              <SelectControl<string>
-                label={__('Text Transform', 'aggressive-apparel')}
-                value={labelTextTransform}
-                options={TEXT_TRANSFORMS}
-                onChange={val => setAttributes({ labelTextTransform: val })}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
+                  <SelectControl<string>
+                    label={__('Text Transform', 'aggressive-apparel')}
+                    value={labelTextTransform}
+                    options={TEXT_TRANSFORMS}
+                    onChange={val => setAttributes({ labelTextTransform: val })}
+                    __next40pxDefaultSize
+                    __nextHasNoMarginBottom
+                  />
+                </>
+              )}
             </>
           )}
         </PanelBody>
@@ -477,7 +538,18 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                 aria-hidden={true}
               />
             )}
-            {labelText || __('LIVE', 'aggressive-apparel')}
+            {isIconLabel ? (
+              <IconEditorPreview
+                slug={labelIcon}
+                size={labelIconSize}
+                className='ticker__label-icon'
+                empty='placeholder'
+                placeholderClassName='ticker__label-icon ticker__label-icon--placeholder'
+                showLoadingSpinner
+              />
+            ) : (
+              labelText || __('LIVE', 'aggressive-apparel')
+            )}
           </div>
         )}
 

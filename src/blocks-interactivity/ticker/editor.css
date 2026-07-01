@@ -6,6 +6,8 @@
  * @package Aggressive_Apparel
  */
 
+@import '../../blocks/icon/editor.css';
+
 .wp-block-aggressive-apparel-ticker--editor {
 	display: flex;
 	align-items: stretch;
@@ -37,4 +39,9 @@
 /* Prevent inner blocks from wrapping. */
 .ticker-editor__content > * {
 	flex-shrink: 0;
+}
+
+.ticker__label-icon--placeholder {
+	font-size: 0.75rem;
+	color: var(--aa-color-foreground-muted, currentcolor);
 }

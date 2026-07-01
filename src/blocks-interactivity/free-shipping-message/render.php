@@ -58,15 +58,24 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	)
 );
 
-$prefix_markup = '' !== $prefix_icon ? Icon_Block::render_svg( $prefix_icon, $icon_size ) : '';
-$suffix_markup = '' !== $suffix_icon ? Icon_Block::render_svg( $suffix_icon, $icon_size ) : '';
-$icon_style    = sprintf( 'width:%1$dpx;height:%1$dpx;', $icon_size );
+$prefix_markup = Icon_Block::render_wrapped_svg(
+	$prefix_icon,
+	$icon_size,
+	array(
+		'class' => 'aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--prefix',
+	)
+);
+$suffix_markup = Icon_Block::render_wrapped_svg(
+	$suffix_icon,
+	$icon_size,
+	array(
+		'class' => 'aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--suffix',
+	)
+);
 ?>
 <span <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
 	<?php if ( '' !== $prefix_markup ) : ?>
-	<span class="aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--prefix aggressive-apparel-icon__svg-wrap" style="<?php echo esc_attr( $icon_style ); ?>" aria-hidden="true">
 		<?php echo $prefix_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
-	</span>
 	<?php endif; ?>
 
 	<span class="aggressive-apparel-free-shipping-message__text" aria-live="polite" aria-atomic="true" data-wp-text="state.message">
@@ -74,8 +83,6 @@ $icon_style    = sprintf( 'width:%1$dpx;height:%1$dpx;', $icon_size );
 	</span>
 
 	<?php if ( '' !== $suffix_markup ) : ?>
-	<span class="aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--suffix aggressive-apparel-icon__svg-wrap" style="<?php echo esc_attr( $icon_style ); ?>" aria-hidden="true">
 		<?php echo $suffix_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
-	</span>
 	<?php endif; ?>
 </span>

@@ -126,6 +126,21 @@
 	pointer-events: none;
 }
 
+.ticker__label-icon {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	color: inherit;
+	line-height: 0;
+}
+
+.ticker__label-icon svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 /* -----------------------------------------------
  * Indicator — animated shape in the label
  * ----------------------------------------------- */

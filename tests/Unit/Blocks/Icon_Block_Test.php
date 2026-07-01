@@ -229,6 +229,32 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Wrapped SVG output includes the shared wrapper classes and inline size.
+	 */
+	public function test_render_wrapped_svg_outputs_sized_wrapper(): void {
+		$html = Icon_Block::render_wrapped_svg(
+			'shipping-box',
+			32,
+			array(
+				'class' => 'ticker__label-icon',
+			)
+		);
+
+		$this->assertStringContainsString( 'aggressive-apparel-icon__svg-wrap', $html );
+		$this->assertStringContainsString( 'ticker__label-icon', $html );
+		$this->assertStringContainsString( 'style="width:32px;height:32px;"', $html );
+		$this->assertStringContainsString( 'aria-hidden="true"', $html );
+		$this->assertStringContainsString( '<svg', $html );
+	}
+
+	/**
+	 * Unknown slugs return an empty wrapped string.
+	 */
+	public function test_render_wrapped_svg_returns_empty_for_unknown_slug(): void {
+		$this->assertSame( '', Icon_Block::render_wrapped_svg( 'not-a-real-icon', 24 ) );
+	}
+
+	/**
 	 * Subscribers cannot access icon REST data.
 	 */
 	public function test_can_edit_content_requires_editor_capability(): void {

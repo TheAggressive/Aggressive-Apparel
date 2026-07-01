@@ -12,6 +12,8 @@
  * @package Aggressive_Apparel
  */
 
+use Aggressive_Apparel\Blocks\Icon_Block;
+
 /**
  * Template variables.
  *
@@ -29,7 +31,10 @@ $pause_on_hover = ! empty( $attributes['pauseOnHover'] );
 
 // Label attributes.
 $show_label      = ! empty( $attributes['showLabel'] );
+$label_type      = sanitize_key( $attributes['labelType'] ?? 'text' );
 $label_text      = $attributes['labelText'] ?? 'LIVE';
+$label_icon      = sanitize_key( $attributes['labelIcon'] ?? '' );
+$label_icon_size = Icon_Block::sanitize_size( $attributes['labelIconSize'] ?? 16 );
 $label_bg        = $attributes['labelBg'] ?? '';
 $label_color     = $attributes['labelColor'] ?? '';
 $show_indicator  = ! empty( $attributes['showIndicator'] );
@@ -91,8 +96,9 @@ if ( $has_pattern ) {
 }
 
 // Build label and indicator inline styles applied directly on their elements.
-$label_style     = '';
-$indicator_style = '';
+$label_style       = '';
+$indicator_style   = '';
+$label_icon_markup = '';
 if ( $show_label ) {
 	if ( $label_bg ) {
 		$label_style .= '--tl-bg:' . esc_attr( $label_bg ) . ';';
@@ -100,17 +106,28 @@ if ( $show_label ) {
 	if ( $label_color ) {
 		$label_style .= 'color:' . esc_attr( $label_color ) . ';';
 	}
-	if ( $label_font_size > 0 ) {
-		$label_style .= 'font-size:' . $label_font_size . 'px;';
+	if ( 'text' === $label_type ) {
+		if ( $label_font_size > 0 ) {
+			$label_style .= 'font-size:' . $label_font_size . 'px;';
+		}
+		if ( $label_font_weight ) {
+			$label_style .= 'font-weight:' . esc_attr( $label_font_weight ) . ';';
+		}
+		if ( 0.0 !== $label_letter_spacing ) {
+			$label_style .= 'letter-spacing:' . $label_letter_spacing . 'em;';
+		}
+		if ( $label_text_transform ) {
+			$label_style .= 'text-transform:' . esc_attr( $label_text_transform ) . ';';
+		}
 	}
-	if ( $label_font_weight ) {
-		$label_style .= 'font-weight:' . esc_attr( $label_font_weight ) . ';';
-	}
-	if ( 0.0 !== $label_letter_spacing ) {
-		$label_style .= 'letter-spacing:' . $label_letter_spacing . 'em;';
-	}
-	if ( $label_text_transform ) {
-		$label_style .= 'text-transform:' . esc_attr( $label_text_transform ) . ';';
+	if ( 'icon' === $label_type && '' !== $label_icon ) {
+		$label_icon_markup = Icon_Block::render_wrapped_svg(
+			$label_icon,
+			$label_icon_size,
+			array(
+				'class' => 'ticker__label-icon',
+			)
+		);
 	}
 	if ( $indicator_color ) {
 		$indicator_style = 'color:' . esc_attr( $indicator_color ) . ';';
@@ -161,7 +178,11 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			aria-hidden="true"
 		></span>
 		<?php endif; ?>
-		<?php echo esc_html( $label_text ); ?>
+		<?php if ( '' !== $label_icon_markup ) : ?>
+			<?php echo $label_icon_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
+		<?php else : ?>
+			<?php echo esc_html( $label_text ); ?>
+		<?php endif; ?>
 	</div>
 	<?php endif; ?>
 

@@ -23,6 +23,11 @@ import {
 } from '@wordpress/components';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import {
+  ICON_SIZE_BLOCK_MAX,
+  ICON_SIZE_BLOCK_MIN,
+} from '../../utils/icon-constants';
+import { IconEditorPreview } from '../../utils/icon-editor-preview';
 
 export interface IconBlockAttributes {
   icon: string;
@@ -41,14 +46,6 @@ interface IconListResponse {
   icons: IconListItem[];
 }
 
-interface IconPreviewResponse {
-  slug: string;
-  svg: string;
-}
-
-const MIN_SIZE = 16;
-const MAX_SIZE = 128;
-
 export default function Edit({
   attributes,
   setAttributes,
@@ -58,8 +55,6 @@ export default function Edit({
   const [iconList, setIconList] = useState<IconListItem[]>([]);
   const [iconsLoading, setIconsLoading] = useState(true);
   const [iconsError, setIconsError] = useState('');
-  const [previewSvg, setPreviewSvg] = useState('');
-  const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,46 +92,6 @@ export default function Edit({
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!icon) {
-      setPreviewSvg('');
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadPreview = async () => {
-      setPreviewLoading(true);
-
-      try {
-        // The mark's shape is size-independent (size is just width/height), so
-        // fetch once per icon and let CSS scale it — no refetch while dragging
-        // the size slider.
-        const response = await apiFetch<IconPreviewResponse>({
-          path: `/aggressive-apparel/v1/icons/${encodeURIComponent(icon)}`,
-        });
-
-        if (!cancelled) {
-          setPreviewSvg(response.svg ?? '');
-        }
-      } catch {
-        if (!cancelled) {
-          setPreviewSvg('');
-        }
-      } finally {
-        if (!cancelled) {
-          setPreviewLoading(false);
-        }
-      }
-    };
-
-    void loadPreview();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [icon]);
 
   const iconOptions = useMemo(
     () =>
@@ -204,8 +159,8 @@ export default function Edit({
             label={__('Size', 'aggressive-apparel')}
             value={iconSize}
             onChange={value => setAttributes({ iconSize: value ?? iconSize })}
-            min={MIN_SIZE}
-            max={MAX_SIZE}
+            min={ICON_SIZE_BLOCK_MIN}
+            max={ICON_SIZE_BLOCK_MAX}
             step={1}
             help={sprintf(
               /* translators: %d: icon size in pixels. */
@@ -254,19 +209,12 @@ export default function Edit({
       </InspectorControls>
 
       <span {...blockProps}>
-        {previewLoading && !previewSvg ? (
-          <Spinner />
-        ) : previewSvg ? (
-          <span
-            className='aggressive-apparel-icon__svg-wrap'
-            style={{ width: iconSize, height: iconSize }}
-            dangerouslySetInnerHTML={{ __html: previewSvg }}
-          />
-        ) : (
-          <span className='aggressive-apparel-icon-block__placeholder'>
-            {__('Select an icon', 'aggressive-apparel')}
-          </span>
-        )}
+        <IconEditorPreview
+          slug={icon}
+          size={iconSize}
+          empty='placeholder'
+          showLoadingSpinner
+        />
       </span>
     </>
   );

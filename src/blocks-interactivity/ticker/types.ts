@@ -12,7 +12,10 @@ export interface TickerAttributes {
   fadeEdges: boolean;
   fadeWidth: number;
   showLabel: boolean;
+  labelType: string;
   labelText: string;
+  labelIcon: string;
+  labelIconSize: number;
   labelBg: string;
   labelColor: string;
   showIndicator: boolean;

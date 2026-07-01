@@ -54,9 +54,21 @@
       "type": "boolean",
       "default": false
     },
+    "labelType": {
+      "type": "string",
+      "default": "text"
+    },
     "labelText": {
       "type": "string",
       "default": "LIVE"
+    },
+    "labelIcon": {
+      "type": "string",
+      "default": ""
+    },
+    "labelIconSize": {
+      "type": "number",
+      "default": 16
     },
     "labelBg": {
       "type": "string",

@@ -4,12 +4,15 @@
  * @package Aggressive_Apparel
  */
 
-import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { PanelBody, RangeControl, TextControl } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+  ICON_SIZE_INLINE_MAX,
+  ICON_SIZE_INLINE_MIN,
+} from '../../utils/icon-constants';
+import { IconEditorPreview } from '../../utils/icon-editor-preview';
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
 
 interface FreeShippingMessageAttributes {
@@ -18,62 +21,6 @@ interface FreeShippingMessageAttributes {
   prefixIcon: string;
   suffixIcon: string;
   iconSize: number;
-}
-
-interface IconPreviewResponse {
-  slug: string;
-  svg: string;
-}
-
-const MIN_ICON_SIZE = 16;
-const MAX_ICON_SIZE = 48;
-
-function IconPreview({ slug, size }: { slug: string; size: number }) {
-  const [svg, setSvg] = useState('');
-
-  useEffect(() => {
-    if (!slug) {
-      setSvg('');
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadPreview = async () => {
-      try {
-        const response = await apiFetch<IconPreviewResponse>({
-          path: `/aggressive-apparel/v1/icons/${encodeURIComponent(slug)}?size=${size}`,
-        });
-
-        if (!cancelled) {
-          setSvg(response.svg ?? '');
-        }
-      } catch {
-        if (!cancelled) {
-          setSvg('');
-        }
-      }
-    };
-
-    void loadPreview();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [slug, size]);
-
-  if (!slug || !svg) {
-    return null;
-  }
-
-  return (
-    <span
-      className='aggressive-apparel-icon__svg-wrap aggressive-apparel-free-shipping-message__icon'
-      style={{ width: size, height: size }}
-      aria-hidden='true'
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
-  );
 }
 
 export default function Edit({
@@ -148,19 +95,27 @@ export default function Edit({
             label={__('Icon size', 'aggressive-apparel')}
             value={iconSize}
             onChange={value => setAttributes({ iconSize: value ?? iconSize })}
-            min={MIN_ICON_SIZE}
-            max={MAX_ICON_SIZE}
+            min={ICON_SIZE_INLINE_MIN}
+            max={ICON_SIZE_INLINE_MAX}
             step={1}
           />
         </PanelBody>
       </InspectorControls>
 
       <span {...blockProps}>
-        <IconPreview slug={prefixIcon} size={iconSize} />
+        <IconEditorPreview
+          slug={prefixIcon}
+          size={iconSize}
+          className='aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--prefix'
+        />
         <span className='aggressive-apparel-free-shipping-message__text'>
           {previewMessage}
         </span>
-        <IconPreview slug={suffixIcon} size={iconSize} />
+        <IconEditorPreview
+          slug={suffixIcon}
+          size={iconSize}
+          className='aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--suffix'
+        />
       </span>
     </>
   );

@@ -34,6 +34,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/node':
+        specifier: 25.2.0
+        version: 25.2.0
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -4791,12 +4794,6 @@ packages:
     resolution:
       {
         integrity: sha512-mhVF2BnD4BO+jtOp7z1CdzaK4mbuK0LLQYAvdOLqHTavxFNq4zA1EmYkpnFjP8HOUzedfQkRnp0E2ulSAYSzAw==,
-      }
-
-  '@types/node@25.0.9':
-    resolution:
-      {
-        integrity: sha512-/rpCXHlCWeqClNBwUhDcusJxXYDjZTyE8v5oTO7WbL8eij2nKhUeU89/6xgjU7N4/Vh3He0BtyhJdQbDyhiXAw==,
       }
 
   '@types/node@25.2.0':
@@ -21254,10 +21251,6 @@ snapshots:
     dependencies:
       '@types/node': 25.2.0
 
-  '@types/node@25.0.9':
-    dependencies:
-      undici-types: 7.16.0
-
   '@types/node@25.2.0':
     dependencies:
       undici-types: 7.16.0
@@ -27437,7 +27430,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.9
+      '@types/node': 25.2.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

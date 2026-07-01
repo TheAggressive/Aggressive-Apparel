@@ -23,8 +23,41 @@ class Icons_Test extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'aggressive_apparel_icon_definitions' );
+		Brand_Icons::flush_cache_for_tests();
 		Icons::flush_cache_for_tests();
 		parent::tearDown();
+	}
+
+	/**
+	 * Core UI icons do not load any generated brand definition.
+	 */
+	public function test_core_icon_does_not_load_brand_definitions(): void {
+		Brand_Icons::init();
+		Brand_Icons::flush_cache_for_tests();
+		Icons::flush_cache_for_tests();
+
+		$markup = Icons::get( 'cart' );
+
+		$this->assertStringContainsString( '<svg', $markup );
+		$this->assertSame( array(), Brand_Icons::loaded_slugs_for_tests() );
+	}
+
+	/**
+	 * Brand definitions are loaded individually and cached after first use.
+	 */
+	public function test_brand_icons_are_loaded_one_definition_at_a_time(): void {
+		Brand_Icons::init();
+		Brand_Icons::flush_cache_for_tests();
+		Icons::flush_cache_for_tests();
+
+		$this->assertTrue( Icons::exists( 'shipping-box' ) );
+		$this->assertSame( array( 'shipping-box' ), Brand_Icons::loaded_slugs_for_tests() );
+
+		Icons::get( 'shipping-box' );
+		$this->assertSame( array( 'shipping-box' ), Brand_Icons::loaded_slugs_for_tests() );
+
+		Icons::get( 'shield-check' );
+		$this->assertSame( array( 'shipping-box', 'shield-check' ), Brand_Icons::loaded_slugs_for_tests() );
 	}
 
 	/**
@@ -108,6 +141,7 @@ class Icons_Test extends WP_UnitTestCase {
 		$this->assertSame( 24, substr_count( $markup, '<path ' ) );
 		$this->assertSame( 21, substr_count( $markup, '<polygon ' ) );
 		$this->assertSame( 4, substr_count( $markup, '<rect ' ) );
+		$this->assertSame( 4, substr_count( $markup, ' transform="' ) );
 		$this->assertStringContainsString( '<circle cx="14.85" cy="8.77" r="0.15"/>', $markup );
 	}
 

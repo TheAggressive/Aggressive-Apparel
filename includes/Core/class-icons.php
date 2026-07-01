@@ -58,6 +58,43 @@ class Icons {
 	private static ?array $definitions_cache = null;
 
 	/**
+	 * Lazy icon providers keyed by stable identifier.
+	 *
+	 * @var array<string, array{
+	 *     definition_loader: callable(string): (string|array<string, mixed>|null),
+	 *     slug_loader: callable(): array<int, string>
+	 * }>
+	 */
+	private static array $providers = array();
+
+	/**
+	 * Normalized definitions cached by slug for the current request.
+	 *
+	 * @var array<string, array{
+	 *     viewBox: string,
+	 *     paths: array<int, array<string, string>>,
+	 *     circles: array<int, array<string, string>>,
+	 *     polygons: array<int, array<string, string>>,
+	 *     rects: array<int, array<string, string>>
+	 * }|null>
+	 */
+	private static array $normalized_cache = array();
+
+	/**
+	 * Rendered inner SVG markup cached independently from root attributes.
+	 *
+	 * @var array<string, string>
+	 */
+	private static array $inner_markup_cache = array();
+
+	/**
+	 * Cached list of validated icon slugs.
+	 *
+	 * @var array<int, string>|null
+	 */
+	private static ?array $slugs_cache = null;
+
+	/**
 	 * Icon definitions (path data only — merged with filter below).
 	 *
 	 * Slugs may be expanded from PHP via the `aggressive_apparel_icon_definitions` filter.
@@ -141,6 +178,33 @@ class Icons {
 	}
 
 	/**
+	 * Register a lazy icon definition provider.
+	 *
+	 * Providers are keyed so repeated bootstrap calls replace rather than
+	 * duplicate registrations.
+	 *
+	 * @param string   $id                Stable provider identifier.
+	 * @param callable $definition_loader Loads one definition by slug.
+	 * @param callable $slug_loader       Lists known slugs without loading definitions.
+	 * @phpstan-param callable(string): (string|array<string, mixed>|null) $definition_loader
+	 * @phpstan-param callable(): array<int, string> $slug_loader
+	 */
+	public static function register_provider( string $id, callable $definition_loader, callable $slug_loader ): void {
+		if ( '' === trim( $id ) ) {
+			return;
+		}
+
+		self::$providers[ $id ] = array(
+			'definition_loader' => $definition_loader,
+			'slug_loader'       => $slug_loader,
+		);
+
+		self::$normalized_cache   = array();
+		self::$inner_markup_cache = array();
+		self::$slugs_cache        = null;
+	}
+
+	/**
 	 * Get SVG icon markup.
 	 *
 	 * @param string               $icon  Icon name.
@@ -148,13 +212,7 @@ class Icons {
 	 * @return string SVG markup or empty string if icon not found.
 	 */
 	public static function get( string $icon, array $attrs = array() ): string {
-		$definitions = self::all_icons();
-
-		if ( ! isset( $definitions[ $icon ] ) ) {
-			return '';
-		}
-
-		$normalized = self::normalize_definition( $definitions[ $icon ] );
+		$normalized = self::normalized_icon( $icon );
 
 		if ( null === $normalized ) {
 			return '';
@@ -163,11 +221,13 @@ class Icons {
 		$attrs = wp_parse_args( $attrs, self::DEFAULT_ATTRS );
 
 		$svg_attrs = self::build_root_svg_attrs( $attrs, $normalized['viewBox'] );
-		$inner     = self::build_inner_markup( $normalized );
+		$inner     = self::$inner_markup_cache[ $icon ] ?? self::build_inner_markup( $normalized );
 
 		if ( '' === $inner ) {
 			return '';
 		}
+
+		self::$inner_markup_cache[ $icon ] = $inner;
 
 		return sprintf( '<svg %s>%s</svg>', $svg_attrs, $inner );
 	}
@@ -190,11 +250,7 @@ class Icons {
 	 * @return bool
 	 */
 	public static function exists( string $icon ): bool {
-		if ( ! isset( self::all_icons()[ $icon ] ) ) {
-			return false;
-		}
-
-		return null !== self::normalize_definition( self::all_icons()[ $icon ] );
+		return null !== self::normalized_icon( $icon );
 	}
 
 	/**
@@ -203,19 +259,73 @@ class Icons {
 	 * @return array<int, string>
 	 */
 	public static function list(): array {
+		if ( null !== self::$slugs_cache ) {
+			return self::$slugs_cache;
+		}
+
 		$slugs = array();
 
-		foreach ( array_keys( self::all_icons() ) as $slug ) {
-			if ( ! is_string( $slug ) ) {
+		foreach ( self::all_icons() as $slug => $definition ) {
+			if ( ! is_string( $slug ) || null === self::normalize_definition( $definition ) ) {
 				continue;
 			}
 
-			if ( self::exists( $slug ) ) {
+			$slugs[] = $slug;
+		}
+
+		foreach ( self::$providers as $provider ) {
+			$provider_slugs = ( $provider['slug_loader'] )();
+
+			foreach ( $provider_slugs as $slug ) {
+				if ( ! is_string( $slug ) || ! preg_match( '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug ) ) {
+					continue;
+				}
+
 				$slugs[] = $slug;
 			}
 		}
 
-		return $slugs;
+		self::$slugs_cache = array_values( array_unique( $slugs ) );
+
+		return self::$slugs_cache;
+	}
+
+	/**
+	 * Resolve and normalize one icon definition, consulting lazy providers only
+	 * when the icon is not part of the compact built-in collection.
+	 *
+	 * @param string $icon Icon slug.
+	 * @return array{
+	 *     viewBox: string,
+	 *     paths: array<int, array<string, string>>,
+	 *     circles: array<int, array<string, string>>,
+	 *     polygons: array<int, array<string, string>>,
+	 *     rects: array<int, array<string, string>>
+	 * }|null
+	 */
+	private static function normalized_icon( string $icon ): ?array {
+		if ( array_key_exists( $icon, self::$normalized_cache ) ) {
+			return self::$normalized_cache[ $icon ];
+		}
+
+		$definitions = self::all_icons();
+		$definition  = $definitions[ $icon ] ?? null;
+
+		if ( null === $definition ) {
+			foreach ( self::$providers as $provider ) {
+				$definition = ( $provider['definition_loader'] )( $icon );
+
+				if ( null !== $definition ) {
+					break;
+				}
+			}
+		}
+
+		self::$normalized_cache[ $icon ] = null === $definition
+			? null
+			: self::normalize_definition( $definition );
+
+		return self::$normalized_cache[ $icon ];
 	}
 
 	/**
@@ -671,10 +781,6 @@ class Icons {
 			esc_attr( $rect['height'] )
 		);
 
-		if ( isset( $rect['transform'] ) && '' !== trim( $rect['transform'] ) ) {
-			$attrs .= sprintf( ' transform="%s"', esc_attr( $rect['transform'] ) );
-		}
-
 		foreach ( self::SHAPE_ATTRS as $attr ) {
 			if ( ! isset( $rect[ $attr ] ) || '' === trim( $rect[ $attr ] ) ) {
 				continue;
@@ -759,6 +865,9 @@ class Icons {
 	 * @internal
 	 */
 	public static function flush_cache_for_tests(): void {
-		self::$definitions_cache = null;
+		self::$definitions_cache  = null;
+		self::$normalized_cache   = array();
+		self::$inner_markup_cache = array();
+		self::$slugs_cache        = null;
 	}
 }

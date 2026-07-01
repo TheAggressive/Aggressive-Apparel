@@ -21,6 +21,23 @@ use WP_UnitTestCase;
 class Icon_Block_Test extends WP_UnitTestCase {
 
 	/**
+	 * Render the dynamic icon block with supplied attributes.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return string Rendered block HTML.
+	 */
+	private function render_icon_block( array $attributes ): string {
+		return render_block(
+			array(
+				'blockName'    => 'aggressive-apparel/icon',
+				'attrs'        => $attributes,
+				'innerBlocks'  => array(),
+				'innerContent' => array(),
+			)
+		);
+	}
+
+	/**
 	 * Register routes and brand icons before each test.
 	 */
 	public function setUp(): void {
@@ -34,6 +51,7 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'aggressive_apparel_icon_definitions' );
+		Brand_Icons::flush_cache_for_tests();
 		Icons::flush_cache_for_tests();
 		parent::tearDown();
 	}
@@ -99,6 +117,106 @@ class Icon_Block_Test extends WP_UnitTestCase {
 		$response = Icon_Block::get_icon_preview( $request );
 
 		$this->assertSame( 404, $response->get_status() );
+	}
+
+	/**
+	 * Brand icons render through the dynamic block with sizing and alignment.
+	 */
+	public function test_frontend_renders_brand_icon_with_size_and_alignment(): void {
+		Brand_Icons::flush_cache_for_tests();
+		Icons::flush_cache_for_tests();
+
+		$html = $this->render_icon_block(
+			array(
+				'icon'         => 'shipping-box',
+				'iconSize'     => 64,
+				'isDecorative' => true,
+				'textAlign'    => 'center',
+			)
+		);
+
+		$this->assertStringContainsString( 'aggressive-apparel-icon', $html );
+		$this->assertStringContainsString( 'has-text-align-center', $html );
+		$this->assertStringContainsString( 'aria-hidden="true"', $html );
+		$this->assertStringContainsString( 'width="64"', $html );
+		$this->assertStringContainsString( 'height="64"', $html );
+		$this->assertStringContainsString( 'aggressive-apparel-icon__svg', $html );
+		$this->assertStringContainsString( '<path ', $html );
+		$this->assertSame( array( 'shipping-box' ), Brand_Icons::loaded_slugs_for_tests() );
+	}
+
+	/**
+	 * Meaningful icons expose one accessible image label on the wrapper.
+	 */
+	public function test_frontend_renders_meaningful_icon_accessibly(): void {
+		$html = $this->render_icon_block(
+			array(
+				'icon'         => 'shield-check',
+				'iconSize'     => 48,
+				'isDecorative' => false,
+				'label'        => 'Secure & protected',
+			)
+		);
+
+		$this->assertStringContainsString( 'role="img"', $html );
+		$this->assertStringContainsString( 'aria-label="Secure &amp; protected"', $html );
+		$this->assertSame( 1, substr_count( $html, 'aria-hidden="true"' ) );
+	}
+
+	/**
+	 * Core icons render without loading a generated brand definition.
+	 */
+	public function test_frontend_core_icon_does_not_load_brand_definition(): void {
+		Brand_Icons::flush_cache_for_tests();
+		Icons::flush_cache_for_tests();
+
+		$html = $this->render_icon_block(
+			array(
+				'icon'         => 'cart',
+				'iconSize'     => 24,
+				'isDecorative' => true,
+			)
+		);
+
+		$this->assertStringContainsString( 'width="24"', $html );
+		$this->assertStringContainsString( '<path ', $html );
+		$this->assertSame( array(), Brand_Icons::loaded_slugs_for_tests() );
+	}
+
+	/**
+	 * Frontend sizes use the same safe bounds as editor previews.
+	 */
+	public function test_frontend_clamps_icon_size(): void {
+		$small = $this->render_icon_block(
+			array(
+				'icon'     => 'cart',
+				'iconSize' => 1,
+			)
+		);
+		$large = $this->render_icon_block(
+			array(
+				'icon'     => 'cart',
+				'iconSize' => 999,
+			)
+		);
+
+		$this->assertStringContainsString( 'width="16"', $small );
+		$this->assertStringContainsString( 'height="16"', $small );
+		$this->assertStringContainsString( 'width="128"', $large );
+		$this->assertStringContainsString( 'height="128"', $large );
+	}
+
+	/**
+	 * Invalid icon slugs fail closed without partial block markup.
+	 */
+	public function test_frontend_invalid_icon_renders_nothing(): void {
+		$html = $this->render_icon_block(
+			array(
+				'icon' => 'not-a-real-icon',
+			)
+		);
+
+		$this->assertSame( '', $html );
 	}
 
 	/**

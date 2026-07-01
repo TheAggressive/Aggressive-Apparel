@@ -10,6 +10,13 @@ export default [
   js.configs.recommended,
   reactPlugin.configs.flat.recommended,
   {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
+  {
     ignores: [
       '*.config.js',
       '*.config.mjs',

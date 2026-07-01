@@ -1,6 +1,7 @@
 import fg from 'fast-glob';
 import fs from 'fs';
 import path from 'path';
+import process from 'node:process';
 
 /**
  * Normalize paths to POSIX separators.

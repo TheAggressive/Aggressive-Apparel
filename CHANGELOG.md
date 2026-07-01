@@ -1,3 +1,15 @@
+# [1.126.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.125.1...v1.126.0) (2026-07-01)
+
+
+### Bug Fixes
+
+* remove unnecessary padding from filter-active-bar CSS ([06a8d72](https://github.com/TheAggressive/Aggressive-Apparel/commit/06a8d729af5e84b3195673264fd785dc8c69a718))
+
+
+### Features
+
+* enhance product filter functionality and update dependencies ([4e26b4c](https://github.com/TheAggressive/Aggressive-Apparel/commit/4e26b4c69e8c1a3be14a8cbc5c61e2fcba6f19b9))
+
 ## [1.125.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.125.0...v1.125.1) (2026-07-01)
 
 

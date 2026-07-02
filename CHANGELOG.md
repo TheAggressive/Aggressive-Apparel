@@ -1,3 +1,10 @@
+# [1.127.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.126.1...v1.127.0) (2026-07-02)
+
+
+### Features
+
+* enhance ticker functionality with new data attributes and CSS variables ([e5703c7](https://github.com/TheAggressive/Aggressive-Apparel/commit/e5703c79e562fb53ab08315a0e9b874da77420b2))
+
 ## [1.126.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.126.0...v1.126.1) (2026-07-02)
 
 

@@ -22,12 +22,12 @@ use Aggressive_Apparel\Blocks\Icon_Block;
  * @var WP_Block $block      Block instance.
  */
 
-$speed          = absint( $attributes['speed'] ?? 30 );
-$direction      = 'right' === ( $attributes['direction'] ?? 'left' ) ? 'reverse' : 'normal';
-$gap            = absint( $attributes['gap'] ?? 48 );
-$fade_edges     = ! empty( $attributes['fadeEdges'] );
-$fade_width     = absint( $attributes['fadeWidth'] ?? 64 );
-$pause_on_hover = ! empty( $attributes['pauseOnHover'] );
+$speed            = absint( $attributes['speed'] ?? 30 );
+$ticker_direction = 'right' === ( $attributes['direction'] ?? 'left' ) ? 'right' : 'left';
+$gap              = absint( $attributes['gap'] ?? 48 );
+$fade_edges       = ! empty( $attributes['fadeEdges'] );
+$fade_width       = absint( $attributes['fadeWidth'] ?? 64 );
+$pause_on_hover   = ! empty( $attributes['pauseOnHover'] );
 
 // Label attributes.
 $show_label      = ! empty( $attributes['showLabel'] );
@@ -55,28 +55,12 @@ $label_font_weight    = $attributes['labelFontWeight'] ?? '';
 $label_letter_spacing = (float) ( $attributes['labelLetterSpacing'] ?? 0 );
 $label_text_transform = $attributes['labelTextTransform'] ?? '';
 
-// Resolve the block's background color for edge fade overlays.
-$fade_color = '';
-if ( $fade_edges ) {
-	if ( ! empty( $attributes['backgroundColor'] ) ) {
-		$fade_color = 'var(--wp--preset--color--' . esc_attr( $attributes['backgroundColor'] ) . ')';
-	} elseif ( ! empty( $attributes['style']['color']['background'] ) ) {
-		$fade_color = esc_attr( $attributes['style']['color']['background'] );
-	}
-}
-
 // Build wrapper inline styles.
 $inline_style = sprintf(
-	'--ticker-duration:%ds;--ticker-gap:%dpx;--ticker-direction:%s;--ticker-fade-width:%dpx;',
-	$speed,
+	'--ticker-gap:%dpx;--ticker-fade-width:%dpx;',
 	$gap,
-	esc_attr( $direction ),
 	$fade_width
 );
-
-if ( $fade_color ) {
-	$inline_style .= '--ticker-fade-color:' . $fade_color . ';';
-}
 
 // Pattern CSS custom properties applied directly to the .ticker__pattern element.
 $pattern_style = '';
@@ -144,6 +128,8 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	array(
 		'class'                    => implode( ' ', $classes ),
 		'style'                    => $inline_style,
+		'data-ticker-speed'        => (string) max( 1, $speed ),
+		'data-ticker-direction'    => $ticker_direction,
 		'data-wp-interactive'      => 'aggressive-apparel/ticker',
 		'data-wp-context'          => wp_json_encode(
 			array(

@@ -137,6 +137,10 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     ]
       .filter(Boolean)
       .join(' '),
+    style: {
+      '--ticker-gap': `${gap}px`,
+      '--ticker-fade-width': `${fadeWidth}px`,
+    } as EditorStyle,
   });
 
   // Pattern CSS variables go directly on the .ticker__pattern span — same as render.php.
@@ -554,7 +558,9 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
         )}
 
         {/* Scroll area with inner blocks */}
-        <div className='ticker-editor__scroll'>
+        <div
+          className={`ticker-editor__scroll${fadeEdges ? 'has-fade-edges' : ''}`}
+        >
           <div {...innerBlocksProps} />
         </div>
       </div>

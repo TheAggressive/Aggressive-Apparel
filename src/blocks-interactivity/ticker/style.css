@@ -9,9 +9,7 @@
  * ----------------------------------------------- */
 
 .wp-block-aggressive-apparel-ticker {
-	--ticker-duration: 30s;
 	--ticker-gap: 48px;
-	--ticker-direction: normal;
 	--ticker-fade-width: 64px;
 
 	position: relative;
@@ -68,36 +66,20 @@
 }
 
 /* -----------------------------------------------
- * Edge fade (pseudo-element overlays on scroll area)
+ * Edge fade — luminance mask driven by --ticker-fade-width
  * ----------------------------------------------- */
 
-.ticker__scroll.has-fade-edges::before,
-.ticker__scroll.has-fade-edges::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	z-index: 1;
-	width: var(--ticker-fade-width);
-	pointer-events: none;
-}
-
-.ticker__scroll.has-fade-edges::before {
-	left: 0;
-	background: linear-gradient(
+.ticker__scroll.has-fade-edges,
+.ticker-editor__scroll.has-fade-edges {
+	mask-image: linear-gradient(
 		to right,
-		var(--ticker-fade-color, transparent),
+		transparent,
+		var(--aa-color-black) var(--ticker-fade-width),
+		var(--aa-color-black) calc(100% - var(--ticker-fade-width)),
 		transparent
 	);
-}
-
-.ticker__scroll.has-fade-edges::after {
-	right: 0;
-	background: linear-gradient(
-		to left,
-		var(--ticker-fade-color, transparent),
-		transparent
-	);
+	mask-size: 100% 100%;
+	mask-repeat: no-repeat;
 }
 
 /* -----------------------------------------------

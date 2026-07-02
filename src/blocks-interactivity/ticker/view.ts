@@ -27,6 +27,41 @@ interface TickerAnimationState {
 const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
 
 /**
+ * Pixels per millisecond for one full content-loop at the given speed.
+ *
+ * Speed is measured in seconds to scroll one `.ticker__content` width, so loop
+ * duration stays consistent regardless of viewport width.
+ */
+export function getTickerPxPerMs(
+  loopWidth: number,
+  speedSeconds: number
+): number {
+  if (loopWidth <= 0 || speedSeconds <= 0) {
+    return 0;
+  }
+
+  return loopWidth / (speedSeconds * 1000);
+}
+
+const DEFAULT_TICKER_SPEED = 30;
+
+/** Parse loop duration from `data-ticker-speed`. */
+export function parseTickerDataSpeed(
+  value: string | undefined,
+  fallback = DEFAULT_TICKER_SPEED
+): number {
+  const parsed = Number.parseFloat(value ?? '');
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/** Whether the marquee scrolls right based on `data-ticker-direction`. */
+export function isTickerReverseDirection(
+  direction: string | undefined
+): boolean {
+  return direction === 'right';
+}
+
+/**
  * Whether a ticker should consume animation frames right now.
  */
 export function shouldAnimateTicker(state: TickerAnimationState): boolean {
@@ -80,9 +115,15 @@ function setupTicker(ticker: HTMLElement): void {
   const getContentWidth = (content: HTMLElement): number =>
     content.getBoundingClientRect().width;
 
-  const getSpeedSeconds = (): number => {
-    const styles = window.getComputedStyle(ticker);
-    return parseFloat(styles.getPropertyValue('--ticker-duration')) || 30;
+  const syncAnimationRate = (): void => {
+    const firstContent = contents[0];
+    const loopWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
+
+    pxPerMs = getTickerPxPerMs(
+      loopWidth,
+      parseTickerDataSpeed(ticker.dataset.tickerSpeed)
+    );
+    reverse = isTickerReverseDirection(ticker.dataset.tickerDirection);
   };
 
   const setTransform = (): void => {
@@ -147,6 +188,8 @@ function setupTicker(ticker: HTMLElement): void {
 
   const tick = (time: number): void => {
     frameId = 0;
+
+    syncAnimationRate();
 
     if (!canAnimate()) {
       stopAnimation();
@@ -230,12 +273,7 @@ function setupTicker(ticker: HTMLElement): void {
       return;
     }
 
-    pxPerMs = containerWidth / (getSpeedSeconds() * 1000);
-    reverse =
-      window
-        .getComputedStyle(ticker)
-        .getPropertyValue('--ticker-direction')
-        .trim() === 'reverse';
+    syncAnimationRate();
 
     let trackWidth = metrics.trackWidth;
     let maxContentWidth = metrics.maxContentWidth || firstWidth;
@@ -296,13 +334,14 @@ function setupTicker(ticker: HTMLElement): void {
       : null;
   intersectionObserver?.observe(ticker);
 
-  const pauseObserver = new MutationObserver(() => {
+  const attributeObserver = new MutationObserver(() => {
     isPaused = ticker.classList.contains('is-paused');
+    syncAnimationRate();
     syncAnimation();
   });
-  pauseObserver.observe(ticker, {
+  attributeObserver.observe(ticker, {
     attributes: true,
-    attributeFilter: ['class'],
+    attributeFilter: ['class', 'data-ticker-speed', 'data-ticker-direction'],
   });
 
   const handleVisibilityChange = (): void => {
@@ -325,7 +364,7 @@ function setupTicker(ticker: HTMLElement): void {
       window.cancelAnimationFrame(resizeFrameId);
       resizeObserver.disconnect();
       intersectionObserver?.disconnect();
-      pauseObserver.disconnect();
+      attributeObserver.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       reducedMotionMql.removeEventListener('change', handleReducedMotionChange);
       track.style.removeProperty('will-change');

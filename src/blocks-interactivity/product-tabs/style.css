@@ -16,7 +16,7 @@
 	--aa-pi-radius: 0.5rem;
 	--aa-pi-gap: 1.5rem;
 	--aa-pi-heading-size: 1rem;
-	--aa-pi-accent: var(--aa-color-brand);
+	--aa-pi-accent: var(--aa-color-accent);
 
 	container-type: inline-size;
 	container-name: product-info;

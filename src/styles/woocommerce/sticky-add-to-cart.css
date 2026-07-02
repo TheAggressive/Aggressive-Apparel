@@ -21,7 +21,7 @@
 	left: 0;
 	right: var(--scrollbar-width, 0);
 	z-index: var(--aa-z-sticky-cart);
-	background-color: var(--aa-color-surface);
+	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
 	border-top: 1px solid var(--aa-color-border-subtle);
 	box-shadow: 0 -2px 12px var(--aa-color-border-subtle);

@@ -17,7 +17,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
-		color: var(--aa-color-brand-red);
+		color: var(--aa-color-accent);
 	}
 
 	&__segment {

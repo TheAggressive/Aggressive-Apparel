@@ -88,7 +88,7 @@
 
   /**
    * Link styles - uses !important to override WordPress core global link styles.
-   * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--primary) }
+   * WordPress applies: a:where(:not(.wp-element-button)) { color: var(--wp--preset--color--accent) }
    */
   & > a {
     display: inline-flex;

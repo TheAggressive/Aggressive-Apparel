@@ -30,8 +30,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
-				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">1</p>
+				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"large"} -->
+				<p class="has-text-align-center has-accent-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">1</p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"small"} -->
@@ -50,8 +50,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
-				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">2</p>
+				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"large"} -->
+				<p class="has-text-align-center has-accent-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">2</p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"small"} -->
@@ -70,8 +70,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"radius":"var(--wp--custom--radius--card)"}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--6)">
-				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"large"} -->
-				<p class="has-text-align-center has-red-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">3</p>
+				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"large"} -->
+				<p class="has-text-align-center has-accent-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800">3</p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"small"} -->

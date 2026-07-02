@@ -6,7 +6,7 @@
 
 .wp-block-aggressive-apparel-nav-link {
   --nav-link-color: currentcolor;
-  --nav-link-hover-color: var(--wp--preset--color--primary, currentColor);
+  --nav-link-hover-color: var(--wp--preset--color--accent, currentColor);
   --nav-link-transition: var(--aa-nav-transition-fast);
 
   display: flex;

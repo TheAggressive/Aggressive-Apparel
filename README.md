@@ -2,7 +2,7 @@
 
 Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.com) — a Full Site Editing (FSE) theme with toggleable store enhancements, 39 custom blocks, a shared design system, and WooCommerce-first patterns.
 
-**Version:** 1.126.0 · **Requires:** WordPress 6.9+ / PHP 8.0+ · **License:** GPL-2.0-or-later
+**Version:** 1.129.2 · **Requires:** WordPress 7.0+ / PHP 8.0+ · **License:** GPL-2.0-or-later
 
 ## Features
 
@@ -24,27 +24,27 @@ Features are managed under **Appearance → Store Enhancements** and default to 
 
 A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, and similar strings).
 
-| Feature | Section | Description |
-|---------|---------|-------------|
-| Product Badges | Catalog | Sale, new, low stock, and bestseller badges on product cards |
-| Smart Price Display | Catalog | Enhanced archive pricing and savings display |
-| Advanced Sorting | Catalog | Featured, biggest savings, and A–Z / Z–A sort options |
-| Product Filters | Catalog | AJAX filters (categories, swatches, sizes, price, stock). Place `filter-toggle` and `filter-active-bar` blocks in templates. |
-| Load More | Catalog | Load More button or infinite scroll instead of pagination |
-| Page Transitions | Catalog | View Transitions API + Speculation Rules for smoother navigation |
-| Catalog Hover Image | Catalog | Show the first gallery image on product-card hover |
-| Size Guide | Product | Reusable size guides assignable to products or categories |
-| Sticky Add to Cart | Product | Fixed bar when the main add-to-cart scrolls out of view |
-| Stock Status | Product | Availability indicator in Quick View |
-| Quick View | Product | Product modal with add-to-cart from archives |
-| Frequently Bought Together | Product | Bundling with combined add-to-cart on product pages |
-| Wishlist | Engagement | Heart-icon toggle with localStorage and Store API |
-| Social Proof | Engagement | Recent purchase toast notifications |
-| Back in Stock | Engagement | Email subscriptions for out-of-stock products |
-| Swatch Tooltips | Mobile & UI | Fabric name and composition on swatch hover |
-| Mobile Bottom Navigation | Mobile & UI | Fixed bottom nav on mobile (Home, Search, Cart, Account) |
-| Custom Cursor | Mobile & UI | Branded cursor on desktop interactive areas |
-| Adaptive Colors | Experimental | Per-block light/dark overrides and adaptive palette via CSS `light-dark()` |
+| Feature                    | Section      | Description                                                                                                                  |
+| -------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Product Badges             | Catalog      | Sale, new, low stock, and bestseller badges on product cards                                                                 |
+| Smart Price Display        | Catalog      | Enhanced archive pricing and savings display                                                                                 |
+| Advanced Sorting           | Catalog      | Featured, biggest savings, and A–Z / Z–A sort options                                                                        |
+| Product Filters            | Catalog      | AJAX filters (categories, swatches, sizes, price, stock). Place `filter-toggle` and `filter-active-bar` blocks in templates. |
+| Load More                  | Catalog      | Load More button or infinite scroll instead of pagination                                                                    |
+| Page Transitions           | Catalog      | View Transitions API + Speculation Rules for smoother navigation                                                             |
+| Catalog Hover Image        | Catalog      | Show the first gallery image on product-card hover                                                                           |
+| Size Guide                 | Product      | Reusable size guides assignable to products or categories                                                                    |
+| Sticky Add to Cart         | Product      | Fixed bar when the main add-to-cart scrolls out of view                                                                      |
+| Stock Status               | Product      | Availability indicator in Quick View                                                                                         |
+| Quick View                 | Product      | Product modal with add-to-cart from archives                                                                                 |
+| Frequently Bought Together | Product      | Bundling with combined add-to-cart on product pages                                                                          |
+| Wishlist                   | Engagement   | Heart-icon toggle with localStorage and Store API                                                                            |
+| Social Proof               | Engagement   | Recent purchase toast notifications                                                                                          |
+| Back in Stock              | Engagement   | Email subscriptions for out-of-stock products                                                                                |
+| Swatch Tooltips            | Mobile & UI  | Fabric name and composition on swatch hover                                                                                  |
+| Mobile Bottom Navigation   | Mobile & UI  | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
+| Custom Cursor              | Mobile & UI  | Branded cursor on desktop interactive areas                                                                                  |
+| Adaptive Colors            | Experimental | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                   |
 
 ## Quick Start
 
@@ -65,26 +65,26 @@ pnpm qa
 
 ### Development Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm build` | Build blocks, interactivity blocks, shared modules, assets, and icons |
-| `pnpm dev` | Watch mode + wp-env |
-| `pnpm setup` | Install, build, and start wp-env |
-| `pnpm test` | All tests (JS, tool tests, PHP) |
-| `pnpm test:any -- <flags>` | Targeted PHPUnit runs inside wp-env |
-| `pnpm test:unit` | PHP unit tests |
-| `pnpm test:integration` | PHP integration tests |
-| `pnpm test:security` | Security tests |
-| `pnpm test:accessibility` | Accessibility tests |
-| `pnpm test:performance` | Performance benchmarks |
-| `pnpm lint:all` | Prettier, ESLint, TypeScript, Stylelint, PHPCS |
-| `pnpm lint:fix` | Auto-fix formatting and lint issues |
-| `pnpm lint:css` | Stylelint + design-system CSS checks |
-| `pnpm analyse:php` | PHPStan (level 6) |
-| `pnpm qa` | Tests + lint + PHPStan |
-| `pnpm perf` | Lighthouse performance budget (build + report) |
-| `pnpm env:start` | Start wp-env (port 9910) |
-| `pnpm env:stop` | Stop wp-env |
+| Command                    | Description                                                           |
+| -------------------------- | --------------------------------------------------------------------- |
+| `pnpm build`               | Build blocks, interactivity blocks, shared modules, assets, and icons |
+| `pnpm dev`                 | Watch mode + wp-env                                                   |
+| `pnpm setup`               | Install, build, and start wp-env                                      |
+| `pnpm test`                | All tests (JS, tool tests, PHP)                                       |
+| `pnpm test:any -- <flags>` | Targeted PHPUnit runs inside wp-env                                   |
+| `pnpm test:unit`           | PHP unit tests                                                        |
+| `pnpm test:integration`    | PHP integration tests                                                 |
+| `pnpm test:security`       | Security tests                                                        |
+| `pnpm test:accessibility`  | Accessibility tests                                                   |
+| `pnpm test:performance`    | Performance benchmarks                                                |
+| `pnpm lint:all`            | Prettier, ESLint, TypeScript, Stylelint, PHPCS                        |
+| `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
+| `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
+| `pnpm analyse:php`         | PHPStan (level 6)                                                     |
+| `pnpm qa`                  | Tests + lint + PHPStan                                                |
+| `pnpm perf`                | Lighthouse performance budget (build + report)                        |
+| `pnpm env:start`           | Start wp-env (port 9910)                                              |
+| `pnpm env:stop`            | Stop wp-env                                                           |
 
 ### Scaffolding Blocks
 
@@ -98,12 +98,12 @@ pnpm create-block-interactive <name>  # Interactivity API block
 
 `theme.json` is the single source of truth for editor-configurable design decisions. WordPress exposes preset and custom CSS variables; `src/styles/base/tokens.css` provides a thin `--aa-*` alias layer for component CSS.
 
-| Layer | Owns | Use |
-|-------|------|-----|
-| `theme.json` | Palette, spacing, typography, motion, radius, shadows, z-index, density | Source of truth and Site Editor configuration |
-| `src/styles/base/tokens.css` | `--aa-*` aliases, derived commerce/status colors, safe runtime defaults | Component-facing token API |
-| Feature CSS | Layout and state composition | Prefer tokens; avoid raw values unless truly local |
-| `build/styles/` | Compiled output | Generated — do not edit directly |
+| Layer                        | Owns                                                                    | Use                                                |
+| ---------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------- |
+| `theme.json`                 | Palette, spacing, typography, motion, radius, shadows, z-index          | Source of truth and Site Editor configuration      |
+| `src/styles/base/tokens.css` | `--aa-*` aliases, derived commerce/status colors, safe runtime defaults | Component-facing token API                         |
+| Feature CSS                  | Layout and state composition                                            | Prefer tokens; avoid raw values unless truly local |
+| `build/styles/`              | Compiled output                                                         | Generated — do not edit directly                   |
 
 After token changes:
 
@@ -169,22 +169,22 @@ Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
 **Navigation — desktop (`aggressive-apparel/navigation` store):**
 
-| Block | Role |
-|-------|------|
-| `navigation` | Horizontal menu bar; submenu theming context |
-| `navigation-trigger` | Hamburger button (opens the mobile panel store) |
-| `nav-link` | Single link (shared leaf) |
-| `nav-submenu-dropdown` | Click/hover dropdown |
-| `nav-submenu-mega` | Full-width mega menu |
+| Block                  | Role                                            |
+| ---------------------- | ----------------------------------------------- |
+| `navigation`           | Horizontal menu bar; submenu theming context    |
+| `navigation-trigger`   | Hamburger button (opens the mobile panel store) |
+| `nav-link`             | Single link (shared leaf)                       |
+| `nav-submenu-dropdown` | Click/hover dropdown                            |
+| `nav-submenu-mega`     | Full-width mega menu                            |
 
 **Navigation — mobile panel (`aggressive-apparel/navigation-panel` store, portaled to `wp_footer`):**
 
-| Block | Role |
-|-------|------|
-| `navigation-panel` | Slide-in drawer root |
-| `nav-panel-header` / `nav-panel-footer` | Optional drawer chrome |
-| `nav-submenu-accordion` | Expand-in-place submenu |
-| `nav-submenu-drilldown` | Slide-over submenu (overlay or push) |
+| Block                                   | Role                                 |
+| --------------------------------------- | ------------------------------------ |
+| `navigation-panel`                      | Slide-in drawer root                 |
+| `nav-panel-header` / `nav-panel-footer` | Optional drawer chrome               |
+| `nav-submenu-accordion`                 | Expand-in-place submenu              |
+| `nav-submenu-drilldown`                 | Slide-over submenu (overlay or push) |
 
 **Commerce & filters:** `filter-toggle`, `filter-active-bar`, `product-color-swatches`, `product-tabs`, `grid-list-toggle`, `countdown-timer`, `recently-viewed`, `search`
 
@@ -211,13 +211,13 @@ Color swatches use `Color_Attribute_Manager`, `Color_Data_Manager`, `Color_Block
 
 Tests run inside wp-env (Docker). WooCommerce is installed in the test environment.
 
-| Suite | Coverage |
-|-------|----------|
-| Unit | Bootstrap, assets, theme support, blocks, WooCommerce classes |
-| Integration | WooCommerce integration, block rendering |
-| Security | HTTP security headers, permission enforcement |
-| Accessibility | ARIA attributes, keyboard navigation |
-| Performance | Load time and resource usage benchmarks |
+| Suite         | Coverage                                                      |
+| ------------- | ------------------------------------------------------------- |
+| Unit          | Bootstrap, assets, theme support, blocks, WooCommerce classes |
+| Integration   | WooCommerce integration, block rendering                      |
+| Security      | HTTP security headers, permission enforcement                 |
+| Accessibility | ARIA attributes, keyboard navigation                          |
+| Performance   | Load time and resource usage benchmarks                       |
 
 **Tools:** PHPUnit 9.6, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint, Jest (via wp-scripts)
 
@@ -270,7 +270,7 @@ Added via `Bootstrap::add_security_headers()`:
 
 ## Requirements
 
-- WordPress 6.9+
+- WordPress 7.0+
 - PHP 8.0+ (8.3 recommended; used in wp-env and CI)
 - Node.js 24+ with pnpm 11+
 - WooCommerce 7.0+ (recommended)

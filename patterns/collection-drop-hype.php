@@ -13,8 +13,8 @@
 ?><!-- wp:cover {"dimRatio":70,"overlayColor":"black","isUserOverlayColor":true,"minHeight":70,"minHeightUnit":"vh","contentPosition":"center center","align":"full","isDark":true,"style":{"spacing":{"margin":{"top":"0","bottom":"0"}}}} -->
 <div class="wp-block-cover alignfull is-dark has-black-overlay-color" style="margin-top:0;margin-bottom:0;min-height:70vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-70 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"900px"}} -->
 <div class="wp-block-group">
-	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"700"}},"textColor":"red","fontSize":"small"} -->
-	<p class="has-text-align-center has-red-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.2em;text-transform:uppercase">Dropping Soon</p>
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"small"} -->
+	<p class="has-text-align-center has-accent-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.2em;text-transform:uppercase">Dropping Soon</p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","level":1,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"900","lineHeight":"0.95"},"spacing":{"margin":{"top":"var:preset|spacing|6"}}},"textColor":"white","fontSize":"fluid-xxxxxxxxx-large"} -->
@@ -31,8 +31,8 @@
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--10)">
-		<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-red-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase" href="/my-account">Get Notified</a></div>
+		<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}}} -->
+		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase" href="/my-account">Get Notified</a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

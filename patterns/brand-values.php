@@ -24,8 +24,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">01</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">01</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
@@ -40,8 +40,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">02</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">02</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
@@ -56,8 +56,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">03</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">03</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->

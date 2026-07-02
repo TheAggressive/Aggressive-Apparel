@@ -26,8 +26,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
 			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
-				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
-				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">R</h3>
+				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxx-large"} -->
+				<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxx-large-font-size">R</h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
@@ -38,8 +38,8 @@
 				<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)">Our classic fit. Comfortable and versatile with room to move. True to size — order your usual size.</p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"red","className":"is-style-wide"} -->
-				<hr class="wp-block-separator has-text-color has-red-color has-alpha-channel-opacity has-red-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
+				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"accent","className":"is-style-wide"} -->
+				<hr class="wp-block-separator has-text-color has-accent-color has-alpha-channel-opacity has-accent-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
 				<!-- /wp:separator -->
 
 				<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"x-small"} -->
@@ -54,8 +54,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
 			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
-				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
-				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">S</h3>
+				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxx-large"} -->
+				<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxx-large-font-size">S</h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
@@ -66,8 +66,8 @@
 				<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)">Tailored and streamlined. Hugs the body without restricting movement. Great for layering.</p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"red","className":"is-style-wide"} -->
-				<hr class="wp-block-separator has-text-color has-red-color has-alpha-channel-opacity has-red-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
+				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"accent","className":"is-style-wide"} -->
+				<hr class="wp-block-separator has-text-color has-accent-color has-alpha-channel-opacity has-accent-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
 				<!-- /wp:separator -->
 
 				<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"x-small"} -->
@@ -82,8 +82,8 @@
 		<div class="wp-block-column">
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent)"}}} -->
 			<div class="wp-block-group has-border-color" style="border-color:color-mix(in oklch, var(--wp--preset--color--white) 20%, transparent);border-width:1px;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--8)">
-				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxx-large"} -->
-				<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxx-large-font-size">O</h3>
+				<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxx-large"} -->
+				<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxx-large-font-size">O</h3>
 				<!-- /wp:heading -->
 
 				<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"},"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"x-large"} -->
@@ -94,8 +94,8 @@
 				<p class="has-text-align-center has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--4)">Intentionally roomy for that street-ready silhouette. Dropped shoulders and a longer body.</p>
 				<!-- /wp:paragraph -->
 
-				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"red","className":"is-style-wide"} -->
-				<hr class="wp-block-separator has-text-color has-red-color has-alpha-channel-opacity has-red-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
+				<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6"}}},"backgroundColor":"accent","className":"is-style-wide"} -->
+				<hr class="wp-block-separator has-text-color has-accent-color has-alpha-channel-opacity has-accent-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--6);margin-bottom:var(--wp--preset--spacing--6)"/>
 				<!-- /wp:separator -->
 
 				<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"x-small"} -->

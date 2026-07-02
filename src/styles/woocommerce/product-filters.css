@@ -22,7 +22,7 @@ body.has-product-filters {
 	--pf-slider-thumb: 1.5rem;
 	--pf-bg: var(--aa-color-surface);
 	--pf-fg: var(--aa-color-foreground);
-	--pf-accent: var(--aa-color-brand-red);
+	--pf-accent: var(--aa-color-accent);
 	--pf-border: var(--aa-color-border-default);
 	--pf-hover: var(--aa-color-hover-subtle);
 	--pf-muted: var(--aa-color-muted-40);

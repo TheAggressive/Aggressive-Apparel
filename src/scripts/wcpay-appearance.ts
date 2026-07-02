@@ -2,7 +2,7 @@
  * WooPayments Stripe Elements appearance.
  *
  * Matches block checkout/cart field styling (adaptive light/dark tokens,
- * translucent fill, uppercase floating labels, red left-bar focus) via
+ * translucent fill, uppercase floating labels, accent left-bar focus) via
  * Stripe's Appearance API. Cross-origin iframe fields cannot be styled with
  * theme CSS — this listener mutates `event.detail.appearance` on cache miss.
  *
@@ -155,7 +155,7 @@ function sampleFromInput(input: HTMLInputElement): SampledFieldStyles {
   const rawBackground = inputStyles.backgroundColor;
   const fieldBackground = toOpaqueRgb(rawBackground, pageBackground);
   const brandColor = toOpaqueRgb(
-    resolveToken('--aa-color-brand-red'),
+    resolveToken('--aa-color-accent'),
     fieldBackground
   );
 
@@ -247,7 +247,7 @@ function sampleCheckoutFieldStyles(): SampledFieldStyles | null {
 }
 
 /**
- * Input rule with brand-red left border (focus-only).
+ * Input rule with adaptive accent left border (focus-only).
  */
 function inputWithBrandBorder(
   inputBase: Record<string, string>,

@@ -12,7 +12,7 @@
  * `wp_kses` — that strips `<svg>` (and lowercases `viewBox`). Empty spans + a
  * CSS-driven mark survive sanitisation intact.
  *
- * A muted "track" of five marks sits under a brand-red "fill" clipped to the
+ * A muted "track" of five marks sits under a adaptive accent "fill" clipped to the
  * rating percentage (the same proportional model WooCommerce uses), so partial
  * ratings render correctly.
  *

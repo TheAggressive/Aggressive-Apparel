@@ -16,8 +16,8 @@
 	<div class="wp-block-columns">
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">10K+</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">10K+</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"},"spacing":{"margin":{"top":"var:preset|spacing|2"}}},"textColor":"white","fontSize":"x-small"} -->
@@ -28,8 +28,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">100%</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">100%</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"},"spacing":{"margin":{"top":"var:preset|spacing|2"}}},"textColor":"white","fontSize":"x-small"} -->
@@ -40,8 +40,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">30-Day</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">30-Day</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"},"spacing":{"margin":{"top":"var:preset|spacing|2"}}},"textColor":"white","fontSize":"x-small"} -->
@@ -52,8 +52,8 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"red","fontSize":"fluid-xxxxxx-large"} -->
-			<h3 class="wp-block-heading has-text-align-center has-red-color has-text-color has-fluid-xxxxxx-large-font-size">24/7</h3>
+			<!-- wp:heading {"textAlign":"center","level":3,"textColor":"accent","fontSize":"fluid-xxxxxx-large"} -->
+			<h3 class="wp-block-heading has-text-align-center has-accent-color has-text-color has-fluid-xxxxxx-large-font-size">24/7</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"},"spacing":{"margin":{"top":"var:preset|spacing|2"}}},"textColor":"white","fontSize":"x-small"} -->

@@ -16,8 +16,8 @@
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
-			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
-			<p class="has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Referral Program</p>
+			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Referral Program</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxx-large"} -->
@@ -30,8 +30,8 @@
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
 			<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--10)">
-				<!-- wp:button {"backgroundColor":"red","textColor":"white","style":{"border":{"radius":"var(--wp--custom--radius--button)"},"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-				<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-red-background-color has-white-color has-text-color has-background wp-element-button" href="/my-account/referrals" style="border-radius:var(--wp--custom--radius--button);padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--10)">Get Your Referral Link</a></div>
+				<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"border":{"radius":"var(--wp--custom--radius--button)"},"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
+				<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-accent-background-color has-white-color has-text-color has-background wp-element-button" href="/my-account/referrals" style="border-radius:var(--wp--custom--radius--button);padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--10)">Get Your Referral Link</a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

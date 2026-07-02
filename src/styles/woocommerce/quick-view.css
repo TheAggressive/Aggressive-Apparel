@@ -407,7 +407,7 @@
 	top: 0.75rem;
 	left: 0.75rem;
 	padding: 0.3em 0.6em;
-	background-color: var(--aa-color-brand-red);
+	background-color: var(--aa-color-accent);
 	color: var(--aa-color-surface);
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -618,7 +618,7 @@
 }
 
 .aggressive-apparel-quick-view__price-current {
-	color: var(--aa-color-brand);
+	color: var(--aa-color-accent);
 }
 
 /* Short description — hidden on small screens where space is tight. */
@@ -802,9 +802,9 @@
 	align-items: center;
 	justify-content: center;
 	padding: 0.7em 1.5em;
-	border: 2px solid var(--aa-color-brand);
+	border: 2px solid var(--aa-color-accent);
 	border-radius: var(--aa-radius-full);
-	background: var(--aa-color-brand);
+	background: var(--aa-color-accent);
 	color: var(--aa-color-foreground);
 	font-size: 0.85rem;
 	font-weight: 600;

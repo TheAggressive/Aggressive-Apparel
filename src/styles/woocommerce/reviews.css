@@ -3,7 +3,7 @@
  *
  * Editorial treatment for WooCommerce's classic (non-block) review markup. The
  * customer's own words are the hero: large body copy on a lifted card, a
- * brand-red spine as the signature, the brand mark as the rating, and a compact
+ * adaptive accent spine as the signature, the brand mark as the rating, and a compact
  * byline. The "Add a review" form is restyled to match.
  *
  * WooCommerce ships deeply-specific unlayered CSS for `#reviews`
@@ -58,7 +58,7 @@
 	}
 
 	/*
-	 * The card. A brand-red spine on the leading edge is the signature; the body
+	 * The card. A adaptive accent spine on the leading edge is the signature; the body
 	 * sits on a lifted surface. The spine is a real border-inline-start (not a
 	 * ::before bar) so it respects the radius and nothing gets clipped.
 	 * Avatar column + content.
@@ -72,7 +72,7 @@
 		width: 100%;
 		margin: 0;
 		padding: var(--wp--preset--spacing--6);
-		border-inline-start: var(--aa-review-spine) solid var(--aa-color-brand-red, var(--aa-color-brand));
+		border-inline-start: var(--aa-review-spine) solid var(--aa-color-accent, var(--aa-color-accent));
 		border-radius: var(--aa-radius-card);
 		background-color: var(--aa-review-card-bg);
 		transition:
@@ -193,7 +193,7 @@
 	 *
 	 * WooCommerce nests replies in `ul.children`; left alone they look like a
 	 * broken, half-width card. Here they read as a deliberate reply — indented,
-	 * a muted spine instead of brand red, and a "Reply" eyebrow.
+	 * a muted spine instead of adaptive accent, and a "Reply" eyebrow.
 	 * --------------------------------------------------------------------- */
 
 	/*
@@ -302,7 +302,7 @@
 	}
 
 	& .comment-form .required {
-		color: var(--aa-color-brand-red, var(--aa-color-error));
+		color: var(--aa-color-accent, var(--aa-color-error));
 		border: none;
 	}
 

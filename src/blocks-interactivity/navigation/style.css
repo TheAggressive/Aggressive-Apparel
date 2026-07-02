@@ -140,7 +140,7 @@
   top: 100%;
   left: 0;
   height: var(--indicator-height, 3px);
-  background: var(--indicator-color, var(--wp--preset--color--primary, currentColor));
+  background: var(--indicator-color, var(--wp--preset--color--accent, currentColor));
   border-radius: var(--indicator-radius, 1.5px);
   width: var(--indicator-width, 0);
   transform: translateX(var(--indicator-x, 0)) translateY(var(--indicator-y, -3px));

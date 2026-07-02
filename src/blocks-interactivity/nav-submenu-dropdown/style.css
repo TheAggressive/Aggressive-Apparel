@@ -57,7 +57,7 @@
 
     &:hover,
     &:focus {
-      color: var(--wp--preset--color--primary, currentColor);
+      color: var(--wp--preset--color--accent, currentColor);
     }
 
     &:focus-visible {
@@ -125,7 +125,7 @@
   /* Panel link styling */
   & .wp-block-aggressive-apparel-nav-submenu__panel .wp-block-aggressive-apparel-nav-link {
     --nav-link-color: var(--submenu-color, currentcolor);
-    --nav-link-hover-color: var(--submenu-link-hover-color, var(--wp--preset--color--primary, currentColor));
+    --nav-link-hover-color: var(--submenu-link-hover-color, var(--wp--preset--color--accent, currentColor));
 
     margin: 0;
   }

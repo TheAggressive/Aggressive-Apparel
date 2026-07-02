@@ -19,7 +19,7 @@
 
 	&__progress {
 		height: 100%;
-		background-color: var(--aa-color-brand-red);
+		background-color: var(--aa-color-accent);
 		border-radius: 3px;
 		transition: width 0.4s ease;
 	}

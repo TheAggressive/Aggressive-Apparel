@@ -3,7 +3,7 @@
  *
  * `.aa-rating` is the reusable marks component (also used by the reviews-tab
  * per-review rating via the WC template override): a muted "track" of brand
- * marks under a brand-red "fill" clipped to the rating percentage. `.aa-product-
+ * marks under a adaptive accent "fill" clipped to the rating percentage. `.aa-product-
  * rating` is the block wrapper (marks + reviews-count link).
  *
  * @package Aggressive_Apparel
@@ -65,13 +65,13 @@
 	color: var(--aa-color-border-strong, color-mix(in oklch, currentColor 25%, transparent));
 }
 
-/* Brand-red marks, clipped to the rating % (width set inline by the renderer). */
+/* Adaptive accent marks, clipped to the rating % (width set inline by the renderer). */
 .aa-rating__fill {
 	position: absolute;
 	inset-block: 0;
 	inset-inline-start: 0;
 	overflow: hidden;
-	color: var(--aa-color-brand-red, var(--aa-color-brand, currentColor));
+	color: var(--aa-color-accent, var(--aa-color-accent, currentColor));
 }
 
 .aa-rating__mark {

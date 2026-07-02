@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "title": "Section: Surface",
+  "slug": "section-surface",
+  "blockTypes": ["core/group", "core/columns", "core/media-text", "core/cover"],
+  "styles": {
+    "border": {
+      "top": {
+        "color": "var:preset|color|border",
+        "style": "solid",
+        "width": "1px"
+      },
+      "bottom": {
+        "color": "var:preset|color|border",
+        "style": "solid",
+        "width": "1px"
+      }
+    },
+    "color": {
+      "background": "var:preset|color|surface-elevated",
+      "text": "var:preset|color|foreground"
+    },
+    "shadow": "var:preset|shadow|small",
+    "spacing": {
+      "padding": {
+        "top": "var:preset|spacing|fluid-16",
+        "right": "var:preset|spacing|fluid-12",
+        "bottom": "var:preset|spacing|fluid-16",
+        "left": "var:preset|spacing|fluid-12"
+      }
+    },
+    "elements": {
+      "heading": {
+        "color": {
+          "text": "var:preset|color|foreground"
+        }
+      },
+      "link": {
+        "color": {
+          "text": "var:preset|color|accent"
+        }
+      }
+    }
+  }
+}

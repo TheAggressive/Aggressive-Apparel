@@ -82,6 +82,7 @@ functions.php
 **Namespace:** `Aggressive_Apparel\`
 
 **Key Classes:**
+
 - [class-bootstrap.php](includes/class-bootstrap.php) - Main initialization, security headers
 - [class-service-container.php](includes/class-service-container.php) - DI container
 - [class-blocks.php](includes/Blocks/class-blocks.php) - Auto-discovers and registers blocks
@@ -113,6 +114,7 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 **Product filter blocks:** When Product Filters is enabled, place `aggressive-apparel/filter-toggle` and `aggressive-apparel/filter-active-bar` on shop, category, and tag archive templates. There is no automatic injection — both blocks wire into the shared `aggressive-apparel/product-filters` Interactivity store. CSS lives in each block's `style.css`, not the global product-filters stylesheet.
 
 **Creating New Blocks:**
+
 ```bash
 # Static block
 pnpm create-block <block-name>
@@ -127,12 +129,14 @@ pnpm create-block-interactive <block-name>
 ## Coding Standards
 
 ### PHP
+
 - Follow WordPress Coding Standards (WPCS 3.1)
 - Use strict types: `declare(strict_types=1);`
 - PHPStan level 6 analysis
 - PSR-4 autoloading with WordPress naming conventions
 
 **File Naming Convention:**
+
 ```
 Class Name:              File Name:
 Theme_Support     →      class-theme-support.php
@@ -141,18 +145,21 @@ WooCommerce_Support →    class-woocommerce-support.php
 ```
 
 **Adding a New PHP Class:**
+
 1. Create file in appropriate directory under `includes/`
 2. Use namespace matching directory: `Aggressive_Apparel\Core\My_Class`
 3. File name: `class-my-class.php`
 4. Autoloader handles loading automatically
 
 ### JavaScript/TypeScript
+
 - TypeScript for all new code
 - React/JSX for block editor components
 - ESLint with WordPress plugin
 - Prettier for formatting
 
 ### CSS
+
 - Tailwind CSS 4.x with PostCSS
 - Stylelint for linting
 - BEM-like naming for custom classes
@@ -176,11 +183,11 @@ All full-screen modals and overlays **must** follow this consistent pattern:
 
 ### Current Implementations
 
-| Component | CSS | JS | Backdrop Opacity |
-|-----------|-----|-----|-----------------|
-| Quick View | `quick-view.css` | `quick-view.js` | 50% |
-| Size Guide | `size-guide.css` | `size-guide.js` | 80% |
-| Bottom Nav Search | `mobile-bottom-nav.css` | `bottom-nav.js` | 50% |
+| Component         | CSS                     | JS              | Backdrop Opacity |
+| ----------------- | ----------------------- | --------------- | ---------------- |
+| Quick View        | `quick-view.css`        | `quick-view.js` | 50%              |
+| Size Guide        | `size-guide.css`        | `size-guide.js` | 80%              |
+| Bottom Nav Search | `mobile-bottom-nav.css` | `bottom-nav.js` | 50%              |
 
 ## Testing
 
@@ -217,6 +224,7 @@ pnpm test:js:watch
 ```
 
 ### Test Configuration
+
 - PHPUnit 9.6 with Yoast Polyfills
 - Jest for JavaScript
 - wp-env for WordPress test environment
@@ -231,6 +239,7 @@ WooCommerce features are **conditionally loaded** only when WooCommerce is activ
 - Cart and checkout templates
 
 **WooCommerce Templates:**
+
 - [archive-product.html](templates/archive-product.html)
 - [single-product.html](templates/single-product.html)
 - [page-cart.html](templates/page-cart.html)
@@ -241,13 +250,13 @@ WooCommerce features are **conditionally loaded** only when WooCommerce is activ
 
 The theme includes a comprehensive color attribute system for product variations:
 
-| Class | Purpose |
-|-------|---------|
-| `Color_Attribute_Manager` | Manages WooCommerce color attributes |
-| `Color_Data_Manager` | Handles color data persistence |
-| `Color_Block_Swatch_Manager` | Renders swatches in blocks |
-| `Color_Pattern_Admin` | Admin UI for color patterns |
-| `Color_Admin_UI` | Color swatch admin interface |
+| Class                        | Purpose                              |
+| ---------------------------- | ------------------------------------ |
+| `Color_Attribute_Manager`    | Manages WooCommerce color attributes |
+| `Color_Data_Manager`         | Handles color data persistence       |
+| `Color_Block_Swatch_Manager` | Renders swatches in blocks           |
+| `Color_Pattern_Admin`        | Admin UI for color patterns          |
+| `Color_Admin_UI`             | Color swatch admin interface         |
 
 ## Navigation System
 
@@ -255,33 +264,37 @@ Navigation is split into **two independent block subsystems**, each with its own
 root block and Interactivity store. `nav-link` is the shared leaf used by both.
 
 ### Desktop subsystem — `aggressive-apparel/navigation`
+
 Horizontal menu bar. Store: `aggressive-apparel/navigation` ([navigation/store.ts](src/blocks-interactivity/navigation/store.ts)).
 
-| Block | Role |
-|-------|------|
-| `navigation` | Root container. Provides submenu theming context (`navigationId`, `submenuBackgroundColor`, border/radius, etc.). |
-| `navigation-trigger` | Hamburger button. Lives in the desktop nav but drives the **mobile panel** store (opens the drawer). |
-| `nav-submenu-dropdown` | Click/hover dropdown (`ancestor: navigation`). |
-| `nav-submenu-mega` | Full-width mega menu with arbitrary inner blocks (`ancestor: navigation`). |
+| Block                  | Role                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `navigation`           | Root container. Provides submenu theming context (`navigationId`, `submenuBackgroundColor`, border/radius, etc.). |
+| `navigation-trigger`   | Hamburger button. Lives in the desktop nav but drives the **mobile panel** store (opens the drawer).              |
+| `nav-submenu-dropdown` | Click/hover dropdown (`ancestor: navigation`).                                                                    |
+| `nav-submenu-mega`     | Full-width mega menu with arbitrary inner blocks (`ancestor: navigation`).                                        |
 
 ### Mobile subsystem — `aggressive-apparel/navigation-panel`
+
 Slide-in drawer, **portaled to `wp_footer`** so `position: fixed` escapes ancestor
 stacking/transform contexts. Store: `aggressive-apparel/navigation-panel`
 ([navigation-panel/store.ts](src/blocks-interactivity/navigation-panel/store.ts)).
 Mutable state lives in `state._panels[panelSlug]`, shared between the trigger and
 the portaled panel.
 
-| Block | Role |
-|-------|------|
-| `navigation-panel` | Root drawer. Provides `navigationId` (= panelSlug) + panel hover color context. |
-| `nav-panel-header` / `nav-panel-footer` | Optional drawer chrome (`parent: navigation-panel`). |
-| `nav-submenu-accordion` | Expand-in-place submenu (`ancestor: navigation-panel`). |
-| `nav-submenu-drilldown` | Slide-over submenu, supports nesting + overlay/push animation (`ancestor: navigation-panel`). |
+| Block                                   | Role                                                                                          |
+| --------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `navigation-panel`                      | Root drawer. Provides `navigationId` (= panelSlug) + panel hover color context.               |
+| `nav-panel-header` / `nav-panel-footer` | Optional drawer chrome (`parent: navigation-panel`).                                          |
+| `nav-submenu-accordion`                 | Expand-in-place submenu (`ancestor: navigation-panel`).                                       |
+| `nav-submenu-drilldown`                 | Slide-over submenu, supports nesting + overlay/push animation (`ancestor: navigation-panel`). |
 
 ### Shared leaf
+
 - `nav-link` — single link. `parent` of every container above. Consumes `navigationId` context.
 
 ### Shared code
+
 - `nav-shared/dom.ts` + `nav-shared/keys.ts` hold the helpers/constants that are
   byte-identical across both subsystems (`logError`/`logWarning`,
   `safeQuerySelector*`, `safeGetElementById`, `prefersReducedMotion`, `KEYS`,
@@ -292,6 +305,7 @@ the portaled panel.
   intentionally stay per-subsystem because they differ.
 
 ### Cross-subsystem gotchas
+
 - Because the panel is portaled, **`data-wp-bind` / `data-wp-class` directives don't
   react across the portal boundary**. Drilldown open-state class and the trigger's
   `aria-expanded` are toggled imperatively in `callbacks.onSubmenuStateChange`.
@@ -307,6 +321,7 @@ the portaled panel.
   enqueued modules get mapped), so a view module importing the store would fail.
 
 **Key Attributes:**
+
 - `breakpoint`: Mobile breakpoint (default: 1024px)
 - `openOn`: "hover" or "click" for desktop submenus
 - `position`: "left" or "right" for the mobile panel
@@ -315,6 +330,7 @@ the portaled panel.
 ## WordPress Hooks
 
 ### Actions
+
 ```php
 // After theme initialization
 do_action('aggressive_apparel_init');
@@ -324,6 +340,7 @@ do_action('aggressive_apparel_after_image_sizes');
 ```
 
 ### Filters
+
 ```php
 // Modify body classes
 add_filter('body_class', ...);
@@ -351,6 +368,7 @@ pnpm build:assets        # Scripts and styles only
 ### Asset Loading
 
 Assets use `.asset.php` files for dependency management:
+
 ```php
 // Automatically generated
 return array(
@@ -372,6 +390,7 @@ return array(
 ```
 
 ### Debug Flags
+
 - `WP_DEBUG`: true
 - `WP_DEBUG_LOG`: true
 - `SCRIPT_DEBUG`: true
@@ -405,13 +424,13 @@ aggressive_apparel_asset_path($path)    // Get asset file path
 
 Retina-ready image sizes defined in [class-image-sizes.php](includes/Core/class-image-sizes.php):
 
-| Size Name | Dimensions | Use Case |
-|-----------|------------|----------|
-| `aggressive-apparel-product-featured` | 1200x1200 | Product hero images |
-| `aggressive-apparel-product-thumbnail` | 400x400 | Product grid thumbnails |
-| `aggressive-apparel-product-gallery` | 1200x1200 | Product gallery images |
-| `aggressive-apparel-blog-featured` | 1600x900 | Blog hero (16:9) |
-| `aggressive-apparel-blog-thumbnail` | 600x400 | Blog cards (3:2) |
+| Size Name                              | Dimensions | Use Case                |
+| -------------------------------------- | ---------- | ----------------------- |
+| `aggressive-apparel-product-featured`  | 1200x1200  | Product hero images     |
+| `aggressive-apparel-product-thumbnail` | 400x400    | Product grid thumbnails |
+| `aggressive-apparel-product-gallery`   | 1200x1200  | Product gallery images  |
+| `aggressive-apparel-blog-featured`     | 1600x900   | Blog hero (16:9)        |
+| `aggressive-apparel-blog-thumbnail`    | 600x400    | Blog cards (3:2)        |
 
 ## SVG Icon System
 
@@ -432,6 +451,7 @@ Icons::list();
 ```
 
 **Available Icons:**
+
 - **Navigation:** `hamburger`, `close`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `arrow-left`, `arrow-right`
 - **Actions:** `search`, `cart`, `user`, `heart`
 - **UI:** `check`, `plus`, `minus`, `info`, `warning`, `error`
@@ -440,6 +460,7 @@ Icons::list();
 ## Design Tokens (theme.json)
 
 ### Layout
+
 - **Content Width:** 1200px
 - **Wide Width:** 1400px
 
@@ -449,23 +470,24 @@ The editor swatch **name matches the slug** (so `var(--aa-color-foreground)` ↔
 "Foreground"), and adaptive (light/dark) colors carry an **"(Adaptive)"** suffix
 so it's clear they shift with the color scheme.
 
-| Editor name | Slug (= CSS) | Value |
-|------|------|-------|
-| Primary | `primary` | Brand red (`var(--wp--preset--color--red)`); token `--aa-color-brand` |
-| Red | `red` | `oklch(57.7% 0.245 27.325)`; token `--aa-color-brand-red` |
-| White | `white` | `#ffffff` |
-| Black | `black` | `#000000` |
-| Surface (Adaptive) | `surface` | Adaptive page/section background |
-| Surface Elevated (Adaptive) | `surface-elevated` | Adaptive higher-contrast surface |
-| Foreground (Adaptive) | `foreground` | Adaptive primary text |
-| Foreground Muted (Adaptive) | `foreground-muted` | Adaptive secondary text |
-| Accent (Adaptive) | `accent` | Adaptive brand interactive color |
-| Border (Adaptive) | `border` | Adaptive borders/dividers |
-| Success | `success` | `oklch(52.7% 0.137 150.1)` (status) |
-| Warning | `warning` | `oklch(55.3% 0.174 38.4)` (status) |
-| Error | `error` | `oklch(57.7% 0.215 27.3)` (status) |
-| Info | `info` | `oklch(48.8% 0.217 264.4)` (status) |
-| Neutral | `neutral` | `oklch(55.1% 0.023 264.4)` (status) |
+| Editor name                     | Slug (= CSS)           | Value                                  |
+| ------------------------------- | ---------------------- | -------------------------------------- |
+| Primary                         | `primary`              | Legacy alias to adaptive Accent        |
+| Red                             | `red`                  | Legacy alias to adaptive Accent        |
+| White                           | `white`                | `#ffffff`                              |
+| Black                           | `black`                | `#000000`                              |
+| Surface (Adaptive)              | `surface`              | Adaptive page/section background       |
+| Surface Elevated (Adaptive)     | `surface-elevated`     | Adaptive higher-contrast surface       |
+| Foreground (Adaptive)           | `foreground`           | Adaptive primary text                  |
+| Foreground Muted (Adaptive)     | `foreground-muted`     | Adaptive secondary text                |
+| Accent (Adaptive)               | `accent`               | Adaptive brand interactive color       |
+| Accent on Foreground (Adaptive) | `accent-on-foreground` | Inverse accent for foreground surfaces |
+| Border (Adaptive)               | `border`               | Adaptive borders/dividers              |
+| Success                         | `success`              | `oklch(52.7% 0.137 150.1)` (status)    |
+| Warning                         | `warning`              | `oklch(55.3% 0.174 38.4)` (status)     |
+| Error                           | `error`                | `oklch(57.7% 0.215 27.3)` (status)     |
+| Info                            | `info`                 | `oklch(48.8% 0.217 264.4)` (status)    |
+| Neutral                         | `neutral`              | `oklch(55.1% 0.023 264.4)` (status)    |
 
 Adaptive colors are injected as `light-dark()` palette entries by
 `Core/Adaptive_Colors` from `settings.custom.adaptiveColors` (edit their `light`/
@@ -511,29 +533,33 @@ style variations are defined in theme.json `styles.blocks.*.variations` (e.g. th
 `core/group` "Card") or via `register_block_style` in `Core/Theme_Support`.
 
 ### Spacing Scale
+
 47 spacing presets from `0.5` (0.125rem) to `96` (24rem), including fluid variants with `clamp()` for responsive spacing.
 
 ### Typography
+
 System font stack with 20+ fluid font sizes using `clamp()` for responsive scaling.
 
 ## Block Patterns
 
 Located in `patterns/`:
 
-| Pattern | Description |
-|---------|-------------|
-| `navigation-simple` | Basic horizontal navigation |
-| `navigation-centered` | Center-aligned navigation |
+| Pattern                     | Description                    |
+| --------------------------- | ------------------------------ |
+| `navigation-simple`         | Basic horizontal navigation    |
+| `navigation-centered`       | Center-aligned navigation      |
 | `navigation-with-dropdowns` | Navigation with dropdown menus |
-| `navigation-mega-menu` | Full mega menu implementation |
-| `hero-product-launch` | Hero section for products |
-| `product-showcase-grid` | Product grid display |
-| `customer-testimonials` | Testimonial section |
+| `navigation-mega-menu`      | Full mega menu implementation  |
+| `hero-product-launch`       | Hero section for products      |
+| `product-showcase-grid`     | Product grid display           |
+| `customer-testimonials`     | Testimonial section            |
 
 ## Git Workflow
 
 ### Commit Convention
+
 Uses [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` New feature
 - `fix:` Bug fix
 - `refactor:` Code refactoring
@@ -542,12 +568,15 @@ Uses [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` Maintenance
 
 ### Pre-commit Hooks
+
 Husky runs `pnpm precommit` which executes:
+
 - Format fixes
 - Lint fixes
 - Commitlint validation
 
 ### Semantic Release
+
 Automated versioning and changelog generation via semantic-release.
 
 ## Common Tasks
@@ -581,30 +610,33 @@ pnpm analyse:php:baseline  # Generate baseline for existing issues
 ## Troubleshooting
 
 ### Blocks Not Appearing
+
 1. Run `pnpm build`
 2. Check `build/` directory exists
 3. Clear browser cache
 4. Check for PHP errors in debug.log
 
 ### Tests Failing
+
 1. Ensure wp-env is running: `pnpm env:start`
 2. Run `composer install` in wp-env: `pnpm cli composer install`
 3. Check PHP version compatibility
 
 ### Styles Not Loading
+
 1. Verify `build/styles/` exists
 2. Check browser dev tools for 404s
 3. Run `pnpm build:assets`
 
 ## Important Files
 
-| File | Purpose |
-|------|---------|
-| [functions.php](functions.php) | Theme bootstrap |
-| [theme.json](theme.json) | Block theme configuration |
-| [style.css](style.css) | Theme metadata |
-| [package.json](package.json) | Node dependencies and scripts |
-| [composer.json](composer.json) | PHP dependencies |
-| [phpunit.xml.dist](phpunit.xml.dist) | PHPUnit configuration |
-| [phpstan.neon](phpstan.neon) | Static analysis config |
-| [.wp-env.json](.wp-env.json) | Development environment |
+| File                                 | Purpose                       |
+| ------------------------------------ | ----------------------------- |
+| [functions.php](functions.php)       | Theme bootstrap               |
+| [theme.json](theme.json)             | Block theme configuration     |
+| [style.css](style.css)               | Theme metadata                |
+| [package.json](package.json)         | Node dependencies and scripts |
+| [composer.json](composer.json)       | PHP dependencies              |
+| [phpunit.xml.dist](phpunit.xml.dist) | PHPUnit configuration         |
+| [phpstan.neon](phpstan.neon)         | Static analysis config        |
+| [.wp-env.json](.wp-env.json)         | Development environment       |

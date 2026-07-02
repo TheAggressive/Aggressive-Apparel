@@ -96,7 +96,7 @@
 .wp-block-woocommerce-product-title,
 .wc-block-grid__product-title {
 	color: var(--aa-color-foreground);
-	font-weight: 700;
+	font-weight: var(--aa-type-product-title-weight);
 	font-size: var(--aa-type-product-title-size);
 	line-height: var(--aa-type-product-title-line-height);
 	text-decoration: none;

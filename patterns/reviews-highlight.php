@@ -14,8 +14,8 @@
 <div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--14);padding-bottom:var(--wp--preset--spacing--14)">
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|3"}}} -->
 	<div class="wp-block-group">
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"1.25rem"}},"textColor":"red"} -->
-		<p class="has-red-color has-text-color" style="font-size:1.25rem">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
+		<!-- wp:paragraph {"style":{"typography":{"fontSize":"1.25rem"}},"textColor":"accent"} -->
+		<p class="has-accent-color has-text-color" style="font-size:1.25rem">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"medium"} -->

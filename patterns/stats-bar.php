@@ -16,8 +16,8 @@
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center"} -->
 		<div class="wp-block-column is-vertically-aligned-center">
-			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"fluid-xxx-large"} -->
-			<p class="has-text-align-center has-red-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">10K+</p>
+			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"fluid-xxx-large"} -->
+			<p class="has-text-align-center has-accent-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">10K+</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"fontSize":"x-small"} -->
@@ -28,8 +28,8 @@
 
 		<!-- wp:column {"verticalAlignment":"center"} -->
 		<div class="wp-block-column is-vertically-aligned-center">
-			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"fluid-xxx-large"} -->
-			<p class="has-text-align-center has-red-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">50+</p>
+			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"fluid-xxx-large"} -->
+			<p class="has-text-align-center has-accent-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">50+</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"fontSize":"x-small"} -->
@@ -40,8 +40,8 @@
 
 		<!-- wp:column {"verticalAlignment":"center"} -->
 		<div class="wp-block-column is-vertically-aligned-center">
-			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"fluid-xxx-large"} -->
-			<p class="has-text-align-center has-red-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">4.9</p>
+			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"fluid-xxx-large"} -->
+			<p class="has-text-align-center has-accent-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">4.9</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"fontSize":"x-small"} -->
@@ -52,8 +52,8 @@
 
 		<!-- wp:column {"verticalAlignment":"center"} -->
 		<div class="wp-block-column is-vertically-aligned-center">
-			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"red","fontSize":"fluid-xxx-large"} -->
-			<p class="has-text-align-center has-red-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">300+</p>
+			<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"800"}},"textColor":"accent","fontSize":"fluid-xxx-large"} -->
+			<p class="has-text-align-center has-accent-color has-text-color has-fluid-xxx-large-font-size" style="font-style:normal;font-weight:800">300+</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"fontSize":"x-small"} -->

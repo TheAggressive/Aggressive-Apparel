@@ -116,16 +116,57 @@ class Theme_Support {
 		register_block_style(
 			'core/button',
 			array(
-				'name'  => 'ghost',
-				'label' => __( 'Ghost', 'aggressive-apparel' ),
+				'name'       => 'ghost',
+				'label'      => __( 'Ghost', 'aggressive-apparel' ),
+				'style_data' => array(
+					'border' => array(
+						'color' => 'var:preset|color|foreground',
+						'style' => 'solid',
+						'width' => '2px',
+					),
+					'color'  => array(
+						'background' => 'transparent',
+						'text'       => 'var:preset|color|foreground',
+					),
+					':hover' => array(
+						'color' => array(
+							'background' => 'var:preset|color|foreground',
+							'text'       => 'var:preset|color|surface',
+						),
+					),
+				),
 			)
 		);
 
 		register_block_style(
 			'core/button',
 			array(
-				'name'  => 'text',
-				'label' => __( 'Text', 'aggressive-apparel' ),
+				'name'       => 'text',
+				'label'      => __( 'Text', 'aggressive-apparel' ),
+				'style_data' => array(
+					'border'     => array(
+						'width' => '0',
+					),
+					'color'      => array(
+						'background' => 'transparent',
+						'text'       => 'var:preset|color|accent',
+					),
+					'spacing'    => array(
+						'padding' => array(
+							'left'  => '0',
+							'right' => '0',
+						),
+					),
+					'typography' => array(
+						'textDecoration' => 'underline',
+					),
+					':hover'     => array(
+						'color' => array(
+							'background' => 'transparent',
+							'text'       => 'var:preset|color|foreground',
+						),
+					),
+				),
 			)
 		);
 
@@ -156,8 +197,25 @@ class Theme_Support {
 		register_block_style(
 			'core/button',
 			array(
-				'name'  => 'outline-on-dark',
-				'label' => __( 'Outline on Dark', 'aggressive-apparel' ),
+				'name'       => 'outline-on-dark',
+				'label'      => __( 'Outline on Dark', 'aggressive-apparel' ),
+				'style_data' => array(
+					'border' => array(
+						'color' => 'var:preset|color|white',
+						'style' => 'solid',
+						'width' => '2px',
+					),
+					'color'  => array(
+						'background' => 'transparent',
+						'text'       => 'var:preset|color|white',
+					),
+					':hover' => array(
+						'color' => array(
+							'background' => 'var:preset|color|white',
+							'text'       => 'var:preset|color|black',
+						),
+					),
+				),
 			)
 		);
 

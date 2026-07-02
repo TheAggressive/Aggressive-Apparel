@@ -16,6 +16,7 @@
 /* Import partials — each file is responsible for assigning itself
  * to the right layer via @layer aa-<name> { … } */
 @import './base/typography.css';
+@import './base/content-elements.css';
 @import './components/buttons.css';
 @import './components/field.css';
 
@@ -67,11 +68,10 @@
   --color-foreground: var(--wp--preset--color--foreground);
   --color-foreground-muted: var(--wp--preset--color--foreground-muted);
   --color-accent: var(--wp--preset--color--accent);
+  --color-accent-on-foreground: var(--wp--preset--color--accent-on-foreground);
   --color-border: var(--wp--preset--color--border);
 
-  /* Static brand colors. */
-  --color-primary: var(--wp--preset--color--primary);
-  --color-red: var(--wp--preset--color--red);
+  /* Static absolute colors. */
   --color-white: var(--wp--preset--color--white);
   --color-black: var(--wp--preset--color--black);
 
@@ -83,9 +83,10 @@
   --spacing-12: var(--wp--preset--spacing--12);
 
   /* Font families */
-  --font-sans: var(--wp--preset--font-family--system-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  --font-serif: var(--wp--preset--font-family--system-serif, Georgia, Times, serif);
-  --font-mono: var(--wp--preset--font-family--system-monospace, 'Courier New', Courier, monospace);
+  --font-sans: var(--wp--preset--font-family--space-grotesk, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  --font-heading: var(--wp--preset--font-family--bebas-neue, var(--font-sans));
+  --font-serif: georgia, 'Times New Roman', times, serif;
+  --font-mono: 'Courier New', courier, monospace;
 
   /* Font sizes */
   --font-size-small: var(--wp--preset--font-size--small, 0.875rem);

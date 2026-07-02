@@ -3,7 +3,7 @@
  *
  * Replaces WooCommerce's flat white checkout fields with the theme's look: a
  * dark, adaptive translucent fill, adaptive value text + labels, uppercase
- * tracked floating labels, and a red left bar that animates in on focus. WC's
+ * tracked floating labels, and an accent left bar that animates in on focus. WC's
  * field CSS is very specific, so !important is used to override it (acceptable —
  * the block editor can't control form styling). Only loaded on checkout/cart.
  *
@@ -88,7 +88,7 @@
 
   /* Order-summary step title */
   &::before {
-    color: var(--aa-color-brand-red);
+    color: var(--aa-color-accent);
   }
 }
 
@@ -188,12 +188,12 @@
 }
 
 /* ---- Field treatment ------------------------------------------------------
- * No border or outline — just a 3px brand-red left bar on focus. WC's field
+ * No border or outline — just a 3px adaptive accent left bar on focus. WC's field
  * CSS is very specific, so !important strips it reliably (the block editor
  * can't control form styling). Covers text inputs, textarea and the selects;
  * quantity inputs use a different component and are NOT matched. */
 
-/* Reset: strip WC's border + its focus outline/box-shadow (so only our red bar
+/* Reset: strip WC's border + its focus outline/box-shadow (so only our accent bar
  * shows), soft radius, adaptive value text, animated focus border. */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
 :is(.wc-block-checkout, .wc-block-cart) textarea,
@@ -245,9 +245,9 @@
   padding-right: 1.5rem !important;
 }
 
-/* Red left bar ONLY on focus (not on filled fields at rest). */
+/* Accent left bar ONLY on focus (not on filled fields at rest). */
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input:focus,
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
-  border-left-color: var(--aa-color-brand-red) !important;
+  border-left-color: var(--aa-color-accent) !important;
 }

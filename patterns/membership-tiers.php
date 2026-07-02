@@ -12,8 +12,8 @@
 
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)">
-	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"red","fontSize":"x-small"} -->
-	<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Membership</p>
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
+	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Membership</p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|14"}}},"fontSize":"fluid-xxxx-large"} -->
@@ -65,10 +65,10 @@
 
 		<!-- wp:column -->
 		<div class="wp-block-column">
-			<!-- wp:group {"style":{"border":{"radius":"var(--wp--custom--radius--card)","width":"2px","color":"var:preset|color|red"},"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}},"layout":{"type":"constrained"}} -->
-			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--red);border-width:2px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
-				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"textColor":"red","fontSize":"x-small"} -->
-				<p class="has-text-align-center has-red-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Most Popular</p>
+			<!-- wp:group {"style":{"border":{"radius":"var(--wp--custom--radius--card)","width":"2px","color":"var:preset|color|accent"},"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--accent);border-width:2px;border-radius:var(--wp--custom--radius--card);padding-top:var(--wp--preset--spacing--10);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--10);padding-left:var(--wp--preset--spacing--8)">
+				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-small"} -->
+				<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Most Popular</p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
@@ -99,8 +99,8 @@
 
 				<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)">
-					<!-- wp:button {"backgroundColor":"red","textColor":"white","width":100,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}}} -->
-					<div class="wp-block-button has-custom-width wp-block-button__width-100"><a class="wp-block-button__link has-white-color has-red-background-color has-text-color has-background wp-element-button" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/my-account">Join Insider</a></div>
+					<!-- wp:button {"backgroundColor":"accent","textColor":"white","width":100,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}}} -->
+					<div class="wp-block-button has-custom-width wp-block-button__width-100"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/my-account">Join Insider</a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->

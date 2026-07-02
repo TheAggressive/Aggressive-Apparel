@@ -45,7 +45,7 @@
 	max-width: 340px;
 	padding: 0.75rem 1rem;
 	border-radius: 0.5rem;
-	background-color: var(--aa-color-surface);
+	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
 	box-shadow: var(--aa-shadow-md);
 	pointer-events: auto;

@@ -6,32 +6,13 @@
  * @package Aggressive_Apparel
  */
 
-/* core/button — Ghost */
-.is-style-ghost .wp-block-button__link {
-	background-color: transparent;
-	color: var(--aa-color-foreground);
-	border: 2px solid var(--aa-color-foreground);
-}
+/* core/button — Ghost colours and interaction use WordPress style data. */
 
-.is-style-ghost .wp-block-button__link:hover {
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-}
-
-/* core/button — Text */
+/* core/button — Text colours, border, spacing, and interaction live in
+ * WordPress style data. text-underline-offset is not supported by structured
+ * styles. */
 .is-style-text .wp-block-button__link {
-	background-color: transparent;
-	color: var(--aa-color-accent);
-	border: none;
-	padding-left: 0;
-	padding-right: 0;
-	text-decoration: underline;
 	text-underline-offset: 0.15em;
-}
-
-.is-style-text .wp-block-button__link:hover {
-	color: var(--aa-color-brand-red);
-	background-color: transparent;
 }
 
 /* core/button — Small */
@@ -63,17 +44,7 @@
 	letter-spacing: 0.05em;
 }
 
-/* core/button — Outline on Dark */
-.is-style-outline-on-dark .wp-block-button__link {
-	background-color: transparent;
-	color: var(--aa-color-white);
-	border: 2px solid var(--aa-color-white);
-}
-
-.is-style-outline-on-dark .wp-block-button__link:hover {
-	background-color: var(--aa-color-white);
-	color: var(--aa-color-black);
-}
+/* core/button — Outline on Dark uses WordPress style data. */
 
 /* core/group — Frosted Glass */
 .is-style-frosted {
@@ -217,7 +188,6 @@
 /* core/heading — Display / Editorial */
 .wp-block-heading.is-style-display {
 	font-size: var(--wp--preset--font-size--fluid-xxxxx-large);
-	font-weight: 900;
 	letter-spacing: -0.03em;
 	line-height: 0.95;
 	text-transform: uppercase;
@@ -311,4 +281,3 @@
 .wp-block-image.is-style-editorial:focus-within img {
 	filter: grayscale(0%);
 }
-

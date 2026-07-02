@@ -55,29 +55,15 @@
   }
 
   /* Native <select> — separate from pill inputs; appearance:none needs an
-   * explicit surface and frame or dark-mode text vanishes on UA light fills. */
+   * explicit surface and frame or dark-mode text vanishes on UA light fills.
+   * The visual foundation now comes from styles.elements.select in theme.json;
+   * CSS retains the interaction and native-arrow treatment that theme.json
+   * cannot express. */
   :where(select) {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: var(--aa-input-height);
-    padding: 0.625rem 2.25rem 0.625rem 1rem;
-    border: 1px solid var(--aa-color-border-default);
-    border-radius: var(--aa-radius-control);
-    background-color: var(--aa-color-surface);
-    color: var(--aa-color-foreground);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 500;
-    line-height: 1.2;
     cursor: pointer;
     transition:
       border-color var(--aa-duration-fast) var(--aa-ease-default),
       background-color var(--aa-duration-fast) var(--aa-ease-default);
-  }
-
-  :where(select:hover) {
-    border-color: var(--aa-color-border-strong);
-    background-color: var(--aa-color-hover-subtle);
   }
 
   :where(select option) {
@@ -109,22 +95,7 @@
     border-left-color: var(--aa-color-accent);
   }
 
-  :where(select:focus) {
-    outline: none;
-    border-color: var(--aa-color-foreground);
-  }
-
-  :where(select:focus-visible) {
-    outline: 2px solid var(--aa-color-foreground);
-    outline-offset: 2px;
-  }
-
   :where(input, textarea):disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  :where(select:disabled) {
     opacity: 0.6;
     cursor: not-allowed;
   }
@@ -132,10 +103,6 @@
   /* Error state — only after the user has interacted (not on first paint). */
   :where(input, textarea):user-invalid {
     border-left-color: var(--aa-color-error);
-  }
-
-  :where(select:user-invalid) {
-    border-color: var(--aa-color-error);
   }
 
   /* Textarea: soft radius, not a full pill (a pill multi-line box looks odd). */
@@ -236,8 +203,44 @@
 }
 
 /* ========================================================================
- * UNLAYERED overrides — must beat WooCommerce's (unlayered) stylesheet.
+ * UNLAYERED overrides — must beat theme.json and WooCommerce's unlayered
+ * styles. Keep selectors narrow so plugin-specific form chrome can still win.
  * ====================================================================== */
+
+/* The select foundation and core Search text input are emitted by theme.json
+ * outside cascade layers. Their interaction states must also be unlayered or
+ * the non-state foundation wins regardless of selector specificity. */
+select:hover {
+  border-color: var(--aa-color-border-strong);
+  background-color: var(--aa-color-hover-subtle);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--aa-color-foreground);
+}
+
+select:focus-visible {
+  outline: 2px solid var(--aa-color-foreground);
+  outline-offset: 2px;
+}
+
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+select:user-invalid {
+  border-color: var(--aa-color-error);
+}
+
+.wp-block-search :where(input, textarea):focus {
+  border-left-color: var(--aa-color-accent);
+}
+
+.wp-block-search :where(input, textarea):user-invalid {
+  border-left-color: var(--aa-color-error);
+}
 
 /* WooCommerce — React checkout / cart blocks. Quantity steppers are
  * intentionally left alone (handled by the product/cart styling). */

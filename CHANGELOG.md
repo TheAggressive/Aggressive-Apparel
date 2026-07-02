@@ -1,3 +1,11 @@
+# [1.129.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.128.0...v1.129.0) (2026-07-02)
+
+
+### Features
+
+* implement standalone add-to-cart confirmation and enhance quick view functionality ([2d5bc9b](https://github.com/TheAggressive/Aggressive-Apparel/commit/2d5bc9bbbe73e1be4e5b852fca45745322c71778))
+* refine wishlist button functionality and improve related documentation ([8e8aac6](https://github.com/TheAggressive/Aggressive-Apparel/commit/8e8aac65c0e057b5db476baecfdb85fe6b668c18))
+
 # [1.128.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.127.0...v1.128.0) (2026-07-02)
 
 

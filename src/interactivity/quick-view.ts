@@ -175,6 +175,7 @@ interface QuickViewState {
   cartApiUrl: string;
   i18n: QuickViewLabels;
   isOpen: boolean;
+  isSuccessOpen: boolean;
   isLoading: boolean;
   hasError: boolean;
   hasProduct: boolean;
@@ -196,11 +197,9 @@ interface QuickViewState {
   isAddingToCart: boolean;
   isCartSuccess: boolean;
   isBuyingNow: boolean;
-  addedToCart: boolean;
   cartError: string;
   cartNonce: string;
   isDrawerOpen: boolean;
-  drawerView: string;
   productImages: GalleryImage[];
   _originalImages: GalleryImage[];
   activeImageIndex: number;
@@ -210,7 +209,6 @@ interface QuickViewState {
   salePercentage: number;
   productPriceRange: string;
   colorSwatchData: Record<string, ColorSwatchEntry>;
-  showPostCartActions: boolean;
   cartUrl: string;
   checkoutUrl: string;
   announcement: string;
@@ -237,16 +235,11 @@ interface QuickViewState {
   readonly isNotOnSale: boolean;
   readonly hasOneImage: boolean;
   readonly cannotAddToCart: boolean;
-  readonly hidePostCartActions: boolean;
   readonly hasNoCartError: boolean;
   readonly hasNoError: boolean;
-  readonly isMobile: boolean;
   readonly hideSelectOptionsBtn: boolean;
-  readonly hideInlineCartRow: boolean;
   readonly hideInlineAddToCart: boolean;
   readonly isDrawerClosed: boolean;
-  readonly isDrawerSuccessView: boolean;
-  readonly hideDrawerSuccess: boolean;
   readonly selectedOptionsLabel: string;
   readonly isColorAttribute: boolean;
   readonly isNotColorAttribute: boolean;
@@ -593,6 +586,7 @@ interface QuickViewStore {
 
 // Store reference for focus trap cleanup.
 let focusTrapCleanup: (() => void) | null = null;
+let successFocusTrapCleanup: (() => void) | null = null;
 let triggerElement: HTMLElement | null = null;
 
 // AbortController for the main product fetch — cancels stale requests
@@ -609,11 +603,6 @@ const variationImageCache = new Map<
 const prefersReducedMotion: MediaQueryList | { matches: false } =
   typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : { matches: false };
-
-const mobileBreakpoint: MediaQueryList | { matches: false } =
-  typeof window !== 'undefined'
-    ? window.matchMedia('(max-width: 768px)')
     : { matches: false };
 
 /* Touch swipe tracking for mobile gallery. */
@@ -805,12 +794,6 @@ function populateModalDOM(): void {
     link.href = state.productLink;
   }
 
-  // Cart row (quantity + add-to-cart).
-  const cartRow = q('.aggressive-apparel-quick-view__cart-row');
-  if (cartRow) {
-    cartRow.hidden = state.showPostCartActions;
-  }
-
   // Add to Cart button.
   const addBtn = q<HTMLButtonElement>(
     '.aggressive-apparel-quick-view__add-to-cart'
@@ -818,6 +801,51 @@ function populateModalDOM(): void {
   if (addBtn) {
     addBtn.disabled = !state.canAddToCart;
     addBtn.textContent = state.addToCartLabel;
+  }
+}
+
+/**
+ * Populate the standalone cart confirmation when hydration is unavailable.
+ */
+function populateCartSuccessDOM(): void {
+  const dialog = document.getElementById('aggressive-apparel-cart-success');
+  if (!dialog) return;
+
+  const image = dialog.querySelector<HTMLImageElement>(
+    '.aggressive-apparel-quick-view-success__image'
+  );
+  if (image) {
+    const currentImage = state.currentImage;
+    image.src = currentImage.src || '';
+    image.alt = currentImage.alt || '';
+  }
+
+  const title = dialog.querySelector<HTMLElement>(
+    '.aggressive-apparel-quick-view-success__title'
+  );
+  if (title) title.textContent = state.addedToCartMessage;
+
+  const productName = dialog.querySelector<HTMLElement>(
+    '.aggressive-apparel-quick-view-success__product-name'
+  );
+  if (productName) productName.textContent = state.productName;
+
+  const options = dialog.querySelector<HTMLElement>(
+    '.aggressive-apparel-quick-view-success__options'
+  );
+  if (options) options.textContent = state.selectedOptionsLabel;
+
+  const continueButton = dialog.querySelector<HTMLButtonElement>(
+    '.aggressive-apparel-quick-view-success__button--continue'
+  );
+  if (continueButton) continueButton.textContent = state.continueShoppingLabel;
+
+  const cartLink = dialog.querySelector<HTMLAnchorElement>(
+    '.aggressive-apparel-quick-view-success__button--view-cart'
+  );
+  if (cartLink) {
+    cartLink.href = state.cartUrl;
+    cartLink.textContent = state.viewCartLabel;
   }
 }
 
@@ -832,6 +860,7 @@ const { state, actions } = store<QuickViewStore>(
 
       // Modal visibility.
       isOpen: false,
+      isSuccessOpen: false,
       isLoading: false,
       hasError: false,
       hasProduct: false,
@@ -860,12 +889,10 @@ const { state, actions } = store<QuickViewStore>(
       // Cart interaction (cartNonce provided by PHP via wp_interactivity_state).
       isAddingToCart: false,
       isCartSuccess: false,
-      addedToCart: false,
       cartError: '',
 
-      // Mobile drawer.
+      // Variation options drawer.
       isDrawerOpen: false,
-      drawerView: 'selection', // 'selection' | 'success'
 
       // Gallery support.
       productImages: [],
@@ -887,8 +914,6 @@ const { state, actions } = store<QuickViewStore>(
       // Color swatch data (from PHP).
       colorSwatchData: {},
 
-      // Post-cart actions.
-      showPostCartActions: false,
       cartUrl: '/cart/',
 
       // Accessibility announcement.
@@ -1063,10 +1088,6 @@ const { state, actions } = store<QuickViewStore>(
         return !state.canAddToCart;
       },
 
-      get hidePostCartActions(): boolean {
-        return !state.showPostCartActions;
-      },
-
       get hasNoCartError(): boolean {
         return !state.cartError;
       },
@@ -1076,30 +1097,10 @@ const { state, actions } = store<QuickViewStore>(
       },
 
       /**
-       * Whether the viewport matches mobile breakpoint (<=768px).
-       */
-      get isMobile(): boolean {
-        return mobileBreakpoint.matches;
-      },
-
-      /**
-       * Hide "Select Options" button when not needed:
-       * simple products or post-cart showing.
+       * Hide "Select Options" button for simple products.
        */
       get hideSelectOptionsBtn(): boolean {
-        return (
-          !state.isVariable || state.showPostCartActions || state.addedToCart
-        );
-      },
-
-      /**
-       * Hide inline cart-row when post-cart panel is showing.
-       * The row stays visible for both simple and variable products;
-       * which *button* inside it is visible is controlled by
-       * hideInlineAddToCart / hideSelectOptionsBtn.
-       */
-      get hideInlineCartRow(): boolean {
-        return state.showPostCartActions;
+        return !state.isVariable;
       },
 
       /**
@@ -1112,14 +1113,6 @@ const { state, actions } = store<QuickViewStore>(
 
       get isDrawerClosed(): boolean {
         return !state.isDrawerOpen;
-      },
-
-      get isDrawerSuccessView(): boolean {
-        return state.drawerView !== 'selection';
-      },
-
-      get hideDrawerSuccess(): boolean {
-        return state.drawerView !== 'success';
       },
 
       /**
@@ -1271,6 +1264,7 @@ const { state, actions } = store<QuickViewStore>(
 
         // Reset all state.
         state.isOpen = true;
+        state.isSuccessOpen = false;
         state.isLoading = true;
         state.hasError = false;
         state.hasProduct = false;
@@ -1289,7 +1283,6 @@ const { state, actions } = store<QuickViewStore>(
         state.selectedAttributes = {};
         state.matchedVariationId = 0;
         state.quantity = 1;
-        state.addedToCart = false;
         state.cartError = '';
         variationImageCache.clear();
         state.productImages = [];
@@ -1300,9 +1293,7 @@ const { state, actions } = store<QuickViewStore>(
         state.stockStatusLabel = '';
         state.salePercentage = 0;
         state.productPriceRange = '';
-        state.showPostCartActions = false;
         state.isDrawerOpen = false;
-        state.drawerView = 'selection';
         state.announcement = '';
         // Setup focus trap after modal renders.
         requestAnimationFrame(() => {
@@ -1460,12 +1451,9 @@ const { state, actions } = store<QuickViewStore>(
         state.isOpen = false;
         state.hasProduct = false;
         state.hasError = false;
-        state.addedToCart = false;
         state.isCartSuccess = false;
         state.cartError = '';
-        state.showPostCartActions = false;
         state.isDrawerOpen = false;
-        state.drawerView = 'selection';
         state.announcement = '';
 
         const modalEl = document.getElementById(
@@ -1487,6 +1475,100 @@ const { state, actions } = store<QuickViewStore>(
             },
           });
         } else {
+          triggerElement?.focus();
+          triggerElement = null;
+        }
+      },
+
+      /**
+       * Replace quick view with a standalone add-to-cart confirmation.
+       * Both overlays briefly hold the scroll lock during the handoff so
+       * the page cannot jump between dialogs.
+       */
+      openCartSuccess(): void {
+        const successShell = document.getElementById(
+          'aggressive-apparel-cart-success'
+        );
+        const successPanel = successShell?.querySelector<HTMLElement>(
+          '.aggressive-apparel-quick-view-success__panel'
+        );
+
+        if (!successShell || !successPanel) {
+          actions.close();
+          return;
+        }
+
+        const wasQuickViewOpen = state.isOpen;
+
+        state.isSuccessOpen = true;
+        prepareOverlayOpen(successShell);
+        populateCartSuccessDOM();
+
+        const quickViewTrap = focusTrapCleanup;
+        focusTrapCleanup = null;
+        const quickViewShell = document.getElementById(
+          'aggressive-apparel-quick-view'
+        );
+        const quickViewPanel = quickViewShell?.querySelector<HTMLElement>(
+          '.aggressive-apparel-quick-view__modal'
+        );
+
+        state.isOpen = false;
+        state.isDrawerOpen = false;
+
+        if (wasQuickViewOpen && quickViewShell && quickViewPanel) {
+          closeOverlay({
+            shell: quickViewShell,
+            panel: quickViewPanel,
+            focusTrapCleanup: quickViewTrap,
+            isStillOpen: () => state.isOpen,
+          });
+        } else {
+          quickViewTrap?.();
+        }
+
+        successFocusTrapCleanup = activateOverlayFocus({
+          shell: successShell,
+          panel: successPanel,
+          focusSelector: '.aggressive-apparel-quick-view-success__close',
+        });
+      },
+
+      /**
+       * Close the standalone cart confirmation and return focus to the
+       * product image that launched quick view.
+       */
+      closeCartSuccess(): void {
+        if (!state.isSuccessOpen) return;
+
+        const trap = successFocusTrapCleanup;
+        successFocusTrapCleanup = null;
+        state.isSuccessOpen = false;
+        state.hasProduct = false;
+        state.isCartSuccess = false;
+        state.cartError = '';
+        state.announcement = '';
+
+        const successShell = document.getElementById(
+          'aggressive-apparel-cart-success'
+        );
+        const successPanel = successShell?.querySelector<HTMLElement>(
+          '.aggressive-apparel-quick-view-success__panel'
+        );
+
+        if (successShell && successPanel) {
+          closeOverlay({
+            shell: successShell,
+            panel: successPanel,
+            focusTrapCleanup: trap,
+            triggerElement,
+            isStillOpen: () => state.isSuccessOpen,
+            onFinish: () => {
+              triggerElement = null;
+            },
+          });
+        } else {
+          trap?.();
           triggerElement?.focus();
           triggerElement = null;
         }
@@ -1803,7 +1885,6 @@ const { state, actions } = store<QuickViewStore>(
           void drawerEl.offsetHeight;
         }
         state.isDrawerOpen = true;
-        state.drawerView = 'selection';
       },
 
       /**
@@ -1825,7 +1906,6 @@ const { state, actions } = store<QuickViewStore>(
           if (el && !state.isDrawerOpen) {
             el.hidden = true;
           }
-          state.drawerView = 'selection';
         };
 
         if (panel) {
@@ -1846,6 +1926,11 @@ const { state, actions } = store<QuickViewStore>(
        * Handle keyboard events (ESC to close, arrows for gallery).
        */
       handleKeydown(event: KeyboardEvent): void {
+        if (state.isSuccessOpen && event.key === 'Escape') {
+          actions.closeCartSuccess();
+          return;
+        }
+
         if (!state.isOpen) {
           return;
         }
@@ -1869,31 +1954,6 @@ const { state, actions } = store<QuickViewStore>(
         }
       },
 
-      /**
-       * Continue shopping (close modal after adding to cart).
-       */
-      continueShopping(): void {
-        if (state.isDrawerOpen) {
-          actions.closeDrawer();
-          setTimeout(() => {
-            state.showPostCartActions = false;
-            state.addedToCart = false;
-            actions.close();
-          }, 300);
-          return;
-        }
-        state.showPostCartActions = false;
-        state.addedToCart = false;
-        actions.close();
-      },
-
-      /**
-       * Navigate to cart page.
-       */
-      viewCart(): void {
-        window.location.href = state.cartUrl;
-      },
-
       async addToCart(event?: Event): Promise<void> {
         if (event) event.preventDefault();
         if (!state.canAddToCart) {
@@ -1901,7 +1961,6 @@ const { state, actions } = store<QuickViewStore>(
         }
 
         state.isAddingToCart = true;
-        state.addedToCart = false;
         state.cartError = '';
 
         // Determine the ID to add (variation ID for variable, product ID for simple).
@@ -1982,35 +2041,16 @@ const { state, actions } = store<QuickViewStore>(
             return res.json();
           })
           .then(() => {
-            // Show success state on the button briefly before revealing
-            // the post-cart panel for a more satisfying interaction.
+            // Show success state on the button briefly before opening the
+            // standalone cart confirmation.
             state.isCartSuccess = true;
             state.isAddingToCart = false;
 
             setTimeout(() => {
               state.isCartSuccess = false;
 
-              if (state.isDrawerOpen) {
-                // Variable product (any screen) — switch drawer to success view.
-                state.drawerView = 'success';
-              } else if (state.isMobile) {
-                // Simple product on mobile — open drawer with success view.
-                state.drawerView = 'success';
-                const drawerEl = document.querySelector<HTMLElement>(
-                  '.aggressive-apparel-quick-view__drawer'
-                );
-                if (drawerEl) {
-                  drawerEl.hidden = false;
-                  void drawerEl.offsetHeight;
-                }
-                state.isDrawerOpen = true;
-              } else {
-                // Simple product on desktop — inline post-cart panel.
-                state.addedToCart = true;
-                state.showPostCartActions = true;
-              }
-
               state.announcement = 'Product added to cart successfully';
+              actions.openCartSuccess();
 
               // Dispatch a custom event so WooCommerce mini-cart can update.
               document.body.dispatchEvent(
@@ -2035,7 +2075,7 @@ const { state, actions } = store<QuickViewStore>(
        * Add item to cart and redirect to checkout immediately.
        *
        * Mirrors addToCart logic but navigates to the checkout page on
-       * success instead of showing post-cart actions.
+       * success instead of showing the cart confirmation.
        */
       async buyNow(event?: Event): Promise<void> {
         if (event) event.preventDefault();
@@ -2230,7 +2270,7 @@ document.addEventListener('click', (e: MouseEvent) => {
   }
 
   // Prevent duplicate firing if the Interactivity API already handled it.
-  if (state.isOpen) {
+  if (state.isOpen || state.isSuccessOpen) {
     return;
   }
 
@@ -2258,6 +2298,11 @@ document.addEventListener('click', (e: MouseEvent) => {
 
 // ESC key to close (fallback for data-wp-on-document--keydown).
 document.addEventListener('keydown', (e: KeyboardEvent) => {
+  if (state.isSuccessOpen && e.key === 'Escape') {
+    actions.closeCartSuccess();
+    return;
+  }
+
   if (state.isOpen && e.key === 'Escape') {
     if (state.isDrawerOpen) {
       actions.closeDrawer();
@@ -2265,6 +2310,25 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
       actions.close();
       syncModalDOM();
     }
+  }
+});
+
+// Standalone cart confirmation delegation.
+document.addEventListener('click', (e: MouseEvent) => {
+  if (!state.isSuccessOpen) return;
+
+  const successDialog = document.getElementById(
+    'aggressive-apparel-cart-success'
+  );
+  if (!successDialog || !successDialog.contains(e.target as Node)) return;
+
+  const target = e.target as HTMLElement;
+  if (
+    target.closest('.aggressive-apparel-quick-view-success__backdrop') ||
+    target.closest('.aggressive-apparel-quick-view-success__close') ||
+    target.closest('.aggressive-apparel-quick-view-success__button--continue')
+  ) {
+    actions.closeCartSuccess();
   }
 });
 
@@ -2332,15 +2396,5 @@ document.addEventListener('click', (e: MouseEvent) => {
       input.value = String(state.quantity);
     }
     return;
-  }
-
-  // Continue shopping.
-  if (
-    (e.target as HTMLElement).closest(
-      '.aggressive-apparel-quick-view__btn--continue'
-    )
-  ) {
-    actions.continueShopping();
-    syncModalDOM();
   }
 });

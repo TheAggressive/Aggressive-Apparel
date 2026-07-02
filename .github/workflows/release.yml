@@ -281,7 +281,7 @@ jobs:
           # Remove config files
           rm -f webpack.* tsconfig.* eslint.config.js .stylelintrc.json postcss.config.cjs
           rm -f phpunit.xml* phpstan.* phpcs.xml* commitlint.config.mjs .releaserc.json
-          rm -f jest.config.mjs
+          rm -f jest.config.mjs lighthouserc.cjs
 
           # Remove AI assistant / dev-only docs
           rm -f CLAUDE.md
@@ -326,6 +326,14 @@ jobs:
           cd ${{ env.THEME_SLUG }}
 
           echo "Package created: $(ls -lh aggressive-apparel.zip)"
+
+      - name: Verify development files are excluded
+        run: |
+          if unzip -l aggressive-apparel.zip | grep -q 'lighthouserc\.cjs'; then
+            echo "lighthouserc.cjs must not be included in the release package"
+            exit 1
+          fi
+          echo "Development files are excluded"
 
       - name: Upload theme package
         uses: actions/upload-artifact@v4

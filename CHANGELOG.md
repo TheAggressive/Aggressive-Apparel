@@ -1,3 +1,10 @@
+## [1.129.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.2...v1.129.3) (2026-07-02)
+
+
+### Bug Fixes
+
+* update theme styles and structure ([5afdfd7](https://github.com/TheAggressive/Aggressive-Apparel/commit/5afdfd7352e0703a789c31f5fccd870b522e2942))
+
 ## [1.129.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.1...v1.129.2) (2026-07-02)
 
 

@@ -1,3 +1,10 @@
+## [1.129.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.1...v1.129.2) (2026-07-02)
+
+
+### Bug Fixes
+
+* update font sizes and layout adjustments in search and header components ([4790bde](https://github.com/TheAggressive/Aggressive-Apparel/commit/4790bde68489315fa275c276cf48a86d665c5827))
+
 ## [1.129.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.0...v1.129.1) (2026-07-02)
 
 

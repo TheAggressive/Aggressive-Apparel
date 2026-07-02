@@ -272,7 +272,7 @@ Added via `Bootstrap::add_security_headers()`:
 
 - WordPress 6.9+
 - PHP 8.0+ (8.3 recommended; used in wp-env and CI)
-- Node.js 22+ with pnpm 9+
+- Node.js 24+ with pnpm 11+
 - WooCommerce 7.0+ (recommended)
 - Docker (for wp-env)
 

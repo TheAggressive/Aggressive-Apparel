@@ -29,25 +29,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Advanced_Sorting {
 
 	/**
-	 * Transient key for savings-sorted product IDs.
+	 * Custom sort waiting to be applied to the main server-rendered query.
 	 *
 	 * @var string
 	 */
-	private const SAVINGS_TRANSIENT = 'aa_savings_sorted_ids';
-
-	/**
-	 * Transient key for featured-sorted product IDs.
-	 *
-	 * @var string
-	 */
-	private const FEATURED_TRANSIENT = 'aa_featured_sorted_ids';
-
-	/**
-	 * Transient TTL in seconds (15 minutes).
-	 *
-	 * @var int
-	 */
-	private const TRANSIENT_TTL = 900;
+	private string $ssr_sort = '';
 
 	/**
 	 * Maximum category slugs accepted by public sorting requests.
@@ -79,10 +65,6 @@ class Advanced_Sorting {
 		add_filter( 'woocommerce_catalog_orderby', array( $this, 'modify_orderby_options' ) );
 		add_filter( 'woocommerce_get_catalog_ordering_args', array( $this, 'handle_custom_ordering' ), 10, 3 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
-
-		// Cache invalidation.
-		add_action( 'woocommerce_update_product', array( $this, 'flush_sort_caches' ) );
-		add_action( 'woocommerce_new_product', array( $this, 'flush_sort_caches' ) );
 	}
 
 	/**
@@ -127,23 +109,58 @@ class Advanced_Sorting {
 				break;
 
 			case 'featured':
-				$featured_ids = $this->get_featured_sorted_ids();
-				if ( ! empty( $featured_ids ) ) {
-					$args['post__in'] = $featured_ids;
-					$args['orderby']  = 'post__in';
-				}
+				$this->ssr_sort = 'featured';
+				add_filter( 'posts_clauses', array( $this, 'apply_ssr_ordering' ), 20, 2 );
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
 				break;
 
 			case 'savings':
-				$savings_ids = $this->get_savings_sorted_ids();
-				if ( ! empty( $savings_ids ) ) {
-					$args['post__in'] = $savings_ids;
-					$args['orderby']  = 'post__in';
-				}
+				$this->ssr_sort = 'savings';
+				add_filter( 'posts_clauses', array( $this, 'apply_ssr_ordering' ), 20, 2 );
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
 				break;
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Apply a custom sort directly in SQL for the native archive query.
+	 *
+	 * @param array<string, string> $clauses Query clauses.
+	 * @param \WP_Query             $query   Query object.
+	 * @return array<string, string>
+	 */
+	public function apply_ssr_ordering( array $clauses, \WP_Query $query ): array {
+		if ( '' === $this->ssr_sort || ! $query->is_main_query() ) {
+			return $clauses;
+		}
+
+		global $wpdb;
+		if ( 'featured' === $this->ssr_sort ) {
+			$clauses['orderby'] = "EXISTS (
+				SELECT 1 FROM {$wpdb->term_relationships} aa_featured_tr
+				INNER JOIN {$wpdb->term_taxonomy} aa_featured_tt ON aa_featured_tr.term_taxonomy_id = aa_featured_tt.term_taxonomy_id
+				INNER JOIN {$wpdb->terms} aa_featured_t ON aa_featured_tt.term_id = aa_featured_t.term_id
+				WHERE aa_featured_tr.object_id = {$wpdb->posts}.ID
+				AND aa_featured_tt.taxonomy = 'product_visibility'
+				AND aa_featured_t.slug = 'featured'
+			) DESC, {$wpdb->posts}.post_date DESC";
+		} else {
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} aa_regular_price ON {$wpdb->posts}.ID = aa_regular_price.post_id AND aa_regular_price.meta_key = '_regular_price'";
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} aa_sale_price ON {$wpdb->posts}.ID = aa_sale_price.post_id AND aa_sale_price.meta_key = '_sale_price'";
+			$clauses['orderby'] = "CASE
+				WHEN aa_sale_price.meta_value <> '' AND CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) > 0
+				THEN (CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) - CAST(aa_sale_price.meta_value AS DECIMAL(20,6))) / CAST(aa_regular_price.meta_value AS DECIMAL(20,6))
+				ELSE -1 END DESC, {$wpdb->posts}.post_date DESC";
+		}
+
+		$this->ssr_sort = '';
+		remove_filter( 'posts_clauses', array( $this, 'apply_ssr_ordering' ), 20 );
+
+		return $clauses;
 	}
 
 	/**
@@ -160,28 +177,52 @@ class Advanced_Sorting {
 				'callback'            => array( $this, 'handle_sorted_products' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'sort'     => array(
+					'sort'       => array(
 						'required'          => true,
 						'type'              => 'string',
 						'enum'              => array( 'featured', 'savings' ),
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'per_page' => array(
+					'per_page'   => array(
 						'type'              => 'integer',
 						'default'           => 12,
 						'minimum'           => 1,
 						'maximum'           => 100,
 						'sanitize_callback' => 'absint',
 					),
-					'page'     => array(
+					'page'       => array(
 						'type'              => 'integer',
 						'default'           => 1,
 						'minimum'           => 1,
 						'sanitize_callback' => 'absint',
 					),
-					'category' => array(
+					'category'   => array(
 						'type'              => 'string',
 						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'on_sale'    => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+					'attributes' => array(
+						'default' => array(),
+						'type'    => 'object',
+					),
+					'min_price'  => array(
+						'default'           => 0,
+						'type'              => 'number',
+						'sanitize_callback' => static fn( $value ): float => (float) $value,
+					),
+					'max_price'  => array(
+						'default'           => 0,
+						'type'              => 'number',
+						'sanitize_callback' => static fn( $value ): float => (float) $value,
+					),
+					'stock'      => array(
+						'default'           => '',
+						'type'              => 'string',
+						'enum'              => array( '', 'instock', 'outofstock', 'onbackorder' ),
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
@@ -203,15 +244,19 @@ class Advanced_Sorting {
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
 		$category = self::normalize_category_filter( (string) $request->get_param( 'category' ) );
+		$on_sale  = (bool) $request->get_param( 'on_sale' );
+		$filters  = array(
+			'attributes' => (array) $request->get_param( 'attributes' ),
+			'min_price'  => (float) $request->get_param( 'min_price' ),
+			'max_price'  => (float) $request->get_param( 'max_price' ),
+			'stock'      => (string) $request->get_param( 'stock' ),
+			'on_sale'    => $on_sale,
+		);
 
-		$all_ids = 'featured' === $sort
-			? $this->get_featured_sorted_ids( $category )
-			: $this->get_savings_sorted_ids( $category );
-
-		$total       = count( $all_ids );
-		$total_pages = (int) ceil( $total / $per_page );
-		$offset      = ( $page - 1 ) * $per_page;
-		$page_ids    = array_slice( $all_ids, $offset, $per_page );
+		$result      = $this->query_sorted_page( (string) $sort, $category, $filters, (int) $page, (int) $per_page );
+		$total       = $result['total'];
+		$total_pages = (int) ceil( $total / max( 1, (int) $per_page ) );
+		$page_ids    = $result['ids'];
 
 		$response = new \WP_REST_Response(
 			array(
@@ -228,143 +273,90 @@ class Advanced_Sorting {
 	}
 
 	/**
-	 * Get product IDs sorted with featured products first.
+	 * Query one custom-sort page without loading the catalogue into PHP.
 	 *
-	 * @param string $category Optional category slug filter.
-	 * @return int[] Ordered product IDs.
+	 * @param string               $sort     Sort mode.
+	 * @param string               $category Canonical category slugs.
+	 * @param array<string, mixed> $filters  Active filters.
+	 * @param int                  $page     Page number.
+	 * @param int                  $per_page Page size.
+	 * @return array{ids: int[], total: int}
 	 */
-	private function get_featured_sorted_ids( string $category = '' ): array {
-		$slugs         = self::get_category_slugs( $category );
-		$category      = implode( ',', $slugs );
-		$transient_key = self::FEATURED_TRANSIENT . ( $category ? '_' . md5( $category ) : '' );
-		$cached        = get_transient( $transient_key );
-
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
-		$featured_ids = wc_get_featured_product_ids();
-
-		$query_args = array(
-			'post_type'              => 'product',
-			'post_status'            => 'publish',
-			'posts_per_page'         => -1,
-			'fields'                 => 'ids',
-			'orderby'                => 'date',
-			'order'                  => 'DESC',
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-		);
-
-		if ( ! empty( $slugs ) ) {
-			$query_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'product_cat',
-					'field'    => 'slug',
-					'terms'    => $slugs,
-				),
-			);
-		}
-
-		$all_query = new \WP_Query( $query_args );
-		$all_ids   = $all_query->posts;
-
-		// Featured first, then the rest by date.
-		$featured_in_set = array_intersect( $featured_ids, $all_ids );
-		$non_featured    = array_diff( $all_ids, $featured_ids );
-
-		$result = array_merge( array_values( $featured_in_set ), array_values( $non_featured ) );
-
-		set_transient( $transient_key, $result, self::TRANSIENT_TTL );
-
-		return $result;
-	}
-
-	/**
-	 * Get product IDs sorted by discount percentage (highest first).
-	 *
-	 * @param string $category Optional category slug filter.
-	 * @return int[] Ordered product IDs.
-	 */
-	private function get_savings_sorted_ids( string $category = '' ): array {
-		$slugs         = self::get_category_slugs( $category );
-		$category      = implode( ',', $slugs );
-		$transient_key = self::SAVINGS_TRANSIENT . ( $category ? '_' . md5( $category ) : '' );
-		$cached        = get_transient( $transient_key );
-
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
+	private function query_sorted_page( string $sort, string $category, array $filters, int $page, int $per_page ): array {
 		global $wpdb;
 
-		$category_join  = '';
-		$category_where = '';
-
-		if ( ! empty( $slugs ) ) {
-			$placeholders = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
-
-			$category_join  = "INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id";
-			$category_join .= " INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = 'product_cat'";
-			$category_join .= " INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id";
-			$category_where = $wpdb->prepare( " AND t.slug IN ({$placeholders})", ...$slugs ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		}
-
-		// Get sale products sorted by discount percentage.
-		// Results are cached via transient above — direct query required for
-		// complex discount calculation that WP_Query cannot express.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$sale_ids = $wpdb->get_col(
-			"SELECT DISTINCT p.ID
-			FROM {$wpdb->posts} p
-			INNER JOIN {$wpdb->postmeta} pm_reg ON p.ID = pm_reg.post_id AND pm_reg.meta_key = '_regular_price'
-			INNER JOIN {$wpdb->postmeta} pm_sale ON p.ID = pm_sale.post_id AND pm_sale.meta_key = '_sale_price'
-			{$category_join}
-			WHERE p.post_type = 'product'
-			AND p.post_status = 'publish'
-			AND pm_sale.meta_value != ''
-			AND pm_sale.meta_value IS NOT NULL
-			AND CAST(pm_reg.meta_value AS DECIMAL(10,2)) > 0
-			{$category_where}
-			ORDER BY ((CAST(pm_reg.meta_value AS DECIMAL(10,2)) - CAST(pm_sale.meta_value AS DECIMAL(10,2))) / CAST(pm_reg.meta_value AS DECIMAL(10,2))) DESC"
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-
-		$sale_ids = array_map( 'intval', $sale_ids );
-
-		// Append non-sale products sorted by date.
-		$non_sale_args = array(
-			'post_type'              => 'product',
-			'post_status'            => 'publish',
-			'posts_per_page'         => -1,
-			'fields'                 => 'ids',
-			'orderby'                => 'date',
-			'order'                  => 'DESC',
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-			'post__not_in'           => $sale_ids, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
+		$filter_set  = new Catalog_Filter_Set( array_merge( $filters, array( 'category' => $category ) ) );
+		$constraints = new Catalog_SQL_Constraints( 'p', 'aa_sort' );
+		$joins       = array( "INNER JOIN {$wpdb->wc_product_meta_lookup} product_lookup ON p.ID = product_lookup.product_id" );
+		$where       = array(
+			"p.post_type = 'product'",
+			"p.post_status = 'publish'",
 		);
 
-		if ( ! empty( $slugs ) ) {
-			$non_sale_args['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'product_cat',
-					'field'    => 'slug',
-					'terms'    => $slugs,
-				),
-			);
+		$constraints->add_taxonomy( 'product_cat', $filter_set->categories() );
+
+		if ( $filter_set->on_sale() ) {
+			$constraints->add_taxonomy( 'product_cat', array( Sale_Category::TERM_SLUG ) );
 		}
 
-		$non_sale_query = new \WP_Query( $non_sale_args );
-		$non_sale_ids   = array_map( 'intval', array_map( 'strval', $non_sale_query->posts ) );
+		$allowed_attributes = function_exists( 'wc_get_attribute_taxonomy_names' ) ? wc_get_attribute_taxonomy_names() : array();
+		foreach ( $filter_set->attributes( $allowed_attributes ) as $taxonomy => $slugs ) {
+			$constraints->add_taxonomy( $taxonomy, $slugs );
+		}
 
-		$result = array_merge( $sale_ids, $non_sale_ids );
+		$constraints->add_lookup_filters( $filter_set, 'product_lookup' );
 
-		set_transient( $transient_key, $result, self::TRANSIENT_TTL );
+		if ( 'savings' === $sort ) {
+			$joins[] = "LEFT JOIN {$wpdb->postmeta} regular_price ON p.ID = regular_price.post_id AND regular_price.meta_key = '_regular_price'";
+			$joins[] = "LEFT JOIN {$wpdb->postmeta} sale_price ON p.ID = sale_price.post_id AND sale_price.meta_key = '_sale_price'";
+			$rank    = "MAX(CASE
+				WHEN sale_price.meta_value <> '' AND CAST(regular_price.meta_value AS DECIMAL(20,6)) > 0
+				THEN (CAST(regular_price.meta_value AS DECIMAL(20,6)) - CAST(sale_price.meta_value AS DECIMAL(20,6))) / CAST(regular_price.meta_value AS DECIMAL(20,6))
+				ELSE -1 END)";
+		} else {
+			$rank = "MAX(EXISTS (
+				SELECT 1 FROM {$wpdb->term_relationships} featured_tr
+				INNER JOIN {$wpdb->term_taxonomy} featured_tt ON featured_tr.term_taxonomy_id = featured_tt.term_taxonomy_id
+				INNER JOIN {$wpdb->terms} featured_t ON featured_tt.term_id = featured_t.term_id
+				WHERE featured_tr.object_id = p.ID
+				AND featured_tt.taxonomy = 'product_visibility'
+				AND featured_t.slug = 'featured'
+			))";
+		}
 
-		return $result;
+		$constraint_joins = $constraints->joins();
+		if ( '' !== $constraint_joins ) {
+			$joins[] = $constraint_joins;
+		}
+		$where     = array_merge( $where, $constraints->where() );
+		$from      = "FROM {$wpdb->posts} p\n" . implode( "\n", $joins );
+		$where_sql = 'WHERE ' . implode( "\nAND ", $where );
+		$params    = array_merge( $constraints->join_params(), $constraints->where_params() );
+
+		$count_sql = "SELECT COUNT(DISTINCT p.ID) {$from} {$where_sql}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated table aliases and clauses; all public values are prepared.
+		$prepared_count = empty( $params ) ? $count_sql : $wpdb->prepare( $count_sql, ...$params );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Bounded indexed catalogue count.
+		$total = (int) $wpdb->get_var( $prepared_count );
+
+		$per_page    = min( 100, max( 1, $per_page ) );
+		$offset      = ( max( 1, $page ) - 1 ) * $per_page;
+		$page_sql    = "SELECT p.ID, {$rank} AS sort_rank
+			{$from}
+			{$where_sql}
+			GROUP BY p.ID
+			ORDER BY sort_rank DESC, p.post_date DESC, p.ID DESC
+			LIMIT %d OFFSET %d";
+		$page_params = array_merge( $params, array( $per_page, $offset ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated table aliases and clauses; all public values are prepared.
+		$prepared_page = $wpdb->prepare( $page_sql, ...$page_params );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Returns only one requested page.
+		$ids = array_map( 'intval', $wpdb->get_col( $prepared_page ) );
+
+		return array(
+			'ids'   => $ids,
+			'total' => $total,
+		);
 	}
 
 	/**
@@ -422,25 +414,6 @@ class Advanced_Sorting {
 			array_filter(
 				$slugs,
 				static fn( string $slug ): bool => isset( $valid[ $slug ] )
-			)
-		);
-	}
-
-	/**
-	 * Flush the precomputed sort caches (savings + featured).
-	 *
-	 * @return void
-	 */
-	public function flush_sort_caches(): void {
-		global $wpdb;
-
-		// Delete all savings + featured transients (base + per-category).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk transient cleanup requires direct query.
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_' . self::SAVINGS_TRANSIENT ) . '%',
-				$wpdb->esc_like( '_transient_' . self::FEATURED_TRANSIENT ) . '%'
 			)
 		);
 	}

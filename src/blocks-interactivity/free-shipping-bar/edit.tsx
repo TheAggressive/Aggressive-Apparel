@@ -49,7 +49,7 @@ export default function Edit({
           />
         </div>
         <p className='aggressive-apparel-shipping-bar__message'>
-          {__("You're $20.00 away from free shipping!", 'aggressive-apparel')}
+          {__('$20.00 Away from FREE Shipping!', 'aggressive-apparel')}
         </p>
       </div>
     </>

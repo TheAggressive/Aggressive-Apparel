@@ -130,12 +130,12 @@ class Free_Shipping {
 	public static function get_message_i18n(): array {
 		$templates = array(
 			/* translators: %s: formatted amount still needed for free shipping. */
-			'progressDefault' => __( '%s away from FREE shipping', 'aggressive-apparel' ),
+			'progressDefault' => __( '%s Away from FREE Shipping!', 'aggressive-apparel' ),
 			/* translators: 1: formatted amount, 2: emphasized free shipping phrase. */
-			'progressCustom'  => __( '%1$s away from %2$s', 'aggressive-apparel' ),
-			'unlockedDefault' => __( 'FREE Shipping UNLOCKED', 'aggressive-apparel' ),
+			'progressCustom'  => __( '%1$s Away from %2$s!', 'aggressive-apparel' ),
+			'unlockedDefault' => __( 'FREE Shipping UNLOCKED!', 'aggressive-apparel' ),
 			/* translators: %s: emphasized free shipping phrase. */
-			'unlockedCustom'  => __( '%s UNLOCKED', 'aggressive-apparel' ),
+			'unlockedCustom'  => __( '%s UNLOCKED!', 'aggressive-apparel' ),
 		);
 
 		/**
@@ -163,8 +163,8 @@ class Free_Shipping {
 	public static function get_bar_message_i18n(): array {
 		$templates = array(
 			/* translators: %s: formatted amount still needed for free shipping. */
-			'progress' => __( "You're %s away from free shipping!", 'aggressive-apparel' ),
-			'complete' => __( "You've unlocked free shipping!", 'aggressive-apparel' ),
+			'progress' => __( '%s Away from FREE Shipping!', 'aggressive-apparel' ),
+			'complete' => __( 'FREE Shipping UNLOCKED!', 'aggressive-apparel' ),
 		);
 
 		/**

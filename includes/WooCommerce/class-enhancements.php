@@ -67,6 +67,7 @@ class Enhancements {
 	 * @var array<int, class-string>
 	 */
 	private const SPECIAL_SERVICES = array(
+		Sale_Category::class,
 		Back_In_Stock_Installer::class,
 		Back_In_Stock::class,
 		Back_In_Stock_Admin::class,
@@ -144,6 +145,10 @@ class Enhancements {
 	 * @return void
 	 */
 	private function init_special_features(): void {
+		// Native, system-managed Sales product category. This is catalogue
+		// infrastructure rather than an optional visual enhancement.
+		$this->container->get( Sale_Category::class )->init();
+
 		// Seed system badges once the taxonomy exists.
 		if ( Feature_Settings::is_enabled( 'product_badges' ) ) {
 			add_action( 'admin_init', array( Custom_Badge_Taxonomy::class, 'maybe_seed_system_badges' ), 20 );

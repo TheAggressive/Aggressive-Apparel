@@ -3,7 +3,7 @@
  * Product Filters Class
  *
  * AJAX product filters with categories, color swatches, sizes, price range,
- * and stock status. Supports drawer, sidebar, and horizontal bar layouts.
+ * stock status, and sale status. Supports drawer, sidebar, and horizontal bar layouts.
  *
  * @package Aggressive_Apparel
  * @since 1.22.0
@@ -29,25 +29,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Product_Filters {
 
 	/**
-	 * Transient cache key prefix.
-	 *
-	 * @var string
-	 */
-	private const CACHE_PREFIX = 'aa_pf_v2_';
-
-	/**
-	 * Cache TTL in seconds (15 minutes).
-	 *
-	 * @var int
-	 */
-	private const CACHE_TTL = 900;
-
-	/**
 	 * Whether assets are enqueued (gate for render_block / wp_footer output).
 	 *
 	 * @var bool
 	 */
 	private bool $assets_enqueued = false;
+
+	/**
+	 * Whether filter source data was already invalidated this request.
+	 *
+	 * @var bool
+	 */
+	private bool $cache_flushed = false;
 
 	/**
 	 * Active layout.
@@ -57,11 +50,18 @@ class Product_Filters {
 	private string $layout = 'drawer';
 
 	/**
-	 * Cached filter data.
+	 * Filter source-data provider.
 	 *
-	 * @var array|null
+	 * @var Product_Filter_Data
 	 */
-	private ?array $filter_data = null;
+	private Product_Filter_Data $data_provider;
+
+	/**
+	 * Filter control renderer.
+	 *
+	 * @var Product_Filter_Renderer
+	 */
+	private Product_Filter_Renderer $renderer;
 
 	/**
 	 * Active layout for the current request, cached statically so it can be
@@ -70,6 +70,17 @@ class Product_Filters {
 	 * @var string|null
 	 */
 	private static ?string $active_layout = null;
+
+	/**
+	 * Construct the filter coordinator.
+	 *
+	 * @param Product_Filter_Data|null     $data_provider Optional provider override.
+	 * @param Product_Filter_Renderer|null $renderer      Optional renderer override.
+	 */
+	public function __construct( ?Product_Filter_Data $data_provider = null, ?Product_Filter_Renderer $renderer = null ) {
+		$this->data_provider = $data_provider ?? new Product_Filter_Data();
+		$this->renderer      = $renderer ?? new Product_Filter_Renderer();
+	}
 
 	/**
 	 * Initialize hooks.
@@ -95,6 +106,7 @@ class Product_Filters {
 		add_action( 'delete_term', array( $this, 'flush_cache' ) );
 		add_action( 'woocommerce_update_product', array( $this, 'flush_cache' ) );
 		add_action( 'woocommerce_new_product', array( $this, 'flush_cache' ) );
+		add_action( 'aggressive_apparel_sale_category_updated', array( $this, 'flush_cache' ) );
 	}
 
 	/**
@@ -103,7 +115,11 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function flush_cache(): void {
-		delete_transient( self::CACHE_PREFIX . 'data' );
+		if ( $this->cache_flushed ) {
+			return;
+		}
+		$this->cache_flushed = true;
+		$this->data_provider->flush();
 	}
 
 	/**
@@ -172,7 +188,7 @@ class Product_Filters {
 
 		// Output interactivity state.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
-			$data             = $this->gather_filter_data();
+			$data             = $this->data_provider->get();
 			$current_cat_slug = Product_Context::get_current_category_slug();
 
 			wp_interactivity_state(
@@ -185,6 +201,7 @@ class Product_Filters {
 					// anonymous and the gated catalogue comes back empty).
 					'restNonce'           => wp_create_nonce( 'wp_rest' ),
 					'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
+					'salesCategoryUrl'    => $this->data_provider->sales_category_url(),
 					'layout'              => $this->layout,
 					'perPage'             => 12,
 					'currentCategorySlug' => $current_cat_slug,
@@ -214,6 +231,7 @@ class Product_Filters {
 					'priceMin'            => $data['priceRange']['min'],
 					'priceMax'            => $data['priceRange']['max'],
 					'inStockOnly'         => false,
+					'onSaleOnly'          => false,
 					'orderBy'             => 'date',
 					'orderDir'            => 'desc',
 					'_customSort'         => '',
@@ -241,7 +259,10 @@ class Product_Filters {
 						'filtersAppliedPlural'         => __( '(%s filters applied)', 'aggressive-apparel' ),
 						/* translators: %s is a comma-separated list of filter names not shown in the pill row. */
 						'activeFiltersOverflowTooltip' => __( 'Additional filters: %s', 'aggressive-apparel' ),
+						'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
+						'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
 					),
+					'salesCategorySlug'   => Sale_Category::TERM_SLUG,
 				)
 			);
 		}
@@ -288,7 +309,7 @@ class Product_Filters {
 		}
 
 		try {
-			$data = $this->gather_filter_data();
+			$data = $this->data_provider->get();
 			?>
 			<div
 				id="aa-product-filters-drawer"
@@ -328,7 +349,7 @@ class Product_Filters {
 					</div>
 
 					<div class="aa-product-filters__drawer-body">
-						<?php $this->render_filter_sections( $data ); ?>
+						<?php $this->renderer->render_sections( $data ); ?>
 					</div>
 
 					<div class="aa-product-filters__drawer-footer">
@@ -382,12 +403,12 @@ class Product_Filters {
 
 		// For sidebar layout, render the inline sidebar.
 		if ( 'sidebar' === $this->layout ) {
-			$data          = $this->gather_filter_data();
+			$data          = $this->data_provider->get();
 			$sidebar_html  = '<aside class="aa-product-filters__sidebar" data-wp-interactive="aggressive-apparel/product-filters" aria-label="' . esc_attr__( 'Product filters', 'aggressive-apparel' ) . '">';
 			$sidebar_html .= '<div class="aa-product-filters__sidebar-inner">';
 
 			ob_start();
-			$this->render_filter_sections( $data );
+			$this->renderer->render_sections( $data );
 			$sidebar_html .= ob_get_clean();
 
 			// Sidebar has no panel to close, so results apply via this button
@@ -405,7 +426,7 @@ class Product_Filters {
 		// For horizontal layout, render the filter bar.
 		$bar_html = '';
 		if ( 'horizontal' === $this->layout ) {
-			$bar_html = $this->build_horizontal_bar();
+			$bar_html = $this->renderer->build_horizontal_bar( $this->data_provider->get() );
 		}
 
 		$grid_class = 'sidebar' === $this->layout ? ' aa-product-filters__grid-wrapper--sidebar' : '';
@@ -468,614 +489,6 @@ class Product_Filters {
 		$output .= '</div>'; // End .aa-product-filters.
 
 		return $output;
-	}
-
-	/**
-	 * Build the horizontal filter bar HTML.
-	 *
-	 * @return string Bar HTML.
-	 */
-	private function build_horizontal_bar(): string {
-		$data = $this->gather_filter_data();
-
-		$bar = '<div class="aa-product-filters__bar">';
-
-		// Category dropdown.
-		if ( ! empty( $data['categories'] ) ) {
-			$bar .= $this->build_bar_dropdown(
-				'categories',
-				__( 'Category', 'aggressive-apparel' ),
-				'state.isCategoryDropdownOpen',
-			);
-		}
-
-		// Fit dropdown.
-		if ( ! empty( $data['fitTerms'] ) ) {
-			$bar .= $this->build_bar_dropdown(
-				'fit',
-				__( 'Fit', 'aggressive-apparel' ),
-				'state.isFitDropdownOpen',
-			);
-		}
-
-		// Color dropdown.
-		if ( ! empty( $data['colorTerms'] ) ) {
-			$bar .= $this->build_bar_dropdown(
-				'colors',
-				__( 'Color', 'aggressive-apparel' ),
-				'state.isColorDropdownOpen',
-			);
-		}
-
-		// Size dropdown.
-		if ( ! empty( $data['sizeTerms'] ) ) {
-			$bar .= $this->build_bar_dropdown(
-				'sizes',
-				__( 'Size', 'aggressive-apparel' ),
-				'state.isSizeDropdownOpen',
-			);
-		}
-
-		// Price dropdown.
-		$bar .= $this->build_bar_dropdown(
-			'price',
-			__( 'Price', 'aggressive-apparel' ),
-			'state.isPriceDropdownOpen',
-		);
-
-		// Stock dropdown.
-		$bar .= $this->build_bar_dropdown(
-			'stock',
-			__( 'Availability', 'aggressive-apparel' ),
-			'state.isStockDropdownOpen',
-		);
-
-		$bar .= '</div>';
-
-		return $bar;
-	}
-
-	/**
-	 * Build a single horizontal bar dropdown trigger.
-	 *
-	 * @param string $id    Dropdown identifier.
-	 * @param string $label Display label.
-	 * @param string $state State getter for open/close.
-	 * @return string Dropdown trigger HTML.
-	 */
-	private function build_bar_dropdown( string $id, string $label, string $state ): string {
-		$html  = sprintf(
-			'<div class="aa-product-filters__bar-item" data-wp-context=\'{"dropdownId":"%s"}\'>',
-			esc_attr( $id ),
-		);
-		$html .= sprintf(
-			'<button class="aa-product-filters__bar-trigger" data-wp-on--click="actions.toggleDropdown" aria-expanded="false" data-wp-bind--aria-expanded="%s">',
-			esc_attr( $state ),
-		);
-		$html .= esc_html( $label );
-		$html .= Icons::get(
-			'chevron-down',
-			array(
-				'width'       => 16,
-				'height'      => 16,
-				'aria-hidden' => 'true',
-			)
-		);
-		$html .= '</button>';
-		$html .= sprintf(
-			'<div data-wp-bind--hidden="!%s">',
-			esc_attr( $state ),
-		);
-		$html .= '<div class="aa-product-filters__bar-dropdown">';
-		$html .= '</div></div>';
-		$html .= '</div>';
-
-		return $html;
-	}
-
-	/**
-	 * Render shared filter sections HTML.
-	 *
-	 * @param array $data Filter data from gather_filter_data().
-	 * @return void
-	 */
-	private function render_filter_sections( array $data ): void {
-		// Categories (hierarchical).
-		if ( ! empty( $data['categories'] ) ) {
-			$tree = $this->build_category_tree( $data['categories'] );
-			if ( ! empty( $tree ) ) {
-				$this->render_section_start( 'categories', __( 'Categories', 'aggressive-apparel' ) );
-				$this->render_category_tree( $tree );
-				$this->render_section_end();
-			}
-		}
-
-		// Fit.
-		if ( ! empty( $data['fitTerms'] ) ) {
-			$this->render_section_start( 'fit', __( 'Fit', 'aggressive-apparel' ) );
-			echo '<div class="aa-product-filters__fit-list" role="group" aria-label="' . esc_attr__( 'Filter by fit', 'aggressive-apparel' ) . '">';
-			foreach ( $data['fitTerms'] as $fit ) {
-				printf(
-					'<button class="aa-product-filters__fit-chip" data-wp-on--click="actions.toggleFit" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__fit-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__fit-chip-name">%s</span></button>',
-					esc_attr( $fit['slug'] ),
-					/* translators: %s: fit name */
-					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $fit['name'] ) ),
-					esc_html( $fit['name'] ),
-				);
-			}
-			echo '</div>';
-			$this->render_section_end();
-		}
-
-		// Colors.
-		if ( ! empty( $data['colorTerms'] ) ) {
-			$this->render_section_start( 'colors', __( 'Color', 'aggressive-apparel' ) );
-			echo '<div class="aa-product-filters__color-list" role="group" aria-label="' . esc_attr__( 'Filter by color', 'aggressive-apparel' ) . '">';
-			foreach ( $data['colorTerms'] as $color ) {
-				if ( 'pattern' === $color['type'] ) {
-					$style = sprintf( 'background-image:url(%s);background-size:cover;', esc_url( $color['value'] ) );
-				} else {
-					$style = sprintf(
-						'background-color:%s;--swatch-color:%s;',
-						esc_attr( $color['value'] ),
-						esc_attr( $color['value'] ),
-					);
-				}
-
-				printf(
-					'<button class="aa-product-filters__color-swatch" data-wp-on--click="actions.toggleColor" data-filter-value="%s" style="%s" title="%s" aria-label="%s" aria-pressed="false"><span class="screen-reader-text">%s</span></button>',
-					esc_attr( $color['slug'] ),
-					esc_attr( $style ),
-					esc_attr( $color['name'] ),
-					/* translators: %s: color name */
-					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $color['name'] ) ),
-					esc_html( $color['name'] ),
-				);
-			}
-			echo '</div>';
-			$this->render_section_end();
-		}
-
-		// Sizes.
-		if ( ! empty( $data['sizeTerms'] ) ) {
-			$this->render_section_start( 'sizes', __( 'Size', 'aggressive-apparel' ) );
-			echo '<p class="aa-product-filters__size-hint">' . esc_html__( 'Select a category to see sizing options.', 'aggressive-apparel' ) . '</p>';
-			echo '<div class="aa-product-filters__size-list" hidden role="group" aria-label="' . esc_attr__( 'Filter by size', 'aggressive-apparel' ) . '">';
-			foreach ( $data['sizeTerms'] as $size ) {
-				printf(
-					'<button class="aa-product-filters__size-chip" data-wp-on--click="actions.toggleSize" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__size-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__size-chip-name">%s</span></button>',
-					esc_attr( $size['slug'] ),
-					/* translators: %s: size name */
-					esc_attr( sprintf( __( 'Filter by size %s', 'aggressive-apparel' ), $size['name'] ) ),
-					esc_html( $size['name'] ),
-				);
-			}
-			echo '</div>';
-			$this->render_section_end();
-		}
-
-		// Price range.
-		$range = $data['priceRange'];
-		if ( $range['max'] > $range['min'] ) {
-			$this->render_section_start( 'price', __( 'Price', 'aggressive-apparel' ) );
-			printf(
-				'<div class="aa-product-filters__price-slider" data-min="%d" data-max="%d">',
-				(int) $range['min'],
-				(int) $range['max'],
-			);
-			echo '<div class="aa-product-filters__price-track"><div class="aa-product-filters__price-range"></div></div>';
-			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--min" data-wp-text="state.priceMinDisplay" aria-hidden="true"></span>';
-			echo '<span class="aa-product-filters__price-tooltip aa-product-filters__price-tooltip--max" data-wp-text="state.priceMaxDisplay" aria-hidden="true"></span>';
-			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--min" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMin" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['min'],
-				esc_attr__( 'Minimum price', 'aggressive-apparel' ),
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['min'],
-			);
-			printf(
-				'<input type="range" class="aa-product-filters__price-thumb aa-product-filters__price-thumb--max" min="%d" max="%d" step="1" value="%d" data-wp-on--input="actions.setPriceMax" aria-label="%s" aria-valuemin="%d" aria-valuemax="%d" aria-valuenow="%d" />',
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['max'],
-				esc_attr__( 'Maximum price', 'aggressive-apparel' ),
-				(int) $range['min'],
-				(int) $range['max'],
-				(int) $range['max'],
-			);
-			echo '</div>';
-			$this->render_section_end();
-		}
-
-		// Stock status.
-		$this->render_section_start( 'stock', __( 'Availability', 'aggressive-apparel' ) );
-		echo '<label class="aa-product-filters__stock-toggle">';
-		echo '<span class="aa-product-filters__stock-label">' . esc_html__( 'In stock only', 'aggressive-apparel' ) . '</span>';
-		echo '<input type="checkbox" class="aa-product-filters__stock-checkbox" data-wp-on--change="actions.toggleInStockOnly" role="switch" />';
-		echo '<span class="aa-product-filters__stock-switch"></span>';
-		echo '</label>';
-		$this->render_section_end();
-	}
-
-	/**
-	 * Render a collapsible section start.
-	 *
-	 * @param string $id    Section identifier.
-	 * @param string $title Section title.
-	 * @return void
-	 */
-	private function render_section_start( string $id, string $title ): void {
-		printf(
-			'<div class="aa-product-filters__section" data-section="%s">',
-			esc_attr( $id ),
-		);
-		printf(
-			'<button class="aa-product-filters__section-toggle" data-wp-on--click="actions.toggleSection" aria-expanded="true"><span class="aa-product-filters__section-title">%s</span>%s</button>',
-			esc_html( $title ),
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
-			Icons::get(
-				'chevron-down',
-				array(
-					'width'       => 16,
-					'height'      => 16,
-					'class'       => 'aa-product-filters__section-icon',
-					'aria-hidden' => 'true',
-				)
-			),
-		);
-		echo '<div class="aa-product-filters__section-body"><div class="aa-product-filters__section-inner">';
-	}
-
-	/**
-	 * Render a section end.
-	 *
-	 * @return void
-	 */
-	private function render_section_end(): void {
-		echo '</div></div></div>';
-	}
-
-	/**
-	 * Build a hierarchical category tree from a flat list.
-	 *
-	 * Groups child categories under their parents. Top-level parents
-	 * that have only one child (and no products of their own) are
-	 * skipped — the child is promoted to top level.
-	 *
-	 * @param array $categories Flat array with 'id', 'parent', etc.
-	 * @return array Tree array with 'children' key on parents.
-	 */
-	private function build_category_tree( array $categories ): array {
-		$by_id = array();
-		foreach ( $categories as $cat ) {
-			$cat['children']     = array();
-			$by_id[ $cat['id'] ] = $cat;
-		}
-
-		$tree = array();
-		foreach ( $by_id as &$cat ) {
-			if ( $cat['parent'] && isset( $by_id[ $cat['parent'] ] ) ) {
-				$by_id[ $cat['parent'] ]['children'][] = &$cat;
-			} else {
-				$tree[] = &$cat;
-			}
-		}
-		unset( $cat );
-
-		return $tree;
-	}
-
-	/**
-	 * Render a category tree as nested lists.
-	 *
-	 * @param array $nodes   Category nodes (each may have 'children').
-	 * @param bool  $is_root Whether this is the top-level list.
-	 * @return void
-	 */
-	private function render_category_tree( array $nodes, bool $is_root = true ): void {
-		$class = 'aa-product-filters__category-list';
-		if ( ! $is_root ) {
-			$class .= ' aa-product-filters__category-list--children';
-		}
-
-		if ( $is_root ) {
-			printf(
-				'<ul class="%s" role="group" aria-label="%s">',
-				esc_attr( $class ),
-				esc_attr__( 'Filter by category', 'aggressive-apparel' ),
-			);
-		} else {
-			printf( '<ul class="%s">', esc_attr( $class ) );
-		}
-
-		foreach ( $nodes as $cat ) {
-			echo '<li class="aa-product-filters__category-item">';
-			printf(
-				'<button class="aa-product-filters__category-chip" data-wp-on--click="actions.toggleCategory" data-filter-value="%s" data-filter-type="category" aria-pressed="false"><span class="aa-product-filters__category-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__category-chip-name">%s</span><span class="aa-product-filters__category-chip-count">%d</span></button>',
-				esc_attr( $cat['slug'] ),
-				esc_html( $cat['name'] ),
-				(int) $cat['count'],
-			);
-
-			if ( ! empty( $cat['children'] ) ) {
-				$this->render_category_tree( $cat['children'], false );
-			}
-
-			echo '</li>';
-		}
-
-		echo '</ul>';
-	}
-
-	/**
-	 * Gather all filter source data (transient-cached).
-	 *
-	 * @return array Filter data array.
-	 */
-	private function gather_filter_data(): array {
-		if ( null !== $this->filter_data ) {
-			return $this->filter_data;
-		}
-
-		$cache_key = self::CACHE_PREFIX . 'data';
-		$cached    = get_transient( $cache_key );
-
-		if ( is_array( $cached ) && isset( $cached['colorTerms'], $cached['fitTerms'] ) ) {
-			$this->filter_data = $cached;
-			return $cached;
-		}
-
-		$default_price = array(
-			'min'            => 0,
-			'max'            => 0,
-			'currencyPrefix' => '$',
-			'currencySuffix' => '',
-			'minorUnit'      => 2,
-		);
-
-		try {
-			$categories = $this->get_categories_with_counts();
-		} catch ( \Throwable ) {
-			$categories = array();
-		}
-
-		try {
-			$color_terms = $this->get_color_terms();
-		} catch ( \Throwable ) {
-			$color_terms = array();
-		}
-
-		try {
-			$size_terms = $this->get_size_terms();
-		} catch ( \Throwable ) {
-			$size_terms = array();
-		}
-
-		try {
-			$fit_terms = $this->get_fit_terms();
-		} catch ( \Throwable ) {
-			$fit_terms = array();
-		}
-
-		try {
-			$price_range = $this->get_price_range();
-		} catch ( \Throwable ) {
-			$price_range = $default_price;
-		}
-
-		$data = array(
-			'categories'    => $categories,
-			'colorTerms'    => $color_terms,
-			'sizeTerms'     => $size_terms,
-			'fitTerms'      => $fit_terms,
-			'priceRange'    => $price_range,
-			'stockStatuses' => $this->get_stock_statuses(),
-		);
-
-		set_transient( $cache_key, $data, self::CACHE_TTL );
-		$this->filter_data = $data;
-
-		return $data;
-	}
-
-	/**
-	 * Get product categories with counts.
-	 *
-	 * @return array Categories array.
-	 */
-	private function get_categories_with_counts(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'hide_empty' => true,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			)
-		);
-
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return array();
-		}
-
-		$categories = array();
-		foreach ( $terms as $term ) {
-			// Skip "Uncategorized" default category.
-			if ( 'uncategorized' === $term->slug ) {
-				continue;
-			}
-
-			$link         = get_term_link( $term );
-			$categories[] = array(
-				'id'     => $term->term_id,
-				'name'   => $term->name,
-				'slug'   => $term->slug,
-				'count'  => $term->count,
-				'parent' => $term->parent,
-				'link'   => is_wp_error( $link ) ? '' : esc_url_raw( $link ),
-			);
-		}
-
-		return $categories;
-	}
-
-	/**
-	 * Get color attribute terms with hex/pattern values.
-	 *
-	 * @return array Color terms array.
-	 */
-	private function get_color_terms(): array {
-		$manager = new Color_Data_Manager();
-		$colors  = $manager->get_color_terms();
-
-		// Format for frontend. Include all terms — term counts can be
-		// stale or zero in "Coming Soon" mode where products exist but
-		// aren't yet publicly visible.
-		$result = array();
-		foreach ( $colors as $color ) {
-			$result[] = array(
-				'slug'  => $color['slug'],
-				'name'  => $color['name'],
-				'value' => $color['value'] ?? $color['hex'] ?? '#000000',
-				'type'  => $color['type'] ?? 'solid',
-				'count' => $color['count'] ?? 0,
-			);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Get size attribute terms.
-	 *
-	 * @return array Size terms array.
-	 */
-	private function get_size_terms(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'pa_size',
-				'hide_empty' => false,
-				'orderby'    => 'menu_order',
-				'order'      => 'ASC',
-			)
-		);
-
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return array();
-		}
-
-		$sizes = array();
-		foreach ( $terms as $term ) {
-			$sizes[] = array(
-				'id'    => (int) $term->term_id,
-				'slug'  => $term->slug,
-				'name'  => $term->name,
-				'count' => $term->count,
-			);
-		}
-
-		return $sizes;
-	}
-
-	/**
-	 * Get fit attribute terms (pa_fit).
-	 *
-	 * @return array Line terms array.
-	 */
-	private function get_fit_terms(): array {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'pa_fit',
-				'hide_empty' => false,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			)
-		);
-
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return array();
-		}
-
-		$lines = array();
-		foreach ( $terms as $term ) {
-			$lines[] = array(
-				'slug'  => $term->slug,
-				'name'  => $term->name,
-				'count' => $term->count,
-			);
-		}
-
-		return $lines;
-	}
-
-	/**
-	 * Get min/max price range across all products.
-	 *
-	 * @return array Price range data.
-	 */
-	private function get_price_range(): array {
-		global $wpdb;
-
-		$default = array(
-			'min'            => 0,
-			'max'            => 0,
-			'currencyPrefix' => '$',
-			'currencySuffix' => '',
-			'minorUnit'      => 2,
-		);
-
-		if ( ! function_exists( 'wc_get_price_decimals' ) ) {
-			return $default;
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->get_row(
-			"SELECT FLOOR(MIN(meta_value + 0)) as min_price, CEIL(MAX(meta_value + 0)) as max_price
-			FROM {$wpdb->postmeta}
-			WHERE meta_key = '_price'
-			AND meta_value > 0
-			AND post_id IN (
-				SELECT ID FROM {$wpdb->posts}
-				WHERE post_type = 'product'
-				AND post_status = 'publish'
-			)"
-		);
-
-		if ( ! $result || ! $result->min_price ) {
-			return $default;
-		}
-
-		return array(
-			'min'            => (int) $result->min_price,
-			'max'            => (int) $result->max_price,
-			'currencyPrefix' => html_entity_decode( \get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
-			'currencySuffix' => '',
-			'minorUnit'      => \wc_get_price_decimals(),
-		);
-	}
-
-	/**
-	 * Get stock status options.
-	 *
-	 * @return array Stock statuses.
-	 */
-	private function get_stock_statuses(): array {
-		return array(
-			array(
-				'value' => 'instock',
-				'label' => __( 'In Stock', 'aggressive-apparel' ),
-			),
-			array(
-				'value' => 'outofstock',
-				'label' => __( 'Out of Stock', 'aggressive-apparel' ),
-			),
-			array(
-				'value' => 'onbackorder',
-				'label' => __( 'On Backorder', 'aggressive-apparel' ),
-			),
-		);
 	}
 
 	/**

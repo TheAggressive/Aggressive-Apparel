@@ -43,7 +43,7 @@ class TestFreeShipping extends WP_UnitTestCase {
 		$message = Free_Shipping::format_message( 150.0, 'FREE Shipping', false );
 
 		$this->assertStringContainsString( '150', $message );
-		$this->assertStringContainsString( 'away from FREE shipping', $message );
+		$this->assertStringContainsString( 'Away from FREE Shipping!', $message );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class TestFreeShipping extends WP_UnitTestCase {
 	public function test_format_message_complete(): void {
 		$message = Free_Shipping::format_message( 0.0, 'FREE Shipping', true );
 
-		$this->assertSame( 'FREE Shipping UNLOCKED', $message );
+		$this->assertSame( 'FREE Shipping UNLOCKED!', $message );
 	}
 
 	/**
@@ -62,8 +62,8 @@ class TestFreeShipping extends WP_UnitTestCase {
 		$incomplete = Free_Shipping::format_message( 25.0, 'FREE Express', false );
 		$complete   = Free_Shipping::format_message( 0.0, 'FREE Express', true );
 
-		$this->assertStringContainsString( 'away from FREE Express', $incomplete );
-		$this->assertSame( 'FREE Express UNLOCKED', $complete );
+		$this->assertStringContainsString( 'Away from FREE Express!', $incomplete );
+		$this->assertSame( 'FREE Express UNLOCKED!', $complete );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class TestFreeShipping extends WP_UnitTestCase {
 		$complete   = Free_Shipping::format_bar_message( 0.0, true );
 
 		$this->assertStringContainsString( '25', $incomplete );
-		$this->assertStringContainsString( 'away from free shipping', $incomplete );
-		$this->assertSame( "You've unlocked free shipping!", $complete );
+		$this->assertStringContainsString( 'Away from FREE Shipping!', $incomplete );
+		$this->assertSame( 'FREE Shipping UNLOCKED!', $complete );
 	}
 }

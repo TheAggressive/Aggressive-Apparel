@@ -35,7 +35,7 @@ export default function Edit({
   });
 
   const previewAmount = customThreshold > 0 ? customThreshold * 0.6 : 150;
-  const previewMessage = `You're $${previewAmount.toFixed(0)} Away from ${emphasisText || 'FREE Shipping'}`;
+  const previewMessage = `$${previewAmount.toFixed(0)} Away from ${emphasisText || 'FREE Shipping'}!`;
 
   return (
     <>

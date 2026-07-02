@@ -59,10 +59,10 @@ export default function Edit(): JSX.Element {
             tabIndex={0}
             role='note'
             aria-label={__(
-              'Additional filters: Large, In Stock Only',
+              'Additional filters: Large, In Stock',
               'aggressive-apparel'
             )}
-            data-tooltip={__('Large, In Stock Only', 'aggressive-apparel')}
+            data-tooltip={__('Large, In Stock', 'aggressive-apparel')}
           >
             +2
           </span>

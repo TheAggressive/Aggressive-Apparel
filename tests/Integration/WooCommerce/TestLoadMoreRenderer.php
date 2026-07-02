@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Load_More_Renderer;
+use Aggressive_Apparel\WooCommerce\Sale_Category;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -143,6 +144,7 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 				'attributes' => array( 'pa_color' => 'black,blue' ),
 				'category'   => 'clothing',
 				'stock'      => 'instock',
+				'on_sale'    => true,
 				'orderby'    => 'price',
 			)
 		);
@@ -226,6 +228,45 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 
 		$this->assertSame( 3, (int) $all['total_products'] );
 		$this->assertSame( 1, (int) $band['total_products'], 'Only the $50 product falls in the $10–$100 band.' );
+	}
+
+	/**
+	 * The on-sale filter returns only products WooCommerce currently considers on sale.
+	 *
+	 * @return void
+	 */
+	public function test_on_sale_filter_narrows_results(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$sale_id       = $this->create_product( 100.0, array( 'clothing' ) );
+		$other_sale_id = $this->create_product( 80.0, array( 'accessories' ) );
+		$this->create_product( 50.0, array( 'clothing' ) );
+
+		$sale_product = wc_get_product( $sale_id );
+		$this->assertInstanceOf( \WC_Product::class, $sale_product );
+		$sale_product->set_sale_price( '75' );
+		$sale_product->save();
+		$other_sale_product = wc_get_product( $other_sale_id );
+		$this->assertInstanceOf( \WC_Product::class, $other_sale_product );
+		$other_sale_product->set_sale_price( '60' );
+		$other_sale_product->save();
+
+		$sale_category = new Sale_Category();
+		$sale_category->sync_product( $sale_id );
+		$sale_category->sync_product( $other_sale_id );
+
+		$data = $this->dispatch(
+			array(
+				'per_page' => 10,
+				'on_sale'  => true,
+				'category' => 'clothing',
+			)
+		)->get_data();
+
+		$this->assertSame( 1, (int) $data['total_products'], 'Sales and shopper categories must combine with AND.' );
+		$this->assertTrue( has_term( Sale_Category::TERM_SLUG, 'product_cat', $sale_id ) );
 	}
 
 	/**

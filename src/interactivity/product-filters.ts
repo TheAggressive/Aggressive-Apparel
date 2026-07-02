@@ -2,16 +2,11 @@
  * Product Filters — Interactivity API Store
  *
  * AJAX product filtering with categories, color swatches, sizes, price range,
- * and stock status. Supports drawer, sidebar, and horizontal bar layouts.
+ * stock status, and sale status. Supports drawer, sidebar, and horizontal layouts.
  *
  * @package Aggressive_Apparel
  * @since 1.22.0
  */
-
-import type {
-  InteractivityActions,
-  InteractivityCallbacks,
-} from '../../types/interactivity-shared';
 
 import { store, getContext } from '@wordpress/interactivity';
 import {
@@ -20,181 +15,33 @@ import {
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
 import { notifyCardsRendered } from '@aggressive-apparel/helpers';
-
-interface DropdownContext {
-  dropdownId: string;
-}
-
-interface PriceRange {
-  min: number;
-  max: number;
-  currencyPrefix?: string;
-  currencySuffix?: string;
-  minorUnit?: number;
-}
-
-interface CategoryTerm {
-  slug: string;
-  name: string;
-  link?: string;
-}
-
-interface ColorTerm {
-  slug: string;
-  name: string;
-}
-
-interface SizeTerm {
-  slug: string;
-  name: string;
-}
-
-interface FitTerm {
-  slug: string;
-  name: string;
-}
-
-interface FilterPill {
-  type: string;
-  slug: string;
-  label: string;
-}
-
-interface SortedProductsResponse {
-  total: number;
-  totalPages: number;
-  ids: number[];
-}
-
-/** Response from the theme's /products/rendered endpoint. */
-interface RenderedResponse {
-  html: string;
-  total_products: number;
-  total_pages: number;
-  facets?: Facets;
-}
-
-/** Attribute term slugs that still have matching products, keyed by taxonomy. */
-type Facets = Record<string, string[] | undefined>;
-
-/**
- * Single source of truth for the product-attribute filters.
- *
- * To add a new attribute facet (e.g. `pa_material`): add an entry here, render
- * its swatches/chips in PHP with `data-filter-value="<slug>"`, add a matching
- * `selected*` state field, and include the taxonomy in the server's
- * `aggressive_apparel_filter_facet_taxonomies` list. Everything else (request
- * params, faceted availability, URL sync) is driven from this config.
- */
-interface AttributeFilterConfig {
-  /** WooCommerce attribute taxonomy — also the endpoint + facet key. */
-  taxonomy: string;
-  /** Shareable URL query param. */
-  urlParam: string;
-  /** Reactive state array holding the selected slugs. */
-  stateKey: 'selectedColors' | 'selectedSizes' | 'selectedFit';
-  /** DOM selector for the option buttons. */
-  selector: string;
-}
-
-const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] = [
-  {
-    taxonomy: 'pa_color',
-    urlParam: 'color',
-    stateKey: 'selectedColors',
-    selector: '.aa-product-filters__color-swatch',
-  },
-  {
-    taxonomy: 'pa_size',
-    urlParam: 'size',
-    stateKey: 'selectedSizes',
-    selector: '.aa-product-filters__size-chip',
-  },
-  {
-    taxonomy: 'pa_fit',
-    urlParam: 'fit',
-    stateKey: 'selectedFit',
-    selector: '.aa-product-filters__fit-chip',
-  },
-];
-
-interface SortConfig {
-  orderBy: string;
-  orderDir: string;
-  customSort?: string;
-}
-
-interface ProductFiltersState {
-  selectedCategories: string[];
-  selectedColors: string[];
-  selectedSizes: string[];
-  priceMin: number;
-  priceMax: number;
-  priceRange: PriceRange;
-  inStockOnly: boolean;
-  /** IDs of the products currently rendered in the AJAX grid. */
-  products: number[];
-  currentPage: number;
-  totalPages: number;
-  totalProducts: number;
-  isLoading: boolean;
-  hasError: boolean;
-  isDrawerOpen: boolean;
-  openDropdown: string;
-  perPage: number;
-  orderBy: string;
-  orderDir: string;
-  restBase: string;
-  restNonce: string;
-  templateSlug: string;
-  shopUrl: string;
-  layout: string;
-  categories: CategoryTerm[];
-  colorTerms: ColorTerm[];
-  sizeTerms: SizeTerm[];
-  fitTerms: FitTerm[];
-  selectedFit: string[];
-  currentCategorySlug: string;
-  i18n: {
-    filtersAppliedSingular: string;
-    filtersAppliedPlural: string;
-    activeFiltersOverflowTooltip: string;
-  };
-  _announcement: string;
-  _customSort: string;
-  readonly hasActiveFilters: boolean;
-  readonly hasNoActiveFilters: boolean;
-  readonly hasProducts: boolean;
-  readonly hideNoResults: boolean;
-  readonly hideError: boolean;
-  readonly hasSinglePage: boolean;
-  readonly activeFilterCount: number | string;
-  readonly triggerCountLabel: string;
-  readonly priceMinDisplay: string;
-  readonly priceMaxDisplay: string;
-  readonly announcement: string;
-  readonly isCategoryDropdownOpen: boolean;
-  readonly isColorDropdownOpen: boolean;
-  readonly isSizeDropdownOpen: boolean;
-  readonly isFitDropdownOpen: boolean;
-  readonly isPriceDropdownOpen: boolean;
-  readonly isStockDropdownOpen: boolean;
-}
-
-interface ProductFiltersStore {
-  state: ProductFiltersState;
-  actions: InteractivityActions;
-  callbacks: InteractivityCallbacks;
-}
+import { FilterRequestManager } from './product-filters/request-manager';
+import { escapeHtml, setFilterVisibility } from './product-filters/dom';
+import {
+  buildFilterUrl,
+  getCanonicalShopUrl,
+  getCategorySlugFromPath,
+  getShopPath,
+} from './product-filters/url-state';
+import {
+  ATTRIBUTE_FILTERS,
+  type CategoryTerm,
+  type ColorTerm,
+  type DropdownContext,
+  type Facets,
+  type FitTerm,
+  type FilterPill,
+  type ProductFiltersStore,
+  type RenderedResponse,
+  type SizeTerm,
+  type SortedProductsResponse,
+  type SortConfig,
+} from './product-filters/types';
 
 /** True when filter selections have changed but not yet been applied (fetched). */
 let filtersStaged = false;
 
-let abortController: AbortController | null = null;
-
-/** Separate controller/timer for the lightweight faceted-availability requests. */
-let facetsController: AbortController | null = null;
-let facetsTimer: ReturnType<typeof setTimeout> | null = null;
+const requests = new FilterRequestManager();
 
 let focusTrapCleanup: (() => void) | null = null;
 
@@ -233,6 +80,27 @@ function restoreOriginalGrid(): void {
 /** Cross-category URL waiting to be consumed when the drawer closes. */
 let pendingNavUrl: string | null = null;
 
+/** Categories that should appear as shopper-selected filters. */
+function visibleSelectedCategories(): string[] {
+  return state.selectedCategories.filter(
+    slug => slug !== state.salesCategorySlug
+  );
+}
+
+/** Whether the restored URL needs AJAX beyond its native archive query. */
+function hasAdditionalRefinements(): boolean {
+  return (
+    visibleSelectedCategories().length > 0 ||
+    state.selectedColors.length > 0 ||
+    state.selectedSizes.length > 0 ||
+    state.selectedFit.length > 0 ||
+    state.priceMin > state.priceRange.min ||
+    state.priceMax < state.priceRange.max ||
+    state.inStockOnly ||
+    state.currentPage > 1
+  );
+}
+
 const { state, actions } = store<ProductFiltersStore>(
   'aggressive-apparel/product-filters',
   {
@@ -241,13 +109,14 @@ const { state, actions } = store<ProductFiltersStore>(
 
       get hasActiveFilters(): boolean {
         return (
-          state.selectedCategories.length > 0 ||
+          visibleSelectedCategories().length > 0 ||
           state.selectedColors.length > 0 ||
           state.selectedSizes.length > 0 ||
           state.selectedFit.length > 0 ||
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max ||
-          state.inStockOnly
+          state.inStockOnly ||
+          state.onSaleOnly
         );
       },
 
@@ -280,7 +149,7 @@ const { state, actions } = store<ProductFiltersStore>(
 
       get activeFilterCount(): number | string {
         let count = 0;
-        count += state.selectedCategories.length;
+        count += visibleSelectedCategories().length;
         count += state.selectedColors.length;
         count += state.selectedSizes.length;
         count += state.selectedFit.length;
@@ -290,6 +159,7 @@ const { state, actions } = store<ProductFiltersStore>(
         )
           count++;
         if (state.inStockOnly) count++;
+        if (state.onSaleOnly) count++;
         return count || '';
       },
 
@@ -423,6 +293,11 @@ const { state, actions } = store<ProductFiltersStore>(
         stageFilterChange();
       },
 
+      toggleOnSaleOnly(event: Event): void {
+        setSaleStatus((event.target as HTMLInputElement).checked);
+        stageFilterChange();
+      },
+
       // -- Active Filter Management --
 
       clearAllFilters(): void {
@@ -433,6 +308,7 @@ const { state, actions } = store<ProductFiltersStore>(
         state.priceMin = state.priceRange.min;
         state.priceMax = state.priceRange.max;
         state.inStockOnly = false;
+        state.onSaleOnly = false;
         state.currentPage = 1;
         state.totalPages = 1;
         state.totalProducts = 0;
@@ -445,7 +321,7 @@ const { state, actions } = store<ProductFiltersStore>(
 
         syncAllControls();
 
-        const shopPath = getShopPath();
+        const shopPath = getShopPath(state);
         const leavingShopContext =
           window.location.pathname !== shopPath ||
           window.location.search !== '';
@@ -499,9 +375,7 @@ const { state, actions } = store<ProductFiltersStore>(
       closeDrawer(): void {
         // Closing the drawer is the "apply" action — refresh results (or do a
         // full cross-category navigation) for whatever was staged.
-        applyStagedFilters();
-        if (pendingNavUrl) {
-          window.location.href = pendingNavUrl;
+        if (applyStagedFilters()) {
           return;
         }
 
@@ -606,15 +480,18 @@ const { state, actions } = store<ProductFiltersStore>(
           state.selectedCategories.length === 0
         ) {
           state.selectedCategories = [state.currentCategorySlug];
-          fetchProducts();
+          if (
+            state.currentCategorySlug !== state.salesCategorySlug ||
+            hasAdditionalRefinements()
+          ) {
+            fetchProducts();
+          }
         }
 
         // Handle browser back/forward.
         window.addEventListener('popstate', () => {
-          restoreFromUrl();
-          if (state.hasActiveFilters) {
-            fetchProducts();
-          } else {
+          const fetched = restoreFromUrl();
+          if (!fetched) {
             state.currentPage = 1;
             state.totalPages = 1;
             restoreOriginalGrid();
@@ -680,8 +557,7 @@ function stageFilterChange(): void {
  * Debounce the faceted-availability request so rapid selections coalesce.
  */
 function scheduleFacetsUpdate(): void {
-  if (facetsTimer) clearTimeout(facetsTimer);
-  facetsTimer = setTimeout(fetchFacets, 200);
+  requests.scheduleFacets(fetchFacets);
 }
 
 /**
@@ -691,16 +567,12 @@ function scheduleFacetsUpdate(): void {
  * grid stays deferred until the panel is dismissed.
  */
 function fetchFacets(): void {
-  if (facetsController) facetsController.abort();
-  facetsController = new AbortController();
+  const signal = requests.beginFacets();
 
   const params = buildRenderedParams(1);
   params.set('facets_only', '1');
 
-  fetch(
-    `${renderedEndpoint()}?${params}`,
-    authFetchInit(facetsController.signal)
-  )
+  fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
     .then(res =>
       res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))
     )
@@ -758,22 +630,25 @@ function applyFacets(facets: Facets): void {
 /**
  * Apply staged filter selections: sync the URL, then refresh the grid (or do a
  * full navigation for a cross-category change). No-op when nothing is staged.
+ *
+ * @return Whether a hard navigation was started.
  */
-function applyStagedFilters(): void {
-  if (!filtersStaged) return;
+function applyStagedFilters(): boolean {
+  if (!filtersStaged) return false;
   filtersStaged = false;
 
   document.dispatchEvent(new CustomEvent('aa:filters-changed'));
 
   // syncUrl() pushes same-path changes and, for a cross-category switch, stages
   // a full navigation in pendingNavUrl (drawer) or navigates immediately.
-  syncUrl();
+  if (syncUrl()) return true;
   if (pendingNavUrl) {
-    window.location.href = pendingNavUrl;
-    return;
+    hardNavigate(pendingNavUrl);
+    return true;
   }
 
   fetchProducts();
+  return false;
 }
 
 /**
@@ -833,8 +708,11 @@ function buildRenderedParams(page: number): URLSearchParams {
     params.set('template', state.templateSlug);
   }
 
-  if (state.selectedCategories.length > 0) {
-    params.set('category', state.selectedCategories.join(','));
+  const requestCategories = state.onSaleOnly
+    ? visibleSelectedCategories()
+    : state.selectedCategories;
+  if (requestCategories.length > 0) {
+    params.set('category', requestCategories.join(','));
   }
   for (const filter of ATTRIBUTE_FILTERS) {
     const selected = state[filter.stateKey];
@@ -854,6 +732,9 @@ function buildRenderedParams(page: number): URLSearchParams {
   if (state.inStockOnly) {
     params.set('stock', 'instock');
   }
+  if (state.onSaleOnly) {
+    params.set('on_sale', '1');
+  }
 
   return params;
 }
@@ -864,8 +745,7 @@ function buildRenderedParams(page: number): URLSearchParams {
  * via the rendered endpoint's `include` param — so the cards match the editor.
  */
 function fetchCustomSorted(sortType: string): void {
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
+  const signal = requests.beginProducts();
 
   state.isLoading = true;
   state.hasError = false;
@@ -876,13 +756,34 @@ function fetchCustomSorted(sortType: string): void {
   sortParams.set('per_page', String(state.perPage));
   sortParams.set('page', String(state.currentPage));
 
-  if (state.selectedCategories.length > 0) {
-    sortParams.set('category', state.selectedCategories.join(','));
+  const requestCategories = state.onSaleOnly
+    ? visibleSelectedCategories()
+    : state.selectedCategories;
+  if (requestCategories.length > 0) {
+    sortParams.set('category', requestCategories.join(','));
+  }
+  if (state.onSaleOnly) {
+    sortParams.set('on_sale', '1');
+  }
+  for (const filter of ATTRIBUTE_FILTERS) {
+    const selected = state[filter.stateKey];
+    if (selected.length > 0) {
+      sortParams.set(`attributes[${filter.taxonomy}]`, selected.join(','));
+    }
+  }
+  if (state.priceMin > state.priceRange.min) {
+    sortParams.set('min_price', String(state.priceMin));
+  }
+  if (state.priceMax < state.priceRange.max) {
+    sortParams.set('max_price', String(state.priceMax));
+  }
+  if (state.inStockOnly) {
+    sortParams.set('stock', 'instock');
   }
 
   const sortUrl = `${restRoot}/aggressive-apparel/v1/sorted-products?${sortParams}`;
 
-  fetch(sortUrl, authFetchInit(abortController.signal))
+  fetch(sortUrl, authFetchInit(signal))
     .then((res: Response) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
@@ -906,10 +807,7 @@ function fetchCustomSorted(sortType: string): void {
       params.set('include', data.ids.join(','));
       params.set('per_page', String(data.ids.length));
 
-      return fetch(
-        `${renderedEndpoint()}?${params}`,
-        authFetchInit(abortController!.signal)
-      )
+      return fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
         .then((res2: Response) => res2.json() as Promise<RenderedResponse>)
         .then((rendered: RenderedResponse) => {
           injectProductsHtml(rendered.html, false);
@@ -952,8 +850,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
     return;
   }
 
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
+  const signal = requests.beginProducts();
 
   // For an append (infinite scroll / load more) the existing cards must stay on
   // screen — toggling `isLoading` would hide the whole grid (it's bound to
@@ -966,7 +863,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
 
   const url = `${renderedEndpoint()}?${buildRenderedParams(state.currentPage)}`;
 
-  fetch(url, authFetchInit(abortController.signal))
+  fetch(url, authFetchInit(signal))
     .then((res: Response) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json() as Promise<RenderedResponse>;
@@ -1073,6 +970,8 @@ function setupDelegatedEvents(): void {
         } else if (type === 'stock') {
           state.inStockOnly = false;
           syncStockCheckboxes(false);
+        } else if (type === 'sale') {
+          setSaleStatus(false);
         }
 
         // Pills live in the active bar (outside the filter panel), so removing
@@ -1095,7 +994,7 @@ function setupDelegatedEvents(): void {
         if (page < 1 || page > state.totalPages) return;
 
         state.currentPage = page;
-        syncUrl();
+        if (syncUrl()) return;
         fetchProducts();
         scrollToGrid();
       });
@@ -1180,7 +1079,7 @@ function renderPills(): void {
 
   const pills: FilterPill[] = [];
 
-  state.selectedCategories.forEach((slug: string) => {
+  visibleSelectedCategories().forEach((slug: string) => {
     const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
     pills.push({ type: 'category', slug, label: cat?.name || slug });
   });
@@ -1213,7 +1112,18 @@ function renderPills(): void {
   }
 
   if (state.inStockOnly) {
-    pills.push({ type: 'stock', slug: 'stock', label: 'In Stock Only' });
+    pills.push({
+      type: 'stock',
+      slug: 'stock',
+      label: state.i18n?.inStockLabel ?? 'In stock',
+    });
+  }
+  if (state.onSaleOnly) {
+    pills.push({
+      type: 'sale',
+      slug: 'sale',
+      label: state.i18n?.onSaleLabel ?? 'On sale',
+    });
   }
 
   const visiblePills = pills.slice(0, MAX_VISIBLE_PILLS);
@@ -1394,6 +1304,17 @@ function syncStockCheckboxes(checked: boolean): void {
 }
 
 /**
+ * Sync sale-status checkboxes.
+ */
+function syncOnSaleCheckboxes(checked: boolean): void {
+  document
+    .querySelectorAll<HTMLInputElement>('.aa-product-filters__on-sale-checkbox')
+    .forEach(el => {
+      el.checked = checked;
+    });
+}
+
+/**
  * Sync all filter controls to current state (used by clearAll).
  */
 function syncAllControls(): void {
@@ -1404,25 +1325,24 @@ function syncAllControls(): void {
   syncPriceSliders();
   syncPriceRange();
   syncStockCheckboxes(false);
+  syncOnSaleCheckboxes(false);
   renderPills();
 }
 
-/** Returns the pathname of the shop root, derived from the PHP-injected shopUrl. */
-function getShopPath(): string {
-  try {
-    return new URL(state.shopUrl).pathname;
-  } catch {
-    return '/shop/';
-  }
-}
+/**
+ * Stage sale status as native catalogue context without navigating immediately.
+ */
+function setSaleStatus(enabled: boolean): void {
+  const categoryFilters = visibleSelectedCategories();
 
-/** Full shop URL (origin + path) for hard navigations after Clear All. */
-function getCanonicalShopUrl(): string {
-  try {
-    return new URL(state.shopUrl, window.location.origin).href;
-  } catch {
-    return `${window.location.origin}${getShopPath()}`;
-  }
+  state.onSaleOnly = enabled;
+  state.currentPage = 1;
+  state.selectedCategories = enabled
+    ? [state.salesCategorySlug, ...categoryFilters]
+    : categoryFilters;
+
+  syncCategoryChips(state.selectedCategories);
+  syncOnSaleCheckboxes(enabled);
 }
 
 /**
@@ -1432,96 +1352,18 @@ function getCanonicalShopUrl(): string {
  */
 function navigateToShopAfterClear(): void {
   pendingNavUrl = null;
-  const shopPath = getShopPath();
+  const shopPath = getShopPath(state);
 
   if (window.location.pathname !== shopPath || window.location.search !== '') {
-    window.location.assign(getCanonicalShopUrl());
+    hardNavigate(getCanonicalShopUrl(state));
     return;
   }
 
   window.history.replaceState(null, '', shopPath);
 }
 
-/** Build the canonical pathname + query for the current filter state. */
-function buildFilterUrl(): string {
-  const params = new URLSearchParams();
-
-  // Determine the canonical base path:
-  //   - 1 category with a known permalink → use that category's path
-  //   - 0 or 2+ categories              → use the shop root
-  let basePath: string;
-
-  if (state.selectedCategories.length === 1) {
-    const slug = state.selectedCategories[0];
-    const catPath = getCategoryPath(slug);
-    if (catPath) {
-      basePath = catPath;
-      // Category is implicit in the path — no ?cat= needed.
-    } else {
-      basePath = getShopPath();
-      params.set('cat', slug);
-    }
-  } else if (state.selectedCategories.length > 1) {
-    basePath = getShopPath();
-    params.set('cat', state.selectedCategories.join(','));
-  } else {
-    basePath = getShopPath();
-  }
-
-  for (const filter of ATTRIBUTE_FILTERS) {
-    const selected = state[filter.stateKey];
-    if (selected.length > 0) {
-      params.set(filter.urlParam, selected.join(','));
-    }
-  }
-  if (state.priceMin > state.priceRange.min) {
-    params.set('min_price', String(state.priceMin));
-  }
-  if (state.priceMax < state.priceRange.max) {
-    params.set('max_price', String(state.priceMax));
-  }
-  if (state.inStockOnly) {
-    params.set('stock', 'instock');
-  }
-  if (state.currentPage > 1) {
-    params.set('pf_page', String(state.currentPage));
-  }
-
-  const qs = params.toString();
-  return qs ? `${basePath}?${qs}` : basePath;
-}
-
-/** Returns the pathname for a category slug using its PHP-injected permalink. */
-function getCategoryPath(slug: string): string | null {
-  const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
-  if (!cat?.link) return null;
-  try {
-    return new URL(cat.link).pathname;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Returns the category slug whose permalink matches the current URL path.
- * Used by restoreFromUrl() so that pushState navigation between category
- * pages survives browser back/forward without a full page reload.
- */
-function getCategorySlugFromPath(): string | null {
-  const path = window.location.pathname;
-  for (const cat of state.categories) {
-    if (!cat.link) continue;
-    try {
-      if (new URL(cat.link).pathname === path) return cat.slug;
-    } catch {
-      // Invalid URL — skip this category.
-    }
-  }
-  return null;
-}
-
-function syncUrl(): void {
-  const url = buildFilterUrl();
+function syncUrl(): boolean {
+  const url = buildFilterUrl(state, visibleSelectedCategories());
   const basePath = url.split('?')[0] ?? url;
 
   // Cross-category switches require a full page navigation so title, breadcrumbs,
@@ -1532,23 +1374,32 @@ function syncUrl(): void {
     if (state.layout === 'drawer') {
       pendingNavUrl = url;
     } else {
-      window.location.href = url;
+      hardNavigate(url);
+      return true;
     }
   } else {
     pendingNavUrl = null;
     window.history.pushState(null, '', url);
   }
+
+  return false;
+}
+
+/** Abort requests that cannot be used, then begin a full page navigation. */
+function hardNavigate(url: string): void {
+  requests.cancelAll();
+  window.location.assign(url);
 }
 
 /**
  * Restore filter state from URL params on init.
  */
-function restoreFromUrl(): void {
+function restoreFromUrl(): boolean {
   const params = new URLSearchParams(window.location.search);
 
   // Detect active category from URL path (handles pushState navigation).
   // e.g. /shop/hoodies/ → 'hoodies', even after the page was loaded as /shop/clothing/.
-  const catFromPath = getCategorySlugFromPath();
+  const catFromPath = getCategorySlugFromPath(state);
   const catFromParam = (params.get('cat') || '').split(',').filter(Boolean);
   state.selectedCategories = [
     ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
@@ -1577,9 +1428,11 @@ function restoreFromUrl(): void {
       state.priceRange.max
     );
   }
-  if (params.get('stock') === 'instock') {
-    state.inStockOnly = true;
-  }
+  state.inStockOnly = params.get('stock') === 'instock';
+  state.onSaleOnly =
+    params.get('on_sale') === '1' ||
+    catFromPath === state.salesCategorySlug ||
+    state.currentCategorySlug === state.salesCategorySlug;
   if (params.has('pf_page')) {
     state.currentPage = Math.max(
       parseInt(params.get('pf_page') || '1', 10) || 1,
@@ -1596,15 +1449,26 @@ function restoreFromUrl(): void {
     syncPriceSliders();
     syncPriceRange();
     syncStockCheckboxes(state.inStockOnly);
+    syncOnSaleCheckboxes(state.onSaleOnly);
     ensureSizeListVisible();
     // Initial (and post-popstate) availability for the restored selection.
     fetchFacets();
   });
 
-  // If any filters are active, fetch products immediately.
-  if (state.hasActiveFilters) {
+  // The native Sales archive already has the correct indexed taxonomy query.
+  // Avoid replacing its SSR grid until another filter genuinely requires AJAX.
+  const isNativeSalesArchive =
+    catFromPath === state.salesCategorySlug ||
+    state.currentCategorySlug === state.salesCategorySlug;
+  const shouldFetch =
+    state.hasActiveFilters &&
+    (!isNativeSalesArchive || hasAdditionalRefinements());
+
+  if (shouldFetch) {
     fetchProducts();
   }
+
+  return shouldFetch;
 }
 
 /**
@@ -1662,34 +1526,6 @@ function scrollToGrid(): void {
 }
 
 /**
- * Fade and disable filter elements via the `.is-unavailable` CSS class.
- *
- * Items stay in place (no layout reflow) — just dimmed and non-interactive.
- * CSS transitions the opacity change; JS toggles the class and a11y attrs.
- */
-function setFilterVisibility(
-  selector: string,
-  predicate: (el: HTMLElement) => boolean
-): void {
-  const all = document.querySelectorAll<HTMLElement>(selector);
-
-  all.forEach(el => {
-    const shouldShow = predicate(el);
-    const isUnavailable = el.classList.contains('is-unavailable');
-
-    if (!shouldShow && !isUnavailable) {
-      el.classList.add('is-unavailable');
-      el.setAttribute('aria-hidden', 'true');
-      el.tabIndex = -1;
-    } else if (shouldShow && isUnavailable) {
-      el.classList.remove('is-unavailable');
-      el.removeAttribute('aria-hidden');
-      el.removeAttribute('tabindex');
-    }
-  });
-}
-
-/**
  * Reveal the full size list (no longer gated behind a category).
  *
  * Which individual options are enabled is driven by live faceted availability
@@ -1706,14 +1542,4 @@ function ensureSizeListVisible(): void {
 
   if (sizeList) sizeList.hidden = false;
   if (sizeHint) sizeHint.hidden = true;
-}
-
-/**
- * Escape HTML special characters for safe template insertion.
- */
-function escapeHtml(str: string): string {
-  if (!str) return '';
-  const el = document.createElement('span');
-  el.textContent = str;
-  return el.innerHTML;
 }

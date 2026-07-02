@@ -685,7 +685,7 @@ button.aa-product-filters__color-swatch {
 	}
 }
 
-/* ── Stock Status Toggle ────────────────────────────── */
+/* ── Availability Toggles ───────────────────────────── */
 
 .aa-product-filters__stock-toggle {
 	display: flex;
@@ -699,7 +699,8 @@ button.aa-product-filters__color-swatch {
 	font-size: 0.8rem;
 }
 
-.aa-product-filters__stock-checkbox {
+.aa-product-filters__stock-checkbox,
+.aa-product-filters__on-sale-checkbox {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -728,7 +729,8 @@ button.aa-product-filters__color-swatch {
 		transition: transform 0.2s ease;
 	}
 
-	.aa-product-filters__stock-checkbox:checked + & {
+	.aa-product-filters__stock-checkbox:checked + &,
+	.aa-product-filters__on-sale-checkbox:checked + & {
 		background: var(--pf-fg);
 
 		&::after {
@@ -736,7 +738,8 @@ button.aa-product-filters__color-swatch {
 		}
 	}
 
-	.aa-product-filters__stock-checkbox:focus-visible + & {
+	.aa-product-filters__stock-checkbox:focus-visible + &,
+	.aa-product-filters__on-sale-checkbox:focus-visible + & {
 		outline: 2px solid var(--pf-fg);
 		outline-offset: 2px;
 	}

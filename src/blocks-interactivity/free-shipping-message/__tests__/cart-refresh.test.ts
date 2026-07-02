@@ -12,22 +12,22 @@ import {
 } from '../cart-data';
 
 const defaultI18n = {
-  progressDefault: '%s away from FREE shipping',
-  progressCustom: '%1$s away from %2$s',
-  unlockedDefault: 'FREE Shipping UNLOCKED',
-  unlockedCustom: '%s UNLOCKED',
+  progressDefault: '%s Away from FREE Shipping!',
+  progressCustom: '%1$s Away from %2$s!',
+  unlockedDefault: 'FREE Shipping UNLOCKED!',
+  unlockedCustom: '%s UNLOCKED!',
 };
 
 describe('interpolateI18n', () => {
   it('replaces positional placeholders', () => {
     expect(
-      interpolateI18n('%1$s away from %2$s', '$50.00', 'FREE Express')
-    ).toBe('$50.00 away from FREE Express');
+      interpolateI18n('%1$s Away from %2$s!', '$50.00', 'FREE Express')
+    ).toBe('$50.00 Away from FREE Express!');
   });
 
   it('replaces a single %s placeholder', () => {
-    expect(interpolateI18n('%s away from FREE shipping', '$50.00')).toBe(
-      '$50.00 away from FREE shipping'
+    expect(interpolateI18n('%s Away from FREE Shipping!', '$50.00')).toBe(
+      '$50.00 Away from FREE Shipping!'
     );
   });
 });
@@ -102,7 +102,7 @@ describe('formatFreeShippingMessage', () => {
 
   it('formats default progress copy', () => {
     expect(formatFreeShippingMessage(baseContext)).toBe(
-      '$50.00 away from FREE shipping'
+      '$50.00 Away from FREE Shipping!'
     );
   });
 
@@ -113,18 +113,18 @@ describe('formatFreeShippingMessage', () => {
         complete: true,
         remaining: 0,
       })
-    ).toBe('FREE Shipping UNLOCKED');
+    ).toBe('FREE Shipping UNLOCKED!');
   });
 
   it('uses custom emphasis when set', () => {
     const ctx = { ...baseContext, emphasisText: 'FREE Express' };
 
     expect(formatFreeShippingMessage(ctx)).toBe(
-      '$50.00 away from FREE Express'
+      '$50.00 Away from FREE Express!'
     );
     expect(
       formatFreeShippingMessage({ ...ctx, complete: true, remaining: 0 })
-    ).toBe('FREE Express UNLOCKED');
+    ).toBe('FREE Express UNLOCKED!');
   });
 
   it('uses translated templates from context', () => {

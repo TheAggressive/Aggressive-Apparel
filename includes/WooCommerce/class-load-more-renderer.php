@@ -34,8 +34,9 @@ class Load_More_Renderer {
 	private const ROUTE     = '/products/rendered';
 
 	/** Transient prefix + TTL (5 minutes) for cached facet availability. */
-	private const FACETS_CACHE_PREFIX = 'aa_pf_facets_';
-	private const FACETS_CACHE_TTL    = 300;
+	private const FACETS_CACHE_PREFIX   = 'aa_pf_facets_';
+	private const FACETS_CACHE_TTL      = 300;
+	private const FACETS_VERSION_OPTION = 'aa_pf_facets_version';
 
 	/** Template slugs that contain a woocommerce/product-template block. */
 	private const PRODUCT_TEMPLATES = array(
@@ -52,6 +53,13 @@ class Load_More_Renderer {
 	private array $blocks_cache = array();
 
 	/**
+	 * Whether facet transients were already cleared during this request.
+	 *
+	 * @var bool
+	 */
+	private bool $facets_cache_flushed = false;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -62,25 +70,27 @@ class Load_More_Renderer {
 		// Invalidate cached facet availability when the catalogue changes.
 		add_action( 'woocommerce_update_product', array( $this, 'flush_facets_cache' ) );
 		add_action( 'woocommerce_new_product', array( $this, 'flush_facets_cache' ) );
+		add_action( 'woocommerce_update_product_variation', array( $this, 'flush_facets_cache' ) );
+		add_action( 'woocommerce_new_product_variation', array( $this, 'flush_facets_cache' ) );
 		add_action( 'woocommerce_product_set_stock_status', array( $this, 'flush_facets_cache' ) );
+		add_action( 'aggressive_apparel_sale_category_updated', array( $this, 'flush_facets_cache' ) );
 	}
 
 	/**
-	 * Delete all cached facet-availability transients.
+	 * Invalidate cached facet availability in constant time.
 	 *
 	 * @return void
 	 */
 	public function flush_facets_cache(): void {
-		global $wpdb;
+		if ( $this->facets_cache_flushed ) {
+			return;
+		}
+		$this->facets_cache_flushed = true;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk transient cleanup requires a direct query.
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_' . self::FACETS_CACHE_PREFIX ) . '%',
-				$wpdb->esc_like( '_transient_timeout_' . self::FACETS_CACHE_PREFIX ) . '%'
-			)
-		);
+		// Versioning is constant-time even when imports have created many cached
+		// filter signatures. Old transients simply age out after five minutes.
+		$version = (int) get_option( self::FACETS_VERSION_OPTION, 1 );
+		update_option( self::FACETS_VERSION_OPTION, $version + 1, false );
 	}
 
 	/**
@@ -161,6 +171,10 @@ class Load_More_Renderer {
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
+					'on_sale'     => array(
+						'default' => false,
+						'type'    => 'boolean',
+					),
 					'include'     => array(
 						'default'           => '',
 						'type'              => 'string',
@@ -214,6 +228,7 @@ class Load_More_Renderer {
 			'min_price'  => (float) $request->get_param( 'min_price' ),
 			'max_price'  => (float) $request->get_param( 'max_price' ),
 			'stock'      => (string) $request->get_param( 'stock' ),
+			'on_sale'    => (bool) $request->get_param( 'on_sale' ),
 			'include'    => (string) $request->get_param( 'include' ),
 		);
 
@@ -253,7 +268,7 @@ class Load_More_Renderer {
 			return new \WP_REST_Response( array( 'error' => 'Template not found' ), 404 );
 		}
 
-		$query = new \WP_Query( $this->build_query_args( $page, $per_page, $orderby, $taxonomy, $term, $filters ) );
+		$query = $this->run_product_query( $this->build_query_args( $page, $per_page, $orderby, $taxonomy, $term, $filters ) );
 
 		if ( ! $query->have_posts() ) {
 			$empty = array(
@@ -370,9 +385,10 @@ class Load_More_Renderer {
 	 */
 	private function compute_facets( array $filters, string $taxonomy, string $term ): array {
 		// Availability depends only on the catalogue, not the requester, so the
-		// result is safely cacheable per filter signature (flushed on product
+		// result is safely cacheable per filter signature (versioned on product
 		// change — see flush_facets_cache()).
-		$cache_key = self::FACETS_CACHE_PREFIX . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term ) ) );
+		$version   = (int) get_option( self::FACETS_VERSION_OPTION, 1 );
+		$cache_key = self::FACETS_CACHE_PREFIX . $version . '_' . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term ) ) );
 		$cached    = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
 			return $cached;
@@ -409,36 +425,82 @@ class Load_More_Renderer {
 			}
 			$facet_filters['include'] = '';
 
-			$args                           = $this->build_query_args( 1, -1, 'date', $taxonomy, $term, $facet_filters );
-			$args['fields']                 = 'ids';
-			$args['posts_per_page']         = -1;
-			$args['no_found_rows']          = true;
-			$args['update_post_meta_cache'] = false;
-			$args['update_post_term_cache'] = false;
-
-			/**
-			 * Product IDs from the facet query (`fields` => `ids`).
-			 *
-			 * @var int[] $ids
-			 */
-			$ids = ( new \WP_Query( $args ) )->posts;
-			if ( empty( $ids ) ) {
-				$facets[ $facet ] = array();
-				continue;
-			}
-
-			$slugs = wp_get_object_terms(
-				array_map( 'intval', $ids ),
-				$facet,
-				array( 'fields' => 'slugs' )
-			);
-
-			$facets[ $facet ] = is_wp_error( $slugs ) ? array() : array_values( array_unique( $slugs ) );
+			$facets[ $facet ] = $this->query_facet_slugs( $facet, $facet_filters, $taxonomy, $term );
 		}
 
 		set_transient( $cache_key, $facets, self::FACETS_CACHE_TTL );
 
 		return $facets;
+	}
+
+	/**
+	 * Find available attribute terms entirely in SQL.
+	 *
+	 * WooCommerce's attribute and product lookup tables are indexed for this
+	 * exact workload. Returning only distinct slugs avoids materializing every
+	 * matching product ID in PHP, which is the difference between a bounded
+	 * facet request and one whose memory use grows with the catalogue.
+	 *
+	 * @param string               $facet    Attribute taxonomy being measured.
+	 * @param array<string, mixed> $filters  Other active filters.
+	 * @param string               $taxonomy Current archive taxonomy.
+	 * @param string               $term     Current archive term.
+	 * @return string[] Available term slugs.
+	 */
+	private function query_facet_slugs( string $facet, array $filters, string $taxonomy, string $term ): array {
+		global $wpdb;
+
+		$attribute_lookup = $wpdb->prefix . 'wc_product_attributes_lookup';
+		$product_lookup   = $wpdb->wc_product_meta_lookup;
+		$filter_set       = new Catalog_Filter_Set( $filters );
+		$constraints      = new Catalog_SQL_Constraints( 'p', 'aa_facet' );
+
+		$allowed = $this->allowed_taxonomies();
+		if ( '' !== $taxonomy && '' !== $term && in_array( $taxonomy, $allowed, true ) ) {
+			if ( str_starts_with( $taxonomy, 'pa_' ) ) {
+				$constraints->add_attribute( $taxonomy, array( $term ), $attribute_lookup );
+			} else {
+				$constraints->add_taxonomy( $taxonomy, array( $term ) );
+			}
+		}
+
+		$constraints->add_taxonomy( 'product_cat', $filter_set->categories() );
+
+		if ( $filter_set->on_sale() ) {
+			$constraints->add_taxonomy( 'product_cat', array( Sale_Category::TERM_SLUG ) );
+		}
+
+		foreach ( $filter_set->attributes( $allowed ) as $attr_tax => $slugs ) {
+			if ( $facet === $attr_tax || ! str_starts_with( $attr_tax, 'pa_' ) ) {
+				continue;
+			}
+			$constraints->add_attribute( $attr_tax, $slugs, $attribute_lookup );
+		}
+
+		$constraints->add_lookup_filters( $filter_set, 'product_lookup' );
+
+		$sql = "SELECT DISTINCT facet_terms.slug
+			FROM {$attribute_lookup} facet_lookup
+			INNER JOIN {$wpdb->posts} p ON facet_lookup.product_or_parent_id = p.ID
+			INNER JOIN {$wpdb->terms} facet_terms ON facet_lookup.term_id = facet_terms.term_id
+			INNER JOIN {$product_lookup} product_lookup ON p.ID = product_lookup.product_id
+			" . $constraints->joins() . "
+			WHERE facet_lookup.taxonomy = %s
+			AND p.post_type = 'product'
+			AND p.post_status = 'publish'";
+
+		if ( ! empty( $constraints->where() ) ) {
+			$sql .= "\nAND " . implode( "\nAND ", $constraints->where() );
+		}
+
+		$params = array_merge( $constraints->join_params(), array( $facet ), $constraints->where_params() );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic identifiers are fixed core table names and generated aliases; all values are prepared below.
+		$prepared = $wpdb->prepare( $sql, ...$params );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above; short indexed lookup cached by compute_facets().
+		$slugs = $wpdb->get_col( $prepared );
+
+		return array_values( array_unique( array_map( 'strval', $slugs ) ) );
 	}
 
 	/**
@@ -507,6 +569,70 @@ class Load_More_Renderer {
 	}
 
 	/**
+	 * Run a catalogue query with WooCommerce's indexed product lookup table.
+	 *
+	 * @param array<string, mixed> $args WP_Query arguments.
+	 * @return \WP_Query
+	 */
+	private function run_product_query( array $args ): \WP_Query {
+		add_filter( 'posts_clauses', array( $this, 'apply_product_lookup_clauses' ), 10, 2 );
+		try {
+			return new \WP_Query( $args );
+		} finally {
+			remove_filter( 'posts_clauses', array( $this, 'apply_product_lookup_clauses' ), 10 );
+		}
+	}
+
+	/**
+	 * Apply price, stock, and common catalogue ordering through
+	 * wc_product_meta_lookup instead of unindexed postmeta scans.
+	 *
+	 * @param array<string, string> $clauses Query SQL clauses.
+	 * @param \WP_Query             $query   Query object.
+	 * @return array<string, string>
+	 */
+	public function apply_product_lookup_clauses( array $clauses, \WP_Query $query ): array {
+		$filters = $query->get( 'aa_catalog_lookup_filters' );
+		$orderby = sanitize_key( (string) $query->get( 'aa_catalog_lookup_orderby' ) );
+
+		if ( ! is_array( $filters ) && '' === $orderby ) {
+			return $clauses;
+		}
+
+		global $wpdb;
+
+		$alias = 'aa_product_lookup';
+		if ( ! str_contains( $clauses['join'], " {$alias} " ) ) {
+			$clauses['join'] .= " INNER JOIN {$wpdb->wc_product_meta_lookup} {$alias} ON {$wpdb->posts}.ID = {$alias}.product_id";
+		}
+
+		if ( is_array( $filters ) ) {
+			$constraints = new Catalog_SQL_Constraints();
+			$constraints->add_lookup_filters( new Catalog_Filter_Set( $filters ), $alias );
+			if ( ! empty( $constraints->where() ) ) {
+				$lookup_where = ' AND ' . implode( ' AND ', $constraints->where() );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated fixed-alias clauses; public values are prepared.
+				$clauses['where'] .= $wpdb->prepare( $lookup_where, ...$constraints->where_params() );
+			}
+		}
+
+		$order = 'ASC' === strtoupper( (string) $query->get( 'order' ) ) ? 'ASC' : 'DESC';
+		switch ( $orderby ) {
+			case 'price':
+				$clauses['orderby'] = "{$alias}.min_price {$order}, {$wpdb->posts}.ID {$order}";
+				break;
+			case 'popularity':
+				$clauses['orderby'] = "{$alias}.total_sales {$order}, {$wpdb->posts}.ID DESC";
+				break;
+			case 'rating':
+				$clauses['orderby'] = "{$alias}.average_rating {$order}, {$wpdb->posts}.ID DESC";
+				break;
+		}
+
+		return $clauses;
+	}
+
+	/**
 	 * Build WP_Query args for the given parameters.
 	 *
 	 * Maps WooCommerce catalogue sort values to WP_Query orderby args.
@@ -518,15 +644,21 @@ class Load_More_Renderer {
 	 * @param string               $term     Term slug within that taxonomy (or '').
 	 * @param array<string, mixed> $filters  Optional product-filters params
 	 *                                        (category, attributes, min/max price,
-	 *                                        stock, include).
+	 *                                        stock, on_sale, include).
 	 * @return array<string, mixed>
 	 */
 	private function build_query_args( int $page, int $per_page, string $orderby, string $taxonomy, string $term, array $filters = array() ): array {
-		$args = array(
-			'post_type'      => 'product',
-			'posts_per_page' => $per_page,
-			'paged'          => $page,
-			'post_status'    => 'publish',
+		$filter_set = new Catalog_Filter_Set( $filters );
+		$args       = array(
+			'post_type'                 => 'product',
+			'posts_per_page'            => $per_page,
+			'paged'                     => $page,
+			'post_status'               => 'publish',
+			'aa_catalog_lookup_filters' => array(
+				'min_price' => $filter_set->min_price(),
+				'max_price' => $filter_set->max_price(),
+				'stock'     => $filter_set->stock(),
+			),
 		);
 
 		// Custom-sort (featured/savings) path: the filters UI resolves an ordered,
@@ -544,27 +676,23 @@ class Load_More_Renderer {
 
 		switch ( $orderby ) {
 			case 'popularity':
-				$args['orderby']  = 'meta_value_num';
-				$args['meta_key'] = 'total_sales'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				$args['order']    = 'DESC';
+				$args['aa_catalog_lookup_orderby'] = 'popularity';
+				$args['order']                     = 'DESC';
 				break;
 
 			case 'rating':
-				$args['orderby']  = 'meta_value_num';
-				$args['meta_key'] = '_wc_average_rating'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				$args['order']    = 'DESC';
+				$args['aa_catalog_lookup_orderby'] = 'rating';
+				$args['order']                     = 'DESC';
 				break;
 
 			case 'price':
-				$args['orderby']  = 'meta_value_num';
-				$args['meta_key'] = '_price'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				$args['order']    = 'ASC';
+				$args['aa_catalog_lookup_orderby'] = 'price';
+				$args['order']                     = 'ASC';
 				break;
 
 			case 'price-desc':
-				$args['orderby']  = 'meta_value_num';
-				$args['meta_key'] = '_price'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				$args['order']    = 'DESC';
+				$args['aa_catalog_lookup_orderby'] = 'price';
+				$args['order']                     = 'DESC';
 				break;
 
 			case 'title-asc':
@@ -597,7 +725,7 @@ class Load_More_Renderer {
 		}
 
 		// Category filter (one or more slugs from the filters UI).
-		$categories = array_filter( array_map( 'sanitize_title', explode( ',', (string) ( $filters['category'] ?? '' ) ) ) );
+		$categories = $filter_set->categories();
 		if ( ! empty( $categories ) ) {
 			$tax_query[] = array(
 				'taxonomy' => 'product_cat',
@@ -606,18 +734,20 @@ class Load_More_Renderer {
 			);
 		}
 
+		// The managed Sales category is an indexed taxonomy constraint. Keeping it
+		// separate from shopper-selected categories makes the two clauses combine
+		// with AND instead of materializing every sale product ID in post__in.
+		if ( $filter_set->on_sale() ) {
+			$tax_query[] = array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'slug',
+				'terms'    => Sale_Category::TERM_SLUG,
+			);
+		}
+
 		// Attribute filters, e.g. { pa_color: "red,blue", pa_size: "l" }. Each
 		// taxonomy is validated against the same allow-list.
-		$attributes = isset( $filters['attributes'] ) && is_array( $filters['attributes'] ) ? $filters['attributes'] : array();
-		foreach ( $attributes as $attr_tax => $attr_terms ) {
-			$attr_tax = sanitize_key( (string) $attr_tax );
-			if ( ! in_array( $attr_tax, $allowed, true ) ) {
-				continue;
-			}
-			$slugs = array_filter( array_map( 'sanitize_title', explode( ',', (string) $attr_terms ) ) );
-			if ( empty( $slugs ) ) {
-				continue;
-			}
+		foreach ( $filter_set->attributes( $allowed ) as $attr_tax => $slugs ) {
 			$tax_query[] = array(
 				'taxonomy' => $attr_tax,
 				'field'    => 'slug',
@@ -630,47 +760,6 @@ class Load_More_Renderer {
 				$tax_query['relation'] = 'AND';
 			}
 			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-		}
-
-		// Price + stock meta filters.
-		$meta_query = array();
-
-		$min_price = (float) ( $filters['min_price'] ?? 0 );
-		$max_price = (float) ( $filters['max_price'] ?? 0 );
-		if ( $min_price > 0 && $max_price > 0 ) {
-			$meta_query[] = array(
-				'key'     => '_price',
-				'value'   => array( $min_price, $max_price ),
-				'type'    => 'DECIMAL(10,2)',
-				'compare' => 'BETWEEN',
-			);
-		} elseif ( $min_price > 0 ) {
-			$meta_query[] = array(
-				'key'     => '_price',
-				'value'   => $min_price,
-				'type'    => 'DECIMAL(10,2)',
-				'compare' => '>=',
-			);
-		} elseif ( $max_price > 0 ) {
-			$meta_query[] = array(
-				'key'     => '_price',
-				'value'   => $max_price,
-				'type'    => 'DECIMAL(10,2)',
-				'compare' => '<=',
-			);
-		}
-
-		$stock = sanitize_text_field( (string) ( $filters['stock'] ?? '' ) );
-		if ( '' !== $stock ) {
-			$meta_query[] = array(
-				'key'     => '_stock_status',
-				'value'   => $stock,
-				'compare' => '=',
-			);
-		}
-
-		if ( ! empty( $meta_query ) ) {
-			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 
 		return $args;

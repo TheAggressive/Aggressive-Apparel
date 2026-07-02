@@ -29,6 +29,13 @@ defined( 'ABSPATH' ) || exit;
 class Search {
 
 	/**
+	 * Large-catalog search index and maintenance service.
+	 *
+	 * @var Search_Index
+	 */
+	private Search_Index $index;
+
+	/**
 	 * REST namespace.
 	 *
 	 * @var string
@@ -115,11 +122,21 @@ class Search {
 	private bool $assets_prepared = false;
 
 	/**
+	 * Construct the search service.
+	 *
+	 * @param Search_Index|null $index Optional index override for tests.
+	 */
+	public function __construct( ?Search_Index $index = null ) {
+		$this->index = $index ?? new Search_Index();
+	}
+
+	/**
 	 * Register hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
+		$this->index->init();
 		add_action( 'rest_api_init', array( $this, 'register_route' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ), 5 );
 		add_action( 'aggressive_apparel_search_block_rendered', array( $this, 'mark_block_rendered' ) );
@@ -187,8 +204,8 @@ class Search {
 			);
 		}
 
-		// Throttle anonymous traffic so the (unindexed) LIKE searches can't be
-		// flooded with cache-missing queries. Logged-in users are exempt.
+		// Throttle anonymous traffic so cache-missing search requests cannot be
+		// flooded. Logged-in users are exempt.
 		if ( $this->is_rate_limited() ) {
 			$response = new \WP_REST_Response(
 				array( 'message' => __( 'Too many requests. Please slow down.', 'aggressive-apparel' ) ),
@@ -204,7 +221,7 @@ class Search {
 		$show_products = $this->products_are_public();
 
 		// Short-lived cache: identical queries within the window reuse results.
-		$cache_key = 'aa_search_' . md5( $scope . '|' . ( $show_products ? '1' : '0' ) . '|' . mb_strtolower( $query ) );
+		$cache_key = 'aa_search_' . md5( $this->index->generation() . '|' . $scope . '|' . ( $show_products ? '1' : '0' ) . '|' . mb_strtolower( $query ) );
 		$cached    = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
 			return rest_ensure_response( $cached );
@@ -291,6 +308,10 @@ class Search {
 				'price'     => $this->format_product_price( $product ),
 				'onSale'    => $product->is_on_sale(),
 			);
+
+			if ( count( $items ) >= self::PER_TYPE ) {
+				break;
+			}
 		}
 
 		return $items;
@@ -393,6 +414,17 @@ class Search {
 	 * @return array<int, int>
 	 */
 	private function query_ids( string $post_type, string $query ): array {
+		// Ask for a few extra products because catalogue visibility is evaluated
+		// after hydration; hidden matches must not crowd visible results out.
+		$index_limit = 'product' === $post_type ? self::PER_TYPE * 3 : self::PER_TYPE;
+		$indexed_ids = $this->index->search( $post_type, $query, $index_limit );
+		if ( null !== $indexed_ids ) {
+			if ( ! empty( $indexed_ids ) ) {
+				_prime_post_caches( $indexed_ids, false, true );
+			}
+			return $indexed_ids;
+		}
+
 		$q = new \WP_Query(
 			array(
 				'post_type'              => $post_type,

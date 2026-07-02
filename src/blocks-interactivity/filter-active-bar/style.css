@@ -41,6 +41,7 @@
 	cursor: pointer;
 	transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
 	min-height: var(--aa-button-height-md);
+  line-height: 0;
 
 	&:hover {
 		background-color: transparent;

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\Core;
 
 use Aggressive_Apparel\Core\Search;
+use Aggressive_Apparel\Core\Search_Index;
 use WP_REST_Request;
 use WP_UnitTestCase;
 
@@ -282,5 +283,38 @@ class TestSearch extends WP_UnitTestCase {
 		$data = $this->run_search( 'Zenith', 'product' );
 
 		$this->assertTrue( $this->has_title( $data, 'product', 'Zenith Joggers' ) );
+	}
+
+	/**
+	 * The large-catalog index supports prefix title and SKU lookups.
+	 *
+	 * @return void
+	 */
+	public function test_token_index_finds_product_title_and_sku_prefixes(): void {
+		if ( ! class_exists( 'WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$index = new Search_Index();
+		$index->maybe_install();
+
+		// Complete the test index without clearing shared fixture rows. Production
+		// rebuilds begin at cursor zero and process 250 records per action.
+		$index->process_rebuild_batch( PHP_INT_MAX );
+
+		$product = new \WC_Product_Simple();
+		$product->set_name( 'Nebulonic Trail Jacket' );
+		$product->set_sku( 'NEBULA-8421' );
+		$product->set_status( 'publish' );
+		$product->set_catalog_visibility( 'visible' );
+		$product_id = $product->save();
+
+		$index->sync_ids( array( $product_id ) );
+
+		$this->assertContains( $product_id, $index->search( 'product', 'Nebul', 8 ) );
+		$this->assertContains( $product_id, $index->search( 'product', '842', 8 ) );
+
+		$health = $index->add_debug_information( array() );
+		$this->assertSame( 'ready', $health['aggressive_apparel_search_index']['fields']['state']['value'] );
 	}
 }

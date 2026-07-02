@@ -1,3 +1,10 @@
+## [1.126.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.126.0...v1.126.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* update Node.js and pnpm version requirements in README ([0e2e1c0](https://github.com/TheAggressive/Aggressive-Apparel/commit/0e2e1c07272df598616cd12c0bb33772e5495a0c))
+
 # [1.126.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.125.1...v1.126.0) (2026-07-01)
 
 

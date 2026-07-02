@@ -20,7 +20,7 @@ concurrency:
 
 env:
   THEME_SLUG: Aggressive-Apparel
-  NODE_VERSION: '25'
+  NODE_VERSION: '24'
   PNPM_VERSION: '9'
   PHP_VERSION: '8.2'
 

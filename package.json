@@ -20,6 +20,7 @@
     "url": "https://github.com/TheAggressive/Aggressive-Apparel/issues"
   },
   "type": "module",
+  "packageManager": "pnpm@11.1.2",
   "main": "index.js",
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

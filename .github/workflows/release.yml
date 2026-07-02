@@ -20,8 +20,8 @@ concurrency:
 
 env:
   THEME_SLUG: Aggressive-Apparel
-  NODE_VERSION: '24'
-  PNPM_VERSION: '9'
+  NODE_VERSION: '25'
+  PNPM_VERSION: '11'
   PHP_VERSION: '8.2'
 
 jobs:

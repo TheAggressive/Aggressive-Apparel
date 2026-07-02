@@ -16,9 +16,19 @@
         display: flex;
         justify-content: flex-start !important;
 
-        & > svg.wc-block-mini-cart__icon {
-          width: 2rem;
-          height: 2rem;
+        .wc-block-mini-cart__button .wc-block-mini-cart__icon {
+          width: 32px;
+          height: 32px;
+        }
+
+        .wc-block-mini-cart__quantity-badge {
+          width: 32px;
+          height: 32px;
+        }
+
+        .wc-block-mini-cart__badge {
+          top: 0.35rem;
+          left: 2rem;
         }
     }
 

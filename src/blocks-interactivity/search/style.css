@@ -283,7 +283,7 @@
 	border: none;
 	background: transparent;
 	color: var(--aa-color-foreground);
-	font-size: var(--wp--preset--font-size--x-small);
+	font-size: var(--wp--preset--font-size--small);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
@@ -486,7 +486,7 @@
 	padding: 0.75rem var(--aa-search-pad) 0.5rem;
 	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground-muted);
-	font-size: var(--wp--preset--font-size--small);
+	font-size: var(--wp--preset--font-size--medium);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -619,10 +619,11 @@
 	display: flex;
 	flex-shrink: 0;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: center;
 	gap: 1rem;
 	padding: 0.75rem var(--aa-search-pad);
 	border-top: 1px solid var(--aa-color-border);
+  min-height: 3rem;
 }
 
 .aa-search__view-all {
@@ -672,7 +673,7 @@
 		color: var(--aa-color-foreground-muted);
 		border-radius: 0.25rem;
 		font-family: inherit;
-		font-size: 0.6875rem;
+		font-size: var(--wp--preset--font-size--small);
 		line-height: 1.5;
 	}
 }
@@ -712,4 +713,8 @@
 	.aa-search.is-open {
 		backdrop-filter: none;
 	}
+
+  .aa-search__footer {
+    justify-content: space-between;
+  }
 }

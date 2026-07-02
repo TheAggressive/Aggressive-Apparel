@@ -90,15 +90,36 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Product Collections on ordinary pages should be detected before render.
+	 * Product Collections without a wishlist control should not load its assets.
 	 *
 	 * @return void
 	 */
-	public function test_product_collection_page_enqueues_wishlist_assets(): void {
+	public function test_product_collection_page_does_not_enqueue_wishlist_assets(): void {
 		$page_id = self::factory()->post->create(
 			array(
 				'post_type'    => 'page',
 				'post_content' => '<!-- wp:woocommerce/product-collection /-->',
+			)
+		);
+
+		$this->go_to( get_permalink( $page_id ) );
+
+		( new Wishlist() )->enqueue_assets();
+
+		$this->assertFalse( wp_style_is( self::WISHLIST_STYLE, 'enqueued' ) );
+		$this->assertNotContains( self::WISHLIST_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * An explicitly placed Wishlist Button block should load wishlist assets.
+	 *
+	 * @return void
+	 */
+	public function test_wishlist_button_block_page_enqueues_wishlist_assets(): void {
+		$page_id = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_content' => '<!-- wp:woocommerce/product-collection --><!-- wp:aggressive-apparel/wishlist-button /--><!-- /wp:woocommerce/product-collection -->',
 			)
 		);
 

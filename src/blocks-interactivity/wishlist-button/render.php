@@ -48,9 +48,8 @@ if ( $product_id <= 0 ) {
 
 Wishlist::ensure_assets();
 
-// Mark the block as rendered so the legacy auto-injection on
-// single product pages can short-circuit and avoid duplicates.
-Wishlist::mark_button_block_rendered();
+// Prevent duplicate automatic placement for this product only.
+Wishlist::mark_button_block_rendered( $product_id );
 
 $default_label = Feature_Settings::get_wishlist_button_text();
 $label         = isset( $attributes['label'] ) ? (string) $attributes['label'] : $default_label;

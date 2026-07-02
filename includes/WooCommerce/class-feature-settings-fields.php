@@ -175,12 +175,12 @@ class Feature_Settings_Fields {
 	public function render_wishlist_button_placement_field(): void {
 		$placement = (string) get_option( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
 		$options   = array(
-			'auto'  => __( 'Automatic (cards + single product page)', 'aggressive-apparel' ),
+			'auto'  => __( 'Automatic (single product page)', 'aggressive-apparel' ),
 			'block' => __( 'Manual placement (use Wishlist Button block)', 'aggressive-apparel' ),
 		);
 
 		$this->render_select( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, $options, $placement );
-		echo '<p class="description">' . esc_html__( 'Automatic injects the heart on product cards and on the single product page. Manual suppresses both auto-injections so you can place the "Wishlist Button" block anywhere — inside a Product Collection, single product template, or even a custom layout.', 'aggressive-apparel' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Catalog and archive cards do not include a wishlist control automatically. Use the "Wishlist Button" block for manual card placement. Automatic adds the heart to the single product page; Manual also leaves single-product placement to the block.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**

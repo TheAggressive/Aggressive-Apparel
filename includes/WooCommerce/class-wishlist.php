@@ -2,7 +2,7 @@
 /**
  * Wishlist Class
  *
- * Heart-icon toggle on product cards and single product pages.
+ * Wishlist heart toggles, client-side storage, and wishlist page rendering.
  * All storage is handled client-side via localStorage for zero database impact.
  * Product details for the wishlist page are fetched from the public
  * WooCommerce Store API (read-only, no auth required).
@@ -44,14 +44,13 @@ class Wishlist {
 	public const PAGE_SLUG = 'wishlist';
 
 	/**
-	 * Per-request flag set when the `aggressive-apparel/wishlist-button` block
-	 * has rendered for the current product context. Used to short-circuit the
-	 * legacy auto-injection on single product pages so we don't render the
-	 * heart twice when the user has explicitly placed the block.
+	 * Product IDs whose `aggressive-apparel/wishlist-button` blocks have rendered
+	 * during the current request. Used to avoid duplicating the automatic
+	 * single-product heart without suppressing buttons for other products.
 	 *
-	 * @var bool
+	 * @var array<int, true>
 	 */
-	private static bool $button_block_rendered = false;
+	private static array $button_block_product_ids = array();
 
 	/**
 	 * Initialize hooks.
@@ -62,7 +61,6 @@ class Wishlist {
 		add_action( 'admin_init', array( $this, 'maybe_create_page' ), 20 );
 		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_heart_icon' ) );
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_single_heart' ), 6 );
 		add_shortcode( 'aggressive_apparel_wishlist', array( $this, 'render_wishlist_page' ) );
 	}
@@ -262,9 +260,9 @@ BLOCKS;
 	/**
 	 * Ensure wishlist CSS, module, and shared state are available.
 	 *
-	 * This is public so dynamic block render callbacks and auto-injected product
-	 * card buttons can safely recover when a wishlist surface was not detectable
-	 * during `wp_enqueue_scripts`. WordPress de-duplicates repeated enqueues.
+	 * This is public so dynamic block render callbacks and the automatic single-
+	 * product button can recover when a wishlist surface was not detectable during
+	 * `wp_enqueue_scripts`. WordPress de-duplicates repeated enqueues.
 	 *
 	 * @return void
 	 */
@@ -296,10 +294,9 @@ BLOCKS;
 	/**
 	 * Whether the current request is expected to render a wishlist surface.
 	 *
-	 * Product routes cover automatic card/single-product buttons. Stored content
-	 * detection covers blocks, the legacy shortcode, and Product Collections on
-	 * otherwise ordinary pages. Render-time calls to ensure_assets() remain the
-	 * final fallback for template parts and other dynamic output.
+	 * Single-product routes cover the automatic summary button. Stored content
+	 * detection covers blocks and the legacy shortcode. Render-time calls to
+	 * ensure_assets() remain the final fallback for dynamic block output.
 	 *
 	 * @return bool
 	 */
@@ -307,7 +304,7 @@ BLOCKS;
 		$needed = false;
 
 		if ( ! is_admin() ) {
-			$needed = Product_Context::is_product_display_page()
+			$needed = Product_Context::is_single_product()
 				|| $this->is_wishlist_page()
 				|| $this->queried_content_needs_assets();
 		}
@@ -354,70 +351,7 @@ BLOCKS;
 		}
 
 		return str_contains( $content, '<!-- wp:aggressive-apparel/wishlist' )
-			|| str_contains( $content, '[aggressive_apparel_wishlist' )
-			|| str_contains( $content, '<!-- wp:woocommerce/product-collection' )
-			|| str_contains( $content, '<!-- wp:woocommerce/all-products' )
-			|| str_contains( $content, '<!-- wp:woocommerce/handpicked-products' )
-			|| str_contains( $content, '<!-- wp:woocommerce/product-new' )
-			|| str_contains( $content, '<!-- wp:woocommerce/product-best-sellers' )
-			|| str_contains( $content, '<!-- wp:woocommerce/product-on-sale' );
-	}
-
-	/**
-	 * Inject heart icon on product card images in archives.
-	 *
-	 * Skipped when the admin has set the placement option to `block`,
-	 * so the user can manually drop the wishlist button into their
-	 * Product Collection / Query Loop template instead.
-	 *
-	 * @param string $block_content Block HTML.
-	 * @param array  $block         Block data.
-	 * @return string Modified HTML.
-	 */
-	public function inject_heart_icon( string $block_content, array $block ): string {
-		// Only product cards in loops/collections — skip blog posts and other CPTs.
-		if ( 'product' !== get_post_type() ) {
-			return $block_content;
-		}
-
-		// Single product pages use the summary hook / Wishlist Button block.
-		if ( function_exists( 'is_product' ) && is_product() ) {
-			return $block_content;
-		}
-
-		// Admin setting wins: when set to `block`, the user is fully in
-		// charge of placement via the Wishlist Button block.
-		$placement = Feature_Settings::get_wishlist_button_placement();
-		if ( 'block' === $placement ) {
-			return $block_content;
-		}
-
-		/**
-		 * Filters whether to automatically inject the wishlist heart on
-		 * product card featured images.
-		 *
-		 * Set to false (or place the `aggressive-apparel/wishlist-button`
-		 * block inside your card template) to suppress the legacy
-		 * automatic placement.
-		 *
-		 * @since 1.17.0
-		 *
-		 * @param bool  $auto_inject Whether to inject. Defaults to true.
-		 * @param array $block       The block being rendered.
-		 */
-		$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_wishlist_card', true, $block );
-		if ( ! $auto_inject ) {
-			return $block_content;
-		}
-
-		$product_id = self::get_current_product_id();
-		if ( $product_id <= 0 ) {
-			return $block_content;
-		}
-
-		$button = $this->get_heart_button_html( $product_id );
-
-		return Block_Render_Helper::append_before_wrapper_close( $block_content, $button );
+			|| str_contains( $content, '[aggressive_apparel_wishlist' );
 	}
 
 	/**
@@ -427,7 +361,7 @@ BLOCKS;
 	 *   - The admin has set the placement option to `block`, OR
 	 *   - The Wishlist Button block has already rendered earlier in the
 	 *     request for this product (per-request opt-out for hybrid mode), OR
-	 *   - A developer filter has explicitly suppressed auto-injection.
+	 *   - A developer filter has explicitly suppressed automatic placement.
 	 *
 	 * @return void
 	 */
@@ -455,7 +389,7 @@ BLOCKS;
 		 * @param bool $auto_inject Whether to inject. Defaults to true.
 		 */
 		$auto_inject = (bool) apply_filters( 'aggressive_apparel_auto_inject_wishlist_single', true );
-		if ( self::$button_block_rendered || ! $auto_inject ) {
+		if ( self::has_button_block_rendered( $product_id ) || ! $auto_inject ) {
 			return;
 		}
 
@@ -466,7 +400,7 @@ BLOCKS;
 	/**
 	 * Build heart button HTML for the unified document-delegate contract.
 	 *
-	 * Public so callers (auto-injection, AJAX helpers) share one markup shape.
+	 * Public so automatic placement and custom integrations share one markup shape.
 	 * Clicks are handled by `@aggressive-apparel/wishlist` — no IA click bindings.
 	 *
 	 * @param int    $product_id    Product ID.
@@ -575,24 +509,30 @@ BLOCKS;
 	}
 
 	/**
-	 * Mark the Wishlist Button block as rendered for the current request.
+	 * Mark a Wishlist Button block as rendered for a product in this request.
 	 *
-	 * Allows the legacy single-product auto-injection to short-circuit
-	 * once the user has placed the block earlier in the same request,
-	 * preventing duplicate hearts.
+	 * When no ID is provided, the current product context is resolved for
+	 * backward compatibility with existing integrations.
 	 *
+	 * @param int $product_id Product ID, or 0 to resolve the current context.
 	 * @return void
 	 */
-	public static function mark_button_block_rendered(): void {
-		self::$button_block_rendered = true;
+	public static function mark_button_block_rendered( int $product_id = 0 ): void {
+		$product_id = $product_id > 0 ? $product_id : self::get_current_product_id();
+		if ( $product_id > 0 ) {
+			self::$button_block_product_ids[ $product_id ] = true;
+		}
 	}
 
 	/**
-	 * Whether the Wishlist Button block has already rendered this request.
+	 * Whether the Wishlist Button block has rendered for a product this request.
 	 *
+	 * @param int $product_id Product ID, or 0 to resolve the current context.
 	 * @return bool
 	 */
-	public static function has_button_block_rendered(): bool {
-		return self::$button_block_rendered;
+	public static function has_button_block_rendered( int $product_id = 0 ): bool {
+		$product_id = $product_id > 0 ? $product_id : self::get_current_product_id();
+
+		return $product_id > 0 && isset( self::$button_block_product_ids[ $product_id ] );
 	}
 }

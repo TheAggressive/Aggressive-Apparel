@@ -5,10 +5,10 @@
  * A reactive `state.items` array mirrors localStorage so that UI updates
  * (heart icon fill, wishlist count, etc.) happen instantly without a page refresh.
  *
- * Toggle clicks on every `.aggressive-apparel-wishlist__toggle` heart — regardless
- * of whether the markup came from PHP auto-injection, the Wishlist Button block,
- * or AJAX product cards — are handled by a single document delegate. That avoids
- * double-toggles when Interactivity API hydration overlaps with dynamic markup.
+ * Toggle clicks on every `.aggressive-apparel-wishlist__toggle` heart—whether
+ * rendered automatically on a single product or by the Wishlist Button block—
+ * are handled by one document delegate. This avoids double-toggles when
+ * Interactivity API hydration overlaps with dynamic markup.
  *
  * Product details for the wishlist page are fetched from the public
  * WooCommerce Store API (read-only, no auth required).

@@ -99,10 +99,8 @@ class Feature_Settings {
 	/**
 	 * Option key for the wishlist button placement.
 	 *
-	 * `auto`  → Theme injects the heart on product cards (top-right of the
-	 *           featured image) and on the single product summary
-	 *           (above the title) automatically (legacy behavior).
-	 * `block` → Theme suppresses both auto-injections; the user is
+	 * `auto`  → Theme injects the heart above the single product title.
+	 * `block` → Theme suppresses automatic single-product placement; the user is
 	 *           expected to place the `aggressive-apparel/wishlist-button`
 	 *           block wherever they want the heart to appear.
 	 *

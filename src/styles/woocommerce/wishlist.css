@@ -5,12 +5,9 @@
  * @since 1.17.0
  */
 
-/* Heart toggle on product cards. */
+/* Shared heart toggle. */
 .aggressive-apparel-wishlist__toggle {
-	position: absolute;
-	top: 0.25rem;
-	right: 0.25rem;
-	z-index: 3;
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -43,9 +40,6 @@
 
 	/* Large variant for single product. */
 	&--large {
-		position: relative;
-		top: auto;
-		right: auto;
 		width: 2.5rem;
 		height: 2.5rem;
 		margin-bottom: 0.5rem;

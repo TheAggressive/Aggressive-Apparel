@@ -127,4 +127,16 @@ class TestWishlistPage extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'aggressive-apparel-wishlist__toggle', $html );
 		$this->assertStringNotContainsString( 'data-wp-on--click', $html );
 	}
+
+	/**
+	 * Render tracking should suppress duplicates for only the same product.
+	 *
+	 * @return void
+	 */
+	public function test_button_render_tracking_is_scoped_to_product_id(): void {
+		Wishlist::mark_button_block_rendered( 42 );
+
+		$this->assertTrue( Wishlist::has_button_block_rendered( 42 ) );
+		$this->assertFalse( Wishlist::has_button_block_rendered( 43 ) );
+	}
 }

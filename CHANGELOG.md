@@ -1,3 +1,10 @@
+## [1.129.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.0...v1.129.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* exclude lighthouserc.cjs from release package and add verification step ([022a411](https://github.com/TheAggressive/Aggressive-Apparel/commit/022a4118c689873eb4676ce925a886ea255e8dc9))
+
 # [1.129.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.128.0...v1.129.0) (2026-07-02)
 
 

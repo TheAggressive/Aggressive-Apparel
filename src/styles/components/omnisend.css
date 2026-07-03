@@ -34,7 +34,6 @@
 
 .aggressive-footer-signup [class*='-text-'],
 .aggressive-footer-signup [class*='-text-'] :where(p, li) {
-	color: var(--aa-color-foreground-muted) !important;
 	font-family: var(--wp--preset--font-family--space-grotesk) !important;
 	font-size: var(--wp--preset--font-size--medium) !important;
 	line-height: 1.55 !important;

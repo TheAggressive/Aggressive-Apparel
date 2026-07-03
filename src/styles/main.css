@@ -19,6 +19,7 @@
 @import './base/content-elements.css';
 @import './components/buttons.css';
 @import './components/field.css';
+@import './components/omnisend.css';
 
 /* NOTE: components/forms.css is intentionally NOT imported here. main.css loads
  * in the editor canvas (enqueue_block_assets); the form baseline styles native

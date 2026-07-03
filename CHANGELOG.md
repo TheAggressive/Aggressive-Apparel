@@ -1,3 +1,10 @@
+## [1.130.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.0...v1.130.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* remove unnecessary color override for footer text styles ([6200d7c](https://github.com/TheAggressive/Aggressive-Apparel/commit/6200d7c63e2d57609a79f52269921030834dcbad))
+
 # [1.130.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.5...v1.130.0) (2026-07-03)
 
 

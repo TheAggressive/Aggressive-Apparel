@@ -1,3 +1,10 @@
+# [1.131.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.2...v1.131.0) (2026-07-03)
+
+
+### Features
+
+* add bright red color to theme and update input height for consistency ([54c7cbf](https://github.com/TheAggressive/Aggressive-Apparel/commit/54c7cbf1cadddfb9fa868789bac839737c316089))
+
 ## [1.130.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.1...v1.130.2) (2026-07-03)
 
 

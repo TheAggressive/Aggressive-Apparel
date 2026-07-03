@@ -56,6 +56,7 @@
 /* Email field. The unused ID in :not() supplies enough specificity to beat
  * Omnisend's important generated ID selector without coupling to one form. */
 .aggressive-footer-signup input[type='email']:not(#aggressive-omnisend-email) {
+	min-height: var(--aa-input-height);
 	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4) !important;
 	border: 2px solid var(--aa-color-black) !important;
 	border-radius: var(--aa-radius-full) !important;
@@ -87,6 +88,7 @@
 
 /* Phone prefix and number read as one control. */
 .aggressive-footer-signup [class$='-field-wrapper']:has(input[type='tel']) {
+	min-height: var(--aa-input-height);
 	border: 2px solid var(--aa-color-black);
 	border-radius: var(--aa-radius-full);
 	background: transparent;
@@ -227,12 +229,13 @@
 
 /* CTA uses the same adaptive colors as theme.json buttons. */
 .aggressive-footer-signup button[type='submit'] {
+	min-height: var(--aa-input-height);
 	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8) !important;
 	border: 0 !important;
 	border-radius: var(--aa-radius-button) !important;
 	background: var(--aa-color-accent) !important;
 	color: var(--aa-color-white) !important;
-	font-size: var(--wp--preset--font-size--small) !important;
+	font-size: var(--wp--preset--font-size--medium) !important;
 	font-weight: 700 !important;
 	line-height: 1.2 !important;
 	letter-spacing: 0.05em !important;

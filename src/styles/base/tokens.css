@@ -81,6 +81,7 @@
 	--aa-color-white: var(--wp--preset--color--white);
 	--aa-color-black: var(--wp--preset--color--black);
 	--aa-color-light-gray: var(--wp--preset--color--light-gray);
+	--aa-color-bright-red: var(--wp--preset--color--bright-red);
 
 	/* Motion (from settings.custom.motion). */
 	--aa-duration-fast: var(--wp--custom--motion--duration--fast, 150ms);
@@ -110,7 +111,7 @@
 	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);
 	--aa-button-height-md: var(--wp--custom--size--button-height--md, 2.75rem);
 	--aa-button-height-lg: var(--wp--custom--size--button-height--lg, 3.25rem);
-	--aa-input-height: var(--wp--custom--size--input-height, 2.75rem);
+	--aa-input-height: var(--wp--custom--size--input-height, 3.25rem);
 	--aa-panel-width-sm: var(--wp--custom--size--panel-width--sm, 20rem);
 	--aa-panel-width-md: var(--wp--custom--size--panel-width--md, 28rem);
 	--aa-panel-width-lg: var(--wp--custom--size--panel-width--lg, 40rem);

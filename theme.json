@@ -400,7 +400,7 @@
         "content": {
           "prose": "48rem"
         },
-        "inputHeight": "2.75rem"
+        "inputHeight": "3.25rem"
       },
       "radius": {
         "sm": "0.25rem",
@@ -485,6 +485,11 @@
           "name": "Red",
           "slug": "red",
           "color": "var(--wp--preset--color--accent)"
+        },
+        {
+          "name": "Bright Red",
+          "slug": "bright-red",
+          "color": "oklch(57.7% 0.245 27.325)"
         },
         {
           "name": "Success",

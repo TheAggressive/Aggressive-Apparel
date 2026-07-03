@@ -249,7 +249,7 @@
 .aggressive-footer-signup button[type='submit']:hover:not(:disabled),
 .aggressive-footer-signup button[type='submit']:active:not(:disabled) {
 	background: var(--aa-color-black) !important;
-	color: var(--aa-color-accent-on-foreground) !important;
+	color: var(--aa-color-bright-red) !important;
 }
 
 .aggressive-footer-signup button[type='submit']:focus,

@@ -1,3 +1,10 @@
+## [1.130.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.1...v1.130.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* add min-height to input fields and update button font size for consistency ([690a83c](https://github.com/TheAggressive/Aggressive-Apparel/commit/690a83c8e503f3b30b80c7983c15b7b55f4bb856))
+
 ## [1.130.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.0...v1.130.1) (2026-07-03)
 
 

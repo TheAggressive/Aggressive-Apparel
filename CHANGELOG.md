@@ -1,3 +1,10 @@
+## [1.131.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.1...v1.131.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* enhance footer layout with responsive email list styling ([a3dfea2](https://github.com/TheAggressive/Aggressive-Apparel/commit/a3dfea205d0799d4a529ed1fd51b2999b80965c0))
+
 ## [1.131.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.0...v1.131.1) (2026-07-03)
 
 

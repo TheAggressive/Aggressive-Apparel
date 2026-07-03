@@ -484,6 +484,7 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   min-height: 56px;
   display: flex;
   align-items: baseline;
+  justify-content: center;
   text-align: left;
   padding: 0.875rem 1.25rem;
   color: inherit;
@@ -521,6 +522,20 @@ body.has-search-modal-open .aa-nav__panel.is-open {
     outline: var(--aa-nav-focus-width, 2px) solid var(--aa-nav-focus-color, currentcolor);
     outline-offset: var(--aa-nav-focus-offset, 2px);
     border-radius: var(--aa-nav-radius-sm, 2px);
+  }
+
+  /* Menu items communicate focus with the same background treatment as hover.
+     Keep the red outline for panel controls, where a stronger focus ring is
+     useful, but avoid drawing a second treatment around every menu row. */
+  .aa-nav-panel__portal .aa-nav__panel-menu :is(
+    .wp-block-aggressive-apparel-nav-link__link,
+    .wp-block-aggressive-apparel-nav-submenu-accordion__link,
+    .wp-block-aggressive-apparel-nav-submenu-drilldown__link
+  ):focus-visible {
+    outline: none;
+    background: var(--panel-link-hover-bg, var(--_item-hover));
+    box-shadow: none;
+    animation: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {

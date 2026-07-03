@@ -673,7 +673,7 @@ class Search {
 						<p class="aa-search__empty" hidden data-wp-bind--hidden="!state.showEmpty" role="status">%15$s</p>
 						<div id="aa-search-results" class="aa-search__results" role="listbox" aria-label="%16$s" data-wp-watch="callbacks.renderResults"></div>
 					</div>
-					<div class="aa-search__footer">
+					<div class="aa-search__footer" data-wp-class--is-visible="state.hasResults" data-wp-bind--aria-hidden="!state.hasResults">
 						<a class="aa-search__view-all" hidden data-wp-bind--hidden="!state.hasResults" data-wp-bind--href="state.viewAllUrl">%17$s %18$s</a>
 						<div class="aa-search__hints" aria-hidden="true">
 							<span class="aa-search__hint-item"><kbd>&uarr;</kbd><kbd>&darr;</kbd> %19$s</span>

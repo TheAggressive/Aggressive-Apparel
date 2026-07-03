@@ -8,7 +8,7 @@
  * @package Aggressive_Apparel
  */
 
-import { PANEL_MENU_ITEM_SELECTOR, getPanelId } from './constants';
+import { PANEL_MENU_ITEM_SELECTOR, SELECTORS, getPanelId } from './constants';
 import type { PanelState } from './types';
 import {
   addBodyClass,
@@ -175,17 +175,21 @@ export function openPanelWithSetup(
   // Initialize inert state for drilldown panels.
   updateDrilldownInertState(panel, ps.drillStack);
 
-  // Focus the first focusable element once the panel animation starts.
+  // Put focus on the close button once the panel animation starts. This gives
+  // keyboard and screen-reader users an immediate, predictable way back out.
+  // Fall back to the first menu item if custom markup omits the close button.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      const firstFocusable = safeQuerySelector<HTMLElement>(
-        panel,
-        PANEL_MENU_ITEM_SELECTOR,
-        false
-      );
+      const initialFocus =
+        safeQuerySelector<HTMLElement>(panel, SELECTORS.panelClose, false) ??
+        safeQuerySelector<HTMLElement>(
+          panel,
+          PANEL_MENU_ITEM_SELECTOR,
+          false
+        );
       // preventScroll: the panel slides in from off-screen; letting focus
       // scroll it into view cancels the slide animation.
-      firstFocusable?.focus({ preventScroll: true });
+      initialFocus?.focus({ preventScroll: true });
     });
   });
 }

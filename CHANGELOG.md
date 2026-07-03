@@ -1,3 +1,10 @@
+## [1.131.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.4...v1.131.5) (2026-07-03)
+
+
+### Bug Fixes
+
+* enhance styling and attributes for nav panel header and footer components ([cf8b210](https://github.com/TheAggressive/Aggressive-Apparel/commit/cf8b2104455bd99602cd68ab41c0c08aa651d8c6))
+
 ## [1.131.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.3...v1.131.4) (2026-07-03)
 
 

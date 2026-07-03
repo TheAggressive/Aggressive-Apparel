@@ -1,3 +1,11 @@
+## [1.131.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.3...v1.131.4) (2026-07-03)
+
+
+### Bug Fixes
+
+* enhance search footer visibility and focus management in navigation panel ([564a045](https://github.com/TheAggressive/Aggressive-Apparel/commit/564a04583308a2672453666c8bc1affa82f42445))
+* streamline initial focus selection in openPanelWithSetup function ([d735ffd](https://github.com/TheAggressive/Aggressive-Apparel/commit/d735ffd3c34567f13fb6cb81341dbd2c422895a4))
+
 ## [1.131.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.2...v1.131.3) (2026-07-03)
 
 

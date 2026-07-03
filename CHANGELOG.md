@@ -1,3 +1,10 @@
+## [1.131.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.0...v1.131.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* update font size for h1-h6 elements in footer signup section ([76ebed6](https://github.com/TheAggressive/Aggressive-Apparel/commit/76ebed659c60998692c4083f22fedf46cb5e18db))
+
 # [1.131.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.130.2...v1.131.0) (2026-07-03)
 
 

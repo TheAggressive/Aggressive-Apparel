@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Nav Panel Header",
   "category": "aggressive-apparel",
-  "description": "Optional block area in the mobile panel header, to the left of the close button. If empty, nothing is rendered.",
+  "description": "Style the mobile panel header and add optional content to the left of its close button.",
   "keywords": ["navigation", "mobile", "panel", "header"],
   "textdomain": "aggressive-apparel",
   "icon": "align-left",
@@ -13,7 +13,31 @@
   "supports": {
     "html": false,
     "reusable": false,
-    "lock": false
+    "lock": false,
+    "className": true,
+    "color": {
+      "background": true,
+      "text": true,
+      "link": true
+    },
+    "spacing": {
+      "padding": true
+    },
+    "border": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "typography": {
+      "fontFamily": true,
+      "fontSize": true,
+      "fontStyle": true,
+      "fontWeight": true,
+      "letterSpacing": true,
+      "lineHeight": true,
+      "textTransform": true
+    }
   },
   "render": "file:./render.php",
   "editorScript": "file:./index.js",

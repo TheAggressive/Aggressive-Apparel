@@ -134,10 +134,14 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 // Separate inner block content into menu items, panel header/footer, utility
 // ============================================================================
 
-$menu_items_html   = '';
-$utility_html      = '';
-$panel_header_html = '';
-$panel_footer_html = '';
+$menu_items_html      = '';
+$utility_html         = '';
+$panel_header_html    = '';
+$panel_footer_html    = '';
+$panel_header_classes = '';
+$panel_header_style   = '';
+$panel_footer_classes = '';
+$panel_footer_style   = '';
 
 if ( ! empty( $content ) ) {
 	$dom     = new DOMDocument();
@@ -168,7 +172,9 @@ if ( ! empty( $content ) ) {
 			) {
 				$menu_items_html .= $html_fragment;
 			} elseif ( $node instanceof DOMElement && str_contains( $node_class, 'wp-block-aggressive-apparel-nav-panel-header' ) ) {
-				$inner = '';
+				$panel_header_classes = $node_class;
+				$panel_header_style   = $node->getAttribute( 'style' );
+				$inner                = '';
 				foreach ( $node->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
 					$child_html = $dom->saveHTML( $child );
 					if ( false !== $child_html ) {
@@ -177,7 +183,9 @@ if ( ! empty( $content ) ) {
 				}
 				$panel_header_html = $inner;
 			} elseif ( $node instanceof DOMElement && str_contains( $node_class, 'wp-block-aggressive-apparel-nav-panel-footer' ) ) {
-				$inner = '';
+				$panel_footer_classes = $node_class;
+				$panel_footer_style   = $node->getAttribute( 'style' );
+				$inner                = '';
 				foreach ( $node->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
 					$child_html = $dom->saveHTML( $child );
 					if ( false !== $child_html ) {
@@ -266,10 +274,21 @@ if ( ! empty( $panel_header_html ) ) {
 	$panel_header_content_html = '<div class="aa-nav__panel-header-content">' . $panel_header_html . '</div>';
 }
 
+$panel_header_class = trim( 'aa-nav__panel-header ' . $panel_header_classes );
+$panel_header_attr  = sprintf( ' class="%s"', esc_attr( $panel_header_class ) );
+if ( '' !== $panel_header_style ) {
+	$panel_header_attr .= sprintf( ' style="%s"', esc_attr( $panel_header_style ) );
+}
+
 // Panel footer: only rendered when nav-panel-footer has inner content.
 $panel_footer_section_html = '';
 if ( ! empty( $panel_footer_html ) ) {
-	$panel_footer_section_html = '<div class="aa-nav__panel-footer">' . $panel_footer_html . '</div>';
+	$panel_footer_class = trim( 'aa-nav__panel-footer ' . $panel_footer_classes );
+	$panel_footer_attr  = sprintf( ' class="%s"', esc_attr( $panel_footer_class ) );
+	if ( '' !== $panel_footer_style ) {
+		$panel_footer_attr .= sprintf( ' style="%s"', esc_attr( $panel_footer_style ) );
+	}
+	$panel_footer_section_html = '<div' . $panel_footer_attr . '>' . $panel_footer_html . '</div>';
 }
 
 $utility_section_html = '';
@@ -282,7 +301,8 @@ if ( ! empty( $utility_html ) ) {
 // rather than the panel shell so it doesn't squeeze the header / close button.
 $panel_body_attr    = $panel_body_style ? ' style="' . $panel_body_style . '"' : '';
 $panel_content_html = sprintf(
-	'<div class="aa-nav__panel-header">%s%s</div><div class="aa-nav__panel-body"%s>%s<ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">%s</ul></div>%s',
+	'<div%s>%s%s</div><div class="aa-nav__panel-body"%s>%s<ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">%s</ul></div>%s',
+	$panel_header_attr,         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Values escaped above.
 	$panel_header_content_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
 	$close_button_html,         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
 	$panel_body_attr,           // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.

@@ -262,8 +262,16 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   flex-shrink: 0;
   min-height: 4.25rem;
   padding: 0.625rem 1.25rem;
-  border-bottom: 1px solid var(--_border);
-  background: color-mix(in oklch, var(--_text) 2%, transparent);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+
+  &:not(.has-border-color) {
+    border-bottom-color: var(--_border);
+  }
+
+  &:not(.has-background) {
+    background: color-mix(in oklch, var(--_text) 2%, transparent);
+  }
 }
 
 /* Optional user content left of the close button */
@@ -335,8 +343,16 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 .aa-nav__panel-footer {
   flex-shrink: 0;
   padding: 1rem 1.5rem;
-  background: color-mix(in oklch, var(--_text) 2%, transparent);
-  border-top: 1px solid var(--_border);
+  border-top-width: 1px;
+  border-top-style: solid;
+
+  &:not(.has-border-color) {
+    border-top-color: var(--_border);
+  }
+
+  &:not(.has-background) {
+    background: color-mix(in oklch, var(--_text) 2%, transparent);
+  }
 }
 
 /* Strip social link brand backgrounds inside the panel so the icon shape is

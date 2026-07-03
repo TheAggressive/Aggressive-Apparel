@@ -14,12 +14,12 @@
 
 declare(strict_types=1);
 
-// Only output if there is inner content to inject.
-if ( empty( $content ) ) {
-	return;
-}
+$wrapper_attributes = get_block_wrapper_attributes(
+	array( 'class' => 'wp-block-aggressive-apparel-nav-panel-header' )
+);
 
 printf(
-	'<div class="wp-block-aggressive-apparel-nav-panel-header">%s</div>',
+	'<div %s>%s</div>',
+	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes().
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are already escaped.
 );

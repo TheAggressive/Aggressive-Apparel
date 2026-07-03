@@ -8,7 +8,20 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  box-sizing: border-box;
   width: 100%;
+  min-height: 4.25rem;
+  padding: 0.625rem 1.25rem;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+
+  &:not(.has-border-color) {
+    border-bottom-color: var(--aa-color-border-subtle);
+  }
+
+  &:not(.has-background) {
+    background: color-mix(in oklch, currentcolor 2%, transparent);
+  }
 }
 
 .wp-block-aggressive-apparel-nav-panel-header__content {

@@ -13,7 +13,31 @@
   "supports": {
     "html": false,
     "reusable": false,
-    "lock": false
+    "lock": false,
+    "className": true,
+    "color": {
+      "background": true,
+      "text": true,
+      "link": true
+    },
+    "spacing": {
+      "padding": true
+    },
+    "border": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "typography": {
+      "fontFamily": true,
+      "fontSize": true,
+      "fontStyle": true,
+      "fontWeight": true,
+      "letterSpacing": true,
+      "lineHeight": true,
+      "textTransform": true
+    }
   },
   "render": "file:./render.php",
   "editorScript": "file:./index.js",

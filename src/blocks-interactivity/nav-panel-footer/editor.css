@@ -5,7 +5,19 @@
  */
 
 .wp-block-aggressive-apparel-nav-panel-footer {
+  box-sizing: border-box;
   width: 100%;
+  padding: 1rem 1.5rem;
+  border-top-width: 1px;
+  border-top-style: solid;
+
+  &:not(.has-border-color) {
+    border-top-color: var(--aa-color-border-subtle);
+  }
+
+  &:not(.has-background) {
+    background: color-mix(in oklch, currentcolor 2%, transparent);
+  }
 }
 
 .wp-block-aggressive-apparel-nav-panel-footer__content {

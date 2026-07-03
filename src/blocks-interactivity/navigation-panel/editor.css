@@ -46,17 +46,15 @@
   padding: 0;
 }
 
-/* Panel header block separator */
+/* Header/footer placement; their own block styles provide the visual defaults
+   and WordPress block supports can override them directly. */
 .wp-block-aggressive-apparel-navigation-panel [data-type="aggressive-apparel/nav-panel-header"] {
-  border-bottom: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 10%));
-  padding: 0.25rem 0.75rem 0.25rem 1rem;
+	padding: 0;
 }
 
-/* Panel footer block separator */
 .wp-block-aggressive-apparel-navigation-panel [data-type="aggressive-apparel/nav-panel-footer"] {
-  border-top: 1px solid var(--aa-color-border-default, rgb(0 0 0 / 10%));
-  margin-top: auto;
-  padding: 0.25rem 1rem;
+	margin-top: auto;
+	padding: 0;
 }
 
 /* Full-width nav-link touch targets */

@@ -182,11 +182,7 @@ export function openPanelWithSetup(
     requestAnimationFrame(() => {
       const initialFocus =
         safeQuerySelector<HTMLElement>(panel, SELECTORS.panelClose, false) ??
-        safeQuerySelector<HTMLElement>(
-          panel,
-          PANEL_MENU_ITEM_SELECTOR,
-          false
-        );
+        safeQuerySelector<HTMLElement>(panel, PANEL_MENU_ITEM_SELECTOR, false);
       // preventScroll: the panel slides in from off-screen; letting focus
       // scroll it into view cancels the slide animation.
       initialFocus?.focus({ preventScroll: true });

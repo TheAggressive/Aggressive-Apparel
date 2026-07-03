@@ -3,3 +3,18 @@
  *
  * @package Aggressive_Apparel
  */
+.site-footer__email-list--form {
+  padding-inline: clamp(1.5rem, 6vw, 6rem) !important;
+}
+
+@media (width < 75rem) {
+
+  .site-footer__email-list {
+    flex-direction: column;
+  }
+
+  .site-footer__email-list--image,
+  .site-footer__email-list--form {
+    flex-basis: 100% !important;
+  }
+}

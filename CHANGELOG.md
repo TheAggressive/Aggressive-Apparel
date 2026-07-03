@@ -1,3 +1,10 @@
+## [1.129.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.4...v1.129.5) (2026-07-03)
+
+
+### Bug Fixes
+
+* add Omnisend form styles and integrate into footer layout ([bbe09bd](https://github.com/TheAggressive/Aggressive-Apparel/commit/bbe09bdc5a4c7913dc185f00015e52a6bc62e03e))
+
 ## [1.129.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.3...v1.129.4) (2026-07-03)
 
 

@@ -42,7 +42,7 @@
 .aggressive-footer-signup [class*='-text-'] :where(h1, h2, h3, h4, h5, h6) {
 	color: var(--aa-color-accent) !important;
 	font-family: var(--wp--preset--font-family--bebas-neue) !important;
-	font-size: var(--wp--preset--font-size--fluid-xxxx-large) !important;
+	font-size: var(--wp--preset--font-size--fluid-xxxxx-large) !important;
 	font-weight: 400 !important;
 	line-height: 1 !important;
 	letter-spacing: 0.01em;

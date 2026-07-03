@@ -76,6 +76,9 @@
   --_text-muted: var(--aa-color-muted-50);
   --_text-subtle: var(--aa-color-muted-40);
   --_border: var(--aa-color-border-subtle);
+  --_item-hover: color-mix(in oklch, var(--_text) 7%, transparent);
+  --_item-current: color-mix(in oklch, var(--_text) 10%, transparent);
+  --_accent-muted: color-mix(in oklch, var(--_panel-accent) 70%, transparent);
   --_drilldown-bg: var(--aa-color-hover-subtle);
   --_drilldown-text: var(--aa-color-foreground-muted);
 
@@ -257,8 +260,10 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 0.75rem 1rem;
+  min-height: 4.25rem;
+  padding: 0.625rem 1.25rem;
   border-bottom: 1px solid var(--_border);
+  background: color-mix(in oklch, var(--_text) 2%, transparent);
 }
 
 /* Optional user content left of the close button */
@@ -272,20 +277,25 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   padding: 0;
   margin-left: auto;
   background: transparent;
-  border: none;
-  border-radius: 4px;
+  border: 1px solid transparent;
+  border-radius: var(--aa-radius-full);
   cursor: pointer;
   color: var(--_text-muted);
-  transition: color var(--aa-nav-transition-fast);
+  transition:
+    color var(--aa-nav-transition-fast),
+    border-color var(--aa-nav-transition-fast),
+    background-color var(--aa-nav-transition-fast);
   -webkit-tap-highlight-color: transparent;
 
   &:hover {
-    color: var(--_text);
+    color: var(--_panel-accent);
+    background: var(--_item-hover);
+    border-color: var(--_border);
   }
 
   &:active {
@@ -321,9 +331,12 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   padding: 0.5rem 1.25rem;
 }
 
-/* Panel footer — sticky at the bottom, fully unstyled by default */
+/* Panel footer — sticky at the bottom */
 .aa-nav__panel-footer {
   flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  background: color-mix(in oklch, var(--_text) 2%, transparent);
+  border-top: 1px solid var(--_border);
 }
 
 /* Strip social link brand backgrounds inside the panel so the icon shape is
@@ -334,9 +347,33 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   background-color: transparent;
 }
 
+.aa-nav__panel-footer .wp-block-social-links {
+  gap: 1rem;
+}
+
+.aa-nav__panel-footer .wp-social-link a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.625rem;
+  border-radius: var(--aa-radius-full);
+  transition:
+    background-color var(--aa-nav-transition-fast),
+    transform var(--aa-nav-transition-fast);
+
+  &:hover {
+    background: var(--_item-hover);
+    transform: translateY(-1px);
+  }
+}
+
 /* Panel menu — position: static so drilldown panels position relative to
    aa-nav__panel-body above, not the menu itself. */
 .aa-nav__panel-menu {
+  display: grid;
+  gap: 0.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -444,28 +481,31 @@ body.has-search-modal-open .aa-nav__panel.is-open {
    applied to the <li> wrapper cascade through to the link. */
 .aa-nav__panel-menu .wp-block-aggressive-apparel-nav-link__link {
   width: 100%;
-  min-height: 48px;
+  min-height: 56px;
   display: flex;
   align-items: baseline;
   text-align: left;
-  padding: 0.75rem 1.25rem;
+  padding: 0.875rem 1.25rem;
   color: inherit;
   text-decoration: none;
-  font-size: inherit;
-  font-weight: 500;
-  border-radius: 0;
-  transition: color var(--aa-nav-transition-fast);
+  font-size: var(--wp--preset--font-size--medium, 1rem);
+  font-weight: 400;
+  line-height: 1.2;
+  border-radius: var(--aa-radius-md);
+  transition:
+    color var(--aa-nav-transition-fast),
+    background-color var(--aa-nav-transition-fast);
 
   &:hover,
   &:focus {
     color: var(--panel-link-hover-color, var(--_text-strong));
-    background: var(--panel-link-hover-bg, transparent);
+    background: var(--panel-link-hover-bg, var(--_item-hover));
   }
 }
 
-/* Dividers — single-pixel rule */
+/* Spacing replaces dividers for cleaner, larger touch targets. */
 .aa-nav__panel-menu > li + li {
-  border-top: 1px solid var(--_border);
+  border-top: 0;
 }
 
 /* ========================================

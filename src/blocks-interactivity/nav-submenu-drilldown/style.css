@@ -44,27 +44,29 @@
     justify-content: space-between;
     gap: var(--wp--preset--spacing--2, 0.5rem);
     width: 100%;
-    min-height: 48px;
-    padding: 0.75rem 1.25rem;
+    min-height: 56px;
+    padding: 0.875rem 1.25rem;
     color: inherit;
     font: inherit;
-    font-size: inherit;
-    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-weight: 400;
     text-decoration: none;
     background: none;
     border: none;
-    border-radius: 0;
+    border-radius: var(--aa-radius-md);
     cursor: pointer;
     text-align: left;
     text-transform: none;
     letter-spacing: normal;
     -webkit-tap-highlight-color: transparent;
-    transition: color var(--aa-nav-transition-fast, 150ms ease);
+    transition:
+      color var(--aa-nav-transition-fast, 150ms ease),
+      background-color var(--aa-nav-transition-fast, 150ms ease);
 
     &:hover,
     &:focus {
-      color: var(--panel-link-hover-color, inherit);
-      background: var(--panel-link-hover-bg, transparent);
+      color: var(--panel-link-hover-color, var(--_text-strong, inherit));
+      background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
     }
 
     &:focus-visible {
@@ -78,11 +80,11 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    color: var(--aa-color-muted-40, currentcolor);
+    color: var(--aa-color-muted-50, currentcolor);
 
     & svg {
-      width: 1rem;
-      height: 1rem;
+      width: 1.25rem;
+      height: 1.25rem;
     }
   }
 
@@ -147,7 +149,7 @@
     background: var(--panel-bg, var(--wp--preset--color--surface-elevated));
     border: none;
     border-bottom: 1px solid var(--aa-color-border-subtle, rgb(0 0 0 / 8%));
-    color: inherit;
+    color: var(--aa-color-accent);
     font: inherit;
     cursor: pointer;
     text-align: left;
@@ -179,7 +181,7 @@
 
   &__back-label {
     font-size: var(--wp--preset--font-size--medium, 1rem);
-    font-weight: 600;
+    font-weight: 400;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -194,7 +196,7 @@
     padding: 0.75rem 1.25rem;
     color: var(--panel-link-hover-color, inherit);
     font: inherit;
-    font-weight: 600;
+    font-weight: 400;
     text-decoration: underline;
     text-underline-offset: 2px;
     -webkit-tap-highlight-color: transparent;
@@ -215,9 +217,10 @@
 
   /* Sub-items */
   & .wp-block-aggressive-apparel-nav-link__link {
-    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-weight: 400;
     min-height: 48px;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 1.25rem 0.75rem 3.25rem;
   }
 }
 

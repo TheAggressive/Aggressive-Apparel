@@ -22,27 +22,29 @@
     justify-content: space-between;
     gap: var(--wp--preset--spacing--2, 0.5rem);
     width: 100%;
-    min-height: 48px;
-    padding: 0.75rem 1.25rem;
+    min-height: 56px;
+    padding: 0.875rem 1.25rem;
     color: inherit;
     font: inherit;
-    font-size: inherit;
-    font-weight: 500;
+    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-weight: 400;
     text-decoration: none;
     background: none;
     border: none;
-    border-radius: 0;
+    border-radius: var(--aa-radius-md);
     cursor: pointer;
     text-align: left;
     text-transform: none;
     letter-spacing: normal;
     -webkit-tap-highlight-color: transparent;
-    transition: color var(--aa-nav-transition-fast, 150ms ease);
+    transition:
+      color var(--aa-nav-transition-fast, 150ms ease),
+      background-color var(--aa-nav-transition-fast, 150ms ease);
 
     &:hover,
     &:focus {
-      color: var(--panel-link-hover-color, inherit);
-      background: var(--panel-link-hover-bg, transparent);
+      color: var(--panel-link-hover-color, var(--_text-strong, inherit));
+      background: var(--panel-link-hover-bg, var(--_item-hover, transparent));
     }
 
     &:focus-visible {
@@ -56,16 +58,24 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    color: var(--aa-color-muted-40, currentcolor);
-    transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+    color: var(--aa-color-muted-50, currentcolor);
+    transition:
+      color var(--aa-nav-transition-fast, 150ms ease),
+      transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
 
     & svg {
-      width: 1rem;
-      height: 1rem;
+      width: 1.25rem;
+      height: 1.25rem;
     }
   }
 
+  &.is-open &__link {
+    color: var(--_text-strong, inherit);
+    background: var(--_item-current, var(--aa-color-hover-subtle));
+  }
+
   &.is-open &__arrow {
+    color: var(--_accent-muted, var(--aa-color-accent));
     transform: rotate(180deg);
   }
 
@@ -95,19 +105,21 @@
 
   &__panel-inner {
     list-style: none;
-    margin: 0;
-    padding: 0;
-    padding-inline-start: 1rem;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0.5rem 0 0.5rem 1rem;
     background: var(--accordion-content-bg, var(--aa-color-hover-subtle));
+    border-inline-start: 1px solid var(--_accent-muted, var(--aa-color-accent));
+    border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
   }
 
   /* Sub-items (nav-link blocks inside the accordion) */
   & .wp-block-aggressive-apparel-nav-link__link {
-    font-size: var(--wp--preset--font-size--small, 0.875rem);
+    font-size: var(--wp--preset--font-size--medium, 1rem);
     font-weight: 400;
-    min-height: 40px;
-    padding: 0.5rem 1.25rem;
+    min-height: 44px;
+    padding: 0.625rem 1rem;
     color: var(--aa-color-foreground-muted, inherit);
+    border-radius: var(--aa-radius-sm);
 
     &:hover,
     &:focus {

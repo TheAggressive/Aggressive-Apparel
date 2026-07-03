@@ -1,3 +1,10 @@
+## [1.131.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.2...v1.131.3) (2026-07-03)
+
+
+### Bug Fixes
+
+* update styles for nav submenu accordion and drilldown components ([0030a61](https://github.com/TheAggressive/Aggressive-Apparel/commit/0030a61cdf6b431699b4faf6c1883bb85dc342ba))
+
 ## [1.131.2](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.1...v1.131.2) (2026-07-03)
 
 

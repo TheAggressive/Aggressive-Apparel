@@ -1,3 +1,11 @@
+## [1.129.4](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.3...v1.129.4) (2026-07-03)
+
+
+### Bug Fixes
+
+* adjust content size in theme layout settings ([19ef1e9](https://github.com/TheAggressive/Aggressive-Apparel/commit/19ef1e9c9018ec561686365c7f4ca8e8e3bc97f5))
+* update footer styles for Omnisend forms and adjust header ticker content ([6d0e093](https://github.com/TheAggressive/Aggressive-Apparel/commit/6d0e093f96b64550ddac0ca212b79988d15b738b))
+
 ## [1.129.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.2...v1.129.3) (2026-07-02)
 
 

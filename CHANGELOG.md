@@ -1,3 +1,10 @@
+# [1.130.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.5...v1.130.0) (2026-07-03)
+
+
+### Features
+
+* add light gray color to theme and update Omnisend form styles ([b85e7fb](https://github.com/TheAggressive/Aggressive-Apparel/commit/b85e7fb85149d1c43ed7d532fb43d804c35aa978))
+
 ## [1.129.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.129.4...v1.129.5) (2026-07-03)
 
 

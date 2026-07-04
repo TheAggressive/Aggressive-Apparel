@@ -309,13 +309,14 @@ class Feature_Settings {
 	/**
 	 * Default trust messages shipped with new installs.
 	 *
-	 * Intentionally generic and true for any POD apparel brand — no
-	 * location claims (production may vary), no specific blank brands,
-	 * no dollar amounts (shipping policy is store-specific).
+	 * Voice: bold, independent, zero filler — but every line stays true
+	 * for any POD apparel brand: no location claims (production may
+	 * vary), no specific blank brands, no dollar amounts (shipping
+	 * policy is store-specific), no scarcity claims POD can't back up.
 	 *
 	 * @var string
 	 */
-	public const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "check|Made to order with care\ninfo|Print quality guaranteed\nheart|Premium quality materials\ninfo|Honest sizing guide on every product\nhome|Independent brand\ngrid-view|Designed with attention to detail\ncheck|Quality you can feel";
+	public const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "brand-mark|Not for everyone. That's the point.\nclose|No warehouse. No overstock. No middlemen.\ncheck|Made to order. No exceptions.\ninfo|Real measurements. No vanity sizing.\nheart|Softness is for the fabric. Not the brand.\ncheck|Your order starts the press. Not before.\nbrand-mark|Independent. In-house. Nobody's puppet.";
 
 	/**
 	 * Settings page sections with tab metadata.
@@ -736,18 +737,20 @@ class Feature_Settings {
 	/**
 	 * Default source mix for new installs.
 	 *
-	 * Trust messages dominate by default so brand-new stores see useful
-	 * content immediately. Purchases are enabled but at lower weight so
-	 * they participate in the rotation as soon as orders start coming in.
+	 * Real purchases dominate by default — they are the strongest social
+	 * proof signal, so they lead the rotation as soon as eligible orders
+	 * exist. Trust messages stay enabled at lower weight so brand-new
+	 * stores with zero orders still see useful content immediately
+	 * (purchases are skipped silently when there are none).
 	 *
 	 * @return array<string, int>
 	 */
 	private static function get_default_social_proof_sources(): array {
 		return array(
-			'trust'         => 5,
-			'purchases'     => 5,
+			'trust'         => 3,
+			'purchases'     => 8,
 			'announcements' => 0,
-			'engagement'    => 3,
+			'engagement'    => 2,
 		);
 	}
 
@@ -759,11 +762,16 @@ class Feature_Settings {
 	 * shipped POD-friendly default list when the admin hasn't customised
 	 * it, the customised list otherwise.
 	 *
+	 * An empty saved row (e.g. the page was once saved with a blank
+	 * textarea) also falls back to the defaults so the textarea always
+	 * shows the copy that would actually render. Disabling the source is
+	 * done via the Trust weight (0), not by emptying the box.
+	 *
 	 * @return string Raw textarea contents (newline-separated).
 	 */
 	public static function get_social_proof_trust_messages(): string {
 		$saved = get_option( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION, null );
-		if ( null === $saved || false === $saved ) {
+		if ( null === $saved || false === $saved || '' === trim( (string) $saved ) ) {
 			return self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES;
 		}
 		return (string) $saved;

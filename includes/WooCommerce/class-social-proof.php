@@ -55,7 +55,7 @@ class Social_Proof {
 	 *
 	 * @var string
 	 */
-	private const TRANSIENT_KEY = 'aggressive_apparel_social_proof_v5';
+	private const TRANSIENT_KEY = 'aggressive_apparel_social_proof_v7';
 
 	/**
 	 * Cache duration in seconds (15 minutes).
@@ -293,6 +293,20 @@ class Social_Proof {
 			}
 			$deduped[] = $item;
 			$last      = $item['message'];
+		}
+
+		// Purchases lead: real orders are the strongest proof signal, so
+		// when the shuffle didn't land one first, promote the earliest
+		// purchase to the front of the queue.
+		foreach ( $deduped as $index => $item ) {
+			if ( 'purchase' !== $item['kind'] ) {
+				continue;
+			}
+			if ( $index > 0 ) {
+				array_splice( $deduped, $index, 1 );
+				array_unshift( $deduped, $item );
+			}
+			break;
 		}
 
 		return array_slice( $deduped, 0, self::MAX_NOTIFICATIONS );

@@ -1,3 +1,10 @@
+# [1.136.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.135.0...v1.136.0) (2026-07-04)
+
+
+### Features
+
+* update social proof messaging and improve default settings ([fff5ccb](https://github.com/TheAggressive/Aggressive-Apparel/commit/fff5ccb2bc1acaddf8c86f36556f49858fb41f8e))
+
 # [1.135.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.134.0...v1.135.0) (2026-07-04)
 
 

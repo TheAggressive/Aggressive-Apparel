@@ -12,10 +12,12 @@ import {
   computeScrollStart,
   formatSlideAnnouncement,
   getSlides,
+  PAGED_COMMIT_RATIO,
   pickMode,
   progressToPercentage,
   resolveSpeed,
   shouldShowSwipeHint,
+  toLogicalSlideOffsets,
   type HScrollMode,
   type SnapBehavior,
   type SnapStrength,
@@ -29,13 +31,23 @@ import {
   type Presentation,
 } from './controllers';
 
+export interface HScrollI18n {
+  /** sprintf-style template for the live announcement, e.g. "Slide %1$s of %2$s". */
+  slideAnnouncement?: string;
+  /** sprintf-style template for each slide's aria-label, e.g. "%1$s of %2$s". */
+  slideLabel?: string;
+}
+
 export interface HScrollContext {
   speed: number;
   progress: number;
   desktopBehavior?: 'pinned' | 'inline';
   snapBehavior?: SnapBehavior;
   snapStrength?: SnapStrength;
+  /** Paged-mode commit sensitivity as a ratio of the gap to the adjacent slide. */
+  commitRatio?: number;
   swipeHintStyle?: SwipeHintStyle;
+  i18n?: HScrollI18n;
 }
 
 interface RuntimePresentation extends Presentation {
@@ -82,22 +94,19 @@ function createPresentation(
     swipeHint?.toggleAttribute('hidden', !visible);
   };
 
-  const applySlideVisibility = (): void => {
-    slides.forEach((slide, index) => {
-      if (mode === 'static') {
-        slide.removeAttribute('aria-hidden');
-      } else {
-        slide.toggleAttribute('aria-hidden', index !== currentIndex);
-      }
-    });
-  };
+  /*
+   * Deliberately no aria-hidden management here: in pinned/paged mode
+   * several slides can be partially visible at once, and hiding focusable
+   * content from assistive tech while it remains reachable is a WCAG
+   * violation. Position is conveyed by each slide's aria-label plus the
+   * polite live-region announcement instead.
+   */
 
   return {
     getIndex: () => currentIndex,
 
     setMode(nextMode) {
       mode = nextMode;
-      applySlideVisibility();
       updateSwipeHint();
     },
 
@@ -109,10 +118,16 @@ function createPresentation(
       slides.forEach((slide, index) => {
         slide.setAttribute('role', 'group');
         slide.setAttribute('aria-roledescription', 'slide');
-        slide.setAttribute('aria-label', `${index + 1} of ${slides.length}`);
+        slide.setAttribute(
+          'aria-label',
+          formatSlideAnnouncement(
+            index,
+            slides.length,
+            context.i18n?.slideLabel ?? '%1$s of %2$s'
+          )
+        );
       });
 
-      applySlideVisibility();
       updateSwipeHint();
     },
 
@@ -120,15 +135,21 @@ function createPresentation(
       if (slides.length === 0) return 0;
 
       const { announce = false } = options;
-      currentIndex = clamp(index, 0, slides.length - 1);
-      applySlideVisibility();
-      updateSwipeHint();
+      const nextIndex = clamp(index, 0, slides.length - 1);
+
+      // Fast path: called once per animation frame while scrolling, so skip
+      // all DOM side effects when nothing observable changes.
+      if (nextIndex !== currentIndex) {
+        currentIndex = nextIndex;
+        updateSwipeHint();
+      }
 
       if (announce && announcedIndex !== currentIndex && liveRegion) {
         announcedIndex = currentIndex;
         liveRegion.textContent = formatSlideAnnouncement(
           currentIndex,
-          slides.length
+          slides.length,
+          context.i18n?.slideAnnouncement
         );
       }
 
@@ -194,6 +215,7 @@ export function setupHorizontalScroll(
 
   let mode: HScrollMode | null = null;
   let controller: Controller | null = null;
+  let geometry: Geometry | null = null;
   let measureFrame = 0;
   let destroyed = false;
 
@@ -206,18 +228,19 @@ export function setupHorizontalScroll(
   };
 
   const applyMode = (nextMode: HScrollMode, scrollDistance: number): void => {
-    if (mode !== nextMode) {
-      MODE_CLASSES.forEach(className => ref.classList.remove(className));
+    // Always reconcile the full class set: measure() adds a temporary
+    // is-horizontal class before reading layout, so a change-only reset
+    // would leak it into static mode on the second measure of a resize.
+    MODE_CLASSES.forEach(className => ref.classList.remove(className));
 
-      if (nextMode === 'static') {
-        ref.classList.add('is-static');
-      } else if (nextMode === 'native') {
-        ref.classList.add('is-horizontal', 'is-snap');
-      } else if (nextMode === 'paged') {
-        ref.classList.add('is-horizontal', 'is-enhanced', 'is-paged');
-      } else {
-        ref.classList.add('is-horizontal', 'is-enhanced');
-      }
+    if (nextMode === 'static') {
+      ref.classList.add('is-static');
+    } else if (nextMode === 'native') {
+      ref.classList.add('is-horizontal', 'is-snap');
+    } else if (nextMode === 'paged') {
+      ref.classList.add('is-horizontal', 'is-enhanced', 'is-paged');
+    } else {
+      ref.classList.add('is-horizontal', 'is-enhanced');
     }
 
     if (nextMode === 'pinned' || nextMode === 'paged') {
@@ -293,16 +316,22 @@ export function setupHorizontalScroll(
       window.scrollY + range.getBoundingClientRect().top,
       stickyTop
     );
-    const slideStops = buildSlideStops(
-      slides.map(slide => slide.offsetLeft - track.offsetLeft),
-      maxTranslate
-    );
-    const geometry: Geometry = {
+    const rtl = window.getComputedStyle(ref).direction === 'rtl';
+    const logicalOffsets = toLogicalSlideOffsets({
+      offsets: slides.map(slide => slide.offsetLeft - track.offsetLeft),
+      sizes: slides.map(slide => slide.offsetWidth),
+      trackSize: track.scrollWidth,
+      rtl,
+    });
+    const slideStops = buildSlideStops(logicalOffsets, maxTranslate);
+
+    geometry = {
       slides,
       slideStops,
       maxTranslate,
       scrollDistance,
       scrollStart,
+      rtl,
     };
 
     presentation.setSlides(slides);
@@ -320,6 +349,7 @@ export function setupHorizontalScroll(
         {
           snapBehavior: context.snapBehavior ?? 'paged',
           snapStrength: context.snapStrength ?? 'medium',
+          commitRatio: context.commitRatio ?? PAGED_COMMIT_RATIO,
         }
       );
     } else {
@@ -339,6 +369,11 @@ export function setupHorizontalScroll(
 
   resizeObserver?.observe(viewport);
   resizeObserver?.observe(track);
+  // Content above the block (lazy images, embeds, toggled sections) shifts the
+  // block's document position and would leave scrollStart stale. Observing the
+  // body catches those layout changes; the re-measure is rAF-batched and
+  // settles immediately when nothing actually changed.
+  resizeObserver?.observe(document.body);
   mutationObserver?.observe(track, { childList: true });
   mediaCleanups.push(
     addMediaChangeListener(desktopMedia, scheduleMeasure),
@@ -353,6 +388,41 @@ export function setupHorizontalScroll(
     'keydown',
     event => {
       if (controller?.keydown(event)) event.preventDefault();
+    },
+    { signal: abortController.signal }
+  );
+
+  // Keyboard/AT users can Tab into content on a not-yet-visible slide. The
+  // browser then auto-scrolls the overflow:hidden viewport to reveal it,
+  // which visually corrupts the transform-driven track. Undo that native
+  // scroll and jump the *document* to the slide's stop instead, so focus and
+  // the pinned animation stay in agreement.
+  ref.addEventListener(
+    'focusin',
+    event => {
+      if (
+        (mode !== 'pinned' && mode !== 'paged') ||
+        !geometry ||
+        !(event.target instanceof HTMLElement)
+      ) {
+        return;
+      }
+
+      viewport.scrollLeft = 0;
+
+      const target = event.target;
+      const slideIndex = geometry.slides.findIndex(slide =>
+        slide.contains(target)
+      );
+      if (slideIndex < 0) return;
+
+      const top =
+        geometry.scrollStart +
+        (geometry.slideStops[slideIndex] ?? 0) * geometry.scrollDistance;
+
+      if (Math.abs(window.scrollY - top) > 1) {
+        window.scrollTo({ top, behavior: 'auto' });
+      }
     },
     { signal: abortController.signal }
   );

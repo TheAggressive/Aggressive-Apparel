@@ -339,8 +339,17 @@
   }
 
   50% {
-    transform: translateX(0.5rem);
+    transform: translateX(calc(0.5rem * var(--aa-hscroll-hint-direction, 1)));
   }
+}
+
+/* RTL: the carousel advances leftward — mirror the chevrons and the float. */
+[dir='rtl'] .aa-hscroll__swipe-hint {
+  --aa-hscroll-hint-direction: -1;
+}
+
+[dir='rtl'] .aa-hscroll__swipe-hint-chevron svg {
+  transform: scaleX(-1);
 }
 
 @media (width <= 781px), (pointer: coarse) {

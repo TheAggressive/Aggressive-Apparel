@@ -22,6 +22,8 @@ import {
   progressToPercentage,
   resolveSpeed,
   shouldShowSwipeHint,
+  toLogicalSlideOffsets,
+  toSignedTranslate,
 } from '../logic';
 
 describe('clamp', () => {
@@ -226,10 +228,65 @@ describe('getPagedSnapTarget', () => {
   });
 });
 
+describe('RTL geometry', () => {
+  it('passes LTR offsets through untouched', () => {
+    expect(
+      toLogicalSlideOffsets({
+        offsets: [0, 632, 1264],
+        sizes: [600, 600, 600],
+        trackSize: 1864,
+        rtl: false,
+      })
+    ).toEqual([0, 632, 1264]);
+  });
+
+  it('measures RTL offsets from the inline-start (right) edge', () => {
+    // Track 1864 wide, three 600-wide slides: the first slide sits at the
+    // physical right (offsetLeft 1264) but logically at inline-start 0.
+    expect(
+      toLogicalSlideOffsets({
+        offsets: [1264, 632, 0],
+        sizes: [600, 600, 600],
+        trackSize: 1864,
+        rtl: true,
+      })
+    ).toEqual([0, 632, 1264]);
+  });
+
+  it('never returns negative logical offsets', () => {
+    expect(
+      toLogicalSlideOffsets({
+        offsets: [10],
+        sizes: [200],
+        trackSize: 100,
+        rtl: true,
+      })
+    ).toEqual([0]);
+  });
+
+  it('signs the track translation per direction', () => {
+    expect(toSignedTranslate(123.456, false)).toBe(-123.46);
+    expect(toSignedTranslate(123.456, true)).toBe(123.46);
+    expect(toSignedTranslate(0, false)).toBe(-0);
+  });
+});
+
 describe('presentation helpers', () => {
   it('formats slide announcements', () => {
     expect(formatSlideAnnouncement(0, 4)).toBe('Slide 1 of 4');
     expect(formatSlideAnnouncement(3, 4)).toBe('Slide 4 of 4');
+  });
+
+  it('fills translated templates and rejects malformed ones', () => {
+    expect(formatSlideAnnouncement(1, 5, 'Diapositive %1$s sur %2$s')).toBe(
+      'Diapositive 2 sur 5'
+    );
+    expect(formatSlideAnnouncement(1, 5, '%1$s / %2$s')).toBe('2 / 5');
+    // Missing placeholders fall back to the default template.
+    expect(formatSlideAnnouncement(1, 5, 'broken template')).toBe(
+      'Slide 2 of 5'
+    );
+    expect(formatSlideAnnouncement(1, 5, '')).toBe('Slide 2 of 5');
   });
 
   it('shows swipe hints only for an unfinished native carousel', () => {

@@ -25,7 +25,7 @@ export const SNAP_STRENGTH_PRESETS: Readonly<
   aggressive: { maxDistance: 1600, maxSegmentRatio: 0.5 },
 };
 
-export const PAGED_COMMIT_RATIO = 0.1;
+export const PAGED_COMMIT_RATIO = 0.05;
 
 export type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
 
@@ -106,6 +106,36 @@ export function buildSlideStops(
   return slideOffsets.map(
     offset => clamp(offset, 0, maxTranslate) / maxTranslate
   );
+}
+
+/**
+ * Convert physical (left-edge) slide offsets into logical inline-start
+ * distances. In LTR the two are identical; in RTL the first slide sits at the
+ * physical right, so its logical offset is measured from the track's right
+ * edge instead.
+ */
+export function toLogicalSlideOffsets(params: {
+  offsets: number[];
+  sizes: number[];
+  trackSize: number;
+  rtl: boolean;
+}): number[] {
+  const { offsets, sizes, trackSize, rtl } = params;
+
+  if (!rtl) return offsets.slice();
+
+  return offsets.map((offset, index) =>
+    Math.max(0, trackSize - offset - (sizes[index] ?? 0))
+  );
+}
+
+/**
+ * Signed CSS translation for a given unsigned track distance. The pinned
+ * track moves left in LTR (negative X) and right in RTL (positive X).
+ */
+export function toSignedTranslate(distance: number, rtl: boolean): number {
+  const rounded = Math.round(distance * 100) / 100;
+  return rtl ? rounded : -rounded;
 }
 
 export function getSlideIndexFromProgress(
@@ -236,11 +266,27 @@ export function getProximitySnapTarget(params: {
   };
 }
 
+export const DEFAULT_SLIDE_ANNOUNCEMENT = 'Slide %1$s of %2$s';
+
+/**
+ * Fill a translated sprintf-style template (`%1$s` position, `%2$s` count).
+ * The default English template is a fallback for missing context data.
+ */
 export function formatSlideAnnouncement(
   slideIndex: number,
-  slideCount: number
+  slideCount: number,
+  template: string = DEFAULT_SLIDE_ANNOUNCEMENT
 ): string {
-  return `Slide ${slideIndex + 1} of ${slideCount}`;
+  const safeTemplate =
+    template && template.includes('%1$s') && template.includes('%2$s')
+      ? template
+      : DEFAULT_SLIDE_ANNOUNCEMENT;
+
+  return safeTemplate
+    .split('%1$s')
+    .join(String(slideIndex + 1))
+    .split('%2$s')
+    .join(String(slideCount));
 }
 
 export function shouldShowSwipeHint(params: {

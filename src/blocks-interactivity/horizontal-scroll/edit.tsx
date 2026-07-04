@@ -35,6 +35,7 @@ interface HScrollAttributes {
   desktopBehavior: HScrollDesktopBehavior;
   snapBehavior: HScrollSnapBehavior;
   snapStrength: HScrollSnapStrength;
+  pagedCommitPercent: number;
   swipeHintStyle: SwipeHintStyle;
 }
 
@@ -50,6 +51,7 @@ export default function Edit({
     desktopBehavior,
     snapBehavior = 'paged',
     snapStrength = 'medium',
+    pagedCommitPercent = 5,
     swipeHintStyle = 'cue',
   } = attributes;
   const previewStyle = {
@@ -182,6 +184,22 @@ export default function Edit({
                   })
                 }
               />
+              {snapBehavior === 'paged' && (
+                <RangeControl
+                  label={__('Paging Sensitivity', 'aggressive-apparel')}
+                  help={__(
+                    'How far you scroll toward the next slide before paging commits, as a percentage of the gap. Lower feels snappier.',
+                    'aggressive-apparel'
+                  )}
+                  value={pagedCommitPercent}
+                  onChange={(val: number | undefined) =>
+                    setAttributes({ pagedCommitPercent: val ?? 5 })
+                  }
+                  min={5}
+                  max={50}
+                  step={5}
+                />
+              )}
               {snapBehavior === 'proximity' && (
                 <SelectControl
                   label={__('Snap Strength', 'aggressive-apparel')}

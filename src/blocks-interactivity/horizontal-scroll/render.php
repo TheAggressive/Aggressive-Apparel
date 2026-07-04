@@ -60,6 +60,11 @@ if ( ! in_array( $snap_strength, array( 'soft', 'medium', 'strong', 'aggressive'
 	$snap_strength = 'medium';
 }
 
+// Paged-mode commit sensitivity: how far (as a percentage of the gap to the
+// adjacent slide) the user must scroll before paging commits. Lower = snappier.
+$paged_commit_percent = isset( $attributes['pagedCommitPercent'] ) ? (int) $attributes['pagedCommitPercent'] : 5;
+$paged_commit_percent = min( 50, max( 5, $paged_commit_percent ) );
+
 $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
 	$classes .= ' aa-hscroll--inline';
@@ -77,7 +82,14 @@ $wrapper_attrs = get_block_wrapper_attributes(
 				'desktopBehavior' => $desktop_behavior,
 				'snapBehavior'    => $snap_behavior,
 				'snapStrength'    => $snap_strength,
+				'commitRatio'     => $paged_commit_percent / 100,
 				'swipeHintStyle'  => $swipe_hint_style,
+				'i18n'            => array(
+					/* translators: 1: current slide number, 2: total slide count. Announced by screen readers. */
+					'slideAnnouncement' => __( 'Slide %1$s of %2$s', 'aggressive-apparel' ),
+					/* translators: 1: current slide number, 2: total slide count. Per-slide aria-label. */
+					'slideLabel'        => __( '%1$s of %2$s', 'aggressive-apparel' ),
+				),
 			)
 		),
 		'data-wp-init'         => 'callbacks.init',
@@ -89,11 +101,14 @@ $wrapper_attrs = get_block_wrapper_attributes(
 	)
 );
 ?>
-<section <?php echo wp_kses_post( $wrapper_attrs ); ?>>
+<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
 	<div class="aa-hscroll__range">
 		<div class="aa-hscroll__viewport" data-aa-hscroll>
 			<div class="aa-hscroll__track">
-				<?php echo wp_kses_post( $content ); ?>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are sanitized by the block renderer; wp_kses_post() here would strip legitimate markup (forms, embeds, SVG).
+				echo $content;
+				?>
 			</div>
 			<?php if ( $show_progress ) : ?>
 			<div

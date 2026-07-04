@@ -29,38 +29,58 @@ export class NativeCarouselController implements Controller {
     this.render();
   }
 
+  /** Logical scroll distance from the inline-start edge (RTL-safe). */
+  private getScrolled = (): number =>
+    Math.abs(this.elements.viewport.scrollLeft);
+
+  /** Scroll to a logical offset — RTL viewports scroll into negative left. */
+  private scrollToOffset = (offset: number, behavior: ScrollBehavior): void => {
+    this.elements.viewport.scrollTo({
+      left: this.geometry.rtl ? -offset : offset,
+      behavior,
+    });
+  };
+
   updateGeometry = (geometry: Geometry): void => {
     const previousProgress =
       this.geometry.maxTranslate > 0
-        ? this.elements.viewport.scrollLeft / this.geometry.maxTranslate
+        ? this.getScrolled() / this.geometry.maxTranslate
         : 0;
     this.geometry = geometry;
 
     if (previousProgress > 0) {
-      this.elements.viewport.scrollLeft =
-        previousProgress * geometry.maxTranslate;
+      this.scrollToOffset(previousProgress * geometry.maxTranslate, 'auto');
     }
     this.render();
   };
 
   keydown = (event: KeyboardEvent): boolean => {
-    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false;
     if (isEditableTarget(event.target)) return false;
 
-    const target = clamp(
-      this.presentation.getIndex() + (event.key === 'ArrowRight' ? 1 : -1),
-      0,
-      this.geometry.slides.length - 1
-    );
+    const lastIndex = this.geometry.slides.length - 1;
+    let target: number;
 
-    this.elements.viewport.scrollTo({
-      left: getSlideTarget(
+    if (event.key === 'Home') {
+      target = 0;
+    } else if (event.key === 'End') {
+      target = lastIndex;
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      // In RTL, ArrowRight moves toward the previous (visually right) slide.
+      const direction =
+        (event.key === 'ArrowRight' ? 1 : -1) * (this.geometry.rtl ? -1 : 1);
+      target = clamp(this.presentation.getIndex() + direction, 0, lastIndex);
+    } else {
+      return false;
+    }
+
+    this.scrollToOffset(
+      getSlideTarget(
         target,
         this.geometry.slideStops,
         this.geometry.maxTranslate
       ),
-      behavior: 'smooth',
-    });
+      'smooth'
+    );
     return true;
   };
 
@@ -78,11 +98,7 @@ export class NativeCarouselController implements Controller {
     this.frame = 0;
     const progress =
       this.geometry.maxTranslate > 0
-        ? clamp(
-            this.elements.viewport.scrollLeft / this.geometry.maxTranslate,
-            0,
-            1
-          )
+        ? clamp(this.getScrolled() / this.geometry.maxTranslate, 0, 1)
         : 0;
 
     this.presentation.setActive(
@@ -90,7 +106,7 @@ export class NativeCarouselController implements Controller {
     );
     this.presentation.setProgress(progress);
 
-    if (this.elements.viewport.scrollLeft > 1) {
+    if (this.getScrolled() > 1) {
       this.presentation.dismissSwipeHint();
     }
   };

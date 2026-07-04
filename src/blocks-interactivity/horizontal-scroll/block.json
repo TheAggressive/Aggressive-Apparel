@@ -47,6 +47,10 @@
       "enum": ["off", "proximity", "paged"],
       "default": "paged"
     },
+    "pagedCommitPercent": {
+      "type": "number",
+      "default": 5
+    },
     "snapStrength": {
       "type": "string",
       "enum": ["soft", "medium", "strong", "aggressive"],

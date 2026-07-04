@@ -6,6 +6,8 @@ export interface Geometry {
   maxTranslate: number;
   scrollDistance: number;
   scrollStart: number;
+  /** Whether the block renders in a right-to-left writing direction. */
+  rtl: boolean;
 }
 
 export interface Controller {
@@ -22,6 +24,8 @@ export interface ControllerElements {
 export interface ControllerOptions {
   snapBehavior: SnapBehavior;
   snapStrength: SnapStrength;
+  /** Paged-mode commit sensitivity as a ratio of the gap to the adjacent slide. */
+  commitRatio: number;
 }
 
 export interface Presentation {

@@ -5,6 +5,7 @@ import {
   getSnapStrengthPreset,
   getSlideIndexFromProgress,
   isEditableTarget,
+  toSignedTranslate,
 } from '../logic';
 import type {
   Controller,
@@ -94,23 +95,33 @@ export class PinnedController implements Controller {
   };
 
   keydown = (event: KeyboardEvent): boolean => {
-    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false;
     if (isEditableTarget(event.target)) return false;
 
-    const progress = computeProgress(
-      window.scrollY,
-      this.geometry.scrollStart,
-      this.geometry.scrollDistance
-    );
-    const current = getSlideIndexFromProgress(
-      progress,
-      this.geometry.slideStops
-    );
-    const target = clamp(
-      current + (event.key === 'ArrowRight' ? 1 : -1),
-      0,
-      this.geometry.slides.length - 1
-    );
+    const lastIndex = this.geometry.slides.length - 1;
+    let target: number;
+
+    if (event.key === 'Home') {
+      target = 0;
+    } else if (event.key === 'End') {
+      target = lastIndex;
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      const progress = computeProgress(
+        window.scrollY,
+        this.geometry.scrollStart,
+        this.geometry.scrollDistance
+      );
+      const current = getSlideIndexFromProgress(
+        progress,
+        this.geometry.slideStops
+      );
+      // In RTL, ArrowRight moves toward the previous (visually right) slide.
+      const direction =
+        (event.key === 'ArrowRight' ? 1 : -1) * (this.geometry.rtl ? -1 : 1);
+      target = clamp(current + direction, 0, lastIndex);
+    } else {
+      return false;
+    }
+
     const targetProgress = this.geometry.slideStops[target] ?? 0;
 
     window.scrollTo({
@@ -216,7 +227,7 @@ export class PinnedController implements Controller {
 
     this.elements.ref.style.setProperty(
       '--aa-hscroll-x',
-      `${Math.round(-target * 100) / 100}px`
+      `${toSignedTranslate(target, this.geometry.rtl)}px`
     );
     this.presentation.setActive(
       getSlideIndexFromProgress(progress, this.geometry.slideStops)

@@ -28,7 +28,7 @@ export function createController(
 ): Controller {
   switch (mode) {
     case 'paged':
-      return new PagedController(elements, presentation, geometry);
+      return new PagedController(elements, presentation, geometry, options);
     case 'pinned':
       return new PinnedController(elements, presentation, geometry, options);
     case 'native':

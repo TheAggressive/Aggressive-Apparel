@@ -1,3 +1,11 @@
+# [1.133.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.132.0...v1.133.0) (2026-07-04)
+
+
+### Features
+
+* add new image loading and font preload services, update CSS for better styling ([00f3f10](https://github.com/TheAggressive/Aggressive-Apparel/commit/00f3f104248007173143dbdb06959f7a1c59d5e3))
+* add paged commit sensitivity and enhance slide announcement features ([0540fea](https://github.com/TheAggressive/Aggressive-Apparel/commit/0540fea92f5477920f3e3347af91f8d22c783487))
+
 # [1.132.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.5...v1.132.0) (2026-07-04)
 
 

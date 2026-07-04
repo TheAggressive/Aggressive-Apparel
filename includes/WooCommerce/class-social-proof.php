@@ -186,7 +186,7 @@ class Social_Proof {
 			return;
 		}
 
-		if ( ! get_option( Feature_Settings::SOCIAL_PROOF_DEMO_OPTION, false ) ) {
+		if ( ! Feature_Settings::is_social_proof_demo_enabled() ) {
 			return;
 		}
 
@@ -635,7 +635,7 @@ class Social_Proof {
 			return array();
 		}
 
-		$min_age_minutes = (int) get_option( Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION, 5 );
+		$min_age_minutes = Feature_Settings::get_social_proof_min_order_age();
 		$min_age_seconds = $min_age_minutes * MINUTE_IN_SECONDS;
 		$cutoff_ts       = time() - $min_age_seconds;
 
@@ -913,7 +913,7 @@ class Social_Proof {
 	 * @return bool
 	 */
 	private function should_show_demo(): bool {
-		if ( ! get_option( Feature_Settings::SOCIAL_PROOF_DEMO_OPTION, false ) ) {
+		if ( ! Feature_Settings::is_social_proof_demo_enabled() ) {
 			return false;
 		}
 		return current_user_can( 'edit_theme_options' );

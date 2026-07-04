@@ -156,7 +156,7 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_filter_layout_field(): void {
-		$layout  = (string) get_option( Feature_Settings::FILTER_LAYOUT_OPTION, 'drawer' );
+		$layout  = Feature_Settings::get_filter_layout();
 		$options = array(
 			'drawer'     => __( 'Drawer (slide-out panel)', 'aggressive-apparel' ),
 			'sidebar'    => __( 'Sidebar (persistent column)', 'aggressive-apparel' ),
@@ -200,7 +200,7 @@ class Feature_Settings_Fields {
 	}
 
 	/**
-	 * Render the source mix table (checkbox + weight slider per source).
+	 * Render the source mix as slider cards (one per source, weight 0 = off).
 	 *
 	 * @return void
 	 */
@@ -208,31 +208,35 @@ class Feature_Settings_Fields {
 		$current_sources = Feature_Settings::get_social_proof_sources();
 		$definitions     = Feature_Settings::get_social_proof_source_definitions();
 
-		echo '<table class="widefat aa-social-proof-sources" style="max-width: 600px; margin-bottom: 0.5em;">';
-		echo '<thead><tr>';
-		echo '<th style="width: 40%;">' . esc_html__( 'Source', 'aggressive-apparel' ) . '</th>';
-		echo '<th style="width: 20%;">' . esc_html__( 'Weight', 'aggressive-apparel' ) . '</th>';
-		echo '<th>' . esc_html__( 'Notes', 'aggressive-apparel' ) . '</th>';
-		echo '</tr></thead><tbody>';
+		echo '<div class="aa-sp-sources">';
 
 		foreach ( $definitions as $key => $meta ) {
-			$weight = isset( $current_sources[ $key ] ) ? (int) $current_sources[ $key ] : 0;
+			$weight   = isset( $current_sources[ $key ] ) ? (int) $current_sources[ $key ] : 0;
+			$input_id = 'aa-sp-source-' . $key;
 
-			echo '<tr>';
-			echo '<td><strong>' . esc_html( $meta['label'] ) . '</strong></td>';
-			echo '<td>';
+			echo '<div class="aa-sp-source' . ( 0 === $weight ? ' is-off' : '' ) . '">';
+			echo '<div class="aa-sp-source__head">';
+			echo '<label class="aa-sp-source__label" for="' . esc_attr( $input_id ) . '">' . esc_html( $meta['label'] ) . '</label>';
 			printf(
-				'<input type="number" min="0" max="10" step="1" name="%s[%s]" value="%d" style="width: 5em;" />',
+				'<input type="range" id="%s" class="aa-sp-source__slider" min="0" max="10" step="1" name="%s[%s]" value="%d" aria-describedby="%s-desc" />',
+				esc_attr( $input_id ),
 				esc_attr( Feature_Settings::SOCIAL_PROOF_SOURCES_OPTION ),
 				esc_attr( $key ),
 				absint( $weight ),
+				esc_attr( $input_id ),
 			);
-			echo '</td>';
-			echo '<td><span class="description">' . esc_html( $meta['description'] ) . '</span></td>';
-			echo '</tr>';
+			printf(
+				'<output class="aa-sp-source__value" for="%s" data-off-label="%s">%s</output>',
+				esc_attr( $input_id ),
+				esc_attr__( 'Off', 'aggressive-apparel' ),
+				0 === $weight ? esc_html__( 'Off', 'aggressive-apparel' ) : absint( $weight ),
+			);
+			echo '</div>';
+			echo '<p id="' . esc_attr( $input_id ) . '-desc" class="aa-sp-source__description description">' . esc_html( $meta['description'] ) . '</p>';
+			echo '</div>';
 		}
 
-		echo '</tbody></table>';
+		echo '</div>';
 		echo '<p class="description">' . esc_html__( 'Weight 0 disables a source. Higher weights appear more often in the random rotation. Engagement uses catalog sales totals (requires the minimum sales threshold below). Set Engagement to 0 until you have steady sales. Set Purchases to 0 on day one if you prefer only trust + engagement + announcements.', 'aggressive-apparel' ) . '</p>';
 	}
 

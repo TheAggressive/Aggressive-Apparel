@@ -142,6 +142,10 @@ class Feature_Settings_Page {
 	/**
 	 * Register sub-setting options (always, so saved values persist).
 	 *
+	 * Store Copy texts come from their definitions list; every other
+	 * sub-setting is driven by the shared option schema so registration
+	 * defaults and read fallbacks can never drift apart.
+	 *
 	 * @return void
 	 */
 	private function register_sub_settings(): void {
@@ -159,154 +163,24 @@ class Feature_Settings_Page {
 			);
 		}
 
-		register_setting(
-			$group,
-			Feature_Settings::FILTER_LAYOUT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'drawer',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_filter_layout' ),
-			)
-		);
+		foreach ( Feature_Settings::get_option_schema() as $option => $schema ) {
+			$sanitize_callback = array( $this->sanitizer, $schema['sanitize'] );
 
-		register_setting(
-			$group,
-			Feature_Settings::LOAD_MORE_MODE_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'load_more',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_load_more_mode' ),
-			)
-		);
+			// Guards schema typos; also proves callability to PHPStan.
+			if ( ! is_callable( $sanitize_callback ) ) {
+				continue;
+			}
 
-		register_setting(
-			$group,
-			Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'auto',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_wishlist_button_placement' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_SOURCES_OPTION,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_sources' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_TRUST_MESSAGES_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => Feature_Settings::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES,
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_messages' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_messages' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_DEMO_OPTION,
-			array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => static fn ( $v ): bool => (bool) $v,
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 5,
-				'sanitize_callback' => static fn ( $v ): int => max( 0, min( 1440, (int) $v ) ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_DISPLAY_MODE_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'anonymous',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_display_mode' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'city',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_location_granularity' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_social_proof_purchase_badge_icon' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 3,
-				'sanitize_callback' => static fn ( $v ): int => max( 1, min( 999999, (int) $v ) ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'fade',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_hover_image_animation' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION,
-			array(
-				'type'              => 'integer',
-				'default'           => 350,
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_hover_image_exit_duration' ),
-			)
-		);
-
-		register_setting(
-			$group,
-			Feature_Settings::HOVER_IMAGE_EXIT_ANIMATION_OPTION,
-			array(
-				'type'              => 'string',
-				'default'           => 'fade',
-				'sanitize_callback' => array( $this->sanitizer, 'sanitize_hover_image_exit_animation' ),
-			)
-		);
+			register_setting(
+				$group,
+				$option,
+				array(
+					'type'              => $schema['type'],
+					'default'           => $schema['default'],
+					'sanitize_callback' => $sanitize_callback,
+				)
+			);
+		}
 	}
 
 	/**

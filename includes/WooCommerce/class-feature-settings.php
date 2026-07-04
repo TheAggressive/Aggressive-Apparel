@@ -707,6 +707,150 @@ class Feature_Settings {
 	}
 
 	/**
+	 * Schema for every standalone sub-setting option (everything except
+	 * the feature-flags array and the Store Copy texts, which have their
+	 * own data-driven registration loops).
+	 *
+	 * Single source of truth consumed by BOTH:
+	 *   - Feature_Settings_Page::register_sub_settings() (registration), and
+	 *   - self::get_setting() (reads with defaults applied).
+	 *
+	 * Keeping registration defaults and read fallbacks in one place means
+	 * they can never drift apart again (the class of bug where the
+	 * textarea showed something different from what rendered).
+	 *
+	 * `empty_means_default` — treat an existing-but-empty row as "not
+	 * customised" and fall back to the default. Only set it where an
+	 * empty value has no meaning of its own (trust messages: disabling
+	 * the source is done via its weight, not by blanking the box).
+	 *
+	 * `sanitize` — method name on Feature_Settings_Sanitizer.
+	 *
+	 * @return array<string, array{type: string, default: mixed, sanitize: string, empty_means_default?: bool}>
+	 */
+	public static function get_option_schema(): array {
+		return array(
+			self::FILTER_LAYOUT_OPTION                     => array(
+				'type'     => 'string',
+				'default'  => 'drawer',
+				'sanitize' => 'sanitize_filter_layout',
+			),
+			self::LOAD_MORE_MODE_OPTION                    => array(
+				'type'     => 'string',
+				'default'  => 'load_more',
+				'sanitize' => 'sanitize_load_more_mode',
+			),
+			self::WISHLIST_BUTTON_PLACEMENT_OPTION         => array(
+				'type'     => 'string',
+				'default'  => 'auto',
+				'sanitize' => 'sanitize_wishlist_button_placement',
+			),
+			self::HOVER_IMAGE_ANIMATION_OPTION             => array(
+				'type'     => 'string',
+				'default'  => 'fade',
+				'sanitize' => 'sanitize_hover_image_animation',
+			),
+			self::HOVER_IMAGE_EXIT_ANIMATION_OPTION        => array(
+				'type'     => 'string',
+				'default'  => 'fade',
+				'sanitize' => 'sanitize_hover_image_exit_animation',
+			),
+			self::HOVER_IMAGE_EXIT_DURATION_OPTION         => array(
+				'type'     => 'integer',
+				'default'  => 350,
+				'sanitize' => 'sanitize_hover_image_exit_duration',
+			),
+			self::SOCIAL_PROOF_SOURCES_OPTION              => array(
+				'type'     => 'array',
+				'default'  => array(),
+				'sanitize' => 'sanitize_social_proof_sources',
+			),
+			self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION       => array(
+				'type'                => 'string',
+				'default'             => self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES,
+				'sanitize'            => 'sanitize_social_proof_messages',
+				'empty_means_default' => true,
+			),
+			self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION        => array(
+				'type'     => 'string',
+				'default'  => '',
+				'sanitize' => 'sanitize_social_proof_messages',
+			),
+			self::SOCIAL_PROOF_DEMO_OPTION                 => array(
+				'type'     => 'boolean',
+				'default'  => false,
+				'sanitize' => 'sanitize_bool_flag',
+			),
+			self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION        => array(
+				'type'     => 'integer',
+				'default'  => 5,
+				'sanitize' => 'sanitize_social_proof_min_order_age',
+			),
+			self::SOCIAL_PROOF_DISPLAY_MODE_OPTION         => array(
+				'type'     => 'string',
+				'default'  => 'anonymous',
+				'sanitize' => 'sanitize_social_proof_display_mode',
+			),
+			self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION => array(
+				'type'     => 'string',
+				'default'  => 'city',
+				'sanitize' => 'sanitize_social_proof_location_granularity',
+			),
+			// NOTE: the registration default ('') differs from the read
+			// fallback ('check') on purpose — a MISSING row means "never
+			// configured, use the bundled icon" while a stored '' means
+			// "admin deliberately hid the badge". See the resolver.
+			self::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION  => array(
+				'type'     => 'string',
+				'default'  => '',
+				'sanitize' => 'sanitize_social_proof_purchase_badge_icon',
+			),
+			self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION => array(
+				'type'     => 'integer',
+				'default'  => 3,
+				'sanitize' => 'sanitize_social_proof_engagement_min_sales',
+			),
+		);
+	}
+
+	/**
+	 * Read a schema-backed sub-setting with its default applied.
+	 *
+	 * Works identically on the frontend (where `register_setting()` has
+	 * not run and `default_option_*` filters are absent) and in admin:
+	 * a missing row — and, when the schema opts in via
+	 * `empty_means_default`, an empty row — returns the schema default,
+	 * and the value is cast to the schema type.
+	 *
+	 * @param string $option Option name (must exist in the schema).
+	 * @return mixed Typed value or schema default.
+	 */
+	public static function get_setting( string $option ): mixed {
+		$schema = self::get_option_schema()[ $option ] ?? null;
+
+		if ( null === $schema ) {
+			return null;
+		}
+
+		$saved = get_option( $option, null );
+
+		if ( null === $saved || false === $saved ) {
+			return $schema['default'];
+		}
+
+		if ( ! empty( $schema['empty_means_default'] ) && is_string( $saved ) && '' === trim( $saved ) ) {
+			return $schema['default'];
+		}
+
+		return match ( $schema['type'] ) {
+			'string'  => (string) $saved,
+			'integer' => (int) $saved,
+			'boolean' => (bool) $saved,
+			default   => $saved,
+		};
+	}
+
+	/**
 	 * Available social proof sources with their human-readable labels
 	 * and descriptions. Demo is intentionally NOT a "source" here — it
 	 * lives in its own toggle because of the admin-only visibility gate.
@@ -757,24 +901,16 @@ class Feature_Settings {
 	/**
 	 * Public accessor: trust messages with defaults applied.
 	 *
-	 * Falls through cleanly on the frontend where `register_setting()`
-	 * has not run and `default_option_*` filters are absent. Returns the
-	 * shipped POD-friendly default list when the admin hasn't customised
-	 * it, the customised list otherwise.
-	 *
 	 * An empty saved row (e.g. the page was once saved with a blank
-	 * textarea) also falls back to the defaults so the textarea always
-	 * shows the copy that would actually render. Disabling the source is
-	 * done via the Trust weight (0), not by emptying the box.
+	 * textarea) also falls back to the defaults (via the schema's
+	 * `empty_means_default`) so the textarea always shows the copy that
+	 * would actually render. Disabling the source is done via the Trust
+	 * weight (0), not by emptying the box.
 	 *
 	 * @return string Raw textarea contents (newline-separated).
 	 */
 	public static function get_social_proof_trust_messages(): string {
-		$saved = get_option( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION, null );
-		if ( null === $saved || false === $saved || '' === trim( (string) $saved ) ) {
-			return self::SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES;
-		}
-		return (string) $saved;
+		return (string) self::get_setting( self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION );
 	}
 
 	/**
@@ -783,26 +919,40 @@ class Feature_Settings {
 	 * @return string Raw textarea contents (newline-separated).
 	 */
 	public static function get_social_proof_announcements(): string {
-		$saved = get_option( self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION, null );
-		if ( null === $saved || false === $saved ) {
-			return '';
-		}
-		return (string) $saved;
+		return (string) self::get_setting( self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION );
 	}
 
 	/**
 	 * Minimum WooCommerce lifetime sales gate for Engagement toasts.
 	 *
+	 * Clamped on read as well as on save so legacy rows stored before
+	 * the sanitizer existed can never yield a zero/negative gate.
+	 *
 	 * @return int
 	 */
 	public static function get_social_proof_engagement_min_sales(): int {
-		$option = get_option( self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION, null );
+		return max( 1, min( 999999, (int) self::get_setting( self::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION ) ) );
+	}
 
-		if ( null === $option || false === $option ) {
-			return 3;
-		}
+	/**
+	 * Whether the admin-only demo preview toggle is on.
+	 *
+	 * Note: visibility additionally requires `edit_theme_options` — see
+	 * Social_Proof::should_show_demo().
+	 *
+	 * @return bool
+	 */
+	public static function is_social_proof_demo_enabled(): bool {
+		return (bool) self::get_setting( self::SOCIAL_PROOF_DEMO_OPTION );
+	}
 
-		return max( 1, min( 999999, (int) $option ) );
+	/**
+	 * Minimum order age (minutes) before a purchase may surface.
+	 *
+	 * @return int
+	 */
+	public static function get_social_proof_min_order_age(): int {
+		return max( 0, (int) self::get_setting( self::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION ) );
 	}
 
 	/**
@@ -849,7 +999,7 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_social_proof_display_mode(): string {
-		return (string) get_option( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION, 'anonymous' );
+		return (string) self::get_setting( self::SOCIAL_PROOF_DISPLAY_MODE_OPTION );
 	}
 
 	/**
@@ -858,7 +1008,7 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_social_proof_location_granularity(): string {
-		return (string) get_option( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, 'city' );
+		return (string) self::get_setting( self::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION );
 	}
 
 	/**
@@ -867,7 +1017,7 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_wishlist_button_placement(): string {
-		return (string) get_option( self::WISHLIST_BUTTON_PLACEMENT_OPTION, 'auto' );
+		return (string) self::get_setting( self::WISHLIST_BUTTON_PLACEMENT_OPTION );
 	}
 
 	/**
@@ -876,7 +1026,16 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_load_more_mode(): string {
-		return (string) get_option( self::LOAD_MORE_MODE_OPTION, 'load_more' );
+		return (string) self::get_setting( self::LOAD_MORE_MODE_OPTION );
+	}
+
+	/**
+	 * Product filters layout (e.g. 'drawer', 'sidebar', 'horizontal').
+	 *
+	 * @return string
+	 */
+	public static function get_filter_layout(): string {
+		return (string) self::get_setting( self::FILTER_LAYOUT_OPTION );
 	}
 
 	/**
@@ -885,7 +1044,7 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_hover_image_animation(): string {
-		return (string) get_option( self::HOVER_IMAGE_ANIMATION_OPTION, 'fade' );
+		return (string) self::get_setting( self::HOVER_IMAGE_ANIMATION_OPTION );
 	}
 
 	/**
@@ -894,7 +1053,7 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_hover_image_exit_animation(): string {
-		return (string) get_option( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION, 'fade' );
+		return (string) self::get_setting( self::HOVER_IMAGE_EXIT_ANIMATION_OPTION );
 	}
 
 	/**
@@ -903,7 +1062,7 @@ class Feature_Settings {
 	 * @return int
 	 */
 	public static function get_hover_image_exit_duration(): int {
-		return (int) get_option( self::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+		return (int) self::get_setting( self::HOVER_IMAGE_EXIT_DURATION_OPTION );
 	}
 
 	/**

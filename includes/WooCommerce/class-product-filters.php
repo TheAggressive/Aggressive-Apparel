@@ -500,9 +500,7 @@ class Product_Filters {
 	 * @return string Layout name.
 	 */
 	private function get_layout(): string {
-		$layout = get_option( Feature_Settings::FILTER_LAYOUT_OPTION, 'drawer' );
-		$valid  = array( 'drawer', 'sidebar', 'horizontal' );
-		return in_array( $layout, $valid, true ) ? $layout : 'drawer';
+		return self::get_active_layout();
 	}
 
 	/**
@@ -544,7 +542,7 @@ class Product_Filters {
 			return self::$active_layout;
 		}
 
-		$layout = get_option( Feature_Settings::FILTER_LAYOUT_OPTION, 'drawer' );
+		$layout = Feature_Settings::get_filter_layout();
 		$valid  = array( 'drawer', 'sidebar', 'horizontal' );
 
 		self::$active_layout = in_array( $layout, $valid, true ) ? $layout : 'drawer';

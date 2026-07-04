@@ -215,6 +215,36 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize a plain boolean toggle.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return bool
+	 */
+	public function sanitize_bool_flag( $input ): bool {
+		return (bool) $input;
+	}
+
+	/**
+	 * Sanitize the minimum order age (0–1440 minutes).
+	 *
+	 * @param mixed $input Raw input.
+	 * @return int
+	 */
+	public function sanitize_social_proof_min_order_age( $input ): int {
+		return max( 0, min( 1440, (int) $input ) );
+	}
+
+	/**
+	 * Sanitize the Engagement minimum lifetime sales gate (1–999999).
+	 *
+	 * @param mixed $input Raw input.
+	 * @return int
+	 */
+	public function sanitize_social_proof_engagement_min_sales( $input ): int {
+		return max( 1, min( 999999, (int) $input ) );
+	}
+
+	/**
 	 * Sanitize the purchase display mode option.
 	 *
 	 * @param mixed $input Raw input.

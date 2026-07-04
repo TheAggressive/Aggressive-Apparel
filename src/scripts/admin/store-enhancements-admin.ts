@@ -30,7 +30,33 @@ function activateFeatureTab(id: string): void {
   }
 }
 
+function initSocialProofSourceSliders(): void {
+  const sliders = document.querySelectorAll<HTMLInputElement>(
+    '.aa-sp-source__slider'
+  );
+
+  sliders.forEach(slider => {
+    const card = slider.closest('.aa-sp-source');
+    const output = card?.querySelector<HTMLOutputElement>(
+      '.aa-sp-source__value'
+    );
+
+    slider.addEventListener('input', () => {
+      const value = Number(slider.value);
+
+      if (output) {
+        output.textContent =
+          value === 0 ? (output.dataset.offLabel ?? '0') : String(value);
+      }
+
+      card?.classList.toggle('is-off', value === 0);
+    });
+  });
+}
+
 function initStoreEnhancementsAdmin(): void {
+  initSocialProofSourceSliders();
+
   const tabs = document.querySelectorAll<HTMLElement>(
     '.aa-features-tabs .nav-tab'
   );

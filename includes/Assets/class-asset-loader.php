@@ -180,14 +180,36 @@ class Asset_Loader {
 	 * @return void
 	 */
 	public static function enqueue_interactivity_module( string $module_id, string $relative_path, array $deps = array(), bool $with_interactivity = true ): void {
-		if ( ! function_exists( 'wp_register_script_module' ) ) {
+		if ( ! self::register_interactivity_module( $module_id, $relative_path, $deps, $with_interactivity ) ) {
 			return;
+		}
+
+		wp_enqueue_script_module( $module_id );
+	}
+
+	/**
+	 * Register an Interactivity API script module without enqueuing it.
+	 *
+	 * Use when the module must be registered early (so the import map in
+	 * wp_head can resolve it) but should only load on requests that actually
+	 * enqueue it later — `wp_enqueue_script_module( $id )` supports
+	 * enqueue-before-register, so either ordering works.
+	 *
+	 * @param string $module_id          Module identifier.
+	 * @param string $relative_path      Path relative to theme root, without extension.
+	 * @param array  $deps               Additional module dependencies.
+	 * @param bool   $with_interactivity Whether to depend on the Interactivity API runtime.
+	 * @return bool True when the module exists and was registered.
+	 */
+	public static function register_interactivity_module( string $module_id, string $relative_path, array $deps = array(), bool $with_interactivity = true ): bool {
+		if ( ! function_exists( 'wp_register_script_module' ) ) {
+			return false;
 		}
 
 		$file = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path . '.js';
 
 		if ( ! file_exists( $file ) ) {
-			return;
+			return false;
 		}
 
 		if ( $with_interactivity && ! in_array( '@wordpress/interactivity', $deps, true ) ) {
@@ -200,7 +222,8 @@ class Asset_Loader {
 			$deps,
 			AGGRESSIVE_APPAREL_VERSION
 		);
-		wp_enqueue_script_module( $module_id );
+
+		return true;
 	}
 
 	/**

@@ -83,6 +83,16 @@ class Adaptive_Colors {
 			return;
 		}
 
+		// Cache the extracted pairs keyed on the file's mtime so the ~38 KB
+		// theme.json read + json_decode runs once per edit, not per request.
+		$cache_key = 'aggressive_apparel_adaptive_pairs_' . (string) filemtime( $theme_json_path );
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) ) {
+			$this->pairs = $cached;
+			return;
+		}
+
 		$contents = file_get_contents( $theme_json_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( false === $contents ) {
 			return;
@@ -96,6 +106,8 @@ class Adaptive_Colors {
 		$colors = $data['settings']['custom']['adaptiveColors'] ?? array();
 
 		$this->pairs = $this->extract_pairs( $colors );
+
+		set_transient( $cache_key, $this->pairs, WEEK_IN_SECONDS );
 	}
 
 	/**

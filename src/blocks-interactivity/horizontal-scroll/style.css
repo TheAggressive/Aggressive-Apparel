@@ -14,6 +14,10 @@
   position: relative;
 }
 
+.aa-hscroll__range {
+  position: relative;
+}
+
 @supports (height: 100svh) {
 
   .aa-hscroll {
@@ -69,7 +73,7 @@
 /* Desktop enhanced mode: sticky viewport plus scroll-distance sentinel.
    Heights derive from --aa-hscroll-pin-height so activation presets can shrink
    the pinned panel. */
-.aa-hscroll.is-enhanced {
+.aa-hscroll.is-enhanced .aa-hscroll__range {
   height: calc(var(--aa-hscroll-pin-height) + var(--aa-hscroll-distance));
   min-height: var(--aa-hscroll-pin-height);
 }
@@ -90,6 +94,13 @@
 
 .aa-hscroll.is-enhanced .aa-hscroll__track > * {
   height: 100%;
+
+  /* Saved slide groups often carry a viewport-based min-height. Once the
+     gallery is pinned that can exceed the pin-height (center/bottom use 80svh)
+     and make content drift or clip differently in each direction. The pinned
+     viewport is the slide's sizing contract. This applies only to the direct
+     slide block; its internal block layout remains authored content. */
+  min-height: 0 !important;
 }
 
 /* Touch/coarse-pointer mode: native horizontal scrolling, no pinning. */
@@ -127,22 +138,6 @@
 
     /* Override editor template min-heights (e.g. 60vh) saved on slide groups. */
     min-height: auto !important;
-  }
-}
-
-/* Snap-to-next: smooth animated transitions between slides in native scroll mode. */
-.aa-hscroll--snap-next.is-snap .aa-hscroll__viewport {
-  scroll-behavior: smooth;
-}
-
-.aa-hscroll--snap-next.is-snap .aa-hscroll__track > * {
-  scroll-snap-stop: always;
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .aa-hscroll--snap-next.is-snap .aa-hscroll__viewport {
-    scroll-behavior: auto;
   }
 }
 
@@ -370,7 +365,7 @@
 /* Reduced motion: force normal document flow if CSS loads before JS adapts. */
 @media (prefers-reduced-motion: reduce) {
 
-  .aa-hscroll.is-enhanced {
+  .aa-hscroll.is-enhanced .aa-hscroll__range {
     height: auto;
     min-height: 0;
   }
@@ -384,6 +379,7 @@
   .aa-hscroll.is-horizontal .aa-hscroll__track {
     display: grid;
     transform: none;
+    transition: none;
     will-change: auto;
   }
 

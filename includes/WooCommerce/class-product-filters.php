@@ -132,19 +132,14 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function register_script_module(): void {
-		// Enqueue CSS unconditionally — all selectors are scoped to
-		// .aa-product-filters__* so there is zero visual impact on
-		// non-shop pages. This avoids the is_shop_page() timing issue
-		// where WooCommerce conditional tags may not be available yet.
-		Asset_Loader::enqueue_feature_style(
-			'aggressive-apparel-product-filters',
-			'build/styles/woocommerce/product-filters'
-		);
-
-		// Enqueue unconditionally so the module appears in the wp_head import
-		// map. On non-shop pages the JS loads but does nothing because no
-		// data-wp-interactive directive exists in the HTML.
-		Asset_Loader::enqueue_interactivity_module(
+		// Register only — registration is free and guarantees the module can
+		// be resolved by the wp_head import map on any request. The actual
+		// enqueue (CSS + JS + state) happens in ensure_assets(), which only
+		// runs on shop pages: gated via wp_enqueue_scripts, plus a lazy
+		// render_block fallback (which fires before wp_head in block themes,
+		// so assets enqueued there still print in the head). This keeps
+		// ~40 KB of filter CSS/JS off every non-shop page.
+		Asset_Loader::register_interactivity_module(
 			'@aggressive-apparel/product-filters',
 			'build/interactivity/product-filters',
 			array(
@@ -182,9 +177,17 @@ class Product_Filters {
 		}
 		$this->assets_enqueued = true;
 
-		// CSS and JS module are enqueued unconditionally in
-		// register_script_module(). Only the interactivity state
-		// needs to be loaded conditionally on shop pages.
+		Asset_Loader::enqueue_feature_style(
+			'aggressive-apparel-product-filters',
+			'build/styles/woocommerce/product-filters'
+		);
+
+		// Enqueue by ID — registration happens in register_script_module()
+		// during wp_enqueue_scripts; WP_Script_Modules supports
+		// enqueue-before-register, so the render_block path is safe too.
+		if ( function_exists( 'wp_enqueue_script_module' ) ) {
+			wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
+		}
 
 		// Output interactivity state.
 		if ( function_exists( 'wp_interactivity_state' ) ) {

@@ -478,14 +478,28 @@ class Search {
 	/**
 	 * Early asset prep when the block is discoverable before render.
 	 *
+	 * Uses should_load() rather than only has_block(): the search trigger
+	 * normally lives in the header template part, which has_block() cannot
+	 * see. Block templates render before wp_enqueue_scripts fires, so the
+	 * render-time `block_rendered` flag is already set here — this is what
+	 * gets the @aggressive-apparel/use-overlay module chain into the wp_head
+	 * import map (view.js bare-imports it and fails to load otherwise).
+	 *
 	 * @return void
 	 */
 	public function register_assets(): void {
-		if ( is_admin() || ! $this->is_block_on_page() ) {
+		if ( is_admin() || ! $this->should_load() ) {
 			return;
 		}
 
 		$this->ensure_assets();
+
+		// Re-run the module registration + enqueue even when ensure_assets()
+		// already ran at block-render time: on some WordPress/Gutenberg
+		// combinations, script modules registered during template render do
+		// not survive to the wp_head import map, while registrations made
+		// during wp_enqueue_scripts always do. Both calls are idempotent.
+		$this->enqueue_overlay_modules();
 	}
 
 	/**
@@ -501,16 +515,10 @@ class Search {
 		}
 		$this->assets_prepared = true;
 
-		// Register shared modules the block view depends on via import map.
-		// wp_register_script_module is a no-op when already registered (e.g. by
-		// Enhancements), so this is safe when WooCommerce is active.
-		$this->register_shared_modules();
-
-		// The block view imports @aggressive-apparel/use-overlay (external). Enqueue
-		// the overlay chain so the import map is complete before view.js loads.
-		if ( function_exists( 'wp_enqueue_script_module' ) ) {
-			wp_enqueue_script_module( '@aggressive-apparel/use-overlay' );
-		}
+		// The block view imports @aggressive-apparel/use-overlay (external).
+		// Register + enqueue the overlay chain so the import map is complete
+		// before view.js loads.
+		$this->enqueue_overlay_modules();
 
 		// Seed REST + i18n state for the store before hydration.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
@@ -539,6 +547,26 @@ class Search {
 
 		// The trigger block's style.css carries both the trigger and modal styles.
 		wp_enqueue_style( 'aggressive-apparel-search-style' );
+	}
+
+	/**
+	 * Register and enqueue the overlay module chain (idempotent).
+	 *
+	 * Registration + enqueue live together so callers can safely re-run this
+	 * from wp_enqueue_scripts after a render-time pass.
+	 *
+	 * @return void
+	 */
+	private function enqueue_overlay_modules(): void {
+		if ( ! function_exists( 'wp_enqueue_script_module' ) || ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		// wp_register_script_module is a no-op when already registered (e.g. by
+		// Enhancements), so this is safe when WooCommerce is active.
+		$this->register_shared_modules();
+
+		wp_enqueue_script_module( '@aggressive-apparel/use-overlay' );
 	}
 
 	/**

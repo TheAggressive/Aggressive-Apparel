@@ -38,9 +38,11 @@ store('aggressive-apparel/free-shipping-bar', {
   },
 
   callbacks: {
-    init(): void {
+    init(): (() => void) | void {
       const ctx = getContext<FreeShippingBarContext>();
-      subscribeFreeShippingBarCartRefresh(ctx);
+      // Returning the unsubscribe lets the runtime clean up when the
+      // element is removed (e.g. client-side navigation).
+      return subscribeFreeShippingBarCartRefresh(ctx);
     },
   },
 });

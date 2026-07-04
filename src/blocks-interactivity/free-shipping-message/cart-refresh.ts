@@ -47,8 +47,11 @@ export interface FreeShippingBarContext {
   i18n: FreeShippingBarI18n;
 }
 
+// Matches every request that can change cart totals. WooCommerce Blocks
+// routes mini-cart edits (quantity change, remove item) through the Store
+// API *batch* endpoint, so it must be matched alongside /cart.
 const CART_MUTATION_URL =
-  /\/wc\/store\/v1\/cart(?:\/|$|\?)|wc-ajax=(?:add_to_cart|remove_from_cart|update_cart|apply_coupon|remove_coupon|get_refreshed_fragments)/;
+  /\/wc\/store\/v1\/(?:cart|batch)(?:\/|$|\?)|wc-ajax=(?:add_to_cart|remove_from_cart|update_cart|apply_coupon|remove_coupon|get_refreshed_fragments)/;
 
 const CART_EVENTS = [
   'wc-blocks_added_to_cart',
@@ -60,12 +63,13 @@ const CART_EVENTS = [
 
 const REFRESH_DEBOUNCE_MS = 150;
 
-type CartRefreshHandler = () => void;
+type CartRefreshHandler = (cart: CartResponse) => void;
 
 const subscribers = new Set<CartRefreshHandler>();
 let listenersBound = false;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let isInternalCartFetch = false;
+let hubRestBase = '';
 
 function resolveRequestUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') {
@@ -107,6 +111,28 @@ function isCartMutationRequest(
   return method !== 'GET';
 }
 
+/**
+ * Fetch the cart once and fan the same response out to every subscriber.
+ *
+ * A single shared fetch (instead of one per block instance) guarantees all
+ * occurrences on the page update together from identical data.
+ */
+function refreshSubscribers(): void {
+  if ('' === hubRestBase || subscribers.size === 0) {
+    return;
+  }
+
+  void fetchCartTotals(hubRestBase).then(cart => {
+    if (!cart) {
+      return;
+    }
+
+    subscribers.forEach(handler => {
+      handler(cart);
+    });
+  });
+}
+
 function scheduleCartRefresh(): void {
   if (debounceTimer !== null) {
     clearTimeout(debounceTimer);
@@ -114,9 +140,7 @@ function scheduleCartRefresh(): void {
 
   debounceTimer = setTimeout(() => {
     debounceTimer = null;
-    subscribers.forEach(handler => {
-      handler();
-    });
+    refreshSubscribers();
   }, REFRESH_DEBOUNCE_MS);
 }
 
@@ -228,9 +252,22 @@ function fetchCartTotals(restBase: string): Promise<CartResponse | null> {
     });
 }
 
-function subscribeCartRefresh(handler: CartRefreshHandler): () => void {
+function subscribeCartRefresh(
+  restBase: string,
+  handler: CartRefreshHandler
+): () => void {
   bindGlobalCartListeners();
+
+  if ('' === hubRestBase && restBase) {
+    hubRestBase = restBase;
+  }
+
   subscribers.add(handler);
+
+  // Initial sync: the server-rendered amount can be stale (page caching,
+  // history navigation). Debounced, so every instance hydrating in the same
+  // tick still results in a single cart request.
+  scheduleCartRefresh();
 
   return () => {
     subscribers.delete(handler);
@@ -247,34 +284,26 @@ export function subscribeFreeShippingCartRefresh(
     return () => {};
   }
 
-  const refresh = withScope(() => {
-    void fetchCartTotals(ctx.restBase).then(
-      withScope(cart => {
-        if (!cart) {
-          return;
-        }
+  const refresh = withScope((cart: CartResponse) => {
+    const parsed = parseCartTotals(cart, ctx.threshold, {
+      currencyMinorUnit: ctx.currencyMinorUnit,
+      currencyPrefix: ctx.currencyPrefix,
+      currencySuffix: ctx.currencySuffix,
+    });
 
-        const parsed = parseCartTotals(cart, ctx.threshold, {
-          currencyMinorUnit: ctx.currencyMinorUnit,
-          currencyPrefix: ctx.currencyPrefix,
-          currencySuffix: ctx.currencySuffix,
-        });
+    if (!parsed) {
+      return;
+    }
 
-        if (!parsed) {
-          return;
-        }
-
-        ctx.currencyMinorUnit = parsed.currencyMinorUnit;
-        ctx.currencyPrefix = parsed.currencyPrefix;
-        ctx.currencySuffix = parsed.currencySuffix;
-        ctx.cartTotal = parsed.cartTotal;
-        ctx.remaining = parsed.remaining;
-        ctx.complete = parsed.complete;
-      })
-    );
+    ctx.currencyMinorUnit = parsed.currencyMinorUnit;
+    ctx.currencyPrefix = parsed.currencyPrefix;
+    ctx.currencySuffix = parsed.currencySuffix;
+    ctx.cartTotal = parsed.cartTotal;
+    ctx.remaining = parsed.remaining;
+    ctx.complete = parsed.complete;
   });
 
-  return subscribeCartRefresh(refresh);
+  return subscribeCartRefresh(ctx.restBase, refresh);
 }
 
 /**
@@ -287,30 +316,22 @@ export function subscribeFreeShippingBarCartRefresh(
     return () => {};
   }
 
-  const refresh = withScope(() => {
-    void fetchCartTotals(ctx.restBase).then(
-      withScope(cart => {
-        if (!cart) {
-          return;
-        }
+  const refresh = withScope((cart: CartResponse) => {
+    const parsed = parseCartTotals(cart, ctx.threshold, {
+      currencyMinorUnit: ctx.currencyMinorUnit ?? 2,
+      currencyPrefix: ctx.currencyPrefix ?? '$',
+      currencySuffix: ctx.currencySuffix ?? '',
+    });
 
-        const parsed = parseCartTotals(cart, ctx.threshold, {
-          currencyMinorUnit: 2,
-          currencyPrefix: '$',
-          currencySuffix: '',
-        });
+    if (!parsed) {
+      return;
+    }
 
-        if (!parsed) {
-          return;
-        }
-
-        ctx.cartTotal = parsed.cartTotal;
-        ctx.remaining = parsed.remaining;
-        ctx.complete = parsed.complete;
-        ctx.percent = Math.min(100, (parsed.cartTotal / ctx.threshold) * 100);
-      })
-    );
+    ctx.cartTotal = parsed.cartTotal;
+    ctx.remaining = parsed.remaining;
+    ctx.complete = parsed.complete;
+    ctx.percent = Math.min(100, (parsed.cartTotal / ctx.threshold) * 100);
   });
 
-  return subscribeCartRefresh(refresh);
+  return subscribeCartRefresh(ctx.restBase, refresh);
 }

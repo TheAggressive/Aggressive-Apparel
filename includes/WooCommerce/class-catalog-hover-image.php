@@ -31,25 +31,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Catalog_Hover_Image {
 
 	/**
+	 * Whether the stylesheet has been enqueued this request.
+	 *
+	 * @var bool
+	 */
+	private bool $style_enqueued = false;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_hover_image' ), 20 );
 	}
 
 	/**
-	 * Enqueue the hover image stylesheet.
+	 * Enqueue the hover image stylesheet on first injection (idempotent).
 	 *
-	 * Loaded on every frontend page: the CSS only activates when the
-	 * .aa-hover-img element is present, so there is no visual cost on pages
-	 * that do not contain product cards.
+	 * Called lazily from inject_hover_image() so the CSS only loads on pages
+	 * that actually render a product card with a hover image. Block templates
+	 * render before wp_head in block themes, so the stylesheet still prints
+	 * in the head.
 	 *
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
+		if ( $this->style_enqueued ) {
+			return;
+		}
+		$this->style_enqueued = true;
+
 		$enqueued = Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-catalog-hover-image',
 			'build/styles/woocommerce/catalog-hover-image'
@@ -113,6 +125,8 @@ class Catalog_Hover_Image {
 		if ( '' === $hover_img ) {
 			return $block_content;
 		}
+
+		$this->enqueue_assets();
 
 		$hover_html = sprintf(
 			'<div class="aa-hover-img aa-hover-img--%s" data-aa-exit="%s" aria-hidden="true">%s</div>',

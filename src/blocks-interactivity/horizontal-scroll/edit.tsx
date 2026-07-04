@@ -23,6 +23,8 @@ import type { CSSProperties } from 'react';
 
 type HScrollActivation = 'top' | 'center' | 'bottom';
 type HScrollDesktopBehavior = 'pinned' | 'inline';
+type HScrollSnapBehavior = 'off' | 'proximity' | 'paged';
+type HScrollSnapStrength = 'soft' | 'medium' | 'strong' | 'aggressive';
 type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
 
 interface HScrollAttributes {
@@ -31,7 +33,8 @@ interface HScrollAttributes {
   showProgress: boolean;
   activation: HScrollActivation;
   desktopBehavior: HScrollDesktopBehavior;
-  snapToNext: boolean;
+  snapBehavior: HScrollSnapBehavior;
+  snapStrength: HScrollSnapStrength;
   swipeHintStyle: SwipeHintStyle;
 }
 
@@ -45,7 +48,8 @@ export default function Edit({
     showProgress,
     activation,
     desktopBehavior,
-    snapToNext,
+    snapBehavior = 'paged',
+    snapStrength = 'medium',
     swipeHintStyle = 'cue',
   } = attributes;
   const previewStyle = {
@@ -88,7 +92,7 @@ export default function Edit({
           <SelectControl
             label={__('Desktop Behavior', 'aggressive-apparel')}
             help={__(
-              'Pinned hijacks vertical scroll to move slides; Inline is a normal swipe/scroll carousel. Touch always uses the inline carousel.',
+              'Pinned maps natural vertical scrolling to horizontal movement. Inline is a normal swipe/scroll carousel. Touch always uses the inline carousel.',
               'aggressive-apparel'
             )}
             value={desktopBehavior}
@@ -151,17 +155,68 @@ export default function Edit({
                   })
                 }
               />
+              <SelectControl
+                label={__('Snap Behavior', 'aggressive-apparel')}
+                help={__(
+                  'Proximity gently aligns a nearby slide after scrolling stops. Paged commits to one adjacent slide after movement begins.',
+                  'aggressive-apparel'
+                )}
+                value={snapBehavior}
+                options={[
+                  {
+                    label: __('Off', 'aggressive-apparel'),
+                    value: 'off',
+                  },
+                  {
+                    label: __('Proximity', 'aggressive-apparel'),
+                    value: 'proximity',
+                  },
+                  {
+                    label: __('Paged', 'aggressive-apparel'),
+                    value: 'paged',
+                  },
+                ]}
+                onChange={(val: string | undefined) =>
+                  setAttributes({
+                    snapBehavior: (val as HScrollSnapBehavior) ?? 'paged',
+                  })
+                }
+              />
+              {snapBehavior === 'proximity' && (
+                <SelectControl
+                  label={__('Snap Strength', 'aggressive-apparel')}
+                  help={__(
+                    'Controls how close scrolling must stop before proximity alignment engages.',
+                    'aggressive-apparel'
+                  )}
+                  value={snapStrength}
+                  options={[
+                    {
+                      label: __('Soft', 'aggressive-apparel'),
+                      value: 'soft',
+                    },
+                    {
+                      label: __('Medium', 'aggressive-apparel'),
+                      value: 'medium',
+                    },
+                    {
+                      label: __('Strong', 'aggressive-apparel'),
+                      value: 'strong',
+                    },
+                    {
+                      label: __('Aggressive', 'aggressive-apparel'),
+                      value: 'aggressive',
+                    },
+                  ]}
+                  onChange={(val: string | undefined) =>
+                    setAttributes({
+                      snapStrength: (val as HScrollSnapStrength) ?? 'medium',
+                    })
+                  }
+                />
+              )}
             </>
           )}
-          <ToggleControl
-            label={__('Snap to Next Slide', 'aggressive-apparel')}
-            help={__(
-              'Each scroll or swipe smoothly animates to the next or previous slide instead of scrubbing continuously.',
-              'aggressive-apparel'
-            )}
-            checked={snapToNext}
-            onChange={(val: boolean) => setAttributes({ snapToNext: val })}
-          />
           <ToggleControl
             label={__('Show Progress Bar', 'aggressive-apparel')}
             checked={showProgress}
@@ -196,44 +251,46 @@ export default function Edit({
         </PanelBody>
       </InspectorControls>
       <section {...blockProps}>
-        <div className='aa-hscroll__viewport'>
-          <div {...innerBlocksProps} />
-          {swipeHintStyle !== 'off' && (
-            <div
-              className={`aa-hscroll__swipe-hint aa-hscroll__swipe-hint--${swipeHintStyle}`}
-              aria-hidden='true'
-            >
-              {swipeHintStyle === 'label' && (
-                <span className='aa-hscroll__swipe-hint-label'>
-                  {__('Swipe', 'aggressive-apparel')}
+        <div className='aa-hscroll__range'>
+          <div className='aa-hscroll__viewport'>
+            <div {...innerBlocksProps} />
+            {swipeHintStyle !== 'off' && (
+              <div
+                className={`aa-hscroll__swipe-hint aa-hscroll__swipe-hint--${swipeHintStyle}`}
+                aria-hidden='true'
+              >
+                {swipeHintStyle === 'label' && (
+                  <span className='aa-hscroll__swipe-hint-label'>
+                    {__('Swipe', 'aggressive-apparel')}
+                  </span>
+                )}
+                <span className='aa-hscroll__swipe-hint-icon'>
+                  <span className='aa-hscroll__swipe-hint-chevron'>
+                    <svg
+                      width='36'
+                      height='36'
+                      viewBox='0 0 24 24'
+                      fill='currentColor'
+                      aria-hidden='true'
+                    >
+                      <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+                    </svg>
+                  </span>
+                  <span className='aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail'>
+                    <svg
+                      width='36'
+                      height='36'
+                      viewBox='0 0 24 24'
+                      fill='currentColor'
+                      aria-hidden='true'
+                    >
+                      <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+                    </svg>
+                  </span>
                 </span>
-              )}
-              <span className='aa-hscroll__swipe-hint-icon'>
-                <span className='aa-hscroll__swipe-hint-chevron'>
-                  <svg
-                    width='36'
-                    height='36'
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
-                    aria-hidden='true'
-                  >
-                    <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
-                  </svg>
-                </span>
-                <span className='aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail'>
-                  <svg
-                    width='36'
-                    height='36'
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
-                    aria-hidden='true'
-                  >
-                    <path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
-                  </svg>
-                </span>
-              </span>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </>

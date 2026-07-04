@@ -26,6 +26,33 @@ interface TickerAnimationState {
 
 const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
 
+/** Marks `.ticker__content` copies created at runtime (vs server-rendered). */
+const CLONE_ATTR = 'data-ticker-clone';
+
+/**
+ * Strip hydration/accessibility attributes from a runtime clone's subtree.
+ *
+ * Clones are created after the Interactivity API has hydrated, so their
+ * `data-wp-*` directives are inert — leaving them in place is misleading and
+ * duplicate `aria-live` regions / ids are invalid. Clones are purely
+ * presentational (`aria-hidden` + `inert`).
+ */
+function sanitizeTickerClone(clone: HTMLElement): void {
+  const elements = [clone, ...Array.from(clone.querySelectorAll('*'))];
+
+  elements.forEach(element => {
+    Array.from(element.attributes).forEach(attribute => {
+      if (attribute.name.startsWith('data-wp-')) {
+        element.removeAttribute(attribute.name);
+      }
+    });
+
+    element.removeAttribute('aria-live');
+    element.removeAttribute('aria-atomic');
+    element.removeAttribute('id');
+  });
+}
+
 /**
  * Pixels per millisecond for one full content-loop at the given speed.
  *
@@ -100,6 +127,7 @@ function setupTicker(ticker: HTMLElement): void {
   let isIntersecting = !('IntersectionObserver' in window);
   let isDocumentVisible = !document.hidden;
   let isPaused = ticker.classList.contains('is-paused');
+  let cloneSyncFrameId = 0;
   const watchedImages = new WeakSet<HTMLImageElement>();
   const reducedMotionMql = window.matchMedia(
     '(prefers-reduced-motion: reduce)'
@@ -282,6 +310,8 @@ function setupTicker(ticker: HTMLElement): void {
       const clone = template.cloneNode(true) as HTMLElement;
       clone.setAttribute('aria-hidden', 'true');
       clone.setAttribute('inert', '');
+      clone.setAttribute(CLONE_ATTR, '');
+      sanitizeTickerClone(clone);
       track.appendChild(clone);
       const cloneWidth = getContentWidth(clone) || maxContentWidth;
       nextContents.push(clone);
@@ -320,6 +350,56 @@ function setupTicker(ticker: HTMLElement): void {
       measure();
     });
   };
+
+  // ==========================================================================
+  // Keep runtime clones in sync with hydrated content.
+  //
+  // The Interactivity API only hydrates DOM present at load time. The
+  // server-rendered `.ticker__content` copies hydrate and update reactively
+  // (e.g. the free-shipping amount), but copies cloned here at runtime are
+  // inert snapshots — without this observer they keep stale text forever.
+  // ==========================================================================
+  const originals = getContents().filter(
+    content => !content.hasAttribute(CLONE_ATTR)
+  );
+
+  const syncClones = (): void => {
+    if (isDestroyed || originals.length === 0) return;
+
+    const source = originals[0];
+
+    getContents().forEach(content => {
+      if (!content.hasAttribute(CLONE_ATTR)) return;
+
+      content.innerHTML = source.innerHTML;
+      sanitizeTickerClone(content);
+    });
+
+    // Text changes shift content widths; re-measure so the loop stays seamless.
+    scheduleMeasure();
+  };
+
+  const scheduleCloneSync = (): void => {
+    if (isDestroyed) return;
+
+    if (cloneSyncFrameId) {
+      window.cancelAnimationFrame(cloneSyncFrameId);
+    }
+
+    cloneSyncFrameId = window.requestAnimationFrame(() => {
+      cloneSyncFrameId = 0;
+      syncClones();
+    });
+  };
+
+  const contentObserver = new MutationObserver(scheduleCloneSync);
+  originals.forEach(original => {
+    contentObserver.observe(original, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    });
+  });
 
   const resizeObserver = new ResizeObserver(scheduleMeasure);
   resizeObserver.observe(ticker);
@@ -362,9 +442,11 @@ function setupTicker(ticker: HTMLElement): void {
       isDestroyed = true;
       window.cancelAnimationFrame(frameId);
       window.cancelAnimationFrame(resizeFrameId);
+      window.cancelAnimationFrame(cloneSyncFrameId);
       resizeObserver.disconnect();
       intersectionObserver?.disconnect();
       attributeObserver.disconnect();
+      contentObserver.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       reducedMotionMql.removeEventListener('change', handleReducedMotionChange);
       track.style.removeProperty('will-change');

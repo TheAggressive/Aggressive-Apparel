@@ -26,7 +26,7 @@
     },
     "speed": {
       "type": "number",
-      "default": 1
+      "default": 1.5
     },
     "showProgress": {
       "type": "boolean",
@@ -42,9 +42,15 @@
       "enum": ["pinned", "inline"],
       "default": "pinned"
     },
-    "snapToNext": {
-      "type": "boolean",
-      "default": false
+    "snapBehavior": {
+      "type": "string",
+      "enum": ["off", "proximity", "paged"],
+      "default": "paged"
+    },
+    "snapStrength": {
+      "type": "string",
+      "enum": ["soft", "medium", "strong", "aggressive"],
+      "default": "medium"
     },
     "swipeHintStyle": {
       "type": "string",

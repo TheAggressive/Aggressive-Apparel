@@ -115,6 +115,8 @@ class Blocks {
 		}
 
 		try {
+			self::register_metadata_collection();
+
 			// Auto-discover and register all blocks from build directories.
 			foreach ( self::BUILD_DIRS as $build_dir ) {
 				$full_build_dir = self::get_build_directory( $build_dir );
@@ -135,6 +137,33 @@ class Blocks {
 		}
 	}
 
+
+	/**
+	 * Register the pre-compiled block metadata manifest (WP 6.7+).
+	 *
+	 * With the collection registered, register_block_type_from_metadata()
+	 * reads each block's metadata from one opcached PHP array instead of
+	 * reading + json-decoding 39 individual block.json files per request.
+	 * Falls back silently to per-file reads when the manifest or the core
+	 * API is unavailable.
+	 *
+	 * @since 1.132.0
+	 * @return void
+	 */
+	private static function register_metadata_collection(): void {
+		if ( ! function_exists( 'wp_register_block_metadata_collection' ) ) {
+			return;
+		}
+
+		$build_path = \get_template_directory() . '/build';
+		$manifest   = $build_path . '/blocks-manifest.php';
+
+		if ( ! file_exists( $manifest ) ) {
+			return;
+		}
+
+		\wp_register_block_metadata_collection( $build_path, $manifest );
+	}
 
 	/**
 	 * Get the build directory path for blocks.

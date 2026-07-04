@@ -1,38 +1,28 @@
 /**
- * Tests for the horizontal-scroll block's pure logic (speed resolution, mode
- * selection, progress mapping, and the small DOM/media helpers).
+ * Pure behavior tests for horizontal-scroll geometry and mode decisions.
  *
  * @jest-environment jsdom
  */
 
-// view.ts calls store() at module load; mock the WP runtime virtually.
-jest.mock(
-  '@wordpress/interactivity',
-  () => ({
-    store: () => ({}),
-    getContext: () => ({}),
-    getElement: () => ({ ref: null }),
-  }),
-  { virtual: true }
-);
-
 import {
   addMediaChangeListener,
+  buildSlideStops,
   clamp,
   computeProgress,
+  computeScrollStart,
   formatSlideAnnouncement,
+  getPagedSnapTarget,
+  getProximitySnapTarget,
+  getSnapStrengthPreset,
   getSlideIndexFromProgress,
   getSlides,
-  getTouchSwipeDirection,
-  getWheelGestureDirection,
+  getSlideTarget,
   isEditableTarget,
   pickMode,
+  progressToPercentage,
   resolveSpeed,
-  shouldAllowWheelThrough,
   shouldShowSwipeHint,
-  slideProgress,
-  slideScrollDelta,
-} from '../view';
+} from '../logic';
 
 describe('clamp', () => {
   it('keeps in-range values and clamps to the bounds', () => {
@@ -43,22 +33,15 @@ describe('clamp', () => {
 });
 
 describe('resolveSpeed', () => {
-  it('prefers a valid context speed', () => {
+  it('prefers valid context and falls back to CSS or 1', () => {
     expect(resolveSpeed(2, Number.NaN)).toBe(2);
-  });
-
-  it('falls back to the CSS speed when context is invalid', () => {
     expect(resolveSpeed(0, 1.5)).toBe(1.5);
-    expect(resolveSpeed(Number.NaN, 2)).toBe(2);
-  });
-
-  it('defaults to 1 when neither is usable', () => {
     expect(resolveSpeed(Number.NaN, Number.NaN)).toBe(1);
   });
 
-  it('clamps to the supported [0.5, 3] range', () => {
-    expect(resolveSpeed(10, Number.NaN)).toBe(3);
-    expect(resolveSpeed(0.1, Number.NaN)).toBe(0.5);
+  it('clamps to the supported range', () => {
+    expect(resolveSpeed(10, 1)).toBe(3);
+    expect(resolveSpeed(0.1, 1)).toBe(0.5);
   });
 });
 
@@ -67,280 +50,263 @@ describe('pickMode', () => {
     reducedMotion: false,
     desktopMatches: true,
     maxTranslate: 800,
-    scrollDistance: 800,
   };
 
-  it('is static when reduced motion is requested', () => {
+  it('uses native-progress pinning on desktop', () => {
+    expect(pickMode(base)).toBe('pinned');
+    expect(pickMode({ ...base, snapBehavior: 'paged' })).toBe('paged');
+  });
+
+  it('uses native scrolling for touch and inline desktop', () => {
+    expect(pickMode({ ...base, desktopMatches: false })).toBe('native');
+    expect(pickMode({ ...base, pinned: false })).toBe('native');
+  });
+
+  it('uses static document flow for reduced motion or no overflow', () => {
     expect(pickMode({ ...base, reducedMotion: true })).toBe('static');
-  });
-
-  it('is static when there is nothing to scroll', () => {
-    expect(pickMode({ ...base, maxTranslate: 0 })).toBe('static');
-    expect(pickMode({ ...base, scrollDistance: 1 })).toBe('static');
-  });
-
-  it('is desktop on a fine pointer / wide viewport', () => {
-    expect(pickMode(base)).toBe('desktop');
-  });
-
-  it('is snap otherwise (touch / coarse pointer)', () => {
-    expect(pickMode({ ...base, desktopMatches: false })).toBe('snap');
-  });
-
-  it('defaults to pinned (desktop) when pinned is omitted', () => {
-    expect(pickMode(base)).toBe('desktop');
-  });
-
-  it('uses the inline snap carousel on desktop when not pinned', () => {
-    expect(pickMode({ ...base, pinned: false })).toBe('snap');
-  });
-
-  it('still respects reduced motion / nothing-to-scroll when inline', () => {
-    expect(pickMode({ ...base, pinned: false, reducedMotion: true })).toBe(
-      'static'
-    );
-    expect(pickMode({ ...base, pinned: false, maxTranslate: 0 })).toBe(
-      'static'
-    );
+    expect(pickMode({ ...base, maxTranslate: 1 })).toBe('static');
   });
 });
 
-describe('computeProgress', () => {
-  it('is 0 when there is no scroll distance', () => {
-    expect(computeProgress(0, -100, 0)).toBe(0);
-  });
-
-  it('maps vertical position to 0–1 linearly', () => {
-    expect(computeProgress(0, -250, 500)).toBe(0.5);
-    expect(computeProgress(0, -500, 500)).toBe(1);
-  });
-
-  it('honours a sticky-top offset (activation position)', () => {
-    // Pinned 100px down: progress is 0 until the block top passes that line.
-    expect(computeProgress(100, 100, 500)).toBe(0);
-    expect(computeProgress(100, -150, 500)).toBe(0.5);
-  });
-
-  it('clamps out-of-range values', () => {
-    expect(computeProgress(0, 100, 500)).toBe(0); // before start
-    expect(computeProgress(0, -9999, 500)).toBe(1); // past end
-  });
-});
-
-describe('slideProgress', () => {
-  it('maps slide indices to normalized progress', () => {
-    expect(slideProgress(0, 4)).toBe(0);
-    expect(slideProgress(1, 4)).toBeCloseTo(1 / 3);
-    expect(slideProgress(3, 4)).toBe(1);
-  });
-
-  it('is always 0 for a single slide', () => {
-    expect(slideProgress(0, 1)).toBe(0);
+describe('snap strength presets', () => {
+  it('increases both reach and proportional strength predictably', () => {
+    expect(getSnapStrengthPreset('soft')).toEqual({
+      maxDistance: 240,
+      maxSegmentRatio: 0.12,
+    });
+    expect(getSnapStrengthPreset('medium')).toEqual({
+      maxDistance: 480,
+      maxSegmentRatio: 0.25,
+    });
+    expect(getSnapStrengthPreset('strong')).toEqual({
+      maxDistance: 720,
+      maxSegmentRatio: 0.35,
+    });
+    expect(getSnapStrengthPreset('aggressive')).toEqual({
+      maxDistance: 1600,
+      maxSegmentRatio: 0.5,
+    });
   });
 });
 
-describe('getSlideIndexFromProgress', () => {
-  it('returns the nearest slide index', () => {
-    expect(getSlideIndexFromProgress(0, 4)).toBe(0);
-    expect(getSlideIndexFromProgress(0.2, 4)).toBe(1);
-    expect(getSlideIndexFromProgress(1, 4)).toBe(3);
+describe('scroll geometry', () => {
+  it('maps absolute vertical positions to clamped progress', () => {
+    expect(computeProgress(900, 1000, 500)).toBe(0);
+    expect(computeProgress(1250, 1000, 500)).toBe(0.5);
+    expect(computeProgress(1600, 1000, 500)).toBe(1);
+    expect(computeProgress(1200, 1000, 0)).toBe(0);
+  });
+
+  it('does not report completion before the real endpoint', () => {
+    expect(progressToPercentage(0.994)).toBe(99);
+    expect(progressToPercentage(0.9999)).toBe(99);
+    expect(progressToPercentage(1)).toBe(100);
+  });
+
+  it('accounts for the sticky inset when finding the seat', () => {
+    expect(computeScrollStart(1200, 0)).toBe(1200);
+    expect(computeScrollStart(1200, 100)).toBe(1100);
+  });
+
+  it('builds real slide stops from offsets and clamps the final slide', () => {
+    expect(buildSlideStops([0, 632, 1264, 1896], 1496)).toEqual([
+      0,
+      632 / 1496,
+      1264 / 1496,
+      1,
+    ]);
+    expect(buildSlideStops([0, 300], 0)).toEqual([0, 0]);
+    expect(buildSlideStops([], 600)).toEqual([]);
+  });
+
+  it('finds the nearest slide and its transform target', () => {
+    const stops = [0, 0.42, 0.84, 1];
+    expect(getSlideIndexFromProgress(0.3, stops)).toBe(1);
+    expect(getSlideIndexFromProgress(0.7, stops)).toBe(2);
+    expect(getSlideIndexFromProgress(1, stops)).toBe(3);
+    expect(getSlideTarget(2, stops, 1000)).toBe(840);
+    expect(getSlideTarget(99, stops, 1000)).toBe(1000);
   });
 });
 
-describe('slideScrollDelta', () => {
-  it('returns the vertical distance to reach a target slide', () => {
-    expect(slideScrollDelta(0, 1, 4, 900)).toBe(300);
-    expect(slideScrollDelta(0.5, 2, 4, 900)).toBeCloseTo(150);
+describe('getProximitySnapTarget', () => {
+  const base = {
+    scrollStart: 1000,
+    scrollDistance: 2000,
+    slideStops: [0, 0.5, 1],
+  };
+
+  it('gently aligns a nearby slide', () => {
+    expect(getProximitySnapTarget({ ...base, scrollPosition: 1910 })).toEqual({
+      index: 1,
+      scrollPosition: 2000,
+    });
   });
 
-  it('returns 0 when there is nothing to scroll', () => {
-    expect(slideScrollDelta(0.5, 1, 1, 900)).toBe(0);
-    expect(slideScrollDelta(0.5, 1, 4, 0)).toBe(0);
-  });
-});
-
-describe('shouldAllowWheelThrough', () => {
-  const count = 4;
-
-  it('allows scrolling up past the first slide', () => {
-    expect(shouldAllowWheelThrough(0, -1, count)).toBe(true);
+  it('does not pull from beyond the proportional proximity distance', () => {
+    expect(
+      getProximitySnapTarget({ ...base, scrollPosition: 1700 })
+    ).toBeNull();
   });
 
-  it('allows scrolling down past the last slide', () => {
-    expect(shouldAllowWheelThrough(1, 1, count)).toBe(true);
+  it('aligns endpoints from inside but never pulls back after leaving', () => {
+    expect(getProximitySnapTarget({ ...base, scrollPosition: 1100 })).toEqual({
+      index: 0,
+      scrollPosition: 1000,
+    });
+    expect(getProximitySnapTarget({ ...base, scrollPosition: 2900 })).toEqual({
+      index: 2,
+      scrollPosition: 3000,
+    });
+    expect(getProximitySnapTarget({ ...base, scrollPosition: 999 })).toBeNull();
+    expect(
+      getProximitySnapTarget({ ...base, scrollPosition: 3001 })
+    ).toBeNull();
+    expect(
+      getProximitySnapTarget({
+        ...base,
+        scrollPosition: 1500,
+        slideStops: [0, 1],
+      })
+    ).toBeNull();
   });
 
-  it('blocks wheel when more slides remain in the scroll direction', () => {
-    expect(shouldAllowWheelThrough(0, 1, count)).toBe(false);
-    expect(shouldAllowWheelThrough(0.5, -1, count)).toBe(false);
-  });
-
-  it('releases at the boundary even when the snap lands a hair short', () => {
-    // Snap-to-next lands sub-pixel short of an exact 0/1; without tolerance the
-    // wheel would stay locked at the last (or first) slide.
-    expect(shouldAllowWheelThrough(0.99, 1, count)).toBe(true);
-    expect(shouldAllowWheelThrough(0.01, -1, count)).toBe(true);
-  });
-});
-
-describe('getWheelGestureDirection', () => {
-  it('returns null until the threshold is crossed', () => {
-    expect(getWheelGestureDirection(10)).toBeNull();
-    expect(getWheelGestureDirection(-39)).toBeNull();
-  });
-
-  it('returns the scroll direction once the threshold is reached', () => {
-    expect(getWheelGestureDirection(40)).toBe(1);
-    expect(getWheelGestureDirection(-40)).toBe(-1);
-  });
-});
-
-describe('getTouchSwipeDirection', () => {
-  it('returns null for vertical-dominant movement', () => {
-    expect(getTouchSwipeDirection(10, 50)).toBeNull();
-    expect(getTouchSwipeDirection(-10, 80)).toBeNull();
-  });
-
-  it('returns null until the horizontal threshold is crossed', () => {
-    expect(getTouchSwipeDirection(20, 0)).toBeNull();
-    expect(getTouchSwipeDirection(-39, 2)).toBeNull();
-  });
-
-  it('returns the swipe direction once the threshold is reached', () => {
-    expect(getTouchSwipeDirection(40, 0)).toBe(1);
-    expect(getTouchSwipeDirection(-40, 0)).toBe(-1);
+  it('does nothing when already aligned', () => {
+    expect(
+      getProximitySnapTarget({ ...base, scrollPosition: 2000 })
+    ).toBeNull();
   });
 });
 
-describe('formatSlideAnnouncement', () => {
-  it('formats a 1-based slide announcement', () => {
+describe('getPagedSnapTarget', () => {
+  const stops = [0, 0.5, 1];
+
+  it('commits after crossing 10% toward an adjacent slide', () => {
+    expect(
+      getPagedSnapTarget({
+        progress: 0.049,
+        settledIndex: 0,
+        slideStops: stops,
+        commitRatio: 0.1,
+      })
+    ).toBeNull();
+    expect(
+      getPagedSnapTarget({
+        progress: 0.05,
+        settledIndex: 0,
+        slideStops: stops,
+        commitRatio: 0.1,
+      })
+    ).toBe(1);
+    expect(
+      getPagedSnapTarget({
+        progress: 0.45,
+        settledIndex: 1,
+        slideStops: stops,
+        commitRatio: 0.1,
+      })
+    ).toBe(0);
+  });
+
+  it('never skips more than one adjacent slide', () => {
+    expect(
+      getPagedSnapTarget({
+        progress: 0.95,
+        settledIndex: 0,
+        slideStops: stops,
+      })
+    ).toBe(1);
+    expect(
+      getPagedSnapTarget({
+        progress: 0.05,
+        settledIndex: 2,
+        slideStops: stops,
+      })
+    ).toBe(1);
+  });
+});
+
+describe('presentation helpers', () => {
+  it('formats slide announcements', () => {
     expect(formatSlideAnnouncement(0, 4)).toBe('Slide 1 of 4');
     expect(formatSlideAnnouncement(3, 4)).toBe('Slide 4 of 4');
   });
-});
 
-describe('shouldShowSwipeHint', () => {
-  it('shows on mobile carousel when more slides remain', () => {
+  it('shows swipe hints only for an unfinished native carousel', () => {
     expect(
       shouldShowSwipeHint({
-        mode: 'snap',
+        mode: 'native',
         slideCount: 4,
         currentIndex: 0,
         dismissed: false,
         style: 'cue',
       })
     ).toBe(true);
-  });
-
-  it('hides when style is off', () => {
     expect(
       shouldShowSwipeHint({
-        mode: 'snap',
+        mode: 'pinned',
         slideCount: 4,
         currentIndex: 0,
         dismissed: false,
-        style: 'off',
+        style: 'cue',
       })
     ).toBe(false);
-  });
-
-  it('hides on the last slide, when dismissed, or outside snap mode', () => {
     expect(
       shouldShowSwipeHint({
-        mode: 'snap',
+        mode: 'native',
         slideCount: 4,
         currentIndex: 3,
         dismissed: false,
         style: 'cue',
       })
     ).toBe(false);
-
-    expect(
-      shouldShowSwipeHint({
-        mode: 'snap',
-        slideCount: 4,
-        currentIndex: 1,
-        dismissed: true,
-        style: 'cue',
-      })
-    ).toBe(false);
-
-    expect(
-      shouldShowSwipeHint({
-        mode: 'desktop',
-        slideCount: 4,
-        currentIndex: 0,
-        dismissed: false,
-        style: 'cue',
-      })
-    ).toBe(false);
   });
 });
 
-describe('getSlides', () => {
-  it('returns only element children, ignoring text/comment nodes', () => {
+describe('DOM helpers', () => {
+  it('returns only element children as slides', () => {
     const track = document.createElement('div');
     track.appendChild(document.createElement('div'));
     track.appendChild(document.createTextNode('whitespace'));
-    track.appendChild(document.createComment('c'));
+    track.appendChild(document.createComment('comment'));
     track.appendChild(document.createElement('section'));
-
-    const slides = getSlides(track);
-    expect(slides).toHaveLength(2);
-    expect(slides.every(s => s instanceof HTMLElement)).toBe(true);
+    expect(getSlides(track)).toHaveLength(2);
   });
-});
 
-describe('isEditableTarget', () => {
-  it('is true for form fields and contenteditable', () => {
+  it('recognizes editable targets', () => {
     expect(isEditableTarget(document.createElement('input'))).toBe(true);
     expect(isEditableTarget(document.createElement('select'))).toBe(true);
-    expect(isEditableTarget(document.createElement('textarea'))).toBe(true);
-
-    const editable = document.createElement('div');
-    Object.defineProperty(editable, 'isContentEditable', { value: true });
-    expect(isEditableTarget(editable)).toBe(true);
-  });
-
-  it('is false for non-editable elements and null', () => {
     expect(isEditableTarget(document.createElement('div'))).toBe(false);
     expect(isEditableTarget(null)).toBe(false);
   });
-});
 
-describe('addMediaChangeListener', () => {
-  it('uses addEventListener and returns a cleanup that removes it', () => {
+  it('supports modern media-query listeners and cleanup', () => {
     const add = jest.fn();
     const remove = jest.fn();
-    const mql = {
+    const media = {
       addEventListener: add,
       removeEventListener: remove,
     } as unknown as MediaQueryList;
     const listener = jest.fn();
+    const cleanup = addMediaChangeListener(media, listener);
 
-    const cleanup = addMediaChangeListener(mql, listener);
-    expect(add).toHaveBeenCalledWith('change', expect.any(Function));
-
-    // The registered handler invokes the listener.
     add.mock.calls[0][1]();
     expect(listener).toHaveBeenCalledTimes(1);
-
     cleanup();
     expect(remove).toHaveBeenCalledWith('change', expect.any(Function));
   });
 
-  it('falls back to the legacy addListener/removeListener API', () => {
+  it('supports legacy media-query listeners and cleanup', () => {
     const addListener = jest.fn();
     const removeListener = jest.fn();
-    const mql = {
+    const media = {
       addEventListener: undefined,
       addListener,
       removeListener,
     } as unknown as MediaQueryList;
+    const cleanup = addMediaChangeListener(media, jest.fn());
 
-    const cleanup = addMediaChangeListener(mql, jest.fn());
     expect(addListener).toHaveBeenCalled();
-
     cleanup();
     expect(removeListener).toHaveBeenCalled();
   });

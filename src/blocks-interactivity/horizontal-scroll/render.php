@@ -24,12 +24,10 @@ if ( ! preg_match( '/^\d+(?:\.\d+)?(?:px|vw|%)$/', $item_width ) ) {
 	$item_width = '60vw';
 }
 
-$speed = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.0;
+$speed = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.5;
 $speed = min( 3.0, max( 0.5, $speed ) );
 
 $show_progress = ! empty( $attributes['showProgress'] );
-
-$snap_to_next = ! empty( $attributes['snapToNext'] );
 
 $swipe_hint_style = $attributes['swipeHintStyle'] ?? 'cue';
 if ( ! in_array( $swipe_hint_style, array( 'off', 'cue', 'label', 'badge' ), true ) ) {
@@ -44,22 +42,28 @@ if ( ! in_array( $activation, array( 'top', 'center', 'bottom' ), true ) ) {
 	$activation = 'top';
 }
 
-// Desktop behaviour: 'pinned' scroll-jacks vertical scroll into horizontal
-// movement; 'inline' uses the native swipe/snap carousel (no pinning) on
-// desktop too. Touch always uses native snap regardless.
+// Desktop behaviour: 'pinned' maps native vertical progress to horizontal
+// movement; 'inline' uses the native swipe/snap carousel (no pinning).
+// Touch always uses native snap regardless.
 $desktop_behavior = $attributes['desktopBehavior'] ?? 'pinned';
 if ( ! in_array( $desktop_behavior, array( 'pinned', 'inline' ), true ) ) {
 	$desktop_behavior = 'pinned';
+}
+
+$snap_behavior = $attributes['snapBehavior'] ?? 'paged';
+if ( ! in_array( $snap_behavior, array( 'off', 'proximity', 'paged' ), true ) ) {
+	$snap_behavior = 'paged';
+}
+
+$snap_strength = $attributes['snapStrength'] ?? 'medium';
+if ( ! in_array( $snap_strength, array( 'soft', 'medium', 'strong', 'aggressive' ), true ) ) {
+	$snap_strength = 'medium';
 }
 
 $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
 	$classes .= ' aa-hscroll--inline';
 }
-if ( $snap_to_next ) {
-	$classes .= ' aa-hscroll--snap-next';
-}
-
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
 		'class'                => $classes,
@@ -68,11 +72,11 @@ $wrapper_attrs = get_block_wrapper_attributes(
 		'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
 		'data-wp-context'      => wp_json_encode(
 			array(
-				'itemWidth'       => $item_width,
 				'speed'           => $speed,
 				'progress'        => 0,
 				'desktopBehavior' => $desktop_behavior,
-				'snapToNext'      => $snap_to_next,
+				'snapBehavior'    => $snap_behavior,
+				'snapStrength'    => $snap_strength,
 				'swipeHintStyle'  => $swipe_hint_style,
 			)
 		),
@@ -86,63 +90,65 @@ $wrapper_attrs = get_block_wrapper_attributes(
 );
 ?>
 <section <?php echo wp_kses_post( $wrapper_attrs ); ?>>
-	<div class="aa-hscroll__viewport" data-aa-hscroll>
-		<div class="aa-hscroll__track">
-			<?php echo wp_kses_post( $content ); ?>
-		</div>
-		<?php if ( $show_progress ) : ?>
-		<div
-			class="aa-hscroll__progress"
-			role="progressbar"
-			aria-label="<?php esc_attr_e( 'Scroll progress', 'aggressive-apparel' ); ?>"
-			aria-valuemin="0"
-			aria-valuemax="100"
-			data-wp-bind--aria-valuenow="context.progress"
-		>
+	<div class="aa-hscroll__range">
+		<div class="aa-hscroll__viewport" data-aa-hscroll>
+			<div class="aa-hscroll__track">
+				<?php echo wp_kses_post( $content ); ?>
+			</div>
+			<?php if ( $show_progress ) : ?>
 			<div
-				class="aa-hscroll__progress-bar"
-				data-wp-bind--style="callbacks.progressStyle"
-			></div>
-		</div>
-		<?php endif; ?>
-		<?php if ( 'off' !== $swipe_hint_style ) : ?>
-		<div
-			class="aa-hscroll__swipe-hint aa-hscroll__swipe-hint--<?php echo esc_attr( $swipe_hint_style ); ?>"
-			aria-hidden="true"
-			hidden
-		>
-			<?php if ( 'label' === $swipe_hint_style ) : ?>
-			<span class="aa-hscroll__swipe-hint-label">
-				<?php esc_html_e( 'Swipe', 'aggressive-apparel' ); ?>
-			</span>
+				class="aa-hscroll__progress"
+				role="progressbar"
+				aria-label="<?php esc_attr_e( 'Scroll progress', 'aggressive-apparel' ); ?>"
+				aria-valuemin="0"
+				aria-valuemax="100"
+				data-wp-bind--aria-valuenow="context.progress"
+			>
+				<div
+					class="aa-hscroll__progress-bar"
+					data-wp-bind--style="callbacks.progressStyle"
+				></div>
+			</div>
 			<?php endif; ?>
-			<span class="aa-hscroll__swipe-hint-icon">
-				<?php
-				$chevron_markup  = Icons::get(
-					'chevron-right',
-					array(
-						'width'  => 36,
-						'height' => 36,
-					)
-				);
-				$chevron_classes = array(
-					'aa-hscroll__swipe-hint-chevron',
-					'aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail',
-				);
-				foreach ( $chevron_classes as $chevron_class ) :
-					?>
-				<span class="<?php echo esc_attr( $chevron_class ); ?>">
+			<?php if ( 'off' !== $swipe_hint_style ) : ?>
+			<div
+				class="aa-hscroll__swipe-hint aa-hscroll__swipe-hint--<?php echo esc_attr( $swipe_hint_style ); ?>"
+				aria-hidden="true"
+				hidden
+			>
+				<?php if ( 'label' === $swipe_hint_style ) : ?>
+				<span class="aa-hscroll__swipe-hint-label">
+					<?php esc_html_e( 'Swipe', 'aggressive-apparel' ); ?>
+				</span>
+				<?php endif; ?>
+				<span class="aa-hscroll__swipe-hint-icon">
 					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-					echo $chevron_markup;
+					$chevron_markup  = Icons::get(
+						'chevron-right',
+						array(
+							'width'  => 36,
+							'height' => 36,
+						)
+					);
+					$chevron_classes = array(
+						'aa-hscroll__swipe-hint-chevron',
+						'aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail',
+					);
+					foreach ( $chevron_classes as $chevron_class ) :
+						?>
+					<span class="<?php echo esc_attr( $chevron_class ); ?>">
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
+						echo $chevron_markup;
+						?>
+					</span>
+						<?php
+					endforeach;
 					?>
 				</span>
-					<?php
-				endforeach;
-				?>
-			</span>
+			</div>
+			<?php endif; ?>
 		</div>
-		<?php endif; ?>
 	</div>
 	<div
 		class="aa-hscroll__live-region"

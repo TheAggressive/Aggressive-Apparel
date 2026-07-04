@@ -30,6 +30,15 @@ const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
 const CLONE_ATTR = 'data-ticker-clone';
 
 /**
+ * Ceiling on runtime clones per ticker. Each clone append is followed by a
+ * width measurement (a forced reflow), so degenerate content (a few px wide
+ * on a wide viewport) could otherwise demand thousands of clone+reflow
+ * iterations and freeze the main thread. Any realistic marquee needs far
+ * fewer copies than this; past the cap the track just stops growing.
+ */
+const MAX_TICKER_CLONES = 100;
+
+/**
  * Strip hydration/accessibility attributes from a runtime clone's subtree.
  *
  * Clones are created after the Interactivity API has hydrated, so their
@@ -306,7 +315,12 @@ function setupTicker(ticker: HTMLElement): void {
     let trackWidth = metrics.trackWidth;
     let maxContentWidth = metrics.maxContentWidth || firstWidth;
     const minTrackWidth = containerWidth + maxContentWidth * 2;
-    while (trackWidth < minTrackWidth) {
+    // Total (not per-pass) clone count: measure() re-runs on resize and
+    // image load, so a per-pass budget could still grow the DOM unbounded.
+    let cloneCount = nextContents.filter(content =>
+      content.hasAttribute(CLONE_ATTR)
+    ).length;
+    while (trackWidth < minTrackWidth && cloneCount < MAX_TICKER_CLONES) {
       const clone = template.cloneNode(true) as HTMLElement;
       clone.setAttribute('aria-hidden', 'true');
       clone.setAttribute('inert', '');
@@ -318,6 +332,7 @@ function setupTicker(ticker: HTMLElement): void {
       nextContentWidths.set(clone, cloneWidth);
       trackWidth += cloneWidth;
       maxContentWidth = Math.max(maxContentWidth, cloneWidth);
+      cloneCount += 1;
     }
 
     contents = nextContents;

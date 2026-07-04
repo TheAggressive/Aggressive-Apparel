@@ -188,19 +188,44 @@ class Color_Data_Manager {
 	}
 
 	/**
+	 * Per-request memo for get_safe_swatch_data().
+	 *
+	 * @var array<string, array{value: string, type: string, name: string}>|null
+	 */
+	private static ?array $swatch_data_memo = null;
+
+	/**
 	 * Get swatch data with defensive error handling.
 	 *
 	 * Wraps get_swatch_data() in a try-catch so callers like Quick_View
 	 * and Sticky_Add_To_Cart don't need their own duplicate wrapper.
+	 * Memoized per request — Quick_View, Sticky_Add_To_Cart, and the
+	 * per-block swatch manager all read the same term data, so the map is
+	 * built once instead of once per product card.
 	 *
 	 * @return array<string, array{value: string, type: string, name: string}>
 	 */
 	public static function get_safe_swatch_data(): array {
-		try {
-			return ( new self() )->get_swatch_data();
-		} catch ( \Throwable $e ) {
-			return array();
+		if ( null !== self::$swatch_data_memo ) {
+			return self::$swatch_data_memo;
 		}
+
+		try {
+			self::$swatch_data_memo = ( new self() )->get_swatch_data();
+		} catch ( \Throwable $e ) {
+			self::$swatch_data_memo = array();
+		}
+
+		return self::$swatch_data_memo;
+	}
+
+	/**
+	 * Reset the per-request swatch memo (used after term mutations and in tests).
+	 *
+	 * @return void
+	 */
+	public static function flush_swatch_data_memo(): void {
+		self::$swatch_data_memo = null;
 	}
 
 	/**
@@ -247,6 +272,8 @@ class Color_Data_Manager {
 		if ( 'hex' === $format ) {
 			update_term_meta( $result['term_id'], 'color_hex', $value );
 		}
+
+		self::flush_swatch_data_memo();
 
 		return $result['term_id'];
 	}
@@ -306,6 +333,8 @@ class Color_Data_Manager {
 			delete_term_meta( $term_id, 'color_format' );
 			delete_term_meta( $term_id, 'color_hex' );
 		}
+
+		self::flush_swatch_data_memo();
 	}
 
 	/**
@@ -369,6 +398,8 @@ class Color_Data_Manager {
 				}
 			}
 		}
+
+		self::flush_swatch_data_memo();
 	}
 
 	/**

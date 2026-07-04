@@ -531,7 +531,11 @@ class Product_Tabs_Renderer {
 			return trim( (string) ob_get_clean() );
 		} catch ( \Throwable $exception ) {
 			while ( ob_get_level() > $buffer_level ) {
-				ob_end_clean();
+				// A non-removable buffer makes ob_end_clean() return false
+				// without lowering the level — bail instead of spinning.
+				if ( ! ob_end_clean() ) {
+					break;
+				}
 			}
 
 			return '';

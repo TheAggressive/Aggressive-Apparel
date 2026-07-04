@@ -1,3 +1,10 @@
+# [1.135.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.134.0...v1.135.0) (2026-07-04)
+
+
+### Features
+
+* enhance color attribute management and swatch data handling ([a20073d](https://github.com/TheAggressive/Aggressive-Apparel/commit/a20073df09e499e84bc7e203cf9579003417c1bc))
+
 # [1.134.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.133.0...v1.134.0) (2026-07-04)
 
 

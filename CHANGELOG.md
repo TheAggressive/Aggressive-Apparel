@@ -1,3 +1,10 @@
+# [1.134.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.133.0...v1.134.0) (2026-07-04)
+
+
+### Features
+
+* optimize swatch data handling and improve error management ([444c343](https://github.com/TheAggressive/Aggressive-Apparel/commit/444c3432a110209c198dde6604f9fdc247ba1229))
+
 # [1.133.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.132.0...v1.133.0) (2026-07-04)
 
 

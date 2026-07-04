@@ -251,3 +251,13 @@
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
 }
+
+/* Sale Badge */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-formatted-money-amount {
+  margin-left: var(--wp--preset--spacing--2);
+}
+
+/* Cart item quantity */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-cart-item__quantity {
+margin-top: var(--wp--preset--spacing--2);
+}

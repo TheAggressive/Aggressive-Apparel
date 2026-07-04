@@ -1,6 +1,12 @@
-/* Reference Tailwind for @apply usage, then import utilities only (no reset) */
+/*
+ * Reference Tailwind for @apply usage only. Do NOT `@import
+ * 'tailwindcss/utilities'` here: that emits ~6 KB of generic utility
+ * classes (and the --tw-* property reset) into this block's stylesheet,
+ * all of which already ship globally in build/styles/main.css — on the
+ * front end and in the editor canvas. @reference compiles @apply without
+ * emitting anything of its own.
+ */
 @reference 'tailwindcss';
-@import 'tailwindcss/utilities';
 
 /* Debug overlay colors - globally available */
 :root {

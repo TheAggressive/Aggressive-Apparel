@@ -154,6 +154,8 @@ class Bootstrap {
 		$this->container->register( 'favicon', fn() => new Core\Favicon() );
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
+		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
+		$this->container->register( 'font_preload', fn() => new Core\Font_Preload() );
 
 		// Register asset services.
 		$this->container->register( 'styles', fn() => new Assets\Styles() );
@@ -225,6 +227,8 @@ class Bootstrap {
 		$this->container->get( 'favicon' )->init();
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
+		$this->container->get( 'image_loading' )->init();
+		$this->container->get( 'font_preload' )->init();
 		Core\Brand_Icons::init();
 		// Custom blocks.
 		Blocks\Blocks::init();

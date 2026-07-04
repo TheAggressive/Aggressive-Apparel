@@ -1,3 +1,10 @@
+# [1.132.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.5...v1.132.0) (2026-07-04)
+
+
+### Features
+
+* enhance build process and interactivity features ([1ed13fb](https://github.com/TheAggressive/Aggressive-Apparel/commit/1ed13fb0a8538f487e3f13055182e1f322c9c5e7))
+
 ## [1.131.5](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.131.4...v1.131.5) (2026-07-03)
 
 

@@ -692,11 +692,11 @@ button.aa-product-filters__color-swatch {
 	align-items: center;
 	justify-content: space-between;
 	cursor: pointer;
-	min-height: 2.75rem;
+	min-height: 2rem;
 }
 
 .aa-product-filters__stock-label {
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 }
 
 .aa-product-filters__stock-checkbox,
@@ -749,7 +749,7 @@ button.aa-product-filters__color-swatch {
 
 .aa-product-filters__apply-btn {
 	flex: 1;
-	padding: 0.75rem 1.25rem;
+	padding: 0.75rem 0 !important;
 	background: var(--pf-fg);
 	color: var(--pf-bg);
 	border: none;
@@ -796,6 +796,43 @@ button.aa-product-filters__color-swatch {
 	&[hidden] {
 		display: none;
 	}
+}
+
+/* Ghost (outline) paint, mirroring the "Ghost" core/button style variation
+   registered in Core/Theme_Support — keep the two in sync. The variation's
+   own CSS can't be reused here: WordPress only prints block-style-variation
+   CSS when a real core/button block carrying `is-style-ghost` renders on
+   the page, and this is a raw button in PHP-rendered filter chrome. The
+   chained class (0-2-0) is needed because theme.json's solid button paint
+   (`:root :where(.wp-element-button)` and its state variants, 0-1-0) prints
+   later in the page and would otherwise win the tie in every state. */
+.aa-product-filters__clear-btn.wp-element-button {
+	background: transparent;
+	color: var(--pf-fg);
+	border: 2px solid var(--pf-fg);
+
+	&:hover {
+		background: var(--pf-fg);
+		color: var(--pf-bg);
+		border-color: var(--pf-fg);
+	}
+}
+
+/* Compact drawer-footer actions — mirrors the "Small" core/button style
+   variation recipe in components/block-styles.css (raw buttons can't consume
+   `.is-style-small .wp-block-button__link`, which needs block markup). Keep
+   in sync with that recipe. The apply padding repeats the base rule's
+   `!important` because it can't win the same-property fight without it. */
+.aa-product-filters__drawer-footer .aa-product-filters__apply-btn {
+	padding: var(--wp--preset--spacing--2) 0 !important;
+	min-height: var(--aa-button-height-sm);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+.aa-product-filters__drawer-footer .aa-product-filters__clear-btn {
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
+	min-height: var(--aa-button-height-sm);
+	font-size: var(--wp--preset--font-size--small);
 }
 
 .aa-product-filters__apply-btn--sidebar {

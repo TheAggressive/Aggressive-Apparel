@@ -220,12 +220,32 @@ class Color_Data_Manager {
 	}
 
 	/**
-	 * Reset the per-request swatch memo (used after term mutations and in tests).
+	 * Reset the per-request swatch memo after a color-term mutation.
 	 *
 	 * @return void
 	 */
 	public static function flush_swatch_data_memo(): void {
 		self::$swatch_data_memo = null;
+	}
+
+	/**
+	 * Hook the memo flush to the color taxonomy's term lifecycle.
+	 *
+	 * Covers mutation paths outside this class — the Color_Admin_UI term-save
+	 * handler (created_/edited_ at priority 10) and term deletes/renames —
+	 * so invalidation holds by construction instead of relying on each
+	 * mutator to remember a manual flush call. This class's own mutators
+	 * still flush at method end because their meta writes land after the
+	 * created_/edited_ action has already fired.
+	 *
+	 * @return void
+	 */
+	public static function register_invalidation_hooks(): void {
+		$attribute_name = self::ATTRIBUTE_NAME;
+
+		add_action( 'created_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
+		add_action( 'edited_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
+		add_action( 'delete_' . $attribute_name, array( self::class, 'flush_swatch_data_memo' ), 99, 0 );
 	}
 
 	/**

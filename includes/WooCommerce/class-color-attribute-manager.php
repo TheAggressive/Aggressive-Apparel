@@ -104,6 +104,9 @@ class Color_Attribute_Manager {
 
 		// Initialize admin UI.
 		$this->admin_ui->register_hooks();
+
+		// Keep the per-request swatch memo honest across all term mutators.
+		Color_Data_Manager::register_invalidation_hooks();
 	}
 
 	/**

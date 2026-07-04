@@ -171,6 +171,9 @@ class Color_Pattern_Admin {
 		update_term_meta( $term_id, 'color_pattern_id', $attachment_id );
 		update_term_meta( $term_id, 'color_type', 'pattern' );
 
+		// Meta-only write — no taxonomy action fires, so flush explicitly.
+		Color_Data_Manager::flush_swatch_data_memo();
+
 		// Get attachment data for response.
 		$attachment_url = wp_get_attachment_url( $attachment_id );
 		$thumbnail_url  = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
@@ -218,6 +221,9 @@ class Color_Pattern_Admin {
 		// Remove term meta associations (keep the image in media library).
 		delete_term_meta( $term_id, 'color_pattern_id' );
 		delete_term_meta( $term_id, 'color_type' );
+
+		// Meta-only write — no taxonomy action fires, so flush explicitly.
+		Color_Data_Manager::flush_swatch_data_memo();
 
 		wp_send_json_success(
 			array(

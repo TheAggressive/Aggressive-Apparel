@@ -30,11 +30,10 @@ const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
 const CLONE_ATTR = 'data-ticker-clone';
 
 /**
- * Ceiling on runtime clones per ticker. Each clone append is followed by a
- * width measurement (a forced reflow), so degenerate content (a few px wide
- * on a wide viewport) could otherwise demand thousands of clone+reflow
- * iterations and freeze the main thread. Any realistic marquee needs far
- * fewer copies than this; past the cap the track just stops growing.
+ * Ceiling on runtime clones per ticker. Degenerate content (a few px wide
+ * on a wide viewport) could otherwise demand thousands of copies and bloat
+ * the DOM. Any realistic marquee needs far fewer copies than this; past
+ * the cap the track just stops growing.
  */
 const MAX_TICKER_CLONES = 100;
 
@@ -312,27 +311,35 @@ function setupTicker(ticker: HTMLElement): void {
 
     syncAnimationRate();
 
-    let trackWidth = metrics.trackWidth;
-    let maxContentWidth = metrics.maxContentWidth || firstWidth;
+    const trackWidth = metrics.trackWidth;
+    const maxContentWidth = metrics.maxContentWidth || firstWidth;
     const minTrackWidth = containerWidth + maxContentWidth * 2;
     // Total (not per-pass) clone count: measure() re-runs on resize and
     // image load, so a per-pass budget could still grow the DOM unbounded.
-    let cloneCount = nextContents.filter(content =>
+    const existingClones = nextContents.filter(content =>
       content.hasAttribute(CLONE_ATTR)
     ).length;
-    while (trackWidth < minTrackWidth && cloneCount < MAX_TICKER_CLONES) {
-      const clone = template.cloneNode(true) as HTMLElement;
-      clone.setAttribute('aria-hidden', 'true');
-      clone.setAttribute('inert', '');
-      clone.setAttribute(CLONE_ATTR, '');
-      sanitizeTickerClone(clone);
-      track.appendChild(clone);
-      const cloneWidth = getContentWidth(clone) || maxContentWidth;
-      nextContents.push(clone);
-      nextContentWidths.set(clone, cloneWidth);
-      trackWidth += cloneWidth;
-      maxContentWidth = Math.max(maxContentWidth, cloneWidth);
-      cloneCount += 1;
+    // Clones are copies of one template in a flex track, so they share its
+    // width — compute the deficit up front and append one batched fragment
+    // instead of paying a measuring reflow per appended clone.
+    const templateWidth = nextContentWidths.get(template) || maxContentWidth;
+    const neededClones = Math.min(
+      Math.max(Math.ceil((minTrackWidth - trackWidth) / templateWidth), 0),
+      MAX_TICKER_CLONES - existingClones
+    );
+    if (neededClones > 0) {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < neededClones; i += 1) {
+        const clone = template.cloneNode(true) as HTMLElement;
+        clone.setAttribute('aria-hidden', 'true');
+        clone.setAttribute('inert', '');
+        clone.setAttribute(CLONE_ATTR, '');
+        sanitizeTickerClone(clone);
+        fragment.appendChild(clone);
+        nextContents.push(clone);
+        nextContentWidths.set(clone, templateWidth);
+      }
+      track.appendChild(fragment);
     }
 
     contents = nextContents;

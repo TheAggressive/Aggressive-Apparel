@@ -225,8 +225,9 @@ class Color_Block_Swatch_Manager {
 			}
 		}
 
-		// 2. Fall back to Color_Data_Manager swatch data.
-		$swatch_data = ( new Color_Data_Manager() )->get_swatch_data();
+		// 2. Fall back to Color_Data_Manager swatch data (memoized per request
+		// — this runs per color button via the render_block filter).
+		$swatch_data = Color_Data_Manager::get_safe_swatch_data();
 		if ( isset( $swatch_data[ $slug ] ) && ! empty( $swatch_data[ $slug ]['value'] ) ) {
 			return $swatch_data[ $slug ];
 		}

@@ -1,3 +1,11 @@
+# [1.137.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.136.0...v1.137.0) (2026-07-06)
+
+
+### Features
+
+* enhance animate-on-scroll and parallax block functionality ([938fea8](https://github.com/TheAggressive/Aggressive-Apparel/commit/938fea833371fd40d99e20ca3bdc284dfcf1425b))
+* refactor feature settings and enhance social proof management ([ec2c272](https://github.com/TheAggressive/Aggressive-Apparel/commit/ec2c272a4c640d431b7b819f98126c6007ab4d14))
+
 # [1.136.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.135.0...v1.136.0) (2026-07-04)
 
 

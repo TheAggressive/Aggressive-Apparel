@@ -1,5 +1,6 @@
 /**
- * Utility functions for the Parallax block
+ * Utility barrel for the Parallax block — only the symbols actually
+ * consumed by the runtime are surfaced here.
  *
  * @package Aggressive Apparel
  */
@@ -8,29 +9,17 @@ export {
   calculateBlur,
   calculateColorTransition,
   calculateMagneticForce,
-  calculateParallaxMovement,
   calculateRotation,
   calculateScrollOpacity,
   calculateShadow,
   clamp,
-  debounce,
-  getCSSEasing,
-  getEasingFunction,
-  getElementStableId,
-  mapProgressToEffectRange,
-  prefersReducedMotion,
-  throttle,
 } from '../calculations';
-export type { EffectMode } from '../calculations';
+export { validateParallaxEffects } from '../types';
+export { ParallaxLogger, validateConfiguration } from './error-handling';
 export {
-  validateBlurEffect,
-  validateColorTransitionEffect,
-  validateDynamicShadowEffect,
-  validateParallaxEffects,
-  validateRotationEffect,
-} from '../types';
-export * from './boundary-utils';
-export * from './error-handling';
-export * from './intersection-utils';
-export * from './observer-utils';
-export * from './scroll-utils';
+  calculateProgressWithinBoundary,
+  getObserverRootMargin,
+  getObserverThreshold,
+  getValidIntersectionRatio,
+  getVisibilityThreshold,
+} from './geometry';

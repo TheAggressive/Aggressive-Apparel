@@ -15,8 +15,6 @@ import { __ } from '@wordpress/i18n';
 import { EffectTimingControls } from './EffectTimingControls';
 import {
   EDITOR_COLOR_TOKENS,
-  EDITOR_HELP_TEXT_STYLE,
-  EDITOR_INFO_NOTICE_STYLE,
   EDITOR_RADIUS_TOKENS,
 } from '../../../utils/editor-style-tokens';
 import {
@@ -371,84 +369,6 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           )}
         </div>
       </PanelBody>
-
-      {isInsideParallax && (
-        <PanelBody
-          title={__('3D Depth Settings', 'aggressive-apparel')}
-          initialOpen={false}
-          className='aggressive-apparel-parallax-depth-settings'
-        >
-          {!isMouseInteractionEnabled && (
-            <div
-              style={{
-                ...EDITOR_INFO_NOTICE_STYLE,
-                marginBottom: '12px',
-                padding: '8px',
-                fontSize: '12px',
-              }}
-            >
-              💡{' '}
-              {__(
-                'Enable mouse interaction on the parallax container to see depth effects in action.',
-                'aggressive-apparel'
-              )}
-            </div>
-          )}
-
-          <RangeControl
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-            label={__('Depth Level', 'aggressive-apparel')}
-            value={
-              effects.depthLevel?.value || (parallaxSettings.enabled ? 1.5 : 1)
-            }
-            onChange={value => updateEffect('depthLevel', 'value', value)}
-            min={0.1}
-            max={3.0}
-            step={0.1}
-            help={__(
-              '3D parallax depth. 1.0 = focal point (stationary). Lower = foreground, higher = background.',
-              'aggressive-apparel'
-            )}
-          />
-          <div style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: '8px' }}>
-            {(() => {
-              const depth =
-                effects.depthLevel?.value ??
-                (parallaxSettings.enabled ? 1.5 : 1);
-              if (depth < 0.9)
-                return __(
-                  '🎯 Foreground - moves opposite to mouse',
-                  'aggressive-apparel'
-                );
-              if (depth > 1.1)
-                return __(
-                  '🏔️ Background - moves with mouse',
-                  'aggressive-apparel'
-                );
-              return __(
-                '📍 Focal point - stationary reference',
-                'aggressive-apparel'
-              );
-            })()}
-          </div>
-
-          <RangeControl
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-            label={__('Z-Index Override', 'aggressive-apparel')}
-            value={effects.zIndex?.value ?? 0}
-            onChange={value => updateEffect('zIndex', 'value', value)}
-            min={-10}
-            max={100}
-            step={1}
-            help={__(
-              'Manual stacking order (optional). Leave at 0 for auto-stacking based on depth.',
-              'aggressive-apparel'
-            )}
-          />
-        </PanelBody>
-      )}
 
       <PanelBody
         title={__('Visual Effects', 'aggressive-apparel')}

@@ -54,10 +54,6 @@
       "type": "number",
       "default": 20
     },
-    "mouseSensitivityThreshold": {
-      "type": "number",
-      "default": 0.001
-    },
     "depthIntensityMultiplier": {
       "type": "number",
       "default": 50
@@ -74,15 +70,10 @@
       "type": "number",
       "default": 5
     },
-    "parallaxDepth": {
-      "type": "number",
-      "default": 1.0
+    "depthOfField": {
+      "type": "boolean",
+      "default": false
     }
-  },
-  "providesContext": {
-    "aggressive-apparel/parallax/intensity": "intensity",
-    "aggressive-apparel/parallax/isIntersecting": "isIntersecting",
-    "aggressive-apparel/parallax/scrollProgress": "scrollProgress"
   },
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",

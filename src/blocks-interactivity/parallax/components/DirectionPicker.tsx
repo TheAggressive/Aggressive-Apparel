@@ -89,10 +89,9 @@ export const DirectionPicker = ({ value, onChange }: DirectionPickerProps) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: EDITOR_COLOR_TOKENS.neutralBg,
+            backgroundColor: 'color-mix(in srgb, currentColor 8%, transparent)',
             borderRadius: EDITOR_RADIUS_TOKENS.control,
             fontSize: '12px',
-            color: EDITOR_COLOR_TOKENS.muted,
           }}
         >
           ●

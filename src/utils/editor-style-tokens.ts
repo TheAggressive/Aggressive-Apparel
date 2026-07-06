@@ -31,9 +31,14 @@ export const EDITOR_META_TEXT_STYLE: CSSProperties = {
   color: EDITOR_COLOR_TOKENS.muted,
 };
 
+/*
+ * Border-only grouping — deliberately NO background. Inspector fieldsets
+ * wrap WordPress components whose text color follows the admin scheme;
+ * painting a theme-token background behind them produced unreadable
+ * dark-on-dark labels whenever the token resolved to a dark value.
+ */
 export const EDITOR_FIELDSET_STYLE: CSSProperties = {
   padding: '12px',
-  backgroundColor: EDITOR_COLOR_TOKENS.neutralBg,
   border: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
   borderRadius: EDITOR_RADIUS_TOKENS.control,
 };

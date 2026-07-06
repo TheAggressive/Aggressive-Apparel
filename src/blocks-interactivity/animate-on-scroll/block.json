@@ -10,7 +10,16 @@
   "supports": {
     "html": false,
     "interactivity": true,
-    "layout": false,
+    "layout": {
+      "default": { "type": "default" },
+      "allowSwitching": false,
+      "allowInheriting": false
+    },
+    "spacing": {
+      "blockGap": true,
+      "padding": true,
+      "margin": true
+    },
     "align": ["wide", "full"]
   },
   "attributes": {

@@ -81,6 +81,13 @@ addFilter(
       extraProps['data-parallax-easing'] =
         attributes.aggressiveApparelParallax.easing;
 
+      // Only emitted when set: keeps previously saved markup valid while
+      // giving new content a first-class depth value (-100..100).
+      const depth = attributes.aggressiveApparelParallax.depth;
+      if (typeof depth === 'number' && depth !== 0) {
+        extraProps['data-parallax-depth'] = depth.toString();
+      }
+
       // Add CSS variables to the style attribute
       const currentStyle = extraProps.style || {};
       extraProps.style = {

@@ -38,12 +38,38 @@ import {
 } from '../../utils/editor-style-tokens';
 
 /**
- * Hook to detect blocks inside parallax containers and add parallax controls
+ * Resolve the signed depth (-100..100) for a layer, mapping the legacy
+ * `effects.depthLevel` scale (0.1..3, 1 = focal) onto the new one when a
+ * first-class depth has not been set yet.
  */
-const useParallaxBlockEnhancer = () => {
-  // The context-aware controls are now handled by the withParallaxControls HOC
-  // in block-enhancer.tsx, which properly adds/removes the aggressiveApparelParallax
-  // attribute to blocks based on their location relative to parallax containers.
+const resolveEditorDepth = (settings: ElementParallaxSettings): number => {
+  if (typeof settings.depth === 'number') {
+    return settings.depth;
+  }
+  const legacy = settings.effects?.depthLevel?.value;
+  if (typeof legacy === 'number' && legacy > 0) {
+    return Math.max(-100, Math.min(100, Math.round((1 - legacy) * 100)));
+  }
+  return 0;
+};
+
+const depthHint = (depth: number): string => {
+  if (depth <= -10) {
+    return __(
+      '🏔️ Background — drifts slower on scroll and follows the pointer.',
+      'aggressive-apparel'
+    );
+  }
+  if (depth >= 10) {
+    return __(
+      '🎯 Foreground — sweeps faster on scroll and moves against the pointer.',
+      'aggressive-apparel'
+    );
+  }
+  return __(
+    '📍 Focal plane — anchored; other layers move around it.',
+    'aggressive-apparel'
+  );
 };
 
 /**
@@ -67,6 +93,7 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
           direction: 'down',
           delay: 0,
           easing: 'linear',
+          depth: 0,
         },
       });
     }
@@ -101,6 +128,32 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
     });
   };
 
+  const updateDepth = (depth: number) => {
+    // Writing the first-class depth also retires the legacy
+    // effects.depthLevel value so the runtime has one source of truth.
+    const { depthLevel: _legacyDepth, ...restEffects } =
+      parallaxSettings.effects ?? {};
+    updateBlockAttributes(clientId, {
+      aggressiveApparelParallax: {
+        ...parallaxSettings,
+        depth,
+        effects: restEffects,
+      },
+    });
+  };
+
+  const updateZIndexOverride = (value: number) => {
+    updateBlockAttributes(clientId, {
+      aggressiveApparelParallax: {
+        ...parallaxSettings,
+        effects: {
+          ...parallaxSettings.effects,
+          zIndex: { value },
+        },
+      },
+    });
+  };
+
   const applyPreset = (preset: PresetConfig) => {
     updateBlockAttributes(clientId, {
       aggressiveApparelParallax: {
@@ -122,56 +175,91 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
         direction: 'down',
         delay: 0,
         easing: 'linear',
+        depth: 0,
         effects: {},
       },
     });
   };
 
+  const depth = resolveEditorDepth(parallaxSettings);
+
   return (
     <>
       <PanelBody
-        title={__('Parallax Settings', 'aggressive-apparel')}
-        initialOpen={false}
+        title={__('Parallax Layer', 'aggressive-apparel')}
+        initialOpen={true}
       >
         <EffectPresets onApplyPreset={applyPreset} onReset={resetToDefaults} />
 
         <ToggleControl
-          label={__('Enable Parallax', 'aggressive-apparel')}
+          label={__('Enable parallax on this block', 'aggressive-apparel')}
           checked={parallaxSettings.enabled}
           onChange={value => updateParallaxSetting('enabled', value)}
-          help={__('Apply parallax effect to this block', 'aggressive-apparel')}
+          help={__(
+            'The block becomes a layer inside the parallax scene.',
+            'aggressive-apparel'
+          )}
         />
 
         {parallaxSettings.enabled && (
           <>
+            <RangeControl
+              label={__('Depth', 'aggressive-apparel')}
+              value={depth}
+              onChange={value => updateDepth(value ?? 0)}
+              min={-100}
+              max={100}
+              step={5}
+              marks={[
+                { value: -100, label: __('Far', 'aggressive-apparel') },
+                { value: 0, label: __('Focal', 'aggressive-apparel') },
+                { value: 100, label: __('Near', 'aggressive-apparel') },
+              ]}
+              help={depthHint(depth)}
+              __next40pxDefaultSize
+              __nextHasNoMarginBottom
+            />
+
+            <RangeControl
+              label={__('Stacking override (z-index)', 'aggressive-apparel')}
+              value={parallaxSettings.effects?.zIndex?.value ?? 0}
+              onChange={value => updateZIndexOverride(value ?? 0)}
+              min={-10}
+              max={100}
+              step={1}
+              help={__(
+                'Leave at 0 to stack automatically by depth (near layers in front).',
+                'aggressive-apparel'
+              )}
+              __next40pxDefaultSize
+              __nextHasNoMarginBottom
+            />
+
+            <hr
+              style={{
+                margin: '16px 0',
+                border: 'none',
+                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
+              }}
+            />
+
             <DirectionPicker
               value={parallaxSettings.direction}
               onChange={value => updateParallaxSetting('direction', value)}
             />
 
-            <RangeControl
-              label={__('Speed', 'aggressive-apparel')}
-              value={parallaxSettings.speed}
-              onChange={value => updateParallaxSetting('speed', value)}
-              min={0.1}
-              max={3.0}
-              step={0.1}
-              help={__('Slow ← → Fast', 'aggressive-apparel')}
-              __next40pxDefaultSize
-              __nextHasNoMarginBottom
-            />
-
             <Flex>
               <FlexItem style={{ flex: 1, marginRight: '8px' }}>
                 <RangeControl
-                  label={__('Delay (ms)', 'aggressive-apparel')}
-                  value={parallaxSettings.delay}
-                  onChange={value => updateParallaxSetting('delay', value)}
-                  min={0}
-                  max={2000}
-                  step={50}
-                  __nextHasNoMarginBottom
+                  label={__('Speed', 'aggressive-apparel')}
+                  value={parallaxSettings.speed}
+                  onChange={value => updateParallaxSetting('speed', value)}
+                  min={0.1}
+                  max={3.0}
+                  step={0.1}
+                  help={__('Slow ← → Fast', 'aggressive-apparel')}
                   __next40pxDefaultSize
+                  __nextHasNoMarginBottom
                 />
               </FlexItem>
 
@@ -203,54 +291,10 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
                 />
               </FlexItem>
             </Flex>
-
-            <hr
-              style={{
-                margin: '16px 0',
-                border: 'none',
-                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-              }}
-            />
-
-            <div
-              style={{
-                ...EDITOR_FIELDSET_STYLE,
-                marginTop: '16px',
-                fontSize: '12px',
-              }}
-            >
-              <strong>{__('How to use:', 'aggressive-apparel')}</strong>
-              <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
-                <li>
-                  {__(
-                    'Enable parallax to apply the effect',
-                    'aggressive-apparel'
-                  )}
-                </li>
-                <li>
-                  {__(
-                    'Adjust speed for movement intensity',
-                    'aggressive-apparel'
-                  )}
-                </li>
-                <li>
-                  {__(
-                    'Choose direction for movement behavior',
-                    'aggressive-apparel'
-                  )}
-                </li>
-                <li>
-                  {__(
-                    'Add delay for staggered animations',
-                    'aggressive-apparel'
-                  )}
-                </li>
-              </ul>
-            </div>
           </>
         )}
       </PanelBody>
-      <EffectsControls clientId={clientId} />
+      {parallaxSettings.enabled && <EffectsControls clientId={clientId} />}
     </>
   );
 };
@@ -276,21 +320,17 @@ function Edit({
     parallaxDirection = 'down', // Default value
     mouseInfluenceMultiplier = 0.5,
     maxMouseTranslation = 20,
-    mouseSensitivityThreshold = 0.001,
     depthIntensityMultiplier = 50,
     transitionDuration = 0.1,
     perspectiveDistance = 1000,
     maxMouseRotation = 5,
-    parallaxDepth = 1.0,
+    depthOfField = false,
   } = attributes;
-
-  // Initialize parallax block enhancer for context-aware controls
-  useParallaxBlockEnhancer();
 
   return (
     <>
       <InspectorControls>
-        <PanelBody title={__('Parallax Behavior', 'aggressive-apparel')}>
+        <PanelBody title={__('Scroll Motion', 'aggressive-apparel')}>
           <RangeControl
             label={__('Intensity', 'aggressive-apparel')}
             value={intensity}
@@ -299,7 +339,7 @@ function Edit({
             max={200}
             step={10}
             help={__(
-              'Controls the strength of the parallax effect. Lower = Subtle, Higher = Dramatic.',
+              'Maximum distance layers travel while scrolling through the block, in pixels.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
@@ -319,28 +359,23 @@ function Edit({
                 parallaxDirection: value as 'up' | 'down' | 'both',
               })
             }
-            help={__('Direction of parallax movement', 'aggressive-apparel')}
+            help={__(
+              'Default movement direction (each layer can override it).',
+              'aggressive-apparel'
+            )}
             __next40pxDefaultSize
             __nextHasNoMarginBottom
           />
 
-          <hr
-            style={{
-              margin: '16px 0',
-              border: 'none',
-              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-            }}
-          />
-
           <RangeControl
-            label={__('Transition Duration', 'aggressive-apparel')}
+            label={__('Smoothing', 'aggressive-apparel')}
             value={transitionDuration}
             onChange={value => setAttributes({ transitionDuration: value })}
             min={0.05}
             max={1.0}
             step={0.05}
             help={__(
-              'How smoothly elements transition. Lower = Snappy, Higher = Smooth.',
+              'Inertia of pointer motion. Low = snappy, high = floaty.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
@@ -349,31 +384,43 @@ function Edit({
         </PanelBody>
 
         <PanelBody
-          title={__('Mouse Interaction', 'aggressive-apparel')}
+          title={__('3D Depth & Pointer', 'aggressive-apparel')}
           initialOpen={false}
         >
           <ToggleControl
-            label={__('Enable Mouse Interaction', 'aggressive-apparel')}
+            label={__('Enable 3D depth & pointer', 'aggressive-apparel')}
             checked={enableMouseInteraction}
             onChange={value => setAttributes({ enableMouseInteraction: value })}
             help={__(
-              'Allow mouse movement to create 3D card rotation effects',
+              'Layers get real 3D depth; the scene tilts and shifts with the pointer (or device tilt on mobile).',
               'aggressive-apparel'
             )}
           />
 
           {enableMouseInteraction && (
             <>
-              <hr
+              <div
                 style={{
-                  margin: '16px 0',
-                  border: 'none',
-                  borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
+                  ...EDITOR_INFO_NOTICE_STYLE,
+                  marginBottom: '16px',
                 }}
-              />
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: '12px',
+                    color: EDITOR_COLOR_TOKENS.info,
+                  }}
+                >
+                  {__(
+                    'Select a block inside this container and set its Depth: negative sits behind the focal plane, positive floats in front. Near layers react more; far layers less.',
+                    'aggressive-apparel'
+                  )}
+                </p>
+              </div>
 
               <RangeControl
-                label={__('Mouse Influence', 'aggressive-apparel')}
+                label={__('Pointer influence', 'aggressive-apparel')}
                 value={mouseInfluenceMultiplier}
                 onChange={value =>
                   setAttributes({ mouseInfluenceMultiplier: value })
@@ -382,7 +429,7 @@ function Edit({
                 max={1.0}
                 step={0.1}
                 help={__(
-                  'How strongly mouse movement affects the 3D rotation. Lower = Subtle, Higher = Strong.',
+                  'How strongly layers shift as the pointer moves.',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
@@ -390,39 +437,7 @@ function Edit({
               />
 
               <RangeControl
-                label={__('Max Rotation Angle', 'aggressive-apparel')}
-                value={maxMouseRotation}
-                onChange={value => setAttributes({ maxMouseRotation: value })}
-                min={1}
-                max={15}
-                step={1}
-                help={__(
-                  'Maximum rotation angle when mouse interacts with elements',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-
-              <RangeControl
-                label={__('3D Perspective Distance', 'aggressive-apparel')}
-                value={perspectiveDistance}
-                onChange={value =>
-                  setAttributes({ perspectiveDistance: value })
-                }
-                min={500}
-                max={2000}
-                step={100}
-                help={__(
-                  'Distance of the 3D perspective view. Lower = Exaggerated 3D, Higher = Flatter.',
-                  'aggressive-apparel'
-                )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-              />
-
-              <RangeControl
-                label={__('Max Mouse Translation', 'aggressive-apparel')}
+                label={__('Max pointer shift (px)', 'aggressive-apparel')}
                 value={maxMouseTranslation}
                 onChange={value =>
                   setAttributes({ maxMouseTranslation: value })
@@ -431,7 +446,7 @@ function Edit({
                 max={50}
                 step={5}
                 help={__(
-                  'Maximum pixels elements can move due to mouse interaction',
+                  'Travel of a layer at full depth when the pointer reaches the screen edge.',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
@@ -439,16 +454,14 @@ function Edit({
               />
 
               <RangeControl
-                label={__('Mouse Sensitivity Threshold', 'aggressive-apparel')}
-                value={mouseSensitivityThreshold}
-                onChange={value =>
-                  setAttributes({ mouseSensitivityThreshold: value })
-                }
-                min={0.0001}
-                max={0.01}
-                step={0.0001}
+                label={__('Tilt angle (deg)', 'aggressive-apparel')}
+                value={maxMouseRotation}
+                onChange={value => setAttributes({ maxMouseRotation: value })}
+                min={0}
+                max={15}
+                step={1}
                 help={__(
-                  'Minimum mouse movement required to trigger updates. Lower = More Sensitive.',
+                  'How far the whole scene tilts toward the pointer. 0 disables the tilt.',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
@@ -456,7 +469,24 @@ function Edit({
               />
 
               <RangeControl
-                label={__('Depth Intensity', 'aggressive-apparel')}
+                label={__('Perspective (px)', 'aggressive-apparel')}
+                value={perspectiveDistance}
+                onChange={value =>
+                  setAttributes({ perspectiveDistance: value })
+                }
+                min={500}
+                max={2000}
+                step={100}
+                help={__(
+                  'Camera distance. Lower = exaggerated 3D, higher = flatter.',
+                  'aggressive-apparel'
+                )}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+
+              <RangeControl
+                label={__('Depth spacing (px)', 'aggressive-apparel')}
                 value={depthIntensityMultiplier}
                 onChange={value =>
                   setAttributes({ depthIntensityMultiplier: value })
@@ -465,56 +495,28 @@ function Edit({
                 max={200}
                 step={5}
                 help={__(
-                  'Multiplier for Z-depth effects. Higher = More dramatic depth.',
+                  'Z distance between the focal plane and a layer at full depth.',
                   'aggressive-apparel'
                 )}
                 __next40pxDefaultSize
                 __nextHasNoMarginBottom
               />
 
-              <RangeControl
-                label={__('Parallax Depth Level', 'aggressive-apparel')}
-                value={parallaxDepth}
-                onChange={value => setAttributes({ parallaxDepth: value })}
-                min={0.5}
-                max={3.0}
-                step={0.1}
+              <ToggleControl
+                label={__('Depth-of-field blur', 'aggressive-apparel')}
+                checked={depthOfField}
+                onChange={value => setAttributes({ depthOfField: value })}
                 help={__(
-                  'Base depth level for parallax-enabled elements',
+                  'Softly blur layers the further they sit from the focal plane, like camera focus.',
                   'aggressive-apparel'
                 )}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
               />
-
-              <div
-                style={{
-                  ...EDITOR_INFO_NOTICE_STYLE,
-                  marginTop: '16px',
-                }}
-              >
-                <strong style={{ color: EDITOR_COLOR_TOKENS.info }}>
-                  {__('💡 Pro Tip:', 'aggressive-apparel')}
-                </strong>
-                <p
-                  style={{
-                    margin: '8px 0 0 0',
-                    fontSize: '12px',
-                    color: EDITOR_COLOR_TOKENS.info,
-                  }}
-                >
-                  {__(
-                    'Move your mouse over the block to see the 3D rotation effect. All buttons and interactive elements remain clickable!',
-                    'aggressive-apparel'
-                  )}
-                </p>
-              </div>
             </>
           )}
         </PanelBody>
 
         <PanelBody
-          title={__('Triggers & Boundaries', 'aggressive-apparel')}
+          title={__('Activation Zone', 'aggressive-apparel')}
           initialOpen={false}
         >
           <RangeControl
@@ -623,17 +625,9 @@ function Edit({
             checked={debugMode}
             onChange={value => setAttributes({ debugMode: value })}
             help={__(
-              'Show debug information and visual indicators',
+              'Show trigger lines, zone overlays, and a live metrics panel on the front end.',
               'aggressive-apparel'
             )}
-          />
-
-          <hr
-            style={{
-              margin: '16px 0',
-              border: 'none',
-              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-            }}
           />
         </PanelBody>
       </InspectorControls>

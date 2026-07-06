@@ -35,6 +35,12 @@ export interface ElementSettings {
   direction: ParallaxDirection;
   delay: number;
   easing: EasingType;
+  /**
+   * Signed depth, -100..100. Negative = behind the focal plane (moves
+   * less, with the pointer), positive = in front (moves more, against
+   * the pointer). 0 = focal plane.
+   */
+  depth?: number;
 }
 
 /**
@@ -159,25 +165,11 @@ export interface ParallaxAttributes {
   parallaxDirection?: 'up' | 'down' | 'both';
   mouseInfluenceMultiplier?: number;
   maxMouseTranslation?: number;
-  mouseSensitivityThreshold?: number;
   depthIntensityMultiplier?: number;
   transitionDuration?: number;
   perspectiveDistance?: number;
   maxMouseRotation?: number;
-  parallaxDepth?: number;
-}
-
-/**
- * Validated block attributes with runtime checks
- */
-export interface ValidatedParallaxAttributes extends ParallaxAttributes {
-  intensity: number & { readonly __brand: 'ValidatedIntensity' };
-  visibilityTrigger: number & {
-    readonly __brand: 'ValidatedVisibilityTrigger';
-  };
-  detectionBoundary: DetectionBoundary & {
-    readonly __brand: 'ValidatedBoundary';
-  };
+  depthOfField?: boolean;
 }
 
 // =============================================================================
@@ -205,53 +197,18 @@ export interface ParallaxContext {
   parallaxDirection?: 'up' | 'down' | 'both';
   mouseInfluenceMultiplier?: number;
   maxMouseTranslation?: number;
-  mouseSensitivityThreshold?: number;
   depthIntensityMultiplier?: number;
   transitionDuration?: number;
   perspectiveDistance?: number;
   maxMouseRotation?: number;
-  parallaxDepth?: number;
+  /** Blur layers progressively as they sit further from the focal plane. */
+  depthOfField?: boolean;
 
   // Runtime state properties
   scrollProgress?: number;
   mouseX?: number;
   mouseY?: number;
-  layers?: Record<string, ParallaxLayer>;
   id?: string;
-}
-
-/**
- * Layer data structure with enhanced type safety
- */
-export interface ParallaxLayer {
-  element: HTMLElement;
-  initialY: number;
-  speed: number;
-  direction: ParallaxDirection;
-  delay: number;
-  easing: EasingType;
-  effects?: ParallaxEffects;
-  isActive: boolean;
-  layerId: string; // Add explicit layer ID for tracking
-}
-
-/**
- * Error types for better error classification
- */
-export type ParallaxErrorType =
-  | 'configuration_error'
-  | 'runtime_error'
-  | 'validation_error'
-  | 'performance_error';
-
-/**
- * Enhanced error interface for parallax-specific errors
- */
-export interface ParallaxError extends Error {
-  type: ParallaxErrorType;
-  code: string;
-  context?: Record<string, unknown>;
-  recoverable: boolean;
 }
 
 /**
@@ -264,131 +221,8 @@ export interface ValidationResult {
 }
 
 // =============================================================================
-// UTILITY TYPES
+// EFFECT VALIDATION
 // =============================================================================
-
-/**
- * Movement calculation result
- */
-export interface MovementResult {
-  x: number;
-  y: number;
-}
-
-/**
- * Manager interface for consistent manager implementations
- */
-export interface ParallaxManager {
-  start(): void;
-  stop(): void;
-  destroy(): void;
-}
-
-// =============================================================================
-// TYPE GUARDS & VALIDATION
-// =============================================================================
-
-/**
- * Type guard for ParallaxDirection
- */
-export function isParallaxDirection(
-  value: unknown
-): value is ParallaxDirection {
-  return (
-    typeof value === 'string' &&
-    (['up', 'down', 'both', 'none'] as const).includes(
-      value as ParallaxDirection
-    )
-  );
-}
-
-/**
- * Type guard for EasingType
- */
-export function isEasingType(value: unknown): value is EasingType {
-  return (
-    typeof value === 'string' &&
-    (['linear', 'easeIn', 'easeOut', 'easeInOut'] as const).includes(
-      value as EasingType
-    )
-  );
-}
-
-/**
- * Type guard for ZoomType
- */
-export function isZoomType(value: unknown): value is ZoomType {
-  return (
-    typeof value === 'string' &&
-    (['in', 'out'] as const).includes(value as ZoomType)
-  );
-}
-
-/**
- * Validation function for ParallaxAttributes
- */
-export function validateParallaxAttributes(attrs: unknown): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  if (typeof attrs !== 'object' || attrs === null) {
-    return {
-      isValid: false,
-      errors: ['Attributes must be an object'],
-      warnings: [],
-    };
-  }
-
-  const values = attrs as Record<string, unknown>;
-
-  // Validate intensity
-  if (
-    typeof values.intensity !== 'number' ||
-    values.intensity < 0 ||
-    values.intensity > 200
-  ) {
-    errors.push('Intensity must be a number between 0 and 200');
-  }
-
-  // Validate detection boundary
-  const boundary = values.detectionBoundary;
-  if (typeof boundary !== 'object' || boundary === null) {
-    errors.push('Detection boundary must be an object');
-  } else {
-    const boundaryRecord = boundary as Record<string, unknown>;
-    const requiredKeys = ['top', 'right', 'bottom', 'left'];
-    for (const key of requiredKeys) {
-      if (!(key in boundaryRecord)) {
-        errors.push(`Detection boundary must include ${key} property`);
-      } else if (typeof boundaryRecord[key] !== 'string') {
-        errors.push(`Detection boundary ${key} must be a string`);
-      }
-    }
-  }
-
-  // Validate direction
-  if (!isParallaxDirection(values.parallaxDirection)) {
-    errors.push('Invalid parallax direction');
-  }
-
-  // Validate boolean fields
-  const booleanFields = [
-    'enableIntersectionObserver',
-    'enableMouseInteraction',
-    'debugMode',
-  ];
-  booleanFields.forEach(field => {
-    if (typeof values[field] !== 'boolean') {
-      errors.push(`${field} must be a boolean`);
-    }
-  });
-
-  return {
-    isValid: errors.length === 0,
-    errors,
-    warnings,
-  };
-}
 
 /**
  * Validate blur effect configuration

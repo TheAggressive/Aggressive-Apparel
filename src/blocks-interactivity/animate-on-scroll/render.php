@@ -40,11 +40,13 @@ if ( $use_sequence ) {
 $combined_classes = implode( ' ', array_filter( $default_classes ) );
 
 	$wrapper_attributes_array = array(
-		'class'                     => $combined_classes,
-		'data-wp-interactive'       => 'aggressive-apparel/animate-on-scroll',
-		'data-wp-context'           => wp_json_encode(
+		'class'                       => $combined_classes,
+		'data-wp-interactive'         => 'aggressive-apparel/animate-on-scroll',
+		'data-wp-context'             => wp_json_encode(
 			array(
 				'isVisible'              => false,
+				'hasAnimated'            => false,
+				'isExiting'              => false,
 				'debugMode'              => $attributes['debugMode'],
 				'visibilityTrigger'      => $attributes['threshold'],
 				'detectionBoundary'      => $attributes['detectionBoundary'],
@@ -61,12 +63,14 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 				'announceToScreenReader' => $attributes['announceToScreenReader'] ?? true,
 			)
 		),
-		'data-wp-init'              => 'callbacks.initObserver',
-		'data-wp-class--is-visible' => 'context.isVisible',
-		'data-stagger-children'     => $attributes['staggerChildren'] ? 'true' : 'false',
-		'data-wp-on-window--resize' => 'callbacks.handleResize',
-		'aria-label'                => __( 'Animated content', 'aggressive-apparel' ),
-		'aria-live'                 => 'polite',
+		'data-wp-init'                => 'callbacks.initObserver',
+		'data-wp-class--is-visible'   => 'context.isVisible',
+		// All wrapper classes must be context-driven: this element's class
+		// attribute is vdom-controlled by the class directives, so any
+		// imperatively added class is wiped on the next re-render.
+		'data-wp-class--has-animated' => 'context.hasAnimated',
+		'data-wp-class--is-exiting'   => 'context.isExiting',
+		'data-stagger-children'       => $attributes['staggerChildren'] ? 'true' : 'false',
 	);
 
 	// Add data attribute for animation sequence if enabled.

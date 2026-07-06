@@ -27,7 +27,6 @@ import type {
   StaggerPattern,
 } from './types';
 import {
-  EDITOR_COLOR_TOKENS,
   EDITOR_FIELDSET_STYLE,
   EDITOR_HELP_TEXT_STYLE,
 } from '../../utils/editor-style-tokens';
@@ -152,19 +151,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           title={__('Animation Type', 'aggressive-apparel')}
           initialOpen={true}
         >
-          <ToggleControl
-            label={__('Reverse on Scroll Back', 'aggressive-apparel')}
-            checked={attributes.reverseOnScrollBack}
-            onChange={reverseOnScrollBack =>
-              setAttributes({ reverseOnScrollBack })
-            }
-            help={__(
-              'Animate elements out when scrolling back up past them. If stagger children is enabled, children will animate in reverse order.',
-              'aggressive-apparel'
-            )}
-            __nextHasNoMarginBottom
-          />
-
           <ToggleControl
             label={__('Use Animation Sequence', 'aggressive-apparel')}
             checked={attributes.useSequence}
@@ -356,6 +342,19 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               </Button>
             </div>
           )}
+
+          <ToggleControl
+            label={__('Reverse on Scroll Back', 'aggressive-apparel')}
+            checked={attributes.reverseOnScrollBack}
+            onChange={reverseOnScrollBack =>
+              setAttributes({ reverseOnScrollBack })
+            }
+            help={__(
+              'Animate elements out when scrolling back up past them. If stagger children is enabled, children will animate in reverse order.',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
         </PanelBody>
 
         {/* Animation Customization Panel - Only show for single animation mode */}
@@ -514,7 +513,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   style={{
                     ...EDITOR_FIELDSET_STYLE,
                     marginBottom: '16px',
-                    backgroundColor: EDITOR_COLOR_TOKENS.surface,
                   }}
                 >
                   <label

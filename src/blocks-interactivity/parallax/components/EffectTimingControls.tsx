@@ -199,7 +199,7 @@ export const EffectTimingControls = ({
             display: 'flex',
             alignItems: 'center',
             height: '24px',
-            backgroundColor: EDITOR_COLOR_TOKENS.surface,
+            backgroundColor: 'color-mix(in srgb, currentColor 8%, transparent)',
             border: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
             borderRadius: EDITOR_RADIUS_TOKENS.control,
             overflow: 'hidden',

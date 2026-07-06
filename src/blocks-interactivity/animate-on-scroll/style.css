@@ -62,9 +62,11 @@
 	/* Internal tracking */
 	--wp-block-animate-on-scroll-stagger-index: 0;
 
-	/* Base Styles - Optimized for animations */
+	/* Base Styles - Optimized for animations.
+	   No permanent will-change: browsers promote layers automatically for
+	   running transitions/animations; holding GPU layers for every block
+	   on the page costs memory (especially on mobile) for no benefit. */
 	display: block;
-	will-change: transform, opacity, filter;
 	overflow: visible; /* Prevent animations from being clipped - no CSS containment to avoid layout restrictions */
 
 	/* Accessibility: Respect prefers-reduced-motion */
@@ -79,23 +81,21 @@
 		}
 	}
 
-	/* Remove margin-top for constrained blocks */
-	:root :where(.is-layout-constrained) > & {
-		margin-block-start: 0 !important;
-	}
 
 	/* ==========================================================================
 	   2. BASE ANIMATION FRAMEWORK
 	   ========================================================================== */
 
-	/* Base animation setup for all direct children */
+	/* Base animation setup for all direct children.
+	   Children keep their natural display: forcing inline-block made
+	   block-level children shrink-to-fit and collapsed the layout the
+	   editor had established. */
 	&:not(.has-animation-sequence) > * {
 		opacity: 0;
 		transition: all
 			var(--wp-block-animate-on-scroll-animation-duration)
 			var(--wp-block-animate-on-scroll-animation-timing);
 		transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
-		display: inline-block; /* Allows transforms on inline elements */
 	}
 
 	/* Visible state - reset to natural appearance */

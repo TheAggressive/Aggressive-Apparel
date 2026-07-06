@@ -6,24 +6,30 @@
  * @package Aggressive Apparel
  */
 
-/* Parallax container base styles */
+/*
+ * Parallax container base styles.
+ *
+ * The 3D "card" tilt (rotateX/rotateY on __container under this
+ * perspective) is kept, but with two hard rules that keep every link and
+ * button inside fully clickable:
+ *
+ *   1. NO `transform-style: preserve-3d` on the tilted chain. With it,
+ *      any descendant that has its own perspective()/transform (e.g. an
+ *      animate-on-scroll flip wrapper) makes Chromium hit-test links at a
+ *      location that diverges from where they paint — the "only a corner
+ *      is clickable" bug. Layers no longer use translateZ, so preserve-3d
+ *      buys nothing anyway; the card still tilts as one flattened plane.
+ *   2. NO `will-change` on the tilted container or its layers. A
+ *      compositor layer promoted under a 3D tilt is hit-tested at its flat
+ *      2D bounds, which reintroduces the same divergence.
+ */
 .wp-block-aggressive-apparel-parallax,
 .aggressive-apparel-parallax {
 	container-type: inline-size;
 	container-name: parallax-block;
 
-	--parallax-blur-x: 0;
-	--parallax-blur-y: 0;
 	--parallax-card-rotate-x: 0deg;
 	--parallax-card-rotate-y: 0deg;
-	--parallax-mouse-x: 0;
-	--parallax-mouse-y: 0;
-	--parallax-opacity: 1;
-	--parallax-scale: 1;
-	--parallax-transition-delay: 0s;
-	--parallax-translate-x: 0;
-	--parallax-translate-y: 0;
-	--parallax-z-index: auto;
 
 	position: relative;
 	overflow: visible;
@@ -35,28 +41,38 @@
 	position: relative;
 	width: 100%;
 	height: 100%;
-	transform-style: preserve-3d; /* Preserve 3D transforms for children */
-	transition: transform 0.1s ease-out;
-	pointer-events: none; /* Allow clicks to pass through container */
+	pointer-events: auto;
 }
 
-/* 3D Card Effect - Container rotates in 3D space when mouse interaction enabled */
+/* 3D card tilt — driven by the pointer when mouse interaction is enabled */
 .aggressive-apparel-parallax--mouse-interaction .aggressive-apparel-parallax__container {
 	transform:
 		rotateX(var(--parallax-card-rotate-x, 0deg))
 		rotateY(var(--parallax-card-rotate-y, 0deg));
-	will-change: transform;
-	pointer-events: none; /* Ensure container doesn't block clicks even with 3D transforms */
+}
+
+/* Decorative background layer never intercepts pointer input */
+.aggressive-apparel-parallax__visual-layer {
+	pointer-events: none;
 }
 
 .aggressive-apparel-parallax__content {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	transform-style: preserve-3d; /* Preserve 3D transforms for children */
-	transition: transform 0.1s ease-out;
 	pointer-events: auto; /* Re-enable clicks on content */
 	z-index: 1; /* Ensure content sits above container background */
+}
+
+/*
+ * The block's layout classes land on the outer wrapper, but the actual
+ * content sits three levels deep — so WordPress' own flow-gap rule never
+ * reaches it. Re-inherit the theme's global block gap here so nested
+ * content is spaced identically to a normal flow container. Low
+ * specificity (:where) keeps any editor/inner-block styling winning.
+ */
+:where(.aggressive-apparel-parallax__content) > * + * {
+	margin-block-start: var(--wp--style--block-gap, 1.5rem);
 }
 
 /* Ensure all child elements and interactive elements remain clickable */
@@ -71,20 +87,25 @@
 	pointer-events: auto;
 }
 
-/* Parallax block styles - applied to individual blocks with parallax enabled */
+/*
+ * Parallax layer base — individual blocks with parallax enabled.
+ * All motion is written by the frame engine through the individual
+ * transform properties (translate / scale / rotate), so this rule only
+ * provides positioning context and interactivity. No transitions: the
+ * engine's lerp already smooths every frame.
+ */
 [data-parallax-enabled="true"] {
 	position: relative;
-	will-change: transform, opacity, filter;
-	transform:
-		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
-		scale(var(--parallax-scale, 1));
-	transition: transform var(--parallax-transition-duration, 0.1s) var(--parallax-easing, ease-out) var(--parallax-transition-delay, 0s),
-	            opacity var(--parallax-transition-duration, 0.1s) ease-out;
-	z-index: var(--parallax-z-index, auto);
-	opacity: var(--parallax-opacity, 1);
-	filter: blur(max(var(--parallax-blur-x, 0px), var(--parallax-blur-y, 0px)));
 	pointer-events: auto; /* Ensure parallax layers remain interactive */
 }
+
+/*
+ * Deliberately NO `will-change` on layers: under the container's 3D card
+ * tilt a promoted compositor layer is hit-tested at its flat 2D bounds,
+ * which offsets clicks on any link/button inside. The shared frame engine
+ * already batches writes and skips no-op frames, so the compositor hint
+ * isn't needed for smoothness.
+ */
 
 /* Ensure all interactive elements within parallax layers are clickable */
 [data-parallax-enabled="true"] *,
@@ -98,19 +119,9 @@
 	pointer-events: auto;
 }
 
-/* Enhanced transforms when mouse interaction is enabled */
-.aggressive-apparel-parallax--mouse-interaction [data-parallax-enabled="true"] {
-	transform:
-		translate(var(--parallax-translate-x, 0), var(--parallax-translate-y, 0))
-		translate(var(--parallax-mouse-x, 0), var(--parallax-mouse-y, 0))
-		scale(var(--parallax-scale, 1));
-}
-
 /* Parallax layer styles */
 .aggressive-apparel-parallax__layer {
 	position: relative;
-	will-change: transform;
-	transition: transform 0.1s ease-out;
 }
 
 /* Different layer weights for varying parallax speeds */
@@ -155,19 +166,30 @@
 /* Responsive adjustments */
 @media (width <= 768px) {
 
-	.wp-block-aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer,
-	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer {
+	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer,
+	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile [data-parallax-enabled="true"] {
 		transform: none !important;
+		translate: none !important;
+		scale: none !important;
+		rotate: none !important;
 	}
 }
 
-/* Performance optimizations */
+/* Accessibility: neutralize every motion channel under reduced motion.
+   The JS engine never starts in this mode; these rules are the CSS-side
+   guarantee (note `transform: none` does NOT reset translate/scale/rotate,
+   so each individual property is reset explicitly). */
 @media (prefers-reduced-motion: reduce) {
 
-	.aggressive-apparel-parallax__layer {
+	.aggressive-apparel-parallax__layer,
+	.aggressive-apparel-parallax [data-parallax-enabled="true"],
+	.aggressive-apparel-parallax__container {
 		transition: none !important;
 		will-change: auto !important;
 		transform: none !important;
+		translate: none !important;
+		scale: none !important;
+		rotate: none !important;
 		animation: none !important;
 	}
 }

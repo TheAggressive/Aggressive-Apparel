@@ -14,13 +14,19 @@ import {
 } from '@wordpress/block-editor';
 import { BlockEditProps } from '@wordpress/blocks';
 import {
+  BaseControl,
   Flex,
   FlexItem,
+  Notice,
   PanelBody,
   RangeControl,
   SelectControl,
   TextControl,
   ToggleControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalToggleGroupControl as ToggleGroupControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -30,12 +36,6 @@ import { DirectionPicker } from './components/DirectionPicker';
 import { EffectPresets, PresetConfig } from './components/EffectPresets';
 import { EffectsControls } from './components/EffectsControls';
 import { ElementParallaxSettings, ParallaxAttributes } from './types';
-import {
-  EDITOR_COLOR_TOKENS,
-  EDITOR_FIELDSET_STYLE,
-  EDITOR_HELP_TEXT_STYLE,
-  EDITOR_INFO_NOTICE_STYLE,
-} from '../../utils/editor-style-tokens';
 
 /**
  * Resolve the signed depth (-100..100) for a layer, mapping the legacy
@@ -53,21 +53,23 @@ const resolveEditorDepth = (settings: ElementParallaxSettings): number => {
   return 0;
 };
 
+// Plain text only: wp-emoji rewrites emoji in admin DOM text into
+// s.w.org Twemoji images, which show as broken images offline.
 const depthHint = (depth: number): string => {
   if (depth <= -10) {
     return __(
-      '🏔️ Background — drifts slower on scroll and follows the pointer.',
+      'Background — drifts slower on scroll and follows the pointer.',
       'aggressive-apparel'
     );
   }
   if (depth >= 10) {
     return __(
-      '🎯 Foreground — sweeps faster on scroll and moves against the pointer.',
+      'Foreground — sweeps faster on scroll and moves against the pointer.',
       'aggressive-apparel'
     );
   }
   return __(
-    '📍 Focal plane — anchored; other layers move around it.',
+    'Focal plane — anchored; other layers move around it.',
     'aggressive-apparel'
   );
 };
@@ -235,20 +237,12 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
               __nextHasNoMarginBottom
             />
 
-            <hr
-              style={{
-                margin: '16px 0',
-                border: 'none',
-                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-              }}
-            />
-
             <DirectionPicker
               value={parallaxSettings.direction}
               onChange={value => updateParallaxSetting('direction', value)}
             />
 
-            <Flex>
+            <Flex style={{ marginTop: '24px' }}>
               <FlexItem style={{ flex: 1, marginRight: '8px' }}>
                 <RangeControl
                   label={__('Speed', 'aggressive-apparel')}
@@ -346,26 +340,35 @@ function Edit({
             __nextHasNoMarginBottom
           />
 
-          <SelectControl
+          <ToggleGroupControl
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+            isBlock
             label={__('Direction', 'aggressive-apparel')}
-            value={parallaxDirection as 'up' | 'down' | 'both'}
-            options={[
-              { label: __('Down', 'aggressive-apparel'), value: 'down' },
-              { label: __('Up', 'aggressive-apparel'), value: 'up' },
-              { label: __('Both', 'aggressive-apparel'), value: 'both' },
-            ]}
-            onChange={(value: string) =>
+            value={parallaxDirection}
+            onChange={value =>
               setAttributes({
-                parallaxDirection: value as 'up' | 'down' | 'both',
+                parallaxDirection: String(value) as 'up' | 'down' | 'both',
               })
             }
             help={__(
               'Default movement direction (each layer can override it).',
               'aggressive-apparel'
             )}
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-          />
+          >
+            <ToggleGroupControlOption
+              value='down'
+              label={__('Down', 'aggressive-apparel')}
+            />
+            <ToggleGroupControlOption
+              value='up'
+              label={__('Up', 'aggressive-apparel')}
+            />
+            <ToggleGroupControlOption
+              value='both'
+              label={__('Both', 'aggressive-apparel')}
+            />
+          </ToggleGroupControl>
 
           <RangeControl
             label={__('Smoothing', 'aggressive-apparel')}
@@ -399,25 +402,12 @@ function Edit({
 
           {enableMouseInteraction && (
             <>
-              <div
-                style={{
-                  ...EDITOR_INFO_NOTICE_STYLE,
-                  marginBottom: '16px',
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: '12px',
-                    color: EDITOR_COLOR_TOKENS.info,
-                  }}
-                >
-                  {__(
-                    'Select a block inside this container and set its Depth: negative sits behind the focal plane, positive floats in front. Near layers react more; far layers less.',
-                    'aggressive-apparel'
-                  )}
-                </p>
-              </div>
+              <Notice status='info' isDismissible={false}>
+                {__(
+                  'Select a block inside this container and set its Depth: negative sits behind the focal plane, positive floats in front. Near layers react more; far layers less.',
+                  'aggressive-apparel'
+                )}
+              </Notice>
 
               <RangeControl
                 label={__('Pointer influence', 'aggressive-apparel')}
@@ -534,55 +524,48 @@ function Edit({
             __nextHasNoMarginBottom
           />
 
-          <div
-            style={{
-              ...EDITOR_FIELDSET_STYLE,
-              marginTop: '16px',
-              marginBottom: '8px',
-            }}
+          <BaseControl
+            __nextHasNoMarginBottom
+            id='aa-parallax-detection-boundary'
+            label={__('Detection boundary', 'aggressive-apparel')}
+            help={__(
+              'Extend the trigger zone beyond the block. Use percentages, e.g. "100%" reaches one screen above.',
+              'aggressive-apparel'
+            )}
           >
-            <label
-              style={{
-                display: 'block',
-                fontWeight: '600',
-                marginBottom: '8px',
-                color: EDITOR_COLOR_TOKENS.foreground,
-              }}
-            >
-              {__('Detection Boundary', 'aggressive-apparel')}
-            </label>
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 gap: '8px',
+                marginTop: '8px',
               }}
             >
               <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Top', 'aggressive-apparel')}
                 value={detectionBoundary.top}
                 onChange={value =>
                   setAttributes({
-                    detectionBoundary: {
-                      ...detectionBoundary,
-                      top: value,
-                    },
+                    detectionBoundary: { ...detectionBoundary, top: value },
                   })
                 }
               />
               <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Right', 'aggressive-apparel')}
                 value={detectionBoundary.right}
                 onChange={value =>
                   setAttributes({
-                    detectionBoundary: {
-                      ...detectionBoundary,
-                      right: value,
-                    },
+                    detectionBoundary: { ...detectionBoundary, right: value },
                   })
                 }
               />
               <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Bottom', 'aggressive-apparel')}
                 value={detectionBoundary.bottom}
                 onChange={value =>
@@ -595,30 +578,18 @@ function Edit({
                 }
               />
               <TextControl
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
                 label={__('Left', 'aggressive-apparel')}
                 value={detectionBoundary.left}
                 onChange={value =>
                   setAttributes({
-                    detectionBoundary: {
-                      ...detectionBoundary,
-                      left: value,
-                    },
+                    detectionBoundary: { ...detectionBoundary, left: value },
                   })
                 }
               />
             </div>
-            <p
-              style={{
-                ...EDITOR_HELP_TEXT_STYLE,
-                margin: '8px 0 0 0',
-              }}
-            >
-              {__(
-                'Define a custom trigger zone beyond the element boundaries. Use percentages (e.g., "100%" extends 100% above element)',
-                'aggressive-apparel'
-              )}
-            </p>
-          </div>
+          </BaseControl>
 
           <ToggleControl
             label={__('Debug Mode', 'aggressive-apparel')}

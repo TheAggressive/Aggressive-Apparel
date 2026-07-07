@@ -189,9 +189,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           {/* Rotation Effect Controls */}
           <div
             style={{
-              marginTop: '16px',
-              borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-              paddingTop: '16px',
+              marginTop: '24px',
             }}
           >
             <ToggleControl
@@ -302,9 +300,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
           {isInsideParallax && isMouseInteractionEnabled && (
             <div
               style={{
-                marginTop: '16px',
-                borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-                paddingTop: '16px',
+                marginTop: '24px',
               }}
             >
               <ToggleControl
@@ -440,9 +436,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         {/* Blur Effect Controls */}
         <div
           style={{
-            marginTop: '16px',
-            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-            paddingTop: '16px',
+            marginTop: '24px',
           }}
         >
           <ToggleControl
@@ -507,9 +501,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         {/* Color Transition Effect Controls */}
         <div
           style={{
-            marginTop: '16px',
-            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-            paddingTop: '16px',
+            marginTop: '24px',
           }}
         >
           <ToggleControl
@@ -597,9 +589,7 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
         {/* Dynamic Shadow Effect Controls */}
         <div
           style={{
-            marginTop: '16px',
-            borderTop: `1px solid ${EDITOR_COLOR_TOKENS.border}`,
-            paddingTop: '16px',
+            marginTop: '24px',
           }}
         >
           <ToggleControl

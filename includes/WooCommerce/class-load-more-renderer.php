@@ -38,13 +38,6 @@ class Load_More_Renderer {
 	private const FACETS_CACHE_TTL      = 300;
 	private const FACETS_VERSION_OPTION = 'aa_pf_facets_version';
 
-	/** Template slugs that contain a woocommerce/product-template block. */
-	private const PRODUCT_TEMPLATES = array(
-		'archive-product',
-		'taxonomy-product_cat',
-		'taxonomy-product_tag',
-	);
-
 	/**
 	 * Parsed inner-block cache keyed by template slug (per-request).
 	 *
@@ -143,8 +136,10 @@ class Load_More_Renderer {
 					'template'    => array(
 						'default'           => 'archive-product',
 						'type'              => 'string',
-						'enum'              => self::PRODUCT_TEMPLATES,
-						'sanitize_callback' => 'sanitize_text_field',
+						'maxLength'         => 200,
+						// The client forwards WordPress's resolved wp_template post-name.
+						// sanitize_title prevents paths while retaining valid hierarchy slugs.
+						'sanitize_callback' => static fn( $value ): string => sanitize_title( (string) $value ),
 					),
 					// Filter params (used by the product-filters UI). All optional.
 					'category'    => array(
@@ -252,14 +247,15 @@ class Load_More_Renderer {
 			return $this->rate_limited_response();
 		}
 
-		if ( ! in_array( $template_slug, self::PRODUCT_TEMPLATES, true ) ) {
+		if ( '' === $template_slug ) {
 			$template_slug = 'archive-product';
 		}
 
 		$inner_blocks = $this->get_template_inner_blocks( $template_slug );
 
-		// Tag / brand / attribute archives have no template of their own and
-		// render via archive-product — fall back to its product grid.
+		// A resolved template may not contain a product-template block (for
+		// example, a broad archive fallback or malformed client input). Never
+		// render arbitrary template content; use the canonical product archive.
 		if ( empty( $inner_blocks ) && 'archive-product' !== $template_slug ) {
 			$inner_blocks = $this->get_template_inner_blocks( 'archive-product' );
 		}

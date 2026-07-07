@@ -225,10 +225,11 @@ class Load_More {
 	}
 
 	/**
-	 * Return the FSE template slug used to render the product grid.
+	 * Return the resolved FSE template slug used to render the product grid.
 	 *
-	 * Only product categories have a dedicated template; tag, brand and
-	 * attribute archives fall through WordPress's hierarchy to archive-product.
+	 * Product_Context reads WordPress's winning template ID, preserving the full
+	 * hierarchy (including term-specific templates), with archive-type fallbacks
+	 * for calls made before template resolution.
 	 *
 	 * @return string
 	 */

@@ -7,8 +7,10 @@
  * @package Aggressive_Apparel
  */
 
-/* Product collection rhythm. */
-.wp-block-woocommerce-product-collection {
+/* Product collection rhythm. Keep visual defaults specificity-free so palette
+   and typography classes saved by the Site Editor always win, including on
+   cards appended by Load More / Infinite Scroll. */
+:where(.wp-block-woocommerce-product-collection) {
 	--aa-wc-product-card-padding: var(--wp--preset--spacing--5);
 
 	color: var(--aa-color-foreground);
@@ -92,9 +94,8 @@
 	transform: scale(1.03);
 }
 
-/* Product text hierarchy. */
-.wp-block-woocommerce-product-title,
-.wc-block-grid__product-title {
+/* Product text hierarchy. Defaults remain specificity-free for editor styles. */
+:where(.wp-block-woocommerce-product-title, .wc-block-grid__product-title) {
 	color: var(--aa-color-foreground);
 	font-weight: var(--aa-type-product-title-weight);
 	font-size: var(--aa-type-product-title-size);
@@ -118,9 +119,11 @@
 	text-decoration: none;
 }
 
-.wp-block-woocommerce-product-title a:hover,
-.wc-block-components-product-name a:hover,
-.wc-block-grid__product-title a:hover {
+:where(
+	.wp-block-woocommerce-product-title a:hover,
+	.wc-block-components-product-name a:hover,
+	.wc-block-grid__product-title a:hover
+) {
 	color: var(--aa-color-accent);
 }
 
@@ -128,8 +131,7 @@
    font-size is only set on the outermost block wrappers so the editor's
    .has-X-font-size class (which targets those same elements with !important)
    can cascade into the inner elements via inheritance. */
-.wp-block-woocommerce-product-price,
-.wc-block-grid__product-price {
+:where(.wp-block-woocommerce-product-price, .wc-block-grid__product-price) {
 	font-size: inherit;
 	font-weight: inherit;
 	line-height: inherit;
@@ -170,15 +172,24 @@
 	text-decoration: none;
 }
 
+/* An explicit editor color applies to the complete price, including regular
+   and sale amounts. Without this, the semantic del/ins defaults win because a
+   directly assigned color outranks an inherited wrapper color. */
+.wp-block-woocommerce-product-price.has-text-color :is(del, ins),
+.wp-block-woocommerce-product-price[style*='color:'] :is(del, ins) {
+	color: inherit;
+}
+
 /* Ratings and sale/status badges. */
-.wc-block-components-product-rating__stars,
-.wc-block-grid__product-rating .star-rating {
+.wp-block-woocommerce-product-rating .wc-block-components-product-rating__stars {
+	color: inherit;
+}
+
+:where(.wc-block-grid__product-rating .star-rating) {
 	color: var(--aa-color-warning);
 }
 
-.wc-block-components-sale-badge,
-.wc-block-grid__product-onsale,
-.onsale {
+:where(.wc-block-components-sale-badge, .wc-block-grid__product-onsale, .onsale) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -196,10 +207,12 @@
 }
 
 /* WooCommerce block buttons follow theme CTA language. */
-.wp-block-woocommerce-product-button .wp-block-button__link,
-.wc-block-grid__product-add-to-cart .wp-block-button__link,
-.wc-block-components-product-button .wp-block-button__link,
-.wc-block-components-button {
+:where(
+	.wp-block-woocommerce-product-button .wp-block-button__link,
+	.wc-block-grid__product-add-to-cart .wp-block-button__link,
+	.wc-block-components-product-button .wp-block-button__link,
+	.wc-block-components-button
+) {
 	border-radius: var(--aa-radius-button);
 	font-weight: 700;
 	text-transform: uppercase;

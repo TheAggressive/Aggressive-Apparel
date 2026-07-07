@@ -67,4 +67,42 @@ class TestStyles extends WP_UnitTestCase {
 		$this->assertStringContainsString( '.wc-block-mini-cart__button:focus-visible .wc-block-mini-cart__badge', $css, 'Keyboard reveal should be built.' );
 		$this->assertStringContainsString( 'prefers-reduced-motion:reduce', $css, 'Reduced-motion fallback should be built.' );
 	}
+
+	/**
+	 * Product-card defaults must not outrank styles saved by the Site Editor.
+	 *
+	 * Load More and Infinite Scroll append freshly rendered cards to the native
+	 * product template. Keeping theme defaults in :where() ensures the palette
+	 * and typography classes on those cards win regardless of stylesheet order.
+	 */
+	public function test_product_card_defaults_preserve_editor_styles() {
+		$css_file = get_template_directory() . '/src/styles/woocommerce/blocks.css';
+
+		$this->assertFileExists( $css_file );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source artifact in a test.
+		$css = file_get_contents( $css_file );
+		$this->assertIsString( $css );
+
+		$this->assertStringContainsString(
+			':where(.wp-block-woocommerce-product-collection)',
+			$css,
+			'Product Collection defaults should remain specificity-free.'
+		);
+		$this->assertStringContainsString(
+			':where(.wp-block-woocommerce-product-title, .wc-block-grid__product-title)',
+			$css,
+			'Product title defaults should remain specificity-free.'
+		);
+
+		$theme_json_file = get_template_directory() . '/theme.json';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local theme configuration in a test.
+		$theme_json = file_get_contents( $theme_json_file );
+		$this->assertIsString( $theme_json );
+		$this->assertStringNotContainsString(
+			'font-weight: 400 !important',
+			$theme_json,
+			'Global heading defaults must not override editor-selected typography.'
+		);
+	}
 }

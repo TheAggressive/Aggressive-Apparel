@@ -128,6 +128,83 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create an active-theme block template in the Site Editor data store.
+	 *
+	 * @param string $slug    Template post-name.
+	 * @param string $content Serialized block content.
+	 * @return int Template post ID.
+	 */
+	private function create_block_template( string $slug, string $content ): int {
+		$template_id = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_template',
+				'post_status'  => 'publish',
+				'post_name'    => $slug,
+				'post_title'   => $slug,
+				'post_content' => $content,
+			)
+		);
+
+		wp_set_object_terms( $template_id, get_stylesheet(), 'wp_theme' );
+		wp_cache_flush();
+
+		return $template_id;
+	}
+
+	/**
+	 * A term-specific resolved template supplies the appended card structure.
+	 *
+	 * @return void
+	 */
+	public function test_term_specific_template_renders_its_product_card_blocks(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 25.0, array( 'shirts' ) );
+		$this->create_block_template(
+			'taxonomy-product_cat-shirts',
+			'<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:paragraph {"className":"resolved-template-card","style":{"color":{"text":"#123456"}}} -->'
+			. '<p class="resolved-template-card has-text-color" style="color:#123456">Resolved template card</p>'
+			. '<!-- /wp:paragraph -->'
+			. '<!-- /wp:woocommerce/product-template -->'
+		);
+
+		$response = $this->dispatch(
+			array(
+				'template' => 'taxonomy-product_cat-shirts',
+				'category' => 'shirts',
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertStringContainsString( 'resolved-template-card', $data['html'] );
+		$this->assertStringContainsString( 'color:#123456', $data['html'] );
+	}
+
+	/**
+	 * Missing or irrelevant resolved templates retain the product archive card.
+	 *
+	 * @return void
+	 */
+	public function test_missing_template_falls_back_to_product_archive(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 30.0 );
+
+		$response = $this->dispatch( array( 'template' => 'missing-product-template' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertStringContainsString( 'wp-block-post-title', $data['html'] );
+		$this->assertStringNotContainsString( 'Template not found', $data['html'] );
+	}
+
+	/**
 	 * The full set of filter params must sanitize and dispatch without a fatal.
 	 *
 	 * Regression: `floatval` / `sanitize_title` sanitize callbacks threw

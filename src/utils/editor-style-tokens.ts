@@ -2,7 +2,11 @@ import type { CSSProperties } from 'react';
 
 export const EDITOR_COLOR_TOKENS = {
   foreground: 'var(--aa-color-foreground, currentColor)',
-  muted: 'var(--aa-color-foreground-muted, currentColor)',
+  // Adaptive foreground-muted is tuned for page body copy; in the block
+  // editor sidebar it reads too faint at 10–12px. Mix from foreground so
+  // secondary text stays readable in both admin chrome and the canvas.
+  muted:
+    'color-mix(in srgb, var(--aa-color-foreground, currentColor) 70%, transparent)',
   subtle: 'var(--aa-color-muted-50, currentColor)',
   surface: 'var(--aa-color-surface-elevated, transparent)',
   neutralBg: 'var(--aa-color-neutral-bg, transparent)',

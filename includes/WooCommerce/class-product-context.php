@@ -189,16 +189,33 @@ class Product_Context {
 	}
 
 	/**
-	 * Resolve the block-template slug for the current product archive.
+	 * Resolve the block-template slug WordPress selected for this request.
 	 *
 	 * Used by the rendered-products endpoint so Load More, infinite scroll and
-	 * filtering all render cards from the same template WordPress uses for the
-	 * current page (e.g. a customised "Products by Category" template), rather
-	 * than always falling back to `archive-product`.
+	 * filtering render cards from the same template as the initial page. The
+	 * resolved template ID honors WordPress's complete hierarchy, including
+	 * term-specific and Site Editor-created templates. The archive-type mapping
+	 * remains as a fallback when this method runs before template resolution.
 	 *
-	 * @return string One of the supported product template slugs.
+	 * @return string Resolved block-template slug.
 	 */
 	public static function get_current_template_slug(): string {
+		global $_wp_current_template_id;
+
+		$theme_prefix = get_stylesheet() . '//';
+		if (
+			is_string( $_wp_current_template_id )
+			&& str_starts_with( $_wp_current_template_id, $theme_prefix )
+		) {
+			$resolved_slug = substr( $_wp_current_template_id, strlen( $theme_prefix ) );
+
+			// Block-template slugs are post-name values. Reject malformed globals
+			// rather than forwarding a path or an unrelated template identifier.
+			if ( '' !== $resolved_slug && sanitize_title( $resolved_slug ) === $resolved_slug ) {
+				return $resolved_slug;
+			}
+		}
+
 		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
 			return 'taxonomy-product_cat';
 		}

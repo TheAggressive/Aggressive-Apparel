@@ -1,3 +1,17 @@
+# [1.138.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.137.0...v1.138.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* align load more rendering with resolved product templates ([fe050d2](https://github.com/TheAggressive/Aggressive-Apparel/commit/fe050d2904fb8ebe3696e04dc7be506ce3d6475b))
+
+
+### Features
+
+* add hero carousel block with Cover slides and autoplay controls ([df2a455](https://github.com/TheAggressive/Aggressive-Apparel/commit/df2a4553918fb6490e0e4c508c215223932fb2ca))
+* refactor animate-on-scroll editor with preset and sequence UI ([53cf44e](https://github.com/TheAggressive/Aggressive-Apparel/commit/53cf44e8fb7b80cbb71974c019b2794677e09f9b))
+* streamline parallax block editor controls ([0795e29](https://github.com/TheAggressive/Aggressive-Apparel/commit/0795e292d8fc4f59e68e4d660c80b9bab3b896f4))
+
 # [1.137.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.136.0...v1.137.0) (2026-07-06)
 
 

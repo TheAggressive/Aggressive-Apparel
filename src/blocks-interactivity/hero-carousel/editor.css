@@ -1,0 +1,83 @@
+/* Hero Carousel Block — Editor Styles.
+ *
+ * Two editor layouts: a horizontal snap strip that mirrors the frontend
+ * track, and a stacked edit mode (toggle in the inspector) that lays all
+ * slides out vertically for comfortable editing.
+ */
+
+.aa-hero-editor {
+  position: relative;
+}
+
+/* Meta badge so the carousel boundary is obvious in the canvas. */
+.aa-hero-editor__meta {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.aa-hero-editor:hover .aa-hero-editor__meta,
+.aa-hero-editor.is-selected .aa-hero-editor__meta,
+.aa-hero-editor.has-child-selected .aa-hero-editor__meta {
+  opacity: 1;
+}
+
+.aa-hero-editor__badge,
+.aa-hero-editor__count {
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.aa-hero-editor__badge {
+  background-color: var(--wp-admin-theme-color, var(--aa-color-info));
+  color: var(--wp--preset--color--white);
+}
+
+.aa-hero-editor__count {
+  background-color: rgb(0 0 0 / 70%);
+  color: var(--wp--preset--color--white);
+}
+
+/* Strip mode — horizontal snap track mirroring the frontend engine. */
+.aa-hero-editor--strip .aa-hero-editor__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.aa-hero-editor--strip .aa-hero-editor__track > .wp-block-cover {
+  scroll-snap-align: start;
+  min-height: var(--aa-hero-min-height, 85svh);
+  margin: 0;
+}
+
+/* Stacked mode — all slides vertical with a divider between them. */
+.aa-hero-editor--stacked .aa-hero-editor__track {
+  display: grid;
+  gap: 1rem;
+}
+
+.aa-hero-editor--stacked .aa-hero-editor__track > .wp-block-cover {
+  outline: 1px dashed var(--wp-admin-theme-color, var(--aa-color-info));
+  outline-offset: 2px;
+  margin: 0;
+}
+
+/* Keep the appender visible and clear of the badge. */
+.aa-hero-editor__track > .block-list-appender {
+  position: relative;
+  padding: 1rem;
+}

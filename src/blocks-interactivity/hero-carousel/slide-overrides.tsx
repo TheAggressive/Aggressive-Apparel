@@ -1,0 +1,153 @@
+/**
+ * Hero Carousel — per-slide Cover overrides (editor only).
+ *
+ * Adds per-slide attributes to core/cover plus a "Hero Slide" inspector panel
+ * that appears only when the Cover sits inside a hero-carousel:
+ *   - `aaHeroKenBurns` overrides the carousel-level Ken Burns mode.
+ *   - `aaHeroStart` / `aaHeroEnd` schedule a visibility window.
+ * render.php reads these to override motion and to drop out-of-window slides.
+ *
+ * @package Aggressive_Apparel
+ */
+
+import type { ComponentType } from 'react';
+import {
+  InspectorControls,
+  store as blockEditorStore,
+} from '@wordpress/block-editor';
+import type { BlockEditProps } from '@wordpress/blocks';
+import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
+
+const PARENT_BLOCK = 'aggressive-apparel/hero-carousel';
+
+interface CoverHeroAttributes {
+  aaHeroKenBurns?: string;
+  aaHeroStart?: string;
+  aaHeroEnd?: string;
+  [key: string]: unknown;
+}
+
+interface BlockRegistrationSettings {
+  attributes?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+const KEN_BURNS_OPTIONS = [
+  { label: __('Inherit from carousel', 'aggressive-apparel'), value: '' },
+  { label: __('None', 'aggressive-apparel'), value: 'none' },
+  { label: __('Zoom in', 'aggressive-apparel'), value: 'zoom-in' },
+  { label: __('Zoom out', 'aggressive-apparel'), value: 'zoom-out' },
+];
+
+/** Register the per-slide attribute on core/cover only. */
+addFilter(
+  'blocks.registerBlockType',
+  'aggressive-apparel/hero-slide-attributes',
+  (settings: BlockRegistrationSettings, name: string) => {
+    if (name !== 'core/cover') {
+      return settings;
+    }
+    return {
+      ...settings,
+      attributes: {
+        ...(settings.attributes ?? {}),
+        aaHeroKenBurns: { type: 'string', default: '' },
+        aaHeroStart: { type: 'string', default: '' },
+        aaHeroEnd: { type: 'string', default: '' },
+      },
+    };
+  }
+);
+
+const withHeroSlideControls = createHigherOrderComponent(
+  (BlockEdit: ComponentType<BlockEditProps<CoverHeroAttributes>>) => {
+    const WithHeroSlideControls = (
+      props: BlockEditProps<CoverHeroAttributes> & { name: string }
+    ) => {
+      const isHeroSlide = useSelect(
+        select => {
+          if (props.name !== 'core/cover') {
+            return false;
+          }
+          const { getBlockParentsByBlockName } = select(blockEditorStore) as {
+            getBlockParentsByBlockName: (
+              clientId: string,
+              blockName: string
+            ) => string[];
+          };
+          return (
+            getBlockParentsByBlockName(props.clientId, PARENT_BLOCK).length > 0
+          );
+        },
+        [props.clientId, props.name]
+      );
+
+      if (!isHeroSlide) {
+        return <BlockEdit {...props} />;
+      }
+
+      const { attributes, setAttributes } = props;
+      return (
+        <>
+          <BlockEdit {...props} />
+          <InspectorControls>
+            <PanelBody
+              title={__('Hero Slide', 'aggressive-apparel')}
+              initialOpen={false}
+            >
+              <SelectControl<string>
+                label={__('Ken Burns (this slide)', 'aggressive-apparel')}
+                help={__(
+                  'Override the carousel background animation for just this slide.',
+                  'aggressive-apparel'
+                )}
+                value={attributes.aaHeroKenBurns ?? ''}
+                options={KEN_BURNS_OPTIONS}
+                onChange={value => setAttributes({ aaHeroKenBurns: value })}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+              <TextControl
+                type='datetime-local'
+                label={__('Show from', 'aggressive-apparel')}
+                help={__(
+                  'Optional. Hide this slide before this time (site timezone).',
+                  'aggressive-apparel'
+                )}
+                value={attributes.aaHeroStart ?? ''}
+                onChange={value => setAttributes({ aaHeroStart: value })}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+              <TextControl
+                type='datetime-local'
+                label={__('Show until', 'aggressive-apparel')}
+                help={__(
+                  'Optional. Hide this slide from this time onward (site timezone).',
+                  'aggressive-apparel'
+                )}
+                value={attributes.aaHeroEnd ?? ''}
+                onChange={value => setAttributes({ aaHeroEnd: value })}
+                __next40pxDefaultSize
+                __nextHasNoMarginBottom
+              />
+            </PanelBody>
+          </InspectorControls>
+        </>
+      );
+    };
+    WithHeroSlideControls.displayName = 'WithHeroSlideControls';
+    return WithHeroSlideControls;
+  },
+  'withHeroSlideControls'
+);
+
+addFilter(
+  'editor.BlockEdit',
+  'aggressive-apparel/hero-slide-controls',
+  withHeroSlideControls
+);

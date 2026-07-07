@@ -1,0 +1,109 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/hero-carousel",
+  "version": "1.0.0",
+  "title": "Hero Carousel",
+  "category": "aggressive-apparel",
+  "description": "A full-bleed hero slider built from Cover blocks. Ken Burns backgrounds, autoplay with pause control, and adaptive light/dark chrome.",
+  "keywords": ["carousel", "slider", "hero", "slideshow", "cover", "ken burns"],
+  "allowedBlocks": ["core/cover"],
+  "supports": {
+    "html": false,
+    "interactivity": true,
+    "align": ["wide", "full"],
+    "anchor": true,
+    "spacing": {
+      "margin": true
+    }
+  },
+  "attributes": {
+    "transition": {
+      "type": "string",
+      "default": "slide",
+      "enum": ["slide", "fade", "crossfade"]
+    },
+    "minHeight": {
+      "type": "string",
+      "default": "85svh"
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "autoplaySpeed": {
+      "type": "number",
+      "default": 6000
+    },
+    "loop": {
+      "type": "boolean",
+      "default": true
+    },
+    "pauseOnHover": {
+      "type": "boolean",
+      "default": true
+    },
+    "transitionMs": {
+      "type": "number",
+      "default": 700
+    },
+    "showArrows": {
+      "type": "boolean",
+      "default": true
+    },
+    "arrowPosition": {
+      "type": "string",
+      "default": "edges",
+      "enum": ["edges", "bottom"]
+    },
+    "pagination": {
+      "type": "string",
+      "default": "dots",
+      "enum": ["dots", "lines", "numbers", "fraction", "thumbnails", "none"]
+    },
+    "showProgress": {
+      "type": "boolean",
+      "default": true
+    },
+    "deepLink": {
+      "type": "boolean",
+      "default": false
+    },
+    "kenBurns": {
+      "type": "string",
+      "default": "alternate",
+      "enum": ["none", "zoom-in", "zoom-out", "alternate", "random"]
+    },
+    "kenBurnsDuration": {
+      "type": "number",
+      "default": 12
+    },
+    "contentAnimation": {
+      "type": "string",
+      "default": "fade-up",
+      "enum": ["none", "fade-up", "clip", "blur"]
+    },
+    "arrowColor": {
+      "type": "string",
+      "default": ""
+    },
+    "arrowBg": {
+      "type": "string",
+      "default": ""
+    },
+    "dotColor": {
+      "type": "string",
+      "default": ""
+    },
+    "dotActiveColor": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

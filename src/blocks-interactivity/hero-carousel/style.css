@@ -1,0 +1,626 @@
+/* Hero Carousel Block — Frontend Styles.
+ *
+ * Slides are core/cover blocks; this layer owns the engine (snap track /
+ * fade stack), Ken Burns, content entrance choreography, and the chrome
+ * (arrows, pagination, play/pause). All chrome colors resolve through
+ * --aa-hero-* custom properties that default to the adaptive --aa-* palette
+ * so light/dark just works; block attributes override them inline.
+ */
+
+.aa-hero {
+  --aa-hero-min-height: 85svh;
+  --aa-hero-transition-ms: 700ms;
+  --aa-hero-kb-duration: 12s;
+  --aa-hero-kb-scale: 1.08;
+  --aa-hero-autoplay-ms: 6000ms;
+  --aa-hero-arrow-color: var(--aa-color-foreground, currentcolor);
+  --aa-hero-arrow-bg: color-mix(in oklch, var(--aa-color-surface) 65%, transparent);
+  --aa-hero-dot-color: color-mix(in oklch, var(--wp--preset--color--white) 55%, transparent);
+  --aa-hero-dot-active-color: var(--wp--preset--color--white);
+  --aa-hero-chrome-gap: var(--wp--preset--spacing--4, 1rem);
+
+  position: relative;
+}
+
+.aa-hero__viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Track engine                                                            */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__track {
+  display: grid;
+}
+
+/* Slide mode: native scroll-snap track — touch momentum for free. */
+.aa-hero--slide .aa-hero__track {
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.aa-hero--slide .aa-hero__track::-webkit-scrollbar {
+  display: none;
+}
+
+.aa-hero--slide .aa-hero__slide {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Fade mode: absolutely stacked slides, opacity-only transitions. */
+.aa-hero--fade .aa-hero__track {
+  grid-template-areas: 'slide';
+}
+
+.aa-hero--fade .aa-hero__slide {
+  grid-area: slide;
+  opacity: 0;
+  transition: opacity var(--aa-hero-transition-ms) ease;
+  pointer-events: none;
+}
+
+.aa-hero--fade .aa-hero__slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Crossfade + zoom: fade stack with a subtle scale-in on the whole slide.
+   The slide-level scale is independent of the Ken Burns transform (which
+   targets the inner Cover media), so the two compose without conflict. */
+.aa-hero--crossfade .aa-hero__track {
+  grid-template-areas: 'slide';
+}
+
+.aa-hero--crossfade .aa-hero__slide {
+  grid-area: slide;
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity var(--aa-hero-transition-ms) ease,
+    transform var(--aa-hero-transition-ms) cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.aa-hero--crossfade .aa-hero__slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Slides (Cover blocks)                                                   */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__slide {
+  position: relative;
+  min-height: 85vh; /* Fallback when svh units are unsupported. */
+  min-height: var(--aa-hero-min-height);
+  overflow: hidden;
+  display: grid;
+}
+
+/* The Cover is the slide's sizing contract — fill the slide box and let
+   the carousel's min-height win over the Cover's own inline min-height. */
+.aa-hero__slide > .wp-block-cover {
+  height: 100%;
+  min-height: 100% !important;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Ken Burns — GPU-composited transform on the Cover media only            */
+
+/* ---------------------------------------------------------------------- */
+
+/* Gate the base transform setup on the per-slide variant class (not a
+   carousel-level flag) so a per-slide Ken Burns override still animates even
+   when the carousel default is None, and vice versa. */
+.aa-hero__slide--kb-zoom-in .wp-block-cover__image-background,
+.aa-hero__slide--kb-zoom-in .wp-block-cover__video-background,
+.aa-hero__slide--kb-zoom-out .wp-block-cover__image-background,
+.aa-hero__slide--kb-zoom-out .wp-block-cover__video-background {
+  transform-origin: var(--aa-hero-kb-origin, center center);
+  will-change: transform;
+}
+
+.aa-hero__slide--kb-zoom-in.is-active .wp-block-cover__image-background,
+.aa-hero__slide--kb-zoom-in.is-active .wp-block-cover__video-background {
+  animation: aa-hero-kb-in var(--aa-hero-kb-duration) ease-out forwards;
+}
+
+.aa-hero__slide--kb-zoom-out.is-active .wp-block-cover__image-background,
+.aa-hero__slide--kb-zoom-out.is-active .wp-block-cover__video-background {
+  animation: aa-hero-kb-out var(--aa-hero-kb-duration) ease-out forwards;
+}
+
+@keyframes aa-hero-kb-in {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-kb-scale));
+  }
+}
+
+@keyframes aa-hero-kb-out {
+
+  from {
+    transform: scale(var(--aa-hero-kb-scale));
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Content entrance choreography — staggered children on slide activation  */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero--content-fade-up .aa-hero__slide.is-active .wp-block-cover__inner-container > *,
+.aa-hero--content-clip .aa-hero__slide.is-active .wp-block-cover__inner-container > *,
+.aa-hero--content-blur .aa-hero__slide.is-active .wp-block-cover__inner-container > * {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+.aa-hero--content-fade-up .aa-hero__slide.is-active .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-fade-up;
+}
+
+.aa-hero--content-clip .aa-hero__slide.is-active .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-clip;
+}
+
+.aa-hero--content-blur .aa-hero__slide.is-active .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-blur;
+}
+
+/* Kicker → headline → copy → CTA stagger. */
+.aa-hero__slide.is-active .wp-block-cover__inner-container > *:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.aa-hero__slide.is-active .wp-block-cover__inner-container > *:nth-child(2) {
+  animation-delay: 220ms;
+}
+
+.aa-hero__slide.is-active .wp-block-cover__inner-container > *:nth-child(3) {
+  animation-delay: 340ms;
+}
+
+.aa-hero__slide.is-active .wp-block-cover__inner-container > *:nth-child(n + 4) {
+  animation-delay: 460ms;
+}
+
+@keyframes aa-hero-content-fade-up {
+
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aa-hero-content-clip {
+
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes aa-hero-content-blur {
+
+  from {
+    opacity: 0;
+    filter: blur(12px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Arrows                                                                  */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: var(--aa-hero-arrow-bg);
+  color: var(--aa-hero-arrow-color);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 200ms ease,
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+
+.aa-hero__arrow:hover {
+  background-color: color-mix(in oklch, var(--aa-hero-arrow-bg) 100%, var(--aa-color-surface) 25%);
+  transform: scale(1.06);
+}
+
+.aa-hero__arrow:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: 2px;
+}
+
+.aa-hero__arrow[disabled] {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+.aa-hero__arrow svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Edge placement: vertically centered on the left/right rails. */
+.aa-hero--arrows-edges .aa-hero__arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+}
+
+.aa-hero--arrows-edges .aa-hero__arrow--prev {
+  inset-inline-start: var(--aa-hero-chrome-gap);
+}
+
+.aa-hero--arrows-edges .aa-hero__arrow--next {
+  inset-inline-end: var(--aa-hero-chrome-gap);
+}
+
+/* Bottom placement: arrows join the bottom bar cluster. */
+.aa-hero--arrows-bottom .aa-hero__arrows {
+  position: absolute;
+  inset-block-end: var(--aa-hero-chrome-gap);
+  inset-inline-end: var(--aa-hero-chrome-gap);
+  z-index: 2;
+  display: flex;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Bottom bar: pagination + play/pause                                     */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__bar {
+  position: absolute;
+  inset-block-end: var(--aa-hero-chrome-gap);
+  inset-inline: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+  pointer-events: none;
+}
+
+.aa-hero__bar > * {
+  pointer-events: auto;
+}
+
+.aa-hero__pagination {
+  display: flex;
+  align-items: center;
+}
+
+/* Dots — 44px hit targets with a small visual marker inside. */
+.aa-hero__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0 -0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--aa-hero-dot-color);
+  cursor: pointer;
+}
+
+.aa-hero__dot::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: currentcolor;
+  transition:
+    width 250ms ease,
+    background-color 250ms ease;
+}
+
+.aa-hero__dot[aria-current='true'] {
+  color: var(--aa-hero-dot-active-color);
+}
+
+.aa-hero__dot:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: -6px;
+  border-radius: var(--aa-radius-full, 9999px);
+}
+
+/* Active dot stretches to a pill; doubles as the autoplay progress rail. */
+.aa-hero__pagination--dots .aa-hero__dot[aria-current='true']::before {
+  width: 1.75rem;
+}
+
+.aa-hero__pagination--progress .aa-hero__dot {
+  position: relative;
+}
+
+.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::before {
+  background-color: color-mix(in oklch, currentcolor 40%, transparent);
+}
+
+.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  --aa-hero-progress-w: 1.75rem;
+
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(50% - 0.875rem);
+
+  /* Grow via width: transform: scaleX() would squash the pill's rounded ends
+     into flat edges as it fills. */
+  width: 0;
+  height: 0.5rem;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: currentcolor;
+}
+
+.aa-hero.is-playing .aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  animation: aa-hero-progress var(--aa-hero-autoplay-ms) linear forwards;
+}
+
+@keyframes aa-hero-progress {
+
+  from {
+    width: 0;
+  }
+
+  to {
+    width: var(--aa-hero-progress-w, 1.75rem);
+  }
+}
+
+/* Lines — flat bars instead of dots. */
+
+/* Reset the dot-tuned negative margin; the wider line bars would otherwise
+   overlap each other and the active bar (matches the numbers variant). */
+.aa-hero__pagination--lines .aa-hero__dot {
+  margin: 0;
+}
+
+.aa-hero__pagination--lines .aa-hero__dot::before {
+  width: 1.75rem;
+  height: 0.2rem;
+  border-radius: 0;
+}
+
+.aa-hero__pagination--lines .aa-hero__dot[aria-current='true']::before {
+  width: 2.5rem;
+}
+
+.aa-hero__pagination--lines.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  --aa-hero-progress-w: 2.5rem;
+
+  inset-inline-start: calc(50% - 1.25rem);
+  height: 0.2rem;
+  border-radius: 0;
+}
+
+/* Numbers — text markers. */
+.aa-hero__pagination--numbers .aa-hero__dot {
+  margin: 0;
+}
+
+.aa-hero__pagination--numbers .aa-hero__dot::before {
+  content: none;
+}
+
+/* No progress pill over the numerals — the active number is marked by its
+   underline instead. */
+.aa-hero__pagination--numbers .aa-hero__dot[aria-current='true']::after {
+  content: none;
+}
+
+.aa-hero__dot-number {
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.aa-hero__pagination--numbers .aa-hero__dot[aria-current='true'] .aa-hero__dot-number {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
+/* Thumbnails — image previews of each slide; 44px min touch target. */
+.aa-hero__pagination--thumbnails {
+  gap: 0.5rem;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot {
+  width: auto;
+  height: auto;
+  padding: 0;
+  border-radius: var(--aa-radius-sm, 0.25rem);
+  overflow: hidden;
+  opacity: 0.55;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    opacity var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease),
+    outline-color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot::before {
+  content: none;
+}
+
+/* No progress pill over the thumbnail — the active one is marked by full
+   opacity and its outline. */
+.aa-hero__pagination--thumbnails .aa-hero__dot[aria-current='true']::after {
+  content: none;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot:hover {
+  opacity: 0.85;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot[aria-current='true'] {
+  opacity: 1;
+  outline-color: var(--aa-hero-dot-active-color);
+}
+
+.aa-hero__thumb {
+  display: block;
+  width: 4rem;
+  height: 2.75rem;
+  object-fit: cover;
+}
+
+.aa-hero__thumb--swatch {
+  background: var(--aa-color-surface-elevated);
+}
+
+/* Fraction — "2 / 5". */
+.aa-hero__fraction {
+  color: var(--aa-hero-dot-active-color);
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+/* Play / pause toggle — mandatory chrome whenever autoplay is enabled. */
+.aa-hero__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--aa-radius-full, 9999px);
+  background: transparent;
+  color: var(--aa-hero-dot-active-color);
+  cursor: pointer;
+}
+
+.aa-hero__play:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: -6px;
+}
+
+.aa-hero__play-icon {
+  display: inline-flex;
+}
+
+/* Show the icon for the action the button will take. */
+.aa-hero__play .aa-hero__play-icon--pause,
+.aa-hero__play.is-playing .aa-hero__play-icon--play {
+  display: none;
+}
+
+.aa-hero__play.is-playing .aa-hero__play-icon--pause {
+  display: inline-flex;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Live region (screen-reader announcements)                               */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(100%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Reduced motion — hard theme rule: no ambient or entrance animation      */
+
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hero__slide .wp-block-cover__image-background,
+  .aa-hero__slide .wp-block-cover__video-background,
+  .aa-hero__slide .wp-block-cover__inner-container > *,
+  .aa-hero__dot[aria-current='true']::after {
+    animation: none !important;
+    will-change: auto;
+  }
+
+  .aa-hero--fade .aa-hero__slide,
+  .aa-hero--crossfade .aa-hero__slide {
+    transition: none;
+  }
+
+  .aa-hero--crossfade .aa-hero__slide {
+    transform: none;
+  }
+
+  .aa-hero__arrow,
+  .aa-hero__dot::before {
+    transition: none;
+  }
+}

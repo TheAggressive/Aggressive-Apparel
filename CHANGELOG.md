@@ -1,3 +1,15 @@
+# [1.140.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.139.0...v1.140.0) (2026-07-08)
+
+
+### Bug Fixes
+
+* simplify code structure in search view ([7b53bbb](https://github.com/TheAggressive/Aggressive-Apparel/commit/7b53bbbed03acceb16d7b9c1cd5f19f2e90f7b6a))
+
+
+### Features
+
+* enhance search functionality and error handling ([b15a017](https://github.com/TheAggressive/Aggressive-Apparel/commit/b15a01727f8bae00b84ad0e11855b68942f64041))
+
 # [1.139.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.138.0...v1.139.0) (2026-07-08)
 
 

@@ -8,7 +8,6 @@
   "description": "A single navigation link item.",
   "keywords": ["link", "menu", "navigation", "item"],
   "textdomain": "aggressive-apparel",
-  "icon": "admin-links",
   "parent": [
     "aggressive-apparel/navigation",
     "aggressive-apparel/nav-submenu-dropdown",

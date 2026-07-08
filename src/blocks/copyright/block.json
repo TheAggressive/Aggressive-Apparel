@@ -8,7 +8,6 @@
   "description": "Dynamic copyright notice with auto-updating year and editable suffix text.",
   "keywords": ["copyright", "year", "footer", "legal"],
   "textdomain": "aggressive-apparel",
-  "icon": "shield",
   "attributes": {
     "ownerName": {
       "type": "string",

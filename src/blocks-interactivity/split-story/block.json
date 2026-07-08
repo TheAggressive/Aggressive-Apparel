@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Split Story",
   "category": "aggressive-apparel",
-  "icon": "columns",
   "description": "Sticky media column alongside scrolling content. Classic editorial layout with InnerBlocks for both sides.",
   "keywords": ["split", "sticky", "story", "media", "editorial"],
   "supports": {

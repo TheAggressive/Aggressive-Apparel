@@ -62,6 +62,10 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		global $wpdb;
 		$wpdb->delete( $wpdb->prefix . 'woocommerce_attribute_taxonomies', [ 'attribute_name' => 'color' ] );
 		delete_transient( 'wc_attribute_taxonomies' );
+
+		if ( taxonomy_exists( 'pa_color' ) ) {
+			unregister_taxonomy( 'pa_color' );
+		}
 	}
 
 	/**
@@ -278,6 +282,8 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 	 * Test that color attribute is registered
 	 */
 	public function test_color_attribute_registered(): void {
+		$this->create_color_taxonomy();
+
 		// Test the register_color_attribute method directly
 		$existing_attributes = [
 			(object) [
@@ -302,5 +308,31 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		$this->assertEquals( 'select', $color_attribute->attribute_type );
 		$this->assertEquals( 'menu_order', $color_attribute->attribute_orderby );
 		$this->assertEquals( 1, $color_attribute->attribute_public );
+	}
+
+	/**
+	 * Missing taxonomies should not be advertised to WooCommerce attribute consumers.
+	 */
+	public function test_missing_color_taxonomy_is_not_registered_as_virtual_attribute(): void {
+		if ( taxonomy_exists( 'pa_color' ) ) {
+			unregister_taxonomy( 'pa_color' );
+		}
+
+		$this->assertFalse( taxonomy_exists( 'pa_color' ) );
+
+		$existing_attributes = [
+			(object) [
+				'attribute_id'      => 1,
+				'attribute_name'    => 'size',
+				'attribute_label'   => 'Size',
+				'attribute_type'    => 'select',
+				'attribute_orderby' => 'menu_order',
+				'attribute_public'  => 1,
+			],
+		];
+
+		$result = $this->color_manager->register_color_attribute( $existing_attributes );
+
+		$this->assertSame( $existing_attributes, $result );
 	}
 }

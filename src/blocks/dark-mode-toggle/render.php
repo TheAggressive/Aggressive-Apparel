@@ -12,7 +12,43 @@
  * @package Aggressive_Apparel
  */
 
+$label      = isset( $attributes['label'] ) ? sanitize_text_field( (string) $attributes['label'] ) : __( 'Dark Mode', 'aggressive-apparel' );
+$show_label = isset( $attributes['showLabel'] ) ? (bool) $attributes['showLabel'] : true;
+$size       = isset( $attributes['size'] ) ? sanitize_key( (string) $attributes['size'] ) : 'medium';
+$alignment  = isset( $attributes['alignment'] ) ? sanitize_key( (string) $attributes['alignment'] ) : 'left';
+
+if ( ! in_array( $size, array( 'small', 'medium', 'large' ), true ) ) {
+	$size = 'medium';
+}
+
+if ( ! in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
+	$alignment = 'left';
+}
+
+$wrapper_attributes = get_block_wrapper_attributes(
+	array(
+		'class' => sprintf(
+			'is-size-%s has-text-align-%s',
+			$size,
+			$alignment
+		),
+	)
+);
 ?>
-<p <?php echo wp_kses_post( get_block_wrapper_attributes() ); ?>>
-	<?php esc_html_e( 'Dark Mode Toggle – hello from a dynamic block!', 'dark-mode-toggle' ); ?>
-</p>
+<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
+	<button
+		type="button"
+		class="dark-mode-toggle__button"
+		aria-pressed="false"
+		aria-label="<?php esc_attr_e( 'Switch to dark mode', 'aggressive-apparel' ); ?>"
+		data-label-light="<?php esc_attr_e( 'Switch to dark mode', 'aggressive-apparel' ); ?>"
+		data-label-dark="<?php esc_attr_e( 'Switch to light mode', 'aggressive-apparel' ); ?>"
+	>
+		<span class="dark-mode-toggle__track" aria-hidden="true">
+			<span class="dark-mode-toggle__thumb"></span>
+		</span>
+		<?php if ( $show_label && '' !== $label ) : ?>
+			<span class="dark-mode-toggle__label"><?php echo esc_html( $label ); ?></span>
+		<?php endif; ?>
+	</button>
+</div>

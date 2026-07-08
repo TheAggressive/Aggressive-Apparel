@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Grid / List Toggle",
   "category": "aggressive-apparel",
-  "icon": "layout",
   "description": "Switch between grid and list view on shop and category archive pages. Visitor preference is remembered in localStorage.",
   "keywords": [
     "grid",

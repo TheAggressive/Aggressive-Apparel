@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Product Color Swatches",
   "category": "aggressive-apparel",
-  "icon": "color-picker",
   "description": "Displays color variation swatches on product cards in archive and collection pages. Click a swatch to preview that variation's image.",
   "keywords": ["color", "swatch", "variation", "product", "woocommerce"],
   "example": {

@@ -241,6 +241,10 @@ class Color_Attribute_Manager {
 			}
 		}
 
+		if ( ! taxonomy_exists( self::ATTRIBUTE_NAME ) ) {
+			return $attribute_taxonomies;
+		}
+
 		$attribute_taxonomies[] = (object) array(
 			'attribute_id'      => 0,
 			'attribute_name'    => $attribute_slug,

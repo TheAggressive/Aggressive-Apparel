@@ -8,7 +8,6 @@
   "description": "Product rating rendered with the Aggressive brand mark instead of stars.",
   "keywords": ["rating", "reviews", "stars", "product", "aggressive"],
   "textdomain": "aggressive-apparel",
-  "icon": "star-filled",
   "usesContext": ["postId", "query", "queryId"],
   "attributes": {
     "isDescendentOfSingleProductTemplate": {

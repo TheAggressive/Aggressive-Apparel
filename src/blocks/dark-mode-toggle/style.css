@@ -1,13 +1,63 @@
-/**
- * The following styles get applied both on the front of your site
- * and in the editor.
- *
- * Replace them with your own styles or remove the file completely.
- */
-
 .wp-block-aggressive-apparel-dark-mode-toggle {
-	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
-	padding: var(--wp--preset--spacing--1);
-	border-radius: var(--aa-radius-control);
+	display: flex;
+	justify-content: flex-start;
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle.has-text-align-center {
+	justify-content: center;
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle.has-text-align-right {
+	justify-content: flex-end;
+}
+
+.dark-mode-toggle__button {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	gap: var(--wp--preset--spacing--2);
+	padding: 0;
+}
+
+.dark-mode-toggle__track {
+	background: var(--aa-color-surface-elevated);
+	border: 1px solid var(--aa-color-border-default);
+	border-radius: 999px;
+	box-sizing: border-box;
+	display: inline-flex;
+	height: 1.5rem;
+	padding: 0.125rem;
+	width: 2.75rem;
+}
+
+.dark-mode-toggle__thumb {
+	background: currentcolor;
+	border-radius: 999px;
+	display: block;
+	height: 1.125rem;
+	transform: translateX(0);
+	transition: transform 0.2s ease;
+	width: 1.125rem;
+}
+
+.dark-mode-toggle__button.is-active .dark-mode-toggle__thumb {
+	transform: translateX(1.25rem);
+}
+
+.dark-mode-toggle__label {
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle.is-size-small .dark-mode-toggle__button {
+	font-size: 0.875rem;
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle.is-size-large .dark-mode-toggle__button {
+	font-size: 1.125rem;
 }

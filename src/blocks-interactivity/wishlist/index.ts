@@ -5,6 +5,7 @@
  */
 
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
 import { registerThemeBlock } from '../../utils/register-theme-block';
@@ -12,6 +13,7 @@ import './style.css';
 import type { WishlistPageAttributes } from './types';
 
 registerThemeBlock<WishlistPageAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
   save: Save,
 });

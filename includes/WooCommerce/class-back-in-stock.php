@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
-use Aggressive_Apparel\Core\Client_IP;
+use Aggressive_Apparel\Core\Rate_Limiter;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,6 +58,17 @@ class Back_In_Stock {
 	private const BATCH_SIZE = 50;
 
 	/**
+	 * Default retention period for completed subscription rows.
+	 *
+	 * Print-on-demand supplier availability can shift over weeks, so active
+	 * requests remain until notified/unsubscribed/discontinued. Completed rows
+	 * are retained briefly for support, abuse prevention, and delivery debugging.
+	 *
+	 * @var int
+	 */
+	private const DEFAULT_RETENTION_DAYS = 90;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -75,12 +86,23 @@ class Back_In_Stock {
 		// Stock change detection.
 		add_action( 'woocommerce_product_set_stock_status', array( $this, 'maybe_send_notifications' ), 10, 3 );
 
+		// Discontinued products should not keep active waitlist requests.
+		add_action( 'wp_trash_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
+		add_action( 'before_delete_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
+
 		// Unsubscribe handler.
 		add_action( 'init', array( $this, 'handle_unsubscribe' ) );
+
+		// Privacy/retention cleanup for completed rows; active requests remain.
+		add_action( 'aggressive_apparel_bis_cleanup', array( $this, 'run_cleanup_expired_subscriptions' ) );
+		if ( ! wp_next_scheduled( 'aggressive_apparel_bis_cleanup' ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'aggressive_apparel_bis_cleanup' );
+		}
 
 		// GDPR hooks.
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_eraser' ) );
+		add_action( 'admin_init', array( $this, 'register_privacy_policy_content' ) );
 
 		// WooCommerce email class.
 		add_filter( 'woocommerce_email_classes', array( $this, 'register_email_class' ) );
@@ -247,29 +269,32 @@ class Back_In_Stock {
 	}
 
 	/**
-	 * Check and increment hashed email/IP subscribe attempt counters.
+	 * Check and increment subscribe attempt counters.
+	 *
+	 * IP throttling uses the shared Cloudflare-aware rate limiter used by other
+	 * public endpoints. Email throttling remains local because it is specific to
+	 * this feature and stops a single inbox from being hammered across rotating
+	 * IPs.
 	 *
 	 * @param string $email Submitted email address.
 	 * @return bool
 	 */
 	private function is_rate_limited( string $email ): bool {
-		$ip          = Client_IP::get();
-		$identifiers = array(
-			'ip' => '' !== $ip ? $ip : 'unknown',
-		);
-
+		$max    = self::get_rate_limit_max_attempts();
+		$window = self::get_rate_limit_window();
 		if ( is_email( $email ) ) {
-			$identifiers['email'] = strtolower( $email );
-		}
-
-		foreach ( $identifiers as $scope => $identifier ) {
-			if ( self::get_rate_limit_count( $scope, $identifier ) >= self::get_rate_limit_max_attempts() ) {
+			$email = strtolower( $email );
+			if ( self::get_rate_limit_count( 'email', $email ) >= $max ) {
 				return true;
 			}
 		}
 
-		foreach ( $identifiers as $scope => $identifier ) {
-			self::increment_rate_limit_count( $scope, $identifier );
+		if ( ! Rate_Limiter::allow( 'back_in_stock_subscribe', $max, $window ) ) {
+			return true;
+		}
+
+		if ( is_email( $email ) ) {
+			self::increment_rate_limit_count( 'email', $email );
 		}
 
 		return false;
@@ -486,6 +511,41 @@ class Back_In_Stock {
 	}
 
 	/**
+	 * Register suggested privacy policy text for back-in-stock subscriptions.
+	 *
+	 * @return void
+	 */
+	public function register_privacy_policy_content(): void {
+		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+			return;
+		}
+
+		$retention_days = self::get_retention_days();
+		$retention_text = $retention_days > 0
+			? sprintf(
+				/* translators: %d: retention period in days. */
+				__( 'After a notification is sent or you unsubscribe, related back-in-stock records are retained for up to %d days for support, abuse prevention, and delivery troubleshooting, then deleted.', 'aggressive-apparel' ),
+				$retention_days
+			)
+			: __( 'After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store.', 'aggressive-apparel' );
+
+		$content = wp_kses_post(
+			wpautop(
+				sprintf(
+					/* translators: %s: retention policy sentence. */
+					__( 'We use your email address to notify you when a requested product, size, or color is available again. Because some products are produced through print-on-demand suppliers, availability may depend on supplier stock, production capacity, or product status. Active notification requests are kept until the item becomes available, you unsubscribe, or the product is discontinued. %s', 'aggressive-apparel' ),
+					$retention_text
+				)
+			)
+		);
+
+		wp_add_privacy_policy_content(
+			__( 'Aggressive Apparel Back in Stock Notifications', 'aggressive-apparel' ),
+			$content
+		);
+	}
+
+	/**
 	 * Export personal data for GDPR.
 	 *
 	 * @param string $email_address Email to export data for.
@@ -555,6 +615,87 @@ class Back_In_Stock {
 			'items_retained' => false,
 			'messages'       => array(),
 			'done'           => true,
+		);
+	}
+
+	/**
+	 * Run retention cleanup from WP-Cron.
+	 *
+	 * @return void
+	 */
+	public function run_cleanup_expired_subscriptions(): void {
+		$this->cleanup_expired_subscriptions();
+	}
+
+	/**
+	 * Delete active subscriptions for products that are trashed or deleted.
+	 *
+	 * Completed rows keep following the configured retention window for support
+	 * and delivery troubleshooting.
+	 *
+	 * @param int $post_id Product or variation post ID.
+	 * @return void
+	 */
+	public function cleanup_discontinued_product_subscriptions( int $post_id ): void {
+		if ( ! in_array( get_post_type( $post_id ), array( 'product', 'product_variation' ), true ) ) {
+			return;
+		}
+
+		global $wpdb;
+		$table = Back_In_Stock_Installer::get_table_name();
+
+		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Lifecycle cleanup for custom table.
+			$table,
+			array(
+				'product_id' => $post_id,
+				'status'     => 'active',
+			),
+			array( '%d', '%s' )
+		);
+	}
+
+	/**
+	 * Delete completed subscriptions older than the configured retention window.
+	 *
+	 * Active waitlist rows are intentionally retained so customers still receive
+	 * the notification they requested. A retention value of 0 disables cleanup.
+	 *
+	 * @return int Number of deleted rows.
+	 */
+	public function cleanup_expired_subscriptions(): int {
+		$retention_days = self::get_retention_days();
+		if ( $retention_days <= 0 ) {
+			return 0;
+		}
+
+		global $wpdb;
+		$table  = Back_In_Stock_Installer::get_table_name();
+		$cutoff = current_datetime()
+			->modify( '-' . $retention_days . ' days' )
+			->format( 'Y-m-d H:i:s' );
+
+		$deleted = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Scheduled cleanup for custom table.
+			$wpdb->prepare(
+				"DELETE FROM {$table} WHERE status IN ('notified', 'unsubscribed') AND created_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table name.
+				$cutoff
+			)
+		);
+
+		return false === $deleted ? 0 : (int) $deleted;
+	}
+
+	/**
+	 * Configured retention period for completed back-in-stock rows.
+	 *
+	 * @return int Retention period in days; 0 disables automatic cleanup.
+	 */
+	private static function get_retention_days(): int {
+		return max(
+			0,
+			(int) apply_filters(
+				'aggressive_apparel_back_in_stock_retention_days',
+				self::DEFAULT_RETENTION_DAYS
+			)
 		);
 	}
 

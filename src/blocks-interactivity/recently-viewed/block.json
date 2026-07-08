@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Recently Viewed Products",
   "category": "woocommerce",
-  "icon": "visibility",
   "description": "Shows products the visitor recently viewed using browser localStorage.",
   "keywords": ["recently viewed", "history", "products"],
   "supports": {

@@ -5,7 +5,6 @@
   "version": "2.0.0",
   "title": "Wishlist",
   "category": "aggressive-apparel",
-  "icon": "heart",
   "description": "Displays the visitor's saved wishlist items. Customize the card layout using the inner blocks.",
   "keywords": ["wishlist", "favorites", "saved products"],
   "example": {},

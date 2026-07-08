@@ -1,38 +1,44 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
- */
 import { useBlockProps } from '@wordpress/block-editor';
 
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * Those files can contain any CSS code that gets applied to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
 import './editor.css';
 
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @return {Element} Element to render.
- */
-export default function Edit() {
+interface DarkModeToggleEditProps {
+  attributes: {
+    label?: string;
+    showLabel?: boolean;
+    size?: 'small' | 'medium' | 'large';
+    alignment?: 'left' | 'center' | 'right';
+  };
+}
+
+export default function Edit({ attributes }: DarkModeToggleEditProps) {
+  const {
+    label = __('Dark Mode', 'aggressive-apparel'),
+    showLabel = true,
+    size = 'medium',
+    alignment = 'left',
+  } = attributes;
+
+  const blockProps = useBlockProps({
+    className: `is-size-${size} has-text-align-${alignment}`,
+  });
+
   return (
-    <p {...useBlockProps()}>
-      {__('Dark Mode Toggle – hello from the editor!', 'dark-mode-toggle')}
-    </p>
+    <div {...blockProps}>
+      <button
+        type='button'
+        className='dark-mode-toggle__button'
+        aria-pressed='false'
+        aria-label={__('Switch to dark mode', 'aggressive-apparel')}
+      >
+        <span className='dark-mode-toggle__track' aria-hidden='true'>
+          <span className='dark-mode-toggle__thumb' />
+        </span>
+        {showLabel && label ? (
+          <span className='dark-mode-toggle__label'>{label}</span>
+        ) : null}
+      </button>
+    </div>
   );
 }

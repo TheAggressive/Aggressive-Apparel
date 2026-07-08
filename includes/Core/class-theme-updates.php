@@ -48,6 +48,13 @@ class Theme_Updates {
 	private string $repo_name = 'Aggressive-Apparel';
 
 	/**
+	 * Hash algorithm used for release package verification.
+	 *
+	 * @var string
+	 */
+	private const PACKAGE_CHECKSUM_ALGORITHM = 'sha256';
+
+	/**
 	 * Private constructor for singleton.
 	 */
 	private function __construct() {}
@@ -92,6 +99,7 @@ class Theme_Updates {
 	 */
 	public function init(): void {
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
+		add_filter( 'upgrader_pre_download', array( $this, 'verify_package_download' ), 10, 4 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );
 		add_filter( 'themes_api', array( $this, 'themes_api' ), 10, 3 );
 		add_action( 'admin_notices', array( $this, 'admin_update_notice' ) );
@@ -139,7 +147,13 @@ class Theme_Updates {
 			$download_url = $this->get_download_url();
 
 			// If we can't get a valid download URL, don't advertise an update.
-			if ( ! $download_url || ! is_string( $download_url ) ) {
+			if ( ! $download_url || ! is_string( $download_url ) || ! $this->is_allowed_package_url( $download_url ) ) {
+				return $transient;
+			}
+
+			$release_data = $this->get_github_release_data();
+			$checksum     = $this->get_package_checksum( $download_url, is_array( $release_data ) ? $release_data : null );
+			if ( ! $checksum ) {
 				return $transient;
 			}
 
@@ -152,16 +166,17 @@ class Theme_Updates {
 				'new_version' => $source_version,
 				'url'         => "https://github.com/{$this->repo_owner}/{$this->repo_name}",
 				'package'     => $download_url,
+				'checksum'    => self::PACKAGE_CHECKSUM_ALGORITHM . ':' . $checksum,
 			);
 
 			// Cache the update data and release info for changelog and fallback.
-			$release_data = $this->get_github_release_data();
 			if ( $release_data ) {
 				set_transient(
 					'aggressive_apparel_theme_update',
 					array(
 						'version'      => $source_version,
 						'download_url' => $download_url,
+						'checksum'     => $checksum,
 						'release_data' => $release_data,
 						'checked_at'   => time(),
 					),
@@ -205,8 +220,8 @@ class Theme_Updates {
 	private function get_download_url() {
 		// Try to get from cached update data first.
 		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
-		if ( $cached_data && isset( $cached_data['download_url'] ) ) {
-			return $cached_data['download_url'];
+		if ( $cached_data && isset( $cached_data['download_url'] ) && is_string( $cached_data['download_url'] ) ) {
+			return $this->is_allowed_package_url( $cached_data['download_url'] ) ? $cached_data['download_url'] : false;
 		}
 
 		$release_data = $this->get_github_release_data();
@@ -216,23 +231,321 @@ class Theme_Updates {
 			return $this->get_fallback_download_url();
 		}
 
-		// First try to get from assets (uploaded release files).
-		if ( isset( $release_data['assets'][0]['browser_download_url'] ) ) {
-			return $release_data['assets'][0]['browser_download_url'];
+		// First try to get a release ZIP asset uploaded by the release pipeline.
+		$asset_url = $this->get_release_asset_download_url( $release_data );
+		if ( $asset_url ) {
+			return $asset_url;
 		}
 
 		// If no assets, use zipball_url as primary fallback (auto-generated ZIP).
-		if ( isset( $release_data['zipball_url'] ) ) {
-			return $release_data['zipball_url'];
+		if ( isset( $release_data['zipball_url'] ) && is_string( $release_data['zipball_url'] ) ) {
+			return $this->is_allowed_package_url( $release_data['zipball_url'] ) ? $release_data['zipball_url'] : false;
 		}
 
 		// Final fallback: construct URL based on tag name.
 		if ( isset( $release_data['tag_name'] ) ) {
 			$tag = ltrim( $release_data['tag_name'], 'v' );
-			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
+			$url = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
+			return $this->is_allowed_package_url( $url ) ? $url : false;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Select a safe ZIP release asset from GitHub release data.
+	 *
+	 * Release metadata can contain checksum files, screenshots, or other assets;
+	 * do not trust the first asset blindly. Prefer a ZIP with the theme/repo name
+	 * in it, then fall back to the first allowed ZIP asset.
+	 *
+	 * @param array<string, mixed> $release_data GitHub release data.
+	 * @return string|false Release asset URL, or false when none is suitable.
+	 */
+	private function get_release_asset_download_url( array $release_data ) {
+		if ( empty( $release_data['assets'] ) || ! is_array( $release_data['assets'] ) ) {
+			return false;
+		}
+
+		$zip_assets = array();
+		foreach ( $release_data['assets'] as $asset ) {
+			if ( ! is_array( $asset ) ) {
+				continue;
+			}
+
+			$name = isset( $asset['name'] ) && is_string( $asset['name'] ) ? $asset['name'] : '';
+			$url  = isset( $asset['browser_download_url'] ) && is_string( $asset['browser_download_url'] ) ? $asset['browser_download_url'] : '';
+
+			if ( '' === $name || '' === $url || ! str_ends_with( strtolower( $name ), '.zip' ) || ! $this->is_allowed_package_url( $url ) ) {
+				continue;
+			}
+
+			$zip_assets[] = array(
+				'name' => $name,
+				'url'  => $url,
+			);
+		}
+
+		foreach ( $zip_assets as $asset ) {
+			$name = sanitize_title( $asset['name'] );
+			if ( str_contains( $name, sanitize_title( $this->repo_name ) ) || str_contains( $name, 'aggressive-apparel' ) ) {
+				return $asset['url'];
+			}
+		}
+
+		return $zip_assets[0]['url'] ?? false;
+	}
+
+	/**
+	 * Whether a package URL belongs to the expected GitHub repository.
+	 *
+	 * @param string $url Candidate package URL.
+	 * @return bool
+	 */
+	private function is_allowed_package_url( string $url ): bool {
+		$parts = wp_parse_url( $url );
+		if ( ! is_array( $parts ) ) {
+			return false;
+		}
+
+		$scheme = strtolower( (string) ( $parts['scheme'] ?? '' ) );
+		$host   = strtolower( (string) ( $parts['host'] ?? '' ) );
+		$path   = strtolower( rawurldecode( (string) ( $parts['path'] ?? '' ) ) );
+		$owner  = strtolower( $this->repo_owner );
+		$repo   = strtolower( $this->repo_name );
+
+		if ( 'https' !== $scheme || '' === $path ) {
+			return false;
+		}
+
+		if ( 'github.com' === $host ) {
+			return str_starts_with( $path, "/{$owner}/{$repo}/releases/download/" )
+				&& str_ends_with( $path, '.zip' );
+		}
+
+		if ( 'api.github.com' === $host ) {
+			return str_starts_with( $path, "/repos/{$owner}/{$repo}/zipball" );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Download and verify this theme's update package before installation.
+	 *
+	 * WordPress calls this before downloading an update package. For our own
+	 * GitHub packages, we take over the download, verify the SHA-256 checksum
+	 * published beside the release asset, and return the verified local file.
+	 * Other packages are left untouched.
+	 *
+	 * @param false|\WP_Error|string $reply      Existing pre-download result.
+	 * @param string                 $package    Package URL.
+	 * @param \WP_Upgrader|null      $_upgrader  Upgrader instance.
+	 * @param array<string, mixed>   $_hook_extra Upgrader context.
+	 * @return false|\WP_Error|string Verified package path, original reply, or error.
+	 */
+	public function verify_package_download( $reply, $package, $_upgrader = null, array $_hook_extra = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		if ( false !== $reply ) {
+			return $reply;
+		}
+
+		if ( ! is_string( $package ) || ! $this->is_allowed_package_url( $package ) ) {
+			return $reply;
+		}
+
+		$checksum = $this->get_package_checksum( $package );
+		if ( ! $checksum ) {
+			return new \WP_Error(
+				'aggressive_apparel_missing_package_checksum',
+				__( 'Aggressive Apparel update package is missing a SHA-256 checksum.', 'aggressive-apparel' )
+			);
+		}
+
+		if ( ! function_exists( 'download_url' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$downloaded = download_url( $package );
+		if ( is_wp_error( $downloaded ) ) {
+			return $downloaded;
+		}
+
+		$actual = hash_file( self::PACKAGE_CHECKSUM_ALGORITHM, $downloaded );
+		if ( ! is_string( $actual ) || ! hash_equals( strtolower( $checksum ), strtolower( $actual ) ) ) {
+			wp_delete_file( $downloaded );
+
+			return new \WP_Error(
+				'aggressive_apparel_package_checksum_mismatch',
+				__( 'Aggressive Apparel update package checksum verification failed.', 'aggressive-apparel' )
+			);
+		}
+
+		return $downloaded;
+	}
+
+	/**
+	 * Resolve the expected package checksum from cached or fresh release data.
+	 *
+	 * @param string                    $package_url  Package URL.
+	 * @param array<string, mixed>|null $release_data Optional release data.
+	 * @return string|false Lowercase SHA-256 hash, or false when unavailable.
+	 */
+	private function get_package_checksum( string $package_url, ?array $release_data = null ) {
+		$cached_data = get_transient( 'aggressive_apparel_theme_update' );
+		if (
+			is_array( $cached_data )
+			&& isset( $cached_data['download_url'], $cached_data['checksum'] )
+			&& is_string( $cached_data['download_url'] )
+			&& is_string( $cached_data['checksum'] )
+			&& hash_equals( $cached_data['download_url'], $package_url )
+			&& $this->is_valid_sha256( $cached_data['checksum'] )
+		) {
+			return strtolower( $cached_data['checksum'] );
+		}
+
+		$release_data = $release_data ?? $this->get_github_release_data();
+		if ( ! is_array( $release_data ) ) {
+			return false;
+		}
+
+		$checksum_url = $this->get_checksum_asset_url( $package_url, $release_data );
+		if ( ! $checksum_url ) {
+			return false;
+		}
+
+		return $this->fetch_checksum( $checksum_url );
+	}
+
+	/**
+	 * Find the checksum asset URL that belongs to a package URL.
+	 *
+	 * @param string               $package_url  Package URL.
+	 * @param array<string, mixed> $release_data GitHub release data.
+	 * @return string|false Checksum asset URL.
+	 */
+	private function get_checksum_asset_url( string $package_url, array $release_data ) {
+		if ( empty( $release_data['assets'] ) || ! is_array( $release_data['assets'] ) ) {
+			return false;
+		}
+
+		$package_name = $this->get_asset_name_for_url( $package_url, $release_data );
+		if ( ! $package_name ) {
+			return false;
+		}
+
+		$candidates = array(
+			$package_name . '.sha256',
+			$package_name . '.sha256sum',
+		);
+
+		foreach ( $release_data['assets'] as $asset ) {
+			if ( ! is_array( $asset ) ) {
+				continue;
+			}
+
+			$name = isset( $asset['name'] ) && is_string( $asset['name'] ) ? $asset['name'] : '';
+			$url  = isset( $asset['browser_download_url'] ) && is_string( $asset['browser_download_url'] ) ? $asset['browser_download_url'] : '';
+
+			if ( in_array( $name, $candidates, true ) && $this->is_allowed_checksum_url( $url ) ) {
+				return $url;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Resolve the release asset name for a package URL.
+	 *
+	 * @param string               $package_url  Package URL.
+	 * @param array<string, mixed> $release_data GitHub release data.
+	 * @return string|false Asset name.
+	 */
+	private function get_asset_name_for_url( string $package_url, array $release_data ) {
+		foreach ( (array) ( $release_data['assets'] ?? array() ) as $asset ) {
+			if ( ! is_array( $asset ) ) {
+				continue;
+			}
+
+			$name = isset( $asset['name'] ) && is_string( $asset['name'] ) ? $asset['name'] : '';
+			$url  = isset( $asset['browser_download_url'] ) && is_string( $asset['browser_download_url'] ) ? $asset['browser_download_url'] : '';
+
+			if ( '' !== $name && hash_equals( $url, $package_url ) ) {
+				return $name;
+			}
+		}
+
+		$path = wp_parse_url( $package_url, PHP_URL_PATH );
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$name = basename( rawurldecode( $path ) );
+		return str_ends_with( strtolower( $name ), '.zip' ) ? $name : false;
+	}
+
+	/**
+	 * Fetch and parse a checksum asset.
+	 *
+	 * @param string $checksum_url Checksum asset URL.
+	 * @return string|false Lowercase SHA-256 hash.
+	 */
+	private function fetch_checksum( string $checksum_url ) {
+		$response = wp_remote_get(
+			$checksum_url,
+			array(
+				'headers' => array(
+					'User-Agent' => 'Aggressive-Apparel-Updater',
+				),
+				'timeout' => 15,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( ! is_string( $body ) || ! preg_match( '/\b([a-f0-9]{64})\b/i', $body, $matches ) ) {
+			return false;
+		}
+
+		$checksum = strtolower( $matches[1] );
+		return $this->is_valid_sha256( $checksum ) ? $checksum : false;
+	}
+
+	/**
+	 * Whether a checksum string is a valid SHA-256 digest.
+	 *
+	 * @param string $checksum Candidate checksum.
+	 * @return bool
+	 */
+	private function is_valid_sha256( string $checksum ): bool {
+		return 1 === preg_match( '/^[a-f0-9]{64}$/i', $checksum );
+	}
+
+	/**
+	 * Whether a checksum URL belongs to the expected GitHub release.
+	 *
+	 * @param string $url Candidate checksum URL.
+	 * @return bool
+	 */
+	private function is_allowed_checksum_url( string $url ): bool {
+		$parts = wp_parse_url( $url );
+		if ( ! is_array( $parts ) ) {
+			return false;
+		}
+
+		$scheme = strtolower( (string) ( $parts['scheme'] ?? '' ) );
+		$host   = strtolower( (string) ( $parts['host'] ?? '' ) );
+		$path   = strtolower( rawurldecode( (string) ( $parts['path'] ?? '' ) ) );
+		$owner  = strtolower( $this->repo_owner );
+		$repo   = strtolower( $this->repo_name );
+
+		return 'https' === $scheme
+			&& 'github.com' === $host
+			&& str_starts_with( $path, "/{$owner}/{$repo}/releases/download/" )
+			&& ( str_ends_with( $path, '.zip.sha256' ) || str_ends_with( $path, '.zip.sha256sum' ) );
 	}
 
 	/**
@@ -327,6 +640,9 @@ class Theme_Updates {
 		}
 
 		$download_link = $this->get_download_url();
+		if ( ! is_string( $download_link ) || ! $this->get_package_checksum( $download_link, $release_data ) ) {
+			$download_link = '';
+		}
 
 		// Format the data for WordPress themes API.
 		$theme_info = array(
@@ -351,7 +667,7 @@ class Theme_Updates {
 				'description' => $theme->get( 'Description' ),
 				'changelog'   => $this->format_changelog( $release_data ),
 			),
-			'download_link'  => $download_link ? $download_link : ( $release_data['zipball_url'] ?? '' ),
+			'download_link'  => $download_link,
 			'tags'           => array(),
 			'screenshots'    => array(),
 		);
@@ -482,8 +798,9 @@ class Theme_Updates {
 		if ( $cached_data && isset( $cached_data['version'] ) ) {
 			$version = $cached_data['version']; // Already the "latest" we saw before.
 			$tag     = ltrim( $version, 'v' );
+			$url     = "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
 
-			return "https://github.com/{$this->repo_owner}/{$this->repo_name}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
+			return $this->is_allowed_package_url( $url ) ? $url : false;
 		}
 
 		// No cached info + GitHub failed → safest is to not offer an update.

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="fill:none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="round">
+  <title>Search</title>
+  <circle cx="10" cy="10" r="5.5" />
+  <path d="M14.6 16 L16 14.6 L20.9 20.9 Z" fill="currentColor" stroke="none" />
+</svg>

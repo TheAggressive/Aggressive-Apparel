@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Horizontal Scroll",
   "category": "aggressive-apparel",
-  "icon": "slides",
   "description": "Pins a section and drives horizontal scroll via vertical scroll progress. Falls back to native scroll-snap on touch.",
   "keywords": ["scroll", "horizontal", "parallax", "story"],
   "supports": {

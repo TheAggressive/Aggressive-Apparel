@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Modal",
   "category": "widgets",
-  "icon": "media-interactive",
   "description": "An interactive modal block that can be positioned and triggered by other elements.",
   "example": {},
   "supports": {

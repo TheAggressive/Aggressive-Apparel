@@ -8,7 +8,6 @@
   "description": "Hamburger button that opens the mobile navigation panel. Visible on mobile, hidden on desktop.",
   "keywords": ["hamburger", "toggle", "menu", "navigation", "trigger"],
   "textdomain": "aggressive-apparel",
-  "icon": "menu",
   "usesContext": ["aggressive-apparel/navigationBreakpoint"],
   "attributes": {
     "iconStyle": {

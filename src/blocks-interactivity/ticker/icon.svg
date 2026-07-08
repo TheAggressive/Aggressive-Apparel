@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="fill:none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="round">
+  <title>Ticker</title>
+  <path d="M3 9 H19 L21 11 V15 H3 Z" />
+  <path d="M5.5 12 H9" />
+  <path d="M11 12 H14.5" />
+  <path d="M16.5 12 H18.5" />
+</svg>

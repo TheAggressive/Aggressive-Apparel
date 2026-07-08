@@ -2,9 +2,9 @@
  * Debug utility for the modal block editor code.
  *
  * Disabled by default; non-critical messages are suppressed unless enabled.
- * Critical messages are always logged (once, deduplicated) even when disabled,
- * so repeated editor warnings — e.g. block-existence checks that fire on every
- * selection change — do not flood the console.
+ * Critical messages are retained once, deduplicated, so repeated editor warnings
+ * such as block-existence checks that fire on every selection change do not
+ * flood the in-memory debug buffer.
  */
 
 interface LogEntry {
@@ -49,12 +49,6 @@ export class Debug {
 
     const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
     const logMessage = `[${timestamp}] ${critical ? '[CRITICAL] ' : ''}${message}`;
-
-    console.log(
-      `%c MODAL ${critical ? 'ERROR' : 'DEBUG'} `,
-      `background: ${critical ? '#e63946' : '#335c67'}; color: #fff`,
-      logMessage
-    );
 
     this.logs.push({
       message: logMessage,
@@ -123,7 +117,6 @@ export class Debug {
     this.logs = [];
     this.loggedCritical.clear();
     if (this.enabled) {
-      console.clear();
       this.add('Debug logs cleared');
     }
   }

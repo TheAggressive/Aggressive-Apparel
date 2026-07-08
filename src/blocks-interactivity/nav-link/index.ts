@@ -6,6 +6,7 @@
 
 import { createBlock } from '@wordpress/blocks';
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
 import type { NavLinkAttributes } from './types';
@@ -46,6 +47,7 @@ const transforms = {
 };
 
 registerThemeBlock<NavLinkAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
   save: Save,
   transforms,

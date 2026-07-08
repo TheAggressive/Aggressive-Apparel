@@ -5,6 +5,7 @@
  */
 
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
@@ -21,5 +22,6 @@ interface FilterToggleAttributes {
 }
 
 registerThemeBlock<FilterToggleAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
 });

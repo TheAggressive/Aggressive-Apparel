@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Product Tabs",
   "category": "woocommerce",
-  "icon": "layout",
   "description": "Displays WooCommerce product tabs (Description, Reviews, etc.) in four configurable styles. Place on the single product template in place of the Product Details block.",
   "keywords": ["tabs", "product", "details", "accordion", "woocommerce"],
   "supports": {

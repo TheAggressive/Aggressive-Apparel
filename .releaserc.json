@@ -7,7 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "echo '=== Preparing release ${nextRelease.version} ===' && pwd && ls -la *.zip 2>/dev/null || echo 'No ZIP files found' && if [ -f 'aggressive-apparel.zip' ]; then echo 'Found ZIP file, updating version inside ZIP...' && mkdir -p temp_zip && cd temp_zip && unzip ../aggressive-apparel.zip && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' aggressive-apparel/style.css && zip -r ../aggressive-apparel-${nextRelease.version}.zip . && cd .. && rm -rf temp_zip && rm aggressive-apparel.zip && echo '✅ ZIP updated and renamed successfully'; else echo '❌ ZIP file not found'; ls -la; fi && echo 'Updating version in style.css...' && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' style.css && npm version ${nextRelease.version} --no-git-tag-version && echo 'Version updated to ${nextRelease.version}'"
+        "prepareCmd": "echo '=== Preparing release ${nextRelease.version} ===' && pwd && ls -la *.zip 2>/dev/null || echo 'No ZIP files found' && if [ -f 'aggressive-apparel.zip' ]; then echo 'Found ZIP file, updating version inside ZIP...' && mkdir -p temp_zip && cd temp_zip && unzip ../aggressive-apparel.zip && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' aggressive-apparel/style.css && zip -r ../aggressive-apparel-${nextRelease.version}.zip . && cd .. && rm -rf temp_zip && rm aggressive-apparel.zip && sha256sum aggressive-apparel-${nextRelease.version}.zip > aggressive-apparel-${nextRelease.version}.zip.sha256 && echo '✅ ZIP updated, checksummed, and renamed successfully'; else echo '❌ ZIP file not found'; ls -la; fi && echo 'Updating version in style.css...' && sed -i 's/Version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+/Version: ${nextRelease.version}/g' style.css && npm version ${nextRelease.version} --no-git-tag-version && echo 'Version updated to ${nextRelease.version}'"
       }
     ],
     [
@@ -29,6 +29,10 @@
           {
             "path": "aggressive-apparel-*.zip",
             "label": "Aggressive Apparel Theme"
+          },
+          {
+            "path": "aggressive-apparel-*.zip.sha256",
+            "label": "Aggressive Apparel Theme SHA-256"
           }
         ]
       }

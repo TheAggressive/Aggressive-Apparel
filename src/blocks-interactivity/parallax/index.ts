@@ -5,6 +5,7 @@
  */
 
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
 import type { ParallaxAttributes } from './types';
@@ -18,6 +19,7 @@ import './style.css';
 import './block-enhancer';
 
 registerThemeBlock<ParallaxAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
   save: Save,
 });

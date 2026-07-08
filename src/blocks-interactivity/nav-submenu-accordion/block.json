@@ -8,7 +8,6 @@
   "description": "Mobile accordion submenu. Expands inline below the trigger. Place inside a Navigation Panel block.",
   "keywords": ["navigation", "mobile", "accordion", "submenu"],
   "textdomain": "aggressive-apparel",
-  "icon": "list-view",
   "ancestor": ["aggressive-apparel/navigation-panel"],
   "allowedBlocks": ["aggressive-apparel/nav-link"],
   "attributes": {

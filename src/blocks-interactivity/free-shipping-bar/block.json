@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Free Shipping Bar",
   "category": "woocommerce",
-  "icon": "cart",
   "description": "Progress bar toward the free shipping threshold. Updates live when items are added to cart.",
   "keywords": ["shipping", "free", "cart", "progress"],
   "supports": {

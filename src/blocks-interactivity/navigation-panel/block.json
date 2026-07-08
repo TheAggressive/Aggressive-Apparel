@@ -8,7 +8,6 @@
   "description": "Mobile navigation panel. Place in the Mobile Navigation template part. Portaled to the page footer and opened by a Navigation Trigger.",
   "keywords": ["navigation", "mobile", "panel", "menu", "drawer"],
   "textdomain": "aggressive-apparel",
-  "icon": "menu-alt",
   "allowedBlocks": [
     "aggressive-apparel/nav-link",
     "aggressive-apparel/nav-submenu-accordion",

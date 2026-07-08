@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Wishlist Item Name",
   "category": "aggressive-apparel",
-  "icon": "editor-textcolor",
   "description": "Product name / link for a wishlist item card.",
   "parent": ["aggressive-apparel/wishlist"],
   "supports": {

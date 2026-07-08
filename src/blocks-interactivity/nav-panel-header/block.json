@@ -8,7 +8,6 @@
   "description": "Style the mobile panel header and add optional content to the left of its close button.",
   "keywords": ["navigation", "mobile", "panel", "header"],
   "textdomain": "aggressive-apparel",
-  "icon": "align-left",
   "parent": ["aggressive-apparel/navigation-panel"],
   "supports": {
     "html": false,

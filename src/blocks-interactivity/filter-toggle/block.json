@@ -5,7 +5,6 @@
   "version": "1.0.1",
   "title": "Product Filter Toggle",
   "category": "aggressive-apparel",
-  "icon": "filter",
   "description": "Opens the product filters drawer. Place on shop, category, or tag archives wherever the filter button should appear.",
   "keywords": ["filter", "shop", "woocommerce", "product"],
   "example": {

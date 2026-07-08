@@ -1,0 +1,20 @@
+const blockIcon = (
+  <svg
+    viewBox='0 0 24 24'
+    xmlns='http://www.w3.org/2000/svg'
+    aria-hidden='true'
+    focusable='false'
+    fill='none'
+    style={{ fill: 'none' }}
+    stroke='currentColor'
+    strokeWidth='1.5'
+    strokeLinejoin='miter'
+    strokeLinecap='round'
+  >
+    <path d='M3.5 9.5 H8 L9.5 11 V14.5 H3.5 Z' />
+    <path d='M11 9.5 H15.5 L17 11 V14.5 H11 Z' />
+    <path d='M18.5 10.5 L20.5 12.5 M20.5 10.5 L18.5 12.5' />
+  </svg>
+);
+
+export default blockIcon;

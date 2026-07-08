@@ -5,7 +5,6 @@
   "version": "1.1.10",
   "title": "Advanced Parallax Container",
   "category": "widgets",
-  "icon": "cover-image",
   "description": "A container block that applies parallax effects to nested blocks using intersection observer.",
   "supports": {
     "html": false,

@@ -8,7 +8,6 @@
   "description": "Desktop dropdown submenu with a floating panel. Supports hover and click triggers. Place inside a Desktop Navigation block.",
   "keywords": ["navigation", "desktop", "dropdown", "submenu", "flyout"],
   "textdomain": "aggressive-apparel",
-  "icon": "arrow-down-alt2",
   "ancestor": ["aggressive-apparel/navigation"],
   "allowedBlocks": ["aggressive-apparel/nav-link"],
   "attributes": {

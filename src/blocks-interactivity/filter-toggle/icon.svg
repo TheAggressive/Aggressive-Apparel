@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="fill:none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="round">
+  <title>Filter Toggle</title>
+  <path d="M4 6 H20 L13.5 13.4 V18 L10.5 19.4 V13.4 Z" />
+  <circle cx="18.4" cy="6.4" r="2.6" fill="currentColor" stroke="none" />
+</svg>

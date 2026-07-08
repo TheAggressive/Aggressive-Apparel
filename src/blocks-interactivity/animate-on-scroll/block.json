@@ -5,7 +5,6 @@
   "version": "1.2.1",
   "title": "Animate On Scroll",
   "category": "widgets",
-  "icon": "media-interactive",
   "description": "Animate elements on scroll.",
   "supports": {
     "html": false,

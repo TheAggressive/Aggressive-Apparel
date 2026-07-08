@@ -8,7 +8,6 @@
   "description": "Responsive desktop navigation with a sliding indicator and submenus. Add a Navigation Trigger to open the mobile panel.",
   "keywords": ["menu", "navigation", "header", "nav", "desktop"],
   "textdomain": "aggressive-apparel",
-  "icon": "menu",
   "attributes": {
     "breakpoint": {
       "type": "number",

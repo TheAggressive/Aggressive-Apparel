@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Rate_Limiter;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -55,6 +57,20 @@ class Advanced_Sorting {
 	 * @var string
 	 */
 	private const REST_NAMESPACE = 'aggressive-apparel/v1';
+
+	/**
+	 * Maximum anonymous custom sort requests per rate-limit window.
+	 *
+	 * @var int
+	 */
+	private const RATE_LIMIT_MAX = 120;
+
+	/**
+	 * Anonymous custom sort rate-limit window in seconds.
+	 *
+	 * @var int
+	 */
+	private const RATE_LIMIT_WINDOW = MINUTE_IN_SECONDS;
 
 	/**
 	 * Initialize hooks.
@@ -240,6 +256,16 @@ class Advanced_Sorting {
 	 * @return \WP_REST_Response Response with sorted IDs.
 	 */
 	public function handle_sorted_products( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint
+		if ( $this->is_rate_limited() ) {
+			$response = new \WP_REST_Response(
+				array( 'error' => 'rate_limited' ),
+				429
+			);
+			$response->header( 'Retry-After', (string) self::RATE_LIMIT_WINDOW );
+
+			return $response;
+		}
+
 		$sort     = $request->get_param( 'sort' );
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
@@ -357,6 +383,20 @@ class Advanced_Sorting {
 			'ids'   => $ids,
 			'total' => $total,
 		);
+	}
+
+	/**
+	 * Whether the current anonymous requester exceeded the custom-sort limit.
+	 *
+	 * Logged-in users are exempt via the shared rate limiter.
+	 *
+	 * @return bool
+	 */
+	private function is_rate_limited(): bool {
+		$max    = max( 1, (int) apply_filters( 'aggressive_apparel_advanced_sorting_rate_limit_max', self::RATE_LIMIT_MAX ) );
+		$window = max( 10, (int) apply_filters( 'aggressive_apparel_advanced_sorting_rate_limit_window', self::RATE_LIMIT_WINDOW ) );
+
+		return ! Rate_Limiter::allow( 'advanced_sorting', $max, $window );
 	}
 
 	/**

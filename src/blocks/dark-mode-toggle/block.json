@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Dark Mode Toggle",
   "category": "theme",
-  "icon": "lightbulb",
   "description": "A toggle switch for switching between light and dark themes.",
   "example": {},
   "supports": {

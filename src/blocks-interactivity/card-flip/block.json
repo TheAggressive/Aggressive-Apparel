@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Card Flip",
   "category": "aggressive-apparel",
-  "icon": "image-rotate",
   "description": "3D card with front and back faces. Hover variant is pure CSS; click variant uses the Interactivity API.",
   "keywords": ["card", "flip", "3d", "product", "reveal"],
   "supports": {

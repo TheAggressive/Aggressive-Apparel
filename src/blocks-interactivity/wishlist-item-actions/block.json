@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "title": "Wishlist Item Actions",
   "category": "aggressive-apparel",
-  "icon": "button",
   "description": "Remove and/or Add to Cart buttons for a wishlist item card.",
   "parent": ["aggressive-apparel/wishlist"],
   "supports": {

@@ -8,7 +8,6 @@
   "description": "Optional block area fixed to the bottom of the mobile panel. If empty, nothing is rendered.",
   "keywords": ["navigation", "mobile", "panel", "footer"],
   "textdomain": "aggressive-apparel",
-  "icon": "align-center",
   "parent": ["aggressive-apparel/navigation-panel"],
   "supports": {
     "html": false,

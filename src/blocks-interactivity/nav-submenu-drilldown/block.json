@@ -8,7 +8,6 @@
   "description": "Mobile drilldown submenu. Slides in to replace the panel body. Supports overlay and push animations. Place inside a Navigation Panel block.",
   "keywords": ["navigation", "mobile", "drilldown", "slide", "submenu"],
   "textdomain": "aggressive-apparel",
-  "icon": "arrow-right-alt",
   "ancestor": ["aggressive-apparel/navigation-panel"],
   "allowedBlocks": [
     "aggressive-apparel/nav-link",

@@ -5,6 +5,7 @@
  */
 
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
@@ -20,5 +21,6 @@ interface DarkModeToggleAttributes {
 }
 
 registerThemeBlock<DarkModeToggleAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
 });

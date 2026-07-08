@@ -4,11 +4,18 @@
  * @package Aggressive_Apparel
  */
 
+import type React from 'react';
 import type { InnerBlockTemplate } from '@wordpress/blocks';
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
 import type { NavigationAttributes } from './types';
+import {
+  dropdownNavigationIcon,
+  ecommerceNavigationIcon,
+  simpleNavigationIcon,
+} from './variation-icons';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
 /**
@@ -19,7 +26,7 @@ interface NavigationVariation {
   name: string;
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   isDefault?: boolean;
   attributes: Partial<NavigationAttributes>;
   innerBlocks: InnerBlockTemplate[];
@@ -194,7 +201,7 @@ const variations: NavigationVariation[] = [
     title: 'Simple Navigation',
     description:
       'Basic horizontal navigation with Home, About, Services, and Contact links.',
-    icon: 'menu',
+    icon: simpleNavigationIcon,
     isDefault: true,
     attributes: {
       ariaLabel: 'Main navigation',
@@ -206,7 +213,7 @@ const variations: NavigationVariation[] = [
     name: 'dropdowns',
     title: 'Navigation with Dropdowns',
     description: 'Navigation with dropdown submenus for organizing content.',
-    icon: 'arrow-down-alt2',
+    icon: dropdownNavigationIcon,
     attributes: {
       ariaLabel: 'Main navigation',
       openOn: 'hover',
@@ -219,7 +226,7 @@ const variations: NavigationVariation[] = [
     title: 'E-commerce Navigation',
     description:
       'Full-featured shop navigation with mega menu and mobile drill-down.',
-    icon: 'cart',
+    icon: ecommerceNavigationIcon,
     attributes: {
       ariaLabel: 'Shop navigation',
       openOn: 'hover',
@@ -230,6 +237,7 @@ const variations: NavigationVariation[] = [
 ];
 
 registerThemeBlock<NavigationAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
   save: Save,
   variations,

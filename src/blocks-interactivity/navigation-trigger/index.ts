@@ -5,6 +5,7 @@
  */
 
 import metadata from './block.json';
+import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
 import type { NavigationTriggerAttributes } from './types';
@@ -15,6 +16,7 @@ import './editor.css';
 import './style.css';
 
 registerThemeBlock<NavigationTriggerAttributes>(metadata, {
+  icon: blockIcon,
   edit: Edit,
   save: Save,
 });

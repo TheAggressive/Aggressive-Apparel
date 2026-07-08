@@ -3,12 +3,11 @@
   "apiVersion": 3,
   "name": "aggressive-apparel/icon",
   "version": "1.0.0",
-  "title": "Aggressive Icon",
+  "title": "Aggressive Icons",
   "category": "aggressive-apparel",
   "description": "Display an icon from the Aggressive Apparel icon library with adjustable size and color.",
-  "keywords": ["icon", "svg", "aggressive", "brand", "symbol"],
+  "keywords": ["icon", "icons", "svg", "aggressive", "brand", "symbol"],
   "textdomain": "aggressive-apparel",
-  "icon": "art",
   "attributes": {
     "icon": {
       "type": "string",

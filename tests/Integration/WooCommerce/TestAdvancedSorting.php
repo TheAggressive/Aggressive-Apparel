@@ -27,6 +27,9 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 	/** Sorting service under test. */
 	private Advanced_Sorting $sorting;
 
+	/** Previous REMOTE_ADDR value. */
+	private string $previous_remote_addr = '';
+
 	/**
 	 * Register the route on a fresh REST server.
 	 *
@@ -42,6 +45,7 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 		$this->sorting = new Advanced_Sorting();
 		$this->sorting->init();
 		delete_transient( 'wc_products_onsale' );
+		$this->previous_remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -56,6 +60,14 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 	public function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+
+		if ( '' === $this->previous_remote_addr ) {
+			unset( $_SERVER['REMOTE_ADDR'] );
+		} else {
+			$_SERVER['REMOTE_ADDR'] = $this->previous_remote_addr;
+		}
+		remove_all_filters( 'aggressive_apparel_advanced_sorting_rate_limit_max' );
+		remove_all_filters( 'aggressive_apparel_advanced_sorting_rate_limit_window' );
 
 		parent::tearDown();
 	}
@@ -186,5 +198,28 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 		$this->assertSame( $half_price, $ids[0] );
 		$this->assertSame( $quarter_saved, $ids[1] );
 		$this->assertSame( $regular, $ids[2] );
+	}
+
+	/**
+	 * Anonymous callers are throttled through the shared rate limiter.
+	 *
+	 * @return void
+	 */
+	public function test_anonymous_sorted_products_requests_are_rate_limited(): void {
+		wp_set_current_user( 0 );
+		$_SERVER['REMOTE_ADDR'] = '203.0.113.47';
+
+		add_filter( 'aggressive_apparel_advanced_sorting_rate_limit_max', static fn(): int => 1 );
+		add_filter( 'aggressive_apparel_advanced_sorting_rate_limit_window', static fn(): int => 60 );
+
+		$this->create_product( 100 );
+
+		$first  = $this->dispatch( array( 'sort' => 'featured' ) );
+		$second = $this->dispatch( array( 'sort' => 'featured' ) );
+
+		$this->assertSame( 200, $first->get_status() );
+		$this->assertSame( 429, $second->get_status() );
+		$this->assertSame( '60', $second->get_headers()['Retry-After'] ?? '' );
+		$this->assertSame( array( 'error' => 'rate_limited' ), $second->get_data() );
 	}
 }

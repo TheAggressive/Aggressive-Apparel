@@ -15,7 +15,6 @@
     "full-width"
   ],
   "textdomain": "aggressive-apparel",
-  "icon": "grid-view",
   "ancestor": ["aggressive-apparel/navigation"],
   "allowedBlocks": [
     "aggressive-apparel/nav-link",

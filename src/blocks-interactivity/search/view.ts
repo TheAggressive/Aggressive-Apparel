@@ -172,9 +172,7 @@ function getModal(): HTMLElement | null {
 }
 
 function getResultsContainer(): HTMLElement | null {
-  return (
-    getModal()?.querySelector<HTMLElement>(`#${RESULTS_ID}`) ?? null
-  );
+  return getModal()?.querySelector<HTMLElement>(`#${RESULTS_ID}`) ?? null;
 }
 
 function getDialog(): HTMLElement | null {
@@ -250,14 +248,17 @@ function mapErrorCode(raw: string | undefined): SearchErrorCode {
 /**
  * Parse a REST response into a typed success payload or throw a SearchRequestError.
  */
-async function parseSearchResponse(response: Response): Promise<SearchSuccessResponse> {
+async function parseSearchResponse(
+  response: Response
+): Promise<SearchSuccessResponse> {
   let payload: SearchSuccessResponse & SearchErrorPayload = {
     query: '',
     groups: [],
   };
 
   try {
-    payload = (await response.json()) as SearchSuccessResponse & SearchErrorPayload;
+    payload = (await response.json()) as SearchSuccessResponse &
+      SearchErrorPayload;
   } catch {
     throw new SearchRequestError(
       response.ok ? 'invalid_response' : 'network',

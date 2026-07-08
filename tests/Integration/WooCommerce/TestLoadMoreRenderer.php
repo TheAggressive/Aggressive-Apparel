@@ -423,4 +423,51 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		)->get_data();
 		$this->assertSame( 1, (int) $combo['total_products'] );
 	}
+
+	/**
+	 * Load-more cards inherit product-collection element styles via wp-elements wrapper.
+	 *
+	 * Regression: appended cards rendered inner blocks only, so Site Editor link
+	 * colors on product-collection did not match page-1 SSR cards.
+	 *
+	 * @return void
+	 */
+	public function test_collection_elements_wrapper_applies_to_rendered_cards(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 42.0 );
+
+		$this->create_block_template(
+			'archive-product',
+			'<!-- wp:woocommerce/product-collection {"queryId":1,"query":{"perPage":12,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":true,"taxQuery":[],"isProductCollectionBlock":true,"featured":false,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"displayLayout":{"type":"flex","columns":3},"style":{"elements":{"link":{"color":{"text":"#ff0000"},":hover":{"color":{"text":"#00ff00"}}}}}} -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"level":3,"isLink":true} /-->'
+			. '<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true} /-->'
+			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div>'
+			. '<!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$response = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 5,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertNotEmpty( $data['html'] );
+
+		$this->assertMatchesRegularExpression(
+			'/<div class="wp-elements-[a-f0-9]+">/',
+			$data['html'],
+			'Card content should be wrapped in the collection wp-elements class.'
+		);
+		$this->assertStringContainsString( 'wp-block-post-title', $data['html'] );
+		$this->assertStringContainsString( 'data-is-inherited="1"', $data['html'] );
+	}
 }

@@ -4,8 +4,9 @@
  *
  * REST endpoint that renders product cards through the full WordPress block
  * pipeline. Every render_block filter (hover image, quick-view, badges, etc.)
- * runs automatically, so infinite-scroll cards are byte-for-byte identical to
- * the initial server-rendered output regardless of block editor changes.
+ * runs automatically. Cards render through WooCommerce's product-template
+ * context and reuse the product-collection wp-elements class so page-1 head CSS
+ * applies to load-more / filter inserts without shipping extra scoped styles.
  *
  * @package Aggressive_Apparel
  * @since 1.65.0
@@ -39,11 +40,11 @@ class Load_More_Renderer {
 	private const FACETS_VERSION_OPTION = 'aa_pf_facets_version';
 
 	/**
-	 * Parsed inner-block cache keyed by template slug (per-request).
+	 * Parsed template product blocks keyed by template slug (per-request).
 	 *
-	 * @var array<string, array<int, array<string, mixed>>>
+	 * @var array<string, array{collection: ?array<string, mixed>, template: ?array<string, mixed>}>
 	 */
-	private array $blocks_cache = array();
+	private array $template_cache = array();
 
 	/**
 	 * Whether facet transients were already cleared during this request.
@@ -251,18 +252,22 @@ class Load_More_Renderer {
 			$template_slug = 'archive-product';
 		}
 
-		$inner_blocks = $this->get_template_inner_blocks( $template_slug );
+		$template_config = $this->get_template_product_config( $template_slug );
 
 		// A resolved template may not contain a product-template block (for
 		// example, a broad archive fallback or malformed client input). Never
 		// render arbitrary template content; use the canonical product archive.
-		if ( empty( $inner_blocks ) && 'archive-product' !== $template_slug ) {
-			$inner_blocks = $this->get_template_inner_blocks( 'archive-product' );
+		if ( empty( $template_config['template'] ) && 'archive-product' !== $template_slug ) {
+			$template_config = $this->get_template_product_config( 'archive-product' );
 		}
 
-		if ( empty( $inner_blocks ) ) {
+		if ( empty( $template_config['template'] ) ) {
 			return new \WP_REST_Response( array( 'error' => 'Template not found' ), 404 );
 		}
+
+		$template_block            = $template_config['template'];
+		$collection_context        = $this->build_collection_context( $template_config['collection'] );
+		$collection_elements_class = $this->prime_collection_element_styles( $template_config['collection'] );
 
 		$query = $this->run_product_query( $this->build_query_args( $page, $per_page, $orderby, $taxonomy, $term, $filters ) );
 
@@ -292,19 +297,12 @@ class Load_More_Renderer {
 				continue;
 			}
 
-			$context = array(
-				'postType' => 'product',
-				'postId'   => $product_id,
+			$card_html = $this->render_product_card(
+				$template_block,
+				$collection_context,
+				$collection_elements_class,
+				$product_id
 			);
-
-			$card_html = '';
-			foreach ( $inner_blocks as $parsed_block ) {
-				if ( empty( $parsed_block['blockName'] ) ) {
-					continue;
-				}
-				$block_obj  = new \WP_Block( $parsed_block, $context );
-				$card_html .= $block_obj->render();
-			}
 
 			$post_classes   = implode( ' ', get_post_class( 'wc-block-product' ) );
 			$encoded        = wp_json_encode(
@@ -500,68 +498,234 @@ class Load_More_Renderer {
 	}
 
 	/**
-	 * Get the parsed innerBlocks of woocommerce/product-template from a template.
+	 * Get product-collection and product-template blocks from a template.
 	 *
 	 * Prefers a DB-customised template (Site Editor changes) over the theme file.
 	 *
 	 * @param string $template_slug Template slug.
-	 * @return array<int, array<string, mixed>>
+	 * @return array{collection: ?array<string, mixed>, template: ?array<string, mixed>}
 	 */
-	private function get_template_inner_blocks( string $template_slug ): array {
-		if ( isset( $this->blocks_cache[ $template_slug ] ) ) {
-			return $this->blocks_cache[ $template_slug ];
+	private function get_template_product_config( string $template_slug ): array {
+		if ( isset( $this->template_cache[ $template_slug ] ) ) {
+			return $this->template_cache[ $template_slug ];
 		}
 
-		// Try DB template first (respects Site Editor customisations).
-		$templates = get_block_templates( array( 'slug__in' => array( $template_slug ) ), 'wp_template' );
-
-		if ( ! empty( $templates ) ) {
-			$content = $templates[0]->content;
-		} else {
-			$file = AGGRESSIVE_APPAREL_DIR . '/templates/' . $template_slug . '.html';
-			if ( ! file_exists( $file ) ) {
-				return array();
-			}
-			global $wp_filesystem;
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-			WP_Filesystem();
-			if ( ! $wp_filesystem ) {
-				return array();
-			}
-			$content = $wp_filesystem->get_contents( $file );
-			if ( false === $content ) {
-				return array();
-			}
+		$content = $this->get_template_content( $template_slug );
+		if ( '' === $content ) {
+			$config                                 = array(
+				'collection' => null,
+				'template'   => null,
+			);
+			$this->template_cache[ $template_slug ] = $config;
+			return $config;
 		}
 
-		$blocks = parse_blocks( $content );
-		$inner  = $this->find_product_template_inner_blocks( $blocks );
+		$blocks                                 = parse_blocks( $content );
+		$config                                 = array(
+			'collection' => $this->find_block_by_name( $blocks, 'woocommerce/product-collection' ),
+			'template'   => $this->find_block_by_name( $blocks, 'woocommerce/product-template' ),
+		);
+		$this->template_cache[ $template_slug ] = $config;
 
-		$this->blocks_cache[ $template_slug ] = $inner;
-		return $inner;
+		return $config;
 	}
 
 	/**
-	 * Recursively find woocommerce/product-template and return its innerBlocks.
+	 * Load raw template content for a slug.
 	 *
-	 * @param array<int|string, array<string, mixed>> $blocks Parsed blocks.
-	 * @return array<int, array<string, mixed>>
+	 * @param string $template_slug Template slug.
+	 * @return string
 	 */
-	private function find_product_template_inner_blocks( array $blocks ): array {
+	private function get_template_content( string $template_slug ): string {
+		$templates = get_block_templates( array( 'slug__in' => array( $template_slug ) ), 'wp_template' );
+
+		if ( ! empty( $templates ) ) {
+			return (string) $templates[0]->content;
+		}
+
+		$file = AGGRESSIVE_APPAREL_DIR . '/templates/' . $template_slug . '.html';
+		if ( ! file_exists( $file ) ) {
+			return '';
+		}
+
+		global $wp_filesystem;
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		if ( ! $wp_filesystem ) {
+			return '';
+		}
+
+		$content = $wp_filesystem->get_contents( $file );
+		return false !== $content ? (string) $content : '';
+	}
+
+	/**
+	 * Recursively find the first block matching a block name.
+	 *
+	 * @param array<int|string, array<string, mixed>> $blocks    Parsed blocks.
+	 * @param string                                  $block_name Block name to match.
+	 * @return ?array<string, mixed>
+	 */
+	private function find_block_by_name( array $blocks, string $block_name ): ?array {
 		foreach ( $blocks as $block ) {
-			if ( 'woocommerce/product-template' === ( $block['blockName'] ?? '' ) ) {
-				return $block['innerBlocks'] ?? array();
+			if ( ( $block['blockName'] ?? '' ) === $block_name ) {
+				return $block;
 			}
 			if ( ! empty( $block['innerBlocks'] ) ) {
-				$result = $this->find_product_template_inner_blocks( $block['innerBlocks'] );
-				if ( ! empty( $result ) ) {
-					return $result;
+				$found = $this->find_block_by_name( $block['innerBlocks'], $block_name );
+				if ( null !== $found ) {
+					return $found;
 				}
 			}
 		}
-		return array();
+
+		return null;
+	}
+
+	/**
+	 * Build WooCommerce product-collection context from parsed collection attrs.
+	 *
+	 * @param ?array<string, mixed> $collection_block Parsed collection block.
+	 * @return array<string, mixed>
+	 */
+	private function build_collection_context( ?array $collection_block ): array {
+		if ( empty( $collection_block['attrs'] ) || ! is_array( $collection_block['attrs'] ) ) {
+			return array();
+		}
+
+		$context = array();
+		$attrs   = $collection_block['attrs'];
+
+		foreach ( array( 'queryId', 'query', 'displayLayout', 'dimensions', 'collection', 'tagName' ) as $key ) {
+			if ( isset( $attrs[ $key ] ) ) {
+				$context[ $key ] = $attrs[ $key ];
+			}
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Prime product-collection element styles and return the wp-elements class.
+	 *
+	 * @param ?array<string, mixed> $collection_block Parsed collection block.
+	 * @return string
+	 */
+	private function prime_collection_element_styles( ?array $collection_block ): string {
+		if ( empty( $collection_block ) ) {
+			return '';
+		}
+
+		/**
+		 * Collection block after render_block_data filters.
+		 *
+		 * @var array<string, mixed> $processed
+		 */
+		$processed  = apply_filters( 'render_block_data', $collection_block, $collection_block, null );
+		$class_name = $processed['attrs']['className'] ?? '';
+
+		if ( ! is_string( $class_name ) || '' === $class_name ) {
+			return '';
+		}
+
+		if ( preg_match( '/\b(wp-elements-\S+)\b/', $class_name, $matches ) ) {
+			return $matches[1];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Deep-clone a parsed block tree before per-card mutation.
+	 *
+	 * @param array<string, mixed> $block Parsed block.
+	 * @return array<string, mixed>
+	 */
+	private function clone_parsed_block( array $block ): array {
+		$encoded = wp_json_encode( $block );
+		if ( false === $encoded ) {
+			return $block;
+		}
+
+		$clone = json_decode( $encoded, true );
+		return is_array( $clone ) ? $clone : $block;
+	}
+
+	/**
+	 * Recursively mark inner blocks as inherited (archive template parity).
+	 *
+	 * @param array<string, mixed> $block Parsed block (by reference).
+	 * @return void
+	 */
+	private function inject_is_inherited( array &$block ): void {
+		if ( ! isset( $block['attrs'] ) || ! is_array( $block['attrs'] ) ) {
+			$block['attrs'] = array();
+		}
+
+		$block['attrs']['isInherited'] = 1;
+
+		if ( empty( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) ) {
+			return;
+		}
+
+		foreach ( $block['innerBlocks'] as &$inner_block ) {
+			$this->inject_is_inherited( $inner_block );
+		}
+		unset( $inner_block );
+	}
+
+	/**
+	 * Render a single product card through the product-template block tree.
+	 *
+	 * Mirrors WooCommerce ProductTemplate::render() inner-block path so collection
+	 * context and inherited attrs match archive SSR.
+	 *
+	 * @param array<string, mixed> $template_block            Parsed product-template block.
+	 * @param array<string, mixed> $collection_context        Context from product-collection.
+	 * @param string               $collection_elements_class wp-elements class from collection.
+	 * @param int                  $product_id                Product post ID.
+	 * @return string
+	 */
+	private function render_product_card(
+		array $template_block,
+		array $collection_context,
+		string $collection_elements_class,
+		int $product_id
+	): string {
+		$block_instance              = $this->clone_parsed_block( $template_block );
+		$block_instance['blockName'] = 'core/null';
+		$this->inject_is_inherited( $block_instance );
+
+		$context = array_merge(
+			$collection_context,
+			array(
+				'postType' => 'product',
+				'postId'   => $product_id,
+			)
+		);
+
+		$card_html = ( new \WP_Block( $block_instance, $context ) )->render(
+			array( 'dynamic' => false )
+		);
+
+		if ( '' === $card_html ) {
+			return '';
+		}
+
+		if (
+			'' !== $collection_elements_class
+			&& ! str_contains( $card_html, $collection_elements_class )
+		) {
+			$card_html = sprintf(
+				'<div class="%s">%s</div>',
+				esc_attr( $collection_elements_class ),
+				$card_html
+			);
+		}
+
+		return $card_html;
 	}
 
 	/**

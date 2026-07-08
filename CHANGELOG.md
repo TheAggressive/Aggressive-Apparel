@@ -1,3 +1,10 @@
+# [1.139.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.138.0...v1.139.0) (2026-07-08)
+
+
+### Features
+
+* enhance theme update process with checksum verification ([b850f28](https://github.com/TheAggressive/Aggressive-Apparel/commit/b850f283bb3009708f3c18b6f945be27132d784e))
+
 # [1.138.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.137.0...v1.138.0) (2026-07-07)
 
 

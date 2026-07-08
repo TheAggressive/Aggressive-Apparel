@@ -1683,56 +1683,7 @@ var wcpayAssets = {"url":"http://localhost:9910/wp-content/plugins/woocommerce-p
 </div></div></div></div><script type="speculationrules">
 {"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/aggressive-apparel/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
 </script>
-<div
-				class="aa-search"
-				id="aa-search-modal"
-				hidden
-				data-aa-yields-nav-focus
-				data-wp-interactive="aggressive-apparel/search"
-				data-wp-class--is-open="state.isOpen"
-				data-wp-on-document--keydown="actions.handleKeydown"
-			>
-				<div class="aa-search__overlay" data-wp-on--click="actions.close" aria-hidden="true"></div>
-				<div class="aa-search__dialog" role="dialog" aria-modal="true" aria-label="Search">
-					<div class="aa-search__bar">
-						<div class="aa-search__field" data-wp-class--is-filled="state.hasQuery">
-							<span class="aa-search__field-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M13 5c-3.3 0-6 2.7-6 6 0 1.4.5 2.7 1.3 3.7l-3.8 3.8 1.1 1.1 3.8-3.8c1 .8 2.3 1.3 3.7 1.3 3.3 0 6-2.7 6-6S16.3 5 13 5zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z"/></svg></span>
-							<input
-								type="search"
-								class="aa-search__input"
-								placeholder="Search"
-								aria-label="Search"
-								autocomplete="off"
-								spellcheck="false"
-								enterkeyhint="search"
-								role="combobox"
-								aria-controls="aa-search-results"
-								aria-autocomplete="list"
-								data-wp-bind--aria-expanded="state.hasResults"
-								data-wp-on--input="actions.handleInput"
-							/>
-							<button type="button" class="aa-search__clear" aria-label="Clear search" hidden data-wp-bind--hidden="!state.hasQuery" data-wp-on--click="actions.clear"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-						</div>
-						<button type="button" class="aa-search__close" aria-label="Close search" data-wp-on--click="actions.close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-					</div>
-					<div class="aa-search__tabs" role="tablist" aria-label="Filter results by type"><button type="button" role="tab" class="aa-search__tab" data-scope="all" data-wp-on--click="actions.setScope" data-wp-class--is-active="callbacks.isActiveScope" data-wp-bind--aria-selected="callbacks.isActiveScope"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">All</span></button><button type="button" role="tab" class="aa-search__tab" data-scope="product" data-wp-on--click="actions.setScope" data-wp-class--is-active="callbacks.isActiveScope" data-wp-bind--aria-selected="callbacks.isActiveScope"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">Products</span></button><button type="button" role="tab" class="aa-search__tab" data-scope="post" data-wp-on--click="actions.setScope" data-wp-class--is-active="callbacks.isActiveScope" data-wp-bind--aria-selected="callbacks.isActiveScope"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">Articles</span></button><button type="button" role="tab" class="aa-search__tab" data-scope="page" data-wp-on--click="actions.setScope" data-wp-class--is-active="callbacks.isActiveScope" data-wp-bind--aria-selected="callbacks.isActiveScope"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">Pages</span></button></div>
-					<div class="aa-search__body">
-						<p class="aa-search__hint" data-wp-bind--hidden="state.hideHint">Start typing to search products, articles and pages.</p>
-						<p class="aa-search__loading" hidden data-wp-bind--hidden="!state.isLoading" aria-hidden="true">Searching…</p>
-						<p class="aa-search__empty" hidden data-wp-bind--hidden="!state.showEmpty" role="status">No results found.</p>
-						<div id="aa-search-results" class="aa-search__results" role="listbox" aria-label="Search results" data-wp-watch="callbacks.renderResults"></div>
-					</div>
-					<div class="aa-search__footer" data-wp-class--is-visible="state.hasResults" data-wp-bind--aria-hidden="!state.hasResults">
-						<a class="aa-search__view-all" hidden data-wp-bind--hidden="!state.hasResults" data-wp-bind--href="state.viewAllUrl">View all results <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M4 11h12.17l-5.59-5.59L12 4l8 8-8 8-1.41-1.41L16.17 13H4v-2z"/></svg></a>
-						<div class="aa-search__hints" aria-hidden="true">
-							<span class="aa-search__hint-item"><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
-							<span class="aa-search__hint-item"><kbd>&crarr;</kbd> open</span>
-							<span class="aa-search__hint-item"><kbd>esc</kbd> close</span>
-						</div>
-					</div>
-				</div>
-				<div class="screen-reader-text" aria-live="polite" data-wp-text="state.announcement"></div>
-			</div><script data-wp-router-options="{&quot;loadOnClientNavigation&quot;:true}" fetchpriority="low" id="aggressive-apparel-free-shipping-message-view-script-module-js-module" src="http://localhost:9910/wp-content/themes/aggressive-apparel/build/blocks-interactivity/free-shipping-message/view.js?ver=eab3a104cb91ad7b5b48" type="module"></script>
+<script data-wp-router-options="{&quot;loadOnClientNavigation&quot;:true}" fetchpriority="low" id="aggressive-apparel-free-shipping-message-view-script-module-js-module" src="http://localhost:9910/wp-content/themes/aggressive-apparel/build/blocks-interactivity/free-shipping-message/view.js?ver=eab3a104cb91ad7b5b48" type="module"></script>
 <script data-wp-router-options="{&quot;loadOnClientNavigation&quot;:true}" fetchpriority="low" id="aggressive-apparel-ticker-view-script-module-js-module" src="http://localhost:9910/wp-content/themes/aggressive-apparel/build/blocks-interactivity/ticker/view.js?ver=2a3a3793261f1db18f0c" type="module"></script>
 <script data-wp-router-options="{&quot;loadOnClientNavigation&quot;:true}" fetchpriority="low" id="aggressive-apparel-search-view-script-module-js-module" src="http://localhost:9910/wp-content/themes/aggressive-apparel/build/blocks-interactivity/search/view.js?ver=c96d4ef93d70eed9846d" type="module"></script>
 <script data-wp-router-options="{&quot;loadOnClientNavigation&quot;:true}" fetchpriority="low" id="aggressive-apparel-parallax-view-script-module-js-module" src="http://localhost:9910/wp-content/themes/aggressive-apparel/build/blocks-interactivity/parallax/view.js?ver=2e6de840ac6ad57bcf7b" type="module"></script>

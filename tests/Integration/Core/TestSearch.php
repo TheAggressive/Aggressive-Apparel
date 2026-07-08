@@ -11,13 +11,14 @@ namespace Aggressive_Apparel\Tests\Integration\Core;
 
 use Aggressive_Apparel\Core\Search;
 use Aggressive_Apparel\Core\Search_Index;
+use Aggressive_Apparel\Core\Search_Visibility;
 use WP_REST_Request;
 use WP_UnitTestCase;
 
 /**
  * Covers the aggressive-apparel/v1/search handler: scope filtering, the
- * published-only / min-length guards, server-side entity decoding, and the
- * coming-soon product gating.
+ * published-only / min-length guards, server-side entity decoding, private and
+ * password-protected exclusions, and the coming-soon product gating.
  */
 class TestSearch extends WP_UnitTestCase {
 
@@ -67,14 +68,25 @@ class TestSearch extends WP_UnitTestCase {
 	 * @return array<string, mixed>
 	 */
 	private function run_search( string $query, string $scope = 'all' ): array {
+		return $this->search_handle( $query, $scope )->get_data();
+	}
+
+	/**
+	 * Run the search handler and return the REST response object.
+	 *
+	 * @param string $query Search term.
+	 * @param string $scope Scope (all|product|post|page).
+	 * @return \WP_REST_Response
+	 */
+	private function search_handle( string $query, string $scope = 'all' ): \WP_REST_Response {
 		$request = new WP_REST_Request( 'GET', '/aggressive-apparel/v1/search' );
 		$request->set_param( 'query', $query );
 		$request->set_param( 'scope', $scope );
 
-		/** @var array<string, mixed> $data */
-		$data = $this->search->handle( $request )->get_data();
+		/** @var \WP_REST_Response $response */
+		$response = $this->search->handle( $request );
 
-		return $data;
+		return $response;
 	}
 
 	/**
@@ -227,6 +239,81 @@ class TestSearch extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Private posts never appear, even for administrators.
+	 *
+	 * @return void
+	 */
+	public function test_excludes_private_posts(): void {
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Zeprivate Hidden Post',
+				'post_status' => 'private',
+				'post_author' => $this->admin_id,
+			)
+		);
+
+		$data = $this->run_search( 'Zeprivate', 'post' );
+
+		$this->assertEmpty( $this->group_items( $data, 'post' ) );
+		$this->assertSame( 0, $data['total'] );
+	}
+
+	/**
+	 * Password-protected published posts never appear in results.
+	 *
+	 * @return void
+	 */
+	public function test_excludes_password_protected_posts(): void {
+		self::factory()->post->create(
+			array(
+				'post_title'    => 'Zelocked Hidden Post',
+				'post_status'   => 'publish',
+				'post_password' => 'secret',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_title'    => 'Zelocked Hidden Page',
+				'post_type'     => 'page',
+				'post_status'   => 'publish',
+				'post_password' => 'secret',
+			)
+		);
+
+		$post_data = $this->run_search( 'Zelocked', 'post' );
+		$page_data = $this->run_search( 'Zelocked', 'page' );
+
+		$this->assertEmpty( $this->group_items( $post_data, 'post' ) );
+		$this->assertEmpty( $this->group_items( $page_data, 'page' ) );
+		$this->assertSame( 0, $post_data['total'] );
+		$this->assertSame( 0, $page_data['total'] );
+	}
+
+	/**
+	 * Password-protected posts are not indexed for autocomplete.
+	 *
+	 * @return void
+	 */
+	public function test_index_excludes_password_protected_posts(): void {
+		$index = new Search_Index();
+		$index->maybe_install();
+		$index->process_rebuild_batch( PHP_INT_MAX );
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'    => 'Zevault Indexed Post',
+				'post_status'   => 'publish',
+				'post_password' => 'secret',
+			)
+		);
+
+		$index->sync_ids( array( $post_id ) );
+
+		$this->assertFalse( Search_Visibility::is_searchable_post( get_post( $post_id ) ) );
+		$this->assertNotContains( $post_id, $index->search( 'post', 'Zevault', 8 ) );
+	}
+
+	/**
 	 * In coming-soon mode, products are hidden from the public but visible to a
 	 * shop manager / administrator.
 	 *
@@ -316,5 +403,130 @@ class TestSearch extends WP_UnitTestCase {
 
 		$health = $index->add_debug_information( array() );
 		$this->assertSame( 'ready', $health['aggressive_apparel_search_index']['fields']['state']['value'] );
+	}
+
+	/**
+	 * Successful responses echo the normalized query for client stale-guards.
+	 *
+	 * @return void
+	 */
+	public function test_success_response_echoes_query(): void {
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Zephyr Echo Query Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$data = $this->run_search( '  Zephyr  ', 'post' );
+
+		$this->assertSame( 'Zephyr', $data['query'] );
+	}
+
+	/**
+	 * Rate-limited responses return a structured error payload.
+	 *
+	 * @return void
+	 */
+	public function test_rate_limited_response_is_structured(): void {
+		wp_set_current_user( 0 );
+
+		add_filter( 'aggressive_apparel_search_rate_limit_max', static fn(): int => 1 );
+		add_filter( 'aggressive_apparel_search_rate_limit_window', static fn(): int => 60 );
+
+		$this->search_handle( 'alpha', 'all' );
+		$response = $this->search_handle( 'beta', 'all' );
+
+		$this->assertSame( 429, $response->get_status() );
+
+		/** @var array<string, mixed> $data */
+		$data = $response->get_data();
+		$this->assertSame( 'rate_limited', $data['error'] );
+		$this->assertNotEmpty( $data['message'] );
+		$this->assertSame( 'beta', $data['query'] );
+	}
+
+	/**
+	 * Indexed products can be found by a trimmed description term.
+	 *
+	 * @return void
+	 */
+	public function test_token_index_finds_trimmed_product_description(): void {
+		if ( ! class_exists( 'WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$index = new Search_Index();
+		$index->maybe_install();
+		$index->process_rebuild_batch( PHP_INT_MAX );
+
+		$keyword = 'Nebulonique';
+		$product = new \WC_Product_Simple();
+		$product->set_name( 'Indexed Shell Jacket' );
+		$product->set_description( "Technical outerwear featuring {$keyword} insulation throughout the lining." );
+		$product->set_status( 'publish' );
+		$product->set_catalog_visibility( 'visible' );
+		$product_id = $product->save();
+
+		$index->sync_ids( array( $product_id ) );
+
+		$this->assertContains( $product_id, $index->search( 'product', $keyword, 8 ) );
+	}
+
+	/**
+	 * Hidden catalogue products never appear in autocomplete results.
+	 *
+	 * @return void
+	 */
+	public function test_excludes_hidden_catalog_products(): void {
+		if ( ! class_exists( 'WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$visible = new \WC_Product_Simple();
+		$visible->set_name( 'Zeshowcase Visible Tee' );
+		$visible->set_status( 'publish' );
+		$visible->set_catalog_visibility( 'visible' );
+		$visible->save();
+
+		$hidden = new \WC_Product_Simple();
+		$hidden->set_name( 'Zeshowcase Hidden Tee' );
+		$hidden->set_status( 'publish' );
+		$hidden->set_catalog_visibility( 'hidden' );
+		$hidden->save();
+
+		update_option( 'woocommerce_coming_soon', 'no' );
+		wp_set_current_user( 0 );
+
+		$data = $this->run_search( 'Zeshowcase', 'product' );
+
+		$this->assertTrue( $this->has_title( $data, 'product', 'Zeshowcase Visible Tee' ) );
+		$this->assertFalse( $this->has_title( $data, 'product', 'Zeshowcase Hidden Tee' ) );
+	}
+
+	/**
+	 * Hidden catalogue products are not indexed for autocomplete.
+	 *
+	 * @return void
+	 */
+	public function test_index_excludes_hidden_catalog_products(): void {
+		if ( ! class_exists( 'WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$index = new Search_Index();
+		$index->maybe_install();
+		$index->process_rebuild_batch( PHP_INT_MAX );
+
+		$product = new \WC_Product_Simple();
+		$product->set_name( 'Zecatalog Hidden Hoodie' );
+		$product->set_status( 'publish' );
+		$product->set_catalog_visibility( 'hidden' );
+		$product_id = $product->save();
+
+		$index->sync_ids( array( $product_id ) );
+
+		$this->assertFalse( Search_Visibility::is_indexable( get_post( $product_id ) ) );
+		$this->assertNotContains( $product_id, $index->search( 'product', 'Zecatalog', 8 ) );
 	}
 }

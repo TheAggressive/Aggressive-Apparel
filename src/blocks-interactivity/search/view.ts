@@ -2,9 +2,10 @@
  * Search Block — Interactivity API Store.
  *
  * Drives the full-screen search modal: a debounced REST search across products,
- * articles and pages, scope tabs, keyboard navigation, and an imperative,
- * type-aware result renderer. Shared by the trigger button and the portaled
- * modal (wp_footer) via global store state.
+ * articles and pages, scope tabs, keyboard navigation, and an imperative
+ * result renderer (`paintSearchResults`) that updates the listbox after each
+ * state change. Shared by the trigger button and the portaled modal (wp_footer)
+ * via global store state.
  *
  * @package Aggressive_Apparel
  */
@@ -19,6 +20,13 @@ import {
   SEARCH_MODAL_ID,
   SEARCH_OPEN_BODY_CLASS,
 } from '../nav-shared/overlay-coordination';
+
+type SearchErrorCode =
+  | ''
+  | 'rate_limited'
+  | 'server_error'
+  | 'network'
+  | 'invalid_response';
 
 interface SearchResultItem {
   id: number;
@@ -37,9 +45,30 @@ interface SearchGroup {
   items: SearchResultItem[];
 }
 
-interface SearchResponse {
+interface SearchSuccessResponse {
+  query: string;
   groups: SearchGroup[];
   viewAll?: string;
+  total?: number;
+}
+
+interface SearchErrorPayload {
+  error?: string;
+  message?: string;
+  retryAfter?: number;
+}
+
+class SearchRequestError extends Error {
+  code: SearchErrorCode;
+
+  messageText: string;
+
+  constructor(code: SearchErrorCode, messageText: string) {
+    super(messageText);
+    this.name = 'SearchRequestError';
+    this.code = code;
+    this.messageText = messageText;
+  }
 }
 
 interface SearchState {
@@ -49,6 +78,9 @@ interface SearchState {
   scope: string;
   isLoading: boolean;
   hasSearched: boolean;
+  hasError: boolean;
+  errorCode: SearchErrorCode;
+  errorMessage: string;
   groups: SearchGroup[];
   viewAllUrl: string;
   placeholders: string[];
@@ -56,11 +88,21 @@ interface SearchState {
     noResults: string;
     resultSingular: string;
     resultPlural: string;
+    searchError: string;
+    rateLimited: string;
+    retry: string;
+    tabEmpty: string;
+    viewAllTab: string;
+    tabLabels: Record<string, string>;
   };
   readonly hasResults: boolean;
   readonly hasQuery: boolean;
   readonly hideHint: boolean;
+  readonly hideError: boolean;
   readonly showEmpty: boolean;
+  readonly showTabEmpty: boolean;
+  readonly tabEmptyMessage: string;
+  readonly errorDisplay: string;
   readonly announcement: string;
 }
 
@@ -70,11 +112,13 @@ interface SearchStore {
   callbacks: Record<string, (...args: never[]) => unknown>;
 }
 
+const SEARCH_STORE = 'aggressive-apparel/search';
 const MODAL_ID = SEARCH_MODAL_ID;
 const RESULTS_ID = 'aa-search-results';
 const BODY_OPEN_CLASS = SEARCH_OPEN_BODY_CLASS;
 const DEBOUNCE_MS = 300;
 const MIN_CHARS = 2;
+const DEFAULT_SCOPE = 'all';
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let controller: AbortController | null = null;
@@ -108,8 +152,29 @@ function highlight(text: string, query: string): string {
   return safe.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
 }
 
+/**
+ * Drop stale in-page modal copies so only the portaled wp_footer shell remains.
+ * Duplicate ids break getElementById and leave data-wp-watch bound to a dead node.
+ */
+function normalizeSearchShell(): void {
+  const modals = Array.from(
+    document.querySelectorAll<HTMLElement>(`#${MODAL_ID}`)
+  );
+  if (modals.length <= 1) {
+    return;
+  }
+
+  modals.slice(0, -1).forEach(modal => modal.remove());
+}
+
 function getModal(): HTMLElement | null {
   return document.getElementById(MODAL_ID);
+}
+
+function getResultsContainer(): HTMLElement | null {
+  return (
+    getModal()?.querySelector<HTMLElement>(`#${RESULTS_ID}`) ?? null
+  );
 }
 
 function getDialog(): HTMLElement | null {
@@ -132,7 +197,7 @@ function focusSearchInput(): void {
 }
 
 function getOptions(): HTMLElement[] {
-  const results = document.getElementById(RESULTS_ID);
+  const results = getResultsContainer();
   if (!results) return [];
   return Array.from(results.querySelectorAll<HTMLElement>('[role="option"]'));
 }
@@ -152,6 +217,71 @@ function setActiveOption(index: number): void {
   } else {
     input?.removeAttribute('aria-activedescendant');
   }
+}
+
+function abortInFlightSearch(): void {
+  if (controller) {
+    controller.abort();
+    controller = null;
+  }
+}
+
+function clearSearchError(): void {
+  state.hasError = false;
+  state.errorCode = '';
+  state.errorMessage = '';
+}
+
+function resetSearchResults(): void {
+  state.groups = [];
+  state.isLoading = false;
+  state.hasSearched = false;
+  clearSearchError();
+  focusedIndex = -1;
+  paintSearchResults();
+}
+
+function mapErrorCode(raw: string | undefined): SearchErrorCode {
+  if (raw === 'rate_limited') return 'rate_limited';
+  if (raw === 'server_error') return 'server_error';
+  return 'server_error';
+}
+
+/**
+ * Parse a REST response into a typed success payload or throw a SearchRequestError.
+ */
+async function parseSearchResponse(response: Response): Promise<SearchSuccessResponse> {
+  let payload: SearchSuccessResponse & SearchErrorPayload = {
+    query: '',
+    groups: [],
+  };
+
+  try {
+    payload = (await response.json()) as SearchSuccessResponse & SearchErrorPayload;
+  } catch {
+    throw new SearchRequestError(
+      response.ok ? 'invalid_response' : 'network',
+      state.i18n.searchError
+    );
+  }
+
+  if (!response.ok) {
+    const code = mapErrorCode(payload.error);
+    const fallback =
+      code === 'rate_limited' ? state.i18n.rateLimited : state.i18n.searchError;
+    throw new SearchRequestError(code, payload.message || fallback);
+  }
+
+  if (!Array.isArray(payload.groups)) {
+    throw new SearchRequestError('invalid_response', state.i18n.searchError);
+  }
+
+  return {
+    query: typeof payload.query === 'string' ? payload.query : '',
+    groups: payload.groups,
+    viewAll: payload.viewAll,
+    total: payload.total,
+  };
 }
 
 // --- Animated placeholder (typewriter) -------------------------------------
@@ -245,7 +375,7 @@ function startTypewriter(): void {
 // blank flash). Reading state.scope here makes the result watch + getters react
 // to tab changes.
 function visibleGroups(): SearchGroup[] {
-  return state.scope === 'all'
+  return state.scope === DEFAULT_SCOPE
     ? state.groups
     : state.groups.filter(group => group.type === state.scope);
 }
@@ -254,7 +384,59 @@ function visibleTotal(): number {
   return visibleGroups().reduce((sum, group) => sum + group.items.length, 0);
 }
 
-const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
+function globalTotal(): number {
+  return state.groups.reduce((sum, group) => sum + group.items.length, 0);
+}
+
+function scopeTabLabel(scope: string): string {
+  return state.i18n.tabLabels?.[scope] ?? scope;
+}
+
+function buildResultsHtml(query: string, groups: SearchGroup[]): string {
+  if (groups.length === 0) {
+    return '';
+  }
+
+  let index = 0;
+  return groups
+    .map((group: SearchGroup) => {
+      const items = (group.items ?? [])
+        .map((item: SearchResultItem) => {
+          const optionId = `aa-search-opt-${index}`;
+          index += 1;
+          return renderItem(group.type, item, query, optionId);
+        })
+        .join('');
+      return (
+        `<div class="aa-search__group" role="group" aria-label="${escapeHtml(
+          group.label
+        )}">` +
+        `<h2 class="aa-search__group-title">${escapeHtml(group.label)}</h2>` +
+        `<div class="aa-search__group-list aa-search__group-list--${group.type}">${items}</div>` +
+        `</div>`
+      );
+    })
+    .join('');
+}
+
+/**
+ * Imperatively paint the active modal's result list.
+ *
+ * Interactivity API directives do not hydrate innerHTML we generate here, so
+ * every state change that affects visible rows must call this explicitly.
+ */
+function paintSearchResults(): void {
+  const container = getResultsContainer();
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = buildResultsHtml(state.query, visibleGroups());
+  focusedIndex = -1;
+  getInput()?.removeAttribute('aria-activedescendant');
+}
+
+const { state, actions } = store<SearchStore>(SEARCH_STORE, {
   state: {
     get hasResults(): boolean {
       return visibleTotal() > 0;
@@ -265,17 +447,45 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
     get hideHint(): boolean {
       return state.query.length > 0;
     },
+    get hideError(): boolean {
+      return !state.hasError || state.isLoading;
+    },
     get showEmpty(): boolean {
       return (
         state.hasSearched &&
         !state.isLoading &&
+        !state.hasError &&
         state.query.length >= MIN_CHARS &&
-        visibleTotal() === 0
+        visibleTotal() === 0 &&
+        globalTotal() === 0
       );
+    },
+    get showTabEmpty(): boolean {
+      return (
+        state.hasSearched &&
+        !state.isLoading &&
+        !state.hasError &&
+        state.query.length >= MIN_CHARS &&
+        state.scope !== DEFAULT_SCOPE &&
+        visibleTotal() === 0 &&
+        globalTotal() > 0
+      );
+    },
+    get tabEmptyMessage(): string {
+      if (!state.showTabEmpty) return '';
+      const otherCount = globalTotal();
+      return state.i18n.tabEmpty
+        .replace('%1$s', scopeTabLabel(state.scope))
+        .replace('%2$d', String(otherCount));
+    },
+    get errorDisplay(): string {
+      return state.errorMessage || state.i18n.searchError;
     },
     get announcement(): string {
       if (state.isLoading) return '';
       if (state.query.length < MIN_CHARS) return '';
+      if (state.hasError) return state.errorDisplay;
+      if (state.showTabEmpty) return state.tabEmptyMessage;
       const total = visibleTotal();
       const { noResults, resultSingular, resultPlural } = state.i18n;
       if (total === 0) return noResults;
@@ -286,6 +496,7 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
 
   actions: {
     open(): void {
+      normalizeSearchShell();
       const modal = getModal();
       const dialog = getDialog();
       if (!modal || !dialog) return;
@@ -315,6 +526,7 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       if (!modal || !dialog || !state.isOpen) return;
 
       stopTypewriter();
+      abortInFlightSearch();
       state.isOpen = false;
       modal.classList.remove('is-open');
       document.body.classList.remove(BODY_OPEN_CLASS);
@@ -340,14 +552,16 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
 
       if (debounceTimer) clearTimeout(debounceTimer);
 
+      // Cancel any in-flight request as soon as the query changes so a slow
+      // response for an older term cannot overwrite the current input.
+      abortInFlightSearch();
+
       if (value.length < MIN_CHARS) {
-        state.groups = [];
-        state.isLoading = false;
-        state.hasSearched = false;
-        focusedIndex = -1;
+        resetSearchResults();
         return;
       }
 
+      clearSearchError();
       state.isLoading = true;
       debounceTimer = setTimeout(
         withScope(() => {
@@ -363,20 +577,35 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
       // Pure client-side filter — the data for every type is already loaded, so
       // no refetch (the result watch re-renders from the new scope instantly).
       state.scope = scope;
+      paintSearchResults();
+      getInput()?.focus({ preventScroll: true });
+    },
+
+    setScopeAll(): void {
+      state.scope = DEFAULT_SCOPE;
+      paintSearchResults();
       getInput()?.focus({ preventScroll: true });
     },
 
     clear(): void {
+      abortInFlightSearch();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = null;
       state.query = '';
-      state.groups = [];
-      state.isLoading = false;
-      state.hasSearched = false;
-      focusedIndex = -1;
+      state.scope = DEFAULT_SCOPE;
+      resetSearchResults();
       const input = getInput();
       if (input) {
         input.value = '';
         input.focus({ preventScroll: true });
       }
+    },
+
+    retry(): void {
+      if (state.query.length < MIN_CHARS) return;
+      clearSearchError();
+      state.isLoading = true;
+      actions.performSearch();
     },
 
     handleKeydown(event: KeyboardEvent): void {
@@ -415,34 +644,51 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
     },
 
     performSearch(): void {
-      if (controller) controller.abort();
+      const requestQuery = state.query;
+      if (requestQuery.length < MIN_CHARS) return;
+
+      abortInFlightSearch();
       controller = new AbortController();
 
       // Always fetch every type so the scope tabs can filter client-side.
       const url = `${state.restUrl}?query=${encodeURIComponent(
-        state.query
+        requestQuery
       )}&scope=all`;
 
       fetch(url, { signal: controller.signal })
-        .then((res: Response) => {
-          if (!res.ok) throw new Error('Search request failed');
-          return res.json();
-        })
+        .then(parseSearchResponse)
         .then(
-          withScope((data: SearchResponse) => {
-            state.groups = Array.isArray(data.groups) ? data.groups : [];
+          withScope((data: SearchSuccessResponse) => {
+            if (data.query !== state.query) return;
+
+            state.groups = data.groups;
             state.viewAllUrl = data.viewAll ?? '';
             state.isLoading = false;
             state.hasSearched = true;
+            clearSearchError();
             focusedIndex = -1;
+            paintSearchResults();
           })
         )
         .catch(
           withScope((error: Error) => {
             if (error.name === 'AbortError') return;
+            if (requestQuery !== state.query) return;
+
+            const requestError =
+              error instanceof SearchRequestError
+                ? error
+                : new SearchRequestError('network', state.i18n.searchError);
+
+            state.hasError = true;
+            state.errorCode = requestError.code;
+            state.errorMessage = requestError.messageText;
             state.groups = [];
+            state.viewAllUrl = '';
             state.isLoading = false;
             state.hasSearched = true;
+            focusedIndex = -1;
+            paintSearchResults();
           })
         );
     },
@@ -452,48 +698,6 @@ const { state, actions } = store<SearchStore>('aggressive-apparel/search', {
     isActiveScope(): boolean {
       const { ref } = getElement();
       return (ref as HTMLElement)?.dataset.scope === state.scope;
-    },
-
-    renderResults(): void {
-      const { ref } = getElement();
-      const container = ref as HTMLElement;
-      if (!container) return;
-
-      // Touch reactive signals (query + scope via visibleGroups) so the watch
-      // re-runs when the query OR the active tab changes.
-      const query = state.query;
-      const groups = visibleGroups();
-
-      if (groups.length === 0) {
-        container.innerHTML = '';
-        focusedIndex = -1;
-        return;
-      }
-
-      let index = 0;
-      const html = groups
-        .map((group: SearchGroup) => {
-          const items = group.items
-            .map((item: SearchResultItem) => {
-              const optionId = `aa-search-opt-${index}`;
-              index += 1;
-              return renderItem(group.type, item, query, optionId);
-            })
-            .join('');
-          return (
-            `<div class="aa-search__group" role="group" aria-label="${escapeHtml(
-              group.label
-            )}">` +
-            `<h2 class="aa-search__group-title">${escapeHtml(group.label)}</h2>` +
-            `<div class="aa-search__group-list aa-search__group-list--${group.type}">${items}</div>` +
-            `</div>`
-          );
-        })
-        .join('');
-
-      container.innerHTML = html;
-      focusedIndex = -1;
-      getInput()?.removeAttribute('aria-activedescendant');
     },
   },
 });

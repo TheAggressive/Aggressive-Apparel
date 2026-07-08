@@ -100,6 +100,18 @@ class Search_Index {
 			&& get_option( self::INDEX_OPTION ) === self::INDEX_VERSION;
 	}
 
+	/**
+	 * Whether a post may appear in public autocomplete search.
+	 *
+	 * @deprecated 1.17.0 Use Search_Visibility::is_searchable_post() instead.
+	 *
+	 * @param \WP_Post|null $post Candidate post.
+	 * @return bool
+	 */
+	public function is_searchable_post( ?\WP_Post $post ): bool {
+		return Search_Visibility::is_searchable_post( $post );
+	}
+
 	/** Generation folded into response-cache keys for constant-time invalidation. */
 	public function generation(): int {
 		return max( 1, (int) get_option( self::GENERATION_OPTION, 1 ) );
@@ -111,9 +123,10 @@ class Search_Index {
 	 * @param string $post_type Supported post type.
 	 * @param string $query     User query.
 	 * @param int    $limit     Maximum IDs.
+	 * @param int    $offset    Result offset for paginated hydration.
 	 * @return int[]|null
 	 */
-	public function search( string $post_type, string $query, int $limit ): ?array {
+	public function search( string $post_type, string $query, int $limit, int $offset = 0 ): ?array {
 		if ( ! $this->is_ready() || ! in_array( $post_type, $this->supported_post_types(), true ) ) {
 			return null;
 		}
@@ -126,6 +139,7 @@ class Search_Index {
 		global $wpdb;
 		$table  = self::table_name();
 		$limit  = min( 50, max( 1, $limit ) );
+		$offset = max( 0, $offset );
 		$joins  = array();
 		$params = array();
 		foreach ( array_slice( $words, 1 ) as $index => $word ) {
@@ -144,8 +158,8 @@ class Search_Index {
 			AND token_0.token LIKE %s
 			GROUP BY token_0.object_id
 			ORDER BY MAX(token_0.weight) DESC, token_0.object_id DESC
-			LIMIT %d';
-		array_push( $params, $post_type, $wpdb->esc_like( $words[0] ) . '%', $limit );
+			LIMIT %d OFFSET %d';
+		array_push( $params, $post_type, $wpdb->esc_like( $words[0] ) . '%', $limit, $offset );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic identifiers are the fixed index table and generated aliases; all values are prepared.
 		$prepared = $wpdb->prepare( $sql, ...$params );
@@ -307,6 +321,8 @@ class Search_Index {
 		$marks = implode( ',', array_fill( 0, count( $types ), '%s' ) );
 		$sql   = "SELECT ID FROM {$wpdb->posts}
 			WHERE post_type IN ({$marks})
+			AND post_status = 'publish'
+			AND post_password = ''
 			AND ID > %d
 			ORDER BY ID ASC
 			LIMIT %d";
@@ -387,7 +403,7 @@ class Search_Index {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Primary-key maintenance delete.
 		$deleted = $wpdb->delete( self::table_name(), array( 'object_id' => $id ), array( '%d' ) );
 
-		if ( ! $post instanceof \WP_Post || 'publish' !== $post->post_status || ! in_array( $post->post_type, $this->supported_post_types(), true ) ) {
+		if ( ! $post instanceof \WP_Post || ! Search_Visibility::is_indexable( $post ) ) {
 			return is_int( $deleted ) && $deleted > 0;
 		}
 
@@ -442,6 +458,15 @@ class Search_Index {
 		$parts = array( $post->post_excerpt );
 
 		if ( 'product' === $post->post_type && function_exists( 'wc_get_product' ) ) {
+			$description = wp_trim_words(
+				wp_strip_all_tags( strip_shortcodes( (string) $post->post_content ) ),
+				40,
+				''
+			);
+			if ( '' !== $description ) {
+				$parts[] = $description;
+			}
+
 			$product = wc_get_product( $post->ID );
 			if ( $product ) {
 				$parts[] = $product->get_sku();
@@ -514,7 +539,7 @@ class Search_Index {
 
 	/** Supported content types. */
 	private function supported_post_types(): array {
-		return array( 'product', 'post', 'page' );
+		return Search_Visibility::supported_post_types();
 	}
 
 	/** Increment cache generation without deleting rows by wildcard. */

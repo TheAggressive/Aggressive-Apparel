@@ -425,7 +425,9 @@
 
 .aa-search__hint,
 .aa-search__loading,
-.aa-search__empty {
+.aa-search__empty,
+.aa-search__error,
+.aa-search__tab-empty {
 
 	/* auto vertical margins center the message in the flex-column body, so the
 	 * idle prompt sits in the middle on every screen size. */
@@ -438,6 +440,23 @@
 	&[hidden] {
 		display: none;
 	}
+}
+
+.aa-search__error {
+	color: var(--aa-color-error);
+}
+
+.aa-search__error-message {
+	margin: 0 0 1rem;
+}
+
+.aa-search__retry,
+.aa-search__tab-empty-action {
+	margin: 0;
+}
+
+.aa-search__tab-empty-message {
+	margin: 0 0 1rem;
 }
 
 /* -----------------------------------------------------------------------------

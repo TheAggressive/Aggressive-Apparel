@@ -1,3 +1,10 @@
+## [1.140.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.140.0...v1.140.1) (2026-07-08)
+
+
+### Bug Fixes
+
+* enhance load more renderer for product templates ([2e52c11](https://github.com/TheAggressive/Aggressive-Apparel/commit/2e52c1122421ecb2dcfaf7367c34283ec3bfccec))
+
 # [1.140.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.139.0...v1.140.0) (2026-07-08)
 
 

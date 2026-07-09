@@ -37,19 +37,6 @@ $context = wp_json_encode(
 // Modifier class drives animation-style CSS and :has() targeting for push mode.
 $classes = array( 'wp-block-aggressive-apparel-nav-submenu-drilldown--' . sanitize_html_class( $animation_style ) );
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'                                        => implode( ' ', $classes ),
-		'role'                                         => 'none',
-		'data-wp-interactive'                          => 'aggressive-apparel/navigation-panel',
-		'data-wp-context'                              => $context,
-		// The is-open class and the trigger's aria-expanded are toggled imperatively
-		// in callbacks.onSubmenuStateChange: data-wp-bind / data-wp-class are not
-		// reactive across the wp_footer portal boundary this panel lives in.
-		'data-wp-on-window--aa-nav-panel-state-change' => 'callbacks.onSubmenuStateChange',
-	)
-);
-
 // Chevron-right arrow on the trigger.
 $arrow_html = '';
 if ( $show_arrow ) {
@@ -123,12 +110,23 @@ printf(
 			<ul class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner" role="menu" aria-label="%s">%s%s</ul>
 		</div>
 	</li>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
+	get_block_wrapper_attributes(
+		array(
+			'class'                                        => implode( ' ', $classes ),
+			'role'                                         => 'none',
+			'data-wp-interactive'                          => 'aggressive-apparel/navigation-panel',
+			'data-wp-context'                              => $context,
+			// The is-open class and the trigger's aria-expanded are toggled imperatively
+			// in callbacks.onSubmenuStateChange: data-wp-bind / data-wp-class are not
+			// reactive across the wp_footer portal boundary this panel lives in.
+			'data-wp-on-window--aa-nav-panel-state-change' => 'callbacks.onSubmenuStateChange',
+		)
+	),
 	$trigger_el, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
 	$back_button, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $label ),
-	$view_all_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
+	wp_kses_post( $view_all_html ),
 	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
 );

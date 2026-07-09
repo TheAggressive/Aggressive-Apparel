@@ -63,8 +63,6 @@ if ( 'hover' === $open_on ) {
 	$wrapper_attrs['data-wp-on--focusout']   = 'callbacks.onHoverLeave';
 }
 
-$wrapper_attributes = get_block_wrapper_attributes( $wrapper_attrs );
-
 // Build panel inline styles.
 $panel_styles = array();
 if ( ! empty( $panel_background_color ) ) {
@@ -147,7 +145,7 @@ printf(
 			</div>
 		</div>
 	</li>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
+	get_block_wrapper_attributes( $wrapper_attrs ),
 	$trigger_el, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
 	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.

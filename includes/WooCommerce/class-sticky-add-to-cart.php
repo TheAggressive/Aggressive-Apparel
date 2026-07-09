@@ -318,7 +318,7 @@ class Sticky_Add_To_Cart {
 													data-wp-on--click="actions.selectDrawerOption"
 													data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
 													data-value="<?php echo esc_attr( $option ); ?>"
-													style="<?php echo $swatch_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>"
+													style="<?php echo esc_attr( $swatch_style ); ?>"
 													title="<?php echo esc_attr( $swatch_name ); ?>"
 													aria-label="<?php echo esc_attr( $swatch_name ); ?>"
 												>
@@ -490,8 +490,11 @@ class Sticky_Add_To_Cart {
 		 */
 		$available_variations = $product->get_available_variations( 'objects' );
 
-		// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-		/** @var \WC_Product_Variation[] $available_variations */
+		/**
+		 * Available product variations.
+		 *
+		 * @var \WC_Product_Variation[] $available_variations
+		 */
 		foreach ( $available_variations as $variation ) {
 			$image_id  = $variation->get_image_id();
 			$image_src = '';

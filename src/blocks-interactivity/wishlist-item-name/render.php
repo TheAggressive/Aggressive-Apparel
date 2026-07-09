@@ -12,11 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$wrapper_attrs = get_block_wrapper_attributes(
-	array( 'class' => 'aa-wl-item-name' )
-);
 ?>
-<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array( 'class' => 'aa-wl-item-name' )
+	);
+	?>
+>
 	<a
 		class="aa-wl-item-name__link"
 		data-wp-bind--href="context.item.permalink"

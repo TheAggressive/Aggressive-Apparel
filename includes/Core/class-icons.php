@@ -241,8 +241,7 @@ class Icons {
 	 * @param array<string, mixed> $attrs Optional SVG attributes.
 	 */
 	public static function render( string $icon, array $attrs = array() ): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG output.
-		echo self::get( $icon, $attrs );
+		aggressive_apparel_render_icon( $icon, $attrs );
 	}
 
 	/**

@@ -1,0 +1,111 @@
+/**
+ * Hero Carousel — content entrance choreography.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ---------------------------------------------------------------------- */
+
+/* Content entrance choreography — staggered children on slide activation  */
+
+/* ---------------------------------------------------------------------- */
+
+/*
+ * Keep inactive (and clone) content in the entrance "from" state so a loop
+ * wrap never flashes settled copy on the edge clone, then restarts entrance.
+ */
+.aa-hero--content-fade-up .aa-hero__slide:not(.is-active) .wp-block-cover__inner-container > *,
+.aa-hero--content-fade-up .aa-hero__slide[data-aa-hero-clone] .wp-block-cover__inner-container > * {
+  opacity: 0;
+  transform: translateY(1.5rem);
+}
+
+.aa-hero--content-clip .aa-hero__slide:not(.is-active) .wp-block-cover__inner-container > *,
+.aa-hero--content-clip .aa-hero__slide[data-aa-hero-clone] .wp-block-cover__inner-container > * {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+}
+
+.aa-hero--content-blur .aa-hero__slide:not(.is-active) .wp-block-cover__inner-container > *,
+.aa-hero--content-blur .aa-hero__slide[data-aa-hero-clone] .wp-block-cover__inner-container > * {
+  opacity: 0;
+  filter: blur(12px);
+}
+
+.aa-hero--content-fade-up .aa-hero__slide.is-active .wp-block-cover__inner-container > *,
+.aa-hero--content-clip .aa-hero__slide.is-active .wp-block-cover__inner-container > *,
+.aa-hero--content-blur .aa-hero__slide.is-active .wp-block-cover__inner-container > * {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+.aa-hero--content-fade-up .aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-fade-up;
+}
+
+.aa-hero--content-clip .aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-clip;
+}
+
+.aa-hero--content-blur .aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > * {
+  animation-name: aa-hero-content-blur;
+}
+
+/* Kicker → headline → copy → CTA stagger. */
+.aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > *:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > *:nth-child(2) {
+  animation-delay: 220ms;
+}
+
+.aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > *:nth-child(3) {
+  animation-delay: 340ms;
+}
+
+.aa-hero__slide.is-active:not([data-aa-hero-clone]) .wp-block-cover__inner-container > *:nth-child(n + 4) {
+  animation-delay: 460ms;
+}
+
+@keyframes aa-hero-content-fade-up {
+
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aa-hero-content-clip {
+
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes aa-hero-content-blur {
+
+  from {
+    opacity: 0;
+    filter: blur(12px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}

@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
-use Aggressive_Apparel\Core\Icons;
-
 defined( 'ABSPATH' ) || exit;
 
 /** Renders reusable product-filter controls and category trees. */
@@ -100,7 +98,7 @@ final class Product_Filter_Renderer {
 			esc_attr( $state ),
 		);
 		$html .= esc_html( $label );
-		$html .= Icons::get(
+		$html .= aggressive_apparel_get_icon(
 			'chevron-down',
 			array(
 				'width'       => 16,
@@ -268,8 +266,7 @@ final class Product_Filter_Renderer {
 		printf(
 			'<button class="aa-product-filters__section-toggle" data-wp-on--click="actions.toggleSection" aria-expanded="true"><span class="aa-product-filters__section-title">%s</span>%s</button>',
 			esc_html( $title ),
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
-			Icons::get(
+			aggressive_apparel_get_icon(
 				'chevron-down',
 				array(
 					'width'       => 16,

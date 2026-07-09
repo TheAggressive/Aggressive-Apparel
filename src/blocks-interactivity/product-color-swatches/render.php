@@ -172,7 +172,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			style="<?php echo esc_attr( $inline_style ); ?>"
 			data-wp-context="<?php echo esc_attr( wp_json_encode( $button_context ) ); ?>"
 			aria-pressed="false"
-			aria-label="<?php echo $aria_label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?>"
+			aria-label="<?php echo esc_attr( $aria_label ); ?>"
 			<?php if ( $show_tooltip ) : ?>
 			data-tooltip="<?php echo esc_attr( $swatch['colorName'] ); ?>"
 			<?php endif; ?>

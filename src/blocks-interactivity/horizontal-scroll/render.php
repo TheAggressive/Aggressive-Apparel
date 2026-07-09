@@ -15,8 +15,6 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\Core\Icons;
-
 defined( 'ABSPATH' ) || exit;
 
 $item_width = ! empty( $attributes['itemWidth'] ) ? (string) $attributes['itemWidth'] : '60vw';
@@ -69,39 +67,42 @@ $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
 	$classes .= ' aa-hscroll--inline';
 }
-$wrapper_attrs = get_block_wrapper_attributes(
-	array(
-		'class'                => $classes,
-		'aria-roledescription' => 'carousel',
-		'aria-label'           => __( 'Scrolling gallery', 'aggressive-apparel' ),
-		'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
-		'data-wp-context'      => wp_json_encode(
-			array(
-				'speed'           => $speed,
-				'progress'        => 0,
-				'desktopBehavior' => $desktop_behavior,
-				'snapBehavior'    => $snap_behavior,
-				'snapStrength'    => $snap_strength,
-				'commitRatio'     => $paged_commit_percent / 100,
-				'swipeHintStyle'  => $swipe_hint_style,
-				'i18n'            => array(
-					/* translators: 1: current slide number, 2: total slide count. Announced by screen readers. */
-					'slideAnnouncement' => __( 'Slide %1$s of %2$s', 'aggressive-apparel' ),
-					/* translators: 1: current slide number, 2: total slide count. Per-slide aria-label. */
-					'slideLabel'        => __( '%1$s of %2$s', 'aggressive-apparel' ),
-				),
-			)
-		),
-		'data-wp-init'         => 'callbacks.init',
-		'style'                => sprintf(
-			'--aa-hscroll-item-width: %s; --aa-hscroll-speed: %s;',
-			esc_attr( $item_width ),
-			esc_attr( (string) $speed )
-		),
-	)
-);
 ?>
-<section <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
+<section
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'                => $classes,
+			'aria-roledescription' => 'carousel',
+			'aria-label'           => __( 'Scrolling gallery', 'aggressive-apparel' ),
+			'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
+			'data-wp-context'      => wp_json_encode(
+				array(
+					'speed'           => $speed,
+					'progress'        => 0,
+					'desktopBehavior' => $desktop_behavior,
+					'snapBehavior'    => $snap_behavior,
+					'snapStrength'    => $snap_strength,
+					'commitRatio'     => $paged_commit_percent / 100,
+					'swipeHintStyle'  => $swipe_hint_style,
+					'i18n'            => array(
+						/* translators: 1: current slide number, 2: total slide count. Announced by screen readers. */
+						'slideAnnouncement' => __( 'Slide %1$s of %2$s', 'aggressive-apparel' ),
+						/* translators: 1: current slide number, 2: total slide count. Per-slide aria-label. */
+						'slideLabel'        => __( '%1$s of %2$s', 'aggressive-apparel' ),
+					),
+				)
+			),
+			'data-wp-init'         => 'callbacks.init',
+			'style'                => sprintf(
+				'--aa-hscroll-item-width: %s; --aa-hscroll-speed: %s;',
+				esc_attr( $item_width ),
+				esc_attr( (string) $speed )
+			),
+		)
+	);
+	?>
+>
 	<div class="aa-hscroll__range">
 		<div class="aa-hscroll__viewport" data-aa-hscroll>
 			<div class="aa-hscroll__track">
@@ -138,13 +139,6 @@ $wrapper_attrs = get_block_wrapper_attributes(
 				<?php endif; ?>
 				<span class="aa-hscroll__swipe-hint-icon">
 					<?php
-					$chevron_markup  = Icons::get(
-						'chevron-right',
-						array(
-							'width'  => 36,
-							'height' => 36,
-						)
-					);
 					$chevron_classes = array(
 						'aa-hscroll__swipe-hint-chevron',
 						'aa-hscroll__swipe-hint-chevron aa-hscroll__swipe-hint-chevron--trail',
@@ -153,8 +147,13 @@ $wrapper_attrs = get_block_wrapper_attributes(
 						?>
 					<span class="<?php echo esc_attr( $chevron_class ); ?>">
 						<?php
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-						echo $chevron_markup;
+						aggressive_apparel_render_icon(
+							'chevron-right',
+							array(
+								'width'  => 36,
+								'height' => 36,
+							)
+						);
 						?>
 					</span>
 						<?php

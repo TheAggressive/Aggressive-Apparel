@@ -138,19 +138,6 @@ if ( null !== $block_gap ) {
 	$nav_style .= ' --navigation-gap: ' . $gap_value . ';';
 }
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'id'                         => $nav_id,
-		'aria-label'                 => esc_attr( $aria_label ),
-		'data-wp-interactive'        => 'aggressive-apparel/navigation',
-		'data-wp-context'            => $context,
-		'data-wp-init'               => 'callbacks.init',
-		'data-wp-on-window--keydown' => 'callbacks.onEscape',
-		'data-wp-class--is-mobile'   => 'state.isMobile',
-		'style'                      => trim( $nav_style ),
-	)
-);
-
 // Screen reader announcer.
 $announcer_id   = aggressive_apparel_get_announcer_id( $nav_id );
 $announcer_html = sprintf(
@@ -160,7 +147,18 @@ $announcer_html = sprintf(
 
 printf(
 	'<nav %s>%s%s%s</nav>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
+	get_block_wrapper_attributes(
+		array(
+			'id'                         => $nav_id,
+			'aria-label'                 => esc_attr( $aria_label ),
+			'data-wp-interactive'        => 'aggressive-apparel/navigation',
+			'data-wp-context'            => $context,
+			'data-wp-init'               => 'callbacks.init',
+			'data-wp-on-window--keydown' => 'callbacks.onEscape',
+			'data-wp-class--is-mobile'   => 'state.isMobile',
+			'style'                      => trim( $nav_style ),
+		)
+	),
 	$announcer_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
 	$utility_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
 	$menubar_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.

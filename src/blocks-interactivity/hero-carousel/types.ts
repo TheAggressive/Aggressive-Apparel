@@ -4,6 +4,11 @@
  * @package Aggressive_Apparel
  */
 
+import type { HeroMotionMode } from './motion';
+
+export type { HeroMotionMode, HeroMotionVariant } from './motion';
+export { HERO_MOTION_VARIANTS } from './motion';
+
 export type HeroTransition = 'slide' | 'fade' | 'crossfade';
 export type HeroArrowPosition = 'edges' | 'bottom';
 export type HeroPagination =
@@ -13,12 +18,6 @@ export type HeroPagination =
   | 'fraction'
   | 'thumbnails'
   | 'none';
-export type HeroKenBurns =
-  | 'none'
-  | 'zoom-in'
-  | 'zoom-out'
-  | 'alternate'
-  | 'random';
 export type HeroContentAnimation = 'none' | 'fade-up' | 'clip' | 'blur';
 
 export interface HeroCarouselAttributes {
@@ -34,8 +33,10 @@ export interface HeroCarouselAttributes {
   pagination: HeroPagination;
   showProgress: boolean;
   deepLink: boolean;
-  kenBurns: HeroKenBurns;
-  kenBurnsDuration: number;
+  /** Background motion mode (carousel default; per-slide may override). */
+  motion: HeroMotionMode;
+  /** Background motion duration in seconds. */
+  motionDuration: number;
   contentAnimation: HeroContentAnimation;
   arrowColor: string;
   arrowBg: string;

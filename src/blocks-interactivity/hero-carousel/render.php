@@ -4,7 +4,7 @@
  *
  * Slides are core/cover inner blocks rendered individually so each can be
  * wrapped in a slide shell carrying its own Interactivity context (index),
- * ARIA slide semantics, and a deterministic Ken Burns variant class.
+ * ARIA slide semantics, and a deterministic background-motion variant class.
  *
  * Progressive enhancement: slide 1 renders fully visible with zero JS
  * (static hero fallback); its image is forced eager + fetchpriority="high"
@@ -18,8 +18,6 @@
  */
 
 declare(strict_types=1);
-
-use Aggressive_Apparel\Core\Icons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,41 +61,69 @@ $hero_pagination = $hero_enum(
 $hero_show_progress = ! isset( $attributes['showProgress'] ) || (bool) $attributes['showProgress'];
 $hero_deep_link     = ! empty( $attributes['deepLink'] );
 
-$hero_ken_burns = $hero_enum(
-	$attributes['kenBurns'] ?? 'alternate',
-	array( 'none', 'zoom-in', 'zoom-out', 'alternate', 'random' ),
+// Shared with motion.ts via motion-variants.json (single source of truth).
+$hero_motion_variants_file = __DIR__ . '/motion-variants.json';
+$hero_motion_variants      = array();
+$hero_motion_decoded       = wp_json_file_decode(
+	$hero_motion_variants_file,
+	array( 'associative' => true )
+);
+if ( is_array( $hero_motion_decoded ) ) {
+	$hero_motion_variants = array_values(
+		array_filter(
+			$hero_motion_decoded,
+			static fn( $v ): bool => is_string( $v ) && '' !== $v
+		)
+	);
+}
+
+$hero_motion_mode = $hero_enum(
+	$attributes['motion'] ?? $attributes['kenBurns'] ?? 'alternate',
+	array_merge( array( 'none' ), $hero_motion_variants, array( 'alternate', 'random' ) ),
 	'alternate'
 );
 
-$hero_kb_duration = isset( $attributes['kenBurnsDuration'] ) ? (float) $attributes['kenBurnsDuration'] : 12.0;
-$hero_kb_duration = min( 60.0, max( 4.0, $hero_kb_duration ) );
+$hero_motion_duration = isset( $attributes['motionDuration'] )
+	? (float) $attributes['motionDuration']
+	: ( isset( $attributes['kenBurnsDuration'] ) ? (float) $attributes['kenBurnsDuration'] : 12.0 );
+$hero_motion_duration = min( 60.0, max( 4.0, $hero_motion_duration ) );
 
 $hero_content_anim = $hero_enum( $attributes['contentAnimation'] ?? 'fade-up', array( 'none', 'fade-up', 'clip', 'blur' ), 'fade-up' );
 
 /**
- * Ken Burns variant for a slide. Variants are rendered into slide classes
- * server-side (the client never recomputes them), so this is the single
- * source of truth for `alternate`/`random` assignment.
+ * Background motion variant for a slide. Variants are rendered into slide
+ * classes server-side (the client never recomputes them), so this is the
+ * single source of truth for `alternate`/`random` assignment.
  *
- * @param string $mode  Ken Burns mode.
- * @param int    $index Zero-based slide index.
- * @return string|null 'zoom-in' | 'zoom-out' | null.
+ * `alternate` keeps the legacy zoom-in / zoom-out pair for existing content.
+ * `random` picks deterministically from the full motion set.
+ *
+ * @param string   $mode     Carousel motion mode.
+ * @param int      $index    Zero-based slide index.
+ * @param string[] $variants Concrete motion variants.
+ * @return string|null Variant slug or null when motion is off.
  */
-$hero_kb_variant = static function ( string $mode, int $index ): ?string {
-	switch ( $mode ) {
-		case 'zoom-in':
-		case 'zoom-out':
-			return $mode;
-		case 'alternate':
-			return 0 === $index % 2 ? 'zoom-in' : 'zoom-out';
-		case 'random':
-			// Deterministic per index (uint32 wrap, >> 13 folds high bits into
-			// the parity so it isn't just index % 2).
-			$hashed = ( ( ( $index + 1 ) * 2654435761 ) % 4294967296 ) >> 13;
-			return 0 === ( $hashed & 1 ) ? 'zoom-in' : 'zoom-out';
-		default:
-			return null;
+$hero_motion_variant_for = static function ( string $mode, int $index, array $variants ): ?string {
+	$count = count( $variants );
+	if ( 0 === $count ) {
+		return null;
 	}
+
+	if ( in_array( $mode, $variants, true ) ) {
+		return $mode;
+	}
+
+	if ( 'alternate' === $mode ) {
+		return 0 === $index % 2 ? 'zoom-in' : 'zoom-out';
+	}
+
+	if ( 'random' === $mode ) {
+		// Deterministic per index (uint32 wrap, >> 13 folds high bits).
+		$hashed = ( ( ( $index + 1 ) * 2654435761 ) % 4294967296 ) >> 13;
+		return $variants[ $hashed % $count ];
+	}
+
+	return null;
 };
 
 /**
@@ -154,6 +180,7 @@ if ( 'none' !== $hero_content_anim ) {
 	$hero_root_classes[] = 'aa-hero--content-' . $hero_content_anim;
 }
 if ( $hero_autoplay ) {
+	$hero_root_classes[] = 'aa-hero--autoplay';
 	$hero_root_classes[] = 'is-playing';
 }
 
@@ -162,7 +189,7 @@ if ( $hero_autoplay ) {
 $hero_style_parts = array(
 	sprintf( '--aa-hero-min-height: %s;', esc_attr( $hero_min_height ) ),
 	sprintf( '--aa-hero-transition-ms: %dms;', $hero_transition_ms ),
-	sprintf( '--aa-hero-kb-duration: %ss;', esc_attr( (string) $hero_kb_duration ) ),
+	sprintf( '--aa-hero-motion-duration: %ss;', esc_attr( (string) $hero_motion_duration ) ),
 	sprintf( '--aa-hero-autoplay-ms: %dms;', $hero_autoplay_speed ),
 );
 $hero_color_vars  = array(
@@ -187,6 +214,7 @@ $hero_wrapper_attrs = array(
 	'data-wp-context'      => (string) wp_json_encode(
 		array(
 			'activeIndex'   => 0,
+			'displayIndex'  => 0,
 			'slideIndex'    => 0,
 			'isPlaying'     => $hero_autoplay,
 			'isPaused'      => false,
@@ -214,8 +242,6 @@ if ( $hero_autoplay && $hero_pause_hover ) {
 	$hero_wrapper_attrs['data-wp-on--mouseenter'] = 'actions.pause';
 	$hero_wrapper_attrs['data-wp-on--mouseleave'] = 'actions.resume';
 }
-
-$hero_wrapper = get_block_wrapper_attributes( $hero_wrapper_attrs );
 
 /**
  * Tune image loading inside a rendered slide for LCP.
@@ -283,7 +309,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 	);
 };
 ?>
-<section <?php echo $hero_wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
+<section <?php echo get_block_wrapper_attributes( $hero_wrapper_attrs ); ?>>
 	<div class="aa-hero__viewport">
 		<div class="aa-hero__track">
 			<?php foreach ( $hero_slides as $hero_index => $hero_slide_block ) : ?>
@@ -292,15 +318,20 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 				if ( 0 === $hero_index ) {
 					$hero_slide_classes[] = 'is-active';
 				}
-				$hero_variant = $hero_kb_variant( $hero_ken_burns, $hero_index );
+				$hero_variant = $hero_motion_variant_for( $hero_motion_mode, $hero_index, $hero_motion_variants );
 				// Per-slide override (from the Cover's "Hero Slide" panel) wins
-				// over the carousel-level Ken Burns mode when set.
-				$hero_slide_kb = $hero_slide_block['attrs']['aaHeroKenBurns'] ?? '';
-				if ( in_array( $hero_slide_kb, array( 'none', 'zoom-in', 'zoom-out' ), true ) ) {
-					$hero_variant = 'none' === $hero_slide_kb ? null : $hero_slide_kb;
+				// over the carousel-level background motion when set.
+				$hero_slide_attrs  = $hero_slide_block['attrs'] ?? array();
+				$hero_slide_motion = $hero_slide_attrs['aaHeroMotion']
+					?? $hero_slide_attrs['aaHeroKenBurns']
+					?? '';
+				if ( 'none' === $hero_slide_motion ) {
+					$hero_variant = null;
+				} elseif ( in_array( $hero_slide_motion, $hero_motion_variants, true ) ) {
+					$hero_variant = $hero_slide_motion;
 				}
 				if ( null !== $hero_variant ) {
-					$hero_slide_classes[] = 'aa-hero__slide--kb-' . $hero_variant;
+					$hero_slide_classes[] = 'aa-hero__slide--motion-' . $hero_variant;
 				}
 				$hero_slide_html = render_block( $hero_slide_block );
 				$hero_slide_html = $hero_tune_images( $hero_slide_html, 0 === $hero_index );
@@ -315,13 +346,16 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					<?php /* translators: 1: current slide number, 2: total slide count. */ ?>
 					aria-label="<?php echo esc_attr( sprintf( __( '%1$s of %2$s', 'aggressive-apparel' ), $hero_index + 1, $hero_count ) ); ?>"
 					<?php echo $hero_is_hidden ? 'inert aria-hidden="true"' : ''; ?>
+					tabindex="<?php echo ( 'slide' === $hero_transition || 0 === $hero_index ) ? '0' : '-1'; ?>"
 					data-wp-context='<?php echo esc_attr( (string) wp_json_encode( array( 'slideIndex' => $hero_index ) ) ); ?>'
 					data-wp-class--is-active="state.isActiveSlide"
 					data-wp-bind--inert="state.slideInert"
 					data-wp-bind--aria-hidden="state.ariaHiddenSlide"
+					data-wp-bind--tabindex="state.slideTabindex"
 				>
 					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by render_block(); covers may contain media/embeds wp_kses_post() would strip.
+					// Post-processed render_block() output; wp_kses_post() would strip cover media/embeds.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $hero_slide_html;
 					?>
 				</div>
@@ -338,8 +372,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					data-wp-bind--disabled="state.prevDisabled"
 				>
 					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-					echo Icons::get(
+					aggressive_apparel_render_icon(
 						'chevron-left',
 						array(
 							'width'  => 24,
@@ -356,8 +389,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					data-wp-bind--disabled="state.nextDisabled"
 				>
 					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-					echo Icons::get(
+					aggressive_apparel_render_icon(
 						'chevron-right',
 						array(
 							'width'  => 24,
@@ -390,7 +422,8 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 									<span class="aa-hero__dot-number"><?php echo (int) ( $hero_dot + 1 ); ?></span>
 								<?php elseif ( 'thumbnails' === $hero_pagination ) : ?>
 									<?php
-									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in $hero_slide_thumb().
+									// Escaped inside $hero_slide_thumb() (wp_get_attachment_image / esc_url / esc_attr).
+									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									echo $hero_slide_thumb( $hero_slides[ $hero_dot ]['attrs'] ?? array() );
 									?>
 								<?php endif; ?>
@@ -410,8 +443,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					>
 						<span class="aa-hero__play-icon aa-hero__play-icon--play">
 							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-							echo Icons::get(
+							aggressive_apparel_render_icon(
 								'play',
 								array(
 									'width'  => 16,
@@ -422,8 +454,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 						</span>
 						<span class="aa-hero__play-icon aa-hero__play-icon--pause">
 							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-							echo Icons::get(
+							aggressive_apparel_render_icon(
 								'pause',
 								array(
 									'width'  => 16,

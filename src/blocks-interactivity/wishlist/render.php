@@ -60,17 +60,20 @@ $inline_style = implode(
 	)
 );
 
-$wrapper_attrs = get_block_wrapper_attributes(
-	array(
-		'data-wp-interactive' => 'aggressive-apparel/wishlist',
-		'data-wp-context'     => wp_json_encode( array( 'loaded' => false ) ),
-		'data-wp-init'        => 'callbacks.loadWishlistPage',
-		'style'               => $inline_style,
-	)
-);
 ?>
 
-<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'data-wp-interactive' => 'aggressive-apparel/wishlist',
+			'data-wp-context'     => wp_json_encode( array( 'loaded' => false ) ),
+			'data-wp-init'        => 'callbacks.loadWishlistPage',
+			'style'               => $inline_style,
+		)
+	);
+	?>
+>
 
 	<?php if ( $show_count ) : ?>
 	<p class="aa-wishlist-page__count" data-wp-bind--hidden="!state.hasWishlistItems" hidden>

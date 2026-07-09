@@ -44,6 +44,7 @@ if ( $is_decorative || '' === $label ) {
 
 printf(
 	'<span %1$s>%2$s</span>',
-	get_block_wrapper_attributes( $wrapper_attrs ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by WordPress.
-	$svg_markup // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG from Icons::get().
+	get_block_wrapper_attributes( $wrapper_attrs ),
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG from Icon_Block::render_svg(); PHPCS cannot track class methods.
+	$svg_markup
 );

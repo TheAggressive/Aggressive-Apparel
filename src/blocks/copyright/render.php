@@ -45,7 +45,7 @@ $extra_attrs = $text_align ? array( 'class' => 'has-text-align-' . $text_align )
 
 printf(
 	'<p %s><span class="wp-block-aggressive-apparel-copyright__text">%s</span>%s</p>',
-	get_block_wrapper_attributes( $extra_attrs ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by WordPress.
-	$copyright_text, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$suffix_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped with wp_kses_post above.
+	get_block_wrapper_attributes( $extra_attrs ),
+	wp_kses_post( $copyright_text ),
+	wp_kses_post( $suffix_html )
 );

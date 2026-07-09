@@ -16,38 +16,16 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\Core\Icons;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 $show_labels = isset( $attributes['showLabels'] ) && (bool) $attributes['showLabels'];
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'               => 'aa-grid-list-toggle',
-		'data-wp-interactive' => 'aggressive-apparel/grid-list-toggle',
-		'data-wp-init'        => 'callbacks.init',
-	)
-);
-
-$grid_icon = Icons::get(
-	'grid-view',
-	array(
-		'width'       => 18,
-		'height'      => 18,
-		'aria-hidden' => 'true',
-	)
-);
-
-$list_icon = Icons::get(
-	'list-view',
-	array(
-		'width'       => 18,
-		'height'      => 18,
-		'aria-hidden' => 'true',
-	)
+$icon_attrs = array(
+	'width'       => 18,
+	'height'      => 18,
+	'aria-hidden' => 'true',
 );
 
 $grid_label = $show_labels
@@ -79,15 +57,17 @@ printf(
 	. '%6$s%7$s'
 	. '</button>'
 	. '</div>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() is trusted.
+	get_block_wrapper_attributes(
+		array(
+			'class'               => 'aa-grid-list-toggle',
+			'data-wp-interactive' => 'aggressive-apparel/grid-list-toggle',
+			'data-wp-init'        => 'callbacks.init',
+		)
+	),
 	esc_attr__( 'Grid view', 'aggressive-apparel' ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-	$grid_icon,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$grid_label,
+	aggressive_apparel_get_icon( 'grid-view', $icon_attrs ),
+	wp_kses_post( $grid_label ),
 	esc_attr__( 'List view', 'aggressive-apparel' ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-	$list_icon,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$list_label
+	aggressive_apparel_get_icon( 'list-view', $icon_attrs ),
+	wp_kses_post( $list_label )
 );

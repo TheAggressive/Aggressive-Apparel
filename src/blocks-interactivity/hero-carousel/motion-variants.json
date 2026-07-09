@@ -1,0 +1,23 @@
+[
+  "zoom-in",
+  "zoom-out",
+  "pan-left",
+  "pan-right",
+  "pan-up",
+  "pan-down",
+  "diagonal",
+  "zoom-pan",
+  "punch-in",
+  "pull-back",
+  "breathe",
+  "idle-sway",
+  "blur-sharp",
+  "brightness",
+  "colorize",
+  "clip-reveal",
+  "slide-in",
+  "scale-edge",
+  "tilt",
+  "orbit",
+  "grain"
+]

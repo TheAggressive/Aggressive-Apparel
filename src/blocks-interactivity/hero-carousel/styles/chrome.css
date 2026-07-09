@@ -1,0 +1,408 @@
+/**
+ * Hero Carousel — arrows, pagination, play/pause, a11y, reduced motion.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ---------------------------------------------------------------------- */
+
+/* Arrows                                                                  */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: var(--aa-hero-arrow-bg);
+  color: var(--aa-hero-arrow-color);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 200ms ease,
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+
+.aa-hero__arrow:hover {
+  background-color: color-mix(in oklch, var(--aa-hero-arrow-bg) 100%, var(--aa-color-surface) 25%);
+  transform: scale(1.06);
+}
+
+.aa-hero__arrow:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: 2px;
+}
+
+.aa-hero__arrow[disabled] {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+.aa-hero__arrow svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Edge placement: vertically centered on the left/right rails. */
+.aa-hero--arrows-edges .aa-hero__arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+}
+
+.aa-hero--arrows-edges .aa-hero__arrow--prev {
+  inset-inline-start: var(--aa-hero-chrome-gap);
+}
+
+.aa-hero--arrows-edges .aa-hero__arrow--next {
+  inset-inline-end: var(--aa-hero-chrome-gap);
+}
+
+/* Bottom placement: arrows join the bottom bar cluster. */
+.aa-hero--arrows-bottom .aa-hero__arrows {
+  position: absolute;
+  inset-block-end: var(--aa-hero-chrome-gap);
+  inset-inline-end: var(--aa-hero-chrome-gap);
+  z-index: 2;
+  display: flex;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Bottom bar: pagination + play/pause                                     */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__bar {
+  position: absolute;
+  inset-block-end: var(--aa-hero-chrome-gap);
+  inset-inline: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wp--preset--spacing--2, 0.5rem);
+  pointer-events: none;
+}
+
+.aa-hero__bar > * {
+  pointer-events: auto;
+}
+
+.aa-hero__pagination {
+  display: flex;
+  align-items: center;
+}
+
+/* Dots — 44px hit targets with a small visual marker inside. */
+.aa-hero__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0 -0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--aa-hero-dot-color);
+  cursor: pointer;
+}
+
+.aa-hero__dot::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: currentcolor;
+  transition:
+    width 250ms ease,
+    background-color 250ms ease;
+}
+
+.aa-hero__dot[aria-current='true'] {
+  color: var(--aa-hero-dot-active-color);
+}
+
+.aa-hero__dot:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: -6px;
+  border-radius: var(--aa-radius-full, 9999px);
+}
+
+/* Active dot stretches to a pill; doubles as the autoplay progress rail. */
+.aa-hero__pagination--dots .aa-hero__dot[aria-current='true']::before {
+  width: 1.75rem;
+}
+
+.aa-hero__pagination--progress .aa-hero__dot {
+  position: relative;
+}
+
+.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::before {
+  background-color: color-mix(in oklch, currentcolor 40%, transparent);
+}
+
+.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  --aa-hero-progress-w: 1.75rem;
+
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(50% - 0.875rem);
+
+  /* Grow via width: transform: scaleX() would squash the pill's rounded ends
+     into flat edges as it fills. */
+  width: 0;
+  height: 0.5rem;
+  border-radius: var(--aa-radius-full, 9999px);
+  background-color: currentcolor;
+
+  /* Always attach the animation so pause can freeze mid-fill via play-state
+     instead of removing the animation (which snaps width back to 0). */
+  animation: aa-hero-progress var(--aa-hero-autoplay-ms) linear forwards;
+  animation-play-state: paused;
+}
+
+.aa-hero.is-playing .aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  animation-play-state: running;
+}
+
+@keyframes aa-hero-progress {
+
+  from {
+    width: 0;
+  }
+
+  to {
+    width: var(--aa-hero-progress-w, 1.75rem);
+  }
+}
+
+/* Lines — flat bars instead of dots. */
+
+/* Reset the dot-tuned negative margin; the wider line bars would otherwise
+   overlap each other and the active bar (matches the numbers variant). */
+.aa-hero__pagination--lines .aa-hero__dot {
+  margin: 0;
+}
+
+.aa-hero__pagination--lines .aa-hero__dot::before {
+  width: 1.75rem;
+  height: 0.2rem;
+  border-radius: 0;
+}
+
+.aa-hero__pagination--lines .aa-hero__dot[aria-current='true']::before {
+  width: 2.5rem;
+}
+
+.aa-hero__pagination--lines.aa-hero__pagination--progress .aa-hero__dot[aria-current='true']::after {
+  --aa-hero-progress-w: 2.5rem;
+
+  inset-inline-start: calc(50% - 1.25rem);
+  height: 0.2rem;
+  border-radius: 0;
+}
+
+/* Numbers — text markers. */
+.aa-hero__pagination--numbers .aa-hero__dot {
+  margin: 0;
+}
+
+.aa-hero__pagination--numbers .aa-hero__dot::before {
+  content: none;
+}
+
+/* No progress pill over the numerals — the active number is marked by its
+   underline instead. */
+.aa-hero__pagination--numbers .aa-hero__dot[aria-current='true']::after {
+  content: none;
+}
+
+.aa-hero__dot-number {
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.aa-hero__pagination--numbers .aa-hero__dot[aria-current='true'] .aa-hero__dot-number {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
+/* Thumbnails — image previews of each slide; 44px min touch target. */
+
+/* Reset the dot-tuned negative margin; otherwise thumbs overlap like lines
+   did before the same fix. Spacing comes from `gap` on the pagination row. */
+.aa-hero__pagination--thumbnails {
+  gap: 0.5rem;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: var(--aa-radius-sm, 0.25rem);
+  overflow: hidden;
+  opacity: 0.55;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    opacity var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease),
+    outline-color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot::before {
+  content: none;
+}
+
+/* No progress pill over the thumbnail — the active one is marked by full
+   opacity and its outline. */
+.aa-hero__pagination--thumbnails .aa-hero__dot[aria-current='true']::after {
+  content: none;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot:hover {
+  opacity: 0.85;
+}
+
+.aa-hero__pagination--thumbnails .aa-hero__dot[aria-current='true'] {
+  opacity: 1;
+  outline-color: var(--aa-hero-dot-active-color);
+}
+
+.aa-hero__thumb {
+  display: block;
+  width: 4rem;
+  height: 2.75rem;
+  object-fit: cover;
+}
+
+.aa-hero__thumb--swatch {
+  background: var(--aa-color-surface-elevated);
+}
+
+/* Fraction — "2 / 5". */
+.aa-hero__fraction {
+  color: var(--aa-hero-dot-active-color);
+  font-size: var(--wp--preset--font-size--small, 0.875rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+/* Play / pause toggle — mandatory chrome whenever autoplay is enabled. */
+.aa-hero__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--aa-radius-full, 9999px);
+  background: transparent;
+  color: var(--aa-hero-dot-active-color);
+  cursor: pointer;
+}
+
+.aa-hero__play:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: -6px;
+}
+
+.aa-hero__play-icon {
+  display: inline-flex;
+}
+
+/* Show the icon for the action the button will take. */
+.aa-hero__play .aa-hero__play-icon--pause,
+.aa-hero__play.is-playing .aa-hero__play-icon--play {
+  display: none;
+}
+
+.aa-hero__play.is-playing .aa-hero__play-icon--pause {
+  display: inline-flex;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Live region (screen-reader announcements)                               */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(100%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Reduced motion — hard theme rule: no ambient or entrance animation      */
+
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hero__slide .wp-block-cover__image-background,
+  .aa-hero__slide .wp-block-cover__video-background,
+  .aa-hero__slide .wp-block-cover__inner-container > *,
+  .aa-hero__slide--motion-grain > .wp-block-cover::after,
+  .aa-hero__dot[aria-current='true']::after {
+    animation: none !important;
+    will-change: auto;
+  }
+
+  .aa-hero__slide .wp-block-cover__image-background,
+  .aa-hero__slide .wp-block-cover__video-background {
+    filter: none;
+    clip-path: none;
+    transform: none;
+  }
+
+  /* Entrance "from" state must not leave content invisible without animation. */
+  .aa-hero--content-fade-up .aa-hero__slide .wp-block-cover__inner-container > *,
+  .aa-hero--content-clip .aa-hero__slide .wp-block-cover__inner-container > *,
+  .aa-hero--content-blur .aa-hero__slide .wp-block-cover__inner-container > * {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    clip-path: none;
+  }
+
+  .aa-hero__slide--motion-grain > .wp-block-cover::after {
+    opacity: 0;
+  }
+
+  .aa-hero--fade .aa-hero__slide,
+  .aa-hero--crossfade .aa-hero__slide {
+    transition: none;
+  }
+
+  .aa-hero--crossfade .aa-hero__slide {
+    transform: none;
+  }
+
+  .aa-hero__arrow,
+  .aa-hero__dot::before {
+    transition: none;
+  }
+}

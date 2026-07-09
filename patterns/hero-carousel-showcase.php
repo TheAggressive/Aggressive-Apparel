@@ -12,7 +12,7 @@
  */
 
 ?>
-<!-- wp:aggressive-apparel/hero-carousel {"align":"full","autoplay":true,"kenBurns":"alternate","pagination":"dots","transition":"slide"} -->
+<!-- wp:aggressive-apparel/hero-carousel {"align":"full","autoplay":true,"motion":"alternate","pagination":"dots","transition":"slide"} -->
 <!-- wp:cover {"dimRatio":50,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","contentPosition":"center center","align":"full"} -->
 <div class="wp-block-cover alignfull has-black-overlay-color" style="min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-50 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"1100px"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"align":"center","style":{"typography":{"letterSpacing":"0.2em","textTransform":"uppercase","fontSize":"0.875rem"}}} -->

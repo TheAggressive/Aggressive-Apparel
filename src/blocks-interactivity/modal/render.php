@@ -333,16 +333,19 @@ wp_interactivity_state(
 	)
 );
 
-$wrapper_attrs = get_block_wrapper_attributes(
-	array(
-		'data-wp-interactive' => 'aggressive-apparel/modal',
-		'data-wp-context'     => (string) wp_json_encode( array( 'id' => $unique_id ) ),
-		'data-wp-init'        => 'actions.init',
-	)
-);
 ?>
 
-<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'data-wp-interactive' => 'aggressive-apparel/modal',
+			'data-wp-context'     => (string) wp_json_encode( array( 'id' => $unique_id ) ),
+			'data-wp-init'        => 'actions.init',
+		)
+	);
+	?>
+>
 
 	<?php if ( empty( $trigger_block_id ) && ! $exit_intent_trigger && ! $scroll_depth_trigger ) : ?>
 	<button

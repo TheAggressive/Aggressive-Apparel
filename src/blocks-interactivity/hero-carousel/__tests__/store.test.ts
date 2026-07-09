@@ -53,6 +53,11 @@ window.matchMedia = jest.fn().mockImplementation((query: string) => ({
   removeEventListener: jest.fn(),
 }));
 
+import { MOTION_HOLD_CLASS } from '../constants';
+import {
+  restoreElementScrollTo,
+  stubElementScrollTo,
+} from '../test-utils/dom-stubs';
 import '../view';
 
 const config = mockStoreConfig as MockStoreConfig;
@@ -62,6 +67,7 @@ const state = config.state;
 
 interface TestContext {
   activeIndex: number;
+  displayIndex: number;
   slideIndex: number;
   isPlaying: boolean;
   isPaused: boolean;
@@ -76,8 +82,9 @@ interface TestContext {
 }
 
 function makeContext(overrides: Partial<TestContext> = {}): TestContext {
-  return {
+  const ctx: TestContext = {
     activeIndex: 0,
+    displayIndex: 0,
     slideIndex: 0,
     isPlaying: false,
     isPaused: false,
@@ -95,6 +102,14 @@ function makeContext(overrides: Partial<TestContext> = {}): TestContext {
     },
     ...overrides,
   };
+  // Keep chrome in sync when a test only overrides activeIndex.
+  if (
+    overrides.displayIndex === undefined &&
+    overrides.activeIndex !== undefined
+  ) {
+    ctx.displayIndex = overrides.activeIndex;
+  }
+  return ctx;
 }
 
 function buildCarousel(count = 3): HTMLElement {
@@ -105,6 +120,9 @@ function buildCarousel(count = 3): HTMLElement {
   for (let i = 0; i < count; i++) {
     const slide = document.createElement('div');
     slide.className = 'aa-hero__slide';
+    const media = document.createElement('img');
+    media.className = 'wp-block-cover__image-background';
+    slide.appendChild(media);
     track.appendChild(slide);
   }
   const live = document.createElement('div');
@@ -274,6 +292,44 @@ describe('navigation actions', () => {
     expect(ctx.activeIndex).toBe(0);
     destroy();
   });
+
+  it('keeps keyboard focus on the newly active slide after arrow navigation', () => {
+    jest.useFakeTimers();
+    const raf = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(
+        cb => window.setTimeout(() => cb(0), 0) as unknown as number
+      );
+
+    const ctx = makeContext({ transition: 'fade' });
+    const { root, destroy } = initCarousel(ctx);
+    const slides = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        '.aa-hero__slide:not([data-aa-hero-clone])'
+      )
+    );
+    const first = slides[0];
+    const second = slides[1];
+    first?.setAttribute('tabindex', '0');
+    second?.setAttribute('tabindex', '0');
+    first?.focus();
+    expect(document.activeElement).toBe(first);
+
+    actions.handleKeydown({
+      key: 'ArrowRight',
+      preventDefault: jest.fn(),
+      target: first,
+    });
+    expect(ctx.activeIndex).toBe(1);
+
+    // focusActiveSlide waits two animation frames for inert/tabindex binds.
+    jest.runAllTimers();
+    expect(document.activeElement).toBe(second);
+
+    raf.mockRestore();
+    destroy();
+    jest.useRealTimers();
+  });
 });
 
 describe('slide-change event', () => {
@@ -348,6 +404,102 @@ describe('autoplay', () => {
     destroy();
   });
 
+  it('does not pause autoplay when the track scrolls from goTo/autoplay', () => {
+    jest.useFakeTimers();
+    stubElementScrollTo({ dispatchScroll: true });
+
+    const ctx = makeContext({
+      autoplay: true,
+      isPlaying: true,
+      transition: 'slide',
+    });
+    const { root, destroy } = initCarousel(ctx);
+    const track = root.querySelector('.aa-hero__track') as HTMLElement;
+    Object.defineProperty(track, 'clientWidth', {
+      value: 800,
+      configurable: true,
+    });
+
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    jest.advanceTimersByTime(6000);
+    expect(ctx.activeIndex).toBe(1);
+
+    // Flush scroll-idle debounce — must not pause / restart progress.
+    jest.advanceTimersByTime(200);
+    expect(ctx.isPaused).toBe(false);
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    // Still advancing on the original interval (not reset by a false pause).
+    jest.advanceTimersByTime(6000);
+    expect(ctx.activeIndex).toBe(2);
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    restoreElementScrollTo();
+    destroy();
+  });
+
+  it('does not pause autoplay on a no-op scroll settle (same slide)', () => {
+    jest.useFakeTimers();
+    stubElementScrollTo({ dispatchScroll: true });
+
+    const ctx = makeContext({
+      autoplay: true,
+      isPlaying: true,
+      transition: 'slide',
+    });
+    const { root, destroy } = initCarousel(ctx);
+    const track = root.querySelector('.aa-hero__track') as HTMLElement;
+    Object.defineProperty(track, 'clientWidth', {
+      value: 800,
+      configurable: true,
+    });
+    Object.defineProperty(track, 'scrollLeft', {
+      value: 800, // physical index 1 = logical 0 with seamless clones.
+      configurable: true,
+      writable: true,
+    });
+
+    // Spurious scroll while already on slide 0 — must not pause.
+    track.dispatchEvent(new Event('scroll'));
+    jest.advanceTimersByTime(200);
+    expect(ctx.isPaused).toBe(false);
+    expect(ctx.activeIndex).toBe(0);
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    restoreElementScrollTo();
+    destroy();
+  });
+
+  it('freezes progress class on pause and resumes remaining dwell', () => {
+    jest.useFakeTimers();
+    const ctx = makeContext({ autoplay: true, isPlaying: true });
+    const { root, destroy } = initCarousel(ctx);
+
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    // Run halfway through the dwell, then pause.
+    jest.advanceTimersByTime(3000);
+    expect(ctx.activeIndex).toBe(0);
+
+    actions.pause();
+    expect(ctx.isPaused).toBe(true);
+    expect(root.classList.contains('is-playing')).toBe(false);
+
+    // Time while paused must not advance the slide.
+    jest.advanceTimersByTime(10000);
+    expect(ctx.activeIndex).toBe(0);
+
+    actions.resume();
+    expect(ctx.isPaused).toBe(false);
+    expect(root.classList.contains('is-playing')).toBe(true);
+
+    // Remaining ~3s of the original 6s dwell, then advances.
+    jest.advanceTimersByTime(3000);
+    expect(ctx.activeIndex).toBe(1);
+    destroy();
+  });
+
   it('holds while hovered and resumes after leaving', () => {
     jest.useFakeTimers();
     const ctx = makeContext({ autoplay: true, isPlaying: true });
@@ -404,5 +556,95 @@ describe('autoplay', () => {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
     }));
+  });
+});
+
+describe('motion hold across transition modes', () => {
+  let styleSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    styleSpy = jest.spyOn(window, 'getComputedStyle').mockImplementation(
+      (el: Element) =>
+        ({
+          getPropertyValue: (prop: string) => {
+            if (
+              el instanceof HTMLElement &&
+              el.classList.contains('wp-block-cover__image-background')
+            ) {
+              if (prop === 'transform') {
+                return 'matrix(1.08, 0, 0, 1.08, 0, 0)';
+              }
+              if (prop === 'filter') return 'none';
+              if (prop === 'clip-path') return 'none';
+            }
+            if (prop === 'object-position') return '50% 50%';
+            if (prop === 'direction') return 'ltr';
+            return '';
+          },
+        }) as CSSStyleDeclaration
+    );
+  });
+
+  afterEach(() => {
+    styleSpy.mockRestore();
+    restoreElementScrollTo();
+  });
+
+  it.each(['fade', 'crossfade', 'slide'] as const)(
+    'holds outgoing media transform in %s mode',
+    transition => {
+      if (transition === 'slide') {
+        stubElementScrollTo();
+      }
+
+      const ctx = makeContext({ transition });
+      const { root, destroy } = initCarousel(ctx);
+      const track = root.querySelector('.aa-hero__track') as HTMLElement;
+      Object.defineProperty(track, 'clientWidth', {
+        value: 800,
+        configurable: true,
+      });
+
+      const slides = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '.aa-hero__slide:not([data-aa-hero-clone])'
+        )
+      );
+      const outgoing = slides[0];
+      const incoming = slides[1];
+      const media = outgoing?.querySelector<HTMLElement>(
+        '.wp-block-cover__image-background'
+      );
+
+      actions.next();
+
+      expect(outgoing?.classList.contains(MOTION_HOLD_CLASS)).toBe(true);
+      expect(media?.style.getPropertyValue('transform')).toBe(
+        'matrix(1.08, 0, 0, 1.08, 0, 0)'
+      );
+      expect(incoming?.classList.contains(MOTION_HOLD_CLASS)).toBe(false);
+      expect(ctx.activeIndex).toBe(1);
+      destroy();
+    }
+  );
+
+  it('releases hold when a held slide becomes active again', () => {
+    const ctx = makeContext({ transition: 'fade', loop: true });
+    const { root, destroy } = initCarousel(ctx);
+    const first = root.querySelector<HTMLElement>(
+      '.aa-hero__slide:not([data-aa-hero-clone])'
+    );
+
+    actions.next();
+    expect(first?.classList.contains(MOTION_HOLD_CLASS)).toBe(true);
+
+    actions.prev();
+    expect(first?.classList.contains(MOTION_HOLD_CLASS)).toBe(false);
+    expect(
+      first
+        ?.querySelector<HTMLElement>('.wp-block-cover__image-background')
+        ?.style.getPropertyValue('transform')
+    ).toBe('');
+    destroy();
   });
 });

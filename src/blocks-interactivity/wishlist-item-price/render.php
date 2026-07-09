@@ -12,10 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$wrapper_attrs = get_block_wrapper_attributes(
-	array( 'class' => 'aa-wl-item-price' )
-);
 ?>
-<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array( 'class' => 'aa-wl-item-price' )
+	);
+	?>
+>
 	<span class="aa-wl-item-price__text" data-wp-text="context.item.price"></span>
 </div>

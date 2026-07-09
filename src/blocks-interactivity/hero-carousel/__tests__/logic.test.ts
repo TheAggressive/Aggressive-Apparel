@@ -7,12 +7,17 @@ import {
   canAdvance,
   clampIndex,
   focalToTransformOrigin,
+  isLoopWrap,
+  logicalToPhysical,
   nextIndex,
   normalizeAutoplaySpeed,
   parseSlideHash,
+  physicalToLogical,
   prevIndex,
   scrollLeftForIndex,
+  seamlessPhysicalTarget,
   slideHash,
+  usesSeamlessLoop,
 } from '../logic';
 
 describe('clampIndex', () => {
@@ -128,5 +133,52 @@ describe('parseSlideHash', () => {
   });
   it('round-trips with slideHash', () => {
     expect(parseSlideHash(slideHash('promo', 4), 'promo', 6)).toBe(4);
+  });
+});
+
+describe('usesSeamlessLoop', () => {
+  it('is only for looping slide mode (fade/crossfade wrap via opacity)', () => {
+    expect(usesSeamlessLoop('slide', true, 3)).toBe(true);
+    expect(usesSeamlessLoop('slide', false, 3)).toBe(false);
+    expect(usesSeamlessLoop('fade', true, 3)).toBe(false);
+    expect(usesSeamlessLoop('crossfade', true, 3)).toBe(false);
+    expect(usesSeamlessLoop('slide', true, 1)).toBe(false);
+  });
+});
+
+describe('isLoopWrap', () => {
+  it('detects end wraps only', () => {
+    expect(isLoopWrap(2, 0, 3)).toBe(true);
+    expect(isLoopWrap(0, 2, 3)).toBe(true);
+    expect(isLoopWrap(0, 1, 3)).toBe(false);
+    expect(isLoopWrap(1, 2, 3)).toBe(false);
+  });
+});
+
+describe('logicalToPhysical / physicalToLogical', () => {
+  it('offsets real slides by one for the leading clone', () => {
+    expect(logicalToPhysical(0, 3)).toBe(1);
+    expect(logicalToPhysical(2, 3)).toBe(3);
+  });
+  it('maps clones back to the matching real slide', () => {
+    expect(physicalToLogical(0, 3)).toBe(2);
+    expect(physicalToLogical(1, 3)).toBe(0);
+    expect(physicalToLogical(3, 3)).toBe(2);
+    expect(physicalToLogical(4, 3)).toBe(0);
+  });
+});
+
+describe('seamlessPhysicalTarget', () => {
+  it('returns the trailing clone when wrapping last → first', () => {
+    expect(seamlessPhysicalTarget(2, 0, 3, true)).toBe(4);
+  });
+  it('returns the leading clone when wrapping first → last', () => {
+    expect(seamlessPhysicalTarget(0, 2, 3, true)).toBe(0);
+  });
+  it('returns the real physical index for non-wrap moves', () => {
+    expect(seamlessPhysicalTarget(0, 1, 3, true)).toBe(2);
+  });
+  it('is null when seamless looping is off', () => {
+    expect(seamlessPhysicalTarget(2, 0, 3, false)).toBeNull();
   });
 });

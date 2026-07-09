@@ -14,8 +14,11 @@ import {
   useBlockProps,
   useInnerBlocksProps,
   InspectorControls,
-  PanelColorSettings,
   store as blockEditorStore,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 } from '@wordpress/block-editor';
 import {
   PanelBody,
@@ -25,7 +28,7 @@ import {
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import type { BlockEditProps } from '@wordpress/blocks';
 import type { CSSProperties } from 'react';
@@ -35,9 +38,10 @@ import type {
   HeroTransition,
   HeroArrowPosition,
   HeroPagination,
-  HeroKenBurns,
+  HeroMotionMode,
   HeroContentAnimation,
 } from './types';
+import { HERO_MOTION_MODES } from './motion';
 
 type EditProps = BlockEditProps<HeroCarouselAttributes>;
 
@@ -91,17 +95,6 @@ const PAGINATIONS = [
   { label: __('None', 'aggressive-apparel'), value: 'none' },
 ];
 
-const KEN_BURNS_MODES = [
-  { label: __('None', 'aggressive-apparel'), value: 'none' },
-  { label: __('Zoom in', 'aggressive-apparel'), value: 'zoom-in' },
-  { label: __('Zoom out', 'aggressive-apparel'), value: 'zoom-out' },
-  {
-    label: __('Alternate per slide', 'aggressive-apparel'),
-    value: 'alternate',
-  },
-  { label: __('Random per slide', 'aggressive-apparel'), value: 'random' },
-];
-
 const CONTENT_ANIMATIONS = [
   { label: __('None', 'aggressive-apparel'), value: 'none' },
   { label: __('Fade up', 'aggressive-apparel'), value: 'fade-up' },
@@ -127,8 +120,8 @@ export default function Edit({
     pagination,
     showProgress,
     deepLink,
-    kenBurns,
-    kenBurnsDuration,
+    motion,
+    motionDuration,
     contentAnimation,
     arrowColor,
     arrowBg,
@@ -137,11 +130,76 @@ export default function Edit({
   } = attributes;
 
   const [isStacked, setIsStacked] = useState(false);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const colorGradientSettings = useMultipleOriginColorsAndGradients();
 
   const slideCount = useSelect(
     select => select(blockEditorStore).getBlockCount(clientId),
     [clientId]
   );
+
+  /**
+   * Client id of the Cover slide that owns the current selection (Cover itself
+   * or a nested child). Empty when nothing inside this carousel is selected.
+   */
+  const selectedSlideClientId = useSelect(
+    select => {
+      const {
+        getSelectedBlockClientId,
+        getBlockParents,
+        getBlockOrder,
+        getBlockName,
+      } = select(blockEditorStore);
+      const selectedId = getSelectedBlockClientId();
+      if (!selectedId) {
+        return '';
+      }
+
+      const parents = getBlockParents(selectedId);
+      if (selectedId === clientId || !parents.includes(clientId)) {
+        return '';
+      }
+
+      const slideIds = getBlockOrder(clientId);
+      let current: string | null = selectedId;
+      while (current) {
+        if (
+          slideIds.includes(current) &&
+          getBlockName(current) === 'core/cover'
+        ) {
+          return current;
+        }
+        const parentList = getBlockParents(current);
+        current = parentList[parentList.length - 1] ?? null;
+        if (current === clientId) {
+          break;
+        }
+      }
+      return '';
+    },
+    [clientId]
+  );
+
+  // Strip mode: bring the selected Cover into the horizontal track viewport.
+  // Without this, clicking a partially off-screen slide selects it but leaves
+  // the track scrolled elsewhere — so "some focus, some don't."
+  useEffect(() => {
+    if (isStacked || !selectedSlideClientId) {
+      return;
+    }
+    const track = trackRef.current;
+    if (!track) {
+      return;
+    }
+    const slide = track.querySelector<HTMLElement>(
+      `[data-block="${selectedSlideClientId}"]`
+    );
+    slide?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    });
+  }, [isStacked, selectedSlideClientId]);
 
   const blockProps = useBlockProps({
     className: [
@@ -154,7 +212,10 @@ export default function Edit({
   });
 
   const innerBlocksProps = useInnerBlocksProps(
-    { className: 'aa-hero-editor__track' },
+    {
+      className: 'aa-hero-editor__track',
+      ref: trackRef,
+    },
     {
       allowedBlocks: ALLOWED_BLOCKS,
       template: SLIDE_TEMPLATE,
@@ -193,6 +254,10 @@ export default function Edit({
           {transition !== 'slide' && (
             <RangeControl
               label={__('Transition duration (ms)', 'aggressive-apparel')}
+              help={__(
+                'Lower = snappier fade between slides. Higher = slower, softer crossfade.',
+                'aggressive-apparel'
+              )}
               value={transitionMs}
               onChange={val => setAttributes({ transitionMs: val ?? 700 })}
               min={100}
@@ -243,6 +308,10 @@ export default function Edit({
             <>
               <RangeControl
                 label={__('Slide duration (seconds)', 'aggressive-apparel')}
+                help={__(
+                  'How long each slide stays before advancing. Lower = faster carousel. Higher = more time to read each slide.',
+                  'aggressive-apparel'
+                )}
                 value={autoplaySpeed / 1000}
                 onChange={val =>
                   setAttributes({
@@ -274,22 +343,26 @@ export default function Edit({
           initialOpen={false}
         >
           <SelectControl<string>
-            label={__('Ken Burns', 'aggressive-apparel')}
-            value={kenBurns}
-            options={KEN_BURNS_MODES}
-            onChange={val => setAttributes({ kenBurns: val as HeroKenBurns })}
+            label={__('Background motion', 'aggressive-apparel')}
+            value={motion}
+            options={HERO_MOTION_MODES}
+            onChange={val => setAttributes({ motion: val as HeroMotionMode })}
             help={__(
-              'Slow ambient zoom on the slide background. Pans around each Cover\u2019s focal point.',
+              'Ambient motion on the slide background. Transform effects pan around each Cover\u2019s focal point. Alternate switches zoom in/out; Random picks from the full motion set.',
               'aggressive-apparel'
             )}
             __next40pxDefaultSize
             __nextHasNoMarginBottom
           />
-          {kenBurns !== 'none' && (
+          {motion !== 'none' && (
             <RangeControl
-              label={__('Ken Burns duration (seconds)', 'aggressive-apparel')}
-              value={kenBurnsDuration}
-              onChange={val => setAttributes({ kenBurnsDuration: val ?? 12 })}
+              label={__('Motion duration (seconds)', 'aggressive-apparel')}
+              help={__(
+                'How long one background motion cycle takes. Lower = faster, more noticeable motion. Higher = slower, subtler drift.',
+                'aggressive-apparel'
+              )}
+              value={motionDuration}
+              onChange={val => setAttributes({ motionDuration: val ?? 12 })}
               min={4}
               max={30}
               step={1}
@@ -358,36 +431,40 @@ export default function Edit({
             __nextHasNoMarginBottom
           />
         </PanelBody>
+      </InspectorControls>
 
-        <PanelColorSettings
-          __experimentalIsRenderedInSidebar
-          title={__('Chrome Colors', 'aggressive-apparel')}
-          colorSettings={[
+      {/* Color panel sits above Dimensions in the Styles tab. */}
+      <InspectorControls group='color'>
+        <ColorGradientSettingsDropdown
+          panelId={clientId}
+          settings={[
             {
-              value: arrowColor,
-              onChange: (value: string | undefined) =>
-                setAttributes({ arrowColor: value ?? '' }),
               label: __('Arrow icon', 'aggressive-apparel'),
+              colorValue: arrowColor || undefined,
+              onColorChange: (value?: string) =>
+                setAttributes({ arrowColor: value ?? '' }),
             },
             {
-              value: arrowBg,
-              onChange: (value: string | undefined) =>
-                setAttributes({ arrowBg: value ?? '' }),
               label: __('Arrow background', 'aggressive-apparel'),
+              colorValue: arrowBg || undefined,
+              onColorChange: (value?: string) =>
+                setAttributes({ arrowBg: value ?? '' }),
             },
             {
-              value: dotColor,
-              onChange: (value: string | undefined) =>
-                setAttributes({ dotColor: value ?? '' }),
               label: __('Pagination', 'aggressive-apparel'),
+              colorValue: dotColor || undefined,
+              onColorChange: (value?: string) =>
+                setAttributes({ dotColor: value ?? '' }),
             },
             {
-              value: dotActiveColor,
-              onChange: (value: string | undefined) =>
-                setAttributes({ dotActiveColor: value ?? '' }),
               label: __('Pagination (active)', 'aggressive-apparel'),
+              colorValue: dotActiveColor || undefined,
+              onColorChange: (value?: string) =>
+                setAttributes({ dotActiveColor: value ?? '' }),
             },
           ]}
+          __experimentalIsRenderedInSidebar
+          {...colorGradientSettings}
         />
       </InspectorControls>
 

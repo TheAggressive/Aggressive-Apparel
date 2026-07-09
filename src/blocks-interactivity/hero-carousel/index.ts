@@ -8,6 +8,7 @@ import metadata from './block.json';
 import blockIcon from './icon';
 import Edit from './edit';
 import Save from './save';
+import { heroCarouselDeprecations } from './deprecated';
 import type { HeroCarouselAttributes } from './types';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
@@ -22,4 +23,5 @@ registerThemeBlock<HeroCarouselAttributes>(metadata, {
   icon: blockIcon,
   edit: Edit,
   save: Save,
+  deprecated: heroCarouselDeprecations,
 });

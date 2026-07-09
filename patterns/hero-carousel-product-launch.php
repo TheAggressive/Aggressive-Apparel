@@ -10,7 +10,7 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:aggressive-apparel/hero-carousel {"autoplay":true,"autoplaySpeed":7000,"kenBurns":"alternate","contentAnimation":"fade-up","align":"full"} -->
+?><!-- wp:aggressive-apparel/hero-carousel {"autoplay":true,"autoplaySpeed":7000,"motion":"alternate","contentAnimation":"fade-up","align":"full"} -->
 <!-- wp:cover {"dimRatio":40,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","contentPosition":"center center","align":"full","style":{"spacing":{"margin":{"top":"0","bottom":"0"}}}} -->
 <div class="wp-block-cover alignfull" style="margin-top:0;margin-bottom:0;min-height:85vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-40 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"700px"}} -->
 <div class="wp-block-group">

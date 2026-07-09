@@ -25,17 +25,20 @@ if ( ! in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
 	$alignment = 'left';
 }
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class' => sprintf(
-			'is-size-%s has-text-align-%s',
-			$size,
-			$alignment
-		),
-	)
-);
 ?>
-<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class' => sprintf(
+				'is-size-%s has-text-align-%s',
+				$size,
+				$alignment
+			),
+		)
+	);
+	?>
+>
 	<button
 		type="button"
 		class="dark-mode-toggle__button"

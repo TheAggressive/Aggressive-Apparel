@@ -35,6 +35,21 @@
         </properties>
     </rule>
 
+    <!--
+		Functions that already return escaped / trusted markup.
+		Class methods cannot be listed here (WPCS limitation), so theme SVG
+		output goes through aggressive_apparel_get_icon().
+	-->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <properties>
+            <property name="customAutoEscapedFunctions" type="array">
+                <element value="aggressive_apparel_get_icon"/>
+                <element value="get_block_wrapper_attributes"/>
+                <element value="render_block"/>
+            </property>
+        </properties>
+    </rule>
+
     <!-- Exclude certain rules that might be too strict for theme development -->
     <rule ref="WordPress.Security.NonceVerification">
         <exclude-pattern>*/admin/*</exclude-pattern>

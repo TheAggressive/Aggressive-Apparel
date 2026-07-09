@@ -1,0 +1,431 @@
+/**
+ * Hero Carousel — background motion effects and keyframes.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* ---------------------------------------------------------------------- */
+
+/* Background motion — GPU-composited effects on Cover media only          */
+
+/* ---------------------------------------------------------------------- */
+
+/* Shared base: gate on the per-slide variant class (not a carousel-level
+   flag) so a per-slide override still animates when the carousel default
+   is None, and vice versa. */
+.aa-hero__slide[class*='aa-hero__slide--motion-'] .wp-block-cover__image-background,
+.aa-hero__slide[class*='aa-hero__slide--motion-'] .wp-block-cover__video-background {
+  transform-origin: var(--aa-hero-motion-origin, center center);
+  will-change: transform, filter;
+}
+
+/*
+ * When autoplay is enabled, pause freezes background motion with the progress
+ * pill (animation-play-state). Without autoplay, motion still runs on the
+ * active slide — there is no play/pause chrome to sync with.
+ */
+.aa-hero--autoplay:not(.is-playing) .aa-hero__slide.is-active .wp-block-cover__image-background,
+.aa-hero--autoplay:not(.is-playing) .aa-hero__slide.is-active .wp-block-cover__video-background,
+.aa-hero--autoplay:not(.is-playing) .aa-hero__slide--motion-grain.is-active > .wp-block-cover::after {
+  animation-play-state: paused;
+}
+
+.aa-hero__slide--motion-zoom-in.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-zoom-in.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-zoom-in var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-zoom-out.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-zoom-out.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-zoom-out var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-pan-left.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-pan-left.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-pan-left var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-pan-right.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-pan-right.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-pan-right var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-pan-up.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-pan-up.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-pan-up var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-pan-down.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-pan-down.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-pan-down var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-diagonal.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-diagonal.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-diagonal var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-zoom-pan.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-zoom-pan.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-zoom-pan var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-punch-in.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-punch-in.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-punch-in calc(var(--aa-hero-motion-duration) * 0.55) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.aa-hero__slide--motion-pull-back.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-pull-back.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-pull-back var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-breathe.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-breathe.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-breathe calc(var(--aa-hero-motion-duration) * 0.5) ease-in-out infinite alternate;
+}
+
+.aa-hero__slide--motion-idle-sway.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-idle-sway.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-idle-sway var(--aa-hero-motion-duration) ease-in-out infinite alternate;
+}
+
+.aa-hero__slide--motion-blur-sharp.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-blur-sharp.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-blur-sharp calc(var(--aa-hero-motion-duration) * 0.45) ease-out forwards;
+}
+
+.aa-hero__slide--motion-brightness.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-brightness.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-brightness calc(var(--aa-hero-motion-duration) * 0.5) ease-out forwards;
+}
+
+.aa-hero__slide--motion-colorize.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-colorize.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-colorize calc(var(--aa-hero-motion-duration) * 0.55) ease-out forwards;
+}
+
+.aa-hero__slide--motion-clip-reveal.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-clip-reveal.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-clip-reveal calc(var(--aa-hero-motion-duration) * 0.5) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.aa-hero__slide--motion-slide-in.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-slide-in.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-slide-in calc(var(--aa-hero-motion-duration) * 0.45) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.aa-hero__slide--motion-scale-edge.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-scale-edge.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-scale-edge var(--aa-hero-motion-duration) ease-out forwards;
+  transform-origin: left center;
+}
+
+.aa-hero__slide--motion-tilt.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-tilt.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-tilt var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-orbit.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-orbit.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-orbit var(--aa-hero-motion-duration) ease-in-out infinite;
+}
+
+/* Film grain: slow zoom on media + tiled PNG noise overlay (SVG feTurbulence
+   backgrounds often paint blank in Chromium). Overlay sits above Cover media,
+   below content. */
+.aa-hero__slide--motion-grain.is-active .wp-block-cover__image-background,
+.aa-hero__slide--motion-grain.is-active .wp-block-cover__video-background {
+  animation: aa-hero-motion-zoom-in var(--aa-hero-motion-duration) ease-out forwards;
+}
+
+.aa-hero__slide--motion-grain > .wp-block-cover {
+  isolation: isolate;
+}
+
+.aa-hero__slide--motion-grain > .wp-block-cover::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+
+  /* Sparse fleck tile — no blend-mode (Cover dim kills soft-light). */
+  background-image: url(data:image/png;base64,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);
+  background-size: 220px 220px;
+  background-repeat: repeat;
+}
+
+.aa-hero__slide--motion-grain > .wp-block-cover .wp-block-cover__inner-container {
+  position: relative;
+  z-index: 2;
+}
+
+.aa-hero__slide--motion-grain.is-active > .wp-block-cover::after {
+  opacity: 0.28;
+  animation: aa-hero-motion-grain-drift calc(var(--aa-hero-motion-duration) * 0.28) steps(4) infinite;
+}
+
+@keyframes aa-hero-motion-zoom-in {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-scale));
+  }
+}
+
+@keyframes aa-hero-motion-zoom-out {
+
+  from {
+    transform: scale(var(--aa-hero-motion-scale));
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-pan-left {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(var(--aa-hero-motion-pan));
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(calc(var(--aa-hero-motion-pan) * -1));
+  }
+}
+
+@keyframes aa-hero-motion-pan-right {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(calc(var(--aa-hero-motion-pan) * -1));
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(var(--aa-hero-motion-pan));
+  }
+}
+
+@keyframes aa-hero-motion-pan-up {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateY(var(--aa-hero-motion-pan));
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateY(calc(var(--aa-hero-motion-pan) * -1));
+  }
+}
+
+@keyframes aa-hero-motion-pan-down {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateY(calc(var(--aa-hero-motion-pan) * -1));
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateY(var(--aa-hero-motion-pan));
+  }
+}
+
+@keyframes aa-hero-motion-diagonal {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(calc(var(--aa-hero-motion-pan) * -1), var(--aa-hero-motion-pan));
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(var(--aa-hero-motion-pan), calc(var(--aa-hero-motion-pan) * -1));
+  }
+}
+
+@keyframes aa-hero-motion-zoom-pan {
+
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(var(--aa-hero-motion-pan), calc(var(--aa-hero-motion-pan) * -0.5));
+  }
+}
+
+@keyframes aa-hero-motion-punch-in {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes aa-hero-motion-pull-back {
+
+  from {
+    transform: scale(1.18);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-breathe {
+
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes aa-hero-motion-idle-sway {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(calc(var(--aa-hero-motion-pan) * -0.5), 0);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(calc(var(--aa-hero-motion-pan) * 0.5), 0);
+  }
+}
+
+@keyframes aa-hero-motion-blur-sharp {
+
+  from {
+    filter: blur(12px);
+    transform: scale(1.06);
+  }
+
+  to {
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-brightness {
+
+  from {
+    filter: brightness(0.55);
+    transform: scale(1.04);
+  }
+
+  to {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-colorize {
+
+  from {
+    filter: grayscale(1) saturate(0.4);
+    transform: scale(1.04);
+  }
+
+  to {
+    filter: grayscale(0) saturate(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-clip-reveal {
+
+  from {
+    clip-path: inset(12% 18% 12% 18%);
+    transform: scale(1.08);
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes aa-hero-motion-slide-in {
+
+  from {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(8%);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translateX(0);
+  }
+}
+
+@keyframes aa-hero-motion-scale-edge {
+
+  from {
+    transform: scale(1.2) translateX(-3%);
+  }
+
+  to {
+    transform: scale(1) translateX(0);
+  }
+}
+
+@keyframes aa-hero-motion-tilt {
+
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+
+  to {
+    transform: scale(var(--aa-hero-motion-scale)) rotate(1.25deg);
+  }
+}
+
+@keyframes aa-hero-motion-orbit {
+
+  0% {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(0, calc(var(--aa-hero-motion-pan) * -0.6));
+  }
+
+  25% {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(calc(var(--aa-hero-motion-pan) * 0.6), 0);
+  }
+
+  50% {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(0, calc(var(--aa-hero-motion-pan) * 0.6));
+  }
+
+  75% {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(calc(var(--aa-hero-motion-pan) * -0.6), 0);
+  }
+
+  100% {
+    transform: scale(var(--aa-hero-motion-pan-scale)) translate(0, calc(var(--aa-hero-motion-pan) * -0.6));
+  }
+}
+
+@keyframes aa-hero-motion-grain-drift {
+
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-3%, 2%);
+  }
+
+  50% {
+    transform: translate(2%, -4%);
+  }
+
+  75% {
+    transform: translate(-2%, -1%);
+  }
+
+  100% {
+    transform: translate(1%, 3%);
+  }
+}

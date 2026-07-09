@@ -66,11 +66,7 @@ if ( $css_vars ) {
 	$wrapper_extra['style'] = implode( '; ', $css_vars );
 }
 
-$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra );
-
-// $wrapper_attributes is pre-escaped by get_block_wrapper_attributes().
-// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output from get_block_wrapper_attributes().
-printf( '<div %s>', $wrapper_attributes );
+printf( '<div %s>', get_block_wrapper_attributes( $wrapper_extra ) );
 echo '<div class="aggressive-apparel-lookbook__image-wrapper">';
 printf(
 	'<img class="aggressive-apparel-lookbook__image" src="%s" alt="%s" loading="lazy" />',

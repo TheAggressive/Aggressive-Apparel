@@ -30,7 +30,6 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\Core\Icons;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Product_Filters;
 
@@ -78,31 +77,6 @@ $icon_only_class = $icon_only ? ' aa-filter-toggle--icon-only' : '';
 
 $wrapper_classes = 'aa-filter-toggle' . $mobile_only_class . $icon_only_class;
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'                       => $wrapper_classes,
-		'type'                        => 'button',
-		'data-wp-interactive'         => 'aggressive-apparel/product-filters',
-		'data-wp-on--click'           => 'actions.openDrawer',
-		'data-wp-bind--aria-expanded' => 'state.isDrawerOpen',
-		'aria-expanded'               => 'false',
-		'aria-haspopup'               => 'dialog',
-		'aria-controls'               => 'aa-product-filters-drawer',
-	)
-);
-
-$icon_html = '';
-if ( $show_icon ) {
-	$icon_html = Icons::get(
-		'filter',
-		array(
-			'width'       => 20,
-			'height'      => 20,
-			'aria-hidden' => 'true',
-		)
-	);
-}
-
 $trimmed_label = trim( $label );
 
 // In icon-only mode the visible label span is suppressed, so we surface
@@ -134,13 +108,29 @@ $visual_count_html = '<span class="aa-filter-toggle__count" aria-hidden="true" d
 
 printf(
 	'<button %1$s>%2$s%3$s%4$s%5$s</button>',
-	wp_kses_post( $wrapper_attributes ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns trusted SVG.
-	$icon_html,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$label_html,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup; data-wp-text content is escaped at hydration time.
-	$sr_count_html,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup; data-wp-text content is escaped at hydration time.
-	$visual_count_html
+	get_block_wrapper_attributes(
+		array(
+			'class'                       => $wrapper_classes,
+			'type'                        => 'button',
+			'data-wp-interactive'         => 'aggressive-apparel/product-filters',
+			'data-wp-on--click'           => 'actions.openDrawer',
+			'data-wp-bind--aria-expanded' => 'state.isDrawerOpen',
+			'aria-expanded'               => 'false',
+			'aria-haspopup'               => 'dialog',
+			'aria-controls'               => 'aa-product-filters-drawer',
+		)
+	),
+	$show_icon
+		? aggressive_apparel_get_icon(
+			'filter',
+			array(
+				'width'       => 20,
+				'height'      => 20,
+				'aria-hidden' => 'true',
+			)
+		)
+		: '',
+	wp_kses_post( $label_html ),
+	wp_kses_post( $sr_count_html ),
+	wp_kses_post( $visual_count_html )
 );

@@ -29,11 +29,14 @@ if ( ! $show_remove && ! $show_add_to_cart ) {
 
 $heart_svg = '<svg class="aa-wl-item-actions__remove-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
-$wrapper_attrs = get_block_wrapper_attributes(
-	array( 'class' => 'aa-wl-item-actions' )
-);
 ?>
-<div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array( 'class' => 'aa-wl-item-actions' )
+	);
+	?>
+>
 
 	<?php if ( $show_add_to_cart ) : ?>
 	<a

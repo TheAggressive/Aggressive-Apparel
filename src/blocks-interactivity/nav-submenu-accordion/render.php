@@ -30,15 +30,6 @@ $context = wp_json_encode(
 	JSON_HEX_TAG | JSON_HEX_AMP
 );
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'role'                   => 'none',
-		'data-wp-interactive'    => 'aggressive-apparel/navigation-panel',
-		'data-wp-context'        => $context,
-		'data-wp-class--is-open' => 'callbacks.isSubmenuOpen',
-	)
-);
-
 $arrow_html = '';
 if ( $show_arrow ) {
 	$arrow_html = '<span class="wp-block-aggressive-apparel-nav-submenu-accordion__arrow" aria-hidden="true">
@@ -82,7 +73,14 @@ printf(
 			</div>
 		</div>
 	</li>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
+	get_block_wrapper_attributes(
+		array(
+			'role'                   => 'none',
+			'data-wp-interactive'    => 'aggressive-apparel/navigation-panel',
+			'data-wp-context'        => $context,
+			'data-wp-class--is-open' => 'callbacks.isSubmenuOpen',
+		)
+	),
 	$trigger_el, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),

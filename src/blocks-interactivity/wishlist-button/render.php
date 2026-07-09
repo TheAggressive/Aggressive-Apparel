@@ -108,8 +108,7 @@ if ( '' !== $trimmed_label ) {
 printf(
 	'<button %1$s>%2$s%3$s</button>',
 	wp_kses_post( $wrapper_attributes ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG markup.
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static trusted SVG markup.
 	$icon_html,
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
-	$label_html
+	wp_kses_post( $label_html )
 );

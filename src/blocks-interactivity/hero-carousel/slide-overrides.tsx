@@ -3,7 +3,7 @@
  *
  * Adds per-slide attributes to core/cover plus a "Hero Slide" inspector panel
  * that appears only when the Cover sits inside a hero-carousel:
- *   - `aaHeroKenBurns` overrides the carousel-level Ken Burns mode.
+ *   - `aaHeroMotion` overrides the carousel-level background motion.
  *   - `aaHeroStart` / `aaHeroEnd` schedule a visibility window.
  * render.php reads these to override motion and to drop out-of-window slides.
  *
@@ -22,9 +22,13 @@ import { useSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
+import { HERO_MOTION_OVERRIDE_OPTIONS } from './motion';
+
 const PARENT_BLOCK = 'aggressive-apparel/hero-carousel';
 
 interface CoverHeroAttributes {
+  aaHeroMotion?: string;
+  /** @deprecated Read-only fallback for content saved before the rename. */
   aaHeroKenBurns?: string;
   aaHeroStart?: string;
   aaHeroEnd?: string;
@@ -35,13 +39,6 @@ interface BlockRegistrationSettings {
   attributes?: Record<string, unknown>;
   [key: string]: unknown;
 }
-
-const KEN_BURNS_OPTIONS = [
-  { label: __('Inherit from carousel', 'aggressive-apparel'), value: '' },
-  { label: __('None', 'aggressive-apparel'), value: 'none' },
-  { label: __('Zoom in', 'aggressive-apparel'), value: 'zoom-in' },
-  { label: __('Zoom out', 'aggressive-apparel'), value: 'zoom-out' },
-];
 
 /** Register the per-slide attribute on core/cover only. */
 addFilter(
@@ -55,6 +52,8 @@ addFilter(
       ...settings,
       attributes: {
         ...(settings.attributes ?? {}),
+        aaHeroMotion: { type: 'string', default: '' },
+        // Kept registered so previously saved Cover attrs still hydrate.
         aaHeroKenBurns: { type: 'string', default: '' },
         aaHeroStart: { type: 'string', default: '' },
         aaHeroEnd: { type: 'string', default: '' },
@@ -91,6 +90,9 @@ const withHeroSlideControls = createHigherOrderComponent(
       }
 
       const { attributes, setAttributes } = props;
+      const motionValue =
+        attributes.aaHeroMotion || attributes.aaHeroKenBurns || '';
+
       return (
         <>
           <BlockEdit {...props} />
@@ -100,14 +102,23 @@ const withHeroSlideControls = createHigherOrderComponent(
               initialOpen={false}
             >
               <SelectControl<string>
-                label={__('Ken Burns (this slide)', 'aggressive-apparel')}
+                label={__(
+                  'Background motion (this slide)',
+                  'aggressive-apparel'
+                )}
                 help={__(
                   'Override the carousel background animation for just this slide.',
                   'aggressive-apparel'
                 )}
-                value={attributes.aaHeroKenBurns ?? ''}
-                options={KEN_BURNS_OPTIONS}
-                onChange={value => setAttributes({ aaHeroKenBurns: value })}
+                value={motionValue}
+                options={HERO_MOTION_OVERRIDE_OPTIONS}
+                onChange={value =>
+                  setAttributes({
+                    aaHeroMotion: value,
+                    // Clear legacy key so the next save drops it.
+                    aaHeroKenBurns: '',
+                  })
+                }
                 __next40pxDefaultSize
                 __nextHasNoMarginBottom
               />

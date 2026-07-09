@@ -45,7 +45,7 @@ class Back_In_Stock_Admin {
 			'woocommerce',
 			__( 'Stock Subscribers', 'aggressive-apparel' ),
 			__( 'Stock Subscribers', 'aggressive-apparel' ),
-			'manage_woocommerce', // phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce capability.
+			'manage_woocommerce',
 			'aa-stock-subscribers',
 			array( $this, 'render_admin_page' ),
 		);
@@ -107,7 +107,7 @@ class Back_In_Stock_Admin {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce capability.
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to manage stock subscribers.', 'aggressive-apparel' ) );
 		}
 
@@ -288,8 +288,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_cb( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				return sprintf( '<input type="checkbox" name="subscriber[]" value="%d" />', absint( $item->id ) );
 			}
 
@@ -300,8 +303,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_email( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				return esc_html( $item->email );
 			}
 
@@ -312,8 +318,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_product( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				if ( ! function_exists( 'wc_get_product' ) ) {
 					return '#' . absint( $item->product_id );
 				}
@@ -335,8 +344,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_status( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				$labels = array(
 					'active'       => __( 'Active', 'aggressive-apparel' ),
 					'notified'     => __( 'Notified', 'aggressive-apparel' ),
@@ -353,8 +365,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_created_at( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				return esc_html( $item->created_at );
 			}
 
@@ -365,8 +380,11 @@ class Back_In_Stock_Admin {
 			 * @return string
 			 */
 			public function column_notified_at( $item ): string {
-				// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- PHPStan type narrowing.
-				/** @var \stdClass $item */
+				/**
+				 * Subscriber row.
+				 *
+				 * @var \stdClass $item
+				 */
 				return $item->notified_at ? esc_html( $item->notified_at ) : '—';
 			}
 

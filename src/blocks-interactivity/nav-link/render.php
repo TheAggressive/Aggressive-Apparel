@@ -49,13 +49,6 @@ if ( $is_current ) {
 	$classes[] = 'is-current';
 }
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class' => implode( ' ', $classes ),
-		'role'  => 'none',
-	)
-);
-
 // Build link attributes.
 $escaped_url = esc_url( $url );
 $link_attrs  = array(
@@ -90,8 +83,13 @@ if ( ! empty( $description ) ) {
 
 printf(
 	'<li %s><a%s><span class="wp-block-aggressive-apparel-nav-link__label">%s</span>%s</a></li>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
+	get_block_wrapper_attributes(
+		array(
+			'class' => implode( ' ', $classes ),
+			'role'  => 'none',
+		)
+	),
 	$link_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
 	esc_html( $label ),
-	$description_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already escaped above.
+	wp_kses_post( $description_html )
 );

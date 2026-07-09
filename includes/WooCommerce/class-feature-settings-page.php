@@ -368,7 +368,7 @@ class Feature_Settings_Page {
 				esc_attr( $id ),
 				esc_attr( $meta['icon'] ),
 				esc_html( $meta['label'] ),
-				$count_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed markup with escaped integers.
+				wp_kses_post( $count_html )
 			);
 		}
 		echo '</nav>';

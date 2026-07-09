@@ -5,14 +5,29 @@
   "version": "1.0.0",
   "title": "Hero Carousel",
   "category": "aggressive-apparel",
-  "description": "A full-bleed hero slider built from Cover blocks. Ken Burns backgrounds, autoplay with pause control, and adaptive light/dark chrome.",
-  "keywords": ["carousel", "slider", "hero", "slideshow", "cover", "ken burns"],
+  "description": "A full-bleed hero slider built from Cover blocks. Background motion effects, autoplay with pause control, and adaptive light/dark chrome.",
+  "keywords": [
+    "carousel",
+    "slider",
+    "hero",
+    "slideshow",
+    "cover",
+    "motion",
+    "animation"
+  ],
   "allowedBlocks": ["core/cover"],
   "supports": {
     "html": false,
     "interactivity": true,
     "align": ["wide", "full"],
     "anchor": true,
+    "color": {
+      "background": false,
+      "text": false,
+      "heading": false,
+      "button": false,
+      "link": false
+    },
     "spacing": {
       "margin": true
     }
@@ -69,12 +84,37 @@
       "type": "boolean",
       "default": false
     },
-    "kenBurns": {
+    "motion": {
       "type": "string",
       "default": "alternate",
-      "enum": ["none", "zoom-in", "zoom-out", "alternate", "random"]
+      "enum": [
+        "none",
+        "zoom-in",
+        "zoom-out",
+        "pan-left",
+        "pan-right",
+        "pan-up",
+        "pan-down",
+        "diagonal",
+        "zoom-pan",
+        "punch-in",
+        "pull-back",
+        "breathe",
+        "idle-sway",
+        "blur-sharp",
+        "brightness",
+        "colorize",
+        "clip-reveal",
+        "slide-in",
+        "scale-edge",
+        "tilt",
+        "orbit",
+        "grain",
+        "alternate",
+        "random"
+      ]
     },
-    "kenBurnsDuration": {
+    "motionDuration": {
       "type": "number",
       "default": 12
     },

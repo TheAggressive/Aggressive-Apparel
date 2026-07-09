@@ -310,7 +310,7 @@ class Frequently_Bought_Together {
 					<?php echo esc_html( $product->get_name() ); ?>
 				</a>
 				<span class="aa-fbt__card-price">
-					<?php echo wp_strip_all_tags( $product->get_price_html() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML, stripped to text. ?>
+					<?php echo esc_html( wp_strip_all_tags( $product->get_price_html() ) ); ?>
 				</span>
 			</div>
 			<label class="aa-fbt__checkbox" for="<?php echo esc_attr( $checkbox_id ); ?>">

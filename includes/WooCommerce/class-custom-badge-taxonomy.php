@@ -414,7 +414,7 @@ class Custom_Badge_Taxonomy {
 							printf(
 								/* translators: %s: system badge type name. */
 								esc_html__( 'System badge: %s — applied automatically by product conditions. Restyle it freely below.', 'aggressive-apparel' ),
-								'<strong>' . esc_html( ucwords( str_replace( '_', ' ', $d['badge_type'] ) ) ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+								wp_kses_post( '<strong>' . esc_html( ucwords( str_replace( '_', ' ', $d['badge_type'] ) ) ) . '</strong>' )
 							);
 							?>
 						</span>
@@ -447,7 +447,7 @@ class Custom_Badge_Taxonomy {
 							printf(
 								'<label><input type="radio" name="aa_badge_icon_source" value="%1$s" %2$s /><span>%3$s</span></label>',
 								esc_attr( $val ),
-								checked( $icon_source, $val, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe attr.
+								checked( $icon_source, $val, false ),
 								esc_html( $label )
 							);
 						}
@@ -546,7 +546,7 @@ class Custom_Badge_Taxonomy {
 			esc_attr( $name ),
 			esc_html( $label ),
 			esc_attr( $value ),
-			'' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
 		);
 	}
 
@@ -569,7 +569,7 @@ class Custom_Badge_Taxonomy {
 			esc_attr( (string) $value ),
 			(int) $min,
 			(int) $max,
-			'' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
 		);
 	}
 
@@ -610,7 +610,7 @@ class Custom_Badge_Taxonomy {
 			$opts .= sprintf(
 				'<option value="%1$s" %2$s>%3$s</option>',
 				esc_attr( (string) $value ),
-				selected( $selected, (string) $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safe attr.
+				selected( $selected, (string) $value, false ),
 				esc_html( $text )
 			);
 		}
@@ -619,8 +619,8 @@ class Custom_Badge_Taxonomy {
 			'<div class="aa-badge-control"><label for="%1$s">%2$s</label><select name="%1$s" id="%1$s">%3$s</select>%4$s</div>',
 			esc_attr( $name ),
 			esc_html( $label ),
-			$opts, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- options escaped above.
-			'' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+			wp_kses_post( $opts ),
+			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
 		);
 	}
 

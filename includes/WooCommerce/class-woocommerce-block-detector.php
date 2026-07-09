@@ -455,15 +455,10 @@ class WooCommerce_Block_Detector {
 			? 'parts/' . $slug . '.html'
 			: 'templates/' . $slug . '.html';
 
-		$file_path = get_theme_file_path( $relative_path );
+		$file_path    = get_theme_file_path( $relative_path );
+		$file_content = aggressive_apparel_read_theme_file( $file_path );
 
-		if ( ! is_readable( $file_path ) ) {
-			return false;
-		}
-
-		$file_content = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-
-		return is_string( $file_content ) && self::content_has_woocommerce_blocks( $file_content );
+		return false !== $file_content && self::content_has_woocommerce_blocks( $file_content );
 	}
 
 	/**

@@ -95,30 +95,6 @@ $context = wp_json_encode(
 	JSON_HEX_TAG | JSON_HEX_AMP
 );
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'id'                          => $trigger_id,
-		'class'                       => implode(
-			' ',
-			array(
-				'aa-nav-trigger',
-				'aa-nav-trigger--' . sanitize_html_class( $icon_style ),
-				'aa-nav-trigger--anim-' . sanitize_html_class( $anim_type ),
-			)
-		),
-		'type'                        => 'button',
-		'aria-expanded'               => 'false',
-		'aria-controls'               => $panel_id,
-		'aria-label'                  => esc_attr( $label ),
-		'data-wp-interactive'         => 'aggressive-apparel/navigation-panel',
-		'data-wp-context'             => $context ? $context : '{}',
-		'data-wp-init'                => 'callbacks.initTrigger',
-		'data-wp-on--click'           => 'actions.toggle',
-		'data-wp-bind--aria-expanded' => 'state.isOpen',
-		'data-wp-class--is-active'    => 'state.isOpen',
-	)
-);
-
 // Pre-hydration visibility: show the trigger below its configured breakpoint
 // until callbacks.initTrigger adds .is-hydrated and JS takes over. Scoped to this
 // trigger's id so it honours a custom breakpoint — a static CSS media query in
@@ -126,12 +102,34 @@ $wrapper_attributes = get_block_wrapper_attributes(
 printf(
 	'<style>@media (max-width:%1$dpx){#%2$s:not(.is-hydrated){display:flex}}</style>',
 	(int) ( $breakpoint - 1 ),
-	esc_attr( $trigger_id ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr applied; breakpoint is an int.
+	esc_attr( $trigger_id )
 );
 
 printf(
 	'<button %s>%s%s</button>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes.
-	$icon_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
-	$label_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+	get_block_wrapper_attributes(
+		array(
+			'id'                          => $trigger_id,
+			'class'                       => implode(
+				' ',
+				array(
+					'aa-nav-trigger',
+					'aa-nav-trigger--' . sanitize_html_class( $icon_style ),
+					'aa-nav-trigger--anim-' . sanitize_html_class( $anim_type ),
+				)
+			),
+			'type'                        => 'button',
+			'aria-expanded'               => 'false',
+			'aria-controls'               => $panel_id,
+			'aria-label'                  => esc_attr( $label ),
+			'data-wp-interactive'         => 'aggressive-apparel/navigation-panel',
+			'data-wp-context'             => $context ? $context : '{}',
+			'data-wp-init'                => 'callbacks.initTrigger',
+			'data-wp-on--click'           => 'actions.toggle',
+			'data-wp-bind--aria-expanded' => 'state.isOpen',
+			'data-wp-class--is-active'    => 'state.isOpen',
+		)
+	),
+	wp_kses_post( $icon_html ),
+	wp_kses_post( $label_html )
 );

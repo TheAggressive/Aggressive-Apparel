@@ -528,12 +528,6 @@
 			opacity: 0 !important;
 			transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance)) !important;
 		}
-
-
-
-
-
-
 	}
 
 	/* ==========================================================================
@@ -742,11 +736,6 @@
 		opacity: 0;
 	}
 }
-
-
-
-
-
 
 /* ==========================================================================
    8. DEBUG OVERLAYS - Enhanced UI with Glassmorphism

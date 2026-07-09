@@ -93,12 +93,7 @@ class Adaptive_Colors {
 			return;
 		}
 
-		$contents = file_get_contents( $theme_json_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( false === $contents ) {
-			return;
-		}
-
-		$data = json_decode( $contents, true );
+		$data = wp_json_file_decode( $theme_json_path, array( 'associative' => true ) );
 		if ( ! is_array( $data ) ) {
 			return;
 		}

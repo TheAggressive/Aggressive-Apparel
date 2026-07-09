@@ -1,0 +1,176 @@
+/**
+ * Hero Carousel — base layout, track engine, transition modes.
+ *
+ * Chrome colors resolve through `--aa-hero-*` custom properties that default
+ * to the adaptive `--aa-*` palette; block attributes override them inline.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-hero {
+  --aa-hero-min-height: 85svh;
+  --aa-hero-transition-ms: 700ms;
+  --aa-hero-motion-duration: 12s;
+  --aa-hero-motion-scale: 1.08;
+  --aa-hero-motion-pan-scale: 1.15;
+  --aa-hero-motion-pan: 4%;
+  --aa-hero-autoplay-ms: 6000ms;
+  --aa-hero-arrow-color: var(--aa-color-foreground, currentcolor);
+  --aa-hero-arrow-bg: color-mix(in oklch, var(--aa-color-surface) 65%, transparent);
+  --aa-hero-dot-color: color-mix(in oklch, var(--wp--preset--color--white) 55%, transparent);
+  --aa-hero-dot-active-color: var(--wp--preset--color--white);
+  --aa-hero-chrome-gap: var(--wp--preset--spacing--4, 1rem);
+
+  position: relative;
+}
+
+.aa-hero__viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Track engine                                                            */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__track {
+  display: grid;
+}
+
+/* Slide mode: native scroll-snap track — touch momentum for free. */
+.aa-hero--slide .aa-hero__track {
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.aa-hero--slide .aa-hero__track::-webkit-scrollbar {
+  display: none;
+}
+
+.aa-hero--slide .aa-hero__slide {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Edge clones are decorative scroll fillers — never run entrance/motion/grain. */
+.aa-hero__slide[data-aa-hero-clone] .wp-block-cover__image-background,
+.aa-hero__slide[data-aa-hero-clone] .wp-block-cover__video-background,
+.aa-hero__slide[data-aa-hero-clone] .wp-block-cover__inner-container > *,
+.aa-hero__slide[data-aa-hero-clone] > .wp-block-cover::after {
+  animation: none !important;
+}
+
+.aa-hero__slide[data-aa-hero-clone] > .wp-block-cover::after {
+  opacity: 0;
+}
+
+/*
+ * After a seamless wrap snap, skip background-motion re-entrance for this
+ * dwell (the wrap already showed the media). Content entrance is intentionally
+ * NOT settled — clones keep content hidden so the real slide can play entrance
+ * fresh when it becomes active again.
+ */
+.aa-hero__slide--settle.is-active .wp-block-cover__image-background,
+.aa-hero__slide--settle.is-active .wp-block-cover__video-background,
+.aa-hero__slide--settle.is-active > .wp-block-cover::after {
+  animation: none !important;
+}
+
+.aa-hero__slide--settle.is-active > .wp-block-cover::after {
+  opacity: 0.28;
+}
+
+/*
+ * Outgoing slide: JS pins transform/filter/clip-path inline at the live
+ * animated values, then this class drops the keyframe so removing
+ * `.is-active` does not snap media back to identity mid-transition.
+ */
+.aa-hero__slide--motion-hold .wp-block-cover__image-background,
+.aa-hero__slide--motion-hold .wp-block-cover__video-background {
+  animation: none !important;
+}
+
+.aa-hero__slide--motion-hold > .wp-block-cover::after {
+  animation: none !important;
+}
+
+/* Fade mode: absolutely stacked slides, opacity-only transitions. */
+.aa-hero--fade .aa-hero__track {
+  grid-template-areas: 'slide';
+}
+
+.aa-hero--fade .aa-hero__slide {
+  grid-area: slide;
+  opacity: 0;
+  transition: opacity var(--aa-hero-transition-ms) ease;
+  pointer-events: none;
+}
+
+.aa-hero--fade .aa-hero__slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Crossfade + zoom: fade stack with a subtle scale-in on the whole slide.
+   The slide-level scale is independent of the background-motion transform (which
+   targets the inner Cover media), so the two compose without conflict. */
+.aa-hero--crossfade .aa-hero__track {
+  grid-template-areas: 'slide';
+}
+
+.aa-hero--crossfade .aa-hero__slide {
+  grid-area: slide;
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity var(--aa-hero-transition-ms) ease,
+    transform var(--aa-hero-transition-ms) cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.aa-hero--crossfade .aa-hero__slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------- */
+
+/* Slides (Cover blocks)                                                   */
+
+/* ---------------------------------------------------------------------- */
+
+.aa-hero__slide {
+  position: relative;
+  min-height: 85vh; /* Fallback when svh units are unsupported. */
+  min-height: var(--aa-hero-min-height);
+  overflow: hidden;
+  display: grid;
+}
+
+.aa-hero__slide:focus {
+  outline: none;
+}
+
+.aa-hero__slide:focus-visible {
+  outline: 2px solid var(--aa-color-accent, currentcolor);
+  outline-offset: -2px;
+}
+
+/* The Cover is the slide's sizing contract — fill the slide box and let
+   the carousel's min-height win over the Cover's own inline min-height. */
+.aa-hero__slide > .wp-block-cover {
+  height: 100%;
+  min-height: 100% !important;
+  margin: 0;
+}
+

@@ -56,9 +56,11 @@
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
+  scroll-behavior: smooth;
 }
 
-.aa-hero-editor--strip .aa-hero-editor__track > .wp-block-cover {
+.aa-hero-editor--strip .aa-hero-editor__track > .wp-block-cover,
+.aa-hero-editor--strip .aa-hero-editor__track > .block-editor-block-list__block {
   scroll-snap-align: start;
   min-height: var(--aa-hero-min-height, 85svh);
   margin: 0;

@@ -62,15 +62,13 @@ $aa_count_html = sprintf(
 	$aa_count_text
 );
 
-$aa_wrapper = get_block_wrapper_attributes(
-	array(
-		'class' => 'aa-product-rating' . ( '' !== $aa_align ? ' has-text-align-' . $aa_align : '' ),
-	)
-);
-
 printf(
 	'<div %1$s><div class="aa-product-rating__container">%2$s<span class="aa-product-rating__count">%3$s</span></div></div>',
-	$aa_wrapper, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by WordPress.
+	get_block_wrapper_attributes(
+		array(
+			'class' => 'aa-product-rating' . ( '' !== $aa_align ? ' has-text-align-' . $aa_align : '' ),
+		)
+	),
 	Rating::stars( $aa_rating ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup; scalars escaped inside the renderer.
-	$aa_count_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Review count escaped above; surrounding markup is static.
+	wp_kses_post( $aa_count_html )
 );

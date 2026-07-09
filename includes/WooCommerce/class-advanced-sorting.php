@@ -252,10 +252,11 @@ class Advanced_Sorting {
 	 * Returns product IDs in the requested sort order. The frontend
 	 * uses these IDs with the Store API `include` param.
 	 *
-	 * @param \WP_REST_Request<array<string, mixed>> $request Request object.
+	 * @param \WP_REST_Request $request Request object.
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 * @return \WP_REST_Response Response with sorted IDs.
 	 */
-	public function handle_sorted_products( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint
+	public function handle_sorted_products( \WP_REST_Request $request ): \WP_REST_Response {
 		if ( $this->is_rate_limited() ) {
 			$response = new \WP_REST_Response(
 				array( 'error' => 'rate_limited' ),

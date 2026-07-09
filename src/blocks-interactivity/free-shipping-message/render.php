@@ -49,15 +49,6 @@ $context = (string) wp_json_encode(
 	)
 );
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'               => 'aggressive-apparel-free-shipping-message',
-		'data-wp-interactive' => 'aggressive-apparel/free-shipping-message',
-		'data-wp-context'     => $context,
-		'data-wp-init'        => 'callbacks.init',
-	)
-);
-
 $prefix_markup = Icon_Block::render_wrapped_svg(
 	$prefix_icon,
 	$icon_size,
@@ -73,7 +64,18 @@ $suffix_markup = Icon_Block::render_wrapped_svg(
 	)
 );
 ?>
-<span <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by get_block_wrapper_attributes(). ?>>
+<span
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'               => 'aggressive-apparel-free-shipping-message',
+			'data-wp-interactive' => 'aggressive-apparel/free-shipping-message',
+			'data-wp-context'     => $context,
+			'data-wp-init'        => 'callbacks.init',
+		)
+	);
+	?>
+>
 	<?php if ( '' !== $prefix_markup ) : ?>
 		<?php echo $prefix_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
 	<?php endif; ?>

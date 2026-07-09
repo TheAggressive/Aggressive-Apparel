@@ -372,8 +372,7 @@ class Quick_View {
 								hidden
 							>
 								<?php
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
-								echo Icons::get(
+								aggressive_apparel_render_icon(
 									'chevron-left',
 									array(
 										'width'  => 16,
@@ -412,8 +411,7 @@ class Quick_View {
 								hidden
 							>
 								<?php
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icons::get() returns safe SVG.
-								echo Icons::get(
+								aggressive_apparel_render_icon(
 									'chevron-right',
 									array(
 										'width'  => 16,

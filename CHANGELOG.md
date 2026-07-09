@@ -1,3 +1,10 @@
+# [1.141.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.140.1...v1.141.0) (2026-07-09)
+
+
+### Features
+
+* enhance hero carousel block with background motion effects ([a30d8ac](https://github.com/TheAggressive/Aggressive-Apparel/commit/a30d8aca0d9bbdcb457ab67b88d946e13af7299e))
+
 ## [1.140.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.140.0...v1.140.1) (2026-07-08)
 
 

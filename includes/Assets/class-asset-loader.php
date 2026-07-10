@@ -97,13 +97,20 @@ class Asset_Loader {
 	/**
 	 * Enqueue style with asset data
 	 *
-	 * Automatically reads dependencies and version from .asset.php file.
+	 * Uses the version hash from `.asset.php` when present. Style dependencies
+	 * must be passed via `$additional_deps` — never taken from `.asset.php`.
+	 *
+	 * JS entry manifests list script handles (`react-jsx-runtime`, `wp-element`,
+	 * etc.). Passing those as style deps makes WordPress silently drop the
+	 * stylesheet, which is how extracted companion CSS (e.g. Adaptive Color
+	 * editor chrome) can fail to load in production.
+	 *
 	 * Automatically serves the RTL variant on RTL sites when it exists.
 	 *
-	 * @param string $handle         Style handle.
-	 * @param string $src            Path to style file relative to theme root (no extension).
-	 * @param array  $additional_deps Additional dependencies not in asset file.
-	 * @param string $media          Media attribute.
+	 * @param string $handle          Style handle.
+	 * @param string $src             Path to style file relative to theme root (no extension).
+	 * @param array  $additional_deps Style dependencies (registered style handles only).
+	 * @param string $media           Media attribute.
 	 * @return void
 	 */
 	public static function enqueue_style( $handle, $src, $additional_deps = array(), $media = 'all' ) {
@@ -113,7 +120,7 @@ class Asset_Loader {
 			: $src;
 
 		$asset_data   = self::get_asset_data( $src );
-		$dependencies = array_merge( $asset_data['dependencies'], $additional_deps );
+		$dependencies = $additional_deps;
 
 		if ( self::should_depend_on_tokens( $handle, $src ) && ! in_array( self::TOKENS_HANDLE, $dependencies, true ) ) {
 			$dependencies[] = self::TOKENS_HANDLE;

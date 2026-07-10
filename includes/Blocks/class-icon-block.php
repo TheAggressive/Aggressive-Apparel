@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Blocks;
 
+use Aggressive_Apparel\Core\Cache_Helper;
 use Aggressive_Apparel\Core\Icons;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -38,6 +39,11 @@ class Icon_Block {
 	 * Size (px) of the thumbnails shown beside each option in the editor picker.
 	 */
 	private const PREVIEW_SIZE = 24;
+
+	/**
+	 * Transient TTL for the editor icon list payload.
+	 */
+	private const LIST_CACHE_TTL = DAY_IN_SECONDS;
 
 	/**
 	 * Hook REST routes.
@@ -182,20 +188,32 @@ class Icon_Block {
 	/**
 	 * Return sorted icons (slug + thumbnail SVG) for the block editor combobox.
 	 *
+	 * The full library render is expensive (every brand definition is loaded),
+	 * so the payload is stored in a theme-versioned transient (see LIST_CACHE_TTL).
+	 *
 	 * @return WP_REST_Response
 	 */
 	public static function get_icon_list(): WP_REST_Response {
-		$slugs = Icons::list();
-		sort( $slugs );
+		$icons = Cache_Helper::remember(
+			self::list_cache_key(),
+			self::LIST_CACHE_TTL,
+			static function (): array {
+				$slugs = Icons::list();
+				sort( $slugs );
 
-		$icons = array_map(
-			static function ( string $slug ): array {
-				return array(
-					'slug' => $slug,
-					'svg'  => self::render_svg( $slug, self::PREVIEW_SIZE ),
+				return array_map(
+					static function ( string $slug ): array {
+						return array(
+							'slug' => $slug,
+							'svg'  => self::render_svg( $slug, self::PREVIEW_SIZE ),
+						);
+					},
+					$slugs
 				);
 			},
-			$slugs
+			static function ( $cached ): bool {
+				return is_array( $cached );
+			}
 		);
 
 		return new WP_REST_Response(
@@ -204,6 +222,26 @@ class Icon_Block {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Transient key for the editor icon list (busts on theme version change).
+	 */
+	private static function list_cache_key(): string {
+		$version = defined( 'AGGRESSIVE_APPAREL_VERSION' )
+			? (string) AGGRESSIVE_APPAREL_VERSION
+			: '0';
+
+		return 'aa_icon_list_' . md5( $version );
+	}
+
+	/**
+	 * Drop the cached editor icon list (tests / manual invalidation).
+	 *
+	 * @internal
+	 */
+	public static function flush_list_cache_for_tests(): void {
+		delete_transient( self::list_cache_key() );
 	}
 
 	/**

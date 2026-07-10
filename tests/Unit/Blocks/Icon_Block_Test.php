@@ -43,6 +43,7 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		Icon_Block::flush_list_cache_for_tests();
 		Brand_Icons::init();
 	}
 
@@ -51,6 +52,7 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		remove_all_filters( 'aggressive_apparel_icon_definitions' );
+		Icon_Block::flush_list_cache_for_tests();
 		Brand_Icons::flush_cache_for_tests();
 		Icons::flush_cache_for_tests();
 		parent::tearDown();
@@ -62,6 +64,8 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	public function test_get_icon_list_returns_sorted_slugs(): void {
 		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
 		wp_set_current_user( $editor_id );
+
+		Icon_Block::flush_list_cache_for_tests();
 
 		$response = Icon_Block::get_icon_list();
 		$data     = $response->get_data();
@@ -81,6 +85,22 @@ class Icon_Block_Test extends WP_UnitTestCase {
 		$sorted = $slugs;
 		sort( $sorted );
 		$this->assertSame( $sorted, $slugs );
+	}
+
+	/**
+	 * The editor icon list is served from a transient after the first build.
+	 */
+	public function test_get_icon_list_reuses_transient_cache(): void {
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+
+		Icon_Block::flush_list_cache_for_tests();
+
+		$first  = Icon_Block::get_icon_list()->get_data();
+		$second = Icon_Block::get_icon_list()->get_data();
+
+		$this->assertSame( $first['icons'], $second['icons'] );
+		$this->assertNotEmpty( $first['icons'] );
 	}
 
 	/**

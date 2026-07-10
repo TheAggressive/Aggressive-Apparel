@@ -1,19 +1,15 @@
 /**
  * Fetch icon SVG markup for the block editor canvas.
  *
- * Fetches once per slug and scales via CSS on the wrapper — no refetch while
- * dragging a size slider.
+ * Uses the shared icon library cache. List thumbnails seed the same map, so
+ * canvas previews usually skip a second REST round-trip. Size is applied via
+ * CSS on the wrapper — no refetch while dragging a size slider.
  *
  * @package Aggressive_Apparel
  */
 
-import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-
-interface IconPreviewResponse {
-  slug: string;
-  svg: string;
-}
+import { fetchIconSvg } from './icon-library';
 
 export interface UseIconPreviewResult {
   svg: string;
@@ -40,12 +36,10 @@ export function useIconPreview(slug: string): UseIconPreviewResult {
       setIsLoading(true);
 
       try {
-        const response = await apiFetch<IconPreviewResponse>({
-          path: `/aggressive-apparel/v1/icons/${encodeURIComponent(slug)}`,
-        });
+        const markup = await fetchIconSvg(slug);
 
         if (!cancelled) {
-          setSvg(response.svg ?? '');
+          setSvg(markup);
         }
       } catch {
         if (!cancelled) {

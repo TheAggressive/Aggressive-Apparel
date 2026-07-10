@@ -4,19 +4,10 @@
  * @package Aggressive_Apparel
  */
 
-import apiFetch from '@wordpress/api-fetch';
 import { ComboboxControl, Notice, Spinner } from '@wordpress/components';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-interface IconListItem {
-  slug: string;
-  svg: string;
-}
-
-interface IconListResponse {
-  icons: IconListItem[];
-}
+import { useIconList } from './use-icon-list';
 
 export interface IconComboboxControlProps {
   label: string;
@@ -33,49 +24,10 @@ export function IconComboboxControl({
   allowNone = false,
   help,
 }: IconComboboxControlProps) {
-  const [iconList, setIconList] = useState<IconListItem[]>([]);
-  const [iconsLoading, setIconsLoading] = useState(true);
-  const [iconsError, setIconsError] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadIcons = async () => {
-      setIconsLoading(true);
-      setIconsError('');
-
-      try {
-        const response = await apiFetch<IconListResponse>({
-          path: '/aggressive-apparel/v1/icons',
-        });
-
-        if (cancelled) {
-          return;
-        }
-
-        setIconList(response.icons ?? []);
-      } catch {
-        if (!cancelled) {
-          setIconsError(
-            __('Could not load icon library.', 'aggressive-apparel')
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setIconsLoading(false);
-        }
-      }
-    };
-
-    void loadIcons();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { icons, isLoading, error } = useIconList();
 
   const iconOptions = useMemo(() => {
-    const options = iconList.map(({ slug }) => ({
+    const options = icons.map(({ slug }) => ({
       label: slug,
       value: slug,
     }));
@@ -88,27 +40,27 @@ export function IconComboboxControl({
     }
 
     return options;
-  }, [allowNone, iconList]);
+  }, [allowNone, icons]);
 
   const iconThumbnails = useMemo(() => {
     const thumbnails = new Map<string, string>();
 
-    iconList.forEach(({ slug, svg }) => {
+    icons.forEach(({ slug, svg }) => {
       thumbnails.set(slug, svg);
     });
 
     return thumbnails;
-  }, [iconList]);
+  }, [icons]);
 
-  if (iconsError) {
+  if (error) {
     return (
       <Notice status='error' isDismissible={false}>
-        {iconsError}
+        {error}
       </Notice>
     );
   }
 
-  if (iconsLoading) {
+  if (isLoading) {
     return <Spinner />;
   }
 

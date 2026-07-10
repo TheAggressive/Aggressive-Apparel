@@ -1,3 +1,10 @@
+# [1.142.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.141.1...v1.142.0) (2026-07-10)
+
+
+### Features
+
+* implement caching for icon list in block editor ([b3b5811](https://github.com/TheAggressive/Aggressive-Apparel/commit/b3b5811ae944de72fee8f7add5ffbf7a106ae416))
+
 ## [1.141.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.141.0...v1.141.1) (2026-07-10)
 
 

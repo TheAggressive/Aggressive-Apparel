@@ -264,7 +264,6 @@ class Product_Tabs_Renderer {
 			}
 			$href = $link->getAttribute( 'href' );
 			$id   = ltrim( $href, '#' );
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMElement property.
 			$text = trim( $link->textContent );
 			if ( '' !== $id && '' !== $text ) {
 				$titles[] = array(
@@ -287,14 +286,11 @@ class Product_Tabs_Renderer {
 					$scripts = $xpath->query( './/script', $panel_node );
 					if ( $scripts ) {
 						foreach ( $scripts as $script ) {
-							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode property.
 							if ( $script->parentNode ) {
-								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode property.
 								$script->parentNode->removeChild( $script );
 							}
 						}
 					}
-					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMElement property.
 					foreach ( $panel_node->childNodes as $child ) {
 						$inner_html .= $doc->saveHTML( $child );
 					}

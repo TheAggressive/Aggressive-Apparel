@@ -1,0 +1,164 @@
+/**
+ * Adaptive Color — editor sidebar / popover chrome.
+ *
+ * Uses fixed WordPress admin colors (not --aa-* tokens). Theme adaptive
+ * tokens often fail to resolve in editor chrome and caused white-on-white text.
+ */
+
+.aa-adaptive-color-row {
+	margin-bottom: 8px;
+}
+
+.aa-adaptive-color-row__dropdown {
+	position: relative;
+	width: 100%;
+}
+
+.aa-adaptive-color-row__toggle.components-button {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: auto;
+	min-height: 52px;
+
+	/* Leave a slot for the absolute reset so it never covers swatches. */
+	padding: 10px 44px 10px 12px;
+	text-align: left;
+	justify-content: flex-start;
+	box-shadow: inset 0 0 0 1px #ddd;
+	border-radius: 2px;
+	background: #fff;
+}
+
+.aa-adaptive-color-row__toggle.components-button:hover,
+.aa-adaptive-color-row__toggle.components-button:focus {
+	box-shadow: inset 0 0 0 1px #999;
+}
+
+.aa-adaptive-color-row__toggle.components-button.is-open {
+	background: #f0f0f0;
+	color: var(--wp-admin-theme-color);
+	box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
+}
+
+.aa-adaptive-color-row__content {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	width: 100%;
+	min-width: 0;
+}
+
+.aa-adaptive-color-row__label {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.aa-adaptive-color-row__swatches {
+	display: flex;
+	align-items: flex-end;
+	gap: 14px;
+	flex: 0 0 auto;
+}
+
+.aa-adaptive-color-row__swatch {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+}
+
+.aa-adaptive-color-row__swatch .component-color-indicator {
+	width: 28px;
+	height: 28px;
+}
+
+.aa-adaptive-color-row__swatch-icon {
+	display: flex;
+	color: #1e1e1e;
+	line-height: 0;
+}
+
+.aa-adaptive-color-row__toggle.is-open .aa-adaptive-color-row__swatch-icon {
+	color: currentcolor;
+}
+
+/*
+ * Core pins reset at top: 8px / right: 0 for single-line color rows.
+ * Center it in the reserved right slot on our taller dual-swatch rows.
+ */
+.aa-adaptive-color-row
+	.block-editor-panel-color-gradient-settings__reset.block-editor-panel-color-gradient-settings__reset {
+	inset: 50% 8px auto auto;
+	margin: 0;
+	transform: translateY(-50%);
+}
+
+.aa-adaptive-color-row__toggle:hover
+	+ .block-editor-panel-color-gradient-settings__reset,
+.aa-adaptive-color-row .block-editor-panel-color-gradient-settings__reset:focus,
+.aa-adaptive-color-row .block-editor-panel-color-gradient-settings__reset:hover {
+	opacity: 1;
+}
+
+/* Compact popover — match Light width; don't let long color-mix() values expand Dark. */
+.aa-adaptive-color-row .block-editor-panel-color-gradient-settings__dropdown-content {
+	box-sizing: border-box;
+	width: 280px !important;
+	min-width: 280px !important;
+	max-width: 280px !important;
+	min-height: 0;
+	max-height: min(70vh, 520px);
+	overflow: hidden auto;
+	color: #1e1e1e;
+}
+
+.aa-adaptive-color-row .aa-adaptive-color-picker,
+.aa-adaptive-color-row .aa-adaptive-color-picker .components-v-stack,
+.aa-adaptive-color-row .components-color-palette__custom-color-wrapper,
+.aa-adaptive-color-row .components-color-palette__custom-color-text-wrapper {
+	min-width: 0 !important;
+	max-width: 100% !important;
+	overflow: hidden;
+}
+
+/*
+ * Keep the popover width fixed; wrap long color-mix() values onto extra lines
+ * instead of expanding Dark wider than Light.
+ */
+.aa-adaptive-color-row .components-color-palette__custom-color-name,
+.aa-adaptive-color-row .components-color-palette__custom-color-value {
+	display: block;
+	width: 100%;
+	max-width: 248px; /* 280px panel − 32px padding. */
+	overflow-wrap: anywhere;
+	white-space: normal;
+	color: #1e1e1e;
+}
+
+.aa-adaptive-color-row .components-color-palette__custom-color-value {
+	color: #757575;
+}
+
+.aa-adaptive-color-row
+	.aa-adaptive-color-picker
+	.components-circular-option-picker__custom-clear-wrapper {
+	justify-content: center;
+}
+
+.aa-adaptive-color-popover {
+	width: 280px !important;
+	max-width: 280px !important;
+}
+
+.aa-adaptive-color-popover .components-popover__content {
+	width: 280px !important;
+	max-width: 280px !important;
+	overflow-x: hidden;
+}

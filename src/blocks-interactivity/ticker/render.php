@@ -124,32 +124,35 @@ if ( $has_pattern ) {
 	$classes[] = 'has-pattern-' . sanitize_html_class( $pattern );
 }
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'                    => implode( ' ', $classes ),
-		'style'                    => $inline_style,
-		'data-ticker-speed'        => (string) max( 1, $speed ),
-		'data-ticker-direction'    => $ticker_direction,
-		'data-wp-interactive'      => 'aggressive-apparel/ticker',
-		'data-wp-context'          => wp_json_encode(
-			array(
-				'isPaused'     => false,
-				'pauseOnHover' => $pause_on_hover,
-			)
-		),
-		'data-wp-init'             => 'callbacks.init',
-		'data-wp-class--is-paused' => 'context.isPaused',
-		'data-wp-on--mouseenter'   => 'actions.mouseEnter',
-		'data-wp-on--mouseleave'   => 'actions.mouseLeave',
-		'data-wp-on--focusin'      => 'actions.focusIn',
-		'data-wp-on--focusout'     => 'actions.focusOut',
-		'role'                     => 'marquee',
-		'aria-live'                => 'off',
-	)
-);
 ?>
 
-<div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'                    => implode( ' ', $classes ),
+			'style'                    => $inline_style,
+			'data-ticker-speed'        => (string) max( 1, $speed ),
+			'data-ticker-direction'    => $ticker_direction,
+			'data-wp-interactive'      => 'aggressive-apparel/ticker',
+			'data-wp-context'          => wp_json_encode(
+				array(
+					'isPaused'     => false,
+					'pauseOnHover' => $pause_on_hover,
+				)
+			),
+			'data-wp-init'             => 'callbacks.init',
+			'data-wp-class--is-paused' => 'context.isPaused',
+			'data-wp-on--mouseenter'   => 'actions.mouseEnter',
+			'data-wp-on--mouseleave'   => 'actions.mouseLeave',
+			'data-wp-on--focusin'      => 'actions.focusIn',
+			'data-wp-on--focusout'     => 'actions.focusOut',
+			'role'                     => 'marquee',
+			'aria-live'                => 'off',
+		)
+	);
+	?>
+>
 
 	<?php if ( $has_pattern ) : ?>
 	<span class="ticker__pattern"<?php echo $pattern_style ? ' style="' . esc_attr( $pattern_style ) . '"' : ''; ?> aria-hidden="true" inert></span>
@@ -165,7 +168,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		></span>
 		<?php endif; ?>
 		<?php if ( '' !== $label_icon_markup ) : ?>
-			<?php echo $label_icon_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
+			<?php echo aggressive_apparel_trusted_html( $label_icon_markup ); ?>
 		<?php else : ?>
 			<?php echo esc_html( $label_text ); ?>
 		<?php endif; ?>
@@ -175,16 +178,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	<div class="ticker__scroll<?php echo $fade_edges ? ' has-fade-edges' : ''; ?>">
 		<div class="ticker__track">
 			<div class="ticker__content">
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped by the block editor
-				echo $content;
-				?>
+				<?php echo aggressive_apparel_trusted_html( $content ); ?>
 			</div>
 			<div class="ticker__content" aria-hidden="true" inert>
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Duplicate for seamless loop, original is escaped by block editor
-				echo $content;
-				?>
+				<?php echo aggressive_apparel_trusted_html( $content ); ?>
 			</div>
 		</div>
 	</div>

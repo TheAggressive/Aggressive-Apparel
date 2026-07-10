@@ -12,15 +12,19 @@
 
 declare(strict_types=1);
 
-$media_url         = $attributes['mediaUrl'] ?? '';
-$media_alt         = $attributes['mediaAlt'] ?? '';
-$hotspots          = $attributes['hotspots'] ?? array();
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$media_url         = isset( $attributes['mediaUrl'] ) ? esc_url_raw( (string) $attributes['mediaUrl'] ) : '';
+$media_alt         = isset( $attributes['mediaAlt'] ) ? sanitize_text_field( (string) $attributes['mediaAlt'] ) : '';
+$hotspots          = isset( $attributes['hotspots'] ) && is_array( $attributes['hotspots'] ) ? $attributes['hotspots'] : array();
 $hotspot_bg_color  = sanitize_text_field( $attributes['hotspotBgColor'] ?? '' );
 $hotspot_txt_color = sanitize_text_field( $attributes['hotspotTextColor'] ?? '' );
 $card_bg_color     = sanitize_text_field( $attributes['cardBgColor'] ?? '' );
 $card_txt_color    = sanitize_text_field( $attributes['cardTextColor'] ?? '' );
 
-if ( empty( $media_url ) ) {
+if ( '' === $media_url ) {
 	return;
 }
 

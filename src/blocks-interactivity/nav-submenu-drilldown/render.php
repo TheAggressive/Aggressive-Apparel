@@ -58,7 +58,7 @@ if ( $has_url ) {
 		esc_url( $url ),
 		esc_attr( $submenu_id ),
 		esc_html( $label ),
-		$arrow_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+		aggressive_apparel_trusted_html( $arrow_html )
 	);
 } else {
 	$trigger_el = sprintf(
@@ -68,7 +68,7 @@ if ( $has_url ) {
 		</button>',
 		esc_attr( $submenu_id ),
 		esc_html( $label ),
-		$arrow_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+		aggressive_apparel_trusted_html( $arrow_html )
 	);
 }
 
@@ -122,11 +122,11 @@ printf(
 			'data-wp-on-window--aa-nav-panel-state-change' => 'callbacks.onSubmenuStateChange',
 		)
 	),
-	$trigger_el, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
+	aggressive_apparel_trusted_html( $trigger_el ),
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
-	$back_button, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
+	aggressive_apparel_trusted_html( $back_button ),
 	esc_attr( $label ),
 	wp_kses_post( $view_all_html ),
-	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
+	aggressive_apparel_trusted_html( $content )
 );

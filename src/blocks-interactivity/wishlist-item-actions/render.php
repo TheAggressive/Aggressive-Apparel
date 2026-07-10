@@ -27,16 +27,11 @@ if ( ! $show_remove && ! $show_add_to_cart ) {
 	return;
 }
 
-$heart_svg = '<svg class="aa-wl-item-actions__remove-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" aria-hidden="true" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
-
+$remove_aria = $remove_label
+	? $remove_label
+	: __( 'Remove from wishlist', 'aggressive-apparel' );
 ?>
-<div
-	<?php
-	echo get_block_wrapper_attributes(
-		array( 'class' => 'aa-wl-item-actions' )
-	);
-	?>
->
+<div <?php echo get_block_wrapper_attributes( array( 'class' => 'aa-wl-item-actions' ) ); ?>>
 
 	<?php if ( $show_add_to_cart ) : ?>
 	<a
@@ -52,11 +47,18 @@ $heart_svg = '<svg class="aa-wl-item-actions__remove-icon" viewBox="0 0 24 24" f
 		type="button"
 		class="aa-wl-item-actions__remove"
 		data-wp-on--click="actions.removeItem"
-		aria-label="<?php echo $remove_label ? esc_attr( $remove_label ) : esc_attr__( 'Remove from wishlist', 'aggressive-apparel' ); ?>"
+		aria-label="<?php echo esc_attr( $remove_aria ); ?>"
 	>
 		<?php
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
-		echo $heart_svg;
+		echo aggressive_apparel_get_icon(
+			'heart',
+			array(
+				'class'       => 'aa-wl-item-actions__remove-icon',
+				'width'       => 16,
+				'height'      => 16,
+				'aria-hidden' => 'true',
+			)
+		);
 		if ( $remove_label ) {
 			echo '<span class="aa-wl-item-actions__remove-label">' . esc_html( $remove_label ) . '</span>';
 		}

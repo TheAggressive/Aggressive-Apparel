@@ -258,6 +258,11 @@ class Adaptive_Colors {
 			array( 'wp-blocks', 'wp-hooks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-i18n' )
 		);
 
+		Asset_Loader::enqueue_style(
+			'aggressive-apparel-adaptive-colors',
+			'build/scripts/editor/adaptive-colors'
+		);
+
 		Asset_Loader::enqueue_script(
 			'aggressive-apparel-color-scheme-toggle',
 			'build/scripts/editor/color-scheme-toggle',

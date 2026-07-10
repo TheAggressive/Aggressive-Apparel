@@ -7,7 +7,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable WordPress.Files.FileName, WordPress.Classes.ClassFileName
 
 namespace Aggressive_Apparel\Tests\Unit\Blocks;
 

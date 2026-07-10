@@ -120,7 +120,7 @@ class Swatch_Tooltips {
 	 * @param string   $taxonomy Taxonomy slug.
 	 * @return void
 	 */
-	public function edit_term_fields( \WP_Term $term, string $taxonomy ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Required by WordPress hook signature.
+	public function edit_term_fields( \WP_Term $term, string $taxonomy ): void {
 
 		$fabric = get_term_meta( $term->term_id, 'fabric_name', true );
 		$comp   = get_term_meta( $term->term_id, 'fabric_composition', true );

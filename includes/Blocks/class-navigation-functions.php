@@ -271,8 +271,8 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 	static $critical_css_output = false;
 	if ( ! $critical_css_output ) {
 		$critical_css_output = true;
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static CSS literal, no user input.
-		echo '<style id="aa-nav-panel-critical">'
+		echo aggressive_apparel_trusted_html(
+			'<style id="aa-nav-panel-critical">'
 			. '.aa-nav-panel__portal{display:contents}'
 			. '.aa-nav__panel{position:fixed!important;top:0;bottom:0;z-index:100000;overflow:hidden;'
 			. 'width:var(--panel-width,min(320px,85vw));pointer-events:none;'
@@ -300,7 +300,8 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 			. 'body.has-search-modal-open .aa-nav__panel-overlay,'
 			. 'body.has-search-modal-open .aa-nav__panel.is-open{pointer-events:none!important}'
 			. '@media(prefers-reduced-motion:reduce){.aa-nav__panel{transition:none}.aa-nav__panel-overlay{transition:none}}'
-			. '</style>';
+			. '</style>'
+		);
 
 		// Also output a late <link> if the full stylesheet wasn't already printed
 		// in wp_head (covers the case where wp_enqueue_style() fired too late).
@@ -308,13 +309,12 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 		if ( ! wp_style_is( $style_handle, 'done' ) ) {
 			$registered = wp_styles()->registered;
 			if ( isset( $registered[ $style_handle ] ) && ! empty( $registered[ $style_handle ]->src ) ) {
-				// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Late fallback: wp_head already fired so wp_enqueue_style cannot output a <link> tag.
+				// Late fallback: wp_head already fired, so enqueue cannot print a link.
 				printf(
 					'<link rel="stylesheet" id="%s-css" href="%s">',
 					esc_attr( $style_handle ),
 					esc_url( $registered[ $style_handle ]->src )
 				);
-				// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
 			}
 		}
 	}
@@ -328,7 +328,7 @@ function aggressive_apparel_flush_nav_panel_blocks( array $panels ): void {
 		printf(
 			'<div class="aa-nav-panel__portal" hidden data-wp-interactive="aggressive-apparel/navigation-panel" data-wp-context=\'%s\' data-wp-init="callbacks.initPanel" data-wp-class--is-open="state.isOpen" data-wp-on-window--keydown="callbacks.onEscape">%s</div>',
 			esc_attr( $context ? $context : '{}' ),
-			$panel_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Panel HTML already escaped in render.php.
+			aggressive_apparel_trusted_html( $panel_html )
 		);
 	}
 }

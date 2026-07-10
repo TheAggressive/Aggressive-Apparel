@@ -16,8 +16,6 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\WooCommerce\Rating;
-
 if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'wc_reviews_enabled' ) ) {
 	return;
 }
@@ -69,6 +67,6 @@ printf(
 			'class' => 'aa-product-rating' . ( '' !== $aa_align ? ' has-text-align-' . $aa_align : '' ),
 		)
 	),
-	Rating::stars( $aa_rating ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup; scalars escaped inside the renderer.
+	aggressive_apparel_rating_stars( $aa_rating ),
 	wp_kses_post( $aa_count_html )
 );

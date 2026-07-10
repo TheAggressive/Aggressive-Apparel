@@ -109,25 +109,20 @@
   --width-wide: var(--wp--style--global--wide-size, 1400px);
 }
 
-/* Smooth transitions for dark/light mode toggle.
- * Scoped to .is-theme-transitioning to avoid a permanent universal
- * transition that causes jank on scroll, focus, and hover. The dark
- * mode toggle JS adds this class briefly during the switch. */
-.is-theme-transitioning,
-.is-theme-transitioning *,
-.is-theme-transitioning *::before,
-.is-theme-transitioning *::after {
-  transition: background-color var(--aa-duration-normal) var(--aa-ease-default),
-    color var(--aa-duration-normal) var(--aa-ease-default),
-    border-color var(--aa-duration-normal) var(--aa-ease-default) !important;
+/* Smooth theme switching via View Transitions API.
+ * light-dark() colors do not interpolate with CSS color transitions, so the
+ * dark-mode toggle uses document.startViewTransition() instead of a universal
+ * * { transition } rule (which felt delayed and often did nothing visible). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--aa-duration-normal, 300ms);
+  animation-timing-function: var(--aa-ease-default, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-  .is-theme-transitioning,
-  .is-theme-transitioning *,
-  .is-theme-transitioning *::before,
-  .is-theme-transitioning *::after {
-    transition: none !important;
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

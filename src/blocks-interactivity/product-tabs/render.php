@@ -92,5 +92,4 @@ if ( empty( $renderable_tabs ) ) {
 }
 
 // Render without a wrapper so the Product_Tabs_Renderer controls the root element.
-// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output from renderer is already escaped via kses inside.
-echo $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles );
+echo aggressive_apparel_trusted_html( $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles ) );

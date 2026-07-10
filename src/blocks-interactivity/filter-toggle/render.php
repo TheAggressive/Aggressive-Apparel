@@ -49,6 +49,8 @@ if ( ! Product_Filters::is_filterable_archive() ) {
 	return;
 }
 
+Product_Filters::ensure_assets();
+
 $default_label = Feature_Settings::get_filter_toggle_text();
 $label         = isset( $attributes['label'] ) ? (string) $attributes['label'] : $default_label;
 if ( __( 'Filter', 'aggressive-apparel' ) === $label ) {

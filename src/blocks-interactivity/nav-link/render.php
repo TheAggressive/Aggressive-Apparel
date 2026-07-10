@@ -89,7 +89,7 @@ printf(
 			'role'  => 'none',
 		)
 	),
-	$link_attr_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in loop above.
+	aggressive_apparel_trusted_html( $link_attr_string ),
 	esc_html( $label ),
 	wp_kses_post( $description_html )
 );

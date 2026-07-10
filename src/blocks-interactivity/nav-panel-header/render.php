@@ -19,5 +19,5 @@ printf(
 	get_block_wrapper_attributes(
 		array( 'class' => 'wp-block-aggressive-apparel-nav-panel-header' )
 	),
-	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are already escaped.
+	aggressive_apparel_trusted_html( $content )
 );

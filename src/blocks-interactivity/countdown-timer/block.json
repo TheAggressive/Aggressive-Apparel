@@ -8,6 +8,7 @@
   "description": "Live countdown for products with a scheduled sale end date. Place on the single product template.",
   "keywords": ["countdown", "sale", "timer", "urgency"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true
   },

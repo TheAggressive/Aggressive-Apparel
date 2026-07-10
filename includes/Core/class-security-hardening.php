@@ -81,7 +81,6 @@ class Security_Hardening {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only enumeration guard, no state change.
 		$author_param      = isset( $_GET['author'] ) ? sanitize_text_field( wp_unslash( $_GET['author'] ) ) : '';
 		$is_author_request = is_author() || '' !== trim( $author_param );
 

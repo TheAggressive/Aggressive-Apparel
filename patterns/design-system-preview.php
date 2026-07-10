@@ -1,11 +1,12 @@
 <?php
 /**
  * Title: Design System Preview
- * Description: Living preview of design system primitives, type roles, commerce states, and WooCommerce block styling.
+ * Description: Living preview of design system primitives, type roles, commerce states, and WooCommerce block styling. Dev/QA only — hidden from the pattern inserter.
  * Slug: aggressive-apparel/design-system-preview
  * Categories: aggressive, aggressive-apparel
  * Keywords: design system, tokens, preview, buttons, badges, woocommerce
  * Viewport Width: 1400
+ * Inserter: no
  *
  * @package Aggressive_Apparel
  */
@@ -128,8 +129,18 @@
 	</div>
 	<!-- /wp:group -->
 
-	<!-- wp:woocommerce/product-collection {"queryId":99,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection","queryContextIncludes":["collection"],"__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on current WooCommerce products in the store."},"className":"is-style-commerce-grid"} -->
-	<div class="wp-block-woocommerce-product-collection is-style-commerce-grid"></div>
-	<!-- /wp:woocommerce/product-collection -->
+	<!-- wp:woocommerce/product-collection {"queryId":99,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
+<!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
+<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
+<!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
+<!-- /wp:woocommerce/product-image -->
+<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"var:preset|spacing|3","bottom":"0"}}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/product-rating {"textAlign":"left"} /-->
+<!-- wp:woocommerce/product-price {"textAlign":"left","isDescendentOfQueryLoop":true,"className":"is-style-commerce-price","fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|1"}}}} /-->
+<!-- wp:woocommerce/product-button {"textAlign":"left","isDescendentOfQueryLoop":true,"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} /-->
+<!-- /wp:woocommerce/product-template -->
+</div>
+<!-- /wp:woocommerce/product-collection -->
 </div>
 <!-- /wp:group -->

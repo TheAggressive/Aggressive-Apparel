@@ -489,10 +489,8 @@ class Load_More_Renderer {
 
 		$params = array_merge( $constraints->join_params(), array( $facet ), $constraints->where_params() );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic identifiers are fixed core table names and generated aliases; all values are prepared below.
 		$prepared = $wpdb->prepare( $sql, ...$params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above; short indexed lookup cached by compute_facets().
-		$slugs = $wpdb->get_col( $prepared );
+		$slugs    = $wpdb->get_col( $prepared );
 
 		return array_values( array_unique( array_map( 'strval', $slugs ) ) );
 	}
@@ -770,8 +768,7 @@ class Load_More_Renderer {
 			$constraints = new Catalog_SQL_Constraints();
 			$constraints->add_lookup_filters( new Catalog_Filter_Set( $filters ), $alias );
 			if ( ! empty( $constraints->where() ) ) {
-				$lookup_where = ' AND ' . implode( ' AND ', $constraints->where() );
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated fixed-alias clauses; public values are prepared.
+				$lookup_where      = ' AND ' . implode( ' AND ', $constraints->where() );
 				$clauses['where'] .= $wpdb->prepare( $lookup_where, ...$constraints->where_params() );
 			}
 		}
@@ -919,7 +916,7 @@ class Load_More_Renderer {
 			if ( count( $tax_query ) > 1 ) {
 				$tax_query['relation'] = 'AND';
 			}
-			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			$args['tax_query'] = $tax_query;
 		}
 
 		return $args;

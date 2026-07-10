@@ -51,7 +51,7 @@ class Mobile_Bottom_Nav {
 			return;
 		}
 
-		echo '<style id="aa-bottom-nav-critical">@media(width<1024px){:root{--aa-bottom-nav-height:calc(3.5rem + env(safe-area-inset-bottom,0px))}body{padding-bottom:var(--aa-bottom-nav-height)}}</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static critical CSS.
+		echo aggressive_apparel_trusted_html( '<style id="aa-bottom-nav-critical">@media(width<1024px){:root{--aa-bottom-nav-height:calc(3.5rem + env(safe-area-inset-bottom,0px))}body{padding-bottom:var(--aa-bottom-nav-height)}}</style>' ) . "\n";
 	}
 
 	/**

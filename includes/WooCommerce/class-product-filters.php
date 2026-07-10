@@ -29,13 +29,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Product_Filters {
 
 	/**
-	 * Whether assets are enqueued (gate for render_block / wp_footer output).
-	 *
-	 * @var bool
-	 */
-	private bool $assets_enqueued = false;
-
-	/**
 	 * Whether filter source data was already invalidated this request.
 	 *
 	 * @var bool
@@ -70,6 +63,13 @@ class Product_Filters {
 	 * @var string|null
 	 */
 	private static ?string $active_layout = null;
+
+	/**
+	 * Whether CSS/JS/state were already prepared for this request.
+	 *
+	 * @var bool
+	 */
+	private static bool $assets_enqueued = false;
 
 	/**
 	 * Construct the filter coordinator.
@@ -151,31 +151,57 @@ class Product_Filters {
 	}
 
 	/**
-	 * Enqueue filter assets on shop pages.
+	 * Enqueue filter assets on filterable archives.
 	 *
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! $this->is_shop_page() ) {
+		if ( ! $this->request_needs_assets() ) {
 			return;
 		}
 
-		$this->ensure_assets();
+		self::ensure_assets();
+	}
+
+	/**
+	 * Whether the current request should load product-filters assets.
+	 *
+	 * Defaults to shop / product category / product tag archives. Custom
+	 * archive integrations can opt in via the filter.
+	 *
+	 * @return bool
+	 */
+	private function request_needs_assets(): bool {
+		$needed = ! is_admin() && self::is_filterable_archive();
+
+		/**
+		 * Filters whether product-filters frontend assets should load.
+		 *
+		 * @since 1.142.0
+		 *
+		 * @param bool $needed Whether the current request needs the assets.
+		 */
+		return (bool) apply_filters( 'aggressive_apparel_product_filters_needs_assets', $needed );
 	}
 
 	/**
 	 * Enqueue CSS, JS, and interactivity state (idempotent).
 	 *
-	 * Called from wp_enqueue_scripts AND lazily from render_block,
-	 * because in block themes render_block fires before wp_enqueue_scripts.
+	 * Public so filter-toggle / filter-active-bar render callbacks can recover
+	 * when archive detection was missed during `wp_enqueue_scripts` (FSE timing).
+	 * WordPress de-duplicates repeated style/module enqueues.
 	 *
 	 * @return void
 	 */
-	private function ensure_assets(): void {
-		if ( $this->assets_enqueued ) {
+	public static function ensure_assets(): void {
+		if ( is_admin() || ! Feature_Settings::is_enabled( 'product_filters' ) ) {
 			return;
 		}
-		$this->assets_enqueued = true;
+
+		if ( self::$assets_enqueued ) {
+			return;
+		}
+		self::$assets_enqueued = true;
 
 		Asset_Loader::enqueue_feature_style(
 			'aggressive-apparel-product-filters',
@@ -189,86 +215,89 @@ class Product_Filters {
 			wp_enqueue_script_module( '@aggressive-apparel/product-filters' );
 		}
 
-		// Output interactivity state.
-		if ( function_exists( 'wp_interactivity_state' ) ) {
-			$data             = $this->data_provider->get();
-			$current_cat_slug = Product_Context::get_current_category_slug();
-
-			wp_interactivity_state(
-				'aggressive-apparel/product-filters',
-				array(
-					'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-					// REST nonce so logged-in shop managers/admins are authenticated
-					// for the rendered-products endpoint while the store is in
-					// "coming soon" mode (otherwise the fetch is treated as
-					// anonymous and the gated catalogue comes back empty).
-					'restNonce'           => wp_create_nonce( 'wp_rest' ),
-					'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
-					'salesCategoryUrl'    => $this->data_provider->sales_category_url(),
-					'layout'              => $this->layout,
-					'perPage'             => 12,
-					'currentCategorySlug' => $current_cat_slug,
-					// Render filtered cards from the same template the current page
-					// uses (e.g. a customised "Products by Category" template),
-					// not the default archive-product card.
-					'templateSlug'        => Product_Context::get_current_template_slug(),
-					'categories'          => $data['categories'],
-					'colorTerms'          => $data['colorTerms'],
-					'sizeTerms'           => $data['sizeTerms'],
-					'fitTerms'            => $data['fitTerms'],
-					'priceRange'          => array_merge(
-						$data['priceRange'],
-						array(
-							'currencyPrefix' => html_entity_decode(
-								$data['priceRange']['currencyPrefix'] ?? '$',
-								ENT_QUOTES,
-								'UTF-8'
-							),
-						)
-					),
-					'stockStatuses'       => $data['stockStatuses'],
-					'selectedCategories'  => array(),
-					'selectedColors'      => array(),
-					'selectedSizes'       => array(),
-					'selectedFit'         => array(),
-					'priceMin'            => $data['priceRange']['min'],
-					'priceMax'            => $data['priceRange']['max'],
-					'inStockOnly'         => false,
-					'onSaleOnly'          => false,
-					'orderBy'             => 'date',
-					'orderDir'            => 'desc',
-					'_customSort'         => '',
-					'isDrawerOpen'        => false,
-					'isLoading'           => false,
-					'hasError'            => false,
-					'currentPage'         => 1,
-					'totalPages'          => 1,
-					'totalProducts'       => 0,
-					'products'            => array(),
-					'announcement'        => '',
-					'openDropdown'        => '',
-
-					/*
-					 * Translatable strings consumed by the Interactivity store.
-					 * Sprintf-style templates use `%s` for the active count.
-					 * Wrapping copy in parentheses keeps the screen-reader
-					 * announcement separated from the visible button label
-					 * when the two are concatenated by the AT name algorithm.
-					 */
-					'i18n'                => array(
-						/* translators: %s is the number of currently active filters (always 1). */
-						'filtersAppliedSingular'       => __( '(%s filter applied)', 'aggressive-apparel' ),
-						/* translators: %s is the number of currently active filters (2 or more). */
-						'filtersAppliedPlural'         => __( '(%s filters applied)', 'aggressive-apparel' ),
-						/* translators: %s is a comma-separated list of filter names not shown in the pill row. */
-						'activeFiltersOverflowTooltip' => __( 'Additional filters: %s', 'aggressive-apparel' ),
-						'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
-						'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
-					),
-					'salesCategorySlug'   => Sale_Category::TERM_SLUG,
-				)
-			);
+		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			return;
 		}
+
+		$data_provider    = new Product_Filter_Data();
+		$data             = $data_provider->get();
+		$current_cat_slug = Product_Context::get_current_category_slug();
+		$layout           = self::get_active_layout();
+
+		wp_interactivity_state(
+			'aggressive-apparel/product-filters',
+			array(
+				'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+				// REST nonce so logged-in shop managers/admins are authenticated
+				// for the rendered-products endpoint while the store is in
+				// "coming soon" mode (otherwise the fetch is treated as
+				// anonymous and the gated catalogue comes back empty).
+				'restNonce'           => wp_create_nonce( 'wp_rest' ),
+				'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
+				'salesCategoryUrl'    => $data_provider->sales_category_url(),
+				'layout'              => $layout,
+				'perPage'             => 12,
+				'currentCategorySlug' => $current_cat_slug,
+				// Render filtered cards from the same template the current page
+				// uses (e.g. a customised "Products by Category" template),
+				// not the default archive-product card.
+				'templateSlug'        => Product_Context::get_current_template_slug(),
+				'categories'          => $data['categories'],
+				'colorTerms'          => $data['colorTerms'],
+				'sizeTerms'           => $data['sizeTerms'],
+				'fitTerms'            => $data['fitTerms'],
+				'priceRange'          => array_merge(
+					$data['priceRange'],
+					array(
+						'currencyPrefix' => html_entity_decode(
+							$data['priceRange']['currencyPrefix'] ?? '$',
+							ENT_QUOTES,
+							'UTF-8'
+						),
+					)
+				),
+				'stockStatuses'       => $data['stockStatuses'],
+				'selectedCategories'  => array(),
+				'selectedColors'      => array(),
+				'selectedSizes'       => array(),
+				'selectedFit'         => array(),
+				'priceMin'            => $data['priceRange']['min'],
+				'priceMax'            => $data['priceRange']['max'],
+				'inStockOnly'         => false,
+				'onSaleOnly'          => false,
+				'orderBy'             => 'date',
+				'orderDir'            => 'desc',
+				'_customSort'         => '',
+				'isDrawerOpen'        => false,
+				'isLoading'           => false,
+				'hasError'            => false,
+				'currentPage'         => 1,
+				'totalPages'          => 1,
+				'totalProducts'       => 0,
+				'products'            => array(),
+				'announcement'        => '',
+				'openDropdown'        => '',
+
+				/*
+				 * Translatable strings consumed by the Interactivity store.
+				 * Sprintf-style templates use `%s` for the active count.
+				 * Wrapping copy in parentheses keeps the screen-reader
+				 * announcement separated from the visible button label
+				 * when the two are concatenated by the AT name algorithm.
+				 */
+				'i18n'                => array(
+					/* translators: %s is the number of currently active filters (always 1). */
+					'filtersAppliedSingular'       => __( '(%s filter applied)', 'aggressive-apparel' ),
+					/* translators: %s is the number of currently active filters (2 or more). */
+					'filtersAppliedPlural'         => __( '(%s filters applied)', 'aggressive-apparel' ),
+					/* translators: %s is a comma-separated list of filter names not shown in the pill row. */
+					'activeFiltersOverflowTooltip' => __( 'Additional filters: %s', 'aggressive-apparel' ),
+					'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
+					'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
+				),
+				'salesCategorySlug'   => Sale_Category::TERM_SLUG,
+			)
+		);
 	}
 
 	/**
@@ -279,13 +308,13 @@ class Product_Filters {
 	 * @return string Modified HTML.
 	 */
 	public function inject_filter_ui( string $block_content, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || ! $this->is_shop_page() ) {
+		if ( ! isset( $block['blockName'] ) || ! $this->request_needs_assets() ) {
 			return $block_content;
 		}
 
 		try {
 			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
-			$this->ensure_assets();
+			self::ensure_assets();
 
 			// Wrap product-collection with AJAX grid container.
 			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
@@ -294,7 +323,10 @@ class Product_Filters {
 		} catch ( \Throwable $e ) {
 			// Return original block content on error to avoid breaking the page.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Product Filters inject_filter_ui error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				aggressive_apparel_debug_log(
+					'Product Filters inject_filter_ui error.',
+					array( 'error' => $e->getMessage() )
+				);
 			}
 		}
 
@@ -307,7 +339,7 @@ class Product_Filters {
 	 * @return void
 	 */
 	public function render_drawer_shell(): void {
-		if ( ! $this->assets_enqueued || ! $this->is_shop_page() ) {
+		if ( ! self::$assets_enqueued || ! $this->request_needs_assets() ) {
 			return;
 		}
 
@@ -376,7 +408,10 @@ class Product_Filters {
 		} catch ( \Throwable $e ) {
 			// Prevent a crash here from killing all subsequent wp_footer hooks.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Product Filters drawer error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				aggressive_apparel_debug_log(
+					'Product Filters drawer error.',
+					array( 'error' => $e->getMessage() )
+				);
 			}
 		}
 	}
@@ -388,7 +423,7 @@ class Product_Filters {
 	 * @return array Modified classes.
 	 */
 	public function add_body_class( array $classes ): array {
-		if ( $this->is_shop_page() ) {
+		if ( $this->request_needs_assets() ) {
 			$classes[] = 'has-product-filters';
 			$classes[] = 'product-filters--' . $this->layout;
 		}
@@ -504,18 +539,10 @@ class Product_Filters {
 	}
 
 	/**
-	 * Check if the current page is a shop/archive page.
+	 * Whether the current request is a filterable product archive.
 	 *
-	 * @return bool
-	 */
-	private function is_shop_page(): bool {
-		return Product_Context::is_product_archive();
-	}
-
-	/**
-	 * Public wrapper around `is_shop_page()` so other components — including
-	 * the Filter Toggle block render callback — can decide whether to emit
-	 * filter-related markup.
+	 * Used by Filter Toggle / Active Bar block render callbacks to decide
+	 * whether to emit filter-related markup.
 	 *
 	 * @since 1.22.0
 	 *

@@ -70,15 +70,6 @@ $button_classes  = 'aggressive-apparel-wishlist__toggle';
 $button_classes .= $icon_only ? ' aggressive-apparel-wishlist__toggle--icon-only' : '';
 $button_classes .= 'large' === $size ? ' aggressive-apparel-wishlist__toggle--large' : '';
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'              => $button_classes,
-		'type'               => 'button',
-		'data-aa-product-id' => (string) $product_id,
-		'aria-pressed'       => 'false',
-	)
-);
-
 $icon_html = '';
 if ( $show_icon ) {
 	$icon_html = '<svg class="aggressive-apparel-wishlist__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
@@ -107,8 +98,14 @@ if ( '' !== $trimmed_label ) {
 
 printf(
 	'<button %1$s>%2$s%3$s</button>',
-	wp_kses_post( $wrapper_attributes ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static trusted SVG markup.
-	$icon_html,
+	get_block_wrapper_attributes(
+		array(
+			'class'              => $button_classes,
+			'type'               => 'button',
+			'data-aa-product-id' => (string) $product_id,
+			'aria-pressed'       => 'false',
+		)
+	),
+	aggressive_apparel_trusted_html( $icon_html ),
 	wp_kses_post( $label_html )
 );

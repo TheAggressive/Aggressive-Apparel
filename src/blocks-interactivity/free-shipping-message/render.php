@@ -77,7 +77,7 @@ $suffix_markup = Icon_Block::render_wrapped_svg(
 	?>
 >
 	<?php if ( '' !== $prefix_markup ) : ?>
-		<?php echo $prefix_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
+		<?php echo aggressive_apparel_trusted_html( $prefix_markup ); ?>
 	<?php endif; ?>
 
 	<span class="aggressive-apparel-free-shipping-message__text" aria-live="polite" aria-atomic="true" data-wp-text="state.message">
@@ -85,6 +85,6 @@ $suffix_markup = Icon_Block::render_wrapped_svg(
 	</span>
 
 	<?php if ( '' !== $suffix_markup ) : ?>
-		<?php echo $suffix_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG. ?>
+		<?php echo aggressive_apparel_trusted_html( $suffix_markup ); ?>
 	<?php endif; ?>
 </span>

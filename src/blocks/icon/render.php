@@ -11,15 +11,13 @@
 
 declare(strict_types=1);
 
-use Aggressive_Apparel\Blocks\Icon_Block;
-
 $icon_slug     = sanitize_key( $attributes['icon'] ?? 'shipping-box' );
 $is_decorative = (bool) ( $attributes['isDecorative'] ?? true );
 $label         = sanitize_text_field( $attributes['label'] ?? '' );
 $text_align    = sanitize_key( $attributes['textAlign'] ?? '' );
 
 // Shared with the editor preview so the two render identically.
-$svg_markup = Icon_Block::render_svg( $icon_slug, $attributes['iconSize'] ?? 48 );
+$svg_markup = aggressive_apparel_icon_block_svg( $icon_slug, $attributes['iconSize'] ?? 48 );
 
 if ( '' === $svg_markup ) {
 	return;
@@ -45,6 +43,5 @@ if ( $is_decorative || '' === $label ) {
 printf(
 	'<span %1$s>%2$s</span>',
 	get_block_wrapper_attributes( $wrapper_attrs ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted theme SVG from Icon_Block::render_svg(); PHPCS cannot track class methods.
-	$svg_markup
+	aggressive_apparel_trusted_html( $svg_markup )
 );

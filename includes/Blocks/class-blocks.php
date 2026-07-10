@@ -11,8 +11,6 @@
 
 declare(strict_types=1);
 
-// phpcs:disable WordPress.Files.FileName, WordPress.Classes.ClassFileName
-
 namespace Aggressive_Apparel\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -131,9 +129,10 @@ class Blocks {
 			}
 		} catch ( \Throwable $e ) {
 			// Log error but don't break the site.
-			if ( function_exists( 'error_log' ) ) {
-				\error_log( 'Aggressive Apparel Blocks registration error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			}
+			aggressive_apparel_debug_log(
+				'Blocks registration error.',
+				array( 'error' => $e->getMessage() )
+			);
 		}
 	}
 
@@ -209,6 +208,8 @@ class Blocks {
 	 * Register blocks from directory paths.
 	 *
 	 * A directory is considered a block if it contains a block.json file.
+	 * Blocks that declare supports.requiresPlugins are skipped when any
+	 * listed plugin is inactive (e.g. WooCommerce commerce blocks).
 	 *
 	 * @param array<string> $block_directories Array of block directory paths.
 	 * @return void
@@ -221,19 +222,99 @@ class Blocks {
 				continue;
 			}
 
+			if ( ! self::block_required_plugins_active( $block_json ) ) {
+				continue;
+			}
+
 			try {
 				// Register the block using WordPress metadata.
 				// WordPress will automatically load render.php if it exists.
 				\register_block_type_from_metadata( $block_location );
 			} catch ( \Throwable $e ) {
 				// Log error but continue with other blocks.
-				if ( function_exists( 'error_log' ) ) {
-					\error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-						'Block registration error for ' . $block_location . ': ' . $e->getMessage()
-					);
-				}
+				aggressive_apparel_debug_log(
+					'Block registration error.',
+					array(
+						'block' => $block_location,
+						'error' => $e->getMessage(),
+					)
+				);
 			}
 		}
+	}
+
+	/**
+	 * Whether a block's supports.requiresPlugins dependencies are satisfied.
+	 *
+	 * Declared as the first key under supports in block.json, e.g.:
+	 * `"supports": { "requiresPlugins": [ "woocommerce" ], ... }`
+	 * Custom supports keys are schema-safe (supports.additionalProperties: true).
+	 *
+	 * @since 1.142.0
+	 * @param string $block_json Absolute path to the block's block.json.
+	 * @return bool True when the block may be registered.
+	 */
+	private static function block_required_plugins_active( string $block_json ): bool {
+		if ( ! function_exists( 'wp_json_file_decode' ) ) {
+			return true;
+		}
+
+		$metadata = \wp_json_file_decode( $block_json, array( 'associative' => true ) );
+
+		if ( ! is_array( $metadata ) ) {
+			return true;
+		}
+
+		return self::metadata_required_plugins_active( $metadata );
+	}
+
+	/**
+	 * Evaluate supports.requiresPlugins from decoded block metadata.
+	 *
+	 * @since 1.142.0
+	 * @param array<string, mixed> $metadata Decoded block.json payload.
+	 * @return bool True when every listed plugin dependency is active.
+	 */
+	private static function metadata_required_plugins_active( array $metadata ): bool {
+		$required = $metadata['supports']['requiresPlugins'] ?? null;
+
+		if ( ! is_array( $required ) || array() === $required ) {
+			return true;
+		}
+
+		foreach ( $required as $plugin ) {
+			if ( ! is_string( $plugin ) || '' === $plugin ) {
+				continue;
+			}
+
+			if ( ! self::is_required_plugin_active( $plugin ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check whether a plugin slug declared in requiresPlugins is active.
+	 *
+	 * @since 1.142.0
+	 * @param string $plugin Plugin slug from block metadata (e.g. "woocommerce").
+	 * @return bool True when the dependency is available.
+	 */
+	private static function is_required_plugin_active( string $plugin ): bool {
+		if ( 'woocommerce' === $plugin ) {
+			return class_exists( 'WooCommerce' );
+		}
+
+		/**
+		 * Filter whether a block's required plugin is considered active.
+		 *
+		 * @since 1.142.0
+		 * @param bool   $active Whether the plugin is active.
+		 * @param string $plugin Plugin slug from supports.requiresPlugins.
+		 */
+		return (bool) \apply_filters( 'aggressive_apparel_block_required_plugin_active', false, $plugin );
 	}
 
 	/**

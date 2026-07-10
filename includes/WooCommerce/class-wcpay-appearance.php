@@ -54,7 +54,7 @@ class Wcpay_Appearance {
 			return;
 		}
 
-		echo '<script>(function(){try{Object.keys(localStorage).filter(function(k){return k.indexOf("wcpay_appearance_")===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}})();</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline bootstrap.
+		echo aggressive_apparel_trusted_html( '<script>(function(){try{Object.keys(localStorage).filter(function(k){return k.indexOf("wcpay_appearance_")===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}})();</script>' ) . "\n";
 	}
 
 	/**

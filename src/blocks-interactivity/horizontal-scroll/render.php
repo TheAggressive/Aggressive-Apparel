@@ -106,10 +106,7 @@ if ( 'inline' === $desktop_behavior ) {
 	<div class="aa-hscroll__range">
 		<div class="aa-hscroll__viewport" data-aa-hscroll>
 			<div class="aa-hscroll__track">
-				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks are sanitized by the block renderer; wp_kses_post() here would strip legitimate markup (forms, embeds, SVG).
-				echo $content;
-				?>
+				<?php echo aggressive_apparel_trusted_html( $content ); ?>
 			</div>
 			<?php if ( $show_progress ) : ?>
 			<div

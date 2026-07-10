@@ -46,8 +46,7 @@ class Asset_Loader {
 		if ( ! file_exists( $asset_file ) ) {
 			// Log in production so misconfigured deploys are not silent.
 			if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Aggressive Apparel: missing asset manifest — ' . $asset_file );
+				aggressive_apparel_debug_log( 'Missing asset manifest.', array( 'file' => $asset_file ) );
 			}
 			return array(
 				'dependencies' => array(),

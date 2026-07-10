@@ -7,13 +7,21 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  *
+ * @var array $attributes Block attributes.
+ *
  * @package Aggressive_Apparel
  */
 
-defined( 'ABSPATH' ) || exit;
+declare(strict_types=1);
 
-$max_display = isset( $attributes['maxDisplay'] ) ? (int) $attributes['maxDisplay'] : 4;
-$heading     = isset( $attributes['heading'] ) ? sanitize_text_field( (string) $attributes['heading'] ) : __( 'Recently Viewed', 'aggressive-apparel' );
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$max_display = isset( $attributes['maxDisplay'] ) ? max( 1, (int) $attributes['maxDisplay'] ) : 4;
+$heading     = isset( $attributes['heading'] )
+	? sanitize_text_field( (string) $attributes['heading'] )
+	: __( 'Recently Viewed', 'aggressive-apparel' );
 
 // On a single product page, pass the current product ID so view.js can
 // record the visit and exclude the current product from the list.
@@ -31,30 +39,18 @@ $context = (string) wp_json_encode(
 		'restBase'         => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
 	)
 );
-
-$wrapper_attrs = get_block_wrapper_attributes(
-	array(
-		'class'               => 'aggressive-apparel-recently-viewed',
-		'data-wp-interactive' => 'aggressive-apparel/recently-viewed',
-		'data-wp-context'     => $context,
-		'data-wp-init'        => 'callbacks.init',
-	)
-);
 ?>
-<section 
-<?php
-echo wp_kses(
-	$wrapper_attrs,
-	array(
-		'class'               => array(),
-		'id'                  => array(),
-		'style'               => array(),
-		'data-wp-interactive' => array(),
-		'data-wp-context'     => array(),
-		'data-wp-init'        => array(),
-	)
-);
-?>
+<section
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'               => 'aggressive-apparel-recently-viewed',
+			'data-wp-interactive' => 'aggressive-apparel/recently-viewed',
+			'data-wp-context'     => $context,
+			'data-wp-init'        => 'callbacks.init',
+		)
+	);
+	?>
 >
 	<div data-wp-bind--hidden="!context.loaded">
 		<?php if ( $heading ) : ?>

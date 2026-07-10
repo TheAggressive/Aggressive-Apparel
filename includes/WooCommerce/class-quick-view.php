@@ -280,7 +280,6 @@ class Quick_View {
 			);
 		}
 
-		// phpcs:disable Generic.WhiteSpace.ScopeIndent -- Inline HTML output.
 		?>
 		<div
 			id="aggressive-apparel-quick-view"
@@ -833,7 +832,6 @@ class Quick_View {
 			</div>
 		</div>
 		<?php
-		// phpcs:enable Generic.WhiteSpace.ScopeIndent
 	}
 
 	/**

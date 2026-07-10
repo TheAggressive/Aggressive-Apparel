@@ -8,6 +8,7 @@
   "description": "Shows the currently active product filters as removable pills with a Clear All button. Place it anywhere on a shop, category, or tag archive.",
   "keywords": ["filter", "pills", "active", "shop", "woocommerce", "product"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true,
     "reusable": false,

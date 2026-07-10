@@ -23,13 +23,13 @@
 	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">We're putting the finishing touches on something you'll want to see. Be the first to know when we drop.</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} -->
-	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--10)">
-		<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/my-account">Get Notified</a></div>
-		<!-- /wp:button -->
+	<!-- wp:group {"borderColor":"white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed"}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-border-color has-white-border-color" style="border-style:dashed;border-width:1px;margin-top:var(--wp--preset--spacing--10);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
+		<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"small"} -->
+		<p class="has-text-align-center has-white-color has-text-color has-small-font-size">Replace this block with your email form.</p>
+		<!-- /wp:paragraph -->
 	</div>
-	<!-- /wp:buttons -->
+	<!-- /wp:group -->
 
 	<!-- wp:social-links {"iconColor":"white","iconColorValue":"var(--wp--preset--color--white)","size":"has-small-icon-size","style":{"spacing":{"margin":{"top":"var:preset|spacing|14"},"blockGap":{"left":"var:preset|spacing|5"}}},"className":"is-style-logos-only","layout":{"type":"flex","justifyContent":"center"}} -->
 	<ul class="wp-block-social-links has-small-icon-size has-icon-color is-style-logos-only" style="margin-top:var(--wp--preset--spacing--14)">

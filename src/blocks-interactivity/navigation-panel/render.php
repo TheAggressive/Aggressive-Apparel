@@ -146,12 +146,12 @@ $panel_footer_style   = '';
 if ( ! empty( $content ) ) {
 	$dom     = new DOMDocument();
 	$wrapped = '<div id="aa-nav-panel-parse-root">' . $content . '</div>';
-	@$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- DOMDocument warnings for HTML5 tags.
+	@$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 
 	$root = $dom->getElementById( 'aa-nav-panel-parse-root' );
 	if ( $root ) {
-		foreach ( $root->childNodes as $node ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
-			if ( XML_ELEMENT_NODE !== $node->nodeType ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+		foreach ( $root->childNodes as $node ) {
+			if ( XML_ELEMENT_NODE !== $node->nodeType ) {
 				continue;
 			}
 
@@ -163,7 +163,7 @@ if ( ! empty( $content ) ) {
 			$node_class = $node instanceof DOMElement ? $node->getAttribute( 'class' ) : '';
 
 			if (
-				'li' === $node->nodeName // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+				'li' === $node->nodeName
 				&& $node instanceof DOMElement
 				&& (
 					str_contains( $node_class, 'wp-block-aggressive-apparel-nav-link' )
@@ -175,7 +175,7 @@ if ( ! empty( $content ) ) {
 				$panel_header_classes = $node_class;
 				$panel_header_style   = $node->getAttribute( 'style' );
 				$inner                = '';
-				foreach ( $node->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+				foreach ( $node->childNodes as $child ) {
 					$child_html = $dom->saveHTML( $child );
 					if ( false !== $child_html ) {
 						$inner .= $child_html;
@@ -186,7 +186,7 @@ if ( ! empty( $content ) ) {
 				$panel_footer_classes = $node_class;
 				$panel_footer_style   = $node->getAttribute( 'style' );
 				$inner                = '';
-				foreach ( $node->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+				foreach ( $node->childNodes as $child ) {
 					$child_html = $dom->saveHTML( $child );
 					if ( false !== $child_html ) {
 						$inner .= $child_html;
@@ -302,13 +302,13 @@ if ( ! empty( $utility_html ) ) {
 $panel_body_attr    = $panel_body_style ? ' style="' . $panel_body_style . '"' : '';
 $panel_content_html = sprintf(
 	'<div%s>%s%s</div><div class="aa-nav__panel-body"%s>%s<ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">%s</ul></div>%s',
-	$panel_header_attr,         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Values escaped above.
-	$panel_header_content_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
-	$close_button_html,         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
-	$panel_body_attr,           // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
-	$utility_section_html,      // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
-	$menu_items_html,           // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
-	$panel_footer_section_html  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
+	aggressive_apparel_trusted_html( $panel_header_attr ),
+	aggressive_apparel_trusted_html( $panel_header_content_html ),
+	aggressive_apparel_trusted_html( $close_button_html ),
+	aggressive_apparel_trusted_html( $panel_body_attr ),
+	aggressive_apparel_trusted_html( $utility_section_html ),
+	aggressive_apparel_trusted_html( $menu_items_html ),
+	aggressive_apparel_trusted_html( $panel_footer_section_html )
 );
 
 // Screen reader announcer (lives inside the portaled panel wrapper).
@@ -325,16 +325,16 @@ $announcer_html = sprintf(
 
 $panel_html = sprintf(
 	'%s%s<div id="%s" class="%s" style="%s" role="dialog" aria-modal="true" aria-label="%s" aria-hidden="true" inert data-panel-slug="%s" data-animation-style="%s" data-position="%s" data-wp-bind--aria-hidden="!state.isOpen" data-wp-bind--inert="!state.isOpen" data-wp-class--is-open="state.isOpen" data-wp-class--has-drill-stack="callbacks.hasDrillHistory"><div class="aa-nav__panel-content">%s</div></div>',
-	$announcer_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
-	$overlay_html,   // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML. Must be outside panel for fixed positioning.
+	aggressive_apparel_trusted_html( $announcer_html ),
+	aggressive_apparel_trusted_html( $overlay_html ),
 	esc_attr( $panel_id ),
 	esc_attr( implode( ' ', $panel_classes ) ),
-	$panel_inline_style, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Each value escaped above.
+	aggressive_apparel_trusted_html( $panel_inline_style ),
 	esc_attr__( 'Navigation menu', 'aggressive-apparel' ),
 	esc_attr( $panel_slug ),
 	esc_attr( $animation_style ),
 	esc_attr( $position ),
-	$panel_content_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
+	aggressive_apparel_trusted_html( $panel_content_html )
 );
 
 // ============================================================================

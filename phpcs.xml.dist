@@ -38,15 +38,124 @@
     <!--
 		Functions that already return escaped / trusted markup.
 		Class methods cannot be listed here (WPCS limitation), so theme SVG
-		output goes through aggressive_apparel_get_icon().
+		and other trusted HTML go through aggressive_apparel_* helpers.
 	-->
     <rule ref="WordPress.Security.EscapeOutput">
         <properties>
             <property name="customAutoEscapedFunctions" type="array">
                 <element value="aggressive_apparel_get_icon"/>
+                <element value="aggressive_apparel_trusted_html"/>
+                <element value="aggressive_apparel_rating_stars"/>
+                <element value="aggressive_apparel_icon_block_svg"/>
                 <element value="get_block_wrapper_attributes"/>
                 <element value="render_block"/>
             </property>
+        </properties>
+    </rule>
+
+    <!--
+		WordPress / WooCommerce hook callbacks must keep unused parameters for
+		signature compatibility. Suppress unused-parameter noise; do not drop
+		parameters from public hook handlers.
+	-->
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter.Found">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+		DOMDocument / DOMNode expose camelCase properties (childNodes, nodeName).
+		Limit the snake_case property sniff to those DOM-heavy files.
+	-->
+    <rule ref="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase">
+        <exclude-pattern>*/src/blocks-interactivity/navigation/render.php</exclude-pattern>
+        <exclude-pattern>*/src/blocks-interactivity/navigation-panel/render.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-product-tabs-renderer.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-color-block-swatch-manager.php</exclude-pattern>
+    </rule>
+
+    <!-- DOMDocument::loadHTML emits HTML5 warnings; @ is intentional there. -->
+    <rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
+        <exclude-pattern>*/src/blocks-interactivity/navigation/render.php</exclude-pattern>
+        <exclude-pattern>*/src/blocks-interactivity/navigation-panel/render.php</exclude-pattern>
+    </rule>
+
+    <!--
+		Theme-owned custom tables / indexed catalogue SQL. Queries are prepared;
+		DirectDatabaseQuery / InterpolatedNotPrepared noise is expected here.
+	-->
+    <rule ref="WordPress.DB.DirectDatabaseQuery">
+        <exclude-pattern>*/includes/Core/class-search-index.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-advanced-sorting.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-product-filter-data.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-sale-category.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-wishlist.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-size-guide.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-color-attribute-manager.php</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.DB.PreparedSQL">
+        <exclude-pattern>*/includes/Core/class-search-index.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-advanced-sorting.php</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.DB.PreparedSQLPlaceholders">
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
+    </rule>
+
+    <!--
+		Admin list tables / read-only $_GET routing (no state change). Nonces are
+		enforced on mutating actions separately.
+	-->
+    <rule ref="WordPress.Security.NonceVerification.Recommended">
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-custom-badge-taxonomy.php</exclude-pattern>
+        <exclude-pattern>*/includes/Core/class-theme-updates.php</exclude-pattern>
+        <exclude-pattern>*/includes/Core/class-security-hardening.php</exclude-pattern>
+    </rule>
+
+    <!-- WP requires the global content_width variable name. -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+        <exclude-pattern>*/includes/Core/class-content-width.php</exclude-pattern>
+    </rule>
+
+    <!-- meta_key / meta_value / tax_query are required WP_Query args. -->
+    <rule ref="WordPress.DB.SlowDBQuery">
+        <exclude-pattern>*/includes/WooCommerce/class-custom-badge-taxonomy.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
+    </rule>
+
+    <!--
+		Inline HTML templates (wishlist page shell, quick-view modal) intentionally
+		mix indentation with markup concatenation / PHP templates.
+	-->
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <exclude-pattern>*/includes/WooCommerce/class-wishlist.php</exclude-pattern>
+        <exclude-pattern>*/includes/WooCommerce/class-quick-view.php</exclude-pattern>
+    </rule>
+
+    <!--
+		Late stylesheet fallback after wp_head: enqueue APIs cannot print a <link>.
+	-->
+    <rule ref="WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet">
+        <exclude-pattern>*/includes/Blocks/class-navigation-functions.php</exclude-pattern>
+    </rule>
+
+    <!--
+		Theme + PSR-4: class-*.php filenames with namespaced classes.
+		Disable strict class↔filename matching; keep hyphenated theme paths.
+	-->
+    <rule ref="WordPress.Files.FileName">
+        <properties>
+            <property name="strict_class_file_names" value="false"/>
+            <property name="is_theme" value="true"/>
         </properties>
     </rule>
 

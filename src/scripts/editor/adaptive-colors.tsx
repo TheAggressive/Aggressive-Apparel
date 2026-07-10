@@ -1,37 +1,53 @@
 /**
  * Adaptive Colors — Block Editor Extension
  *
- * Adds per-block light/dark color override controls to all blocks
- * that support color settings. When both light and dark values are set,
- * outputs CSS light-dark() inline styles.
+ * Adds an Adaptive Color panel with compact Typography / Background rows.
+ * Editors can pick theme adaptive colors or set custom light/dark pairs
+ * without editing theme.json.
  *
  * @package Aggressive_Apparel
  * @since 1.56.0
  */
 
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls, useSettings } from '@wordpress/block-editor';
 import {
-  PanelBody,
-  ColorPalette,
-  BaseControl,
   Button,
+  ColorIndicator,
+  Dropdown,
+  Icon,
+  PanelBody,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalDropdownContentWrapper as DropdownContentWrapper,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from '@wordpress/element';
 import { getBlockType } from '@wordpress/blocks';
+import { reset as resetIcon } from '@wordpress/icons';
 import {
-  useEditorColorScheme,
-  ColorModeToggle,
   injectEditorStyle,
+  useEditorColorScheme,
 } from '../../utils/editor-color-scheme';
-import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
+import { moon, sun } from '../../utils/editor-color-scheme-icons';
+import {
+  AdaptiveColorPicker,
+  hasAdaptivePairValue,
+  normalizeAdaptivePair,
+  type AdaptiveColorPair,
+  type PaletteColor,
+} from '../../utils/adaptive-color-picker';
+import {
+  ADMIN_CHROME_COLORS,
+  ADMIN_HELP_TEXT_STYLE,
+  EDITOR_INFO_NOTICE_STYLE,
+} from '../../utils/editor-style-tokens';
+
+import './adaptive-colors.css';
 
 /**
- * CSS rules for adaptive color overrides in the editor.
+ * CSS rules for adaptive color overrides in the editor canvas.
  * Uses !important to beat normal inline styles from WordPress core.
  */
 const ADAPTIVE_EDITOR_CSS = `
@@ -55,14 +71,19 @@ function injectAdaptiveCSS(): void {
   injectEditorStyle('aa-adaptive-colors-css', ADAPTIVE_EDITOR_CSS);
 }
 
-interface AdaptiveColor {
-  light?: string;
-  dark?: string;
-}
-
 interface BlockAttributes {
-  adaptiveBackground?: AdaptiveColor;
-  adaptiveText?: AdaptiveColor;
+  adaptiveBackground?: AdaptiveColorPair;
+  adaptiveText?: AdaptiveColorPair;
+  backgroundColor?: string;
+  textColor?: string;
+  style?: {
+    color?: {
+      background?: string;
+      text?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -110,6 +131,22 @@ function supportsColor(settings: Record<string, unknown>): {
 }
 
 /**
+ * Whether core Text / Background is set for a channel.
+ */
+function hasCoreColor(
+  attributes: BlockAttributes,
+  channel: 'background' | 'text'
+): boolean {
+  if (channel === 'background') {
+    return Boolean(
+      attributes.backgroundColor || attributes.style?.color?.background
+    );
+  }
+
+  return Boolean(attributes.textColor || attributes.style?.color?.text);
+}
+
+/**
  * Filter 1: Add adaptive color attributes to all color-supporting blocks.
  */
 addFilter(
@@ -142,9 +179,142 @@ addFilter(
 );
 
 /**
- * Adaptive Colors sidebar panel component.
+ * One color indicator with a sun or moon mark (WordPress icon style).
  */
-function AdaptiveColorPanel({
+function LabeledSwatch({
+  colorValue,
+  icon,
+  title,
+}: {
+  colorValue?: string;
+  icon: ReactElement;
+  title: string;
+}) {
+  return (
+    <span className='aa-adaptive-color-row__swatch' title={title}>
+      <ColorIndicator colorValue={colorValue} />
+      <span className='aa-adaptive-color-row__swatch-icon' aria-hidden='true'>
+        <Icon icon={icon} size={22} />
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Dual color indicators for light + dark in one compact row.
+ *
+ * Label on the left (Typography / Background), sun/moon swatches on the right —
+ * matches WordPress settings-row rhythm and keeps the property name readable.
+ */
+function DualColorIndicator({
+  value,
+  label,
+}: {
+  value: AdaptiveColorPair | undefined;
+  label: string;
+}) {
+  return (
+    <span className='aa-adaptive-color-row__content'>
+      <span className='aa-adaptive-color-row__label'>{label}</span>
+      <span className='aa-adaptive-color-row__swatches'>
+        <LabeledSwatch
+          colorValue={value?.light}
+          icon={sun}
+          title={__('Light', 'aggressive-apparel')}
+        />
+        <LabeledSwatch
+          colorValue={value?.dark}
+          icon={moon}
+          title={__('Dark', 'aggressive-apparel')}
+        />
+      </span>
+    </span>
+  );
+}
+
+/**
+ * One compact Adaptive Color row for a light/dark pair.
+ */
+function AdaptiveColorRow({
+  label,
+  value,
+  onChange,
+  colors,
+}: {
+  label: string;
+  value: AdaptiveColorPair | undefined;
+  onChange: (value: AdaptiveColorPair | undefined) => void;
+  colors: PaletteColor[] | undefined;
+}) {
+  const { colorMode, switchColorMode } = useEditorColorScheme();
+  const hasValue = hasAdaptivePairValue(value);
+
+  return (
+    <div className='aa-adaptive-color-row'>
+      <Dropdown
+        className='aa-adaptive-color-row__dropdown'
+        popoverProps={{
+          placement: 'left-start',
+          offset: 36,
+          shift: true,
+          className: 'aa-adaptive-color-popover',
+        }}
+        renderToggle={({ isOpen, onToggle }) => (
+          <>
+            <Button
+              __next40pxDefaultSize
+              onClick={onToggle}
+              aria-expanded={isOpen}
+              className={`aa-adaptive-color-row__toggle${
+                isOpen ? 'is-open' : ''
+              }`}
+            >
+              <DualColorIndicator value={value} label={label} />
+            </Button>
+            {hasValue && (
+              <Button
+                __next40pxDefaultSize
+                label={__('Reset', 'aggressive-apparel')}
+                className='block-editor-panel-color-gradient-settings__reset'
+                size='small'
+                icon={resetIcon}
+                onClick={() => onChange(undefined)}
+              />
+            )}
+          </>
+        )}
+        renderContent={() => (
+          <DropdownContentWrapper paddingSize='none'>
+            <div
+              className='block-editor-panel-color-gradient-settings__dropdown-content'
+              style={{
+                padding: '16px',
+                width: '280px',
+                maxWidth: '280px',
+                boxSizing: 'border-box',
+                color: ADMIN_CHROME_COLORS.text,
+              }}
+            >
+              <AdaptiveColorPicker
+                label={label}
+                mode={colorMode}
+                onModeChange={switchColorMode}
+                value={value}
+                onChange={onChange}
+                colors={colors}
+              />
+            </div>
+          </DropdownContentWrapper>
+        )}
+      />
+    </div>
+  );
+}
+
+/**
+ * Adaptive Color sidebar panel.
+ */
+function AdaptiveColorControls({
   attributes,
   setAttributes,
   supportsBackground,
@@ -155,110 +325,111 @@ function AdaptiveColorPanel({
   supportsBackground: boolean;
   supportsText: boolean;
 }) {
-  const [allColors] = useSettings('color.palette') as [
-    Array<{ name: string; slug: string; color: string }> | undefined,
-  ];
-
-  // Filter out adaptive (light-dark) palette entries — they shouldn't appear
-  // in per-mode pickers since each slot expects a single concrete color value.
-  const colors = useMemo(
-    () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
-    [allColors]
-  );
+  const [colors] = useSettings('color.palette') as [PaletteColor[] | undefined];
 
   const adaptiveBg = attributes.adaptiveBackground;
   const adaptiveText = attributes.adaptiveText;
-
   const hasAnyValue =
-    adaptiveBg?.light ||
-    adaptiveBg?.dark ||
-    adaptiveText?.light ||
-    adaptiveText?.dark;
+    hasAdaptivePairValue(adaptiveBg) || hasAdaptivePairValue(adaptiveText);
 
-  const { colorMode, switchColorMode } = useEditorColorScheme();
+  const showsConflict =
+    (hasAdaptivePairValue(adaptiveBg) &&
+      hasCoreColor(attributes, 'background')) ||
+    (hasAdaptivePairValue(adaptiveText) && hasCoreColor(attributes, 'text'));
 
-  const updateBg = (mode: 'light' | 'dark', value?: string) => {
-    const current = attributes.adaptiveBackground || {};
-    const updated = { ...current, [mode]: value || '' };
-    if (!updated.light && !updated.dark) {
-      setAttributes({ adaptiveBackground: undefined });
-    } else {
-      setAttributes({ adaptiveBackground: updated });
+  /**
+   * Clear a core color channel so adaptive overrides don't stack silently.
+   */
+  const withoutCoreColor = (
+    channel: 'background' | 'text'
+  ): Partial<BlockAttributes> => {
+    const style = attributes.style ? { ...attributes.style } : undefined;
+    if (style?.color) {
+      const color = { ...style.color };
+      delete color[channel];
+      style.color = Object.keys(color).length > 0 ? color : undefined;
     }
+
+    if (channel === 'background') {
+      return { backgroundColor: undefined, style };
+    }
+
+    return { textColor: undefined, style };
   };
 
-  const updateText = (mode: 'light' | 'dark', value?: string) => {
-    const current = attributes.adaptiveText || {};
-    const updated = { ...current, [mode]: value || '' };
-    if (!updated.light && !updated.dark) {
-      setAttributes({ adaptiveText: undefined });
-    } else {
-      setAttributes({ adaptiveText: updated });
+  const updateBackground = (value: AdaptiveColorPair | undefined) => {
+    const next = normalizeAdaptivePair(value);
+    // Adaptive overrides win on the front end — clear conflicting core colors.
+    if (next) {
+      setAttributes({
+        adaptiveBackground: next,
+        ...withoutCoreColor('background'),
+      });
+      return;
     }
+    setAttributes({ adaptiveBackground: undefined });
   };
 
-  const clearAll = () => {
-    setAttributes({
-      adaptiveBackground: undefined,
-      adaptiveText: undefined,
-    });
+  const updateText = (value: AdaptiveColorPair | undefined) => {
+    const next = normalizeAdaptivePair(value);
+    if (next) {
+      setAttributes({
+        adaptiveText: next,
+        ...withoutCoreColor('text'),
+      });
+      return;
+    }
+    setAttributes({ adaptiveText: undefined });
   };
 
   return (
-    <PanelBody
-      title={__('Adaptive Colors', 'aggressive-apparel')}
-      initialOpen={false}
-    >
-      <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
-        {__(
-          'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
-          'aggressive-apparel'
+    <InspectorControls>
+      <PanelBody
+        title={__('Adaptive Color', 'aggressive-apparel')}
+        initialOpen={hasAnyValue}
+      >
+        <p style={ADMIN_HELP_TEXT_STYLE}>
+          {__(
+            'Set different colors for light and dark mode on this block.',
+            'aggressive-apparel'
+          )}
+        </p>
+
+        {supportsText && (
+          <AdaptiveColorRow
+            label={__('Typography', 'aggressive-apparel')}
+            value={adaptiveText}
+            onChange={updateText}
+            colors={colors}
+          />
         )}
-      </p>
 
-      <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
-
-      {supportsBackground && (
-        <BaseControl
-          label={__('Background', 'aggressive-apparel')}
-          __nextHasNoMarginBottom
-        >
-          <ColorPalette
+        {supportsBackground && (
+          <AdaptiveColorRow
+            label={__('Background', 'aggressive-apparel')}
+            value={adaptiveBg}
+            onChange={updateBackground}
             colors={colors}
-            value={colorMode === 'light' ? adaptiveBg?.light : adaptiveBg?.dark}
-            onChange={value => updateBg(colorMode, value)}
-            clearable
           />
-        </BaseControl>
-      )}
+        )}
 
-      {supportsText && (
-        <BaseControl
-          label={__('Text', 'aggressive-apparel')}
-          __nextHasNoMarginBottom
-        >
-          <ColorPalette
-            colors={colors}
-            value={
-              colorMode === 'light' ? adaptiveText?.light : adaptiveText?.dark
-            }
-            onChange={value => updateText(colorMode, value)}
-            clearable
-          />
-        </BaseControl>
-      )}
-
-      {hasAnyValue && (
-        <Button variant='tertiary' isDestructive onClick={clearAll}>
-          {__('Clear All Adaptive Colors', 'aggressive-apparel')}
-        </Button>
-      )}
-    </PanelBody>
+        {showsConflict && (
+          <div style={{ ...EDITOR_INFO_NOTICE_STYLE, marginTop: '8px' }}>
+            <p style={{ margin: 0, fontSize: '12px' }}>
+              {__(
+                'Adaptive Color overrides the standard Text / Background colors for this block.',
+                'aggressive-apparel'
+              )}
+            </p>
+          </div>
+        )}
+      </PanelBody>
+    </InspectorControls>
   );
 }
 
 /**
- * Filter 2: Add Adaptive Colors panel to block sidebar.
+ * Filter 2: Add Adaptive Color panel to the block sidebar.
  */
 const withAdaptiveColorControls = createHigherOrderComponent(
   (BlockEdit: ComponentType<BlockEditProps<BlockAttributes>>) => {
@@ -276,14 +447,12 @@ const withAdaptiveColorControls = createHigherOrderComponent(
       return (
         <>
           <BlockEdit {...props} />
-          <InspectorControls>
-            <AdaptiveColorPanel
-              attributes={props.attributes}
-              setAttributes={props.setAttributes}
-              supportsBackground={background}
-              supportsText={text}
-            />
-          </InspectorControls>
+          <AdaptiveColorControls
+            attributes={props.attributes}
+            setAttributes={props.setAttributes}
+            supportsBackground={background}
+            supportsText={text}
+          />
         </>
       );
     }

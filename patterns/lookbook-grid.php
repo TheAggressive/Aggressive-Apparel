@@ -24,6 +24,7 @@
 	<div style="height:var(--wp--preset--spacing--10)" aria-hidden="true" class="wp-block-spacer"></div>
 	<!-- /wp:spacer -->
 
+	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column {"width":"60%"} -->
@@ -35,6 +36,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Urban Collection</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/urban">Shop Collection</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -50,6 +59,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Gym Essentials</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/gym">Shop Now</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -61,6 +78,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Accessories</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/accessories">Shop Now</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -80,6 +105,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Street Style</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/street">View Look</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -95,6 +128,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Performance Gear</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/performance">Shop Now</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -110,6 +151,14 @@
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Limited Edition</h3>
 					<!-- /wp:heading -->
+
+					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/limited">Shop Now</a></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:buttons -->
 				</div>
 			</div>
 			<!-- /wp:cover -->
@@ -117,5 +166,6 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
+	<!-- /wp:aggressive-apparel/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

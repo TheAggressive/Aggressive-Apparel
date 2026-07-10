@@ -353,11 +353,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					data-wp-bind--aria-hidden="state.ariaHiddenSlide"
 					data-wp-bind--tabindex="state.slideTabindex"
 				>
-					<?php
-					// Post-processed render_block() output; wp_kses_post() would strip cover media/embeds.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $hero_slide_html;
-					?>
+					<?php echo aggressive_apparel_trusted_html( $hero_slide_html ); ?>
 				</div>
 			<?php endforeach; ?>
 		</div>
@@ -421,11 +417,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 								<?php if ( 'numbers' === $hero_pagination ) : ?>
 									<span class="aa-hero__dot-number"><?php echo (int) ( $hero_dot + 1 ); ?></span>
 								<?php elseif ( 'thumbnails' === $hero_pagination ) : ?>
-									<?php
-									// Escaped inside $hero_slide_thumb() (wp_get_attachment_image / esc_url / esc_attr).
-									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									echo $hero_slide_thumb( $hero_slides[ $hero_dot ]['attrs'] ?? array() );
-									?>
+									<?php echo aggressive_apparel_trusted_html( $hero_slide_thumb( $hero_slides[ $hero_dot ]['attrs'] ?? array() ) ); ?>
 								<?php endif; ?>
 							</button>
 						<?php endfor; ?>

@@ -55,30 +55,18 @@ $context = (string) wp_json_encode(
 		'dropPageUrl' => $drop_page_url,
 	)
 );
-
-$wrapper_attrs = get_block_wrapper_attributes(
-	array(
-		'class'               => 'aggressive-apparel-countdown',
-		'data-wp-interactive' => 'aggressive-apparel/countdown',
-		'data-wp-context'     => $context,
-		'data-wp-init'        => 'callbacks.startTicker',
-	)
-);
 ?>
-<div 
-<?php
-echo wp_kses(
-	$wrapper_attrs,
-	array(
-		'class'               => array(),
-		'id'                  => array(),
-		'style'               => array(),
-		'data-wp-interactive' => array(),
-		'data-wp-context'     => array(),
-		'data-wp-init'        => array(),
-	)
-);
-?>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'               => 'aggressive-apparel-countdown',
+			'data-wp-interactive' => 'aggressive-apparel/countdown-timer',
+			'data-wp-context'     => $context,
+			'data-wp-init'        => 'callbacks.startTicker',
+		)
+	);
+	?>
 >
 	<span class="aggressive-apparel-countdown__label">
 		<?php esc_html_e( 'Sale ends in', 'aggressive-apparel' ); ?>

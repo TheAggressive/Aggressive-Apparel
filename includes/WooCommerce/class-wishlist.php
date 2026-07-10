@@ -159,7 +159,6 @@ class Wishlist {
 	public static function find_existing_page_id(): int {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-off lookup for page discovery.
 		$page_id = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts}
@@ -280,12 +279,16 @@ BLOCKS;
 			'build/interactivity/wishlist'
 		);
 
-		// Provide the public Store API URL so the wishlist page can fetch product details.
+		// Provide the public Store API URL and translatable heart labels.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			wp_interactivity_state(
 				'aggressive-apparel/wishlist',
 				array(
 					'productsApiUrl' => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+					'i18n'           => array(
+						'addLabel'    => Feature_Settings::get_wishlist_button_text(),
+						'removeLabel' => __( 'Remove from wishlist', 'aggressive-apparel' ),
+					),
 				),
 			);
 		}
@@ -393,8 +396,7 @@ BLOCKS;
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML built with esc_ functions.
-		echo $this->get_heart_button_html( $product_id, true );
+		echo aggressive_apparel_trusted_html( $this->get_heart_button_html( $product_id, true ) );
 	}
 
 	/**
@@ -448,7 +450,6 @@ BLOCKS;
 			),
 		);
 
-		// phpcs:disable Generic.WhiteSpace.ScopeIndent -- Inline HTML concatenation.
 		$html = '<div class="aggressive-apparel-wishlist-page"'
 			. ' data-wp-interactive="aggressive-apparel/wishlist"'
 			. ' data-wp-context=\'' . esc_attr( $context ) . '\''
@@ -485,7 +486,6 @@ BLOCKS;
 			. '</p>';
 
 		$html .= '</div>';
-		// phpcs:enable Generic.WhiteSpace.ScopeIndent
 
 		return $html;
 	}

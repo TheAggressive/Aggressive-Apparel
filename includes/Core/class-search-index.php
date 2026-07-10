@@ -83,7 +83,6 @@ class Search_Index {
 		dbDelta( $sql );
 
 		// Do not claim the schema is ready if the host rejected table creation.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time schema verification.
 		$installed_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
 		if ( $installed_table !== $table ) {
 			return;
@@ -161,10 +160,8 @@ class Search_Index {
 			LIMIT %d OFFSET %d';
 		array_push( $params, $post_type, $wpdb->esc_like( $words[0] ) . '%', $limit, $offset );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic identifiers are the fixed index table and generated aliases; all values are prepared.
 		$prepared = $wpdb->prepare( $sql, ...$params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Purpose-built indexed lookup; REST responses are transient-cached.
-		$ids = $wpdb->get_col( $prepared );
+		$ids      = $wpdb->get_col( $prepared );
 
 		return array_map( 'intval', $ids );
 	}
@@ -176,7 +173,7 @@ class Search_Index {
 	 * @param \WP_Post $post    Saved post.
 	 * @param bool     $update  Whether this updated an existing post.
 	 */
-	public function queue_post( int $post_id, \WP_Post $post, bool $update ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress action signature.
+	public function queue_post( int $post_id, \WP_Post $post, bool $update ): void {
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 			return;
 		}
@@ -203,7 +200,6 @@ class Search_Index {
 		}
 
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Primary-key delete on the search index.
 		$deleted = $wpdb->delete( self::table_name(), array( 'object_id' => $post_id ), array( '%d' ) );
 		if ( is_int( $deleted ) && $deleted > 0 ) {
 			$this->bump_generation();
@@ -313,7 +309,6 @@ class Search_Index {
 		if ( 0 === $cursor ) {
 			// Frontend reads are disabled until completion, so clearing here cannot
 			// expose a partial index.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Fixed theme-owned table name; explicit index rebuild.
 			$wpdb->query( 'TRUNCATE TABLE ' . self::table_name() );
 		}
 
@@ -327,10 +322,8 @@ class Search_Index {
 			ORDER BY ID ASC
 			LIMIT %d";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Values are prepared; table and placeholders are controlled above.
 		$prepared = $wpdb->prepare( $sql, ...array_merge( $types, array( $cursor, self::BATCH_SIZE ) ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Prepared immediately above.
-		$ids = array_map( 'intval', $wpdb->get_col( $prepared ) );
+		$ids      = array_map( 'intval', $wpdb->get_col( $prepared ) );
 
 		if ( ! empty( $ids ) ) {
 			$this->sync_ids( $ids );
@@ -400,7 +393,6 @@ class Search_Index {
 	private function sync_one( int $id ): bool {
 		$post = get_post( $id );
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Primary-key maintenance delete.
 		$deleted = $wpdb->delete( self::table_name(), array( 'object_id' => $id ), array( '%d' ) );
 
 		if ( ! $post instanceof \WP_Post || ! Search_Visibility::is_indexable( $post ) ) {
@@ -420,10 +412,8 @@ class Search_Index {
 			array_push( $params, $id, $post->post_type, $token, $weight, $now );
 		}
 
-		$sql = 'INSERT INTO ' . self::table_name() . ' (object_id, object_type, token, weight, updated_at) VALUES ' . implode( ', ', $values );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated placeholders only; all row values are prepared.
+		$sql      = 'INSERT INTO ' . self::table_name() . ' (object_id, object_type, token, weight, updated_at) VALUES ' . implode( ', ', $values );
 		$prepared = $wpdb->prepare( $sql, ...$params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Bounded index batch for one object.
 		return false !== $wpdb->query( $prepared );
 	}
 
@@ -474,7 +464,6 @@ class Search_Index {
 					global $wpdb;
 					// Fetch all variation SKUs in one indexed query instead of hydrating
 					// every variation object during a large rebuild.
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Background index maintenance.
 					$variation_skus = $wpdb->get_col(
 						$wpdb->prepare(
 							"SELECT product_lookup.sku
@@ -630,7 +619,7 @@ class Search_Index {
 		}
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( $message . ' ' . (string) wp_json_encode( $context ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			aggressive_apparel_debug_log( $message, $context );
 		}
 	}
 

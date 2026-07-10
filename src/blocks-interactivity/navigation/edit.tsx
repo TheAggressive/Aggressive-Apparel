@@ -31,15 +31,16 @@ import {
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { addQueryArgs } from '@wordpress/url';
-import { useMemo } from '@wordpress/element';
 import {
   useEditorColorScheme,
   ColorModeToggle,
 } from '../../utils/editor-color-scheme';
 import {
-  EDITOR_HELP_TEXT_STYLE,
-  EDITOR_META_TEXT_STYLE,
-} from '../../utils/editor-style-tokens';
+  AdaptiveColorPicker,
+  composeLightDark,
+  parseLightDark,
+} from '../../utils/adaptive-color-picker';
+import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
 import type { BorderStyle, NavigationAttributes } from './types';
 
@@ -65,96 +66,32 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
 ];
 
 /**
- * Parse a CSS color value that may contain light-dark().
+ * Bridge string light-dark() attributes to the shared AdaptiveColorPicker.
  */
-function parseLightDark(value: string | undefined): {
-  light?: string;
-  dark?: string;
-} {
-  if (!value) return {};
-
-  if (value.startsWith('light-dark(') && value.endsWith(')')) {
-    const inner = value.slice(11, -1);
-    let depth = 0;
-    for (let i = 0; i < inner.length; i++) {
-      if (inner[i] === '(') depth++;
-      else if (inner[i] === ')') depth--;
-      else if (inner[i] === ',' && depth === 0) {
-        return {
-          light: inner.slice(0, i).trim(),
-          dark: inner.slice(i + 1).trim(),
-        };
-      }
-    }
-  }
-
-  return { light: value, dark: value };
-}
-
-/**
- * Compose light and dark colors into a CSS value.
- */
-function composeLightDark(light?: string, dark?: string): string | undefined {
-  if (light && dark) {
-    return light === dark ? light : `light-dark(${light}, ${dark})`;
-  }
-  return light || dark || undefined;
-}
-
-/**
- * Adaptive color picker.
- *
- * Two ways to pick:
- *  1. "Theme colors" — the palette's adaptive (light-dark) colors as one-click
- *     swatches. Picking one applies its full light/dark pairing at once, so you
- *     usually never touch the manual controls. This is the common case and the
- *     reason the adaptive theme colors are now visible here.
- *  2. Manual — pick a flat color for the current light/dark mode (advanced:
- *     two arbitrary non-theme colors).
- */
-function AdaptiveColorPicker({
+function NavigationAdaptiveColorPicker({
   mode,
+  onModeChange,
   value,
   onChange,
   colors,
-  adaptiveColors,
+  showModeToggle = false,
 }: {
   mode: 'light' | 'dark';
+  onModeChange?: (mode: 'light' | 'dark') => void;
   value: string | undefined;
   onChange: (value: string | undefined) => void;
   colors: Array<{ name: string; slug: string; color: string }> | undefined;
-  adaptiveColors:
-    | Array<{ name: string; slug: string; color: string }>
-    | undefined;
+  showModeToggle?: boolean;
 }) {
-  const parsed = parseLightDark(value);
   return (
-    <>
-      {adaptiveColors && adaptiveColors.length > 0 && (
-        <div style={{ marginBottom: '8px' }}>
-          <span style={EDITOR_META_TEXT_STYLE}>
-            {__('Theme colors (adapt automatically)', 'aggressive-apparel')}
-          </span>
-          <ColorPalette
-            colors={adaptiveColors}
-            value={value}
-            onChange={color => onChange(color)}
-            disableCustomColors
-            clearable={false}
-          />
-        </div>
-      )}
-      <ColorPalette
-        colors={colors}
-        value={mode === 'light' ? parsed.light : parsed.dark}
-        onChange={color => {
-          const newLight = mode === 'light' ? color : parsed.light;
-          const newDark = mode === 'dark' ? color : parsed.dark;
-          onChange(composeLightDark(newLight, newDark));
-        }}
-        clearable
-      />
-    </>
+    <AdaptiveColorPicker
+      mode={mode}
+      onModeChange={onModeChange}
+      value={parseLightDark(value)}
+      onChange={pair => onChange(composeLightDark(pair?.light, pair?.dark))}
+      colors={colors}
+      showModeToggle={showModeToggle}
+    />
   );
 }
 
@@ -180,19 +117,9 @@ export default function Edit({
     submenuBorderStyle,
   } = attributes;
 
-  const [allColors] = useSettings('color.palette') as [
+  const [colors] = useSettings('color.palette') as [
     Array<{ name: string; slug: string; color: string }> | undefined,
   ];
-  // Flat colors (for manual per-mode picks) vs adaptive theme colors (shown as
-  // one-click swatches that carry their own light/dark pairing).
-  const colors = useMemo(
-    () => allColors?.filter(c => !c.color.startsWith('light-dark(')),
-    [allColors]
-  );
-  const adaptiveColors = useMemo(
-    () => allColors?.filter(c => c.color.startsWith('light-dark(')),
-    [allColors]
-  );
 
   // Shared color scheme state — synced across all adaptive panels.
   const { colorMode, switchColorMode } = useEditorColorScheme();
@@ -359,48 +286,44 @@ export default function Edit({
             label={__('Background', 'aggressive-apparel')}
             __nextHasNoMarginBottom
           >
-            <AdaptiveColorPicker
+            <NavigationAdaptiveColorPicker
               mode={colorMode}
               value={submenuBackgroundColor}
               onChange={v => setAttributes({ submenuBackgroundColor: v })}
               colors={colors}
-              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
             label={__('Text', 'aggressive-apparel')}
             __nextHasNoMarginBottom
           >
-            <AdaptiveColorPicker
+            <NavigationAdaptiveColorPicker
               mode={colorMode}
               value={submenuTextColor}
               onChange={v => setAttributes({ submenuTextColor: v })}
               colors={colors}
-              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
             label={__('Link Hover Text', 'aggressive-apparel')}
             __nextHasNoMarginBottom
           >
-            <AdaptiveColorPicker
+            <NavigationAdaptiveColorPicker
               mode={colorMode}
               value={submenuLinkHoverColor}
               onChange={v => setAttributes({ submenuLinkHoverColor: v })}
               colors={colors}
-              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
           <BaseControl
             label={__('Link Hover Background', 'aggressive-apparel')}
             __nextHasNoMarginBottom
           >
-            <AdaptiveColorPicker
+            <NavigationAdaptiveColorPicker
               mode={colorMode}
               value={submenuLinkHoverBg}
               onChange={v => setAttributes({ submenuLinkHoverBg: v })}
               colors={colors}
-              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>
@@ -452,12 +375,11 @@ export default function Edit({
             label={__('Border Color', 'aggressive-apparel')}
             __nextHasNoMarginBottom
           >
-            <AdaptiveColorPicker
+            <NavigationAdaptiveColorPicker
               mode={colorMode}
               value={submenuBorderColor}
               onChange={v => setAttributes({ submenuBorderColor: v })}
               colors={colors}
-              adaptiveColors={adaptiveColors}
             />
           </BaseControl>
         </PanelBody>

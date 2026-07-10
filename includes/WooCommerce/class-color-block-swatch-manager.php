@@ -190,7 +190,7 @@ class Color_Block_Swatch_Manager {
 				'class',
 				trim( $button->getAttribute( 'class' ) . ' aggressive-apparel-color-chip' )
 			);
-			$button->insertBefore( $swatch, $button->firstChild ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$button->insertBefore( $swatch, $button->firstChild );
 
 			$modified = true;
 		}

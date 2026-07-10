@@ -400,7 +400,7 @@ class Custom_Badge_Taxonomy {
 				<div class="aa-badge-editor__preview">
 					<span class="aa-badge-editor__preview-label"><?php esc_html_e( 'Live Preview', 'aggressive-apparel' ); ?></span>
 					<div class="aa-badge-editor__stage">
-						<?php echo self::build_preview_markup( $d ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
+						<?php echo aggressive_apparel_trusted_html( self::build_preview_markup( $d ) ); ?>
 					</div>
 				</div>
 			</div>
@@ -672,7 +672,7 @@ class Custom_Badge_Taxonomy {
 			'<span%1$s style="%2$s">%3$s</span>',
 			'' !== $id ? ' id="' . esc_attr( $id ) . '"' : '',
 			esc_attr( $style ),
-			$label // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller passes escaped markup.
+			aggressive_apparel_trusted_html( $label )
 		);
 	}
 
@@ -757,9 +757,8 @@ class Custom_Badge_Taxonomy {
 		update_term_meta( $term_id, self::META_LIBRARY_ICON, $library_icon );
 
 		// Custom SVG icon.
-		$svg_icon = isset( $_POST['badge_svg_icon'] )
-			? self::sanitize_svg( wp_unslash( $_POST['badge_svg_icon'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized in method.
-			: '';
+		$raw_svg  = aggressive_apparel_unslash_post( 'badge_svg_icon' );
+		$svg_icon = is_string( $raw_svg ) ? self::sanitize_svg( $raw_svg ) : '';
 		update_term_meta( $term_id, self::META_SVG_ICON, $svg_icon );
 
 		// Icon color.
@@ -881,7 +880,7 @@ class Custom_Badge_Taxonomy {
 
 		$icon_html = self::build_badge_icon_html( $data['svg_icon'], $data['library_icon'], $data['icon'], $data['icon_color'], $data['icon_size'], $data['icon_gap'] );
 
-		echo self::build_static_badge_span( $data, $icon_html . esc_html( $term->name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+		echo aggressive_apparel_trusted_html( self::build_static_badge_span( $data, $icon_html . esc_html( $term->name ) ) );
 	}
 
 	/**
@@ -895,8 +894,8 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
-		$current_taxonomy = isset( $_GET['taxonomy'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current_taxonomy = isset( $_GET['taxonomy'] )
+			? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) )
 			: '';
 
 		if ( self::TAXONOMY !== $current_taxonomy ) {
@@ -1205,8 +1204,8 @@ class Custom_Badge_Taxonomy {
 				array(
 					'taxonomy'   => self::TAXONOMY,
 					'hide_empty' => false,
-					'meta_key'   => self::META_BADGE_TYPE, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-					'meta_value' => $badge_type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					'meta_key'   => self::META_BADGE_TYPE,
+					'meta_value' => $badge_type,
 					'number'     => 1,
 				),
 			);
@@ -1330,8 +1329,8 @@ class Custom_Badge_Taxonomy {
 			array(
 				'taxonomy'     => self::TAXONOMY,
 				'hide_empty'   => false,
-				'meta_key'     => self::META_BADGE_TYPE, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'   => array( 'sale', 'new', 'low_stock', 'bestseller' ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_key'     => self::META_BADGE_TYPE,
+				'meta_value'   => array( 'sale', 'new', 'low_stock', 'bestseller' ),
 				'meta_compare' => 'IN',
 			),
 		);

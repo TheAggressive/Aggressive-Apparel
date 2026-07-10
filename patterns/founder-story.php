@@ -16,10 +16,10 @@
 	<div class="wp-block-columns are-vertically-aligned-center">
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
-			<!-- wp:cover {"dimRatio":0,"minHeight":600,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
-			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:600px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
-				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
-				<p class="has-text-align-center has-medium-font-size">Founder portrait placeholder</p>
+			<!-- wp:cover {"dimRatio":0,"minHeight":600,"minHeightUnit":"px","contentPosition":"center center","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
+			<div class="wp-block-cover is-light has-custom-content-position is-position-center-center" style="background-color:var(--wp--preset--color--surface-elevated);min-height:600px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
+				<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
+				<p class="has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Add founder photo</p>
 				<!-- /wp:paragraph -->
 			</div></div>
 			<!-- /wp:cover -->
@@ -37,15 +37,11 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:quote {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","lineHeight":"1.7"}},"fontSize":"large"} -->
-			<blockquote class="wp-block-quote has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.7"><p>"I started Aggressive Apparel in my garage with one belief — clothing should fuel your confidence, not just cover your body."</p></blockquote>
+			<blockquote class="wp-block-quote has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;line-height:1.7"><p>"Clothing should fuel your confidence — not just cover your body."</p></blockquote>
 			<!-- /wp:quote -->
 
-			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">What started as a side project printing tees for friends has grown into a movement. Every piece in the Aggressive lineup is designed with the same hunger and hustle that built this brand from the ground up.</p>
-			<!-- /wp:paragraph -->
-
-			<!-- wp:paragraph {"style":{"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="line-height:1.8">No investors. No shortcuts. Just relentless drive and a community that believes in wearing their ambition.</p>
+			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"medium"} -->
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">What started as garage-printed tees for friends is now a full lineup built with the same hunger that launched the brand. No investors. No shortcuts — just drive and a community that wears its ambition.</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:separator {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|6"}}},"className":"is-style-wide"} -->

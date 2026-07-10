@@ -38,8 +38,8 @@
 			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)">Where the Street Meets the Studio</h2>
 			<!-- /wp:heading -->
 
-			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"fontSize":"medium"} -->
-			<p class="has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">Shot on location in downtown Los Angeles, the SS26 editorial captures the raw energy of the Aggressive lifestyle. Every piece tells a story of ambition, grit, and unapologetic confidence.</p>
+			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"medium"} -->
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">Shot on location in downtown Los Angeles, the SS26 editorial captures the raw energy of the Aggressive lifestyle. Every piece tells a story of ambition, grit, and unapologetic confidence.</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
@@ -49,15 +49,15 @@
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->
-		</div>
+			</div>
 		<!-- /wp:column -->
 
 		<!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%">
 			<!-- wp:cover {"dimRatio":0,"minHeight":550,"minHeightUnit":"px","isDark":false,"style":{"color":{"background":"var:preset|color|surface-elevated"}}} -->
 			<div class="wp-block-cover is-light" style="background-color:var(--wp--preset--color--surface-elevated);min-height:550px"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-0 has-background-dim"></span><div class="wp-block-cover__inner-container">
-				<!-- wp:paragraph {"align":"center","fontSize":"medium"} -->
-				<p class="has-text-align-center has-medium-font-size">Editorial image placeholder</p>
+				<!-- wp:paragraph {"align":"center","fontSize":"large"} -->
+				<p class="has-text-align-center has-large-font-size"></p>
 				<!-- /wp:paragraph -->
 			</div></div>
 			<!-- /wp:cover -->
@@ -107,3 +107,37 @@
 	<!-- /wp:column -->
 </div>
 <!-- /wp:columns -->
+
+<!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
+	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
+	<div class="wp-block-group">
+		<!-- wp:heading {"fontSize":"fluid-xxx-large"} -->
+		<h2 class="wp-block-heading has-fluid-xxx-large-font-size">Shop the Look</h2>
+		<!-- /wp:heading -->
+
+		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">View All Pieces &rarr;</a></p>
+		<!-- /wp:paragraph -->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:spacer {"height":"var:preset|spacing|10"} -->
+	<div style="height:var(--wp--preset--spacing--10)" aria-hidden="true" class="wp-block-spacer"></div>
+	<!-- /wp:spacer -->
+
+	<!-- wp:woocommerce/product-collection {"queryId":73,"query":{"perPage":3,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":3,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
+<!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
+<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
+<!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
+<!-- /wp:woocommerce/product-image -->
+<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"var:preset|spacing|3","bottom":"0"}}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/product-rating {"textAlign":"left"} /-->
+<!-- wp:woocommerce/product-price {"textAlign":"left","isDescendentOfQueryLoop":true,"className":"is-style-commerce-price","fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|1"}}}} /-->
+<!-- wp:woocommerce/product-button {"textAlign":"left","isDescendentOfQueryLoop":true,"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} /-->
+<!-- /wp:woocommerce/product-template -->
+</div>
+<!-- /wp:woocommerce/product-collection -->
+</div>
+<!-- /wp:group -->

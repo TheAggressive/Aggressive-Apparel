@@ -8,10 +8,21 @@
   "description": "Product price for a wishlist item card.",
   "parent": ["aggressive-apparel/wishlist"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
-    "color": { "text": true, "background": false },
-    "spacing": { "margin": true, "padding": true },
-    "typography": { "fontSize": true, "fontWeight": true, "lineHeight": true }
+    "color": {
+      "text": true,
+      "background": false
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontWeight": true,
+      "lineHeight": true
+    }
   },
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",

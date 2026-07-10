@@ -2,10 +2,10 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/dark-mode-toggle",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Dark Mode Toggle",
   "category": "theme",
-  "description": "A toggle switch for switching between light and dark themes.",
+  "description": "A modern sun/moon control for switching between light and dark themes.",
   "example": {},
   "supports": {
     "align": ["left", "center", "right"],
@@ -19,7 +19,7 @@
     },
     "color": {
       "text": true,
-      "background": true
+      "background": false
     },
     "html": false,
     "reusable": false
@@ -27,11 +27,15 @@
   "attributes": {
     "label": {
       "type": "string",
-      "default": "Dark Mode"
+      "default": ""
+    },
+    "labelDark": {
+      "type": "string",
+      "default": ""
     },
     "showLabel": {
       "type": "boolean",
-      "default": true
+      "default": false
     },
     "size": {
       "type": "string",
@@ -44,7 +48,7 @@
       "enum": ["left", "center", "right"]
     }
   },
-  "textdomain": "dark-mode-toggle",
+  "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",

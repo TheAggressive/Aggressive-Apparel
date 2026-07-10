@@ -344,7 +344,7 @@ class Theme_Updates {
 	 * @param array<string, mixed>   $_hook_extra Upgrader context.
 	 * @return false|\WP_Error|string Verified package path, original reply, or error.
 	 */
-	public function verify_package_download( $reply, $package, $_upgrader = null, array $_hook_extra = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public function verify_package_download( $reply, $package, $_upgrader = null, array $_hook_extra = array() ) {
 		if ( false !== $reply ) {
 			return $reply;
 		}
@@ -557,7 +557,7 @@ class Theme_Updates {
 	 * @param \WP_Upgrader $_upgrader     The upgrader instance.
 	 * @return string Modified source path.
 	 */
-	public function rename_package( $source, $remote_source, $_upgrader ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	public function rename_package( $source, $remote_source, $_upgrader ) {
 
 		// Extract theme slug from the remote source path.
 		// The path typically looks like: /path/to/upgrade/theme-slug-version/.
@@ -917,10 +917,10 @@ class Theme_Updates {
 		}
 
 		// Don't show update notice when actively updating themes or during upgrade process.
-		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
 		if ( $action ) {
 			// Hide during individual theme updates.
-			if ( 'upgrade-theme' === $action && isset( $_GET['theme'] ) && sanitize_text_field( wp_unslash( $_GET['theme'] ) ) === $theme_slug ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( 'upgrade-theme' === $action && isset( $_GET['theme'] ) && sanitize_text_field( wp_unslash( $_GET['theme'] ) ) === $theme_slug ) {
 				return;
 			}
 			// Hide during theme/core upgrade process.

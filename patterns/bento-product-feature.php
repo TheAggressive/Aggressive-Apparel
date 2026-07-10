@@ -16,10 +16,11 @@
 	<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size">Shop the Edit</h2>
 	<!-- /wp:heading -->
 
-	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|14"}}},"fontSize":"medium"} -->
-	<p class="has-text-align-center has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)">Curated picks for the season, handpicked by our team.</p>
+	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|14"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)">Heavyweight staples and limited collabs — pick your lane</p>
 	<!-- /wp:paragraph -->
 
+	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column {"width":"66.66%"} -->
@@ -53,6 +54,14 @@
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">New Hoodies</h4>
 				<!-- /wp:heading -->
+
+				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/hoodies">Shop Hoodies</a></div>
+					<!-- /wp:button -->
+				</div>
+				<!-- /wp:buttons -->
 			</div></div>
 			<!-- /wp:cover -->
 
@@ -61,6 +70,14 @@
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Graphic Tees</h4>
 				<!-- /wp:heading -->
+
+				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/tees">Shop Tees</a></div>
+					<!-- /wp:button -->
+				</div>
+				<!-- /wp:buttons -->
 			</div></div>
 			<!-- /wp:cover -->
 		</div>
@@ -77,6 +94,14 @@
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Joggers</h4>
 				<!-- /wp:heading -->
+
+				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/joggers">Shop Joggers</a></div>
+					<!-- /wp:button -->
+				</div>
+				<!-- /wp:buttons -->
 			</div></div>
 			<!-- /wp:cover -->
 
@@ -85,6 +110,14 @@
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
 				<h4 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Caps & Hats</h4>
 				<!-- /wp:heading -->
+
+				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
+				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
+					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/caps">Shop Caps</a></div>
+					<!-- /wp:button -->
+				</div>
+				<!-- /wp:buttons -->
 			</div></div>
 			<!-- /wp:cover -->
 		</div>
@@ -115,5 +148,6 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
+	<!-- /wp:aggressive-apparel/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

@@ -67,8 +67,8 @@ class Back_In_Stock_Admin {
 
 			<?php
 			// Show unsubscribed notice after deletion.
-			if ( isset( $_GET['deleted'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$count = absint( $_GET['deleted'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['deleted'] ) ) {
+				$count = absint( $_GET['deleted'] );
 				printf(
 					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
 					esc_html(
@@ -126,9 +126,9 @@ class Back_In_Stock_Admin {
 		}
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE id IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				"DELETE FROM {$table} WHERE id IN ({$placeholders})",
 				...$ids
 			)
 		);
@@ -227,44 +227,44 @@ class Back_In_Stock_Admin {
 				$args  = array();
 
 				// Status filter.
-				$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 				if ( in_array( $status, array( 'active', 'notified', 'unsubscribed' ), true ) ) {
 					$where .= ' AND status = %s';
 					$args[] = $status;
 				}
 
 				// Search filter.
-				$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 				if ( $search ) {
 					$where .= ' AND email LIKE %s';
 					$args[] = '%' . $wpdb->esc_like( $search ) . '%';
 				}
 
 				// Ordering.
-				$orderby = isset( $_GET['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) . ' ASC' ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$orderby = isset( $_GET['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) . ' ASC' ) : '';
 				$orderby = $orderby ? explode( ' ', $orderby )[0] : 'created_at';
 				$allowed = array( 'email', 'status', 'created_at' );
 				$orderby = in_array( $orderby, $allowed, true ) ? $orderby : 'created_at';
-				$order   = ( isset( $_GET['order'] ) && 'asc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ) ? 'ASC' : 'DESC'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$order   = ( isset( $_GET['order'] ) && 'asc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ) ? 'ASC' : 'DESC';
 
 				// Total items.
 				if ( $args ) {
-					$total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+					$total_items = (int) $wpdb->get_var(
 						$wpdb->prepare(
-							"SELECT COUNT(*) FROM {$table} WHERE {$where}", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders in dynamic $where.
+							"SELECT COUNT(*) FROM {$table} WHERE {$where}",
 							...$args
 						)
 					);
 				} else {
-					$total_items = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
-						"SELECT COUNT(*) FROM {$table} WHERE {$where}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$total_items = (int) $wpdb->get_var(
+						"SELECT COUNT(*) FROM {$table} WHERE {$where}"
 					);
 				}
 
 				// Fetch rows.
 				$query_args  = array_merge( $args, array( $per_page, $offset ) );
-				$query       = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$this->items = $wpdb->get_results( $wpdb->prepare( $query, ...$query_args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+				$query       = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+				$this->items = $wpdb->get_results( $wpdb->prepare( $query, ...$query_args ) );
 
 				$this->set_pagination_args(
 					array(
@@ -398,7 +398,7 @@ class Back_In_Stock_Admin {
 				if ( 'top' !== $which ) {
 					return;
 				}
-				$current = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$current = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 				?>
 				<div class="alignleft actions">
 					<select name="status">

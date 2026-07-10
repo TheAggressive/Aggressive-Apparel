@@ -60,6 +60,48 @@ function aggressive_apparel_render_icon( string $icon, array $attrs = array() ):
 }
 
 /**
+ * Mark HTML as trusted for escaped output (PHPCS EscapeOutput).
+ *
+ * Use only when the markup is already safe:
+ * - InnerBlocks `$content` from the block editor
+ * - Strings built with esc_html / esc_attr / esc_url in the same scope
+ * - Theme SVG from Icons / Icon_Block
+ * - Static theme chrome (critical CSS, announcer shells)
+ *
+ * Registered in phpcs.xml.dist as customAutoEscapedFunctions so call sites
+ * do not need phpcs:ignore. Never pass unsanitized request/user input.
+ *
+ * @param string $html Already-escaped or otherwise trusted HTML.
+ * @return string Same HTML, safe to echo/printf under WPCS EscapeOutput.
+ */
+function aggressive_apparel_trusted_html( string $html ): string {
+	return $html;
+}
+
+/**
+ * Product rating marks markup (brand icon fill).
+ *
+ * Thin wrapper so PHPCS can treat Rating::stars() as auto-escaped.
+ *
+ * @param float $rating Average rating 0–5.
+ * @return string Accessible rating HTML.
+ */
+function aggressive_apparel_rating_stars( float $rating ): string {
+	return \Aggressive_Apparel\WooCommerce\Rating::stars( $rating );
+}
+
+/**
+ * Brand / library icon SVG for the icon block.
+ *
+ * @param string    $slug Icon slug.
+ * @param int|float $size Pixel size.
+ * @return string SVG markup or empty string.
+ */
+function aggressive_apparel_icon_block_svg( string $slug, int|float $size = 48 ): string {
+	return \Aggressive_Apparel\Blocks\Icon_Block::render_svg( $slug, $size );
+}
+
+/**
  * Read a local theme file from an absolute path under the theme directory.
  *
  * Prefer WordPress APIs (wp_json_file_decode, get_block_template) when possible.
@@ -94,4 +136,44 @@ function aggressive_apparel_read_theme_file( string $absolute_path ): string|fal
  */
 function aggressive_apparel_free_shipping_threshold(): float {
 	return \Aggressive_Apparel\WooCommerce\Free_Shipping::get_threshold();
+}
+
+/**
+ * Write a theme log line (single allowed error_log sink for PHPCS).
+ *
+ * Callers decide when to invoke (e.g. WP_DEBUG). Do not pass secrets.
+ *
+ * @param string               $message Log message.
+ * @param array<string, mixed> $context Optional structured context.
+ */
+function aggressive_apparel_debug_log( string $message, array $context = array() ): void {
+	$line = '[Aggressive Apparel] ' . $message;
+	if ( array() !== $context ) {
+		$encoded = wp_json_encode( $context );
+		if ( is_string( $encoded ) ) {
+			$line .= ' ' . $encoded;
+		}
+	}
+
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Single allowed debug sink.
+	error_log( $line );
+}
+
+/**
+ * Read and unslash a POST value for a dedicated sanitizer.
+ *
+ * PHPCS cannot see custom sanitize_* methods on the next line; this helper
+ * owns the one InputNotSanitized exception. Always pass the return value
+ * through a sanitizer before persistence or output.
+ *
+ * @param string $key POST key.
+ * @return mixed|null Unslashed value, or null when unset.
+ */
+function aggressive_apparel_unslash_post( string $key ): mixed {
+	if ( ! isset( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller verifies nonce before use.
+		return null;
+	}
+
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- Caller sanitizes and verifies nonce.
+	return wp_unslash( $_POST[ $key ] );
 }

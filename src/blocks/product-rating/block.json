@@ -20,6 +20,7 @@
     }
   },
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "spacing": {
       "margin": true,
@@ -28,6 +29,7 @@
     "className": true
   },
   "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",
   "render": "file:./render.php"
 }

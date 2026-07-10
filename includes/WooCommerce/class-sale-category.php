@@ -230,7 +230,7 @@ class Sale_Category {
 	 * @param \WP_Post $post       Post being transitioned.
 	 * @return void
 	 */
-	public function queue_status_transition( string $new_status, string $old_status, \WP_Post $post ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress action signature.
+	public function queue_status_transition( string $new_status, string $old_status, \WP_Post $post ): void {
 		if ( in_array( $post->post_type, array( 'product', 'product_variation' ), true ) ) {
 			$this->queue_product_sync( (int) $post->ID );
 		}
@@ -593,7 +593,6 @@ class Sale_Category {
 	private function get_product_batch_after( int $cursor ): array {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cursor batching avoids costly OFFSET scans and returns IDs only.
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product' AND ID > %d ORDER BY ID ASC LIMIT %d",

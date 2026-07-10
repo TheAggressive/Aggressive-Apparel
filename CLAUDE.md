@@ -4,13 +4,15 @@ This file provides guidance for AI assistants working with the Aggressive Appare
 
 ## Overview
 
-**Aggressive Apparel** is a modern WordPress Full Site Editing (FSE) block theme built specifically for WooCommerce. It features a sophisticated service container architecture, custom Gutenberg blocks with Interactivity API support, and comprehensive testing infrastructure.
+**Aggressive Apparel** is a modern WordPress Full Site Editing (FSE) block theme built specifically for WooCommerce. It features a service container architecture, custom Gutenberg blocks with Interactivity API support, toggleable store enhancements, and comprehensive testing infrastructure.
 
-- **Version:** 1.16.0
-- **Requires:** WordPress 6.0+, PHP 8.0+
-- **Tested up to:** WordPress 6.8
-- **Package Manager:** pnpm
+- **Version:** see `style.css` / `package.json` (semantic-release; do not hardcode here)
+- **Requires:** WordPress 7.0+, PHP 8.0+
+- **Tested up to:** WordPress 7.0
+- **Package Manager:** pnpm 11+
 - **License:** GPL-2.0-or-later
+
+Canonical human-facing overview: [`README.md`](README.md). Keep architecture notes here; keep inventory counts and feature tables in the README when they change.
 
 ## Quick Commands
 
@@ -45,38 +47,46 @@ pnpm setup            # Full setup: install → build → start
 ```
 aggressive-apparel/
 ├── build/                    # Compiled output (git-ignored)
-│   ├── blocks/              # Static blocks
-│   ├── blocks-interactivity/# Interactive blocks
-│   ├── scripts/             # Theme scripts
-│   └── styles/              # Theme styles
+│   ├── blocks/               # Static blocks
+│   ├── blocks-interactivity/ # Interactive blocks
+│   ├── interactivity/        # Shared enhancement modules + nav stores
+│   ├── icons/                # Generated brand icon definitions
+│   ├── scripts/              # Theme scripts
+│   └── styles/               # Theme styles
 ├── includes/                 # PHP classes (PSR-4 autoloaded)
-│   ├── Assets/              # Script and style loaders
-│   ├── Blocks/              # Block registration
-│   ├── Core/                # Theme supports, image sizes, icons
-│   └── WooCommerce/         # WooCommerce integration
+│   ├── Assets/               # Script and style loaders
+│   ├── Blocks/               # Block registration
+│   ├── Core/                 # Theme supports, image sizes, icons, updates, adaptive colors
+│   └── WooCommerce/          # WooCommerce integration + store enhancements
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns
 ├── src/                      # Source code
-│   ├── blocks/              # Static Gutenberg blocks
-│   ├── blocks-interactivity/# Interactive blocks (Interactivity API)
-│   ├── scripts/             # Theme JavaScript/TypeScript
-│   └── styles/              # Theme CSS
-├── templates/                # FSE templates
+│   ├── blocks/               # Static Gutenberg blocks (6)
+│   ├── blocks-interactivity/ # Interactive blocks (Interactivity API, 34)
+│   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores)
+│   ├── icons/                # Brand SVG sources
+│   ├── scripts/              # Theme JavaScript/TypeScript
+│   └── styles/               # Theme CSS
+├── templates/                # FSE templates (13 HTML + emails/)
 └── tests/                    # Test suites
 ```
 
 ### PHP Architecture
 
-The theme uses a **service container pattern** with dependency injection:
+The theme uses a **service container** for registration and lazy resolution (most services are constructed with `new`; a few receive injected deps):
 
 ```
 functions.php
     └── Autoloader (PSR-4)
     └── Bootstrap (Singleton)
         └── Service_Container
-            ├── Core services (theme_support, image_sizes, etc.)
-            ├── Asset services (styles, scripts)
-            └── WooCommerce services (conditional)
+            ├── Core (theme support, icons, image sizes, adaptive colors, updates)
+            ├── Assets (styles, scripts)
+            ├── Blocks (auto-discovery from build/)
+            └── WooCommerce (conditional)
+                ├── Core WC support (templates, cart, product loop, color swatches)
+                ├── Feature_Settings (19 toggles + store copy)
+                └── Enhancements → individual feature classes
 ```
 
 **Namespace:** `Aggressive_Apparel\`
@@ -84,14 +94,15 @@ functions.php
 **Key Classes:**
 
 - [class-bootstrap.php](includes/class-bootstrap.php) - Main initialization, security headers
-- [class-service-container.php](includes/class-service-container.php) - DI container
+- [class-service-container.php](includes/class-service-container.php) - Service registry / factory
 - [class-blocks.php](includes/Blocks/class-blocks.php) - Auto-discovers and registers blocks
 - [class-theme-support.php](includes/Core/class-theme-support.php) - Theme features
 - [class-icons.php](includes/Core/class-icons.php) - SVG icon system
+- [class-enhancements.php](includes/WooCommerce/class-enhancements.php) - Feature flag coordinator
 
 ### Block System
 
-Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/` directories.
+Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/` directories. Full inventory and placement rules: [`README.md`](README.md) and [`docs/block-placement.md`](docs/block-placement.md).
 
 **Static Blocks** (`src/blocks/`):
 | Block | Description |
@@ -99,19 +110,25 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 | `aggressive-apparel-logo` | Brand logo component |
 | `dark-mode-toggle` | Light/dark theme switcher |
 | `copyright` | Footer copyright line |
+| `icon` | Brand / UI icon picker |
+| `product-rating` | Product rating display |
+| `split-story` | Split editorial layout |
 
-**Interactive Blocks** (`src/blocks-interactivity/`):
+**Interactive Blocks** (`src/blocks-interactivity/`) — highlights:
+
 | Block | Description |
 |-------|-------------|
-| `navigation` | Responsive navigation (toggle, mobile panel, menu bar) |
-| `nav-link` | Single navigation link (child of navigation or nav-submenu) |
-| `nav-submenu` | Dropdown and mega menu support |
-| `parallax` | Advanced parallax effects |
+| `navigation` / `navigation-panel` | Desktop bar + mobile drawer (separate stores; see Navigation System) |
+| `nav-link` | Shared leaf link |
+| `nav-submenu-*` | Dropdown, mega, accordion, drilldown |
+| `parallax` | Parallax effects |
 | `animate-on-scroll` | Scroll-triggered animations |
-| `filter-toggle` | Opens the product filters drawer (block-placed; ships own CSS) |
-| `filter-active-bar` | Active filter pills + Clear All (block-placed; ships own CSS) |
+| `filter-toggle` / `filter-active-bar` | Product filters UI (block-placed; ships own CSS) |
+| `hero-carousel` | Hero carousel |
+| `wishlist` (+ item blocks) | Wishlist page and heart toggle |
+| `free-shipping-bar` / `free-shipping-message` | Free-shipping progress / copy |
 
-**Product filter blocks:** When Product Filters is enabled, place `aggressive-apparel/filter-toggle` and `aggressive-apparel/filter-active-bar` on shop, category, and tag archive templates. There is no automatic injection — both blocks wire into the shared `aggressive-apparel/product-filters` Interactivity store. CSS lives in each block's `style.css`, not the global product-filters stylesheet.
+**Product filter blocks:** When Product Filters is enabled, place `aggressive-apparel/filter-toggle` and `aggressive-apparel/filter-active-bar` on shop, category, and tag archive templates. There is no automatic injection — both blocks wire into the shared `aggressive-apparel/product-filters` Interactivity store. CSS lives in each block's `style.css`, not the global product-filters stylesheet. Agency placement rules for all commerce/nav blocks: [`docs/block-placement.md`](docs/block-placement.md).
 
 **Creating New Blocks:**
 
@@ -373,7 +390,7 @@ Assets use `.asset.php` files for dependency management:
 // Automatically generated
 return array(
     'dependencies' => array('wp-blocks', 'wp-element'),
-    'version' => '1.16.0-abc123'
+    'version' => '1.0.0-abc123' // content hash from the build, not the theme version
 );
 ```
 
@@ -408,7 +425,7 @@ The theme adds security headers via `Bootstrap::add_security_headers()`:
 ## Theme Constants
 
 ```php
-AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css
+AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (release-managed)
 AGGRESSIVE_APPAREL_DIR      // Theme directory path
 AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```
@@ -418,6 +435,7 @@ AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```php
 aggressive_apparel_asset_uri($path)     // Get asset URL
 aggressive_apparel_asset_path($path)    // Get asset file path
+aggressive_apparel_free_shipping_threshold() // Free-shipping threshold (filterable)
 ```
 
 ## Custom Image Sizes
@@ -450,12 +468,14 @@ Icons::exists('hamburger'); // true
 Icons::list();
 ```
 
-**Available Icons:**
+**Available Icons (UI library highlights):**
 
-- **Navigation:** `hamburger`, `close`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `arrow-left`, `arrow-right`
-- **Actions:** `search`, `cart`, `user`, `heart`
-- **UI:** `check`, `plus`, `minus`, `info`, `warning`, `error`
-- **Social:** `facebook`, `twitter`, `instagram`
+- **Navigation:** `hamburger`, `dots`, `bars`, `close`, `chevron-*`, `arrow-*`, `home`
+- **Actions:** `search`, `cart`, `user`, `heart`, `eye`, `filter`, `grid-view`, `list-view`
+- **UI:** `check`, `plus`, `minus`, `info`, `play`, `pause`, `warning`, `error`
+- **Social / brand:** `facebook`, `twitter`, `instagram`, `brand-mark`, `paths`
+
+Brand icons (40 SVGs under `src/icons/`) are built to `build/icons/` and loaded via `Brand_Icons` / the `icon` block.
 
 ## Design Tokens (theme.json)
 
@@ -542,17 +562,7 @@ System font stack with 20+ fluid font sizes using `clamp()` for responsive scali
 
 ## Block Patterns
 
-Located in `patterns/`:
-
-| Pattern                     | Description                    |
-| --------------------------- | ------------------------------ |
-| `navigation-simple`         | Basic horizontal navigation    |
-| `navigation-centered`       | Center-aligned navigation      |
-| `navigation-with-dropdowns` | Navigation with dropdown menus |
-| `navigation-mega-menu`      | Full mega menu implementation  |
-| `hero-product-launch`       | Hero section for products      |
-| `product-showcase-grid`     | Product grid display           |
-| `customer-testimonials`     | Testimonial section            |
+Located in `patterns/` (80 files). Prefer the Site Editor / pattern inserter over maintaining a full list here. Representative categories include navigation, shop archives, PDP conversion, homepage merchandising, and cart recovery. Placement guidance: [`docs/block-placement.md`](docs/block-placement.md).
 
 ## Git Workflow
 
@@ -577,7 +587,11 @@ Husky runs `pnpm precommit` which executes:
 
 ### Semantic Release
 
-Automated versioning and changelog generation via semantic-release.
+Automated versioning and changelog generation via semantic-release (`.releaserc.json`).
+
+**Auto-updated on release:** `style.css`, `package.json`, `CHANGELOG.md`, and the packaged theme ZIP.
+
+**Not auto-updated:** `README.md`, `CLAUDE.md`, docs, or per-block `block.json` versions. Do not hardcode the theme version in assistant/docs files — point at `style.css` / `package.json`. Update inventory counts (blocks, patterns, features) in the same PR that changes them.
 
 ## Common Tasks
 
@@ -596,9 +610,10 @@ Automated versioning and changelog generation via semantic-release.
 
 ### Adding WooCommerce Feature
 
-1. Create class in `includes/WooCommerce/`
-2. Register in `Bootstrap::register_services()`
-3. Initialize in `Bootstrap::init_woocommerce_components()`
+1. Create class(es) in `includes/WooCommerce/`
+2. Add a feature definition in `Feature_Settings::get_feature_definitions()`
+3. Map the feature key → class(es) in `Enhancements` (feature map)
+4. Gate hooks/assets with `Feature_Settings::is_enabled()` so disabled features load nothing
 
 ### Running Static Analysis
 

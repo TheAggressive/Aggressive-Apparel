@@ -2,7 +2,7 @@
  * Editor Color Scheme — Shared Utilities
  *
  * Centralizes the color-scheme toggle logic used by:
- *   - adaptive-colors.tsx   (per-block adaptive color panel)
+ *   - adaptive-colors.tsx   (Adaptive Color panel)
  *   - navigation/edit.tsx   (navigation block inspector)
  *   - color-scheme-toggle.tsx (More Menu toggle)
  *
@@ -14,7 +14,12 @@ import { Button, ButtonGroup } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-const STORAGE_KEY = 'aggressive-apparel-editor-color-scheme';
+import {
+  getStoredColorScheme,
+  storeColorScheme,
+  type ColorScheme,
+} from './color-scheme-storage';
+
 const EVENT_NAME = 'aa-editor-color-scheme-change';
 const IFRAME_SELECTOR = 'iframe[name="editor-canvas"]';
 
@@ -49,32 +54,24 @@ export function injectEditorStyle(id: string, css: string): void {
 }
 
 /**
- * Read persisted color scheme preference from localStorage.
+ * Read persisted color scheme for the editor (defaults to light).
  */
-export function getStoredScheme(): 'light' | 'dark' {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light';
-  } catch {
-    return 'light';
-  }
+export function getStoredScheme(): ColorScheme {
+  return getStoredColorScheme() ?? 'light';
 }
 
 /**
  * Persist color scheme preference to localStorage.
  */
-export function storeScheme(mode: 'light' | 'dark'): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, mode);
-  } catch {
-    // Private browsing or quota exceeded — silently ignore.
-  }
+export function storeScheme(mode: ColorScheme): void {
+  storeColorScheme(mode);
 }
 
 /**
  * Apply color-scheme to the editor canvas (inside the iframe).
  * Falls back to the current document if no iframe is found.
  */
-export function applySchemeToCanvas(mode: 'light' | 'dark'): void {
+export function applySchemeToCanvas(mode: ColorScheme): void {
   const doc = getEditorDocument() ?? document;
   doc.documentElement.style.colorScheme = mode;
   doc.documentElement.setAttribute('data-theme', mode);
@@ -83,7 +80,7 @@ export function applySchemeToCanvas(mode: 'light' | 'dark'): void {
 /**
  * Dispatch a custom event to synchronize color scheme across components.
  */
-export function dispatchSchemeChange(mode: 'light' | 'dark'): void {
+export function dispatchSchemeChange(mode: ColorScheme): void {
   window.dispatchEvent(
     new CustomEvent(EVENT_NAME, { detail: { scheme: mode } })
   );
@@ -96,12 +93,12 @@ export function dispatchSchemeChange(mode: 'light' | 'dark'): void {
  * Returns the current mode and a function to switch modes.
  */
 export function useEditorColorScheme(): {
-  colorMode: 'light' | 'dark';
-  switchColorMode: (mode: 'light' | 'dark') => void;
+  colorMode: ColorScheme;
+  switchColorMode: (mode: ColorScheme) => void;
 } {
-  const [colorMode, setColorMode] = useState<'light' | 'dark'>(getStoredScheme);
+  const [colorMode, setColorMode] = useState<ColorScheme>(getStoredScheme);
 
-  const switchColorMode = useCallback((mode: 'light' | 'dark') => {
+  const switchColorMode = useCallback((mode: ColorScheme) => {
     setColorMode(mode);
     applySchemeToCanvas(mode);
     storeScheme(mode);
@@ -109,7 +106,7 @@ export function useEditorColorScheme(): {
   }, []);
 
   // Sync with external color scheme changes (e.g., More Menu toggle,
-  // another block's adaptive panel).
+  // another block's color scheme control).
   useEffect(() => {
     const handler = (e: Event) => {
       const scheme = (e as CustomEvent<{ scheme: string }>).detail?.scheme;
@@ -127,18 +124,21 @@ export function useEditorColorScheme(): {
 /**
  * Light/Dark toggle button group.
  *
- * Shared UI component used in adaptive color panels and navigation
- * block inspector to switch between light and dark editing modes.
+ * Switches the active editing mode and previews the matching scheme on the
+ * editor canvas (via the caller's onChange → useEditorColorScheme).
  */
 export function ColorModeToggle({
   mode,
   onChange,
 }: {
-  mode: 'light' | 'dark';
-  onChange: (mode: 'light' | 'dark') => void;
+  mode: ColorScheme;
+  onChange: (mode: ColorScheme) => void;
 }) {
   return (
-    <ButtonGroup style={{ display: 'flex', marginBottom: '12px' }}>
+    <ButtonGroup
+      style={{ display: 'flex', marginBottom: '12px' }}
+      aria-label={__('Color scheme preview', 'aggressive-apparel')}
+    >
       <Button
         isPressed={mode === 'light'}
         onClick={() => onChange('light')}

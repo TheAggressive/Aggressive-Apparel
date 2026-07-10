@@ -195,7 +195,6 @@ class Color_Attribute_Manager {
 		// Direct SQL is intentional here: the filtered WooCommerce attribute list
 		// always includes the theme's virtual fallback. This method is now called
 		// only by the versioned admin setup path, never on storefront requests.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$attribute_id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT attribute_id FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name = %s LIMIT 1",

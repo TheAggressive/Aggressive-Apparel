@@ -23,8 +23,11 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 import { decodeEntities } from '@aggressive-apparel/helpers';
 
 const STORAGE_KEY = 'aggressive_apparel_wishlist';
-const LABEL_ADD = 'Add to wishlist';
-const LABEL_REMOVE = 'Remove from wishlist';
+
+interface WishlistI18n {
+  addLabel?: string;
+  removeLabel?: string;
+}
 
 interface StoreApiImage {
   src: string;
@@ -136,7 +139,12 @@ function applyHeartState(btn: HTMLElement, isActive: boolean): void {
 
   // Preserve custom accessible names on labeled Wishlist Button blocks.
   if (!btn.querySelector('.aggressive-apparel-wishlist__label')) {
-    btn.setAttribute('aria-label', isActive ? LABEL_REMOVE : LABEL_ADD);
+    btn.setAttribute(
+      'aria-label',
+      isActive
+        ? getWishlistLabel('removeLabel', 'Remove from wishlist')
+        : getWishlistLabel('addLabel', 'Add to wishlist')
+    );
   }
 }
 
@@ -211,6 +219,7 @@ const { state } = store('aggressive-apparel/wishlist', {
   state: {
     // Provided by PHP via wp_interactivity_state().
     productsApiUrl: '',
+    i18n: {} as WishlistI18n,
 
     // Reactive mirror of localStorage — drives all UI updates instantly.
     items: initialItems,
@@ -282,6 +291,13 @@ const { state } = store('aggressive-apparel/wishlist', {
     },
   },
 });
+
+/**
+ * Resolve server-provided copy with a local English fallback for cached markup.
+ */
+function getWishlistLabel(key: keyof WishlistI18n, fallback: string): string {
+  return state.i18n?.[key] || fallback;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Unified toggle delegate                                            */

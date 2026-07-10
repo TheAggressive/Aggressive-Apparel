@@ -18,6 +18,8 @@ declare module '@wordpress/block-editor' {
     onGradientChange?: (value?: string) => void;
     disableCustomColors?: boolean;
     disableCustomGradients?: boolean;
+    clearable?: boolean;
+    isShownByDefault?: boolean;
   }
 
   export interface ColorGradientSettingsDropdownProps {
@@ -33,4 +35,14 @@ declare module '@wordpress/block-editor' {
     string,
     unknown
   >;
+
+  /**
+   * InspectorControls accepts a resetAllFilter when rendered inside a ToolsPanel
+   * group (e.g. Styles → Color). Missing from published types.
+   */
+  interface InspectorControlsProps {
+    resetAllFilter?: (
+      attributes: Record<string, unknown>
+    ) => Record<string, unknown>;
+  }
 }

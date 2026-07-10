@@ -215,9 +215,9 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$active_count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$active_count = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND status = 'active'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe.
+				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND status = 'active'",
 				$email
 			)
 		);
@@ -235,9 +235,9 @@ class Back_In_Stock {
 		}
 
 		// Check for existing active subscription.
-		$exists = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$exists = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND product_id = %d AND status = 'active'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND product_id = %d AND status = 'active'",
 				$email,
 				$product_id
 			)
@@ -249,7 +249,7 @@ class Back_In_Stock {
 
 		$token = wp_generate_password( 64, false );
 
-		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table.
+		$wpdb->insert(
 			$table,
 			array(
 				'email'             => $email,
@@ -373,11 +373,11 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function handle_unsubscribe(): void {
-		if ( ! isset( $_GET['aa_unsubscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Token-based unsubscribe, no nonce needed.
+		if ( ! isset( $_GET['aa_unsubscribe'] ) ) {
 			return;
 		}
 
-		$token = sanitize_text_field( wp_unslash( $_GET['aa_unsubscribe'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token = sanitize_text_field( wp_unslash( $_GET['aa_unsubscribe'] ) );
 		if ( empty( $token ) ) {
 			return;
 		}
@@ -385,7 +385,7 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$updated = $wpdb->update(
 			$table,
 			array( 'status' => 'unsubscribed' ),
 			array(
@@ -411,7 +411,7 @@ class Back_In_Stock {
 	 * @param \WC_Product $product    Product object.
 	 * @return void
 	 */
-	public function maybe_send_notifications( int $product_id, string $new_status, $product ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WooCommerce hook signature.
+	public function maybe_send_notifications( int $product_id, string $new_status, $product ): void {
 		if ( 'instock' !== $new_status ) {
 			return;
 		}
@@ -419,9 +419,9 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$subscribers = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$subscribers = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, email, unsubscribe_token FROM {$table} WHERE product_id = %d AND status = 'active' LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, email, unsubscribe_token FROM {$table} WHERE product_id = %d AND status = 'active' LIMIT %d",
 				$product_id,
 				self::BATCH_SIZE
 			)
@@ -442,7 +442,7 @@ class Back_In_Stock {
 				$emails['Back_In_Stock_Email']->trigger( $product_id, $subscriber->email, $subscriber->unsubscribe_token );
 			}
 
-			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+			$wpdb->update(
 				$table,
 				array(
 					'status'      => 'notified',
@@ -455,9 +455,9 @@ class Back_In_Stock {
 		}
 
 		// Schedule next batch if more remain.
-		$remaining = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$remaining = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE product_id = %d AND status = 'active'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$table} WHERE product_id = %d AND status = 'active'",
 				$product_id
 			)
 		);
@@ -552,13 +552,13 @@ class Back_In_Stock {
 	 * @param int    $page          Page number.
 	 * @return array Export data.
 	 */
-	public function export_personal_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress GDPR callback signature.
+	public function export_personal_data( string $email_address, int $page = 1 ): array {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT product_id, status, created_at, notified_at FROM {$table} WHERE email = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT product_id, status, created_at, notified_at FROM {$table} WHERE email = %s",
 				$email_address
 			)
 		);
@@ -600,11 +600,11 @@ class Back_In_Stock {
 	 * @param int    $page          Page number.
 	 * @return array Erase result.
 	 */
-	public function erase_personal_data( string $email_address, int $page = 1 ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress GDPR callback signature.
+	public function erase_personal_data( string $email_address, int $page = 1 ): array {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$deleted = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+		$deleted = $wpdb->delete(
 			$table,
 			array( 'email' => $email_address ),
 			array( '%s' )
@@ -644,7 +644,7 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
-		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Lifecycle cleanup for custom table.
+		$wpdb->delete(
 			$table,
 			array(
 				'product_id' => $post_id,
@@ -674,9 +674,9 @@ class Back_In_Stock {
 			->modify( '-' . $retention_days . ' days' )
 			->format( 'Y-m-d H:i:s' );
 
-		$deleted = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Scheduled cleanup for custom table.
+		$deleted = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE status IN ('notified', 'unsubscribed') AND created_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Custom table name.
+				"DELETE FROM {$table} WHERE status IN ('notified', 'unsubscribed') AND created_at < %s",
 				$cutoff
 			)
 		);

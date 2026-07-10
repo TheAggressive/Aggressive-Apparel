@@ -272,49 +272,56 @@ class Favicon {
 		if ( ! $light_url ) {
 			return;
 		}
-		?>
-		<script>
-		( function () {
-			var darkUrl   = <?php echo wp_json_encode( $dark_url ); ?>;
-			var lightUrl  = <?php echo wp_json_encode( $light_url ); ?>;
-			var mainLink  = document.getElementById( 'aa-favicon' );
-			var mediaLink = document.querySelector( 'link[rel="icon"][media]' );
 
-			// Override both links to a single URL, bypassing the media attribute.
-			function applyOverride( isDark ) {
-				if ( mainLink ) mainLink.href = isDark ? darkUrl : lightUrl;
-				// 'not all' disables the media link; 'all' forces it on.
-				if ( mediaLink ) mediaLink.media = isDark ? 'all' : 'not all';
-			}
+		$dark_json  = wp_json_encode( $dark_url );
+		$light_json = wp_json_encode( $light_url );
+		$read_fn    = Color_Scheme::js_read_stored_scheme_function();
 
-			// Restore pure media-query behaviour (no manual preference active).
-			function clearOverride() {
-				if ( mainLink ) mainLink.href = lightUrl;
-				if ( mediaLink ) mediaLink.media = '(prefers-color-scheme: dark)';
-			}
+		if ( false === $dark_json || false === $light_json ) {
+			return;
+		}
 
-			// Apply any manual preference stored from a previous visit.
-			var stored = '';
-			try { stored = localStorage.getItem( 'aggressive-apparel-dark-mode' ) || ''; } catch ( e ) {}
-			if ( stored ) applyOverride( stored === 'dark' );
+		wp_print_inline_script_tag(
+			<<<JS
+(function(){
+	var darkUrl={$dark_json};
+	var lightUrl={$light_json};
+	var mainLink=document.getElementById('aa-favicon');
+	var mediaLink=document.querySelector('link[rel="icon"][media]');
 
-			// Theme manual toggle (dispatched by dark-mode-toggle/view.ts).
-			document.addEventListener( 'darkModeToggle', function ( e ) {
-				applyOverride( e.detail.isDark );
-			} );
+	{$read_fn}
 
-			// When OS preference changes and there is no manual override, let the
-			// media attribute take over again instead of keeping a stale href.
-			window.matchMedia( '(prefers-color-scheme: dark)' ).addEventListener( 'change', function () {
-				try {
-					if ( ! localStorage.getItem( 'aggressive-apparel-dark-mode' ) ) {
-						clearOverride();
-					}
-				} catch ( err ) {}
-			} );
-		}() );
-		</script>
-		<?php
+	function applyOverride(isDark){
+		if(mainLink)mainLink.href=isDark?darkUrl:lightUrl;
+		if(mediaLink)mediaLink.media=isDark?'all':'not all';
+	}
+
+	function clearOverride(){
+		if(mainLink)mainLink.href=lightUrl;
+		if(mediaLink)mediaLink.media='(prefers-color-scheme: dark)';
+	}
+
+	// Manual preference only — OS preference stays on the media attribute.
+	// Prefer data-theme from Color_Scheme_Bootstrap; storage only gates
+	// whether a manual override is active.
+	if(aaReadStoredColorScheme()){
+		applyOverride(document.documentElement.getAttribute('data-theme')==='dark');
+	}
+
+	document.addEventListener('darkModeToggle',function(e){
+		applyOverride(e.detail.isDark);
+	});
+
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+		if(!aaReadStoredColorScheme())clearOverride();
+	});
+})();
+JS
+			,
+			array(
+				'id' => 'aggressive-apparel-favicon-color-scheme',
+			)
+		);
 	}
 
 	// -------------------------------------------------------------------------

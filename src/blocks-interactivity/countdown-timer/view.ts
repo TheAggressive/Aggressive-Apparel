@@ -30,7 +30,7 @@ interface CountdownContext {
   dropPageUrl?: string;
 }
 
-store('aggressive-apparel/countdown', {
+store('aggressive-apparel/countdown-timer', {
   callbacks: {
     startTicker(): void {
       const ctx = getContext<CountdownContext>();

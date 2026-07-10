@@ -59,7 +59,6 @@ class Content_Width {
 	 * @return void
 	 */
 	public function set_content_width() {
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 		$GLOBALS['content_width'] = apply_filters( 'aggressive_apparel_content_width', $this->default_width );
 	}
 }

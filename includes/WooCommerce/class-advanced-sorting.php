@@ -112,7 +112,7 @@ class Advanced_Sorting {
 	 * @param string               $order    The order direction.
 	 * @return array<string, mixed> Modified args.
 	 */
-	public function handle_custom_ordering( array $args, string $orderby, string $order ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WordPress filter signature requires $order.
+	public function handle_custom_ordering( array $args, string $orderby, string $order ): array {
 		switch ( $orderby ) {
 			case 'title-asc':
 				$args['orderby'] = 'title';
@@ -360,25 +360,21 @@ class Advanced_Sorting {
 		$where_sql = 'WHERE ' . implode( "\nAND ", $where );
 		$params    = array_merge( $constraints->join_params(), $constraints->where_params() );
 
-		$count_sql = "SELECT COUNT(DISTINCT p.ID) {$from} {$where_sql}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated table aliases and clauses; all public values are prepared.
+		$count_sql      = "SELECT COUNT(DISTINCT p.ID) {$from} {$where_sql}";
 		$prepared_count = empty( $params ) ? $count_sql : $wpdb->prepare( $count_sql, ...$params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Bounded indexed catalogue count.
-		$total = (int) $wpdb->get_var( $prepared_count );
+		$total          = (int) $wpdb->get_var( $prepared_count );
 
-		$per_page    = min( 100, max( 1, $per_page ) );
-		$offset      = ( max( 1, $page ) - 1 ) * $per_page;
-		$page_sql    = "SELECT p.ID, {$rank} AS sort_rank
+		$per_page      = min( 100, max( 1, $per_page ) );
+		$offset        = ( max( 1, $page ) - 1 ) * $per_page;
+		$page_sql      = "SELECT p.ID, {$rank} AS sort_rank
 			{$from}
 			{$where_sql}
 			GROUP BY p.ID
 			ORDER BY sort_rank DESC, p.post_date DESC, p.ID DESC
 			LIMIT %d OFFSET %d";
-		$page_params = array_merge( $params, array( $per_page, $offset ) );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Generated table aliases and clauses; all public values are prepared.
+		$page_params   = array_merge( $params, array( $per_page, $offset ) );
 		$prepared_page = $wpdb->prepare( $page_sql, ...$page_params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Returns only one requested page.
-		$ids = array_map( 'intval', $wpdb->get_col( $prepared_page ) );
+		$ids           = array_map( 'intval', $wpdb->get_col( $prepared_page ) );
 
 		return array(
 			'ids'   => $ids,

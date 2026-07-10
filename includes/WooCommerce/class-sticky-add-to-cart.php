@@ -158,7 +158,7 @@ class Sticky_Add_To_Cart {
 		>
 			<div class="aa-sticky-cart__inner">
 				<div class="aa-sticky-cart__product">
-					<?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WooCommerce generates safe HTML. ?>
+					<?php echo aggressive_apparel_trusted_html( $thumbnail ); ?>
 					<div class="aa-sticky-cart__info">
 						<span class="aa-sticky-cart__title"><?php echo esc_html( $product->get_name() ); ?></span>
 						<span class="aa-sticky-cart__price">

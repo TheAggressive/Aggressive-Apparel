@@ -9,8 +9,13 @@
  * @package Aggressive_Apparel
  */
 
+import {
+  getStoredColorScheme,
+  hasStoredColorScheme,
+  resolveColorScheme,
+} from '../utils/color-scheme-storage';
+
 const WCPAY_CACHE_PREFIX = 'wcpay_appearance_';
-const DARK_MODE_STORAGE_KEY = 'aggressive-apparel-dark-mode';
 const CHECKOUT_SCOPE = '.wc-block-checkout, .wc-block-cart';
 const THEME_REFRESH_DELAY_MS = 400;
 
@@ -56,21 +61,9 @@ interface SampledFieldStyles {
  * Resolve the active color scheme (matches dark-mode-toggle storage + OS pref).
  */
 function getCurrentColorScheme(): 'light' | 'dark' {
-  try {
-    const stored = localStorage.getItem(DARK_MODE_STORAGE_KEY);
-    if (stored === 'dark') {
-      return 'dark';
-    }
-    if (stored === 'light') {
-      return 'light';
-    }
-  } catch {
-    // Ignore storage access errors.
-  }
-
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  // Touch storage so legacy keys migrate before resolve.
+  getStoredColorScheme();
+  return resolveColorScheme().scheme;
 }
 
 /**
@@ -460,12 +453,8 @@ document.addEventListener('darkModeToggle', scheduleAppearanceRefresh);
 window
   .matchMedia('(prefers-color-scheme: dark)')
   .addEventListener('change', () => {
-    try {
-      if (localStorage.getItem(DARK_MODE_STORAGE_KEY)) {
-        return;
-      }
-    } catch {
-      // Ignore storage access errors.
+    if (hasStoredColorScheme()) {
+      return;
     }
 
     scheduleAppearanceRefresh();

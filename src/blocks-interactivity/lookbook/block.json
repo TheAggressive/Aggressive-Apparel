@@ -8,6 +8,7 @@
   "description": "A shoppable image with product hotspots. Click hotspots to view and add products to cart.",
   "keywords": ["lookbook", "shop the look", "shoppable", "hotspot", "outfit"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true,
     "align": ["wide", "full"],

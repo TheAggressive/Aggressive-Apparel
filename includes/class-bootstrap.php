@@ -152,6 +152,7 @@ class Bootstrap {
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
 		$this->container->register( 'favicon', fn() => new Core\Favicon() );
+		$this->container->register( 'color_scheme_bootstrap', fn() => new Core\Color_Scheme_Bootstrap() );
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
 		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
@@ -180,6 +181,7 @@ class Bootstrap {
 			$this->container->register( 'color_block_swatch_manager', fn() => new WooCommerce\Color_Block_Swatch_Manager() );
 			$this->container->register( 'color_pattern_admin', fn() => new WooCommerce\Color_Pattern_Admin() );
 			$this->container->register( 'size_option_sorter', fn() => new WooCommerce\Size_Option_Sorter() );
+			$this->container->register( 'product_card_contract', fn() => new WooCommerce\Product_Card_Contract() );
 
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
@@ -225,6 +227,7 @@ class Bootstrap {
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		$this->container->get( 'adaptive_colors' )->init();
 		$this->container->get( 'favicon' )->init();
+		$this->container->get( 'color_scheme_bootstrap' )->init();
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
 		$this->container->get( 'image_loading' )->init();
@@ -273,6 +276,7 @@ class Bootstrap {
 		$this->container->get( 'color_attributes' )->init();
 		$this->container->get( 'color_block_swatch_manager' )->init();
 		$this->container->get( 'size_option_sorter' )->init();
+		$this->container->get( 'product_card_contract' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();
 		$this->container->get( 'wc_enhancements' )->init();
 		$this->container->get( 'wcpay_appearance' )->init();

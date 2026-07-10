@@ -3,7 +3,7 @@
  * Title: Size Guide — Measurement Table
  * Description: A ready-to-fill measurement table with how-to-measure tips. Use this as a starting point for size guides.
  * Slug: aggressive-apparel/size-guide-table
- * Categories: aggressive-apparel
+ * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-pdp
  * Keywords: size guide, sizing, measurements, table
  * Post Types: aa_size_guide
  * Viewport Width: 740

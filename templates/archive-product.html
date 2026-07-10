@@ -3,25 +3,23 @@
 <!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
 <main class="wp-block-group"><!-- wp:woocommerce/breadcrumbs /-->
 
-<!-- wp:query-title {"type":"archive"} /-->
+<!-- wp:pattern {"slug":"aggressive-apparel/shop-archive-header"} /-->
 
 <!-- wp:woocommerce/store-notices /-->
 
-<!-- wp:woocommerce/catalog-sorting /-->
+<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"},"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|8"}}}} -->
+<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--8)"><!-- wp:woocommerce/catalog-sorting /--></div>
+<!-- /wp:group -->
 
-<!-- wp:spacer {"height":"30px"} -->
-<div style="height:30px" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:woocommerce/product-collection {"queryId":93,"query":{"perPage":12,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":true,"taxQuery":[],"isProductCollectionBlock":true,"featured":false,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":3},"dimensions":{"widthType":"fill"},"queryContextIncludes":["collection"],"__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on the page being viewed."}} -->
-<div class="wp-block-woocommerce-product-collection"><!-- wp:woocommerce/product-template -->
-<!-- wp:post-featured-image {"isLink":true,"aspectRatio":"1"} /-->
-
-<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"spacing":{"margin":{"bottom":"0.75rem","top":"0"}}}} /-->
-
-<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"left"} /-->
-
-<!-- wp:woocommerce/product-button {"textAlign":"center","isDescendentOfQueryLoop":true} /-->
+<!-- wp:woocommerce/product-collection {"queryId":93,"query":{"perPage":12,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":true,"taxQuery":[],"isProductCollectionBlock":true,"featured":false,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":3,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"queryContextIncludes":["collection"],"className":"is-style-commerce-grid","__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on the page being viewed."}} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid"><!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
+<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
+<!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
+<!-- /wp:woocommerce/product-image -->
+<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"var:preset|spacing|3","bottom":"0"}}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/product-rating {"textAlign":"left"} /-->
+<!-- wp:woocommerce/product-price {"textAlign":"left","isDescendentOfQueryLoop":true,"className":"is-style-commerce-price","fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|1"}}}} /-->
+<!-- wp:woocommerce/product-button {"textAlign":"left","isDescendentOfQueryLoop":true,"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} /-->
 <!-- /wp:woocommerce/product-template -->
 
 <!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"}} -->
@@ -33,9 +31,7 @@
 <!-- /wp:query-pagination -->
 
 <!-- wp:query-no-results -->
-<!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center">No products were found matching your selection.</p>
-<!-- /wp:paragraph -->
+<!-- wp:pattern {"slug":"aggressive-apparel/no-results-browse"} /-->
 <!-- /wp:query-no-results --></div>
 <!-- /wp:woocommerce/product-collection --></main>
 <!-- /wp:group -->

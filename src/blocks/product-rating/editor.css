@@ -1,0 +1,13 @@
+/**
+ * Product Rating Block — editor-only chrome.
+ *
+ * Front-end mark styles come from style.css (also imported in index.ts so the
+ * canvas preview matches the storefront).
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-product-rating.is-selected {
+	outline: 1px dashed var(--aa-color-border-default, currentcolor);
+	outline-offset: 2px;
+}

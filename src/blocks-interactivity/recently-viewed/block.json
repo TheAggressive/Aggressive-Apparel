@@ -8,6 +8,7 @@
   "description": "Shows products the visitor recently viewed using browser localStorage.",
   "keywords": ["recently viewed", "history", "products"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true
   },

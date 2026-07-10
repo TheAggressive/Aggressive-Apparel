@@ -37,22 +37,25 @@ if ( ! Product_Filters::is_filterable_archive() ) {
 	return;
 }
 
-$wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class'                => 'aa-filter-active-bar',
-		'data-wp-interactive'  => 'aggressive-apparel/product-filters',
-		'data-wp-bind--hidden' => 'state.hasNoActiveFilters',
-	)
-);
-
-$inner_html  = '<div class="aa-filter-active-bar__pills"></div>';
-$inner_html .= '<button type="button" class="aa-filter-active-bar__clear-all" data-wp-on--click="actions.clearAllFilters">';
-$inner_html .= esc_html__( 'Clear All', 'aggressive-apparel' );
-$inner_html .= '</button>';
-
-printf(
-	'<div %1$s>%2$s</div>',
-	wp_kses_post( $wrapper_attributes ),
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup; pill content is escaped at hydration time.
-	$inner_html
-);
+Product_Filters::ensure_assets();
+?>
+<div
+	<?php
+	echo get_block_wrapper_attributes(
+		array(
+			'class'                => 'aa-filter-active-bar',
+			'data-wp-interactive'  => 'aggressive-apparel/product-filters',
+			'data-wp-bind--hidden' => 'state.hasNoActiveFilters',
+		)
+	);
+	?>
+>
+	<div class="aa-filter-active-bar__pills"></div>
+	<button
+		type="button"
+		class="aa-filter-active-bar__clear-all"
+		data-wp-on--click="actions.clearAllFilters"
+	>
+		<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>
+	</button>
+</div>

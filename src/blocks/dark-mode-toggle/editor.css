@@ -1,4 +1,13 @@
 .wp-block-aggressive-apparel-dark-mode-toggle {
-	min-height: 2rem;
+	min-height: 2.5rem;
 	pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle .dark-mode-toggle__icon--moon {
+	opacity: 1;
+	transform: scale(1) rotate(0deg);
+}
+
+.wp-block-aggressive-apparel-dark-mode-toggle .dark-mode-toggle__icon--sun {
+	opacity: 0;
 }

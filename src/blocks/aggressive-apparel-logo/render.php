@@ -125,6 +125,6 @@ if ( $link_to_home ) {
 // Output the block.
 printf(
 	'<div %s>%s</div>',
-	$wrapper_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	$inner_content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	aggressive_apparel_trusted_html( $wrapper_attrs ),
+	aggressive_apparel_trusted_html( $inner_content )
 );

@@ -38,6 +38,7 @@ while IFS= read -r -d '' file; do
 done < <(
 	printf '%s\0' \
 		src/scripts/editor/adaptive-colors.tsx \
+		src/utils/adaptive-color-picker.tsx \
 		src/blocks-interactivity/navigation/edit.tsx \
 		src/blocks-interactivity/parallax/edit.tsx \
 		src/blocks-interactivity/parallax/components/DirectionPicker.tsx \

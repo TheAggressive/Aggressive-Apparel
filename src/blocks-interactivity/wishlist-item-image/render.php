@@ -2,6 +2,9 @@
 /**
  * Wishlist Item Image — Server Render
  *
+ * Image src/alt are filled client-side via callbacks.syncItemImage once
+ * the wishlist Store API payload hydrates each card.
+ *
  * @var array $attributes
  * @package Aggressive_Apparel
  */
@@ -12,28 +15,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$image_ratio     = sanitize_text_field( $attributes['imageRatio'] ?? '1/1' );
+$allowed_ratios  = array( '1/1', '3/4', '4/3', '16/9' );
+$image_ratio     = isset( $attributes['imageRatio'] ) ? (string) $attributes['imageRatio'] : '1/1';
+$image_ratio     = in_array( $image_ratio, $allowed_ratios, true ) ? $image_ratio : '1/1';
 $link_to_product = ! isset( $attributes['linkToProduct'] ) || (bool) $attributes['linkToProduct'];
 
-$img_style = 'aspect-ratio:' . esc_attr( $image_ratio ) . ';';
-
-$img_html = sprintf(
-	'<img class="aa-wl-item-image__img" style="%s" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" data-wp-watch="callbacks.syncItemImage" />',
-	esc_attr( $img_style )
-);
+// 1×1 transparent GIF placeholder until syncItemImage runs.
+$placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 ?>
-<div
-	<?php
-	echo get_block_wrapper_attributes(
-		array( 'class' => 'aa-wl-item-image' )
-	);
-	?>
->
+<div <?php echo get_block_wrapper_attributes( array( 'class' => 'aa-wl-item-image' ) ); ?>>
 <?php if ( $link_to_product ) : ?>
-	<a class="aa-wl-item-image__link" data-wp-bind--href="context.item.permalink">
-		<?php echo $img_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<a
+		class="aa-wl-item-image__link"
+		data-wp-bind--href="context.item.permalink"
+		data-wp-bind--aria-label="context.item.name"
+	>
+		<img
+			class="aa-wl-item-image__img"
+			style="<?php echo esc_attr( 'aspect-ratio:' . $image_ratio . ';' ); ?>"
+			src="<?php echo esc_attr( $placeholder ); ?>"
+			alt=""
+			data-wp-watch="callbacks.syncItemImage"
+		/>
 	</a>
 <?php else : ?>
-	<?php echo $img_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<img
+		class="aa-wl-item-image__img"
+		style="<?php echo esc_attr( 'aspect-ratio:' . $image_ratio . ';' ); ?>"
+		src="<?php echo esc_attr( $placeholder ); ?>"
+		alt=""
+		data-wp-watch="callbacks.syncItemImage"
+	/>
 <?php endif; ?>
 </div>

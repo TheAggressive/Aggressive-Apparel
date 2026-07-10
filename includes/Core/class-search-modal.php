@@ -109,37 +109,10 @@ class Search_Modal {
 		$scopes['post'] = __( 'Articles', 'aggressive-apparel' );
 		$scopes['page'] = __( 'Pages', 'aggressive-apparel' );
 
-		$icon_search = Icons::get(
-			'search',
-			array(
-				'width'       => 22,
-				'height'      => 22,
-				'aria-hidden' => 'true',
-			)
-		);
-		$icon_clear  = Icons::get(
-			'close',
-			array(
-				'width'       => 18,
-				'height'      => 18,
-				'aria-hidden' => 'true',
-			)
-		);
-		$icon_close  = Icons::get(
-			'close',
-			array(
-				'width'       => 20,
-				'height'      => 20,
-				'aria-hidden' => 'true',
-			)
-		);
-		$icon_arrow  = Icons::get(
-			'arrow-right',
-			array(
-				'width'       => 16,
-				'height'      => 16,
-				'aria-hidden' => 'true',
-			)
+		$icon_attrs = static fn( int $size ): array => array(
+			'width'       => $size,
+			'height'      => $size,
+			'aria-hidden' => 'true',
 		);
 
 		$tabs_html = '';
@@ -151,7 +124,6 @@ class Search_Modal {
 			);
 		}
 
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- All interpolations escaped inline below.
 		printf(
 			'<div
 				class="aa-search"
@@ -215,14 +187,14 @@ class Search_Modal {
 			esc_attr( self::YIELDS_NAV_FOCUS_ATTR ),
 			esc_attr( self::STORE ),
 			esc_attr__( 'Search', 'aggressive-apparel' ),
-			$icon_search,
+			\aggressive_apparel_get_icon( 'search', $icon_attrs( 22 ) ),
 			esc_attr__( 'Search', 'aggressive-apparel' ),
 			esc_attr__( 'Clear search', 'aggressive-apparel' ),
-			$icon_clear,
+			\aggressive_apparel_get_icon( 'close', $icon_attrs( 18 ) ),
 			esc_attr__( 'Close search', 'aggressive-apparel' ),
-			$icon_close,
+			\aggressive_apparel_get_icon( 'close', $icon_attrs( 20 ) ),
 			esc_attr__( 'Filter results by type', 'aggressive-apparel' ),
-			$tabs_html,
+			\aggressive_apparel_trusted_html( $tabs_html ),
 			esc_html__( 'Start typing to search products, articles and pages.', 'aggressive-apparel' ),
 			esc_html__( 'Searching…', 'aggressive-apparel' ),
 			esc_html__( 'Try again', 'aggressive-apparel' ),
@@ -230,12 +202,11 @@ class Search_Modal {
 			esc_html__( 'View all results', 'aggressive-apparel' ),
 			esc_attr__( 'Search results', 'aggressive-apparel' ),
 			esc_html__( 'View all results', 'aggressive-apparel' ),
-			$icon_arrow,
+			\aggressive_apparel_get_icon( 'arrow-right', $icon_attrs( 16 ) ),
 			esc_html__( 'navigate', 'aggressive-apparel' ),
 			esc_html__( 'open', 'aggressive-apparel' ),
 			esc_html__( 'close', 'aggressive-apparel' )
 		);
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

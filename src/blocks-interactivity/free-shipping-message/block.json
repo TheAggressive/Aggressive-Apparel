@@ -8,6 +8,7 @@
   "description": "Live free-shipping amount message with optional prefix and suffix icons. Designed for the Ticker block.",
   "keywords": ["shipping", "free", "ticker", "marquee", "message"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true,
     "color": {

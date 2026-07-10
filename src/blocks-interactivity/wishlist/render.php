@@ -96,7 +96,7 @@ $inline_style = implode(
 	<div class="aa-wishlist-page__grid" data-wp-bind--hidden="!context.loaded" hidden>
 		<template data-wp-each="state.wishlistProducts">
 			<div class="aa-wishlist-page__card">
-				<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo aggressive_apparel_trusted_html( $content ); ?>
 			</div>
 		</template>
 	</div>

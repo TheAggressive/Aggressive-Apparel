@@ -241,10 +241,10 @@ class Frequently_Bought_Together {
 			<h2 class="aa-fbt__heading"><?php esc_html_e( 'Frequently Bought Together', 'aggressive-apparel' ); ?></h2>
 
 			<div class="aa-fbt__products">
-				<?php echo $this->render_product_card( $product, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML built with escaping below. ?>
+				<?php echo aggressive_apparel_trusted_html( $this->render_product_card( $product, true ) ); ?>
 				<?php foreach ( $companions as $companion ) : ?>
 					<span class="aa-fbt__separator" aria-hidden="true">+</span>
-					<?php echo $this->render_product_card( $companion, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo aggressive_apparel_trusted_html( $this->render_product_card( $companion, false ) ); ?>
 				<?php endforeach; ?>
 			</div>
 

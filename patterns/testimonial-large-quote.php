@@ -12,8 +12,8 @@
 
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained","contentSize":"720px"}} -->
 <div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
-	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"1.5rem"}},"textColor":"accent"} -->
-	<p class="has-text-align-center has-accent-color has-text-color" style="font-size:1.5rem">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
+	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-small"} -->
+	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.15em;text-transform:uppercase">Verified Customer · 5.0</p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","fontWeight":"400","lineHeight":"1.5"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
@@ -32,8 +32,8 @@
 			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700">Chris D.</p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} -->
-			<p class="has-white-color has-text-color" style="font-size:0.75rem">Verified Customer &middot; Los Angeles, CA</p>
+			<!-- wp:paragraph {"textColor":"white","fontSize":"x-small"} -->
+			<p class="has-white-color has-text-color has-x-small-font-size">Verified Customer &middot; Los Angeles, CA</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->

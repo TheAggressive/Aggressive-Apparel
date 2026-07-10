@@ -8,8 +8,12 @@
   "description": "Product image for a wishlist item card.",
   "parent": ["aggressive-apparel/wishlist"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
-    "spacing": { "margin": true, "padding": true },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
     "__experimentalBorder": {
       "radius": true,
       "color": true,
@@ -22,7 +26,13 @@
   "editorStyle": "file:./index.css",
   "render": "file:./render.php",
   "attributes": {
-    "imageRatio": { "type": "string", "default": "1/1" },
-    "linkToProduct": { "type": "boolean", "default": true }
+    "imageRatio": {
+      "type": "string",
+      "default": "1/1"
+    },
+    "linkToProduct": {
+      "type": "boolean",
+      "default": true
+    }
   }
 }

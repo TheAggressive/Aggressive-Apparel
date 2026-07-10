@@ -73,12 +73,12 @@ $utility_html    = '';
 if ( ! empty( $content ) ) {
 	$dom     = new DOMDocument();
 	$wrapped = '<div id="aa-nav-parse-root">' . $content . '</div>';
-	@$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- DOMDocument warnings for HTML5 tags.
+	@$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 
 	$root = $dom->getElementById( 'aa-nav-parse-root' );
 	if ( $root ) {
-		foreach ( $root->childNodes as $node ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
-			if ( XML_ELEMENT_NODE !== $node->nodeType ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+		foreach ( $root->childNodes as $node ) {
+			if ( XML_ELEMENT_NODE !== $node->nodeType ) {
 				continue;
 			}
 
@@ -90,7 +90,7 @@ if ( ! empty( $content ) ) {
 			$node_class = $node instanceof DOMElement ? $node->getAttribute( 'class' ) : '';
 
 			if (
-				'li' === $node->nodeName // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMDocument API.
+				'li' === $node->nodeName
 				&& $node instanceof DOMElement
 				&& (
 					str_contains( $node_class, 'wp-block-aggressive-apparel-nav-link' )
@@ -159,9 +159,9 @@ printf(
 			'style'                      => trim( $nav_style ),
 		)
 	),
-	$announcer_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
-	$utility_html, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
-	$menubar_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Safe HTML.
+	aggressive_apparel_trusted_html( $announcer_html ),
+	aggressive_apparel_trusted_html( $utility_html ),
+	aggressive_apparel_trusted_html( $menubar_html )
 );
 
 // ============================================================================

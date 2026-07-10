@@ -9,6 +9,8 @@
   "keywords": ["wishlist", "favorites", "saved products"],
   "example": {},
   "supports": {
+    "requiresPlugins": ["woocommerce"],
+    "interactivity": true,
     "html": false,
     "color": {
       "background": true,

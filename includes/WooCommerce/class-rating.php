@@ -84,7 +84,7 @@ class Rating {
 			return;
 		}
 
-		echo self::stars( (float) $rating ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted renderer; scalars escaped inside.
+		echo aggressive_apparel_rating_stars( (float) $rating );
 	}
 
 	/**

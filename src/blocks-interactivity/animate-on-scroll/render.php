@@ -182,8 +182,7 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 			}
 
 			// Output wrapped block.
-			echo '<div' . $attrs_string . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped above
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped by render_block
+			echo aggressive_apparel_trusted_html( '<div' . $attrs_string . '>' );
 			echo render_block( $inner_block );
 			echo '</div>';
 
@@ -191,8 +190,7 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 		}
 	} else {
 		// Normal mode: output content as-is.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is already escaped by the block editor
-		echo $content;
+		echo aggressive_apparel_trusted_html( $content );
 	}
 	?>
 </div>

@@ -20,8 +20,8 @@
 			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size">New Arrivals</h2>
 			<!-- /wp:heading -->
 
-			<!-- wp:paragraph {"fontSize":"medium"} -->
-			<p class="has-medium-font-size">Fresh drops, just landed.</p>
+			<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"medium"} -->
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size">Fresh drops, just landed.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
@@ -40,8 +40,18 @@
 	<div style="height:var(--wp--preset--spacing--10)" aria-hidden="true" class="wp-block-spacer"></div>
 	<!-- /wp:spacer -->
 
-	<!-- wp:woocommerce/product-collection {"queryId":8,"query":{"perPage":8,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection","queryContextIncludes":["collection"],"__privatePreviewState":{"isPreview":false,"previewMessage":"Actual products will vary depending on current WooCommerce products in the store."},"className":"is-style-commerce-grid"} -->
-	<div class="wp-block-woocommerce-product-collection is-style-commerce-grid"></div>
-	<!-- /wp:woocommerce/product-collection -->
+	<!-- wp:woocommerce/product-collection {"queryId":8,"query":{"perPage":8,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/new-arrivals","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->
+<div class="wp-block-woocommerce-product-collection is-style-commerce-grid">
+<!-- wp:woocommerce/product-template {"className":"is-style-commerce-cards"} -->
+<!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
+<!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
+<!-- /wp:woocommerce/product-image -->
+<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"var:preset|spacing|3","bottom":"0"}}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/product-rating {"textAlign":"left"} /-->
+<!-- wp:woocommerce/product-price {"textAlign":"left","isDescendentOfQueryLoop":true,"className":"is-style-commerce-price","fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|1"}}}} /-->
+<!-- wp:woocommerce/product-button {"textAlign":"left","isDescendentOfQueryLoop":true,"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} /-->
+<!-- /wp:woocommerce/product-template -->
+</div>
+<!-- /wp:woocommerce/product-collection -->
 </div>
 <!-- /wp:group -->

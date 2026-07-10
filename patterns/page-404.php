@@ -12,8 +12,8 @@
 
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained","contentSize":"540px"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
-	<!-- wp:heading {"textAlign":"center","level":1,"style":{"typography":{"fontSize":"8rem","fontWeight":"800","lineHeight":"1","letterSpacing":"-0.04em"}}} -->
-	<h1 class="wp-block-heading has-text-align-center" style="font-size:8rem;font-weight:800;line-height:1;letter-spacing:-0.04em">404</h1>
+	<!-- wp:heading {"textAlign":"center","level":1,"style":{"typography":{"fontWeight":"800","lineHeight":"1","letterSpacing":"-0.04em"}},"fontSize":"fluid-xxxxxxx-large"} -->
+	<h1 class="wp-block-heading has-text-align-center has-fluid-xxxxxxx-large-font-size" style="font-weight:800;line-height:1;letter-spacing:-0.04em">404</h1>
 	<!-- /wp:heading -->
 
 	<!-- wp:heading {"textAlign":"center","level":2,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"large"} -->

@@ -121,7 +121,7 @@ if ( $has_url ) {
 		esc_url( $url ),
 		esc_attr( $submenu_id ),
 		esc_html( $label ),
-		$arrow_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+		aggressive_apparel_trusted_html( $arrow_html )
 	);
 } else {
 	$trigger_el = sprintf(
@@ -131,7 +131,7 @@ if ( $has_url ) {
 		</button>',
 		esc_attr( $submenu_id ),
 		esc_html( $label ),
-		$arrow_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+		aggressive_apparel_trusted_html( $arrow_html )
 	);
 }
 
@@ -147,9 +147,9 @@ printf(
 		</div>
 	</li>',
 	get_block_wrapper_attributes( $wrapper_attrs ),
-	$trigger_el, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with escaping above.
+	aggressive_apparel_trusted_html( $trigger_el ),
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
-	$panel_style_attr, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr() above.
-	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner blocks already escaped.
+	aggressive_apparel_trusted_html( $panel_style_attr ),
+	aggressive_apparel_trusted_html( $content )
 );

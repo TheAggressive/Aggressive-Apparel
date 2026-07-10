@@ -377,10 +377,9 @@ class Product_Tabs_Admin {
 			update_post_meta( $post_id, '_aggressive_apparel_care_instructions', $care );
 		}
 
-		if ( isset( $_POST['aa_tab_overrides'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by sanitize_tab_overrides().
-			$raw_overrides = wp_unslash( $_POST['aa_tab_overrides'] );
-			$overrides     = $this->sanitizer->sanitize_tab_overrides( $raw_overrides );
+		$raw_overrides = aggressive_apparel_unslash_post( 'aa_tab_overrides' );
+		if ( null !== $raw_overrides ) {
+			$overrides = $this->sanitizer->sanitize_tab_overrides( $raw_overrides );
 
 			if ( empty( $overrides ) ) {
 				delete_post_meta( $post_id, Product_Tabs_Config::PRODUCT_TAB_OVERRIDES_META_KEY );
@@ -389,10 +388,9 @@ class Product_Tabs_Admin {
 			}
 		}
 
-		if ( isset( $_POST['aa_custom_tabs'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by sanitize_custom_tabs().
-			$raw_custom_tabs = wp_unslash( $_POST['aa_custom_tabs'] );
-			$custom_tabs     = $this->sanitizer->sanitize_custom_tabs( $raw_custom_tabs );
+		$raw_custom_tabs = aggressive_apparel_unslash_post( 'aa_custom_tabs' );
+		if ( null !== $raw_custom_tabs ) {
+			$custom_tabs = $this->sanitizer->sanitize_custom_tabs( $raw_custom_tabs );
 
 			if ( empty( $custom_tabs ) ) {
 				delete_post_meta( $post_id, Product_Tabs_Config::PRODUCT_CUSTOM_TABS_META_KEY );

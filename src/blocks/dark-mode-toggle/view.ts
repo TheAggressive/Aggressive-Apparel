@@ -1,10 +1,19 @@
 /**
  * Dark Mode Toggle Block Frontend Script
  *
+ * Applies light/dark theme via color-scheme + data-theme. Uses the View
+ * Transitions API when available so light-dark() colors animate smoothly
+ * (CSS color transitions alone do not interpolate light-dark()).
+ *
  * @package Aggressive_Apparel
  */
 
-// Type declaration for WordPress global
+import {
+  getStoredColorScheme,
+  hasStoredColorScheme,
+  storeColorScheme,
+} from '../../utils/color-scheme-storage';
+
 declare const wp:
   | {
       hooks: {
@@ -24,22 +33,27 @@ interface DarkModeState {
 
 class DarkModeToggle {
   private button: HTMLButtonElement;
-  private storageKey = 'aggressive-apparel-dark-mode';
   private state: DarkModeState;
-  private transitionTimer = 0;
+  private boundToggle: () => void;
+  private boundSystemChange: (event: MediaQueryListEvent) => void;
+  private boundCustomEvent: (event: Event) => void;
+  private mediaQuery: MediaQueryList;
 
   constructor(button: HTMLButtonElement) {
     this.button = button;
+    this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     this.state = this.getInitialState();
+    this.boundToggle = this.toggle.bind(this);
+    this.boundSystemChange = this.handleSystemPreferenceChange.bind(this);
+    this.boundCustomEvent = this.handleCustomEvent.bind(this);
 
     this.init();
     this.updateUI();
-    this.applyTheme();
+    this.applyTheme(false);
   }
 
   private getInitialState(): DarkModeState {
-    // Check localStorage first
-    const stored = localStorage.getItem(this.storageKey);
+    const stored = getStoredColorScheme();
     if (stored) {
       return {
         isDark: stored === 'dark',
@@ -47,30 +61,16 @@ class DarkModeToggle {
       };
     }
 
-    // Fall back to system preference
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
     return {
-      isDark: prefersDark,
+      isDark: this.mediaQuery.matches,
       isSystemPreference: true,
     };
   }
 
   private init(): void {
-    // Bind event listeners
-    this.button.addEventListener('click', this.toggle.bind(this));
-
-    // Listen for system preference changes
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', this.handleSystemPreferenceChange.bind(this));
-
-    // Listen for custom events from other instances
-    document.addEventListener(
-      'darkModeToggle',
-      this.handleCustomEvent.bind(this)
-    );
+    this.button.addEventListener('click', this.boundToggle);
+    this.mediaQuery.addEventListener('change', this.boundSystemChange);
+    document.addEventListener('darkModeToggle', this.boundCustomEvent);
   }
 
   private toggle(): void {
@@ -79,9 +79,8 @@ class DarkModeToggle {
 
     this.saveState();
     this.updateUI();
-    this.applyTheme();
+    this.applyTheme(true);
 
-    // Dispatch custom event for other instances
     document.dispatchEvent(
       new CustomEvent('darkModeToggle', {
         detail: { isDark: this.state.isDark },
@@ -90,87 +89,108 @@ class DarkModeToggle {
   }
 
   private handleSystemPreferenceChange(event: MediaQueryListEvent): void {
-    // Only update if user hasn't set a manual preference
-    if (this.state.isSystemPreference) {
-      this.state.isDark = event.matches;
-      this.updateUI();
-      this.applyTheme();
+    if (!this.state.isSystemPreference) {
+      return;
     }
+
+    this.state.isDark = event.matches;
+    this.updateUI();
+    this.applyTheme(true);
   }
 
   private handleCustomEvent(event: Event): void {
-    const customEvent = event as CustomEvent;
-    this.state.isDark = customEvent.detail.isDark;
+    const customEvent = event as CustomEvent<{ isDark: boolean }>;
+    if (customEvent.detail?.isDark === this.state.isDark) {
+      return;
+    }
+
+    this.state.isDark = Boolean(customEvent.detail?.isDark);
     this.state.isSystemPreference = false;
     this.updateUI();
-    this.applyTheme();
+    this.applyTheme(false);
   }
 
   private updateUI(): void {
-    if (this.state.isDark) {
-      this.button.classList.add('is-active');
-      this.button.setAttribute('aria-pressed', 'true');
-      this.button.setAttribute(
-        'aria-label',
-        this.button.getAttribute('data-label-dark') || 'Switch to light mode'
-      );
-    } else {
-      this.button.classList.remove('is-active');
-      this.button.setAttribute('aria-pressed', 'false');
-      this.button.setAttribute(
-        'aria-label',
-        this.button.getAttribute('data-label-light') || 'Switch to dark mode'
-      );
+    const isDark = this.state.isDark;
+    this.button.classList.toggle('is-active', isDark);
+    this.button.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    this.button.setAttribute(
+      'aria-label',
+      this.button.getAttribute(
+        isDark ? 'data-label-dark' : 'data-label-light'
+      ) || (isDark ? 'Switch to light mode' : 'Switch to dark mode')
+    );
+
+    const labelEl = this.button.querySelector<HTMLElement>(
+      '.dark-mode-toggle__label'
+    );
+    if (!labelEl) {
+      return;
     }
+
+    const lightText =
+      this.button.getAttribute('data-text-label-light') ||
+      labelEl.textContent ||
+      '';
+    const darkText =
+      this.button.getAttribute('data-text-label-dark') || lightText;
+
+    labelEl.textContent = isDark ? darkText : lightText;
   }
 
-  private applyTheme(): void {
-    const html = document.documentElement;
+  /**
+   * Apply theme to the document.
+   *
+   * @param animate - When true, use View Transitions if supported.
+   */
+  private applyTheme(animate: boolean): void {
+    const run = () => {
+      const html = document.documentElement;
 
-    // Enable smooth color transitions for the toggle, then remove the
-    // class so the universal transition doesn't cause jank elsewhere.
-    html.classList.add('is-theme-transitioning');
+      // Match Color_Scheme_Bootstrap head script (anti-flash) attributes.
+      if (this.state.isDark) {
+        html.style.colorScheme = 'dark';
+        html.setAttribute('data-theme', 'dark');
+        html.classList.add('is-dark-mode');
+        html.classList.remove('is-light-mode');
+      } else {
+        html.style.colorScheme = this.state.isSystemPreference ? '' : 'light';
+        html.setAttribute('data-theme', 'light');
+        html.classList.add('is-light-mode');
+        html.classList.remove('is-dark-mode');
+      }
+    };
 
-    if (this.state.isDark) {
-      html.style.colorScheme = 'dark';
-      html.setAttribute('data-theme', 'dark');
-      html.classList.add('is-dark-mode');
-      html.classList.remove('is-light-mode');
-    } else {
-      html.style.colorScheme = this.state.isSystemPreference ? '' : 'light';
-      html.setAttribute('data-theme', 'light');
-      html.classList.add('is-light-mode');
-      html.classList.remove('is-dark-mode');
+    const canAnimate =
+      animate &&
+      typeof document.startViewTransition === 'function' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (canAnimate) {
+      document.startViewTransition(run);
+      return;
     }
 
-    // Remove after transition completes (matches 0.3s in CSS).
-    clearTimeout(this.transitionTimer);
-    this.transitionTimer = window.setTimeout(() => {
-      html.classList.remove('is-theme-transitioning');
-    }, 350);
+    run();
   }
 
   private saveState(): void {
-    localStorage.setItem(this.storageKey, this.state.isDark ? 'dark' : 'light');
+    storeColorScheme(this.state.isDark ? 'dark' : 'light');
   }
 
   public destroy(): void {
-    this.button.removeEventListener('click', this.toggle.bind(this));
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .removeEventListener(
-        'change',
-        this.handleSystemPreferenceChange.bind(this)
-      );
-    document.removeEventListener(
-      'darkModeToggle',
-      this.handleCustomEvent.bind(this)
-    );
+    this.button.removeEventListener('click', this.boundToggle);
+    this.mediaQuery.removeEventListener('change', this.boundSystemChange);
+    document.removeEventListener('darkModeToggle', this.boundCustomEvent);
   }
 }
 
-// Initialize all toggle buttons on the page
 function initDarkModeToggles(): void {
+  // Migrate legacy keys even when no toggle is on the page (favicon / WCPay).
+  if (hasStoredColorScheme()) {
+    getStoredColorScheme();
+  }
+
   const buttons = document.querySelectorAll<HTMLButtonElement>(
     '.dark-mode-toggle__button'
   );
@@ -183,18 +203,15 @@ function initDarkModeToggles(): void {
   });
 }
 
-// Initialize on DOM ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initDarkModeToggles);
 } else {
   initDarkModeToggles();
 }
 
-// Initialize on AJAX content updates (for dynamic content)
 if (typeof wp !== 'undefined' && wp.hooks) {
   wp.hooks.addAction('wp_body_open', 'aggressive-apparel', initDarkModeToggles);
 }
 
-// Export for potential external use
 window.DarkModeToggle = DarkModeToggle;
 window.initDarkModeToggles = initDarkModeToggles;

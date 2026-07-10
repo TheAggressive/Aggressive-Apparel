@@ -1,5 +1,21 @@
 import type { CSSProperties } from 'react';
 
+/**
+ * Fixed WordPress admin chrome colors for editor UI that lives outside the
+ * canvas iframe (sidebars, popovers, More menu). Theme `--aa-*` tokens often
+ * fail to resolve there and produced unreadable white-on-white labels.
+ *
+ * Prefer these over EDITOR_COLOR_TOKENS for inspector chrome text/borders.
+ */
+export const ADMIN_CHROME_COLORS = {
+  text: '#1e1e1e',
+  muted: '#757575',
+  border: '#ddd',
+  borderStrong: '#999',
+  surface: '#fff',
+  surfaceOpen: '#f0f0f0',
+} as const;
+
 export const EDITOR_COLOR_TOKENS = {
   foreground: 'var(--aa-color-foreground, currentColor)',
   // Adaptive foreground-muted is tuned for page body copy; in the block
@@ -19,6 +35,13 @@ export const EDITOR_COLOR_TOKENS = {
   error: 'var(--aa-color-error, currentColor)',
   errorBg: 'var(--aa-color-error-bg, transparent)',
 } as const;
+
+/** Help copy for admin chrome (sidebar / popover), not canvas. */
+export const ADMIN_HELP_TEXT_STYLE: CSSProperties = {
+  fontSize: '12px',
+  color: ADMIN_CHROME_COLORS.muted,
+  marginTop: 0,
+};
 
 export const EDITOR_RADIUS_TOKENS = {
   control: 'var(--aa-radius-control, 4px)',

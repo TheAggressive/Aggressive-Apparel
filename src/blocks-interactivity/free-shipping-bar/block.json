@@ -8,6 +8,7 @@
   "description": "Progress bar toward the free shipping threshold. Updates live when items are added to cart.",
   "keywords": ["shipping", "free", "cart", "progress"],
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true
   },

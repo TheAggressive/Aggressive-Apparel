@@ -24,6 +24,7 @@
     }
   },
   "supports": {
+    "requiresPlugins": ["woocommerce"],
     "html": false,
     "interactivity": true,
     "reusable": false,

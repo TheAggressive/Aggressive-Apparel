@@ -1,3 +1,10 @@
+## [1.141.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.141.0...v1.141.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* update documentation and enhance theme architecture ([e90c87a](https://github.com/TheAggressive/Aggressive-Apparel/commit/e90c87a87220e5d20b223b7c83ef936f2c7c8439))
+
 # [1.141.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.140.1...v1.141.0) (2026-07-09)
 
 

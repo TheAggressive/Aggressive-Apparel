@@ -693,6 +693,26 @@ class Feature_Settings {
 	}
 
 	/**
+	 * Option keys that should never autoload (large / rarely read on most requests).
+	 *
+	 * Trust messages and announcements are only needed when Social Proof runs.
+	 * Keeping them out of the alloptions payload shrinks every frontend request.
+	 *
+	 * @var list<string>
+	 */
+	private const NON_AUTOLOAD_OPTIONS = array(
+		self::SOCIAL_PROOF_TRUST_MESSAGES_OPTION,
+		self::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION,
+	);
+
+	/**
+	 * One-shot migration flag for NON_AUTOLOAD_OPTIONS.
+	 *
+	 * @var string
+	 */
+	private const AUTOLOAD_MIGRATION_OPTION = 'aggressive_apparel_options_autoload_v1';
+
+	/**
 	 * Initialize settings hooks.
 	 *
 	 * Delegates the admin page lifecycle to Feature_Settings_Page so this
@@ -702,8 +722,48 @@ class Feature_Settings {
 	 */
 	public function init(): void {
 		add_action( 'init', array( self::class, 'register_store_copy_translation_strings' ) );
+		add_filter( 'wp_default_autoload_value', array( self::class, 'filter_default_autoload_value' ), 10, 2 );
+		add_action( 'init', array( self::class, 'maybe_disable_large_option_autoload' ), 5 );
 
 		( new Feature_Settings_Page() )->init();
+	}
+
+	/**
+	 * Force autoload off for large social-proof text options on first insert.
+	 *
+	 * @param bool|null $autoload Current default.
+	 * @param string    $option   Option name.
+	 * @return bool|null
+	 */
+	public static function filter_default_autoload_value( $autoload, string $option ) {
+		if ( in_array( $option, self::NON_AUTOLOAD_OPTIONS, true ) ) {
+			return false;
+		}
+
+		return $autoload;
+	}
+
+	/**
+	 * Flip existing large options to autoload=no once.
+	 *
+	 * @return void
+	 */
+	public static function maybe_disable_large_option_autoload(): void {
+		if ( get_option( self::AUTOLOAD_MIGRATION_OPTION ) ) {
+			return;
+		}
+
+		foreach ( self::NON_AUTOLOAD_OPTIONS as $option ) {
+			$value = get_option( $option, null );
+			if ( null === $value || false === $value ) {
+				continue;
+			}
+
+			// Re-save with autoload disabled; value unchanged.
+			update_option( $option, $value, false );
+		}
+
+		update_option( self::AUTOLOAD_MIGRATION_OPTION, 1, false );
 	}
 
 	/**

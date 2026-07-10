@@ -224,6 +224,20 @@ class Product_Filters {
 		$current_cat_slug = Product_Context::get_current_category_slug();
 		$layout           = self::get_active_layout();
 
+		// Interactivity state only needs slug/name for pills and URL sync.
+		// Swatch styles, counts, and links are SSR'd by Product_Filter_Renderer.
+		$slim_terms = static function ( array $terms ): array {
+			return array_values(
+				array_map(
+					static fn( array $term ): array => array(
+						'slug' => (string) ( $term['slug'] ?? '' ),
+						'name' => (string) ( $term['name'] ?? '' ),
+					),
+					$terms
+				)
+			);
+		};
+
 		wp_interactivity_state(
 			'aggressive-apparel/product-filters',
 			array(
@@ -242,10 +256,10 @@ class Product_Filters {
 				// uses (e.g. a customised "Products by Category" template),
 				// not the default archive-product card.
 				'templateSlug'        => Product_Context::get_current_template_slug(),
-				'categories'          => $data['categories'],
-				'colorTerms'          => $data['colorTerms'],
-				'sizeTerms'           => $data['sizeTerms'],
-				'fitTerms'            => $data['fitTerms'],
+				'categories'          => $slim_terms( $data['categories'] ),
+				'colorTerms'          => $slim_terms( $data['colorTerms'] ),
+				'sizeTerms'           => $slim_terms( $data['sizeTerms'] ),
+				'fitTerms'            => $slim_terms( $data['fitTerms'] ),
 				'priceRange'          => array_merge(
 					$data['priceRange'],
 					array(

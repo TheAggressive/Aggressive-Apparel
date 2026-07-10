@@ -65,6 +65,9 @@ class Color_Data_Manager {
 		$colors = array();
 
 		if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+			// Prime term meta in one query so format_color_term() does not N+1.
+			update_termmeta_cache( wp_list_pluck( $terms, 'term_id' ) );
+
 			foreach ( $terms as $term ) {
 				$colors[ $term->slug ] = $this->format_color_term( $term );
 			}

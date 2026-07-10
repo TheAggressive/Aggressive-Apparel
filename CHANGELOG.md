@@ -1,3 +1,10 @@
+# [1.143.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.142.0...v1.143.0) (2026-07-10)
+
+
+### Features
+
+* enhance block and WooCommerce functionality ([8436045](https://github.com/TheAggressive/Aggressive-Apparel/commit/843604592807c6fa267618037eec3409f34f8170))
+
 # [1.142.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.141.1...v1.142.0) (2026-07-10)
 
 

@@ -1,3 +1,10 @@
+## [1.143.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.143.0...v1.143.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* update enqueue_style method in Asset_Loader class ([1aab16b](https://github.com/TheAggressive/Aggressive-Apparel/commit/1aab16ba03fe98869d181d2fffa7fc90cd5304f6))
+
 # [1.143.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.142.0...v1.143.0) (2026-07-10)
 
 

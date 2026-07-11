@@ -1,3 +1,10 @@
+# [1.147.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.146.0...v1.147.0) (2026-07-11)
+
+
+### Features
+
+* enhance dark mode toggle block with new styling and functionality ([504dc1b](https://github.com/TheAggressive/Aggressive-Apparel/commit/504dc1b7d09753db84c7efb74c55ea7b18b13624))
+
 # [1.146.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.145.0...v1.146.0) (2026-07-11)
 
 

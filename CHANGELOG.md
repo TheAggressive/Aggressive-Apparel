@@ -1,3 +1,10 @@
+# [1.144.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.143.1...v1.144.0) (2026-07-11)
+
+
+### Features
+
+* enhance copyright block with legal identity and schema support ([a54eb36](https://github.com/TheAggressive/Aggressive-Apparel/commit/a54eb364bb6a674bd55955b44169efe9a8082350))
+
 ## [1.143.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.143.0...v1.143.1) (2026-07-10)
 
 

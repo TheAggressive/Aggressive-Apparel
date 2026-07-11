@@ -1,3 +1,10 @@
+# [1.146.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.145.0...v1.146.0) (2026-07-11)
+
+
+### Features
+
+* enhance countdown timer block with theming and display options ([e4005a3](https://github.com/TheAggressive/Aggressive-Apparel/commit/e4005a3cc1972319a5564f53f10685e4f78f870d))
+
 # [1.145.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.144.0...v1.145.0) (2026-07-11)
 
 

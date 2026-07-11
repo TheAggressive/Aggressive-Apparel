@@ -213,17 +213,19 @@ export const applyLayerFrame = (
   const { element, effects, depth } = layer;
   const eased = layer.ease(frame.progress);
 
+  // ease(baseline) is constant after priming — memoize it per layer.
+  if (layer.baselineEasedFor !== frame.baseline) {
+    layer.baselineEasedFor = frame.baseline;
+    layer.baselineEased = layer.ease(frame.baseline);
+  }
+
   // Scroll movement, measured from the instance's calibrated baseline:
   // zero offset there (layout matches the editor), drifting apart as the
   // page scrolls away from it. Depth scales the travel: far layers crawl,
   // near layers sweep.
   const intensity = ctx.intensity ?? 50;
   const travel =
-    (eased - layer.ease(frame.baseline)) *
-    2 *
-    intensity *
-    layer.speed *
-    (1 + depth);
+    (eased - layer.baselineEased) * 2 * intensity * layer.speed * (1 + depth);
 
   let x = 0;
   let y = 0;
@@ -285,6 +287,8 @@ export const applyLayerFrame = (
   }
 
   // Scale channel: gentle depth cue plus an optional zoom effect.
+  // Deduped like translate — most layers hold a constant scale, and
+  // redundant style writes cost a style recalc each frame.
   let scale = layer.depthScale;
   if (effects.zoom?.enabled) {
     const zoomIntensity = effects.zoom.intensity || 0.2;
@@ -293,13 +297,18 @@ export const applyLayerFrame = (
         ? 1 - eased * zoomIntensity
         : 1 + eased * zoomIntensity;
   }
-  element.style.scale = scale === 1 ? '' : scale.toFixed(4);
+  const scaleValue = scale === 1 ? '' : scale.toFixed(4);
+  if (scaleValue !== layer.lastScale) {
+    layer.lastScale = scaleValue;
+    element.style.scale = scaleValue;
+  }
 
   if (!layer.hasFrameEffects) {
     return;
   }
 
-  // Remaining effects are cheap math; batch the style writes.
+  // Remaining effects are cheap math; writes are deduped per property so
+  // unchanged values never dirty the element's style.
   const styleUpdates: Record<string, string> = {};
 
   const opacity = applyScrollOpacityEffect(
@@ -315,5 +324,14 @@ export const applyLayerFrame = (
   applyShadowEffect(styleUpdates, effects.dynamicShadow, frame.progress);
   applyRotationEffect(styleUpdates, effects.rotation, frame.progress);
 
-  Object.assign(element.style, styleUpdates);
+  const last = layer.lastEffectStyles;
+  for (const prop in styleUpdates) {
+    const value = styleUpdates[prop];
+    if (last[prop] !== value) {
+      last[prop] = value;
+      // Effect props are fixed per layer config, so keys never need
+      // removal — only their values change frame to frame.
+      (element.style as unknown as Record<string, string>)[prop] = value;
+    }
+  }
 };

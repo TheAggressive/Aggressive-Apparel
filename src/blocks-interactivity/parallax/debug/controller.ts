@@ -14,7 +14,11 @@
  * @package Aggressive Apparel
  */
 
-import { createScrollDebugController } from '../../debug-shared';
+import {
+  createScrollDebugController,
+  getEffectiveThreshold,
+  getStrings,
+} from '../../debug-shared';
 import type { ParallaxInstance } from '../engine';
 import { getObserverRootMargin, getVisibilityThreshold } from '../utils';
 
@@ -30,17 +34,37 @@ export const createDebugController = (
   instance: ParallaxInstance
 ): DebugController => {
   const ctx = instance.ctx;
+  const strings = getStrings();
+  const effectiveRootMargin = getObserverRootMargin(
+    ctx.detectionBoundary,
+    ctx.activationBuffer ?? 20,
+    window.innerHeight
+  );
 
   const controller = createScrollDebugController({
     id: ctx.id ?? `parallax_${Date.now()}`,
     namespace: 'parallax',
-    title: 'Parallax Debug',
+    title: strings.titleParallax,
     element: instance.root,
     configuredBoundary: ctx.detectionBoundary,
-    effectiveRootMargin: getObserverRootMargin(ctx.detectionBoundary),
-    threshold: getVisibilityThreshold(ctx.visibilityTrigger),
+    effectiveRootMargin,
+    // The observer stashes the threshold it actually runs with (incl.
+    // the tall-element auto-cap) on the context; the fallback only
+    // covers the debug module resolving before observeInstance() ran.
+    threshold:
+      ctx.effectiveThreshold ??
+      getEffectiveThreshold(
+        getVisibilityThreshold(ctx.visibilityTrigger),
+        instance.root.offsetHeight,
+        window.innerHeight,
+        effectiveRootMargin
+      ),
     trackProgress: true,
-    engine: { label: 'Engine', active: 'Active', idle: 'Idle' },
+    engine: {
+      label: strings.engineLabel,
+      active: strings.engineActive,
+      idle: strings.engineIdle,
+    },
   });
 
   return {

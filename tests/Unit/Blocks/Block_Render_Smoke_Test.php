@@ -535,7 +535,8 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'data-wp-on--click="actions.toggleHotspot"', $html );
 		$this->assertStringContainsString( 'View product: Bomber Jacket', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-lookbook__popover', $html );
-		$this->assertStringContainsString( 'data-wp-html="state.popoverHtml"', $html );
+		$this->assertStringContainsString( 'aggressive-apparel-lookbook__popover-content', $html );
+		$this->assertStringNotContainsString( 'data-wp-html="state.popoverHtml"', $html );
 	}
 
 	/**

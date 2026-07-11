@@ -103,12 +103,19 @@
 }
 
 /*
- * Deliberately NO `will-change` on layers: under the container's 3D card
- * tilt a promoted compositor layer is hit-tested at its flat 2D bounds,
- * which offsets clicks on any link/button inside. The shared frame engine
- * already batches writes and skips no-op frames, so the compositor hint
- * isn't needed for smoothness.
+ * Compositor promotion, scoped tight. Under the 3D card tilt
+ * (--mouse-interaction) a promoted layer is hit-tested at its flat 2D
+ * bounds — the "only a corner of the button is clickable" bug — so
+ * tilted scenes stay unpromoted. Scroll-only scenes have no tilt: there
+ * the hint is safe and turns every per-frame translate/scale update into
+ * a compositor-only move instead of a main-raster repaint (large image
+ * layers repainting each frame were an FPS drain). Scoped to
+ * --intersecting so idle blocks hold no GPU layers, and reduced-motion
+ * (below) force-resets it.
  */
+.aggressive-apparel-parallax--intersecting:not(.aggressive-apparel-parallax--mouse-interaction) [data-parallax-enabled="true"] {
+	will-change: transform;
+}
 
 /* Ensure all interactive elements within parallax layers are clickable */
 [data-parallax-enabled="true"] *,

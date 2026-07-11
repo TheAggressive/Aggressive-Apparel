@@ -12,6 +12,7 @@
  * @package Aggressive Apparel
  */
 
+import { getStrings } from './i18n';
 import { el, safeStorageGet, safeStorageSet } from './utils';
 
 export type RowKind = 'text' | 'badge' | 'meter';
@@ -64,6 +65,13 @@ export interface PanelHandle {
 
 interface RowRefs {
   value: HTMLElement;
+  /**
+   * Dedicated Text node for value updates. Mutating `Text.data` is a
+   * CharacterData edit; `textContent =` REPLACES the node — a childList
+   * mutation that re-triggers `:has()` invalidation from the theme's
+   * global CSS on every write and tanked the frame rate.
+   */
+  valueText: Text;
   fill?: HTMLElement;
   lastModifier?: string;
 }
@@ -76,9 +84,6 @@ interface PersistedPanelState {
 
 const VIEWPORT_MARGIN = 8;
 const CASCADE_OFFSET = 36;
-
-/** Panels currently on screen; used for the cascade offset. */
-const activePanels = new Set<HTMLElement>();
 
 const clampToViewport = (
   left: number,
@@ -97,6 +102,7 @@ const clampToViewport = (
 });
 
 export const createDebugPanel = (options: PanelOptions): PanelHandle => {
+  const strings = getStrings();
   const abort = new AbortController();
   const { signal } = abort;
   const rows = new Map<string, RowRefs>();
@@ -123,10 +129,12 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
   ) as HTMLButtonElement;
   collapseButton.type = 'button';
   collapseButton.setAttribute('aria-expanded', 'true');
-  collapseButton.setAttribute('aria-label', 'Collapse debug panel');
+  collapseButton.setAttribute('aria-label', strings.panelCollapse);
   header.append(title, collapseButton);
 
   const warning = el('div', 'aa-dbg-panel__warning');
+  const warningText = document.createTextNode('');
+  warning.appendChild(warningText);
   warning.hidden = true;
 
   const body = el('div', 'aa-dbg-panel__body');
@@ -186,6 +194,7 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
       if (rowSpec.kind === 'meter') {
         const head = el('div', 'aa-dbg-row__head');
         const value = el('span', 'aa-dbg-row__value', '—');
+        const valueText = value.firstChild as Text;
         head.append(label, value);
 
         const track = el('div', 'aa-dbg-meter');
@@ -198,7 +207,7 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
         });
 
         row.append(head, track);
-        rows.set(rowSpec.id, { value, fill });
+        rows.set(rowSpec.id, { value, valueText, fill });
       } else {
         const value = el(
           'span',
@@ -208,7 +217,7 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
           '—'
         );
         row.append(label, value);
-        rows.set(rowSpec.id, { value });
+        rows.set(rowSpec.id, { value, valueText: value.firstChild as Text });
       }
 
       sectionBody.appendChild(row);
@@ -219,7 +228,7 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
 
   // ---- Legend (collapsed) -------------------------------------------------
   if (options.legend && options.legend.length > 0) {
-    const { sectionEl, sectionBody } = buildSection('Legend', true);
+    const { sectionEl, sectionBody } = buildSection(strings.legend, true);
     const list = el('div', 'aa-dbg-legend');
     options.legend.forEach(item => {
       const entry = el('div', 'aa-dbg-legend__item');
@@ -241,6 +250,9 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
     // Expose the identity color to legend swatches etc.
     panel.style.setProperty('--aa-dbg-identity', options.accent);
   }
+  // DOM count, not module state: each block type bundles its own copy of
+  // this module, so only the DOM sees panels from other block types.
+  const cascadeIndex = document.querySelectorAll('.aa-dbg-panel').length;
   document.body.appendChild(panel);
 
   // ---- Position: restore (clamped) or cascade --------------------------
@@ -271,11 +283,10 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
   ) {
     applyPosition(persisted.left, persisted.top);
   } else {
-    const cascade = activePanels.size * CASCADE_OFFSET;
+    const cascade = cascadeIndex * CASCADE_OFFSET;
     panel.style.right = `${16 + cascade}px`;
     panel.style.bottom = `${16 + cascade}px`;
   }
-  activePanels.add(panel);
 
   // ---- Collapse --------------------------------------------------------
   const setCollapsed = (collapsed: boolean): void => {
@@ -285,7 +296,7 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
     collapseButton.setAttribute('aria-expanded', String(!collapsed));
     collapseButton.setAttribute(
       'aria-label',
-      collapsed ? 'Expand debug panel' : 'Collapse debug panel'
+      collapsed ? strings.panelExpand : strings.panelCollapse
     );
   };
 
@@ -366,8 +377,8 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
 
     setText: (rowId, text) => {
       const row = rows.get(rowId);
-      if (row && row.value.textContent !== text) {
-        row.value.textContent = text;
+      if (row && row.valueText.data !== text) {
+        row.valueText.data = text;
       }
     },
 
@@ -376,8 +387,8 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
       if (!row) {
         return;
       }
-      if (row.value.textContent !== text) {
-        row.value.textContent = text;
+      if (row.valueText.data !== text) {
+        row.valueText.data = text;
       }
       if (row.lastModifier !== modifier) {
         if (row.lastModifier) {
@@ -395,14 +406,14 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
       }
       const clamped = Math.max(0, Math.min(1, fraction));
       row.fill.style.width = `${clamped * 100}%`;
-      if (row.value.textContent !== text) {
-        row.value.textContent = text;
+      if (row.valueText.data !== text) {
+        row.valueText.data = text;
       }
     },
 
     setWarning: message => {
       if (message) {
-        warning.textContent = `⚠ ${message}`;
+        warningText.data = `⚠ ${message}`;
         warning.hidden = false;
       } else {
         warning.hidden = true;
@@ -411,7 +422,6 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
 
     destroy: () => {
       abort.abort();
-      activePanels.delete(panel);
       panel.remove();
     },
   };

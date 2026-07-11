@@ -14,6 +14,7 @@
  * @package Aggressive Apparel
  */
 
+import { fmt, getStrings } from './i18n';
 import type { DebugBoundary, IntersectionPhase } from './types';
 import { boundaryExtendsViewport, el, invertValue } from './utils';
 
@@ -23,17 +24,25 @@ import { boundaryExtendsViewport, el, invertValue } from './utils';
 
 export type BoundaryRole = 'configured' | 'effective';
 
-interface BoundaryEntry {
-  element: HTMLElement;
-  holders: Set<string>;
-}
+/**
+ * Boundary overlays are shared via the DOM, not a module registry: each
+ * block type ships its own compiled copy of this module, so a module
+ * Map would let a parallax and an animate-on-scroll instance with
+ * identical geometry double-draw the same box. The element carries its
+ * key and refcount as data attributes so every module copy sees them.
+ */
+const BOUNDARY_KEY_ATTR = 'data-aa-dbg-boundary-key';
 
-const boundaryRegistry = new Map<string, BoundaryEntry>();
-/** Which registry keys each debug instance currently holds. */
+/** Keys held per debug instance (local: an instance releases only its own). */
 const holderKeys = new Map<string, Set<string>>();
 
 const boundaryKey = (role: BoundaryRole, boundary: DebugBoundary): string =>
   `${role}|${boundary.top}|${boundary.right}|${boundary.bottom}|${boundary.left}`;
+
+const findBoundaryElement = (key: string): HTMLElement | null =>
+  document.querySelector<HTMLElement>(
+    `[${BOUNDARY_KEY_ATTR}="${key.replace(/["\\]/g, '')}"]`
+  );
 
 /**
  * Show a boundary overlay for a debug instance. Overlays are shared:
@@ -46,10 +55,22 @@ export const acquireBoundaryOverlay = (
   label: string
 ): void => {
   const key = boundaryKey(role, boundary);
-  let entry = boundaryRegistry.get(key);
 
-  if (!entry) {
-    const element = el('div', `aa-dbg-boundary aa-dbg-boundary--${role}`);
+  let keys = holderKeys.get(instanceId);
+  if (!keys) {
+    keys = new Set();
+    holderKeys.set(instanceId, keys);
+  }
+  if (keys.has(key)) {
+    return;
+  }
+  keys.add(key);
+
+  let element = findBoundaryElement(key);
+  if (!element) {
+    element = el('div', `aa-dbg-boundary aa-dbg-boundary--${role}`);
+    element.setAttribute(BOUNDARY_KEY_ATTR, key.replace(/["\\]/g, ''));
+    element.dataset.aaDbgRefs = '0';
     element.style.inset = `${invertValue(boundary.top || '0%')} ${invertValue(
       boundary.right || '0%'
     )} ${invertValue(boundary.bottom || '0%')} ${invertValue(
@@ -57,23 +78,16 @@ export const acquireBoundaryOverlay = (
     )}`;
 
     const labelText = boundaryExtendsViewport(boundary)
-      ? `${label} · extends beyond viewport`
+      ? `${label} ${getStrings().boundaryExtends}`
       : label;
     element.appendChild(el('span', 'aa-dbg-boundary__label', labelText));
 
     document.body.appendChild(element);
-    entry = { element, holders: new Set() };
-    boundaryRegistry.set(key, entry);
   }
 
-  entry.holders.add(instanceId);
-
-  let keys = holderKeys.get(instanceId);
-  if (!keys) {
-    keys = new Set();
-    holderKeys.set(instanceId, keys);
-  }
-  keys.add(key);
+  element.dataset.aaDbgRefs = String(
+    (parseInt(element.dataset.aaDbgRefs ?? '0', 10) || 0) + 1
+  );
 };
 
 /** Release every boundary overlay held by a debug instance. */
@@ -83,14 +97,15 @@ export const releaseBoundaryOverlays = (instanceId: string): void => {
     return;
   }
   keys.forEach(key => {
-    const entry = boundaryRegistry.get(key);
-    if (!entry) {
+    const element = findBoundaryElement(key);
+    if (!element) {
       return;
     }
-    entry.holders.delete(instanceId);
-    if (entry.holders.size === 0) {
-      entry.element.remove();
-      boundaryRegistry.delete(key);
+    const refs = (parseInt(element.dataset.aaDbgRefs ?? '0', 10) || 0) - 1;
+    if (refs <= 0) {
+      element.remove();
+    } else {
+      element.dataset.aaDbgRefs = String(refs);
     }
   });
   holderKeys.delete(instanceId);
@@ -133,6 +148,9 @@ export const createElementOverlay = (
   target: HTMLElement,
   options: ElementOverlayOptions
 ): ElementOverlay => {
+  const strings = getStrings();
+  const thresholdPct = Math.round(options.threshold * 100);
+
   const container = el('div', 'aa-dbg-element');
   if (options.accent) {
     container.style.setProperty('--aa-dbg-identity', options.accent);
@@ -144,14 +162,14 @@ export const createElementOverlay = (
   const entryLabel = el(
     'span',
     'aa-dbg-line-label aa-dbg-line-label--entry',
-    `Entry (bottom) ${Math.round(options.threshold * 100)}%`
+    fmt(strings.lineEntryBottom, { pct: thresholdPct })
   );
 
   const topEntryLine = el('div', 'aa-dbg-line aa-dbg-line--entry-top');
   const topEntryLabel = el(
     'span',
     'aa-dbg-line-label aa-dbg-line-label--entry-top',
-    `Entry (top) ${Math.round(options.threshold * 100)}%`
+    fmt(strings.lineEntryTop, { pct: thresholdPct })
   );
 
   container.append(zone, entryLine, entryLabel, topEntryLine, topEntryLabel);
@@ -167,7 +185,7 @@ export const createElementOverlay = (
     exitLabel = el(
       'span',
       'aa-dbg-line-label aa-dbg-line-label--exit',
-      `Exit ≤ ${Math.round(options.exitThreshold * 100)}%`
+      fmt(strings.lineExit, { pct: Math.round(options.exitThreshold * 100) })
     );
     container.append(exitLine, exitLabel);
   }

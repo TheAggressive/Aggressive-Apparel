@@ -14,7 +14,12 @@
 import type { CachedLayer } from './layers';
 import { applyLayerFrame } from './transforms';
 import type { ParallaxContext } from './types';
-import { calculateProgressWithinBoundary, clamp } from './utils';
+import {
+  clamp,
+  measureProgressGeometry,
+  progressFromGeometry,
+  type ProgressGeometry,
+} from './utils';
 
 export interface ParallaxInstance {
   /** Block wrapper element (interactivity root). */
@@ -46,10 +51,19 @@ export interface ParallaxInstance {
   baselineProgress: number;
   lastTiltX: number;
   lastTiltY: number;
+  /**
+   * Cached progress geometry — refreshed on resize, observer events, and
+   * every GEOMETRY_REFRESH_FRAMES active frames. Keeps offset-chain walks
+   * and boundary parsing out of the per-frame path.
+   */
+  geom: ProgressGeometry | null;
+  framesSinceMeasure: number;
 }
 
 const POINTER_SETTLE_EPSILON = 0.0005;
 const MAX_FRAME_DELTA_MS = 100;
+/** Self-heal cadence for layout shifts the observers miss (~1s at 60Hz). */
+const GEOMETRY_REFRESH_FRAMES = 60;
 
 const instances = new Set<ParallaxInstance>();
 
@@ -81,6 +95,11 @@ const handleScroll = (): void => {
 };
 
 const handleResize = (): void => {
+  // Viewport-relative boundary px and cached positions are stale now;
+  // re-measured lazily on the next frame each instance renders.
+  instances.forEach(instance => {
+    instance.geom = null;
+  });
   requestTick();
 };
 
@@ -228,11 +247,24 @@ const writeContainerTilt = (instance: ParallaxInstance): void => {
   }
 };
 
-/** Read-phase layout queries for one instance (no style writes). */
+/** Read-phase queries for one instance (no style writes). */
 const readInstance = (instance: ParallaxInstance): void => {
-  const { progress } = calculateProgressWithinBoundary(
-    instance.root,
-    instance.ctx.detectionBoundary,
+  // Measure rarely; the per-frame path is pure arithmetic on scrollY.
+  if (
+    !instance.geom ||
+    ++instance.framesSinceMeasure >= GEOMETRY_REFRESH_FRAMES
+  ) {
+    instance.geom = measureProgressGeometry(
+      instance.root,
+      instance.ctx.detectionBoundary
+    );
+    instance.framesSinceMeasure = 0;
+  }
+
+  const { progress } = progressFromGeometry(
+    instance.geom,
+    window.scrollY,
+    window.innerHeight,
     instance.ctx.visibilityTrigger
   );
   instance.progress = progress;
@@ -336,6 +368,23 @@ export const primeInstance = (instance: ParallaxInstance): void => {
   renderInstance(instance);
 };
 
+/**
+ * Cheap geometry refresh from an IntersectionObserver entry rect — the
+ * rect is free (no forced layout) and the root carries no transforms,
+ * so it is layout-true. Keeps cached positions honest when images load
+ * or content above the block shifts.
+ */
+export const refreshInstanceGeometry = (
+  instance: ParallaxInstance,
+  rect: DOMRectReadOnly
+): void => {
+  if (instance.geom) {
+    instance.geom.docTop = rect.top + window.scrollY;
+    instance.geom.elementHeight = rect.height;
+    instance.framesSinceMeasure = 0;
+  }
+};
+
 /** Mark an instance (in)active — called by its IntersectionObserver. */
 export const setInstanceActive = (
   instance: ParallaxInstance,
@@ -381,4 +430,6 @@ export const createInstance = (
   baselineProgress: 0.5,
   lastTiltX: 0,
   lastTiltY: 0,
+  geom: null,
+  framesSinceMeasure: 0,
 });

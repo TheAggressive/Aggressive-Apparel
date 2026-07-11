@@ -32,6 +32,13 @@ export interface CachedLayer {
   rect: DOMRect | null;
   /** Last written translate value, used to skip redundant style writes. */
   lastTranslate: string;
+  /** Last written scale value, used to skip redundant style writes. */
+  lastScale: string;
+  /** Last written per-effect style values (filter/opacity/…), same idea. */
+  lastEffectStyles: Record<string, string>;
+  /** Memoized ease(baseline) — the baseline is fixed after priming. */
+  baselineEasedFor: number;
+  baselineEased: number;
 }
 
 const parseEffects = (raw: string | undefined): ParallaxEffects => {
@@ -158,6 +165,10 @@ export const collectLayers = (
       needsRect: Boolean(effects.magneticMouse?.enabled),
       rect: null,
       lastTranslate: '',
+      lastScale: '',
+      lastEffectStyles: {},
+      baselineEasedFor: NaN,
+      baselineEased: 0,
     };
 
     applyStaticStyles(layer, ctx);

@@ -33,6 +33,10 @@
         "left": "0%"
       }
     },
+    "activationBuffer": {
+      "type": "number",
+      "default": 20
+    },
     "enableMouseInteraction": {
       "type": "boolean",
       "default": false

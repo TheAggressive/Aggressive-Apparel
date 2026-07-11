@@ -16,7 +16,7 @@
 import {
   boundaryToRootMargin,
   createScrollDebugController,
-  getVisibilityThreshold,
+  getStrings,
   type DebugBoundary,
 } from '../debug-shared';
 
@@ -25,7 +25,8 @@ export type { DebugBoundary };
 export interface DebugContextData {
   id: string;
   detectionBoundary: DebugBoundary;
-  visibilityTrigger: number | string;
+  /** The production observer's EFFECTIVE entry threshold (see view.ts). */
+  threshold: number;
   reverseOnScrollBack?: boolean;
 }
 
@@ -46,12 +47,13 @@ export const createDebugController = (
   ctx: DebugContextData,
   ref: HTMLElement
 ): AosDebugController => {
-  const threshold = getVisibilityThreshold(ctx.visibilityTrigger);
+  const strings = getStrings();
+  const threshold = ctx.threshold;
 
   const controller = createScrollDebugController({
     id: ctx.id,
     namespace: 'animate-on-scroll',
-    title: 'Animate On Scroll Debug',
+    title: strings.titleAos,
     element: ref,
     configuredBoundary: ctx.detectionBoundary,
     // AOS passes the configured boundary straight through to its
@@ -59,11 +61,15 @@ export const createDebugController = (
     effectiveRootMargin: boundaryToRootMargin(ctx.detectionBoundary),
     threshold,
     exitThreshold: ctx.reverseOnScrollBack ? threshold / 2 : undefined,
-    engine: { label: 'Animation', active: 'Shown', idle: 'Hidden' },
+    engine: {
+      label: strings.animationLabel,
+      active: strings.animationShown,
+      idle: strings.animationHidden,
+    },
     info: [
       {
-        label: 'Reverse on scroll back',
-        value: ctx.reverseOnScrollBack ? 'Yes' : 'No',
+        label: strings.reverseLabel,
+        value: ctx.reverseOnScrollBack ? strings.yes : strings.no,
       },
     ],
   });

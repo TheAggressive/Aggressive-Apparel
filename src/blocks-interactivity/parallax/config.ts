@@ -48,6 +48,7 @@ export function applyParallaxDefaults(
       bottom: '0%',
       left: '0%',
     },
+    activationBuffer: context.activationBuffer ?? 20,
     enableMouseInteraction: context.enableMouseInteraction ?? false,
     debugMode: context.debugMode ?? false,
     parallaxDirection: context.parallaxDirection ?? 'down',

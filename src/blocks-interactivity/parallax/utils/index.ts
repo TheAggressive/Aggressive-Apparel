@@ -18,8 +18,10 @@ export { validateParallaxEffects } from '../types';
 export { ParallaxLogger, validateConfiguration } from './error-handling';
 export {
   calculateProgressWithinBoundary,
+  measureProgressGeometry,
+  progressFromGeometry,
+  type ProgressGeometry,
   getObserverRootMargin,
-  getObserverThreshold,
   getValidIntersectionRatio,
   getVisibilityThreshold,
 } from './geometry';

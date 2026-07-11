@@ -17,6 +17,10 @@
  */
 import { getContext, getElement, store } from '@wordpress/interactivity';
 
+import {
+  getEffectiveThreshold,
+  getVisibilityThreshold,
+} from '../debug-shared/utils';
 import type { AosDebugController } from './debug';
 
 interface DetectionBoundary {
@@ -53,11 +57,6 @@ interface StaggerConfig {
   randomMin: number;
   randomMax: number;
 }
-
-const parseThreshold = (value: number | string | undefined): number => {
-  const threshold = typeof value === 'string' ? parseFloat(value) : value;
-  return typeof threshold === 'number' && !isNaN(threshold) ? threshold : 0.3;
-};
 
 const getStaggerConfig = (ctx: AnimateOnScrollContext): StaggerConfig => ({
   pattern: ctx.staggerPattern ?? 'sequential',
@@ -227,7 +226,7 @@ store('aggressive-apparel/animate-on-scroll', {
               {
                 id: ctx.id,
                 detectionBoundary: ctx.detectionBoundary,
-                visibilityTrigger: ctx.visibilityTrigger,
+                threshold,
                 reverseOnScrollBack: ctx.reverseOnScrollBack,
               },
               ref
@@ -241,7 +240,15 @@ store('aggressive-apparel/animate-on-scroll', {
           });
       }
 
-      const threshold = parseThreshold(ctx.visibilityTrigger);
+      const rootMargin = `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`;
+      // Elements taller than the root box can never reach the configured
+      // ratio — observe at the reachable effective threshold instead.
+      const threshold = getEffectiveThreshold(
+        getVisibilityThreshold(ctx.visibilityTrigger),
+        ref.offsetHeight,
+        window.innerHeight,
+        rootMargin
+      );
       // Exit fires at half the entry threshold (hysteresis): the reverse
       // animation starts while the element is still meaningfully on
       // screen, and the gap between the two thresholds prevents
@@ -331,7 +338,7 @@ store('aggressive-apparel/animate-on-scroll', {
         },
         {
           threshold: [...new Set([0, exitThreshold, threshold])],
-          rootMargin: `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`,
+          rootMargin,
         }
       );
 

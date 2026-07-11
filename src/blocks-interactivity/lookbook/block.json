@@ -7,6 +7,15 @@
   "category": "aggressive-apparel",
   "description": "A shoppable image with product hotspots. Click hotspots to view and add products to cart.",
   "keywords": ["lookbook", "shop the look", "shoppable", "hotspot", "outfit"],
+  "example": {
+    "attributes": {
+      "mediaUrl": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500'%3E%3Crect width='800' height='500' fill='%23d8d8d8'/%3E%3Crect x='290' y='90' width='220' height='320' rx='8' fill='%23b0b0b0'/%3E%3C/svg%3E",
+      "hotspots": [
+        { "x": 42, "y": 32, "productId": 0, "productName": "" },
+        { "x": 58, "y": 68, "productId": 0, "productName": "" }
+      ]
+    }
+  },
   "supports": {
     "requiresPlugins": ["woocommerce"],
     "html": false,
@@ -45,11 +54,27 @@
       "type": "string",
       "default": ""
     },
+    "hotspotSize": {
+      "type": "number",
+      "default": 32
+    },
+    "openOnHover": {
+      "type": "boolean",
+      "default": false
+    },
     "cardBgColor": {
       "type": "string",
       "default": ""
     },
     "cardTextColor": {
+      "type": "string",
+      "default": ""
+    },
+    "actionBgColor": {
+      "type": "string",
+      "default": ""
+    },
+    "actionIconColor": {
       "type": "string",
       "default": ""
     }

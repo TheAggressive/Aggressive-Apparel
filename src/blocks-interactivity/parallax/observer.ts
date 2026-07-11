@@ -8,10 +8,14 @@
  * @package Aggressive Apparel
  */
 
-import { setInstanceActive, type ParallaxInstance } from './engine';
+import { getEffectiveThreshold } from '../debug-shared/utils';
+import {
+  refreshInstanceGeometry,
+  setInstanceActive,
+  type ParallaxInstance,
+} from './engine';
 import {
   getObserverRootMargin,
-  getObserverThreshold,
   getValidIntersectionRatio,
   getVisibilityThreshold,
 } from './utils';
@@ -31,13 +35,32 @@ export const observeInstance = (
 ): IntersectionObserver => {
   const { ctx } = instance;
 
+  const rootMargin = getObserverRootMargin(
+    ctx.detectionBoundary,
+    ctx.activationBuffer ?? 20,
+    window.innerHeight
+  );
+  // Elements taller than the root box can never reach the configured
+  // ratio — observe at the reachable effective threshold instead
+  // (computed once at init from the element's initial height).
+  const threshold = getEffectiveThreshold(
+    getVisibilityThreshold(ctx.visibilityTrigger),
+    instance.root.offsetHeight,
+    window.innerHeight,
+    rootMargin
+  );
+  // Stashed so the (async-loaded) debug adapter shows the exact value
+  // the production observer runs with — no re-derivation drift.
+  ctx.effectiveThreshold = threshold;
+
   const observer = new IntersectionObserver(
     entries => {
       entries.forEach(entry => {
+        // Free layout-true rect: keep the engine's cached geometry honest.
+        refreshInstanceGeometry(instance, entry.boundingClientRect);
+
         const ratio = getValidIntersectionRatio(entry.intersectionRatio, 0);
-        const threshold = getVisibilityThreshold(ctx.visibilityTrigger);
-        const isIntersecting =
-          entry.isIntersecting && ratio >= Math.min(threshold, 0.99);
+        const isIntersecting = entry.isIntersecting && ratio >= threshold;
 
         ctx.intersectionRatio = ratio;
         ctx.isIntersecting = isIntersecting;
@@ -46,10 +69,7 @@ export const observeInstance = (
         onDebugEntry?.(ratio, isIntersecting);
       });
     },
-    {
-      threshold: getObserverThreshold(ctx.visibilityTrigger),
-      rootMargin: getObserverRootMargin(ctx.detectionBoundary),
-    }
+    { threshold: [threshold], rootMargin }
   );
 
   observer.observe(instance.root);

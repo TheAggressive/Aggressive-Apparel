@@ -9,6 +9,16 @@
 
 .aa-preset-picker {
 	margin-bottom: 16px;
+
+	/* WP admin chrome tokens with oklch fallbacks: the
+	   --wp-components-color-* variables only resolve where the components
+	   package defines them, which does not include every WP version's
+	   sidebar — without fallbacks the borders/background collapse to
+	   nothing (invalid at computed-value time). */
+	--aa-pp-fg: var(--wp-components-color-foreground, oklch(24% 0 0deg));
+	--aa-pp-bg: var(--wp-components-color-background, oklch(100% 0 0deg));
+	--aa-pp-muted: var(--wp-components-color-gray-700, oklch(56% 0 0deg));
+	--aa-pp-accent: var(--wp-admin-theme-color, oklch(48% 0.19 275deg));
 }
 
 .aa-preset-picker__header {
@@ -23,7 +33,7 @@
 	font-weight: 500;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	color: var(--wp-components-color-foreground);
+	color: var(--aa-pp-fg);
 }
 
 .aa-preset-picker__reset.components-button {
@@ -31,10 +41,10 @@
 	padding: 0;
 	font-size: 11px;
 	text-decoration: none;
-	color: var(--wp-components-color-gray-700);
+	color: var(--aa-pp-muted);
 
 	&:hover:not(:disabled) {
-		color: var(--wp-admin-theme-color);
+		color: var(--aa-pp-accent);
 	}
 }
 
@@ -53,23 +63,23 @@
 	min-height: 40px;
 	padding: 8px 10px;
 	border: 1px solid
-		color-mix(in srgb, var(--wp-components-color-foreground) 14%, transparent);
+		color-mix(in srgb, var(--aa-pp-fg) 14%, transparent);
 	border-radius: 2px;
-	background: var(--wp-components-color-background);
+	background: var(--aa-pp-bg);
 	box-shadow: none;
 	white-space: normal;
 	text-align: center;
 
 	&:hover:not(:disabled) {
-		border-color: var(--wp-admin-theme-color);
-		color: var(--wp-admin-theme-color);
+		border-color: var(--aa-pp-accent);
+		color: var(--aa-pp-accent);
 		box-shadow: none;
 	}
 
 	&.is-active {
-		border-color: var(--wp-admin-theme-color);
-		box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
-		color: var(--wp-admin-theme-color);
+		border-color: var(--aa-pp-accent);
+		box-shadow: inset 0 0 0 1px var(--aa-pp-accent);
+		color: var(--aa-pp-accent);
 	}
 }
 

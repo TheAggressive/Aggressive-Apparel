@@ -31,7 +31,7 @@ if ( $use_sequence ) {
 
 	// Add direction for animations that support it.
 	if ( ! empty( $attributes['direction'] ) &&
-		in_array( $attributes['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce' ), true ) ) {
+		in_array( $attributes['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce', 'reveal' ), true ) ) {
 		$default_classes[] = esc_attr( $attributes['direction'] );
 	}
 }
@@ -45,12 +45,9 @@ $aos_debug_mode = ! empty( $attributes['debugMode'] )
 	&& aggressive_apparel_can_view_block_debug();
 
 if ( $aos_debug_mode ) {
-	// Debug-only stylesheet: kept out of the block's style.css so
-	// production visitors never download overlay/panel CSS.
-	\Aggressive_Apparel\Assets\Asset_Loader::enqueue_feature_style(
-		'aggressive-apparel-debug-overlays',
-		'build/styles/components/debug-overlays'
-	);
+	// Debug-only stylesheet + translated strings blob; kept out of the
+	// block's own assets so production visitors never download them.
+	aggressive_apparel_enqueue_block_debug_assets();
 }
 
 	$wrapper_attributes_array = array(
@@ -155,7 +152,7 @@ if ( $aos_debug_mode ) {
 
 			// Add direction if animation supports it.
 			if ( ! empty( $sequence_item['direction'] ) &&
-				in_array( $sequence_item['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce' ), true ) ) {
+				in_array( $sequence_item['animation'], array( 'slide', 'flip', 'rotate', 'zoom', 'bounce', 'reveal' ), true ) ) {
 				$wrapper_attrs['data-animate-sequence-direction'] = esc_attr( $sequence_item['direction'] );
 			}
 

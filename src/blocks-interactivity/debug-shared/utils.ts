@@ -6,13 +6,6 @@
 
 import type { DebugBoundary, IntersectionPhase } from './types';
 
-/** Human-readable labels for the state badge. */
-export const PHASE_LABELS: Record<IntersectionPhase, string> = {
-  waiting: 'Waiting',
-  approaching: 'Approaching',
-  active: 'Active',
-};
-
 /**
  * Invert a rootMargin component for viewport `inset` visualization:
  * a positive margin expands the root box beyond the viewport, which is
@@ -117,11 +110,58 @@ export const getMaxReachableRatio = (
   return Math.max(0, Math.min(1, rootBoxHeight / elementHeight));
 };
 
+/**
+ * Threshold a production observer should actually use.
+ *
+ * Elements taller than the observer's root box can never reach the
+ * configured intersection ratio (max reachable = rootHeight /
+ * elementHeight), so their trigger would never fire at all. When the
+ * configured value is unreachable, trigger at 90% of the reachable
+ * maximum instead; always cap at 0.99 so IntersectionObserver reliably
+ * reports the final crossing. Pure — safe to import from production
+ * view code without pulling in any debug UI.
+ */
+export const getEffectiveThreshold = (
+  configured: number,
+  elementHeight: number,
+  viewportHeight: number,
+  rootMargin: string
+): number => {
+  const capped = Math.min(Math.max(configured, 0), 0.99);
+  if (elementHeight <= 0 || viewportHeight <= 0) {
+    return capped;
+  }
+  const maxReachable = getMaxReachableRatio(
+    elementHeight,
+    getRootBoxHeight(rootMargin, viewportHeight)
+  );
+  if (maxReachable >= capped) {
+    return capped;
+  }
+  return Math.max(0.01, maxReachable * 0.9);
+};
+
 /** True when any side of the boundary extends beyond the viewport. */
 export const boundaryExtendsViewport = (boundary: DebugBoundary): boolean =>
   [boundary.top, boundary.right, boundary.bottom, boundary.left].some(
     value => marginPartToPx(value || '0%', 100) > 0
   );
+
+/**
+ * Cross-bundle debug instance counter.
+ *
+ * Each block type ships its OWN compiled copy of this module, so
+ * module-level state cannot coordinate parallax and animate-on-scroll
+ * instances on the same page (both copies would count from zero). The
+ * DOM is the shared channel: a dataset counter on <html> is visible to
+ * every copy. Drives identity-color assignment.
+ */
+export const nextDebugInstanceIndex = (): number => {
+  const root = document.documentElement;
+  const next = parseInt(root.dataset.aaDbgSeq ?? '0', 10) || 0;
+  root.dataset.aaDbgSeq = String(next + 1);
+  return next;
+};
 
 /** Read + parse JSON from localStorage; never throws. */
 export const safeStorageGet = <T>(key: string): T | null => {

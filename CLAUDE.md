@@ -275,6 +275,37 @@ The theme includes a comprehensive color attribute system for product variations
 | `Color_Pattern_Admin`        | Admin UI for color patterns          |
 | `Color_Admin_UI`             | Color swatch admin interface         |
 
+## Block Debug Tooling (parallax / animate-on-scroll)
+
+Both blocks share one debug implementation in `src/blocks-interactivity/debug-shared/`
+(controller, panel, overlays, probe, perf monitor, i18n); the per-block files
+(`parallax/debug/controller.ts`, `animate-on-scroll/debug.ts`) are thin adapters.
+Inspector preset UI is likewise shared via `src/blocks-interactivity/editor-shared/`.
+
+- **Visitors get zero debug bytes.** `debugMode` is gated in each `render.php`
+  by `aggressive_apparel_can_view_block_debug()` (`edit_posts`, filterable) —
+  gating the context prevents the code-split debug chunk from loading, and the
+  debug CSS ships standalone (`src/styles/components/debug-overlays.css` stub →
+  enqueued only when debug renders via `aggressive_apparel_enqueue_block_debug_assets()`,
+  which also prints the translated `#aa-dbg-i18n` strings blob — keys mirror
+  `debug-shared/i18n.ts`).
+- **Cross-bundle rule:** shared dirs compile into EACH block's bundle, so
+  module-level state cannot coordinate block types. Coordinate through the DOM
+  (dataset counter on `<html>`, data-attribute refcounts, DOM element counts).
+- **Activation buffer:** parallax expands its observer boundary by the
+  `activationBuffer` attribute (% of viewport height, default 20, 0 disables)
+  so the frame engine warms up before layers become visible — that's why the
+  debug view shows both a "Detection boundary" and an "Observer boundary" for
+  parallax but a single box for animate-on-scroll (which needs no warm-up).
+- **Effective threshold:** production observers use `getEffectiveThreshold()`
+  (`debug-shared/utils`, pure — safe to import from view code): elements taller
+  than the root box auto-cap the trigger at 90% of the reachable ratio. The
+  debug UI displays the same effective value (parallax stashes it on
+  `ctx.effectiveThreshold`).
+- The debug probe runs its own dense-threshold IntersectionObserver with the
+  production rootMargin — never widen production observer thresholds for
+  debugging.
+
 ## Navigation System
 
 Navigation is split into **two independent block subsystems**, each with its own

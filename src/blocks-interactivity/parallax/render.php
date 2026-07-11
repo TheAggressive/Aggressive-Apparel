@@ -28,6 +28,7 @@ $detection_boundary = $attributes['detectionBoundary'] ?? array(
 	'bottom' => '0%',
 	'left'   => '0%',
 );
+$activation_buffer  = $attributes['activationBuffer'] ?? 20;
 
 // Visibility trigger for intersection detection.
 $enable_mouse_interaction = $attributes['enableMouseInteraction'] ?? false;
@@ -55,6 +56,7 @@ try {
 		'intensity'                => $intensity,
 		'visibilityTrigger'        => $visibility_trigger,
 		'detectionBoundary'        => $detection_boundary,
+		'activationBuffer'         => $activation_buffer,
 		'enableMouseInteraction'   => $enable_mouse_interaction,
 		'debugMode'                => $debug_mode,
 		'parallaxDirection'        => $parallax_direction,
@@ -120,12 +122,9 @@ if ( $enable_mouse_interaction ) {
 if ( $debug_mode ) {
 	$classes[] = 'aggressive-apparel-parallax--debug';
 
-	// Debug-only stylesheet: kept out of the block's style.css so
-	// production visitors never download overlay/panel CSS.
-	\Aggressive_Apparel\Assets\Asset_Loader::enqueue_feature_style(
-		'aggressive-apparel-debug-overlays',
-		'build/styles/components/debug-overlays'
-	);
+	// Debug-only stylesheet + translated strings blob; kept out of the
+	// block's own assets so production visitors never download them.
+	aggressive_apparel_enqueue_block_debug_assets();
 }
 
 	// Get wrapper attributes with Interactivity API integration.

@@ -313,6 +313,7 @@ function Edit({
     intensity = 50,
     visibilityTrigger = 0.3,
     detectionBoundary = { top: '0%', right: '0%', bottom: '0%', left: '0%' },
+    activationBuffer = 20,
     enableMouseInteraction = false,
     debugMode = false,
     parallaxDirection = 'down', // Default value
@@ -594,6 +595,21 @@ function Edit({
               />
             </div>
           </BaseControl>
+
+          <RangeControl
+            label={__('Engine pre-activation buffer', 'aggressive-apparel')}
+            value={activationBuffer}
+            onChange={value => setAttributes({ activationBuffer: value })}
+            min={0}
+            max={100}
+            step={5}
+            help={__(
+              'Extra margin (% of viewport height) where the motion engine warms up before the block reaches the detection boundary, so layers are already moving when they appear. 0 disables the buffer.',
+              'aggressive-apparel'
+            )}
+            __next40pxDefaultSize
+            __nextHasNoMarginBottom
+          />
 
           <ToggleControl
             label={__('Debug Mode', 'aggressive-apparel')}

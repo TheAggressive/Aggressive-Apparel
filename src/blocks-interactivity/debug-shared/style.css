@@ -1,9 +1,11 @@
 /**
  * Shared scroll-debug styles (Parallax + Animate On Scroll).
  *
- * Imported by each block's style.css. Duplicated in the compiled output
- * of both blocks by design — a page usually debugs one block type, and
- * identical selectors collapse harmlessly when both load.
+ * NOT part of any block's style.css: built standalone through the
+ * src/styles/components/debug-overlays.css stub and enqueued from
+ * render.php via aggressive_apparel_enqueue_block_debug_assets() only
+ * when Debug Mode renders for a capability-holding user — production
+ * visitors never download these bytes.
  *
  * Design notes:
  * - The panel uses a fixed dark "devtools" chrome with near-opaque

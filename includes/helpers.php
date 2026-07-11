@@ -200,3 +200,112 @@ function aggressive_apparel_can_view_block_debug(): bool {
 		current_user_can( 'edit_posts' )
 	);
 }
+
+/**
+ * Translated strings for the front-end block debug tooling.
+ *
+ * The debug UI lives in code-split view-module chunks where
+ * `@wordpress/i18n` is unavailable, so translation happens here and the
+ * result is printed as the `#aa-dbg-i18n` JSON blob (see
+ * aggressive_apparel_enqueue_block_debug_assets()). Keys MUST mirror
+ * `DEFAULT_STRINGS` in src/blocks-interactivity/debug-shared/i18n.ts;
+ * missing keys fall back to English in the module.
+ *
+ * @return array<string,string> Translated debug UI strings.
+ */
+function aggressive_apparel_block_debug_strings(): array {
+	return array(
+		'titleParallax'      => __( 'Parallax Debug', 'aggressive-apparel' ),
+		'titleAos'           => __( 'Animate On Scroll Debug', 'aggressive-apparel' ),
+		'panelCollapse'      => __( 'Collapse debug panel', 'aggressive-apparel' ),
+		'panelExpand'        => __( 'Expand debug panel', 'aggressive-apparel' ),
+		'sectionLive'        => __( 'Live state', 'aggressive-apparel' ),
+		'sectionDetails'     => __( 'Details', 'aggressive-apparel' ),
+		'legend'             => __( 'Legend', 'aggressive-apparel' ),
+		'rowState'           => __( 'State', 'aggressive-apparel' ),
+		'rowVisibility'      => __( 'Visibility', 'aggressive-apparel' ),
+		'rowProgress'        => __( 'Progress', 'aggressive-apparel' ),
+		'rowDirection'       => __( 'Scroll direction', 'aggressive-apparel' ),
+		'rowThreshold'       => __( 'Threshold', 'aggressive-apparel' ),
+		'rowFramerate'       => __( 'Frame rate', 'aggressive-apparel' ),
+		'rowSize'            => __( 'Element size', 'aggressive-apparel' ),
+		'rowBoundary'        => __( 'Boundary', 'aggressive-apparel' ),
+		'rowObserver'        => __( 'Observer', 'aggressive-apparel' ),
+		'phaseWaiting'       => __( 'Waiting', 'aggressive-apparel' ),
+		'phaseApproaching'   => __( 'Approaching', 'aggressive-apparel' ),
+		'phaseActive'        => __( 'Active', 'aggressive-apparel' ),
+		'engineLabel'        => __( 'Engine', 'aggressive-apparel' ),
+		'engineActive'       => __( 'Active', 'aggressive-apparel' ),
+		'engineIdle'         => __( 'Idle', 'aggressive-apparel' ),
+		'animationLabel'     => __( 'Animation', 'aggressive-apparel' ),
+		'animationShown'     => __( 'Shown', 'aggressive-apparel' ),
+		'animationHidden'    => __( 'Hidden', 'aggressive-apparel' ),
+		'reverseLabel'       => __( 'Reverse on scroll back', 'aggressive-apparel' ),
+		'yes'                => __( 'Yes', 'aggressive-apparel' ),
+		'no'                 => __( 'No', 'aggressive-apparel' ),
+		'directionDown'      => __( '↓ Down', 'aggressive-apparel' ),
+		'directionUp'        => __( '↑ Up', 'aggressive-apparel' ),
+		'measuring'          => __( '— measuring…', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'thresholdEntry'     => __( '{pct}% entry', 'aggressive-apparel' ),
+		/* translators: {entry} and {exit} are replaced with percentage numbers. */
+		'thresholdEntryExit' => __( '{entry}% entry · {exit}% exit', 'aggressive-apparel' ),
+		'boundaryConfigured' => __( 'Detection boundary', 'aggressive-apparel' ),
+		'boundaryEffective'  => __( 'Observer boundary (incl. engine buffer)', 'aggressive-apparel' ),
+		'boundaryExtends'    => __( '· extends beyond viewport', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'lineEntryBottom'    => __( 'Entry (bottom) {pct}%', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'lineEntryTop'       => __( 'Entry (top) {pct}%', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'lineExit'           => __( 'Exit ≤ {pct}%', 'aggressive-apparel' ),
+		'legendBoundary'     => __( 'Detection boundary — area the observer watches (viewport ± your margins)', 'aggressive-apparel' ),
+		'legendEffective'    => __( 'Observer boundary — detection boundary plus the engine’s pre-activation buffer', 'aggressive-apparel' ),
+		'legendElement'      => __( 'This block’s element — outlined even while its content is hidden', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'legendEntry'        => __( 'Entry line — triggers at {pct}% visible when scrolling down', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'legendEntryTop'     => __( 'Entry line for scrolling up (same {pct}%, measured from the bottom)', 'aggressive-apparel' ),
+		/* translators: {pct} is replaced with a percentage number. */
+		'legendExit'         => __( 'Exit line — reverses once visibility falls below {pct}%', 'aggressive-apparel' ),
+		'legendZone'         => __( 'Entry zone — tinted band the boundary edge must reach to trigger', 'aggressive-apparel' ),
+		/* translators: {pct}, {elem}, {root} and {max} are replaced with numbers. */
+		'warnUnreachable'    => __( 'Entry threshold {pct}% is unreachable: the element ({elem}px) is taller than the detection area ({root}px). Max visibility ≈ {max}%.', 'aggressive-apparel' ),
+	);
+}
+
+/**
+ * Enqueue everything the front-end block debug tooling needs.
+ *
+ * Called from a block's render.php only after
+ * aggressive_apparel_can_view_block_debug() has passed: loads the
+ * debug-only stylesheet and prints the translated-strings JSON blob
+ * once in the footer. Production visitors never reach this.
+ *
+ * @return void
+ */
+function aggressive_apparel_enqueue_block_debug_assets(): void {
+	\Aggressive_Apparel\Assets\Asset_Loader::enqueue_feature_style(
+		'aggressive-apparel-debug-overlays',
+		'build/styles/components/debug-overlays'
+	);
+
+	static $strings_hooked = false;
+	if ( $strings_hooked ) {
+		return;
+	}
+	$strings_hooked = true;
+
+	add_action(
+		'wp_footer',
+		static function (): void {
+			printf(
+				'<script type="application/json" id="aa-dbg-i18n">%s</script>',
+				wp_json_encode(
+					aggressive_apparel_block_debug_strings(),
+					JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+				)
+			);
+		}
+	);
+}

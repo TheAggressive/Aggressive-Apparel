@@ -162,6 +162,11 @@ describe('createScrollDebugController', () => {
   });
 
   it('updates phase badge and overlay classes from probe samples', () => {
+    // Live meters throttle to 10Hz; step a fake clock past the window so
+    // every sample in this test lands.
+    let fakeNow = 0;
+    jest.spyOn(performance, 'now').mockImplementation(() => (fakeNow += 200));
+
     const { controller } = buildController();
 
     const badge = document.querySelector('.aa-dbg-badge');
@@ -182,6 +187,32 @@ describe('createScrollDebugController', () => {
     expect(fill?.style.width).toBe('50%');
 
     controller.destroy();
+    (performance.now as jest.Mock).mockRestore();
+  });
+
+  it('throttles rapid meter updates but always lands resting values', () => {
+    let fakeNow = 1000;
+    jest.spyOn(performance, 'now').mockImplementation(() => fakeNow);
+
+    const { controller } = buildController({ trackProgress: true });
+    const fills = document.querySelectorAll<HTMLElement>('.aa-dbg-meter__fill');
+    const progressFill = fills[1];
+
+    controller.setProgress(0.2); // first write within a fresh window
+    fakeNow += 10;
+    controller.setProgress(0.4); // 10ms later → throttled away
+    expect(progressFill.style.width).toBe('20%');
+
+    fakeNow += 200;
+    controller.setProgress(0.6); // past the window → lands
+    expect(progressFill.style.width).toBe('60%');
+
+    fakeNow += 10;
+    controller.setProgress(1); // resting value bypasses the throttle
+    expect(progressFill.style.width).toBe('100%');
+
+    controller.destroy();
+    (performance.now as jest.Mock).mockRestore();
   });
 
   it('shows engine state and progress when configured', () => {

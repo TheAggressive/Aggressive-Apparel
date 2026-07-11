@@ -26,6 +26,7 @@ import {
 import { createDebugPanel, type PanelRowSpec } from './panel';
 import { createPerfMonitor } from './perf-monitor';
 import { createIntersectionProbe } from './probe';
+import { fmt, getStrings, type DebugStrings } from './i18n';
 import type { DebugBoundary, IntersectionPhase } from './types';
 import {
   boundaryToRootMargin,
@@ -33,8 +34,15 @@ import {
   getMaxReachableRatio,
   getRootBoxHeight,
   getValidIntersectionRatio,
-  PHASE_LABELS,
+  nextDebugInstanceIndex,
 } from './utils';
+
+const phaseLabel = (strings: DebugStrings, phase: IntersectionPhase): string =>
+  ({
+    waiting: strings.phaseWaiting,
+    approaching: strings.phaseApproaching,
+    active: strings.phaseActive,
+  })[phase];
 
 export interface EngineRowConfig {
   /** Row label, e.g. "Engine" or "Animation". */
@@ -92,7 +100,15 @@ const IDENTITY_COLORS = [
   'oklch(68% 0.19 300deg)', // violet
   'oklch(80% 0.16 115deg)', // lime
 ];
-let identitySeq = 0;
+
+/**
+ * Live meters (visibility ratio, engine progress) receive updates every
+ * frame while scrolling; writing panel text that often forces layout +
+ * style recalc per frame and can halve the frame rate the panel is
+ * supposed to measure. 10Hz reads perfectly for a human and costs ~6
+ * writes/s instead of ~60.
+ */
+const METER_UPDATE_INTERVAL_MS = 100;
 
 /** Normalize a rootMargin shorthand into four explicit sides. */
 export const rootMarginToBoundary = (rootMargin: string): DebugBoundary => {
@@ -108,7 +124,11 @@ export const createScrollDebugController = (
   const abort = new AbortController();
   const { signal } = abort;
   const overlayId = `${options.namespace}:${options.id}`;
-  const accent = IDENTITY_COLORS[identitySeq++ % IDENTITY_COLORS.length];
+  const strings = getStrings();
+  // DOM-coordinated index: stays unique even across the separate module
+  // copies each block type bundles.
+  const accent =
+    IDENTITY_COLORS[nextDebugInstanceIndex() % IDENTITY_COLORS.length];
 
   // ---- Boundary overlays ------------------------------------------------
   const configuredMargin = boundaryToRootMargin(options.configuredBoundary);
@@ -120,14 +140,14 @@ export const createScrollDebugController = (
     overlayId,
     'configured',
     options.configuredBoundary,
-    'Detection boundary'
+    strings.boundaryConfigured
   );
   if (boundariesDiffer) {
     acquireBoundaryOverlay(
       overlayId,
       'effective',
       effectiveBoundary,
-      'Observer boundary (incl. engine buffer)'
+      strings.boundaryEffective
     );
   }
 
@@ -146,18 +166,26 @@ export const createScrollDebugController = (
   }
 
   const basicRows: PanelRowSpec[] = [
-    { id: 'state', label: 'State', kind: 'badge' },
+    { id: 'state', label: strings.rowState, kind: 'badge' },
     {
       id: 'visibility',
-      label: 'Visibility',
+      label: strings.rowVisibility,
       kind: 'meter',
       markers: meterMarkers,
     },
   ];
   if (options.trackProgress) {
-    basicRows.push({ id: 'progress', label: 'Progress', kind: 'meter' });
+    basicRows.push({
+      id: 'progress',
+      label: strings.rowProgress,
+      kind: 'meter',
+    });
   }
-  basicRows.push({ id: 'direction', label: 'Scroll direction', kind: 'text' });
+  basicRows.push({
+    id: 'direction',
+    label: strings.rowDirection,
+    kind: 'text',
+  });
   if (options.engine) {
     basicRows.push({
       id: 'engine',
@@ -170,13 +198,17 @@ export const createScrollDebugController = (
   });
 
   const advancedRows: PanelRowSpec[] = [
-    { id: 'threshold', label: 'Threshold', kind: 'text' },
-    { id: 'framerate', label: 'Frame rate', kind: 'badge' },
-    { id: 'size', label: 'Element size', kind: 'text' },
-    { id: 'boundary', label: 'Boundary', kind: 'text' },
+    { id: 'threshold', label: strings.rowThreshold, kind: 'text' },
+    { id: 'framerate', label: strings.rowFramerate, kind: 'badge' },
+    { id: 'size', label: strings.rowSize, kind: 'text' },
+    { id: 'boundary', label: strings.rowBoundary, kind: 'text' },
   ];
   if (boundariesDiffer) {
-    advancedRows.push({ id: 'observer', label: 'Observer', kind: 'text' });
+    advancedRows.push({
+      id: 'observer',
+      label: strings.rowObserver,
+      kind: 'text',
+    });
   }
 
   // Explains every on-page overlay; collapsed so it informs without
@@ -185,41 +217,41 @@ export const createScrollDebugController = (
   const legend = [
     {
       swatch: 'boundary',
-      text: 'Detection boundary — area the observer watches (viewport ± your margins)',
+      text: strings.legendBoundary,
     },
     ...(boundariesDiffer
       ? [
           {
             swatch: 'effective',
-            text: 'Observer boundary — detection boundary plus the engine’s pre-activation buffer',
+            text: strings.legendEffective,
           },
         ]
       : []),
     {
       swatch: 'element',
-      text: 'This block’s element — outlined even while its content is hidden',
+      text: strings.legendElement,
     },
     {
       swatch: 'entry',
-      text: `Entry line — triggers at ${thresholdPct}% visible when scrolling down`,
+      text: fmt(strings.legendEntry, { pct: thresholdPct }),
     },
     {
       swatch: 'entry-top',
-      text: `Entry line for scrolling up (same ${thresholdPct}%, measured from the bottom)`,
+      text: fmt(strings.legendEntryTop, { pct: thresholdPct }),
     },
     ...(typeof exitThreshold === 'number'
       ? [
           {
             swatch: 'exit',
-            text: `Exit line — reverses once visibility falls below ${Math.round(
-              exitThreshold * 100
-            )}%`,
+            text: fmt(strings.legendExit, {
+              pct: Math.round(exitThreshold * 100),
+            }),
           },
         ]
       : []),
     {
       swatch: 'zone',
-      text: 'Entry zone — tinted band the boundary edge must reach to trigger',
+      text: strings.legendZone,
     },
   ];
 
@@ -229,10 +261,10 @@ export const createScrollDebugController = (
     accent,
     storageKey: `aa-dbg:${options.namespace}:${options.id}`,
     sections: [
-      { id: 'basic', label: 'Live state', rows: basicRows },
+      { id: 'basic', label: strings.sectionLive, rows: basicRows },
       {
         id: 'advanced',
-        label: 'Details',
+        label: strings.sectionDetails,
         startCollapsed: true,
         rows: advancedRows,
       },
@@ -243,16 +275,17 @@ export const createScrollDebugController = (
   // ---- Static rows ---------------------------------------------------------
   const thresholdText =
     typeof exitThreshold === 'number'
-      ? `${Math.round(threshold * 100)}% entry · ${Math.round(
-          exitThreshold * 100
-        )}% exit`
-      : `${Math.round(threshold * 100)}% entry`;
+      ? fmt(strings.thresholdEntryExit, {
+          entry: Math.round(threshold * 100),
+          exit: Math.round(exitThreshold * 100),
+        })
+      : fmt(strings.thresholdEntry, { pct: Math.round(threshold * 100) });
   panel.setText('threshold', thresholdText);
   panel.setText('boundary', configuredMargin);
   if (boundariesDiffer) {
     panel.setText('observer', options.effectiveRootMargin);
   }
-  panel.setBadge('state', PHASE_LABELS.waiting, 'waiting');
+  panel.setBadge('state', strings.phaseWaiting, 'waiting');
   if (options.engine) {
     panel.setBadge('engine', options.engine.idle, 'idle');
   }
@@ -279,13 +312,12 @@ export const createScrollDebugController = (
     const maxRatio = getMaxReachableRatio(element.offsetHeight, rootBoxHeight);
     if (maxRatio < threshold) {
       panel.setWarning(
-        `Entry threshold ${Math.round(
-          threshold * 100
-        )}% is unreachable: the element (${Math.round(
-          element.offsetHeight
-        )}px) is taller than the detection area (${Math.round(
-          rootBoxHeight
-        )}px). Max visibility ≈ ${Math.round(maxRatio * 100)}%.`
+        fmt(strings.warnUnreachable, {
+          pct: Math.round(threshold * 100),
+          elem: Math.round(element.offsetHeight),
+          root: Math.round(rootBoxHeight),
+          max: Math.round(maxRatio * 100),
+        })
       );
     } else {
       panel.setWarning(null);
@@ -295,6 +327,7 @@ export const createScrollDebugController = (
 
   // ---- Live intersection data (debug-only dense probe) -----------------------
   let lastPhase: IntersectionPhase = 'waiting';
+  let lastVisibilityWrite = 0;
   const probe = createIntersectionProbe(
     element,
     options.effectiveRootMargin,
@@ -305,10 +338,18 @@ export const createScrollDebugController = (
         ratio,
         threshold
       );
-      panel.setMeter('visibility', ratio, `${(ratio * 100).toFixed(1)}%`);
+      const now = performance.now();
+      if (
+        now >= lastVisibilityWrite + METER_UPDATE_INTERVAL_MS ||
+        ratio === 0 ||
+        ratio === 1
+      ) {
+        lastVisibilityWrite = now;
+        panel.setMeter('visibility', ratio, `${(ratio * 100).toFixed(1)}%`);
+      }
       if (phase !== lastPhase) {
         lastPhase = phase;
-        panel.setBadge('state', PHASE_LABELS[phase], phase);
+        panel.setBadge('state', phaseLabel(strings, phase), phase);
         elementOverlay.setPhase(phase);
       }
     }
@@ -329,7 +370,9 @@ export const createScrollDebugController = (
         if (scrollY !== previousScrollY) {
           panel.setText(
             'direction',
-            scrollY > previousScrollY ? '↓ Down' : '↑ Up'
+            scrollY > previousScrollY
+              ? strings.directionDown
+              : strings.directionUp
           );
           previousScrollY = scrollY;
         }
@@ -337,7 +380,7 @@ export const createScrollDebugController = (
     },
     { passive: true, signal }
   );
-  panel.setText('direction', '↓ Down');
+  panel.setText('direction', strings.directionDown);
 
   // ---- Layout tracking ---------------------------------------------------
   const onLayoutChange = (): void => {
@@ -377,9 +420,10 @@ export const createScrollDebugController = (
       snapshot.status
     );
   });
-  panel.setBadge('framerate', '— measuring…', 'good');
+  panel.setBadge('framerate', strings.measuring, 'good');
 
   // ---- Public handle -----------------------------------------------------
+  let lastProgressWrite = 0;
   return {
     setEngineState: active => {
       if (options.engine) {
@@ -392,8 +436,18 @@ export const createScrollDebugController = (
     },
 
     setProgress: progress => {
-      if (options.trackProgress) {
-        const clamped = getValidIntersectionRatio(progress);
+      if (!options.trackProgress) {
+        return;
+      }
+      const clamped = getValidIntersectionRatio(progress);
+      const now = performance.now();
+      // Always land the resting values so the meter never freezes mid-bar.
+      if (
+        now >= lastProgressWrite + METER_UPDATE_INTERVAL_MS ||
+        clamped === 0 ||
+        clamped === 1
+      ) {
+        lastProgressWrite = now;
         panel.setMeter('progress', clamped, `${(clamped * 100).toFixed(0)}%`);
       }
     },

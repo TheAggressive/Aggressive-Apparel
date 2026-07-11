@@ -158,6 +158,8 @@ export interface ParallaxAttributes {
   intensity: number; // 0-200
   visibilityTrigger: number; // Changed to number to match animate-on-scroll
   detectionBoundary: DetectionBoundary; // Advanced boundary control
+  /** Engine pre-activation buffer, % of viewport height (0 disables). */
+  activationBuffer?: number;
   enableMouseInteraction: boolean;
   debugMode: boolean;
 
@@ -184,6 +186,8 @@ export interface ParallaxContext {
   intensity: number;
   visibilityTrigger: number; // Changed from threshold to match animate-on-scroll
   detectionBoundary: DetectionBoundary;
+  /** Engine pre-activation buffer, % of viewport height (0 disables). */
+  activationBuffer?: number;
   enableMouseInteraction: boolean;
   debugMode: boolean;
 
@@ -205,6 +209,8 @@ export interface ParallaxContext {
   depthOfField?: boolean;
 
   // Runtime state properties
+  /** Threshold the observer actually runs with (tall-element capped). */
+  effectiveThreshold?: number;
   scrollProgress?: number;
   mouseX?: number;
   mouseY?: number;

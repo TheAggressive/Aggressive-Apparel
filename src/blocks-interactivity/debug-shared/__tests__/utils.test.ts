@@ -7,6 +7,7 @@
 import {
   boundaryExtendsViewport,
   boundaryToRootMargin,
+  getEffectiveThreshold,
   getIntersectionPhase,
   getMaxReachableRatio,
   getRootBoxHeight,
@@ -96,6 +97,36 @@ describe('boundary math', () => {
     expect(getMaxReachableRatio(2000, 1000)).toBe(0.5);
     expect(getMaxReachableRatio(500, 1000)).toBe(1);
     expect(getMaxReachableRatio(0, 1000)).toBe(1);
+  });
+
+  describe('getEffectiveThreshold (tall-element auto-cap)', () => {
+    it('keeps the configured threshold when reachable', () => {
+      // 500px element, 800px viewport → max ratio 1: configured wins.
+      expect(getEffectiveThreshold(0.3, 500, 800, '0px 0px 0px 0px')).toBe(0.3);
+    });
+
+    it('caps at 90% of the reachable maximum for tall elements', () => {
+      // 2000px element, 800px root → max ratio 0.4 < configured 0.5.
+      expect(
+        getEffectiveThreshold(0.5, 2000, 800, '0px 0px 0px 0px')
+      ).toBeCloseTo(0.36);
+    });
+
+    it('accounts for the rootMargin when computing reachability', () => {
+      // +20% top/bottom margins grow the root to 1120px → max 0.56 ≥ 0.5.
+      expect(getEffectiveThreshold(0.5, 2000, 800, '20% 0% 20% 0%')).toBe(0.5);
+    });
+
+    it('never exceeds 0.99 and never returns below 0.01', () => {
+      expect(getEffectiveThreshold(1, 500, 800, '0px')).toBe(0.99);
+      expect(
+        getEffectiveThreshold(0.5, 100000, 800, '0px')
+      ).toBeGreaterThanOrEqual(0.01);
+    });
+
+    it('returns the capped configured value for zero-height elements', () => {
+      expect(getEffectiveThreshold(0.3, 0, 800, '0px')).toBe(0.3);
+    });
   });
 
   it('detects boundaries extending beyond the viewport', () => {

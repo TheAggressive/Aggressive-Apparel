@@ -20,11 +20,19 @@ export type { DebugBoundary, IntersectionPhase, PerfSnapshot } from './types';
 
 export {
   boundaryToRootMargin,
+  getEffectiveThreshold,
   getIntersectionPhase,
   getMaxReachableRatio,
   getRootBoxHeight,
   getValidIntersectionRatio,
   getVisibilityThreshold,
   invertValue,
-  PHASE_LABELS,
 } from './utils';
+
+export {
+  DEFAULT_STRINGS,
+  fmt,
+  getStrings,
+  resetStringsForTests,
+  type DebugStrings,
+} from './i18n';

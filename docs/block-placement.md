@@ -137,7 +137,7 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 | Block | Placement | Notes |
 | ----- | --------- | ----- |
 | `lookbook` | Landing / collection pages | Requires media + optional hotspots with product IDs |
-| `countdown-timer` | Drop / sale heroes | Needs a valid end datetime attribute |
+| `countdown-timer` | Product cards, sale rows, promo banners, landing pages, editorial sections, drop heroes | Use a placement variation such as Product Card, Card Stack, Segment Chips, Promo Banner, Sale Strip, Urgency Pill, Boxed Launch, Outline Grid, Editorial Stack, Magazine Feature, or a Hero preset; needs a valid end datetime or product sale end date |
 | `card-flip` | Feature grids, lookbooks | Hover = CSS only; click = keyboard-accessible IA |
 | `hero-carousel` | Home / campaign heroes | Cover slides as inner blocks |
 | `parallax` / `animate-on-scroll` | Any long-scroll page | Respect `prefers-reduced-motion` |
@@ -145,6 +145,20 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 | `ticker` / `horizontal-scroll` | Announcement / product rails | |
 | `split-story` | Editorial splits | Static layout block (`src/blocks/`) |
 | `search` | Header / mobile bottom nav | Global; assets load when the block is present |
+
+### Countdown timer theming
+
+The countdown block supports native WordPress color, gradient, spacing, typography, and border controls. Its visual variations are layout presets, not fixed brand skins.
+
+Theme-level overrides can target these variable groups on `.aggressive-apparel-countdown` or on a specific modifier such as `.aggressive-apparel-countdown--hero-panel`:
+
+| Group | Variables |
+| ----- | --------- |
+| Typography | `--aa-countdown-label-font-size`, `--aa-countdown-label-font-weight`, `--aa-countdown-value-font-size`, `--aa-countdown-value-font-weight`, `--aa-countdown-unit-font-size`, `--aa-countdown-unit-font-weight` |
+| Color | `--aa-countdown-label-color`, `--aa-countdown-value-color`, `--aa-countdown-unit-color`, `--aa-countdown-border-color`, `--aa-countdown-segment-color`, `--aa-countdown-segment-bg` |
+| Shape | `--aa-countdown-border-width`, `--aa-countdown-border-style`, `--aa-countdown-radius`, `--aa-countdown-pill-radius` |
+| Rhythm | `--aa-countdown-gap`, `--aa-countdown-segment-padding`, `--aa-countdown-surface-padding` |
+| Scale | `--aa-countdown-hero-value-font-size`, `--aa-countdown-feature-value-font-size` |
 
 ---
 

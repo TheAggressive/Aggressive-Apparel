@@ -880,6 +880,78 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Countdown timer renders for a manually configured deadline.
+	 *
+	 * @return void
+	 */
+	public function test_countdown_timer_renders_for_manual_end_date(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for countdown timer registration.' );
+		}
+
+		$html = $this->render(
+			'countdown-timer',
+			array(
+				'endDateTime' => gmdate( 'c', time() + DAY_IN_SECONDS ),
+			)
+		);
+
+		$this->assertStringContainsString( 'aggressive-apparel-countdown', $html );
+		$this->assertStringContainsString( 'aggressive-apparel-countdown--inline', $html );
+		$this->assertStringContainsString( 'data-wp-context', $html );
+		$this->assertStringContainsString( 'data-wp-init="callbacks.startTicker"', $html );
+		$this->assertGreaterThanOrEqual( 4, substr_count( $html, 'aggressive-apparel-countdown__segment' ) );
+	}
+
+	/**
+	 * Countdown timer applies the selected visual variation class.
+	 *
+	 * @return void
+	 */
+	public function test_countdown_timer_renders_selected_display_style(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for countdown timer registration.' );
+		}
+
+		$html = $this->render(
+			'countdown-timer',
+			array(
+				'displayStyle' => 'hero',
+				'endDateTime'  => gmdate( 'c', time() + DAY_IN_SECONDS ),
+			)
+		);
+
+		$this->assertStringContainsString( 'aggressive-apparel-countdown--hero', $html );
+	}
+
+	/**
+	 * Countdown timer renders granular color controls as CSS variables.
+	 *
+	 * @return void
+	 */
+	public function test_countdown_timer_renders_custom_color_variables(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for countdown timer registration.' );
+		}
+
+		$html = $this->render(
+			'countdown-timer',
+			array(
+				'endDateTime'      => gmdate( 'c', time() + DAY_IN_SECONDS ),
+				'saleLabelColor'   => '#111111',
+				'timeValueColor'   => '#222222',
+				'unitLabelColor'   => '#333333',
+				'timerBorderColor' => '#444444',
+			)
+		);
+
+		$this->assertStringContainsString( '--aa-countdown-label-color:#111111', $html );
+		$this->assertStringContainsString( '--aa-countdown-value-color:#222222', $html );
+		$this->assertStringContainsString( '--aa-countdown-unit-color:#333333', $html );
+		$this->assertStringContainsString( '--aa-countdown-border-color:#444444', $html );
+	}
+
+	/**
 	 * Nav panel header/footer wrappers render for parent extraction.
 	 *
 	 * @return void

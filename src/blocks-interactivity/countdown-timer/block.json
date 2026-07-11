@@ -10,9 +10,70 @@
   "supports": {
     "requiresPlugins": ["woocommerce"],
     "html": false,
-    "interactivity": true
+    "interactivity": true,
+    "color": {
+      "background": true,
+      "gradients": true,
+      "text": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "border": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    }
   },
   "attributes": {
+    "displayStyle": {
+      "type": "string",
+      "default": "inline",
+      "enum": [
+        "inline",
+        "compact",
+        "minimal",
+        "card",
+        "chips",
+        "banner",
+        "strip",
+        "pill",
+        "boxed",
+        "outline",
+        "editorial",
+        "magazine",
+        "hero",
+        "hero-center",
+        "hero-split",
+        "hero-panel"
+      ]
+    },
+    "endDateTime": {
+      "type": "string",
+      "default": ""
+    },
+    "saleLabelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "timeValueColor": {
+      "type": "string",
+      "default": ""
+    },
+    "unitLabelColor": {
+      "type": "string",
+      "default": ""
+    },
+    "timerBorderColor": {
+      "type": "string",
+      "default": ""
+    },
     "dropPageUrl": {
       "type": "string",
       "default": ""
@@ -20,6 +81,7 @@
   },
   "textdomain": "aggressive-apparel",
   "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",
   "render": "file:./render.php",
   "viewScriptModule": "file:./view.js"

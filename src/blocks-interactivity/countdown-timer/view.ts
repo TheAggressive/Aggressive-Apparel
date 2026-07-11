@@ -39,6 +39,8 @@ store('aggressive-apparel/countdown-timer', {
         return;
       }
 
+      let intervalId: ReturnType<typeof setInterval> | null = null;
+
       const tick = (): void => {
         const now = Math.floor(Date.now() / 1000);
         const diff = Math.max(0, endTs - now);
@@ -49,7 +51,9 @@ store('aggressive-apparel/countdown-timer', {
         ctx.seconds = diff % 60;
 
         if (diff <= 0) {
-          clearInterval(intervalId);
+          if (intervalId !== null) {
+            clearInterval(intervalId);
+          }
           if (ctx.dropPageUrl) {
             document.dispatchEvent(
               new CustomEvent('aa:drop-live', { bubbles: false })
@@ -76,7 +80,7 @@ store('aggressive-apparel/countdown-timer', {
       };
 
       tick();
-      const intervalId = setInterval(tick, 1000);
+      intervalId = setInterval(tick, 1000);
     },
   },
 });

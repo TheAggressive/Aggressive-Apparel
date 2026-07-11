@@ -99,6 +99,22 @@ done < <(
 		| sort -u
 )
 
+echo "Checking for body-level :has() selectors..."
+
+# body:has() registers a document-wide :has invalidation: EVERY childList
+# mutation anywhere (including textContent writes) forces a full-document
+# style re-scan (~50ms+). Mirror the state as a body class/attribute from
+# JS instead. Scoped subjects (.some-component:has(...)) are fine.
+while IFS= read -r -d '' file; do
+	if rg -n '(^|[^a-zA-Z0-9_-])body(\.[a-zA-Z0-9_-]+)*:has\(' "$file" >/dev/null 2>&1; then
+		echo "  FAIL: body-level :has() found in $file (mirror state as a body class from JS instead)"
+		rg -n '(^|[^a-zA-Z0-9_-])body(\.[a-zA-Z0-9_-]+)*:has\(' "$file" || true
+		EXIT=1
+	fi
+done < <(
+	find src/styles src/blocks src/blocks-interactivity -name '*.css' -print0
+)
+
 if [[ "$EXIT" -eq 0 ]]; then
 	echo "Design system CSS checks passed."
 fi

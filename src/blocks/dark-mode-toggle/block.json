@@ -6,7 +6,12 @@
   "title": "Dark Mode Toggle",
   "category": "aggressive-apparel",
   "description": "A modern sun/moon control for switching between light and dark themes.",
-  "example": {},
+  "keywords": ["dark", "light", "theme", "night", "color scheme"],
+  "example": {
+    "attributes": {
+      "showLabel": true
+    }
+  },
   "supports": {
     "align": ["left", "center", "right"],
     "spacing": {
@@ -19,7 +24,8 @@
     },
     "color": {
       "text": true,
-      "background": false
+      "background": true,
+      "gradients": true
     },
     "html": false,
     "reusable": false
@@ -46,6 +52,31 @@
       "type": "string",
       "default": "left",
       "enum": ["left", "center", "right"]
+    },
+    "iconStyle": {
+      "type": "string",
+      "default": "solid",
+      "enum": ["solid", "outline"]
+    },
+    "iconStrokeWidth": {
+      "type": "number",
+      "default": 1.75
+    },
+    "iconColor": {
+      "type": "string",
+      "default": ""
+    },
+    "iconHoverColor": {
+      "type": "string",
+      "default": ""
+    },
+    "toggleBackgroundColor": {
+      "type": "string",
+      "default": ""
+    },
+    "toggleBackgroundHoverColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "aggressive-apparel",

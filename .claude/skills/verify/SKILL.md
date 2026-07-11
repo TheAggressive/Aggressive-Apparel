@@ -52,3 +52,25 @@ loopback is unreachable from WSL.
 - Sidebar (editor chrome) styles: `--wp-components-color-*` variables do
   not resolve in every WP version's sidebar — computed styles collapsing
   to `0px none` means a var() had no fallback.
+
+## Performance verification (scroll/animation work)
+
+Bench with the cached-Chromium setup above plus CDP:
+
+```js
+const cdp = await page.context().newCDPSession(page);
+await cdp.send('Emulation.setCPUThrottlingRate', { rate: 6 }); // expose main-thread cost
+await cdp.send('Performance.enable'); // getMetrics before/after → LayoutCount,
+// RecalcStyleCount/Duration, ScriptDuration deltas across a driven scroll
+```
+
+- Drive scroll with a rAF loop calling `window.scrollTo` (triangle wave),
+  count frames + >20ms/>34ms deltas + PerformanceObserver longtasks.
+- "Same result" proof: dump `getComputedStyle().translate/scale/opacity`
+  for all layers at fixed scroll offsets, diff old vs new build.
+- Bisecting a recalc storm: neuter suspects via `addInitScript` overrides —
+  scoped `textContent` setter no-op, `DOMTokenList.add/remove` filters,
+  `--kill=<selector>` element removal after load. ~50ms recalcs on small
+  DOMs = document-wide invalidation: check for body-level `:has()` first
+  (banned; see bin/check-design-system-css.sh) — `textContent =` is a
+  childList mutation that triggers it.

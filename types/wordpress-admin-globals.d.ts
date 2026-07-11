@@ -68,9 +68,5 @@ declare global {
     wp: {
       media: WpMediaLibrary;
     };
-    DarkModeToggle?: new (button: HTMLButtonElement) => {
-      destroy(): void;
-    };
-    initDarkModeToggles?: () => void;
   }
 }

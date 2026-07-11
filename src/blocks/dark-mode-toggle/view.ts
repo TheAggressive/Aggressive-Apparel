@@ -5,26 +5,18 @@
  * Transitions API when available so light-dark() colors animate smoothly
  * (CSS color transitions alone do not interpolate light-dark()).
  *
+ * Other theme code (favicon override, WCPay appearance) syncs by listening
+ * for the `darkModeToggle` CustomEvent on `document`.
+ *
  * @package Aggressive_Apparel
  */
 
 import {
-  getStoredColorScheme,
   hasStoredColorScheme,
+  getStoredColorScheme,
+  resolveColorScheme,
   storeColorScheme,
 } from '../../utils/color-scheme-storage';
-
-declare const wp:
-  | {
-      hooks: {
-        addAction: (
-          hook: string,
-          namespace: string,
-          callback: () => void
-        ) => void;
-      };
-    }
-  | undefined;
 
 interface DarkModeState {
   isDark: boolean;
@@ -34,50 +26,32 @@ interface DarkModeState {
 class DarkModeToggle {
   private button: HTMLButtonElement;
   private state: DarkModeState;
-  private boundToggle: () => void;
-  private boundSystemChange: (event: MediaQueryListEvent) => void;
-  private boundCustomEvent: (event: Event) => void;
   private mediaQuery: MediaQueryList;
 
   constructor(button: HTMLButtonElement) {
     this.button = button;
     this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.state = this.getInitialState();
-    this.boundToggle = this.toggle.bind(this);
-    this.boundSystemChange = this.handleSystemPreferenceChange.bind(this);
-    this.boundCustomEvent = this.handleCustomEvent.bind(this);
 
-    this.init();
+    const { scheme, isSystemPreference } = resolveColorScheme(this.mediaQuery);
+    this.state = { isDark: scheme === 'dark', isSystemPreference };
+
+    this.button.addEventListener('click', () => this.toggle());
+    this.mediaQuery.addEventListener('change', event =>
+      this.handleSystemPreferenceChange(event)
+    );
+    document.addEventListener('darkModeToggle', event =>
+      this.handleCustomEvent(event)
+    );
+
     this.updateUI();
     this.applyTheme(false);
-  }
-
-  private getInitialState(): DarkModeState {
-    const stored = getStoredColorScheme();
-    if (stored) {
-      return {
-        isDark: stored === 'dark',
-        isSystemPreference: false,
-      };
-    }
-
-    return {
-      isDark: this.mediaQuery.matches,
-      isSystemPreference: true,
-    };
-  }
-
-  private init(): void {
-    this.button.addEventListener('click', this.boundToggle);
-    this.mediaQuery.addEventListener('change', this.boundSystemChange);
-    document.addEventListener('darkModeToggle', this.boundCustomEvent);
   }
 
   private toggle(): void {
     this.state.isDark = !this.state.isDark;
     this.state.isSystemPreference = false;
 
-    this.saveState();
+    storeColorScheme(this.state.isDark ? 'dark' : 'light');
     this.updateUI();
     this.applyTheme(true);
 
@@ -173,16 +147,6 @@ class DarkModeToggle {
 
     run();
   }
-
-  private saveState(): void {
-    storeColorScheme(this.state.isDark ? 'dark' : 'light');
-  }
-
-  public destroy(): void {
-    this.button.removeEventListener('click', this.boundToggle);
-    this.mediaQuery.removeEventListener('change', this.boundSystemChange);
-    document.removeEventListener('darkModeToggle', this.boundCustomEvent);
-  }
 }
 
 function initDarkModeToggles(): void {
@@ -208,10 +172,3 @@ if (document.readyState === 'loading') {
 } else {
   initDarkModeToggles();
 }
-
-if (typeof wp !== 'undefined' && wp.hooks) {
-  wp.hooks.addAction('wp_body_open', 'aggressive-apparel', initDarkModeToggles);
-}
-
-window.DarkModeToggle = DarkModeToggle;
-window.initDarkModeToggles = initDarkModeToggles;

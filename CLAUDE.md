@@ -180,6 +180,14 @@ WooCommerce_Support →    class-woocommerce-support.php
 - Tailwind CSS 4.x with PostCSS
 - Stylelint for linting
 - BEM-like naming for custom classes
+- **Never use body-level `:has()`** (`body:has(...)`, `body.x:has(...)`) —
+  it forces a document-wide style re-scan on EVERY childList mutation
+  anywhere in the page (measured ~72ms per mutation). Mirror the state as
+  a body class/attribute from the owning JS instead;
+  `bin/check-design-system-css.sh` fails the build on violations.
+  Component-scoped `:has()` subjects are fine.
+- **Per-frame text updates must mutate a `Text` node's `.data`**, never
+  assign `textContent` (which replaces the node — a childList mutation).
 
 ## Modal & Overlay Pattern
 
@@ -527,6 +535,7 @@ so it's clear they shift with the color scheme.
 | Red                             | `red`                  | Legacy alias to adaptive Accent        |
 | White                           | `white`                | `#ffffff`                              |
 | Black                           | `black`                | `#000000`                              |
+| Transparent                     | `transparent`          | `transparent` (explicit "no fill")     |
 | Surface (Adaptive)              | `surface`              | Adaptive page/section background       |
 | Surface Elevated (Adaptive)     | `surface-elevated`     | Adaptive higher-contrast surface       |
 | Foreground (Adaptive)           | `foreground`           | Adaptive primary text                  |

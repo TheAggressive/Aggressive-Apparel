@@ -16,10 +16,17 @@ import {
   store as blockEditorStore,
 } from '@wordpress/block-editor';
 import type { BlockEditProps } from '@wordpress/blocks';
-import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
+import {
+  Button,
+  DateTimePicker,
+  Dropdown,
+  PanelBody,
+  SelectControl,
+} from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
+import { calendar } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 import { HERO_MOTION_OVERRIDE_OPTIONS } from './motion';
@@ -38,6 +45,119 @@ interface CoverHeroAttributes {
 interface BlockRegistrationSettings {
   attributes?: Record<string, unknown>;
   [key: string]: unknown;
+}
+
+function toLocalDateTimeValue(value: string): string {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return value.slice(0, 16);
+  }
+
+  const pad = (part: number): string => String(part).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    '-',
+    pad(date.getMonth() + 1),
+    '-',
+    pad(date.getDate()),
+    'T',
+    pad(date.getHours()),
+    ':',
+    pad(date.getMinutes()),
+  ].join('');
+}
+
+function formatScheduleSummary(value: string, emptyLabel: string): string {
+  if (!value) {
+    return emptyLabel;
+  }
+
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return __('Invalid date', 'aggressive-apparel');
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+}
+
+interface ScheduleDateTimeControlProps {
+  label: string;
+  help: string;
+  value: string;
+  emptyLabel: string;
+  clearLabel: string;
+  onChange: (value: string) => void;
+}
+
+function ScheduleDateTimeControl({
+  label,
+  help,
+  value,
+  emptyLabel,
+  clearLabel,
+  onChange,
+}: ScheduleDateTimeControlProps) {
+  return (
+    <div className='aa-hero-schedule-control'>
+      <div className='aa-hero-schedule-control__row'>
+        <span className='components-base-control__label aa-hero-schedule-control__label'>
+          {label}
+        </span>
+        <Dropdown
+          className='aa-hero-schedule-control__dropdown'
+          contentClassName='aa-hero-schedule-popover'
+          expandOnMobile
+          headerTitle={label}
+          popoverProps={{ placement: 'left-start' }}
+          renderToggle={({ isOpen, onToggle }) => (
+            <Button
+              className='aa-hero-schedule-control__toggle'
+              icon={calendar}
+              onClick={onToggle}
+              variant='secondary'
+              aria-expanded={isOpen}
+              aria-haspopup='dialog'
+            >
+              <span className='aa-hero-schedule-control__toggle-text'>
+                {formatScheduleSummary(value, emptyLabel)}
+              </span>
+            </Button>
+          )}
+          renderContent={({ onClose }) => (
+            <div className='aa-hero-schedule-popover__inner'>
+              <DateTimePicker
+                currentDate={value || new Date().toISOString()}
+                onChange={(nextValue: string | null) =>
+                  onChange(toLocalDateTimeValue(nextValue ?? ''))
+                }
+                dateOrder='mdy'
+                is12Hour={true}
+              />
+              <div className='aa-hero-schedule-popover__actions'>
+                {value && (
+                  <Button variant='tertiary' onClick={() => onChange('')}>
+                    {clearLabel}
+                  </Button>
+                )}
+                <Button variant='primary' onClick={onClose}>
+                  {__('Done', 'aggressive-apparel')}
+                </Button>
+              </div>
+            </div>
+          )}
+        />
+      </div>
+      <p className='components-base-control__help'>{help}</p>
+    </div>
+  );
 }
 
 /** Register the per-slide attribute on core/cover only. */
@@ -122,29 +242,27 @@ const withHeroSlideControls = createHigherOrderComponent(
                 __next40pxDefaultSize
                 __nextHasNoMarginBottom
               />
-              <TextControl
-                type='datetime-local'
+              <ScheduleDateTimeControl
                 label={__('Show from', 'aggressive-apparel')}
                 help={__(
                   'Optional. Hide this slide before this time (site timezone).',
                   'aggressive-apparel'
                 )}
                 value={attributes.aaHeroStart ?? ''}
+                emptyLabel={__('No start time', 'aggressive-apparel')}
+                clearLabel={__('Clear start time', 'aggressive-apparel')}
                 onChange={value => setAttributes({ aaHeroStart: value })}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
               />
-              <TextControl
-                type='datetime-local'
+              <ScheduleDateTimeControl
                 label={__('Show until', 'aggressive-apparel')}
                 help={__(
                   'Optional. Hide this slide from this time onward (site timezone).',
                   'aggressive-apparel'
                 )}
                 value={attributes.aaHeroEnd ?? ''}
+                emptyLabel={__('No end time', 'aggressive-apparel')}
+                clearLabel={__('Clear end time', 'aggressive-apparel')}
                 onChange={value => setAttributes({ aaHeroEnd: value })}
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
               />
             </PanelBody>
           </InspectorControls>

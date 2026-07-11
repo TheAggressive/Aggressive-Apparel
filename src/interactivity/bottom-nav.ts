@@ -147,6 +147,12 @@ const { state, actions } = store<BottomNavStore>(
 
     callbacks: {
       init(): void {
+        // One-shot: header mini-cart replaces the bottom-nav cart link on
+        // mobile (mini-cart.css). A class beats body:has(block) — see above.
+        if (document.querySelector('.wp-block-woocommerce-mini-cart')) {
+          document.body.classList.add('aa-has-mini-cart');
+        }
+
         // Scroll-aware show/hide.
         const prefersReducedMotion = window.matchMedia(
           '(prefers-reduced-motion: reduce)'
@@ -168,6 +174,13 @@ const { state, actions } = store<BottomNavStore>(
               } else if (delta < -10) {
                 state.isHiddenByScroll = false;
               }
+              // Mirrored as a body class so dependent CSS (sticky cart
+              // offset) avoids body:has() — a body-level :has() forces a
+              // document-wide style re-scan on every childList mutation.
+              document.body.classList.toggle(
+                'aa-bottom-nav-hidden',
+                state.isHiddenByScroll
+              );
 
               lastScrollY = currentY;
               ticking = false;

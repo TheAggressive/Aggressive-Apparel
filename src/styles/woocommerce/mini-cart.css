@@ -11,7 +11,9 @@
 /* Header mini-cart replaces the bottom-nav cart link on mobile. */
 @media (width < 1024px) {
 
-	body:has(.wp-block-woocommerce-mini-cart) .aa-bottom-nav__item--cart {
+	/* body.aa-has-mini-cart is set once by bottom-nav.ts (body-level
+	   :has() on body would re-scan the document on every DOM mutation). */
+	body.aa-has-mini-cart .aa-bottom-nav__item--cart {
 		display: none;
 	}
 }

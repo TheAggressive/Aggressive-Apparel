@@ -85,8 +85,17 @@
 	/* Base animation setup for all direct children.
 	   Children keep their natural display: forcing inline-block made
 	   block-level children shrink-to-fit and collapsed the layout the
-	   editor had established. */
-	&:not(.has-animation-sequence) > * {
+	   editor had established.
+
+	   EVERY initial hidden/offset state in this file is gated on
+	   [data-animate-id] — the attribute the store sets the moment it
+	   takes ownership. Until JS arms the block, content renders fully
+	   visible and unshifted: no-JS visitors and crashed hydration
+	   (hydrateRegions has no per-region error isolation) see normal
+	   content, the LCP element paints on first render instead of being
+	   opacity:0 (a hero cover inside this block once posted a 128s LCP),
+	   and offset transforms can't cause pre-hydration layout shift. */
+	&[data-animate-id]:not(.has-animation-sequence) > * {
 		opacity: 0;
 		transition: all
 			var(--wp-block-animate-on-scroll-animation-duration)
@@ -245,7 +254,7 @@
 	   ========================================================================== */
 
 	/* Base sequence setup */
-	&.has-animation-sequence {
+	&[data-animate-id].has-animation-sequence {
 
 		> div[data-animate-sequence-type] {
 			opacity: 0;
@@ -638,7 +647,7 @@
 	}
 
 	/* Slide Animation */
-	&.slide {
+	&[data-animate-id].slide {
 
 		&.up > * { transform: translateY(var(--wp-block-animate-on-scroll-slide-distance)); }
 
@@ -652,7 +661,7 @@
 	}
 
 	/* Zoom Animation */
-	&.zoom {
+	&[data-animate-id].zoom {
 
 		&.in > * { transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start)); }
 
@@ -662,7 +671,7 @@
 	}
 
 	/* Flip Animation */
-	&.flip {
+	&[data-animate-id].flip {
 
 		&.up > * { transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(var(--wp-block-animate-on-scroll-rotate-angle)); }
 
@@ -676,7 +685,7 @@
 	}
 
 	/* Rotate Animation */
-	&.rotate {
+	&[data-animate-id].rotate {
 
 		&.left > * { transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle)); }
 
@@ -686,14 +695,14 @@
 	}
 
 	/* Blur Animation */
-	&.blur-in > * { filter: blur(var(--wp-block-animate-on-scroll-blur-amount)); }
+	&[data-animate-id].blur-in > * { filter: blur(var(--wp-block-animate-on-scroll-blur-amount)); }
 
 	&.blur-in.is-visible > * { filter: blur(0); }
 
 	/* Reveal (wipe) Animation — clip-path mask opens toward the named
 	   direction; pairs with the base opacity fade. The direction is the
 	   way the reveal edge travels (up = wipes in from the bottom). */
-	&.reveal {
+	&[data-animate-id].reveal {
 
 		&.up > * { clip-path: inset(100% 0 0 0); }
 
@@ -707,7 +716,7 @@
 	}
 
 	/* Bounce Animation */
-	&.bounce > * {
+	&[data-animate-id].bounce > * {
 		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
 		opacity: 0;
 	}
@@ -717,13 +726,13 @@
 		animation: bounce-in var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing) forwards;
 	}
 
-	&.bounce.elastic > * { transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance)); }
+	&[data-animate-id].bounce.elastic > * { transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance)); }
 
 	&.bounce.elastic.is-visible > * {
 		animation: elastic-in var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing) forwards;
 	}
 
-	&.bounce.spring > * { transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance)); }
+	&[data-animate-id].bounce.spring > * { transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance)); }
 
 	&.bounce.spring.is-visible > * {
 		animation: spring-in var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing) forwards;
@@ -827,90 +836,10 @@
 	}
 }
 
-/* ============================================================
- * SCROLL-DRIVEN ANIMATIONS — CSS progressive enhancement
- *
- * @supports guard ensures this only fires in browsers that
- * support animation-timeline (Chrome 115+, Safari 18+).
- * When active, a simple fade-up plays via CSS with zero JS.
- * The JS IntersectionObserver still handles complex animation
- * types, sequencing, and replay — these rules only run if the
- * block has the default 'fade-up' animation and no JS-managed
- * state has fired yet (no .has-animated class).
- * ============================================================ */
-@supports (animation-timeline: view()) {
-
-	@media (prefers-reduced-motion: no-preference) {
-
-		.wp-block-animate-on-scroll[data-animation-type="fade-up"]:not(.has-animated) {
-			animation: aa-scroll-fade-up linear both;
-			animation-timeline: view();
-			animation-range: entry 0% entry 40%;
-		}
-
-		.wp-block-animate-on-scroll[data-animation-type="fade-in"]:not(.has-animated) {
-			animation: aa-scroll-fade-in linear both;
-			animation-timeline: view();
-			animation-range: entry 0% entry 35%;
-		}
-
-		.wp-block-animate-on-scroll[data-animation-type="slide-left"]:not(.has-animated) {
-			animation: aa-scroll-slide-left linear both;
-			animation-timeline: view();
-			animation-range: entry 0% entry 40%;
-		}
-
-		.wp-block-animate-on-scroll[data-animation-type="slide-right"]:not(.has-animated) {
-			animation: aa-scroll-slide-right linear both;
-			animation-timeline: view();
-			animation-range: entry 0% entry 40%;
-		}
-	}
-}
-
-@keyframes aa-scroll-fade-up {
-
-	from {
-		opacity: 0;
-		translate: 0 2rem;
-	}
-
-	to {
-		opacity: 1;
-		translate: 0 0;
-	}
-}
-
-@keyframes aa-scroll-fade-in {
-
-	from { opacity: 0; }
-
-	to { opacity: 1; }
-}
-
-@keyframes aa-scroll-slide-left {
-
-	from {
-		opacity: 0;
-		translate: -2rem 0;
-	}
-
-	to {
-		opacity: 1;
-		translate: 0 0;
-	}
-}
-
-@keyframes aa-scroll-slide-right {
-
-	from {
-		opacity: 0;
-		translate: 2rem 0;
-	}
-
-	to {
-		opacity: 1;
-		translate: 0 0;
-	}
-}
+/* The former CSS scroll-driven "zero-JS" enhancement was removed: it
+   animated the WRAPPER while children stayed opacity:0 behind the
+   JS-gated reveal (so it never actually showed content), and it
+   targeted data-animation-type values ("fade-up", "fade-in") the
+   renderer never emits. The no-JS story is now handled at the root:
+   initial hidden states apply only once JS arms a block. */
 

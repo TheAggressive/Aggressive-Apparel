@@ -34,7 +34,7 @@
 }
 
 /* When bottom nav hides on scroll, drop to screen bottom with safe-area. */
-body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
+body.aa-bottom-nav-hidden .aa-sticky-cart {
 	bottom: 0;
 	padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -688,7 +688,7 @@ body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
 @media (prefers-reduced-motion: reduce) {
 
 	.aa-sticky-cart,
-	body:has(.aa-bottom-nav.is-hidden) .aa-sticky-cart {
+	body.aa-bottom-nav-hidden .aa-sticky-cart {
 		transition: none;
 	}
 

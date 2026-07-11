@@ -7,14 +7,17 @@
  * @package Aggressive_Apparel
  */
 
-/* Hide native cursor whenever our cursor is present */
+/* Hide native cursor whenever our cursor is present. Keyed off the
+   body[data-aa-cursor] attribute cursor.ts already maintains — NOT
+   a :has() selector on body: that forces a document-wide
+   style re-scan on every childList mutation anywhere in the page. */
 @media (pointer: fine) {
 
-	body:has(.aa-cursor) {
+	body[data-aa-cursor] {
 		cursor: none;
 	}
 
-	body:has(.aa-cursor) *:not(.aa-cursor, .aa-cursor *) {
+	body[data-aa-cursor] *:not(.aa-cursor, .aa-cursor *) {
 		cursor: none !important;
 	}
 }

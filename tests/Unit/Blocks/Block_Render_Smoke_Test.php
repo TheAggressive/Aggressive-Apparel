@@ -650,6 +650,37 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Dark mode toggle renders custom icon, background, and outline styles.
+	 *
+	 * @return void
+	 */
+	public function test_dark_mode_toggle_renders_custom_visual_styles(): void {
+		$html = $this->render(
+			'dark-mode-toggle',
+			array(
+				'iconStyle'                  => 'outline',
+				'iconStrokeWidth'            => 2.25,
+				'iconColor'                  => '#111111',
+				'iconHoverColor'             => '#222222',
+				'toggleBackgroundColor'      => '#333333',
+				'toggleBackgroundHoverColor' => '#444444',
+			)
+		);
+
+		$this->assertStringContainsString( 'is-icon-style-outline', $html );
+		$this->assertStringContainsString( 'fill="none"', $html );
+		$this->assertStringContainsString( 'stroke="currentColor"', $html );
+		// Thickness comes from the CSS custom property (stroke-width lives in
+		// style.css — var() is invalid in SVG presentation attributes).
+		$this->assertStringNotContainsString( 'stroke-width=', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-icon-stroke-width:2.25', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-icon-color:#111111', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-icon-hover-color:#222222', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-bg:#333333', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-bg-hover:#444444', $html );
+	}
+
+	/**
 	 * Product rating renders brand marks for a reviewed product.
 	 *
 	 * @return void

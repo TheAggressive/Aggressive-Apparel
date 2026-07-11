@@ -69,6 +69,10 @@ export const acquireBoundaryOverlay = (
   let element = findBoundaryElement(key);
   if (!element) {
     element = el('div', `aa-dbg-boundary aa-dbg-boundary--${role}`);
+    // Critical inline styles so a pre-stylesheet render can't put the
+    // overlay into the body flow (layout shift) or swallow clicks.
+    element.style.position = 'fixed';
+    element.style.pointerEvents = 'none';
     element.setAttribute(BOUNDARY_KEY_ATTR, key.replace(/["\\]/g, ''));
     element.dataset.aaDbgRefs = '0';
     element.style.inset = `${invertValue(boundary.top || '0%')} ${invertValue(
@@ -152,6 +156,8 @@ export const createElementOverlay = (
   const thresholdPct = Math.round(options.threshold * 100);
 
   const container = el('div', 'aa-dbg-element');
+  container.style.position = 'absolute';
+  container.style.pointerEvents = 'none';
   if (options.accent) {
     container.style.setProperty('--aa-dbg-identity', options.accent);
   }

@@ -193,18 +193,16 @@
   }
 }
 
-/* Push/reveal body animation. :has() detects open state directly from the
-   panel element. Legacy body classes kept as fallback for non-:has() browsers. */
-body:has(.aa-nav__panel--push.aa-nav__panel--right.is-open) .wp-site-blocks,
-body:has(.aa-nav__panel--reveal.aa-nav__panel--right.is-open) .wp-site-blocks,
+/* Push/reveal body animation, driven by the body classes the panel
+   store always applies (utils.ts). The former :has()-on-body duplicates
+   were removed: they force a document-wide style re-scan on
+   every childList mutation anywhere in the page. */
 .has-navigation-panel-open--push-right .wp-site-blocks,
 .has-navigation-panel-open--reveal-right .wp-site-blocks {
   transform: translateX(calc(-1 * var(--push-panel-width, min(320px, 85vw))));
   transition: transform var(--aa-nav-transition);
 }
 
-body:has(.aa-nav__panel--push.aa-nav__panel--left.is-open) .wp-site-blocks,
-body:has(.aa-nav__panel--reveal.aa-nav__panel--left.is-open) .wp-site-blocks,
 .has-navigation-panel-open--push-left .wp-site-blocks,
 .has-navigation-panel-open--reveal-left .wp-site-blocks {
   transform: translateX(var(--push-panel-width, min(320px, 85vw)));

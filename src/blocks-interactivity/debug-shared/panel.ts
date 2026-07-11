@@ -108,6 +108,10 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
   const rows = new Map<string, RowRefs>();
 
   const panel = el('div', 'aa-dbg-panel');
+  // Critical inline positioning: the debug chunk can run before the
+  // footer-enqueued stylesheet applies; without this the panel would
+  // briefly join the body flow and shift page content.
+  panel.style.position = 'fixed';
   panel.setAttribute('role', 'region');
   panel.setAttribute('aria-label', options.title);
 

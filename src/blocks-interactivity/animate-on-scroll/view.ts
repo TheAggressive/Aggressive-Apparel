@@ -9,9 +9,10 @@
  * blocks. Debug tooling lives in debug.ts and is only downloaded when a
  * block enables Debug Mode.
  *
- * Simple entrance animations (fade/slide) also have a pure-CSS
- * scroll-driven path (`animation-timeline: view()`) in style.css; the
- * `has-animated` class added here prevents double-firing.
+ * Initial hidden/offset states in style.css apply only once this store
+ * arms a block (the data-animate-id attribute set in initObserver), so
+ * no-JS visitors and crashed hydration render normal, fully visible
+ * content and the LCP element paints on first render.
  *
  * @package Aggressive Apparel
  */
@@ -32,7 +33,11 @@ interface DetectionBoundary {
 
 interface AnimateOnScrollContext {
   isVisible: boolean;
-  /** Set once on first entrance; suppresses the CSS scroll-driven path. */
+  /**
+   * Set once on first entrance and never cleared. No internal consumer —
+   * kept as the public `.has-animated` wrapper class so site CSS can
+   * target "content that has already animated in".
+   */
   hasAnimated: boolean;
   /** Drives the reverse (exit) animation state. */
   isExiting: boolean;

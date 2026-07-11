@@ -721,6 +721,12 @@ const { state, actions } = store<StickyCartStore>(
         const observer = new IntersectionObserver(
           ([entry]: IntersectionObserverEntry[]) => {
             state.isVisible = !entry.isIntersecting;
+            // Mirrored as a body class so social-proof's offset CSS
+            // avoids body:has() (document-wide re-scan per mutation).
+            document.body.classList.toggle(
+              'aa-sticky-cart-visible',
+              state.isVisible
+            );
           },
           { threshold: 0 }
         );

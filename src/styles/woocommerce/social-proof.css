@@ -250,24 +250,24 @@
  * Offset when sticky add-to-cart is visible
  * ----------------------------------------------- */
 
-@supports selector(:has(*)) {
+/* Keyed off body.aa-sticky-cart-visible (mirrored from the sticky-cart
+   store) instead of :has() on body, which forces document-wide
+   style re-scans on every childList mutation anywhere in the page. */
+body.aa-sticky-cart-visible .aggressive-apparel-social-proof {
+	bottom: calc(1.5rem + var(--aa-sticky-cart-height, 3.75rem));
+}
 
-	body:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
-		bottom: calc(1.5rem + var(--aa-sticky-cart-height, 3.75rem));
+body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
+	bottom: calc(1.5rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
+}
+
+@media (width <= 480px) {
+
+	body.aa-sticky-cart-visible .aggressive-apparel-social-proof {
+		bottom: calc(0.75rem + var(--aa-sticky-cart-height, 3.75rem));
 	}
 
-	body.has-bottom-nav:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
-		bottom: calc(1.5rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
-	}
-
-	@media (width <= 480px) {
-
-		body:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
-			bottom: calc(0.75rem + var(--aa-sticky-cart-height, 3.75rem));
-		}
-
-		body.has-bottom-nav:has(.aa-sticky-cart.is-visible) .aggressive-apparel-social-proof {
-			bottom: calc(0.75rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
-		}
+	body.has-bottom-nav.aa-sticky-cart-visible .aggressive-apparel-social-proof {
+		bottom: calc(0.75rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 3.75rem));
 	}
 }

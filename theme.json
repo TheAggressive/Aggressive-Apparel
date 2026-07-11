@@ -477,6 +477,11 @@
           "color": "oklch(0 0 0)"
         },
         {
+          "name": "Transparent",
+          "slug": "transparent",
+          "color": "transparent"
+        },
+        {
           "name": "Light Gray",
           "slug": "light-gray",
           "color": "color-mix(in oklch, var(--wp--preset--color--white) 70%, var(--wp--preset--color--black))"

@@ -83,3 +83,65 @@
   position: relative;
   padding: 1rem;
 }
+
+.aa-hero-schedule-control {
+	margin-bottom: 1rem;
+}
+
+.aa-hero-schedule-control__row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.aa-hero-schedule-control__label {
+	flex: 0 0 4.75rem;
+	margin-bottom: 0;
+}
+
+.aa-hero-schedule-control__dropdown,
+.aa-hero-schedule-control__toggle {
+	min-width: 0;
+	width: 100%;
+}
+
+.aa-hero-schedule-control__dropdown {
+	flex: 1 1 auto;
+}
+
+.aa-hero-schedule-control__toggle.components-button {
+	justify-content: flex-start;
+	min-height: 40px;
+	text-align: left;
+}
+
+.aa-hero-schedule-control__toggle-text {
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aa-hero-schedule-control .components-base-control__help {
+	margin-top: 0.5rem;
+}
+
+.aa-hero-schedule-popover .components-popover__content {
+	width: min(360px, calc(100vw - 32px));
+	padding: 1rem;
+}
+
+.aa-hero-schedule-popover__inner {
+	display: grid;
+	gap: 1rem;
+}
+
+.aa-hero-schedule-popover__actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+}

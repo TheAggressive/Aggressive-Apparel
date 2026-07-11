@@ -15,9 +15,16 @@ import './style.css';
 // Block attributes type derived from block.json.
 interface DarkModeToggleAttributes {
   label: string;
+  labelDark: string;
   showLabel: boolean;
   size: 'small' | 'medium' | 'large';
   alignment: 'left' | 'center' | 'right';
+  iconStyle: 'solid' | 'outline';
+  iconStrokeWidth: number;
+  iconColor: string;
+  iconHoverColor: string;
+  toggleBackgroundColor: string;
+  toggleBackgroundHoverColor: string;
 }
 
 registerThemeBlock<DarkModeToggleAttributes>(metadata, {

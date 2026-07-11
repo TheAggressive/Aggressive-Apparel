@@ -56,6 +56,12 @@
 		color: var(--aa-countdown-value-color);
 		font-size: var(--aa-countdown-value-font-size);
 		font-weight: var(--aa-countdown-value-font-weight);
+
+		/* Reserve two tabular digits so segments don't shift when the
+		   ticking values populate/change (CLS). */
+		display: inline-block;
+		min-width: 2ch;
+		text-align: center;
 	}
 
 	&__unit {

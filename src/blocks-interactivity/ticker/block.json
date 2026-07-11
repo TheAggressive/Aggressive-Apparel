@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/ticker",
   "version": "1.0.0",
   "title": "Ticker",
-  "category": "widgets",
+  "category": "aggressive-apparel",
   "description": "Infinite scrolling marquee for text, logos, or any content. Add the Free Shipping Message block for live cart thresholds.",
   "supports": {
     "html": false,

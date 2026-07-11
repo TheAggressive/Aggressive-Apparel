@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/countdown-timer",
   "version": "1.0.0",
   "title": "Sale Countdown Timer",
-  "category": "woocommerce",
+  "category": "aggressive-apparel",
   "description": "Live countdown for products with a scheduled sale end date. Place on the single product template.",
   "keywords": ["countdown", "sale", "timer", "urgency"],
   "supports": {

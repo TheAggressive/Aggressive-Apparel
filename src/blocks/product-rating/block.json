@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/product-rating",
   "version": "1.0.0",
   "title": "Aggressive Star Rating",
-  "category": "woocommerce",
+  "category": "aggressive-apparel",
   "description": "Product rating rendered with the Aggressive brand mark instead of stars.",
   "keywords": ["rating", "reviews", "stars", "product", "aggressive"],
   "textdomain": "aggressive-apparel",

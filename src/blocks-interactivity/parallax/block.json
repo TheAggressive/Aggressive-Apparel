@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/parallax",
   "version": "1.1.10",
   "title": "Advanced Parallax Container",
-  "category": "widgets",
+  "category": "aggressive-apparel",
   "description": "A container block that applies parallax effects to nested blocks using intersection observer.",
   "supports": {
     "html": false,

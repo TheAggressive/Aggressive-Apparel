@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/free-shipping-message",
   "version": "1.0.0",
   "title": "Free Shipping Message",
-  "category": "woocommerce",
+  "category": "aggressive-apparel",
   "description": "Live free-shipping amount message with optional prefix and suffix icons. Designed for the Ticker block.",
   "keywords": ["shipping", "free", "ticker", "marquee", "message"],
   "supports": {

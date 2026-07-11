@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/recently-viewed",
   "version": "1.0.0",
   "title": "Recently Viewed Products",
-  "category": "woocommerce",
+  "category": "aggressive-apparel",
   "description": "Shows products the visitor recently viewed using browser localStorage.",
   "keywords": ["recently viewed", "history", "products"],
   "supports": {

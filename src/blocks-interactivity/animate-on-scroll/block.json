@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/animate-on-scroll",
   "version": "1.2.1",
   "title": "Animate On Scroll",
-  "category": "widgets",
+  "category": "aggressive-apparel",
   "description": "Animate elements on scroll.",
   "supports": {
     "html": false,

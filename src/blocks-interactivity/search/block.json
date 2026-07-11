@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/search",
   "version": "1.0.0",
   "title": "Aggressive Search",
-  "category": "design",
+  "category": "aggressive-apparel",
   "description": "A search icon that opens a full-screen modal with live results across products, articles and pages.",
   "keywords": [
     "search",

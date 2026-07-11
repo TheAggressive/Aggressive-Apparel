@@ -4,7 +4,7 @@
   "name": "aggressive-apparel/aggressive-apparel-logo",
   "version": "1.0.0",
   "title": "Aggressive Apparel Logo",
-  "category": "theme",
+  "category": "aggressive-apparel",
   "description": "Display responsive logo with light/dark mode color support and configurable breakpoint.",
   "keywords": ["logo", "brand", "responsive", "dark mode"],
   "supports": {

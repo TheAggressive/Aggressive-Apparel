@@ -6,6 +6,9 @@
  * @package Aggressive Apparel
  */
 
+/* Shared inspector UI (PresetPicker), also used by animate-on-scroll. */
+@import '../editor-shared/editor.css';
+
 /* Editor-specific styles */
 .wp-block-aggressive-apparel-parallax,
 .aggressive-apparel-parallax {

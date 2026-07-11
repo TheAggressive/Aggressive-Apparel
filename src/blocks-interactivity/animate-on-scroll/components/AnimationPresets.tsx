@@ -10,8 +10,8 @@
  * @package Aggressive_Apparel
  */
 
-import { BaseControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { findActivePresetKey, PresetPicker } from '../../editor-shared';
 import type { AnimateOnScrollAttributes } from '../types';
 
 export interface AnimationPreset {
@@ -127,38 +127,74 @@ export const ANIMATION_PRESETS: Record<string, AnimationPreset> = {
       staggerDelay: 0.15,
     },
   },
+  softFocus: {
+    name: __('Soft Focus', 'aggressive-apparel'),
+    description: __(
+      'Blurred content sharpens into place — for editorial imagery',
+      'aggressive-apparel'
+    ),
+    attributes: {
+      useSequence: false,
+      animation: 'blur',
+      direction: '',
+      duration: 0.8,
+      easing: 'ease-out',
+      initialDelay: 0,
+      staggerChildren: false,
+    },
+  },
+  flipReveal: {
+    name: __('Flip Reveal', 'aggressive-apparel'),
+    description: __(
+      'Cards flip up one by one — for product grids',
+      'aggressive-apparel'
+    ),
+    attributes: {
+      useSequence: false,
+      animation: 'flip',
+      direction: 'up',
+      duration: 0.6,
+      easing: 'ease-out',
+      initialDelay: 0,
+      staggerChildren: true,
+      staggerPattern: 'sequential',
+      staggerDelay: 0.12,
+    },
+  },
 };
 
+const PRESET_TILES = Object.entries(ANIMATION_PRESETS).map(([key, preset]) => ({
+  key,
+  name: preset.name,
+  description: preset.description,
+  value: preset,
+}));
+
 interface AnimationPresetsProps {
+  /** Current block attributes, used to highlight the matching preset. */
+  attributes?: AnimateOnScrollAttributes;
   onApplyPreset: (_preset: AnimationPreset) => void;
 }
 
-export const AnimationPresets = ({ onApplyPreset }: AnimationPresetsProps) => {
+export const AnimationPresets = ({
+  attributes,
+  onApplyPreset,
+}: AnimationPresetsProps) => {
+  const activeKey = attributes
+    ? findActivePresetKey(
+        PRESET_TILES.map(tile => ({
+          key: tile.key,
+          value: tile.value.attributes,
+        })),
+        attributes
+      )
+    : null;
+
   return (
-    <BaseControl
-      className='aggressive-apparel-animate-on-scroll-presets'
-      label={__('Quick Presets', 'aggressive-apparel')}
-      __nextHasNoMarginBottom
-    >
-      <div className='aggressive-apparel-animate-on-scroll-presets__grid'>
-        {Object.entries(ANIMATION_PRESETS).map(([key, preset]) => (
-          <Button
-            key={key}
-            variant='secondary'
-            className='aggressive-apparel-animate-on-scroll-presets__button'
-            onClick={() => onApplyPreset(preset)}
-            label={preset.description}
-            showTooltip
-          >
-            <span className='aggressive-apparel-animate-on-scroll-presets__name'>
-              {preset.name}
-            </span>
-            <span className='components-base-control__help aggressive-apparel-animate-on-scroll-presets__description'>
-              {preset.description}
-            </span>
-          </Button>
-        ))}
-      </div>
-    </BaseControl>
+    <PresetPicker
+      presets={PRESET_TILES}
+      activeKey={activeKey}
+      onApply={tile => onApplyPreset(tile.value)}
+    />
   );
 };

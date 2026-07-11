@@ -8,15 +8,8 @@
  */
 @reference 'tailwindcss';
 
-/* Debug overlay colors - globally available */
-:root {
-	--wp-block-animate-on-scroll-debug-red: var(--aa-color-error);
-	--wp-block-animate-on-scroll-debug-yellow: var(--aa-color-warning);
-	--wp-block-animate-on-scroll-debug-green: var(--aa-color-success);
-	--wp-block-animate-on-scroll-debug-red-bg: var(--aa-color-error-bg);
-	--wp-block-animate-on-scroll-debug-yellow-bg: var(--aa-color-warning-bg);
-	--wp-block-animate-on-scroll-debug-green-bg: var(--aa-color-success-bg);
-}
+/* Scroll-debug UI ships separately (build/styles/components/debug-overlays.css),
+   enqueued by render.php only when Debug Mode is active for an editor. */
 
 /**
  * Animate On Scroll Block Styles
@@ -32,7 +25,9 @@
  * 5. Reverse Animation States
  * 6. Stagger Animation Support
  * 7. Keyframe Animations
- * 8. Debug Overlays
+ *
+ * Debug overlay/panel styles live in ../debug-shared/style.css
+ * (imported above; shared with the parallax block).
  */
 
 .wp-block-animate-on-scroll {
@@ -78,6 +73,7 @@
 			opacity: 1 !important;
 			transform: none !important;
 			filter: none !important;
+			clip-path: none !important;
 		}
 	}
 
@@ -209,6 +205,34 @@
 		transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
 	}
 
+	/* Reveal reverse animations */
+	&.reveal.is-exiting {
+
+		&.up > * {
+			opacity: 0;
+			clip-path: inset(100% 0 0 0);
+			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+		}
+
+		&.down > * {
+			opacity: 0;
+			clip-path: inset(0 0 100% 0);
+			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+		}
+
+		&.left > * {
+			opacity: 0;
+			clip-path: inset(0 0 0 100%);
+			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+		}
+
+		&.right > * {
+			opacity: 0;
+			clip-path: inset(0 100% 0 0);
+			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+		}
+	}
+
 	/* Bounce reverse animations */
 	&.bounce.is-exiting > * {
 		opacity: 0;
@@ -229,7 +253,8 @@
 			width: 100%;
 			transition: opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+				clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
 			transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
 		}
 
@@ -238,6 +263,7 @@
 			transition: opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+				clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				box-shadow var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				border-width var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
 				background var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
@@ -323,6 +349,27 @@
 		> div[data-animate-sequence-type="blur-in"] {
 			opacity: 0;
 			filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+		}
+
+		/* Sequence: Reveal (wipe) */
+		> div[data-animate-sequence-type="reveal"] {
+			opacity: 0;
+
+			&[data-animate-sequence-direction="up"] {
+				clip-path: inset(100% 0 0 0);
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				clip-path: inset(0 0 100% 0);
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				clip-path: inset(0 0 0 100%);
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				clip-path: inset(0 100% 0 0);
+			}
 		}
 
 		/* Sequence: Bounce */
@@ -486,6 +533,33 @@
 			filter: blur(0) !important;
 		}
 
+		/* Sequence: Reveal - Final state when visible */
+		&.is-visible > div[data-animate-sequence-type="reveal"] {
+			opacity: 1 !important;
+			clip-path: inset(0 0 0 0) !important;
+		}
+
+		/* Sequence: Reveal - Reverse states when exiting */
+		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="up"] {
+			opacity: 0 !important;
+			clip-path: inset(100% 0 0 0) !important;
+		}
+
+		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="down"] {
+			opacity: 0 !important;
+			clip-path: inset(0 0 100% 0) !important;
+		}
+
+		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="left"] {
+			opacity: 0 !important;
+			clip-path: inset(0 0 0 100%) !important;
+		}
+
+		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="right"] {
+			opacity: 0 !important;
+			clip-path: inset(0 100% 0 0) !important;
+		}
+
 		/* Sequence: Blur - Reverse state when exiting */
 		&.is-exiting > div[data-animate-sequence-type="blur-in"] {
 			opacity: 0 !important;
@@ -616,6 +690,22 @@
 
 	&.blur-in.is-visible > * { filter: blur(0); }
 
+	/* Reveal (wipe) Animation — clip-path mask opens toward the named
+	   direction; pairs with the base opacity fade. The direction is the
+	   way the reveal edge travels (up = wipes in from the bottom). */
+	&.reveal {
+
+		&.up > * { clip-path: inset(100% 0 0 0); }
+
+		&.down > * { clip-path: inset(0 0 100% 0); }
+
+		&.left > * { clip-path: inset(0 0 0 100%); }
+
+		&.right > * { clip-path: inset(0 100% 0 0); }
+
+		&.is-visible > * { clip-path: inset(0 0 0 0); }
+	}
+
 	/* Bounce Animation */
 	&.bounce > * {
 		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
@@ -737,322 +827,6 @@
 	}
 }
 
-/* ==========================================================================
-   8. DEBUG OVERLAYS - Enhanced UI with Glassmorphism
-   ========================================================================== */
-
-/* Detection Boundary Overlay - Accurate viewport positioning */
-.wp-block-animate-on-scroll-debug-detection-boundary-overlay {
-	position: fixed;
-	pointer-events: none;
-	z-index: 999;
-	border: 2px dashed var(--aa-color-info-border);
-	background: var(--aa-color-info-bg);
-	backdrop-filter: blur(4px);
-	box-shadow: inset 0 0 20px var(--aa-color-info-bg);
-
-	/* Inset is set via JavaScript to match rootMargin values */
-
-	&::after {
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		transform: translate(-50%, -50%);
-		content: "Detection Boundary";
-		background: var(--aa-color-info);
-		color: var(--aa-color-on-scrim);
-		padding: 0.375rem 0.75rem;
-		border-radius: var(--aa-radius-control);
-		font-size: 0.75rem;
-		font-weight: 600;
-		white-space: nowrap;
-		box-shadow: var(--aa-shadow-sm);
-	}
-}
-
-/* Debug Container - Element overlay */
-[class*="wp-block-animate-on-scroll-debug-container"] {
-	position: absolute;
-	pointer-events: none;
-	z-index: 9999;
-	min-width: 1px;
-	min-height: 1px;
-}
-
-/* Floating Info Panel - Glassmorphism design */
-[class*="wp-block-animate-on-scroll-debug-panel"] {
-	position: fixed;
-	z-index: 10000;
-	background: var(--aa-color-scrim);
-	backdrop-filter: blur(12px) saturate(180%);
-	border: 1px solid var(--aa-color-scrim-border);
-	border-radius: var(--aa-radius-panel);
-	box-shadow: var(--aa-shadow-lg);
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	transition: transform var(--aa-duration-fast) var(--aa-ease-default), opacity var(--aa-duration-fast) var(--aa-ease-default);
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--aa-shadow-lg);
-	}
-
-	.debug-panel-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.75rem 1rem;
-		border-bottom: 1px solid var(--aa-color-scrim-border);
-	}
-
-	.debug-panel-title {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--aa-color-on-scrim);
-		letter-spacing: 0.025em;
-	}
-
-	.debug-panel-toggle {
-		background: transparent;
-		border: none;
-		color: var(--aa-color-on-scrim-70);
-		cursor: pointer;
-		padding: 0.25rem 0.5rem;
-		border-radius: var(--aa-radius-sm);
-		font-size: 1rem;
-		line-height: 1;
-		transition: color var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-fast) var(--aa-ease-default);
-
-		&:hover {
-			color: var(--aa-color-on-scrim);
-			background: var(--aa-color-scrim-border);
-		}
-	}
-
-	.debug-panel-content {
-		padding: 0.5rem;
-	}
-
-	.debug-section {
-		margin-bottom: 0.5rem;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-
-	.debug-section-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.5rem 0.75rem;
-		cursor: pointer;
-		border-radius: var(--aa-radius-control);
-		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
-
-		&:hover {
-			background: var(--aa-color-scrim-hover-subtle);
-		}
-
-		span {
-			font-size: 0.8125rem;
-			font-weight: 500;
-			color: var(--aa-color-on-scrim-90);
-		}
-
-		.section-toggle {
-			background: transparent;
-			border: none;
-			color: var(--aa-color-on-scrim-60);
-			cursor: pointer;
-			padding: 0.125rem 0.375rem;
-			border-radius: var(--aa-radius-sm);
-			font-size: 0.875rem;
-			line-height: 1;
-			transition: color var(--aa-duration-fast) var(--aa-ease-default);
-
-			&:hover {
-				color: var(--aa-color-on-scrim-90);
-			}
-		}
-	}
-
-	.debug-section-content {
-		padding: 0.5rem 0.75rem;
-	}
-
-	.debug-metric {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.375rem 0;
-		font-size: 0.8125rem;
-
-		.metric-label {
-			color: var(--aa-color-on-scrim-70);
-		}
-
-		.metric-value {
-			font-weight: 600;
-			color: var(--aa-color-on-scrim);
-			font-variant-numeric: tabular-nums;
-
-
-			&.direction-down {
-				color: var(--aa-color-success);
-			}
-
-			&.direction-up {
-				color: var(--aa-color-warning);
-			}
-
-			&.performance-good {
-				color: var(--aa-color-success);
-			}
-
-			&.performance-lag {
-				color: var(--aa-color-warning);
-			}
-
-			&.performance-jitter {
-				color: var(--aa-color-warning);
-			}
-
-			&		.performance-poor {
-			color: var(--aa-color-error);
-		}
-
-		.intersection-state-value {
-			font-weight: 600;
-			padding: 0.125rem 0.375rem;
-			border-radius: var(--aa-radius-sm);
-			display: inline-block;
-
-			/* Red: Not intersecting */
-			&.intersection-state--not-intersecting {
-				background: var(--wp-block-animate-on-scroll-debug-red-bg);
-				color: var(--wp-block-animate-on-scroll-debug-red);
-			}
-
-			/* Yellow: Entering detection boundary */
-			&.intersection-state--entering {
-				background: var(--wp-block-animate-on-scroll-debug-yellow-bg);
-				color: var(--wp-block-animate-on-scroll-debug-yellow);
-			}
-
-			/* Green: Triggered */
-			&.intersection-state--triggered {
-				background: var(--wp-block-animate-on-scroll-debug-green-bg);
-				color: var(--wp-block-animate-on-scroll-debug-green);
-			}
-		}
-	}
-}
-}
-
-/* Zone Visualization */
-[data-zone-overlay] {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-	z-index: 9998;
-}
-
-.entry-zone {
-	position: absolute;
-	left: 0;
-	width: 100%;
-	pointer-events: none;
-	z-index: 9998;
-	transition: top var(--aa-duration-fast) var(--aa-ease-default), height var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default);
-
-	/* Red: Not intersecting */
-	&--not-intersecting {
-		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-red-bg), transparent);
-	}
-
-	/* Yellow: Entering element zone */
-	&--entering {
-		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-yellow-bg), transparent);
-	}
-
-	/* Green: Triggered */
-	&--triggered {
-		background: linear-gradient(to bottom, var(--wp-block-animate-on-scroll-debug-green-bg), transparent);
-	}
-}
-
-
-/* Trigger Line - Enhanced styling */
-[data-trigger-line] {
-	position: absolute;
-	left: 0;
-	width: 100%;
-	height: 2px;
-	pointer-events: none;
-	z-index: 9999;
-	transition: top var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default), border-color var(--aa-duration-normal) var(--aa-ease-default), box-shadow var(--aa-duration-normal) var(--aa-ease-default);
-
-	/* Red: Not intersecting (outside detection boundary) */
-	&.trigger-line--not-intersecting {
-		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-red), transparent);
-		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-red);
-		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-red-bg);
-	}
-
-	/* Yellow: Entering element zone (within detection boundary but below threshold) */
-	&.trigger-line--entering {
-		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-yellow), transparent);
-		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-yellow);
-		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-yellow-bg);
-	}
-
-	/* Green: Triggered (crossed threshold) */
-	&.trigger-line--triggered {
-		background: linear-gradient(to right, transparent, var(--wp-block-animate-on-scroll-debug-green), transparent);
-		border-top: 2px solid var(--wp-block-animate-on-scroll-debug-green);
-		box-shadow: 0 0 4px var(--wp-block-animate-on-scroll-debug-green-bg);
-	}
-}
-
-[data-trigger-label] {
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	color: var(--aa-color-on-scrim);
-	padding: 0.25rem 0.5rem;
-	border-radius: var(--aa-radius-control);
-	font-size: 0.75rem;
-	font-weight: 600;
-	white-space: nowrap;
-	pointer-events: none;
-	z-index: 10000;
-	box-shadow: var(--aa-shadow-sm);
-	transition: top var(--aa-duration-fast) var(--aa-ease-default), background-color var(--aa-duration-normal) var(--aa-ease-default);
-
-	/* Red: Not intersecting (outside detection boundary) */
-	&.trigger-label--not-intersecting {
-		background: var(--wp-block-animate-on-scroll-debug-red);
-	}
-
-	/* Yellow: Entering element zone (within detection boundary but below threshold) */
-	&.trigger-label--entering {
-		background: var(--wp-block-animate-on-scroll-debug-yellow);
-	}
-
-	/* Green: Triggered (crossed threshold) */
-	&.trigger-label--triggered {
-		background: var(--wp-block-animate-on-scroll-debug-green);
-	}
-}
-
-/* Debug Container */
-[data-debug-container] {
-	position: absolute;
-}
-
 /* ============================================================
  * SCROLL-DRIVEN ANIMATIONS — CSS progressive enhancement
  *
@@ -1140,27 +914,3 @@
 	}
 }
 
-/* Debug panel compact layout — container query so it responds
-   to block width, not viewport. */
-@container aos-block (width <= 767px) {
-
-	[class*="wp-block-animate-on-scroll-debug-panel"] {
-		font-size: 0.8125rem;
-
-		.debug-panel-header {
-			padding: 0.625rem 0.75rem;
-		}
-
-		.debug-panel-title {
-			font-size: 0.8125rem;
-		}
-
-		.debug-section-content {
-			padding: 0.375rem 0.625rem;
-		}
-
-		.debug-metric {
-			font-size: 0.75rem;
-		}
-	}
-}

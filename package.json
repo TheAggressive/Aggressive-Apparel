@@ -111,7 +111,7 @@
     "build:manifest": "wp-scripts build-blocks-manifest --input=build --output=build/blocks-manifest.php",
     "build:blocks": "wp-scripts build --config webpack.config.mjs --source-path=./src/blocks --output-path=./build/blocks && pnpm sync:php:blocks",
     "build:interactivity": "wp-scripts build --config webpack.config.mjs --source-path=./src/blocks-interactivity --output-path=./build/blocks-interactivity --experimental-modules && pnpm sync:php:interactivity",
-    "sync:php:blocks": "find src/blocks -name 'render.php' -o -name 'block.json' | while read f; do dest=\"build/${f#src/}\"; mkdir -p \"$(dirname $dest)\"; cp \"$f\" \"$dest\"; done",
+    "sync:php:blocks": "find src/blocks \\( -name 'render.php' -o -name 'block.json' -o -name 'legal-entity-presets.json' \\) | while read f; do dest=\"build/${f#src/}\"; mkdir -p \"$(dirname $dest)\"; cp \"$f\" \"$dest\"; done",
     "sync:php:interactivity": "find src/blocks-interactivity \\( -name 'render.php' -o -name 'block.json' -o -name 'motion-variants.json' \\) | while read f; do dest=\"build/${f#src/}\"; mkdir -p \"$(dirname $dest)\"; cp \"$f\" \"$dest\"; done",
     "build:modules": "wp-scripts build --config webpack.modules.config.mjs",
     "build:assets": "node bin/clean-asset-build.mjs && wp-scripts build --config webpack.assets.config.mjs",

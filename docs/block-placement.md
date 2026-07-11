@@ -23,6 +23,7 @@ WooCommerce-dependent blocks declare `supports.requiresPlugins: ["woocommerce"]`
 | `countdown-timer` | Sale / drop landing pages | — | Invalid / missing end date |
 | `free-shipping-bar` / `free-shipping-message` | Header, cart, checkout, sticky regions | — | No free-shipping threshold |
 | `search` | Header / mobile nav | — | Never gated (global UX) |
+| `copyright` | Footer template part | — | Never gated (legal identity from Settings → General) |
 | `card-flip` | Marketing sections | — | — |
 | Nav family | Header / footer parts | — | Parent/ancestor constraints in editor |
 
@@ -164,6 +165,33 @@ Two independent subsystems — do not nest a panel block inside the desktop `nav
 - Children: `nav-link`, `nav-submenu-accordion`, `nav-submenu-drilldown`
 
 `nav-link` is the shared leaf (`parent` of every container above).
+
+---
+
+## Copyright (footer)
+
+Place `aggressive-apparel/copyright` in the **footer template part** (already in `parts/footer.html`). Prefer the Site Editor over hardcoding a year in a paragraph.
+
+| Setting | Where |
+| ------- | ----- |
+| Terms of Service page | Settings → **Terms** |
+| Legal / organization name | Settings → **Terms** |
+| Privacy Policy page | Settings → **Privacy** (WordPress core; publish the page so visitors can open it) |
+| Owner source / LLC / Schema / links / separator | Block inspector |
+
+**Starter pattern:** `aggressive-apparel/footer-columns` uses the copyright block with legal links.
+
+### Behavior notes
+
+- Owner source `legal_name` reads the option on Settings → Terms; empty falls back to Site Title.
+- `showLegalLinks` appends Privacy / Terms when those pages are configured.
+- `showSchema` emits Organization + WebSite `copyrightHolder` / `copyrightYear` JSON-LD once per page.
+- Agency overrides: `aggressive_apparel_copyright_parts`, `aggressive_apparel_copyright_html`, `aggressive_apparel_copyright_schema`, `aggressive_apparel_copyright_legal_links`.
+
+### Do not
+
+- Hardcode `© 2026 …` in footer patterns — the year will go stale.
+- Nest another `contentinfo` landmark solely for this line; keep it inside the existing footer.
 
 ---
 

@@ -177,3 +177,26 @@ function aggressive_apparel_unslash_post( string $key ): mixed {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- Caller sanitizes and verifies nonce.
 	return wp_unslash( $_POST[ $key ] );
 }
+
+/**
+ * Whether the current visitor may see block debug tooling.
+ *
+ * Debug Mode on the parallax / animate-on-scroll blocks is a saved block
+ * attribute, so without this gate a page saved with it enabled would ship
+ * the debug overlays (and download the debug script chunk) to every
+ * visitor. Requires an editing capability rather than a mere login so
+ * logged-in customers never see it either.
+ *
+ * @return bool True when debug tooling may render for this request.
+ */
+function aggressive_apparel_can_view_block_debug(): bool {
+	/**
+	 * Filters who may see front-end block debug tooling.
+	 *
+	 * @param bool $can_view Defaults to current_user_can( 'edit_posts' ).
+	 */
+	return (bool) apply_filters(
+		'aggressive_apparel_can_view_block_debug',
+		current_user_can( 'edit_posts' )
+	);
+}

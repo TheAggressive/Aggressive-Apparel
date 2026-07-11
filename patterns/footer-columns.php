@@ -95,15 +95,9 @@
 	<hr class="wp-block-separator has-text-color has-white-color has-alpha-channel-opacity has-white-background-color has-background is-style-wide" style="margin-top:var(--wp--preset--spacing--14);margin-bottom:var(--wp--preset--spacing--8)"/>
 	<!-- /wp:separator -->
 
-	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
+	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
 	<div class="wp-block-group">
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} -->
-		<p class="has-white-color has-text-color" style="font-size:0.75rem">&copy; 2026 Aggressive Apparel. All rights reserved.</p>
-		<!-- /wp:paragraph -->
-
-		<!-- wp:paragraph {"style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} -->
-		<p class="has-white-color has-text-color" style="font-size:0.75rem"><a href="#">Terms</a> &middot; <a href="#">Privacy</a> &middot; <a href="#">Cookies</a></p>
-		<!-- /wp:paragraph -->
+		<!-- wp:aggressive-apparel/copyright {"ownerSource":"legal_name","legalEntity":"LLC","prefix":"\u00a9","suffix":". All rights reserved.","showLegalLinks":true,"showSchema":true,"textAlign":"center","style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} /-->
 	</div>
 	<!-- /wp:group -->
 </div>

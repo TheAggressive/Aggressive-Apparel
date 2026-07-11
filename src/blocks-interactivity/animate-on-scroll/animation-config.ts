@@ -65,6 +65,16 @@ export const BASE_ANIMATIONS: Record<string, AnimationConfig> = {
   blur: {
     label: __('Blur', 'aggressive-apparel'),
   },
+  reveal: {
+    label: __('Reveal', 'aggressive-apparel'),
+    directions: [
+      { label: __('Up', 'aggressive-apparel'), value: 'up' },
+      { label: __('Down', 'aggressive-apparel'), value: 'down' },
+      { label: __('Left', 'aggressive-apparel'), value: 'left' },
+      { label: __('Right', 'aggressive-apparel'), value: 'right' },
+    ],
+    defaultDirection: 'up',
+  },
   bounce: {
     label: __('Bounce', 'aggressive-apparel'),
     directions: [

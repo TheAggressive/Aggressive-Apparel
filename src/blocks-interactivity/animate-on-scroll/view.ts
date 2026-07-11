@@ -297,11 +297,6 @@ store('aggressive-apparel/animate-on-scroll', {
               return;
             }
 
-            debugController?.onEntry(
-              entry.intersectionRatio,
-              entry.isIntersecting
-            );
-
             if (entry.intersectionRatio >= threshold) {
               if (!ctx.isVisible) {
                 // A pending exit (rapid scroll-up-then-down) must not
@@ -324,6 +319,14 @@ store('aggressive-apparel/animate-on-scroll', {
             ) {
               handleExit();
             }
+
+            // After the logic runs, so the panel reflects the store's
+            // actual post-event visibility.
+            debugController?.onEntry(
+              entry.intersectionRatio,
+              entry.isIntersecting,
+              ctx.isVisible
+            );
           });
         },
         {

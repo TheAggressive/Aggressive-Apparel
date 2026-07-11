@@ -191,7 +191,11 @@ export const ParallaxControls = ({ clientId }: { clientId: string }) => {
         title={__('Parallax Layer', 'aggressive-apparel')}
         initialOpen={true}
       >
-        <EffectPresets onApplyPreset={applyPreset} onReset={resetToDefaults} />
+        <EffectPresets
+          settings={parallaxSettings}
+          onApplyPreset={applyPreset}
+          onReset={resetToDefaults}
+        />
 
         <ToggleControl
           label={__('Enable parallax on this block', 'aggressive-apparel')}

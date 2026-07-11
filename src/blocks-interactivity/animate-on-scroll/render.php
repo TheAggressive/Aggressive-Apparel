@@ -39,6 +39,20 @@ if ( $use_sequence ) {
 // Join classes with spaces.
 $combined_classes = implode( ' ', array_filter( $default_classes ) );
 
+// Capability-gated: never expose debug tooling to visitors even when
+// the attribute was saved enabled.
+$aos_debug_mode = ! empty( $attributes['debugMode'] )
+	&& aggressive_apparel_can_view_block_debug();
+
+if ( $aos_debug_mode ) {
+	// Debug-only stylesheet: kept out of the block's style.css so
+	// production visitors never download overlay/panel CSS.
+	\Aggressive_Apparel\Assets\Asset_Loader::enqueue_feature_style(
+		'aggressive-apparel-debug-overlays',
+		'build/styles/components/debug-overlays'
+	);
+}
+
 	$wrapper_attributes_array = array(
 		'class'                       => $combined_classes,
 		'data-wp-interactive'         => 'aggressive-apparel/animate-on-scroll',
@@ -47,7 +61,7 @@ $combined_classes = implode( ' ', array_filter( $default_classes ) );
 				'isVisible'              => false,
 				'hasAnimated'            => false,
 				'isExiting'              => false,
-				'debugMode'              => $attributes['debugMode'],
+				'debugMode'              => $aos_debug_mode,
 				'visibilityTrigger'      => $attributes['threshold'],
 				'detectionBoundary'      => $attributes['detectionBoundary'],
 				'id'                     => uniqid(),

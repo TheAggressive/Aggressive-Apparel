@@ -1,76 +1,17 @@
 /**
  * EffectPresets - Quick-apply preset configurations for parallax effects
+ *
+ * Thin wrapper over the shared PresetPicker (editor-shared) so parallax
+ * and animate-on-scroll present identical preset UI.
  */
 
-import { Button, ButtonGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
-  EDITOR_FIELDSET_STYLE,
-  EDITOR_META_TEXT_STYLE,
-} from '../../../utils/editor-style-tokens';
-
-// Custom icons matching WordPress icon style (24x24 viewBox, scaled to 32px)
-const subtleIcon = (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    viewBox='0 0 24 24'
-    width='32'
-    height='32'
-    aria-hidden='true'
-  >
-    <path
-      fill='currentColor'
-      d='M4 12c0-1.5 1.8-3 4-3s4 1.5 4 3-1.8 3-4 3-4-1.5-4-3zm8 0c0-1.5 1.8-3 4-3s4 1.5 4 3-1.8 3-4 3-4-1.5-4-3z'
-      opacity='0.6'
-    />
-  </svg>
-);
-
-const floatIcon = (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    viewBox='0 0 24 24'
-    width='32'
-    height='32'
-    aria-hidden='true'
-  >
-    <path fill='currentColor' d='M12 4l-1.5 3h3L12 4z' />
-    <rect fill='currentColor' x='8' y='10' width='8' height='6' rx='1' />
-    <path
-      fill='currentColor'
-      opacity='0.4'
-      d='M9 18h6M10 20h4'
-      stroke='currentColor'
-      strokeWidth='1.5'
-      strokeLinecap='round'
-    />
-  </svg>
-);
-
-const dramaticIcon = (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    viewBox='0 0 24 24'
-    width='32'
-    height='32'
-    aria-hidden='true'
-  >
-    <path fill='currentColor' d='M12 2L8 8h3v6H8l4 6 4-6h-3V8h3L12 2z' />
-    <path
-      fill='currentColor'
-      opacity='0.4'
-      d='M4 12h2M18 12h2M5 8l1.5 1M17.5 9L19 8M5 16l1.5-1M17.5 15L19 16'
-      stroke='currentColor'
-      strokeWidth='1.5'
-      strokeLinecap='round'
-    />
-  </svg>
-);
-
-interface EffectPresetsProps {
-  onApplyPreset: (_preset: PresetConfig) => void;
-  onReset: () => void;
-}
+  findActivePresetKey,
+  PresetPicker,
+  type PresetTile,
+} from '../../editor-shared';
+import type { ElementParallaxSettings } from '../types';
 
 export interface PresetConfig {
   name: string;
@@ -84,156 +25,139 @@ export interface PresetConfig {
   };
 }
 
-const PRESETS: Record<string, PresetConfig> = {
-  subtle: {
-    name: 'Subtle',
-    settings: {
-      enabled: true,
-      speed: 0.5,
-      direction: 'down',
-      delay: 0,
-      easing: 'easeOut',
-      effects: {
-        depthLevel: { value: 1.2 },
-      },
-    },
-  },
-  float: {
-    name: 'Float',
-    settings: {
-      enabled: true,
-      speed: 0.8,
-      direction: 'down',
-      delay: 0,
-      easing: 'easeInOut',
-      effects: {
-        depthLevel: { value: 1.5 },
-        scrollOpacity: {
-          enabled: true,
-          startOpacity: 0.8,
-          endOpacity: 1,
-          fadeRange: 0.3,
+/** Single source of truth: tile presentation + the settings it applies. */
+const PRESET_TILES: Array<PresetTile<PresetConfig>> = [
+  {
+    key: 'backdrop',
+    name: __('Backdrop', 'aggressive-apparel'),
+    description: __(
+      'Slow drift behind the focal plane — for section background layers',
+      'aggressive-apparel'
+    ),
+    value: {
+      name: 'Backdrop',
+      settings: {
+        enabled: true,
+        speed: 0.3,
+        direction: 'down',
+        delay: 0,
+        easing: 'linear',
+        effects: {
+          depthLevel: { value: 0.5 },
         },
       },
     },
   },
-  dramatic: {
-    name: 'Dramatic',
-    settings: {
-      enabled: true,
-      speed: 1.5,
-      direction: 'down',
-      delay: 0,
-      easing: 'easeOut',
-      effects: {
-        depthLevel: { value: 2.0 },
-        zoom: {
-          enabled: true,
-          type: 'in',
-          intensity: 0.15,
-        },
-        scrollOpacity: {
-          enabled: true,
-          startOpacity: 0,
-          endOpacity: 1,
-          fadeRange: 0.5,
+  {
+    key: 'subtle',
+    name: __('Subtle', 'aggressive-apparel'),
+    description: __(
+      'Gentle drift with a hint of depth — safe everywhere',
+      'aggressive-apparel'
+    ),
+    value: {
+      name: 'Subtle',
+      settings: {
+        enabled: true,
+        speed: 0.5,
+        direction: 'down',
+        delay: 0,
+        easing: 'easeOut',
+        effects: {
+          depthLevel: { value: 1.2 },
         },
       },
     },
   },
-};
+  {
+    key: 'float',
+    name: __('Float', 'aggressive-apparel'),
+    description: __(
+      'Airy movement that fades in as it scrolls',
+      'aggressive-apparel'
+    ),
+    value: {
+      name: 'Float',
+      settings: {
+        enabled: true,
+        speed: 0.8,
+        direction: 'down',
+        delay: 0,
+        easing: 'easeInOut',
+        effects: {
+          depthLevel: { value: 1.5 },
+          scrollOpacity: {
+            enabled: true,
+            startOpacity: 0.8,
+            endOpacity: 1,
+            fadeRange: 0.3,
+          },
+        },
+      },
+    },
+  },
+  {
+    key: 'dramatic',
+    name: __('Dramatic', 'aggressive-apparel'),
+    description: __(
+      'Fast, deep motion with zoom and fade — for hero moments',
+      'aggressive-apparel'
+    ),
+    value: {
+      name: 'Dramatic',
+      settings: {
+        enabled: true,
+        speed: 1.5,
+        direction: 'down',
+        delay: 0,
+        easing: 'easeOut',
+        effects: {
+          depthLevel: { value: 2.0 },
+          zoom: {
+            enabled: true,
+            type: 'in',
+            intensity: 0.15,
+          },
+          scrollOpacity: {
+            enabled: true,
+            startOpacity: 0,
+            endOpacity: 1,
+            fadeRange: 0.5,
+          },
+        },
+      },
+    },
+  },
+];
+
+interface EffectPresetsProps {
+  /** Current layer settings, used to highlight the matching preset. */
+  settings?: ElementParallaxSettings;
+  onApplyPreset: (_preset: PresetConfig) => void;
+  onReset: () => void;
+}
 
 export const EffectPresets = ({
+  settings,
   onApplyPreset,
   onReset,
 }: EffectPresetsProps) => {
+  const activeKey = settings
+    ? findActivePresetKey(
+        PRESET_TILES.map(tile => ({
+          key: tile.key,
+          value: tile.value.settings,
+        })),
+        settings
+      )
+    : null;
+
   return (
-    <div
-      style={{
-        ...EDITOR_FIELDSET_STYLE,
-        marginBottom: '16px',
-      }}
-    >
-      <div
-        style={{
-          ...EDITOR_META_TEXT_STYLE,
-          fontSize: '11px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          marginBottom: '8px',
-        }}
-      >
-        {__('Quick Presets', 'aggressive-apparel')}
-      </div>
-      <ButtonGroup style={{ display: 'flex', gap: '8px' }}>
-        <Button
-          variant='secondary'
-          onClick={() => onApplyPreset(PRESETS.subtle)}
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            padding: '12px 8px',
-            height: 'auto',
-          }}
-        >
-          {subtleIcon}
-          <span style={{ fontSize: '11px' }}>
-            {__('Subtle', 'aggressive-apparel')}
-          </span>
-        </Button>
-        <Button
-          variant='secondary'
-          onClick={() => onApplyPreset(PRESETS.float)}
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            padding: '12px 8px',
-            height: 'auto',
-          }}
-        >
-          {floatIcon}
-          <span style={{ fontSize: '11px' }}>
-            {__('Float', 'aggressive-apparel')}
-          </span>
-        </Button>
-        <Button
-          variant='secondary'
-          onClick={() => onApplyPreset(PRESETS.dramatic)}
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            padding: '12px 8px',
-            height: 'auto',
-          }}
-        >
-          {dramaticIcon}
-          <span style={{ fontSize: '11px' }}>
-            {__('Dramatic', 'aggressive-apparel')}
-          </span>
-        </Button>
-      </ButtonGroup>
-      <Button
-        variant='tertiary'
-        size='small'
-        onClick={onReset}
-        style={{ marginTop: '8px', width: '100%' }}
-        isDestructive
-      >
-        {__('Reset to Defaults', 'aggressive-apparel')}
-      </Button>
-    </div>
+    <PresetPicker
+      presets={PRESET_TILES}
+      activeKey={activeKey}
+      onApply={tile => onApplyPreset(tile.value)}
+      onReset={onReset}
+    />
   );
 };

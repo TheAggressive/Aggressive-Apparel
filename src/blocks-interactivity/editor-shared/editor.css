@@ -1,0 +1,85 @@
+/**
+ * Shared inspector UI (PresetPicker) for Parallax + Animate On Scroll.
+ *
+ * Imported by each block's editor.css. Renders in the editor CHROME
+ * (sidebar), so colors follow WordPress admin conventions — component
+ * CSS variables and --wp-admin-theme-color — not theme `--aa-*` tokens,
+ * which don't resolve outside the canvas (see src/utils/editor-style-tokens.ts).
+ */
+
+.aa-preset-picker {
+	margin-bottom: 16px;
+}
+
+.aa-preset-picker__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.aa-preset-picker__label {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wp-components-color-foreground);
+}
+
+.aa-preset-picker__reset.components-button {
+	height: auto;
+	padding: 0;
+	font-size: 11px;
+	text-decoration: none;
+	color: var(--wp-components-color-gray-700);
+
+	&:hover:not(:disabled) {
+		color: var(--wp-admin-theme-color);
+	}
+}
+
+.aa-preset-picker__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.aa-preset-picker__tile.components-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	height: auto;
+	min-height: 40px;
+	padding: 8px 10px;
+	border: 1px solid
+		color-mix(in srgb, var(--wp-components-color-foreground) 14%, transparent);
+	border-radius: 2px;
+	background: var(--wp-components-color-background);
+	box-shadow: none;
+	white-space: normal;
+	text-align: center;
+
+	&:hover:not(:disabled) {
+		border-color: var(--wp-admin-theme-color);
+		color: var(--wp-admin-theme-color);
+		box-shadow: none;
+	}
+
+	&.is-active {
+		border-color: var(--wp-admin-theme-color);
+		box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
+		color: var(--wp-admin-theme-color);
+	}
+}
+
+.aa-preset-picker__name {
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.3;
+}
+
+.aa-preset-picker__check {
+	flex: none;
+	fill: currentcolor;
+}

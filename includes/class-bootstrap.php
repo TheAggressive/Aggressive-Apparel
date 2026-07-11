@@ -152,6 +152,7 @@ class Bootstrap {
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
 		$this->container->register( 'favicon', fn() => new Core\Favicon() );
+		$this->container->register( 'legal_identity', fn() => new Core\Legal_Identity() );
 		$this->container->register( 'color_scheme_bootstrap', fn() => new Core\Color_Scheme_Bootstrap() );
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
@@ -227,6 +228,7 @@ class Bootstrap {
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
 		$this->container->get( 'adaptive_colors' )->init();
 		$this->container->get( 'favicon' )->init();
+		$this->container->get( 'legal_identity' )->init();
 		$this->container->get( 'color_scheme_bootstrap' )->init();
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
@@ -236,6 +238,7 @@ class Bootstrap {
 		// Custom blocks.
 		Blocks\Blocks::init();
 		Blocks\Icon_Block::init();
+		Blocks\Copyright::init();
 	}
 
 	/**

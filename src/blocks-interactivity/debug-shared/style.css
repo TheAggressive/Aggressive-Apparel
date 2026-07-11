@@ -1,0 +1,501 @@
+/**
+ * Shared scroll-debug styles (Parallax + Animate On Scroll).
+ *
+ * Imported by each block's style.css. Duplicated in the compiled output
+ * of both blocks by design — a page usually debugs one block type, and
+ * identical selectors collapse harmlessly when both load.
+ *
+ * Design notes:
+ * - The panel uses a fixed dark "devtools" chrome with near-opaque
+ *   background: debug UI floats over arbitrary (often animating) site
+ *   content, so it must not depend on the page's color scheme, and
+ *   backdrop blur over moving parallax layers makes text shimmer.
+ * - No backdrop-filter on the full-viewport boundary overlays: it
+ *   repaints on every scroll frame and skews the panel's own
+ *   frame-time readings.
+ * - All font sizes ≥ 0.75rem; numeric values are monospace/tabular so
+ *   they don't wobble while updating.
+ */
+
+/* ==========================================================================
+   Shared palette (scoped to debug roots, not :root)
+   ========================================================================== */
+
+.aa-dbg-panel,
+.aa-dbg-boundary,
+.aa-dbg-element {
+	--aa-dbg-surface: oklch(21% 0.02 265deg / 97%);
+	--aa-dbg-surface-raised: oklch(27% 0.02 265deg);
+	--aa-dbg-border: oklch(100% 0 0deg / 14%);
+	--aa-dbg-text: oklch(96% 0.005 265deg);
+	--aa-dbg-text-muted: oklch(78% 0.01 265deg);
+	--aa-dbg-on-accent: oklch(100% 0 0deg);
+	--aa-dbg-ink: oklch(0% 0 0deg);
+	--aa-dbg-good: var(--aa-color-success, oklch(52.7% 0.137 150.1deg));
+	--aa-dbg-warn: var(--aa-color-warning, oklch(55.3% 0.174 38.4deg));
+	--aa-dbg-bad: var(--aa-color-error, oklch(57.7% 0.215 27.3deg));
+	--aa-dbg-info: var(--aa-color-info, oklch(48.8% 0.217 264.4deg));
+	--aa-dbg-neutral: var(--aa-color-neutral, oklch(55.1% 0.023 264.4deg));
+	--aa-dbg-effective: oklch(58% 0.2 300deg);
+	--aa-dbg-mono: ui-monospace, "SF Mono", "Cascadia Mono", menlo, consolas, monospace;
+	--aa-dbg-sans: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
+}
+
+/* ==========================================================================
+   Boundary overlays (viewport-fixed root boxes)
+   ========================================================================== */
+
+.aa-dbg-boundary {
+	position: fixed;
+	pointer-events: none;
+	z-index: 99990;
+
+	/* Inset is set from JS to mirror the observer rootMargin. */
+
+	&.aa-dbg-boundary--configured {
+		border: 2px dashed color-mix(in oklch, var(--aa-dbg-info) 80%, var(--aa-dbg-on-accent));
+		background: color-mix(in oklch, var(--aa-dbg-info) 5%, transparent);
+	}
+
+	&.aa-dbg-boundary--effective {
+		border: 2px dotted color-mix(in oklch, var(--aa-dbg-effective) 85%, var(--aa-dbg-on-accent));
+		background: none;
+	}
+
+	.aa-dbg-boundary__label {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		font-family: var(--aa-dbg-sans);
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1;
+		white-space: nowrap;
+		padding: 0.375rem 0.625rem;
+		border-radius: 999px;
+		color: var(--aa-dbg-on-accent);
+		box-shadow: 0 1px 4px oklch(0% 0 0deg / 35%);
+	}
+
+	&.aa-dbg-boundary--configured .aa-dbg-boundary__label {
+		top: 0.5rem;
+		background: var(--aa-dbg-info);
+	}
+
+	/* Bottom-anchored so the two labels never overlap. */
+	&.aa-dbg-boundary--effective .aa-dbg-boundary__label {
+		bottom: 0.5rem;
+		background: var(--aa-dbg-effective);
+	}
+}
+
+/* ==========================================================================
+   Element overlay: zone, trigger lines, line labels
+   ========================================================================== */
+
+.aa-dbg-element {
+	position: absolute;
+	pointer-events: none;
+	z-index: 99995;
+
+	/* Outline the observed element itself — animate-on-scroll content sits
+	   at opacity: 0 before entry, so without this the element is invisible
+	   while debugging. Identity-colored (per-instance hue set from JS as
+	   --aa-dbg-identity) so multiple debugged elements are distinguishable;
+	   state stays on the phase-colored lines/zone/badges. */
+	outline: 2px dashed color-mix(in oklch, var(--aa-dbg-identity, var(--aa-dbg-phase)) 80%, transparent);
+	outline-offset: 2px;
+
+	/* Phase color cascades to outline/zone/lines/labels. */
+	--aa-dbg-phase: var(--aa-dbg-neutral);
+
+	&.is-approaching {
+		--aa-dbg-phase: var(--aa-dbg-warn);
+	}
+
+	&.is-active {
+		--aa-dbg-phase: var(--aa-dbg-good);
+	}
+
+	/* Instance tag above the outline; matches the panel subtitle so you
+	   can tell which panel drives which element. */
+	.aa-dbg-element__tag {
+		position: absolute;
+		top: -0.25rem;
+		left: 0;
+		transform: translateY(-100%);
+		max-width: calc(100% - 0.5rem);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-family: var(--aa-dbg-mono);
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1;
+		white-space: nowrap;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.375rem;
+		background: var(--aa-dbg-surface);
+		color: var(--aa-dbg-text);
+		border: 1px solid color-mix(in oklch, var(--aa-dbg-identity, var(--aa-dbg-phase)) 80%, transparent);
+	}
+}
+
+.aa-dbg-zone {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	background: linear-gradient(to bottom, color-mix(in oklch, var(--aa-dbg-phase) 16%, transparent), transparent);
+	transition: background 0.3s ease;
+}
+
+.aa-dbg-line {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 0;
+	transition: border-color 0.3s ease;
+
+	&.aa-dbg-line--entry {
+		border-top: 2px solid var(--aa-dbg-phase);
+		box-shadow: 0 0 6px color-mix(in oklch, var(--aa-dbg-phase) 45%, transparent);
+	}
+
+	&.aa-dbg-line--entry-top {
+		border-top: 2px dashed color-mix(in oklch, var(--aa-dbg-phase) 55%, transparent);
+	}
+
+	&.aa-dbg-line--exit {
+		border-top: 2px dashed color-mix(in oklch, var(--aa-dbg-info) 85%, var(--aa-dbg-on-accent));
+	}
+}
+
+.aa-dbg-line-label {
+	position: absolute;
+	transform: translateY(-50%);
+	font-family: var(--aa-dbg-sans);
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
+	padding: 0.25rem 0.5rem;
+	border-radius: 999px;
+	color: var(--aa-dbg-on-accent);
+	box-shadow: 0 1px 3px oklch(0% 0 0deg / 30%);
+	transition: background-color 0.3s ease;
+
+	&.aa-dbg-line-label--entry {
+		left: 0.5rem;
+		background: var(--aa-dbg-phase);
+	}
+
+	&.aa-dbg-line-label--entry-top {
+		right: 0.5rem;
+		background: color-mix(in oklch, var(--aa-dbg-phase) 75%, var(--aa-dbg-ink));
+	}
+
+	&.aa-dbg-line-label--exit {
+		right: 0.5rem;
+		background: var(--aa-dbg-info);
+	}
+}
+
+/* ==========================================================================
+   Floating panel
+   ========================================================================== */
+
+.aa-dbg-panel {
+	position: fixed;
+	z-index: 99999;
+	width: min(19rem, calc(100vw - 2rem));
+	background: var(--aa-dbg-surface);
+	border: 1px solid var(--aa-dbg-border);
+	border-radius: 0.625rem;
+	box-shadow: 0 12px 32px oklch(0% 0 0deg / 45%);
+	color: var(--aa-dbg-text);
+	font-family: var(--aa-dbg-sans);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+
+	&.is-dragging {
+		opacity: 0.92;
+	}
+
+	.aa-dbg-panel__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.625rem 0.875rem;
+		border-bottom: 1px solid var(--aa-dbg-border);
+		cursor: move;
+		user-select: none;
+		touch-action: none;
+	}
+
+	.aa-dbg-panel__title {
+		font-size: 0.8125rem;
+		font-weight: 650;
+		letter-spacing: 0.02em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.aa-dbg-panel__subtitle {
+		margin-left: 0.5rem;
+		font-family: var(--aa-dbg-mono);
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--aa-dbg-text-muted);
+	}
+
+	/* Identity dot — background set from JS, matches the element outline. */
+	.aa-dbg-panel__dot {
+		display: inline-block;
+		width: 0.5rem;
+		height: 0.5rem;
+		margin-right: 0.375rem;
+		border-radius: 50%;
+		vertical-align: baseline;
+	}
+
+	.aa-dbg-panel__collapse {
+		flex: none;
+		background: transparent;
+		border: none;
+		color: var(--aa-dbg-text-muted);
+		cursor: pointer;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 0.375rem;
+		font-size: 1rem;
+		line-height: 1;
+
+		&:hover {
+			color: var(--aa-dbg-text);
+			background: var(--aa-dbg-surface-raised);
+		}
+	}
+
+	.aa-dbg-panel__warning {
+		margin: 0.5rem 0.625rem 0;
+		padding: 0.5rem 0.625rem;
+		border-radius: 0.5rem;
+		background: color-mix(in oklch, var(--aa-dbg-warn) 18%, var(--aa-dbg-surface));
+		border: 1px solid color-mix(in oklch, var(--aa-dbg-warn) 45%, transparent);
+		color: var(--aa-dbg-text);
+		font-size: 0.75rem;
+	}
+
+	.aa-dbg-panel__body {
+		padding: 0.375rem 0.625rem 0.625rem;
+	}
+
+	.aa-dbg-section + .aa-dbg-section {
+		margin-top: 0.25rem;
+		border-top: 1px solid var(--aa-dbg-border);
+	}
+
+	.aa-dbg-section__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 0.5rem 0.25rem;
+		background: transparent;
+		border: none;
+		color: var(--aa-dbg-text-muted);
+		cursor: pointer;
+		font-family: inherit;
+		font-size: 0.75rem;
+		font-weight: 650;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+
+		&:hover {
+			color: var(--aa-dbg-text);
+		}
+	}
+
+	.aa-dbg-section__body {
+		padding: 0.125rem 0.25rem 0.375rem;
+	}
+
+	.aa-dbg-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.3125rem 0;
+	}
+
+	.aa-dbg-row--meter {
+		display: block;
+
+		.aa-dbg-row__head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+			margin-bottom: 0.25rem;
+		}
+	}
+
+	.aa-dbg-row__label {
+		color: var(--aa-dbg-text-muted);
+	}
+
+	.aa-dbg-row__value {
+		color: var(--aa-dbg-text);
+		font-family: var(--aa-dbg-mono);
+		font-size: 0.75rem;
+		font-variant-numeric: tabular-nums;
+		text-align: right;
+	}
+
+	/* State / status badges */
+	.aa-dbg-badge {
+		display: inline-block;
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		font-weight: 650;
+
+		&.aa-dbg-badge--waiting,
+		&.aa-dbg-badge--idle {
+			background: color-mix(in oklch, var(--aa-dbg-neutral) 30%, transparent);
+			color: var(--aa-dbg-text-muted);
+		}
+
+		&.aa-dbg-badge--approaching {
+			background: color-mix(in oklch, var(--aa-dbg-warn) 30%, transparent);
+			color: color-mix(in oklch, var(--aa-dbg-warn) 45%, var(--aa-dbg-on-accent));
+		}
+
+		&.aa-dbg-badge--active,
+		&.aa-dbg-badge--good {
+			background: color-mix(in oklch, var(--aa-dbg-good) 30%, transparent);
+			color: color-mix(in oklch, var(--aa-dbg-good) 40%, var(--aa-dbg-on-accent));
+		}
+
+		&.aa-dbg-badge--lag,
+		&.aa-dbg-badge--jitter {
+			background: color-mix(in oklch, var(--aa-dbg-warn) 30%, transparent);
+			color: color-mix(in oklch, var(--aa-dbg-warn) 45%, var(--aa-dbg-on-accent));
+		}
+
+		&.aa-dbg-badge--poor {
+			background: color-mix(in oklch, var(--aa-dbg-bad) 30%, transparent);
+			color: color-mix(in oklch, var(--aa-dbg-bad) 50%, var(--aa-dbg-on-accent));
+		}
+	}
+
+	/* Legend — explains each on-page overlay with a color-keyed swatch */
+	.aa-dbg-legend {
+		display: grid;
+		gap: 0.4375rem;
+	}
+
+	.aa-dbg-legend__item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.aa-dbg-legend__text {
+		font-size: 0.75rem;
+		line-height: 1.35;
+		color: var(--aa-dbg-text-muted);
+	}
+
+	.aa-dbg-legend__swatch {
+		flex: none;
+		width: 1.125rem;
+		height: 0.75rem;
+		box-sizing: border-box;
+
+		&.aa-dbg-legend__swatch--boundary {
+			border: 2px dashed color-mix(in oklch, var(--aa-dbg-info) 80%, var(--aa-dbg-on-accent));
+			background: color-mix(in oklch, var(--aa-dbg-info) 8%, transparent);
+		}
+
+		&.aa-dbg-legend__swatch--effective {
+			border: 2px dotted color-mix(in oklch, var(--aa-dbg-effective) 85%, var(--aa-dbg-on-accent));
+		}
+
+		&.aa-dbg-legend__swatch--element {
+			border: 2px dashed color-mix(in oklch, var(--aa-dbg-identity, var(--aa-dbg-neutral)) 80%, transparent);
+		}
+
+		&.aa-dbg-legend__swatch--entry {
+			height: 0;
+			border-top: 2px solid var(--aa-dbg-good);
+		}
+
+		&.aa-dbg-legend__swatch--entry-top {
+			height: 0;
+			border-top: 2px dashed color-mix(in oklch, var(--aa-dbg-good) 55%, transparent);
+		}
+
+		&.aa-dbg-legend__swatch--exit {
+			height: 0;
+			border-top: 2px dashed color-mix(in oklch, var(--aa-dbg-info) 85%, var(--aa-dbg-on-accent));
+		}
+
+		&.aa-dbg-legend__swatch--zone {
+			background: linear-gradient(to bottom, color-mix(in oklch, var(--aa-dbg-good) 30%, transparent), transparent);
+		}
+	}
+
+	/* Meters (visibility / progress) */
+	.aa-dbg-meter {
+		position: relative;
+		height: 0.375rem;
+		border-radius: 999px;
+		background: var(--aa-dbg-surface-raised);
+		overflow: hidden;
+	}
+
+	.aa-dbg-meter__fill {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: 0%;
+		border-radius: inherit;
+		background: linear-gradient(to right, color-mix(in oklch, var(--aa-dbg-info) 75%, var(--aa-dbg-on-accent)), var(--aa-dbg-good));
+	}
+
+	.aa-dbg-meter__marker {
+		position: absolute;
+		top: -0.125rem;
+		bottom: -0.125rem;
+		width: 2px;
+		transform: translateX(-1px);
+		background: var(--aa-dbg-on-accent);
+		opacity: 0.85;
+	}
+}
+
+/* Compact panel on small viewports (the panel is body-portaled and
+   position: fixed, so the viewport — not the block — is the right
+   thing to respond to). */
+@media (width <= 480px) {
+
+	.aa-dbg-panel {
+		width: min(16rem, calc(100vw - 1rem));
+		font-size: 0.75rem;
+
+		.aa-dbg-panel__header {
+			padding: 0.5rem 0.625rem;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-dbg-panel,
+	.aa-dbg-element,
+	.aa-dbg-zone,
+	.aa-dbg-line,
+	.aa-dbg-line-label {
+		transition: none;
+	}
+}

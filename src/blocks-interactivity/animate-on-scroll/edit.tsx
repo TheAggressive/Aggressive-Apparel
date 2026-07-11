@@ -104,6 +104,7 @@ export default function Edit({
           initialOpen={true}
         >
           <AnimationPresets
+            attributes={attributes}
             onApplyPreset={preset => setAttributes(preset.attributes)}
           />
 

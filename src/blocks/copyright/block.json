@@ -2,24 +2,46 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/copyright",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "title": "Copyright",
   "category": "aggressive-apparel",
-  "description": "Dynamic copyright notice with auto-updating year and editable suffix text.",
-  "keywords": ["copyright", "year", "footer", "legal"],
+  "description": "Dynamic copyright notice with legal identity, Schema.org markup, and Privacy/Terms links.",
+  "keywords": [
+    "copyright",
+    "year",
+    "footer",
+    "legal",
+    "llc",
+    "inc",
+    "privacy",
+    "terms"
+  ],
   "textdomain": "aggressive-apparel",
   "attributes": {
+    "ownerSource": {
+      "type": "string",
+      "default": "site_title",
+      "enum": ["site_title", "legal_name", "custom"]
+    },
     "ownerName": {
       "type": "string",
-      "default": "Aggressive Apparel"
+      "default": ""
+    },
+    "legalEntity": {
+      "type": "string",
+      "default": ""
+    },
+    "legalEntityCustom": {
+      "type": "string",
+      "default": ""
     },
     "showStartYear": {
       "type": "boolean",
       "default": false
     },
     "startYear": {
-      "type": "string",
-      "default": "2024"
+      "type": "number",
+      "default": 2024
     },
     "separator": {
       "type": "string",
@@ -33,6 +55,19 @@
       "type": "string",
       "default": ""
     },
+    "showLegalLinks": {
+      "type": "boolean",
+      "default": false
+    },
+    "legalLinksSeparator": {
+      "type": "string",
+      "default": "|",
+      "enum": ["|", "·", "•", "–", "-", "/"]
+    },
+    "showSchema": {
+      "type": "boolean",
+      "default": true
+    },
     "textAlign": {
       "type": "string",
       "default": ""
@@ -40,20 +75,33 @@
   },
   "supports": {
     "html": false,
+    "anchor": true,
     "color": {
       "text": true,
       "background": true
     },
     "typography": {
       "fontSize": true,
+      "fontFamily": true,
       "fontWeight": true,
-      "lineHeight": true
+      "lineHeight": true,
+      "letterSpacing": true,
+      "textDecoration": true
     },
     "spacing": {
       "margin": true,
       "padding": true
     },
     "className": true
+  },
+  "example": {
+    "attributes": {
+      "ownerSource": "custom",
+      "ownerName": "Aggressive Apparel",
+      "legalEntity": "LLC",
+      "suffix": ". All rights reserved.",
+      "showLegalLinks": true
+    }
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

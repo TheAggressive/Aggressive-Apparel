@@ -1,3 +1,10 @@
+# [1.145.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.144.0...v1.145.0) (2026-07-11)
+
+
+### Features
+
+* enhance block debug tooling for parallax and animate-on-scroll ([49232bf](https://github.com/TheAggressive/Aggressive-Apparel/commit/49232bf1cad33bf864c18092031689366ce83e0f))
+
 # [1.144.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.143.1...v1.144.0) (2026-07-11)
 
 

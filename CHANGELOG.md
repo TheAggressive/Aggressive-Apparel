@@ -1,3 +1,15 @@
+# [1.149.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.148.0...v1.149.0) (2026-07-12)
+
+
+### Bug Fixes
+
+* improve code readability and formatting in split-story components ([acc3862](https://github.com/TheAggressive/Aggressive-Apparel/commit/acc386215e071bc9d051321d661e0fb4c9cd6159))
+
+
+### Features
+
+* add Playwright e2e testing support and update split-story block ([64766db](https://github.com/TheAggressive/Aggressive-Apparel/commit/64766dbcbecab1602f061e479972ca9b838f1de1))
+
 # [1.148.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.147.1...v1.148.0) (2026-07-12)
 
 

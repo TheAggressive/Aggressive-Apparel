@@ -1,3 +1,10 @@
+## [1.147.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.147.0...v1.147.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* update SVG fill styles for social links in navigation panel ([b59b4b4](https://github.com/TheAggressive/Aggressive-Apparel/commit/b59b4b4245ff077275d3ef3fe85b2f18dc02c3cb))
+
 # [1.147.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.146.0...v1.147.0) (2026-07-11)
 
 

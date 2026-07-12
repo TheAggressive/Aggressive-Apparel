@@ -3,6 +3,19 @@
  *
  * @package Aggressive_Apparel
  */
+.site-header__customer-links
+  .wp-block-woocommerce-customer-account
+  .wc-block-customer-account__account-icon {
+  transition: color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
+}
+
+.site-header__customer-links
+  .wp-block-woocommerce-customer-account
+  .wc-block-customer-account__link:is(:hover, :focus-visible)
+  .wc-block-customer-account__account-icon {
+  color: var(--aa-color-accent);
+}
+
 @media (width <= 1000px) {
 
     /* 2. Give all items equal width so the logo stays perfectly centered */

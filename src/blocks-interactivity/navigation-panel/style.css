@@ -101,7 +101,8 @@
    .wp-social-link svg) has specificity 0-3-1 and would override fill: currentcolor
    on its own. !important ensures the panel's color cascade always wins, letting
    has-*-color classes set on individual blocks in the editor control icon color. */
-.aa-nav__panel svg {
+.aa-nav__panel .wp-block-social-links.is-style-logos-only .wp-social-link svg,
+.aa-nav__panel .wp-block-social-links .wp-social-link svg {
   fill: currentcolor !important; /* stylelint-disable-line declaration-no-important */
 }
 

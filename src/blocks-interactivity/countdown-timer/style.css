@@ -88,7 +88,7 @@
 	&--minimal {
 		--aa-countdown-gap: 0.35rem;
 		--aa-countdown-label-color: currentcolor;
-		--aa-countdown-label-font-size: 0.72rem;
+		--aa-countdown-label-font-size: 0.75rem;
 		--aa-countdown-label-font-weight: 500;
 		--aa-countdown-value-font-size: 0.82rem;
 		--aa-countdown-value-font-weight: 600;
@@ -104,7 +104,7 @@
 	}
 
 	&--card {
-		--aa-countdown-label-font-size: 0.72rem;
+		--aa-countdown-label-font-size: 0.75rem;
 		--aa-countdown-value-font-size: 0.78rem;
 		--aa-countdown-unit-font-size: 0.78rem;
 
@@ -176,7 +176,7 @@
 
 	&--pill {
 		--aa-countdown-value-font-size: var(--wp--preset--font-size--small);
-		--aa-countdown-unit-font-size: 0.72rem;
+		--aa-countdown-unit-font-size: 0.75rem;
 		--aa-countdown-surface-padding: 0.35rem 0.75rem;
 
 		display: inline-flex;
@@ -424,11 +424,16 @@
 		}
 	}
 
-	/* Expired state. */
+	/* Expired state (view.ts toggles via context.isExpired): only the
+	   "Sale ended" label remains — zeroed segments would read as a live sale. */
 	&--expired {
 
 		.aggressive-apparel-countdown__label {
 			color: currentcolor;
+		}
+
+		.aggressive-apparel-countdown__segment {
+			display: none;
 		}
 	}
 }

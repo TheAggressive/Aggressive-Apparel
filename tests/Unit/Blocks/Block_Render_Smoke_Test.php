@@ -681,6 +681,25 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Dark mode toggle maps stored preset references to preset variables, so
+	 * adaptive light-dark() palette values survive safecss_filter_attr().
+	 *
+	 * @return void
+	 */
+	public function test_dark_mode_toggle_maps_preset_color_references(): void {
+		$html = $this->render(
+			'dark-mode-toggle',
+			array(
+				'iconColor'             => 'var:preset|color|accent',
+				'toggleBackgroundColor' => 'var:preset|color|transparent',
+			)
+		);
+
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-icon-color:var(--wp--preset--color--accent)', $html );
+		$this->assertStringContainsString( '--aa-dark-mode-toggle-bg:var(--wp--preset--color--transparent)', $html );
+	}
+
+	/**
 	 * Product rating renders brand marks for a reviewed product.
 	 *
 	 * @return void
@@ -908,6 +927,18 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'aggressive-apparel-countdown__segment', $html );
 		$this->assertStringContainsString( 'Sale ends in', $html );
 		$this->assertGreaterThanOrEqual( 4, substr_count( $html, 'aggressive-apparel-countdown__segment' ) );
+
+		// Accessible timer semantics: the wrapper carries a human-readable
+		// label while the visual d/h/m/s segments are hidden from AT.
+		$this->assertStringContainsString( 'role="timer"', $html );
+		$this->assertStringContainsString( 'aria-label="Sale ends in ', $html );
+		$this->assertStringContainsString( 'data-wp-bind--aria-label="context.ariaLabel"', $html );
+		$this->assertSame( 5, substr_count( $html, 'aria-hidden="true"' ) );
+
+		// Fallback contract for AJAX-injected copies: the dynamic scanner in
+		// view.ts ticks non-hydrated markup via these plain attributes.
+		$this->assertStringContainsString( 'data-aa-countdown="', $html );
+		$this->assertSame( 4, substr_count( $html, 'data-aa-countdown-segment="' ) );
 	}
 
 	/**

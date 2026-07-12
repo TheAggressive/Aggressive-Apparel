@@ -32,6 +32,12 @@ import {
   type CountdownDisplayStyle,
   type CountdownTimerAttributes,
 } from './display-styles';
+import {
+  flattenPresetColors,
+  fromPresetColorRef,
+  toPresetColorRef,
+  type PresetColorOrigin,
+} from '../../utils/preset-colors';
 
 const COUNTDOWN_SEGMENTS = ['d', 'h', 'm', 's'] as const;
 
@@ -74,6 +80,9 @@ export default function Edit({
 }: BlockEditProps<CountdownTimerAttributes>) {
   const displayStyleOptions = useMemo(getCountdownDisplayStyleOptions, []);
   const colorGradientSettings = useMultipleOriginColorsAndGradients();
+  const presetColors = flattenPresetColors(
+    colorGradientSettings.colors as PresetColorOrigin[] | undefined
+  );
   const [remaining, setRemaining] = useState<[number, number, number, number]>(
     () => getRemaining(attributes.endDateTime)
   );
@@ -205,27 +214,47 @@ export default function Edit({
           settings={[
             {
               label: __('Sale label', 'aggressive-apparel'),
-              colorValue: attributes.saleLabelColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.saleLabelColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ saleLabelColor: value ?? '' }),
+                setAttributes({
+                  saleLabelColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Time numbers', 'aggressive-apparel'),
-              colorValue: attributes.timeValueColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.timeValueColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ timeValueColor: value ?? '' }),
+                setAttributes({
+                  timeValueColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Unit labels', 'aggressive-apparel'),
-              colorValue: attributes.unitLabelColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.unitLabelColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ unitLabelColor: value ?? '' }),
+                setAttributes({
+                  unitLabelColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Timer border', 'aggressive-apparel'),
-              colorValue: attributes.timerBorderColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.timerBorderColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ timerBorderColor: value ?? '' }),
+                setAttributes({
+                  timerBorderColor: toPresetColorRef(value, presetColors),
+                }),
             },
           ]}
           __experimentalIsRenderedInSidebar

@@ -17,9 +17,13 @@ jest.mock(
 import {
   fetchProduct,
   formatPrice,
+  isKeyboardActivation,
+  renderMessage,
+  renderProduct,
   safeUrl,
   supportsHoverInteraction,
 } from '../view';
+import type { LookbookI18n } from '../view';
 
 const mockFetchProduct = (product: unknown, ok = true) =>
   Promise.resolve({
@@ -152,5 +156,83 @@ describe('supportsHoverInteraction', () => {
     window.matchMedia = jest.fn().mockReturnValue({ matches: false });
 
     expect(supportsHoverInteraction()).toBe(false);
+  });
+});
+
+describe('isKeyboardActivation', () => {
+  it('treats detail-0 clicks (Enter/Space on a button) as keyboard', () => {
+    expect(isKeyboardActivation(new MouseEvent('click', { detail: 0 }))).toBe(
+      true
+    );
+  });
+
+  it('treats pointer clicks and non-mouse events as not keyboard', () => {
+    expect(isKeyboardActivation(new MouseEvent('click', { detail: 1 }))).toBe(
+      false
+    );
+    expect(isKeyboardActivation(new Event('focus'))).toBe(false);
+    expect(isKeyboardActivation(undefined)).toBe(false);
+  });
+});
+
+describe('keyboard focus lands in the rendered card', () => {
+  const I18N: LookbookI18n = {
+    loading: 'Loading product.',
+    noProduct: 'No product selected.',
+    loadError: 'Product could not be loaded.',
+    viewProduct: 'View product',
+    viewProductName: 'View product: %s',
+  };
+
+  const buildRoot = (): HTMLElement => {
+    const root = document.createElement('div');
+    root.className = 'aggressive-apparel-lookbook';
+    root.innerHTML =
+      '<div class="aggressive-apparel-lookbook__popover-content"></div>';
+    document.body.appendChild(root);
+    return root;
+  };
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('focuses the product link on keyboard-initiated renders', () => {
+    const root = buildRoot();
+    renderProduct(
+      root,
+      { id: 1, name: 'Hoodie', permalink: '/shop/hoodie' },
+      I18N,
+      true
+    );
+
+    const link = root.querySelector(
+      'a.aggressive-apparel-lookbook__product-card'
+    );
+    expect(link).not.toBeNull();
+    expect(document.activeElement).toBe(link);
+  });
+
+  it('does not steal focus on pointer/hover renders', () => {
+    const root = buildRoot();
+    renderProduct(
+      root,
+      { id: 1, name: 'Hoodie', permalink: '/shop/hoodie' },
+      I18N,
+      false
+    );
+
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('focuses the message card so errors are not a dead end', () => {
+    const root = buildRoot();
+    renderMessage(root, I18N.loadError, true);
+
+    const card = root.querySelector<HTMLElement>(
+      '.aggressive-apparel-lookbook__product-card--message'
+    );
+    expect(card?.tabIndex).toBe(-1);
+    expect(document.activeElement).toBe(card);
   });
 });

@@ -26,6 +26,12 @@ import type { BlockEditProps } from '@wordpress/blocks';
 import type { CSSProperties } from 'react';
 
 import { MOON_PATH, SUN_PATH } from '../../utils/editor-color-scheme-icons';
+import {
+  flattenPresetColors,
+  fromPresetColorRef,
+  toPresetColorRef,
+  type PresetColorOrigin,
+} from '../../utils/preset-colors';
 
 import './editor.css';
 
@@ -158,6 +164,9 @@ export default function Edit({
     iconStrokeWidth = 1.75,
   } = attributes;
   const colorGradientSettings = useMultipleOriginColorsAndGradients();
+  const presetColors = flattenPresetColors(
+    colorGradientSettings.colors as PresetColorOrigin[] | undefined
+  );
 
   const displayLabel = label || __('Dark Mode', 'aggressive-apparel');
 
@@ -268,27 +277,50 @@ export default function Edit({
           settings={[
             {
               label: __('Icon', 'aggressive-apparel'),
-              colorValue: attributes.iconColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.iconColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ iconColor: value ?? '' }),
+                setAttributes({
+                  iconColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Icon hover', 'aggressive-apparel'),
-              colorValue: attributes.iconHoverColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.iconHoverColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ iconHoverColor: value ?? '' }),
+                setAttributes({
+                  iconHoverColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Button background', 'aggressive-apparel'),
-              colorValue: attributes.toggleBackgroundColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.toggleBackgroundColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ toggleBackgroundColor: value ?? '' }),
+                setAttributes({
+                  toggleBackgroundColor: toPresetColorRef(value, presetColors),
+                }),
             },
             {
               label: __('Button background hover', 'aggressive-apparel'),
-              colorValue: attributes.toggleBackgroundHoverColor || undefined,
+              colorValue: fromPresetColorRef(
+                attributes.toggleBackgroundHoverColor,
+                presetColors
+              ),
               onColorChange: (value?: string) =>
-                setAttributes({ toggleBackgroundHoverColor: value ?? '' }),
+                setAttributes({
+                  toggleBackgroundHoverColor: toPresetColorRef(
+                    value,
+                    presetColors
+                  ),
+                }),
             },
           ]}
           __experimentalIsRenderedInSidebar

@@ -10,7 +10,7 @@
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import type { LookbookHotspot, StoreApiPrices, StoreApiProduct } from './types';
 
-interface LookbookI18n {
+export interface LookbookI18n {
   loading: string;
   noProduct: string;
   loadError: string;
@@ -45,7 +45,69 @@ const productCache = new Map<string, StoreApiProduct>();
 const productRequestCache = new Map<string, Promise<StoreApiProduct>>();
 const hoverOpenTimers = new WeakMap<HTMLElement, number>();
 const hoverCloseTimers = new WeakMap<HTMLElement, number>();
+// Roots whose next card render should receive focus: the popover sits after
+// every hotspot in the tab order (in hover mode focus can't even cross the
+// gap — blur closes it), so keyboard activation must move focus into the card.
+const pendingKeyboardFocus = new WeakSet<HTMLElement>();
 let viewportListenersAttached = false;
+
+/**
+ * Whether an activation came from the keyboard. Enter/Space on a button
+ * dispatch a click with detail 0 (Chrome/Firefox); Safari reports detail 1,
+ * so fall back to :focus-visible on the trigger — keyboard focus sets it,
+ * mouse-click focus does not.
+ */
+export function isKeyboardActivation(event?: Event): boolean {
+  if (!(event instanceof MouseEvent)) {
+    return false;
+  }
+
+  if (event.detail === 0) {
+    return true;
+  }
+
+  try {
+    return (
+      (event.target as Element | null)
+        ?.closest('[data-aa-hotspot-index]')
+        ?.matches(':focus-visible') ?? false
+    );
+  } catch {
+    // Selector unsupported (old engines/jsdom) — detail 0 already handled.
+    return false;
+  }
+}
+
+/**
+ * Move focus to the card inside an open popover. Returns false when there is
+ * no card yet; a still-loading card records the intent so the upcoming
+ * render receives focus instead.
+ */
+function focusPopoverCard(root: HTMLElement): boolean {
+  const card = root.querySelector<HTMLElement>(
+    '.aggressive-apparel-lookbook__popover-content .aggressive-apparel-lookbook__product-card'
+  );
+
+  if (!card) {
+    return false;
+  }
+
+  if (
+    card.classList.contains(
+      'aggressive-apparel-lookbook__product-card--loading'
+    )
+  ) {
+    pendingKeyboardFocus.add(root);
+    return true;
+  }
+
+  if (!(card instanceof HTMLAnchorElement)) {
+    card.tabIndex = -1;
+  }
+
+  card.focus({ preventScroll: true });
+  return true;
+}
 
 export function supportsHoverInteraction(): boolean {
   return (
@@ -304,7 +366,11 @@ function clearPopover(root: HTMLElement): void {
   }
 }
 
-function renderMessage(root: HTMLElement, message: string): void {
+export function renderMessage(
+  root: HTMLElement,
+  message: string,
+  focusCard = false
+): void {
   const content = root.querySelector<HTMLElement>(
     '.aggressive-apparel-lookbook__popover-content'
   );
@@ -322,6 +388,14 @@ function renderMessage(root: HTMLElement, message: string): void {
   paragraph.textContent = message;
   card.appendChild(paragraph);
   content.replaceChildren(card);
+
+  if (focusCard) {
+    // preventScroll: a scroll jump here would disturb the popover's entry
+    // animation and the user's place on the page.
+    card.tabIndex = -1;
+    card.focus({ preventScroll: true });
+  }
+
   scheduleRootPopoverPlacement(root);
 }
 
@@ -355,10 +429,11 @@ function renderLoading(root: HTMLElement, label: string): void {
   scheduleRootPopoverPlacement(root);
 }
 
-function renderProduct(
+export function renderProduct(
   root: HTMLElement,
   product: StoreApiProduct,
-  i18n: LookbookI18n
+  i18n: LookbookI18n,
+  focusCard = false
 ): void {
   const content = root.querySelector<HTMLElement>(
     '.aggressive-apparel-lookbook__popover-content'
@@ -421,6 +496,11 @@ function renderProduct(
   card.appendChild(action);
 
   content.replaceChildren(card);
+
+  if (focusCard) {
+    card.focus({ preventScroll: true });
+  }
+
   scheduleRootPopoverPlacement(root);
 }
 
@@ -486,6 +566,7 @@ function scheduleHoverClose(root: HTMLElement, ctx: LookbookContext): void {
 function closeActiveHotspot(root: HTMLElement, ctx: LookbookContext): void {
   clearHoverOpenTimer(root);
   clearHoverCloseTimer(root);
+  pendingKeyboardFocus.delete(root);
   ctx.activeHotspot = -1;
   clearPopover(root);
   syncLookbookDOM(root, ctx);
@@ -494,7 +575,8 @@ function closeActiveHotspot(root: HTMLElement, ctx: LookbookContext): void {
 function activateHotspot(
   event: Event | undefined,
   ctx: LookbookContext,
-  shouldToggle = false
+  shouldToggle = false,
+  viaKeyboard = false
 ): void {
   const root = getRootFromEvent(event);
   const index = getHotspotIndex(event);
@@ -507,6 +589,13 @@ function activateHotspot(
   clearHoverCloseTimer(root);
 
   if (ctx.activeHotspot === index) {
+    // Already open (hover mode opens on focus, before Enter is pressed):
+    // keyboard activation means "take me to the product", not "toggle" —
+    // Escape still closes and restores focus to the hotspot.
+    if (viaKeyboard && focusPopoverCard(root)) {
+      return;
+    }
+
     if (shouldToggle) {
       closeActiveHotspot(root, ctx);
     }
@@ -514,14 +603,24 @@ function activateHotspot(
     return;
   }
 
+  // Keyboard activation moves focus into the card once it renders; any
+  // other activation (hover, pointer click) must never steal focus.
+  if (viaKeyboard) {
+    pendingKeyboardFocus.add(root);
+  } else {
+    pendingKeyboardFocus.delete(root);
+  }
+
   ctx.activeHotspot = index;
   clearPopover(root);
   syncLookbookDOM(root, ctx);
 
+  const consumeFocus = (): boolean => pendingKeyboardFocus.delete(root);
+
   const i18n = getI18n(ctx);
   const hotspot = ctx.hotspots[index];
   if (!hotspot || !hotspot.productId) {
-    renderMessage(root, i18n.noProduct);
+    renderMessage(root, i18n.noProduct, consumeFocus());
     return;
   }
 
@@ -530,12 +629,12 @@ function activateHotspot(
   fetchProduct(hotspot.productId, ctx.restBase)
     .then((data: StoreApiProduct) => {
       if (ctx.activeHotspot === index) {
-        renderProduct(root, data, i18n);
+        renderProduct(root, data, i18n, consumeFocus());
       }
     })
     .catch(() => {
       if (ctx.activeHotspot === index) {
-        renderMessage(root, i18n.loadError);
+        renderMessage(root, i18n.loadError, consumeFocus());
       }
     });
 }
@@ -563,7 +662,7 @@ store('aggressive-apparel/lookbook', {
     toggleHotspot(event?: MouseEvent): void {
       const ctx = getContext<LookbookContext>();
       const shouldToggle = !ctx.openOnHover || supportsHoverInteraction();
-      activateHotspot(event, ctx, shouldToggle);
+      activateHotspot(event, ctx, shouldToggle, isKeyboardActivation(event));
     },
 
     closeHotspot(event?: Event): void {

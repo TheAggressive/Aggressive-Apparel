@@ -37,6 +37,12 @@ import type {
   LookbookHotspot,
   StoreApiProduct,
 } from './types';
+import {
+  flattenPresetColors,
+  fromPresetColorRef,
+  toPresetColorRef,
+  type PresetColorOrigin,
+} from '../../utils/preset-colors';
 
 const MIN_PRODUCT_SEARCH_LENGTH = 2;
 const PRODUCT_SEARCH_LIMIT = 20;
@@ -144,6 +150,26 @@ export default function Edit({
   const [productSearchError, setProductSearchError] = useState('');
   const hasDraggedRef = useRef(false);
   const colorGradientSettings = useMultipleOriginColorsAndGradients();
+  const presetColors = flattenPresetColors(
+    colorGradientSettings.colors as PresetColorOrigin[] | undefined
+  );
+  const colorSetting = (
+    label: string,
+    key:
+      | 'hotspotBgColor'
+      | 'hotspotTextColor'
+      | 'cardBgColor'
+      | 'cardTextColor'
+      | 'actionBgColor'
+      | 'actionIconColor'
+  ) => ({
+    label,
+    colorValue: fromPresetColorRef(attributes[key], presetColors),
+    onColorChange: (value?: string) =>
+      setAttributes({
+        [key]: toPresetColorRef(value, presetColors),
+      } as Partial<LookbookAttributes>),
+  });
   const blockProps = useBlockProps({
     className: 'aggressive-apparel-lookbook',
     style: getLookbookColorStyles({
@@ -567,42 +593,30 @@ export default function Edit({
         <ColorGradientSettingsDropdown
           panelId={clientId}
           settings={[
-            {
-              label: __('Hotspot background', 'aggressive-apparel'),
-              colorValue: hotspotBgColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ hotspotBgColor: value ?? '' }),
-            },
-            {
-              label: __('Hotspot text', 'aggressive-apparel'),
-              colorValue: hotspotTextColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ hotspotTextColor: value ?? '' }),
-            },
-            {
-              label: __('Popup card background', 'aggressive-apparel'),
-              colorValue: cardBgColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ cardBgColor: value ?? '' }),
-            },
-            {
-              label: __('Popup card text', 'aggressive-apparel'),
-              colorValue: cardTextColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ cardTextColor: value ?? '' }),
-            },
-            {
-              label: __('Popup chevron background', 'aggressive-apparel'),
-              colorValue: actionBgColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ actionBgColor: value ?? '' }),
-            },
-            {
-              label: __('Popup chevron color', 'aggressive-apparel'),
-              colorValue: actionIconColor || undefined,
-              onColorChange: (value?: string) =>
-                setAttributes({ actionIconColor: value ?? '' }),
-            },
+            colorSetting(
+              __('Hotspot background', 'aggressive-apparel'),
+              'hotspotBgColor'
+            ),
+            colorSetting(
+              __('Hotspot text', 'aggressive-apparel'),
+              'hotspotTextColor'
+            ),
+            colorSetting(
+              __('Popup card background', 'aggressive-apparel'),
+              'cardBgColor'
+            ),
+            colorSetting(
+              __('Popup card text', 'aggressive-apparel'),
+              'cardTextColor'
+            ),
+            colorSetting(
+              __('Popup chevron background', 'aggressive-apparel'),
+              'actionBgColor'
+            ),
+            colorSetting(
+              __('Popup chevron color', 'aggressive-apparel'),
+              'actionIconColor'
+            ),
           ]}
           __experimentalIsRenderedInSidebar
           {...colorGradientSettings}

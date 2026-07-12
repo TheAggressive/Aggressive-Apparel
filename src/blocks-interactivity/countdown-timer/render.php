@@ -167,6 +167,57 @@ if (
 	$display_style = 'inline';
 }
 
+// Strings the view script needs (script modules cannot reach wp.i18n).
+// day/hour/minute are [singular, plural] pairs picked by count in JS.
+$countdown_i18n = array(
+	/* translators: %s: human-readable time remaining, e.g. "3 days, 4 hours, 12 minutes". */
+	'template'       => __( 'Sale ends in %s', 'aggressive-apparel' ),
+	'day'            => array(
+		/* translators: %s: number of days. */
+		__( '%s day', 'aggressive-apparel' ),
+		/* translators: %s: number of days. */
+		__( '%s days', 'aggressive-apparel' ),
+	),
+	'hour'           => array(
+		/* translators: %s: number of hours. */
+		__( '%s hour', 'aggressive-apparel' ),
+		/* translators: %s: number of hours. */
+		__( '%s hours', 'aggressive-apparel' ),
+	),
+	'minute'         => array(
+		/* translators: %s: number of minutes. */
+		__( '%s minute', 'aggressive-apparel' ),
+		/* translators: %s: number of minutes. */
+		__( '%s minutes', 'aggressive-apparel' ),
+	),
+	'lessThanMinute' => __( 'less than a minute', 'aggressive-apparel' ),
+	'ended'          => __( 'Sale ended', 'aggressive-apparel' ),
+);
+
+if ( '' !== $drop_page_url ) {
+	$countdown_i18n['dropLive'] = __( 'Drop is live. Redirecting now.', 'aggressive-apparel' );
+}
+
+// Human-readable label for assistive tech; the view script refreshes it at
+// most once per minute (the visual d/h/m/s segments are aria-hidden).
+$aria_parts = array();
+
+if ( $diff < MINUTE_IN_SECONDS ) {
+	$aria_parts[] = $countdown_i18n['lessThanMinute'];
+} else {
+	if ( $days > 0 ) {
+		$aria_parts[] = sprintf( 1 === $days ? $countdown_i18n['day'][0] : $countdown_i18n['day'][1], number_format_i18n( $days ) );
+	}
+
+	if ( $days > 0 || $hours > 0 ) {
+		$aria_parts[] = sprintf( 1 === $hours ? $countdown_i18n['hour'][0] : $countdown_i18n['hour'][1], number_format_i18n( $hours ) );
+	}
+
+	$aria_parts[] = sprintf( 1 === $minutes ? $countdown_i18n['minute'][0] : $countdown_i18n['minute'][1], number_format_i18n( $minutes ) );
+}
+
+$aria_label = sprintf( $countdown_i18n['template'], implode( ', ', $aria_parts ) );
+
 $context            = (string) wp_json_encode(
 	array(
 		'endTs'       => $end_ts,
@@ -175,41 +226,50 @@ $context            = (string) wp_json_encode(
 		'minutes'     => $minutes,
 		'seconds'     => $seconds,
 		'dropPageUrl' => $drop_page_url,
+		'ariaLabel'   => $aria_label,
+		'labelText'   => __( 'Sale ends in', 'aggressive-apparel' ),
+		'isExpired'   => false,
+		'i18n'        => $countdown_i18n,
 	)
 );
 $wrapper_attributes = array(
-	'class'               => 'aggressive-apparel-countdown aggressive-apparel-countdown--' . $display_style,
-	'data-wp-interactive' => 'aggressive-apparel/countdown-timer',
-	'data-wp-context'     => $context,
-	'data-wp-init'        => 'callbacks.startTicker',
+	'class'                                                => 'aggressive-apparel-countdown aggressive-apparel-countdown--' . $display_style,
+	'role'                                                 => 'timer',
+	'aria-label'                                           => $aria_label,
+	'data-wp-interactive'                                  => 'aggressive-apparel/countdown-timer',
+	'data-wp-context'                                      => $context,
+	'data-wp-init'                                         => 'callbacks.startTicker',
+	'data-wp-bind--aria-label'                             => 'context.ariaLabel',
+	'data-wp-class--aggressive-apparel-countdown--expired' => 'context.isExpired',
+	// Fallback contract for AJAX-injected copies (product-filters, load-more):
+	// the Interactivity API doesn't hydrate innerHTML, so the document-level
+	// scanner in view.ts ticks these via the plain attributes below.
+	// startTicker() claims hydrated instances so they're never double-ticked.
+	'data-aa-countdown'                                    => (string) $end_ts,
 );
 
 if ( '' !== $color_style ) {
 	$wrapper_attributes['style'] = $color_style;
 }
 ?>
-<div
-	<?php
-	echo get_block_wrapper_attributes( $wrapper_attributes );
-	?>
->
-	<span class="aggressive-apparel-countdown__label">
+<div <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_attributes ) ); ?>>
+	<span class="aggressive-apparel-countdown__label" aria-hidden="true" data-wp-text="context.labelText">
 		<?php esc_html_e( 'Sale ends in', 'aggressive-apparel' ); ?>
 	</span>
-	<span class="aggressive-apparel-countdown__segment">
-		<span class="aggressive-apparel-countdown__value" data-wp-text="context.days"><?php echo esc_html( (string) $days ); ?></span>
+	<span class="aggressive-apparel-countdown__segment" aria-hidden="true">
+		<span class="aggressive-apparel-countdown__value" data-wp-text="context.days" data-aa-countdown-segment="days"><?php echo esc_html( (string) $days ); ?></span>
 		<span class="aggressive-apparel-countdown__unit"><?php esc_html_e( 'd', 'aggressive-apparel' ); ?></span>
 	</span>
-	<span class="aggressive-apparel-countdown__segment">
-		<span class="aggressive-apparel-countdown__value" data-wp-text="context.hours"><?php echo esc_html( (string) $hours ); ?></span>
+	<span class="aggressive-apparel-countdown__segment" aria-hidden="true">
+		<span class="aggressive-apparel-countdown__value" data-wp-text="context.hours" data-aa-countdown-segment="hours"><?php echo esc_html( (string) $hours ); ?></span>
 		<span class="aggressive-apparel-countdown__unit"><?php esc_html_e( 'h', 'aggressive-apparel' ); ?></span>
 	</span>
-	<span class="aggressive-apparel-countdown__segment">
-		<span class="aggressive-apparel-countdown__value" data-wp-text="context.minutes"><?php echo esc_html( (string) $minutes ); ?></span>
+	<span class="aggressive-apparel-countdown__segment" aria-hidden="true">
+		<span class="aggressive-apparel-countdown__value" data-wp-text="context.minutes" data-aa-countdown-segment="minutes"><?php echo esc_html( (string) $minutes ); ?></span>
 		<span class="aggressive-apparel-countdown__unit"><?php esc_html_e( 'm', 'aggressive-apparel' ); ?></span>
 	</span>
-	<span class="aggressive-apparel-countdown__segment">
-		<span class="aggressive-apparel-countdown__value" data-wp-text="context.seconds"><?php echo esc_html( (string) $seconds ); ?></span>
+	<span class="aggressive-apparel-countdown__segment" aria-hidden="true">
+		<span class="aggressive-apparel-countdown__value" data-wp-text="context.seconds" data-aa-countdown-segment="seconds"><?php echo esc_html( (string) $seconds ); ?></span>
 		<span class="aggressive-apparel-countdown__unit"><?php esc_html_e( 's', 'aggressive-apparel' ); ?></span>
 	</span>
 </div>

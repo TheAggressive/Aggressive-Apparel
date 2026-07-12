@@ -61,7 +61,7 @@ aggressive-apparel/
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns
 ├── src/                      # Source code
-│   ├── blocks/               # Static Gutenberg blocks (6)
+│   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
 │   ├── blocks-interactivity/ # Interactive blocks (Interactivity API, 36 incl. 2 card-flip faces)
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores)
 │   ├── icons/                # Brand SVG sources
@@ -246,13 +246,26 @@ pnpm test:coverage
 # JavaScript tests
 pnpm test:js
 pnpm test:js:watch
+
+# End-to-end (Playwright, drives the real editor + front end)
+pnpm test:e2e:install   # one-time: download the browser (CI: installs system deps)
+pnpm test:e2e           # requires wp-env running (pnpm env:start)
 ```
 
 ### Test Configuration
 
 - PHPUnit 9.6 with Yoast Polyfills
 - Jest for JavaScript
+- Playwright for end-to-end (`playwright.config.ts`, specs in `tests/e2e/`)
 - wp-env for WordPress test environment
+
+**E2E** (`tests/e2e/`) covers browser behavior unit tests can't — the card-flip
+3D flip + `inert` a11y and the split-story sticky/grid/gap layout. `global-setup.ts`
+logs in once (admin/password) and saves the session; each spec builds its block
+via `wp.data`, publishes, asserts on the rendered front end, and deletes the page.
+CI must run `pnpm test:e2e:install` before `pnpm test:e2e`. (On WSL without sudo,
+the browser deps can't install — run with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`
+and an `LD_LIBRARY_PATH` to extracted libnss3/libnspr4/libasound2 debs.)
 
 ## WooCommerce Integration
 

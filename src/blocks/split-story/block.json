@@ -2,27 +2,54 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/split-story",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "title": "Split Story",
   "category": "aggressive-apparel",
-  "description": "Sticky media column alongside scrolling content. Classic editorial layout with InnerBlocks for both sides.",
+  "description": "A sticky media column alongside a scrolling content column — the classic editorial split layout.",
   "keywords": ["split", "sticky", "story", "media", "editorial"],
+  "allowedBlocks": [
+    "aggressive-apparel/split-story-media",
+    "aggressive-apparel/split-story-content"
+  ],
   "supports": {
     "html": false,
     "align": ["wide", "full"],
     "spacing": {
-      "blockGap": true
+      "margin": true,
+      "blockGap": ["horizontal", "vertical"],
+      "__experimentalSkipSerialization": ["blockGap"],
+      "__experimentalDefaultControls": {
+        "blockGap": true
+      }
     }
   },
   "attributes": {
-    "mediaColumn": {
+    "mediaPosition": {
       "type": "string",
       "enum": ["left", "right"],
       "default": "left"
     },
-    "mediaRatio": {
+    "mediaWidth": {
       "type": "number",
       "default": 50
+    },
+    "mediaHeight": {
+      "type": "string",
+      "enum": ["viewport", "content"],
+      "default": "viewport"
+    },
+    "sticky": {
+      "type": "boolean",
+      "default": true
+    },
+    "stickyTop": {
+      "type": "number",
+      "default": 0
+    },
+    "stackOrder": {
+      "type": "string",
+      "enum": ["media-first", "content-first"],
+      "default": "media-first"
     }
   },
   "textdomain": "aggressive-apparel",

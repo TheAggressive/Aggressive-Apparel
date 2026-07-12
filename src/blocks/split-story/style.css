@@ -1,65 +1,97 @@
-/* Split Story Block — Frontend Styles
+/* Split Story Block — Frontend Styles.
  *
- * First direct child = media column (sticky).
- * Second direct child = content column (scrolls normally).
- */
+ * Two dedicated column child blocks (.aa-split-story__media / __content) laid
+ * out on a CSS grid. Column placement (not `order`) positions the media so the
+ * DOM/reading order — media, then content — is preserved in both variants. */
 
 .aa-split-story {
   display: grid;
-  grid-template-columns: var(--aa-split-media-ratio, 50%) 1fr;
   align-items: start;
+
+  /* "Block spacing" (blockGap) → grid gap. Default flush (0); the media/content
+     wiring means a gap shows the page background between the two columns. */
+  gap: var(--aa-split-gap, 0);
 }
 
-/* Media column (first child) — sticky */
-.aa-split-story > :first-child,
-.aa-split-story .aa-split-story__media {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  overflow: hidden;
+/* ── Desktop: two columns ─────────────────────────── */
+@media (width > 768px) {
 
-  /* Stretch media children to fill the sticky column */
-  img,
-  video,
-  figure {
+  .aa-split-story {
+    grid-template-columns: var(--aa-split-media-width, 50%) 1fr;
+  }
+
+  /* Media right: swap the tracks and place both children explicitly. */
+  .aa-split-story--media-right {
+    grid-template-columns: 1fr var(--aa-split-media-width, 50%);
+  }
+
+  .aa-split-story--media-right .aa-split-story__media {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .aa-split-story--media-right .aa-split-story__content {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Sticky media (align-self:start makes sticky work under align-items:start). */
+  .aa-split-story--sticky .aa-split-story__media {
+    position: sticky;
+    top: var(--aa-split-sticky-top, 0);
+    align-self: start;
+  }
+
+  /* Full-viewport media fills its column and cover-crops its media. */
+  .aa-split-story--viewport .aa-split-story__media {
+    height: calc(100svh - var(--aa-split-sticky-top, 0px));
+    overflow: hidden;
+  }
+
+  .aa-split-story--viewport .aa-split-story__media > * {
+    height: 100%;
+  }
+
+  .aa-split-story--viewport .aa-split-story__media :is(img, video) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 }
 
-/* Media right variant: swap column order */
-.aa-split-story--media-right {
-  grid-template-columns: 1fr var(--aa-split-media-ratio, 50%);
-}
-
-.aa-split-story--media-right > :first-child,
-.aa-split-story--media-right .aa-split-story__media {
-  order: 2;
-}
-
-.aa-split-story--media-right > :last-child,
-.aa-split-story--media-right .aa-split-story__content {
-  order: 1;
-}
-
-/* ── Mobile: stack vertically ─────────────────── */
+/* ── Mobile: single-column stack ──────────────────── */
 @media (width <= 768px) {
 
-  .aa-split-story,
-  .aa-split-story--media-right {
+  .aa-split-story {
     grid-template-columns: 1fr;
   }
 
-  .aa-split-story > :first-child,
-  .aa-split-story .aa-split-story__media {
-    position: static;
-    height: 60vw;
-    order: 0 !important;
+  .aa-split-story__media {
+    grid-row: 1;
+    height: min(60vh, 30rem);
+    overflow: hidden;
   }
 
-  .aa-split-story > :last-child,
-  .aa-split-story .aa-split-story__content {
-    order: 1 !important;
+  .aa-split-story--content .aa-split-story__media {
+    height: auto;
+  }
+
+  .aa-split-story__media :is(img, video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .aa-split-story__content {
+    grid-row: 2;
+  }
+
+  /* Content-first stacking. */
+  .aa-split-story--stack-content-first .aa-split-story__media {
+    grid-row: 2;
+  }
+
+  .aa-split-story--stack-content-first .aa-split-story__content {
+    grid-row: 1;
   }
 }

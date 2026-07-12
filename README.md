@@ -136,7 +136,7 @@ aggressive-apparel/
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns (80)
 ├── src/
-│   ├── blocks/               # Static Gutenberg blocks (6)
+│   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
 │   ├── blocks-interactivity/ # Interactivity API blocks (36, incl. 2 card-flip faces)
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores, etc.)
 │   ├── icons/                # Brand SVG sources (built to build/icons/)
@@ -165,7 +165,7 @@ functions.php → Bootstrap (singleton)
 
 Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
-**Static blocks (6):** `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`, `icon`, `product-rating`, `split-story`
+**Static blocks (6 top-level):** `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`, `icon`, `product-rating`, `split-story` (with locked `split-story-media` / `split-story-content` column child blocks)
 
 **Navigation — desktop (`aggressive-apparel/navigation` store):**
 

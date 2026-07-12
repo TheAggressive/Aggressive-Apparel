@@ -27,6 +27,7 @@
     "@commitlint/config-conventional": "^20.4.1",
     "@eslint/js": "^9.0.0",
     "@lhci/cli": "^0.15.1",
+    "@playwright/test": "1.55.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
@@ -187,6 +188,8 @@
     "// 🔧 UTILITY SCRIPTS": "_",
     "qa": "pnpm run test && pnpm run lint:all && pnpm run phpstan",
     "// test:setup": "bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1:9002 latest",
-    "// test:install": "pnpm test:setup && composer install --dev"
+    "// test:install": "pnpm test:setup && composer install --dev",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium"
   }
 }

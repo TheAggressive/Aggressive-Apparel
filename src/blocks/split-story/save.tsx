@@ -1,29 +1,29 @@
 /**
  * Split Story Block — Save Component.
  *
- * CSS grid places first InnerBlocks child in media column,
- * second in content column. Attributes are stored as data-* and
- * CSS custom properties for the CSS to consume.
+ * Static output: wrapper carries the layout classes + CSS custom properties
+ * (from the shared prop helpers) that style.css consumes; the two column child
+ * blocks serialize inside.
+ *
+ * @package Aggressive_Apparel
  */
 
-import type { CSSProperties } from 'react';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-interface SplitStoryAttributes {
-  mediaColumn: 'left' | 'right';
-  mediaRatio: number;
-}
+import {
+  getSplitStoryClassName,
+  getSplitStoryStyle,
+  type SplitStoryAttributes,
+} from '../split-story-shared/props';
 
 export default function Save({
   attributes,
 }: {
   attributes: SplitStoryAttributes;
 }) {
-  const { mediaColumn, mediaRatio } = attributes;
-
   const blockProps = useBlockProps.save({
-    className: `aa-split-story${mediaColumn === 'right' ? ' aa-split-story--media-right' : ''}`,
-    style: { '--aa-split-media-ratio': `${mediaRatio}%` } as CSSProperties,
+    className: getSplitStoryClassName(attributes),
+    style: getSplitStoryStyle(attributes),
   });
 
   return (

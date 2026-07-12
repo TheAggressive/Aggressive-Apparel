@@ -1,10 +1,18 @@
-/* Split Story Block — Editor Styles */
+/* Split Story Block — Editor Styles.
+ * Edit the two columns side by side without sticky positioning or viewport
+ * height, so both are fully visible and directly editable. Column identity
+ * comes from the real child blocks (List View: "Story Media" / "Story Content").
+ *
+ * Selectors intentionally combine the generated block class with the state
+ * modifier (same element) to outrank the frontend `--sticky` / `--viewport`
+ * rules without `!important`. */
 
-.wp-block-aggressive-apparel-split-story .aa-split-story__media {
-  position: static !important;
-  min-height: 300px;
-}
-
-.wp-block-aggressive-apparel-split-story .aa-split-story {
-  min-height: 0;
+.wp-block-aggressive-apparel-split-story.aa-split-story--sticky
+  .aa-split-story__media,
+.wp-block-aggressive-apparel-split-story.aa-split-story--viewport
+  .aa-split-story__media {
+  position: static;
+  height: auto;
+  min-height: 12rem;
+  overflow: visible;
 }

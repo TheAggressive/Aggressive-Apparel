@@ -1,3 +1,17 @@
+# [1.148.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.147.1...v1.148.0) (2026-07-12)
+
+
+### Bug Fixes
+
+* enhance keyboard accessibility for lookbook hotspots ([e3cf179](https://github.com/TheAggressive/Aggressive-Apparel/commit/e3cf179b3d709757e3dd9e2a728a5745a9e886b4))
+* format SVG elements for improved readability in card flip blocks ([7ad3285](https://github.com/TheAggressive/Aggressive-Apparel/commit/7ad3285d8682a60e5a603af952502851bb10289f))
+
+
+### Features
+
+* enhance color handling in dark mode toggle and countdown timer blocks ([cf75170](https://github.com/TheAggressive/Aggressive-Apparel/commit/cf75170919f98490461aca1605fa6ba6e629c16a))
+* update card flip block with enhanced interactivity and accessibility ([2458076](https://github.com/TheAggressive/Aggressive-Apparel/commit/2458076353cb197110a64749209adb6dbafcb328))
+
 ## [1.147.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.147.0...v1.147.1) (2026-07-12)
 
 

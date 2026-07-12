@@ -15,7 +15,9 @@ export async function openPageEditor(page: Page): Promise<void> {
   await page.waitForSelector('iframe[name="editor-canvas"]', {
     timeout: 60_000,
   });
-  await page.waitForFunction(() => window.wp?.data?.select('core/block-editor'));
+  await page.waitForFunction(() =>
+    window.wp?.data?.select('core/block-editor')
+  );
   // Dismiss the welcome guide if present.
   await page.evaluate(() => {
     window.wp.data

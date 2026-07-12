@@ -77,14 +77,16 @@ describe('getSplitStoryStyle', () => {
     // { top: vertical, left: horizontal } → `gap: <row> <column>`.
     expect(
       getSplitStoryStyle(
-        attrs({ style: { spacing: { blockGap: { top: '1.5rem', left: '3rem' } } } })
+        attrs({
+          style: { spacing: { blockGap: { top: '1.5rem', left: '3rem' } } },
+        })
       )['--aa-split-gap']
     ).toBe('1.5rem 3rem');
     // A single value applies to both axes.
     expect(
-      getSplitStoryStyle(
-        attrs({ style: { spacing: { blockGap: '2rem' } } })
-      )['--aa-split-gap']
+      getSplitStoryStyle(attrs({ style: { spacing: { blockGap: '2rem' } } }))[
+        '--aa-split-gap'
+      ]
     ).toBe('2rem');
     expect(getSplitStoryStyle(attrs())).not.toHaveProperty('--aa-split-gap');
   });

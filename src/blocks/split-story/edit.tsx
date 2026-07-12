@@ -41,8 +41,14 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<SplitStoryAttributes>) {
-  const { mediaPosition, mediaWidth, mediaHeight, sticky, stickyTop, stackOrder } =
-    attributes;
+  const {
+    mediaPosition,
+    mediaWidth,
+    mediaHeight,
+    sticky,
+    stickyTop,
+    stackOrder,
+  } = attributes;
 
   const blockProps = useBlockProps({
     className: getSplitStoryClassName(attributes),
@@ -76,9 +82,7 @@ export default function Edit({
           <RangeControl
             label={__('Media column width (%)', 'aggressive-apparel')}
             value={mediaWidth}
-            onChange={val =>
-              setAttributes({ mediaWidth: val ?? 50 })
-            }
+            onChange={val => setAttributes({ mediaWidth: val ?? 50 })}
             min={25}
             max={75}
             step={5}
@@ -92,10 +96,7 @@ export default function Edit({
                     'Media fills the viewport height and is cropped to cover.',
                     'aggressive-apparel'
                   )
-                : __(
-                    'Media sizes to its own content.',
-                    'aggressive-apparel'
-                  )
+                : __('Media sizes to its own content.', 'aggressive-apparel')
             }
             value={mediaHeight}
             options={[
@@ -103,7 +104,10 @@ export default function Edit({
                 label: __('Full viewport', 'aggressive-apparel'),
                 value: 'viewport',
               },
-              { label: __('Fit content', 'aggressive-apparel'), value: 'content' },
+              {
+                label: __('Fit content', 'aggressive-apparel'),
+                value: 'content',
+              },
             ]}
             onChange={val =>
               setAttributes({
@@ -137,7 +141,10 @@ export default function Edit({
         </PanelBody>
         <PanelBody title={__('Sticky media', 'aggressive-apparel')}>
           <ToggleControl
-            label={__('Stick media while content scrolls', 'aggressive-apparel')}
+            label={__(
+              'Stick media while content scrolls',
+              'aggressive-apparel'
+            )}
             checked={sticky}
             onChange={val => setAttributes({ sticky: val })}
             __nextHasNoMarginBottom

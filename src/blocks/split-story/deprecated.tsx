@@ -90,7 +90,9 @@ const v1: BlockDeprecation<SplitStoryAttributes, DeprecatedAttributes> = {
   },
 };
 
-const deprecated: BlockDeprecation<SplitStoryAttributes, DeprecatedAttributes>[] =
-  [v1];
+const deprecated: BlockDeprecation<
+  SplitStoryAttributes,
+  DeprecatedAttributes
+>[] = [v1];
 
 export default deprecated;

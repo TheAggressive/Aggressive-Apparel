@@ -8,7 +8,11 @@ import metadata from './block.json';
 import { registerFaceBlock } from '../card-flip-shared/face';
 
 const icon = (
-  <svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>
+  <svg
+    viewBox='0 0 24 24'
+    xmlns='http://www.w3.org/2000/svg'
+    aria-hidden='true'
+  >
     <rect
       x='4'
       y='4'

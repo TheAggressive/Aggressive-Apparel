@@ -15,9 +15,9 @@ jest.mock(
 );
 
 import {
+  __testing,
   fetchProduct,
   formatPrice,
-  isKeyboardActivation,
   renderMessage,
   renderProduct,
   safeUrl,
@@ -159,22 +159,6 @@ describe('supportsHoverInteraction', () => {
   });
 });
 
-describe('isKeyboardActivation', () => {
-  it('treats detail-0 clicks (Enter/Space on a button) as keyboard', () => {
-    expect(isKeyboardActivation(new MouseEvent('click', { detail: 0 }))).toBe(
-      true
-    );
-  });
-
-  it('treats pointer clicks and non-mouse events as not keyboard', () => {
-    expect(isKeyboardActivation(new MouseEvent('click', { detail: 1 }))).toBe(
-      false
-    );
-    expect(isKeyboardActivation(new Event('focus'))).toBe(false);
-    expect(isKeyboardActivation(undefined)).toBe(false);
-  });
-});
-
 describe('keyboard focus lands in the rendered card', () => {
   const I18N: LookbookI18n = {
     loading: 'Loading product.',
@@ -234,5 +218,59 @@ describe('keyboard focus lands in the rendered card', () => {
     );
     expect(card?.tabIndex).toBe(-1);
     expect(document.activeElement).toBe(card);
+  });
+
+  it('moves focus into an already-rendered product card', () => {
+    const root = buildRoot();
+    renderProduct(
+      root,
+      { id: 1, name: 'Hoodie', permalink: '/shop/hoodie' },
+      I18N,
+      false
+    );
+
+    const link = root.querySelector(
+      'a.aggressive-apparel-lookbook__product-card'
+    );
+    expect(document.activeElement).toBe(document.body);
+
+    __testing.focusPopoverCard(root);
+
+    expect(document.activeElement).toBe(link);
+  });
+
+  it('moves from the popover card to the next hotspot in DOM order', () => {
+    const root = buildRoot();
+    root.insertAdjacentHTML(
+      'afterbegin',
+      [
+        '<button class="aggressive-apparel-lookbook__hotspot" data-aa-hotspot-index="0">One</button>',
+        '<button class="aggressive-apparel-lookbook__hotspot" data-aa-hotspot-index="1">Two</button>',
+        '<button class="aggressive-apparel-lookbook__hotspot" data-aa-hotspot-index="2">Three</button>',
+      ].join('')
+    );
+
+    expect(__testing.focusAdjacentHotspotFromPopover(root, 1)).toBe(true);
+    expect(document.activeElement).toBe(
+      root.querySelector('[data-aa-hotspot-index="2"]')
+    );
+  });
+
+  it('moves backward from the popover card to its owning hotspot', () => {
+    const root = buildRoot();
+    root.insertAdjacentHTML(
+      'afterbegin',
+      [
+        '<button class="aggressive-apparel-lookbook__hotspot" data-aa-hotspot-index="0">One</button>',
+        '<button class="aggressive-apparel-lookbook__hotspot" data-aa-hotspot-index="1">Two</button>',
+      ].join('')
+    );
+
+    expect(__testing.focusAdjacentHotspotFromPopover(root, 1, true)).toBe(
+      true
+    );
+    expect(document.activeElement).toBe(
+      root.querySelector('[data-aa-hotspot-index="1"]')
+    );
   });
 });

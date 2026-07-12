@@ -533,6 +533,10 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Studio look', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-lookbook__hotspot', $html );
 		$this->assertStringContainsString( 'data-wp-on--click="actions.toggleHotspot"', $html );
+		// Keyboard reachability: deterministic keydown activation on the hotspot
+		// and Tab handling on the popover so focus can enter/leave the card.
+		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onHotspotKeydown"', $html );
+		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onPopoverKeydown"', $html );
 		$this->assertStringContainsString( 'View product: Bomber Jacket', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-lookbook__popover', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-lookbook__popover-content', $html );
@@ -563,11 +567,47 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'aa-card-flip', $html );
 		$this->assertStringContainsString( 'aa-card-flip--hover', $html );
+		$this->assertStringNotContainsString( 'aa-card-flip--has-multiple-faces', $html );
 		$this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/card-flip"', $html );
 		$this->assertStringContainsString( 'aspect-ratio: 1/1', $html );
 		$this->assertStringContainsString( 'aa-card-flip__inner', $html );
-		$this->assertStringNotContainsString( 'role="button"', $html );
+		$this->assertStringNotContainsString( 'aa-card-flip__toggle', $html );
 		$this->assertStringNotContainsString( 'data-wp-on--click="actions.toggle"', $html );
+		$this->assertStringNotContainsString( 'tabindex="0"', $html );
+	}
+
+	/**
+	 * Card flip hover mode exposes a keyboard focus entry when both faces exist.
+	 *
+	 * @return void
+	 */
+	public function test_card_flip_hover_shell_is_keyboard_focusable_with_two_faces(): void {
+		$html = $this->render(
+			'card-flip',
+			array(
+				'flipOn' => 'hover',
+			),
+			array(
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(),
+					'innerBlocks'  => array(),
+					'innerContent' => array( '<p>Front</p>' ),
+				),
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(),
+					'innerBlocks'  => array(),
+					'innerContent' => array( '<p>Back</p>' ),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'aa-card-flip--hover', $html );
+		$this->assertStringContainsString( 'aa-card-flip--has-multiple-faces', $html );
+		$this->assertStringContainsString( 'role="group"', $html );
+		$this->assertStringContainsString( 'tabindex="0"', $html );
+		$this->assertStringContainsString( 'aria-label="Flip card content"', $html );
 	}
 
 	/**
@@ -580,15 +620,30 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 			'card-flip',
 			array(
 				'flipOn' => 'click',
+			),
+			array(
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(),
+					'innerBlocks'  => array(),
+					'innerContent' => array( '<p>Front</p>' ),
+				),
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(),
+					'innerBlocks'  => array(),
+					'innerContent' => array( '<p>Back</p>' ),
+				),
 			)
 		);
 
 		$this->assertStringContainsString( 'aa-card-flip--click', $html );
-		$this->assertStringContainsString( 'role="button"', $html );
-		$this->assertStringContainsString( 'tabindex="0"', $html );
+		$this->assertStringContainsString( 'aa-card-flip--has-multiple-faces', $html );
+		$this->assertStringContainsString( 'aa-card-flip__toggle', $html );
+		$this->assertStringContainsString( 'type="button"', $html );
 		$this->assertStringContainsString( 'data-wp-on--click="actions.toggle"', $html );
-		$this->assertStringContainsString( 'data-wp-on--keydown="actions.onKeydown"', $html );
 		$this->assertStringContainsString( 'data-wp-bind--aria-pressed="context.isFlipped"', $html );
+		$this->assertStringContainsString( 'data-wp-class--is-flipped="context.isFlipped"', $html );
 	}
 
 	/**

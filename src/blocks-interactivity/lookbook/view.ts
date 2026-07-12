@@ -49,56 +49,27 @@ const hoverCloseTimers = new WeakMap<HTMLElement, number>();
 // every hotspot in the tab order (in hover mode focus can't even cross the
 // gap — blur closes it), so keyboard activation must move focus into the card.
 const pendingKeyboardFocus = new WeakSet<HTMLElement>();
+// Swallows the one focus-triggered reopen when Escape returns focus to the
+// owning hotspot — in hover mode the hotspot opens on focus, which would
+// otherwise reopen the popover the Escape just closed.
+const suppressFocusOpen = new WeakSet<HTMLElement>();
 let viewportListenersAttached = false;
 
 /**
- * Whether an activation came from the keyboard. Enter/Space on a button
- * dispatch a click with detail 0 (Chrome/Firefox); Safari reports detail 1,
- * so fall back to :focus-visible on the trigger — keyboard focus sets it,
- * mouse-click focus does not.
+ * Move focus into the popover's card. When the card is still loading (or not
+ * rendered yet), arm pending focus so the upcoming render claims it instead.
  */
-export function isKeyboardActivation(event?: Event): boolean {
-  if (!(event instanceof MouseEvent)) {
-    return false;
-  }
-
-  if (event.detail === 0) {
-    return true;
-  }
-
-  try {
-    return (
-      (event.target as Element | null)
-        ?.closest('[data-aa-hotspot-index]')
-        ?.matches(':focus-visible') ?? false
-    );
-  } catch {
-    // Selector unsupported (old engines/jsdom) — detail 0 already handled.
-    return false;
-  }
-}
-
-/**
- * Move focus to the card inside an open popover. Returns false when there is
- * no card yet; a still-loading card records the intent so the upcoming
- * render receives focus instead.
- */
-function focusPopoverCard(root: HTMLElement): boolean {
+function focusPopoverCard(root: HTMLElement): void {
   const card = root.querySelector<HTMLElement>(
     '.aggressive-apparel-lookbook__popover-content .aggressive-apparel-lookbook__product-card'
   );
 
-  if (!card) {
-    return false;
-  }
-
   if (
-    card.classList.contains(
-      'aggressive-apparel-lookbook__product-card--loading'
-    )
+    !card ||
+    card.classList.contains('aggressive-apparel-lookbook__product-card--loading')
   ) {
     pendingKeyboardFocus.add(root);
-    return true;
+    return;
   }
 
   if (!(card instanceof HTMLAnchorElement)) {
@@ -106,8 +77,74 @@ function focusPopoverCard(root: HTMLElement): boolean {
   }
 
   card.focus({ preventScroll: true });
+}
+
+function getHotspotButtons(root: HTMLElement): HTMLElement[] {
+  return Array.from(
+    root.querySelectorAll<HTMLElement>('.aggressive-apparel-lookbook__hotspot')
+  );
+}
+
+function getAdjacentHotspotFromPopover(
+  root: HTMLElement,
+  activeIndex: number,
+  reverse = false
+): HTMLElement | null {
+  const buttons = getHotspotButtons(root);
+  const activeButtonIndex = buttons.findIndex(
+    button => parseInt(button.dataset.aaHotspotIndex ?? '-1', 10) === activeIndex
+  );
+
+  if (activeButtonIndex < 0) {
+    return null;
+  }
+
+  return (
+    (reverse
+      ? buttons[activeButtonIndex]
+      : buttons[activeButtonIndex + 1]) ?? null
+  );
+}
+
+function focusAdjacentHotspotFromPopover(
+  root: HTMLElement,
+  activeIndex: number,
+  reverse = false
+): boolean {
+  const target = getAdjacentHotspotFromPopover(root, activeIndex, reverse);
+
+  if (!target) {
+    return false;
+  }
+
+  target.focus({ preventScroll: true });
   return true;
 }
+
+function moveFocusFromPopoverCard(
+  root: HTMLElement,
+  ctx: LookbookContext,
+  reverse = false
+): boolean {
+  const activeIndex = ctx.activeHotspot;
+  const target = getAdjacentHotspotFromPopover(root, activeIndex, reverse);
+
+  if (!target) {
+    return false;
+  }
+
+  if (!reverse) {
+    closeActiveHotspot(root, ctx);
+  }
+
+  target.focus({ preventScroll: true });
+  return true;
+}
+
+export const __testing = {
+  focusAdjacentHotspotFromPopover,
+  focusPopoverCard,
+};
 
 export function supportsHoverInteraction(): boolean {
   return (
@@ -589,13 +626,6 @@ function activateHotspot(
   clearHoverCloseTimer(root);
 
   if (ctx.activeHotspot === index) {
-    // Already open (hover mode opens on focus, before Enter is pressed):
-    // keyboard activation means "take me to the product", not "toggle" —
-    // Escape still closes and restores focus to the hotspot.
-    if (viaKeyboard && focusPopoverCard(root)) {
-      return;
-    }
-
     if (shouldToggle) {
       closeActiveHotspot(root, ctx);
     }
@@ -656,13 +686,105 @@ store('aggressive-apparel/lookbook', {
         return;
       }
 
+      // Escape restored focus here — consume the one-shot suppression so the
+      // popover it just closed doesn't spring back open.
+      const root = getRootFromEvent(event);
+      if (root && suppressFocusOpen.has(root)) {
+        suppressFocusOpen.delete(root);
+        return;
+      }
+
       activateHotspot(event, ctx);
     },
 
+    // Pointer/touch activation. Keyboard (Enter/Space) is handled entirely by
+    // onHotspotKeydown, which calls preventDefault() to stop the synthesized
+    // click — so any click that still arrives is a genuine pointer click.
+    // A detail-0 click (programmatic / keyboard-synthesized) is ignored
+    // defensively so it can never toggle the popover back closed.
     toggleHotspot(event?: MouseEvent): void {
+      if (!event || event.detail === 0) {
+        return;
+      }
+
       const ctx = getContext<LookbookContext>();
       const shouldToggle = !ctx.openOnHover || supportsHoverInteraction();
-      activateHotspot(event, ctx, shouldToggle, isKeyboardActivation(event));
+      activateHotspot(event, ctx, shouldToggle);
+    },
+
+    // Deterministic keyboard activation: a keydown is unambiguously keyboard
+    // (no browser-dependent click.detail / :focus-visible sniffing), fires
+    // before the synthesized click, and preventDefault() suppresses that
+    // click so it can't fall through to the toggle-close path.
+    onHotspotKeydown(event?: KeyboardEvent): void {
+      const key = event?.key;
+      if (
+        key !== 'Enter' &&
+        key !== ' ' &&
+        key !== 'Spacebar' &&
+        key !== 'Tab'
+      ) {
+        return;
+      }
+
+      const ctx = getContext<LookbookContext>();
+      const root = getRootFromEvent(event);
+      const index = getHotspotIndex(event);
+
+      if (!root || index < 0) {
+        return;
+      }
+
+      if (key === 'Tab') {
+        if (event && !event.shiftKey && ctx.activeHotspot === index) {
+          event.preventDefault();
+          focusPopoverCard(root);
+        }
+
+        return;
+      }
+
+      event?.preventDefault();
+
+      // Hover mode opens on focus, so by the time Enter is pressed the popover
+      // for this hotspot is already open — just move focus into the card.
+      if (ctx.activeHotspot === index) {
+        focusPopoverCard(root);
+        return;
+      }
+
+      // Click mode (or not-yet-open): open and arm pending focus so the card
+      // receives focus the moment it renders.
+      activateHotspot(event, ctx, false, true);
+    },
+
+    onPopoverKeydown(event?: KeyboardEvent): void {
+      if (event?.key !== 'Tab') {
+        return;
+      }
+
+      const root = getRootFromEvent(event);
+      const ctx = getContext<LookbookContext>();
+      const target = event.target as Element | null;
+      const isFromProductCard = target?.closest(
+        '.aggressive-apparel-lookbook__product-card'
+      );
+
+      if (!root || ctx.activeHotspot < 0 || !isFromProductCard) {
+        return;
+      }
+
+      const movedFocus = moveFocusFromPopoverCard(
+        root,
+        ctx,
+        event.shiftKey
+      );
+
+      if (!movedFocus) {
+        return;
+      }
+
+      event.preventDefault();
     },
 
     closeHotspot(event?: Event): void {
@@ -722,11 +844,17 @@ store('aggressive-apparel/lookbook', {
       closeActiveHotspot(root, ctx);
 
       if (hadFocusInside) {
+        // Arm the guard before refocusing: in hover mode .focus() below
+        // synchronously fires openHotspot, which consumes it and bails.
+        suppressFocusOpen.add(root);
         root
           .querySelector<HTMLElement>(
             `[data-aa-hotspot-index="${activeIndex}"]`
           )
           ?.focus({ preventScroll: true });
+        // Click mode has no focus-open handler to consume it — clear so a
+        // later genuine focus isn't swallowed.
+        suppressFocusOpen.delete(root);
       }
     },
 

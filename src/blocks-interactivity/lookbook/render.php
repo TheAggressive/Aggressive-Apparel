@@ -230,7 +230,7 @@ foreach ( $hotspots as $index => $hotspot ) {
 		: '';
 
 	printf(
-		'<button type="button" class="aggressive-apparel-lookbook__hotspot" style="left:%s%%;top:%s%%" data-aa-hotspot-index="%d" data-wp-on--click="actions.toggleHotspot"%s aria-expanded="false" aria-controls="%s" aria-label="%s">',
+		'<button type="button" class="aggressive-apparel-lookbook__hotspot" style="left:%s%%;top:%s%%" data-aa-hotspot-index="%d" data-wp-on--click="actions.toggleHotspot" data-wp-on--keydown="actions.onHotspotKeydown"%s aria-expanded="false" aria-controls="%s" aria-label="%s">',
 		esc_attr( (string) $x ),
 		esc_attr( (string) $y ),
 		(int) $index,
@@ -265,9 +265,14 @@ $popover_hover_attrs = $open_on_hover
 			'data-wp-on--mouseleave' => 'actions.scheduleHoverClose',
 			'data-wp-on--focusin'    => 'actions.cancelHoverClose',
 			'data-wp-on--focusout'   => 'actions.scheduleHoverClose',
+			'data-wp-on--keydown'    => 'actions.onPopoverKeydown',
 		)
 	)
-	: '';
+	: $build_attr_string(
+		array(
+			'data-wp-on--keydown' => 'actions.onPopoverKeydown',
+		)
+	);
 printf(
 	'<div id="%s" class="aggressive-apparel-lookbook__popover" hidden%s>',
 	esc_attr( $popover_id ),

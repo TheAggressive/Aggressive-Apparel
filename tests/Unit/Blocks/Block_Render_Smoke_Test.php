@@ -544,106 +544,78 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Card flip hover mode renders CSS-driven shell without click role.
+	 * Render a card-flip whose inner content carries a sentinel per face.
+	 *
+	 * @param string $flip_on Flip variant.
+	 * @return string
+	 */
+	private function render_card_flip( string $flip_on ): string {
+		$face = static function ( string $sentinel ): array {
+			return array(
+				'blockName'    => 'core/paragraph',
+				'attrs'        => array(),
+				'innerBlocks'  => array(),
+				'innerContent' => array( '<p>' . $sentinel . '</p>' ),
+			);
+		};
+
+		// innerContent must carry a null placeholder per inner block so
+		// WP_Block::render() stitches the rendered faces into $content.
+		$parsed = array(
+			'blockName'    => 'aggressive-apparel/card-flip',
+			'attrs'        => array( 'flipOn' => $flip_on ),
+			'innerBlocks'  => array( $face( 'FRONT_SENTINEL' ), $face( 'BACK_SENTINEL' ) ),
+			'innerContent' => array( null, null ),
+		);
+
+		return (string) render_block( $parsed );
+	}
+
+	/**
+	 * Card flip always renders the accessible disclosure shell: a flip button
+	 * with toggle bindings and the reactive is-flipped / inert plumbing, and it
+	 * passes its inner face content straight through.
 	 *
 	 * @return void
 	 */
-	public function test_card_flip_renders_hover_shell(): void {
-		$html = $this->render(
-			'card-flip',
-			array(
-				'flipOn'      => 'hover',
-				'aspectRatio' => '1/1',
-			),
-			array(
-				array(
-					'blockName'    => 'core/paragraph',
-					'attrs'        => array(),
-					'innerBlocks'  => array(),
-					'innerContent' => array( '<p>Front</p>' ),
-				),
-			)
-		);
+	public function test_card_flip_renders_disclosure_shell(): void {
+		$html = $this->render_card_flip( 'click' );
 
-		$this->assertStringContainsString( 'aa-card-flip', $html );
-		$this->assertStringContainsString( 'aa-card-flip--hover', $html );
-		$this->assertStringNotContainsString( 'aa-card-flip--has-multiple-faces', $html );
+		$this->assertStringContainsString( 'aa-card-flip aa-card-flip--click', $html );
 		$this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/card-flip"', $html );
-		$this->assertStringContainsString( 'aspect-ratio: 1/1', $html );
 		$this->assertStringContainsString( 'aa-card-flip__inner', $html );
-		$this->assertStringNotContainsString( 'aa-card-flip__toggle', $html );
-		$this->assertStringNotContainsString( 'data-wp-on--click="actions.toggle"', $html );
-		$this->assertStringNotContainsString( 'tabindex="0"', $html );
-	}
 
-	/**
-	 * Card flip hover mode exposes a keyboard focus entry when both faces exist.
-	 *
-	 * @return void
-	 */
-	public function test_card_flip_hover_shell_is_keyboard_focusable_with_two_faces(): void {
-		$html = $this->render(
-			'card-flip',
-			array(
-				'flipOn' => 'hover',
-			),
-			array(
-				array(
-					'blockName'    => 'core/paragraph',
-					'attrs'        => array(),
-					'innerBlocks'  => array(),
-					'innerContent' => array( '<p>Front</p>' ),
-				),
-				array(
-					'blockName'    => 'core/paragraph',
-					'attrs'        => array(),
-					'innerBlocks'  => array(),
-					'innerContent' => array( '<p>Back</p>' ),
-				),
-			)
-		);
-
-		$this->assertStringContainsString( 'aa-card-flip--hover', $html );
-		$this->assertStringContainsString( 'aa-card-flip--has-multiple-faces', $html );
-		$this->assertStringContainsString( 'role="group"', $html );
-		$this->assertStringContainsString( 'tabindex="0"', $html );
-		$this->assertStringContainsString( 'aria-label="Flip card content"', $html );
-	}
-
-	/**
-	 * Card flip click mode exposes keyboard-accessible toggle bindings.
-	 *
-	 * @return void
-	 */
-	public function test_card_flip_renders_click_controls(): void {
-		$html = $this->render(
-			'card-flip',
-			array(
-				'flipOn' => 'click',
-			),
-			array(
-				array(
-					'blockName'    => 'core/paragraph',
-					'attrs'        => array(),
-					'innerBlocks'  => array(),
-					'innerContent' => array( '<p>Front</p>' ),
-				),
-				array(
-					'blockName'    => 'core/paragraph',
-					'attrs'        => array(),
-					'innerBlocks'  => array(),
-					'innerContent' => array( '<p>Back</p>' ),
-				),
-			)
-		);
-
-		$this->assertStringContainsString( 'aa-card-flip--click', $html );
-		$this->assertStringContainsString( 'aa-card-flip--has-multiple-faces', $html );
+		// Accessible flip control is present for every variant.
 		$this->assertStringContainsString( 'aa-card-flip__toggle', $html );
 		$this->assertStringContainsString( 'type="button"', $html );
 		$this->assertStringContainsString( 'data-wp-on--click="actions.toggle"', $html );
 		$this->assertStringContainsString( 'data-wp-bind--aria-pressed="context.isFlipped"', $html );
 		$this->assertStringContainsString( 'data-wp-class--is-flipped="context.isFlipped"', $html );
+		$this->assertStringContainsString( 'data-wp-watch--faces="callbacks.syncFaces"', $html );
+
+		// Inner face content passes through untouched.
+		$this->assertStringContainsString( 'FRONT_SENTINEL', $html );
+		$this->assertStringContainsString( 'BACK_SENTINEL', $html );
+
+		// Removed legacy heuristics.
+		$this->assertStringNotContainsString( 'has-multiple-faces', $html );
+		$this->assertStringNotContainsString( 'role="group"', $html );
+	}
+
+	/**
+	 * Only the hover variant wires the pointer-driven flip; click does not.
+	 *
+	 * @return void
+	 */
+	public function test_card_flip_hover_variant_adds_pointer_handlers(): void {
+		$hover = $this->render_card_flip( 'hover' );
+		$this->assertStringContainsString( 'aa-card-flip--hover', $hover );
+		$this->assertStringContainsString( 'data-wp-on--mouseenter="actions.pointerEnter"', $hover );
+		$this->assertStringContainsString( 'data-wp-on--mouseleave="actions.pointerLeave"', $hover );
+
+		$click = $this->render_card_flip( 'click' );
+		$this->assertStringNotContainsString( 'data-wp-on--mouseenter', $click );
+		$this->assertStringNotContainsString( 'data-wp-on--mouseleave', $click );
 	}
 
 	/**

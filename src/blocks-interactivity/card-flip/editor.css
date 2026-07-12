@@ -1,16 +1,20 @@
-/* Card Flip Block — Editor Styles
- * Show both faces stacked (no 3D in editor). */
+/* Card Flip Block — Editor Styles.
+ * Both faces are edited stacked (no 3D), so each is fully visible and its
+ * inner content is directly editable. The front/back identity comes from the
+ * real child blocks (List View shows "Card Front" / "Card Back"). */
 
 .wp-block-aggressive-apparel-card-flip .aa-card-flip__inner {
-  position: static;
-  transform: none !important;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  perspective: none;
+  transform: none !important;
 }
 
-.wp-block-aggressive-apparel-card-flip .aa-card-flip__inner > * {
-  position: static;
-  backface-visibility: visible;
+.wp-block-aggressive-apparel-card-flip .aa-card-flip__face {
   transform: none !important;
+  backface-visibility: visible;
+  min-height: 6rem;
+  outline: 1px dashed color-mix(in srgb, currentcolor 28%, transparent);
+  outline-offset: -1px;
 }

@@ -66,7 +66,9 @@ function focusPopoverCard(root: HTMLElement): void {
 
   if (
     !card ||
-    card.classList.contains('aggressive-apparel-lookbook__product-card--loading')
+    card.classList.contains(
+      'aggressive-apparel-lookbook__product-card--loading'
+    )
   ) {
     pendingKeyboardFocus.add(root);
     return;
@@ -92,7 +94,8 @@ function getAdjacentHotspotFromPopover(
 ): HTMLElement | null {
   const buttons = getHotspotButtons(root);
   const activeButtonIndex = buttons.findIndex(
-    button => parseInt(button.dataset.aaHotspotIndex ?? '-1', 10) === activeIndex
+    button =>
+      parseInt(button.dataset.aaHotspotIndex ?? '-1', 10) === activeIndex
   );
 
   if (activeButtonIndex < 0) {
@@ -100,9 +103,8 @@ function getAdjacentHotspotFromPopover(
   }
 
   return (
-    (reverse
-      ? buttons[activeButtonIndex]
-      : buttons[activeButtonIndex + 1]) ?? null
+    (reverse ? buttons[activeButtonIndex] : buttons[activeButtonIndex + 1]) ??
+    null
   );
 }
 
@@ -774,11 +776,7 @@ store('aggressive-apparel/lookbook', {
         return;
       }
 
-      const movedFocus = moveFocusFromPopoverCard(
-        root,
-        ctx,
-        event.shiftKey
-      );
+      const movedFocus = moveFocusFromPopoverCard(root, ctx, event.shiftKey);
 
       if (!movedFocus) {
         return;

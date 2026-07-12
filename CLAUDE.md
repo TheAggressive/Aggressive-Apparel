@@ -62,7 +62,7 @@ aggressive-apparel/
 ├── patterns/                 # Block patterns
 ├── src/                      # Source code
 │   ├── blocks/               # Static Gutenberg blocks (6)
-│   ├── blocks-interactivity/ # Interactive blocks (Interactivity API, 34)
+│   ├── blocks-interactivity/ # Interactive blocks (Interactivity API, 36 incl. 2 card-flip faces)
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores)
 │   ├── icons/                # Brand SVG sources
 │   ├── scripts/              # Theme JavaScript/TypeScript

@@ -2,17 +2,24 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "aggressive-apparel/card-flip",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "title": "Card Flip",
   "category": "aggressive-apparel",
-  "description": "3D card with front and back faces. Hover variant is pure CSS; click variant uses the Interactivity API.",
+  "description": "A card with two faces that flips to reveal the back. Accessible button-driven disclosure, with an optional hover flip.",
   "keywords": ["card", "flip", "3d", "product", "reveal"],
+  "allowedBlocks": [
+    "aggressive-apparel/card-flip-front",
+    "aggressive-apparel/card-flip-back"
+  ],
   "supports": {
     "html": false,
     "interactivity": true,
     "align": ["wide"],
     "dimensions": {
       "aspectRatio": true
+    },
+    "spacing": {
+      "margin": true
     },
     "__experimentalBorder": {
       "radius": true,
@@ -27,10 +34,6 @@
       "type": "string",
       "enum": ["hover", "click"],
       "default": "hover"
-    },
-    "aspectRatio": {
-      "type": "string",
-      "default": "3/4"
     }
   },
   "textdomain": "aggressive-apparel",

@@ -1,70 +1,104 @@
 /* Card Flip Block — Frontend Styles */
 
 .aa-card-flip {
-  perspective: 1200px;
-  display: block;
-  width: 100%;
-  cursor: default;
-}
-
-.aa-card-flip--click {
-  cursor: pointer;
-}
-
-/* Inner: 3D transform stage */
-.aa-card-flip__inner {
   position: relative;
+  display: grid;
+  perspective: 1200px;
   width: 100%;
-  height: 100%;
+}
+
+/* Flip control — always present for keyboard / touch / reduced-motion.
+   On the hover variant it stays out of the way until the card is hovered or
+   focused (but is always operable). */
+.aa-card-flip__toggle {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: currentcolor;
+  background: color-mix(in srgb, canvas 86%, transparent);
+  border: 1px solid color-mix(in srgb, currentcolor 28%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 0.5rem 1.25rem rgb(0 0 0 / 14%);
+  cursor: pointer;
+  transition:
+    opacity 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.aa-card-flip__toggle:hover {
+  background: color-mix(in srgb, canvas 96%, transparent);
+  transform: scale(1.04);
+}
+
+.aa-card-flip__toggle:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 3px;
+}
+
+.aa-card-flip__toggle svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  pointer-events: none;
+  transition: transform 300ms ease;
+}
+
+.aa-card-flip.is-flipped .aa-card-flip__toggle svg {
+  transform: rotate(180deg);
+}
+
+/* Hover variant: reveal the control on hover/focus, keep it reachable always. */
+.aa-card-flip--hover .aa-card-flip__toggle {
+  opacity: 0;
+}
+
+.aa-card-flip--hover:hover .aa-card-flip__toggle,
+.aa-card-flip--hover:focus-within .aa-card-flip__toggle,
+.aa-card-flip--hover .aa-card-flip__toggle:focus-visible {
+  opacity: 1;
+}
+
+/* Inner: 3D transform stage. */
+.aa-card-flip__inner {
+  display: grid;
   transform-style: preserve-3d;
   transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hover flip */
-.aa-card-flip--hover:hover .aa-card-flip__inner,
-.aa-card-flip--hover:focus-within .aa-card-flip__inner {
-  transform: rotateY(180deg);
-}
-
-/* Click flip */
-.aa-card-flip--click.is-flipped .aa-card-flip__inner {
-  transform: rotateY(180deg);
-}
-
-/* Front and back faces */
-.aa-card-flip__inner > * {
-  position: absolute;
-  inset: 0;
+/* Both faces occupy the same grid cell, so the card sizes to the taller face
+   (content-driven height) instead of needing a fixed aspect ratio. */
+.aa-card-flip__face {
+  grid-area: 1 / 1;
+  min-width: 0;
   backface-visibility: hidden;
-  overflow: hidden;
+  border-radius: inherit;
 }
 
-/* Back face starts rotated and hidden from AT */
-.aa-card-flip__inner > :last-child {
+.aa-card-flip__face--back {
   transform: rotateY(180deg);
-  visibility: hidden;
 }
 
-/* When flipped: show back face, hide front face from AT.
- * Delayed transition on hide so visibility changes after the 3D cross-over (300ms = half of 600ms). */
-.aa-card-flip--hover:hover .aa-card-flip__inner > :last-child,
-.aa-card-flip--hover:focus-within .aa-card-flip__inner > :last-child,
-.aa-card-flip--click.is-flipped .aa-card-flip__inner > :last-child {
-  visibility: visible;
-  transition: visibility 0ms;
+/* Flip: hover variant (pure CSS) and button variant (is-flipped from JS). */
+.aa-card-flip--hover:hover .aa-card-flip__inner,
+.aa-card-flip.is-flipped .aa-card-flip__inner {
+  transform: rotateY(180deg);
 }
 
-.aa-card-flip--hover:hover .aa-card-flip__inner > :first-child,
-.aa-card-flip--hover:focus-within .aa-card-flip__inner > :first-child,
-.aa-card-flip--click.is-flipped .aa-card-flip__inner > :first-child {
-  visibility: hidden;
-  transition: visibility 0ms 300ms;
-}
-
-/* ── Reduced motion ──────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 
   .aa-card-flip__inner {
+    transition: none;
+  }
+
+  .aa-card-flip__toggle,
+  .aa-card-flip__toggle svg {
     transition: none;
   }
 }

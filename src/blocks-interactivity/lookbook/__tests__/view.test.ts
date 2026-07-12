@@ -266,9 +266,7 @@ describe('keyboard focus lands in the rendered card', () => {
       ].join('')
     );
 
-    expect(__testing.focusAdjacentHotspotFromPopover(root, 1, true)).toBe(
-      true
-    );
+    expect(__testing.focusAdjacentHotspotFromPopover(root, 1, true)).toBe(true);
     expect(document.activeElement).toBe(
       root.querySelector('[data-aa-hotspot-index="1"]')
     );

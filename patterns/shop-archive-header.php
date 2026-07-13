@@ -1,10 +1,10 @@
 <?php
 /**
  * Title: Shop Archive Header
- * Description: Utility product listing page header with title, count, filter toggle, and active filter bar.
+ * Description: Shop archive utility header with title, grid/list toggle, filter toggle, and active filter bar.
  * Slug: aggressive-apparel/shop-archive-header
  * Categories: aggressive, aggressive-apparel, aggressive-shop, aggressive-products
- * Keywords: shop, archive, header, filters, plp, product listing
+ * Keywords: shop, archive, header, filters, grid, list, plp, product listing
  * Viewport Width: 1200
  *
  * @package Aggressive_Apparel
@@ -22,7 +22,13 @@
 		</div>
 		<!-- /wp:group -->
 
-		<!-- wp:aggressive-apparel/filter-toggle /-->
+		<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"right","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
+		<div class="wp-block-group">
+			<!-- wp:aggressive-apparel/grid-list-toggle /-->
+
+			<!-- wp:aggressive-apparel/filter-toggle /-->
+		</div>
+		<!-- /wp:group -->
 	</div>
 	<!-- /wp:group -->
 

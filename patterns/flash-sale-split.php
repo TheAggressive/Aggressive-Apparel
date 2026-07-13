@@ -28,8 +28,10 @@
 			<p class="has-white-color has-text-color has-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Ends at midnight</p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)">Up to 40% off select streetwear. No code needed — prices already slashed. Swap this line for a live countdown block if you use one.</p>
+			<!-- wp:aggressive-apparel/countdown-timer {"displayStyle":"strip","endDateTime":"2026-12-31T23:59:59","saleLabelColor":"var:preset|color|accent","timeValueColor":"var:preset|color|white","unitLabelColor":"var:preset|color|white","timerBorderColor":"var:preset|color|border","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} /-->
+
+			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"white","fontSize":"medium"} -->
+			<p class="has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)">Up to 40% off select streetwear. No code needed — prices already slashed.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

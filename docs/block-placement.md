@@ -41,10 +41,11 @@ Filter UI is **not** auto-injected into templates. You must place the blocks (or
 | ----- | -------------------- |
 | `aggressive-apparel/filter-toggle` | Archive header, next to title / sorting |
 | `aggressive-apparel/filter-active-bar` | Directly under the header, above `woocommerce/product-collection` |
+| `aggressive-apparel/grid-list-toggle` | Same header toolbar as `filter-toggle` (included in `shop-archive-header`) |
 
 **Templates:** `archive-product`, `taxonomy-product_cat`, and any custom product-tag archive template.
 
-**Starter pattern:** `aggressive-apparel/shop-archive-header` (`patterns/shop-archive-header.php`) already includes both blocks.
+**Starter pattern:** `aggressive-apparel/shop-archive-header` (`patterns/shop-archive-header.php`) includes filter toggle, grid/list toggle, and active filter bar.
 
 ### Behavior notes
 
@@ -107,6 +108,8 @@ Card template for the page block should include, in order:
 | `grid-list-toggle` | Archive toolbar | Persists layout preference in `localStorage`; pair with product-collection |
 
 Keep swatches near the product image so image/link swapping has a clear card root.
+
+**Starter card template** (`product-collection-card-starter` and most product-row patterns): image → color swatches → title + wishlist → rating → price → button.
 
 ---
 

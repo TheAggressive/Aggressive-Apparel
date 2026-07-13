@@ -23,6 +23,8 @@
 	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">We're putting the finishing touches on something you'll want to see. Be the first to know when we drop.</p>
 	<!-- /wp:paragraph -->
 
+	<!-- wp:aggressive-apparel/countdown-timer {"displayStyle":"boxed","endDateTime":"2026-10-01T12:00:00","timeValueColor":"var:preset|color|white","unitLabelColor":"var:preset|color|white","timerBorderColor":"var:preset|color|white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} /-->
+
 	<!-- wp:group {"borderColor":"white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed"}},"layout":{"type":"constrained"}} -->
 	<div class="wp-block-group has-border-color has-white-border-color" style="border-style:dashed;border-width:1px;margin-top:var(--wp--preset--spacing--10);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 		<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"small"} -->

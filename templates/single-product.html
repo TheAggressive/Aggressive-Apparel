@@ -21,6 +21,8 @@
 
 <!-- wp:woocommerce/add-to-cart-with-options /-->
 
+<!-- wp:aggressive-apparel/wishlist-button {"showLabel":true,"iconOnly":false,"label":"Add to Wishlist","size":"large"} /-->
+
 <!-- wp:pattern {"slug":"aggressive-apparel/pdp-notify-me-strip"} /-->
 
 <!-- wp:woocommerce/product-meta {"metadata":{"ignoredHookedBlocks":["core/post-terms"]}} -->
@@ -70,12 +72,25 @@
 <!-- wp:woocommerce/product-image {"aspectRatio":"3/4","imageSizing":"thumbnail","isDescendentOfQueryLoop":true,"className":"is-style-product-frame"} -->
 <!-- wp:woocommerce/product-sale-badge {"align":"right"} /-->
 <!-- /wp:woocommerce/product-image -->
-<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"var:preset|spacing|3","bottom":"0"}}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/product-color-swatches {"swatchSize":"sm","maxVisible":5,"swatchAlignment":"left"} /-->
+<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|2","margin":{"top":"var:preset|spacing|3"}}}} -->
+<div class="wp-block-group" style="margin-top:var(--wp--preset--spacing--3)">
+<!-- wp:post-title {"textAlign":"left","level":3,"isLink":true,"style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.4"},"spacing":{"margin":{"top":"0","bottom":"0"}}},"layout":{"selfStretch":"fill","flexSize":null},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:aggressive-apparel/wishlist-button {"iconOnly":true,"showLabel":false,"alignment":"right"} /-->
+</div>
+<!-- /wp:group -->
 <!-- wp:aggressive-apparel/product-rating {"textAlign":"left"} /-->
 <!-- wp:woocommerce/product-price {"textAlign":"left","isDescendentOfQueryLoop":true,"className":"is-style-commerce-price","fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|1"}}}} /-->
 <!-- wp:woocommerce/product-button {"textAlign":"left","isDescendentOfQueryLoop":true,"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} /-->
 <!-- /wp:woocommerce/product-template --></div>
-<!-- /wp:woocommerce/product-collection --></main>
+<!-- /wp:woocommerce/product-collection -->
+
+<!-- wp:spacer {"height":"var:preset|spacing|16"} -->
+<div style="height:var(--wp--preset--spacing--16)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:aggressive-apparel/recently-viewed {"maxDisplay":4,"heading":"Recently Viewed"} /-->
+</main>
 <!-- /wp:group -->
 
 <!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

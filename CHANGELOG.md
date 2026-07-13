@@ -1,3 +1,10 @@
+# [1.151.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.150.0...v1.151.0) (2026-07-13)
+
+
+### Features
+
+* introduce theme features management and enhance product display options ([a712a79](https://github.com/TheAggressive/Aggressive-Apparel/commit/a712a79fce4c1a10927b95614ca3324e75bda4cf))
+
 # [1.150.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.149.1...v1.150.0) (2026-07-13)
 
 

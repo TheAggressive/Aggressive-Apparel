@@ -124,6 +124,10 @@ class Search_Modal {
 			);
 		}
 
+		$hint = isset( $scopes['product'] )
+			? __( 'Start typing to search products, articles and pages.', 'aggressive-apparel' )
+			: __( 'Start typing to search articles and pages.', 'aggressive-apparel' );
+
 		printf(
 			'<div
 				class="aa-search"
@@ -195,7 +199,7 @@ class Search_Modal {
 			\aggressive_apparel_get_icon( 'close', $icon_attrs( 20 ) ),
 			esc_attr__( 'Filter results by type', 'aggressive-apparel' ),
 			\aggressive_apparel_trusted_html( $tabs_html ),
-			esc_html__( 'Start typing to search products, articles and pages.', 'aggressive-apparel' ),
+			esc_html( $hint ),
 			esc_html__( 'Searching…', 'aggressive-apparel' ),
 			esc_html__( 'Try again', 'aggressive-apparel' ),
 			esc_html__( 'No results found.', 'aggressive-apparel' ),

@@ -3,6 +3,8 @@ import './editor.css';
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
+import { HeartIcon } from '../../utils/heart-icon';
+
 interface Attrs {
   showRemove: boolean;
   showAddToCart: boolean;
@@ -13,18 +15,6 @@ interface Props {
   attributes: Attrs;
   setAttributes: (a: Partial<Attrs>) => void;
 }
-
-const HeartIcon = () => (
-  <svg
-    viewBox='0 0 24 24'
-    fill='currentColor'
-    width='14'
-    height='14'
-    aria-hidden='true'
-  >
-    <path d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' />
-  </svg>
-);
 
 export default function Edit({
   attributes,
@@ -89,7 +79,7 @@ export default function Edit({
         )}
         {showRemove && (
           <span className='aa-wl-item-actions-preview__remove'>
-            <HeartIcon />
+            <HeartIcon outlined={false} size={14} />
             {removeLabel && <span>{removeLabel}</span>}
           </span>
         )}

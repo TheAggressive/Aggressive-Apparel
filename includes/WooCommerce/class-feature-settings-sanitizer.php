@@ -126,6 +126,39 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize the Quick View media trigger style.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_quick_view_trigger_style( $input ): string {
+		$valid = array( 'corner', 'bottom-bar', 'center' );
+		return in_array( $input, $valid, true ) ? $input : 'corner';
+	}
+
+	/**
+	 * Sanitize the Quick View media action corner position.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_quick_view_trigger_position( $input ): string {
+		$valid = array( 'top-right', 'top-left', 'bottom-right', 'bottom-left' );
+		return in_array( $input, $valid, true ) ? $input : 'top-right';
+	}
+
+	/**
+	 * Sanitize whether Wishlist joins the Quick View media stack.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_quick_view_media_wishlist( $input ): string {
+		$valid = array( 'with_wishlist', 'quick_view_only' );
+		return in_array( $input, $valid, true ) ? $input : 'with_wishlist';
+	}
+
+	/**
 	 * Sanitize the load more mode option.
 	 *
 	 * @param mixed $input Raw input.

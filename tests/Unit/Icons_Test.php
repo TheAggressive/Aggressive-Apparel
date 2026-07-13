@@ -686,6 +686,25 @@ class Icons_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Core heart icons use the shared silhouette with currentColor (no baked fill).
+	 */
+	public function test_heart_and_heart_outline_icons(): void {
+		$filled = Icons::get( 'heart' );
+		$this->assertTrue( Icons::exists( 'heart' ) );
+		$this->assertStringContainsString( 'm7 3c-1.5355', $filled );
+		$this->assertStringContainsString( 'fill="currentColor"', $filled );
+		$this->assertStringNotContainsString( '#e74c3c', $filled );
+
+		$outline = Icons::get( 'heart-outline' );
+		$this->assertTrue( Icons::exists( 'heart-outline' ) );
+		$this->assertStringContainsString( 'm7 3c-1.5355', $outline );
+		$this->assertStringContainsString( 'fill="none"', $outline );
+		$this->assertStringContainsString( 'stroke="currentColor"', $outline );
+		$this->assertStringContainsString( 'stroke-width="1.25"', $outline );
+		$this->assertStringContainsString( 'viewBox="1.75 2.25 20.5 20.5"', $outline );
+	}
+
+	/**
 	 * Spotlight eye brand icon is registered when Brand_Icons is bootstrapped.
 	 */
 	public function test_spotlight_eye_icon_is_available(): void {

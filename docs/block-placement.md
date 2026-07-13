@@ -111,6 +111,20 @@ Keep swatches near the product image so image/link swapping has a clear card roo
 
 **Starter card template** (`product-collection-card-starter` and most product-row patterns): image → color swatches → title + wishlist → rating → price → button.
 
+When **Quick View** is enabled with **Wishlist on Product Images**, the heart moves onto the product image action stack on shop/archive cards and the title-row `wishlist-button` block is suppressed there (so you only get one heart). Single-product placement still follows the Wishlist placement mode.
+
+### Quick View card controls (Store Enhancements)
+
+With Quick View on:
+
+| Setting | Options | Notes |
+| ------- | ------- | ----- |
+| Card style | Corner chip (default), Bottom action bar, Center eye (legacy) | Corner/bottom keep transparent PNGs readable |
+| Card position | Top/bottom × left/right | Corner chips + Wishlist park here; bottom-bar stays along the bottom edge |
+| Wishlist on product images | Include / Quick View only | Shown only when Wishlist is also enabled |
+
+**Mobile / touch:** chips stay as small always-visible corner (or bottom) controls — the image itself is not a full-bleed Quick View hit target, so tap-to-PDP still works.
+
 ---
 
 ## Single product

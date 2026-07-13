@@ -9,6 +9,24 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.35em;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	font: inherit;
+	line-height: inherit;
+	margin-left: 0.5em;
+	padding: 0.5em 1em;
+	text-decoration: none;
+}
+
+.aa-features-tabs .nav-tab:first-child {
+	margin-left: 0;
+}
+
+.aa-features-tabs .nav-tab:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
 }
 
 .aa-features-tabs .dashicons {
@@ -42,6 +60,54 @@
 
 .aa-features-tab-panel[hidden] {
 	display: none;
+}
+
+.aa-features-tab-panel:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.aa-features-wrap .form-table tr.aa-features-sub-field th,
+.aa-features-wrap .form-table tr.aa-features-sub-field td {
+	padding-left: 2rem;
+}
+
+.aa-features-wrap .form-table tr.aa-features-sub-field th {
+	font-weight: 500;
+}
+
+.aa-features-wrap .form-table tr.aa-features-sub-field[hidden] {
+	display: none;
+}
+
+.aa-features-wrap .form-table tr.aa-features-sub-field th::before {
+	content: '';
+	display: inline-block;
+	width: 0.5rem;
+	height: 0.5rem;
+	margin-right: 0.5rem;
+	border-left: 2px solid #c3c4c7;
+	border-bottom: 2px solid #c3c4c7;
+	vertical-align: 0.15em;
+}
+
+.aa-features-toggle {
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 0.5em;
+	max-width: 42rem;
+}
+
+.aa-features-toggle input[type='checkbox'] {
+	margin: 0.2em 0 0;
+	flex-shrink: 0;
+}
+
+.aa-features-toggle .description {
+	display: inline;
+	margin: 0;
+	padding: 0;
+	line-height: 1.5;
 }
 
 /* Social proof source mix cards */

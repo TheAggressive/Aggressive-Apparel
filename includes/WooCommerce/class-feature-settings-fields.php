@@ -36,16 +36,32 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_toggle_field( array $args ): void {
-		$key     = $args['key'];
-		$enabled = Feature_Settings::is_enabled( $key );
+		$key         = $args['key'];
+		$enabled     = Feature_Settings::is_enabled( $key );
+		$control_id  = isset( $args['label_for'] ) ? (string) $args['label_for'] : 'aa-feature-' . $key;
+		$description = (string) ( $args['description'] ?? '' );
+		$desc_id     = $control_id . '-desc';
+
+		echo '<span class="aa-features-toggle">';
 
 		printf(
-			'<label><input type="checkbox" name="%s[%s]" value="1" %s /> %s</label>',
+			'<input type="checkbox" id="%1$s" name="%2$s[%3$s]" value="1" %4$s%5$s />',
+			esc_attr( $control_id ),
 			esc_attr( Feature_Settings::OPTION_KEY ),
 			esc_attr( $key ),
 			checked( $enabled, true, false ),
-			esc_html( $args['description'] )
+			'' !== $description ? ' aria-describedby="' . esc_attr( $desc_id ) . '"' : ''
 		);
+
+		if ( '' !== $description ) {
+			printf(
+				' <span id="%1$s" class="description">%2$s</span>',
+				esc_attr( $desc_id ),
+				esc_html( $description )
+			);
+		}
+
+		echo '</span>';
 	}
 
 	/**
@@ -58,16 +74,19 @@ class Feature_Settings_Fields {
 		$option_name = (string) $args['option'];
 		$default     = (string) $args['default'];
 		$value       = Feature_Settings::get_store_copy_text( $option_name );
+		$desc_id     = $option_name . '-desc';
 
 		printf(
-			'<input type="text" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" />',
+			'<input type="text" id="%1$s" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" aria-describedby="%4$s" />',
 			esc_attr( $option_name ),
 			esc_attr( $value ),
 			esc_attr( $default ),
+			esc_attr( $desc_id ),
 		);
 
 		printf(
-			'<p class="description">%s</p>',
+			'<p id="%1$s" class="description">%2$s</p>',
+			esc_attr( $desc_id ),
 			esc_html( $args['description'] )
 		);
 	}
@@ -78,18 +97,25 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_hover_image_exit_duration_field(): void {
-		$value = (int) get_option( Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+		$value   = (int) get_option( Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION, 350 );
+		$option  = Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION;
+		$desc_id = $option . '-desc';
+
 		printf(
 			'<div style="display:flex;align-items:center;gap:10px;">'
 			. '<input type="range" name="%1$s" id="%1$s" min="50" max="1500" step="50" value="%2$d"'
 			. ' oninput="document.getElementById(\'%1$s_display\').textContent=this.value+\'ms\'"'
-			. ' style="width:220px;">'
+			. ' aria-describedby="%3$s" style="width:220px;">'
 			. '<span id="%1$s_display" style="min-width:4em;font-weight:600;">%2$dms</span>'
 			. '</div>',
-			esc_attr( Feature_Settings::HOVER_IMAGE_EXIT_DURATION_OPTION ),
+			esc_attr( $option ),
 			absint( $value ),
+			esc_attr( $desc_id ),
 		);
-		echo '<p class="description">' . esc_html__( 'How long the original image takes to exit when hovering. 50ms = near instant, 350ms = default, 1500ms = very slow fade.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			$option,
+			__( 'How long the original image takes to exit when hovering. 50ms = near instant, 350ms = default, 1500ms = very slow fade.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -118,7 +144,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::HOVER_IMAGE_EXIT_ANIMATION_OPTION, $options, $value );
-		echo '<p class="description">' . esc_html__( 'How the original image exits when the secondary image appears. Pair with the entrance animation below for complementary or contrasting effects.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::HOVER_IMAGE_EXIT_ANIMATION_OPTION,
+			__( 'How the original image exits when the secondary image appears. Pair with the entrance animation below for complementary or contrasting effects.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -147,7 +176,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION, $options, $value );
-		echo '<p class="description">' . esc_html__( 'Transition used when the secondary image appears on hover. Only applies to products that have at least one gallery image.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::HOVER_IMAGE_ANIMATION_OPTION,
+			__( 'Transition used when the secondary image appears on hover. Only applies to products that have at least one gallery image.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -164,7 +196,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::FILTER_LAYOUT_OPTION, $options, $layout );
-		echo '<p class="description">' . esc_html__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::FILTER_LAYOUT_OPTION,
+			__( 'Choose how filters are displayed on shop pages. Sidebar and Horizontal Bar fall back to Drawer on mobile.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -180,7 +215,70 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION, $options, $placement );
-		echo '<p class="description">' . esc_html__( 'Catalog and archive cards do not include a wishlist control automatically. Use the "Wishlist Button" block for manual card placement. Automatic adds the heart to the single product page; Manual also leaves single-product placement to the block.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::WISHLIST_BUTTON_PLACEMENT_OPTION,
+			__( 'Controls the single product page heart. Shop cards can also get a heart from Quick View → “Wishlist on Product Images” when both features are on.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render the Quick View card trigger style field.
+	 *
+	 * @return void
+	 */
+	public function render_quick_view_trigger_style_field(): void {
+		$style   = Feature_Settings::get_quick_view_trigger_style();
+		$options = array(
+			'corner'     => __( 'Corner chip (recommended for transparent product shots)', 'aggressive-apparel' ),
+			'bottom-bar' => __( 'Bottom action bar', 'aggressive-apparel' ),
+			'center'     => __( 'Center eye (legacy)', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION, $options, $style );
+		$this->render_field_description(
+			Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION,
+			__( 'Corner and bottom-bar keep transparent PNGs readable. On touch devices, controls stay as small chips — the product image still opens the product page.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render the Quick View card corner position field.
+	 *
+	 * @return void
+	 */
+	public function render_quick_view_trigger_position_field(): void {
+		$position = Feature_Settings::get_quick_view_trigger_position();
+		$options  = array(
+			'top-right'    => __( 'Top right', 'aggressive-apparel' ),
+			'top-left'     => __( 'Top left', 'aggressive-apparel' ),
+			'bottom-right' => __( 'Bottom right', 'aggressive-apparel' ),
+			'bottom-left'  => __( 'Bottom left', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION, $options, $position );
+		$this->render_field_description(
+			Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION,
+			__( 'Used by Corner chip (and Wishlist in the stack). Bottom action bar always sits along the bottom edge. Center style places Quick View in the middle and still parks Wishlist in this corner.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render whether Wishlist joins the Quick View media stack.
+	 *
+	 * @return void
+	 */
+	public function render_quick_view_media_wishlist_field(): void {
+		$value   = (string) get_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'with_wishlist' );
+		$options = array(
+			'with_wishlist'   => __( 'Include Wishlist heart in the image action stack', 'aggressive-apparel' ),
+			'quick_view_only' => __( 'Quick View only (keep Wishlist via block / title row)', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, $options, $value );
+		$this->render_field_description(
+			Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION,
+			__( 'When included, listing cards hide the Wishlist Button block on the image stack so you do not get two hearts. Single product placement still follows Wishlist Button Placement on the Customer Engagement tab.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -196,7 +294,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::LOAD_MORE_MODE_OPTION, $options, $mode );
-		echo '<p class="description">' . esc_html__( 'Load More shows a button; Infinite Scroll loads automatically as users scroll down.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::LOAD_MORE_MODE_OPTION,
+			__( 'Load More shows a button; Infinite Scroll loads automatically as users scroll down.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -246,14 +347,16 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_social_proof_trust_messages_field(): void {
-		$value = Feature_Settings::get_social_proof_trust_messages();
+		$value   = Feature_Settings::get_social_proof_trust_messages();
+		$desc_id = Feature_Settings::SOCIAL_PROOF_TRUST_MESSAGES_OPTION . '-desc';
 
 		printf(
-			'<textarea name="%s" rows="8" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;">%s</textarea>',
+			'<textarea id="%1$s" name="%1$s" rows="8" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;" aria-describedby="%2$s">%3$s</textarea>',
 			esc_attr( Feature_Settings::SOCIAL_PROOF_TRUST_MESSAGES_OPTION ),
+			esc_attr( $desc_id ),
 			esc_textarea( $value ),
 		);
-		echo '<p class="description">' . esc_html__( 'One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored.', 'aggressive-apparel' ) . '</p>';
+		echo '<p id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**
@@ -262,15 +365,17 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_social_proof_announcements_field(): void {
-		$value = Feature_Settings::get_social_proof_announcements();
+		$value   = Feature_Settings::get_social_proof_announcements();
+		$desc_id = Feature_Settings::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION . '-desc';
 
 		printf(
-			'<textarea name="%s" rows="5" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;" placeholder="%s">%s</textarea>',
+			'<textarea id="%1$s" name="%1$s" rows="5" cols="60" class="large-text code" style="font-family: ui-sans-serif, system-ui, sans-serif;" placeholder="%2$s" aria-describedby="%3$s">%4$s</textarea>',
 			esc_attr( Feature_Settings::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION ),
 			esc_attr__( "gift|Spring drop launches Friday\nhttps://cdn.example.com/sale-dot.png | Free shipping today only", 'aggressive-apparel' ),
+			esc_attr( $desc_id ),
 			esc_textarea( $value ),
 		);
-		echo '<p class="description">' . esc_html__( 'Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation.', 'aggressive-apparel' ) . '</p>';
+		echo '<p id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**
@@ -279,11 +384,14 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_social_proof_purchase_badge_icon_field(): void {
-		$value = Feature_Settings::resolve_social_proof_purchase_badge_icon_slug();
+		$value   = Feature_Settings::resolve_social_proof_purchase_badge_icon_slug();
+		$option  = Feature_Settings::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION;
+		$desc_id = $option . '-desc';
 
 		printf(
-			'<select name="%s">',
-			esc_attr( Feature_Settings::SOCIAL_PROOF_PURCHASE_BADGE_ICON_OPTION ),
+			'<select id="%1$s" name="%1$s" aria-describedby="%2$s">',
+			esc_attr( $option ),
+			esc_attr( $desc_id ),
 		);
 		printf(
 			'<option value="" %s>%s</option>',
@@ -306,7 +414,7 @@ class Feature_Settings_Fields {
 
 		echo '</select>';
 
-		echo '<p class="description">' . esc_html__( 'Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below.', 'aggressive-apparel' ) . '</p>';
+		echo '<p id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**
@@ -346,15 +454,18 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_social_proof_engagement_min_sales_field(): void {
-		$value = Feature_Settings::get_social_proof_engagement_min_sales();
+		$value   = Feature_Settings::get_social_proof_engagement_min_sales();
+		$option  = Feature_Settings::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION;
+		$desc_id = $option . '-desc';
 
 		printf(
-			'<input type="number" name="%s" value="%d" min="1" max="999999" step="1" style="width: 8em;" />',
-			esc_attr( Feature_Settings::SOCIAL_PROOF_ENGAGEMENT_MIN_SALES_OPTION ),
+			'<input type="number" id="%1$s" name="%1$s" value="%2$d" min="1" max="999999" step="1" style="width: 8em;" aria-describedby="%3$s" />',
+			esc_attr( $option ),
 			absint( $value ),
+			esc_attr( $desc_id ),
 		);
 
-		echo '<p class="description">' . esc_html__( 'Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted.', 'aggressive-apparel' ) . '</p>';
+		echo '<p id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**
@@ -371,7 +482,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::SOCIAL_PROOF_DISPLAY_MODE_OPTION, $options, $mode );
-		echo '<p class="description">' . esc_html__( 'Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::SOCIAL_PROOF_DISPLAY_MODE_OPTION,
+			__( 'Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -389,7 +503,10 @@ class Feature_Settings_Fields {
 		);
 
 		$this->render_select( Feature_Settings::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION, $options, $value );
-		echo '<p class="description">' . esc_html__( 'Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer.', 'aggressive-apparel' ) . '</p>';
+		$this->render_field_description(
+			Feature_Settings::SOCIAL_PROOF_LOCATION_GRANULARITY_OPTION,
+			__( 'Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer.', 'aggressive-apparel' )
+		);
 	}
 
 	/**
@@ -398,14 +515,17 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	public function render_social_proof_min_order_age_field(): void {
-		$value = (int) get_option( Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION, 5 );
+		$value   = (int) get_option( Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION, 5 );
+		$option  = Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION;
+		$desc_id = $option . '-desc';
 
 		printf(
-			'<input type="number" name="%s" value="%d" min="0" max="1440" step="1" style="width: 6em;" />',
-			esc_attr( Feature_Settings::SOCIAL_PROOF_MIN_ORDER_AGE_OPTION ),
+			'<input type="number" id="%1$s" name="%1$s" value="%2$d" min="0" max="1440" step="1" style="width: 6em;" aria-describedby="%3$s" />',
+			esc_attr( $option ),
 			absint( $value ),
+			esc_attr( $desc_id ),
 		);
-		echo '<p class="description">' . esc_html__( 'Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers.', 'aggressive-apparel' ) . '</p>';
+		echo '<p id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers.', 'aggressive-apparel' ) . '</p>';
 	}
 
 	/**
@@ -415,26 +535,36 @@ class Feature_Settings_Fields {
 	 */
 	public function render_social_proof_demo_field(): void {
 		$enabled = (bool) get_option( Feature_Settings::SOCIAL_PROOF_DEMO_OPTION, false );
+		$option  = Feature_Settings::SOCIAL_PROOF_DEMO_OPTION;
+		$desc_id = $option . '-desc';
 
+		echo '<span class="aa-features-toggle">';
 		printf(
-			'<label><input type="checkbox" name="%s" value="1" %s /> %s</label>',
-			esc_attr( Feature_Settings::SOCIAL_PROOF_DEMO_OPTION ),
+			'<input type="checkbox" id="%1$s" name="%1$s" value="1" %2$s aria-describedby="%3$s" />',
+			esc_attr( $option ),
 			checked( $enabled, true, false ),
-			esc_html__( 'Show a sample notification first in the rotation so I can preview the design.', 'aggressive-apparel' ),
+			esc_attr( $desc_id ),
 		);
-		echo '<p class="description">' . esc_html__( 'Visible only to logged-in users with the "Edit Theme Options" capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active.', 'aggressive-apparel' ) . '</p>';
+		echo ' <span id="' . esc_attr( $desc_id ) . '" class="description">' . esc_html__( 'Show a sample notification first in the rotation so you can preview the design. Visible only to logged-in users with the “Edit Theme Options” capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active.', 'aggressive-apparel' ) . '</span>';
+		echo '</span>';
 	}
 
 	/**
 	 * Render a single-select dropdown bound to an option.
 	 *
-	 * @param string                $option_name Option key used as the field name.
+	 * @param string                $option_name Option key used as the field name and id.
 	 * @param array<string, string> $options     Map of value => label.
 	 * @param string                $selected    Currently selected value.
 	 * @return void
 	 */
 	private function render_select( string $option_name, array $options, string $selected ): void {
-		printf( '<select name="%s">', esc_attr( $option_name ) );
+		$desc_id = $option_name . '-desc';
+
+		printf(
+			'<select id="%1$s" name="%1$s" aria-describedby="%2$s">',
+			esc_attr( $option_name ),
+			esc_attr( $desc_id )
+		);
 		foreach ( $options as $value => $label ) {
 			printf(
 				'<option value="%s" %s>%s</option>',
@@ -444,5 +574,22 @@ class Feature_Settings_Fields {
 			);
 		}
 		echo '</select>';
+	}
+
+	/**
+	 * Print a description paragraph wired to a control via aria-describedby.
+	 *
+	 * Call after render_select() so the option id + "-desc" matches.
+	 *
+	 * @param string $option_name Option key used as the control id.
+	 * @param string $text        Description text.
+	 * @return void
+	 */
+	private function render_field_description( string $option_name, string $text ): void {
+		printf(
+			'<p id="%1$s" class="description">%2$s</p>',
+			esc_attr( $option_name . '-desc' ),
+			esc_html( $text )
+		);
 	}
 }

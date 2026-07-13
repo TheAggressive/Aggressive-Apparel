@@ -4,6 +4,7 @@
  *
  * Auto-generates light-dark() palette entries from theme.json config
  * and provides per-block adaptive color overrides via the block editor.
+ * Enablement lives in Appearance → Theme Features.
  *
  * @package Aggressive_Apparel
  * @since 1.56.0
@@ -49,9 +50,17 @@ class Adaptive_Colors {
 	/**
 	 * Initialize adaptive colors system.
 	 *
+	 * Honors Appearance → Theme Features → Adaptive Colors. Unconfigured
+	 * installs keep the historical always-on behavior until an admin
+	 * explicitly turns it off.
+	 *
 	 * @return void
 	 */
 	public function init(): void {
+		if ( ! Theme_Features::is_enabled( 'adaptive_colors' ) ) {
+			return;
+		}
+
 		$this->load_pairs();
 
 		if ( empty( $this->pairs ) ) {

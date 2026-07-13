@@ -23,6 +23,11 @@ class TestFeatureSettings extends WP_UnitTestCase {
 			delete_option( $definition['option'] );
 		}
 
+		delete_option( Feature_Settings::OPTION_KEY );
+		delete_option( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION );
+		delete_option( Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION );
+		delete_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION );
+
 		remove_all_filters( 'aggressive_apparel_store_copy_text' );
 		remove_all_filters( 'wpml_register_single_string' );
 		remove_all_filters( 'wpml_translate_single_string' );
@@ -55,6 +60,21 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		$this->assertSame( 'View Full Product', Feature_Settings::get_view_product_button_text(), 'View Product copy should use the existing default' );
 		$this->assertSame( 'Notify Me', Feature_Settings::get_back_in_stock_button_text(), 'Back in Stock copy should use the existing default' );
 		$this->assertSame( 'Add to Wishlist', Feature_Settings::get_wishlist_button_text(), 'Wishlist copy should use the existing default' );
+	}
+
+	/**
+	 * Quick View media action defaults favor corner chips for transparent packs.
+	 */
+	public function test_quick_view_media_action_defaults(): void {
+		$this->assertSame( 'corner', Feature_Settings::get_quick_view_trigger_style() );
+		$this->assertSame( 'top-right', Feature_Settings::get_quick_view_trigger_position() );
+		$this->assertFalse( Feature_Settings::quick_view_includes_wishlist(), 'Wishlist pairing requires both features' );
+
+		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1', 'wishlist' => '1' ) );
+		$this->assertTrue( Feature_Settings::quick_view_includes_wishlist() );
+
+		update_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'quick_view_only' );
+		$this->assertFalse( Feature_Settings::quick_view_includes_wishlist() );
 	}
 
 	/**

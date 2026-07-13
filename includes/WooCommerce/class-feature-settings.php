@@ -109,6 +109,27 @@ class Feature_Settings {
 	public const WISHLIST_BUTTON_PLACEMENT_OPTION = 'aggressive_apparel_wishlist_button_placement';
 
 	/**
+	 * Option key for Quick View media trigger style on product cards.
+	 *
+	 * @var string
+	 */
+	public const QUICK_VIEW_TRIGGER_STYLE_OPTION = 'aggressive_apparel_quick_view_trigger_style';
+
+	/**
+	 * Option key for Quick View / media action stack corner position.
+	 *
+	 * @var string
+	 */
+	public const QUICK_VIEW_TRIGGER_POSITION_OPTION = 'aggressive_apparel_quick_view_trigger_position';
+
+	/**
+	 * Option key for whether Wishlist joins the Quick View media action stack.
+	 *
+	 * @var string
+	 */
+	public const QUICK_VIEW_MEDIA_WISHLIST_OPTION = 'aggressive_apparel_quick_view_media_wishlist';
+
+	/**
 	 * Option key for the variable product button text on product cards.
 	 *
 	 * @var string
@@ -319,34 +340,25 @@ class Feature_Settings {
 	public const SOCIAL_PROOF_DEFAULT_TRUST_MESSAGES = "brand-mark|Not for everyone. That's the point.\nclose|No warehouse. No overstock. No middlemen.\ncheck|Made to order. No exceptions.\ninfo|Real measurements. No vanity sizing.\nheart|Softness is for the fabric. Not the brand.\ncheck|Your order starts the press. Not before.\nbrand-mark|Independent. In-house. Nobody's puppet.";
 
 	/**
-	 * Settings page sections with tab metadata.
+	 * Settings page section keys and icons (labels translated in get_sections()).
 	 *
-	 * @var array<string, array{label: string, icon: string}>
+	 * @var array<string, array{icon: string}>
 	 */
 	private const SECTIONS = array(
-		'catalog'      => array(
-			'label' => 'Catalog & Browsing',
-			'icon'  => 'dashicons-store',
+		'catalog'    => array(
+			'icon' => 'dashicons-store',
 		),
-		'copy'         => array(
-			'label' => 'Store Copy',
-			'icon'  => 'dashicons-edit',
+		'copy'       => array(
+			'icon' => 'dashicons-edit',
 		),
-		'product'      => array(
-			'label' => 'Product Page',
-			'icon'  => 'dashicons-products',
+		'product'    => array(
+			'icon' => 'dashicons-products',
 		),
-		'engagement'   => array(
-			'label' => 'Customer Engagement',
-			'icon'  => 'dashicons-groups',
+		'engagement' => array(
+			'icon' => 'dashicons-groups',
 		),
-		'ui'           => array(
-			'label' => 'Mobile & UI',
-			'icon'  => 'dashicons-smartphone',
-		),
-		'experimental' => array(
-			'label' => 'Experimental',
-			'icon'  => 'dashicons-admin-tools',
+		'ui'         => array(
+			'icon' => 'dashicons-smartphone',
 		),
 	);
 
@@ -356,7 +368,23 @@ class Feature_Settings {
 	 * @return array<string, array{label: string, icon: string}>
 	 */
 	public static function get_sections(): array {
-		return self::SECTIONS;
+		$labels = array(
+			'catalog'    => __( 'Catalog & Browsing', 'aggressive-apparel' ),
+			'copy'       => __( 'Store Copy', 'aggressive-apparel' ),
+			'product'    => __( 'Product Page', 'aggressive-apparel' ),
+			'engagement' => __( 'Customer Engagement', 'aggressive-apparel' ),
+			'ui'         => __( 'Mobile & UI', 'aggressive-apparel' ),
+		);
+
+		$sections = array();
+		foreach ( self::SECTIONS as $id => $meta ) {
+			$sections[ $id ] = array(
+				'label' => $labels[ $id ],
+				'icon'  => $meta['icon'],
+			);
+		}
+
+		return $sections;
 	}
 
 	/**
@@ -421,7 +449,7 @@ class Feature_Settings {
 			),
 			'quick_view'                 => array(
 				'label'       => __( 'Quick View', 'aggressive-apparel' ),
-				'description' => __( 'Preview products in a modal overlay from shop pages.', 'aggressive-apparel' ),
+				'description' => __( 'Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled.', 'aggressive-apparel' ),
 				'section'     => 'product',
 			),
 			'frequently_bought_together' => array(
@@ -457,18 +485,6 @@ class Feature_Settings {
 				'label'       => __( 'Mobile Bottom Navigation', 'aggressive-apparel' ),
 				'description' => __( 'Fixed bottom bar on mobile with Home, Search, Cart, and Account.', 'aggressive-apparel' ),
 				'section'     => 'ui',
-			),
-			'custom_cursor'              => array(
-				'label'       => __( 'Custom Cursor', 'aggressive-apparel' ),
-				'description' => __( 'Branded cursor that morphs on product cards and interactive areas. Desktop only.', 'aggressive-apparel' ),
-				'section'     => 'ui',
-			),
-
-			// ── Experimental ────────────────────────────────────.
-			'adaptive_colors'            => array(
-				'label'       => __( 'Adaptive Colors', 'aggressive-apparel' ),
-				'description' => __( 'Per-block light/dark color overrides and auto-generated adaptive palette using CSS light-dark().', 'aggressive-apparel' ),
-				'section'     => 'experimental',
 			),
 		);
 	}
@@ -805,6 +821,21 @@ class Feature_Settings {
 				'default'  => 'auto',
 				'sanitize' => 'sanitize_wishlist_button_placement',
 			),
+			self::QUICK_VIEW_TRIGGER_STYLE_OPTION          => array(
+				'type'     => 'string',
+				'default'  => 'corner',
+				'sanitize' => 'sanitize_quick_view_trigger_style',
+			),
+			self::QUICK_VIEW_TRIGGER_POSITION_OPTION       => array(
+				'type'     => 'string',
+				'default'  => 'top-right',
+				'sanitize' => 'sanitize_quick_view_trigger_position',
+			),
+			self::QUICK_VIEW_MEDIA_WISHLIST_OPTION         => array(
+				'type'     => 'string',
+				'default'  => 'with_wishlist',
+				'sanitize' => 'sanitize_quick_view_media_wishlist',
+			),
 			self::HOVER_IMAGE_ANIMATION_OPTION             => array(
 				'type'     => 'string',
 				'default'  => 'fade',
@@ -1081,6 +1112,39 @@ class Feature_Settings {
 	}
 
 	/**
+	 * Quick View media trigger style (`corner`, `bottom-bar`, or `center`).
+	 *
+	 * @return string
+	 */
+	public static function get_quick_view_trigger_style(): string {
+		return (string) self::get_setting( self::QUICK_VIEW_TRIGGER_STYLE_OPTION );
+	}
+
+	/**
+	 * Quick View media action stack corner (`top-right`, `top-left`, `bottom-right`, `bottom-left`).
+	 *
+	 * @return string
+	 */
+	public static function get_quick_view_trigger_position(): string {
+		return (string) self::get_setting( self::QUICK_VIEW_TRIGGER_POSITION_OPTION );
+	}
+
+	/**
+	 * Whether Wishlist should render inside the Quick View media action stack on listings.
+	 *
+	 * Requires both Quick View and Wishlist features to be enabled.
+	 *
+	 * @return bool
+	 */
+	public static function quick_view_includes_wishlist(): bool {
+		if ( ! self::is_enabled( 'quick_view' ) || ! self::is_enabled( 'wishlist' ) ) {
+			return false;
+		}
+
+		return 'with_wishlist' === (string) self::get_setting( self::QUICK_VIEW_MEDIA_WISHLIST_OPTION );
+	}
+
+	/**
 	 * Load More display mode (e.g. 'load_more', 'infinite').
 	 *
 	 * @return string
@@ -1245,14 +1309,17 @@ class Feature_Settings {
 	/**
 	 * Check whether a specific feature is enabled.
 	 *
-	 * All features default to OFF. The admin must explicitly enable
-	 * each feature via Appearance → Store Enhancements.
+	 * All Store Enhancements features default to OFF.
 	 *
 	 * @param string $feature Feature key.
 	 * @return bool True if enabled.
 	 */
 	public static function is_enabled( string $feature ): bool {
 		$options = get_option( self::OPTION_KEY, array() );
+
+		if ( ! is_array( $options ) ) {
+			return false;
+		}
 
 		return ! empty( $options[ $feature ] );
 	}

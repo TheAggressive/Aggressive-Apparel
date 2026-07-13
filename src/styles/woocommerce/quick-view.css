@@ -5,69 +5,314 @@
  * @since 1.17.0
  */
 
+/* Media wrappers need a positioning context for the action stack. */
+.wp-block-post-featured-image,
+.wp-block-woocommerce-product-image {
+	position: relative;
+}
+
+/* Card media action stack (Quick View ± Wishlist). */
+.aggressive-apparel-card-actions {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	display: flex;
+	pointer-events: none;
+
+	& > *,
+	&__bar {
+		pointer-events: auto;
+	}
+
+	&__bar {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.35rem;
+		width: 100%;
+		padding: 0.5rem;
+		background: linear-gradient(
+			to top,
+			color-mix(in oklch, var(--aa-color-surface) 88%, transparent),
+			transparent
+		);
+	}
+
+	/* Corner chip stack. */
+	&--corner {
+		flex-direction: column;
+		gap: 0.35rem;
+		padding: 0.5rem;
+
+		&.aggressive-apparel-card-actions--top-right {
+			align-items: flex-end;
+			justify-content: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--top-left {
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-right {
+			align-items: flex-end;
+			justify-content: flex-end;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-left {
+			align-items: flex-start;
+			justify-content: flex-end;
+		}
+	}
+
+	/* Bottom action bar. */
+	&--bottom-bar {
+		align-items: stretch;
+		justify-content: flex-end;
+		flex-direction: column;
+	}
+
+	/* Legacy center eye; Wishlist still uses the chosen corner. */
+	&--center {
+		align-items: center;
+		justify-content: center;
+
+		.aggressive-apparel-wishlist__toggle {
+			position: absolute;
+		}
+
+		&.aggressive-apparel-card-actions--top-right .aggressive-apparel-wishlist__toggle {
+			top: 0.5rem;
+			right: 0.5rem;
+		}
+
+		&.aggressive-apparel-card-actions--top-left .aggressive-apparel-wishlist__toggle {
+			top: 0.5rem;
+			left: 0.5rem;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-right .aggressive-apparel-wishlist__toggle {
+			bottom: 0.5rem;
+			right: 0.5rem;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-left .aggressive-apparel-wishlist__toggle {
+			bottom: 0.5rem;
+			left: 0.5rem;
+		}
+	}
+}
+
+/* Clear common sale-badge corners so chips do not collide. */
+.wp-block-woocommerce-product-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right,
+.wp-block-post-featured-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right {
+	padding-top: 2.5rem;
+}
+
 /* Trigger button on product cards. */
 .aggressive-apparel-quick-view__trigger {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 2;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
-	background-color: var(--aa-color-surface-80);
+	gap: 0.35rem;
+	min-width: 2.5rem;
+	height: 2.5rem;
+	padding: 0 0.65rem;
+	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+	border-radius: 999px;
+	background-color: var(--aa-color-surface-80, color-mix(in oklch, var(--aa-color-surface) 80%, transparent));
 	color: var(--aa-color-foreground);
+	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
 	cursor: pointer;
-	opacity: 0;
+	transition:
+		opacity 0.2s ease,
+		transform 0.15s ease,
+		background-color 0.15s ease,
+		border-color 0.15s ease;
+
+	&-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+	}
+
+	&-label {
+		display: none;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background-color: var(--aa-color-surface);
+		border-color: var(--aa-color-border);
+	}
+
+	&:focus-visible {
+		opacity: 1;
+		outline: 2px solid var(--aa-color-accent);
+		outline-offset: 2px;
+	}
+
+	svg {
+		display: block;
+		width: 1.125rem;
+		height: 1.125rem;
+	}
+}
+
+.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+	width: 2.5rem;
+	height: 2.5rem;
+	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
 	transition:
 		opacity 0.2s ease,
 		transform 0.15s ease,
 		background-color 0.15s ease;
+}
 
-	&:hover,
-	&:focus-visible {
-		transform: translate(-50%, -50%) scale(1.1);
-		background-color: var(--aa-color-surface);
+/* Devices that can hover: hide until card/media hover or focus. */
+@media (hover: hover) and (pointer: fine) {
+
+	.aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+		opacity: 0;
+		transform: translateY(0.15rem);
 	}
 
-	/* Show on hover/touch of the product card parent. */
-	.wp-block-post-featured-image:hover &,
-	&:focus-visible {
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
+	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
+	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
+	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
+	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
+	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-wishlist__toggle--card-media {
 		opacity: 1;
+		transform: translateY(0);
 	}
 
-	@media (pointer: coarse) {
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		border-radius: inherit;
-		background: transparent;
+	.aggressive-apparel-quick-view__trigger:hover,
+	.aggressive-apparel-quick-view__trigger:focus-visible {
+		transform: translateY(0) scale(1.04);
+	}
+}
+
+/* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
+@media (hover: none), (pointer: coarse) {
+
+	.aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
 		opacity: 1;
 		transform: none;
-
-		& svg {
-			display: none;
-		}
-
-		&:hover,
-		&:focus-visible {
-			background: transparent;
-			transform: none;
-		}
-
-		&:focus-visible {
-			outline: 2px solid currentcolor;
-			outline-offset: -2px;
-		}
 	}
 
-	@media (prefers-reduced-motion: reduce) {
+	.aggressive-apparel-card-actions--center {
+		align-items: flex-end;
+		justify-content: flex-start;
+		flex-direction: column;
+		gap: 0.35rem;
+		padding: 0.5rem;
+
+		&.aggressive-apparel-card-actions--top-right,
+		&.aggressive-apparel-card-actions--bottom-right {
+			align-items: flex-end;
+		}
+
+		&.aggressive-apparel-card-actions--top-left,
+		&.aggressive-apparel-card-actions--bottom-left {
+			align-items: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--top-right,
+		&.aggressive-apparel-card-actions--top-left {
+			justify-content: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-right,
+		&.aggressive-apparel-card-actions--bottom-left {
+			justify-content: flex-end;
+		}
+
+		.aggressive-apparel-quick-view__trigger {
+			position: static;
+			transform: none;
+
+			&:hover,
+			&:focus-visible {
+				transform: scale(1.04);
+			}
+		}
+
+		.aggressive-apparel-wishlist__toggle {
+			position: static;
+		}
+	}
+}
+
+/* Bottom bar: expand label on capable hover devices. */
+@media (hover: hover) and (pointer: fine) {
+
+	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger-label {
+		display: inline;
+	}
+}
+
+/* Center legacy placement for the eye only. */
+.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border-radius: 50%;
+	transform: translate(-50%, -50%) scale(0.96);
+
+	&-label {
+		display: none;
+	}
+}
+
+@media (hover: hover) and (pointer: fine) {
+
+	.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger:hover,
+	.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger:focus-visible {
+		transform: translate(-50%, -50%) scale(1.08);
+	}
+
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
+	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
+	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions--center:focus-within .aggressive-apparel-quick-view__trigger {
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+@media (forced-colors: active) {
+
+	.aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+		border: 1px solid ButtonText;
+		background: Canvas;
+		color: ButtonText;
+		opacity: 1;
+		forced-color-adjust: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-quick-view__trigger,
+	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
 		transition: none;
 	}
 }

@@ -10,20 +10,65 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Cache_Helper;
+
 /**
  * Reads WooCommerce free-shipping settings and cart progress.
  */
 class Free_Shipping {
 
 	/**
-	 * Cached auto-detected threshold from shipping zones.
+	 * Transient key for the zone-detected threshold.
+	 *
+	 * @var string
+	 */
+	private const TRANSIENT_KEY = 'aggressive_apparel_free_shipping_threshold';
+
+	/**
+	 * Cache duration for zone scans (shipping settings change rarely).
+	 *
+	 * @var int
+	 */
+	private const CACHE_TTL = DAY_IN_SECONDS;
+
+	/**
+	 * Request-local memo (avoids repeat transient hits in one request).
 	 *
 	 * @var float|null
 	 */
 	private static ?float $cached_threshold = null;
 
 	/**
+	 * Register shipping-settings invalidation hooks.
+	 *
+	 * Called from Bootstrap when WooCommerce is active.
+	 *
+	 * @return void
+	 */
+	public static function init(): void {
+		add_action( 'woocommerce_after_shipping_zone_object_save', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'woocommerce_delete_shipping_zone', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'woocommerce_shipping_zone_method_added', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'woocommerce_shipping_zone_method_deleted', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'woocommerce_shipping_zone_method_status_toggled', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'update_option_woocommerce_free_shipping_settings', array( self::class, 'flush_threshold_cache' ) );
+	}
+
+	/**
+	 * Drop request + persistent threshold caches.
+	 *
+	 * @return void
+	 */
+	public static function flush_threshold_cache(): void {
+		self::$cached_threshold = null;
+		delete_transient( self::TRANSIENT_KEY );
+	}
+
+	/**
 	 * Resolve the free-shipping threshold in store currency.
+	 *
+	 * Filter overrides and block custom thresholds are not persisted — only
+	 * the WooCommerce zone scan is cached across requests.
 	 *
 	 * @param float $custom_threshold Block override; 0 uses auto-detect/filter.
 	 * @return float Threshold amount, or 0 when none configured.
@@ -43,9 +88,30 @@ class Free_Shipping {
 			return self::$cached_threshold;
 		}
 
+		/**
+		 * Zone-detected threshold from transient or rebuild.
+		 *
+		 * @var float $detected
+		 */
+		$detected = Cache_Helper::remember(
+			self::TRANSIENT_KEY,
+			self::CACHE_TTL,
+			static fn(): float => self::detect_threshold_from_zones(),
+			static fn( $cached ): bool => is_numeric( $cached )
+		);
+
+		self::$cached_threshold = (float) $detected;
+		return self::$cached_threshold;
+	}
+
+	/**
+	 * Walk WooCommerce shipping zones for the lowest free-shipping min amount.
+	 *
+	 * @return float
+	 */
+	private static function detect_threshold_from_zones(): float {
 		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
-			self::$cached_threshold = 0.0;
-			return self::$cached_threshold;
+			return 0.0;
 		}
 
 		$zones   = \WC_Shipping_Zones::get_zones();
@@ -73,8 +139,7 @@ class Free_Shipping {
 			}
 		}
 
-		self::$cached_threshold = $min;
-		return self::$cached_threshold;
+		return $min;
 	}
 
 	/**
@@ -90,7 +155,7 @@ class Free_Shipping {
 	 * }|null Null when no threshold is configured.
 	 */
 	public static function get_cart_progress( float $custom_threshold = 0.0 ): ?array {
-		if ( ! function_exists( 'WC' ) ) {
+		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) { // @phpstan-ignore booleanNot.alwaysFalse
 			return null;
 		}
 

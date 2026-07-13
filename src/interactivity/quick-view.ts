@@ -2259,25 +2259,30 @@ function syncModalDOM(): void {
   }
 }
 
-// Event delegation: catch clicks on trigger buttons even if their
-// data-wp-on--click directive was never hydrated.
-document.addEventListener('click', (e: MouseEvent) => {
-  const trigger = (e.target as HTMLElement).closest<HTMLElement>(
-    '.aggressive-apparel-quick-view__trigger'
-  );
-  if (!trigger) {
-    return;
-  }
+// Event delegation: sole click path for card triggers (capture phase).
+// Markup intentionally omits data-wp-on--click so hydration cannot double-open.
+document.addEventListener(
+  'click',
+  (e: MouseEvent) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>(
+      '.aggressive-apparel-quick-view__trigger'
+    );
+    if (!trigger) {
+      return;
+    }
 
-  // Prevent duplicate firing if the Interactivity API already handled it.
-  if (state.isOpen || state.isSuccessOpen) {
-    return;
-  }
+    e.preventDefault();
+    e.stopPropagation();
 
-  actions.open(e);
-  // Ensure the modal becomes visible even without reactive bindings.
-  syncModalDOM();
-});
+    if (state.isOpen || state.isSuccessOpen) {
+      return;
+    }
+
+    actions.open(e);
+    syncModalDOM();
+  },
+  true
+);
 
 // Also handle close clicks via delegation.
 document.addEventListener('click', (e: MouseEvent) => {

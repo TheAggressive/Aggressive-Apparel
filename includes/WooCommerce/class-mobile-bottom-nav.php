@@ -171,7 +171,7 @@ class Mobile_Bottom_Nav {
 
 			<?php if ( Feature_Settings::is_enabled( 'wishlist' ) ) : ?>
 				<a href="<?php echo esc_url( Wishlist::get_page_url() ); ?>" class="aa-bottom-nav__item" aria-label="<?php esc_attr_e( 'Wishlist', 'aggressive-apparel' ); ?>">
-					<?php Icons::render( 'heart', $icon_attrs ); ?>
+					<?php Icons::render( 'heart-outline', $icon_attrs ); ?>
 					<span class="aa-bottom-nav__label"><?php esc_html_e( 'Wishlist', 'aggressive-apparel' ); ?></span>
 				</a>
 			<?php endif; ?>

@@ -356,37 +356,39 @@ class Theme_Support {
 			)
 		);
 
-		register_block_style(
-			'woocommerce/product-collection',
-			array(
-				'name'  => 'commerce-grid',
-				'label' => __( 'Commerce Grid', 'aggressive-apparel' ),
-			)
-		);
+		if ( class_exists( 'WooCommerce' ) ) {
+			register_block_style(
+				'woocommerce/product-collection',
+				array(
+					'name'  => 'commerce-grid',
+					'label' => __( 'Commerce Grid', 'aggressive-apparel' ),
+				)
+			);
 
-		register_block_style(
-			'woocommerce/product-template',
-			array(
-				'name'  => 'commerce-cards',
-				'label' => __( 'Commerce Cards', 'aggressive-apparel' ),
-			)
-		);
+			register_block_style(
+				'woocommerce/product-template',
+				array(
+					'name'  => 'commerce-cards',
+					'label' => __( 'Commerce Cards', 'aggressive-apparel' ),
+				)
+			);
 
-		register_block_style(
-			'woocommerce/product-image',
-			array(
-				'name'  => 'product-frame',
-				'label' => __( 'Product Frame', 'aggressive-apparel' ),
-			)
-		);
+			register_block_style(
+				'woocommerce/product-image',
+				array(
+					'name'  => 'product-frame',
+					'label' => __( 'Product Frame', 'aggressive-apparel' ),
+				)
+			);
 
-		register_block_style(
-			'woocommerce/product-price',
-			array(
-				'name'  => 'commerce-price',
-				'label' => __( 'Commerce Price', 'aggressive-apparel' ),
-			)
-		);
+			register_block_style(
+				'woocommerce/product-price',
+				array(
+					'name'  => 'commerce-price',
+					'label' => __( 'Commerce Price', 'aggressive-apparel' ),
+				)
+			);
+		}
 
 		// ── Display / editorial styles ───────────────────────────────────.
 		register_block_style(

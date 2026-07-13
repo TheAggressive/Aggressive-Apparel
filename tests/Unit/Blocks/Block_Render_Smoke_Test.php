@@ -264,6 +264,8 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	/**
 	 * Active filter bar renders Clear All control on shop archives.
 	 *
+	 * Starts hidden so Clear All does not flash before Interactivity hydrates.
+	 *
 	 * @return void
 	 */
 	public function test_filter_active_bar_renders_on_shop_archive(): void {
@@ -283,6 +285,11 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$html = $this->render( 'filter-active-bar' );
 
 		$this->assertStringContainsString( 'aa-filter-active-bar', $html );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="state.hasNoActiveFilters"', $html );
+		$this->assertMatchesRegularExpression(
+			'/<div\b[^>]*\baa-filter-active-bar\b[^>]*\bhidden\b/s',
+			$html
+		);
 		$this->assertStringContainsString( 'aa-filter-active-bar__clear-all', $html );
 		$this->assertStringContainsString( 'Clear All', $html );
 	}

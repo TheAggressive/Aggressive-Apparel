@@ -163,7 +163,7 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_dynamic_wishlist_button_enqueues_its_assets(): void {
-		$html = ( new Wishlist() )->get_heart_button_html( 42 );
+		$html = ( Wishlist::get_heart_button_html( 42 ) );
 
 		$this->assertStringContainsString( 'data-aa-product-id="42"', $html );
 		$this->assertTrue( wp_style_is( self::WISHLIST_STYLE, 'enqueued' ) );

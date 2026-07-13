@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\WooCommerce;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
+use Aggressive_Apparel\Core\Icons;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -309,7 +310,11 @@ BLOCKS;
 		if ( ! is_admin() ) {
 			$needed = Product_Context::is_single_product()
 				|| $this->is_wishlist_page()
-				|| $this->queried_content_needs_assets();
+				|| $this->queried_content_needs_assets()
+				|| (
+					Feature_Settings::quick_view_includes_wishlist()
+					&& Product_Context::is_product_listing()
+				);
 		}
 
 		/**
@@ -396,39 +401,84 @@ BLOCKS;
 			return;
 		}
 
-		echo aggressive_apparel_trusted_html( $this->get_heart_button_html( $product_id, true ) );
+		echo aggressive_apparel_trusted_html( self::get_heart_button_html( $product_id, true ) );
 	}
 
 	/**
 	 * Build heart button HTML for the unified document-delegate contract.
 	 *
-	 * Public so automatic placement and custom integrations share one markup shape.
-	 * Clicks are handled by `@aggressive-apparel/wishlist` — no IA click bindings.
+	 * Public so automatic placement, Quick View media stacks, and custom
+	 * integrations share one markup shape. Clicks are handled by
+	 * `@aggressive-apparel/wishlist` — no IA click bindings.
 	 *
 	 * @param int    $product_id    Product ID.
 	 * @param bool   $large         Whether to use the large variant.
 	 * @param string $extra_classes Optional BEM modifier classes.
 	 * @return string
 	 */
-	public function get_heart_button_html( int $product_id, bool $large = false, string $extra_classes = '' ): string {
+	public static function get_heart_button_html( int $product_id, bool $large = false, string $extra_classes = '' ): string {
+		if ( $product_id <= 0 ) {
+			return '';
+		}
+
 		self::ensure_assets();
 
-		$class = 'aggressive-apparel-wishlist__toggle';
+		$classes = array( 'aggressive-apparel-wishlist__toggle' );
 		if ( $large ) {
-			$class .= ' aggressive-apparel-wishlist__toggle--large';
-		}
-		if ( '' !== $extra_classes ) {
-			$class .= ' ' . $extra_classes;
+			$classes[] = 'aggressive-apparel-wishlist__toggle--large';
 		}
 
+		$extra_parts = preg_split( '/\s+/', trim( $extra_classes ) );
+		if ( is_array( $extra_parts ) ) {
+			foreach ( $extra_parts as $part ) {
+				$safe = sanitize_html_class( $part );
+				if ( '' !== $safe ) {
+					$classes[] = $safe;
+				}
+			}
+		}
+
+		$label   = Feature_Settings::get_wishlist_button_text();
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+		if ( $product instanceof \WC_Product ) {
+			$label = sprintf(
+				/* translators: 1: Wishlist action label, 2: product name. */
+				__( '%1$s: %2$s', 'aggressive-apparel' ),
+				$label,
+				$product->get_name()
+			);
+		}
+
+		$icon = self::get_toggle_icon_html();
+
 		return sprintf(
-			'<button type="button" class="%1$s" data-aa-product-id="%2$d" aria-pressed="false" aria-label="%3$s" title="%4$s">
-				<svg class="aggressive-apparel-wishlist__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-			</button>',
-			esc_attr( $class ),
+			'<button type="button" class="%1$s" data-aa-product-id="%2$d" aria-pressed="false" aria-label="%3$s" title="%4$s">%5$s</button>',
+			esc_attr( implode( ' ', $classes ) ),
 			$product_id,
+			esc_attr( $label ),
 			esc_attr( Feature_Settings::get_wishlist_button_text() ),
-			esc_attr( Feature_Settings::get_wishlist_button_text() ),
+			$icon,
+		);
+	}
+
+	/**
+	 * Dual-layer heart for wishlist toggles (stroke idle → fill on active).
+	 *
+	 * Stroking the silhouette alone looks muddy at chip size; a separate fill
+	 * path fades in cleanly when the item is wishlisted.
+	 *
+	 * @return string
+	 */
+	public static function get_toggle_icon_html(): string {
+		$path = esc_attr( Icons::heart_path() );
+
+		return sprintf(
+			'<svg class="aggressive-apparel-wishlist__icon" viewBox="%1$s" width="22" height="22" aria-hidden="true" focusable="false">'
+			. '<path class="aggressive-apparel-wishlist__icon-fill" d="%2$s" />'
+			. '<path class="aggressive-apparel-wishlist__icon-stroke" d="%2$s" />'
+			. '</svg>',
+			esc_attr( Icons::heart_viewbox() ),
+			$path
 		);
 	}
 

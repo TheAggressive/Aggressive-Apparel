@@ -112,6 +112,49 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Coming-soon mode must not leak sorted product IDs to the public.
+	 *
+	 * @return void
+	 */
+	public function test_coming_soon_hides_sorted_ids_from_anonymous_users(): void {
+		$this->create_product( 10 );
+		update_option( 'woocommerce_coming_soon', 'yes' );
+		wp_set_current_user( 0 );
+
+		$response = $this->dispatch( array( 'sort' => 'featured' ) );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $data['ids'] );
+		$this->assertSame( 0, (int) $data['total'] );
+		$this->assertSame( 0, (int) $data['totalPages'] );
+
+		update_option( 'woocommerce_coming_soon', 'no' );
+	}
+
+	/**
+	 * Shop managers can still preview sorted IDs while coming soon is on.
+	 *
+	 * @return void
+	 */
+	public function test_coming_soon_allows_shop_managers_to_preview(): void {
+		$product_id = $this->create_product( 10 );
+		update_option( 'woocommerce_coming_soon', 'yes' );
+
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$response = $this->dispatch( array( 'sort' => 'featured' ) );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertContains( $product_id, array_map( 'intval', $data['ids'] ) );
+
+		update_option( 'woocommerce_coming_soon', 'no' );
+		wp_set_current_user( 0 );
+	}
+
+	/**
 	 * The On Sale toggle is honored before custom-sort pagination.
 	 *
 	 * @return void

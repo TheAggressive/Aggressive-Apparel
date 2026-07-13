@@ -257,6 +257,21 @@ class Advanced_Sorting {
 	 * @return \WP_REST_Response Response with sorted IDs.
 	 */
 	public function handle_sorted_products( \WP_REST_Request $request ): \WP_REST_Response {
+		// Match Load More: don't enumerate catalogue IDs while coming soon.
+		if ( ! Product_Context::products_are_public() ) {
+			$response = new \WP_REST_Response(
+				array(
+					'ids'        => array(),
+					'total'      => 0,
+					'totalPages' => 0,
+				)
+			);
+			$response->header( 'X-WP-Total', '0' );
+			$response->header( 'X-WP-TotalPages', '0' );
+
+			return $response;
+		}
+
 		if ( $this->is_rate_limited() ) {
 			$response = new \WP_REST_Response(
 				array( 'error' => 'rate_limited' ),

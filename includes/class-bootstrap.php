@@ -150,6 +150,7 @@ class Bootstrap {
 		$this->container->register( 'content_width', fn() => new Core\Content_Width( 1200 ) );
 		$this->container->register( 'theme_updates', fn() => Core\Theme_Updates::get_instance() );
 		$this->container->register( 'block_categories', fn() => new Core\Block_Categories() );
+		$this->container->register( 'theme_features', fn() => new Core\Theme_Features() );
 		$this->container->register( 'adaptive_colors', fn() => new Core\Adaptive_Colors() );
 		$this->container->register( 'favicon', fn() => new Core\Favicon() );
 		$this->container->register( 'legal_identity', fn() => new Core\Legal_Identity() );
@@ -226,6 +227,7 @@ class Bootstrap {
 		$this->container->get( 'content_width' )->init();
 		$this->container->get( 'theme_updates' )->init(); // Initialize theme updates.
 		$this->container->get( 'block_categories' ); // Register block and pattern categories.
+		$this->container->get( 'theme_features' )->init();
 		$this->container->get( 'adaptive_colors' )->init();
 		$this->container->get( 'favicon' )->init();
 		$this->container->get( 'legal_identity' )->init();
@@ -284,6 +286,7 @@ class Bootstrap {
 		$this->container->get( 'wc_enhancements' )->init();
 		$this->container->get( 'wcpay_appearance' )->init();
 		$this->container->get( 'mini_cart_a11y' )->init();
+		WooCommerce\Free_Shipping::init();
 	}
 
 	/**

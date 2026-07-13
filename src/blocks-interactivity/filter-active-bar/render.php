@@ -4,9 +4,10 @@
  *
  * Emits the active-filter bar (removable pills + Clear All link) wired to the
  * existing Interactivity API store registered by Product_Filters. The pills
- * container is populated by JS on filter change; the wrapper's
- * `data-wp-bind--hidden` keeps the bar hidden until at least one filter is
- * active. No separate view script module is required.
+ * container is populated by JS on filter change. SSR starts with `hidden` so
+ * Clear All does not flash before hydration; `data-wp-bind--hidden` then
+ * reveals the bar once at least one filter is active. No separate view
+ * script module is required.
  *
  * Available variables:
  *   $attributes (array)
@@ -49,6 +50,7 @@ Product_Filters::ensure_assets();
 		)
 	);
 	?>
+	hidden
 >
 	<div class="aa-filter-active-bar__pills"></div>
 	<button

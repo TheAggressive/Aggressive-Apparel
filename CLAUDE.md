@@ -80,12 +80,12 @@ functions.php
     └── Autoloader (PSR-4)
     └── Bootstrap (Singleton)
         └── Service_Container
-            ├── Core (theme support, icons, image sizes, adaptive colors, updates)
+            ├── Core (theme support, icons, image sizes, adaptive colors, theme features, updates)
             ├── Assets (styles, scripts)
             ├── Blocks (auto-discovery from build/)
             └── WooCommerce (conditional)
                 ├── Core WC support (templates, cart, product loop, color swatches)
-                ├── Feature_Settings (19 toggles + store copy)
+                ├── Feature_Settings (17 toggles + store copy)
                 └── Enhancements → individual feature classes
 ```
 
@@ -523,7 +523,7 @@ Icons::list();
 **Available Icons (UI library highlights):**
 
 - **Navigation:** `hamburger`, `dots`, `bars`, `close`, `chevron-*`, `arrow-*`, `home`
-- **Actions:** `search`, `cart`, `user`, `heart`, `eye`, `filter`, `grid-view`, `list-view`
+- **Actions:** `search`, `cart`, `user`, `heart`, `heart-outline`, `eye`, `filter`, `grid-view`, `list-view`
 - **UI:** `check`, `plus`, `minus`, `info`, `play`, `pause`, `warning`, `error`
 - **Social / brand:** `facebook`, `twitter`, `instagram`, `brand-mark`, `paths`
 

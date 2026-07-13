@@ -279,6 +279,13 @@ class Product_Filters {
 				'priceMax'            => $data['priceRange']['max'],
 				'inStockOnly'         => false,
 				'onSaleOnly'          => false,
+				// Seed derived flags for SSR directive processing. Client
+				// getters in product-filters.ts override these after hydration.
+				// Without them, data-wp-bind--hidden="state.hasNoActiveFilters"
+				// evaluates falsy on the server and strips the hidden attribute,
+				// flashing Clear All until JS runs.
+				'hasActiveFilters'    => false,
+				'hasNoActiveFilters'  => true,
 				'orderBy'             => 'date',
 				'orderDir'            => 'desc',
 				'_customSort'         => '',

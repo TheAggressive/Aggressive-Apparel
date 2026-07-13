@@ -77,12 +77,12 @@ class Styles {
 					Asset_Loader::enqueue_style( 'aggressive-apparel-payment', 'build/styles/woocommerce/payment' );
 				}
 			}
-		}
 
-		if ( is_singular( 'product' ) ) {
-			Asset_Loader::enqueue_style( 'aggressive-apparel-product', 'build/styles/woocommerce/color-swatches' );
-			Asset_Loader::enqueue_style( 'aggressive-apparel-variation-pills', 'build/styles/woocommerce/variation-pills' );
-			Asset_Loader::enqueue_style( 'aggressive-apparel-reviews', 'build/styles/woocommerce/reviews' );
+			if ( is_singular( 'product' ) ) {
+				Asset_Loader::enqueue_style( 'aggressive-apparel-product', 'build/styles/woocommerce/color-swatches' );
+				Asset_Loader::enqueue_style( 'aggressive-apparel-variation-pills', 'build/styles/woocommerce/variation-pills' );
+				Asset_Loader::enqueue_style( 'aggressive-apparel-reviews', 'build/styles/woocommerce/reviews' );
+			}
 		}
 
 		/**

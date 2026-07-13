@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Cache_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -191,6 +193,20 @@ class Color_Data_Manager {
 	}
 
 	/**
+	 * Transient key for cross-request swatch data.
+	 *
+	 * @var string
+	 */
+	private const SWATCH_TRANSIENT_KEY = 'aggressive_apparel_color_swatch_data_v1';
+
+	/**
+	 * Swatch data TTL (invalidated immediately on color-term mutations).
+	 *
+	 * @var int
+	 */
+	private const SWATCH_CACHE_TTL = HOUR_IN_SECONDS;
+
+	/**
 	 * Per-request memo for get_safe_swatch_data().
 	 *
 	 * @var array<string, array{value: string, type: string, name: string}>|null
@@ -202,9 +218,9 @@ class Color_Data_Manager {
 	 *
 	 * Wraps get_swatch_data() in a try-catch so callers like Quick_View
 	 * and Sticky_Add_To_Cart don't need their own duplicate wrapper.
-	 * Memoized per request — Quick_View, Sticky_Add_To_Cart, and the
-	 * per-block swatch manager all read the same term data, so the map is
-	 * built once instead of once per product card.
+	 * Memoized per request and across requests via a transient — Quick_View,
+	 * Sticky_Add_To_Cart, and the per-block swatch manager all read the same
+	 * term data.
 	 *
 	 * @return array<string, array{value: string, type: string, name: string}>
 	 */
@@ -213,22 +229,36 @@ class Color_Data_Manager {
 			return self::$swatch_data_memo;
 		}
 
-		try {
-			self::$swatch_data_memo = ( new self() )->get_swatch_data();
-		} catch ( \Throwable $e ) {
-			self::$swatch_data_memo = array();
-		}
+		/**
+		 * Swatch map from transient or rebuild.
+		 *
+		 * @var array<string, array{value: string, type: string, name: string}> $data
+		 */
+		$data = Cache_Helper::remember(
+			self::SWATCH_TRANSIENT_KEY,
+			self::SWATCH_CACHE_TTL,
+			static function (): array {
+				try {
+					return ( new self() )->get_swatch_data();
+				} catch ( \Throwable $e ) {
+					return array();
+				}
+			},
+			'is_array'
+		);
 
+		self::$swatch_data_memo = $data;
 		return self::$swatch_data_memo;
 	}
 
 	/**
-	 * Reset the per-request swatch memo after a color-term mutation.
+	 * Reset request + persistent swatch caches after a color-term mutation.
 	 *
 	 * @return void
 	 */
 	public static function flush_swatch_data_memo(): void {
 		self::$swatch_data_memo = null;
+		delete_transient( self::SWATCH_TRANSIENT_KEY );
 	}
 
 	/**

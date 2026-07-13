@@ -62,6 +62,10 @@ class Search_Results {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function products( string $query ): array {
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return array();
+		}
+
 		$items      = array();
 		$offset     = 0;
 		$item_count = 0;

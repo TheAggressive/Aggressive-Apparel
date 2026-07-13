@@ -80,6 +80,38 @@ class Social_Proof {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( $this, 'render_toast_container' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_indicator' ), 100 );
+
+		// Fresh purchases and status changes must not wait for TTL.
+		add_action( 'woocommerce_new_order', array( self::class, 'flush_cache' ) );
+		add_action( 'woocommerce_order_status_changed', array( self::class, 'flush_cache' ) );
+		add_action( 'woocommerce_order_status_completed', array( self::class, 'flush_cache' ) );
+
+		// Admin copy / source / display settings bake into the cached pool.
+		add_action( 'updated_option', array( self::class, 'maybe_flush_on_option_change' ), 10, 1 );
+		add_action( 'added_option', array( self::class, 'maybe_flush_on_option_change' ), 10, 1 );
+		add_action( 'deleted_option', array( self::class, 'maybe_flush_on_option_change' ), 10, 1 );
+	}
+
+	/**
+	 * Drop the social-proof notification pool transient.
+	 *
+	 * @return void
+	 */
+	public static function flush_cache(): void {
+		delete_transient( self::TRANSIENT_KEY );
+	}
+
+	/**
+	 * Flush when a social-proof related option (or the features bag) changes.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public static function maybe_flush_on_option_change( string $option ): void {
+		if ( Feature_Settings::OPTION_KEY === $option
+			|| str_starts_with( $option, 'aggressive_apparel_social_proof' ) ) {
+			self::flush_cache();
+		}
 	}
 
 	/**

@@ -22,6 +22,8 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 
 Features are managed under **Appearance → Store Enhancements** and default to **OFF**. `Feature_Settings::is_enabled()` and the `Enhancements` coordinator ensure disabled features register no hooks or assets.
 
+Appearance features that work without WooCommerce (**Adaptive Colors**, and future Core toggles) live under **Appearance → Theme Features**.
+
 A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, and similar strings).
 
 | Feature                    | Section      | Description                                                                                                                  |
@@ -43,8 +45,7 @@ A separate **Store Copy** tab controls storefront microcopy (button labels, filt
 | Back in Stock              | Engagement   | Email subscriptions for out-of-stock products                                                                                |
 | Swatch Tooltips            | Mobile & UI  | Fabric name and composition on swatch hover                                                                                  |
 | Mobile Bottom Navigation   | Mobile & UI  | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
-| Custom Cursor              | Mobile & UI  | Branded cursor on desktop interactive areas                                                                                  |
-| Adaptive Colors            | Experimental | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                   |
+| Adaptive Colors            | Appearance → Theme Features | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                 |
 
 ## Quick Start
 
@@ -152,12 +153,12 @@ aggressive-apparel/
 functions.php → Bootstrap (singleton)
     ├── Autoloader (PSR-4)
     ├── Service_Container
-    │   ├── Core (theme support, icons, image sizes, adaptive colors, updates)
+    │   ├── Core (theme support, icons, image sizes, adaptive colors, theme features, updates)
     │   ├── Assets (styles, scripts)
     │   └── Blocks (auto-discovery from build/)
     └── WooCommerce (conditional)
         ├── Core WC support (templates, cart, product loop, color swatches)
-        ├── Feature_Settings (19 toggles + store copy)
+        ├── Feature_Settings (17 toggles + store copy)
         └── Enhancements → individual feature classes
 ```
 

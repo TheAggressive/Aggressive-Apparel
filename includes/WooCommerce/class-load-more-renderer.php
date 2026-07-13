@@ -68,6 +68,9 @@ class Load_More_Renderer {
 		add_action( 'woocommerce_new_product_variation', array( $this, 'flush_facets_cache' ) );
 		add_action( 'woocommerce_product_set_stock_status', array( $this, 'flush_facets_cache' ) );
 		add_action( 'aggressive_apparel_sale_category_updated', array( $this, 'flush_facets_cache' ) );
+		add_action( 'created_term', array( $this, 'flush_facets_cache' ) );
+		add_action( 'edited_term', array( $this, 'flush_facets_cache' ) );
+		add_action( 'delete_term', array( $this, 'flush_facets_cache' ) );
 	}
 
 	/**
@@ -820,9 +823,16 @@ class Load_More_Renderer {
 
 		// Custom-sort (featured/savings) path: the filters UI resolves an ordered,
 		// already-paginated list of IDs via the sorted-products endpoint and asks
-		// us to render exactly those, in that order. Short-circuit everything else.
-		$include = array_filter( array_map( 'absint', explode( ',', (string) ( $filters['include'] ?? '' ) ) ) );
+		// us to render exactly those, in that order. Cap the list so a forged
+		// request cannot force unbounded block rendering.
+		$include = array_values(
+			array_filter(
+				array_map( 'absint', explode( ',', (string) ( $filters['include'] ?? '' ) ) )
+			)
+		);
 		if ( ! empty( $include ) ) {
+			$max_include                 = min( 100, max( 1, $per_page ) );
+			$include                     = array_slice( $include, 0, $max_include );
 			$args['post__in']            = $include;
 			$args['orderby']             = 'post__in';
 			$args['posts_per_page']      = count( $include );

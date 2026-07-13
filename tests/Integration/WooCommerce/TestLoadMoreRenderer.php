@@ -77,6 +77,30 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Facet cache should bump when attribute/category terms change.
+	 */
+	public function test_term_lifecycle_hooks_flush_facets_cache(): void {
+		$renderer = new Load_More_Renderer();
+		$renderer->init();
+
+		$this->assertNotFalse(
+			has_action( 'created_term', array( $renderer, 'flush_facets_cache' ) )
+		);
+		$this->assertNotFalse(
+			has_action( 'edited_term', array( $renderer, 'flush_facets_cache' ) )
+		);
+		$this->assertNotFalse(
+			has_action( 'delete_term', array( $renderer, 'flush_facets_cache' ) )
+		);
+
+		$before = (int) get_option( 'aa_pf_facets_version', 1 );
+		$renderer->flush_facets_cache();
+		$after = (int) get_option( 'aa_pf_facets_version', 1 );
+
+		$this->assertSame( $before + 1, $after );
+	}
+
+	/**
 	 * Dispatch the rendered-products route through the full REST pipeline.
 	 *
 	 * @param array<string, mixed> $params Query params.
@@ -278,6 +302,44 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$response = $this->dispatch( array( 'include' => '1,2,3' ) );
 
 		$this->assertLessThan( 500, $response->get_status() );
+	}
+
+	/**
+	 * Oversized `include` lists are capped to the request page size (max 100).
+	 *
+	 * @return void
+	 */
+	public function test_include_param_is_capped_to_per_page(): void {
+		$renderer = new Load_More_Renderer();
+		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
+		$method->setAccessible( true );
+
+		$ids  = implode( ',', range( 1, 250 ) );
+		$args = $method->invoke(
+			$renderer,
+			1,
+			12,
+			'date',
+			'',
+			'',
+			array( 'include' => $ids )
+		);
+
+		$this->assertCount( 12, $args['post__in'] );
+		$this->assertSame( 12, $args['posts_per_page'] );
+
+		$args_max = $method->invoke(
+			$renderer,
+			1,
+			100,
+			'date',
+			'',
+			'',
+			array( 'include' => $ids )
+		);
+
+		$this->assertCount( 100, $args_max['post__in'] );
+		$this->assertSame( 100, $args_max['posts_per_page'] );
 	}
 
 	/**

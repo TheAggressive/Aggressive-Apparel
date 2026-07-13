@@ -5,7 +5,7 @@
  */
 
 import metadata from './block.json';
-import { registerColumnBlock } from '../split-story-shared/column';
+import { registerContainerBlock } from '../../utils/register-container-block';
 
 const icon = (
   <svg
@@ -23,7 +23,7 @@ const icon = (
   </svg>
 );
 
-registerColumnBlock(metadata, {
+registerContainerBlock(metadata, {
   className: 'aa-split-story__content',
   template: [
     ['core/heading', { level: 2, placeholder: 'Story heading…' }],

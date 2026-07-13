@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { openPageEditor, publishAndGetUrl, deletePage } from './helpers';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 test.describe('Split Story — front end', () => {
   let pageId = 0;
 

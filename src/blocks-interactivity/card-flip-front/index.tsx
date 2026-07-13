@@ -5,7 +5,7 @@
  */
 
 import metadata from './block.json';
-import { registerFaceBlock } from '../card-flip-shared/face';
+import { registerContainerBlock } from '../../utils/register-container-block';
 
 const icon = (
   <svg
@@ -27,4 +27,8 @@ const icon = (
   </svg>
 );
 
-registerFaceBlock(metadata, 'front', icon);
+registerContainerBlock(metadata, {
+  className: 'aa-card-flip__face aa-card-flip__face--front',
+  template: [['core/paragraph', {}]],
+  icon,
+});

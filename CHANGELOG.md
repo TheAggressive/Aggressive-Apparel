@@ -1,3 +1,10 @@
+## [1.149.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.149.0...v1.149.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* replace column block registration with container block registration ([e2ea600](https://github.com/TheAggressive/Aggressive-Apparel/commit/e2ea6005e4f2b74158693c9f1b534518cf08a168))
+
 # [1.149.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.148.0...v1.149.0) (2026-07-12)
 
 

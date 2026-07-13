@@ -1,3 +1,10 @@
+# [1.150.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.149.1...v1.150.0) (2026-07-13)
+
+
+### Features
+
+* enhance product display and interactivity across various patterns ([691b6b7](https://github.com/TheAggressive/Aggressive-Apparel/commit/691b6b725c9670c02bc776189b74a013ec10072c))
+
 ## [1.149.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.149.0...v1.149.1) (2026-07-13)
 
 

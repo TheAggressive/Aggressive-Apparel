@@ -1,12 +1,11 @@
 import type { HScrollMode } from '../logic';
 import { NativeCarouselController } from './native-carousel';
-import { PagedController } from './paged';
-import { PinnedController } from './pinned';
+import { ScrubController } from './scrub';
 import { StaticController } from './static';
+import { StepController } from './step';
 import type {
   Controller,
   ControllerElements,
-  ControllerOptions,
   Geometry,
   Presentation,
 } from './types';
@@ -14,7 +13,6 @@ import type {
 export type {
   Controller,
   ControllerElements,
-  ControllerOptions,
   Geometry,
   Presentation,
 } from './types';
@@ -23,14 +21,15 @@ export function createController(
   mode: HScrollMode,
   elements: ControllerElements,
   presentation: Presentation,
-  geometry: Geometry,
-  options: ControllerOptions
+  geometry: Geometry
 ): Controller {
   switch (mode) {
+    // 'paged' = one deliberate gesture advances one slide (input-locked glide).
     case 'paged':
-      return new PagedController(elements, presentation, geometry, options);
+      return new StepController(elements, presentation, geometry);
+    // 'pinned' = continuous scrub; the track follows scroll each frame.
     case 'pinned':
-      return new PinnedController(elements, presentation, geometry, options);
+      return new ScrubController(elements, presentation, geometry);
     case 'native':
       return new NativeCarouselController(elements, presentation, geometry);
     default:

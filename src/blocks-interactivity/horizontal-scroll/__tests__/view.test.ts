@@ -10,16 +10,16 @@ import {
   clamp,
   computeProgress,
   computeScrollStart,
+  easeInOutCubic,
   formatSlideAnnouncement,
-  getPagedSnapTarget,
-  getProximitySnapTarget,
-  getSnapStrengthPreset,
   getSlideIndexFromProgress,
   getSlides,
   getSlideTarget,
+  getStepScrollPosition,
   isEditableTarget,
   pickMode,
   progressToPercentage,
+  resolveKeyboardTarget,
   resolveSpeed,
   shouldShowSwipeHint,
   toLogicalSlideOffsets,
@@ -70,24 +70,72 @@ describe('pickMode', () => {
   });
 });
 
-describe('snap strength presets', () => {
-  it('increases both reach and proportional strength predictably', () => {
-    expect(getSnapStrengthPreset('soft')).toEqual({
-      maxDistance: 240,
-      maxSegmentRatio: 0.12,
-    });
-    expect(getSnapStrengthPreset('medium')).toEqual({
-      maxDistance: 480,
-      maxSegmentRatio: 0.25,
-    });
-    expect(getSnapStrengthPreset('strong')).toEqual({
-      maxDistance: 720,
-      maxSegmentRatio: 0.35,
-    });
-    expect(getSnapStrengthPreset('aggressive')).toEqual({
-      maxDistance: 1600,
-      maxSegmentRatio: 0.5,
-    });
+describe('easeInOutCubic', () => {
+  it('pins the endpoints and the midpoint', () => {
+    expect(easeInOutCubic(0)).toBe(0);
+    expect(easeInOutCubic(0.5)).toBeCloseTo(0.5, 10);
+    expect(easeInOutCubic(1)).toBe(1);
+  });
+
+  it('clamps out-of-range input to the endpoints', () => {
+    expect(easeInOutCubic(-1)).toBe(0);
+    expect(easeInOutCubic(2)).toBe(1);
+  });
+
+  it('eases in before the midpoint and out after it', () => {
+    // Slow start: less than linear progress early.
+    expect(easeInOutCubic(0.25)).toBeLessThan(0.25);
+    // Slow finish: more than linear progress late.
+    expect(easeInOutCubic(0.75)).toBeGreaterThan(0.75);
+  });
+});
+
+describe('resolveKeyboardTarget', () => {
+  const base = { currentIndex: 1, slideCount: 4, rtl: false };
+
+  it('maps the jump and paging keys', () => {
+    expect(resolveKeyboardTarget({ ...base, key: 'Home' })).toBe(0);
+    expect(resolveKeyboardTarget({ ...base, key: 'End' })).toBe(3);
+    expect(resolveKeyboardTarget({ ...base, key: 'PageDown' })).toBe(2);
+    expect(resolveKeyboardTarget({ ...base, key: 'PageUp' })).toBe(0);
+  });
+
+  it('mirrors the arrow keys for writing direction', () => {
+    expect(resolveKeyboardTarget({ ...base, key: 'ArrowRight' })).toBe(2);
+    expect(resolveKeyboardTarget({ ...base, key: 'ArrowLeft' })).toBe(0);
+    expect(
+      resolveKeyboardTarget({ ...base, key: 'ArrowRight', rtl: true })
+    ).toBe(0);
+    expect(
+      resolveKeyboardTarget({ ...base, key: 'ArrowLeft', rtl: true })
+    ).toBe(2);
+  });
+
+  it('clamps at the ends and ignores unrelated keys', () => {
+    expect(
+      resolveKeyboardTarget({ ...base, currentIndex: 0, key: 'ArrowLeft' })
+    ).toBe(0);
+    expect(
+      resolveKeyboardTarget({ ...base, currentIndex: 3, key: 'PageDown' })
+    ).toBe(3);
+    expect(resolveKeyboardTarget({ ...base, key: 'Enter' })).toBeNull();
+    expect(resolveKeyboardTarget({ ...base, key: 'a' })).toBeNull();
+  });
+});
+
+describe('getStepScrollPosition', () => {
+  const slideStops = [0, 0.5, 1];
+
+  it('maps a slide index to its absolute document scroll position', () => {
+    expect(getStepScrollPosition(0, 1000, 2000, slideStops)).toBe(1000);
+    expect(getStepScrollPosition(1, 1000, 2000, slideStops)).toBe(2000);
+    expect(getStepScrollPosition(2, 1000, 2000, slideStops)).toBe(3000);
+  });
+
+  it('clamps the index into range and tolerates no stops', () => {
+    expect(getStepScrollPosition(-5, 1000, 2000, slideStops)).toBe(1000);
+    expect(getStepScrollPosition(99, 1000, 2000, slideStops)).toBe(3000);
+    expect(getStepScrollPosition(1, 1000, 2000, [])).toBe(1000);
   });
 });
 
@@ -128,103 +176,6 @@ describe('scroll geometry', () => {
     expect(getSlideIndexFromProgress(1, stops)).toBe(3);
     expect(getSlideTarget(2, stops, 1000)).toBe(840);
     expect(getSlideTarget(99, stops, 1000)).toBe(1000);
-  });
-});
-
-describe('getProximitySnapTarget', () => {
-  const base = {
-    scrollStart: 1000,
-    scrollDistance: 2000,
-    slideStops: [0, 0.5, 1],
-  };
-
-  it('gently aligns a nearby slide', () => {
-    expect(getProximitySnapTarget({ ...base, scrollPosition: 1910 })).toEqual({
-      index: 1,
-      scrollPosition: 2000,
-    });
-  });
-
-  it('does not pull from beyond the proportional proximity distance', () => {
-    expect(
-      getProximitySnapTarget({ ...base, scrollPosition: 1700 })
-    ).toBeNull();
-  });
-
-  it('aligns endpoints from inside but never pulls back after leaving', () => {
-    expect(getProximitySnapTarget({ ...base, scrollPosition: 1100 })).toEqual({
-      index: 0,
-      scrollPosition: 1000,
-    });
-    expect(getProximitySnapTarget({ ...base, scrollPosition: 2900 })).toEqual({
-      index: 2,
-      scrollPosition: 3000,
-    });
-    expect(getProximitySnapTarget({ ...base, scrollPosition: 999 })).toBeNull();
-    expect(
-      getProximitySnapTarget({ ...base, scrollPosition: 3001 })
-    ).toBeNull();
-    expect(
-      getProximitySnapTarget({
-        ...base,
-        scrollPosition: 1500,
-        slideStops: [0, 1],
-      })
-    ).toBeNull();
-  });
-
-  it('does nothing when already aligned', () => {
-    expect(
-      getProximitySnapTarget({ ...base, scrollPosition: 2000 })
-    ).toBeNull();
-  });
-});
-
-describe('getPagedSnapTarget', () => {
-  const stops = [0, 0.5, 1];
-
-  it('commits after crossing 10% toward an adjacent slide', () => {
-    expect(
-      getPagedSnapTarget({
-        progress: 0.049,
-        settledIndex: 0,
-        slideStops: stops,
-        commitRatio: 0.1,
-      })
-    ).toBeNull();
-    expect(
-      getPagedSnapTarget({
-        progress: 0.05,
-        settledIndex: 0,
-        slideStops: stops,
-        commitRatio: 0.1,
-      })
-    ).toBe(1);
-    expect(
-      getPagedSnapTarget({
-        progress: 0.45,
-        settledIndex: 1,
-        slideStops: stops,
-        commitRatio: 0.1,
-      })
-    ).toBe(0);
-  });
-
-  it('never skips more than one adjacent slide', () => {
-    expect(
-      getPagedSnapTarget({
-        progress: 0.95,
-        settledIndex: 0,
-        slideStops: stops,
-      })
-    ).toBe(1);
-    expect(
-      getPagedSnapTarget({
-        progress: 0.05,
-        settledIndex: 2,
-        slideStops: stops,
-      })
-    ).toBe(1);
   });
 });
 

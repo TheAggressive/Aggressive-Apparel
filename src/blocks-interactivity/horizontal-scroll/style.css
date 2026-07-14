@@ -14,6 +14,14 @@
   position: relative;
 }
 
+/* Visible focus ring for keyboard users: the runtime makes the section
+   focusable (tabindex="0") in every enhanced/native mode so it can receive
+   arrow/Home/End/Page keys. */
+.aa-hscroll:focus-visible {
+  outline: 2px solid var(--aa-color-accent);
+  outline-offset: 4px;
+}
+
 .aa-hscroll__range {
   position: relative;
 }
@@ -88,8 +96,31 @@
 
 .aa-hscroll.is-enhanced .aa-hscroll__track {
   height: 100%;
-  transform: translate3d(var(--aa-hscroll-x), 0, 0);
+
+  /* Baseline: the runtime updates --aa-hscroll-x once per animation frame and
+     translate3d keeps the movement on its own GPU layer. Where the browser
+     supports scroll-driven animations, the runtime *also* applies the keyframes
+     below via inline style, which run on the compositor and override this
+     declaration for perfect scroll sync. If that path is unavailable, this
+     baseline still moves the track. */
+  transform: translate3d(var(--aa-hscroll-x, 0), 0, 0);
   will-change: transform;
+}
+
+/* Compositor scrub keyframes. The animation itself (name/timeline/range) is
+   applied via inline style in runtime.ts — never in this stylesheet — so the
+   CSS minifier cannot fold `animation-timeline` into the `animation` shorthand
+   and invalidate it. The explicit `from` keeps the animation self-contained
+   (0 → end) so it does not interpolate against the JS-driven --aa-hscroll-x. */
+@keyframes aa-hscroll-scrub {
+
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(var(--aa-hscroll-translate-end, 0), 0, 0);
+  }
 }
 
 .aa-hscroll.is-enhanced .aa-hscroll__track > * {
@@ -389,6 +420,7 @@
     display: grid;
     transform: none;
     transition: none;
+    animation: none;
     will-change: auto;
   }
 

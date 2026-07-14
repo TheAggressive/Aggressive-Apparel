@@ -11,8 +11,15 @@
 	position: relative;
 }
 
-/* Card media action stack (Quick View ± Wishlist). */
+/* Card media action stack (Quick View ± Wishlist). Shared sizing for both the
+   wishlist heart and the quick-view eye so the two card actions are always
+   visually identical: --aa-card-action-size is the button hit area,
+   --aa-card-action-icon the glyph inside it. The touch override below grows the
+   hit area to the 44px WCAG target. */
 .aggressive-apparel-card-actions {
+	--aa-card-action-size: 2.5rem;
+	--aa-card-action-icon: 1.125rem;
+
 	position: absolute;
 	inset: 0;
 	z-index: 3;
@@ -117,9 +124,12 @@
 	align-items: center;
 	justify-content: center;
 	gap: 0.35rem;
-	min-width: 2.5rem;
-	height: 2.5rem;
-	padding: 0 0.65rem;
+
+	/* Icon-only by default → a perfect circle (matches the heart). The bottom-bar
+	   variant below reveals the label and restores the pill shape. */
+	width: var(--aa-card-action-size);
+	height: var(--aa-card-action-size);
+	padding: 0;
 	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
 	border-radius: 999px;
 	background-color: var(--aa-color-surface-80, color-mix(in oklch, var(--aa-color-surface) 80%, transparent));
@@ -160,20 +170,27 @@
 
 	svg {
 		display: block;
-		width: 1.125rem;
-		height: 1.125rem;
+		width: var(--aa-card-action-icon);
+		height: var(--aa-card-action-icon);
 	}
 }
 
 .aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
-	width: 2.5rem;
-	height: 2.5rem;
+	width: var(--aa-card-action-size);
+	height: var(--aa-card-action-size);
 	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
 	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
 	transition:
 		opacity 0.2s ease,
 		transform 0.15s ease,
 		background-color 0.15s ease;
+}
+
+/* Match the heart glyph to the eye glyph (the base wishlist icon is larger for
+   the standalone button); scoped to the card action stack only. */
+.aggressive-apparel-card-actions .aggressive-apparel-wishlist__icon {
+	width: var(--aa-card-action-icon);
+	height: var(--aa-card-action-icon);
 }
 
 /* Devices that can hover: hide until card/media hover or focus. */
@@ -208,10 +225,30 @@
 /* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
 @media (hover: none), (pointer: coarse) {
 
+	/* Small 2-up cards: shrink the visible chip so it does not dominate the
+	   image. The 44px tap target is preserved by the invisible expander below,
+	   so the glyph can be smaller without shrinking the hit area. */
+	.aggressive-apparel-card-actions {
+		--aa-card-action-size: 2.25rem;
+	}
+
 	.aggressive-apparel-quick-view__trigger,
 	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+		position: relative;
 		opacity: 1;
 		transform: none;
+	}
+
+	/* Centered 44px WCAG 2.5.5 touch target, larger than the visible chip. */
+	.aggressive-apparel-quick-view__trigger::after,
+	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media::after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 2.75rem;
+		height: 2.75rem;
+		transform: translate(-50%, -50%);
 	}
 
 	.aggressive-apparel-card-actions--center {
@@ -262,6 +299,13 @@
 
 	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger-label {
 		display: inline;
+	}
+
+	/* With the label visible the trigger becomes a pill again (icon + text). */
+	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger {
+		width: auto;
+		min-width: var(--aa-card-action-size);
+		padding: 0 0.65rem;
 	}
 }
 

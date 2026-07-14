@@ -19,6 +19,10 @@
     }
   },
   "attributes": {
+    "ariaLabel": {
+      "type": "string",
+      "default": ""
+    },
     "itemWidth": {
       "type": "string",
       "default": "60vw"
@@ -44,16 +48,7 @@
     "snapBehavior": {
       "type": "string",
       "enum": ["off", "proximity", "paged"],
-      "default": "paged"
-    },
-    "pagedCommitPercent": {
-      "type": "number",
-      "default": 5
-    },
-    "snapStrength": {
-      "type": "string",
-      "enum": ["soft", "medium", "strong", "aggressive"],
-      "default": "medium"
+      "default": "off"
     },
     "swipeHintStyle": {
       "type": "string",

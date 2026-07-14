@@ -6,7 +6,7 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 
 ## Features
 
-- **Full Site Editing** — 13 templates, 85 block patterns, complete `theme.json` configuration
+- **Full Site Editing** — 13 templates, 74 block patterns, complete `theme.json` configuration
 - **WooCommerce integration** — product gallery, color swatches, and custom shop/cart/checkout templates
 - **Design system tokens** — `theme.json` as source of truth with a compiled `--aa-*` alias layer
 - **19 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
@@ -135,7 +135,7 @@ aggressive-apparel/
 │   ├── Core/                 # Theme supports, icons, updates, adaptive colors
 │   └── WooCommerce/          # Store features and WooCommerce integration
 ├── parts/                    # Template parts (header, footer)
-├── patterns/                 # Block patterns (80)
+├── patterns/                 # Block patterns (74)
 ├── src/
 │   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
 │   ├── blocks-interactivity/ # Interactivity API blocks (36, incl. 2 card-flip faces)

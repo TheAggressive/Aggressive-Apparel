@@ -12,15 +12,14 @@ import {
   computeScrollStart,
   formatSlideAnnouncement,
   getSlides,
-  PAGED_COMMIT_RATIO,
   pickMode,
   progressToPercentage,
   resolveSpeed,
   shouldShowSwipeHint,
   toLogicalSlideOffsets,
+  toSignedTranslate,
   type HScrollMode,
   type SnapBehavior,
-  type SnapStrength,
   type SwipeHintStyle,
 } from './logic';
 import {
@@ -43,9 +42,6 @@ export interface HScrollContext {
   progress: number;
   desktopBehavior?: 'pinned' | 'inline';
   snapBehavior?: SnapBehavior;
-  snapStrength?: SnapStrength;
-  /** Paged-mode commit sensitivity as a ratio of the gap to the adjacent slide. */
-  commitRatio?: number;
   swipeHintStyle?: SwipeHintStyle;
   i18n?: HScrollI18n;
 }
@@ -57,6 +53,27 @@ interface RuntimePresentation extends Presentation {
 
 const DESKTOP_QUERY = '(pointer: fine) and (min-width: 782px)';
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+/**
+ * Whether the browser supports CSS scroll-driven animations. When true the
+ * runtime applies the compositor scrub animation (inline, see applyScrubTimeline)
+ * on top of the JS baseline; the animation runs off the main thread for perfect
+ * scroll sync. A static browser capability, evaluated once.
+ */
+const SUPPORTS_SCROLL_TIMELINE =
+  typeof CSS !== 'undefined' &&
+  typeof CSS.supports === 'function' &&
+  CSS.supports('animation-timeline: scroll()');
+
+/** Inline animation longhands that make up the compositor scrub timeline. */
+const SCRUB_ANIMATION_PROPS = [
+  'animation-name',
+  'animation-timing-function',
+  'animation-fill-mode',
+  'animation-duration',
+  'animation-timeline',
+  'animation-range',
+] as const;
 const MODE_CLASSES = [
   'is-enhanced',
   'is-horizontal',
@@ -66,6 +83,43 @@ const MODE_CLASSES = [
 ];
 
 const runtimes = new WeakMap<HTMLElement, () => void>();
+
+/**
+ * Apply (or clear) the compositor scroll-driven scrub animation on the track via
+ * inline style. Kept out of the stylesheet on purpose: setting it here means the
+ * CSS minifier never sees `animation-timeline` and so cannot fold it into the
+ * `animation` shorthand (which would invalidate the whole declaration). Applied
+ * only for pinned/paged modes on supporting browsers; otherwise the JS
+ * `--aa-hscroll-x` baseline drives the transform.
+ */
+function applyScrubTimeline(
+  track: HTMLElement,
+  active: boolean,
+  scrollStart: number,
+  scrollDistance: number,
+  maxTranslate: number,
+  rtl: boolean
+): void {
+  if (!SUPPORTS_SCROLL_TIMELINE || !active) {
+    track.style.removeProperty('--aa-hscroll-translate-end');
+    SCRUB_ANIMATION_PROPS.forEach(prop => track.style.removeProperty(prop));
+    return;
+  }
+
+  track.style.setProperty(
+    '--aa-hscroll-translate-end',
+    `${toSignedTranslate(maxTranslate, rtl)}px`
+  );
+  track.style.setProperty('animation-name', 'aa-hscroll-scrub');
+  track.style.setProperty('animation-timing-function', 'linear');
+  track.style.setProperty('animation-fill-mode', 'both');
+  track.style.setProperty('animation-duration', 'auto');
+  track.style.setProperty('animation-timeline', 'scroll(root block)');
+  track.style.setProperty(
+    'animation-range',
+    `${scrollStart}px ${scrollStart + scrollDistance}px`
+  );
+}
 
 function createPresentation(
   ref: HTMLElement,
@@ -334,6 +388,15 @@ export function setupHorizontalScroll(
       rtl,
     };
 
+    applyScrubTimeline(
+      track,
+      nextMode === 'pinned' || nextMode === 'paged',
+      scrollStart,
+      scrollDistance,
+      maxTranslate,
+      rtl
+    );
+
     presentation.setSlides(slides);
     presentation.setMode(nextMode);
     observeSlides(slides);
@@ -341,17 +404,7 @@ export function setupHorizontalScroll(
     if (mode !== nextMode) {
       controller?.destroy();
       mode = nextMode;
-      controller = createController(
-        nextMode,
-        elements,
-        presentation,
-        geometry,
-        {
-          snapBehavior: context.snapBehavior ?? 'paged',
-          snapStrength: context.snapStrength ?? 'medium',
-          commitRatio: context.commitRatio ?? PAGED_COMMIT_RATIO,
-        }
-      );
+      controller = createController(nextMode, elements, presentation, geometry);
     } else {
       controller?.updateGeometry(geometry);
     }
@@ -446,6 +499,7 @@ export function setupHorizontalScroll(
     MODE_CLASSES.forEach(className => ref.classList.remove(className));
     ref.style.removeProperty('--aa-hscroll-distance');
     ref.style.removeProperty('--aa-hscroll-x');
+    applyScrubTimeline(track, false, 0, 0, 0, false);
     progressElement?.classList.remove('is-active');
     restoreTabstop();
     runtimes.delete(ref);

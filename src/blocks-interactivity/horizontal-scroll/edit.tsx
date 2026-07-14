@@ -14,6 +14,7 @@ import {
   PanelBody,
   RangeControl,
   SelectControl,
+  TextControl,
   ToggleControl,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
   __experimentalUnitControl as UnitControl,
@@ -24,18 +25,16 @@ import type { CSSProperties } from 'react';
 type HScrollActivation = 'top' | 'center' | 'bottom';
 type HScrollDesktopBehavior = 'pinned' | 'inline';
 type HScrollSnapBehavior = 'off' | 'proximity' | 'paged';
-type HScrollSnapStrength = 'soft' | 'medium' | 'strong' | 'aggressive';
 type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
 
 interface HScrollAttributes {
+  ariaLabel: string;
   itemWidth: string;
   speed: number;
   showProgress: boolean;
   activation: HScrollActivation;
   desktopBehavior: HScrollDesktopBehavior;
   snapBehavior: HScrollSnapBehavior;
-  snapStrength: HScrollSnapStrength;
-  pagedCommitPercent: number;
   swipeHintStyle: SwipeHintStyle;
 }
 
@@ -44,14 +43,13 @@ export default function Edit({
   setAttributes,
 }: BlockEditProps<HScrollAttributes>) {
   const {
+    ariaLabel = '',
     itemWidth,
     speed,
     showProgress,
     activation,
     desktopBehavior,
-    snapBehavior = 'paged',
-    snapStrength = 'medium',
-    pagedCommitPercent = 5,
+    snapBehavior = 'off',
     swipeHintStyle = 'cue',
   } = attributes;
   const previewStyle = {
@@ -78,6 +76,15 @@ export default function Edit({
     <>
       <InspectorControls>
         <PanelBody title={__('Horizontal Scroll', 'aggressive-apparel')}>
+          <TextControl
+            label={__('Accessibility Label', 'aggressive-apparel')}
+            help={__(
+              'Describes this gallery to screen readers. Set a unique label when a page has more than one horizontal-scroll section.',
+              'aggressive-apparel'
+            )}
+            value={ariaLabel}
+            onChange={(val: string) => setAttributes({ ariaLabel: val })}
+          />
           <UnitControl
             label={__('Item Width', 'aggressive-apparel')}
             help={__('Width of each slide.', 'aggressive-apparel')}
@@ -158,81 +165,31 @@ export default function Edit({
                 }
               />
               <SelectControl
-                label={__('Snap Behavior', 'aggressive-apparel')}
+                label={__('Scroll Behavior', 'aggressive-apparel')}
                 help={__(
-                  'Proximity gently aligns a nearby slide after scrolling stops. Paged commits to one adjacent slide after movement begins.',
+                  'Smooth scrubs the gallery horizontally in lock-step with scrolling. Stepped advances one slide per scroll, gliding it into place while further input is held.',
                   'aggressive-apparel'
                 )}
-                value={snapBehavior}
+                value={snapBehavior === 'paged' ? 'paged' : 'off'}
                 options={[
                   {
-                    label: __('Off', 'aggressive-apparel'),
+                    label: __('Smooth (continuous)', 'aggressive-apparel'),
                     value: 'off',
                   },
                   {
-                    label: __('Proximity', 'aggressive-apparel'),
-                    value: 'proximity',
-                  },
-                  {
-                    label: __('Paged', 'aggressive-apparel'),
+                    label: __(
+                      'Stepped (one slide per scroll)',
+                      'aggressive-apparel'
+                    ),
                     value: 'paged',
                   },
                 ]}
                 onChange={(val: string | undefined) =>
                   setAttributes({
-                    snapBehavior: (val as HScrollSnapBehavior) ?? 'paged',
+                    snapBehavior: (val as HScrollSnapBehavior) ?? 'off',
                   })
                 }
               />
-              {snapBehavior === 'paged' && (
-                <RangeControl
-                  label={__('Paging Sensitivity', 'aggressive-apparel')}
-                  help={__(
-                    'How far you scroll toward the next slide before paging commits, as a percentage of the gap. Lower feels snappier.',
-                    'aggressive-apparel'
-                  )}
-                  value={pagedCommitPercent}
-                  onChange={(val: number | undefined) =>
-                    setAttributes({ pagedCommitPercent: val ?? 5 })
-                  }
-                  min={5}
-                  max={50}
-                  step={5}
-                />
-              )}
-              {snapBehavior === 'proximity' && (
-                <SelectControl
-                  label={__('Snap Strength', 'aggressive-apparel')}
-                  help={__(
-                    'Controls how close scrolling must stop before proximity alignment engages.',
-                    'aggressive-apparel'
-                  )}
-                  value={snapStrength}
-                  options={[
-                    {
-                      label: __('Soft', 'aggressive-apparel'),
-                      value: 'soft',
-                    },
-                    {
-                      label: __('Medium', 'aggressive-apparel'),
-                      value: 'medium',
-                    },
-                    {
-                      label: __('Strong', 'aggressive-apparel'),
-                      value: 'strong',
-                    },
-                    {
-                      label: __('Aggressive', 'aggressive-apparel'),
-                      value: 'aggressive',
-                    },
-                  ]}
-                  onChange={(val: string | undefined) =>
-                    setAttributes({
-                      snapStrength: (val as HScrollSnapStrength) ?? 'medium',
-                    })
-                  }
-                />
-              )}
             </>
           )}
           <ToggleControl

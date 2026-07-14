@@ -9,30 +9,7 @@ export type HScrollMode = 'pinned' | 'paged' | 'native' | 'static';
 
 export type SnapBehavior = 'off' | 'proximity' | 'paged';
 
-export type SnapStrength = 'soft' | 'medium' | 'strong' | 'aggressive';
-
-export interface SnapStrengthPreset {
-  maxDistance: number;
-  maxSegmentRatio: number;
-}
-
-export const SNAP_STRENGTH_PRESETS: Readonly<
-  Record<SnapStrength, SnapStrengthPreset>
-> = {
-  soft: { maxDistance: 240, maxSegmentRatio: 0.12 },
-  medium: { maxDistance: 480, maxSegmentRatio: 0.25 },
-  strong: { maxDistance: 720, maxSegmentRatio: 0.35 },
-  aggressive: { maxDistance: 1600, maxSegmentRatio: 0.5 },
-};
-
-export const PAGED_COMMIT_RATIO = 0.05;
-
 export type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
-
-export interface ProximitySnapTarget {
-  index: number;
-  scrollPosition: number;
-}
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -66,12 +43,6 @@ export function pickMode(params: {
   if (!desktopMatches || !pinned) return 'native';
 
   return snapBehavior === 'paged' ? 'paged' : 'pinned';
-}
-
-export function getSnapStrengthPreset(
-  strength: SnapStrength
-): SnapStrengthPreset {
-  return SNAP_STRENGTH_PRESETS[strength];
 }
 
 export function computeProgress(
@@ -168,102 +139,66 @@ export function getSlideTarget(
   return clamp(slideStops[target] * maxTranslate, 0, maxTranslate);
 }
 
-/** Resolve the next adjacent slide once movement crosses a commit threshold. */
-export function getPagedSnapTarget(params: {
-  progress: number;
-  settledIndex: number;
-  slideStops: number[];
-  commitRatio?: number;
+/**
+ * Map a keyboard navigation key to a target slide index, or null when the key
+ * is not one we handle. Shared by every controller so keyboard paging behaves
+ * identically — Home/End, Page Up/Down, and the Arrow keys (mirrored for RTL,
+ * where ArrowRight moves toward the visually-right previous slide).
+ */
+export function resolveKeyboardTarget(params: {
+  key: string;
+  currentIndex: number;
+  slideCount: number;
+  rtl: boolean;
 }): number | null {
-  const {
-    progress,
-    slideStops,
-    commitRatio: rawCommitRatio = PAGED_COMMIT_RATIO,
-  } = params;
-  if (slideStops.length <= 1) return null;
+  const { key, currentIndex, slideCount, rtl } = params;
+  const lastIndex = slideCount - 1;
 
-  const settledIndex = clamp(params.settledIndex, 0, slideStops.length - 1);
-  const commitRatio = clamp(rawCommitRatio, 0.05, 0.95);
-  const currentStop = slideStops[settledIndex] ?? 0;
-
-  if (progress > currentStop && settledIndex < slideStops.length - 1) {
-    const nextStop = slideStops[settledIndex + 1];
-    const threshold = currentStop + (nextStop - currentStop) * commitRatio;
-    return progress >= threshold ? settledIndex + 1 : null;
+  switch (key) {
+    case 'Home':
+      return 0;
+    case 'End':
+      return lastIndex;
+    case 'PageDown':
+      return clamp(currentIndex + 1, 0, lastIndex);
+    case 'PageUp':
+      return clamp(currentIndex - 1, 0, lastIndex);
+    case 'ArrowRight':
+      return clamp(currentIndex + (rtl ? -1 : 1), 0, lastIndex);
+    case 'ArrowLeft':
+      return clamp(currentIndex + (rtl ? 1 : -1), 0, lastIndex);
+    default:
+      return null;
   }
-
-  if (progress < currentStop && settledIndex > 0) {
-    const previousStop = slideStops[settledIndex - 1];
-    const threshold = currentStop - (currentStop - previousStop) * commitRatio;
-    return progress <= threshold ? settledIndex - 1 : null;
-  }
-
-  return null;
 }
 
 /**
- * Resolve a small, post-scroll correction to a nearby slide. Endpoint stops
- * are eligible only while the document remains inside the sticky range, so
- * snapping cannot pull the page back after the user has already left.
+ * Cubic ease-in-out (0 → 1). Used to drive the step controller's own scroll
+ * tween so the slide glide is smooth and fully under our control, instead of
+ * the browser's untunable `scrollTo({ behavior: 'smooth' })`.
  */
-export function getProximitySnapTarget(params: {
-  scrollPosition: number;
-  scrollStart: number;
-  scrollDistance: number;
-  slideStops: number[];
-  maxDistance?: number;
-  maxSegmentRatio?: number;
-}): ProximitySnapTarget | null {
-  const {
-    scrollPosition,
-    scrollStart,
-    scrollDistance,
-    slideStops,
-    maxDistance = 480,
-    maxSegmentRatio = 0.25,
-  } = params;
+export function easeInOutCubic(t: number): number {
+  const clamped = clamp(t, 0, 1);
+  return clamped < 0.5
+    ? 4 * clamped * clamped * clamped
+    : 1 - (-2 * clamped + 2) ** 3 / 2;
+}
 
-  if (scrollDistance <= 0 || slideStops.length < 3) return null;
+/**
+ * Document scroll position (px) that pins a given slide index at its stop.
+ * Slide stops are ratios of the sticky range, so the absolute position is the
+ * range's start plus that ratio of the range's scroll distance.
+ */
+export function getStepScrollPosition(
+  index: number,
+  scrollStart: number,
+  scrollDistance: number,
+  slideStops: number[]
+): number {
+  if (slideStops.length === 0) return scrollStart;
 
-  const progress = (scrollPosition - scrollStart) / scrollDistance;
-  if (progress <= 0 || progress >= 1) return null;
-
-  const candidates = slideStops
-    .map((stop, index) => ({ index, stop }))
-    .filter(({ stop }) => stop >= 0 && stop <= 1);
-  if (candidates.length === 0) return null;
-
-  const nearest = candidates.reduce((current, candidate) =>
-    Math.abs(candidate.stop - progress) < Math.abs(current.stop - progress)
-      ? candidate
-      : current
-  );
-  const targetPosition = scrollStart + nearest.stop * scrollDistance;
-  const distanceToTarget = Math.abs(targetPosition - scrollPosition);
-  if (distanceToTarget <= 1) return null;
-
-  const lowerStop = Math.max(
-    0,
-    ...slideStops.filter(stop => stop < nearest.stop)
-  );
-  const upperStop = Math.min(
-    1,
-    ...slideStops.filter(stop => stop > nearest.stop)
-  );
-  const adjacentSpan =
-    Math.max(nearest.stop - lowerStop, upperStop - nearest.stop) *
-    scrollDistance;
-  const threshold = Math.min(
-    Math.max(0, maxDistance),
-    Math.max(0, adjacentSpan * maxSegmentRatio)
-  );
-
-  if (distanceToTarget > threshold) return null;
-
-  return {
-    index: nearest.index,
-    scrollPosition: targetPosition,
-  };
+  const target = clamp(index, 0, slideStops.length - 1);
+  return scrollStart + (slideStops[target] ?? 0) * scrollDistance;
 }
 
 export const DEFAULT_SLIDE_ANNOUNCEMENT = 'Slide %1$s of %2$s';

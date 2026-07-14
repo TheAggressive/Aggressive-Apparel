@@ -48,20 +48,19 @@ if ( ! in_array( $desktop_behavior, array( 'pinned', 'inline' ), true ) ) {
 	$desktop_behavior = 'pinned';
 }
 
-$snap_behavior = $attributes['snapBehavior'] ?? 'paged';
+// Scroll behavior: 'paged' = one deliberate gesture advances one slide (the
+// input-locked "step" glide); anything else = continuous "scrub". Legacy
+// 'proximity' values fall through to scrub.
+$snap_behavior = $attributes['snapBehavior'] ?? 'off';
 if ( ! in_array( $snap_behavior, array( 'off', 'proximity', 'paged' ), true ) ) {
-	$snap_behavior = 'paged';
+	$snap_behavior = 'off';
 }
 
-$snap_strength = $attributes['snapStrength'] ?? 'medium';
-if ( ! in_array( $snap_strength, array( 'soft', 'medium', 'strong', 'aggressive' ), true ) ) {
-	$snap_strength = 'medium';
-}
-
-// Paged-mode commit sensitivity: how far (as a percentage of the gap to the
-// adjacent slide) the user must scroll before paging commits. Lower = snappier.
-$paged_commit_percent = isset( $attributes['pagedCommitPercent'] ) ? (int) $attributes['pagedCommitPercent'] : 5;
-$paged_commit_percent = min( 50, max( 5, $paged_commit_percent ) );
+// Accessible name for the carousel region. Falls back to a generic label;
+// authors should set a unique one when a page has more than one gallery.
+$aria_label = ! empty( $attributes['ariaLabel'] )
+	? (string) $attributes['ariaLabel']
+	: __( 'Scrolling gallery', 'aggressive-apparel' );
 
 $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
@@ -74,7 +73,7 @@ if ( 'inline' === $desktop_behavior ) {
 		array(
 			'class'                => $classes,
 			'aria-roledescription' => 'carousel',
-			'aria-label'           => __( 'Scrolling gallery', 'aggressive-apparel' ),
+			'aria-label'           => $aria_label,
 			'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
 			'data-wp-context'      => wp_json_encode(
 				array(
@@ -82,8 +81,6 @@ if ( 'inline' === $desktop_behavior ) {
 					'progress'        => 0,
 					'desktopBehavior' => $desktop_behavior,
 					'snapBehavior'    => $snap_behavior,
-					'snapStrength'    => $snap_strength,
-					'commitRatio'     => $paged_commit_percent / 100,
 					'swipeHintStyle'  => $swipe_hint_style,
 					'i18n'            => array(
 						/* translators: 1: current slide number, 2: total slide count. Announced by screen readers. */

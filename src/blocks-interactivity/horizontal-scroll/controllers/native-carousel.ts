@@ -3,6 +3,7 @@ import {
   getSlideIndexFromProgress,
   getSlideTarget,
   isEditableTarget,
+  resolveKeyboardTarget,
 } from '../logic';
 import type {
   Controller,
@@ -57,21 +58,13 @@ export class NativeCarouselController implements Controller {
   keydown = (event: KeyboardEvent): boolean => {
     if (isEditableTarget(event.target)) return false;
 
-    const lastIndex = this.geometry.slides.length - 1;
-    let target: number;
-
-    if (event.key === 'Home') {
-      target = 0;
-    } else if (event.key === 'End') {
-      target = lastIndex;
-    } else if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      // In RTL, ArrowRight moves toward the previous (visually right) slide.
-      const direction =
-        (event.key === 'ArrowRight' ? 1 : -1) * (this.geometry.rtl ? -1 : 1);
-      target = clamp(this.presentation.getIndex() + direction, 0, lastIndex);
-    } else {
-      return false;
-    }
+    const target = resolveKeyboardTarget({
+      key: event.key,
+      currentIndex: this.presentation.getIndex(),
+      slideCount: this.geometry.slides.length,
+      rtl: this.geometry.rtl,
+    });
+    if (target === null) return false;
 
     this.scrollToOffset(
       getSlideTarget(
@@ -81,6 +74,8 @@ export class NativeCarouselController implements Controller {
       ),
       'smooth'
     );
+    // Announce immediately so keyboard users hear the new position.
+    this.presentation.setActive(target, { announce: true });
     return true;
   };
 

@@ -615,7 +615,7 @@ System font stack with 20+ fluid font sizes using `clamp()` for responsive scali
 
 ## Block Patterns
 
-Located in `patterns/` (80 files). Prefer the Site Editor / pattern inserter over maintaining a full list here. Representative categories include navigation, shop archives, PDP conversion, homepage merchandising, and cart recovery. Placement guidance: [`docs/block-placement.md`](docs/block-placement.md).
+Located in `patterns/` (74 files). Prefer the Site Editor / pattern inserter over maintaining a full list here. Representative categories include navigation, shop archives, PDP conversion, homepage merchandising, and cart recovery. Placement guidance: [`docs/block-placement.md`](docs/block-placement.md).
 
 ## Git Workflow
 

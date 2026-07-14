@@ -1,5 +1,3 @@
-import type { SnapBehavior, SnapStrength } from '../logic';
-
 export interface Geometry {
   slides: HTMLElement[];
   slideStops: number[];
@@ -19,13 +17,6 @@ export interface Controller {
 export interface ControllerElements {
   ref: HTMLElement;
   viewport: HTMLElement;
-}
-
-export interface ControllerOptions {
-  snapBehavior: SnapBehavior;
-  snapStrength: SnapStrength;
-  /** Paged-mode commit sensitivity as a ratio of the gap to the adjacent slide. */
-  commitRatio: number;
 }
 
 export interface Presentation {

@@ -1,3 +1,10 @@
+## [1.151.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.151.0...v1.151.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* update block patterns and enhance theme features ([13efab8](https://github.com/TheAggressive/Aggressive-Apparel/commit/13efab826612782f827e9325c82bd717cfcc4cdc))
+
 # [1.151.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.150.0...v1.151.0) (2026-07-13)
 
 

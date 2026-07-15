@@ -39,6 +39,17 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await expect
       .poll(() => cards.count(), { timeout: 15_000 })
       .toBeGreaterThan(initialCount);
+    const productIds = await cards.evaluateAll(elements =>
+      elements.map(element => {
+        const productClass = [...element.classList].find(className =>
+          /^post-\d+$/.test(className)
+        );
+        return productClass ?? '';
+      })
+    );
+    expect(productIds).not.toContain('');
+    expect(new Set(productIds).size).toBe(productIds.length);
+
     const appended = cards.nth(initialCount).locator('.wp-block-post-title a');
     await expect(appended).toBeVisible();
     expect(await titleStyle(appended)).toEqual(expected);
@@ -54,3 +65,66 @@ for (const colorScheme of ['light', 'dark'] as const) {
     );
   });
 }
+
+test('catalog sorting resets paging and appends unique products', async ({
+  page,
+}) => {
+  await page.goto('/shop/');
+
+  const select = page.locator('select[name="orderby"]').first();
+  test.skip(
+    (await select.count()) === 0,
+    'The catalogue has no sorting control.'
+  );
+
+  const sortedPage = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return (
+      url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
+      url.searchParams.get('orderby') === 'price' &&
+      url.searchParams.get('page') === '1'
+    );
+  });
+  await select.selectOption('price');
+  await sortedPage;
+
+  const cards = page.locator(
+    '.wp-block-woocommerce-product-template > .wc-block-product'
+  );
+  const sortedCount = await cards.count();
+  test.skip(sortedCount === 0, 'The E2E catalogue has no products.');
+
+  const button = page.locator('.aa-load-more__btn:visible');
+  const sentinel = page.locator('.aa-load-more__sentinel:visible');
+  test.skip(
+    (await button.count()) === 0 && (await sentinel.count()) === 0,
+    'The catalogue has one page.'
+  );
+
+  const nextPage = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return (
+      url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
+      url.searchParams.get('orderby') === 'price' &&
+      url.searchParams.get('page') === '2'
+    );
+  });
+
+  if (await button.count()) {
+    await button.click();
+  } else {
+    await sentinel.scrollIntoViewIfNeeded();
+  }
+  await nextPage;
+
+  await expect
+    .poll(() => cards.count(), { timeout: 15_000 })
+    .toBeGreaterThan(sortedCount);
+  const productIds = await cards.evaluateAll(elements =>
+    elements.map(element =>
+      [...element.classList].find(className => /^post-\d+$/.test(className))
+    )
+  );
+  expect(productIds.every(Boolean)).toBe(true);
+  expect(new Set(productIds).size).toBe(productIds.length);
+});

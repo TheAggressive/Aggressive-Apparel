@@ -469,7 +469,13 @@ const { state, actions } = store<ProductFiltersStore>(
       init(): void {
         // Capture the unfiltered grid before any AJAX fetch can replace it, so
         // "Clear All" can restore the native server-rendered cards verbatim.
-        originalGridHtml = gridUl()?.innerHTML ?? null;
+        const initialGrid = gridUl();
+        originalGridHtml = initialGrid?.innerHTML ?? null;
+        const initialCount =
+          initialGrid?.querySelectorAll(':scope > li').length ?? 0;
+        if (initialCount > 0) {
+          state.perPage = initialCount;
+        }
 
         restoreFromUrl();
         captureSortDropdown();
@@ -747,10 +753,12 @@ function buildRenderedParams(page: number): URLSearchParams {
  * sorted-products endpoint, then render exactly those through the block pipeline
  * via the rendered endpoint's `include` param — so the cards match the editor.
  */
-function fetchCustomSorted(sortType: string): void {
+function fetchCustomSorted(sortType: string, append = false): void {
   const signal = requests.beginProducts();
 
-  state.isLoading = true;
+  if (!append) {
+    state.isLoading = true;
+  }
   state.hasError = false;
 
   const restRoot = state.restBase.replace(/\/wc\/store\/v1\/products$/, '');
@@ -802,6 +810,7 @@ function fetchCustomSorted(sortType: string): void {
         renderPills();
         renderPagination();
         renderHorizontalDropdowns();
+        notifyProductsFetched(append, 0);
         return;
       }
 
@@ -809,17 +818,21 @@ function fetchCustomSorted(sortType: string): void {
       const params = new URLSearchParams();
       params.set('include', data.ids.join(','));
       params.set('per_page', String(data.ids.length));
+      if (state.templateSlug) {
+        params.set('template', state.templateSlug);
+      }
 
       return fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
         .then((res2: Response) => res2.json() as Promise<RenderedResponse>)
         .then((rendered: RenderedResponse) => {
           installBlockSupportStyles(rendered.styles);
-          injectProductsHtml(rendered.html, false);
+          const added = injectProductsHtml(rendered.html, append);
           state.isLoading = false;
           announceResults();
           renderPills();
           renderPagination();
           renderHorizontalDropdowns();
+          notifyProductsFetched(append, added);
         });
     })
     .catch((err: Error) => {
@@ -828,6 +841,7 @@ function fetchCustomSorted(sortType: string): void {
       state.hasError = true;
       state.products = [];
       state._announcement = 'Something went wrong loading products.';
+      notifyProductsFetchFailed();
     });
 }
 
@@ -850,7 +864,7 @@ function announceResults(): void {
 function fetchProducts({ append = false }: { append?: boolean } = {}): void {
   // Delegate to custom sort handler for featured/savings.
   if (state._customSort) {
-    fetchCustomSorted(state._customSort);
+    fetchCustomSorted(state._customSort, append);
     return;
   }
 
@@ -889,17 +903,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       renderHorizontalDropdowns();
 
       // Notify load-more store.
-      document.dispatchEvent(
-        new CustomEvent('aa:products-fetched', {
-          detail: {
-            page: state.currentPage,
-            totalPages: state.totalPages,
-            totalProducts: state.totalProducts,
-            append,
-            productsCount: added,
-          },
-        })
-      );
+      notifyProductsFetched(append, added);
     })
     .catch((err: Error) => {
       if (err.name === 'AbortError') return;
@@ -907,7 +911,28 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       state.hasError = true;
       state.products = [];
       state._announcement = 'Something went wrong loading products.';
+      notifyProductsFetchFailed();
     });
+}
+
+/** Keep the load-more store synchronized with every rendered-products request. */
+function notifyProductsFetched(append: boolean, productsCount: number): void {
+  document.dispatchEvent(
+    new CustomEvent('aa:products-fetched', {
+      detail: {
+        page: state.currentPage,
+        totalPages: state.totalPages,
+        totalProducts: state.totalProducts,
+        append,
+        productsCount,
+      },
+    })
+  );
+}
+
+/** Ensure the load-more control never remains busy after a request failure. */
+function notifyProductsFetchFailed(): void {
+  document.dispatchEvent(new CustomEvent('aa:products-fetch-failed'));
 }
 
 /**
@@ -1029,7 +1054,25 @@ function injectProductsHtml(html: string, append: boolean): number {
   const before = append ? container.children.length : 0;
 
   if (append) {
-    container.insertAdjacentHTML('beforeend', html);
+    const knownKeys = new Set(
+      Array.from(container.querySelectorAll<HTMLElement>(':scope > li'))
+        .map(productCardKey)
+        .filter(Boolean)
+    );
+    const incomingKeys = new Set<string>();
+    const fragment = document.createElement('ul');
+    fragment.innerHTML = html;
+    Array.from(fragment.querySelectorAll<HTMLElement>(':scope > li')).forEach(
+      card => {
+        const key = productCardKey(card);
+        if (!key || knownKeys.has(key) || incomingKeys.has(key)) {
+          card.remove();
+          return;
+        }
+        incomingKeys.add(key);
+      }
+    );
+    container.insertAdjacentHTML('beforeend', fragment.innerHTML);
   } else {
     container.innerHTML = html;
   }
@@ -1048,6 +1091,16 @@ function injectProductsHtml(html: string, append: boolean): number {
   notifyCardsRendered(container);
 
   return items.length - before;
+}
+
+/** Stable identity used to make dynamic card insertion idempotent. */
+function productCardKey(card: HTMLElement): string {
+  const interactiveKey = card.getAttribute('data-wp-key');
+  if (interactiveKey) return interactiveKey;
+
+  return (
+    [...card.classList].find(className => /^post-\d+$/.test(className)) ?? ''
+  );
 }
 
 /**
@@ -1500,10 +1553,9 @@ function captureSortDropdown(): void {
       state.orderDir = sort.orderDir;
       state._customSort = sort.customSort || '';
 
-      if (state.hasActiveFilters) {
-        state.currentPage = 1;
-        fetchProducts();
-      }
+      state.currentPage = 1;
+      document.dispatchEvent(new CustomEvent('aa:filters-changed'));
+      fetchProducts();
     }
   });
 }

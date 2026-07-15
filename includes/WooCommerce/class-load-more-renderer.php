@@ -320,11 +320,11 @@ class Load_More_Renderer {
 	 * hashes may differ from the initial document, so the returned fragment owns
 	 * deterministic style assets for the exact classes in its markup.
 	 *
-	 * The collection inherits the archive query (`inherit: true`), which
-	 * WooCommerce satisfies by cloning the global `$wp_query`. We therefore
-	 * install the already-computed, filtered, page-N query as the global for the
-	 * duration of the render, then restore it. Only the product-template's `<li>`
-	 * cards are returned; the client appends them into the existing grid `<ul>`.
+	 * The saved collection may use either inherited or explicit query settings.
+	 * Dynamic requests must always render the already-computed endpoint query, so
+	 * this scoped copy is forced to inherit the global query installed below.
+	 * Only the product-template's `<li>` cards are returned; the client appends
+	 * them into the existing grid `<ul>`.
 	 *
 	 * @param array<string, mixed> $collection_block Parsed product-collection block.
 	 * @param \WP_Query            $query            Query with this page's products.
@@ -332,6 +332,14 @@ class Load_More_Renderer {
 	 */
 	private function render_products_html( array $collection_block, \WP_Query $query ): Rendered_Product_Fragment {
 		global $wp_query;
+
+		if ( ! isset( $collection_block['attrs'] ) || ! is_array( $collection_block['attrs'] ) ) {
+			$collection_block['attrs'] = array();
+		}
+		if ( ! isset( $collection_block['attrs']['query'] ) || ! is_array( $collection_block['attrs']['query'] ) ) {
+			$collection_block['attrs']['query'] = array();
+		}
+		$collection_block['attrs']['query']['inherit'] = true;
 
 		$saved_query = $wp_query;
 		$fingerprint = hash(

@@ -114,6 +114,8 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   callbacks: {
     init(): void {
+      synchronizeInitialGridState();
+
       if (state.mode === 'infinite_scroll') {
         setupIntersectionObserver();
       }
@@ -126,10 +128,30 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
         'aa:products-fetched',
         handleProductsFetched as EventListener
       );
+      document.addEventListener('aa:products-fetch-failed', handleFetchFailure);
       document.addEventListener('aa:filters-changed', handleFiltersChanged);
     },
   },
 });
+
+/** Align pagination with the Product Collection actually rendered by the template. */
+function synchronizeInitialGridState(): void {
+  const grid = document.querySelector<HTMLElement>(
+    '.wp-block-woocommerce-product-template'
+  );
+  if (!grid) return;
+
+  const renderedCount = grid.querySelectorAll(':scope > li').length;
+  if (renderedCount < 1) return;
+
+  state.perPage = renderedCount;
+  state.loadedCount = renderedCount;
+  state.totalPages = Math.max(
+    1,
+    Math.ceil(state.totalProducts / renderedCount)
+  );
+  state.allLoaded = renderedCount >= state.totalProducts;
+}
 
 /**
  * Handle product-filters fetch completion.
@@ -153,14 +175,25 @@ function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
  * Handle filter change — reset to page 1 and discard stale prefetch cache.
  */
 function handleFiltersChanged(): void {
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
   state.currentPage = 1;
   state.allLoaded = false;
   state.filtersActive = true;
+  state.isLoading = false;
   prefetchCache.clear();
   if (prefetchController) {
     prefetchController.abort();
     prefetchController = null;
   }
+}
+
+/** Release loading state when a coordinated filter/sort request fails. */
+function handleFetchFailure(): void {
+  state.isLoading = false;
+  state.announcement = '';
 }
 
 /**
@@ -288,10 +321,28 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   // Count inserted <li> elements to update loadedCount accurately.
   const temp = document.createElement('ul');
   temp.innerHTML = data.html;
+  const knownKeys = new Set(
+    Array.from(grid.querySelectorAll<HTMLElement>(':scope > li'))
+      .map(productCardKey)
+      .filter(Boolean)
+  );
+  const incomingKeys = new Set<string>();
+  Array.from(temp.querySelectorAll<HTMLElement>(':scope > li')).forEach(
+    card => {
+      const key = productCardKey(card);
+      if (!key || knownKeys.has(key) || incomingKeys.has(key)) {
+        card.remove();
+        return;
+      }
+      incomingKeys.add(key);
+    }
+  );
   const count = temp.children.length;
 
-  grid.insertAdjacentHTML('beforeend', data.html);
-  notifyCardsRendered(grid);
+  if (count > 0) {
+    grid.insertAdjacentHTML('beforeend', temp.innerHTML);
+    notifyCardsRendered(grid);
+  }
 
   state.totalProducts = data.total_products;
   state.totalPages = data.total_pages;
@@ -302,6 +353,16 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   state.announcement = state.loadedFormat.replace('%d', String(count));
 
   prefetchNextPage();
+}
+
+/** Stable identity used to make dynamic card insertion idempotent. */
+function productCardKey(card: HTMLElement): string {
+  const interactiveKey = card.getAttribute('data-wp-key');
+  if (interactiveKey) return interactiveKey;
+
+  return (
+    [...card.classList].find(className => /^post-\d+$/.test(className)) ?? ''
+  );
 }
 
 /**

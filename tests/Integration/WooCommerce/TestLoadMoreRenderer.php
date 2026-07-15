@@ -517,6 +517,48 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->assertSame( 1, (int) $combo['total_products'] );
 	}
 
+	/** Explicit template queries cannot override endpoint paging or sorting. */
+	public function test_explicit_collection_query_uses_requested_page_and_order(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$low_id  = $this->create_product( 10.0 );
+		$high_id = $this->create_product( 90.0 );
+
+		$this->create_block_template(
+			'archive-product',
+			'<!-- wp:woocommerce/product-collection {"query":{"perPage":8,"inherit":false,"orderBy":"date","order":"desc"}} -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"isLink":true} /-->'
+			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$page_one = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 1,
+				'page'     => 1,
+				'orderby'  => 'price',
+			)
+		)->get_data();
+		$page_two = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 1,
+				'page'     => 2,
+				'orderby'  => 'price',
+			)
+		)->get_data();
+
+		$this->assertStringContainsString( 'post-' . $low_id, $page_one['html'] );
+		$this->assertStringNotContainsString( 'post-' . $high_id, $page_one['html'] );
+		$this->assertStringContainsString( 'post-' . $high_id, $page_two['html'] );
+		$this->assertStringNotContainsString( 'post-' . $low_id, $page_two['html'] );
+	}
+
 	/**
 	 * Load-more responses include CSS for their rendered wp-elements classes.
 	 *

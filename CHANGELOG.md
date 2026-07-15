@@ -1,3 +1,10 @@
+# [1.154.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.153.0...v1.154.0) (2026-07-15)
+
+
+### Features
+
+* enhance caching mechanism and error handling in product rendering ([9c7c905](https://github.com/TheAggressive/Aggressive-Apparel/commit/9c7c905d3a418cf01e7a044c079d8afd4c5e8fd7))
+
 # [1.153.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.152.0...v1.153.0) (2026-07-15)
 
 

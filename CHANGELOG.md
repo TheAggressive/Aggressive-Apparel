@@ -1,3 +1,11 @@
+# [1.152.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.151.1...v1.152.0) (2026-07-15)
+
+
+### Features
+
+* implement dynamic block-support styles for product rendering ([12008c0](https://github.com/TheAggressive/Aggressive-Apparel/commit/12008c08988f0e5d7569a00e18db5b2ce3acb825))
+* implement dynamic block-support styles for WooCommerce product rendering ([d5152c1](https://github.com/TheAggressive/Aggressive-Apparel/commit/d5152c12afc9fb3d7b91204088217d3feae2fd3e))
+
 ## [1.151.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.151.0...v1.151.1) (2026-07-14)
 
 

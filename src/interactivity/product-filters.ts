@@ -1410,13 +1410,7 @@ function restoreFromUrl(): boolean {
     ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
   ];
   for (const filter of ATTRIBUTE_FILTERS) {
-    // Accept the canonical param plus the legacy `filter_*` / `filter_pa_*`
-    // aliases for shareable / bookmarked URLs.
-    const raw =
-      params.get(filter.urlParam) ||
-      params.get(`filter_${filter.urlParam}`) ||
-      params.get(`filter_${filter.taxonomy}`) ||
-      '';
+    const raw = params.get(filter.urlParam) || '';
     if (raw) {
       state[filter.stateKey] = raw.split(',').filter(Boolean);
     }

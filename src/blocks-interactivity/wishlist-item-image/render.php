@@ -20,8 +20,6 @@ $image_ratio     = isset( $attributes['imageRatio'] ) ? (string) $attributes['im
 $image_ratio     = in_array( $image_ratio, $allowed_ratios, true ) ? $image_ratio : '1/1';
 $link_to_product = ! isset( $attributes['linkToProduct'] ) || (bool) $attributes['linkToProduct'];
 
-// 1×1 transparent GIF placeholder until syncItemImage runs.
-$placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'aa-wl-item-image' ) ); ?>>
 <?php if ( $link_to_product ) : ?>
@@ -33,7 +31,6 @@ $placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAA
 		<img
 			class="aa-wl-item-image__img"
 			style="<?php echo esc_attr( 'aspect-ratio:' . $image_ratio . ';' ); ?>"
-			src="<?php echo esc_attr( $placeholder ); ?>"
 			alt=""
 			data-wp-watch="callbacks.syncItemImage"
 		/>
@@ -42,7 +39,6 @@ $placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAA
 	<img
 		class="aa-wl-item-image__img"
 		style="<?php echo esc_attr( 'aspect-ratio:' . $image_ratio . ';' ); ?>"
-		src="<?php echo esc_attr( $placeholder ); ?>"
 		alt=""
 		data-wp-watch="callbacks.syncItemImage"
 	/>

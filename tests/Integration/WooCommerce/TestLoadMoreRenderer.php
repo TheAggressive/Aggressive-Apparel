@@ -113,6 +113,9 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 				'stock'     => 'instock',
 			)
 		);
+		$query->set( 'aa_catalog_stock_statuses', array( 'instock', 'onbackorder' ) );
+		$query->set( 'aa_catalog_excluded_ids', array( 123, 456 ) );
+		$query->set( 'aa_catalog_on_sale', true );
 
 		$clauses = $renderer->apply_product_lookup_clauses(
 			array(
@@ -126,6 +129,10 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->assertStringContainsString( '`aa_product_lookup`.max_price >= 10.500000', $clauses['where'] );
 		$this->assertStringContainsString( '`aa_product_lookup`.min_price <= 40.250000', $clauses['where'] );
 		$this->assertStringContainsString( "`aa_product_lookup`.stock_status = 'instock'", $clauses['where'] );
+		$this->assertStringContainsString( "`aa_product_lookup`.stock_status = 'instock' OR `aa_product_lookup`.stock_status = 'onbackorder'", $clauses['where'] );
+		$this->assertStringContainsString( '`aa_product_lookup`.onsale = 1', $clauses['where'] );
+		$this->assertStringContainsString( '`wp_posts`.ID != 123', $clauses['where'] );
+		$this->assertStringContainsString( '`wp_posts`.ID != 456', $clauses['where'] );
 	}
 
 	/**
@@ -142,6 +149,17 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		}
 
 		return rest_do_request( $request );
+	}
+
+	/**
+	 * Extract rendered product IDs from card classes.
+	 *
+	 * @param string $html Rendered card markup.
+	 * @return int[]
+	 */
+	private function product_ids_from_html( string $html ): array {
+		preg_match_all( '/\bpost-(\d+)\b/', $html, $matches );
+		return array_values( array_unique( array_map( 'intval', $matches[1] ?? array() ) ) );
 	}
 
 	/**
@@ -333,6 +351,207 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$response = $this->dispatch( array( 'include' => '1,2,3' ) );
 
 		$this->assertLessThan( 500, $response->get_status() );
+	}
+
+	/** Pathological deep-page requests are rejected before querying MySQL. */
+	public function test_page_depth_is_bounded(): void {
+		$this->assertSame( 400, $this->dispatch( array( 'page' => 1001 ) )->get_status() );
+	}
+
+	/** Anonymous fragment cache keys vary with query, template, and version. */
+	public function test_rendered_response_cache_key_is_versioned_and_contextual(): void {
+		$renderer = new Load_More_Renderer();
+		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'response_cache_key' );
+		$method->setAccessible( true );
+		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+
+		$block = array( 'blockName' => 'woocommerce/product-collection', 'attrs' => array( 'queryId' => 1 ) );
+		$key   = (string) $method->invoke( $renderer, array( 'paged' => 1 ), $block, false );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $key );
+		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 2 ), $block, false ) );
+		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 1 ), $block, true ) );
+
+		update_option( 'aa_pf_facets_version', (int) get_option( 'aa_pf_facets_version', 1 ) + 1, false );
+		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 1 ), $block, false ) );
+		remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+	}
+
+	/** Identical public render requests are served from the fragment cache. */
+	public function test_rendered_response_cache_avoids_repeating_product_query(): void {
+		$this->create_product( 29.0 );
+		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+		$query_count = 0;
+		$counter     = static function ( array $clauses ) use ( &$query_count ): array {
+			++$query_count;
+			return $clauses;
+		};
+		add_filter( 'posts_clauses', $counter, 999 );
+
+		$params = array( 'page' => 1, 'per_page' => 1, 'orderby' => 'date' );
+		$first  = $this->dispatch( $params )->get_data();
+		$after_first = $query_count;
+		$second      = $this->dispatch( $params )->get_data();
+
+		$this->assertGreaterThan( 0, $after_first );
+		$this->assertSame( $after_first, $query_count );
+		$this->assertSame( $first, $second );
+
+		remove_filter( 'posts_clauses', $counter, 999 );
+		remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+	}
+
+	/**
+	 * WooCommerce's default catalog sort must be accepted and remain stable.
+	 *
+	 * @return void
+	 */
+	public function test_menu_order_matches_woocommerce_default_sorting(): void {
+		$response = $this->dispatch( array( 'orderby' => 'menu_order' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$renderer = new Load_More_Renderer();
+		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
+		$method->setAccessible( true );
+		$args = $method->invoke( $renderer, 2, 12, 'menu_order', '', '', array() );
+
+		$this->assertSame(
+			array(
+				'menu_order' => 'ASC',
+				'title'      => 'ASC',
+				'ID'         => 'ASC',
+			),
+			$args['orderby']
+		);
+		$this->assertSame( 2, $args['paged'] );
+
+		$date_args = $method->invoke( $renderer, 1, 12, 'date', '', '', array() );
+		$this->assertSame( array( 'date' => 'DESC', 'ID' => 'DESC' ), $date_args['orderby'] );
+
+		$title_args = $method->invoke( $renderer, 1, 12, 'title-asc', '', '', array() );
+		$this->assertSame( array( 'title' => 'ASC', 'ID' => 'ASC' ), $title_args['orderby'] );
+	}
+
+	/**
+	 * Saved Product Collection constraints survive dynamic pagination.
+	 *
+	 * @return void
+	 */
+	public function test_template_query_constraints_are_validated_and_composed(): void {
+		$renderer = new Load_More_Renderer();
+		$build    = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
+		$apply    = new \ReflectionMethod( Load_More_Renderer::class, 'apply_template_query_constraints' );
+		$build->setAccessible( true );
+		$apply->setAccessible( true );
+
+		$args  = $build->invoke( $renderer, 2, 12, 'date', '', '', array() );
+		$block = array(
+			'attrs' => array(
+				'collection' => 'woocommerce/product-collection/featured',
+				'query'      => array(
+					'offset'                         => 3,
+					'pages'                          => 2,
+					'search'                         => 'shirt',
+					'exclude'                        => array( 90, -91, 'invalid' ),
+					'woocommerceHandPickedProducts' => array( 10, 20, 20 ),
+					'woocommerceStockStatus'        => array( 'instock', 'invalid' ),
+					'woocommerceOnSale'              => true,
+					'taxQuery'                       => array(
+						array(
+							'taxonomy' => 'product_cat',
+							'terms'    => array( 7 ),
+						),
+						array(
+							'taxonomy' => 'private_taxonomy',
+							'terms'    => array( 8 ),
+						),
+					),
+				),
+			),
+		);
+
+		$result = $apply->invoke( $renderer, $args, $block, 2, 12 );
+
+		$this->assertSame( array( 90, 91 ), $result['aa_catalog_excluded_ids'] );
+		$this->assertSame( array( 10, 20 ), $result['post__in'] );
+		$this->assertSame( 'shirt', $result['s'] );
+		$this->assertSame( 15, $result['offset'] );
+		$this->assertSame( 3, $result['aa_offset'] );
+		$this->assertSame( 2, $result['aa_page_limit'] );
+		$this->assertSame( array( 'instock' ), $result['aa_catalog_stock_statuses'] );
+		$this->assertTrue( $result['aa_catalog_on_sale'] );
+		$this->assertSame( 'AND', $result['tax_query']['relation'] );
+		$this->assertSame( 'product_visibility', $result['tax_query'][0]['taxonomy'] );
+		$this->assertSame( 'product_cat', $result['tax_query'][1]['taxonomy'] );
+
+		$block['attrs']['query']['woocommerceStockStatus'] = array();
+		$empty_stock = $apply->invoke( $renderer, $args, $block, 1, 12 );
+		$this->assertSame( array( 'aa-none' ), $empty_stock['aa_catalog_stock_statuses'] );
+	}
+
+	/** Offset collections report totals relative to their visible result set. */
+	public function test_template_offset_and_page_limit_adjust_totals(): void {
+		$renderer = new Load_More_Renderer();
+		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'query_totals' );
+		$method->setAccessible( true );
+		$query              = new WP_Query();
+		$query->found_posts = 50;
+
+		$this->assertSame(
+			array( 'products' => 20, 'pages' => 2 ),
+			$method->invoke( $renderer, $query, array( 'aa_offset' => 5, 'aa_page_limit' => 2 ), 10 )
+		);
+	}
+
+	/** Explicit hand-picked/excluded/offset collections paginate as one dataset. */
+	public function test_explicit_collection_constraints_paginate_without_leaking_products(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$ids = array(
+			$this->create_product( 11.0 ),
+			$this->create_product( 12.0 ),
+			$this->create_product( 13.0 ),
+			$this->create_product( 14.0 ),
+		);
+		$attrs = array(
+			'queryId' => 77,
+			'query'   => array(
+				'perPage'                         => 1,
+				'pages'                           => 0,
+				'offset'                          => 1,
+				'postType'                        => 'product',
+				'inherit'                         => false,
+				'exclude'                         => array( $ids[1] ),
+				'woocommerceHandPickedProducts'  => $ids,
+				'woocommerceStockStatus'         => array( 'instock', 'outofstock', 'onbackorder' ),
+				'woocommerceOnSale'               => false,
+				'woocommerceAttributes'           => array(),
+			),
+		);
+		$content = '<!-- wp:woocommerce/product-collection ' . wp_json_encode( $attrs ) . ' -->'
+			. '<div class="wp-block-woocommerce-product-collection"><!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"isLink":true} /-->'
+			. '<!-- /wp:woocommerce/product-template --></div>'
+			. '<!-- /wp:woocommerce/product-collection -->';
+		$slug = 'explicit-products-' . wp_generate_password( 6, false );
+		$this->create_block_template( $slug, $content );
+
+		$page_one = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 1, 'orderby' => 'menu_order' ) )->get_data();
+		$page_two = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 2, 'orderby' => 'menu_order' ) )->get_data();
+		$page_three = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 3, 'orderby' => 'menu_order' ) )->get_data();
+
+		$this->assertSame( 2, (int) $page_one['total_products'] );
+		$this->assertSame( 2, (int) $page_one['total_pages'] );
+		$this->assertSame( 2, (int) $page_three['total_products'] );
+		$this->assertSame( 2, (int) $page_three['total_pages'] );
+		$this->assertSame( '', $page_three['html'] );
+		$this->assertNotSame( $page_one['html'], $page_two['html'] );
+		$this->assertStringNotContainsString( 'post-' . $ids[1], $page_one['html'] . $page_two['html'] );
+		foreach ( $this->product_ids_from_html( $page_one['html'] . $page_two['html'] ) as $rendered_id ) {
+			$this->assertContains( $rendered_id, $ids );
+		}
 	}
 
 	/**

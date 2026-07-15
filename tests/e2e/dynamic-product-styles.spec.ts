@@ -72,10 +72,7 @@ test('catalog sorting resets paging and appends unique products', async ({
   await page.goto('/shop/');
 
   const select = page.locator('select[name="orderby"]').first();
-  test.skip(
-    (await select.count()) === 0,
-    'The catalogue has no sorting control.'
-  );
+  await expect(select).toBeVisible();
 
   const sortedPage = page.waitForResponse(response => {
     const url = new URL(response.url());
@@ -91,15 +88,8 @@ test('catalog sorting resets paging and appends unique products', async ({
   const cards = page.locator(
     '.wp-block-woocommerce-product-template > .wc-block-product'
   );
+  await expect.poll(() => cards.count()).toBeGreaterThan(0);
   const sortedCount = await cards.count();
-  test.skip(sortedCount === 0, 'The E2E catalogue has no products.');
-
-  const button = page.locator('.aa-load-more__btn:visible');
-  const sentinel = page.locator('.aa-load-more__sentinel:visible');
-  test.skip(
-    (await button.count()) === 0 && (await sentinel.count()) === 0,
-    'The catalogue has one page.'
-  );
 
   const nextPage = page.waitForResponse(response => {
     const url = new URL(response.url());
@@ -110,11 +100,11 @@ test('catalog sorting resets paging and appends unique products', async ({
     );
   });
 
-  if (await button.count()) {
-    await button.click();
-  } else {
-    await sentinel.scrollIntoViewIfNeeded();
-  }
+  await page.evaluate(() => {
+    document.dispatchEvent(
+      new CustomEvent('aa:load-more-page', { detail: { page: 2 } })
+    );
+  });
   await nextPage;
 
   await expect
@@ -127,4 +117,42 @@ test('catalog sorting resets paging and appends unique products', async ({
   );
   expect(productIds.every(Boolean)).toBe(true);
   expect(new Set(productIds).size).toBe(productIds.length);
+});
+
+test.describe('anonymous catalog pagination', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test('default WooCommerce ordering loads the remaining unique products', async ({
+    page,
+  }) => {
+    const responsePromise = page.waitForResponse(response => {
+      const url = new URL(response.url());
+      return (
+        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
+        url.searchParams.get('orderby') === 'menu_order' &&
+        url.searchParams.get('page') === '2' &&
+        response.status() === 200
+      );
+    });
+
+    await page.goto('/shop/');
+
+    const cards = page.locator(
+      '.wp-block-woocommerce-product-template > .wc-block-product'
+    );
+    const initialCount = await cards.count();
+    test.skip(initialCount === 0, 'The public E2E catalogue has no products.');
+
+    await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
+    await responsePromise;
+    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
+
+    const productIds = await cards.evaluateAll(elements =>
+      elements.map(element =>
+        [...element.classList].find(className => /^post-\d+$/.test(className))
+      )
+    );
+    expect(productIds.every(Boolean)).toBe(true);
+    expect(new Set(productIds).size).toBe(productIds.length);
+  });
 });

@@ -15,7 +15,8 @@ namespace Aggressive_Apparel\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Fixed-window, per-IP rate limiter backed by transients.
+ * Fixed-window, per-IP rate limiter backed by atomic object-cache counters
+ * when available, with a transient fallback for local/shared-hosting installs.
  */
 class Rate_Limiter {
 
@@ -27,15 +28,9 @@ class Rate_Limiter {
 	 * Cloudflare-aware Client_IP helper), so different endpoints throttle
 	 * independently.
 	 *
-	 * The window is fixed: its reset time is pinned when the first request of a
-	 * window arrives, and the transient TTL tracks the *remaining* time. This
-	 * means the counter decays on a real clock rather than being pushed forward
-	 * by each request — a continuously active client isn't falsely throttled for
-	 * never going idle a full window.
-	 *
-	 * Note: the read-then-write is not atomic, so under heavy concurrency the
-	 * limiter fails open (slightly undercounts). That's an acceptable trade-off
-	 * for a defensive throttle backed by transients.
+	 * The window is aligned to the wall clock and the TTL tracks only its
+	 * remaining time. A continuously active client therefore receives a fresh
+	 * bucket on schedule instead of extending the window with every request.
 	 *
 	 * @param string $scope  Short identifier for the limited action (e.g. 'search').
 	 * @param int    $max    Maximum requests allowed within the window.
@@ -54,8 +49,25 @@ class Rate_Limiter {
 
 		$max    = max( 1, $max );
 		$window = max( 1, $window );
-		$key    = 'aa_rl_' . sanitize_key( $scope ) . '_' . hash( 'sha256', $ip );
+		$scope  = sanitize_key( $scope );
+		$hash   = hash( 'sha256', $ip );
 		$now    = time();
+		$reset  = ( intdiv( $now, $window ) + 1 ) * $window;
+		$ttl    = max( 1, $reset - $now );
+
+		// VIP and other persistent object-cache platforms provide atomic add/incr,
+		// avoiding lost updates when many requests from one client arrive at once.
+		if ( function_exists( 'wp_using_ext_object_cache' ) && wp_using_ext_object_cache() ) {
+			$cache_key = $scope . ':' . $hash . ':' . intdiv( $now, $window );
+			$group     = 'aggressive-apparel-rate-limits';
+			wp_cache_add( $cache_key, 0, $group, 300 );
+			$count = wp_cache_incr( $cache_key, 1, $group );
+			if ( false !== $count ) {
+				return $count <= $max;
+			}
+		}
+
+		$key = 'aa_rl_' . $scope . '_' . $hash;
 
 		$bucket = get_transient( $key );
 
@@ -63,7 +75,7 @@ class Rate_Limiter {
 		if ( ! is_array( $bucket ) || ! isset( $bucket['count'], $bucket['reset'] ) || $bucket['reset'] <= $now ) {
 			$bucket = array(
 				'count' => 0,
-				'reset' => $now + $window,
+				'reset' => $reset,
 			);
 		}
 

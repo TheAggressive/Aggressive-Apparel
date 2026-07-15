@@ -337,6 +337,14 @@ class Product_Filters {
 			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
 			self::ensure_assets();
 
+			// Product sorting is owned by this theme's rendered-products endpoint.
+			// Remove WooCommerce's competing Interactivity API handler at render
+			// time so the normal change event remains available to analytics and
+			// extensions without triggering two grid renders.
+			if ( 'woocommerce/catalog-sorting' === $block['blockName'] ) {
+				return $this->remove_native_sort_handler( $block_content );
+			}
+
 			// Wrap product-collection with AJAX grid container.
 			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
 				return $this->wrap_product_collection( $block_content );
@@ -352,6 +360,26 @@ class Product_Filters {
 		}
 
 		return $block_content;
+	}
+
+	/**
+	 * Remove WooCommerce's client-side sort action from its order-by select.
+	 *
+	 * @param string $block_content Rendered catalog-sorting markup.
+	 * @return string Updated markup.
+	 */
+	private function remove_native_sort_handler( string $block_content ): string {
+		$processor = new \WP_HTML_Tag_Processor( $block_content );
+		while ( $processor->next_tag( array( 'tag_name' => 'SELECT' ) ) ) {
+			if ( 'orderby' !== $processor->get_attribute( 'name' ) ) {
+				continue;
+			}
+
+			$processor->remove_attribute( 'data-wp-on--change' );
+			break;
+		}
+
+		return $processor->get_updated_html();
 	}
 
 	/**

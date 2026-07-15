@@ -50,6 +50,9 @@ let focusTrapCleanup: (() => void) | null = null;
 
 let drawerTrigger: HTMLElement | null = null;
 
+/** Prevent duplicate global listeners if an interactive region is reprocessed. */
+let initialized = false;
+
 /**
  * The original (unfiltered) server-rendered grid markup, captured once so it
  * can be restored verbatim when all filters are cleared.
@@ -467,6 +470,9 @@ const { state, actions } = store<ProductFiltersStore>(
 
     callbacks: {
       init(): void {
+        if (initialized) return;
+        initialized = true;
+
         // Capture the unfiltered grid before any AJAX fetch can replace it, so
         // "Clear All" can restore the native server-rendered cards verbatim.
         const initialGrid = gridUl();
@@ -697,6 +703,8 @@ function mapOrderBy(): string {
       return 'popularity';
     case 'rating':
       return 'rating';
+    case 'menu_order':
+      return 'menu_order';
     default:
       return 'date';
   }
@@ -1095,12 +1103,12 @@ function injectProductsHtml(html: string, append: boolean): number {
 
 /** Stable identity used to make dynamic card insertion idempotent. */
 function productCardKey(card: HTMLElement): string {
-  const interactiveKey = card.getAttribute('data-wp-key');
-  if (interactiveKey) return interactiveKey;
-
-  return (
-    [...card.classList].find(className => /^post-\d+$/.test(className)) ?? ''
+  const postClass = [...card.classList].find(className =>
+    /^post-\d+$/.test(className)
   );
+  if (postClass) return postClass;
+
+  return card.getAttribute('data-wp-key') ?? '';
 }
 
 /**
@@ -1534,6 +1542,7 @@ function captureSortDropdown(): void {
     ) {
       const val = target.value;
       const sortMap: Record<string, SortConfig> = {
+        menu_order: { orderBy: 'menu_order', orderDir: 'asc' },
         popularity: { orderBy: 'popularity', orderDir: 'desc' },
         rating: { orderBy: 'rating', orderDir: 'desc' },
         date: { orderBy: 'date', orderDir: 'desc' },
@@ -1546,7 +1555,11 @@ function captureSortDropdown(): void {
           orderDir: 'asc',
           customSort: 'featured',
         },
-        savings: { orderBy: 'include', orderDir: 'asc', customSort: 'savings' },
+        savings: {
+          orderBy: 'include',
+          orderDir: 'asc',
+          customSort: 'savings',
+        },
       };
       const sort = sortMap[val] || { orderBy: 'date', orderDir: 'desc' };
       state.orderBy = sort.orderBy;

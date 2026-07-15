@@ -41,6 +41,7 @@ interface LoadMoreState {
   filtersActive: boolean;
   announcement: string;
   loadingText: string;
+  errorText: string;
   statusFormat: string;
   loadedFormat: string;
   readonly hideButton: boolean;
@@ -78,6 +79,7 @@ let prefetchController: AbortController | null = null;
 const prefetchCache = new Map<number, RenderedEntry>();
 
 let observer: IntersectionObserver | null = null;
+let initialized = false;
 
 const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
@@ -114,6 +116,9 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   callbacks: {
     init(): void {
+      if (initialized) return;
+      initialized = true;
+
       synchronizeInitialGridState();
 
       if (state.mode === 'infinite_scroll') {
@@ -150,7 +155,6 @@ function synchronizeInitialGridState(): void {
     1,
     Math.ceil(state.totalProducts / renderedCount)
   );
-  state.allLoaded = renderedCount >= state.totalProducts;
 }
 
 /**
@@ -299,6 +303,8 @@ function loadSsrPage(page: number): void {
     .catch((err: Error) => {
       if (err.name === 'AbortError') return;
       state.isLoading = false;
+      state.mode = 'load_more';
+      state.announcement = state.errorText;
     });
 }
 
@@ -357,12 +363,12 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
 
 /** Stable identity used to make dynamic card insertion idempotent. */
 function productCardKey(card: HTMLElement): string {
-  const interactiveKey = card.getAttribute('data-wp-key');
-  if (interactiveKey) return interactiveKey;
-
-  return (
-    [...card.classList].find(className => /^post-\d+$/.test(className)) ?? ''
+  const postClass = [...card.classList].find(className =>
+    /^post-\d+$/.test(className)
   );
+  if (postClass) return postClass;
+
+  return card.getAttribute('data-wp-key') ?? '';
 }
 
 /**

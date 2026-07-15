@@ -220,6 +220,24 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Theme AJAX sorting replaces only WooCommerce's competing change action.
+	 *
+	 * @return void
+	 */
+	public function test_product_filters_remove_native_sort_handler_preserves_markup(): void {
+		$filters = new Product_Filters();
+		$method  = new \ReflectionMethod( Product_Filters::class, 'remove_native_sort_handler' );
+		$method->setAccessible( true );
+
+		$html = '<form data-owner="extension"><select name="orderby" data-wp-on--change="actions.handleSortChange" data-track="catalog"><option value="date">Latest</option></select></form>';
+		$result = (string) $method->invoke( $filters, $html );
+
+		$this->assertStringNotContainsString( 'data-wp-on--change', $result );
+		$this->assertStringContainsString( 'data-owner="extension"', $result );
+		$this->assertStringContainsString( 'data-track="catalog"', $result );
+	}
+
+	/**
 	 * Filter toggle render recovers assets when early detection was missed.
 	 *
 	 * @return void

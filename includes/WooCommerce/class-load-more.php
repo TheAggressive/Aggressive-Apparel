@@ -32,6 +32,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Load_More {
 
 	/**
+	 * Whether the native pagination rendered links for the active collection.
+	 *
+	 * @var bool|null
+	 */
+	private ?bool $has_more = null;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -94,6 +101,10 @@ class Load_More {
 		}
 
 		$this->ensure_assets();
+		// The native pagination block is rendered inside the Product Collection's
+		// exact query context. Its presence is more authoritative than the global
+		// archive query for explicit/non-inherited collections.
+		$this->has_more = '' !== trim( $block_content );
 
 		$mode = Feature_Settings::get_load_more_mode();
 
@@ -178,9 +189,10 @@ class Load_More {
 				'totalProducts'   => $total_products,
 				'loadedCount'     => min( $per_page, $total_products ),
 				'isLoading'       => false,
-				'allLoaded'       => $total_pages <= 1,
+				'allLoaded'       => null !== $this->has_more ? ! $this->has_more : $total_pages <= 1,
 				'announcement'    => '',
 				'loadingText'     => __( 'Loading more products…', 'aggressive-apparel' ),
+				'errorText'       => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
 				/* translators: 1: number loaded so far, 2: total products. */
 				'statusFormat'    => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
 				/* translators: %d: number of products just loaded. */

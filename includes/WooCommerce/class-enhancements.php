@@ -52,7 +52,7 @@ class Enhancements {
 		'product_filters'            => array( Product_Filters::class ),
 		'page_transitions'           => array( Page_Transitions::class ),
 		'catalog_hover_image'        => array( Catalog_Hover_Image::class ),
-		'load_more'                  => array( Load_More::class, Load_More_Renderer::class ),
+		'load_more'                  => array( Load_More::class, Load_More_Controller::class ),
 		'size_guide'                 => array( Size_Guide_Post_Type::class, Size_Guide::class ),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
 		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),

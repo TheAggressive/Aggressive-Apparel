@@ -9,7 +9,10 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
-use Aggressive_Apparel\WooCommerce\Load_More_Renderer;
+use Aggressive_Apparel\WooCommerce\Catalog_Cache_Version;
+use Aggressive_Apparel\WooCommerce\Load_More_Controller;
+use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
+use Aggressive_Apparel\WooCommerce\Rendered_Product_Cache;
 use Aggressive_Apparel\WooCommerce\Sale_Category;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -29,7 +32,7 @@ use WP_Query;
  * These params are therefore exercised through `rest_do_request()` — which runs
  * the sanitize layer — not the handler directly.
  */
-class TestLoadMoreRenderer extends WP_UnitTestCase {
+class TestLoadMoreController extends WP_UnitTestCase {
 
 	/** REST route under test. */
 	private const ROUTE = '/aggressive-apparel/v1/products/rendered';
@@ -56,7 +59,7 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		update_option( 'woocommerce_coming_soon', 'no' );
 
 		// Boot the endpoint and (re)build the REST server so the route is live.
-		( new Load_More_Renderer() )->init();
+		( new Load_More_Controller() )->init();
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -80,22 +83,22 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	/**
 	 * Facet cache should bump when attribute/category terms change.
 	 */
-	public function test_term_lifecycle_hooks_flush_facets_cache(): void {
-		$renderer = new Load_More_Renderer();
-		$renderer->init();
+	public function test_term_lifecycle_hooks_invalidate_catalog_caches(): void {
+		$controller = new Load_More_Controller();
+		$controller->init();
 
 		$this->assertNotFalse(
-			has_action( 'created_term', array( $renderer, 'flush_facets_cache' ) )
+			has_action( 'created_term', array( $controller, 'invalidate_catalog_cache' ) )
 		);
 		$this->assertNotFalse(
-			has_action( 'edited_term', array( $renderer, 'flush_facets_cache' ) )
+			has_action( 'edited_term', array( $controller, 'invalidate_catalog_cache' ) )
 		);
 		$this->assertNotFalse(
-			has_action( 'delete_term', array( $renderer, 'flush_facets_cache' ) )
+			has_action( 'delete_term', array( $controller, 'invalidate_catalog_cache' ) )
 		);
 
 		$before = (int) get_option( 'aa_pf_facets_version', 1 );
-		$renderer->flush_facets_cache();
+		$controller->invalidate_catalog_cache();
 		$after = (int) get_option( 'aa_pf_facets_version', 1 );
 
 		$this->assertSame( $before + 1, $after );
@@ -103,8 +106,8 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 
 	/** Lookup-table predicates are prepared directly into WP_Query clauses. */
 	public function test_product_lookup_clauses_prepare_filter_values(): void {
-		$renderer = new Load_More_Renderer();
-		$query    = new WP_Query();
+		$queries = new Product_Collection_Query();
+		$query   = new WP_Query();
 		$query->set(
 			'aa_catalog_lookup_filters',
 			array(
@@ -117,7 +120,7 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$query->set( 'aa_catalog_excluded_ids', array( 123, 456 ) );
 		$query->set( 'aa_catalog_on_sale', true );
 
-		$clauses = $renderer->apply_product_lookup_clauses(
+		$clauses = $queries->apply_lookup_clauses(
 			array(
 				'join'    => '',
 				'where'   => '',
@@ -360,19 +363,17 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 
 	/** Anonymous fragment cache keys vary with query, template, and version. */
 	public function test_rendered_response_cache_key_is_versioned_and_contextual(): void {
-		$renderer = new Load_More_Renderer();
-		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'response_cache_key' );
-		$method->setAccessible( true );
+		$cache = new Rendered_Product_Cache( new Catalog_Cache_Version() );
 		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
 
 		$block = array( 'blockName' => 'woocommerce/product-collection', 'attrs' => array( 'queryId' => 1 ) );
-		$key   = (string) $method->invoke( $renderer, array( 'paged' => 1 ), $block, false );
+		$key   = $cache->key( array( 'paged' => 1 ), $block, false );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $key );
-		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 2 ), $block, false ) );
-		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 1 ), $block, true ) );
+		$this->assertNotSame( $key, $cache->key( array( 'paged' => 2 ), $block, false ) );
+		$this->assertNotSame( $key, $cache->key( array( 'paged' => 1 ), $block, true ) );
 
 		update_option( 'aa_pf_facets_version', (int) get_option( 'aa_pf_facets_version', 1 ) + 1, false );
-		$this->assertNotSame( $key, $method->invoke( $renderer, array( 'paged' => 1 ), $block, false ) );
+		$this->assertNotSame( $key, $cache->key( array( 'paged' => 1 ), $block, false ) );
 		remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
 	}
 
@@ -410,10 +411,8 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 
-		$renderer = new Load_More_Renderer();
-		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
-		$method->setAccessible( true );
-		$args = $method->invoke( $renderer, 2, 12, 'menu_order', '', '', array() );
+		$queries = new Product_Collection_Query();
+		$args    = $queries->build_args( 2, 12, 'menu_order', '', '', array() );
 
 		$this->assertSame(
 			array(
@@ -425,10 +424,10 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		);
 		$this->assertSame( 2, $args['paged'] );
 
-		$date_args = $method->invoke( $renderer, 1, 12, 'date', '', '', array() );
+		$date_args = $queries->build_args( 1, 12, 'date', '', '', array() );
 		$this->assertSame( array( 'date' => 'DESC', 'ID' => 'DESC' ), $date_args['orderby'] );
 
-		$title_args = $method->invoke( $renderer, 1, 12, 'title-asc', '', '', array() );
+		$title_args = $queries->build_args( 1, 12, 'title-asc', '', '', array() );
 		$this->assertSame( array( 'title' => 'ASC', 'ID' => 'ASC' ), $title_args['orderby'] );
 	}
 
@@ -438,13 +437,8 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_template_query_constraints_are_validated_and_composed(): void {
-		$renderer = new Load_More_Renderer();
-		$build    = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
-		$apply    = new \ReflectionMethod( Load_More_Renderer::class, 'apply_template_query_constraints' );
-		$build->setAccessible( true );
-		$apply->setAccessible( true );
-
-		$args  = $build->invoke( $renderer, 2, 12, 'date', '', '', array() );
+		$queries = new Product_Collection_Query();
+		$args    = $queries->build_args( 2, 12, 'date', '', '', array() );
 		$block = array(
 			'attrs' => array(
 				'collection' => 'woocommerce/product-collection/featured',
@@ -470,7 +464,7 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 			),
 		);
 
-		$result = $apply->invoke( $renderer, $args, $block, 2, 12 );
+		$result = $queries->apply_collection_constraints( $args, $block, 2, 12 );
 
 		$this->assertSame( array( 90, 91 ), $result['aa_catalog_excluded_ids'] );
 		$this->assertSame( array( 10, 20 ), $result['post__in'] );
@@ -485,21 +479,19 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->assertSame( 'product_cat', $result['tax_query'][1]['taxonomy'] );
 
 		$block['attrs']['query']['woocommerceStockStatus'] = array();
-		$empty_stock = $apply->invoke( $renderer, $args, $block, 1, 12 );
+		$empty_stock = $queries->apply_collection_constraints( $args, $block, 1, 12 );
 		$this->assertSame( array( 'aa-none' ), $empty_stock['aa_catalog_stock_statuses'] );
 	}
 
 	/** Offset collections report totals relative to their visible result set. */
 	public function test_template_offset_and_page_limit_adjust_totals(): void {
-		$renderer = new Load_More_Renderer();
-		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'query_totals' );
-		$method->setAccessible( true );
+		$queries            = new Product_Collection_Query();
 		$query              = new WP_Query();
 		$query->found_posts = 50;
 
 		$this->assertSame(
 			array( 'products' => 20, 'pages' => 2 ),
-			$method->invoke( $renderer, $query, array( 'aa_offset' => 5, 'aa_page_limit' => 2 ), 10 )
+			$queries->totals( $query, array( 'aa_offset' => 5, 'aa_page_limit' => 2 ), 10 )
 		);
 	}
 
@@ -560,13 +552,10 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_include_param_is_capped_to_per_page(): void {
-		$renderer = new Load_More_Renderer();
-		$method   = new \ReflectionMethod( Load_More_Renderer::class, 'build_query_args' );
-		$method->setAccessible( true );
+		$queries = new Product_Collection_Query();
 
 		$ids  = implode( ',', range( 1, 250 ) );
-		$args = $method->invoke(
-			$renderer,
+		$args = $queries->build_args(
 			1,
 			12,
 			'date',
@@ -578,8 +567,7 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->assertCount( 12, $args['post__in'] );
 		$this->assertSame( 12, $args['posts_per_page'] );
 
-		$args_max = $method->invoke(
-			$renderer,
+		$args_max = $queries->build_args(
 			1,
 			100,
 			'date',

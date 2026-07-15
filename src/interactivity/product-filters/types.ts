@@ -52,6 +52,7 @@ export type Facets = Record<string, string[] | undefined>;
 
 export interface RenderedResponse {
   html: string;
+  styles?: Array<{ id: string; css: string; nonce?: string }>;
   total_products: number;
   total_pages: number;
   facets?: Facets;

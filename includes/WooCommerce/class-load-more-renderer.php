@@ -2,11 +2,16 @@
 /**
  * Load More Renderer
  *
- * REST endpoint that renders product cards through the full WordPress block
- * pipeline. Every render_block filter (hover image, quick-view, badges, etc.)
- * runs automatically. Cards render through WooCommerce's product-template
- * context and reuse the product-collection wp-elements class so page-1 head CSS
- * applies to load-more / filter inserts without shipping extra scoped styles.
+ * REST endpoint for infinite scroll, "Load more", and product-filter inserts.
+ *
+ * The catalogue query is built here against WooCommerce's indexed lookup tables
+ * (price/stock/sort) with disjunctive facet availability. Rendering, however, is
+ * delegated to WooCommerce itself: the template's real `product-collection`
+ * block is rendered with the computed page-N query installed as the global
+ * query (which an inherited collection clones). Card markup is never rebuilt
+ * manually. Any context-dependent block-support classes are returned with
+ * deterministic style assets so the fragment remains self-contained even when
+ * WordPress legitimately produces a different hash from the initial document.
  *
  * @package Aggressive_Apparel
  * @since 1.65.0
@@ -40,9 +45,10 @@ class Load_More_Renderer {
 	private const FACETS_VERSION_OPTION = 'aa_pf_facets_version';
 
 	/**
-	 * Parsed template product blocks keyed by template slug (per-request).
+	 * Parsed product-collection block keyed by template slug (per-request).
+	 * Null means the template contains no product-collection block.
 	 *
-	 * @var array<string, array{collection: ?array<string, mixed>, template: ?array<string, mixed>}>
+	 * @var array<string, ?array<string, mixed>>
 	 */
 	private array $template_cache = array();
 
@@ -208,6 +214,7 @@ class Load_More_Renderer {
 			return new \WP_REST_Response(
 				array(
 					'html'           => '',
+					'styles'         => array(),
 					'total_products' => 0,
 					'total_pages'    => 0,
 				)
@@ -255,28 +262,25 @@ class Load_More_Renderer {
 			$template_slug = 'archive-product';
 		}
 
-		$template_config = $this->get_template_product_config( $template_slug );
+		$collection_block = $this->get_template_collection_block( $template_slug );
 
-		// A resolved template may not contain a product-template block (for
-		// example, a broad archive fallback or malformed client input). Never
-		// render arbitrary template content; use the canonical product archive.
-		if ( empty( $template_config['template'] ) && 'archive-product' !== $template_slug ) {
-			$template_config = $this->get_template_product_config( 'archive-product' );
+		// A resolved template may not contain a product-collection block (a broad
+		// archive fallback or malformed client input). Never render arbitrary
+		// template content; fall back to the canonical product archive.
+		if ( null === $collection_block && 'archive-product' !== $template_slug ) {
+			$collection_block = $this->get_template_collection_block( 'archive-product' );
 		}
 
-		if ( empty( $template_config['template'] ) ) {
+		if ( null === $collection_block ) {
 			return new \WP_REST_Response( array( 'error' => 'Template not found' ), 404 );
 		}
-
-		$template_block            = $template_config['template'];
-		$collection_context        = $this->build_collection_context( $template_config['collection'] );
-		$collection_elements_class = $this->prime_collection_element_styles( $template_config['collection'] );
 
 		$query = $this->run_product_query( $this->build_query_args( $page, $per_page, $orderby, $taxonomy, $term, $filters ) );
 
 		if ( ! $query->have_posts() ) {
 			$empty = array(
 				'html'           => '',
+				'styles'         => array(),
 				'total_products' => 0,
 				'total_pages'    => 0,
 			);
@@ -287,47 +291,17 @@ class Load_More_Renderer {
 		}
 
 		// Signal to render_block guards that we are rendering product cards so
-		// each class's is_listing_page() (and equivalents) returns true.
+		// each feature's is_listing_page() (quick view, wishlist, badges) applies.
 		add_filter( 'aggressive_apparel_is_listing_page', '__return_true' );
-
-		$html = '';
-
-		while ( $query->have_posts() ) {
-			$query->the_post();
-			$product_id = get_the_ID();
-
-			if ( ! $product_id ) {
-				continue;
-			}
-
-			$card_html = $this->render_product_card(
-				$template_block,
-				$collection_context,
-				$collection_elements_class,
-				$product_id
-			);
-
-			$post_classes   = implode( ' ', get_post_class( 'wc-block-product' ) );
-			$encoded        = wp_json_encode(
-				array( 'productId' => $product_id ),
-				JSON_NUMERIC_CHECK | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-			);
-			$wp_context_str = false !== $encoded ? $encoded : '{"productId":' . $product_id . '}';
-
-			$html .= sprintf(
-				'<li class="%s" data-wp-interactive="woocommerce/product-collection" data-wp-context=\'%s\' data-wp-key="product-item-%d">%s</li>',
-				esc_attr( $post_classes ),
-				$wp_context_str,
-				$product_id,
-				$card_html
-			);
+		try {
+			$rendered = $this->render_products_html( $collection_block, $query );
+		} finally {
+			remove_filter( 'aggressive_apparel_is_listing_page', '__return_true' );
 		}
 
-		wp_reset_postdata();
-		remove_filter( 'aggressive_apparel_is_listing_page', '__return_true' );
-
 		$data = array(
-			'html'           => $html,
+			'html'           => $rendered->html(),
+			'styles'         => $rendered->styles(),
 			'total_products' => (int) $query->found_posts,
 			'total_pages'    => (int) $query->max_num_pages,
 		);
@@ -336,6 +310,105 @@ class Load_More_Renderer {
 		}
 
 		return new \WP_REST_Response( $data );
+	}
+
+	/**
+	 * Render the product cards for a page through WooCommerce's own pipeline.
+	 *
+	 * Rather than reconstructing each card, this renders the template's real
+	 * `woocommerce/product-collection` block. Context-dependent block-support
+	 * hashes may differ from the initial document, so the returned fragment owns
+	 * deterministic style assets for the exact classes in its markup.
+	 *
+	 * The collection inherits the archive query (`inherit: true`), which
+	 * WooCommerce satisfies by cloning the global `$wp_query`. We therefore
+	 * install the already-computed, filtered, page-N query as the global for the
+	 * duration of the render, then restore it. Only the product-template's `<li>`
+	 * cards are returned; the client appends them into the existing grid `<ul>`.
+	 *
+	 * @param array<string, mixed> $collection_block Parsed product-collection block.
+	 * @param \WP_Query            $query            Query with this page's products.
+	 * @return Rendered_Product_Fragment
+	 */
+	private function render_products_html( array $collection_block, \WP_Query $query ): Rendered_Product_Fragment {
+		global $wp_query;
+
+		$saved_query = $wp_query;
+		$fingerprint = hash(
+			'sha256',
+			(string) wp_json_encode( array( get_stylesheet(), AGGRESSIVE_APPAREL_VERSION, get_bloginfo( 'version' ), $collection_block ) )
+		);
+		/**
+		 * CSP nonce applied to dynamic style elements installed by the client.
+		 * Sites enforcing a nonce-based style-src policy should return the same
+		 * request nonce their security layer includes in the response header.
+		 *
+		 * @param string $nonce Current nonce (empty by default).
+		 */
+		$nonce     = (string) apply_filters( 'aggressive_apparel_dynamic_style_nonce', '' );
+		$collector = new Block_Support_Style_Collector( $fingerprint, $nonce );
+		$collector->start();
+
+		// Install this page's query as the global so the inherited collection
+		// clones it (WooCommerce's documented mechanism); always restored below.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Scoped swap, restored in finally.
+		$wp_query = $query;
+
+		try {
+			$rendered = ( new \WP_Block( $collection_block ) )->render();
+		} finally {
+			$collector->stop();
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the real global query.
+			$wp_query = $saved_query;
+			wp_reset_postdata();
+		}
+
+		return new Rendered_Product_Fragment(
+			$this->extract_template_items( $rendered ),
+			$collector->assets()
+		);
+	}
+
+	/**
+	 * Return the inner `<li>` cards of the product-template `<ul>` from a rendered
+	 * collection, matching nested `<ul>` depth so list markup inside a card is not
+	 * mistaken for the closing tag. Pure string work — never DOM parsing — so SVG
+	 * attribute casing (viewBox, etc.) in the cards is preserved.
+	 *
+	 * @param string $html Rendered product-collection HTML.
+	 * @return string The `<li>` items, or '' if the template list is not found.
+	 */
+	private function extract_template_items( string $html ): string {
+		if ( ! preg_match( '/<ul\b[^>]*\bwc-block-product-template\b[^>]*>/', $html, $match, PREG_OFFSET_CAPTURE ) ) {
+			return '';
+		}
+
+		$inner_start = $match[0][1] + strlen( $match[0][0] );
+		$offset      = $inner_start;
+		$length      = strlen( $html );
+		$depth       = 1;
+
+		while ( $offset < $length && $depth > 0 ) {
+			$open  = preg_match( '/<ul\b/', $html, $om, PREG_OFFSET_CAPTURE, $offset ) ? (int) $om[0][1] : -1;
+			$close = strpos( $html, '</ul>', $offset );
+
+			if ( false === $close ) {
+				break;
+			}
+
+			if ( $open > -1 && $open < $close ) {
+				++$depth;
+				$offset = $open + 3;
+			} else {
+				--$depth;
+				if ( 0 === $depth ) {
+					return substr( $html, $inner_start, $close - $inner_start );
+				}
+				$offset = $close + 5;
+			}
+		}
+
+		return '';
 	}
 
 	/**
@@ -492,43 +565,38 @@ class Load_More_Renderer {
 
 		$params = array_merge( $constraints->join_params(), array( $facet ), $constraints->where_params() );
 
+		// The constraint builder emits placeholders only; all values are supplied
+		// here. This indexed lookup runs only on a versioned facet-cache miss.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamically assembled placeholder SQL, prepared with the complete parameter list.
 		$prepared = $wpdb->prepare( $sql, ...$params );
-		$slugs    = $wpdb->get_col( $prepared );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared indexed WooCommerce lookup; caller caches the complete facet result.
+		$slugs = $wpdb->get_col( $prepared );
 
 		return array_values( array_unique( array_map( 'strval', $slugs ) ) );
 	}
 
 	/**
-	 * Get product-collection and product-template blocks from a template.
+	 * Resolve a template's `woocommerce/product-collection` block.
 	 *
-	 * Prefers a DB-customised template (Site Editor changes) over the theme file.
+	 * Prefers a DB-customised template (Site Editor changes) over the theme file,
+	 * so the load-more render uses exactly the collection the visitor is seeing.
 	 *
 	 * @param string $template_slug Template slug.
-	 * @return array{collection: ?array<string, mixed>, template: ?array<string, mixed>}
+	 * @return ?array<string, mixed> The parsed collection block, or null if absent.
 	 */
-	private function get_template_product_config( string $template_slug ): array {
-		if ( isset( $this->template_cache[ $template_slug ] ) ) {
+	private function get_template_collection_block( string $template_slug ): ?array {
+		if ( array_key_exists( $template_slug, $this->template_cache ) ) {
 			return $this->template_cache[ $template_slug ];
 		}
 
 		$content = $this->get_template_content( $template_slug );
-		if ( '' === $content ) {
-			$config                                 = array(
-				'collection' => null,
-				'template'   => null,
-			);
-			$this->template_cache[ $template_slug ] = $config;
-			return $config;
-		}
+		$block   = '' === $content
+			? null
+			: $this->find_block_by_name( parse_blocks( $content ), 'woocommerce/product-collection' );
 
-		$blocks                                 = parse_blocks( $content );
-		$config                                 = array(
-			'collection' => $this->find_block_by_name( $blocks, 'woocommerce/product-collection' ),
-			'template'   => $this->find_block_by_name( $blocks, 'woocommerce/product-template' ),
-		);
-		$this->template_cache[ $template_slug ] = $config;
+		$this->template_cache[ $template_slug ] = $block;
 
-		return $config;
+		return $block;
 	}
 
 	/**
@@ -586,150 +654,6 @@ class Load_More_Renderer {
 	}
 
 	/**
-	 * Build WooCommerce product-collection context from parsed collection attrs.
-	 *
-	 * @param ?array<string, mixed> $collection_block Parsed collection block.
-	 * @return array<string, mixed>
-	 */
-	private function build_collection_context( ?array $collection_block ): array {
-		if ( empty( $collection_block['attrs'] ) || ! is_array( $collection_block['attrs'] ) ) {
-			return array();
-		}
-
-		$context = array();
-		$attrs   = $collection_block['attrs'];
-
-		foreach ( array( 'queryId', 'query', 'displayLayout', 'dimensions', 'collection', 'tagName' ) as $key ) {
-			if ( isset( $attrs[ $key ] ) ) {
-				$context[ $key ] = $attrs[ $key ];
-			}
-		}
-
-		return $context;
-	}
-
-	/**
-	 * Prime product-collection element styles and return the wp-elements class.
-	 *
-	 * @param ?array<string, mixed> $collection_block Parsed collection block.
-	 * @return string
-	 */
-	private function prime_collection_element_styles( ?array $collection_block ): string {
-		if ( empty( $collection_block ) ) {
-			return '';
-		}
-
-		/**
-		 * Collection block after render_block_data filters.
-		 *
-		 * @var array<string, mixed> $processed
-		 */
-		$processed  = apply_filters( 'render_block_data', $collection_block, $collection_block, null );
-		$class_name = $processed['attrs']['className'] ?? '';
-
-		if ( ! is_string( $class_name ) || '' === $class_name ) {
-			return '';
-		}
-
-		if ( preg_match( '/\b(wp-elements-\S+)\b/', $class_name, $matches ) ) {
-			return $matches[1];
-		}
-
-		return '';
-	}
-
-	/**
-	 * Deep-clone a parsed block tree before per-card mutation.
-	 *
-	 * @param array<string, mixed> $block Parsed block.
-	 * @return array<string, mixed>
-	 */
-	private function clone_parsed_block( array $block ): array {
-		$encoded = wp_json_encode( $block );
-		if ( false === $encoded ) {
-			return $block;
-		}
-
-		$clone = json_decode( $encoded, true );
-		return is_array( $clone ) ? $clone : $block;
-	}
-
-	/**
-	 * Recursively mark inner blocks as inherited (archive template parity).
-	 *
-	 * @param array<string, mixed> $block Parsed block (by reference).
-	 * @return void
-	 */
-	private function inject_is_inherited( array &$block ): void {
-		if ( ! isset( $block['attrs'] ) || ! is_array( $block['attrs'] ) ) {
-			$block['attrs'] = array();
-		}
-
-		$block['attrs']['isInherited'] = 1;
-
-		if ( empty( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) ) {
-			return;
-		}
-
-		foreach ( $block['innerBlocks'] as &$inner_block ) {
-			$this->inject_is_inherited( $inner_block );
-		}
-		unset( $inner_block );
-	}
-
-	/**
-	 * Render a single product card through the product-template block tree.
-	 *
-	 * Mirrors WooCommerce ProductTemplate::render() inner-block path so collection
-	 * context and inherited attrs match archive SSR.
-	 *
-	 * @param array<string, mixed> $template_block            Parsed product-template block.
-	 * @param array<string, mixed> $collection_context        Context from product-collection.
-	 * @param string               $collection_elements_class wp-elements class from collection.
-	 * @param int                  $product_id                Product post ID.
-	 * @return string
-	 */
-	private function render_product_card(
-		array $template_block,
-		array $collection_context,
-		string $collection_elements_class,
-		int $product_id
-	): string {
-		$block_instance              = $this->clone_parsed_block( $template_block );
-		$block_instance['blockName'] = 'core/null';
-		$this->inject_is_inherited( $block_instance );
-
-		$context = array_merge(
-			$collection_context,
-			array(
-				'postType' => 'product',
-				'postId'   => $product_id,
-			)
-		);
-
-		$card_html = ( new \WP_Block( $block_instance, $context ) )->render(
-			array( 'dynamic' => false )
-		);
-
-		if ( '' === $card_html ) {
-			return '';
-		}
-
-		if (
-			'' !== $collection_elements_class
-			&& ! str_contains( $card_html, $collection_elements_class )
-		) {
-			$card_html = sprintf(
-				'<div class="%s">%s</div>',
-				esc_attr( $collection_elements_class ),
-				$card_html
-			);
-		}
-
-		return $card_html;
-	}
-
-	/**
 	 * Run a catalogue query with WooCommerce's indexed product lookup table.
 	 *
 	 * @param array<string, mixed> $args WP_Query arguments.
@@ -771,7 +695,8 @@ class Load_More_Renderer {
 			$constraints = new Catalog_SQL_Constraints();
 			$constraints->add_lookup_filters( new Catalog_Filter_Set( $filters ), $alias );
 			if ( ! empty( $constraints->where() ) ) {
-				$lookup_where      = ' AND ' . implode( ' AND ', $constraints->where() );
+				$lookup_where = ' AND ' . implode( ' AND ', $constraints->where() );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constraint builder emits placeholders; values are prepared here.
 				$clauses['where'] .= $wpdb->prepare( $lookup_where, ...$constraints->where_params() );
 			}
 		}
@@ -926,6 +851,7 @@ class Load_More_Renderer {
 			if ( count( $tax_query ) > 1 ) {
 				$tax_query['relation'] = 'AND';
 			}
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Native taxonomy filtering is required and uses WordPress's indexed term relationships.
 			$args['tax_query'] = $tax_query;
 		}
 

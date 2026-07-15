@@ -72,7 +72,8 @@ class Load_More {
 
 		Asset_Loader::enqueue_interactivity_module(
 			'@aggressive-apparel/load-more',
-			'build/interactivity/load-more'
+			'build/interactivity/load-more',
+			array( '@aggressive-apparel/helpers' )
 		);
 	}
 

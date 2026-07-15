@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
 use Aggressive_Apparel\Service_Container;
 
 // Exit if accessed directly.
@@ -190,33 +191,33 @@ class Enhancements {
 			return;
 		}
 
-		wp_register_script_module(
+		Asset_Loader::register_interactivity_module(
 			'@aggressive-apparel/scroll-lock',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/scroll-lock.js',
+			'build/interactivity/scroll-lock',
 			array(),
-			AGGRESSIVE_APPAREL_VERSION,
+			false
 		);
 
-		wp_register_script_module(
+		Asset_Loader::register_interactivity_module(
 			'@aggressive-apparel/helpers',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/helpers.js',
+			'build/interactivity/helpers',
 			array(),
-			AGGRESSIVE_APPAREL_VERSION,
+			false
 		);
 
-		wp_register_script_module(
+		Asset_Loader::register_interactivity_module(
 			'@aggressive-apparel/use-overlay',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/use-overlay.js',
+			'build/interactivity/use-overlay',
 			array( '@aggressive-apparel/scroll-lock', '@aggressive-apparel/helpers' ),
-			AGGRESSIVE_APPAREL_VERSION,
+			false
 		);
 
 		// Add-to-cart burst animation: always-on when WooCommerce is active.
-		wp_enqueue_script_module(
+		Asset_Loader::enqueue_interactivity_module(
 			'@aggressive-apparel/cart-burst',
-			AGGRESSIVE_APPAREL_URI . '/build/interactivity/cart-burst.js',
+			'build/interactivity/cart-burst',
 			array(),
-			AGGRESSIVE_APPAREL_VERSION,
+			false
 		);
 	}
 }

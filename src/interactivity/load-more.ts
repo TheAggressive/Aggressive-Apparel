@@ -19,7 +19,10 @@ import type {
 } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
-import { notifyCardsRendered } from '@aggressive-apparel/helpers';
+import {
+  installBlockSupportStyles,
+  notifyCardsRendered,
+} from '@aggressive-apparel/helpers';
 
 interface LoadMoreState {
   mode: string;
@@ -57,6 +60,7 @@ interface ProductsFetchedDetail {
 /** Response shape from aggressive-apparel/v1/products/rendered */
 interface RenderedEntry {
   html: string;
+  styles?: Array<{ id: string; css: string; nonce?: string }>;
   total_products: number;
   total_pages: number;
 }
@@ -278,6 +282,8 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
     state.allLoaded = true;
     return;
   }
+
+  installBlockSupportStyles(data.styles);
 
   // Count inserted <li> elements to update loadedCount accurately.
   const temp = document.createElement('ul');

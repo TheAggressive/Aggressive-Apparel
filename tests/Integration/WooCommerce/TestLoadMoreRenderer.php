@@ -188,11 +188,14 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->create_product( 25.0, array( 'shirts' ) );
 		$this->create_block_template(
 			'taxonomy-product_cat-shirts',
-			'<!-- wp:woocommerce/product-template -->'
+			'<!-- wp:woocommerce/product-collection {"query":{"inherit":true},"displayLayout":{"type":"flex","columns":3}} -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
 			. '<!-- wp:paragraph {"className":"resolved-template-card","style":{"color":{"text":"#123456"}}} -->'
 			. '<p class="resolved-template-card has-text-color" style="color:#123456">Resolved template card</p>'
 			. '<!-- /wp:paragraph -->'
 			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
 		);
 
 		$response = $this->dispatch(
@@ -487,14 +490,14 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Load-more cards inherit product-collection element styles via wp-elements wrapper.
+	 * Load-more responses include CSS for their rendered wp-elements classes.
 	 *
 	 * Regression: appended cards rendered inner blocks only, so Site Editor link
 	 * colors on product-collection did not match page-1 SSR cards.
 	 *
 	 * @return void
 	 */
-	public function test_collection_elements_wrapper_applies_to_rendered_cards(): void {
+	public function test_rendered_element_styles_are_returned_with_cards(): void {
 		if ( ! class_exists( '\WC_Product_Simple' ) ) {
 			$this->markTestSkipped( 'WooCommerce is not active.' );
 		}
@@ -503,10 +506,10 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 
 		$this->create_block_template(
 			'archive-product',
-			'<!-- wp:woocommerce/product-collection {"queryId":1,"query":{"perPage":12,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":true,"taxQuery":[],"isProductCollectionBlock":true,"featured":false,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"displayLayout":{"type":"flex","columns":3},"style":{"elements":{"link":{"color":{"text":"#ff0000"},":hover":{"color":{"text":"#00ff00"}}}}}} -->'
+			'<!-- wp:woocommerce/product-collection {"queryId":1,"query":{"perPage":12,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":true,"taxQuery":[],"isProductCollectionBlock":true,"featured":false,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"displayLayout":{"type":"flex","columns":3}} -->'
 			. '<div class="wp-block-woocommerce-product-collection">'
 			. '<!-- wp:woocommerce/product-template -->'
-			. '<!-- wp:post-title {"level":3,"isLink":true} /-->'
+			. '<!-- wp:post-title {"level":3,"isLink":true,"style":{"elements":{"link":{"color":{"text":"#ff0000"},":hover":{"color":{"text":"#00ff00"}}}}}} /-->'
 			. '<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true} /-->'
 			. '<!-- /wp:woocommerce/product-template -->'
 			. '</div>'
@@ -523,13 +526,14 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertNotEmpty( $data['html'] );
+		$this->assertCount( 1, $data['styles'] );
 
-		$this->assertMatchesRegularExpression(
-			'/<div class="wp-elements-[a-f0-9]+">/',
-			$data['html'],
-			'Card content should be wrapped in the collection wp-elements class.'
-		);
+		$this->assertMatchesRegularExpression( '/wp-elements-[a-f0-9]+/', $data['html'] );
+		preg_match( '/(wp-elements-[a-f0-9]+)/', $data['html'], $matches );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $data['styles'][0]['id'] );
+		$this->assertStringContainsString( '.' . $matches[1], $data['styles'][0]['css'] );
+		$this->assertStringContainsString( 'color:#ff0000', $data['styles'][0]['css'] );
+		$this->assertStringContainsString( 'color:#00ff00', $data['styles'][0]['css'] );
 		$this->assertStringContainsString( 'wp-block-post-title', $data['html'] );
-		$this->assertStringContainsString( 'data-is-inherited="1"', $data['html'] );
 	}
 }

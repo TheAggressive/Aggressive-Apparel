@@ -7,6 +7,11 @@
  */
 
 declare module '@aggressive-apparel/helpers' {
+  export interface DynamicStyleAsset {
+    id: string;
+    css: string;
+    nonce?: string;
+  }
   export interface StoreApiPrices {
     price: string;
     regular_price?: string;
@@ -50,6 +55,9 @@ declare module '@aggressive-apparel/helpers' {
 
   export function escapeHtml(str: string | null | undefined): string;
   export function notifyCardsRendered(container: HTMLElement | null): void;
+  export function installBlockSupportStyles(
+    assets?: readonly DynamicStyleAsset[]
+  ): void;
 }
 
 declare module '@aggressive-apparel/scroll-lock' {

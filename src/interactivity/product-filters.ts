@@ -14,7 +14,10 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
-import { notifyCardsRendered } from '@aggressive-apparel/helpers';
+import {
+  installBlockSupportStyles,
+  notifyCardsRendered,
+} from '@aggressive-apparel/helpers';
 import { FilterRequestManager } from './product-filters/request-manager';
 import { escapeHtml, setFilterVisibility } from './product-filters/dom';
 import {
@@ -810,6 +813,7 @@ function fetchCustomSorted(sortType: string): void {
       return fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
         .then((res2: Response) => res2.json() as Promise<RenderedResponse>)
         .then((rendered: RenderedResponse) => {
+          installBlockSupportStyles(rendered.styles);
           injectProductsHtml(rendered.html, false);
           state.isLoading = false;
           announceResults();
@@ -872,6 +876,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       state.totalProducts = data.total_products;
       state.totalPages = data.total_pages;
 
+      installBlockSupportStyles(data.styles);
       const added = injectProductsHtml(data.html, append);
 
       if (!append) {

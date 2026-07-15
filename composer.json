@@ -13,6 +13,7 @@
     "php": ">=8.0"
   },
   "require-dev": {
+    "automattic/vipwpcs": "^3.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "php-stubs/woocommerce-stubs": "^10.3",
     "php-stubs/wordpress-stubs": "^6.8",

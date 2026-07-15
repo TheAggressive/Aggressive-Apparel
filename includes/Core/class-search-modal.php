@@ -11,6 +11,8 @@ declare( strict_types=1 );
 
 namespace Aggressive_Apparel\Core;
 
+use Aggressive_Apparel\Assets\Asset_Loader;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -301,11 +303,12 @@ class Search_Modal {
 			if ( ! file_exists( AGGRESSIVE_APPAREL_DIR . '/' . $path ) ) {
 				continue;
 			}
-			wp_register_script_module(
+			$relative_path = str_ends_with( $path, '.js' ) ? substr( $path, 0, -3 ) : $path;
+			Asset_Loader::register_interactivity_module(
 				$id,
-				AGGRESSIVE_APPAREL_URI . '/' . $path,
+				$relative_path,
 				$deps,
-				AGGRESSIVE_APPAREL_VERSION
+				false
 			);
 		}
 	}

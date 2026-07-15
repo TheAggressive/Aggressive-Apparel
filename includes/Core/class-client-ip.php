@@ -69,9 +69,11 @@ class Client_IP {
 	 * @return string A valid IP, or '' when none could be determined.
 	 */
 	public static function get(): string {
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders,WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__ -- The value is sanitized and FILTER_VALIDATE_IP-validated immediately; it is used only as a hashed abuse-prevention key, never to vary cacheable response content.
 		$remote = isset( $_SERVER['REMOTE_ADDR'] )
 			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
 			: '';
+		// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders,WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 		$remote = filter_var( $remote, FILTER_VALIDATE_IP ) ? $remote : '';
 
 		$ip = $remote;

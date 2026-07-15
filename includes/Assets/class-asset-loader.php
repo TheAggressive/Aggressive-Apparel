@@ -218,6 +218,8 @@ class Asset_Loader {
 			return false;
 		}
 
+		$asset_data = self::get_asset_data( $relative_path );
+
 		if ( $with_interactivity && ! in_array( '@wordpress/interactivity', $deps, true ) ) {
 			array_unshift( $deps, '@wordpress/interactivity' );
 		}
@@ -226,7 +228,7 @@ class Asset_Loader {
 			$module_id,
 			AGGRESSIVE_APPAREL_URI . '/' . $relative_path . '.js',
 			$deps,
-			AGGRESSIVE_APPAREL_VERSION
+			(string) $asset_data['version']
 		);
 
 		return true;

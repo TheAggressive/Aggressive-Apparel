@@ -757,8 +757,9 @@ class Custom_Badge_Taxonomy {
 		update_term_meta( $term_id, self::META_LIBRARY_ICON, $library_icon );
 
 		// Custom SVG icon.
-		$raw_svg  = aggressive_apparel_unslash_post( 'badge_svg_icon' );
-		$svg_icon = is_string( $raw_svg ) ? self::sanitize_svg( $raw_svg ) : '';
+		$svg_icon = isset( $_POST['badge_svg_icon'] )
+			? aggressive_apparel_sanitize_badge_svg( wp_unslash( $_POST['badge_svg_icon'] ) )
+			: '';
 		update_term_meta( $term_id, self::META_SVG_ICON, $svg_icon );
 
 		// Icon color.
@@ -894,8 +895,9 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing used only to conditionally enqueue assets.
 		$current_taxonomy = isset( $_GET['taxonomy'] )
-			? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) )
+			? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing.
 			: '';
 
 		if ( self::TAXONOMY !== $current_taxonomy ) {
@@ -1196,21 +1198,25 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
-		$system_badges = self::get_system_badge_defaults();
+		$system_badges  = self::get_system_badge_defaults();
+		$existing_types = array();
+		$existing_terms = get_terms(
+			array(
+				'taxonomy'   => self::TAXONOMY,
+				'hide_empty' => false,
+			)
+		);
+		if ( is_array( $existing_terms ) ) {
+			foreach ( $existing_terms as $existing_term ) {
+				$type = get_term_meta( $existing_term->term_id, self::META_BADGE_TYPE, true );
+				if ( is_string( $type ) && '' !== $type ) {
+					$existing_types[ $type ] = true;
+				}
+			}
+		}
 
 		foreach ( $system_badges as $badge_type => $config ) {
-			// Skip if a term with this badge_type already exists.
-			$existing = get_terms(
-				array(
-					'taxonomy'   => self::TAXONOMY,
-					'hide_empty' => false,
-					'meta_key'   => self::META_BADGE_TYPE,
-					'meta_value' => $badge_type,
-					'number'     => 1,
-				),
-			);
-
-			if ( ! empty( $existing ) && ! is_wp_error( $existing ) ) {
+			if ( isset( $existing_types[ $badge_type ] ) ) {
 				continue;
 			}
 
@@ -1327,11 +1333,8 @@ class Custom_Badge_Taxonomy {
 
 		$terms = get_terms(
 			array(
-				'taxonomy'     => self::TAXONOMY,
-				'hide_empty'   => false,
-				'meta_key'     => self::META_BADGE_TYPE,
-				'meta_value'   => array( 'sale', 'new', 'low_stock', 'bestseller' ),
-				'meta_compare' => 'IN',
+				'taxonomy'   => self::TAXONOMY,
+				'hide_empty' => false,
 			),
 		);
 
@@ -1340,7 +1343,11 @@ class Custom_Badge_Taxonomy {
 		}
 
 		foreach ( $terms as $term ) {
-			$data         = self::get_badge_data( $term->term_id );
+			$data = self::get_badge_data( $term->term_id );
+			if ( ! in_array( $data['badge_type'], array( 'sale', 'new', 'low_stock', 'bestseller' ), true ) ) {
+				continue;
+			}
+
 			$data['name'] = $term->name;
 
 			self::$system_badges_cache[ $data['badge_type'] ] = $data;

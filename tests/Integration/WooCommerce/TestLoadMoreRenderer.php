@@ -15,6 +15,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use WP_Query;
 
 /**
  * Covers the aggressive-apparel/v1/products/rendered endpoint that powers Load
@@ -98,6 +99,33 @@ class TestLoadMoreRenderer extends WP_UnitTestCase {
 		$after = (int) get_option( 'aa_pf_facets_version', 1 );
 
 		$this->assertSame( $before + 1, $after );
+	}
+
+	/** Lookup-table predicates are prepared directly into WP_Query clauses. */
+	public function test_product_lookup_clauses_prepare_filter_values(): void {
+		$renderer = new Load_More_Renderer();
+		$query    = new WP_Query();
+		$query->set(
+			'aa_catalog_lookup_filters',
+			array(
+				'min_price' => 10.5,
+				'max_price' => 40.25,
+				'stock'     => 'instock',
+			)
+		);
+
+		$clauses = $renderer->apply_product_lookup_clauses(
+			array(
+				'join'    => '',
+				'where'   => '',
+				'orderby' => '',
+			),
+			$query
+		);
+
+		$this->assertStringContainsString( '`aa_product_lookup`.max_price >= 10.500000', $clauses['where'] );
+		$this->assertStringContainsString( '`aa_product_lookup`.min_price <= 40.250000', $clauses['where'] );
+		$this->assertStringContainsString( "`aa_product_lookup`.stock_status = 'instock'", $clauses['where'] );
 	}
 
 	/**

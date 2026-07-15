@@ -34,17 +34,9 @@ class Color_Block_Swatch_Manager {
 	/**
 	 * Input name values that identify a color attribute.
 	 *
-	 * Covers both WooCommerce taxonomy-based (pa_color, pa_colour) and
-	 * custom product-level attributes (color, colour).
-	 *
-	 * @var string[]
+	 * @var string
 	 */
-	private const COLOR_INPUT_NAMES = array(
-		'attribute_pa_color',
-		'attribute_pa_colour',
-		'attribute_color',
-		'attribute_colour',
-	);
+	private const COLOR_INPUT_NAME = 'attribute_pa_color';
 
 	/**
 	 * Whether to show text labels alongside color swatches
@@ -106,16 +98,7 @@ class Color_Block_Swatch_Manager {
 			return $block_content;
 		}
 
-		// Match taxonomy-based (pa_color, pa_colour) and custom (color, colour) attributes.
-		$has_color = false;
-		foreach ( self::COLOR_INPUT_NAMES as $name ) {
-			if ( strpos( $block_content, $name ) !== false ) {
-				$has_color = true;
-				break;
-			}
-		}
-
-		if ( ! $has_color ) {
+		if ( ! str_contains( $block_content, self::COLOR_INPUT_NAME ) ) {
 			return $block_content;
 		}
 
@@ -272,11 +255,6 @@ class Color_Block_Swatch_Manager {
 		} else {
 			// Solid color handling.
 			$color_value = get_term_meta( $term->term_id, 'color_value', true );
-
-			// Fallback to hex field for backward compatibility.
-			if ( empty( $color_value ) ) {
-				$color_value = get_term_meta( $term->term_id, 'color_hex', true );
-			}
 
 			return array(
 				'type'     => 'solid',

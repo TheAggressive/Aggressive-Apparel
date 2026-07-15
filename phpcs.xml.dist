@@ -2,7 +2,7 @@
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
 
-    <description>PHP CodeSniffer configuration for Aggressive Apparel WordPress Theme</description>
+    <description>WordPress VIP coding standard for the Aggressive Apparel theme</description>
 
     <!-- Display progress and colors -->
     <arg name="colors"/>
@@ -18,6 +18,7 @@
     <rule ref="WordPress-Core"/>
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress-Extra"/>
+    <rule ref="WordPress-VIP-Go"/>
 
     <!-- Custom rules and overrides -->
     <rule ref="WordPress.WP.I18n">
@@ -53,6 +54,17 @@
         </properties>
     </rule>
 
+    <!-- Project sanitizers validate their complete structured input. -->
+    <rule ref="WordPress.Security.ValidatedSanitizedInput">
+        <properties>
+            <property name="customSanitizingFunctions" type="array">
+				<element value="aggressive_apparel_sanitize_badge_svg"/>
+				<element value="aggressive_apparel_sanitize_tab_overrides"/>
+				<element value="aggressive_apparel_sanitize_custom_tabs"/>
+            </property>
+        </properties>
+    </rule>
+
     <!--
 		WordPress / WooCommerce hook callbacks must keep unused parameters for
 		signature compatibility. Suppress unused-parameter noise; do not drop
@@ -76,60 +88,9 @@
         <exclude-pattern>*/includes/WooCommerce/class-color-block-swatch-manager.php</exclude-pattern>
     </rule>
 
-    <!-- DOMDocument::loadHTML emits HTML5 warnings; @ is intentional there. -->
-    <rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
-        <exclude-pattern>*/src/blocks-interactivity/navigation/render.php</exclude-pattern>
-        <exclude-pattern>*/src/blocks-interactivity/navigation-panel/render.php</exclude-pattern>
-    </rule>
-
-    <!--
-		Theme-owned custom tables / indexed catalogue SQL. Queries are prepared;
-		DirectDatabaseQuery / InterpolatedNotPrepared noise is expected here.
-	-->
-    <rule ref="WordPress.DB.DirectDatabaseQuery">
-        <exclude-pattern>*/includes/Core/class-search-index.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-advanced-sorting.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-product-filter-data.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-sale-category.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-wishlist.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-size-guide.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-color-attribute-manager.php</exclude-pattern>
-    </rule>
-    <rule ref="WordPress.DB.PreparedSQL">
-        <exclude-pattern>*/includes/Core/class-search-index.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-advanced-sorting.php</exclude-pattern>
-    </rule>
-    <rule ref="WordPress.DB.PreparedSQLPlaceholders">
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
-    </rule>
-
-    <!--
-		Admin list tables / read-only $_GET routing (no state change). Nonces are
-		enforced on mutating actions separately.
-	-->
-    <rule ref="WordPress.Security.NonceVerification.Recommended">
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-back-in-stock-admin.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-custom-badge-taxonomy.php</exclude-pattern>
-        <exclude-pattern>*/includes/Core/class-theme-updates.php</exclude-pattern>
-        <exclude-pattern>*/includes/Core/class-security-hardening.php</exclude-pattern>
-    </rule>
-
     <!-- WP requires the global content_width variable name. -->
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
         <exclude-pattern>*/includes/Core/class-content-width.php</exclude-pattern>
-    </rule>
-
-    <!-- meta_key / meta_value / tax_query are required WP_Query args. -->
-    <rule ref="WordPress.DB.SlowDBQuery">
-        <exclude-pattern>*/includes/WooCommerce/class-custom-badge-taxonomy.php</exclude-pattern>
-        <exclude-pattern>*/includes/WooCommerce/class-load-more-renderer.php</exclude-pattern>
     </rule>
 
     <!--
@@ -159,11 +120,6 @@
         </properties>
     </rule>
 
-    <!-- Exclude certain rules that might be too strict for theme development -->
-    <rule ref="WordPress.Security.NonceVerification">
-        <exclude-pattern>*/admin/*</exclude-pattern>
-    </rule>
-
     <!-- File patterns to include -->
     <file>.</file>
 
@@ -179,6 +135,7 @@
     <exclude-pattern>tests/coverage/*</exclude-pattern>
     <exclude-pattern>phpcs-report.txt</exclude-pattern>
     <exclude-pattern>includes/stubs.php</exclude-pattern>
+    <exclude-pattern>stubs/*</exclude-pattern>
 
     <!-- Only check PHP files -->
     <arg name="extensions" value="php"/>

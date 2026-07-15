@@ -24,7 +24,7 @@ class TestSecurityHeaders extends WP_UnitTestCase {
 		$expected = array(
 			'X-Content-Type-Options' => 'nosniff',
 			'X-Frame-Options'        => 'SAMEORIGIN',
-			'X-XSS-Protection'       => '1; mode=block',
+			'X-XSS-Protection'       => '0',
 			'Referrer-Policy'        => 'strict-origin-when-cross-origin',
 			'Permissions-Policy'     => 'geolocation=(), microphone=(), camera=()',
 		);

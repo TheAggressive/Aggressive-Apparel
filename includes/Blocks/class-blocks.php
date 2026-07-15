@@ -160,9 +160,8 @@ class Blocks {
 		if ( ! file_exists( $manifest ) ) {
 			// Full `pnpm build` writes this; watch-only builds may skip it.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Dev-only hint.
-				error_log(
-					'[Aggressive Apparel] build/blocks-manifest.php missing; run `pnpm build` or `pnpm build:manifest` for faster block registration.'
+				aggressive_apparel_debug_log(
+					'build/blocks-manifest.php missing; run `pnpm build` or `pnpm build:manifest` for faster block registration.'
 				);
 			}
 			return;

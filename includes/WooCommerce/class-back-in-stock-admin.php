@@ -24,6 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.18.0
  */
 class Back_In_Stock_Admin {
+	/** Per-user transient prefix for completed bulk actions. */
+	private const NOTICE_TRANSIENT_PREFIX = 'aa_bis_admin_notice_';
 
 	/**
 	 * Initialize hooks.
@@ -57,6 +59,10 @@ class Back_In_Stock_Admin {
 	 * @return void
 	 */
 	public function render_admin_page(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to manage stock subscribers.', 'aggressive-apparel' ) );
+		}
+
 		// Load the list table class inline (keeps everything in one file).
 		$table = $this->create_list_table();
 		$table->prepare_items();
@@ -66,9 +72,10 @@ class Back_In_Stock_Admin {
 			<h1><?php esc_html_e( 'Stock Notification Subscribers', 'aggressive-apparel' ); ?></h1>
 
 			<?php
-			// Show unsubscribed notice after deletion.
-			if ( isset( $_GET['deleted'] ) ) {
-				$count = absint( $_GET['deleted'] );
+			// Show the server-side completion notice once, without trusting URL state.
+			$count = (int) get_transient( self::NOTICE_TRANSIENT_PREFIX . get_current_user_id() );
+			if ( 0 < $count ) {
+				delete_transient( self::NOTICE_TRANSIENT_PREFIX . get_current_user_id() );
 				printf(
 					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
 					esc_html(
@@ -99,11 +106,13 @@ class Back_In_Stock_Admin {
 	 * @return void
 	 */
 	public function handle_bulk_actions(): void {
-		if ( ! isset( $_GET['page'] ) || 'aa-stock-subscribers' !== $_GET['page'] ) {
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'aa-stock-subscribers' !== $page ) {
 			return;
 		}
 
-		if ( ! isset( $_GET['action'] ) || 'delete' !== $_GET['action'] ) {
+		$action = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
+		if ( 'delete' !== $action ) {
 			return;
 		}
 
@@ -119,25 +128,30 @@ class Back_In_Stock_Admin {
 
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
-		$ids   = array_map( 'absint', $_GET['subscriber'] );
+		$ids   = array_slice(
+			array_values( array_unique( array_filter( array_map( 'absint', wp_unslash( $_GET['subscriber'] ) ) ) ) ),
+			0,
+			100
+		);
 
 		if ( empty( $ids ) ) {
 			return;
 		}
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Authorized custom-table mutation; no read cache may remain stale.
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE id IN ({$placeholders})",
-				...$ids
+				"DELETE FROM %i WHERE id IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder count is bounded by the 100 normalized integer IDs above.
+				...array_merge( array( $table ), $ids )
 			)
 		);
+		set_transient( self::NOTICE_TRANSIENT_PREFIX . get_current_user_id(), count( $ids ), MINUTE_IN_SECONDS );
 
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => 'aa-stock-subscribers',
-					'deleted' => count( $ids ),
+					'page' => 'aa-stock-subscribers',
 				),
 				admin_url( 'admin.php' )
 			)
@@ -223,48 +237,73 @@ class Back_In_Stock_Admin {
 				$current_page = $this->get_pagenum();
 				$offset       = ( $current_page - 1 ) * $per_page;
 
-				$where = '1=1';
-				$args  = array();
-
 				// Status filter.
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filtering; no state changes occur.
 				$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
-				if ( in_array( $status, array( 'active', 'notified', 'unsubscribed' ), true ) ) {
-					$where .= ' AND status = %s';
-					$args[] = $status;
-				}
+				$status = in_array( $status, array( 'active', 'notified', 'unsubscribed' ), true ) ? $status : '';
 
 				// Search filter.
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filtering; no state changes occur.
 				$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-				if ( $search ) {
-					$where .= ' AND email LIKE %s';
-					$args[] = '%' . $wpdb->esc_like( $search ) . '%';
-				}
+				$search = '' !== $search ? '%' . $wpdb->esc_like( $search ) . '%' : '';
 
 				// Ordering.
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only allow-listed ordering; no state changes occur.
 				$orderby = isset( $_GET['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) . ' ASC' ) : '';
 				$orderby = $orderby ? explode( ' ', $orderby )[0] : 'created_at';
 				$allowed = array( 'email', 'status', 'created_at' );
 				$orderby = in_array( $orderby, $allowed, true ) ? $orderby : 'created_at';
-				$order   = ( isset( $_GET['order'] ) && 'asc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ) ? 'ASC' : 'DESC';
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only allow-listed ordering; no state changes occur.
+				$order = ( isset( $_GET['order'] ) && 'asc' === strtolower( sanitize_text_field( wp_unslash( $_GET['order'] ) ) ) ) ? 'ASC' : 'DESC';
 
-				// Total items.
-				if ( $args ) {
+				if ( '' !== $status && '' !== $search ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Operational admin screen must show current custom-table state.
 					$total_items = (int) $wpdb->get_var(
 						$wpdb->prepare(
-							"SELECT COUNT(*) FROM {$table} WHERE {$where}",
-							...$args
+							'SELECT COUNT(*) FROM %i WHERE status = %s AND email LIKE %s',
+							$table,
+							$status,
+							$search
 						)
 					);
-				} else {
+				} elseif ( '' !== $status ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Operational admin screen must show current custom-table state.
 					$total_items = (int) $wpdb->get_var(
-						"SELECT COUNT(*) FROM {$table} WHERE {$where}"
+						$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE status = %s', $table, $status )
+					);
+				} elseif ( '' !== $search ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Operational admin screen must show current custom-table state.
+					$total_items = (int) $wpdb->get_var(
+						$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE email LIKE %s', $table, $search )
+					);
+				} else {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Operational admin screen must show current custom-table state.
+					$total_items = (int) $wpdb->get_var(
+						$wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table )
 					);
 				}
 
-				// Fetch rows.
-				$query_args  = array_merge( $args, array( $per_page, $offset ) );
-				$query       = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
-				$this->items = $wpdb->get_results( $wpdb->prepare( $query, ...$query_args ) );
+				if ( '' !== $status && '' !== $search ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded, paginated operational admin read.
+					$this->items = 'ASC' === $order
+						? $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status = %s AND email LIKE %s ORDER BY %i ASC LIMIT %d OFFSET %d', $table, $status, $search, $orderby, $per_page, $offset ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded operational read.
+						: $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status = %s AND email LIKE %s ORDER BY %i DESC LIMIT %d OFFSET %d', $table, $status, $search, $orderby, $per_page, $offset ) );
+				} elseif ( '' !== $status ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded, paginated operational admin read.
+					$this->items = 'ASC' === $order
+						? $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status = %s ORDER BY %i ASC LIMIT %d OFFSET %d', $table, $status, $orderby, $per_page, $offset ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded operational read.
+						: $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status = %s ORDER BY %i DESC LIMIT %d OFFSET %d', $table, $status, $orderby, $per_page, $offset ) );
+				} elseif ( '' !== $search ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded, paginated operational admin read.
+					$this->items = 'ASC' === $order
+						? $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE email LIKE %s ORDER BY %i ASC LIMIT %d OFFSET %d', $table, $search, $orderby, $per_page, $offset ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded operational read.
+						: $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE email LIKE %s ORDER BY %i DESC LIMIT %d OFFSET %d', $table, $search, $orderby, $per_page, $offset ) );
+				} else {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded, paginated operational admin read.
+					$this->items = 'ASC' === $order
+						? $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY %i ASC LIMIT %d OFFSET %d', $table, $orderby, $per_page, $offset ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded operational read.
+						: $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY %i DESC LIMIT %d OFFSET %d', $table, $orderby, $per_page, $offset ) );
+				}
 
 				$this->set_pagination_args(
 					array(
@@ -398,6 +437,7 @@ class Back_In_Stock_Admin {
 				if ( 'top' !== $which ) {
 					return;
 				}
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter state used to render the selected option.
 				$current = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
 				?>
 				<div class="alignleft actions">

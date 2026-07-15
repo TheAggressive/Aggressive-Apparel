@@ -104,8 +104,8 @@ class Bootstrap {
 			'X-Content-Type-Options' => 'nosniff',
 			// Prevent clickjacking attacks.
 			'X-Frame-Options'        => 'SAMEORIGIN',
-			// Enable legacy XSS filtering.
-			'X-XSS-Protection'       => '1; mode=block',
+			// Disable deprecated browser XSS auditors that can create client-side vulnerabilities.
+			'X-XSS-Protection'       => '0',
 			// Referrer Policy.
 			'Referrer-Policy'        => 'strict-origin-when-cross-origin',
 			// Permissions Policy (restrict powerful features).

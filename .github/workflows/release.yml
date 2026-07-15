@@ -91,7 +91,7 @@ jobs:
         run: find includes/ -name "*.php" -exec php -l {} \; > /dev/null && echo "PHP syntax valid"
 
       - name: Run PHPCS
-        run: ./vendor/bin/phpcs --standard=phpcs.xml.dist includes/ src/
+        run: composer lint:php
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --verbose

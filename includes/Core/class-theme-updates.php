@@ -485,19 +485,38 @@ class Theme_Updates {
 	}
 
 	/**
+	 * Fetch a remote updater resource with VIP circuit breaking when available.
+	 *
+	 * @param string               $url  HTTPS URL.
+	 * @param array<string, mixed> $args WordPress HTTP arguments.
+	 * @return array<string, mixed>|\WP_Error
+	 */
+	private static function safe_remote_get( string $url, array $args = array() ): array|\WP_Error {
+		$timeout         = min( 3, max( 1, (int) ( $args['timeout'] ?? 3 ) ) );
+		$args['timeout'] = $timeout;
+
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+			$response = \vip_safe_wp_remote_get( $url, false, 3, $timeout, 20, $args );
+			return is_array( $response ) ? $response : new \WP_Error( 'remote_request_failed' );
+		}
+
+		return wp_safe_remote_get( $url, $args );
+	}
+
+	/**
 	 * Fetch and parse a checksum asset.
 	 *
 	 * @param string $checksum_url Checksum asset URL.
 	 * @return string|false Lowercase SHA-256 hash.
 	 */
 	private function fetch_checksum( string $checksum_url ) {
-		$response = wp_remote_get(
+		$response = self::safe_remote_get(
 			$checksum_url,
 			array(
 				'headers' => array(
 					'User-Agent' => 'Aggressive-Apparel-Updater',
 				),
-				'timeout' => 15,
+				'timeout' => 3,
 			)
 		);
 
@@ -704,7 +723,7 @@ class Theme_Updates {
 			),
 		);
 
-		$response = wp_remote_get( $url, $args );
+		$response = self::safe_remote_get( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
 			// On HTTP error, fall back to stale cache if available.
@@ -917,9 +936,11 @@ class Theme_Updates {
 		}
 
 		// Don't show update notice when actively updating themes or during upgrade process.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen state; update execution is handled and verified by WordPress core.
 		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
 		if ( $action ) {
 			// Hide during individual theme updates.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen state; update execution is handled and verified by WordPress core.
 			if ( 'upgrade-theme' === $action && isset( $_GET['theme'] ) && sanitize_text_field( wp_unslash( $_GET['theme'] ) ) === $theme_slug ) {
 				return;
 			}

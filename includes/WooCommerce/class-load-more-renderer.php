@@ -567,9 +567,9 @@ class Load_More_Renderer {
 
 		// The constraint builder emits placeholders only; all values are supplied
 		// here. This indexed lookup runs only on a versioned facet-cache miss.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamically assembled placeholder SQL, prepared with the complete parameter list.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Structural fragments come from validated Catalog_SQL_Constraints; every value remains a placeholder.
 		$prepared = $wpdb->prepare( $sql, ...$params );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared indexed WooCommerce lookup; caller caches the complete facet result.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- compute_facets() wraps this indexed lookup in a versioned transient cache.
 		$slugs = $wpdb->get_col( $prepared );
 
 		return array_values( array_unique( array_map( 'strval', $slugs ) ) );
@@ -692,12 +692,15 @@ class Load_More_Renderer {
 		}
 
 		if ( is_array( $filters ) ) {
-			$constraints = new Catalog_SQL_Constraints();
-			$constraints->add_lookup_filters( new Catalog_Filter_Set( $filters ), $alias );
-			if ( ! empty( $constraints->where() ) ) {
-				$lookup_where = ' AND ' . implode( ' AND ', $constraints->where() );
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Constraint builder emits placeholders; values are prepared here.
-				$clauses['where'] .= $wpdb->prepare( $lookup_where, ...$constraints->where_params() );
+			$filter_set = new Catalog_Filter_Set( $filters );
+			if ( $filter_set->min_price() > 0 ) {
+				$clauses['where'] .= $wpdb->prepare( ' AND %i.max_price >= %f', $alias, $filter_set->min_price() );
+			}
+			if ( $filter_set->max_price() > 0 ) {
+				$clauses['where'] .= $wpdb->prepare( ' AND %i.min_price <= %f', $alias, $filter_set->max_price() );
+			}
+			if ( '' !== $filter_set->stock() ) {
+				$clauses['where'] .= $wpdb->prepare( ' AND %i.stock_status = %s', $alias, $filter_set->stock() );
 			}
 		}
 
@@ -851,7 +854,7 @@ class Load_More_Renderer {
 			if ( count( $tax_query ) > 1 ) {
 				$tax_query['relation'] = 'AND';
 			}
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Native taxonomy filtering is required and uses WordPress's indexed term relationships.
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Taxonomy tables are indexed; this avoids unindexed postmeta and unbounded post__in lists.
 			$args['tax_query'] = $tax_query;
 		}
 

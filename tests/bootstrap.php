@@ -79,6 +79,20 @@ function _aggressive_apparel_manually_load_environment() {
 tests_add_filter( 'muplugins_loaded', '_aggressive_apparel_manually_load_environment' );
 
 /**
+ * Expose PHPUnit's simulated request metadata through the production input
+ * boundary. PHP's filter_input() reads the original SAPI values and therefore
+ * cannot observe server values assigned by an individual test.
+ *
+ * @param string $value Native server value.
+ * @param string $key   Server input key.
+ * @return string
+ */
+function _aggressive_apparel_test_server_value( string $value, string $key ): string {
+	return isset( $_SERVER[ $key ] ) && is_string( $_SERVER[ $key ] ) ? $_SERVER[ $key ] : $value;
+}
+tests_add_filter( 'aggressive_apparel_server_value', '_aggressive_apparel_test_server_value', 10, 2 );
+
+/**
  * Install WooCommerce's schema once it has loaded.
  *
  * Runs after plugins load (so WC_Install exists), creating WC's tables + roles
@@ -96,4 +110,3 @@ tests_add_filter( 'setup_theme', '_aggressive_apparel_install_woocommerce' );
 
 // Start up the WP testing environment
 require $_tests_dir . '/includes/bootstrap.php';
-

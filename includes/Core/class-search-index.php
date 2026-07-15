@@ -28,6 +28,7 @@ class Search_Index {
 	private const REBUILD_CURSOR_OPTION = 'aggressive_apparel_search_rebuild_cursor';
 	private const STATUS_OPTION         = 'aggressive_apparel_search_index_status';
 	private const ACTION_GROUP          = 'aggressive-apparel-search';
+	private const CACHE_GROUP           = 'aggressive-apparel-search-index';
 	private const SYNC_HOOK             = 'aggressive_apparel_sync_search_index';
 	private const REBUILD_HOOK          = 'aggressive_apparel_rebuild_search_index';
 	private const BATCH_SIZE            = 250;
@@ -68,7 +69,8 @@ class Search_Index {
 		global $wpdb;
 		$table   = self::table_name();
 		$charset = $wpdb->get_charset_collate();
-		$sql     = "CREATE TABLE {$table} (
+		$sql     = $wpdb->prepare(
+			'CREATE TABLE %i (
 			object_id bigint(20) unsigned NOT NULL,
 			object_type varchar(20) NOT NULL,
 			token varchar(100) NOT NULL,
@@ -77,12 +79,15 @@ class Search_Index {
 			PRIMARY KEY  (object_id, token),
 			KEY token_type (token, object_type, weight, object_id),
 			KEY object_type (object_type, object_id)
-		) {$charset};";
+		)',
+			$table
+		) . ' ' . $charset . ';';
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 
 		// Do not claim the schema is ready if the host rejected table creation.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time schema verification during an admin upgrade; stale cached state would be incorrect.
 		$installed_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
 		if ( $installed_table !== $table ) {
 			return;
@@ -97,18 +102,6 @@ class Search_Index {
 	public function is_ready(): bool {
 		return get_option( self::SCHEMA_OPTION ) === self::SCHEMA_VERSION
 			&& get_option( self::INDEX_OPTION ) === self::INDEX_VERSION;
-	}
-
-	/**
-	 * Whether a post may appear in public autocomplete search.
-	 *
-	 * @deprecated 1.17.0 Use Search_Visibility::is_searchable_post() instead.
-	 *
-	 * @param \WP_Post|null $post Candidate post.
-	 * @return bool
-	 */
-	public function is_searchable_post( ?\WP_Post $post ): bool {
-		return Search_Visibility::is_searchable_post( $post );
 	}
 
 	/** Generation folded into response-cache keys for constant-time invalidation. */
@@ -136,34 +129,68 @@ class Search_Index {
 		}
 
 		global $wpdb;
-		$table  = self::table_name();
-		$limit  = min( 50, max( 1, $limit ) );
-		$offset = max( 0, $offset );
-		$joins  = array();
-		$params = array();
-		foreach ( array_slice( $words, 1 ) as $index => $word ) {
-			$alias    = 'token_' . ( $index + 1 );
-			$joins[]  = "INNER JOIN {$table} {$alias}
-				ON token_0.object_id = {$alias}.object_id
-				AND token_0.object_type = {$alias}.object_type
-				AND {$alias}.token LIKE %s";
-			$params[] = $wpdb->esc_like( $word ) . '%';
+		$table     = self::table_name();
+		$limit     = min( 50, max( 1, $limit ) );
+		$offset    = max( 0, $offset );
+		$cache_key = 'results:' . hash(
+			'sha256',
+			implode(
+				'|',
+				array(
+					(string) $this->generation(),
+					$post_type,
+					implode( ',', $words ),
+					(string) $limit,
+					(string) $offset,
+				)
+			)
+		);
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		if ( is_array( $cached ) ) {
+			return array_map( 'intval', $cached );
 		}
 
-		$sql = "SELECT token_0.object_id
-			FROM {$table} token_0
-			" . implode( "\n", $joins ) . '
+		$joins = array();
+		foreach ( array_slice( $words, 1 ) as $index => $word ) {
+			$alias   = 'token_' . ( $index + 1 );
+			$joins[] = $wpdb->prepare(
+				'INNER JOIN %i %i
+					ON token_0.object_id = %i.object_id
+					AND token_0.object_type = %i.object_type
+					AND %i.token LIKE %s',
+				$table,
+				$alias,
+				$alias,
+				$alias,
+				$alias,
+				$wpdb->esc_like( $word ) . '%'
+			);
+		}
+
+		// Every JOIN is separately prepared above; only those prepared fragments are composed here.
+		$sql      = 'SELECT token_0.object_id
+			FROM %i token_0
+			' . implode( "\n", $joins ) . '
 			WHERE token_0.object_type = %s
 			AND token_0.token LIKE %s
 			GROUP BY token_0.object_id
 			ORDER BY MAX(token_0.weight) DESC, token_0.object_id DESC
-			LIMIT %d OFFSET %d';
-		array_push( $params, $post_type, $wpdb->esc_like( $words[0] ) . '%', $limit, $offset );
+			LIMIT %d OFFSET %d'; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Bounded, internally generated prepared JOIN fragments; all external values use placeholders.
+		$prepared = $wpdb->prepare(
+			$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- The composed SQL contains only prepared joins plus static query text.
+			$table,
+			$post_type,
+			$wpdb->esc_like( $words[0] ) . '%',
+			$limit,
+			$offset
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared -- The generation-keyed object cache immediately below covers this indexed read.
+		$ids = $wpdb->get_col( $prepared );
 
-		$prepared = $wpdb->prepare( $sql, ...$params );
-		$ids      = $wpdb->get_col( $prepared );
+		$ids = array_map( 'intval', $ids );
+		wp_cache_set( $cache_key, $ids, self::CACHE_GROUP, HOUR_IN_SECONDS );
 
-		return array_map( 'intval', $ids );
+		return $ids;
 	}
 
 	/**
@@ -200,6 +227,7 @@ class Search_Index {
 		}
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom-index mutation; bump_generation() invalidates all result-cache keys.
 		$deleted = $wpdb->delete( self::table_name(), array( 'object_id' => $post_id ), array( '%d' ) );
 		if ( is_int( $deleted ) && $deleted > 0 ) {
 			$this->bump_generation();
@@ -309,21 +337,31 @@ class Search_Index {
 		if ( 0 === $cursor ) {
 			// Frontend reads are disabled until completion, so clearing here cannot
 			// expose a partial index.
-			$wpdb->query( 'TRUNCATE TABLE ' . self::table_name() );
+			$wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', self::table_name() ) );
 		}
 
 		$types = $this->supported_post_types();
-		$marks = implode( ',', array_fill( 0, count( $types ), '%s' ) );
-		$sql   = "SELECT ID FROM {$wpdb->posts}
-			WHERE post_type IN ({$marks})
-			AND post_status = 'publish'
-			AND post_password = ''
-			AND ID > %d
-			ORDER BY ID ASC
-			LIMIT %d";
-
-		$prepared = $wpdb->prepare( $sql, ...array_merge( $types, array( $cursor, self::BATCH_SIZE ) ) );
-		$ids      = array_map( 'intval', $wpdb->get_col( $prepared ) );
+		$ids   = array_map(
+			'intval',
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cursor worker intentionally reads the next uncached batch exactly once.
+			$wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT ID FROM %i
+					WHERE post_type IN (%s, %s, %s)
+					AND post_status = 'publish'
+					AND post_password = ''
+					AND ID > %d
+					ORDER BY ID ASC
+					LIMIT %d",
+					$wpdb->posts,
+					$types[0],
+					$types[1],
+					$types[2],
+					$cursor,
+					self::BATCH_SIZE
+				)
+			)
+		);
 
 		if ( ! empty( $ids ) ) {
 			$this->sync_ids( $ids );
@@ -393,6 +431,7 @@ class Search_Index {
 	private function sync_one( int $id ): bool {
 		$post = get_post( $id );
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom-index replacement; the batch bumps the cache generation after changes.
 		$deleted = $wpdb->delete( self::table_name(), array( 'object_id' => $id ), array( '%d' ) );
 
 		if ( ! $post instanceof \WP_Post || ! Search_Visibility::is_indexable( $post ) ) {
@@ -412,8 +451,11 @@ class Search_Index {
 			array_push( $params, $id, $post->post_type, $token, $weight, $now );
 		}
 
-		$sql      = 'INSERT INTO ' . self::table_name() . ' (object_id, object_type, token, weight, updated_at) VALUES ' . implode( ', ', $values );
-		$prepared = $wpdb->prepare( $sql, ...$params );
+		$sql = 'INSERT INTO %i (object_id, object_type, token, weight, updated_at) VALUES ' . implode( ', ', $values );
+		// The row shape is fixed, token count is capped, and every row value remains a placeholder.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Only repeated fixed placeholder tuples are composed dynamically.
+		$prepared = $wpdb->prepare( $sql, ...array_merge( array( self::table_name() ), $params ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Custom-index batch write; sync_ids() invalidates via generation after success.
 		return false !== $wpdb->query( $prepared );
 	}
 
@@ -464,14 +506,17 @@ class Search_Index {
 					global $wpdb;
 					// Fetch all variation SKUs in one indexed query instead of hydrating
 					// every variation object during a large rebuild.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded rebuild worker avoids hydrating every variation object; source tables own their caches.
 					$variation_skus = $wpdb->get_col(
 						$wpdb->prepare(
 							"SELECT product_lookup.sku
-							FROM {$wpdb->posts} variations
-							INNER JOIN {$wpdb->wc_product_meta_lookup} product_lookup ON variations.ID = product_lookup.product_id
+							FROM %i variations
+							INNER JOIN %i product_lookup ON variations.ID = product_lookup.product_id
 							WHERE variations.post_parent = %d
 							AND variations.post_type = 'product_variation'
 							AND product_lookup.sku <> ''",
+							$wpdb->posts,
+							$wpdb->wc_product_meta_lookup,
 							$post->ID
 						)
 					);

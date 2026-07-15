@@ -593,6 +593,7 @@ class Sale_Category {
 	private function get_product_batch_after( int $cursor ): array {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cursor worker reads each bounded product batch once; caching would impede reconciliation freshness.
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product' AND ID > %d ORDER BY ID ASC LIMIT %d",

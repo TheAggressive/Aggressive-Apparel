@@ -102,34 +102,6 @@ function aggressive_apparel_icon_block_svg( string $slug, int|float $size = 48 )
 }
 
 /**
- * Read a local theme file from an absolute path under the theme directory.
- *
- * Prefer WordPress APIs (wp_json_file_decode, get_block_template) when possible.
- * This helper is for plain text/HTML theme files where no dedicated API exists.
- *
- * @param string $absolute_path Absolute filesystem path.
- * @return string|false File contents, or false on failure / path escape.
- */
-function aggressive_apparel_read_theme_file( string $absolute_path ): string|false {
-	$theme_root = wp_normalize_path( (string) get_template_directory() );
-	$normalized = wp_normalize_path( $absolute_path );
-
-	if ( ! str_starts_with( $normalized, $theme_root . '/' ) && $normalized !== $theme_root ) {
-		return false;
-	}
-
-	if ( ! is_readable( $normalized ) ) {
-		return false;
-	}
-
-	// Local theme asset read; WP_Filesystem is unnecessary for trusted theme paths.
-	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Bounded to theme directory.
-	$contents = file_get_contents( $normalized );
-
-	return is_string( $contents ) ? $contents : false;
-}
-
-/**
  * Auto-detect the lowest free-shipping threshold from WooCommerce shipping zones.
  *
  * @return float Threshold in store currency, or 0 when none configured.
@@ -139,7 +111,7 @@ function aggressive_apparel_free_shipping_threshold(): float {
 }
 
 /**
- * Write a theme log line (single allowed error_log sink for PHPCS).
+ * Write a theme diagnostic through WordPress's native error pipeline.
  *
  * Callers decide when to invoke (e.g. WP_DEBUG). Do not pass secrets.
  *
@@ -155,27 +127,46 @@ function aggressive_apparel_debug_log( string $message, array $context = array()
 		}
 	}
 
-	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Single allowed debug sink.
-	error_log( $line );
+	wp_trigger_error( __FUNCTION__, $line, E_USER_NOTICE );
 }
 
 /**
- * Read and unslash a POST value for a dedicated sanitizer.
+ * Sanitize a custom product-badge SVG payload.
  *
- * PHPCS cannot see custom sanitize_* methods on the next line; this helper
- * owns the one InputNotSanitized exception. Always pass the return value
- * through a sanitizer before persistence or output.
- *
- * @param string $key POST key.
- * @return mixed|null Unslashed value, or null when unset.
+ * @param mixed $value Raw SVG payload.
  */
-function aggressive_apparel_unslash_post( string $key ): mixed {
-	if ( ! isset( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller verifies nonce before use.
-		return null;
-	}
+function aggressive_apparel_sanitize_badge_svg( mixed $value ): string {
+	return is_string( $value )
+		? \Aggressive_Apparel\WooCommerce\Custom_Badge_Taxonomy::sanitize_svg( $value )
+		: '';
+}
 
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- Caller sanitizes and verifies nonce.
-	return wp_unslash( $_POST[ $key ] );
+/**
+ * Sanitize structured per-product tab overrides.
+ *
+ * @param mixed                                                  $value     Raw override rows.
+ * @param \Aggressive_Apparel\WooCommerce\Product_Tabs_Sanitizer $sanitizer Product-tabs sanitizer.
+ * @return array<string, array<string, string>>
+ */
+function aggressive_apparel_sanitize_tab_overrides(
+	mixed $value,
+	\Aggressive_Apparel\WooCommerce\Product_Tabs_Sanitizer $sanitizer
+): array {
+	return $sanitizer->sanitize_tab_overrides( $value );
+}
+
+/**
+ * Sanitize structured per-product custom tabs.
+ *
+ * @param mixed                                                  $value     Raw custom-tab rows.
+ * @param \Aggressive_Apparel\WooCommerce\Product_Tabs_Sanitizer $sanitizer Product-tabs sanitizer.
+ * @return array<int, array<string, mixed>>
+ */
+function aggressive_apparel_sanitize_custom_tabs(
+	mixed $value,
+	\Aggressive_Apparel\WooCommerce\Product_Tabs_Sanitizer $sanitizer
+): array {
+	return $sanitizer->sanitize_custom_tabs( $value );
 }
 
 /**
@@ -269,7 +260,7 @@ function aggressive_apparel_block_debug_strings(): array {
 		/* translators: {pct} is replaced with a percentage number. */
 		'legendExit'         => __( 'Exit line — reverses once visibility falls below {pct}%', 'aggressive-apparel' ),
 		'legendZone'         => __( 'Entry zone — tinted band the boundary edge must reach to trigger', 'aggressive-apparel' ),
-		/* translators: {pct}, {elem}, {root} and {max} are replaced with numbers. */
+		/* translators: Four brace-delimited placeholders are replaced with measurements. */
 		'warnUnreachable'    => __( 'Entry threshold {pct}% is unreachable: the element ({elem}px) is taller than the detection area ({root}px). Max visibility ≈ {max}%.', 'aggressive-apparel' ),
 	);
 }

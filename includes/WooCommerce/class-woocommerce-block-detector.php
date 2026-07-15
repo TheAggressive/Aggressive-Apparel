@@ -440,25 +440,13 @@ class WooCommerce_Block_Detector {
 	 * @return bool
 	 */
 	private static function scan_block_template_for_woocommerce_blocks( string $slug, string $type ): bool {
-		if ( function_exists( 'get_block_template' ) ) {
-			$template_id = get_stylesheet() . '//' . $slug;
-			$template    = 'wp_template_part' === $type
-				? get_block_template( $template_id, 'wp_template_part' )
-				: get_block_template( $template_id, 'wp_template' );
+		$template_id   = get_stylesheet() . '//' . $slug;
+		$template_type = 'wp_template_part' === $type ? 'wp_template_part' : 'wp_template';
+		$template      = get_block_template( $template_id, $template_type );
 
-			if ( $template && ! empty( $template->content ) && self::content_has_woocommerce_blocks( $template->content ) ) {
-				return true;
-			}
-		}
-
-		$relative_path = 'wp_template_part' === $type
-			? 'parts/' . $slug . '.html'
-			: 'templates/' . $slug . '.html';
-
-		$file_path    = get_theme_file_path( $relative_path );
-		$file_content = aggressive_apparel_read_theme_file( $file_path );
-
-		return false !== $file_content && self::content_has_woocommerce_blocks( $file_content );
+		return $template && ! empty( $template->content )
+			? self::content_has_woocommerce_blocks( $template->content )
+			: false;
 	}
 
 	/**

@@ -215,9 +215,11 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Subscription limits require current custom-table state before insertion.
 		$active_count = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND status = 'active'",
+				"SELECT COUNT(*) FROM %i WHERE email = %s AND status = 'active'",
+				$table,
 				$email
 			)
 		);
@@ -235,9 +237,11 @@ class Back_In_Stock {
 		}
 
 		// Check for existing active subscription.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Duplicate prevention requires current custom-table state before insertion.
 		$exists = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE email = %s AND product_id = %d AND status = 'active'",
+				"SELECT COUNT(*) FROM %i WHERE email = %s AND product_id = %d AND status = 'active'",
+				$table,
 				$email,
 				$product_id
 			)
@@ -249,6 +253,7 @@ class Back_In_Stock {
 
 		$token = wp_generate_password( 64, false );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom subscription-table mutation through wpdb's typed insert API.
 		$wpdb->insert(
 			$table,
 			array(
@@ -373,10 +378,12 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function handle_unsubscribe(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The 64-character random, single-purpose bearer token authorizes anonymous email unsubscribe links.
 		if ( ! isset( $_GET['aa_unsubscribe'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The unguessable token is verified in the conditional update below.
 		$token = sanitize_text_field( wp_unslash( $_GET['aa_unsubscribe'] ) );
 		if ( empty( $token ) ) {
 			return;
@@ -385,6 +392,7 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Token-authorized custom-table mutation; only active rows can transition.
 		$updated = $wpdb->update(
 			$table,
 			array( 'status' => 'unsubscribed' ),
@@ -419,9 +427,11 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Stock worker requires a current bounded delivery batch; cached recipients risk duplicate/missed mail.
 		$subscribers = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, email, unsubscribe_token FROM {$table} WHERE product_id = %d AND status = 'active' LIMIT %d",
+				"SELECT id, email, unsubscribe_token FROM %i WHERE product_id = %d AND status = 'active' LIMIT %d",
+				$table,
 				$product_id,
 				self::BATCH_SIZE
 			)
@@ -442,6 +452,7 @@ class Back_In_Stock {
 				$emails['Back_In_Stock_Email']->trigger( $product_id, $subscriber->email, $subscriber->unsubscribe_token );
 			}
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Persist delivery state immediately to prevent repeat notifications.
 			$wpdb->update(
 				$table,
 				array(
@@ -455,9 +466,11 @@ class Back_In_Stock {
 		}
 
 		// Schedule next batch if more remain.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Worker scheduling must use current queue depth after delivery-state writes.
 		$remaining = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE product_id = %d AND status = 'active'",
+				"SELECT COUNT(*) FROM %i WHERE product_id = %d AND status = 'active'",
+				$table,
 				$product_id
 			)
 		);
@@ -556,9 +569,11 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Privacy exports must reflect complete current user data and must not use shared caches.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT product_id, status, created_at, notified_at FROM {$table} WHERE email = %s",
+				'SELECT product_id, status, created_at, notified_at FROM %i WHERE email = %s',
+				$table,
 				$email_address
 			)
 		);
@@ -604,6 +619,7 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Privacy erasure is an immediate custom-table mutation.
 		$deleted = $wpdb->delete(
 			$table,
 			array( 'email' => $email_address ),
@@ -644,6 +660,7 @@ class Back_In_Stock {
 		global $wpdb;
 		$table = Back_In_Stock_Installer::get_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Product lifecycle cleanup is an immediate custom-table mutation.
 		$wpdb->delete(
 			$table,
 			array(
@@ -674,9 +691,11 @@ class Back_In_Stock {
 			->modify( '-' . $retention_days . ' days' )
 			->format( 'Y-m-d H:i:s' );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Scheduled retention deletion mutates custom-table data; caching is inapplicable.
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE status IN ('notified', 'unsubscribed') AND created_at < %s",
+				"DELETE FROM %i WHERE status IN ('notified', 'unsubscribed') AND created_at < %s",
+				$table,
 				$cutoff
 			)
 		);

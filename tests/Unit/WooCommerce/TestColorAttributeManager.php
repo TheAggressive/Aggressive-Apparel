@@ -9,6 +9,7 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
 use WP_UnitTestCase;
 use Aggressive_Apparel\WooCommerce\Color_Attribute_Manager;
+use Aggressive_Apparel\WooCommerce\Color_Data_Manager;
 use Aggressive_Apparel\WooCommerce\Color_Pattern_Admin;
 use ReflectionClass;
 
@@ -170,6 +171,15 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		$this->assertEquals( '#123456', $colors['custom-blue']['value'] );
 		$this->assertEquals( 'hex', $colors['custom-blue']['format'] );
 		$this->assertEquals( '#123456', $colors['custom-blue']['hex'] );
+		$this->assertSame( '', get_term_meta( $result, 'color_hex', true ) );
+	}
+
+	/** Only the registered WooCommerce color taxonomy is treated as color data. */
+	public function test_color_attribute_identifier_is_canonical(): void {
+		$this->assertTrue( Color_Data_Manager::is_color_attribute( 'pa_color' ) );
+		$this->assertTrue( Color_Data_Manager::is_color_attribute( 'attribute_pa_color' ) );
+		$this->assertFalse( Color_Data_Manager::is_color_attribute( 'color' ) );
+		$this->assertFalse( Color_Data_Manager::is_color_attribute( 'pa_colour' ) );
 	}
 
 	/**

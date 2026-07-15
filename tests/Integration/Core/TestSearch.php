@@ -405,6 +405,33 @@ class TestSearch extends WP_UnitTestCase {
 		$this->assertSame( 'ready', $health['aggressive_apparel_search_index']['fields']['state']['value'] );
 	}
 
+	/** Identical index lookups are served from the persistent object cache. */
+	public function test_token_index_caches_identical_lookups(): void {
+		global $wpdb;
+
+		$index = new Search_Index();
+		$index->maybe_install();
+		$index->process_rebuild_batch( PHP_INT_MAX );
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'Zecache Search Result',
+				'post_status' => 'publish',
+			)
+		);
+		$index->sync_ids( array( $post_id ) );
+
+		$before = $wpdb->num_queries;
+		$first  = $index->search( 'post', 'Zecache', 8 );
+		$after  = $wpdb->num_queries;
+		$second = $index->search( 'post', 'Zecache', 8 );
+
+		$this->assertContains( $post_id, $first );
+		$this->assertSame( $first, $second );
+		$this->assertGreaterThan( $before, $after );
+		$this->assertSame( $after, $wpdb->num_queries );
+	}
+
 	/**
 	 * Successful responses echo the normalized query for client stale-guards.
 	 *

@@ -30,20 +30,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Size_Guide {
 
 	/**
-	 * Legacy option key for the global size guide (raw HTML).
-	 *
-	 * @var string
-	 */
-	private const OPTION_KEY = 'aggressive_apparel_size_guide';
-
-	/**
-	 * Legacy meta key for raw HTML size guides.
-	 *
-	 * @var string
-	 */
-	private const META_KEY = '_aggressive_apparel_size_guide';
-
-	/**
 	 * Meta key for CPT post ID references.
 	 *
 	 * @var string
@@ -77,6 +63,9 @@ class Size_Guide {
 	 * @var string
 	 */
 	private const CACHE_PREFIX = 'aa_sg_';
+
+	/** Option storing the cache-key generation. */
+	private const CACHE_GENERATION_OPTION = 'aa_size_guide_cache_generation';
 
 	/**
 	 * Cache TTL in seconds (15 minutes).
@@ -172,8 +161,8 @@ class Size_Guide {
 	/**
 	 * Retrieve the size guide content for a product, with transient caching.
 	 *
-	 * Priority: per-product CPT → per-product legacy → category CPT →
-	 * category legacy → global CPT → global legacy.
+	 * Priority: per-product assignment → category assignment → global
+	 * assignment.
 	 *
 	 * @param int|false $product_id Product ID.
 	 * @return string HTML content or empty string.
@@ -181,7 +170,7 @@ class Size_Guide {
 	private function get_size_guide_for_product( $product_id ): string {
 		if ( $product_id ) {
 			return Cache_Helper::remember(
-				self::CACHE_PREFIX . $product_id,
+				$this->product_cache_key( (int) $product_id ),
 				self::CACHE_TTL,
 				fn(): string => $this->resolve_size_guide( $product_id ),
 				'is_string'
@@ -200,7 +189,7 @@ class Size_Guide {
 	 */
 	private function resolve_size_guide( $product_id ): string {
 		if ( $product_id ) {
-			// Per-product: CPT reference.
+			// Per-product assignment.
 			$cpt_id = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
 			if ( $cpt_id > 0 ) {
 				$content = $this->get_cpt_content( $cpt_id );
@@ -209,17 +198,11 @@ class Size_Guide {
 				}
 			}
 
-			// Per-product: legacy raw HTML.
-			$legacy = (string) get_post_meta( $product_id, self::META_KEY, true );
-			if ( '' !== $legacy ) {
-				return $legacy;
-			}
-
 			// Per-category.
 			$cats = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
 			if ( is_array( $cats ) ) {
 				foreach ( $cats as $cat_id ) {
-					// Category: CPT reference.
+					// Category assignment.
 					$cat_cpt_id = (int) get_term_meta( $cat_id, self::CPT_META_KEY, true );
 					if ( $cat_cpt_id > 0 ) {
 						$content = $this->get_cpt_content( $cat_cpt_id );
@@ -227,17 +210,11 @@ class Size_Guide {
 							return $content;
 						}
 					}
-
-					// Category: legacy raw HTML.
-					$cat_legacy = (string) get_term_meta( $cat_id, self::META_KEY, true );
-					if ( '' !== $cat_legacy ) {
-						return $cat_legacy;
-					}
 				}
 			}
 		}
 
-		// Global: CPT reference.
+		// Global assignment.
 		$global_cpt_id = (int) get_option( self::CPT_OPTION_KEY, 0 );
 		if ( $global_cpt_id > 0 ) {
 			$content = $this->get_cpt_content( $global_cpt_id );
@@ -246,8 +223,7 @@ class Size_Guide {
 			}
 		}
 
-		// Global: legacy raw HTML.
-		return (string) get_option( self::OPTION_KEY, '' );
+		return '';
 	}
 
 	/**
@@ -315,7 +291,6 @@ class Size_Guide {
 		}
 
 		$selected_id = (int) get_post_meta( $post->ID, self::CPT_META_KEY, true );
-		$legacy_html = (string) get_post_meta( $post->ID, self::META_KEY, true );
 
 		$options = array( '' => __( '-- Inherit (category or global) --', 'aggressive-apparel' ) );
 		foreach ( $this->get_published_guides() as $guide ) {
@@ -347,16 +322,6 @@ class Size_Guide {
 			'</a>',
 		);
 		echo '</p>';
-
-		if ( '' !== $legacy_html && 0 === $selected_id ) {
-			echo '<div class="notice notice-warning inline" style="margin:0.5rem 12px;"><p>';
-			esc_html_e(
-				'This product has a legacy inline size guide. Select a size guide above to replace it.',
-				'aggressive-apparel',
-			);
-			echo '</p></div>';
-		}
-
 		echo '</div>';
 	}
 
@@ -385,7 +350,7 @@ class Size_Guide {
 			delete_post_meta( $post_id, self::CPT_META_KEY );
 		}
 
-		delete_transient( self::CACHE_PREFIX . $post_id );
+		delete_transient( $this->product_cache_key( $post_id ) );
 	}
 
 	/**
@@ -475,7 +440,7 @@ class Size_Guide {
 	}
 
 	/**
-	 * Delete all size guide transient caches.
+	 * Invalidate all size-guide caches in constant time.
 	 *
 	 * Called when a size guide CPT is updated or a category assignment
 	 * changes, since those affect multiple products.
@@ -483,14 +448,21 @@ class Size_Guide {
 	 * @return void
 	 */
 	public function flush_all_caches(): void {
-		global $wpdb;
+		update_option( self::CACHE_GENERATION_OPTION, $this->cache_generation() + 1, false );
+	}
 
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%'
-			)
-		);
+	/** Current cache generation. */
+	private function cache_generation(): int {
+		return max( 1, (int) get_option( self::CACHE_GENERATION_OPTION, 1 ) );
+	}
+
+	/**
+	 * Product cache key for the current generation.
+	 *
+	 * @param int $product_id Product ID.
+	 */
+	private function product_cache_key( int $product_id ): string {
+		return self::CACHE_PREFIX . $this->cache_generation() . '_' . $product_id;
 	}
 
 	/**

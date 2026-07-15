@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
-use Aggressive_Apparel\Assets\Asset_Loader;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -86,7 +84,6 @@ class Product_Tabs {
 	public function init(): void {
 		add_filter( 'woocommerce_product_tabs', array( $this, 'add_custom_tabs' ), 20 );
 		add_filter( 'render_block_woocommerce/product-details', array( $this, 'transform_product_details_block' ), 10, 3 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		$this->init_admin_only();
 	}
 
@@ -127,25 +124,6 @@ class Product_Tabs {
 		$style   = is_array( $options ) && isset( $options['display_style'] ) ? $options['display_style'] : 'accordion';
 
 		return in_array( $style, Product_Tabs_Config::VALID_STYLES, true ) ? $style : 'accordion';
-	}
-
-	/**
-	 * Enqueue legacy product-tabs stylesheet on single product pages.
-	 *
-	 * Interactivity state and the view module are owned by the
-	 * aggressive-apparel/product-tabs block (viewScriptModule + render.php).
-	 *
-	 * @return void
-	 */
-	public function enqueue_assets(): void {
-		if ( ! $this->is_product_page() ) {
-			return;
-		}
-
-		Asset_Loader::enqueue_feature_style(
-			'aggressive-apparel-product-tabs',
-			'build/styles/woocommerce/product-tabs'
-		);
 	}
 
 	/**

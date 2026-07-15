@@ -70,8 +70,8 @@ final class Catalog_SQL_Constraints {
 	 * @param string $alias_prefix  Generated JOIN alias prefix.
 	 */
 	public function __construct( string $product_alias = 'p', string $alias_prefix = 'aa_filter' ) {
-		$this->product_alias = $product_alias;
-		$this->alias_prefix  = $alias_prefix;
+		$this->product_alias = self::validate_identifier( $product_alias );
+		$this->alias_prefix  = self::validate_identifier( $alias_prefix );
 	}
 
 	/**
@@ -108,7 +108,8 @@ final class Catalog_SQL_Constraints {
 	 * @param string   $lookup_table WooCommerce attribute lookup table.
 	 */
 	public function add_attribute( string $taxonomy, array $slugs, string $lookup_table ): void {
-		$slugs = array_slice( array_values( array_unique( array_filter( array_map( 'sanitize_title', $slugs ) ) ) ), 0, 20 );
+		$lookup_table = self::validate_identifier( $lookup_table );
+		$slugs        = array_slice( array_values( array_unique( array_filter( array_map( 'sanitize_title', $slugs ) ) ) ), 0, 20 );
 		if ( empty( $slugs ) ) {
 			return;
 		}
@@ -176,5 +177,23 @@ final class Catalog_SQL_Constraints {
 	 */
 	public function where_params(): array {
 		return $this->where_params;
+	}
+
+	/**
+	 * Validate structural SQL identifiers before they enter generated clauses.
+	 *
+	 * Values continue to use placeholders; this is exclusively for table and
+	 * alias identifiers, which cannot be represented as ordinary SQL values.
+	 *
+	 * @param string $identifier Table or alias identifier.
+	 * @return string
+	 * @throws \InvalidArgumentException When the identifier is not SQL-safe.
+	 */
+	private static function validate_identifier( string $identifier ): string {
+		if ( 1 !== preg_match( '/^[A-Za-z_][A-Za-z0-9_]*$/D', $identifier ) ) {
+			throw new \InvalidArgumentException( 'Invalid catalogue SQL identifier.' );
+		}
+
+		return $identifier;
 	}
 }

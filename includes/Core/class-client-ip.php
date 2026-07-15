@@ -69,11 +69,7 @@ class Client_IP {
 	 * @return string A valid IP, or '' when none could be determined.
 	 */
 	public static function get(): string {
-		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders,WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__ -- The value is sanitized and FILTER_VALIDATE_IP-validated immediately; it is used only as a hashed abuse-prevention key, never to vary cacheable response content.
-		$remote = isset( $_SERVER['REMOTE_ADDR'] )
-			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
-			: '';
-		// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders,WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+		$remote = self::server_value( 'REMOTE_ADDR' );
 		$remote = filter_var( $remote, FILTER_VALIDATE_IP ) ? $remote : '';
 
 		$ip = $remote;
@@ -82,10 +78,9 @@ class Client_IP {
 		// arrived from a Cloudflare edge IP.
 		if (
 			'' !== $remote
-			&& isset( $_SERVER['HTTP_CF_CONNECTING_IP'] )
 			&& self::is_cloudflare( $remote )
 		) {
-			$cf = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
+			$cf = self::server_value( 'HTTP_CF_CONNECTING_IP' );
 			if ( filter_var( $cf, FILTER_VALIDATE_IP ) ) {
 				$ip = $cf;
 			}
@@ -100,6 +95,30 @@ class Client_IP {
 		 * @param string $remote Raw validated REMOTE_ADDR.
 		 */
 		return (string) apply_filters( 'aggressive_apparel_client_ip', $ip, $remote );
+	}
+
+	/**
+	 * Read one scalar server value through PHP's filtered input boundary.
+	 *
+	 * The filter supports hosts with non-standard proxy integration and makes
+	 * request metadata deterministic in tests. Returned values are sanitized
+	 * here and IP-validated by the caller before use.
+	 *
+	 * @param string $key Server input key.
+	 */
+	private static function server_value( string $key ): string {
+		$value = filter_input( INPUT_SERVER, $key, FILTER_VALIDATE_IP );
+		$value = is_string( $value ) ? $value : '';
+
+		/**
+		 * Filter a raw scalar server value before validation.
+		 *
+		 * @param string $value Server value, or an empty string when unavailable.
+		 * @param string $key   Server input key.
+		 */
+		$value = apply_filters( 'aggressive_apparel_server_value', $value, $key );
+
+		return sanitize_text_field( $value );
 	}
 
 	/**

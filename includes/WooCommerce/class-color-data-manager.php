@@ -114,11 +114,9 @@ class Color_Data_Manager {
 				'count'       => $term->count,
 			);
 		} else {
-			// Solid color handling (existing logic).
-			// Fallback to hex for backward compatibility.
+			// Solid colors without configured metadata use a deterministic name fallback.
 			if ( empty( $color_value ) ) {
-				$hex_value    = get_term_meta( $term->term_id, 'color_hex', true );
-				$color_value  = $hex_value ? $hex_value : self::guess_color_from_name( $term->name, $term->slug );
+				$color_value  = self::guess_color_from_name( $term->name, $term->slug );
 				$color_format = 'hex';
 			}
 
@@ -169,27 +167,18 @@ class Color_Data_Manager {
 	}
 
 	/**
-	 * Color attribute slugs (without 'attribute_' prefix).
-	 *
-	 * Shared list used by Quick_View, Sticky_Add_To_Cart, and
-	 * Color_Block_Swatch_Manager to identify color attributes.
-	 *
-	 * @var string[]
-	 */
-	private const COLOR_SLUGS = array( 'pa_color', 'pa_colour', 'color', 'colour' );
-
-	/**
 	 * Check whether an attribute taxonomy/slug is a color attribute.
 	 *
-	 * Accepts both prefixed ('attribute_pa_color') and bare ('pa_color')
-	 * slugs and normalises before comparison.
+	 * Accepts the canonical taxonomy with or without WooCommerce's variation
+	 * input prefix.
 	 *
 	 * @param string $slug Attribute slug or input name.
 	 * @return bool
 	 */
 	public static function is_color_attribute( string $slug ): bool {
 		$bare = strtolower( (string) preg_replace( '/^attribute_/', '', $slug ) );
-		return in_array( $bare, self::COLOR_SLUGS, true );
+
+		return self::ATTRIBUTE_NAME === $bare;
 	}
 
 	/**
@@ -321,11 +310,6 @@ class Color_Data_Manager {
 		update_term_meta( $result['term_id'], 'color_value', $value );
 		update_term_meta( $result['term_id'], 'color_format', $format );
 
-		// Keep backward compatibility with hex field.
-		if ( 'hex' === $format ) {
-			update_term_meta( $result['term_id'], 'color_hex', $value );
-		}
-
 		self::flush_swatch_data_memo();
 
 		return $result['term_id'];
@@ -378,13 +362,10 @@ class Color_Data_Manager {
 			update_term_meta( $term_id, 'color_value', $color_value );
 			update_term_meta( $term_id, 'color_format', $color_format );
 
-			// Keep backward compatibility with hex field.
-			update_term_meta( $term_id, 'color_hex', $color_value );
 		} else {
 			// Clear color data if invalid.
 			delete_term_meta( $term_id, 'color_value' );
 			delete_term_meta( $term_id, 'color_format' );
-			delete_term_meta( $term_id, 'color_hex' );
 		}
 
 		self::flush_swatch_data_memo();
@@ -435,10 +416,6 @@ class Color_Data_Manager {
 				// Store the color value and format as term meta.
 				update_term_meta( $term_id['term_id'], 'color_value', $color_value );
 				update_term_meta( $term_id['term_id'], 'color_format', $color_format );
-				// Keep backward compatibility with hex field.
-				if ( 'hex' === $color_format ) {
-					update_term_meta( $term_id['term_id'], 'color_hex', $color_value );
-				}
 			}
 		} else {
 			// Update color value if term exists but no color value.
@@ -446,9 +423,6 @@ class Color_Data_Manager {
 			if ( empty( $current_value ) ) {
 				update_term_meta( $existing_term->term_id, 'color_value', $color_value );
 				update_term_meta( $existing_term->term_id, 'color_format', $color_format );
-				if ( 'hex' === $color_format ) {
-					update_term_meta( $existing_term->term_id, 'color_hex', $color_value );
-				}
 			}
 		}
 

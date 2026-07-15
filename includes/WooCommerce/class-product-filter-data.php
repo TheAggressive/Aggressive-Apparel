@@ -200,6 +200,7 @@ final class Product_Filter_Data {
 		}
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- get() wraps this indexed aggregate in a 15-minute catalogue-data transient.
 		$result = $wpdb->get_row(
 			"SELECT FLOOR(MIN(product_lookup.min_price)) AS min_price,
 				CEIL(MAX(product_lookup.max_price)) AS max_price

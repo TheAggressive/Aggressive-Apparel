@@ -123,10 +123,8 @@ class Color_Admin_UI {
 			$color_type = 'solid';
 		}
 
-		// Fallback to hex for backward compatibility.
 		if ( empty( $color_value ) && 'solid' === $color_type ) {
-			$hex_value   = get_term_meta( $term->term_id, 'color_hex', true );
-			$color_value = $hex_value ? $hex_value : '#000000';
+			$color_value = '#000000';
 		}
 
 		$solid_checked   = ( 'solid' === $color_type ) ? 'checked="checked"' : '';
@@ -208,14 +206,10 @@ class Color_Admin_UI {
 			if ( ! empty( $color_value ) && $this->validate_color_value( $color_value, $color_format ) ) {
 				update_term_meta( $term_id, 'color_value', $color_value );
 				update_term_meta( $term_id, 'color_format', $color_format );
-
-				// Keep backward compatibility with hex field.
-				update_term_meta( $term_id, 'color_hex', $color_value );
 			} else {
 				// Clear color data if invalid.
 				delete_term_meta( $term_id, 'color_value' );
 				delete_term_meta( $term_id, 'color_format' );
-				delete_term_meta( $term_id, 'color_hex' );
 			}
 
 			// Clear any pattern data.
@@ -240,7 +234,6 @@ class Color_Admin_UI {
 			// Clear any solid color data.
 			delete_term_meta( $term_id, 'color_value' );
 			delete_term_meta( $term_id, 'color_format' );
-			delete_term_meta( $term_id, 'color_hex' );
 		}
 	}
 
@@ -416,10 +409,8 @@ class Color_Admin_UI {
 	private function render_solid_color_column( int $term_id ): void {
 		$color_value = get_term_meta( $term_id, 'color_value', true );
 
-		// Fallback to hex for backward compatibility.
 		if ( empty( $color_value ) ) {
-			$hex_value   = get_term_meta( $term_id, 'color_hex', true );
-			$color_value = $hex_value ? $hex_value : '#000000';
+			$color_value = '#000000';
 		}
 
 		// Ensure we have a valid hex color.

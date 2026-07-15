@@ -29,6 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.51.0
  */
 class Advanced_Sorting {
+	/** Persistent object-cache group for computed catalogue pages. */
+	private const CACHE_GROUP = 'aggressive-apparel-advanced-sorting';
 
 	/**
 	 * Custom sort waiting to be applied to the main server-rendered query.
@@ -327,6 +329,21 @@ class Advanced_Sorting {
 	private function query_sorted_page( string $sort, string $category, array $filters, int $page, int $per_page ): array {
 		global $wpdb;
 
+		$per_page   = min( 100, max( 1, $per_page ) );
+		$page       = max( 1, $page );
+		$generation = class_exists( '\WC_Cache_Helper' ) ? \WC_Cache_Helper::get_transient_version( 'product' ) : '1';
+		$cache_key  = 'page:' . hash(
+			'sha256',
+			(string) wp_json_encode( array( $generation, $sort, $category, $filters, $page, $per_page ) )
+		);
+		$cached     = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		if ( is_array( $cached ) && isset( $cached['ids'], $cached['total'] ) && is_array( $cached['ids'] ) ) {
+			return array(
+				'ids'   => array_map( 'intval', $cached['ids'] ),
+				'total' => (int) $cached['total'],
+			);
+		}
+
 		$filter_set  = new Catalog_Filter_Set( array_merge( $filters, array( 'category' => $category ) ) );
 		$constraints = new Catalog_SQL_Constraints( 'p', 'aa_sort' );
 		$joins       = array( "INNER JOIN {$wpdb->wc_product_meta_lookup} product_lookup ON p.ID = product_lookup.product_id" );
@@ -375,26 +392,32 @@ class Advanced_Sorting {
 		$where_sql = 'WHERE ' . implode( "\nAND ", $where );
 		$params    = array_merge( $constraints->join_params(), $constraints->where_params() );
 
-		$count_sql      = "SELECT COUNT(DISTINCT p.ID) {$from} {$where_sql}";
+		$count_sql = "SELECT COUNT(DISTINCT p.ID) {$from} {$where_sql}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Structural fragments come from validated Catalog_SQL_Constraints; every value remains a placeholder.
 		$prepared_count = empty( $params ) ? $count_sql : $wpdb->prepare( $count_sql, ...$params );
-		$total          = (int) $wpdb->get_var( $prepared_count );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared -- Result is served from and written to the versioned object cache in this method.
+		$total = (int) $wpdb->get_var( $prepared_count );
 
-		$per_page      = min( 100, max( 1, $per_page ) );
-		$offset        = ( max( 1, $page ) - 1 ) * $per_page;
-		$page_sql      = "SELECT p.ID, {$rank} AS sort_rank
+		$offset      = ( $page - 1 ) * $per_page;
+		$page_sql    = "SELECT p.ID, {$rank} AS sort_rank
 			{$from}
 			{$where_sql}
 			GROUP BY p.ID
 			ORDER BY sort_rank DESC, p.post_date DESC, p.ID DESC
 			LIMIT %d OFFSET %d";
-		$page_params   = array_merge( $params, array( $per_page, $offset ) );
+		$page_params = array_merge( $params, array( $per_page, $offset ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Structural fragments come from validated Catalog_SQL_Constraints; every value remains a placeholder.
 		$prepared_page = $wpdb->prepare( $page_sql, ...$page_params );
-		$ids           = array_map( 'intval', $wpdb->get_col( $prepared_page ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared -- Result is served from and written to the versioned object cache in this method.
+		$ids = array_map( 'intval', $wpdb->get_col( $prepared_page ) );
 
-		return array(
+		$result = array(
 			'ids'   => $ids,
 			'total' => $total,
 		);
+		wp_cache_set( $cache_key, $result, self::CACHE_GROUP, HOUR_IN_SECONDS );
+
+		return $result;
 	}
 
 	/**

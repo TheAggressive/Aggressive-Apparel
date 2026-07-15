@@ -84,6 +84,12 @@ class TestProductTabs extends WP_UnitTestCase {
 		$this->assertSame( 'accordion', $result['display_style'] );
 	}
 
+	/** The block owns frontend styles; no parallel legacy enqueue remains. */
+	public function test_product_tabs_uses_block_style_pipeline_only(): void {
+		$this->assertFalse( method_exists( $this->product_tabs, 'enqueue_assets' ) );
+		$this->assertFileExists( AGGRESSIVE_APPAREL_DIR . '/src/blocks-interactivity/product-tabs/style.css' );
+	}
+
 	/**
 	 * Hide override should remove a global tab from the registry.
 	 *

@@ -1,3 +1,16 @@
+# [1.153.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.152.0...v1.153.0) (2026-07-15)
+
+
+### Bug Fixes
+
+* **catalog:** synchronize dynamic pagination and sorting ([2145720](https://github.com/TheAggressive/Aggressive-Apparel/commit/2145720a8c329ac1241f0b019c3a2e74396e67c9))
+* **horizontal-scroll:** expose input readiness state ([02ed15a](https://github.com/TheAggressive/Aggressive-Apparel/commit/02ed15a126385e1f95eda9c44febb95f2a046c41))
+
+
+### Features
+
+* enhance load more functionality and product filters ([5da12bf](https://github.com/TheAggressive/Aggressive-Apparel/commit/5da12bfe7ea3c764900692566ac04528ca82107e))
+
 # [1.152.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.151.1...v1.152.0) (2026-07-15)
 
 

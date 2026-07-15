@@ -54,13 +54,13 @@ class TestColorSchemeBootstrap extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'aaReadStoredColorScheme', $script );
 		$this->assertStringContainsString( Color_Scheme::STORAGE_KEY, $script );
-		$this->assertStringContainsString( Color_Scheme::LEGACY_FRONTEND_KEY, $script );
 		$this->assertStringContainsString( "html.style.colorScheme='dark'", $script );
 		$this->assertStringContainsString( "setAttribute('data-theme','dark')", $script );
 		$this->assertStringContainsString( "setAttribute('data-theme','light')", $script );
 		$this->assertStringContainsString( 'is-dark-mode', $script );
 		$this->assertStringContainsString( 'is-light-mode', $script );
-		$this->assertStringContainsString( 'localStorage.setItem', $script );
+		$this->assertStringNotContainsString( 'localStorage.setItem', $script );
+		$this->assertStringNotContainsString( 'localStorage.removeItem', $script );
 	}
 
 	/**

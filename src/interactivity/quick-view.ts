@@ -261,22 +261,10 @@ function getLabel(key: keyof QuickViewLabels, fallback: string): string {
 }
 
 /**
- * Whether an attribute slug (or name) represents a color attribute.
- *
- * Handles taxonomy slugs (`pa_color`), plain names (`Color`), and
- * British spelling (`colour`) — all case-insensitively.
+ * Whether an attribute slug represents the canonical color taxonomy.
  */
-function isColorSlug(slug: string, name?: string): boolean {
-  const s = (slug || '').toLowerCase();
-  const n = (name || '').toLowerCase();
-  return (
-    s === 'pa_color' ||
-    s === 'color' ||
-    s === 'pa_colour' ||
-    s === 'colour' ||
-    n === 'color' ||
-    n === 'colour'
-  );
+function isColorSlug(slug: string): boolean {
+  return (slug || '').toLowerCase() === 'pa_color';
 }
 
 /**
@@ -470,7 +458,7 @@ function buildAttributes(
     .filter((attr: StoreApiAttribute) => attr.has_variations)
     .map((attr: StoreApiAttribute) => {
       const slug = attrSlugFor(attr);
-      const colorAttr = isColorSlug(slug, attr.name);
+      const colorAttr = isColorSlug(slug);
       const varValues = varValuesByAttr[slug] || new Set<string>();
 
       const options: ResolvedOption[] = (attr.terms || []).map(
@@ -1145,7 +1133,7 @@ const { state, actions } = store<QuickViewStore>(
         if (!item) {
           return false;
         }
-        return isColorSlug(item.slug, item.name);
+        return isColorSlug(item.slug);
       },
 
       /**
@@ -1157,7 +1145,7 @@ const { state, actions } = store<QuickViewStore>(
         if (!item) {
           return true;
         }
-        return !isColorSlug(item.slug, item.name);
+        return !isColorSlug(item.slug);
       },
 
       /**

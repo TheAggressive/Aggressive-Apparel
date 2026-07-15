@@ -191,7 +191,7 @@ class Quick_View {
 		$style    = Feature_Settings::get_quick_view_trigger_style();
 		$position = Feature_Settings::get_quick_view_trigger_position();
 
-		$allowed_styles = array( 'corner', 'bottom-bar', 'center' );
+		$allowed_styles = array( 'corner', 'bottom-bar' );
 		if ( ! in_array( $style, $allowed_styles, true ) ) {
 			$style = 'corner';
 		}
@@ -430,7 +430,6 @@ class Quick_View {
 						>
 							<img
 								class="no-lazy"
-								src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 								alt=""
 								data-wp-bind--alt="state.productName"
 								data-wp-watch="callbacks.syncCurrentImage"
@@ -480,10 +479,9 @@ class Quick_View {
 										data-wp-bind--aria-label="state.imagePositionLabel"
 										data-wp-bind--aria-current="state.isActiveImage ? 'true' : null"
 									>
-										<img
-											class="no-lazy"
-											src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-											alt=""
+									<img
+										class="no-lazy"
+										alt=""
 											data-wp-watch="callbacks.syncThumbnail"
 										/>
 									</button>
@@ -674,10 +672,9 @@ class Quick_View {
 						<div class="aggressive-apparel-quick-view__drawer-selection">
 							<!-- Large product image — visible on desktop (left column). -->
 							<div class="aggressive-apparel-quick-view__drawer-image">
-								<img
-									class="no-lazy"
-									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-									alt=""
+							<img
+								class="no-lazy"
+								alt=""
 									data-wp-bind--alt="state.productName"
 									data-wp-watch="callbacks.syncCurrentImage"
 								/>
@@ -687,7 +684,6 @@ class Quick_View {
 							<div class="aggressive-apparel-quick-view__drawer-header">
 								<img
 									class="aggressive-apparel-quick-view__drawer-thumb no-lazy"
-									src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 									alt=""
 									data-wp-bind--alt="state.productName"
 									data-wp-watch="callbacks.syncCurrentImage"
@@ -888,7 +884,6 @@ class Quick_View {
 				>
 					<img
 						class="aggressive-apparel-quick-view-success__image no-lazy"
-						src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
 						alt=""
 						data-wp-watch="callbacks.syncCurrentImage"
 					/>

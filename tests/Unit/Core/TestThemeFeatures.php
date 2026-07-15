@@ -14,7 +14,7 @@ use Aggressive_Apparel\Core\Theme_Features;
 use WP_UnitTestCase;
 
 /**
- * Covers Theme Features enablement, Adaptive Colors gating, and legacy migration.
+ * Covers Theme Features enablement and Adaptive Colors gating.
  */
 class TestThemeFeatures extends WP_UnitTestCase {
 
@@ -45,10 +45,6 @@ class TestThemeFeatures extends WP_UnitTestCase {
 	 */
 	private function reset_options(): void {
 		delete_option( Theme_Features::OPTION_KEY );
-		delete_option( Theme_Features::MIGRATION_OPTION );
-		delete_option( Theme_Features::LEGACY_WC_FEATURES_OPTION );
-		delete_option( 'aggressive_apparel_adaptive_colors_enabled' );
-		delete_option( 'aggressive_apparel_adaptive_colors_migrated' );
 	}
 
 	/**
@@ -76,6 +72,13 @@ class TestThemeFeatures extends WP_UnitTestCase {
 		$this->assertFalse( Theme_Features::is_enabled( 'not_a_feature' ) );
 	}
 
+	/** Only the canonical persisted value enables a feature. */
+	public function test_noncanonical_feature_value_is_disabled(): void {
+		update_option( Theme_Features::OPTION_KEY, array( 'adaptive_colors' => true ) );
+
+		$this->assertFalse( Theme_Features::is_enabled( 'adaptive_colors' ) );
+	}
+
 	/**
 	 * Adaptive Colors runtime hooks respect Theme Features.
 	 *
@@ -91,64 +94,6 @@ class TestThemeFeatures extends WP_UnitTestCase {
 			has_filter( 'wp_theme_json_data_theme', array( $adaptive, 'inject_adaptive_palette' ) ),
 			'Disabled Adaptive Colors must not hook theme.json.'
 		);
-	}
-
-	/**
-	 * Dedicated Adaptive Colors option migrates into Theme Features.
-	 *
-	 * @return void
-	 */
-	public function test_migrates_from_dedicated_adaptive_colors_option(): void {
-		update_option( 'aggressive_apparel_adaptive_colors_enabled', 'no' );
-
-		Theme_Features::maybe_migrate_legacy_options();
-
-		$this->assertFalse( Theme_Features::is_enabled( 'adaptive_colors' ) );
-		$this->assertFalse( get_option( 'aggressive_apparel_adaptive_colors_enabled' ) );
-		$this->assertSame( '1', get_option( Theme_Features::MIGRATION_OPTION ) );
-	}
-
-	/**
-	 * Store Enhancements bag migrates when Theme Features has no value.
-	 *
-	 * @return void
-	 */
-	public function test_migrates_from_store_enhancements_bag(): void {
-		update_option(
-			Theme_Features::LEGACY_WC_FEATURES_OPTION,
-			array(
-				'adaptive_colors' => false,
-				'custom_cursor'   => true,
-				'wishlist'        => true,
-			)
-		);
-
-		Theme_Features::maybe_migrate_legacy_options();
-
-		$this->assertFalse( Theme_Features::is_enabled( 'adaptive_colors' ) );
-
-		$legacy = get_option( Theme_Features::LEGACY_WC_FEATURES_OPTION, array() );
-		$this->assertArrayNotHasKey( 'adaptive_colors', $legacy );
-		$this->assertArrayNotHasKey( 'custom_cursor', $legacy );
-		$this->assertTrue( ! empty( $legacy['wishlist'] ) );
-	}
-
-	/**
-	 * Migration is a no-op the second time.
-	 *
-	 * @return void
-	 */
-	public function test_migration_runs_once(): void {
-		update_option( Theme_Features::OPTION_KEY, array( 'adaptive_colors' => 'no' ) );
-		update_option( Theme_Features::MIGRATION_OPTION, '1' );
-		update_option(
-			Theme_Features::LEGACY_WC_FEATURES_OPTION,
-			array( 'adaptive_colors' => true )
-		);
-
-		Theme_Features::maybe_migrate_legacy_options();
-
-		$this->assertFalse( Theme_Features::is_enabled( 'adaptive_colors' ) );
 	}
 
 	/**

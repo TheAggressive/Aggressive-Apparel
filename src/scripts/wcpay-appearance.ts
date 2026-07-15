@@ -10,7 +10,6 @@
  */
 
 import {
-  getStoredColorScheme,
   hasStoredColorScheme,
   resolveColorScheme,
 } from '../utils/color-scheme-storage';
@@ -61,8 +60,6 @@ interface SampledFieldStyles {
  * Resolve the active color scheme (matches dark-mode-toggle storage + OS pref).
  */
 function getCurrentColorScheme(): 'light' | 'dark' {
-  // Touch storage so legacy keys migrate before resolve.
-  getStoredColorScheme();
   return resolveColorScheme().scheme;
 }
 

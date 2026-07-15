@@ -65,8 +65,7 @@ class Color_Scheme_Bootstrap {
 	/**
 	 * Inline JS that applies color-scheme before first paint.
 	 *
-	 * Kept public for unit tests. Mirrors dark-mode-toggle/view.ts applyTheme()
-	 * and migrates legacy localStorage keys via Color_Scheme.
+	 * Kept public for unit tests. Mirrors dark-mode-toggle/view.ts applyTheme().
 	 *
 	 * @return string JavaScript source (no script tags).
 	 */

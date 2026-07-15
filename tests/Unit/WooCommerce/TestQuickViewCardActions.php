@@ -41,6 +41,7 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		$sanitizer = new Feature_Settings_Sanitizer();
 
 		$this->assertSame( 'corner', $sanitizer->sanitize_quick_view_trigger_style( 'nope' ) );
+		$this->assertSame( 'corner', $sanitizer->sanitize_quick_view_trigger_style( 'center' ) );
 		$this->assertSame( 'bottom-bar', $sanitizer->sanitize_quick_view_trigger_style( 'bottom-bar' ) );
 		$this->assertSame( 'top-right', $sanitizer->sanitize_quick_view_trigger_position( 'side' ) );
 		$this->assertSame( 'bottom-left', $sanitizer->sanitize_quick_view_trigger_position( 'bottom-left' ) );

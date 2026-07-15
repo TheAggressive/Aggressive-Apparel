@@ -76,6 +76,7 @@ class TestWishlistPage extends WP_UnitTestCase {
 		$this->assertInstanceOf( \WP_Post::class, $post );
 		$this->assertStringContainsString( 'aggressive-apparel/wishlist', $post->post_content );
 		$this->assertStringContainsString( 'aggressive-apparel/wishlist-item-image', $post->post_content );
+		$this->assertStringNotContainsString( '[aggressive_apparel_wishlist', $post->post_content );
 	}
 
 	/**

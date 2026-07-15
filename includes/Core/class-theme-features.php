@@ -32,27 +32,6 @@ class Theme_Features {
 	public const OPTION_KEY = 'aggressive_apparel_theme_features';
 
 	/**
-	 * Store Enhancements option bag (string only — avoid autoloading WC).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_WC_FEATURES_OPTION = 'aggressive_apparel_wc_features';
-
-	/**
-	 * Short-lived dedicated Adaptive Colors option (pre Theme Features restore).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_ADAPTIVE_COLORS_OPTION = 'aggressive_apparel_adaptive_colors_enabled';
-
-	/**
-	 * One-shot migration flag.
-	 *
-	 * @var string
-	 */
-	public const MIGRATION_OPTION = 'aggressive_apparel_theme_features_migrated';
-
-	/**
 	 * Settings page slug.
 	 *
 	 * @var string
@@ -74,20 +53,11 @@ class Theme_Features {
 	private const DEFAULT_ON = array( 'adaptive_colors' );
 
 	/**
-	 * Retired keys stripped from legacy bags (no longer offered).
-	 *
-	 * @var array<int, string>
-	 */
-	private const RETIRED_KEYS = array( 'custom_cursor' );
-
-	/**
-	 * Hook admin UI and run one-shot migration.
+	 * Hook the admin UI.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
-		self::maybe_migrate_legacy_options();
-
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter(
@@ -145,87 +115,7 @@ class Theme_Features {
 			return in_array( $feature, self::DEFAULT_ON, true );
 		}
 
-		$value = $options[ $feature ];
-
-		return 'yes' === $value || true === $value || 1 === $value || '1' === $value;
-	}
-
-	/**
-	 * Migrate enablement from older option shapes once.
-	 *
-	 * Precedence: existing Theme Features bag → dedicated Adaptive Colors
-	 * option → Store Enhancements bag. Always strips retired keys.
-	 *
-	 * @return void
-	 */
-	public static function maybe_migrate_legacy_options(): void {
-		if ( get_option( self::MIGRATION_OPTION ) ) {
-			return;
-		}
-
-		$options = get_option( self::OPTION_KEY, array() );
-		if ( ! is_array( $options ) ) {
-			$options = array();
-		}
-
-		$changed = false;
-
-		// Dedicated Adaptive Colors option (brief consolidation period).
-		if ( ! array_key_exists( 'adaptive_colors', $options ) ) {
-			$dedicated = get_option( self::LEGACY_ADAPTIVE_COLORS_OPTION, null );
-			if ( null !== $dedicated && false !== $dedicated ) {
-				$options['adaptive_colors'] = self::normalize_flag( $dedicated ) ? 'yes' : 'no';
-				$changed                    = true;
-			}
-		}
-
-		// Store Enhancements bag.
-		$wc_bag = get_option( self::LEGACY_WC_FEATURES_OPTION, null );
-		if ( is_array( $wc_bag ) ) {
-			foreach ( array_keys( self::get_feature_definitions() ) as $key ) {
-				if ( ! array_key_exists( $key, $options ) && array_key_exists( $key, $wc_bag ) ) {
-					$options[ $key ] = self::normalize_flag( $wc_bag[ $key ] ) ? 'yes' : 'no';
-					$changed         = true;
-				}
-			}
-
-			$wc_changed = false;
-			foreach ( array_merge( array_keys( self::get_feature_definitions() ), self::RETIRED_KEYS ) as $key ) {
-				if ( array_key_exists( $key, $wc_bag ) ) {
-					unset( $wc_bag[ $key ] );
-					$wc_changed = true;
-				}
-			}
-			if ( $wc_changed ) {
-				update_option( self::LEGACY_WC_FEATURES_OPTION, $wc_bag );
-			}
-		}
-
-		foreach ( self::RETIRED_KEYS as $key ) {
-			if ( array_key_exists( $key, $options ) ) {
-				unset( $options[ $key ] );
-				$changed = true;
-			}
-		}
-
-		if ( $changed ) {
-			update_option( self::OPTION_KEY, $options );
-		}
-
-		delete_option( self::LEGACY_ADAPTIVE_COLORS_OPTION );
-		delete_option( 'aggressive_apparel_adaptive_colors_migrated' );
-
-		update_option( self::MIGRATION_OPTION, '1' );
-	}
-
-	/**
-	 * Normalize mixed legacy flag values to a bool.
-	 *
-	 * @param mixed $value Raw flag.
-	 * @return bool
-	 */
-	private static function normalize_flag( $value ): bool {
-		return 'yes' === $value || true === $value || 1 === $value || '1' === $value;
+		return 'yes' === $options[ $feature ];
 	}
 
 	/**

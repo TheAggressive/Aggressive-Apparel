@@ -79,35 +79,6 @@
 		flex-direction: column;
 	}
 
-	/* Legacy center eye; Wishlist still uses the chosen corner. */
-	&--center {
-		align-items: center;
-		justify-content: center;
-
-		.aggressive-apparel-wishlist__toggle {
-			position: absolute;
-		}
-
-		&.aggressive-apparel-card-actions--top-right .aggressive-apparel-wishlist__toggle {
-			top: 0.5rem;
-			right: 0.5rem;
-		}
-
-		&.aggressive-apparel-card-actions--top-left .aggressive-apparel-wishlist__toggle {
-			top: 0.5rem;
-			left: 0.5rem;
-		}
-
-		&.aggressive-apparel-card-actions--bottom-right .aggressive-apparel-wishlist__toggle {
-			bottom: 0.5rem;
-			right: 0.5rem;
-		}
-
-		&.aggressive-apparel-card-actions--bottom-left .aggressive-apparel-wishlist__toggle {
-			bottom: 0.5rem;
-			left: 0.5rem;
-		}
-	}
 }
 
 /* Clear common sale-badge corners so chips do not collide. */
@@ -251,47 +222,6 @@
 		transform: translate(-50%, -50%);
 	}
 
-	.aggressive-apparel-card-actions--center {
-		align-items: flex-end;
-		justify-content: flex-start;
-		flex-direction: column;
-		gap: 0.35rem;
-		padding: 0.5rem;
-
-		&.aggressive-apparel-card-actions--top-right,
-		&.aggressive-apparel-card-actions--bottom-right {
-			align-items: flex-end;
-		}
-
-		&.aggressive-apparel-card-actions--top-left,
-		&.aggressive-apparel-card-actions--bottom-left {
-			align-items: flex-start;
-		}
-
-		&.aggressive-apparel-card-actions--top-right,
-		&.aggressive-apparel-card-actions--top-left {
-			justify-content: flex-start;
-		}
-
-		&.aggressive-apparel-card-actions--bottom-right,
-		&.aggressive-apparel-card-actions--bottom-left {
-			justify-content: flex-end;
-		}
-
-		.aggressive-apparel-quick-view__trigger {
-			position: static;
-			transform: none;
-
-			&:hover,
-			&:focus-visible {
-				transform: scale(1.04);
-			}
-		}
-
-		.aggressive-apparel-wishlist__toggle {
-			position: static;
-		}
-	}
 }
 
 /* Bottom bar: expand label on capable hover devices. */
@@ -306,38 +236,6 @@
 		width: auto;
 		min-width: var(--aa-card-action-size);
 		padding: 0 0.65rem;
-	}
-}
-
-/* Center legacy placement for the eye only. */
-.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border-radius: 50%;
-	transform: translate(-50%, -50%) scale(0.96);
-
-	&-label {
-		display: none;
-	}
-}
-
-@media (hover: hover) and (pointer: fine) {
-
-	.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger:hover,
-	.aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger:focus-visible {
-		transform: translate(-50%, -50%) scale(1.08);
-	}
-
-	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
-	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
-	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
-	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-card-actions--center .aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions--center:focus-within .aggressive-apparel-quick-view__trigger {
-		transform: translate(-50%, -50%) scale(1);
 	}
 }
 

@@ -70,6 +70,9 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		$this->assertSame( 'top-right', Feature_Settings::get_quick_view_trigger_position() );
 		$this->assertFalse( Feature_Settings::quick_view_includes_wishlist(), 'Wishlist pairing requires both features' );
 
+		update_option( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION, 'center' );
+		$this->assertSame( 'corner', Feature_Settings::get_quick_view_trigger_style() );
+
 		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1', 'wishlist' => '1' ) );
 		$this->assertTrue( Feature_Settings::quick_view_includes_wishlist() );
 
@@ -189,5 +192,16 @@ class TestFeatureSettings extends WP_UnitTestCase {
 
 		$this->assertLessThanOrEqual( 60, strlen( $result ), 'Store Copy text should be capped at 60 characters' );
 		$this->assertStringNotContainsString( '<strong>', $result, 'Store Copy text should strip markup' );
+	}
+
+	/** Large social-proof options are non-autoloaded at their canonical write boundary. */
+	public function test_large_options_default_to_non_autoloaded(): void {
+		$this->assertFalse(
+			Feature_Settings::filter_default_autoload_value( true, Feature_Settings::SOCIAL_PROOF_TRUST_MESSAGES_OPTION )
+		);
+		$this->assertFalse(
+			Feature_Settings::filter_default_autoload_value( null, Feature_Settings::SOCIAL_PROOF_ANNOUNCEMENTS_OPTION )
+		);
+		$this->assertTrue( Feature_Settings::filter_default_autoload_value( true, 'unrelated_option' ) );
 	}
 }

@@ -12,8 +12,6 @@
  */
 
 import {
-  hasStoredColorScheme,
-  getStoredColorScheme,
   resolveColorScheme,
   storeColorScheme,
 } from '../../utils/color-scheme-storage';
@@ -150,11 +148,6 @@ class DarkModeToggle {
 }
 
 function initDarkModeToggles(): void {
-  // Migrate legacy keys even when no toggle is on the page (favicon / WCPay).
-  if (hasStoredColorScheme()) {
-    getStoredColorScheme();
-  }
-
   const buttons = document.querySelectorAll<HTMLButtonElement>(
     '.dark-mode-toggle__button'
   );

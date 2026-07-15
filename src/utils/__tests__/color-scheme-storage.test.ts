@@ -6,8 +6,6 @@
 
 import {
   COLOR_SCHEME_STORAGE_KEY,
-  LEGACY_FRONTEND_STORAGE_KEY,
-  LEGACY_EDITOR_STORAGE_KEY,
   getStoredColorScheme,
   hasStoredColorScheme,
   resolveColorScheme,
@@ -23,15 +21,10 @@ describe('storeColorScheme', () => {
     localStorage.clear();
   });
 
-  it('persists to the canonical key and clears legacy keys', () => {
-    localStorage.setItem(LEGACY_FRONTEND_STORAGE_KEY, 'light');
-    localStorage.setItem(LEGACY_EDITOR_STORAGE_KEY, 'light');
-
+  it('persists to the canonical key', () => {
     storeColorScheme('dark');
 
     expect(localStorage.getItem(COLOR_SCHEME_STORAGE_KEY)).toBe('dark');
-    expect(localStorage.getItem(LEGACY_FRONTEND_STORAGE_KEY)).toBeNull();
-    expect(localStorage.getItem(LEGACY_EDITOR_STORAGE_KEY)).toBeNull();
   });
 
   it('swallows storage errors (private browsing / quota)', () => {
@@ -57,27 +50,10 @@ describe('getStoredColorScheme', () => {
     expect(hasStoredColorScheme()).toBe(false);
   });
 
-  it('prefers the canonical key over legacy keys', () => {
+  it('returns the canonical key', () => {
     localStorage.setItem(COLOR_SCHEME_STORAGE_KEY, 'light');
-    localStorage.setItem(LEGACY_FRONTEND_STORAGE_KEY, 'dark');
 
     expect(getStoredColorScheme()).toBe('light');
-  });
-
-  it('migrates the legacy frontend key to the canonical key', () => {
-    localStorage.setItem(LEGACY_FRONTEND_STORAGE_KEY, 'dark');
-
-    expect(getStoredColorScheme()).toBe('dark');
-    expect(localStorage.getItem(COLOR_SCHEME_STORAGE_KEY)).toBe('dark');
-    expect(localStorage.getItem(LEGACY_FRONTEND_STORAGE_KEY)).toBeNull();
-  });
-
-  it('migrates the legacy editor key when no frontend key exists', () => {
-    localStorage.setItem(LEGACY_EDITOR_STORAGE_KEY, 'light');
-
-    expect(getStoredColorScheme()).toBe('light');
-    expect(localStorage.getItem(COLOR_SCHEME_STORAGE_KEY)).toBe('light');
-    expect(localStorage.getItem(LEGACY_EDITOR_STORAGE_KEY)).toBeNull();
   });
 
   it('ignores invalid stored values', () => {

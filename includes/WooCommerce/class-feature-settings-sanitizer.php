@@ -132,7 +132,7 @@ class Feature_Settings_Sanitizer {
 	 * @return string
 	 */
 	public function sanitize_quick_view_trigger_style( $input ): string {
-		$valid = array( 'corner', 'bottom-bar', 'center' );
+		$valid = array( 'corner', 'bottom-bar' );
 		return in_array( $input, $valid, true ) ? $input : 'corner';
 	}
 

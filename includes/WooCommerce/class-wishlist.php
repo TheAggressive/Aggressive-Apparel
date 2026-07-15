@@ -29,6 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.17.0
  */
 class Wishlist {
+	/** Object-cache group for page discovery. */
+	private const CACHE_GROUP = 'aggressive-apparel-wishlist';
 
 	/**
 	 * Option key storing the auto-created wishlist page ID.
@@ -63,7 +65,6 @@ class Wishlist {
 		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'woocommerce_single_product_summary', array( $this, 'render_single_heart' ), 6 );
-		add_shortcode( 'aggressive_apparel_wishlist', array( $this, 'render_wishlist_page' ) );
 	}
 
 	/**
@@ -159,7 +160,13 @@ class Wishlist {
 	 */
 	public static function find_existing_page_id(): int {
 		global $wpdb;
+		$cache_key = 'page:' . wp_cache_get_last_changed( 'posts' );
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		if ( is_int( $cached ) ) {
+			return $cached;
+		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Result is cached below using the core posts last-changed generation.
 		$page_id = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts}
@@ -172,14 +179,18 @@ class Wishlist {
 		);
 
 		if ( $page_id > 0 ) {
+			wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
 			return $page_id;
 		}
 
 		$page = get_page_by_path( self::PAGE_SLUG );
 		if ( $page instanceof \WP_Post && 'publish' === $page->post_status ) {
-			return (int) $page->ID;
+			$page_id = (int) $page->ID;
+			wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
+			return $page_id;
 		}
 
+		wp_cache_set( $cache_key, 0, self::CACHE_GROUP, 300 );
 		return 0;
 	}
 
@@ -299,7 +310,7 @@ BLOCKS;
 	 * Whether the current request is expected to render a wishlist surface.
 	 *
 	 * Single-product routes cover the automatic summary button. Stored content
-	 * detection covers blocks and the legacy shortcode. Render-time calls to
+	 * detection covers blocks. Render-time calls to
 	 * ensure_assets() remain the final fallback for dynamic block output.
 	 *
 	 * @return bool
@@ -358,8 +369,7 @@ BLOCKS;
 			return false;
 		}
 
-		return str_contains( $content, '<!-- wp:aggressive-apparel/wishlist' )
-			|| str_contains( $content, '[aggressive_apparel_wishlist' );
+		return str_contains( $content, '<!-- wp:aggressive-apparel/wishlist' );
 	}
 
 	/**
@@ -480,64 +490,6 @@ BLOCKS;
 			esc_attr( Icons::heart_viewbox() ),
 			$path
 		);
-	}
-
-	/**
-	 * Render the wishlist shortcode output.
-	 *
-	 * Uses data-wp-each to iterate over wishlist products fetched client-side
-	 * from the public WooCommerce Store API. The template element defines the
-	 * markup for each product card.
-	 *
-	 * @return string Shortcode HTML.
-	 */
-	public function render_wishlist_page(): string {
-		self::ensure_assets();
-
-		$context = (string) wp_json_encode(
-			array(
-				'loaded' => false,
-			),
-		);
-
-		$html = '<div class="aggressive-apparel-wishlist-page"'
-			. ' data-wp-interactive="aggressive-apparel/wishlist"'
-			. ' data-wp-context=\'' . esc_attr( $context ) . '\''
-			. ' data-wp-init="callbacks.loadWishlistPage">';
-
-		// Product grid — rendered via data-wp-each over state.wishlistProducts.
-		$html .= '<div class="aggressive-apparel-wishlist-page__grid"'
-			. ' data-wp-bind--hidden="!context.loaded"'
-			. ' hidden>';
-
-		$html .= '<template data-wp-each="state.wishlistProducts">';
-		$html .= '<div class="aggressive-apparel-wishlist-page__item">';
-		$html .= '<a class="aggressive-apparel-wishlist-page__item-link" data-wp-bind--href="context.item.permalink">';
-		$html .= '<img class="aggressive-apparel-wishlist-page__item-image no-lazy" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""'
-			. ' data-wp-watch="callbacks.syncItemImage" />';
-		$html .= '</a>';
-		$html .= '<a class="aggressive-apparel-wishlist-page__item-name" data-wp-bind--href="context.item.permalink" data-wp-text="context.item.name"></a>';
-		$html .= '<span class="aggressive-apparel-wishlist-page__item-price" data-wp-text="context.item.price"></span>';
-		$html .= '</div>';
-		$html .= '</template>';
-
-		$html .= '</div>';
-
-		// Empty state.
-		$html .= '<p class="aggressive-apparel-wishlist-page__empty"'
-			. ' data-wp-bind--hidden="state.hasWishlistItems">'
-			. esc_html__( 'Your wishlist is empty.', 'aggressive-apparel' )
-			. '</p>';
-
-		// Loading state.
-		$html .= '<p class="aggressive-apparel-wishlist-page__loading"'
-			. ' data-wp-bind--hidden="context.loaded">'
-			. esc_html__( 'Loading wishlist…', 'aggressive-apparel' )
-			. '</p>';
-
-		$html .= '</div>';
-
-		return $html;
 	}
 
 	/**

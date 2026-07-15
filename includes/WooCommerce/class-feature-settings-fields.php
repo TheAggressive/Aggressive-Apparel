@@ -231,7 +231,6 @@ class Feature_Settings_Fields {
 		$options = array(
 			'corner'     => __( 'Corner chip (recommended for transparent product shots)', 'aggressive-apparel' ),
 			'bottom-bar' => __( 'Bottom action bar', 'aggressive-apparel' ),
-			'center'     => __( 'Center eye (legacy)', 'aggressive-apparel' ),
 		);
 
 		$this->render_select( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION, $options, $style );

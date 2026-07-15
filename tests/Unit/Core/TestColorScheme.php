@@ -18,32 +18,14 @@ use WP_UnitTestCase;
 class TestColorScheme extends WP_UnitTestCase {
 
 	/**
-	 * Storage keys match the TypeScript color-scheme-storage module.
+	 * Shared JS reader reads only the canonical storage key.
 	 */
-	public function test_storage_keys_match_typescript_contract(): void {
-		$this->assertSame(
-			array(
-				'aggressive-apparel-color-scheme',
-				'aggressive-apparel-dark-mode',
-				'aggressive-apparel-editor-color-scheme',
-			),
-			Color_Scheme::storage_keys()
-		);
-
-		$this->assertSame( Color_Scheme::STORAGE_KEY, Color_Scheme::storage_keys()[0] );
-	}
-
-	/**
-	 * Shared JS reader includes keys and legacy migration writes.
-	 */
-	public function test_js_read_function_migrates_legacy_keys(): void {
+	public function test_js_read_function_uses_canonical_key(): void {
 		$js = Color_Scheme::js_read_stored_scheme_function();
 
 		$this->assertStringContainsString( 'function aaReadStoredColorScheme', $js );
 		$this->assertStringContainsString( Color_Scheme::STORAGE_KEY, $js );
-		$this->assertStringContainsString( Color_Scheme::LEGACY_FRONTEND_KEY, $js );
-		$this->assertStringContainsString( Color_Scheme::LEGACY_EDITOR_KEY, $js );
-		$this->assertStringContainsString( 'localStorage.setItem', $js );
-		$this->assertStringContainsString( 'localStorage.removeItem', $js );
+		$this->assertStringNotContainsString( 'localStorage.setItem', $js );
+		$this->assertStringNotContainsString( 'localStorage.removeItem', $js );
 	}
 }

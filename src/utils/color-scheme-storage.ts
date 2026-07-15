@@ -2,7 +2,7 @@
  * Shared light/dark color-scheme persistence.
  *
  * One localStorage key for frontend toggle, editor canvas preview, favicon
- * override, and WooPayments appearance — with migration from legacy keys.
+ * override, and WooPayments appearance.
  *
  * Keep key string values in sync with Aggressive_Apparel\Core\Color_Scheme
  * (includes/Core/class-color-scheme.php).
@@ -12,13 +12,6 @@
 
 /** Canonical preference key (frontend + editor). */
 export const COLOR_SCHEME_STORAGE_KEY = 'aggressive-apparel-color-scheme';
-
-/** Legacy frontend key (pre-unification). */
-export const LEGACY_FRONTEND_STORAGE_KEY = 'aggressive-apparel-dark-mode';
-
-/** Legacy editor-only key (pre-unification). */
-export const LEGACY_EDITOR_STORAGE_KEY =
-  'aggressive-apparel-editor-color-scheme';
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -38,42 +31,27 @@ function readKey(key: string): ColorScheme | null {
 }
 
 /**
- * Persist scheme and clear legacy keys so one source of truth remains.
+ * Persist the canonical scheme.
  */
 export function storeColorScheme(mode: ColorScheme): void {
   try {
     localStorage.setItem(COLOR_SCHEME_STORAGE_KEY, mode);
-    localStorage.removeItem(LEGACY_FRONTEND_STORAGE_KEY);
-    localStorage.removeItem(LEGACY_EDITOR_STORAGE_KEY);
   } catch {
     // Private browsing or quota exceeded.
   }
 }
 
 /**
- * Read the active manual preference, migrating legacy keys when found.
+ * Read the active manual preference.
  *
  * Returns null when the user has no manual override (follow system).
  */
 export function getStoredColorScheme(): ColorScheme | null {
-  const current = readKey(COLOR_SCHEME_STORAGE_KEY);
-  if (current) {
-    return current;
-  }
-
-  const legacy =
-    readKey(LEGACY_FRONTEND_STORAGE_KEY) ?? readKey(LEGACY_EDITOR_STORAGE_KEY);
-
-  if (legacy) {
-    storeColorScheme(legacy);
-    return legacy;
-  }
-
-  return null;
+  return readKey(COLOR_SCHEME_STORAGE_KEY);
 }
 
 /**
- * Whether a manual preference is stored (canonical or legacy).
+ * Whether a manual preference is stored.
  */
 export function hasStoredColorScheme(): boolean {
   return getStoredColorScheme() !== null;

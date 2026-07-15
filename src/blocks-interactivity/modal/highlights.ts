@@ -36,9 +36,6 @@ interface HighlightData {
   resizeObserver: ResizeObserver | null;
 }
 
-// Track current highlights for cleanup.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let currentHighlight: HighlightInfo | null = null;
 let highlightTimer: ReturnType<typeof setInterval> | null = null;
 
 // Track which elements have been highlighted so we can clean them up precisely.
@@ -400,9 +397,6 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
   } catch (error) {
     Debug.add(`Error in final cleanup pass: ${(error as Error).message}`, true);
   }
-
-  // Reset the current highlight.
-  currentHighlight = null;
 };
 
 // For convenience, create an alias for cleanupAllHighlights.
@@ -472,9 +466,6 @@ export const highlightModalTrigger = (
       const highlightInfo = createDirectHighlight(targetElement, modalId);
 
       if (highlightInfo) {
-        // Store for cleanup.
-        currentHighlight = highlightInfo;
-
         // Track which elements were highlighted in this session.
         if (targetElement) {
           highlightedElements.add(targetElement);
@@ -498,9 +489,6 @@ export const highlightModalTrigger = (
     const highlightInfo = createDirectHighlight(triggerElement, modalId);
 
     if (highlightInfo) {
-      // Store for cleanup.
-      currentHighlight = highlightInfo;
-
       // Track the element.
       highlightedElements.add(triggerElement);
 

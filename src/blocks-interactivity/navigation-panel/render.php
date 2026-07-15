@@ -144,9 +144,15 @@ $panel_footer_classes = '';
 $panel_footer_style   = '';
 
 if ( ! empty( $content ) ) {
-	$dom     = new DOMDocument();
-	$wrapped = '<div id="aa-nav-panel-parse-root">' . $content . '</div>';
-	@$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+	$dom                    = new DOMDocument();
+	$wrapped                = '<div id="aa-nav-panel-parse-root">' . $content . '</div>';
+	$previous_libxml_errors = libxml_use_internal_errors( true );
+	try {
+		$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+	} finally {
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous_libxml_errors );
+	}
 
 	$root = $dom->getElementById( 'aa-nav-panel-parse-root' );
 	if ( $root ) {

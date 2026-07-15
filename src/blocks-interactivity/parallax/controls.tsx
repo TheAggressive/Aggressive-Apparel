@@ -104,8 +104,13 @@ const withParallaxControls = createHigherOrderComponent(
             aggressiveApparelParallax: undefined,
           });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [isInsideParallax, isExcluded, props.clientId, updateBlockAttributes]);
+      }, [
+        isInsideParallax,
+        isExcluded,
+        props.attributes,
+        props.clientId,
+        updateBlockAttributes,
+      ]);
 
       // Only show parallax controls if the block is inside a parallax container
       // and has the parallax attributes

@@ -31,6 +31,5 @@ export function stubElementScrollTo(options?: {
 
 /** Remove the scrollTo stub installed by {@link stubElementScrollTo}. */
 export function restoreElementScrollTo(): void {
-  // @ts-expect-error — restore jsdom's missing scrollTo.
-  delete HTMLElement.prototype.scrollTo;
+  Reflect.deleteProperty(HTMLElement.prototype, 'scrollTo');
 }

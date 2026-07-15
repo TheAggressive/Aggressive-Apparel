@@ -76,8 +76,7 @@ export default function Edit({
     if (!submenuId) {
       setAttributes({ submenuId: generateId() });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submenuId]);
+  }, [setAttributes, submenuId]);
 
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-submenu-dropdown${

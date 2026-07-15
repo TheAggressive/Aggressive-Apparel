@@ -115,8 +115,7 @@ export default function Edit({
     if (!submenuId) {
       setAttributes({ submenuId: generateId() });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submenuId]);
+  }, [setAttributes, submenuId]);
 
   const blockProps = useBlockProps({
     ref: megaRef,

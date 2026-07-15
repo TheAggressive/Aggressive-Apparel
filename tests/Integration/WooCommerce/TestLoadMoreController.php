@@ -12,6 +12,7 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 use Aggressive_Apparel\WooCommerce\Catalog_Cache_Version;
 use Aggressive_Apparel\WooCommerce\Load_More_Controller;
 use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
+use Aggressive_Apparel\WooCommerce\Product_Fragment_Renderer;
 use Aggressive_Apparel\WooCommerce\Rendered_Product_Cache;
 use Aggressive_Apparel\WooCommerce\Sale_Category;
 use WP_REST_Request;
@@ -375,6 +376,109 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		update_option( 'aa_pf_facets_version', (int) get_option( 'aa_pf_facets_version', 1 ) + 1, false );
 		$this->assertNotSame( $key, $cache->key( array( 'paged' => 1 ), $block, false ) );
 		remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+	}
+
+	/** Persistent caching remains safe before WooCommerce creates a customer. */
+	public function test_rendered_response_cache_handles_missing_customer(): void {
+		$woocommerce           = \WC();
+		$original_customer     = $woocommerce->customer;
+		$woocommerce->customer = null;
+		$observed_context      = null;
+		$observe_context       = static function ( array $context ) use ( &$observed_context ): array {
+			$observed_context = $context;
+			return $context;
+		};
+		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+		add_filter( 'aggressive_apparel_rendered_products_cache_context', $observe_context );
+
+		try {
+			$response = $this->dispatch( array( 'page' => 1, 'per_page' => 1 ) );
+		} finally {
+			remove_filter( 'aggressive_apparel_rendered_products_cache_context', $observe_context );
+			remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+			$woocommerce->customer = $original_customer;
+		}
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertIsArray( $observed_context );
+		$default_location = wc_get_customer_default_location();
+		$this->assertSame( (string) $default_location['country'], $observed_context['country'] );
+		$this->assertSame( (string) $default_location['state'], $observed_context['state'] );
+		$this->assertArrayHasKey( 'postcode', $observed_context );
+		$this->assertArrayHasKey( 'city', $observed_context );
+	}
+
+	/** Non-serializable extension context disables caching without key collisions. */
+	public function test_rendered_response_cache_rejects_unencodable_context(): void {
+		$cache           = new Rendered_Product_Cache( new Catalog_Cache_Version() );
+		$invalid_context = static function ( array $context ): array {
+			$context['invalid_number'] = NAN;
+			return $context;
+		};
+		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+		add_filter( 'aggressive_apparel_rendered_products_cache_context', $invalid_context );
+
+		try {
+			$key = $cache->key( array( 'paged' => 1 ), array( 'blockName' => 'woocommerce/product-collection' ), false );
+		} finally {
+			remove_filter( 'aggressive_apparel_rendered_products_cache_context', $invalid_context );
+			remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+		}
+
+		$this->assertSame( '', $key );
+	}
+
+	/** A failed regeneration can release its cache lock immediately. */
+	public function test_rendered_response_cache_lock_can_be_released(): void {
+		$cache = new Rendered_Product_Cache( new Catalog_Cache_Version() );
+		$key   = 'test-lock-' . wp_generate_uuid4();
+
+		$this->assertTrue( $cache->acquire_lock( $key ) );
+		$this->assertFalse( $cache->acquire_lock( $key ) );
+		$cache->release_lock( $key, true );
+		$this->assertTrue( $cache->acquire_lock( $key ) );
+		$cache->release_lock( $key, true );
+	}
+
+	/** Fragment extraction distinguishes a missing wrapper from an empty list. */
+	public function test_fragment_extraction_reports_missing_product_template(): void {
+		$renderer = new Product_Fragment_Renderer();
+
+		$this->assertNull( $renderer->extract_template_items( '<div>No product list</div>' ) );
+		$this->assertSame( '', $renderer->extract_template_items( '<ul class="wc-block-product-template"></ul>' ) );
+		$this->assertSame(
+			'<li><ul><li>Nested item</li></ul></li>',
+			$renderer->extract_template_items( '<ul class="wc-block-product-template"><li><ul><li>Nested item</li></ul></li></ul>' )
+		);
+	}
+
+	/** Malformed template output becomes an observable REST error, not empty data. */
+	public function test_missing_product_template_wrapper_returns_observable_error(): void {
+		$this->create_product( 31.0 );
+		$slug = 'missing-product-list-' . wp_generate_password( 6, false );
+		$this->create_block_template(
+			$slug,
+			'<!-- wp:woocommerce/product-collection {"query":{"inherit":true}} -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:paragraph --><p>Invalid collection structure</p><!-- /wp:paragraph -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$reported = null;
+		$listener = static function ( \Throwable $error ) use ( &$reported ): void {
+			$reported = $error;
+		};
+		add_action( 'aggressive_apparel_catalog_render_error', $listener );
+
+		try {
+			$response = $this->dispatch( array( 'template' => $slug ) );
+		} finally {
+			remove_action( 'aggressive_apparel_catalog_render_error', $listener );
+		}
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'catalog_render_failed', $response->get_data()['code'] );
+		$this->assertInstanceOf( \UnexpectedValueException::class, $reported );
 	}
 
 	/** Identical public render requests are served from the fragment cache. */

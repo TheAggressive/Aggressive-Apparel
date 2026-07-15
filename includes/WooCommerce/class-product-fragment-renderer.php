@@ -28,6 +28,7 @@ final class Product_Fragment_Renderer {
 	 * @param array<string, mixed> $collection_block Parsed Product Collection block.
 	 * @param \WP_Query            $query            Query with this page's products.
 	 * @return Rendered_Product_Fragment
+	 * @throws \UnexpectedValueException When the block cannot be fingerprinted or does not render a Product Template list.
 	 */
 	public function render( array $collection_block, \WP_Query $query ): Rendered_Product_Fragment {
 		global $wp_query;
@@ -40,11 +41,12 @@ final class Product_Fragment_Renderer {
 		}
 		$collection_block['attrs']['query']['inherit'] = true;
 
-		$saved_query = $wp_query;
-		$fingerprint = hash(
-			'sha256',
-			(string) wp_json_encode( array( get_stylesheet(), AGGRESSIVE_APPAREL_VERSION, get_bloginfo( 'version' ), $collection_block ) )
-		);
+		$saved_query         = $wp_query;
+		$fingerprint_payload = wp_json_encode( array( get_stylesheet(), AGGRESSIVE_APPAREL_VERSION, get_bloginfo( 'version' ), $collection_block ) );
+		if ( ! is_string( $fingerprint_payload ) ) {
+			throw new \UnexpectedValueException( 'Unable to encode the Product Collection style fingerprint.' );
+		}
+		$fingerprint = hash( 'sha256', $fingerprint_payload );
 
 		/**
 		 * CSP nonce applied to dynamic style elements installed by the client.
@@ -73,10 +75,12 @@ final class Product_Fragment_Renderer {
 			wp_reset_postdata();
 		}
 
-		return new Rendered_Product_Fragment(
-			$this->extract_template_items( $rendered ),
-			$collector->assets()
-		);
+		$items = $this->extract_template_items( $rendered );
+		if ( null === $items ) {
+			throw new \UnexpectedValueException( 'Rendered Product Collection did not contain a Product Template list.' );
+		}
+
+		return new Rendered_Product_Fragment( $items, $collector->assets() );
 	}
 
 	/**
@@ -86,11 +90,11 @@ final class Product_Fragment_Renderer {
 	 * the template's closing tag. String parsing preserves SVG attribute casing.
 	 *
 	 * @param string $html Rendered Product Collection HTML.
-	 * @return string
+	 * @return ?string Card markup, or null when the expected wrapper is absent.
 	 */
-	private function extract_template_items( string $html ): string {
+	public function extract_template_items( string $html ): ?string {
 		if ( ! preg_match( '/<ul\b[^>]*\bwc-block-product-template\b[^>]*>/', $html, $match, PREG_OFFSET_CAPTURE ) ) {
-			return '';
+			return null;
 		}
 
 		$inner_start = $match[0][1] + strlen( $match[0][0] );
@@ -118,6 +122,6 @@ final class Product_Fragment_Renderer {
 			}
 		}
 
-		return '';
+		return null;
 	}
 }

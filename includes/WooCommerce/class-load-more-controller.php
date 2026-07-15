@@ -298,45 +298,105 @@ final class Load_More_Controller {
 		 */
 		$query_args = (array) apply_filters( 'aggressive_apparel_load_more_query_args', $query_args, $collection_block, $request );
 
-		$cache_key = $this->response_cache->key( $query_args, $collection_block, $with_facets );
-		$cached    = $this->response_cache->fresh( $cache_key );
-		if ( null !== $cached ) {
-			return new \WP_REST_Response( $cached );
-		}
+		$cache_key = '';
+		$has_lock  = false;
 
-		$has_lock = $this->response_cache->acquire_lock( $cache_key );
-		if ( '' !== $cache_key && ! $has_lock ) {
-			$stale = $this->response_cache->stale( $cache_key );
-			if ( null !== $stale ) {
-				return new \WP_REST_Response( $stale );
+		try {
+			$cache_key = $this->response_cache->key( $query_args, $collection_block, $with_facets );
+			$cached    = $this->response_cache->fresh( $cache_key );
+			if ( null !== $cached ) {
+				return new \WP_REST_Response( $cached );
 			}
-		}
 
-		$query = $this->queries->run( $query_args );
-		if ( ! $query->have_posts() && $page > 1 ) {
-			// Empty offset pages do not populate FOUND_ROWS. Count once with a
-			// bounded one-row query so totals remain accurate out of range.
-			$count_args                   = $query_args;
-			$count_args['posts_per_page'] = 1;
-			$count_args['paged']          = 1;
-			$count_args['offset']         = 0;
-			$count_args['fields']         = 'ids';
-			$count_query                  = $this->queries->run( $count_args );
-			$query->found_posts           = $count_query->found_posts;
-		}
-		$totals = $this->queries->totals( $query, $query_args, $per_page );
+			$has_lock = $this->response_cache->acquire_lock( $cache_key );
+			if ( '' !== $cache_key && ! $has_lock ) {
+				$stale = $this->response_cache->stale( $cache_key );
+				if ( null !== $stale ) {
+					return new \WP_REST_Response( $stale );
+				}
+			}
 
-		if ( ! $query->have_posts() ) {
-			$data = $this->response_data( '', array(), $totals, $with_facets, $filters, $taxonomy, $term );
+			$query = $this->queries->run( $query_args );
+			if ( ! $query->have_posts() && $page > 1 ) {
+				// Empty offset pages do not populate FOUND_ROWS. Count once with a
+				// bounded one-row query so totals remain accurate out of range.
+				$count_args                   = $query_args;
+				$count_args['posts_per_page'] = 1;
+				$count_args['paged']          = 1;
+				$count_args['offset']         = 0;
+				$count_args['fields']         = 'ids';
+				$count_query                  = $this->queries->run( $count_args );
+				$query->found_posts           = $count_query->found_posts;
+			}
+			$totals = $this->queries->totals( $query, $query_args, $per_page );
+
+			if ( ! $query->have_posts() ) {
+				$data = $this->response_data( '', array(), $totals, $with_facets, $filters, $taxonomy, $term );
+				$this->response_cache->store( $cache_key, $data, $has_lock );
+				return new \WP_REST_Response( $data );
+			}
+
+			$rendered = $this->fragments->render( $collection_block, $query );
+			$data     = $this->response_data( $rendered->html(), $rendered->styles(), $totals, $with_facets, $filters, $taxonomy, $term );
 			$this->response_cache->store( $cache_key, $data, $has_lock );
+
 			return new \WP_REST_Response( $data );
+		} catch ( \Throwable $error ) {
+			$this->response_cache->release_lock( $cache_key, $has_lock );
+			$this->log_catalog_error( $error, $request, $query_args, $template_slug, $page, $orderby, $filters );
+
+			return new \WP_REST_Response(
+				array(
+					'code'    => 'catalog_render_failed',
+					'message' => __( 'Unable to load product results.', 'aggressive-apparel' ),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Report a catalog-generation failure without exposing details to shoppers.
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \Throwable           $error         Failure being reported.
+	 * @param \WP_REST_Request     $request       Current REST request.
+	 * @param array<string, mixed> $query_args    Final bounded query arguments.
+	 * @param string               $template_slug Resolved template slug.
+	 * @param int                  $page          Requested page.
+	 * @param string               $orderby       Requested sort order.
+	 * @param array<string, mixed> $filters       Active product filters.
+	 * @return void
+	 */
+	private function log_catalog_error( \Throwable $error, \WP_REST_Request $request, array $query_args, string $template_slug, int $page, string $orderby, array $filters ): void {
+		/**
+		 * Fires when dynamic catalog generation fails.
+		 *
+		 * Logging integrations can subscribe without replacing the endpoint.
+		 *
+		 * @param \Throwable            $error      Failure being reported.
+		 * @param \WP_REST_Request      $request    Current REST request.
+		 * @param array<string, mixed>  $query_args Final bounded query arguments.
+		 */
+		do_action( 'aggressive_apparel_catalog_render_error', $error, $request, $query_args );
+
+		if ( ! function_exists( 'wc_get_logger' ) ) {
+			return;
 		}
 
-		$rendered = $this->fragments->render( $collection_block, $query );
-		$data     = $this->response_data( $rendered->html(), $rendered->styles(), $totals, $with_facets, $filters, $taxonomy, $term );
-		$this->response_cache->store( $cache_key, $data, $has_lock );
-
-		return new \WP_REST_Response( $data );
+		$filter_json      = wp_json_encode( $filters );
+		$filter_signature = is_string( $filter_json ) ? hash( 'sha256', $filter_json ) : 'unavailable';
+		\wc_get_logger()->error(
+			'Dynamic catalog generation failed: ' . $error->getMessage(),
+			array(
+				'source'           => 'aggressive-apparel-catalog',
+				'exception'        => get_class( $error ),
+				'template'         => $template_slug,
+				'page'             => $page,
+				'orderby'          => $orderby,
+				'filter_signature' => $filter_signature,
+			)
+		);
 	}
 
 	/**

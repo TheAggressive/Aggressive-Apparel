@@ -64,12 +64,14 @@ final class Rendered_Product_Cache {
 			return '';
 		}
 
-		$customer = \WC()->customer;
+		$location = $this->taxable_location();
 		$context  = array(
 			'locale'       => determine_locale(),
 			'currency'     => function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : '',
-			'country'      => $customer->get_billing_country(),
-			'state'        => $customer->get_billing_state(),
+			'country'      => $location['country'],
+			'state'        => $location['state'],
+			'postcode'     => $location['postcode'],
+			'city'         => $location['city'],
 			'prices_taxed' => function_exists( 'wc_prices_include_tax' ) ? \wc_prices_include_tax() : false,
 		);
 
@@ -93,7 +95,51 @@ final class Rendered_Product_Cache {
 			'context'     => $context,
 		);
 
-		return hash( 'sha256', (string) wp_json_encode( $payload ) );
+		$encoded = wp_json_encode( $payload );
+		if ( ! is_string( $encoded ) ) {
+			// A third-party context filter may return a non-serializable value.
+			// Disable caching rather than collapsing it into a shared empty hash.
+			return '';
+		}
+
+		return hash( 'sha256', $encoded );
+	}
+
+	/**
+	 * Resolve the location that can affect public product-card tax display.
+	 *
+	 * WooCommerce does not guarantee that its customer object exists during an
+	 * anonymous REST request. Use the native configured/geolocated default when
+	 * the session customer has not been initialized.
+	 *
+	 * @return array{country:string,state:string,postcode:string,city:string}
+	 */
+	private function taxable_location(): array {
+		$location    = array(
+			'country'  => '',
+			'state'    => '',
+			'postcode' => '',
+			'city'     => '',
+		);
+		$woocommerce = function_exists( 'WC' ) ? \WC() : null;
+		$customer    = is_object( $woocommerce ) ? $woocommerce->customer : null;
+
+		if ( $customer instanceof \WC_Customer ) {
+			$taxable              = (array) $customer->get_taxable_address();
+			$location['country']  = sanitize_text_field( (string) ( $taxable[0] ?? '' ) );
+			$location['state']    = sanitize_text_field( (string) ( $taxable[1] ?? '' ) );
+			$location['postcode'] = sanitize_text_field( (string) ( $taxable[2] ?? '' ) );
+			$location['city']     = sanitize_text_field( (string) ( $taxable[3] ?? '' ) );
+			return $location;
+		}
+
+		if ( function_exists( 'wc_get_customer_default_location' ) ) {
+			$default             = (array) \wc_get_customer_default_location();
+			$location['country'] = sanitize_text_field( (string) ( $default['country'] ?? '' ) );
+			$location['state']   = sanitize_text_field( (string) ( $default['state'] ?? '' ) );
+		}
+
+		return $location;
 	}
 
 	/**
@@ -143,7 +189,18 @@ final class Rendered_Product_Cache {
 
 		wp_cache_set( $key, $data, self::GROUP, 300 );
 		wp_cache_set( $key . ':stale', $data, self::GROUP, 3600 );
-		if ( $has_lock ) {
+		$this->release_lock( $key, $has_lock );
+	}
+
+	/**
+	 * Release a regeneration lock owned by the current request.
+	 *
+	 * @param string $key      Cache key.
+	 * @param bool   $has_lock Whether this request acquired the lock.
+	 * @return void
+	 */
+	public function release_lock( string $key, bool $has_lock ): void {
+		if ( '' !== $key && $has_lock ) {
 			wp_cache_delete( $key . ':lock', self::GROUP );
 		}
 	}

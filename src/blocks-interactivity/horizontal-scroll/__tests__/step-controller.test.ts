@@ -156,9 +156,10 @@ describe('StepController', () => {
     ref.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
 
-    advance(700);
+    advance(800);
     expect(scrollY).toBeCloseTo(2000, 0);
     expect(presentation.announcements).toEqual([1]);
+    expect(ref.dataset.aaHscrollStepState).toBe('ready');
     controller.destroy();
   });
 
@@ -168,6 +169,7 @@ describe('StepController', () => {
 
     ref.dispatchEvent(wheel(120));
     advance(100); // mid-glide
+    expect(ref.dataset.aaHscrollStepState).toBe('locked');
 
     const during = wheel(120);
     ref.dispatchEvent(during);
@@ -240,6 +242,7 @@ describe('StepController', () => {
     setScrollY(1000);
     const { controller, ref, presentation } = mountController();
     controller.destroy();
+    expect(ref.hasAttribute('data-aa-hscroll-step-state')).toBe(false);
 
     const event = wheel(120);
     ref.dispatchEvent(event);

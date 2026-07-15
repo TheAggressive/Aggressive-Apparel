@@ -72,6 +72,7 @@ export class StepController implements Controller {
     this.geometry = geometry;
     this.settledIndex = this.nearestIndex();
     this.insideRange = this.isInRange();
+    this.reflectLockState();
 
     const { signal } = this.abortController;
 
@@ -161,6 +162,7 @@ export class StepController implements Controller {
     window.cancelAnimationFrame(this.renderFrame);
     window.cancelAnimationFrame(this.tweenFrame);
     window.clearTimeout(this.cooldownTimer);
+    this.elements.ref.removeAttribute('data-aa-hscroll-step-state');
   };
 
   private isInRange = (): boolean => {
@@ -281,7 +283,7 @@ export class StepController implements Controller {
     const distance = to - from;
 
     this.animating = true;
-    this.locked = true;
+    this.setLocked(true);
     window.cancelAnimationFrame(this.tweenFrame);
     window.clearTimeout(this.cooldownTimer);
 
@@ -315,7 +317,7 @@ export class StepController implements Controller {
     // Hold the lock through a brief cooldown so trailing momentum is ignored.
     window.clearTimeout(this.cooldownTimer);
     this.cooldownTimer = window.setTimeout(() => {
-      this.locked = false;
+      this.setLocked(false);
     }, STEP_COOLDOWN_MS);
   };
 
@@ -325,7 +327,19 @@ export class StepController implements Controller {
     this.tweenFrame = 0;
     this.cooldownTimer = 0;
     this.animating = false;
-    this.locked = false;
+    this.setLocked(false);
+  };
+
+  /** Keep the controller's input readiness observable for diagnostics and tests. */
+  private setLocked = (locked: boolean): void => {
+    this.locked = locked;
+    this.reflectLockState();
+  };
+
+  private reflectLockState = (): void => {
+    this.elements.ref.dataset.aaHscrollStepState = this.locked
+      ? 'locked'
+      : 'ready';
   };
 
   private scheduleRender = (): void => {

@@ -115,6 +115,10 @@ test.describe('Horizontal Scroll — front end', () => {
     const top = await rangeTop(page);
     await page.evaluate(y => window.scrollTo(0, y), top);
     await expect(live).toHaveText(/Slide 1 of 4/, { timeout: 3000 });
+    await expect(section).toHaveAttribute(
+      'data-aa-hscroll-step-state',
+      'ready'
+    );
 
     // Position the cursor over the pinned panel so wheel events land on it.
     await page.mouse.move(640, 400);
@@ -122,6 +126,10 @@ test.describe('Horizontal Scroll — front end', () => {
     // One wheel notch down → advance one slide.
     await page.mouse.wheel(0, 140);
     await expect(live).toHaveText(/Slide 2 of 4/, { timeout: 3000 });
+    await expect(section).toHaveAttribute(
+      'data-aa-hscroll-step-state',
+      'ready'
+    );
 
     // One wheel notch up → step back one slide.
     await page.mouse.wheel(0, -140);

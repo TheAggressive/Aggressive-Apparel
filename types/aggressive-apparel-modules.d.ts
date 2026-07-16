@@ -60,6 +60,7 @@ declare module '@aggressive-apparel/helpers' {
   ): void;
   export function pruneProductGrid(grid: HTMLElement, perPage: number): void;
   export function clearProductGridSpacer(grid: HTMLElement | null): void;
+  export const PRODUCT_GRID_MAX_PAGES: number;
 }
 
 declare module '@aggressive-apparel/scroll-lock' {

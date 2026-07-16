@@ -84,9 +84,18 @@ let prefetchController: AbortController | null = null;
 /** Cache of pre-fetched rendered pages keyed by cursor token. */
 const prefetchCache = new Map<string, RenderedEntry>();
 
+/** In-flight prefetch promise so loadSsrPage can adopt it instead of double-fetching. */
+let inflightPrefetch: {
+  cursor: string;
+  promise: Promise<RenderedEntry | null>;
+} | null = null;
+
 let observer: IntersectionObserver | null = null;
 let lastFetchAt = 0;
 let prefetchArmed = false;
+
+/** Matches the IntersectionObserver rootMargin used for infinite scroll. */
+const SENTINEL_ROOT_MARGIN_PX = 400;
 
 /** Elements that have already run callbacks.init (soft-nav safe). */
 const initializedRoots = new WeakSet<Element>();
@@ -225,6 +234,7 @@ function handleFiltersChanged(): void {
     prefetchController.abort();
     prefetchController = null;
   }
+  inflightPrefetch = null;
   const grid = document.querySelector<HTMLElement>(
     '.wp-block-woocommerce-product-template'
   );
@@ -320,29 +330,41 @@ async function prefetchNextPage(): Promise<void> {
   if (state.filtersActive || state.allLoaded || !state.nextCursor) return;
 
   const cursor = state.nextCursor;
-  if (prefetchCache.has(cursor)) return;
+  if (prefetchCache.has(cursor) || inflightPrefetch?.cursor === cursor) return;
 
   if (prefetchController) prefetchController.abort();
   prefetchController = new AbortController();
+  const signal = prefetchController.signal;
 
-  try {
-    const res = await fetch(buildUrl(state.currentPage + 1, cursor), {
-      signal: prefetchController.signal,
-      priority: 'low',
-      headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
-    } as RequestInit);
+  const promise = (async (): Promise<RenderedEntry | null> => {
+    try {
+      const res = await fetch(buildUrl(state.currentPage + 1, cursor), {
+        signal,
+        priority: 'low',
+        headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
+      } as RequestInit);
 
-    if (!res.ok) return;
+      if (!res.ok) return null;
 
-    const data = (await res.json()) as RenderedEntry;
-    prefetchCache.set(cursor, data);
-  } catch {
-    // Silently discard — loadSsrPage will fetch again when needed.
-  }
+      const data = (await res.json()) as RenderedEntry;
+      prefetchCache.set(cursor, data);
+      return data;
+    } catch {
+      // Silently discard — loadSsrPage will fetch again when needed.
+      return null;
+    } finally {
+      if (inflightPrefetch?.cursor === cursor) {
+        inflightPrefetch = null;
+      }
+    }
+  })();
+
+  inflightPrefetch = { cursor, promise };
+  await promise;
 }
 
 /**
- * Fetch (or serve from cache) a rendered page and insert it into the grid.
+ * Fetch (or serve from cache / in-flight prefetch) a rendered page and insert it.
  */
 function loadSsrPage(page: number, cursor: string): void {
   const cached = prefetchCache.get(cursor);
@@ -352,6 +374,29 @@ function loadSsrPage(page: number, cursor: string): void {
     return;
   }
 
+  if (inflightPrefetch?.cursor === cursor) {
+    inflightPrefetch.promise
+      .then(data => {
+        if (data) {
+          prefetchCache.delete(cursor);
+          applyRenderedPage(page, data);
+          return;
+        }
+        fetchRenderedPage(page, cursor);
+      })
+      .catch(() => {
+        fetchRenderedPage(page, cursor);
+      });
+    return;
+  }
+
+  fetchRenderedPage(page, cursor);
+}
+
+/**
+ * Network fetch for a rendered page (used when prefetch is unavailable).
+ */
+function fetchRenderedPage(page: number, cursor: string): void {
   if (abortController) abortController.abort();
   abortController = new AbortController();
 
@@ -432,6 +477,56 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   state.announcement = state.loadedFormat.replace('%d', String(count));
 
   prefetchNextPage();
+
+  // IntersectionObserver only re-fires on edge transitions. After appending
+  // cards the sentinel often stays inside rootMargin, so chain another load
+  // when it is still near the viewport (fixes mobile stalls at ~16 of N).
+  requestAnimationFrame(() => {
+    continueInfiniteScrollIfNeeded();
+  });
+}
+
+/**
+ * Whether the infinite-scroll sentinel is within the observer's root margin.
+ */
+function isSentinelNearViewport(): boolean {
+  const sentinel = document.querySelector<HTMLElement>(
+    '.aa-load-more__sentinel'
+  );
+  if (!sentinel || sentinel.hasAttribute('hidden')) {
+    return false;
+  }
+
+  const rect = sentinel.getBoundingClientRect();
+  const viewport = window.innerHeight || 0;
+  return rect.top <= viewport + SENTINEL_ROOT_MARGIN_PX;
+}
+
+/**
+ * Continue loading while the sentinel remains near the viewport.
+ */
+function continueInfiniteScrollIfNeeded(): void {
+  if (
+    state.mode !== 'infinite_scroll' ||
+    state.isLoading ||
+    state.allLoaded ||
+    !state.nextCursor
+  ) {
+    return;
+  }
+
+  if (!isSentinelNearViewport()) {
+    return;
+  }
+
+  if (Date.now() - lastFetchAt < FETCH_COOLDOWN_MS) {
+    window.setTimeout(() => {
+      continueInfiniteScrollIfNeeded();
+    }, FETCH_COOLDOWN_MS);
+    return;
+  }
+
+  loadNextPage();
 }
 
 /** Stable identity used to make dynamic card insertion idempotent. */
@@ -478,7 +573,7 @@ function setupIntersectionObserver(): void {
       }
       loadNextPage();
     },
-    { rootMargin: '400px 0px' }
+    { rootMargin: `${SENTINEL_ROOT_MARGIN_PX}px 0px` }
   );
 
   observer.observe(sentinel);
@@ -486,11 +581,6 @@ function setupIntersectionObserver(): void {
   // If the sentinel is already near the viewport (short catalogues), the
   // observer may not deliver an immediate callback — kick one check after layout.
   requestAnimationFrame(() => {
-    if (state.isLoading || state.allLoaded || !state.nextCursor) return;
-    const rect = sentinel.getBoundingClientRect();
-    const viewport = window.innerHeight || 0;
-    if (rect.top <= viewport + 400) {
-      loadNextPage();
-    }
+    continueInfiniteScrollIfNeeded();
   });
 }

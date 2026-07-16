@@ -701,7 +701,7 @@ class Icons_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'fill="none"', $outline );
 		$this->assertStringContainsString( 'stroke="currentColor"', $outline );
 		$this->assertStringContainsString( 'stroke-width="1.25"', $outline );
-		$this->assertStringContainsString( 'viewBox="1.75 2.25 20.5 20.5"', $outline );
+		$this->assertStringContainsString( 'viewBox="0 0 24 24"', $outline );
 	}
 
 	/**

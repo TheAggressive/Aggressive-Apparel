@@ -180,8 +180,14 @@ export function notifyCardsRendered(container: HTMLElement | null): void {
   );
 }
 
-/** How many product pages to retain in the DOM during infinite scroll. */
-export const PRODUCT_GRID_MAX_PAGES = 3;
+/**
+ * How many product pages to retain in the DOM during infinite scroll.
+ *
+ * Keep this high enough that typical shop catalogues (≈50–100 products) stay
+ * fully browsable when scrolling back up. Pruning only kicks in for very long
+ * sessions so memory stays bounded.
+ */
+export const PRODUCT_GRID_MAX_PAGES = 12;
 
 const GRID_SPACER_CLASS = 'aa-product-grid__spacer';
 

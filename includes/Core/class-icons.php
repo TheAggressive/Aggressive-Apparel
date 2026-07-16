@@ -57,14 +57,10 @@ class Icons {
 	 *
 	 * Sourced from the classic 24×24 heart path with the legacy
 	 * `translate(0 -1028.4)` transform baked in. No hardcoded fill —
-	 * color via `currentColor` / CSS.
+	 * color via `currentColor` / CSS. Uses the same viewBox as other
+	 * UI icons so glyph box size matches cart, search, etc.
 	 */
 	private const HEART_PATH = 'm7 3c-1.5355 0-3.0784 0.5-4.25 1.7-2.3431 2.4-2.2788 6.1 0 8.5l9.25 9.8 9.25-9.8c2.279-2.4 2.343-6.1 0-8.5-2.343-2.3-6.157-2.3-8.5 0l-0.75 0.8-0.75-0.8c-1.172-1.2-2.7145-1.7-4.25-1.7z';
-
-	/**
-	 * Optical crop so the silhouette fills the glyph box at small sizes.
-	 */
-	private const HEART_VIEWBOX = '1.75 2.25 20.5 20.5';
 
 	/**
 	 * Heart path data for dual-layer wishlist markup and shared consumers.
@@ -76,12 +72,12 @@ class Icons {
 	}
 
 	/**
-	 * Cropped heart viewBox matching filled + outline glyphs.
+	 * Standard 24×24 viewBox matching filled + outline glyphs.
 	 *
 	 * @return string
 	 */
 	public static function heart_viewbox(): string {
-		return self::HEART_VIEWBOX;
+		return self::DEFAULT_VIEWBOX;
 	}
 
 	/**
@@ -158,7 +154,7 @@ class Icons {
 		'cart'          => 'M17 18a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2M1 2h3.27l.94 2H20a1 1 0 0 1 1 1c0 .17-.05.34-.12.5l-3.58 6.47c-.34.61-1 1.03-1.75 1.03H8.1l-.9 1.63-.03.12a.25.25 0 0 0 .25.25H19v2H7a2 2 0 0 1-2-2c0-.35.09-.68.24-.96l1.36-2.45L3 4H1V2m6 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m9-7 2.78-5H6.14l2.36 5H16z',
 		'user'          => 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
 		'heart'         => array(
-			'viewBox' => self::HEART_VIEWBOX,
+			'viewBox' => self::DEFAULT_VIEWBOX,
 			'paths'   => array(
 				array(
 					'd' => self::HEART_PATH,
@@ -166,7 +162,7 @@ class Icons {
 			),
 		),
 		'heart-outline' => array(
-			'viewBox' => self::HEART_VIEWBOX,
+			'viewBox' => self::DEFAULT_VIEWBOX,
 			'paths'   => array(
 				array(
 					'd'               => self::HEART_PATH,

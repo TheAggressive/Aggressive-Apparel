@@ -1,3 +1,11 @@
+# [1.158.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.157.1...v1.158.0) (2026-07-16)
+
+
+### Features
+
+* add mens and womens icons as SVG files ([c693597](https://github.com/TheAggressive/Aggressive-Apparel/commit/c6935979257316739d37764d78b5c27bcba519e1))
+* enhance cursor pagination and load more functionality ([00074b3](https://github.com/TheAggressive/Aggressive-Apparel/commit/00074b323773fd5294dd05769b99b039eb845292))
+
 ## [1.157.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.157.0...v1.157.1) (2026-07-16)
 
 

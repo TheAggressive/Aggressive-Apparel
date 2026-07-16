@@ -244,21 +244,77 @@ if ( $hero_autoplay && $hero_pause_hover ) {
 }
 
 /**
- * Tune image loading inside a rendered slide for LCP.
+ * Tune cover slide images for LCP and editor resolution.
  *
  * Slide 1 is the likely LCP element: force eager + fetchpriority="high".
  * Later slides are off-screen at load: force lazy.
  *
- * @param string $html  Rendered cover HTML.
- * @param bool   $first Whether this is the first slide.
+ * Cover background images are locked to the editor `sizeSlug` (default
+ * `full`). WordPress's later `wp_filter_content_tags` pass would otherwise
+ * attach a content-width-capped `sizes` / truncated `srcset`, so the
+ * browser picks a soft candidate while the editor still shows the sharp
+ * `url` attribute. Pre-seeding a single-candidate srcset + `sizes="100vw"`
+ * both serves the chosen file and prevents that rewrite.
+ *
+ * @param string $html        Rendered cover HTML.
+ * @param bool   $first       Whether this is the first slide.
+ * @param array  $cover_attrs Cover block attributes.
  * @return string
  */
-$hero_tune_images = static function ( string $html, bool $first ): string {
+$hero_tune_images = static function ( string $html, bool $first, array $cover_attrs ): string {
 	if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
 		return $html;
 	}
+
+	// Prefer the live attachment URL for sizeSlug so frontend matches the
+	// editor even when saved HTML drifted.
+	$resolved  = null;
+	$id        = ! empty( $cover_attrs['id'] ) ? (int) $cover_attrs['id'] : 0;
+	$size_slug = ! empty( $cover_attrs['sizeSlug'] ) ? (string) $cover_attrs['sizeSlug'] : 'full';
+	if ( $id > 0 ) {
+		$image = wp_get_attachment_image_src( $id, $size_slug );
+		if ( is_array( $image ) && ! empty( $image[0] ) ) {
+			$resolved = array(
+				'url'    => (string) $image[0],
+				'width'  => isset( $image[1] ) ? (int) $image[1] : 0,
+				'height' => isset( $image[2] ) ? (int) $image[2] : 0,
+			);
+		}
+	}
+	if ( null === $resolved && ! empty( $cover_attrs['url'] ) ) {
+		$resolved = array(
+			'url'    => (string) $cover_attrs['url'],
+			'width'  => 0,
+			'height' => 0,
+		);
+	}
+
 	$processor = new \WP_HTML_Tag_Processor( $html );
 	while ( $processor->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+		$class_name  = (string) ( $processor->get_attribute( 'class' ) ?? '' );
+		$is_cover_bg = str_contains( $class_name, 'wp-block-cover__image-background' );
+
+		if ( $is_cover_bg && null !== $resolved ) {
+			$processor->set_attribute( 'src', $resolved['url'] );
+			if ( $resolved['width'] > 0 ) {
+				$processor->set_attribute( 'width', (string) $resolved['width'] );
+			}
+			if ( $resolved['height'] > 0 ) {
+				$processor->set_attribute( 'height', (string) $resolved['height'] );
+			}
+			// Single candidate at the chosen resolution — blocks core from
+			// replacing srcset/sizes with a content_width-capped set.
+			if ( $resolved['width'] > 0 ) {
+				$processor->set_attribute(
+					'srcset',
+					sprintf( '%s %dw', $resolved['url'], $resolved['width'] )
+				);
+			} else {
+				$processor->remove_attribute( 'srcset' );
+			}
+			$processor->set_attribute( 'sizes', '100vw' );
+		}
+
 		if ( $first ) {
 			$processor->remove_attribute( 'loading' );
 			$processor->set_attribute( 'fetchpriority', 'high' );
@@ -334,7 +390,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 					$hero_slide_classes[] = 'aa-hero__slide--motion-' . $hero_variant;
 				}
 				$hero_slide_html = render_block( $hero_slide_block );
-				$hero_slide_html = $hero_tune_images( $hero_slide_html, 0 === $hero_index );
+				$hero_slide_html = $hero_tune_images( $hero_slide_html, 0 === $hero_index, $hero_slide_attrs );
 
 				// Pre-hydration a11y for stacked modes: only slide 1 is reachable.
 				$hero_is_hidden = 'slide' !== $hero_transition && 0 !== $hero_index;

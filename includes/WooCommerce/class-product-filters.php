@@ -295,6 +295,7 @@ class Product_Filters {
 				'currentPage'         => 1,
 				'totalPages'          => 1,
 				'totalProducts'       => 0,
+				'nextCursor'          => '',
 				'products'            => array(),
 				'announcement'        => '',
 				'openDropdown'        => '',

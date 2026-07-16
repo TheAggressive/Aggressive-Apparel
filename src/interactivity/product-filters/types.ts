@@ -55,6 +55,7 @@ export interface RenderedResponse {
   styles?: Array<{ id: string; css: string; nonce?: string }>;
   total_products: number;
   total_pages: number;
+  next_cursor?: string;
   facets?: Facets;
 }
 
@@ -105,6 +106,7 @@ export interface ProductFiltersState {
   currentPage: number;
   totalPages: number;
   totalProducts: number;
+  nextCursor: string;
   isLoading: boolean;
   hasError: boolean;
   isDrawerOpen: boolean;

@@ -76,8 +76,9 @@
 	}
 }
 
-/* Loading spinner appended via ::after. */
-.aggressive-apparel-button.is-loading::after {
+/* Loading spinner appended via ::after.
+ * Load More uses an in-button spinner instead — see .aa-load-more__btn. */
+.aggressive-apparel-button.is-loading:not(.aa-load-more__btn)::after {
 	content: '';
 	display: inline-block;
 	width: 1rem;
@@ -103,7 +104,7 @@
 		transition: none;
 	}
 
-	.aggressive-apparel-button.is-loading::after {
+	.aggressive-apparel-button.is-loading:not(.aa-load-more__btn)::after {
 		animation: none;
 	}
 }

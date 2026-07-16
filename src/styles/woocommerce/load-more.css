@@ -14,35 +14,129 @@
 	color: var(--aa-color-muted-50);
 }
 
-.aa-load-more__btn {
-	padding-inline: 2rem;
-}
-
-/* While loading, the button stays in place (so keyboard focus isn't lost) and
- * shows an in-place spinner with its label hidden. */
-.aa-load-more__btn.is-loading {
+.aa-load-more__btn.aggressive-apparel-button {
 	position: relative;
-	color: transparent;
-	cursor: default;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--aa-button-height-md);
+	height: var(--aa-button-height-md);
+	padding-inline: 2rem;
+	overflow: hidden;
+	transition:
+		background-color var(--aa-duration-normal) var(--aa-ease-default),
+		border-color var(--aa-duration-normal) var(--aa-ease-default),
+		color var(--aa-duration-normal) var(--aa-ease-default);
 }
 
-.aa-load-more__btn.is-loading::after {
-	content: "";
+/* Label stays in flow (locks width/height). Spinner overlays so it never grows the button. */
+.aa-load-more__btn-label {
+	display: block;
+	transform: translateY(0);
+	opacity: 1;
+
+	/* Spinner exits first on unload; label re-enters slightly after. */
+	transition:
+		opacity var(--aa-duration-normal) var(--aa-ease-default) 80ms,
+		transform var(--aa-duration-normal) var(--aa-ease-default) 80ms;
+}
+
+.aa-load-more__btn-spinner {
 	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 1.1rem;
-	height: 1.1rem;
-	margin: -0.55rem 0 0 -0.55rem;
-	border: 2px solid color-mix(in oklch, var(--aa-color-foreground) 25%, transparent);
-	border-top-color: var(--aa-color-accent);
+	inset: 0;
+	display: grid;
+	place-items: center;
+	pointer-events: none;
+	transform: translateY(45%);
+	opacity: 0;
+
+	/* Leaves immediately when loading ends (before label returns). */
+	transition:
+		opacity var(--aa-duration-normal) var(--aa-ease-default),
+		transform var(--aa-duration-normal) var(--aa-ease-default);
+}
+
+.aa-load-more__btn-spinner::before {
+	content: "";
+	width: 1.125rem;
+	height: 1.125rem;
+	border: 2px solid color-mix(in oklch, var(--aa-color-surface) 35%, transparent);
+	border-top-color: var(--aa-color-surface);
 	border-radius: 50%;
 	animation: aa-load-more-spin 0.6s linear infinite;
+	animation-play-state: paused;
+}
+
+/* Loading: label exits up; spinner enters from below. */
+.aa-load-more__btn.is-loading {
+	background-color: var(--aa-color-foreground);
+	border-color: var(--aa-color-foreground);
+	color: var(--aa-color-surface);
+	cursor: default;
+	pointer-events: none;
+	opacity: 1;
+}
+
+.aa-load-more__btn.is-loading .aa-load-more__btn-label {
+	transform: translateY(-45%);
+	opacity: 0;
+	transition-delay: 0ms;
+}
+
+.aa-load-more__btn.is-loading .aa-load-more__btn-spinner {
+	transform: translateY(0);
+	opacity: 1;
+	transition-delay: 80ms;
+}
+
+.aa-load-more__btn.is-loading .aa-load-more__btn-spinner::before {
+	animation-play-state: running;
+}
+
+/* Kill the shared .aggressive-apparel-button.is-loading::after spinner.
+ * Same (0,2,1) specificity loses when buttons.css loads later — beat it. */
+.aa-load-more .aa-load-more__btn.aggressive-apparel-button.is-loading::after {
+	content: none;
+	display: none;
+	width: 0;
+	height: 0;
+	margin: 0;
+	border: 0;
+	animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aa-load-more__btn.is-loading::after {
+	.aa-load-more__btn.aggressive-apparel-button,
+	.aa-load-more__btn-label,
+	.aa-load-more__btn-spinner {
+		transition: none;
+	}
+
+	.aa-load-more__btn-label,
+	.aa-load-more__btn.is-loading .aa-load-more__btn-label {
+		transform: none;
+	}
+
+	.aa-load-more__btn-spinner,
+	.aa-load-more__btn.is-loading .aa-load-more__btn-spinner {
+		transform: none;
+		transition: none;
+	}
+
+	.aa-load-more__btn:not(.is-loading) .aa-load-more__btn-spinner {
+		opacity: 0;
+	}
+
+	.aa-load-more__btn.is-loading .aa-load-more__btn-label {
+		opacity: 0;
+	}
+
+	.aa-load-more__btn.is-loading .aa-load-more__btn-spinner {
+		opacity: 1;
+	}
+
+	.aa-load-more__btn-spinner::before {
 		animation-duration: 1.4s;
 	}
 }

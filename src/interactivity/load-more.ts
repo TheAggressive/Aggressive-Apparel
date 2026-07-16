@@ -2,12 +2,8 @@
  * Load More / Infinite Scroll — Interactivity API Store
  *
  * Replaces standard pagination with a Load More button or automatic
- * infinite scroll via IntersectionObserver. Coordinates with product-filters
- * via custom events when AJAX filtering is active.
- *
- * For SSR mode, pages are fetched from the theme's custom REST endpoint
- * (aggressive-apparel/v1/products/rendered) which runs the full block
- * pipeline server-side — identical markup to the initial page render.
+ * infinite scroll via IntersectionObserver. Continuations use opaque
+ * keyset cursors from the rendered-products endpoint (no deep OFFSET).
  *
  * @package Aggressive_Apparel
  * @since 1.51.0
@@ -20,9 +16,15 @@ import type {
 
 import { store } from '@wordpress/interactivity';
 import {
+  clearProductGridSpacer,
   installBlockSupportStyles,
   notifyCardsRendered,
+  pruneProductGrid,
 } from '@aggressive-apparel/helpers';
+import {
+  resolveContinuationOrderby,
+  shouldHideLoadMoreButton,
+} from './load-more-orderby';
 
 interface LoadMoreState {
   mode: string;
@@ -33,12 +35,14 @@ interface LoadMoreState {
   currentPage: number;
   loadedCount: number;
   perPage: number;
+  orderby: string;
   restBase: string;
   restNonce: string;
   templateSlug: string;
   currentTaxonomy: string;
   currentTerm: string;
   filtersActive: boolean;
+  nextCursor: string;
   announcement: string;
   loadingText: string;
   errorText: string;
@@ -56,6 +60,7 @@ interface ProductsFetchedDetail {
   totalProducts: number;
   append: boolean;
   productsCount: number;
+  nextCursor?: string;
 }
 
 /** Response shape from aggressive-apparel/v1/products/rendered */
@@ -64,6 +69,7 @@ interface RenderedEntry {
   styles?: Array<{ id: string; css: string; nonce?: string }>;
   total_products: number;
   total_pages: number;
+  next_cursor?: string;
 }
 
 interface LoadMoreStore {
@@ -75,18 +81,27 @@ interface LoadMoreStore {
 let abortController: AbortController | null = null;
 let prefetchController: AbortController | null = null;
 
-/** Cache of pre-fetched rendered pages keyed by page number. */
-const prefetchCache = new Map<number, RenderedEntry>();
+/** Cache of pre-fetched rendered pages keyed by cursor token. */
+const prefetchCache = new Map<string, RenderedEntry>();
 
 let observer: IntersectionObserver | null = null;
-let initialized = false;
+let lastFetchAt = 0;
+let prefetchArmed = false;
+
+/** Elements that have already run callbacks.init (soft-nav safe). */
+const initializedRoots = new WeakSet<Element>();
+
+/** Document-level listeners are registered once per module lifetime. */
+let documentListenersBound = false;
+
+const FETCH_COOLDOWN_MS = 400;
 
 const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
     get hideButton(): boolean {
-      // Kept visible (disabled) while loading so keyboard focus isn't lost; the
-      // button shows an in-place spinner via its is-loading class.
-      return state.mode !== 'load_more' || state.allLoaded;
+      // Infinite scroll hides the button; reduced-motion / observer failure
+      // flips mode to `load_more` so the button reappears as a fallback.
+      return shouldHideLoadMoreButton(state.mode, state.allLoaded);
     },
 
     get hideSentinel(): boolean {
@@ -109,15 +124,18 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   actions: {
     loadMore(): void {
-      if (state.isLoading || state.allLoaded) return;
+      if (state.isLoading || state.allLoaded || !state.nextCursor) return;
       loadNextPage();
     },
   },
 
   callbacks: {
     init(): void {
-      if (initialized) return;
-      initialized = true;
+      const root = document.querySelector(
+        '[data-wp-interactive="aggressive-apparel/load-more"]'
+      );
+      if (root && initializedRoots.has(root)) return;
+      if (root) initializedRoots.add(root);
 
       synchronizeInitialGridState();
 
@@ -125,16 +143,20 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
         setupIntersectionObserver();
       }
 
-      if (!state.allLoaded && !state.filtersActive) {
-        setTimeout(prefetchNextPage, 150);
-      }
+      armPrefetchOnScroll();
 
-      document.addEventListener(
-        'aa:products-fetched',
-        handleProductsFetched as EventListener
-      );
-      document.addEventListener('aa:products-fetch-failed', handleFetchFailure);
-      document.addEventListener('aa:filters-changed', handleFiltersChanged);
+      if (!documentListenersBound) {
+        documentListenersBound = true;
+        document.addEventListener(
+          'aa:products-fetched',
+          handleProductsFetched as EventListener
+        );
+        document.addEventListener(
+          'aa:products-fetch-failed',
+          handleFetchFailure
+        );
+        document.addEventListener('aa:filters-changed', handleFiltersChanged);
+      }
     },
   },
 });
@@ -146,7 +168,9 @@ function synchronizeInitialGridState(): void {
   );
   if (!grid) return;
 
-  const renderedCount = grid.querySelectorAll(':scope > li').length;
+  const renderedCount = grid.querySelectorAll(
+    ':scope > li:not(.aa-product-grid__spacer)'
+  ).length;
   if (renderedCount < 1) return;
 
   state.perPage = renderedCount;
@@ -161,12 +185,20 @@ function synchronizeInitialGridState(): void {
  * Handle product-filters fetch completion.
  */
 function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
-  const { page, totalPages, totalProducts, append, productsCount } = e.detail;
+  const { page, totalPages, totalProducts, append, productsCount, nextCursor } =
+    e.detail;
   state.filtersActive = true;
   state.currentPage = page;
   state.totalPages = totalPages;
   state.totalProducts = totalProducts;
-  state.allLoaded = page >= totalPages;
+  // Only overwrite when the filter response includes a cursor field — an
+  // omitted value must not wipe the SSR-seeded continuation token.
+  if (typeof nextCursor === 'string') {
+    state.nextCursor = nextCursor;
+  }
+  state.allLoaded =
+    page >= totalPages ||
+    (typeof nextCursor === 'string' ? nextCursor === '' : state.allLoaded);
   state.loadedCount = append
     ? state.loadedCount + (productsCount || 0)
     : productsCount || 0;
@@ -185,6 +217,7 @@ function handleFiltersChanged(): void {
   }
   state.currentPage = 1;
   state.allLoaded = false;
+  state.nextCursor = '';
   state.filtersActive = true;
   state.isLoading = false;
   prefetchCache.clear();
@@ -192,6 +225,10 @@ function handleFiltersChanged(): void {
     prefetchController.abort();
     prefetchController = null;
   }
+  const grid = document.querySelector<HTMLElement>(
+    '.wp-block-woocommerce-product-template'
+  );
+  clearProductGridSpacer(grid);
 }
 
 /** Release loading state when a coordinated filter/sort request fails. */
@@ -204,35 +241,48 @@ function handleFetchFailure(): void {
  * Load the next page of products.
  */
 function loadNextPage(): void {
+  if (!state.nextCursor || state.isLoading || state.allLoaded) return;
+
   state.isLoading = true;
   // Announce the wait to assistive tech (the spinner itself is aria-hidden).
   state.announcement = state.loadingText;
   const nextPage = state.currentPage + 1;
+  lastFetchAt = Date.now();
 
   if (state.filtersActive) {
     document.dispatchEvent(
-      new CustomEvent('aa:load-more-page', { detail: { page: nextPage } })
+      new CustomEvent('aa:load-more-page', {
+        detail: { page: nextPage, cursor: state.nextCursor },
+      })
     );
     return;
   }
 
-  loadSsrPage(nextPage);
+  loadSsrPage(nextPage, state.nextCursor);
 }
 
 /**
- * Build the REST endpoint URL for the given page, matching current sort/category.
+ * Build the REST endpoint URL for the given page/cursor.
  */
-function buildUrl(page: number): string {
+function buildUrl(page: number, cursor: string): string {
   const params = new URLSearchParams();
   params.set('per_page', String(state.perPage));
   params.set('page', String(page));
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
 
+  // Prefer SSR-seeded orderby over the dropdown's "Default sorting" value so
+  // a menu_order select cannot remount a date-seeded cursor (sparse dedupe).
   const sortSelect = document.querySelector<HTMLSelectElement>(
     '.woocommerce-ordering select, select[name="orderby"]'
   );
-  if (sortSelect?.value) {
-    params.set('orderby', sortSelect.value);
-  }
+  const orderby = resolveContinuationOrderby(
+    state.orderby,
+    sortSelect?.value ?? '',
+    new URLSearchParams(window.location.search).get('orderby') ?? ''
+  );
+  params.set('orderby', orderby);
 
   if (state.currentTaxonomy && state.currentTerm) {
     params.set('taxonomy', state.currentTaxonomy);
@@ -246,21 +296,37 @@ function buildUrl(page: number): string {
   return `${state.restBase}?${params}`;
 }
 
+/** Prefetch only after the shopper shows intent to scroll the catalog. */
+function armPrefetchOnScroll(): void {
+  if (prefetchArmed || state.allLoaded || state.filtersActive) return;
+
+  const arm = (): void => {
+    if (prefetchArmed) return;
+    prefetchArmed = true;
+    window.removeEventListener('scroll', arm, {
+      capture: true,
+    } as EventListenerOptions);
+    prefetchNextPage();
+  };
+
+  window.addEventListener('scroll', arm, { passive: true, once: true });
+}
+
 /**
  * Silently prefetch the next page in the background so it is ready
  * before the IntersectionObserver fires.
  */
 async function prefetchNextPage(): Promise<void> {
-  if (state.filtersActive || state.allLoaded) return;
+  if (state.filtersActive || state.allLoaded || !state.nextCursor) return;
 
-  const nextPage = state.currentPage + 1;
-  if (nextPage > state.totalPages || prefetchCache.has(nextPage)) return;
+  const cursor = state.nextCursor;
+  if (prefetchCache.has(cursor)) return;
 
   if (prefetchController) prefetchController.abort();
   prefetchController = new AbortController();
 
   try {
-    const res = await fetch(buildUrl(nextPage), {
+    const res = await fetch(buildUrl(state.currentPage + 1, cursor), {
       signal: prefetchController.signal,
       priority: 'low',
       headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
@@ -269,7 +335,7 @@ async function prefetchNextPage(): Promise<void> {
     if (!res.ok) return;
 
     const data = (await res.json()) as RenderedEntry;
-    prefetchCache.set(nextPage, data);
+    prefetchCache.set(cursor, data);
   } catch {
     // Silently discard — loadSsrPage will fetch again when needed.
   }
@@ -278,10 +344,10 @@ async function prefetchNextPage(): Promise<void> {
 /**
  * Fetch (or serve from cache) a rendered page and insert it into the grid.
  */
-function loadSsrPage(page: number): void {
-  const cached = prefetchCache.get(page);
+function loadSsrPage(page: number, cursor: string): void {
+  const cached = prefetchCache.get(cursor);
   if (cached) {
-    prefetchCache.delete(page);
+    prefetchCache.delete(cursor);
     applyRenderedPage(page, cached);
     return;
   }
@@ -289,7 +355,7 @@ function loadSsrPage(page: number): void {
   if (abortController) abortController.abort();
   abortController = new AbortController();
 
-  fetch(buildUrl(page), {
+  fetch(buildUrl(page, cursor), {
     signal: abortController.signal,
     headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
   })
@@ -319,6 +385,7 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
     // Empty page (no more products, or gated) — settle the UI cleanly.
     state.isLoading = false;
     state.allLoaded = true;
+    state.nextCursor = '';
     return;
   }
 
@@ -328,7 +395,11 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   const temp = document.createElement('ul');
   temp.innerHTML = data.html;
   const knownKeys = new Set(
-    Array.from(grid.querySelectorAll<HTMLElement>(':scope > li'))
+    Array.from(
+      grid.querySelectorAll<HTMLElement>(
+        ':scope > li:not(.aa-product-grid__spacer)'
+      )
+    )
       .map(productCardKey)
       .filter(Boolean)
   );
@@ -347,6 +418,7 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
 
   if (count > 0) {
     grid.insertAdjacentHTML('beforeend', temp.innerHTML);
+    pruneProductGrid(grid, state.perPage);
     notifyCardsRendered(grid);
   }
 
@@ -354,7 +426,8 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   state.totalPages = data.total_pages;
   state.currentPage = page;
   state.loadedCount += count;
-  state.allLoaded = page >= data.total_pages;
+  state.nextCursor = data.next_cursor || '';
+  state.allLoaded = !state.nextCursor || page >= data.total_pages;
   state.isLoading = false;
   state.announcement = state.loadedFormat.replace('%d', String(count));
 
@@ -385,14 +458,39 @@ function setupIntersectionObserver(): void {
     return;
   }
 
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+
   observer = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0].isIntersecting && !state.isLoading && !state.allLoaded) {
-        loadNextPage();
+      if (
+        !entries[0]?.isIntersecting ||
+        state.isLoading ||
+        state.allLoaded ||
+        !state.nextCursor
+      ) {
+        return;
       }
+      if (Date.now() - lastFetchAt < FETCH_COOLDOWN_MS) {
+        return;
+      }
+      loadNextPage();
     },
-    { rootMargin: '500px' }
+    { rootMargin: '400px 0px' }
   );
 
   observer.observe(sentinel);
+
+  // If the sentinel is already near the viewport (short catalogues), the
+  // observer may not deliver an immediate callback — kick one check after layout.
+  requestAnimationFrame(() => {
+    if (state.isLoading || state.allLoaded || !state.nextCursor) return;
+    const rect = sentinel.getBoundingClientRect();
+    const viewport = window.innerHeight || 0;
+    if (rect.top <= viewport + 400) {
+      loadNextPage();
+    }
+  });
 }

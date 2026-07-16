@@ -180,6 +180,59 @@ export function notifyCardsRendered(container: HTMLElement | null): void {
   );
 }
 
+/** How many product pages to retain in the DOM during infinite scroll. */
+export const PRODUCT_GRID_MAX_PAGES = 3;
+
+const GRID_SPACER_CLASS = 'aa-product-grid__spacer';
+
+/**
+ * Keep only the newest N pages of product cards in the DOM.
+ *
+ * Removed height is accumulated on a leading spacer so scroll position stays
+ * stable while memory and layout cost remain bounded.
+ *
+ * @param grid    Product template list element.
+ * @param perPage Cards per loaded page.
+ */
+export function pruneProductGrid(grid: HTMLElement, perPage: number): void {
+  const maxCards = Math.max(perPage, PRODUCT_GRID_MAX_PAGES * perPage);
+  const cards = Array.from(
+    grid.querySelectorAll<HTMLElement>(`:scope > li:not(.${GRID_SPACER_CLASS})`)
+  );
+  if (cards.length <= maxCards) {
+    return;
+  }
+
+  const removeCount = cards.length - maxCards;
+  let removedHeight = 0;
+  for (let i = 0; i < removeCount; i++) {
+    removedHeight += cards[i].getBoundingClientRect().height;
+    cards[i].remove();
+  }
+
+  let spacer = grid.querySelector<HTMLElement>(
+    `:scope > .${GRID_SPACER_CLASS}`
+  );
+  if (!spacer) {
+    spacer = document.createElement('li');
+    spacer.className = GRID_SPACER_CLASS;
+    spacer.setAttribute('aria-hidden', 'true');
+    grid.prepend(spacer);
+  }
+  const previous = parseFloat(spacer.style.height || '0') || 0;
+  spacer.style.height = `${previous + removedHeight}px`;
+  spacer.style.listStyle = 'none';
+  spacer.style.margin = '0';
+  spacer.style.padding = '0';
+  spacer.style.border = '0';
+  spacer.style.pointerEvents = 'none';
+}
+
+/** Remove the scroll-preserving spacer (filter resets / full grid replace). */
+export function clearProductGridSpacer(grid: HTMLElement | null): void {
+  grid?.querySelector(`:scope > .${GRID_SPACER_CLASS}`)?.remove();
+}
+
 export interface DynamicStyleAsset {
   id: string;
   css: string;

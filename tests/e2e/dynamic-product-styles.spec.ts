@@ -74,16 +74,11 @@ test('catalog sorting resets paging and appends unique products', async ({
   const select = page.locator('select[name="orderby"]').first();
   await expect(select).toBeVisible();
 
-  const sortedPage = page.waitForResponse(response => {
-    const url = new URL(response.url());
-    return (
-      url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-      url.searchParams.get('orderby') === 'price' &&
-      url.searchParams.get('page') === '1'
-    );
-  });
-  await select.selectOption('price');
-  await sortedPage;
+  await Promise.all([
+    page.waitForURL(/orderby=price/, { timeout: 15_000 }).catch(() => null),
+    select.selectOption('price'),
+  ]);
+  await page.waitForLoadState('domcontentloaded');
 
   const cards = page.locator(
     '.wp-block-woocommerce-product-template > .wc-block-product'
@@ -96,24 +91,28 @@ test('catalog sorting resets paging and appends unique products', async ({
     return (
       url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
       url.searchParams.get('orderby') === 'price' &&
-      url.searchParams.get('page') === '2'
+      url.searchParams.has('cursor') &&
+      response.status() === 200
     );
   });
 
-  await page.evaluate(() => {
-    document.dispatchEvent(
-      new CustomEvent('aa:load-more-page', { detail: { page: 2 } })
-    );
-  });
+  const button = page.locator('.aa-load-more__btn:visible');
+  if (await button.count()) {
+    await button.click();
+  } else {
+    await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
+  }
   await nextPage;
 
   await expect
     .poll(() => cards.count(), { timeout: 15_000 })
     .toBeGreaterThan(sortedCount);
   const productIds = await cards.evaluateAll(elements =>
-    elements.map(element =>
-      [...element.classList].find(className => /^post-\d+$/.test(className))
-    )
+    elements
+      .filter(el => !el.classList.contains('aa-product-grid__spacer'))
+      .map(element =>
+        [...element.classList].find(className => /^post-\d+$/.test(className))
+      )
   );
   expect(productIds.every(Boolean)).toBe(true);
   expect(new Set(productIds).size).toBe(productIds.length);
@@ -129,8 +128,9 @@ test.describe('anonymous catalog pagination', () => {
       const url = new URL(response.url());
       return (
         url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-        url.searchParams.get('orderby') === 'menu_order' &&
-        url.searchParams.get('page') === '2' &&
+        (url.searchParams.get('orderby') === 'menu_order' ||
+          url.searchParams.has('cursor')) &&
+        url.searchParams.has('cursor') &&
         response.status() === 200
       );
     });

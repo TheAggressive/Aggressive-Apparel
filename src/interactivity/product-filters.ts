@@ -15,8 +15,10 @@ import {
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
 import {
+  clearProductGridSpacer,
   installBlockSupportStyles,
   notifyCardsRendered,
+  pruneProductGrid,
 } from '@aggressive-apparel/helpers';
 import { FilterRequestManager } from './product-filters/request-manager';
 import { escapeHtml, setFilterVisibility } from './product-filters/dom';
@@ -509,6 +511,7 @@ const { state, actions } = store<ProductFiltersStore>(
           if (!fetched) {
             state.currentPage = 1;
             state.totalPages = 1;
+            state.nextCursor = '';
             restoreOriginalGrid();
             renderPills();
             renderPagination();
@@ -517,10 +520,13 @@ const { state, actions } = store<ProductFiltersStore>(
 
         // Listen for load-more requesting the next page.
         document.addEventListener('aa:load-more-page', ((
-          e: CustomEvent<{ page: number }>
+          e: CustomEvent<{ page: number; cursor?: string }>
         ) => {
-          const { page } = e.detail;
+          const { page, cursor } = e.detail;
           state.currentPage = page;
+          if (cursor) {
+            state.nextCursor = cursor;
+          }
           fetchProducts({ append: true });
         }) as EventListener);
       },
@@ -713,11 +719,14 @@ function mapOrderBy(): string {
 /**
  * Build query params for the rendered-products endpoint from active filters.
  */
-function buildRenderedParams(page: number): URLSearchParams {
+function buildRenderedParams(page: number, cursor = ''): URLSearchParams {
   const params = new URLSearchParams();
   params.set('per_page', String(state.perPage));
   params.set('page', String(page));
   params.set('orderby', mapOrderBy());
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
 
   // Render from the current page's template (e.g. the category template) so the
   // filtered cards match what the block editor configured for this page.
@@ -884,10 +893,12 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
   // viewport. Only show the skeleton/hide the grid for a full replace.
   if (!append) {
     state.isLoading = true;
+    state.nextCursor = '';
   }
   state.hasError = false;
 
-  const url = `${renderedEndpoint()}?${buildRenderedParams(state.currentPage)}`;
+  const cursor = append ? state.nextCursor : '';
+  const url = `${renderedEndpoint()}?${buildRenderedParams(state.currentPage, cursor)}`;
 
   fetch(url, authFetchInit(signal))
     .then((res: Response) => {
@@ -897,6 +908,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
     .then((data: RenderedResponse) => {
       state.totalProducts = data.total_products;
       state.totalPages = data.total_pages;
+      state.nextCursor = data.next_cursor || '';
 
       installBlockSupportStyles(data.styles);
       const added = injectProductsHtml(data.html, append);
@@ -918,6 +930,7 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       state.isLoading = false;
       state.hasError = true;
       state.products = [];
+      state.nextCursor = '';
       state._announcement = 'Something went wrong loading products.';
       notifyProductsFetchFailed();
     });
@@ -933,6 +946,7 @@ function notifyProductsFetched(append: boolean, productsCount: number): void {
         totalProducts: state.totalProducts,
         append,
         productsCount,
+        nextCursor: state.nextCursor,
       },
     })
   );
@@ -1059,11 +1073,18 @@ function injectProductsHtml(html: string, append: boolean): number {
     return 0;
   }
 
-  const before = append ? container.children.length : 0;
+  const before = append
+    ? container.querySelectorAll(':scope > li:not(.aa-product-grid__spacer)')
+        .length
+    : 0;
 
   if (append) {
     const knownKeys = new Set(
-      Array.from(container.querySelectorAll<HTMLElement>(':scope > li'))
+      Array.from(
+        container.querySelectorAll<HTMLElement>(
+          ':scope > li:not(.aa-product-grid__spacer)'
+        )
+      )
         .map(productCardKey)
         .filter(Boolean)
     );
@@ -1081,12 +1102,16 @@ function injectProductsHtml(html: string, append: boolean): number {
       }
     );
     container.insertAdjacentHTML('beforeend', fragment.innerHTML);
+    pruneProductGrid(container, state.perPage);
   } else {
+    clearProductGridSpacer(container);
     container.innerHTML = html;
   }
 
   const items = Array.from(
-    container.querySelectorAll<HTMLElement>(':scope > li')
+    container.querySelectorAll<HTMLElement>(
+      ':scope > li:not(.aa-product-grid__spacer)'
+    )
   );
   state.products = items.map(
     li =>

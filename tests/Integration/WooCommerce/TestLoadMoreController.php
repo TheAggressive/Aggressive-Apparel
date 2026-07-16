@@ -311,6 +311,7 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'html', $data );
 		$this->assertArrayHasKey( 'total_products', $data );
 		$this->assertArrayHasKey( 'total_pages', $data );
+		$this->assertArrayHasKey( 'next_cursor', $data );
 	}
 
 	/**
@@ -561,7 +562,7 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 
 		$queries = new Product_Collection_Query();
-		$args    = $queries->build_args( 2, 12, 'menu_order', '', '', array() );
+		$args    = $queries->build_args( 12, 'menu_order', '', '', array() );
 
 		$this->assertSame(
 			array(
@@ -571,12 +572,12 @@ class TestLoadMoreController extends WP_UnitTestCase {
 			),
 			$args['orderby']
 		);
-		$this->assertSame( 2, $args['paged'] );
+		$this->assertSame( 1, $args['paged'] );
 
-		$date_args = $queries->build_args( 1, 12, 'date', '', '', array() );
+		$date_args = $queries->build_args( 12, 'date', '', '', array() );
 		$this->assertSame( array( 'date' => 'DESC', 'ID' => 'DESC' ), $date_args['orderby'] );
 
-		$title_args = $queries->build_args( 1, 12, 'title-asc', '', '', array() );
+		$title_args = $queries->build_args( 12, 'title-asc', '', '', array() );
 		$this->assertSame( array( 'title' => 'ASC', 'ID' => 'ASC' ), $title_args['orderby'] );
 	}
 
@@ -587,7 +588,7 @@ class TestLoadMoreController extends WP_UnitTestCase {
 	 */
 	public function test_template_query_constraints_are_validated_and_composed(): void {
 		$queries = new Product_Collection_Query();
-		$args    = $queries->build_args( 2, 12, 'date', '', '', array() );
+		$args    = $queries->build_args( 12, 'date', '', '', array() );
 		$block = array(
 			'attrs' => array(
 				'collection' => 'woocommerce/product-collection/featured',
@@ -613,7 +614,7 @@ class TestLoadMoreController extends WP_UnitTestCase {
 			),
 		);
 
-		$result = $queries->apply_collection_constraints( $args, $block, 2, 12 );
+		$result = $queries->apply_collection_constraints( $args, $block, 12, null, 2 );
 
 		$this->assertSame( array( 90, 91 ), $result['aa_catalog_excluded_ids'] );
 		$this->assertSame( array( 10, 20 ), $result['post__in'] );
@@ -627,8 +628,17 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( 'product_visibility', $result['tax_query'][0]['taxonomy'] );
 		$this->assertSame( 'product_cat', $result['tax_query'][1]['taxonomy'] );
 
+		$cursor = array(
+			'v'  => 'date',
+			'id' => 42,
+			'd'  => '2026-01-01 00:00:00',
+		);
+		$with_cursor = $queries->apply_collection_constraints( $args, $block, 12, $cursor, 2 );
+		$this->assertSame( 0, $with_cursor['offset'] );
+		$this->assertSame( $cursor, $with_cursor['aa_catalog_cursor'] );
+
 		$block['attrs']['query']['woocommerceStockStatus'] = array();
-		$empty_stock = $queries->apply_collection_constraints( $args, $block, 1, 12 );
+		$empty_stock = $queries->apply_collection_constraints( $args, $block, 12, null, 1 );
 		$this->assertSame( array( 'aa-none' ), $empty_stock['aa_catalog_stock_statuses'] );
 	}
 
@@ -680,14 +690,31 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->create_block_template( $slug, $content );
 
 		$page_one = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 1, 'orderby' => 'menu_order' ) )->get_data();
-		$page_two = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 2, 'orderby' => 'menu_order' ) )->get_data();
-		$page_three = $this->dispatch( array( 'template' => $slug, 'per_page' => 1, 'page' => 3, 'orderby' => 'menu_order' ) )->get_data();
+		$this->assertNotEmpty( $page_one['next_cursor'], 'Page one must return a continuation cursor.' );
+		$page_two = $this->dispatch(
+			array(
+				'template' => $slug,
+				'per_page' => 1,
+				'page'     => 2,
+				'orderby'  => 'menu_order',
+				'cursor'   => $page_one['next_cursor'],
+			)
+		)->get_data();
+		$page_three = $this->dispatch(
+			array(
+				'template' => $slug,
+				'per_page' => 1,
+				'page'     => 3,
+				'orderby'  => 'menu_order',
+			)
+		)->get_data();
 
 		$this->assertSame( 2, (int) $page_one['total_products'] );
 		$this->assertSame( 2, (int) $page_one['total_pages'] );
 		$this->assertSame( 2, (int) $page_three['total_products'] );
 		$this->assertSame( 2, (int) $page_three['total_pages'] );
 		$this->assertSame( '', $page_three['html'] );
+		$this->assertSame( '', $page_two['next_cursor'] );
 		$this->assertNotSame( $page_one['html'], $page_two['html'] );
 		$this->assertStringNotContainsString( 'post-' . $ids[1], $page_one['html'] . $page_two['html'] );
 		foreach ( $this->product_ids_from_html( $page_one['html'] . $page_two['html'] ) as $rendered_id ) {
@@ -705,7 +732,6 @@ class TestLoadMoreController extends WP_UnitTestCase {
 
 		$ids  = implode( ',', range( 1, 250 ) );
 		$args = $queries->build_args(
-			1,
 			12,
 			'date',
 			'',
@@ -717,7 +743,6 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( 12, $args['posts_per_page'] );
 
 		$args_max = $queries->build_args(
-			1,
 			100,
 			'date',
 			'',
@@ -900,12 +925,14 @@ class TestLoadMoreController extends WP_UnitTestCase {
 				'orderby'  => 'price',
 			)
 		)->get_data();
+		$this->assertNotEmpty( $page_one['next_cursor'] );
 		$page_two = $this->dispatch(
 			array(
 				'template' => 'archive-product',
 				'per_page' => 1,
 				'page'     => 2,
 				'orderby'  => 'price',
+				'cursor'   => $page_one['next_cursor'],
 			)
 		)->get_data();
 
@@ -913,6 +940,341 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'post-' . $high_id, $page_one['html'] );
 		$this->assertStringContainsString( 'post-' . $high_id, $page_two['html'] );
 		$this->assertStringNotContainsString( 'post-' . $low_id, $page_two['html'] );
+		$this->assertSame( '', $page_two['next_cursor'] );
+	}
+
+	/** Cursor continuations must not repeat products across pages. */
+	public function test_cursor_pagination_returns_unique_contiguous_pages(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$ids = array(
+			$this->create_product( 10.0 ),
+			$this->create_product( 20.0 ),
+			$this->create_product( 30.0 ),
+			$this->create_product( 40.0 ),
+		);
+
+		$page_one = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 1,
+				'orderby'  => 'price',
+			)
+		)->get_data();
+		$this->assertCount( 2, $this->product_ids_from_html( $page_one['html'] ) );
+		$this->assertNotEmpty( $page_one['next_cursor'] );
+
+		$page_two = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 2,
+				'orderby'  => 'price',
+				'cursor'   => $page_one['next_cursor'],
+			)
+		)->get_data();
+
+		$all_ids = array_merge(
+			$this->product_ids_from_html( $page_one['html'] ),
+			$this->product_ids_from_html( $page_two['html'] )
+		);
+		$this->assertCount( 4, $all_ids );
+		$this->assertCount( 4, array_unique( $all_ids ) );
+		foreach ( $all_ids as $id ) {
+			$this->assertContains( $id, $ids );
+		}
+		$this->assertSame( '', $page_two['next_cursor'] );
+	}
+
+	/**
+	 * Matching orderby continuations must return a full page of new products.
+	 *
+	 * Regression: continuing with a different sort than the cursor's page left
+	 * shoppers seeing "12 of 22" / Load More appending a single card after dedupe.
+	 *
+	 * @return void
+	 */
+	public function test_matched_orderby_continuation_returns_full_unique_page(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		for ( $i = 0; $i < 12; $i++ ) {
+			$this->create_product( 10.0 + $i );
+		}
+
+		$page_one = $this->dispatch(
+			array(
+				'per_page' => 5,
+				'page'     => 1,
+				'orderby'  => 'date',
+			)
+		)->get_data();
+		$ids_one = $this->product_ids_from_html( $page_one['html'] );
+		$this->assertCount( 5, $ids_one );
+		$this->assertNotEmpty( $page_one['next_cursor'] );
+		$this->assertSame( 12, (int) $page_one['total_products'] );
+
+		$page_two = $this->dispatch(
+			array(
+				'per_page' => 5,
+				'page'     => 2,
+				'orderby'  => 'date',
+				'cursor'   => $page_one['next_cursor'],
+			)
+		)->get_data();
+		$ids_two = $this->product_ids_from_html( $page_two['html'] );
+
+		$this->assertCount( 5, $ids_two, 'Continuation must return a full per_page batch, not a sparse dedupe remnant.' );
+		$this->assertSame( array(), array_intersect( $ids_one, $ids_two ) );
+		$this->assertNotEmpty( $page_two['next_cursor'] );
+	}
+
+	/**
+	 * Cross-sort cursor tokens must be rejected (not silently sparse-append).
+	 *
+	 * @return void
+	 */
+	public function test_cross_sort_cursor_is_rejected(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 10.0 );
+		$this->create_product( 20.0 );
+		$this->create_product( 30.0 );
+
+		$page_one = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 1,
+				'orderby'  => 'date',
+			)
+		)->get_data();
+		$this->assertNotEmpty( $page_one['next_cursor'] );
+
+		$mismatch = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 2,
+				'orderby'  => 'menu_order',
+				'cursor'   => $page_one['next_cursor'],
+			)
+		);
+
+		$this->assertSame( 400, $mismatch->get_status() );
+		$this->assertSame( 'invalid_cursor', $mismatch->get_data()['code'] );
+	}
+
+	/**
+	 * Omitted orderby defaults to WooCommerce catalog default (menu_order).
+	 *
+	 * @return void
+	 */
+	public function test_omitted_orderby_defaults_to_menu_order(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 15.0 );
+
+		$response = $this->dispatch( array( 'per_page' => 1, 'page' => 1 ) );
+		$this->assertSame( 200, $response->get_status() );
+
+		$request = new WP_REST_Request( 'GET', self::ROUTE );
+		$request->set_param( 'per_page', 1 );
+		$request->set_param( 'page', 1 );
+		$prepared = rest_do_request( $request );
+		$this->assertSame( 200, $prepared->get_status() );
+
+		// Confirm the route schema default — callers that omit orderby must not
+		// silently flip to date and reject menu_order SSR cursors.
+		$server = rest_get_server();
+		$routes = $server->get_routes();
+		$args   = $routes[ self::ROUTE ][0]['args'] ?? array();
+		$this->assertSame( 'menu_order', $args['orderby']['default'] ?? null );
+	}
+
+	/**
+	 * Explicit date-sorted collections must continue without sparse dedupe gaps.
+	 *
+	 * Mirrors the live shop bug: inherit:false, orderBy:date, perPage:8, with a
+	 * menu_order-seeded cursor left shoppers at "14 of 22".
+	 *
+	 * @return void
+	 */
+	public function test_explicit_date_collection_continuation_covers_full_catalog(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		for ( $i = 0; $i < 22; $i++ ) {
+			$this->create_product( 10.0 + $i );
+		}
+
+		$this->create_block_template(
+			'archive-product',
+			'<!-- wp:woocommerce/product-collection ' . wp_json_encode(
+				array(
+					'query' => array(
+						'perPage'                => 8,
+						'pages'                  => 0,
+						'offset'                 => 0,
+						'postType'               => 'product',
+						'order'                  => 'desc',
+						'orderBy'                => 'date',
+						'inherit'                => false,
+						'woocommerceStockStatus' => array( 'instock', 'outofstock', 'onbackorder' ),
+					),
+				)
+			) . ' -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"isLink":true} /-->'
+			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$page_one = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 8,
+				'page'     => 1,
+				'orderby'  => 'date',
+			)
+		)->get_data();
+		$ids_one = $this->product_ids_from_html( $page_one['html'] );
+		$this->assertCount( 8, $ids_one );
+		$this->assertNotEmpty( $page_one['next_cursor'] );
+		$this->assertSame( 22, (int) $page_one['total_products'] );
+
+		$page_two = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 8,
+				'page'     => 2,
+				'orderby'  => 'date',
+				'cursor'   => $page_one['next_cursor'],
+			)
+		)->get_data();
+		$ids_two = $this->product_ids_from_html( $page_two['html'] );
+		$this->assertCount( 8, $ids_two );
+		$this->assertSame( array(), array_intersect( $ids_one, $ids_two ) );
+		$this->assertNotEmpty( $page_two['next_cursor'] );
+
+		$page_three = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => 8,
+				'page'     => 3,
+				'orderby'  => 'date',
+				'cursor'   => $page_two['next_cursor'],
+			)
+		)->get_data();
+		$ids_three = $this->product_ids_from_html( $page_three['html'] );
+		$this->assertCount( 6, $ids_three );
+		$this->assertSame( '', $page_three['next_cursor'] );
+
+		$all = array_merge( $ids_one, $ids_two, $ids_three );
+		$this->assertCount( 22, $all );
+		$this->assertCount( 22, array_unique( $all ) );
+	}
+
+	/**
+	 * SSR seed from Catalog_Pagination_Seed must match REST continuation params.
+	 *
+	 * Contract: seeder orderby/perPage/nextCursor are what the client sends next —
+	 * pairing them with the rendered-products endpoint must return a full unique
+	 * page (not a sparse dedupe remnant).
+	 *
+	 * @return void
+	 */
+	public function test_pagination_seed_matches_rest_continuation_contract(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		for ( $i = 0; $i < 22; $i++ ) {
+			$this->create_product( 10.0 + $i );
+		}
+
+		$this->create_block_template(
+			'archive-product',
+			'<!-- wp:woocommerce/product-collection ' . wp_json_encode(
+				array(
+					'query' => array(
+						'perPage'                => 8,
+						'pages'                  => 0,
+						'offset'                 => 0,
+						'postType'               => 'product',
+						'order'                  => 'desc',
+						'orderBy'                => 'date',
+						'inherit'                => false,
+						'woocommerceStockStatus' => array( 'instock', 'outofstock', 'onbackorder' ),
+					),
+				)
+			) . ' -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"isLink":true} /-->'
+			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$seed   = ( new \Aggressive_Apparel\WooCommerce\Catalog_Pagination_Seed() )->for_request(
+			'archive-product',
+			'',
+			'',
+			true
+		);
+		$page_1 = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => $seed['perPage'],
+				'page'     => 1,
+				'orderby'  => $seed['orderby'],
+			)
+		)->get_data();
+
+		$this->assertSame( 'date', $seed['orderby'] );
+		$this->assertSame( 8, $seed['perPage'] );
+		$this->assertSame( 22, $seed['totalProducts'] );
+		$this->assertSame( 3, $seed['totalPages'] );
+		$this->assertFalse( $seed['allLoaded'] );
+		$this->assertNotSame( '', $seed['nextCursor'] );
+		$this->assertSame( $page_1['next_cursor'], $seed['nextCursor'] );
+
+		$page_2 = $this->dispatch(
+			array(
+				'template' => 'archive-product',
+				'per_page' => $seed['perPage'],
+				'page'     => 2,
+				'orderby'  => $seed['orderby'],
+				'cursor'   => $seed['nextCursor'],
+			)
+		)->get_data();
+
+		$ids_1 = $this->product_ids_from_html( $page_1['html'] );
+		$ids_2 = $this->product_ids_from_html( $page_2['html'] );
+		$this->assertCount( 8, $ids_1 );
+		$this->assertCount( 8, $ids_2, 'Seeded continuation must return a full page, not a sparse dedupe remnant.' );
+		$this->assertSame( array(), array_intersect( $ids_1, $ids_2 ) );
+		$this->assertNotEmpty( $page_2['next_cursor'] );
+	}
+
+	/** Invalid cursors are rejected before querying. */
+	public function test_invalid_cursor_is_rejected(): void {
+		$response = $this->dispatch(
+			array(
+				'page'    => 2,
+				'orderby' => 'date',
+				'cursor'  => 'not-a-valid-cursor',
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'invalid_cursor', $response->get_data()['code'] );
 	}
 
 	/**

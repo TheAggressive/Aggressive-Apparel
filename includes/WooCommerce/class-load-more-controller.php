@@ -45,11 +45,11 @@ final class Load_More_Controller {
 	private Rendered_Product_Cache $response_cache;
 
 	/**
-	 * Product Collection template repository.
+	 * Shared archive pagination seeder (orderby / perPage / cursor).
 	 *
-	 * @var Product_Collection_Template_Repository
+	 * @var Catalog_Pagination_Seed
 	 */
-	private Product_Collection_Template_Repository $templates;
+	private Catalog_Pagination_Seed $seed;
 
 	/**
 	 * Product query builder and executor.
@@ -84,6 +84,7 @@ final class Load_More_Controller {
 	 * @param ?Product_Collection_Query               $queries        Query service.
 	 * @param ?Product_Facet_Service                  $facets         Facet service.
 	 * @param ?Product_Fragment_Renderer              $fragments      Fragment renderer.
+	 * @param ?Catalog_Pagination_Seed                $seed           Archive pagination seeder.
 	 */
 	public function __construct(
 		?Catalog_Cache_Version $catalog_version = null,
@@ -91,12 +92,14 @@ final class Load_More_Controller {
 		?Product_Collection_Template_Repository $templates = null,
 		?Product_Collection_Query $queries = null,
 		?Product_Facet_Service $facets = null,
-		?Product_Fragment_Renderer $fragments = null
+		?Product_Fragment_Renderer $fragments = null,
+		?Catalog_Pagination_Seed $seed = null
 	) {
 		$this->catalog_version = $catalog_version ?? new Catalog_Cache_Version();
 		$this->queries         = $queries ?? new Product_Collection_Query();
 		$this->response_cache  = $response_cache ?? new Rendered_Product_Cache( $this->catalog_version );
-		$this->templates       = $templates ?? new Product_Collection_Template_Repository();
+		$templates             = $templates ?? new Product_Collection_Template_Repository();
+		$this->seed            = $seed ?? new Catalog_Pagination_Seed( $templates, $this->queries );
 		$this->facets          = $facets ?? new Product_Facet_Service( $this->queries, $this->catalog_version );
 		$this->fragments       = $fragments ?? new Product_Fragment_Renderer();
 	}
@@ -151,6 +154,12 @@ final class Load_More_Controller {
 						'validate_callback' => static fn( $value ): bool => is_numeric( $value ) && (int) $value >= 1 && (int) $value <= 1000,
 						'sanitize_callback' => 'absint',
 					),
+					'cursor'      => array(
+						'default'           => '',
+						'type'              => 'string',
+						'maxLength'         => 512,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 					'per_page'    => array(
 						'default'           => 12,
 						'type'              => 'integer',
@@ -159,7 +168,9 @@ final class Load_More_Controller {
 						'sanitize_callback' => 'absint',
 					),
 					'orderby'     => array(
-						'default'           => 'date',
+						// Match WooCommerce's default catalog orderby so omitted
+						// params stay aligned with SSR-seeded menu_order cursors.
+						'default'           => 'menu_order',
 						'type'              => 'string',
 						'enum'              => array( 'menu_order', 'date', 'popularity', 'rating', 'price', 'price-desc', 'title-asc', 'title-desc' ),
 						'sanitize_callback' => 'sanitize_text_field',
@@ -243,6 +254,7 @@ final class Load_More_Controller {
 					'styles'         => array(),
 					'total_products' => 0,
 					'total_pages'    => 0,
+					'next_cursor'    => '',
 				)
 			);
 		}
@@ -253,6 +265,7 @@ final class Load_More_Controller {
 		$taxonomy      = (string) $request->get_param( 'taxonomy' );
 		$term          = (string) $request->get_param( 'term' );
 		$template_slug = (string) $request->get_param( 'template' );
+		$cursor_token  = trim( (string) $request->get_param( 'cursor' ) );
 		$filters       = array(
 			'category'   => (string) $request->get_param( 'category' ),
 			'attributes' => (array) $request->get_param( 'attributes' ),
@@ -263,6 +276,7 @@ final class Load_More_Controller {
 			'include'    => (string) $request->get_param( 'include' ),
 		);
 		$with_facets   = (bool) $request->get_param( 'with_facets' );
+		$has_include   = '' !== trim( (string) $filters['include'] );
 
 		if ( (bool) $request->get_param( 'facets_only' ) ) {
 			if ( ! $this->within_rate_limit( 'pf_facets', 600 ) ) {
@@ -277,17 +291,49 @@ final class Load_More_Controller {
 			return $this->rate_limited_response();
 		}
 
-		$template_slug    = '' !== $template_slug ? $template_slug : 'archive-product';
-		$collection_block = $this->templates->collection_block( $template_slug );
-		if ( null === $collection_block && 'archive-product' !== $template_slug ) {
-			$collection_block = $this->templates->collection_block( 'archive-product' );
+		// Continuations prefer keyset cursors. Filter page-number jumps may seek
+		// by offset when no cursor is supplied. Load More always sends a cursor.
+		$cursor = null;
+		if ( '' !== $cursor_token ) {
+			$cursor = $this->queries->decode_cursor( $cursor_token, $orderby );
+			if ( null === $cursor ) {
+				return new \WP_REST_Response(
+					array(
+						'code'    => 'invalid_cursor',
+						'message' => __( 'Invalid catalog cursor.', 'aggressive-apparel' ),
+					),
+					400
+				);
+			}
 		}
+
+		$template_slug    = '' !== $template_slug ? $template_slug : 'archive-product';
+		$collection_block = $this->seed->collection_block( $template_slug );
 		if ( null === $collection_block ) {
 			return new \WP_REST_Response( array( 'error' => 'Template not found' ), 404 );
 		}
 
-		$query_args = $this->queries->build_args( $page, $per_page, $orderby, $taxonomy, $term, $filters );
-		$query_args = $this->queries->apply_collection_constraints( $query_args, $collection_block, $page, $per_page );
+		$query_args = $this->queries->build_args( $per_page, $orderby, $taxonomy, $term, $filters );
+		$query_args = $this->queries->apply_collection_constraints( $query_args, $collection_block, $per_page, $cursor, $page );
+
+		$page_limit = max( 0, (int) ( $query_args['aa_page_limit'] ?? 0 ) );
+		if ( $page_limit > 0 && $page > $page_limit ) {
+			return new \WP_REST_Response(
+				$this->response_data(
+					'',
+					array(),
+					array(
+						'products' => 0,
+						'pages'    => $page_limit,
+					),
+					$with_facets,
+					$filters,
+					$taxonomy,
+					$term,
+					'' 
+				)
+			);
+		}
 
 		/**
 		 * Filters the final bounded query used for dynamic Product Collection pages.
@@ -321,28 +367,27 @@ final class Load_More_Controller {
 				}
 			}
 
-			$query = $this->queries->run( $query_args );
-			if ( ! $query->have_posts() && $page > 1 ) {
-				// Empty offset pages do not populate FOUND_ROWS. Count once with a
-				// bounded one-row query so totals remain accurate out of range.
-				$count_args                   = $query_args;
-				$count_args['posts_per_page'] = 1;
-				$count_args['paged']          = 1;
-				$count_args['offset']         = 0;
-				$count_args['fields']         = 'ids';
-				$count_query                  = $this->queries->run( $count_args );
-				$query->found_posts           = $count_query->found_posts;
+			$count_query = $this->queries->run( $this->queries->count_args( $query_args ) );
+			$totals      = $this->queries->totals( $count_query, $query_args, $per_page );
+
+			// Probe one extra row so next_cursor does not depend on deep offsets.
+			$fetch_args                   = $query_args;
+			$fetch_args['posts_per_page'] = $has_include ? $per_page : $per_page + 1;
+			$query                        = $this->queries->run( $fetch_args );
+			$has_more                     = $has_include ? false : $this->queries->trim_overflow( $query, $per_page );
+			if ( $page_limit > 0 && $page >= $page_limit ) {
+				$has_more = false;
 			}
-			$totals = $this->queries->totals( $query, $query_args, $per_page );
+			$next_cursor = $this->queries->next_cursor( $query, $orderby, $has_more );
 
 			if ( ! $query->have_posts() ) {
-				$data = $this->response_data( '', array(), $totals, $with_facets, $filters, $taxonomy, $term );
+				$data = $this->response_data( '', array(), $totals, $with_facets, $filters, $taxonomy, $term, '' );
 				$this->response_cache->store( $cache_key, $data, $has_lock );
 				return new \WP_REST_Response( $data );
 			}
 
 			$rendered = $this->fragments->render( $collection_block, $query );
-			$data     = $this->response_data( $rendered->html(), $rendered->styles(), $totals, $with_facets, $filters, $taxonomy, $term );
+			$data     = $this->response_data( $rendered->html(), $rendered->styles(), $totals, $with_facets, $filters, $taxonomy, $term, $next_cursor );
 			$this->response_cache->store( $cache_key, $data, $has_lock );
 
 			return new \WP_REST_Response( $data );
@@ -422,14 +467,16 @@ final class Load_More_Controller {
 	 * @param array<string, mixed>            $filters     Active filters.
 	 * @param string                          $taxonomy    Archive taxonomy.
 	 * @param string                          $term        Archive term.
+	 * @param string                          $next_cursor Opaque cursor for the next page.
 	 * @return array<string, mixed>
 	 */
-	private function response_data( string $html, array $styles, array $totals, bool $with_facets, array $filters, string $taxonomy, string $term ): array {
+	private function response_data( string $html, array $styles, array $totals, bool $with_facets, array $filters, string $taxonomy, string $term, string $next_cursor = '' ): array {
 		$data = array(
 			'html'           => $html,
 			'styles'         => $styles,
 			'total_products' => $totals['products'],
 			'total_pages'    => $totals['pages'],
+			'next_cursor'    => $next_cursor,
 		);
 		if ( $with_facets ) {
 			$data['facets'] = $this->facets->compute( $filters, $taxonomy, $term );

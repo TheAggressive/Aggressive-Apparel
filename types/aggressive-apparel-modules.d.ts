@@ -58,6 +58,8 @@ declare module '@aggressive-apparel/helpers' {
   export function installBlockSupportStyles(
     assets?: readonly DynamicStyleAsset[]
   ): void;
+  export function pruneProductGrid(grid: HTMLElement, perPage: number): void;
+  export function clearProductGridSpacer(grid: HTMLElement | null): void;
 }
 
 declare module '@aggressive-apparel/scroll-lock' {

@@ -25,7 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Replaces the standard query-pagination block on shop archives with
  * a Load More button or IntersectionObserver-based infinite scroll.
  * Coordinates with product-filters via custom events when AJAX
- * filtering is active.
+ * filtering is active. Pagination seed values come from
+ * {@see Catalog_Pagination_Seed} so SSR state matches REST continuations.
  *
  * @since 1.51.0
  */
@@ -37,6 +38,22 @@ class Load_More {
 	 * @var bool|null
 	 */
 	private ?bool $has_more = null;
+
+	/**
+	 * Catalog pagination seeder (shared with rendered-products continuations).
+	 *
+	 * @var Catalog_Pagination_Seed
+	 */
+	private Catalog_Pagination_Seed $seed;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param ?Catalog_Pagination_Seed $seed Optional seeder (tests / DI).
+	 */
+	public function __construct( ?Catalog_Pagination_Seed $seed = null ) {
+		$this->seed = $seed ?? new Catalog_Pagination_Seed();
+	}
 
 	/**
 	 * Initialize hooks.
@@ -116,6 +133,8 @@ class Load_More {
 		$load_more_html .= '</div>';
 
 		// Load More button (hidden in infinite scroll mode or when all loaded).
+		// Label and spinner share one grid cell; .is-loading toggles visibility so
+		// the control keeps its size and the spinner stays centered.
 		$load_more_html .= sprintf(
 			'<button class="aa-load-more__btn aggressive-apparel-button aggressive-apparel-button--outline wp-element-button" data-wp-on--click="actions.loadMore"'
 			. ' data-wp-bind--hidden="state.hideButton"'
@@ -124,7 +143,10 @@ class Load_More {
 			// when isLoading, preventing duplicate requests.
 			. ' data-wp-bind--aria-disabled="state.isLoading"'
 			. ' data-wp-class--is-loading="state.isLoading"'
-			. ' data-wp-bind--aria-busy="state.isLoading">%s</button>',
+			. ' data-wp-bind--aria-busy="state.isLoading">'
+			. '<span class="aa-load-more__btn-label">%1$s</span>'
+			. '<span class="aa-load-more__btn-spinner" aria-hidden="true"></span>'
+			. '</button>',
 			esc_html( Feature_Settings::get_load_more_button_text() )
 		);
 
@@ -163,33 +185,32 @@ class Load_More {
 			return;
 		}
 
-		global $wp_query;
-
-		$mode           = Feature_Settings::get_load_more_mode();
-		$per_page       = (int) get_option( 'posts_per_page', 12 );
-		$total_products = (int) ( $wp_query->found_posts ?? 0 );
-		$total_pages    = (int) ( $wp_query->max_num_pages ?? 1 );
-
-		// Current taxonomy term archive (category, tag, brand or attribute) so the
-		// REST endpoint can reproduce the same query when loading further pages.
 		$term_archive = Product_Context::get_current_product_term_archive();
+		$seed         = $this->seed->for_request(
+			Product_Context::get_current_template_slug(),
+			$term_archive['taxonomy'],
+			$term_archive['term'],
+			$this->has_more
+		);
 
 		wp_interactivity_state(
 			'aggressive-apparel/load-more',
 			array(
-				'mode'            => $mode,
+				'mode'            => Feature_Settings::get_load_more_mode(),
 				'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
 				// REST nonce so logged-in admins/shop managers stay authenticated
 				// for the rendered-products endpoint during "coming soon" mode.
 				'restNonce'       => wp_create_nonce( 'wp_rest' ),
-				'templateSlug'    => $this->get_current_template_slug(),
-				'perPage'         => $per_page,
+				'templateSlug'    => $seed['templateSlug'],
+				'perPage'         => $seed['perPage'],
 				'currentPage'     => 1,
-				'totalPages'      => $total_pages,
-				'totalProducts'   => $total_products,
-				'loadedCount'     => min( $per_page, $total_products ),
+				'totalPages'      => $seed['totalPages'],
+				'totalProducts'   => $seed['totalProducts'],
+				'loadedCount'     => $seed['loadedCount'],
 				'isLoading'       => false,
-				'allLoaded'       => null !== $this->has_more ? ! $this->has_more : $total_pages <= 1,
+				'allLoaded'       => $seed['allLoaded'],
+				'nextCursor'      => $seed['nextCursor'],
+				'orderby'         => $seed['orderby'],
 				'announcement'    => '',
 				'loadingText'     => __( 'Loading more products…', 'aggressive-apparel' ),
 				'errorText'       => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
@@ -235,18 +256,5 @@ class Load_More {
 		 * @param bool $needed Whether the current request needs the assets.
 		 */
 		return (bool) apply_filters( 'aggressive_apparel_load_more_needs_assets', $needed );
-	}
-
-	/**
-	 * Return the resolved FSE template slug used to render the product grid.
-	 *
-	 * Product_Context reads WordPress's winning template ID, preserving the full
-	 * hierarchy (including term-specific templates), with archive-type fallbacks
-	 * for calls made before template resolution.
-	 *
-	 * @return string
-	 */
-	private function get_current_template_slug(): string {
-		return Product_Context::get_current_template_slug();
 	}
 }

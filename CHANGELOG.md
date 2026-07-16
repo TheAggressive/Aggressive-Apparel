@@ -1,3 +1,10 @@
+# [1.155.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.154.0...v1.155.0) (2026-07-16)
+
+
+### Features
+
+* implement catalog cursor and keyset pagination for product collections ([ce313ee](https://github.com/TheAggressive/Aggressive-Apparel/commit/ce313ee10f4637d2cf94e0a8cf32d0a4023f6362))
+
 # [1.154.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.153.0...v1.154.0) (2026-07-15)
 
 

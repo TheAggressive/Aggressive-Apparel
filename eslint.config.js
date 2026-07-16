@@ -230,6 +230,9 @@ export default [
         window: 'readonly',
         document: 'readonly',
         Event: 'readonly',
+        // Node / Jest CJS runtime (path resolution in source locks, etc.)
+        __dirname: 'readonly',
+        process: 'readonly',
         // Jest globals
         describe: 'readonly',
         it: 'readonly',

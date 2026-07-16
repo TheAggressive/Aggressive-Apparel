@@ -8,7 +8,9 @@
 /* Shared inspector UI (PresetPicker), also used by parallax. */
 @import '../editor-shared/editor.css';
 
-.wp-block-animate-on-scroll {
+/* Keep the canvas readable while idle. `.is-aos-previewing` drops these
+   overrides so the front-end stylesheet can drive a one-shot entrance. */
+.wp-block-animate-on-scroll:not(.is-aos-previewing) {
 	opacity: 1;
 	transform: none;
 	filter: none;
@@ -17,7 +19,17 @@
 	& > * {
 		opacity: 1;
 		clip-path: none;
+		transform: none;
+		filter: none;
 	}
+}
+
+.aggressive-apparel-animate-on-scroll-preview {
+	margin: 8px 0 12px;
+}
+
+.aggressive-apparel-animate-on-scroll-preview__help {
+	margin: 6px 0 0;
 }
 
 .aggressive-apparel-animate-on-scroll-sequence {

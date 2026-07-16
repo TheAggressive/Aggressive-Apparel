@@ -26,15 +26,16 @@
  * 6. Stagger Animation Support
  * 7. Keyframe Animations
  *
- * Debug overlay/panel styles live in ../debug-shared/style.css
- * (imported above; shared with the parallax block).
+ * Debug overlay/panel styles ship separately as
+ * build/styles/components/debug-overlays.css (shared with parallax) and are
+ * enqueued only when Debug Mode is active.
  */
 
 .wp-block-animate-on-scroll {
-	container-type: inline-size;
-	container-name: aos-block;
 
-	/* CSS Custom Properties - Optimized with logical grouping */
+	/* ==========================================================================
+	   1. CSS CUSTOM PROPERTIES
+	   ========================================================================== */
 
 	/* Timing */
 	--wp-block-animate-on-scroll-animation-duration: 0.6s;
@@ -53,9 +54,6 @@
 	--wp-block-animate-on-scroll-blur-amount: 20px;
 	--wp-block-animate-on-scroll-bounce-distance: 30px;
 	--wp-block-animate-on-scroll-elastic-distance: 50px;
-
-	/* Internal tracking */
-	--wp-block-animate-on-scroll-stagger-index: 0;
 
 	/* Base Styles - Optimized for animations.
 	   No permanent will-change: browsers promote layers automatically for
@@ -97,540 +95,36 @@
 	   and offset transforms can't cause pre-hydration layout shift. */
 	&[data-animate-id]:not(.has-animation-sequence) > * {
 		opacity: 0;
-		transition: all
-			var(--wp-block-animate-on-scroll-animation-duration)
-			var(--wp-block-animate-on-scroll-animation-timing);
+		transition:
+			opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
 		transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
 	}
 
-	/* Visible state - reset to natural appearance */
+	/* Visible state - reset to natural appearance.
+	   Bounce is excluded from transform: none so its keyframes can drive
+	   translateY (animations lose to author !important, but win over
+	   non-important transform here). */
 	&:not(.has-animation-sequence).is-visible > * {
 		opacity: 1;
-		transform: none;
 		filter: blur(0);
 	}
 
-	/* Exiting state - animate back to hidden state */
+	&:not(.has-animation-sequence, .bounce).is-visible > * {
+		transform: none;
+	}
+
+	/* Exiting state — shared property-list transition; section 5 only sets
+	   per-animation transform/filter/clip-path targets. */
 	&:not(.has-animation-sequence).is-exiting > * {
 		opacity: 0;
-	}
-
-	/* ==========================================================================
-	   5. REVERSE ANIMATION STATES
-	   ========================================================================== */
-
-	/* Slide reverse animations */
-	&.slide.is-exiting {
-
-		&.up > * {
-			opacity: 0;
-			transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.down > * {
-			opacity: 0;
-			transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.left > * {
-			opacity: 0;
-			transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.right > * {
-			opacity: 0;
-			transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-	}
-
-	/* Zoom reverse animations */
-	&.zoom.is-exiting {
-
-		&.in > * {
-			opacity: 0;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.out > * {
-			opacity: 0;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-	}
-
-	/* Flip reverse animations */
-	&.flip.is-exiting {
-
-		&.up > * {
-			opacity: 0;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.down > * {
-			opacity: 0;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.left > * {
-			opacity: 0;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.right > * {
-			opacity: 0;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-	}
-
-	/* Rotate reverse animations */
-	&.rotate.is-exiting {
-
-		&.left > * {
-			opacity: 0;
-			transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.right > * {
-			opacity: 0;
-			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-	}
-
-	/* Blur reverse animations */
-	&.blur-in.is-exiting > * {
-		opacity: 0;
-		filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
-		transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-	}
-
-	/* Reveal reverse animations */
-	&.reveal.is-exiting {
-
-		&.up > * {
-			opacity: 0;
-			clip-path: inset(100% 0 0 0);
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.down > * {
-			opacity: 0;
-			clip-path: inset(0 0 100% 0);
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.left > * {
-			opacity: 0;
-			clip-path: inset(0 0 0 100%);
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		&.right > * {
-			opacity: 0;
-			clip-path: inset(0 100% 0 0);
-			transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-	}
-
-	/* Bounce reverse animations */
-	&.bounce.is-exiting > * {
-		opacity: 0;
-		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
-		transition: all var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-	}
-
-	/* ==========================================================================
-	   4. ANIMATION SEQUENCE SUPPORT
-	   ========================================================================== */
-
-	/* Base sequence setup */
-	&[data-animate-id].has-animation-sequence {
-
-		> div[data-animate-sequence-type] {
-			opacity: 0;
-			display: block;
-			width: 100%;
-			transition: opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-			transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
-		}
-
-		&.is-exiting > div[data-animate-sequence-type] {
-			opacity: 0;
-			transition: opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				box-shadow var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				border-width var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
-				background var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
-		}
-
-		/* Sequence: Slide */
-		> div[data-animate-sequence-type="slide"] {
-			transform-origin: center center;
-			opacity: 0;
-
-			&[data-animate-sequence-direction="up"] {
-				transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
-			}
-
-			&[data-animate-sequence-direction="down"] {
-				transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			}
-
-			&[data-animate-sequence-direction="left"] {
-				transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
-			}
-
-			&[data-animate-sequence-direction="right"] {
-				transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
-			}
-		}
-
-		/* Sequence: Zoom */
-		> div[data-animate-sequence-type="zoom"] {
-			transform-origin: center center;
-			opacity: 0;
-
-			&[data-animate-sequence-direction="in"] {
-				transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
-			}
-
-			&[data-animate-sequence-direction="out"] {
-				transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
-			}
-		}
-
-		/* Sequence: Flip */
-		> div[data-animate-sequence-type="flip"] {
-			transform-origin: center center;
-			opacity: 0;
-
-			&[data-animate-sequence-direction="up"] {
-				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-					rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
-			}
-
-			&[data-animate-sequence-direction="down"] {
-				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-					rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			}
-
-			&[data-animate-sequence-direction="left"] {
-				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-					rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			}
-
-			&[data-animate-sequence-direction="right"] {
-				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-					rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
-			}
-		}
-
-		/* Sequence: Rotate */
-		> div[data-animate-sequence-type="rotate"] {
-			transform-origin: center center;
-			opacity: 0;
-
-			&[data-animate-sequence-direction="left"] {
-				transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
-			}
-
-			&[data-animate-sequence-direction="right"] {
-				transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
-			}
-		}
-
-		/* Sequence: Blur */
-		> div[data-animate-sequence-type="blur-in"] {
-			opacity: 0;
-			filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
-		}
-
-		/* Sequence: Reveal (wipe) */
-		> div[data-animate-sequence-type="reveal"] {
-			opacity: 0;
-
-			&[data-animate-sequence-direction="up"] {
-				clip-path: inset(100% 0 0 0);
-			}
-
-			&[data-animate-sequence-direction="down"] {
-				clip-path: inset(0 0 100% 0);
-			}
-
-			&[data-animate-sequence-direction="left"] {
-				clip-path: inset(0 0 0 100%);
-			}
-
-			&[data-animate-sequence-direction="right"] {
-				clip-path: inset(0 100% 0 0);
-			}
-		}
-
-		/* Sequence: Bounce */
-		> div[data-animate-sequence-type="bounce"] {
-			transform-origin: center center;
-			opacity: 0;
-
-			&[data-animate-sequence-direction="standard"],
-			&[data-animate-sequence-direction="spring"] {
-				transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
-			}
-
-			&[data-animate-sequence-direction="elastic"] {
-				transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance));
-			}
-		}
-
-		/* Reset all sequence-specific classes when visible */
-		&.is-visible > div[data-animate-sequence-type] {
-			opacity: 1 !important;
-			transform: none !important;
-			filter: blur(0) !important;
-		}
-
-
-		/* Sequence: Slide - Final states when visible */
-		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="up"] {
-			opacity: 1 !important;
-			transform: translate(0, 0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="down"] {
-			opacity: 1 !important;
-			transform: translate(0, 0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="left"] {
-			opacity: 1 !important;
-			transform: translate(0, 0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="right"] {
-			opacity: 1 !important;
-			transform: translate(0, 0) !important;
-		}
-
-		/* Sequence: Slide - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="up"] {
-			opacity: 0 !important;
-			transform: translateY(var(--wp-block-animate-on-scroll-slide-distance)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="down"] {
-			opacity: 0 !important;
-			transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance))) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="left"] {
-			opacity: 0 !important;
-			transform: translateX(var(--wp-block-animate-on-scroll-slide-distance)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="slide"][data-animate-sequence-direction="right"] {
-			opacity: 0 !important;
-			transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance))) !important;
-		}
-
-		/* Sequence: Zoom - Final states when visible */
-		&.is-visible > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="in"] {
-			opacity: 1 !important;
-			transform: scale(1) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="out"] {
-			opacity: 1 !important;
-			transform: scale(1) !important;
-		}
-
-		/* Sequence: Zoom - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="in"] {
-			opacity: 0 !important;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="zoom"][data-animate-sequence-direction="out"] {
-			opacity: 0 !important;
-			transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start)) !important;
-		}
-
-		/* Sequence: Flip - Final states when visible */
-		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="up"] {
-			opacity: 1 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="down"] {
-			opacity: 1 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="left"] {
-			opacity: 1 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="right"] {
-			opacity: 1 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective)) rotateX(0) rotateY(0) !important;
-		}
-
-		/* Sequence: Flip - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="up"] {
-			opacity: 0 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateX(var(--wp-block-animate-on-scroll-rotate-angle)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="down"] {
-			opacity: 0 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle))) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="left"] {
-			opacity: 0 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle))) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="flip"][data-animate-sequence-direction="right"] {
-			opacity: 0 !important;
-			transform: perspective(var(--wp-block-animate-on-scroll-perspective))
-				rotateY(var(--wp-block-animate-on-scroll-rotate-angle)) !important;
-		}
-
-		/* Sequence: Rotate - Final states when visible */
-		&.is-visible > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="left"] {
-			opacity: 1 !important;
-			transform: rotate(0deg) !important;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="right"] {
-			opacity: 1 !important;
-			transform: rotate(0deg) !important;
-		}
-
-		/* Sequence: Rotate - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="left"] {
-			opacity: 0 !important;
-			transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="rotate"][data-animate-sequence-direction="right"] {
-			opacity: 0 !important;
-			transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle))) !important;
-		}
-
-		/* Sequence: Blur - Final state when visible */
-		&.is-visible > div[data-animate-sequence-type="blur-in"] {
-			opacity: 1 !important;
-			filter: blur(0) !important;
-		}
-
-		/* Sequence: Reveal - Final state when visible */
-		&.is-visible > div[data-animate-sequence-type="reveal"] {
-			opacity: 1 !important;
-			clip-path: inset(0 0 0 0) !important;
-		}
-
-		/* Sequence: Reveal - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="up"] {
-			opacity: 0 !important;
-			clip-path: inset(100% 0 0 0) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="down"] {
-			opacity: 0 !important;
-			clip-path: inset(0 0 100% 0) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="left"] {
-			opacity: 0 !important;
-			clip-path: inset(0 0 0 100%) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="reveal"][data-animate-sequence-direction="right"] {
-			opacity: 0 !important;
-			clip-path: inset(0 100% 0 0) !important;
-		}
-
-		/* Sequence: Blur - Reverse state when exiting */
-		&.is-exiting > div[data-animate-sequence-type="blur-in"] {
-			opacity: 0 !important;
-			filter: blur(var(--wp-block-animate-on-scroll-blur-amount)) !important;
-		}
-
-		/* Sequence: Bounce - Final states when visible */
-		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="standard"] {
-			opacity: 1 !important;
-			animation: bounce-in
-				var(--wp-block-animate-on-scroll-animation-duration)
-				var(--wp-block-animate-on-scroll-animation-timing)
-				forwards;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="elastic"] {
-			opacity: 1 !important;
-			animation: elastic-in
-				var(--wp-block-animate-on-scroll-animation-duration)
-				var(--wp-block-animate-on-scroll-animation-timing)
-				forwards;
-		}
-
-		&.is-visible > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="spring"] {
-			opacity: 1 !important;
-			animation: spring-in
-				var(--wp-block-animate-on-scroll-animation-duration)
-				var(--wp-block-animate-on-scroll-animation-timing)
-				forwards;
-		}
-
-		/* Sequence: Bounce - Reverse states when exiting */
-		&.is-exiting > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="standard"],
-		&.is-exiting > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="spring"] {
-			opacity: 0 !important;
-			transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance)) !important;
-		}
-
-		&.is-exiting > div[data-animate-sequence-type="bounce"][data-animate-sequence-direction="elastic"] {
-			opacity: 0 !important;
-			transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance)) !important;
-		}
-	}
-
-	/* ==========================================================================
-	   6. STAGGER ANIMATION SUPPORT
-	   ========================================================================== */
-
-	/* Stagger Animation - Combine initial delay with stagger delay */
-	&[data-stagger-children="true"] > * {
-		transition-delay: calc(
-			var(--wp-block-animate-on-scroll-initial-delay) +
-			var(--wp-block-animate-on-scroll-stagger-delay, 0s)
-		);
-	}
-
-	/* Stagger Animation for Sequence Mode - Apply to wrapper divs */
-	&.has-animation-sequence[data-stagger-children="true"] > div[data-animate-sequence-type] {
-		transition-delay: calc(
-			var(--wp-block-animate-on-scroll-initial-delay) +
-			var(--wp-block-animate-on-scroll-stagger-delay, 0s)
-		);
+		transition:
+			opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+			clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
 	}
 
 	/* ==========================================================================
@@ -715,7 +209,8 @@
 		&.is-visible > * { clip-path: inset(0 0 0 0); }
 	}
 
-	/* Bounce Animation */
+	/* Bounce Animation — keyframes own transform; do not set transform: none
+	   on the visible state (see section 2 bounce exclusion). */
 	&[data-animate-id].bounce > * {
 		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
 		opacity: 0;
@@ -736,6 +231,267 @@
 
 	&.bounce.spring.is-visible > * {
 		animation: spring-in var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing) forwards;
+	}
+
+	/* ==========================================================================
+	   4. ANIMATION SEQUENCE SUPPORT
+	   ========================================================================== */
+
+	/* Sequence mode wraps each child in a [data-animate-sequence-type].
+	   Visible/exit end-states intentionally avoid !important on transform —
+	   that was killing bounce keyframes. Specificity is matched to the
+	   initial-offset selectors (source order wins the tie). Exit clears
+	   is-visible first (see view.ts), so initials return on their own —
+	   is-exiting only forces opacity and cancels bounce animations. */
+	&[data-animate-id].has-animation-sequence {
+
+		> [data-animate-sequence-type] {
+			opacity: 0;
+			display: block;
+			width: 100%;
+			transition: opacity var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+				transform var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+				filter var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing),
+				clip-path var(--wp-block-animate-on-scroll-animation-duration) var(--wp-block-animate-on-scroll-animation-timing);
+			transition-delay: var(--wp-block-animate-on-scroll-initial-delay);
+		}
+
+		/* Sequence: Slide */
+		> [data-animate-sequence-type="slide"] {
+			transform-origin: center center;
+
+			&[data-animate-sequence-direction="up"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-slide-distance));
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				transform: translateY(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				transform: translateX(var(--wp-block-animate-on-scroll-slide-distance));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: translateX(calc(-1 * var(--wp-block-animate-on-scroll-slide-distance)));
+			}
+		}
+
+		/* Sequence: Zoom */
+		> [data-animate-sequence-type="zoom"] {
+			transform-origin: center center;
+
+			&[data-animate-sequence-direction="in"] {
+				transform: scale(var(--wp-block-animate-on-scroll-zoom-in-start));
+			}
+
+			&[data-animate-sequence-direction="out"] {
+				transform: scale(var(--wp-block-animate-on-scroll-zoom-out-start));
+			}
+		}
+
+		/* Sequence: Flip */
+		> [data-animate-sequence-type="flip"] {
+			transform-origin: center center;
+
+			&[data-animate-sequence-direction="up"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateX(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateX(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateY(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: perspective(var(--wp-block-animate-on-scroll-perspective))
+					rotateY(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+		}
+
+		/* Sequence: Rotate */
+		> [data-animate-sequence-type="rotate"] {
+			transform-origin: center center;
+
+			&[data-animate-sequence-direction="left"] {
+				transform: rotate(var(--wp-block-animate-on-scroll-rotate-angle));
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				transform: rotate(calc(-1 * var(--wp-block-animate-on-scroll-rotate-angle)));
+			}
+		}
+
+		/* Sequence: Blur */
+		> [data-animate-sequence-type="blur-in"] {
+			filter: blur(var(--wp-block-animate-on-scroll-blur-amount));
+		}
+
+		/* Sequence: Reveal (wipe) */
+		> [data-animate-sequence-type="reveal"] {
+
+			&[data-animate-sequence-direction="up"] {
+				clip-path: inset(100% 0 0 0);
+			}
+
+			&[data-animate-sequence-direction="down"] {
+				clip-path: inset(0 0 100% 0);
+			}
+
+			&[data-animate-sequence-direction="left"] {
+				clip-path: inset(0 0 0 100%);
+			}
+
+			&[data-animate-sequence-direction="right"] {
+				clip-path: inset(0 100% 0 0);
+			}
+		}
+
+		/* Sequence: Bounce */
+		> [data-animate-sequence-type="bounce"] {
+			transform-origin: center center;
+
+			&[data-animate-sequence-direction="standard"],
+			&[data-animate-sequence-direction="spring"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+			}
+
+			&[data-animate-sequence-direction="elastic"] {
+				transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance));
+			}
+		}
+
+		/* Visible end states — no !important (bounce keyframes need transform). */
+		&.is-visible > [data-animate-sequence-type] {
+			opacity: 1;
+			filter: blur(0);
+		}
+
+		/* :not([type=bounce]) adds an attribute to specificity so this ties
+		   the direction-scoped initial transforms; later source order wins. */
+		&.is-visible > [data-animate-sequence-type]:not([data-animate-sequence-type="bounce"]) {
+			transform: none;
+		}
+
+		&.is-visible > [data-animate-sequence-type="reveal"][data-animate-sequence-direction] {
+			clip-path: inset(0 0 0 0);
+		}
+
+		&.is-visible > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="standard"] {
+			animation: bounce-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-visible > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="elastic"] {
+			animation: elastic-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-visible > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="spring"] {
+			animation: spring-in
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		/* Exit: is-visible is already false, so initial offsets return via
+		   transition for non-bounce types. Bounce plays mirrored out keyframes. */
+		&.is-exiting > [data-animate-sequence-type]:not([data-animate-sequence-type="bounce"]) {
+			opacity: 0;
+			animation: none;
+		}
+
+		&.is-exiting > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="standard"],
+		&.is-exiting > [data-animate-sequence-type="bounce"]:not([data-animate-sequence-direction]) {
+			animation: bounce-out
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-exiting > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="elastic"] {
+			animation: elastic-out
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+
+		&.is-exiting > [data-animate-sequence-type="bounce"][data-animate-sequence-direction="spring"] {
+			animation: spring-out
+				var(--wp-block-animate-on-scroll-animation-duration)
+				var(--wp-block-animate-on-scroll-animation-timing)
+				forwards;
+		}
+	}
+
+	/* ==========================================================================
+	   5. REVERSE ANIMATION STATES (non-sequence)
+	   ========================================================================== */
+
+	/* Non-bounce reverse: clearing `.is-visible` restores section-3 initial
+	   offsets via transition (section 2 sets opacity). Bounce needs mirrored
+	   out keyframes so exit matches entrance motion. */
+	&.bounce.standard.is-exiting > *,
+	&.bounce.is-exiting > * {
+		animation: bounce-out
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+
+	&.bounce.elastic.is-exiting > * {
+		animation: elastic-out
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+
+	&.bounce.spring.is-exiting > * {
+		animation: spring-out
+			var(--wp-block-animate-on-scroll-animation-duration)
+			var(--wp-block-animate-on-scroll-animation-timing)
+			forwards;
+	}
+
+	/* ==========================================================================
+	   6. STAGGER ANIMATION SUPPORT
+	   ========================================================================== */
+
+	/* Must match/exceed the base `[data-animate-id]:not(.has-animation-sequence) > *`
+	   rule (section 2) — that selector is more specific than a bare
+	   `[data-stagger-children]` and was winning, so computed transition-delay
+	   stayed at initial-delay (0s) and children all fired together.
+	   One effective-delay token feeds both transition and animation delay
+	   (bounce uses keyframes, not transitions). */
+	&[data-animate-id]:not(.has-animation-sequence)[data-stagger-children="true"] > * {
+		--wp-block-animate-on-scroll-effective-delay: calc(
+			var(--wp-block-animate-on-scroll-initial-delay) +
+			var(--wp-block-animate-on-scroll-stagger-delay, 0s)
+		);
+
+		transition-delay: var(--wp-block-animate-on-scroll-effective-delay);
+		animation-delay: var(--wp-block-animate-on-scroll-effective-delay);
+	}
+
+	/* Sequence mode: beat the section-4 initial-delay rule the same way. */
+	&[data-animate-id].has-animation-sequence[data-stagger-children="true"] > [data-animate-sequence-type] {
+		--wp-block-animate-on-scroll-effective-delay: calc(
+			var(--wp-block-animate-on-scroll-initial-delay) +
+			var(--wp-block-animate-on-scroll-stagger-delay, 0s)
+		);
+
+		transition-delay: var(--wp-block-animate-on-scroll-effective-delay);
+		animation-delay: var(--wp-block-animate-on-scroll-effective-delay);
 	}
 
 }
@@ -824,14 +580,83 @@
 	}
 }
 
+@keyframes bounce-out {
 
-@keyframes blink-caret {
-
-	0%, 50% {
+	0% {
+		transform: translateY(0);
 		opacity: 1;
 	}
 
-	51%, 100% {
+	20% {
+		transform: translateY(5px);
+		opacity: 1;
+	}
+
+	40% {
+		transform: translateY(-10px);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance));
+		opacity: 0;
+	}
+}
+
+@keyframes elastic-out {
+
+	0% {
+		transform: translateY(0) scaleY(1);
+		opacity: 1;
+	}
+
+	15% {
+		transform: translateY(-4px) scaleY(1.02);
+		opacity: 0.95;
+	}
+
+	30% {
+		transform: translateY(8px) scaleY(0.95);
+		opacity: 0.9;
+	}
+
+	50% {
+		transform: translateY(-15px) scaleY(1.1);
+		opacity: 0.8;
+	}
+
+	100% {
+		transform: translateY(var(--wp-block-animate-on-scroll-elastic-distance))
+			scaleY(0.8);
+		opacity: 0;
+	}
+}
+
+@keyframes spring-out {
+
+	0% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+
+	20% {
+		transform: translateY(-5px) scale(1.01);
+		opacity: 0.98;
+	}
+
+	40% {
+		transform: translateY(10px) scale(0.98);
+		opacity: 0.95;
+	}
+
+	60% {
+		transform: translateY(-20px) scale(1.05);
+		opacity: 0.9;
+	}
+
+	100% {
+		transform: translateY(var(--wp-block-animate-on-scroll-bounce-distance))
+			scale(0.8);
 		opacity: 0;
 	}
 }
@@ -842,4 +667,3 @@
    targeted data-animation-type values ("fade-up", "fade-in") the
    renderer never emits. The no-JS story is now handled at the root:
    initial hidden states apply only once JS arms a block. */
-

@@ -17,13 +17,18 @@ import {
   SelectControl,
   ToggleControl,
   BaseControl,
+  Notice,
+  Button,
   // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
   __experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import type { CSSProperties } from 'react';
 import type {
   AnimateOnScrollAttributes,
+  AnimationSequenceItem,
   DetectionBoundary,
   EasingType,
   StaggerPattern,
@@ -35,8 +40,15 @@ import {
 } from './animation-config';
 import { AnimationPresets } from './components/AnimationPresets';
 import { SequenceBuilder } from './components/SequenceBuilder';
+import {
+  createStaggerSeed,
+  getChildStaggerDelay,
+  type StaggerConfig,
+} from './stagger-math';
 
 type EditProps = BlockEditProps<AnimateOnScrollAttributes>;
+
+type PreviewPhase = 'idle' | 'armed' | 'visible';
 
 type DetectionBoundaryKey = keyof DetectionBoundary;
 
@@ -52,6 +64,16 @@ type ThresholdValue =
   | '0.3'
   | '0.2'
   | '0.1';
+
+/** Layout wrappers that count as one animated child (stagger/sequence trap). */
+const LAYOUT_WRAPPER_BLOCKS = new Set([
+  'core/group',
+  'core/columns',
+  'core/column',
+  'core/row',
+  'core/stack',
+  'core/grid',
+]);
 
 // Type guard function for runtime validation
 function isValidThreshold(value: string): value is ThresholdValue {
@@ -87,13 +109,264 @@ export default function Edit({
   setAttributes,
   clientId,
 }: EditProps) {
-  const blockProps = useBlockProps();
+  const [previewPhase, setPreviewPhase] = useState<PreviewPhase>('idle');
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blockRef = useRef<HTMLDivElement | null>(null);
 
-  // Number of direct children — drives the sequence-to-child mapping hint.
-  const childCount = useSelect(
-    select => select(blockEditorStore).getBlockCount(clientId),
+  // Direct children drive stagger/sequence; a single Group hides the cascade.
+  const { childCount, hasSingleLayoutWrapper } = useSelect(
+    select => {
+      const block = select(blockEditorStore).getBlock(clientId);
+      const inner = block?.innerBlocks ?? [];
+      return {
+        childCount: inner.length,
+        hasSingleLayoutWrapper:
+          inner.length === 1 && LAYOUT_WRAPPER_BLOCKS.has(inner[0].name),
+      };
+    },
     [clientId]
   );
+
+  const showNestedChildWarning =
+    hasSingleLayoutWrapper &&
+    (attributes.staggerChildren || attributes.useSequence);
+
+  const isPreviewing = previewPhase !== 'idle';
+  const useSequencePreview =
+    attributes.useSequence && (attributes.animationSequence?.length ?? 0) > 0;
+  const previewAnimationClass =
+    attributes.animation === 'blur' ? 'blur-in' : attributes.animation;
+
+  const blockProps = useBlockProps({
+    ref: blockRef,
+    className: [
+      isPreviewing ? 'is-aos-previewing' : '',
+      isPreviewing && useSequencePreview ? 'has-animation-sequence' : '',
+      isPreviewing && !useSequencePreview ? previewAnimationClass : '',
+      isPreviewing && !useSequencePreview && attributes.direction
+        ? attributes.direction
+        : '',
+      previewPhase === 'visible' ? 'is-visible' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
+    ...(isPreviewing
+      ? {
+          'data-animate-id': 'editor-preview',
+          'data-stagger-children':
+            attributes.staggerChildren || useSequencePreview ? 'true' : 'false',
+        }
+      : {}),
+    style: {
+      '--wp-block-animate-on-scroll-animation-duration': `${attributes.duration}s`,
+      '--wp-block-animate-on-scroll-initial-delay': `${attributes.initialDelay}s`,
+      '--wp-block-animate-on-scroll-stagger-delay': `${attributes.staggerDelay}s`,
+      '--wp-block-animate-on-scroll-animation-timing': attributes.easing,
+      '--wp-block-animate-on-scroll-slide-distance': `${attributes.slideDistance ?? 50}px`,
+      '--wp-block-animate-on-scroll-zoom-in-start': `${attributes.zoomInStart ?? 0.5}`,
+      '--wp-block-animate-on-scroll-zoom-out-start': `${attributes.zoomOutStart ?? 1.5}`,
+      '--wp-block-animate-on-scroll-rotate-angle': `${attributes.rotationAngle ?? 90}deg`,
+      '--wp-block-animate-on-scroll-blur-amount': `${attributes.blurAmount ?? 20}px`,
+      '--wp-block-animate-on-scroll-perspective': `${attributes.perspective ?? 1000}px`,
+      '--wp-block-animate-on-scroll-bounce-distance': `${attributes.bounceDistance ?? 30}px`,
+      '--wp-block-animate-on-scroll-elastic-distance': `${attributes.elasticDistance ?? 50}px`,
+    } as CSSProperties,
+  });
+
+  const playPreview = useCallback(() => {
+    if (previewTimerRef.current) {
+      clearTimeout(previewTimerRef.current);
+      previewTimerRef.current = null;
+    }
+    setPreviewPhase('armed');
+  }, []);
+
+  const clearPreviewChildState = useCallback((root: HTMLElement) => {
+    Array.from(root.children).forEach(child => {
+      const el = child as HTMLElement;
+      el.style.removeProperty('--wp-block-animate-on-scroll-stagger-delay');
+      el.removeAttribute('data-animate-sequence-type');
+      el.removeAttribute('data-animate-sequence-direction');
+      [
+        '--wp-block-animate-on-scroll-slide-distance',
+        '--wp-block-animate-on-scroll-zoom-in-start',
+        '--wp-block-animate-on-scroll-zoom-out-start',
+        '--wp-block-animate-on-scroll-rotate-angle',
+        '--wp-block-animate-on-scroll-blur-amount',
+        '--wp-block-animate-on-scroll-perspective',
+        '--wp-block-animate-on-scroll-bounce-distance',
+        '--wp-block-animate-on-scroll-elastic-distance',
+      ].forEach(prop => el.style.removeProperty(prop));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (previewPhase !== 'armed' || !blockRef.current) {
+      return;
+    }
+
+    const root = blockRef.current;
+    const children = Array.from(root.children) as HTMLElement[];
+    const sequence = attributes.animationSequence ?? [];
+    const staggerConfig: StaggerConfig = {
+      pattern: attributes.staggerPattern,
+      delay: attributes.staggerDelay,
+      waveFrequency: attributes.staggerWaveFrequency,
+      randomMin: attributes.staggerRandomMin,
+      randomMax: attributes.staggerRandomMax,
+      seed: attributes.staggerSeed || createStaggerSeed(),
+    };
+
+    // Sequence preview: stamp per-child types (CSS matches any element).
+    if (useSequencePreview) {
+      children.forEach((child, index) => {
+        const step: AnimationSequenceItem = sequence[index % sequence.length];
+        const type = step.animation === 'blur' ? 'blur-in' : step.animation;
+        child.setAttribute('data-animate-sequence-type', type);
+        if (step.direction) {
+          child.setAttribute('data-animate-sequence-direction', step.direction);
+        }
+        if (step.slideDistance != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-slide-distance',
+            `${step.slideDistance}px`
+          );
+        }
+        if (step.zoomInStart != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-zoom-in-start',
+            String(step.zoomInStart)
+          );
+        }
+        if (step.zoomOutStart != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-zoom-out-start',
+            String(step.zoomOutStart)
+          );
+        }
+        if (step.rotationAngle != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-rotate-angle',
+            `${step.rotationAngle}deg`
+          );
+        }
+        if (step.blurAmount != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-blur-amount',
+            `${step.blurAmount}px`
+          );
+        }
+        if (step.perspective != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-perspective',
+            `${step.perspective}px`
+          );
+        }
+        if (step.bounceDistance != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-bounce-distance',
+            `${step.bounceDistance}px`
+          );
+        }
+        if (step.elasticDistance != null) {
+          child.style.setProperty(
+            '--wp-block-animate-on-scroll-elastic-distance',
+            `${step.elasticDistance}px`
+          );
+        }
+      });
+    }
+
+    // Stagger delays (sequence always cascades; non-sequence when toggled).
+    if (attributes.staggerChildren || useSequencePreview) {
+      children.forEach((child, index) => {
+        const delay = getChildStaggerDelay(
+          index,
+          children.length,
+          staggerConfig,
+          false
+        );
+        child.style.setProperty(
+          '--wp-block-animate-on-scroll-stagger-delay',
+          `${delay}s`
+        );
+      });
+    }
+
+    // Double rAF so the browser paints the hidden/offset state first.
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setPreviewPhase('visible'));
+    });
+
+    let maxStagger = 0;
+    if (
+      (attributes.staggerChildren || useSequencePreview) &&
+      children.length > 1
+    ) {
+      children.forEach((_, index) => {
+        maxStagger = Math.max(
+          maxStagger,
+          getChildStaggerDelay(index, children.length, staggerConfig, false)
+        );
+      });
+    }
+    const holdMs =
+      (attributes.duration + attributes.initialDelay + maxStagger + 0.35) *
+      1000;
+
+    previewTimerRef.current = setTimeout(() => {
+      setPreviewPhase('idle');
+      if (blockRef.current) {
+        clearPreviewChildState(blockRef.current);
+      }
+      previewTimerRef.current = null;
+    }, holdMs);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [
+    previewPhase,
+    attributes.staggerChildren,
+    attributes.staggerDelay,
+    attributes.staggerPattern,
+    attributes.staggerWaveFrequency,
+    attributes.staggerRandomMin,
+    attributes.staggerRandomMax,
+    attributes.staggerSeed,
+    attributes.duration,
+    attributes.initialDelay,
+    attributes.animationSequence,
+    useSequencePreview,
+    clearPreviewChildState,
+  ]);
+
+  useEffect(
+    () => () => {
+      if (previewTimerRef.current) {
+        clearTimeout(previewTimerRef.current);
+      }
+    },
+    []
+  );
+
+  // Persist a seed for blocks that already use random without one.
+  useEffect(() => {
+    if (
+      attributes.staggerChildren &&
+      attributes.staggerPattern === 'random' &&
+      !attributes.staggerSeed
+    ) {
+      setAttributes({ staggerSeed: createStaggerSeed() });
+    }
+  }, [
+    attributes.staggerChildren,
+    attributes.staggerPattern,
+    attributes.staggerSeed,
+    setAttributes,
+  ]);
 
   return (
     <>
@@ -107,6 +380,36 @@ export default function Edit({
             attributes={attributes}
             onApplyPreset={preset => setAttributes(preset.attributes)}
           />
+
+          <div className='aggressive-apparel-animate-on-scroll-preview'>
+            <Button
+              variant='secondary'
+              onClick={playPreview}
+              disabled={isPreviewing}
+              __next40pxDefaultSize
+            >
+              {isPreviewing
+                ? __('Playing…', 'aggressive-apparel')
+                : __('Preview animation', 'aggressive-apparel')}
+            </Button>
+            {attributes.useSequence && (
+              <p className='components-base-control__help aggressive-apparel-animate-on-scroll-preview__help'>
+                {__(
+                  'Sequence mode previews each direct child’s step in the canvas (types cycle when there are more children than steps).',
+                  'aggressive-apparel'
+                )}
+              </p>
+            )}
+          </div>
+
+          {showNestedChildWarning && (
+            <Notice status='warning' isDismissible={false}>
+              {__(
+                'Stagger and sequence only animate direct children. This block has a single Group/columns wrapper — move paragraphs or cards out of the Group, or they will animate as one unit.',
+                'aggressive-apparel'
+              )}
+            </Notice>
+          )}
 
           <ToggleControl
             label={__('Use Animation Sequence', 'aggressive-apparel')}
@@ -361,12 +664,12 @@ export default function Edit({
                 value: 'ease-in-out',
               },
               {
-                label: __('Cubic Bezier', 'aggressive-apparel'),
+                label: __('Overshoot', 'aggressive-apparel'),
                 value: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
               },
               {
                 label: __('Bounce', 'aggressive-apparel'),
-                value: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                value: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
               },
               {
                 label: __('Elastic', 'aggressive-apparel'),
@@ -399,9 +702,15 @@ export default function Edit({
             label={__('Stagger Children', 'aggressive-apparel')}
             checked={attributes.staggerChildren}
             onChange={staggerChildren => setAttributes({ staggerChildren })}
-            help={__(
-              'Apply animation to children with a delay between each',
-              'aggressive-apparel'
+            help={sprintf(
+              /* translators: %d: number of direct child blocks. */
+              _n(
+                'Cascade each direct child with a delay between them. Currently %d direct child — add siblings (not a wrapping Group) for a cascade.',
+                'Cascade each direct child with a delay between them. Currently %d direct children. Nested Groups count as one child.',
+                childCount,
+                'aggressive-apparel'
+              ),
+              childCount
             )}
             __nextHasNoMarginBottom
           />
@@ -421,11 +730,16 @@ export default function Edit({
                     value: 'random',
                   },
                 ]}
-                onChange={staggerPattern =>
-                  setAttributes({
-                    staggerPattern: staggerPattern as StaggerPattern,
-                  })
-                }
+                onChange={staggerPattern => {
+                  const next = staggerPattern as StaggerPattern;
+                  const updates: Partial<AnimateOnScrollAttributes> = {
+                    staggerPattern: next,
+                  };
+                  if (next === 'random' && !attributes.staggerSeed) {
+                    updates.staggerSeed = createStaggerSeed();
+                  }
+                  setAttributes(updates);
+                }}
                 help={__(
                   'How the stagger delay is applied to children',
                   'aggressive-apparel'
@@ -516,6 +830,23 @@ export default function Edit({
                       'aggressive-apparel'
                     )}
                   />
+                  <div className='aggressive-apparel-animate-on-scroll-preview'>
+                    <Button
+                      variant='secondary'
+                      onClick={() =>
+                        setAttributes({ staggerSeed: createStaggerSeed() })
+                      }
+                      __next40pxDefaultSize
+                    >
+                      {__('Reshuffle delays', 'aggressive-apparel')}
+                    </Button>
+                    <p className='components-base-control__help aggressive-apparel-animate-on-scroll-preview__help'>
+                      {__(
+                        'Random delays are seeded so the cascade stays the same across reloads. Reshuffle picks a new pattern.',
+                        'aggressive-apparel'
+                      )}
+                    </p>
+                  </div>
                 </>
               )}
             </>
@@ -672,7 +1003,7 @@ export default function Edit({
               setAttributes({ announceToScreenReader })
             }
             help={__(
-              'Announce animation events to screen readers',
+              'Announce when content animates into view. Off by default — enable only when a single block is critical to understand.',
               'aggressive-apparel'
             )}
             __nextHasNoMarginBottom

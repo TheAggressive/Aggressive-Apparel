@@ -17,6 +17,7 @@
     "jsx": "react-jsx",
     "types": [
       "jest",
+      "node",
       "@types/react",
       "@types/react-dom",
       "@types/wordpress__block-editor",

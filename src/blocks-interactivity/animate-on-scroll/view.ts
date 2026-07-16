@@ -23,6 +23,18 @@ import {
   getVisibilityThreshold,
 } from '../debug-shared/utils';
 import type { AosDebugController } from './debug';
+import { setupStaggerDelays, type StaggerConfig } from './stagger-math';
+
+// Re-export pure math for unit tests that import from this entry.
+export {
+  calculateRandomDelay,
+  calculateSequentialDelay,
+  calculateWaveDelay,
+  createStaggerSeed,
+  getChildStaggerDelay,
+  hashToSeed,
+  mulberry32,
+} from './stagger-math';
 
 interface DetectionBoundary {
   top: string;
@@ -53,14 +65,7 @@ interface AnimateOnScrollContext {
   staggerWaveFrequency?: number;
   staggerRandomMin?: number;
   staggerRandomMax?: number;
-}
-
-interface StaggerConfig {
-  pattern: string;
-  delay: number;
-  waveFrequency: number;
-  randomMin: number;
-  randomMax: number;
+  staggerSeed?: number;
 }
 
 const getStaggerConfig = (ctx: AnimateOnScrollContext): StaggerConfig => ({
@@ -69,87 +74,50 @@ const getStaggerConfig = (ctx: AnimateOnScrollContext): StaggerConfig => ({
   waveFrequency: ctx.staggerWaveFrequency ?? 1,
   randomMin: ctx.staggerRandomMin ?? 0,
   randomMax: ctx.staggerRandomMax ?? 0.5,
+  seed: ctx.staggerSeed ?? 0,
 });
 
-// ---------------------------------------------------------------------------
-// Stagger delay calculation
-// ---------------------------------------------------------------------------
-
-export const calculateSequentialDelay = (
-  index: number,
-  staggerDelay: number,
-  reverse: boolean,
-  totalChildren: number
+/** Parse a CSS time custom property (`0.5s`, `200ms`) into seconds. */
+export const parseCssTimeSeconds = (
+  value: string,
+  fallback: number
 ): number => {
-  const sequentialIndex = reverse ? totalChildren - 1 - index : index;
-  return sequentialIndex * staggerDelay;
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+  const n = parseFloat(trimmed);
+  if (!Number.isFinite(n)) {
+    return fallback;
+  }
+  return trimmed.endsWith('ms') ? n / 1000 : n;
 };
-
-export const calculateWaveDelay = (
-  index: number,
-  staggerDelay: number,
-  waveFrequency: number,
-  reverse: boolean,
-  totalChildren: number
-): number => {
-  const waveIndex = reverse ? totalChildren - 1 - index : index;
-  const waveProgress = waveIndex / Math.max(totalChildren - 1, 1);
-  // Half-cycle cosine ramp starting at 0. The old sin(progress × 2π)
-  // formula sampled 0/π/2π for 2-3 children — identical delays, so the
-  // "wave" fired everything at once. Cosine over half cycles never
-  // collapses: frequency 1 is a smooth sweep, 2 is edges-in, 4 ripples.
-  const waveValue = (1 - Math.cos(waveProgress * waveFrequency * Math.PI)) / 2;
-  // Spread scales with child count (like sequential) so the wave stays
-  // perceptible on long lists instead of being capped at one delay unit.
-  const maxDelay = staggerDelay * Math.max(totalChildren - 1, 1) * 0.5;
-  return waveValue * maxDelay;
-};
-
-const calculateRandomDelay = (min: number, max: number): number =>
-  min + Math.random() * (max - min);
 
 /**
- * Set per-child stagger delays; `reverse` flips the order so exit
- * animations play back-to-front.
+ * Largest per-child stagger delay currently written on direct children.
+ * Used so exit hold covers the last cascading child.
  */
-const setupStaggerDelays = (
-  element: HTMLElement,
-  config: StaggerConfig,
-  reverse: boolean = false
-): void => {
-  const children = Array.from(element.children) as HTMLElement[];
-
-  children.forEach((child, index) => {
-    let delay: number;
-    switch (config.pattern) {
-      case 'wave':
-        delay = calculateWaveDelay(
-          index,
-          config.delay,
-          config.waveFrequency,
-          reverse,
-          children.length
-        );
-        break;
-      case 'random':
-        delay = calculateRandomDelay(config.randomMin, config.randomMax);
-        break;
-      case 'sequential':
-      default:
-        delay = calculateSequentialDelay(
-          index,
-          config.delay,
-          reverse,
-          children.length
-        );
-        break;
-    }
-    child.style.setProperty(
-      '--wp-block-animate-on-scroll-stagger-delay',
-      `${delay}s`
+export const getMaxChildStaggerDelaySeconds = (
+  element: HTMLElement
+): number => {
+  let max = 0;
+  for (const child of Array.from(element.children) as HTMLElement[]) {
+    const n = parseFloat(
+      child.style.getPropertyValue('--wp-block-animate-on-scroll-stagger-delay')
     );
-  });
+    if (Number.isFinite(n) && n > max) {
+      max = n;
+    }
+  }
+  return max;
 };
+
+/** Total time to keep `.is-exiting` until the slowest child finishes. */
+export const getExitHoldMs = (
+  durationSeconds: number,
+  initialDelaySeconds: number,
+  maxStaggerSeconds: number
+): number => (durationSeconds + initialDelaySeconds + maxStaggerSeconds) * 1000;
 
 // ---------------------------------------------------------------------------
 // Accessibility
@@ -211,6 +179,21 @@ store('aggressive-apparel/animate-on-scroll', {
 
       ref.setAttribute('data-animate-id', ctx.id);
 
+      // Cache timing once — avoid getComputedStyle on every exit.
+      const computedStyles = window.getComputedStyle(ref);
+      const animationDurationSeconds = parseCssTimeSeconds(
+        computedStyles.getPropertyValue(
+          '--wp-block-animate-on-scroll-animation-duration'
+        ),
+        0.5
+      );
+      const initialDelaySeconds = parseCssTimeSeconds(
+        computedStyles.getPropertyValue(
+          '--wp-block-animate-on-scroll-initial-delay'
+        ),
+        0
+      );
+
       // Reduced motion: unless the editor opted out, show content
       // immediately and skip all observation.
       const prefersReducedMotion = window.matchMedia(
@@ -222,7 +205,24 @@ store('aggressive-apparel/animate-on-scroll', {
         return;
       }
 
+      const rootMargin = `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`;
+      // Elements taller than the root box can never reach the configured
+      // ratio — observe at the reachable effective threshold instead.
+      const threshold = getEffectiveThreshold(
+        getVisibilityThreshold(ctx.visibilityTrigger),
+        ref.offsetHeight,
+        window.innerHeight,
+        rootMargin
+      );
+      // Exit fires at half the entry threshold (hysteresis): the reverse
+      // animation starts while the element is still meaningfully on
+      // screen, and the gap between the two thresholds prevents
+      // enter/exit flicker right at the boundary.
+      const exitThreshold = threshold / 2;
+      let exitTimeout: ReturnType<typeof setTimeout> | null = null;
+
       // Debug tooling is code-split; production pages never fetch it.
+      // Loaded after threshold so the async callback closes over a defined value.
       let debugController: AosDebugController | null = null;
       if (ctx.debugMode) {
         import('./debug')
@@ -244,22 +244,6 @@ store('aggressive-apparel/animate-on-scroll', {
             );
           });
       }
-
-      const rootMargin = `${ctx.detectionBoundary.top} ${ctx.detectionBoundary.right} ${ctx.detectionBoundary.bottom} ${ctx.detectionBoundary.left}`;
-      // Elements taller than the root box can never reach the configured
-      // ratio — observe at the reachable effective threshold instead.
-      const threshold = getEffectiveThreshold(
-        getVisibilityThreshold(ctx.visibilityTrigger),
-        ref.offsetHeight,
-        window.innerHeight,
-        rootMargin
-      );
-      // Exit fires at half the entry threshold (hysteresis): the reverse
-      // animation starts while the element is still meaningfully on
-      // screen, and the gap between the two thresholds prevents
-      // enter/exit flicker right at the boundary.
-      const exitThreshold = threshold / 2;
-      let exitTimeout: ReturnType<typeof setTimeout> | null = null;
 
       // NOTE: the wrapper's class attribute is vdom-controlled (it has
       // data-wp-class directives), so exit/animated state MUST go through
@@ -283,12 +267,15 @@ store('aggressive-apparel/animate-on-scroll', {
           setupStaggerDelays(ref, getStaggerConfig(ctx), true);
         }
 
-        const durationValue = window
-          .getComputedStyle(ref)
-          .getPropertyValue('--wp-block-animate-on-scroll-animation-duration');
-        const durationSeconds = durationValue
-          ? parseFloat(durationValue.replace('s', ''))
-          : 0.5;
+        // Hold exit until duration + initial delay + slowest child stagger.
+        const maxStaggerSeconds = staggerEnabled
+          ? getMaxChildStaggerDelaySeconds(ref)
+          : 0;
+        const holdMs = getExitHoldMs(
+          animationDurationSeconds,
+          initialDelaySeconds,
+          maxStaggerSeconds
+        );
 
         if (exitTimeout !== null) {
           clearTimeout(exitTimeout);
@@ -299,7 +286,7 @@ store('aggressive-apparel/animate-on-scroll', {
           if (staggerEnabled) {
             setupStaggerDelays(ref, getStaggerConfig(ctx), false);
           }
-        }, durationSeconds * 1000);
+        }, holdMs);
       };
 
       const observer = new IntersectionObserver(

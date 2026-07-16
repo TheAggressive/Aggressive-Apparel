@@ -70,8 +70,9 @@ if ( $aos_debug_mode ) {
 				'staggerWaveFrequency'   => $attributes['staggerWaveFrequency'] ?? 1,
 				'staggerRandomMin'       => $attributes['staggerRandomMin'] ?? 0,
 				'staggerRandomMax'       => $attributes['staggerRandomMax'] ?? 0.5,
+				'staggerSeed'            => absint( $attributes['staggerSeed'] ?? 0 ),
 				'respectReducedMotion'   => $attributes['respectReducedMotion'] ?? true,
-				'announceToScreenReader' => $attributes['announceToScreenReader'] ?? true,
+				'announceToScreenReader' => $attributes['announceToScreenReader'] ?? false,
 			)
 		),
 		'data-wp-init'                => 'callbacks.initObserver',

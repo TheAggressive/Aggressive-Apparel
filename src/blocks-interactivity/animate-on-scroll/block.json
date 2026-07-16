@@ -103,10 +103,6 @@
       "type": "array",
       "default": []
     },
-    "sequenceCustomizations": {
-      "type": "object",
-      "default": {}
-    },
     "reverseOnScrollBack": {
       "type": "boolean",
       "default": false
@@ -131,13 +127,17 @@
       "type": "number",
       "default": 0.5
     },
+    "staggerSeed": {
+      "type": "number",
+      "default": 0
+    },
     "respectReducedMotion": {
       "type": "boolean",
       "default": true
     },
     "announceToScreenReader": {
       "type": "boolean",
-      "default": true
+      "default": false
     }
   },
   "textdomain": "aggressive-apparel",

@@ -11,6 +11,7 @@ export type EasingType =
   | 'ease-out'
   | 'ease-in-out'
   | 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+  | 'cubic-bezier(0.34, 1.56, 0.64, 1)'
   | 'cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
 export type StaggerPattern = 'sequential' | 'wave' | 'random';
@@ -53,6 +54,8 @@ export interface AnimateOnScrollAttributes {
   staggerWaveFrequency: number;
   staggerRandomMin: number;
   staggerRandomMax: number;
+  /** Stable seed for random stagger (0 = generate on first use). */
+  staggerSeed: number;
   respectReducedMotion: boolean;
   announceToScreenReader: boolean;
   slideDistance?: number;
@@ -63,5 +66,4 @@ export interface AnimateOnScrollAttributes {
   perspective?: number;
   bounceDistance?: number;
   elasticDistance?: number;
-  sequenceCustomizations: Record<string, Record<string, number>>;
 }

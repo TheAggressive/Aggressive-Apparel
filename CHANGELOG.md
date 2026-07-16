@@ -1,3 +1,10 @@
+# [1.156.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.155.0...v1.156.0) (2026-07-16)
+
+
+### Features
+
+* optimize hero carousel image loading for LCP and editor resolution ([15449f0](https://github.com/TheAggressive/Aggressive-Apparel/commit/15449f0972940b08f90be276ff6c527e63800f8c))
+
 # [1.155.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.154.0...v1.155.0) (2026-07-16)
 
 

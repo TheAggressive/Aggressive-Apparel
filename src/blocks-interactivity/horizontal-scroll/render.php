@@ -66,6 +66,24 @@ $classes = 'aa-hscroll aa-hscroll--' . $activation;
 if ( 'inline' === $desktop_behavior ) {
 	$classes .= ' aa-hscroll--inline';
 }
+
+// Forward editor Block spacing (blockGap) onto --aa-hscroll-gap so the track
+// gap matches the Dimensions panel. Skipped from core serialization because
+// gap must land on `.aa-hscroll__track`, not the section wrapper.
+$style_parts = array(
+	sprintf( '--aa-hscroll-item-width: %s;', esc_attr( $item_width ) ),
+	sprintf( '--aa-hscroll-speed: %s;', esc_attr( (string) $speed ) ),
+);
+$block_gap   = $attributes['style']['spacing']['blockGap'] ?? null;
+if ( is_string( $block_gap ) && '' !== $block_gap ) {
+	if ( str_starts_with( $block_gap, 'var:preset|spacing|' ) ) {
+		$gap_slug  = substr( $block_gap, strlen( 'var:preset|spacing|' ) );
+		$gap_value = '0' === $gap_slug ? '0' : 'var(--wp--preset--spacing--' . esc_attr( $gap_slug ) . ')';
+	} else {
+		$gap_value = esc_attr( $block_gap );
+	}
+	$style_parts[] = '--aa-hscroll-gap: ' . $gap_value . ';';
+}
 ?>
 <section
 	<?php
@@ -91,11 +109,7 @@ if ( 'inline' === $desktop_behavior ) {
 				)
 			),
 			'data-wp-init'         => 'callbacks.init',
-			'style'                => sprintf(
-				'--aa-hscroll-item-width: %s; --aa-hscroll-speed: %s;',
-				esc_attr( $item_width ),
-				esc_attr( (string) $speed )
-			),
+			'style'                => implode( ' ', $style_parts ),
 		)
 	);
 	?>

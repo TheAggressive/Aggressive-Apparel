@@ -943,6 +943,30 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Horizontal scroll forwards editor blockGap onto --aa-hscroll-gap.
+	 *
+	 * @return void
+	 */
+	public function test_horizontal_scroll_forwards_block_gap(): void {
+		$html = $this->render(
+			'horizontal-scroll',
+			array(
+				'showProgress' => false,
+				'style'        => array(
+					'spacing' => array(
+						'blockGap' => 'var:preset|spacing|12',
+					),
+				),
+			)
+		);
+
+		$this->assertStringContainsString(
+			'--aa-hscroll-gap: var(--wp--preset--spacing--12)',
+			$html
+		);
+	}
+
+	/**
 	 * Grid/list toggle renders both view controls.
 	 *
 	 * @return void

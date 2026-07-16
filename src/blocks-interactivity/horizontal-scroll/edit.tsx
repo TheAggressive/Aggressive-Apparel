@@ -36,6 +36,24 @@ interface HScrollAttributes {
   desktopBehavior: HScrollDesktopBehavior;
   snapBehavior: HScrollSnapBehavior;
   swipeHintStyle: SwipeHintStyle;
+  style?: { spacing?: { blockGap?: string } };
+}
+
+const SPACING_PRESET = /^var:preset\|spacing\|(.+)$/;
+
+/**
+ * Resolve a core spacing value or `var:preset|spacing|x` into CSS.
+ * Mirrors the PHP path in render.php so editor preview matches the frontend.
+ */
+function resolveSpacingCssValue(value?: string): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const preset = value.match(SPACING_PRESET);
+  if (!preset) {
+    return value;
+  }
+  return '0' === preset[1] ? '0' : `var(--wp--preset--spacing--${preset[1]})`;
 }
 
 export default function Edit({
@@ -52,8 +70,10 @@ export default function Edit({
     snapBehavior = 'off',
     swipeHintStyle = 'cue',
   } = attributes;
+  const gap = resolveSpacingCssValue(attributes.style?.spacing?.blockGap);
   const previewStyle = {
     '--aa-hscroll-item-width': itemWidth,
+    ...(gap ? { '--aa-hscroll-gap': gap } : {}),
   } as CSSProperties;
 
   const blockProps = useBlockProps({

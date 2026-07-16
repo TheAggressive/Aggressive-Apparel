@@ -15,7 +15,12 @@
       "background": true
     },
     "spacing": {
-      "padding": true
+      "padding": true,
+      "blockGap": true,
+      "__experimentalSkipSerialization": ["blockGap"],
+      "__experimentalDefaultControls": {
+        "blockGap": true
+      }
     }
   },
   "attributes": {

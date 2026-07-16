@@ -1,3 +1,10 @@
+## [1.157.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.157.0...v1.157.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* update heart icon viewBox and improve infinite scroll handling ([01b5843](https://github.com/TheAggressive/Aggressive-Apparel/commit/01b5843d3dfc495e517cf112f857e36f4a3fd442))
+
 # [1.157.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.156.0...v1.157.0) (2026-07-16)
 
 

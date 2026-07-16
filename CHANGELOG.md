@@ -1,3 +1,10 @@
+# [1.157.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.156.0...v1.157.0) (2026-07-16)
+
+
+### Features
+
+* add blockGap support to horizontal scroll block ([a4c7b46](https://github.com/TheAggressive/Aggressive-Apparel/commit/a4c7b463929bcdaeed3b623d07dbea6c9784a721))
+
 # [1.156.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.155.0...v1.156.0) (2026-07-16)
 
 

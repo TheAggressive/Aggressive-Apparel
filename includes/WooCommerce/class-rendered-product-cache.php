@@ -22,6 +22,9 @@ final class Rendered_Product_Cache {
 	/** Persistent object-cache group. */
 	private const GROUP = 'aggressive-apparel-rendered-products';
 
+	/** Maximum orphaned regeneration-lock lifetime. */
+	private const LOCK_TTL = 30;
+
 	/**
 	 * Shared catalog version provider.
 	 *
@@ -160,7 +163,8 @@ final class Rendered_Product_Cache {
 	 * @return bool
 	 */
 	public function acquire_lock( string $key ): bool {
-		return '' !== $key && wp_cache_add( $key . ':lock', 1, self::GROUP, 300 );
+		// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined -- Locks need a short lease so a fatal cannot block cold-cache regeneration for five minutes.
+		return '' !== $key && wp_cache_add( $key . ':lock', 1, self::GROUP, self::LOCK_TTL );
 	}
 
 	/**

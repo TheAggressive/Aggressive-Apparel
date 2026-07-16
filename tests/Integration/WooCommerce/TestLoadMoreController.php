@@ -378,6 +378,30 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
 	}
 
+	/** Default cache eligibility follows authentication and object-cache state. */
+	public function test_rendered_response_cache_default_eligibility(): void {
+		$cache                 = new Rendered_Product_Cache( new Catalog_Cache_Version() );
+		$block                 = array( 'blockName' => 'woocommerce/product-collection' );
+		$original_user         = get_current_user_id();
+		$original_object_cache = wp_using_ext_object_cache();
+
+		try {
+			wp_set_current_user( 0 );
+			wp_using_ext_object_cache( true );
+			$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $cache->key( array( 'paged' => 1 ), $block, false ) );
+
+			wp_set_current_user( $this->admin_id );
+			$this->assertSame( '', $cache->key( array( 'paged' => 1 ), $block, false ) );
+
+			wp_set_current_user( 0 );
+			wp_using_ext_object_cache( false );
+			$this->assertSame( '', $cache->key( array( 'paged' => 1 ), $block, false ) );
+		} finally {
+			wp_using_ext_object_cache( $original_object_cache );
+			wp_set_current_user( $original_user );
+		}
+	}
+
 	/** Persistent caching remains safe before WooCommerce creates a customer. */
 	public function test_rendered_response_cache_handles_missing_customer(): void {
 		$woocommerce           = \WC();
@@ -440,6 +464,23 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$cache->release_lock( $key, true );
 	}
 
+	/** A contended regeneration lock leaves the stale response available. */
+	public function test_rendered_response_cache_serves_stale_while_locked(): void {
+		$cache = new Rendered_Product_Cache( new Catalog_Cache_Version() );
+		$key   = 'test-stale-' . wp_generate_uuid4();
+		$data  = array( 'html' => '<li>Stale product</li>' );
+
+		$cache->store( $key, $data, false );
+		wp_cache_delete( $key, 'aggressive-apparel-rendered-products' );
+
+		$this->assertTrue( $cache->acquire_lock( $key ) );
+		$this->assertFalse( $cache->acquire_lock( $key ) );
+		$this->assertNull( $cache->fresh( $key ) );
+		$this->assertSame( $data, $cache->stale( $key ) );
+
+		$cache->release_lock( $key, true );
+	}
+
 	/** Fragment extraction distinguishes a missing wrapper from an empty list. */
 	public function test_fragment_extraction_reports_missing_product_template(): void {
 		$renderer = new Product_Fragment_Renderer();
@@ -464,11 +505,13 @@ class TestLoadMoreController extends WP_UnitTestCase {
 			. '</div><!-- /wp:woocommerce/product-collection -->'
 		);
 
-		$reported = null;
-		$listener = static function ( \Throwable $error ) use ( &$reported ): void {
-			$reported = $error;
+		$reported    = null;
+		$diagnostics = null;
+		$listener    = static function ( \Throwable $error, \WP_REST_Request $request, array $query_args, array $context ) use ( &$reported, &$diagnostics ): void {
+			$reported    = $error;
+			$diagnostics = $context;
 		};
-		add_action( 'aggressive_apparel_catalog_render_error', $listener );
+		add_action( 'aggressive_apparel_catalog_render_error', $listener, 10, 4 );
 
 		try {
 			$response = $this->dispatch( array( 'template' => $slug ) );
@@ -479,6 +522,8 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( 500, $response->get_status() );
 		$this->assertSame( 'catalog_render_failed', $response->get_data()['code'] );
 		$this->assertInstanceOf( \UnexpectedValueException::class, $reported );
+		$this->assertSame( 'disabled', $diagnostics['cache_status'] );
+		$this->assertSame( sanitize_title( $slug ), $diagnostics['template'] );
 	}
 
 	/** Identical public render requests are served from the fragment cache. */

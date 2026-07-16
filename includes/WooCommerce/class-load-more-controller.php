@@ -298,17 +298,22 @@ final class Load_More_Controller {
 		 */
 		$query_args = (array) apply_filters( 'aggressive_apparel_load_more_query_args', $query_args, $collection_block, $request );
 
-		$cache_key = '';
-		$has_lock  = false;
+		$cache_key    = '';
+		$cache_status = 'unavailable';
+		$has_lock     = false;
 
 		try {
-			$cache_key = $this->response_cache->key( $query_args, $collection_block, $with_facets );
-			$cached    = $this->response_cache->fresh( $cache_key );
+			$cache_key    = $this->response_cache->key( $query_args, $collection_block, $with_facets );
+			$cache_status = '' === $cache_key ? 'disabled' : 'miss';
+			$cached       = $this->response_cache->fresh( $cache_key );
 			if ( null !== $cached ) {
 				return new \WP_REST_Response( $cached );
 			}
 
 			$has_lock = $this->response_cache->acquire_lock( $cache_key );
+			if ( '' !== $cache_key ) {
+				$cache_status = $has_lock ? 'regenerating' : 'lock_contended';
+			}
 			if ( '' !== $cache_key && ! $has_lock ) {
 				$stale = $this->response_cache->stale( $cache_key );
 				if ( null !== $stale ) {
@@ -343,7 +348,7 @@ final class Load_More_Controller {
 			return new \WP_REST_Response( $data );
 		} catch ( \Throwable $error ) {
 			$this->response_cache->release_lock( $cache_key, $has_lock );
-			$this->log_catalog_error( $error, $request, $query_args, $template_slug, $page, $orderby, $filters );
+			$this->log_catalog_error( $error, $request, $query_args, $template_slug, $page, $orderby, $filters, $cache_status );
 
 			return new \WP_REST_Response(
 				array(
@@ -366,35 +371,43 @@ final class Load_More_Controller {
 	 * @param int                  $page          Requested page.
 	 * @param string               $orderby       Requested sort order.
 	 * @param array<string, mixed> $filters       Active product filters.
+	 * @param string               $cache_status  Cache state when generation failed.
 	 * @return void
 	 */
-	private function log_catalog_error( \Throwable $error, \WP_REST_Request $request, array $query_args, string $template_slug, int $page, string $orderby, array $filters ): void {
+	private function log_catalog_error( \Throwable $error, \WP_REST_Request $request, array $query_args, string $template_slug, int $page, string $orderby, array $filters, string $cache_status ): void {
+		$filter_json = wp_json_encode( $filters );
+		$diagnostics = array(
+			'template'         => $template_slug,
+			'page'             => $page,
+			'orderby'          => $orderby,
+			'filter_signature' => is_string( $filter_json ) ? hash( 'sha256', $filter_json ) : 'unavailable',
+			'cache_status'     => $cache_status,
+		);
+
 		/**
 		 * Fires when dynamic catalog generation fails.
 		 *
 		 * Logging integrations can subscribe without replacing the endpoint.
 		 *
-		 * @param \Throwable            $error      Failure being reported.
-		 * @param \WP_REST_Request      $request    Current REST request.
-		 * @param array<string, mixed>  $query_args Final bounded query arguments.
+		 * @param \Throwable           $error       Failure being reported.
+		 * @param \WP_REST_Request     $request     Current REST request.
+		 * @param array<string, mixed> $query_args  Final bounded query arguments.
+		 * @param array<string, mixed> $diagnostics Safe structured diagnostic context.
 		 */
-		do_action( 'aggressive_apparel_catalog_render_error', $error, $request, $query_args );
+		do_action( 'aggressive_apparel_catalog_render_error', $error, $request, $query_args, $diagnostics );
 
 		if ( ! function_exists( 'wc_get_logger' ) ) {
 			return;
 		}
 
-		$filter_json      = wp_json_encode( $filters );
-		$filter_signature = is_string( $filter_json ) ? hash( 'sha256', $filter_json ) : 'unavailable';
 		\wc_get_logger()->error(
 			'Dynamic catalog generation failed: ' . $error->getMessage(),
-			array(
-				'source'           => 'aggressive-apparel-catalog',
-				'exception'        => get_class( $error ),
-				'template'         => $template_slug,
-				'page'             => $page,
-				'orderby'          => $orderby,
-				'filter_signature' => $filter_signature,
+			array_merge(
+				array(
+					'source'    => 'aggressive-apparel-catalog',
+					'exception' => get_class( $error ),
+				),
+				$diagnostics
 			)
 		);
 	}

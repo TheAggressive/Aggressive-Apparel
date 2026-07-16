@@ -440,6 +440,16 @@ final class Product_Collection_Query {
 	}
 
 	/**
+	 * Read the orderby version embedded in a cursor token.
+	 *
+	 * @param string $token Opaque cursor.
+	 * @return string|null
+	 */
+	public function peek_cursor_orderby( string $token ): ?string {
+		return $this->cursors->peek_orderby( $token );
+	}
+
+	/**
 	 * Apply keyset predicates when a cursor is present on the query.
 	 *
 	 * @param array<string, string> $clauses Query SQL clauses.

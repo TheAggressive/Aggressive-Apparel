@@ -1,5 +1,6 @@
 import { chromium, type FullConfig } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { ensureCatalogCursorFixtures } from './catalog-fixtures';
 
 /**
  * Log in as admin once and persist the session so specs start authenticated
@@ -11,6 +12,8 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
   const pass = process.env.WP_ADMIN_PASS ?? 'password';
 
   mkdirSync('tests/e2e/.auth', { recursive: true });
+
+  ensureCatalogCursorFixtures();
 
   const browser = await chromium.launch();
   const page = await browser.newPage();

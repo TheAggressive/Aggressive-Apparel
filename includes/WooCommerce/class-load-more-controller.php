@@ -277,6 +277,9 @@ final class Load_More_Controller {
 		);
 		$with_facets   = (bool) $request->get_param( 'with_facets' );
 		$has_include   = '' !== trim( (string) $filters['include'] );
+		// Schema default fills orderby when omitted; detect an explicit query arg
+		// so cursor continuations can adopt the embedded sort instead.
+		$orderby_was_sent = array_key_exists( 'orderby', $request->get_query_params() );
 
 		if ( (bool) $request->get_param( 'facets_only' ) ) {
 			if ( ! $this->within_rate_limit( 'pf_facets', 600 ) ) {
@@ -295,6 +298,19 @@ final class Load_More_Controller {
 		// by offset when no cursor is supplied. Load More always sends a cursor.
 		$cursor = null;
 		if ( '' !== $cursor_token ) {
+			$cursor_orderby = $this->queries->peek_cursor_orderby( $cursor_token );
+			if ( null === $cursor_orderby ) {
+				return new \WP_REST_Response(
+					array(
+						'code'    => 'invalid_cursor',
+						'message' => __( 'Invalid catalog cursor.', 'aggressive-apparel' ),
+					),
+					400
+				);
+			}
+			if ( ! $orderby_was_sent ) {
+				$orderby = $cursor_orderby;
+			}
 			$cursor = $this->queries->decode_cursor( $cursor_token, $orderby );
 			if ( null === $cursor ) {
 				return new \WP_REST_Response(

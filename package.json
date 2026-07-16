@@ -154,7 +154,7 @@
     "test:performance": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --testsuite=performance --testdox'",
     "test:coverage": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --coverage-html=coverage --coverage-text --testdox'",
     "test:watch": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --watch --testdox'",
-    "test:any": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -lc 'export XDEBUG_MODE=off; ./vendor/bin/phpunit'",
+    "test:any": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash bin/phpunit-any.sh",
     "// 📊 ANALYSIS SCRIPTS": "_",
     "analyse:php": "pnpm run phpstan",
     "analyse:php:baseline": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --generate-baseline --memory-limit=2G'",

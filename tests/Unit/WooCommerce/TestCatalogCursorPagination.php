@@ -49,6 +49,21 @@ class TestCatalogCursorPagination extends WP_UnitTestCase {
 		$this->assertNull( $cursors->decode( $token, 'date' ) );
 	}
 
+	/** peek_orderby reads the embedded sort without full field validation. */
+	public function test_peek_orderby_reads_version(): void {
+		$cursors = new Catalog_Cursor();
+		$token   = $cursors->encode(
+			array(
+				'v'  => 'date',
+				'id' => 99,
+				'd'  => '2026-07-15 12:00:00',
+			)
+		);
+
+		$this->assertSame( 'date', $cursors->peek_orderby( $token ) );
+		$this->assertNull( $cursors->peek_orderby( '%%%' ) );
+	}
+
 	/** Malformed tokens are rejected. */
 	public function test_cursor_rejects_garbage(): void {
 		$cursors = new Catalog_Cursor();

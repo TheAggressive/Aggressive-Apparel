@@ -53,6 +53,29 @@ final class Catalog_Cursor {
 	}
 
 	/**
+	 * Read the orderby version embedded in a cursor without full validation.
+	 *
+	 * Used when REST callers omit `orderby` so the schema default cannot remount
+	 * a date (or other) SSR cursor as menu_order.
+	 *
+	 * @param string $token Opaque cursor token.
+	 * @return string|null Orderby slug, or null when the token is unreadable.
+	 */
+	public function peek_orderby( string $token ): ?string {
+		$data = $this->decode_payload( $token );
+		if ( null === $data ) {
+			return null;
+		}
+
+		$version = sanitize_key( (string) ( $data['v'] ?? '' ) );
+		if ( ! in_array( $version, self::ORDERBY_VALUES, true ) ) {
+			return null;
+		}
+
+		return $version;
+	}
+
+	/**
 	 * Decode and validate a cursor for the active sort.
 	 *
 	 * @param string $token   Opaque cursor token.
@@ -60,24 +83,8 @@ final class Catalog_Cursor {
 	 * @return array<string, mixed>|null
 	 */
 	public function decode( string $token, string $orderby ): ?array {
-		$token = trim( $token );
-		if ( '' === $token || strlen( $token ) > 512 ) {
-			return null;
-		}
-
-		$padded = strtr( $token, '-_', '+/' );
-		$pad    = strlen( $padded ) % 4;
-		if ( $pad > 0 ) {
-			$padded .= str_repeat( '=', 4 - $pad );
-		}
-
-		$json = base64_decode( $padded, true );
-		if ( ! is_string( $json ) || '' === $json ) {
-			return null;
-		}
-
-		$data = json_decode( $json, true );
-		if ( ! is_array( $data ) ) {
+		$data = $this->decode_payload( $token );
+		if ( null === $data ) {
 			return null;
 		}
 
@@ -149,6 +156,37 @@ final class Catalog_Cursor {
 		}
 
 		return $payload;
+	}
+
+	/**
+	 * Base64url-decode a cursor token to its raw payload array.
+	 *
+	 * @param string $token Opaque cursor token.
+	 * @return array<string, mixed>|null
+	 */
+	private function decode_payload( string $token ): ?array {
+		$token = trim( $token );
+		if ( '' === $token || strlen( $token ) > 512 ) {
+			return null;
+		}
+
+		$padded = strtr( $token, '-_', '+/' );
+		$pad    = strlen( $padded ) % 4;
+		if ( $pad > 0 ) {
+			$padded .= str_repeat( '=', 4 - $pad );
+		}
+
+		$json = base64_decode( $padded, true );
+		if ( ! is_string( $json ) || '' === $json ) {
+			return null;
+		}
+
+		$data = json_decode( $json, true );
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+
+		return $data;
 	}
 
 	/**

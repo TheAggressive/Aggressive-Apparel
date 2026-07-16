@@ -127,15 +127,19 @@ final class Catalog_Pagination_Seed {
 		$args = $this->queries->build_args( $per_page, $orderby, $taxonomy, $term, array() );
 		$args = $this->queries->apply_collection_constraints( $args, $block, $per_page, null, 1 );
 
-		$count_query = $this->queries->run( $this->queries->count_args( $args ) );
-		$totals      = $this->queries->totals( $count_query, $args, $per_page );
-
-		$fetch_args                   = $args;
-		$fetch_args['posts_per_page'] = $per_page + 1;
-		$query                        = $this->queries->run( $fetch_args );
-		$probe_has_more               = $this->queries->trim_overflow( $query, $per_page );
-		$has_more                     = null !== $pagination_has_more ? $pagination_has_more : $probe_has_more;
-		$next_cursor                  = $this->queries->next_cursor( $query, $orderby, $has_more );
+		// One page query with found_rows: totals + last-post cursor without a
+		// separate count probe or per_page+1 overflow fetch.
+		$fetch_args                           = $args;
+		$fetch_args['posts_per_page']         = $per_page;
+		$fetch_args['no_found_rows']          = false;
+		$fetch_args['update_post_meta_cache'] = false;
+		$fetch_args['update_post_term_cache'] = false;
+		$query                                = $this->queries->run( $fetch_args );
+		$totals                               = $this->queries->totals( $query, $args, $per_page );
+		$has_more                             = null !== $pagination_has_more
+			? $pagination_has_more
+			: ( $totals['products'] > $per_page );
+		$next_cursor                          = $this->queries->next_cursor( $query, $orderby, $has_more );
 
 		return array(
 			'templateSlug'    => $template_slug,

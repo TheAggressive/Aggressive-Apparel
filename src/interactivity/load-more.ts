@@ -25,6 +25,10 @@ import {
   resolveContinuationOrderby,
   shouldHideLoadMoreButton,
 } from './load-more-orderby';
+import {
+  SENTINEL_ROOT_MARGIN_PX,
+  shouldContinueInfiniteScroll,
+} from './load-more-continue';
 
 interface LoadMoreState {
   mode: string;
@@ -93,9 +97,6 @@ let inflightPrefetch: {
 let observer: IntersectionObserver | null = null;
 let lastFetchAt = 0;
 let prefetchArmed = false;
-
-/** Matches the IntersectionObserver rootMargin used for infinite scroll. */
-const SENTINEL_ROOT_MARGIN_PX = 400;
 
 /** Elements that have already run callbacks.init (soft-nav safe). */
 const initializedRoots = new WeakSet<Element>();
@@ -377,6 +378,11 @@ function loadSsrPage(page: number, cursor: string): void {
   if (inflightPrefetch?.cursor === cursor) {
     inflightPrefetch.promise
       .then(data => {
+        // Filter/sort may have reset pagination while this prefetch was in flight.
+        if (state.filtersActive || state.nextCursor !== cursor) {
+          state.isLoading = false;
+          return;
+        }
         if (data) {
           prefetchCache.delete(cursor);
           applyRenderedPage(page, data);
@@ -385,6 +391,10 @@ function loadSsrPage(page: number, cursor: string): void {
         fetchRenderedPage(page, cursor);
       })
       .catch(() => {
+        if (state.filtersActive || state.nextCursor !== cursor) {
+          state.isLoading = false;
+          return;
+        }
         fetchRenderedPage(page, cursor);
       });
     return;
@@ -409,6 +419,10 @@ function fetchRenderedPage(page: number, cursor: string): void {
       return res.json() as Promise<RenderedEntry>;
     })
     .then((data: RenderedEntry) => {
+      if (state.filtersActive || state.nextCursor !== cursor) {
+        state.isLoading = false;
+        return;
+      }
       applyRenderedPage(page, data);
     })
     .catch((err: Error) => {
@@ -487,46 +501,35 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
 }
 
 /**
- * Whether the infinite-scroll sentinel is within the observer's root margin.
- */
-function isSentinelNearViewport(): boolean {
-  const sentinel = document.querySelector<HTMLElement>(
-    '.aa-load-more__sentinel'
-  );
-  if (!sentinel || sentinel.hasAttribute('hidden')) {
-    return false;
-  }
-
-  const rect = sentinel.getBoundingClientRect();
-  const viewport = window.innerHeight || 0;
-  return rect.top <= viewport + SENTINEL_ROOT_MARGIN_PX;
-}
-
-/**
  * Continue loading while the sentinel remains near the viewport.
  */
 function continueInfiniteScrollIfNeeded(): void {
-  if (
-    state.mode !== 'infinite_scroll' ||
-    state.isLoading ||
-    state.allLoaded ||
-    !state.nextCursor
-  ) {
-    return;
-  }
+  const sentinel = document.querySelector<HTMLElement>(
+    '.aa-load-more__sentinel'
+  );
+  const decision = shouldContinueInfiniteScroll({
+    mode: state.mode,
+    isLoading: state.isLoading,
+    allLoaded: state.allLoaded,
+    nextCursor: state.nextCursor,
+    sentinelHidden: !sentinel || sentinel.hasAttribute('hidden'),
+    sentinelTop:
+      sentinel?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY,
+    viewportHeight: window.innerHeight || 0,
+    msSinceLastFetch: Date.now() - lastFetchAt,
+    cooldownMs: FETCH_COOLDOWN_MS,
+  });
 
-  if (!isSentinelNearViewport()) {
-    return;
-  }
-
-  if (Date.now() - lastFetchAt < FETCH_COOLDOWN_MS) {
+  if (decision === 'wait') {
     window.setTimeout(() => {
       continueInfiniteScrollIfNeeded();
     }, FETCH_COOLDOWN_MS);
     return;
   }
 
-  loadNextPage();
+  if (decision === 'load') {
+    loadNextPage();
+  }
 }
 
 /** Stable identity used to make dynamic card insertion idempotent. */

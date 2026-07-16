@@ -200,27 +200,24 @@ test.describe('anonymous catalog cursor pagination', () => {
 
     const status = page.locator('.aa-load-more__count');
     const sentinel = page.locator('.aa-load-more__sentinel');
-    test.skip(
-      (await sentinel.count()) === 0,
-      'Store is not in infinite_scroll mode.'
-    );
-    test.skip((await status.count()) === 0, 'Load More status is unavailable.');
+    await expect(
+      sentinel,
+      'Catalog fixtures should enable infinite_scroll (see catalog-fixtures.ts).'
+    ).toHaveCount(1);
+    await expect(status).toHaveCount(1);
 
     const cards = page.locator(
       '.wp-block-woocommerce-product-template > .wc-block-product'
     );
     const initialCount = await cards.count();
-    test.skip(initialCount === 0, 'The public E2E catalogue has no products.');
+    expect(initialCount).toBeGreaterThan(0);
 
     const initialStatus = ((await status.textContent()) || '').trim();
-    test.skip(!initialStatus, 'Load More status text has not hydrated.');
+    expect(initialStatus).toMatch(/Showing\s+\d+\s+of\s+\d+/i);
     const totals = initialStatus.match(/Showing\s+(\d+)\s+of\s+(\d+)/i);
-    test.skip(!totals, 'Load More status format is unavailable.');
+    expect(totals).not.toBeNull();
     const totalProducts = Number(totals![2]);
-    test.skip(
-      totalProducts <= initialCount,
-      'Catalogue fits on one page; nothing to paginate.'
-    );
+    expect(totalProducts).toBeGreaterThan(initialCount);
 
     // Keep triggering the sentinel until the catalog is exhausted.
     for (let i = 0; i < 12; i++) {
@@ -289,10 +286,10 @@ test.describe('anonymous catalog cursor pagination', () => {
     await page.goto('/shop/');
 
     const sentinel = page.locator('.aa-load-more__sentinel');
-    test.skip(
-      (await sentinel.count()) === 0,
-      'Store is not in infinite_scroll mode.'
-    );
+    await expect(
+      sentinel,
+      'Catalog fixtures should enable infinite_scroll (see catalog-fixtures.ts).'
+    ).toHaveCount(1);
 
     const button = page.locator('.aa-load-more__btn');
     await expect(button).toBeHidden();

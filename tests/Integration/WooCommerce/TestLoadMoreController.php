@@ -147,10 +147,7 @@ class TestLoadMoreController extends WP_UnitTestCase {
 	 */
 	private function dispatch( array $params ): WP_REST_Response {
 		$request = new WP_REST_Request( 'GET', self::ROUTE );
-
-		foreach ( $params as $key => $value ) {
-			$request->set_param( $key, $value );
-		}
+		$request->set_query_params( $params );
 
 		return rest_do_request( $request );
 	}
@@ -1083,17 +1080,58 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 
 		$request = new WP_REST_Request( 'GET', self::ROUTE );
-		$request->set_param( 'per_page', 1 );
-		$request->set_param( 'page', 1 );
+		$request->set_query_params(
+			array(
+				'per_page' => 1,
+				'page'     => 1,
+			)
+		);
 		$prepared = rest_do_request( $request );
 		$this->assertSame( 200, $prepared->get_status() );
 
-		// Confirm the route schema default — callers that omit orderby must not
-		// silently flip to date and reject menu_order SSR cursors.
+		// Confirm the route schema default — page-1 callers that omit orderby
+		// still get menu_order (WooCommerce catalog default).
 		$server = rest_get_server();
 		$routes = $server->get_routes();
 		$args   = $routes[ self::ROUTE ][0]['args'] ?? array();
 		$this->assertSame( 'menu_order', $args['orderby']['default'] ?? null );
+	}
+
+	/**
+	 * Cursor continuations adopt the embedded sort when orderby is omitted.
+	 *
+	 * Prevents the schema default (menu_order) from rejecting a date SSR cursor.
+	 *
+	 * @return void
+	 */
+	public function test_omitted_orderby_adopts_cursor_sort(): void {
+		if ( ! class_exists( '\WC_Product_Simple' ) ) {
+			$this->markTestSkipped( 'WooCommerce is not active.' );
+		}
+
+		$this->create_product( 10.0 );
+		$this->create_product( 20.0 );
+		$this->create_product( 30.0 );
+
+		$page_one = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 1,
+				'orderby'  => 'date',
+			)
+		)->get_data();
+		$this->assertNotEmpty( $page_one['next_cursor'] );
+
+		$continuation = $this->dispatch(
+			array(
+				'per_page' => 2,
+				'page'     => 2,
+				'cursor'   => $page_one['next_cursor'],
+			)
+		);
+
+		$this->assertSame( 200, $continuation->get_status() );
+		$this->assertNotEmpty( $continuation->get_data()['html'] ?? '' );
 	}
 
 	/**

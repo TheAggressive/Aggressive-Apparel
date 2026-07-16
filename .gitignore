@@ -52,6 +52,7 @@ Desktop.ini
 .settings/
 .classpath
 .cursor/
+.claude/
 .qodo/
 
 # Logs

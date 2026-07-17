@@ -1,3 +1,10 @@
+# [1.161.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.160.0...v1.161.0) (2026-07-17)
+
+
+### Features
+
+* enhance modal functionality with WordPress 7.1 iframe support and improved element querying ([85ab8f5](https://github.com/TheAggressive/Aggressive-Apparel/commit/85ab8f5e559237c6cd33f4816712f25773decf96))
+
 # [1.160.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.159.0...v1.160.0) (2026-07-17)
 
 

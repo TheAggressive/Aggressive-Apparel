@@ -161,6 +161,11 @@ export interface ParallaxAttributes {
   /** Engine pre-activation buffer, % of viewport height (0 disables). */
   activationBuffer?: number;
   enableMouseInteraction: boolean;
+  /**
+   * When true, skip the motion engine (and CSS-nullify transforms) at
+   * viewports ≤ 768px. Default false — mobile motion stays on.
+   */
+  disableOnMobile?: boolean;
   debugMode: boolean;
 
   // New properties for enhanced control
@@ -189,6 +194,7 @@ export interface ParallaxContext {
   /** Engine pre-activation buffer, % of viewport height (0 disables). */
   activationBuffer?: number;
   enableMouseInteraction: boolean;
+  disableOnMobile?: boolean;
   debugMode: boolean;
 
   // Runtime state (matching animate-on-scroll)

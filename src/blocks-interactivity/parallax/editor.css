@@ -24,27 +24,9 @@
 	position: relative;
 }
 
-/* Layer indicators in editor */
-.aggressive-apparel-parallax__layer {
-	position: relative;
-}
-
-.aggressive-apparel-parallax__layer::before {
-	content: "Layer";
-	position: absolute;
-	top: -8px;
-	left: 8px;
-	background: var(--wp-admin-theme-color, var(--aa-color-info));
-	color: var(--aa-color-on-scrim);
-	padding: 2px 6px;
-	border-radius: var(--aa-radius-sm);
-	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 500;
-}
-
 /* Debug mode indicator */
 .aggressive-apparel-parallax--debug::after {
-	content: "🔧 DEBUG MODE";
+	content: "DEBUG MODE";
 	position: absolute;
 	top: 8px;
 	right: 8px;
@@ -57,15 +39,6 @@
 	z-index: 10;
 }
 
-/* Fallback content in editor */
-.aggressive-apparel-parallax__fallback {
-	background: var(--aa-color-neutral-bg);
-	border: 2px dashed var(--aa-color-border-default);
-	color: var(--aa-color-foreground-muted);
-	font-style: normal;
-	font-size: 14px;
-}
-
 /* Intersection observer indicator */
 .aggressive-apparel-parallax--intersecting {
 	border-color: var(--aa-color-success);
@@ -73,7 +46,7 @@
 }
 
 .aggressive-apparel-parallax--intersecting::after {
-	content: "👁️ IN VIEW";
+	content: "IN VIEW";
 	position: absolute;
 	bottom: 8px;
 	right: 8px;

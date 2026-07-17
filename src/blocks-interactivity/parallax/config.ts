@@ -9,6 +9,12 @@ import { ParallaxContext } from './types';
 type PartialParallaxContext = Partial<ParallaxContext>;
 
 /**
+ * Viewport max-width (px) used when `disableOnMobile` is on.
+ * Matches the CSS `@media (width <= …)` gate in style.css.
+ */
+export const MOBILE_MAX_WIDTH_PX = 768;
+
+/**
  * Easing function implementations
  */
 export const EASING_FUNCTIONS = {
@@ -50,6 +56,7 @@ export function applyParallaxDefaults(
     },
     activationBuffer: context.activationBuffer ?? 20,
     enableMouseInteraction: context.enableMouseInteraction ?? false,
+    disableOnMobile: context.disableOnMobile ?? false,
     debugMode: context.debugMode ?? false,
     parallaxDirection: context.parallaxDirection ?? 'down',
     mouseInfluenceMultiplier: context.mouseInfluenceMultiplier ?? 0.5,

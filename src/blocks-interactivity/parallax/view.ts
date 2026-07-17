@@ -11,14 +11,14 @@
  * @package Aggressive Apparel
  */
 import { getContext, getElement, store } from '@wordpress/interactivity';
-import { applyParallaxDefaults } from './config';
+import { applyParallaxDefaults, MOBILE_MAX_WIDTH_PX } from './config';
 import {
   createInstance,
   primeInstance,
   registerInstance,
   setInstanceActive,
 } from './engine';
-import { collectLayers } from './layers';
+import { collectLayers, type CachedLayer } from './layers';
 import { observeInstance } from './observer';
 import type { ParallaxContext } from './types';
 import { ParallaxLogger, validateConfiguration } from './utils';
@@ -26,6 +26,63 @@ import { ParallaxLogger, validateConfiguration } from './utils';
 import type { DebugController } from './debug/controller';
 
 const INITIALIZED_CLASS = 'aggressive-apparel-parallax--initialized';
+
+const clearLayerStyles = (layers: CachedLayer[]): void => {
+  layers.forEach(({ element }) => {
+    element.style.translate = '';
+    element.style.scale = '';
+    element.style.rotate = '';
+    element.style.transform = '';
+    element.style.opacity = '';
+    element.style.filter = '';
+  });
+};
+
+const startParallax = (
+  ref: HTMLElement,
+  ctx: ParallaxContext
+): (() => void) => {
+  const container = ref.querySelector<HTMLElement>(
+    '.aggressive-apparel-parallax__container'
+  );
+
+  const layers = collectLayers(ref, ctx);
+  const instance = createInstance(ref, container, ctx, layers);
+
+  let debugController: DebugController | null = null;
+  if (ctx.debugMode) {
+    // Code-split: debug UI is only downloaded when explicitly enabled.
+    import('./debug/controller')
+      .then(module => {
+        debugController = module.createDebugController(instance);
+        instance.onFrame = progress => debugController?.onFrame(progress);
+      })
+      .catch(error => {
+        ParallaxLogger.error('Failed to load parallax debug tooling', {
+          error,
+        });
+      });
+  }
+
+  const observer = observeInstance(instance, (ratio, isIntersecting) =>
+    debugController?.onIntersection(ratio, isIntersecting)
+  );
+  const unregister = registerInstance(instance);
+  primeInstance(instance);
+
+  ref.classList.add(INITIALIZED_CLASS);
+  ctx.hasInitialized = true;
+
+  return () => {
+    setInstanceActive(instance, false);
+    observer.disconnect();
+    unregister();
+    debugController?.destroy();
+    clearLayerStyles(layers);
+    ref.classList.remove(INITIALIZED_CLASS);
+    ctx.hasInitialized = false;
+  };
+};
 
 store('aggressive-apparel/parallax', {
   callbacks: {
@@ -51,72 +108,49 @@ store('aggressive-apparel/parallax', {
           ref.getAttribute('data-instance-id') ?? `parallax_${Date.now()}`;
       }
 
-      // Accessibility: honor reduced motion entirely — no listeners, no
-      // observers, no transforms. Content renders in its natural position.
       const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      if (motionQuery.matches) {
-        return;
-      }
-
-      // The inner container carries the 3D card tilt (perspective is on
-      // the wrapper via CSS). See style.css for why it must NOT use
-      // preserve-3d / will-change.
-      const container = ref.querySelector<HTMLElement>(
-        '.aggressive-apparel-parallax__container'
+      const mobileQuery = window.matchMedia(
+        `(max-width: ${MOBILE_MAX_WIDTH_PX}px)`
       );
 
-      const layers = collectLayers(ref, ctx);
-      const instance = createInstance(ref, container, ctx, layers);
+      let stopEngine: (() => void) | undefined;
 
-      let debugController: DebugController | null = null;
-      if (ctx.debugMode) {
-        // Code-split: debug UI is only downloaded when explicitly enabled.
-        import('./debug/controller')
-          .then(module => {
-            debugController = module.createDebugController(instance);
-            instance.onFrame = progress => debugController?.onFrame(progress);
-          })
-          .catch(error => {
-            ParallaxLogger.error('Failed to load parallax debug tooling', {
-              error,
-            });
-          });
-      }
+      const shouldRun = (): boolean => {
+        if (motionQuery.matches) {
+          return false;
+        }
+        if (ctx.disableOnMobile && mobileQuery.matches) {
+          return false;
+        }
+        return true;
+      };
 
-      const observer = observeInstance(instance, (ratio, isIntersecting) =>
-        debugController?.onIntersection(ratio, isIntersecting)
-      );
-      const unregister = registerInstance(instance);
-      primeInstance(instance);
-
-      ref.classList.add(INITIALIZED_CLASS);
-      ctx.hasInitialized = true;
-
-      // If the user turns on reduced motion mid-session, shut down and
-      // clear every inline style the engine may have written.
-      const handleMotionChange = (event: MediaQueryListEvent): void => {
-        if (!event.matches) {
+      const syncEngine = (): void => {
+        if (shouldRun()) {
+          if (!stopEngine) {
+            stopEngine = startParallax(ref, ctx);
+          }
           return;
         }
-        setInstanceActive(instance, false);
-        observer.disconnect();
-        unregister();
-        layers.forEach(({ element }) => {
-          element.style.translate = '';
-          element.style.scale = '';
-          element.style.rotate = '';
-          element.style.transform = '';
-          element.style.opacity = '';
-          element.style.filter = '';
-        });
+        if (stopEngine) {
+          stopEngine();
+          stopEngine = undefined;
+        }
       };
-      motionQuery.addEventListener('change', handleMotionChange);
+
+      // Accessibility: honor reduced motion entirely — no listeners, no
+      // observers, no transforms. Content renders in its natural position.
+      // disableOnMobile likewise skips the engine below the breakpoint.
+      syncEngine();
+
+      motionQuery.addEventListener('change', syncEngine);
+      mobileQuery.addEventListener('change', syncEngine);
 
       return () => {
-        motionQuery.removeEventListener('change', handleMotionChange);
-        observer.disconnect();
-        unregister();
-        debugController?.destroy();
+        motionQuery.removeEventListener('change', syncEngine);
+        mobileQuery.removeEventListener('change', syncEngine);
+        stopEngine?.();
+        stopEngine = undefined;
       };
     },
   },

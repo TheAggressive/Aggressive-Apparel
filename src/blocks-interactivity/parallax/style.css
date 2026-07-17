@@ -28,9 +28,6 @@
  */
 .wp-block-aggressive-apparel-parallax,
 .aggressive-apparel-parallax {
-	container-type: inline-size;
-	container-name: parallax-block;
-
 	--parallax-card-rotate-x: 0deg;
 	--parallax-card-rotate-y: 0deg;
 
@@ -54,22 +51,17 @@
 		rotateY(var(--parallax-card-rotate-y, 0deg));
 }
 
-/* Decorative background layer never intercepts pointer input */
-.aggressive-apparel-parallax__visual-layer {
-	pointer-events: none;
-}
-
 .aggressive-apparel-parallax__content {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	pointer-events: auto; /* Re-enable clicks on content */
-	z-index: 1; /* Ensure content sits above container background */
+	pointer-events: auto;
+	z-index: 1;
 }
 
 /*
  * The block's layout classes land on the outer wrapper, but the actual
- * content sits three levels deep — so WordPress' own flow-gap rule never
+ * content sits inside __container — so WordPress' own flow-gap rule never
  * reaches it. Re-inherit the theme's global block gap here so nested
  * content is spaced identically to a normal flow container. Low
  * specificity (:where) keeps any editor/inner-block styling winning.
@@ -99,7 +91,7 @@
  */
 [data-parallax-enabled="true"] {
 	position: relative;
-	pointer-events: auto; /* Ensure parallax layers remain interactive */
+	pointer-events: auto;
 }
 
 /*
@@ -129,55 +121,18 @@
 	pointer-events: auto;
 }
 
-/* Parallax layer styles */
-.aggressive-apparel-parallax__layer {
-	position: relative;
-}
-
-/* Different layer weights for varying parallax speeds */
-.aggressive-apparel-parallax__layer--foreground {
-	z-index: 10;
-}
-
-.aggressive-apparel-parallax__layer--mid {
-	z-index: 5;
-}
-
-.aggressive-apparel-parallax__layer--background {
-	z-index: 1;
-}
-
-/* Debug overlay styles */
-.aggressive-apparel-parallax__debug-overlay {
-	position: relative;
-	pointer-events: none;
-	z-index: 1000;
-}
-
-.aggressive-apparel-parallax__debug-overlay.hidden {
-	display: none;
-}
-
-/* Fallback content styles */
-.aggressive-apparel-parallax__fallback {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 200px;
-	padding: 2rem;
-	text-align: center;
-	background: var(--aa-color-hover-subtle);
-	border: 2px dashed var(--aa-color-border-default);
-	border-radius: var(--aa-radius-card);
-	font-style: italic;
-	color: var(--aa-color-muted-50);
-}
-
-/* Responsive adjustments */
+/*
+ * Opt-in: authors can disable motion below tablet width. JS also skips
+ * the engine for this class at the same breakpoint (see view.ts +
+ * MOBILE_MAX_WIDTH_PX). CSS is the belt-and-suspenders clear for any
+ * leftover inline transforms.
+ */
 @media (width <= 768px) {
 
-	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__layer,
-	.aggressive-apparel-parallax.aggressive-apparel-parallax--disable-on-mobile [data-parallax-enabled="true"] {
+	.aggressive-apparel-parallax--disable-on-mobile [data-parallax-enabled="true"],
+	.aggressive-apparel-parallax--disable-on-mobile .aggressive-apparel-parallax__container {
+		transition: none !important;
+		will-change: auto !important;
 		transform: none !important;
 		translate: none !important;
 		scale: none !important;
@@ -191,7 +146,6 @@
    so each individual property is reset explicitly). */
 @media (prefers-reduced-motion: reduce) {
 
-	.aggressive-apparel-parallax__layer,
 	.aggressive-apparel-parallax [data-parallax-enabled="true"],
 	.aggressive-apparel-parallax__container {
 		transition: none !important;
@@ -203,4 +157,3 @@
 		animation: none !important;
 	}
 }
-

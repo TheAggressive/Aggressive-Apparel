@@ -315,6 +315,7 @@ function Edit({
     detectionBoundary = { top: '0%', right: '0%', bottom: '0%', left: '0%' },
     activationBuffer = 20,
     enableMouseInteraction = false,
+    disableOnMobile = false,
     debugMode = false,
     parallaxDirection = 'down', // Default value
     mouseInfluenceMultiplier = 0.5,
@@ -388,6 +389,16 @@ function Edit({
             )}
             __next40pxDefaultSize
             __nextHasNoMarginBottom
+          />
+
+          <ToggleControl
+            label={__('Disable on small screens', 'aggressive-apparel')}
+            checked={disableOnMobile}
+            onChange={value => setAttributes({ disableOnMobile: value })}
+            help={__(
+              'Turn off parallax below 768px wide. Off by default — most phones handle scroll motion fine. Prefer “prefers-reduced-motion” for accessibility.',
+              'aggressive-apparel'
+            )}
           />
         </PanelBody>
 

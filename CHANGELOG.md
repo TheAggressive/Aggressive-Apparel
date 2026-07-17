@@ -1,3 +1,11 @@
+# [1.159.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.158.0...v1.159.0) (2026-07-17)
+
+
+### Features
+
+* add disableOnMobile feature to parallax block ([0c27b21](https://github.com/TheAggressive/Aggressive-Apparel/commit/0c27b213c8c508fd6b8896ec4e1dd70d0f4769ed))
+* enhance animate-on-scroll block with stagger functionality ([45aa75d](https://github.com/TheAggressive/Aggressive-Apparel/commit/45aa75d00cf583283473d61b5557a49ae33a09c0))
+
 # [1.158.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.157.1...v1.158.0) (2026-07-16)
 
 

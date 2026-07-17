@@ -12,9 +12,11 @@ import {
   computeScrollStart,
   formatSlideAnnouncement,
   getSlides,
+  normalizeSnapBehavior,
   pickMode,
   progressToPercentage,
   resolveSpeed,
+  resolveStepDurationMs,
   shouldShowSwipeHint,
   toLogicalSlideOffsets,
   toSignedTranslate,
@@ -41,7 +43,9 @@ export interface HScrollContext {
   speed: number;
   progress: number;
   desktopBehavior?: 'pinned' | 'inline';
-  snapBehavior?: SnapBehavior;
+  snapBehavior?: SnapBehavior | 'proximity';
+  /** Author step glide length in seconds (0.2–2). */
+  stepDuration?: number;
   swipeHintStyle?: SwipeHintStyle;
   i18n?: HScrollI18n;
 }
@@ -126,13 +130,17 @@ function createPresentation(
   context: HScrollContext,
   progressElement: HTMLElement | null,
   liveRegion: HTMLElement | null,
-  swipeHint: HTMLElement | null
+  swipeHint: HTMLElement | null,
+  prevButton: HTMLButtonElement | null,
+  nextButton: HTMLButtonElement | null
 ): RuntimePresentation {
   let mode: HScrollMode = 'static';
   let slides: HTMLElement[] = [];
   let currentIndex = 0;
   let announcedIndex = -1;
   let swipeHintDismissed = false;
+  /** Cached progress-bar active flag to avoid per-frame classList churn. */
+  let progressActive: boolean | null = null;
 
   const updateSwipeHint = (): void => {
     const style = context.swipeHintStyle ?? 'cue';
@@ -146,6 +154,18 @@ function createPresentation(
 
     ref.classList.toggle('is-swipe-hint-visible', visible);
     swipeHint?.toggleAttribute('hidden', !visible);
+  };
+
+  const syncControls = (index: number, slideCount: number): void => {
+    const interactive = mode !== 'static' && slideCount > 1;
+    if (prevButton) {
+      prevButton.disabled = !interactive || index <= 0;
+      prevButton.hidden = mode === 'static';
+    }
+    if (nextButton) {
+      nextButton.disabled = !interactive || index >= slideCount - 1;
+      nextButton.hidden = mode === 'static';
+    }
   };
 
   /*
@@ -162,6 +182,7 @@ function createPresentation(
     setMode(nextMode) {
       mode = nextMode;
       updateSwipeHint();
+      syncControls(currentIndex, slides.length);
     },
 
     setSlides(nextSlides) {
@@ -183,6 +204,7 @@ function createPresentation(
       });
 
       updateSwipeHint();
+      syncControls(currentIndex, slides.length);
     },
 
     setActive(index, options = {}) {
@@ -196,6 +218,7 @@ function createPresentation(
       if (nextIndex !== currentIndex) {
         currentIndex = nextIndex;
         updateSwipeHint();
+        syncControls(currentIndex, slides.length);
       }
 
       if (announce && announcedIndex !== currentIndex && liveRegion) {
@@ -213,17 +236,20 @@ function createPresentation(
     setProgress(progress) {
       const bounded = clamp(progress, 0, 1);
       const nextProgress = progressToPercentage(bounded);
+      const active =
+        (mode === 'pinned' || mode === 'paged') &&
+        bounded > 0.01 &&
+        bounded < 0.99;
 
       if (context.progress !== nextProgress) {
         context.progress = nextProgress;
       }
 
-      progressElement?.classList.toggle(
-        'is-active',
-        (mode === 'pinned' || mode === 'paged') &&
-          bounded > 0.01 &&
-          bounded < 0.99
-      );
+      // Skip redundant classList work — called every animation frame while scrubbing.
+      if (progressActive !== active) {
+        progressActive = active;
+        progressElement?.classList.toggle('is-active', active);
+      }
     },
 
     dismissSwipeHint() {
@@ -231,6 +257,8 @@ function createPresentation(
       swipeHintDismissed = true;
       updateSwipeHint();
     },
+
+    syncControls,
   };
 }
 
@@ -248,6 +276,12 @@ export function setupHorizontalScroll(
   );
   const liveRegion = ref.querySelector<HTMLElement>('.aa-hscroll__live-region');
   const swipeHint = ref.querySelector<HTMLElement>('.aa-hscroll__swipe-hint');
+  const prevButton = ref.querySelector<HTMLButtonElement>(
+    '.aa-hscroll__control--prev'
+  );
+  const nextButton = ref.querySelector<HTMLButtonElement>(
+    '.aa-hscroll__control--next'
+  );
 
   if (!viewport || !track) return () => {};
 
@@ -257,7 +291,9 @@ export function setupHorizontalScroll(
     context,
     progressElement,
     liveRegion,
-    swipeHint
+    swipeHint,
+    prevButton,
+    nextButton
   );
   const desktopMedia = window.matchMedia(DESKTOP_QUERY);
   const reducedMotionMedia = window.matchMedia(REDUCED_MOTION_QUERY);
@@ -352,12 +388,13 @@ export function setupHorizontalScroll(
       )
     );
     const scrollDistance = Math.ceil(maxTranslate * speed);
+    const snapBehavior = normalizeSnapBehavior(context.snapBehavior);
     const nextMode = pickMode({
       reducedMotion: reducedMotionMedia.matches,
       desktopMatches: desktopMedia.matches,
       maxTranslate,
       pinned: context.desktopBehavior !== 'inline',
-      snapBehavior: context.snapBehavior ?? 'paged',
+      snapBehavior,
     });
 
     applyMode(nextMode, scrollDistance);
@@ -378,6 +415,7 @@ export function setupHorizontalScroll(
       rtl,
     });
     const slideStops = buildSlideStops(logicalOffsets, maxTranslate);
+    const stepDurationMs = resolveStepDurationMs(context.stepDuration);
 
     geometry = {
       slides,
@@ -386,11 +424,14 @@ export function setupHorizontalScroll(
       scrollDistance,
       scrollStart,
       rtl,
+      stepDurationMs,
     };
 
+    // Compositor scrub is continuous — only for free scrub mode. Directional
+    // snap paints discrete stops via JS so there is no free play between slides.
     applyScrubTimeline(
       track,
-      nextMode === 'pinned' || nextMode === 'paged',
+      nextMode === 'pinned',
       scrollStart,
       scrollDistance,
       maxTranslate,
@@ -437,13 +478,71 @@ export function setupHorizontalScroll(
     passive: true,
     signal: abortController.signal,
   });
-  ref.addEventListener(
+
+  /**
+   * Reveal prev/next only for Tab / focus-visible keyboard users — not for
+   * Arrow Up/Down slide paging (those keys must work without showing chrome).
+   */
+  const setKeyboardChrome = (on: boolean): void => {
+    if (on) {
+      ref.dataset.aaHscrollKeyboard = '';
+    } else {
+      delete ref.dataset.aaHscrollKeyboard;
+    }
+  };
+
+  // Window capture so Arrow Up/Down page slides while the gallery owns the
+  // scroll range — no Tab-focus required (matches wheel ownership).
+  window.addEventListener(
     'keydown',
     event => {
-      if (controller?.keydown(event)) event.preventDefault();
+      if (!controller) return;
+
+      // Tab into the gallery → show controls. Arrow paging stays chrome-free.
+      if (
+        event.key === 'Tab' &&
+        !event.altKey &&
+        !event.metaKey &&
+        !event.ctrlKey
+      ) {
+        window.requestAnimationFrame(() => {
+          if (ref.contains(document.activeElement)) {
+            setKeyboardChrome(true);
+          }
+        });
+      }
+
+      if (controller.keydown(event)) {
+        event.preventDefault();
+      }
     },
-    { signal: abortController.signal }
+    { capture: true, signal: abortController.signal }
   );
+
+  window.addEventListener(
+    'pointerdown',
+    event => {
+      if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+      if (event.target instanceof Node && ref.contains(event.target)) return;
+      setKeyboardChrome(false);
+    },
+    { capture: true, signal: abortController.signal }
+  );
+
+  const onControlClick = (direction: 1 | -1): void => {
+    if (!controller) return;
+    const next = presentation.getIndex() + direction;
+    if (controller.goToIndex(next)) {
+      presentation.dismissSwipeHint();
+    }
+  };
+
+  prevButton?.addEventListener('click', () => onControlClick(-1), {
+    signal: abortController.signal,
+  });
+  nextButton?.addEventListener('click', () => onControlClick(1), {
+    signal: abortController.signal,
+  });
 
   // Keyboard/AT users can Tab into content on a not-yet-visible slide. The
   // browser then auto-scrolls the overflow:hidden viewport to reveal it,
@@ -453,6 +552,13 @@ export function setupHorizontalScroll(
   ref.addEventListener(
     'focusin',
     event => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.matches(':focus-visible')
+      ) {
+        setKeyboardChrome(true);
+      }
+
       if (
         (mode !== 'pinned' && mode !== 'paged') ||
         !geometry ||
@@ -502,6 +608,7 @@ export function setupHorizontalScroll(
     applyScrubTimeline(track, false, 0, 0, 0, false);
     progressElement?.classList.remove('is-active');
     restoreTabstop();
+    delete ref.dataset.aaHscrollKeyboard;
     runtimes.delete(ref);
   };
 

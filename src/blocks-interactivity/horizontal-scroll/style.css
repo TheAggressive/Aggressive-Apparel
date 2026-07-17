@@ -238,6 +238,116 @@
   border-width: 0;
 }
 
+/* Prev / next — early in the DOM (before the track) so Tab order is
+   region → arrows → slide content. Visually overlaid; revealed only when
+   the gallery (or a control) has :focus-visible. Pointer / wheel users never
+   see chrome. */
+.aa-hscroll__controls {
+  display: none;
+}
+
+.aa-hscroll.is-enhanced .aa-hscroll__controls,
+.aa-hscroll.is-snap .aa-hscroll__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.aa-hscroll__control {
+  display: none;
+}
+
+.aa-hscroll.is-enhanced .aa-hscroll__control,
+.aa-hscroll.is-snap .aa-hscroll__control {
+  position: absolute;
+  inset-block-start: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+  border-radius: 999px;
+  background-color: color-mix(
+    in oklch,
+    var(--aa-color-surface-elevated) 92%,
+    transparent
+  );
+  color: var(--aa-color-foreground);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  translate: 0 -50%;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+}
+
+/* Keyboard reveal: Tab / :focus-visible only — not Arrow Up/Down paging. */
+.aa-hscroll.is-enhanced:focus-visible .aa-hscroll__control,
+.aa-hscroll.is-snap:focus-visible .aa-hscroll__control,
+.aa-hscroll.is-enhanced:has(:focus-visible) .aa-hscroll__control,
+.aa-hscroll.is-snap:has(:focus-visible) .aa-hscroll__control,
+.aa-hscroll.is-enhanced[data-aa-hscroll-keyboard] .aa-hscroll__control,
+.aa-hscroll.is-snap[data-aa-hscroll-keyboard] .aa-hscroll__control {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aa-hscroll__control--prev {
+  inset-inline-start: var(--wp--preset--spacing--4, 1rem);
+}
+
+.aa-hscroll__control--next {
+  inset-inline-end: var(--wp--preset--spacing--4, 1rem);
+}
+
+.aa-hscroll__control:hover:not(:disabled) {
+  background-color: var(--aa-color-surface-elevated);
+  border-color: var(--aa-color-border);
+}
+
+.aa-hscroll__control:focus-visible {
+  outline: 2px solid var(--aa-color-accent);
+  outline-offset: 2px;
+}
+
+.aa-hscroll__control:disabled {
+  cursor: not-allowed;
+}
+
+/* When keyboard-revealed, disabled controls stay visible but dimmed. */
+.aa-hscroll.is-enhanced:focus-visible .aa-hscroll__control:disabled,
+.aa-hscroll.is-snap:focus-visible .aa-hscroll__control:disabled,
+.aa-hscroll.is-enhanced:has(:focus-visible) .aa-hscroll__control:disabled,
+.aa-hscroll.is-snap:has(:focus-visible) .aa-hscroll__control:disabled,
+.aa-hscroll.is-enhanced[data-aa-hscroll-keyboard] .aa-hscroll__control:disabled,
+.aa-hscroll.is-snap[data-aa-hscroll-keyboard] .aa-hscroll__control:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.aa-hscroll__control[hidden] {
+  display: none;
+}
+
+/* Flip chevrons in RTL so they point toward inline-start / inline-end. */
+[dir='rtl'] .aa-hscroll__control svg {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .aa-hscroll__control {
+    transition: none;
+  }
+}
+
 /* Mobile swipe hint — decorative animation cue on the carousel edge. */
 .aa-hscroll__swipe-hint {
   display: none;

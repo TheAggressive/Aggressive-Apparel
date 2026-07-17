@@ -57,6 +57,13 @@ export class NativeCarouselController implements Controller {
 
   keydown = (event: KeyboardEvent): boolean => {
     if (isEditableTarget(event.target)) return false;
+    // Native carousel only handles keys when focus is inside the block.
+    if (
+      !(event.target instanceof Node) ||
+      !this.elements.ref.contains(event.target)
+    ) {
+      return false;
+    }
 
     const target = resolveKeyboardTarget({
       key: event.key,
@@ -65,6 +72,9 @@ export class NativeCarouselController implements Controller {
       rtl: this.geometry.rtl,
     });
     if (target === null) return false;
+
+    // Already on that slide — do not steal keys used for page scrolling.
+    if (target === this.presentation.getIndex()) return false;
 
     this.scrollToOffset(
       getSlideTarget(
@@ -75,6 +85,22 @@ export class NativeCarouselController implements Controller {
       'smooth'
     );
     // Announce immediately so keyboard users hear the new position.
+    this.presentation.setActive(target, { announce: true });
+    return true;
+  };
+
+  goToIndex = (index: number): boolean => {
+    const target = clamp(index, 0, this.geometry.slides.length - 1);
+    if (target === this.presentation.getIndex()) return false;
+
+    this.scrollToOffset(
+      getSlideTarget(
+        target,
+        this.geometry.slideStops,
+        this.geometry.maxTranslate
+      ),
+      'smooth'
+    );
     this.presentation.setActive(target, { announce: true });
     return true;
   };

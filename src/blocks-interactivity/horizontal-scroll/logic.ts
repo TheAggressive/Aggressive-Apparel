@@ -7,9 +7,13 @@
 
 export type HScrollMode = 'pinned' | 'paged' | 'native' | 'static';
 
-export type SnapBehavior = 'off' | 'proximity' | 'paged';
+/** Author-facing scroll behavior. Legacy `proximity` is normalized to `off`. */
+export type SnapBehavior = 'off' | 'paged';
 
 export type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
+
+/** Default stepped glide length (matches the previous hard-coded 620ms). */
+export const DEFAULT_STEP_DURATION_MS = 620;
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -22,6 +26,29 @@ export function resolveSpeed(contextSpeed: number, cssSpeed: number): number {
       : cssSpeed || 1;
 
   return clamp(base, 0.5, 3);
+}
+
+/**
+ * Normalize author step duration (seconds) to milliseconds for the step tween.
+ * Values above 10 are treated as already-ms for defensive compatibility.
+ * Returns 0 only when explicitly requested (reduced-motion instant snap).
+ */
+export function resolveStepDurationMs(value: unknown): number {
+  const raw = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(raw) || raw < 0) {
+    return DEFAULT_STEP_DURATION_MS;
+  }
+  if (raw === 0) {
+    return 0;
+  }
+
+  const ms = raw > 10 ? raw : raw * 1000;
+  return clamp(Math.round(ms), 200, 2000);
+}
+
+/** Map persisted snap values (including removed `proximity`) onto the live enum. */
+export function normalizeSnapBehavior(value: unknown): SnapBehavior {
+  return value === 'paged' ? 'paged' : 'off';
 }
 
 export function pickMode(params: {
@@ -40,9 +67,69 @@ export function pickMode(params: {
   } = params;
 
   if (reducedMotion || maxTranslate <= 1) return 'static';
-  if (!desktopMatches || !pinned) return 'native';
+  // Touch / narrow viewports always use the native horizontal carousel.
+  if (!desktopMatches) return 'native';
+
+  // Desktop "inline" still pins and scrubs (continuous). Directional snap is
+  // only available when desktop behavior is explicitly pinned + stepped.
+  if (!pinned) return 'pinned';
 
   return snapBehavior === 'paged' ? 'paged' : 'pinned';
+}
+
+/**
+ * Whether document scroll sits inside the pinned gallery band (with slack).
+ */
+export function isScrollInPinnedRange(params: {
+  scrollY: number;
+  scrollStart: number;
+  scrollDistance: number;
+  slackPx?: number;
+}): boolean {
+  const { scrollY, scrollStart, scrollDistance, slackPx = 4 } = params;
+  return (
+    scrollY >= scrollStart - slackPx &&
+    scrollY <= scrollStart + scrollDistance + slackPx
+  );
+}
+
+/**
+ * Choose which slide to seat on when the gallery takes ownership.
+ * Entering from above → first slide; from below → last; otherwise nearest.
+ */
+export function resolveEntrySlideIndex(params: {
+  entryDirection: 1 | -1 | 0;
+  nearestIndex: number;
+  scrollY: number;
+  scrollStart: number;
+  scrollDistance: number;
+  slideCount: number;
+  slackPx?: number;
+}): number {
+  const {
+    entryDirection,
+    nearestIndex,
+    scrollY,
+    scrollStart,
+    scrollDistance,
+    slideCount,
+    slackPx = 4,
+  } = params;
+
+  if (slideCount <= 0) return 0;
+  const last = slideCount - 1;
+
+  if (entryDirection === 1 && scrollY <= scrollStart + slackPx) {
+    return 0;
+  }
+  if (
+    entryDirection === -1 &&
+    scrollY >= scrollStart + scrollDistance - slackPx
+  ) {
+    return last;
+  }
+
+  return clamp(nearestIndex, 0, last);
 }
 
 export function computeProgress(
@@ -142,8 +229,8 @@ export function getSlideTarget(
 /**
  * Map a keyboard navigation key to a target slide index, or null when the key
  * is not one we handle. Shared by every controller so keyboard paging behaves
- * identically — Home/End, Page Up/Down, and the Arrow keys (mirrored for RTL,
- * where ArrowRight moves toward the visually-right previous slide).
+ * identically — Home/End, Page Up/Down, Arrow Left/Right (mirrored for RTL),
+ * and Arrow Up/Down (previous/next in reading order, matching vertical wheel).
  */
 export function resolveKeyboardTarget(params: {
   key: string;
@@ -160,8 +247,10 @@ export function resolveKeyboardTarget(params: {
     case 'End':
       return lastIndex;
     case 'PageDown':
+    case 'ArrowDown':
       return clamp(currentIndex + 1, 0, lastIndex);
     case 'PageUp':
+    case 'ArrowUp':
       return clamp(currentIndex - 1, 0, lastIndex);
     case 'ArrowRight':
       return clamp(currentIndex + (rtl ? -1 : 1), 0, lastIndex);
@@ -170,6 +259,19 @@ export function resolveKeyboardTarget(params: {
     default:
       return null;
   }
+}
+
+/**
+ * Adjacent slide index in reading order, or null at a boundary.
+ */
+export function adjacentSlideIndex(
+  currentIndex: number,
+  direction: 1 | -1,
+  slideCount: number
+): number | null {
+  const next = currentIndex + direction;
+  if (next < 0 || next > slideCount - 1) return null;
+  return next;
 }
 
 /**

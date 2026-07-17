@@ -26,6 +26,9 @@ $speed = ! empty( $attributes['speed'] ) ? (float) $attributes['speed'] : 1.5;
 $speed = min( 3.0, max( 0.5, $speed ) );
 
 $show_progress = ! empty( $attributes['showProgress'] );
+// Default on when the attribute is missing (new installs / older content).
+$show_controls = ! array_key_exists( 'showControls', $attributes )
+	|| ! empty( $attributes['showControls'] );
 
 $swipe_hint_style = $attributes['swipeHintStyle'] ?? 'cue';
 if ( ! in_array( $swipe_hint_style, array( 'off', 'cue', 'label', 'badge' ), true ) ) {
@@ -40,21 +43,25 @@ if ( ! in_array( $activation, array( 'top', 'center', 'bottom' ), true ) ) {
 	$activation = 'top';
 }
 
-// Desktop behaviour: 'pinned' maps native vertical progress to horizontal
-// movement; 'inline' uses the native swipe/snap carousel (no pinning).
-// Touch always uses native snap regardless.
+// Desktop behaviour: both 'pinned' and 'inline' pin the section and scrub with
+// vertical scroll. 'pinned' may also enable directional snap-to-next; 'inline'
+// is always continuous scrub. Touch always uses the native swipe carousel.
 $desktop_behavior = $attributes['desktopBehavior'] ?? 'pinned';
 if ( ! in_array( $desktop_behavior, array( 'pinned', 'inline' ), true ) ) {
 	$desktop_behavior = 'pinned';
 }
 
-// Scroll behavior: 'paged' = one deliberate gesture advances one slide (the
-// input-locked "step" glide); anything else = continuous "scrub". Legacy
-// 'proximity' values fall through to scrub.
+// Scroll behavior: 'paged' = one deliberate gesture advances one slide
+// (down/next, up/previous); anything else = continuous scrub.
+// Legacy 'proximity' → scrub.
 $snap_behavior = $attributes['snapBehavior'] ?? 'off';
-if ( ! in_array( $snap_behavior, array( 'off', 'proximity', 'paged' ), true ) ) {
+if ( 'proximity' === $snap_behavior || ! in_array( $snap_behavior, array( 'off', 'paged' ), true ) ) {
 	$snap_behavior = 'off';
 }
+
+// Stepped glide length in seconds (author-facing); clamped for safe tweening.
+$step_duration = isset( $attributes['stepDuration'] ) ? (float) $attributes['stepDuration'] : 0.62;
+$step_duration = min( 2.0, max( 0.2, $step_duration ) );
 
 // Accessible name for the carousel region. Falls back to a generic label;
 // authors should set a unique one when a page has more than one gallery.
@@ -90,6 +97,7 @@ if ( is_string( $block_gap ) && '' !== $block_gap ) {
 	echo get_block_wrapper_attributes(
 		array(
 			'class'                => $classes,
+			'role'                 => 'region',
 			'aria-roledescription' => 'carousel',
 			'aria-label'           => $aria_label,
 			'data-wp-interactive'  => 'aggressive-apparel/horizontal-scroll',
@@ -99,6 +107,7 @@ if ( is_string( $block_gap ) && '' !== $block_gap ) {
 					'progress'        => 0,
 					'desktopBehavior' => $desktop_behavior,
 					'snapBehavior'    => $snap_behavior,
+					'stepDuration'    => $step_duration,
 					'swipeHintStyle'  => $swipe_hint_style,
 					'i18n'            => array(
 						/* translators: 1: current slide number, 2: total slide count. Announced by screen readers. */
@@ -116,6 +125,46 @@ if ( is_string( $block_gap ) && '' !== $block_gap ) {
 >
 	<div class="aa-hscroll__range">
 		<div class="aa-hscroll__viewport" data-aa-hscroll>
+			<?php
+			/*
+			 * Controls come before the track so Tab order is region → prev/next
+			 * → slide content. Absolute positioning keeps the visual overlay.
+			 */
+			?>
+			<?php if ( $show_controls ) : ?>
+			<div class="aa-hscroll__controls">
+				<button
+					type="button"
+					class="aa-hscroll__control aa-hscroll__control--prev"
+					aria-label="<?php esc_attr_e( 'Previous slide', 'aggressive-apparel' ); ?>"
+				>
+					<?php
+					aggressive_apparel_render_icon(
+						'chevron-left',
+						array(
+							'width'  => 24,
+							'height' => 24,
+						)
+					);
+					?>
+				</button>
+				<button
+					type="button"
+					class="aa-hscroll__control aa-hscroll__control--next"
+					aria-label="<?php esc_attr_e( 'Next slide', 'aggressive-apparel' ); ?>"
+				>
+					<?php
+					aggressive_apparel_render_icon(
+						'chevron-right',
+						array(
+							'width'  => 24,
+							'height' => 24,
+						)
+					);
+					?>
+				</button>
+			</div>
+			<?php endif; ?>
 			<div class="aa-hscroll__track">
 				<?php echo aggressive_apparel_trusted_html( $content ); ?>
 			</div>

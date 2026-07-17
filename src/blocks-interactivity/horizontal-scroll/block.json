@@ -40,6 +40,10 @@
       "type": "boolean",
       "default": true
     },
+    "showControls": {
+      "type": "boolean",
+      "default": true
+    },
     "activation": {
       "type": "string",
       "enum": ["top", "center", "bottom"],
@@ -52,8 +56,12 @@
     },
     "snapBehavior": {
       "type": "string",
-      "enum": ["off", "proximity", "paged"],
+      "enum": ["off", "paged"],
       "default": "off"
+    },
+    "stepDuration": {
+      "type": "number",
+      "default": 0.62
     },
     "swipeHintStyle": {
       "type": "string",

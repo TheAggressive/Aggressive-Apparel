@@ -13,5 +13,6 @@ export class StaticController implements Controller {
 
   updateGeometry = (): void => {};
   keydown = (): boolean => false;
+  goToIndex = (): boolean => false;
   destroy = (): void => {};
 }

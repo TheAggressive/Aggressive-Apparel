@@ -1,4 +1,5 @@
 import {
+  clamp,
   computeProgress,
   getSlideIndexFromProgress,
   isEditableTarget,
@@ -55,6 +56,16 @@ export class ScrubController implements Controller {
       this.geometry.scrollStart,
       this.geometry.scrollDistance
     );
+
+    // Only intercept keys while the reader is inside the pinned range.
+    if (progress <= 0 || progress >= 1) {
+      // Allow keys at the exact ends when still within a tiny band of the range.
+      const y = window.scrollY;
+      const start = this.geometry.scrollStart;
+      const end = start + this.geometry.scrollDistance;
+      if (y < start - 4 || y > end + 4) return false;
+    }
+
     const target = resolveKeyboardTarget({
       key: event.key,
       currentIndex: getSlideIndexFromProgress(
@@ -66,6 +77,13 @@ export class ScrubController implements Controller {
     });
     if (target === null) return false;
 
+    // Already on that slide — let the browser keep normal keyboard scrolling.
+    if (
+      target === getSlideIndexFromProgress(progress, this.geometry.slideStops)
+    ) {
+      return false;
+    }
+
     const targetProgress = this.geometry.slideStops[target] ?? 0;
     window.scrollTo({
       top:
@@ -74,6 +92,30 @@ export class ScrubController implements Controller {
       behavior: 'smooth',
     });
     // Announce immediately; the smooth scroll (and per-frame render) catch up.
+    this.presentation.setActive(target, { announce: true });
+    return true;
+  };
+
+  goToIndex = (index: number): boolean => {
+    const target = clamp(index, 0, this.geometry.slides.length - 1);
+    const progress = computeProgress(
+      window.scrollY,
+      this.geometry.scrollStart,
+      this.geometry.scrollDistance
+    );
+    const current = getSlideIndexFromProgress(
+      progress,
+      this.geometry.slideStops
+    );
+    if (target === current) return false;
+
+    const targetProgress = this.geometry.slideStops[target] ?? 0;
+    window.scrollTo({
+      top:
+        this.geometry.scrollStart +
+        targetProgress * this.geometry.scrollDistance,
+      behavior: 'smooth',
+    });
     this.presentation.setActive(target, { announce: true });
     return true;
   };

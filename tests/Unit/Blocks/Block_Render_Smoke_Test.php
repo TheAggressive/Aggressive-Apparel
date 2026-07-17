@@ -932,8 +932,13 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'aa-hscroll', $html );
 		$this->assertStringContainsString( 'aa-hscroll--top', $html );
-		$this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/horizontal-scroll"', $html );
+		$this->assertStringContainsString( 'role="region"', $html );
 		$this->assertStringContainsString( 'aria-roledescription="carousel"', $html );
+		$this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/horizontal-scroll"', $html );
+		$this->assertStringContainsString( 'aa-hscroll__control--prev', $html );
+		$this->assertStringContainsString( 'aa-hscroll__control--next', $html );
+		$this->assertStringContainsString( 'aria-label="Previous slide"', $html );
+		$this->assertStringContainsString( 'aria-label="Next slide"', $html );
 		$this->assertStringContainsString( 'data-wp-init="callbacks.init"', $html );
 		$this->assertStringContainsString( 'aa-hscroll__range', $html );
 		$this->assertStringContainsString( 'aa-hscroll__viewport', $html );
@@ -964,6 +969,25 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 			'--aa-hscroll-gap: var(--wp--preset--spacing--12)',
 			$html
 		);
+	}
+
+	/**
+	 * Horizontal scroll normalizes legacy proximity and forwards stepDuration.
+	 *
+	 * @return void
+	 */
+	public function test_horizontal_scroll_normalizes_proximity_and_step_duration(): void {
+		$html = $this->render(
+			'horizontal-scroll',
+			array(
+				'showProgress' => false,
+				'snapBehavior' => 'proximity',
+				'stepDuration' => 0.8,
+			)
+		);
+
+		$this->assertStringContainsString( '&quot;snapBehavior&quot;:&quot;off&quot;', $html );
+		$this->assertStringContainsString( '&quot;stepDuration&quot;:0.8', $html );
 	}
 
 	/**

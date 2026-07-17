@@ -24,7 +24,7 @@ export function createController(
   geometry: Geometry
 ): Controller {
   switch (mode) {
-    // 'paged' = one deliberate gesture advances one slide (input-locked glide).
+    // 'paged' = one deliberate gesture advances one slide (directional snap).
     case 'paged':
       return new StepController(elements, presentation, geometry);
     // 'pinned' = continuous scrub; the track follows scroll each frame.

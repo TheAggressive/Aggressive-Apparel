@@ -159,7 +159,8 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 | `hero-carousel` | Home / campaign heroes | Cover slides as inner blocks |
 | `parallax` / `animate-on-scroll` | Any long-scroll page | Respect `prefers-reduced-motion` |
 | `modal` | Site-wide promos | Supports exit-intent / scroll-depth triggers |
-| `ticker` / `horizontal-scroll` | Announcement / product rails | |
+| `ticker` | Announcement rails | Continuous marquee |
+| `horizontal-scroll` | Product / editorial rails, long-scroll story sections | Modes: `paged` (directional snap — one gesture → one slide; Arrow/Page/Home/End while in range; prev/next chrome on Tab/`focus-visible` only, Tab order region → arrows → slide content), `pinned` (scrub), `native` (CSS scroll-snap). Respect `prefers-reduced-motion`. |
 | `split-story` | Editorial splits | Static layout block (`src/blocks/`) |
 | `search` | Header / mobile bottom nav | Global; assets load when the block is present |
 

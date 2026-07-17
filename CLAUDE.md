@@ -125,6 +125,7 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 | `animate-on-scroll` | Scroll-triggered animations |
 | `filter-toggle` / `filter-active-bar` | Product filters UI (block-placed; ships own CSS) |
 | `hero-carousel` | Hero carousel |
+| `horizontal-scroll` | Pinned / paged / native rails (`paged` = directional snap) |
 | `wishlist` (+ item blocks) | Wishlist page and heart toggle |
 | `free-shipping-bar` / `free-shipping-message` | Free-shipping progress / copy |
 

@@ -17,10 +17,14 @@ import {
   getSlideTarget,
   getStepScrollPosition,
   isEditableTarget,
+  isScrollInPinnedRange,
+  normalizeSnapBehavior,
   pickMode,
   progressToPercentage,
+  resolveEntrySlideIndex,
   resolveKeyboardTarget,
   resolveSpeed,
+  resolveStepDurationMs,
   shouldShowSwipeHint,
   toLogicalSlideOffsets,
   toSignedTranslate,
@@ -47,6 +51,93 @@ describe('resolveSpeed', () => {
   });
 });
 
+describe('resolveStepDurationMs', () => {
+  it('converts author seconds to milliseconds and clamps', () => {
+    expect(resolveStepDurationMs(0.62)).toBe(620);
+    expect(resolveStepDurationMs(0.1)).toBe(200);
+    expect(resolveStepDurationMs(5)).toBe(2000);
+  });
+
+  it('accepts already-ms values above 10 and falls back on invalid input', () => {
+    expect(resolveStepDurationMs(800)).toBe(800);
+    expect(resolveStepDurationMs(0)).toBe(0);
+    expect(resolveStepDurationMs(-1)).toBe(620);
+    expect(resolveStepDurationMs(Number.NaN)).toBe(620);
+    expect(resolveStepDurationMs(undefined)).toBe(620);
+  });
+});
+
+describe('isScrollInPinnedRange', () => {
+  it('includes the slack band around the pinned scroll range', () => {
+    expect(
+      isScrollInPinnedRange({
+        scrollY: 996,
+        scrollStart: 1000,
+        scrollDistance: 2000,
+        slackPx: 4,
+      })
+    ).toBe(true);
+    expect(
+      isScrollInPinnedRange({
+        scrollY: 995,
+        scrollStart: 1000,
+        scrollDistance: 2000,
+        slackPx: 4,
+      })
+    ).toBe(false);
+  });
+});
+
+describe('resolveEntrySlideIndex', () => {
+  const base = {
+    nearestIndex: 1,
+    scrollStart: 1000,
+    scrollDistance: 2000,
+    slideCount: 3,
+    slackPx: 4,
+  };
+
+  it('seats on the first slide when entering downward at the start', () => {
+    expect(
+      resolveEntrySlideIndex({
+        ...base,
+        entryDirection: 1,
+        scrollY: 1000,
+      })
+    ).toBe(0);
+  });
+
+  it('seats on the last slide when entering upward at the end', () => {
+    expect(
+      resolveEntrySlideIndex({
+        ...base,
+        entryDirection: -1,
+        scrollY: 3000,
+      })
+    ).toBe(2);
+  });
+
+  it('keeps the nearest slide for mid-range entry', () => {
+    expect(
+      resolveEntrySlideIndex({
+        ...base,
+        entryDirection: 1,
+        scrollY: 2000,
+        nearestIndex: 1,
+      })
+    ).toBe(1);
+  });
+});
+
+describe('normalizeSnapBehavior', () => {
+  it('keeps paged and maps everything else (including proximity) to off', () => {
+    expect(normalizeSnapBehavior('paged')).toBe('paged');
+    expect(normalizeSnapBehavior('off')).toBe('off');
+    expect(normalizeSnapBehavior('proximity')).toBe('off');
+    expect(normalizeSnapBehavior(undefined)).toBe('off');
+  });
+});
+
 describe('pickMode', () => {
   const base = {
     reducedMotion: false,
@@ -59,9 +150,13 @@ describe('pickMode', () => {
     expect(pickMode({ ...base, snapBehavior: 'paged' })).toBe('paged');
   });
 
-  it('uses native scrolling for touch and inline desktop', () => {
+  it('uses native scrolling for touch, and pins+scrubs for inline desktop', () => {
     expect(pickMode({ ...base, desktopMatches: false })).toBe('native');
-    expect(pickMode({ ...base, pinned: false })).toBe('native');
+    // Desktop inline pins and continuously scrubs (never directional snap).
+    expect(pickMode({ ...base, pinned: false })).toBe('pinned');
+    expect(pickMode({ ...base, pinned: false, snapBehavior: 'paged' })).toBe(
+      'pinned'
+    );
   });
 
   it('uses static document flow for reduced motion or no overflow', () => {
@@ -109,6 +204,18 @@ describe('resolveKeyboardTarget', () => {
     expect(
       resolveKeyboardTarget({ ...base, key: 'ArrowLeft', rtl: true })
     ).toBe(2);
+  });
+
+  it('maps vertical arrows to next / previous (matching wheel)', () => {
+    expect(resolveKeyboardTarget({ ...base, key: 'ArrowDown' })).toBe(2);
+    expect(resolveKeyboardTarget({ ...base, key: 'ArrowUp' })).toBe(0);
+    // Vertical keys are reading-order, not mirrored for RTL.
+    expect(
+      resolveKeyboardTarget({ ...base, key: 'ArrowDown', rtl: true })
+    ).toBe(2);
+    expect(resolveKeyboardTarget({ ...base, key: 'ArrowUp', rtl: true })).toBe(
+      0
+    );
   });
 
   it('clamps at the ends and ignores unrelated keys', () => {

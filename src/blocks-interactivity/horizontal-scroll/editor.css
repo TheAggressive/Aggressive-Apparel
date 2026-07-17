@@ -36,3 +36,89 @@
 .wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__swipe-hint--label {
   display: flex;
 }
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__control {
+  position: absolute;
+  inset-block-start: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid color-mix(in oklch, currentcolor 30%, transparent);
+  border-radius: 999px;
+  background-color: color-mix(in oklch, Canvas 92%, transparent);
+  color: inherit;
+
+  /* Always visible in the editor so authors can see layout (front end is
+     focus-visible only). */
+  opacity: 1;
+  pointer-events: none;
+  translate: 0 -50%;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__control--prev {
+  inset-inline-start: 1rem;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll .aa-hscroll__control--next {
+  inset-inline-end: 1rem;
+}
+
+/* Pin-height chrome: mirror activation so authors see top/center/bottom framing. */
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-editor-pin {
+  --aa-hscroll-pin-height: 50vh;
+  --aa-hscroll-sticky-top: 0;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-editor-pin.aa-hscroll--center {
+  --aa-hscroll-pin-height: 40vh;
+  --aa-hscroll-sticky-top: 5vh;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-editor-pin.aa-hscroll--bottom {
+  --aa-hscroll-pin-height: 40vh;
+  --aa-hscroll-sticky-top: 10vh;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-editor-pin .aa-hscroll__range {
+  box-sizing: border-box;
+  min-height: calc(
+    var(--aa-hscroll-pin-height) + var(--aa-hscroll-sticky-top, 0px)
+  );
+  padding-block-start: var(--aa-hscroll-sticky-top, 0);
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-editor-pin .aa-hscroll__viewport {
+  height: var(--aa-hscroll-pin-height);
+  outline: 1px dashed color-mix(in oklch, currentcolor 45%, transparent);
+  outline-offset: -1px;
+}
+
+/* Preview scroll: allow the track transform so --aa-hscroll-x can scrub. */
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-previewing .aa-hscroll__viewport {
+  overflow-x: hidden;
+}
+
+.wp-block-aggressive-apparel-horizontal-scroll.is-aa-hscroll-previewing .aa-hscroll__track {
+  transform: translate3d(var(--aa-hscroll-x, 0), 0, 0) !important;
+  will-change: transform;
+}
+
+.aa-hscroll-editor__preview {
+  margin-block: 0.75rem 0.25rem;
+}
+
+.aa-hscroll-editor__preview .components-base-control__help {
+  margin-block-start: 0.5rem;
+}

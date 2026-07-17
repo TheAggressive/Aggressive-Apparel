@@ -6,7 +6,11 @@
 
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { select } from '@wordpress/data';
-import { cleanupAllHighlights, highlightModalTrigger } from '../highlights';
+import {
+  cleanupAllHighlights,
+  highlightModalTrigger,
+  queryAllEditorDocuments,
+} from '../highlights';
 import { Debug } from './debug';
 
 type UpdateTriggerClassFn = (
@@ -108,9 +112,9 @@ export const manageHighlight = ({
       });
       setIsHighlightActive(true);
 
-      // Store any newly highlighted elements.
+      // Store any newly highlighted elements (canvas may be iframed).
       if (previousHighlightedElements) {
-        document.querySelectorAll('.modal-highlight-target').forEach(el => {
+        queryAllEditorDocuments('.modal-highlight-target').forEach(el => {
           previousHighlightedElements.add(el);
         });
       }

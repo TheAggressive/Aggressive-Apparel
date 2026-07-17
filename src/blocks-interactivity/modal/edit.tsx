@@ -31,7 +31,11 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
 import './editor.css';
-import { cleanupAllHighlights, highlightModalTrigger } from './highlights';
+import {
+  cleanupAllHighlights,
+  highlightModalTrigger,
+  queryAllEditorDocuments,
+} from './highlights';
 import { useTriggerManagement } from './hooks/useTriggerManagement';
 import { useUpdateBlockTriggerClass } from './hooks/useUpdateBlockTriggerClass';
 import type { ModalAttributes } from './types';
@@ -270,8 +274,8 @@ export default function Edit({
           });
           setIsHighlightActive(true);
 
-          // Store any newly highlighted elements.
-          document.querySelectorAll('.modal-highlight-target').forEach(el => {
+          // Store any newly highlighted elements (canvas may be iframed).
+          queryAllEditorDocuments('.modal-highlight-target').forEach(el => {
             previousHighlightedElements.current.add(el);
           });
         } catch (error) {

@@ -10,6 +10,81 @@ import { select } from '@wordpress/data';
 
 import { Debug } from './utils/debug';
 
+/**
+ * Selectors for editor canvas iframes (post editor + site editor).
+ * Scripts run in the admin document; block DOM may live in these frames.
+ */
+const EDITOR_IFRAME_SELECTORS = [
+  'iframe[name="editor-canvas"]',
+  '.edit-site-visual-editor iframe',
+  '.edit-site-canvas iframe',
+  'iframe.components-sandbox',
+] as const;
+
+/**
+ * Collect the admin document plus every reachable editor canvas document.
+ *
+ * @return Documents to search / clean for block DOM.
+ */
+const getEditorDocuments = (): Document[] => {
+  const docs: Document[] = [document];
+  const seen = new Set<Document>([document]);
+
+  for (const selector of EDITOR_IFRAME_SELECTORS) {
+    document.querySelectorAll<HTMLIFrameElement>(selector).forEach(iframe => {
+      try {
+        const iframeDoc = iframe.contentDocument;
+        if (iframeDoc && !seen.has(iframeDoc)) {
+          seen.add(iframeDoc);
+          docs.push(iframeDoc);
+        }
+      } catch {
+        // Inaccessible iframe (rare in same-origin editor canvases).
+      }
+    });
+  }
+
+  return docs;
+};
+
+/**
+ * Query a selector across the admin document and all editor canvases.
+ *
+ * @param selector - CSS selector.
+ * @return Matching elements from every reachable editor document.
+ */
+export const queryAllEditorDocuments = <T extends Element = Element>(
+  selector: string
+): T[] => {
+  const results: T[] = [];
+
+  for (const doc of getEditorDocuments()) {
+    results.push(...Array.from(doc.querySelectorAll<T>(selector)));
+  }
+
+  return results;
+};
+
+/**
+ * Whether a node is still attached to its owner document.
+ *
+ * @param node - Node to check.
+ * @return True when the node is in its document tree.
+ */
+const ownerDocumentContains = (node: Node): boolean => {
+  return node.ownerDocument?.contains(node) ?? false;
+};
+
+/**
+ * Window for a node's owner document (canvas or admin).
+ *
+ * @param node - Node whose view is needed.
+ * @return The document's defaultView, or null.
+ */
+const getOwnerView = (node: Node): Window | null => {
+  return node.ownerDocument?.defaultView ?? null;
+};
+
 interface HighlightInfo {
   targetElement: HTMLElement;
   styleTag: HTMLStyleElement;
@@ -69,103 +144,47 @@ export const findBlockDomElement = (clientId: string): Element | null => {
     return null;
   }
 
-  // Try direct approach first - this will catch most cases.
-  let blockElement: Element | null = document.querySelector(
-    `[data-block="${clientId}"]`
-  );
+  const isInEditorCanvas = (element: Element): boolean => {
+    return !!(
+      element.closest('.editor-styles-wrapper') ||
+      element.closest('.edit-site-visual-editor') ||
+      element.closest('.editor-canvas') ||
+      element.closest('.edit-post-visual-editor') ||
+      // Iframed canvas body has no admin chrome classes — treat any hit
+      // inside a non-admin document as in-canvas.
+      element.ownerDocument !== document
+    );
+  };
 
-  // Verify element is in editor content area if found.
-  if (blockElement) {
-    const isInEditor =
-      blockElement.closest('.editor-styles-wrapper') ||
-      blockElement.closest('.edit-site-visual-editor') ||
-      blockElement.closest('.editor-canvas') ||
-      blockElement.closest('.edit-post-visual-editor');
-
-    if (isInEditor) {
-      return blockElement;
-    }
-  }
-
-  // If not found directly or not in editor, try template parts and iframes.
-  Debug.add(`Looking for block ${clientId} in iframes (template parts)`);
-
-  // Collect all possible editor iframes.
-  const editorIframes: HTMLIFrameElement[] = [
-    // Site editor canvas.
-    ...Array.from(
-      document.querySelectorAll<HTMLIFrameElement>(
-        'iframe[name="editor-canvas"]'
-      )
-    ),
-    // Template part editor frames and template editor frames.
-    ...Array.from(
-      document.querySelectorAll<HTMLIFrameElement>(
-        '.edit-site-visual-editor iframe'
-      )
-    ),
-    ...Array.from(
-      document.querySelectorAll<HTMLIFrameElement>('.edit-site-canvas iframe')
-    ),
-    // Block editor iframes.
-    ...Array.from(
-      document.querySelectorAll<HTMLIFrameElement>('iframe.components-sandbox')
-    ),
+  const alternativeSelectors = [
+    `[data-block="${clientId}"]`,
+    `[id="${clientId}"]`,
+    `[data-id="${clientId}"]`,
+    `[data-block-id="${clientId}"]`,
   ];
 
-  // Try to find the block in each iframe.
-  for (const iframe of editorIframes) {
-    try {
-      // Skip iframes without contentDocument access.
-      if (!iframe.contentDocument) {
-        continue;
-      }
-
-      // Try finding in this iframe.
-      const iframeDoc = iframe.contentDocument;
-      blockElement = iframeDoc.querySelector(`[data-block="${clientId}"]`);
-
-      // If found in this iframe, return it.
-      if (blockElement) {
-        Debug.add(
-          `Found block ${clientId} in iframe: ${iframe.name || 'unnamed'}`
-        );
+  // Search admin document + every editor canvas document.
+  for (const doc of getEditorDocuments()) {
+    for (const selector of alternativeSelectors) {
+      const blockElement = doc.querySelector(selector);
+      if (blockElement && isInEditorCanvas(blockElement)) {
+        if (doc !== document) {
+          Debug.add(`Found block ${clientId} in editor canvas document`);
+        }
         return blockElement;
       }
-
-      // Try alternative selectors as fallbacks.
-      const alternativeSelectors = [
-        `[id="${clientId}"]`,
-        `[data-id="${clientId}"]`,
-        `[data-block-id="${clientId}"]`,
-        `[id*="${clientId}"]`,
-        `[class*="${clientId}"]`,
-      ];
-
-      for (const selector of alternativeSelectors) {
-        blockElement = iframeDoc.querySelector(selector);
-        if (blockElement) {
-          Debug.add(
-            `Found block ${clientId} using alternative selector: ${selector}`
-          );
-          return blockElement;
-        }
-      }
-    } catch (error) {
-      Debug.add(`Error accessing iframe: ${(error as Error).message}`, true);
     }
   }
 
-  // Final fallback - look for link or button with the clientId in a custom attribute.
+  // Final fallback - custom linkage attributes across all documents.
   Debug.add(`Fallback: looking for link or button with ${clientId}`);
-
-  const allElements = document.querySelectorAll(
+  const linkageMatches = queryAllEditorDocuments(
     `[data-wp-block-linkage="${clientId}"], [data-block-linkage="${clientId}"]`
   );
 
-  if (allElements.length > 0) {
+  if (linkageMatches.length > 0) {
     Debug.add(`Found block using linkage attribute: ${clientId}`);
-    return allElements[0];
+    return linkageMatches[0];
   }
 
   // Try accessing the WordPress data store to get block info.
@@ -206,9 +225,11 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
   animationTimers.forEach(timer => clearInterval(timer));
   animationTimers.clear();
 
-  // Remove all event listeners (module-level map).
+  // Remove all event listeners (module-level map) from every editor document.
   eventListeners.forEach(listener => {
-    document.removeEventListener('keydown', listener);
+    for (const doc of getEditorDocuments()) {
+      doc.removeEventListener('keydown', listener);
+    }
   });
   eventListeners.clear();
 
@@ -250,27 +271,19 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
   ];
 
   // Step 2: Find all elements with highlight styles applied via DOM classes or inline styles.
-  // This is our first pass for cleanup.
-  const findAndCleanElements = (
-    rootElement: Document | HTMLElement = document
-  ): void => {
-    // Create a combined selector for all highlight elements.
+  const findAndCleanElements = (rootElement: Document | HTMLElement): void => {
     const allHighlightSelector = highlightClassSelectors.join(',');
 
-    // Find elements with highlight classes.
     rootElement
       .querySelectorAll<HTMLElement>(allHighlightSelector)
       .forEach(element => {
         Debug.add(`Cleaning up highlight element: ${element.tagName}`);
 
-        // Remove highlight classes.
         highlightClassSelectors.forEach(selector => {
-          // Remove the . from the selector.
           const className = selector.substring(1);
           element.classList.remove(className);
         });
 
-        // Reset all highlight-related styles.
         element.style.outline = '';
         element.style.outlineOffset = '';
         element.style.boxShadow = '';
@@ -280,13 +293,10 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
         element.style.position = '';
         element.style.background = '';
 
-        // Add to our tracked set for future reference.
         highlightedElements.add(element);
       });
 
-    // For modal-trigger classes, handle specifically if a modalId is provided.
-    // Removing modal-trigger classes should happen at the attribute level in edit.tsx.
-    // This is just a safety cleanup for the DOM.
+    // Safety cleanup for modal-trigger classes when a modalId is provided.
     if (modalId) {
       rootElement
         .querySelectorAll<HTMLElement>(`[class*="modal-trigger-${modalId}"]`)
@@ -295,11 +305,10 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
             element.className &&
             element.className.includes(`modal-trigger-${modalId}`)
           ) {
-            const newClasses = element.className
+            element.className = element.className
               .split(' ')
               .filter(cls => cls !== `modal-trigger-${modalId}`)
               .join(' ');
-            element.className = newClasses;
 
             Debug.add(
               `Removed specific modal-trigger-${modalId} class from element`
@@ -309,40 +318,21 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
     }
   };
 
-  // Clean elements in main document.
-  findAndCleanElements(document);
-
-  // Also clean elements in editor iframes.
+  // Clean elements in the admin document and every editor canvas.
   try {
-    // Check in site editor iframe.
-    const siteEditorIframe = document.querySelector<HTMLIFrameElement>(
-      'iframe[name="editor-canvas"]'
-    );
-    if (siteEditorIframe?.contentDocument) {
-      findAndCleanElements(siteEditorIframe.contentDocument);
+    for (const doc of getEditorDocuments()) {
+      findAndCleanElements(doc);
     }
-
-    // Check other editor iframes too.
-    document
-      .querySelectorAll<HTMLIFrameElement>(
-        '.edit-site-visual-editor iframe, .edit-site-canvas iframe'
-      )
-      .forEach(iframe => {
-        if (iframe?.contentDocument) {
-          findAndCleanElements(iframe.contentDocument);
-        }
-      });
   } catch (error) {
     Debug.add(
-      `Error cleaning up highlights in iframe: ${(error as Error).message}`,
+      `Error cleaning up highlights in editor documents: ${(error as Error).message}`,
       true
     );
   }
 
   // Step 3: Clean up specific elements we've tracked in our maps.
   highlightElements.forEach(element => {
-    if (element && document.contains(element)) {
-      // Reset all highlight-related styles.
+    if (element && ownerDocumentContains(element)) {
       element.style.outline = '';
       element.style.outlineOffset = '';
       element.style.boxShadow = '';
@@ -352,9 +342,7 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
       element.style.position = '';
       element.style.background = '';
 
-      // Remove all highlight classes.
       highlightClassSelectors.forEach(selector => {
-        // Remove the . from the selector.
         const className = selector.substring(1);
         element.classList.remove(className);
       });
@@ -365,34 +353,39 @@ export const cleanupAllHighlights = (modalId: string | null = null): void => {
   highlightElements.clear();
   styleElements.clear();
 
-  // Remove any style tags we've added.
-  document
-    .querySelectorAll('style[id^="modal-direct-highlight-style-"]')
-    .forEach(styleTag => {
-      styleTag.parentNode?.removeChild(styleTag);
+  // Remove style tags / debug nodes from every editor document.
+  for (const doc of getEditorDocuments()) {
+    doc
+      .querySelectorAll('style[id^="modal-direct-highlight-style-"]')
+      .forEach(styleTag => {
+        styleTag.parentNode?.removeChild(styleTag);
+      });
+
+    doc.querySelectorAll('.modal-highlight-debug').forEach(el => {
+      el.parentNode?.removeChild(el);
     });
+  }
 
-  // Remove any debug elements that might have been added.
-  document.querySelectorAll('.modal-highlight-debug').forEach(el => {
-    el.parentNode?.removeChild(el);
-  });
-
-  // Final pass: Look for elements that still have highlight styles by computed style.
-  // This is a more aggressive approach to ensure nothing is missed.
+  // Final pass: clear residual blue outline/shadow via computed styles.
   try {
-    const allElements = document.querySelectorAll<HTMLElement>('*');
-    for (const element of allElements) {
-      const computedStyle = window.getComputedStyle(element);
-      // Check if this element has blue outline or box-shadow that might be from our highlights.
-      if (
-        computedStyle.outline?.includes('rgb(0, 124, 186)') || // Blue outline.
-        computedStyle.boxShadow?.includes('rgb(0, 124, 186)') // Blue shadow.
-      ) {
-        Debug.add(`Found element with highlight styles via computed style`);
-        element.style.outline = '';
-        element.style.boxShadow = '';
-        element.style.animation = '';
+    for (const doc of getEditorDocuments()) {
+      const view = doc.defaultView;
+      if (!view) {
+        continue;
       }
+
+      doc.querySelectorAll<HTMLElement>('*').forEach(element => {
+        const computedStyle = view.getComputedStyle(element);
+        if (
+          computedStyle.outline?.includes('rgb(0, 124, 186)') ||
+          computedStyle.boxShadow?.includes('rgb(0, 124, 186)')
+        ) {
+          Debug.add(`Found element with highlight styles via computed style`);
+          element.style.outline = '';
+          element.style.boxShadow = '';
+          element.style.animation = '';
+        }
+      });
     }
   } catch (error) {
     Debug.add(`Error in final cleanup pass: ${(error as Error).message}`, true);
@@ -584,13 +577,19 @@ export const highlightTriggerBlock = (
     triggerElement = blockElement;
   }
 
-  // Get position of the trigger.
+  // Overlays must live in the same document as the trigger (canvas iframe in 7.1).
+  const ownerDoc = triggerElement.ownerDocument;
+  const ownerView = getOwnerView(triggerElement);
+  const ownerRoot = ownerDoc.documentElement;
+  const ownerBody = ownerDoc.body;
+
+  // Get position of the trigger within its document.
   const rect = triggerElement.getBoundingClientRect();
-  const scrollX = window.scrollX || document.documentElement.scrollLeft;
-  const scrollY = window.scrollY || document.documentElement.scrollTop;
+  const scrollX = ownerView?.scrollX ?? ownerRoot.scrollLeft;
+  const scrollY = ownerView?.scrollY ?? ownerRoot.scrollTop;
 
   // Create highlight element.
-  const highlight = document.createElement('div');
+  const highlight = ownerDoc.createElement('div');
   highlight.className = 'modal-trigger-highlight';
   highlight.style.width = `${rect.width}px`;
   highlight.style.height = `${rect.height}px`;
@@ -598,25 +597,25 @@ export const highlightTriggerBlock = (
   highlight.style.left = `${rect.left + scrollX}px`;
   highlight.style.borderColor = '#007cba';
   highlight.style.backgroundColor = 'rgba(0, 124, 186, 0.1)';
-  document.body.appendChild(highlight);
+  ownerBody.appendChild(highlight);
   highlightData.highlights.push(highlight);
 
   // Add tooltip if text is provided.
   if (tooltipText) {
-    const tooltip = document.createElement('div');
+    const tooltip = ownerDoc.createElement('div');
     tooltip.className = 'modal-trigger-tooltip';
     tooltip.textContent = tooltipText;
     tooltip.style.left = `${rect.left + scrollX + rect.width / 2}px`;
     tooltip.style.top = `${rect.top + scrollY}px`;
     tooltip.style.backgroundColor = '#007cba';
     tooltip.style.color = '#ffffff';
-    document.body.appendChild(tooltip);
+    ownerBody.appendChild(tooltip);
     highlightData.tooltips.push(tooltip);
   }
 
   // Add pulse effect if requested.
   if (showPulse) {
-    const pulse = document.createElement('div');
+    const pulse = ownerDoc.createElement('div');
     pulse.className = 'modal-trigger-pulse';
     pulse.style.width = `${rect.width}px`;
     pulse.style.height = `${rect.height}px`;
@@ -624,77 +623,64 @@ export const highlightTriggerBlock = (
     pulse.style.left = `${rect.left + scrollX}px`;
     pulse.style.borderColor = '#007cba';
     pulse.style.boxShadow = '0 0 15px rgba(0, 124, 186, 0.7)';
-    document.body.appendChild(pulse);
+    ownerBody.appendChild(pulse);
     highlightData.pulseElements.push(pulse);
   }
 
-  // Set up resize observer to update position.
-  highlightData.resizeObserver = new ResizeObserver(() => {
-    // Only update if elements still exist.
-    if (triggerElement && document.body.contains(triggerElement)) {
-      const newRect = triggerElement.getBoundingClientRect();
-      const newScrollX = window.scrollX || document.documentElement.scrollLeft;
-      const newScrollY = window.scrollY || document.documentElement.scrollTop;
-
-      // Update highlight position.
-      highlightData.highlights.forEach(el => {
-        el.style.width = `${newRect.width}px`;
-        el.style.height = `${newRect.height}px`;
-        el.style.top = `${newRect.top + newScrollY}px`;
-        el.style.left = `${newRect.left + newScrollX}px`;
-      });
-
-      // Update pulse position.
-      highlightData.pulseElements.forEach(el => {
-        el.style.width = `${newRect.width}px`;
-        el.style.height = `${newRect.height}px`;
-        el.style.top = `${newRect.top + newScrollY}px`;
-        el.style.left = `${newRect.left + newScrollX}px`;
-      });
-
-      // Update tooltip position.
-      highlightData.tooltips.forEach(el => {
-        el.style.left = `${newRect.left + newScrollX + newRect.width / 2}px`;
-        el.style.top = `${newRect.top + newScrollY}px`;
-      });
+  const updateOverlayPositions = (): void => {
+    if (!triggerElement || !ownerDocumentContains(triggerElement)) {
+      return;
     }
-  });
 
-  highlightData.resizeObserver.observe(document.body);
+    const newRect = triggerElement.getBoundingClientRect();
+    const newScrollX = ownerView?.scrollX ?? ownerRoot.scrollLeft;
+    const newScrollY = ownerView?.scrollY ?? ownerRoot.scrollTop;
 
-  // Set up scroll listener to update position.
-  const scrollListener = (): void => {
-    if (triggerElement && document.body.contains(triggerElement)) {
-      const newRect = triggerElement.getBoundingClientRect();
-      const newScrollX = window.scrollX || document.documentElement.scrollLeft;
-      const newScrollY = window.scrollY || document.documentElement.scrollTop;
+    highlightData.highlights.forEach(el => {
+      el.style.width = `${newRect.width}px`;
+      el.style.height = `${newRect.height}px`;
+      el.style.top = `${newRect.top + newScrollY}px`;
+      el.style.left = `${newRect.left + newScrollX}px`;
+    });
 
-      // Update highlight position.
-      highlightData.highlights.forEach(el => {
-        el.style.top = `${newRect.top + newScrollY}px`;
-        el.style.left = `${newRect.left + newScrollX}px`;
-      });
+    highlightData.pulseElements.forEach(el => {
+      el.style.width = `${newRect.width}px`;
+      el.style.height = `${newRect.height}px`;
+      el.style.top = `${newRect.top + newScrollY}px`;
+      el.style.left = `${newRect.left + newScrollX}px`;
+    });
 
-      // Update pulse position.
-      highlightData.pulseElements.forEach(el => {
-        el.style.top = `${newRect.top + newScrollY}px`;
-        el.style.left = `${newRect.left + newScrollX}px`;
-      });
-
-      // Update tooltip position.
-      highlightData.tooltips.forEach(el => {
-        el.style.left = `${newRect.left + newScrollX + newRect.width / 2}px`;
-        el.style.top = `${newRect.top + newScrollY}px`;
-      });
-    }
+    highlightData.tooltips.forEach(el => {
+      el.style.left = `${newRect.left + newScrollX + newRect.width / 2}px`;
+      el.style.top = `${newRect.top + newScrollY}px`;
+    });
   };
 
-  window.addEventListener('scroll', scrollListener, { passive: true });
-  highlightData.eventListeners.push({
-    element: window,
-    eventType: 'scroll',
-    callback: scrollListener,
-  });
+  // ResizeObserver is a browser global — prefer the canvas view's ctor when present.
+  type WindowWithResizeObserver = Window & {
+    ResizeObserver?: typeof ResizeObserver;
+  };
+  const ResizeObserverCtor =
+    (ownerView as WindowWithResizeObserver | null)?.ResizeObserver ??
+    (typeof ResizeObserver !== 'undefined' ? ResizeObserver : null);
+
+  if (ResizeObserverCtor) {
+    const resizeObserver = new ResizeObserverCtor(updateOverlayPositions);
+    resizeObserver.observe(ownerBody);
+    highlightData.resizeObserver = resizeObserver;
+  }
+
+  // Scroll listener on the canvas window so tablet/mobile preview resizes track correctly.
+  if (ownerView) {
+    ownerView.addEventListener('scroll', updateOverlayPositions, {
+      passive: true,
+    });
+    highlightData.eventListeners.push({
+      element: ownerView,
+      eventType: 'scroll',
+      callback: updateOverlayPositions,
+    });
+  }
 
   // Auto cleanup after a delay.
   const timer = setTimeout(() => {
@@ -770,8 +756,11 @@ export const createDirectHighlight = (
   // Clean up any existing highlights first to avoid multiples.
   cleanupAllHighlights(modalId);
 
-  // Remove any lingering highlight styles that might be cached.
-  document
+  // Style tags must live in the same document as the target (canvas head when iframed).
+  const ownerDoc = targetElement.ownerDocument;
+  const ownerView = getOwnerView(targetElement);
+
+  ownerDoc
     .querySelectorAll('style[id^="modal-direct-highlight-style-"]')
     .forEach(el => el.remove());
 
@@ -812,7 +801,7 @@ export const createDirectHighlight = (
 
     // Create and add animation style with a unique ID based on timestamp.
     const styleTagId = `modal-direct-highlight-style-${modalId}-${Date.now()}`;
-    const styleTag = document.createElement('style');
+    const styleTag = ownerDoc.createElement('style');
     styleTag.id = styleTagId;
     styleTag.innerHTML = `
 			@keyframes modal-highlight-pulse-${modalId} {
@@ -836,7 +825,7 @@ export const createDirectHighlight = (
 			}
 		`;
 
-    document.head.appendChild(styleTag);
+    ownerDoc.head.appendChild(styleTag);
     styleElements.set(styleTagId, styleTag);
 
     // Apply the animation explicitly.
@@ -846,17 +835,18 @@ export const createDirectHighlight = (
       'important'
     );
 
-    // Scroll the element into view.
+    // Scroll the element into view within the canvas viewport.
     setTimeout(() => {
-      // Only scroll if the element isn't already in view.
       const rect = targetElement.getBoundingClientRect();
+      const viewportHeight =
+        ownerView?.innerHeight ?? ownerDoc.documentElement.clientHeight;
+      const viewportWidth =
+        ownerView?.innerWidth ?? ownerDoc.documentElement.clientWidth;
       const isInView =
         rect.top >= 0 &&
         rect.left >= 0 &&
-        rect.bottom <=
-          (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <=
-          (window.innerWidth || document.documentElement.clientWidth);
+        rect.bottom <= viewportHeight &&
+        rect.right <= viewportWidth;
 
       if (!isInView) {
         targetElement.scrollIntoView({

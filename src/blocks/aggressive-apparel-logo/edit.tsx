@@ -10,7 +10,8 @@ import {
   TextControl,
   ToggleControl,
 } from '@wordpress/components';
-import { Fragment, useEffect, useState } from '@wordpress/element';
+import { useRefEffect } from '@wordpress/compose';
+import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 import type { BlockEditProps } from '@wordpress/blocks';
@@ -59,33 +60,49 @@ const Edit = ({ attributes, setAttributes }: BlockEditProps<Attributes>) => {
     linkToHome,
   } = attributes;
 
-  // Track preview mode - auto-detect system preference.
-  const [previewMode, setPreviewMode] = useState<'light' | 'dark'>(() =>
-    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  );
-
-  // Track screen size based on breakpoint.
+  // Preview mode / breakpoint size must use the canvas window (iframe in WP 7.1+),
+  // not the admin page window — see Gutenberg iframe editor migration.
+  const [previewMode, setPreviewMode] = useState<'light' | 'dark'>('light');
   const breakpointPx = BREAKPOINT_VALUES[breakpoint];
-  const [isSmallScreen, setIsSmallScreen] = useState(
-    () => window.innerWidth <= breakpointPx
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  const canvasRef = useRefEffect(
+    element => {
+      const ownerDocument = element.ownerDocument;
+      if (!ownerDocument) {
+        return;
+      }
+      const view = ownerDocument.defaultView;
+      if (!view) {
+        return;
+      }
+
+      const widthQuery = view.matchMedia(`(max-width: ${breakpointPx}px)`);
+      const colorQuery = view.matchMedia('(prefers-color-scheme: dark)');
+
+      const updateSize = (): void => {
+        setIsSmallScreen(widthQuery.matches);
+      };
+      const updateColor = (): void => {
+        setPreviewMode(colorQuery.matches ? 'dark' : 'light');
+      };
+
+      updateSize();
+      updateColor();
+
+      widthQuery.addEventListener('change', updateSize);
+      colorQuery.addEventListener('change', updateColor);
+
+      return () => {
+        widthQuery.removeEventListener('change', updateSize);
+        colorQuery.removeEventListener('change', updateColor);
+      };
+    },
+    [breakpointPx]
   );
-
-  useEffect(() => {
-    const query = window.matchMedia(`(max-width: ${breakpointPx}px)`);
-    const update = () => setIsSmallScreen(query.matches);
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, [breakpointPx]);
-
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-color-scheme: dark)');
-    const update = (e: MediaQueryListEvent) =>
-      setPreviewMode(e.matches ? 'dark' : 'light');
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
 
   const blockProps = useBlockProps({
+    ref: canvasRef,
     className: 'aggressive-apparel-logo',
     'data-breakpoint': breakpoint,
   });

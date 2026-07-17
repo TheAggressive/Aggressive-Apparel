@@ -1,3 +1,10 @@
+# [1.160.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.159.0...v1.160.0) (2026-07-17)
+
+
+### Features
+
+* enhance horizontal-scroll block with new controls and attributes ([6b3d373](https://github.com/TheAggressive/Aggressive-Apparel/commit/6b3d3738578b90b92cee76b3017ec2aa31ca89f3))
+
 # [1.159.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.158.0...v1.159.0) (2026-07-17)
 
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Blocks;
 
+use Aggressive_Apparel\Core\Brand_Icons;
 use Aggressive_Apparel\Core\Cache_Helper;
 use Aggressive_Apparel\Core\Icons;
 use WP_REST_Request;
@@ -37,11 +38,20 @@ class Icon_Block {
 
 	/**
 	 * Size (px) of the thumbnails shown beside each option in the editor picker.
+	 *
+	 * Keep in sync with EDITOR_THUMBNAIL_SIZE in bin/lib/icon-build.mjs.
 	 */
 	private const PREVIEW_SIZE = 24;
 
 	/**
-	 * Transient TTL for the editor icon list payload.
+	 * Skip embedding thumbnails larger than this (bytes of SVG markup).
+	 *
+	 * Keep in sync with MAX_EDITOR_THUMBNAIL_BYTES in bin/lib/icon-build.mjs.
+	 */
+	private const MAX_THUMBNAIL_BYTES = 12288;
+
+	/**
+	 * Transient TTL for the editor slug list.
 	 */
 	private const LIST_CACHE_TTL = DAY_IN_SECONDS;
 
@@ -62,6 +72,16 @@ class Icon_Block {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( self::class, 'get_icon_list' ),
+				'permission_callback' => array( self::class, 'can_edit_content' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/icons/thumbnails',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( self::class, 'get_icon_thumbnails' ),
 				'permission_callback' => array( self::class, 'can_edit_content' ),
 			)
 		);
@@ -186,15 +206,16 @@ class Icon_Block {
 	}
 
 	/**
-	 * Return sorted icons (slug + thumbnail SVG) for the block editor combobox.
+	 * Return sorted icon slugs for the block editor combobox.
 	 *
-	 * The full library render is expensive (every brand definition is loaded),
-	 * so the payload is stored in a theme-versioned transient (see LIST_CACHE_TTL).
+	 * Slugs-only keeps the first paint cheap; thumbnails load from a separate
+	 * route so the picker is usable before SVG markup arrives.
 	 *
 	 * @return WP_REST_Response
 	 */
 	public static function get_icon_list(): WP_REST_Response {
-		$icons = Cache_Helper::remember(
+		$catalog = Brand_Icons::editor_thumbnail_catalog();
+		$icons   = Cache_Helper::remember(
 			self::list_cache_key(),
 			self::LIST_CACHE_TTL,
 			static function (): array {
@@ -205,7 +226,6 @@ class Icon_Block {
 					static function ( string $slug ): array {
 						return array(
 							'slug' => $slug,
-							'svg'  => self::render_svg( $slug, self::PREVIEW_SIZE ),
 						);
 					},
 					$slugs
@@ -216,32 +236,146 @@ class Icon_Block {
 			}
 		);
 
-		return new WP_REST_Response(
+		return self::cached_editor_response(
 			array(
-				'icons' => $icons,
+				'icons'       => $icons,
+				'catalogHash' => $catalog['hash'],
 			),
-			200
+			self::etag_for( 'slugs', $catalog['hash'] . ':' . (string) count( $icons ) )
 		);
 	}
 
 	/**
-	 * Transient key for the editor icon list (busts on theme version change).
+	 * Return picker thumbnails without cold-loading every brand definition.
+	 *
+	 * Brand thumbs come from the build-time catalog. Core / filter icons are
+	 * rendered at request time (small set). Oversized brand glyphs are omitted
+	 * and loaded on demand via /icons/{slug}.
+	 *
+	 * @return WP_REST_Response
 	 */
-	private static function list_cache_key(): string {
-		$version = defined( 'AGGRESSIVE_APPAREL_VERSION' )
-			? (string) AGGRESSIVE_APPAREL_VERSION
-			: '0';
+	public static function get_icon_thumbnails(): WP_REST_Response {
+		$catalog     = Brand_Icons::editor_thumbnail_catalog();
+		$brand_slugs = array_fill_keys( Brand_Icons::list_slugs(), true );
+		$thumbnails  = $catalog['thumbnails'];
+		$etag        = self::etag_for( 'thumbs', $catalog['hash'] . ':' . self::theme_version() );
 
-		return 'aa_icon_list_' . md5( $version );
+		if ( self::client_has_etag( $etag ) ) {
+			return self::not_modified_response( $etag );
+		}
+
+		// Render only non-brand icons (built-ins + filter additions).
+		foreach ( Icons::list() as $slug ) {
+			if ( isset( $brand_slugs[ $slug ] ) || isset( $thumbnails[ $slug ] ) ) {
+				continue;
+			}
+
+			$svg = self::render_svg( $slug, self::PREVIEW_SIZE );
+
+			if ( '' === $svg || strlen( $svg ) > self::MAX_THUMBNAIL_BYTES ) {
+				continue;
+			}
+
+			$thumbnails[ $slug ] = $svg;
+		}
+
+		ksort( $thumbnails );
+
+		return self::cached_editor_response(
+			array(
+				'thumbnails'  => $thumbnails,
+				'catalogHash' => $catalog['hash'],
+			),
+			$etag
+		);
 	}
 
 	/**
-	 * Drop the cached editor icon list (tests / manual invalidation).
+	 * Transient key for the editor icon slug list (busts on theme version change).
+	 */
+	private static function list_cache_key(): string {
+		return 'aa_icon_slugs_v2_' . md5( self::theme_version() );
+	}
+
+	/**
+	 * Current theme version used to bust icon editor caches.
+	 */
+	private static function theme_version(): string {
+		return defined( 'AGGRESSIVE_APPAREL_VERSION' )
+			? (string) AGGRESSIVE_APPAREL_VERSION
+			: '0';
+	}
+
+	/**
+	 * Build a strong ETag for an editor icon payload.
+	 *
+	 * @param string $scope Payload scope (slugs|thumbs).
+	 * @param string $material Hash material.
+	 */
+	private static function etag_for( string $scope, string $material ): string {
+		return '"' . $scope . '-' . md5( self::theme_version() . ':' . $material ) . '"';
+	}
+
+	/**
+	 * Whether the client already has this ETag cached.
+	 *
+	 * @param string $etag Quoted ETag value.
+	 */
+	private static function client_has_etag( string $etag ): bool {
+		$if_none_match = isset( $_SERVER['HTTP_IF_NONE_MATCH'] )
+			? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_IF_NONE_MATCH'] ) )
+			: '';
+
+		if ( '' === $if_none_match ) {
+			return false;
+		}
+
+		$candidates = array_map( 'trim', explode( ',', $if_none_match ) );
+
+		return in_array( $etag, $candidates, true ) || in_array( '*', $candidates, true );
+	}
+
+	/**
+	 * 304 response for conditional thumbnail requests.
+	 *
+	 * @param string $etag Quoted ETag value.
+	 */
+	private static function not_modified_response( string $etag ): WP_REST_Response {
+		$response = new WP_REST_Response( null, 304 );
+		$response->header( 'ETag', $etag );
+		$response->header( 'Cache-Control', 'private, max-age=86400' );
+
+		return $response;
+	}
+
+	/**
+	 * Build a REST response with private browser caching + ETag.
+	 *
+	 * @param array<string, mixed> $data Response body.
+	 * @param string               $etag Quoted ETag value.
+	 */
+	private static function cached_editor_response( array $data, string $etag ): WP_REST_Response {
+		if ( self::client_has_etag( $etag ) ) {
+			return self::not_modified_response( $etag );
+		}
+
+		$response = new WP_REST_Response( $data, 200 );
+		$response->header( 'ETag', $etag );
+		$response->header( 'Cache-Control', 'private, max-age=86400' );
+
+		return $response;
+	}
+
+	/**
+	 * Drop cached editor icon payloads (tests / manual invalidation).
 	 *
 	 * @internal
 	 */
 	public static function flush_list_cache_for_tests(): void {
 		delete_transient( self::list_cache_key() );
+		// Legacy keys from earlier iterations.
+		delete_transient( 'aa_icon_slugs_' . md5( self::theme_version() ) );
+		delete_transient( 'aa_icon_thumbs_' . md5( self::theme_version() ) );
 	}
 
 	/**
@@ -264,12 +398,14 @@ class Icon_Block {
 			);
 		}
 
-		return new WP_REST_Response(
+		$size = self::sanitize_size( $request->get_param( 'size' ) );
+
+		return self::cached_editor_response(
 			array(
 				'slug' => $slug,
 				'svg'  => $svg,
 			),
-			200
+			self::etag_for( 'preview', $slug . ':' . (string) $size )
 		);
 	}
 }

@@ -11,7 +11,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, test } from 'node:test';
 
-import { buildIconArtifacts, definitionPhp, parseSvg } from './icon-build.mjs';
+import {
+  MAX_EDITOR_THUMBNAIL_BYTES,
+  buildEditorThumbnailCatalog,
+  buildIconArtifacts,
+  definitionPhp,
+  parseSvg,
+  renderEditorThumbnailSvg,
+} from './icon-build.mjs';
 
 /** @type {string[]} */
 const temporaryDirectories = [];
@@ -109,12 +116,53 @@ test('buildIconArtifacts writes a manifest and one file per icon', async () => {
     path.join(outputDirectory, 'manifest.php'),
     'utf8'
   );
+  const editorThumbnails = await readFile(
+    path.join(outputDirectory, 'editor-thumbnails.php'),
+    'utf8'
+  );
 
   assert.equal(count, 1);
   assert.match(manifest, /'safe' => 'definitions\/safe\.php'/);
+  assert.match(editorThumbnails, /'hash' => '/);
+  assert.match(editorThumbnails, /'safe' => '<svg/);
   assert.deepEqual(await readdir(path.join(outputDirectory, 'definitions')), [
     'safe.php',
   ]);
+});
+
+test('renderEditorThumbnailSvg mirrors editor picker attributes', () => {
+  const definition = parseSvg(validSvg, 'safe.svg');
+  const svg = renderEditorThumbnailSvg(definition);
+
+  assert.match(svg, /width="24"/);
+  assert.match(svg, /class="aggressive-apparel-icon__svg"/);
+  assert.match(svg, /aria-hidden="true"/);
+  assert.match(svg, /<path /);
+  assert.match(svg, /<rect /);
+});
+
+test('buildEditorThumbnailCatalog omits oversized glyphs', () => {
+  const hugePath = `M${'1 '.repeat(MAX_EDITOR_THUMBNAIL_BYTES)}Z`;
+  const catalog = buildEditorThumbnailCatalog([
+    {
+      slug: 'tiny',
+      definition: parseSvg(validSvg, 'tiny.svg'),
+    },
+    {
+      slug: 'huge',
+      definition: {
+        viewBox: '0 0 24 24',
+        paths: [{ d: hugePath }],
+        polygons: [],
+        rects: [],
+        circles: [],
+      },
+    },
+  ]);
+
+  assert.ok(catalog.thumbnails.tiny);
+  assert.equal(catalog.thumbnails.huge, undefined);
+  assert.match(catalog.hash, /^[0-9a-f]{8}$/);
 });
 
 test('failed validation preserves the last successful build', async () => {

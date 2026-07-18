@@ -5,8 +5,14 @@
  */
 
 import { ComboboxControl, Notice, Spinner } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+  fetchIconSvg,
+  getCachedIconSvg,
+  prefetchIconThumbnails,
+  subscribeIconThumbnails,
+} from './icon-library';
 import { useIconList } from './use-icon-list';
 
 export interface IconComboboxControlProps {
@@ -15,6 +21,78 @@ export interface IconComboboxControlProps {
   onChange: (value: string) => void;
   allowNone?: boolean;
   help?: string;
+}
+
+/**
+ * Thumbnail that waits for the bulk prefetch, then fetches oversized icons.
+ */
+function IconOptionThumbnail({ slug }: { slug: string }) {
+  const [svg, setSvg] = useState(() => getCachedIconSvg(slug) ?? '');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const cached = getCachedIconSvg(slug);
+    if (cached) {
+      setSvg(cached);
+      return;
+    }
+
+    const unsubscribe = subscribeIconThumbnails(() => {
+      const next = getCachedIconSvg(slug);
+      if (next && !cancelled) {
+        setSvg(next);
+      }
+    });
+
+    void prefetchIconThumbnails()
+      .then(async () => {
+        if (cancelled) {
+          return;
+        }
+
+        const afterBulk = getCachedIconSvg(slug);
+        if (afterBulk) {
+          setSvg(afterBulk);
+          return;
+        }
+
+        // Omitted from bulk (oversized) — fetch just this slug.
+        const markup = await fetchIconSvg(slug);
+        if (!cancelled && markup) {
+          setSvg(markup);
+        }
+      })
+      .catch(() => {
+        void fetchIconSvg(slug).then(markup => {
+          if (!cancelled && markup) {
+            setSvg(markup);
+          }
+        });
+      });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [slug]);
+
+  if (!svg) {
+    return (
+      <span
+        className='aggressive-apparel-icon-option__icon'
+        aria-hidden='true'
+      />
+    );
+  }
+
+  return (
+    <span
+      className='aggressive-apparel-icon-option__icon'
+      aria-hidden='true'
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
 }
 
 export function IconComboboxControl({
@@ -42,16 +120,6 @@ export function IconComboboxControl({
     return options;
   }, [allowNone, icons]);
 
-  const iconThumbnails = useMemo(() => {
-    const thumbnails = new Map<string, string>();
-
-    icons.forEach(({ slug, svg }) => {
-      thumbnails.set(slug, svg);
-    });
-
-    return thumbnails;
-  }, [icons]);
-
   if (error) {
     return (
       <Notice status='error' isDismissible={false}>
@@ -74,17 +142,11 @@ export function IconComboboxControl({
       onChange={nextValue => onChange(nextValue ?? '')}
       help={help}
       __experimentalRenderItem={({ item }) => {
-        const thumbnail = iconThumbnails.get(String(item.value ?? ''));
+        const slug = String(item.value ?? '');
 
         return (
           <span className='aggressive-apparel-icon-option'>
-            {thumbnail ? (
-              <span
-                className='aggressive-apparel-icon-option__icon'
-                aria-hidden='true'
-                dangerouslySetInnerHTML={{ __html: thumbnail }}
-              />
-            ) : null}
+            {slug ? <IconOptionThumbnail slug={slug} /> : null}
             <span className='aggressive-apparel-icon-option__label'>
               {item.label}
             </span>

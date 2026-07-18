@@ -26,11 +26,23 @@ class Brand_Icons {
 	private const PROVIDER_ID = 'aggressive-apparel-brand-icons';
 
 	/**
+	 * Generated editor thumbnail catalog path relative to build/icons.
+	 */
+	private const EDITOR_THUMBNAILS_PATH = 'editor-thumbnails.php';
+
+	/**
 	 * Generated icon manifest cache.
 	 *
 	 * @var array<string, string>|null
 	 */
 	private static ?array $manifest_cache = null;
+
+	/**
+	 * Generated editor thumbnail catalog cache.
+	 *
+	 * @var array{hash: string, size: int, thumbnails: array<string, string>}|null
+	 */
+	private static ?array $editor_thumbnails_cache = null;
 
 	/**
 	 * Definitions loaded during the current request.
@@ -103,6 +115,72 @@ class Brand_Icons {
 	 */
 	public static function list_slugs(): array {
 		return array_keys( self::manifest() );
+	}
+
+	/**
+	 * Return the build-time editor thumbnail catalog for brand icons.
+	 *
+	 * Oversized glyphs are omitted at build time. Missing catalog (pre-build)
+	 * returns an empty structure so the REST layer can fall back safely.
+	 *
+	 * @return array{hash: string, size: int, thumbnails: array<string, string>}
+	 */
+	public static function editor_thumbnail_catalog(): array {
+		if ( null !== self::$editor_thumbnails_cache ) {
+			return self::$editor_thumbnails_cache;
+		}
+
+		$empty = array(
+			'hash'       => '',
+			'size'       => 24,
+			'thumbnails' => array(),
+		);
+
+		$catalog_path = self::icons_directory() . '/' . self::EDITOR_THUMBNAILS_PATH;
+
+		if ( ! is_readable( $catalog_path ) ) {
+			self::$editor_thumbnails_cache = $empty;
+			return self::$editor_thumbnails_cache;
+		}
+
+		$catalog = require $catalog_path;
+
+		if ( ! is_array( $catalog ) ) {
+			self::$editor_thumbnails_cache = $empty;
+			return self::$editor_thumbnails_cache;
+		}
+
+		$hash = isset( $catalog['hash'] ) && is_string( $catalog['hash'] )
+			? $catalog['hash']
+			: '';
+		$size = isset( $catalog['size'] ) ? absint( $catalog['size'] ) : 24;
+		$raw  = isset( $catalog['thumbnails'] ) && is_array( $catalog['thumbnails'] )
+			? $catalog['thumbnails']
+			: array();
+
+		$thumbnails = array();
+
+		foreach ( $raw as $slug => $svg ) {
+			if (
+				! is_string( $slug ) ||
+				! preg_match( '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug ) ||
+				! is_string( $svg ) ||
+				'' === $svg ||
+				! str_contains( $svg, '<svg' )
+			) {
+				continue;
+			}
+
+			$thumbnails[ $slug ] = $svg;
+		}
+
+		self::$editor_thumbnails_cache = array(
+			'hash'       => $hash,
+			'size'       => $size > 0 ? $size : 24,
+			'thumbnails' => $thumbnails,
+		);
+
+		return self::$editor_thumbnails_cache;
 	}
 
 	/**
@@ -183,8 +261,9 @@ class Brand_Icons {
 	 * @internal
 	 */
 	public static function flush_cache_for_tests(): void {
-		self::$manifest_cache   = null;
-		self::$definition_cache = array();
+		self::$manifest_cache          = null;
+		self::$editor_thumbnails_cache = null;
+		self::$definition_cache        = array();
 	}
 
 	/**

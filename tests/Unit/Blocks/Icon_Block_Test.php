@@ -59,7 +59,7 @@ class Icon_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Editors can list icons (slug + thumbnail SVG), sorted by slug.
+	 * Editors can list icon slugs sorted alphabetically (no SVG markup).
 	 */
 	public function test_get_icon_list_returns_sorted_slugs(): void {
 		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
@@ -73,10 +73,9 @@ class Icon_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertIsArray( $data['icons'] ?? null );
 
-		// Each entry carries a slug and a rendered SVG thumbnail.
+		// Slug list stays tiny — SVGs come from /icons/thumbnails or /icons/{slug}.
 		$this->assertArrayHasKey( 'slug', $data['icons'][0] );
-		$this->assertArrayHasKey( 'svg', $data['icons'][0] );
-		$this->assertStringContainsString( '<svg', $data['icons'][0]['svg'] );
+		$this->assertArrayNotHasKey( 'svg', $data['icons'][0] );
 
 		$slugs = array_column( $data['icons'], 'slug' );
 		$this->assertContains( 'cart', $slugs );
@@ -101,6 +100,66 @@ class Icon_Block_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $first['icons'], $second['icons'] );
 		$this->assertNotEmpty( $first['icons'] );
+	}
+
+	/**
+	 * Thumbnail payload is a slug=>SVG map from the build catalog + core icons.
+	 */
+	public function test_get_icon_thumbnails_returns_svg_markup(): void {
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+
+		Icon_Block::flush_list_cache_for_tests();
+		Brand_Icons::flush_cache_for_tests();
+
+		$response = Icon_Block::get_icon_thumbnails();
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertIsArray( $data['thumbnails'] ?? null );
+		$this->assertArrayHasKey( 'catalogHash', $data );
+		$this->assertNotEmpty( $response->get_headers()['ETag'] ?? null );
+
+		$thumbnails = $data['thumbnails'];
+
+		$this->assertArrayHasKey( 'cart', $thumbnails );
+		$this->assertStringContainsString( '<svg', $thumbnails['cart'] );
+		$this->assertArrayHasKey( 'shipping-box', $thumbnails );
+		$this->assertStringContainsString( '<svg', $thumbnails['shipping-box'] );
+
+		// Heavy silhouettes are omitted from the build-time catalog payload.
+		$this->assertArrayNotHasKey( 'mens-icon', $thumbnails );
+		$this->assertArrayNotHasKey( 'womens-icon', $thumbnails );
+
+		// Catalog path must not load brand definition PHP files.
+		$this->assertSame( array(), Brand_Icons::loaded_slugs_for_tests() );
+	}
+
+	/**
+	 * Matching If-None-Match returns 304 without a body.
+	 */
+	public function test_get_icon_thumbnails_supports_etag_revalidation(): void {
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
+
+		Icon_Block::flush_list_cache_for_tests();
+		Brand_Icons::flush_cache_for_tests();
+		unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
+
+		$first = Icon_Block::get_icon_thumbnails();
+		$etag  = $first->get_headers()['ETag'] ?? '';
+
+		$this->assertSame( 200, $first->get_status() );
+		$this->assertNotSame( '', $etag );
+
+		$_SERVER['HTTP_IF_NONE_MATCH'] = $etag;
+
+		$second = Icon_Block::get_icon_thumbnails();
+
+		$this->assertSame( 304, $second->get_status() );
+		$this->assertNull( $second->get_data() );
+
+		unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
 	}
 
 	/**

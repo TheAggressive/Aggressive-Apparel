@@ -6,7 +6,13 @@
 
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { fetchIconList, type IconListItem } from './icon-library';
+import {
+  fetchIconList,
+  getCachedIconSvg,
+  prefetchIconThumbnails,
+  subscribeIconThumbnails,
+  type IconListItem,
+} from './icon-library';
 
 export interface UseIconListResult {
   icons: IconListItem[];
@@ -15,7 +21,25 @@ export interface UseIconListResult {
 }
 
 /**
- * Fetch the icon library once (module-cached) and expose loading/error state.
+ * Merge cached thumbnail SVGs onto the slug list.
+ */
+function withCachedSvgs(list: IconListItem[]): IconListItem[] {
+  return list.map(item => {
+    const svg = getCachedIconSvg(item.slug);
+
+    if (undefined === svg) {
+      return item;
+    }
+
+    return {
+      ...item,
+      svg,
+    };
+  });
+}
+
+/**
+ * Fetch icon slugs immediately, then fill thumbnails as they arrive.
  */
 export function useIconList(): UseIconListResult {
   const [icons, setIcons] = useState<IconListItem[]>([]);
@@ -32,15 +56,21 @@ export function useIconList(): UseIconListResult {
       try {
         const list = await fetchIconList();
 
-        if (!cancelled) {
-          setIcons(list);
+        if (cancelled) {
+          return;
         }
+
+        setIcons(withCachedSvgs(list));
+        setIsLoading(false);
+
+        // Prefetch is owned by the list hook (not fetchIconList) so canvas-only
+        // preview mounts do not pull the bulk thumbnail payload.
+        void prefetchIconThumbnails().catch(() => {
+          // Labels remain available even if thumbnails fail.
+        });
       } catch {
         if (!cancelled) {
           setError(__('Could not load icon library.', 'aggressive-apparel'));
-        }
-      } finally {
-        if (!cancelled) {
           setIsLoading(false);
         }
       }
@@ -48,8 +78,23 @@ export function useIconList(): UseIconListResult {
 
     void loadIcons();
 
+    const unsubscribe = subscribeIconThumbnails(() => {
+      if (cancelled) {
+        return;
+      }
+
+      setIcons(current => {
+        if (!current.length) {
+          return current;
+        }
+
+        return withCachedSvgs(current);
+      });
+    });
+
     return () => {
       cancelled = true;
+      unsubscribe();
     };
   }, []);
 

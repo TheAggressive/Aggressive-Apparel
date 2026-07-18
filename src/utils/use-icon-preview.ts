@@ -1,9 +1,10 @@
 /**
  * Fetch icon SVG markup for the block editor canvas.
  *
- * Uses the shared icon library cache. List thumbnails seed the same map, so
- * canvas previews usually skip a second REST round-trip. Size is applied via
- * CSS on the wrapper — no refetch while dragging a size slider.
+ * Uses the shared icon library cache. Thumbnail prefetch can seed the map,
+ * but canvas previews use the per-slug route and do not wait on the full
+ * library. Size is applied via CSS on the wrapper — no refetch while
+ * dragging a size slider.
  *
  * @package Aggressive_Apparel
  */

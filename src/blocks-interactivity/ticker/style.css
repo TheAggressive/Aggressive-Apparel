@@ -12,6 +12,9 @@
 	--ticker-gap: 48px;
 	--ticker-fade-width: 64px;
 
+	/* Space reserved so marquee copy fades before the round pause control. */
+	--ticker-control-clearance: 3.25rem;
+
 	position: relative;
 	display: flex;
 	align-items: stretch;
@@ -66,8 +69,23 @@
 }
 
 /* -----------------------------------------------
- * Edge fade — luminance mask driven by --ticker-fade-width
+ * Edge fade + control clearance masks
  * ----------------------------------------------- */
+
+/*
+ * Always fade the inline-end of the scroll under the pause control so copy
+ * doesn't run through the round hit target. Composes with optional edge fades.
+ */
+.wp-block-aggressive-apparel-ticker:has(> .ticker__pause) .ticker__scroll {
+	mask-image: linear-gradient(
+		to right,
+		var(--aa-color-black) 0,
+		var(--aa-color-black) calc(100% - var(--ticker-control-clearance)),
+		transparent calc(100% - 0.25rem)
+	);
+	mask-size: 100% 100%;
+	mask-repeat: no-repeat;
+}
 
 .ticker__scroll.has-fade-edges,
 .ticker-editor__scroll.has-fade-edges {
@@ -80,6 +98,19 @@
 	);
 	mask-size: 100% 100%;
 	mask-repeat: no-repeat;
+}
+
+/* Edge fade + control clearance in one gradient (avoid fighting mask layers). */
+.wp-block-aggressive-apparel-ticker:has(> .ticker__pause)
+	.ticker__scroll.has-fade-edges {
+	mask-image: linear-gradient(
+		to right,
+		transparent,
+		var(--aa-color-black) var(--ticker-fade-width),
+		var(--aa-color-black)
+			calc(100% - max(var(--ticker-fade-width), var(--ticker-control-clearance))),
+		transparent calc(100% - 0.25rem)
+	);
 }
 
 /* -----------------------------------------------
@@ -147,7 +178,7 @@
 	height: 0.5rem;
 	background: var(--ti-color, currentcolor);
 	position: relative;
-  margin-right: 0.5rem;
+	margin-right: 0.5rem;
 }
 
 .ticker__indicator::after {
@@ -489,7 +520,12 @@
  * Pause / play button
  * ----------------------------------------------- */
 
-.ticker__pause {
+/*
+ * Transparent control over the ticker pattern. Scrolling copy is cleared via
+ * mask-image on `.ticker__scroll` (not a painted pad), so the pattern stays
+ * visible under the glyph. Glyph color tracks content via --ticker-control-color.
+ */
+.wp-block-aggressive-apparel-ticker > button.ticker__pause {
 	position: absolute;
 	top: 50%;
 	right: 0.75rem;
@@ -502,23 +538,47 @@
 	padding: 0;
 	border: none;
 	border-radius: 50%;
-	background: color-mix(in oklch, currentcolor 8%, transparent);
-	color: currentcolor;
+	appearance: none;
+	color: var(--ticker-control-color, inherit);
+	-webkit-text-fill-color: currentcolor;
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
 	cursor: pointer;
 	opacity: 0;
 	transform: translateY(-50%);
-	transition: opacity 0.15s ease, background-color 0.15s ease;
+	transition: opacity 0.15s ease;
 }
 
-.wp-block-aggressive-apparel-ticker:hover .ticker__pause,
-.wp-block-aggressive-apparel-ticker:focus-within .ticker__pause,
-.ticker__pause:focus-visible {
+.wp-block-aggressive-apparel-ticker > button.ticker__pause:disabled {
+	cursor: not-allowed;
 	opacity: 1;
 }
 
-.ticker__pause:hover,
-.ticker__pause:focus-visible {
-	background: color-mix(in oklch, currentcolor 15%, transparent);
+/*
+ * Reveal on hover/focus for fine pointers. Always show on coarse/touch
+ * (no hover) and whenever motion is held/paused so Play remains discoverable.
+ */
+.wp-block-aggressive-apparel-ticker:hover > button.ticker__pause,
+.wp-block-aggressive-apparel-ticker:focus-within > button.ticker__pause,
+.wp-block-aggressive-apparel-ticker.is-paused > button.ticker__pause,
+.wp-block-aggressive-apparel-ticker > button.ticker__pause:focus-visible {
+	opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+
+	.wp-block-aggressive-apparel-ticker > button.ticker__pause {
+		opacity: 1;
+	}
+}
+
+.wp-block-aggressive-apparel-ticker > button.ticker__pause svg,
+.wp-block-aggressive-apparel-ticker > button.ticker__pause .ticker__pause-bar,
+.wp-block-aggressive-apparel-ticker > button.ticker__pause .ticker__play-tri {
+	fill: currentcolor;
+	color: inherit;
+	opacity: 1;
 }
 
 /* SVG icon states: show pause bars by default, play triangle when paused. */

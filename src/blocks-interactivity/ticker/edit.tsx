@@ -27,75 +27,21 @@ import {
 } from '../../utils/icon-constants';
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
+import {
+  BLEND_MODE_OPTIONS,
+  FONT_WEIGHT_OPTIONS,
+  INDICATOR_SHAPE_OPTIONS,
+  INNER_BLOCKS_TEMPLATE,
+  LABEL_TYPE_OPTIONS,
+  PATTERN_OPTIONS,
+  TEXT_TRANSFORM_OPTIONS,
+} from './inspector-options';
 import type { TickerAttributes } from './types';
 
 type EditProps = BlockEditProps<TickerAttributes>;
 
 /** CSS custom properties that TypeScript doesn't include in CSSProperties. */
 type EditorStyle = CSSProperties & { [key: `--${string}`]: string };
-
-const LABEL_TYPES = [
-  { label: __('Text', 'aggressive-apparel'), value: 'text' },
-  { label: __('Icon', 'aggressive-apparel'), value: 'icon' },
-];
-
-const INNER_BLOCKS_TEMPLATE: Array<[string, Record<string, unknown>]> = [
-  [
-    'core/paragraph',
-    {
-      placeholder: __('Add ticker content…', 'aggressive-apparel'),
-    },
-  ],
-];
-
-const INDICATOR_SHAPES = [
-  { label: __('Square', 'aggressive-apparel'), value: 'square' },
-  { label: __('Circle', 'aggressive-apparel'), value: 'circle' },
-  { label: __('Diamond', 'aggressive-apparel'), value: 'diamond' },
-  { label: __('None', 'aggressive-apparel'), value: 'none' },
-];
-
-const BLEND_MODES = [
-  { label: __('Normal', 'aggressive-apparel'), value: 'normal' },
-  { label: __('Overlay', 'aggressive-apparel'), value: 'overlay' },
-  { label: __('Multiply', 'aggressive-apparel'), value: 'multiply' },
-  { label: __('Screen', 'aggressive-apparel'), value: 'screen' },
-  { label: __('Soft Light', 'aggressive-apparel'), value: 'soft-light' },
-  { label: __('Difference', 'aggressive-apparel'), value: 'difference' },
-];
-
-const FONT_WEIGHTS = [
-  { label: __('Inherit', 'aggressive-apparel'), value: '' },
-  { label: __('400 — Normal', 'aggressive-apparel'), value: '400' },
-  { label: __('500 — Medium', 'aggressive-apparel'), value: '500' },
-  { label: __('600 — SemiBold', 'aggressive-apparel'), value: '600' },
-  { label: __('700 — Bold', 'aggressive-apparel'), value: '700' },
-  { label: __('800 — ExtraBold', 'aggressive-apparel'), value: '800' },
-  { label: __('900 — Black', 'aggressive-apparel'), value: '900' },
-];
-
-const TEXT_TRANSFORMS = [
-  { label: __('None', 'aggressive-apparel'), value: '' },
-  { label: __('Uppercase', 'aggressive-apparel'), value: 'uppercase' },
-  { label: __('Lowercase', 'aggressive-apparel'), value: 'lowercase' },
-  { label: __('Capitalize', 'aggressive-apparel'), value: 'capitalize' },
-];
-
-const PATTERNS = [
-  { label: __('None', 'aggressive-apparel'), value: 'none' },
-  { label: __('Diagonal Stripes', 'aggressive-apparel'), value: 'diagonal' },
-  { label: __('Crosshatch', 'aggressive-apparel'), value: 'crosshatch' },
-  { label: __('Dots', 'aggressive-apparel'), value: 'dots' },
-  { label: __('Halftone', 'aggressive-apparel'), value: 'halftone' },
-  { label: __('Noise', 'aggressive-apparel'), value: 'noise' },
-  { label: __('Grain', 'aggressive-apparel'), value: 'grain' },
-  { label: __('Scratch', 'aggressive-apparel'), value: 'scratch' },
-  { label: __('Grunge', 'aggressive-apparel'), value: 'grunge' },
-  { label: __('Herringbone', 'aggressive-apparel'), value: 'herringbone' },
-  { label: __('Carbon', 'aggressive-apparel'), value: 'carbon' },
-  { label: __('Honeycomb', 'aggressive-apparel'), value: 'honeycomb' },
-  { label: __('Linen', 'aggressive-apparel'), value: 'linen' },
-];
 
 export default function Edit({ attributes, setAttributes }: EditProps) {
   const {
@@ -127,8 +73,13 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
   } = attributes;
 
   const isIconLabel = labelType === 'icon';
-
   const hasPattern = pattern !== 'none';
+
+  const setNumber =
+    <K extends keyof TickerAttributes>(key: K, fallback: number) =>
+    (val: number | undefined) => {
+      setAttributes({ [key]: val ?? fallback } as Pick<TickerAttributes, K>);
+    };
 
   const blockProps = useBlockProps({
     className: [
@@ -185,10 +136,16 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
     }
   );
 
+  const scrollClassName = [
+    'ticker-editor__scroll',
+    fadeEdges ? 'has-fade-edges' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <>
       <InspectorControls>
-        {/* ── Marquee Settings ── */}
         <PanelBody
           title={__('Marquee Settings', 'aggressive-apparel')}
           initialOpen={true}
@@ -196,7 +153,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           <RangeControl
             label={__('Speed (seconds)', 'aggressive-apparel')}
             value={speed}
-            onChange={val => setAttributes({ speed: val })}
+            onChange={setNumber('speed', speed)}
             min={5}
             max={120}
             step={1}
@@ -221,7 +178,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           <RangeControl
             label={__('Gap (px)', 'aggressive-apparel')}
             value={gap}
-            onChange={val => setAttributes({ gap: val })}
+            onChange={setNumber('gap', gap)}
             min={0}
             max={200}
             step={4}
@@ -232,7 +189,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           />
         </PanelBody>
 
-        {/* ── Behavior ── */}
         <PanelBody
           title={__('Behavior', 'aggressive-apparel')}
           initialOpen={false}
@@ -245,7 +201,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           />
         </PanelBody>
 
-        {/* ── Edge Fade ── */}
         <PanelBody
           title={__('Edge Fade', 'aggressive-apparel')}
           initialOpen={false}
@@ -261,7 +216,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
             <RangeControl
               label={__('Fade Width (px)', 'aggressive-apparel')}
               value={fadeWidth}
-              onChange={val => setAttributes({ fadeWidth: val })}
+              onChange={setNumber('fadeWidth', fadeWidth)}
               min={16}
               max={200}
               step={4}
@@ -269,7 +224,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           )}
         </PanelBody>
 
-        {/* ── Label ── */}
         <PanelBody
           title={__('Label', 'aggressive-apparel')}
           initialOpen={false}
@@ -286,7 +240,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               <SelectControl<string>
                 label={__('Label Type', 'aggressive-apparel')}
                 value={labelType}
-                options={LABEL_TYPES}
+                options={LABEL_TYPE_OPTIONS}
                 onChange={val => setAttributes({ labelType: val })}
                 __next40pxDefaultSize
                 __nextHasNoMarginBottom
@@ -307,9 +261,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <RangeControl
                     label={__('Icon Size (px)', 'aggressive-apparel')}
                     value={labelIconSize}
-                    onChange={val =>
-                      setAttributes({ labelIconSize: val ?? labelIconSize })
-                    }
+                    onChange={setNumber('labelIconSize', labelIconSize)}
                     min={ICON_SIZE_INLINE_MIN}
                     max={ICON_SIZE_INLINE_MAX}
                     step={1}
@@ -368,7 +320,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <SelectControl<string>
                     label={__('Indicator Shape', 'aggressive-apparel')}
                     value={indicatorShape}
-                    options={INDICATOR_SHAPES}
+                    options={INDICATOR_SHAPE_OPTIONS}
                     onChange={val => setAttributes({ indicatorShape: val })}
                     __next40pxDefaultSize
                     __nextHasNoMarginBottom
@@ -397,7 +349,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <RangeControl
                     label={__('Font Size (px)', 'aggressive-apparel')}
                     value={labelFontSize || 0}
-                    onChange={val => setAttributes({ labelFontSize: val ?? 0 })}
+                    onChange={setNumber('labelFontSize', 0)}
                     min={0}
                     max={48}
                     step={1}
@@ -412,7 +364,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <SelectControl<string>
                     label={__('Font Weight', 'aggressive-apparel')}
                     value={labelFontWeight}
-                    options={FONT_WEIGHTS}
+                    options={FONT_WEIGHT_OPTIONS}
                     onChange={val => setAttributes({ labelFontWeight: val })}
                     __next40pxDefaultSize
                     __nextHasNoMarginBottom
@@ -421,9 +373,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <RangeControl
                     label={__('Letter Spacing (em)', 'aggressive-apparel')}
                     value={labelLetterSpacing}
-                    onChange={val =>
-                      setAttributes({ labelLetterSpacing: val ?? 0 })
-                    }
+                    onChange={setNumber('labelLetterSpacing', 0)}
                     min={-0.1}
                     max={0.5}
                     step={0.01}
@@ -434,7 +384,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
                   <SelectControl<string>
                     label={__('Text Transform', 'aggressive-apparel')}
                     value={labelTextTransform}
-                    options={TEXT_TRANSFORMS}
+                    options={TEXT_TRANSFORM_OPTIONS}
                     onChange={val => setAttributes({ labelTextTransform: val })}
                     __next40pxDefaultSize
                     __nextHasNoMarginBottom
@@ -445,7 +395,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           )}
         </PanelBody>
 
-        {/* ── Background Pattern ── */}
         <PanelBody
           title={__('Background Pattern', 'aggressive-apparel')}
           initialOpen={false}
@@ -453,7 +402,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           <SelectControl<string>
             label={__('Pattern', 'aggressive-apparel')}
             value={pattern}
-            options={PATTERNS}
+            options={PATTERN_OPTIONS}
             onChange={val => setAttributes({ pattern: val })}
             __next40pxDefaultSize
             __nextHasNoMarginBottom
@@ -464,7 +413,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               <SelectControl<string>
                 label={__('Blend Mode', 'aggressive-apparel')}
                 value={patternBlendMode}
-                options={BLEND_MODES}
+                options={BLEND_MODE_OPTIONS}
                 onChange={val => setAttributes({ patternBlendMode: val })}
                 help={__(
                   'How the pattern blends with the block background color.',
@@ -477,7 +426,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               <RangeControl
                 label={__('Opacity (%)', 'aggressive-apparel')}
                 value={patternOpacity}
-                onChange={val => setAttributes({ patternOpacity: val ?? 100 })}
+                onChange={setNumber('patternOpacity', 100)}
                 min={0}
                 max={100}
                 step={1}
@@ -488,7 +437,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
               <RangeControl
                 label={__('Scale (%)', 'aggressive-apparel')}
                 value={patternScale}
-                onChange={val => setAttributes({ patternScale: val ?? 100 })}
+                onChange={setNumber('patternScale', 100)}
                 min={10}
                 max={300}
                 step={5}
@@ -523,7 +472,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
       </InspectorControls>
 
       <div {...blockProps}>
-        {/* Pattern overlay */}
         {hasPattern && (
           <span
             className='ticker__pattern'
@@ -532,7 +480,6 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           />
         )}
 
-        {/* Label */}
         {showLabel && (
           <div className='ticker__label' style={labelStyle as CSSProperties}>
             {showIndicator && indicatorShape !== 'none' && (
@@ -557,10 +504,7 @@ export default function Edit({ attributes, setAttributes }: EditProps) {
           </div>
         )}
 
-        {/* Scroll area with inner blocks */}
-        <div
-          className={`ticker-editor__scroll${fadeEdges ? 'has-fade-edges' : ''}`}
-        >
+        <div className={scrollClassName}>
           <div {...innerBlocksProps} />
         </div>
       </div>

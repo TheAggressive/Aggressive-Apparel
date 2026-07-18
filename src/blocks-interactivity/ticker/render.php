@@ -22,8 +22,52 @@ use Aggressive_Apparel\Blocks\Icon_Block;
  * @var WP_Block $block      Block instance.
  */
 
-$speed            = absint( $attributes['speed'] ?? 30 );
-$ticker_direction = 'right' === ( $attributes['direction'] ?? 'left' ) ? 'right' : 'left';
+/**
+ * Return $value when it is in $allowed, otherwise $fallback.
+ *
+ * @param string   $value    Candidate value.
+ * @param string[] $allowed  Allowlist.
+ * @param string   $fallback Fallback when $value is not allowed.
+ */
+$aa_ticker_pick = static function ( string $value, array $allowed, string $fallback ): string {
+	return in_array( $value, $allowed, true ) ? $value : $fallback;
+};
+
+$allowed_directions       = array( 'left', 'right' );
+$allowed_label_types      = array( 'text', 'icon' );
+$allowed_indicator_shapes = array( 'square', 'circle', 'diamond', 'none' );
+$allowed_patterns         = array(
+	'none',
+	'diagonal',
+	'crosshatch',
+	'dots',
+	'halftone',
+	'noise',
+	'grain',
+	'scratch',
+	'grunge',
+	'herringbone',
+	'carbon',
+	'honeycomb',
+	'linen',
+);
+$allowed_blend_modes      = array(
+	'normal',
+	'overlay',
+	'multiply',
+	'screen',
+	'soft-light',
+	'difference',
+);
+$allowed_font_weights     = array( '', '400', '500', '600', '700', '800', '900' );
+$allowed_text_transforms  = array( '', 'uppercase', 'lowercase', 'capitalize' );
+
+$speed            = max( 1, absint( $attributes['speed'] ?? 30 ) );
+$ticker_direction = $aa_ticker_pick(
+	(string) ( $attributes['direction'] ?? 'left' ),
+	$allowed_directions,
+	'left'
+);
 $gap              = absint( $attributes['gap'] ?? 48 );
 $fade_edges       = ! empty( $attributes['fadeEdges'] );
 $fade_width       = absint( $attributes['fadeWidth'] ?? 64 );
@@ -31,29 +75,54 @@ $pause_on_hover   = ! empty( $attributes['pauseOnHover'] );
 
 // Label attributes.
 $show_label      = ! empty( $attributes['showLabel'] );
-$label_type      = sanitize_key( $attributes['labelType'] ?? 'text' );
-$label_text      = $attributes['labelText'] ?? 'LIVE';
-$label_icon      = sanitize_key( $attributes['labelIcon'] ?? '' );
+$label_type      = $aa_ticker_pick(
+	sanitize_key( (string) ( $attributes['labelType'] ?? 'text' ) ),
+	$allowed_label_types,
+	'text'
+);
+$label_text      = sanitize_text_field( (string) ( $attributes['labelText'] ?? 'LIVE' ) );
+$label_icon      = sanitize_key( (string) ( $attributes['labelIcon'] ?? '' ) );
 $label_icon_size = Icon_Block::sanitize_size( $attributes['labelIconSize'] ?? 16 );
-$label_bg        = $attributes['labelBg'] ?? '';
-$label_color     = $attributes['labelColor'] ?? '';
+// Color attributes may be hex, oklch(), or theme `var(--wp--preset--*)` — escape on output.
+$label_bg        = (string) ( $attributes['labelBg'] ?? '' );
+$label_color     = (string) ( $attributes['labelColor'] ?? '' );
 $show_indicator  = ! empty( $attributes['showIndicator'] );
-$indicator_shape = $attributes['indicatorShape'] ?? 'square';
-$indicator_color = $attributes['indicatorColor'] ?? '';
+$indicator_shape = $aa_ticker_pick(
+	sanitize_key( (string) ( $attributes['indicatorShape'] ?? 'square' ) ),
+	$allowed_indicator_shapes,
+	'square'
+);
+$indicator_color = (string) ( $attributes['indicatorColor'] ?? '' );
 
 // Pattern attributes.
-$pattern         = $attributes['pattern'] ?? 'none';
-$pattern_color   = $attributes['patternColor'] ?? '';
-$pattern_blend   = $attributes['patternBlendMode'] ?? 'normal';
+$pattern         = $aa_ticker_pick(
+	sanitize_key( (string) ( $attributes['pattern'] ?? 'none' ) ),
+	$allowed_patterns,
+	'none'
+);
+$pattern_color   = (string) ( $attributes['patternColor'] ?? '' );
+$pattern_blend   = $aa_ticker_pick(
+	sanitize_key( (string) ( $attributes['patternBlendMode'] ?? 'normal' ) ),
+	$allowed_blend_modes,
+	'normal'
+);
 $pattern_opacity = (int) ( $attributes['patternOpacity'] ?? 100 );
 $pattern_scale   = (int) ( $attributes['patternScale'] ?? 100 );
 $has_pattern     = 'none' !== $pattern;
 
 // Label typography attributes.
 $label_font_size      = absint( $attributes['labelFontSize'] ?? 0 );
-$label_font_weight    = $attributes['labelFontWeight'] ?? '';
+$label_font_weight    = $aa_ticker_pick(
+	(string) ( $attributes['labelFontWeight'] ?? '' ),
+	$allowed_font_weights,
+	''
+);
 $label_letter_spacing = (float) ( $attributes['labelLetterSpacing'] ?? 0 );
-$label_text_transform = $attributes['labelTextTransform'] ?? '';
+$label_text_transform = $aa_ticker_pick(
+	(string) ( $attributes['labelTextTransform'] ?? '' ),
+	$allowed_text_transforms,
+	''
+);
 
 // Build wrapper inline styles.
 $inline_style = sprintf(
@@ -124,6 +193,9 @@ if ( $has_pattern ) {
 	$classes[] = 'has-pattern-' . sanitize_html_class( $pattern );
 }
 
+$pause_label = __( 'Pause animation', 'aggressive-apparel' );
+$play_label  = __( 'Play animation', 'aggressive-apparel' );
+
 ?>
 
 <div
@@ -132,17 +204,24 @@ if ( $has_pattern ) {
 		array(
 			'class'                    => implode( ' ', $classes ),
 			'style'                    => $inline_style,
-			'data-ticker-speed'        => (string) max( 1, $speed ),
+			'data-ticker-speed'        => (string) $speed,
 			'data-ticker-direction'    => $ticker_direction,
 			'data-wp-interactive'      => 'aggressive-apparel/ticker',
 			'data-wp-context'          => wp_json_encode(
 				array(
 					'isPaused'     => false,
+					'isHeld'       => false,
 					'pauseOnHover' => $pause_on_hover,
+					'motionLocked' => false,
+					'controlLabel' => $pause_label,
+					'i18n'         => array(
+						'play'  => $play_label,
+						'pause' => $pause_label,
+					),
 				)
 			),
 			'data-wp-init'             => 'callbacks.init',
-			'data-wp-class--is-paused' => 'context.isPaused',
+			'data-wp-class--is-paused' => 'state.isEffectivelyPaused',
 			'data-wp-on--mouseenter'   => 'actions.mouseEnter',
 			'data-wp-on--mouseleave'   => 'actions.mouseLeave',
 			'data-wp-on--focusin'      => 'actions.focusIn',
@@ -187,20 +266,24 @@ if ( $has_pattern ) {
 	</div>
 
 	<button
+		type="button"
 		class="ticker__pause"
 		data-wp-on--click="actions.togglePause"
-		data-wp-bind--aria-pressed="state.isPausedString"
+		data-wp-bind--aria-pressed="state.isPausedPressed"
+		data-wp-bind--aria-label="context.controlLabel"
+		data-wp-bind--disabled="context.motionLocked"
 		aria-pressed="false"
+		aria-label="<?php echo esc_attr( $pause_label ); ?>"
 	>
-		<span class="ticker__pause-icon">
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+		<span class="ticker__pause-icon" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" focusable="false">
 				<rect class="ticker__pause-bar" x="6" y="4" width="4" height="16" />
 				<rect class="ticker__pause-bar" x="14" y="4" width="4" height="16" />
 				<polygon class="ticker__play-tri" points="6,4 20,12 6,20" />
 			</svg>
 		</span>
-		<span class="screen-reader-text">
-			<?php esc_html_e( 'Pause animation', 'aggressive-apparel' ); ?>
+		<span class="screen-reader-text" data-wp-text="context.controlLabel">
+			<?php echo esc_html( $pause_label ); ?>
 		</span>
 	</button>
 

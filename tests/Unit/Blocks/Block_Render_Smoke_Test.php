@@ -884,6 +884,7 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 				'direction' => 'left',
 				'showLabel' => true,
 				'labelText' => 'LIVE',
+				'pattern'   => 'diagonal',
 			),
 			array(
 				array(
@@ -900,12 +901,39 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'aria-live="off"', $html );
 		$this->assertStringContainsString( 'data-ticker-speed="40"', $html );
 		$this->assertStringContainsString( 'data-ticker-direction="left"', $html );
+		$this->assertStringContainsString( 'data-wp-class--is-paused="state.isEffectivelyPaused"', $html );
+		$this->assertStringContainsString( '&quot;isHeld&quot;:false', $html );
+		$this->assertStringContainsString( '&quot;motionLocked&quot;:false', $html );
+		$this->assertStringContainsString( 'data-wp-bind--aria-label="context.controlLabel"', $html );
+		$this->assertStringContainsString( 'data-wp-bind--disabled="context.motionLocked"', $html );
+		$this->assertStringContainsString( 'aria-label="Pause animation"', $html );
+		$this->assertStringContainsString( 'has-pattern-diagonal', $html );
 		$this->assertStringContainsString( 'ticker__track', $html );
 		$this->assertStringContainsString( 'ticker__content', $html );
 		$this->assertStringContainsString( 'ticker__pause', $html );
 		$this->assertStringContainsString( 'ticker__label', $html );
 		$this->assertStringContainsString( 'LIVE', $html );
+		$this->assertStringContainsString( 'Pause animation', $html );
 		$this->assertGreaterThanOrEqual( 2, substr_count( $html, 'ticker__content' ) );
+	}
+
+	/**
+	 * Ticker allowlists reject unknown direction / pattern values.
+	 *
+	 * @return void
+	 */
+	public function test_ticker_allowlists_direction_and_pattern(): void {
+		$html = $this->render(
+			'ticker',
+			array(
+				'direction' => 'sideways',
+				'pattern'   => 'not-a-pattern',
+			)
+		);
+
+		$this->assertStringContainsString( 'data-ticker-direction="left"', $html );
+		$this->assertStringNotContainsString( 'has-pattern-not-a-pattern', $html );
+		$this->assertStringNotContainsString( 'sideways', $html );
 	}
 
 	/**

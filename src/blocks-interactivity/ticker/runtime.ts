@@ -1,0 +1,480 @@
+/**
+ * Ticker block — DOM animation runtime.
+ *
+ * Clones enough `.ticker__content` copies to cover the scroll area and
+ * animates by recycling the offscreen copy to the far end of the track.
+ *
+ * @package Aggressive_Apparel
+ */
+
+import {
+  CLONE_ATTR,
+  CONTROL_COLOR_VAR,
+  MAX_TICKER_CLONES,
+  SELECTORS,
+} from './constants';
+import {
+  getTickerPxPerMs,
+  isTickerReverseDirection,
+  parseTickerDataSpeed,
+  resolveTickerControlColor,
+  shouldAnimateTicker,
+} from './logic';
+
+interface TickerMetrics {
+  maxContentWidth: number;
+  trackWidth: number;
+}
+
+export interface TickerRuntime {
+  destroy: () => void;
+}
+
+const tickerRuntimes = new WeakMap<HTMLElement, TickerRuntime>();
+
+/**
+ * Strip hydration/accessibility attributes from a runtime clone's subtree.
+ *
+ * Clones are created after the Interactivity API has hydrated, so their
+ * `data-wp-*` directives are inert — leaving them in place is misleading and
+ * duplicate `aria-live` regions / ids are invalid. Clones are purely
+ * presentational (`aria-hidden` + `inert`).
+ */
+function sanitizeTickerClone(clone: HTMLElement): void {
+  const elements = [clone, ...Array.from(clone.querySelectorAll('*'))];
+
+  elements.forEach(element => {
+    Array.from(element.attributes).forEach(attribute => {
+      if (attribute.name.startsWith('data-wp-')) {
+        element.removeAttribute(attribute.name);
+      }
+    });
+
+    element.removeAttribute('aria-live');
+    element.removeAttribute('aria-atomic');
+    element.removeAttribute('id');
+  });
+}
+
+/**
+ * Mount (or remount) the ticker animation runtime on a root element.
+ * Returns a destroy function; calling setup again on the same root
+ * replaces the previous runtime.
+ */
+export function setupTicker(ticker: HTMLElement): TickerRuntime {
+  tickerRuntimes.get(ticker)?.destroy();
+
+  const scroll = ticker.querySelector<HTMLElement>(SELECTORS.scroll);
+  const track = ticker.querySelector<HTMLElement>(SELECTORS.track);
+  if (!scroll || !track) {
+    const noop: TickerRuntime = { destroy: () => undefined };
+    return noop;
+  }
+
+  let frameId = 0;
+  let offset = 0;
+  let previousTime = 0;
+  let pxPerMs = 0;
+  let reverse = false;
+  let isDestroyed = false;
+  let resizeFrameId = 0;
+  let contents: HTMLElement[] = [];
+  let contentWidths = new Map<HTMLElement, number>();
+  let isIntersecting = !('IntersectionObserver' in window);
+  let isDocumentVisible = !document.hidden;
+  let isPaused = ticker.classList.contains('is-paused');
+  let cloneSyncFrameId = 0;
+  const watchedImages = new WeakSet<HTMLImageElement>();
+  const reducedMotionMql = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
+
+  const getContents = (): HTMLElement[] =>
+    Array.from(track.children).filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement &&
+        child.classList.contains('ticker__content')
+    );
+
+  const getContentWidth = (content: HTMLElement): number =>
+    content.getBoundingClientRect().width;
+
+  const syncAnimationRate = (): void => {
+    const firstContent = contents[0];
+    const loopWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
+
+    pxPerMs = getTickerPxPerMs(
+      loopWidth,
+      parseTickerDataSpeed(ticker.dataset.tickerSpeed)
+    );
+    reverse = isTickerReverseDirection(ticker.dataset.tickerDirection);
+  };
+
+  const setTransform = (): void => {
+    track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+  };
+
+  const recycleForward = (): void => {
+    let firstContent = contents[0];
+    let firstWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
+
+    while (firstContent && firstWidth > 0 && offset >= firstWidth) {
+      track.appendChild(firstContent);
+      offset -= firstWidth;
+
+      const movedContent = contents.shift();
+      if (movedContent) {
+        contents.push(movedContent);
+      }
+
+      firstContent = contents[0];
+      firstWidth = firstContent ? (contentWidths.get(firstContent) ?? 0) : 0;
+    }
+  };
+
+  const recycleBackward = (): void => {
+    let lastContent = contents[contents.length - 1];
+    let lastWidth = lastContent ? (contentWidths.get(lastContent) ?? 0) : 0;
+
+    while (lastContent && lastWidth > 0 && offset <= 0) {
+      track.insertBefore(lastContent, track.firstElementChild);
+      offset += lastWidth;
+
+      const movedContent = contents.pop();
+      if (movedContent) {
+        contents.unshift(movedContent);
+      }
+
+      lastContent = contents[contents.length - 1];
+      lastWidth = lastContent ? (contentWidths.get(lastContent) ?? 0) : 0;
+    }
+  };
+
+  const canAnimate = (): boolean =>
+    shouldAnimateTicker({
+      isDestroyed,
+      isIntersecting,
+      isDocumentVisible,
+      reducedMotion: reducedMotionMql.matches,
+      isPaused,
+      pxPerMs,
+    });
+
+  const stopAnimation = (): void => {
+    if (frameId) {
+      window.cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+
+    previousTime = 0;
+    track.style.removeProperty('will-change');
+  };
+
+  const tick = (time: number): void => {
+    frameId = 0;
+
+    syncAnimationRate();
+
+    if (!canAnimate()) {
+      stopAnimation();
+      return;
+    }
+
+    if (!previousTime) {
+      previousTime = time;
+    }
+
+    const delta = time - previousTime;
+    previousTime = time;
+    offset += (reverse ? -1 : 1) * delta * pxPerMs;
+
+    if (reverse) {
+      recycleBackward();
+    } else {
+      recycleForward();
+    }
+
+    setTransform();
+    frameId = window.requestAnimationFrame(tick);
+  };
+
+  const syncAnimation = (): void => {
+    if (!canAnimate()) {
+      stopAnimation();
+      return;
+    }
+
+    if (frameId) return;
+
+    previousTime = 0;
+    track.style.willChange = 'transform';
+    frameId = window.requestAnimationFrame(tick);
+  };
+
+  const watchImages = (): void => {
+    track.querySelectorAll('img').forEach(image => {
+      if (watchedImages.has(image)) return;
+
+      watchedImages.add(image);
+      if (!image.complete) {
+        image.addEventListener('load', scheduleMeasure);
+        image.addEventListener('error', scheduleMeasure);
+      }
+    });
+  };
+
+  const measure = (): void => {
+    if (isDestroyed) return;
+
+    const nextContents = getContents();
+    const firstContent = nextContents[0];
+    const template = nextContents[1] || nextContents[0];
+    const containerWidth = scroll.getBoundingClientRect().width;
+    if (!firstContent || !template || containerWidth <= 0) {
+      pxPerMs = 0;
+      syncAnimation();
+      return;
+    }
+
+    const nextContentWidths = new Map<HTMLElement, number>();
+    const metrics = nextContents.reduce<TickerMetrics>(
+      (result, content) => {
+        const width = getContentWidth(content);
+        nextContentWidths.set(content, width);
+
+        return {
+          maxContentWidth: Math.max(result.maxContentWidth, width),
+          trackWidth: result.trackWidth + width,
+        };
+      },
+      { maxContentWidth: 0, trackWidth: 0 }
+    );
+
+    const firstWidth = nextContentWidths.get(firstContent) ?? 0;
+    if (firstWidth <= 0) {
+      pxPerMs = 0;
+      syncAnimation();
+      return;
+    }
+
+    syncAnimationRate();
+
+    const trackWidth = metrics.trackWidth;
+    const maxContentWidth = metrics.maxContentWidth || firstWidth;
+    const minTrackWidth = containerWidth + maxContentWidth * 2;
+    // Total (not per-pass) clone count: measure() re-runs on resize and
+    // image load, so a per-pass budget could still grow the DOM unbounded.
+    const existingClones = nextContents.filter(content =>
+      content.hasAttribute(CLONE_ATTR)
+    ).length;
+    // Clones are copies of one template in a flex track, so they share its
+    // width — compute the deficit up front and append one batched fragment
+    // instead of paying a measuring reflow per appended clone.
+    const templateWidth = nextContentWidths.get(template) || maxContentWidth;
+    const neededClones = Math.min(
+      Math.max(Math.ceil((minTrackWidth - trackWidth) / templateWidth), 0),
+      MAX_TICKER_CLONES - existingClones
+    );
+    if (neededClones > 0) {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < neededClones; i += 1) {
+        const clone = template.cloneNode(true) as HTMLElement;
+        clone.setAttribute('aria-hidden', 'true');
+        clone.setAttribute('inert', '');
+        clone.setAttribute(CLONE_ATTR, '');
+        sanitizeTickerClone(clone);
+        fragment.appendChild(clone);
+        nextContents.push(clone);
+        nextContentWidths.set(clone, templateWidth);
+      }
+      track.appendChild(fragment);
+    }
+
+    contents = nextContents;
+    contentWidths = nextContentWidths;
+
+    if (reverse && offset === 0) {
+      offset = firstWidth;
+    }
+
+    if (reverse) {
+      recycleBackward();
+    } else {
+      recycleForward();
+    }
+
+    watchImages();
+    syncControlColor();
+    setTransform();
+    syncAnimation();
+  };
+
+  /**
+   * Pause/play must track marquee copy color — not the wrapper's
+   * `has-*-color`. Inner blocks often use adaptive tokens (e.g.
+   * surface-elevated) that diverge from a fixed wrapper white in dark mode.
+   */
+  const syncControlColor = (): void => {
+    if (isDestroyed) return;
+
+    const source =
+      contents.find(content => !content.hasAttribute(CLONE_ATTR)) ??
+      getContents().find(content => !content.hasAttribute(CLONE_ATTR)) ??
+      null;
+    const color = resolveTickerControlColor(source);
+    if (color) {
+      ticker.style.setProperty(CONTROL_COLOR_VAR, color);
+    } else {
+      ticker.style.removeProperty(CONTROL_COLOR_VAR);
+    }
+  };
+
+  const scheduleMeasure = (): void => {
+    if (isDestroyed) return;
+
+    if (resizeFrameId) {
+      window.cancelAnimationFrame(resizeFrameId);
+    }
+
+    resizeFrameId = window.requestAnimationFrame(() => {
+      resizeFrameId = 0;
+      measure();
+    });
+  };
+
+  // Keep runtime clones in sync with hydrated content. The Interactivity API
+  // only hydrates DOM present at load time; clones are inert snapshots.
+  const originals = getContents().filter(
+    content => !content.hasAttribute(CLONE_ATTR)
+  );
+
+  const syncClones = (): void => {
+    if (isDestroyed || originals.length === 0) return;
+
+    const source = originals[0];
+
+    getContents().forEach(content => {
+      if (!content.hasAttribute(CLONE_ATTR)) return;
+
+      content.innerHTML = source.innerHTML;
+      sanitizeTickerClone(content);
+    });
+
+    // Text changes shift content widths; re-measure so the loop stays seamless.
+    scheduleMeasure();
+  };
+
+  const scheduleCloneSync = (): void => {
+    if (isDestroyed) return;
+
+    if (cloneSyncFrameId) {
+      window.cancelAnimationFrame(cloneSyncFrameId);
+    }
+
+    cloneSyncFrameId = window.requestAnimationFrame(() => {
+      cloneSyncFrameId = 0;
+      syncClones();
+    });
+  };
+
+  const contentObserver = new MutationObserver(scheduleCloneSync);
+  originals.forEach(original => {
+    contentObserver.observe(original, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    });
+  });
+
+  const resizeObserver = new ResizeObserver(scheduleMeasure);
+  resizeObserver.observe(ticker);
+  resizeObserver.observe(scroll);
+
+  const intersectionObserver =
+    'IntersectionObserver' in window
+      ? new IntersectionObserver(entries => {
+          isIntersecting = entries.some(entry => entry.isIntersecting);
+          syncAnimation();
+        })
+      : null;
+  intersectionObserver?.observe(ticker);
+
+  const attributeObserver = new MutationObserver(() => {
+    isPaused = ticker.classList.contains('is-paused');
+    syncAnimationRate();
+    syncAnimation();
+  });
+  attributeObserver.observe(ticker, {
+    attributes: true,
+    attributeFilter: ['class', 'data-ticker-speed', 'data-ticker-direction'],
+  });
+
+  const handleVisibilityChange = (): void => {
+    isDocumentVisible = !document.hidden;
+    syncAnimation();
+  };
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  const handleReducedMotionChange = (): void => {
+    syncAnimation();
+  };
+  reducedMotionMql.addEventListener('change', handleReducedMotionChange);
+
+  // Adaptive content colors flip with color-scheme / data-theme — re-sample.
+  const colorSchemeMql = window.matchMedia('(prefers-color-scheme: dark)');
+  const handleThemeColorChange = (): void => {
+    syncControlColor();
+  };
+  colorSchemeMql.addEventListener('change', handleThemeColorChange);
+  const themeObserver = new MutationObserver(handleThemeColorChange);
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme', 'class', 'style'],
+  });
+
+  watchImages();
+
+  const runtime: TickerRuntime = {
+    destroy: () => {
+      if (isDestroyed) return;
+
+      isDestroyed = true;
+      window.cancelAnimationFrame(frameId);
+      window.cancelAnimationFrame(resizeFrameId);
+      window.cancelAnimationFrame(cloneSyncFrameId);
+      resizeObserver.disconnect();
+      intersectionObserver?.disconnect();
+      attributeObserver.disconnect();
+      contentObserver.disconnect();
+      themeObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      reducedMotionMql.removeEventListener('change', handleReducedMotionChange);
+      colorSchemeMql.removeEventListener('change', handleThemeColorChange);
+      stopAnimation();
+      track.querySelectorAll('img').forEach(image => {
+        image.removeEventListener('load', scheduleMeasure);
+        image.removeEventListener('error', scheduleMeasure);
+      });
+      // Drop runtime clones so a remount starts from the server-rendered pair.
+      getContents().forEach(content => {
+        if (content.hasAttribute(CLONE_ATTR)) {
+          content.remove();
+        }
+      });
+      track.style.removeProperty('transform');
+      ticker.style.removeProperty(CONTROL_COLOR_VAR);
+      tickerRuntimes.delete(ticker);
+    },
+  };
+
+  tickerRuntimes.set(ticker, runtime);
+  measure();
+  syncAnimation();
+
+  return runtime;
+}
+
+/** Destroy the runtime mounted on `ticker`, if any. */
+export function destroyTicker(ticker: HTMLElement): void {
+  tickerRuntimes.get(ticker)?.destroy();
+}

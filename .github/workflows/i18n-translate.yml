@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Skip when no locale catalogs exist
         id: gate
@@ -84,7 +84,7 @@ jobs:
 
       - name: Create pull request
         if: steps.gate.outputs.has_locales == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'

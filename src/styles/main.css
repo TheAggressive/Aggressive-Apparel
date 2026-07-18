@@ -29,6 +29,7 @@
 @import './components/marquee.css';
 @import './components/overlay.css';
 @import './components/panel.css';
+@import './components/adaptive-block-colors.css';
 @import './components/block-styles.css';
 @import './layout/header.css';
 @import './layout/footer.css';

@@ -11,35 +11,20 @@
 
 import { registerPlugin } from '@wordpress/plugins';
 import { PluginMoreMenuItem } from '@wordpress/editor';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import {
-  useEditorColorScheme,
-  applySchemeToCanvas,
-  getEditorIframe,
-} from '../../utils/editor-color-scheme';
+import { useEditorColorScheme } from '../../utils/editor-color-scheme';
 import { ColorSchemeIcon } from '../../utils/editor-color-scheme-icons';
 
 /**
  * Color Scheme Toggle plugin component.
+ *
+ * Canvas sync (mount + iframe reload) lives in useEditorColorScheme.
  */
 function ColorSchemeToggle() {
   const { colorMode, switchColorMode } = useEditorColorScheme();
   const isDark = colorMode === 'dark';
-
-  // Apply scheme on mount and when the editor iframe reloads (e.g. template switch).
-  useEffect(() => {
-    applySchemeToCanvas(colorMode);
-
-    const iframe = getEditorIframe();
-    const handleLoad = () => applySchemeToCanvas(colorMode);
-    iframe?.addEventListener('load', handleLoad);
-
-    return () => {
-      iframe?.removeEventListener('load', handleLoad);
-    };
-  }, [colorMode]);
 
   const toggle = useCallback(() => {
     switchColorMode(isDark ? 'light' : 'dark');

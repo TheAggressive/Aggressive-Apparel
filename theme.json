@@ -324,6 +324,18 @@
           "dark": "oklch(0 0 0)"
         },
         {
+          "slug": "surface-muted",
+          "name": "Surface Muted (Adaptive)",
+          "light": "oklch(93% 0 0)",
+          "dark": "oklch(26% 0 0)"
+        },
+        {
+          "slug": "surface-sunken",
+          "name": "Surface Sunken (Adaptive)",
+          "light": "oklch(80% 0 0)",
+          "dark": "oklch(12% 0 0)"
+        },
+        {
           "slug": "foreground",
           "name": "Foreground (Adaptive)",
           "light": "oklch(0 0 0)",
@@ -352,6 +364,12 @@
           "name": "Border (Adaptive)",
           "light": "oklch(70.8% 0 0)",
           "dark": "oklch(43.9% 0 0)"
+        },
+        {
+          "slug": "border-muted",
+          "name": "Border Muted (Adaptive)",
+          "light": "oklch(82% 0 0)",
+          "dark": "oklch(30% 0 0)"
         }
       ],
       "motion": {
@@ -534,9 +552,49 @@
           "gradient": "linear-gradient(160deg, oklch(57.7% 0.245 27.325) 0%, oklch(30% 0.12 27) 60%, oklch(10% 0 0) 100%)"
         },
         {
+          "name": "Brand Horizon",
+          "slug": "brand-horizon",
+          "gradient": "linear-gradient(90deg, oklch(57.7% 0.245 27.325) 0%, oklch(30% 0.12 27) 45%, oklch(10% 0 0) 100%)"
+        },
+        {
+          "name": "Horizon Reverse",
+          "slug": "horizon-reverse",
+          "gradient": "linear-gradient(90deg, oklch(10% 0 0) 0%, oklch(30% 0.12 27) 55%, oklch(57.7% 0.245 27.325) 100%)"
+        },
+        {
           "name": "Brand Radial",
           "slug": "brand-radial",
           "gradient": "radial-gradient(ellipse at 60% 50%, oklch(57.7% 0.245 27.325 / 0.9) 0%, oklch(10% 0 0) 70%)"
+        },
+        {
+          "name": "Brand Flare",
+          "slug": "brand-flare",
+          "gradient": "radial-gradient(ellipse at 0% 0%, oklch(57.7% 0.245 27.325) 0%, oklch(30% 0.12 27) 35%, oklch(10% 0 0) 70%)"
+        },
+        {
+          "name": "Brand Wash",
+          "slug": "brand-wash",
+          "gradient": "linear-gradient(180deg, color-mix(in oklch, var(--wp--preset--color--accent) 18%, transparent) 0%, transparent 100%)"
+        },
+        {
+          "name": "Brand Edge",
+          "slug": "brand-edge",
+          "gradient": "linear-gradient(90deg, oklch(57.7% 0.245 27.325) 0%, oklch(57.7% 0.245 27.325) 4%, transparent 18%)"
+        },
+        {
+          "name": "Accent Heat",
+          "slug": "accent-heat",
+          "gradient": "linear-gradient(180deg, oklch(57.7% 0.245 27.325 / 0.75) 0%, transparent 100%)"
+        },
+        {
+          "name": "Bottom Heat",
+          "slug": "bottom-heat",
+          "gradient": "linear-gradient(0deg, oklch(57.7% 0.245 27.325 / 0.8) 0%, transparent 55%)"
+        },
+        {
+          "name": "Hard Split",
+          "slug": "hard-split",
+          "gradient": "linear-gradient(90deg, oklch(57.7% 0.245 27.325) 0%, oklch(57.7% 0.245 27.325) 50%, oklch(10% 0 0) 50%, oklch(10% 0 0) 100%)"
         },
         {
           "name": "Surface Fade",
@@ -549,6 +607,16 @@
           "gradient": "radial-gradient(ellipse at center, transparent 40%, color-mix(in oklch, var(--wp--preset--color--foreground) 12%, transparent) 100%)"
         },
         {
+          "name": "Smoke",
+          "slug": "smoke",
+          "gradient": "radial-gradient(ellipse at center, transparent 25%, oklch(0 0 0 / 55%) 100%)"
+        },
+        {
+          "name": "Spotlight",
+          "slug": "spotlight",
+          "gradient": "radial-gradient(ellipse at center, oklch(1 0 0 / 18%) 0%, transparent 45%, oklch(0 0 0 / 65%) 100%)"
+        },
+        {
           "name": "Dark Overlay",
           "slug": "dark-overlay",
           "gradient": "linear-gradient(180deg, transparent 0%, oklch(0 0 0 / 60%) 100%)"
@@ -559,6 +627,31 @@
           "gradient": "linear-gradient(180deg, oklch(0 0 0 / 20%) 0%, oklch(0 0 0 / 80%) 100%)"
         },
         {
+          "name": "Cover Soft",
+          "slug": "cover-soft",
+          "gradient": "linear-gradient(180deg, oklch(0 0 0 / 45%) 0%, oklch(0 0 0 / 45%) 100%)"
+        },
+        {
+          "name": "Top Overlay",
+          "slug": "top-overlay",
+          "gradient": "linear-gradient(180deg, oklch(0 0 0 / 70%) 0%, transparent 55%)"
+        },
+        {
+          "name": "Side Scrim",
+          "slug": "side-scrim",
+          "gradient": "linear-gradient(90deg, oklch(0 0 0 / 75%) 0%, oklch(0 0 0 / 35%) 40%, transparent 75%)"
+        },
+        {
+          "name": "Side Scrim Right",
+          "slug": "side-scrim-right",
+          "gradient": "linear-gradient(270deg, oklch(0 0 0 / 75%) 0%, oklch(0 0 0 / 35%) 40%, transparent 75%)"
+        },
+        {
+          "name": "Diagonal Scrim",
+          "slug": "diagonal-scrim",
+          "gradient": "linear-gradient(135deg, oklch(0 0 0 / 75%) 0%, oklch(0 0 0 / 30%) 40%, transparent 70%)"
+        },
+        {
           "name": "Light Overlay",
           "slug": "light-overlay",
           "gradient": "linear-gradient(180deg, transparent 0%, oklch(1 0 0 / 60%) 100%)"
@@ -567,6 +660,16 @@
           "name": "Editorial Dark",
           "slug": "editorial-dark",
           "gradient": "linear-gradient(135deg, oklch(12% 0 0) 0%, oklch(20% 0.02 27) 100%)"
+        },
+        {
+          "name": "Editorial Ember",
+          "slug": "editorial-ember",
+          "gradient": "linear-gradient(160deg, oklch(10% 0 0) 0%, oklch(18% 0.04 27) 55%, oklch(28% 0.08 27) 100%)"
+        },
+        {
+          "name": "Charcoal Lift",
+          "slug": "charcoal-lift",
+          "gradient": "linear-gradient(180deg, oklch(8% 0 0) 0%, oklch(22% 0.01 27) 100%)"
         }
       ],
       "duotone": [

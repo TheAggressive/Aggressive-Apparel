@@ -1,0 +1,172 @@
+/**
+ * Adaptive Color panel — editor sidebar chrome.
+ *
+ * Owns the Styles-like bordered Color / Gradient rows. Avoids nesting
+ * ToolsPanels (those inject per-section ⋮ menu buttons inside PanelBody).
+ */
+
+.aa-adaptive-color-panel__header {
+	margin-bottom: 4px;
+}
+
+.aa-adaptive-color-panel__help {
+	margin: 0 0 12px;
+}
+
+.aa-adaptive-color-panel__channels {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.aa-adaptive-color-channel {
+	margin-top: 16px;
+}
+
+.aa-adaptive-color-channel:first-child {
+	margin-top: 12px;
+}
+
+.aa-adaptive-color-channel__title {
+	margin: 0 0 8px;
+	padding: 0;
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+.aa-adaptive-color-channel__items {
+	overflow: hidden;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+	background: #fff;
+}
+
+.aa-adaptive-color-channel__item {
+	position: relative;
+}
+
+.aa-adaptive-color-channel__item + .aa-adaptive-color-channel__item {
+	border-top: 1px solid #ddd;
+}
+
+.aa-adaptive-color-channel__dropdown {
+	display: block;
+}
+
+.aa-adaptive-color-channel__toggle.components-button {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100%;
+	height: auto;
+	min-height: 40px;
+	padding: 10px 12px;
+	text-align: left;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	color: #1e1e1e;
+}
+
+.aa-adaptive-color-channel__toggle.components-button:hover,
+.aa-adaptive-color-channel__toggle.components-button:focus {
+	box-shadow: none;
+	color: #1e1e1e;
+}
+
+.aa-adaptive-color-channel__toggle.components-button.is-open {
+	background: #f0f0f0;
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.aa-adaptive-color-channel__indicator {
+	flex-shrink: 0;
+
+	/* Empty swatch — same diagonal as core color rows. */
+	background: linear-gradient(
+		-45deg,
+		transparent 48%,
+		#ddd 48%,
+		#ddd 52%,
+		transparent 52%
+	);
+}
+
+.aa-adaptive-color-channel__name {
+	max-width: calc(100% - 48px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aa-adaptive-color-channel__reset.components-button {
+	position: absolute;
+	top: 50%;
+	right: 8px;
+	margin: 0;
+	opacity: 0;
+	transform: translateY(-50%);
+	border-radius: 2px;
+}
+
+.aa-adaptive-color-channel__item:hover .aa-adaptive-color-channel__reset,
+.aa-adaptive-color-channel__reset:focus,
+.aa-adaptive-color-channel__reset:hover {
+	opacity: 1;
+}
+
+.aa-adaptive-color-channel__popover {
+	box-sizing: border-box;
+	width: 280px;
+	max-width: 280px;
+	max-height: min(70vh, 520px);
+	padding: 16px;
+	overflow: hidden auto;
+	color: #1e1e1e;
+}
+
+/* Core Styles → Color → Link: Default / Hover tabs in the picker. */
+.aa-adaptive-color-channel__popover--tabs {
+	padding: 0;
+}
+
+.aa-adaptive-color-channel__tabs .components-tab-panel__tabs {
+	display: flex;
+	gap: 0;
+	padding: 0 16px;
+	border-bottom: 1px solid #ddd;
+}
+
+.aa-adaptive-color-channel__tabs .components-tab-panel__tabs-item {
+	margin-bottom: -1px;
+	padding: 10px 12px;
+	border-radius: 0;
+	border-bottom: 2px solid transparent;
+	font-size: 13px;
+}
+
+.aa-adaptive-color-channel__tabs
+	.components-tab-panel__tabs-item.is-active {
+	border-bottom-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: none;
+}
+
+.aa-adaptive-color-channel__tab-panel {
+	padding: 16px;
+}
+
+@media (hover: none) {
+
+	.aa-adaptive-color-channel__reset.components-button {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aa-adaptive-color-channel__reset.components-button {
+		transition: none;
+	}
+}

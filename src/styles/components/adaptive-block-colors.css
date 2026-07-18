@@ -1,0 +1,64 @@
+/**
+ * Adaptive per-block color channels (front end + editor canvas).
+ *
+ * Single source of truth for marker-class rules. Loaded via main.css on both
+ * the front end and the editor (enqueue_block_assets). Marker classes + CSS
+ * variables are applied by Adaptive_Colors (PHP) and the editor adaptive-colors
+ * script — do not duplicate these selectors in TypeScript.
+ *
+ * Descendant channels stay outside @layer and avoid :where() so specificity
+ * beats global element styles (e.g. theme.json `a { color }`) without
+ * !important. Wrapper bg/color/border stay layered; PHP/editor inline styles
+ * carry the win for those.
+ */
+
+@layer aa-components {
+
+	.aa-has-adaptive-bg {
+		background: var(--aa-adaptive-bg);
+	}
+
+	.aa-has-adaptive-color {
+		color: var(--aa-adaptive-color);
+	}
+
+	.aa-has-adaptive-border {
+		border-color: var(--aa-adaptive-border);
+	}
+}
+
+/*
+ * Unlayered + real specificity (no :where): wins over global-styles
+ * `:root :where(a…)` / `:root :where(a…:hover)` without !important.
+ *
+ * Default + hover share `.aa-has-adaptive-link`. Hover falls back to the
+ * adaptive link color so theme.json link:hover cannot flash through when
+ * only Default is set.
+ */
+.aa-has-adaptive-link a:not(.wp-element-button) {
+	color: var(--aa-adaptive-link);
+}
+
+.aa-has-adaptive-link a:not(.wp-element-button):hover {
+	color: var(--aa-adaptive-link-hover, var(--aa-adaptive-link));
+}
+
+.aa-has-adaptive-heading h1,
+.aa-has-adaptive-heading h2,
+.aa-has-adaptive-heading h3,
+.aa-has-adaptive-heading h4,
+.aa-has-adaptive-heading h5,
+.aa-has-adaptive-heading h6,
+.aa-has-adaptive-heading .wp-block-heading {
+	color: var(--aa-adaptive-heading);
+}
+
+.aa-has-adaptive-caption figcaption,
+.aa-has-adaptive-caption .wp-element-caption {
+	color: var(--aa-adaptive-caption);
+}
+
+.aa-has-adaptive-button .wp-element-button,
+.aa-has-adaptive-button .wp-block-button__link {
+	color: var(--aa-adaptive-button);
+}

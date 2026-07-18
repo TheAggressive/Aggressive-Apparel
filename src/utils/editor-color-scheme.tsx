@@ -10,48 +10,34 @@
  * @since 1.56.0
  */
 
-import { Button, ButtonGroup } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalToggleGroupControl as ToggleGroupControl,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalToggleGroupControlOption as ToggleGroupControlOption,
+} from '@wordpress/components';
 
 import {
   getStoredColorScheme,
   storeColorScheme,
   type ColorScheme,
 } from './color-scheme-storage';
+import {
+  applySchemeToCanvas,
+  syncSchemeToEditorCanvas,
+} from './editor-color-scheme-canvas';
+
+export {
+  applySchemeToCanvas,
+  getEditorDocument,
+  getEditorIframe,
+  injectEditorStyle,
+  syncSchemeToEditorCanvas,
+} from './editor-color-scheme-canvas';
 
 const EVENT_NAME = 'aa-editor-color-scheme-change';
-const IFRAME_SELECTOR = 'iframe[name="editor-canvas"]';
-
-/**
- * Get the editor canvas document (inside the iframe).
- * Returns null if the iframe hasn't loaded yet.
- */
-export function getEditorDocument(): Document | null {
-  const iframe = document.querySelector<HTMLIFrameElement>(IFRAME_SELECTOR);
-  return iframe?.contentDocument ?? null;
-}
-
-/**
- * Get the editor canvas iframe element.
- */
-export function getEditorIframe(): HTMLIFrameElement | null {
-  return document.querySelector<HTMLIFrameElement>(IFRAME_SELECTOR);
-}
-
-/**
- * Inject a stylesheet into the editor iframe.
- * Idempotent — no-ops if a style element with the given ID already exists.
- */
-export function injectEditorStyle(id: string, css: string): void {
-  const doc = getEditorDocument();
-  if (!doc || doc.getElementById(id)) return;
-
-  const style = doc.createElement('style');
-  style.id = id;
-  style.textContent = css;
-  doc.head.appendChild(style);
-}
 
 /**
  * Read persisted color scheme for the editor (defaults to light).
@@ -65,16 +51,6 @@ export function getStoredScheme(): ColorScheme {
  */
 export function storeScheme(mode: ColorScheme): void {
   storeColorScheme(mode);
-}
-
-/**
- * Apply color-scheme to the editor canvas (inside the iframe).
- * Falls back to the current document if no iframe is found.
- */
-export function applySchemeToCanvas(mode: ColorScheme): void {
-  const doc = getEditorDocument() ?? document;
-  doc.documentElement.style.colorScheme = mode;
-  doc.documentElement.setAttribute('data-theme', mode);
 }
 
 /**
@@ -118,11 +94,14 @@ export function useEditorColorScheme(): {
     return () => window.removeEventListener(EVENT_NAME, handler);
   }, []);
 
+  // Apply on mount and whenever the editor canvas iframe reloads.
+  useEffect(() => syncSchemeToEditorCanvas(colorMode), [colorMode]);
+
   return { colorMode, switchColorMode };
 }
 
 /**
- * Light/Dark toggle button group.
+ * Light / Dark scheme toggle using WordPress ToggleGroupControl.
  *
  * Switches the active editing mode and previews the matching scheme on the
  * editor canvas (via the caller's onChange → useEditorColorScheme).
@@ -130,29 +109,46 @@ export function useEditorColorScheme(): {
 export function ColorModeToggle({
   mode,
   onChange,
+  className = '',
+  label,
+  hideLabelFromVision = true,
 }: {
   mode: ColorScheme;
   onChange: (mode: ColorScheme) => void;
+  className?: string;
+  label?: string;
+  hideLabelFromVision?: boolean;
 }) {
   return (
-    <ButtonGroup
-      style={{ display: 'flex', marginBottom: '12px' }}
-      aria-label={__('Color scheme preview', 'aggressive-apparel')}
+    <ToggleGroupControl
+      className={['aa-adaptive-scheme-tabs', className]
+        .filter(Boolean)
+        .join(' ')}
+      __next40pxDefaultSize
+      __nextHasNoMarginBottom
+      isBlock
+      label={label ?? __('Color scheme', 'aggressive-apparel')}
+      hideLabelFromVision={hideLabelFromVision}
+      value={mode}
+      onChange={value => {
+        if (value === 'light' || value === 'dark') {
+          onChange(value);
+        }
+      }}
     >
-      <Button
-        isPressed={mode === 'light'}
-        onClick={() => onChange('light')}
-        style={{ flex: 1, justifyContent: 'center' }}
-      >
-        {__('Light', 'aggressive-apparel')}
-      </Button>
-      <Button
-        isPressed={mode === 'dark'}
-        onClick={() => onChange('dark')}
-        style={{ flex: 1, justifyContent: 'center' }}
-      >
-        {__('Dark', 'aggressive-apparel')}
-      </Button>
-    </ButtonGroup>
+      <ToggleGroupControlOption
+        value='light'
+        label={__('Light', 'aggressive-apparel')}
+      />
+      <ToggleGroupControlOption
+        value='dark'
+        label={__('Dark', 'aggressive-apparel')}
+      />
+    </ToggleGroupControl>
   );
 }
+
+/**
+ * @deprecated Use ColorModeToggle — kept as an alias for older imports.
+ */
+export const AdaptiveSchemeTabs = ColorModeToggle;

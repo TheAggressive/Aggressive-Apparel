@@ -32,14 +32,9 @@ import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { addQueryArgs } from '@wordpress/url';
 import {
-  useEditorColorScheme,
-  ColorModeToggle,
-} from '../../utils/editor-color-scheme';
-import {
-  AdaptiveColorPicker,
-  composeLightDark,
-  parseLightDark,
-} from '../../utils/adaptive-color-picker';
+  AdaptiveColorPanelHeader,
+  AdaptiveCssValueSettingsDropdown,
+} from '../../utils/adaptive-color-controls';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
 import type { BorderStyle, NavigationAttributes } from './types';
@@ -65,39 +60,10 @@ const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/navigation-trigger'],
 ];
 
-/**
- * Bridge string light-dark() attributes to the shared AdaptiveColorPicker.
- */
-function NavigationAdaptiveColorPicker({
-  mode,
-  onModeChange,
-  value,
-  onChange,
-  colors,
-  showModeToggle = false,
-}: {
-  mode: 'light' | 'dark';
-  onModeChange?: (mode: 'light' | 'dark') => void;
-  value: string | undefined;
-  onChange: (value: string | undefined) => void;
-  colors: Array<{ name: string; slug: string; color: string }> | undefined;
-  showModeToggle?: boolean;
-}) {
-  return (
-    <AdaptiveColorPicker
-      mode={mode}
-      onModeChange={onModeChange}
-      value={parseLightDark(value)}
-      onChange={pair => onChange(composeLightDark(pair?.light, pair?.dark))}
-      colors={colors}
-      showModeToggle={showModeToggle}
-    />
-  );
-}
-
 export default function Edit({
   attributes,
   setAttributes,
+  clientId,
 }: BlockEditProps<NavigationAttributes>) {
   const {
     breakpoint,
@@ -120,9 +86,6 @@ export default function Edit({
   const [colors] = useSettings('color.palette') as [
     Array<{ name: string; slug: string; color: string }> | undefined,
   ];
-
-  // Shared color scheme state — synced across all adaptive panels.
-  const { colorMode, switchColorMode } = useEditorColorScheme();
 
   // Active theme stylesheet, needed to build the Site Editor link to the mobile
   // navigation template part (template part IDs are "<stylesheet>//<slug>").
@@ -274,58 +237,47 @@ export default function Edit({
         <PanelBody
           title={__('Submenu Colors', 'aggressive-apparel')}
           initialOpen={false}
+          className='aa-adaptive-color-panel-body'
         >
-          <p style={{ ...EDITOR_HELP_TEXT_STYLE, marginTop: 0 }}>
-            {__(
-              'Set different colors for light and dark mode. Both must be set for adaptive behavior.',
-              'aggressive-apparel'
-            )}
-          </p>
-          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
-          <BaseControl
-            label={__('Background', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <NavigationAdaptiveColorPicker
-              mode={colorMode}
-              value={submenuBackgroundColor}
-              onChange={v => setAttributes({ submenuBackgroundColor: v })}
-              colors={colors}
+          <div className='aa-adaptive-color-panel'>
+            <AdaptiveColorPanelHeader
+              description={__(
+                'Choose Light or Dark, then set submenu colors with the standard WordPress color picker.',
+                'aggressive-apparel'
+              )}
             />
-          </BaseControl>
-          <BaseControl
-            label={__('Text', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <NavigationAdaptiveColorPicker
-              mode={colorMode}
-              value={submenuTextColor}
-              onChange={v => setAttributes({ submenuTextColor: v })}
-              colors={colors}
+            <AdaptiveCssValueSettingsDropdown
+              panelId={`${clientId}-nav-submenu-colors`}
+              settings={[
+                {
+                  id: 'submenuBackground',
+                  label: __('Background', 'aggressive-apparel'),
+                  value: submenuBackgroundColor,
+                  onChange: v => setAttributes({ submenuBackgroundColor: v }),
+                  allowGradient: true,
+                },
+                {
+                  id: 'submenuText',
+                  label: __('Text', 'aggressive-apparel'),
+                  value: submenuTextColor,
+                  onChange: v => setAttributes({ submenuTextColor: v }),
+                },
+                {
+                  id: 'submenuLinkHover',
+                  label: __('Link Hover Text', 'aggressive-apparel'),
+                  value: submenuLinkHoverColor,
+                  onChange: v => setAttributes({ submenuLinkHoverColor: v }),
+                },
+                {
+                  id: 'submenuLinkHoverBg',
+                  label: __('Link Hover Background', 'aggressive-apparel'),
+                  value: submenuLinkHoverBg,
+                  onChange: v => setAttributes({ submenuLinkHoverBg: v }),
+                  allowGradient: true,
+                },
+              ]}
             />
-          </BaseControl>
-          <BaseControl
-            label={__('Link Hover Text', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <NavigationAdaptiveColorPicker
-              mode={colorMode}
-              value={submenuLinkHoverColor}
-              onChange={v => setAttributes({ submenuLinkHoverColor: v })}
-              colors={colors}
-            />
-          </BaseControl>
-          <BaseControl
-            label={__('Link Hover Background', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <NavigationAdaptiveColorPicker
-              mode={colorMode}
-              value={submenuLinkHoverBg}
-              onChange={v => setAttributes({ submenuLinkHoverBg: v })}
-              colors={colors}
-            />
-          </BaseControl>
+          </div>
         </PanelBody>
 
         <PanelBody
@@ -370,18 +322,25 @@ export default function Edit({
               setAttributes({ submenuBorderStyle: value as BorderStyle })
             }
           />
-          <ColorModeToggle mode={colorMode} onChange={switchColorMode} />
-          <BaseControl
-            label={__('Border Color', 'aggressive-apparel')}
-            __nextHasNoMarginBottom
-          >
-            <NavigationAdaptiveColorPicker
-              mode={colorMode}
-              value={submenuBorderColor}
-              onChange={v => setAttributes({ submenuBorderColor: v })}
-              colors={colors}
+          <div className='aa-adaptive-color-panel'>
+            <AdaptiveColorPanelHeader
+              description={__(
+                'Border color can differ in light and dark mode.',
+                'aggressive-apparel'
+              )}
             />
-          </BaseControl>
+            <AdaptiveCssValueSettingsDropdown
+              panelId={`${clientId}-nav-submenu-border`}
+              settings={[
+                {
+                  id: 'submenuBorder',
+                  label: __('Border Color', 'aggressive-apparel'),
+                  value: submenuBorderColor,
+                  onChange: v => setAttributes({ submenuBorderColor: v }),
+                },
+              ]}
+            />
+          </div>
         </PanelBody>
       </InspectorControls>
       <nav {...innerBlocksProps} aria-label={ariaLabel} />

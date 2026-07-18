@@ -119,7 +119,7 @@ Stored as style variations in `styles/*.json` and available for Group, Columns, 
 
 1. **No raw hex** in feature CSS — use `var(--wp--preset--color--*)` or `var(--aa-color-*)`.
 2. **Custom PHP buttons** — add class `wp-element-button` to inherit global button styles.
-3. **Adaptive colors in blocks** — use palette slugs in block attributes; use the **Adaptive Color** panel (Typography / Background) for per-block light/dark overrides.
+3. **Adaptive colors in blocks** — use palette slugs in block attributes; use the **Adaptive Color** panel for per-block light/dark overrides. The panel uses Light/Dark tabs plus the native WordPress color/gradient picker, and discovers each block’s color supports (text, link, heading, background, border, …) plus allowlisted custom attributes (e.g. overlay).
 4. **Old slugs removed** — do not use `light-dark-white-black`, `light-dark-black-white`, `surface-alt`, `on-surface`, `on-surface-muted`.
 
 ## Pattern Authoring Rules

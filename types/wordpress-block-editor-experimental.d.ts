@@ -31,6 +31,28 @@ declare module '@wordpress/block-editor' {
 
   export const __experimentalColorGradientSettingsDropdown: ComponentType<ColorGradientSettingsDropdownProps>;
 
+  /**
+   * Single Color / Gradient control used by Styles-like color rows.
+   * Runtime export; missing from `@types/wordpress__block-editor`.
+   */
+  export interface ColorGradientControlProps {
+    label?: string;
+    showTitle?: boolean;
+    __experimentalIsRenderedInSidebar?: boolean;
+    colors?: unknown;
+    gradients?: unknown;
+    disableCustomColors?: boolean;
+    disableCustomGradients?: boolean;
+    colorValue?: string;
+    gradientValue?: string;
+    onColorChange?: (value?: string) => void;
+    onGradientChange?: (value?: string) => void;
+    clearable?: boolean;
+    [key: string]: unknown;
+  }
+
+  export const __experimentalColorGradientControl: ComponentType<ColorGradientControlProps>;
+
   export function __experimentalUseMultipleOriginColorsAndGradients(): Record<
     string,
     unknown

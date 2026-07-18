@@ -71,11 +71,14 @@
 	/* Adaptive semantic colors (light-dark() injected by Adaptive_Colors). */
 	--aa-color-surface: var(--wp--preset--color--surface);
 	--aa-color-surface-elevated: var(--wp--preset--color--surface-elevated);
+	--aa-color-surface-muted: var(--wp--preset--color--surface-muted);
+	--aa-color-surface-sunken: var(--wp--preset--color--surface-sunken);
 	--aa-color-foreground: var(--wp--preset--color--foreground);
 	--aa-color-foreground-muted: var(--wp--preset--color--foreground-muted);
 	--aa-color-accent: var(--wp--preset--color--accent);
 	--aa-color-accent-on-foreground: var(--wp--preset--color--accent-on-foreground);
 	--aa-color-border: var(--wp--preset--color--border);
+	--aa-color-border-muted: var(--wp--preset--color--border-muted);
 
 	/* Static absolute colors. */
 	--aa-color-white: var(--wp--preset--color--white);
@@ -169,7 +172,9 @@
 	--aa-focus-ring: 0 0 0 2px var(--aa-color-surface),
 		0 0 0 4px var(--aa-color-accent);
 
-	/* Derived foreground mixes (adapt with color scheme). */
+	/* Derived foreground mixes (adapt with color scheme).
+	   border-subtle stays a transparent mix for chrome hairlines;
+	   solid picker token is adaptive border-muted. */
 	--aa-color-border-subtle: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
 	--aa-color-border-default: color-mix(in oklch, var(--aa-color-foreground) 12%, transparent);
 	--aa-color-border-strong: color-mix(in oklch, var(--aa-color-foreground) 15%, transparent);

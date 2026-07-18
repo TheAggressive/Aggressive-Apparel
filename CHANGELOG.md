@@ -1,3 +1,10 @@
+# [1.162.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.161.0...v1.162.0) (2026-07-18)
+
+
+### Features
+
+* add new adaptive color options and enhance color management ([c1321cc](https://github.com/TheAggressive/Aggressive-Apparel/commit/c1321cc5b930fb23e0eacb481f9f8a6e7b9a9405))
+
 # [1.161.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.160.0...v1.161.0) (2026-07-17)
 
 

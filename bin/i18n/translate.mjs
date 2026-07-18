@@ -249,6 +249,11 @@ function needsTranslation(entry) {
 	return msgstr === '' || isFuzzy;
 }
 
+/**
+ * ASCII-only tokens — Unicode brackets get mangled by MyMemory.
+ *
+ * @param {string} text
+ */
 function protectPlaceholders(text) {
 	const tokens = [];
 	const protectedText = text.replace(
@@ -256,14 +261,14 @@ function protectPlaceholders(text) {
 		(match) => {
 			const idx = tokens.length;
 			tokens.push(match);
-			return `⟦${idx}⟧`;
+			return `__AA_PH_${idx}__`;
 		}
 	);
 	return { protectedText, tokens };
 }
 
 function restorePlaceholders(text, tokens) {
-	return text.replace(/⟦(\d+)⟧/g, (_, n) => tokens[Number(n)] ?? '');
+	return text.replace(/__AA_PH_(\d+)__/g, (_, n) => tokens[Number(n)] ?? '');
 }
 
 function protectBrandTerms(text) {
@@ -275,13 +280,30 @@ function protectBrandTerms(text) {
 		}
 		const idx = tokens.length;
 		tokens.push(term);
-		out = out.split(term).join(`⟪${idx}⟫`);
+		out = out.split(term).join(`__AA_BR_${idx}__`);
 	}
 	return { text: out, tokens };
 }
 
 function restoreBrandTerms(text, tokens) {
-	return text.replace(/⟪(\d+)⟫/g, (_, n) => tokens[Number(n)] ?? '');
+	return text.replace(/__AA_BR_(\d+)__/g, (_, n) => tokens[Number(n)] ?? '');
+}
+
+/**
+ * Reject MT output that drops printf placeholders from the source.
+ *
+ * @param {string} source
+ * @param {string} translated
+ */
+function placeholdersIntact(source, translated) {
+	const extract = (s) =>
+		[...(s.matchAll(/%(\d+\$)?[sd]|%\([^)]+\)[sd]/g))].map((m) => m[0]).sort();
+	const a = extract(source);
+	const b = extract(translated);
+	if (a.length === 0) {
+		return true;
+	}
+	return a.length === b.length && a.every((p, i) => p === b[i]);
 }
 
 async function translateMyMemory(text, lang) {
@@ -386,6 +408,13 @@ async function mt(text, localeCodes, mode) {
 
 	out = restoreBrandTerms(out, brand.tokens);
 	out = restorePlaceholders(out, ph);
+
+	if (!placeholdersIntact(text, out)) {
+		throw new Error(
+			`MT dropped placeholders (source=${text.slice(0, 40)}…)`
+		);
+	}
+
 	return { text: out, via };
 }
 

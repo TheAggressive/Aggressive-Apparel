@@ -678,7 +678,7 @@ msgstr "1 résultat trouvé."
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, php-format, aa-mt
 msgid "%d results found."
-msgstr " r&eacute;sultats trouv&eacute;s."
+msgstr "%d résultats trouvés."
 
 #: includes/Core/class-search-modal.php:253
 #. Auto-translated (aa-mt) via mymemory — review before release.
@@ -730,7 +730,7 @@ msgstr "Trop de demandes. Veuillez ralentir."
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, php-format, aa-mt
 msgid "From %s"
-msgstr "De 0"
+msgstr "À partir de %s"
 
 #: includes/Core/class-security-hardening.php:141
 #. Auto-translated (aa-mt) via mymemory — review before release.
@@ -954,13 +954,13 @@ msgstr "Frosted Dark"
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, aa-mt
 msgid "Aggressive Apparel update package is missing a SHA-256 checksum."
-msgstr "Il manque une somme de contrôle SHA-256 au package de⟫ mise à jour⟪ 0."
+msgstr "Il manque une somme de contrôle SHA-256 au package de mise à jour Aggressive Apparel."
 
 #: includes/Core/class-theme-updates.php:379
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, aa-mt
 msgid "Aggressive Apparel update package checksum verification failed."
-msgstr "La vérification de la somme de contrôle du package de⟫ mise à jour⟪ 0 a échoué"
+msgstr "La vérification de la somme de contrôle du package de mise à jour Aggressive Apparel a échoué."
 
 #. translators: 1: theme name, 2: current version, 3: new version
 #: includes/Core/class-theme-updates.php:960
@@ -1314,8 +1314,8 @@ msgstr "Abonnés à la notification de stock"
 #, php-format, aa-mt
 msgid "%d subscriber deleted."
 msgid_plural "%d subscribers deleted."
-msgstr[0] "Client supprimé."
-msgstr[1] "Abonnés supprimés."
+msgstr[0] "%d abonné supprimé."
+msgstr[1] "%d abonnés supprimés."
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:195
 #: patterns/contact-page.php:32
@@ -2306,13 +2306,13 @@ msgstr "Automatique (page produit unique)"
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, aa-mt
 msgid "Manual placement (use Wishlist Button block)"
-msgstr "Placement manuel (utiliser le bloc de⟫ boutons ⟪0)"
+msgstr "Placement manuel (utiliser le bloc Wishlist Button)"
 
 #: includes/WooCommerce/class-feature-settings-fields.php:220
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, aa-mt
 msgid "Controls the single product page heart. Shop cards can also get a heart from Quick View → “Wishlist on Product Images” when both features are on."
-msgstr "Contrôle le cœur de la page produit unique. Les cartes d'achat peuvent également obtenir un cœur à partir de Quick View → «⟪ 1⟫ sur les images de produits » lorsque les deux fonctionnalités sont activées."
+msgstr "Contrôle le cœur de la page produit unique. Les cartes d'achat peuvent également obtenir un cœur à partir de Quick View → « Wishlist on Product Images » lorsque les deux fonctionnalités sont activées."
 
 #: includes/WooCommerce/class-feature-settings-fields.php:232
 #. Auto-translated (aa-mt) via mymemory — review before release.
@@ -2462,7 +2462,7 @@ msgstr "Limaces d'icône intégrées (copier dans LE PRÉFIXE|)"
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, php-format, aa-mt
 msgid "Developers — register additional icons via the %s filter (child theme recommended). Use a string for a single path (viewBox 0 0 24 24), or an array with viewBox, paths, and optional circles, polygons, and rects."
-msgstr "Développeurs — enregistrez des icônes supplémentaires via le⟧ filtre ⟦0 (thème enfant recommandé). Utilisez une chaîne pour un chemin unique (viewBox 0 0 24 24) ou un tableau avec viewBox, chemins et cercles, polygones et rects facultatifs."
+msgstr "Développeurs — enregistrez des icônes supplémentaires via le filtre %s (thème enfant recommandé). Utilisez une chaîne pour un chemin unique (viewBox 0 0 24 24), ou un tableau avec viewBox, paths, et éventuellement circles, polygons et rects."
 
 #: includes/WooCommerce/class-feature-settings-fields.php:467
 #. Auto-translated (aa-mt) via mymemory — review before release.
@@ -2677,7 +2677,7 @@ msgstr "Sections Améliorations de la boutique"
 #. Auto-translated (aa-mt) via mymemory — review before release.
 #, php-format, aa-mt
 msgid "%1$d of %2$d features enabled"
-msgstr "⟧ Fonctionnalités⟦ 0⟧ sur ⟦1 activées"
+msgstr "%1$d fonctionnalités sur %2$d activées"
 
 #: includes/WooCommerce/class-feature-settings-page.php:568
 #. Auto-translated (aa-mt) via mymemory — review before release.

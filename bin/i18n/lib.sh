@@ -49,6 +49,8 @@ aa_i18n_wp() {
 }
 
 # Strip volatile POT headers for stable CI diffs.
+# Report-Msgid-Bugs-To follows the on-disk theme folder name (aggressive-apparel
+# vs Aggressive-Apparel), which differs between local checkouts and CI clones.
 aa_i18n_normalize_pot() {
 	local src="$1"
 	local dest="$2"
@@ -57,6 +59,7 @@ aa_i18n_normalize_pot() {
 		-e 's/^"POT-Creation-Date: .+\\n"$/"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n"/' \
 		-e 's/^"PO-Revision-Date: .+\\n"$/"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"/' \
 		-e 's/^"X-Generator: .+\\n"$/"X-Generator: WP-CLI\\n"/' \
+		-e 's|^"Report-Msgid-Bugs-To: .+\\n"$|"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\\n"|' \
 		"${src}" > "${dest}"
 }
 

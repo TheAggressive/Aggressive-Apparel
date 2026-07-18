@@ -1,3 +1,10 @@
+# [1.164.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.163.0...v1.164.0) (2026-07-18)
+
+
+### Features
+
+* enhance ticker block with new attributes and improved controls ([596d21a](https://github.com/TheAggressive/Aggressive-Apparel/commit/596d21a924406d98e7682abe6de8f2e3f5f2d6f7))
+
 # [1.163.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.162.0...v1.163.0) (2026-07-18)
 
 

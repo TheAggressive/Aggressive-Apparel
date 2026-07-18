@@ -1,3 +1,10 @@
+# [1.163.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.162.0...v1.163.0) (2026-07-18)
+
+
+### Features
+
+* implement editor thumbnail catalog for brand icons ([fdf079b](https://github.com/TheAggressive/Aggressive-Apparel/commit/fdf079b53f55323eec8c855fa5b050f3541b2d64))
+
 # [1.162.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.161.0...v1.162.0) (2026-07-18)
 
 

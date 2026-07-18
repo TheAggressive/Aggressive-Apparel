@@ -35,6 +35,43 @@ class Asset_Loader {
 	public const TOKENS_HANDLE = 'aggressive-apparel-tokens';
 
 	/**
+	 * Theme text domain (matches style.css).
+	 *
+	 * @var string
+	 */
+	public const TEXT_DOMAIN = 'aggressive-apparel';
+
+	/**
+	 * Absolute path to the theme languages directory.
+	 *
+	 * @return string
+	 */
+	public static function languages_path(): string {
+		return get_template_directory() . '/languages';
+	}
+
+	/**
+	 * Register Jed JSON translations for a classic script handle.
+	 *
+	 * No-op for script modules (WordPress does not support
+	 * wp_set_script_translations for the Script Modules API).
+	 *
+	 * @param string $handle Registered script handle.
+	 * @return void
+	 */
+	public static function set_script_translations( string $handle ): void {
+		if ( '' === $handle || ! function_exists( 'wp_set_script_translations' ) ) {
+			return;
+		}
+
+		wp_set_script_translations(
+			$handle,
+			self::TEXT_DOMAIN,
+			self::languages_path()
+		);
+	}
+
+	/**
 	 * Get asset data from .asset.php file
 	 *
 	 * @param string $asset_path Path to asset file (without extension).
@@ -92,6 +129,8 @@ class Asset_Loader {
 				'strategy'  => 'defer',
 			)
 		);
+
+		self::set_script_translations( $handle );
 	}
 
 	/**
@@ -262,6 +301,8 @@ class Asset_Loader {
 			(string) filemtime( $file ),
 			$in_footer
 		);
+
+		self::set_script_translations( $handle );
 
 		return true;
 	}

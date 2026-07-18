@@ -44,10 +44,22 @@ export interface PanelState {
   drillStack: string[];
 }
 
+export interface NavigationPanelI18n {
+  menuOpened?: string;
+  menuClosed?: string;
+  submenuOpened?: string;
+  submenuClosed?: string;
+  submenuFallback?: string;
+  openedLevel?: string;
+  backToMain?: string;
+  backToLevel?: string;
+}
+
 export interface NavigationPanelStoreState {
   isOpen: boolean;
   activeSubmenuId: string | null;
   drillStack: string[];
   /** Per-panel mutable state keyed by panelSlug. */
   _panels: Record<string, PanelState>;
+  i18n?: NavigationPanelI18n;
 }

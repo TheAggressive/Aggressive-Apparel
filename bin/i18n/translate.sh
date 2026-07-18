@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Sync POT → PO, then machine-translate empty/fuzzy entries (no API key required).
+set -euo pipefail
+
+# shellcheck source=lib.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
+# pnpm forwards a literal "--" before script args; skip it.
+while [[ "${1:-}" == "--" ]]; do
+	shift
+done
+
+aa_i18n_info "Syncing locales from pot…"
+bash "${AA_I18N_DIR}/sync.sh"
+
+aa_i18n_info "Machine-translating empty/fuzzy strings…"
+node "${AA_I18N_DIR}/translate.mjs" "$@"

@@ -13,11 +13,11 @@
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"black","textColor":"white","layout":{"type":"constrained","contentSize":"720px"}} -->
 <div class="wp-block-group alignfull has-white-color has-black-background-color has-text-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-small"} -->
-	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.15em;text-transform:uppercase">Verified Customer · 5.0</p>
+	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.15em;text-transform:uppercase"><?php echo esc_html__( 'Verified Customer · 5.0', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}},"typography":{"fontStyle":"italic","fontWeight":"400","lineHeight":"1.5"}},"textColor":"white","fontSize":"fluid-xxx-large"} -->
-	<p class="has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;font-weight:400;line-height:1.5">"I've tried dozens of streetwear brands. Nothing comes close to the quality and design of Aggressive Apparel. This is the real deal."</p>
+	<p class="has-text-align-center has-white-color has-text-color has-fluid-xxx-large-font-size" style="margin-top:var(--wp--preset--spacing--8);font-style:italic;font-weight:400;line-height:1.5"><?php echo esc_html__( '"I\'ve tried dozens of streetwear brands. Nothing comes close to the quality and design of Aggressive Apparel. This is the real deal."', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"blockGap":"var:preset|spacing|4"}}} -->
@@ -29,11 +29,11 @@
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"},"style":{"spacing":{"blockGap":"0"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700">Chris D.</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:700"><?php echo esc_html__( 'Chris D.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"textColor":"white","fontSize":"x-small"} -->
-			<p class="has-white-color has-text-color has-x-small-font-size">Verified Customer &middot; Los Angeles, CA</p>
+			<p class="has-white-color has-text-color has-x-small-font-size"><?php echo esc_html__( 'Verified Customer &middot; Los Angeles, CA', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->

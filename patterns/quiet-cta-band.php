@@ -15,11 +15,11 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|8"}}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"style":{"typography":{"lineHeight":"1.5"}},"fontSize":"large"} -->
-		<p class="has-large-font-size" style="line-height:1.5">New drops land first in the inbox — no noise, just the release.</p>
+		<p class="has-large-font-size" style="line-height:1.5"><?php echo esc_html__( 'New drops land first in the inbox — no noise, just the release.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.1em"}},"textColor":"accent","fontSize":"x-small"} -->
-		<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><a href="/newsletter">Get on the list →</a></p>
+		<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.1em;text-transform:uppercase"><a href="/newsletter"><?php echo esc_html__( 'Get on the list →', 'aggressive-apparel' ); ?></a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

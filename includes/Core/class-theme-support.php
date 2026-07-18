@@ -67,6 +67,12 @@ class Theme_Support {
 	 * @return void
 	 */
 	public function register_theme_support() {
+		// Load theme translations from /languages (Domain Path in style.css).
+		load_theme_textdomain(
+			'aggressive-apparel',
+			get_template_directory() . '/languages'
+		);
+
 		// Add default posts and comments RSS feed links to head.
 		add_theme_support( 'automatic-feed-links' );
 

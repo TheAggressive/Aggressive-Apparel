@@ -15,11 +15,11 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"},"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|8"}}}} -->
 	<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--8)">
 		<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.12em","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-small"} -->
-		<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.12em;text-transform:uppercase">Drop Calendar</p>
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.12em;text-transform:uppercase"><?php echo esc_html__( 'Drop Calendar', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">View all drops &rarr;</a></p>
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop"><?php echo esc_html__( 'View all drops &rarr;', 'aggressive-apparel' ); ?></a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -31,15 +31,15 @@
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"},"blockGap":"var:preset|spacing|3"},"border":{"width":"1px","color":"var:preset|color|border","radius":"0px"}},"layout":{"type":"flex","orientation":"vertical"}} -->
 			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-				<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Mar 22</p>
+				<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Mar 22', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"fontSize":"large"} -->
-				<h4 class="wp-block-heading has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase">Concrete Heat</h4>
+				<h4 class="wp-block-heading has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Concrete Heat', 'aggressive-apparel' ); ?></h4>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"700"}},"textColor":"warning","fontSize":"x-small"} -->
-				<p class="has-warning-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase">Soon</p>
+				<p class="has-warning-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'Soon', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->
@@ -51,19 +51,19 @@
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"},"blockGap":"var:preset|spacing|3"},"border":{"width":"2px","color":"var:preset|color|accent","radius":"0px"}},"backgroundColor":"black","textColor":"white","layout":{"type":"flex","orientation":"vertical"}} -->
 			<div class="wp-block-group has-border-color has-white-color has-black-background-color has-text-color has-background" style="border-color:var(--wp--preset--color--accent);border-width:2px;border-radius:0px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-				<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Mar 15</p>
+				<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Mar 15', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"large"} -->
-				<h4 class="wp-block-heading has-white-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase">Nightfall Capsule</h4>
+				<h4 class="wp-block-heading has-white-color has-text-color has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Nightfall Capsule', 'aggressive-apparel' ); ?></h4>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"700"}},"textColor":"success","fontSize":"x-small"} -->
-				<p class="has-success-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase">Live</p>
+				<p class="has-success-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'Live', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|2"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"textColor":"white","fontSize":"x-small"} -->
-				<p class="has-white-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">Shop now &rarr;</a></p>
+				<p class="has-white-color has-text-color has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--2);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop"><?php echo esc_html__( 'Shop now &rarr;', 'aggressive-apparel' ); ?></a></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->
@@ -75,15 +75,15 @@
 			<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"},"blockGap":"var:preset|spacing|3"},"border":{"width":"1px","color":"var:preset|color|border","radius":"0px"}},"layout":{"type":"flex","orientation":"vertical"}} -->
 			<div class="wp-block-group has-border-color" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-				<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Mar 08</p>
+				<p class="has-foreground-muted-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Mar 08', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:heading {"level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800"}},"fontSize":"large"} -->
-				<h4 class="wp-block-heading has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase">Steel City Pack</h4>
+				<h4 class="wp-block-heading has-large-font-size" style="font-style:normal;font-weight:800;text-transform:uppercase"><?php echo esc_html__( 'Steel City Pack', 'aggressive-apparel' ); ?></h4>
 				<!-- /wp:heading -->
 
 				<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.08em","fontStyle":"normal","fontWeight":"700"}},"textColor":"error","fontSize":"x-small"} -->
-				<p class="has-error-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase">Sold Out</p>
+				<p class="has-error-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.08em;text-transform:uppercase"><?php echo esc_html__( 'Sold Out', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->

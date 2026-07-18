@@ -1,0 +1,31 @@
+# Test locale fixture for Aggressive Apparel i18n PHPUnit coverage.
+# Locale aa_TEST is intentional — not a real language.
+msgid ""
+msgstr ""
+"Project-Id-Version: Aggressive Apparel\n"
+"Language: aa_TEST\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Page Not Found"
+msgstr "ZZ-PAGE-NOT-FOUND"
+
+msgid "Browse Shop"
+msgstr "ZZ-BROWSE-SHOP"
+
+msgid "No products were found matching your selection."
+msgstr "ZZ-NO-PRODUCTS"
+
+msgid "%s Away from FREE Shipping!"
+msgstr "ZZ-%s-AWAY-FREE-SHIPPING"
+
+msgid "FREE Shipping UNLOCKED!"
+msgstr "ZZ-FREE-SHIPPING-UNLOCKED"
+
+msgid "Adding…"
+msgstr "ZZ-ADDING"
+
+msgid "(%s filter applied)"
+msgstr "ZZ-(%s-FILTER-APPLIED)"

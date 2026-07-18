@@ -16,15 +16,15 @@
 	<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"constrained","contentSize":"760px"}} -->
 	<div class="wp-block-group">
 		<!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-		<p class="is-style-eyebrow">Design System</p>
+		<p class="is-style-eyebrow"><?php echo esc_html__( 'Design System', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:heading {"level":1,"fontSize":"fluid-xxxxx-large"} -->
-		<h1 class="wp-block-heading has-fluid-xxxxx-large-font-size">Primitive preview</h1>
+		<h1 class="wp-block-heading has-fluid-xxxxx-large-font-size"><?php echo esc_html__( 'Primitive preview', 'aggressive-apparel' ); ?></h1>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"className":"is-style-caption"} -->
-		<p class="is-style-caption">Use this pattern to review token changes, registered block styles, commerce states, and component rhythm in one place.</p>
+		<p class="is-style-caption"><?php echo esc_html__( 'Use this pattern to review token changes, registered block styles, commerce states, and component rhythm in one place.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -36,25 +36,25 @@
 			<!-- wp:group {"className":"is-style-surface-card","layout":{"type":"constrained"}} -->
 			<div class="wp-block-group is-style-surface-card">
 				<!-- wp:paragraph {"className":"is-style-meta"} -->
-				<p class="is-style-meta">Buttons</p>
+				<p class="is-style-meta"><?php echo esc_html__( 'Buttons', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"flex","flexWrap":"wrap"}} -->
 				<div class="wp-block-buttons">
 					<!-- wp:button {"className":"is-style-cta"} -->
-					<div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="#">CTA</a></div>
+					<div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'CTA', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 
 					<!-- wp:button {"className":"is-style-cta-small"} -->
-					<div class="wp-block-button is-style-cta-small"><a class="wp-block-button__link wp-element-button" href="#">CTA Small</a></div>
+					<div class="wp-block-button is-style-cta-small"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'CTA Small', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 
 					<!-- wp:button {"className":"is-style-ghost"} -->
-					<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="#">Ghost</a></div>
+					<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Ghost', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 
 					<!-- wp:button {"className":"is-style-text"} -->
-					<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="#">Text Link</a></div>
+					<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Text Link', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -68,33 +68,33 @@
 			<!-- wp:group {"className":"is-style-bordered","layout":{"type":"constrained"}} -->
 			<div class="wp-block-group is-style-bordered">
 				<!-- wp:paragraph {"className":"is-style-meta"} -->
-				<p class="is-style-meta">Badges and states</p>
+				<p class="is-style-meta"><?php echo esc_html__( 'Badges and states', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"flex","flexWrap":"wrap"}} -->
 				<div class="wp-block-group">
 					<!-- wp:paragraph {"className":"is-style-badge"} -->
-					<p class="is-style-badge">Default</p>
+					<p class="is-style-badge"><?php echo esc_html__( 'Default', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"is-style-badge-muted"} -->
-					<p class="is-style-badge-muted">Muted</p>
+					<p class="is-style-badge-muted"><?php echo esc_html__( 'Muted', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"is-style-badge aa-commerce-state-sale"} -->
-					<p class="is-style-badge aa-commerce-state-sale">Sale</p>
+					<p class="is-style-badge aa-commerce-state-sale"><?php echo esc_html__( 'Sale', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"is-style-badge aa-commerce-state-new"} -->
-					<p class="is-style-badge aa-commerce-state-new">New</p>
+					<p class="is-style-badge aa-commerce-state-new"><?php echo esc_html__( 'New', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"is-style-badge aa-commerce-state-low-stock"} -->
-					<p class="is-style-badge aa-commerce-state-low-stock">Low Stock</p>
+					<p class="is-style-badge aa-commerce-state-low-stock"><?php echo esc_html__( 'Low Stock', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"is-style-badge aa-commerce-state-out-of-stock"} -->
-					<p class="is-style-badge aa-commerce-state-out-of-stock">Out of Stock</p>
+					<p class="is-style-badge aa-commerce-state-out-of-stock"><?php echo esc_html__( 'Out of Stock', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->
@@ -108,15 +108,15 @@
 	<!-- wp:group {"className":"is-style-surface-card","style":{"spacing":{"blockGap":"var:preset|spacing|5"}},"layout":{"type":"constrained"}} -->
 	<div class="wp-block-group is-style-surface-card">
 		<!-- wp:paragraph {"className":"is-style-eyebrow"} -->
-		<p class="is-style-eyebrow">Typography Roles</p>
+		<p class="is-style-eyebrow"><?php echo esc_html__( 'Typography Roles', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"className":"is-style-caption"} -->
-		<p class="is-style-caption">Caption text is for supporting detail and secondary explanatory copy.</p>
+		<p class="is-style-caption"><?php echo esc_html__( 'Caption text is for supporting detail and secondary explanatory copy.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"className":"is-style-meta"} -->
-		<p class="is-style-meta">Meta text uses compact uppercase rhythm</p>
+		<p class="is-style-meta"><?php echo esc_html__( 'Meta text uses compact uppercase rhythm', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"className":"is-style-price"} -->
@@ -124,7 +124,7 @@
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"className":"is-style-legal"} -->
-		<p class="is-style-legal">Legal text is intentionally quiet and compact while remaining readable.</p>
+		<p class="is-style-legal"><?php echo esc_html__( 'Legal text is intentionally quiet and compact while remaining readable.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

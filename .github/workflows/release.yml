@@ -97,12 +97,39 @@ jobs:
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --verbose
 
   # ============================================================================
+  # i18n: POT drift + PO validity + translators-comment lint
+  # ============================================================================
+  i18n:
+    name: 🌐 i18n Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install gettext tools
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - name: Install WP-CLI
+        run: |
+          curl -sS -L -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /usr/local/bin/wp
+          wp --info --allow-root
+
+      - name: Run i18n check
+        env:
+          I18N_CI: '1'
+        run: bash bin/i18n/check.sh
+
+  # ============================================================================
   # Build Assets (always runs so tests have artifacts; release check inline)
   # ============================================================================
   build:
     name: 🔨 Build
     runs-on: ubuntu-latest
-    needs: [lint-frontend, lint-php]
+    needs: [lint-frontend, lint-php, i18n]
     timeout-minutes: 5
 
     outputs:
@@ -269,6 +296,14 @@ jobs:
           ls -la build/
           echo "Build artifacts verified"
 
+      - name: Install WP-CLI
+        run: |
+          curl -sS -L -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /usr/local/bin/wp
+
+      - name: Compile theme translations
+        run: bash bin/i18n/compile.sh
+
       - name: Clean development files
         run: |
           echo "Removing development files..."
@@ -401,7 +436,7 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-frontend, lint-php, build, test, package]
+    needs: [lint-frontend, lint-php, i18n, build, test, package]
     if: always()
 
     steps:
@@ -423,6 +458,7 @@ jobs:
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend (ESLint + Stylelint + Prettier + JS Tests) | ${{ needs.lint-frontend.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| PHP Lint (syntax + PHPCS + PHPStan) | ${{ needs.lint-php.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| i18n (POT drift + catalogs) | ${{ needs.i18n.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Tests (unit + integration + security + a11y + perf) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
 

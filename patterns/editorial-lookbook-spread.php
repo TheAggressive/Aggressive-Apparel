@@ -14,11 +14,11 @@
 <div class="wp-block-cover alignfull is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--12);min-height:80vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"600px","justifyContent":"left"}} -->
 <div class="wp-block-group">
 	<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"600"}},"textColor":"white","fontSize":"x-small"} -->
-	<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.2em;text-transform:uppercase">SS26 Collection</p>
+	<p class="has-white-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.2em;text-transform:uppercase"><?php echo esc_html__( 'SS26 Collection', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"level":1,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800","lineHeight":"1"}},"textColor":"white","fontSize":"fluid-xxxxxxx-large"} -->
-	<h1 class="wp-block-heading has-white-color has-text-color has-fluid-xxxxxxx-large-font-size" style="font-style:normal;font-weight:800;line-height:1;text-transform:uppercase">The New Standard</h1>
+	<h1 class="wp-block-heading has-white-color has-text-color has-fluid-xxxxxxx-large-font-size" style="font-style:normal;font-weight:800;line-height:1;text-transform:uppercase"><?php echo esc_html__( 'The New Standard', 'aggressive-apparel' ); ?></h1>
 	<!-- /wp:heading -->
 </div>
 <!-- /wp:group --></div></div>
@@ -31,21 +31,21 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"45%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:45%">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">The Editorial</p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'The Editorial', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)">Where the Street Meets the Studio</h2>
+			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Where the Street Meets the Studio', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.8"}},"textColor":"foreground-muted","fontSize":"medium"} -->
-			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8">Shot on location in downtown Los Angeles, the SS26 editorial captures the raw energy of the Aggressive lifestyle. Every piece tells a story of ambition, grit, and unapologetic confidence.</p>
+			<p class="has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.8"><?php echo esc_html__( 'Shot on location in downtown Los Angeles, the SS26 editorial captures the raw energy of the Aggressive lifestyle. Every piece tells a story of ambition, grit, and unapologetic confidence.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|8"}}}} -->
 			<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--8)">
 				<!-- wp:button {"backgroundColor":"black","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/lookbook">View Full Lookbook</a></div>
+				<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/lookbook"><?php echo esc_html__( 'View Full Lookbook', 'aggressive-apparel' ); ?></a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->
@@ -75,7 +75,7 @@
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
 		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Look 01</h4>
+			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 01', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -87,7 +87,7 @@
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
 		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Look 02</h4>
+			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 02', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -99,7 +99,7 @@
 		<!-- wp:cover {"dimRatio":30,"overlayColor":"black","minHeight":400,"minHeightUnit":"px","contentPosition":"bottom center","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
 		<div class="wp-block-cover is-dark has-custom-content-position is-position-bottom-center" style="background-color:var(--wp--preset--color--black);min-height:400px"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-30 has-background-dim"></span><div class="wp-block-cover__inner-container">
 			<!-- wp:heading {"textAlign":"center","level":4,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Look 03</h4>
+			<h4 class="wp-block-heading has-text-align-center has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Look 03', 'aggressive-apparel' ); ?></h4>
 			<!-- /wp:heading -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -113,11 +113,11 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 	<div class="wp-block-group">
 		<!-- wp:heading {"fontSize":"fluid-xxx-large"} -->
-		<h2 class="wp-block-heading has-fluid-xxx-large-font-size">Shop the Look</h2>
+		<h2 class="wp-block-heading has-fluid-xxx-large-font-size"><?php echo esc_html__( 'Shop the Look', 'aggressive-apparel' ); ?></h2>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">View All Pieces &rarr;</a></p>
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop"><?php echo esc_html__( 'View All Pieces &rarr;', 'aggressive-apparel' ); ?></a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

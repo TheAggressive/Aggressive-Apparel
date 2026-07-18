@@ -38,7 +38,23 @@ pnpm analyse:php      # PHPStan static analysis
 pnpm env:start        # Start wp-env
 pnpm env:stop         # Stop wp-env
 pnpm setup            # Full setup: install → build → start
+
+# i18n (see languages/README.md)
+pnpm i18n:pot         # Regenerate languages/aggressive-apparel.pot
+pnpm i18n:check       # CI gate: pot drift + PO validity
+pnpm i18n:locale -- fr_FR  # Scaffold a locale .po
+pnpm i18n:translate   # MyMemory MT for empty/fuzzy (DeepL backup if key set)
+pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
 ```
+
+## i18n
+
+- Text domain: `aggressive-apparel` (`Domain Path: /languages`).
+- `Theme_Support` calls `load_theme_textdomain`; classic scripts use `Asset_Loader::set_script_translations()`.
+- Tooling lives in `bin/i18n/` (`pnpm i18n:*`). Default MT is MyMemory; optional DeepL backup via `DEEPL_AUTH_KEY`. CI opens PRs (`.github/workflows/i18n-translate.yml`) — never pushes translations to `main`.
+- Commit `.pot` + locale `.po` drafts; `.mo` / Jed `.json` are gitignored and built by `i18n:compile` (release runs this).
+- Interactivity **script modules** use PHP `i18n` bags — not `wp_set_script_translations`.
+- Full runbook: [`languages/README.md`](languages/README.md).
 
 ## Architecture
 

@@ -17,23 +17,23 @@
 		<!-- wp:group {"layout":{"type":"constrained","contentSize":"900px"}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.2em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.2em;text-transform:uppercase">Dropping Soon</p>
+			<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.2em;text-transform:uppercase"><?php echo esc_html__( 'Dropping Soon', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"textAlign":"center","level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"900","lineHeight":"0.9"}},"textColor":"white","fontSize":"fluid-xxxxxxxxx-large"} -->
-			<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxxxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:900;line-height:0.9;text-transform:uppercase">Nightfall Collection</h1>
+			<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxxxxxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:900;line-height:0.9;text-transform:uppercase"><?php echo esc_html__( 'Nightfall Collection', 'aggressive-apparel' ); ?></h1>
 			<!-- /wp:heading -->
 
 			<!-- wp:aggressive-apparel/countdown-timer {"displayStyle":"hero-center","endDateTime":"2026-09-01T00:00:00","saleLabelColor":"var:preset|color|accent","timeValueColor":"var:preset|color|white","unitLabelColor":"var:preset|color|foreground-muted","timerBorderColor":"var:preset|color|border","style":{"spacing":{"margin":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|12"}}}} /-->
 
 			<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"medium"} -->
-			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size">Join the waitlist for early access. First 500 signups get priority checkout.</p>
+			<p class="has-text-align-center has-white-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Join the waitlist for early access. First 500 signups get priority checkout.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:group {"borderColor":"white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed"}},"layout":{"type":"constrained"}} -->
 			<div class="wp-block-group has-border-color has-white-border-color" style="border-style:dashed;border-width:1px;margin-top:var(--wp--preset--spacing--10);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 				<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"small"} -->
-				<p class="has-text-align-center has-white-color has-text-color has-small-font-size">Replace this block with your email form.</p>
+				<p class="has-text-align-center has-white-color has-text-color has-small-font-size"><?php echo esc_html__( 'Replace this block with your email form.', 'aggressive-apparel' ); ?></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->

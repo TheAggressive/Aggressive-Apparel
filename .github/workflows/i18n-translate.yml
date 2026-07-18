@@ -1,0 +1,113 @@
+# Machine-translate empty/fuzzy PO strings when the catalog drifts, then open a PR.
+# Never pushes to main. Default MyMemory; DeepL only if MyMemory fails and DEEPL_AUTH_KEY is set.
+name: 🌐 i18n MT Drafts
+
+on:
+  workflow_dispatch:
+    inputs:
+      locale:
+        description: 'Locale to update (e.g. fr_FR). Leave empty for all locales.'
+        required: false
+        default: ''
+      limit:
+        description: 'Max strings to translate this run (rate-limit safety).'
+        required: false
+        default: '200'
+  push:
+    branches: [main, master]
+    paths:
+      - 'languages/aggressive-apparel.pot'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: i18n-mt-drafts
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    name: Draft translations → PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install gettext tools
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Skip when no locale catalogs exist
+        id: gate
+        run: |
+          shopt -s nullglob
+          files=(languages/aggressive-apparel-*.po)
+          # Ignore PHPUnit fixture locale if ever copied here.
+          count=0
+          for f in "${files[@]}"; do
+            [[ "$f" == *aa_TEST* ]] && continue
+            count=$((count + 1))
+          done
+          if [[ "$count" -eq 0 ]]; then
+            echo "has_locales=false" >> "$GITHUB_OUTPUT"
+            echo "No locale .po files — scaffold with: pnpm i18n:locale -- fr_FR"
+          else
+            echo "has_locales=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync + machine-translate
+        if: steps.gate.outputs.has_locales == 'true'
+        env:
+          DEEPL_AUTH_KEY: ${{ secrets.DEEPL_AUTH_KEY }}
+          I18N_MT_EMAIL: ${{ secrets.I18N_MT_EMAIL }}
+          I18N_MT_DELAY_MS: '400'
+        run: |
+          set -euo pipefail
+          # MyMemory default; DeepL is backup when DEEPL_AUTH_KEY is present.
+          export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-mymemory}"
+          ARGS=()
+          LOCALE="${{ github.event.inputs.locale || '' }}"
+          LIMIT="${{ github.event.inputs.limit || '200' }}"
+          if [[ -n "$LOCALE" ]]; then
+            ARGS+=(--locale="$LOCALE")
+          fi
+          ARGS+=(--limit="$LIMIT")
+          bash bin/i18n/sync.sh
+          node bin/i18n/translate.mjs "${ARGS[@]}"
+
+      - name: Create pull request
+        if: steps.gate.outputs.has_locales == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'
+          branch: chore/i18n-mt-drafts
+          delete-branch: true
+          title: 'chore(i18n): MT draft translations'
+          body: |
+            ## Summary
+            Auto-filled **empty / fuzzy** strings after pot sync.
+            Default **MyMemory** (free). Optional **DeepL** backup if `DEEPL_AUTH_KEY` is set and MyMemory fails.
+
+            No Poedit / manual typing required — skim and merge.
+
+            ## Review
+            - [ ] Spot-check cart, filters, nav, 404, shipping copy
+            - [ ] Brand terms look intact (Aggressive Apparel, Quick View, etc.)
+            - [ ] Placeholders (`%s`, `%d`) preserved
+
+            ## After merge
+            Release already runs `pnpm i18n:compile`. Locally you can run:
+            ```bash
+            pnpm i18n:compile && pnpm i18n:check
+            ```
+
+            Re-run anytime via **Actions → 🌐 i18n MT Drafts → Run workflow**.
+          labels: i18n, automated

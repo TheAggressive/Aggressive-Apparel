@@ -19,6 +19,15 @@ interface FbtItem {
   isCurrent: boolean;
 }
 
+interface FbtI18n {
+  adding?: string;
+  added?: string;
+  error?: string;
+  addAll?: string;
+  successAnnounce?: string;
+  errorAnnounce?: string;
+}
+
 interface FbtState {
   // Server-injected (from wp_interactivity_state())
   currencyPrefix: string;
@@ -26,6 +35,7 @@ interface FbtState {
   currencyMinorUnit: number;
   cartApiUrl: string;
   nonce: string;
+  i18n?: FbtI18n;
   // Imperative state set in actions
   items: FbtItem[];
   totalPrice: number;
@@ -54,14 +64,25 @@ const { state } = store<FbtStore>(
         return `${prefix}${state.totalPrice.toFixed(2)}`;
       },
       get buttonText(): string {
-        if (state.isAdding) return 'Adding\u2026';
-        if (state.isSuccess) return 'Added!';
-        if (state.hasError) return 'Error \u2014 try again';
-        return `Add all ${state.selectedCount} items to cart`;
+        const i18n = state.i18n ?? {};
+        if (state.isAdding) return i18n.adding ?? 'Adding\u2026';
+        if (state.isSuccess) return i18n.added ?? 'Added!';
+        if (state.hasError) return i18n.error ?? 'Error \u2014 try again';
+        const template = i18n.addAll ?? 'Add all %d items to cart';
+        return template.replace('%d', String(state.selectedCount));
       },
       get announcement(): string {
-        if (state.isSuccess) return 'All items have been added to your cart.';
-        if (state.hasError) return 'There was an error adding items to cart.';
+        const i18n = state.i18n ?? {};
+        if (state.isSuccess) {
+          return (
+            i18n.successAnnounce ?? 'All items have been added to your cart.'
+          );
+        }
+        if (state.hasError) {
+          return (
+            i18n.errorAnnounce ?? 'There was an error adding items to cart.'
+          );
+        }
         return '';
       },
     },

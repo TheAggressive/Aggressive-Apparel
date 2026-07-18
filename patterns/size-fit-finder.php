@@ -13,11 +13,11 @@
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"margin":{"top":"0","bottom":"0"}}},"backgroundColor":"surface-elevated","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull has-surface-elevated-background-color has-background" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)">
 	<!-- wp:heading {"textAlign":"center","fontSize":"fluid-xxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-fluid-xxx-large-font-size">How Does It Fit?</h2>
+	<h2 class="wp-block-heading has-text-align-center has-fluid-xxx-large-font-size"><?php echo esc_html__( 'How Does It Fit?', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|14"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
-	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)">Pick the silhouette that matches your style. Every fit is cut with intention.</p>
+	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'Pick the silhouette that matches your style. Every fit is cut with intention.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|6"}}}} -->
@@ -33,17 +33,17 @@
 					<!-- /wp:heading -->
 
 					<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
-					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase">Regular</h4>
+					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Regular', 'aggressive-apparel' ); ?></h4>
 					<!-- /wp:heading -->
 
 					<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">True-to-size with balanced room through the chest and waist. The everyday standard for layering and all-day wear.</p>
+					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'True-to-size with balanced room through the chest and waist. The everyday standard for layering and all-day wear.', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->
 
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide">See size chart</a></p>
+				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide"><?php echo esc_html__( 'See size chart', 'aggressive-apparel' ); ?></a></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->
@@ -61,17 +61,17 @@
 					<!-- /wp:heading -->
 
 					<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
-					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase">Slim</h4>
+					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Slim', 'aggressive-apparel' ); ?></h4>
 					<!-- /wp:heading -->
 
 					<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">Tapered through the body with a clean line. Hugs without restricting — built for a sharper, more tailored profile.</p>
+					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Tapered through the body with a clean line. Hugs without restricting — built for a sharper, more tailored profile.', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->
 
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide">See size chart</a></p>
+				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide"><?php echo esc_html__( 'See size chart', 'aggressive-apparel' ); ?></a></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->
@@ -89,17 +89,17 @@
 					<!-- /wp:heading -->
 
 					<!-- wp:heading {"textAlign":"center","level":4,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
-					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase">Oversized</h4>
+					<h4 class="wp-block-heading has-text-align-center has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Oversized', 'aggressive-apparel' ); ?></h4>
 					<!-- /wp:heading -->
 
 					<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"fontSize":"small"} -->
-					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">Dropped shoulders, extended body, and extra volume. The streetwear silhouette — size down one for a less dramatic drape.</p>
+					<p class="has-text-align-center has-small-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'Dropped shoulders, extended body, and extra volume. The streetwear silhouette — size down one for a less dramatic drape.', 'aggressive-apparel' ); ?></p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->
 
 				<!-- wp:paragraph {"align":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide">See size chart</a></p>
+				<p class="has-text-align-center has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/size-guide"><?php echo esc_html__( 'See size chart', 'aggressive-apparel' ); ?></a></p>
 				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->

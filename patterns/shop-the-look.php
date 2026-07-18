@@ -14,15 +14,15 @@
 <div class="wp-block-cover alignfull is-dark has-custom-content-position is-position-bottom-left" style="background-color:var(--wp--preset--color--black);margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--12);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--12);padding-left:var(--wp--preset--spacing--12);min-height:75vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-35 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"520px","justifyContent":"left"}} -->
 <div class="wp-block-group">
 	<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.15em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-	<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase">Look 07</p>
+	<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.15em;text-transform:uppercase"><?php echo esc_html__( 'Look 07', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"level":2,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"800","lineHeight":"1.05"}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-	<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:800;line-height:1.05;text-transform:uppercase">Night Shift Uniform</h2>
+	<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:800;line-height:1.05;text-transform:uppercase"><?php echo esc_html__( 'Night Shift Uniform', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"lineHeight":"1.6"}},"textColor":"white","fontSize":"medium"} -->
-	<p class="has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.6">Layered for late runs and early mornings — heavyweight hoodie, tapered cargos, and the cap that ties it together.</p>
+	<p class="has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);line-height:1.6"><?php echo esc_html__( 'Layered for late runs and early mornings — heavyweight hoodie, tapered cargos, and the cap that ties it together.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 </div>
 <!-- /wp:group --></div></div>
@@ -33,11 +33,11 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 	<div class="wp-block-group">
 		<!-- wp:heading {"fontSize":"fluid-xxx-large"} -->
-		<h2 class="wp-block-heading has-fluid-xxx-large-font-size">Shop This Look</h2>
+		<h2 class="wp-block-heading has-fluid-xxx-large-font-size"><?php echo esc_html__( 'Shop This Look', 'aggressive-apparel' ); ?></h2>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">View All Pieces &rarr;</a></p>
+		<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop"><?php echo esc_html__( 'View All Pieces &rarr;', 'aggressive-apparel' ); ?></a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

@@ -17,17 +17,17 @@
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical","justifyContent":"left"},"style":{"spacing":{"blockGap":"var:preset|spacing|2"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Curated Set</p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Curated Set', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"fontSize":"fluid-xxxx-large"} -->
-			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size">Get the Look</h2>
+			<h2 class="wp-block-heading has-fluid-xxxx-large-font-size"><?php echo esc_html__( 'Get the Look', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 		</div>
 		<!-- /wp:group -->
 
 		<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"medium"} -->
-		<p class="has-foreground-muted-color has-text-color has-medium-font-size">Three pieces. One complete fit.</p>
+		<p class="has-foreground-muted-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Three pieces. One complete fit.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -61,7 +61,7 @@
 		<!-- wp:group {"layout":{"type":"flex","orientation":"vertical","justifyContent":"left"},"style":{"spacing":{"blockGap":"var:preset|spacing|1"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.05em","fontStyle":"normal","fontWeight":"600"}},"fontSize":"x-small"} -->
-			<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase">Outfit Total</p>
+			<p class="has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Outfit Total', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"700"}},"fontSize":"x-large"} -->
@@ -69,7 +69,7 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:paragraph {"textColor":"foreground-muted","fontSize":"x-small"} -->
-			<p class="has-foreground-muted-color has-text-color has-x-small-font-size">Price updates based on selected variants.</p>
+			<p class="has-foreground-muted-color has-text-color has-x-small-font-size"><?php echo esc_html__( 'Price updates based on selected variants.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
@@ -77,7 +77,7 @@
 		<!-- wp:buttons -->
 		<div class="wp-block-buttons">
 			<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}}}} -->
-			<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase" href="/shop">Add All to Cart</a></div>
+			<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase" href="/shop"><?php echo esc_html__( 'Add All to Cart', 'aggressive-apparel' ); ?></a></div>
 			<!-- /wp:button -->
 		</div>
 		<!-- /wp:buttons -->

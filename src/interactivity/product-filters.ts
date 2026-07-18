@@ -340,7 +340,8 @@ const { state, actions } = store<ProductFiltersStore>(
         navigateToShopAfterClear();
 
         // Announce for screen readers.
-        state._announcement = 'All filters cleared.';
+        state._announcement =
+          state.i18n?.allFiltersCleared ?? 'All filters cleared.';
       },
 
       // -- Section Collapse --
@@ -857,7 +858,8 @@ function fetchCustomSorted(sortType: string, append = false): void {
       state.isLoading = false;
       state.hasError = true;
       state.products = [];
-      state._announcement = 'Something went wrong loading products.';
+      state._announcement =
+        state.i18n?.loadError ?? 'Something went wrong loading products.';
       notifyProductsFetchFailed();
     });
 }
@@ -867,11 +869,12 @@ function fetchCustomSorted(sortType: string, append = false): void {
  */
 function announceResults(): void {
   if (state.totalProducts === 0) {
-    state._announcement = 'No products found.';
+    state._announcement = state.i18n?.noProductsFound ?? 'No products found.';
   } else if (state.totalProducts === 1) {
-    state._announcement = '1 product found.';
+    state._announcement = state.i18n?.oneProductFound ?? '1 product found.';
   } else {
-    state._announcement = `${state.totalProducts} products found.`;
+    const template = state.i18n?.productsFound ?? '%d products found.';
+    state._announcement = template.replace('%d', String(state.totalProducts));
   }
 }
 
@@ -931,7 +934,8 @@ function fetchProducts({ append = false }: { append?: boolean } = {}): void {
       state.hasError = true;
       state.products = [];
       state.nextCursor = '';
-      state._announcement = 'Something went wrong loading products.';
+      state._announcement =
+        state.i18n?.loadError ?? 'Something went wrong loading products.';
       notifyProductsFetchFailed();
     });
 }
@@ -1142,7 +1146,9 @@ function productCardKey(card: HTMLElement): string {
 const MAX_VISIBLE_PILLS = 3;
 
 function renderPillButton(pill: FilterPill): string {
-  return `<button class="aa-filter-active-bar__pill" data-filter-type="${escapeHtml(pill.type)}" data-filter-slug="${escapeHtml(pill.slug)}" aria-label="Remove ${escapeHtml(pill.label)} filter">${escapeHtml(pill.label)}<span class="aa-filter-active-bar__pill-x" aria-hidden="true">&times;</span></button>`;
+  const removeTemplate = state.i18n?.removeFilterAria ?? 'Remove %s filter';
+  const ariaLabel = removeTemplate.replace('%s', pill.label);
+  return `<button class="aa-filter-active-bar__pill" data-filter-type="${escapeHtml(pill.type)}" data-filter-slug="${escapeHtml(pill.slug)}" aria-label="${escapeHtml(ariaLabel)}">${escapeHtml(pill.label)}<span class="aa-filter-active-bar__pill-x" aria-hidden="true">&times;</span></button>`;
 }
 
 function renderPillOverflowBadge(overflowPills: FilterPill[]): string {

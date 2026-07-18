@@ -56,7 +56,13 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 
 	wp_interactivity_state(
 		'aggressive-apparel/navigation',
-		array( '_navs' => $navs_state )
+		array(
+			'_navs' => $navs_state,
+			'i18n'  => array(
+				'submenuOpened' => __( 'Submenu opened', 'aggressive-apparel' ),
+				'submenuClosed' => __( 'Submenu closed', 'aggressive-apparel' ),
+			),
+		)
 	);
 }
 

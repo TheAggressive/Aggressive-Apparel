@@ -133,6 +133,12 @@ export interface ProductFiltersState {
     activeFiltersOverflowTooltip: string;
     inStockLabel: string;
     onSaleLabel: string;
+    allFiltersCleared?: string;
+    loadError?: string;
+    noProductsFound?: string;
+    oneProductFound?: string;
+    productsFound?: string;
+    removeFilterAria?: string;
   };
   _announcement: string;
   _customSort: string;

@@ -316,6 +316,14 @@ class Product_Filters {
 					'activeFiltersOverflowTooltip' => __( 'Additional filters: %s', 'aggressive-apparel' ),
 					'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
 					'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
+					'allFiltersCleared'            => __( 'All filters cleared.', 'aggressive-apparel' ),
+					'loadError'                    => __( 'Something went wrong loading products.', 'aggressive-apparel' ),
+					'noProductsFound'              => __( 'No products found.', 'aggressive-apparel' ),
+					'oneProductFound'              => __( '1 product found.', 'aggressive-apparel' ),
+					/* translators: %d: number of products found after filtering. */
+					'productsFound'                => __( '%d products found.', 'aggressive-apparel' ),
+					/* translators: %s: active filter label to remove. */
+					'removeFilterAria'             => __( 'Remove %s filter', 'aggressive-apparel' ),
 				),
 				'salesCategorySlug'   => Sale_Category::TERM_SLUG,
 			)

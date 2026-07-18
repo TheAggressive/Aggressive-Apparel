@@ -76,9 +76,15 @@ export interface NavState {
   activeSubmenuId: string | null;
 }
 
+export interface NavigationI18n {
+  submenuOpened?: string;
+  submenuClosed?: string;
+}
+
 export interface NavigationState {
   isMobile: boolean;
   activeSubmenuId: string | null;
   /** Per-nav-instance mutable state keyed by navId. */
   _navs: Record<string, NavState>;
+  i18n?: NavigationI18n;
 }

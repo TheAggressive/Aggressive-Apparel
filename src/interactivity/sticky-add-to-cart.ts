@@ -77,6 +77,8 @@ interface StickyCartLabels {
   viewCartText?: string;
   continueShoppingText?: string;
   addedToCartMessage?: string;
+  addedSuccessAnnounce?: string;
+  addToCartErrorAnnounce?: string;
 }
 
 interface CartAddBody {
@@ -401,7 +403,10 @@ const { state, actions } = store<StickyCartStore>(
           .then(() => {
             state.isAdding = false;
             state.isSuccess = true;
-            state.announcement = 'Added to cart';
+            state.announcement = getLabel(
+              'addedSuccessAnnounce',
+              'Added to cart'
+            );
             state.quantity = 1;
 
             // Dispatch on document.body with bubbles so WooCommerce
@@ -427,7 +432,10 @@ const { state, actions } = store<StickyCartStore>(
           .catch(() => {
             state.isAdding = false;
             state.hasError = true;
-            state.announcement = 'Error adding to cart';
+            state.announcement = getLabel(
+              'addToCartErrorAnnounce',
+              'Error adding to cart'
+            );
 
             setTimeout(() => {
               state.hasError = false;
@@ -500,7 +508,10 @@ const { state, actions } = store<StickyCartStore>(
           .catch(() => {
             state.isBuyingNow = false;
             state.hasError = true;
-            state.announcement = 'Error adding to cart';
+            state.announcement = getLabel(
+              'addToCartErrorAnnounce',
+              'Error adding to cart'
+            );
 
             setTimeout(() => {
               state.hasError = false;

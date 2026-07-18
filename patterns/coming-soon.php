@@ -16,11 +16,11 @@
 	<!-- wp:site-title {"textAlign":"center","level":0,"style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.1em"}},"textColor":"white","fontSize":"x-small"} /-->
 
 	<!-- wp:heading {"textAlign":"center","level":1,"style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}},"typography":{"fontWeight":"800","lineHeight":"1.1","letterSpacing":"-0.02em"}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-	<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--10);font-weight:800;line-height:1.1;letter-spacing:-0.02em">Something Big Is Coming</h1>
+	<h1 class="wp-block-heading has-text-align-center has-white-color has-text-color has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--10);font-weight:800;line-height:1.1;letter-spacing:-0.02em"><?php echo esc_html__( 'Something Big Is Coming', 'aggressive-apparel' ); ?></h1>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"lineHeight":"1.7"}},"textColor":"white","fontSize":"medium"} -->
-	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7">We're putting the finishing touches on something you'll want to see. Be the first to know when we drop.</p>
+	<p class="has-text-align-center has-white-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--6);line-height:1.7"><?php echo esc_html__( 'We\'re putting the finishing touches on something you\'ll want to see. Be the first to know when we drop.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:aggressive-apparel/countdown-timer {"displayStyle":"boxed","endDateTime":"2026-10-01T12:00:00","timeValueColor":"var:preset|color|white","unitLabelColor":"var:preset|color|white","timerBorderColor":"var:preset|color|white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"}}}} /-->
@@ -28,7 +28,7 @@
 	<!-- wp:group {"borderColor":"white","style":{"spacing":{"margin":{"top":"var:preset|spacing|10"},"padding":{"top":"var:preset|spacing|6","bottom":"var:preset|spacing|6","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}},"border":{"width":"1px","style":"dashed"}},"layout":{"type":"constrained"}} -->
 	<div class="wp-block-group has-border-color has-white-border-color" style="border-style:dashed;border-width:1px;margin-top:var(--wp--preset--spacing--10);padding-top:var(--wp--preset--spacing--6);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--6);padding-left:var(--wp--preset--spacing--6)">
 		<!-- wp:paragraph {"align":"center","textColor":"white","fontSize":"small"} -->
-		<p class="has-text-align-center has-white-color has-text-color has-small-font-size">Replace this block with your email form.</p>
+		<p class="has-text-align-center has-white-color has-text-color has-small-font-size"><?php echo esc_html__( 'Replace this block with your email form.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

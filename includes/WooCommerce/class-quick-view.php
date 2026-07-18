@@ -364,6 +364,14 @@ class Quick_View {
 						'continueShoppingText' => Feature_Settings::get_continue_shopping_button_text(),
 						'viewProductText'      => Feature_Settings::get_view_product_button_text(),
 						'addedToCartMessage'   => __( 'Added to cart!', 'aggressive-apparel' ),
+						'outOfStockLabel'      => __( 'Out of Stock', 'aggressive-apparel' ),
+						'inStockLabel'         => __( 'In Stock', 'aggressive-apparel' ),
+						/* translators: %d: remaining stock quantity. */
+						'onlyNLeft'            => __( 'Only %d left!', 'aggressive-apparel' ),
+						'addedSuccessAnnounce' => __( 'Product added to cart successfully', 'aggressive-apparel' ),
+						'addToCartError'       => __( 'Could not add to cart.', 'aggressive-apparel' ),
+						/* translators: %s: error message from the cart API. */
+						'errorAnnounce'        => __( 'Error: %s', 'aggressive-apparel' ),
 					),
 				),
 			);

@@ -15,41 +15,41 @@
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"600px"},"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|14"}}}} -->
 	<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--14)">
 		<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"fluid-xxxx-large"} -->
-		<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size">No matches found</h2>
+		<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size"><?php echo esc_html__( 'No matches found', 'aggressive-apparel' ); ?></h2>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"textColor":"foreground-muted","fontSize":"medium"} -->
-		<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)">We couldn't find anything matching your search or filters. Try clearing your filters or browse by category below.</p>
+		<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'We couldn\'t find anything matching your search or filters. Try clearing your filters or browse by category below.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}},"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"x-small"} -->
-		<p class="has-text-align-center has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop">Clear all filters &rarr;</a></p>
+		<p class="has-text-align-center has-x-small-font-size" style="margin-top:var(--wp--preset--spacing--6);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase"><a href="/shop"><?php echo esc_html__( 'Clear all filters &rarr;', 'aggressive-apparel' ); ?></a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 
 	<!-- wp:heading {"textAlign":"center","level":3,"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|8"}},"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"foreground-muted","fontSize":"x-small"} -->
-	<h3 class="wp-block-heading has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-bottom:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Browse by Category</h3>
+	<h3 class="wp-block-heading has-text-align-center has-foreground-muted-color has-text-color has-x-small-font-size" style="margin-bottom:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Browse by Category', 'aggressive-apparel' ); ?></h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center","flexWrap":"wrap"},"style":{"spacing":{"blockGap":"var:preset|spacing|4","margin":{"bottom":"var:preset|spacing|16"}}}} -->
 	<div class="wp-block-buttons" style="margin-bottom:var(--wp--preset--spacing--16)">
 		<!-- wp:button {"backgroundColor":"surface-elevated","textColor":"foreground","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border","radius":"0px"}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/hoodies">Hoodies</a></div>
+		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/hoodies"><?php echo esc_html__( 'Hoodies', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 
 		<!-- wp:button {"backgroundColor":"surface-elevated","textColor":"foreground","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border","radius":"0px"}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/tees">Tees</a></div>
+		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/tees"><?php echo esc_html__( 'Tees', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 
 		<!-- wp:button {"backgroundColor":"surface-elevated","textColor":"foreground","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}},"border":{"width":"1px","color":"var:preset|color|border","radius":"0px"}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/bottoms">Bottoms</a></div>
+		<div class="wp-block-button"><a class="wp-block-button__link has-foreground-color has-surface-elevated-background-color has-text-color has-background wp-element-button" style="border-color:var(--wp--preset--color--border);border-width:1px;border-radius:0px;padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/bottoms"><?php echo esc_html__( 'Bottoms', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->
 
 	<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|10"}}},"fontSize":"fluid-xxx-large"} -->
-	<h3 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-bottom:var(--wp--preset--spacing--10)">You Might Like</h3>
+	<h3 class="wp-block-heading has-fluid-xxx-large-font-size" style="margin-bottom:var(--wp--preset--spacing--10)"><?php echo esc_html__( 'You Might Like', 'aggressive-apparel' ); ?></h3>
 	<!-- /wp:heading -->
 
 	<!-- wp:woocommerce/product-collection {"queryId":43,"query":{"perPage":4,"pages":0,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[]},"tagName":"div","displayLayout":{"type":"flex","columns":4,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/best-sellers","queryContextIncludes":["collection"],"className":"is-style-commerce-grid"} -->

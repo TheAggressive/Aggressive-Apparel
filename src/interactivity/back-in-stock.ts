@@ -22,11 +22,19 @@ interface AjaxResponse {
   };
 }
 
+interface BackInStockI18n {
+  invalidEmail?: string;
+  consentRequired?: string;
+  successFallback?: string;
+  errorFallback?: string;
+}
+
 interface BackInStockState {
   // Server-injected (from wp_interactivity_state())
   nonce: string;
   ajaxUrl: string;
   productId: string;
+  i18n?: BackInStockI18n;
   // Imperative state set in actions
   isSubmitting: boolean;
   isSuccess: boolean;
@@ -73,15 +81,19 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
         ) as HTMLInputElement | null
       )?.checked;
 
+      const i18n = state.i18n ?? {};
+
       if (!email) {
         state.hasError = true;
-        state.errorMessage = 'Please enter a valid email address.';
+        state.errorMessage =
+          i18n.invalidEmail ?? 'Please enter a valid email address.';
         return;
       }
 
       if (!consent) {
         state.hasError = true;
-        state.errorMessage = 'You must agree to receive the notification.';
+        state.errorMessage =
+          i18n.consentRequired ?? 'You must agree to receive the notification.';
         return;
       }
 
@@ -111,15 +123,19 @@ const { state } = store<BackInStockStore>('aggressive-apparel/back-in-stock', {
           state.isSuccess = true;
           state._successMessage =
             json.data?.message ||
+            i18n.successFallback ||
             "We'll email you when this product is back in stock!";
         } else {
           state.hasError = true;
           state.errorMessage =
-            json.data?.message || 'Something went wrong. Please try again.';
+            json.data?.message ||
+            i18n.errorFallback ||
+            'Something went wrong. Please try again.';
         }
       } catch {
         state.hasError = true;
-        state.errorMessage = 'Something went wrong. Please try again.';
+        state.errorMessage =
+          i18n.errorFallback || 'Something went wrong. Please try again.';
       } finally {
         state.isSubmitting = false;
       }

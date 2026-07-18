@@ -235,7 +235,10 @@ class Blocks {
 			try {
 				// Register the block using WordPress metadata.
 				// WordPress will automatically load render.php if it exists.
-				\register_block_type_from_metadata( $block_location );
+				$block_type = \register_block_type_from_metadata( $block_location );
+				if ( $block_type instanceof \WP_Block_Type ) {
+					self::set_block_script_translations( $block_type );
+				}
 			} catch ( \Throwable $e ) {
 				// Log error but continue with other blocks.
 				aggressive_apparel_debug_log(
@@ -245,6 +248,30 @@ class Blocks {
 						'error' => $e->getMessage(),
 					)
 				);
+			}
+		}
+	}
+
+	/**
+	 * Wire classic block script handles to theme Jed JSON translations.
+	 *
+	 * Script modules (viewScriptModule) are excluded — they use PHP i18n bags.
+	 *
+	 * @param \WP_Block_Type $block_type Registered block type.
+	 * @return void
+	 */
+	private static function set_block_script_translations( \WP_Block_Type $block_type ): void {
+		$handle_groups = array(
+			$block_type->editor_script_handles,
+			$block_type->script_handles,
+			$block_type->view_script_handles,
+		);
+
+		foreach ( $handle_groups as $handles ) {
+			foreach ( (array) $handles as $handle ) {
+				if ( is_string( $handle ) && '' !== $handle ) {
+					\Aggressive_Apparel\Assets\Asset_Loader::set_script_translations( $handle );
+				}
 			}
 		}
 	}

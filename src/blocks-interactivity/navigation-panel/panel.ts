@@ -8,8 +8,9 @@
  * @package Aggressive_Apparel
  */
 
+import { store } from '@wordpress/interactivity';
 import { PANEL_MENU_ITEM_SELECTOR, SELECTORS, getPanelId } from './constants';
-import type { PanelState } from './types';
+import type { NavigationPanelStoreState, PanelState } from './types';
 import {
   addBodyClass,
   announce,
@@ -113,7 +114,13 @@ export function closePanelWithCleanup(
     }
   }, getTransitionDuration());
 
-  announce('Navigation menu closed', { assertive: true, panelSlug });
+  const panelState = store<NavigationPanelStoreState>(
+    'aggressive-apparel/navigation-panel'
+  );
+  announce(panelState.i18n?.menuClosed || 'Navigation menu closed', {
+    assertive: true,
+    panelSlug,
+  });
   restoreFocus(panelSlug);
 }
 

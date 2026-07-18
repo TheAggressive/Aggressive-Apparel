@@ -17,17 +17,17 @@
 		<!-- wp:group {"layout":{"type":"constrained","contentSize":"520px"},"style":{"spacing":{"blockGap":"var:preset|spacing|4"}}} -->
 		<div class="wp-block-group">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.16em","fontStyle":"normal","fontWeight":"700"}},"textColor":"accent","fontSize":"x-small"} -->
-			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.16em;text-transform:uppercase">From sketch to street</p>
+			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.16em;text-transform:uppercase"><?php echo esc_html__( 'From sketch to street', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"800","lineHeight":"1.05"}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-			<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="font-style:normal;font-weight:800;line-height:1.05">How a drop gets made</h2>
+			<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="font-style:normal;font-weight:800;line-height:1.05"><?php echo esc_html__( 'How a drop gets made', 'aggressive-apparel' ); ?></h2>
 			<!-- /wp:heading -->
 		</div>
 		<!-- /wp:group -->
 
 		<!-- wp:paragraph {"textColor":"white","fontSize":"small"} -->
-		<p class="has-white-color has-text-color has-small-font-size">Every piece moves through the same four gates.</p>
+		<p class="has-white-color has-text-color has-small-font-size"><?php echo esc_html__( 'Every piece moves through the same four gates.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -38,15 +38,15 @@
 		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8"}},"border":{"top":{"color":"var:preset|color|accent","width":"3px"}}}} -->
 		<div class="wp-block-column" style="border-top-color:var(--wp--preset--color--accent);border-top-width:3px;padding-top:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"800","letterSpacing":"0.06em"}},"textColor":"accent","fontSize":"small"} -->
-			<p class="has-accent-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em">01 — Design</p>
+			<p class="has-accent-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em"><?php echo esc_html__( '01 — Design', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700">Lock the silhouette</h3>
+			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700"><?php echo esc_html__( 'Lock the silhouette', 'aggressive-apparel' ); ?></h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.65"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65">Fit, placement, and type get sketched until the piece reads from across the room.</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( 'Fit, placement, and type get sketched until the piece reads from across the room.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -54,15 +54,15 @@
 		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8"}},"border":{"top":{"color":"var:preset|color|border","width":"3px"}}}} -->
 		<div class="wp-block-column" style="border-top-color:var(--wp--preset--color--border);border-top-width:3px;padding-top:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"800","letterSpacing":"0.06em"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em">02 — Sample</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em"><?php echo esc_html__( '02 — Sample', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700">Wear-test the blank</h3>
+			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700"><?php echo esc_html__( 'Wear-test the blank', 'aggressive-apparel' ); ?></h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.65"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65">First pulls hit the floor. Shrink, hand-feel, and print adhesion either pass or restart.</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( 'First pulls hit the floor. Shrink, hand-feel, and print adhesion either pass or restart.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -70,15 +70,15 @@
 		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8"}},"border":{"top":{"color":"var:preset|color|border","width":"3px"}}}} -->
 		<div class="wp-block-column" style="border-top-color:var(--wp--preset--color--border);border-top-width:3px;padding-top:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"800","letterSpacing":"0.06em"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em">03 — Produce</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em"><?php echo esc_html__( '03 — Produce', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700">Run a tight batch</h3>
+			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700"><?php echo esc_html__( 'Run a tight batch', 'aggressive-apparel' ); ?></h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.65"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65">Limited units keep quality high and the drop scarce. No endless restocks by default.</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( 'Limited units keep quality high and the drop scarce. No endless restocks by default.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->
@@ -86,15 +86,15 @@
 		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8"}},"border":{"top":{"color":"var:preset|color|border","width":"3px"}}}} -->
 		<div class="wp-block-column" style="border-top-color:var(--wp--preset--color--border);border-top-width:3px;padding-top:var(--wp--preset--spacing--8)">
 			<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"800","letterSpacing":"0.06em"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em">04 — Release</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.06em"><?php echo esc_html__( '04 — Release', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":3,"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}},"typography":{"fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700">Drop on the clock</h3>
+			<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="margin-top:var(--wp--preset--spacing--4);font-style:normal;font-weight:700"><?php echo esc_html__( 'Drop on the clock', 'aggressive-apparel' ); ?></h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}},"typography":{"lineHeight":"1.65"}},"textColor":"white","fontSize":"small"} -->
-			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65">Live countdown, waitlist first, then open cart. When it's gone, it's gone.</p>
+			<p class="has-white-color has-text-color has-small-font-size" style="margin-top:var(--wp--preset--spacing--3);line-height:1.65"><?php echo esc_html__( 'Live countdown, waitlist first, then open cart. When it\'s gone, it\'s gone.', 'aggressive-apparel' ); ?></p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

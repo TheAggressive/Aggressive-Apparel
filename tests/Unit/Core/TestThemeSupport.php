@@ -70,4 +70,41 @@ class TestThemeSupport extends WP_UnitTestCase {
 			'Should be able to instantiate Theme_Support'
 		);
 	}
+
+	/**
+	 * Theme languages directory exists and matches Domain Path.
+	 */
+	public function test_languages_directory_exists(): void {
+		$languages = get_template_directory() . '/languages';
+
+		$this->assertDirectoryExists(
+			$languages,
+			'Theme should ship a languages/ directory (Domain Path)'
+		);
+
+		$this->assertFileExists(
+			$languages . '/aggressive-apparel.pot',
+			'Theme should ship an aggressive-apparel.pot catalog'
+		);
+	}
+
+	/**
+	 * Bootstrap registers the theme languages path via load_theme_textdomain.
+	 */
+	public function test_load_theme_textdomain_path(): void {
+		global $wp_textdomain_registry;
+
+		$expected = get_template_directory() . '/languages';
+		$path     = $wp_textdomain_registry->get( 'aggressive-apparel', determine_locale() );
+
+		$this->assertNotFalse(
+			$path,
+			'Textdomain registry should resolve aggressive-apparel (Bootstrap / Theme_Support)'
+		);
+		$this->assertSame(
+			trailingslashit( $expected ),
+			trailingslashit( (string) $path ),
+			'Theme translations should load from languages/'
+		);
+	}
 }

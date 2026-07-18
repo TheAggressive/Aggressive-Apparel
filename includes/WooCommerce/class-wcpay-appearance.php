@@ -71,20 +71,13 @@ class Wcpay_Appearance {
 		}
 
 		$src         = 'build/scripts/wcpay-appearance';
-		$asset_data  = Asset_Loader::get_asset_data( $src );
 		$script_path = AGGRESSIVE_APPAREL_DIR . '/' . $src . '.js';
 
 		if ( ! file_exists( $script_path ) ) {
 			return;
 		}
 
-		wp_enqueue_script(
-			self::WCPAY_APPEARANCE_HANDLE,
-			aggressive_apparel_asset_uri( $src . '.js' ),
-			$asset_data['dependencies'],
-			$asset_data['version'],
-			true
-		);
+		Asset_Loader::enqueue_script( self::WCPAY_APPEARANCE_HANDLE, $src );
 	}
 
 	/**

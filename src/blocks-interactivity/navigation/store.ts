@@ -76,6 +76,10 @@ function getNavState(navId: string): NavState {
   return navs[navId];
 }
 
+function t(key: 'submenuOpened' | 'submenuClosed', fallback: string): string {
+  return navigationStore.state.i18n?.[key] || fallback;
+}
+
 // ============================================================================
 // Store Definition
 // ============================================================================
@@ -125,7 +129,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
             context.submenuId,
             ns.isMobile
           );
-          announce('Submenu opened', { navId: context.navId });
+          announce(t('submenuOpened', 'Submenu opened'), {
+            navId: context.navId,
+          });
         }
       } catch (error) {
         logError('openSubmenu: Failed to open submenu', error);
@@ -147,7 +153,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
         resetIndicatorOnClose(context.navId, ns.isMobile);
         ns.activeSubmenuId = null;
 
-        announce('Submenu closed', { navId: context.navId });
+        announce(t('submenuClosed', 'Submenu closed'), {
+          navId: context.navId,
+        });
       } catch (error) {
         logError('closeSubmenu: Failed to close submenu', error);
       }
@@ -185,9 +193,13 @@ const navigationStore = store('aggressive-apparel/navigation', {
         }
 
         if (wasOpen) {
-          announce('Submenu closed', { navId: context.navId });
+          announce(t('submenuClosed', 'Submenu closed'), {
+            navId: context.navId,
+          });
         } else if (ns.activeSubmenuId) {
-          announce('Submenu opened', { navId: context.navId });
+          announce(t('submenuOpened', 'Submenu opened'), {
+            navId: context.navId,
+          });
         }
       } catch (error) {
         logError('toggleSubmenu: Failed to toggle submenu', error);
@@ -390,7 +402,9 @@ const navigationStore = store('aggressive-apparel/navigation', {
                 );
                 if (panel && ns.activeSubmenuId !== panel.id) {
                   navigationStore.actions.openSubmenu();
-                  announce('Submenu opened', { navId: context.navId });
+                  announce(t('submenuOpened', 'Submenu opened'), {
+                    navId: context.navId,
+                  });
                   setTimeout(() => {
                     const submenuItems = getSubmenuItems(panel);
                     if (submenuItems.length > 0) {
@@ -579,14 +593,18 @@ const navigationStore = store('aggressive-apparel/navigation', {
             hoverIntent.activeId = submenuId;
             expandIndicatorForSubmenu(context.navId, submenuId, ns.isMobile);
           }
-          announce('Submenu opened', { navId: context.navId });
+          announce(t('submenuOpened', 'Submenu opened'), {
+            navId: context.navId,
+          });
         } else {
           if (ns.activeSubmenuId === submenuId) {
             resetIndicatorOnClose(context.navId, ns.isMobile);
             ns.activeSubmenuId = null;
             hoverIntent.activeId = null;
           }
-          announce('Submenu closed', { navId: context.navId });
+          announce(t('submenuClosed', 'Submenu closed'), {
+            navId: context.navId,
+          });
         }
 
         clearHoverTimeouts(hoverIntent);

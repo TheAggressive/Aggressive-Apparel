@@ -171,6 +171,12 @@ class Back_In_Stock {
 				'isSuccess'    => false,
 				'hasError'     => false,
 				'errorMessage' => '',
+				'i18n'         => array(
+					'invalidEmail'    => __( 'Please enter a valid email address.', 'aggressive-apparel' ),
+					'consentRequired' => __( 'You must agree to receive the notification.', 'aggressive-apparel' ),
+					'successFallback' => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ),
+					'errorFallback'   => __( 'Something went wrong. Please try again.', 'aggressive-apparel' ),
+				),
 			),
 		);
 	}

@@ -60,6 +60,21 @@ function getPanelState(panelSlug: string): PanelState {
   return panels[panelSlug];
 }
 
+function t(
+  key:
+    | 'menuOpened'
+    | 'menuClosed'
+    | 'submenuOpened'
+    | 'submenuClosed'
+    | 'submenuFallback'
+    | 'openedLevel'
+    | 'backToMain'
+    | 'backToLevel',
+  fallback: string
+): string {
+  return panelStore.state.i18n?.[key] || fallback;
+}
+
 const panelStore = store('aggressive-apparel/navigation-panel', {
   state: {
     get isOpen() {
@@ -124,7 +139,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
               closePanelWithCleanup(slugForSwipe, swipePanel, swipePs);
             }
           });
-          announce('Navigation menu opened', {
+          announce(t('menuOpened', 'Navigation menu opened'), {
             assertive: true,
             panelSlug: context.panelSlug,
           });
@@ -164,7 +179,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
             closePanelWithCleanup(slugForSwipe, swipePanel, swipePs);
           }
         });
-        announce('Navigation menu opened', {
+        announce(t('menuOpened', 'Navigation menu opened'), {
           assertive: true,
           panelSlug: context.panelSlug,
         });
@@ -223,7 +238,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         );
 
         // Get the submenu label for the announcement.
-        let submenuLabel = 'submenu';
+        let submenuLabel = t('submenuFallback', 'submenu');
         if (event?.target) {
           const trigger = (event.target as HTMLElement).closest(
             SELECTORS.navSubmenu
@@ -240,9 +255,15 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
           }
         }
 
-        announce(`Opened ${submenuLabel}, level ${newStack.length}`, {
-          panelSlug: context.panelSlug,
-        });
+        const openedTemplate = t('openedLevel', 'Opened %1$s, level %2$s');
+        announce(
+          openedTemplate
+            .replace('%1$s', submenuLabel)
+            .replace('%2$s', String(newStack.length)),
+          {
+            panelSlug: context.panelSlug,
+          }
+        );
 
         const panel = findPanel(context.panelSlug);
         if (panel) {
@@ -281,9 +302,12 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         );
 
         if (newStack.length === 0) {
-          announce('Back to main menu', { panelSlug: context.panelSlug });
+          announce(t('backToMain', 'Back to main menu'), {
+            panelSlug: context.panelSlug,
+          });
         } else {
-          announce(`Back to level ${newStack.length}`, {
+          const backTemplate = t('backToLevel', 'Back to level %s');
+          announce(backTemplate.replace('%s', String(newStack.length)), {
             panelSlug: context.panelSlug,
           });
         }
@@ -334,9 +358,13 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         }
 
         if (wasOpen) {
-          announce('Submenu closed', { panelSlug: context.panelSlug });
+          announce(t('submenuClosed', 'Submenu closed'), {
+            panelSlug: context.panelSlug,
+          });
         } else if (ps.activeSubmenuId) {
-          announce('Submenu opened', { panelSlug: context.panelSlug });
+          announce(t('submenuOpened', 'Submenu opened'), {
+            panelSlug: context.panelSlug,
+          });
         }
       } catch (error) {
         logError('toggleSubmenu: Failed to toggle submenu', error);
@@ -373,7 +401,9 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
           }
         }
 
-        announce('Submenu closed', { panelSlug: context.panelSlug });
+        announce(t('submenuClosed', 'Submenu closed'), {
+          panelSlug: context.panelSlug,
+        });
       } catch (error) {
         logError('closeSubmenu: Failed to close submenu', error);
       }

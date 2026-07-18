@@ -126,7 +126,21 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 
 	wp_interactivity_state(
 		'aggressive-apparel/navigation-panel',
-		array( '_panels' => $panels_state )
+		array(
+			'_panels' => $panels_state,
+			'i18n'    => array(
+				'menuOpened'      => __( 'Navigation menu opened', 'aggressive-apparel' ),
+				'menuClosed'      => __( 'Navigation menu closed', 'aggressive-apparel' ),
+				'submenuOpened'   => __( 'Submenu opened', 'aggressive-apparel' ),
+				'submenuClosed'   => __( 'Submenu closed', 'aggressive-apparel' ),
+				'submenuFallback' => __( 'submenu', 'aggressive-apparel' ),
+				/* translators: 1: submenu label, 2: drilldown level number. */
+				'openedLevel'     => __( 'Opened %1$s, level %2$s', 'aggressive-apparel' ),
+				'backToMain'      => __( 'Back to main menu', 'aggressive-apparel' ),
+				/* translators: %s: drilldown level number. */
+				'backToLevel'     => __( 'Back to level %s', 'aggressive-apparel' ),
+			),
+		)
 	);
 }
 

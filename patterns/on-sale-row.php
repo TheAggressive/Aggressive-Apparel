@@ -15,11 +15,11 @@
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
 	<div class="wp-block-group">
 		<!-- wp:heading {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.05em","fontStyle":"normal","fontWeight":"800"}},"textColor":"white","fontSize":"fluid-xxxx-large"} -->
-		<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.05em;text-transform:uppercase">Up to 40% Off</h2>
+		<h2 class="wp-block-heading has-white-color has-text-color has-fluid-xxxx-large-font-size" style="font-style:normal;font-weight:800;letter-spacing:0.05em;text-transform:uppercase"><?php echo esc_html__( 'Up to 40% Off', 'aggressive-apparel' ); ?></h2>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"textColor":"white","fontSize":"medium"} -->
-		<p class="has-white-color has-text-color has-medium-font-size">Selected styles. Limited time.</p>
+		<p class="has-white-color has-text-color has-medium-font-size"><?php echo esc_html__( 'Selected styles. Limited time.', 'aggressive-apparel' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -51,7 +51,7 @@
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|12"}}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--12)">
 		<!-- wp:button {"backgroundColor":"black","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop?on_sale=true">Shop All Sale</a></div>
+		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--10);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop?on_sale=true"><?php echo esc_html__( 'Shop All Sale', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

@@ -13,11 +13,11 @@
 ?><!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|24","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignwide" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--24);padding-bottom:var(--wp--preset--spacing--24)">
 	<!-- wp:paragraph {"align":"center","style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.1em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
-	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Lookbook</p>
+	<p class="has-text-align-center has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.1em;text-transform:uppercase"><?php echo esc_html__( 'Lookbook', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
 	<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}},"fontSize":"fluid-xxxx-large"} -->
-	<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)">Wear Your Attitude</h2>
+	<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-top:var(--wp--preset--spacing--4)"><?php echo esc_html__( 'Wear Your Attitude', 'aggressive-apparel' ); ?></h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:spacer {"height":"var:preset|spacing|10"} -->
@@ -34,13 +34,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"xx-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Urban Collection</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-xx-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Urban Collection', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/urban">Shop Collection</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/urban"><?php echo esc_html__( 'Shop Collection', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -57,13 +57,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Gym Essentials</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Gym Essentials', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/gym">Shop Now</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/gym"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -76,13 +76,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Accessories</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Accessories', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/accessories">Shop Now</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/accessories"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -103,13 +103,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Street Style</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Street Style', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/street">View Look</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/street"><?php echo esc_html__( 'View Look', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -126,13 +126,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Performance Gear</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Performance Gear', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/performance">Shop Now</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/performance"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -149,13 +149,13 @@
 				<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
 				<div class="wp-block-cover__inner-container">
 					<!-- wp:heading {"level":3,"style":{"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"700"}},"textColor":"white","fontSize":"x-large"} -->
-					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase">Limited Edition</h3>
+					<h3 class="wp-block-heading has-white-color has-text-color has-x-large-font-size" style="font-style:normal;font-weight:700;text-transform:uppercase"><?php echo esc_html__( 'Limited Edition', 'aggressive-apparel' ); ?></h3>
 					<!-- /wp:heading -->
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
 						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/limited">Shop Now</a></div>
+						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/limited"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->

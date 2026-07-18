@@ -168,6 +168,12 @@ interface QuickViewLabels {
   continueShoppingText?: string;
   viewProductText?: string;
   addedToCartMessage?: string;
+  outOfStockLabel?: string;
+  inStockLabel?: string;
+  onlyNLeft?: string;
+  addedSuccessAnnounce?: string;
+  addToCartError?: string;
+  errorAnnounce?: string;
 }
 
 interface QuickViewState {
@@ -316,22 +322,23 @@ function getStockInfo(product: StoreApiProduct): StockInfo {
     return {
       status: 'outofstock',
       quantity: 0,
-      label: 'Out of Stock',
+      label: getLabel('outOfStockLabel', 'Out of Stock'),
     };
   }
 
   if (qty !== null && qty !== undefined && qty <= lowThreshold && qty > 0) {
+    const template = getLabel('onlyNLeft', 'Only %d left!');
     return {
       status: 'lowstock',
       quantity: qty,
-      label: `Only ${qty} left!`,
+      label: template.replace('%d', String(qty)),
     };
   }
 
   return {
     status: 'instock',
     quantity: qty ?? null,
-    label: 'In Stock',
+    label: getLabel('inStockLabel', 'In Stock'),
   };
 }
 
@@ -2037,7 +2044,10 @@ const { state, actions } = store<QuickViewStore>(
             setTimeout(() => {
               state.isCartSuccess = false;
 
-              state.announcement = 'Product added to cart successfully';
+              state.announcement = getLabel(
+                'addedSuccessAnnounce',
+                'Product added to cart successfully'
+              );
               actions.openCartSuccess();
 
               // Dispatch a custom event so WooCommerce mini-cart can update.
@@ -2053,8 +2063,10 @@ const { state, actions } = store<QuickViewStore>(
               console.error('[Quick View] Add to cart failed:', err);
             }
             state.cartError =
-              decodeEntities(err.message) || 'Could not add to cart.';
-            state.announcement = `Error: ${state.cartError}`;
+              decodeEntities(err.message) ||
+              getLabel('addToCartError', 'Could not add to cart.');
+            const errorTemplate = getLabel('errorAnnounce', 'Error: %s');
+            state.announcement = errorTemplate.replace('%s', state.cartError);
             state.isAddingToCart = false;
           });
       },
@@ -2149,8 +2161,10 @@ const { state, actions } = store<QuickViewStore>(
             console.error('[Quick View] Buy now failed:', err);
           }
           state.cartError =
-            decodeEntities((err as Error).message) || 'Could not add to cart.';
-          state.announcement = `Error: ${state.cartError}`;
+            decodeEntities((err as Error).message) ||
+            getLabel('addToCartError', 'Could not add to cart.');
+          const errorTemplate = getLabel('errorAnnounce', 'Error: %s');
+          state.announcement = errorTemplate.replace('%s', state.cartError);
           state.isBuyingNow = false;
         }
       },

@@ -71,6 +71,7 @@
     "@wordpress/stylelint-config": "^23.31.0",
     "@wordpress/url": "^4.39.0",
     "concurrently": "^9.2.1",
+    "conventional-changelog-conventionalcommits": "^10.2.1",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",

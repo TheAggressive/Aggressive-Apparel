@@ -151,6 +151,9 @@ importers:
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
+      conventional-changelog-conventionalcommits:
+        specifier: ^10.2.1
+        version: 10.2.1
       eslint:
         specifier: ^9.0.0
         version: 9.39.2(jiti@2.6.1)
@@ -1619,6 +1622,13 @@ packages:
         integrity: sha512-aO5l99BQJ0X34ft8b0h7QFkQlqxC6e7ZPVmBKz13xM9O8obDaM1Cld4sQlJDXXU/VFuUzQ30mVtHjVz74TuStw==,
       }
     engines: { node: '>=v18' }
+
+  '@conventional-changelog/template@1.2.1':
+    resolution:
+      {
+        integrity: sha512-TzlTVpKPjaqW6qOYjQcYUDuGsLCNsvFHVBXkYGTAnf5V37jCWrE5haKNXzz0WZUtVHjrpV76L1buANjwXMfT8w==,
+      }
+    engines: { node: '>=22' }
 
   '@csstools/color-helpers@5.1.0':
     resolution:
@@ -7851,6 +7861,13 @@ packages:
         integrity: sha512-GGf2Nipn1RUCAktxuVauVr1e3r8QrLP/B0lEUsFktmGqc3ddbQkhoJZHJctVU829U1c6mTSWftrVOCHaL85Q3w==,
       }
     engines: { node: '>=18' }
+
+  conventional-changelog-conventionalcommits@10.2.1:
+    resolution:
+      {
+        integrity: sha512-n4Kr1HFMTf3iMbES0TMxKIcYtUUv4rKqyQQp2JwfOEfFCOfGT3Tq4mCyJ8S9/YPyWhydjfKrrvnyl+gCjA+mJQ==,
+      }
+    engines: { node: '>=22' }
 
   conventional-changelog-conventionalcommits@9.1.0:
     resolution:
@@ -18933,6 +18950,8 @@ snapshots:
       conventional-commits-parser: 6.2.1
       picocolors: 1.1.1
 
+  '@conventional-changelog/template@1.2.1': {}
+
   '@csstools/color-helpers@5.1.0': {}
 
   '@csstools/css-calc@2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
@@ -25225,6 +25244,10 @@ snapshots:
   conventional-changelog-angular@8.1.0:
     dependencies:
       compare-func: 2.0.0
+
+  conventional-changelog-conventionalcommits@10.2.1:
+    dependencies:
+      '@conventional-changelog/template': 1.2.1
 
   conventional-changelog-conventionalcommits@9.1.0:
     dependencies:

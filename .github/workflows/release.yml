@@ -33,13 +33,13 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -76,7 +76,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -86,7 +86,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: vendor
           key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
@@ -121,7 +121,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -152,38 +152,16 @@ jobs:
       should_release: ${{ steps.check.outputs.should_release }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 5
+          # Full history + tags so semantic-release can find the last release
+          # and analyze the commits since it (see the dry-run check below).
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if commit triggers release
-        id: check
-        run: |
-          LATEST_COMMIT=$(git log -1 --pretty=format:"%s")
-          echo "Latest commit: $LATEST_COMMIT"
+      - uses: pnpm/action-setup@v6
 
-          # Fast pre-gate to skip the package/release jobs on non-release
-          # commits. This must mirror the release rules in .releaserc.json
-          # (default Angular preset: feat -> minor, fix/perf -> patch,
-          # everything else -> no release). Keep the two in sync; if you ever
-          # add custom `releaseRules` there, replace this grep with a
-          # `semantic-release --dry-run` so there is a single source of truth.
-          #
-          # The optional `(scope)` and `!` groups matter: without them a
-          # scoped commit like `feat(i18n):` fails the match and is silently
-          # skipped even though semantic-release would release it.
-          if echo "$LATEST_COMMIT" | grep -qE '^(feat|fix|perf)(\([^)]+\))?!?:'; then
-            echo "Release-triggering commit detected"
-            echo "should_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "Non-release commit (docs/style/refactor/test/chore/ci/etc)"
-            echo "should_release=false" >> $GITHUB_OUTPUT
-          fi
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -191,11 +169,37 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Determine release (semantic-release dry run)
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: '0'
+        run: |
+          # Single source of truth: ask semantic-release itself whether this
+          # push would publish, instead of duplicating its rules in a regex
+          # that can (and did) drift from .releaserc.json. A dry run performs
+          # no writes — only verifyConditions/analyzeCommits/generateNotes run;
+          # prepare/publish (git commit, tag, GitHub release) are skipped.
+          set +e
+          pnpm exec semantic-release --dry-run 2>&1 | tee sr-dry.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            echo "::warning::semantic-release dry run exited $rc; treating as no-release"
+          fi
+          if grep -q "next release version is" sr-dry.log; then
+            echo "Release due — package + release will run"
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No release for this push"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build assets
         run: pnpm build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-artifacts
           path: build/
@@ -211,13 +215,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -229,7 +233,7 @@ jobs:
           coverage: xdebug
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: vendor
           key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
@@ -241,7 +245,7 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: build-artifacts
           path: build/
@@ -281,7 +285,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage-unit.xml
           flags: unit
@@ -298,12 +302,12 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: build-artifacts
           path: build/
@@ -335,6 +339,7 @@ jobs:
           echo "Removing development files..."
           # Remove directories
           rm -rf node_modules src tests .github .husky .vscode bin
+          rm -rf docs stubs types vendor
 
           # Remove lock files
           rm -f pnpm-lock.yaml composer.lock
@@ -343,6 +348,7 @@ jobs:
           rm -f webpack.* tsconfig.* eslint.config.js .stylelintrc.json postcss.config.cjs
           rm -f phpunit.xml* phpstan.* phpcs.xml* commitlint.config.mjs .releaserc.json
           rm -f jest.config.mjs lighthouserc.cjs
+          rm -f playwright.config.ts pnpm-workspace.yaml page.html
 
           # Remove AI assistant / dev-only docs
           rm -f CLAUDE.md
@@ -390,14 +396,31 @@ jobs:
 
       - name: Verify development files are excluded
         run: |
-          if unzip -l aggressive-apparel.zip | grep -q 'lighthouserc\.cjs'; then
-            echo "lighthouserc.cjs must not be included in the release package"
+          FORBIDDEN_PATTERNS=(
+            'lighthouserc\.cjs'
+            '/docs/'
+            '/stubs/'
+            '/types/'
+            '/vendor/'
+            'playwright\.config\.ts'
+            'pnpm-workspace\.yaml'
+            '/page\.html'
+          )
+          ZIP_LIST=$(unzip -l aggressive-apparel.zip)
+          FAILED=0
+          for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+            if echo "$ZIP_LIST" | grep -qE "$pattern"; then
+              echo "Forbidden path matching ${pattern} must not be included in the release package"
+              FAILED=1
+            fi
+          done
+          if [ "$FAILED" -ne 0 ]; then
             exit 1
           fi
           echo "Development files are excluded"
 
       - name: Upload theme package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.THEME_SLUG }}-package
           path: aggressive-apparel.zip
@@ -418,14 +441,14 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -439,7 +462,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Download theme package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ env.THEME_SLUG }}-package
           path: ./

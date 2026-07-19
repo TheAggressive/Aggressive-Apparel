@@ -288,7 +288,33 @@ function formatPoString(keyword, value) {
 }
 
 function serializeEntry(entry) {
-	const lines = [...entry.comments];
+	// gettext comment order: # / #. / #: / #, / #| / msgid…
+	const translator = [];
+	const extracted = [];
+	const references = [];
+	const previous = [];
+	const other = [];
+
+	for (const comment of entry.comments) {
+		if (comment.startsWith('#.')) {
+			extracted.push(comment);
+		} else if (comment.startsWith('#:')) {
+			references.push(comment);
+		} else if (comment.startsWith('#|')) {
+			previous.push(comment);
+		} else if (comment.startsWith('# ') || comment === '#') {
+			translator.push(comment);
+		} else {
+			other.push(comment);
+		}
+	}
+
+	const lines = [
+		...translator,
+		...extracted,
+		...references,
+		...other,
+	];
 	const flags = new Set(entry.flags);
 	flags.delete('fuzzy');
 	if (!flags.has('aa-mt')) {
@@ -297,6 +323,8 @@ function serializeEntry(entry) {
 	if (flags.size) {
 		lines.push(`#, ${[...flags].join(', ')}`);
 	}
+	// Previous-string comments must sit immediately before msgid.
+	lines.push(...previous);
 	if (entry.msgctxt !== null) {
 		lines.push(formatPoString('msgctxt', entry.msgctxt));
 	}
@@ -619,6 +647,9 @@ async function translatePoFile(file, opts) {
 			}
 			entry.flags.delete('fuzzy');
 			entry.flags.add('aa-mt');
+			// Drop msgmerge `#|` previous-string hints once filled — they break
+			// msgfmt if other comments/flags are emitted after them.
+			entry.comments = entry.comments.filter((c) => !c.startsWith('#|'));
 			if (
 				!entry.comments.some((c) =>
 					c.includes('Auto-translated (aa-mt)')

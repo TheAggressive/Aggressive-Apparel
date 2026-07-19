@@ -190,7 +190,24 @@ const { state, actions } = store<BottomNavStore>(
           window.addEventListener('scroll', onScroll, { passive: true });
         }
 
-        // Cart count sync: listen for WooCommerce events.
+        // Cart count sync. The server-rendered count is baked into the
+        // Interactivity state at render time, so a full-page cache (Varnish,
+        // Batcache, WP Rocket, edge) would serve the cache-priming visitor's
+        // count to everyone. Rehydrate once on load so the badge self-corrects
+        // regardless of what the page cache served, then keep it in sync via
+        // WooCommerce cart events.
+        //
+        // Skip the fetch when WooCommerce signals an empty cart: the count is
+        // then 0 and the Store API round-trip is pure waste. WC sets
+        // `woocommerce_items_in_cart` only while the cart holds items, so its
+        // absence is an authoritative "nothing to correct" for anonymous
+        // visitors — which is the common case on a page-cached mobile view.
+        if (/(?:^|;\s*)woocommerce_items_in_cart=/.test(document.cookie)) {
+          actions.refreshCartCount();
+        } else {
+          state.cartCount = 0;
+        }
+
         document.addEventListener('wc-blocks_added_to_cart', () => {
           actions.refreshCartCount();
         });

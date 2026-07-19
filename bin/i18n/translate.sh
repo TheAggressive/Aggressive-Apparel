@@ -10,6 +10,9 @@ while [[ "${1:-}" == "--" ]]; do
 	shift
 done
 
+# Local DeepL / MyMemory secrets from gitignored `.env.local` (see `.env.example`).
+aa_i18n_load_dotenv
+
 aa_i18n_info "Syncing locales from pot…"
 bash "${AA_I18N_DIR}/sync.sh"
 

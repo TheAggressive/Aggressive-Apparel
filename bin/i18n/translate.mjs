@@ -14,6 +14,9 @@
  *   DEEPL_AUTH_KEY=…                  (optional backup / deepl-only mode)
  *   I18N_MT_EMAIL=…                   (optional; raises MyMemory daily quota)
  *   I18N_MT_DELAY_MS=350              (pause between requests)
+ *
+ * Local secrets: copy `.env.example` → `.env.local` (gitignored). Existing
+ * process env wins over file values.
  */
 
 import fs from 'node:fs';
@@ -24,6 +27,44 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const THEME_ROOT = path.resolve(__dirname, '../..');
 const LANGUAGES = path.join(THEME_ROOT, 'languages');
 const TEXT_DOMAIN = 'aggressive-apparel';
+
+/**
+ * Load KEY=value pairs from gitignored dotenv files into process.env.
+ * Does not override variables already set (shell / CI take precedence).
+ */
+function loadLocalEnv() {
+	for (const name of ['.env.local', '.env']) {
+		const file = path.join(THEME_ROOT, name);
+		if (!fs.existsSync(file)) {
+			continue;
+		}
+
+		for (const rawLine of fs.readFileSync(file, 'utf8').split('\n')) {
+			const line = rawLine.trim();
+			if (!line || line.startsWith('#')) {
+				continue;
+			}
+
+			const eq = line.indexOf('=');
+			if (eq <= 0) {
+				continue;
+			}
+
+			const key = line.slice(0, eq).trim();
+			let value = line.slice(eq + 1).trim();
+			if (
+				(value.startsWith("'") && value.endsWith("'")) ||
+				(value.startsWith('"') && value.endsWith('"'))
+			) {
+				value = value.slice(1, -1);
+			}
+
+			if (process.env[key] === undefined) {
+				process.env[key] = value;
+			}
+		}
+	}
+}
 
 /** WordPress locale → MyMemory / DeepL language code. */
 const LOCALE_MAP = {
@@ -52,6 +93,53 @@ const DO_NOT_TRANSLATE = [
 	'Add to Cart',
 	'Buy Now',
 ];
+
+/**
+ * Post-MT glossary fixes by WordPress locale (MyMemory literal fails).
+ * Applied after restore; longest keys first.
+ *
+ * @type {Record<string, Array<[string, string]>>}
+ */
+const LOCALE_GLOSSARY = {
+	fr_FR: [
+		['mode lumière', 'mode clair'],
+		['Mode lumière', 'Mode clair'],
+		['mode nuit', 'mode sombre'],
+		['Mode nuit', 'Mode sombre'],
+		['Limaces d\'icône', 'Identifiants d\'icônes'],
+		['Limaces d\'icônes', 'Identifiants d\'icônes'],
+		['de la goutte', 'du drop'],
+		['de gouttes', 'de drops'],
+		['la goutte', 'le drop'],
+		['Miniature de la prestation', 'Miniature produit'],
+		['Badges de prestation', 'Badges produit'],
+	],
+	fr_CA: [
+		['mode lumière', 'mode clair'],
+		['Mode lumière', 'Mode clair'],
+		['mode nuit', 'mode sombre'],
+		['Mode nuit', 'Mode sombre'],
+	],
+	es_ES: [
+		['modo luz', 'modo claro'],
+		['Modo luz', 'Modo claro'],
+		['modo noche', 'modo oscuro'],
+		['Modo noche', 'Modo oscuro'],
+		['babosas de icono', 'identificadores de icono'],
+		['Babosas de icono', 'Identificadores de icono'],
+		['de la gota', 'del drop'],
+		['de gotas', 'de drops'],
+		['la gota', 'el drop'],
+		['Miniatura de la prestación', 'Miniatura del producto'],
+		['Insignias de la prestación', 'Insignias de producto'],
+	],
+	es_MX: [
+		['modo luz', 'modo claro'],
+		['Modo luz', 'Modo claro'],
+		['modo noche', 'modo oscuro'],
+		['Modo noche', 'Modo oscuro'],
+	],
+};
 
 function parseArgs(argv) {
 	const out = { locale: null, dryRun: false, limit: Infinity };
@@ -306,6 +394,38 @@ function placeholdersIntact(source, translated) {
 	return a.length === b.length && a.every((p, i) => p === b[i]);
 }
 
+/**
+ * MyMemory sometimes emits HTML entities (e.g. &#10; for newline).
+ *
+ * @param {string} text
+ */
+function sanitizeMtOutput(text) {
+	return text
+		.replace(/&#10;|&#x0a;/gi, '\n')
+		.replace(/&quot;/g, '"')
+		.replace(/&apos;/g, "'")
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&amp;/g, '&')
+		.replace(/\s+$/g, '');
+}
+
+/**
+ * @param {string} text
+ * @param {string} locale
+ */
+function applyLocaleGlossary(text, locale) {
+	const rules = LOCALE_GLOSSARY[locale];
+	if (!rules) {
+		return text;
+	}
+	let out = text;
+	for (const [from, to] of rules) {
+		out = out.split(from).join(to);
+	}
+	return out;
+}
+
 async function translateMyMemory(text, lang) {
 	const email = process.env.I18N_MT_EMAIL || '';
 	const url = new URL('https://api.mymemory.translated.net/get');
@@ -379,9 +499,10 @@ function resolveProviderMode() {
  * @param {string} text
  * @param {{ mymemory: string, deepl: string }} localeCodes
  * @param {'mymemory' | 'deepl'} mode
+ * @param {string} locale
  * @returns {Promise<{ text: string, via: string }>}
  */
-async function mt(text, localeCodes, mode) {
+async function mt(text, localeCodes, mode, locale) {
 	const { protectedText, tokens: ph } = protectPlaceholders(text);
 	const brand = protectBrandTerms(protectedText);
 	let out;
@@ -408,10 +529,19 @@ async function mt(text, localeCodes, mode) {
 
 	out = restoreBrandTerms(out, brand.tokens);
 	out = restorePlaceholders(out, ph);
+	out = sanitizeMtOutput(out);
+	out = applyLocaleGlossary(out, locale);
 
 	if (!placeholdersIntact(text, out)) {
 		throw new Error(
 			`MT dropped placeholders (source=${text.slice(0, 40)}…)`
+		);
+	}
+
+	// Reject leftover HTML entities MyMemory invents (e.g. Progress → Progrès&#10;).
+	if (/&#\w+;|&[a-z]+;/i.test(out) && !/&#\w+;|&[a-z]+;/i.test(text)) {
+		throw new Error(
+			`MT injected HTML entities (source=${text.slice(0, 40)}…)`
 		);
 	}
 
@@ -471,14 +601,19 @@ async function translatePoFile(file, opts) {
 
 		try {
 			if (entry.msgidPlural !== null) {
-				const singular = await mt(entry.msgid, codes, mode);
+				const singular = await mt(entry.msgid, codes, mode, locale);
 				await sleep(delay);
-				const plural = await mt(entry.msgidPlural, codes, mode);
+				const plural = await mt(
+					entry.msgidPlural,
+					codes,
+					mode,
+					locale
+				);
 				entry.msgstrs['msgstr[0]'] = singular.text;
 				entry.msgstrs['msgstr[1]'] = plural.text;
 				lastVia = plural.via;
 			} else {
-				const result = await mt(entry.msgid, codes, mode);
+				const result = await mt(entry.msgid, codes, mode, locale);
 				entry.msgstrs.msgstr = result.text;
 				lastVia = result.via;
 			}
@@ -518,6 +653,8 @@ async function translatePoFile(file, opts) {
 }
 
 async function main() {
+	loadLocalEnv();
+
 	const opts = parseArgs(process.argv.slice(2).filter((a) => a !== '--'));
 	const files = listPoFiles(opts.locale);
 

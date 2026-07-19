@@ -157,6 +157,7 @@ class Bootstrap {
 		$this->container->register( 'color_scheme_bootstrap', fn() => new Core\Color_Scheme_Bootstrap() );
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
+		$this->container->register( 'cache_health', fn() => new Core\Cache_Health() );
 		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
 		$this->container->register( 'font_preload', fn() => new Core\Font_Preload() );
 
@@ -235,6 +236,7 @@ class Bootstrap {
 		$this->container->get( 'color_scheme_bootstrap' )->init();
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
+		$this->container->get( 'cache_health' )->init();
 		$this->container->get( 'image_loading' )->init();
 		$this->container->get( 'font_preload' )->init();
 		Core\Brand_Icons::init();

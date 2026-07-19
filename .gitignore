@@ -61,10 +61,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment Files
+# Environment Files (keep `.env.example` committed as the template)
 .env
 .env.local
 .env.*.local
+.env.i18n
+.env.i18n.local
 
 # Cache & Temporary Files
 *.cache

@@ -51,13 +51,16 @@ Requires WP-CLI (`wp`) with the i18n package, **or** a running `wp-env` (scripts
 | `DEEPL_AUTH_KEY` | Optional backup (or force with `I18N_MT_PROVIDER=deepl`) |
 | `I18N_MT_EMAIL` | Optional MyMemory daily-quota bump |
 
-**Local (optional):**
+**Local secrets (gitignored):**
 
 ```bash
+cp .env.example .env.local   # already gitignored (.env / .env.local)
+# Put DEEPL_AUTH_KEY=… in .env.local — never commit it
 pnpm i18n:translate -- --locale=fr_FR --limit=50
-DEEPL_AUTH_KEY=… pnpm i18n:translate -- --locale=fr_FR   # MyMemory → DeepL on failure
-I18N_MT_PROVIDER=deepl DEEPL_AUTH_KEY=… pnpm i18n:translate -- --locale=fr_FR
+I18N_MT_PROVIDER=deepl pnpm i18n:translate -- --locale=fr_FR   # DeepL-only
 ```
+
+Shell / CI env still wins over `.env.local`. For Actions, set the `DEEPL_AUTH_KEY` repo secret.
 
 Only **empty** or **fuzzy** strings are filled. Entries get an `aa-mt` flag.
 

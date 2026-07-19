@@ -27,6 +27,20 @@ aa_i18n_ensure_languages_dir() {
 	mkdir -p "${AA_LANGUAGES_DIR}"
 }
 
+# Load gitignored local secrets (`.env.local`, then `.env`) without overriding
+# variables already set in the shell / CI.
+aa_i18n_load_dotenv() {
+	local env_file
+	for env_file in "${AA_THEME_ROOT}/.env.local" "${AA_THEME_ROOT}/.env"; do
+		[[ -f "${env_file}" ]] || continue
+		# Export KEY=value lines; skip comments and blanks.
+		set -a
+		# shellcheck disable=SC1090
+		source "${env_file}"
+		set +a
+	done
+}
+
 # Run `wp …` either via host WP-CLI or wp-env cli container.
 aa_i18n_wp() {
 	if [[ "${AA_I18N_FORCE_WP_ENV:-0}" == "1" ]]; then

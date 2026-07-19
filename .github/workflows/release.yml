@@ -418,14 +418,10 @@ jobs:
       pull-requests: write
 
     steps:
-      # RELEASE_TOKEN is a fine-grained PAT owned by the repo admin. Under the
-      # branch ruleset, semantic-release's push to master is attributed to that
-      # admin (who is on the bypass list), so the release commit + tag land.
-      # Falls back to GITHUB_TOKEN when the secret is absent (no ruleset yet).
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
 
@@ -456,7 +452,7 @@ jobs:
 
       - name: Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: 0
         run: pnpm semantic-release
 

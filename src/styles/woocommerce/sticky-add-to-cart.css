@@ -12,7 +12,8 @@
  * ----------------------------------------------- */
 
 .aa-sticky-cart {
-	--aa-sticky-cart-height: 3.75rem;
+	/* Matches inner padding (1.25rem×2) + product image (3.5rem); JS may refine. */
+	--aa-sticky-cart-height: 6rem;
 
 	container-type: inline-size;
 	container-name: sticky-cart;
@@ -31,6 +32,15 @@
 		bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 		padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	pointer-events: none;
+}
+
+/*
+ * Expose height on body when visible so social-proof (and peers) can clear the
+ * bar. :root defaults --aa-sticky-cart-height to 0, which otherwise swallows
+ * CSS fallbacks like var(--aa-sticky-cart-height, 3.75rem).
+ */
+body.aa-sticky-cart-visible {
+	--aa-sticky-cart-height: 6rem;
 }
 
 /* When bottom nav hides on scroll, drop to screen bottom with safe-area. */

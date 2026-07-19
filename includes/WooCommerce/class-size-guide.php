@@ -139,6 +139,16 @@ class Size_Guide {
 		// Trigger link.
 		echo '<div data-wp-interactive="aggressive-apparel/size-guide" data-wp-context=\'{"isOpen":false}\'>';
 		echo '<button type="button" class="aggressive-apparel-size-guide__trigger" data-wp-on--click="actions.toggle" aria-haspopup="dialog">';
+		echo '<span class="aggressive-apparel-size-guide__trigger-icon" aria-hidden="true">';
+		echo aggressive_apparel_get_icon(
+			'measuring-tape',
+			array(
+				'width'       => 22,
+				'height'      => 22,
+				'aria-hidden' => 'true',
+			)
+		);
+		echo '</span>';
 		echo esc_html__( 'Size Guide', 'aggressive-apparel' );
 		echo '</button>';
 

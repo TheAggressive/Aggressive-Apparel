@@ -729,6 +729,31 @@ const { state, actions } = store<StickyCartStore>(
 
         if (!form) return;
 
+        const bar = document.querySelector<HTMLElement>('.aa-sticky-cart');
+
+        /**
+         * Publish the bar height so social-proof (and peers) can clear it.
+         * :root defaults --aa-sticky-cart-height to 0, which defeats CSS
+         * fallbacks; measure the real bar when visible.
+         */
+        const syncStickyCartHeight = (visible: boolean): void => {
+          if (!visible || !bar) {
+            document.documentElement.style.setProperty(
+              '--aa-sticky-cart-height',
+              '0px'
+            );
+            return;
+          }
+
+          const height = `${bar.offsetHeight}px`;
+          document.documentElement.style.setProperty(
+            '--aa-sticky-cart-height',
+            height
+          );
+          // Keep the local token in sync for drawer padding calcs.
+          bar.style.setProperty('--aa-sticky-cart-height', height);
+        };
+
         const observer = new IntersectionObserver(
           ([entry]: IntersectionObserverEntry[]) => {
             state.isVisible = !entry.isIntersecting;
@@ -738,11 +763,21 @@ const { state, actions } = store<StickyCartStore>(
               'aa-sticky-cart-visible',
               state.isVisible
             );
+            syncStickyCartHeight(state.isVisible);
           },
           { threshold: 0 }
         );
 
         observer.observe(form);
+
+        if (bar && typeof ResizeObserver !== 'undefined') {
+          const resizeObserver = new ResizeObserver(() => {
+            if (state.isVisible) {
+              syncStickyCartHeight(true);
+            }
+          });
+          resizeObserver.observe(bar);
+        }
 
         // Match default variation if set.
         if (

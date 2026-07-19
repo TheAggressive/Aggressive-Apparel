@@ -1,3 +1,18 @@
+# [1.165.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.164.0...v1.165.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* **ci:** update release workflow to use RELEASE_TOKEN for GitHub actions ([77c9321](https://github.com/TheAggressive/Aggressive-Apparel/commit/77c9321af5382135500b2c4fe53bf3d607645149))
+* **i18n:** stabilize pot drift check and repair fr_FR placeholders ([a0b9869](https://github.com/TheAggressive/Aggressive-Apparel/commit/a0b986953d7868d69b3d91b91fc5bba12fb14fb6))
+
+
+### Features
+
+* enhance localization support with dotenv loading and caching guidelines ([02227a2](https://github.com/TheAggressive/Aggressive-Apparel/commit/02227a2c343fd91f46af737b87a3782d6da098f0))
+* **i18n:** add theme gettext pipeline with MyMemory draft PRs ([418ef40](https://github.com/TheAggressive/Aggressive-Apparel/commit/418ef40c1ff63cfdc042bc29c2679eb5362ebcfc))
+* **i18n:** enhance comment serialization and localization files ([acce1e2](https://github.com/TheAggressive/Aggressive-Apparel/commit/acce1e2ccbd5a221a6eb8bff0db0dacf605646b6))
+
 # [1.164.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.163.0...v1.164.0) (2026-07-18)
 
 

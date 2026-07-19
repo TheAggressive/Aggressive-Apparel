@@ -12,6 +12,7 @@
  * ----------------------------------------------- */
 
 .aa-sticky-cart {
+
 	/* Matches inner padding (1.25rem×2) + product image (3.5rem); JS may refine. */
 	--aa-sticky-cart-height: 6rem;
 

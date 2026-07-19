@@ -1,3 +1,11 @@
+## [1.165.1](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.165.0...v1.165.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* **ci:** simplify GitHub token usage in release workflow ([d6539aa](https://github.com/TheAggressive/Aggressive-Apparel/commit/d6539aa0da03f4e3eff2e2e35f74fde9cfecae0c))
+* **i18n:** normalize Project-Id-Version in POT files ([c367151](https://github.com/TheAggressive/Aggressive-Apparel/commit/c36715129235f8bd4319dd3c59cb53011aa27719))
+
 # [1.165.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.164.0...v1.165.0) (2026-07-19)
 
 

@@ -101,6 +101,10 @@ class Search_Rest {
 						'type'              => 'string',
 						'default'           => 'all',
 						'enum'              => array( 'all', 'product', 'post', 'page' ),
+						// Explicit validate_callback: WP_REST_Request::has_valid_params()
+						// only enforces `enum` when one is set, so without this an
+						// out-of-enum scope would pass validation.
+						'validate_callback' => 'rest_validate_request_arg',
 						'sanitize_callback' => 'sanitize_key',
 					),
 				),

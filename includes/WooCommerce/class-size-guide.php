@@ -136,36 +136,79 @@ class Size_Guide {
 			return;
 		}
 
-		// Trigger link.
-		echo '<div data-wp-interactive="aggressive-apparel/size-guide" data-wp-context=\'{"isOpen":false}\'>';
-		echo '<button type="button" class="aggressive-apparel-size-guide__trigger" data-wp-on--click="actions.toggle" aria-haspopup="dialog">';
-		echo '<span class="aggressive-apparel-size-guide__trigger-icon" aria-hidden="true">';
-		echo aggressive_apparel_get_icon(
-			'measuring-tape',
-			array(
-				'width'       => 22,
-				'height'      => 22,
-				'aria-hidden' => 'true',
-			)
+		$units_label = apply_filters(
+			'aggressive_apparel_size_guide_units_label',
+			__( 'Measurements in inches', 'aggressive-apparel' )
 		);
+
+		$dialog_id = wp_unique_id( 'aa-size-guide-' );
+		$title_id  = $dialog_id . '-title';
+
+		echo '<div data-wp-interactive="aggressive-apparel/size-guide" data-wp-context=\'{"isOpen":false}\'>';
+		printf(
+			'<button type="button" class="aggressive-apparel-size-guide__trigger" data-wp-on--click="actions.toggle" aria-haspopup="dialog" aria-controls="%1$s" aria-expanded="false" data-wp-bind--aria-expanded="context.isOpen">',
+			esc_attr( $dialog_id )
+		);
+		echo '<span class="aggressive-apparel-size-guide__trigger-icon" aria-hidden="true">';
+		echo aggressive_apparel_trusted_html( $this->get_measuring_tape_icon( 22 ) );
 		echo '</span>';
 		echo esc_html__( 'Size Guide', 'aggressive-apparel' );
 		echo '</button>';
 
-		// Modal.
-		echo '<div class="aggressive-apparel-overlay aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-label="' . esc_attr__( 'Size Guide', 'aggressive-apparel' ) . '" data-wp-class--is-open="context.isOpen" hidden>';
+		printf(
+			'<div id="%1$s" class="aggressive-apparel-overlay aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-labelledby="%2$s" data-wp-class--is-open="context.isOpen" data-wp-on--keydown="actions.handleKeydown" hidden>',
+			esc_attr( $dialog_id ),
+			esc_attr( $title_id )
+		);
 		echo '<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
 		echo '<div class="aggressive-apparel-panel aggressive-apparel-panel--guide aggressive-apparel-size-guide__modal">';
 		echo '<div class="aggressive-apparel-size-guide__header">';
-		echo '<h2 class="aggressive-apparel-size-guide__title">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</h2>';
-		echo '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">&times;</button>';
+		printf(
+			'<h2 id="%s" class="aggressive-apparel-size-guide__title">',
+			esc_attr( $title_id )
+		);
+		echo '<span class="aggressive-apparel-size-guide__title-icon" aria-hidden="true">';
+		echo aggressive_apparel_trusted_html( $this->get_measuring_tape_icon( 24 ) );
+		echo '</span>';
+		echo esc_html__( 'Size Guide', 'aggressive-apparel' );
+		echo '</h2>';
+		echo '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
+		echo aggressive_apparel_get_icon(
+			'close',
+			array(
+				'width'       => 20,
+				'height'      => 20,
+				'aria-hidden' => 'true',
+			)
+		);
+		echo '</button>';
 		echo '</div>';
+		if ( is_string( $units_label ) && '' !== $units_label ) {
+			echo '<p class="aggressive-apparel-size-guide__units">' . esc_html( $units_label ) . '</p>';
+		}
 		echo '<div class="aggressive-apparel-size-guide__body">';
 		echo wp_kses_post( $guide );
 		echo '</div>';
-		echo '</div>'; // modal.
-		echo '</div>'; // overlay.
-		echo '</div>'; // interactive root.
+		echo '</div>';
+		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * Measuring-tape icon markup for trigger/title.
+	 *
+	 * @param int $size Width and height in pixels.
+	 * @return string SVG markup.
+	 */
+	private function get_measuring_tape_icon( int $size ): string {
+		return aggressive_apparel_get_icon(
+			'measuring-tape',
+			array(
+				'width'       => $size,
+				'height'      => $size,
+				'aria-hidden' => 'true',
+			)
+		);
 	}
 
 	/**

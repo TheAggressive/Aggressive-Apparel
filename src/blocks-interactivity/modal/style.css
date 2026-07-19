@@ -22,7 +22,8 @@
  * Screen-reader announcer (visually hidden)
  * ────────────────────────────────────────────── */
 
-.wp-block-aggressive-apparel-modal__announcer {
+.wp-block-aggressive-apparel-modal__announcer,
+.wp-block-aggressive-apparel-modal__dialog-label {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -39,31 +40,36 @@
  * ────────────────────────────────────────────── */
 
 .wp-block-aggressive-apparel-modal__trigger {
-	--aa-trigger-border: currentcolor;
-	--aa-trigger-hover-border: currentcolor;
+	--aa-trigger-border: var(--aa-color-border);
+	--aa-trigger-hover-border: var(--aa-color-foreground);
 
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0.5em;
 	cursor: pointer;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
+	font-weight: 500;
+	letter-spacing: normal;
+	text-transform: none;
 	background: var(--aa-trigger-bg, transparent);
 	color: var(--aa-trigger-text, currentcolor);
-	border-radius: var(--aa-trigger-radius, 0);
+	border-radius: var(--aa-trigger-radius, var(--aa-radius-control));
 	transition:
-		background-color 0.15s ease,
-		color 0.15s ease,
-		border-color 0.15s ease,
-		opacity 0.15s ease;
+		background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+		color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+		border-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+		box-shadow var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease);
 
-	&:hover,
-	&:focus-visible {
-		background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 10%, transparent));
+	&:hover {
+		background-color: var(--aa-trigger-hover-bg, var(--aa-color-hover-subtle));
 		color: var(--aa-trigger-hover-text, currentcolor);
-		outline: none;
+	}
+
+	&:focus-visible {
+		background-color: var(--aa-trigger-hover-bg, var(--aa-color-hover-subtle));
+		color: var(--aa-trigger-hover-text, currentcolor);
+		outline: 2px solid var(--aa-color-accent);
+		outline-offset: 2px;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -79,70 +85,64 @@
 	}
 
 	&.trigger-size-md {
-		padding: 0.6em 1.25em;
+		padding: 0.55em 1.125em;
 		font-size: var(--wp--preset--font-size--small);
-		min-height: 2.75rem;
+		min-height: 2.5rem;
 	}
 
 	&.trigger-size-lg {
-		padding: 0.75em 1.75em;
+		padding: 0.7em 1.5em;
 		font-size: var(--wp--preset--font-size--medium);
-		min-height: 3.25rem;
+		min-height: 3rem;
 	}
 
 	/* ── Style variants ────── */
 
-	/* Outlined: border using currentcolor (or custom) */
 	&.trigger-variant-outlined {
-		border: 1px solid var(--aa-trigger-border, currentcolor);
+		border: 1px solid var(--aa-trigger-border);
 
-		&:hover,
-		&:focus-visible {
-			border-color: var(--aa-trigger-hover-border, currentcolor);
+		&:hover {
+			border-color: var(--aa-trigger-hover-border);
 		}
 	}
 
-	/* Filled: solid background, no border */
 	&.trigger-variant-filled {
 		border: none;
-		background: var(--aa-trigger-bg, currentcolor);
-		color: var(--aa-trigger-text, canvas);
+		background: var(--aa-trigger-bg, var(--aa-color-foreground));
+		color: var(--aa-trigger-text, var(--aa-color-surface));
 
 		&:hover,
 		&:focus-visible {
-			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 85%, transparent));
-			color: var(--aa-trigger-hover-text, canvas);
+			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, var(--aa-color-foreground) 88%, transparent));
+			color: var(--aa-trigger-hover-text, var(--aa-color-surface));
 		}
 	}
 
-	/* Ghost: no border, transparent bg — hover adds a tint */
 	&.trigger-variant-ghost {
 		border: none;
 		background: transparent;
 
 		&:hover,
 		&:focus-visible {
-			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, currentcolor 10%, transparent));
+			background-color: var(--aa-trigger-hover-bg, var(--aa-color-hover-subtle));
 		}
 	}
 
-	/* Text: no border, no bg, no padding — behaves like a styled link */
 	&.trigger-variant-text {
 		border: none;
 		background: transparent;
 		padding: 0;
 		min-height: unset;
-		letter-spacing: normal;
+		border-radius: 0;
 
 		&:hover,
 		&:focus-visible {
 			background: transparent;
 			text-decoration: underline;
+			text-underline-offset: 0.15em;
 			color: var(--aa-trigger-hover-text, currentcolor);
 		}
 	}
-
-	/* ── Full width ────── */
 
 	&.trigger-full-width {
 		width: 100%;
@@ -162,6 +162,51 @@
 
 	/* Per-block overlay token overrides (--aa-overlay-opacity, --aa-overlay-blur). */
 	--aa-modal-duration: var(--aa-duration-normal);
+
+	/* Keep the block functional when the shared theme overlay bundle is
+	   deferred, disabled, or removed by an optimization plugin. */
+	position: fixed;
+	inset: 0;
+	z-index: var(--aa-z-modal, 1000);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100vw;
+	isolation: isolate;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.wp-block-aggressive-apparel-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background-color: transparent;
+	opacity: 0;
+	cursor: pointer;
+	transition:
+		background-color var(--aa-modal-duration) var(--aa-ease-default, ease),
+		opacity var(--aa-modal-duration) var(--aa-ease-default, ease),
+		backdrop-filter var(--aa-modal-duration) var(--aa-ease-default, ease);
+
+	.wp-block-aggressive-apparel-modal__shell.is-open & {
+		background-color: var(--aa-color-scrim, rgb(0 0 0));
+		opacity: var(--aa-overlay-opacity, 0.5);
+	}
+
+	@supports (backdrop-filter: blur(1px)) {
+		backdrop-filter: blur(0);
+
+		.wp-block-aggressive-apparel-modal__shell.is-open & {
+			backdrop-filter: blur(var(--aa-overlay-blur, 4px));
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+		backdrop-filter: none;
+	}
 }
 
 /* ──────────────────────────────────────────────
@@ -173,28 +218,23 @@
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
-	width: min(90vw, var(--aa-dialog-max-width, 40rem));
+	overflow: hidden;
+	width: min(90vw, var(--aa-dialog-max-width, var(--aa-panel-width-lg)));
 	max-height: 85vh;
 
-	/* Colors — WP block supports (color.background / color.text) are forwarded
-	   from render.php as --aa-dialog-bg / --aa-dialog-text CSS vars on this element.
-	   The theme's adaptive presets are the fallback so light/dark mode works
-	   without any custom color being set. */
+	/* Match aggressive-apparel-panel chrome; block supports override via CSS vars. */
 	background-color: var(--aa-dialog-bg, var(--aa-color-surface));
 	color: var(--aa-dialog-text, var(--aa-color-foreground));
+	border-color: var(--aa-dialog-border-color, var(--aa-color-border-muted));
+	border-style: var(--aa-dialog-border-style, solid);
+	border-width: var(--aa-dialog-border-width, 0);
+	border-radius: var(--aa-dialog-radius, var(--aa-dialog-border-radius, var(--aa-radius-panel)));
+	box-shadow: var(--aa-dialog-shadow, var(--aa-shadow-panel));
+	padding: var(--aa-dialog-padding, 1.5rem);
+	outline: none;
 
-	/* Border forwarded from WP __experimentalBorder support. */
-	border-color: var(--aa-dialog-border-color);
-	border-style: var(--aa-dialog-border-style);
-	border-width: var(--aa-dialog-border-width);
-	border-radius: var(--aa-dialog-radius, var(--aa-dialog-border-radius));
-
-		/* Optional padding. */
-		padding: var(--aa-dialog-padding, 0);
-		outline: none;
-
-		/* Entrance/exit animation — always transition opacity so transitionend fires. */
-		opacity: 0;
+	/* Entrance/exit animation — always transition opacity so transitionend fires. */
+	opacity: 0;
 	transition:
 		opacity var(--aa-modal-duration) var(--aa-ease-default),
 		transform var(--aa-modal-duration) var(--aa-ease-default);
@@ -252,7 +292,8 @@
 		width: 100%;
 		max-width: none;
 		max-height: 90dvh;
-		border-radius: 1rem 1rem 0 0;
+		border-radius: var(--aa-radius-panel) var(--aa-radius-panel) 0 0;
+		box-shadow: 0 -4px 24px var(--aa-color-shadow);
 		transform: translateY(100%); /* Closed: off-screen below. */
 	}
 
@@ -264,7 +305,8 @@
 		width: 100%;
 		max-width: none;
 		max-height: 90dvh;
-		border-radius: 0 0 1rem 1rem;
+		border-radius: 0 0 var(--aa-radius-panel) var(--aa-radius-panel);
+		box-shadow: 0 4px 24px var(--aa-color-shadow);
 		transform: translateY(-100%); /* Closed: off-screen above. */
 	}
 
@@ -273,11 +315,12 @@
 		top: 0;
 		left: 0;
 		bottom: 0;
-		width: min(90vw, 24rem);
+		width: min(90vw, var(--aa-panel-width-drawer));
 		max-width: none;
 		max-height: 100%;
 		height: 100%;
-		border-radius: 0 1rem 1rem 0;
+		border-radius: 0 var(--aa-radius-panel) var(--aa-radius-panel) 0;
+		box-shadow: 4px 0 24px var(--aa-color-shadow);
 		transform: translateX(-100%); /* Closed: off-screen left. */
 	}
 
@@ -286,11 +329,12 @@
 		top: 0;
 		right: 0;
 		bottom: 0;
-		width: min(90vw, 24rem);
+		width: min(90vw, var(--aa-panel-width-drawer));
 		max-width: none;
 		max-height: 100%;
 		height: 100%;
-		border-radius: 1rem 0 0 1rem;
+		border-radius: var(--aa-radius-panel) 0 0 var(--aa-radius-panel);
+		box-shadow: -4px 0 24px var(--aa-color-shadow);
 		transform: translateX(100%); /* Closed: off-screen right. */
 	}
 
@@ -420,19 +464,6 @@
 }
 
 /* ──────────────────────────────────────────────
- * Dialog title (optional rendered heading)
- * ────────────────────────────────────────────── */
-
-.wp-block-aggressive-apparel-modal__dialog-title {
-	flex-shrink: 0;
-	padding: 1.25rem 1.5rem 0;
-	font-size: var(--wp--preset--font-size--large);
-	font-weight: 700;
-	line-height: 1.3;
-	margin: 0;
-}
-
-/* ──────────────────────────────────────────────
  * Dialog body — the scrollable content area
  * ────────────────────────────────────────────── */
 
@@ -441,6 +472,8 @@
 	min-height: 0;
 	outline: none;
 	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-gutter: stable;
 }
 
 /* ──────────────────────────────────────────────
@@ -456,17 +489,15 @@
 	padding: 0;
 	border: none;
 	background: var(--aa-close-btn-bg, transparent);
-	color: var(--aa-close-btn-color, currentcolor);
+	color: var(--aa-close-btn-color, var(--aa-color-foreground-muted, currentcolor));
 	font-size: var(--wp--preset--font-size--medium);
-	font-weight: 600;
+	font-weight: 500;
 	line-height: 1;
 	cursor: pointer;
 	transition:
-		background-color 0.15s ease,
-		color 0.15s ease,
-		border-color 0.15s ease;
-
-	/* ── Size variants ────── */
+		background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+		color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+		border-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease);
 
 	&.close-size-sm {
 		min-width: 2rem;
@@ -475,27 +506,25 @@
 	}
 
 	&.close-size-md {
+		min-width: 2.25rem;
+		min-height: 2.25rem;
+		font-size: var(--wp--preset--font-size--medium);
+	}
+
+	&.close-size-lg {
 		min-width: 2.75rem;
 		min-height: 2.75rem;
 		font-size: var(--wp--preset--font-size--large);
 	}
 
-	&.close-size-lg {
-		min-width: 3.5rem;
-		min-height: 3.5rem;
-		font-size: var(--wp--preset--font-size--x-large);
-	}
-
-	/* ── Style variants ────── */
-
 	&.close-variant-ghost {
 		border: none;
-		border-radius: 0.25rem;
+		border-radius: var(--aa-radius-control);
 	}
 
 	&.close-variant-outlined {
 		padding: 0.375rem;
-		border: 1px solid currentcolor;
+		border: 1px solid var(--aa-color-border);
 		border-radius: var(--aa-radius-control);
 	}
 
@@ -506,55 +535,74 @@
 		border-radius: var(--aa-radius-control);
 	}
 
-	/* ── Hover / focus — declared after variants so same-specificity source
-	   order guarantees this wins over variant background rules on hover. ── */
-
-	&:hover,
-	&:focus-visible {
-		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-accent));
-		color: var(--aa-close-btn-hover-color, var(--aa-color-white));
-		border-color: transparent;
-		outline: none;
+	&:hover {
+		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-hover-default));
+		color: var(--aa-close-btn-hover-color, var(--aa-color-foreground));
+		border-color: var(--aa-color-border);
 	}
 
-	/* ── Inside placements ────── */
+	&:focus-visible {
+		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-hover-default));
+		color: var(--aa-close-btn-hover-color, var(--aa-color-foreground));
+		outline: 2px solid var(--aa-color-accent);
+		outline-offset: 2px;
+	}
 
-	&.close-placement-inside-top-right { align-self: flex-end; }
+	&.close-placement-inside-top-right {
+		align-self: flex-end;
+		margin: -0.35rem -0.35rem 0.5rem 0;
+	}
 
-	&.close-placement-inside-top-left { align-self: flex-start; }
+	&.close-placement-inside-top-left {
+		align-self: flex-start;
+		margin: -0.35rem 0 0.5rem -0.35rem;
+	}
 
 	&.close-placement-inside-bottom-right {
 		align-self: flex-end;
 		margin-top: auto;
+		padding-top: 0.75rem;
 	}
 
 	&.close-placement-inside-bottom-left {
 		align-self: flex-start;
 		margin-top: auto;
+		padding-top: 0.75rem;
 	}
 
-	/* Sticky — stays visible when scrolling long modal content. */
 	&.close-placement-sticky-top-right {
 		align-self: flex-end;
 		position: sticky;
-		top: 0;
+		top: -0.25rem;
 		z-index: 1;
+		margin: -0.35rem -0.35rem 0.5rem 0;
+		background-color: var(--aa-close-btn-bg, var(--aa-dialog-bg, var(--aa-color-surface)));
 	}
 
-	/* ── Outside placements — absolutely positioned in the shell ────── */
-
+	/* Outside close sits on the scrim — light chrome for contrast. */
 	&.close-placement-outside-top-right,
 	&.close-placement-outside-top-left {
 		position: absolute;
 		z-index: 2;
 		opacity: 0;
+		color: var(--aa-close-btn-color, var(--aa-color-on-scrim));
+		background-color: var(--aa-close-btn-bg, color-mix(in oklch, var(--aa-color-black) 40%, transparent));
+		border-radius: var(--aa-radius-control);
+		backdrop-filter: blur(4px);
 		transition:
-			opacity var(--aa-modal-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1),
-			background-color 0.15s ease,
-			color 0.15s ease;
+			opacity var(--aa-modal-duration, 300ms) var(--aa-ease-default, ease),
+			background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
+			color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease);
 
 		.wp-block-aggressive-apparel-modal__shell.is-open & {
 			opacity: 1;
+		}
+
+		&:hover,
+		&:focus-visible {
+			background-color: var(--aa-close-btn-hover-bg, color-mix(in oklch, var(--aa-color-black) 60%, transparent));
+			color: var(--aa-close-btn-hover-color, var(--aa-color-on-scrim));
+			border-color: transparent;
 		}
 	}
 
@@ -570,6 +618,7 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;
+		backdrop-filter: none;
 	}
 }
 

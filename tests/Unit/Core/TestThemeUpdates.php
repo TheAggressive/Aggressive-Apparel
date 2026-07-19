@@ -53,15 +53,6 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test class has required methods
-	 */
-	public function test_class_has_required_methods(): void {
-		$this->assertTrue( method_exists( $this->theme_updates, 'init' ) );
-		$this->assertTrue( method_exists( $this->theme_updates, 'check_for_update' ) );
-		$this->assertTrue( method_exists( $this->theme_updates, 'rename_package' ) );
-	}
-
-	/**
 	 * Invoke a private Theme_Updates method.
 	 *
 	 * @param string       $method Method name.

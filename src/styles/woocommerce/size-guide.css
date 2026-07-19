@@ -96,13 +96,12 @@
 	}
 }
 
-.aggressive-apparel-size-guide__trigger-icon {
+.aggressive-apparel-size-guide__trigger-icon,
+.aggressive-apparel-size-guide__title-icon {
 	display: inline-flex;
 	flex-shrink: 0;
 	align-items: center;
 	justify-content: center;
-	width: 1.375rem;
-	height: 1.375rem;
 	line-height: 0;
 
 	svg {
@@ -112,48 +111,75 @@
 	}
 }
 
+.aggressive-apparel-size-guide__trigger-icon {
+	width: 1.375rem;
+	height: 1.375rem;
+}
+
+.aggressive-apparel-size-guide__title-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	color: var(--aa-color-foreground-muted);
+}
+
 /* -----------------------------------------------
  * Header
  * ----------------------------------------------- */
 
 .aggressive-apparel-size-guide__header {
 	display: grid;
-	grid-template-columns: 44px 1fr 44px;
+	grid-template-columns: 2.75rem 1fr 2.75rem;
 	align-items: center;
-	justify-content: space-between;
-	padding: 1rem;
-	border-bottom: 2px solid currentcolor;
-  text-align: center;
+	padding: 0.875rem 1rem;
+	border-bottom: 1px solid var(--aa-color-border-subtle);
 }
 
 .aggressive-apparel-size-guide__title {
-	margin: 0;
-	font-size: 1.85rem;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
+	display: inline-flex;
 	grid-column: 2;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin: 0;
+	color: var(--aa-color-foreground);
+	font-size: 1.5rem;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	line-height: 1;
+	text-transform: uppercase;
 }
 
 .aggressive-apparel-size-guide__close {
-  grid-column: 3;
+	display: inline-flex;
+	grid-column: 3;
 	align-items: center;
 	justify-content: center;
+	justify-self: end;
 	width: 2.75rem;
 	height: 2.75rem;
 	padding: 0;
 	border: none;
+	border-radius: var(--aa-radius-control);
 	background: none;
-	color: currentcolor;
-	font-size: 1.5rem;
-	line-height: 1;
+	color: var(--aa-color-foreground-muted);
 	cursor: pointer;
-	border-radius: 0;
-	transition: opacity 0.15s ease;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease;
 
 	&:hover,
 	&:focus-visible {
-		opacity: 0.5;
+		color: var(--aa-color-foreground);
+		background-color: color-mix(in oklch, currentcolor 8%, transparent);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--aa-color-accent);
+		outline-offset: 2px;
+	}
+
+	svg {
+		display: block;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -161,151 +187,159 @@
 	}
 }
 
+.aggressive-apparel-size-guide__units {
+	margin: 0;
+	padding: 0.55rem 1.25rem 0.15rem;
+	color: var(--aa-color-foreground-muted);
+	font-size: 0.7rem;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	line-height: 1.3;
+	text-align: center;
+}
+
 /* -----------------------------------------------
- * Body / table styles
+ * Body / table
  * ----------------------------------------------- */
 
 .aggressive-apparel-size-guide__body {
-	padding: 0;
+	--aa-size-guide-cell-padding: 0.7rem 1.25rem;
 
-	/* Paragraphs and headings inside body. */
+	padding: 0.15rem 0 0.5rem;
+
 	p {
+		margin: 0.75rem 1.25rem 1rem;
+		color: var(--aa-color-foreground-muted);
 		font-size: 0.85rem;
 		line-height: 1.6;
-		margin-bottom: 1rem;
 	}
 
 	h2,
 	h3,
 	h4 {
-		font-size: 0.8rem;
-		font-weight: 800;
+		margin: 1.25rem 1.25rem 0.5rem;
+		color: var(--aa-color-foreground-muted);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		margin: 1.5rem 0 0.75rem;
 	}
 
-	/* Scrollable table wrapper for mobile. */
+	ul,
+	ol {
+		margin: 0 1.25rem 1rem;
+		padding-inline-start: 1.25rem;
+		color: var(--aa-color-foreground-muted);
+		font-size: 0.85rem;
+	}
+
 	.wp-block-table,
 	figure {
+		margin: 0;
 		overflow-x: auto;
+		border: 0;
+		box-shadow: none;
 		-webkit-overflow-scrolling: touch;
-    margin-bottom: 0;
 	}
 
-	/* Table. */
 	table {
 		width: 100%;
-		min-width: 12rem;
+		margin: 0;
+		border: 0;
 		border-collapse: collapse;
-		font-size: 1rem;
-		margin-bottom: 0;
-    border-bottom: none;
+		font-size: 0.95rem;
+		font-variant-numeric: tabular-nums;
+		text-align: center;
 	}
 
 	th,
 	td {
-		padding: 0.65rem 1rem;
+		padding: var(--aa-size-guide-cell-padding);
+		border: 0;
+		border-bottom: 1px solid var(--aa-color-border-subtle);
+		background: transparent;
 		text-align: center;
 		white-space: nowrap;
+		vertical-align: middle;
 	}
 
 	th {
-		font-weight: 800;
-		text-transform: uppercase;
-		font-size: 0.75rem;
-		letter-spacing: 0.08em;
-		background-color: var(--aa-color-foreground);
-		color: var(--aa-color-surface);
-		border: none;
+		color: var(--aa-color-foreground-muted);
+		font-size: 0.65rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		line-height: 1.35;
+		text-transform: none;
+		white-space: normal;
 	}
 
-	/* First column (size labels) bold. */
+	thead th {
+		color: var(--aa-color-accent);
+		font-family: var(--wp--preset--font-family--bebas-neue);
+		font-size: 1rem;
+	}
+
+	td {
+		color: var(--aa-color-foreground-muted);
+	}
+
 	td:first-child {
+		color: var(--aa-color-foreground);
 		font-weight: 700;
 	}
 
-	/* Zebra stripes. */
-	tbody tr:nth-child(even) {
-		background-color: color-mix(in oklch, currentcolor 4%, transparent);
+	tbody tr:nth-child(even) td {
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 4%, transparent);
 	}
 
-	tbody tr {
-		transition: background-color 0.1s ease;
-	}
-
-	tbody tr:hover {
-		background-color: color-mix(in oklch, currentcolor 8%, transparent);
-	}
-
-	/* Bottom border on rows instead of full grid. */
-	td {
-		border: none;
-		border-bottom: 1px solid color-mix(in oklch, currentcolor 10%, transparent);
-	}
-
-	/* Last row — no bottom border. */
+	tbody tr:last-child th,
 	tbody tr:last-child td {
-		border-bottom: none;
+		border-bottom: 0;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-
-		tbody tr {
-			transition: none;
-		}
+	tbody tr:hover td {
+		background-color: color-mix(in oklch, var(--aa-color-foreground) 7%, transparent);
 	}
 }
 
+/*
+ * Beat WooCommerce `.woocommerce div.product form.cart table td { padding-left: inherit }`
+ * (0,3,4) which zeros td inline-start padding when the guide sits inside form.cart.
+ */
+.woocommerce div.product form.cart .aggressive-apparel-size-guide__body table th,
+.woocommerce div.product form.cart .aggressive-apparel-size-guide__body table td {
+	padding: var(--aa-size-guide-cell-padding, 0.7rem 1.25rem);
+}
+
 /* -----------------------------------------------
- * Mobile adjustments
+ * Mobile
  * ----------------------------------------------- */
 
 @media (width <= 480px) {
 
-	.aggressive-apparel-size-guide__modal {
-		width: 95vw;
-		max-height: 90vh;
+	.aggressive-apparel-size-guide__modal.aggressive-apparel-panel--guide {
+		width: min(95vw, 100%);
+		min-width: 0;
+		max-width: 95vw;
 	}
 
-	.aggressive-apparel-size-guide__header {
-		padding: 1rem 1.25rem;
+	.aggressive-apparel-size-guide__title {
+		font-size: 1.35rem;
 	}
 
 	.aggressive-apparel-size-guide__body {
-		padding: 0;
+		--aa-size-guide-cell-padding: 0.65rem 1.15rem;
 	}
 }
 
-/* -----------------------------------------------
- * Table row stagger
- * Rows fade in sequentially on open (opacity-only
- * to avoid scrollbar from transform overflow).
- * ----------------------------------------------- */
+/* Opacity-only open fade — works for any row count. */
 @media (prefers-reduced-motion: no-preference) {
 
-	.aggressive-apparel-size-guide__overlay.is-open .aggressive-apparel-size-guide__body tbody tr {
-		animation: sg-row-in 0.35s ease both;
-		animation-delay: calc(var(--row-index, 0) * 50ms);
+	.aggressive-apparel-size-guide__overlay.is-open .aggressive-apparel-size-guide__body table {
+		animation: sg-table-in 0.3s ease both;
 	}
 
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(1) { --row-index: 0; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(2) { --row-index: 1; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(3) { --row-index: 2; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(4) { --row-index: 3; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(5) { --row-index: 4; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(6) { --row-index: 5; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(7) { --row-index: 6; }
-
-	.aggressive-apparel-size-guide__body tbody tr:nth-child(8) { --row-index: 7; }
-
-	@keyframes sg-row-in {
+	@keyframes sg-table-in {
 
 		from {
 			opacity: 0;
@@ -314,16 +348,5 @@
 		to {
 			opacity: 1;
 		}
-	}
-}
-
-/* -----------------------------------------------
- * Reduced motion — disable all size guide animations
- * ----------------------------------------------- */
-@media (prefers-reduced-motion: reduce) {
-
-	.aggressive-apparel-size-guide__body tbody tr {
-		animation: none !important;
-		opacity: 1 !important;
 	}
 }

@@ -1,0 +1,62 @@
+/**
+ * Product Gallery Thumbnails — small-screen sizing
+ *
+ * Below 600px WooCommerce stacks the gallery and sizes the thumbnail strip
+ * with `aspect-ratio: 5/1 !important` + `height: 20%` on the container, then
+ * sizes each thumbnail off that height (`height: 100%; width: auto`). Because
+ * the container has no resolvable height, the strip height collapses to
+ * viewport-width / 5, so thumbnails scale with the viewport instead of staying
+ * a readable size, and `object-fit: cover` crops them off-centre.
+ *
+ * This override sizes the thumbnails by width instead and lets the strip's
+ * height follow, which keeps them square and legible at every width.
+ *
+ * Block-scoped via wp_enqueue_block_style() so it loads after
+ * woocommerce-product-gallery-style. `!important` on aspect-ratio is required
+ * to beat WooCommerce's own `!important`; nothing here touches editor- or
+ * theme.json-controlled properties.
+ *
+ * @package Aggressive_Apparel
+ */
+
+@media (width <= 600px) {
+
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails {
+		aspect-ratio: auto !important;
+		width: 100%;
+		height: auto;
+		margin-block-start: 0.75rem;
+	}
+
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__scrollable {
+		display: flex;
+		flex-direction: row;
+		gap: 0.5rem;
+		height: auto;
+		padding-block: 2px;
+		overflow: auto hidden;
+		scroll-snap-type: x proximity;
+		scrollbar-width: none;
+	}
+
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__scrollable::-webkit-scrollbar {
+		display: none;
+	}
+
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__thumbnail {
+		flex: 0 0 auto;
+		width: clamp(3.5rem, 18vw, 4.5rem);
+		height: auto;
+		aspect-ratio: 1;
+		scroll-snap-align: start;
+	}
+
+	.wc-block-product-gallery .wc-block-product-gallery-thumbnails__thumbnail__image {
+		width: 100%;
+		max-width: none;
+		height: 100%;
+		max-height: none;
+		object-fit: cover;
+		border-radius: var(--aa-radius-sm, 0.25rem);
+	}
+}

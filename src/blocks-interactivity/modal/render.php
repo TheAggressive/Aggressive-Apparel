@@ -26,66 +26,116 @@ defined( 'ABSPATH' ) || exit;
  * @var string $content
  */
 
-$unique_id = ! empty( $attributes['modalId'] )
+$requested_id = isset( $attributes['modalId'] ) && is_string( $attributes['modalId'] )
 	? sanitize_html_class( $attributes['modalId'] )
-	: 'modal-' . wp_unique_id();
+	: '';
+$unique_id    = '' !== $requested_id ? $requested_id : 'modal-' . wp_unique_id();
 
-$position                = sanitize_html_class( $attributes['position'] ?? 'center' );
+/**
+ * Restrict class-generating attributes to values supported by this block.
+ *
+ * @param mixed         $value   Candidate attribute value.
+ * @param array<string> $allowed Supported values.
+ * @param string        $fallback Fallback value.
+ * @return string
+ */
+$sanitize_choice = static function ( $value, array $allowed, string $fallback ): string {
+	return is_string( $value ) && in_array( $value, $allowed, true ) ? $value : $fallback;
+};
+
+/**
+ * Keep user-controlled values inside a single CSS declaration value.
+ *
+ * Block attributes are stored in post content and can be edited outside the
+ * block UI, so sanitize_text_field() alone is not sufficient for inline CSS.
+ *
+ * @param mixed $value Candidate CSS value.
+ * @return string
+ */
+$sanitize_css_value = static function ( $value ): string {
+	if ( ! is_string( $value ) && ! is_int( $value ) && ! is_float( $value ) ) {
+		return '';
+	}
+
+	$value = sanitize_text_field( (string) $value );
+	if ( preg_match( '/[;{}]/', $value ) || preg_match( '/(?:expression|url)\s*\(/i', $value ) ) {
+		return '';
+	}
+
+	return $value;
+};
+
+$position                = $sanitize_choice(
+	$attributes['position'] ?? 'center',
+	array( 'center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'bottom', 'top', 'left', 'right' ),
+	'center'
+);
 $open_on_load            = ! empty( $attributes['openOnLoad'] );
 $open_on_load_once       = ! empty( $attributes['openOnLoadOnce'] );
 $disable_overlay         = ! empty( $attributes['disableOverlay'] );
-$trigger_block_id        = $attributes['triggerBlockId'] ?? '';
-$trigger_label           = $attributes['triggerLabel'] ?? __( 'Open Modal', 'aggressive-apparel' );
-$enter_animation         = sanitize_html_class( $attributes['enterAnimation'] ?? 'fade' );
-$exit_animation          = sanitize_html_class( $attributes['exitAnimation'] ?? 'fade' );
-$animation_duration      = absint( $attributes['animationDuration'] ?? 300 );
+$trigger_block_id        = isset( $attributes['triggerBlockId'] ) && is_string( $attributes['triggerBlockId'] ) ? $attributes['triggerBlockId'] : '';
+$trigger_label           = isset( $attributes['triggerLabel'] ) && is_string( $attributes['triggerLabel'] )
+	? trim( sanitize_text_field( $attributes['triggerLabel'] ) )
+	: '';
+$trigger_label           = '' !== $trigger_label ? $trigger_label : __( 'Open Modal', 'aggressive-apparel' );
+$enter_animation         = $sanitize_choice(
+	$attributes['enterAnimation'] ?? 'fade',
+	array( 'fade', 'slide-up', 'slide-down', 'slide-left', 'slide-right', 'zoom-in', 'expand', 'recede', 'lift', 'spring', 'pop', 'warp', 'material', 'float', 'drift', 'flip-up', 'blur', 'none' ),
+	'fade'
+);
+$exit_animation          = $sanitize_choice(
+	$attributes['exitAnimation'] ?? 'fade',
+	array( 'fade', 'slide-up', 'slide-down', 'slide-left', 'slide-right', 'zoom-out', 'zoom-in', 'expand', 'recede', 'pop', 'flip-down', 'blur', 'none' ),
+	'fade'
+);
+$animation_duration      = min( 1000, max( 100, absint( $attributes['animationDuration'] ?? 300 ) ) );
 $exit_intent_trigger     = ! empty( $attributes['exitIntentTrigger'] );
-$exit_intent_reshow_days = absint( $attributes['exitIntentReshowDays'] ?? 7 );
+$exit_intent_reshow_days = min( 90, max( 1, absint( $attributes['exitIntentReshowDays'] ?? 7 ) ) );
 $scroll_depth_trigger    = ! empty( $attributes['scrollDepthTrigger'] );
-$scroll_depth_percent    = absint( $attributes['scrollDepthPercent'] ?? 50 );
-$dialog_max_width        = sanitize_text_field( $attributes['dialogMaxWidth'] ?? '' );
+$scroll_depth_percent    = min( 100, max( 10, absint( $attributes['scrollDepthPercent'] ?? 50 ) ) );
+$dialog_max_width        = $sanitize_css_value( $attributes['dialogMaxWidth'] ?? '' );
 
 // ── Close button attributes ───────────────────────────────────────────────────
 
-$close_placement      = sanitize_html_class( $attributes['closeButtonPlacement'] ?? 'inside-top-right' );
-$close_icon           = sanitize_text_field( $attributes['closeButtonIcon'] ?? 'close' );
-$close_size           = sanitize_html_class( $attributes['closeButtonSize'] ?? 'md' );
-$close_variant        = sanitize_html_class( $attributes['closeButtonVariant'] ?? 'ghost' );
-$close_label          = sanitize_text_field( $attributes['closeButtonLabel'] ?? '' );
-$close_color          = sanitize_text_field( $attributes['closeButtonColor'] ?? '' );
-$close_bg_color       = sanitize_text_field( $attributes['closeButtonBgColor'] ?? '' );
-$close_hover_color    = sanitize_text_field( $attributes['closeButtonHoverColor'] ?? '' );
-$close_hover_bg_color = sanitize_text_field( $attributes['closeButtonHoverBgColor'] ?? '' );
+$close_placement      = $sanitize_choice( $attributes['closeButtonPlacement'] ?? 'inside-top-right', array( 'inside-top-right', 'inside-top-left', 'inside-bottom-right', 'inside-bottom-left', 'sticky-top-right', 'outside-top-right', 'outside-top-left', 'none' ), 'inside-top-right' );
+$close_icon           = $sanitize_choice( $attributes['closeButtonIcon'] ?? 'close', array( 'close', 'arrow-left', 'chevron-down', 'text-only' ), 'close' );
+$close_size           = $sanitize_choice( $attributes['closeButtonSize'] ?? 'md', array( 'sm', 'md', 'lg' ), 'md' );
+$close_variant        = $sanitize_choice( $attributes['closeButtonVariant'] ?? 'ghost', array( 'ghost', 'filled', 'outlined' ), 'ghost' );
+$close_label          = isset( $attributes['closeButtonLabel'] ) && is_string( $attributes['closeButtonLabel'] ) ? sanitize_text_field( $attributes['closeButtonLabel'] ) : '';
+$close_color          = $sanitize_css_value( $attributes['closeButtonColor'] ?? '' );
+$close_bg_color       = $sanitize_css_value( $attributes['closeButtonBgColor'] ?? '' );
+$close_hover_color    = $sanitize_css_value( $attributes['closeButtonHoverColor'] ?? '' );
+$close_hover_bg_color = $sanitize_css_value( $attributes['closeButtonHoverBgColor'] ?? '' );
 
 $show_close_btn = 'none' !== $close_placement;
 $is_outside     = str_starts_with( $close_placement, 'outside-' );
 
 // ── Trigger button attributes ─────────────────────────────────────────────────
 
-$trigger_variant       = sanitize_html_class( $attributes['triggerVariant'] ?? 'outlined' );
-$trigger_size          = sanitize_html_class( $attributes['triggerSize'] ?? 'md' );
+$trigger_variant       = $sanitize_choice( $attributes['triggerVariant'] ?? 'outlined', array( 'outlined', 'filled', 'ghost', 'text' ), 'outlined' );
+$trigger_size          = $sanitize_choice( $attributes['triggerSize'] ?? 'md', array( 'sm', 'md', 'lg' ), 'md' );
 $trigger_full_width    = ! empty( $attributes['triggerFullWidth'] );
-$trigger_border_radius = sanitize_text_field( $attributes['triggerBorderRadius'] ?? '' );
-$trigger_bg_color      = sanitize_text_field( $attributes['triggerBgColor'] ?? '' );
-$trigger_text_color    = sanitize_text_field( $attributes['triggerTextColor'] ?? '' );
-$trigger_hover_bg      = sanitize_text_field( $attributes['triggerHoverBgColor'] ?? '' );
-$trigger_hover_text    = sanitize_text_field( $attributes['triggerHoverTextColor'] ?? '' );
+$trigger_border_radius = $sanitize_css_value( $attributes['triggerBorderRadius'] ?? '' );
+$trigger_bg_color      = $sanitize_css_value( $attributes['triggerBgColor'] ?? '' );
+$trigger_text_color    = $sanitize_css_value( $attributes['triggerTextColor'] ?? '' );
+$trigger_hover_bg      = $sanitize_css_value( $attributes['triggerHoverBgColor'] ?? '' );
+$trigger_hover_text    = $sanitize_css_value( $attributes['triggerHoverTextColor'] ?? '' );
 
 // ── Dialog design attributes ──────────────────────────────────────────────────
 
-$dialog_padding       = sanitize_text_field( $attributes['dialogPadding'] ?? '' );
-$dialog_border_radius = sanitize_text_field( $attributes['dialogBorderRadius'] ?? '' );
-$overlay_opacity      = absint( $attributes['overlayOpacity'] ?? 50 );
-$overlay_blur         = absint( $attributes['overlayBlur'] ?? 4 );
-$overlay_color        = sanitize_text_field( $attributes['overlayColor'] ?? '' );
+$dialog_padding       = $sanitize_css_value( $attributes['dialogPadding'] ?? '' );
+$dialog_border_radius = $sanitize_css_value( $attributes['dialogBorderRadius'] ?? '' );
+$overlay_opacity      = min( 90, absint( $attributes['overlayOpacity'] ?? 50 ) );
+$overlay_blur         = min( 20, absint( $attributes['overlayBlur'] ?? 4 ) );
+$overlay_color        = $sanitize_css_value( $attributes['overlayColor'] ?? '' );
 
 // ── Forward WP block supports (color.background, color.text, border) to dialog.
 // get_block_wrapper_attributes() applies these to the wrapper; we also need
 // them on the fixed-position dialog div so they actually render visually.
 
-$style_attr   = $attributes['style'] ?? array();
-$color_style  = $style_attr['color'] ?? array();
-$border_style = $style_attr['border'] ?? array();
+$style_attr   = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
+$color_style  = isset( $style_attr['color'] ) && is_array( $style_attr['color'] ) ? $style_attr['color'] : array();
+$border_style = isset( $style_attr['border'] ) && is_array( $style_attr['border'] ) ? $style_attr['border'] : array();
 
 /**
  * Normalize the scalar or per-corner shape emitted by WordPress border support
@@ -94,9 +144,9 @@ $border_style = $style_attr['border'] ?? array();
  * @param mixed $radius Raw block-support radius value.
  * @return string Normalized CSS value, or an empty string when invalid.
  */
-$normalize_border_radius = static function ( $radius ): string {
+$normalize_border_radius = static function ( $radius ) use ( $sanitize_css_value ): string {
 	if ( is_string( $radius ) || is_int( $radius ) || is_float( $radius ) ) {
-		return sanitize_text_field( (string) $radius );
+		return $sanitize_css_value( $radius );
 	}
 
 	if ( ! is_array( $radius ) ) {
@@ -117,7 +167,7 @@ $normalize_border_radius = static function ( $radius ): string {
 		}
 
 		if ( is_string( $value ) || is_int( $value ) || is_float( $value ) ) {
-			$value = sanitize_text_field( (string) $value );
+			$value = $sanitize_css_value( $value );
 		} else {
 			$value = '';
 		}
@@ -193,24 +243,28 @@ if ( $show_close_btn ) {
 		);
 	}
 
-	// Visible label span (optional).
+	// Visible label span (optional). When present, it supplies the accessible name.
 	$label_html = $close_label
 		? '<span class="wp-block-aggressive-apparel-modal__close-label">' . esc_html( $close_label ) . '</span>'
 		: '';
 
-	// aria-label: use the custom label text if provided, otherwise default.
-	$aria_label = $close_label
-		? esc_attr( $close_label )
-		: esc_attr__( 'Close modal', 'aggressive-apparel' );
-
-	$close_btn_html = sprintf(
-		'<button class="%s" type="button" data-wp-on--click="actions.closeModal" aria-label="%s"%s>%s%s</button>',
-		esc_attr( $btn_classes ),
-		$aria_label,
-		aggressive_apparel_trusted_html( $btn_style ),
-		$icon_svg,
-		aggressive_apparel_trusted_html( $label_html )
-	);
+	if ( $close_label ) {
+		$close_btn_html = sprintf(
+			'<button class="%s" type="button" data-wp-on--click="actions.closeModal"%s>%s%s</button>',
+			esc_attr( $btn_classes ),
+			aggressive_apparel_trusted_html( $btn_style ),
+			$icon_svg,
+			aggressive_apparel_trusted_html( $label_html )
+		);
+	} else {
+		$close_btn_html = sprintf(
+			'<button class="%s" type="button" data-wp-on--click="actions.closeModal" aria-label="%s"%s>%s</button>',
+			esc_attr( $btn_classes ),
+			esc_attr__( 'Close modal', 'aggressive-apparel' ),
+			aggressive_apparel_trusted_html( $btn_style ),
+			$icon_svg
+		);
+	}
 }
 
 // ── Trigger button inline style + classes ─────────────────────────────────────
@@ -263,28 +317,50 @@ if ( $dialog_border_radius ) {
 }
 
 // Forward color.background from WP block supports.
-if ( ! empty( $color_style['background'] ) ) {
-	$dialog_css_vars[] = '--aa-dialog-bg: ' . esc_attr( $color_style['background'] );
+$dialog_background = $sanitize_css_value( $color_style['background'] ?? '' );
+if ( $dialog_background ) {
+	$dialog_css_vars[] = '--aa-dialog-bg: ' . esc_attr( $dialog_background );
 }
 
 // Forward color.text from WP block supports.
-if ( ! empty( $color_style['text'] ) ) {
-	$dialog_css_vars[] = '--aa-dialog-text: ' . esc_attr( $color_style['text'] );
+$dialog_text = $sanitize_css_value( $color_style['text'] ?? '' );
+if ( $dialog_text ) {
+	$dialog_css_vars[] = '--aa-dialog-text: ' . esc_attr( $dialog_text );
 }
 
 // Forward __experimentalBorder from WP block supports.
-if ( ! empty( $border_style['color'] ) ) {
-	$dialog_css_vars[] = '--aa-dialog-border-color: ' . esc_attr( $border_style['color'] );
+$dialog_border_color = $sanitize_css_value( $border_style['color'] ?? '' );
+if ( $dialog_border_color ) {
+	$dialog_css_vars[] = '--aa-dialog-border-color: ' . esc_attr( $dialog_border_color );
 }
-if ( ! empty( $border_style['style'] ) ) {
-	$dialog_css_vars[] = '--aa-dialog-border-style: ' . esc_attr( $border_style['style'] );
+$dialog_border_style = $sanitize_choice(
+	$border_style['style'] ?? '',
+	array( 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ),
+	''
+);
+if ( $dialog_border_style ) {
+	$dialog_css_vars[] = '--aa-dialog-border-style: ' . esc_attr( $dialog_border_style );
 }
-if ( ! empty( $border_style['width'] ) ) {
-	$dialog_css_vars[] = '--aa-dialog-border-width: ' . esc_attr( $border_style['width'] );
+$dialog_border_width = $sanitize_css_value( $border_style['width'] ?? '' );
+if ( $dialog_border_width ) {
+	$dialog_css_vars[] = '--aa-dialog-border-width: ' . esc_attr( $dialog_border_width );
 }
 $block_border_radius = $normalize_border_radius( $border_style['radius'] ?? '' );
 if ( ! $dialog_border_radius && '' !== $block_border_radius ) {
 	$dialog_css_vars[] = '--aa-dialog-border-radius: ' . esc_attr( $block_border_radius );
+}
+
+// Forward shadow support onto the fixed-position dialog panel.
+$shadow = $style_attr['shadow'] ?? '';
+if ( is_string( $shadow ) && '' !== $shadow ) {
+	if ( str_starts_with( $shadow, 'var:preset|shadow|' ) ) {
+		$shadow_slug = substr( $shadow, strlen( 'var:preset|shadow|' ) );
+		$shadow      = sprintf( 'var(--wp--preset--shadow--%s)', sanitize_title( $shadow_slug ) );
+	}
+	$shadow = $sanitize_css_value( $shadow );
+	if ( $shadow ) {
+		$dialog_css_vars[] = '--aa-dialog-shadow: ' . esc_attr( $shadow );
+	}
 }
 
 $dialog_inline_style = implode( '; ', $dialog_css_vars );
@@ -311,6 +387,7 @@ $backdrop_style = $backdrop_css_vars ? ' style="' . implode( '; ', $backdrop_css
 // Drawer positions exit off-screen via their position transform — JS skips exit animation for them.
 $drawer_positions = array( 'bottom', 'top', 'left', 'right' );
 $is_drawer        = in_array( $position, $drawer_positions, true );
+$enter_animation  = $is_drawer ? 'fade' : $enter_animation;
 
 // Register per-modal state.
 wp_interactivity_state(
@@ -351,9 +428,9 @@ wp_interactivity_state(
 		type="button"
 		data-wp-on--click="actions.openModal"
 		aria-controls="<?php echo esc_attr( $unique_id ); ?>"
-		aria-haspopup="dialog"
-		data-wp-bind--aria-expanded="state.modals[context.id].isOpen"
-		<?php echo aggressive_apparel_trusted_html( $trigger_style ); ?>
+			aria-haspopup="dialog"
+			aria-expanded="false"
+			<?php echo aggressive_apparel_trusted_html( $trigger_style ); ?>
 	>
 		<?php echo esc_html( $trigger_label ); ?>
 	</button>
@@ -387,12 +464,17 @@ wp_interactivity_state(
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="<?php echo esc_attr( $unique_id ); ?>-label"
-			aria-label="<?php echo esc_attr( $trigger_label ); ?>"
 			tabindex="-1"
-			data-wp-on--keydown="actions.handleKeydown"
-			data-exit-animation="<?php echo esc_attr( $is_drawer ? 'none' : $exit_animation ); ?>"
+			data-exit-animation="<?php echo esc_attr( $is_drawer ? 'position' : $exit_animation ); ?>"
 			style="<?php echo esc_attr( $dialog_inline_style ); ?>"
 		>
+			<span
+				id="<?php echo esc_attr( $unique_id ); ?>-label"
+				class="wp-block-aggressive-apparel-modal__dialog-label"
+			>
+				<?php echo esc_html( $trigger_label ); ?>
+			</span>
+
 			<?php if ( $show_close_btn && ! $is_outside ) : ?>
 				<?php echo aggressive_apparel_trusted_html( $close_btn_html ); ?>
 			<?php endif; ?>

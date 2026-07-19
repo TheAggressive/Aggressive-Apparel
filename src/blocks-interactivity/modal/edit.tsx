@@ -547,7 +547,7 @@ export default function Edit({
             <p className='modal-connection-example'>
               {__('Example:', 'aggressive-apparel')}
               <br />
-              <code>{`<a href="#" class="modal-trigger-${modalId}">Open Modal</a>`}</code>
+              <code>{`<button type="button" class="modal-trigger-${modalId}">Open Modal</button>`}</code>
             </p>
             <Button
               variant='secondary'
@@ -967,10 +967,10 @@ export default function Edit({
         <TextControl
           label={__('Padding', 'aggressive-apparel')}
           value={dialogPadding}
-          placeholder='2rem'
+          placeholder='1.5rem'
           onChange={value => setAttributes({ dialogPadding: value })}
           help={__(
-            'e.g. 2rem, 1.5rem 2rem. Leave empty for no padding.',
+            'e.g. 1.5rem, 1.5rem 2rem. Leave empty for the system default (1.5rem). Use 0 for flush content.',
             'aggressive-apparel'
           )}
           __next40pxDefaultSize
@@ -980,10 +980,10 @@ export default function Edit({
         <TextControl
           label={__('Border Radius', 'aggressive-apparel')}
           value={dialogBorderRadius}
-          placeholder='0.5rem'
+          placeholder='var(--aa-radius-panel)'
           onChange={value => setAttributes({ dialogBorderRadius: value })}
           help={__(
-            'Overrides the border radius set in the Border panel above.',
+            'Overrides the panel radius / Border panel. Leave empty for the system panel radius.',
             'aggressive-apparel'
           )}
           __next40pxDefaultSize

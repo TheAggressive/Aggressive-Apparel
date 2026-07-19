@@ -21,6 +21,13 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { lockScroll, unlockScroll } from '../../interactivity/scroll-lock';
 import { setupFocusTrap } from '../../interactivity/helpers';
+import {
+  buildExitAnimation,
+  canRestoreFocus,
+  isExitIntentDismissed,
+  markExitIntentDismissed,
+  shouldSkipOpenOnLoadOnce,
+} from './logic';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +54,6 @@ interface ModalStore {
     init: () => void;
     openModal: () => void;
     closeModal: () => void;
-    handleKeydown: (event?: Event) => void;
   };
 }
 
@@ -61,129 +67,170 @@ interface ModalRefs {
   triggerElement: HTMLElement | null;
   /** Cleanup function returned by setupFocusTrap(); called on close. */
   focusTrapCleanup: (() => void) | null;
+  /** Pending close fallback, cancelled when the modal reopens mid-transition. */
+  closeTimer: ReturnType<typeof setTimeout> | null;
+  /** Active transition listener, retained so rapid reopen can remove it. */
+  transitionEndHandler: ((event: TransitionEvent) => void) | null;
+  /** Whether an exit transition is currently in progress. */
+  isClosing: boolean;
+  /** State collection used by the global Escape handler. */
+  modalsState: Record<string, ModalState>;
 }
 
 /** Per-modal focus and trap state, keyed by modal ID. */
 const modalRefs = new Map<string, ModalRefs>();
 
+/** Open order ensures Escape dismisses only the top-most modal. */
+const modalStack: string[] = [];
+
+/** Avoid duplicate listeners if an Interactivity API root initializes twice. */
+const boundExternalTriggers = new WeakMap<HTMLElement, Set<string>>();
+const initializedModalIds = new Set<string>();
+
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 
 function getShell(id: string): HTMLElement | null {
-  return document.querySelector(
-    `.wp-block-aggressive-apparel-modal__shell[data-modal-id="${id}"]`
+  return (
+    (Array.from(
+      document.getElementsByClassName(
+        'wp-block-aggressive-apparel-modal__shell'
+      )
+    ).find(el => (el as HTMLElement).dataset.modalId === id) as
+      | HTMLElement
+      | undefined) ?? null
   );
 }
 
 function getDialog(id: string): HTMLElement | null {
-  return document.querySelector(
-    `#${id}.wp-block-aggressive-apparel-modal__dialog`
-  );
+  const dialog = document.getElementById(id);
+  return dialog?.classList.contains('wp-block-aggressive-apparel-modal__dialog')
+    ? dialog
+    : null;
 }
 
 function getAnnouncer(id: string): HTMLElement | null {
-  return document.querySelector(
-    `.wp-block-aggressive-apparel-modal__announcer[data-modal-id="${id}"]`
+  const shell = getShell(id);
+  const announcer = shell?.parentElement?.querySelector<HTMLElement>(
+    '.wp-block-aggressive-apparel-modal__announcer'
   );
+  return announcer?.dataset.modalId === id ? announcer : null;
+}
+
+function getExternalTriggers(id: string): HTMLElement[] {
+  const classHolders = Array.from(
+    document.getElementsByClassName(`modal-trigger-${id}`)
+  ).filter((element): element is HTMLElement => element instanceof HTMLElement);
+  const targets = new Set<HTMLElement>();
+
+  classHolders.forEach(holder => {
+    if (
+      holder.matches(
+        'button, a[href], input:not([type="hidden"]), select, textarea'
+      )
+    ) {
+      targets.add(holder);
+      return;
+    }
+
+    const nestedControls = holder.querySelectorAll<HTMLElement>(
+      'button, a[href], input:not([type="hidden"]), select, textarea'
+    );
+    if (nestedControls.length > 0) {
+      nestedControls.forEach(control => targets.add(control));
+    } else {
+      targets.add(holder);
+    }
+  });
+
+  return Array.from(targets);
+}
+
+function getBuiltInTrigger(id: string): HTMLElement | null {
+  return (
+    getShell(id)?.parentElement?.querySelector<HTMLElement>(
+      '.wp-block-aggressive-apparel-modal__trigger'
+    ) ?? null
+  );
+}
+
+/**
+ * Keep built-in and external trigger ARIA in sync.
+ */
+function syncTriggerExpanded(id: string, isOpen: boolean): void {
+  const expanded = isOpen ? 'true' : 'false';
+  getBuiltInTrigger(id)?.setAttribute('aria-expanded', expanded);
+  getExternalTriggers(id).forEach(el => {
+    el.setAttribute('aria-expanded', expanded);
+  });
+}
+
+/**
+ * Bind click / keyboard open behavior and dialog ARIA on external triggers.
+ */
+function bindExternalTrigger(
+  el: HTMLElement,
+  id: string,
+  modalsState: Record<string, ModalState>
+): void {
+  const boundIds = boundExternalTriggers.get(el) ?? new Set<string>();
+  if (boundIds.has(id)) return;
+  boundIds.add(id);
+  boundExternalTriggers.set(el, boundIds);
+
+  el.setAttribute('aria-haspopup', 'dialog');
+  el.setAttribute('aria-controls', id);
+  el.setAttribute('aria-expanded', modalsState[id]?.isOpen ? 'true' : 'false');
+
+  const isNativeControl =
+    el instanceof HTMLButtonElement ||
+    el instanceof HTMLInputElement ||
+    el instanceof HTMLSelectElement ||
+    el instanceof HTMLTextAreaElement ||
+    (el instanceof HTMLAnchorElement && el.hasAttribute('href'));
+
+  if (!isNativeControl) {
+    if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+  }
+
+  const open = (event: Event): void => {
+    event.preventDefault();
+    openModal(id, modalsState);
+  };
+
+  el.addEventListener('click', open);
+
+  // Anchors use native Enter activation; Space is added for button parity.
+  // Custom elements receive both Enter and Space activation.
+  if (el.tagName !== 'BUTTON') {
+    el.addEventListener('keydown', (event: KeyboardEvent) => {
+      const isSpace = event.key === ' ' || event.key === 'Spacebar';
+      const isCustomEnter = !isNativeControl && event.key === 'Enter';
+      if ((!isSpace && !isCustomEnter) || event.repeat) {
+        return;
+      }
+      event.preventDefault();
+      openModal(id, modalsState);
+    });
+  }
 }
 
 // ── Exit animation engine ─────────────────────────────────────────────────────
 
-const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
+let cachedDefaultEase: string | null = null;
 
-interface ExitAnimDef {
-  /** Full CSS transition string. */
-  transition: string;
-  /** Inline style properties to apply as the exit target. */
-  styles: Partial<CSSStyleDeclaration>;
-}
-
-function buildExitAnimation(name: string, duration: number): ExitAnimDef {
-  const d = `${duration}ms`;
-  const t = `${d} ${EASE}`;
-
-  // Every exit explicitly sets opacity, transform AND filter so the exit is
-  // fully self-contained. The enter-animation class stays on the dialog during
-  // close; without these explicit resets its leftover transform/filter "before"
-  // state would bleed into the exit (making the exit appear to mirror the enter).
-  switch (name) {
-    case 'slide-up':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: {
-          opacity: '0',
-          transform: 'translateY(-2rem)',
-          filter: 'none',
-        },
-      };
-    case 'slide-down':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'translateY(2rem)', filter: 'none' },
-      };
-    case 'slide-left':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: {
-          opacity: '0',
-          transform: 'translateX(-2rem)',
-          filter: 'none',
-        },
-      };
-    case 'slide-right':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'translateX(2rem)', filter: 'none' },
-      };
-    case 'zoom-out':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'scale(0.9)', filter: 'none' },
-      };
-    case 'zoom-in':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'scale(1.1)', filter: 'none' },
-      };
-    case 'expand':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'scale(0.96)', filter: 'none' },
-      };
-    case 'recede':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'scale(1.04)', filter: 'none' },
-      };
-    case 'pop':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: { opacity: '0', transform: 'scale(0.88)', filter: 'none' },
-      };
-    case 'flip-down':
-      return {
-        transition: `opacity ${t}, transform ${t}`,
-        styles: {
-          opacity: '0',
-          transform: 'perspective(800px) rotateX(80deg)',
-          filter: 'none',
-        },
-      };
-    case 'blur':
-      return {
-        transition: `opacity ${t}, filter ${t}`,
-        styles: { opacity: '0', transform: 'none', filter: 'blur(16px)' },
-      };
-    case 'none':
-      return {
-        transition: 'opacity 0ms',
-        styles: { opacity: '0', transform: 'none', filter: 'none' },
-      };
-    default: // 'fade'
-      return {
-        transition: `opacity ${t}`,
-        styles: { opacity: '0', transform: 'none', filter: 'none' },
-      };
+/** Read theme motion token (--aa-ease-default) for inline exit transitions. */
+function getDefaultEase(): string {
+  if (cachedDefaultEase !== null) {
+    return cachedDefaultEase;
   }
+
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--aa-ease-default')
+    .trim();
+
+  cachedDefaultEase = raw || 'cubic-bezier(0.4, 0, 0.2, 1)';
+  return cachedDefaultEase;
 }
 
 function clearExitStyles(dialog: HTMLElement): void {
@@ -193,22 +240,62 @@ function clearExitStyles(dialog: HTMLElement): void {
   dialog.style.removeProperty('filter');
 }
 
+function removeFromModalStack(id: string): void {
+  let index = modalStack.lastIndexOf(id);
+  while (index !== -1) {
+    modalStack.splice(index, 1);
+    index = modalStack.lastIndexOf(id);
+  }
+}
+
+function cancelPendingClose(dialog: HTMLElement | null, refs: ModalRefs): void {
+  if (refs.closeTimer !== null) {
+    clearTimeout(refs.closeTimer);
+    refs.closeTimer = null;
+  }
+  if (dialog && refs.transitionEndHandler) {
+    dialog.removeEventListener('transitionend', refs.transitionEndHandler);
+  }
+  refs.transitionEndHandler = null;
+  refs.isClosing = false;
+  if (dialog) clearExitStyles(dialog);
+}
+
 // ── Core open / close ─────────────────────────────────────────────────────────
 
 function openModal(id: string, modalsState: Record<string, ModalState>): void {
   if (!id || !modalsState[id]) return;
 
-  modalRefs.set(id, {
-    triggerElement: document.activeElement as HTMLElement | null,
-    focusTrapCleanup: null,
-  });
+  // Avoid re-entrancy when already open (e.g. double Space on a trigger).
+  if (modalsState[id].isOpen) return;
 
-  lockScroll();
+  const dialogEl = getDialog(id);
+  let refs = modalRefs.get(id);
+  if (refs?.isClosing) {
+    // The existing scroll lock belongs to this modal; retain it across a
+    // close/reopen race instead of incrementing the global lock counter.
+    cancelPendingClose(dialogEl, refs);
+    refs.triggerElement = document.activeElement as HTMLElement | null;
+    refs.modalsState = modalsState;
+  } else {
+    refs = {
+      triggerElement: document.activeElement as HTMLElement | null,
+      focusTrapCleanup: null,
+      closeTimer: null,
+      transitionEndHandler: null,
+      isClosing: false,
+      modalsState,
+    };
+    modalRefs.set(id, refs);
+    lockScroll();
+  }
+
+  removeFromModalStack(id);
+  modalStack.push(id);
   document.dispatchEvent(new CustomEvent('aa:modal:open', { detail: { id } }));
 
   // Clear any stale exit-animation inline styles from a previous close so
   // the CSS enter animation starts from a clean state.
-  const dialogEl = getDialog(id);
   if (dialogEl) clearExitStyles(dialogEl);
 
   const shell = getShell(id);
@@ -219,21 +306,28 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
   }
 
   modalsState[id].isOpen = true;
+  syncTriggerExpanded(id, true);
 
   // Announce to screen readers that do not fire on programmatic focus alone.
   const announcer = getAnnouncer(id);
   if (announcer) {
     announcer.textContent = ''; // Clear so re-opening re-triggers aria-live.
     requestAnimationFrame(() => {
-      announcer.textContent = announcer.dataset.label ?? 'Dialog opened';
+      if (modalsState[id]?.isOpen) {
+        announcer.textContent = announcer.dataset.label ?? 'Dialog opened';
+      }
     });
   }
 
   requestAnimationFrame(() => {
     const dialog = getDialog(id);
-    if (dialog) {
-      const refs = modalRefs.get(id);
-      if (refs) refs.focusTrapCleanup = setupFocusTrap(dialog);
+    const shellEl = getShell(id);
+    if (dialog && shellEl && modalsState[id]?.isOpen) {
+      const currentRefs = modalRefs.get(id);
+      // Trap on the shell so outside-* close buttons stay in the Tab cycle.
+      if (currentRefs && !currentRefs.focusTrapCleanup) {
+        currentRefs.focusTrapCleanup = setupFocusTrap(shellEl);
+      }
       // Focus the dialog (tabindex="-1") so screen readers announce
       // "Dialog: [label]" before the user tabs into content.
       dialog.focus();
@@ -242,24 +336,17 @@ function openModal(id: string, modalsState: Record<string, ModalState>): void {
 }
 
 function closeModal(id: string, modalsState: Record<string, ModalState>): void {
-  if (!id || !modalsState[id]) return;
+  if (!id || !modalsState[id]?.isOpen) return;
 
   modalsState[id].isOpen = false;
+  syncTriggerExpanded(id, false);
   document.dispatchEvent(new CustomEvent('aa:modal:close', { detail: { id } }));
 
   const announcer = getAnnouncer(id);
   if (announcer) announcer.textContent = '';
 
   const refs = modalRefs.get(id);
-
-  if (refs?.focusTrapCleanup) {
-    refs.focusTrapCleanup();
-    refs.focusTrapCleanup = null;
-  }
-
-  if (refs?.triggerElement) {
-    refs.triggerElement.focus();
-  }
+  if (refs) refs.isClosing = true;
 
   const duration = modalsState[id].animationDuration ?? 300;
   const shell = getShell(id);
@@ -270,9 +357,18 @@ function closeModal(id: string, modalsState: Record<string, ModalState>): void {
 
   // Apply exit animation via inline styles — completely independent of the CSS
   // enter-animation classes, so enter and exit can be mixed freely.
+  const exitName = dialog?.dataset.exitAnimation ?? 'fade';
+  const reducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+  const effectiveDuration = reducedMotion || exitName === 'none' ? 0 : duration;
+
   if (dialog) {
-    const exitName = dialog.dataset.exitAnimation ?? 'fade';
-    const { transition, styles } = buildExitAnimation(exitName, duration);
+    const { transition, styles } = buildExitAnimation(
+      exitName,
+      effectiveDuration,
+      getDefaultEase()
+    );
     dialog.style.transition = transition;
     Object.assign(dialog.style, styles);
   }
@@ -281,26 +377,62 @@ function closeModal(id: string, modalsState: Record<string, ModalState>): void {
   const finish = (): void => {
     if (done) return;
     done = true;
+    if (refs?.closeTimer !== null && refs?.closeTimer !== undefined) {
+      clearTimeout(refs.closeTimer);
+      refs.closeTimer = null;
+    }
+    if (dialog && refs?.transitionEndHandler) {
+      dialog.removeEventListener('transitionend', refs.transitionEndHandler);
+      refs.transitionEndHandler = null;
+    }
     // Clear inline exit styles so the next open starts from clean CSS state.
     if (dialog) clearExitStyles(dialog);
-    unlockScroll();
     if (shell) shell.hidden = true;
-    modalRefs.delete(id);
+
+    if (refs?.focusTrapCleanup) {
+      refs.focusTrapCleanup();
+      refs.focusTrapCleanup = null;
+    }
+
+    const returnFocus = refs?.triggerElement ?? null;
+    if (canRestoreFocus(returnFocus)) {
+      returnFocus.focus({ preventScroll: true });
+    }
+
+    unlockScroll();
+    removeFromModalStack(id);
+    if (modalRefs.get(id) === refs) modalRefs.delete(id);
   };
 
   if (dialog) {
-    dialog.addEventListener(
-      'transitionend',
-      (e: Event) => {
-        if ((e as TransitionEvent).propertyName === 'opacity') finish();
-      },
-      { once: true }
-    );
+    const handleTransitionEnd = (event: TransitionEvent): void => {
+      if (event.target === dialog && event.propertyName === 'opacity') finish();
+    };
+    if (refs) refs.transitionEndHandler = handleTransitionEnd;
+    dialog.addEventListener('transitionend', handleTransitionEnd);
   }
 
   // Safety fallback: fires if transitionend never occurs (reduced motion, no CSS, etc.).
-  setTimeout(finish, duration + FALLBACK_BUFFER_MS);
+  const closeTimer = setTimeout(finish, effectiveDuration + FALLBACK_BUFFER_MS);
+  if (refs) refs.closeTimer = closeTimer;
 }
+
+/** Escape remains reliable even if focus is moved outside the modal. */
+function handleDocumentKeydown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape' || modalStack.length === 0) return;
+
+  const id = modalStack[modalStack.length - 1];
+  const refs = modalRefs.get(id);
+  if (!refs) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  if (refs.modalsState[id]?.isOpen) {
+    closeModal(id, refs.modalsState);
+  }
+}
+
+document.addEventListener('keydown', handleDocumentKeydown, true);
 
 // ── Auto-trigger registry ─────────────────────────────────────────────────────
 // Add entries here to wire up new automatic open triggers without touching init().
@@ -313,28 +445,6 @@ const AUTO_TRIGGERS: Array<{ flag: keyof ModalState; setup: TriggerSetup }> = [
 ];
 
 // ── Exit intent detection ─────────────────────────────────────────────────────
-
-function getExitIntentKey(id: string): string {
-  return `aa_exit_intent_${id}`;
-}
-
-function isExitIntentDismissed(id: string, reshowDays: number): boolean {
-  try {
-    const ts = localStorage.getItem(getExitIntentKey(id));
-    if (!ts) return false;
-    return Date.now() - parseInt(ts, 10) < reshowDays * 86400000;
-  } catch {
-    return false;
-  }
-}
-
-function markExitIntentDismissed(id: string): void {
-  try {
-    localStorage.setItem(getExitIntentKey(id), String(Date.now()));
-  } catch {
-    // Private browsing or quota exceeded.
-  }
-}
 
 function setupExitIntent(
   id: string,
@@ -388,6 +498,7 @@ function setupScrollDepthTrigger(
   };
 
   window.addEventListener('scroll', handleScroll, { passive: true });
+  requestAnimationFrame(handleScroll);
 }
 
 // ── Store ─────────────────────────────────────────────────────────────────────
@@ -402,28 +513,18 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
       const { id } = getContext<ModalContext>();
       if (!id || !state.modals[id]) return;
 
-      document
-        .querySelectorAll<HTMLElement>(`.modal-trigger-${id}`)
-        .forEach(el => {
-          el.addEventListener('click', (e: Event) => {
-            e.preventDefault();
-            openModal(id, state.modals);
-          });
-        });
+      getBuiltInTrigger(id)?.setAttribute('aria-expanded', 'false');
+      getExternalTriggers(id).forEach(el =>
+        bindExternalTrigger(el, id, state.modals)
+      );
+
+      if (initializedModalIds.has(id)) return;
+      initializedModalIds.add(id);
 
       if (state.modals[id].openOnLoad) {
-        const once = state.modals[id].openOnLoadOnce;
-        const seenKey = `aa_modal_seen_${id}`;
-        let alreadySeen = false;
-        if (once) {
-          try {
-            alreadySeen = !!localStorage.getItem(seenKey);
-            if (!alreadySeen) localStorage.setItem(seenKey, '1');
-          } catch {
-            // Private browsing — treat as not seen.
-          }
+        if (!shouldSkipOpenOnLoadOnce(id, state.modals[id].openOnLoadOnce)) {
+          openModal(id, state.modals);
         }
-        if (!alreadySeen) openModal(id, state.modals);
       }
 
       for (const { flag, setup } of AUTO_TRIGGERS) {
@@ -438,13 +539,6 @@ const { state } = store<ModalStore>('aggressive-apparel/modal', {
 
     closeModal(): void {
       const { id } = getContext<ModalContext>();
-      closeModal(id, state.modals);
-    },
-
-    handleKeydown(event?: Event): void {
-      if ((event as KeyboardEvent)?.key !== 'Escape') return;
-      const { id } = getContext<ModalContext>();
-      event?.preventDefault();
       closeModal(id, state.modals);
     },
   },

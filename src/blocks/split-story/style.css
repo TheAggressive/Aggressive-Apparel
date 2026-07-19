@@ -2,7 +2,13 @@
  *
  * Two dedicated column child blocks (.aa-split-story__media / __content) laid
  * out on a CSS grid. Column placement (not `order`) positions the media so the
- * DOM/reading order — media, then content — is preserved in both variants. */
+ * DOM/reading order — media, then content — is preserved in both variants.
+ *
+ * Media sizing is scoped to the column's OWN media (a direct-child img/video, or
+ * one inside a direct-child figure). It must never use a bare descendant
+ * selector: the media column can hold arbitrary nested blocks — a product
+ * gallery, a slider — and those bring their own sizing that we'd otherwise
+ * stretch and cover-crop. */
 
 .aa-split-story {
   display: grid;
@@ -52,7 +58,8 @@
     height: 100%;
   }
 
-  .aa-split-story--viewport .aa-split-story__media :is(img, video) {
+  .aa-split-story--viewport .aa-split-story__media > :is(img, video),
+  .aa-split-story--viewport .aa-split-story__media > figure :is(img, video) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -68,16 +75,23 @@
 
   .aa-split-story__media {
     grid-row: 1;
+  }
+
+  /* The column's own media fills the width in both height modes. */
+  .aa-split-story__media > :is(img, video),
+  .aa-split-story__media > figure :is(img, video) {
+    width: 100%;
+  }
+
+  /* Viewport media is capped (never a full 100svh on a phone) and cover-crops.
+     Content media keeps its natural height. */
+  .aa-split-story--viewport .aa-split-story__media {
     height: min(60vh, 30rem);
     overflow: hidden;
   }
 
-  .aa-split-story--content .aa-split-story__media {
-    height: auto;
-  }
-
-  .aa-split-story__media :is(img, video) {
-    width: 100%;
+  .aa-split-story--viewport .aa-split-story__media > :is(img, video),
+  .aa-split-story--viewport .aa-split-story__media > figure :is(img, video) {
     height: 100%;
     object-fit: cover;
   }

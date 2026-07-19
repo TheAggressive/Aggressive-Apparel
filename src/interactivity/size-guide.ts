@@ -25,6 +25,7 @@ interface SizeGuideStore {
   actions: {
     toggle: () => void;
     close: () => void;
+    handleKeydown: (event?: Event) => void;
   };
 }
 
@@ -263,6 +264,24 @@ store<SizeGuideStore>('aggressive-apparel/size-guide', {
       }
 
       closeSizeGuide(ctx, overlay, modal);
+    },
+
+    handleKeydown(event?: Event): void {
+      const keyboardEvent = event as KeyboardEvent | undefined;
+      if (keyboardEvent?.key !== 'Escape') {
+        return;
+      }
+
+      const ctx = getContext<SizeGuideContext>();
+      if (!ctx.isOpen) {
+        return;
+      }
+
+      keyboardEvent.preventDefault();
+      const { actions } = store<SizeGuideStore>(
+        'aggressive-apparel/size-guide'
+      );
+      actions.close();
     },
   },
 });

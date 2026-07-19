@@ -54,6 +54,26 @@ class Product_Gallery_Nav {
 	private const STYLE_RELATIVE_PATH = 'build/styles/woocommerce/product-gallery.css';
 
 	/**
+	 * Block name for the gallery thumbnail strip.
+	 */
+	private const THUMBNAILS_BLOCK_NAME = 'woocommerce/product-gallery-thumbnails';
+
+	/**
+	 * Theme stylesheet handle for thumbnail strip overrides.
+	 */
+	private const THUMBNAILS_STYLE_HANDLE = 'aggressive-apparel-product-gallery-thumbnails';
+
+	/**
+	 * WooCommerce parent gallery style handle (carries the thumbnail rules).
+	 */
+	private const WC_GALLERY_STYLE_HANDLE = 'woocommerce-product-gallery-style';
+
+	/**
+	 * Built thumbnail CSS path relative to the theme root.
+	 */
+	private const THUMBNAILS_STYLE_RELATIVE_PATH = 'build/styles/woocommerce/product-gallery-thumbnails.css';
+
+	/**
 	 * Icon pixel size for gallery navigation buttons.
 	 */
 	private const ICON_SIZE = 22;
@@ -74,25 +94,41 @@ class Product_Gallery_Nav {
 	 * @return void
 	 */
 	public function register_block_styles(): void {
-		$style_path = $this->get_style_path();
+		$style_path = $this->get_style_path( self::STYLE_RELATIVE_PATH );
 
-		if ( null === $style_path ) {
-			return;
+		if ( null !== $style_path ) {
+			wp_enqueue_block_style(
+				self::BLOCK_NAME,
+				array(
+					'handle' => self::STYLE_HANDLE,
+					'src'    => AGGRESSIVE_APPAREL_URI . '/' . self::STYLE_RELATIVE_PATH,
+					'path'   => $style_path,
+					'deps'   => array(
+						Asset_Loader::TOKENS_HANDLE,
+						self::WC_STYLE_HANDLE,
+					),
+					'ver'    => (string) filemtime( $style_path ),
+				)
+			);
 		}
 
-		wp_enqueue_block_style(
-			self::BLOCK_NAME,
-			array(
-				'handle' => self::STYLE_HANDLE,
-				'src'    => AGGRESSIVE_APPAREL_URI . '/' . self::STYLE_RELATIVE_PATH,
-				'path'   => $style_path,
-				'deps'   => array(
-					Asset_Loader::TOKENS_HANDLE,
-					self::WC_STYLE_HANDLE,
-				),
-				'ver'    => (string) filemtime( $style_path ),
-			)
-		);
+		$thumbnails_path = $this->get_style_path( self::THUMBNAILS_STYLE_RELATIVE_PATH );
+
+		if ( null !== $thumbnails_path ) {
+			wp_enqueue_block_style(
+				self::THUMBNAILS_BLOCK_NAME,
+				array(
+					'handle' => self::THUMBNAILS_STYLE_HANDLE,
+					'src'    => AGGRESSIVE_APPAREL_URI . '/' . self::THUMBNAILS_STYLE_RELATIVE_PATH,
+					'path'   => $thumbnails_path,
+					'deps'   => array(
+						Asset_Loader::TOKENS_HANDLE,
+						self::WC_GALLERY_STYLE_HANDLE,
+					),
+					'ver'    => (string) filemtime( $thumbnails_path ),
+				)
+			);
+		}
 	}
 
 	/**
@@ -110,12 +146,13 @@ class Product_Gallery_Nav {
 	}
 
 	/**
-	 * Absolute path to the built gallery nav stylesheet, if it exists.
+	 * Absolute path to a built gallery stylesheet, if it exists.
 	 *
+	 * @param string $relative_path Theme-relative path to the built stylesheet.
 	 * @return string|null Theme path or null when the build artifact is missing.
 	 */
-	private function get_style_path(): ?string {
-		$style_path = AGGRESSIVE_APPAREL_DIR . '/' . self::STYLE_RELATIVE_PATH;
+	private function get_style_path( string $relative_path ): ?string {
+		$style_path = AGGRESSIVE_APPAREL_DIR . '/' . $relative_path;
 
 		return file_exists( $style_path ) ? $style_path : null;
 	}

@@ -42,14 +42,13 @@
 		max-height: 85vh;
 	}
 
-	/* Size guide: slide-up only (no scale), wider panel. */
+	/* Size guide: slide-up only (no scale). */
 	&--guide {
 		width: min(90vw, var(--aa-panel-width-guide));
+		height: fit-content;
 		max-height: 85vh;
 		overflow-y: auto;
-		box-shadow:
-			var(--aa-shadow-panel),
-			0 0 0 1px var(--aa-color-border-subtle);
+		box-shadow: var(--aa-shadow-panel);
 		opacity: 1;
 		transform: translateY(20px);
 		transition: transform var(--aa-duration-normal) var(--aa-ease-default);

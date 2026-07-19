@@ -69,7 +69,13 @@ aa_i18n_normalize_pot() {
 	local src="$1"
 	local dest="$2"
 
+	# Project-Id-Version carries the theme version, which semantic-release bumps
+	# on every release without regenerating the committed POT — so the header
+	# lags by one version and would otherwise flag as drift on the next push.
+	# It is a version stamp, not translatable content; normalize it away like
+	# the other volatile headers below.
 	sed -E \
+		-e 's/^"Project-Id-Version: .+\\n"$/"Project-Id-Version: Aggressive Apparel\\n"/' \
 		-e 's/^"POT-Creation-Date: .+\\n"$/"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n"/' \
 		-e 's/^"PO-Revision-Date: .+\\n"$/"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"/' \
 		-e 's/^"X-Generator: .+\\n"$/"X-Generator: WP-CLI\\n"/' \

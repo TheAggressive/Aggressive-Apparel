@@ -62,6 +62,14 @@ jobs:
       - name: Run JS tests
         run: pnpm test:js
 
+      # Production-scoped tripwire. The theme ships zero runtime npm deps, so
+      # this is clean by construction today and only fails if a *shipped*
+      # dependency (added to `dependencies`) carries a high/critical advisory.
+      # Dev-tooling advisories (the transitive-noise source) are excluded by
+      # --prod and are intentionally not gated here.
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high
+
   lint-php:
     name: 🔍 Lint PHP
     runs-on: ubuntu-latest
@@ -95,6 +103,14 @@ jobs:
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --verbose
+
+      # Informational: the theme has no runtime PHP dependencies (composer
+      # `require` is just php>=8.0), so this only ever reports on dev tooling.
+      # Non-blocking so a build-tool advisory can't break a release, but it
+      # keeps the advisory visible in the job log.
+      - name: Audit PHP dependencies (informational)
+        run: composer audit
+        continue-on-error: true
 
   # ============================================================================
   # i18n: POT drift + PO validity + translators-comment lint

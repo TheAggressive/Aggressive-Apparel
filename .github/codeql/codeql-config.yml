@@ -1,0 +1,18 @@
+name: 'Aggressive Apparel CodeQL config'
+
+# Scan only authored source. Compiled output (build/), dependencies
+# (node_modules/, vendor/), and generated manifests carry no fixable
+# findings and only add noise.
+paths:
+  - src
+paths-ignore:
+  - build
+  - node_modules
+  - vendor
+  - '**/*.min.js'
+  - '**/*.asset.php'
+
+# Default query suite (security + quality, high-signal). Swap to
+# `security-extended` for broader coverage at the cost of more noise.
+queries:
+  - uses: security-and-quality

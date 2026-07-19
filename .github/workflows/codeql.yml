@@ -1,0 +1,54 @@
+name: CodeQL
+
+# Static analysis of the theme's authored TypeScript/JavaScript. CodeQL does
+# not support PHP — PHP static analysis is handled by PHPStan in the CI/CD
+# Pipeline workflow. This scans YOUR code for vulnerability patterns; it does
+# NOT scan dependencies (that is Dependabot), so it produces no transitive
+# dependency noise.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Weekly baseline scan (Mondays 06:17 UTC) so new advisories in CodeQL's
+    # own query packs surface even when code hasn't changed.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+# Least privilege: CodeQL only needs to read code and upload results.
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (JavaScript/TypeScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'

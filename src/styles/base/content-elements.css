@@ -1,76 +1,78 @@
 /**
  * Semantic Content Elements
  *
- * A low-specificity baseline for raw/classic HTML inside Post Content. Core
- * block defaults live in theme.json; these rules cover markup without block
- * wrappers and the nested elements theme.json cannot target.
+ * A low-specificity baseline for raw/classic HTML inside Post Content and
+ * product-tab bodies (.aa-product-info__content). Core block defaults live in
+ * theme.json; these rules cover markup without block wrappers and the nested
+ * elements theme.json cannot target.
  *
  * @package Aggressive_Apparel
  */
 
-.wp-block-post-content {
+:is(.wp-block-post-content, .aa-product-info__content) {
 	overflow-wrap: break-word;
 }
 
-.wp-block-post-content.wp-block-post-content > :where(h1, h2, h3):not(:first-child) {
+:is(.wp-block-post-content, .aa-product-info__content):is(.wp-block-post-content, .aa-product-info__content) > :where(h1, h2, h3):not(:first-child) {
 	margin-block-start: var(--wp--preset--spacing--10);
 }
 
-.wp-block-post-content.wp-block-post-content > :where(h4, h5, h6):not(:first-child) {
+:is(.wp-block-post-content, .aa-product-info__content):is(.wp-block-post-content, .aa-product-info__content) > :where(h4, h5, h6):not(:first-child) {
 	margin-block-start: var(--wp--preset--spacing--8);
 }
 
-.wp-block-post-content > :where(ul, ol),
-.wp-block-post-content > :where(ul, ol) :where(ul, ol) {
+/* Exclude product-tab layout lists (feature cards, icon lists, etc.). */
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist),
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(ul, ol) {
 	padding-inline-start: var(--wp--preset--spacing--7);
 }
 
-.wp-block-post-content > :where(ul),
-.wp-block-post-content > :where(ul) :where(ul) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul):not(.aa-product-tab-layout, .commentlist),
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul):not(.aa-product-tab-layout, .commentlist) :where(ul) {
 	list-style: disc;
 }
 
-.wp-block-post-content > :where(ol),
-.wp-block-post-content > :where(ol) :where(ol) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ol):not(.aa-product-tab-layout, .commentlist),
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ol):not(.aa-product-tab-layout, .commentlist) :where(ol) {
 	list-style: decimal;
 }
 
-.wp-block-post-content > :where(ul, ol) :where(ul) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(ul) {
 	list-style-type: circle;
 }
 
-.wp-block-post-content > :where(ul, ol) :where(ol) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(ol) {
 	list-style-type: lower-alpha;
 }
 
-.wp-block-post-content > :where(ul, ol) :where(ul, ol) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(ul, ol) {
 	margin-block: var(--wp--preset--spacing--2) 0;
 }
 
-.wp-block-post-content > :where(ul, ol) :where(li) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(li) {
 	padding-inline-start: var(--wp--preset--spacing--1);
 }
 
-.wp-block-post-content > :where(ul, ol) :where(li + li) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(li + li) {
 	margin-block-start: var(--wp--preset--spacing--2);
 }
 
-.wp-block-post-content > :where(ul, ol) :where(li)::marker {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(ul, ol):not(.aa-product-tab-layout, .commentlist) :where(li)::marker {
 	color: var(--aa-color-accent);
 	font-weight: 700;
 }
 
-.wp-block-post-content > :where(dl) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(dl) {
 	display: grid;
 	gap: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
 	grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
 }
 
-.wp-block-post-content > :where(dl) :where(dt) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(dl) :where(dt) {
 	font-weight: 700;
 }
 
-.wp-block-post-content > :where(dl) :where(dd) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(dl) :where(dd) {
 	min-width: 0;
 	margin: 0;
 	padding-inline-start: var(--wp--preset--spacing--4);
@@ -78,8 +80,8 @@
 	color: var(--aa-color-foreground-muted);
 }
 
-.wp-block-post-content > :where(blockquote),
-.wp-block-post-content > .wp-block-quote {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(blockquote),
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-quote {
 	margin-inline: 0;
 	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--6);
 	border-inline-start: 4px solid var(--aa-color-accent);
@@ -88,23 +90,24 @@
 	line-height: 1.5;
 }
 
-.wp-block-post-content > :where(blockquote) > :first-child,
-.wp-block-post-content > .wp-block-quote > :first-child {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(blockquote) > :first-child,
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-quote > :first-child {
 	margin-block-start: 0;
 }
 
-.wp-block-post-content > :where(blockquote) > :last-child,
-.wp-block-post-content > .wp-block-quote > :last-child {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(blockquote) > :last-child,
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-quote > :last-child {
 	margin-block-end: 0;
 }
 
-.wp-block-post-content :where(cite) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(cite) {
 	color: var(--aa-color-foreground-muted);
 	font-size: var(--wp--preset--font-size--small);
 	font-style: normal;
 	font-weight: 500;
 }
 
+/* Blog/post tables only — WooCommerce .shop_attributes is styled in product-tabs. */
 .wp-block-post-content > :where(table),
 .wp-block-post-content > .wp-block-table {
 	display: block;
@@ -164,7 +167,7 @@
 	border-block-end: 0;
 }
 
-.wp-block-post-content :where(caption, figcaption) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(caption, figcaption) {
 	margin-block-start: var(--wp--preset--spacing--2);
 	color: var(--aa-color-foreground-muted);
 	font-size: var(--wp--preset--font-size--small);
@@ -172,9 +175,9 @@
 	text-align: start;
 }
 
-.wp-block-post-content > :where(pre),
-.wp-block-post-content > .wp-block-code,
-.wp-block-post-content > .wp-block-preformatted {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(pre),
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-code,
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-preformatted {
 	max-width: 100%;
 	padding: var(--wp--preset--spacing--5) var(--wp--preset--spacing--6);
 	overflow-x: auto;
@@ -189,7 +192,7 @@
 	white-space: pre;
 }
 
-.wp-block-post-content :where(code, kbd, samp, tt) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(code, kbd, samp, tt) {
 	border: 1px solid var(--aa-color-border-default);
 	border-radius: var(--aa-radius-sm);
 	background-color: var(--aa-color-hover-default);
@@ -197,11 +200,11 @@
 	font-size: 0.875em;
 }
 
-.wp-block-post-content :where(code, samp, tt) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(code, samp, tt) {
 	padding: 0.1em 0.35em;
 }
 
-.wp-block-post-content :where(kbd) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(kbd) {
 	padding: 0.15em 0.4em;
 	border-bottom-width: 2px;
 	box-shadow: var(--aa-shadow-sm);
@@ -209,7 +212,7 @@
 	white-space: nowrap;
 }
 
-.wp-block-post-content :where(pre) :where(code, kbd, samp) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(pre) :where(code, kbd, samp) {
 	padding: 0;
 	border: 0;
 	border-radius: 0;
@@ -218,14 +221,14 @@
 	font-size: inherit;
 }
 
-.wp-block-post-content :where(abbr[title], acronym[title]) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(abbr[title], acronym[title]) {
 	text-decoration: underline dotted;
 	text-decoration-thickness: 1px;
 	text-underline-offset: 0.2em;
 	cursor: help;
 }
 
-.wp-block-post-content > :where(address) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(address) {
 	padding: var(--wp--preset--spacing--4);
 	border-inline-start: 2px solid var(--aa-color-border-default);
 	color: var(--aa-color-foreground-muted);
@@ -233,71 +236,71 @@
 	line-height: 1.65;
 }
 
-.wp-block-post-content :where(mark) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(mark) {
 	padding-inline: 0.15em;
 	background-color: var(--aa-color-warning-bg);
 	color: var(--aa-color-foreground);
 }
 
-.wp-block-post-content :where(ins, u) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(ins, u) {
 	text-decoration-color: var(--aa-color-accent);
 	text-decoration-thickness: 0.1em;
 	text-underline-offset: 0.15em;
 }
 
-.wp-block-post-content :where(del, s) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(del, s) {
 	color: var(--aa-color-foreground-muted);
 }
 
-.wp-block-post-content :where(q) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(q) {
 	font-style: italic;
 }
 
-.wp-block-post-content :where(small) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(small) {
 	color: var(--aa-color-foreground-muted);
 	font-size: var(--wp--preset--font-size--small);
 }
 
-.wp-block-post-content :where(var) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(var) {
 	font-family: var(--font-mono);
 	font-style: italic;
 }
 
-.wp-block-post-content > :where(hr),
-.wp-block-post-content > .wp-block-separator {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(hr),
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-separator {
 	height: 1px;
 	border: 0;
 	background-color: var(--aa-color-border);
 }
 
-.wp-block-post-content > :where(details),
-.wp-block-post-content > .wp-block-details {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(details),
+:is(.wp-block-post-content, .aa-product-info__content) > .wp-block-details {
 	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--5);
 	border: 1px solid var(--aa-color-border-default);
 	border-radius: var(--aa-radius-control);
 	background-color: var(--aa-color-surface-elevated);
 }
 
-.wp-block-post-content :where(summary) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(summary) {
 	cursor: pointer;
 	font-weight: 700;
 }
 
-.wp-block-post-content :where(details[open] > summary) {
+:is(.wp-block-post-content, .aa-product-info__content) :where(details[open] > summary) {
 	margin-block-end: var(--wp--preset--spacing--4);
 }
 
-.wp-block-post-content > :where(figure) {
+:is(.wp-block-post-content, .aa-product-info__content) > :where(figure) {
 	margin-inline: 0;
 }
 
 @media (width < 600px) {
 
-	.wp-block-post-content > :where(dl) {
+	:is(.wp-block-post-content, .aa-product-info__content) > :where(dl) {
 		grid-template-columns: 1fr;
 	}
 
-	.wp-block-post-content > :where(dl) :where(dd) {
+	:is(.wp-block-post-content, .aa-product-info__content) > :where(dl) :where(dd) {
 		margin-block-end: var(--wp--preset--spacing--3);
 	}
 }

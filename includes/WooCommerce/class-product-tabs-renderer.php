@@ -86,7 +86,7 @@ class Product_Tabs_Renderer {
 				'<span>%s</span>' .
 				'<svg class="aa-product-info__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' .
 				'</summary>' .
-				'<div class="aa-product-info__content">%s</div>' .
+				'<div class="aa-product-info__content is-layout-flow">%s</div>' .
 				'</details>',
 				esc_attr( $tab['id'] ),
 				$open,
@@ -112,7 +112,7 @@ class Product_Tabs_Renderer {
 		foreach ( $tabs as $tab ) {
 			$heading = $hide_titles ? '' : sprintf( '<h3 class="aa-product-info__heading">%s</h3>', esc_html( $tab['title'] ) );
 			$html   .= sprintf(
-				'<section class="aa-product-info__section" id="pi-%s">%s<div class="aa-product-info__content">%s</div></section>',
+				'<section class="aa-product-info__section" id="pi-%s">%s<div class="aa-product-info__content is-layout-flow">%s</div></section>',
 				esc_attr( $tab['id'] ),
 				$heading,
 				$this->content->kses_tab_content( $tab['content'] ),
@@ -167,7 +167,7 @@ class Product_Tabs_Renderer {
 				'class="aa-product-info__tab-panel" ' .
 				'data-wp-context=\'%s\' ' .
 				'data-wp-bind--hidden="!state.isPanelVisible"%s>' .
-				'<div class="aa-product-info__content">%s</div>' .
+				'<div class="aa-product-info__content is-layout-flow">%s</div>' .
 				'</div>',
 				esc_attr( $tab['id'] ),
 				esc_attr( $tab['id'] ),
@@ -219,7 +219,7 @@ class Product_Tabs_Renderer {
 		foreach ( $tabs as $tab ) {
 			$heading = $hide_titles ? '' : sprintf( '<h3 class="aa-product-info__heading">%s</h3>', esc_html( $tab['title'] ) );
 			$html   .= sprintf(
-				'<section id="pi-%s" class="aa-product-info__section">%s<div class="aa-product-info__content">%s</div></section>',
+				'<section id="pi-%s" class="aa-product-info__section">%s<div class="aa-product-info__content is-layout-flow">%s</div></section>',
 				esc_attr( $tab['id'] ),
 				$heading,
 				$this->content->kses_tab_content( $tab['content'] ),

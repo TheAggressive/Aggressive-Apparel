@@ -311,6 +311,20 @@
 	margin-bottom: 0;
 }
 
+.aa-custom-tabs-preview .aa-product-info__content > :where(p, ul, ol) + :where(p, ul, ol) {
+	margin-block-start: 1rem;
+}
+
+.aa-custom-tabs-preview .aa-product-info__content > :where(ul):not(.aa-product-tab-layout) {
+	padding-inline-start: 1.25rem;
+	list-style: disc;
+}
+
+.aa-custom-tabs-preview .aa-product-info__content > :where(ol):not(.aa-product-tab-layout) {
+	padding-inline-start: 1.25rem;
+	list-style: decimal;
+}
+
 .aa-custom-tabs-preview .aa-product-tab-layout {
 	margin-block: 1rem 0;
 	padding: 0;

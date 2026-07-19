@@ -1,2 +1,4 @@
 export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-pnpm run format:fix && pnpm run lint:js:fix && pnpm run qa
+# Fast, per-commit autofix only. The heavy suite (tests + full lint +
+# PHPStan) runs on pre-push and in CI — see .husky/pre-push.
+pnpm run format:fix && pnpm run lint:js:fix

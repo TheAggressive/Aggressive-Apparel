@@ -674,13 +674,17 @@ Uses [Conventional Commits](https://www.conventionalcommits.org/):
 - `test:` Tests
 - `chore:` Maintenance
 
-### Pre-commit Hooks
+### Git Hooks
 
-Husky runs `pnpm precommit` which executes:
+Husky splits checks across two hooks so commits stay fast and the heavy
+gate runs before code leaves the machine:
 
-- Format fixes
-- Lint fixes
-- Commitlint validation
+- **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
+- **`commit-msg`**: commitlint validation (Conventional Commits).
+- **`pre-push`** (heavy, before push): `pnpm qa` = full test suite (JS + PHP)
+  + `lint:all` + PHPStan. Mirrors the CI gate; needs wp-env running
+  (`pnpm env:start`) for the PHP tests. Bypass a known-good push with
+  `git push --no-verify` (CI still enforces it).
 
 ### Semantic Release
 

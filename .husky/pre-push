@@ -1,0 +1,5 @@
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+# Heavy gate, kept off the commit path so commits stay fast. Mirrors the
+# CI gate: full test suite (JS + PHP), all linters, typecheck, PHPStan.
+# Requires wp-env running for the PHP tests (pnpm env:start).
+pnpm run qa

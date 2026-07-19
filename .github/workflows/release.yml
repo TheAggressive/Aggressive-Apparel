@@ -147,11 +147,21 @@ jobs:
           LATEST_COMMIT=$(git log -1 --pretty=format:"%s")
           echo "Latest commit: $LATEST_COMMIT"
 
-          if echo "$LATEST_COMMIT" | grep -qE '^(feat|fix|perf)!?:|^(feat|fix|perf).*BREAKING CHANGE'; then
+          # Fast pre-gate to skip the package/release jobs on non-release
+          # commits. This must mirror the release rules in .releaserc.json
+          # (default Angular preset: feat -> minor, fix/perf -> patch,
+          # everything else -> no release). Keep the two in sync; if you ever
+          # add custom `releaseRules` there, replace this grep with a
+          # `semantic-release --dry-run` so there is a single source of truth.
+          #
+          # The optional `(scope)` and `!` groups matter: without them a
+          # scoped commit like `feat(i18n):` fails the match and is silently
+          # skipped even though semantic-release would release it.
+          if echo "$LATEST_COMMIT" | grep -qE '^(feat|fix|perf)(\([^)]+\))?!?:'; then
             echo "Release-triggering commit detected"
             echo "should_release=true" >> $GITHUB_OUTPUT
           else
-            echo "Non-release commit (docs/style/refactor/test/etc)"
+            echo "Non-release commit (docs/style/refactor/test/chore/ci/etc)"
             echo "should_release=false" >> $GITHUB_OUTPUT
           fi
 

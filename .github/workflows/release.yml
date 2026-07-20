@@ -404,7 +404,10 @@ jobs:
             '/vendor/'
             'playwright\.config\.ts'
             'pnpm-workspace\.yaml'
-            '/page\.html'
+            # Root-anchored: the packaging step rm's a stray root-level
+            # page.html. An unanchored '/page\.html' also matches
+            # templates/page.html — a required FSE template that must ship.
+            'aggressive-apparel/page\.html$'
           )
           ZIP_LIST=$(unzip -l aggressive-apparel.zip)
           FAILED=0

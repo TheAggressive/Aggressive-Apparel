@@ -12,7 +12,7 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 - **19 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
 - **40 custom blocks** — 34 Interactivity API blocks + 6 static Gutenberg blocks
 - **Interactivity API** — client-side reactivity without a separate JavaScript framework
-- **Automatic updates** — GitHub release-based update system with ETag caching
+- **Automatic updates** — GitHub release-based update system with ETag caching and SHA-256 package verification
 - **Accessible** — WCAG 2.2 AA compliance targets, 44px touch targets, `prefers-reduced-motion` support
 - **Secure** — security headers, nonce verification, output escaping, capability checks
 - **Performance** — deferred scripts, conditional asset loading, Speculation Rules API prefetch
@@ -82,7 +82,7 @@ pnpm qa
 | `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
 | `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
-| `pnpm qa`                  | Tests + lint + PHPStan                                                |
+| `pnpm qa`                  | i18n check + tests + lint + PHPStan (the pre-push gate; mirrors CI)   |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
 | `pnpm env:start`           | Start wp-env (port 9910)                                              |
 | `pnpm env:stop`            | Stop wp-env                                                           |
@@ -236,12 +236,15 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-lint-frontend ∥ lint-php → build → test (all PHPUnit suites) → package → semantic-release (feat/fix/perf only)
+lint-frontend ∥ lint-php ∥ i18n → build → test (all PHPUnit suites) → package → semantic-release (feat/fix/perf only) → verify release assets
 ```
 
 - **Quality checks** run on every push and pull request
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
-- **Pre-commit hook** (Husky): `format:fix` → `lint:js:fix` → `qa`
+- **Git hooks** (Husky) — split so commits stay fast:
+  - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
+  - `commit-msg`: commitlint (Conventional Commits)
+  - `pre-push`: `pnpm qa` — the full gate; needs wp-env running (`pnpm env:start`). Bypass a known-good push with `git push --no-verify` (CI still enforces it).
 
 ### Versioning (what stays in sync on release)
 
@@ -255,6 +258,12 @@ semantic-release (see `.releaserc.json`) automatically bumps and commits:
 | Release ZIP + `.sha256` | Yes — version stamped inside the packaged `style.css` |
 | `README.md` / `CLAUDE.md` | **No** — do not hardcode the theme version here |
 | Per-block `block.json` `version` | **No** — independent of theme releases |
+
+Both release assets are **required**: `Core\Theme_Updates` verifies the package
+against the `.sha256` sidecar and offers no update at all when it is missing, so
+a partial upload silently stops every install from seeing the release. The
+release job runs `bin/release/verify-assets.sh` afterwards, which re-uploads a
+missing asset and fails the build if it still is.
 
 When docs mention inventory (block counts, pattern counts, feature lists), update those in the same PR that changes the inventory — not as part of the release job.
 

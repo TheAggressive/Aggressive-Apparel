@@ -482,6 +482,14 @@ jobs:
           HUSKY: 0
         run: pnpm semantic-release
 
+      # A flaky asset upload can publish a release whose .sha256 sidecar is
+      # missing, which stops Core\Theme_Updates offering the update to any
+      # site. Re-upload and fail loudly rather than ship that silently.
+      - name: Verify release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash bin/release/verify-assets.sh
+
   # ============================================================================
   # Summary
   # ============================================================================

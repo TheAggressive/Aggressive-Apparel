@@ -5,12 +5,12 @@ Domain Path: `/languages`
 
 ## Who does what
 
-| Role | Action |
-|------|--------|
-| Developers | Wrap UI strings in `__()` / `@wordpress/i18n`; run `pnpm i18n:pot` when strings change |
-| MT + you | CI fills `.po` drafts; you review the PR (never edit `.mo` / `.json` by hand) |
-| Release CI | Runs `pnpm i18n:compile` before the theme ZIP |
-| Deploy / runtime | WordPress only **loads** compiled catalogs for the site language |
+| Role             | Action                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| Developers       | Wrap UI strings in `__()` / `@wordpress/i18n`; run `pnpm i18n:pot` when strings change |
+| MT + you         | CI fills `.po` drafts; you review the PR (never edit `.mo` / `.json` by hand)          |
+| Release CI       | Runs `pnpm i18n:compile` before the theme ZIP                                          |
+| Deploy / runtime | WordPress only **loads** compiled catalogs for the site language                       |
 
 `pnpm build` is asset-only and does **not** run i18n.
 
@@ -23,7 +23,7 @@ pnpm i18n:sync                # Merge pot into every .po (fuzzy-safe)
 pnpm i18n:compile             # Build .mo + Jed .json for classic scripts
 pnpm i18n:status              # Coverage table (optional: --fail-under=80)
 pnpm i18n:check               # CI gate: pot drift + PO validity + translators lint
-pnpm i18n:translate           # Sync + MT empty/fuzzy (MyMemory; DeepL backup if key)
+pnpm i18n:translate           # Sync + MT empty/fuzzy (DeepL; MyMemory fallback)
 pnpm i18n                     # pot → sync → compile → status
 ```
 
@@ -34,22 +34,39 @@ Requires WP-CLI (`wp`) with the i18n package, **or** a running `wp-env` (scripts
 ## Happy path (new locale) — no manual typing
 
 1. `pnpm i18n:locale -- fr_FR` and commit the empty `.po`
-2. (Optional) Add GitHub secret `DEEPL_AUTH_KEY` for backup when MyMemory rate-limits
+2. (Recommended) Add GitHub secret `DEEPL_AUTH_KEY` — without it MT falls back to MyMemory, which is noticeably rougher
 3. Push a pot change (or run **Actions → 🌐 i18n MT Drafts**)
 4. Merge the draft PR after a quick skim of cart / nav / shipping
 5. Release compiles catalogs (`pnpm i18n:compile`); set **Site Language** in WordPress
 
-## Automated MT drafts (MyMemory default, PR-only)
+## Automated MT drafts (DeepL default, PR-only)
 
-| Order | Provider | When |
-|-------|----------|------|
-| 1 (default) | **MyMemory** | Always tried first — free, no key |
-| 2 (backup) | **DeepL** | Only if MyMemory fails **and** `DEEPL_AUTH_KEY` is set |
+Default mode is `auto`:
 
-| Secret | Purpose |
-|--------|---------|
-| `DEEPL_AUTH_KEY` | Optional backup (or force with `I18N_MT_PROVIDER=deepl`) |
-| `I18N_MT_EMAIL` | Optional MyMemory daily-quota bump |
+| Order        | Provider     | When                                                      |
+| ------------ | ------------ | --------------------------------------------------------- |
+| 1 (default)  | **DeepL**    | Whenever `DEEPL_AUTH_KEY` is set                          |
+| 2 (fallback) | **MyMemory** | If DeepL fails (bad key, quota, outage), or no key is set |
+
+DeepL leads on quality because MyMemory is a translation-memory _aggregator_: it
+returns whole-segment matches from unrelated corpora, so short UI labels come
+back with punctuation and phrasing the source never had (a bare
+`Measurements in inches` returned as `Le misure sono rappresentate in pollici.`).
+Always skim MT output regardless of provider — every filled entry is tagged
+`#, aa-mt` with a `review before release` comment.
+
+Override with `I18N_MT_PROVIDER`:
+
+| Value              | Behavior                                                      |
+| ------------------ | ------------------------------------------------------------- |
+| `auto` _(default)_ | DeepL first, MyMemory fallback; MyMemory-only with no key     |
+| `mymemory`         | MyMemory first, DeepL only if MyMemory fails and a key exists |
+| `deepl`            | DeepL only — hard-fails without `DEEPL_AUTH_KEY`, no fallback |
+
+| Secret           | Purpose                                                        |
+| ---------------- | -------------------------------------------------------------- |
+| `DEEPL_AUTH_KEY` | Enables DeepL (primary in `auto`); free-tier keys end in `:fx` |
+| `I18N_MT_EMAIL`  | Optional MyMemory daily-quota bump (fallback path)             |
 
 **Local secrets (gitignored):**
 
@@ -78,11 +95,11 @@ Only **empty** or **fuzzy** strings are filled. Entries get an `aa-mt` flag.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `aggressive-apparel.pot` | Source catalog (committed; keep in sync with code) |
-| `aggressive-apparel-<locale>.po` | Locale drafts / reviewed strings (committed) |
-| `aggressive-apparel-<locale>.mo` | Compiled PHP catalog (**gitignored**; `i18n:compile`) |
+| File                                 | Purpose                                                  |
+| ------------------------------------ | -------------------------------------------------------- |
+| `aggressive-apparel.pot`             | Source catalog (committed; keep in sync with code)       |
+| `aggressive-apparel-<locale>.po`     | Locale drafts / reviewed strings (committed)             |
+| `aggressive-apparel-<locale>.mo`     | Compiled PHP catalog (**gitignored**; `i18n:compile`)    |
 | `aggressive-apparel-<locale>-*.json` | Classic JS translations (**gitignored**; `i18n:compile`) |
 
 Never hand-edit `.mo` / `.json`. MT never runs at deploy — only via `i18n:translate` / the draft PR workflow. Deploy only **loads** compiled catalogs from the release package.

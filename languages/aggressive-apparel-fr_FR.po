@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-07-19T09:04:01+00:00\n"
+"POT-Creation-Date: 2026-07-20T00:06:10+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -167,56 +167,47 @@ msgid "About, journal, FAQ, and brand story sections."
 msgstr "Sections À propos, Journal, FAQ et Histoire de la marque."
 
 #: includes/Core/class-cache-health.php:52
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "Aggressive Apparel catalog cache"
 msgstr "Cache du catalogue Aggressive Apparel"
 
 #: includes/Core/class-cache-health.php:75
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "Performance"
 msgstr "Performances"
 
 #: includes/Core/class-cache-health.php:81
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "Persistent object cache is active"
 msgstr "Le cache d'objets persistants est actif"
 
 #: includes/Core/class-cache-health.php:84
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "The theme caches anonymous product-grid responses (load-more, filtering, sorting) in the persistent object cache, so paginated catalog requests are served without recomputing their query."
 msgstr "Le thème met en cache les réponses anonymes de la grille de produits (« Charger plus », filtrage, tri) dans le cache d'objets persistants, ce qui permet de traiter les requêtes de catalogue paginées sans avoir à recalculer la requête."
 
 #: includes/Core/class-cache-health.php:95
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "No persistent object cache — catalog cache is inactive"
 msgstr "Pas de cache d'objets persistant — le cache du catalogue est inactif"
 
 #: includes/Core/class-cache-health.php:98
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "Aggressive Apparel caches anonymous product-grid responses (load-more, filtering, sorting) only when a persistent object cache is available. Without one, every catalog request recomputes its query and re-renders from scratch, which will not hold up under traffic."
 msgstr "Aggressive Apparel met en cache les réponses anonymes de la grille de produits (« Afficher plus », filtrage, tri) uniquement lorsqu'un cache d'objets persistant est disponible. En l'absence d'un tel cache, chaque requête de catalogue recalcule sa requête et effectue un nouveau rendu à partir de zéro, ce qui ne tiendra pas le coup face à un trafic important."
 
 #: includes/Core/class-cache-health.php:101
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — only paginated load-more is theme-cached; the initial archive paint relies on the page cache."
 msgstr "Solution : installez et activez un cache d'objets persistant s'appuyant sur Redis ou Memcached. La plupart des hébergeurs WordPress gérés proposent cette fonctionnalité sous forme de module complémentaire en un clic ; pour les sites auto-hébergés, il faut installer le serveur Redis/Memcached ainsi qu’un plugin prêt à l’emploi (par exemple Redis Object Cache), qui génère le fichier wp-content/object-cache.php. De plus, placez un cache de page entière (Varnish, Batcache ou un cache de page de l’hébergeur/CDN) en amont du trafic anonyme vers les archives, configuré pour contourner le panier, la page de paiement et la page « Mon compte », et pour s’adapter aux cookies de session WooCommerce — seul le chargement paginé « Charger plus » est mis en cache par le thème ; l’affichage initial des archives s’appuie sur le cache de page."
 
 #: includes/Core/class-cache-health.php:108
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "Learn about object caching"
 msgstr "En savoir plus sur la mise en cache d'objets"
 
 #. translators: Accessibility text.
 #: includes/Core/class-cache-health.php:110
-#. Auto-translated (aa-mt) via deepl — review before release.
 #, aa-mt
 msgid "(opens in a new tab)"
 msgstr "(s'ouvre dans un nouvel onglet)"
@@ -522,21 +513,21 @@ msgstr "Tous"
 
 #: includes/Core/class-search-modal.php:109
 #: includes/Core/class-search-modal.php:260
-#: includes/Core/class-search-rest.php:150
+#: includes/Core/class-search-rest.php:154
 #, aa-mt
 msgid "Products"
 msgstr "Niveaux scolaires"
 
 #: includes/Core/class-search-modal.php:111
 #: includes/Core/class-search-modal.php:261
-#: includes/Core/class-search-rest.php:161
+#: includes/Core/class-search-rest.php:165
 #, aa-mt
 msgid "Articles"
 msgstr "Articles"
 
 #: includes/Core/class-search-modal.php:112
 #: includes/Core/class-search-modal.php:262
-#: includes/Core/class-search-rest.php:172
+#: includes/Core/class-search-rest.php:176
 #, aa-mt
 msgid "Pages"
 msgstr "Pages"
@@ -665,7 +656,7 @@ msgstr "Lisez le bruit..."
 msgid "Find Your Way…"
 msgstr "Se repérer"
 
-#: includes/Core/class-search-rest.php:214
+#: includes/Core/class-search-rest.php:218
 #, aa-mt
 msgid "Too many requests. Please slow down."
 msgstr "Trop de demandes. Veuillez ralentir."
@@ -2408,13 +2399,12 @@ msgstr "Afficher la première image de la galerie au survol de la souris pour le
 
 #: includes/WooCommerce/class-feature-settings.php:436
 #: includes/WooCommerce/class-size-guide-post-type.php:77
-#: includes/WooCommerce/class-size-guide.php:142
-#: includes/WooCommerce/class-size-guide.php:146
-#: includes/WooCommerce/class-size-guide.php:150
-#: includes/WooCommerce/class-size-guide.php:258
-#: includes/WooCommerce/class-size-guide.php:308
-#: includes/WooCommerce/class-size-guide.php:367
-#: includes/WooCommerce/class-size-guide.php:395 patterns/footer-columns.php:83
+#: includes/WooCommerce/class-size-guide.php:155
+#: includes/WooCommerce/class-size-guide.php:173
+#: includes/WooCommerce/class-size-guide.php:311
+#: includes/WooCommerce/class-size-guide.php:361
+#: includes/WooCommerce/class-size-guide.php:420
+#: includes/WooCommerce/class-size-guide.php:448 patterns/footer-columns.php:83
 #, aa-mt
 msgid "Size Guide"
 msgstr "Guide des tailles"
@@ -4041,36 +4031,42 @@ msgstr "Aucun guide des tailles trouvé."
 msgid "No size guides found in Trash."
 msgstr "Aucun guide des tailles n'a été trouvé dans la corbeille."
 
-#: includes/WooCommerce/class-size-guide.php:151
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide.php:141
+#, aa-mt
+msgid "Measurements in inches"
+msgstr "Dimensions en pouces"
+
+#: includes/WooCommerce/class-size-guide.php:175
 #: includes/WooCommerce/class-sticky-add-to-cart.php:288
 #, aa-mt
 msgid "Close"
 msgstr "Fermer"
 
-#: includes/WooCommerce/class-size-guide.php:295
+#: includes/WooCommerce/class-size-guide.php:348
 #, aa-mt
 msgid "-- Inherit (category or global) --"
 msgstr "-- Héritage (catégorie ou global) --"
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:319
+#: includes/WooCommerce/class-size-guide.php:372
 #, php-format, aa-mt
 msgid "Select a size guide or %s."
 msgstr "Sélectionnez un guide des tailles ou %s."
 
-#: includes/WooCommerce/class-size-guide.php:321
+#: includes/WooCommerce/class-size-guide.php:374
 #, aa-mt
 msgid "create a new one"
 msgstr "en créer un nouveau"
 
-#: includes/WooCommerce/class-size-guide.php:369
-#: includes/WooCommerce/class-size-guide.php:398
+#: includes/WooCommerce/class-size-guide.php:422
+#: includes/WooCommerce/class-size-guide.php:451
 #, aa-mt
 msgid "-- None --"
 msgstr "-- Aucun --"
 
-#: includes/WooCommerce/class-size-guide.php:378
-#: includes/WooCommerce/class-size-guide.php:408
+#: includes/WooCommerce/class-size-guide.php:431
+#: includes/WooCommerce/class-size-guide.php:461
 #, aa-mt
 msgid "Assign a size guide to all products in this category."
 msgstr "Attribuez un guide des tailles à tous les produits de cette catégorie."
@@ -8138,12 +8134,12 @@ msgstr "Voir le produit : %s"
 msgid "View product %d"
 msgstr "Voir le produit %d"
 
-#: src/blocks-interactivity/modal/render.php:38
+#: src/blocks-interactivity/modal/render.php:80
 #, aa-mt
 msgid "Open Modal"
 msgstr "Ouvrir la fenêtre modale"
 
-#: src/blocks-interactivity/modal/render.php:204
+#: src/blocks-interactivity/modal/render.php:263
 #, aa-mt
 msgid "Close modal"
 msgstr "Fermer la fenêtre modale"

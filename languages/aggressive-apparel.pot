@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.164.0\n"
+"Project-Id-Version: Aggressive Apparel 1.165.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-19T09:04:01+00:00\n"
+"POT-Creation-Date: 2026-07-20T00:06:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -430,19 +430,19 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:109
 #: includes/Core/class-search-modal.php:260
-#: includes/Core/class-search-rest.php:150
+#: includes/Core/class-search-rest.php:154
 msgid "Products"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:111
 #: includes/Core/class-search-modal.php:261
-#: includes/Core/class-search-rest.php:161
+#: includes/Core/class-search-rest.php:165
 msgid "Articles"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:112
 #: includes/Core/class-search-modal.php:262
-#: includes/Core/class-search-rest.php:172
+#: includes/Core/class-search-rest.php:176
 msgid "Pages"
 msgstr ""
 
@@ -550,7 +550,7 @@ msgstr ""
 msgid "Find Your Way…"
 msgstr ""
 
-#: includes/Core/class-search-rest.php:214
+#: includes/Core/class-search-rest.php:218
 msgid "Too many requests. Please slow down."
 msgstr ""
 
@@ -1975,13 +1975,12 @@ msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:436
 #: includes/WooCommerce/class-size-guide-post-type.php:77
-#: includes/WooCommerce/class-size-guide.php:142
-#: includes/WooCommerce/class-size-guide.php:146
-#: includes/WooCommerce/class-size-guide.php:150
-#: includes/WooCommerce/class-size-guide.php:258
-#: includes/WooCommerce/class-size-guide.php:308
-#: includes/WooCommerce/class-size-guide.php:367
-#: includes/WooCommerce/class-size-guide.php:395
+#: includes/WooCommerce/class-size-guide.php:155
+#: includes/WooCommerce/class-size-guide.php:173
+#: includes/WooCommerce/class-size-guide.php:311
+#: includes/WooCommerce/class-size-guide.php:361
+#: includes/WooCommerce/class-size-guide.php:420
+#: includes/WooCommerce/class-size-guide.php:448
 #: patterns/footer-columns.php:83
 msgid "Size Guide"
 msgstr ""
@@ -3330,32 +3329,36 @@ msgstr ""
 msgid "No size guides found in Trash."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:151
+#: includes/WooCommerce/class-size-guide.php:141
+msgid "Measurements in inches"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide.php:175
 #: includes/WooCommerce/class-sticky-add-to-cart.php:288
 msgid "Close"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:295
+#: includes/WooCommerce/class-size-guide.php:348
 msgid "-- Inherit (category or global) --"
 msgstr ""
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:319
+#: includes/WooCommerce/class-size-guide.php:372
 #, php-format
 msgid "Select a size guide or %s."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:321
+#: includes/WooCommerce/class-size-guide.php:374
 msgid "create a new one"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:369
-#: includes/WooCommerce/class-size-guide.php:398
+#: includes/WooCommerce/class-size-guide.php:422
+#: includes/WooCommerce/class-size-guide.php:451
 msgid "-- None --"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:378
-#: includes/WooCommerce/class-size-guide.php:408
+#: includes/WooCommerce/class-size-guide.php:431
+#: includes/WooCommerce/class-size-guide.php:461
 msgid "Assign a size guide to all products in this category."
 msgstr ""
 
@@ -6722,11 +6725,11 @@ msgstr ""
 msgid "View product %d"
 msgstr ""
 
-#: src/blocks-interactivity/modal/render.php:38
+#: src/blocks-interactivity/modal/render.php:80
 msgid "Open Modal"
 msgstr ""
 
-#: src/blocks-interactivity/modal/render.php:204
+#: src/blocks-interactivity/modal/render.php:263
 msgid "Close modal"
 msgstr ""
 

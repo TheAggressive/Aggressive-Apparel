@@ -43,7 +43,7 @@ pnpm setup            # Full setup: install → build → start
 pnpm i18n:pot         # Regenerate languages/aggressive-apparel.pot
 pnpm i18n:check       # CI gate: pot drift + PO validity
 pnpm i18n:locale -- fr_FR  # Scaffold a locale .po
-pnpm i18n:translate   # MyMemory MT for empty/fuzzy (DeepL backup if key set)
+pnpm i18n:translate   # DeepL MT for empty/fuzzy (MyMemory fallback / if no key)
 pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
 ```
 
@@ -51,7 +51,7 @@ pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
 
 - Text domain: `aggressive-apparel` (`Domain Path: /languages`).
 - `Theme_Support` calls `load_theme_textdomain`; classic scripts use `Asset_Loader::set_script_translations()`.
-- Tooling lives in `bin/i18n/` (`pnpm i18n:*`). Default MT is MyMemory; optional DeepL backup via `DEEPL_AUTH_KEY`. CI opens PRs (`.github/workflows/i18n-translate.yml`) — never pushes translations to `main`.
+- Tooling lives in `bin/i18n/` (`pnpm i18n:*`). Default MT mode is `auto`: DeepL when `DEEPL_AUTH_KEY` is set, MyMemory as fallback and as the sole provider without a key. DeepL is primary because MyMemory is a translation-memory aggregator — it returns whole-segment matches from unrelated corpora, carrying foreign punctuation and register. CI opens PRs (`.github/workflows/i18n-translate.yml`) — never pushes translations to `main`.
 - Commit `.pot` + locale `.po` drafts; `.mo` / Jed `.json` are gitignored and built by `i18n:compile` (release runs this).
 - Interactivity **script modules** use PHP `i18n` bags — not `wp_set_script_translations`.
 - Full runbook: [`languages/README.md`](languages/README.md).
@@ -132,18 +132,18 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 
 **Interactive Blocks** (`src/blocks-interactivity/`) — highlights:
 
-| Block | Description |
-|-------|-------------|
-| `navigation` / `navigation-panel` | Desktop bar + mobile drawer (separate stores; see Navigation System) |
-| `nav-link` | Shared leaf link |
-| `nav-submenu-*` | Dropdown, mega, accordion, drilldown |
-| `parallax` | Parallax effects |
-| `animate-on-scroll` | Scroll-triggered animations |
-| `filter-toggle` / `filter-active-bar` | Product filters UI (block-placed; ships own CSS) |
-| `hero-carousel` | Hero carousel |
-| `horizontal-scroll` | Pinned / paged / native rails (`paged` = directional snap) |
-| `wishlist` (+ item blocks) | Wishlist page and heart toggle |
-| `free-shipping-bar` / `free-shipping-message` | Free-shipping progress / copy |
+| Block                                         | Description                                                          |
+| --------------------------------------------- | -------------------------------------------------------------------- |
+| `navigation` / `navigation-panel`             | Desktop bar + mobile drawer (separate stores; see Navigation System) |
+| `nav-link`                                    | Shared leaf link                                                     |
+| `nav-submenu-*`                               | Dropdown, mega, accordion, drilldown                                 |
+| `parallax`                                    | Parallax effects                                                     |
+| `animate-on-scroll`                           | Scroll-triggered animations                                          |
+| `filter-toggle` / `filter-active-bar`         | Product filters UI (block-placed; ships own CSS)                     |
+| `hero-carousel`                               | Hero carousel                                                        |
+| `horizontal-scroll`                           | Pinned / paged / native rails (`paged` = directional snap)           |
+| `wishlist` (+ item blocks)                    | Wishlist page and heart toggle                                       |
+| `free-shipping-bar` / `free-shipping-message` | Free-shipping progress / copy                                        |
 
 **Product filter blocks:** When Product Filters is enabled, place `aggressive-apparel/filter-toggle` and `aggressive-apparel/filter-active-bar` on shop, category, and tag archive templates. There is no automatic injection — both blocks wire into the shared `aggressive-apparel/product-filters` Interactivity store. CSS lives in each block's `style.css`, not the global product-filters stylesheet. Agency placement rules for all commerce/nav blocks: [`docs/block-placement.md`](docs/block-placement.md).
 
@@ -315,7 +315,7 @@ The catalog is engineered to scale, but two infrastructure pieces are
   archive/Product Collection paint recomputes on every request unless a page
   cache sits in front. Without one, first paint is the catalog's load ceiling.
 
-**Full-page-cache correctness rule:** never bake a per-user/per-session *value*
+**Full-page-cache correctness rule:** never bake a per-user/per-session _value_
 into server HTML or `wp_interactivity_state` and trust it — a page cache serves
 the priming visitor's copy to everyone. Personalized fragments must rehydrate
 client-side (cart count → Store API `refreshCartCount()` on load, gated on the
@@ -583,28 +583,28 @@ The editor swatch **name matches the slug** (so `var(--aa-color-foreground)` ↔
 "Foreground"), and adaptive (light/dark) colors carry an **"(Adaptive)"** suffix
 so it's clear they shift with the color scheme.
 
-| Editor name                     | Slug (= CSS)           | Value                                  |
-| ------------------------------- | ---------------------- | -------------------------------------- |
-| Primary                         | `primary`              | Legacy alias to adaptive Accent        |
-| Red                             | `red`                  | Legacy alias to adaptive Accent        |
-| White                           | `white`                | `#ffffff`                              |
-| Black                           | `black`                | `#000000`                              |
-| Transparent                     | `transparent`          | `transparent` (explicit "no fill")     |
-| Surface (Adaptive)              | `surface`              | Adaptive page/section background       |
-| Surface Elevated (Adaptive)     | `surface-elevated`     | Adaptive higher-contrast surface       |
+| Editor name                     | Slug (= CSS)           | Value                                   |
+| ------------------------------- | ---------------------- | --------------------------------------- |
+| Primary                         | `primary`              | Legacy alias to adaptive Accent         |
+| Red                             | `red`                  | Legacy alias to adaptive Accent         |
+| White                           | `white`                | `#ffffff`                               |
+| Black                           | `black`                | `#000000`                               |
+| Transparent                     | `transparent`          | `transparent` (explicit "no fill")      |
+| Surface (Adaptive)              | `surface`              | Adaptive page/section background        |
+| Surface Elevated (Adaptive)     | `surface-elevated`     | Adaptive higher-contrast surface        |
 | Surface Muted (Adaptive)        | `surface-muted`        | Soft panel between elevated and surface |
-| Surface Sunken (Adaptive)       | `surface-sunken`       | Recessed wells / input fills           |
-| Foreground (Adaptive)           | `foreground`           | Adaptive primary text                  |
-| Foreground Muted (Adaptive)     | `foreground-muted`     | Adaptive secondary text                |
-| Accent (Adaptive)               | `accent`               | Adaptive brand interactive color       |
-| Accent on Foreground (Adaptive) | `accent-on-foreground` | Inverse accent for foreground surfaces |
-| Border (Adaptive)               | `border`               | Adaptive borders/dividers              |
-| Border Muted (Adaptive)         | `border-muted`         | Quieter hairlines than `border`        |
-| Success                         | `success`              | `oklch(52.7% 0.137 150.1)` (status)    |
-| Warning                         | `warning`              | `oklch(55.3% 0.174 38.4)` (status)     |
-| Error                           | `error`                | `oklch(57.7% 0.215 27.3)` (status)     |
-| Info                            | `info`                 | `oklch(48.8% 0.217 264.4)` (status)    |
-| Neutral                         | `neutral`              | `oklch(55.1% 0.023 264.4)` (status)    |
+| Surface Sunken (Adaptive)       | `surface-sunken`       | Recessed wells / input fills            |
+| Foreground (Adaptive)           | `foreground`           | Adaptive primary text                   |
+| Foreground Muted (Adaptive)     | `foreground-muted`     | Adaptive secondary text                 |
+| Accent (Adaptive)               | `accent`               | Adaptive brand interactive color        |
+| Accent on Foreground (Adaptive) | `accent-on-foreground` | Inverse accent for foreground surfaces  |
+| Border (Adaptive)               | `border`               | Adaptive borders/dividers               |
+| Border Muted (Adaptive)         | `border-muted`         | Quieter hairlines than `border`         |
+| Success                         | `success`              | `oklch(52.7% 0.137 150.1)` (status)     |
+| Warning                         | `warning`              | `oklch(55.3% 0.174 38.4)` (status)      |
+| Error                           | `error`                | `oklch(57.7% 0.215 27.3)` (status)      |
+| Info                            | `info`                 | `oklch(48.8% 0.217 264.4)` (status)     |
+| Neutral                         | `neutral`              | `oklch(55.1% 0.023 264.4)` (status)     |
 
 Adaptive colors are injected as `light-dark()` palette entries by
 `Core/Adaptive_Colors` from `settings.custom.adaptiveColors` (edit their `light`/
@@ -681,8 +681,10 @@ gate runs before code leaves the machine:
 
 - **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
 - **`commit-msg`**: commitlint validation (Conventional Commits).
-- **`pre-push`** (heavy, before push): `pnpm qa` = full test suite (JS + PHP)
-  + `lint:all` + PHPStan. Mirrors the CI gate; needs wp-env running
+- **`pre-push`** (heavy, before push): `pnpm qa` = `i18n:check` + full test
+  suite (JS + PHP) + `lint:all` + PHPStan. Mirrors the CI gate; `i18n:check`
+  runs first because it needs no wp-env and is the cheapest, so POT drift
+  fails in seconds instead of after the PHP suite. Needs wp-env running
   (`pnpm env:start`) for the PHP tests. Bypass a known-good push with
   `git push --no-verify` (CI still enforces it).
 

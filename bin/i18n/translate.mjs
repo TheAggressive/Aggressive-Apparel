@@ -2,16 +2,22 @@
 /**
  * Machine-translate empty / fuzzy PO entries.
  *
- * Default: MyMemory (free, no key). If that fails and DEEPL_AUTH_KEY is set,
- * falls back to DeepL.
+ * Default (`auto`): DeepL when DEEPL_AUTH_KEY is set, falling back to MyMemory
+ * if DeepL fails (bad key, quota exhausted, outage); MyMemory alone when no key
+ * is present. DeepL leads because MyMemory is a translation-memory aggregator —
+ * it returns whole-segment matches from unrelated corpora, which arrive with
+ * punctuation and register the source never had (a bare "Measurements in
+ * inches" came back as "Le misure sono rappresentate in pollici.").
  * Only fills empty msgstr or fuzzy entries — never overwrites clean translations.
  *
  * Usage:
  *   node bin/i18n/translate.mjs [--locale=fr_FR] [--dry-run] [--limit=N]
  *
  * Env:
- *   I18N_MT_PROVIDER=mymemory|deepl   (default: mymemory; deepl = DeepL-only)
- *   DEEPL_AUTH_KEY=…                  (optional backup / deepl-only mode)
+ *   I18N_MT_PROVIDER=auto|mymemory|deepl
+ *                                     (default: auto; mymemory = MyMemory first;
+ *                                      deepl = DeepL-only, no fallback)
+ *   DEEPL_AUTH_KEY=…                  (enables DeepL; without it auto = MyMemory)
  *   I18N_MT_EMAIL=…                   (optional; raises MyMemory daily quota)
  *   I18N_MT_DELAY_MS=350              (pause between requests)
  *
@@ -513,14 +519,22 @@ async function translateDeepL(text, lang) {
 /**
  * Resolve provider mode.
  *
- * - mymemory (default): MyMemory first; DeepL only if MyMemory fails and key exists.
- * - deepl: DeepL only (requires DEEPL_AUTH_KEY).
+ * - auto (default): DeepL first when a key is set, MyMemory on DeepL failure.
+ *   With no key it degrades to plain MyMemory, so a fresh clone and CI without
+ *   the secret still work with no configuration.
+ * - mymemory: MyMemory first; DeepL only if MyMemory fails and key exists.
+ * - deepl: DeepL only, no fallback (requires DEEPL_AUTH_KEY).
  *
- * @returns {'mymemory' | 'deepl'}
+ * @returns {'auto' | 'mymemory' | 'deepl'}
  */
 function resolveProviderMode() {
-	const raw = (process.env.I18N_MT_PROVIDER || 'mymemory').toLowerCase();
-	return raw === 'deepl' ? 'deepl' : 'mymemory';
+	const raw = (process.env.I18N_MT_PROVIDER || 'auto').toLowerCase();
+
+	if (raw === 'deepl' || raw === 'mymemory') {
+		return raw;
+	}
+
+	return 'auto';
 }
 
 /**
@@ -536,15 +550,28 @@ async function mt(text, localeCodes, mode, locale) {
 	let out;
 	let via;
 
+	const hasDeeplKey = Boolean(process.env.DEEPL_AUTH_KEY);
+
 	if (mode === 'deepl') {
 		out = await translateDeepL(brand.text, localeCodes.deepl);
 		via = 'deepl';
+	} else if (mode === 'auto' && hasDeeplKey) {
+		try {
+			out = await translateDeepL(brand.text, localeCodes.deepl);
+			via = 'deepl';
+		} catch (err) {
+			console.warn(
+				`\ni18n:translate: DeepL failed (${err.message}); falling back to MyMemory`
+			);
+			out = await translateMyMemory(brand.text, localeCodes.mymemory);
+			via = 'mymemory-fallback';
+		}
 	} else {
 		try {
 			out = await translateMyMemory(brand.text, localeCodes.mymemory);
 			via = 'mymemory';
 		} catch (err) {
-			if (!process.env.DEEPL_AUTH_KEY) {
+			if (!hasDeeplKey) {
 				throw err;
 			}
 			console.warn(
@@ -697,11 +724,23 @@ async function main() {
 	}
 
 	const mode = resolveProviderMode();
-	const backup = process.env.DEEPL_AUTH_KEY
-		? 'deepl-on-mymemory-failure'
-		: 'none';
+	const hasDeeplKey = Boolean(process.env.DEEPL_AUTH_KEY);
+	let primary;
+	let backup;
+
+	if (mode === 'deepl') {
+		primary = 'deepl';
+		backup = 'none';
+	} else if (mode === 'auto' && hasDeeplKey) {
+		primary = 'deepl';
+		backup = 'mymemory-on-deepl-failure';
+	} else {
+		primary = 'mymemory';
+		backup = hasDeeplKey ? 'deepl-on-mymemory-failure' : 'none';
+	}
+
 	console.log(
-		`i18n:translate: provider=${mode} backup=${backup} dryRun=${opts.dryRun}`
+		`i18n:translate: mode=${mode} primary=${primary} backup=${backup} dryRun=${opts.dryRun}`
 	);
 
 	let total = 0;

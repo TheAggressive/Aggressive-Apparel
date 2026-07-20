@@ -1,5 +1,5 @@
 # Machine-translate empty/fuzzy PO strings when the catalog drifts, then open a PR.
-# Never pushes to main. Default MyMemory; DeepL only if MyMemory fails and DEEPL_AUTH_KEY is set.
+# Never pushes to main. Default DeepL when DEEPL_AUTH_KEY is set; MyMemory fallback otherwise.
 name: 🌐 i18n MT Drafts
 
 on:
@@ -70,8 +70,9 @@ jobs:
           I18N_MT_DELAY_MS: '400'
         run: |
           set -euo pipefail
-          # MyMemory default; DeepL is backup when DEEPL_AUTH_KEY is present.
-          export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-mymemory}"
+          # auto = DeepL when the DEEPL_AUTH_KEY secret is set, MyMemory
+          # fallback otherwise — so this step still works with no secret.
+          export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-auto}"
           ARGS=()
           LOCALE="${{ github.event.inputs.locale || '' }}"
           LIMIT="${{ github.event.inputs.limit || '200' }}"
@@ -94,7 +95,7 @@ jobs:
           body: |
             ## Summary
             Auto-filled **empty / fuzzy** strings after pot sync.
-            Default **MyMemory** (free). Optional **DeepL** backup if `DEEPL_AUTH_KEY` is set and MyMemory fails.
+            **DeepL** when the `DEEPL_AUTH_KEY` secret is set, **MyMemory** fallback otherwise. Each filled entry is tagged `#, aa-mt` — check the provider in its `Auto-translated … via <provider>` comment.
 
             No Poedit / manual typing required — skim and merge.
 

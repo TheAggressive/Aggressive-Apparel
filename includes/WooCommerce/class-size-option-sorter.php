@@ -40,6 +40,27 @@ class Size_Option_Sorter {
 	);
 
 	/**
+	 * Multiplier applied to a float rank before casting to a CSS `order` integer.
+	 *
+	 * Ranks can be fractional (half shoe sizes rank 108.5 vs 109 for size 9), and
+	 * `order` only accepts integers. Scaling by 10 keeps one decimal place of
+	 * precision so those neighbours don't collapse onto the same value.
+	 *
+	 * @var int
+	 */
+	private const CSS_ORDER_SCALE = 10;
+
+	/**
+	 * CSS `order` value for a size that has no known rank.
+	 *
+	 * Large enough to sort after any real size (the highest realistic rank is a
+	 * numeric size, 100 + value), small enough to stay a valid integer.
+	 *
+	 * @var int
+	 */
+	private const CSS_ORDER_UNKNOWN = 999999;
+
+	/**
 	 * Base size ranks for standard apparel sizes.
 	 *
 	 * @var array<string, int>
@@ -115,10 +136,18 @@ class Size_Option_Sorter {
 				continue;
 			}
 
+			// The block-level check above only proves the *content* mentions a size
+			// attribute. When a block carries several attributes, that would also
+			// order the colour chips — ranking "black" as unknown. Confirm this
+			// specific button belongs to a size attribute before touching it.
+			if ( ! self::is_size_option_button( $button ) ) {
+				continue;
+			}
+
 			$existing_style = $button->getAttribute( 'style' );
 			$button->setAttribute(
 				'style',
-				trim( $existing_style . ';order:' . self::size_rank( $size_value ) . ';', '; ' )
+				trim( $existing_style . ';order:' . self::css_order( $size_value ) . ';', '; ' )
 			);
 			$modified = true;
 		}
@@ -128,6 +157,58 @@ class Size_Option_Sorter {
 		}
 
 		return Block_Pill_Helper::save_dom( $dom, $block_content );
+	}
+
+	/**
+	 * Whether an option chip belongs to a size attribute.
+	 *
+	 * WooCommerce ids/names each chip as `{attribute_name}-{value}`, so the
+	 * button itself records which attribute it came from.
+	 *
+	 * @param \DOMElement $button The option chip <button> element.
+	 * @return bool
+	 */
+	private static function is_size_option_button( \DOMElement $button ): bool {
+		foreach ( array( $button->getAttribute( 'id' ), $button->getAttribute( 'name' ) ) as $identifier ) {
+			if ( '' === $identifier ) {
+				continue;
+			}
+
+			foreach ( self::SIZE_INPUT_NAMES as $size_name ) {
+				if ( 0 === strpos( $identifier, $size_name ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * CSS `order` value for a size label.
+	 *
+	 * `order` accepts integers only. `size_rank()` returns a float — and
+	 * PHP_FLOAT_MAX for unknown sizes, which stringifies as
+	 * "1.7976931348623E+308" and makes the browser discard the whole
+	 * declaration. Map both cases onto safe integers, preserving sort order.
+	 *
+	 * @param string $size Size label (case-insensitive).
+	 * @return int Sort order suitable for the CSS `order` property.
+	 */
+	private static function css_order( string $size ): int {
+		$rank = self::size_rank( $size );
+
+		if ( ! is_finite( $rank ) ) {
+			return self::CSS_ORDER_UNKNOWN;
+		}
+
+		$scaled = $rank * self::CSS_ORDER_SCALE;
+
+		if ( $scaled >= (float) self::CSS_ORDER_UNKNOWN ) {
+			return self::CSS_ORDER_UNKNOWN;
+		}
+
+		return (int) round( $scaled );
 	}
 
 	/**

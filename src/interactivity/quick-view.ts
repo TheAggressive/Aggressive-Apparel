@@ -502,11 +502,16 @@ function buildAttributes(
       );
 
       // Sort size options in logical apparel order (XS → S → M → … → 7XL).
+      // Compare rather than subtract: unknown sizes rank Infinity, and
+      // `Infinity - Infinity` is NaN, which makes the comparator incoherent and
+      // the ordering of two unranked sizes implementation-defined.
       if (isSizeAttr(slug, attr.name)) {
-        options.sort(
-          (a: ResolvedOption, b: ResolvedOption) =>
-            sizeRank(a.name) - sizeRank(b.name)
-        );
+        options.sort((a: ResolvedOption, b: ResolvedOption) => {
+          const rankA = sizeRank(a.name);
+          const rankB = sizeRank(b.name);
+          if (rankA === rankB) return 0;
+          return rankA < rankB ? -1 : 1;
+        });
       }
 
       return { name: attr.name, slug, options };

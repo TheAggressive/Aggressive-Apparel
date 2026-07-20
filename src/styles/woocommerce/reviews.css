@@ -119,6 +119,15 @@
 		border: none;
 		border-radius: 0;
 
+		/*
+		 * Review bodies are user-generated: a pasted URL is one unbreakable
+		 * token, and with the default `normal` it pushes the card wider than
+		 * the viewport. `anywhere` breaks it and, unlike `break-word`, also
+		 * drops the token from the min-content width so the grid's `1fr`
+		 * content column can still shrink.
+		 */
+		overflow-wrap: anywhere;
+
 		/* Rating marks (.aa-rating) — styled in the product-rating block CSS;
 		   here we only place it in the flex column. align-self keeps it from
 		   stretching to full width (which would skew the fill percentage). */
@@ -222,6 +231,14 @@
 	& .children .comment_container {
 		margin-block-start: var(--wp--preset--spacing--4);
 		margin-inline-start: clamp(1rem, 5vw, 3rem);
+
+		/*
+		 * The base card sets `width: 100%`. Left at 100%, the indent below is
+		 * added *outside* that width, so every reply hangs past its container by
+		 * exactly the indent and the page scrolls sideways. `auto` lets the box
+		 * shrink by the margin instead, keeping the indent without the overflow.
+		 */
+		width: auto;
 		border-inline-start-color: var(--aa-color-border-strong);
 		background-color: var(--aa-review-reply-bg);
 

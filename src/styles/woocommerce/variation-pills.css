@@ -41,6 +41,12 @@
 		outline: none;
 	}
 
+	/* Chip spacing. WooCommerce ships `gap: 4px` on the container behind
+	   `:where()`, so this plain class selector wins without !important. */
+	.wc-block-product-filter-chips__items {
+		gap: 8px;
+	}
+
 	/*
 	 * 1. Non-colour option chip → morphing pill.
 	 */

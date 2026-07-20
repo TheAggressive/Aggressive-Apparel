@@ -43,8 +43,65 @@ class TestStyles extends WP_UnitTestCase {
 		);
 
 		$this->assertTrue(
+			wp_style_is( 'aggressive-apparel-woocommerce-notices', 'enqueued' ),
+			'WooCommerce notices stylesheet should load through the normal WooCommerce style queue'
+		);
+
+		$this->assertTrue(
 			wp_style_is( 'aggressive-apparel-mini-cart', 'enqueued' ),
 			'Mini-cart stylesheet should load through the normal WooCommerce style queue'
+		);
+	}
+
+	/**
+	 * Classic and block notices should share one built theme component.
+	 */
+	public function test_woocommerce_notice_variants_are_built() {
+		$css_file = get_template_directory() . '/build/styles/woocommerce/notices.css';
+
+		$this->assertFileExists( $css_file );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local build artifact in a test.
+		$css = file_get_contents( $css_file );
+		$this->assertIsString( $css );
+
+		$this->assertStringContainsString( '.woocommerce-message', $css, 'Classic success notices should be built.' );
+		$this->assertStringContainsString( '.woocommerce-error', $css, 'Classic error notices should be built.' );
+		$this->assertStringContainsString( '.wc-block-components-notice-banner', $css, 'Block notices should be built.' );
+		$this->assertStringContainsString( 'prefers-reduced-motion:reduce', $css, 'Reduced-motion fallback should be built.' );
+	}
+
+	/**
+	 * WooCommerce's late block bundles must not reclaim notice text or actions.
+	 */
+	public function test_woocommerce_notice_vendor_overrides_are_explicit() {
+		$css_file = get_template_directory() . '/src/styles/woocommerce/notices.css';
+
+		$this->assertFileExists( $css_file );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source artifact in a test.
+		$css = file_get_contents( $css_file );
+		$this->assertIsString( $css );
+
+		$this->assertStringContainsString(
+			'.wc-block-components-notice-banner > .wc-block-components-notice-banner__content',
+			$css,
+			'Notice content should target WooCommerce block markup exactly.'
+		);
+		$this->assertStringContainsString(
+			'.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward',
+			$css,
+			'Notice actions should target WooCommerce block markup exactly.'
+		);
+		$this->assertStringContainsString(
+			'color: var(--aa-color-foreground) !important;',
+			$css,
+			'Notice text contrast should beat WooCommerce late-loading bundles.'
+		);
+		$this->assertStringContainsString(
+			'background-color: transparent !important;',
+			$css,
+			'Notice actions should retain the outline-button treatment.'
 		);
 	}
 

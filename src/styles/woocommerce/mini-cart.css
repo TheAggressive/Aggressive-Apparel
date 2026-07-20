@@ -35,78 +35,9 @@
 	}
 
 	.wc-block-components-notice-banner {
-		align-items: flex-start;
-		gap: var(--wp--preset--spacing--3);
+		margin: 0;
 		padding: var(--wp--preset--spacing--4);
-		border-radius: var(--aa-radius-control);
-		border: 1px solid var(--aa-color-border-default);
-		border-left-width: 3px;
-		background-color: var(--aa-color-info-bg);
-		border-left-color: var(--aa-color-info);
 		font-size: var(--wp--preset--font-size--small);
-
-		&.is-success {
-			background-color: var(--aa-color-success-bg);
-			border-color: var(--aa-color-border-default);
-			border-left-color: var(--aa-color-success);
-		}
-
-		&.is-error {
-			background-color: var(--aa-color-error-bg);
-			border-color: var(--aa-color-border-default);
-			border-left-color: var(--aa-color-error);
-		}
-
-		&.is-info {
-			background-color: var(--aa-color-info-bg);
-			border-color: var(--aa-color-border-default);
-			border-left-color: var(--aa-color-info);
-		}
-
-		/* Status icon */
-		> svg {
-			width: 1.125rem;
-			height: 1.125rem;
-			margin-top: 0.125rem;
-			opacity: 0.8;
-		}
-
-		/* Message text */
-		&__content {
-			flex: 1 1 0;
-			min-width: 0;
-			color: var(--aa-color-foreground);
-		}
-
-		/* Dismiss × button */
-		&__dismiss {
-			width: 1.5rem;
-			height: 1.5rem;
-			border-radius: var(--aa-radius-sm);
-			color: var(--aa-color-foreground-muted);
-			cursor: pointer;
-			transition:
-				background-color var(--aa-duration-fast) var(--aa-ease-default),
-				color var(--aa-duration-fast) var(--aa-ease-default);
-
-			svg {
-				width: 0.875rem;
-				height: 0.875rem;
-				fill: currentcolor;
-			}
-
-			&:hover {
-				background-color: var(--aa-color-hover-default);
-				color: var(--aa-color-foreground);
-			}
-		}
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.wp-block-woocommerce-filled-mini-cart-contents-block .wc-block-components-notice-banner__dismiss {
-		transition: none;
 	}
 }
 

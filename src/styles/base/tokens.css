@@ -114,6 +114,14 @@
 	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);
 	--aa-button-height-md: var(--wp--custom--size--button-height--md, 2.75rem);
 	--aa-button-height-lg: var(--wp--custom--size--button-height--lg, 3.25rem);
+	--aa-compact-action-height: var(--wp--custom--compact-action--height, 2.925rem);
+	--aa-compact-action-padding-block: var(--wp--custom--compact-action--padding-block, 0.65rem);
+	--aa-compact-action-padding-inline: var(--wp--custom--compact-action--padding-inline, 1.15rem);
+	--aa-compact-action-border-width: var(--wp--custom--compact-action--border-width, 2px);
+	--aa-compact-action-font-size: var(--wp--custom--compact-action--font-size, 0.75rem);
+	--aa-compact-action-font-weight: var(--wp--custom--compact-action--font-weight, 700);
+	--aa-compact-action-line-height: var(--wp--custom--compact-action--line-height, 1);
+	--aa-compact-action-letter-spacing: var(--wp--custom--compact-action--letter-spacing, 0.06em);
 	--aa-input-height: var(--wp--custom--size--input-height, 3.25rem);
 	--aa-panel-width-sm: var(--wp--custom--size--panel-width--sm, 20rem);
 	--aa-panel-width-md: var(--wp--custom--size--panel-width--md, 28rem);

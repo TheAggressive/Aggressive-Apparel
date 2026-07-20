@@ -1,0 +1,283 @@
+/**
+ * WooCommerce Notices
+ *
+ * Shared visual treatment for Store Notices blocks and classic WooCommerce
+ * feedback. The component keeps WooCommerce's native markup, icons, roles,
+ * links, and dismiss behaviour while matching the theme's adaptive palette.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.woocommerce-notices-wrapper:empty,
+.wc-block-components-notices:empty {
+	display: none;
+}
+
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning,
+	.wc-block-components-notice-banner
+) {
+	--aa-wc-notice-color: var(--aa-color-info);
+	--aa-wc-notice-bg: color-mix(
+		in oklch,
+		var(--aa-color-surface) 80%,
+		var(--aa-color-surface-elevated)
+	);
+
+	box-sizing: border-box;
+	position: relative;
+	width: 100%;
+	min-width: 0;
+	margin: 0 0 var(--wp--preset--spacing--6);
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--5);
+	border: 0;
+	border-inline-start: 4px solid var(--aa-wc-notice-color);
+	border-radius: var(--aa-radius-control);
+	background-color: var(--aa-wc-notice-bg);
+	color: var(--aa-color-foreground);
+	box-shadow: none;
+	font-family: inherit;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5;
+}
+
+.woocommerce-message,
+.woocommerce-info {
+	display: flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--4);
+	padding-inline-start: calc(var(--wp--preset--spacing--5) + 1.5rem);
+}
+
+.woocommerce-error,
+.woocommerce-warning {
+	padding-inline-start: calc(var(--wp--preset--spacing--5) + 1.5rem);
+	list-style: none;
+}
+
+.woocommerce-error li + li,
+.woocommerce-warning li + li {
+	margin-top: var(--wp--preset--spacing--2);
+}
+
+.woocommerce-message,
+.wc-block-components-notice-banner.is-success {
+	--aa-wc-notice-color: var(--aa-color-success);
+}
+
+.woocommerce-error,
+.wc-block-components-notice-banner.is-error {
+	--aa-wc-notice-color: var(--aa-color-error);
+}
+
+.woocommerce-info,
+.wc-block-components-notice-banner.is-info {
+	--aa-wc-notice-color: var(--aa-color-info);
+}
+
+.woocommerce-warning,
+.wc-block-components-notice-banner.is-warning {
+	--aa-wc-notice-color: var(--aa-color-warning);
+}
+
+/* Classic notices use WooCommerce's icon font through ::before. Reposition the
+ * existing glyph instead of replacing it, so its meaning remains intact. */
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning
+)::before {
+	top: 50%;
+	inset-inline-start: var(--wp--preset--spacing--5);
+	transform: translateY(-50%);
+	color: var(--aa-wc-notice-color);
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+/* Store Notices block banners provide their own SVG status icon. */
+.wc-block-components-notice-banner {
+	display: flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--4);
+
+	/* WooCommerce repeats these rules in several independently loaded block
+	 * bundles (and marks padding important), so component overrides must win
+	 * regardless of which bundle is printed last. */
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--5) !important;
+	border-radius: var(--aa-radius-control) !important;
+	background-color: var(--aa-wc-notice-bg) !important;
+	color: var(--aa-color-foreground) !important;
+}
+
+.wc-block-components-notice-banner:is(.is-success, .is-error, .is-info, .is-warning) {
+	border: 0 !important;
+	border-inline-start: 4px solid var(--aa-wc-notice-color) !important;
+	background-color: var(--aa-wc-notice-bg) !important;
+}
+
+.wc-block-components-notice-banner > svg {
+	flex: 0 0 auto;
+	width: 1.25rem;
+	height: 1.25rem;
+	margin-top: 0;
+	padding: 2px;
+	border-radius: var(--aa-radius-full);
+	background-color: var(--aa-wc-notice-color) !important;
+	fill: var(--aa-color-surface) !important;
+	color: var(--aa-color-surface) !important;
+}
+
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	flex: 1 1 0;
+	gap: var(--wp--preset--spacing--4);
+	min-width: 0;
+	padding-inline: 0 !important;
+	color: var(--aa-color-foreground) !important;
+}
+
+/* Primary notice actions use the theme's compact button language. */
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning
+) :is(.button, .wc-forward),
+.wc-block-components-notice-banner .button,
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	min-height: var(--aa-compact-action-height);
+	float: none !important;
+	margin: 0 !important;
+	margin-inline-start: auto !important;
+	padding: var(--aa-compact-action-padding-block) var(--aa-compact-action-padding-inline) !important;
+	border: var(--aa-compact-action-border-width) solid var(--aa-color-foreground) !important;
+	border-radius: var(--aa-radius-button);
+	background-color: transparent !important;
+	color: var(--aa-color-foreground) !important;
+	box-shadow: none !important;
+	font-family: inherit;
+	font-size: var(--aa-compact-action-font-size);
+	font-weight: var(--aa-compact-action-font-weight);
+	line-height: var(--aa-compact-action-line-height);
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: var(--aa-compact-action-letter-spacing);
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning
+) :is(.button, .wc-forward):hover,
+.wc-block-components-notice-banner .button:hover,
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward:hover {
+	background-color: var(--aa-color-foreground) !important;
+	color: var(--aa-color-surface) !important;
+	opacity: 1;
+}
+
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning
+) :is(.button, .wc-forward):focus-visible,
+.wc-block-components-notice-banner .button:focus-visible,
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward:focus-visible,
+.wc-block-components-notice-banner__dismiss:focus-visible {
+	outline: 2px solid var(--aa-color-foreground);
+	outline-offset: 2px;
+}
+
+/* Secondary inline links inherit the status color without losing an underline. */
+:is(
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error,
+	.woocommerce-warning
+) a:not(.button, .wc-forward),
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content a:not(.button, .wc-forward) {
+	color: var(--aa-wc-notice-color);
+	font-weight: 600;
+	text-decoration-thickness: 0.08em;
+	text-underline-offset: 0.15em;
+}
+
+.wc-block-components-notice-banner > .wc-block-components-button.wc-block-components-notice-banner__dismiss {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 1.75rem !important;
+	height: 1.75rem !important;
+	min-height: 1.75rem !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-radius: var(--aa-radius-sm);
+	background: transparent !important;
+	color: var(--aa-color-foreground-muted) !important;
+	cursor: pointer;
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.wc-block-components-notice-banner > .wc-block-components-button.wc-block-components-notice-banner__dismiss:hover {
+	background-color: var(--aa-color-hover-default) !important;
+	color: var(--aa-color-foreground) !important;
+}
+
+.wc-block-components-notice-banner__dismiss svg {
+	width: 0.875rem;
+	height: 0.875rem;
+	fill: currentcolor;
+}
+
+@media (width < 600px) {
+
+	.woocommerce-message,
+	.woocommerce-info {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	:is(.woocommerce-message, .woocommerce-info) :is(.button, .wc-forward),
+	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward {
+		width: 100%;
+		float: none;
+		margin: var(--wp--preset--spacing--3) 0 0 !important;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	:is(
+		.woocommerce-message,
+		.woocommerce-info,
+		.woocommerce-error,
+		.woocommerce-warning
+	) :is(.button, .wc-forward),
+	.wc-block-components-notice-banner .button,
+	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward,
+	.wc-block-components-notice-banner__dismiss {
+		transition: none;
+	}
+}

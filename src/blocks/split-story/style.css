@@ -19,6 +19,29 @@
   gap: var(--aa-split-gap, 0);
 }
 
+/* Grid items default to `min-width: auto`, so a column refuses to shrink below
+   its content's min-content width. Nested blocks that carry an intrinsic width
+   — a thumbnail rail of non-shrinking flex items, a wide table — then blow the
+   track out past the viewport instead of scrolling inside their own container,
+   which overflows the page AND stops the inner scroller from ever scrolling.
+   Both columns opt out; they are sized by the track, never by their contents. */
+.aa-split-story__media,
+.aa-split-story__content {
+  min-width: 0;
+}
+
+/* Viewport mode crops its media to a fixed box at every width; only the box
+   height is breakpoint-specific (see each media query below). */
+.aa-split-story--viewport .aa-split-story__media {
+  overflow: hidden;
+}
+
+.aa-split-story--viewport .aa-split-story__media > :is(img, video),
+.aa-split-story--viewport .aa-split-story__media > figure :is(img, video) {
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ── Desktop: two columns ─────────────────────────── */
 @media (width > 768px) {
 
@@ -48,10 +71,9 @@
     align-self: start;
   }
 
-  /* Full-viewport media fills its column and cover-crops its media. */
+  /* Full-viewport media fills its column. */
   .aa-split-story--viewport .aa-split-story__media {
     height: calc(100svh - var(--aa-split-sticky-top, 0px));
-    overflow: hidden;
   }
 
   .aa-split-story--viewport .aa-split-story__media > * {
@@ -61,8 +83,6 @@
   .aa-split-story--viewport .aa-split-story__media > :is(img, video),
   .aa-split-story--viewport .aa-split-story__media > figure :is(img, video) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 }
 
@@ -83,17 +103,10 @@
     width: 100%;
   }
 
-  /* Viewport media is capped (never a full 100svh on a phone) and cover-crops.
-     Content media keeps its natural height. */
+  /* Viewport media is capped — never a full 100svh on a phone. Content media
+     keeps its natural height. */
   .aa-split-story--viewport .aa-split-story__media {
     height: min(60vh, 30rem);
-    overflow: hidden;
-  }
-
-  .aa-split-story--viewport .aa-split-story__media > :is(img, video),
-  .aa-split-story--viewport .aa-split-story__media > figure :is(img, video) {
-    height: 100%;
-    object-fit: cover;
   }
 
   .aa-split-story__content {

@@ -371,28 +371,6 @@
 	letter-spacing: 0.04em;
 }
 
-/* Notices. */
-.wc-block-components-notice-banner {
-	border-radius: var(--aa-radius-control);
-	background-color: var(--aa-color-info-bg);
-	color: var(--aa-color-foreground);
-}
-
-.wc-block-components-notice-banner.is-success {
-	background-color: var(--aa-color-success-bg);
-	border-color: var(--aa-color-success-border);
-}
-
-.wc-block-components-notice-banner.is-error {
-	background-color: var(--aa-color-error-bg);
-	border-color: var(--aa-color-error-border);
-}
-
-.wc-block-components-notice-banner.is-info {
-	background-color: var(--aa-color-info-bg);
-	border-color: var(--aa-color-info-border);
-}
-
 @media (prefers-reduced-motion: reduce) {
 
 	.wp-block-woocommerce-product-template.is-style-commerce-cards > li,

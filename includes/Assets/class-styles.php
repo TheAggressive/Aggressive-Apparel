@@ -62,6 +62,13 @@ class Styles {
 		Asset_Loader::enqueue_style( 'aggressive-apparel-forms', 'build/styles/components/forms' );
 
 		if ( function_exists( 'WC' ) ) {
+			// Transactional feedback can be rendered by both classic WooCommerce
+			// templates and Store Notices blocks, including on custom routes.
+			Asset_Loader::enqueue_style(
+				'aggressive-apparel-woocommerce-notices',
+				'build/styles/woocommerce/notices',
+				array( 'aggressive-apparel-main' )
+			);
 			Asset_Loader::enqueue_style( 'aggressive-apparel-mini-cart', 'build/styles/woocommerce/mini-cart' );
 
 			// Checkout/cart readability fixes (floating labels, order-summary

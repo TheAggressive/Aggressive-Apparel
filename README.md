@@ -6,11 +6,11 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 
 ## Features
 
-- **Full Site Editing** — 13 templates, 74 block patterns, complete `theme.json` configuration
+- **Full Site Editing** — 13 templates, 83 block patterns, complete `theme.json` configuration
 - **WooCommerce integration** — product gallery, color swatches, and custom shop/cart/checkout templates
 - **Design system tokens** — `theme.json` as source of truth with a compiled `--aa-*` alias layer
-- **19 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
-- **40 custom blocks** — 34 Interactivity API blocks + 6 static Gutenberg blocks
+- **17 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
+- **44 custom blocks** — 36 Interactivity API blocks + 8 static Gutenberg blocks (registered totals; both include locked child blocks)
 - **Interactivity API** — client-side reactivity without a separate JavaScript framework
 - **Automatic updates** — GitHub release-based update system with ETag caching and SHA-256 package verification
 - **Accessible** — WCAG 2.2 AA compliance targets, 44px touch targets, `prefers-reduced-motion` support
@@ -135,7 +135,7 @@ aggressive-apparel/
 │   ├── Core/                 # Theme supports, icons, updates, adaptive colors
 │   └── WooCommerce/          # Store features and WooCommerce integration
 ├── parts/                    # Template parts (header, footer)
-├── patterns/                 # Block patterns (74)
+├── patterns/                 # Block patterns (83)
 ├── src/
 │   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
 │   ├── blocks-interactivity/ # Interactivity API blocks (36, incl. 2 card-flip faces)
@@ -205,8 +205,8 @@ Blocks such as `product-tabs`, `search`, `modal` (supports exit-intent and scrol
 
 Two icon libraries:
 
-- **UI icons** (32) — `Icons::get()` / `Icons::render()` for navigation, actions, and status glyphs
-- **Brand icons** (40) — lazy-loaded from `build/icons/` via `Brand_Icons`; use the `icon` block or `Icons::get('slug')` after build
+- **UI icons** (41) — `Icons::get()` / `Icons::render()` for navigation, actions, and status glyphs
+- **Brand icons** (42) — lazy-loaded from `build/icons/` via `Brand_Icons`; use the `icon` block or `Icons::get('slug')` after build
 
 Color swatches use `Color_Attribute_Manager`, `Color_Data_Manager`, `Color_Block_Swatch_Manager`, `Color_Admin_UI`, and `Color_Pattern_Admin` for solid colors and pattern images with keyboard and screen-reader support.
 

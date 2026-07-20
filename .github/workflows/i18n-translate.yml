@@ -40,6 +40,10 @@ jobs:
       - name: Install gettext tools
         run: sudo apt-get update && sudo apt-get install -y gettext
 
+      # Must precede setup-node: v5 resolves the `packageManager` field in
+      # package.json and fails if that package manager is not on PATH yet.
+      - uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v5
         with:
           node-version: '24'

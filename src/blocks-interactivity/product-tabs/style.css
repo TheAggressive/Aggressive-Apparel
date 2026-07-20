@@ -661,7 +661,11 @@
 	width: 100%;
 	margin: 0;
 	border: 0;
-	border-collapse: collapse;
+
+	/* `separate` (with zero spacing, so layout is unchanged) is required for the
+	   corner cells below to render a radius at all — `collapse` discards it. */
+	border-collapse: separate;
+	border-spacing: 0;
 	border-radius: 0;
 	background: transparent;
 	font-size: inherit;
@@ -692,26 +696,35 @@
 	vertical-align: baseline;
 }
 
-.aa-product-info.woocommerce table.shop_attributes tr:nth-child(odd) th,
-.aa-product-info.woocommerce table.shop_attributes tr:nth-child(odd) td,
-.aa-product-info table.woocommerce-product-attributes tr:nth-child(odd) th,
-.aa-product-info table.woocommerce-product-attributes tr:nth-child(odd) td {
+/* Stripe the row, not its cells: a per-cell background is what makes the label
+   column read as a separate chip from its value, which is most obvious on
+   narrow screens where the two cells are close in width. */
+.aa-product-info.woocommerce table.shop_attributes tr:nth-child(odd),
+.aa-product-info table.woocommerce-product-attributes tr:nth-child(odd) {
 	background: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
 }
 
+/* `border-radius` has no effect on <tr> in any border-collapse mode, so the
+   table's outer corners have to live on the four corner cells. Rounding every
+   cell instead notches each label's inner edge mid-table. The row background
+   above is clipped to these radii. */
 .aa-product-info.woocommerce table.shop_attributes tr:first-child th,
-.aa-product-info.woocommerce table.shop_attributes tr:first-child td,
-.aa-product-info table.woocommerce-product-attributes tr:first-child th,
-.aa-product-info table.woocommerce-product-attributes tr:first-child td {
+.aa-product-info table.woocommerce-product-attributes tr:first-child th {
 	border-start-start-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr:first-child td:last-child,
+.aa-product-info table.woocommerce-product-attributes tr:first-child td:last-child {
 	border-start-end-radius: var(--aa-radius-sm, 0.25rem);
 }
 
 .aa-product-info.woocommerce table.shop_attributes tr:last-child th,
-.aa-product-info.woocommerce table.shop_attributes tr:last-child td,
-.aa-product-info table.woocommerce-product-attributes tr:last-child th,
-.aa-product-info table.woocommerce-product-attributes tr:last-child td {
+.aa-product-info table.woocommerce-product-attributes tr:last-child th {
 	border-end-start-radius: var(--aa-radius-sm, 0.25rem);
+}
+
+.aa-product-info.woocommerce table.shop_attributes tr:last-child td:last-child,
+.aa-product-info table.woocommerce-product-attributes tr:last-child td:last-child {
 	border-end-end-radius: var(--aa-radius-sm, 0.25rem);
 }
 

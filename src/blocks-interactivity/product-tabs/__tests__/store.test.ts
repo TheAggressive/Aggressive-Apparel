@@ -10,7 +10,7 @@
  * @jest-environment jsdom
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 let mockContext: Record<string, unknown> = {};
 const mockElement = { ref: null as HTMLElement | null };

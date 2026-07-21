@@ -49,7 +49,9 @@ test.describe('Product tabs — front end', () => {
       await page.goto(productUrl);
       const info = page.locator('.aa-product-info');
       await info.waitFor();
-      await expect(info).toHaveClass(new RegExp(`aa-product-info--${style}\\b`));
+      await expect(info).toHaveClass(
+        new RegExp(`aa-product-info--${style}\\b`)
+      );
     }
   });
 
@@ -113,7 +115,9 @@ test.describe('Product tabs — front end', () => {
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
 
-    const summaries = accordion.locator('details > summary.aa-product-info__heading');
+    const summaries = accordion.locator(
+      'details > summary.aa-product-info__heading'
+    );
     const count = await summaries.count();
     expect(count).toBeGreaterThanOrEqual(2);
 
@@ -143,9 +147,10 @@ test.describe('Product tabs — front end', () => {
     expect(Math.abs(after - before)).toBeLessThan(6);
 
     // And its own section is now open.
-    await expect(
-      target.locator('xpath=ancestor::details[1]')
-    ).toHaveAttribute('open', '');
+    await expect(target.locator('xpath=ancestor::details[1]')).toHaveAttribute(
+      'open',
+      ''
+    );
   });
 
   test('accordion highlights the open section heading in the accent color', async ({

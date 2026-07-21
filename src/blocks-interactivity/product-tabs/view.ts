@@ -157,228 +157,234 @@ interface ProductTabsStore {
 export const productTabsStore = store<ProductTabsStore>(
   'aggressive-apparel/product-tabs',
   {
-  state: {
-    get isActiveTab(): boolean {
-      return state.activeTab === getContext<TabContext>().tabIndex;
+    state: {
+      get isActiveTab(): boolean {
+        return state.activeTab === getContext<TabContext>().tabIndex;
+      },
+      get isPanelVisible(): boolean {
+        return state.activeTab === getContext<TabContext>().tabIndex;
+      },
+      get tabTabindex(): string {
+        return state.activeTab === getContext<TabContext>().tabIndex
+          ? '0'
+          : '-1';
+      },
+      get ariaSelected(): string {
+        return state.activeTab === getContext<TabContext>().tabIndex
+          ? 'true'
+          : 'false';
+      },
+      get isActiveNav(): boolean {
+        return state.activeSection === getContext<TabContext>().sectionId;
+      },
+      get ariaCurrent(): string {
+        return state.activeSection === getContext<TabContext>().sectionId
+          ? 'true'
+          : 'false';
+      },
     },
-    get isPanelVisible(): boolean {
-      return state.activeTab === getContext<TabContext>().tabIndex;
-    },
-    get tabTabindex(): string {
-      return state.activeTab === getContext<TabContext>().tabIndex ? '0' : '-1';
-    },
-    get ariaSelected(): string {
-      return state.activeTab === getContext<TabContext>().tabIndex
-        ? 'true'
-        : 'false';
-    },
-    get isActiveNav(): boolean {
-      return state.activeSection === getContext<TabContext>().sectionId;
-    },
-    get ariaCurrent(): string {
-      return state.activeSection === getContext<TabContext>().sectionId
-        ? 'true'
-        : 'false';
-    },
-  },
 
-  actions: {
-    toggleAccordion: withSyncEvent((event: Event): void => {
-      event.preventDefault();
-      const { ref } = getElement();
-      const details = ref?.closest('details') as HTMLDetailsElement | null;
-      if (!details) return;
+    actions: {
+      toggleAccordion: withSyncEvent((event: Event): void => {
+        event.preventDefault();
+        const { ref } = getElement();
+        const details = ref?.closest('details') as HTMLDetailsElement | null;
+        if (!details) return;
 
-      if (details.open) {
-        closeDetails(details);
-      } else {
-        const parent = details.closest('.aa-product-info--accordion');
-        let closingAbove = false;
-        if (parent) {
-          for (const sibling of parent.querySelectorAll('details[open]')) {
-            if (sibling !== details) {
-              closeDetails(sibling as HTMLDetailsElement);
-              // Only siblings that sit above the tapped section shift it.
-              if (
-                sibling.compareDocumentPosition(details) &
-                Node.DOCUMENT_POSITION_FOLLOWING
-              ) {
-                closingAbove = true;
+        if (details.open) {
+          closeDetails(details);
+        } else {
+          const parent = details.closest('.aa-product-info--accordion');
+          let closingAbove = false;
+          if (parent) {
+            for (const sibling of parent.querySelectorAll('details[open]')) {
+              if (sibling !== details) {
+                closeDetails(sibling as HTMLDetailsElement);
+                // Only siblings that sit above the tapped section shift it.
+                if (
+                  sibling.compareDocumentPosition(details) &
+                  Node.DOCUMENT_POSITION_FOLLOWING
+                ) {
+                  closingAbove = true;
+                }
               }
             }
           }
-        }
-        details.setAttribute('open', '');
-        const content = details.querySelector(
-          '.aa-product-info__content'
-        ) as HTMLElement | null;
-        if (content) {
-          const anim = animatePanel(content, true);
-          anim.onfinish = () => {
-            content.style.overflow = '';
-          };
-        }
-        // Hold the tapped header in place while siblings above collapse.
-        pinScrollDuring(details, closingAbove);
-      }
-    }),
-
-    selectTab(): void {
-      const ctx = getContext<TabContext>();
-      state.activeTab = ctx.tabIndex;
-      const { ref } = getElement();
-      if (ref) ref.focus();
-    },
-
-    handleTabKeydown(event: KeyboardEvent): void {
-      const tabNav = (event.target as HTMLElement).closest('[role="tablist"]');
-      if (!tabNav) return;
-
-      const tabs = Array.from(
-        tabNav.querySelectorAll('[role="tab"]')
-      ) as HTMLElement[];
-      const count = tabs.length;
-      let newIndex: number = state.activeTab;
-
-      switch (event.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          event.preventDefault();
-          newIndex = (state.activeTab + 1) % count;
-          break;
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          event.preventDefault();
-          newIndex = (state.activeTab - 1 + count) % count;
-          break;
-        case 'Home':
-          event.preventDefault();
-          newIndex = 0;
-          break;
-        case 'End':
-          event.preventDefault();
-          newIndex = count - 1;
-          break;
-        default:
-          return;
-      }
-
-      state.activeTab = newIndex;
-      if (tabs[newIndex]) tabs[newIndex].focus();
-    },
-
-    scrollToSection(event: Event): void {
-      event.preventDefault();
-      const ctx = getContext<TabContext>();
-      const target = document.getElementById(ctx.sectionId);
-      if (!target) return;
-
-      const reducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
-      target.scrollIntoView({
-        behavior: reducedMotion ? 'auto' : 'smooth',
-        block: 'start',
-      });
-      state.activeSection = ctx.sectionId;
-    },
-  },
-
-  callbacks: {
-    initHashNav(): void {
-      const hash = window.location.hash?.slice(1);
-      if (!hash) return;
-
-      const { ref } = getElement();
-      if (!ref) return;
-
-      const target = document.getElementById(hash);
-      if (!target || !ref.contains(target)) return;
-
-      if (ref.classList.contains('aa-product-info--accordion')) {
-        for (const details of ref.querySelectorAll('details[open]')) {
-          details.removeAttribute('open');
-        }
-        const details =
-          target.tagName === 'DETAILS' ? target : target.closest('details');
-        if (details) details.setAttribute('open', '');
-      }
-
-      if (ref.classList.contains('aa-product-info--modern-tabs')) {
-        const panels = Array.from(ref.querySelectorAll('[role="tabpanel"]'));
-        const index = panels.indexOf(target);
-        if (index >= 0) state.activeTab = index;
-      }
-
-      requestAnimationFrame(() => {
-        target.scrollIntoView({ block: 'start', behavior: 'auto' });
-      });
-    },
-
-    initScrollspy(): void {
-      const { ref } = getElement();
-      if (!ref) return;
-
-      const sections = ref.querySelectorAll('.aa-product-info__section');
-      if (!sections.length) return;
-
-      const hash = window.location.hash?.slice(1);
-      const hashTarget = hash && ref.querySelector(`#${CSS.escape(hash)}`);
-      if (hashTarget) {
-        state.activeSection = (hashTarget as HTMLElement).id;
-        requestAnimationFrame(() => {
-          hashTarget.scrollIntoView({ block: 'start', behavior: 'auto' });
-        });
-      } else if (sections[0] && (sections[0] as HTMLElement).id) {
-        state.activeSection = (sections[0] as HTMLElement).id;
-      }
-
-      // On small screens the sidebar collapses to a sticky horizontal bar.
-      // Keep the active link scrolled into view as the reader moves through
-      // sections, so the highlight is never off-screen in the overflow rail.
-      const sidebar = ref.querySelector(
-        '.aa-product-info__sidebar'
-      ) as HTMLElement | null;
-      const reducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
-
-      const syncNavIntoView = (sectionId: string): void => {
-        if (!sidebar || sidebar.scrollWidth <= sidebar.clientWidth) return;
-        const link = sidebar.querySelector(
-          `.aa-product-info__nav-link[href="#${CSS.escape(sectionId)}"]`
-        ) as HTMLElement | null;
-        if (!link) return;
-        const barRect = sidebar.getBoundingClientRect();
-        const linkRect = link.getBoundingClientRect();
-        const offset =
-          linkRect.left + linkRect.width / 2 - (barRect.left + barRect.width / 2);
-        sidebar.scrollBy({
-          left: offset,
-          behavior: reducedMotion ? 'auto' : 'smooth',
-        });
-      };
-
-      const setActiveSection = (sectionId: string): void => {
-        if (state.activeSection === sectionId) return;
-        state.activeSection = sectionId;
-        syncNavIntoView(sectionId);
-      };
-
-      const observer = new IntersectionObserver(
-        (entries: IntersectionObserverEntry[]) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting && (entry.target as HTMLElement).id) {
-              setActiveSection((entry.target as HTMLElement).id);
-            }
+          details.setAttribute('open', '');
+          const content = details.querySelector(
+            '.aa-product-info__content'
+          ) as HTMLElement | null;
+          if (content) {
+            const anim = animatePanel(content, true);
+            anim.onfinish = () => {
+              content.style.overflow = '';
+            };
           }
-        },
-        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
-      );
+          // Hold the tapped header in place while siblings above collapse.
+          pinScrollDuring(details, closingAbove);
+        }
+      }),
 
-      sections.forEach(section => observer.observe(section));
+      selectTab(): void {
+        const ctx = getContext<TabContext>();
+        state.activeTab = ctx.tabIndex;
+        const { ref } = getElement();
+        if (ref) ref.focus();
+      },
+
+      handleTabKeydown(event: KeyboardEvent): void {
+        const tabNav = (event.target as HTMLElement).closest(
+          '[role="tablist"]'
+        );
+        if (!tabNav) return;
+
+        const tabs = Array.from(
+          tabNav.querySelectorAll('[role="tab"]')
+        ) as HTMLElement[];
+        const count = tabs.length;
+        let newIndex: number = state.activeTab;
+
+        switch (event.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+            event.preventDefault();
+            newIndex = (state.activeTab + 1) % count;
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+            event.preventDefault();
+            newIndex = (state.activeTab - 1 + count) % count;
+            break;
+          case 'Home':
+            event.preventDefault();
+            newIndex = 0;
+            break;
+          case 'End':
+            event.preventDefault();
+            newIndex = count - 1;
+            break;
+          default:
+            return;
+        }
+
+        state.activeTab = newIndex;
+        if (tabs[newIndex]) tabs[newIndex].focus();
+      },
+
+      scrollToSection(event: Event): void {
+        event.preventDefault();
+        const ctx = getContext<TabContext>();
+        const target = document.getElementById(ctx.sectionId);
+        if (!target) return;
+
+        const reducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+        target.scrollIntoView({
+          behavior: reducedMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+        state.activeSection = ctx.sectionId;
+      },
     },
-  },
+
+    callbacks: {
+      initHashNav(): void {
+        const hash = window.location.hash?.slice(1);
+        if (!hash) return;
+
+        const { ref } = getElement();
+        if (!ref) return;
+
+        const target = document.getElementById(hash);
+        if (!target || !ref.contains(target)) return;
+
+        if (ref.classList.contains('aa-product-info--accordion')) {
+          for (const details of ref.querySelectorAll('details[open]')) {
+            details.removeAttribute('open');
+          }
+          const details =
+            target.tagName === 'DETAILS' ? target : target.closest('details');
+          if (details) details.setAttribute('open', '');
+        }
+
+        if (ref.classList.contains('aa-product-info--modern-tabs')) {
+          const panels = Array.from(ref.querySelectorAll('[role="tabpanel"]'));
+          const index = panels.indexOf(target);
+          if (index >= 0) state.activeTab = index;
+        }
+
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ block: 'start', behavior: 'auto' });
+        });
+      },
+
+      initScrollspy(): void {
+        const { ref } = getElement();
+        if (!ref) return;
+
+        const sections = ref.querySelectorAll('.aa-product-info__section');
+        if (!sections.length) return;
+
+        const hash = window.location.hash?.slice(1);
+        const hashTarget = hash && ref.querySelector(`#${CSS.escape(hash)}`);
+        if (hashTarget) {
+          state.activeSection = (hashTarget as HTMLElement).id;
+          requestAnimationFrame(() => {
+            hashTarget.scrollIntoView({ block: 'start', behavior: 'auto' });
+          });
+        } else if (sections[0] && (sections[0] as HTMLElement).id) {
+          state.activeSection = (sections[0] as HTMLElement).id;
+        }
+
+        // On small screens the sidebar collapses to a sticky horizontal bar.
+        // Keep the active link scrolled into view as the reader moves through
+        // sections, so the highlight is never off-screen in the overflow rail.
+        const sidebar = ref.querySelector(
+          '.aa-product-info__sidebar'
+        ) as HTMLElement | null;
+        const reducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const syncNavIntoView = (sectionId: string): void => {
+          if (!sidebar || sidebar.scrollWidth <= sidebar.clientWidth) return;
+          const link = sidebar.querySelector(
+            `.aa-product-info__nav-link[href="#${CSS.escape(sectionId)}"]`
+          ) as HTMLElement | null;
+          if (!link) return;
+          const barRect = sidebar.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
+          const offset =
+            linkRect.left +
+            linkRect.width / 2 -
+            (barRect.left + barRect.width / 2);
+          sidebar.scrollBy({
+            left: offset,
+            behavior: reducedMotion ? 'auto' : 'smooth',
+          });
+        };
+
+        const setActiveSection = (sectionId: string): void => {
+          if (state.activeSection === sectionId) return;
+          state.activeSection = sectionId;
+          syncNavIntoView(sectionId);
+        };
+
+        const observer = new IntersectionObserver(
+          (entries: IntersectionObserverEntry[]) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting && (entry.target as HTMLElement).id) {
+                setActiveSection((entry.target as HTMLElement).id);
+              }
+            }
+          },
+          { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+        );
+
+        sections.forEach(section => observer.observe(section));
+      },
+    },
   }
 );
 

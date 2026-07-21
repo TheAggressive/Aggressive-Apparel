@@ -10,8 +10,6 @@
  * @jest-environment jsdom
  */
 
- 
-
 let mockContext: Record<string, unknown> = {};
 const mockElement = { ref: null as HTMLElement | null };
 

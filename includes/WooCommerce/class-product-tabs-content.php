@@ -28,6 +28,14 @@ class Product_Tabs_Content {
 	 * @return string Sanitized tab HTML.
 	 */
 	public function kses_tab_content( string $content ): string {
+		// wp_kses() strips <script>/<style> tags but keeps their inner text, so
+		// inline JS/CSS (e.g. WooCommerce's comment-form unfiltered-html script)
+		// would render as visible source. Remove those blocks — tag and contents
+		// — before sanitizing. We never want to allow them, so this is dropped
+		// entirely rather than escaped.
+		$stripped = preg_replace( '#<(script|style)\b[^>]*>.*?</\1>#is', '', $content );
+		$content  = is_string( $stripped ) ? $stripped : $content;
+
 		$allowed = wp_kses_allowed_html( 'post' );
 
 		// Form elements needed by the review form.

@@ -15,8 +15,8 @@
   "attributes": {
     "displayStyle": {
       "type": "string",
-      "default": "accordion",
-      "enum": ["accordion", "inline", "modern-tabs", "scrollspy"]
+      "default": "",
+      "enum": ["", "accordion", "inline", "modern-tabs", "scrollspy"]
     },
     "hideContentTitles": {
       "type": "boolean",

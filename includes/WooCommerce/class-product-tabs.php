@@ -144,14 +144,14 @@ class Product_Tabs {
 		}
 
 		$hide_tab_title = $this->renderer->should_hide_tab_title_in_content( $block );
-		$tabs           = $this->renderer->get_renderable_woocommerce_tabs( $block, $hide_tab_title, $block_instance );
+		$tabs           = $this->renderer->get_renderable_woocommerce_tabs( $block, $block_instance );
 
 		if ( empty( $tabs ) ) {
-			$tabs = $this->renderer->extract_tabs_from_html( $block_content );
-
-			if ( $hide_tab_title ) {
-				$tabs = $this->renderer->remove_tab_title_headings( $tabs );
-			}
+			// Strip WooCommerce's built-in title headings unconditionally to match
+			// the primary path; our section titles are rendered separately.
+			$tabs = $this->renderer->remove_tab_title_headings(
+				$this->renderer->extract_tabs_from_html( $block_content )
+			);
 		}
 
 		if ( empty( $tabs ) ) {

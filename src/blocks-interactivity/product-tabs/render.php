@@ -45,19 +45,21 @@ if ( '' !== $block_display_style ) {
 }
 
 // Temporarily override the stored display style when the block specifies one.
+// Hook both `option_` and `default_option_`: WordPress only runs `option_`
+// when the option row exists, so a site that never saved the global Product
+// Tabs settings would otherwise ignore the block's explicit style and fall
+// back to the 'accordion' default.
 if ( null !== $option_override ) {
-	add_filter(
-		'option_' . Product_Tabs_Config::OPTION_KEY,
-		static function ( $value ) use ( $option_override ) {
-			if ( is_array( $value ) ) {
-				$value['display_style'] = $option_override;
-			} else {
-				$value = array( 'display_style' => $option_override );
-			}
-			return $value;
-		},
-		99
-	);
+	$override_display_style = static function ( $value ) use ( $option_override ) {
+		if ( is_array( $value ) ) {
+			$value['display_style'] = $option_override;
+		} else {
+			$value = array( 'display_style' => $option_override );
+		}
+		return $value;
+	};
+	add_filter( 'option_' . Product_Tabs_Config::OPTION_KEY, $override_display_style, 99 );
+	add_filter( 'default_option_' . Product_Tabs_Config::OPTION_KEY, $override_display_style, 99 );
 }
 
 // Instantiate the Product_Tabs service and wire the custom-tab filter.
@@ -85,7 +87,7 @@ $renderer = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Renderer(
 
 $hide_content_titles = ! empty( $attributes['hideContentTitles'] );
 
-$renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array(), $hide_content_titles );
+$renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array() );
 
 if ( empty( $renderable_tabs ) ) {
 	return;

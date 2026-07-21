@@ -60,6 +60,81 @@ function closeDetails(details: HTMLDetailsElement): void {
   };
 }
 
+/**
+ * Keep `anchor` visually stationary while sibling panels collapse. When a
+ * sibling accordion panel above the clicked section collapses, the document
+ * height above the anchor shrinks and would otherwise shove the clicked header
+ * (and its freshly opened content) up and out of view. We compensate the scroll
+ * position every frame so the tapped header stays put.
+ *
+ * The loop runs on a fixed deadline (a little past the collapse animation)
+ * rather than keying off `Animation.finished`: WAAPI reverts the panel to its
+ * natural height at the finish frame (fill: none) and the actual collapse
+ * happens afterwards when `closeDetails` removes the `open` attribute, so
+ * stopping on `finished` would disarm one frame too early and let the panel
+ * snap the anchor out of view.
+ *
+ * The pin yields immediately if the user tries to scroll during the window. We
+ * can't watch the `scroll` event to detect that — the pin drives `scrollBy`
+ * itself, which would fire it — so we listen for the input events that signal
+ * user intent (`wheel`, `touchmove`, scroll keys) and bail on the first one.
+ */
+const SCROLL_KEYS = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+  ' ',
+  'Spacebar',
+]);
+
+function pinScrollDuring(anchor: HTMLElement, shouldPin: boolean): void {
+  if (!shouldPin) return;
+
+  const startTop = anchor.getBoundingClientRect().top;
+  const deadline = performance.now() + ANIM_DURATION + 120;
+  let cancelled = false;
+
+  const listenerOptions: AddEventListenerOptions = { passive: true };
+  const onWheelOrTouch = (): void => {
+    cancelled = true;
+  };
+  const onKeydown = (event: KeyboardEvent): void => {
+    if (SCROLL_KEYS.has(event.key)) cancelled = true;
+  };
+
+  const cleanup = (): void => {
+    window.removeEventListener('wheel', onWheelOrTouch, listenerOptions);
+    window.removeEventListener('touchmove', onWheelOrTouch, listenerOptions);
+    window.removeEventListener('keydown', onKeydown, listenerOptions);
+  };
+
+  window.addEventListener('wheel', onWheelOrTouch, listenerOptions);
+  window.addEventListener('touchmove', onWheelOrTouch, listenerOptions);
+  window.addEventListener('keydown', onKeydown, listenerOptions);
+
+  const correct = (): void => {
+    const delta = anchor.getBoundingClientRect().top - startTop;
+    if (delta) window.scrollBy(0, delta);
+  };
+
+  const tick = (): void => {
+    if (cancelled) {
+      cleanup();
+      return;
+    }
+    correct();
+    if (performance.now() < deadline) {
+      requestAnimationFrame(tick);
+    } else {
+      cleanup();
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
 interface ProductTabsState {
   activeTab: number;
   activeSection: string;
@@ -77,7 +152,11 @@ interface ProductTabsStore {
   callbacks: InteractivityCallbacks;
 }
 
-const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
+// Exported so unit tests can drive the actions/getters directly; the
+// Interactivity runtime imports this module for its `store()` side effect.
+export const productTabsStore = store<ProductTabsStore>(
+  'aggressive-apparel/product-tabs',
+  {
   state: {
     get isActiveTab(): boolean {
       return state.activeTab === getContext<TabContext>().tabIndex;
@@ -114,10 +193,19 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
         closeDetails(details);
       } else {
         const parent = details.closest('.aa-product-info--accordion');
+        let closingAbove = false;
         if (parent) {
           for (const sibling of parent.querySelectorAll('details[open]')) {
-            if (sibling !== details)
+            if (sibling !== details) {
               closeDetails(sibling as HTMLDetailsElement);
+              // Only siblings that sit above the tapped section shift it.
+              if (
+                sibling.compareDocumentPosition(details) &
+                Node.DOCUMENT_POSITION_FOLLOWING
+              ) {
+                closingAbove = true;
+              }
+            }
           }
         }
         details.setAttribute('open', '');
@@ -130,6 +218,8 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
             content.style.overflow = '';
           };
         }
+        // Hold the tapped header in place while siblings above collapse.
+        pinScrollDuring(details, closingAbove);
       }
     }),
 
@@ -243,11 +333,43 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
         state.activeSection = (sections[0] as HTMLElement).id;
       }
 
+      // On small screens the sidebar collapses to a sticky horizontal bar.
+      // Keep the active link scrolled into view as the reader moves through
+      // sections, so the highlight is never off-screen in the overflow rail.
+      const sidebar = ref.querySelector(
+        '.aa-product-info__sidebar'
+      ) as HTMLElement | null;
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+
+      const syncNavIntoView = (sectionId: string): void => {
+        if (!sidebar || sidebar.scrollWidth <= sidebar.clientWidth) return;
+        const link = sidebar.querySelector(
+          `.aa-product-info__nav-link[href="#${CSS.escape(sectionId)}"]`
+        ) as HTMLElement | null;
+        if (!link) return;
+        const barRect = sidebar.getBoundingClientRect();
+        const linkRect = link.getBoundingClientRect();
+        const offset =
+          linkRect.left + linkRect.width / 2 - (barRect.left + barRect.width / 2);
+        sidebar.scrollBy({
+          left: offset,
+          behavior: reducedMotion ? 'auto' : 'smooth',
+        });
+      };
+
+      const setActiveSection = (sectionId: string): void => {
+        if (state.activeSection === sectionId) return;
+        state.activeSection = sectionId;
+        syncNavIntoView(sectionId);
+      };
+
       const observer = new IntersectionObserver(
         (entries: IntersectionObserverEntry[]) => {
           for (const entry of entries) {
             if (entry.isIntersecting && (entry.target as HTMLElement).id) {
-              state.activeSection = (entry.target as HTMLElement).id;
+              setActiveSection((entry.target as HTMLElement).id);
             }
           }
         },
@@ -257,4 +379,7 @@ const { state } = store<ProductTabsStore>('aggressive-apparel/product-tabs', {
       sections.forEach(section => observer.observe(section));
     },
   },
-});
+  }
+);
+
+const { state } = productTabsStore;

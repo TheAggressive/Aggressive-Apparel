@@ -84,6 +84,72 @@ class TestProductTabs extends WP_UnitTestCase {
 		$this->assertSame( 'accordion', $result['display_style'] );
 	}
 
+	/**
+	 * Inline <script>/<style> blocks must be dropped whole — tag and contents —
+	 * so wp_kses() cannot leave their source rendering as visible text (e.g.
+	 * WooCommerce's comment-form unfiltered-html script in the reviews tab).
+	 *
+	 * @return void
+	 */
+	public function test_kses_tab_content_strips_script_and_style_blocks(): void {
+		$content = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Content();
+
+		$html = '<p>Reviews</p>'
+			. '<script>(function(){window.__pwn=1;})();</script>'
+			. '<style>.x{color:red}</style>'
+			. '<p>After</p>';
+
+		$result = $content->kses_tab_content( $html );
+
+		$this->assertStringNotContainsString( '__pwn', $result );
+		$this->assertStringNotContainsString( 'color:red', $result );
+		$this->assertStringNotContainsString( '<script', $result );
+		$this->assertStringNotContainsString( '<style', $result );
+		$this->assertStringContainsString( 'Reviews', $result );
+		$this->assertStringContainsString( 'After', $result );
+	}
+
+	/**
+	 * The tab-title heading strip must remove a redundant title heading whether
+	 * it is top-level or nested in leading wrappers (WooCommerce nests the
+	 * reviews title in #reviews > #comments), but never a non-matching heading
+	 * or one that appears after real content.
+	 *
+	 * @return void
+	 */
+	public function test_strip_leading_tab_title_heading_handles_nesting(): void {
+		$renderer = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Renderer(
+			new \Aggressive_Apparel\WooCommerce\Product_Tabs_Content(),
+			$this->product_tabs
+		);
+
+		// Top-level heading matching the title is removed.
+		$this->assertStringNotContainsString(
+			'<h2>Description</h2>',
+			$renderer->strip_leading_tab_title_heading( '<h2>Description</h2><p>Body</p>', 'Description' )
+		);
+
+		// Heading nested in leading wrappers (reviews) is removed; wrappers stay.
+		$nested = '<div id="reviews"><div id="comments"><h2 class="woocommerce-Reviews-title">Reviews</h2><ol></ol></div></div>';
+		$out    = $renderer->strip_leading_tab_title_heading( $nested, 'Reviews (0)' );
+		$this->assertStringNotContainsString( 'woocommerce-Reviews-title', $out );
+		$this->assertStringContainsString( 'id="reviews"', $out );
+		$this->assertStringContainsString( 'id="comments"', $out );
+
+		// A non-matching heading (populated reviews) is kept.
+		$populated = '<div id="reviews"><h2 class="woocommerce-Reviews-title">3 reviews for Hat</h2></div>';
+		$this->assertStringContainsString(
+			'3 reviews for Hat',
+			$renderer->strip_leading_tab_title_heading( $populated, 'Reviews (3)' )
+		);
+
+		// A heading that follows real content is never stripped.
+		$this->assertStringContainsString(
+			'<h2>Description</h2>',
+			$renderer->strip_leading_tab_title_heading( '<p>Intro</p><h2>Description</h2>', 'Description' )
+		);
+	}
+
 	/** The block owns frontend styles; no parallel legacy enqueue remains. */
 	public function test_product_tabs_uses_block_style_pipeline_only(): void {
 		$this->assertFalse( method_exists( $this->product_tabs, 'enqueue_assets' ) );

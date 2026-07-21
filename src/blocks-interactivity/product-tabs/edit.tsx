@@ -16,6 +16,7 @@ interface ProductTabsAttributes {
 }
 
 const STYLE_OPTIONS = [
+  { value: '', label: __('Use global default', 'aggressive-apparel') },
   { value: 'accordion', label: __('Accordion', 'aggressive-apparel') },
   { value: 'inline', label: __('Inline Sections', 'aggressive-apparel') },
   { value: 'modern-tabs', label: __('Modern Tabs', 'aggressive-apparel') },
@@ -77,7 +78,7 @@ export default function Edit({
           <span style={{ fontSize: '0.8125rem' }}>
             {__('Style: ', 'aggressive-apparel')}
             {STYLE_OPTIONS.find(o => o.value === displayStyle)?.label ||
-              __('Accordion', 'aggressive-apparel')}
+              __('Use global default', 'aggressive-apparel')}
             {' · '}
             {__('Renders on the frontend', 'aggressive-apparel')}
           </span>

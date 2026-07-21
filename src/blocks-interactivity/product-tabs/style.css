@@ -16,6 +16,10 @@
 	--aa-pi-radius: 0.5rem;
 	--aa-pi-gap: 1.5rem;
 	--aa-pi-heading-size: 1rem;
+
+	/* Inline is the only layout whose heading is a standalone section title, so
+	   it gets its own larger, overridable size knob. */
+	--aa-pi-heading-size-inline: var(--wp--preset--font-size--xx-large);
 	--aa-pi-accent: var(--aa-color-accent);
 
 	container-type: inline-size;
@@ -64,6 +68,7 @@
 	cursor: pointer;
 	list-style: none;
 	user-select: none;
+	transition: color 0.2s ease;
 }
 
 .aa-product-info--accordion .aa-product-info__heading::-webkit-details-marker,
@@ -73,6 +78,11 @@
 }
 
 .aa-product-info--accordion .aa-product-info__heading:hover {
+	color: var(--aa-pi-accent);
+}
+
+/* Highlight the open section's heading in the accent color. */
+.aa-product-info--accordion details[open] > .aa-product-info__heading {
 	color: var(--aa-pi-accent);
 }
 
@@ -112,7 +122,7 @@
 }
 
 .aa-product-info--inline .aa-product-info__heading {
-	font-size: var(--aa-pi-heading-size);
+	font-size: var(--aa-pi-heading-size-inline);
 	font-weight: 600;
 	letter-spacing: 0.02em;
 	text-transform: uppercase;
@@ -211,11 +221,17 @@
  * Scrollspy
  * =================================================================== */
 
-.aa-product-info--scrollspy {
+.aa-product-info--scrollspy .aa-product-info__layout {
 	display: grid;
 	grid-template-columns: 12rem 1fr;
 	gap: 2rem;
 	align-items: start;
+}
+
+/* Let the content column shrink below its intrinsic width so wide tables /
+ * long text wrap instead of forcing the 1fr track to overflow the block. */
+.aa-product-info--scrollspy .aa-product-info__main {
+	min-width: 0;
 }
 
 .aa-product-info--scrollspy .aa-product-info__sidebar {
@@ -285,15 +301,6 @@
 	padding: 0;
 }
 
-/* Scrollspy: collapse from side-nav to horizontal scroll bar on small viewports.
- * display:block on the container element itself must stay @media — container
- * queries cannot target the query root. Descendant rules are below in @container. */
-@media (width < 768px) {
-
-	.aa-product-info--scrollspy {
-		display: block;
-	}
-}
 
 /* ===================================================================
  * No-Code Custom Tab Layouts
@@ -587,8 +594,17 @@
 
 @container product-info (width < 768px) {
 
+	/* Stack the layout once the block itself (not the viewport) is narrow, so a
+	 * scrollspy sitting in WooCommerce's ~50% summary column on tablet collapses
+	 * to the sticky horizontal bar instead of forcing a cramped two-column grid. */
+	.aa-product-info--scrollspy .aa-product-info__layout {
+		display: block;
+	}
+
 	.aa-product-info--scrollspy .aa-product-info__sidebar {
-		position: static;
+		position: sticky;
+		top: var(--aa-pi-nav-offset, 0);
+		z-index: 1;
 		flex-direction: row;
 		overflow-x: auto;
 		scrollbar-width: none;
@@ -597,11 +613,17 @@
 		padding-right: 0;
 		padding-bottom: 0;
 		margin-bottom: var(--aa-pi-gap);
+		background: var(--aa-color-surface);
 		gap: 0;
 	}
 
 	.aa-product-info--scrollspy .aa-product-info__sidebar::-webkit-scrollbar {
 		display: none;
+	}
+
+	/* Land click / hash navigation below the now-sticky horizontal bar. */
+	.aa-product-info--scrollspy .aa-product-info__section {
+		scroll-margin-top: calc(var(--aa-pi-nav-offset, 0px) + 3.5rem);
 	}
 
 	.aa-product-info--scrollspy .aa-product-info__nav-link {
@@ -767,7 +789,8 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aa-product-info--accordion .aa-product-info__chevron {
+	.aa-product-info--accordion .aa-product-info__chevron,
+	.aa-product-info--accordion .aa-product-info__heading {
 		transition: none;
 	}
 

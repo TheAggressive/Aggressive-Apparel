@@ -191,6 +191,10 @@ class Product_Tabs_Renderer {
 	public function render_scrollspy( array $tabs, bool $hide_titles = false ): string {
 		$html = '<div class="woocommerce aa-product-info aa-product-info--scrollspy" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initScrollspy">';
 
+		// Inner grid wrapper: the root carries the CSS container, which cannot
+		// query itself, so the two-column-vs-stacked switch lives on this child.
+		$html .= '<div class="aa-product-info__layout">';
+
 		// Sidebar nav.
 		$html .= '<nav class="aa-product-info__sidebar" aria-label="' . esc_attr__( 'Product information', 'aggressive-apparel' ) . '">';
 
@@ -226,8 +230,9 @@ class Product_Tabs_Renderer {
 			);
 		}
 
-		$html .= '</div>';
-		$html .= '</div>';
+		$html .= '</div>'; // .aa-product-info__main
+		$html .= '</div>'; // .aa-product-info__layout
+		$html .= '</div>'; // .aa-product-info--scrollspy
 		return $html;
 	}
 
@@ -384,7 +389,13 @@ class Product_Tabs_Renderer {
 			return $content;
 		}
 
-		if ( 1 !== preg_match( '/^\s*(?:<!--.*?-->\s*)*(<h([1-6])\b[^>]*>.*?<\/h\2>)/is', $content, $matches ) ) {
+		// Match the first heading, allowing it to sit inside leading wrapper
+		// elements (e.g. WooCommerce nests the reviews title in
+		// #reviews > #comments). Only leading wrappers/comments/whitespace may
+		// precede it, so a heading buried after real content is never touched.
+		$pattern = '/^\s*(?:(?:<!--.*?-->|<(?:div|section|article|figure)\b[^>]*>)\s*)*(<h([1-6])\b[^>]*>.*?<\/h\2>)/is';
+
+		if ( 1 !== preg_match( $pattern, $content, $matches ) ) {
 			return $content;
 		}
 
@@ -399,7 +410,10 @@ class Product_Tabs_Renderer {
 			return $content;
 		}
 
-		return trim( substr( $content, strlen( $matches[0] ) ) );
+		// Remove only the heading element, leaving any leading wrappers intact.
+		$updated = preg_replace( '/' . preg_quote( $matches[1], '/' ) . '/', '', $content, 1 );
+
+		return is_string( $updated ) ? $updated : $content;
 	}
 
 	/**
@@ -420,11 +434,10 @@ class Product_Tabs_Renderer {
 	 * Build renderable tab data from WooCommerce tab callbacks.
 	 *
 	 * @param array $block          Parsed block data.
-	 * @param bool  $hide_tab_title Whether duplicate tab title headings should be removed.
 	 * @param mixed $block_instance Rendered block instance.
 	 * @return array<int, array<string, string>> Renderable tab data.
 	 */
-	public function get_renderable_woocommerce_tabs( array $block, bool $hide_tab_title, $block_instance = null ): array {
+	public function get_renderable_woocommerce_tabs( array $block, $block_instance = null ): array {
 		$previous_product_id           = $this->tabs->render_product_id;
 		$this->tabs->render_product_id = $this->tabs->get_current_product_id( $block, $block_instance );
 		$product_id                    = $this->tabs->render_product_id;
@@ -458,9 +471,11 @@ class Product_Tabs_Renderer {
 			$title   = (string) $tab['title'];
 			$content = $this->render_woocommerce_tab_callback( (string) $key, $tab );
 
-			if ( $hide_tab_title ) {
-				$content = $this->strip_leading_tab_title_heading( $content, $title );
-			}
+			// Always drop WooCommerce's own leading title heading (e.g.
+			// <h2>Description</h2>): every layout renders its own section title
+			// (or intentionally hides it), so the callback's heading is a
+			// duplicate. Only a heading matching the tab title is removed.
+			$content = $this->strip_leading_tab_title_heading( $content, $title );
 
 			if ( $this->is_tab_content_empty( $content, $title ) ) {
 				continue;

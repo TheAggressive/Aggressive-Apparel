@@ -109,6 +109,7 @@
 	--aa-z-commerce-drawer: var(--wp--custom--z-index--commerce-drawer, 99998);
 	--aa-z-nav-panel: var(--wp--custom--z-index--nav-panel, 100000);
 	--aa-z-search-modal: var(--wp--custom--z-index--search-modal, 100001);
+	--aa-z-lightbox: var(--wp--custom--z-index--lightbox, 100002);
 
 	/* Component sizing (from settings.custom.size). */
 	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);

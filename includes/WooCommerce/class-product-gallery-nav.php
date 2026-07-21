@@ -49,6 +49,16 @@ class Product_Gallery_Nav {
 	private const WC_STYLE_HANDLE = 'woocommerce-product-gallery-large-image-next-previous-style';
 
 	/**
+	 * Gallery block that renders the full-screen lightbox dialog.
+	 */
+	private const GALLERY_BLOCK_NAME = 'woocommerce/product-gallery';
+
+	/**
+	 * Script handle for the lightbox stacking fix.
+	 */
+	private const LIGHTBOX_SCRIPT_HANDLE = 'aggressive-apparel-product-gallery-lightbox';
+
+	/**
 	 * Built CSS path relative to the theme root.
 	 */
 	private const STYLE_RELATIVE_PATH = 'build/styles/woocommerce/product-gallery.css';
@@ -86,6 +96,24 @@ class Product_Gallery_Nav {
 	public function init(): void {
 		add_action( 'init', array( $this, 'register_block_styles' ) );
 		add_filter( self::RENDER_FILTER, array( $this, 'replace_nav_icons' ), 15 );
+		add_filter( 'render_block_' . self::GALLERY_BLOCK_NAME, array( $this, 'enqueue_lightbox_script' ) );
+	}
+
+	/**
+	 * Load the lightbox stacking fix only when the gallery block renders.
+	 *
+	 * @param string $block_content Rendered block HTML.
+	 * @return string Unmodified block HTML.
+	 */
+	public function enqueue_lightbox_script( string $block_content ): string {
+		if ( ! is_admin() ) {
+			Asset_Loader::enqueue_script(
+				self::LIGHTBOX_SCRIPT_HANDLE,
+				'build/scripts/product-gallery-lightbox'
+			);
+		}
+
+		return $block_content;
 	}
 
 	/**

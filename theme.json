@@ -394,7 +394,8 @@
         "bottomNav": 99997,
         "commerceDrawer": 99998,
         "navPanel": 100000,
-        "searchModal": 100001
+        "searchModal": 100001,
+        "lightbox": 100002
       },
       "size": {
         "buttonHeight": {

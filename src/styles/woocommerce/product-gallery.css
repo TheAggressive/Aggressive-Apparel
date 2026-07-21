@@ -7,6 +7,22 @@
  * @package Aggressive_Apparel
  */
 
+/* WooCommerce ships the full-screen gallery dialog at z-index: 1000 and opens
+ * it non-modally (never the browser top layer), so the theme's fixed commerce
+ * chrome (sticky add-to-cart, bottom nav, free-shipping bar — all 99996+) and,
+ * because the gallery sits in a sticky split-story column, the sibling summary
+ * content bleed through the open lightbox. Lift the dialog itself, and — via
+ * product-gallery-lightbox.ts — lift its nearest positioned ancestor while open
+ * so the dialog's whole (sticky-trapped) subtree wins the stacking order.
+ * Unlayered to beat WooCommerce's own unlayered rule; wins on source order. */
+.wc-block-product-gallery-dialog {
+	z-index: var(--aa-z-lightbox);
+}
+
+.aa-gallery-dialog-elevated {
+	z-index: var(--aa-z-lightbox);
+}
+
 .wc-block-next-previous-buttons {
 
 	.wc-block-next-previous-buttons__button {

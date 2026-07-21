@@ -67,9 +67,7 @@ function boot(): void {
   // navigation is a full page load (native MPA View Transitions), so it always
   // exists by the time this footer script runs — no need to watch the document
   // for dynamically inserted dialogs.
-  document
-    .querySelectorAll<HTMLElement>(DIALOG_SELECTOR)
-    .forEach(watchDialog);
+  document.querySelectorAll<HTMLElement>(DIALOG_SELECTOR).forEach(watchDialog);
 }
 
 if (document.readyState !== 'loading') {

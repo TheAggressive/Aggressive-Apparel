@@ -199,6 +199,8 @@ Product filter blocks are **template-placed only** — add `filter-toggle` and `
 
 Blocks such as `product-tabs`, `search`, `modal` (supports exit-intent and scroll-depth triggers), and free-shipping blocks are placed in templates rather than controlled by store-enhancement toggles.
 
+`product-tabs` replaces WooCommerce's native Product Details with four selectable layouts — **accordion** (independent by default, or one-open-at-a-time), **inline**, **modern tabs**, and **scrollspy** — animated with CSS (grid-rows reveal, sticky mobile rails) rather than per-frame JavaScript. The editor exposes heading font size, heading text color, and accent color (stored as portable palette references); the default layout is set globally under **Products → Product Tabs** and is overridable per placement.
+
 **Full placement rules (filters, wishlist, cards, nav):** [`docs/block-placement.md`](docs/block-placement.md)
 
 ### Icon System

@@ -1,5 +1,12 @@
 /**
- * Product Gallery Thumbnails — small-screen sizing
+ * Product Gallery sizing fixes
+ *
+ * On larger screens the gallery's flex layout can give the large-image track
+ * a fractional width. Browsers quantize the track's programmatic scroll offset
+ * to whole CSS pixels, so a selected slide can stop a fraction of a pixel short
+ * and expose an anti-aliased sliver of the previous image. Round the track down
+ * to a whole pixel so its 100%-wide slides and scroll offsets share the same
+ * integer geometry.
  *
  * Below 600px WooCommerce stacks the gallery and sizes the thumbnail strip
  * with `aspect-ratio: 5/1 !important` + `height: 20%` on the container, then
@@ -18,6 +25,14 @@
  *
  * @package Aggressive_Apparel
  */
+
+@media (width > 600px) {
+
+	.wc-block-product-gallery .wc-block-product-gallery-large-image__container {
+		/* stylelint-disable-next-line declaration-property-value-no-unknown -- CSS Values 4 round() removes fractional scroll geometry. */
+		inline-size: round(down, 100%, 1px);
+	}
+}
 
 @media (width <= 600px) {
 

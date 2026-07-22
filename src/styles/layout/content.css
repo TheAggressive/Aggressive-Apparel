@@ -4,3 +4,22 @@
  * @package Aggressive_Apparel
  */
 
+/* ---------------------------------------------------------------------------
+ * Flush top-level regions (header / main / footer).
+ *
+ * WordPress derives a root-level gap between the top-level template blocks from
+ * styles.spacing.blockGap in theme.json:
+ *   :where(.wp-site-blocks) > * { margin-block-start: var(--wp--preset--spacing--8); }
+ * That value is shared with every container's *default* blockGap, so it can't be
+ * decoupled in theme.json. We want header/content/footer flush by default while
+ * keeping the gap *inside* main and other containers, so zero only the
+ * root-level gap here. Unlayered + `:root` to outrank WP's unlayered `:where()`
+ * rule on specificity without !important. Add margin intentionally where a gap
+ * between regions is actually wanted (non-zero values from the editor apply fine).
+ *
+ * NOTE: a per-block *inline* margin set in the editor (e.g. a `margin-bottom`
+ * on <main>) is not affected by this — clear that on the block in the Site Editor.
+ * ------------------------------------------------------------------------- */
+:root :where(.wp-site-blocks) > * {
+  margin-block-start: 0;
+}

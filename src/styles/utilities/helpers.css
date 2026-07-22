@@ -39,30 +39,3 @@
     display: none !important;
   }
 }
-
-/* ---------------------------------------------------------------------------
- * Flush top-level blocks against header/footer.
- *
- * WordPress injects a vertical gap between the top-level template blocks
- * (header / main / footer) via the global rule:
- *   :where(.wp-site-blocks) > * { margin-block-start: var(--wp--preset--spacing--8); }
- * The editor spacing control can't zero this — it collapses `0` to "None",
- * which leaves the block writing no margin, so the rule above still applies.
- *
- * Add these classes via a block's Advanced -> Additional CSS class(es) to opt
- * a top-level block out of that gap (e.g. `aa-flush-top` on the footer, or on
- * the content block that should sit right under the header). Higher specificity
- * than WP's `:where()` rule, so no !important needed. Only affects DIRECT
- * children of .wp-site-blocks — which is exactly where WP injects the gap.
- *
- * NOTE: this cannot override an *inline* margin set on the block itself (e.g. a
- * `margin-bottom` picked in the editor) — clear that in the Site Editor instead.
- * ------------------------------------------------------------------------- */
-
-:root :where(.wp-site-blocks) > .aa-flush-top {
-  margin-block-start: 0;
-}
-
-:root :where(.wp-site-blocks) > .aa-flush-bottom {
-  margin-block-end: 0;
-}

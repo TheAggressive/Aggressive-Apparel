@@ -25,6 +25,18 @@
     "accordionExclusive": {
       "type": "boolean",
       "default": false
+    },
+    "headingFontSize": {
+      "type": "string",
+      "default": ""
+    },
+    "headingColor": {
+      "type": "string",
+      "default": ""
+    },
+    "accentColor": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "aggressive-apparel",

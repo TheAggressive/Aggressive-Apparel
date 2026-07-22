@@ -88,6 +88,49 @@ $renderer = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Renderer(
 $hide_content_titles = ! empty( $attributes['hideContentTitles'] );
 $accordion_exclusive = ! empty( $attributes['accordionExclusive'] );
 
+/**
+ * Convert a stored colour attribute into a CSS value: a `var:preset|color|slug`
+ * or bare slug becomes `var(--wp--preset--color--slug)` (which
+ * safecss_filter_attr allows and which keeps adaptive palette colours live);
+ * a custom colour passes through.
+ *
+ * @param string $value Stored colour attribute.
+ * @return string CSS colour value, or '' when empty.
+ */
+$to_css_color = static function ( string $value ): string {
+	$value = trim( $value );
+	if ( '' === $value ) {
+		return '';
+	}
+	if ( preg_match( '/^var:preset\|color\|([a-z0-9_-]+)$/i', $value, $matches ) ) {
+		return 'var(--wp--preset--color--' . sanitize_key( $matches[1] ) . ')';
+	}
+	if ( preg_match( '/^[a-z0-9_-]+$/i', $value ) ) {
+		return 'var(--wp--preset--color--' . sanitize_key( $value ) . ')';
+	}
+	return $value;
+};
+
+// Editor-controlled heading typography/colour → block CSS custom properties.
+$root_style    = '';
+$heading_size  = isset( $attributes['headingFontSize'] ) ? trim( (string) $attributes['headingFontSize'] ) : '';
+$heading_color = $to_css_color( isset( $attributes['headingColor'] ) ? (string) $attributes['headingColor'] : '' );
+$accent_color  = $to_css_color( isset( $attributes['accentColor'] ) ? (string) $attributes['accentColor'] : '' );
+
+if ( '' !== $heading_size ) {
+	// Set both tokens so the size applies whichever layout is active (inline
+	// uses its own token for a larger default).
+	$root_style .= '--aa-pi-heading-size:' . $heading_size . ';--aa-pi-heading-size-inline:' . $heading_size . ';';
+}
+if ( '' !== $heading_color ) {
+	$root_style .= '--aa-pi-heading-color:' . $heading_color . ';';
+}
+if ( '' !== $accent_color ) {
+	$root_style .= '--aa-pi-accent:' . $accent_color . ';';
+}
+
+$renderer->set_root_style( safecss_filter_attr( $root_style ) );
+
 $renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array() );
 
 if ( empty( $renderable_tabs ) ) {

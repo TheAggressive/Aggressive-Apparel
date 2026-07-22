@@ -29,6 +29,12 @@
 	line-height: inherit;
 }
 
+/* Base heading color. Editor-set `--aa-pi-heading-color` overrides the theme
+ * text color; the accent (active/open) states win via higher specificity. */
+.aa-product-info__heading {
+	color: var(--aa-pi-heading-color, inherit);
+}
+
 .aa-product-info__content {
 	padding: var(--aa-pi-gap) 0;
 	overflow-wrap: break-word;
@@ -201,7 +207,7 @@
 	border: none;
 	border-radius: 0;
 	background: transparent;
-	color: inherit;
+	color: var(--aa-pi-heading-color, inherit);
 	cursor: pointer;
 	opacity: 0.6;
 	transition: opacity 0.15s ease, color 0.15s ease;

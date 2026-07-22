@@ -22,6 +22,9 @@ const THEME_ROOT = path.resolve(
 
 const FORCE_STYLE_OPTION = 'e2e_product_tabs_force_style';
 const EXCLUSIVE_OPTION = 'e2e_product_tabs_exclusive';
+const HEADING_SIZE_OPTION = 'e2e_product_tabs_heading_size';
+const HEADING_COLOR_OPTION = 'e2e_product_tabs_heading_color';
+const ACCENT_COLOR_OPTION = 'e2e_product_tabs_accent_color';
 const GLOBAL_TABS_OPTION = 'aggressive_apparel_product_tabs';
 const MU_PLUGIN_NAME = 'e2e-product-tabs-style.php';
 
@@ -52,9 +55,20 @@ export function installStyleForcer(): void {
     // Show our section headings so a duplicate WooCommerce content heading
     // would be visible to the duplicate-heading regression test.
     '$block["attrs"]["hideContentTitles"] = false; ' +
-    'if (get_option("' +
+    // Always set explicitly so the fixture is deterministic regardless of any
+    // value baked into the single-product template's saved block.
+    '$block["attrs"]["accordionExclusive"] = (bool) get_option("' +
     EXCLUSIVE_OPTION +
-    '")) { $block["attrs"]["accordionExclusive"] = true; } ' +
+    '"); ' +
+    '$block["attrs"]["headingFontSize"] = (string) get_option("' +
+    HEADING_SIZE_OPTION +
+    '"); ' +
+    '$block["attrs"]["headingColor"] = (string) get_option("' +
+    HEADING_COLOR_OPTION +
+    '"); ' +
+    '$block["attrs"]["accentColor"] = (string) get_option("' +
+    ACCENT_COLOR_OPTION +
+    '"); ' +
     '} return $block; });';
 
   // base64 so the PHP body passes through wp-cli's eval verbatim (no shell
@@ -87,6 +101,9 @@ echo 'ok';
     ]);
     wp(['option', 'delete', FORCE_STYLE_OPTION]);
     wp(['option', 'delete', EXCLUSIVE_OPTION]);
+    wp(['option', 'delete', HEADING_SIZE_OPTION]);
+    wp(['option', 'delete', HEADING_COLOR_OPTION]);
+    wp(['option', 'delete', ACCENT_COLOR_OPTION]);
   } catch {
     // Best-effort cleanup.
   }
@@ -145,6 +162,28 @@ export function setAccordionExclusive(exclusive: boolean): void {
       // Already absent.
     }
   }
+}
+
+/** Drive the editor heading typography/color attributes (empty string clears). */
+export function setHeadingStyle(style: {
+  fontSize?: string;
+  color?: string;
+  accent?: string;
+}): void {
+  const set = (name: string, value?: string): void => {
+    if (value) {
+      wp(['option', 'update', name, value]);
+    } else {
+      try {
+        wp(['option', 'delete', name]);
+      } catch {
+        // Already absent.
+      }
+    }
+  };
+  set(HEADING_SIZE_OPTION, style.fontSize);
+  set(HEADING_COLOR_OPTION, style.color);
+  set(ACCENT_COLOR_OPTION, style.accent);
 }
 
 /**

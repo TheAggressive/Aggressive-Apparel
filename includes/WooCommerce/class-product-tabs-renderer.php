@@ -36,6 +36,14 @@ class Product_Tabs_Renderer {
 	private Product_Tabs $tabs;
 
 	/**
+	 * Sanitized inline style (CSS custom properties) applied to the root element,
+	 * carrying the block's editor-controlled heading size/colour/accent.
+	 *
+	 * @var string
+	 */
+	private string $root_style = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Product_Tabs_Content $content Content helper service.
@@ -44,6 +52,25 @@ class Product_Tabs_Renderer {
 	public function __construct( Product_Tabs_Content $content, Product_Tabs $tabs ) {
 		$this->content = $content;
 		$this->tabs    = $tabs;
+	}
+
+	/**
+	 * Set the pre-sanitized inline style for the rendered root element.
+	 *
+	 * @param string $style Sanitized style attribute value (may be empty).
+	 * @return void
+	 */
+	public function set_root_style( string $style ): void {
+		$this->root_style = $style;
+	}
+
+	/**
+	 * Build the ` style="..."` attribute for the root element, or '' when none.
+	 *
+	 * @return string
+	 */
+	private function root_style_attr(): string {
+		return '' !== $this->root_style ? ' style="' . esc_attr( $this->root_style ) . '"' : '';
 	}
 
 	/**
@@ -83,7 +110,7 @@ class Product_Tabs_Renderer {
 	 */
 	public function render_accordion( array $tabs, bool $exclusive = false ): string {
 		$exclusive_attr = $exclusive ? ' data-aa-exclusive' : '';
-		$html           = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initHashNav"' . $exclusive_attr . '>';
+		$html           = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initHashNav"' . $exclusive_attr . $this->root_style_attr() . '>';
 
 		foreach ( $tabs as $index => $tab ) {
 			$open  = 0 === $index ? ' open' : '';
@@ -114,7 +141,7 @@ class Product_Tabs_Renderer {
 	 * @return string Rendered HTML.
 	 */
 	public function render_inline( array $tabs, bool $hide_titles = false ): string {
-		$html = '<div class="woocommerce aa-product-info aa-product-info--inline">';
+		$html = '<div class="woocommerce aa-product-info aa-product-info--inline"' . $this->root_style_attr() . '>';
 
 		foreach ( $tabs as $tab ) {
 			$heading = $hide_titles ? '' : sprintf( '<h3 class="aa-product-info__heading">%s</h3>', esc_html( $tab['title'] ) );
@@ -139,7 +166,7 @@ class Product_Tabs_Renderer {
 	public function render_modern_tabs( array $tabs ): string {
 		$context = (string) wp_json_encode( array( 'tabCount' => count( $tabs ) ) );
 
-		$html  = '<div class="woocommerce aa-product-info aa-product-info--modern-tabs" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.initHashNav">';
+		$html  = '<div class="woocommerce aa-product-info aa-product-info--modern-tabs" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-context=\'' . esc_attr( $context ) . '\' data-wp-init="callbacks.initHashNav"' . $this->root_style_attr() . '>';
 		$html .= '<nav class="aa-product-info__tab-nav" role="tablist" aria-label="' . esc_attr__( 'Product information', 'aggressive-apparel' ) . '">';
 
 		foreach ( $tabs as $index => $tab ) {
@@ -196,7 +223,7 @@ class Product_Tabs_Renderer {
 	 * @return string Rendered HTML.
 	 */
 	public function render_scrollspy( array $tabs, bool $hide_titles = false ): string {
-		$html = '<div class="woocommerce aa-product-info aa-product-info--scrollspy" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initScrollspy">';
+		$html = '<div class="woocommerce aa-product-info aa-product-info--scrollspy" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initScrollspy"' . $this->root_style_attr() . '>';
 
 		// Inner grid wrapper: the root carries the CSS container, which cannot
 		// query itself, so the two-column-vs-stacked switch lives on this child.

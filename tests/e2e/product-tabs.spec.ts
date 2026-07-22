@@ -3,6 +3,7 @@ import {
   createProductTabsFixture,
   setProductTabsStyle,
   setAccordionExclusive,
+  setHeadingStyle,
   deleteProductTabsFixture,
   installStyleForcer,
   uninstallStyleForcer,
@@ -200,9 +201,58 @@ test.describe('Product tabs — front end', () => {
     expect(finalTop).toBeGreaterThanOrEqual(0);
   });
 
+  test('editor heading size + colors reach the front end (preset refs survive)', async ({
+    page,
+  }) => {
+    // The preset color refs (var:preset|color|slug) must convert to
+    // var(--wp--preset--color--slug) and survive safecss_filter_attr, and the
+    // three CSS custom properties must land on the rendered root.
+    setProductTabsStyle('accordion');
+    setAccordionExclusive(false);
+    setHeadingStyle({
+      fontSize: '2rem',
+      color: 'var:preset|color|success',
+      accent: 'var:preset|color|info',
+    });
+    await page.setViewportSize({ width: 900, height: 900 });
+    await page.goto(productUrl);
+
+    const accordion = page.locator('.aa-product-info--accordion');
+    await accordion.waitFor();
+
+    const result = await accordion.evaluate((root: HTMLElement) => {
+      const swatch = (name: string) => {
+        const probe = document.createElement('span');
+        probe.style.color = `var(--wp--preset--color--${name})`;
+        root.appendChild(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      };
+      const closed = root.querySelector(
+        'details:not([open]) > .aa-product-info__heading'
+      ) as HTMLElement;
+      const open = root.querySelector(
+        'details[open] > .aa-product-info__heading'
+      ) as HTMLElement;
+      return {
+        closedFontSize: getComputedStyle(closed).fontSize,
+        closedColor: getComputedStyle(closed).color,
+        openColor: getComputedStyle(open).color,
+        successRgb: swatch('success'),
+        infoRgb: swatch('info'),
+      };
+    });
+
+    expect(result.closedFontSize).toBe('32px'); // 2rem
+    expect(result.closedColor).toBe(result.successRgb); // heading text color
+    expect(result.openColor).toBe(result.infoRgb); // accent color
+  });
+
   test('accordion highlights the open section heading in the accent color', async ({
     page,
   }) => {
+    setHeadingStyle({});
     setProductTabsStyle('accordion');
     setAccordionExclusive(false);
     await page.setViewportSize({ width: 1024, height: 800 });

@@ -6,14 +6,42 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+  useBlockProps,
+  InspectorControls,
+  useSettings,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
+  // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+  __experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
+} from '@wordpress/block-editor';
+import {
+  PanelBody,
+  SelectControl,
+  ToggleControl,
+  FontSizePicker,
+} from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
+import {
+  flattenPresetColors,
+  fromPresetColorRef,
+  toPresetColorRef,
+  type PresetColorOrigin,
+} from '../../utils/preset-colors';
 
 interface ProductTabsAttributes {
   displayStyle: string;
   hideContentTitles: boolean;
   accordionExclusive: boolean;
+  headingFontSize: string;
+  headingColor: string;
+  accentColor: string;
+}
+
+interface FontSize {
+  name?: string;
+  slug: string;
+  size: string;
 }
 
 const STYLE_OPTIONS = [
@@ -27,13 +55,29 @@ const STYLE_OPTIONS = [
 export default function Edit({
   attributes,
   setAttributes,
+  clientId,
 }: BlockEditProps<ProductTabsAttributes>) {
-  const { displayStyle, hideContentTitles, accordionExclusive } = attributes;
+  const {
+    displayStyle,
+    hideContentTitles,
+    accordionExclusive,
+    headingFontSize,
+    headingColor,
+    accentColor,
+  } = attributes;
   const showAccordionOptions =
     displayStyle === 'accordion' || displayStyle === '';
-  const blockProps = useBlockProps({
-    className: 'aa-product-info',
-  });
+  const blockProps = useBlockProps({ className: 'aa-product-info' });
+
+  const colorGradientSettings = useMultipleOriginColorsAndGradients();
+  const presetColors = flattenPresetColors(
+    colorGradientSettings.colors as PresetColorOrigin[] | undefined
+  );
+  const [fontSizes] = useSettings('typography.fontSizes') as [
+    FontSize[] | undefined,
+  ];
+
+  const previewAccent = fromPresetColorRef(accentColor, presetColors);
 
   return (
     <>
@@ -81,6 +125,47 @@ export default function Edit({
             />
           )}
         </PanelBody>
+        <PanelBody
+          title={__('Heading', 'aggressive-apparel')}
+          initialOpen={false}
+        >
+          <FontSizePicker
+            __nextHasNoMarginBottom
+            fontSizes={fontSizes}
+            value={headingFontSize || undefined}
+            onChange={(value?: string | number) =>
+              setAttributes({
+                headingFontSize: value != null ? String(value) : '',
+              })
+            }
+            withReset
+          />
+        </PanelBody>
+      </InspectorControls>
+      <InspectorControls group='color'>
+        <ColorGradientSettingsDropdown
+          panelId={clientId}
+          settings={[
+            {
+              label: __('Heading text', 'aggressive-apparel'),
+              colorValue: fromPresetColorRef(headingColor, presetColors),
+              onColorChange: (value?: string) =>
+                setAttributes({
+                  headingColor: toPresetColorRef(value, presetColors),
+                }),
+            },
+            {
+              label: __('Accent (active / open)', 'aggressive-apparel'),
+              colorValue: previewAccent,
+              onColorChange: (value?: string) =>
+                setAttributes({
+                  accentColor: toPresetColorRef(value, presetColors),
+                }),
+            },
+          ]}
+          __experimentalIsRenderedInSidebar
+          {...colorGradientSettings}
+        />
       </InspectorControls>
       <div {...blockProps}>
         <div
@@ -92,6 +177,23 @@ export default function Edit({
             color: 'var(--aa-color-foreground-muted, #888)',
           }}
         >
+          <span
+            style={{
+              display: 'inline-block',
+              fontSize: headingFontSize || undefined,
+              fontWeight: 600,
+              letterSpacing: '0.02em',
+              textTransform: 'uppercase',
+              color:
+                fromPresetColorRef(headingColor, presetColors) || undefined,
+              borderBottom: `2px solid ${previewAccent || 'var(--aa-color-accent, currentColor)'}`,
+              paddingBottom: '0.25rem',
+              marginBottom: '0.75rem',
+            }}
+          >
+            {__('Description', 'aggressive-apparel')}
+          </span>
+          <br />
           <strong>{__('Product Tabs', 'aggressive-apparel')}</strong>
           <br />
           <span style={{ fontSize: '0.8125rem' }}>

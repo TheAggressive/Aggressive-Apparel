@@ -21,6 +21,10 @@
     "hideContentTitles": {
       "type": "boolean",
       "default": true
+    },
+    "accordionExclusive": {
+      "type": "boolean",
+      "default": false
     }
   },
   "textdomain": "aggressive-apparel",

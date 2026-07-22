@@ -21,6 +21,7 @@ const THEME_ROOT = path.resolve(
 );
 
 const FORCE_STYLE_OPTION = 'e2e_product_tabs_force_style';
+const EXCLUSIVE_OPTION = 'e2e_product_tabs_exclusive';
 const GLOBAL_TABS_OPTION = 'aggressive_apparel_product_tabs';
 const MU_PLUGIN_NAME = 'e2e-product-tabs-style.php';
 
@@ -51,6 +52,9 @@ export function installStyleForcer(): void {
     // Show our section headings so a duplicate WooCommerce content heading
     // would be visible to the duplicate-heading regression test.
     '$block["attrs"]["hideContentTitles"] = false; ' +
+    'if (get_option("' +
+    EXCLUSIVE_OPTION +
+    '")) { $block["attrs"]["accordionExclusive"] = true; } ' +
     '} return $block; });';
 
   // base64 so the PHP body passes through wp-cli's eval verbatim (no shell
@@ -82,6 +86,7 @@ echo 'ok';
 `.trim(),
     ]);
     wp(['option', 'delete', FORCE_STYLE_OPTION]);
+    wp(['option', 'delete', EXCLUSIVE_OPTION]);
   } catch {
     // Best-effort cleanup.
   }
@@ -127,6 +132,19 @@ echo $id . '|' . get_permalink($id);
 /** Force the product-tabs display style for the next page load. */
 export function setProductTabsStyle(style: TabStyle): void {
   wp(['option', 'update', FORCE_STYLE_OPTION, style]);
+}
+
+/** Toggle the accordion's exclusive (one-open-at-a-time) mode. */
+export function setAccordionExclusive(exclusive: boolean): void {
+  if (exclusive) {
+    wp(['option', 'update', EXCLUSIVE_OPTION, '1']);
+  } else {
+    try {
+      wp(['option', 'delete', EXCLUSIVE_OPTION]);
+    } catch {
+      // Already absent.
+    }
+  }
 }
 
 /**

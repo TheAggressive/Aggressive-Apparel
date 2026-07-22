@@ -52,12 +52,13 @@ class Product_Tabs_Renderer {
 	 * @param array  $tabs         Renderable tab data.
 	 * @param string $fallback     Original Product Details block HTML.
 	 * @param bool   $hide_titles  Whether to hide the section heading above each tab's content.
+	 * @param bool   $exclusive    Whether the accordion allows only one open section at a time.
 	 * @return string Rendered HTML.
 	 */
-	public function render_tabs_by_style( array $tabs, string $fallback, bool $hide_titles = false ): string {
+	public function render_tabs_by_style( array $tabs, string $fallback, bool $hide_titles = false, bool $exclusive = false ): string {
 		switch ( $this->tabs->get_display_style() ) {
 			case 'accordion':
-				return $this->render_accordion( $tabs );
+				return $this->render_accordion( $tabs, $exclusive );
 			case 'inline':
 				return $this->render_inline( $tabs, $hide_titles );
 			case 'modern-tabs':
@@ -72,11 +73,17 @@ class Product_Tabs_Renderer {
 	/**
 	 * Render tabs as accordions.
 	 *
-	 * @param array $tabs Renderable tab data.
+	 * The panel content is wrapped in an `__reveal` grid so the open/close is a
+	 * CSS `grid-template-rows` transition (see product-tabs view module); the
+	 * exclusive flag surfaces as `data-aa-exclusive` for the toggle logic.
+	 *
+	 * @param array $tabs      Renderable tab data.
+	 * @param bool  $exclusive Whether only one section may be open at a time.
 	 * @return string Rendered HTML.
 	 */
-	public function render_accordion( array $tabs ): string {
-		$html = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initHashNav">';
+	public function render_accordion( array $tabs, bool $exclusive = false ): string {
+		$exclusive_attr = $exclusive ? ' data-aa-exclusive' : '';
+		$html           = '<div class="woocommerce aa-product-info aa-product-info--accordion" data-wp-interactive="aggressive-apparel/product-tabs" data-wp-init="callbacks.initHashNav"' . $exclusive_attr . '>';
 
 		foreach ( $tabs as $index => $tab ) {
 			$open  = 0 === $index ? ' open' : '';
@@ -86,7 +93,7 @@ class Product_Tabs_Renderer {
 				'<span>%s</span>' .
 				'<svg class="aa-product-info__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' .
 				'</summary>' .
-				'<div class="aa-product-info__content is-layout-flow">%s</div>' .
+				'<div class="aa-product-info__reveal"><div class="aa-product-info__reveal-inner"><div class="aa-product-info__content is-layout-flow">%s</div></div></div>' .
 				'</details>',
 				esc_attr( $tab['id'] ),
 				$open,

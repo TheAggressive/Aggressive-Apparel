@@ -13,6 +13,7 @@ import type { BlockEditProps } from '@wordpress/blocks';
 interface ProductTabsAttributes {
   displayStyle: string;
   hideContentTitles: boolean;
+  accordionExclusive: boolean;
 }
 
 const STYLE_OPTIONS = [
@@ -27,7 +28,9 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<ProductTabsAttributes>) {
-  const { displayStyle, hideContentTitles } = attributes;
+  const { displayStyle, hideContentTitles, accordionExclusive } = attributes;
+  const showAccordionOptions =
+    displayStyle === 'accordion' || displayStyle === '';
   const blockProps = useBlockProps({
     className: 'aa-product-info',
   });
@@ -61,6 +64,22 @@ export default function Edit({
               setAttributes({ hideContentTitles: val })
             }
           />
+          {showAccordionOptions && (
+            <ToggleControl
+              label={__(
+                'Only one section open at a time',
+                'aggressive-apparel'
+              )}
+              help={__(
+                'Accordion layout: opening a section closes the others. Off by default (sections open independently).',
+                'aggressive-apparel'
+              )}
+              checked={accordionExclusive}
+              onChange={(val: boolean) =>
+                setAttributes({ accordionExclusive: val })
+              }
+            />
+          )}
         </PanelBody>
       </InspectorControls>
       <div {...blockProps}>

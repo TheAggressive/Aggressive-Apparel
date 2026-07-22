@@ -48,6 +48,9 @@
 
 .aa-product-info--accordion .aa-product-info__section {
 	border-bottom: 1px solid var(--aa-pi-border);
+
+	/* Breathing room when exclusive mode scrolls a freshly opened header up. */
+	scroll-margin-top: 1rem;
 }
 
 .aa-product-info--accordion .aa-product-info__section:first-child {
@@ -81,9 +84,15 @@
 	color: var(--aa-pi-accent);
 }
 
-/* Highlight the open section's heading in the accent color. */
+/* Highlight the open section's heading in the accent color. `[open]` lingers
+ * through the collapse animation, so `[data-aa-target="closed"]` flips the
+ * chrome back the instant the header is tapped (see the view module). */
 .aa-product-info--accordion details[open] > .aa-product-info__heading {
 	color: var(--aa-pi-accent);
+}
+
+.aa-product-info--accordion details[data-aa-target="closed"] > .aa-product-info__heading {
+	color: inherit;
 }
 
 .aa-product-info--accordion .aa-product-info__heading:focus-visible {
@@ -99,6 +108,33 @@
 
 .aa-product-info--accordion details[open] > .aa-product-info__heading .aa-product-info__chevron {
 	transform: rotate(180deg);
+}
+
+.aa-product-info--accordion details[data-aa-target="closed"] > .aa-product-info__heading .aa-product-info__chevron {
+	transform: none;
+}
+
+/* Panel reveal: the height transition is a pure CSS grid animation (0fr → 1fr),
+ * so rapid taps reverse smoothly instead of stacking JS animations. The view
+ * module toggles the `open` attribute and, for the collapse, delays its removal
+ * until the transition ends. */
+.aa-product-info--accordion .aa-product-info__reveal {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.25s ease;
+}
+
+.aa-product-info--accordion details[open] .aa-product-info__reveal {
+	grid-template-rows: 1fr;
+}
+
+/* Clip wrapper is the grid item: min-height:0 + overflow:hidden let the 0fr
+ * track truly collapse to zero. The content's padding lives one level in so it
+ * doesn't keep the track open (a padded grid item never shrinks past its
+ * padding). */
+.aa-product-info--accordion .aa-product-info__reveal-inner {
+	min-height: 0;
+	overflow: hidden;
 }
 
 .aa-product-info--accordion .aa-product-info__content {
@@ -790,7 +826,8 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.aa-product-info--accordion .aa-product-info__chevron,
-	.aa-product-info--accordion .aa-product-info__heading {
+	.aa-product-info--accordion .aa-product-info__heading,
+	.aa-product-info--accordion .aa-product-info__reveal {
 		transition: none;
 	}
 

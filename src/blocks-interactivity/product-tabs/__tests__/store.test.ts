@@ -43,7 +43,7 @@ beforeAll(() => {
   }
 });
 
-import { productTabsStore } from '../view';
+import { productTabsStore, isPanelOpen } from '../view';
 
 const { state, actions } = productTabsStore as any;
 
@@ -53,6 +53,25 @@ afterEach(() => {
   mockElement.ref = null;
   state.activeTab = 0;
   state.activeSection = '';
+});
+
+describe('isPanelOpen (accordion state)', () => {
+  it('prefers the in-flight intent, falling back to the open attribute', () => {
+    const details = document.createElement('details');
+
+    // No intent yet → reflects the native attribute.
+    expect(isPanelOpen(details)).toBe(false);
+    details.setAttribute('open', '');
+    expect(isPanelOpen(details)).toBe(true);
+
+    // Mid-collapse: `open` lingers but the intent is closed.
+    details.dataset.aaTarget = 'closed';
+    expect(isPanelOpen(details)).toBe(false);
+
+    // Mid-open: attribute set immediately, intent agrees.
+    details.dataset.aaTarget = 'open';
+    expect(isPanelOpen(details)).toBe(true);
+  });
 });
 
 describe('tab state getters', () => {

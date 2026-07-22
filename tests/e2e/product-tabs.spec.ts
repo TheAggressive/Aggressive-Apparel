@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
   createProductTabsFixture,
   setProductTabsStyle,
+  setAccordionExclusive,
   deleteProductTabsFixture,
   installStyleForcer,
   uninstallStyleForcer,
@@ -10,9 +11,9 @@ import {
 
 /**
  * Product-tabs front-end behavior that unit tests can't cover:
- *  1. Accordion scroll-anchoring — opening a section below an open one must
- *     keep the tapped header visually stationary while the section above
- *     collapses (view.ts `pinScrollDuring`).
+ *  1. Accordion — the CSS grid-rows reveal stays consistent under rapid taps,
+ *     opens sections independently by default, and (exclusive mode) keeps one
+ *     section open with its header on screen (view.ts `setPanel`).
  *  2. Scrollspy on small screens — the sidebar collapses to a sticky
  *     horizontal bar that stays pinned and tracks the active section
  *     (style.css @container + view.ts scrollspy sync).
@@ -104,59 +105,106 @@ test.describe('Product tabs — front end', () => {
     expect(duplicates).toEqual([]);
   });
 
-  test('accordion keeps the tapped header in view when a section above closes', async ({
+  test('accordion stays consistent under rapid taps (no ghost-open content)', async ({
     page,
   }) => {
+    // Regression guard: the old WAAPI animation stacked uncancelled animations
+    // on rapid taps and left panels visible while marked closed. The CSS
+    // grid-rows reveal must keep rendered height and `open` state in lockstep.
     setProductTabsStyle('accordion');
+    setAccordionExclusive(false);
+    await page.setViewportSize({ width: 390, height: 780 });
+    await page.goto(productUrl);
 
+    const accordion = page.locator('.aa-product-info--accordion');
+    await accordion.waitFor();
+
+    const second = accordion
+      .locator('details > summary.aa-product-info__heading')
+      .nth(1);
+    await second.click();
+    await page.waitForTimeout(50);
+    await second.click();
+    await page.waitForTimeout(50);
+    await second.click();
+    await page.waitForTimeout(700);
+
+    const mismatches = await accordion.evaluate(
+      (root: HTMLElement) =>
+        [...root.querySelectorAll('details')].filter(details => {
+          const reveal = details.querySelector(
+            '.aa-product-info__reveal'
+          ) as HTMLElement;
+          const visible = reveal.getBoundingClientRect().height > 5;
+          return visible !== (details as HTMLDetailsElement).open;
+        }).length
+    );
+    expect(mismatches).toBe(0);
+  });
+
+  test('accordion sections open independently by default', async ({ page }) => {
+    setProductTabsStyle('accordion');
+    setAccordionExclusive(false);
     await page.setViewportSize({ width: 1024, height: 800 });
     await page.goto(productUrl);
 
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
 
-    const summaries = accordion.locator(
-      'details > summary.aa-product-info__heading'
-    );
-    const count = await summaries.count();
-    expect(count).toBeGreaterThanOrEqual(2);
+    // Section 0 is open by default; opening section 1 must leave section 0 open.
+    await accordion
+      .locator('details > summary.aa-product-info__heading')
+      .nth(1)
+      .click();
+    await page.waitForTimeout(500);
 
-    // The last section sits below the first (open-by-default) section. Bring its
-    // header into a known viewport position, then open it — the first section
-    // collapsing above it must not shove it out of place.
-    const target = summaries.last();
-    await target.evaluate((el: HTMLElement) => {
-      el.scrollIntoView({ block: 'center' });
+    const openCount = await accordion.evaluate(
+      (root: HTMLElement) => root.querySelectorAll('details[open]').length
+    );
+    expect(openCount).toBeGreaterThanOrEqual(2);
+  });
+
+  test('accordion exclusive mode keeps one section open and its header on screen', async ({
+    page,
+  }) => {
+    setProductTabsStyle('accordion');
+    setAccordionExclusive(true);
+    await page.setViewportSize({ width: 390, height: 780 });
+    await page.goto(productUrl);
+
+    const accordion = page.locator(
+      '.aa-product-info--accordion[data-aa-exclusive]'
+    );
+    await accordion.waitFor();
+
+    // Position the last header near the top, then open it — section 0 collapses
+    // above it. Exactly one section stays open and the tapped header is nudged
+    // back on screen rather than shoved off the top.
+    const finalTop = await accordion.evaluate(async (root: HTMLElement) => {
+      const summaries = [...root.querySelectorAll('summary')];
+      const last = summaries[summaries.length - 1];
+      window.scrollTo(
+        0,
+        last.getBoundingClientRect().top + window.scrollY - 60
+      );
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      last.click();
+      await new Promise(resolve => setTimeout(resolve, 900));
+      return last.getBoundingClientRect().top;
     });
 
-    const before = await target.evaluate(
-      (el: HTMLElement) => el.getBoundingClientRect().top
+    const openCount = await accordion.evaluate(
+      (root: HTMLElement) => root.querySelectorAll('details[open]').length
     );
-
-    await target.click();
-
-    // Let the collapse animation (200ms) and the final scroll correction finish.
-    await page.waitForTimeout(450);
-
-    const after = await target.evaluate(
-      (el: HTMLElement) => el.getBoundingClientRect().top
-    );
-
-    // The tapped header should stay put (within a few px of sub-pixel drift).
-    // Without pinning it would jump up by the collapsed section's height.
-    expect(Math.abs(after - before)).toBeLessThan(6);
-
-    // And its own section is now open.
-    await expect(target.locator('xpath=ancestor::details[1]')).toHaveAttribute(
-      'open',
-      ''
-    );
+    expect(openCount).toBe(1);
+    expect(finalTop).toBeGreaterThanOrEqual(0);
   });
 
   test('accordion highlights the open section heading in the accent color', async ({
     page,
   }) => {
     setProductTabsStyle('accordion');
+    setAccordionExclusive(false);
     await page.setViewportSize({ width: 1024, height: 800 });
     await page.goto(productUrl);
 

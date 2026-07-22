@@ -86,6 +86,7 @@ $renderer = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Renderer(
 );
 
 $hide_content_titles = ! empty( $attributes['hideContentTitles'] );
+$accordion_exclusive = ! empty( $attributes['accordionExclusive'] );
 
 $renderable_tabs = $renderer->get_renderable_woocommerce_tabs( array() );
 
@@ -94,4 +95,4 @@ if ( empty( $renderable_tabs ) ) {
 }
 
 // Render without a wrapper so the Product_Tabs_Renderer controls the root element.
-echo aggressive_apparel_trusted_html( $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles ) );
+echo aggressive_apparel_trusted_html( $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles, $accordion_exclusive ) );

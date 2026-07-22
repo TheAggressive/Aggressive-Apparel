@@ -25,114 +25,159 @@ import type {
   InteractivityCallbacks,
 } from '../../../types/interactivity-shared';
 
-const ANIM_DURATION = 200;
+// Per-<details> canceller for an in-flight reveal finalizer, so a rapid re-tap
+// tears the old one down instead of letting stale transitionend/timeout
+// handlers fire.
+const pendingReveal = new WeakMap<HTMLElement, () => void>();
 
-function animatePanel(content: HTMLElement, open: boolean): Animation {
-  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 0
-    : ANIM_DURATION;
-
-  const { height, paddingTop, paddingBottom } = getComputedStyle(content);
-  const natural = { height, paddingTop, paddingBottom };
-  const collapsed = { height: '0px', paddingTop: '0px', paddingBottom: '0px' };
-
-  content.style.overflow = 'hidden';
-
-  return content.animate(open ? [collapsed, natural] : [natural, collapsed], {
-    duration,
-    easing: 'ease-out',
-  });
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function closeDetails(details: HTMLDetailsElement): void {
-  const content = details.querySelector(
-    '.aa-product-info__content'
-  ) as HTMLElement | null;
-  if (!content) {
-    details.removeAttribute('open');
-    return;
-  }
+function getReveal(details: HTMLElement): HTMLElement | null {
+  return details.querySelector('.aa-product-info__reveal');
+}
 
-  const anim = animatePanel(content, false);
-  anim.onfinish = () => {
-    details.removeAttribute('open');
-    content.style.overflow = '';
-  };
+// Read the reveal's transition duration from CSS so the JS safety timeout stays
+// in lockstep with the stylesheet rather than a duplicated constant. Reduced
+// motion resolves this to 0s.
+function revealDurationMs(reveal: HTMLElement): number {
+  const first = getComputedStyle(reveal)
+    .transitionDuration.split(',')[0]
+    .trim();
+  const seconds = Number.parseFloat(first);
+  return Number.isFinite(seconds) ? seconds * 1000 : 250;
 }
 
 /**
- * Keep `anchor` visually stationary while sibling panels collapse. When a
- * sibling accordion panel above the clicked section collapses, the document
- * height above the anchor shrinks and would otherwise shove the clicked header
- * (and its freshly opened content) up and out of view. We compensate the scroll
- * position every frame so the tapped header stays put.
- *
- * The loop runs on a fixed deadline (a little past the collapse animation)
- * rather than keying off `Animation.finished`: WAAPI reverts the panel to its
- * natural height at the finish frame (fill: none) and the actual collapse
- * happens afterwards when `closeDetails` removes the `open` attribute, so
- * stopping on `finished` would disarm one frame too early and let the panel
- * snap the anchor out of view.
- *
- * The pin yields immediately if the user tries to scroll during the window. We
- * can't watch the `scroll` event to detect that — the pin drives `scrollBy`
- * itself, which would fire it — so we listen for the input events that signal
- * user intent (`wheel`, `touchmove`, scroll keys) and bail on the first one.
+ * Logical open state, accounting for an in-flight transition: while a panel is
+ * animating we track the *intended* end state on `data-aa-target` so re-taps
+ * decide against the destination, not the lingering `open` attribute.
  */
-const SCROLL_KEYS = new Set([
-  'ArrowUp',
-  'ArrowDown',
-  'PageUp',
-  'PageDown',
-  'Home',
-  'End',
-  ' ',
-  'Spacebar',
-]);
+export function isPanelOpen(details: HTMLElement): boolean {
+  const target = details.dataset.aaTarget;
+  return target ? target === 'open' : details.hasAttribute('open');
+}
 
-function pinScrollDuring(anchor: HTMLElement, shouldPin: boolean): void {
-  if (!shouldPin) return;
+/**
+ * Run `done` once the reveal's `grid-template-rows` transition ends (with a
+ * safety timeout). Cancels any previously pending finalizer for this panel.
+ */
+function afterReveal(
+  details: HTMLElement,
+  reveal: HTMLElement,
+  done: () => void
+): void {
+  pendingReveal.get(details)?.();
 
-  const startTop = anchor.getBoundingClientRect().top;
-  const deadline = performance.now() + ANIM_DURATION + 120;
-  let cancelled = false;
-
-  const listenerOptions: AddEventListenerOptions = { passive: true };
-  const onWheelOrTouch = (): void => {
-    cancelled = true;
+  let settled = false;
+  const teardown = (): void => {
+    if (settled) return;
+    settled = true;
+    reveal.removeEventListener('transitionend', onEnd);
+    window.clearTimeout(timer);
+    pendingReveal.delete(details);
   };
-  const onKeydown = (event: KeyboardEvent): void => {
-    if (SCROLL_KEYS.has(event.key)) cancelled = true;
-  };
-
-  const cleanup = (): void => {
-    window.removeEventListener('wheel', onWheelOrTouch, listenerOptions);
-    window.removeEventListener('touchmove', onWheelOrTouch, listenerOptions);
-    window.removeEventListener('keydown', onKeydown, listenerOptions);
-  };
-
-  window.addEventListener('wheel', onWheelOrTouch, listenerOptions);
-  window.addEventListener('touchmove', onWheelOrTouch, listenerOptions);
-  window.addEventListener('keydown', onKeydown, listenerOptions);
-
-  const correct = (): void => {
-    const delta = anchor.getBoundingClientRect().top - startTop;
-    if (delta) window.scrollBy(0, delta);
-  };
-
-  const tick = (): void => {
-    if (cancelled) {
-      cleanup();
-      return;
-    }
-    correct();
-    if (performance.now() < deadline) {
-      requestAnimationFrame(tick);
-    } else {
-      cleanup();
+  const onEnd = (event: TransitionEvent): void => {
+    if (
+      event.target === reveal &&
+      event.propertyName === 'grid-template-rows'
+    ) {
+      teardown();
+      done();
     }
   };
-  requestAnimationFrame(tick);
+  const timer = window.setTimeout(
+    () => {
+      teardown();
+      done();
+    },
+    revealDurationMs(reveal) + 50
+  );
+
+  reveal.addEventListener('transitionend', onEnd);
+  // The canceller only tears down; it never runs `done` (intent was superseded).
+  pendingReveal.set(details, teardown);
+}
+
+/**
+ * Open or close one accordion panel via the CSS grid-rows reveal. The `open`
+ * attribute drives semantics/a11y and content rendering; on collapse we keep it
+ * until the transition finishes so the panel can animate before it's hidden.
+ */
+function setPanel(details: HTMLElement, open: boolean): void {
+  const target = open ? 'open' : 'closed';
+  if (details.dataset.aaTarget === target) return;
+  details.dataset.aaTarget = target;
+
+  const reveal = getReveal(details);
+
+  if (!reveal || prefersReducedMotion()) {
+    pendingReveal.get(details)?.();
+    if (open) details.setAttribute('open', '');
+    else details.removeAttribute('open');
+    delete details.dataset.aaTarget;
+    return;
+  }
+
+  if (open) {
+    details.setAttribute('open', '');
+    // Force a paint at the collapsed size, then release to the open size so the
+    // grid-template-rows transition has a start value to animate from.
+    reveal.style.gridTemplateRows = '0fr';
+    void reveal.offsetHeight;
+    reveal.style.gridTemplateRows = '1fr';
+    afterReveal(details, reveal, () => {
+      if (details.dataset.aaTarget !== 'open') return;
+      reveal.style.gridTemplateRows = '';
+      delete details.dataset.aaTarget;
+    });
+  } else {
+    reveal.style.gridTemplateRows = '1fr';
+    void reveal.offsetHeight;
+    reveal.style.gridTemplateRows = '0fr';
+    afterReveal(details, reveal, () => {
+      if (details.dataset.aaTarget !== 'closed') return;
+      details.removeAttribute('open');
+      reveal.style.gridTemplateRows = '';
+      delete details.dataset.aaTarget;
+    });
+  }
+}
+
+/**
+ * Exclusive mode collapses a section above the tapped one, which pulls the
+ * tapped header up. That's fine while it stays on screen; only if the collapse
+ * pushes it off the top do we gently bring it back — a single scroll after the
+ * transition settles, never a per-frame tug-of-war. If the reader starts
+ * scrolling in that window we yield to them entirely.
+ */
+function keepHeaderVisible(details: HTMLElement): void {
+  const summary = details.querySelector('summary');
+  if (!summary) return;
+
+  let userScrolled = false;
+  const onUserScroll = (): void => {
+    userScrolled = true;
+  };
+  const options: AddEventListenerOptions = { passive: true, once: true };
+  window.addEventListener('wheel', onUserScroll, options);
+  window.addEventListener('touchmove', onUserScroll, options);
+
+  const reveal = getReveal(details);
+  const settleMs = (reveal ? revealDurationMs(reveal) : 250) + 30;
+
+  window.setTimeout(() => {
+    window.removeEventListener('wheel', onUserScroll);
+    window.removeEventListener('touchmove', onUserScroll);
+    if (userScrolled) return;
+    if (summary.getBoundingClientRect().top < 0) {
+      summary.scrollIntoView({
+        block: 'start',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+    }
+  }, settleMs);
 }
 
 interface ProductTabsState {
@@ -188,40 +233,28 @@ export const productTabsStore = store<ProductTabsStore>(
       toggleAccordion: withSyncEvent((event: Event): void => {
         event.preventDefault();
         const { ref } = getElement();
-        const details = ref?.closest('details') as HTMLDetailsElement | null;
+        const details = ref?.closest('details') as HTMLElement | null;
         if (!details) return;
 
-        if (details.open) {
-          closeDetails(details);
-        } else {
-          const parent = details.closest('.aa-product-info--accordion');
-          let closingAbove = false;
-          if (parent) {
-            for (const sibling of parent.querySelectorAll('details[open]')) {
-              if (sibling !== details) {
-                closeDetails(sibling as HTMLDetailsElement);
-                // Only siblings that sit above the tapped section shift it.
-                if (
-                  sibling.compareDocumentPosition(details) &
-                  Node.DOCUMENT_POSITION_FOLLOWING
-                ) {
-                  closingAbove = true;
-                }
-              }
+        const willOpen = !isPanelOpen(details);
+        const root = details.closest('.aa-product-info--accordion');
+
+        // Exclusive mode: opening one panel closes the others. Independent mode
+        // (the default) leaves siblings untouched, so nothing shifts.
+        const exclusive = !!root && root.hasAttribute('data-aa-exclusive');
+        if (willOpen && exclusive && root) {
+          for (const sibling of root.querySelectorAll('details')) {
+            const panel = sibling as HTMLElement;
+            if (panel !== details && isPanelOpen(panel)) {
+              setPanel(panel, false);
             }
           }
-          details.setAttribute('open', '');
-          const content = details.querySelector(
-            '.aa-product-info__content'
-          ) as HTMLElement | null;
-          if (content) {
-            const anim = animatePanel(content, true);
-            anim.onfinish = () => {
-              content.style.overflow = '';
-            };
-          }
-          // Hold the tapped header in place while siblings above collapse.
-          pinScrollDuring(details, closingAbove);
+        }
+
+        setPanel(details, willOpen);
+
+        if (willOpen && exclusive) {
+          keepHeaderVisible(details);
         }
       }),
 

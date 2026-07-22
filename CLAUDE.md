@@ -575,7 +575,7 @@ Brand icons (42 SVGs under `src/icons/`) are built to `build/icons/` and loaded 
 ### Layout
 
 - **Content Width:** 1200px
-- **Wide Width:** 1400px
+- **Wide Width:** 1600px
 
 ### Color Palette
 

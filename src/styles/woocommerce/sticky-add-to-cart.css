@@ -64,7 +64,7 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	max-width: var(--wp--style--global--wide-size, 1400px);
+	max-width: var(--wp--style--global--wide-size, 1600px);
 	margin: 0 auto;
 	padding: 1.25rem 1.5rem;
 }

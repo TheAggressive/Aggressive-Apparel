@@ -104,9 +104,9 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1400px;
 
-  /* Content widths */
+  /* Content widths (fallbacks mirror theme.json settings.layout) */
   --width-content: var(--wp--style--global--content-size, 1200px);
-  --width-wide: var(--wp--style--global--wide-size, 1400px);
+  --width-wide: var(--wp--style--global--wide-size, 1600px);
 }
 
 /* Smooth theme switching via View Transitions API.

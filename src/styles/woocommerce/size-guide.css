@@ -118,8 +118,8 @@
 }
 
 .aggressive-apparel-size-guide__title-icon {
-	width: 1.5rem;
-	height: 1.5rem;
+	width: 2.5rem;
+	height: 2.5rem;
 	color: var(--aa-color-foreground-muted);
 }
 
@@ -140,10 +140,10 @@
 	grid-column: 2;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
+	gap: 1rem;
 	margin: 0;
 	color: var(--aa-color-foreground);
-	font-size: 1.5rem;
+	font-size: var(--wp--preset--font-size--xxxx-large);
 	font-weight: 500;
 	letter-spacing: 0.08em;
 	line-height: 1;
@@ -192,7 +192,7 @@
 	margin: 0;
 	padding: 0.55rem 1.25rem 0.15rem;
 	color: var(--aa-color-foreground-muted);
-	font-size: 0.7rem;
+	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 500;
 	letter-spacing: 0.04em;
 	line-height: 1.3;
@@ -274,10 +274,14 @@
 		white-space: normal;
 	}
 
+  thead {
+    border: none;
+  }
+
 	thead th {
 		color: var(--aa-color-accent);
 		font-family: var(--wp--preset--font-family--bebas-neue);
-		font-size: 1rem;
+		font-size: var(--wp--preset--font-size--x-large);
 	}
 
 	td {
@@ -322,10 +326,6 @@
 		width: min(95vw, 100%);
 		min-width: 0;
 		max-width: 95vw;
-	}
-
-	.aggressive-apparel-size-guide__title {
-		font-size: 1.35rem;
 	}
 
 	.aggressive-apparel-size-guide__body {

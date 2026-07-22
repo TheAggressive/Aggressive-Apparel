@@ -13,6 +13,11 @@
       "blockGap": true,
       "spacingSizes": [
         {
+          "name": "0",
+          "size": "0",
+          "slug": "0"
+        },
+        {
           "name": "0.5",
           "size": "0.125rem",
           "slug": "0-5"

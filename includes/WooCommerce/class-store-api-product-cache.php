@@ -133,7 +133,15 @@ class Store_Api_Product_Cache {
 		$version = (int) get_option( self::VERSION_OPTION, 1 );
 		$slug    = sanitize_key( str_replace( array( '/', '\\' ), '_', $data_namespace ) );
 
-		return sprintf( 'aa_sapi_%s_%d_v%d', $slug, $product_id, $version );
+		// Cached payloads can embed currency- and locale-specific values (currency
+		// symbol, formatted/converted prices), so the key must vary by them.
+		// Otherwise a multi-currency switcher serves the priming request's currency
+		// to every later visitor. Per-product invalidation clears the active
+		// currency's variant; others fall out via the short TTL / version bump.
+		$currency = function_exists( 'get_woocommerce_currency' ) ? (string) \get_woocommerce_currency() : '';
+		$context  = substr( md5( $currency . '|' . determine_locale() ), 0, 12 );
+
+		return sprintf( 'aa_sapi_%s_%d_%s_v%d', $slug, $product_id, $context, $version );
 	}
 
 	/**

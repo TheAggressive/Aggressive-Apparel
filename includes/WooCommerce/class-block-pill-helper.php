@@ -73,9 +73,20 @@ class Block_Pill_Helper {
 
 		$dom = new \DOMDocument();
 
+		// DOMDocument::loadHTML() assumes ISO-8859-1 when the markup carries no
+		// charset, which corrupts multibyte characters in variation labels (e.g.
+		// accented sizes or non-Latin attribute names) on the load/save round-trip.
+		// Encoding non-ASCII as numeric entities first keeps them intact without the
+		// deprecated mb_convert_encoding( …, 'HTML-ENTITIES' ) hack.
+		$encoded = mb_encode_numericentity(
+			$block_content,
+			array( 0x80, 0x10FFFF, 0, 0x10FFFF ),
+			'UTF-8'
+		);
+
 		$prev_errors = libxml_use_internal_errors( true );
 		$loaded      = $dom->loadHTML(
-			$block_content,
+			$encoded,
 			LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
 		);
 		libxml_clear_errors();

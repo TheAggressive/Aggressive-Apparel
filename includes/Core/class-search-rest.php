@@ -199,10 +199,21 @@ class Search_Rest {
 	 * @return bool
 	 */
 	private function is_rate_limited(): bool {
-		$max    = max( 1, (int) apply_filters( 'aggressive_apparel_search_rate_limit_max', self::RATE_LIMIT_MAX ) );
-		$window = max( 10, (int) apply_filters( 'aggressive_apparel_search_rate_limit_window', self::RATE_LIMIT_WINDOW ) );
+		$max = max( 1, (int) apply_filters( 'aggressive_apparel_search_rate_limit_max', self::RATE_LIMIT_MAX ) );
 
-		return ! Rate_Limiter::allow( 'search', $max, $window );
+		return ! Rate_Limiter::allow( 'search', $max, $this->effective_window() );
+	}
+
+	/**
+	 * Resolve the effective rate-limit window, honoring the filter.
+	 *
+	 * Shared by the limiter and the `Retry-After` header so a filtered window
+	 * doesn't tell clients to retry sooner than the limit actually resets.
+	 *
+	 * @return int
+	 */
+	private function effective_window(): int {
+		return max( 10, (int) apply_filters( 'aggressive_apparel_search_rate_limit_window', self::RATE_LIMIT_WINDOW ) );
 	}
 
 	/**
@@ -220,7 +231,7 @@ class Search_Rest {
 			),
 			429
 		);
-		$response->header( 'Retry-After', (string) self::RATE_LIMIT_WINDOW );
+		$response->header( 'Retry-After', (string) $this->effective_window() );
 
 		return $response;
 	}

@@ -387,8 +387,12 @@ final class Load_More_Controller {
 			$totals      = $this->queries->totals( $count_query, $query_args, $per_page );
 
 			// Probe one extra row so next_cursor does not depend on deep offsets.
+			// Totals come from the separate count query, and trim_overflow() sets
+			// found_posts itself, so this render query must not also run
+			// SQL_CALC_FOUND_ROWS (a second full count scan per request).
 			$fetch_args                   = $query_args;
 			$fetch_args['posts_per_page'] = $has_include ? $per_page : $per_page + 1;
+			$fetch_args['no_found_rows']  = true;
 			$query                        = $this->queries->run( $fetch_args );
 			$has_more                     = $has_include ? false : $this->queries->trim_overflow( $query, $per_page );
 			if ( $page_limit > 0 && $page >= $page_limit ) {

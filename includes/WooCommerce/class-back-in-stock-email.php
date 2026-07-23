@@ -67,11 +67,11 @@ class Back_In_Stock_Email extends \WC_Email {
 	 * @param int    $product_id        Product ID.
 	 * @param string $recipient_email   Recipient email address.
 	 * @param string $unsubscribe_token Unsubscribe token.
-	 * @return void
+	 * @return bool True when the message was handed off to wp_mail successfully.
 	 */
-	public function trigger( $product_id, $recipient_email = '', $unsubscribe_token = '' ): void {
+	public function trigger( $product_id, $recipient_email = '', $unsubscribe_token = '' ): bool {
 		if ( ! $this->is_enabled() ) {
-			return;
+			return false;
 		}
 
 		$this->recipient         = $recipient_email;
@@ -80,12 +80,12 @@ class Back_In_Stock_Email extends \WC_Email {
 		$this->product           = $product instanceof \WC_Product ? $product : null;
 
 		if ( ! $this->product || ! $this->recipient ) {
-			return;
+			return false;
 		}
 
 		$this->placeholders['{product_name}'] = $this->product->get_name();
 
-		$this->send(
+		return (bool) $this->send(
 			$this->get_recipient(),
 			$this->get_subject(),
 			$this->get_content(),

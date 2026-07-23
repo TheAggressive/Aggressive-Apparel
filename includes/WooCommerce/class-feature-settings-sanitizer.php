@@ -183,8 +183,9 @@ class Feature_Settings_Sanitizer {
 		$text = sanitize_text_field( $input );
 		$text = trim( $text );
 
-		if ( strlen( $text ) > 60 ) {
-			$text = substr( $text, 0, 60 );
+		// mb_* so a cap landing mid-UTF-8-sequence can't leave an invalid trailing byte.
+		if ( mb_strlen( $text ) > 60 ) {
+			$text = mb_substr( $text, 0, 60 );
 		}
 
 		return $text;
@@ -223,9 +224,9 @@ class Feature_Settings_Sanitizer {
 			return '';
 		}
 
-		// Cap defensive max length so the option stays small.
-		if ( strlen( $input ) > 8192 ) {
-			$input = substr( $input, 0, 8192 );
+		// Cap defensive max length so the option stays small (mb-safe).
+		if ( mb_strlen( $input ) > 8192 ) {
+			$input = mb_substr( $input, 0, 8192 );
 		}
 
 		// Normalise line endings, then sanitise each line.
@@ -237,9 +238,9 @@ class Feature_Settings_Sanitizer {
 		$cleaned = array();
 		foreach ( $lines as $line ) {
 			$line = sanitize_text_field( $line );
-			// Cap per-line length for sane toast widths.
-			if ( strlen( $line ) > 200 ) {
-				$line = substr( $line, 0, 200 );
+			// Cap per-line length for sane toast widths (mb-safe).
+			if ( mb_strlen( $line ) > 200 ) {
+				$line = mb_substr( $line, 0, 200 );
 			}
 			$cleaned[] = $line;
 		}

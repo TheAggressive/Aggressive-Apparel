@@ -86,6 +86,9 @@ class Back_In_Stock {
 		// Stock change detection.
 		add_action( 'woocommerce_product_set_stock_status', array( $this, 'maybe_send_notifications' ), 10, 3 );
 
+		// Continuation batches for products whose waitlist exceeds one batch.
+		add_action( 'aggressive_apparel_bis_send_batch', array( $this, 'send_notification_batch' ), 10, 2 );
+
 		// Discontinued products should not keep active waitlist requests.
 		add_action( 'wp_trash_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
 		add_action( 'before_delete_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
@@ -254,7 +257,9 @@ class Back_In_Stock {
 		);
 
 		if ( $exists > 0 ) {
-			wp_send_json_success( array( 'message' => __( "You're already subscribed to this product.", 'aggressive-apparel' ) ) );
+			// Return the same message as a fresh subscription so the response can't
+			// be used to probe whether an arbitrary email is on a product waitlist.
+			wp_send_json_success( array( 'message' => $this->subscription_confirmation_message() ) );
 		}
 
 		$token = wp_generate_password( 64, false );
@@ -276,7 +281,19 @@ class Back_In_Stock {
 			wp_send_json_error( array( 'message' => __( 'Something went wrong. Please try again.', 'aggressive-apparel' ) ) );
 		}
 
-		wp_send_json_success( array( 'message' => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ) ) );
+		wp_send_json_success( array( 'message' => $this->subscription_confirmation_message() ) );
+	}
+
+	/**
+	 * The confirmation message shown for both a new and an existing subscription.
+	 *
+	 * Kept identical for the two cases so the endpoint doesn't leak whether an
+	 * email is already on a given product's waitlist.
+	 *
+	 * @return string
+	 */
+	private function subscription_confirmation_message(): string {
+		return __( "We'll email you when this product is back in stock!", 'aggressive-apparel' );
 	}
 
 	/**
@@ -426,7 +443,42 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function maybe_send_notifications( int $product_id, string $new_status, $product ): void {
+		unset( $product );
+
 		if ( 'instock' !== $new_status ) {
+			return;
+		}
+
+		$this->send_notification_batch( $product_id, 0 );
+	}
+
+	/**
+	 * Deliver one bounded batch of restock notifications and schedule the next.
+	 *
+	 * Also registered as the `aggressive_apparel_bis_send_batch` handler so
+	 * waitlists larger than one batch are fully drained across scheduled runs —
+	 * without a handler the continuation event fired into the void and every
+	 * subscriber past the first batch was never notified.
+	 *
+	 * Batches page forward by row id (`id > $after_id`) rather than always
+	 * reading the first N active rows, so the run always terminates: a row is
+	 * only marked `notified` when the email is actually handed off to wp_mail,
+	 * and a send failure leaves the row `active` to be retried on the next
+	 * restock instead of blocking the cursor forever.
+	 *
+	 * @param int $product_id Product whose subscribers should be notified.
+	 * @param int $after_id   Only send to rows with a larger id (keyset cursor).
+	 * @return void
+	 */
+	public function send_notification_batch( int $product_id, int $after_id = 0 ): void {
+		if ( $product_id <= 0 ) {
+			return;
+		}
+
+		// Only notify while the product is genuinely purchasable; it may have
+		// flipped back out of stock between batches.
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+		if ( ! $product instanceof \WC_Product || ! $product->is_in_stock() ) {
 			return;
 		}
 
@@ -436,9 +488,10 @@ class Back_In_Stock {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Stock worker requires a current bounded delivery batch; cached recipients risk duplicate/missed mail.
 		$subscribers = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, email, unsubscribe_token FROM %i WHERE product_id = %d AND status = 'active' LIMIT %d",
+				"SELECT id, email, unsubscribe_token FROM %i WHERE product_id = %d AND status = 'active' AND id > %d ORDER BY id ASC LIMIT %d",
 				$table,
 				$product_id,
+				$after_id,
 				self::BATCH_SIZE
 			)
 		);
@@ -452,10 +505,21 @@ class Back_In_Stock {
 
 		$mailer = WC()->mailer();
 		$emails = $mailer->get_emails();
+		$email  = ( isset( $emails['Back_In_Stock_Email'] ) && $emails['Back_In_Stock_Email'] instanceof Back_In_Stock_Email )
+			? $emails['Back_In_Stock_Email']
+			: null;
 
+		$last_id = $after_id;
 		foreach ( $subscribers as $subscriber ) {
-			if ( isset( $emails['Back_In_Stock_Email'] ) && $emails['Back_In_Stock_Email'] instanceof Back_In_Stock_Email ) {
-				$emails['Back_In_Stock_Email']->trigger( $product_id, $subscriber->email, $subscriber->unsubscribe_token );
+			$last_id = (int) $subscriber->id;
+
+			$sent = $email instanceof Back_In_Stock_Email
+				&& $email->trigger( $product_id, $subscriber->email, $subscriber->unsubscribe_token );
+
+			if ( ! $sent ) {
+				// Leave the row active so a later restock retries it, rather than
+				// marking it delivered when nothing was sent.
+				continue;
 			}
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Persist delivery state immediately to prevent repeat notifications.
@@ -471,21 +535,13 @@ class Back_In_Stock {
 			);
 		}
 
-		// Schedule next batch if more remain.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Worker scheduling must use current queue depth after delivery-state writes.
-		$remaining = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM %i WHERE product_id = %d AND status = 'active'",
-				$table,
-				$product_id
-			)
-		);
-
-		if ( $remaining > 0 ) {
+		// A full page means more rows may exist beyond this cursor; continue past
+		// the last id we touched so the run advances and terminates.
+		if ( count( $subscribers ) === self::BATCH_SIZE ) {
 			wp_schedule_single_event(
 				time() + 60,
 				'aggressive_apparel_bis_send_batch',
-				array( $product_id )
+				array( $product_id, $last_id )
 			);
 		}
 	}

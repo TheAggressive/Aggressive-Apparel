@@ -60,7 +60,11 @@ class Rate_Limiter {
 		if ( function_exists( 'wp_using_ext_object_cache' ) && wp_using_ext_object_cache() ) {
 			$cache_key = $scope . ':' . $hash . ':' . intdiv( $now, $window );
 			$group     = 'aggressive-apparel-rate-limits';
-			wp_cache_add( $cache_key, 0, $group, 300 );
+			// TTL is the time left in the current window, not a fixed constant, so a
+			// window longer than the old hardcoded lease can't expire mid-window and
+			// reset the counter early (which would allow ~window/lease x max requests).
+			// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined -- A fixed-window rate-limit bucket must expire exactly at the window boundary ($ttl), which is intentionally short for small windows.
+			wp_cache_add( $cache_key, 0, $group, $ttl );
 			$count = wp_cache_incr( $cache_key, 1, $group );
 			if ( false !== $count ) {
 				return $count <= $max;

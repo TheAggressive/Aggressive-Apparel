@@ -80,7 +80,7 @@ class Store_Notices {
 			return;
 		}
 
-		$queue = self::read_queue();
+		$queue = self::read_queue( $session );
 		if ( count( $queue ) >= self::MAX_IMAGES ) {
 			return;
 		}
@@ -102,7 +102,7 @@ class Store_Notices {
 			return array();
 		}
 
-		$queue = self::read_queue();
+		$queue = self::read_queue( $session );
 		if ( array() !== $queue ) {
 			$session->set( self::SESSION_KEY, array() );
 		}
@@ -150,10 +150,11 @@ class Store_Notices {
 	/**
 	 * Read the queued URLs from the session, normalised to a list of strings.
 	 *
+	 * @param \WC_Session|null $session Already-resolved session to reuse, if any.
 	 * @return array<int, string>
 	 */
-	private static function read_queue(): array {
-		$session = self::session();
+	private static function read_queue( ?\WC_Session $session = null ): array {
+		$session = $session ?? self::session();
 		if ( null === $session ) {
 			return array();
 		}

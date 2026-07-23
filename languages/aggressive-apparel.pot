@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.172.2\n"
+"Project-Id-Version: Aggressive Apparel 1.173.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-23T04:48:34+00:00\n"
+"POT-Creation-Date: 2026-07-23T06:31:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -407,20 +407,20 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: includes/Core/class-search-index.php:395
+#: includes/Core/class-search-index.php:408
 msgid "Aggressive Apparel search index"
 msgstr ""
 
-#: includes/Core/class-search-index.php:398
+#: includes/Core/class-search-index.php:411
 #: includes/helpers.php:216
 msgid "State"
 msgstr ""
 
-#: includes/Core/class-search-index.php:402
+#: includes/Core/class-search-index.php:415
 msgid "Cursor"
 msgstr ""
 
-#: includes/Core/class-search-index.php:406
+#: includes/Core/class-search-index.php:419
 msgid "Last error"
 msgstr ""
 
@@ -550,7 +550,7 @@ msgstr ""
 msgid "Find Your Way…"
 msgstr ""
 
-#: includes/Core/class-search-rest.php:218
+#: includes/Core/class-search-rest.php:229
 msgid "Too many requests. Please slow down."
 msgstr ""
 
@@ -972,17 +972,17 @@ msgid "Email"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:196
-#: includes/WooCommerce/class-back-in-stock.php:596
+#: includes/WooCommerce/class-back-in-stock.php:652
 msgid "Product"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:197
-#: includes/WooCommerce/class-back-in-stock.php:600
+#: includes/WooCommerce/class-back-in-stock.php:656
 msgid "Status"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:198
-#: includes/WooCommerce/class-back-in-stock.php:604
+#: includes/WooCommerce/class-back-in-stock.php:660
 msgid "Subscribed"
 msgstr ""
 
@@ -1033,90 +1033,86 @@ msgstr ""
 msgid "{product_name} is back in stock!"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:175
-#: includes/WooCommerce/class-back-in-stock.php:204
+#: includes/WooCommerce/class-back-in-stock.php:178
+#: includes/WooCommerce/class-back-in-stock.php:207
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:176
-#: includes/WooCommerce/class-back-in-stock.php:217
+#: includes/WooCommerce/class-back-in-stock.php:179
+#: includes/WooCommerce/class-back-in-stock.php:220
 msgid "You must agree to receive the notification."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:177
-#: includes/WooCommerce/class-back-in-stock.php:279
+#: includes/WooCommerce/class-back-in-stock.php:180
+#: includes/WooCommerce/class-back-in-stock.php:296
 msgid "We'll email you when this product is back in stock!"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:178
-#: includes/WooCommerce/class-back-in-stock.php:276
+#: includes/WooCommerce/class-back-in-stock.php:181
+#: includes/WooCommerce/class-back-in-stock.php:281
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:198
+#: includes/WooCommerce/class-back-in-stock.php:201
 msgid "Too many requests. Please wait a few minutes and try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:208
+#: includes/WooCommerce/class-back-in-stock.php:211
 msgid "Invalid product."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:213
+#: includes/WooCommerce/class-back-in-stock.php:216
 msgid "This product is not available for stock notifications."
 msgstr ""
 
 #. translators: %d: max subscriptions.
-#: includes/WooCommerce/class-back-in-stock.php:238
+#: includes/WooCommerce/class-back-in-stock.php:241
 #, php-format
 msgid "You can only subscribe to %d products at a time."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:257
-msgid "You're already subscribed to this product."
-msgstr ""
-
-#: includes/WooCommerce/class-back-in-stock.php:512
-#: includes/WooCommerce/class-back-in-stock.php:526
+#: includes/WooCommerce/class-back-in-stock.php:568
+#: includes/WooCommerce/class-back-in-stock.php:582
 msgid "Back in Stock Subscriptions"
 msgstr ""
 
 #. translators: %d: retention period in days.
-#: includes/WooCommerce/class-back-in-stock.php:546
+#: includes/WooCommerce/class-back-in-stock.php:602
 #, php-format
 msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained for up to %d days for support, abuse prevention, and delivery troubleshooting, then deleted."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:549
+#: includes/WooCommerce/class-back-in-stock.php:605
 msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store."
 msgstr ""
 
 #. translators: %s: retention policy sentence.
-#: includes/WooCommerce/class-back-in-stock.php:555
+#: includes/WooCommerce/class-back-in-stock.php:611
 #, php-format
 msgid "We use your email address to notify you when a requested product, size, or color is available again. Because some products are produced through print-on-demand suppliers, availability may depend on supplier stock, production capacity, or product status. Active notification requests are kept until the item becomes available, you unsubscribe, or the product is discontinued. %s"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:562
+#: includes/WooCommerce/class-back-in-stock.php:618
 msgid "Aggressive Apparel Back in Stock Notifications"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:592
+#: includes/WooCommerce/class-back-in-stock.php:648
 msgid "Stock Notification Subscriptions"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:752
+#: includes/WooCommerce/class-back-in-stock.php:808
 msgid "This product is currently out of stock."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:757
+#: includes/WooCommerce/class-back-in-stock.php:813
 msgid "Email address"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:763
+#: includes/WooCommerce/class-back-in-stock.php:819
 msgid "Enter your email"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:771
+#: includes/WooCommerce/class-back-in-stock.php:827
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr ""
 
@@ -2304,7 +2300,7 @@ msgstr ""
 msgid "Invalid catalog cursor."
 msgstr ""
 
-#: includes/WooCommerce/class-load-more-controller.php:417
+#: includes/WooCommerce/class-load-more-controller.php:421
 msgid "Unable to load product results."
 msgstr ""
 

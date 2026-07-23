@@ -194,6 +194,39 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<strong>', $result, 'Store Copy text should strip markup' );
 	}
 
+	/**
+	 * Store Copy truncation is multibyte-safe: capping at 60 characters must not
+	 * split a UTF-8 sequence into an invalid trailing byte.
+	 */
+	public function test_store_copy_text_truncation_is_multibyte_safe(): void {
+		$sanitizer = new Feature_Settings_Sanitizer();
+		// 80 multibyte characters (each 2 bytes) — a byte-wise substr(0,60) would
+		// slice one in half and yield invalid UTF-8.
+		$result = $sanitizer->sanitize_store_copy_text( str_repeat( 'é', 80 ) );
+
+		$this->assertSame( 60, mb_strlen( $result ), 'Should cap at 60 characters, not bytes' );
+		$this->assertSame(
+			$result,
+			mb_convert_encoding( $result, 'UTF-8', 'UTF-8' ),
+			'Truncated text must remain valid UTF-8'
+		);
+	}
+
+	/**
+	 * The multiline social-proof messages sanitizer caps each line multibyte-safely.
+	 */
+	public function test_social_proof_messages_truncation_is_multibyte_safe(): void {
+		$sanitizer = new Feature_Settings_Sanitizer();
+		$result    = $sanitizer->sanitize_social_proof_messages( str_repeat( 'ü', 250 ) );
+
+		$this->assertSame( 200, mb_strlen( $result ), 'Each line should cap at 200 characters' );
+		$this->assertSame(
+			$result,
+			mb_convert_encoding( $result, 'UTF-8', 'UTF-8' ),
+			'Truncated line must remain valid UTF-8'
+		);
+	}
+
 	/** Large social-proof options are non-autoloaded at their canonical write boundary. */
 	public function test_large_options_default_to_non_autoloaded(): void {
 		$this->assertFalse(

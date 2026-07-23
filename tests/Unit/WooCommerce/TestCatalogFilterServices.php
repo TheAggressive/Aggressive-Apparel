@@ -40,6 +40,26 @@ class TestCatalogFilterServices extends WP_UnitTestCase {
 		$this->assertTrue( $filters->on_sale() );
 	}
 
+	/**
+	 * Array-valued attribute params (`attributes[pa_color][]=red`) are accepted
+	 * without a PHP "array to string conversion" notice, matching the
+	 * comma-separated string form.
+	 */
+	public function test_filter_set_accepts_array_attribute_values(): void {
+		$filters = new Catalog_Filter_Set(
+			array(
+				'attributes' => array(
+					'pa_color' => array( 'Red', 'blue', 'red' ),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array( 'pa_color' => array( 'red', 'blue' ) ),
+			$filters->attributes( array( 'pa_color' ) )
+		);
+	}
+
 	/** Extracted renderer preserves the availability controls contract. */
 	public function test_renderer_outputs_availability_controls(): void {
 		$renderer = new Product_Filter_Renderer();

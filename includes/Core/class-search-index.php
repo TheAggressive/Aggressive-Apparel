@@ -340,27 +340,30 @@ class Search_Index {
 			$wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', self::table_name() ) );
 		}
 
-		$types = $this->supported_post_types();
-		$ids   = array_map(
+		$types = array_values( $this->supported_post_types() );
+		if ( empty( $types ) ) {
+			// No indexable types: finish the rebuild with an empty index rather than
+			// emitting an invalid `IN ()` clause.
+			$this->finish_rebuild( $cursor );
+			return;
+		}
+
+		// One %s per supported type, so adding/removing a type never leaves the
+		// rebuild silently indexing the wrong set (the previous fixed three
+		// placeholders were coupled to a three-item constant).
+		$type_placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+		$sql               = "SELECT ID FROM %i
+			WHERE post_type IN ({$type_placeholders})
+			AND post_status = 'publish'
+			AND post_password = ''
+			AND ID > %d
+			ORDER BY ID ASC
+			LIMIT %d";
+		$params            = array_merge( array( $wpdb->posts ), $types, array( $cursor, self::BATCH_SIZE ) );
+		$ids               = array_map(
 			'intval',
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cursor worker intentionally reads the next uncached batch exactly once.
-			$wpdb->get_col(
-				$wpdb->prepare(
-					"SELECT ID FROM %i
-					WHERE post_type IN (%s, %s, %s)
-					AND post_status = 'publish'
-					AND post_password = ''
-					AND ID > %d
-					ORDER BY ID ASC
-					LIMIT %d",
-					$wpdb->posts,
-					$types[0],
-					$types[1],
-					$types[2],
-					$cursor,
-					self::BATCH_SIZE
-				)
-			)
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Cursor worker reads the next uncached batch exactly once; only fixed %s placeholders are composed.
+			$wpdb->get_col( $wpdb->prepare( $sql, ...$params ) )
 		);
 
 		if ( ! empty( $ids ) ) {
@@ -377,10 +380,20 @@ class Search_Index {
 			return;
 		}
 
+		$this->finish_rebuild( (int) end( $ids ) );
+	}
+
+	/**
+	 * Mark the cursor-based rebuild complete and enable frontend reads.
+	 *
+	 * @param int $last_id Last object ID processed (0 when nothing was indexed).
+	 * @return void
+	 */
+	private function finish_rebuild( int $last_id ): void {
 		delete_option( self::REBUILD_CURSOR_OPTION );
 		update_option( self::INDEX_OPTION, self::INDEX_VERSION, false );
 		$this->bump_generation();
-		$this->set_status( 'ready', (int) end( $ids ) );
+		$this->set_status( 'ready', $last_id );
 	}
 
 	/**

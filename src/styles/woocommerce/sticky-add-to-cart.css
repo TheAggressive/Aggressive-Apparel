@@ -13,8 +13,8 @@
 
 .aa-sticky-cart {
 
-	/* Matches inner padding (1.25rem×2) + product image (3.5rem); JS may refine. */
-	--aa-sticky-cart-height: 6rem;
+	/* Local fallback for drawer positioning; JS replaces it with the measured height. */
+	--aa-sticky-cart-height: 4rem;
 
 	container-type: inline-size;
 	container-name: sticky-cart;
@@ -33,15 +33,6 @@
 		bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 		padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	pointer-events: none;
-}
-
-/*
- * Expose height on body when visible so social-proof (and peers) can clear the
- * bar. :root defaults --aa-sticky-cart-height to 0, which otherwise swallows
- * CSS fallbacks like var(--aa-sticky-cart-height, 3.75rem).
- */
-body.aa-sticky-cart-visible {
-	--aa-sticky-cart-height: 6rem;
 }
 
 /* When bottom nav hides on scroll, drop to screen bottom with safe-area. */
@@ -66,7 +57,7 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 	gap: 1rem;
 	max-width: var(--wp--style--global--wide-size, 1600px);
 	margin: 0 auto;
-	padding: 1.25rem 1.5rem;
+	padding: 0.75rem 1.5rem;
 }
 
 /* -----------------------------------------------

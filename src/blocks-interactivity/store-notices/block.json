@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/store-notices",
+  "version": "1.0.0",
+  "title": "Store Notices (Toasts)",
+  "category": "aggressive-apparel",
+  "description": "Replaces the WooCommerce store notices block with dismissible, auto-expiring toast notifications. Optionally mirrors block cart/checkout notices into the same toast stack.",
+  "keywords": ["notice", "toast", "message", "woocommerce", "alert"],
+  "supports": {
+    "requiresPlugins": ["woocommerce"],
+    "html": false,
+    "interactivity": true,
+    "multiple": false
+  },
+  "attributes": {
+    "position": {
+      "type": "string",
+      "default": "top-right"
+    },
+    "maxVisible": {
+      "type": "number",
+      "default": 4
+    },
+    "badgePosition": {
+      "type": "string",
+      "default": "bottom-right"
+    },
+    "successDuration": {
+      "type": "number",
+      "default": 5000
+    },
+    "noticeDuration": {
+      "type": "number",
+      "default": 6000
+    },
+    "errorDuration": {
+      "type": "number",
+      "default": 0
+    },
+    "captureBlockNotices": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "textdomain": "aggressive-apparel",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

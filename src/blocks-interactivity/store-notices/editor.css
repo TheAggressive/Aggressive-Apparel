@@ -1,0 +1,26 @@
+/**
+ * Store Notices (Toasts) — Editor Preview Styles.
+ *
+ * The front-end stack is position:fixed; in the editor we render it in-flow so
+ * it sits inside the block instead of pinning to the canvas viewport.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-notices-editor-preview .aa-notices {
+	position: static;
+	max-width: 360px;
+	transform: none;
+	pointer-events: auto;
+}
+
+.aa-notices-editor-preview .aa-notices__toast {
+	animation: none;
+}
+
+.aa-notices-editor-preview__hint {
+	margin: 0.5rem 0 0;
+	font-size: 0.75rem;
+	font-style: italic;
+	opacity: 0.7;
+}

@@ -291,6 +291,7 @@ class Bootstrap {
 		$this->container->get( 'wcpay_appearance' )->init();
 		$this->container->get( 'mini_cart_a11y' )->init();
 		WooCommerce\Free_Shipping::init();
+		WooCommerce\Store_Notices::init();
 	}
 
 	/**

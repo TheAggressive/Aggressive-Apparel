@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.170.0\n"
+"Project-Id-Version: Aggressive Apparel 1.172.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-22T02:59:18+00:00\n"
+"POT-Creation-Date: 2026-07-23T04:48:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -6813,6 +6813,14 @@ msgstr ""
 msgid "Recently Viewed"
 msgstr ""
 
+#: src/blocks-interactivity/store-notices/render.php:171
+msgid "Dismiss notification"
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/render.php:182
+msgid "Store notifications"
+msgstr ""
+
 #: src/blocks-interactivity/ticker/render.php:196
 msgid "Pause animation"
 msgstr ""
@@ -7041,6 +7049,7 @@ msgstr ""
 #: src/blocks-interactivity/grid-list-toggle/block.json
 #: src/blocks-interactivity/product-color-swatches/block.json
 #: src/blocks-interactivity/product-tabs/block.json
+#: src/blocks-interactivity/store-notices/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
 msgctxt "block keyword"
 msgid "woocommerce"
@@ -7109,6 +7118,7 @@ msgid "marquee"
 msgstr ""
 
 #: src/blocks-interactivity/free-shipping-message/block.json
+#: src/blocks-interactivity/store-notices/block.json
 msgctxt "block keyword"
 msgid "message"
 msgstr ""
@@ -7620,6 +7630,31 @@ msgstr ""
 #: src/blocks/product-rating/block.json
 msgctxt "block keyword"
 msgid "aggressive"
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/block.json
+msgctxt "block title"
+msgid "Store Notices (Toasts)"
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/block.json
+msgctxt "block description"
+msgid "Replaces the WooCommerce store notices block with dismissible, auto-expiring toast notifications. Optionally mirrors block cart/checkout notices into the same toast stack."
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/block.json
+msgctxt "block keyword"
+msgid "notice"
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/block.json
+msgctxt "block keyword"
+msgid "toast"
+msgstr ""
+
+#: src/blocks-interactivity/store-notices/block.json
+msgctxt "block keyword"
+msgid "alert"
 msgstr ""
 
 #: src/blocks-interactivity/ticker/block.json

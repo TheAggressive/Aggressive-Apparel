@@ -1,0 +1,349 @@
+/**
+ * Store Notices (Toasts) — Frontend Styles.
+ *
+ * A fixed, position-configurable toast stack. The container is pointer-through
+ * so it never blocks the page when empty; individual toasts re-enable pointer
+ * events. Colours come from the theme's status tokens so success/error/notice
+ * read consistently with the rest of the commerce UI.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-notices {
+	position: fixed;
+	z-index: var(--aa-z-toast);
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: max-content;
+	max-width: min(360px, calc(100vw - 2rem));
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+/*
+ * This container is position:fixed, so it contributes no layout height. But it
+ * is still a DOM child, so a parent's flow `blockGap` would push a spurious top
+ * margin onto whatever element follows it (this block is the first child in
+ * every template). Cancel that margin so dropping the block in never adds gap
+ * to sibling content. The class selector (0,1,0) outranks core's :where()-based
+ * layout rule, so no !important is needed.
+ */
+.aa-notices + * {
+	margin-block-start: 0;
+}
+
+.aa-notices--top-right {
+	top: 1.25rem;
+	right: 1.25rem;
+}
+
+.aa-notices--top-left {
+	top: 1.25rem;
+	left: 1.25rem;
+}
+
+.aa-notices--top-center {
+	top: 1.25rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.aa-notices--bottom-right {
+	right: 1.25rem;
+	bottom: 1.25rem;
+	flex-direction: column-reverse;
+}
+
+.aa-notices--bottom-left {
+	bottom: 1.25rem;
+	left: 1.25rem;
+	flex-direction: column-reverse;
+}
+
+.aa-notices--bottom-center {
+	bottom: 1.25rem;
+	left: 50%;
+	transform: translateX(-50%);
+	flex-direction: column-reverse;
+}
+
+/*
+ * Bottom-anchored stacks lift above the theme's fixed bottom chrome — the mobile
+ * bottom nav and the sticky add-to-cart bar — mirroring the social-proof toast.
+ * Heights come from the CSS vars those components publish (with body classes
+ * `has-bottom-nav` / `aa-sticky-cart-visible`); the transition matches so the
+ * stack glides as the bar shows or hides.
+ */
+:is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.has-bottom-nav :is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	bottom: calc(1.25rem + var(--aa-bottom-nav-height, 0px));
+}
+
+body.aa-sticky-cart-visible :is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	bottom: calc(1.25rem + var(--aa-sticky-cart-height, 6rem));
+}
+
+body.has-bottom-nav.aa-sticky-cart-visible :is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) {
+	bottom: calc(1.25rem + var(--aa-bottom-nav-height, 0px) + var(--aa-sticky-cart-height, 6rem));
+}
+
+/*
+ * Logged-in admin bar: WordPress pins a fixed toolbar at the top (32px wide
+ * viewports, 46px at <=782px). Push the top-anchored stacks below it so the
+ * first toast isn't hidden behind the bar. Bottom positions are unaffected.
+ */
+body.admin-bar :is(.aa-notices--top-right, .aa-notices--top-left, .aa-notices--top-center) {
+	top: calc(1.25rem + 32px);
+}
+
+/*
+ * Mobile: span the viewport (minus a small inset) so toasts are full width,
+ * and neutralise the centre-position transform since there's no spare width.
+ */
+@media (width <= 600px) {
+
+	.aa-notices,
+	.aa-notices--top-center,
+	.aa-notices--bottom-center {
+		left: 0.75rem;
+		right: 0.75rem;
+		width: auto;
+		max-width: none;
+		transform: none;
+	}
+}
+
+@media (width <= 782px) {
+
+	body.admin-bar :is(.aa-notices--top-right, .aa-notices--top-left, .aa-notices--top-center) {
+		top: calc(1.25rem + 46px);
+	}
+}
+
+/* Visually-hidden live regions for screen-reader announcements. */
+.aa-notices__sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.aa-notices__toast {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	min-height: 3.25rem;
+	padding: 0.75rem 0.875rem;
+	border-radius: var(--aa-radius-lg, 0.5rem);
+	border-left: 3px solid var(--aa-color-border);
+	background-color: var(--aa-color-surface-elevated);
+	color: var(--aa-color-foreground);
+	box-shadow: var(--aa-shadow-md);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	pointer-events: auto;
+	animation: aa-notice-in var(--aa-duration-normal, 300ms) var(--aa-ease-default) both;
+	transition:
+		opacity var(--aa-duration-normal, 300ms) var(--aa-ease-default),
+		transform var(--aa-duration-normal, 300ms) var(--aa-ease-default);
+}
+
+:is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) .aa-notices__toast {
+	animation-name: aa-notice-in-up;
+}
+
+/*
+ * Avoid a flash of an empty "ghost" toast. The message is painted on hydration
+ * (data-wp-watch → innerHTML, because the Interactivity API has no data-wp-html
+ * directive), so the server-rendered shell has an empty message for a beat.
+ * Keep the whole toast hidden until its message has content — the entrance
+ * animation then plays once, on the real (populated) toast. Component-scoped
+ * :has(), which the design system permits (only body-level :has() is banned).
+ */
+.aa-notices__toast:has(.aa-notices__message:empty) {
+	display: none;
+}
+
+/* Drop the entrance animation on exit: its `both` fill-mode would otherwise
+ * keep asserting opacity/transform and suppress the exit transition. */
+.aa-notices__toast.is-leaving {
+	animation: none;
+	opacity: 0;
+	transform: translateY(-6px) scale(0.98);
+	pointer-events: none;
+}
+
+:is(.aa-notices--bottom-left, .aa-notices--bottom-center, .aa-notices--bottom-right) .aa-notices__toast.is-leaving {
+	transform: translateY(6px) scale(0.98);
+}
+
+/* Type accents: coloured left border + matching icon tint. */
+.aa-notices__toast--success {
+	border-left-color: var(--aa-color-success);
+}
+
+.aa-notices__toast--error {
+	border-left-color: var(--aa-color-error);
+}
+
+.aa-notices__toast--notice {
+	border-left-color: var(--aa-color-info);
+}
+
+.aa-notices__icon {
+	flex: 0 0 auto;
+	width: 1.125rem;
+	height: 1.125rem;
+	background-color: var(--aa-color-info);
+	mask: center / contain no-repeat;
+}
+
+.aa-notices__toast--success .aa-notices__icon {
+	background-color: var(--aa-color-success);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm-1.2 14.2l-4-4 1.4-1.4 2.6 2.6 5.2-5.2 1.4 1.4-6.6 6.6z'/%3E%3C/svg%3E");
+}
+
+.aa-notices__toast--error .aa-notices__icon {
+	background-color: var(--aa-color-error);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+}
+
+.aa-notices__toast--notice .aa-notices__icon {
+	background-color: var(--aa-color-info);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
+
+/* Hidden-attribute override so the icon/media swap collapses in the flex row. */
+.aa-notices__icon[hidden],
+.aa-notices__media[hidden] {
+	display: none;
+}
+
+/* Product thumbnail (add-to-cart) with a success checkmark badge. */
+.aa-notices__media {
+	position: relative;
+	flex: 0 0 auto;
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+.aa-notices__thumb {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: var(--aa-radius-md, 0.375rem);
+	background-color: var(--aa-color-surface-sunken);
+}
+
+.aa-notices__badge {
+	position: absolute;
+	width: 1.125rem;
+	height: 1.125rem;
+	border-radius: 50%;
+	background-color: var(--aa-color-success);
+	box-shadow: 0 0 0 2px var(--aa-color-surface-elevated);
+}
+
+.aa-notices__badge::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 0.7rem;
+	height: 0.7rem;
+	background-color: var(--aa-color-white);
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9.5 16.2l-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.aa-notices--badge-bottom-right .aa-notices__badge {
+	right: -3px;
+	bottom: -3px;
+}
+
+.aa-notices--badge-top-right .aa-notices__badge {
+	top: -3px;
+	right: -3px;
+}
+
+.aa-notices__message {
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.aa-notices__close {
+	flex: 0 0 auto;
+	appearance: none;
+	margin: -0.125rem -0.25rem -0.125rem 0;
+	padding: 0 0.125rem;
+	border: 0;
+	background: none;
+	color: var(--aa-color-foreground-muted, currentColor);
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+	opacity: 0.7;
+	transition: opacity var(--aa-duration-fast, 150ms) var(--aa-ease-default);
+}
+
+.aa-notices__close:hover,
+.aa-notices__close:focus-visible {
+	opacity: 1;
+}
+
+.aa-notices__close:focus-visible {
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}
+
+@keyframes aa-notice-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(-6px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes aa-notice-in-up {
+
+	from {
+		opacity: 0;
+		transform: translateY(6px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	/* Keep an opacity transition so the JS transitionend hook still fires. */
+	.aa-notices__toast {
+		animation: none;
+		transition: opacity var(--aa-duration-fast, 150ms) linear;
+	}
+
+	.aa-notices__toast.is-leaving {
+		transform: none;
+	}
+}

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.173.0\n"
+"Project-Id-Version: Aggressive Apparel 1.173.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-23T06:31:33+00:00\n"
+"POT-Creation-Date: 2026-07-23T07:20:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -482,7 +482,7 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:206
 #: includes/Core/class-search-modal.php:255
-#: includes/WooCommerce/class-product-filters.php:569
+#: includes/WooCommerce/class-product-filters.php:584
 msgid "Try again"
 msgstr ""
 
@@ -2470,7 +2470,7 @@ msgid "All filters cleared."
 msgstr ""
 
 #: includes/WooCommerce/class-product-filters.php:320
-#: includes/WooCommerce/class-product-filters.php:567
+#: includes/WooCommerce/class-product-filters.php:582
 msgid "Something went wrong loading products."
 msgstr ""
 
@@ -2494,39 +2494,39 @@ msgstr ""
 msgid "Remove %s filter"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:415
-#: includes/WooCommerce/class-product-filters.php:503
+#: includes/WooCommerce/class-product-filters.php:418
+#: includes/WooCommerce/class-product-filters.php:509
 msgid "Product filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:424
+#: includes/WooCommerce/class-product-filters.php:427
 msgid "Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:429
+#: includes/WooCommerce/class-product-filters.php:432
 msgid "Close filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:454
+#: includes/WooCommerce/class-product-filters.php:457
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:460
-#: includes/WooCommerce/class-product-filters.php:513
+#: includes/WooCommerce/class-product-filters.php:463
+#: includes/WooCommerce/class-product-filters.php:519
 msgid "View Results"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:517
+#: includes/WooCommerce/class-product-filters.php:523
 msgid "Clear All Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:562
+#: includes/WooCommerce/class-product-filters.php:577
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:575
+#: includes/WooCommerce/class-product-filters.php:590
 msgid "Filtered products pagination"
 msgstr ""
 

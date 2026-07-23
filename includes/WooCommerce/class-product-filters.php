@@ -356,7 +356,10 @@ class Product_Filters {
 
 			// Wrap product-collection with AJAX grid container.
 			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
-				return $this->wrap_product_collection( $block_content );
+				return $this->wrap_product_collection(
+					$block_content,
+					Block_Render_Helper::alignment_class( $block )
+				);
 			}
 		} catch ( \Throwable $e ) {
 			// Return original block content on error to avoid breaking the page.
@@ -492,9 +495,12 @@ class Product_Filters {
 	 * Wrap the product-collection block with AJAX grid container.
 	 *
 	 * @param string $block_content Original block HTML.
+	 * @param string $align_class   Alignment class to mirror onto the wrapper
+	 *                              ('alignwide'/'alignfull'/''), from
+	 *                              Block_Render_Helper::alignment_class().
 	 * @return string Wrapped HTML.
 	 */
-	private function wrap_product_collection( string $block_content ): string {
+	private function wrap_product_collection( string $block_content, string $align_class = '' ): string {
 		$sidebar_html = '';
 
 		// For sidebar layout, render the inline sidebar.
@@ -527,9 +533,18 @@ class Product_Filters {
 
 		$grid_class = 'sidebar' === $this->layout ? ' aa-product-filters__grid-wrapper--sidebar' : '';
 
+		// Mirror the collection's alignment onto this wrapper. It replaces the
+		// product-collection as the direct child of the (possibly constrained)
+		// template layout, so without the class WordPress core caps it at
+		// content-size (1200px) and wide/full alignment never takes effect.
+		$wrapper_class = 'aa-product-filters aa-product-filters--' . $this->layout;
+		if ( '' !== $align_class ) {
+			$wrapper_class .= ' ' . $align_class;
+		}
+
 		$output = sprintf(
-			'<div class="aa-product-filters aa-product-filters--%s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-init="callbacks.init" data-wp-on-window--keydown="actions.handleKeydown" data-wp-on-document--click="actions.handleClickOutside">',
-			esc_attr( $this->layout ),
+			'<div class="%1$s" data-wp-interactive="aggressive-apparel/product-filters" data-wp-init="callbacks.init" data-wp-on-window--keydown="actions.handleKeydown" data-wp-on-document--click="actions.handleClickOutside">',
+			esc_attr( $wrapper_class ),
 		);
 
 		$output .= $bar_html;

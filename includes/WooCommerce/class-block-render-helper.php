@@ -47,4 +47,22 @@ class Block_Render_Helper {
 			1
 		) ?? $block_content;
 	}
+
+	/**
+	 * Resolve a block's WordPress alignment CSS class ('alignwide'/'alignfull').
+	 *
+	 * When a `render_block` filter wraps a block in its own container, that
+	 * container becomes the direct child of the (possibly constrained) layout, so
+	 * it must carry the block's alignment or WordPress core caps it at
+	 * content-size. Only wide/full are meaningful for width; other values (left,
+	 * right, none) yield an empty string.
+	 *
+	 * @param array<string, mixed> $block Parsed block data (as passed to render_block).
+	 * @return string The alignment class, or '' when the block has no wide/full alignment.
+	 */
+	public static function alignment_class( array $block ): string {
+		$align = isset( $block['attrs']['align'] ) ? (string) $block['attrs']['align'] : '';
+
+		return in_array( $align, array( 'wide', 'full' ), true ) ? 'align' . $align : '';
+	}
 }

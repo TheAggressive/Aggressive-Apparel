@@ -87,6 +87,33 @@ Only **empty** or **fuzzy** strings are filled. Entries get an `aa-mt` flag.
 - Opens a **PR** — never pushes translations to `main`
 - No-ops until a locale `.po` exists
 
+## When translations reach users
+
+Translations are **not** their own release. The MT PR merges as `chore(i18n)`,
+so it does not bump the version — and the release pipeline skips lint + the
+wp-env test suite on a translations-only merge (its `changes` gate sees nothing
+outside `languages/`), so that merge is cheap. The reviewed `.po` simply lands
+on `main`.
+
+The shipped `.mo` is compiled fresh at **release** time (`i18n:compile` in the
+`package` job) from whatever `.po` is on `main`. So merged translations ride
+the **next** `feat`/`fix` release automatically — no extra version bump.
+
+**Trade-off:** a feature's new strings show in English for translated locales
+until that next release. To ship a release **already translated** (a big
+feature, a launch, a new locale), fill + review the strings on the feature
+branch _before_ merging, so the `.po` ships with the feature in one release:
+
+```bash
+pnpm i18n:translate            # fill empty/fuzzy for all locales
+# skim the aa-mt entries: placeholders (%s/%d), brand terms, register
+git add languages/*.po         # commit alongside the feature
+```
+
+Do **not** move MT into `pnpm build` / the release job — that would ship
+unreviewed machine output straight to customers. The review gate (PR or
+pre-merge skim) is deliberate.
+
 ## Runtime notes
 
 - **PHP + Interactivity modules:** gettext via `load_theme_textdomain` and PHP-seeded `i18n` bags (script modules cannot use `wp_set_script_translations`).

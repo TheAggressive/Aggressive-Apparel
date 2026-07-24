@@ -25,12 +25,47 @@ env:
 
 jobs:
   # ============================================================================
+  # Detect whether anything OUTSIDE languages/ changed.
+  # A translations-only merge (the i18n MT PR) leaves code=false. The two lint
+  # jobs gate on this and skip, which cascade-skips build → test → package →
+  # release, so the only thing that runs is the cheap i18n catalog check. The
+  # merged translations ship with the NEXT code release — its package step
+  # recompiles the .mo from whatever .po is on main — so there's no extra
+  # version bump for translations. Any code or mixed commit sets code=true and
+  # runs the full pipeline.
+  # ============================================================================
+  changes:
+    name: 🧭 Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
+        id: filter
+        with:
+          # `code` matches when any changed file is outside languages/.
+          # `**` selects everything, `!languages/**` removes the catalogs;
+          # if nothing remains the diff was translations-only.
+          filters: |
+            code:
+              - '**'
+              - '!languages/**'
+
+  # ============================================================================
   # PARALLEL: Quality Checks (no setup dependency — each job self-caches)
   # ============================================================================
   lint-frontend:
     name: 🔍 Lint & Test Frontend
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
 
     steps:
       - uses: actions/checkout@v5
@@ -74,13 +109,15 @@ jobs:
     name: 🔍 Lint PHP
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
 
     steps:
       - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
@@ -140,7 +177,10 @@ jobs:
         run: bash bin/i18n/check.sh
 
   # ============================================================================
-  # Build Assets (always runs so tests have artifacts; release check inline)
+  # Build Assets. On the translations-only path its lint deps skip, which
+  # cascade-skips this job (and test/package/release) — a .po merge never
+  # rebuilds. On the code path it runs so tests have artifacts; release check
+  # inline.
   # ============================================================================
   build:
     name: 🔨 Build
@@ -199,7 +239,7 @@ jobs:
         run: pnpm build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
           path: build/
@@ -211,6 +251,8 @@ jobs:
   test:
     name: 🧪 Tests
     runs-on: ubuntu-latest
+    # build cascade-skips on the translations-only path, so this 15-min wp-env
+    # suite skips with it — no explicit gate needed.
     needs: [build]
     timeout-minutes: 15
 
@@ -226,7 +268,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ env.PHP_VERSION }}
           extensions: mbstring, xml, zip, xdebug
@@ -245,7 +287,7 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: build-artifacts
           path: build/
@@ -285,7 +327,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
         with:
           files: ./coverage-unit.xml
           flags: unit
@@ -307,12 +349,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: build-artifacts
           path: build/
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
@@ -423,7 +465,7 @@ jobs:
           echo "Development files are excluded"
 
       - name: Upload theme package
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.THEME_SLUG }}-package
           path: aggressive-apparel.zip
@@ -465,7 +507,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Download theme package
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: ${{ env.THEME_SLUG }}-package
           path: ./

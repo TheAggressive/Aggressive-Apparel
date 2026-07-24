@@ -212,7 +212,7 @@
 	padding: 0;
 	border: none;
 	background: none;
-	font-size: 1.5rem;
+	font-size: var(--aa-toast-close-size, 1.5rem);
 	line-height: 1;
 	cursor: pointer;
 	opacity: 0.5;

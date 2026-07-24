@@ -124,6 +124,10 @@
 	--aa-compact-action-line-height: var(--wp--custom--compact-action--line-height, 1);
 	--aa-compact-action-letter-spacing: var(--wp--custom--compact-action--letter-spacing, 0.06em);
 	--aa-input-height: var(--wp--custom--size--input-height, 3.25rem);
+
+	/* Close-button glyph size shared by the toast overlays (store-notices +
+	   social-proof) so the two "×" stay the same size. */
+	--aa-toast-close-size: var(--wp--custom--size--toast-close-size, 1.5rem);
 	--aa-panel-width-sm: var(--wp--custom--size--panel-width--sm, 20rem);
 	--aa-panel-width-md: var(--wp--custom--size--panel-width--md, 28rem);
 	--aa-panel-width-lg: var(--wp--custom--size--panel-width--lg, 40rem);

@@ -424,7 +424,8 @@
         "content": {
           "prose": "48rem"
         },
-        "inputHeight": "3.25rem"
+        "inputHeight": "3.25rem",
+        "toastCloseSize": "1.5rem"
       },
       "compactAction": {
         "height": "2.925rem",

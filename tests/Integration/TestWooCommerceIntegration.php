@@ -127,4 +127,82 @@ class TestWooCommerceIntegration extends WP_UnitTestCase {
 			);
 		}
 	}
+
+	/**
+	 * Test the single-product notice does not extend WooCommerce wrappers
+	 * across the footer or create a flow gap above the product content.
+	 */
+	public function test_single_product_notice_preserves_template_boundaries() {
+		$template_path    = get_template_directory() . '/templates/single-product.html';
+		$template_content = file_get_contents( $template_path );
+
+		$this->assertNotFalse( $template_content, 'Single-product template should be readable.' );
+
+		$top_level_blocks = array_values(
+			array_filter(
+				parse_blocks( $template_content ),
+				static fn( array $block ): bool => ! empty( $block['blockName'] )
+			)
+		);
+
+		$main_index   = null;
+		$footer_index = null;
+
+		foreach ( $top_level_blocks as $index => $block ) {
+			$this->assertNotSame(
+				'aggressive-apparel/store-notices',
+				$block['blockName'],
+				'Store notices must not be a top-level block after the footer.'
+			);
+
+			if ( 'core/group' === $block['blockName'] && 'main' === ( $block['attrs']['tagName'] ?? null ) ) {
+				$main_index = $index;
+			}
+
+			if ( 'core/template-part' === $block['blockName'] && 'footer' === ( $block['attrs']['slug'] ?? null ) ) {
+				$footer_index = $index;
+			}
+		}
+
+		$this->assertNotNull( $main_index, 'Single-product template should contain a main group.' );
+		$this->assertNotNull( $footer_index, 'Single-product template should contain a footer template part.' );
+		$this->assertGreaterThan( $main_index, $footer_index, 'Footer should follow the completed main group.' );
+
+		$main = $top_level_blocks[ $main_index ];
+
+		$this->assertSame(
+			'aggressive-apparel/store-notices',
+			$main['innerBlocks'][0]['blockName'] ?? null,
+			'Store notices should be the first block inside main.'
+		);
+		$this->assertSame(
+			'var:preset|spacing|0',
+			$main['attrs']['style']['spacing']['blockGap'] ?? null,
+			'Main should use zero automatic block gap because the first notice block is fixed-positioned.'
+		);
+
+		$spaced_sections = array_filter(
+			$main['innerBlocks'],
+			static function ( array $block ): bool {
+				if ( 'core/group' !== $block['blockName'] ) {
+					return false;
+				}
+
+				$is_tabs    = 'wide' === ( $block['attrs']['align'] ?? null );
+				$is_related = 'surface-muted' === ( $block['attrs']['backgroundColor'] ?? null );
+
+				return $is_tabs || $is_related;
+			}
+		);
+
+		$this->assertCount( 2, $spaced_sections, 'Tabs and related-products groups should be present.' );
+
+		foreach ( $spaced_sections as $section ) {
+			$this->assertSame(
+				'var:preset|spacing|fluid-24',
+				$section['attrs']['style']['spacing']['margin']['top'] ?? null,
+				'Visible product sections should own their top spacing explicitly.'
+			);
+		}
+	}
 }

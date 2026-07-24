@@ -49,14 +49,22 @@
 	background-color: var(--aa-color-surface-elevated);
 	color: var(--aa-color-foreground);
 	box-shadow: var(--aa-shadow-md);
-	pointer-events: auto;
+	pointer-events: none;
+
+	/* Removed from hit-testing AND the tab order while faded out. Delay the
+	   visibility flip to the end of the transition so the fade-out still shows;
+	   see &.is-visible for the un-delayed inverse. */
+	visibility: hidden;
 	transform: translateY(20px);
 	opacity: 0;
-	transition: transform 0.3s ease, opacity 0.3s ease;
+	transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
 
 	&.is-visible {
 		transform: translateY(0);
 		opacity: 1;
+		pointer-events: auto;
+		visibility: visible;
+		transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s;
 	}
 
 	&[hidden] {
@@ -66,6 +74,12 @@
 	@media (prefers-reduced-motion: reduce) {
 		transition: none;
 		transform: none;
+
+		/* Match is-visible's specificity so motion stays disabled; the
+		   visibility flip becomes instant, which is correct with no fade. */
+		&.is-visible {
+			transition: none;
+		}
 	}
 }
 

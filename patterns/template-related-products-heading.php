@@ -11,6 +11,6 @@
  */
 
 ?>
-<!-- wp:heading {"style":{"spacing":{"margin":{"bottom":"1rem"}},"layout":{"selfStretch":"fill","flexSize":null},"typography":{"textTransform":"uppercase"}},"fontSize":"fluid-xxxx-large"} -->
-<h2 class="wp-block-heading has-fluid-xxxx-large-font-size" style="margin-bottom:1rem;text-transform:uppercase"><?php echo esc_html__( 'Related Products', 'aggressive-apparel' ); ?></h2>
+<!-- wp:heading {"textAlign":"center","style":{"spacing":{"margin":{"bottom":"1rem"}},"layout":{"selfStretch":"fill","flexSize":null},"typography":{"textTransform":"uppercase"}},"fontSize":"fluid-xxxx-large"} -->
+<h2 class="wp-block-heading has-text-align-center has-fluid-xxxx-large-font-size" style="margin-bottom:1rem;text-transform:uppercase"><?php echo esc_html__( 'Related Products', 'aggressive-apparel' ); ?></h2>
 <!-- /wp:heading -->

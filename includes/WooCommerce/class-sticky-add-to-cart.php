@@ -157,6 +157,8 @@ class Sticky_Add_To_Cart {
 			data-wp-class--is-visible="state.isVisible"
 			aria-hidden="true"
 			data-wp-bind--aria-hidden="state.ariaHidden"
+			inert
+			data-wp-bind--inert="!state.isVisible"
 		>
 			<div class="aa-sticky-cart__inner">
 				<div class="aa-sticky-cart__product">

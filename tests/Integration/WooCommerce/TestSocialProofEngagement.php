@@ -11,6 +11,7 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Social_Proof;
+use ReflectionClassConstant;
 use ReflectionMethod;
 use WP_UnitTestCase;
 
@@ -193,6 +194,66 @@ final class TestSocialProofEngagement extends WP_UnitTestCase {
 		$this->created_product_ids[] = $id;
 
 		return $id;
+	}
+
+	/**
+	 * The rendered toast is a decorative marketing surface: hidden from the
+	 * accessibility tree (so a ~20s cycle doesn't spam polite announcements) with
+	 * its interactive children removed from the tab order (no focusable
+	 * descendants inside aria-hidden). This locks that contract so a future edit
+	 * can't silently re-introduce the live region or a keyboard-focusable,
+	 * pointer-catching "ghost" toast.
+	 *
+	 * @return void
+	 */
+	public function test_toast_container_markup_is_decorative_not_a_live_region(): void {
+		// Single-product context so Social_Proof::should_show() passes.
+		$product_id = $this->create_simple_product_with_sales( 'AA-SP-Markup-Contract', 0 );
+		$this->go_to( (string) get_permalink( $product_id ) );
+
+		// Seed the cached pool so a toast renders without needing order history
+		// or admin demo mode. The transient key is private, so read it reflectively.
+		$transient_key = (string) ( new ReflectionClassConstant( Social_Proof::class, 'TRANSIENT_KEY' ) )->getValue();
+		set_transient(
+			$transient_key,
+			array(
+				array(
+					'message'    => 'Someone just grabbed this',
+					'time'       => '2 minutes ago',
+					'url'        => (string) get_permalink( $product_id ),
+					'thumbnail'  => '',
+					'decor_html' => '',
+					'badge_html' => '',
+					'kind'       => 'purchases',
+				),
+			),
+			MINUTE_IN_SECONDS
+		);
+
+		ob_start();
+		( new Social_Proof() )->render_toast_container();
+		$html = (string) ob_get_clean();
+
+		delete_transient( $transient_key );
+
+		$this->assertNotSame( '', $html, 'A toast should render on a single product when notifications exist.' );
+
+		// Decorative, not a cycling live region.
+		$this->assertStringContainsString( 'aria-hidden="true"', $html, 'Container must be hidden from the accessibility tree.' );
+		$this->assertStringNotContainsString( 'aria-live', $html, 'The decorative toast must not be a live region.' );
+		$this->assertStringNotContainsString( 'role="status"', $html, 'The decorative toast must not expose role=status.' );
+
+		// No focusable descendants inside aria-hidden.
+		$this->assertMatchesRegularExpression(
+			'/social-proof__link[^>]*tabindex="-1"/',
+			$html,
+			'The link must be out of the tab order inside aria-hidden.'
+		);
+		$this->assertMatchesRegularExpression(
+			'/social-proof__close[^>]*tabindex="-1"/',
+			$html,
+			'The dismiss button must be out of the tab order inside aria-hidden.'
+		);
 	}
 
 	/**

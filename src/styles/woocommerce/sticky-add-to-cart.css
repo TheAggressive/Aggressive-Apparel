@@ -28,10 +28,16 @@
 	border-top: 1px solid var(--aa-color-border-subtle);
 	box-shadow: 0 -2px 12px var(--aa-color-border-subtle);
 	transform: translateY(100%);
+
+	/* Off-screen while hidden: keep it out of hit-testing AND the tab order so
+	   the buttons aren't focusable behind the page. Delay the visibility flip to
+	   the end of the slide so the exit animation still plays; see &.is-visible. */
+	visibility: hidden;
 	transition:
 		transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 		bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		visibility 0s linear 0.3s;
 	pointer-events: none;
 }
 
@@ -44,6 +50,12 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 .aa-sticky-cart.is-visible {
 	transform: translateY(0);
 	pointer-events: auto;
+	visibility: visible;
+	transition:
+		transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		visibility 0s;
 }
 
 /* -----------------------------------------------
@@ -690,6 +702,7 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 @media (prefers-reduced-motion: reduce) {
 
 	.aa-sticky-cart,
+	.aa-sticky-cart.is-visible,
 	body.aa-bottom-nav-hidden .aa-sticky-cart {
 		transition: none;
 	}

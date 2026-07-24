@@ -13,7 +13,8 @@ import type {
   InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
-import { store, withSyncEvent } from '@wordpress/interactivity';
+import { getElement, store, withSyncEvent } from '@wordpress/interactivity';
+import { unlockScroll } from '@aggressive-apparel/scroll-lock';
 import {
   prepareOverlayOpen,
   activateOverlayFocus,
@@ -116,6 +117,45 @@ const ATTR_SELECTORS: string = [
 
 // Focus trap cleanup reference.
 let focusTrapCleanup: (() => void) | null = null;
+
+// data-wp-init may run again after client-side DOM replacement. Keeping the
+// active cleanup makes re-initialization idempotent instead of stacking global
+// listeners and observers.
+let activeInitCleanup: (() => void) | null = null;
+
+type StickyCartVisibilityEntry = Pick<
+  IntersectionObserverEntry,
+  'boundingClientRect' | 'isIntersecting'
+>;
+
+/**
+ * Show only after the source form has passed above the viewport. A form that
+ * has not yet entered from below must not trigger the sticky replacement.
+ */
+export function shouldShowStickyCart(
+  entry: StickyCartVisibilityEntry
+): boolean {
+  return (
+    !entry.isIntersecting &&
+    entry.boundingClientRect.height > 0 &&
+    entry.boundingClientRect.bottom <= 0
+  );
+}
+
+/**
+ * Restore an inline custom property without disturbing its stylesheet value.
+ */
+function restoreInlineProperty(
+  element: HTMLElement,
+  property: string,
+  previousValue: string
+): void {
+  if (previousValue) {
+    element.style.setProperty(property, previousValue);
+  } else {
+    element.style.removeProperty(property);
+  }
+}
 
 /**
  * Read all current attribute selections from a form element.
@@ -723,13 +763,26 @@ const { state, actions } = store<StickyCartStore>(
     },
 
     callbacks: {
-      init(): void {
-        // Observe the main add-to-cart form.
-        const form = document.querySelector<HTMLElement>(FORM_SELECTORS);
+      init(): (() => void) | void {
+        const { ref } = getElement();
+        if (!(ref instanceof HTMLElement)) return;
 
+        // Avoid duplicate observers/listeners if this directive is hydrated
+        // again after a client-side DOM replacement.
+        activeInitCleanup?.();
+
+        const bar = ref;
+        const form = document.querySelector<HTMLElement>(FORM_SELECTORS);
         if (!form) return;
 
-        const bar = document.querySelector<HTMLElement>('.aa-sticky-cart');
+        const root = document.documentElement;
+        const body = document.body;
+        const heightProperty = '--aa-sticky-cart-height';
+        const previousRootHeight = root.style.getPropertyValue(heightProperty);
+        const previousBarHeight = bar.style.getPropertyValue(heightProperty);
+        const previouslyVisibleOnBody = body.classList.contains(
+          'aa-sticky-cart-visible'
+        );
 
         /**
          * Publish the bar height so social-proof (and peers) can clear it.
@@ -737,41 +790,48 @@ const { state, actions } = store<StickyCartStore>(
          * fallbacks; measure the real bar when visible.
          */
         const syncStickyCartHeight = (visible: boolean): void => {
-          if (!visible || !bar) {
-            document.documentElement.style.setProperty(
-              '--aa-sticky-cart-height',
-              '0px'
-            );
+          if (!visible) {
+            root.style.setProperty(heightProperty, '0px');
             return;
           }
 
           const height = `${bar.offsetHeight}px`;
-          document.documentElement.style.setProperty(
-            '--aa-sticky-cart-height',
-            height
-          );
+          root.style.setProperty(heightProperty, height);
           // Keep the local token in sync for drawer padding calcs.
-          bar.style.setProperty('--aa-sticky-cart-height', height);
+          bar.style.setProperty(heightProperty, height);
         };
 
-        const observer = new IntersectionObserver(
-          ([entry]: IntersectionObserverEntry[]) => {
-            state.isVisible = !entry.isIntersecting;
-            // Mirrored as a body class so social-proof's offset CSS
-            // avoids body:has() (document-wide re-scan per mutation).
-            document.body.classList.toggle(
-              'aa-sticky-cart-visible',
-              state.isVisible
-            );
-            syncStickyCartHeight(state.isVisible);
-          },
-          { threshold: 0 }
-        );
+        const setStickyCartVisible = (visible: boolean): void => {
+          state.isVisible = visible;
+          body.classList.toggle('aa-sticky-cart-visible', visible);
+          syncStickyCartHeight(visible);
+        };
 
-        observer.observe(form);
+        let observer: IntersectionObserver | null = null;
+        if (typeof IntersectionObserver !== 'undefined') {
+          observer = new IntersectionObserver(
+            ([entry]: IntersectionObserverEntry[]) => {
+              if (!entry) return;
 
-        if (bar && typeof ResizeObserver !== 'undefined') {
-          const resizeObserver = new ResizeObserver(() => {
+              const visible = shouldShowStickyCart(entry);
+
+              // Mirrored as a body class so social-proof's offset CSS
+              // avoids body:has() (document-wide re-scan per mutation).
+              setStickyCartVisible(visible);
+            },
+            { threshold: 0 }
+          );
+
+          observer.observe(form);
+        } else {
+          // Progressive enhancement: unsupported browsers keep the source form
+          // as the only purchase UI rather than exposing a stale sticky copy.
+          setStickyCartVisible(false);
+        }
+
+        let resizeObserver: ResizeObserver | null = null;
+        if (typeof ResizeObserver !== 'undefined') {
+          resizeObserver = new ResizeObserver(() => {
             if (state.isVisible) {
               syncStickyCartHeight(true);
             }
@@ -791,16 +851,21 @@ const { state, actions } = store<StickyCartStore>(
          * Variant sync: main form → sticky bar
          * ------------------------------------------------------- */
 
-        if (state.productType === 'variable') {
-          form.addEventListener('change', (e: Event) => {
-            if (state._syncing) return;
+        const onFormChange = (event: Event): void => {
+          if (state._syncing) return;
 
-            const el = e.target as HTMLSelectElement | HTMLInputElement;
-            const name =
-              el.name || el.getAttribute('data-attribute_name') || '';
-            if (!name.startsWith('attribute_')) return;
+          const el = event.target;
+          if (
+            !(el instanceof HTMLSelectElement || el instanceof HTMLInputElement)
+          ) {
+            return;
+          }
 
-            state._syncing = true;
+          const name = el.name || el.getAttribute('data-attribute_name') || '';
+          if (!name.startsWith('attribute_')) return;
+
+          state._syncing = true;
+          try {
             state.selectedAttrs = readFormAttributes(form);
             actions.matchVariation();
 
@@ -808,20 +873,67 @@ const { state, actions } = store<StickyCartStore>(
             if (state.isDrawerOpen) {
               syncDrawerOptions();
             }
-
+          } finally {
             state._syncing = false;
-          });
+          }
+        };
+
+        if (state.productType === 'variable') {
+          form.addEventListener('change', onFormChange);
         }
 
         /* ---------------------------------------------------------
          * Escape key closes drawer
          * ------------------------------------------------------- */
 
-        document.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Escape' && state.isDrawerOpen) {
+        const onKeydown = (event: KeyboardEvent): void => {
+          if (event.key === 'Escape' && state.isDrawerOpen) {
             actions.closeDrawer();
           }
-        });
+        };
+        document.addEventListener('keydown', onKeydown);
+
+        let disposed = false;
+        const cleanup = (): void => {
+          if (disposed) return;
+          disposed = true;
+
+          observer?.disconnect();
+          resizeObserver?.disconnect();
+          form.removeEventListener('change', onFormChange);
+          document.removeEventListener('keydown', onKeydown);
+
+          focusTrapCleanup?.();
+          focusTrapCleanup = null;
+
+          if (state.isDrawerOpen) {
+            state.isDrawerOpen = false;
+            state.drawerView = 'selection';
+            const drawer = document.querySelector<HTMLElement>(
+              '.aa-sticky-cart__drawer'
+            );
+            if (drawer) {
+              drawer.classList.remove('is-open');
+              drawer.hidden = true;
+            }
+            unlockScroll();
+          }
+
+          state.isVisible = false;
+          body.classList.toggle(
+            'aa-sticky-cart-visible',
+            previouslyVisibleOnBody
+          );
+          restoreInlineProperty(root, heightProperty, previousRootHeight);
+          restoreInlineProperty(bar, heightProperty, previousBarHeight);
+
+          if (activeInitCleanup === cleanup) {
+            activeInitCleanup = null;
+          }
+        };
+
+        activeInitCleanup = cleanup;
+        return cleanup;
       },
     },
   }

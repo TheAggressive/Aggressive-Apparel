@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-07-23T07:20:11+00:00\n"
+"POT-Creation-Date: 2026-07-23T23:55:12+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3707,7 +3707,7 @@ msgstr "Redirigiendo…"
 #: includes/WooCommerce/class-quick-view.php:366
 #: includes/WooCommerce/class-quick-view.php:887
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:413
+#: includes/WooCommerce/class-sticky-add-to-cart.php:415
 msgid "Added to cart!"
 msgstr "¡Añadido al carrito!"
 
@@ -3750,27 +3750,27 @@ msgstr "Desplazar las miniaturas hacia la derecha"
 
 #: includes/WooCommerce/class-quick-view.php:596
 #: includes/WooCommerce/class-quick-view.php:774
-#: includes/WooCommerce/class-sticky-add-to-cart.php:188
-#: includes/WooCommerce/class-sticky-add-to-cart.php:357
+#: includes/WooCommerce/class-sticky-add-to-cart.php:190
+#: includes/WooCommerce/class-sticky-add-to-cart.php:359
 msgid "Decrease quantity"
 msgstr "Reducir la cantidad"
 
 #: includes/WooCommerce/class-quick-view.php:604
 #: includes/WooCommerce/class-quick-view.php:782
-#: includes/WooCommerce/class-sticky-add-to-cart.php:197
-#: includes/WooCommerce/class-sticky-add-to-cart.php:366
+#: includes/WooCommerce/class-sticky-add-to-cart.php:199
+#: includes/WooCommerce/class-sticky-add-to-cart.php:368
 msgid "Quantity"
 msgstr "Cantidad"
 
 #: includes/WooCommerce/class-quick-view.php:610
 #: includes/WooCommerce/class-quick-view.php:788
-#: includes/WooCommerce/class-sticky-add-to-cart.php:203
-#: includes/WooCommerce/class-sticky-add-to-cart.php:372
+#: includes/WooCommerce/class-sticky-add-to-cart.php:205
+#: includes/WooCommerce/class-sticky-add-to-cart.php:374
 msgid "Increase quantity"
 msgstr "Aumentar la cantidad"
 
 #: includes/WooCommerce/class-quick-view.php:678
-#: includes/WooCommerce/class-sticky-add-to-cart.php:257
+#: includes/WooCommerce/class-sticky-add-to-cart.php:259
 msgid "Select product options"
 msgstr "Selecciona las opciones del producto"
 
@@ -3873,7 +3873,7 @@ msgid "Measurements in inches"
 msgstr "Medidas en pulgadas"
 
 #: includes/WooCommerce/class-size-guide.php:175
-#: includes/WooCommerce/class-sticky-add-to-cart.php:288
+#: includes/WooCommerce/class-sticky-add-to-cart.php:290
 msgid "Close"
 msgstr "Cerrar"
 
@@ -3901,57 +3901,57 @@ msgstr "-- Ninguno --"
 msgid "Assign a size guide to all products in this category."
 msgstr "Asigna una guía de tallas a todos los productos de esta categoría."
 
-#: includes/WooCommerce/class-social-proof.php:199
+#: includes/WooCommerce/class-social-proof.php:204
 msgid "Dismiss"
 msgstr "Descartar"
 
-#: includes/WooCommerce/class-social-proof.php:228
+#: includes/WooCommerce/class-social-proof.php:233
 msgid "Social Proof preview: ON"
 msgstr "Vista previa de «Social Proof»: ACTIVADA"
 
-#: includes/WooCommerce/class-social-proof.php:231
+#: includes/WooCommerce/class-social-proof.php:236
 msgid "Click to manage Social Proof settings"
 msgstr "Haz clic aquí para gestionar la configuración de «Social Proof»"
 
 #. translators: %s: human-readable time difference, e.g. "5 minutes".
-#: includes/WooCommerce/class-social-proof.php:740
+#: includes/WooCommerce/class-social-proof.php:745
 #, php-format
 msgid "%s ago"
 msgstr "hace %s"
 
 #. translators: %s: product title.
-#: includes/WooCommerce/class-social-proof.php:806
+#: includes/WooCommerce/class-social-proof.php:811
 #, php-format
 msgid "Selling well — %s"
 msgstr "Se está vendiendo bien — %s"
 
-#: includes/WooCommerce/class-social-proof.php:912
+#: includes/WooCommerce/class-social-proof.php:917
 msgid "Someone"
 msgstr "Alguien"
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:922
+#: includes/WooCommerce/class-social-proof.php:927
 #, php-format
 msgid "%1$s in %2$s purchased %3$s"
 msgstr "%1$s, en %2$s, compró %3$s"
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:925
+#: includes/WooCommerce/class-social-proof.php:930
 #, php-format
 msgid "%1$s from %2$s purchased %3$s"
 msgstr "%1$s compró %3$s a %2$s"
 
 #. translators: 1: subject, 2: product.
-#: includes/WooCommerce/class-social-proof.php:929
+#: includes/WooCommerce/class-social-proof.php:934
 #, php-format
 msgid "%1$s purchased %2$s"
 msgstr "%1$s ha comprado %2$s"
 
-#: includes/WooCommerce/class-social-proof.php:1008
+#: includes/WooCommerce/class-social-proof.php:1013
 msgid "preview"
 msgstr "vista previa"
 
-#: includes/WooCommerce/class-social-proof.php:1015
+#: includes/WooCommerce/class-social-proof.php:1020
 msgid "just now"
 msgstr "hace un momento"
 

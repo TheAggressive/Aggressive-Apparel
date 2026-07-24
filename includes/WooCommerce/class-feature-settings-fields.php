@@ -73,16 +73,31 @@ class Feature_Settings_Fields {
 	public function render_store_copy_text_field( array $args ): void {
 		$option_name = (string) $args['option'];
 		$default     = (string) $args['default'];
+		$placeholder = isset( $args['placeholder'] ) ? (string) $args['placeholder'] : $default;
 		$value       = Feature_Settings::get_store_copy_text( $option_name );
 		$desc_id     = $option_name . '-desc';
 
+		$suggestions = ( isset( $args['suggestions'] ) && is_array( $args['suggestions'] ) )
+			? array_values( array_filter( array_map( 'strval', $args['suggestions'] ) ) )
+			: array();
+		$list_id     = '' !== implode( '', $suggestions ) ? $option_name . '-suggestions' : '';
+
 		printf(
-			'<input type="text" id="%1$s" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" aria-describedby="%4$s" />',
+			'<input type="text" id="%1$s" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" aria-describedby="%4$s"%5$s />',
 			esc_attr( $option_name ),
 			esc_attr( $value ),
-			esc_attr( $default ),
+			esc_attr( $placeholder ),
 			esc_attr( $desc_id ),
+			'' !== $list_id ? ' list="' . esc_attr( $list_id ) . '"' : '',
 		);
+
+		if ( '' !== $list_id ) {
+			echo '<datalist id="' . esc_attr( $list_id ) . '">';
+			foreach ( $suggestions as $suggestion ) {
+				printf( '<option value="%s"></option>', esc_attr( $suggestion ) );
+			}
+			echo '</datalist>';
+		}
 
 		printf(
 			'<p id="%1$s" class="description">%2$s</p>',

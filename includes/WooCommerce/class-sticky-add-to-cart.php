@@ -588,7 +588,10 @@ class Sticky_Add_To_Cart {
 	 * produces garbled output after wp_strip_all_tags(). This method
 	 * builds a clean price from the numeric value via wc_price().
 	 *
-	 * For variable products, returns a "min – max" range.
+	 * For variable products, returns a "min – max" range — unless Smart Price
+	 * Display is collapsing ranges, in which case the shared "From $X" starting
+	 * price is used so the sticky bar matches every other surface. Either way
+	 * the exact variation price replaces this once the shopper selects options.
 	 *
 	 * @param \WC_Product $product Product or variation.
 	 * @param bool        $regular When true, return the regular (pre-sale) price.
@@ -596,6 +599,11 @@ class Sticky_Add_To_Cart {
 	 */
 	private static function format_plain_price( \WC_Product $product, bool $regular = false ): string {
 		if ( $product instanceof \WC_Product_Variable ) {
+			$from = Price_Display::from_price_text( $product, $regular );
+			if ( null !== $from ) {
+				return $from;
+			}
+
 			$prices = $product->get_variation_prices( true );
 			$key    = $regular ? 'regular_price' : 'price';
 			$active = $prices[ $key ] ?? array();

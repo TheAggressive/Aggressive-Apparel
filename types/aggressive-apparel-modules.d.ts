@@ -19,6 +19,7 @@ declare module '@aggressive-apparel/helpers' {
     currency_minor_unit?: number;
     currency_prefix?: string;
     currency_suffix?: string;
+    price_range?: { min_amount?: string; max_amount?: string } | null;
   }
 
   export interface PriceResult {
@@ -26,6 +27,16 @@ declare module '@aggressive-apparel/helpers' {
     regular: string;
     onSale: boolean;
   }
+
+  export interface VariablePriceRangeOptions {
+    collapse: boolean;
+    prefix: string;
+  }
+
+  export function formatVariablePriceRange(
+    prices: StoreApiPrices | null | undefined,
+    options: VariablePriceRangeOptions
+  ): string | null;
 
   export interface Variation {
     id: number;

@@ -60,6 +60,7 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		$this->assertSame( 'View Full Product', Feature_Settings::get_view_product_button_text(), 'View Product copy should use the existing default' );
 		$this->assertSame( 'Notify Me', Feature_Settings::get_back_in_stock_button_text(), 'Back in Stock copy should use the existing default' );
 		$this->assertSame( 'Add to Wishlist', Feature_Settings::get_wishlist_button_text(), 'Wishlist copy should use the existing default' );
+		$this->assertSame( 'From', Feature_Settings::get_price_starting_prefix(), 'Variable price prefix should default to From' );
 	}
 
 	/**
@@ -88,12 +89,29 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		update_option( Feature_Settings::BUY_NOW_BUTTON_TEXT_OPTION, 'Checkout' );
 		update_option( Feature_Settings::BACK_IN_STOCK_BUTTON_TEXT_OPTION, 'Email Me' );
 		update_option( Feature_Settings::WISHLIST_BUTTON_TEXT_OPTION, 'Save' );
+		update_option( Feature_Settings::PRICE_STARTING_PREFIX_OPTION, 'Starting at' );
 
 		$this->assertSame( 'Pick', Feature_Settings::get_variable_product_button_text(), 'Custom Variable Product copy should be used' );
 		$this->assertSame( 'Pick', Feature_Settings::get_sticky_cart_variable_button_text(), 'Sticky Cart variable copy should follow Variable Product copy' );
 		$this->assertSame( 'Checkout', Feature_Settings::get_buy_now_button_text(), 'Custom Buy Now copy should be used' );
 		$this->assertSame( 'Email Me', Feature_Settings::get_back_in_stock_button_text(), 'Custom Back in Stock copy should be used' );
 		$this->assertSame( 'Save', Feature_Settings::get_wishlist_button_text(), 'Custom Wishlist copy should be used' );
+		$this->assertSame( 'Starting at', Feature_Settings::get_price_starting_prefix(), 'Custom variable price prefix should be used' );
+	}
+
+	/**
+	 * The variable price prefix opts into allow_empty: a saved blank value means
+	 * "no prefix" (just the price), while a never-saved option still defaults.
+	 */
+	public function test_price_prefix_blank_means_no_prefix() {
+		$this->assertSame( 'From', Feature_Settings::get_price_starting_prefix(), 'Never-saved prefix defaults to From' );
+
+		update_option( Feature_Settings::PRICE_STARTING_PREFIX_OPTION, '' );
+		$this->assertSame( '', Feature_Settings::get_price_starting_prefix(), 'A deliberately blank prefix means no prefix, not the default' );
+
+		// Ordinary Store Copy fields keep blank→default (no allow_empty).
+		update_option( Feature_Settings::WISHLIST_BUTTON_TEXT_OPTION, '' );
+		$this->assertSame( 'Add to Wishlist', Feature_Settings::get_wishlist_button_text(), 'Non-allow_empty fields still fall back to their default' );
 	}
 
 	/**

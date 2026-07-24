@@ -214,6 +214,16 @@ class Feature_Settings {
 	public const WISHLIST_BUTTON_TEXT_OPTION = 'aggressive_apparel_wishlist_button_text';
 
 	/**
+	 * Option key for the "starting price" prefix used by Smart Price Display.
+	 *
+	 * Prepended to the lowest variation price when a variable product's price
+	 * range is collapsed to a single "from" figure (e.g. "From", "Starting at").
+	 *
+	 * @var string
+	 */
+	public const PRICE_STARTING_PREFIX_OPTION = 'aggressive_apparel_price_starting_prefix';
+
+	/**
 	 * Option key for the social proof source mix.
 	 *
 	 * Stored as an associative array of `source_key => weight (int 0–10)`.
@@ -402,7 +412,7 @@ class Feature_Settings {
 			),
 			'price_display'              => array(
 				'label'       => __( 'Smart Price Display', 'aggressive-apparel' ),
-				'description' => __( 'Show "From $X" on archives, "Save X%" on sale items.', 'aggressive-apparel' ),
+				'description' => __( 'Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix.', 'aggressive-apparel' ),
 				'section'     => 'catalog',
 			),
 			'advanced_sorting'           => array(
@@ -492,7 +502,12 @@ class Feature_Settings {
 	/**
 	 * Storefront microcopy settings with labels, defaults, and admin help.
 	 *
-	 * @return array<string, array{option: string, label: string, default: string, description: string}>
+	 * The optional `suggestions` list surfaces popular phrasings in a datalist
+	 * dropdown while still allowing free text. `allow_empty` lets a blank saved
+	 * value mean "no copy" instead of falling back to the default, and
+	 * `placeholder` overrides the empty-field hint (defaults to the default text).
+	 *
+	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool}>
 	 */
 	public static function get_store_copy_definitions(): array {
 		return array(
@@ -568,6 +583,21 @@ class Feature_Settings {
 				'default'     => __( 'Add to Wishlist', 'aggressive-apparel' ),
 				'description' => __( 'Accessible label and optional visible text for wishlist buttons.', 'aggressive-apparel' ),
 			),
+			'price_starting_prefix'         => array(
+				'option'      => self::PRICE_STARTING_PREFIX_OPTION,
+				'label'       => __( 'Variable Price Prefix', 'aggressive-apparel' ),
+				'default'     => __( 'From', 'aggressive-apparel' ),
+				'description' => __( 'Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency.', 'aggressive-apparel' ),
+				'placeholder' => __( 'No prefix', 'aggressive-apparel' ),
+				'allow_empty' => true,
+				'suggestions' => array(
+					__( 'From', 'aggressive-apparel' ),
+					__( 'Starting at', 'aggressive-apparel' ),
+					__( 'As low as', 'aggressive-apparel' ),
+					__( 'Priced from', 'aggressive-apparel' ),
+					__( 'Now from', 'aggressive-apparel' ),
+				),
+			),
 		);
 	}
 
@@ -578,19 +608,20 @@ class Feature_Settings {
 	 * @return string
 	 */
 	public static function get_store_copy_text( string $option_name ): string {
-		$definition = self::get_store_copy_definition_by_option( $option_name );
-		$default    = isset( $definition['default'] ) ? $definition['default'] : '';
-		$value      = self::get_store_copy_base_text( $option_name, $default );
-		$translated = self::translate_store_copy_text( $value, $option_name );
+		$definition  = self::get_store_copy_definition_by_option( $option_name );
+		$default     = isset( $definition['default'] ) ? $definition['default'] : '';
+		$allow_empty = ! empty( $definition['allow_empty'] );
+		$value       = self::get_store_copy_base_text( $option_name, $default, $allow_empty );
+		$translated  = self::translate_store_copy_text( $value, $option_name );
 
 		/**
 		 * Filter the final Store Copy text used by WooCommerce enhancement UI.
 		 *
-		 * @param string               $translated  Translated Store Copy value.
-		 * @param string               $option_name Store Copy option key.
-		 * @param string               $default     Registered default value.
-		 * @param string               $value       Saved/default base value before multilingual translation.
-		 * @param array<string,string> $definition  Store Copy definition metadata.
+		 * @param string              $translated  Translated Store Copy value.
+		 * @param string              $option_name Store Copy option key.
+		 * @param string              $default     Registered default value.
+		 * @param string              $value       Saved/default base value before multilingual translation.
+		 * @param array<string,mixed> $definition  Store Copy definition metadata.
 		 */
 		$filtered = apply_filters(
 			'aggressive_apparel_store_copy_text',
@@ -600,6 +631,15 @@ class Feature_Settings {
 			$value,
 			$definition
 		);
+
+		// `allow_empty` fields (e.g. the variable-price prefix) treat a blank
+		// value as a deliberate "no prefix" choice, so the default is NOT forced
+		// back in. An empty fallback keeps blank blank while still sanitising
+		// (and defending against a non-string filter return). Every other field
+		// keeps blank→default.
+		if ( $allow_empty ) {
+			return self::normalize_store_copy_text( $filtered, '' );
+		}
 
 		return self::normalize_store_copy_text( $filtered, $translated );
 	}
@@ -635,8 +675,11 @@ class Feature_Settings {
 	/**
 	 * Get a Store Copy definition by option name.
 	 *
+	 * Keys are optional so the empty "not found" return type-checks alongside a
+	 * full definition (which may include suggestions/placeholder/allow_empty).
+	 *
 	 * @param string $option_name Store Copy option key.
-	 * @return array<string,string>
+	 * @return array{option?: string, label?: string, default?: string, description?: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool}
 	 */
 	private static function get_store_copy_definition_by_option( string $option_name ): array {
 		foreach ( self::get_store_copy_definitions() as $definition ) {
@@ -651,11 +694,31 @@ class Feature_Settings {
 	/**
 	 * Resolve the saved/default Store Copy value before multilingual filters.
 	 *
+	 * When `$allow_empty` is true, a never-saved option resolves to the default
+	 * but an option that has been *saved blank* resolves to an empty string —
+	 * so the merchant can intentionally opt out of the copy (e.g. no price
+	 * prefix). Otherwise a blank value always falls back to the default.
+	 *
 	 * @param string $option_name Store Copy option key.
 	 * @param string $fallback    Registered default value.
+	 * @param bool   $allow_empty Preserve a deliberately-blank saved value.
 	 * @return string
 	 */
-	private static function get_store_copy_base_text( string $option_name, string $fallback ): string {
+	private static function get_store_copy_base_text( string $option_name, string $fallback, bool $allow_empty = false ): string {
+		if ( $allow_empty ) {
+			// `null` sentinel distinguishes "row absent" (→ default) from a
+			// stored empty string (→ intentional no-copy). On the frontend
+			// register_setting has not run, so an absent row returns null; in
+			// admin its default filter returns the fallback — both yield default.
+			$value = get_option( $option_name, null );
+
+			if ( null === $value || false === $value ) {
+				return $fallback;
+			}
+
+			return is_string( $value ) ? trim( wp_strip_all_tags( $value ) ) : '';
+		}
+
 		$value = get_option( $option_name, $fallback );
 
 		return self::normalize_store_copy_text( $value, $fallback );
@@ -1275,6 +1338,15 @@ class Feature_Settings {
 	 */
 	public static function get_wishlist_button_text(): string {
 		return self::get_store_copy_text( self::WISHLIST_BUTTON_TEXT_OPTION );
+	}
+
+	/**
+	 * "Starting price" prefix for collapsed variable-product prices.
+	 *
+	 * @return string
+	 */
+	public static function get_price_starting_prefix(): string {
+		return self::get_store_copy_text( self::PRICE_STARTING_PREFIX_OPTION );
 	}
 
 	/**

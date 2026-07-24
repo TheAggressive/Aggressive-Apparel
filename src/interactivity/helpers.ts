@@ -15,6 +15,55 @@ export interface StoreApiPrices {
   currency_minor_unit?: number;
   currency_prefix?: string;
   currency_suffix?: string;
+  price_range?: { min_amount?: string; max_amount?: string } | null;
+}
+
+export interface VariablePriceRangeOptions {
+  /** Collapse the range to a single "From $X" starting price. */
+  collapse: boolean;
+  /** Prefix word for the collapsed form (e.g. "From"); empty renders bare. */
+  prefix: string;
+}
+
+/**
+ * Format a variable product's Store API price range as either a collapsed
+ * "From $X" starting price (mirroring the server-side Smart Price Display) or
+ * the native "$lo – $hi" range. Currency symbol, placement, and minor units all
+ * come from the Store API `prices` payload, so nothing is locale-hardcoded.
+ *
+ * Returns `null` when there is no usable spread (no price_range, missing bounds,
+ * or min === max); callers should then fall back to single-value formatting.
+ * Shared by the Quick View and Wishlist stores so both surfaces stay identical.
+ */
+export function formatVariablePriceRange(
+  prices: StoreApiPrices | null | undefined,
+  { collapse, prefix }: VariablePriceRangeOptions
+): string | null {
+  const range = prices?.price_range;
+  if (
+    !prices ||
+    !range ||
+    !range.min_amount ||
+    !range.max_amount ||
+    range.min_amount === range.max_amount
+  ) {
+    return null;
+  }
+
+  const minorUnit = prices.currency_minor_unit ?? 2;
+  const divisor = Math.pow(10, minorUnit);
+  const pre = prices.currency_prefix ?? '$';
+  const suf = prices.currency_suffix ?? '';
+  const lo = (parseInt(range.min_amount, 10) / divisor).toFixed(minorUnit);
+  const minAmount = `${pre}${lo}${suf}`;
+
+  if (collapse) {
+    const word = (prefix || '').trim();
+    return word ? `${word} ${minAmount}` : minAmount;
+  }
+
+  const hi = (parseInt(range.max_amount, 10) / divisor).toFixed(minorUnit);
+  return `${minAmount} – ${pre}${hi}${suf}`;
 }
 
 export interface PriceResult {

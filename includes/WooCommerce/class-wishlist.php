@@ -293,11 +293,19 @@ BLOCKS;
 
 		// Provide the public Store API URL and translatable heart labels.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
+			$price_config = Price_Display::interactivity_price_config();
+
 			wp_interactivity_state(
 				'aggressive-apparel/wishlist',
 				array(
-					'productsApiUrl' => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
-					'i18n'           => array(
+					'productsApiUrl'        => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+
+					// Smart Price Display: show variable products as "From $X" so
+					// the wishlist matches every other price surface.
+					'collapseVariablePrice' => $price_config['collapseVariablePrice'],
+					'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
+
+					'i18n'                  => array(
 						'addLabel'    => Feature_Settings::get_wishlist_button_text(),
 						'removeLabel' => __( 'Remove from wishlist', 'aggressive-apparel' ),
 					),

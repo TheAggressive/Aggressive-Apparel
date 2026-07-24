@@ -25,6 +25,7 @@ import {
 } from '@aggressive-apparel/use-overlay';
 import {
   parsePrice,
+  formatVariablePriceRange,
   stripTags,
   decodeEntities,
   matchVariation,
@@ -107,9 +108,7 @@ interface StoreApiProduct {
   description: string;
   short_description: string;
   images?: StoreApiImage[];
-  prices: StoreApiPrices & {
-    price_range?: { min_amount?: string; max_amount?: string };
-  };
+  prices: StoreApiPrices;
   attributes?: StoreApiAttribute[];
   variations?: StoreApiVariation[];
   has_options?: boolean;
@@ -179,6 +178,8 @@ interface QuickViewLabels {
 interface QuickViewState {
   restBase: string;
   cartApiUrl: string;
+  collapseVariablePrice: boolean;
+  priceStartingPrefix: string;
   i18n: QuickViewLabels;
   isOpen: boolean;
   isSuccessOpen: boolean;
@@ -856,6 +857,8 @@ const { state, actions } = store<QuickViewStore>(
       // Provided by PHP via wp_interactivity_state().
       restBase: '',
       cartApiUrl: '',
+      collapseVariablePrice: false,
+      priceStartingPrefix: '',
       i18n: {},
 
       // Modal visibility.
@@ -1357,26 +1360,21 @@ const { state, actions } = store<QuickViewStore>(
               );
             }
 
-            // Price — show a range for variable products with differing
-            // variation prices (e.g. "$12.00 – $15.00").
+            // Price — variable products with differing variation prices show
+            // either a "From $X" starting price (when Smart Price Display is
+            // collapsing ranges) or the native "$12.00 – $15.00" range. Either
+            // way the exact variation price replaces it once options are chosen.
             const priceData: PriceResult = parsePrice(data.prices);
-            const range = data.prices?.price_range;
-            if (
-              data.type === 'variable' &&
-              range &&
-              range.min_amount &&
-              range.max_amount &&
-              range.min_amount !== range.max_amount
-            ) {
-              const mu = data.prices.currency_minor_unit ?? 2;
-              const div = Math.pow(10, mu);
-              const pre = data.prices.currency_prefix ?? '$';
-              const suf = data.prices.currency_suffix ?? '';
-              const lo = (parseInt(range.min_amount, 10) / div).toFixed(mu);
-              const hi = (parseInt(range.max_amount, 10) / div).toFixed(mu);
-              const rangeStr = `${pre}${lo}${suf} – ${pre}${hi}${suf}`;
-              state.productPrice = rangeStr;
-              state.productPriceRange = rangeStr;
+            const variableDisplay =
+              data.type === 'variable'
+                ? formatVariablePriceRange(data.prices, {
+                    collapse: state.collapseVariablePrice,
+                    prefix: state.priceStartingPrefix,
+                  })
+                : null;
+            if (variableDisplay !== null) {
+              state.productPrice = variableDisplay;
+              state.productPriceRange = variableDisplay;
               state.productRegularPrice = '';
               state.productOnSale = false;
               state.salePercentage = 0;

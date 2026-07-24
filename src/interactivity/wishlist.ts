@@ -20,7 +20,11 @@
  */
 
 import { store, getContext, getElement } from '@wordpress/interactivity';
-import { decodeEntities } from '@aggressive-apparel/helpers';
+import {
+  decodeEntities,
+  formatVariablePriceRange,
+} from '@aggressive-apparel/helpers';
+import type { StoreApiPrices } from '@aggressive-apparel/helpers';
 
 const STORAGE_KEY = 'aggressive_apparel_wishlist';
 
@@ -33,13 +37,6 @@ interface StoreApiImage {
   src: string;
 }
 
-interface StoreApiPrices {
-  price: string;
-  currency_minor_unit?: number;
-  currency_prefix?: string;
-  currency_suffix?: string;
-}
-
 interface StoreApiAddToCart {
   url?: string;
 }
@@ -48,6 +45,7 @@ interface StoreApiProduct {
   id: number;
   name: string;
   permalink: string;
+  type?: string;
   images?: StoreApiImage[];
   prices: StoreApiPrices;
   add_to_cart?: StoreApiAddToCart;
@@ -106,14 +104,26 @@ function formatPrice(prices: StoreApiPrices | null): string {
 
 /**
  * Transform a Store API product into a simple object for template rendering.
+ *
+ * Variable products collapse to a shared "From $X" starting price when Smart
+ * Price Display is on (matching every other surface); otherwise they keep the
+ * existing single-value (minimum) formatting.
  */
 function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
+  const fromPrice =
+    state.collapseVariablePrice && product.type === 'variable'
+      ? formatVariablePriceRange(product.prices, {
+          collapse: true,
+          prefix: state.priceStartingPrefix,
+        })
+      : null;
+
   return {
     id: product.id,
     name: decodeEntities(product.name) || '',
     image:
       product.images && product.images.length > 0 ? product.images[0].src : '',
-    price: formatPrice(product.prices),
+    price: fromPrice ?? formatPrice(product.prices),
     permalink: product.permalink || '#',
     addToCartUrl: product.add_to_cart?.url || '',
   };
@@ -219,6 +229,8 @@ const { state } = store('aggressive-apparel/wishlist', {
   state: {
     // Provided by PHP via wp_interactivity_state().
     productsApiUrl: '',
+    collapseVariablePrice: false,
+    priceStartingPrefix: '',
     i18n: {} as WishlistI18n,
 
     // Reactive mirror of localStorage — drives all UI updates instantly.

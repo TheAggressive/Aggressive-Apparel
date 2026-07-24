@@ -300,59 +300,68 @@ class Quick_View {
 
 		// Provide initial state values to the Interactivity API store.
 		if ( function_exists( 'wp_interactivity_state' ) ) {
+			$price_config = Price_Display::interactivity_price_config();
+
 			wp_interactivity_state(
 				'aggressive-apparel/quick-view',
 				array(
-					'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products/' ) ),
-					'cartApiUrl'          => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
-					'isOpen'              => false,
-					'isSuccessOpen'       => false,
-					'isLoading'           => false,
-					'hasError'            => false,
-					'hasProduct'          => false,
-					'productImage'        => '',
-					'productImageAlt'     => '',
-					'productName'         => '',
-					'productPrice'        => '',
-					'productRegularPrice' => '',
-					'productOnSale'       => false,
-					'productDescription'  => '',
-					'productLink'         => '',
-					'productType'         => 'simple',
-					'productAttributes'   => array(),
-					'productVariations'   => array(),
-					'selectedAttributes'  => (object) array(),
-					'matchedVariationId'  => 0,
-					'quantity'            => 1,
-					'cartNonce'           => wp_create_nonce( 'wc_store_api' ),
-					'isAddingToCart'      => false,
-					'cartError'           => '',
+					'restBase'              => esc_url_raw( rest_url( 'wc/store/v1/products/' ) ),
+					'cartApiUrl'            => esc_url_raw( rest_url( 'wc/store/v1/cart' ) ),
+
+					// Smart Price Display: collapse the variable-product range to
+					// a single "From $X" starting price, matching every other
+					// surface. The exact variation price replaces it on selection.
+					'collapseVariablePrice' => $price_config['collapseVariablePrice'],
+					'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
+
+					'isOpen'                => false,
+					'isSuccessOpen'         => false,
+					'isLoading'             => false,
+					'hasError'              => false,
+					'hasProduct'            => false,
+					'productImage'          => '',
+					'productImageAlt'       => '',
+					'productName'           => '',
+					'productPrice'          => '',
+					'productRegularPrice'   => '',
+					'productOnSale'         => false,
+					'productDescription'    => '',
+					'productLink'           => '',
+					'productType'           => 'simple',
+					'productAttributes'     => array(),
+					'productVariations'     => array(),
+					'selectedAttributes'    => (object) array(),
+					'matchedVariationId'    => 0,
+					'quantity'              => 1,
+					'cartNonce'             => wp_create_nonce( 'wc_store_api' ),
+					'isAddingToCart'        => false,
+					'cartError'             => '',
 
 					// Gallery support.
-					'productImages'       => array(),
-					'activeImageIndex'    => 0,
+					'productImages'         => array(),
+					'activeImageIndex'      => 0,
 
 					// Stock status.
-					'stockStatus'         => 'instock',
-					'stockQuantity'       => null,
-					'stockStatusLabel'    => '',
+					'stockStatus'           => 'instock',
+					'stockQuantity'         => null,
+					'stockStatusLabel'      => '',
 
 					// Sale badge.
-					'salePercentage'      => 0,
+					'salePercentage'        => 0,
 
 					// Color swatch data.
-					'colorSwatchData'     => $this->get_color_swatch_data(),
+					'colorSwatchData'       => $this->get_color_swatch_data(),
 
-					'cartUrl'             => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
-					'checkoutUrl'         => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
-					'isBuyingNow'         => false,
+					'cartUrl'               => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/',
+					'checkoutUrl'           => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '/checkout/',
+					'isBuyingNow'           => false,
 
 					// Variation options drawer.
-					'isDrawerOpen'        => false,
+					'isDrawerOpen'          => false,
 
 					// Accessibility.
-					'announcement'        => '',
-					'i18n'                => array(
+					'announcement'          => '',
+					'i18n'                  => array(
 						'addToCartText'        => Feature_Settings::get_simple_product_button_text(),
 						'addingToCartText'     => __( 'Adding…', 'aggressive-apparel' ),
 						'addedToCartText'      => __( '✓ Added!', 'aggressive-apparel' ),

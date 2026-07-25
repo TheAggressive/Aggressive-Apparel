@@ -806,6 +806,9 @@
 
 .aggressive-apparel-quick-view__price-current {
 	color: var(--aa-color-accent);
+
+	/* Reset the browser default underline for <ins> (drawer sale price). */
+	text-decoration: none;
 }
 
 /* Short description — hidden on small screens where space is tight. */

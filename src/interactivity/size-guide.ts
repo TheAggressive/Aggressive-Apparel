@@ -11,6 +11,7 @@
 
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import { unlockScroll } from '@aggressive-apparel/scroll-lock';
+import { prefersReducedMotion } from '@aggressive-apparel/helpers';
 import {
   prepareOverlayOpen,
   activateOverlayFocus,
@@ -49,10 +50,6 @@ function getSizeGuideOverlay(ref: Element | null): HTMLElement | null {
       '.aggressive-apparel-size-guide__overlay'
     ) ?? null
   );
-}
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function readTransitionMs(element: HTMLElement, property: string): number {

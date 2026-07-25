@@ -30,7 +30,7 @@ interface UseTriggerManagementOptions {
   updateBlockTriggerClass: UpdateBlockTriggerClassFn;
 }
 
-interface TriggerOption {
+export interface TriggerOption {
   label: string;
   value: string;
 }

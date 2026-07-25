@@ -130,8 +130,9 @@ test.describe('store-notices toasts', () => {
       await expect(toast).toBeVisible();
       await expect(toast).toContainText('click');
 
-      // No dangerous image, no executed handler, no javascript: href.
-      await expect(toast.locator('img')).toHaveCount(0);
+      // No dangerous payload image (the sanitizer drops <img>/onerror). Scope to
+      // the injected signature so the toast's own thumbnail <img> isn't caught.
+      await expect(toast.locator('img[onerror], img[src="x"]')).toHaveCount(0);
       const xssFired = await page.evaluate(
         () => (window as Window & { __xss?: unknown }).__xss
       );

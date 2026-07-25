@@ -71,12 +71,17 @@ test.describe('Parallax — front end', () => {
     );
 
     await page.evaluate(() => window.scrollBy(0, 240));
-    await page.waitForTimeout(250);
 
-    const after = await layer.evaluate(
-      el => getComputedStyle(el as HTMLElement).translate
-    );
-    expect(after).not.toBe(before);
+    // Parallax updates `translate` on requestAnimationFrame after the scroll,
+    // and the frame-engine warm-up time is variable — a fixed delay was the
+    // source of intermittent flakes. Poll until the value actually changes.
+    await expect
+      .poll(
+        () =>
+          layer.evaluate(el => getComputedStyle(el as HTMLElement).translate),
+        { timeout: 5000 }
+      )
+      .not.toBe(before);
 
     const link = layer.locator('a');
     await expect(link).toBeVisible();

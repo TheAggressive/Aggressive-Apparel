@@ -136,6 +136,7 @@ class Sticky_Add_To_Cart {
 						'addedToCartMessage'     => __( 'Added to cart!', 'aggressive-apparel' ),
 						'addedSuccessAnnounce'   => __( 'Added to cart', 'aggressive-apparel' ),
 						'addToCartErrorAnnounce' => __( 'Error adding to cart', 'aggressive-apparel' ),
+						'unavailableLabel'       => __( 'Unavailable', 'aggressive-apparel' ),
 					),
 				),
 			);

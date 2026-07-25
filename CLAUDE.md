@@ -162,11 +162,30 @@ pnpm create-block-interactive <block-name>
 
 ## Coding Standards
 
+### No god files (800 warn / 1000 hard cap)
+
+Non-test source files under `src/` (`.ts`/`.tsx`) and `includes/` (`.php`) have
+a two-tier line budget enforced by `bin/check-file-length.sh` (wired into
+`lint:all` / `qa` / CI): **> 800 lines warns**, **> 1000 lines fails the build**.
+The warn tier is the danger zone — treat it as a nudge to split before a file
+becomes a hard failure. There is **no allowlist and no baseline** — split by
+responsibility instead of raising the cap:
+
+- **Pure logic** → sibling modules (e.g. `src/interactivity/<store>/product-data.ts`).
+- **Interactivity stores** → keep getters in the one `state` literal (deepMerge
+  flattens getters, so they can't be spread), and move **actions** into extra
+  `store('<namespace>', { actions })` calls in sibling files — the runtime
+  merges multiple `store()` calls by namespace. Sub-files live in a
+  `src/interactivity/<name>/` dir; the module glob is `src/interactivity/*.ts`
+  (direct children only), so sub-files bundle into the entry, not new modules.
+- **PHP classes** → extract collaborators or traits (PSR-4, one class/trait per
+  `class-*.php` / `trait-*.php` file).
+
 ### PHP
 
 - Follow WordPress Coding Standards (WPCS 3.1)
 - Use strict types: `declare(strict_types=1);`
-- PHPStan level 6 analysis
+- PHPStan level 8 analysis (max is 9; no baseline — zero suppressed findings)
 - PSR-4 autoloading with WordPress naming conventions
 
 **File Naming Convention:**

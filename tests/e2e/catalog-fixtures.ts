@@ -1,6 +1,4 @@
-import { execFileSync } from 'node:child_process';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { wpCli } from './wp-cli';
 
 /**
  * Ensure the wp-env shop catalogue can exercise Load More / infinite scroll.
@@ -10,24 +8,12 @@ import { fileURLToPath } from 'node:url';
  * setup so every catalog e2e starts from a known floor.
  */
 
-const THEME_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..'
-);
 const MIN_PRODUCTS = 24;
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 
-function wp(args: string[]): string {
-  return execFileSync('pnpm', ['exec', 'wp-env', 'run', 'cli', 'wp', ...args], {
-    cwd: THEME_ROOT,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim();
-}
-
 function publishedProductCount(): number {
   try {
-    const out = wp([
+    const out = wpCli([
       'post',
       'list',
       '--post_type=product',
@@ -42,14 +28,14 @@ function publishedProductCount(): number {
 }
 
 function ensureInfiniteScrollMode(): void {
-  wp(['option', 'update', LOAD_MORE_MODE_OPTION, 'infinite_scroll']);
+  wpCli(['option', 'update', LOAD_MORE_MODE_OPTION, 'infinite_scroll']);
 }
 
 function createSimpleProduct(index: number): void {
   const name = `E2E Catalog Product ${index}`;
   const price = (10 + (index % 50)).toFixed(2);
   try {
-    wp([
+    wpCli([
       'wc',
       'product',
       'create',
@@ -64,7 +50,7 @@ function createSimpleProduct(index: number): void {
     // WC CLI may be unavailable; create via eval so lookup/meta exist.
   }
 
-  wp([
+  wpCli([
     'eval',
     `if (!function_exists('wc_get_product')) { echo 0; return; }
 $p = new WC_Product_Simple();

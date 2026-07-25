@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/size-guide",
+  "version": "1.0.0",
+  "title": "Size Guide",
+  "category": "aggressive-apparel",
+  "description": "Displays the size guide assigned to the current product in an accessible modal.",
+  "keywords": [
+    "size guide",
+    "sizing",
+    "measurements",
+    "product",
+    "woocommerce"
+  ],
+  "textdomain": "aggressive-apparel",
+  "usesContext": ["postId", "postType"],
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": "Size Guide"
+    },
+    "showIcon": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "requiresPlugins": ["woocommerce"],
+    "html": false,
+    "interactivity": true,
+    "multiple": false,
+    "reusable": false,
+    "align": ["left", "center", "right"],
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "margin": true,
+        "padding": true
+      }
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true,
+      "__experimentalDefaultControls": {
+        "color": true,
+        "radius": true,
+        "style": true,
+        "width": true
+      }
+    },
+    "typography": {
+      "fontSize": true,
+      "__experimentalFontFamily": true,
+      "lineHeight": true,
+      "__experimentalFontStyle": true,
+      "__experimentalFontWeight": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalTextDecoration": true,
+      "__experimentalTextTransform": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true,
+        "fontWeight": true
+      }
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "gradients": true,
+      "link": false,
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      }
+    },
+    "shadow": true
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php"
+}

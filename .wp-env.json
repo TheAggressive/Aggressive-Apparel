@@ -13,6 +13,7 @@
   "phpmyadminPort": 9912,
   "env": {
     "development": {
+      "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"],
       "mappings": {
         "wp-content/mu-plugins/wp-env-cron-loopback.php": "./bin/wp-env/cron-loopback.php"
       }

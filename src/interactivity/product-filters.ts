@@ -14,14 +14,30 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
+import { notifyCardsRendered } from '@aggressive-apparel/helpers';
+import { requests, filterFlags } from './product-filters/runtime';
 import {
-  clearProductGridSpacer,
-  installBlockSupportStyles,
-  notifyCardsRendered,
-  pruneProductGrid,
-} from '@aggressive-apparel/helpers';
-import { FilterRequestManager } from './product-filters/request-manager';
-import { escapeHtml, setFilterVisibility } from './product-filters/dom';
+  hideFilterPagination,
+  renderPagination,
+  renderPills,
+  setSaleStatus,
+  syncAllControls,
+  syncCategoryChips,
+  syncChipPressed,
+  syncFitChipPressed,
+  syncOnSaleCheckboxes,
+  syncPriceRange,
+  syncPriceSliders,
+  syncStockCheckboxes,
+  syncSwatchPressed,
+} from './product-filters/render';
+import {
+  applyStagedFilters,
+  fetchFacets,
+  fetchProducts,
+  setupDelegatedEvents,
+  setupScrollbarAutoHide,
+} from './product-filters/data';
 import {
   buildFilterUrl,
   getCanonicalShopUrl,
@@ -30,23 +46,10 @@ import {
 } from './product-filters/url-state';
 import {
   ATTRIBUTE_FILTERS,
-  type CategoryTerm,
-  type ColorTerm,
   type DropdownContext,
-  type Facets,
-  type FitTerm,
-  type FilterPill,
   type ProductFiltersStore,
-  type RenderedResponse,
-  type SizeTerm,
-  type SortedProductsResponse,
   type SortConfig,
 } from './product-filters/types';
-
-/** True when filter selections have changed but not yet been applied (fetched). */
-let filtersStaged = false;
-
-const requests = new FilterRequestManager();
 
 let focusTrapCleanup: (() => void) | null = null;
 
@@ -67,7 +70,7 @@ let originalGridHtml: string | null = null;
  * here so columns, gap, alignment and content-width stay exactly as the editor
  * configured them.
  */
-function gridUl(): HTMLElement | null {
+export function gridUl(): HTMLElement | null {
   return document.querySelector<HTMLElement>(
     '.aa-product-filters__grid .wp-block-woocommerce-product-template'
   );
@@ -86,10 +89,9 @@ function restoreOriginalGrid(): void {
 }
 
 /** Cross-category URL waiting to be consumed when the drawer closes. */
-let pendingNavUrl: string | null = null;
 
 /** Categories that should appear as shopper-selected filters. */
-function visibleSelectedCategories(): string[] {
+export function visibleSelectedCategories(): string[] {
   return state.selectedCategories.filter(
     slug => slug !== state.salesCategorySlug
   );
@@ -109,7 +111,7 @@ function hasAdditionalRefinements(): boolean {
   );
 }
 
-const { state, actions } = store<ProductFiltersStore>(
+export const { state, actions } = store<ProductFiltersStore>(
   'aggressive-apparel/product-filters',
   {
     state: {
@@ -322,7 +324,7 @@ const { state, actions } = store<ProductFiltersStore>(
         state.totalProducts = 0;
 
         // Clearing applies immediately, so nothing stays staged.
-        filtersStaged = false;
+        filterFlags.staged = false;
 
         // Filters gone — put the original, unfiltered grid back verbatim.
         restoreOriginalGrid();
@@ -552,7 +554,7 @@ function toggleArrayItem(arr: string[], item: string): void {
 /**
  * Remove an item from an array.
  */
-function removeArrayItem(arr: string[], item: string): void {
+export function removeArrayItem(arr: string[], item: string): void {
   const idx = arr.indexOf(item);
   if (idx !== -1) arr.splice(idx, 1);
 }
@@ -566,8 +568,8 @@ function removeArrayItem(arr: string[], item: string): void {
  * apply button) — see {@link applyStagedFilters}. This avoids the grid churning
  * on every click while the user is still choosing.
  */
-function stageFilterChange(): void {
-  filtersStaged = true;
+export function stageFilterChange(): void {
+  filterFlags.staged = true;
   state.currentPage = 1;
   renderPills();
   // Availability is independent of the deferred results — refresh which
@@ -578,7 +580,7 @@ function stageFilterChange(): void {
 /**
  * Debounce the faceted-availability request so rapid selections coalesce.
  */
-function scheduleFacetsUpdate(): void {
+export function scheduleFacetsUpdate(): void {
   requests.scheduleFacets(fetchFacets);
 }
 
@@ -588,859 +590,6 @@ function scheduleFacetsUpdate(): void {
  * is a lightweight request (no card HTML) so it can run live while the results
  * grid stays deferred until the panel is dismissed.
  */
-function fetchFacets(): void {
-  const signal = requests.beginFacets();
-
-  const params = buildRenderedParams(1);
-  params.set('facets_only', '1');
-
-  fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
-    .then(res =>
-      res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))
-    )
-    .then((data: { facets?: Facets }) => {
-      if (data.facets) applyFacets(data.facets);
-    })
-    .catch(() => {
-      // On failure leave availability as-is (fail open: everything selectable).
-    });
-}
-
-/**
- * Enable only the colour/size/fit options that still have matching products.
- *
- * An option stays enabled if it's available OR currently selected, so a shopper
- * can always toggle their own picks back off without hitting a dead end.
- */
-function applyFacets(facets: Facets): void {
-  let deselected = false;
-
-  for (const filter of ATTRIBUTE_FILTERS) {
-    const slugs = facets[filter.taxonomy];
-
-    // Server couldn't evaluate this taxonomy — leave its options as-is.
-    if (slugs === undefined) continue;
-
-    const set = new Set(slugs);
-    const selected = state[filter.stateKey];
-
-    // Drop any selected value that no longer has matching products (e.g. a
-    // colour that isn't available in the category just chosen). Disjunctive
-    // faceting guarantees a still-valid selection stays in its own set, so a
-    // miss here is genuinely unavailable.
-    const stillValid = selected.filter(slug => set.has(slug));
-    if (stillValid.length !== selected.length) {
-      state[filter.stateKey] = stillValid;
-      syncPressed(filter.selector, stillValid);
-      deselected = true;
-    }
-
-    // Enable only the available options; everything else is dimmed/disabled.
-    setFilterVisibility(filter.selector, (el: HTMLElement) =>
-      set.has(el.dataset.filterValue || '')
-    );
-  }
-
-  if (deselected) {
-    // Reflect the dropped pills and re-settle the other facets, which may widen
-    // now that an over-constraining pick is gone. Converges (selection shrinks).
-    renderPills();
-    scheduleFacetsUpdate();
-  }
-}
-
-/**
- * Apply staged filter selections: sync the URL, then refresh the grid (or do a
- * full navigation for a cross-category change). No-op when nothing is staged.
- *
- * @return Whether a hard navigation was started.
- */
-function applyStagedFilters(): boolean {
-  if (!filtersStaged) return false;
-  filtersStaged = false;
-
-  document.dispatchEvent(new CustomEvent('aa:filters-changed'));
-
-  // syncUrl() pushes same-path changes and, for a cross-category switch, stages
-  // a full navigation in pendingNavUrl (drawer) or navigates immediately.
-  if (syncUrl()) return true;
-  if (pendingNavUrl) {
-    hardNavigate(pendingNavUrl);
-    return true;
-  }
-
-  fetchProducts();
-  return false;
-}
-
-/**
- * Absolute URL of the theme's block-rendered products endpoint.
- *
- * Derived from the Store API base so it works regardless of the site's REST
- * URL structure (plain vs. pretty permalinks).
- */
-/**
- * Fetch init carrying the REST nonce so a logged-in shop manager/admin is
- * authenticated — required for previewing the gated catalogue while the store
- * is in "coming soon" mode (an unauthenticated fetch returns no products).
- */
-function authFetchInit(signal: AbortSignal): RequestInit {
-  return {
-    signal,
-    headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
-  };
-}
-
-function renderedEndpoint(): string {
-  const root = state.restBase.replace(/\/wc\/store\/v1\/products$/, '');
-  return `${root}/aggressive-apparel/v1/products/rendered`;
-}
-
-/**
- * Map the filter UI's orderBy/orderDir to the rendered endpoint's sort enum.
- */
-function mapOrderBy(): string {
-  const asc = state.orderDir === 'asc';
-  switch (state.orderBy) {
-    case 'price':
-      return asc ? 'price' : 'price-desc';
-    case 'title':
-      return asc ? 'title-asc' : 'title-desc';
-    case 'popularity':
-      return 'popularity';
-    case 'rating':
-      return 'rating';
-    case 'menu_order':
-      return 'menu_order';
-    default:
-      return 'date';
-  }
-}
-
-/**
- * Build query params for the rendered-products endpoint from active filters.
- */
-function buildRenderedParams(page: number, cursor = ''): URLSearchParams {
-  const params = new URLSearchParams();
-  params.set('per_page', String(state.perPage));
-  params.set('page', String(page));
-  params.set('orderby', mapOrderBy());
-  if (cursor) {
-    params.set('cursor', cursor);
-  }
-
-  // Render from the current page's template (e.g. the category template) so the
-  // filtered cards match what the block editor configured for this page.
-  if (state.templateSlug) {
-    params.set('template', state.templateSlug);
-  }
-
-  const requestCategories = state.onSaleOnly
-    ? visibleSelectedCategories()
-    : state.selectedCategories;
-  if (requestCategories.length > 0) {
-    params.set('category', requestCategories.join(','));
-  }
-  for (const filter of ATTRIBUTE_FILTERS) {
-    const selected = state[filter.stateKey];
-    if (selected.length > 0) {
-      params.set(`attributes[${filter.taxonomy}]`, selected.join(','));
-    }
-  }
-
-  // Prices in major units; the endpoint queries the `_price` meta directly.
-  if (state.priceMin > state.priceRange.min) {
-    params.set('min_price', String(state.priceMin));
-  }
-  if (state.priceMax < state.priceRange.max) {
-    params.set('max_price', String(state.priceMax));
-  }
-
-  if (state.inStockOnly) {
-    params.set('stock', 'instock');
-  }
-  if (state.onSaleOnly) {
-    params.set('on_sale', '1');
-  }
-
-  return params;
-}
-
-/**
- * Custom sort (featured / savings): resolve the ordered, paginated IDs from the
- * sorted-products endpoint, then render exactly those through the block pipeline
- * via the rendered endpoint's `include` param — so the cards match the editor.
- */
-function fetchCustomSorted(sortType: string, append = false): void {
-  const signal = requests.beginProducts();
-
-  if (!append) {
-    state.isLoading = true;
-  }
-  state.hasError = false;
-
-  const restRoot = state.restBase.replace(/\/wc\/store\/v1\/products$/, '');
-  const sortParams = new URLSearchParams();
-  sortParams.set('sort', sortType);
-  sortParams.set('per_page', String(state.perPage));
-  sortParams.set('page', String(state.currentPage));
-
-  const requestCategories = state.onSaleOnly
-    ? visibleSelectedCategories()
-    : state.selectedCategories;
-  if (requestCategories.length > 0) {
-    sortParams.set('category', requestCategories.join(','));
-  }
-  if (state.onSaleOnly) {
-    sortParams.set('on_sale', '1');
-  }
-  for (const filter of ATTRIBUTE_FILTERS) {
-    const selected = state[filter.stateKey];
-    if (selected.length > 0) {
-      sortParams.set(`attributes[${filter.taxonomy}]`, selected.join(','));
-    }
-  }
-  if (state.priceMin > state.priceRange.min) {
-    sortParams.set('min_price', String(state.priceMin));
-  }
-  if (state.priceMax < state.priceRange.max) {
-    sortParams.set('max_price', String(state.priceMax));
-  }
-  if (state.inStockOnly) {
-    sortParams.set('stock', 'instock');
-  }
-
-  const sortUrl = `${restRoot}/aggressive-apparel/v1/sorted-products?${sortParams}`;
-
-  fetch(sortUrl, authFetchInit(signal))
-    .then((res: Response) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then((data: SortedProductsResponse) => {
-      state.totalProducts = data.total;
-      state.totalPages = data.totalPages;
-
-      if (data.ids.length === 0) {
-        injectProductsHtml('', false);
-        state.isLoading = false;
-        announceResults();
-        renderPills();
-        renderPagination();
-        renderHorizontalDropdowns();
-        notifyProductsFetched(append, 0);
-        return;
-      }
-
-      // Render the sorted IDs, in order, through the block pipeline.
-      const params = new URLSearchParams();
-      params.set('include', data.ids.join(','));
-      params.set('per_page', String(data.ids.length));
-      if (state.templateSlug) {
-        params.set('template', state.templateSlug);
-      }
-
-      return fetch(`${renderedEndpoint()}?${params}`, authFetchInit(signal))
-        .then((res2: Response) => res2.json() as Promise<RenderedResponse>)
-        .then((rendered: RenderedResponse) => {
-          installBlockSupportStyles(rendered.styles);
-          const added = injectProductsHtml(rendered.html, append);
-          state.isLoading = false;
-          announceResults();
-          renderPills();
-          renderPagination();
-          renderHorizontalDropdowns();
-          notifyProductsFetched(append, added);
-        });
-    })
-    .catch((err: Error) => {
-      if (err.name === 'AbortError') return;
-      state.isLoading = false;
-      state.hasError = true;
-      state.products = [];
-      state._announcement =
-        state.i18n?.loadError ?? 'Something went wrong loading products.';
-      notifyProductsFetchFailed();
-    });
-}
-
-/**
- * Announce product count to screen readers.
- */
-function announceResults(): void {
-  if (state.totalProducts === 0) {
-    state._announcement = state.i18n?.noProductsFound ?? 'No products found.';
-  } else if (state.totalProducts === 1) {
-    state._announcement = state.i18n?.oneProductFound ?? '1 product found.';
-  } else {
-    const template = state.i18n?.productsFound ?? '%d products found.';
-    state._announcement = template.replace('%d', String(state.totalProducts));
-  }
-}
-
-/**
- * Fetch products from the WooCommerce Store API.
- */
-function fetchProducts({ append = false }: { append?: boolean } = {}): void {
-  // Delegate to custom sort handler for featured/savings.
-  if (state._customSort) {
-    fetchCustomSorted(state._customSort, append);
-    return;
-  }
-
-  const signal = requests.beginProducts();
-
-  // For an append (infinite scroll / load more) the existing cards must stay on
-  // screen — toggling `isLoading` would hide the whole grid (it's bound to
-  // `data-wp-bind--hidden`), collapsing the page mid-scroll and yanking the
-  // viewport. Only show the skeleton/hide the grid for a full replace.
-  if (!append) {
-    state.isLoading = true;
-    state.nextCursor = '';
-  }
-  state.hasError = false;
-
-  const cursor = append ? state.nextCursor : '';
-  const url = `${renderedEndpoint()}?${buildRenderedParams(state.currentPage, cursor)}`;
-
-  fetch(url, authFetchInit(signal))
-    .then((res: Response) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json() as Promise<RenderedResponse>;
-    })
-    .then((data: RenderedResponse) => {
-      state.totalProducts = data.total_products;
-      state.totalPages = data.total_pages;
-      state.nextCursor = data.next_cursor || '';
-
-      installBlockSupportStyles(data.styles);
-      const added = injectProductsHtml(data.html, append);
-
-      if (!append) {
-        state.isLoading = false;
-      }
-      announceResults();
-      renderPills();
-
-      renderPagination();
-      renderHorizontalDropdowns();
-
-      // Notify load-more store.
-      notifyProductsFetched(append, added);
-    })
-    .catch((err: Error) => {
-      if (err.name === 'AbortError') return;
-      state.isLoading = false;
-      state.hasError = true;
-      state.products = [];
-      state.nextCursor = '';
-      state._announcement =
-        state.i18n?.loadError ?? 'Something went wrong loading products.';
-      notifyProductsFetchFailed();
-    });
-}
-
-/** Keep the load-more store synchronized with every rendered-products request. */
-function notifyProductsFetched(append: boolean, productsCount: number): void {
-  document.dispatchEvent(
-    new CustomEvent('aa:products-fetched', {
-      detail: {
-        page: state.currentPage,
-        totalPages: state.totalPages,
-        totalProducts: state.totalProducts,
-        append,
-        productsCount,
-        nextCursor: state.nextCursor,
-      },
-    })
-  );
-}
-
-/** Ensure the load-more control never remains busy after a request failure. */
-function notifyProductsFetchFailed(): void {
-  document.dispatchEvent(new CustomEvent('aa:products-fetch-failed'));
-}
-
-/**
- * Set up event delegation for dynamically rendered content.
- * Auto-hide scrollbar on the drawer body.
- *
- * Adds the `is-scrolling` class while actively scrolling, then removes it
- * after a short idle period. CSS uses this class to reveal the scrollbar thumb.
- */
-function setupScrollbarAutoHide(): void {
-  let scrollTimer: ReturnType<typeof setTimeout> | undefined;
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__drawer-body')
-    .forEach(el => {
-      el.addEventListener(
-        'scroll',
-        () => {
-          el.classList.add('is-scrolling');
-          clearTimeout(scrollTimer);
-          scrollTimer = setTimeout(() => {
-            el.classList.remove('is-scrolling');
-          }, 800);
-        },
-        { passive: true }
-      );
-    });
-}
-
-/**
- * Pills, pagination, and horizontal dropdown content use innerHTML,
- * so data-wp-on--click directives won't be processed by the Interactivity API.
- * Visibility bindings live on wrapper elements so imperative DOM updates stay intact.
- */
-function setupDelegatedEvents(): void {
-  // Pill remove buttons.
-  document
-    .querySelectorAll<HTMLElement>('.aa-filter-active-bar__pills')
-    .forEach(el => {
-      el.addEventListener('click', (e: MouseEvent) => {
-        const btn = (e.target as HTMLElement).closest<HTMLElement>(
-          '.aa-filter-active-bar__pill'
-        );
-        if (!btn) return;
-
-        const type = btn.dataset.filterType;
-        const slug = btn.dataset.filterSlug;
-
-        if (type === 'category' && slug) {
-          removeArrayItem(state.selectedCategories, slug);
-          syncCategoryChips(state.selectedCategories);
-        } else if (type === 'color' && slug) {
-          removeArrayItem(state.selectedColors, slug);
-          syncSwatchPressed(state.selectedColors);
-        } else if (type === 'size' && slug) {
-          removeArrayItem(state.selectedSizes, slug);
-          syncChipPressed(state.selectedSizes);
-        } else if (type === 'fit' && slug) {
-          removeArrayItem(state.selectedFit, slug);
-          syncFitChipPressed(state.selectedFit);
-        } else if (type === 'price') {
-          state.priceMin = state.priceRange.min;
-          state.priceMax = state.priceRange.max;
-          syncPriceSliders();
-          syncPriceRange();
-        } else if (type === 'stock') {
-          state.inStockOnly = false;
-          syncStockCheckboxes(false);
-        } else if (type === 'sale') {
-          setSaleStatus(false);
-        }
-
-        // Pills live in the active bar (outside the filter panel), so removing
-        // one applies right away rather than waiting for a panel close.
-        stageFilterChange();
-        applyStagedFilters();
-      });
-    });
-
-  // Pagination buttons.
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination')
-    .forEach(el => {
-      el.addEventListener('click', (e: MouseEvent) => {
-        const btn = (e.target as HTMLElement).closest<HTMLElement>(
-          '[data-page]'
-        );
-        if (!btn) return;
-        const page = parseInt(btn.dataset.page || '', 10);
-        if (page < 1 || page > state.totalPages) return;
-
-        state.currentPage = page;
-        if (syncUrl()) return;
-        fetchProducts();
-        scrollToGrid();
-      });
-    });
-}
-
-/**
- * Inject server-rendered product cards into the AJAX grid container.
- *
- * The HTML comes from the theme's /products/rendered endpoint, which renders
- * each card through the full block pipeline — so AJAX cards are byte-identical
- * to the editor's product-template output (Quick View, badges, hover image,
- * sale countdown, etc. all included). `state.products` tracks the rendered IDs
- * so reactive getters (e.g. `hasProducts`) and append accounting stay correct.
- *
- * @param html   Server-rendered `<li>` markup (empty string clears the grid).
- * @param append Whether to append (load-more) or replace the grid.
- * @return Number of cards added by this call.
- */
-function injectProductsHtml(html: string, append: boolean): number {
-  const container = gridUl();
-  if (!container) {
-    state.products = [];
-    return 0;
-  }
-
-  const before = append
-    ? container.querySelectorAll(':scope > li:not(.aa-product-grid__spacer)')
-        .length
-    : 0;
-
-  if (append) {
-    const knownKeys = new Set(
-      Array.from(
-        container.querySelectorAll<HTMLElement>(
-          ':scope > li:not(.aa-product-grid__spacer)'
-        )
-      )
-        .map(productCardKey)
-        .filter(Boolean)
-    );
-    const incomingKeys = new Set<string>();
-    const fragment = document.createElement('ul');
-    fragment.innerHTML = html;
-    Array.from(fragment.querySelectorAll<HTMLElement>(':scope > li')).forEach(
-      card => {
-        const key = productCardKey(card);
-        if (!key || knownKeys.has(key) || incomingKeys.has(key)) {
-          card.remove();
-          return;
-        }
-        incomingKeys.add(key);
-      }
-    );
-    container.insertAdjacentHTML('beforeend', fragment.innerHTML);
-    pruneProductGrid(container, state.perPage);
-  } else {
-    clearProductGridSpacer(container);
-    container.innerHTML = html;
-  }
-
-  const items = Array.from(
-    container.querySelectorAll<HTMLElement>(
-      ':scope > li:not(.aa-product-grid__spacer)'
-    )
-  );
-  state.products = items.map(
-    li =>
-      parseInt(
-        (li.getAttribute('data-wp-key') || '').replace('product-item-', ''),
-        10
-      ) || 0
-  );
-
-  notifyCardsRendered(container);
-
-  return items.length - before;
-}
-
-/** Stable identity used to make dynamic card insertion idempotent. */
-function productCardKey(card: HTMLElement): string {
-  const postClass = [...card.classList].find(className =>
-    /^post-\d+$/.test(className)
-  );
-  if (postClass) return postClass;
-
-  return card.getAttribute('data-wp-key') ?? '';
-}
-
-/**
- * Maximum removable pills shown before collapsing the rest into a "+N" badge.
- */
-const MAX_VISIBLE_PILLS = 3;
-
-function renderPillButton(pill: FilterPill): string {
-  const removeTemplate = state.i18n?.removeFilterAria ?? 'Remove %s filter';
-  const ariaLabel = removeTemplate.replace('%s', pill.label);
-  return `<button class="aa-filter-active-bar__pill" data-filter-type="${escapeHtml(pill.type)}" data-filter-slug="${escapeHtml(pill.slug)}" aria-label="${escapeHtml(ariaLabel)}">${escapeHtml(pill.label)}<span class="aa-filter-active-bar__pill-x" aria-hidden="true">&times;</span></button>`;
-}
-
-function renderPillOverflowBadge(overflowPills: FilterPill[]): string {
-  const count = overflowPills.length;
-  if (count === 0) {
-    return '';
-  }
-
-  const labelList = overflowPills.map(pill => pill.label).join(', ');
-  const tooltipTemplate =
-    state.i18n?.activeFiltersOverflowTooltip ?? 'Additional filters: %s';
-  const ariaLabel = tooltipTemplate.replace('%s', labelList);
-
-  return `<span class="aa-filter-active-bar__overflow" tabindex="0" role="note" aria-label="${escapeHtml(ariaLabel)}" data-tooltip="${escapeHtml(labelList)}">+${count}</span>`;
-}
-
-/**
- * Render active filter pills.
- */
-function renderPills(): void {
-  const containers = document.querySelectorAll<HTMLElement>(
-    '.aa-filter-active-bar__pills'
-  );
-  if (!containers.length) return;
-
-  const pills: FilterPill[] = [];
-
-  visibleSelectedCategories().forEach((slug: string) => {
-    const cat = state.categories.find((c: CategoryTerm) => c.slug === slug);
-    pills.push({ type: 'category', slug, label: cat?.name || slug });
-  });
-
-  state.selectedColors.forEach((slug: string) => {
-    const col = state.colorTerms.find((c: ColorTerm) => c.slug === slug);
-    pills.push({ type: 'color', slug, label: col?.name || slug });
-  });
-
-  state.selectedSizes.forEach((slug: string) => {
-    const sz = state.sizeTerms.find((s: SizeTerm) => s.slug === slug);
-    pills.push({ type: 'size', slug, label: sz?.name || slug });
-  });
-
-  state.selectedFit.forEach((slug: string) => {
-    const term = state.fitTerms.find((t: FitTerm) => t.slug === slug);
-    pills.push({ type: 'fit', slug, label: term?.name || slug });
-  });
-
-  if (
-    state.priceMin > state.priceRange.min ||
-    state.priceMax < state.priceRange.max
-  ) {
-    const prefix = state.priceRange.currencyPrefix || '$';
-    pills.push({
-      type: 'price',
-      slug: 'price',
-      label: `${prefix}${state.priceMin} – ${prefix}${state.priceMax}`,
-    });
-  }
-
-  if (state.inStockOnly) {
-    pills.push({
-      type: 'stock',
-      slug: 'stock',
-      label: state.i18n?.inStockLabel ?? 'In stock',
-    });
-  }
-  if (state.onSaleOnly) {
-    pills.push({
-      type: 'sale',
-      slug: 'sale',
-      label: state.i18n?.onSaleLabel ?? 'On sale',
-    });
-  }
-
-  const visiblePills = pills.slice(0, MAX_VISIBLE_PILLS);
-  const overflowPills = pills.slice(MAX_VISIBLE_PILLS);
-
-  let html = visiblePills.map(renderPillButton).join('');
-  if (overflowPills.length > 0) {
-    html += renderPillOverflowBadge(overflowPills);
-  }
-
-  containers.forEach((c: HTMLElement) => {
-    c.innerHTML = html;
-  });
-}
-
-/**
- * Hide numbered filter pagination when Load More / Infinite Scroll is active.
- */
-function hideFilterPagination(): void {
-  if (!document.querySelector('.aa-product-filters .aa-load-more')) {
-    return;
-  }
-
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination-nav')
-    .forEach(nav => {
-      nav.hidden = true;
-    });
-
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination')
-    .forEach(container => {
-      container.innerHTML = '';
-    });
-}
-
-/**
- * Render pagination controls.
- */
-function renderPagination(): void {
-  if (document.querySelector('.aa-product-filters .aa-load-more')) {
-    hideFilterPagination();
-    return;
-  }
-
-  const container = document.querySelector<HTMLElement>(
-    '.aa-product-filters__pagination'
-  );
-  if (!container) return;
-
-  if (state.totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
-  const pages: string[] = [];
-  for (let i = 1; i <= state.totalPages; i++) {
-    const isCurrent = i === state.currentPage;
-    const ariaLabel = isCurrent ? `Page ${i}, current page` : `Go to page ${i}`;
-    pages.push(
-      `<button class="aa-product-filters__page-btn${isCurrent ? ' is-current' : ''}" data-page="${i}" aria-label="${escapeHtml(ariaLabel)}" ${isCurrent ? 'aria-current="page"' : ''}>${i}</button>`
-    );
-  }
-
-  container.innerHTML = pages.join('');
-}
-
-/**
- * Render content inside horizontal bar dropdowns.
- */
-function renderHorizontalDropdowns(): void {
-  if (state.layout !== 'horizontal') return;
-
-  const dropdowns = document.querySelectorAll<HTMLElement>(
-    '.aa-product-filters__bar-dropdown'
-  );
-  dropdowns.forEach((dd: HTMLElement) => {
-    const item = dd.closest<HTMLElement>('.aa-product-filters__bar-item');
-    if (!item) return;
-
-    const wpContext = (
-      item as HTMLElement & {
-        __wp_context?: Record<string, Record<string, string>>;
-      }
-    ).__wp_context;
-    const ctx = wpContext?.['aggressive-apparel/product-filters'];
-    const id: string | undefined = ctx?.dropdownId || item.dataset?.wpContext;
-
-    if (!id) return;
-
-    // Use the drawer sections as canonical source — clone their content.
-    const section = document.querySelector<HTMLElement>(
-      `.aa-product-filters__drawer-body [data-section="${id}"] .aa-product-filters__section-body`
-    );
-
-    if (section && dd.children.length === 0) {
-      for (const child of section.childNodes) {
-        dd.appendChild(child.cloneNode(true));
-      }
-    }
-  });
-}
-
-/**
- * Sync aria-pressed and is-selected class on toggle elements.
- */
-function syncPressed(selector: string, selected: string[]): void {
-  document.querySelectorAll<HTMLElement>(selector).forEach(el => {
-    const slug = el.dataset.filterValue;
-    const isSelected = slug !== undefined && selected.includes(slug);
-    el.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-    el.classList.toggle('is-selected', isSelected);
-  });
-}
-
-/** Convenience wrappers for readability at call sites. */
-const syncCategoryChips = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__category-chip', selected);
-const syncSwatchPressed = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__color-swatch', selected);
-const syncChipPressed = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__size-chip', selected);
-const syncFitChipPressed = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__fit-chip', selected);
-
-/**
- * Sync the visual position of the price range highlight.
- */
-function syncPriceRange(): void {
-  const range = state.priceRange;
-  if (!range || range.max <= range.min) return;
-
-  const total = range.max - range.min;
-  const minPct = ((state.priceMin - range.min) / total) * 100;
-  const maxPct = ((state.priceMax - range.min) / total) * 100;
-
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__price-range')
-    .forEach(el => {
-      el.style.left = `${minPct}%`;
-      el.style.right = `${100 - maxPct}%`;
-    });
-
-  // Update tooltip positions via CSS custom properties.
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__price-slider')
-    .forEach(el => {
-      el.style.setProperty('--pf-min-pct', String(minPct));
-      el.style.setProperty('--pf-max-pct', String(maxPct));
-    });
-}
-
-/**
- * Reset the price sliders to current state values.
- */
-function syncPriceSliders(): void {
-  document
-    .querySelectorAll<HTMLInputElement>('.aa-product-filters__price-thumb--min')
-    .forEach(el => {
-      el.value = String(state.priceMin);
-    });
-  document
-    .querySelectorAll<HTMLInputElement>('.aa-product-filters__price-thumb--max')
-    .forEach(el => {
-      el.value = String(state.priceMax);
-    });
-}
-
-/**
- * Sync stock checkboxes.
- */
-function syncStockCheckboxes(checked: boolean): void {
-  document
-    .querySelectorAll<HTMLInputElement>('.aa-product-filters__stock-checkbox')
-    .forEach(el => {
-      el.checked = checked;
-    });
-}
-
-/**
- * Sync sale-status checkboxes.
- */
-function syncOnSaleCheckboxes(checked: boolean): void {
-  document
-    .querySelectorAll<HTMLInputElement>('.aa-product-filters__on-sale-checkbox')
-    .forEach(el => {
-      el.checked = checked;
-    });
-}
-
-/**
- * Sync all filter controls to current state (used by clearAll).
- */
-function syncAllControls(): void {
-  syncCategoryChips([]);
-  syncSwatchPressed([]);
-  syncChipPressed([]);
-  syncFitChipPressed([]);
-  syncPriceSliders();
-  syncPriceRange();
-  syncStockCheckboxes(false);
-  syncOnSaleCheckboxes(false);
-  renderPills();
-}
-
-/**
- * Stage sale status as native catalogue context without navigating immediately.
- */
-function setSaleStatus(enabled: boolean): void {
-  const categoryFilters = visibleSelectedCategories();
-
-  state.onSaleOnly = enabled;
-  state.currentPage = 1;
-  state.selectedCategories = enabled
-    ? [state.salesCategorySlug, ...categoryFilters]
-    : categoryFilters;
-
-  syncCategoryChips(state.selectedCategories);
-  syncOnSaleCheckboxes(enabled);
-}
 
 /**
  * After Clear All, land on the unfiltered shop URL so the address bar matches
@@ -1448,7 +597,7 @@ function setSaleStatus(enabled: boolean): void {
  * category archives and other paths get a full navigation to the shop root.
  */
 function navigateToShopAfterClear(): void {
-  pendingNavUrl = null;
+  filterFlags.pendingNavUrl = null;
   const shopPath = getShopPath(state);
 
   if (window.location.pathname !== shopPath || window.location.search !== '') {
@@ -1459,7 +608,7 @@ function navigateToShopAfterClear(): void {
   window.history.replaceState(null, '', shopPath);
 }
 
-function syncUrl(): boolean {
+export function syncUrl(): boolean {
   const url = buildFilterUrl(state, visibleSelectedCategories());
   const basePath = url.split('?')[0] ?? url;
 
@@ -1469,13 +618,13 @@ function syncUrl(): boolean {
   // Sidebar and bar layouts have no apply step, so navigate immediately.
   if (basePath !== window.location.pathname) {
     if (state.layout === 'drawer') {
-      pendingNavUrl = url;
+      filterFlags.pendingNavUrl = url;
     } else {
       hardNavigate(url);
       return true;
     }
   } else {
-    pendingNavUrl = null;
+    filterFlags.pendingNavUrl = null;
     window.history.pushState(null, '', url);
   }
 
@@ -1483,7 +632,7 @@ function syncUrl(): boolean {
 }
 
 /** Abort requests that cannot be used, then begin a full page navigation. */
-function hardNavigate(url: string): void {
+export function hardNavigate(url: string): void {
   requests.cancelAll();
   window.location.assign(url);
 }
@@ -1607,7 +756,7 @@ function captureSortDropdown(): void {
 /**
  * Scroll to the top of the product grid.
  */
-function scrollToGrid(): void {
+export function scrollToGrid(): void {
   const grid = document.querySelector<HTMLElement>('.aa-product-filters');
   if (grid) {
     const prefersReducedMotion = window.matchMedia(

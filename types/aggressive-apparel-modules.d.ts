@@ -60,7 +60,19 @@ declare module '@aggressive-apparel/helpers' {
     variations: Variation[],
     selected: Record<string, string>
   ): Variation | null;
+  export function isOptionAvailable(
+    variations: Variation[],
+    attrKey: string,
+    optionValue: string,
+    selected: Record<string, string>,
+    requireStock?: boolean
+  ): boolean;
+  export function describeUnavailableOption(
+    baseName: string,
+    label: string
+  ): string;
   export function setupFocusTrap(container: HTMLElement): () => void;
+  export function prefersReducedMotion(): boolean;
   export function shouldAllowAutoOpenOverlay(): boolean;
   export function setMainContentInert(inert: boolean): void;
 

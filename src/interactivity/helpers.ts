@@ -140,6 +140,127 @@ export function stripTags(html: string | null | undefined): string {
   return decodeEntities(html.replace(/<[^>]*>/g, '')).trim();
 }
 
+/**
+ * Normalize an attribute key to its bare, lowercase form so `pa_color`,
+ * `attribute_pa_color`, and `Attribute_PA_Color` all compare equal. Quick View
+ * selections are stored bare (`pa_color`) while the sticky cart stores the
+ * WooCommerce form name (`attribute_pa_color`); both must match the same
+ * variation records.
+ */
+function bareAttrKey(key: string): string {
+  return (key || '').toLowerCase().replace(/^attribute_/, '');
+}
+
+/** Whether a variation is in stock. Missing flag ⇒ assume available. */
+function variationInStock(variation: Variation): boolean {
+  const record = variation as Record<string, unknown>;
+  const flag = record.inStock ?? record.in_stock;
+  return flag === undefined ? true : flag !== false;
+}
+
+/**
+ * A variation's value for one attribute.
+ *
+ * Returns the value string, `''` when the variation matches "Any" for that
+ * attribute, or `undefined` when the variation doesn't define it at all — both
+ * of the latter act as wildcards during availability checks.
+ */
+function variationValueFor(
+  variation: Variation,
+  attrKey: string
+): string | undefined {
+  const target = bareAttrKey(attrKey);
+  const attrs = variation.attributes;
+
+  if (Array.isArray(attrs)) {
+    for (const attr of attrs) {
+      const keys = [attr.attribute, attr.name, attr.taxonomy].filter(
+        Boolean
+      ) as string[];
+      if (keys.some(k => bareAttrKey(k) === target)) {
+        return attr.value || '';
+      }
+    }
+    return undefined;
+  }
+
+  for (const [key, value] of Object.entries(attrs as Record<string, string>)) {
+    if (bareAttrKey(key) === target) {
+      return value || '';
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Whether an attribute option is still selectable given the current picks.
+ *
+ * Mirrors the archive filters' disjunctive rule ({@link
+ * https://…/product-filters.ts applyFacets}) but computed entirely client-side
+ * from the variation matrix: the option is available when at least one variation
+ * exists that (a) is in stock — when `requireStock` — (b) carries this option (or
+ * "Any") for its own attribute, and (c) is compatible with every OTHER currently
+ * selected attribute. Callers keep the already-selected option enabled so a
+ * shopper can always toggle their own pick back off.
+ */
+export function isOptionAvailable(
+  variations: Variation[],
+  attrKey: string,
+  optionValue: string,
+  selected: Record<string, string>,
+  requireStock = true
+): boolean {
+  const optionLower = (optionValue || '').toLowerCase();
+  const targetBare = bareAttrKey(attrKey);
+
+  // Selections for every attribute except the one being evaluated.
+  const others = Object.entries(selected).filter(
+    ([key, value]) => value && bareAttrKey(key) !== targetBare
+  );
+
+  return variations.some(variation => {
+    if (requireStock && !variationInStock(variation)) {
+      return false;
+    }
+
+    // Compatible with this option for its own attribute.
+    const ownValue = variationValueFor(variation, attrKey);
+    if (
+      ownValue !== undefined &&
+      ownValue !== '' &&
+      ownValue.toLowerCase() !== optionLower
+    ) {
+      return false;
+    }
+
+    // Compatible with each other current selection.
+    for (const [key, selectedValue] of others) {
+      const value = variationValueFor(variation, key);
+      if (
+        value !== undefined &&
+        value !== '' &&
+        value.toLowerCase() !== selectedValue.toLowerCase()
+      ) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+/**
+ * Accessible name for an option that has no in-stock variation. Single source
+ * so Quick View and the sticky cart announce sold-out options identically to
+ * assistive tech (e.g. "Red — Unavailable"). `label` is resolved per surface
+ * from its own translated i18n bag.
+ */
+export function describeUnavailableOption(
+  baseName: string,
+  label: string
+): string {
+  return `${baseName} — ${label}`;
+}
+
 export function matchVariation(
   variations: Variation[],
   selected: Record<string, string>

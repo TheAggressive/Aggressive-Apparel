@@ -75,13 +75,22 @@ class Size_Guide {
 	private const CACHE_TTL = 900;
 
 	/**
+	 * Whether a size-guide instance has already rendered during this request.
+	 *
+	 * Prevents duplicate dialog controls when malformed template markup contains
+	 * the block more than once.
+	 *
+	 * @var bool
+	 */
+	private static bool $did_render = false;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'render_trigger_and_modal' ) );
 
 		// Product data tab for per-product size guides.
 		add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_product_data_tab' ) );
@@ -126,15 +135,30 @@ class Size_Guide {
 	}
 
 	/**
-	 * Render the "Size Guide" link and the hidden modal.
+	 * Render the dynamic Size Guide block for a product context.
 	 *
-	 * @return void
+	 * @param int                  $product_id Product post ID from block context.
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return string Rendered trigger and dialog markup, or an empty string.
 	 */
-	public function render_trigger_and_modal(): void {
-		$guide = $this->get_size_guide_for_product( get_the_ID() );
-		if ( empty( $guide ) ) {
-			return;
+	public function render_block_markup( int $product_id, array $attributes = array() ): string {
+		if ( self::$did_render || ! Feature_Settings::is_enabled( 'size_guide' ) ) {
+			return '';
 		}
+
+		$guide = $this->get_size_guide_for_product( $product_id );
+		if ( empty( $guide ) ) {
+			return '';
+		}
+
+		$label = isset( $attributes['label'] )
+			? sanitize_text_field( (string) $attributes['label'] )
+			: '';
+		if ( '' === trim( $label ) ) {
+			$label = __( 'Size Guide', 'aggressive-apparel' );
+		}
+
+		$show_icon = ! isset( $attributes['showIcon'] ) || (bool) $attributes['showIcon'];
 
 		$units_label = apply_filters(
 			'aggressive_apparel_size_guide_units_label',
@@ -144,36 +168,40 @@ class Size_Guide {
 		$dialog_id = wp_unique_id( 'aa-size-guide-' );
 		$title_id  = $dialog_id . '-title';
 
-		echo '<div data-wp-interactive="aggressive-apparel/size-guide" data-wp-context=\'{"isOpen":false}\'>';
-		printf(
-			'<button type="button" class="aggressive-apparel-size-guide__trigger" data-wp-on--click="actions.toggle" aria-haspopup="dialog" aria-controls="%1$s" aria-expanded="false" data-wp-bind--aria-expanded="context.isOpen">',
-			esc_attr( $dialog_id )
+		$root_attributes    = $this->get_root_attributes();
+		$trigger_attributes = $this->get_trigger_attributes( $dialog_id );
+		$markup             = '<div ' . $root_attributes . '>';
+		$markup            .= sprintf(
+			'<button %s>',
+			$trigger_attributes
 		);
-		echo '<span class="aggressive-apparel-size-guide__trigger-icon" aria-hidden="true">';
-		echo aggressive_apparel_trusted_html( $this->get_measuring_tape_icon( 22 ) );
-		echo '</span>';
-		echo esc_html__( 'Size Guide', 'aggressive-apparel' );
-		echo '</button>';
+		if ( $show_icon ) {
+			$markup .= '<span class="aggressive-apparel-size-guide__trigger-icon" aria-hidden="true">';
+			$markup .= $this->get_measuring_tape_icon( 22 );
+			$markup .= '</span>';
+		}
+		$markup .= esc_html( $label );
+		$markup .= '</button>';
 
-		printf(
+		$markup .= sprintf(
 			'<div id="%1$s" class="aggressive-apparel-overlay aggressive-apparel-size-guide__overlay" role="dialog" aria-modal="true" aria-labelledby="%2$s" data-wp-class--is-open="context.isOpen" data-wp-on--keydown="actions.handleKeydown" hidden>',
 			esc_attr( $dialog_id ),
 			esc_attr( $title_id )
 		);
-		echo '<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
-		echo '<div class="aggressive-apparel-panel aggressive-apparel-panel--guide aggressive-apparel-size-guide__modal">';
-		echo '<div class="aggressive-apparel-size-guide__header">';
-		printf(
+		$markup .= '<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
+		$markup .= '<div class="aggressive-apparel-panel aggressive-apparel-panel--guide aggressive-apparel-size-guide__modal">';
+		$markup .= '<div class="aggressive-apparel-size-guide__header">';
+		$markup .= sprintf(
 			'<h2 id="%s" class="aggressive-apparel-size-guide__title">',
 			esc_attr( $title_id )
 		);
-		echo '<span class="aggressive-apparel-size-guide__title-icon" aria-hidden="true">';
-		echo aggressive_apparel_trusted_html( $this->get_measuring_tape_icon( 24 ) );
-		echo '</span>';
-		echo esc_html__( 'Size Guide', 'aggressive-apparel' );
-		echo '</h2>';
-		echo '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
-		echo aggressive_apparel_get_icon(
+		$markup .= '<span class="aggressive-apparel-size-guide__title-icon" aria-hidden="true">';
+		$markup .= $this->get_measuring_tape_icon( 24 );
+		$markup .= '</span>';
+		$markup .= esc_html__( 'Size Guide', 'aggressive-apparel' );
+		$markup .= '</h2>';
+		$markup .= '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
+		$markup .= aggressive_apparel_get_icon(
 			'close',
 			array(
 				'width'       => 20,
@@ -181,17 +209,59 @@ class Size_Guide {
 				'aria-hidden' => 'true',
 			)
 		);
-		echo '</button>';
-		echo '</div>';
+		$markup .= '</button>';
+		$markup .= '</div>';
 		if ( is_string( $units_label ) && '' !== $units_label ) {
-			echo '<p class="aggressive-apparel-size-guide__units">' . esc_html( $units_label ) . '</p>';
+			$markup .= '<p class="aggressive-apparel-size-guide__units">' . esc_html( $units_label ) . '</p>';
 		}
-		echo '<div class="aggressive-apparel-size-guide__body">';
-		echo wp_kses_post( $guide );
-		echo '</div>';
-		echo '</div>';
-		echo '</div>';
-		echo '</div>';
+		$markup .= '<div class="aggressive-apparel-size-guide__body">';
+		$markup .= wp_kses_post( $guide );
+		$markup .= '</div>';
+		$markup .= '</div>';
+		$markup .= '</div>';
+		$markup .= '</div>';
+
+		self::$did_render = true;
+
+		return $markup;
+	}
+
+	/**
+	 * Build the neutral Interactivity API root attributes.
+	 *
+	 * @return string Escaped HTML attributes.
+	 */
+	private function get_root_attributes(): string {
+		return sprintf(
+			'class="%1$s" data-wp-interactive="%2$s" data-wp-context="%3$s"',
+			esc_attr( 'aggressive-apparel-size-guide-block' ),
+			esc_attr( 'aggressive-apparel/size-guide' ),
+			esc_attr( (string) wp_json_encode( array( 'isOpen' => false ) ) )
+		);
+	}
+
+	/**
+	 * Build the trigger attributes, including native block design supports.
+	 *
+	 * Applying block supports to the actual control makes editor padding,
+	 * color, typography, border, alignment, and shadow choices render without
+	 * styling the fixed-position dialog sibling.
+	 *
+	 * @param string $dialog_id Controlled dialog element ID.
+	 * @return string Escaped HTML attributes.
+	 */
+	private function get_trigger_attributes( string $dialog_id ): string {
+		return get_block_wrapper_attributes(
+			array(
+				'class'                       => 'aggressive-apparel-size-guide__trigger',
+				'type'                        => 'button',
+				'data-wp-on--click'           => 'actions.toggle',
+				'aria-haspopup'               => 'dialog',
+				'aria-controls'               => $dialog_id,
+				'aria-expanded'               => 'false',
+				'data-wp-bind--aria-expanded' => 'context.isOpen',
+			)
+		);
 	}
 
 	/**

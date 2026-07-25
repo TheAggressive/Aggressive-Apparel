@@ -1,7 +1,5 @@
-import { execFileSync } from 'node:child_process';
 import { Buffer } from 'node:buffer';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { wpCli } from './wp-cli';
 
 /**
  * wp-cli fixtures for the product-tabs e2e.
@@ -15,11 +13,6 @@ import { fileURLToPath } from 'node:url';
  * weight/dimensions (Additional information tab) so several sections render.
  */
 
-const THEME_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..'
-);
-
 const FORCE_STYLE_OPTION = 'e2e_product_tabs_force_style';
 const EXCLUSIVE_OPTION = 'e2e_product_tabs_exclusive';
 const HEADING_SIZE_OPTION = 'e2e_product_tabs_heading_size';
@@ -29,14 +22,6 @@ const GLOBAL_TABS_OPTION = 'aggressive_apparel_product_tabs';
 const MU_PLUGIN_NAME = 'e2e-product-tabs-style.php';
 
 export type TabStyle = 'accordion' | 'inline' | 'modern-tabs' | 'scrollspy';
-
-function wp(args: string[]): string {
-  return execFileSync('pnpm', ['exec', 'wp-env', 'run', 'cli', 'wp', ...args], {
-    cwd: THEME_ROOT,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim();
-}
 
 /**
  * Write a mu-plugin that forces the product-tabs `displayStyle` from the
@@ -81,7 +66,7 @@ file_put_contents($dir . '/${MU_PLUGIN_NAME}', base64_decode('${b64}'));
 echo 'ok';
 `.trim();
 
-  const out = wp(['eval', script]);
+  const out = wpCli(['eval', script]);
   if (!out.endsWith('ok')) {
     throw new Error(`Failed to install product-tabs style forcer: ${out}`);
   }
@@ -90,7 +75,7 @@ echo 'ok';
 /** Remove the test mu-plugin and its option. */
 export function uninstallStyleForcer(): void {
   try {
-    wp([
+    wpCli([
       'eval',
       `
 $dir = defined('WPMU_PLUGIN_DIR') ? WPMU_PLUGIN_DIR : WP_CONTENT_DIR . '/mu-plugins';
@@ -99,11 +84,11 @@ if (file_exists($f)) { unlink($f); }
 echo 'ok';
 `.trim(),
     ]);
-    wp(['option', 'delete', FORCE_STYLE_OPTION]);
-    wp(['option', 'delete', EXCLUSIVE_OPTION]);
-    wp(['option', 'delete', HEADING_SIZE_OPTION]);
-    wp(['option', 'delete', HEADING_COLOR_OPTION]);
-    wp(['option', 'delete', ACCENT_COLOR_OPTION]);
+    wpCli(['option', 'delete', FORCE_STYLE_OPTION]);
+    wpCli(['option', 'delete', EXCLUSIVE_OPTION]);
+    wpCli(['option', 'delete', HEADING_SIZE_OPTION]);
+    wpCli(['option', 'delete', HEADING_COLOR_OPTION]);
+    wpCli(['option', 'delete', ACCENT_COLOR_OPTION]);
   } catch {
     // Best-effort cleanup.
   }
@@ -137,7 +122,7 @@ $id = $p->save();
 echo $id . '|' . get_permalink($id);
 `.trim();
 
-  const out = wp(['eval', script]);
+  const out = wpCli(['eval', script]);
   const [idRaw, url] = out.split('|');
   const id = Number.parseInt(idRaw, 10);
   if (!Number.isFinite(id) || id <= 0 || !url) {
@@ -148,16 +133,16 @@ echo $id . '|' . get_permalink($id);
 
 /** Force the product-tabs display style for the next page load. */
 export function setProductTabsStyle(style: TabStyle): void {
-  wp(['option', 'update', FORCE_STYLE_OPTION, style]);
+  wpCli(['option', 'update', FORCE_STYLE_OPTION, style]);
 }
 
 /** Toggle the accordion's exclusive (one-open-at-a-time) mode. */
 export function setAccordionExclusive(exclusive: boolean): void {
   if (exclusive) {
-    wp(['option', 'update', EXCLUSIVE_OPTION, '1']);
+    wpCli(['option', 'update', EXCLUSIVE_OPTION, '1']);
   } else {
     try {
-      wp(['option', 'delete', EXCLUSIVE_OPTION]);
+      wpCli(['option', 'delete', EXCLUSIVE_OPTION]);
     } catch {
       // Already absent.
     }
@@ -172,10 +157,10 @@ export function setHeadingStyle(style: {
 }): void {
   const set = (name: string, value?: string): void => {
     if (value) {
-      wp(['option', 'update', name, value]);
+      wpCli(['option', 'update', name, value]);
     } else {
       try {
-        wp(['option', 'delete', name]);
+        wpCli(['option', 'delete', name]);
       } catch {
         // Already absent.
       }
@@ -194,7 +179,7 @@ export function setHeadingStyle(style: {
  */
 export function clearGlobalTabsOption(): void {
   try {
-    wp(['option', 'delete', GLOBAL_TABS_OPTION]);
+    wpCli(['option', 'delete', GLOBAL_TABS_OPTION]);
   } catch {
     // Already absent — which is exactly the state we want.
   }
@@ -204,7 +189,7 @@ export function clearGlobalTabsOption(): void {
 export function deleteProductTabsFixture(id: number): void {
   if (!id) return;
   try {
-    wp(['post', 'delete', String(id), '--force']);
+    wpCli(['post', 'delete', String(id), '--force']);
   } catch {
     // Best-effort cleanup; a leftover draft product does not fail the suite.
   }

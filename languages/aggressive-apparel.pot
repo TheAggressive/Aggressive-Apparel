@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.175.0\n"
+"Project-Id-Version: Aggressive Apparel 1.176.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-24T18:19:10+00:00\n"
+"POT-Creation-Date: 2026-07-25T18:19:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -98,7 +98,7 @@ msgid "PLP headers, filters, and browse recovery states."
 msgstr ""
 
 #: includes/Core/class-block-categories.php:88
-#: includes/WooCommerce/class-feature-settings.php:384
+#: includes/WooCommerce/class-feature-settings.php:387
 msgid "Product Page"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgid "Ghost"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:176
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:429
+#: includes/WooCommerce/class-badge-admin-fields.php:102
 msgid "Text"
 msgstr ""
 
@@ -644,7 +644,7 @@ msgid "Brand Stripe"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:305
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1171
+#: includes/WooCommerce/class-badge-system-defaults.php:29
 msgid "Badge"
 msgstr ""
 
@@ -1004,7 +1004,7 @@ msgid "All statuses"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:450
-#: includes/WooCommerce/class-feature-settings.php:535
+#: includes/WooCommerce/class-store-copy.php:55
 #: src/blocks-interactivity/filter-toggle/render.php:56
 msgid "Filter"
 msgstr ""
@@ -1114,6 +1114,241 @@ msgstr ""
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr ""
 
+#: includes/WooCommerce/class-badge-admin-fields.php:74
+msgid "Live Preview"
+msgstr ""
+
+#. translators: %s: system badge type name.
+#: includes/WooCommerce/class-badge-admin-fields.php:89
+#, php-format
+msgid "System badge: %s — applied automatically by product conditions. Restyle it freely below."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:98
+msgid "Colors"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:101
+msgid "Background"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:108
+#: includes/WooCommerce/class-product-tabs-admin.php:772
+#: includes/WooCommerce/class-product-tabs-admin.php:859
+msgid "Icon"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:109
+msgid "Choose one icon source. It appears before the badge text."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:111
+msgid "Icon source"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:114
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:823
+#: includes/WooCommerce/class-feature-settings-fields.php:413
+msgid "None"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:115
+msgid "Emoji"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:116
+msgid "Library"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:117
+msgid "Custom SVG"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:132
+msgid "Emoji / Character"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:136
+msgid "Library Icon"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:142
+msgid "Custom SVG markup"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:144
+msgid "Paste raw SVG. Sanitized on save."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:149
+msgid "Icon Color"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:149
+msgid "Empty = inherit text color."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:150
+msgid "Icon Size (px)"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:150
+msgid "0 = auto (matches text)."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:151
+msgid "Icon Spacing (px)"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:151
+msgid "Gap between icon and text."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:157
+msgid "Border"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:160
+#: includes/WooCommerce/class-color-admin-ui.php:99
+#: includes/WooCommerce/class-color-admin-ui.php:155
+#: includes/WooCommerce/class-color-admin-ui.php:329
+#: includes/WooCommerce/class-product-filter-renderer.php:50
+#: includes/WooCommerce/class-product-filter-renderer.php:158
+msgid "Color"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:160
+msgid "Empty = no border."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:161
+msgid "Width (px)"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:162
+msgid "Style"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:168
+msgid "Shape & Spacing"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:171
+msgid "Corner Radius (px)"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:174
+msgid "TL"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:175
+msgid "TR"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:176
+msgid "BR"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:177
+msgid "BL"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:182
+msgid "Padding (px)"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:185
+msgid "X"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:186
+msgid "Y"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:194
+msgid "Placement"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:197
+msgid "Position"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:197
+msgid "Corner of the product image."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:198
+#: includes/WooCommerce/class-product-tabs-admin.php:616
+#: includes/WooCommerce/class-product-tabs-admin.php:865
+msgid "Priority"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:198
+msgid "Lower shows first."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:307
+msgid "Badge Name"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:28
+#: includes/WooCommerce/class-feature-settings.php:412
+msgid "Product Badges"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:30
+msgid "Badges"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:31
+msgid "Add New Badge"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:32
+msgid "Edit Badge"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:33
+msgid "New Badge Name"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:34
+msgid "Search Badges"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:35
+msgid "No badges found."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:36
+msgid "All Badges"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:37
+msgid "Back to Badges"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:127
+#: patterns/design-system-preview.php:85
+#: patterns/footer-columns.php:49
+#: patterns/mega-menu-panel.php:64
+msgid "Sale"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:138
+#: patterns/design-system-preview.php:89
+msgid "New"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:149
+#: patterns/design-system-preview.php:93
+msgid "Low Stock"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-system-defaults.php:160
+msgid "Bestseller"
+msgstr ""
+
 #: includes/WooCommerce/class-color-admin-ui.php:85
 #: includes/WooCommerce/class-color-admin-ui.php:137
 msgid "Color Type"
@@ -1127,15 +1362,6 @@ msgstr ""
 #: includes/WooCommerce/class-color-admin-ui.php:93
 #: includes/WooCommerce/class-color-admin-ui.php:147
 msgid "Pattern"
-msgstr ""
-
-#: includes/WooCommerce/class-color-admin-ui.php:99
-#: includes/WooCommerce/class-color-admin-ui.php:155
-#: includes/WooCommerce/class-color-admin-ui.php:329
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:487
-#: includes/WooCommerce/class-product-filter-renderer.php:50
-#: includes/WooCommerce/class-product-filter-renderer.php:158
-msgid "Color"
 msgstr ""
 
 #: includes/WooCommerce/class-color-admin-ui.php:101
@@ -1250,242 +1476,16 @@ msgstr ""
 msgid "Upload a pattern image to use instead of a solid color. Recommended size: 100x100px or larger square images."
 msgstr ""
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:401
-msgid "Live Preview"
-msgstr ""
-
-#. translators: %s: system badge type name.
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:416
-#, php-format
-msgid "System badge: %s — applied automatically by product conditions. Restyle it freely below."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:425
-msgid "Colors"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:428
-msgid "Background"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:435
-#: includes/WooCommerce/class-product-tabs-admin.php:772
-#: includes/WooCommerce/class-product-tabs-admin.php:859
-msgid "Icon"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:436
-msgid "Choose one icon source. It appears before the badge text."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:438
-msgid "Icon source"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:441
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1151
-#: includes/WooCommerce/class-feature-settings-fields.php:413
-msgid "None"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:442
-msgid "Emoji"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:443
-msgid "Library"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:444
-msgid "Custom SVG"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:459
-msgid "Emoji / Character"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:463
-msgid "Library Icon"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:469
-msgid "Custom SVG markup"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:471
-msgid "Paste raw SVG. Sanitized on save."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:476
-msgid "Icon Color"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:476
-msgid "Empty = inherit text color."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:477
-msgid "Icon Size (px)"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:477
-msgid "0 = auto (matches text)."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:478
-msgid "Icon Spacing (px)"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:478
-msgid "Gap between icon and text."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:484
-msgid "Border"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:487
-msgid "Empty = no border."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:488
-msgid "Width (px)"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:489
-msgid "Style"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:495
-msgid "Shape & Spacing"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:498
-msgid "Corner Radius (px)"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:501
-msgid "TL"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:502
-msgid "TR"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:503
-msgid "BR"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:504
-msgid "BL"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:509
-msgid "Padding (px)"
-msgstr ""
-
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:512
-msgid "X"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:513
-msgid "Y"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:521
-msgid "Placement"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:524
-msgid "Position"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:524
-msgid "Corner of the product image."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:525
-#: includes/WooCommerce/class-product-tabs-admin.php:616
-#: includes/WooCommerce/class-product-tabs-admin.php:865
-msgid "Priority"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:525
-msgid "Lower shows first."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:634
-msgid "Badge Name"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:840
 msgid "Preview"
 msgstr ""
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:841
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:513
 msgid "Type"
 msgstr ""
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:872
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:544
 msgid "Custom"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1170
-#: includes/WooCommerce/class-feature-settings.php:409
-msgid "Product Badges"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1172
-msgid "Badges"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1173
-msgid "Add New Badge"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1174
-msgid "Edit Badge"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1175
-msgid "New Badge Name"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1176
-msgid "Search Badges"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1177
-msgid "No badges found."
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1178
-msgid "All Badges"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1179
-msgid "Back to Badges"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1269
-#: patterns/design-system-preview.php:85
-#: patterns/footer-columns.php:49
-#: patterns/mega-menu-panel.php:64
-msgid "Sale"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1280
-#: patterns/design-system-preview.php:89
-msgid "New"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1291
-#: patterns/design-system-preview.php:93
-msgid "Low Stock"
-msgstr ""
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1302
-msgid "Bestseller"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings-fields.php:132
@@ -1844,12 +1844,12 @@ msgid "Notification Sources"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings-page.php:414
-#: includes/WooCommerce/class-feature-settings.php:986
+#: includes/WooCommerce/class-social-proof-settings.php:32
 msgid "Trust Messages"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings-page.php:419
-#: includes/WooCommerce/class-feature-settings.php:994
+#: includes/WooCommerce/class-social-proof-settings.php:40
 msgid "Custom Announcements"
 msgstr ""
 
@@ -1899,364 +1899,165 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:382
+#: includes/WooCommerce/class-feature-settings.php:385
 msgid "Catalog & Browsing"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:383
+#: includes/WooCommerce/class-feature-settings.php:386
 msgid "Store Copy"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:385
+#: includes/WooCommerce/class-feature-settings.php:388
 msgid "Customer Engagement"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:386
+#: includes/WooCommerce/class-feature-settings.php:389
 msgid "Mobile & UI"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:410
+#: includes/WooCommerce/class-feature-settings.php:413
 msgid "Show sale percentage, \"New\", \"Low Stock\", and \"Bestseller\" badges on product cards."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:414
+#: includes/WooCommerce/class-feature-settings.php:417
 msgid "Smart Price Display"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:415
+#: includes/WooCommerce/class-feature-settings.php:418
 msgid "Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:419
+#: includes/WooCommerce/class-feature-settings.php:422
 msgid "Advanced Sorting Options"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:420
+#: includes/WooCommerce/class-feature-settings.php:423
 msgid "Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:424
+#: includes/WooCommerce/class-feature-settings.php:427
 msgid "Product Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:425
+#: includes/WooCommerce/class-feature-settings.php:428
 msgid "AJAX product filters with categories, color swatches, sizes, price range, and stock status."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:429
+#: includes/WooCommerce/class-feature-settings.php:432
 msgid "Load More / Infinite Scroll"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:430
+#: includes/WooCommerce/class-feature-settings.php:433
 msgid "Replace pagination with a Load More button or automatic infinite scroll."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:434
+#: includes/WooCommerce/class-feature-settings.php:437
 msgid "Page Transitions"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:435
+#: includes/WooCommerce/class-feature-settings.php:438
 msgid "Smooth crossfade between pages with product image morphing (Chrome/Safari)."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:439
+#: includes/WooCommerce/class-feature-settings.php:442
 msgid "Catalog Hover Image"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:440
+#: includes/WooCommerce/class-feature-settings.php:443
 msgid "Show the first gallery image on hover for products that have additional gallery photos."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:446
+#: includes/WooCommerce/class-feature-settings.php:449
 #: includes/WooCommerce/class-size-guide-post-type.php:77
-#: includes/WooCommerce/class-size-guide.php:155
-#: includes/WooCommerce/class-size-guide.php:173
-#: includes/WooCommerce/class-size-guide.php:311
-#: includes/WooCommerce/class-size-guide.php:361
-#: includes/WooCommerce/class-size-guide.php:420
-#: includes/WooCommerce/class-size-guide.php:448
+#: includes/WooCommerce/class-size-guide.php:158
+#: includes/WooCommerce/class-size-guide.php:201
+#: includes/WooCommerce/class-size-guide.php:381
+#: includes/WooCommerce/class-size-guide.php:431
+#: includes/WooCommerce/class-size-guide.php:490
+#: includes/WooCommerce/class-size-guide.php:518
 #: patterns/footer-columns.php:83
 msgid "Size Guide"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:447
+#: includes/WooCommerce/class-feature-settings.php:450
 msgid "Manage reusable size guides and assign them to products or categories."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:451
+#: includes/WooCommerce/class-feature-settings.php:454
 msgid "Sticky Add to Cart"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:452
+#: includes/WooCommerce/class-feature-settings.php:455
 msgid "Fixed bar with product info and add-to-cart when main button scrolls out of view."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:456
+#: includes/WooCommerce/class-feature-settings.php:459
 msgid "Stock Status"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:457
+#: includes/WooCommerce/class-feature-settings.php:460
 msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:461
-#: includes/WooCommerce/class-feature-settings.php:547
+#: includes/WooCommerce/class-feature-settings.php:464
+#: includes/WooCommerce/class-store-copy.php:67
 msgid "Quick View"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:462
+#: includes/WooCommerce/class-feature-settings.php:465
 msgid "Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:466
+#: includes/WooCommerce/class-feature-settings.php:469
 #: includes/WooCommerce/class-frequently-bought-together.php:250
 msgid "Frequently Bought Together"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:467
+#: includes/WooCommerce/class-feature-settings.php:470
 msgid "Show recommended products with checkboxes and combined add-to-cart on product pages."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:473
+#: includes/WooCommerce/class-feature-settings.php:476
 #: includes/WooCommerce/class-mobile-bottom-nav.php:173
 #: includes/WooCommerce/class-mobile-bottom-nav.php:175
 #: includes/WooCommerce/class-wishlist.php:204
 msgid "Wishlist"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:474
+#: includes/WooCommerce/class-feature-settings.php:477
 msgid "Save-for-later with heart icon toggle and dedicated wishlist page."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:478
+#: includes/WooCommerce/class-feature-settings.php:481
 msgid "Social Proof Notifications"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:479
+#: includes/WooCommerce/class-feature-settings.php:482
 msgid "Show recent purchase toast notifications to build urgency."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:483
+#: includes/WooCommerce/class-feature-settings.php:486
 msgid "Back in Stock Notifications"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:484
+#: includes/WooCommerce/class-feature-settings.php:487
 msgid "Let customers subscribe to out-of-stock products and get notified when restocked."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:490
+#: includes/WooCommerce/class-feature-settings.php:493
 msgid "Swatch Tooltips"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:491
+#: includes/WooCommerce/class-feature-settings.php:494
 msgid "Show fabric name and composition on color swatch hover."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:495
+#: includes/WooCommerce/class-feature-settings.php:498
 msgid "Mobile Bottom Navigation"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings.php:496
+#: includes/WooCommerce/class-feature-settings.php:499
 msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:516
-msgid "Variable Product Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:517
-msgid "Choose"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:518
-msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:522
-msgid "Simple Product Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:523
-#: src/blocks-interactivity/wishlist-item-actions/render.php:19
-#: src/blocks-interactivity/wishlist-item-actions/render.php:21
-msgid "Add to Cart"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:524
-msgid "Product-card button text for simple products that can be added directly."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:528
-msgid "Out of Stock Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:529
-#: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view.php:376
-#: patterns/design-system-preview.php:97
-msgid "Out of Stock"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:530
-msgid "Button text shown when product-card or sticky-cart products are out of stock."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:534
-msgid "Filter Toggle Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:536
-msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:540
-msgid "Load More Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:541
-msgid "Load More Products"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:542
-msgid "Button text for loading the next page of catalog products."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:546
-msgid "Quick View Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:548
-msgid "Label used by Quick View triggers on product cards."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:552
-msgid "Buy Now Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:553
-msgid "Buy Now"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:554
-msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:558
-msgid "View Cart Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:559
-msgid "View Cart"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:560
-msgid "Button text shown after an item is added to the cart."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:564
-msgid "Continue Shopping Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:565
-msgid "Continue Shopping"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:566
-msgid "Button text for closing post-cart panels and returning to browsing."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:570
-msgid "View Product Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:571
-msgid "View Full Product"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:572
-msgid "Link text for opening the full product page from custom overlays."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:576
-msgid "Back in Stock Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:577
-msgid "Notify Me"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:578
-msgid "Button and badge text for out-of-stock notification signups."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:582
-msgid "Wishlist Button Text"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:583
-#: src/blocks-interactivity/wishlist-button/render.php:62
-msgid "Add to Wishlist"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:584
-msgid "Accessible label and optional visible text for wishlist buttons."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:588
-msgid "Variable Price Prefix"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:589
-#: includes/WooCommerce/class-feature-settings.php:594
-msgid "From"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:590
-msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:591
-msgid "No prefix"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:595
-msgid "Starting at"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:596
-msgid "As low as"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:597
-msgid "Priced from"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:598
-msgid "Now from"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:987
-msgid "Always-on brand trust signals from your Trust Messages list. Works at zero orders."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:990
-msgid "Real Purchases"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:991
-msgid "Anonymized recent orders. Skipped silently when you have no eligible orders."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:995
-msgid "Short-term promos / seasonal copy from your Announcements list."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:998
-msgid "Engagement (sales signal)"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings.php:999
-msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
 msgstr ""
 
 #. translators: %s: formatted amount still needed for free shipping.
@@ -2284,7 +2085,7 @@ msgid "%s UNLOCKED!"
 msgstr ""
 
 #: includes/WooCommerce/class-frequently-bought-together.php:176
-#: includes/WooCommerce/class-quick-view.php:366
+#: includes/WooCommerce/class-quick-view.php:378
 msgid "Adding…"
 msgstr ""
 
@@ -2391,8 +2192,15 @@ msgid "Save %d%%"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view.php:377
+#: includes/WooCommerce/class-quick-view.php:389
 msgid "In Stock"
+msgstr ""
+
+#: includes/WooCommerce/class-product-filter-data.php:236
+#: includes/WooCommerce/class-quick-view.php:388
+#: includes/WooCommerce/class-store-copy.php:49
+#: patterns/design-system-preview.php:97
+msgid "Out of Stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:240
@@ -3181,100 +2989,105 @@ msgstr ""
 
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
-#: includes/WooCommerce/class-quick-view.php:229
+#: includes/WooCommerce/class-quick-view.php:241
 #: includes/WooCommerce/class-wishlist.php:464
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:258
+#: includes/WooCommerce/class-quick-view.php:270
 msgid "Product actions"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:367
+#: includes/WooCommerce/class-quick-view.php:379
 msgid "✓ Added!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:371
+#: includes/WooCommerce/class-quick-view.php:383
 #: includes/WooCommerce/class-sticky-add-to-cart.php:133
 msgid "Redirecting…"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:375
-#: includes/WooCommerce/class-quick-view.php:896
+#: includes/WooCommerce/class-quick-view.php:387
+#: includes/WooCommerce/class-quick-view.php:914
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:415
+#: includes/WooCommerce/class-sticky-add-to-cart.php:416
 msgid "Added to cart!"
 msgstr ""
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view.php:379
+#: includes/WooCommerce/class-quick-view.php:391
 #, php-format
 msgid "Only %d left!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:380
+#: includes/WooCommerce/class-quick-view.php:392
 msgid "Product added to cart successfully"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:381
+#: includes/WooCommerce/class-quick-view.php:393
 msgid "Could not add to cart."
 msgstr ""
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view.php:383
+#: includes/WooCommerce/class-quick-view.php:395
 #, php-format
 msgid "Error: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:410
+#: includes/WooCommerce/class-quick-view.php:396
+#: includes/WooCommerce/class-sticky-add-to-cart.php:139
+msgid "Unavailable"
+msgstr ""
+
+#: includes/WooCommerce/class-quick-view.php:423
 msgid "Close quick view"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:475
+#: includes/WooCommerce/class-quick-view.php:488
 msgid "Scroll thumbnails left"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:495
-#: includes/WooCommerce/class-quick-view.php:540
+#: includes/WooCommerce/class-quick-view.php:508
+#: includes/WooCommerce/class-quick-view.php:553
 msgid "View image"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:513
+#: includes/WooCommerce/class-quick-view.php:526
 msgid "Scroll thumbnails right"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:605
-#: includes/WooCommerce/class-quick-view.php:783
-#: includes/WooCommerce/class-sticky-add-to-cart.php:190
-#: includes/WooCommerce/class-sticky-add-to-cart.php:359
+#: includes/WooCommerce/class-quick-view.php:618
+#: includes/WooCommerce/class-quick-view.php:801
+#: includes/WooCommerce/class-sticky-add-to-cart.php:191
+#: includes/WooCommerce/class-sticky-add-to-cart.php:360
 msgid "Decrease quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:613
-#: includes/WooCommerce/class-quick-view.php:791
-#: includes/WooCommerce/class-sticky-add-to-cart.php:199
-#: includes/WooCommerce/class-sticky-add-to-cart.php:368
+#: includes/WooCommerce/class-quick-view.php:626
+#: includes/WooCommerce/class-quick-view.php:809
+#: includes/WooCommerce/class-sticky-add-to-cart.php:200
+#: includes/WooCommerce/class-sticky-add-to-cart.php:369
 msgid "Quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:619
-#: includes/WooCommerce/class-quick-view.php:797
-#: includes/WooCommerce/class-sticky-add-to-cart.php:205
-#: includes/WooCommerce/class-sticky-add-to-cart.php:374
+#: includes/WooCommerce/class-quick-view.php:632
+#: includes/WooCommerce/class-quick-view.php:815
+#: includes/WooCommerce/class-sticky-add-to-cart.php:206
+#: includes/WooCommerce/class-sticky-add-to-cart.php:375
 msgid "Increase quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:687
-#: includes/WooCommerce/class-sticky-add-to-cart.php:259
+#: includes/WooCommerce/class-quick-view.php:700
+#: includes/WooCommerce/class-sticky-add-to-cart.php:260
 msgid "Select product options"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:845
+#: includes/WooCommerce/class-quick-view.php:863
 msgid "Could not load product details. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:883
+#: includes/WooCommerce/class-quick-view.php:901
 msgid "Close cart confirmation"
 msgstr ""
 
@@ -3356,91 +3169,115 @@ msgstr ""
 msgid "No size guides found in Trash."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:141
+#: includes/WooCommerce/class-size-guide.php:165
 msgid "Measurements in inches"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:175
-#: includes/WooCommerce/class-sticky-add-to-cart.php:290
+#: includes/WooCommerce/class-size-guide.php:203
+#: includes/WooCommerce/class-sticky-add-to-cart.php:291
 msgid "Close"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:348
+#: includes/WooCommerce/class-size-guide.php:418
 msgid "-- Inherit (category or global) --"
 msgstr ""
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:372
+#: includes/WooCommerce/class-size-guide.php:442
 #, php-format
 msgid "Select a size guide or %s."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:374
+#: includes/WooCommerce/class-size-guide.php:444
 msgid "create a new one"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:422
-#: includes/WooCommerce/class-size-guide.php:451
+#: includes/WooCommerce/class-size-guide.php:492
+#: includes/WooCommerce/class-size-guide.php:521
 msgid "-- None --"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:431
-#: includes/WooCommerce/class-size-guide.php:461
+#: includes/WooCommerce/class-size-guide.php:501
+#: includes/WooCommerce/class-size-guide.php:531
 msgid "Assign a size guide to all products in this category."
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:204
-msgid "Dismiss"
-msgstr ""
-
-#: includes/WooCommerce/class-social-proof.php:233
-msgid "Social Proof preview: ON"
-msgstr ""
-
-#: includes/WooCommerce/class-social-proof.php:236
-msgid "Click to manage Social Proof settings"
-msgstr ""
-
 #. translators: %s: human-readable time difference, e.g. "5 minutes".
-#: includes/WooCommerce/class-social-proof.php:745
+#: includes/WooCommerce/class-social-proof-purchase.php:178
 #, php-format
 msgid "%s ago"
 msgstr ""
 
 #. translators: %s: product title.
-#: includes/WooCommerce/class-social-proof.php:811
+#: includes/WooCommerce/class-social-proof-purchase.php:244
 #, php-format
 msgid "Selling well — %s"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:917
+#: includes/WooCommerce/class-social-proof-purchase.php:350
 msgid "Someone"
 msgstr ""
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:927
+#: includes/WooCommerce/class-social-proof-purchase.php:360
 #, php-format
 msgid "%1$s in %2$s purchased %3$s"
 msgstr ""
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:930
+#: includes/WooCommerce/class-social-proof-purchase.php:363
 #, php-format
 msgid "%1$s from %2$s purchased %3$s"
 msgstr ""
 
 #. translators: 1: subject, 2: product.
-#: includes/WooCommerce/class-social-proof.php:934
+#: includes/WooCommerce/class-social-proof-purchase.php:367
 #, php-format
 msgid "%1$s purchased %2$s"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:1013
+#: includes/WooCommerce/class-social-proof-purchase.php:446
 msgid "preview"
 msgstr ""
 
-#: includes/WooCommerce/class-social-proof.php:1020
+#: includes/WooCommerce/class-social-proof-purchase.php:453
 msgid "just now"
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:33
+msgid "Always-on brand trust signals from your Trust Messages list. Works at zero orders."
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:36
+msgid "Real Purchases"
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:37
+msgid "Anonymized recent orders. Skipped silently when you have no eligible orders."
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:41
+msgid "Short-term promos / seasonal copy from your Announcements list."
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:44
+msgid "Engagement (sales signal)"
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof-settings.php:45
+msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof.php:207
+msgid "Dismiss"
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof.php:236
+msgid "Social Proof preview: ON"
+msgstr ""
+
+#: includes/WooCommerce/class-social-proof.php:239
+msgid "Click to manage Social Proof settings"
 msgstr ""
 
 #: includes/WooCommerce/class-sticky-add-to-cart.php:137
@@ -3449,6 +3286,174 @@ msgstr ""
 
 #: includes/WooCommerce/class-sticky-add-to-cart.php:138
 msgid "Error adding to cart"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:36
+msgid "Variable Product Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:37
+msgid "Choose"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:38
+msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:42
+msgid "Simple Product Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:43
+#: src/blocks-interactivity/wishlist-item-actions/render.php:19
+#: src/blocks-interactivity/wishlist-item-actions/render.php:21
+msgid "Add to Cart"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:44
+msgid "Product-card button text for simple products that can be added directly."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:48
+msgid "Out of Stock Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:50
+msgid "Button text shown when product-card or sticky-cart products are out of stock."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:54
+msgid "Filter Toggle Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:56
+msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:60
+msgid "Load More Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:61
+msgid "Load More Products"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:62
+msgid "Button text for loading the next page of catalog products."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:66
+msgid "Quick View Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:68
+msgid "Label used by Quick View triggers on product cards."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:72
+msgid "Buy Now Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:73
+msgid "Buy Now"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:74
+msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:78
+msgid "View Cart Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:79
+msgid "View Cart"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:80
+msgid "Button text shown after an item is added to the cart."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:84
+msgid "Continue Shopping Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:85
+msgid "Continue Shopping"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:86
+msgid "Button text for closing post-cart panels and returning to browsing."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:90
+msgid "View Product Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:91
+msgid "View Full Product"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:92
+msgid "Link text for opening the full product page from custom overlays."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:96
+msgid "Back in Stock Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:97
+msgid "Notify Me"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:98
+msgid "Button and badge text for out-of-stock notification signups."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:102
+msgid "Wishlist Button Text"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:103
+#: src/blocks-interactivity/wishlist-button/render.php:62
+msgid "Add to Wishlist"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:104
+msgid "Accessible label and optional visible text for wishlist buttons."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:108
+msgid "Variable Price Prefix"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:109
+#: includes/WooCommerce/class-store-copy.php:114
+msgid "From"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:110
+msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:111
+msgid "No prefix"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:115
+msgid "Starting at"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:116
+msgid "As low as"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:117
+msgid "Priced from"
+msgstr ""
+
+#: includes/WooCommerce/class-store-copy.php:118
+msgid "Now from"
 msgstr ""
 
 #: includes/WooCommerce/class-swatch-tooltips.php:107
@@ -6999,6 +7004,7 @@ msgstr ""
 #: src/blocks-interactivity/product-tabs/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
 #: src/blocks/product-rating/block.json
+#: src/blocks/size-guide/block.json
 msgctxt "block keyword"
 msgid "product"
 msgstr ""
@@ -7078,6 +7084,7 @@ msgstr ""
 #: src/blocks-interactivity/product-tabs/block.json
 #: src/blocks-interactivity/store-notices/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
+#: src/blocks/size-guide/block.json
 msgctxt "block keyword"
 msgid "woocommerce"
 msgstr ""
@@ -7949,6 +7956,31 @@ msgstr ""
 #: src/blocks/product-rating/block.json
 msgctxt "block keyword"
 msgid "stars"
+msgstr ""
+
+#: src/blocks/size-guide/block.json
+msgctxt "block title"
+msgid "Size Guide"
+msgstr ""
+
+#: src/blocks/size-guide/block.json
+msgctxt "block description"
+msgid "Displays the size guide assigned to the current product in an accessible modal."
+msgstr ""
+
+#: src/blocks/size-guide/block.json
+msgctxt "block keyword"
+msgid "size guide"
+msgstr ""
+
+#: src/blocks/size-guide/block.json
+msgctxt "block keyword"
+msgid "sizing"
+msgstr ""
+
+#: src/blocks/size-guide/block.json
+msgctxt "block keyword"
+msgid "measurements"
 msgstr ""
 
 #: src/blocks/split-story-content/block.json

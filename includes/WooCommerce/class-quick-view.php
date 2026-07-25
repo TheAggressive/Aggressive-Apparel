@@ -43,11 +43,20 @@ class Quick_View {
 	}
 
 	/**
-	 * Extend the Store API product response with per-variation prices.
+	 * Extend the Store API product response with per-variation prices + stock.
 	 *
 	 * The embedded variations in the Store API only include id + attributes.
-	 * This adds a keyed map of variation prices so the quick view JS can
-	 * read them directly — same pattern as the sticky cart PHP data.
+	 * This adds a keyed map of variation prices (and an `is_in_stock` flag) so
+	 * the quick view JS can read them directly — same pattern as the sticky
+	 * cart PHP data.
+	 *
+	 * Staleness note: this payload is cached for {@see $ttl}, so the
+	 * `is_in_stock` flag can lag real inventory by up to that window. The flag
+	 * only drives an *advisory* UX affordance (dimming sold-out option
+	 * combinations). Purchase correctness never depends on it: add-to-cart goes
+	 * through the WooCommerce Store API, which re-validates stock server-side
+	 * and rejects an out-of-stock variation regardless of what the client
+	 * showed. Keep the TTL modest so the affordance stays roughly accurate.
 	 *
 	 * @return void
 	 */
@@ -57,7 +66,7 @@ class Quick_View {
 			array( $this, 'get_variation_prices_data' ),
 			array(
 				'cache' => true,
-				'ttl'   => 15 * MINUTE_IN_SECONDS,
+				'ttl'   => 5 * MINUTE_IN_SECONDS,
 			)
 		);
 	}
@@ -66,7 +75,7 @@ class Quick_View {
 	 * Build per-variation price data for the Store API extension.
 	 *
 	 * @param \WC_Product $product The product object.
-	 * @return array<int, array{price: string, regular_price: string, sale_price: string, currency_minor_unit: int, currency_prefix: string, currency_suffix: string}> Keyed by variation ID.
+	 * @return array<int, array{price: string, regular_price: string, sale_price: string, currency_minor_unit: int, currency_prefix: string, currency_suffix: string, is_in_stock: bool}> Keyed by variation ID.
 	 */
 	public function get_variation_prices_data( \WC_Product $product ): array {
 		if ( ! $product instanceof \WC_Product_Variable ) {
@@ -111,6 +120,9 @@ class Quick_View {
 				'currency_minor_unit' => $decimals,
 				'currency_prefix'     => $prefix,
 				'currency_suffix'     => $suffix,
+				// Per-variation stock so the client can dim option combinations
+				// that exist but are sold out (matches the sticky cart + filters).
+				'is_in_stock'         => $variation->is_in_stock(),
 			);
 		}
 
@@ -381,6 +393,7 @@ class Quick_View {
 						'addToCartError'       => __( 'Could not add to cart.', 'aggressive-apparel' ),
 						/* translators: %s: error message from the cart API. */
 						'errorAnnounce'        => __( 'Error: %s', 'aggressive-apparel' ),
+						'unavailableLabel'     => __( 'Unavailable', 'aggressive-apparel' ),
 					),
 				),
 			);
@@ -742,10 +755,12 @@ class Quick_View {
 														class="aggressive-apparel-quick-view__attribute-option is-color-swatch"
 														data-wp-on--click="actions.selectAttribute"
 														data-wp-class--is-selected="state.isOptionSelected"
+														data-wp-class--is-unavailable="state.isOptionUnavailable"
+														data-wp-bind--aria-disabled="state.isOptionUnavailable"
 														data-wp-style--background-color="state.colorSwatchValue"
 														data-wp-init="callbacks.syncSwatchColor"
 														data-wp-bind--title="state.colorSwatchName"
-														data-wp-bind--aria-label="state.colorSwatchName"
+														data-wp-bind--aria-label="state.optionAccessibleName"
 														data-wp-bind--aria-pressed="state.isOptionSelected"
 													><span class="screen-reader-text" data-wp-text="state.colorSwatchName"></span></button>
 												</template>
@@ -764,6 +779,9 @@ class Quick_View {
 														class="aggressive-apparel-quick-view__attribute-option"
 														data-wp-on--click="actions.selectAttribute"
 														data-wp-class--is-selected="state.isOptionSelected"
+														data-wp-class--is-unavailable="state.isOptionUnavailable"
+														data-wp-bind--aria-disabled="state.isOptionUnavailable"
+														data-wp-bind--aria-label="state.optionAccessibleName"
 														data-wp-bind--aria-pressed="state.isOptionSelected"
 													><span class="aggressive-apparel-quick-view__option-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aggressive-apparel-quick-view__option-name" data-wp-text="context.item.name"></span></button>
 												</template>

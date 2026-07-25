@@ -110,11 +110,19 @@ function formatPrice(prices: StoreApiPrices | null): string {
  * existing single-value (minimum) formatting.
  */
 function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
+  // Seeded by PHP; read via cast because these keys are intentionally omitted
+  // from the store literal below — the client literal is deep-merged over the
+  // server state with override, so a default here would clobber the seeded
+  // value (the same bug that hid the "From $X" collapse in Quick View).
+  const priceCfg = state as unknown as {
+    collapseVariablePrice: boolean;
+    priceStartingPrefix: string;
+  };
   const fromPrice =
-    state.collapseVariablePrice && product.type === 'variable'
+    priceCfg.collapseVariablePrice && product.type === 'variable'
       ? formatVariablePriceRange(product.prices, {
           collapse: true,
-          prefix: state.priceStartingPrefix,
+          prefix: priceCfg.priceStartingPrefix,
         })
       : null;
 
@@ -229,8 +237,9 @@ const { state } = store('aggressive-apparel/wishlist', {
   state: {
     // Provided by PHP via wp_interactivity_state().
     productsApiUrl: '',
-    collapseVariablePrice: false,
-    priceStartingPrefix: '',
+    // collapseVariablePrice / priceStartingPrefix are intentionally NOT seeded
+    // here — see toWishlistItem(): a client default clobbers the PHP-seeded
+    // value on merge, so we omit them and read the server value via cast.
     i18n: {} as WishlistI18n,
 
     // Reactive mirror of localStorage — drives all UI updates instantly.

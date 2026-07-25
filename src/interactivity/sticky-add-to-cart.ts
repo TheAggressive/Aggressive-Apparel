@@ -22,6 +22,13 @@ import {
 } from '@aggressive-apparel/use-overlay';
 import { matchVariation } from '@aggressive-apparel/helpers';
 import type { Variation } from '@aggressive-apparel/helpers';
+import {
+  buildSelectedVariationPayload,
+  hasSelectedRequiredAttributes,
+  readFormAttributes,
+  restoreInlineProperty,
+  syncDrawerOptions,
+} from './sticky-add-to-cart/dom';
 
 interface StickyCartState {
   isVisible: boolean;
@@ -80,6 +87,7 @@ interface StickyCartLabels {
   addedToCartMessage?: string;
   addedSuccessAnnounce?: string;
   addToCartErrorAnnounce?: string;
+  unavailableLabel?: string;
 }
 
 interface CartAddBody {
@@ -95,7 +103,10 @@ interface ProductAttribute {
 /**
  * Resolve server-provided copy with a local fallback for cached markup.
  */
-function getLabel(key: keyof StickyCartLabels, fallback: string): string {
+export function getLabel(
+  key: keyof StickyCartLabels,
+  fallback: string
+): string {
   return state.i18n?.[key] || fallback;
 }
 
@@ -109,7 +120,7 @@ const FORM_SELECTORS: string = [
   '.variations_form',
 ].join(', ');
 
-const ATTR_SELECTORS: string = [
+export const ATTR_SELECTORS: string = [
   'select[data-attribute_name]',
   'select[name^="attribute_"]',
   'input[name^="attribute_"]:checked',
@@ -142,158 +153,13 @@ export function shouldShowStickyCart(
   );
 }
 
-/**
- * Restore an inline custom property without disturbing its stylesheet value.
- */
-function restoreInlineProperty(
-  element: HTMLElement,
-  property: string,
-  previousValue: string
-): void {
-  if (previousValue) {
-    element.style.setProperty(property, previousValue);
-  } else {
-    element.style.removeProperty(property);
-  }
-}
-
-/**
- * Read all current attribute selections from a form element.
- */
-function readFormAttributes(form: Element): Record<string, string> {
-  const attrs: Record<string, string> = {};
-  form
-    .querySelectorAll<HTMLSelectElement | HTMLInputElement>(ATTR_SELECTORS)
-    .forEach(el => {
-      const name = el.getAttribute('data-attribute_name') || el.name || '';
-      const value = el.value;
-      if (name && value) {
-        attrs[name] = value;
-      }
-    });
-  return attrs;
-}
-
-/**
- * Sync drawer pill button visual states with current selectedAttrs.
- */
-function syncDrawerOptions(): void {
-  document
-    .querySelectorAll<HTMLButtonElement>('.aa-sticky-cart__drawer-option')
-    .forEach(btn => {
-      const attrName = btn.dataset.attribute;
-      const attrValue = btn.dataset.value;
-      const isSelected =
-        attrName !== undefined &&
-        attrValue !== undefined &&
-        state.selectedAttrs[attrName] === attrValue;
-      btn.classList.toggle('is-selected', isSelected);
-
-      // Set --swatch-color for the color swatch selection ring.
-      if (
-        btn.classList.contains('is-color-swatch') &&
-        btn.style.backgroundColor
-      ) {
-        btn.style.setProperty('--swatch-color', btn.style.backgroundColor);
-      }
-    });
-}
-
-/**
- * Variable products should only submit once every configured attribute
- * has a selected value. A matched variation alone is not enough because
- * WooCommerce can expose "Any ..." variation attributes as empty strings.
- */
-function hasSelectedRequiredAttributes(): boolean {
-  if (state.productType !== 'variable') {
-    return true;
-  }
-
-  const requiredAttributes = (state.attributes || [])
-    .map(attr => attr.name)
-    .filter(Boolean);
-
-  if (requiredAttributes.length === 0) {
-    return !!state.matchedVariationId;
-  }
-
-  return requiredAttributes.every(attrName => {
-    const selectedValue =
-      state.selectedAttrs[attrName] ||
-      state.selectedAttrs[attrName.replace(/^attribute_/, '')] ||
-      state.selectedAttrs[`attribute_${attrName}`];
-
-    return !!selectedValue;
-  });
-}
-
-/**
- * Build the Store API variation payload from the user's actual selected
- * attributes, not only the matched variation record. This keeps "Any ..."
- * variations valid because WooCommerce still receives the selected option.
- */
-function buildSelectedVariationPayload(): Array<{
-  attribute: string;
-  value: string;
-}> {
-  const requiredAttributes = (state.attributes || [])
-    .map(attr => attr.name)
-    .filter(Boolean);
-
-  if (requiredAttributes.length > 0) {
-    return requiredAttributes
-      .map(attrName => {
-        const value =
-          state.selectedAttrs[attrName] ||
-          state.selectedAttrs[attrName.replace(/^attribute_/, '')] ||
-          state.selectedAttrs[`attribute_${attrName}`] ||
-          '';
-
-        return {
-          attribute: attrName.replace(/^attribute_/, ''),
-          value,
-        };
-      })
-      .filter(item => item.value);
-  }
-
-  const matchedVar = state.variations.find(
-    (v: Variation) => v.id === state.matchedVariationId
-  );
-
-  if (!matchedVar || !matchedVar.attributes) {
-    return [];
-  }
-
-  if (Array.isArray(matchedVar.attributes)) {
-    return matchedVar.attributes
-      .filter(attr => attr.value)
-      .map(attr => ({
-        attribute: attr.attribute || attr.name || attr.taxonomy || '',
-        value: attr.value || '',
-      }))
-      .filter(item => item.attribute && item.value);
-  }
-
-  return Object.entries(matchedVar.attributes as Record<string, string>)
-    .filter(([, val]: [string, string]) => val)
-    .map(([key, val]: [string, string]) => ({
-      attribute: key.replace(/^attribute_/, ''),
-      value: val,
-    }));
-}
-
-/* ---------------------------------------------------------------
- * Interactivity store
- * ------------------------------------------------------------- */
-
 interface StickyCartStore {
   state: StickyCartState;
   actions: InteractivityActions;
   callbacks: InteractivityCallbacks;
 }
 
-const { state, actions } = store<StickyCartStore>(
+export const { state, actions } = store<StickyCartStore>(
   'aggressive-apparel/sticky-add-to-cart',
   {
     state: {
@@ -735,6 +601,10 @@ const { state, actions } = store<StickyCartStore>(
           '.aa-sticky-cart__drawer-option'
         );
         if (!button) return;
+
+        // Unavailable options are aria-disabled (still focusable), not natively
+        // disabled, so a keyboard/AT activation can reach here — reject it.
+        if (button.getAttribute('aria-disabled') === 'true') return;
 
         const attrName = button.dataset.attribute;
         const clickedValue = button.dataset.value;

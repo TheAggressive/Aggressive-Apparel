@@ -124,11 +124,10 @@
 			}
 		}
 
-		/* Disabled / out of stock. */
+		/* Disabled / out of stock — dim only, no strike-through. */
 		&:disabled {
 			opacity: 0.4;
 			cursor: not-allowed;
-			text-decoration: line-through;
 
 			&::before {
 				display: none;

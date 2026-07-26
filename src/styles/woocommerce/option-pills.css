@@ -206,8 +206,8 @@
  * 4b. Unavailable options
  *
  * An option with no in-stock variation for the current selection is dimmed and
- * non-interactive (the button also carries the `disabled` attribute). Mirrors
- * the archive filters' unavailable treatment so both surfaces read alike. The
+ * non-interactive (the button is aria-disabled). No strike-through or slash —
+ * just the dim — so both pills and color swatches read alike. The
  * currently-selected option is never marked unavailable, so it stays toggleable.
  * ----------------------------------------------- */
 
@@ -215,28 +215,6 @@
 .aa-sticky-cart__drawer-option.is-unavailable {
 	opacity: 0.35;
 	cursor: not-allowed;
-}
-
-.aggressive-apparel-quick-view__attribute-option.is-unavailable .aggressive-apparel-quick-view__option-name,
-.aa-sticky-cart__drawer-option.is-unavailable .aa-sticky-cart__drawer-option-name {
-	text-decoration: line-through;
-}
-
-/* Color swatches keep their colour but gain a diagonal slash. */
-.aggressive-apparel-quick-view__attribute-option.is-color-swatch.is-unavailable::after,
-.aa-sticky-cart__drawer-option.is-color-swatch.is-unavailable::after {
-	display: block;
-	content: "";
-	position: absolute;
-	inset: 0;
-	border-radius: 50%;
-	background: linear-gradient(
-		to top left,
-		transparent calc(50% - 1px),
-		var(--aa-color-foreground) calc(50% - 1px),
-		var(--aa-color-foreground) calc(50% + 1px),
-		transparent calc(50% + 1px)
-	);
 }
 
 /* -----------------------------------------------

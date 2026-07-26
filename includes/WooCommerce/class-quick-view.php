@@ -762,7 +762,7 @@ class Quick_View {
 														data-wp-bind--title="state.colorSwatchName"
 														data-wp-bind--aria-label="state.optionAccessibleName"
 														data-wp-bind--aria-pressed="state.isOptionSelected"
-													><span class="screen-reader-text" data-wp-text="state.colorSwatchName"></span></button>
+													></button>
 												</template>
 											</div>
 										</div>

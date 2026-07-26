@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-07-24T18:19:10+00:00\n"
+"POT-Creation-Date: 2026-07-25T18:19:10+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -116,7 +116,7 @@ msgid "PLP headers, filters, and browse recovery states."
 msgstr "PLP-Header, Filter und Status der Wiederherstellung nach dem Durchsuchen."
 
 #: includes/Core/class-block-categories.php:88
-#: includes/WooCommerce/class-feature-settings.php:384
+#: includes/WooCommerce/class-feature-settings.php:387
 #, aa-mt
 msgid "Product Page"
 msgstr "Produktseite"
@@ -710,7 +710,7 @@ msgid "Ghost"
 msgstr "Geist"
 
 #: includes/Core/class-theme-support.php:176
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:429
+#: includes/WooCommerce/class-badge-admin-fields.php:102
 #, aa-mt
 msgid "Text"
 msgstr "Text"
@@ -769,7 +769,7 @@ msgid "Brand Stripe"
 msgstr "Markenstreifen"
 
 #: includes/Core/class-theme-support.php:305
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1171
+#: includes/WooCommerce/class-badge-system-defaults.php:29
 #, aa-mt
 msgid "Badge"
 msgstr "Abzeichen"
@@ -1208,7 +1208,7 @@ msgid "All statuses"
 msgstr "Alle Status"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:450
-#: includes/WooCommerce/class-feature-settings.php:535
+#: includes/WooCommerce/class-store-copy.php:55
 #: src/blocks-interactivity/filter-toggle/render.php:56
 #, aa-mt
 msgid "Filter"
@@ -1339,6 +1339,293 @@ msgstr "Geben Sie Ihre E-Mail-Adresse ein"
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr "Ich bin damit einverstanden, eine einmalige E-Mail zu erhalten, sobald dieses Produkt wieder vorrätig ist."
 
+#: includes/WooCommerce/class-badge-admin-fields.php:74
+#, aa-mt
+msgid "Live Preview"
+msgstr "Live-Vorschau"
+
+#. translators: %s: system badge type name.
+#: includes/WooCommerce/class-badge-admin-fields.php:89
+#, php-format, aa-mt
+msgid "System badge: %s — applied automatically by product conditions. Restyle it freely below."
+msgstr "System-Badge: %s — wird automatisch gemäß den Produktbedingungen angewendet. Sie können es unten nach Belieben anpassen."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:98
+#, aa-mt
+msgid "Colors"
+msgstr "Farben"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:101
+#, aa-mt
+msgid "Background"
+msgstr "Hintergrund"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:108
+#: includes/WooCommerce/class-product-tabs-admin.php:772
+#: includes/WooCommerce/class-product-tabs-admin.php:859
+#, aa-mt
+msgid "Icon"
+msgstr "Symbol"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:109
+#, aa-mt
+msgid "Choose one icon source. It appears before the badge text."
+msgstr "Wählen Sie eine Symbolquelle aus. Diese wird vor dem Badge-Text angezeigt."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:111
+#, aa-mt
+msgid "Icon source"
+msgstr "Quelle des Symbols"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:114
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:823
+#: includes/WooCommerce/class-feature-settings-fields.php:413
+#, aa-mt
+msgid "None"
+msgstr "Keine"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:115
+#, aa-mt
+msgid "Emoji"
+msgstr "Emoji"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:116
+#, aa-mt
+msgid "Library"
+msgstr "Bibliothek"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:117
+#, aa-mt
+msgid "Custom SVG"
+msgstr "Benutzerdefiniertes SVG"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:132
+#, aa-mt
+msgid "Emoji / Character"
+msgstr "Emoji / Zeichen"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:136
+#, aa-mt
+msgid "Library Icon"
+msgstr "Bibliothekssymbol"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:142
+#, aa-mt
+msgid "Custom SVG markup"
+msgstr "Benutzerdefiniertes SVG-Markup"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:144
+#, aa-mt
+msgid "Paste raw SVG. Sanitized on save."
+msgstr "Rohes SVG einfügen. Wird beim Speichern bereinigt."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:149
+#, aa-mt
+msgid "Icon Color"
+msgstr "Symbolfarbe"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:149
+#, aa-mt
+msgid "Empty = inherit text color."
+msgstr "Leer = Textfarbe übernehmen."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:150
+#, aa-mt
+msgid "Icon Size (px)"
+msgstr "Symbolgröße (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:150
+#, aa-mt
+msgid "0 = auto (matches text)."
+msgstr "0 = automatisch (Text wird abgeglichen)."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:151
+#, aa-mt
+msgid "Icon Spacing (px)"
+msgstr "Symbolabstand (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:151
+#, aa-mt
+msgid "Gap between icon and text."
+msgstr "Abstand zwischen Symbol und Text."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:157
+#, aa-mt
+msgid "Border"
+msgstr "Grenze"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:160
+#: includes/WooCommerce/class-color-admin-ui.php:99
+#: includes/WooCommerce/class-color-admin-ui.php:155
+#: includes/WooCommerce/class-color-admin-ui.php:329
+#: includes/WooCommerce/class-product-filter-renderer.php:50
+#: includes/WooCommerce/class-product-filter-renderer.php:158
+#, aa-mt
+msgid "Color"
+msgstr "Farbe"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:160
+#, aa-mt
+msgid "Empty = no border."
+msgstr "Leer = kein Rahmen."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:161
+#, aa-mt
+msgid "Width (px)"
+msgstr "Breite (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:162
+#, aa-mt
+msgid "Style"
+msgstr "Stil"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:168
+#, aa-mt
+msgid "Shape & Spacing"
+msgstr "Form und Abstand"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:171
+#, aa-mt
+msgid "Corner Radius (px)"
+msgstr "Eckenradius (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:174
+#, aa-mt
+msgid "TL"
+msgstr "TL"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:175
+#, aa-mt
+msgid "TR"
+msgstr "TR"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:176
+#, aa-mt
+msgid "BR"
+msgstr "BR"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:177
+#, aa-mt
+msgid "BL"
+msgstr "BL"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:182
+#, aa-mt
+msgid "Padding (px)"
+msgstr "Abstand (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:185
+#, aa-mt
+msgid "X"
+msgstr "X"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:186
+#, aa-mt
+msgid "Y"
+msgstr "Y"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:194
+#, aa-mt
+msgid "Placement"
+msgstr "Platzierung"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:197
+#, aa-mt
+msgid "Position"
+msgstr "Position"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:197
+#, aa-mt
+msgid "Corner of the product image."
+msgstr "Ecke des Produktbildes."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:198
+#: includes/WooCommerce/class-product-tabs-admin.php:616
+#: includes/WooCommerce/class-product-tabs-admin.php:865
+#, aa-mt
+msgid "Priority"
+msgstr "Priorität"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:198
+#, aa-mt
+msgid "Lower shows first."
+msgstr "Zuerst wird der untere angezeigt."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:307
+#, aa-mt
+msgid "Badge Name"
+msgstr "Name des Abzeichens"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:28
+#: includes/WooCommerce/class-feature-settings.php:412
+#, aa-mt
+msgid "Product Badges"
+msgstr "Produkt-Badges"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:30
+#, aa-mt
+msgid "Badges"
+msgstr "Abzeichen"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:31
+#, aa-mt
+msgid "Add New Badge"
+msgstr "Neues Abzeichen hinzufügen"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:32
+#, aa-mt
+msgid "Edit Badge"
+msgstr "Abzeichen bearbeiten"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:33
+#, aa-mt
+msgid "New Badge Name"
+msgstr "Name des neuen Abzeichens"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:34
+#, aa-mt
+msgid "Search Badges"
+msgstr "Suchabzeichen"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:35
+#, aa-mt
+msgid "No badges found."
+msgstr "Es wurden keine Abzeichen gefunden."
+
+#: includes/WooCommerce/class-badge-system-defaults.php:36
+#, aa-mt
+msgid "All Badges"
+msgstr "Alle Abzeichen"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:37
+#, aa-mt
+msgid "Back to Badges"
+msgstr "Zurück zu den Abzeichen"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:127
+#: patterns/design-system-preview.php:85 patterns/footer-columns.php:49
+#: patterns/mega-menu-panel.php:64
+#, aa-mt
+msgid "Sale"
+msgstr "Ausverkauf"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:138
+#: patterns/design-system-preview.php:89
+#, aa-mt
+msgid "New"
+msgstr "Neu"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:149
+#: patterns/design-system-preview.php:93
+#, aa-mt
+msgid "Low Stock"
+msgstr "Geringer Lagerbestand"
+
+#: includes/WooCommerce/class-badge-system-defaults.php:160
+#, aa-mt
+msgid "Bestseller"
+msgstr "Bestseller"
+
 #: includes/WooCommerce/class-color-admin-ui.php:85
 #: includes/WooCommerce/class-color-admin-ui.php:137
 #, aa-mt
@@ -1356,16 +1643,6 @@ msgstr "Einfarbig"
 #, aa-mt
 msgid "Pattern"
 msgstr "Muster"
-
-#: includes/WooCommerce/class-color-admin-ui.php:99
-#: includes/WooCommerce/class-color-admin-ui.php:155
-#: includes/WooCommerce/class-color-admin-ui.php:329
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:487
-#: includes/WooCommerce/class-product-filter-renderer.php:50
-#: includes/WooCommerce/class-product-filter-renderer.php:158
-#, aa-mt
-msgid "Color"
-msgstr "Farbe"
 
 #: includes/WooCommerce/class-color-admin-ui.php:101
 #: includes/WooCommerce/class-color-admin-ui.php:159
@@ -1502,297 +1779,20 @@ msgstr "Es wurde kein Muster hochgeladen."
 msgid "Upload a pattern image to use instead of a solid color. Recommended size: 100x100px or larger square images."
 msgstr "Laden Sie ein Musterbild hoch, das anstelle einer einfarbigen Fläche verwendet werden soll. Empfohlene Größe: quadratische Bilder mit mindestens 100 x 100 Pixel."
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:401
-#, aa-mt
-msgid "Live Preview"
-msgstr "Live-Vorschau"
-
-#. translators: %s: system badge type name.
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:416
-#, php-format, aa-mt
-msgid "System badge: %s — applied automatically by product conditions. Restyle it freely below."
-msgstr "System-Badge: %s — wird automatisch gemäß den Produktbedingungen angewendet. Sie können es unten nach Belieben anpassen."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:425
-#, aa-mt
-msgid "Colors"
-msgstr "Farben"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:428
-#, aa-mt
-msgid "Background"
-msgstr "Hintergrund"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:435
-#: includes/WooCommerce/class-product-tabs-admin.php:772
-#: includes/WooCommerce/class-product-tabs-admin.php:859
-#, aa-mt
-msgid "Icon"
-msgstr "Symbol"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:436
-#, aa-mt
-msgid "Choose one icon source. It appears before the badge text."
-msgstr "Wählen Sie eine Symbolquelle aus. Diese wird vor dem Badge-Text angezeigt."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:438
-#, aa-mt
-msgid "Icon source"
-msgstr "Quelle des Symbols"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:441
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1151
-#: includes/WooCommerce/class-feature-settings-fields.php:413
-#, aa-mt
-msgid "None"
-msgstr "Keine"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:442
-#, aa-mt
-msgid "Emoji"
-msgstr "Emoji"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:443
-#, aa-mt
-msgid "Library"
-msgstr "Bibliothek"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:444
-#, aa-mt
-msgid "Custom SVG"
-msgstr "Benutzerdefiniertes SVG"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:459
-#, aa-mt
-msgid "Emoji / Character"
-msgstr "Emoji / Zeichen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:463
-#, aa-mt
-msgid "Library Icon"
-msgstr "Bibliothekssymbol"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:469
-#, aa-mt
-msgid "Custom SVG markup"
-msgstr "Benutzerdefiniertes SVG-Markup"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:471
-#, aa-mt
-msgid "Paste raw SVG. Sanitized on save."
-msgstr "Rohes SVG einfügen. Wird beim Speichern bereinigt."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:476
-#, aa-mt
-msgid "Icon Color"
-msgstr "Symbolfarbe"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:476
-#, aa-mt
-msgid "Empty = inherit text color."
-msgstr "Leer = Textfarbe übernehmen."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:477
-#, aa-mt
-msgid "Icon Size (px)"
-msgstr "Symbolgröße (px)"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:477
-#, aa-mt
-msgid "0 = auto (matches text)."
-msgstr "0 = automatisch (Text wird abgeglichen)."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:478
-#, aa-mt
-msgid "Icon Spacing (px)"
-msgstr "Symbolabstand (px)"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:478
-#, aa-mt
-msgid "Gap between icon and text."
-msgstr "Abstand zwischen Symbol und Text."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:484
-#, aa-mt
-msgid "Border"
-msgstr "Grenze"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:487
-#, aa-mt
-msgid "Empty = no border."
-msgstr "Leer = kein Rahmen."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:488
-#, aa-mt
-msgid "Width (px)"
-msgstr "Breite (px)"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:489
-#, aa-mt
-msgid "Style"
-msgstr "Stil"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:495
-#, aa-mt
-msgid "Shape & Spacing"
-msgstr "Form und Abstand"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:498
-#, aa-mt
-msgid "Corner Radius (px)"
-msgstr "Eckenradius (px)"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:501
-#, aa-mt
-msgid "TL"
-msgstr "TL"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:502
-#, aa-mt
-msgid "TR"
-msgstr "TR"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:503
-#, aa-mt
-msgid "BR"
-msgstr "BR"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:504
-#, aa-mt
-msgid "BL"
-msgstr "BL"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:509
-#, aa-mt
-msgid "Padding (px)"
-msgstr "Abstand (px)"
-
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:512
-#, aa-mt
-msgid "X"
-msgstr "X"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:513
-#, aa-mt
-msgid "Y"
-msgstr "Y"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:521
-#, aa-mt
-msgid "Placement"
-msgstr "Platzierung"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:524
-#, aa-mt
-msgid "Position"
-msgstr "Position"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:524
-#, aa-mt
-msgid "Corner of the product image."
-msgstr "Ecke des Produktbildes."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:525
-#: includes/WooCommerce/class-product-tabs-admin.php:616
-#: includes/WooCommerce/class-product-tabs-admin.php:865
-#, aa-mt
-msgid "Priority"
-msgstr "Priorität"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:525
-#, aa-mt
-msgid "Lower shows first."
-msgstr "Zuerst wird der untere angezeigt."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:634
-#, aa-mt
-msgid "Badge Name"
-msgstr "Name des Abzeichens"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:840
 #, aa-mt
 msgid "Preview"
 msgstr "Vorschau"
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:841
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:513
 #, aa-mt
 msgid "Type"
 msgstr "Typ"
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:872
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:544
 #, aa-mt
 msgid "Custom"
 msgstr "Benutzerdefiniert"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1170
-#: includes/WooCommerce/class-feature-settings.php:409
-#, aa-mt
-msgid "Product Badges"
-msgstr "Produkt-Badges"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1172
-#, aa-mt
-msgid "Badges"
-msgstr "Abzeichen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1173
-#, aa-mt
-msgid "Add New Badge"
-msgstr "Neues Abzeichen hinzufügen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1174
-#, aa-mt
-msgid "Edit Badge"
-msgstr "Abzeichen bearbeiten"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1175
-#, aa-mt
-msgid "New Badge Name"
-msgstr "Name des neuen Abzeichens"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1176
-#, aa-mt
-msgid "Search Badges"
-msgstr "Suchabzeichen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1177
-#, aa-mt
-msgid "No badges found."
-msgstr "Es wurden keine Abzeichen gefunden."
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1178
-#, aa-mt
-msgid "All Badges"
-msgstr "Alle Abzeichen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1179
-#, aa-mt
-msgid "Back to Badges"
-msgstr "Zurück zu den Abzeichen"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1269
-#: patterns/design-system-preview.php:85 patterns/footer-columns.php:49
-#: patterns/mega-menu-panel.php:64
-#, aa-mt
-msgid "Sale"
-msgstr "Ausverkauf"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1280
-#: patterns/design-system-preview.php:89
-#, aa-mt
-msgid "New"
-msgstr "Neu"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1291
-#: patterns/design-system-preview.php:93
-#, aa-mt
-msgid "Low Stock"
-msgstr "Geringer Lagerbestand"
-
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:1302
-#, aa-mt
-msgid "Bestseller"
-msgstr "Bestseller"
 
 #: includes/WooCommerce/class-feature-settings-fields.php:132
 #, aa-mt
@@ -2238,13 +2238,13 @@ msgid "Notification Sources"
 msgstr "Benachrichtigungsquellen"
 
 #: includes/WooCommerce/class-feature-settings-page.php:414
-#: includes/WooCommerce/class-feature-settings.php:986
+#: includes/WooCommerce/class-social-proof-settings.php:32
 #, aa-mt
 msgid "Trust Messages"
 msgstr "Vertrauensnachrichten"
 
 #: includes/WooCommerce/class-feature-settings-page.php:419
-#: includes/WooCommerce/class-feature-settings.php:994
+#: includes/WooCommerce/class-social-proof-settings.php:40
 #, aa-mt
 msgid "Custom Announcements"
 msgstr "Individuelle Ankündigungen"
@@ -2305,152 +2305,151 @@ msgstr "%1$d von %2$d Funktionen aktiviert"
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
-#: includes/WooCommerce/class-feature-settings.php:382
+#: includes/WooCommerce/class-feature-settings.php:385
 #, aa-mt
 msgid "Catalog & Browsing"
 msgstr "Katalog & Stöbern"
 
-#: includes/WooCommerce/class-feature-settings.php:383
+#: includes/WooCommerce/class-feature-settings.php:386
 #, aa-mt
 msgid "Store Copy"
 msgstr "Kopie speichern"
 
-#: includes/WooCommerce/class-feature-settings.php:385
+#: includes/WooCommerce/class-feature-settings.php:388
 #, aa-mt
 msgid "Customer Engagement"
 msgstr "Kundenbindung"
 
-#: includes/WooCommerce/class-feature-settings.php:386
+#: includes/WooCommerce/class-feature-settings.php:389
 #, aa-mt
 msgid "Mobile & UI"
 msgstr "Mobile & Benutzeroberfläche"
 
-#: includes/WooCommerce/class-feature-settings.php:410
+#: includes/WooCommerce/class-feature-settings.php:413
 #, aa-mt
 msgid "Show sale percentage, \"New\", \"Low Stock\", and \"Bestseller\" badges on product cards."
 msgstr "Zeige auf den Produktkarten die Rabattprozentsätze sowie die Markierungen „Neu“, „Geringer Lagerbestand“ und „Bestseller“ an."
 
-#: includes/WooCommerce/class-feature-settings.php:414
+#: includes/WooCommerce/class-feature-settings.php:417
 #, aa-mt
 msgid "Smart Price Display"
 msgstr "Intelligente Preisanzeige"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:415
+#: includes/WooCommerce/class-feature-settings.php:418
 #, aa-mt
 msgid "Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix."
 msgstr "Fassen Sie variable Preisspannen auf Shop-Karten und Produktseiten zu einem einzigen Startpreis zusammen (z. B. „Ab 34,99 $“) und fügen Sie bei Artikeln im Sonderangebot den Hinweis „Sparen Sie X %“ hinzu. Legen Sie das Präfix unter „Store Copy“ → „Variable Price Prefix“ fest."
 
-#: includes/WooCommerce/class-feature-settings.php:419
+#: includes/WooCommerce/class-feature-settings.php:422
 #, aa-mt
 msgid "Advanced Sorting Options"
 msgstr "Erweiterte Sortieroptionen"
 
-#: includes/WooCommerce/class-feature-settings.php:420
+#: includes/WooCommerce/class-feature-settings.php:423
 #, aa-mt
 msgid "Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog."
 msgstr "Fügen Sie dem Produktkatalog die Sortieroptionen „Empfohlen“, „Größte Ersparnisse“ und „A–Z/Z–A“ hinzu."
 
-#: includes/WooCommerce/class-feature-settings.php:424
+#: includes/WooCommerce/class-feature-settings.php:427
 #, aa-mt
 msgid "Product Filters"
 msgstr "Produktfilter"
 
-#: includes/WooCommerce/class-feature-settings.php:425
+#: includes/WooCommerce/class-feature-settings.php:428
 #, aa-mt
 msgid "AJAX product filters with categories, color swatches, sizes, price range, and stock status."
 msgstr "AJAX-Produktfilter mit Kategorien, Farbmuster, Größen, Preisklassen und Lagerbestand."
 
-#: includes/WooCommerce/class-feature-settings.php:429
+#: includes/WooCommerce/class-feature-settings.php:432
 #, aa-mt
 msgid "Load More / Infinite Scroll"
 msgstr "Mehr laden / Unendliches Scrollen"
 
-#: includes/WooCommerce/class-feature-settings.php:430
+#: includes/WooCommerce/class-feature-settings.php:433
 #, aa-mt
 msgid "Replace pagination with a Load More button or automatic infinite scroll."
 msgstr "Ersetzen Sie die Paginierung durch eine Schaltfläche „Mehr laden“ oder einen automatischen Endlos-Scroll."
 
-#: includes/WooCommerce/class-feature-settings.php:434
+#: includes/WooCommerce/class-feature-settings.php:437
 #, aa-mt
 msgid "Page Transitions"
 msgstr "Seitenübergänge"
 
-#: includes/WooCommerce/class-feature-settings.php:435
+#: includes/WooCommerce/class-feature-settings.php:438
 #, aa-mt
 msgid "Smooth crossfade between pages with product image morphing (Chrome/Safari)."
 msgstr "Flüssiger Überblend-Effekt zwischen den Seiten mit Morphing der Produktbilder (Chrome/Safari)."
 
-#: includes/WooCommerce/class-feature-settings.php:439
+#: includes/WooCommerce/class-feature-settings.php:442
 #, aa-mt
 msgid "Catalog Hover Image"
 msgstr "Katalog-Hover-Bild"
 
-#: includes/WooCommerce/class-feature-settings.php:440
+#: includes/WooCommerce/class-feature-settings.php:443
 #, aa-mt
 msgid "Show the first gallery image on hover for products that have additional gallery photos."
 msgstr "Bei Produkten, die über weitere Galeriebilder verfügen, soll das erste Galeriebild beim Darüberfahren mit der Maus angezeigt werden."
 
-#: includes/WooCommerce/class-feature-settings.php:446
+#: includes/WooCommerce/class-feature-settings.php:449
 #: includes/WooCommerce/class-size-guide-post-type.php:77
-#: includes/WooCommerce/class-size-guide.php:155
-#: includes/WooCommerce/class-size-guide.php:173
-#: includes/WooCommerce/class-size-guide.php:311
-#: includes/WooCommerce/class-size-guide.php:361
-#: includes/WooCommerce/class-size-guide.php:420
-#: includes/WooCommerce/class-size-guide.php:448 patterns/footer-columns.php:83
+#: includes/WooCommerce/class-size-guide.php:158
+#: includes/WooCommerce/class-size-guide.php:201
+#: includes/WooCommerce/class-size-guide.php:381
+#: includes/WooCommerce/class-size-guide.php:431
+#: includes/WooCommerce/class-size-guide.php:490
+#: includes/WooCommerce/class-size-guide.php:518 patterns/footer-columns.php:83
 #, aa-mt
 msgid "Size Guide"
 msgstr "Größentabelle"
 
-#: includes/WooCommerce/class-feature-settings.php:447
+#: includes/WooCommerce/class-feature-settings.php:450
 #, aa-mt
 msgid "Manage reusable size guides and assign them to products or categories."
 msgstr "Verwalten Sie wiederverwendbare Größentabellen und ordnen Sie diese Produkten oder Kategorien zu."
 
-#: includes/WooCommerce/class-feature-settings.php:451
+#: includes/WooCommerce/class-feature-settings.php:454
 #, aa-mt
 msgid "Sticky Add to Cart"
 msgstr "Sticky Add to Cart"
 
-#: includes/WooCommerce/class-feature-settings.php:452
+#: includes/WooCommerce/class-feature-settings.php:455
 #, aa-mt
 msgid "Fixed bar with product info and add-to-cart when main button scrolls out of view."
 msgstr "Feste Leiste mit Produktinformationen und „In den Warenkorb“-Button, wenn die Hauptschaltfläche beim Scrollen aus dem Sichtbereich verschwindet."
 
-#: includes/WooCommerce/class-feature-settings.php:456
+#: includes/WooCommerce/class-feature-settings.php:459
 #, aa-mt
 msgid "Stock Status"
 msgstr "Lagerbestand"
 
-#: includes/WooCommerce/class-feature-settings.php:457
+#: includes/WooCommerce/class-feature-settings.php:460
 #, aa-mt
 msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View."
 msgstr "Anzeige der Lagerverfügbarkeit (auf Lager, fast ausverkauft, nicht vorrätig) in Quick View."
 
-#: includes/WooCommerce/class-feature-settings.php:461
-#: includes/WooCommerce/class-feature-settings.php:547
+#: includes/WooCommerce/class-feature-settings.php:464
+#: includes/WooCommerce/class-store-copy.php:67
 #, aa-mt
 msgid "Quick View"
 msgstr "Quick View"
 
-#: includes/WooCommerce/class-feature-settings.php:462
+#: includes/WooCommerce/class-feature-settings.php:465
 #, aa-mt
 msgid "Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled."
 msgstr "Produkte in einem Modalfenster aus den Shop-Karten in der Vorschau anzeigen. Bei Aktivierung werden Stil- und Wishlist-Kombinationsoptionen angezeigt."
 
-#: includes/WooCommerce/class-feature-settings.php:466
+#: includes/WooCommerce/class-feature-settings.php:469
 #: includes/WooCommerce/class-frequently-bought-together.php:250
 #, aa-mt
 msgid "Frequently Bought Together"
 msgstr "Häufig zusammen gekauft"
 
-#: includes/WooCommerce/class-feature-settings.php:467
+#: includes/WooCommerce/class-feature-settings.php:470
 #, aa-mt
 msgid "Show recommended products with checkboxes and combined add-to-cart on product pages."
 msgstr "Zeige empfohlene Produkte mit Auswahlfeldern und einer kombinierten „In den Warenkorb“-Funktion auf den Produktseiten an."
 
-#: includes/WooCommerce/class-feature-settings.php:473
+#: includes/WooCommerce/class-feature-settings.php:476
 #: includes/WooCommerce/class-mobile-bottom-nav.php:173
 #: includes/WooCommerce/class-mobile-bottom-nav.php:175
 #: includes/WooCommerce/class-wishlist.php:204
@@ -2458,305 +2457,50 @@ msgstr "Zeige empfohlene Produkte mit Auswahlfeldern und einer kombinierten „I
 msgid "Wishlist"
 msgstr "Wishlist"
 
-#: includes/WooCommerce/class-feature-settings.php:474
+#: includes/WooCommerce/class-feature-settings.php:477
 #, aa-mt
 msgid "Save-for-later with heart icon toggle and dedicated wishlist page."
 msgstr "„Für später speichern“ mit Herz-Symbol zum Ein- und Ausschalten und eigener Wunschliste-Seite."
 
-#: includes/WooCommerce/class-feature-settings.php:478
+#: includes/WooCommerce/class-feature-settings.php:481
 #, aa-mt
 msgid "Social Proof Notifications"
 msgstr "Benachrichtigungen zu Social Proof"
 
-#: includes/WooCommerce/class-feature-settings.php:479
+#: includes/WooCommerce/class-feature-settings.php:482
 #, aa-mt
 msgid "Show recent purchase toast notifications to build urgency."
 msgstr "Zeige Toast-Benachrichtigungen zu den letzten Käufen an, um ein Gefühl der Dringlichkeit zu erzeugen."
 
-#: includes/WooCommerce/class-feature-settings.php:483
+#: includes/WooCommerce/class-feature-settings.php:486
 #, aa-mt
 msgid "Back in Stock Notifications"
 msgstr "Benachrichtigungen bei Wiederverfügbarkeit"
 
-#: includes/WooCommerce/class-feature-settings.php:484
+#: includes/WooCommerce/class-feature-settings.php:487
 #, aa-mt
 msgid "Let customers subscribe to out-of-stock products and get notified when restocked."
 msgstr "Kunden sollen die Möglichkeit haben, sich für nicht vorrätige Produkte anzumelden und benachrichtigt zu werden, sobald diese wieder vorrätig sind."
 
-#: includes/WooCommerce/class-feature-settings.php:490
+#: includes/WooCommerce/class-feature-settings.php:493
 #, aa-mt
 msgid "Swatch Tooltips"
 msgstr "Swatch-Tooltips"
 
-#: includes/WooCommerce/class-feature-settings.php:491
+#: includes/WooCommerce/class-feature-settings.php:494
 #, aa-mt
 msgid "Show fabric name and composition on color swatch hover."
 msgstr "Beim Bewegen des Mauszeigers über das Farbmuster werden Stoffname und Materialzusammensetzung angezeigt."
 
-#: includes/WooCommerce/class-feature-settings.php:495
+#: includes/WooCommerce/class-feature-settings.php:498
 #, aa-mt
 msgid "Mobile Bottom Navigation"
 msgstr "Mobile Navigation am unteren Bildschirmrand"
 
-#: includes/WooCommerce/class-feature-settings.php:496
+#: includes/WooCommerce/class-feature-settings.php:499
 #, aa-mt
 msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
 msgstr "Feste untere Leiste auf Mobilgeräten mit den Menüpunkten „Startseite“, „Suche“, „Warenkorb“ und „Konto“."
-
-#: includes/WooCommerce/class-feature-settings.php:516
-#, aa-mt
-msgid "Variable Product Button Text"
-msgstr "Variabler Text für den Produkt-Button"
-
-#: includes/WooCommerce/class-feature-settings.php:517
-#, aa-mt
-msgid "Choose"
-msgstr "Wählen Sie"
-
-#: includes/WooCommerce/class-feature-settings.php:518
-#, aa-mt
-msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
-msgstr "Schaltflächentext für variable Produkte auf Produktkarten, Quick View und „Warenkorb anzeigen“, bevor Optionen ausgewählt werden."
-
-#: includes/WooCommerce/class-feature-settings.php:522
-#, aa-mt
-msgid "Simple Product Button Text"
-msgstr "Einfacher Produkt-Schaltflächentext"
-
-#: includes/WooCommerce/class-feature-settings.php:523
-#: src/blocks-interactivity/wishlist-item-actions/render.php:19
-#: src/blocks-interactivity/wishlist-item-actions/render.php:21
-#, aa-mt
-msgid "Add to Cart"
-msgstr "Add to Cart"
-
-#: includes/WooCommerce/class-feature-settings.php:524
-#, aa-mt
-msgid "Product-card button text for simple products that can be added directly."
-msgstr "Text für die Schaltfläche auf der Produktkarte bei einfachen Produkten, die direkt hinzugefügt werden können."
-
-#: includes/WooCommerce/class-feature-settings.php:528
-#, aa-mt
-msgid "Out of Stock Button Text"
-msgstr "Text für die Schaltfläche „Nicht vorrätig“"
-
-#: includes/WooCommerce/class-feature-settings.php:529
-#: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view.php:376
-#: patterns/design-system-preview.php:97
-#, aa-mt
-msgid "Out of Stock"
-msgstr "Nicht vorrätig"
-
-#: includes/WooCommerce/class-feature-settings.php:530
-#, aa-mt
-msgid "Button text shown when product-card or sticky-cart products are out of stock."
-msgstr "Text auf der Schaltfläche, der angezeigt wird, wenn Produkte auf der Produktkarte oder im „Sticky Cart“ nicht vorrätig sind."
-
-#: includes/WooCommerce/class-feature-settings.php:534
-#, aa-mt
-msgid "Filter Toggle Text"
-msgstr "Text für Filter-Umschaltfunktion"
-
-#: includes/WooCommerce/class-feature-settings.php:536
-#, aa-mt
-msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
-msgstr "Sichtbarer Text für den automatischen Produktfilter-Auslöser und die Standardbezeichnung des Filter-Umschaltblocks."
-
-#: includes/WooCommerce/class-feature-settings.php:540
-#, aa-mt
-msgid "Load More Button Text"
-msgstr "Text für die Schaltfläche „Mehr laden“"
-
-#: includes/WooCommerce/class-feature-settings.php:541
-#, aa-mt
-msgid "Load More Products"
-msgstr "Weitere Produkte laden"
-
-#: includes/WooCommerce/class-feature-settings.php:542
-#, aa-mt
-msgid "Button text for loading the next page of catalog products."
-msgstr "Schaltflächentext zum Laden der nächsten Seite mit Katalogprodukten."
-
-#: includes/WooCommerce/class-feature-settings.php:546
-#, aa-mt
-msgid "Quick View Button Text"
-msgstr "Quick View Schaltflächentext"
-
-#: includes/WooCommerce/class-feature-settings.php:548
-#, aa-mt
-msgid "Label used by Quick View triggers on product cards."
-msgstr "Bezeichnung, die von Quick View-Triggern auf Produktkarten verwendet wird."
-
-#: includes/WooCommerce/class-feature-settings.php:552
-#, aa-mt
-msgid "Buy Now Button Text"
-msgstr "Buy Now Schaltflächentext"
-
-#: includes/WooCommerce/class-feature-settings.php:553
-#, aa-mt
-msgid "Buy Now"
-msgstr "Buy Now"
-
-#: includes/WooCommerce/class-feature-settings.php:554
-#, aa-mt
-msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
-msgstr "Schaltflächentext für Kaufaktionen zum Weiterleiten zur Kasse in „Sticky Cart“ und Quick View."
-
-#: includes/WooCommerce/class-feature-settings.php:558
-#, aa-mt
-msgid "View Cart Button Text"
-msgstr "Text der Schaltfläche „Warenkorb anzeigen“"
-
-#: includes/WooCommerce/class-feature-settings.php:559
-#, aa-mt
-msgid "View Cart"
-msgstr "Warenkorb anzeigen"
-
-#: includes/WooCommerce/class-feature-settings.php:560
-#, aa-mt
-msgid "Button text shown after an item is added to the cart."
-msgstr "Text auf der Schaltfläche, der angezeigt wird, nachdem ein Artikel in den Warenkorb gelegt wurde."
-
-#: includes/WooCommerce/class-feature-settings.php:564
-#, aa-mt
-msgid "Continue Shopping Button Text"
-msgstr "Text der Schaltfläche „Weiter einkaufen“"
-
-#: includes/WooCommerce/class-feature-settings.php:565
-#, aa-mt
-msgid "Continue Shopping"
-msgstr "Weiter einkaufen"
-
-#: includes/WooCommerce/class-feature-settings.php:566
-#, aa-mt
-msgid "Button text for closing post-cart panels and returning to browsing."
-msgstr "Schaltflächentext zum Schließen der Warenkorb-Fenster und zur Rückkehr zum Stöbern."
-
-#: includes/WooCommerce/class-feature-settings.php:570
-#, aa-mt
-msgid "View Product Button Text"
-msgstr "Text der Schaltfläche „Produkt anzeigen“"
-
-#: includes/WooCommerce/class-feature-settings.php:571
-#, aa-mt
-msgid "View Full Product"
-msgstr "Produkt vollständig anzeigen"
-
-#: includes/WooCommerce/class-feature-settings.php:572
-#, aa-mt
-msgid "Link text for opening the full product page from custom overlays."
-msgstr "Linktext zum Öffnen der vollständigen Produktseite aus benutzerdefinierten Overlays."
-
-#: includes/WooCommerce/class-feature-settings.php:576
-#, aa-mt
-msgid "Back in Stock Button Text"
-msgstr "Text der Schaltfläche „Wieder vorrätig“"
-
-#: includes/WooCommerce/class-feature-settings.php:577
-#, aa-mt
-msgid "Notify Me"
-msgstr "Benachrichtigen Sie mich"
-
-#: includes/WooCommerce/class-feature-settings.php:578
-#, aa-mt
-msgid "Button and badge text for out-of-stock notification signups."
-msgstr "Text für Schaltflächen und Badges zur Anmeldung für Benachrichtigungen bei Nichtverfügbarkeit."
-
-#: includes/WooCommerce/class-feature-settings.php:582
-#, aa-mt
-msgid "Wishlist Button Text"
-msgstr "Wishlist Schaltflächentext"
-
-#: includes/WooCommerce/class-feature-settings.php:583
-#: src/blocks-interactivity/wishlist-button/render.php:62
-#, aa-mt
-msgid "Add to Wishlist"
-msgstr "Zu Wishlist hinzufügen"
-
-#: includes/WooCommerce/class-feature-settings.php:584
-#, aa-mt
-msgid "Accessible label and optional visible text for wishlist buttons."
-msgstr "Barrierefreies Label und optionaler sichtbarer Text für die Schaltflächen der Wunschliste."
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:588
-#, aa-mt
-msgid "Variable Price Prefix"
-msgstr "Präfix für variablen Preis"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:589
-#: includes/WooCommerce/class-feature-settings.php:594
-#, aa-mt
-msgid "From"
-msgstr "Von"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:590
-#, aa-mt
-msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
-msgstr "Erfordert „Smart Price Display“. Wort, das vor dem niedrigsten Preis angezeigt wird, wenn die Preisspanne eines variablen Produkts auf einen einzigen Wert zusammengefasst wird – z. B. „Ab 34,99 $“. Lassen Sie das Feld leer, um nur den Preis ohne Vorangabe anzuzeigen. Der Betrag wird immer in Ihrer WooCommerce-Währung angezeigt."
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:591
-#, aa-mt
-msgid "No prefix"
-msgstr "Kein Präfix"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:595
-#, aa-mt
-msgid "Starting at"
-msgstr "Ab"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:596
-#, aa-mt
-msgid "As low as"
-msgstr "Schon ab"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:597
-#, aa-mt
-msgid "Priced from"
-msgstr "Preis ab"
-
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:598
-#, aa-mt
-msgid "Now from"
-msgstr "Nun von"
-
-#: includes/WooCommerce/class-feature-settings.php:987
-#, aa-mt
-msgid "Always-on brand trust signals from your Trust Messages list. Works at zero orders."
-msgstr "Ständige Signale für das Vertrauen in Ihre Marke aus Ihrer Liste der Vertrauensnachrichten. Funktioniert auch bei null Bestellungen."
-
-#: includes/WooCommerce/class-feature-settings.php:990
-#, aa-mt
-msgid "Real Purchases"
-msgstr "Tatsächliche Käufe"
-
-#: includes/WooCommerce/class-feature-settings.php:991
-#, aa-mt
-msgid "Anonymized recent orders. Skipped silently when you have no eligible orders."
-msgstr "Anonymisierte aktuelle Bestellungen. Wird stillschweigend übersprungen, wenn keine entsprechenden Bestellungen vorliegen."
-
-#: includes/WooCommerce/class-feature-settings.php:995
-#, aa-mt
-msgid "Short-term promos / seasonal copy from your Announcements list."
-msgstr "Kurzfristige Werbeaktionen / saisonale Texte aus Ihrer Liste „Ankündigungen“."
-
-#: includes/WooCommerce/class-feature-settings.php:998
-#, aa-mt
-msgid "Engagement (sales signal)"
-msgstr "Interaktion (Verkaufssignal)"
-
-#: includes/WooCommerce/class-feature-settings.php:999
-#, aa-mt
-msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
-msgstr "Zeigt die meistverkauften Katalogprodukte anhand der von WooCommerce erfassten Gesamtverkaufszahlen an (echte Bestseller-Hinweise). Unauffälliger als Live-Kaufbenachrichtigungen."
 
 #. translators: %s: formatted amount still needed for free shipping.
 #: includes/WooCommerce/class-free-shipping.php:198
@@ -2784,7 +2528,7 @@ msgid "%s UNLOCKED!"
 msgstr "%s FREIGEGEBEN!"
 
 #: includes/WooCommerce/class-frequently-bought-together.php:176
-#: includes/WooCommerce/class-quick-view.php:366
+#: includes/WooCommerce/class-quick-view.php:378
 #, aa-mt
 msgid "Adding…"
 msgstr "Weiter…"
@@ -2908,10 +2652,18 @@ msgid "Save %d%%"
 msgstr "Sparen Sie %d%%"
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view.php:377
+#: includes/WooCommerce/class-quick-view.php:389
 #, aa-mt
 msgid "In Stock"
 msgstr "Auf Lager"
+
+#: includes/WooCommerce/class-product-filter-data.php:236
+#: includes/WooCommerce/class-quick-view.php:388
+#: includes/WooCommerce/class-store-copy.php:49
+#: patterns/design-system-preview.php:97
+#, aa-mt
+msgid "Out of Stock"
+msgstr "Nicht vorrätig"
 
 #: includes/WooCommerce/class-product-filter-data.php:240
 #, aa-mt
@@ -3867,115 +3619,122 @@ msgstr "Produktinformationen"
 
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
-#: includes/WooCommerce/class-quick-view.php:229
+#: includes/WooCommerce/class-quick-view.php:241
 #: includes/WooCommerce/class-wishlist.php:464
 #, php-format, aa-mt
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
-#: includes/WooCommerce/class-quick-view.php:258
+#: includes/WooCommerce/class-quick-view.php:270
 #, aa-mt
 msgid "Product actions"
 msgstr "Produktmaßnahmen"
 
-#: includes/WooCommerce/class-quick-view.php:367
+#: includes/WooCommerce/class-quick-view.php:379
 #, aa-mt
 msgid "✓ Added!"
 msgstr "✓ Hinzugefügt!"
 
-#: includes/WooCommerce/class-quick-view.php:371
+#: includes/WooCommerce/class-quick-view.php:383
 #: includes/WooCommerce/class-sticky-add-to-cart.php:133
 #, aa-mt
 msgid "Redirecting…"
 msgstr "Weiterleitung…"
 
-#: includes/WooCommerce/class-quick-view.php:375
-#: includes/WooCommerce/class-quick-view.php:896
+#: includes/WooCommerce/class-quick-view.php:387
+#: includes/WooCommerce/class-quick-view.php:914
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:415
+#: includes/WooCommerce/class-sticky-add-to-cart.php:416
 #, aa-mt
 msgid "Added to cart!"
 msgstr "In den Warenkorb gelegt!"
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view.php:379
+#: includes/WooCommerce/class-quick-view.php:391
 #, php-format, aa-mt
 msgid "Only %d left!"
 msgstr "Nur noch %d verfügbar!"
 
-#: includes/WooCommerce/class-quick-view.php:380
+#: includes/WooCommerce/class-quick-view.php:392
 #, aa-mt
 msgid "Product added to cart successfully"
 msgstr "Das Produkt wurde erfolgreich in den Warenkorb gelegt"
 
-#: includes/WooCommerce/class-quick-view.php:381
+#: includes/WooCommerce/class-quick-view.php:393
 #, aa-mt
 msgid "Could not add to cart."
 msgstr "Konnte nicht in den Warenkorb gelegt werden."
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view.php:383
+#: includes/WooCommerce/class-quick-view.php:395
 #, php-format, aa-mt
 msgid "Error: %s"
 msgstr "Fehler: %s"
 
-#: includes/WooCommerce/class-quick-view.php:410
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-quick-view.php:396
+#: includes/WooCommerce/class-sticky-add-to-cart.php:139
+#, aa-mt
+msgid "Unavailable"
+msgstr "Nicht verfügbar"
+
+#: includes/WooCommerce/class-quick-view.php:423
 #, aa-mt
 msgid "Close quick view"
 msgstr "Schnellansicht schließen"
 
-#: includes/WooCommerce/class-quick-view.php:475
+#: includes/WooCommerce/class-quick-view.php:488
 #, aa-mt
 msgid "Scroll thumbnails left"
 msgstr "Miniaturansichten nach links scrollen"
 
-#: includes/WooCommerce/class-quick-view.php:495
-#: includes/WooCommerce/class-quick-view.php:540
+#: includes/WooCommerce/class-quick-view.php:508
+#: includes/WooCommerce/class-quick-view.php:553
 #, aa-mt
 msgid "View image"
 msgstr "Bild anzeigen"
 
-#: includes/WooCommerce/class-quick-view.php:513
+#: includes/WooCommerce/class-quick-view.php:526
 #, aa-mt
 msgid "Scroll thumbnails right"
 msgstr "Miniaturansichten nach rechts scrollen"
 
-#: includes/WooCommerce/class-quick-view.php:605
-#: includes/WooCommerce/class-quick-view.php:783
-#: includes/WooCommerce/class-sticky-add-to-cart.php:190
-#: includes/WooCommerce/class-sticky-add-to-cart.php:359
+#: includes/WooCommerce/class-quick-view.php:618
+#: includes/WooCommerce/class-quick-view.php:801
+#: includes/WooCommerce/class-sticky-add-to-cart.php:191
+#: includes/WooCommerce/class-sticky-add-to-cart.php:360
 #, aa-mt
 msgid "Decrease quantity"
 msgstr "Menge verringern"
 
-#: includes/WooCommerce/class-quick-view.php:613
-#: includes/WooCommerce/class-quick-view.php:791
-#: includes/WooCommerce/class-sticky-add-to-cart.php:199
-#: includes/WooCommerce/class-sticky-add-to-cart.php:368
+#: includes/WooCommerce/class-quick-view.php:626
+#: includes/WooCommerce/class-quick-view.php:809
+#: includes/WooCommerce/class-sticky-add-to-cart.php:200
+#: includes/WooCommerce/class-sticky-add-to-cart.php:369
 #, aa-mt
 msgid "Quantity"
 msgstr "Anzahl"
 
-#: includes/WooCommerce/class-quick-view.php:619
-#: includes/WooCommerce/class-quick-view.php:797
-#: includes/WooCommerce/class-sticky-add-to-cart.php:205
-#: includes/WooCommerce/class-sticky-add-to-cart.php:374
+#: includes/WooCommerce/class-quick-view.php:632
+#: includes/WooCommerce/class-quick-view.php:815
+#: includes/WooCommerce/class-sticky-add-to-cart.php:206
+#: includes/WooCommerce/class-sticky-add-to-cart.php:375
 #, aa-mt
 msgid "Increase quantity"
 msgstr "Menge erhöhen"
 
-#: includes/WooCommerce/class-quick-view.php:687
-#: includes/WooCommerce/class-sticky-add-to-cart.php:259
+#: includes/WooCommerce/class-quick-view.php:700
+#: includes/WooCommerce/class-sticky-add-to-cart.php:260
 #, aa-mt
 msgid "Select product options"
 msgstr "Produktoptionen auswählen"
 
-#: includes/WooCommerce/class-quick-view.php:845
+#: includes/WooCommerce/class-quick-view.php:863
 #, aa-mt
 msgid "Could not load product details. Please try again."
 msgstr "Die Produktdetails konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
-#: includes/WooCommerce/class-quick-view.php:883
+#: includes/WooCommerce/class-quick-view.php:901
 #, aa-mt
 msgid "Close cart confirmation"
 msgstr "Bestätigung zum Schließen des Warenkorbs"
@@ -4074,104 +3833,134 @@ msgstr "Es wurden keine Größentabellen gefunden."
 msgid "No size guides found in Trash."
 msgstr "Im Papierkorb wurden keine Größentabellen gefunden."
 
-#: includes/WooCommerce/class-size-guide.php:141
+#: includes/WooCommerce/class-size-guide.php:165
 #, aa-mt
 msgid "Measurements in inches"
 msgstr "Maße in Zoll"
 
-#: includes/WooCommerce/class-size-guide.php:175
-#: includes/WooCommerce/class-sticky-add-to-cart.php:290
+#: includes/WooCommerce/class-size-guide.php:203
+#: includes/WooCommerce/class-sticky-add-to-cart.php:291
 #, aa-mt
 msgid "Close"
 msgstr "Schließen"
 
-#: includes/WooCommerce/class-size-guide.php:348
+#: includes/WooCommerce/class-size-guide.php:418
 #, aa-mt
 msgid "-- Inherit (category or global) --"
 msgstr "-- Vererben (Kategorie oder global) --"
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:372
+#: includes/WooCommerce/class-size-guide.php:442
 #, php-format, aa-mt
 msgid "Select a size guide or %s."
 msgstr "Wählen Sie eine Größentabelle oder %s aus."
 
-#: includes/WooCommerce/class-size-guide.php:374
+#: includes/WooCommerce/class-size-guide.php:444
 #, aa-mt
 msgid "create a new one"
 msgstr "Ein neues erstellen"
 
-#: includes/WooCommerce/class-size-guide.php:422
-#: includes/WooCommerce/class-size-guide.php:451
+#: includes/WooCommerce/class-size-guide.php:492
+#: includes/WooCommerce/class-size-guide.php:521
 #, aa-mt
 msgid "-- None --"
 msgstr "-- Keine --"
 
-#: includes/WooCommerce/class-size-guide.php:431
-#: includes/WooCommerce/class-size-guide.php:461
+#: includes/WooCommerce/class-size-guide.php:501
+#: includes/WooCommerce/class-size-guide.php:531
 #, aa-mt
 msgid "Assign a size guide to all products in this category."
 msgstr "Weisen Sie allen Produkten dieser Kategorie eine Größentabelle zu."
 
-#: includes/WooCommerce/class-social-proof.php:204
-#, aa-mt
-msgid "Dismiss"
-msgstr "Schließen"
-
-#: includes/WooCommerce/class-social-proof.php:233
-#, aa-mt
-msgid "Social Proof preview: ON"
-msgstr "Vorschau „Social Proof“: EIN"
-
-#: includes/WooCommerce/class-social-proof.php:236
-#, aa-mt
-msgid "Click to manage Social Proof settings"
-msgstr "Klicken Sie hier, um die Einstellungen für „Social Proof“ zu verwalten"
-
 #. translators: %s: human-readable time difference, e.g. "5 minutes".
-#: includes/WooCommerce/class-social-proof.php:745
+#: includes/WooCommerce/class-social-proof-purchase.php:178
 #, php-format, aa-mt
 msgid "%s ago"
 msgstr "vor %s"
 
 #. translators: %s: product title.
-#: includes/WooCommerce/class-social-proof.php:811
+#: includes/WooCommerce/class-social-proof-purchase.php:244
 #, php-format, aa-mt
 msgid "Selling well — %s"
 msgstr "Verkauft sich gut — %s"
 
-#: includes/WooCommerce/class-social-proof.php:917
+#: includes/WooCommerce/class-social-proof-purchase.php:350
 #, aa-mt
 msgid "Someone"
 msgstr "Jemand"
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:927
+#: includes/WooCommerce/class-social-proof-purchase.php:360
 #, php-format, aa-mt
 msgid "%1$s in %2$s purchased %3$s"
 msgstr "%1$s hat in %2$s %3$s gekauft"
 
 #. translators: 1: subject, 2: location, 3: product.
-#: includes/WooCommerce/class-social-proof.php:930
+#: includes/WooCommerce/class-social-proof-purchase.php:363
 #, php-format, aa-mt
 msgid "%1$s from %2$s purchased %3$s"
 msgstr "%1$s hat von %2$s %3$s gekauft"
 
 #. translators: 1: subject, 2: product.
-#: includes/WooCommerce/class-social-proof.php:934
+#: includes/WooCommerce/class-social-proof-purchase.php:367
 #, php-format, aa-mt
 msgid "%1$s purchased %2$s"
 msgstr "%1$s hat %2$s gekauft"
 
-#: includes/WooCommerce/class-social-proof.php:1013
+#: includes/WooCommerce/class-social-proof-purchase.php:446
 #, aa-mt
 msgid "preview"
 msgstr "Vorschau"
 
-#: includes/WooCommerce/class-social-proof.php:1020
+#: includes/WooCommerce/class-social-proof-purchase.php:453
 #, aa-mt
 msgid "just now"
 msgstr "gerade eben"
+
+#: includes/WooCommerce/class-social-proof-settings.php:33
+#, aa-mt
+msgid "Always-on brand trust signals from your Trust Messages list. Works at zero orders."
+msgstr "Ständige Signale für das Vertrauen in Ihre Marke aus Ihrer Liste der Vertrauensnachrichten. Funktioniert auch bei null Bestellungen."
+
+#: includes/WooCommerce/class-social-proof-settings.php:36
+#, aa-mt
+msgid "Real Purchases"
+msgstr "Tatsächliche Käufe"
+
+#: includes/WooCommerce/class-social-proof-settings.php:37
+#, aa-mt
+msgid "Anonymized recent orders. Skipped silently when you have no eligible orders."
+msgstr "Anonymisierte aktuelle Bestellungen. Wird stillschweigend übersprungen, wenn keine entsprechenden Bestellungen vorliegen."
+
+#: includes/WooCommerce/class-social-proof-settings.php:41
+#, aa-mt
+msgid "Short-term promos / seasonal copy from your Announcements list."
+msgstr "Kurzfristige Werbeaktionen / saisonale Texte aus Ihrer Liste „Ankündigungen“."
+
+#: includes/WooCommerce/class-social-proof-settings.php:44
+#, aa-mt
+msgid "Engagement (sales signal)"
+msgstr "Interaktion (Verkaufssignal)"
+
+#: includes/WooCommerce/class-social-proof-settings.php:45
+#, aa-mt
+msgid "Shows top-selling catalogue products backed by WooCommerce total sales counts (honest bestseller cues). Quieter than live purchase notices."
+msgstr "Zeigt die meistverkauften Katalogprodukte anhand der von WooCommerce erfassten Gesamtverkaufszahlen an (echte Bestseller-Hinweise). Unauffälliger als Live-Kaufbenachrichtigungen."
+
+#: includes/WooCommerce/class-social-proof.php:207
+#, aa-mt
+msgid "Dismiss"
+msgstr "Schließen"
+
+#: includes/WooCommerce/class-social-proof.php:236
+#, aa-mt
+msgid "Social Proof preview: ON"
+msgstr "Vorschau „Social Proof“: EIN"
+
+#: includes/WooCommerce/class-social-proof.php:239
+#, aa-mt
+msgid "Click to manage Social Proof settings"
+msgstr "Klicken Sie hier, um die Einstellungen für „Social Proof“ zu verwalten"
 
 #: includes/WooCommerce/class-sticky-add-to-cart.php:137
 #, aa-mt
@@ -4182,6 +3971,215 @@ msgstr "In den Warenkorb gelegt"
 #, aa-mt
 msgid "Error adding to cart"
 msgstr "Fehler beim Hinzufügen zum Warenkorb"
+
+#: includes/WooCommerce/class-store-copy.php:36
+#, aa-mt
+msgid "Variable Product Button Text"
+msgstr "Variabler Text für den Produkt-Button"
+
+#: includes/WooCommerce/class-store-copy.php:37
+#, aa-mt
+msgid "Choose"
+msgstr "Wählen Sie"
+
+#: includes/WooCommerce/class-store-copy.php:38
+#, aa-mt
+msgid "Button text for variable products on product cards, Quick View, and Sticky Cart before options are chosen."
+msgstr "Schaltflächentext für variable Produkte auf Produktkarten, Quick View und „Warenkorb anzeigen“, bevor Optionen ausgewählt werden."
+
+#: includes/WooCommerce/class-store-copy.php:42
+#, aa-mt
+msgid "Simple Product Button Text"
+msgstr "Einfacher Produkt-Schaltflächentext"
+
+#: includes/WooCommerce/class-store-copy.php:43
+#: src/blocks-interactivity/wishlist-item-actions/render.php:19
+#: src/blocks-interactivity/wishlist-item-actions/render.php:21
+#, aa-mt
+msgid "Add to Cart"
+msgstr "Add to Cart"
+
+#: includes/WooCommerce/class-store-copy.php:44
+#, aa-mt
+msgid "Product-card button text for simple products that can be added directly."
+msgstr "Text für die Schaltfläche auf der Produktkarte bei einfachen Produkten, die direkt hinzugefügt werden können."
+
+#: includes/WooCommerce/class-store-copy.php:48
+#, aa-mt
+msgid "Out of Stock Button Text"
+msgstr "Text für die Schaltfläche „Nicht vorrätig“"
+
+#: includes/WooCommerce/class-store-copy.php:50
+#, aa-mt
+msgid "Button text shown when product-card or sticky-cart products are out of stock."
+msgstr "Text auf der Schaltfläche, der angezeigt wird, wenn Produkte auf der Produktkarte oder im „Sticky Cart“ nicht vorrätig sind."
+
+#: includes/WooCommerce/class-store-copy.php:54
+#, aa-mt
+msgid "Filter Toggle Text"
+msgstr "Text für Filter-Umschaltfunktion"
+
+#: includes/WooCommerce/class-store-copy.php:56
+#, aa-mt
+msgid "Visible text for the automatic product-filter trigger and default Filter Toggle block label."
+msgstr "Sichtbarer Text für den automatischen Produktfilter-Auslöser und die Standardbezeichnung des Filter-Umschaltblocks."
+
+#: includes/WooCommerce/class-store-copy.php:60
+#, aa-mt
+msgid "Load More Button Text"
+msgstr "Text für die Schaltfläche „Mehr laden“"
+
+#: includes/WooCommerce/class-store-copy.php:61
+#, aa-mt
+msgid "Load More Products"
+msgstr "Weitere Produkte laden"
+
+#: includes/WooCommerce/class-store-copy.php:62
+#, aa-mt
+msgid "Button text for loading the next page of catalog products."
+msgstr "Schaltflächentext zum Laden der nächsten Seite mit Katalogprodukten."
+
+#: includes/WooCommerce/class-store-copy.php:66
+#, aa-mt
+msgid "Quick View Button Text"
+msgstr "Quick View Schaltflächentext"
+
+#: includes/WooCommerce/class-store-copy.php:68
+#, aa-mt
+msgid "Label used by Quick View triggers on product cards."
+msgstr "Bezeichnung, die von Quick View-Triggern auf Produktkarten verwendet wird."
+
+#: includes/WooCommerce/class-store-copy.php:72
+#, aa-mt
+msgid "Buy Now Button Text"
+msgstr "Buy Now Schaltflächentext"
+
+#: includes/WooCommerce/class-store-copy.php:73
+#, aa-mt
+msgid "Buy Now"
+msgstr "Buy Now"
+
+#: includes/WooCommerce/class-store-copy.php:74
+#, aa-mt
+msgid "Button text for checkout-forward purchase actions in Sticky Cart and Quick View."
+msgstr "Schaltflächentext für Kaufaktionen zum Weiterleiten zur Kasse in „Sticky Cart“ und Quick View."
+
+#: includes/WooCommerce/class-store-copy.php:78
+#, aa-mt
+msgid "View Cart Button Text"
+msgstr "Text der Schaltfläche „Warenkorb anzeigen“"
+
+#: includes/WooCommerce/class-store-copy.php:79
+#, aa-mt
+msgid "View Cart"
+msgstr "Warenkorb anzeigen"
+
+#: includes/WooCommerce/class-store-copy.php:80
+#, aa-mt
+msgid "Button text shown after an item is added to the cart."
+msgstr "Text auf der Schaltfläche, der angezeigt wird, nachdem ein Artikel in den Warenkorb gelegt wurde."
+
+#: includes/WooCommerce/class-store-copy.php:84
+#, aa-mt
+msgid "Continue Shopping Button Text"
+msgstr "Text der Schaltfläche „Weiter einkaufen“"
+
+#: includes/WooCommerce/class-store-copy.php:85
+#, aa-mt
+msgid "Continue Shopping"
+msgstr "Weiter einkaufen"
+
+#: includes/WooCommerce/class-store-copy.php:86
+#, aa-mt
+msgid "Button text for closing post-cart panels and returning to browsing."
+msgstr "Schaltflächentext zum Schließen der Warenkorb-Fenster und zur Rückkehr zum Stöbern."
+
+#: includes/WooCommerce/class-store-copy.php:90
+#, aa-mt
+msgid "View Product Button Text"
+msgstr "Text der Schaltfläche „Produkt anzeigen“"
+
+#: includes/WooCommerce/class-store-copy.php:91
+#, aa-mt
+msgid "View Full Product"
+msgstr "Produkt vollständig anzeigen"
+
+#: includes/WooCommerce/class-store-copy.php:92
+#, aa-mt
+msgid "Link text for opening the full product page from custom overlays."
+msgstr "Linktext zum Öffnen der vollständigen Produktseite aus benutzerdefinierten Overlays."
+
+#: includes/WooCommerce/class-store-copy.php:96
+#, aa-mt
+msgid "Back in Stock Button Text"
+msgstr "Text der Schaltfläche „Wieder vorrätig“"
+
+#: includes/WooCommerce/class-store-copy.php:97
+#, aa-mt
+msgid "Notify Me"
+msgstr "Benachrichtigen Sie mich"
+
+#: includes/WooCommerce/class-store-copy.php:98
+#, aa-mt
+msgid "Button and badge text for out-of-stock notification signups."
+msgstr "Text für Schaltflächen und Badges zur Anmeldung für Benachrichtigungen bei Nichtverfügbarkeit."
+
+#: includes/WooCommerce/class-store-copy.php:102
+#, aa-mt
+msgid "Wishlist Button Text"
+msgstr "Wishlist Schaltflächentext"
+
+#: includes/WooCommerce/class-store-copy.php:103
+#: src/blocks-interactivity/wishlist-button/render.php:62
+#, aa-mt
+msgid "Add to Wishlist"
+msgstr "Zu Wishlist hinzufügen"
+
+#: includes/WooCommerce/class-store-copy.php:104
+#, aa-mt
+msgid "Accessible label and optional visible text for wishlist buttons."
+msgstr "Barrierefreies Label und optionaler sichtbarer Text für die Schaltflächen der Wunschliste."
+
+#: includes/WooCommerce/class-store-copy.php:108
+#, aa-mt
+msgid "Variable Price Prefix"
+msgstr "Präfix für variablen Preis"
+
+#: includes/WooCommerce/class-store-copy.php:109
+#: includes/WooCommerce/class-store-copy.php:114
+#, aa-mt
+msgid "From"
+msgstr "Von"
+
+#: includes/WooCommerce/class-store-copy.php:110
+#, aa-mt
+msgid "Requires Smart Price Display. Word shown before the lowest price when a variable product’s range is collapsed to a single figure — e.g. “From $34.99”. Leave blank to show just the price with no prefix. The amount always uses your WooCommerce currency."
+msgstr "Erfordert „Smart Price Display“. Wort, das vor dem niedrigsten Preis angezeigt wird, wenn die Preisspanne eines variablen Produkts auf einen einzigen Wert zusammengefasst wird – z. B. „Ab 34,99 $“. Lassen Sie das Feld leer, um nur den Preis ohne Vorangabe anzuzeigen. Der Betrag wird immer in Ihrer WooCommerce-Währung angezeigt."
+
+#: includes/WooCommerce/class-store-copy.php:111
+#, aa-mt
+msgid "No prefix"
+msgstr "Kein Präfix"
+
+#: includes/WooCommerce/class-store-copy.php:115
+#, aa-mt
+msgid "Starting at"
+msgstr "Ab"
+
+#: includes/WooCommerce/class-store-copy.php:116
+#, aa-mt
+msgid "As low as"
+msgstr "Schon ab"
+
+#: includes/WooCommerce/class-store-copy.php:117
+#, aa-mt
+msgid "Priced from"
+msgstr "Preis ab"
+
+#: includes/WooCommerce/class-store-copy.php:118
+#, aa-mt
+msgid "Now from"
+msgstr "Nun von"
 
 #: includes/WooCommerce/class-swatch-tooltips.php:107
 #: includes/WooCommerce/class-swatch-tooltips.php:130
@@ -8465,7 +8463,7 @@ msgstr "3D"
 #: src/blocks-interactivity/product-color-swatches/block.json
 #: src/blocks-interactivity/product-tabs/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
-#: src/blocks/product-rating/block.json
+#: src/blocks/product-rating/block.json src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"
 msgid "product"
@@ -8559,6 +8557,7 @@ msgstr "Shop"
 #: src/blocks-interactivity/product-tabs/block.json
 #: src/blocks-interactivity/store-notices/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
+#: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"
 msgid "woocommerce"
@@ -9595,6 +9594,41 @@ msgstr "Bewertungen"
 msgctxt "block keyword"
 msgid "stars"
 msgstr "Sterne"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/size-guide/block.json
+#, aa-mt
+msgctxt "block title"
+msgid "Size Guide"
+msgstr "Größentabelle"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/size-guide/block.json
+#, aa-mt
+msgctxt "block description"
+msgid "Displays the size guide assigned to the current product in an accessible modal."
+msgstr "Zeigt die dem aktuellen Produkt zugewiesene Größentabelle in einem leicht zugänglichen Modalfenster an."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/size-guide/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "size guide"
+msgstr "Größentabelle"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/size-guide/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "sizing"
+msgstr "Größenbestimmung"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/size-guide/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "measurements"
+msgstr "Maße"
 
 #: src/blocks/split-story-content/block.json
 #, aa-mt

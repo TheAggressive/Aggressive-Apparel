@@ -112,9 +112,22 @@
 	--aa-z-lightbox: var(--wp--custom--z-index--lightbox, 100002);
 
 	/* Component sizing (from settings.custom.size). */
-	--aa-button-height-sm: var(--wp--custom--size--button-height--sm, 2rem);
+
+	/* The universal 44px touch/interaction floor. Every actionable control
+	   (pills, chips, toggles, compact CTAs, form controls) sizes to this so a
+	   visually small control never drops below the tap target. Not "small" —
+	   it is the minimum, hence its own name. */
+	--aa-control-min: var(--wp--custom--size--control-min, 2.75rem);
+
+	/* WCAG 2.2 AA-safe dense target for secondary choices inside genuinely
+	   constrained merchandising cards. This is not a general compact-control
+	   escape hatch: primary actions, drawers, forms, and PDP choices stay 44px. */
+	--aa-control-min-dense: var(--wp--custom--size--dense-control-min, 2rem);
+	--aa-card-swatch-min: var(--wp--custom--size--card-swatch-min, 2rem);
+	--aa-card-swatch-dense-min: var(--wp--custom--size--card-swatch-dense-min, 1.75rem);
 	--aa-button-height-md: var(--wp--custom--size--button-height--md, 2.75rem);
 	--aa-button-height-lg: var(--wp--custom--size--button-height--lg, 3.25rem);
+	--aa-icon-button-size: var(--wp--custom--size--icon-button, 2.75rem);
 	--aa-compact-action-height: var(--wp--custom--compact-action--height, 2.925rem);
 	--aa-compact-action-padding-block: var(--wp--custom--compact-action--padding-block, 0.65rem);
 	--aa-compact-action-padding-inline: var(--wp--custom--compact-action--padding-inline, 1.15rem);
@@ -181,9 +194,12 @@
 	--aa-type-product-title-weight: var(--wp--custom--type-role--product-title--font-weight, 400);
 	--aa-type-product-title-line-height: var(--wp--custom--type-role--product-title--line-height, 1.2);
 
-	/* Focus ring. */
-	--aa-focus-ring: 0 0 0 2px var(--aa-color-surface),
-		0 0 0 4px var(--aa-color-accent);
+	/* Focus ring — outer ring for free-standing controls. */
+	--aa-focus-ring: var(
+		--wp--custom--focus-ring,
+		0 0 0 2px var(--aa-color-surface),
+		0 0 0 4px var(--aa-color-accent)
+	);
 
 	/* Derived foreground mixes (adapt with color scheme).
 	   border-subtle stays a transparent mix for chrome hairlines;

@@ -99,9 +99,14 @@ class TestStyles extends WP_UnitTestCase {
 			'Notice text contrast should beat WooCommerce late-loading bundles.'
 		);
 		$this->assertStringContainsString(
-			'background-color: transparent !important;',
+			'background-color: var(--wp--custom--button--secondary--background) !important;',
 			$css,
-			'Notice actions should retain the outline-button treatment.'
+			'Notice actions should inherit the canonical secondary-button treatment.'
+		);
+		$this->assertStringContainsString(
+			'background-color: var(--wp--custom--button--secondary--hover-background) !important;',
+			$css,
+			'Notice action hover states should inherit the canonical secondary-button treatment.'
 		);
 	}
 
@@ -160,6 +165,130 @@ class TestStyles extends WP_UnitTestCase {
 			'font-weight: 400 !important',
 			$theme_json,
 			'Global heading defaults must not override editor-selected typography.'
+		);
+	}
+
+	/**
+	 * Button roles and adaptive paint must be configured in theme.json.
+	 */
+	public function test_button_system_is_driven_by_theme_json() {
+		$theme_json_file = get_template_directory() . '/theme.json';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local theme configuration in a test.
+		$theme_json = json_decode( (string) file_get_contents( $theme_json_file ), true );
+
+		$this->assertIsArray( $theme_json );
+		$this->assertSame(
+			'var(--wp--preset--color--accent)',
+			$theme_json['settings']['custom']['button']['primary']['background']
+		);
+		$this->assertSame(
+			'var(--wp--preset--color--foreground)',
+			$theme_json['settings']['custom']['button']['secondary']['border']
+		);
+		$this->assertSame(
+			'transparent',
+			$theme_json['settings']['custom']['button']['icon']['background']
+		);
+		$this->assertSame(
+			'var(--wp--preset--color--accent)',
+			$theme_json['settings']['custom']['button']['icon']['hoverText']
+		);
+		$this->assertArrayNotHasKey(
+			'hoverBackground',
+			$theme_json['settings']['custom']['button']['icon'],
+			'Default icon controls must retain their resting background on hover.'
+		);
+		$this->assertSame(
+			'var(--wp--preset--color--foreground)',
+			$theme_json['settings']['custom']['button']['choice']['selectedBackground']
+		);
+		$this->assertStringContainsString(
+			'--wp--preset--color--surface',
+			$theme_json['settings']['custom']['focusRing']
+		);
+
+		$button_styles = $theme_json['styles']['elements']['button'];
+		$this->assertSame(
+			'var(--wp--custom--button--primary--background)',
+			$button_styles['color']['background']
+		);
+		$this->assertSame( '2px', $button_styles['border']['width'] );
+		$this->assertSame(
+			'var(--wp--custom--radius--button)',
+			$button_styles['border']['radius'],
+			'Primary and secondary actions must preserve the branded pill silhouette.'
+		);
+		$this->assertSame( 'calc(infinity * 1px)', $theme_json['settings']['custom']['radius']['button'] );
+		$this->assertSame( '700', $button_styles['typography']['fontWeight'] );
+		$this->assertSame( '2.75rem', $theme_json['settings']['custom']['size']['iconButton'] );
+			$this->assertSame(
+				'2.75rem',
+				$theme_json['settings']['custom']['size']['controlMin'],
+				'Compact button recipes must retain a 44px minimum target.'
+			);
+			$this->assertSame(
+				'2rem',
+				$theme_json['settings']['custom']['size']['denseControlMin'],
+				'Dense merchandising-card choices must retain a WCAG AA-safe 32px target.'
+			);
+			$this->assertSame( '2rem', $theme_json['settings']['custom']['size']['cardSwatchMin'] );
+			$this->assertSame( '1.75rem', $theme_json['settings']['custom']['size']['cardSwatchDenseMin'] );
+		$this->assertArrayNotHasKey(
+			':focus',
+			$button_styles,
+			'Keyboard focus must preserve the active button variant paint.'
+		);
+		$this->assertArrayNotHasKey(
+			':active',
+			$button_styles,
+			'Pressed-state mechanics belong to the shared button stylesheet.'
+		);
+	}
+
+	/**
+	 * Shared button and swatch mechanics preserve accessible interaction targets.
+	 */
+	public function test_button_and_swatch_accessibility_contract_is_in_source_css() {
+		$button_file = get_template_directory() . '/src/styles/components/buttons.css';
+		$swatch_file = get_template_directory() . '/src/blocks-interactivity/product-color-swatches/style.css';
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$button_css = file_get_contents( $button_file );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$swatch_css = file_get_contents( $swatch_file );
+
+		$this->assertIsString( $button_css );
+		$this->assertIsString( $swatch_css );
+		$this->assertStringContainsString( 'min-height: var(--aa-button-height-md);', $button_css );
+		$this->assertStringContainsString( 'box-shadow: var(--aa-focus-ring);', $button_css );
+		$this->assertStringContainsString( 'pointer-events: none;', $button_css );
+		$this->assertStringContainsString( ':where(.aa-icon-button) {', $button_css );
+		$this->assertStringContainsString( 'min-width: var(--aa-icon-button-size);', $button_css );
+		$this->assertStringContainsString( ':where(.aa-choice-pill) {', $button_css );
+		$this->assertStringContainsString( ':where(.aa-stepper-button) {', $button_css );
+		$this->assertStringContainsString(
+			'--aa-icon-button-hover-background: var(--aa-icon-button-background);',
+			$button_css
+		);
+		$this->assertStringContainsString(
+			'.aggressive-apparel-button.aggressive-apparel-button--outline',
+			$button_css,
+			'Secondary paint must outrank WordPress global element styles without using !important.'
+		);
+		$this->assertMatchesRegularExpression(
+			'/\\.aa-product-color-swatches__swatch\\s*\\{[^}]*min-width:\\s*var\\(--aa-card-swatch-min\\);[^}]*min-height:\\s*var\\(--aa-card-swatch-min\\);/s',
+			$swatch_css,
+			'Card swatches must retain their theme.json-backed 32px pointer target.'
+		);
+		$this->assertStringContainsString(
+			'@container product-card (width < 11rem)',
+			$swatch_css,
+			'Narrow product cards must opt into the explicit dense interaction tier.'
+		);
+		$this->assertStringContainsString(
+			'min-width: var(--aa-card-swatch-dense-min);',
+			$swatch_css,
+			'Dense card swatches must use the theme.json-backed 28px target token.'
 		);
 	}
 }

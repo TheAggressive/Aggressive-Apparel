@@ -41,23 +41,83 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"flex","flexWrap":"wrap"}} -->
 				<div class="wp-block-buttons">
-					<!-- wp:button {"className":"is-style-cta"} -->
-					<div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'CTA', 'aggressive-apparel' ); ?></a></div>
-					<!-- /wp:button -->
-
-					<!-- wp:button {"className":"is-style-cta-small"} -->
-					<div class="wp-block-button is-style-cta-small"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'CTA Small', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button -->
+					<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Primary', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 
 					<!-- wp:button {"className":"is-style-ghost"} -->
-					<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Ghost', 'aggressive-apparel' ); ?></a></div>
+					<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Secondary', 'aggressive-apparel' ); ?></a></div>
+					<!-- /wp:button -->
+
+					<!-- wp:button {"className":"is-style-cta"} -->
+					<div class="wp-block-button is-style-cta"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Large Primary', 'aggressive-apparel' ); ?></a></div>
+					<!-- /wp:button -->
+
+					<!-- wp:button {"className":"is-style-cta-ghost"} -->
+					<div class="wp-block-button is-style-cta-ghost"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Large Secondary', 'aggressive-apparel' ); ?></a></div>
+					<!-- /wp:button -->
+
+					<!-- wp:button {"className":"is-style-cta-small"} -->
+					<div class="wp-block-button is-style-cta-small"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Small Primary', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 
 					<!-- wp:button {"className":"is-style-text"} -->
-					<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Text Link', 'aggressive-apparel' ); ?></a></div>
+					<div class="wp-block-button is-style-text"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Tertiary Link', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
+
+				<!-- wp:paragraph {"className":"is-style-meta"} -->
+				<p class="is-style-meta"><?php echo esc_html__( 'Native states', 'aggressive-apparel' ); ?></p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:html -->
+				<div class="aggressive-apparel-cluster">
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary wp-element-button" type="button" disabled><?php echo esc_html__( 'Disabled', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary wp-element-button is-loading" type="button" disabled aria-busy="true"><?php echo esc_html__( 'Loading', 'aggressive-apparel' ); ?></button>
+				</div>
+				<!-- /wp:html -->
+
+				<!-- wp:paragraph {"className":"is-style-meta"} -->
+				<p class="is-style-meta"><?php echo esc_html__( 'Tone and shape variants', 'aggressive-apparel' ); ?></p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:html -->
+				<div class="aggressive-apparel-cluster">
+					<button class="aggressive-apparel-button aggressive-apparel-button--danger wp-element-button" type="button"><?php echo esc_html__( 'Delete', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--success wp-element-button" type="button"><?php echo esc_html__( 'Saved', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--ghost wp-element-button" type="button"><?php echo esc_html__( 'Ghost', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--pill wp-element-button" type="button"><?php echo esc_html__( 'Pill', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--square wp-element-button" type="button"><?php echo esc_html__( 'Square', 'aggressive-apparel' ); ?></button>
+				</div>
+				<!-- /wp:html -->
+
+				<!-- wp:paragraph {"className":"is-style-meta"} -->
+				<p class="is-style-meta"><?php echo esc_html__( 'Density and elevation', 'aggressive-apparel' ); ?></p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:html -->
+				<div class="aggressive-apparel-cluster">
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--compact wp-element-button" type="button"><?php echo esc_html__( 'Compact', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary wp-element-button" type="button"><?php echo esc_html__( 'Default', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--lg wp-element-button" type="button"><?php echo esc_html__( 'Large', 'aggressive-apparel' ); ?></button>
+					<button class="aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--lg aggressive-apparel-button--elevated wp-element-button" type="button"><?php echo esc_html__( 'Elevated hero', 'aggressive-apparel' ); ?></button>
+				</div>
+				<!-- /wp:html -->
+
+				<!-- wp:paragraph {"className":"is-style-meta"} -->
+				<p class="is-style-meta"><?php echo esc_html__( 'Utility and choice controls', 'aggressive-apparel' ); ?></p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:html -->
+				<div class="aggressive-apparel-cluster">
+					<button class="aa-icon-button aa-icon-button--only" type="button" aria-label="<?php esc_attr_e( 'Close preview', 'aggressive-apparel' ); ?>">&times;</button>
+					<button class="aa-icon-button aa-icon-button--only aa-icon-button--danger" type="button" aria-label="<?php esc_attr_e( 'Remove preview', 'aggressive-apparel' ); ?>">&minus;</button>
+					<button class="aa-choice-pill" type="button" aria-pressed="false"><?php echo esc_html__( 'Small', 'aggressive-apparel' ); ?></button>
+					<button class="aa-choice-pill is-selected" type="button" aria-pressed="true"><?php echo esc_html__( 'Medium', 'aggressive-apparel' ); ?></button>
+					<button class="aa-choice-pill is-unavailable" type="button" aria-disabled="true"><?php echo esc_html__( 'Unavailable', 'aggressive-apparel' ); ?></button>
+				</div>
+				<!-- /wp:html -->
 			</div>
 			<!-- /wp:group -->
 		</div>
@@ -104,6 +164,30 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
+
+	<!-- wp:group {"backgroundColor":"black","textColor":"white","style":{"spacing":{"padding":{"top":"var:preset|spacing|8","right":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|8"},"blockGap":"var:preset|spacing|4"}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-white-color has-black-background-color has-text-color has-background" style="padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--8)">
+		<!-- wp:paragraph {"className":"is-style-meta"} -->
+		<p class="is-style-meta"><?php echo esc_html__( 'Buttons on dark media', 'aggressive-apparel' ); ?></p>
+		<!-- /wp:paragraph -->
+
+		<!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|4"}},"layout":{"type":"flex","flexWrap":"wrap"}} -->
+		<div class="wp-block-buttons">
+			<!-- wp:button {"className":"is-style-outline-on-dark"} -->
+			<div class="wp-block-button is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Secondary on Dark', 'aggressive-apparel' ); ?></a></div>
+			<!-- /wp:button -->
+
+			<!-- wp:button {"className":"is-style-cta-outline-on-dark"} -->
+			<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Large Secondary', 'aggressive-apparel' ); ?></a></div>
+			<!-- /wp:button -->
+
+			<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+			<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="#"><?php echo esc_html__( 'Small Secondary', 'aggressive-apparel' ); ?></a></div>
+			<!-- /wp:button -->
+		</div>
+		<!-- /wp:buttons -->
+	</div>
+	<!-- /wp:group -->
 
 	<!-- wp:group {"className":"is-style-surface-card","style":{"spacing":{"blockGap":"var:preset|spacing|5"}},"layout":{"type":"constrained"}} -->
 	<div class="wp-block-group is-style-surface-card">

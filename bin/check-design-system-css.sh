@@ -8,8 +8,11 @@ cd "$ROOT"
 BEM_PATTERN='^(aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?|aa-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?)$'
 HEX_PATTERN='(?<!&)#[0-9a-fA-F]{3,8}'
 EDITOR_CHROME_PATTERN="(#757575|rgb\\(117,\\s*117,\\s*117\\)|color: '#(666|999|1e1e1e|cc1818|0066cc|0c4a6e)'|backgroundColor: '#(f0f0f0|f0f8ff|f0f9ff|f5f5f5|f8f9fa|f9f9f9)'|border(Top)?: '1px solid #ddd'|borderRadius: '(4px|8px)')"
-REGISTERED_STYLE_PATTERN='^(is-style-(badge|badge-muted|bordered|caption|commerce-cards|commerce-grid|commerce-price|cta|cta-small|default|eyebrow|ghost|legal|logos-only|meta|outline|outline-on-dark|price|product-frame|small|subtle|surface-card|text|wide))$'
+REGISTERED_STYLE_PATTERN='^(is-style-(badge|badge-muted|bordered|caption|commerce-cards|commerce-grid|commerce-price|cta|cta-ghost|cta-outline-on-dark|cta-small|cta-small-outline-on-dark|default|eyebrow|ghost|legal|logos-only|meta|outline|outline-on-dark|price|product-frame|small|subtle|surface-card|text|wide))$'
 RAW_CTA_PATTERN='padding-(top|right|bottom|left):(1\.2rem|3rem)|font-size:1\.1rem'
+INLINE_BUTTON_STYLE_PATTERN='wp-block-button__link[^>]*style='
+BUTTON_RECIPE_ATTRIBUTE_PATTERN='<!-- wp:button [^>]*(typography|padding)'
+STACKED_BUTTON_STYLE_PATTERN='<!-- wp:button [^>]*className":"[^"]*is-style-[^"]+ is-style-'
 EXIT=0
 
 echo "Checking for hardcoded hex colors in feature CSS..."
@@ -80,6 +83,53 @@ if rg -n "$RAW_CTA_PATTERN" patterns >/dev/null 2>&1; then
 	rg -n "$RAW_CTA_PATTERN" patterns || true
 	EXIT=1
 fi
+
+echo "Checking button patterns use centralized recipes..."
+
+if rg -n "$INLINE_BUTTON_STYLE_PATTERN" patterns >/dev/null 2>&1; then
+	echo "  FAIL: inline button link style found in patterns"
+	rg -n "$INLINE_BUTTON_STYLE_PATTERN" patterns || true
+	EXIT=1
+fi
+
+if rg -n "$BUTTON_RECIPE_ATTRIBUTE_PATTERN" patterns >/dev/null 2>&1; then
+	echo "  FAIL: button typography or padding recipe found in pattern attributes"
+	rg -n "$BUTTON_RECIPE_ATTRIBUTE_PATTERN" patterns || true
+	EXIT=1
+fi
+
+if rg -n "$STACKED_BUTTON_STYLE_PATTERN" patterns >/dev/null 2>&1; then
+	echo "  FAIL: stacked button block styles found in patterns"
+	rg -n "$STACKED_BUTTON_STYLE_PATTERN" patterns || true
+	EXIT=1
+fi
+
+echo "Checking runtime controls use shared interaction primitives..."
+
+while IFS='|' read -r file control primitive; do
+	[[ -z "$file" ]] && continue
+
+	while IFS= read -r line; do
+		[[ -z "$line" ]] && continue
+		if [[ "$line" != *"$primitive"* ]]; then
+			echo "  FAIL: .$control must compose .$primitive in $file"
+			echo "  $line"
+			EXIT=1
+		fi
+	done < <(rg -n -P "class=\"[^\"]*$control(?:\\s|\"|$)" "$file" || true)
+done <<'CONTROL_CONTRACTS'
+includes/Core/class-search-modal.php|aa-search__close|aa-icon-button
+includes/WooCommerce/class-product-filters.php|aa-product-filters__close|aa-icon-button
+includes/WooCommerce/class-quick-view.php|aggressive-apparel-quick-view__close|aa-icon-button
+includes/WooCommerce/class-size-guide.php|aggressive-apparel-size-guide__close|aa-icon-button
+includes/WooCommerce/class-sticky-add-to-cart.php|aa-sticky-cart__drawer-close|aa-icon-button
+src/blocks/dark-mode-toggle/render.php|dark-mode-toggle__button|aa-icon-button
+src/blocks-interactivity/ticker/render.php|ticker__pause|aa-icon-button
+includes/Core/class-search-modal.php|aa-search__tab|aa-choice-pill
+includes/WooCommerce/class-product-filter-renderer.php|aa-product-filters__size-chip|aa-choice-pill
+includes/WooCommerce/class-quick-view.php|aggressive-apparel-quick-view__attribute-option|aa-choice-pill
+includes/WooCommerce/class-sticky-add-to-cart.php|aa-sticky-cart__drawer-option|aa-choice-pill
+CONTROL_CONTRACTS
 
 echo "Checking BEM class names (aggressive-apparel-* and aa-*)..."
 

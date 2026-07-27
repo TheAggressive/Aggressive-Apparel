@@ -6,20 +6,53 @@
  * @package Aggressive_Apparel
  */
 
-/* core/button — Ghost colours and interaction use WordPress style data. */
+/* core/button — Ghost / secondary. */
+.is-style-ghost .wp-block-button__link {
+	border: 2px solid var(--wp--custom--button--secondary--border);
+	background: var(--wp--custom--button--secondary--background);
+	color: var(--wp--custom--button--secondary--text);
 
-/* core/button — Text colours, border, spacing, and interaction live in
- * WordPress style data. text-underline-offset is not supported by structured
- * styles. */
-.is-style-text .wp-block-button__link {
-	text-underline-offset: 0.15em;
+	&:hover:not([aria-disabled='true']) {
+		border-color: var(--wp--custom--button--secondary--border);
+		background: var(--wp--custom--button--secondary--hover-background);
+		color: var(--wp--custom--button--secondary--hover-text);
+	}
 }
 
-/* core/button — Small */
-.is-style-small .wp-block-button__link {
-	min-height: var(--aa-button-height-sm);
-	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5) var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
+.is-style-cta-ghost .wp-block-button__link {
+	min-height: var(--aa-button-height-lg);
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--12);
+	border: 2px solid var(--wp--custom--button--secondary--border);
+	background: var(--wp--custom--button--secondary--background);
+	color: var(--wp--custom--button--secondary--text);
 	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+
+	&:hover:not([aria-disabled='true']) {
+		border-color: var(--wp--custom--button--secondary--border);
+		background: var(--wp--custom--button--secondary--hover-background);
+		color: var(--wp--custom--button--secondary--hover-text);
+	}
+}
+
+/* core/button — Text / tertiary. */
+.is-style-text .wp-block-button__link {
+	min-height: var(--aa-button-height-md);
+	padding-inline: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: var(--aa-color-accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+
+	&:hover:not([aria-disabled='true']) {
+		background: transparent;
+		color: var(--aa-color-foreground);
+	}
 }
 
 /* core/button — CTA */
@@ -35,7 +68,7 @@
 
 /* core/button — CTA Small */
 .is-style-cta-small .wp-block-button__link {
-	min-height: var(--aa-button-height-sm);
+	min-height: var(--aa-control-min);
 	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--8);
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 700;
@@ -44,7 +77,43 @@
 	letter-spacing: 0.05em;
 }
 
-/* core/button — Outline on Dark uses WordPress style data. */
+/* core/button — Outline on Dark. */
+.is-style-outline-on-dark .wp-block-button__link,
+.is-style-cta-outline-on-dark .wp-block-button__link,
+.is-style-cta-small-outline-on-dark .wp-block-button__link {
+	border: 2px solid var(--aa-color-white);
+	background: transparent;
+	color: var(--aa-color-white);
+
+	&:hover:not([aria-disabled='true']) {
+		border-color: var(--aa-color-white);
+		background: var(--aa-color-white);
+		color: var(--aa-color-black);
+	}
+}
+
+/* Composite recipes are intentionally single block styles. WordPress's style
+ * picker selects one `is-style-*` value, so patterns must not stack a size style
+ * with a tone style. */
+.is-style-cta-outline-on-dark .wp-block-button__link {
+	min-height: var(--aa-button-height-lg);
+	padding: var(--wp--preset--spacing--4) var(--wp--preset--spacing--12);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.is-style-cta-small-outline-on-dark .wp-block-button__link {
+	min-height: var(--aa-control-min);
+	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--8);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
 
 /* core/group — Frosted Glass */
 .is-style-frosted {

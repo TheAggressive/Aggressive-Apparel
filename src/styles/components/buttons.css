@@ -1,83 +1,539 @@
 /**
  * Button Primitives
  *
- * Custom PHP buttons outside wp-element-button. Prefer wp-element-button when possible.
+ * `theme.json` owns the authoritative paint, typography, radius, and padding for
+ * core buttons (`.wp-element-button` / `.wp-block-button__link`). This file owns
+ * interaction mechanics WordPress cannot express consistently — target height,
+ * motion, focus, disabled/loading behavior — plus the raw-PHP `.aggressive-apparel-button`
+ * variants.
+ *
+ * Structure for the raw CTA variants (radius, padding, typography) is declared at
+ * zero specificity via `:where()` so it is only a FALLBACK: whenever
+ * `wp-element-button` is on the element, theme.json's `.wp-element-button`
+ * selectors (higher specificity) win and nothing changes. The fallback exists so
+ * a raw `.aggressive-apparel-button--primary` (or `--danger`/`--success`/`--ghost`/
+ * `--outline`) renders fully on its own — no `wp-element-button` class required.
+ * The `--text` link variant is intentionally excluded so it keeps link typography.
  *
  * @package Aggressive_Apparel
  */
 
-.aggressive-apparel-button {
+:where(
+	.wp-element-button,
+	.wp-block-button__link,
+	.aggressive-apparel-button
+) {
+	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	min-height: var(--aa-button-height-md);
+	cursor: pointer;
+	transition:
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		box-shadow var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+/**
+ * Standalone structure for the raw CTA variants.
+ *
+ * Zero-specificity FALLBACK (see header) scoped to the button-shaped
+ * `.aggressive-apparel-button--*` variants — deliberately NOT the `--text`
+ * link variant, which must keep its link-like typography. When the element also
+ * carries `wp-element-button`, theme.json's higher-specificity rules win and this
+ * is inert; without it, a raw variant still gets the full button radius, padding,
+ * and brand type treatment.
+ */
+:where(
+	.aggressive-apparel-button--primary,
+	.aggressive-apparel-button--outline,
+	.aggressive-apparel-button--danger,
+	.aggressive-apparel-button--success,
+	.aggressive-apparel-button--ghost
+) {
 	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8);
-	border: none;
 	border-radius: var(--aa-radius-button);
+	font-family: var(--wp--preset--font-family--space-grotesk);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 700;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+:where(
+	.wp-element-button,
+	.wp-block-button__link,
+	.aggressive-apparel-button
+):focus-visible {
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
+}
+
+:where(
+	.wp-element-button,
+	.wp-block-button__link,
+	.aggressive-apparel-button
+):active:not(:disabled, [aria-disabled='true']) {
+	transform: scale(0.98);
+}
+
+:where(
+	.wp-element-button,
+	.wp-block-button__link,
+	.aggressive-apparel-button
+):is(:disabled, [aria-disabled='true']) {
+	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+:where(
+	.wp-element-button,
+	.wp-block-button__link,
+	.aggressive-apparel-button
+).is-loading {
+	opacity: 0.7;
+	cursor: wait;
+	pointer-events: none;
+}
+
+/* Primary is the default filled CTA. Its paint mirrors `theme.json`'s core
+ * button element exactly (same `--button--primary--*` roles), so a raw
+ * `.aggressive-apparel-button--primary` renders identically with or without the
+ * `wp-element-button` class rather than depending on it for color. */
+.aggressive-apparel-button.aggressive-apparel-button--primary {
+	border: 2px solid var(--wp--custom--button--primary--background);
+	background: var(--wp--custom--button--primary--background);
+	color: var(--wp--custom--button--primary--text);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		border-color: var(--wp--custom--button--primary--hover-background);
+		background: var(--wp--custom--button--primary--hover-background);
+		color: var(--wp--custom--button--primary--hover-text);
+	}
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--outline {
+	border: 2px solid var(--wp--custom--button--secondary--border);
+	background: var(--wp--custom--button--secondary--background);
+	color: var(--wp--custom--button--secondary--text);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		background: var(--wp--custom--button--secondary--hover-background);
+		color: var(--wp--custom--button--secondary--hover-text);
+	}
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--text {
+	min-height: var(--aa-button-height-md);
+	padding-inline: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: var(--aa-color-accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		background: transparent;
+		color: var(--aa-color-foreground);
+	}
+}
+
+.aggressive-apparel-button--full {
+	width: 100%;
+}
+
+/**
+ * Tone variants
+ *
+ * Semantic intent, not new mechanics. Each tone only repaints resting + hover
+ * from its `theme.json` role (`settings.custom.button.*`); target, motion,
+ * focus, pressed, disabled, and loading behavior stay inherited from the base
+ * primitive above. Border-color is repainted too so the variant reads correctly
+ * even when the element also carries `wp-element-button` (which paints a border).
+ */
+.aggressive-apparel-button.aggressive-apparel-button--danger {
+	border-color: var(--wp--custom--button--danger--background);
+	background: var(--wp--custom--button--danger--background);
+	color: var(--wp--custom--button--danger--text);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		border-color: var(--wp--custom--button--danger--hover-background);
+		background: var(--wp--custom--button--danger--hover-background);
+		color: var(--wp--custom--button--danger--hover-text);
+	}
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--success {
+	border-color: var(--wp--custom--button--success--background);
+	background: var(--wp--custom--button--success--background);
+	color: var(--wp--custom--button--success--text);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		border-color: var(--wp--custom--button--success--hover-background);
+		background: var(--wp--custom--button--success--hover-background);
+		color: var(--wp--custom--button--success--hover-text);
+	}
+}
+
+/* Ghost: chromeless until hover. Lives between a filled CTA and a text link —
+ * use it for low-emphasis actions that still need a real target. */
+.aggressive-apparel-button.aggressive-apparel-button--ghost {
+	border-color: transparent;
+	background: var(--wp--custom--button--ghost--background);
+	color: var(--wp--custom--button--ghost--text);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		border-color: transparent;
+		background: var(--wp--custom--button--ghost--hover-background);
+		color: var(--wp--custom--button--ghost--hover-text);
+	}
+}
+
+/**
+ * Density variants
+ *
+ * The tap target never drops below `--aa-control-min` (44px). "sm" mirrors the
+ * registered core/button Small recipe for commerce surfaces. "compact" tightens
+ * inline padding + type for dense utilities. "lg" is the hero step-up.
+ */
+:is(
+	.is-style-small .wp-block-button__link,
+	.aggressive-apparel-button.aggressive-apparel-button--sm
+) {
+	min-height: var(--aa-control-min);
+	padding-block: var(--wp--preset--spacing--2);
+	padding-inline: var(--wp--preset--spacing--5);
 	font-size: var(--wp--preset--font-size--small);
-	font-weight: 600;
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--compact {
+	padding-block: 0.375rem;
+	padding-inline: 0.875rem;
+	font-size: var(--wp--preset--font-size--x-small);
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--lg {
+	min-height: var(--aa-button-height-lg);
+	padding-block: 0.875rem;
+	padding-inline: 2rem;
+	font-size: var(--wp--preset--font-size--medium);
+}
+
+/* Elevated: for a single hero CTA that must float above merchandising media.
+ * Shadow animates via the base transition; focus-visible replaces it with the
+ * ring, which is the correct precedence. */
+.aggressive-apparel-button.aggressive-apparel-button--elevated {
+	box-shadow: var(--aa-shadow-md);
+}
+
+@media (hover: hover) {
+
+	.aggressive-apparel-button.aggressive-apparel-button--elevated:hover:not(
+		:disabled,
+		[aria-disabled='true']
+	) {
+		box-shadow: var(--aa-shadow-lg);
+	}
+}
+
+/* Radius overrides for contexts that shouldn't inherit the global button radius. */
+.aggressive-apparel-button.aggressive-apparel-button--pill {
+	border-radius: var(--aa-radius-full);
+}
+
+.aggressive-apparel-button.aggressive-apparel-button--square {
+	border-radius: 0;
+}
+
+/**
+ * Utility icon buttons
+ *
+ * A circle is the one-glyph expression of the pill system. Components may
+ * override the local custom properties for contextual surfaces, but target,
+ * focus, motion, and state behavior stay centralized here.
+ */
+:where(.aa-icon-button) {
+	--aa-icon-button-background: var(--wp--custom--button--icon--background);
+	--aa-icon-button-color: var(--wp--custom--button--icon--text);
+	--aa-icon-button-border: var(--wp--custom--button--icon--border);
+	--aa-icon-button-hover-background: var(--aa-icon-button-background);
+	--aa-icon-button-hover-border: var(--aa-icon-button-border);
+	--aa-icon-button-hover-color: var(--wp--custom--button--icon--hover-text);
+
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	gap: 0.375rem;
+	min-width: var(--aa-icon-button-size);
+	min-height: var(--aa-icon-button-size);
+	padding: 0.625rem;
+	border: 1px solid var(--aa-icon-button-border);
+	border-radius: var(--aa-radius-full);
+	background: var(--aa-icon-button-background);
+	color: var(--aa-icon-button-color);
+	font: inherit;
+	line-height: 1;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+	transition:
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+:where(.aa-icon-button--only) {
+	width: var(--aa-icon-button-size);
+	height: var(--aa-icon-button-size);
+	padding: 0;
+	line-height: 0;
+}
+
+@media (hover: hover) {
+
+	:where(.aa-icon-button):hover:not(:disabled, [aria-disabled='true']) {
+		border-color: var(--aa-icon-button-hover-border);
+		background: var(--aa-icon-button-hover-background);
+		color: var(--aa-icon-button-hover-color);
+	}
+}
+
+:where(.aa-icon-button):focus-visible {
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
+}
+
+:where(.aa-icon-button):active:not(:disabled, [aria-disabled='true']) {
+	transform: scale(0.94);
+}
+
+:where(.aa-icon-button):is(:disabled, [aria-disabled='true']) {
+	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
+	cursor: not-allowed;
+}
+
+:where(.aa-icon-button--danger) {
+	--aa-icon-button-hover-color: var(--aa-color-error);
+}
+
+/* Rounded-square shape — for overlay/modal close buttons that read better as a
+ * soft square than the default pill circle. */
+:where(.aa-icon-button--square) {
+	border-radius: var(--aa-radius-md);
+}
+
+/**
+ * Selectable choice pills
+ *
+ * Used by variations, filter chips, and compact tab choices. Color swatches
+ * retain their product-specific visual center while reusing this state contract.
+ */
+:where(.aa-choice-pill) {
+	box-sizing: border-box;
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: var(--aa-control-min);
+	min-height: var(--aa-control-min);
+	padding: 0.375rem 0.75rem;
+	border: 0;
+	border-radius: var(--aa-radius-full);
+
+	/* Contain the wipe-fill ::before's z-index and clip it to the pill shape. */
+	isolation: isolate;
+	overflow: hidden;
+	background: var(--wp--custom--button--choice--background);
+	color: var(--wp--custom--button--choice--text);
+
+	/* 35% (not 15%) so the resting boundary stays visible on dark surfaces —
+	   otherwise a filled hover/selected pill looks like it grows. Components no
+	   longer need per-context border patches for this. */
+	box-shadow: inset 0 0 0 2px
+		color-mix(
+			in oklch,
+			var(--wp--custom--button--choice--border) 35%,
+			transparent
+		);
 	font-family: inherit;
-	line-height: 1.2;
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	cursor: pointer;
 	transition:
 		opacity var(--aa-duration-fast) var(--aa-ease-default),
 		background-color var(--aa-duration-fast) var(--aa-ease-default),
-		color var(--aa-duration-fast) var(--aa-ease-default);
+		box-shadow var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-fast) var(--aa-ease-default);
+}
 
-	&:hover:not(:disabled) {
-		opacity: 0.85;
-	}
+/**
+ * Wipe fill — the selected paint slides in from the left on hover/selection,
+ * shared by every choice pill (filters, search tabs, quick-view + sticky
+ * options, pagination). Color swatches are excluded: their `::before` is the
+ * swatch color itself. Sits at z-index -1 (below the pill's own text/spans,
+ * which the `isolation: isolate` context keeps above it).
+ */
+:where(.aa-choice-pill:not(.is-color-swatch))::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: inherit;
+	background: var(--wp--custom--button--choice--selected-background);
+	opacity: 0;
+	transform: scaleX(0);
+	transform-origin: left;
+	transition:
+		transform var(--aa-duration-normal) var(--aa-ease-default),
+		opacity var(--aa-duration-fast) var(--aa-ease-default);
+}
 
-	&:focus-visible {
-		outline: 2px solid var(--aa-color-foreground);
-		outline-offset: 2px;
-	}
+/* Dense choice pill — drops the tap target to the WCAG-AA dense floor
+ * (`--aa-control-min-dense`, 32px) for secondary choices inside genuinely
+ * constrained merchandising surfaces (e.g. the filter drawer's size/fit chips).
+ * Not a general escape hatch: primary actions and PDP choices stay 44px. */
+:where(.aa-choice-pill--dense) {
+	min-width: var(--aa-control-min-dense);
+	min-height: var(--aa-control-min-dense);
+	padding-block: 0.25rem;
+}
 
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+@media (hover: hover) {
 
-	&.is-loading {
-		opacity: 0.6;
-		pointer-events: none;
-	}
+	:where(.aa-choice-pill):hover:not(
+		:disabled,
+		[aria-disabled='true'],
+		.is-unavailable,
+		.is-color-swatch,
+		.is-selected,
+		.is-active,
+		.is-current,
+		[aria-pressed='true'],
+		[aria-selected='true'],
+		[aria-checked='true'],
+		[aria-expanded='true']
+	) {
+		color: var(--wp--custom--button--choice--selected-text);
+		box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
 
-	&--primary {
-		background-color: var(--aa-color-foreground);
-		color: var(--aa-color-surface);
-	}
-
-	&--accent {
-		background-color: var(--aa-color-accent);
-		color: var(--aa-color-surface);
-
-		&:hover:not(:disabled) {
-			opacity: 0.9;
-		}
-	}
-
-	&--outline {
-		border: 2px solid var(--aa-color-foreground);
-		background: transparent;
-		color: var(--aa-color-foreground);
-
-		&:hover:not(:disabled) {
-			background: var(--aa-color-foreground);
-			color: var(--aa-color-surface);
+		&::before {
 			opacity: 1;
+			transform: scaleX(1);
 		}
-	}
-
-	&--full {
-		width: 100%;
 	}
 }
 
-/* Loading spinner appended via ::after.
- * Load More uses an in-button spinner instead — see .aa-load-more__btn. */
+/* Selected: text inverts + full border for every pill; the wipe fill covers the
+   non-swatch pills (color swatches keep their own selected visual). */
+:where(.aa-choice-pill):is(
+	.is-selected,
+	.is-active,
+	.is-current,
+	[aria-pressed='true'],
+	[aria-selected='true'],
+	[aria-checked='true'],
+	[aria-expanded='true']
+) {
+	color: var(--wp--custom--button--choice--selected-text);
+	box-shadow: inset 0 0 0 2px var(--wp--custom--button--choice--border);
+}
+
+:where(.aa-choice-pill:not(.is-color-swatch)):is(
+	.is-selected,
+	.is-active,
+	.is-current,
+	[aria-pressed='true'],
+	[aria-selected='true'],
+	[aria-checked='true'],
+	[aria-expanded='true']
+)::before {
+	opacity: 1;
+	transform: scaleX(1);
+}
+
+:where(.aa-choice-pill):focus-visible {
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
+}
+
+:where(.aa-choice-pill):active:not(:disabled, [aria-disabled='true'], .is-unavailable) {
+	transform: scale(0.97);
+}
+
+:where(.aa-choice-pill):is(:disabled, [aria-disabled='true'], .is-unavailable) {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+/* Segmented actions such as quantity steppers inherit their outer pill from
+ * the group, while this primitive owns the individual 44px controls. */
+:where(.aa-stepper-button) {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: var(--aa-icon-button-size);
+	min-width: var(--aa-icon-button-size);
+	height: var(--aa-icon-button-size);
+	min-height: var(--aa-icon-button-size);
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	transition:
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default),
+		transform var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+/* Subtle currentcolor tint on hover/focus — matches the WooCommerce
+ * quantity-selector buttons (woocommerce/blocks.css) so every quantity stepper
+ * (product form, cart, checkout, mini-cart, sticky bar, quick view) reads as one
+ * control. */
+@media (hover: hover) {
+
+	:where(.aa-stepper-button):hover:not(:disabled, [aria-disabled='true']) {
+		background: color-mix(in oklch, currentcolor 8%, transparent);
+	}
+}
+
+:where(.aa-stepper-button):focus-visible {
+	outline: none;
+	background: color-mix(in oklch, currentcolor 8%, transparent);
+}
+
+:where(.aa-stepper-button):active:not(:disabled, [aria-disabled='true']) {
+	transform: scale(0.97);
+}
+
+:where(.aa-stepper-button):is(:disabled, [aria-disabled='true']) {
+	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
+	cursor: not-allowed;
+}
+
+/* Loading spinner appended via ::after. Scoped to `.aggressive-apparel-button`
+ * (our raw-PHP CTA) by design — core `.wp-element-button` gets the `.is-loading`
+ * opacity/cursor state above but not the spinner, since core buttons don't own
+ * an async lifecycle here. Load More uses an in-button spinner instead — see
+ * .aa-load-more__btn. */
 .aggressive-apparel-button.is-loading:not(.aa-load-more__btn)::after {
 	content: '';
 	display: inline-block;
@@ -100,8 +556,32 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aggressive-apparel-button {
+	:where(
+		.wp-element-button,
+		.wp-block-button__link,
+		.aggressive-apparel-button,
+		.aa-icon-button,
+		.aa-choice-pill,
+		.aa-stepper-button
+	) {
 		transition: none;
+	}
+
+	:where(
+		.wp-element-button,
+		.wp-block-button__link,
+		.aggressive-apparel-button,
+		.aa-icon-button,
+		.aa-choice-pill,
+		.aa-stepper-button
+	):is(:hover, :active) {
+		transform: none;
+	}
+
+	/* Choice-pill wipe fill: no slide, just appear/disappear instantly. */
+	:where(.aa-choice-pill:not(.is-color-swatch))::before {
+		transition: none;
+		transform: scaleX(1);
 	}
 
 	.aggressive-apparel-button.is-loading:not(.aa-load-more__btn)::after {

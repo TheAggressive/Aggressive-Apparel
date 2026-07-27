@@ -147,57 +147,24 @@ class Theme_Support {
 		register_block_style(
 			'core/button',
 			array(
-				'name'       => 'ghost',
-				'label'      => __( 'Ghost', 'aggressive-apparel' ),
-				'style_data' => array(
-					'border' => array(
-						'color' => 'var:preset|color|foreground',
-						'style' => 'solid',
-						'width' => '2px',
-					),
-					'color'  => array(
-						'background' => 'transparent',
-						'text'       => 'var:preset|color|foreground',
-					),
-					':hover' => array(
-						'color' => array(
-							'background' => 'var:preset|color|foreground',
-							'text'       => 'var:preset|color|surface',
-						),
-					),
-				),
+				'name'  => 'ghost',
+				'label' => __( 'Secondary (Outline)', 'aggressive-apparel' ),
 			)
 		);
 
 		register_block_style(
 			'core/button',
 			array(
-				'name'       => 'text',
-				'label'      => __( 'Text', 'aggressive-apparel' ),
-				'style_data' => array(
-					'border'     => array(
-						'width' => '0',
-					),
-					'color'      => array(
-						'background' => 'transparent',
-						'text'       => 'var:preset|color|accent',
-					),
-					'spacing'    => array(
-						'padding' => array(
-							'left'  => '0',
-							'right' => '0',
-						),
-					),
-					'typography' => array(
-						'textDecoration' => 'underline',
-					),
-					':hover'     => array(
-						'color' => array(
-							'background' => 'transparent',
-							'text'       => 'var:preset|color|foreground',
-						),
-					),
-				),
+				'name'  => 'cta-ghost',
+				'label' => __( 'Large Secondary', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'text',
+				'label' => __( 'Tertiary (Text)', 'aggressive-apparel' ),
 			)
 		);
 
@@ -213,7 +180,7 @@ class Theme_Support {
 			'core/button',
 			array(
 				'name'  => 'cta',
-				'label' => __( 'CTA', 'aggressive-apparel' ),
+				'label' => __( 'Large Primary', 'aggressive-apparel' ),
 			)
 		);
 
@@ -221,32 +188,31 @@ class Theme_Support {
 			'core/button',
 			array(
 				'name'  => 'cta-small',
-				'label' => __( 'CTA Small', 'aggressive-apparel' ),
+				'label' => __( 'Small Primary', 'aggressive-apparel' ),
 			)
 		);
 
 		register_block_style(
 			'core/button',
 			array(
-				'name'       => 'outline-on-dark',
-				'label'      => __( 'Outline on Dark', 'aggressive-apparel' ),
-				'style_data' => array(
-					'border' => array(
-						'color' => 'var:preset|color|white',
-						'style' => 'solid',
-						'width' => '2px',
-					),
-					'color'  => array(
-						'background' => 'transparent',
-						'text'       => 'var:preset|color|white',
-					),
-					':hover' => array(
-						'color' => array(
-							'background' => 'var:preset|color|white',
-							'text'       => 'var:preset|color|black',
-						),
-					),
-				),
+				'name'  => 'outline-on-dark',
+				'label' => __( 'Secondary on Dark', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'cta-outline-on-dark',
+				'label' => __( 'Large Secondary on Dark', 'aggressive-apparel' ),
+			)
+		);
+
+		register_block_style(
+			'core/button',
+			array(
+				'name'  => 'cta-small-outline-on-dark',
+				'label' => __( 'Small Secondary on Dark', 'aggressive-apparel' ),
 			)
 		);
 

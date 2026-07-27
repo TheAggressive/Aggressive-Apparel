@@ -55,7 +55,7 @@ Product_Filters::ensure_assets();
 	<div class="aa-filter-active-bar__pills"></div>
 	<button
 		type="button"
-		class="aa-filter-active-bar__clear-all"
+		class="aa-filter-active-bar__clear-all aggressive-apparel-button aggressive-apparel-button--text"
 		data-wp-on--click="actions.clearAllFilters"
 	>
 		<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>

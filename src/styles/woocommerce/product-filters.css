@@ -16,8 +16,7 @@ body.has-product-filters {
 	--pf-timing: cubic-bezier(0.4, 0, 0.2, 1);
 	--pf-sidebar-width: 280px;
 	--pf-drawer-width: 340px;
-	--pf-swatch-size: 2.25rem;
-	--pf-chip-height: 2.25rem;
+	--pf-swatch-size: var(--aa-icon-button-size);
 	--pf-slider-track: 2px;
 	--pf-slider-thumb: 1.5rem;
 	--pf-bg: var(--aa-color-surface);
@@ -56,26 +55,7 @@ body.has-product-filters {
 }
 
 .aa-product-filters__close {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	border: none;
-	background: none;
-	color: var(--pf-fg);
-	cursor: pointer;
-	border-radius: 50%;
-	transition: background-color 0.15s ease;
-
-	&:hover {
-		background-color: var(--pf-hover);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: -2px;
-	}
+	--aa-icon-button-color: var(--pf-fg);
 }
 
 .aa-product-filters__drawer-body {
@@ -210,8 +190,10 @@ body.has-product-filters {
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: -2px;
+		outline: none;
+		box-shadow:
+			inset 0 0 0 2px var(--pf-bg),
+			inset 0 0 0 4px var(--aa-color-accent);
 	}
 }
 
@@ -262,13 +244,11 @@ body.has-product-filters {
 	}
 }
 
-/* ── Morphing Chips (shared: categories + sizes) ───── */
+/* ── Choice-pill content (categories + sizes) ─────── */
 
 /*
- * Pill-shaped toggle buttons with a left-to-right wipe fill on select
- * and a checkmark that bounces in while text slides right. The checkmark
- * space is always allocated so the chip never changes width — only
- * transforms + opacity animate → zero layout recalc.
+ * Shared `.aa-choice-pill` owns the target and state paint. This file owns the
+ * checkmark and label arrangement unique to the filter renderer.
  */
 
 .aa-product-filters__category-list {
@@ -289,69 +269,13 @@ body.has-product-filters {
 	margin: 0;
 }
 
-/* Base chip — shared between category and size.
- * `button` qualifier bumps specificity to (0,1,1) so we override
- * WordPress global button styles from theme.json. */
+/* Component content shell; shared choice-pill CSS owns interactive chrome, the
+ * target size, and the (now visible) resting border. */
 button.aa-product-filters__category-chip,
 button.aa-product-filters__size-chip,
 button.aa-product-filters__fit-chip {
 	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.375rem 0.75rem;
-	border: none;
-	border-radius: 999px;
-	background: transparent;
-	color: var(--pf-fg);
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	cursor: pointer;
 	overflow: hidden;
-	min-height: 2.25rem;
-	box-shadow: inset 0 0 0 1px var(--pf-border);
-	transition:
-		box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-		transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-	/* Wipe fill — slides in from left on select. */
-	&::before {
-		content: "";
-		position: absolute;
-		inset: 0;
-		background: var(--pf-fg);
-		transform: scaleX(0);
-		transform-origin: left;
-		opacity: 0;
-		transition:
-			transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-			opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-		z-index: 0;
-		border-radius: inherit;
-	}
-
-	&:hover {
-		box-shadow: inset 0 0 0 2px var(--pf-fg);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 2px;
-	}
-
-	&.is-selected {
-		box-shadow: inset 0 0 0 2px var(--pf-fg);
-		color: var(--pf-bg);
-
-		&::before {
-			transform: scaleX(1);
-			opacity: 1;
-		}
-	}
 }
 
 /* Checkmark icon — shared. */
@@ -419,14 +343,9 @@ button.aa-product-filters__fit-chip {
 	}
 }
 
-/* Size chips have a minimum width for short labels like "S", "M". */
-.aa-product-filters__size-chip {
-	min-width: 2.75rem;
-}
-
 /* Line chips are wider — labels like "Men's" need more room. */
 .aa-product-filters__fit-chip {
-	min-width: 4rem;
+	min-width: 3.25rem;
 }
 
 /* ── Filter Availability ───────────────────────────── */
@@ -468,37 +387,49 @@ button.aa-product-filters__fit-chip.is-unavailable {
 button.aa-product-filters__color-swatch {
 	width: var(--pf-swatch-size);
 	height: var(--pf-swatch-size);
-	border-radius: 50%;
+	border-radius: var(--aa-radius-full);
 	border: none;
 	cursor: pointer;
 	padding: 0;
-	outline-offset: 2px;
 	position: relative;
-	transform: scale(1);
 	transition:
-		transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
 		opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 		box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0.25rem;
+		border-radius: inherit;
+		background-color: var(--pf-swatch-color, transparent);
+		background-image: var(--pf-swatch-image, none);
+		background-position: center;
+		background-size: cover;
+		box-shadow: inset 0 0 0 1px var(--pf-border);
+		transform: scale(1);
+		transition:
+			transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+			box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
 	&.is-selected {
+		box-shadow: none;
+	}
+
+	&.is-selected::before {
 		transform: scale(0.78);
 		box-shadow:
 			0 0 0 4px var(--pf-bg),
 			0 0 0 7px color-mix(in oklch, var(--swatch-color, var(--pf-muted)) 100%, var(--aa-color-foreground));
 	}
 
-	&:hover:not(.is-selected) {
+	&:hover:not(.is-selected)::before {
 		transform: scale(1.1);
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 3px;
-	}
-
-	&.is-selected:focus-visible {
-		outline-width: 3px;
-		outline-offset: 4px;
+		outline: none;
+		box-shadow: var(--aa-focus-ring);
 	}
 }
 
@@ -750,90 +681,13 @@ button.aa-product-filters__color-swatch {
 
 .aa-product-filters__apply-btn {
 	flex: 1;
-	padding: 0.75rem 0 !important;
-	background: var(--pf-fg);
-	color: var(--pf-bg);
-	border: none;
-	font-size: 0.8rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	cursor: pointer;
-	min-height: 2.75rem;
-	transition: opacity 0.15s ease;
-
-	&:hover {
-		opacity: 0.85;
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 2px;
-	}
 }
 
 .aa-product-filters__clear-btn {
-	padding: 0.75rem 1.25rem;
-	background: transparent;
-	color: var(--pf-fg);
-	border: 1px solid var(--pf-border);
-	font-size: 0.8rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
-	min-height: 2.75rem;
-	transition: border-color 0.15s ease;
-
-	&:hover {
-		border-color: var(--pf-fg);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 2px;
-	}
 
 	&[hidden] {
 		display: none;
 	}
-}
-
-/* Ghost (outline) paint, mirroring the "Ghost" core/button style variation
-   registered in Core/Theme_Support — keep the two in sync. The variation's
-   own CSS can't be reused here: WordPress only prints block-style-variation
-   CSS when a real core/button block carrying `is-style-ghost` renders on
-   the page, and this is a raw button in PHP-rendered filter chrome. The
-   chained class (0-2-0) is needed because theme.json's solid button paint
-   (`:root :where(.wp-element-button)` and its state variants, 0-1-0) prints
-   later in the page and would otherwise win the tie in every state. */
-.aa-product-filters__clear-btn.wp-element-button {
-	background: transparent;
-	color: var(--pf-fg);
-	border: 2px solid var(--pf-fg);
-
-	&:hover {
-		background: var(--pf-fg);
-		color: var(--pf-bg);
-		border-color: var(--pf-fg);
-	}
-}
-
-/* Compact drawer-footer actions — mirrors the "Small" core/button style
-   variation recipe in components/block-styles.css (raw buttons can't consume
-   `.is-style-small .wp-block-button__link`, which needs block markup). Keep
-   in sync with that recipe. The apply padding repeats the base rule's
-   `!important` because it can't win the same-property fight without it. */
-.aa-product-filters__drawer-footer .aa-product-filters__apply-btn {
-	padding: var(--wp--preset--spacing--2) 0 !important;
-	min-height: var(--aa-button-height-sm);
-	font-size: var(--wp--preset--font-size--small);
-}
-
-.aa-product-filters__drawer-footer .aa-product-filters__clear-btn {
-	padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
-	min-height: var(--aa-button-height-sm);
-	font-size: var(--wp--preset--font-size--small);
 }
 
 .aa-product-filters__apply-btn--sidebar {
@@ -941,11 +795,6 @@ button.aa-product-filters__color-swatch {
 	}
 }
 
-.aa-product-filters__retry {
-	min-height: 2.75rem;
-	padding: 0.625rem 1.5rem;
-}
-
 /* ── Pagination ─────────────────────────────────────── */
 
 /* Load More / Infinite Scroll replaces numbered pagination. */
@@ -965,33 +814,10 @@ button.aa-product-filters__color-swatch {
 }
 
 .aa-product-filters__page-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	border: 1px solid var(--pf-border);
-	background: transparent;
-	color: var(--pf-fg);
+	width: var(--aa-control-min);
+	height: var(--aa-control-min);
+	padding: 0;
 	font-size: 0.8rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
-
-	&:hover {
-		border-color: var(--pf-fg);
-	}
-
-	&.is-current {
-		background: var(--pf-fg);
-		color: var(--pf-bg);
-		border-color: var(--pf-fg);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 2px;
-	}
 }
 
 /* ── Screen Reader Text ─────────────────────────────── */
@@ -1080,30 +906,7 @@ button.aa-product-filters__color-swatch {
 }
 
 .aa-product-filters__bar-trigger {
-	display: inline-flex;
-	align-items: center;
 	gap: 0.375rem;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid var(--pf-border);
-	background: transparent;
-	color: var(--pf-fg);
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	cursor: pointer;
-	min-height: 2.75rem;
-	transition: border-color 0.15s ease;
-
-	&:hover,
-	&[aria-expanded="true"] {
-		border-color: var(--pf-fg);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--pf-fg);
-		outline-offset: 2px;
-	}
 
 	svg {
 		transition: transform 0.2s ease;

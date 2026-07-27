@@ -156,7 +156,7 @@ export function renderPagination(): void {
     const isCurrent = i === state.currentPage;
     const ariaLabel = isCurrent ? `Page ${i}, current page` : `Go to page ${i}`;
     pages.push(
-      `<button class="aa-product-filters__page-btn${isCurrent ? ' is-current' : ''}" data-page="${i}" aria-label="${escapeHtml(ariaLabel)}" ${isCurrent ? 'aria-current="page"' : ''}>${i}</button>`
+      `<button class="aa-product-filters__page-btn aa-choice-pill${isCurrent ? ' is-current' : ''}" data-page="${i}" aria-label="${escapeHtml(ariaLabel)}" ${isCurrent ? 'aria-current="page"' : ''}>${i}</button>`
     );
   }
 

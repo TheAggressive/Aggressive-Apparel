@@ -12,8 +12,8 @@
 .aa-grid-list-toggle {
 	display: inline-flex;
 	gap: 0;
-	border: 1px solid var(--aa-color-border-default);
-	border-radius: 0.375rem;
+	border: 2px solid var(--wp--custom--button--choice--border);
+	border-radius: var(--aa-radius-full);
 	overflow: hidden;
 	vertical-align: middle;
 }
@@ -23,14 +23,14 @@
 	align-items: center;
 	justify-content: center;
 	gap: 0.375rem;
-	min-height: 2.75rem;
-	min-width: 2.75rem;
+	min-height: var(--aa-control-min);
+	min-width: var(--aa-control-min);
 	padding: 0.5rem 0.75rem;
 	border: none;
 	background: transparent;
 	color: var(--aa-color-foreground-muted);
 	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 600;
+	font-weight: 700;
 	font-family: inherit;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
@@ -41,23 +41,23 @@
 }
 
 .aa-grid-list-toggle__btn:hover {
-	background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent);
-	color: var(--aa-color-foreground);
+	background: var(--wp--custom--button--choice--selected-background);
+	color: var(--wp--custom--button--choice--selected-text);
 }
 
 .aa-grid-list-toggle__btn.is-active {
-	background: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
+	background: var(--wp--custom--button--choice--selected-background);
+	color: var(--wp--custom--button--choice--selected-text);
 }
 
 .aa-grid-list-toggle__btn:focus-visible {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: -2px;
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
 	z-index: 1;
 }
 
 .aa-grid-list-toggle__btn + .aa-grid-list-toggle__btn {
-	border-left: 1px solid var(--aa-color-border-default);
+	border-left: 2px solid var(--wp--custom--button--choice--border);
 }
 
 .aa-grid-list-toggle__label {

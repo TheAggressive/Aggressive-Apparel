@@ -427,7 +427,7 @@ class Product_Filters {
 							<?php esc_html_e( 'Filters', 'aggressive-apparel' ); ?>
 						</h2>
 						<button
-							class="aa-product-filters__close"
+							class="aa-product-filters__close aa-icon-button aa-icon-button--only aa-icon-button--square"
 							data-wp-on--click="actions.closeDrawer"
 							aria-label="<?php esc_attr_e( 'Close filters', 'aggressive-apparel' ); ?>"
 						>
@@ -450,14 +450,14 @@ class Product_Filters {
 
 					<div class="aa-product-filters__drawer-footer">
 						<button
-							class="aa-product-filters__clear-btn wp-element-button"
+							class="aa-product-filters__clear-btn aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--compact wp-element-button"
 							data-wp-on--click="actions.clearAllFilters"
 							data-wp-bind--hidden="state.hasNoActiveFilters"
 						>
 							<?php esc_html_e( 'Clear All', 'aggressive-apparel' ); ?>
 						</button>
 						<button
-							class="aa-product-filters__apply-btn wp-element-button"
+							class="aa-product-filters__apply-btn aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--compact wp-element-button"
 							data-wp-on--click="actions.closeDrawer"
 						>
 							<?php esc_html_e( 'View Results', 'aggressive-apparel' ); ?>
@@ -515,11 +515,11 @@ class Product_Filters {
 
 			// Sidebar has no panel to close, so results apply via this button
 			// (selections only stage until it's pressed).
-			$sidebar_html .= '<button class="aa-product-filters__apply-btn aa-product-filters__apply-btn--sidebar wp-element-button" data-wp-on--click="actions.applyFilters">';
+			$sidebar_html .= '<button class="aa-product-filters__apply-btn aa-product-filters__apply-btn--sidebar aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--compact wp-element-button" data-wp-on--click="actions.applyFilters">';
 			$sidebar_html .= esc_html__( 'View Results', 'aggressive-apparel' );
 			$sidebar_html .= '</button>';
 
-			$sidebar_html .= '<button class="aa-product-filters__clear-btn aa-product-filters__clear-btn--sidebar wp-element-button" data-wp-on--click="actions.clearAllFilters" data-wp-bind--hidden="state.hasNoActiveFilters">';
+			$sidebar_html .= '<button class="aa-product-filters__clear-btn aa-product-filters__clear-btn--sidebar aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--compact wp-element-button" data-wp-on--click="actions.clearAllFilters" data-wp-bind--hidden="state.hasNoActiveFilters">';
 			$sidebar_html .= esc_html__( 'Clear All Filters', 'aggressive-apparel' );
 			$sidebar_html .= '</button>';
 			$sidebar_html .= '</div></aside>';
@@ -580,7 +580,7 @@ class Product_Filters {
 		// Error notice with retry — shown when a request fails.
 		$output .= '<div class="aa-product-filters__error" role="alert" data-wp-bind--hidden="state.hideError">';
 		$output .= '<p>' . esc_html__( 'Something went wrong loading products.', 'aggressive-apparel' ) . '</p>';
-		$output .= '<button type="button" class="aa-product-filters__retry wp-element-button" data-wp-on--click="actions.retry">';
+		$output .= '<button type="button" class="aa-product-filters__retry aggressive-apparel-button aggressive-apparel-button--primary wp-element-button" data-wp-on--click="actions.retry">';
 		$output .= esc_html__( 'Try again', 'aggressive-apparel' );
 		$output .= '</button>';
 		$output .= '</div>';

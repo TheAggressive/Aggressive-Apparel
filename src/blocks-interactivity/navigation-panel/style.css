@@ -281,33 +281,12 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 
 /* Close button */
 .aa-nav__panel-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  --aa-icon-button-color: var(--_text-muted);
+  --aa-icon-button-hover-color: var(--_panel-accent);
+
   width: 48px;
   height: 48px;
-  padding: 0;
   margin-left: auto;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--aa-radius-full);
-  cursor: pointer;
-  color: var(--_text-muted);
-  transition:
-    color var(--aa-nav-transition-fast),
-    border-color var(--aa-nav-transition-fast),
-    background-color var(--aa-nav-transition-fast);
-  -webkit-tap-highlight-color: transparent;
-
-  &:hover {
-    color: var(--_panel-accent);
-    background: var(--_item-hover);
-    border-color: var(--_border);
-  }
-
-  &:active {
-    color: var(--_text-strong);
-  }
 
   & svg {
     width: 1.5rem;

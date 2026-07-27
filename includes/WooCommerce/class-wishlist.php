@@ -441,7 +441,11 @@ BLOCKS;
 
 		self::ensure_assets();
 
-		$classes = array( 'aggressive-apparel-wishlist__toggle' );
+		$classes = array(
+			'aggressive-apparel-wishlist__toggle',
+			'aa-icon-button',
+			'aa-icon-button--only',
+		);
 		if ( $large ) {
 			$classes[] = 'aggressive-apparel-wishlist__toggle--large';
 		}

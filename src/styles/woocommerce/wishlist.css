@@ -7,37 +7,10 @@
 
 /* Shared heart toggle. */
 .aggressive-apparel-wishlist__toggle {
+	--aa-icon-button-background: var(--aa-color-surface-80);
+	--aa-icon-button-color: var(--aa-color-foreground);
+
 	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
-	background-color: var(--aa-color-surface-80);
-	color: var(--aa-color-foreground);
-	cursor: pointer;
-	transition:
-		transform 0.15s ease,
-		background-color 0.15s ease,
-		color 0.15s ease;
-
-	&:hover,
-	&:focus-visible {
-		transform: scale(1.08);
-		background-color: var(--aa-color-surface);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-	}
 
 	&.is-active {
 		color: var(--aa-color-accent);
@@ -54,8 +27,6 @@
 
 	/* Large variant for single product. */
 	&--large {
-		width: 2.5rem;
-		height: 2.5rem;
 		margin-bottom: 0.5rem;
 	}
 }

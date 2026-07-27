@@ -203,29 +203,9 @@
 }
 
 .aggressive-apparel-social-proof__close {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: end;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	background: none;
+	--aa-icon-button-color: var(--aa-color-foreground-muted);
+
 	font-size: var(--aa-toast-close-size, 1.5rem);
-	line-height: 1;
-	cursor: pointer;
-	opacity: 0.5;
-
-	&:hover,
-	&:focus-visible {
-		opacity: 1;
-	}
-
-	&:focus-visible {
-		outline: 2px solid currentcolor;
-		outline-offset: 2px;
-	}
 }
 
 /* Offset when mobile bottom nav is present. */

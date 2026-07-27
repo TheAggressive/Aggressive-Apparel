@@ -113,7 +113,7 @@ printf(
 			'class'                       => implode(
 				' ',
 				array(
-					'aa-nav-trigger',
+					'aa-nav-trigger aa-icon-button',
 					'aa-nav-trigger--' . sanitize_html_class( $icon_style ),
 					'aa-nav-trigger--anim-' . sanitize_html_class( $anim_type ),
 				)

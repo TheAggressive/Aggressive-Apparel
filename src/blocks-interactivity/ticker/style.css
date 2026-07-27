@@ -526,28 +526,23 @@
  * visible under the glyph. Glyph color tracks content via --ticker-control-color.
  */
 .wp-block-aggressive-apparel-ticker > button.ticker__pause {
+	--aa-icon-button-background: transparent;
+	--aa-icon-button-color: var(--ticker-control-color, inherit);
+
 	position: absolute;
 	top: 50%;
 	right: 0.75rem;
 	z-index: 4;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
 	appearance: none;
-	color: var(--ticker-control-color, inherit);
 	-webkit-text-fill-color: currentcolor;
-	background-color: transparent;
 	background-image: none;
-	box-shadow: none;
-	cursor: pointer;
 	opacity: 0;
 	transform: translateY(-50%);
-	transition: opacity 0.15s ease;
+	transition:
+		opacity var(--aa-duration-fast) var(--aa-ease-default),
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		border-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 .wp-block-aggressive-apparel-ticker > button.ticker__pause:disabled {

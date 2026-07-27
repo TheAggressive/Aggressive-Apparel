@@ -418,7 +418,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 			<div class="aa-hero__arrows aa-hero__arrows--<?php echo esc_attr( $hero_arrow_pos ); ?>">
 				<button
 					type="button"
-					class="aa-hero__arrow aa-hero__arrow--prev"
+					class="aa-hero__arrow aa-hero__arrow--prev aa-icon-button aa-icon-button--only"
 					aria-label="<?php esc_attr_e( 'Previous slide', 'aggressive-apparel' ); ?>"
 					data-wp-on--click="actions.prev"
 					data-wp-bind--disabled="state.prevDisabled"
@@ -435,7 +435,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 				</button>
 				<button
 					type="button"
-					class="aa-hero__arrow aa-hero__arrow--next"
+					class="aa-hero__arrow aa-hero__arrow--next aa-icon-button aa-icon-button--only"
 					aria-label="<?php esc_attr_e( 'Next slide', 'aggressive-apparel' ); ?>"
 					data-wp-on--click="actions.next"
 					data-wp-bind--disabled="state.nextDisabled"
@@ -483,7 +483,7 @@ $hero_slide_thumb = static function ( array $cover_attrs ): string {
 				<?php if ( $hero_autoplay ) : ?>
 					<button
 						type="button"
-						class="aa-hero__play"
+						class="aa-hero__play aa-icon-button aa-icon-button--only"
 						aria-label="<?php esc_attr_e( 'Pause slideshow', 'aggressive-apparel' ); ?>"
 						data-wp-on--click="actions.togglePlay"
 						data-wp-bind--aria-label="state.playLabel"

@@ -59,7 +59,7 @@ $flip_icon = aggressive_apparel_get_icon(
 <div <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_extra ) ); ?>>
 	<button
 		type="button"
-		class="aa-card-flip__toggle"
+		class="aa-card-flip__toggle aa-icon-button aa-icon-button--only"
 		aria-pressed="false"
 		aria-label="<?php esc_attr_e( 'Flip card', 'aggressive-apparel' ); ?>"
 		data-wp-on--click="actions.toggle"

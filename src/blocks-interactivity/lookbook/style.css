@@ -26,10 +26,21 @@
 	position: absolute;
 	transform: translate(-50%, -50%);
 	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--aa-icon-button-size);
+	height: var(--aa-icon-button-size);
 	padding: 0;
 	border: none;
+	border-radius: var(--aa-radius-full);
 	background: none;
 	cursor: pointer;
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--aa-focus-ring);
+	}
 }
 
 .aggressive-apparel-lookbook__hotspot-dot {

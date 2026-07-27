@@ -1,8 +1,8 @@
 .wp-block-aggressive-apparel-dark-mode-toggle {
 	--aa-dark-mode-toggle-icon-color: currentcolor;
-	--aa-dark-mode-toggle-icon-hover-color: var(--aa-dark-mode-toggle-icon-color);
+	--aa-dark-mode-toggle-icon-hover-color: var(--aa-color-accent);
 	--aa-dark-mode-toggle-bg: transparent;
-	--aa-dark-mode-toggle-bg-hover: color-mix(in srgb, currentcolor 8%, transparent);
+	--aa-dark-mode-toggle-bg-hover: transparent;
 	--aa-dark-mode-toggle-icon-stroke-width: 1.75;
 
 	color: var(--aa-color-foreground);
@@ -19,36 +19,16 @@
 }
 
 .dark-mode-toggle__button {
-	align-items: center;
-	background: var(--aa-dark-mode-toggle-bg);
-	border: 0;
-	border-radius: var(--aa-radius-control, 4px);
-	color: inherit;
-	cursor: pointer;
-	display: inline-flex;
-	font: inherit;
-	gap: 0.5rem;
-	line-height: 0;
-	margin: 0;
-	min-height: 2.5rem;
-	min-width: 2.5rem;
-	padding: 0.5rem;
-	transition:
-		background-color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease),
-		color var(--aa-duration-fast, 150ms) var(--aa-ease-default, ease);
-}
+	--aa-icon-button-background: var(--aa-dark-mode-toggle-bg);
+	--aa-icon-button-color: var(--aa-dark-mode-toggle-icon-color);
+	--aa-icon-button-hover-background: var(--aa-dark-mode-toggle-bg-hover);
+	--aa-icon-button-hover-color: var(--aa-dark-mode-toggle-icon-hover-color);
 
-.dark-mode-toggle__button:hover {
-	background: var(--aa-dark-mode-toggle-bg-hover);
+	margin: 0;
 }
 
 .dark-mode-toggle__button:hover .dark-mode-toggle__icon {
 	color: var(--aa-dark-mode-toggle-icon-hover-color);
-}
-
-.dark-mode-toggle__button:focus-visible {
-	outline: 2px solid var(--aa-color-accent, currentcolor);
-	outline-offset: 2px;
 }
 
 .dark-mode-toggle__icons {
@@ -103,25 +83,15 @@ html[data-theme='dark'] .dark-mode-toggle__icon--sun,
 
 .dark-mode-toggle__label {
 	font-size: var(--wp--preset--font-size--small, 0.875rem);
-	font-weight: 600;
+	font-weight: 700;
 	line-height: 1.2;
-}
-
-.wp-block-aggressive-apparel-dark-mode-toggle.is-size-small .dark-mode-toggle__button {
-	min-height: 2rem;
-	min-width: 2rem;
-	padding: 0.375rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 .wp-block-aggressive-apparel-dark-mode-toggle.is-size-small .dark-mode-toggle__icons {
 	width: 1rem;
 	height: 1rem;
-}
-
-.wp-block-aggressive-apparel-dark-mode-toggle.is-size-large .dark-mode-toggle__button {
-	min-height: 3rem;
-	min-width: 3rem;
-	padding: 0.625rem;
 }
 
 .wp-block-aggressive-apparel-dark-mode-toggle.is-size-large .dark-mode-toggle__icons {

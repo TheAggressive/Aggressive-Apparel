@@ -11,32 +11,10 @@
 /* ---------------------------------------------------------------------- */
 
 .aa-hero__arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--aa-radius-full, 9999px);
-  background-color: var(--aa-hero-arrow-bg);
-  color: var(--aa-hero-arrow-color);
-  cursor: pointer;
+  --aa-icon-button-background: var(--aa-hero-arrow-bg);
+  --aa-icon-button-color: var(--aa-hero-arrow-color);
+
   backdrop-filter: blur(6px);
-  transition:
-    background-color 200ms ease,
-    transform 200ms ease,
-    opacity 200ms ease;
-}
-
-.aa-hero__arrow:hover {
-  background-color: color-mix(in oklch, var(--aa-hero-arrow-bg) 100%, var(--aa-color-surface) 25%);
-  transform: scale(1.06);
-}
-
-.aa-hero__arrow:focus-visible {
-  outline: 2px solid var(--aa-color-accent, currentcolor);
-  outline-offset: 2px;
 }
 
 .aa-hero__arrow[disabled] {
@@ -134,8 +112,8 @@
 }
 
 .aa-hero__dot:focus-visible {
-  outline: 2px solid var(--aa-color-accent, currentcolor);
-  outline-offset: -6px;
+  outline: none;
+  box-shadow: var(--aa-focus-ring);
   border-radius: var(--aa-radius-full, 9999px);
 }
 
@@ -304,22 +282,7 @@
 
 /* Play / pause toggle — mandatory chrome whenever autoplay is enabled. */
 .aa-hero__play {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--aa-radius-full, 9999px);
-  background: transparent;
-  color: var(--aa-hero-dot-active-color);
-  cursor: pointer;
-}
-
-.aa-hero__play:focus-visible {
-  outline: 2px solid var(--aa-color-accent, currentcolor);
-  outline-offset: -6px;
+  --aa-icon-button-color: var(--aa-hero-dot-active-color);
 }
 
 .aa-hero__play-icon {

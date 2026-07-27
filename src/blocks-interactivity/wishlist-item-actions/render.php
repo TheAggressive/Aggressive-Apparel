@@ -35,7 +35,7 @@ $remove_aria = $remove_label
 
 	<?php if ( $show_add_to_cart ) : ?>
 	<a
-		class="aa-wl-item-actions__atc wp-element-button"
+			class="aa-wl-item-actions__atc aggressive-apparel-button aggressive-apparel-button--primary wp-element-button"
 		data-wp-bind--href="context.item.addToCartUrl"
 	>
 		<?php echo esc_html( $atc_label ); ?>
@@ -45,7 +45,7 @@ $remove_aria = $remove_label
 	<?php if ( $show_remove ) : ?>
 	<button
 		type="button"
-		class="aa-wl-item-actions__remove"
+		class="aa-wl-item-actions__remove aa-icon-button aa-icon-button--danger"
 		data-wp-on--click="actions.removeItem"
 		aria-label="<?php echo esc_attr( $remove_aria ); ?>"
 	>

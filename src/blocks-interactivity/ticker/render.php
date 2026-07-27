@@ -267,7 +267,7 @@ $play_label  = __( 'Play animation', 'aggressive-apparel' );
 
 	<button
 		type="button"
-		class="ticker__pause"
+		class="ticker__pause aa-icon-button aa-icon-button--only"
 		data-wp-on--click="actions.togglePause"
 		data-wp-bind--aria-pressed="state.isPausedPressed"
 		data-wp-bind--aria-label="context.controlLabel"

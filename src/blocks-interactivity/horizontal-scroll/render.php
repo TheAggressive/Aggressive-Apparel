@@ -135,7 +135,7 @@ if ( is_string( $block_gap ) && '' !== $block_gap ) {
 			<div class="aa-hscroll__controls">
 				<button
 					type="button"
-					class="aa-hscroll__control aa-hscroll__control--prev"
+					class="aa-hscroll__control aa-hscroll__control--prev aa-icon-button aa-icon-button--only"
 					aria-label="<?php esc_attr_e( 'Previous slide', 'aggressive-apparel' ); ?>"
 				>
 					<?php
@@ -150,7 +150,7 @@ if ( is_string( $block_gap ) && '' !== $block_gap ) {
 				</button>
 				<button
 					type="button"
-					class="aa-hscroll__control aa-hscroll__control--next"
+					class="aa-hscroll__control aa-hscroll__control--next aa-icon-button aa-icon-button--only"
 					aria-label="<?php esc_attr_e( 'Next slide', 'aggressive-apparel' ); ?>"
 				>
 					<?php

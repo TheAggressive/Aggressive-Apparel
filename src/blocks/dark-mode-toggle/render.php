@@ -88,7 +88,7 @@ if ( '' !== $color_style ) {
 <div <?php echo wp_kses_post( get_block_wrapper_attributes( $wrapper_attributes ) ); ?>>
 	<button
 		type="button"
-		class="dark-mode-toggle__button"
+		class="dark-mode-toggle__button aa-icon-button<?php echo $show_label ? '' : ' aa-icon-button--only'; ?>"
 		aria-pressed="false"
 		aria-label="<?php esc_attr_e( 'Switch to dark mode', 'aggressive-apparel' ); ?>"
 		data-label-light="<?php esc_attr_e( 'Switch to dark mode', 'aggressive-apparel' ); ?>"

@@ -231,14 +231,14 @@
 .aggressive-footer-signup button[type='submit'] {
 	min-height: var(--aa-input-height);
 	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8) !important;
-	border: 0 !important;
+	border: 2px solid var(--wp--custom--button--primary--background) !important;
 	border-radius: var(--aa-radius-button) !important;
-	background: var(--aa-color-accent) !important;
-	color: var(--aa-color-white) !important;
+	background: var(--wp--custom--button--primary--background) !important;
+	color: var(--wp--custom--button--primary--text) !important;
 	font-size: var(--wp--preset--font-size--medium) !important;
 	font-weight: 700 !important;
-	line-height: 1.2 !important;
-	letter-spacing: 0.05em !important;
+	line-height: 1.1 !important;
+	letter-spacing: 0.06em !important;
 	text-transform: uppercase;
 	transition:
 		background-color var(--aa-duration-fast) var(--aa-ease-default),
@@ -248,19 +248,19 @@
 
 .aggressive-footer-signup button[type='submit']:hover:not(:disabled),
 .aggressive-footer-signup button[type='submit']:active:not(:disabled) {
-	background: var(--aa-color-black) !important;
-	color: var(--aa-color-bright-red) !important;
+	border-color: var(--wp--custom--button--primary--hover-background) !important;
+	background: var(--wp--custom--button--primary--hover-background) !important;
+	color: var(--wp--custom--button--primary--hover-text) !important;
 }
 
 .aggressive-footer-signup button[type='submit']:focus,
 .aggressive-footer-signup button[type='submit']:focus-visible {
-	outline: 2px solid var(--aa-color-foreground) !important;
-	outline-offset: 2px;
-	box-shadow: none !important;
+	outline: none !important;
+	box-shadow: var(--aa-focus-ring) !important;
 }
 
 .aggressive-footer-signup button[type='submit']:disabled {
-	opacity: 0.6;
+	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
 	cursor: not-allowed;
 }
 

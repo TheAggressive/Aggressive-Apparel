@@ -11,36 +11,15 @@
    On the hover variant it stays out of the way until the card is hovered or
    focused (but is always operable). */
 .aa-card-flip__toggle {
+  --aa-icon-button-background: color-mix(in srgb, canvas 86%, transparent);
+  --aa-icon-button-border: color-mix(in srgb, currentcolor 28%, transparent);
+  --aa-icon-button-color: currentcolor;
+
   position: absolute;
   inset-block-start: 0.75rem;
   inset-inline-end: 0.75rem;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  color: currentcolor;
-  background: color-mix(in srgb, canvas 86%, transparent);
-  border: 1px solid color-mix(in srgb, currentcolor 28%, transparent);
-  border-radius: 999px;
   box-shadow: 0 0.5rem 1.25rem rgb(0 0 0 / 14%);
-  cursor: pointer;
-  transition:
-    opacity 160ms ease,
-    background-color 160ms ease,
-    transform 160ms ease;
-}
-
-.aa-card-flip__toggle:hover {
-  background: color-mix(in srgb, canvas 96%, transparent);
-  transform: scale(1.04);
-}
-
-.aa-card-flip__toggle:focus-visible {
-  outline: 2px solid currentcolor;
-  outline-offset: 3px;
 }
 
 .aa-card-flip__toggle svg {

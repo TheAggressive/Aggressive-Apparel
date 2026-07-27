@@ -9,20 +9,11 @@
  * @package Aggressive_Apparel
  */
 
-.aa-nav-trigger {
+.aa-nav-trigger.aa-icon-button {
+  --aa-icon-button-color: inherit;
+
   display: none; /* Hidden on desktop by default */
-  align-items: center;
   gap: var(--wp--preset--spacing--2);
-  padding: 0.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  min-width: 44px;
-  min-height: 44px;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
 }
 
 /* Shown when JS (callbacks.initTrigger) decides the viewport is below the

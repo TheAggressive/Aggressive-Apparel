@@ -261,31 +261,26 @@
 
 .aa-hscroll.is-enhanced .aa-hscroll__control,
 .aa-hscroll.is-snap .aa-hscroll__control {
-  position: absolute;
-  inset-block-start: 50%;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
-  border-radius: 999px;
-  background-color: color-mix(
+  --aa-icon-button-background: color-mix(
     in oklch,
     var(--aa-color-surface-elevated) 92%,
     transparent
   );
-  color: var(--aa-color-foreground);
+  --aa-icon-button-border: color-mix(
+    in oklch,
+    var(--aa-color-border) 70%,
+    transparent
+  );
+  --aa-icon-button-color: var(--aa-color-foreground);
+
+  position: absolute;
+  inset-block-start: 50%;
+  z-index: 3;
+  display: inline-flex;
   opacity: 0;
   pointer-events: none;
-  cursor: pointer;
   translate: 0 -50%;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    opacity 150ms ease;
+  transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
 }
 
 /* Keyboard reveal: Tab / :focus-visible only — not Arrow Up/Down paging. */
@@ -305,20 +300,6 @@
 
 .aa-hscroll__control--next {
   inset-inline-end: var(--wp--preset--spacing--4, 1rem);
-}
-
-.aa-hscroll__control:hover:not(:disabled) {
-  background-color: var(--aa-color-surface-elevated);
-  border-color: var(--aa-color-border);
-}
-
-.aa-hscroll__control:focus-visible {
-  outline: 2px solid var(--aa-color-accent);
-  outline-offset: 2px;
-}
-
-.aa-hscroll__control:disabled {
-  cursor: not-allowed;
 }
 
 /* When keyboard-revealed, disabled controls stay visible but dimmed. */

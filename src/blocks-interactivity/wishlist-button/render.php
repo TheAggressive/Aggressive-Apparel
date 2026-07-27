@@ -72,8 +72,9 @@ if ( $icon_only ) {
 	$show_label = false;
 }
 
-$button_classes  = 'aggressive-apparel-wishlist__toggle';
+$button_classes  = 'aggressive-apparel-wishlist__toggle aa-icon-button';
 $button_classes .= $icon_only ? ' aggressive-apparel-wishlist__toggle--icon-only' : '';
+$button_classes .= $icon_only ? ' aa-icon-button--only' : '';
 $button_classes .= 'large' === $size ? ' aggressive-apparel-wishlist__toggle--large' : '';
 
 $icon_html = '';

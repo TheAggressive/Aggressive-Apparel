@@ -211,7 +211,7 @@ if ( $show_close_btn ) {
 	$btn_classes = implode(
 		' ',
 		array(
-			'wp-block-aggressive-apparel-modal__close',
+			'wp-block-aggressive-apparel-modal__close aa-icon-button aa-icon-button--square',
 			'close-size-' . $close_size,
 			'close-variant-' . $close_variant,
 			'close-placement-' . $close_placement,

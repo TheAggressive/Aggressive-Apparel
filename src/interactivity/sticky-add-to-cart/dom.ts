@@ -114,6 +114,7 @@ export function syncDrawerOptions(): void {
         attrValue !== undefined &&
         state.selectedAttrs[attrName] === attrValue;
       btn.classList.toggle('is-selected', isSelected);
+      btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
 
       syncDrawerOptionAvailability(btn, attrName, attrValue, isSelected);
 

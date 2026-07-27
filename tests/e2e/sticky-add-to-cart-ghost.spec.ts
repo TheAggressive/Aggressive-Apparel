@@ -109,7 +109,7 @@ async function buildBarOverTarget(page: Page): Promise<void> {
           </div>
         </div>
         <div class="aa-sticky-cart__actions">
-          <button type="button" class="aa-sticky-cart__button wp-element-button" id="aa-e2e-bar-button">
+          <button type="button" class="aa-sticky-cart__button aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--sm wp-element-button" id="aa-e2e-bar-button">
             <span class="aa-sticky-cart__button-text">Add to cart</span>
           </button>
         </div>
@@ -239,6 +239,119 @@ test.describe('sticky add-to-cart hit-testing', () => {
       expect(counts.under).toBe(2);
       expect(counts.bar).toBe(1); // unchanged from step 2
       expect(await buttonIsFocusable(page)).toBe(false);
+    } finally {
+      await deletePage(page, id);
+    }
+  });
+
+  test('dual purchase actions stay readable on a narrow mobile bar', async ({
+    page,
+  }) => {
+    const { id, url } = await publishBlankPage(page);
+
+    try {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(url);
+      await buildBarOverTarget(page);
+      await page.evaluate(() => {
+        const bar = document.getElementById('aa-e2e-bar');
+        const actions = bar?.querySelector('.aa-sticky-cart__actions');
+        if (!bar || !actions) {
+          throw new Error('Sticky cart fixture is incomplete.');
+        }
+
+        bar.classList.add('aa-sticky-cart--dual-action', 'is-visible');
+        bar.removeAttribute('inert');
+        actions.insertAdjacentHTML(
+          'beforeend',
+          '<button type="button" class="aa-sticky-cart__buy-now aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--sm wp-element-button">Buy now</button>'
+        );
+      });
+
+      const product = page.locator('#aa-e2e-bar .aa-sticky-cart__product');
+      const actions = page.locator('#aa-e2e-bar .aa-sticky-cart__actions');
+      const addToCart = page.locator('#aa-e2e-bar-button');
+      const buyNow = page.locator('#aa-e2e-bar .aa-sticky-cart__buy-now');
+
+      await expect(product).toBeHidden();
+
+      const layout = await Promise.all(
+        [actions, addToCart, buyNow].map(locator => locator.boundingBox())
+      );
+      const [actionsBox, addBox, buyBox] = layout;
+
+      expect(actionsBox?.width).toBeGreaterThanOrEqual(350);
+      expect(addBox?.height).toBeGreaterThanOrEqual(44);
+      expect(buyBox?.height).toBeGreaterThanOrEqual(44);
+      await expect(addToCart).toHaveCSS('font-size', '14px');
+      await expect(buyNow).toHaveCSS('font-size', '14px');
+      expect(addBox?.width).toBeGreaterThan(buyBox?.width ?? 0);
+      expect((addBox?.x ?? 0) + (addBox?.width ?? 0)).toBeLessThanOrEqual(
+        buyBox?.x ?? 0
+      );
+      expect(buyBox?.x ?? 0).toBeGreaterThan(addBox?.x ?? 0);
+    } finally {
+      await deletePage(page, id);
+    }
+  });
+
+  test('variable product uses image, price, and action columns on mobile', async ({
+    page,
+  }) => {
+    const { id, url } = await publishBlankPage(page);
+
+    try {
+      await page.setViewportSize({ width: 320, height: 720 });
+      await page.goto(url);
+      await buildBarOverTarget(page);
+      await page.evaluate(() => {
+        const bar = document.getElementById('aa-e2e-bar');
+        const product = bar?.querySelector('.aa-sticky-cart__product');
+        const info = bar?.querySelector('.aa-sticky-cart__info');
+        const button = document.getElementById('aa-e2e-bar-button');
+        if (!bar || !product || !info || !button) {
+          throw new Error('Sticky cart fixture is incomplete.');
+        }
+
+        bar.classList.add('aa-sticky-cart--variable', 'is-visible');
+        bar.removeAttribute('inert');
+        product.insertAdjacentHTML(
+          'afterbegin',
+          '<img class="aa-sticky-cart__image" alt="" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Crect width=%2248%22 height=%2248%22 fill=%22%23777%22/%3E%3C/svg%3E">'
+        );
+        info.insertAdjacentHTML(
+          'beforeend',
+          '<span class="aa-sticky-cart__price"><ins class="aa-sticky-cart__price-current">$65.00</ins></span>'
+        );
+        button.querySelector('.aa-sticky-cart__button-text')!.textContent =
+          'Choose options';
+      });
+
+      const product = page.locator('#aa-e2e-bar .aa-sticky-cart__product');
+      const image = page.locator('#aa-e2e-bar .aa-sticky-cart__image');
+      const title = page.locator('#aa-e2e-bar .aa-sticky-cart__title');
+      const price = page.locator('#aa-e2e-bar .aa-sticky-cart__price');
+      const action = page.locator('#aa-e2e-bar-button');
+
+      await expect(image).toBeVisible();
+      await expect(price).toBeVisible();
+      await expect(title).toHaveCSS('position', 'absolute');
+      await expect(action).toHaveText('Choose options');
+
+      const [productBox, imageBox, priceBox, actionBox] = await Promise.all(
+        [product, image, price, action].map(locator => locator.boundingBox())
+      );
+
+      expect(imageBox?.width).toBe(48);
+      expect(imageBox?.height).toBe(48);
+      expect(actionBox?.width).toBeGreaterThanOrEqual(120);
+      expect(actionBox?.height).toBeGreaterThanOrEqual(44);
+      expect((imageBox?.x ?? 0) + (imageBox?.width ?? 0)).toBeLessThanOrEqual(
+        priceBox?.x ?? 0
+      );
+      expect(
+        (productBox?.x ?? 0) + (productBox?.width ?? 0)
+      ).toBeLessThanOrEqual(actionBox?.x ?? 0);
     } finally {
       await deletePage(page, id);
     }

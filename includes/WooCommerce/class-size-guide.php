@@ -200,7 +200,7 @@ class Size_Guide {
 		$markup .= '</span>';
 		$markup .= esc_html__( 'Size Guide', 'aggressive-apparel' );
 		$markup .= '</h2>';
-		$markup .= '<button type="button" class="aggressive-apparel-size-guide__close" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
+		$markup .= '<button type="button" class="aggressive-apparel-size-guide__close aa-icon-button aa-icon-button--only aa-icon-button--square" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
 		$markup .= aggressive_apparel_get_icon(
 			'close',
 			array(

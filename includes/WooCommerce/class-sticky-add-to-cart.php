@@ -147,12 +147,20 @@ class Sticky_Add_To_Cart {
 			array(
 				'class'   => 'aa-sticky-cart__image',
 				'loading' => 'lazy',
+				'alt'     => '',
 			)
 		);
+
+		$sticky_cart_classes = array( 'aa-sticky-cart' );
+		if ( $product->is_type( 'variable' ) ) {
+			$sticky_cart_classes[] = 'aa-sticky-cart--variable';
+		} elseif ( $product->is_in_stock() ) {
+			$sticky_cart_classes[] = 'aa-sticky-cart--dual-action';
+		}
 		?>
 
 		<div
-			class="aa-sticky-cart"
+			class="<?php echo esc_attr( implode( ' ', $sticky_cart_classes ) ); ?>"
 			data-wp-interactive="aggressive-apparel/sticky-add-to-cart"
 			data-wp-init="callbacks.init"
 			data-wp-class--is-visible="state.isVisible"
@@ -186,7 +194,7 @@ class Sticky_Add_To_Cart {
 					>
 						<button
 							type="button"
-							class="aa-sticky-cart__qty-btn"
+							class="aa-sticky-cart__qty-btn aa-stepper-button"
 							data-wp-on--click="actions.decrementQty"
 							aria-label="<?php esc_attr_e( 'Decrease quantity', 'aggressive-apparel' ); ?>"
 						>&minus;</button>
@@ -201,7 +209,7 @@ class Sticky_Add_To_Cart {
 						/>
 						<button
 							type="button"
-							class="aa-sticky-cart__qty-btn"
+							class="aa-sticky-cart__qty-btn aa-stepper-button"
 							data-wp-on--click="actions.incrementQty"
 							aria-label="<?php esc_attr_e( 'Increase quantity', 'aggressive-apparel' ); ?>"
 						>&plus;</button>
@@ -209,7 +217,7 @@ class Sticky_Add_To_Cart {
 
 					<button
 						type="button"
-						class="aa-sticky-cart__button wp-element-button"
+						class="aa-sticky-cart__button aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--sm wp-element-button"
 						data-wp-on--click="actions.addToCart"
 						data-wp-class--is-loading="state.isAdding"
 						data-wp-class--is-success="state.isSuccess"
@@ -234,7 +242,7 @@ class Sticky_Add_To_Cart {
 					<?php if ( $product->is_in_stock() ) : ?>
 					<button
 						type="button"
-						class="aa-sticky-cart__buy-now wp-element-button"
+						class="aa-sticky-cart__buy-now aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--sm wp-element-button"
 						data-wp-on--click="actions.buyNow"
 						data-wp-class--is-loading="state.isBuyingNow"
 						data-wp-bind--disabled="state.isAddDisabled"
@@ -286,7 +294,7 @@ class Sticky_Add_To_Cart {
 						</div>
 						<button
 							type="button"
-							class="aa-sticky-cart__drawer-close"
+							class="aa-sticky-cart__drawer-close aa-icon-button aa-icon-button--only aa-icon-button--square"
 							data-wp-on--click="actions.closeDrawer"
 							aria-label="<?php esc_attr_e( 'Close', 'aggressive-apparel' ); ?>"
 						>
@@ -319,23 +327,25 @@ class Sticky_Add_To_Cart {
 												?>
 												<button
 													type="button"
-													class="aa-sticky-cart__drawer-option is-color-swatch"
+													class="aa-sticky-cart__drawer-option is-color-swatch aa-choice-pill"
 													data-wp-on--click="actions.selectDrawerOption"
 													data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
 													data-value="<?php echo esc_attr( $option ); ?>"
 													style="<?php echo esc_attr( $swatch_style ); ?>"
 													title="<?php echo esc_attr( $swatch_name ); ?>"
 													aria-label="<?php echo esc_attr( $swatch_name ); ?>"
+													aria-pressed="false"
 												>
 													<span class="screen-reader-text"><?php echo esc_html( $swatch_name ); ?></span>
 												</button>
 											<?php else : ?>
 												<button
 													type="button"
-													class="aa-sticky-cart__drawer-option"
+													class="aa-sticky-cart__drawer-option aa-choice-pill"
 													data-wp-on--click="actions.selectDrawerOption"
 													data-attribute="<?php echo esc_attr( $attr['name'] ); ?>"
 													data-value="<?php echo esc_attr( $option ); ?>"
+													aria-pressed="false"
 												>
 													<span class="aa-sticky-cart__drawer-option-check" aria-hidden="true">
 														<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -355,7 +365,7 @@ class Sticky_Add_To_Cart {
 							<div class="aa-sticky-cart__quantity">
 								<button
 									type="button"
-									class="aa-sticky-cart__qty-btn"
+									class="aa-sticky-cart__qty-btn aa-stepper-button"
 									data-wp-on--click="actions.decrementQty"
 									aria-label="<?php esc_attr_e( 'Decrease quantity', 'aggressive-apparel' ); ?>"
 								>&minus;</button>
@@ -370,14 +380,14 @@ class Sticky_Add_To_Cart {
 								/>
 								<button
 									type="button"
-									class="aa-sticky-cart__qty-btn"
+									class="aa-sticky-cart__qty-btn aa-stepper-button"
 									data-wp-on--click="actions.incrementQty"
 									aria-label="<?php esc_attr_e( 'Increase quantity', 'aggressive-apparel' ); ?>"
 								>&plus;</button>
 							</div>
 							<button
 								type="button"
-								class="aa-sticky-cart__drawer-add"
+								class="aa-sticky-cart__drawer-add aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--sm wp-element-button"
 								data-wp-on--click="actions.addToCart"
 								data-wp-bind--disabled="state.isDrawerAddDisabled"
 								data-wp-class--is-loading="state.isAdding"
@@ -389,7 +399,7 @@ class Sticky_Add_To_Cart {
 							</button>
 							<button
 								type="button"
-								class="aa-sticky-cart__drawer-buy-now"
+								class="aa-sticky-cart__drawer-buy-now aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--sm wp-element-button"
 								data-wp-on--click="actions.buyNow"
 								data-wp-bind--disabled="state.isDrawerAddDisabled"
 								data-wp-class--is-loading="state.isBuyingNow"
@@ -442,12 +452,12 @@ class Sticky_Add_To_Cart {
 						<div class="aa-sticky-cart__drawer-success-actions">
 							<button
 								type="button"
-								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--continue wp-element-button"
+								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--continue aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--sm wp-element-button"
 								data-wp-on--click="actions.continueShopping"
 								data-wp-text="state.continueShoppingLabel"
 							><?php echo esc_html( Feature_Settings::get_continue_shopping_button_text() ); ?></button>
 							<a
-								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--cart wp-element-button"
+								class="aa-sticky-cart__drawer-success-btn aa-sticky-cart__drawer-success-btn--cart aggressive-apparel-button aggressive-apparel-button--primary aggressive-apparel-button--sm wp-element-button"
 								data-wp-bind--href="state.cartUrl"
 								href="<?php echo esc_url( function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '/cart/' ); ?>"
 								data-wp-text="state.viewCartLabel"

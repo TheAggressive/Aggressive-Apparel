@@ -265,7 +265,7 @@ class Frequently_Bought_Together {
 
 				<button
 					type="button"
-					class="aa-fbt__add-all wp-element-button"
+					class="aa-fbt__add-all aggressive-apparel-button aggressive-apparel-button--primary wp-element-button"
 					data-wp-on--click="actions.addAllToCart"
 					data-wp-class--is-loading="state.isAdding"
 					data-wp-class--is-success="state.isSuccess"

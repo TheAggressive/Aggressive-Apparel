@@ -13,11 +13,10 @@
 
 /* Card media action stack (Quick View ± Wishlist). Shared sizing for both the
    wishlist heart and the quick-view eye so the two card actions are always
-   visually identical: --aa-card-action-size is the button hit area,
-   --aa-card-action-icon the glyph inside it. The touch override below grows the
-   hit area to the 44px WCAG target. */
+   visually identical: --aa-card-action-size is the canonical 44px hit area,
+   and --aa-card-action-icon is the smaller glyph inside it. */
 .aggressive-apparel-card-actions {
-	--aa-card-action-size: 2.5rem;
+	--aa-card-action-size: var(--aa-icon-button-size);
 	--aa-card-action-icon: 1.125rem;
 
 	position: absolute;
@@ -89,29 +88,30 @@
 	padding-top: 2.5rem;
 }
 
-/* Trigger button on product cards. */
-.aggressive-apparel-quick-view__trigger {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.35rem;
+/* Shared product-card action contract (Quick View + Wishlist). */
+.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+	--aa-icon-button-background: var(
+		--aa-color-surface-80,
+		color-mix(in oklch, var(--aa-color-surface) 80%, transparent)
+	);
+	--aa-icon-button-border: color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+	--aa-icon-button-color: var(--aa-color-foreground);
+	--aa-icon-button-hover-background: var(--aa-icon-button-background);
+	--aa-icon-button-hover-border: var(--aa-icon-button-border);
+	--aa-icon-button-hover-color: var(--aa-icon-button-color);
 
-	/* Icon-only by default → a perfect circle (matches the heart). The bottom-bar
-	   variant below reveals the label and restores the pill shape. */
 	width: var(--aa-card-action-size);
 	height: var(--aa-card-action-size);
-	padding: 0;
-	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
-	border-radius: 999px;
-	background-color: var(--aa-color-surface-80, color-mix(in oklch, var(--aa-color-surface) 80%, transparent));
-	color: var(--aa-color-foreground);
 	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
-	cursor: pointer;
-	transition:
-		opacity 0.2s ease,
-		transform 0.15s ease,
-		background-color 0.15s ease,
-		border-color 0.15s ease;
+
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+/* Trigger button on product cards. Icon-only by default; the bottom-bar
+   variant reveals its label and restores the pill shape. */
+.aggressive-apparel-quick-view__trigger {
 
 	&-icon {
 		display: inline-flex;
@@ -127,34 +127,11 @@
 		white-space: nowrap;
 	}
 
-	&:hover,
-	&:focus-visible {
-		background-color: var(--aa-color-surface);
-		border-color: var(--aa-color-border);
-	}
-
-	&:focus-visible {
-		opacity: 1;
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
-	}
-
 	svg {
 		display: block;
 		width: var(--aa-card-action-icon);
 		height: var(--aa-card-action-icon);
 	}
-}
-
-.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
-	width: var(--aa-card-action-size);
-	height: var(--aa-card-action-size);
-	border: 1px solid color-mix(in oklch, var(--aa-color-border) 70%, transparent);
-	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
-	transition:
-		opacity 0.2s ease,
-		transform 0.15s ease,
-		background-color 0.15s ease;
 }
 
 /* Match the heart glyph to the eye glyph (the base wishlist icon is larger for
@@ -164,64 +141,51 @@
 	height: var(--aa-card-action-icon);
 }
 
+.aggressive-apparel-card-action
+	> :is(
+		.aggressive-apparel-quick-view__trigger-icon,
+		.aggressive-apparel-wishlist__icon
+	) {
+	opacity: 0.72;
+	transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aggressive-apparel-card-actions
+	.aggressive-apparel-card-action:is(:hover, :focus-visible, .is-active)
+	> :is(
+		.aggressive-apparel-quick-view__trigger-icon,
+		.aggressive-apparel-wishlist__icon
+	) {
+	opacity: 1;
+}
+
 /* Devices that can hover: hide until card/media hover or focus. */
 @media (hover: hover) and (pointer: fine) {
 
-	.aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		opacity: 0;
 		transform: translateY(0.15rem);
 	}
 
-	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
-	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
-	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
-	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-quick-view__trigger,
-	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
-	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
-	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
-	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-wishlist__toggle--card-media,
-	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-wishlist__toggle--card-media {
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-card-action {
 		opacity: 1;
 		transform: translateY(0);
 	}
 
-	.aggressive-apparel-quick-view__trigger:hover,
-	.aggressive-apparel-quick-view__trigger:focus-visible {
-		transform: translateY(0) scale(1.04);
-	}
 }
 
 /* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
 @media (hover: none), (pointer: coarse) {
 
-	/* Small 2-up cards: shrink the visible chip so it does not dominate the
-	   image. The 44px tap target is preserved by the invisible expander below,
-	   so the glyph can be smaller without shrinking the hit area. */
-	.aggressive-apparel-card-actions {
-		--aa-card-action-size: 2.25rem;
-	}
-
-	.aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		position: relative;
 		opacity: 1;
 		transform: none;
 	}
-
-	/* Centered 44px WCAG 2.5.5 touch target, larger than the visible chip. */
-	.aggressive-apparel-quick-view__trigger::after,
-	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media::after {
-		content: "";
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 2.75rem;
-		height: 2.75rem;
-		transform: translate(-50%, -50%);
-	}
-
 }
 
 /* Bottom bar: expand label on capable hover devices. */
@@ -241,8 +205,7 @@
 
 @media (forced-colors: active) {
 
-	.aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
 		border: 1px solid ButtonText;
 		background: Canvas;
 		color: ButtonText;
@@ -253,8 +216,15 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aggressive-apparel-quick-view__trigger,
-	.aggressive-apparel-card-actions .aggressive-apparel-wishlist__toggle--card-media {
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+		transition: none;
+	}
+
+	.aggressive-apparel-card-action
+		> :is(
+			.aggressive-apparel-quick-view__trigger-icon,
+			.aggressive-apparel-wishlist__icon
+		) {
 		transition: none;
 	}
 }
@@ -274,31 +244,17 @@
 }
 
 .aggressive-apparel-quick-view-success__close {
+	--aa-icon-button-color: inherit;
+
 	position: absolute;
 	top: 0.75rem;
 	right: 0.75rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
-	background: transparent;
-	color: inherit;
-	cursor: pointer;
-	transition: background-color 0.15s ease;
 
 	& svg {
 		width: 1.25rem;
 		height: 1.25rem;
 	}
 
-	&:hover,
-	&:focus-visible {
-		background: color-mix(in oklch, currentcolor 8%, transparent);
-	}
 }
 
 .aggressive-apparel-quick-view-success__icon {
@@ -367,40 +323,8 @@
 
 .aggressive-apparel-quick-view-success__button {
 	flex: 1;
-	padding: 0.7em 1em;
-	font-weight: 600;
-	font-size: 0.85rem;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
 	text-align: center;
 	text-decoration: none;
-	cursor: pointer;
-	border-radius: 0.25rem;
-	transition: opacity 0.2s;
-
-	&:active {
-		transform: scale(0.97);
-	}
-}
-
-.aggressive-apparel-quick-view-success__button--continue {
-	border: 1.5px solid color-mix(in oklch, currentcolor 20%, transparent);
-	background: none;
-	color: inherit;
-
-	&:hover {
-		opacity: 0.7;
-	}
-}
-
-.aggressive-apparel-quick-view-success__button--view-cart {
-	border: none;
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-
-	&:hover {
-		opacity: 0.85;
-	}
 }
 
 @media (width <= 480px) {
@@ -426,43 +350,26 @@
 }
 
 .aggressive-apparel-quick-view__close {
+	--aa-icon-button-background: var(--aa-color-surface-90);
+
 	position: absolute;
 	top: 0;
 	right: 0;
 	z-index: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	padding: 0;
-	border: none;
-	background: var(--aa-color-surface-90);
-	cursor: pointer;
-	border-radius: 0.25rem;
-	transition: background-color 0.15s ease;
 
 	& svg {
 		width: 1.25rem;
 		height: 1.25rem;
 	}
 
-	&:hover,
-	&:focus-visible {
-		background: var(--aa-color-surface);
-	}
 }
 
 @supports (backdrop-filter: blur(1px)) {
 
 	.aggressive-apparel-quick-view__close {
-		background: var(--aa-color-surface-80);
-		backdrop-filter: blur(8px);
-	}
+		--aa-icon-button-background: var(--aa-color-surface-80);
 
-	.aggressive-apparel-quick-view__close:hover,
-	.aggressive-apparel-quick-view__close:focus-visible {
-		background: var(--aa-color-surface-90);
+		backdrop-filter: blur(8px);
 	}
 }
 
@@ -620,23 +527,7 @@
 
 /* Thumbnail scroll arrows. */
 .aggressive-apparel-quick-view__thumb-arrow {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
-	background: color-mix(in oklch, currentcolor 8%, transparent);
-	cursor: pointer;
-	transition: background-color 0.15s;
-
-	&:hover,
-	&:focus-visible {
-		background: color-mix(in oklch, currentcolor 15%, transparent);
-	}
+	--aa-icon-button-background: color-mix(in oklch, currentcolor 8%, transparent);
 
 	& svg {
 		width: 1rem;
@@ -682,6 +573,11 @@
 	&:focus-visible {
 		opacity: 1;
 		transform: scale(1.05);
+	}
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--aa-focus-ring);
 	}
 
 	&.is-active {
@@ -864,9 +760,11 @@
 	gap: 0.75rem;
 }
 
-/* Quantity + Add to Cart inline row. */
+/* Quantity + Add to Cart inline row. Wraps so the full-width primary Buy Now
+   drops to its own line rather than crushing Add to Cart when space is tight. */
 .aggressive-apparel-quick-view__cart-row {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.75rem;
 
@@ -888,27 +786,7 @@
 }
 
 .aggressive-apparel-quick-view__qty-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	background: none;
 	font-size: 0.875rem;
-	cursor: pointer;
-	color: inherit;
-	transition: background-color 0.15s ease;
-
-	&:hover,
-	&:focus-visible {
-		background-color: color-mix(in oklch, currentcolor 8%, transparent);
-	}
-
-	&:active {
-		transform: scale(0.97);
-	}
 }
 
 .aggressive-apparel-quick-view__qty-input {
@@ -937,37 +815,11 @@
 
 /* Add to Cart button. */
 .aggressive-apparel-quick-view__add-to-cart {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	flex: 1;
-	padding: 0.7em 1.5em;
-	border: 2px solid var(--aa-color-foreground);
-	border-radius: var(--aa-radius-full);
-	background-color: transparent;
-	color: var(--aa-color-foreground);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
-	transition:
-		opacity 0.2s ease,
-		background-color 0.2s ease;
+	white-space: nowrap;
 
 	&[hidden] {
 		display: none;
-	}
-
-	&:hover:not(:disabled),
-	&:focus-visible:not(:disabled) {
-    background-color: var(--aa-color-foreground);
-    color: var(--aa-color-surface);
-	}
-
-	&:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
 	}
 
 	&.is-adding {
@@ -976,57 +828,47 @@
 	}
 
 	&.is-success {
+		border-color: var(--quick-view-stock-in);
 		background-color: var(--quick-view-stock-in);
 		transition:
 			background-color 0.3s ease,
 			transform 0.15s ease;
 	}
-
-	&:active:not(:disabled) {
-		transform: scale(0.97);
-	}
 }
 
 .aggressive-apparel-quick-view__buy-now {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.7em 1.5em;
-	border: 2px solid var(--aa-color-accent);
-	border-radius: var(--aa-radius-full);
-	background: var(--aa-color-accent);
-	color: var(--aa-color-foreground);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
+	flex: 1 0 100%;
 	white-space: nowrap;
-	transition: opacity 0.2s ease;
 
 	&[hidden] {
 		display: none;
-	}
-
-	&:hover:not(:disabled),
-	&:focus-visible:not(:disabled) {
-    background-color: transparent;
-    color: var(--aa-color-foreground);
-	}
-
-	&:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
 	}
 
 	&.is-adding {
 		opacity: 0.7;
 		cursor: wait;
 	}
+}
 
-	&:active:not(:disabled) {
-		transform: scale(0.97);
-	}
+/* View Full Product — tertiary fallback link (both the simple-product modal
+   `__link` and the variable-product drawer `__drawer-view-product`). De-emphasized
+   (muted, smaller, sentence case) so it sits clearly below the purchase CTAs. */
+.aggressive-apparel-quick-view__link.aggressive-apparel-button--text,
+.aggressive-apparel-quick-view__drawer-view-product.aggressive-apparel-button--text {
+	min-height: 0;
+	padding-block: 0.25rem;
+	color: var(--aa-color-foreground-muted);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: normal;
+	text-decoration-color: color-mix(in oklch, currentcolor 40%, transparent);
+}
+
+.aggressive-apparel-quick-view__link.aggressive-apparel-button--text:hover,
+.aggressive-apparel-quick-view__drawer-view-product.aggressive-apparel-button--text:hover {
+	color: var(--aa-color-foreground);
+	text-decoration-color: currentcolor;
 }
 
 /* Cart error message. */
@@ -1040,30 +882,6 @@
 
 	&[hidden] {
 		display: none;
-	}
-}
-
-.aggressive-apparel-quick-view__link {
-	display: inline-block;
-	padding: 0.65em 1.5em;
-	background: none;
-	color: inherit;
-	text-decoration: none;
-	text-align: center;
-	font-weight: 600;
-	font-size: 0.85rem;
-  border: 2px solid var(--aa-color-foreground);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	border-radius: var(--aa-radius-full);
-	text-underline-offset: 0.2em;
-	transition: opacity 0.2s ease;
-  opacity: 0.5;
-
-	&:hover,
-	&:focus-visible {
-		opacity: 1;
-		text-decoration: underline;
 	}
 }
 
@@ -1215,22 +1033,6 @@
 
 .aggressive-apparel-quick-view__drawer-view-product {
 	width: 100%;
-	padding: 0.25rem;
-	font-size: 0.8rem;
-	font-weight: 600;
-	color: inherit;
-	opacity: 0.6;
-	text-decoration: none;
-	text-align: center;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	transition: opacity 0.15s ease;
-
-	&:hover,
-	&:focus-visible {
-		opacity: 1;
-		text-decoration: underline;
-	}
 }
 
 /* Desktop two-column drawer layout. */
@@ -1289,29 +1091,7 @@
 
 /* Select Options button. */
 .aggressive-apparel-quick-view__select-options {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	flex: 1;
-	padding: 0.7em 1.5em;
-	border: none;
-	border-radius: var(--aa-radius-full);
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
-	transition: opacity 0.2s ease;
-
-	&:hover:not(:disabled) {
-		opacity: 0.85;
-	}
-
-	&:active {
-		transform: scale(0.97);
-	}
 
 	&[hidden] {
 		display: none;

@@ -12,8 +12,7 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 use Aggressive_Apparel\WooCommerce\Block_Render_Helper;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Feature_Settings_Sanitizer;
-use Aggressive_Apparel\WooCommerce\Quick_View;
-use ReflectionMethod;
+use Aggressive_Apparel\WooCommerce\Quick_View_Renderer;
 use WC_Product_Simple;
 use WP_UnitTestCase;
 
@@ -68,18 +67,17 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		update_option( Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION, 'top-left' );
 		update_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'with_wishlist' );
 
-		$product = $this->create_test_product( 'Card Stack Tee' );
-		$quick   = new Quick_View();
-		$method  = new ReflectionMethod( Quick_View::class, 'build_card_actions_markup' );
-		$method->setAccessible( true );
+		$product  = $this->create_test_product( 'Card Stack Tee' );
+		$renderer = new Quick_View_Renderer();
 
-		$html = (string) $method->invoke( $quick, $product );
+		$html = $renderer->build_card_actions_markup( $product );
 
 		$this->assertStringContainsString( 'aggressive-apparel-card-actions--corner', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-card-actions--top-left', $html );
 		$this->assertStringContainsString( 'role="group"', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-quick-view__trigger', $html );
 		$this->assertStringContainsString( 'aggressive-apparel-wishlist__toggle--card-media', $html );
+		$this->assertSame( 2, substr_count( $html, 'aggressive-apparel-card-action ' ) );
 		$this->assertStringContainsString( 'data-aa-product-id="' . $product->get_id() . '"', $html );
 		$this->assertStringNotContainsString( 'data-wp-on--click', $html );
 		$this->assertStringContainsString( 'productId', $html );
@@ -99,12 +97,10 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1', 'wishlist' => '1' ) );
 		update_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'quick_view_only' );
 
-		$product = $this->create_test_product( 'QV Only Hoodie' );
-		$quick   = new Quick_View();
-		$method  = new ReflectionMethod( Quick_View::class, 'build_card_actions_markup' );
-		$method->setAccessible( true );
+		$product  = $this->create_test_product( 'QV Only Hoodie' );
+		$renderer = new Quick_View_Renderer();
 
-		$html = (string) $method->invoke( $quick, $product );
+		$html = $renderer->build_card_actions_markup( $product );
 
 		$this->assertStringContainsString( 'aggressive-apparel-quick-view__trigger', $html );
 		$this->assertStringNotContainsString( 'aggressive-apparel-wishlist__toggle', $html );
@@ -123,12 +119,10 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1' ) );
 		update_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'quick_view_only' );
 
-		$product = $this->create_test_product( 'Append Stack' );
-		$quick   = new Quick_View();
-		$method  = new ReflectionMethod( Quick_View::class, 'build_card_actions_markup' );
-		$method->setAccessible( true );
+		$product  = $this->create_test_product( 'Append Stack' );
+		$renderer = new Quick_View_Renderer();
 
-		$stack   = (string) $method->invoke( $quick, $product );
+		$stack = $renderer->build_card_actions_markup( $product );
 		$content = '<div class="wp-block-woocommerce-product-image"><img src="x.jpg" alt="" /></div>';
 		$result  = Block_Render_Helper::append_before_wrapper_close( $content, $stack );
 
@@ -136,6 +130,27 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression( '/aggressive-apparel-card-actions[\s\S]*<\/div>\s*$/', $result );
 
 		wp_delete_post( $product->get_id(), true );
+	}
+
+	/**
+	 * Modal purchase actions use the shared Small button recipe.
+	 */
+	public function test_modal_actions_use_shared_small_button_recipe(): void {
+		add_filter( 'aggressive_apparel_is_listing_page', '__return_true' );
+
+		$renderer = new Quick_View_Renderer();
+
+		ob_start();
+		$renderer->render_modal_shell();
+		$html = (string) ob_get_clean();
+
+		remove_filter( 'aggressive_apparel_is_listing_page', '__return_true' );
+
+		$this->assertSame(
+			7,
+			substr_count( $html, 'aggressive-apparel-button--sm' ),
+			'Every shaped Quick View CTA should use the shared Small button recipe.'
+		);
 	}
 
 	/**

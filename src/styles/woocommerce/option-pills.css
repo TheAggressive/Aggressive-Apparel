@@ -1,8 +1,9 @@
 /**
- * Option Pills — Shared Morphing Pill & Swatch Animations
+ * Option Pills — Component Content and Swatch Animations
  *
- * Reusable wipe-fill pill buttons and shrink-reveal color swatches
- * used by Quick View and Sticky Add to Cart drawers.
+ * Quick View and Sticky Add to Cart compose the shared `.aa-choice-pill`
+ * contract. This file owns only their check/label content motion and the
+ * product-specific shrink-reveal color treatment.
  *
  * Uses `.is-selected` class toggle (JS-managed) for state changes.
  *
@@ -11,89 +12,13 @@
  */
 
 /* -----------------------------------------------
- * 1. Text pill — wipe fill on select
+ * 1. Text pill — component content layout
  * ----------------------------------------------- */
 
 .aggressive-apparel-quick-view__attribute-option,
 .aa-sticky-cart__drawer-option {
 	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.375rem 0.75rem;
-	border: none;
-	border-radius: 999px;
-	background: transparent;
-	color: var(--aa-color-foreground);
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	cursor: pointer;
 	overflow: hidden;
-	min-height: 2.75rem; /* 44px WCAG touch target */
-	min-width: 2.75rem;
-	box-shadow: inset 0 0 0 2px color-mix(in oklch, currentcolor 15%, transparent);
-	transition: color 0.35s ease-in-out;
-}
-
-/* Wipe fill — slides in from left on select. */
-.aggressive-apparel-quick-view__attribute-option::before,
-.aa-sticky-cart__drawer-option::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background: var(--aa-color-foreground);
-	transform: scaleX(0);
-	transform-origin: left;
-	opacity: 0;
-	transition:
-		transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-	z-index: 0;
-	border-radius: inherit;
-}
-
-/* Hover ring fades over the stable base ring to match product-page variation pills. */
-.aggressive-apparel-quick-view__attribute-option:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch))::after,
-.aa-sticky-cart__drawer-option:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch))::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 2;
-	border-radius: inherit;
-	pointer-events: none;
-	box-shadow: inset 0 0 0 2px var(--aa-color-foreground);
-	opacity: 0;
-	transition: opacity 0.2s ease;
-}
-
-.aggressive-apparel-quick-view__attribute-option:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch)):hover::after,
-.aa-sticky-cart__drawer-option:not(.is-color-swatch, :has(.aggressive-apparel-color-swatch)):hover::after {
-	opacity: 1;
-}
-
-.aggressive-apparel-quick-view__attribute-option:focus-visible,
-.aa-sticky-cart__drawer-option:focus-visible {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: 2px;
-}
-
-.aggressive-apparel-quick-view__attribute-option.is-selected,
-.aa-sticky-cart__drawer-option.is-selected {
-	box-shadow: inset 0 0 0 2px var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-}
-
-.aggressive-apparel-quick-view__attribute-option.is-selected::before,
-.aa-sticky-cart__drawer-option.is-selected::before {
-	transform: scaleX(1);
-	opacity: 1;
-}
-
-.aggressive-apparel-quick-view__attribute-option.is-selected::after,
-.aa-sticky-cart__drawer-option.is-selected::after {
-	opacity: 0;
 }
 
 /* -----------------------------------------------
@@ -180,26 +105,21 @@
 .aggressive-apparel-quick-view__attribute-option.is-color-swatch.is-selected,
 .aa-sticky-cart__drawer-option.is-color-swatch.is-selected {
 	transform: scale(0.78);
-	outline: 3px solid color-mix(in oklch, var(--swatch-color, var(--aa-color-muted-40)) 100%, var(--aa-color-foreground));
+	outline: 3px solid color-mix(in oklch, var(--swatch-color, var(--aa-color-muted-40)) 60%, var(--aa-color-foreground));
 	outline-offset: 4px;
 	background-color: inherit;
 	color: transparent;
 }
 
-.aggressive-apparel-quick-view__attribute-option.is-color-swatch:hover:not(.is-selected),
-.aa-sticky-cart__drawer-option.is-color-swatch:hover:not(.is-selected) {
+.aggressive-apparel-quick-view__attribute-option.is-color-swatch:hover:not(.is-selected, .is-unavailable),
+.aa-sticky-cart__drawer-option.is-color-swatch:hover:not(.is-selected, .is-unavailable) {
 	transform: scale(1.1);
 }
 
 .aggressive-apparel-quick-view__attribute-option.is-color-swatch:focus-visible,
 .aa-sticky-cart__drawer-option.is-color-swatch:focus-visible {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: 3px;
-}
-
-.aggressive-apparel-quick-view__attribute-option.is-color-swatch.is-selected:focus-visible,
-.aa-sticky-cart__drawer-option.is-color-swatch.is-selected:focus-visible {
-	outline-width: 3px;
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
 }
 
 /* -----------------------------------------------
@@ -211,12 +131,6 @@
  * currently-selected option is never marked unavailable, so it stays toggleable.
  * ----------------------------------------------- */
 
-.aggressive-apparel-quick-view__attribute-option.is-unavailable,
-.aa-sticky-cart__drawer-option.is-unavailable {
-	opacity: 0.35;
-	cursor: not-allowed;
-}
-
 /* -----------------------------------------------
  * 5. Reduced motion
  * ----------------------------------------------- */
@@ -224,20 +138,32 @@
 @media (prefers-reduced-motion: reduce) {
 
 	.aggressive-apparel-quick-view__attribute-option,
-	.aggressive-apparel-quick-view__attribute-option::before,
-	.aggressive-apparel-quick-view__attribute-option::after,
-	.aa-sticky-cart__drawer-option,
-	.aa-sticky-cart__drawer-option::before,
-	.aa-sticky-cart__drawer-option::after {
+	.aa-sticky-cart__drawer-option {
 		transition: none;
 	}
 
 	.aggressive-apparel-quick-view__option-check,
-	.aggressive-apparel-quick-view__option-name,
 	.aa-sticky-cart__drawer-option-check,
+	.aggressive-apparel-quick-view__option-name,
 	.aa-sticky-cart__drawer-option-name {
 		transition: none;
-		transform: none;
+	}
+
+	.aggressive-apparel-quick-view__option-check,
+	.aa-sticky-cart__drawer-option-check {
+		transform: translateX(-0.5625rem) scale(0);
+	}
+
+	.aggressive-apparel-quick-view__option-name,
+	.aa-sticky-cart__drawer-option-name {
+		transform: translateX(-0.5625rem);
+	}
+
+	.is-selected .aggressive-apparel-quick-view__option-check,
+	.aa-sticky-cart__drawer-option.is-selected .aa-sticky-cart__drawer-option-check,
+	.is-selected .aggressive-apparel-quick-view__option-name,
+	.aa-sticky-cart__drawer-option.is-selected .aa-sticky-cart__drawer-option-name {
+		transform: translateX(0) scale(1);
 	}
 
 	.aggressive-apparel-quick-view__attribute-option.is-color-swatch,

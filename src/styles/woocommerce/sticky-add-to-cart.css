@@ -143,84 +143,17 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 }
 
 .aa-sticky-cart__button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.75rem;
 	min-width: 2.75rem;
-	padding: 0.5rem 1.25rem;
-	border: 2px solid var(--aa-color-foreground);
-	border-radius: 100rem;
-	background-color: transparent;
-	color: var(--aa-color-foreground);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.aa-sticky-cart__button:hover {
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-}
-
-.aa-sticky-cart__button:active {
-	transform: scale(0.97);
-}
-
-.aa-sticky-cart__button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.aa-sticky-cart__button.is-loading {
-	opacity: 0.7;
-	pointer-events: none;
 }
 
 .aa-sticky-cart__button.is-success {
+	border-color: var(--aa-color-success);
 	background-color: var(--aa-color-success);
 }
 
 .aa-sticky-cart__buy-now {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.75rem;
-	padding: 0.5rem 1rem;
-	border: 2px solid var(--aa-color-accent);
-	border-radius: 100rem;
-	background-color: var(--aa-color-accent);
-	color: var(--aa-color-foreground);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.aa-sticky-cart__buy-now:hover {
-	color: var(--aa-color-foreground);
-	background-color: transparent;
-}
-
-.aa-sticky-cart__buy-now:active {
-	transform: scale(0.97);
-}
-
-.aa-sticky-cart__buy-now:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.aa-sticky-cart__buy-now.is-loading {
-	opacity: 0.7;
-	pointer-events: none;
 }
 
 /* -----------------------------------------------
@@ -238,27 +171,7 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 }
 
 .aa-sticky-cart__qty-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
-	border: none;
-	background: none;
 	font-size: 0.875rem;
-	cursor: pointer;
-	color: inherit;
-	transition: background-color 0.15s ease;
-}
-
-.aa-sticky-cart__qty-btn:hover,
-.aa-sticky-cart__qty-btn:focus-visible {
-	background-color: color-mix(in oklch, currentcolor 8%, transparent);
-}
-
-.aa-sticky-cart__qty-btn:active {
-	transform: scale(0.97);
 }
 
 .aa-sticky-cart__qty-input {
@@ -348,26 +261,10 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 }
 
 .aa-sticky-cart__drawer-close {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
-	margin-left: auto;
-	padding: 0;
-	border: none;
-	border-radius: 50%;
-	background: color-mix(in oklch, currentcolor 8%, transparent);
-	color: inherit;
-	cursor: pointer;
-	flex-shrink: 0;
-	transition: background-color 0.15s ease;
-	align-self: start;
-}
+	--aa-icon-button-color: inherit;
 
-.aa-sticky-cart__drawer-close:hover,
-.aa-sticky-cart__drawer-close:focus-visible {
-	background: color-mix(in oklch, currentcolor 15%, transparent);
+	margin-left: auto;
+	align-self: start;
 }
 
 /* Body — scrollable attribute options */
@@ -424,82 +321,17 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 
 .aa-sticky-cart__drawer-add {
 	flex: 1;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.75rem;
-	padding: 0.5rem 1.25rem;
-	border: none;
-	border-radius: var(--aa-radius-full);
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, opacity 0.15s ease;
-}
-
-.aa-sticky-cart__drawer-add:hover {
-	opacity: 0.9;
-}
-
-.aa-sticky-cart__drawer-add:active {
-	transform: scale(0.97);
-}
-
-.aa-sticky-cart__drawer-add:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.aa-sticky-cart__drawer-add.is-loading {
-	opacity: 0.7;
-	pointer-events: none;
 }
 
 .aa-sticky-cart__drawer-add.is-success {
+	border-color: var(--aa-color-success);
 	background-color: var(--aa-color-success);
 }
 
 .aa-sticky-cart__drawer-buy-now {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	flex: 0 0 100%;
-	min-height: 2.75rem;
-	padding: 0.5rem 1rem;
-	border: 2px solid var(--aa-color-foreground);
-	border-radius: var(--aa-radius-full);
-	background: none;
-	color: var(--aa-color-foreground);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
 	white-space: nowrap;
-	transition: opacity 0.15s ease;
-}
-
-.aa-sticky-cart__drawer-buy-now:hover {
-	opacity: 0.7;
-}
-
-.aa-sticky-cart__drawer-buy-now:active {
-	transform: scale(0.97);
-}
-
-.aa-sticky-cart__drawer-buy-now:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.aa-sticky-cart__drawer-buy-now.is-loading {
-	opacity: 0.7;
-	pointer-events: none;
 }
 
 /* Selection view wrapper — hidden attr override. */
@@ -606,35 +438,8 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 
 .aa-sticky-cart__drawer-success-btn {
 	flex: 1;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.75rem;
-	padding: 0.5rem 1rem;
-	border: none;
-	border-radius: var(--aa-radius-full);
-	font-size: 0.85rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	cursor: pointer;
 	white-space: nowrap;
 	text-decoration: none;
-	transition: opacity 0.15s ease;
-}
-
-.aa-sticky-cart__drawer-success-btn:hover {
-	opacity: 0.9;
-}
-
-.aa-sticky-cart__drawer-success-btn--continue {
-	background-color: color-mix(in oklch, currentcolor 8%, transparent);
-	color: inherit;
-}
-
-.aa-sticky-cart__drawer-success-btn--cart {
-	background-color: var(--aa-color-foreground);
-	color: var(--aa-color-surface);
 }
 
 /* -----------------------------------------------
@@ -660,10 +465,11 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 }
 
 /* -----------------------------------------------
- * Narrow layout — hides image + quantity when bar < 640px.
+ * Narrow layout
+ *
  * The sticky bar is fixed/full-viewport, so this fires at the same
- * breakpoints as a viewport @media — container queries are used here
- * for architectural consistency and forward-compatibility.
+ * breakpoints as a viewport @media. Product-type modifiers below own
+ * the tighter conversion layouts instead of relying on source order.
  * ----------------------------------------------- */
 
 @container sticky-cart (width < 640px) {
@@ -692,6 +498,94 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 		padding: 0.5rem 1rem;
 	}
 
+}
+
+/*
+ * Product-specific conversion layouts.
+ *
+ * Simple: the two purchase paths own the full row.
+ * Variable: image, price, and Choose options form three visual columns. The
+ * repeated product title remains in the accessibility tree without competing
+ * with the decision-making information visible on screen.
+ */
+@container sticky-cart (width < 520px) {
+
+	:is(
+		.aa-sticky-cart--dual-action,
+		.aa-sticky-cart--variable
+	) .aa-sticky-cart__inner {
+		padding: 0.75rem 1rem;
+	}
+
+	.aa-sticky-cart--dual-action .aa-sticky-cart__product {
+		display: none;
+	}
+
+	.aa-sticky-cart--dual-action .aa-sticky-cart__actions {
+		display: grid;
+		grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.aa-sticky-cart--dual-action :is(
+		.aa-sticky-cart__button,
+		.aa-sticky-cart__buy-now
+	) {
+		width: 100%;
+		min-width: 0;
+		padding-inline: 0.75rem;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(7.5rem, auto);
+		gap: 0.5rem;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__product {
+		display: grid;
+		grid-template-columns: 3rem minmax(0, 1fr);
+		align-items: center;
+		gap: 0.625rem;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__image {
+		display: block;
+		width: 3rem;
+		height: 3rem;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__title {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__price {
+		flex-wrap: wrap;
+		row-gap: 0;
+		font-size: 0.875rem;
+		font-weight: 700;
+		line-height: 1.2;
+		opacity: 1;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__actions {
+		width: 100%;
+	}
+
+	.aa-sticky-cart--variable .aa-sticky-cart__button {
+		width: 100%;
+		min-width: 7.5rem;
+		padding-inline: 0.875rem;
+	}
 }
 
 

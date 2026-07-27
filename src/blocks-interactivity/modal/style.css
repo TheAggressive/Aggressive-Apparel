@@ -40,20 +40,20 @@
  * ────────────────────────────────────────────── */
 
 .wp-block-aggressive-apparel-modal__trigger {
-	--aa-trigger-border: var(--aa-color-border);
-	--aa-trigger-hover-border: var(--aa-color-foreground);
+	--aa-trigger-border: var(--wp--custom--button--secondary--border);
+	--aa-trigger-hover-border: var(--wp--custom--button--secondary--hover-background);
 
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0.5em;
 	cursor: pointer;
-	font-weight: 500;
-	letter-spacing: normal;
-	text-transform: none;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
 	background: var(--aa-trigger-bg, transparent);
 	color: var(--aa-trigger-text, currentcolor);
-	border-radius: var(--aa-trigger-radius, var(--aa-radius-control));
+	border-radius: var(--aa-trigger-radius, var(--aa-radius-button));
 	transition:
 		background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
 		color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
@@ -66,10 +66,8 @@
 	}
 
 	&:focus-visible {
-		background-color: var(--aa-trigger-hover-bg, var(--aa-color-hover-subtle));
-		color: var(--aa-trigger-hover-text, currentcolor);
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
+		outline: none;
+		box-shadow: var(--aa-focus-ring);
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -81,40 +79,44 @@
 	&.trigger-size-sm {
 		padding: 0.4em 0.875em;
 		font-size: var(--wp--preset--font-size--x-small);
-		min-height: 2rem;
+		min-height: var(--aa-control-min);
 	}
 
 	&.trigger-size-md {
 		padding: 0.55em 1.125em;
 		font-size: var(--wp--preset--font-size--small);
-		min-height: 2.5rem;
+		min-height: var(--aa-button-height-md);
 	}
 
 	&.trigger-size-lg {
 		padding: 0.7em 1.5em;
 		font-size: var(--wp--preset--font-size--medium);
-		min-height: 3rem;
+		min-height: var(--aa-button-height-lg);
 	}
 
 	/* ── Style variants ────── */
 
 	&.trigger-variant-outlined {
-		border: 1px solid var(--aa-trigger-border);
+		border: 2px solid var(--aa-trigger-border);
+		background: var(--aa-trigger-bg, var(--wp--custom--button--secondary--background));
+		color: var(--aa-trigger-text, var(--wp--custom--button--secondary--text));
 
 		&:hover {
 			border-color: var(--aa-trigger-hover-border);
+			background: var(--aa-trigger-hover-bg, var(--wp--custom--button--secondary--hover-background));
+			color: var(--aa-trigger-hover-text, var(--wp--custom--button--secondary--hover-text));
 		}
 	}
 
 	&.trigger-variant-filled {
-		border: none;
-		background: var(--aa-trigger-bg, var(--aa-color-foreground));
-		color: var(--aa-trigger-text, var(--aa-color-surface));
+		border: 2px solid var(--aa-trigger-bg, var(--wp--custom--button--primary--background));
+		background: var(--aa-trigger-bg, var(--wp--custom--button--primary--background));
+		color: var(--aa-trigger-text, var(--wp--custom--button--primary--text));
 
-		&:hover,
-		&:focus-visible {
-			background-color: var(--aa-trigger-hover-bg, color-mix(in oklch, var(--aa-color-foreground) 88%, transparent));
-			color: var(--aa-trigger-hover-text, var(--aa-color-surface));
+		&:hover {
+			border-color: var(--aa-trigger-hover-bg, var(--wp--custom--button--primary--hover-background));
+			background-color: var(--aa-trigger-hover-bg, var(--wp--custom--button--primary--hover-background));
+			color: var(--aa-trigger-hover-text, var(--wp--custom--button--primary--hover-text));
 		}
 	}
 
@@ -122,8 +124,7 @@
 		border: none;
 		background: transparent;
 
-		&:hover,
-		&:focus-visible {
+		&:hover {
 			background-color: var(--aa-trigger-hover-bg, var(--aa-color-hover-subtle));
 		}
 	}
@@ -132,11 +133,10 @@
 		border: none;
 		background: transparent;
 		padding: 0;
-		min-height: unset;
+		min-height: var(--aa-control-min);
 		border-radius: 0;
 
-		&:hover,
-		&:focus-visible {
+		&:hover {
 			background: transparent;
 			text-decoration: underline;
 			text-underline-offset: 0.15em;
@@ -481,71 +481,37 @@
  * ────────────────────────────────────────────── */
 
 .wp-block-aggressive-apparel-modal__close {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.375em;
+	--aa-icon-button-background: var(--aa-close-btn-bg, transparent);
+	--aa-icon-button-color: var(--aa-close-btn-color, var(--aa-color-foreground-muted, currentcolor));
+	--aa-icon-button-hover-background: var(--aa-close-btn-hover-bg, var(--aa-icon-button-background));
+	--aa-icon-button-hover-color: var(--aa-close-btn-hover-color, var(--aa-color-accent));
+
 	flex-shrink: 0;
-	padding: 0;
-	border: none;
-	background: var(--aa-close-btn-bg, transparent);
-	color: var(--aa-close-btn-color, var(--aa-color-foreground-muted, currentcolor));
 	font-size: var(--wp--preset--font-size--medium);
-	font-weight: 500;
-	line-height: 1;
-	cursor: pointer;
-	transition:
-		background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
-		color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
-		border-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease);
+	font-weight: 700;
 
 	&.close-size-sm {
-		min-width: 2rem;
-		min-height: 2rem;
 		font-size: var(--wp--preset--font-size--small);
 	}
 
 	&.close-size-md {
-		min-width: 2.25rem;
-		min-height: 2.25rem;
 		font-size: var(--wp--preset--font-size--medium);
 	}
 
 	&.close-size-lg {
-		min-width: 2.75rem;
-		min-height: 2.75rem;
 		font-size: var(--wp--preset--font-size--large);
 	}
 
 	&.close-variant-ghost {
-		border: none;
-		border-radius: var(--aa-radius-control);
+		--aa-icon-button-border: transparent;
 	}
 
 	&.close-variant-outlined {
-		padding: 0.375rem;
-		border: 1px solid var(--aa-color-border);
-		border-radius: var(--aa-radius-control);
+		--aa-icon-button-border: var(--aa-color-border);
 	}
 
 	&.close-variant-filled {
-		padding: 0.375rem;
-		background-color: var(--aa-close-btn-bg, var(--aa-color-hover-default));
-		border: none;
-		border-radius: var(--aa-radius-control);
-	}
-
-	&:hover {
-		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-hover-default));
-		color: var(--aa-close-btn-hover-color, var(--aa-color-foreground));
-		border-color: var(--aa-color-border);
-	}
-
-	&:focus-visible {
-		background-color: var(--aa-close-btn-hover-bg, var(--aa-color-hover-default));
-		color: var(--aa-close-btn-hover-color, var(--aa-color-foreground));
-		outline: 2px solid var(--aa-color-accent);
-		outline-offset: 2px;
+		--aa-icon-button-background: var(--aa-close-btn-bg, var(--aa-color-hover-default));
 	}
 
 	&.close-placement-inside-top-right {
@@ -571,39 +537,31 @@
 	}
 
 	&.close-placement-sticky-top-right {
+		--aa-icon-button-background: var(--aa-close-btn-bg, var(--aa-dialog-bg, var(--aa-color-surface)));
+
 		align-self: flex-end;
 		position: sticky;
 		top: -0.25rem;
 		z-index: 1;
 		margin: -0.35rem -0.35rem 0.5rem 0;
-		background-color: var(--aa-close-btn-bg, var(--aa-dialog-bg, var(--aa-color-surface)));
 	}
 
 	/* Outside close sits on the scrim — light chrome for contrast. */
 	&.close-placement-outside-top-right,
 	&.close-placement-outside-top-left {
+		--aa-icon-button-background: var(--aa-close-btn-bg, color-mix(in oklch, var(--aa-color-black) 40%, transparent));
+		--aa-icon-button-color: var(--aa-close-btn-color, var(--aa-color-on-scrim));
+
 		position: absolute;
 		z-index: 2;
 		opacity: 0;
-		color: var(--aa-close-btn-color, var(--aa-color-on-scrim));
-		background-color: var(--aa-close-btn-bg, color-mix(in oklch, var(--aa-color-black) 40%, transparent));
-		border-radius: var(--aa-radius-control);
 		backdrop-filter: blur(4px);
-		transition:
-			opacity var(--aa-modal-duration, 300ms) var(--aa-ease-default, ease),
-			background-color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease),
-			color var(--aa-duration-fast, 0.15s) var(--aa-ease-default, ease);
+		transition: opacity var(--aa-modal-duration, 300ms) var(--aa-ease-default, ease);
 
 		.wp-block-aggressive-apparel-modal__shell.is-open & {
 			opacity: 1;
 		}
 
-		&:hover,
-		&:focus-visible {
-			background-color: var(--aa-close-btn-hover-bg, color-mix(in oklch, var(--aa-color-black) 60%, transparent));
-			color: var(--aa-close-btn-hover-color, var(--aa-color-on-scrim));
-			border-color: transparent;
-		}
 	}
 
 	&.close-placement-outside-top-right {

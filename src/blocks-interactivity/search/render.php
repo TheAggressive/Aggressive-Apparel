@@ -38,7 +38,7 @@ printf(
 	'<button type="button" %1$s data-wp-on--click="actions.open" data-wp-bind--aria-expanded="state.isOpen" aria-haspopup="dialog" aria-label="%2$s">%3$s%4$s</button>',
 	get_block_wrapper_attributes(
 		array(
-			'class'               => 'aa-search-trigger',
+			'class'               => 'aa-search-trigger aa-icon-button' . ( $show_label ? '' : ' aa-icon-button--only' ),
 			'data-wp-interactive' => 'aggressive-apparel/search',
 		)
 	),

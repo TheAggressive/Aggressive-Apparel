@@ -285,28 +285,11 @@ body.admin-bar :is(.aa-notices--top-right, .aa-notices--top-left, .aa-notices--t
 }
 
 .aa-notices__close {
-	flex: 0 0 auto;
+	--aa-icon-button-color: var(--aa-color-foreground-muted, currentColor);
+
 	appearance: none;
-	margin: -0.125rem -0.25rem -0.125rem 0;
-	padding: 0 0.125rem;
-	border: 0;
-	background: none;
-	color: var(--aa-color-foreground-muted, currentColor);
+	margin: -0.5rem -0.5rem -0.5rem 0;
 	font-size: var(--aa-toast-close-size, 1.5rem);
-	line-height: 1;
-	cursor: pointer;
-	opacity: 0.7;
-	transition: opacity var(--aa-duration-fast, 150ms) var(--aa-ease-default);
-}
-
-.aa-notices__close:hover,
-.aa-notices__close:focus-visible {
-	opacity: 1;
-}
-
-.aa-notices__close:focus-visible {
-	outline: 2px solid currentcolor;
-	outline-offset: 2px;
 }
 
 @keyframes aa-notice-in {

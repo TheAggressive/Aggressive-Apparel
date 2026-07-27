@@ -204,7 +204,7 @@ class Social_Proof {
 		echo '<p class="aggressive-apparel-social-proof__time" data-wp-text="state.currentTime" data-wp-bind--hidden="state.currentHasNoTime"></p>';
 		echo '</div>';
 		echo '</div>';
-		echo '<button type="button" class="aggressive-apparel-social-proof__close" tabindex="-1" data-wp-on--click="actions.dismiss" aria-label="' . esc_attr__( 'Dismiss', 'aggressive-apparel' ) . '">&times;</button>';
+		echo '<button type="button" class="aggressive-apparel-social-proof__close aa-icon-button aa-icon-button--only aa-icon-button--square" tabindex="-1" data-wp-on--click="actions.dismiss" aria-label="' . esc_attr__( 'Dismiss', 'aggressive-apparel' ) . '">&times;</button>';
 		echo '</div>';
 		echo '</div>';
 	}

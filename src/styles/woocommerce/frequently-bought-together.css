@@ -166,31 +166,7 @@
  * ----------------------------------------------- */
 
 .aa-fbt__add-all {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.75rem;
-	padding: 0.625rem 1.5rem;
-	border: none;
-	border-radius: 0.25rem;
-	background-color: var(--aa-color-accent);
-	color: var(--aa-color-surface);
-	font-size: 0.875rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.025em;
-	cursor: pointer;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, opacity 0.15s ease;
-}
-
-.aa-fbt__add-all:hover {
-	opacity: 0.9;
-}
-
-.aa-fbt__add-all:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
 }
 
 .aa-fbt__add-all.is-loading {
@@ -199,6 +175,7 @@
 }
 
 .aa-fbt__add-all.is-success {
+	border-color: var(--aa-color-success);
 	background-color: var(--aa-color-success);
 }
 

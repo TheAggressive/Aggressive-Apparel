@@ -202,7 +202,7 @@ class Mobile_Bottom_Nav {
 						autocomplete="off"
 					/>
 					<input type="hidden" name="post_type" value="product" />
-					<button type="button" class="aa-bottom-nav__search-close" data-wp-on--click="actions.closeSearch" aria-label="<?php esc_attr_e( 'Close search', 'aggressive-apparel' ); ?>">
+					<button type="button" class="aa-bottom-nav__search-close aa-icon-button aa-icon-button--only aa-icon-button--square" data-wp-on--click="actions.closeSearch" aria-label="<?php esc_attr_e( 'Close search', 'aggressive-apparel' ); ?>">
 						<?php
 						Icons::render(
 							'close',

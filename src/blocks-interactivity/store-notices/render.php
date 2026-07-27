@@ -222,7 +222,7 @@ $aa_wrapper = get_block_wrapper_attributes(
 			<p class="aa-notices__message" data-wp-watch="callbacks.syncMessage"></p>
 			<button
 				type="button"
-				class="aa-notices__close"
+				class="aa-notices__close aa-icon-button aa-icon-button--only aa-icon-button--square"
 				data-wp-on--click="actions.dismiss"
 				data-wp-bind--aria-label="state.dismissLabel"
 			>&times;</button>

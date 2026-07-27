@@ -62,14 +62,19 @@ final class TestStickyAddToCart extends WP_UnitTestCase {
 		$sticky_cart->render_sticky_bar();
 		$html = (string) ob_get_clean();
 
-		$this->assertStringContainsString( 'class="aa-sticky-cart"', $html );
+		$this->assertStringContainsString( 'class="aa-sticky-cart ', $html );
 		$this->assertStringContainsString( 'data-wp-init="callbacks.init"', $html );
 		$this->assertStringContainsString( 'aria-hidden="true"', $html );
 		$this->assertStringContainsString( 'data-wp-bind--aria-hidden="state.ariaHidden"', $html );
 		$this->assertMatchesRegularExpression(
-			'/<div\s+class="aa-sticky-cart"[^>]*\sinert(?:\s|>)/s',
+			'/<div\s+class="aa-sticky-cart[^"]*"[^>]*\sinert(?:\s|>)/s',
 			$html
 		);
 		$this->assertStringContainsString( 'data-wp-bind--inert="!state.isVisible"', $html );
+		$this->assertSame(
+			2,
+			substr_count( $html, 'aggressive-apparel-button--sm' ),
+			'Both simple-product Sticky Cart CTAs should use the shared Small button recipe.'
+		);
 	}
 }

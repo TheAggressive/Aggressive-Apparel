@@ -119,10 +119,15 @@ class Search_Modal {
 
 		$tabs_html = '';
 		foreach ( $scopes as $value => $label ) {
+			$is_default = 'all' === $value;
 			$tabs_html .= sprintf(
-				'<button type="button" role="tab" class="aa-search__tab" data-scope="%1$s" data-wp-on--click="actions.setScope" data-wp-class--is-active="callbacks.isActiveScope" data-wp-bind--aria-selected="callbacks.isActiveScope"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">%2$s</span></button>',
+				'<button type="button" role="tab" class="aa-search__tab aa-choice-pill%3$s" data-scope="%1$s" data-wp-context="%4$s" data-wp-on--click="actions.setScope" data-wp-on--keydown="actions.handleScopeKeydown" data-wp-class--is-active="state.isActiveScope" data-wp-bind--aria-selected="state.ariaSelectedScope" data-wp-bind--tabindex="state.scopeTabindex" aria-selected="%5$s" tabindex="%6$s"><span class="aa-search__tab-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-search__tab-label">%2$s</span></button>',
 				esc_attr( $value ),
-				esc_html( $label )
+				esc_html( $label ),
+				$is_default ? ' is-active' : '',
+				esc_attr( (string) wp_json_encode( array( 'scope' => $value ) ) ),
+				$is_default ? 'true' : 'false',
+				$is_default ? '0' : '-1'
 			);
 		}
 
@@ -159,9 +164,9 @@ class Search_Modal {
 								data-wp-bind--aria-expanded="state.hasResults"
 								data-wp-on--input="actions.handleInput"
 							/>
-							<button type="button" class="aa-search__clear" aria-label="%7$s" hidden data-wp-bind--hidden="!state.hasQuery" data-wp-on--click="actions.clear">%8$s</button>
+							<button type="button" class="aa-search__clear aa-icon-button aa-icon-button--only" aria-label="%7$s" hidden data-wp-bind--hidden="!state.hasQuery" data-wp-on--click="actions.clear">%8$s</button>
 						</div>
-						<button type="button" class="aa-search__close" aria-label="%9$s" data-wp-on--click="actions.close">%10$s</button>
+						<button type="button" class="aa-search__close aa-icon-button aa-icon-button--only aa-icon-button--square" aria-label="%9$s" data-wp-on--click="actions.close">%10$s</button>
 					</div>
 					<div class="aa-search__tabs" role="tablist" aria-label="%11$s">%12$s</div>
 					<div class="aa-search__body">
@@ -169,12 +174,12 @@ class Search_Modal {
 						<p class="aa-search__loading" hidden data-wp-bind--hidden="!state.isLoading" aria-hidden="true">%14$s</p>
 						<div class="aa-search__error" role="alert" hidden data-wp-bind--hidden="state.hideError">
 							<p class="aa-search__error-message" data-wp-text="state.errorDisplay"></p>
-							<button type="button" class="aa-search__retry wp-element-button" data-wp-on--click="actions.retry">%15$s</button>
+							<button type="button" class="aa-search__retry aggressive-apparel-button aggressive-apparel-button--primary wp-element-button" data-wp-on--click="actions.retry">%15$s</button>
 						</div>
 						<p class="aa-search__empty" hidden data-wp-bind--hidden="!state.showEmpty" role="status">%16$s</p>
 						<div class="aa-search__tab-empty" hidden data-wp-bind--hidden="!state.showTabEmpty" role="status">
 							<p class="aa-search__tab-empty-message" data-wp-text="state.tabEmptyMessage"></p>
-							<button type="button" class="aa-search__tab-empty-action wp-element-button" data-wp-on--click="actions.setScopeAll">%17$s</button>
+							<button type="button" class="aa-search__tab-empty-action aggressive-apparel-button aggressive-apparel-button--outline wp-element-button" data-wp-on--click="actions.setScopeAll">%17$s</button>
 						</div>
 						<div id="aa-search-results" class="aa-search__results" role="listbox" aria-label="%18$s"></div>
 					</div>

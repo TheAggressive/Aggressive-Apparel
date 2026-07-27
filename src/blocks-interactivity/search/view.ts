@@ -10,7 +10,12 @@
  * @package Aggressive_Apparel
  */
 
-import { store, getElement, withScope } from '@wordpress/interactivity';
+import {
+  store,
+  getContext,
+  getElement,
+  withScope,
+} from '@wordpress/interactivity';
 import {
   prepareOverlayOpen,
   activateOverlayFocus,
@@ -56,6 +61,10 @@ interface SearchErrorPayload {
   error?: string;
   message?: string;
   retryAfter?: number;
+}
+
+interface SearchTabContext {
+  scope: string;
 }
 
 class SearchRequestError extends Error {
@@ -104,6 +113,9 @@ interface SearchState {
   readonly tabEmptyMessage: string;
   readonly errorDisplay: string;
   readonly announcement: string;
+  readonly isActiveScope: boolean;
+  readonly ariaSelectedScope: string;
+  readonly scopeTabindex: string;
 }
 
 interface SearchStore {
@@ -493,6 +505,17 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
       if (total === 1) return resultSingular;
       return resultPlural.replace('%d', String(total));
     },
+    get isActiveScope(): boolean {
+      return state.scope === getContext<SearchTabContext>().scope;
+    },
+    get ariaSelectedScope(): string {
+      return state.scope === getContext<SearchTabContext>().scope
+        ? 'true'
+        : 'false';
+    },
+    get scopeTabindex(): string {
+      return state.scope === getContext<SearchTabContext>().scope ? '0' : '-1';
+    },
   },
 
   actions: {
@@ -572,14 +595,55 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
       );
     },
 
-    setScope(event: Event): void {
-      const scope = (event.currentTarget as HTMLElement).dataset.scope;
+    setScope(): void {
+      const scope = getContext<SearchTabContext>().scope;
       if (!scope || scope === state.scope) return;
       // Pure client-side filter — the data for every type is already loaded, so
       // no refetch (the result watch re-renders from the new scope instantly).
       state.scope = scope;
       paintSearchResults();
-      getInput()?.focus({ preventScroll: true });
+      getElement().ref?.focus({ preventScroll: true });
+    },
+
+    handleScopeKeydown(event: KeyboardEvent): void {
+      const current = event.currentTarget as HTMLElement;
+      const tablist = current.closest<HTMLElement>('[role="tablist"]');
+      if (!tablist) return;
+
+      const tabs = Array.from(
+        tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      );
+      const currentIndex = tabs.indexOf(current as HTMLButtonElement);
+      if (currentIndex < 0) return;
+
+      let nextIndex = currentIndex;
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          nextIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case 'Home':
+          nextIndex = 0;
+          break;
+        case 'End':
+          nextIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      const nextTab = tabs[nextIndex];
+      const nextScope = nextTab?.dataset.scope;
+      if (!nextTab || !nextScope) return;
+
+      state.scope = nextScope;
+      paintSearchResults();
+      nextTab.focus();
     },
 
     setScopeAll(): void {
@@ -695,12 +759,7 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
     },
   },
 
-  callbacks: {
-    isActiveScope(): boolean {
-      const { ref } = getElement();
-      return (ref as HTMLElement)?.dataset.scope === state.scope;
-    },
-  },
+  callbacks: {},
 });
 
 /** Result thumbnail (image when present, otherwise an empty placeholder box). */

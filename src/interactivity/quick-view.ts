@@ -25,9 +25,11 @@ import type {
   ResolvedOption,
 } from './quick-view/types';
 // Side-effect imports: view.ts registers the capture-phase click delegation;
-// actions.ts registers the store's actions via a second store() call.
+// actions.ts + actions-gallery.ts register the store's actions via additional
+// store() calls on the same namespace (the runtime merges actions by namespace).
 import './quick-view/view';
 import './quick-view/actions';
+import './quick-view/actions-gallery';
 
 declare global {
   interface Window {

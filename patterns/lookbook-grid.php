@@ -39,8 +39,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/urban"><?php echo esc_html__( 'Shop Collection', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/urban"><?php echo esc_html__( 'Shop Collection', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -62,8 +62,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/gym"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/gym"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -81,8 +81,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/accessories"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/accessories"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -108,8 +108,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/street"><?php echo esc_html__( 'View Look', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/street"><?php echo esc_html__( 'View Look', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -131,8 +131,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/performance"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/performance"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->
@@ -154,8 +154,8 @@
 
 					<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 					<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-						<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-						<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/limited"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
+						<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+						<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/collections/limited"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 						<!-- /wp:button -->
 					</div>
 					<!-- /wp:buttons -->

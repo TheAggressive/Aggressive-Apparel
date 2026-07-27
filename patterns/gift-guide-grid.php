@@ -40,8 +40,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--6)">
-					<!-- wp:button {"backgroundColor":"white","textColor":"black","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop?max_price=100"><?php echo esc_html__( 'Shop Under $100', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"backgroundColor":"white","textColor":"black"} -->
+					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" href="/shop?max_price=100"><?php echo esc_html__( 'Shop Under $100', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -64,8 +64,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--6)">
-					<!-- wp:button {"backgroundColor":"white","textColor":"black","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop?max_price=150"><?php echo esc_html__( 'Shop Under $150', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"backgroundColor":"white","textColor":"black"} -->
+					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" href="/shop?max_price=150"><?php echo esc_html__( 'Shop Under $150', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -88,8 +88,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--6)">
-					<!-- wp:button {"backgroundColor":"white","textColor":"accent","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-					<div class="wp-block-button"><a class="wp-block-button__link has-accent-color has-white-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop?min_price=150"><?php echo esc_html__( 'Shop Premium', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"backgroundColor":"white","textColor":"accent"} -->
+					<div class="wp-block-button"><a class="wp-block-button__link has-accent-color has-white-background-color has-text-color has-background wp-element-button" href="/shop?min_price=150"><?php echo esc_html__( 'Shop Premium', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->

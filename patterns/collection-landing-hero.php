@@ -28,12 +28,12 @@
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center","flexWrap":"wrap"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|12"},"blockGap":"var:preset|spacing|4"}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--12)">
-		<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase" href="/product-category/nightfall"><?php echo esc_html__( 'Shop Collection', 'aggressive-apparel' ); ?></a></div>
+		<!-- wp:button {"backgroundColor":"accent","textColor":"white","className":"is-style-cta"} -->
+		<div class="wp-block-button is-style-cta"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" href="/product-category/nightfall"><?php echo esc_html__( 'Shop Collection', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 
-		<!-- wp:button {"textColor":"white","className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}}} -->
-		<div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-white-color has-text-color wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/lookbook/nightfall"><?php echo esc_html__( 'View Lookbook', 'aggressive-apparel' ); ?></a></div>
+		<!-- wp:button {"textColor":"white","className":"is-style-cta-outline-on-dark"} -->
+		<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link has-white-color has-text-color wp-element-button" href="/lookbook/nightfall"><?php echo esc_html__( 'View Lookbook', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

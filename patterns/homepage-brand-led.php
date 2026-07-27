@@ -132,8 +132,8 @@
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--32)">
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 	<div class="wp-block-buttons">
-		<!-- wp:button {"backgroundColor":"black","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|4","bottom":"var:preset|spacing|4","left":"var:preset|spacing|14","right":"var:preset|spacing|14"}}}} -->
-		<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--4);padding-right:var(--wp--preset--spacing--14);padding-bottom:var(--wp--preset--spacing--4);padding-left:var(--wp--preset--spacing--14);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/shop"><?php echo esc_html__( 'Shop the Collection', 'aggressive-apparel' ); ?></a></div>
+		<!-- wp:button {"backgroundColor":"black","textColor":"white","className":"is-style-cta"} -->
+		<div class="wp-block-button is-style-cta"><a class="wp-block-button__link has-white-color has-black-background-color has-text-color has-background wp-element-button" href="/shop"><?php echo esc_html__( 'Shop the Collection', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

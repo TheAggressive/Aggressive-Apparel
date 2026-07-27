@@ -62,8 +62,8 @@
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|14"}}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--14)">
-		<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"border":{"radius":"var(--wp--custom--radius--button)"},"spacing":{"padding":{"top":"var:preset|spacing|5","bottom":"var:preset|spacing|5","left":"var:preset|spacing|10","right":"var:preset|spacing|10"}},"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.05em"}},"fontSize":"small"} -->
-		<div class="wp-block-button has-custom-font-size has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:0.05em;text-transform:uppercase"><a class="wp-block-button__link has-accent-background-color has-white-color has-text-color has-background wp-element-button" href="/shop/gift-cards" style="border-radius:var(--wp--custom--radius--button);padding-top:var(--wp--preset--spacing--5);padding-right:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--5);padding-left:var(--wp--preset--spacing--10)"><?php echo esc_html__( 'Shop Gift Cards', 'aggressive-apparel' ); ?></a></div>
+		<!-- wp:button {"backgroundColor":"accent","textColor":"white","className":"is-style-cta-outline-on-dark"} -->
+		<div class="wp-block-button is-style-cta-outline-on-dark"><a class="wp-block-button__link has-accent-background-color has-white-color has-text-color has-background wp-element-button" href="/shop/gift-cards"><?php echo esc_html__( 'Shop Gift Cards', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

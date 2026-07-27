@@ -98,8 +98,8 @@
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"var:preset|spacing|12"}}}} -->
 	<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--12)">
-		<!-- wp:button {"className":"is-style-outline","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-		<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="#reviews"><?php echo esc_html__( 'See all reviews', 'aggressive-apparel' ); ?></a></div>
+		<!-- wp:button {"className":"is-style-ghost"} -->
+		<div class="wp-block-button is-style-ghost"><a class="wp-block-button__link wp-element-button" href="#reviews"><?php echo esc_html__( 'See all reviews', 'aggressive-apparel' ); ?></a></div>
 		<!-- /wp:button -->
 	</div>
 	<!-- /wp:buttons -->

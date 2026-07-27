@@ -80,8 +80,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|4"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--4)">
-					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/nightfall"><?php echo esc_html__( 'Shop the drop', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/nightfall"><?php echo esc_html__( 'Shop the drop', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->

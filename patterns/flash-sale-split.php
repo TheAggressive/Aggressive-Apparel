@@ -40,8 +40,8 @@
 		<div class="wp-block-column is-vertically-aligned-center has-accent-background-color has-background" style="padding-top:var(--wp--preset--spacing--16);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--16);padding-left:var(--wp--preset--spacing--12);flex-basis:50%">
 			<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 			<div class="wp-block-buttons">
-				<!-- wp:button {"backgroundColor":"white","textColor":"accent","width":100,"style":{"typography":{"fontStyle":"normal","fontWeight":"800","textTransform":"uppercase","letterSpacing":"0.08em"},"spacing":{"padding":{"top":"var:preset|spacing|8","bottom":"var:preset|spacing|8","left":"var:preset|spacing|12","right":"var:preset|spacing|12"}}},"fontSize":"x-large"} -->
-				<div class="wp-block-button has-custom-width wp-block-button__width-100"><a class="wp-block-button__link has-accent-color has-white-background-color has-text-color has-background has-x-large-font-size wp-element-button" style="padding-top:var(--wp--preset--spacing--8);padding-right:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--8);padding-left:var(--wp--preset--spacing--12);font-style:normal;font-weight:800;letter-spacing:0.08em;text-transform:uppercase" href="/shop?on_sale=true"><?php echo esc_html__( 'Shop Sale', 'aggressive-apparel' ); ?></a></div>
+				<!-- wp:button {"backgroundColor":"white","textColor":"accent","width":100,"className":"is-style-cta"} -->
+				<div class="wp-block-button has-custom-width wp-block-button__width-100 is-style-cta"><a class="wp-block-button__link has-accent-color has-white-background-color has-text-color has-background wp-element-button" href="/shop?on_sale=true"><?php echo esc_html__( 'Shop Sale', 'aggressive-apparel' ); ?></a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

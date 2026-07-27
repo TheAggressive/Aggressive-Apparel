@@ -37,8 +37,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--6)">
-					<!-- wp:button {"backgroundColor":"accent","textColor":"white","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}}}} -->
-					<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--6);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/collections/streetwear"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"backgroundColor":"accent","textColor":"white"} -->
+					<div class="wp-block-button"><a class="wp-block-button__link has-white-color has-accent-background-color has-text-color has-background wp-element-button" href="/collections/streetwear"><?php echo esc_html__( 'Shop Now', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -57,8 +57,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/hoodies"><?php echo esc_html__( 'Shop Hoodies', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/hoodies"><?php echo esc_html__( 'Shop Hoodies', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -73,8 +73,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/tees"><?php echo esc_html__( 'Shop Tees', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/tees"><?php echo esc_html__( 'Shop Tees', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -97,8 +97,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/joggers"><?php echo esc_html__( 'Shop Joggers', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/joggers"><?php echo esc_html__( 'Shop Joggers', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -113,8 +113,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|3"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--3)">
-					<!-- wp:button {"className":"is-style-cta-small is-style-outline-on-dark"} -->
-					<div class="wp-block-button is-style-cta-small is-style-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/caps"><?php echo esc_html__( 'Shop Caps', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"className":"is-style-cta-small-outline-on-dark"} -->
+					<div class="wp-block-button is-style-cta-small-outline-on-dark"><a class="wp-block-button__link wp-element-button" href="/product-category/caps"><?php echo esc_html__( 'Shop Caps', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->
@@ -137,8 +137,8 @@
 
 				<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|6"}}}} -->
 				<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--6)">
-					<!-- wp:button {"backgroundColor":"white","textColor":"black","style":{"typography":{"fontStyle":"normal","fontWeight":"600","textTransform":"uppercase","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|6","right":"var:preset|spacing|6"}}}} -->
-					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--6);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--6);font-style:normal;font-weight:600;letter-spacing:0.05em;text-transform:uppercase" href="/collections/limited"><?php echo esc_html__( 'View Collection', 'aggressive-apparel' ); ?></a></div>
+					<!-- wp:button {"backgroundColor":"white","textColor":"black"} -->
+					<div class="wp-block-button"><a class="wp-block-button__link has-black-color has-white-background-color has-text-color has-background wp-element-button" href="/collections/limited"><?php echo esc_html__( 'View Collection', 'aggressive-apparel' ); ?></a></div>
 					<!-- /wp:button -->
 				</div>
 				<!-- /wp:buttons -->

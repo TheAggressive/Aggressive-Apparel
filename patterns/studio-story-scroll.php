@@ -50,8 +50,8 @@
 
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"top":"var:preset|spacing|12"}}}} -->
 			<div class="wp-block-buttons" style="margin-top:var(--wp--preset--spacing--12)">
-				<!-- wp:button {"backgroundColor":"foreground","textColor":"surface","style":{"typography":{"fontStyle":"normal","fontWeight":"700","textTransform":"uppercase","letterSpacing":"0.06em"},"spacing":{"padding":{"top":"var:preset|spacing|3","bottom":"var:preset|spacing|3","left":"var:preset|spacing|8","right":"var:preset|spacing|8"}}}} -->
-				<div class="wp-block-button"><a class="wp-block-button__link has-surface-color has-foreground-background-color has-text-color has-background wp-element-button" style="padding-top:var(--wp--preset--spacing--3);padding-right:var(--wp--preset--spacing--8);padding-bottom:var(--wp--preset--spacing--3);padding-left:var(--wp--preset--spacing--8);font-style:normal;font-weight:700;letter-spacing:0.06em;text-transform:uppercase" href="/journal"><?php echo esc_html__( 'More from the journal', 'aggressive-apparel' ); ?></a></div>
+				<!-- wp:button {"backgroundColor":"foreground","textColor":"surface"} -->
+				<div class="wp-block-button"><a class="wp-block-button__link has-surface-color has-foreground-background-color has-text-color has-background wp-element-button" href="/journal"><?php echo esc_html__( 'More from the journal', 'aggressive-apparel' ); ?></a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->

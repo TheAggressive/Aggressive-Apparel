@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.176.0\n"
+"Project-Id-Version: Aggressive Apparel 1.177.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-25T18:19:10+00:00\n"
+"POT-Creation-Date: 2026-07-27T04:21:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -429,33 +429,33 @@ msgid "All"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:109
-#: includes/Core/class-search-modal.php:260
+#: includes/Core/class-search-modal.php:265
 #: includes/Core/class-search-rest.php:154
 msgid "Products"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:111
-#: includes/Core/class-search-modal.php:261
+#: includes/Core/class-search-modal.php:266
 #: includes/Core/class-search-rest.php:165
 msgid "Articles"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:112
-#: includes/Core/class-search-modal.php:262
+#: includes/Core/class-search-modal.php:267
 #: includes/Core/class-search-rest.php:176
 msgid "Pages"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:130
+#: includes/Core/class-search-modal.php:135
 msgid "Start typing to search products, articles and pages."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:131
+#: includes/Core/class-search-modal.php:136
 msgid "Start typing to search articles and pages."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:195
-#: includes/Core/class-search-modal.php:197
+#: includes/Core/class-search-modal.php:200
+#: includes/Core/class-search-modal.php:202
 #: includes/WooCommerce/class-back-in-stock-admin.php:95
 #: includes/WooCommerce/class-mobile-bottom-nav.php:147
 #: includes/WooCommerce/class-mobile-bottom-nav.php:153
@@ -463,90 +463,90 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:198
+#: includes/Core/class-search-modal.php:203
 msgid "Clear search"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:200
+#: includes/Core/class-search-modal.php:205
 #: includes/WooCommerce/class-mobile-bottom-nav.php:205
 msgid "Close search"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:202
+#: includes/Core/class-search-modal.php:207
 msgid "Filter results by type"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:205
+#: includes/Core/class-search-modal.php:210
 msgid "Searching…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:206
-#: includes/Core/class-search-modal.php:255
+#: includes/Core/class-search-modal.php:211
+#: includes/Core/class-search-modal.php:260
 #: includes/WooCommerce/class-product-filters.php:584
 msgid "Try again"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:207
-#: includes/Core/class-search-modal.php:249
+#: includes/Core/class-search-modal.php:212
+#: includes/Core/class-search-modal.php:254
 #: patterns/template-no-search-results.php:15
 msgid "No results found."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:208
-#: includes/Core/class-search-modal.php:210
-#: includes/Core/class-search-modal.php:258
+#: includes/Core/class-search-modal.php:213
+#: includes/Core/class-search-modal.php:215
+#: includes/Core/class-search-modal.php:263
 msgid "View all results"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:209
+#: includes/Core/class-search-modal.php:214
 msgid "Search results"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:212
+#: includes/Core/class-search-modal.php:217
 msgid "navigate"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:213
+#: includes/Core/class-search-modal.php:218
 msgid "open"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:214
+#: includes/Core/class-search-modal.php:219
 msgid "close"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:250
+#: includes/Core/class-search-modal.php:255
 msgid "1 result found."
 msgstr ""
 
 #. translators: %d: number of search results.
-#: includes/Core/class-search-modal.php:252
+#: includes/Core/class-search-modal.php:257
 #, php-format
 msgid "%d results found."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:253
+#: includes/Core/class-search-modal.php:258
 msgid "Search is temporarily unavailable. Please try again."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:254
+#: includes/Core/class-search-modal.php:259
 msgid "Too many requests. Please slow down and try again."
 msgstr ""
 
 #. translators: 1: active tab label, 2: number of results in other types.
-#: includes/Core/class-search-modal.php:257
+#: includes/Core/class-search-modal.php:262
 #, php-format
 msgid "No %1$s found. View all results (%2$d) instead."
 msgstr ""
 
-#: includes/Core/class-search-modal.php:354
+#: includes/Core/class-search-modal.php:359
 msgid "Find Your Fit…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:356
+#: includes/Core/class-search-modal.php:361
 msgid "Read the Noise…"
 msgstr ""
 
-#: includes/Core/class-search-modal.php:357
+#: includes/Core/class-search-modal.php:362
 msgid "Find Your Way…"
 msgstr ""
 
@@ -591,122 +591,136 @@ msgid "Enabled"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:151
-#: patterns/design-system-preview.php:53
-msgid "Ghost"
+msgid "Secondary (Outline)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:176
-#: includes/WooCommerce/class-badge-admin-fields.php:102
-msgid "Text"
+#: includes/Core/class-theme-support.php:159
+#: patterns/design-system-preview.php:57
+#: patterns/design-system-preview.php:181
+msgid "Large Secondary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:208
+#: includes/Core/class-theme-support.php:167
+msgid "Tertiary (Text)"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:175
+#: patterns/design-system-preview.php:116
 msgid "Small"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:216
-#: patterns/design-system-preview.php:45
-msgid "CTA"
+#: includes/Core/class-theme-support.php:183
+#: patterns/design-system-preview.php:53
+msgid "Large Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:224
-#: patterns/design-system-preview.php:49
-msgid "CTA Small"
+#: includes/Core/class-theme-support.php:191
+#: patterns/design-system-preview.php:61
+msgid "Small Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:232
-msgid "Outline on Dark"
+#: includes/Core/class-theme-support.php:199
+#: patterns/design-system-preview.php:177
+msgid "Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:257
+#: includes/Core/class-theme-support.php:207
+msgid "Large Secondary on Dark"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:215
+msgid "Small Secondary on Dark"
+msgstr ""
+
+#: includes/Core/class-theme-support.php:223
 msgid "Frosted Glass"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:265
+#: includes/Core/class-theme-support.php:231
 msgid "Surface Card"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:273
+#: includes/Core/class-theme-support.php:239
 msgid "Bordered"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:281
+#: includes/Core/class-theme-support.php:247
 msgid "Display"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:289
+#: includes/Core/class-theme-support.php:255
 #: patterns/homepage-seasonal-shop.php:210
 msgid "Editorial"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:297
+#: includes/Core/class-theme-support.php:263
 msgid "Brand Stripe"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:305
+#: includes/Core/class-theme-support.php:271
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 msgid "Badge"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:313
+#: includes/Core/class-theme-support.php:279
 msgid "Badge Muted"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:321
+#: includes/Core/class-theme-support.php:287
 msgid "Eyebrow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:329
+#: includes/Core/class-theme-support.php:295
 msgid "Caption"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:337
+#: includes/Core/class-theme-support.php:303
 msgid "Meta"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:345
+#: includes/Core/class-theme-support.php:311
 msgid "Legal"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:353
+#: includes/Core/class-theme-support.php:319
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 msgid "Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:361
+#: includes/Core/class-theme-support.php:327
 msgid "Subtle"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:370
+#: includes/Core/class-theme-support.php:336
 msgid "Commerce Grid"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:378
+#: includes/Core/class-theme-support.php:344
 msgid "Commerce Cards"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:386
+#: includes/Core/class-theme-support.php:352
 msgid "Product Frame"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:394
+#: includes/Core/class-theme-support.php:360
 msgid "Commerce Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:404
+#: includes/Core/class-theme-support.php:370
 msgid "Overflow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:412
+#: includes/Core/class-theme-support.php:378
 msgid "Text Mask"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:420
+#: includes/Core/class-theme-support.php:386
 msgid "Cinematic"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:428
+#: includes/Core/class-theme-support.php:394
 msgid "Frosted Dark"
 msgstr ""
 
@@ -991,6 +1005,7 @@ msgid "Notified"
 msgstr ""
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:223
+#: patterns/design-system-preview.php:87
 msgid "Delete"
 msgstr ""
 
@@ -1130,6 +1145,10 @@ msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:101
 msgid "Background"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:102
+msgid "Text"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:108
@@ -1329,19 +1348,19 @@ msgid "Back to Badges"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-system-defaults.php:127
-#: patterns/design-system-preview.php:85
+#: patterns/design-system-preview.php:145
 #: patterns/footer-columns.php:49
 #: patterns/mega-menu-panel.php:64
 msgid "Sale"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-system-defaults.php:138
-#: patterns/design-system-preview.php:89
+#: patterns/design-system-preview.php:149
 msgid "New"
 msgstr ""
 
 #: includes/WooCommerce/class-badge-system-defaults.php:149
-#: patterns/design-system-preview.php:93
+#: patterns/design-system-preview.php:153
 msgid "Low Stock"
 msgstr ""
 
@@ -2085,7 +2104,7 @@ msgid "%s UNLOCKED!"
 msgstr ""
 
 #: includes/WooCommerce/class-frequently-bought-together.php:176
-#: includes/WooCommerce/class-quick-view.php:378
+#: includes/WooCommerce/class-quick-view-renderer.php:215
 msgid "Adding…"
 msgstr ""
 
@@ -2192,14 +2211,14 @@ msgid "Save %d%%"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view.php:389
+#: includes/WooCommerce/class-quick-view-renderer.php:226
 msgid "In Stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view.php:388
+#: includes/WooCommerce/class-quick-view-renderer.php:225
 #: includes/WooCommerce/class-store-copy.php:49
-#: patterns/design-system-preview.php:97
+#: patterns/design-system-preview.php:157
 msgid "Out of Stock"
 msgstr ""
 
@@ -2610,6 +2629,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-tabs-admin.php:607
 #: includes/WooCommerce/class-product-tabs-admin.php:851
+#: patterns/design-system-preview.php:76
 msgid "Disabled"
 msgstr ""
 
@@ -2989,105 +3009,106 @@ msgstr ""
 
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
-#: includes/WooCommerce/class-quick-view.php:241
-#: includes/WooCommerce/class-wishlist.php:464
+#: includes/WooCommerce/class-quick-view-renderer.php:78
+#: includes/WooCommerce/class-wishlist.php:468
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:270
+#: includes/WooCommerce/class-quick-view-renderer.php:107
 msgid "Product actions"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:379
+#: includes/WooCommerce/class-quick-view-renderer.php:216
 msgid "✓ Added!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:383
+#: includes/WooCommerce/class-quick-view-renderer.php:220
 #: includes/WooCommerce/class-sticky-add-to-cart.php:133
 msgid "Redirecting…"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:387
-#: includes/WooCommerce/class-quick-view.php:914
+#: includes/WooCommerce/class-quick-view-renderer.php:224
+#: includes/WooCommerce/class-quick-view-renderer.php:751
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:416
+#: includes/WooCommerce/class-sticky-add-to-cart.php:426
 msgid "Added to cart!"
 msgstr ""
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view.php:391
+#: includes/WooCommerce/class-quick-view-renderer.php:228
 #, php-format
 msgid "Only %d left!"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:392
+#: includes/WooCommerce/class-quick-view-renderer.php:229
 msgid "Product added to cart successfully"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:393
+#: includes/WooCommerce/class-quick-view-renderer.php:230
 msgid "Could not add to cart."
 msgstr ""
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view.php:395
+#: includes/WooCommerce/class-quick-view-renderer.php:232
 #, php-format
 msgid "Error: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:396
+#: includes/WooCommerce/class-quick-view-renderer.php:233
 #: includes/WooCommerce/class-sticky-add-to-cart.php:139
+#: patterns/design-system-preview.php:118
 msgid "Unavailable"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:423
+#: includes/WooCommerce/class-quick-view-renderer.php:260
 msgid "Close quick view"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:488
+#: includes/WooCommerce/class-quick-view-renderer.php:325
 msgid "Scroll thumbnails left"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:508
-#: includes/WooCommerce/class-quick-view.php:553
+#: includes/WooCommerce/class-quick-view-renderer.php:345
+#: includes/WooCommerce/class-quick-view-renderer.php:390
 msgid "View image"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:526
+#: includes/WooCommerce/class-quick-view-renderer.php:363
 msgid "Scroll thumbnails right"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:618
-#: includes/WooCommerce/class-quick-view.php:801
-#: includes/WooCommerce/class-sticky-add-to-cart.php:191
-#: includes/WooCommerce/class-sticky-add-to-cart.php:360
+#: includes/WooCommerce/class-quick-view-renderer.php:455
+#: includes/WooCommerce/class-quick-view-renderer.php:638
+#: includes/WooCommerce/class-sticky-add-to-cart.php:199
+#: includes/WooCommerce/class-sticky-add-to-cart.php:370
 msgid "Decrease quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:626
-#: includes/WooCommerce/class-quick-view.php:809
-#: includes/WooCommerce/class-sticky-add-to-cart.php:200
-#: includes/WooCommerce/class-sticky-add-to-cart.php:369
+#: includes/WooCommerce/class-quick-view-renderer.php:463
+#: includes/WooCommerce/class-quick-view-renderer.php:646
+#: includes/WooCommerce/class-sticky-add-to-cart.php:208
+#: includes/WooCommerce/class-sticky-add-to-cart.php:379
 msgid "Quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:632
-#: includes/WooCommerce/class-quick-view.php:815
-#: includes/WooCommerce/class-sticky-add-to-cart.php:206
-#: includes/WooCommerce/class-sticky-add-to-cart.php:375
+#: includes/WooCommerce/class-quick-view-renderer.php:469
+#: includes/WooCommerce/class-quick-view-renderer.php:652
+#: includes/WooCommerce/class-sticky-add-to-cart.php:214
+#: includes/WooCommerce/class-sticky-add-to-cart.php:385
 msgid "Increase quantity"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:700
-#: includes/WooCommerce/class-sticky-add-to-cart.php:260
+#: includes/WooCommerce/class-quick-view-renderer.php:537
+#: includes/WooCommerce/class-sticky-add-to-cart.php:268
 msgid "Select product options"
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:863
+#: includes/WooCommerce/class-quick-view-renderer.php:700
 msgid "Could not load product details. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-quick-view.php:901
+#: includes/WooCommerce/class-quick-view-renderer.php:738
 msgid "Close cart confirmation"
 msgstr ""
 
@@ -3174,7 +3195,7 @@ msgid "Measurements in inches"
 msgstr ""
 
 #: includes/WooCommerce/class-size-guide.php:203
-#: includes/WooCommerce/class-sticky-add-to-cart.php:291
+#: includes/WooCommerce/class-sticky-add-to-cart.php:299
 msgid "Close"
 msgstr ""
 
@@ -4163,35 +4184,112 @@ msgstr ""
 msgid "Buttons"
 msgstr ""
 
-#: patterns/design-system-preview.php:57
-msgid "Text Link"
+#: patterns/design-system-preview.php:45
+msgid "Primary"
+msgstr ""
+
+#: patterns/design-system-preview.php:49
+msgid "Secondary"
+msgstr ""
+
+#: patterns/design-system-preview.php:65
+msgid "Tertiary Link"
 msgstr ""
 
 #: patterns/design-system-preview.php:71
-msgid "Badges and states"
+msgid "Native states"
 msgstr ""
 
 #: patterns/design-system-preview.php:77
+msgid "Loading"
+msgstr ""
+
+#: patterns/design-system-preview.php:82
+msgid "Tone and shape variants"
+msgstr ""
+
+#: patterns/design-system-preview.php:88
+msgid "Saved"
+msgstr ""
+
+#: patterns/design-system-preview.php:89
+msgid "Ghost"
+msgstr ""
+
+#: patterns/design-system-preview.php:90
+msgid "Pill"
+msgstr ""
+
+#: patterns/design-system-preview.php:91
+msgid "Square"
+msgstr ""
+
+#: patterns/design-system-preview.php:96
+msgid "Density and elevation"
+msgstr ""
+
+#: patterns/design-system-preview.php:101
+msgid "Compact"
+msgstr ""
+
+#: patterns/design-system-preview.php:102
+#: patterns/design-system-preview.php:137
 msgid "Default"
 msgstr ""
 
-#: patterns/design-system-preview.php:81
-msgid "Muted"
+#: patterns/design-system-preview.php:103
+msgid "Large"
 msgstr ""
 
-#: patterns/design-system-preview.php:111
-msgid "Typography Roles"
+#: patterns/design-system-preview.php:104
+msgid "Elevated hero"
+msgstr ""
+
+#: patterns/design-system-preview.php:109
+msgid "Utility and choice controls"
+msgstr ""
+
+#: patterns/design-system-preview.php:114
+msgid "Close preview"
 msgstr ""
 
 #: patterns/design-system-preview.php:115
+msgid "Remove preview"
+msgstr ""
+
+#: patterns/design-system-preview.php:117
+msgid "Medium"
+msgstr ""
+
+#: patterns/design-system-preview.php:131
+msgid "Badges and states"
+msgstr ""
+
+#: patterns/design-system-preview.php:141
+msgid "Muted"
+msgstr ""
+
+#: patterns/design-system-preview.php:171
+msgid "Buttons on dark media"
+msgstr ""
+
+#: patterns/design-system-preview.php:185
+msgid "Small Secondary"
+msgstr ""
+
+#: patterns/design-system-preview.php:195
+msgid "Typography Roles"
+msgstr ""
+
+#: patterns/design-system-preview.php:199
 msgid "Caption text is for supporting detail and secondary explanatory copy."
 msgstr ""
 
-#: patterns/design-system-preview.php:119
+#: patterns/design-system-preview.php:203
 msgid "Meta text uses compact uppercase rhythm"
 msgstr ""
 
-#: patterns/design-system-preview.php:127
+#: patterns/design-system-preview.php:211
 msgid "Legal text is intentionally quiet and compact while remaining readable."
 msgstr ""
 
@@ -6831,12 +6929,12 @@ msgstr ""
 msgid "Main navigation"
 msgstr ""
 
-#: src/blocks-interactivity/product-color-swatches/render.php:133
+#: src/blocks-interactivity/product-color-swatches/render.php:139
 msgid "Color options"
 msgstr ""
 
 #. translators: %s: Color name.
-#: src/blocks-interactivity/product-color-swatches/render.php:167
+#: src/blocks-interactivity/product-color-swatches/render.php:179
 #, php-format
 msgid "View in %s"
 msgstr ""

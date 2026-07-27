@@ -25,6 +25,7 @@ import {
 } from '@wordpress/components';
 
 import './editor.css';
+import { getSwatchVisibility } from './visibility';
 
 type SwatchTransition =
   | 'fade'
@@ -52,6 +53,7 @@ export interface ProductColorSwatchesAttributes {
   swatchShape: 'circle' | 'square' | 'diamond';
   swatchSize: 'xs' | 'sm' | 'md' | 'lg';
   maxVisible: number;
+  mobileRowCapacity: number;
   showTooltip: boolean;
   linkToVariation: boolean;
   swatchTransition: SwatchTransition;
@@ -63,11 +65,9 @@ interface EditProps {
   setAttributes: (attrs: Partial<ProductColorSwatchesAttributes>) => void;
 }
 
-const SIZE_PX: Record<string, string> = {
-  xs: '1rem',
-  sm: '1.5rem',
-  md: '2rem',
-  lg: '2.75rem',
+type SwatchPreviewStyle = CSSProperties & {
+  '--swatch-color': string;
+  '--aa-card-swatch-color': string;
 };
 
 const MOCK_SWATCHES = [
@@ -90,48 +90,41 @@ export default function Edit({
   const {
     swatchShape,
     swatchSize,
-    maxVisible,
+    maxVisible = 4,
+    mobileRowCapacity = 4,
     showTooltip,
     linkToVariation,
     swatchTransition,
     swatchAlignment,
   } = attributes;
 
-  const size = SIZE_PX[swatchSize] ?? '2rem';
-  const visible = MOCK_SWATCHES.slice(0, maxVisible);
-  const overflow = MOCK_SWATCHES.length - visible.length;
-
-  const swatchStyle = (color: string): CSSProperties => {
-    const base: CSSProperties = {
-      width: size,
-      height: size,
-      backgroundColor: color,
-      border: 'none',
-      cursor: 'default',
-      display: 'block',
-      flexShrink: 0,
-      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.22)',
-    };
-    if (swatchShape === 'circle') {
-      base.borderRadius = '50%';
-    } else if (swatchShape === 'square') {
-      base.borderRadius = '3px';
-    } else {
-      base.borderRadius = '3px';
-      base.transform = 'rotate(45deg) scale(0.82)';
-    }
-    return base;
-  };
+  const totalCount = MOCK_SWATCHES.length;
+  const {
+    standardVisibleCount,
+    denseVisibleCount,
+    renderCount,
+    standardOverflow,
+    denseOverflow,
+  } = getSwatchVisibility(totalCount, maxVisible, mobileRowCapacity);
+  const visible = MOCK_SWATCHES.slice(0, renderCount);
 
   const blockProps = useBlockProps({
-    className: 'aa-product-color-swatches-editor-preview',
+    className: [
+      'aa-product-color-swatches',
+      'aa-product-color-swatches-editor-preview',
+      `is-shape-${swatchShape}`,
+      `is-size-${swatchSize}`,
+      `is-justify-${swatchAlignment}`,
+      showTooltip ? 'has-tooltips' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
   });
 
-  const alignmentMap: Record<string, CSSProperties['justifyContent']> = {
-    left: 'flex-start',
-    center: 'center',
-    right: 'flex-end',
-  };
+  const swatchStyle = (color: string): SwatchPreviewStyle => ({
+    '--swatch-color': color,
+    '--aa-card-swatch-color': color,
+  });
 
   return (
     <>
@@ -171,10 +164,10 @@ export default function Edit({
             value={swatchSize}
             options={[
               {
-                label: __('X-Small (16 px)', 'aggressive-apparel'),
+                label: __('X-Small (20 px)', 'aggressive-apparel'),
                 value: 'xs',
               },
-              { label: __('Small (24 px)', 'aggressive-apparel'), value: 'sm' },
+              { label: __('Small (28 px)', 'aggressive-apparel'), value: 'sm' },
               {
                 label: __('Medium (32 px)', 'aggressive-apparel'),
                 value: 'md',
@@ -195,9 +188,22 @@ export default function Edit({
             min={1}
             max={20}
             step={1}
-            onChange={value => setAttributes({ maxVisible: value ?? 5 })}
+            onChange={value => setAttributes({ maxVisible: value ?? 4 })}
             help={__(
               'Colors beyond this count show a "+N more" badge.',
+              'aggressive-apparel'
+            )}
+          />
+
+          <RangeControl
+            label={__('Mobile Row Capacity', 'aggressive-apparel')}
+            value={mobileRowCapacity}
+            min={2}
+            max={4}
+            step={1}
+            onChange={value => setAttributes({ mobileRowCapacity: value ?? 4 })}
+            help={__(
+              'Maximum items in one narrow-card row. When colors overflow, the final slot becomes the "+N" badge.',
               'aggressive-apparel'
             )}
           />
@@ -284,50 +290,47 @@ export default function Edit({
       </InspectorControls>
 
       <div {...blockProps}>
-        <div
-          className={[
-            'aa-product-color-swatches',
-            `is-shape-${swatchShape}`,
-            `is-size-${swatchSize}`,
-          ].join(' ')}
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.375rem',
-            alignItems: 'center',
-            justifyContent: alignmentMap[swatchAlignment] ?? 'flex-start',
-            paddingBlock: swatchShape === 'diamond' ? '0.35rem' : undefined,
-          }}
-        >
-          {visible.map(swatch => (
-            <div
+        {visible.map((swatch, index) => {
+          const visibilityClasses = [
+            index >= standardVisibleCount ? 'is-hidden-standard' : '',
+            index >= denseVisibleCount ? 'is-hidden-dense' : '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+
+          return (
+            <span
+              className={[
+                'aa-product-color-swatches__swatch',
+                visibilityClasses,
+              ]
+                .filter(Boolean)
+                .join(' ')}
               key={swatch.label}
               style={swatchStyle(swatch.value)}
-              title={showTooltip ? swatch.label : undefined}
+              data-tooltip={showTooltip ? swatch.label : undefined}
+              aria-hidden='true'
             />
-          ))}
+          );
+        })}
 
-          {overflow > 0 && (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingInline: '0.4rem',
-                minWidth: '1.75rem',
-                height: '1.75rem',
-                borderRadius: '999px',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: '#111',
-                backgroundColor: '#e5e7eb',
-                boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.12)',
-              }}
-            >
-              +{overflow}
-            </span>
-          )}
-        </div>
+        {standardOverflow > 0 && (
+          <span
+            className='aa-product-color-swatches__overflow aa-product-color-swatches__overflow--standard'
+            aria-hidden='true'
+          >
+            +{standardOverflow}
+          </span>
+        )}
+
+        {denseOverflow > 0 && (
+          <span
+            className='aa-product-color-swatches__overflow aa-product-color-swatches__overflow--dense'
+            aria-hidden='true'
+          >
+            +{denseOverflow}
+          </span>
+        )}
       </div>
     </>
   );

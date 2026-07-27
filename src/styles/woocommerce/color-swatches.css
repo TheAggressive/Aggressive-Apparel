@@ -15,13 +15,18 @@
  *    shows.
  */
 .aggressive-apparel-color-chip {
+	display: inline-grid;
+	place-items: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
 	padding: 0;
 	border: none;
 	border-radius: 50%;
 	background: transparent;
 	overflow: visible;
 	line-height: 0;
-	min-width: 0;
 	box-shadow: none;
 
 	/* Kill WooCommerce's default chip hover/focus/selected backgrounds. */
@@ -59,6 +64,10 @@
 	display: block;
 }
 
+.aggressive-apparel-color-chip:disabled .aggressive-apparel-color-swatch__circle {
+	cursor: not-allowed;
+}
+
 /*
  * 3. Color swatch base — the visual circle.
  */
@@ -79,7 +88,7 @@
 /*
  * 4. Hover — gentle scale-up.
  */
-.aggressive-apparel-color-swatch__circle:hover {
+.aggressive-apparel-color-chip:not(:disabled) .aggressive-apparel-color-swatch__circle:hover {
 	transform: scale(1.1);
 }
 
@@ -90,16 +99,16 @@
 .aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle {
 	transform: scale(0.78);
 	outline: 3px solid
-		color-mix(
-			in oklch,
-			var(--swatch-color, var(--aa-color-muted-40)) 100%,
-			var(--aa-color-foreground)
-		);
+			color-mix(
+				in oklch,
+				var(--swatch-color, var(--aa-color-muted-40)) 60%,
+				var(--aa-color-foreground)
+			);
 	outline-offset: 4px;
 }
 
 /* Don't scale up on hover when already selected. */
-.aggressive-apparel-color-chip[aria-checked="true"] .aggressive-apparel-color-swatch__circle:hover {
+.aggressive-apparel-color-chip[aria-checked="true"]:not(:disabled) .aggressive-apparel-color-swatch__circle:hover {
 	transform: scale(0.78);
 }
 
@@ -109,16 +118,7 @@
  */
 .aggressive-apparel-color-chip:focus-visible {
 	outline: none;
-}
-
-.aggressive-apparel-color-chip:focus-visible .aggressive-apparel-color-swatch__circle {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: 3px;
-}
-
-.aggressive-apparel-color-chip[aria-checked="true"]:focus-visible
-	.aggressive-apparel-color-swatch__circle {
-	outline-width: 3px;
+	box-shadow: var(--aa-focus-ring);
 }
 
 /*
@@ -146,7 +146,7 @@
 		transition: none;
 	}
 
-	.aggressive-apparel-color-swatch__circle:hover {
+	.aggressive-apparel-color-chip:not(:disabled) .aggressive-apparel-color-swatch__circle:hover {
 		transform: none;
 	}
 

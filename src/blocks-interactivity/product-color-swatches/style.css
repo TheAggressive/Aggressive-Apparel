@@ -1,7 +1,7 @@
 /**
  * Product Color Swatches — Front-end Styles
  *
- * Three shapes (circle, square, diamond) × three sizes (sm, md, lg).
+ * Three shapes (circle, square, diamond) × four sizes (xs, sm, md, lg).
  * Selection uses a shrink-reveal ring matching the existing single-product
  * color-swatches.css pattern for visual consistency.
  *
@@ -14,7 +14,12 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0;
+}
+
+:is(.wp-block-woocommerce-product-price, .wc-block-grid__product-price)
+	+ .aa-product-color-swatches {
+	margin-block-start: var(--wp--preset--spacing--5);
 }
 
 .aa-product-color-swatches.is-justify-center {
@@ -28,10 +33,36 @@
 /* ─── Swatch base ────────────────────────────────────────────────────────── */
 
 .aa-product-color-swatches__swatch {
+	--aa-card-swatch-visual-size: 2rem;
+
+	position: relative;
 	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+
+	/* The artwork scales independently from its WCAG-safe card target. Keeping
+	   12px between neighboring visuals makes the colors read as one selector. */
+	width: calc(var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3));
+	height: calc(var(--aa-card-swatch-visual-size) + var(--wp--preset--spacing--3));
+	min-width: var(--aa-card-swatch-min);
+	min-height: var(--aa-card-swatch-min);
 	padding: 0;
 	border: none;
+	border-radius: var(--aa-radius-full);
 	cursor: pointer;
+	background: transparent;
+	box-shadow: none;
+	transition: box-shadow var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aa-product-color-swatches__swatch::before {
+	content: "";
+	display: block;
+	width: var(--aa-card-swatch-visual-size);
+	height: var(--aa-card-swatch-visual-size);
+	border-radius: inherit;
+	background-color: var(--aa-card-swatch-color, transparent);
+	background-image: var(--aa-card-swatch-image, none);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center;
@@ -41,97 +72,151 @@
 		transform var(--aa-duration-normal) var(--aa-ease-default),
 		box-shadow var(--aa-duration-normal) var(--aa-ease-default),
 		outline-color var(--aa-duration-fast) var(--aa-ease-default);
-
-	/* Force block-level so size applies predictably. */
-	display: block;
 }
 
-.aa-product-color-swatches__swatch:hover {
+.aa-product-color-swatches__swatch:hover::before {
 	transform: scale(1.12);
 }
 
 /* Focus ring — keyboard accessibility. */
 .aa-product-color-swatches__swatch:focus-visible {
-	outline: 2px solid var(--aa-color-foreground);
-	outline-offset: 3px;
+	outline: none;
+	box-shadow: var(--aa-focus-ring);
 }
 
 /* ─── Active (selected) state ────────────────────────────────────────────── */
 
-.aa-product-color-swatches__swatch.is-active {
+.aa-product-color-swatches__swatch.is-active::before {
 	transform: scale(0.8);
 	outline: 3px solid
 		color-mix(
 			in oklch,
-			var(--swatch-color, var(--aa-color-muted-50)) 55%,
-			var(--aa-color-black)
+			var(--swatch-color, var(--aa-color-muted-50)) 60%,
+			var(--aa-color-foreground)
 		);
 	outline-offset: 3px;
 }
 
-.aa-product-color-swatches__swatch.is-active:hover {
+.aa-product-color-swatches__swatch.is-active:hover::before {
 	transform: scale(0.8);
 }
 
 .aa-product-color-swatches__swatch.is-active:focus-visible {
-	outline-width: 3px;
+	box-shadow: var(--aa-focus-ring);
 }
 
 /* ─── Sizes ──────────────────────────────────────────────────────────────── */
 
 .is-size-xs .aa-product-color-swatches__swatch {
-	width: 1rem;     /* 16px */
-	height: 1rem;
+	--aa-card-swatch-visual-size: 1.25rem; /* 20px visual, 32px target */
 }
 
 .is-size-sm .aa-product-color-swatches__swatch {
-	width: 1.5rem;   /* 24px */
-	height: 1.5rem;
+	--aa-card-swatch-visual-size: 1.75rem; /* 28px visual, 40px target */
 }
 
 .is-size-md .aa-product-color-swatches__swatch {
-	width: 2rem;     /* 32px */
-	height: 2rem;
+	--aa-card-swatch-visual-size: 2rem; /* 32px visual, 44px target */
 }
 
 .is-size-lg .aa-product-color-swatches__swatch {
-	width: 2.75rem;  /* 44px — standard tap target */
-	height: 2.75rem;
+	--aa-card-swatch-visual-size: 2.75rem; /* 44px visual, 56px target */
+}
+
+/*
+ * Dense merchandising cards
+ *
+ * Two-up mobile grids can yield cards narrower than four standard swatch
+ * targets. The card itself is the responsive boundary, so use its container
+ * width rather than the viewport: the same rule then applies in the Site Editor,
+ * frontend grids, sidebars, and any future narrow collection composition.
+ *
+ * The 28px target remains above WCAG 2.2 AA's 24px minimum. Only this secondary
+ * card choice is compacted; filters, PDP variations, and primary controls retain
+ * the standard 44px target.
+ */
+@container product-card (width < 11rem) {
+
+	.aa-product-color-swatches {
+		gap: 0;
+	}
+
+	.is-size-xs .aa-product-color-swatches__swatch {
+		--aa-card-swatch-visual-size: 1rem;
+	}
+
+	.is-size-sm .aa-product-color-swatches__swatch {
+		--aa-card-swatch-visual-size: 1.375rem;
+	}
+
+	.is-size-md .aa-product-color-swatches__swatch {
+		--aa-card-swatch-visual-size: 1.5rem;
+	}
+
+	.is-size-lg .aa-product-color-swatches__swatch {
+		--aa-card-swatch-visual-size: 1.75rem;
+	}
+
+	.aa-product-color-swatches
+		.aa-product-color-swatches__overflow {
+		min-width: var(--aa-card-swatch-dense-min);
+		height: var(--aa-card-swatch-dense-min);
+		padding-inline: var(--wp--preset--spacing--1);
+	}
+
+	.aa-product-color-swatches__swatch {
+		min-width: var(--aa-card-swatch-dense-min);
+		min-height: var(--aa-card-swatch-dense-min);
+	}
+
+	.aa-product-color-swatches__swatch.is-hidden-standard:not(
+			.is-hidden-dense
+		) {
+		display: grid;
+	}
+
+	.aa-product-color-swatches__swatch.is-hidden-dense,
+	.aa-product-color-swatches
+		.aa-product-color-swatches__overflow--standard {
+		display: none;
+	}
+
+	.aa-product-color-swatches
+		.aa-product-color-swatches__overflow--dense {
+		display: inline-flex;
+	}
 }
 
 /* ─── Circle shape (default) ─────────────────────────────────────────────── */
 
-.is-shape-circle .aa-product-color-swatches__swatch {
+.is-shape-circle .aa-product-color-swatches__swatch,
+.is-shape-circle .aa-product-color-swatches__swatch::before {
 	border-radius: 50%;
 }
 
 /* ─── Square shape ───────────────────────────────────────────────────────── */
 
-.is-shape-square .aa-product-color-swatches__swatch {
+.is-shape-square .aa-product-color-swatches__swatch::before {
 	border-radius: 3px;
 }
 
 /* ─── Diamond shape ──────────────────────────────────────────────────────── */
 
-.is-shape-diamond .aa-product-color-swatches__swatch {
+.is-shape-diamond .aa-product-color-swatches__swatch::before {
 	border-radius: 3px;
 	transform: rotate(45deg) scale(0.82);
 }
 
-.is-shape-diamond .aa-product-color-swatches__swatch:hover {
+.is-shape-diamond .aa-product-color-swatches__swatch:hover::before {
 	transform: rotate(45deg) scale(0.92);
 }
 
-.is-shape-diamond .aa-product-color-swatches__swatch.is-active {
+.is-shape-diamond .aa-product-color-swatches__swatch.is-active::before {
 	transform: rotate(45deg) scale(0.68);
 }
 
-.is-shape-diamond .aa-product-color-swatches__swatch.is-active:hover {
+.is-shape-diamond .aa-product-color-swatches__swatch.is-active:hover::before {
 	transform: rotate(45deg) scale(0.68);
-}
-
-.is-shape-diamond .aa-product-color-swatches__swatch:focus-visible {
-	outline-offset: 4px;
 }
 
 /*
@@ -149,8 +234,8 @@
 	align-items: center;
 	justify-content: center;
 	padding-inline: 0.4rem;
-	min-width: 1.75rem;
-	height: 1.75rem;
+	min-width: var(--aa-card-swatch-min);
+	height: var(--aa-card-swatch-min);
 	border-radius: var(--aa-radius-full);
 	font-size: var(--wp--preset--font-size--x-small);
 	font-weight: 600;
@@ -159,6 +244,11 @@
 	background-color: var(--aa-color-surface-elevated);
 	box-shadow: inset 0 0 0 1px var(--aa-color-border-default);
 	user-select: none;
+}
+
+.aa-product-color-swatches__swatch.is-hidden-standard,
+.aa-product-color-swatches__overflow--dense {
+	display: none;
 }
 
 /* ─── CSS tooltip (shown when .has-tooltips is on the container) ─────────── */
@@ -195,13 +285,6 @@
 .has-tooltips .aa-product-color-swatches__swatch[data-tooltip]:focus-visible::after {
 	opacity: 1;
 	scale: 1;
-}
-
-/*
- * Diamond tooltips: counter-rotate so text stays upright.
- */
-.is-shape-diamond.has-tooltips .aa-product-color-swatches__swatch[data-tooltip]::after {
-	rotate: -45deg;
 }
 
 /* ─── Image swap animations ──────────────────────────────────────────────── */
@@ -538,19 +621,20 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.aa-product-color-swatches__swatch {
+	.aa-product-color-swatches__swatch,
+	.aa-product-color-swatches__swatch::before {
 		transition: none;
 	}
 
-	.aa-product-color-swatches__swatch:hover {
+	.aa-product-color-swatches__swatch:hover::before {
 		transform: none;
 	}
 
-	.is-shape-diamond .aa-product-color-swatches__swatch:hover {
+	.is-shape-diamond .aa-product-color-swatches__swatch:hover::before {
 		transform: rotate(45deg) scale(0.82);
 	}
 
-	.aa-product-color-swatches__swatch.is-active {
+	.aa-product-color-swatches__swatch.is-active::before {
 		transform: none;
 		outline: 3px solid
 			color-mix(
@@ -560,7 +644,7 @@
 			);
 	}
 
-	.is-shape-diamond .aa-product-color-swatches__swatch.is-active {
+	.is-shape-diamond .aa-product-color-swatches__swatch.is-active::before {
 		transform: rotate(45deg) scale(0.82);
 	}
 

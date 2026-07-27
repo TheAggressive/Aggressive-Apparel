@@ -11,7 +11,8 @@
     "attributes": {
       "swatchShape": "circle",
       "swatchSize": "md",
-      "maxVisible": 5,
+      "maxVisible": 4,
+      "mobileRowCapacity": 4,
       "showTooltip": true,
       "linkToVariation": true
     }
@@ -44,7 +45,11 @@
     },
     "maxVisible": {
       "type": "number",
-      "default": 5
+      "default": 4
+    },
+    "mobileRowCapacity": {
+      "type": "number",
+      "default": 4
     },
     "showTooltip": {
       "type": "boolean",

@@ -4,7 +4,7 @@
  * @package Aggressive_Apparel
  */
 
-.aa-product-color-swatches-editor-preview {
-	display: flex;
-	flex-direction: column;
+.aa-product-color-swatches-editor-preview .aa-product-color-swatches__swatch {
+	cursor: default;
+	pointer-events: none;
 }

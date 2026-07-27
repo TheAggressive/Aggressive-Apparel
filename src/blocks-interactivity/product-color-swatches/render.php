@@ -88,13 +88,14 @@ if ( empty( $swatches ) ) {
 	return;
 }
 
-$shape          = isset( $attributes['swatchShape'] ) ? (string) $attributes['swatchShape'] : 'circle';
-$size           = isset( $attributes['swatchSize'] ) ? (string) $attributes['swatchSize'] : 'md';
-$max_visible    = isset( $attributes['maxVisible'] ) ? max( 1, (int) $attributes['maxVisible'] ) : 5;
-$show_tooltip   = ! isset( $attributes['showTooltip'] ) || (bool) $attributes['showTooltip'];
-$link_variation = ! isset( $attributes['linkToVariation'] ) || (bool) $attributes['linkToVariation'];
-$transition     = isset( $attributes['swatchTransition'] ) ? (string) $attributes['swatchTransition'] : 'blur';
-$alignment      = isset( $attributes['swatchAlignment'] ) ? (string) $attributes['swatchAlignment'] : 'left';
+$shape           = isset( $attributes['swatchShape'] ) ? (string) $attributes['swatchShape'] : 'circle';
+$size            = isset( $attributes['swatchSize'] ) ? (string) $attributes['swatchSize'] : 'md';
+$max_visible     = isset( $attributes['maxVisible'] ) ? max( 1, (int) $attributes['maxVisible'] ) : 4;
+$mobile_capacity = isset( $attributes['mobileRowCapacity'] ) ? max( 2, min( 4, (int) $attributes['mobileRowCapacity'] ) ) : 4;
+$show_tooltip    = ! isset( $attributes['showTooltip'] ) || (bool) $attributes['showTooltip'];
+$link_variation  = ! isset( $attributes['linkToVariation'] ) || (bool) $attributes['linkToVariation'];
+$transition      = isset( $attributes['swatchTransition'] ) ? (string) $attributes['swatchTransition'] : 'blur';
+$alignment       = isset( $attributes['swatchAlignment'] ) ? (string) $attributes['swatchAlignment'] : 'left';
 
 $shape             = in_array( $shape, array( 'circle', 'square', 'diamond' ), true ) ? $shape : 'circle';
 $size              = in_array( $size, array( 'xs', 'sm', 'md', 'lg' ), true ) ? $size : 'md';
@@ -102,10 +103,15 @@ $alignment         = in_array( $alignment, array( 'left', 'center', 'right' ), t
 $valid_transitions = array( 'fade', 'blur', 'zoom-in', 'zoom-out', 'slide-up', 'slide-down', 'slide-left', 'flip', 'blur-zoom', 'flash', 'wipe', 'squeeze', 'rotate', 'tilt', 'desaturate', 'elastic', 'glitch', 'iris', 'dissolve', 'swing' );
 $transition        = in_array( $transition, $valid_transitions, true ) ? $transition : 'blur';
 
-$all_swatches   = array_values( $swatches );
-$slug_keys      = array_keys( $swatches );
-$visible_count  = min( $max_visible, count( $all_swatches ) );
-$overflow_count = count( $all_swatches ) - $visible_count;
+// Keep this responsive count contract aligned with visibility.ts and its boundary tests.
+$all_swatches           = array_values( $swatches );
+$slug_keys              = array_keys( $swatches );
+$swatch_count           = count( $all_swatches );
+$standard_visible_count = min( $max_visible, $swatch_count );
+$dense_visible_count    = $swatch_count <= $mobile_capacity ? $swatch_count : $mobile_capacity - 1;
+$render_count           = max( $standard_visible_count, $dense_visible_count );
+$standard_overflow      = $swatch_count - $standard_visible_count;
+$dense_overflow         = $swatch_count - $dense_visible_count;
 
 $container_context = array(
 	'productId'       => $product_id,
@@ -136,7 +142,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 ?>
 <div <?php echo wp_kses_post( $wrapper_attributes ); ?>>
 	<?php
-	for ( $i = 0; $i < $visible_count; $i++ ) :
+	for ( $i = 0; $i < $render_count; $i++ ) :
 		$swatch   = $all_swatches[ $i ];
 		$slug_key = $slug_keys[ $i ];
 
@@ -156,11 +162,17 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		if ( $is_pattern ) {
 			$swatch_classes .= ' is-pattern';
 		}
+		if ( $i >= $standard_visible_count ) {
+			$swatch_classes .= ' is-hidden-standard';
+		}
+		if ( $i >= $dense_visible_count ) {
+			$swatch_classes .= ' is-hidden-dense';
+		}
 
 		if ( $is_pattern ) {
-			$inline_style = 'background-image: url(' . esc_url( $swatch['colorValue'] ) . ');';
+			$inline_style = '--aa-card-swatch-image: url("' . esc_url( $swatch['colorValue'] ) . '");';
 		} else {
-			$inline_style = '--swatch-color: ' . esc_attr( $swatch['colorValue'] ) . '; background-color: ' . esc_attr( $swatch['colorValue'] ) . ';';
+			$inline_style = '--swatch-color: ' . esc_attr( $swatch['colorValue'] ) . '; --aa-card-swatch-color: ' . esc_attr( $swatch['colorValue'] ) . ';';
 		}
 
 		/* translators: %s: Color name. */
@@ -179,9 +191,15 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		></button>
 	<?php endfor; ?>
 
-	<?php if ( $overflow_count > 0 ) : ?>
-		<span class="aa-product-color-swatches__overflow" aria-hidden="true">
-			+<?php echo esc_html( $overflow_count ); ?>
+	<?php if ( $standard_overflow > 0 ) : ?>
+		<span class="aa-product-color-swatches__overflow aa-product-color-swatches__overflow--standard" aria-hidden="true">
+			+<?php echo esc_html( $standard_overflow ); ?>
+		</span>
+	<?php endif; ?>
+
+	<?php if ( $dense_overflow > 0 ) : ?>
+		<span class="aa-product-color-swatches__overflow aa-product-color-swatches__overflow--dense" aria-hidden="true">
+			+<?php echo esc_html( $dense_overflow ); ?>
 		</span>
 	<?php endif; ?>
 </div>

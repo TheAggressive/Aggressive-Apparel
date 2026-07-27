@@ -246,16 +246,26 @@
 	color: var(--aa-color-foreground);
 }
 
-/* Quantity stepper — nested context gives (0,2,0) specificity, beating
-   WooCommerce's flat .wc-block-components-quantity-selector rule (0,1,0)
-   regardless of block stylesheet load order. */
+/* Quantity stepper — single source of truth for every WooCommerce quantity
+   selector (product form, cart, checkout, AND the mini-cart drawer). Nested
+   context gives (0,2,0) specificity, beating WooCommerce's flat
+   .wc-block-components-quantity-selector rule (0,1,0) regardless of block
+   stylesheet load order. The mini-cart drawer intentionally shares this exact
+   styling — do not fork it in mini-cart.css. */
 .wc-block-cart,
 .wp-block-woocommerce-add-to-cart-with-options,
-.wp-block-woocommerce-checkout {
+.wp-block-woocommerce-checkout,
+.wp-block-woocommerce-filled-mini-cart-contents-block {
 
 	.wc-block-components-quantity-selector {
 		display: inline-flex;
+		flex: 0 0 auto;
 		align-items: stretch;
+
+		/* Hug the −/input/+ content so the fixed 44px controls are never clipped
+		   by `overflow: hidden` when a narrow flex parent (the mini-cart row)
+		   tries to squeeze the pill below its intrinsic width. */
+		min-width: max-content;
 		height: 2.75rem;
 		border: 2px solid color-mix(in oklch, currentcolor 20%, transparent);
 		border-radius: var(--aa-radius-full);
@@ -293,7 +303,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.75rem;
+		width: var(--aa-icon-button-size);
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -303,6 +313,9 @@
 		cursor: pointer;
 		transition: background-color 0.15s ease;
 
+		/* Subtle currentcolor tint on hover/focus — the shared quantity-button
+		   look used across the product form, cart, checkout, mini-cart drawer,
+		   sticky bar, and quick view. */
 		&:hover,
 		&:focus-visible {
 			background-color: color-mix(in oklch, currentcolor 8%, transparent);
@@ -329,6 +342,19 @@
     border-bottom-right-radius: var(--aa-radius-full);
     border-top-right-radius: var(--aa-radius-full);
 	}
+}
+
+/* Single-product add-to-cart form: the quantity pill shares a stretch flex row
+   with the (taller) Add to Cart button. Make its wrapper flex and let the pill
+   stretch to the row height so the two align, instead of the pill sitting short.
+   `min-height` keeps the 44px floor if the button is ever shorter. */
+.wp-block-add-to-cart-with-options-quantity-selector {
+	display: flex;
+}
+
+.wp-block-add-to-cart-with-options-quantity-selector .wc-block-components-quantity-selector {
+	height: auto;
+	min-height: 2.75rem;
 }
 
 .wc-block-components-text-input label,
@@ -382,7 +408,8 @@
 	.wp-block-woocommerce-product-button .wp-block-button__link,
 	.wc-block-grid__product-add-to-cart .wp-block-button__link,
 	.wc-block-components-product-button .wp-block-button__link,
-	.wc-block-components-button {
+	.wc-block-components-button,
+	.wc-block-components-quantity-selector__button {
 		transition: none;
 	}
 

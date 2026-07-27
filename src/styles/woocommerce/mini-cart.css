@@ -65,8 +65,8 @@
 	width: 1.25rem;
 	height: 1.25rem;
 	padding: 0;
-  left: 1.5rem;
-  top: 0.25rem;
+	left: 1.5rem;
+	top: 0.25rem;
 	border-radius: var(--aa-radius-full);
 	background-color: transparent !important;
 	color: transparent !important;
@@ -170,22 +170,91 @@
 
 /* Totals. */
 .wc-block-mini-cart__footer {
-background-color: var(--aa-color-surface-elevated);
-border-top: none;
+	background-color: var(--aa-color-surface-elevated);
+	border-top: none;
 
 	.wc-block-mini-cart__footer-subtotal {
 		font-weight: 700;
 	}
 }
 
-/* Buttons. */
-.wc-block-mini-cart__footer-actions {
+/*
+ * Purchase actions.
+ *
+ * WooCommerce paints outlined buttons with an inset box-shadow while
+ * theme.json paints the normal button border. Own both variants here so the
+ * generated Woo markup composes the same primary/secondary tokens as every
+ * other CTA without a double outline.
+ */
+.wc-block-mini-cart__drawer
+	.wc-block-mini-cart__footer
+	.wc-block-mini-cart__footer-actions {
 
 	.wc-block-components-button {
+		box-sizing: border-box;
+		min-height: var(--aa-button-height-md);
 		border-radius: var(--aa-radius-full);
+		box-shadow: none;
+		text-decoration: none;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		font-weight: 700;
+		transition:
+			background-color var(--aa-duration-fast) var(--aa-ease-default),
+			border-color var(--aa-duration-fast) var(--aa-ease-default),
+			box-shadow var(--aa-duration-fast) var(--aa-ease-default),
+			color var(--aa-duration-fast) var(--aa-ease-default),
+			transform var(--aa-duration-fast) var(--aa-ease-default);
+	}
+
+	.wc-block-mini-cart__footer-cart.wc-block-components-button {
+		border: 2px solid var(--wp--custom--button--secondary--border);
+		background: var(--wp--custom--button--secondary--background);
+		color: var(--wp--custom--button--secondary--text);
+		box-shadow: none;
+	}
+
+	.wc-block-mini-cart__footer-checkout.wc-block-components-button {
+		border: 2px solid var(--wp--custom--button--primary--background);
+		background: var(--wp--custom--button--primary--background);
+		color: var(--wp--custom--button--primary--text);
+		box-shadow: none;
+	}
+
+	.wc-block-components-button:focus {
+		outline: none;
+		box-shadow: none;
+	}
+
+	.wc-block-components-button:focus-visible {
+		box-shadow: var(--aa-focus-ring);
+	}
+
+	.wc-block-components-button:active {
+		transform: scale(0.98);
+	}
+}
+
+@media (hover: hover) {
+
+	.wc-block-mini-cart__drawer
+		.wc-block-mini-cart__footer
+		.wc-block-mini-cart__footer-actions
+		.wc-block-mini-cart__footer-cart.wc-block-components-button:hover {
+		border-color: var(--wp--custom--button--secondary--border);
+		background: var(--wp--custom--button--secondary--hover-background);
+		color: var(--wp--custom--button--secondary--hover-text);
+		box-shadow: none;
+	}
+
+	.wc-block-mini-cart__drawer
+		.wc-block-mini-cart__footer
+		.wc-block-mini-cart__footer-actions
+		.wc-block-mini-cart__footer-checkout.wc-block-components-button:hover {
+		border-color: var(--wp--custom--button--primary--hover-background);
+		background: var(--wp--custom--button--primary--hover-background);
+		color: var(--wp--custom--button--primary--hover-text);
+		box-shadow: none;
 	}
 }
 
@@ -217,17 +286,16 @@ border-top: none;
 		column-gap: var(--wp--preset--spacing--2);
 		align-items: start;
 		padding-block: var(--wp--preset--spacing--5);
+		padding-left: 1rem !important;
+		padding-right: 1rem !important;
 		border: 0;
 		border-bottom: 1px solid var(--aa-color-border-subtle);
 		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
 
 		:not(.is-mobile) & {
 			padding: var(--wp--preset--spacing--5);
-      column-gap: 0;
+			column-gap: 0;
 		}
-
 
 		&:last-child {
 			border-bottom: 0;
@@ -393,63 +461,9 @@ border-top: none;
 		margin-top: var(--wp--preset--spacing--2);
 	}
 
-	/* Quantity stepper — tight pill.
-	   DOM order is input → − → +, so use CSS order to render − | input | +. */
-	.wc-block-components-quantity-selector {
-		display: inline-flex;
-		align-items: stretch;
-		height: 2.75rem;
-		border: 2px solid color-mix(in oklch, currentcolor 20%, transparent);
-		border-radius: var(--aa-radius-full);
-		overflow: hidden;
-		background-color: var(--aa-color-surface);
-	}
-
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__input {
-		width: 2.5rem;
-		padding: 0;
-		font-size: 0.8125rem;
-		font-weight: 600;
-
-		&:focus-visible {
-			outline: none;
-			background-color: color-mix(in oklch, currentcolor 5%, transparent);
-		}
-	}
-
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2.75rem;
-		border-radius: var(--aa-radius-full);
-		font-size: 0.875rem;
-		line-height: 1;
-		transition: background-color var(--aa-duration-fast) var(--aa-ease-default);
-
-		&:hover,
-		&:focus-visible {
-			background-color: color-mix(in oklch, currentcolor 8%, transparent);
-		}
-
-		&:active {
-			transform: scale(0.97);
-		}
-
-		&:disabled {
-			opacity: 0.35;
-		}
-	}
-
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--minus {
-    border-bottom-left-radius: var(--aa-radius-full);
-    border-top-left-radius: var(--aa-radius-full);
-	}
-
-	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button--plus {
-    border-bottom-right-radius: var(--aa-radius-full);
-    border-top-right-radius: var(--aa-radius-full);
-	}
+	/* Quantity stepper styling is the shared single source of truth in
+	   woocommerce/blocks.css (product form / cart / checkout / mini-cart drawer).
+	   The mini-cart context is included there; do not re-fork it here. */
 
 	/* Remove button — SVG trash icon, styled as a small icon button. */
 	.wc-block-cart-item__remove-link {
@@ -457,9 +471,11 @@ border-top: none;
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		width: 2rem;
-		height: 2rem;
-		border-radius: var(--aa-radius-sm);
+		width: var(--aa-icon-button-size);
+		height: var(--aa-icon-button-size);
+		min-width: var(--aa-icon-button-size);
+		min-height: var(--aa-icon-button-size);
+		border-radius: var(--aa-radius-full);
 		color: var(--aa-color-foreground-muted);
 		transition:
 			background-color var(--aa-duration-fast) var(--aa-ease-default),
@@ -472,8 +488,12 @@ border-top: none;
 		}
 
 		&:hover {
-			background-color: var(--aa-color-error-bg);
 			color: var(--aa-color-error);
+		}
+
+		&:focus-visible {
+			outline: none;
+			box-shadow: var(--aa-focus-ring);
 		}
 	}
 
@@ -500,7 +520,6 @@ border-top: none;
 	.wp-block-woocommerce-filled-mini-cart-contents-block {
 
 		.wc-block-cart-items__row,
-		.wc-block-components-quantity-selector button,
 		.wc-block-cart-item__remove-link {
 			transition: none;
 		}

@@ -402,16 +402,6 @@
 		opacity var(--aa-duration-fast) var(--aa-ease-default);
 }
 
-/* Dense choice pill — drops the tap target to the WCAG-AA dense floor
- * (`--aa-control-min-dense`, 32px) for secondary choices inside genuinely
- * constrained merchandising surfaces (e.g. the filter drawer's size/fit chips).
- * Not a general escape hatch: primary actions and PDP choices stay 44px. */
-:where(.aa-choice-pill--dense) {
-	min-width: var(--aa-control-min-dense);
-	min-height: var(--aa-control-min-dense);
-	padding-block: 0.25rem;
-}
-
 @media (hover: hover) {
 
 	:where(.aa-choice-pill):hover:not(

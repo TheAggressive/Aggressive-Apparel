@@ -18,8 +18,12 @@ vendor/
 .cursor/
 .vscode/
 
-# Generated tooling artifacts (mirrors .gitignore). Running a tool must never
-# be able to fail `format:check`, so anything git ignores is ignored here too.
+# Generated tooling artifacts. The format scripts also pass `--ignore-path
+# .gitignore`, so root-level ignores are covered structurally rather than by
+# duplicating them here. Prettier does NOT read nested .gitignore files, so
+# languages/ (whose .gitignore hides the generated .mo and Jed .json that
+# `pnpm i18n:compile` writes) must still be listed explicitly.
+languages/
 tests/e2e/.auth/
 test-results/
 playwright-report/

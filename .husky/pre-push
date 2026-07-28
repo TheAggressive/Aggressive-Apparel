@@ -11,4 +11,9 @@ pnpm run qa
 # e2e was previously outside every gate, which is how specs asserting designs
 # that were never implemented reached master red. Requires wp-env running and
 # the browser installed (pnpm test:e2e:install).
+#
+# `pretest:e2e` rebuilds first — Playwright drives the compiled theme, so
+# without it this would validate a stale build/ rather than what is being
+# pushed. CI enforces the same suite (release.yml, the Tests job) because a
+# local hook can be skipped with --no-verify.
 pnpm run test:e2e

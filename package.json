@@ -123,8 +123,8 @@
     "start": "wp-scripts start",
     "// 🎨 FORMAT SCRIPTS": "_",
     "format": "pnpm format:fix",
-    "format:fix": "prettier --write --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:fix",
-    "format:check": "prettier --check --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:check",
+    "format:fix": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:fix",
+    "format:check": "prettier --check --ignore-path .gitignore --ignore-path .prettierignore \"./**/*.{js,jsx,json,ts,tsx,yml,yaml}\" && pnpm format:css:check",
     "format:css": "stylelint 'src/**/*.css' --fix",
     "format:css:fix": "stylelint 'src/**/*.css' --fix",
     "format:css:check": "stylelint 'src/**/*.css'",
@@ -199,6 +199,7 @@
     "qa": "pnpm run i18n:check && pnpm run test && pnpm run lint:all && pnpm run phpstan",
     "// test:setup": "bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1:9002 latest",
     "// test:install": "pnpm test:setup && composer install --dev",
+    "pretest:e2e": "pnpm build",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium"
   }

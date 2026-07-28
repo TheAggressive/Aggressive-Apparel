@@ -257,7 +257,8 @@ jobs:
     # build cascade-skips on the translations-only path, so this 15-min wp-env
     # suite skips with it — no explicit gate needed.
     needs: [build]
-    timeout-minutes: 15
+    # 15 covered the wp-env PHP suites; e2e adds ~6 minutes on top.
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v5
@@ -327,6 +328,25 @@ jobs:
 
       - name: Run performance tests
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
+
+      # End-to-end runs here because wp-env is already up. `test:e2e` rebuilds
+      # first (pretest:e2e) so Playwright always drives the source under test
+      # rather than a stale build/.
+      - name: Install Playwright browser
+        run: pnpm test:e2e:install
+
+      - name: Run end-to-end tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Upload coverage
         if: always()

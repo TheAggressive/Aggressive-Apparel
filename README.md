@@ -10,13 +10,13 @@ Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.
 - **WooCommerce integration** — product gallery, color swatches, and custom shop/cart/checkout templates
 - **Design system tokens** — `theme.json` as source of truth with a compiled `--aa-*` alias layer
 - **17 store enhancements** — premium features behind toggle flags; disabled features load zero hooks or assets
-- **44 custom blocks** — 36 Interactivity API blocks + 8 static Gutenberg blocks (registered totals; both include locked child blocks)
+- **46 custom blocks** — 37 Interactivity API registrations + 9 standard-build registrations (both totals include locked child blocks)
 - **Interactivity API** — client-side reactivity without a separate JavaScript framework
 - **Automatic updates** — GitHub release-based update system with ETag caching and SHA-256 package verification
 - **Accessible** — WCAG 2.2 AA compliance targets, 44px touch targets, `prefers-reduced-motion` support
 - **Secure** — security headers, nonce verification, output escaping, capability checks
 - **Performance** — deferred scripts, conditional asset loading, Speculation Rules API prefetch
-- **Test coverage** — PHPUnit suites for unit, integration, security, accessibility, and performance
+- **Test coverage** — PHPUnit, Jest/tooling tests, and Playwright end-to-end coverage
 
 ## Store Enhancements
 
@@ -26,26 +26,26 @@ Appearance features that work without WooCommerce (**Adaptive Colors**, and futu
 
 A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, and similar strings).
 
-| Feature                    | Section      | Description                                                                                                                  |
-| -------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Product Badges             | Catalog      | Sale, new, low stock, and bestseller badges on product cards                                                                 |
-| Smart Price Display        | Catalog      | Enhanced archive pricing and savings display                                                                                 |
-| Advanced Sorting           | Catalog      | Featured, biggest savings, and A–Z / Z–A sort options                                                                        |
-| Product Filters            | Catalog      | AJAX filters (categories, swatches, sizes, price, stock). Place `filter-toggle` and `filter-active-bar` blocks in templates. |
-| Load More                  | Catalog      | Load More button or infinite scroll instead of pagination                                                                    |
-| Page Transitions           | Catalog      | View Transitions API + Speculation Rules for smoother navigation                                                             |
-| Catalog Hover Image        | Catalog      | Show the first gallery image on product-card hover                                                                           |
-| Size Guide                 | Product      | Reusable size guides assignable to products or categories                                                                    |
-| Sticky Add to Cart         | Product      | Fixed bar when the main add-to-cart scrolls out of view                                                                      |
-| Stock Status               | Product      | Availability indicator in Quick View                                                                                         |
-| Quick View                 | Product      | Product modal with add-to-cart from archives                                                                                 |
-| Frequently Bought Together | Product      | Bundling with combined add-to-cart on product pages                                                                          |
-| Wishlist                   | Engagement   | Heart-icon toggle with localStorage and Store API                                                                            |
-| Social Proof               | Engagement   | Recent purchase toast notifications                                                                                          |
-| Back in Stock              | Engagement   | Email subscriptions for out-of-stock products                                                                                |
-| Swatch Tooltips            | Mobile & UI  | Fabric name and composition on swatch hover                                                                                  |
-| Mobile Bottom Navigation   | Mobile & UI  | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
-| Adaptive Colors            | Appearance → Theme Features | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                 |
+| Feature                    | Section                     | Description                                                                                                                  |
+| -------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Product Badges             | Catalog                     | Sale, new, low stock, and bestseller badges on product cards                                                                 |
+| Smart Price Display        | Catalog                     | Single “From” price for variable products on cards and product pages, plus savings display                                   |
+| Advanced Sorting           | Catalog                     | Featured, biggest savings, and A–Z / Z–A sort options                                                                        |
+| Product Filters            | Catalog                     | AJAX filters (categories, swatches, sizes, price, stock). Place `filter-toggle` and `filter-active-bar` blocks in templates. |
+| Load More                  | Catalog                     | Load More button or infinite scroll instead of pagination                                                                    |
+| Page Transitions           | Catalog                     | View Transitions API + Speculation Rules for smoother navigation                                                             |
+| Catalog Hover Image        | Catalog                     | Show the first gallery image on product-card hover                                                                           |
+| Size Guide                 | Product                     | Reusable guides assignable to products or categories and rendered through a placeable product block                          |
+| Sticky Add to Cart         | Product                     | Fixed bar when the main add-to-cart scrolls out of view                                                                      |
+| Stock Status               | Product                     | Availability indicator in Quick View                                                                                         |
+| Quick View                 | Product                     | Product modal with add-to-cart from archives                                                                                 |
+| Frequently Bought Together | Product                     | Bundling with combined add-to-cart on product pages                                                                          |
+| Wishlist                   | Engagement                  | Heart-icon toggle with localStorage and Store API                                                                            |
+| Social Proof               | Engagement                  | Recent purchase toast notifications                                                                                          |
+| Back in Stock              | Engagement                  | Email subscriptions for out-of-stock products                                                                                |
+| Swatch Tooltips            | Mobile & UI                 | Fabric name and composition on swatch hover                                                                                  |
+| Mobile Bottom Navigation   | Mobile & UI                 | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
+| Adaptive Colors            | Appearance → Theme Features | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                   |
 
 ## Quick Start
 
@@ -60,8 +60,12 @@ pnpm build
 # Watch mode + wp-env (port 9910)
 pnpm dev
 
-# Full quality assurance (tests + lint + PHPStan)
+# Core quality assurance (i18n + tests + lint + PHPStan)
 pnpm qa
+
+# Browser end-to-end tests (install Chromium once first)
+pnpm test:e2e:install
+pnpm test:e2e
 ```
 
 ### Development Commands
@@ -71,18 +75,21 @@ pnpm qa
 | `pnpm build`               | Build blocks, interactivity blocks, shared modules, assets, and icons |
 | `pnpm dev`                 | Watch mode + wp-env                                                   |
 | `pnpm setup`               | Install, build, and start wp-env                                      |
-| `pnpm test`                | All tests (JS, tool tests, PHP)                                       |
+| `pnpm test`                | JS unit tests, tooling tests, and PHP suites                          |
 | `pnpm test:any -- <flags>` | Targeted PHPUnit runs inside wp-env                                   |
 | `pnpm test:unit`           | PHP unit tests                                                        |
 | `pnpm test:integration`    | PHP integration tests                                                 |
 | `pnpm test:security`       | Security tests                                                        |
 | `pnpm test:accessibility`  | Accessibility tests                                                   |
 | `pnpm test:performance`    | Performance benchmarks                                                |
-| `pnpm lint:all`            | Prettier, ESLint, TypeScript, Stylelint, PHPCS                        |
+| `pnpm test:e2e`            | Playwright browser tests against wp-env                               |
+| `pnpm test:e2e:install`    | Install the Playwright Chromium browser and system dependencies       |
+| `pnpm lint:all`            | Prettier, file lengths, ESLint, TypeScript, Stylelint, and PHPCS      |
+| `pnpm lint:files`          | Enforce source-file length budgets                                    |
 | `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
 | `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
-| `pnpm qa`                  | i18n check + tests + lint + PHPStan (the pre-push gate; mirrors CI)   |
+| `pnpm qa`                  | i18n check + unit/tool/PHP tests + lint + PHPStan                     |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
 | `pnpm env:start`           | Start wp-env (port 9910)                                              |
 | `pnpm env:stop`            | Stop wp-env                                                           |
@@ -106,6 +113,8 @@ pnpm create-block-interactive <name>  # Interactivity API block
 | Feature CSS                  | Layout and state composition                                            | Prefer tokens; avoid raw values unless truly local |
 | `build/styles/`              | Compiled output                                                         | Generated — do not edit directly                   |
 
+Shared interaction primitives live in `src/styles/components/buttons.css`: `.aggressive-apparel-button` for CTAs, `.aa-icon-button` for utility controls, `.aa-choice-pill` for selectable chips and tabs, and `.aa-stepper-button` for quantity controls. `theme.json` owns their visual roles; the component stylesheet owns target sizing, focus, motion, and disabled/loading behavior.
+
 After token changes:
 
 ```bash
@@ -123,7 +132,7 @@ More detail: [`docs/design-system.md`](docs/design-system.md) · [`docs/block-pl
 ```
 aggressive-apparel/
 ├── build/                    # Compiled output (gitignored)
-│   ├── blocks/               # Static blocks
+│   ├── blocks/               # Standard-build block registrations
 │   ├── blocks-interactivity/ # Interactive blocks
 │   ├── interactivity/        # Shared enhancement modules + nav stores
 │   ├── icons/                # Generated brand icon definitions
@@ -137,8 +146,8 @@ aggressive-apparel/
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns (83)
 ├── src/
-│   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
-│   ├── blocks-interactivity/ # Interactivity API blocks (36, incl. 2 card-flip faces)
+│   ├── blocks/               # Standard blocks (9, incl. 2 split-story columns)
+│   ├── blocks-interactivity/ # Interactivity API blocks (37, incl. 2 card-flip faces)
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores, etc.)
 │   ├── icons/                # Brand SVG sources (built to build/icons/)
 │   ├── scripts/              # Admin, editor, and theme JS/TS
@@ -166,7 +175,7 @@ functions.php → Bootstrap (singleton)
 
 Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
-**Static blocks (6 top-level):** `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`, `icon`, `product-rating`, `split-story` (with locked `split-story-media` / `split-story-content` column child blocks)
+**Standard-build blocks (7 top-level):** `aggressive-apparel-logo`, `dark-mode-toggle`, `copyright`, `icon`, `product-rating`, `size-guide`, `split-story` (with locked `split-story-media` / `split-story-content` column child blocks)
 
 **Navigation — desktop (`aggressive-apparel/navigation` store):**
 
@@ -187,7 +196,7 @@ Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 | `nav-submenu-accordion`                 | Expand-in-place submenu              |
 | `nav-submenu-drilldown`                 | Slide-over submenu (overlay or push) |
 
-**Commerce & filters:** `filter-toggle`, `filter-active-bar`, `product-color-swatches`, `product-tabs`, `grid-list-toggle`, `countdown-timer`, `recently-viewed`, `search`
+**Commerce & filters:** `filter-toggle`, `filter-active-bar`, `product-color-swatches`, `product-tabs`, `grid-list-toggle`, `countdown-timer`, `recently-viewed`, `search`, `store-notices`
 
 **Wishlist:** `wishlist`, `wishlist-button`, `wishlist-item-image`, `wishlist-item-name`, `wishlist-item-price`, `wishlist-item-actions`
 
@@ -197,7 +206,11 @@ Blocks auto-register from `build/blocks/` and `build/blocks-interactivity/`.
 
 Product filter blocks are **template-placed only** — add `filter-toggle` and `filter-active-bar` on shop, category, and tag archives (or use the `shop-archive-header` pattern). Each block ships its own frontend CSS and connects to the shared `aggressive-apparel/product-filters` Interactivity store.
 
-Blocks such as `product-tabs`, `search`, `modal` (supports exit-intent and scroll-depth triggers), and free-shipping blocks are placed in templates rather than controlled by store-enhancement toggles.
+The `size-guide` block renders its accessible modal only in product context when the Size Guide enhancement is enabled and a guide is assigned; the default single-product template already includes it.
+
+The `store-notices` block replaces WooCommerce’s standard notice block in theme templates with dismissible, auto-expiring toast notifications. It supports configurable placement, visibility limits and durations, plus optional capture of Cart and Checkout block notices.
+
+Blocks such as `product-tabs`, `search`, `store-notices`, `modal` (supports exit-intent and scroll-depth triggers), and free-shipping blocks are placed in templates rather than controlled by store-enhancement toggles. The portaled full-screen search supports scoped All, Products, Articles, and Pages tabs when those content types are available.
 
 `product-tabs` replaces WooCommerce's native Product Details with four selectable layouts — **accordion** (independent by default, or one-open-at-a-time), **inline**, **modern tabs**, and **scrollspy** — animated with CSS (grid-rows reveal, sticky mobile rails) rather than per-frame JavaScript. The editor exposes heading font size, heading text color, and accent color (stored as portable palette references); the default layout is set globally under **Products → Product Tabs** and is overridable per placement.
 
@@ -214,17 +227,19 @@ Color swatches use `Color_Attribute_Manager`, `Color_Data_Manager`, `Color_Block
 
 ## Testing
 
-Tests run inside wp-env (Docker). WooCommerce is installed in the test environment.
+PHP and browser tests use wp-env (Docker), with WooCommerce installed in both development and test environments. JavaScript unit and tooling tests run directly through Node.
 
-| Suite         | Coverage                                                      |
-| ------------- | ------------------------------------------------------------- |
-| Unit          | Bootstrap, assets, theme support, blocks, WooCommerce classes |
-| Integration   | WooCommerce integration, block rendering                      |
-| Security      | HTTP security headers, permission enforcement                 |
-| Accessibility | ARIA attributes, keyboard navigation                          |
-| Performance   | Load time and resource usage benchmarks                       |
+| Suite                 | Coverage                                                                 |
+| --------------------- | ------------------------------------------------------------------------ |
+| JavaScript/tooling    | Interactivity stores, utilities, icon generation, and sanitization       |
+| PHP unit              | Bootstrap, assets, theme support, blocks, and WooCommerce classes        |
+| PHP integration       | WooCommerce integration and block rendering                              |
+| PHP security          | HTTP security headers and permission enforcement                         |
+| PHP accessibility     | ARIA attributes and keyboard-navigation markup                           |
+| PHP performance       | Load-time and resource-usage benchmarks                                  |
+| Playwright end-to-end | Editor/frontend behavior, responsive commerce UI, overlays, and checkout |
 
-**Tools:** PHPUnit 9.6, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint, Jest (via wp-scripts)
+**Tools:** PHPUnit 9.6, Playwright, PHPStan level 6, PHPCS (WordPress standards), ESLint, Stylelint, Jest (via wp-scripts)
 
 Target a single test file or method:
 
@@ -238,28 +253,28 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-lint-frontend ∥ lint-php ∥ i18n → build → test (all PHPUnit suites) → package → semantic-release (feat/fix/perf only) → verify release assets
+detect changes → lint-frontend ∥ lint-php ∥ i18n → build → test (all PHPUnit suites) → package → semantic-release (feat/fix/perf only) → verify release assets
 ```
 
-- **Quality checks** run on every push and pull request
+- **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
   - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm qa` — the full gate; needs wp-env running (`pnpm env:start`). Bypass a known-good push with `git push --no-verify` (CI still enforces it).
+  - `pre-push`: `pnpm qa` → `pnpm test:e2e` — runs the browser suite last because it is the slowest stage. It needs wp-env running (`pnpm env:start`) and the Playwright browser installed (`pnpm test:e2e:install`). Bypass a known-good push with `git push --no-verify` (CI still enforces its server-side checks).
 
 ### Versioning (what stays in sync on release)
 
 semantic-release (see `.releaserc.json`) automatically bumps and commits:
 
-| File | Updated on release? |
-| ---- | ------------------- |
-| `style.css` (`Version:`) | Yes — WordPress theme version |
-| `package.json` (`version`) | Yes |
-| `CHANGELOG.md` | Yes |
-| Release ZIP + `.sha256` | Yes — version stamped inside the packaged `style.css` |
-| `README.md` / `CLAUDE.md` | **No** — do not hardcode the theme version here |
-| Per-block `block.json` `version` | **No** — independent of theme releases |
+| File                             | Updated on release?                                   |
+| -------------------------------- | ----------------------------------------------------- |
+| `style.css` (`Version:`)         | Yes — WordPress theme version                         |
+| `package.json` (`version`)       | Yes                                                   |
+| `CHANGELOG.md`                   | Yes                                                   |
+| Release ZIP + `.sha256`          | Yes — version stamped inside the packaged `style.css` |
+| `README.md` / `CLAUDE.md`        | **No** — do not hardcode the theme version here       |
+| Per-block `block.json` `version` | **No** — independent of theme releases                |
 
 Both release assets are **required**: `Core\Theme_Updates` verifies the package
 against the `.sha256` sidecar and offers no update at all when it is missing, so
@@ -300,7 +315,7 @@ Added via `Bootstrap::add_security_headers()`:
 ## Requirements
 
 - WordPress 7.0+
-- PHP 8.0+ (8.3 recommended; used in wp-env and CI)
+- PHP 8.0+ (8.3 recommended and used in wp-env; CI also verifies on 8.2)
 - Node.js 24+ with pnpm 11+
 - WooCommerce 7.0+ (recommended)
 - Docker (for wp-env)

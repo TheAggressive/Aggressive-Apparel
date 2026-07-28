@@ -19,10 +19,10 @@ import {
 import { __ } from '@wordpress/i18n';
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 
-interface SizeGuideAttributes {
+type SizeGuideAttributes = {
   label: string;
   showIcon: boolean;
-}
+};
 
 export default function Edit({
   attributes,

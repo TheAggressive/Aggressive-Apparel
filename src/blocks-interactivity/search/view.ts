@@ -27,11 +27,7 @@ import {
 } from '../nav-shared/overlay-coordination';
 
 type SearchErrorCode =
-  | ''
-  | 'rate_limited'
-  | 'server_error'
-  | 'network'
-  | 'invalid_response';
+  '' | 'rate_limited' | 'server_error' | 'network' | 'invalid_response';
 
 interface SearchResultItem {
   id: number;

@@ -5,12 +5,12 @@ import { __ } from '@wordpress/i18n';
 
 import { HeartIcon } from '../../utils/heart-icon';
 
-interface Attrs {
+export type Attrs = {
   showRemove: boolean;
   showAddToCart: boolean;
   addToCartLabel: string;
   removeLabel: string;
-}
+};
 interface Props {
   attributes: Attrs;
   setAttributes: (a: Partial<Attrs>) => void;

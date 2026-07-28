@@ -6,7 +6,7 @@
 
 export type CopyrightOwnerSource = 'site_title' | 'legal_name' | 'custom';
 
-export interface CopyrightAttributes {
+export type CopyrightAttributes = {
   ownerSource: CopyrightOwnerSource;
   ownerName: string;
   legalEntity: string;
@@ -20,7 +20,7 @@ export interface CopyrightAttributes {
   legalLinksSeparator: string;
   showSchema: boolean;
   textAlign: string;
-}
+};
 
 /** Legacy attribute shape before ownerSource. */
 export interface LegacyCopyrightAttributes extends Omit<

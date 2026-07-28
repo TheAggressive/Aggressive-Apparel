@@ -129,14 +129,17 @@ const deprecated: NonNullable<
         default: '',
       },
     },
-    isEligible(attributes: LegacyCopyrightAttributes) {
+    // Deprecations receive the raw parsed attribute bag, so these take the
+    // wide type and narrow after isEligible has proven the legacy shape.
+    isEligible(attributes: Record<string, unknown>) {
       return (
         Object.prototype.hasOwnProperty.call(attributes, 'useSiteTitle') &&
         !Object.prototype.hasOwnProperty.call(attributes, 'ownerSource')
       );
     },
-    migrate(attributes: LegacyCopyrightAttributes): CopyrightAttributes {
-      const { useSiteTitle, ...rest } = attributes;
+    migrate(attributes: Record<string, unknown>): CopyrightAttributes {
+      const { useSiteTitle, ...rest } =
+        attributes as unknown as LegacyCopyrightAttributes;
       return {
         ...rest,
         ownerSource: useSiteTitle === false ? 'custom' : 'site_title',

@@ -12,7 +12,7 @@ import type { CSSProperties } from 'react';
 /** Core blockGap value: a length/preset, or an axial { top, left } pair. */
 export type BlockGap = string | { top?: string; left?: string };
 
-export interface SplitStoryAttributes {
+export type SplitStoryAttributes = {
   mediaPosition: 'left' | 'right';
   mediaWidth: number;
   mediaHeight: 'viewport' | 'content';
@@ -23,7 +23,7 @@ export interface SplitStoryAttributes {
   // (declared as ["horizontal","vertical"]), so this holds a { top, left } pair
   // — top = vertical/row gap, left = horizontal/column gap.
   style?: { spacing?: { blockGap?: BlockGap } };
-}
+};
 
 /** CSS custom properties consumed by style.css. */
 type CustomProperties = CSSProperties & Record<`--${string}`, string>;

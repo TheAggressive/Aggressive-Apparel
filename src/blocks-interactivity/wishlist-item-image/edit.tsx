@@ -3,10 +3,10 @@ import './editor.css';
 import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-interface Attrs {
+export type Attrs = {
   imageRatio: string;
   linkToProduct: boolean;
-}
+};
 interface Props {
   attributes: Attrs;
   setAttributes: (a: Partial<Attrs>) => void;

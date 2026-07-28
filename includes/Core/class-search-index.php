@@ -87,9 +87,27 @@ class Search_Index {
 		dbDelta( $sql );
 
 		// Do not claim the schema is ready if the host rejected table creation.
+		// Probe with a real read rather than SHOW TABLES: a read proves the table
+		// exists AND is queryable, and stays correct when the table is TEMPORARY
+		// (the WordPress test suite rewrites CREATE TABLE into CREATE TEMPORARY
+		// TABLE, which SHOW TABLES cannot see). `WHERE 1=0` is an impossible-WHERE
+		// the optimizer resolves without reading rows, so this is O(1) even on a
+		// fully populated index.
+		//
+		// Suppression is load-bearing, not cosmetic: a missing table makes this
+		// probe fail by design, and an unsuppressed wpdb failure always
+		// error_log()s the raw SQL, prints it when WP_DEBUG_DISPLAY is on, and
+		// wp_die()s on multisite under DIEONDBERROR — which would turn the
+		// graceful bail below into a hard stop. dbDelta() wraps its own DESCRIBE
+		// probe exactly this way, restoring the prior value instead of forcing
+		// errors back on.
+		$suppress = $wpdb->suppress_errors();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time schema verification during an admin upgrade; stale cached state would be incorrect.
-		$installed_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
-		if ( $installed_table !== $table ) {
+		$probe = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE 1=0', $table ) );
+		$wpdb->suppress_errors( $suppress );
+
+		// null means the query failed, i.e. the table is not there to read.
+		if ( null === $probe ) {
 			return;
 		}
 

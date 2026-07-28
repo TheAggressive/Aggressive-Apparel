@@ -49,7 +49,7 @@ type SwatchTransition =
   | 'dissolve'
   | 'swing';
 
-export interface ProductColorSwatchesAttributes {
+export type ProductColorSwatchesAttributes = {
   swatchShape: 'circle' | 'square' | 'diamond';
   swatchSize: 'xs' | 'sm' | 'md' | 'lg';
   maxVisible: number;
@@ -58,7 +58,7 @@ export interface ProductColorSwatchesAttributes {
   linkToVariation: boolean;
   swatchTransition: SwatchTransition;
   swatchAlignment: 'left' | 'center' | 'right';
-}
+};
 
 interface EditProps {
   attributes: ProductColorSwatchesAttributes;

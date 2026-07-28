@@ -10,9 +10,9 @@ import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 
-interface FreeShippingBarAttributes {
+type FreeShippingBarAttributes = {
   customThreshold: number;
-}
+};
 
 export default function Edit({
   attributes,

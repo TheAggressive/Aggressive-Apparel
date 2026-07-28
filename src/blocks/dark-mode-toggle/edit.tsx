@@ -35,7 +35,7 @@ import {
 
 import './editor.css';
 
-interface DarkModeToggleAttributes {
+type DarkModeToggleAttributes = {
   label?: string;
   labelDark?: string;
   showLabel?: boolean;
@@ -47,7 +47,7 @@ interface DarkModeToggleAttributes {
   iconHoverColor?: string;
   toggleBackgroundColor?: string;
   toggleBackgroundHoverColor?: string;
-}
+};
 
 type ToggleStyle = CSSProperties & { [key: `--${string}`]: string | number };
 

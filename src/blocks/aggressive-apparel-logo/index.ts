@@ -13,7 +13,7 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './style.css';
 
 // Block attributes type derived from block.json.
-interface LogoAttributes {
+type LogoAttributes = {
   alt: string;
   lightColor: string;
   lightHoverColor: string;
@@ -25,7 +25,7 @@ interface LogoAttributes {
   smallWidth: number;
   smallHeight?: number;
   linkToHome: boolean;
-}
+};
 
 registerThemeBlock<LogoAttributes>(metadata, {
   icon: blockIcon,

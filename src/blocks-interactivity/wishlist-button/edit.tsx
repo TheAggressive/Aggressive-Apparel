@@ -27,14 +27,14 @@ import {
 import { HeartIcon } from '../../utils/heart-icon';
 import './editor.css';
 
-interface WishlistButtonAttributes {
+type WishlistButtonAttributes = {
   label: string;
   showLabel: boolean;
   showIcon: boolean;
   iconOnly: boolean;
   size: 'default' | 'large';
   alignment: 'left' | 'center' | 'right';
-}
+};
 
 interface EditProps {
   attributes: WishlistButtonAttributes;

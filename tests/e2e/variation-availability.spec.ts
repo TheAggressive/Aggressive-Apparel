@@ -156,12 +156,13 @@ test.describe('sticky cart — variation availability', () => {
     await expect(red).toHaveAttribute('aria-pressed', 'true');
 
     // The purchase decision has one visually dominant action. Buy Now is the
-    // secondary outline and fills only when the shopper shows intent.
+    // filled primary; Add to Cart is the secondary outline and fills only when
+    // the shopper shows intent.
     const addToCart = page.locator(
-      '.aa-sticky-cart__drawer-add.aggressive-apparel-button--primary'
+      '.aa-sticky-cart__drawer-add.aggressive-apparel-button--outline'
     );
     const buyNow = page.locator(
-      '.aa-sticky-cart__drawer-buy-now.aggressive-apparel-button--outline'
+      '.aa-sticky-cart__drawer-buy-now.aggressive-apparel-button--primary'
     );
     await expect(addToCart).toBeVisible();
     await expect(buyNow).toBeVisible();
@@ -178,16 +179,18 @@ test.describe('sticky cart — variation availability', () => {
       expect(Number(shape.weight)).toBeGreaterThanOrEqual(700);
     }
     await expect
+      .poll(() => buyNow.evaluate(el => getComputedStyle(el).backgroundColor))
+      .not.toBe('rgba(0, 0, 0, 0)');
+    await expect
       .poll(() =>
         addToCart.evaluate(el => getComputedStyle(el).backgroundColor)
       )
-      .not.toBe('rgba(0, 0, 0, 0)');
-    await expect
-      .poll(() => buyNow.evaluate(el => getComputedStyle(el).backgroundColor))
       .toBe('rgba(0, 0, 0, 0)');
-    await buyNow.hover();
+    await addToCart.hover();
     await expect
-      .poll(() => buyNow.evaluate(el => getComputedStyle(el).backgroundColor))
+      .poll(() =>
+        addToCart.evaluate(el => getComputedStyle(el).backgroundColor)
+      )
       .not.toBe('rgba(0, 0, 0, 0)');
 
     const close = page.locator('.aa-sticky-cart__drawer-close.aa-icon-button');

@@ -92,8 +92,7 @@ function useSiteTitleValue(): string {
     }
 
     const base = getEntityRecord('root', '__unstableBase') as
-      | { name?: string }
-      | undefined;
+      { name?: string } | undefined;
     return decodeEntities(base?.name ?? '').trim();
   }, []);
 }

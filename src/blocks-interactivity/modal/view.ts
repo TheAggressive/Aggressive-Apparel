@@ -96,8 +96,7 @@ function getShell(id: string): HTMLElement | null {
         'wp-block-aggressive-apparel-modal__shell'
       )
     ).find(el => (el as HTMLElement).dataset.modalId === id) as
-      | HTMLElement
-      | undefined) ?? null
+      HTMLElement | undefined) ?? null
   );
 }
 

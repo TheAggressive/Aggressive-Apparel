@@ -107,6 +107,8 @@ class TestLoadMoreController extends WP_UnitTestCase {
 
 	/** Lookup-table predicates are prepared directly into WP_Query clauses. */
 	public function test_product_lookup_clauses_prepare_filter_values(): void {
+		global $wpdb;
+
 		$queries = new Product_Collection_Query();
 		$query   = new WP_Query();
 		$query->set(
@@ -135,8 +137,11 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertStringContainsString( "`aa_product_lookup`.stock_status = 'instock'", $clauses['where'] );
 		$this->assertStringContainsString( "`aa_product_lookup`.stock_status = 'instock' OR `aa_product_lookup`.stock_status = 'onbackorder'", $clauses['where'] );
 		$this->assertStringContainsString( '`aa_product_lookup`.onsale = 1', $clauses['where'] );
-		$this->assertStringContainsString( '`wp_posts`.ID != 123', $clauses['where'] );
-		$this->assertStringContainsString( '`wp_posts`.ID != 456', $clauses['where'] );
+		// Use the live posts table name: the clause is built from $wpdb->posts,
+		// so hardcoding a `wp_` prefix only passes on installs that happen to
+		// use it (the WordPress test suite defaults to `wptests_`).
+		$this->assertStringContainsString( "`{$wpdb->posts}`.ID != 123", $clauses['where'] );
+		$this->assertStringContainsString( "`{$wpdb->posts}`.ID != 456", $clauses['where'] );
 	}
 
 	/**

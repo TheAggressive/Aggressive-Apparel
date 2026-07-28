@@ -6,14 +6,14 @@
 
 export type OpenTrigger = 'hover' | 'click';
 
-export interface NavMegaAttributes {
+export type NavMegaAttributes = {
   label: string;
   url: string;
   submenuId: string;
   showArrow: boolean;
   openOn: OpenTrigger;
   columns: number;
-}
+};
 
 export interface NavMegaContext {
   'aggressive-apparel/navigationId'?: string;

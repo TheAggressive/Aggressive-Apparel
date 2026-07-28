@@ -4,10 +4,10 @@
  * @package Aggressive_Apparel
  */
 
-export interface NavLinkAttributes {
+export type NavLinkAttributes = {
   label: string;
   url: string;
   opensInNewTab: boolean;
   description: string;
   isCurrent: boolean;
-}
+};

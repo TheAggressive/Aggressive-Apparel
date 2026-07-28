@@ -15,13 +15,13 @@ import {
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
 
-interface FreeShippingMessageAttributes {
+type FreeShippingMessageAttributes = {
   customThreshold: number;
   emphasisText: string;
   prefixIcon: string;
   suffixIcon: string;
   iconSize: number;
-}
+};
 
 export default function Edit({
   attributes,

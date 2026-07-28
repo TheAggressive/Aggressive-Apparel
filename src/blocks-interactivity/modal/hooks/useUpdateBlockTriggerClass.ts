@@ -41,8 +41,11 @@ export function useUpdateBlockTriggerClass(): UpdateBlockTriggerClassFn {
           return;
         }
 
-        // Get the current className or empty string.
-        const currentClassName: string = blockAttributes.className || '';
+        // Get the current className or empty string. Attributes come back as
+        // an untyped bag, so confirm the shape rather than assuming a string.
+        const rawClassName = blockAttributes.className;
+        const currentClassName: string =
+          typeof rawClassName === 'string' ? rawClassName : '';
 
         // Get the update function from the store.
         const blockDispatch = dispatch(blockEditorStore);

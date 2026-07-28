@@ -46,7 +46,7 @@ export interface TemplatePartInfo {
 /**
  * The modal block's editor attributes.
  */
-export interface ModalAttributes {
+export type ModalAttributes = {
   position: string;
   openOnLoad: boolean;
   openOnLoadOnce: boolean;
@@ -86,7 +86,7 @@ export interface ModalAttributes {
   closeButtonHoverColor: string;
   closeButtonHoverBgColor: string;
   style?: Record<string, string | number | undefined>;
-}
+};
 
 /**
  * Template part entity record from the editor data stores.

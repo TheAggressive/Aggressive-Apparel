@@ -725,9 +725,9 @@ export const { state, actions } = store<StickyCartStore>(
           if (state._syncing) return;
 
           const el = event.target;
-          if (
-            !(el instanceof HTMLSelectElement || el instanceof HTMLInputElement)
-          ) {
+          if (!(
+            el instanceof HTMLSelectElement || el instanceof HTMLInputElement
+          )) {
             return;
           }
 

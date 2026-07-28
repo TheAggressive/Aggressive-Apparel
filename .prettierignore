@@ -13,9 +13,25 @@ wp-includes/
 # Vendor files
 vendor/
 
+# Local tooling state, not project source
+.claude/
+.cursor/
+.vscode/
+
+# Generated tooling artifacts (mirrors .gitignore). Running a tool must never
+# be able to fail `format:check`, so anything git ignores is ignored here too.
+tests/e2e/.auth/
+test-results/
+playwright-report/
+.lighthouseci/
+
 # Generated files
 *.min.css
 *.min.js
+
+# Tool-owned lockfile. It is tracked, but pnpm rewrites it on every install,
+# so letting Prettier reformat it just means the two fight each other.
+pnpm-lock.yaml
 
 # WordPress FSE templates and patterns — Prettier reformats multi-line divs
 # and converts self-closing block comments, both of which break the block parser

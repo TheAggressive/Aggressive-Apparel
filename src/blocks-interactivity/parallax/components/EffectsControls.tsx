@@ -23,14 +23,20 @@ import {
   toggleParallaxEffect,
   type ParallaxEffectName,
 } from '../utils/effects-editor';
+import type { Block } from '@wordpress/blocks';
+import type { BlockAttributesWithParallax } from '../types';
 
 interface EffectsControlsProps {
   clientId: string;
 }
 
 export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
+  // getBlock() is typed against the generic attribute bag; parallax owns the
+  // aggressiveApparelParallax key, so refine it to the shape this block writes.
   const block = useSelect(
-    select => select(blockEditorStore).getBlock(clientId),
+    select =>
+      select(blockEditorStore).getBlock(clientId) as
+        Block<BlockAttributesWithParallax> | undefined,
     [clientId]
   );
 
@@ -103,6 +109,14 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
   }
 
   const parallaxSettings = block.attributes.aggressiveApparelParallax;
+
+  // hasOwnProperty above proves the key exists, not that it holds a value.
+  // Guard the value itself, mirroring edit.tsx — reading .effects off an
+  // undefined settings object would throw.
+  if (!parallaxSettings) {
+    return null;
+  }
+
   const effects = parallaxSettings.effects || {};
 
   const updateEffect = (
@@ -403,17 +417,27 @@ export const EffectsControls = ({ clientId }: EffectsControlsProps) => {
                 max={1}
                 step={0.1}
               />
-              <RangeControl
-                __next40pxDefaultSize
-                __nextHasNoMarginBottom
-                label={__('Fade Range (0-1)', 'aggressive-apparel')}
-                value={effects.scrollOpacity.fadeRange ?? 0.3}
+              <SelectControl
+                label={__('Fade Range', 'aggressive-apparel')}
+                value={effects.scrollOpacity.fadeRange || 'full'}
+                options={[
+                  {
+                    label: __('Full Range', 'aggressive-apparel'),
+                    value: 'full',
+                  },
+                  { label: __('Top Half', 'aggressive-apparel'), value: 'top' },
+                  {
+                    label: __('Bottom Half', 'aggressive-apparel'),
+                    value: 'bottom',
+                  },
+                  {
+                    label: __('Middle', 'aggressive-apparel'),
+                    value: 'middle',
+                  },
+                ]}
                 onChange={value =>
                   updateEffect('scrollOpacity', 'fadeRange', value)
                 }
-                min={0.1}
-                max={1}
-                step={0.1}
                 help={__(
                   'Portion of viewport for fade transition',
                   'aggressive-apparel'

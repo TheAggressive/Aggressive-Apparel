@@ -45,10 +45,7 @@ export type HeroMotionVariant = (typeof HERO_MOTION_VARIANTS)[number];
 
 /** Carousel-level attribute values (variants + assignment modes). */
 export type HeroMotionMode =
-  | 'none'
-  | HeroMotionVariant
-  | 'alternate'
-  | 'random';
+  'none' | HeroMotionVariant | 'alternate' | 'random';
 
 const VARIANT_LABELS: Record<HeroMotionVariant, string> = {
   'zoom-in': __('Zoom in', 'aggressive-apparel'),

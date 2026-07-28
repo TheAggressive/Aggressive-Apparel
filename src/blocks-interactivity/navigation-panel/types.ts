@@ -10,7 +10,7 @@ export type PanelPosition = 'left' | 'right';
 export type PanelAnimationStyle = 'slide' | 'push' | 'reveal' | 'fade';
 export type MenuStyle = 'panel' | 'fullscreen';
 
-export interface NavigationPanelAttributes {
+export type NavigationPanelAttributes = {
   panelSlug: string;
   position: PanelPosition;
   animationStyle: PanelAnimationStyle;
@@ -22,7 +22,7 @@ export interface NavigationPanelAttributes {
   overlayColor?: string;
   overlayOpacity?: number;
   indicatorColor?: string;
-}
+};
 
 /**
  * Immutable per-panel config passed via data-wp-context.

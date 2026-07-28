@@ -30,7 +30,7 @@ type HScrollSnapBehavior = 'off' | 'paged';
 type SwipeHintStyle = 'off' | 'cue' | 'label' | 'badge';
 type SlideSizePreset = 'peek' | 'focus' | 'full' | 'custom';
 
-interface HScrollAttributes {
+type HScrollAttributes = {
   ariaLabel: string;
   itemWidth: string;
   speed: number;
@@ -42,7 +42,7 @@ interface HScrollAttributes {
   stepDuration: number;
   swipeHintStyle: SwipeHintStyle;
   style?: { spacing?: { blockGap?: string } };
-}
+};
 
 const SPACING_PRESET = /^var:preset\|spacing\|(.+)$/;
 

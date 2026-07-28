@@ -99,8 +99,7 @@ describe('drill stack actions', () => {
     const evt = spy.mock.calls
       .map(c => c[0])
       .find(e => e.type === 'aa-nav-panel-state-change') as
-      | CustomEvent
-      | undefined;
+      CustomEvent | undefined;
     expect(evt).toBeDefined();
     expect(evt?.detail).toEqual({ panelSlug });
     spy.mockRestore();

@@ -26,13 +26,13 @@ import {
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 
-export interface IconBlockAttributes {
+export type IconBlockAttributes = {
   icon: string;
   iconSize: number;
   label: string;
   isDecorative: boolean;
   textAlign?: string;
-}
+};
 
 export default function Edit({
   attributes,

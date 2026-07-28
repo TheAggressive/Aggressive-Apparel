@@ -5,3 +5,10 @@ export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 # the cheapest check, so POT drift fails in seconds rather than after the
 # PHP suite. Requires wp-env running for the PHP tests (pnpm env:start).
 pnpm run qa
+
+# End-to-end last: it is the slowest stage (~6 min) and the most environment
+# dependent, so everything cheaper has already failed fast by this point.
+# e2e was previously outside every gate, which is how specs asserting designs
+# that were never implemented reached master red. Requires wp-env running and
+# the browser installed (pnpm test:e2e:install).
+pnpm run test:e2e

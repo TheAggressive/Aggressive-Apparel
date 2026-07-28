@@ -12,15 +12,10 @@ export { HERO_MOTION_VARIANTS } from './motion';
 export type HeroTransition = 'slide' | 'fade' | 'crossfade';
 export type HeroArrowPosition = 'edges' | 'bottom';
 export type HeroPagination =
-  | 'dots'
-  | 'lines'
-  | 'numbers'
-  | 'fraction'
-  | 'thumbnails'
-  | 'none';
+  'dots' | 'lines' | 'numbers' | 'fraction' | 'thumbnails' | 'none';
 export type HeroContentAnimation = 'none' | 'fade-up' | 'clip' | 'blur';
 
-export interface HeroCarouselAttributes {
+export type HeroCarouselAttributes = {
   transition: HeroTransition;
   minHeight: string;
   autoplay: boolean;
@@ -42,4 +37,4 @@ export interface HeroCarouselAttributes {
   arrowBg: string;
   dotColor: string;
   dotActiveColor: string;
-}
+};

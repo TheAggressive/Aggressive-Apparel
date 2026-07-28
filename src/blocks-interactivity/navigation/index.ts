@@ -4,8 +4,22 @@
  * @package Aggressive_Apparel
  */
 
-import type React from 'react';
-import type { InnerBlockTemplate } from '@wordpress/blocks';
+import type { BlockVariation } from '@wordpress/blocks';
+
+/**
+ * A `[name, attributes?, innerBlocks?]` tuple as accepted by the editor's
+ * block template APIs.
+ *
+ * Declared here rather than imported: @wordpress/blocks ships its own types as
+ * of 15.18 and models this as an internal `TemplateItem` that it does not
+ * export (the DefinitelyTyped `InnerBlockTemplate` it replaced was public).
+ * This mirrors the upstream shape exactly.
+ */
+type InnerBlockTemplate = [
+  string,
+  Record<string, unknown>?,
+  InnerBlockTemplate[]?,
+];
 import metadata from './block.json';
 import blockIcon from './icon';
 import Edit from './edit';
@@ -26,7 +40,9 @@ interface NavigationVariation {
   name: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  // Matches BlockVariation's icon slot, which does not accept the full
+  // ReactNode union (null in particular).
+  icon: NonNullable<BlockVariation['icon']>;
   isDefault?: boolean;
   attributes: Partial<NavigationAttributes>;
   innerBlocks: InnerBlockTemplate[];

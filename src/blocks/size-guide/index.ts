@@ -11,10 +11,10 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 
 import './editor.css';
 
-interface SizeGuideAttributes {
+type SizeGuideAttributes = {
   label: string;
   showIcon: boolean;
-}
+};
 
 registerThemeBlock<SizeGuideAttributes>(metadata, {
   icon: blockIcon,

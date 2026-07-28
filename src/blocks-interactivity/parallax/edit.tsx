@@ -12,7 +12,7 @@ import {
   store as blockEditorStore,
   useBlockProps,
 } from '@wordpress/block-editor';
-import { BlockEditProps } from '@wordpress/blocks';
+import { BlockEditProps, type Block } from '@wordpress/blocks';
 import {
   BaseControl,
   Flex,
@@ -35,7 +35,11 @@ import { __ } from '@wordpress/i18n';
 import { DirectionPicker } from './components/DirectionPicker';
 import { EffectPresets, PresetConfig } from './components/EffectPresets';
 import { EffectsControls } from './components/EffectsControls';
-import { ElementParallaxSettings, ParallaxAttributes } from './types';
+import {
+  BlockAttributesWithParallax,
+  ElementParallaxSettings,
+  ParallaxAttributes,
+} from './types';
 
 /**
  * Resolve the signed depth (-100..100) for a layer, mapping the legacy
@@ -78,8 +82,12 @@ const depthHint = (depth: number): string => {
  * Parallax controls component that can be injected into any block
  */
 export const ParallaxControls = ({ clientId }: { clientId: string }) => {
+  // getBlock() is typed against the generic attribute bag; parallax owns the
+  // aggressiveApparelParallax key, so refine it to the shape this block writes.
   const block = useSelect(
-    select => select(blockEditorStore).getBlock(clientId),
+    select =>
+      select(blockEditorStore).getBlock(clientId) as
+        Block<BlockAttributesWithParallax> | undefined,
     [clientId]
   );
 

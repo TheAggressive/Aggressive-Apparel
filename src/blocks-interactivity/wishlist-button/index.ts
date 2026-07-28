@@ -9,14 +9,14 @@ import blockIcon from './icon';
 import Edit from './edit';
 import { registerThemeBlock } from '../../utils/register-theme-block';
 
-interface WishlistButtonAttributes {
+type WishlistButtonAttributes = {
   label: string;
   showLabel: boolean;
   showIcon: boolean;
   iconOnly: boolean;
   size: 'default' | 'large';
   alignment: 'left' | 'center' | 'right';
-}
+};
 
 registerThemeBlock<WishlistButtonAttributes>(metadata, {
   icon: blockIcon,

@@ -4,7 +4,7 @@
  * @package Aggressive_Apparel
  */
 
-export interface TickerAttributes {
+export type TickerAttributes = {
   speed: number;
   direction: string;
   pauseOnHover: boolean;
@@ -30,7 +30,7 @@ export interface TickerAttributes {
   labelFontWeight: string;
   labelLetterSpacing: number;
   labelTextTransform: string;
-}
+};
 
 /** Interactivity context written by `render.php` and mutated by the store. */
 export interface TickerContext {

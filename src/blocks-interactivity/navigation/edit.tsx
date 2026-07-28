@@ -93,8 +93,7 @@ export default function Edit({
     select =>
       (
         select(coreStore).getCurrentTheme() as
-          | { stylesheet?: string }
-          | undefined
+          { stylesheet?: string } | undefined
       )?.stylesheet,
     []
   );

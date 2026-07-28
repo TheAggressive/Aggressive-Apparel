@@ -6,10 +6,10 @@
 
 export type AnimationStyle = 'overlay' | 'push';
 
-export interface NavDrilldownAttributes {
+export type NavDrilldownAttributes = {
   label: string;
   url: string;
   submenuId: string;
   showArrow: boolean;
   animationStyle: AnimationStyle;
-}
+};

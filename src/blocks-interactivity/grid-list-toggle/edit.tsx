@@ -10,9 +10,9 @@ import { PanelBody, ToggleControl, Notice } from '@wordpress/components';
 
 import './editor.css';
 
-interface GridListToggleAttributes {
+type GridListToggleAttributes = {
   showLabels: boolean;
-}
+};
 
 interface EditProps {
   attributes: GridListToggleAttributes;

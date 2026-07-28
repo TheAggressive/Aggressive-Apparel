@@ -5,11 +5,7 @@
  */
 
 export type TriggerIconStyle =
-  | 'hamburger'
-  | 'dots'
-  | 'squeeze'
-  | 'arrow'
-  | 'collapse';
+  'hamburger' | 'dots' | 'squeeze' | 'arrow' | 'collapse';
 
 export type TriggerAnimationType =
   | 'to-x'
@@ -20,7 +16,7 @@ export type TriggerAnimationType =
   | 'collapse'
   | 'none';
 
-export interface NavigationTriggerAttributes {
+export type NavigationTriggerAttributes = {
   iconStyle: TriggerIconStyle;
   animationType: TriggerAnimationType;
   label: string;
@@ -28,4 +24,4 @@ export interface NavigationTriggerAttributes {
   panelSlug: string;
   /** Width (px) below which the trigger shows. Used when placed outside a nav. */
   breakpoint: number;
-}
+};

@@ -23,14 +23,14 @@ import {
   Notice,
 } from '@wordpress/components';
 
-interface FilterToggleAttributes {
+type FilterToggleAttributes = {
   label: string;
   showLabel: boolean;
   showIcon: boolean;
   iconOnly: boolean;
   mobileOnly: 'auto' | 'always' | 'never';
   alignment: 'left' | 'center' | 'right';
-}
+};
 
 interface EditProps {
   attributes: FilterToggleAttributes;

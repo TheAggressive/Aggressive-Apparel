@@ -29,14 +29,14 @@ import {
   type PresetColorOrigin,
 } from '../../utils/preset-colors';
 
-interface ProductTabsAttributes {
+type ProductTabsAttributes = {
   displayStyle: string;
   hideContentTitles: boolean;
   accordionExclusive: boolean;
   headingFontSize: string;
   headingColor: string;
   accentColor: string;
-}
+};
 
 interface FontSize {
   name?: string;

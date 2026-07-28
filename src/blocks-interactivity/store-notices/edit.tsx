@@ -19,7 +19,7 @@ import {
 } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 
-interface StoreNoticesAttributes {
+type StoreNoticesAttributes = {
   position: string;
   maxVisible: number;
   successDuration: number;
@@ -27,7 +27,7 @@ interface StoreNoticesAttributes {
   errorDuration: number;
   captureBlockNotices: boolean;
   badgePosition: string;
-}
+};
 
 const BADGE_POSITION_OPTIONS = [
   { label: __('Bottom right', 'aggressive-apparel'), value: 'bottom-right' },

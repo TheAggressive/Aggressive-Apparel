@@ -6,13 +6,13 @@
 
 export type OpenTrigger = 'hover' | 'click';
 
-export interface NavDropdownAttributes {
+export type NavDropdownAttributes = {
   label: string;
   url: string;
   submenuId: string;
   showArrow: boolean;
   openOn: OpenTrigger;
-}
+};
 
 export interface NavDropdownContext {
   'aggressive-apparel/navigationId'?: string;

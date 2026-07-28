@@ -12,7 +12,7 @@ export interface LookbookHotspot {
   productName: string;
 }
 
-export interface LookbookAttributes {
+export type LookbookAttributes = {
   mediaId: number;
   mediaUrl: string;
   mediaAlt: string;
@@ -25,7 +25,7 @@ export interface LookbookAttributes {
   cardTextColor: string;
   actionBgColor: string;
   actionIconColor: string;
-}
+};
 
 export interface StoreApiImage {
   src?: string;

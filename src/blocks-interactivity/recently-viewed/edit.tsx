@@ -14,10 +14,10 @@ import {
 import { PanelBody, RangeControl } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 
-interface RecentlyViewedAttributes {
+type RecentlyViewedAttributes = {
   maxDisplay: number;
   heading: string;
-}
+};
 
 export default function Edit({
   attributes,

@@ -68,8 +68,8 @@ class Bootstrap {
 	/**
 	 * Detect whether the current request is running inside a test environment.
 	 *
-	 * Used by both init_security_headers() and add_security_headers() to avoid
-	 * duplicating the condition in two places.
+	 * Guards the emitter in add_security_headers() so no real headers are sent
+	 * under PHPUnit.
 	 *
 	 * @return bool
 	 */
@@ -82,11 +82,13 @@ class Bootstrap {
 
 	/**
 	 * Initialize security headers
+	 *
+	 * The hook is registered unconditionally so the wiring is observable in
+	 * tests; add_security_headers() is what decides whether to emit. Skipping
+	 * registration under PHPUnit made the theme's own header wiring untestable
+	 * while changing nothing about production behaviour.
 	 */
 	private function init_security_headers(): void {
-		if ( $this->is_testing_environment() ) {
-			return;
-		}
 		add_action( 'send_headers', array( $this, 'add_security_headers' ) );
 	}
 

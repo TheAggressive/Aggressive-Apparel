@@ -306,8 +306,7 @@ function registerDynamicCountdowns(
       el.querySelectorAll<HTMLElement>('[data-aa-countdown-segment]').forEach(
         seg => {
           const key = seg.dataset.aaCountdownSegment as
-            | keyof DynamicCountdown['segments']
-            | undefined;
+            keyof DynamicCountdown['segments'] | undefined;
           if (key) entry.segments[key] = seg;
         }
       );

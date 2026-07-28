@@ -4,9 +4,9 @@
  * @package Aggressive_Apparel
  */
 
-export interface NavAccordionAttributes {
+export type NavAccordionAttributes = {
   label: string;
   url: string;
   submenuId: string;
   showArrow: boolean;
-}
+};

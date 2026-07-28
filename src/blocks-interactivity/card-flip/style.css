@@ -5,6 +5,13 @@
   display: grid;
   perspective: 1200px;
   width: 100%;
+
+  /* Reserve room for the absolutely-positioned flip control. Without this a
+     card whose faces are shorter than the control (e.g. a single line of text)
+     lets the toggle overflow past the card's bottom edge, where any positioned
+     content that follows in the document paints over it and swallows the
+     click. Inset on both sides so the control is fully contained. */
+  min-block-size: calc(var(--aa-icon-button-size, 2.75rem) + 1.5rem);
 }
 
 /* Flip control — always present for keyboard / touch / reduced-motion.

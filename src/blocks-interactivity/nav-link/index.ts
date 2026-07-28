@@ -25,7 +25,10 @@ const transforms = {
     {
       type: 'block' as const,
       blocks: ['aggressive-apparel/nav-submenu-dropdown'],
-      transform: (attributes: NavLinkAttributes) => {
+      // Upstream types transform args as `unknown[]` because the source block
+      // is only known at runtime; narrow to this block's own attributes.
+      transform: (...args: unknown[]) => {
+        const attributes = args[0] as NavLinkAttributes;
         return createBlock(
           'aggressive-apparel/nav-submenu-dropdown',
           {

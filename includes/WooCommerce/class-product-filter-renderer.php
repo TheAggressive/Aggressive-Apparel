@@ -142,7 +142,7 @@ final class Product_Filter_Renderer {
 			echo '<div class="aa-product-filters__fit-list" role="group" aria-label="' . esc_attr__( 'Filter by fit', 'aggressive-apparel' ) . '">';
 			foreach ( $data['fitTerms'] as $fit ) {
 				printf(
-					'<button class="aa-product-filters__fit-chip aa-choice-pill aa-choice-pill--dense" data-wp-on--click="actions.toggleFit" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__fit-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__fit-chip-name">%s</span></button>',
+					'<button class="aa-product-filters__fit-chip aa-choice-pill" data-wp-on--click="actions.toggleFit" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__fit-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__fit-chip-name">%s</span></button>',
 					esc_attr( $fit['slug'] ),
 					/* translators: %s: fit name */
 					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $fit['name'] ) ),
@@ -189,7 +189,7 @@ final class Product_Filter_Renderer {
 			echo '<div class="aa-product-filters__size-list" hidden role="group" aria-label="' . esc_attr__( 'Filter by size', 'aggressive-apparel' ) . '">';
 			foreach ( $data['sizeTerms'] as $size ) {
 				printf(
-					'<button class="aa-product-filters__size-chip aa-choice-pill aa-choice-pill--dense" data-wp-on--click="actions.toggleSize" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__size-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__size-chip-name">%s</span></button>',
+					'<button class="aa-product-filters__size-chip aa-choice-pill" data-wp-on--click="actions.toggleSize" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__size-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__size-chip-name">%s</span></button>',
 					esc_attr( $size['slug'] ),
 					/* translators: %s: size name */
 					esc_attr( sprintf( __( 'Filter by size %s', 'aggressive-apparel' ), $size['name'] ) ),
@@ -363,7 +363,7 @@ final class Product_Filter_Renderer {
 		foreach ( $nodes as $cat ) {
 			echo '<li class="aa-product-filters__category-item">';
 			printf(
-				'<button class="aa-product-filters__category-chip aa-choice-pill aa-choice-pill--dense" data-wp-on--click="actions.toggleCategory" data-filter-value="%s" data-filter-type="category" aria-pressed="false"><span class="aa-product-filters__category-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__category-chip-name">%s</span><span class="aa-product-filters__category-chip-count">%d</span></button>',
+				'<button class="aa-product-filters__category-chip aa-choice-pill" data-wp-on--click="actions.toggleCategory" data-filter-value="%s" data-filter-type="category" aria-pressed="false"><span class="aa-product-filters__category-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__category-chip-name">%s</span><span class="aa-product-filters__category-chip-count">%d</span></button>',
 				esc_attr( $cat['slug'] ),
 				esc_html( $cat['name'] ),
 				(int) $cat['count'],

@@ -363,9 +363,13 @@ export const useTriggerManagement = ({
               clientId: safeTriggerBlockId,
               name,
               type: isButton ? 'button' : 'link',
+              // Attributes come back as an untyped bag; take the first entry
+              // that is actually a string rather than assuming.
               text:
-                blockAttributes.text ||
-                blockAttributes.content ||
+                [blockAttributes.text, blockAttributes.content].find(
+                  (value): value is string =>
+                    typeof value === 'string' && value !== ''
+                ) ||
                 blockType ||
                 'Saved Trigger',
               isTrigger: true, // Mark it as a trigger.

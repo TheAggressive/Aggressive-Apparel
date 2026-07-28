@@ -21,7 +21,6 @@
       "@types/react",
       "@types/react-dom",
       "@types/wordpress__block-editor",
-      "@types/wordpress__blocks",
       "@types/wordpress__edit-post"
     ]
   },

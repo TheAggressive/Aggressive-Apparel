@@ -12,9 +12,9 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 import './style.css';
 
-interface GridListToggleAttributes {
+type GridListToggleAttributes = {
   showLabels: boolean;
-}
+};
 
 registerThemeBlock<GridListToggleAttributes>(metadata, {
   icon: blockIcon,

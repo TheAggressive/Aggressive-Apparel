@@ -487,9 +487,9 @@ function initRepeater(root: HTMLElement): void {
 
       if (currentRows.length <= 1) {
         currentRow
-          .querySelectorAll<
-            HTMLInputElement | HTMLTextAreaElement
-          >('input[type="text"], textarea')
+          .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+            'input[type="text"], textarea'
+          )
           .forEach(field => {
             field.value = '';
           });
@@ -571,9 +571,9 @@ function initRepeater(root: HTMLElement): void {
 
       if (currentItemRows.length <= 1) {
         currentItemRows[0]
-          .querySelectorAll<
-            HTMLInputElement | HTMLTextAreaElement
-          >('input[type="text"], textarea')
+          .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+            'input[type="text"], textarea'
+          )
           .forEach(field => {
             field.value = '';
           });

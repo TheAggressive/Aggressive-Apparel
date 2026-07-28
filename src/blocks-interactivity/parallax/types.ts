@@ -153,7 +153,7 @@ export interface DetectionBoundary {
 /**
  * Block attributes with advanced detection boundary system
  */
-export interface ParallaxAttributes {
+export type ParallaxAttributes = {
   // Core settings (matching animate-on-scroll simplicity)
   intensity: number; // 0-200
   visibilityTrigger: number; // Changed to number to match animate-on-scroll
@@ -177,7 +177,7 @@ export interface ParallaxAttributes {
   perspectiveDistance?: number;
   maxMouseRotation?: number;
   depthOfField?: boolean;
-}
+};
 
 // =============================================================================
 // RUNTIME TYPES

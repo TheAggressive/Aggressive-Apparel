@@ -16,10 +16,10 @@ import {
 import type { BlockEditProps } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 
-export interface ProductRatingAttributes {
+export type ProductRatingAttributes = {
   isDescendentOfSingleProductTemplate: boolean;
   textAlign: string;
-}
+};
 
 const MARK_COUNT = 5;
 const PREVIEW_FILL = '70%';

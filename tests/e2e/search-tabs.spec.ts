@@ -29,18 +29,20 @@ test('search scope tabs mirror the variation-pill interaction', async ({
   const rest = await productTab.evaluate(element => {
     const style = getComputedStyle(element);
     const fill = getComputedStyle(element, '::before');
-    const ring = getComputedStyle(element, '::after');
     return {
       background: style.backgroundColor,
       color: style.color,
       fillOpacity: fill.opacity,
       fillTransform: fill.transform,
-      ringOpacity: ring.opacity,
+      ring: style.boxShadow,
     };
   });
 
   expect(rest.fillOpacity).toBe('0');
-  expect(rest.ringOpacity).toBe('0');
+  // The ring is an inset box-shadow on the pill itself (muted at rest, full
+  // border colour on hover) — not a pseudo-element. See the .aa-choice-pill
+  // primitive in styles/components/buttons.css.
+  expect(rest.ring).not.toBe('none');
 
   await productTab.hover();
   await expect
@@ -48,13 +50,11 @@ test('search scope tabs mirror the variation-pill interaction', async ({
       productTab.evaluate(element => {
         const style = getComputedStyle(element);
         const fill = getComputedStyle(element, '::before');
-        const ring = getComputedStyle(element, '::after');
         return {
           background: style.backgroundColor,
           color: style.color,
           fillOpacity: fill.opacity,
           fillTransform: fill.transform,
-          ringOpacity: ring.opacity,
         };
       })
     )
@@ -63,8 +63,12 @@ test('search scope tabs mirror the variation-pill interaction', async ({
       color: await allTab.evaluate(element => getComputedStyle(element).color),
       fillOpacity: '1',
       fillTransform: 'matrix(1, 0, 0, 1, 0, 0)',
-      ringOpacity: '1',
     });
+
+  // Hover strengthens the ring from the muted resting colour to the full border.
+  await expect
+    .poll(() => productTab.evaluate(el => getComputedStyle(el).boxShadow))
+    .not.toBe(rest.ring);
 
   await productTab.click();
   await expect(productTab).toHaveAttribute('aria-selected', 'true');

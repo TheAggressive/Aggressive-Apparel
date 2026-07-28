@@ -13,7 +13,7 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './style.css';
 
 // Block attributes type derived from block.json.
-interface DarkModeToggleAttributes {
+type DarkModeToggleAttributes = {
   label: string;
   labelDark: string;
   showLabel: boolean;
@@ -25,7 +25,7 @@ interface DarkModeToggleAttributes {
   iconHoverColor: string;
   toggleBackgroundColor: string;
   toggleBackgroundHoverColor: string;
-}
+};
 
 registerThemeBlock<DarkModeToggleAttributes>(metadata, {
   icon: blockIcon,

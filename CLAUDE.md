@@ -701,11 +701,18 @@ gate runs before code leaves the machine:
 - **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
 - **`commit-msg`**: commitlint validation (Conventional Commits).
 - **`pre-push`** (heavy, before push): `pnpm qa` = `i18n:check` + full test
-  suite (JS + PHP) + `lint:all` + PHPStan. Mirrors the CI gate; `i18n:check`
-  runs first because it needs no wp-env and is the cheapest, so POT drift
-  fails in seconds instead of after the PHP suite. Needs wp-env running
-  (`pnpm env:start`) for the PHP tests. Bypass a known-good push with
+  suite (JS + PHP) + `lint:all` + PHPStan, then `pnpm test:e2e`. Mirrors the
+  CI gate; `i18n:check` runs first because it needs no wp-env and is the
+  cheapest, so POT drift fails in seconds instead of after the PHP suite, and
+  e2e runs last because it is the slowest (~6 min). Needs wp-env running
+  (`pnpm env:start`) for the PHP tests and e2e, plus the Playwright browser
+  (`pnpm test:e2e:install`). Bypass a known-good push with
   `git push --no-verify` (CI still enforces it).
+
+  e2e is in the gate deliberately: it sat outside every gate previously, which
+  is how specs asserting designs that were never implemented (a 44px chip
+  target contradicted by dense chips, a pseudo-element ring that only ever
+  existed as a box-shadow) reached `master` red and stayed there.
 
 ### Semantic Release
 

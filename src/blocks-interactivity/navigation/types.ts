@@ -8,12 +8,9 @@
 
 export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'none';
 export type ScrollBehavior =
-  | 'none'
-  | 'sticky'
-  | 'hide-on-scroll'
-  | 'transparent-to-opaque';
+  'none' | 'sticky' | 'hide-on-scroll' | 'transparent-to-opaque';
 
-export interface NavigationAttributes {
+export type NavigationAttributes = {
   breakpoint: number;
   ariaLabel: string;
   openOn: 'hover' | 'click';
@@ -34,7 +31,7 @@ export interface NavigationAttributes {
   submenuBorderWidth?: string;
   submenuBorderColor?: string;
   submenuBorderStyle?: BorderStyle;
-}
+};
 
 /**
  * Immutable per-instance config set by the navigation block via data-wp-context.

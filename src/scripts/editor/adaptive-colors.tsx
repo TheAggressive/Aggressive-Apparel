@@ -178,8 +178,7 @@ const withAdaptiveColorControls = createHigherOrderComponent(
       props: BlockEditProps<BlockAttributes> & { name: string }
     ) {
       const blockType = getBlockType(props.name) as
-        | BlockTypeSettingsLike
-        | undefined;
+        BlockTypeSettingsLike | undefined;
       if (!blockType) {
         return <BlockEdit {...props} />;
       }

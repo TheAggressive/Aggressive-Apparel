@@ -32,7 +32,7 @@ export type CountdownDisplayStyle = (typeof COUNTDOWN_DISPLAY_STYLES)[number];
 
 export const DEFAULT_COUNTDOWN_DISPLAY_STYLE: CountdownDisplayStyle = 'inline';
 
-export interface CountdownTimerAttributes {
+export type CountdownTimerAttributes = {
   displayStyle: CountdownDisplayStyle;
   endDateTime: string;
   saleLabelColor: string;
@@ -40,7 +40,7 @@ export interface CountdownTimerAttributes {
   unitLabelColor: string;
   timerBorderColor: string;
   dropPageUrl: string;
-}
+};
 
 const COUNTDOWN_COLOR_STYLE_VARIABLES = {
   saleLabelColor: '--aa-countdown-label-color',

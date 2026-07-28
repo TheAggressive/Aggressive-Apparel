@@ -19,9 +19,9 @@ import type { BlockEditProps } from '@wordpress/blocks';
 
 import './editor.css';
 
-interface CardFlipAttributes {
+type CardFlipAttributes = {
   flipOn: 'hover' | 'click';
-}
+};
 
 const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/card-flip-front'],

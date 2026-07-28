@@ -17,11 +17,11 @@ import {
 } from '@wordpress/components';
 import type { BlockEditProps } from '@wordpress/blocks';
 
-interface SearchAttributes {
+type SearchAttributes = {
   label: string;
   showLabel: boolean;
   iconSize: number;
-}
+};
 
 export default function Edit({
   attributes,

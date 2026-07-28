@@ -36,7 +36,7 @@ export interface DetectionBoundary {
   left: string;
 }
 
-export interface AnimateOnScrollAttributes {
+export type AnimateOnScrollAttributes = {
   animation: string;
   direction: string;
   staggerChildren: boolean;
@@ -66,4 +66,4 @@ export interface AnimateOnScrollAttributes {
   perspective?: number;
   bounceDistance?: number;
   elasticDistance?: number;
-}
+};

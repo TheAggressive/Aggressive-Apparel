@@ -33,14 +33,14 @@ import { HERO_MOTION_OVERRIDE_OPTIONS } from './motion';
 
 const PARENT_BLOCK = 'aggressive-apparel/hero-carousel';
 
-interface CoverHeroAttributes {
+type CoverHeroAttributes = {
   aaHeroMotion?: string;
   /** @deprecated Read-only fallback for content saved before the rename. */
   aaHeroKenBurns?: string;
   aaHeroStart?: string;
   aaHeroEnd?: string;
   [key: string]: unknown;
-}
+};
 
 interface BlockRegistrationSettings {
   attributes?: Record<string, unknown>;

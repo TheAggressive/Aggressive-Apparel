@@ -13,8 +13,8 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import {
   createBlock,
+  type Block,
   type BlockDeprecation,
-  type BlockInstance,
 } from '@wordpress/blocks';
 import type { CSSProperties } from 'react';
 
@@ -61,8 +61,8 @@ const v1: BlockDeprecation<SplitStoryAttributes, DeprecatedAttributes> = {
   },
   migrate(
     attributes: DeprecatedAttributes,
-    innerBlocks: BlockInstance[]
-  ): [SplitStoryAttributes, BlockInstance[]] {
+    innerBlocks: Block[]
+  ): [SplitStoryAttributes, Block[]] {
     const { mediaColumn, mediaRatio } = attributes as unknown as V1Attributes;
     const [media, content] = innerBlocks;
 

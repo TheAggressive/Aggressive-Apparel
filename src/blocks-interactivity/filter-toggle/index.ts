@@ -12,14 +12,14 @@ import { registerThemeBlock } from '../../utils/register-theme-block';
 import './editor.css';
 import './style.css';
 
-interface FilterToggleAttributes {
+type FilterToggleAttributes = {
   label: string;
   showLabel: boolean;
   showIcon: boolean;
   iconOnly: boolean;
   mobileOnly: 'auto' | 'always' | 'never';
   alignment: 'left' | 'center' | 'right';
-}
+};
 
 registerThemeBlock<FilterToggleAttributes>(metadata, {
   icon: blockIcon,

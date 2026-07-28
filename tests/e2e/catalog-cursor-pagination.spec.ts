@@ -228,26 +228,23 @@ test.describe('anonymous catalog cursor pagination', () => {
       }
 
       const beforeLoaded = match ? Number(match[1]) : initialCount;
-      const next = page.waitForResponse(
-        response => {
-          const url = new URL(response.url());
-          return (
-            url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-            url.searchParams.has('cursor') &&
-            response.status() === 200
-          );
-        },
-        { timeout: 15_000 }
-      );
 
       await sentinel.scrollIntoViewIfNeeded();
-      await next;
+
+      // Poll the rendered count rather than awaiting a specific response. The
+      // store also fires background prefetches to this same endpoint (same URL
+      // shape, opaque cursor) which warm the cache WITHOUT appending, so
+      // waiting on "the next cursor response" can latch onto a prefetch and
+      // then time out waiting for a growth it was never going to produce.
       await expect
-        .poll(async () => {
-          const current = ((await status.textContent()) || '').trim();
-          const m = current.match(/Showing\s+(\d+)\s+of\s+(\d+)/i);
-          return m ? Number(m[1]) : 0;
-        })
+        .poll(
+          async () => {
+            const current = ((await status.textContent()) || '').trim();
+            const m = current.match(/Showing\s+(\d+)\s+of\s+(\d+)/i);
+            return m ? Number(m[1]) : 0;
+          },
+          { timeout: 15_000 }
+        )
         .toBeGreaterThan(beforeLoaded);
     }
 

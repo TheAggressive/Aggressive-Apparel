@@ -253,15 +253,16 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-detect changes → lint-frontend ∥ lint-php ∥ i18n → build → test (all PHPUnit suites) → package → semantic-release (feat/fix/perf only) → verify release assets
+detect changes → lint-frontend ∥ lint-php ∥ i18n → build → PHP tests ∥ browser E2E → package → semantic-release (feat/fix/perf only) → verify release assets
 ```
 
 - **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release
+- **PHP and browser tests run in parallel** from the same uploaded build, so the full E2E suite does not add a serial stage to the CI critical path
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
   - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm qa` → `pnpm test:e2e` — runs the browser suite last because it is the slowest stage. It needs wp-env running (`pnpm env:start`) and the Playwright browser installed (`pnpm test:e2e:install`). Bypass a known-good push with `git push --no-verify` (CI still enforces its server-side checks).
+  - `pre-push`: `pnpm qa` — browser E2E is enforced in CI, where it runs in parallel with PHP tests
 
 ### Versioning (what stays in sync on release)
 

@@ -249,16 +249,17 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # Test: All PHPUnit suites in a single wp-env instance (runs on every PR/push)
+  # PHP tests: All PHPUnit suites in a single wp-env instance.
+  # Runs in parallel with the browser E2E job after both consume the same build.
   # ============================================================================
   test:
     name: 🧪 Tests
     runs-on: ubuntu-latest
     # build cascade-skips on the translations-only path, so this 15-min wp-env
-    # suite skips with it — no explicit gate needed.
+    # suite skips with it — no explicit gate needed. Browser tests run in a
+    # sibling job so they do not extend this job's critical path.
     needs: [build]
-    # 15 covered the wp-env PHP suites; e2e adds ~6 minutes on top.
-    timeout-minutes: 25
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v5
@@ -329,14 +330,76 @@ jobs:
       - name: Run performance tests
         run: pnpm wp-env run tests-cli -- bash -c "cd /var/www/html/wp-content/themes/${{ env.THEME_SLUG }} && ./vendor/bin/phpunit --testsuite=performance --verbose"
 
-      # End-to-end runs here because wp-env is already up. `test:e2e` rebuilds
-      # first (pretest:e2e) so Playwright always drives the source under test
-      # rather than a stale build/.
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          files: ./coverage-unit.xml
+          flags: unit
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # Browser E2E: Runs beside PHP tests and reuses the build job's artifacts.
+  # Invoke Playwright directly so package.json's local pretest:e2e rebuild does
+  # not duplicate the build that CI already completed and uploaded.
+  # ============================================================================
+  e2e:
+    name: 🎭 Browser E2E
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v6
+        with:
+          path: vendor
+          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-vendor-
+
+      - name: Cache Playwright browser
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: build-artifacts
+          path: build/
+
       - name: Install Playwright browser
         run: pnpm test:e2e:install
 
+      - name: Start wp-env
+        run: |
+          pnpm env:start
+          pnpm wp-env run cli -- wp --info
+
       - name: Run end-to-end tests
-        run: pnpm test:e2e
+        run: pnpm exec playwright test
 
       - name: Upload Playwright report
         if: failure()
@@ -348,21 +411,13 @@ jobs:
             test-results/
           retention-days: 7
 
-      - name: Upload coverage
-        if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        with:
-          files: ./coverage-unit.xml
-          flags: unit
-          token: ${{ secrets.CODECOV_TOKEN }}
-
   # ============================================================================
   # Package Theme
   # ============================================================================
   package:
     name: 📦 Package Theme
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [build, test, e2e]
     if: success() && needs.build.outputs.should_release == 'true'
     timeout-minutes: 5
 
@@ -561,7 +616,7 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-frontend, lint-php, i18n, build, test, package]
+    needs: [lint-frontend, lint-php, i18n, build, test, e2e, package]
     if: always()
 
     steps:
@@ -586,6 +641,7 @@ jobs:
           echo "| i18n (POT drift + catalogs) | ${{ needs.i18n.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Tests (unit + integration + security + a11y + perf) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Browser E2E | ${{ needs.e2e.result }} |" >> $GITHUB_STEP_SUMMARY
 
           if [ "$SHOULD_RELEASE" = "true" ]; then
             echo "| Package | ${{ needs.package.result }} |" >> $GITHUB_STEP_SUMMARY
@@ -596,7 +652,8 @@ jobs:
           if [ "${{ needs.lint-frontend.result }}" = "success" ] && \
              [ "${{ needs.lint-php.result }}" = "success" ] && \
              [ "${{ needs.build.result }}" = "success" ] && \
-             [ "${{ needs.test.result }}" = "success" ]; then
+             [ "${{ needs.test.result }}" = "success" ] && \
+             [ "${{ needs.e2e.result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Quality checks, build and tests passed!" >> $GITHUB_STEP_SUMMARY
           fi

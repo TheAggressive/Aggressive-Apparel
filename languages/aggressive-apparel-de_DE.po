@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-07-25T18:19:10+00:00\n"
+"POT-Creation-Date: 2026-07-29T00:29:39+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -486,22 +486,22 @@ msgstr "Rechtlicher Name / Name der Organisation"
 msgid "Save"
 msgstr "Speichern"
 
-#: includes/Core/class-search-index.php:408
+#: includes/Core/class-search-index.php:426
 #, aa-mt
 msgid "Aggressive Apparel search index"
 msgstr "Aggressive Apparel Suchindex"
 
-#: includes/Core/class-search-index.php:411 includes/helpers.php:216
+#: includes/Core/class-search-index.php:429 includes/helpers.php:216
 #, aa-mt
 msgid "State"
 msgstr "Bundesland"
 
-#: includes/Core/class-search-index.php:415
+#: includes/Core/class-search-index.php:433
 #, aa-mt
 msgid "Cursor"
 msgstr "Cursor"
 
-#: includes/Core/class-search-index.php:419
+#: includes/Core/class-search-index.php:437
 #, aa-mt
 msgid "Last error"
 msgstr "Letzter Fehler"
@@ -512,38 +512,38 @@ msgid "All"
 msgstr "Alle"
 
 #: includes/Core/class-search-modal.php:109
-#: includes/Core/class-search-modal.php:260
+#: includes/Core/class-search-modal.php:265
 #: includes/Core/class-search-rest.php:154
 #, aa-mt
 msgid "Products"
 msgstr "Produkte"
 
 #: includes/Core/class-search-modal.php:111
-#: includes/Core/class-search-modal.php:261
+#: includes/Core/class-search-modal.php:266
 #: includes/Core/class-search-rest.php:165
 #, aa-mt
 msgid "Articles"
 msgstr "Artikel"
 
 #: includes/Core/class-search-modal.php:112
-#: includes/Core/class-search-modal.php:262
+#: includes/Core/class-search-modal.php:267
 #: includes/Core/class-search-rest.php:176
 #, aa-mt
 msgid "Pages"
 msgstr "Seiten"
 
-#: includes/Core/class-search-modal.php:130
+#: includes/Core/class-search-modal.php:135
 #, aa-mt
 msgid "Start typing to search products, articles and pages."
 msgstr "Beginnen Sie mit der Eingabe, um nach Produkten, Artikeln und Seiten zu suchen."
 
-#: includes/Core/class-search-modal.php:131
+#: includes/Core/class-search-modal.php:136
 #, aa-mt
 msgid "Start typing to search articles and pages."
 msgstr "Beginnen Sie mit der Eingabe, um nach Artikeln und Seiten zu suchen."
 
-#: includes/Core/class-search-modal.php:195
-#: includes/Core/class-search-modal.php:197
+#: includes/Core/class-search-modal.php:200
+#: includes/Core/class-search-modal.php:202
 #: includes/WooCommerce/class-back-in-stock-admin.php:95
 #: includes/WooCommerce/class-mobile-bottom-nav.php:147
 #: includes/WooCommerce/class-mobile-bottom-nav.php:153
@@ -552,106 +552,106 @@ msgstr "Beginnen Sie mit der Eingabe, um nach Artikeln und Seiten zu suchen."
 msgid "Search"
 msgstr "Suche"
 
-#: includes/Core/class-search-modal.php:198
+#: includes/Core/class-search-modal.php:203
 #, aa-mt
 msgid "Clear search"
 msgstr "Suche löschen"
 
-#: includes/Core/class-search-modal.php:200
+#: includes/Core/class-search-modal.php:205
 #: includes/WooCommerce/class-mobile-bottom-nav.php:205
 #, aa-mt
 msgid "Close search"
 msgstr "Suche schließen"
 
-#: includes/Core/class-search-modal.php:202
+#: includes/Core/class-search-modal.php:207
 #, aa-mt
 msgid "Filter results by type"
 msgstr "Ergebnisse nach Typ filtern"
 
-#: includes/Core/class-search-modal.php:205
+#: includes/Core/class-search-modal.php:210
 #, aa-mt
 msgid "Searching…"
 msgstr "Wird gesucht…"
 
-#: includes/Core/class-search-modal.php:206
-#: includes/Core/class-search-modal.php:255
+#: includes/Core/class-search-modal.php:211
+#: includes/Core/class-search-modal.php:260
 #: includes/WooCommerce/class-product-filters.php:584
 #, aa-mt
 msgid "Try again"
 msgstr "Versuche es noch einmal"
 
-#: includes/Core/class-search-modal.php:207
-#: includes/Core/class-search-modal.php:249
+#: includes/Core/class-search-modal.php:212
+#: includes/Core/class-search-modal.php:254
 #: patterns/template-no-search-results.php:15
 #, aa-mt
 msgid "No results found."
 msgstr "Es wurden keine Ergebnisse gefunden."
 
-#: includes/Core/class-search-modal.php:208
-#: includes/Core/class-search-modal.php:210
-#: includes/Core/class-search-modal.php:258
+#: includes/Core/class-search-modal.php:213
+#: includes/Core/class-search-modal.php:215
+#: includes/Core/class-search-modal.php:263
 #, aa-mt
 msgid "View all results"
 msgstr "Alle Ergebnisse anzeigen"
 
-#: includes/Core/class-search-modal.php:209
+#: includes/Core/class-search-modal.php:214
 #, aa-mt
 msgid "Search results"
 msgstr "Suchergebnisse"
 
-#: includes/Core/class-search-modal.php:212
+#: includes/Core/class-search-modal.php:217
 #, aa-mt
 msgid "navigate"
 msgstr "navigieren"
 
-#: includes/Core/class-search-modal.php:213
+#: includes/Core/class-search-modal.php:218
 #, aa-mt
 msgid "open"
 msgstr "öffnen"
 
-#: includes/Core/class-search-modal.php:214
+#: includes/Core/class-search-modal.php:219
 #, aa-mt
 msgid "close"
 msgstr "schließen"
 
-#: includes/Core/class-search-modal.php:250
+#: includes/Core/class-search-modal.php:255
 #, aa-mt
 msgid "1 result found."
 msgstr "1 Ergebnis gefunden."
 
 #. translators: %d: number of search results.
-#: includes/Core/class-search-modal.php:252
+#: includes/Core/class-search-modal.php:257
 #, php-format, aa-mt
 msgid "%d results found."
 msgstr "%d Ergebnisse gefunden."
 
-#: includes/Core/class-search-modal.php:253
+#: includes/Core/class-search-modal.php:258
 #, aa-mt
 msgid "Search is temporarily unavailable. Please try again."
 msgstr "Die Suchfunktion ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut."
 
-#: includes/Core/class-search-modal.php:254
+#: includes/Core/class-search-modal.php:259
 #, aa-mt
 msgid "Too many requests. Please slow down and try again."
 msgstr "Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut."
 
 #. translators: 1: active tab label, 2: number of results in other types.
-#: includes/Core/class-search-modal.php:257
+#: includes/Core/class-search-modal.php:262
 #, php-format, aa-mt
 msgid "No %1$s found. View all results (%2$d) instead."
 msgstr "%1$s wurde nicht gefunden. Zeigen Sie stattdessen alle Ergebnisse (%2$d) an."
 
-#: includes/Core/class-search-modal.php:354
+#: includes/Core/class-search-modal.php:359
 #, aa-mt
 msgid "Find Your Fit…"
 msgstr "Finde das Richtige für dich…"
 
-#: includes/Core/class-search-modal.php:356
+#: includes/Core/class-search-modal.php:361
 #, aa-mt
 msgid "Read the Noise…"
 msgstr "Lies den Lärm…"
 
-#: includes/Core/class-search-modal.php:357
+#: includes/Core/class-search-modal.php:362
 #, aa-mt
 msgid "Find Your Way…"
 msgstr "Finde deinen Weg…"
@@ -703,171 +703,195 @@ msgstr "Darstellungsoptionen, die mit oder ohne WooCommerce funktionieren. Im La
 msgid "Enabled"
 msgstr "Aktiviert"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/Core/class-theme-support.php:151
-#: patterns/design-system-preview.php:53
 #, aa-mt
-msgid "Ghost"
-msgstr "Geist"
+msgid "Secondary (Outline)"
+msgstr "Sekundarstufe (Gliederung)"
 
-#: includes/Core/class-theme-support.php:176
-#: includes/WooCommerce/class-badge-admin-fields.php:102
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:159
+#: patterns/design-system-preview.php:57 patterns/design-system-preview.php:181
 #, aa-mt
-msgid "Text"
-msgstr "Text"
+msgid "Large Secondary"
+msgstr "Große Sekundarstufe"
 
-#: includes/Core/class-theme-support.php:208
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:167
+#, aa-mt
+msgid "Tertiary (Text)"
+msgstr "Tertiär (Text)"
+
+#: includes/Core/class-theme-support.php:175
+#: patterns/design-system-preview.php:116
 #, aa-mt
 msgid "Small"
 msgstr "Klein"
 
-#: includes/Core/class-theme-support.php:216
-#: patterns/design-system-preview.php:45
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:183
+#: patterns/design-system-preview.php:53
 #, aa-mt
-msgid "CTA"
-msgstr "CTA"
+msgid "Large Primary"
+msgstr "Große Grundschule"
 
-#: includes/Core/class-theme-support.php:224
-#: patterns/design-system-preview.php:49
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:191
+#: patterns/design-system-preview.php:61
 #, aa-mt
-msgid "CTA Small"
-msgstr "CTA Klein"
+msgid "Small Primary"
+msgstr "Kleine Grundschule"
 
-#: includes/Core/class-theme-support.php:232
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:199
+#: patterns/design-system-preview.php:177
 #, aa-mt
-msgid "Outline on Dark"
-msgstr "Umriss auf dunklem Hintergrund"
+msgid "Secondary on Dark"
+msgstr "Sekundär auf „Dark“"
 
-#: includes/Core/class-theme-support.php:257
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:207
+#, aa-mt
+msgid "Large Secondary on Dark"
+msgstr "Große Sekundärfarbe auf dunklem Hintergrund"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/Core/class-theme-support.php:215
+#, aa-mt
+msgid "Small Secondary on Dark"
+msgstr "Kleine Sekundärsymbol auf dunklem Hintergrund"
+
+#: includes/Core/class-theme-support.php:223
 #, aa-mt
 msgid "Frosted Glass"
 msgstr "Milchglas"
 
-#: includes/Core/class-theme-support.php:265
+#: includes/Core/class-theme-support.php:231
 #, aa-mt
 msgid "Surface Card"
 msgstr "Surface-Karte"
 
-#: includes/Core/class-theme-support.php:273
+#: includes/Core/class-theme-support.php:239
 #, aa-mt
 msgid "Bordered"
 msgstr "Umrandet"
 
-#: includes/Core/class-theme-support.php:281
+#: includes/Core/class-theme-support.php:247
 #, aa-mt
 msgid "Display"
 msgstr "Anzeige"
 
-#: includes/Core/class-theme-support.php:289
+#: includes/Core/class-theme-support.php:255
 #: patterns/homepage-seasonal-shop.php:210
 #, aa-mt
 msgid "Editorial"
 msgstr "Leitartikel"
 
-#: includes/Core/class-theme-support.php:297
+#: includes/Core/class-theme-support.php:263
 #, aa-mt
 msgid "Brand Stripe"
 msgstr "Markenstreifen"
 
-#: includes/Core/class-theme-support.php:305
+#: includes/Core/class-theme-support.php:271
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 #, aa-mt
 msgid "Badge"
 msgstr "Abzeichen"
 
-#: includes/Core/class-theme-support.php:313
+#: includes/Core/class-theme-support.php:279
 #, aa-mt
 msgid "Badge Muted"
 msgstr "Abzeichen deaktiviert"
 
-#: includes/Core/class-theme-support.php:321
+#: includes/Core/class-theme-support.php:287
 #, aa-mt
 msgid "Eyebrow"
 msgstr "Augenbraue"
 
-#: includes/Core/class-theme-support.php:329
+#: includes/Core/class-theme-support.php:295
 #, aa-mt
 msgid "Caption"
 msgstr "Bildunterschrift"
 
-#: includes/Core/class-theme-support.php:337
+#: includes/Core/class-theme-support.php:303
 #, aa-mt
 msgid "Meta"
 msgstr "Meta"
 
-#: includes/Core/class-theme-support.php:345
+#: includes/Core/class-theme-support.php:311
 #, aa-mt
 msgid "Legal"
 msgstr "Rechtliches"
 
-#: includes/Core/class-theme-support.php:353
+#: includes/Core/class-theme-support.php:319
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 #, aa-mt
 msgid "Price"
 msgstr "Preis"
 
-#: includes/Core/class-theme-support.php:361
+#: includes/Core/class-theme-support.php:327
 #, aa-mt
 msgid "Subtle"
 msgstr "Dezent"
 
-#: includes/Core/class-theme-support.php:370
+#: includes/Core/class-theme-support.php:336
 #, aa-mt
 msgid "Commerce Grid"
 msgstr "Commerce Grid"
 
-#: includes/Core/class-theme-support.php:378
+#: includes/Core/class-theme-support.php:344
 #, aa-mt
 msgid "Commerce Cards"
 msgstr "Commerce-Karten"
 
-#: includes/Core/class-theme-support.php:386
+#: includes/Core/class-theme-support.php:352
 #, aa-mt
 msgid "Product Frame"
 msgstr "Produktrahmen"
 
-#: includes/Core/class-theme-support.php:394
+#: includes/Core/class-theme-support.php:360
 #, aa-mt
 msgid "Commerce Price"
 msgstr "Handelspreis"
 
-#: includes/Core/class-theme-support.php:404
+#: includes/Core/class-theme-support.php:370
 #, aa-mt
 msgid "Overflow"
 msgstr "Überlauf"
 
-#: includes/Core/class-theme-support.php:412
+#: includes/Core/class-theme-support.php:378
 #, aa-mt
 msgid "Text Mask"
 msgstr "Textmaske"
 
-#: includes/Core/class-theme-support.php:420
+#: includes/Core/class-theme-support.php:386
 #, aa-mt
 msgid "Cinematic"
 msgstr "Filmisch"
 
-#: includes/Core/class-theme-support.php:428
+#: includes/Core/class-theme-support.php:394
 #, aa-mt
 msgid "Frosted Dark"
 msgstr "Mattes Dunkel"
 
-#: includes/Core/class-theme-updates.php:360
+#: includes/Core/class-theme-update-package-verifier.php:76
 #, aa-mt
 msgid "Aggressive Apparel update package is missing a SHA-256 checksum."
 msgstr "Im Update-Paket Aggressive Apparel fehlt eine SHA-256-Prüfsumme."
 
-#: includes/Core/class-theme-updates.php:379
+#: includes/Core/class-theme-update-package-verifier.php:95
 #, aa-mt
 msgid "Aggressive Apparel update package checksum verification failed."
 msgstr "Aggressive Apparel Die Überprüfung der Prüfsumme des Update-Pakets ist fehlgeschlagen."
 
 #. translators: 1: theme name, 2: current version, 3: new version
-#: includes/Core/class-theme-updates.php:960
+#: includes/Core/class-theme-updates.php:463
 #, php-format, aa-mt
 msgid "A new version of %1$s is available. You have version %2$s and the latest version is %3$s."
 msgstr "Eine neue Version von %1$s ist verfügbar. Sie haben die Version %2$s, die neueste Version ist %3$s."
 
-#: includes/Core/class-theme-updates.php:982
+#: includes/Core/class-theme-updates.php:485
 #, aa-mt
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
@@ -1192,6 +1216,7 @@ msgid "Notified"
 msgstr "Benachrichtigt"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:223
+#: patterns/design-system-preview.php:87
 #, aa-mt
 msgid "Delete"
 msgstr "Löschen"
@@ -1359,6 +1384,11 @@ msgstr "Farben"
 #, aa-mt
 msgid "Background"
 msgstr "Hintergrund"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:102
+#, aa-mt
+msgid "Text"
+msgstr "Text"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:108
 #: includes/WooCommerce/class-product-tabs-admin.php:772
@@ -1603,20 +1633,20 @@ msgid "Back to Badges"
 msgstr "Zurück zu den Abzeichen"
 
 #: includes/WooCommerce/class-badge-system-defaults.php:127
-#: patterns/design-system-preview.php:85 patterns/footer-columns.php:49
+#: patterns/design-system-preview.php:145 patterns/footer-columns.php:49
 #: patterns/mega-menu-panel.php:64
 #, aa-mt
 msgid "Sale"
 msgstr "Ausverkauf"
 
 #: includes/WooCommerce/class-badge-system-defaults.php:138
-#: patterns/design-system-preview.php:89
+#: patterns/design-system-preview.php:149
 #, aa-mt
 msgid "New"
 msgstr "Neu"
 
 #: includes/WooCommerce/class-badge-system-defaults.php:149
-#: patterns/design-system-preview.php:93
+#: patterns/design-system-preview.php:153
 #, aa-mt
 msgid "Low Stock"
 msgstr "Geringer Lagerbestand"
@@ -2528,7 +2558,7 @@ msgid "%s UNLOCKED!"
 msgstr "%s FREIGEGEBEN!"
 
 #: includes/WooCommerce/class-frequently-bought-together.php:176
-#: includes/WooCommerce/class-quick-view.php:378
+#: includes/WooCommerce/class-quick-view-renderer.php:215
 #, aa-mt
 msgid "Adding…"
 msgstr "Weiter…"
@@ -2652,15 +2682,15 @@ msgid "Save %d%%"
 msgstr "Sparen Sie %d%%"
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view.php:389
+#: includes/WooCommerce/class-quick-view-renderer.php:226
 #, aa-mt
 msgid "In Stock"
 msgstr "Auf Lager"
 
 #: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view.php:388
+#: includes/WooCommerce/class-quick-view-renderer.php:225
 #: includes/WooCommerce/class-store-copy.php:49
-#: patterns/design-system-preview.php:97
+#: patterns/design-system-preview.php:157
 #, aa-mt
 msgid "Out of Stock"
 msgstr "Nicht vorrätig"
@@ -3152,6 +3182,7 @@ msgstr "Registerkarte „Ausgewählt“"
 
 #: includes/WooCommerce/class-product-tabs-admin.php:607
 #: includes/WooCommerce/class-product-tabs-admin.php:851
+#: patterns/design-system-preview.php:76
 #, aa-mt
 msgid "Disabled"
 msgstr "Deaktiviert"
@@ -3619,122 +3650,122 @@ msgstr "Produktinformationen"
 
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
-#: includes/WooCommerce/class-quick-view.php:241
-#: includes/WooCommerce/class-wishlist.php:464
+#: includes/WooCommerce/class-quick-view-renderer.php:78
+#: includes/WooCommerce/class-wishlist.php:468
 #, php-format, aa-mt
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
-#: includes/WooCommerce/class-quick-view.php:270
+#: includes/WooCommerce/class-quick-view-renderer.php:107
 #, aa-mt
 msgid "Product actions"
 msgstr "Produktmaßnahmen"
 
-#: includes/WooCommerce/class-quick-view.php:379
+#: includes/WooCommerce/class-quick-view-renderer.php:216
 #, aa-mt
 msgid "✓ Added!"
 msgstr "✓ Hinzugefügt!"
 
-#: includes/WooCommerce/class-quick-view.php:383
+#: includes/WooCommerce/class-quick-view-renderer.php:220
 #: includes/WooCommerce/class-sticky-add-to-cart.php:133
 #, aa-mt
 msgid "Redirecting…"
 msgstr "Weiterleitung…"
 
-#: includes/WooCommerce/class-quick-view.php:387
-#: includes/WooCommerce/class-quick-view.php:914
+#: includes/WooCommerce/class-quick-view-renderer.php:224
+#: includes/WooCommerce/class-quick-view-renderer.php:751
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
-#: includes/WooCommerce/class-sticky-add-to-cart.php:416
+#: includes/WooCommerce/class-sticky-add-to-cart.php:426
 #, aa-mt
 msgid "Added to cart!"
 msgstr "In den Warenkorb gelegt!"
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view.php:391
+#: includes/WooCommerce/class-quick-view-renderer.php:228
 #, php-format, aa-mt
 msgid "Only %d left!"
 msgstr "Nur noch %d verfügbar!"
 
-#: includes/WooCommerce/class-quick-view.php:392
+#: includes/WooCommerce/class-quick-view-renderer.php:229
 #, aa-mt
 msgid "Product added to cart successfully"
 msgstr "Das Produkt wurde erfolgreich in den Warenkorb gelegt"
 
-#: includes/WooCommerce/class-quick-view.php:393
+#: includes/WooCommerce/class-quick-view-renderer.php:230
 #, aa-mt
 msgid "Could not add to cart."
 msgstr "Konnte nicht in den Warenkorb gelegt werden."
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view.php:395
+#: includes/WooCommerce/class-quick-view-renderer.php:232
 #, php-format, aa-mt
 msgid "Error: %s"
 msgstr "Fehler: %s"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-quick-view.php:396
+#: includes/WooCommerce/class-quick-view-renderer.php:233
 #: includes/WooCommerce/class-sticky-add-to-cart.php:139
+#: patterns/design-system-preview.php:118
 #, aa-mt
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
 
-#: includes/WooCommerce/class-quick-view.php:423
+#: includes/WooCommerce/class-quick-view-renderer.php:260
 #, aa-mt
 msgid "Close quick view"
 msgstr "Schnellansicht schließen"
 
-#: includes/WooCommerce/class-quick-view.php:488
+#: includes/WooCommerce/class-quick-view-renderer.php:325
 #, aa-mt
 msgid "Scroll thumbnails left"
 msgstr "Miniaturansichten nach links scrollen"
 
-#: includes/WooCommerce/class-quick-view.php:508
-#: includes/WooCommerce/class-quick-view.php:553
+#: includes/WooCommerce/class-quick-view-renderer.php:345
+#: includes/WooCommerce/class-quick-view-renderer.php:390
 #, aa-mt
 msgid "View image"
 msgstr "Bild anzeigen"
 
-#: includes/WooCommerce/class-quick-view.php:526
+#: includes/WooCommerce/class-quick-view-renderer.php:363
 #, aa-mt
 msgid "Scroll thumbnails right"
 msgstr "Miniaturansichten nach rechts scrollen"
 
-#: includes/WooCommerce/class-quick-view.php:618
-#: includes/WooCommerce/class-quick-view.php:801
-#: includes/WooCommerce/class-sticky-add-to-cart.php:191
-#: includes/WooCommerce/class-sticky-add-to-cart.php:360
+#: includes/WooCommerce/class-quick-view-renderer.php:455
+#: includes/WooCommerce/class-quick-view-renderer.php:638
+#: includes/WooCommerce/class-sticky-add-to-cart.php:199
+#: includes/WooCommerce/class-sticky-add-to-cart.php:370
 #, aa-mt
 msgid "Decrease quantity"
 msgstr "Menge verringern"
 
-#: includes/WooCommerce/class-quick-view.php:626
-#: includes/WooCommerce/class-quick-view.php:809
-#: includes/WooCommerce/class-sticky-add-to-cart.php:200
-#: includes/WooCommerce/class-sticky-add-to-cart.php:369
+#: includes/WooCommerce/class-quick-view-renderer.php:463
+#: includes/WooCommerce/class-quick-view-renderer.php:646
+#: includes/WooCommerce/class-sticky-add-to-cart.php:208
+#: includes/WooCommerce/class-sticky-add-to-cart.php:379
 #, aa-mt
 msgid "Quantity"
 msgstr "Anzahl"
 
-#: includes/WooCommerce/class-quick-view.php:632
-#: includes/WooCommerce/class-quick-view.php:815
-#: includes/WooCommerce/class-sticky-add-to-cart.php:206
-#: includes/WooCommerce/class-sticky-add-to-cart.php:375
+#: includes/WooCommerce/class-quick-view-renderer.php:469
+#: includes/WooCommerce/class-quick-view-renderer.php:652
+#: includes/WooCommerce/class-sticky-add-to-cart.php:214
+#: includes/WooCommerce/class-sticky-add-to-cart.php:385
 #, aa-mt
 msgid "Increase quantity"
 msgstr "Menge erhöhen"
 
-#: includes/WooCommerce/class-quick-view.php:700
-#: includes/WooCommerce/class-sticky-add-to-cart.php:260
+#: includes/WooCommerce/class-quick-view-renderer.php:537
+#: includes/WooCommerce/class-sticky-add-to-cart.php:268
 #, aa-mt
 msgid "Select product options"
 msgstr "Produktoptionen auswählen"
 
-#: includes/WooCommerce/class-quick-view.php:863
+#: includes/WooCommerce/class-quick-view-renderer.php:700
 #, aa-mt
 msgid "Could not load product details. Please try again."
 msgstr "Die Produktdetails konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
-#: includes/WooCommerce/class-quick-view.php:901
+#: includes/WooCommerce/class-quick-view-renderer.php:738
 #, aa-mt
 msgid "Close cart confirmation"
 msgstr "Bestätigung zum Schließen des Warenkorbs"
@@ -3839,7 +3870,7 @@ msgid "Measurements in inches"
 msgstr "Maße in Zoll"
 
 #: includes/WooCommerce/class-size-guide.php:203
-#: includes/WooCommerce/class-sticky-add-to-cart.php:291
+#: includes/WooCommerce/class-sticky-add-to-cart.php:299
 #, aa-mt
 msgid "Close"
 msgstr "Schließen"
@@ -5021,42 +5052,157 @@ msgstr "Verwenden Sie dieses Muster, um Token-Änderungen, registrierte Blocksti
 msgid "Buttons"
 msgstr "Schaltflächen"
 
-#: patterns/design-system-preview.php:57
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:45
 #, aa-mt
-msgid "Text Link"
-msgstr "Textlink"
+msgid "Primary"
+msgstr "Grundschule"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:49
+#, aa-mt
+msgid "Secondary"
+msgstr "Sekundär"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:65
+#, aa-mt
+msgid "Tertiary Link"
+msgstr "Tertiärlink"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: patterns/design-system-preview.php:71
 #, aa-mt
-msgid "Badges and states"
-msgstr "Abzeichen und Status"
+msgid "Native states"
+msgstr "Heimatstaaten"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: patterns/design-system-preview.php:77
+#, aa-mt
+msgid "Loading"
+msgstr "Wird geladen"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:82
+#, aa-mt
+msgid "Tone and shape variants"
+msgstr "Farb- und Formvarianten"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:88
+#, aa-mt
+msgid "Saved"
+msgstr "Gespeichert"
+
+#: patterns/design-system-preview.php:89
+#, aa-mt
+msgid "Ghost"
+msgstr "Geist"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:90
+#, aa-mt
+msgid "Pill"
+msgstr "Pille"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:91
+#, aa-mt
+msgid "Square"
+msgstr "Quadrat"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:96
+#, aa-mt
+msgid "Density and elevation"
+msgstr "Dichte und Höhe"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:101
+#, aa-mt
+msgid "Compact"
+msgstr "Kompakt"
+
+#: patterns/design-system-preview.php:102
+#: patterns/design-system-preview.php:137
 #, aa-mt
 msgid "Default"
 msgstr "Standard"
 
-#: patterns/design-system-preview.php:81
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:103
+#, aa-mt
+msgid "Large"
+msgstr "Groß"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:104
+#, aa-mt
+msgid "Elevated hero"
+msgstr "Erhabener Held"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:109
+#, aa-mt
+msgid "Utility and choice controls"
+msgstr "Steuerelemente für Nützlichkeit und Auswahl"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:114
+#, aa-mt
+msgid "Close preview"
+msgstr "Vorschau schließen"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:115
+#, aa-mt
+msgid "Remove preview"
+msgstr "Vorschau ausblenden"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:117
+#, aa-mt
+msgid "Medium"
+msgstr "Mittel"
+
+#: patterns/design-system-preview.php:131
+#, aa-mt
+msgid "Badges and states"
+msgstr "Abzeichen und Status"
+
+#: patterns/design-system-preview.php:141
 #, aa-mt
 msgid "Muted"
 msgstr "Stummgeschaltet"
 
-#: patterns/design-system-preview.php:111
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:171
+#, aa-mt
+msgid "Buttons on dark media"
+msgstr "Schaltflächen auf dunklem Hintergrund"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: patterns/design-system-preview.php:185
+#, aa-mt
+msgid "Small Secondary"
+msgstr "Kleine Sekundarstufe"
+
+#: patterns/design-system-preview.php:195
 #, aa-mt
 msgid "Typography Roles"
 msgstr "Rollen in der Typografie"
 
-#: patterns/design-system-preview.php:115
+#: patterns/design-system-preview.php:199
 #, aa-mt
 msgid "Caption text is for supporting detail and secondary explanatory copy."
 msgstr "Der Bildtext dient der Ergänzung von Details und als ergänzende Erläuterung."
 
-#: patterns/design-system-preview.php:119
+#: patterns/design-system-preview.php:203
 #, aa-mt
 msgid "Meta text uses compact uppercase rhythm"
 msgstr "Der Metatext verwendet einen kompakten Rhythmus aus Großbuchstaben"
 
-#: patterns/design-system-preview.php:127
+#: patterns/design-system-preview.php:211
 #, aa-mt
 msgid "Legal text is intentionally quiet and compact while remaining readable."
 msgstr "Der Rechtstext ist bewusst zurückhaltend und prägnant gehalten, bleibt dabei aber gut lesbar."
@@ -8260,13 +8406,13 @@ msgstr "Menü"
 msgid "Main navigation"
 msgstr "Hauptnavigation"
 
-#: src/blocks-interactivity/product-color-swatches/render.php:133
+#: src/blocks-interactivity/product-color-swatches/render.php:139
 #, aa-mt
 msgid "Color options"
 msgstr "Farboptionen"
 
 #. translators: %s: Color name.
-#: src/blocks-interactivity/product-color-swatches/render.php:167
+#: src/blocks-interactivity/product-color-swatches/render.php:179
 #, php-format, aa-mt
 msgid "View in %s"
 msgstr "In %s anzeigen"
@@ -9595,35 +9741,30 @@ msgctxt "block keyword"
 msgid "stars"
 msgstr "Sterne"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block title"
 msgid "Size Guide"
 msgstr "Größentabelle"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block description"
 msgid "Displays the size guide assigned to the current product in an accessible modal."
 msgstr "Zeigt die dem aktuellen Produkt zugewiesene Größentabelle in einem leicht zugänglichen Modalfenster an."
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"
 msgid "size guide"
 msgstr "Größentabelle"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"
 msgid "sizing"
 msgstr "Größenbestimmung"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"

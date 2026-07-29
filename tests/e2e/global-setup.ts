@@ -37,7 +37,8 @@ function ensureProjectThemeActive(): void {
 
 /**
  * Log in as admin once and persist the session so specs start authenticated
- * (the store is in "Coming Soon" mode — only logged-in admins see the front end).
+ * for editor coverage. Catalog fixtures explicitly launch the isolated store so
+ * anonymous storefront specs exercise the same public routes as production.
  */
 export default async function globalSetup(_config: FullConfig): Promise<void> {
   const base = process.env.WP_BASE_URL ?? 'http://localhost:9910';

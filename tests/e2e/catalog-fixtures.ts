@@ -10,6 +10,7 @@ import { wpCli } from './wp-cli';
 
 const MIN_PRODUCTS = 24;
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
+const COMING_SOON_OPTION = 'woocommerce_coming_soon';
 
 function publishedProductCount(): number {
   try {
@@ -29,6 +30,17 @@ function publishedProductCount(): number {
 
 function ensureInfiniteScrollMode(): void {
   wpCli(['option', 'update', LOAD_MORE_MODE_OPTION, 'infinite_scroll']);
+}
+
+function ensurePublicStore(): void {
+  wpCli(['option', 'update', COMING_SOON_OPTION, 'no']);
+
+  const comingSoon = wpCli(['option', 'get', COMING_SOON_OPTION]);
+  if (comingSoon !== 'no') {
+    throw new Error(
+      `Expected the E2E WooCommerce store to be public, found ${comingSoon}.`
+    );
+  }
 }
 
 function createSimpleProducts(startIndex: number, count: number): void {
@@ -68,6 +80,7 @@ function ensureProductFloor(): void {
 
 /** Idempotent catalogue floor for cursor-pagination e2e. */
 export function ensureCatalogCursorFixtures(): void {
+  ensurePublicStore();
   ensureInfiniteScrollMode();
   ensureProductFloor();
 }

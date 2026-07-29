@@ -301,6 +301,42 @@ class TestProductTabs extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A validated block style should bypass the global option without filters.
+	 *
+	 * @return void
+	 */
+	public function test_render_tabs_by_style_honors_explicit_block_style(): void {
+		update_option(
+			Product_Tabs_Config::OPTION_KEY,
+			array(
+				'display_style' => 'scrollspy',
+			)
+		);
+
+		$reflection = new \ReflectionClass( Product_Tabs::class );
+		$renderer   = $reflection->getProperty( 'renderer' );
+		$renderer->setAccessible( true );
+		$renderer_instance = $renderer->getValue( $this->product_tabs );
+
+		$html = $renderer_instance->render_tabs_by_style(
+			array(
+				array(
+					'title'   => 'Details',
+					'id'      => 'details',
+					'content' => '<p>Tab body</p>',
+				),
+			),
+			'<div>fallback</div>',
+			false,
+			false,
+			'modern-tabs'
+		);
+
+		$this->assertStringContainsString( 'aa-product-info--modern-tabs', $html );
+		$this->assertStringNotContainsString( 'aa-product-info--scrollspy', $html );
+	}
+
+	/**
 	 * Create a simple WooCommerce product fixture.
 	 *
 	 * @return int Product ID.

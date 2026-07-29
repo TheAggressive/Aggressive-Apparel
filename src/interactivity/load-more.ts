@@ -14,7 +14,7 @@ import type {
   InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
-import { getContext, getElement, store } from '@wordpress/interactivity';
+import { getServerContext, store } from '@wordpress/interactivity';
 import {
   clearProductGridSpacer,
   installBlockSupportStyles,
@@ -29,7 +29,11 @@ import {
   SENTINEL_ROOT_MARGIN_PX,
   shouldContinueInfiniteScroll,
 } from './load-more-continue';
-import { applyLoadMoreSeed, type LoadMoreSeed } from './load-more-seed';
+import {
+  applyLoadMoreSeed,
+  getLoadMoreSeedFingerprint,
+  type LoadMoreSeed,
+} from './load-more-seed';
 
 interface LoadMoreState {
   mode: LoadMoreSeed['mode'];
@@ -102,8 +106,8 @@ let prefetchArmed = false;
 let prefetchScrollBound = false;
 let paginationGeneration = 0;
 
-/** Elements that have already run callbacks.init (soft-nav safe). */
-const initializedRoots = new WeakSet<Element>();
+/** Complete request seed currently installed in the long-lived module store. */
+let activeSeedFingerprint: string | null = null;
 
 /** Document-level listeners are registered once per module lifetime. */
 let documentListenersBound = false;
@@ -145,19 +149,6 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   callbacks: {
     init(): void {
-      const root = getElement().ref;
-      if (!(root instanceof Element) || initializedRoots.has(root)) return;
-      initializedRoots.add(root);
-
-      resetPaginationRuntime(getContext<Partial<LoadMoreSeed>>());
-      synchronizeInitialGridState();
-
-      if (state.mode === 'infinite_scroll') {
-        setupIntersectionObserver();
-      }
-
-      armPrefetchOnScroll();
-
       if (!documentListenersBound) {
         documentListenersBound = true;
         document.addEventListener(
@@ -170,6 +161,29 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
         );
         document.addEventListener('aa:filters-changed', handleFiltersChanged);
       }
+    },
+
+    /**
+     * Install the request-scoped seed after initial render and soft navigation.
+     *
+     * Unlike getContext(), getServerContext() is invalidated by the WordPress
+     * router when it morphs a region. This remains correct when the router
+     * deliberately reuses the same .aa-load-more DOM element.
+     */
+    syncServerContext(): void {
+      const seed = getServerContext<Partial<LoadMoreSeed>>();
+      const fingerprint = getLoadMoreSeedFingerprint(seed);
+      if (!fingerprint || fingerprint === activeSeedFingerprint) return;
+
+      resetPaginationRuntime(seed);
+      activeSeedFingerprint = fingerprint;
+      synchronizeInitialGridState();
+
+      if (state.mode === 'infinite_scroll') {
+        setupIntersectionObserver();
+      }
+
+      armPrefetchOnScroll();
     },
   },
 });

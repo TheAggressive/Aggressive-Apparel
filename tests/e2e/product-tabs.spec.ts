@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test';
 import {
   createProductTabsFixture,
-  setProductTabsStyle,
-  setAccordionExclusive,
-  setHeadingStyle,
+  productTabsFixtureUrl,
   deleteProductTabsFixture,
   installStyleForcer,
   uninstallStyleForcer,
@@ -26,7 +24,7 @@ test.describe('Product tabs — front end', () => {
   test.beforeAll(() => {
     installStyleForcer();
     // Run with the global option absent: the block's explicit style must still
-    // win via render.php's `default_option_` hook (regression guard).
+    // be passed directly to the renderer (regression guard).
     clearGlobalTabsOption();
     const fixture = createProductTabsFixture();
     productId = fixture.id;
@@ -42,13 +40,10 @@ test.describe('Product tabs — front end', () => {
   test("block's explicit style is honored when the global option is absent", async ({
     page,
   }) => {
-    // Regression guard: render.php passes the block's displayStyle by filtering
-    // the global option, which WordPress only runs via `default_option_` when
-    // the option row is missing. Before the fix every style fell back to
-    // accordion on sites that never saved the settings page.
+    // Regression guard: a block's displayStyle must not depend on a saved
+    // global option row or temporary request-global option filters.
     for (const style of ['modern-tabs', 'inline', 'scrollspy'] as const) {
-      setProductTabsStyle(style);
-      await page.goto(productUrl);
+      await page.goto(productTabsFixtureUrl(productUrl, { style }));
       const info = page.locator('.aa-product-info');
       await info.waitFor();
       await expect(info).toHaveClass(
@@ -64,9 +59,8 @@ test.describe('Product tabs — front end', () => {
     // <h2>Title</h2>. Since every layout renders its own section title, that
     // built-in heading must be stripped from the content — otherwise each
     // section shows the title twice (once styled, once raw).
-    setProductTabsStyle('inline');
     await page.setViewportSize({ width: 1024, height: 900 });
-    await page.goto(productUrl);
+    await page.goto(productTabsFixtureUrl(productUrl, { style: 'inline' }));
 
     const info = page.locator('.aa-product-info--inline');
     await info.waitFor();
@@ -112,10 +106,8 @@ test.describe('Product tabs — front end', () => {
     // Regression guard: the old WAAPI animation stacked uncancelled animations
     // on rapid taps and left panels visible while marked closed. The CSS
     // grid-rows reveal must keep rendered height and `open` state in lockstep.
-    setProductTabsStyle('accordion');
-    setAccordionExclusive(false);
     await page.setViewportSize({ width: 390, height: 780 });
-    await page.goto(productUrl);
+    await page.goto(productTabsFixtureUrl(productUrl, { style: 'accordion' }));
 
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
@@ -144,10 +136,8 @@ test.describe('Product tabs — front end', () => {
   });
 
   test('accordion sections open independently by default', async ({ page }) => {
-    setProductTabsStyle('accordion');
-    setAccordionExclusive(false);
     await page.setViewportSize({ width: 1024, height: 800 });
-    await page.goto(productUrl);
+    await page.goto(productTabsFixtureUrl(productUrl, { style: 'accordion' }));
 
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
@@ -168,10 +158,13 @@ test.describe('Product tabs — front end', () => {
   test('accordion exclusive mode keeps one section open and its header on screen', async ({
     page,
   }) => {
-    setProductTabsStyle('accordion');
-    setAccordionExclusive(true);
     await page.setViewportSize({ width: 390, height: 780 });
-    await page.goto(productUrl);
+    await page.goto(
+      productTabsFixtureUrl(productUrl, {
+        style: 'accordion',
+        exclusive: true,
+      })
+    );
 
     const accordion = page.locator(
       '.aa-product-info--accordion[data-aa-exclusive]'
@@ -207,15 +200,15 @@ test.describe('Product tabs — front end', () => {
     // The preset color refs (var:preset|color|slug) must convert to
     // var(--wp--preset--color--slug) and survive safecss_filter_attr, and the
     // three CSS custom properties must land on the rendered root.
-    setProductTabsStyle('accordion');
-    setAccordionExclusive(false);
-    setHeadingStyle({
-      fontSize: '2rem',
-      color: 'var:preset|color|success',
-      accent: 'var:preset|color|info',
-    });
     await page.setViewportSize({ width: 900, height: 900 });
-    await page.goto(productUrl);
+    await page.goto(
+      productTabsFixtureUrl(productUrl, {
+        style: 'accordion',
+        headingFontSize: '2rem',
+        headingColor: 'var:preset|color|success',
+        accentColor: 'var:preset|color|info',
+      })
+    );
 
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
@@ -252,11 +245,8 @@ test.describe('Product tabs — front end', () => {
   test('accordion highlights the open section heading in the accent color', async ({
     page,
   }) => {
-    setHeadingStyle({});
-    setProductTabsStyle('accordion');
-    setAccordionExclusive(false);
     await page.setViewportSize({ width: 1024, height: 800 });
-    await page.goto(productUrl);
+    await page.goto(productTabsFixtureUrl(productUrl, { style: 'accordion' }));
 
     const accordion = page.locator('.aa-product-info--accordion');
     await accordion.waitFor();
@@ -291,10 +281,8 @@ test.describe('Product tabs — front end', () => {
   test('scrollspy sidebar is sticky and tracks the active section on mobile', async ({
     page,
   }) => {
-    setProductTabsStyle('scrollspy');
-
     await page.setViewportSize({ width: 420, height: 800 });
-    await page.goto(productUrl);
+    await page.goto(productTabsFixtureUrl(productUrl, { style: 'scrollspy' }));
 
     const scrollspy = page.locator('.aa-product-info--scrollspy');
     await scrollspy.waitFor();
@@ -358,11 +346,11 @@ test.describe('Product tabs — front end', () => {
     // (container query on an inner wrapper), not the viewport. Before the fix
     // the 12rem + 1fr grid forced a fixed ~892px content track that overflowed
     // the ~360px block, cutting off content on the right.
-    setProductTabsStyle('scrollspy');
-
     for (const width of [768, 834, 1024]) {
       await page.setViewportSize({ width, height: 1000 });
-      await page.goto(productUrl);
+      await page.goto(
+        productTabsFixtureUrl(productUrl, { style: 'scrollspy' })
+      );
 
       const layout = page.locator(
         '.aa-product-info--scrollspy .aa-product-info__layout'

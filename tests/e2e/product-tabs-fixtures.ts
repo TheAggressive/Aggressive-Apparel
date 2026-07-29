@@ -6,54 +6,74 @@ import { wpCli } from './wp-cli';
  *
  * The product-tabs block only renders on single-product pages, and its
  * `displayStyle` block attribute (default "accordion", filled from block.json)
- * always wins over the global option in render.php. To exercise each layout on
- * the real single-product template we install a tiny, test-scoped mu-plugin
- * that overrides the block's `displayStyle` from an option via `render_block_data`,
- * then flip that option per test. The product carries a long Description plus
+ * is passed directly to the renderer. To exercise each layout on the real
+ * single-product template we install a tiny, test-scoped mu-plugin
+ * that overrides selected block attributes from allowlisted query parameters
+ * via `render_block_data`. Request-scoped inputs avoid shared option/cache state
+ * between tests and retries. The product carries a long Description plus
  * weight/dimensions (Additional information tab) so several sections render.
  */
 
-const FORCE_STYLE_OPTION = 'e2e_product_tabs_force_style';
-const EXCLUSIVE_OPTION = 'e2e_product_tabs_exclusive';
-const HEADING_SIZE_OPTION = 'e2e_product_tabs_heading_size';
-const HEADING_COLOR_OPTION = 'e2e_product_tabs_heading_color';
-const ACCENT_COLOR_OPTION = 'e2e_product_tabs_accent_color';
+const STYLE_PARAM = 'e2e_product_tabs_style';
+const EXCLUSIVE_PARAM = 'e2e_product_tabs_exclusive';
+const HEADING_SIZE_PARAM = 'e2e_product_tabs_heading_size';
+const HEADING_COLOR_PARAM = 'e2e_product_tabs_heading_color';
+const ACCENT_COLOR_PARAM = 'e2e_product_tabs_accent_color';
+const REQUEST_PARAM = 'e2e_product_tabs_request';
 const GLOBAL_TABS_OPTION = 'aggressive_apparel_product_tabs';
 const MU_PLUGIN_NAME = 'e2e-product-tabs-style.php';
 
 export type TabStyle = 'accordion' | 'inline' | 'modern-tabs' | 'scrollspy';
 
+interface ProductTabsRequest {
+  style: TabStyle;
+  exclusive?: boolean;
+  headingFontSize?: string;
+  headingColor?: string;
+  accentColor?: string;
+}
+
+let requestSequence = 0;
+
 /**
- * Write a mu-plugin that forces the product-tabs `displayStyle` from the
- * `e2e_product_tabs_force_style` option, so a spec can drive any layout on the
- * theme's single-product template without editing the template file.
+ * Write a mu-plugin that forces product-tabs attributes from allowlisted,
+ * request-scoped inputs. The plugin is present only for this serial E2E suite.
  */
 export function installStyleForcer(): void {
   const muPluginCode =
     '<?php ' +
     'add_filter("render_block_data", function ($block) { ' +
     'if (($block["blockName"] ?? "") === "aggressive-apparel/product-tabs") { ' +
-    '$style = get_option("' +
-    FORCE_STYLE_OPTION +
-    '"); ' +
-    'if (is_string($style) && $style !== "") { $block["attrs"]["displayStyle"] = $style; } ' +
+    '$style = isset($_GET["' +
+    STYLE_PARAM +
+    '"]) ? sanitize_key(wp_unslash($_GET["' +
+    STYLE_PARAM +
+    '"])) : ""; ' +
+    '$valid_styles = array("accordion", "inline", "modern-tabs", "scrollspy"); ' +
+    'if (in_array($style, $valid_styles, true)) { $block["attrs"]["displayStyle"] = $style; } ' +
     // Show our section headings so a duplicate WooCommerce content heading
     // would be visible to the duplicate-heading regression test.
     '$block["attrs"]["hideContentTitles"] = false; ' +
-    // Always set explicitly so the fixture is deterministic regardless of any
-    // value baked into the single-product template's saved block.
-    '$block["attrs"]["accordionExclusive"] = (bool) get_option("' +
-    EXCLUSIVE_OPTION +
-    '"); ' +
-    '$block["attrs"]["headingFontSize"] = (string) get_option("' +
-    HEADING_SIZE_OPTION +
-    '"); ' +
-    '$block["attrs"]["headingColor"] = (string) get_option("' +
-    HEADING_COLOR_OPTION +
-    '"); ' +
-    '$block["attrs"]["accentColor"] = (string) get_option("' +
-    ACCENT_COLOR_OPTION +
-    '"); ' +
+    '$block["attrs"]["accordionExclusive"] = isset($_GET["' +
+    EXCLUSIVE_PARAM +
+    '"]) && "1" === wp_unslash($_GET["' +
+    EXCLUSIVE_PARAM +
+    '"]); ' +
+    '$block["attrs"]["headingFontSize"] = isset($_GET["' +
+    HEADING_SIZE_PARAM +
+    '"]) ? sanitize_text_field(wp_unslash($_GET["' +
+    HEADING_SIZE_PARAM +
+    '"])) : ""; ' +
+    '$block["attrs"]["headingColor"] = isset($_GET["' +
+    HEADING_COLOR_PARAM +
+    '"]) ? sanitize_text_field(wp_unslash($_GET["' +
+    HEADING_COLOR_PARAM +
+    '"])) : ""; ' +
+    '$block["attrs"]["accentColor"] = isset($_GET["' +
+    ACCENT_COLOR_PARAM +
+    '"]) ? sanitize_text_field(wp_unslash($_GET["' +
+    ACCENT_COLOR_PARAM +
+    '"])) : ""; ' +
     '} return $block; });';
 
   // base64 so the PHP body passes through wp-cli's eval verbatim (no shell
@@ -72,7 +92,7 @@ echo 'ok';
   }
 }
 
-/** Remove the test mu-plugin and its option. */
+/** Remove the test mu-plugin. */
 export function uninstallStyleForcer(): void {
   try {
     wpCli([
@@ -84,11 +104,6 @@ if (file_exists($f)) { unlink($f); }
 echo 'ok';
 `.trim(),
     ]);
-    wpCli(['option', 'delete', FORCE_STYLE_OPTION]);
-    wpCli(['option', 'delete', EXCLUSIVE_OPTION]);
-    wpCli(['option', 'delete', HEADING_SIZE_OPTION]);
-    wpCli(['option', 'delete', HEADING_COLOR_OPTION]);
-    wpCli(['option', 'delete', ACCENT_COLOR_OPTION]);
   } catch {
     // Best-effort cleanup.
   }
@@ -131,51 +146,38 @@ echo $id . '|' . get_permalink($id);
   return { id, url };
 }
 
-/** Force the product-tabs display style for the next page load. */
-export function setProductTabsStyle(style: TabStyle): void {
-  wpCli(['option', 'update', FORCE_STYLE_OPTION, style]);
-}
-
-/** Toggle the accordion's exclusive (one-open-at-a-time) mode. */
-export function setAccordionExclusive(exclusive: boolean): void {
-  if (exclusive) {
-    wpCli(['option', 'update', EXCLUSIVE_OPTION, '1']);
-  } else {
-    try {
-      wpCli(['option', 'delete', EXCLUSIVE_OPTION]);
-    } catch {
-      // Already absent.
-    }
+/**
+ * Build a unique, request-scoped fixture URL.
+ *
+ * Every navigation receives its intended attributes in the HTTP request, so
+ * PHP process caches, retries, and prior test cleanup cannot change the result.
+ */
+export function productTabsFixtureUrl(
+  productUrl: string,
+  request: ProductTabsRequest
+): string {
+  const url = new URL(productUrl);
+  url.searchParams.set(STYLE_PARAM, request.style);
+  url.searchParams.set(REQUEST_PARAM, String(++requestSequence));
+  if (request.exclusive) {
+    url.searchParams.set(EXCLUSIVE_PARAM, '1');
   }
-}
-
-/** Drive the editor heading typography/color attributes (empty string clears). */
-export function setHeadingStyle(style: {
-  fontSize?: string;
-  color?: string;
-  accent?: string;
-}): void {
-  const set = (name: string, value?: string): void => {
-    if (value) {
-      wpCli(['option', 'update', name, value]);
-    } else {
-      try {
-        wpCli(['option', 'delete', name]);
-      } catch {
-        // Already absent.
-      }
-    }
-  };
-  set(HEADING_SIZE_OPTION, style.fontSize);
-  set(HEADING_COLOR_OPTION, style.color);
-  set(ACCENT_COLOR_OPTION, style.accent);
+  if (request.headingFontSize) {
+    url.searchParams.set(HEADING_SIZE_PARAM, request.headingFontSize);
+  }
+  if (request.headingColor) {
+    url.searchParams.set(HEADING_COLOR_PARAM, request.headingColor);
+  }
+  if (request.accentColor) {
+    url.searchParams.set(ACCENT_COLOR_PARAM, request.accentColor);
+  }
+  return url.toString();
 }
 
 /**
  * Remove the global Product Tabs option so tests run in the "never saved the
- * settings page" state. This is the condition that regressed to accordion when
- * render.php only hooked `option_` (not `default_option_`): the block's explicit
- * style must still win with the option row absent.
+ * settings page" state. This guards the production contract that a validated
+ * block attribute wins directly, without depending on an option filter.
  */
 export function clearGlobalTabsOption(): void {
   try {

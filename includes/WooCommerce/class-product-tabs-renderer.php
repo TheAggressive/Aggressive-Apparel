@@ -76,14 +76,19 @@ class Product_Tabs_Renderer {
 	/**
 	 * Render tabs using the configured display style.
 	 *
-	 * @param array  $tabs         Renderable tab data.
-	 * @param string $fallback     Original Product Details block HTML.
-	 * @param bool   $hide_titles  Whether to hide the section heading above each tab's content.
-	 * @param bool   $exclusive    Whether the accordion allows only one open section at a time.
+	 * @param array   $tabs          Renderable tab data.
+	 * @param string  $fallback      Original Product Details block HTML.
+	 * @param bool    $hide_titles   Whether to hide the section heading above each tab's content.
+	 * @param bool    $exclusive     Whether the accordion allows only one open section at a time.
+	 * @param ?string $display_style Validated per-block display style, or null for the global setting.
 	 * @return string Rendered HTML.
 	 */
-	public function render_tabs_by_style( array $tabs, string $fallback, bool $hide_titles = false, bool $exclusive = false ): string {
-		switch ( $this->tabs->get_display_style() ) {
+	public function render_tabs_by_style( array $tabs, string $fallback, bool $hide_titles = false, bool $exclusive = false, ?string $display_style = null ): string {
+		$resolved_style = null !== $display_style && in_array( $display_style, Product_Tabs_Config::VALID_STYLES, true )
+			? $display_style
+			: $this->tabs->get_display_style();
+
+		switch ( $resolved_style ) {
 			case 'accordion':
 				return $this->render_accordion( $tabs, $exclusive );
 			case 'inline':

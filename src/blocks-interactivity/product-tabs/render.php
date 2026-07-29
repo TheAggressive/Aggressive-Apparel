@@ -35,7 +35,7 @@ if ( ! function_exists( 'is_product' ) || ! is_product() ) {
 // Honour the block attribute if set, otherwise fall through to the global setting.
 $block_display_style = isset( $attributes['displayStyle'] ) ? sanitize_key( (string) $attributes['displayStyle'] ) : '';
 
-// Override the global option when the block has its own explicit setting.
+// Resolve a validated per-block style without mutating request-global options.
 $option_override = null;
 if ( '' !== $block_display_style ) {
 	$valid_styles = array( 'accordion', 'inline', 'modern-tabs', 'scrollspy' );
@@ -44,30 +44,12 @@ if ( '' !== $block_display_style ) {
 	}
 }
 
-// Temporarily override the stored display style when the block specifies one.
-// Hook both `option_` and `default_option_`: WordPress only runs `option_`
-// when the option row exists, so a site that never saved the global Product
-// Tabs settings would otherwise ignore the block's explicit style and fall
-// back to the 'accordion' default.
-if ( null !== $option_override ) {
-	$override_display_style = static function ( $value ) use ( $option_override ) {
-		if ( is_array( $value ) ) {
-			$value['display_style'] = $option_override;
-		} else {
-			$value = array( 'display_style' => $option_override );
-		}
-		return $value;
-	};
-	add_filter( 'option_' . Product_Tabs_Config::OPTION_KEY, $override_display_style, 99 );
-	add_filter( 'default_option_' . Product_Tabs_Config::OPTION_KEY, $override_display_style, 99 );
-}
-
 // Instantiate the Product_Tabs service and wire the custom-tab filter.
 $product_tabs_service = new Product_Tabs();
 add_filter( 'woocommerce_product_tabs', array( $product_tabs_service, 'add_custom_tabs' ), 20 );
 
 // Enqueue Interactivity API state for tab behaviour (accordion/modern-tabs/scrollspy).
-$display_style = $product_tabs_service->get_display_style();
+$display_style = $option_override ?? $product_tabs_service->get_display_style();
 if ( 'inline' !== $display_style && function_exists( 'wp_interactivity_state' ) ) {
 	wp_interactivity_state(
 		'aggressive-apparel/product-tabs',
@@ -138,4 +120,12 @@ if ( empty( $renderable_tabs ) ) {
 }
 
 // Render without a wrapper so the Product_Tabs_Renderer controls the root element.
-echo aggressive_apparel_trusted_html( $renderer->render_tabs_by_style( $renderable_tabs, '', $hide_content_titles, $accordion_exclusive ) );
+echo aggressive_apparel_trusted_html(
+	$renderer->render_tabs_by_style(
+		$renderable_tabs,
+		'',
+		$hide_content_titles,
+		$accordion_exclusive,
+		$display_style
+	)
+);

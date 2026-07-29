@@ -135,7 +135,8 @@ class Load_More {
 		$load_more_html  = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center"';
 		$load_more_html .= ' data-wp-interactive="aggressive-apparel/load-more"';
 		$load_more_html .= ' data-wp-context=\'' . esc_attr( (string) $context ) . '\'';
-		$load_more_html .= ' data-wp-init="callbacks.init">';
+		$load_more_html .= ' data-wp-init="callbacks.init"';
+		$load_more_html .= ' data-wp-watch="callbacks.syncServerContext">';
 
 		// Status text.
 		$load_more_html .= '<div class="aa-load-more__status">';

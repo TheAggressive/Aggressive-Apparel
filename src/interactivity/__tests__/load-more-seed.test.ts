@@ -2,7 +2,11 @@
  * @jest-environment jsdom
  */
 
-import { applyLoadMoreSeed, type LoadMoreSeedTarget } from '../load-more-seed';
+import {
+  applyLoadMoreSeed,
+  getLoadMoreSeedFingerprint,
+  type LoadMoreSeedTarget,
+} from '../load-more-seed';
 
 function seed(overrides: Partial<LoadMoreSeedTarget> = {}): LoadMoreSeedTarget {
   return {
@@ -66,5 +70,24 @@ describe('request-scoped load-more seed', () => {
       })
     ).toBe(false);
     expect(target).toEqual(original);
+  });
+
+  it('identifies complete seeds and changes identity after a soft sort', () => {
+    const initial = seed();
+    const sorted = seed({
+      nextCursor: 'price-cursor',
+      orderby: 'price',
+    });
+
+    expect(getLoadMoreSeedFingerprint(initial)).not.toBeNull();
+    expect(getLoadMoreSeedFingerprint(sorted)).not.toBe(
+      getLoadMoreSeedFingerprint(initial)
+    );
+    expect(
+      getLoadMoreSeedFingerprint({
+        orderby: 'price',
+        nextCursor: 'price-cursor',
+      })
+    ).toBeNull();
   });
 });

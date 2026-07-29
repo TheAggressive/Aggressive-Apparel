@@ -38,12 +38,11 @@ function isPositiveInteger(value: unknown): value is number {
   return Number.isInteger(value) && Number(value) > 0;
 }
 
-/** Apply a complete trusted seed and reset transient request state. */
-export function applyLoadMoreSeed(
-  target: LoadMoreSeedTarget,
+/** Validate that a router-provided context contains a complete pagination seed. */
+function isLoadMoreSeed(
   candidate: Partial<LoadMoreSeed>
-): boolean {
-  if (
+): candidate is LoadMoreSeed {
+  return !(
     (candidate.mode !== 'load_more' && candidate.mode !== 'infinite_scroll') ||
     typeof candidate.restBase !== 'string' ||
     candidate.restBase.length === 0 ||
@@ -61,9 +60,45 @@ export function applyLoadMoreSeed(
     candidate.orderby.length === 0 ||
     typeof candidate.currentTaxonomy !== 'string' ||
     typeof candidate.currentTerm !== 'string'
-  ) {
-    return false;
-  }
+  );
+}
+
+/**
+ * Return a stable identity for a complete request-scoped seed.
+ *
+ * WordPress can re-evaluate data-wp-watch callbacks without changing a router
+ * region. Comparing the complete seed prevents those harmless evaluations from
+ * aborting requests or rebuilding observers.
+ */
+export function getLoadMoreSeedFingerprint(
+  candidate: Partial<LoadMoreSeed>
+): string | null {
+  if (!isLoadMoreSeed(candidate)) return null;
+
+  return JSON.stringify([
+    candidate.mode,
+    candidate.restBase,
+    candidate.restNonce,
+    candidate.templateSlug,
+    candidate.perPage,
+    candidate.currentPage,
+    candidate.totalPages,
+    candidate.totalProducts,
+    candidate.loadedCount,
+    candidate.allLoaded,
+    candidate.nextCursor,
+    candidate.orderby,
+    candidate.currentTaxonomy,
+    candidate.currentTerm,
+  ]);
+}
+
+/** Apply a complete trusted seed and reset transient request state. */
+export function applyLoadMoreSeed(
+  target: LoadMoreSeedTarget,
+  candidate: Partial<LoadMoreSeed>
+): boolean {
+  if (!isLoadMoreSeed(candidate)) return false;
 
   target.mode = candidate.mode;
   target.restBase = candidate.restBase;

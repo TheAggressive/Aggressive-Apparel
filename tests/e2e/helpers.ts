@@ -8,11 +8,48 @@ declare global {
     wp: any;
     wpApiSettings?: {
       nonce?: string;
+      root?: string;
     };
   }
 }
 
-const restNonces = new WeakMap<Page, string>();
+interface RestCredentials {
+  nonce: string;
+  root: string;
+}
+
+const restCredentials = new WeakMap<Page, RestCredentials>();
+
+/**
+ * Build a REST endpoint from WordPress's advertised API root.
+ *
+ * WordPress uses path routing with pretty permalinks (`/wp-json/`) and query
+ * routing on fresh/plain-permalink installations (`?rest_route=/`). Preserving
+ * the advertised routing mode keeps the E2E client portable across both.
+ */
+export function buildRestEndpoint(
+  root: string,
+  route: string,
+  query: Record<string, string> = {}
+): string {
+  const endpoint = new URL(root);
+  const normalizedRoute = route.replace(/^\/+/, '');
+  const queryRoute = endpoint.searchParams.get('rest_route');
+
+  if (queryRoute !== null) {
+    const prefix = queryRoute.replace(/\/+$/, '');
+    endpoint.searchParams.set('rest_route', `${prefix}/${normalizedRoute}`);
+  } else {
+    const prefix = endpoint.pathname.replace(/\/+$/, '');
+    endpoint.pathname = `${prefix}/${normalizedRoute}`;
+  }
+
+  for (const [name, value] of Object.entries(query)) {
+    endpoint.searchParams.set(name, value);
+  }
+
+  return endpoint.toString();
+}
 
 /** Open a fresh page editor and wait for the block-editor data store. */
 export async function openPageEditor(page: Page): Promise<void> {
@@ -24,13 +61,17 @@ export async function openPageEditor(page: Page): Promise<void> {
     window.wp?.data?.select('core/block-editor')
   );
 
-  const restNonce = await page.evaluate(
-    () => window.wpApiSettings?.nonce ?? ''
-  );
-  if (!restNonce) {
+  const credentials = await page.evaluate(() => ({
+    nonce: window.wpApiSettings?.nonce ?? '',
+    root: window.wpApiSettings?.root ?? '',
+  }));
+  if (!credentials.nonce) {
     throw new Error('WordPress REST nonce was unavailable in the page editor.');
   }
-  restNonces.set(page, restNonce);
+  if (!credentials.root) {
+    throw new Error('WordPress REST root was unavailable in the page editor.');
+  }
+  restCredentials.set(page, credentials);
 
   // Dismiss the welcome guide if present.
   await page.evaluate(() => {
@@ -81,17 +122,17 @@ export async function deletePage(page: Page, id: number): Promise<void> {
     return;
   }
 
-  const nonce = restNonces.get(page);
-  if (!nonce) {
-    throw new Error('Cannot delete the E2E page without a REST nonce.');
+  const credentials = restCredentials.get(page);
+  if (!credentials) {
+    throw new Error('Cannot delete the E2E page without REST credentials.');
   }
 
-  const response = await page.request.delete(
-    `/wp-json/wp/v2/pages/${id}?force=true`,
-    {
-      headers: { 'X-WP-Nonce': nonce },
-    }
-  );
+  const endpoint = buildRestEndpoint(credentials.root, `wp/v2/pages/${id}`, {
+    force: 'true',
+  });
+  const response = await page.request.delete(endpoint, {
+    headers: { 'X-WP-Nonce': credentials.nonce },
+  });
 
   if (!response.ok() && response.status() !== 404) {
     throw new Error(

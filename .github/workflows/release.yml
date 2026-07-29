@@ -125,12 +125,16 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
 
-      - name: Cache Composer dependencies
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-vendor-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -279,12 +283,16 @@ jobs:
           extensions: mbstring, xml, zip, xdebug
           coverage: xdebug
 
-      - name: Cache Composer dependencies
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-vendor-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-
 
       - name: Install dependencies
         run: |
@@ -366,12 +374,16 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
 
-      - name: Cache Composer dependencies
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
         uses: actions/cache@v6
         with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-vendor-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-${{ env.PHP_VERSION }}-composer-
 
       - name: Cache Playwright browser
         uses: actions/cache@v6

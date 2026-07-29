@@ -10,6 +10,9 @@
 namespace Aggressive_Apparel\Tests\Unit\Core;
 
 use WP_UnitTestCase;
+use Aggressive_Apparel\Core\Theme_Update_Http_Client;
+use Aggressive_Apparel\Core\Theme_Update_Package_Verifier;
+use Aggressive_Apparel\Core\Theme_Update_Release_Repository;
 use Aggressive_Apparel\Core\Theme_Updates;
 
 /**
@@ -25,11 +28,28 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	private $theme_updates;
 
 	/**
+	 * Release repository.
+	 *
+	 * @var Theme_Update_Release_Repository
+	 */
+	private $releases;
+
+	/**
+	 * Package verifier.
+	 *
+	 * @var Theme_Update_Package_Verifier
+	 */
+	private $packages;
+
+	/**
 	 * Set up test environment
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		$this->theme_updates = Theme_Updates::get_instance();
+		$http                = new Theme_Update_Http_Client();
+		$this->releases      = new Theme_Update_Release_Repository( $http );
+		$this->packages      = new Theme_Update_Package_Verifier( $this->releases, $http );
 	}
 
 	/**
@@ -50,21 +70,6 @@ class TestThemeUpdates extends WP_UnitTestCase {
 
 		$this->assertSame( $instance1, $instance2 );
 		$this->assertInstanceOf( Theme_Updates::class, $instance1 );
-	}
-
-	/**
-	 * Invoke a private Theme_Updates method.
-	 *
-	 * @param string       $method Method name.
-	 * @param array<mixed> $args   Arguments.
-	 * @return mixed
-	 */
-	private function invoke_private( string $method, array $args = array() ) {
-		$reflection = new \ReflectionClass( Theme_Updates::class );
-		$method_ref = $reflection->getMethod( $method );
-		$method_ref->setAccessible( true );
-
-		return $method_ref->invokeArgs( $this->theme_updates, $args );
 	}
 
 	/**
@@ -150,33 +155,41 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	 */
 	public function test_package_url_validation_limits_update_sources(): void {
 		$this->assertTrue(
-			$this->invoke_private(
-				'is_allowed_package_url',
-				array( 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip' )
+			$this->releases->is_allowed_package_url(
+				'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip'
 			)
 		);
 		$this->assertTrue(
-			$this->invoke_private(
-				'is_allowed_package_url',
-				array( 'https://api.github.com/repos/TheAggressive/Aggressive-Apparel/zipball/v1.2.3' )
+			$this->releases->is_allowed_package_url(
+				'https://api.github.com/repos/TheAggressive/Aggressive-Apparel/zipball/v1.2.3'
 			)
 		);
 		$this->assertFalse(
-			$this->invoke_private(
-				'is_allowed_package_url',
-				array( 'http://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip' )
+			$this->releases->is_allowed_package_url(
+				'http://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip'
 			)
 		);
 		$this->assertFalse(
-			$this->invoke_private(
-				'is_allowed_package_url',
-				array( 'https://example.com/aggressive-apparel-1.2.3.zip' )
+			$this->releases->is_allowed_package_url( 'https://example.com/aggressive-apparel-1.2.3.zip' )
+		);
+		$this->assertFalse(
+			$this->releases->is_allowed_package_url(
+				'https://github.com/TheAggressive/Other-Theme/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip'
 			)
 		);
 		$this->assertFalse(
-			$this->invoke_private(
-				'is_allowed_package_url',
-				array( 'https://github.com/TheAggressive/Other-Theme/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip' )
+			$this->releases->is_allowed_package_url(
+				'https://github.com:8443/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip'
+			)
+		);
+		$this->assertFalse(
+			$this->releases->is_allowed_package_url(
+				'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/%2E%2E/other.zip'
+			)
+		);
+		$this->assertFalse(
+			$this->releases->is_allowed_package_url(
+				'https://api.github.com/repos/TheAggressive/Aggressive-Apparel/zipball-redirect/v1.2.3'
 			)
 		);
 	}
@@ -185,25 +198,22 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	 * Release asset selection ignores checksum files and unrelated assets.
 	 */
 	public function test_release_asset_selection_prefers_theme_zip(): void {
-		$url = $this->invoke_private(
-			'get_release_asset_download_url',
-			array(
-				$this->release_data(
+		$url = $this->releases->get_release_asset_download_url(
+			$this->release_data(
+				array(
 					array(
-						array(
-							'name'                 => 'aggressive-apparel-1.2.3.zip.sha256',
-							'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip.sha256',
-						),
-						array(
-							'name'                 => 'notes.txt',
-							'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/notes.txt',
-						),
-						array(
-							'name'                 => 'aggressive-apparel-1.2.3.zip',
-							'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip',
-						),
+						'name'                 => 'aggressive-apparel-1.2.3.zip.sha256',
+						'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip.sha256',
 					),
-				),
+					array(
+						'name'                 => 'notes.txt',
+						'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/notes.txt',
+					),
+					array(
+						'name'                 => 'aggressive-apparel-1.2.3.zip',
+						'browser_download_url' => 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip',
+					),
+				)
 			)
 		);
 
@@ -220,22 +230,19 @@ class TestThemeUpdates extends WP_UnitTestCase {
 		$package_url  = 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip';
 		$checksum_url = 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip.sha256';
 
-		$url = $this->invoke_private(
-			'get_checksum_asset_url',
-			array(
-				$package_url,
-				$this->release_data(
+		$url = $this->packages->get_checksum_asset_url(
+			$package_url,
+			$this->release_data(
+				array(
 					array(
-						array(
-							'name'                 => 'aggressive-apparel-1.2.3.zip',
-							'browser_download_url' => $package_url,
-						),
-						array(
-							'name'                 => 'aggressive-apparel-1.2.3.zip.sha256',
-							'browser_download_url' => $checksum_url,
-						),
-					)
-				),
+						'name'                 => 'aggressive-apparel-1.2.3.zip',
+						'browser_download_url' => $package_url,
+					),
+					array(
+						'name'                 => 'aggressive-apparel-1.2.3.zip.sha256',
+						'browser_download_url' => $checksum_url,
+					),
+				)
 			)
 		);
 
@@ -246,8 +253,10 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	 * Checksum files are parsed in standard sha256sum format.
 	 */
 	public function test_fetch_checksum_parses_sha256sum_output(): void {
-		$checksum    = strtoupper( str_repeat( 'a', 64 ) );
-		$callback    = static function () use ( $checksum ) {
+		$package_url  = 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip';
+		$checksum_url = $package_url . '.sha256';
+		$checksum     = strtoupper( str_repeat( 'a', 64 ) );
+		$callback     = static function () use ( $checksum ) {
 			return array(
 				'headers'  => array(),
 				'body'     => $checksum . '  aggressive-apparel-1.2.3.zip',
@@ -262,14 +271,108 @@ class TestThemeUpdates extends WP_UnitTestCase {
 		add_filter( $remote_hook, $callback );
 
 		try {
-			$result = $this->invoke_private(
-				'fetch_checksum',
-				array( 'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip.sha256' )
+			$result = $this->packages->get_checksum(
+				$package_url,
+				$this->release_data(
+					array(
+						array(
+							'name'                 => 'aggressive-apparel-1.2.3.zip',
+							'browser_download_url' => $package_url,
+						),
+						array(
+							'name'                 => 'aggressive-apparel-1.2.3.zip.sha256',
+							'browser_download_url' => $checksum_url,
+						),
+					)
+				)
 			);
 
 			$this->assertSame( strtolower( $checksum ), $result );
 		} finally {
 			remove_filter( $remote_hook, $callback );
+		}
+	}
+
+	/**
+	 * Release selection ignores malformed, draft, and prerelease entries.
+	 */
+	public function test_release_repository_selects_highest_stable_semver(): void {
+		$releases = array(
+			null,
+			array(
+				'tag_name'  => 'v3.0.0',
+				'draft'     => true,
+				'prerelease' => false,
+			),
+			array(
+				'tag_name'  => 'v2.0.0',
+				'draft'     => false,
+				'prerelease' => true,
+			),
+			array(
+				'tag_name'  => 'not-semver',
+				'draft'     => false,
+				'prerelease' => false,
+			),
+			array(
+				'tag_name'  => 'v1.9.0',
+				'draft'     => false,
+				'prerelease' => false,
+			),
+			array(
+				'tag_name'  => '1.10.0',
+				'draft'     => false,
+				'prerelease' => false,
+			),
+		);
+		$callback = static function () use ( $releases ) {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( $releases ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+
+		add_filter( 'pre_http_request', $callback );
+
+		try {
+			$release = $this->releases->get_release_data();
+
+			$this->assertIsArray( $release );
+			$this->assertSame( 'v1.10.0', $release['tag_name'] );
+			$this->assertSame( '1.10.0', $this->releases->get_version() );
+		} finally {
+			remove_filter( 'pre_http_request', $callback );
+		}
+	}
+
+	/**
+	 * Stale release data remains available during a transient API failure.
+	 */
+	public function test_release_repository_uses_stale_cache_on_http_failure(): void {
+		$stale_release = $this->release_data();
+		set_transient(
+			'aggressive_apparel_theme_update_release',
+			array(
+				'release_data' => $stale_release,
+				'checked_at'   => time() - 301,
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$callback = static function () {
+			return new \WP_Error( 'github_unavailable', 'GitHub is unavailable.' );
+		};
+
+		add_filter( 'pre_http_request', $callback );
+
+		try {
+			$this->assertSame( $stale_release, $this->releases->get_release_data() );
+		} finally {
+			remove_filter( 'pre_http_request', $callback );
 		}
 	}
 

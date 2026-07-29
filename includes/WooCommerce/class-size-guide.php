@@ -589,7 +589,10 @@ class Size_Guide {
 	}
 
 	/**
-	 * Query all published size guide posts.
+	 * Query published size guides for the admin assignment selectors.
+	 *
+	 * Keep the result bounded so an unexpectedly large guide library cannot
+	 * create an unbounded query or admin response.
 	 *
 	 * @return \WP_Post[]
 	 */
@@ -598,7 +601,7 @@ class Size_Guide {
 			array(
 				'post_type'      => Size_Guide_Post_Type::POST_TYPE,
 				'post_status'    => 'publish',
-				'posts_per_page' => -1,
+				'posts_per_page' => 100,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
 			),

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-28T11:03:34+00:00\n"
+"POT-Creation-Date: 2026-07-29T00:29:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -724,21 +724,21 @@ msgstr ""
 msgid "Frosted Dark"
 msgstr ""
 
-#: includes/Core/class-theme-updates.php:360
+#: includes/Core/class-theme-update-package-verifier.php:76
 msgid "Aggressive Apparel update package is missing a SHA-256 checksum."
 msgstr ""
 
-#: includes/Core/class-theme-updates.php:379
+#: includes/Core/class-theme-update-package-verifier.php:95
 msgid "Aggressive Apparel update package checksum verification failed."
 msgstr ""
 
 #. translators: 1: theme name, 2: current version, 3: new version
-#: includes/Core/class-theme-updates.php:960
+#: includes/Core/class-theme-updates.php:463
 #, php-format
 msgid "A new version of %1$s is available. You have version %2$s and the latest version is %3$s."
 msgstr ""
 
-#: includes/Core/class-theme-updates.php:982
+#: includes/Core/class-theme-updates.php:485
 msgid "Update now"
 msgstr ""
 

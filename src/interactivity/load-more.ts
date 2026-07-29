@@ -665,18 +665,14 @@ function setupIntersectionObserver(): void {
 
   observer = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
-      if (
-        !entries[0]?.isIntersecting ||
-        state.isLoading ||
-        state.allLoaded ||
-        !state.nextCursor
-      ) {
-        return;
-      }
-      if (Date.now() - lastFetchAt < FETCH_COOLDOWN_MS) {
-        return;
-      }
-      loadNextPage();
+      if (!entries[0]?.isIntersecting) return;
+
+      // Use the shared continuation decision instead of duplicating a
+      // fail-open cooldown check here. When the sentinel enters the root margin
+      // during the cooldown it may remain intersecting indefinitely, so an
+      // immediate return would strand the catalog until the user scrolls away
+      // and back. The helper schedules a post-cooldown retry for that state.
+      continueInfiniteScrollIfNeeded();
     },
     { rootMargin: `${SENTINEL_ROOT_MARGIN_PX}px 0px` }
   );

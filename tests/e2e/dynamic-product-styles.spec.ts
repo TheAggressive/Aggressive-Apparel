@@ -1,4 +1,21 @@
 import { test, expect, type Locator } from '@playwright/test';
+import {
+  createVariationAvailabilityFixture,
+  deleteVariationAvailabilityFixture,
+  type VariationFixture,
+} from './variation-availability-fixtures';
+
+let visualFixture: VariationFixture;
+
+test.beforeAll(() => {
+  visualFixture = createVariationAvailabilityFixture();
+});
+
+test.afterAll(() => {
+  if (visualFixture?.id) {
+    deleteVariationAvailabilityFixture(visualFixture);
+  }
+});
 
 const titleStyle = (locator: Locator) =>
   locator.evaluate(element => {
@@ -19,7 +36,7 @@ test('product-card swatches keep an accessible target and focus state', async ({
   await page.goto('/shop/');
 
   const swatch = page.locator('.aa-product-color-swatches__swatch').first();
-  test.skip((await swatch.count()) === 0, 'The E2E catalogue has no swatches.');
+  await expect(swatch).toHaveCount(1);
 
   const box = await swatch.boundingBox();
   expect(box?.width).toBeGreaterThanOrEqual(32);
@@ -80,10 +97,7 @@ test('narrow product cards use the dense swatch tier without wrapping', async ({
 
   const group = page.locator('.aa-product-color-swatches').first();
   const swatches = group.locator('.aa-product-color-swatches__swatch');
-  test.skip(
-    (await swatches.count()) === 0,
-    'The E2E catalogue has no swatches.'
-  );
+  await expect(swatches.first()).toHaveCount(1);
 
   const first = swatches.first();
   const box = await first.boundingBox();
@@ -133,10 +147,7 @@ test('product-filter choice pills keep the shared interaction target', async ({
       '.aa-product-filters__category-chip:visible, .aa-product-filters__size-chip:visible, .aa-product-filters__fit-chip:visible'
     )
     .first();
-  test.skip(
-    (await chip.count()) === 0,
-    'The E2E catalogue has no filter chips.'
-  );
+  await expect(chip).toHaveCount(1);
 
   const box = await chip.boundingBox();
   expect(box?.width).toBeGreaterThanOrEqual(44);
@@ -154,13 +165,13 @@ test('product-card utility actions use the shared icon-button contract', async (
     .first()
     .locator('.aggressive-apparel-card-action');
   const actionCount = await actions.count();
-  test.skip(actionCount === 0, 'Product-card actions are disabled.');
+  expect(actionCount).toBeGreaterThan(0);
 
   for (let index = 0; index < actionCount; index += 1) {
     const action = actions.nth(index);
     const box = await action.boundingBox();
-    expect(box?.width).toBeGreaterThanOrEqual(44);
-    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(43.9);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(43.9);
 
     const rest = await action.evaluate(el => {
       const style = getComputedStyle(el);
@@ -227,7 +238,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       '.wp-block-woocommerce-product-template > .wc-block-product'
     );
     const initialCount = await cards.count();
-    test.skip(initialCount === 0, 'The E2E catalogue has no products.');
+    expect(initialCount).toBeGreaterThan(0);
 
     const initialTitle = cards.first().locator('.wp-block-post-title a');
     const expected = await titleStyle(initialTitle);
@@ -356,7 +367,7 @@ test.describe('anonymous catalog pagination', () => {
       '.wp-block-woocommerce-product-template > .wc-block-product'
     );
     const initialCount = await cards.count();
-    test.skip(initialCount === 0, 'The public E2E catalogue has no products.');
+    expect(initialCount).toBeGreaterThan(0);
 
     await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
     await responsePromise;

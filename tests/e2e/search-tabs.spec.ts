@@ -6,10 +6,7 @@ test('search scope tabs mirror the variation-pill interaction', async ({
   await page.goto('/');
 
   const trigger = page.locator('.aa-search-trigger').first();
-  test.skip(
-    (await trigger.count()) === 0,
-    'The search trigger is unavailable.'
-  );
+  await expect(trigger).toHaveCount(1);
 
   await trigger.click();
 

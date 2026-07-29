@@ -8,11 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
-  security-events: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,7 +16,7 @@ concurrency:
 
 env:
   THEME_SLUG: Aggressive-Apparel
-  NODE_VERSION: '25'
+  NODE_VERSION: '24'
   PHP_VERSION: '8.2'
 
 jobs:
@@ -530,10 +526,12 @@ jobs:
         run: |
           FORBIDDEN_PATTERNS=(
             'lighthouserc\.cjs'
+            '/tests/'
             '/docs/'
             '/stubs/'
             '/types/'
             '/vendor/'
+            '/\.wp-env\.json$'
             'playwright\.config\.ts'
             'pnpm-workspace\.yaml'
             # Root-anchored: the packaging step rm's a stray root-level

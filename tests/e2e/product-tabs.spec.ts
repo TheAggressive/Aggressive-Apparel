@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 import {
   createProductTabsFixture,
+  assertProductTabsFixtureReady,
   productTabsFixtureUrl,
   deleteProductTabsFixture,
-  installStyleForcer,
-  uninstallStyleForcer,
-  clearGlobalTabsOption,
+  isolateGlobalTabsOption,
+  restoreGlobalTabsOption,
 } from './product-tabs-fixtures';
 
 /**
@@ -20,21 +20,29 @@ import {
 test.describe('Product tabs — front end', () => {
   let productId = 0;
   let productUrl = '';
+  let tabsOptionIsolated = false;
 
-  test.beforeAll(() => {
-    installStyleForcer();
+  test.beforeAll(async () => {
     // Run with the global option absent: the block's explicit style must still
     // be passed directly to the renderer (regression guard).
-    clearGlobalTabsOption();
+    isolateGlobalTabsOption();
+    tabsOptionIsolated = true;
     const fixture = createProductTabsFixture();
     productId = fixture.id;
     productUrl = fixture.url;
+    await assertProductTabsFixtureReady(productUrl);
   });
 
   test.afterAll(() => {
-    deleteProductTabsFixture(productId);
-    uninstallStyleForcer();
-    productId = 0;
+    try {
+      deleteProductTabsFixture(productId);
+      productId = 0;
+    } finally {
+      if (tabsOptionIsolated) {
+        restoreGlobalTabsOption();
+        tabsOptionIsolated = false;
+      }
+    }
   });
 
   test("block's explicit style is honored when the global option is absent", async ({

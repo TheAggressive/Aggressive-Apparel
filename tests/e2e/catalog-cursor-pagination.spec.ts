@@ -14,7 +14,7 @@ test.describe('catalog cursor pagination', () => {
       '.wp-block-woocommerce-product-template > .wc-block-product'
     );
     const initialCount = await cards.count();
-    test.skip(initialCount === 0, 'The E2E catalogue has no products.');
+    expect(initialCount).toBeGreaterThan(0);
 
     const responsePromise = page.waitForResponse(response => {
       const url = new URL(response.url());
@@ -88,10 +88,7 @@ test.describe('catalog cursor pagination', () => {
     await page.goto('/shop/');
 
     const select = page.locator('select[name="orderby"]').first();
-    test.skip(
-      (await select.count()) === 0,
-      'Catalog sorting UI is unavailable.'
-    );
+    await expect(select).toBeVisible();
 
     await Promise.all([
       page.waitForURL(/orderby=price/, { timeout: 15_000 }).catch(() => null),
@@ -175,7 +172,7 @@ test.describe('anonymous catalog cursor pagination', () => {
       '.wp-block-woocommerce-product-template > .wc-block-product'
     );
     const initialCount = await cards.count();
-    test.skip(initialCount === 0, 'The public E2E catalogue has no products.');
+    expect(initialCount).toBeGreaterThan(0);
 
     await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
     const response = await responsePromise;
@@ -247,6 +244,17 @@ test.describe('anonymous catalog cursor pagination', () => {
 
       const beforeLoaded = match ? Number(match[1]) : initialCount;
 
+      // Force a real non-intersecting → intersecting transition. Repeated
+      // scrollIntoViewIfNeeded() calls can be no-ops while the sentinel remains
+      // inside IntersectionObserver's root margin, making the driver depend on
+      // browser scheduling instead of user-equivalent scroll movement.
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          })
+      );
       await sentinel.scrollIntoViewIfNeeded();
 
       // Poll the rendered count rather than awaiting a specific response. The
@@ -261,7 +269,10 @@ test.describe('anonymous catalog cursor pagination', () => {
             const m = current.match(/Showing\s+(\d+)\s+of\s+(\d+)/i);
             return m ? Number(m[1]) : 0;
           },
-          { timeout: 15_000 }
+          {
+            timeout: 15_000,
+            message: `Expected infinite scroll to advance beyond ${beforeLoaded} products`,
+          }
         )
         .toBeGreaterThan(beforeLoaded);
     }

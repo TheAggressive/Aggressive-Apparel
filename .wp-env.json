@@ -1,5 +1,5 @@
 {
-  "core": "WordPress/WordPress",
+  "core": "https://wordpress.org/wordpress-7.0.2.zip",
   "phpVersion": "8.3",
   "themes": ["."],
   "plugins": [],
@@ -15,7 +15,8 @@
     "development": {
       "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"],
       "mappings": {
-        "wp-content/mu-plugins/wp-env-cron-loopback.php": "./bin/wp-env/cron-loopback.php"
+        "wp-content/mu-plugins/wp-env-cron-loopback.php": "./bin/wp-env/cron-loopback.php",
+        "wp-content/mu-plugins/e2e-product-tabs-style.php": "./tests/e2e/fixtures/product-tabs-style.php"
       }
     },
     "tests": {

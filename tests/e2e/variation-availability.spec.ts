@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import {
-  ensureVariationAvailabilityFixtures,
+  createVariationAvailabilityFixture,
+  deleteVariationAvailabilityFixture,
   type VariationFixture,
 } from './variation-availability-fixtures';
 
@@ -19,21 +20,29 @@ import {
  * Fixture: Red $12 (in stock), Blue $15 (in stock), Green $14 (OUT OF STOCK).
  */
 
-let fixture: VariationFixture = { id: 0, permalink: '' };
+let fixture: VariationFixture = {
+  id: 0,
+  permalink: '',
+  createdTermIds: [],
+  createdCategoryId: 0,
+};
 
 test.beforeAll(() => {
-  fixture = ensureVariationAvailabilityFixtures();
+  fixture = createVariationAvailabilityFixture();
+});
+
+test.afterAll(() => {
+  if (fixture.id) {
+    deleteVariationAvailabilityFixture(fixture);
+  }
 });
 
 test.describe('sticky cart — variation availability', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('renders the compact variable-product purchase row on mobile', async ({
     page,
   }) => {
-    test.skip(
-      !fixture.id || !fixture.permalink,
-      'variation-availability fixture unavailable'
-    );
-
     await page.setViewportSize({ width: 320, height: 720 });
     await page.goto(fixture.permalink);
 
@@ -91,11 +100,7 @@ test.describe('sticky cart — variation availability', () => {
   test('dims the sold-out colour while keeping it accessible', async ({
     page,
   }) => {
-    test.skip(
-      !fixture.id || !fixture.permalink,
-      'variation-availability fixture unavailable'
-    );
-
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(fixture.permalink);
     // Scroll the add-to-cart form out of view so the sticky bar reveals.
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

@@ -31,57 +31,43 @@ function ensureInfiniteScrollMode(): void {
   wpCli(['option', 'update', LOAD_MORE_MODE_OPTION, 'infinite_scroll']);
 }
 
-function createSimpleProduct(index: number): void {
-  const name = `E2E Catalog Product ${index}`;
-  const price = (10 + (index % 50)).toFixed(2);
-  try {
-    wpCli([
-      'wc',
-      'product',
-      'create',
-      '--user=1',
-      `--name=${name}`,
-      `--regular_price=${price}`,
-      '--status=publish',
-      '--porcelain',
-    ]);
-    return;
-  } catch {
-    // WC CLI may be unavailable; create via eval so lookup/meta exist.
-  }
-
+function createSimpleProducts(startIndex: number, count: number): void {
   wpCli([
     'eval',
-    `if (!function_exists('wc_get_product')) { echo 0; return; }
-$p = new WC_Product_Simple();
-$p->set_name(${JSON.stringify(name)});
-$p->set_regular_price('${price}');
-$p->set_status('publish');
-$p->set_catalog_visibility('visible');
-echo $p->save();`,
+    `if (!function_exists('wc_get_product')) {
+	throw new RuntimeException('WooCommerce product APIs are unavailable.');
+}
+
+for ($offset = 0; $offset < ${count}; $offset++) {
+	$index = ${startIndex} + $offset;
+	$product = new WC_Product_Simple();
+	$product->set_name('E2E Catalog Product ' . $index);
+	$product->set_regular_price((string) (10 + ($index % 50)));
+	$product->set_status('publish');
+	$product->set_catalog_visibility('visible');
+	$product->save();
+}`,
   ]);
 }
 
 function ensureProductFloor(): void {
-  let count = publishedProductCount();
-  let guard = 0;
-  while (count < MIN_PRODUCTS && guard < MIN_PRODUCTS) {
-    createSimpleProduct(count + guard + 1);
-    guard += 1;
-    count = publishedProductCount();
+  const count = publishedProductCount();
+  if (count >= MIN_PRODUCTS) {
+    return;
+  }
+
+  createSimpleProducts(count + 1, MIN_PRODUCTS - count);
+
+  const finalCount = publishedProductCount();
+  if (finalCount < MIN_PRODUCTS) {
+    throw new Error(
+      `Expected at least ${MIN_PRODUCTS} published products, found ${finalCount}.`
+    );
   }
 }
 
 /** Idempotent catalogue floor for cursor-pagination e2e. */
 export function ensureCatalogCursorFixtures(): void {
-  try {
-    ensureInfiniteScrollMode();
-    ensureProductFloor();
-  } catch (error) {
-    // Keep auth setup succeeding when wp-env is mid-boot; specs still soft-skip.
-    console.warn(
-      '[e2e] catalog fixtures skipped:',
-      error instanceof Error ? error.message : error
-    );
-  }
+  ensureInfiniteScrollMode();
+  ensureProductFloor();
 }

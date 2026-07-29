@@ -1,6 +1,39 @@
 import { chromium, type FullConfig } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { ensureCatalogCursorFixtures } from './catalog-fixtures';
+import { wpCli } from './wp-cli';
+
+interface ThemeRecord {
+  name: string;
+  status: string;
+}
+
+/** Activate the mounted project theme in a fresh wp-env installation. */
+function ensureProjectThemeActive(): void {
+  const themes = JSON.parse(
+    wpCli(['theme', 'list', '--format=json'])
+  ) as ThemeRecord[];
+  const projectTheme = themes.find(
+    theme => theme.name.toLowerCase() === 'aggressive-apparel'
+  );
+
+  if (!projectTheme) {
+    throw new Error(
+      'Aggressive Apparel is not installed in the Playwright wp-env site.'
+    );
+  }
+
+  if (projectTheme.status !== 'active') {
+    wpCli(['theme', 'activate', projectTheme.name]);
+  }
+
+  const activeStylesheet = wpCli(['option', 'get', 'stylesheet']);
+  if (activeStylesheet !== projectTheme.name) {
+    throw new Error(
+      `Expected ${projectTheme.name} to be active, found ${activeStylesheet}.`
+    );
+  }
+}
 
 /**
  * Log in as admin once and persist the session so specs start authenticated
@@ -13,6 +46,7 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
 
   mkdirSync('tests/e2e/.auth', { recursive: true });
 
+  ensureProjectThemeActive();
   ensureCatalogCursorFixtures();
 
   const browser = await chromium.launch();

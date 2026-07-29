@@ -16,6 +16,7 @@ export default defineConfig({
   workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  maxFailures: process.env.CI ? 3 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : [['list']],
   globalSetup: './tests/e2e/global-setup.ts',
   use: {

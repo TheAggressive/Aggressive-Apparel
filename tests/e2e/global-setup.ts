@@ -1,4 +1,4 @@
-import { chromium, type FullConfig } from '@playwright/test';
+import { chromium, type FullConfig, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { ensureCatalogCursorFixtures } from './catalog-fixtures';
 import { wpCli } from './wp-cli';
@@ -36,6 +36,45 @@ function ensureProjectThemeActive(): void {
 }
 
 /**
+ * Verify the public storefront through the same HTTP/browser boundary used by
+ * the specs. WP-CLI checks alone cannot detect a missing Apache rewrite.
+ */
+async function ensurePublicCatalogReady(
+  page: Page,
+  base: string,
+  shopPageId: number
+): Promise<void> {
+  const shopUrl = new URL('/shop/', base).toString();
+  const response = await page.goto(shopUrl, {
+    waitUntil: 'domcontentloaded',
+  });
+
+  if (!response) {
+    throw new Error(`The E2E Shop page did not return a response: ${shopUrl}`);
+  }
+
+  if (!response.ok()) {
+    throw new Error(
+      `The E2E Shop page (ID ${shopPageId}) returned HTTP ${response.status()}: ${shopUrl}`
+    );
+  }
+
+  const productCard = page
+    .locator('.wp-block-woocommerce-product-template > .wc-block-product')
+    .first();
+  const sentinel = page.locator('.aa-load-more__sentinel');
+
+  try {
+    await productCard.waitFor({ state: 'attached', timeout: 15_000 });
+    await sentinel.waitFor({ state: 'attached', timeout: 15_000 });
+  } catch {
+    throw new Error(
+      `The public E2E Shop page is missing its product cards or infinite-scroll sentinel: ${shopUrl}`
+    );
+  }
+}
+
+/**
  * Log in as admin once and persist the session so specs start authenticated
  * for editor coverage. Catalog fixtures explicitly launch the isolated store so
  * anonymous storefront specs exercise the same public routes as production.
@@ -48,14 +87,18 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
   mkdirSync('tests/e2e/.auth', { recursive: true });
 
   ensureProjectThemeActive();
-  ensureCatalogCursorFixtures();
+  const { shopPageId } = ensureCatalogCursorFixtures();
 
   const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto(`${base}/wp-login.php`);
-  await page.fill('#user_login', user);
-  await page.fill('#user_pass', pass);
-  await Promise.all([page.waitForNavigation(), page.click('#wp-submit')]);
-  await page.context().storageState({ path: 'tests/e2e/.auth/admin.json' });
-  await browser.close();
+  try {
+    const page = await browser.newPage();
+    await ensurePublicCatalogReady(page, base, shopPageId);
+    await page.goto(`${base}/wp-login.php`);
+    await page.fill('#user_login', user);
+    await page.fill('#user_pass', pass);
+    await Promise.all([page.waitForNavigation(), page.click('#wp-submit')]);
+    await page.context().storageState({ path: 'tests/e2e/.auth/admin.json' });
+  } finally {
+    await browser.close();
+  }
 }

@@ -11,6 +11,11 @@ import { wpCli } from './wp-cli';
 const MIN_PRODUCTS = 24;
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 const COMING_SOON_OPTION = 'woocommerce_coming_soon';
+const PRETTY_PERMALINK_STRUCTURE = '/%postname%/';
+
+export interface CatalogCursorFixtures {
+  shopPageId: number;
+}
 
 function publishedProductCount(): number {
   try {
@@ -41,6 +46,58 @@ function ensurePublicStore(): void {
       `Expected the E2E WooCommerce store to be public, found ${comingSoon}.`
     );
   }
+}
+
+/**
+ * Provision the WooCommerce archive and its rewrite contract.
+ *
+ * Persistent local wp-env installations normally already contain both, while a
+ * fresh CI database may have neither. In that state Apache handles `/shop/`
+ * directly and returns a raw 404 before WordPress or the theme can run.
+ */
+function ensureStorefrontInfrastructure(): number {
+  const shopPageId = Number.parseInt(
+    wpCli([
+      'eval',
+      `if (!class_exists('WC_Install')) {
+	throw new RuntimeException('WooCommerce installation APIs are unavailable.');
+}
+
+WC_Install::create_pages();
+
+$shop_page_id = wc_get_page_id('shop');
+$shop_page    = $shop_page_id > 0 ? get_post($shop_page_id) : null;
+
+if (
+	!$shop_page instanceof WP_Post
+	|| 'page' !== $shop_page->post_type
+	|| 'publish' !== $shop_page->post_status
+	|| 'shop' !== $shop_page->post_name
+) {
+	throw new RuntimeException('WooCommerce did not provision a published /shop/ page.');
+}
+
+echo (string) $shop_page_id;`,
+    ]),
+    10
+  );
+
+  if (!Number.isInteger(shopPageId) || shopPageId <= 0) {
+    throw new Error(
+      `Expected a valid WooCommerce Shop page ID, found ${shopPageId}.`
+    );
+  }
+
+  wpCli(['rewrite', 'structure', PRETTY_PERMALINK_STRUCTURE, '--hard']);
+
+  const permalinkStructure = wpCli(['option', 'get', 'permalink_structure']);
+  if (permalinkStructure !== PRETTY_PERMALINK_STRUCTURE) {
+    throw new Error(
+      `Expected E2E permalinks to use ${PRETTY_PERMALINK_STRUCTURE}, found ${permalinkStructure}.`
+    );
+  }
+
+  return shopPageId;
 }
 
 function createSimpleProducts(startIndex: number, count: number): void {
@@ -79,8 +136,11 @@ function ensureProductFloor(): void {
 }
 
 /** Idempotent catalogue floor for cursor-pagination e2e. */
-export function ensureCatalogCursorFixtures(): void {
+export function ensureCatalogCursorFixtures(): CatalogCursorFixtures {
   ensurePublicStore();
+  const shopPageId = ensureStorefrontInfrastructure();
   ensureInfiniteScrollMode();
   ensureProductFloor();
+
+  return { shopPageId };
 }

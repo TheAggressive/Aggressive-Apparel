@@ -9,6 +9,7 @@ import { wpCli } from './wp-cli';
  */
 
 const MIN_PRODUCTS = 24;
+const FEATURE_OPTION = 'aggressive_apparel_wc_features';
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 const COMING_SOON_OPTION = 'woocommerce_coming_soon';
 const PRETTY_PERMALINK_STRUCTURE = '/%postname%/';
@@ -34,7 +35,35 @@ function publishedProductCount(): number {
 }
 
 function ensureInfiniteScrollMode(): void {
-  wpCli(['option', 'update', LOAD_MORE_MODE_OPTION, 'infinite_scroll']);
+  const state = JSON.parse(
+    wpCli([
+      'eval',
+      `$features = get_option('${FEATURE_OPTION}', array());
+if (!is_array($features)) {
+	$features = array();
+}
+
+$features['load_more'] = 1;
+update_option('${FEATURE_OPTION}', $features, false);
+update_option('${LOAD_MORE_MODE_OPTION}', 'infinite_scroll', false);
+
+echo wp_json_encode(
+	array(
+		'loadMoreEnabled' => !empty(get_option('${FEATURE_OPTION}', array())['load_more']),
+		'mode'            => get_option('${LOAD_MORE_MODE_OPTION}'),
+	)
+);`,
+    ])
+  ) as {
+    loadMoreEnabled?: boolean;
+    mode?: string;
+  };
+
+  if (state.loadMoreEnabled !== true || state.mode !== 'infinite_scroll') {
+    throw new Error(
+      `Expected the E2E Load More feature to use infinite_scroll, found ${JSON.stringify(state)}.`
+    );
+  }
 }
 
 function ensurePublicStore(): void {

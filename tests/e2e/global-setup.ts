@@ -66,10 +66,17 @@ async function ensurePublicCatalogReady(
 
   try {
     await productCard.waitFor({ state: 'attached', timeout: 15_000 });
+  } catch {
+    throw new Error(
+      `The public E2E Shop page is missing product cards: ${shopUrl}`
+    );
+  }
+
+  try {
     await sentinel.waitFor({ state: 'attached', timeout: 15_000 });
   } catch {
     throw new Error(
-      `The public E2E Shop page is missing its product cards or infinite-scroll sentinel: ${shopUrl}`
+      `The public E2E Shop page is missing its infinite-scroll sentinel; verify the load_more fixture flag: ${shopUrl}`
     );
   }
 }

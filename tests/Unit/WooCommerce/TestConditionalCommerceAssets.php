@@ -185,6 +185,47 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Load More markup carries a request-scoped seed for router navigation.
+	 *
+	 * @return void
+	 */
+	public function test_load_more_markup_embeds_pagination_context(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Pagination context product',
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+			)
+		);
+
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		$html = ( new Load_More() )->replace_pagination(
+			'<nav>Next page</nav>',
+			array( 'blockName' => 'core/query-pagination' )
+		);
+
+		$matched = preg_match( "/data-wp-context='([^']+)'/", $html, $matches );
+		$this->assertSame( 1, $matched );
+		$context = json_decode(
+			html_entity_decode( $matches[1] ?? '', ENT_QUOTES | ENT_HTML5 ),
+			true
+		);
+
+		$this->assertIsArray( $context );
+		$this->assertSame( 1, $context['currentPage'] );
+		$this->assertNotSame( '', $context['orderby'] );
+		$this->assertArrayHasKey( 'nextCursor', $context );
+		$this->assertArrayHasKey( 'restBase', $context );
+	}
+
+	/**
 	 * Shop archives should load the product-filters bundle when the feature is on.
 	 *
 	 * @return void

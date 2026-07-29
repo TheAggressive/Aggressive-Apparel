@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-29T00:29:39+00:00\n"
+"POT-Creation-Date: 2026-07-29T05:31:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2155,22 +2155,22 @@ msgstr ""
 msgid "Unable to load product results."
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:215
+#: includes/WooCommerce/class-load-more.php:205
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:216
+#: includes/WooCommerce/class-load-more.php:206
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:218
+#: includes/WooCommerce/class-load-more.php:208
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:220
+#: includes/WooCommerce/class-load-more.php:210
 #, php-format
 msgid "%d more products loaded."
 msgstr ""

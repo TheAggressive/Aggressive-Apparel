@@ -220,7 +220,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
   test(`load-more cards retain computed title styles in ${colorScheme} mode`, async ({
     page,
   }) => {
-    await page.emulateMedia({ colorScheme });
+    await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
     await page.goto('/shop/');
 
     const cards = page.locator(
@@ -232,12 +232,21 @@ for (const colorScheme of ['light', 'dark'] as const) {
     const initialTitle = cards.first().locator('.wp-block-post-title a');
     const expected = await titleStyle(initialTitle);
 
-    const button = page.locator('.aa-load-more__btn:visible');
-    if (await button.count()) {
-      await button.click();
-    } else {
-      await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
-    }
+    const renderedResponse = page.waitForResponse(response => {
+      const url = new URL(response.url());
+      return (
+        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
+        url.searchParams.has('cursor') &&
+        response.status() === 200
+      );
+    });
+    const button = page.locator('.aa-load-more__btn');
+    await expect(button).toBeVisible();
+    await button.click();
+    const response = await renderedResponse;
+    const body = (await response.json()) as {
+      styles?: Array<{ id?: string; css?: string }>;
+    };
 
     await expect
       .poll(() => cards.count(), { timeout: 15_000 })
@@ -257,21 +266,27 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await expect(appended).toBeVisible();
     expect(await titleStyle(appended)).toEqual(expected);
 
-    const dynamicStyle = page.locator('style[data-dynamic-style-id]');
-    await expect(dynamicStyle).toHaveCount(1);
-    await expect(dynamicStyle).toHaveAttribute(
-      'data-dynamic-style-id',
-      /^[a-f0-9]{64}$/
-    );
-    expect(await dynamicStyle.evaluate(style => style.textContent)).toMatch(
-      /wp-elements-/
-    );
+    const styles = body.styles ?? [];
+    expect(styles.length).toBeGreaterThan(0);
+    const styleIds = styles.map(asset => asset.id);
+    expect(styleIds.every(id => /^[a-f0-9]{64}$/.test(id ?? ''))).toBe(true);
+    expect(new Set(styleIds).size).toBe(styleIds.length);
+
+    for (const asset of styles) {
+      const dynamicStyle = page.locator(
+        `style[data-dynamic-style-id="${asset.id}"]`
+      );
+      await expect(dynamicStyle).toHaveCount(1);
+      expect(await dynamicStyle.textContent()).toBe(asset.css);
+      expect(asset.css).toMatch(/wp-elements-/);
+    }
   });
 }
 
 test('catalog sorting resets paging and appends unique products', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/shop/');
 
   const select = page.locator('select[name="orderby"]').first();
@@ -299,12 +314,9 @@ test('catalog sorting resets paging and appends unique products', async ({
     );
   });
 
-  const button = page.locator('.aa-load-more__btn:visible');
-  if (await button.count()) {
-    await button.click();
-  } else {
-    await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
-  }
+  const button = page.locator('.aa-load-more__btn');
+  await expect(button).toBeVisible();
+  await button.click();
   await nextPage;
 
   await expect

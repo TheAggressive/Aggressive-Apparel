@@ -47,6 +47,13 @@ class Load_More {
 	private Catalog_Pagination_Seed $seed;
 
 	/**
+	 * Request-scoped pagination state shared by global state and local context.
+	 *
+	 * @var array<string, bool|int|string>|null
+	 */
+	private ?array $runtime_seed = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ?Catalog_Pagination_Seed $seed Optional seeder (tests / DI).
@@ -123,9 +130,12 @@ class Load_More {
 		// archive query for explicit/non-inherited collections.
 		$this->has_more = '' !== trim( $block_content );
 
-		$mode = Feature_Settings::get_load_more_mode();
-
-		$load_more_html = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center" data-wp-interactive="aggressive-apparel/load-more" data-wp-init="callbacks.init">';
+		$mode            = Feature_Settings::get_load_more_mode();
+		$context         = wp_json_encode( $this->get_runtime_seed() );
+		$load_more_html  = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center"';
+		$load_more_html .= ' data-wp-interactive="aggressive-apparel/load-more"';
+		$load_more_html .= ' data-wp-context=\'' . esc_attr( (string) $context ) . '\'';
+		$load_more_html .= ' data-wp-init="callbacks.init">';
 
 		// Status text.
 		$load_more_html .= '<div class="aa-load-more__status">';
@@ -185,6 +195,38 @@ class Load_More {
 			return;
 		}
 
+		wp_interactivity_state(
+			'aggressive-apparel/load-more',
+			array_merge(
+				$this->get_runtime_seed(),
+				array(
+					'isLoading'     => false,
+					'announcement'  => '',
+					'loadingText'   => __( 'Loading more products…', 'aggressive-apparel' ),
+					'errorText'     => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
+					/* translators: 1: number loaded so far, 2: total products. */
+					'statusFormat'  => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
+					/* translators: %d: number of products just loaded. */
+					'loadedFormat'  => __( '%d more products loaded.', 'aggressive-apparel' ),
+					'filtersActive' => false,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Build immutable pagination seed data for this rendered archive.
+	 *
+	 * The same values are emitted as local Interactivity API context so a
+	 * client-side router navigation can replace stale module-level state.
+	 *
+	 * @return array<string, bool|int|string> Pagination runtime seed.
+	 */
+	private function get_runtime_seed(): array {
+		if ( null !== $this->runtime_seed ) {
+			return $this->runtime_seed;
+		}
+
 		$term_archive = Product_Context::get_current_product_term_archive();
 		$seed         = $this->seed->for_request(
 			Product_Context::get_current_template_slug(),
@@ -193,36 +235,25 @@ class Load_More {
 			$this->has_more
 		);
 
-		wp_interactivity_state(
-			'aggressive-apparel/load-more',
-			array(
-				'mode'            => Feature_Settings::get_load_more_mode(),
-				'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
-				// REST nonce so logged-in admins/shop managers stay authenticated
-				// for the rendered-products endpoint during "coming soon" mode.
-				'restNonce'       => wp_create_nonce( 'wp_rest' ),
-				'templateSlug'    => $seed['templateSlug'],
-				'perPage'         => $seed['perPage'],
-				'currentPage'     => 1,
-				'totalPages'      => $seed['totalPages'],
-				'totalProducts'   => $seed['totalProducts'],
-				'loadedCount'     => $seed['loadedCount'],
-				'isLoading'       => false,
-				'allLoaded'       => $seed['allLoaded'],
-				'nextCursor'      => $seed['nextCursor'],
-				'orderby'         => $seed['orderby'],
-				'announcement'    => '',
-				'loadingText'     => __( 'Loading more products…', 'aggressive-apparel' ),
-				'errorText'       => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
-				/* translators: 1: number loaded so far, 2: total products. */
-				'statusFormat'    => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
-				/* translators: %d: number of products just loaded. */
-				'loadedFormat'    => __( '%d more products loaded.', 'aggressive-apparel' ),
-				'currentTaxonomy' => $term_archive['taxonomy'],
-				'currentTerm'     => $term_archive['term'],
-				'filtersActive'   => false,
-			)
+		$this->runtime_seed = array(
+			'mode'            => Feature_Settings::get_load_more_mode(),
+			'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
+			// Keep authenticated catalog continuations valid in coming-soon mode.
+			'restNonce'       => wp_create_nonce( 'wp_rest' ),
+			'templateSlug'    => $seed['templateSlug'],
+			'perPage'         => $seed['perPage'],
+			'currentPage'     => 1,
+			'totalPages'      => $seed['totalPages'],
+			'totalProducts'   => $seed['totalProducts'],
+			'loadedCount'     => $seed['loadedCount'],
+			'allLoaded'       => $seed['allLoaded'],
+			'nextCursor'      => $seed['nextCursor'],
+			'orderby'         => $seed['orderby'],
+			'currentTaxonomy' => $term_archive['taxonomy'],
+			'currentTerm'     => $term_archive['term'],
 		);
+
+		return $this->runtime_seed;
 	}
 
 	/**

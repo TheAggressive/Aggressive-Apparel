@@ -82,6 +82,9 @@ test.describe('catalog cursor pagination', () => {
   test('sorting resets and subsequent load more uses a fresh cursor', async ({
     page,
   }) => {
+    // Keep pagination manual so the continuation listener is registered before
+    // the request; infinite-scroll behavior has dedicated coverage below.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/shop/');
 
     const select = page.locator('select[name="orderby"]').first();
@@ -95,6 +98,22 @@ test.describe('catalog cursor pagination', () => {
       select.selectOption('price'),
     ]);
     await page.waitForLoadState('domcontentloaded');
+
+    const loadMore = page.locator(
+      '[data-wp-interactive="aggressive-apparel/load-more"]'
+    );
+    await expect
+      .poll(async () => {
+        const raw = await loadMore.getAttribute('data-wp-context');
+        return raw
+          ? (JSON.parse(raw) as { orderby?: string }).orderby
+          : undefined;
+      })
+      .toBe('price');
+    const sortedSeed = JSON.parse(
+      (await loadMore.getAttribute('data-wp-context')) || '{}'
+    ) as { nextCursor?: string; orderby?: string };
+    expect(sortedSeed.nextCursor).toBeTruthy();
 
     const cards = page.locator(
       '.wp-block-woocommerce-product-template > .wc-block-product'
@@ -112,15 +131,14 @@ test.describe('catalog cursor pagination', () => {
       );
     });
 
-    const button = page.locator('.aa-load-more__btn:visible');
-    if (await button.count()) {
-      await button.click();
-    } else {
-      await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
-    }
+    const button = page.locator('.aa-load-more__btn');
+    await expect(button).toBeVisible();
+    await button.click();
 
     const response = await nextPage;
-    expect(new URL(response.url()).searchParams.get('cursor')).toBeTruthy();
+    expect(new URL(response.url()).searchParams.get('cursor')).toBe(
+      sortedSeed.nextCursor
+    );
 
     await expect
       .poll(() => cards.count(), { timeout: 15_000 })

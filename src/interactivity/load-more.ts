@@ -14,7 +14,7 @@ import type {
   InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
-import { store } from '@wordpress/interactivity';
+import { getContext, getElement, store } from '@wordpress/interactivity';
 import {
   clearProductGridSpacer,
   installBlockSupportStyles,
@@ -29,9 +29,10 @@ import {
   SENTINEL_ROOT_MARGIN_PX,
   shouldContinueInfiniteScroll,
 } from './load-more-continue';
+import { applyLoadMoreSeed, type LoadMoreSeed } from './load-more-seed';
 
 interface LoadMoreState {
-  mode: string;
+  mode: LoadMoreSeed['mode'];
   allLoaded: boolean;
   isLoading: boolean;
   totalProducts: number;
@@ -91,12 +92,15 @@ const prefetchCache = new Map<string, RenderedEntry>();
 /** In-flight prefetch promise so loadSsrPage can adopt it instead of double-fetching. */
 let inflightPrefetch: {
   cursor: string;
+  generation: number;
   promise: Promise<RenderedEntry | null>;
 } | null = null;
 
 let observer: IntersectionObserver | null = null;
 let lastFetchAt = 0;
 let prefetchArmed = false;
+let prefetchScrollBound = false;
+let paginationGeneration = 0;
 
 /** Elements that have already run callbacks.init (soft-nav safe). */
 const initializedRoots = new WeakSet<Element>();
@@ -141,12 +145,11 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   callbacks: {
     init(): void {
-      const root = document.querySelector(
-        '[data-wp-interactive="aggressive-apparel/load-more"]'
-      );
-      if (root && initializedRoots.has(root)) return;
-      if (root) initializedRoots.add(root);
+      const root = getElement().ref;
+      if (!(root instanceof Element) || initializedRoots.has(root)) return;
+      initializedRoots.add(root);
 
+      resetPaginationRuntime(getContext<Partial<LoadMoreSeed>>());
       synchronizeInitialGridState();
 
       if (state.mode === 'infinite_scroll') {
@@ -170,6 +173,39 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
     },
   },
 });
+
+/**
+ * Replace long-lived store state with the seed attached to this rendered root.
+ *
+ * Router navigation preserves the JS module but replaces the archive markup.
+ * Invalidating all asynchronous work here prevents an earlier cursor response
+ * from mutating the newly rendered catalog.
+ */
+function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
+  paginationGeneration += 1;
+
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+  if (prefetchController) {
+    prefetchController.abort();
+    prefetchController = null;
+  }
+  observer?.disconnect();
+  observer = null;
+  prefetchCache.clear();
+  inflightPrefetch = null;
+  prefetchArmed = false;
+
+  if (prefetchScrollBound) {
+    window.removeEventListener('scroll', handlePrefetchScroll, true);
+    prefetchScrollBound = false;
+  }
+
+  applyLoadMoreSeed(state, seed);
+  state.isLoading = false;
+}
 
 /** Align pagination with the Product Collection actually rendered by the template. */
 function synchronizeInitialGridState(): void {
@@ -221,6 +257,7 @@ function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
  * Handle filter change — reset to page 1 and discard stale prefetch cache.
  */
 function handleFiltersChanged(): void {
+  paginationGeneration += 1;
   if (abortController) {
     abortController.abort();
     abortController = null;
@@ -309,18 +346,30 @@ function buildUrl(page: number, cursor: string): string {
 
 /** Prefetch only after the shopper shows intent to scroll the catalog. */
 function armPrefetchOnScroll(): void {
-  if (prefetchArmed || state.allLoaded || state.filtersActive) return;
+  if (
+    prefetchArmed ||
+    prefetchScrollBound ||
+    state.allLoaded ||
+    state.filtersActive
+  ) {
+    return;
+  }
 
-  const arm = (): void => {
-    if (prefetchArmed) return;
-    prefetchArmed = true;
-    window.removeEventListener('scroll', arm, {
-      capture: true,
-    } as EventListenerOptions);
-    prefetchNextPage();
-  };
+  prefetchScrollBound = true;
+  window.addEventListener('scroll', handlePrefetchScroll, {
+    capture: true,
+    passive: true,
+  });
+}
 
-  window.addEventListener('scroll', arm, { passive: true, once: true });
+/** Arm prefetch exactly once for the current pagination generation. */
+function handlePrefetchScroll(): void {
+  window.removeEventListener('scroll', handlePrefetchScroll, true);
+  prefetchScrollBound = false;
+  if (prefetchArmed) return;
+
+  prefetchArmed = true;
+  prefetchNextPage();
 }
 
 /**
@@ -331,7 +380,14 @@ async function prefetchNextPage(): Promise<void> {
   if (state.filtersActive || state.allLoaded || !state.nextCursor) return;
 
   const cursor = state.nextCursor;
-  if (prefetchCache.has(cursor) || inflightPrefetch?.cursor === cursor) return;
+  const generation = paginationGeneration;
+  if (
+    prefetchCache.has(cursor) ||
+    (inflightPrefetch?.cursor === cursor &&
+      inflightPrefetch.generation === generation)
+  ) {
+    return;
+  }
 
   if (prefetchController) prefetchController.abort();
   prefetchController = new AbortController();
@@ -348,19 +404,29 @@ async function prefetchNextPage(): Promise<void> {
       if (!res.ok) return null;
 
       const data = (await res.json()) as RenderedEntry;
+      if (generation !== paginationGeneration) return null;
+
       prefetchCache.set(cursor, data);
+      // A fast prefetch can finish after the observer's last edge event. Recheck
+      // the sentinel so a cached final page cannot remain stranded at N-1.
+      requestAnimationFrame(() => {
+        continueInfiniteScrollIfNeeded(generation);
+      });
       return data;
     } catch {
       // Silently discard — loadSsrPage will fetch again when needed.
       return null;
     } finally {
-      if (inflightPrefetch?.cursor === cursor) {
+      if (
+        inflightPrefetch?.cursor === cursor &&
+        inflightPrefetch.generation === generation
+      ) {
         inflightPrefetch = null;
       }
     }
   })();
 
-  inflightPrefetch = { cursor, promise };
+  inflightPrefetch = { cursor, generation, promise };
   await promise;
 }
 
@@ -368,45 +434,55 @@ async function prefetchNextPage(): Promise<void> {
  * Fetch (or serve from cache / in-flight prefetch) a rendered page and insert it.
  */
 function loadSsrPage(page: number, cursor: string): void {
+  const generation = paginationGeneration;
   const cached = prefetchCache.get(cursor);
   if (cached) {
     prefetchCache.delete(cursor);
-    applyRenderedPage(page, cached);
+    applyRenderedPage(page, cached, generation);
     return;
   }
 
-  if (inflightPrefetch?.cursor === cursor) {
+  if (
+    inflightPrefetch?.cursor === cursor &&
+    inflightPrefetch.generation === generation
+  ) {
     inflightPrefetch.promise
       .then(data => {
         // Filter/sort may have reset pagination while this prefetch was in flight.
+        if (generation !== paginationGeneration) return;
         if (state.filtersActive || state.nextCursor !== cursor) {
           state.isLoading = false;
           return;
         }
         if (data) {
           prefetchCache.delete(cursor);
-          applyRenderedPage(page, data);
+          applyRenderedPage(page, data, generation);
           return;
         }
-        fetchRenderedPage(page, cursor);
+        fetchRenderedPage(page, cursor, generation);
       })
       .catch(() => {
+        if (generation !== paginationGeneration) return;
         if (state.filtersActive || state.nextCursor !== cursor) {
           state.isLoading = false;
           return;
         }
-        fetchRenderedPage(page, cursor);
+        fetchRenderedPage(page, cursor, generation);
       });
     return;
   }
 
-  fetchRenderedPage(page, cursor);
+  fetchRenderedPage(page, cursor, generation);
 }
 
 /**
  * Network fetch for a rendered page (used when prefetch is unavailable).
  */
-function fetchRenderedPage(page: number, cursor: string): void {
+function fetchRenderedPage(
+  page: number,
+  cursor: string,
+  generation: number
+): void {
   if (abortController) abortController.abort();
   abortController = new AbortController();
 
@@ -419,14 +495,16 @@ function fetchRenderedPage(page: number, cursor: string): void {
       return res.json() as Promise<RenderedEntry>;
     })
     .then((data: RenderedEntry) => {
+      if (generation !== paginationGeneration) return;
       if (state.filtersActive || state.nextCursor !== cursor) {
         state.isLoading = false;
         return;
       }
-      applyRenderedPage(page, data);
+      applyRenderedPage(page, data, generation);
     })
     .catch((err: Error) => {
       if (err.name === 'AbortError') return;
+      if (generation !== paginationGeneration) return;
       state.isLoading = false;
       state.mode = 'load_more';
       state.announcement = state.errorText;
@@ -436,7 +514,13 @@ function fetchRenderedPage(page: number, cursor: string): void {
 /**
  * Insert server-rendered product HTML into the grid and update state.
  */
-function applyRenderedPage(page: number, data: RenderedEntry): void {
+function applyRenderedPage(
+  page: number,
+  data: RenderedEntry,
+  generation: number
+): void {
+  if (generation !== paginationGeneration) return;
+
   const grid = document.querySelector<HTMLElement>(
     '.wp-block-woocommerce-product-template'
   );
@@ -496,14 +580,18 @@ function applyRenderedPage(page: number, data: RenderedEntry): void {
   // cards the sentinel often stays inside rootMargin, so chain another load
   // when it is still near the viewport (fixes mobile stalls at ~16 of N).
   requestAnimationFrame(() => {
-    continueInfiniteScrollIfNeeded();
+    continueInfiniteScrollIfNeeded(generation);
   });
 }
 
 /**
  * Continue loading while the sentinel remains near the viewport.
  */
-function continueInfiniteScrollIfNeeded(): void {
+function continueInfiniteScrollIfNeeded(
+  generation = paginationGeneration
+): void {
+  if (generation !== paginationGeneration) return;
+
   const sentinel = document.querySelector<HTMLElement>(
     '.aa-load-more__sentinel'
   );
@@ -522,7 +610,7 @@ function continueInfiniteScrollIfNeeded(): void {
 
   if (decision === 'wait') {
     window.setTimeout(() => {
-      continueInfiniteScrollIfNeeded();
+      continueInfiniteScrollIfNeeded(generation);
     }, FETCH_COOLDOWN_MS);
     return;
   }
@@ -583,7 +671,8 @@ function setupIntersectionObserver(): void {
 
   // If the sentinel is already near the viewport (short catalogues), the
   // observer may not deliver an immediate callback — kick one check after layout.
+  const generation = paginationGeneration;
   requestAnimationFrame(() => {
-    continueInfiniteScrollIfNeeded();
+    continueInfiniteScrollIfNeeded(generation);
   });
 }

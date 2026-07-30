@@ -33,7 +33,10 @@ $indicator_color = $attributes['indicatorColor'] ?? '';
 // Generate IDs
 // ============================================================================
 
-$nav_id = ! empty( $attributes['navId'] ) ? $attributes['navId'] : wp_unique_id( 'nav-' );
+$nav_id = aggressive_apparel_reserve_navigation_dom_id(
+	(string) ( $attributes['navId'] ?? '' ),
+	'nav-'
+);
 
 // ============================================================================
 // Build Interactivity API context

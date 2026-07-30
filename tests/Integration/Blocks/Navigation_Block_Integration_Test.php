@@ -101,13 +101,11 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation block caching behavior.
+     * Test duplicated saved navigation IDs are safe at render time.
      */
-    public function test_navigation_block_caching(): void {
-        // Use a fixed navId to ensure consistent output between renders
-        $fixed_nav_id = 'integration-cache-test-nav';
+    public function test_navigation_block_duplicate_id_safety(): void {
+        $fixed_nav_id = 'integration-duplicate-test-nav';
 
-        // First render
         $block_content_1 = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
@@ -115,7 +113,6 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
             ],
         ]);
 
-        // Second render (should be cached)
         $block_content_2 = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
@@ -123,8 +120,14 @@ class Navigation_Block_Integration_Test extends WP_UnitTestCase {
             ],
         ]);
 
-        // Content should be identical
-        $this->assertEquals($block_content_1, $block_content_2);
+        $this->assertStringContainsString(
+            'id="integration-duplicate-test-nav"',
+            $block_content_1
+        );
+        $this->assertStringContainsString(
+            'id="integration-duplicate-test-nav-2"',
+            $block_content_2
+        );
     }
 
     /**

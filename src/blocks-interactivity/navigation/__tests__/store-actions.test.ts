@@ -97,6 +97,37 @@ describe('submenu open/close', () => {
     actions.toggleSubmenu();
     expect(callbacks.isSubmenuOpen()).toBe(true);
   });
+
+  it('Escape closes the submenu and restores focus to its trigger', () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+      callback(0);
+      return 0;
+    });
+    const navId = freshNav();
+    const nav = document.createElement('nav');
+    const trigger = document.createElement('button');
+    const panelLink = document.createElement('a');
+
+    nav.id = navId;
+    trigger.setAttribute('aria-controls', 'shop');
+    panelLink.href = '/shop/item/';
+    nav.append(trigger, panelLink);
+    document.body.appendChild(nav);
+
+    mockContext = { navId, submenuId: 'shop' };
+    actions.openSubmenu();
+    panelLink.focus();
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      cancelable: true,
+    });
+    callbacks.onEscape(event);
+
+    expect(state.activeSubmenuId).toBeNull();
+    expect(document.activeElement).toBe(trigger);
+    expect(event.defaultPrevented).toBe(true);
+  });
 });
 
 describe('mobile detection (init)', () => {

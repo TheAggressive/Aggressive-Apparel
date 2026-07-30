@@ -46,6 +46,10 @@ class Blocks {
 	 * @return void
 	 */
 	public static function init(): void {
+		if ( \function_exists( 'aggressive_apparel_reset_navigation_render_ids' ) ) {
+			\aggressive_apparel_reset_navigation_render_ids();
+		}
+
 		\add_action( 'init', array( __CLASS__, 'register' ) );
 		\add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_rating_mark_var' ) );
 	}

@@ -20,9 +20,13 @@ import {
   ToolbarButton,
   ToolbarGroup,
 } from '@wordpress/components';
-import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
+import {
+  SUBMENU_BLOCK_NAMES,
+  useUniqueBlockId,
+} from '../nav-shared/use-unique-block-id';
 import type { NavAccordionAttributes } from './types';
 
 const TEMPLATE: [string, Record<string, unknown>][] = [
@@ -30,24 +34,24 @@ const TEMPLATE: [string, Record<string, unknown>][] = [
   ['aggressive-apparel/nav-link', { label: 'Item 2', url: '#' }],
 ];
 
-function generateId(): string {
-  return `accordion-${Math.random().toString(36).slice(2, 9)}`;
-}
-
 export default function Edit({
   attributes,
   setAttributes,
   isSelected,
+  clientId,
 }: BlockEditProps<NavAccordionAttributes>) {
   const { label, url, submenuId, showArrow } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!submenuId) {
-      setAttributes({ submenuId: generateId() });
-    }
-  }, [setAttributes, submenuId]);
+  useUniqueBlockId({
+    attributeName: 'submenuId',
+    blockNames: SUBMENU_BLOCK_NAMES,
+    clientId,
+    currentId: submenuId,
+    prefix: 'accordion',
+    setId: id => setAttributes({ submenuId: id }),
+  });
 
   const blockProps = useBlockProps({
     className: 'wp-block-aggressive-apparel-nav-submenu-accordion',
@@ -154,7 +158,25 @@ export default function Edit({
           id={submenuId}
           aria-label={label}
         >
-          <ul {...innerBlocksProps} />
+          <ul {...innerBlocksProps}>
+            {url && (
+              <li role='none'>
+                <a
+                  className='wp-block-aggressive-apparel-nav-submenu-accordion__view-all'
+                  href={url}
+                  role='menuitem'
+                  onClick={event => event.preventDefault()}
+                >
+                  {sprintf(
+                    /* translators: %s: navigation submenu label. */
+                    __('View all in %s', 'aggressive-apparel'),
+                    label
+                  )}
+                </a>
+              </li>
+            )}
+            {innerBlocksProps.children}
+          </ul>
         </div>
       </li>
     </>

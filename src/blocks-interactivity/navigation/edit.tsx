@@ -37,6 +37,7 @@ import {
 } from '../../utils/adaptive-color-controls';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
 import { __ } from '@wordpress/i18n';
+import { useUniqueBlockId } from '../nav-shared/use-unique-block-id';
 import type { BorderStyle, NavigationAttributes } from './types';
 
 const ALLOWED_BLOCKS = [
@@ -107,11 +108,14 @@ export default function Edit({
       })
     : undefined;
 
-  // Ensure a unique ID exists for context sharing.
-  if (!navId) {
-    const newId = `nav-${Math.random().toString(36).slice(2, 9)}`;
-    setAttributes({ navId: newId });
-  }
+  useUniqueBlockId({
+    attributeName: 'navId',
+    blockNames: ['aggressive-apparel/navigation'],
+    clientId,
+    currentId: navId ?? '',
+    prefix: 'nav',
+    setId: id => setAttributes({ navId: id }),
+  });
 
   const blockProps = useBlockProps({
     className: 'wp-block-aggressive-apparel-navigation--editor',

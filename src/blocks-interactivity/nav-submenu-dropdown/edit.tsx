@@ -23,9 +23,13 @@ import {
 } from '@wordpress/components';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { link as linkIcon } from '@wordpress/icons';
+import {
+  SUBMENU_BLOCK_NAMES,
+  useUniqueBlockId,
+} from '../nav-shared/use-unique-block-id';
 import type {
   NavDropdownAttributes,
   NavDropdownContext,
@@ -36,10 +40,6 @@ const TEMPLATE: [string, Record<string, unknown>][] = [
   ['aggressive-apparel/nav-link', { label: 'Item 1', url: '#' }],
   ['aggressive-apparel/nav-link', { label: 'Item 2', url: '#' }],
 ];
-
-function generateId(): string {
-  return `dropdown-${Math.random().toString(36).slice(2, 9)}`;
-}
 
 export default function Edit({
   attributes,
@@ -72,11 +72,14 @@ export default function Edit({
   const panelBorderColor = context['aggressive-apparel/submenuBorderColor'];
   const panelBorderStyle = context['aggressive-apparel/submenuBorderStyle'];
 
-  useEffect(() => {
-    if (!submenuId) {
-      setAttributes({ submenuId: generateId() });
-    }
-  }, [setAttributes, submenuId]);
+  useUniqueBlockId({
+    attributeName: 'submenuId',
+    blockNames: SUBMENU_BLOCK_NAMES,
+    clientId,
+    currentId: submenuId,
+    prefix: 'dropdown',
+    setId: id => setAttributes({ submenuId: id }),
+  });
 
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-submenu-dropdown${
@@ -208,11 +211,30 @@ export default function Edit({
 
         <div
           className='wp-block-aggressive-apparel-nav-submenu__panel'
+          id={submenuId}
           aria-label={label}
           style={panelStyle}
         >
           <div className='wp-block-aggressive-apparel-nav-submenu__panel-content'>
-            <ul {...innerBlocksProps} />
+            <ul {...innerBlocksProps}>
+              {url && (
+                <li role='none'>
+                  <a
+                    className='wp-block-aggressive-apparel-nav-submenu__view-all'
+                    href={url}
+                    role='menuitem'
+                    onClick={event => event.preventDefault()}
+                  >
+                    {sprintf(
+                      /* translators: %s: navigation submenu label. */
+                      __('View all in %s', 'aggressive-apparel'),
+                      label
+                    )}
+                  </a>
+                </li>
+              )}
+              {innerBlocksProps.children}
+            </ul>
           </div>
         </div>
       </li>

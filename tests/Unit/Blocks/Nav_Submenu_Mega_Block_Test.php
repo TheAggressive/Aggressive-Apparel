@@ -52,7 +52,7 @@ class Nav_Submenu_Mega_Block_Test extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/navigation"', $html );
         $this->assertStringContainsString( 'role="menuitem"', $html );
-        $this->assertStringContainsString( 'aria-haspopup="menu"', $html );
+        $this->assertStringNotContainsString( 'aria-haspopup="menu"', $html );
         $this->assertStringContainsString( 'aria-controls="mega-shop"', $html );
         $this->assertStringContainsString( 'data-wp-on--click="actions.toggleSubmenu"', $html );
         $this->assertStringContainsString(
@@ -75,6 +75,49 @@ class Nav_Submenu_Mega_Block_Test extends WP_UnitTestCase {
         $html = $this->render( [ 'label' => 'Shop', 'submenuId' => 'mega-shop' ] );
         $this->assertMatchesRegularExpression(
             '/<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="mega-shop"[^>]*role="region"/',
+            $html
+        );
+        $this->assertStringContainsString(
+            '<div class="wp-block-aggressive-apparel-nav-submenu__panel-inner">',
+            $html
+        );
+        $this->assertStringNotContainsString(
+            '<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner">',
+            $html
+        );
+    }
+
+    public function test_parent_url_remains_available_inside_the_region(): void {
+        $html = $this->render(
+            [
+                'label'     => 'Shop',
+                'url'       => '/shop/',
+                'submenuId' => 'mega-shop',
+            ]
+        );
+
+        $this->assertStringContainsString( 'href="/shop/"', $html );
+        $this->assertStringContainsString( 'View all in Shop', $html );
+    }
+
+    public function test_nested_nav_links_use_region_safe_markup(): void {
+        $html = do_blocks(
+            '<!-- wp:aggressive-apparel/nav-submenu-mega {"label":"Shop","submenuId":"mega-shop"} -->'
+            . '<!-- wp:aggressive-apparel/nav-link {"label":"Featured","url":"/shop/"} /-->'
+            . '<!-- /wp:aggressive-apparel/nav-submenu-mega -->'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/<div class="wp-block-aggressive-apparel-nav-submenu__panel-inner">'
+            . '<div class="wp-block-aggressive-apparel-nav-link/',
+            $html
+        );
+        $this->assertStringNotContainsString(
+            '<li class="wp-block-aggressive-apparel-nav-link',
+            $html
+        );
+        $this->assertStringContainsString(
+            '<a class="wp-block-aggressive-apparel-nav-link__link" href="/shop/">',
             $html
         );
     }

@@ -45,4 +45,16 @@ describe('getSubmenuItems', () => {
 
     expect(getSubmenuItems(panel).map(el => el.id)).toEqual(['i1', 'i2']);
   });
+
+  it('collects all focusable rich content inside a mega-menu region', () => {
+    document.body.innerHTML = `
+      <div class="${SUB}__panel" id="discover" role="region">
+        <h2>Discover</h2>
+        <a id="article" href="/article/">Article</a>
+        <button id="cta" type="button">Get started</button>
+      </div>`;
+    const panel = document.getElementById('discover') as HTMLElement;
+
+    expect(getSubmenuItems(panel).map(el => el.id)).toEqual(['article', 'cta']);
+  });
 });

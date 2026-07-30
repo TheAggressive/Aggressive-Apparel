@@ -42,9 +42,9 @@ class Navigation_Block_Performance_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation block caching performance with fixed navId.
+     * Test duplicate-ID protection remains inexpensive.
      */
-    public function test_navigation_block_caching_performance(): void {
+    public function test_navigation_block_duplicate_id_performance(): void {
         $fixed_nav_id = 'cache-perf-test';
 
         // First render
@@ -57,7 +57,7 @@ class Navigation_Block_Performance_Test extends WP_UnitTestCase {
         ]);
         $first_render_time = microtime(true) - $start_time;
 
-        // Second render (should produce identical output)
+        // Second render reserves a safe suffixed ID.
         $start_time = microtime(true);
         $block_content_2 = render_block([
             'blockName' => 'aggressive-apparel/navigation',
@@ -71,8 +71,8 @@ class Navigation_Block_Performance_Test extends WP_UnitTestCase {
         $this->assertLessThan(0.1, $first_render_time, 'First render should be under 100ms');
         $this->assertLessThan(0.1, $second_render_time, 'Second render should be under 100ms');
 
-        // Content should be identical when using same navId
-        $this->assertEquals($block_content_1, $block_content_2);
+        $this->assertStringContainsString( 'id="cache-perf-test"', $block_content_1 );
+        $this->assertStringContainsString( 'id="cache-perf-test-2"', $block_content_2 );
     }
 
     /**

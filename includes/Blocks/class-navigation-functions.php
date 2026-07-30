@@ -147,6 +147,241 @@ function aggressive_apparel_get_announcer_id( string $nav_id ): string {
 	return $nav_id ? 'navigation-announcer-' . $nav_id : 'navigation-announcer';
 }
 
+/**
+ * Mark Nav Link children of mega menus as region content.
+ *
+ * Block context normally comes from saved parent attributes. Older mega-menu
+ * blocks predate the internal isMegaMenu attribute, so this render-time
+ * fallback guarantees valid markup without requiring users to re-save them.
+ *
+ * @param array<string, mixed> $context      Available block context.
+ * @param array<string, mixed> $parsed_block Parsed block data.
+ * @param WP_Block|null        $parent_block Parent block instance.
+ * @return array<string, mixed> Filtered block context.
+ */
+function aggressive_apparel_add_mega_nav_link_context( array $context, array $parsed_block, ?WP_Block $parent_block ): array {
+	if (
+		'aggressive-apparel/nav-link' === ( $parsed_block['blockName'] ?? '' )
+		&& $parent_block instanceof WP_Block
+		&& 'aggressive-apparel/nav-submenu-mega' === $parent_block->name
+	) {
+		$context['aggressive-apparel/isMegaMenu'] = true;
+	}
+
+	return $context;
+}
+add_filter( 'render_block_context', 'aggressive_apparel_add_mega_nav_link_context', 10, 3 );
+
+/**
+ * Reset the request-scoped navigation DOM ID registry.
+ *
+ * @return void
+ */
+function aggressive_apparel_reset_navigation_render_ids(): void {
+	$GLOBALS['aggressive_apparel_navigation_render_ids'] = array();
+}
+
+/**
+ * Reserve a unique DOM ID for a rendered navigation component.
+ *
+ * Saved block attributes may be duplicated by the editor or copied between
+ * templates. A request-scoped registry prevents ambiguous aria-controls
+ * relationships in the rendered document.
+ *
+ * @param string $requested_id Requested saved ID.
+ * @param string $prefix       Prefix used when no valid saved ID is available.
+ * @return string Unique DOM ID.
+ */
+function aggressive_apparel_reserve_navigation_dom_id( string $requested_id, string $prefix ): string {
+	if ( ! isset( $GLOBALS['aggressive_apparel_navigation_render_ids'] ) || ! is_array( $GLOBALS['aggressive_apparel_navigation_render_ids'] ) ) {
+		aggressive_apparel_reset_navigation_render_ids();
+	}
+
+	$base_id = sanitize_html_class( $requested_id );
+	if ( '' === $base_id ) {
+		$base_id = wp_unique_id( sanitize_html_class( $prefix ) );
+	}
+
+	$candidate = $base_id;
+	$suffix    = 2;
+
+	while ( isset( $GLOBALS['aggressive_apparel_navigation_render_ids'][ $candidate ] ) ) {
+		$candidate = $base_id . '-' . $suffix;
+		++$suffix;
+	}
+
+	$GLOBALS['aggressive_apparel_navigation_render_ids'][ $candidate ] = true;
+
+	return $candidate;
+}
+
+/**
+ * Render an automatic link to the submenu parent destination.
+ *
+ * Submenu triggers use their primary click to disclose content, so a visible
+ * destination link keeps a configured parent URL reachable.
+ *
+ * @param string $url          Parent destination URL.
+ * @param string $label        Parent navigation label.
+ * @param string $class_name   CSS class applied to the anchor.
+ * @param bool   $as_menu_item Whether to wrap the anchor in a menu item.
+ * @return string Rendered link or an empty string when no URL is configured.
+ */
+function aggressive_apparel_get_nav_view_all_link( string $url, string $label, string $class_name, bool $as_menu_item = true ): string {
+	$url = trim( $url );
+	if ( '' === $url ) {
+		return '';
+	}
+
+	/* translators: %s: navigation submenu label. */
+	$link_label = sprintf( __( 'View all in %s', 'aggressive-apparel' ), $label );
+	$role       = $as_menu_item ? ' role="menuitem"' : '';
+	$anchor     = sprintf(
+		'<a class="%1$s" href="%2$s"%3$s>%4$s</a>',
+		esc_attr( $class_name ),
+		esc_url( $url ),
+		$role,
+		esc_html( $link_label )
+	);
+
+	if ( ! $as_menu_item ) {
+		return $anchor;
+	}
+
+	return '<li role="none">' . $anchor . '</li>';
+}
+
+/**
+ * Partition navigation-panel children into semantic regions.
+ *
+ * Navigation list items remain in the menu list. Rich core blocks move to a
+ * utility region so they stay inside the dialog and focus trap without
+ * becoming invalid list children or inheriting menu semantics. Header and
+ * footer slot wrappers are extracted into their dedicated regions.
+ *
+ * @param string $content Rendered inner-block content.
+ * @return array{
+ *     menu_items_html: string,
+ *     utility_html: string,
+ *     panel_header_html: string,
+ *     panel_footer_html: string,
+ *     panel_header_classes: string,
+ *     panel_header_style: string,
+ *     panel_footer_classes: string,
+ *     panel_footer_style: string
+ * }
+ */
+function aggressive_apparel_partition_nav_panel_content( string $content ): array {
+	$parts = array(
+		'menu_items_html'      => '',
+		'utility_html'         => '',
+		'panel_header_html'    => '',
+		'panel_footer_html'    => '',
+		'panel_header_classes' => '',
+		'panel_header_style'   => '',
+		'panel_footer_classes' => '',
+		'panel_footer_style'   => '',
+	);
+
+	if ( '' === trim( $content ) ) {
+		return $parts;
+	}
+
+	$previous = libxml_use_internal_errors( true );
+	$document = new DOMDocument();
+	$loaded   = $document->loadHTML(
+		'<?xml encoding="utf-8" ?><div id="aa-nav-panel-parser-root">' . $content . '</div>',
+		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+	);
+
+	if ( ! $loaded ) {
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+		$parts['utility_html'] = $content;
+		return $parts;
+	}
+
+	$root = $document->getElementById( 'aa-nav-panel-parser-root' );
+	if ( ! $root ) {
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+		$parts['utility_html'] = $content;
+		return $parts;
+	}
+
+	$children = array();
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+	foreach ( $root->childNodes as $child ) {
+		$children[] = $child;
+	}
+
+	foreach ( $children as $child ) {
+		$html = $document->saveHTML( $child );
+		if ( false === $html ) {
+			continue;
+		}
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+		if ( XML_ELEMENT_NODE !== $child->nodeType ) {
+			if ( '' !== trim( $html ) ) {
+				$parts['utility_html'] .= $html;
+			}
+			continue;
+		}
+
+		$class_name = $child->attributes?->getNamedItem( 'class' )?->nodeValue ?? '';
+		$classes    = preg_split( '/\s+/', trim( $class_name ) );
+		if ( false === $classes ) {
+			$classes = array();
+		}
+
+		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-header', $classes, true ) ) {
+			$parts['panel_header_classes'] = $class_name;
+			$parts['panel_header_style']   = $child->attributes?->getNamedItem( 'style' )?->nodeValue ?? '';
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+			foreach ( $child->childNodes as $inner_child ) {
+				$inner_html = $document->saveHTML( $inner_child );
+				if ( false !== $inner_html ) {
+					$parts['panel_header_html'] .= $inner_html;
+				}
+			}
+			continue;
+		}
+
+		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-footer', $classes, true ) ) {
+			$parts['panel_footer_classes'] = $class_name;
+			$parts['panel_footer_style']   = $child->attributes?->getNamedItem( 'style' )?->nodeValue ?? '';
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+			foreach ( $child->childNodes as $inner_child ) {
+				$inner_html = $document->saveHTML( $inner_child );
+				if ( false !== $inner_html ) {
+					$parts['panel_footer_html'] .= $inner_html;
+				}
+			}
+			continue;
+		}
+
+		$is_navigation_item = array_filter(
+			$classes,
+			static fn( string $candidate_class ): bool => 'wp-block-aggressive-apparel-nav-link' === $candidate_class
+				|| str_starts_with( $candidate_class, 'wp-block-aggressive-apparel-nav-submenu' )
+		);
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+		if ( 'li' === strtolower( $child->nodeName ) && ! empty( $is_navigation_item ) ) {
+			$parts['menu_items_html'] .= $html;
+			continue;
+		}
+
+		$parts['utility_html'] .= $html;
+	}
+
+	libxml_clear_errors();
+	libxml_use_internal_errors( $previous );
+
+	return $parts;
+}
+
 // ============================================================================
 // Navigation Panel block (navigation-panel / navigation-trigger)
 // ============================================================================

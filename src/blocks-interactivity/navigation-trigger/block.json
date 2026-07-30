@@ -51,6 +51,9 @@
     "color": {
       "text": true
     },
+    "typography": {
+      "fontSize": true
+    },
     "spacing": {
       "padding": true,
       "margin": true

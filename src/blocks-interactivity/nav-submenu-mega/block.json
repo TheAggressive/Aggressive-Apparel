@@ -37,7 +37,11 @@
       "enum": ["hover", "click"],
       "default": "hover"
     },
-    "columns": { "type": "number", "default": 4 }
+    "columns": { "type": "number", "default": 4 },
+    "isMegaMenu": { "type": "boolean", "default": true }
+  },
+  "providesContext": {
+    "aggressive-apparel/isMegaMenu": "isMegaMenu"
   },
   "usesContext": [
     "aggressive-apparel/navigationId",

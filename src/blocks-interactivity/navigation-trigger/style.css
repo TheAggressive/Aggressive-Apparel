@@ -206,7 +206,7 @@
 
 /* Label */
 .aa-nav-trigger__label {
-  font-size: var(--wp--preset--font-size--small);
+  font-size: inherit;
   font-weight: 500;
 }
 

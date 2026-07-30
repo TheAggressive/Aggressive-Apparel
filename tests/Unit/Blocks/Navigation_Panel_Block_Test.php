@@ -76,4 +76,27 @@ class Navigation_Panel_Block_Test extends WP_UnitTestCase {
         // The buffered panel markup is wrapped verbatim.
         $this->assertStringContainsString( 'role="dialog"', $out );
     }
+
+    /**
+     * Rich direct children belong to the utility region, not the menu list.
+     */
+    public function test_partitions_menu_slots_and_rich_utility_blocks(): void {
+        $content = implode(
+            '',
+            [
+                '<div class="wp-block-aggressive-apparel-nav-panel-header"><p>Header</p></div>',
+                '<li class="wp-block-aggressive-apparel-nav-link" role="none"><a href="/shop/">Shop</a></li>',
+                '<div class="wp-block-buttons"><a class="wp-block-button__link" href="/account/">Account</a></div>',
+                '<div class="wp-block-aggressive-apparel-nav-panel-footer"><p>Footer</p></div>',
+            ]
+        );
+
+        $parts = aggressive_apparel_partition_nav_panel_content( $content );
+
+        $this->assertStringContainsString( 'Shop', $parts['menu_items_html'] );
+        $this->assertStringNotContainsString( 'Account', $parts['menu_items_html'] );
+        $this->assertStringContainsString( 'Account', $parts['utility_html'] );
+        $this->assertStringContainsString( '<p>Header</p>', $parts['panel_header_html'] );
+        $this->assertStringContainsString( '<p>Footer</p>', $parts['panel_footer_html'] );
+    }
 }

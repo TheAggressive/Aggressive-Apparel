@@ -122,6 +122,30 @@
     gap: var(--submenu-panel-gap, var(--wp--preset--spacing--1));
   }
 
+  & .wp-block-aggressive-apparel-nav-submenu__view-all {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    color: var(--submenu-color);
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    border-radius: var(--aa-nav-radius-md);
+
+    &:hover,
+    &:focus {
+      color: var(--submenu-link-hover-color, var(--wp--preset--color--accent, currentColor));
+      background: var(--submenu-link-hover-bg, var(--aa-nav-hover-bg));
+    }
+
+    &:focus-visible {
+      outline: var(--aa-nav-focus-width) solid var(--aa-nav-focus-color);
+      outline-offset: var(--aa-nav-focus-offset);
+    }
+  }
+
   /* Panel link styling */
   & .wp-block-aggressive-apparel-nav-submenu__panel .wp-block-aggressive-apparel-nav-link {
     --nav-link-color: var(--submenu-color, currentcolor);

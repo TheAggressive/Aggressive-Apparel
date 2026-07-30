@@ -39,6 +39,38 @@ class Navigation_Block_Test extends WP_UnitTestCase {
     }
 
     /**
+     * Every navigation surface exposes the native font-size control.
+     */
+    public function test_all_navigation_blocks_support_font_size(): void {
+        $block_names = [
+            'aggressive-apparel/navigation',
+            'aggressive-apparel/nav-link',
+            'aggressive-apparel/nav-submenu-accordion',
+            'aggressive-apparel/nav-submenu-drilldown',
+            'aggressive-apparel/nav-submenu-dropdown',
+            'aggressive-apparel/nav-submenu-mega',
+            'aggressive-apparel/navigation-panel',
+            'aggressive-apparel/navigation-trigger',
+            'aggressive-apparel/nav-panel-header',
+            'aggressive-apparel/nav-panel-footer',
+        ];
+        $registry = \WP_Block_Type_Registry::get_instance();
+
+        foreach ($block_names as $block_name) {
+            $block_type = $registry->get_registered($block_name);
+
+            $this->assertNotNull(
+                $block_type,
+                sprintf('%s should be registered', $block_name)
+            );
+            $this->assertTrue(
+                $block_type->supports['typography']['fontSize'] ?? false,
+                sprintf('%s should support font size', $block_name)
+            );
+        }
+    }
+
+    /**
      * Test navigation block renders with correct wrapper class.
      */
     public function test_navigation_block_renders_with_valid_attributes(): void {
@@ -271,13 +303,11 @@ class Navigation_Block_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Test navigation block caching with same navId.
+     * Duplicated saved IDs are made unique in the rendered document.
      */
-    public function test_navigation_block_caching(): void {
-        // Use a fixed navId to ensure consistent output between renders
+    public function test_navigation_block_prevents_duplicate_dom_ids(): void {
         $fixed_nav_id = 'cache-test-nav';
 
-        // First render
         $block_content_1 = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
@@ -285,7 +315,6 @@ class Navigation_Block_Test extends WP_UnitTestCase {
             ],
         ]);
 
-        // Second render (should produce identical output with same navId)
         $block_content_2 = render_block([
             'blockName' => 'aggressive-apparel/navigation',
             'attrs' => [
@@ -293,11 +322,9 @@ class Navigation_Block_Test extends WP_UnitTestCase {
             ],
         ]);
 
-        $this->assertEquals(
-            $block_content_1,
-            $block_content_2,
-            'Identical attributes should produce identical output'
-        );
+        $this->assertStringContainsString( 'id="cache-test-nav"', $block_content_1 );
+        $this->assertStringContainsString( 'id="cache-test-nav-2"', $block_content_2 );
+        $this->assertNotEquals( $block_content_1, $block_content_2 );
     }
 
     /**

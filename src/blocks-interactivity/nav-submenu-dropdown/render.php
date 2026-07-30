@@ -21,9 +21,11 @@ declare(strict_types=1);
 
 $label      = $attributes['label'] ?? '';
 $url        = $attributes['url'] ?? '';
-$submenu_id = ! empty( $attributes['submenuId'] ) ? $attributes['submenuId'] : wp_unique_id( 'dropdown-' );
+$submenu_id = aggressive_apparel_reserve_navigation_dom_id(
+	(string) ( $attributes['submenuId'] ?? '' ),
+	'dropdown-'
+);
 $show_arrow = $attributes['showArrow'] ?? true;
-$nav_id     = $block->context['aggressive-apparel/navigationId'] ?? '';
 $open_on    = $block->context['aggressive-apparel/navigationOpenOn'] ?? ( $attributes['openOn'] ?? 'hover' );
 
 // Inherit panel styling from navigation context.
@@ -39,7 +41,6 @@ $panel_border_style     = $block->context['aggressive-apparel/submenuBorderStyle
 $context = wp_json_encode(
 	array(
 		'submenuId' => $submenu_id,
-		'navId'     => $nav_id,
 		'menuType'  => 'dropdown',
 		'openOn'    => $open_on,
 	),
@@ -111,7 +112,12 @@ if ( $show_arrow ) {
 	</span>';
 }
 
-$has_url = ! empty( $url );
+$has_url       = ! empty( $url );
+$view_all_html = aggressive_apparel_get_nav_view_all_link(
+	(string) $url,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu__view-all'
+);
 
 if ( $has_url ) {
 	$trigger_el = sprintf(
@@ -141,7 +147,7 @@ printf(
 		<div class="wp-block-aggressive-apparel-nav-submenu__trigger">%s</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s"%s>
 			<div class="wp-block-aggressive-apparel-nav-submenu__panel-content">
-				<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu" aria-label="%s">%s</ul>
+				<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner" role="menu" aria-label="%s">%s%s</ul>
 			</div>
 		</div>
 	</li>',
@@ -150,5 +156,6 @@ printf(
 	esc_attr( $submenu_id ),
 	aggressive_apparel_trusted_html( $panel_style_attr ),
 	esc_attr( $label ),
+	aggressive_apparel_trusted_html( $view_all_html ),
 	aggressive_apparel_trusted_html( $content )
 );

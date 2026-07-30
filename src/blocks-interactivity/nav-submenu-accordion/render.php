@@ -17,7 +17,10 @@ declare(strict_types=1);
 
 $label      = $attributes['label'] ?? '';
 $url        = $attributes['url'] ?? '';
-$submenu_id = ! empty( $attributes['submenuId'] ) ? $attributes['submenuId'] : wp_unique_id( 'accordion-' );
+$submenu_id = aggressive_apparel_reserve_navigation_dom_id(
+	(string) ( $attributes['submenuId'] ?? '' ),
+	'accordion-'
+);
 $show_arrow = $attributes['showArrow'] ?? true;
 $nav_id     = $block->context['aggressive-apparel/navigationId'] ?? '';
 
@@ -39,7 +42,12 @@ if ( $show_arrow ) {
 	</span>';
 }
 
-$has_url = ! empty( $url );
+$has_url       = ! empty( $url );
+$view_all_html = aggressive_apparel_get_nav_view_all_link(
+	(string) $url,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu-accordion__view-all'
+);
 
 if ( $has_url ) {
 	$trigger_el = sprintf(
@@ -69,7 +77,7 @@ printf(
 		<div class="wp-block-aggressive-apparel-nav-submenu-accordion__trigger">%s</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel" id="%s">
 			<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-content">
-				<ul class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner" role="menu" aria-label="%s">%s</ul>
+				<ul class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner" role="menu" aria-label="%s">%s%s</ul>
 			</div>
 		</div>
 	</li>',
@@ -84,5 +92,6 @@ printf(
 	aggressive_apparel_trusted_html( $trigger_el ),
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
+	aggressive_apparel_trusted_html( $view_all_html ),
 	aggressive_apparel_trusted_html( $content )
 );

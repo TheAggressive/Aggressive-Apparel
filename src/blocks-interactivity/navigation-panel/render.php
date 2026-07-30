@@ -148,77 +148,15 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 // Separate inner block content into menu items, panel header/footer, utility
 // ============================================================================
 
-$menu_items_html      = '';
-$utility_html         = '';
-$panel_header_html    = '';
-$panel_footer_html    = '';
-$panel_header_classes = '';
-$panel_header_style   = '';
-$panel_footer_classes = '';
-$panel_footer_style   = '';
-
-if ( ! empty( $content ) ) {
-	$dom                    = new DOMDocument();
-	$wrapped                = '<div id="aa-nav-panel-parse-root">' . $content . '</div>';
-	$previous_libxml_errors = libxml_use_internal_errors( true );
-	try {
-		$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-	} finally {
-		libxml_clear_errors();
-		libxml_use_internal_errors( $previous_libxml_errors );
-	}
-
-	$root = $dom->getElementById( 'aa-nav-panel-parse-root' );
-	if ( $root ) {
-		foreach ( $root->childNodes as $node ) {
-			if ( XML_ELEMENT_NODE !== $node->nodeType ) {
-				continue;
-			}
-
-			$html_fragment = $dom->saveHTML( $node );
-			if ( false === $html_fragment ) {
-				continue;
-			}
-
-			$node_class = $node instanceof DOMElement ? $node->getAttribute( 'class' ) : '';
-
-			if (
-				'li' === $node->nodeName
-				&& $node instanceof DOMElement
-				&& (
-					str_contains( $node_class, 'wp-block-aggressive-apparel-nav-link' )
-					|| str_contains( $node_class, 'wp-block-aggressive-apparel-nav-submenu' )
-				)
-			) {
-				$menu_items_html .= $html_fragment;
-			} elseif ( $node instanceof DOMElement && str_contains( $node_class, 'wp-block-aggressive-apparel-nav-panel-header' ) ) {
-				$panel_header_classes = $node_class;
-				$panel_header_style   = $node->getAttribute( 'style' );
-				$inner                = '';
-				foreach ( $node->childNodes as $child ) {
-					$child_html = $dom->saveHTML( $child );
-					if ( false !== $child_html ) {
-						$inner .= $child_html;
-					}
-				}
-				$panel_header_html = $inner;
-			} elseif ( $node instanceof DOMElement && str_contains( $node_class, 'wp-block-aggressive-apparel-nav-panel-footer' ) ) {
-				$panel_footer_classes = $node_class;
-				$panel_footer_style   = $node->getAttribute( 'style' );
-				$inner                = '';
-				foreach ( $node->childNodes as $child ) {
-					$child_html = $dom->saveHTML( $child );
-					if ( false !== $child_html ) {
-						$inner .= $child_html;
-					}
-				}
-				$panel_footer_html = $inner;
-			} else {
-				$utility_html .= $html_fragment;
-			}
-		}
-	}
-}
+$panel_parts          = aggressive_apparel_partition_nav_panel_content( $content );
+$menu_items_html      = $panel_parts['menu_items_html'];
+$utility_html         = $panel_parts['utility_html'];
+$panel_header_html    = $panel_parts['panel_header_html'];
+$panel_footer_html    = $panel_parts['panel_footer_html'];
+$panel_header_classes = $panel_parts['panel_header_classes'];
+$panel_header_style   = $panel_parts['panel_header_style'];
+$panel_footer_classes = $panel_parts['panel_footer_classes'];
+$panel_footer_style   = $panel_parts['panel_footer_style'];
 
 // ============================================================================
 // Build panel inline styles + classes
@@ -251,6 +189,7 @@ if ( $panel_text_color ) {
 }
 if ( $panel_font_size ) {
 	$panel_style_parts[] = sprintf( 'font-size: %s', esc_attr( $panel_font_size ) );
+	$panel_style_parts[] = sprintf( '--aa-nav-panel-item-font-size: %s', esc_attr( $panel_font_size ) );
 }
 if ( $panel_hover_color ) {
 	$panel_style_parts[] = sprintf( '--panel-link-hover-color: %s', esc_attr( $panel_hover_color ) );

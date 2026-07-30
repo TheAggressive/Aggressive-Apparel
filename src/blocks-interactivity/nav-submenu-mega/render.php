@@ -22,10 +22,12 @@ declare(strict_types=1);
 
 $label      = $attributes['label'] ?? '';
 $url        = $attributes['url'] ?? '';
-$submenu_id = ! empty( $attributes['submenuId'] ) ? $attributes['submenuId'] : wp_unique_id( 'mega-' );
+$submenu_id = aggressive_apparel_reserve_navigation_dom_id(
+	(string) ( $attributes['submenuId'] ?? '' ),
+	'mega-'
+);
 $show_arrow = $attributes['showArrow'] ?? true;
 $columns    = (int) ( $attributes['columns'] ?? 4 );
-$nav_id     = $block->context['aggressive-apparel/navigationId'] ?? '';
 $open_on    = $block->context['aggressive-apparel/navigationOpenOn'] ?? ( $attributes['openOn'] ?? 'hover' );
 
 // Inherit panel styling from navigation context.
@@ -40,7 +42,6 @@ $panel_border_style     = $block->context['aggressive-apparel/submenuBorderStyle
 $context = wp_json_encode(
 	array(
 		'submenuId' => $submenu_id,
-		'navId'     => $nav_id,
 		'menuType'  => 'mega',
 		'openOn'    => $open_on,
 	),
@@ -110,11 +111,17 @@ if ( $show_arrow ) {
 	</span>';
 }
 
-$has_url = ! empty( $url );
+$has_url       = ! empty( $url );
+$view_all_html = aggressive_apparel_get_nav_view_all_link(
+	(string) $url,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu__view-all',
+	false
+);
 
 if ( $has_url ) {
 	$trigger_el = sprintf(
-		'<a class="wp-block-aggressive-apparel-nav-submenu__link" href="%s" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isSubmenuOpen" data-wp-on--click="actions.toggleSubmenu">
+		'<a class="wp-block-aggressive-apparel-nav-submenu__link" href="%s" role="menuitem" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isSubmenuOpen" data-wp-on--click="actions.toggleSubmenu">
 			<span class="wp-block-aggressive-apparel-nav-submenu__label">%s</span>
 			%s
 		</a>',
@@ -125,7 +132,7 @@ if ( $has_url ) {
 	);
 } else {
 	$trigger_el = sprintf(
-		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__link" role="menuitem" aria-haspopup="menu" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isSubmenuOpen" data-wp-on--click="actions.toggleSubmenu">
+		'<button type="button" class="wp-block-aggressive-apparel-nav-submenu__link" role="menuitem" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="callbacks.isSubmenuOpen" data-wp-on--click="actions.toggleSubmenu">
 			<span class="wp-block-aggressive-apparel-nav-submenu__label">%s</span>
 			%s
 		</button>',
@@ -142,7 +149,7 @@ printf(
 		<div class="wp-block-aggressive-apparel-nav-submenu__trigger">%s</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu__panel" id="%s" role="region" aria-label="%s"%s>
 			<div class="wp-block-aggressive-apparel-nav-submenu__panel-content">
-				<ul class="wp-block-aggressive-apparel-nav-submenu__panel-inner">%s</ul>
+				<div class="wp-block-aggressive-apparel-nav-submenu__panel-inner">%s%s</div>
 			</div>
 		</div>
 	</li>',
@@ -151,5 +158,6 @@ printf(
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
 	aggressive_apparel_trusted_html( $panel_style_attr ),
+	aggressive_apparel_trusted_html( $view_all_html ),
 	aggressive_apparel_trusted_html( $content )
 );

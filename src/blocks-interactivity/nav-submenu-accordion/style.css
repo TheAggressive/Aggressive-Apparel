@@ -26,7 +26,6 @@
     padding: 0.875rem 1.25rem;
     color: inherit;
     font: inherit;
-    font-size: var(--wp--preset--font-size--medium, 1rem);
     font-weight: 400;
     text-decoration: none;
     background: none;
@@ -112,9 +111,32 @@
     border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
   }
 
+  &__view-all {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.625rem 1rem;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    border-radius: var(--aa-radius-sm);
+
+    &:hover,
+    &:focus {
+      color: var(--panel-link-hover-color, inherit);
+      background: var(--panel-link-hover-bg, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--aa-nav-focus-color, currentcolor);
+      outline-offset: 2px;
+    }
+  }
+
   /* Sub-items (nav-link blocks inside the accordion) */
   & .wp-block-aggressive-apparel-nav-link__link {
-    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-size: inherit;
     font-weight: 400;
     min-height: 44px;
     padding: 0.625rem 1rem;

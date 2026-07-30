@@ -48,7 +48,6 @@
     padding: 0.875rem 1.25rem;
     color: inherit;
     font: inherit;
-    font-size: var(--wp--preset--font-size--medium, 1rem);
     font-weight: 400;
     text-decoration: none;
     background: none;
@@ -176,7 +175,7 @@
   }
 
   &__back-label {
-    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-size: inherit;
     font-weight: 400;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -213,7 +212,7 @@
 
   /* Sub-items */
   & .wp-block-aggressive-apparel-nav-link__link {
-    font-size: var(--wp--preset--font-size--medium, 1rem);
+    font-size: inherit;
     font-weight: 400;
     min-height: 48px;
     padding: 0.75rem 1.25rem 0.75rem 3.25rem;

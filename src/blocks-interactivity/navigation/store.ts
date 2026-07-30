@@ -302,7 +302,20 @@ const navigationStore = store('aggressive-apparel/navigation', {
 
         const ns = getNavState(context.navId);
         if (ns.activeSubmenuId) {
+          const activeSubmenuId = ns.activeSubmenuId;
+          const navRoot = document.getElementById(context.navId);
+          const trigger = Array.from(
+            navRoot?.querySelectorAll<HTMLElement>('[aria-controls]') ?? []
+          ).find(
+            candidate =>
+              candidate.getAttribute('aria-controls') === activeSubmenuId
+          );
+
+          event.preventDefault();
           navigationStore.actions.closeSubmenu();
+          if (trigger) {
+            requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
+          }
         }
       } catch (error) {
         logError('onEscape: Failed to handle escape key', error);

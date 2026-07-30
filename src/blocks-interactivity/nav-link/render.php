@@ -18,6 +18,7 @@ $url           = $attributes['url'] ?? '';
 $opens_new_tab = $attributes['opensInNewTab'] ?? false;
 $description   = $attributes['description'] ?? '';
 $is_current    = $attributes['isCurrent'] ?? false;
+$is_mega_menu  = (bool) ( $block->context['aggressive-apparel/isMegaMenu'] ?? false );
 
 // Auto-detect current page if not manually set.
 if ( ! $is_current && ! empty( $url ) ) {
@@ -54,8 +55,10 @@ $escaped_url = esc_url( $url );
 $link_attrs  = array(
 	'class' => 'wp-block-aggressive-apparel-nav-link__link',
 	'href'  => $escaped_url ? $escaped_url : '#',
-	'role'  => 'menuitem',
 );
+if ( ! $is_mega_menu ) {
+	$link_attrs['role'] = 'menuitem';
+}
 
 if ( $opens_new_tab ) {
 	$link_attrs['target'] = '_blank';
@@ -81,14 +84,16 @@ if ( ! empty( $description ) ) {
 	);
 }
 
+$wrapper_attributes = array( 'class' => implode( ' ', $classes ) );
+if ( ! $is_mega_menu ) {
+	$wrapper_attributes['role'] = 'none';
+}
+$wrapper_tag = $is_mega_menu ? 'div' : 'li';
+
 printf(
-	'<li %s><a%s><span class="wp-block-aggressive-apparel-nav-link__label">%s</span>%s</a></li>',
-	get_block_wrapper_attributes(
-		array(
-			'class' => implode( ' ', $classes ),
-			'role'  => 'none',
-		)
-	),
+	'<%1$s %2$s><a%3$s><span class="wp-block-aggressive-apparel-nav-link__label">%4$s</span>%5$s</a></%1$s>',
+	esc_attr( $wrapper_tag ),
+	get_block_wrapper_attributes( $wrapper_attributes ),
 	aggressive_apparel_trusted_html( $link_attr_string ),
 	esc_html( $label ),
 	wp_kses_post( $description_html )

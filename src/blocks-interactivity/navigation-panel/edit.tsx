@@ -140,7 +140,12 @@ export default function Edit({
       '--aa-editor-panel-width': panelWidth,
       ...(resolvedBg ? { '--aa-editor-panel-bg': resolvedBg } : {}),
       ...(resolvedColor ? { '--aa-editor-panel-color': resolvedColor } : {}),
-      ...(resolvedFontSize ? { fontSize: resolvedFontSize } : {}),
+      ...(resolvedFontSize
+        ? {
+            fontSize: resolvedFontSize,
+            '--aa-nav-panel-item-font-size': resolvedFontSize,
+          }
+        : {}),
       ...paddingStyle,
     } as React.CSSProperties,
   });

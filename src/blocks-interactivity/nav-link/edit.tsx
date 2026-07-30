@@ -29,10 +29,15 @@ export default function Edit({
   attributes,
   setAttributes,
   isSelected,
-}: BlockEditProps<NavLinkAttributes>) {
+  context,
+}: BlockEditProps<NavLinkAttributes> & {
+  context: { 'aggressive-apparel/isMegaMenu'?: boolean };
+}) {
   const { label, url, opensInNewTab, description, isCurrent } = attributes;
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const linkButtonRef = useRef<HTMLButtonElement>(null);
+  const isMegaMenu = context['aggressive-apparel/isMegaMenu'] ?? false;
+  const Wrapper = isMegaMenu ? 'div' : 'li';
 
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-link${isCurrent ? ' is-current' : ''}`,
@@ -83,10 +88,10 @@ export default function Edit({
           />
         </PanelBody>
       </InspectorControls>
-      <li {...blockProps} role='none'>
+      <Wrapper {...blockProps} role={isMegaMenu ? undefined : 'none'}>
         <div
           className='wp-block-aggressive-apparel-nav-link__link'
-          role='menuitem'
+          role={isMegaMenu ? undefined : 'menuitem'}
           aria-current={isCurrent ? 'page' : undefined}
         >
           <RichText
@@ -127,7 +132,7 @@ export default function Edit({
             />
           </Popover>
         )}
-      </li>
+      </Wrapper>
     </>
   );
 }

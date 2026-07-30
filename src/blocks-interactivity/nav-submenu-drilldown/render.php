@@ -20,7 +20,10 @@ declare(strict_types=1);
 
 $label           = $attributes['label'] ?? '';
 $url             = $attributes['url'] ?? '';
-$submenu_id      = ! empty( $attributes['submenuId'] ) ? $attributes['submenuId'] : wp_unique_id( 'drilldown-' );
+$submenu_id      = aggressive_apparel_reserve_navigation_dom_id(
+	(string) ( $attributes['submenuId'] ?? '' ),
+	'drilldown-'
+);
 $show_arrow      = $attributes['showArrow'] ?? true;
 $animation_style = $attributes['animationStyle'] ?? 'overlay';
 $nav_id          = $block->context['aggressive-apparel/navigationId'] ?? '';
@@ -92,15 +95,11 @@ $back_button = sprintf(
 
 // "View all in {label}" — surfaces the parent's own URL, which is otherwise
 // unreachable because drillInto() prevents default navigation on the trigger.
-$view_all_html = '';
-if ( $has_url ) {
-	$view_all_html = sprintf(
-		'<li role="none"><a class="wp-block-aggressive-apparel-nav-submenu-drilldown__view-all" href="%s" role="menuitem">%s</a></li>',
-		esc_url( $url ),
-		/* translators: %s: submenu name, e.g. "View all in Shop" */
-		esc_html( sprintf( __( 'View all in %s', 'aggressive-apparel' ), $label ) )
-	);
-}
+$view_all_html = aggressive_apparel_get_nav_view_all_link(
+	(string) $url,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu-drilldown__view-all'
+);
 
 printf(
 	'<li %s>
@@ -127,6 +126,6 @@ printf(
 	esc_attr( $label ),
 	aggressive_apparel_trusted_html( $back_button ),
 	esc_attr( $label ),
-	wp_kses_post( $view_all_html ),
+	aggressive_apparel_trusted_html( $view_all_html ),
 	aggressive_apparel_trusted_html( $content )
 );

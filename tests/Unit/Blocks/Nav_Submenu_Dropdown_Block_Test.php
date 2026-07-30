@@ -82,6 +82,21 @@ class Nav_Submenu_Dropdown_Block_Test extends WP_UnitTestCase {
         $this->assertStringContainsString( 'role="menu"', $html );
     }
 
+    public function test_parent_url_remains_available_as_a_menu_item(): void {
+        $html = $this->render(
+            [
+                'label'     => 'Shop',
+                'url'       => '/shop/',
+                'submenuId' => 'dropdown-shop',
+            ]
+        );
+
+        $this->assertStringContainsString(
+            '<a class="wp-block-aggressive-apparel-nav-submenu__view-all" href="/shop/" role="menuitem">View all in Shop</a>',
+            $html
+        );
+    }
+
     public function test_escapes_label(): void {
         $html = $this->render(
             [

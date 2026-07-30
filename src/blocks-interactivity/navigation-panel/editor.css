@@ -19,6 +19,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  font-size: var(--wp--preset--font-size--medium, 1rem);
   z-index: 100000;
 }
 
@@ -34,6 +35,21 @@
   width: 100%;
   right: 0;
   left: 0;
+}
+
+:where(
+  .wp-block-aggressive-apparel-navigation-panel--fullscreen
+    > .block-editor-block-list__layout
+    > :is(
+      [data-type="aggressive-apparel/nav-link"],
+      [data-type="aggressive-apparel/nav-submenu-accordion"],
+      [data-type="aggressive-apparel/nav-submenu-drilldown"]
+    )
+) {
+  font-size: var(
+    --aa-nav-panel-item-font-size,
+    clamp(2.5rem, 1.5rem + 6vw, 7rem)
+  );
 }
 
 /* Inner blocks stack vertically as touch targets */

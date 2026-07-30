@@ -90,6 +90,7 @@
   width: var(--panel-width, min(320px, 85vw));
   background: var(--panel-bg, var(--aa-color-surface-elevated));
   color: var(--panel-color, var(--_text));
+  font-size: var(--wp--preset--font-size--medium, 1rem);
   pointer-events: none;
   will-change: transform;
   transition:
@@ -483,7 +484,7 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   padding: 0.875rem 1.25rem;
   color: inherit;
   text-decoration: none;
-  font-size: var(--wp--preset--font-size--medium, 1rem);
+  font-size: inherit;
   font-weight: 400;
   line-height: 1.2;
   border-radius: var(--aa-radius-md);
@@ -631,10 +632,17 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   width: 100%;
 }
 
+:where(.aa-nav--fullscreen .aa-nav__panel-menu > li) {
+  font-size: var(
+    --aa-nav-panel-item-font-size,
+    clamp(2.5rem, 1.5rem + 6vw, 7rem)
+  );
+}
+
 .aa-nav--fullscreen .aa-nav__panel-menu > li > a,
 .aa-nav--fullscreen .aa-nav__panel-menu > li > button {
   display: block;
-  font-size: clamp(2.5rem, 1.5rem + 6vw, 7rem);
+  font-size: inherit;
   font-weight: 900;
   line-height: 1.05;
   letter-spacing: -0.03em;

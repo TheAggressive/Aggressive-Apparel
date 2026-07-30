@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.178.0\n"
+"Project-Id-Version: Aggressive Apparel 1.179.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-29T06:43:34+00:00\n"
+"POT-Creation-Date: 2026-07-30T07:36:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -57,6 +57,12 @@ msgstr ""
 
 #: includes/Blocks/class-icon-block.php:395
 msgid "Icon not found."
+msgstr ""
+
+#. translators: %s: navigation submenu label.
+#: includes/Blocks/class-navigation-functions.php:237
+#, php-format
+msgid "View all in %s"
 msgstr ""
 
 #. translators: %s: service identifier.
@@ -6864,15 +6870,9 @@ msgid "Close modal"
 msgstr ""
 
 #. translators: %s: submenu name, e.g. "Back from Shop"
-#: src/blocks-interactivity/nav-submenu-drilldown/render.php:90
+#: src/blocks-interactivity/nav-submenu-drilldown/render.php:93
 #, php-format
 msgid "Back from %s"
-msgstr ""
-
-#. translators: %s: submenu name, e.g. "View all in Shop"
-#: src/blocks-interactivity/nav-submenu-drilldown/render.php:101
-#, php-format
-msgid "View all in %s"
 msgstr ""
 
 #: src/blocks-interactivity/navigation-panel/render.php:132
@@ -6884,12 +6884,12 @@ msgid "Navigation menu closed"
 msgstr ""
 
 #: src/blocks-interactivity/navigation-panel/render.php:134
-#: src/blocks-interactivity/navigation/render.php:62
+#: src/blocks-interactivity/navigation/render.php:65
 msgid "Submenu opened"
 msgstr ""
 
 #: src/blocks-interactivity/navigation-panel/render.php:135
-#: src/blocks-interactivity/navigation/render.php:63
+#: src/blocks-interactivity/navigation/render.php:66
 msgid "Submenu closed"
 msgstr ""
 
@@ -6913,11 +6913,11 @@ msgstr ""
 msgid "Back to level %s"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:288
+#: src/blocks-interactivity/navigation-panel/render.php:227
 msgid "Close menu"
 msgstr ""
 
-#: src/blocks-interactivity/navigation-panel/render.php:353
+#: src/blocks-interactivity/navigation-panel/render.php:292
 msgid "Navigation menu"
 msgstr ""
 

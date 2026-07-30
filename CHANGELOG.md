@@ -1,3 +1,5 @@
+## [1.179.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.178.0...v1.179.0) (2026-07-30)
+
 ## [1.178.0](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.177.3...v1.178.0) (2026-07-27)
 
 ## [1.177.3](https://github.com/TheAggressive/Aggressive-Apparel/compare/v1.177.2...v1.177.3) (2026-07-26)

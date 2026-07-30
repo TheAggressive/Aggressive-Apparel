@@ -13,20 +13,18 @@ import {
  */
 
 test.describe('Size Guide — product page', () => {
-  let fixture: SizeGuideFixture;
-
-  test.beforeAll(() => {
-    fixture = createSizeGuideFixture();
-  });
-
-  test.afterAll(() => {
-    if (fixture) {
-      deleteSizeGuideFixture(fixture);
-    }
-  });
+  let fixture: SizeGuideFixture | undefined;
 
   test.beforeEach(async ({ page }) => {
+    fixture = createSizeGuideFixture();
     await page.goto(fixture.permalink);
+  });
+
+  test.afterEach(() => {
+    if (fixture) {
+      deleteSizeGuideFixture();
+      fixture = undefined;
+    }
   });
 
   test('opens an accessible dialog, locks scroll, and restores focus on Escape', async ({

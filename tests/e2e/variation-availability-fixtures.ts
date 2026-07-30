@@ -59,6 +59,51 @@ if ($old_product_id > 0) {
   wp_delete_post($old_product_id, true);
 }
 
+// Remove media from an interrupted prior run before creating a fresh owned
+// attachment. Product-card utility actions are rendered inside the image
+// surface, so a real featured image is part of this fixture's contract.
+$stale_attachments = get_posts(
+  array(
+    'post_type'      => 'attachment',
+    'post_status'    => 'inherit',
+    'title'          => 'E2E Product Card Image',
+    'fields'         => 'ids',
+    'posts_per_page' => 10,
+  )
+);
+foreach ($stale_attachments as $stale_attachment_id) {
+  wp_delete_attachment((int) $stale_attachment_id, true);
+}
+
+$image_bytes = base64_decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  true
+);
+if (false === $image_bytes) {
+  throw new RuntimeException('The product-card fixture image could not be decoded.');
+}
+$upload = wp_upload_bits('e2e-product-card.png', null, $image_bytes);
+if (!empty($upload['error'])) {
+  throw new RuntimeException((string) $upload['error']);
+}
+$attachment_id = wp_insert_attachment(
+  array(
+    'post_mime_type' => 'image/png',
+    'post_title'     => 'E2E Product Card Image',
+    'post_status'    => 'inherit',
+  ),
+  $upload['file']
+);
+if (is_wp_error($attachment_id)) {
+  wp_delete_file($upload['file']);
+  throw new RuntimeException($attachment_id->get_error_message());
+}
+require_once ABSPATH . 'wp-admin/includes/image.php';
+$attachment_metadata = wp_generate_attachment_metadata($attachment_id, $upload['file']);
+if (is_array($attachment_metadata)) {
+  wp_update_attachment_metadata($attachment_id, $attachment_metadata);
+}
+
 $taxonomy = 'pa_color';
 $colors = array(
   'red'   => array('name' => 'Red', 'value' => '#ff0000'),
@@ -109,6 +154,11 @@ $product->set_sku('${VARIATION_FIXTURE_SKU}');
 $product->set_status('publish');
 $product->set_catalog_visibility('visible');
 $product->set_category_ids(array($category_id));
+$product->set_image_id((int) $attachment_id);
+// Default catalog ordering is menu_order/title. Keep this owned fixture on the
+// first archive page even when global setup has already provisioned its product
+// floor, so visual tests never depend on a populated developer database.
+$product->set_menu_order(-1000);
 
 $attribute = new WC_Product_Attribute();
 $attribute->set_id(wc_attribute_taxonomy_id_by_name('color'));
@@ -137,7 +187,7 @@ WC_Product_Variable::sync($product_id);
 // Delay the option mutation until every fixture record exists. A setup
 // exception before this point cannot leak feature flags into persistent wp-env.
 $features = is_array($original) ? $original : array();
-foreach (array('quick_view', 'sticky_add_to_cart', 'price_display', 'stock_status') as $feature) {
+foreach (array('product_filters', 'quick_view', 'sticky_add_to_cart', 'price_display', 'stock_status') as $feature) {
   $features[$feature] = 1;
 }
 update_option($feature_key, $features, false);
@@ -146,6 +196,7 @@ echo wp_json_encode(
   array(
     'id'                => (int) $product_id,
     'permalink'         => get_permalink($product_id),
+    'attachmentId'      => (int) $attachment_id,
     'createdTermIds'    => $created_term_ids,
     'createdCategoryId' => $created_category_id,
   )
@@ -155,6 +206,7 @@ echo wp_json_encode(
 export interface VariationFixture {
   id: number;
   permalink: string;
+  attachmentId: number;
   createdTermIds: number[];
   createdCategoryId: number;
 }
@@ -166,13 +218,14 @@ export function createVariationAvailabilityFixture(): VariationFixture {
   const fixture: VariationFixture = {
     id: Number(data.id) || 0,
     permalink: String(data.permalink || ''),
+    attachmentId: Number(data.attachmentId) || 0,
     createdTermIds: Array.isArray(data.createdTermIds)
       ? data.createdTermIds.map(Number).filter(Number.isInteger)
       : [],
     createdCategoryId: Number(data.createdCategoryId) || 0,
   };
 
-  if (!fixture.id || !fixture.permalink) {
+  if (!fixture.id || !fixture.permalink || !fixture.attachmentId) {
     throw new Error(`Invalid variation fixture response: ${output}`);
   }
 
@@ -191,6 +244,11 @@ if ($product_id > 0) {
     wp_delete_post($child->ID, true);
   }
   wp_delete_post($product_id, true);
+}
+
+$attachment_id = ${Number(fixture.attachmentId)};
+if ($attachment_id > 0) {
+  wp_delete_attachment($attachment_id, true);
 }
 
 foreach (${termIds} as $term_id) {

@@ -23,6 +23,7 @@ import {
 let fixture: VariationFixture = {
   id: 0,
   permalink: '',
+  attachmentId: 0,
   createdTermIds: [],
   createdCategoryId: 0,
 };

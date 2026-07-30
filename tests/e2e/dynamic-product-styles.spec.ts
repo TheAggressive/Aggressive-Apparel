@@ -1,4 +1,4 @@
-import { test, expect, type Locator } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import {
   createVariationAvailabilityFixture,
   deleteVariationAvailabilityFixture,
@@ -30,12 +30,24 @@ const titleStyle = (locator: Locator) =>
     };
   });
 
+async function openVisualFixtureCard(page: Page) {
+  await page.goto('/shop/');
+  const card = page.locator(
+    `.wp-block-woocommerce-product-template > .wc-block-product.post-${visualFixture.id}`
+  );
+  await expect(
+    card,
+    'The owned variable-product fixture must render on the first catalog page.'
+  ).toBeVisible();
+  return card;
+}
+
 test('product-card swatches keep an accessible target and focus state', async ({
   page,
 }) => {
-  await page.goto('/shop/');
+  const card = await openVisualFixtureCard(page);
 
-  const swatch = page.locator('.aa-product-color-swatches__swatch').first();
+  const swatch = card.locator('.aa-product-color-swatches__swatch').first();
   await expect(swatch).toHaveCount(1);
 
   const box = await swatch.boundingBox();
@@ -93,9 +105,9 @@ test('narrow product cards use the dense swatch tier without wrapping', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/shop/');
+  const card = await openVisualFixtureCard(page);
 
-  const group = page.locator('.aa-product-color-swatches').first();
+  const group = card.locator('.aa-product-color-swatches').first();
   const swatches = group.locator('.aa-product-color-swatches__swatch');
   await expect(swatches.first()).toHaveCount(1);
 
@@ -138,9 +150,11 @@ test('product-filter choice pills keep the shared interaction target', async ({
   await page.goto('/shop/');
 
   const toggle = page.locator('.aa-filter-toggle:visible').first();
-  if (await toggle.count()) {
-    await toggle.click();
-  }
+  await expect(
+    toggle,
+    'The transactional fixture must enable Product Filters in clean wp-env.'
+  ).toBeVisible();
+  await toggle.click();
 
   const chip = page
     .locator(
@@ -158,12 +172,11 @@ test('product-filter choice pills keep the shared interaction target', async ({
 test('product-card utility actions use the shared icon-button contract', async ({
   page,
 }) => {
-  await page.goto('/shop/');
+  const card = await openVisualFixtureCard(page);
 
-  const actions = page
-    .locator('.aggressive-apparel-card-actions')
-    .first()
-    .locator('.aggressive-apparel-card-action');
+  const actions = card.locator(
+    '.aggressive-apparel-card-actions .aggressive-apparel-card-action'
+  );
   const actionCount = await actions.count();
   expect(actionCount).toBeGreaterThan(0);
 

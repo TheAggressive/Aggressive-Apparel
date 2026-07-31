@@ -241,8 +241,8 @@ jobs:
 
   # ============================================================================
   # Browser E2E: Runs beside PHP tests and reuses the build job's artifacts.
-  # The shared CI lane avoids package.json's local pretest:e2e rebuild because
-  # the build job already produced and uploaded the exact assets under test.
+  # The shared CI lane avoids the public local E2E command's rebuild because the
+  # build job already produced and uploaded the exact assets under test.
   # ============================================================================
   e2e:
     name: 🎭 Browser E2E
@@ -347,7 +347,7 @@ jobs:
           # Remove config files
           rm -f webpack.* tsconfig.* eslint.config.js .stylelintrc.json postcss.config.cjs
           rm -f phpunit.xml* phpstan.* phpcs.xml* commitlint.config.mjs .releaserc.json
-          rm -f jest.config.mjs lighthouserc.cjs
+          rm -f jest.config.js lighthouserc.cjs
           rm -f playwright.config.ts pnpm-workspace.yaml page.html
 
           # Remove AI assistant / dev-only docs
@@ -498,7 +498,8 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [release-plan, lint-frontend, i18n, build, test, e2e, package]
+    needs:
+      [changes, release-plan, lint-frontend, i18n, build, test, e2e, package]
     if: always()
 
     steps:
@@ -511,6 +512,7 @@ jobs:
           RELEASE_PLAN_RESULT="${{ needs.release-plan.result }}"
           SHOULD_RELEASE="${{ needs.release-plan.outputs.should_release }}"
           NEXT_VERSION="${{ needs.release-plan.outputs.next_version }}"
+          CODE_CHANGED="${{ needs.changes.outputs.code }}"
           if [ "$RELEASE_PLAN_RESULT" = "failure" ] || [ "$RELEASE_PLAN_RESULT" = "cancelled" ]; then
             echo "**Release planning failed** — Packaging and release were blocked" >> $GITHUB_STEP_SUMMARY
           elif [ "$SHOULD_RELEASE" = "true" ]; then
@@ -537,10 +539,40 @@ jobs:
             echo "| Package | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ needs.lint-frontend.result }}" = "success" ] && \
-             [ "${{ needs.build.result }}" = "success" ] && \
-             [ "${{ needs.test.result }}" = "success" ] && \
-             [ "${{ needs.e2e.result }}" = "success" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Quality checks, build and tests passed!" >> $GITHUB_STEP_SUMMARY
+          FAILED=0
+          require_success() {
+            local label="$1"
+            local result="$2"
+            if [ "$result" != "success" ]; then
+              echo "::error::Required ${label} job concluded ${result}"
+              FAILED=1
+            fi
+          }
+
+          require_success "change detection" "${{ needs.changes.result }}"
+          require_success "i18n" "${{ needs.i18n.result }}"
+
+          if [ "$CODE_CHANGED" = "true" ]; then
+            require_success "frontend" "${{ needs.lint-frontend.result }}"
+            require_success "build" "${{ needs.build.result }}"
+            require_success "PHP" "${{ needs.test.result }}"
+            require_success "browser E2E" "${{ needs.e2e.result }}"
+
+            if [ "${{ github.event_name }}" = "push" ] && \
+               { [ "${{ github.ref }}" = "refs/heads/main" ] || \
+                 [ "${{ github.ref }}" = "refs/heads/master" ]; }; then
+              require_success "release planning" "$RELEASE_PLAN_RESULT"
+            fi
+
+            if [ "$SHOULD_RELEASE" = "true" ]; then
+              require_success "package" "${{ needs.package.result }}"
+            fi
           fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$FAILED" -ne 0 ]; then
+            echo "### Required CI gate failed." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "### Required CI gate passed." >> $GITHUB_STEP_SUMMARY

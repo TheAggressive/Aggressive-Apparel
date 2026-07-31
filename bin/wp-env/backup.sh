@@ -27,8 +27,7 @@ if [[ "${1:-}" == "--container" ]]; then
 		--exclude="wp-content/themes/Aggressive-Apparel" \
 		--exclude="wp-content/plugins/woocommerce" \
 		--exclude="wp-content/plugins/wordpress-beta-tester" \
-		--exclude="wp-content/mu-plugins/wp-env-cron-loopback.php" \
-		--exclude="wp-content/mu-plugins/e2e-product-tabs-style.php" \
+		--exclude="wp-content/mu-plugins" \
 		--exclude="wp-content/debug.log" \
 		-C /var/www/html \
 		-czf "${destination}/wp-content.tar.gz" \

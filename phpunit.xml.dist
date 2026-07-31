@@ -6,6 +6,10 @@
 	colors="true"
 	verbose="false"
 	backupGlobals="false"
+	failOnWarning="true"
+	failOnRisky="true"
+	failOnSkipped="true"
+	failOnIncomplete="true"
 >
 	<testsuites>
 		<testsuite name="unit">
@@ -57,4 +61,3 @@
 	</php>
 
 </phpunit>
-

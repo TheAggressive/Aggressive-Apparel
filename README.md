@@ -60,10 +60,10 @@ pnpm build
 # Watch mode + wp-env (port 9910)
 pnpm dev
 
-# Core quality assurance (i18n + tests + lint + PHPStan)
+# Full release-CI parity against an isolated WordPress environment
 pnpm qa
 
-# Browser end-to-end tests (install Chromium once first)
+# Release-parity browser tests (install Chromium dependencies once first)
 pnpm test:e2e:install
 pnpm test:e2e
 ```
@@ -82,15 +82,17 @@ pnpm test:e2e
 | `pnpm test:security`       | Security tests                                                        |
 | `pnpm test:accessibility`  | Accessibility tests                                                   |
 | `pnpm test:performance`    | Performance benchmarks                                                |
-| `pnpm test:e2e`            | Playwright browser tests against wp-env                               |
+| `pnpm test:e2e`            | Pinned build + isolated release-parity Playwright tests               |
+| `pnpm test:e2e:dev`        | Build + Playwright tests against the development wp-env               |
 | `pnpm test:e2e:install`    | Install the Playwright Chromium browser and system dependencies       |
 | `pnpm lint:all`            | Prettier, file lengths, ESLint, TypeScript, Stylelint, and PHPCS      |
 | `pnpm lint:files`          | Enforce source-file length budgets                                    |
 | `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
 | `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
-| `pnpm qa`                  | i18n check + unit/tool/PHP tests + lint + PHPStan                     |
-| `pnpm ci:verify`           | Full local rehearsal of the required GitHub Actions checks            |
+| `pnpm qa`                  | Full local rehearsal of every required GitHub Actions check           |
+| `pnpm qa:dev`              | Development wp-env i18n, tests, lint, and PHPStan                     |
+| `pnpm ci:verify`           | Canonical release-parity implementation used by `pnpm qa`             |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
 | `pnpm env:start`           | Start wp-env and update development to the latest Beta/RC             |
 | `pnpm env:stop`            | Stop wp-env                                                           |
@@ -117,21 +119,25 @@ transactional archive before replacing core so uploads, fonts, and locally
 installed plugins survive the update. Set `WP_ENV_SKIP_BETA_UPDATE=1` to skip
 the moving update for an offline or deterministic run.
 
-Required CI and `pnpm ci:verify` both use `bin/ci/.wp-env.json`. That committed
-configuration pins WordPress, WooCommerce, and PHP; maps the theme to the same
-lowercase path; and stores its Docker state under the ignored `.wp-env-ci/`
-directory on dedicated ports. Each stateful parity lane resets both isolated
-databases, reapplies the pinned configuration, and stops its containers when
-finished. It therefore starts from the same WordPress state as Actions without
-altering the development database, uploads, fonts, or locally installed plugins.
+Required CI, `pnpm qa`, and `pnpm test:e2e` use `bin/ci/.wp-env.json`. That
+committed configuration pins WordPress, WooCommerce, and PHP; maps the theme to
+the same lowercase path; and stores its Docker state under the ignored
+`.wp-env-ci/` directory on dedicated ports. Each stateful parity lane resets
+both isolated databases, reapplies the pinned configuration, and stops its
+containers when finished. It therefore starts from the same WordPress state as
+Actions without altering the development database, uploads, fonts, or locally
+installed plugins. Use the explicit `qa:dev` and `test:e2e:dev` aliases only
+when testing against the persistent development environment is intentional.
 
-Node and pnpm are exact release-gate inputs. `pnpm ci:verify` downloads the
+Node and pnpm are exact release-gate inputs. `pnpm qa` downloads the
 official Node version from `.node-version` into the ignored local cache and
 verifies its pinned SHA-256 checksum before running; it does not change the
 global Node installation. `pnpm ci:doctor` then fails immediately if Node or
 pnpm differs from Actions. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`,
 `ci:php`, and `ci:e2e` in parallel jobs, while `pnpm ci:verify` runs those same
-commands serially.
+commands serially. Jest, PHPUnit, and Playwright fail the release gate when any
+discovered test is skipped, incomplete, risky, flaky after a retry, or otherwise
+lacks reliable executed test evidence.
 
 Recovery points default to the ignored `.wp-env-backups/` directory. Set
 `WP_ENV_BACKUP_DIR` to an absolute directory on durable storage to keep them

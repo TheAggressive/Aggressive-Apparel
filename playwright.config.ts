@@ -5,8 +5,8 @@ import { defineConfig, devices } from '@playwright/test';
  * running wp-env site. These guard real browser behavior (sticky/grid layout,
  * the card-flip 3D flip + inert a11y) that unit tests can't cover.
  *
- * Local: wp-env must be running (`pnpm env:start`), then `pnpm test:e2e`.
- * CI: run `npx playwright install --with-deps chromium` first.
+ * Release-parity local run: `pnpm test:e2e`.
+ * Development wp-env run: `pnpm env:start`, then `pnpm test:e2e:dev`.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -17,7 +17,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   maxFailures: process.env.CI ? 3 : 0,
-  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
+  reporter: process.env.CI
+    ? [['github'], ['list'], ['./tests/e2e/no-skips-reporter.ts']]
+    : [['list'], ['./tests/e2e/no-skips-reporter.ts']],
   globalSetup: './tests/e2e/global-setup.ts',
   use: {
     baseURL: process.env.WP_BASE_URL ?? 'http://localhost:9910',

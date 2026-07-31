@@ -128,6 +128,11 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/build/*</exclude-pattern>
     <exclude-pattern>*/.wp-env/*</exclude-pattern>
+    <exclude-pattern>*/.wp-env-ci/*</exclude-pattern>
+    <exclude-pattern>*/.wp-env-backups/*</exclude-pattern>
+    <exclude-pattern>*/.wp-env-backup-staging/*</exclude-pattern>
+    <exclude-pattern>*/.cache/*</exclude-pattern>
+    <exclude-pattern>*/local-uploads/*</exclude-pattern>
     <exclude-pattern>*/.claude/*</exclude-pattern>
     <exclude-pattern>*.min.js</exclude-pattern>
     <exclude-pattern>*.min.css</exclude-pattern>

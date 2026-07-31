@@ -29,6 +29,7 @@ pnpm wp-env run cli bash -c '
 		--exclude="wp-content/themes/aggressive-apparel" \
 		--exclude="wp-content/plugins/woocommerce" \
 		--exclude="wp-content/plugins/wordpress-beta-tester" \
+		--exclude="wp-content/mu-plugins" \
 		-C /var/www/html \
 		-cf "$backup_archive" \
 		wp-content

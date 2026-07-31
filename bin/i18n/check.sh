@@ -39,14 +39,20 @@ if [[ -n "${po_files}" ]]; then
 	while IFS= read -r po; do
 		[[ -n "${po}" ]] || continue
 		aa_i18n_info "Validating $(basename "${po}")"
+		validation_mo="${tmp_dir}/$(basename "${po%.po}").mo"
+		used_wp_cli=0
 		if [[ "${AA_I18N_PO_VALIDATOR:-auto}" == "wp-cli" ]]; then
-			aa_i18n_wp i18n make-mo "${po}" "${tmp_dir}"
+			used_wp_cli=1
+			aa_i18n_wp i18n make-mo "${po}" "${validation_mo}"
 		elif command -v msgfmt >/dev/null 2>&1; then
 			msgfmt -c -o /dev/null "${po}"
 		else
 			# WP-CLI compile to a temp dir as a validity check.
-			aa_i18n_wp i18n make-mo "${po}" "${tmp_dir}"
+			used_wp_cli=1
+			aa_i18n_wp i18n make-mo "${po}" "${validation_mo}"
 		fi
+		[[ "${used_wp_cli}" -eq 0 || -s "${validation_mo}" ]] ||
+			aa_i18n_die "WP-CLI did not produce ${validation_mo}"
 	done <<< "${po_files}"
 else
 	aa_i18n_info "No locale .po files — skipping PO validation."

@@ -122,22 +122,27 @@ test.describe('store-notices toasts', () => {
       await injectWooBanner(
         page,
         'is-error',
-        'Bad <a href="javascript:alert(1)">click</a>' +
-          '<img src="x" onerror="window.__xss=1">'
+        'Bad <a href="javascript:void(window.__xss=1)" ' +
+          'onclick="window.__xss=1">click</a>' +
+          '<img src="x" data-xss-probe>'
       );
 
       const toast = page.locator('.aa-notices__toast--error');
       await expect(toast).toBeVisible();
       await expect(toast).toContainText('click');
 
-      // No dangerous payload image (the sanitizer drops <img>/onerror). Scope to
-      // the injected signature so the toast's own thumbnail <img> isn't caught.
-      await expect(toast.locator('img[onerror], img[src="x"]')).toHaveCount(0);
+      // The source banner remains inert because nothing activates its link.
+      // Clicking the copied toast link proves both javascript: and onclick were
+      // removed at the sanitizer boundary instead of racing an original
+      // <img onerror> against the MutationObserver.
+      await expect(toast.locator('img[data-xss-probe]')).toHaveCount(0);
+      const link = toast.locator('a');
+      await link.click();
       const xssFired = await page.evaluate(
         () => (window as Window & { __xss?: unknown }).__xss
       );
       expect(xssFired).toBeUndefined();
-      const href = await toast.locator('a').getAttribute('href');
+      const href = await link.getAttribute('href');
       expect(href === null || !/javascript:/i.test(href)).toBe(true);
     } finally {
       await deletePage(page, id);

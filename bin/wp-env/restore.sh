@@ -36,8 +36,7 @@ if [[ "${1:-}" == "--container" ]]; then
 	esac
 
 	tar \
-		--exclude="wp-content/mu-plugins/wp-env-cron-loopback.php" \
-		--exclude="wp-content/mu-plugins/e2e-product-tabs-style.php" \
+		--exclude="wp-content/mu-plugins" \
 		-C /var/www/html \
 		-xzf "${source_directory}/wp-content.tar.gz"
 	wp db import "${source_directory}/database.sql"

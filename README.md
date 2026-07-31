@@ -90,6 +90,7 @@ pnpm test:e2e
 | `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
 | `pnpm qa`                  | i18n check + unit/tool/PHP tests + lint + PHPStan                     |
+| `pnpm ci:verify`           | Full local rehearsal of the required GitHub Actions checks            |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
 | `pnpm env:start`           | Start wp-env and update development to the latest Beta/RC             |
 | `pnpm env:stop`            | Stop wp-env                                                           |
@@ -116,11 +117,21 @@ transactional archive before replacing core so uploads, fonts, and locally
 installed plugins survive the update. Set `WP_ENV_SKIP_BETA_UPDATE=1` to skip
 the moving update for an offline or deterministic run.
 
-Required CI copies `bin/wp-env/ci.override.json` to the ignored
-`.wp-env.override.json` before startup. This pins WooCommerce as well as
-WordPress without changing the identity or data location of anyone's local
-environment. Update both pins deliberately when the supported stable baseline
-changes.
+Required CI and `pnpm ci:verify` both use `bin/ci/.wp-env.json`. That committed
+configuration pins WordPress, WooCommerce, and PHP; maps the theme to the same
+lowercase path; and stores its Docker state under the ignored `.wp-env-ci/`
+directory on dedicated ports. Each stateful parity lane resets both isolated
+databases, reapplies the pinned configuration, and stops its containers when
+finished. It therefore starts from the same WordPress state as Actions without
+altering the development database, uploads, fonts, or locally installed plugins.
+
+Node and pnpm are exact release-gate inputs. `pnpm ci:verify` downloads the
+official Node version from `.node-version` into the ignored local cache and
+verifies its pinned SHA-256 checksum before running; it does not change the
+global Node installation. `pnpm ci:doctor` then fails immediately if Node or
+pnpm differs from Actions. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`,
+`ci:php`, and `ci:e2e` in parallel jobs, while `pnpm ci:verify` runs those same
+commands serially.
 
 Recovery points default to the ignored `.wp-env-backups/` directory. Set
 `WP_ENV_BACKUP_DIR` to an absolute directory on durable storage to keep them
@@ -292,7 +303,7 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-detect changes → lint-frontend ∥ lint-php ∥ i18n → build → PHP tests ∥ browser E2E → package → semantic-release (feat/fix/perf only) → verify release assets
+detect changes → frontend ∥ i18n → build → PHP quality/tests ∥ browser E2E → package → semantic-release (feat/fix/perf only) → verify release assets
 ```
 
 - **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release
@@ -301,7 +312,7 @@ detect changes → lint-frontend ∥ lint-php ∥ i18n → build → PHP tests �
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
   - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm qa` — browser E2E is enforced in CI, where it runs in parallel with PHP tests
+  - `pre-push`: `pnpm ci:verify` — exact release-CI lanes against an isolated clean wp-env
 
 ### Versioning (what stays in sync on release)
 

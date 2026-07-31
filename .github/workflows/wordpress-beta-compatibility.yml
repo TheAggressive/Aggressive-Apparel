@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '24'
-  PHP_VERSION: '8.2'
+  NODE_VERSION: '24.18.0'
+  PHP_VERSION: '8.2.32'
 
 jobs:
   e2e:
@@ -49,7 +49,7 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Build theme
-        run: pnpm build
+        run: pnpm ci:build
 
       - name: Install Playwright browser
         run: pnpm test:e2e:install
@@ -60,7 +60,7 @@ jobs:
           pnpm env:check
 
       - name: Run end-to-end compatibility suite
-        run: pnpm exec playwright test
+        run: pnpm ci:e2e:beta
 
       - name: Upload Playwright diagnostics
         if: ${{ failure() || cancelled() }}

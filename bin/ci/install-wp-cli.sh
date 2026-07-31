@@ -10,6 +10,17 @@ readonly WP_CLI_SHA256='ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b6
 readonly WP_CLI_URL="https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar"
 readonly WP_CLI_INSTALL_PATH="${WP_CLI_INSTALL_PATH:-/usr/local/bin/wp}"
 
+if [[ -f "${WP_CLI_INSTALL_PATH}" ]]; then
+	existing_sha256="$(sha256sum "${WP_CLI_INSTALL_PATH}" | awk '{print $1}')"
+	if [[ "${existing_sha256}" == "${WP_CLI_SHA256}" ]]; then
+		echo "WP-CLI ${WP_CLI_VERSION} is already installed and verified."
+		if [[ "${WP_CLI_SKIP_INFO:-0}" != "1" ]]; then
+			"${WP_CLI_INSTALL_PATH}" --info --allow-root
+		fi
+		exit 0
+	fi
+fi
+
 wp_cli_temp="$(mktemp "${RUNNER_TEMP:-/tmp}/wp-cli-${WP_CLI_VERSION}.XXXXXX.phar")"
 readonly wp_cli_temp
 
@@ -43,10 +54,16 @@ echo "WP-CLI checksum verified."
 install_dir="$(dirname "${WP_CLI_INSTALL_PATH}")"
 readonly install_dir
 
+if [[ ! -d "${install_dir}" ]]; then
+	mkdir -p "${install_dir}"
+fi
+
 if [[ -w "${install_dir}" ]]; then
 	install -m 0755 "${wp_cli_temp}" "${WP_CLI_INSTALL_PATH}"
 else
 	sudo install -m 0755 "${wp_cli_temp}" "${WP_CLI_INSTALL_PATH}"
 fi
 
-"${WP_CLI_INSTALL_PATH}" --info --allow-root
+if [[ "${WP_CLI_SKIP_INFO:-0}" != "1" ]]; then
+	"${WP_CLI_INSTALL_PATH}" --info --allow-root
+fi

@@ -15,6 +15,15 @@ scripts=(
 	"${SCRIPT_DIR}/restore.sh"
 	"${SCRIPT_DIR}/test.sh"
 	"${SCRIPT_DIR}/update-beta-channel.sh"
+	"${REPO_ROOT}/bin/ci/e2e.sh"
+	"${REPO_ROOT}/bin/ci/i18n.sh"
+	"${REPO_ROOT}/bin/ci/node.sh"
+	"${REPO_ROOT}/bin/ci/php.sh"
+	"${REPO_ROOT}/bin/ci/reset-wp-env.sh"
+	"${REPO_ROOT}/bin/ci/stop-wp-env.sh"
+	"${REPO_ROOT}/bin/ci/verify.sh"
+	"${REPO_ROOT}/bin/ci/wp"
+	"${REPO_ROOT}/bin/ci/wp-env.sh"
 )
 
 bash -n "${scripts[@]}"
@@ -49,50 +58,6 @@ bash -n "${scripts[@]}"
 	[[ "${selected_ids[1]}" == "20260731T035931Z-93078" ]]
 )
 
-node -e '
-	const fs = require( "fs" );
-	const pkg = JSON.parse( fs.readFileSync( "package.json", "utf8" ) );
-	const override = JSON.parse(
-		fs.readFileSync( "bin/wp-env/ci.override.json", "utf8" )
-	);
-	const wpEnv = JSON.parse( fs.readFileSync( ".wp-env.json", "utf8" ) );
-	const stablePluginPattern =
-		/^https:\/\/downloads\.wordpress\.org\/plugin\/woocommerce\.\d+\.\d+\.\d+\.zip$/;
-	const stableCorePattern =
-		/^https:\/\/wordpress\.org\/wordpress-\d+\.\d+\.\d+\.zip$/;
-
-	for ( const unsafe of [ "env:clean", "env:destroy" ] ) {
-		if ( Object.hasOwn( pkg.scripts, unsafe ) ) {
-			throw new Error( `${ unsafe } bypasses the guarded lifecycle.` );
-		}
-	}
-
-	const developmentPlugins = override.env?.development?.plugins;
-	const testPlugins = override.env?.tests?.plugins;
-	if (
-		developmentPlugins?.length !== 1 ||
-		! stablePluginPattern.test( developmentPlugins[ 0 ] ) ||
-		JSON.stringify( developmentPlugins ) !== JSON.stringify( testPlugins )
-	) {
-		throw new Error( "CI must use one identical, version-pinned WooCommerce archive." );
-	}
-
-	if ( ! stableCorePattern.test( wpEnv.core ) ) {
-		throw new Error( "The required CI baseline must pin a stable WordPress archive." );
-	}
-'
-
-if rg --pcre2 \
-	'^\s*-\s*uses:\s*[^@\s]+@(?![0-9a-f]{40}(?:\s|#|$))' \
-	"${REPO_ROOT}/.github/workflows"; then
-	echo "Every GitHub Action must be pinned to a complete commit SHA." >&2
-	exit 1
-fi
-
-if [[ "$(rg -c 'WP_ENV_SKIP_BETA_UPDATE' "${REPO_ROOT}/.github/workflows/release.yml")" != "2" ]] ||
-	[[ "$(rg -c 'ci\.override\.json' "${REPO_ROOT}/.github/workflows/release.yml")" != "2" ]]; then
-	echo "Required release jobs must use the deterministic wp-env lane." >&2
-	exit 1
-fi
+node "${REPO_ROOT}/bin/ci/contracts.mjs"
 
 echo "wp-env tooling contracts passed."

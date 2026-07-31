@@ -39,7 +39,9 @@ if [[ -n "${po_files}" ]]; then
 	while IFS= read -r po; do
 		[[ -n "${po}" ]] || continue
 		aa_i18n_info "Validating $(basename "${po}")"
-		if command -v msgfmt >/dev/null 2>&1; then
+		if [[ "${AA_I18N_PO_VALIDATOR:-auto}" == "wp-cli" ]]; then
+			aa_i18n_wp i18n make-mo "${po}" "${tmp_dir}"
+		elif command -v msgfmt >/dev/null 2>&1; then
 			msgfmt -c -o /dev/null "${po}"
 		else
 			# WP-CLI compile to a temp dir as a validity check.

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# WP-CLI entry point used inside the parity container. The PHAR is downloaded
+# and checksum-verified by bin/ci/i18n.sh before this wrapper is invoked.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+exec php "${REPO_ROOT}/.cache/ci/wp" --allow-root "$@"

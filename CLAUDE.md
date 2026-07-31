@@ -7,7 +7,7 @@ This file provides guidance for AI assistants working with the Aggressive Appare
 **Aggressive Apparel** is a modern WordPress Full Site Editing (FSE) block theme built specifically for WooCommerce. It features a service container architecture, custom Gutenberg blocks with Interactivity API support, toggleable store enhancements, and comprehensive testing infrastructure.
 
 - **Version:** see `style.css` / `package.json` (semantic-release; do not hardcode here)
-- **Requires:** WordPress 7.0+, PHP 8.0+
+- **Requires:** WordPress 7.0+, PHP 8.2+
 - **Tested up to:** WordPress 7.0
 - **Package Manager:** pnpm 11+
 - **License:** GPL-2.0-or-later
@@ -39,6 +39,10 @@ pnpm env:start        # Start wp-env
 pnpm env:stop         # Stop wp-env
 pnpm setup            # Full setup: install → build → start
 
+# Release parity (identical commands to GitHub Actions)
+pnpm qa               # Every required lane, serially — what pre-push runs
+pnpm ci:package       # Package + verify the ZIP from the current build/
+
 # i18n (see languages/README.md)
 pnpm i18n:pot         # Regenerate languages/aggressive-apparel.pot
 pnpm i18n:check       # CI gate: pot drift + PO validity
@@ -52,6 +56,12 @@ pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
 - Text domain: `aggressive-apparel` (`Domain Path: /languages`).
 - `Theme_Support` calls `load_theme_textdomain`; classic scripts use `Asset_Loader::set_script_translations()`.
 - Tooling lives in `bin/i18n/` (`pnpm i18n:*`). Default MT mode is `auto`: DeepL when `DEEPL_AUTH_KEY` is set, MyMemory as fallback and as the sole provider without a key. DeepL is primary because MyMemory is a translation-memory aggregator — it returns whole-segment matches from unrelated corpora, carrying foreign punctuation and register. CI opens PRs (`.github/workflows/i18n-translate.yml`) — never pushes translations to `main`.
+- **MT draft PRs are not CI-gated.** `peter-evans/create-pull-request` opens them with
+  `GITHUB_TOKEN`, and GitHub deliberately does not trigger workflows on PRs created by that
+  token — so the i18n gate never runs on the branch. Exposure is bounded: the gate runs on
+  the post-merge push to `main`, so a bad catalog fails the very next pipeline rather than
+  shipping. Review the `.po` diff on its own merits; a green checkless PR means nothing ran,
+  not that anything passed. Fixing this properly needs a PAT or GitHub App token.
 - Commit `.pot` + locale `.po` drafts; `.mo` / Jed `.json` are gitignored and built by `i18n:compile` (release runs this).
 - Interactivity **script modules** use PHP `i18n` bags — not `wp_set_script_translations`.
 - Full runbook: [`languages/README.md`](languages/README.md).
@@ -121,14 +131,15 @@ functions.php
 Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/` directories. Full inventory and placement rules: [`README.md`](README.md) and [`docs/block-placement.md`](docs/block-placement.md).
 
 **Static Blocks** (`src/blocks/`):
-| Block | Description |
-|-------|-------------|
-| `aggressive-apparel-logo` | Brand logo component |
-| `dark-mode-toggle` | Light/dark theme switcher |
-| `copyright` | Footer copyright line |
-| `icon` | Brand / UI icon picker |
-| `product-rating` | Product rating display |
-| `split-story` | Split editorial layout |
+
+| Block                     | Description               |
+| ------------------------- | ------------------------- |
+| `aggressive-apparel-logo` | Brand logo component      |
+| `dark-mode-toggle`        | Light/dark theme switcher |
+| `copyright`               | Footer copyright line     |
+| `icon`                    | Brand / UI icon picker    |
+| `product-rating`          | Product rating display    |
+| `split-story`             | Split editorial layout    |
 
 **Interactive Blocks** (`src/blocks-interactivity/`) — highlights:
 
@@ -512,7 +523,7 @@ return array(
 
 ```json
 {
-  "phpVersion": "8.3",
+  "phpVersion": "8.2",
   "port": 9910,
   "testsPort": 9920
 }
@@ -664,7 +675,7 @@ coverage. Buttons are intentionally NOT styled here (editor-controlled).
 
 ### Style Variations (FSE)
 
-Theme style variations live in `/styles/*.json` (e.g. `styles/noir.json`). Block
+Theme style variations live in `/styles/*.json` (e.g. `styles/section-surface.json`). Block
 style variations are defined in theme.json `styles.blocks.*.variations` (e.g. the
 `core/group` "Card") or via `register_block_style` in `Core/Theme_Support`.
 
@@ -700,15 +711,21 @@ gate runs before code leaves the machine:
 
 - **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
 - **`commit-msg`**: commitlint validation (Conventional Commits).
-- **`pre-push`** (heavy, before push): `pnpm qa` = `i18n:check` + full test
-  suite (JS + PHP) + `lint:all` + PHPStan. `i18n:check` runs first because it
-  needs no wp-env and is the cheapest check. The PHP tests need wp-env running
-  (`pnpm env:start`).
+- **`pre-push`** (heavy, before push): `pnpm qa` → `bin/ci/verify.sh`, which
+  runs every canonical lane serially: `ci:frontend`, `ci:i18n`, `ci:build`,
+  `ci:php`, `ci:e2e`, `ci:package`. It provisions its own pinned Node and uses
+  the isolated `bin/ci/.wp-env.json` environment, so it never touches the
+  development database.
 
-  **CI enforces browser E2E** in a dedicated job that starts after `build` and
-  runs in parallel with the PHPUnit job. Both jobs consume the same uploaded
-  build artifacts, and CI invokes `pnpm exec playwright test` directly to avoid
-  rebuilding them. Packaging and releases require both jobs to pass.
+  **These are the same commands Actions runs**, and `bin/ci/contracts.mjs`
+  fails the build if the two lists ever diverge in either direction — a
+  workflow job may only invoke a canonical lane, never inline shell. Adding a
+  step to CI without making it runnable locally is a build failure, by design.
+
+  `ci:package` builds the distributable ZIP from the allowlist in
+  `bin/release/lib.sh` and verifies its contents, so the release artifact is
+  validated before anything is pushed. See
+  [`docs/release-runbook.md`](docs/release-runbook.md).
 
   Local `pnpm test:e2e` retains its `pretest:e2e` build so manual browser runs
   always validate current source instead of a stale `build/`.

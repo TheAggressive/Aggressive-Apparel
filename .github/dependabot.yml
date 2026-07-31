@@ -1,0 +1,84 @@
+version: 2
+
+# Every third-party action in .github/workflows is pinned to a full commit SHA,
+# which bin/ci/contracts.mjs enforces. Pinning without automated bumps rots:
+# the pin is what stops a compromised tag from executing, but it is also what
+# keeps a known-vulnerable version in place indefinitely. Dependabot rewrites
+# the SHA and the trailing version comment together, so review stays readable.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    commit-message:
+      # `chore` deliberately: CI tooling bumps must not cut a theme release.
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - github-actions
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - javascript
+    # Node and pnpm are pinned exactly and asserted by bin/ci/contracts.mjs
+    # against .node-version and bin/ci/node.sh (which also carries a checksum).
+    # An automated bump here would break that contract without updating either.
+    ignore:
+      - dependency-name: '@wordpress/env'
+        # Held at v10 on purpose: a major can destroy the development database.
+        update-types:
+          - version-update:semver-major
+    groups:
+      wordpress:
+        patterns:
+          - '@wordpress/*'
+        update-types:
+          - minor
+          - patch
+      dev-tooling:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@wordpress/*'
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - php
+    groups:
+      php-tooling:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch

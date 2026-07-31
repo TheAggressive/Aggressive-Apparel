@@ -1,0 +1,60 @@
+name: PHP Forward Compatibility
+
+# The release gate and the development environment both run the supported PHP
+# floor on purpose — that parity is what stops an API missing on the floor from
+# passing locally and failing in Actions. The cost is that nothing exercises
+# newer PHP, so deprecations would first surface when a host upgrades. This job
+# buys that coverage back without letting either environment disagree with the
+# gate.
+#
+# Scheduled and manual only: it must never gate a release, because a deprecation
+# on a version the theme does not claim to support is information, not a defect.
+
+on:
+  schedule:
+    - cron: '43 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: php-forward-compatibility
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '24.18.0'
+
+jobs:
+  php:
+    name: 🔮 PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      # One version failing must not hide the result of the others.
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The PHP lane needs compiled assets present for the integration suites.
+      - name: Run canonical build lane
+        run: pnpm ci:build
+
+      - name: Run PHP lane on ${{ matrix.php }}
+        run: pnpm ci:php:forward ${{ matrix.php }}

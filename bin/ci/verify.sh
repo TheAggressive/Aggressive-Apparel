@@ -21,4 +21,9 @@ pnpm ci:php
 pnpm ci:browser:install
 pnpm ci:e2e
 
+# Mirrors the workflow DAG: package depends on build, test and e2e, so it runs
+# last. bin/ci/contracts.mjs asserts this list stays equal to the set of lanes
+# the release workflow invokes, in both directions.
+pnpm ci:package
+
 echo "Full local CI parity verification passed."

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Composer entry point used inside the parity container. The PHAR is downloaded
+# and checksum-verified by bin/ci/install-composer.sh before this wrapper is
+# invoked. Mirrors bin/ci/wp so the lane resolves both tools by PATH.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+exec php "${REPO_ROOT}/.cache/ci/composer.phar" "$@"

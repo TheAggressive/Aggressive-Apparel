@@ -1,6 +1,6 @@
 {
   "core": "https://wordpress.org/wordpress-7.0.2.zip",
-  "phpVersion": "8.3",
+  "phpVersion": "8.2",
   "themes": ["."],
   "config": {
     "WP_DEBUG": true,

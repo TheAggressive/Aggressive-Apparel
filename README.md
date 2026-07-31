@@ -2,7 +2,7 @@
 
 Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.com) — a Full Site Editing (FSE) theme with toggleable store enhancements, custom blocks, a shared design system, and WooCommerce-first patterns.
 
-**Version:** see `style.css` / `package.json` (kept in sync by semantic-release) · **Requires:** WordPress 7.0+ / PHP 8.0+ · **License:** GPL-2.0-or-later
+**Version:** see `style.css` / `package.json` (kept in sync by semantic-release) · **Requires:** WordPress 7.0+ / PHP 8.2+ · **License:** GPL-2.0-or-later
 
 ## Features
 
@@ -134,8 +134,10 @@ official Node version from `.node-version` into the ignored local cache and
 verifies its pinned SHA-256 checksum before running; it does not change the
 global Node installation. `pnpm ci:doctor` then fails immediately if Node or
 pnpm differs from Actions. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`,
-`ci:php`, and `ci:e2e` in parallel jobs, while `pnpm ci:verify` runs those same
-commands serially. Jest, PHPUnit, and Playwright fail the release gate when any
+`ci:php`, `ci:e2e`, and `ci:package` in parallel jobs, while `pnpm ci:verify`
+runs those same commands serially. `bin/ci/contracts.mjs` asserts both
+directions of that list, so a lane cannot be added to Actions without also
+running locally, or removed locally while Actions still runs it. Jest, PHPUnit, and Playwright fail the release gate when any
 discovered test is skipped, incomplete, risky, flaky after a retry, or otherwise
 lacks reliable executed test evidence.
 
@@ -372,7 +374,7 @@ Added via `Bootstrap::add_security_headers()`:
 ## Requirements
 
 - WordPress 7.0+
-- PHP 8.0+ (8.3 recommended and used in wp-env; CI also verifies on 8.2)
+- PHP 8.2+ (development wp-env, the CI gate, PHPStan, and Composer all pin 8.2)
 - Node.js 24+ with pnpm 11+
 - WooCommerce 7.0+ (recommended)
 - Docker (for wp-env)

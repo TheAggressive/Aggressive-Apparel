@@ -68,8 +68,10 @@ if [[ "${missing}" -ne 0 ]]; then
 	echo "" >&2
 	echo "Release ${TAG} is published but incomplete. Without the .sha256" >&2
 	echo "sidecar the theme updater will not offer this version to any site." >&2
-	echo "Attach it manually, then re-run this job:" >&2
-	echo "  gh release upload ${TAG} ${ZIP}.sha256" >&2
+	echo "Re-running this job will NOT repair it: the tag already exists, so" >&2
+	echo "semantic-release republishes nothing and this script exits early." >&2
+	echo "Rebuild the assets locally and upload them — see" >&2
+	echo "docs/release-runbook.md ('verify-assets.sh fails')." >&2
 	exit 1
 fi
 

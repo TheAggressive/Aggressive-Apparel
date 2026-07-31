@@ -8,6 +8,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEME_CWD="wp-content/themes/aggressive-apparel"
 
+# Pinned, checksum-verified Composer. The container image's own Composer is
+# whatever WordPress shipped with it, so without this the lockfile metadata and
+# dependency resolution vary by who ran the lane.
+bash "${SCRIPT_DIR}/install-composer.sh"
+
 cleanup() {
 	if ! bash "${SCRIPT_DIR}/stop-wp-env.sh"; then
 		echo "Warning: CI parity containers could not be stopped." >&2
@@ -17,10 +22,11 @@ trap cleanup EXIT
 
 AA_CI_XDEBUG_MODE=coverage bash "${SCRIPT_DIR}/reset-wp-env.sh"
 
+# PATH puts bin/ci first so `composer` resolves to the pinned PHAR shim.
 ci_php() {
 	bash "${SCRIPT_DIR}/wp-env.sh" run tests-cli \
 		--env-cwd="${THEME_CWD}" \
-		-- bash -c "$1"
+		-- bash -c "PATH=\"\$PWD/bin/ci:\$PATH\" $1"
 }
 
 ci_php 'XDEBUG_MODE=off composer validate --strict --no-interaction'
@@ -34,6 +40,10 @@ ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=security --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=accessibility --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=performance --verbose'
 
+# Informational by design: composer.json declares no runtime dependencies (only
+# a php constraint), so every advisory Composer can report here concerns build
+# and test tooling that never ships inside the theme package. The shipping
+# artifact's supply chain is asserted by bin/release/verify-package.sh instead.
 if ! ci_php 'XDEBUG_MODE=off composer audit'; then
 	echo "Composer reported a development-tool advisory (informational)." >&2
 fi

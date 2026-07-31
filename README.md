@@ -91,8 +91,47 @@ pnpm test:e2e
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
 | `pnpm qa`                  | i18n check + unit/tool/PHP tests + lint + PHPStan                     |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
-| `pnpm env:start`           | Start wp-env (port 9910)                                              |
+| `pnpm env:start`           | Start wp-env and update development to the latest Beta/RC             |
 | `pnpm env:stop`            | Stop wp-env                                                           |
+| `pnpm env:check`           | Report versions and verify that attachment files exist                |
+| `pnpm env:backup`          | Create and checksum a database + wp-content recovery point            |
+| `pnpm env:backups`         | List available recovery points                                        |
+| `pnpm env:restore -- <id>` | Verify and restore a recovery point after backing up current state    |
+| `pnpm env:clean:all`       | Confirm, back up, and clean both wp-env databases                     |
+| `pnpm env:destroy:all`     | Confirm, back up, and destroy all wp-env containers and local data    |
+| `pnpm env:reset`           | Confirm, back up, clean, restart, and verify wp-env                   |
+
+The environments intentionally use two WordPress channels:
+
+| Lane                       | WordPress version                               | Role                                           |
+| -------------------------- | ----------------------------------------------- | ---------------------------------------------- |
+| Local development          | Latest Beta/RC via WordPress Beta Tester        | Early compatibility feedback                   |
+| Required release CI        | Pinned stable core and WooCommerce versions     | Reproducible release gate                      |
+| Scheduled compatibility CI | Latest Beta/RC, daily and manually dispatchable | Detect upcoming WordPress compatibility issues |
+| PHP test site              | Pinned stable version from `.wp-env.json`       | Reproducible unit and integration tests        |
+
+The development site uses wp-env's normal `wp-content` directory; it does not
+map the complete directory into the repository. The Beta/RC updater takes a
+transactional archive before replacing core so uploads, fonts, and locally
+installed plugins survive the update. Set `WP_ENV_SKIP_BETA_UPDATE=1` to skip
+the moving update for an offline or deterministic run.
+
+Required CI copies `bin/wp-env/ci.override.json` to the ignored
+`.wp-env.override.json` before startup. This pins WooCommerce as well as
+WordPress without changing the identity or data location of anyone's local
+environment. Update both pins deliberately when the supported stable baseline
+changes.
+
+Recovery points default to the ignored `.wp-env-backups/` directory. Set
+`WP_ENV_BACKUP_DIR` to an absolute directory on durable storage to keep them
+outside the repository. The five newest recovery points are retained by default;
+set `WP_ENV_BACKUP_RETENTION` to another positive count when storage policy
+requires it. Every clean, destroy, reset, and restore requires an explicit typed
+confirmation and creates a verified recovery point first. Intentional
+non-interactive automation must pass `--yes` or set
+`WP_ENV_CONFIRM_DESTRUCTIVE=1`; the commands otherwise fail closed. Direct
+`wp-env clean` and `wp-env destroy` bypass these safeguards and should not be
+used.
 
 ### Scaffolding Blocks
 

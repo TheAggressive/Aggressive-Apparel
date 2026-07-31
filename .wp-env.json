@@ -2,18 +2,25 @@
   "core": "https://wordpress.org/wordpress-7.0.2.zip",
   "phpVersion": "8.3",
   "themes": ["."],
-  "plugins": [],
   "config": {
     "WP_DEBUG": true,
     "WP_DEBUG_LOG": true,
     "WP_DEBUG_DISPLAY": false,
-    "SCRIPT_DEBUG": true
+    "SCRIPT_DEBUG": true,
+    "WP_MEMORY_LIMIT": "256M",
+    "WP_MAX_MEMORY_LIMIT": "512M"
   },
   "port": 9910,
   "phpmyadminPort": 9912,
+  "lifecycleScripts": {
+    "afterStart": "bash bin/wp-env/update-beta-channel.sh"
+  },
   "env": {
     "development": {
-      "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"],
+      "plugins": [
+        "https://downloads.wordpress.org/plugin/woocommerce.zip",
+        "https://downloads.wordpress.org/plugin/wordpress-beta-tester.zip"
+      ],
       "mappings": {
         "wp-content/mu-plugins/wp-env-cron-loopback.php": "./bin/wp-env/cron-loopback.php",
         "wp-content/mu-plugins/e2e-product-tabs-style.php": "./tests/e2e/fixtures/product-tabs-style.php"
@@ -22,7 +29,6 @@
     "tests": {
       "port": 9920,
       "phpmyadminPort": 9922,
-      "themes": ["."],
       "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"]
     }
   }

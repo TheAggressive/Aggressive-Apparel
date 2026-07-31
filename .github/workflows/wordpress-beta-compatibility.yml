@@ -1,0 +1,73 @@
+name: WordPress Beta Compatibility
+
+on:
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wordpress-beta-compatibility
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PHP_VERSION: '8.2'
+
+jobs:
+  e2e:
+    name: 🧪 Latest WordPress Beta/RC
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer:v2
+
+      - name: Cache Playwright browser
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          pnpm install --frozen-lockfile
+
+      - name: Build theme
+        run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm test:e2e:install
+
+      - name: Start latest Beta/RC environment
+        run: |
+          pnpm env:start
+          pnpm env:check
+
+      - name: Run end-to-end compatibility suite
+        run: pnpm exec playwright test
+
+      - name: Upload Playwright diagnostics
+        if: ${{ failure() || cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wordpress-beta-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

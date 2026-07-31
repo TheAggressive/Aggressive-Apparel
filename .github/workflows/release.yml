@@ -146,6 +146,9 @@ jobs:
       - name: Run JS tests
         run: pnpm test:js
 
+      - name: Run tooling contract tests
+        run: pnpm test:tools
+
       # Production-scoped tripwire. The theme ships zero runtime npm deps, so
       # this is clean by construction today and only fails if a *shipped*
       # dependency (added to `dependencies`) carries a high/critical advisory.
@@ -316,7 +319,10 @@ jobs:
           path: build/
 
       - name: Start wp-env
+        env:
+          WP_ENV_SKIP_BETA_UPDATE: '1'
         run: |
+          cp bin/wp-env/ci.override.json .wp-env.override.json
           pnpm env:start
           pnpm wp-env run tests-cli -- wp --info
 
@@ -416,7 +422,10 @@ jobs:
         run: pnpm test:e2e:install
 
       - name: Start wp-env
+        env:
+          WP_ENV_SKIP_BETA_UPDATE: '1'
         run: |
+          cp bin/wp-env/ci.override.json .wp-env.override.json
           pnpm env:start
           pnpm wp-env run cli -- wp --info
 

@@ -255,7 +255,15 @@ test.describe('anonymous catalog cursor pagination', () => {
             requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
           })
       );
-      await sentinel.scrollIntoViewIfNeeded();
+      // Use the DOM scroll primitive rather than Playwright's actionability-
+      // guarded helper. The application may finish a chained final-page load
+      // and hide the sentinel between the status read above and this scroll.
+      // In that valid terminal state, scrollIntoViewIfNeeded() waits for the
+      // now-hidden sentinel until the test timeout even though the catalogue
+      // has already reached "Showing N of N".
+      await sentinel.evaluate(element => {
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
+      });
 
       // Poll the rendered count rather than awaiting a specific response. The
       // store also fires background prefetches to this same endpoint (same URL

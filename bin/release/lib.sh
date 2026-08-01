@@ -72,8 +72,9 @@ AA_PACKAGE_PRUNE=(
 	'languages/README.md'
 )
 
-# Directories that must contain at least one entry inside the ZIP. Guards the
-# case where a directory ships but its contents did not.
+# Directories that must contain at least one FILE inside the ZIP. Bare directory
+# entries do not count, so a build that emitted only empty subdirectories fails
+# the very check meant to catch a partially-populated tree.
 AA_PACKAGE_REQUIRED_NONEMPTY=(
 	'build/blocks'
 	'build/blocks-interactivity'
@@ -130,13 +131,6 @@ AA_PACKAGE_FORBIDDEN=(
 	# page.html is forbidden, so this stays anchored to the theme root.
 	"^${AA_THEME_SLUG}/page\\.html$"
 )
-
-# Resolve the repository root from any script under bin/release/.
-aa_release_repo_root() {
-	local script_dir
-	script_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
-	(cd "${script_dir}/../.." && pwd)
-}
 
 # Read the theme version from the style.css header.
 aa_release_style_version() {

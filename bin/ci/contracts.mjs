@@ -3,10 +3,21 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  actionReferences,
+  flowSequence,
+  isNewerThan,
+  isPinnedAction,
+  parseJobs,
+  runCommands,
+} from './lib/workflow.mjs';
+
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '../..');
+/** @param {string} relativePath @return {any} */
 const readJson = relativePath =>
   JSON.parse(readFileSync(path.join(repositoryRoot, relativePath), 'utf8'));
+/** @param {string} relativePath @return {string} */
 const readText = relativePath =>
   readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
 
@@ -40,6 +51,17 @@ const i18nLibrary = readText('bin/i18n/lib.sh');
 const wpEnvBackup = readText('bin/wp-env/backup.sh');
 const wpEnvRestore = readText('bin/wp-env/restore.sh');
 const betaUpdater = readText('bin/wp-env/update-beta-channel.sh');
+
+// The parsing this file depends on must stay covered. Without this, the tests
+// could be dropped from the lane and the contract would keep reporting success
+// on top of unverified regexes — which is how both of its previous defects
+// survived into the repository.
+if (!packageJson.scripts['test:tools']?.includes('bin/ci/contracts.test.mjs')) {
+  throw new Error(
+    'test:tools must run bin/ci/contracts.test.mjs — the drift guard is only ' +
+      'as trustworthy as the parsing beneath it.'
+  );
+}
 
 for (const unsafe of ['env:clean', 'env:destroy']) {
   if (Object.hasOwn(packageJson.scripts, unsafe)) {
@@ -148,7 +170,7 @@ const resolvedJestReporters = resolvedJestConfig.globalConfig?.reporters ?? [];
 if (
   JSON.stringify(resolvedJestRoots) !== JSON.stringify([expectedJestRoot]) ||
   !resolvedJestReporters.some(
-    ([reporter]) =>
+    (/** @type {[string, unknown]} */ [reporter]) =>
       reporter ===
       path.join(repositoryRoot, 'bin/ci/jest-no-skips-reporter.cjs')
   )
@@ -222,25 +244,29 @@ for (const [name, script] of [
 }
 
 const workflowsDirectory = path.join(repositoryRoot, '.github/workflows');
-for (const fileName of readdirSync(workflowsDirectory)) {
-  if (!/\.ya?ml$/u.test(fileName)) {
-    continue;
-  }
+const workflowFiles = readdirSync(workflowsDirectory).filter(fileName =>
+  /\.ya?ml$/u.test(fileName)
+);
 
+// Fail closed: an empty workflow directory (or a rename that breaks discovery)
+// must not read as "no unpinned actions found".
+if (workflowFiles.length < 4) {
+  throw new Error(
+    `Expected at least 4 workflows, found ${workflowFiles.length} — workflow ` +
+      'discovery is broken and every per-workflow assertion below is vacuous.'
+  );
+}
+
+for (const fileName of workflowFiles) {
   const workflow = readFileSync(
     path.join(workflowsDirectory, fileName),
     'utf8'
   );
-  const usesPattern = /^\s*-\s*uses:\s*['"]?([^'"\s#]+)['"]?/gmu;
-  for (const match of workflow.matchAll(usesPattern)) {
-    const action = match[1];
-    if (action.startsWith('./') || action.startsWith('docker://')) {
-      continue;
-    }
 
-    const separator = action.lastIndexOf('@');
-    const reference = separator >= 0 ? action.slice(separator + 1) : '';
-    if (!/^[0-9a-f]{40}$/u.test(reference)) {
+  // actionReferences throws when its pattern misses a `uses:` key, so a parser
+  // that stops understanding the file cannot silently report zero findings.
+  for (const action of actionReferences(workflow)) {
+    if (!isPinnedAction(action)) {
       throw new Error(
         `${fileName} contains an action that is not pinned to a full SHA: ${action}`
       );
@@ -262,41 +288,34 @@ for (const fileName of readdirSync(workflowsDirectory)) {
 // editing this contract, which makes it visible in review instead of silent.
 // ---------------------------------------------------------------------------
 
-/**
- * Extract every `run:` command from a workflow job body.
- *
- * Matches the key wherever it appears in a step — with or without a preceding
- * `name:`, and whether or not it is the first key in the list item. An earlier
- * version only matched `run:` on its own line, so a bare `- run: …` step slipped
- * past the parity contract entirely, which is the exact hole this guards.
- * `runs-on:` is not matched because the colon must follow `run` directly.
- */
-const runCommands = jobBody =>
-  [...jobBody.matchAll(/^[ \t]+(?:-[ \t]+)?run:[ \t]*(.*)$/gmu)].map(match =>
-    match[1].trim()
-  );
-
-/** Slice a workflow's `jobs:` section into `{ jobName: body }`. */
-const parseJobs = workflow => {
-  const jobsStart = workflow.search(/^jobs:$/mu);
-  if (jobsStart < 0) {
-    throw new Error('Workflow has no jobs: section.');
-  }
-
-  const jobs = {};
-  const section = workflow.slice(jobsStart);
-  const headings = [...section.matchAll(/^ {2}([a-z][a-z0-9-]*):$/gmu)];
-
-  for (const [index, heading] of headings.entries()) {
-    const start = heading.index + heading[0].length;
-    const end = headings[index + 1]?.index ?? section.length;
-    jobs[heading[1]] = section.slice(start, end);
-  }
-
-  return jobs;
-};
-
 const releaseJobs = parseJobs(releaseWorkflow);
+
+// Fail closed. Several assertions below iterate the parsed jobs — the
+// persist-credentials check in particular — so a parser that silently returned
+// a partial result would satisfy them vacuously. Naming the expected jobs makes
+// a broken parse (or a renamed job) an error rather than a quiet pass.
+const EXPECTED_RELEASE_JOBS = [
+  'changes',
+  'release-plan',
+  'dependency-review',
+  'lint-frontend',
+  'i18n',
+  'build',
+  'test',
+  'e2e',
+  'package',
+  'release',
+  'summary',
+];
+
+const missingJobs = EXPECTED_RELEASE_JOBS.filter(job => !releaseJobs[job]);
+if (missingJobs.length > 0) {
+  throw new Error(
+    `Release workflow parse is incomplete — missing ${JSON.stringify(
+      missingJobs
+    )}. Every per-job assertion would otherwise pass without checking anything.`
+  );
+}
 
 // `lanes` are the shared commands that must also run locally. `setup` are the
 // few runner-provisioning commands that legitimately have no local equivalent;
@@ -463,22 +482,23 @@ if (
 // something else exercises newer PHP. If the scheduled forward-compatibility
 // job is removed or narrowed to the floor, that justification disappears
 // silently — so it is asserted here alongside the floor it complements.
-const forwardVersions = [
-  ...(/^\s*php:\s*\[(.+)\]\s*$/mu
-    .exec(phpForwardWorkflow)?.[1]
-    .matchAll(/'(\d+\.\d+)'/gu) ?? []),
-].map(match => match[1]);
+const forwardVersions = flowSequence(phpForwardWorkflow, 'php');
 
 if (
   !phpForwardWorkflow.includes('schedule:') ||
   !phpForwardWorkflow.includes('pnpm ci:php:forward') ||
   !phpForwardLane.includes('WP_ENV_PHP_VERSION') ||
   // Must not reuse the parity home or ports, or a forward run would clobber
-  // the environment `pnpm qa` depends on.
-  !phpForwardLane.includes('AA_CI_WP_ENV_HOME') ||
-  packageJson.scripts['ci:php:forward'] !== 'bash bin/ci/php-forward.sh' ||
+  // the environment `pnpm qa` depends on — and its home must sit inside the
+  // .cache/ tree that every scanner already excludes. A generated WordPress
+  // install anywhere else becomes PHPCS input and OOMs the lint lane.
+  !phpForwardLane.includes(
+    'AA_CI_WP_ENV_HOME="${REPO_ROOT}/.cache/ci/wp-env-forward"'
+  ) ||
+  packageJson.scripts['ci:php:forward'] !==
+    'pnpm ci:doctor && bash bin/ci/php-forward.sh' ||
   forwardVersions.length === 0 ||
-  !forwardVersions.every(version => Number(version) > Number(phpFloor))
+  !forwardVersions.every(version => isNewerThan(version, phpFloor))
 ) {
   throw new Error(
     'A scheduled PHP forward-compatibility job must exercise versions above ' +

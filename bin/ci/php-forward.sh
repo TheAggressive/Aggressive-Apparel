@@ -21,8 +21,10 @@ set -euo pipefail
 
 PHP_VERSION="${1:?Usage: php-forward.sh <php-version> (e.g. 8.4)}"
 
-if [[ ! "${PHP_VERSION}" =~ ^8\.[0-9]+$ ]]; then
-	echo "Expected a PHP minor version such as 8.4, got '${PHP_VERSION}'." >&2
+# Deliberately not anchored to 8.x: this lane must keep working when the theme
+# eventually targets PHP 9, without a code change nobody will remember to make.
+if [[ ! "${PHP_VERSION}" =~ ^[0-9]+\.[0-9]+$ ]]; then
+	echo "Expected a PHP major.minor version such as 8.4, got '${PHP_VERSION}'." >&2
 	exit 2
 fi
 
@@ -34,7 +36,11 @@ echo "=== PHP ${PHP_VERSION} forward-compatibility run ==="
 # wp-env reads these overrides ahead of bin/ci/.wp-env.json, so the committed
 # parity configuration stays the single source of truth for everything else.
 export WP_ENV_PHP_VERSION="${PHP_VERSION}"
-export AA_CI_WP_ENV_HOME="${REPO_ROOT}/.wp-env-ci-forward"
+# Lives under .cache/ because every scanner in the repo already excludes
+# that tree (phpcs.xml.dist, bin/i18n/lib.sh, .gitignore). A new
+# top-level directory would silently become PHPCS input — it did, and
+# OOM-ed the lint lane by scanning a whole WordPress install.
+export AA_CI_WP_ENV_HOME="${REPO_ROOT}/.cache/ci/wp-env-forward"
 export WP_ENV_PORT=9940
 export WP_ENV_TESTS_PORT=9941
 

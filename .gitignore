@@ -29,7 +29,6 @@ wp-config.php
 # wp-env
 .wp-env/
 .wp-env-ci/
-.wp-env-ci-forward/
 .wp-env.override.json
 .wp-env-backups/
 .wp-env-backup-staging/

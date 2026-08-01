@@ -9,6 +9,12 @@
     "checkJs": true,
     "strict": true
   },
-  "include": ["bin/build-icons.mjs", "bin/lib/icon-build*.mjs"],
+  "include": [
+    "bin/build-icons.mjs",
+    "bin/lib/icon-build*.mjs",
+    "bin/ci/lib/*.mjs",
+    "bin/ci/contracts.mjs",
+    "bin/ci/contracts.test.mjs"
+  ],
   "exclude": ["node_modules", "vendor", "build"]
 }

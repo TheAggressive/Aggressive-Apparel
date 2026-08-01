@@ -1,0 +1,30 @@
+# Code owners. Requires "Require review from Code Owners" on the release-branch
+# ruleset (.github/rulesets/release-branches.json) to be enforcing rather than
+# advisory.
+
+# Default owner for everything not matched below.
+*                           @TheAggressive
+
+# Release and CI machinery. These files decide what ships to every install and
+# what the gate actually checks, so they should never be changed casually:
+#
+#   - bin/ci/contracts.mjs (and its parsing lib) is the only thing keeping local
+#     and Actions in agreement; weakening it silently weakens every other check.
+#   - bin/release/lib.sh is the allowlist that defines the distributable ZIP.
+#   - The release workflow holds the tokens that publish.
+/.github/workflows/         @TheAggressive
+/.github/rulesets/          @TheAggressive
+/.github/CODEOWNERS         @TheAggressive
+/.github/dependabot.yml     @TheAggressive
+/bin/ci/                    @TheAggressive
+/bin/release/               @TheAggressive
+/.releaserc.json            @TheAggressive
+
+# Version and dependency floors asserted by bin/ci/contracts.mjs.
+/composer.json              @TheAggressive
+/composer.lock              @TheAggressive
+/package.json               @TheAggressive
+/pnpm-lock.yaml             @TheAggressive
+/phpstan.neon               @TheAggressive
+/style.css                  @TheAggressive
+/.wp-env.json               @TheAggressive

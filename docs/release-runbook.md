@@ -38,6 +38,43 @@ stale tree.
 fails the build if the two ever diverge, so a green local run is a real
 prediction of CI rather than an approximation.
 
+## What the release artifact proves (and what it does not)
+
+Two separate controls ship with every release, and they answer different
+questions. Conflating them is how a supply-chain gap hides in plain sight.
+
+| Control                | Answers                                            | Enforced by                                                 |
+| ---------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| `<zip>.sha256` sidecar | "Did this download arrive intact?"                 | **The updater**, on every install                           |
+| Provenance attestation | "Was this built by our workflow, from our commit?" | **Nobody automatically** — humans and external tooling only |
+
+`Core\Theme_Update_Package_Verifier` checks the SHA-256 and refuses a package
+that does not match. It does **not** verify the attestation, so the attestation
+is evidence you can check, not a gate that blocks a forged package. Verifying a
+Sigstore bundle inside a WordPress theme updater would mean implementing
+certificate-chain and transparency-log verification in PHP — disproportionate,
+and a worse risk than the one it removes.
+
+Treat the attestation as an audit tool. Before trusting an artifact from a
+release you did not watch run, verify it explicitly:
+
+```bash
+gh attestation verify aggressive-apparel-1.2.3.zip \
+  --repo TheAggressive/Aggressive-Apparel
+```
+
+Because the sidecar is written by the same job that writes the ZIP, it protects
+against corruption, not against someone with write access replacing both. The
+real control against that is who can push to a release branch — see
+[`.github/rulesets/README.md`](../.github/rulesets/README.md).
+
+## Branch protection
+
+Every gate in this pipeline can be disabled from the GitHub UI without leaving a
+trace in the repository. The committed intent lives in
+[`.github/rulesets/`](../.github/rulesets/), with apply and drift-check commands.
+Verify it after any settings change, and whenever a release behaves oddly.
+
 ## Rollback: pulling a bad release
 
 **This is the fastest lever and it is already supported by the updater.**

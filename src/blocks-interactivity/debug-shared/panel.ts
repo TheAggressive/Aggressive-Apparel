@@ -267,7 +267,10 @@ export const createDebugPanel = (options: PanelOptions): PanelHandle => {
     safeStorageSet(options.storageKey, {
       left: rect.left,
       top: rect.top,
-      collapsed: body.hidden,
+      // TypeScript 6 widens HTMLElement.hidden to `boolean | "until-found"`.
+      // This panel only ever assigns booleans, but coercing is also correct:
+      // `until-found` is a hidden state, so it should persist as collapsed.
+      collapsed: Boolean(body.hidden),
     } satisfies PersistedPanelState);
   };
 

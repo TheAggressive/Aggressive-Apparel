@@ -10,7 +10,11 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    // "bundler" rather than the legacy "node" (node10), which TypeScript 6
+    // reports as a hard error and TypeScript 7 removes. It is also the correct
+    // model for this project: webpack resolves the imports, so package.json
+    // "exports" maps and extensionless specifiers should be honoured.
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

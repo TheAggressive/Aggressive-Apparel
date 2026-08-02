@@ -6,6 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 THEME_CWD="wp-content/themes/aggressive-apparel"
 
 # Pinned, checksum-verified Composer. The container image's own Composer is
@@ -22,11 +23,23 @@ trap cleanup EXIT
 
 AA_CI_XDEBUG_MODE=coverage bash "${SCRIPT_DIR}/reset-wp-env.sh"
 
+# composer.json has no `version` field on purpose — the theme's version lives in
+# style.css and is managed by semantic-release, so duplicating it would drift.
+# Composer then prints "could not detect the root package version, defaulting to
+# 1.0.0" on every single call. Nothing depends on the root version, but six
+# copies of that notice per run reads like a problem. Telling Composer the real
+# version up front removes it, and reading it from style.css keeps it accurate
+# without a second source of truth.
+COMPOSER_ROOT_VERSION="$(
+	sed -n 's/^Version:[[:space:]]*\([0-9][^[:space:]]*\).*$/\1/p' \
+		"${REPO_ROOT}/style.css" | head -n 1
+)"
+
 # PATH puts bin/ci first so `composer` resolves to the pinned PHAR shim.
 ci_php() {
 	bash "${SCRIPT_DIR}/wp-env.sh" run tests-cli \
 		--env-cwd="${THEME_CWD}" \
-		-- bash -c "PATH=\"\$PWD/bin/ci:\$PATH\" $1"
+		-- bash -c "COMPOSER_ROOT_VERSION=\"${COMPOSER_ROOT_VERSION}\" PATH=\"\$PWD/bin/ci:\$PATH\" $1"
 }
 
 ci_php 'XDEBUG_MODE=off composer validate --strict --no-interaction'

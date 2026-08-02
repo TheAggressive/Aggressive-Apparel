@@ -206,6 +206,8 @@
     "// 🔧 UTILITY SCRIPTS": "_",
     "composer:verify": "composer validate --strict && composer install --dry-run --no-interaction --no-scripts",
     "qa": "pnpm run ci:verify",
+    "qa:fast": "bash bin/ci/node.sh qa:fast:pinned",
+    "qa:fast:pinned": "bash bin/ci/verify-fast.sh",
     "qa:dev": "pnpm run i18n:check && pnpm run composer:verify && pnpm run test && pnpm run lint:all && pnpm run phpstan",
     "ci:doctor": "node bin/ci/doctor.mjs",
     "ci:frontend": "pnpm ci:doctor && pnpm lint:files && pnpm lint:js && pnpm typecheck && pnpm lint:css && pnpm format:check && pnpm test:js && pnpm test:tools && pnpm audit --prod --audit-level high",

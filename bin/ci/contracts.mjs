@@ -39,6 +39,8 @@ const phpLane = readText('bin/ci/php.sh');
 const packageLane = readText('bin/ci/package.sh');
 const composerBootstrap = readText('bin/ci/install-composer.sh');
 const verifyScript = readText('bin/ci/verify.sh');
+const verifyFastScript = readText('bin/ci/verify-fast.sh');
+const prePushHook = readText('.husky/pre-push');
 const releaseLib = readText('bin/release/lib.sh');
 const prepareScript = readText('bin/release/prepare.sh');
 const styleCss = readText('style.css');
@@ -401,6 +403,35 @@ for (const lane of workflowLanes) {
       `Workflow invokes "${lane}" but package.json has no such script.`
     );
   }
+}
+
+// The pre-push gate is a deliberate SUBSET of the full rehearsal, so it stays
+// fast enough not to be bypassed. It must never contain a lane Actions does not
+// run — that would mean testing locally something CI never checks — and
+// pre-push must actually invoke it rather than the 15-minute full run.
+const fastLanes = new Set(
+  [...verifyFastScript.matchAll(/^pnpm (ci:[a-z0-9:]+)$/gmu)]
+    .map(match => `pnpm ${match[1]}`)
+    .filter(lane => lane !== 'pnpm ci:doctor')
+);
+
+const fastNotInCi = [...fastLanes].filter(lane => !workflowLanes.has(lane));
+if (fastNotInCi.length > 0 || fastLanes.size === 0) {
+  throw new Error(
+    'bin/ci/verify-fast.sh must run a non-empty subset of the lanes Actions ' +
+      `runs (offending: ${JSON.stringify(fastNotInCi)}).`
+  );
+}
+
+if (
+  packageJson.scripts['qa:fast'] !== 'bash bin/ci/node.sh qa:fast:pinned' ||
+  packageJson.scripts['qa:fast:pinned'] !== 'bash bin/ci/verify-fast.sh' ||
+  !prePushHook.includes('pnpm run qa:fast')
+) {
+  throw new Error(
+    'pre-push must run the pinned fast gate (pnpm qa:fast); `pnpm qa` remains ' +
+      'the full pre-release rehearsal.'
+  );
 }
 
 // Release integrity: a release-branch run must never be cancelled mid-publish.

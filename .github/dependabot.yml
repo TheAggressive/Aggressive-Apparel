@@ -12,7 +12,7 @@ updates:
       interval: weekly
       day: monday
       time: '06:00'
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     commit-message:
       # `chore` deliberately: CI tooling bumps must not cut a theme release.
       prefix: chore
@@ -31,7 +31,7 @@ updates:
       interval: weekly
       day: monday
       time: '06:00'
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     commit-message:
       prefix: chore
       include: scope
@@ -42,8 +42,12 @@ updates:
     # against .node-version and bin/ci/node.sh (which also carries a checksum).
     # An automated bump here would break that contract without updating either.
     ignore:
-      - dependency-name: '@wordpress/env'
-        # Held at v10 on purpose: a major can destroy the development database.
+      # Majors are opened one PR at a time because groups only cover minor and
+      # patch, which is what makes a quiet week noisy. None of this is runtime
+      # code — it is build and test tooling — so majors are better done
+      # deliberately than drip-fed. Security updates are unaffected by `ignore`
+      # and still arrive automatically.
+      - dependency-name: '*'
         update-types:
           - version-update:semver-major
     groups:
@@ -68,13 +72,19 @@ updates:
       interval: weekly
       day: monday
       time: '06:00'
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     commit-message:
       prefix: chore
       include: scope
     labels:
       - dependencies
       - php
+    ignore:
+      # See the npm rationale above: PHP tooling majors are reviewed on purpose,
+      # not on Dependabot's schedule. Security updates still come through.
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
     groups:
       php-tooling:
         patterns:

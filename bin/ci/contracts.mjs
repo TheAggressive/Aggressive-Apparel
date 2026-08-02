@@ -33,6 +33,9 @@ const phpForwardWorkflow = readText(
   '.github/workflows/php-forward-compatibility.yml'
 );
 const phpForwardLane = readText('bin/ci/php-forward.sh');
+const autoMergeWorkflow = readText(
+  '.github/workflows/dependabot-auto-merge.yml'
+);
 const nodeVersion = readText('.node-version').trim();
 const nodeBootstrap = readText('bin/ci/node.sh');
 const phpLane = readText('bin/ci/php.sh');
@@ -431,6 +434,30 @@ if (
   throw new Error(
     'pre-push must run the pinned fast gate (pnpm qa:fast); `pnpm qa` remains ' +
       'the full pre-release rehearsal.'
+  );
+}
+
+// Unattended merging is only acceptable while every one of its guards holds.
+// Weakening any of them should fail the build rather than quietly widen what
+// merges without a human: the author must be re-verified against the API, every
+// check must be green, and a major version bump must never auto-merge.
+if (
+  !autoMergeWorkflow.includes("workflows: ['CI/CD Pipeline']") ||
+  !autoMergeWorkflow.includes(
+    "github.event.workflow_run.conclusion == 'success'"
+  ) ||
+  !autoMergeWorkflow.includes(
+    "github.event.workflow_run.actor.login == 'dependabot[bot]'"
+  ) ||
+  !autoMergeWorkflow.includes('gh pr view "${PR}" --json author') ||
+  !autoMergeWorkflow.includes('crosses a major version') ||
+  !autoMergeWorkflow.includes('--squash') ||
+  autoMergeWorkflow.includes('--admin') ||
+  autoMergeWorkflow.includes('--force')
+) {
+  throw new Error(
+    'The Dependabot auto-merge workflow must keep every guard: pipeline success, ' +
+      'API-verified Dependabot authorship, all checks green, and no major bumps.'
   );
 }
 

@@ -307,7 +307,7 @@ class Theme_Updates {
 			'author_profile' => $theme->get( 'AuthorURI' ),
 			'contributors'   => array(),
 			'requires'       => $theme->get( 'RequiresWP' ) ? $theme->get( 'RequiresWP' ) : '5.0',
-			'tested'         => (string) ( $theme->get( 'TestedUpTo' ) ? $theme->get( 'TestedUpTo' ) : '6.4' ), // @phpstan-ignore ternary.alwaysFalse
+			'tested'         => (string) ( $theme->get( 'TestedUpTo' ) ? $theme->get( 'TestedUpTo' ) : '6.4' ),
 			'requires_php'   => $theme->get( 'RequiresPHP' ) ? $theme->get( 'RequiresPHP' ) : '7.4',
 			'rating'         => 100,
 			'num_ratings'    => 1,
@@ -345,7 +345,7 @@ class Theme_Updates {
 		$changelog .= "<h4>{$version} - {$date}</h4>\n";
 
 		// Add release body/notes.
-		if ( ! empty( $release_data['body'] ) && is_string( $release_data['body'] ) && null !== $release_data['body'] ) {
+		if ( ! empty( $release_data['body'] ) && is_string( $release_data['body'] ) ) {
 			$changelog .= '<p>' . $this->format_release_body( $release_data['body'] ) . "</p>\n";
 		} else {
 			$changelog .= '<p>No changelog available for this release.</p>';

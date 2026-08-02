@@ -155,7 +155,7 @@ class Free_Shipping {
 	 * }|null Null when no threshold is configured.
 	 */
 	public static function get_cart_progress( float $custom_threshold = 0.0 ): ?array {
-		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) { // @phpstan-ignore booleanNot.alwaysFalse
+		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
 			return null;
 		}
 

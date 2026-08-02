@@ -386,10 +386,6 @@ class WooCommerce_Block_Detector {
 		}
 
 		foreach ( $files as $file ) {
-			if ( ! is_string( $file ) ) {
-				continue;
-			}
-
 			$slug = basename( $file, '.html' );
 
 			if ( '' !== $slug ) {
@@ -549,7 +545,7 @@ class WooCommerce_Block_Detector {
 			if ( 'core/template-part' === $block_name && ! empty( $block['attrs']['slug'] ) ) {
 				$slug = $block['attrs']['slug'];
 
-				if ( is_string( $slug ) && '' !== $slug && self::template_part_reference_has_woocommerce_blocks( $slug ) ) {
+				if ( is_string( $slug ) && self::template_part_reference_has_woocommerce_blocks( $slug ) ) {
 					return true;
 				}
 			}
@@ -557,7 +553,7 @@ class WooCommerce_Block_Detector {
 			if ( 'core/pattern' === $block_name && ! empty( $block['attrs']['slug'] ) ) {
 				$slug = $block['attrs']['slug'];
 
-				if ( is_string( $slug ) && '' !== $slug && self::pattern_has_woocommerce_blocks( $slug ) ) {
+				if ( is_string( $slug ) && self::pattern_has_woocommerce_blocks( $slug ) ) {
 					return true;
 				}
 			}

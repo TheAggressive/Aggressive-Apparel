@@ -304,9 +304,9 @@ class Product_Badges {
 	 * @return void
 	 */
 	private function add_badge_to_group( array &$groups, array $badge, string $label ): void {
-		$pos              = isset( $groups[ $badge['position'] ] ) ? $badge['position'] : 'top-left';
+		$pos              = isset( $groups[ $badge['position'] ] ) ? (string) $badge['position'] : 'top-left';
 		$groups[ $pos ][] = array(
-			'priority' => $badge['priority'],
+			'priority' => (int) $badge['priority'],
 			'html'     => $this->build_badge_span( $badge, $label ),
 		);
 	}

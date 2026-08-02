@@ -721,11 +721,11 @@ class Search_Index {
 			return is_int( $action_id ) && $action_id > 0;
 		}
 
-		if ( $unique && wp_next_scheduled( $hook, $args ) ) {
+		if ( $unique && wp_next_scheduled( $hook, array_values( $args ) ) ) {
 			return true;
 		}
 
-		$result = wp_schedule_single_event( time() + max( 1, $delay ), $hook, $args, true );
+		$result = wp_schedule_single_event( time() + max( 1, $delay ), $hook, array_values( $args ), true );
 		return true === $result;
 	}
 

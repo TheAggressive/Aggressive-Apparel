@@ -18,9 +18,14 @@ parameters:
 	# Treat PHP code as if it always runs on PHP 8.2+
 	phpVersion: 80200
 
-	# WordPress-specific ignores
-	excludePaths:
-		- includes/vendor/
+	# WordPress and WooCommerce stubs declare optimistic types: a docblock may
+	# say a filter returns array<int,int>, but any plugin can make it return
+	# anything at runtime. PHPStan 2 trusts those docblocks as certain, which
+	# reports every defensive is_string()/is_array() guard as redundant — and
+	# acting on that would delete protection that real runtime paths depend on.
+	# This does not weaken analysis of our own declared types; it only stops
+	# third-party PHPDoc being treated as a guarantee.
+	treatPhpDocTypesAsCertain: false
 
 	# Ignore specific patterns that need special handling
 	ignoreErrors:

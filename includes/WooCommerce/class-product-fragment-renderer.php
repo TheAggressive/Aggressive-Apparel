@@ -102,7 +102,10 @@ final class Product_Fragment_Renderer {
 		$length      = strlen( $html );
 		$depth       = 1;
 
-		while ( $offset < $length && $depth > 0 ) {
+		// No $depth > 0 test: reaching depth 0 returns from inside the loop below,
+		// so it can never be false here. The exits are that return, the break when
+		// no closing tag remains, and running past the end of the string.
+		while ( $offset < $length ) {
 			$open  = preg_match( '/<ul\b/', $html, $open_match, PREG_OFFSET_CAPTURE, $offset ) ? (int) $open_match[0][1] : -1;
 			$close = strpos( $html, '</ul>', $offset );
 

@@ -103,7 +103,7 @@ class Mobile_Bottom_Nav {
 		}
 
 		$cart_count = 0;
-		if ( function_exists( 'WC' ) && WC()->cart ) { // @phpstan-ignore booleanAnd.rightAlwaysTrue
+		if ( function_exists( 'WC' ) && WC()->cart ) {
 			$cart_count = WC()->cart->get_cart_contents_count();
 		}
 

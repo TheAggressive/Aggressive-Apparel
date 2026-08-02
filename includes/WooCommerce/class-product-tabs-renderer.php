@@ -330,7 +330,7 @@ class Product_Tabs_Renderer {
 					$scripts = $xpath->query( './/script', $panel_node );
 					if ( $scripts ) {
 						foreach ( $scripts as $script ) {
-							if ( $script->parentNode ) {
+							if ( $script instanceof \DOMNode && $script->parentNode ) {
 								$script->parentNode->removeChild( $script );
 							}
 						}

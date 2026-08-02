@@ -43,7 +43,7 @@ class Cart {
 	 */
 	public function cart_fragments( $fragments ) {
 		// Check if WooCommerce cart is available.
-		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) { // @phpstan-ignore booleanNot.alwaysFalse
+		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
 			return $fragments;
 		}
 

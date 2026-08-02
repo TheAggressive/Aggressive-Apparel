@@ -629,11 +629,11 @@ class Sale_Category {
 			}
 		}
 
-		if ( false !== wp_next_scheduled( $hook, $args ) ) {
+		if ( false !== wp_next_scheduled( $hook, array_values( $args ) ) ) {
 			return true;
 		}
 
-		return true === wp_schedule_single_event( time() + max( 1, $delay ), $hook, $args );
+		return true === wp_schedule_single_event( time() + max( 1, $delay ), $hook, array_values( $args ) );
 	}
 
 	/**

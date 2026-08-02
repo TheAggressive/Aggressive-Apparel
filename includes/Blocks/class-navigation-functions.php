@@ -329,7 +329,7 @@ function aggressive_apparel_partition_nav_panel_content( string $content ): arra
 			continue;
 		}
 
-		$class_name = $child->attributes?->getNamedItem( 'class' )?->nodeValue ?? '';
+		$class_name = $child->attributes?->getNamedItem( 'class' )->nodeValue ?? '';
 		$classes    = preg_split( '/\s+/', trim( $class_name ) );
 		if ( false === $classes ) {
 			$classes = array();
@@ -337,7 +337,7 @@ function aggressive_apparel_partition_nav_panel_content( string $content ): arra
 
 		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-header', $classes, true ) ) {
 			$parts['panel_header_classes'] = $class_name;
-			$parts['panel_header_style']   = $child->attributes?->getNamedItem( 'style' )?->nodeValue ?? '';
+			$parts['panel_header_style']   = $child->attributes?->getNamedItem( 'style' )->nodeValue ?? '';
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
 			foreach ( $child->childNodes as $inner_child ) {
 				$inner_html = $document->saveHTML( $inner_child );
@@ -350,7 +350,7 @@ function aggressive_apparel_partition_nav_panel_content( string $content ): arra
 
 		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-footer', $classes, true ) ) {
 			$parts['panel_footer_classes'] = $class_name;
-			$parts['panel_footer_style']   = $child->attributes?->getNamedItem( 'style' )?->nodeValue ?? '';
+			$parts['panel_footer_style']   = $child->attributes?->getNamedItem( 'style' )->nodeValue ?? '';
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
 			foreach ( $child->childNodes as $inner_child ) {
 				$inner_html = $document->saveHTML( $inner_child );

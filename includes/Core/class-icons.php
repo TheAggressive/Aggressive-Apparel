@@ -409,10 +409,6 @@ class Icons {
 			);
 		}
 
-		if ( ! is_array( $definition ) ) {
-			return null;
-		}
-
 		$view_box = self::DEFAULT_VIEWBOX;
 
 		if ( isset( $definition['viewBox'] ) && is_string( $definition['viewBox'] ) ) {

@@ -56,12 +56,16 @@ pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
 - Text domain: `aggressive-apparel` (`Domain Path: /languages`).
 - `Theme_Support` calls `load_theme_textdomain`; classic scripts use `Asset_Loader::set_script_translations()`.
 - Tooling lives in `bin/i18n/` (`pnpm i18n:*`). Default MT mode is `auto`: DeepL when `DEEPL_AUTH_KEY` is set, MyMemory as fallback and as the sole provider without a key. DeepL is primary because MyMemory is a translation-memory aggregator — it returns whole-segment matches from unrelated corpora, carrying foreign punctuation and register. CI opens PRs (`.github/workflows/i18n-translate.yml`) — never pushes translations to `main`.
-- **MT draft PRs are not CI-gated.** `peter-evans/create-pull-request` opens them with
-  `GITHUB_TOKEN`, and GitHub deliberately does not trigger workflows on PRs created by that
-  token — so the i18n gate never runs on the branch. Exposure is bounded: the gate runs on
-  the post-merge push to `main`, so a bad catalog fails the very next pipeline rather than
-  shipping. Review the `.po` diff on its own merits; a green checkless PR means nothing ran,
-  not that anything passed. Fixing this properly needs a PAT or GitHub App token.
+- **MT draft PRs never arrive pre-validated.** `peter-evans/create-pull-request`
+  opens them with `GITHUB_TOKEN`. Observed on this repository: workflow runs *are*
+  created for the `chore/i18n-mt-drafts` branch, but they land in `action_required`
+  and wait for manual approval rather than running unattended — one older run was
+  approved and completed successfully. Treat the exact trigger semantics for
+  token-created PRs as unconfirmed; check the Actions tab rather than trusting this
+  note. Either way the action is the same: approve the run, or review the `.po` diff
+  on its own merits. **A PR showing no completed checks means nothing ran, not that
+  anything passed.** Exposure is bounded — the i18n gate runs on the post-merge push
+  to `main`, so a bad catalog fails the very next pipeline rather than shipping.
 - Commit `.pot` + locale `.po` drafts; `.mo` / Jed `.json` are gitignored and built by `i18n:compile` (release runs this).
 - Interactivity **script modules** use PHP `i18n` bags — not `wp_set_script_translations`.
 - Full runbook: [`languages/README.md`](languages/README.md).

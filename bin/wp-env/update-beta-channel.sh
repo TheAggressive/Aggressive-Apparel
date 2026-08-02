@@ -23,7 +23,11 @@ pnpm wp-env run cli bash -c '
 		exit 0
 	fi
 
-	backup_archive=$(mktemp /tmp/wp-content-before-core-update.XXXXXX.tar)
+	# No .tar suffix: the wp-env cli container is Alpine, and BusyBox mktemp
+	# requires the template to END in X characters. A trailing suffix fails with
+	# "mktemp: : Invalid argument", which is what kept this job red from the day
+	# it was added. tar does not care about the extension.
+	backup_archive=$(mktemp /tmp/wp-content-before-core-update.XXXXXX)
 
 	tar \
 		--exclude="wp-content/themes/aggressive-apparel" \

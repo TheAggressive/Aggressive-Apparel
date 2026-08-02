@@ -132,8 +132,13 @@ AA_PACKAGE_FORBIDDEN=(
 	"^${AA_THEME_SLUG}/page\\.html$"
 )
 
-# Read the theme version from the style.css header.
+# Read the theme version from a style.css header.
+#
+# Reads the file named by $1, or standard input when called with no argument, so
+# one parse serves a checked-out style.css, the staged copy, and the one
+# extracted from a built ZIP. Three copies of this regex existed before; if they
+# ever disagreed, the version the release verifies would not be the version it
+# stamps.
 aa_release_style_version() {
-	local style_css="$1"
-	sed -n 's/^Version:[[:space:]]*\([0-9][^[:space:]]*\).*$/\1/p' "${style_css}" | head -n 1
+	sed -n 's/^Version:[[:space:]]*\([0-9][^[:space:]]*\).*$/\1/p' "${1:--}" | head -n 1
 }

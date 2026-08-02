@@ -1,32 +1,18 @@
 #!/usr/bin/env bash
 #
-# Fast pre-push gate: the checks worth waiting for on every push.
+# Fast pre-push gate: one wp-env bring-up, ~3 minutes warm.
 #
-# The full rehearsal (bin/ci/verify.sh, `pnpm qa`) runs every lane Actions runs
-# and takes ~15 minutes, most of it spent bringing wp-env up three separate
-# times — once for PHP, once for the browser suite, once for packaging. That is
-# the right thing to run before a release and the wrong thing to run before
-# every push: a hook slow enough to be annoying is a hook that gets bypassed
-# with --no-verify, and a bypassed gate is worse than a fast one.
+# The full rehearsal (bin/ci/verify.sh, `pnpm qa`) takes ~15 minutes, mostly
+# starting wp-env three times. That is right before a release and wrong before
+# every push — a hook slow enough to annoy gets bypassed with --no-verify, and a
+# bypassed gate is worse than a fast one.
 #
-# This keeps one wp-env bring-up and the checks that catch the mistakes people
-# actually push. Measured at ~3 minutes warm, versus ~15 for the full run:
+# Excluded on purpose: ci:e2e (slowest by far; browser regressions come from
+# block markup changes, and CI still runs it before anything can be released)
+# and ci:package (only meaningful at release time, where it runs BEFORE
+# publishing, so a packaging failure blocks the release rather than shipping).
 #
-#   ci:frontend  lint, types, 549 JS tests, the drift contract, audit
-#   ci:build     the assets actually compile
-#   ci:php       PHPCS, PHPStan level 8, every PHPUnit suite
-#
-# Deliberately NOT here, and why it is safe:
-#
-#   ci:e2e       the slowest lane by far; browser regressions come from block
-#                markup changes, not routine edits, and CI still runs it on
-#                every push before anything can be released.
-#   ci:package   only meaningful when a release is cut, and it runs BEFORE
-#                publishing — a packaging failure blocks the release rather
-#                than shipping a broken one.
-#
-# bin/ci/contracts.mjs asserts every lane below is one Actions also runs, so
-# this can never drift into testing something CI does not.
+# bin/ci/contracts.mjs asserts every lane below is one Actions also runs.
 
 set -euo pipefail
 

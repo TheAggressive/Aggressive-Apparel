@@ -147,7 +147,7 @@
     "pretest": "pnpm run build:icons",
     "test": "pnpm run test:js && pnpm run test:tools && pnpm run test:php",
     "test:js": "wp-scripts test-unit-js --passWithNoTests",
-    "test:tools": "node bin/lib/icon-build.test.mjs && node bin/ci/contracts.test.mjs && bash bin/wp-env/test.sh",
+    "test:tools": "node bin/lib/icon-build.test.mjs && node bin/ci/contracts.test.mjs && node --test bin/release/verify-package.test.mjs && bash bin/wp-env/test.sh",
     "test:js:watch": "wp-scripts test-unit-js --watch",
     "test:php": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --testdox'",
     "test:unit": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --testsuite=unit --testdox'",

@@ -99,9 +99,7 @@ STYLE_CSS="$(unzip -p "${ZIP_PATH}" "${AA_THEME_SLUG}/style.css" 2>/dev/null || 
 if [[ -z "${STYLE_CSS}" ]]; then
 	fail "style.css could not be read from the package"
 else
-	PACKAGED_VERSION="$(
-		sed -n 's/^Version:[[:space:]]*\([0-9][^[:space:]]*\).*$/\1/p' <<<"${STYLE_CSS}" | head -n 1
-	)"
+	PACKAGED_VERSION="$(aa_release_style_version <<<"${STYLE_CSS}")"
 
 	if [[ -z "${PACKAGED_VERSION}" ]]; then
 		fail "style.css in the package has no parseable 'Version:' header"

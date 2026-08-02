@@ -1,8 +1,17 @@
 name: WordPress Beta Compatibility
 
+# Early warning that a coming WordPress release breaks the theme. This is not a
+# release gate — it must never block a merge, because it fails for reasons
+# outside this repository (a broken beta, a WordPress.org outage). It is a
+# signal to look at, on a schedule matched to how often the signal changes.
+#
+# Wednesdays: WordPress ships betas and RCs on Tuesdays, so this catches the
+# newest one a day later. Daily runs meant ~350 runs a year re-testing the same
+# unchanged beta — noise that trains you to ignore a red badge, which is the
+# only thing this job produces.
 on:
   schedule:
-    - cron: '17 8 * * *'
+    - cron: '17 8 * * 3'
   workflow_dispatch:
 
 permissions:

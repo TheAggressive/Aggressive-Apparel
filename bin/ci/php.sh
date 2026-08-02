@@ -30,10 +30,9 @@ AA_CI_XDEBUG_MODE=coverage bash "${SCRIPT_DIR}/reset-wp-env.sh"
 # copies of that notice per run reads like a problem. Telling Composer the real
 # version up front removes it, and reading it from style.css keeps it accurate
 # without a second source of truth.
-COMPOSER_ROOT_VERSION="$(
-	sed -n 's/^Version:[[:space:]]*\([0-9][^[:space:]]*\).*$/\1/p' \
-		"${REPO_ROOT}/style.css" | head -n 1
-)"
+# shellcheck source=../release/lib.sh
+source "${REPO_ROOT}/bin/release/lib.sh"
+COMPOSER_ROOT_VERSION="$(aa_release_style_version "${REPO_ROOT}/style.css")"
 
 # PATH puts bin/ci first so `composer` resolves to the pinned PHAR shim.
 ci_php() {

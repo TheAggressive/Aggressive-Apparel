@@ -13,6 +13,7 @@ import path from 'node:path';
 import {
   betaWorkflow,
   check,
+  designSystemCheck,
   composerBootstrap,
   i18nLibrary,
   jestConfiguration,
@@ -252,4 +253,24 @@ check(
   ),
   'wp-scripts did not resolve the no-skips reporter, so the committed policy ' +
     'in jest.config.js is not the one that runs.'
+);
+
+// The design-system rules — no hardcoded hex, no body-level :has() — were a
+// silent no-op for their entire life. Every check read from `rg` through
+// process substitution, and neither developer machines nor GitHub runners have
+// ripgrep, so the loops got empty input, nothing matched, and the script
+// printed "checks passed" having checked nothing. It must not depend on a
+// binary that is absent everywhere it runs.
+check(
+  designSystemCheck.includes('command -v rg'),
+  'bin/check-design-system-css.sh must handle ripgrep being absent. Without ' +
+    'that fallback every rule silently passes: empty input means no matches, ' +
+    'no matches means no failures, and the script reports success.'
+);
+
+check(
+  designSystemCheck.includes('command -v grep') &&
+    designSystemCheck.includes('cannot verify the design system'),
+  'bin/check-design-system-css.sh must fail loudly when it has no usable ' +
+    'search tool, rather than degrading to a pass.'
 );

@@ -5,6 +5,53 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Every check below reads from `rg` through process substitution or an `if`.
+# When ripgrep is absent those produce no output and no match, the loop bodies
+# never run, EXIT stays 0, and the script prints "checks passed" having checked
+# nothing. It did exactly that on developer machines AND on GitHub runners —
+# neither has ripgrep — so these rules had never once been enforced.
+#
+# Rather than require a binary that is missing everywhere it matters, translate
+# to grep, which is present on both. Fail loudly if even that is unavailable.
+if ! command -v rg >/dev/null 2>&1; then
+	if ! command -v grep >/dev/null 2>&1; then
+		echo "Neither ripgrep nor grep is available; cannot verify the design system." >&2
+		exit 1
+	fi
+
+	# Accepts the rg flags this script uses and maps them onto grep. grep needs
+	# -r explicitly (rg recurses by default) and -E for the extended syntax the
+	# patterns assume, unless -P was requested for the PCRE lookbehind.
+	rg() {
+		local grep_args=(-r) pattern='' paths=() pcre=0
+
+		while (($#)); do
+			case "$1" in
+				-n) grep_args+=(-n) ;;
+				-o) grep_args+=(-o) ;;
+				-P)
+					grep_args+=(-P)
+					pcre=1
+					;;
+				--no-filename) grep_args+=(-h) ;;
+				-*) ;;
+				*)
+					if [[ -z "${pattern}" ]]; then
+						pattern="$1"
+					else
+						paths+=("$1")
+					fi
+					;;
+			esac
+			shift
+		done
+
+		((pcre)) || grep_args+=(-E)
+
+		grep "${grep_args[@]}" -- "${pattern}" "${paths[@]}"
+	}
+fi
+
 BEM_PATTERN='^(aggressive-apparel-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?|aa-[a-z0-9-]+(__[a-z0-9-]+)?(--[a-z0-9-]+)?)$'
 HEX_PATTERN='(?<!&)#[0-9a-fA-F]{3,8}'
 EDITOR_CHROME_PATTERN="(#757575|rgb\\(117,\\s*117,\\s*117\\)|color: '#(666|999|1e1e1e|cc1818|0066cc|0c4a6e)'|backgroundColor: '#(f0f0f0|f0f8ff|f0f9ff|f5f5f5|f8f9fa|f9f9f9)'|border(Top)?: '1px solid #ddd'|borderRadius: '(4px|8px)')"

@@ -78,3 +78,4 @@ export const i18nLibrary = readText('bin/i18n/lib.sh');
 export const wpEnvBackup = readText('bin/wp-env/backup.sh');
 export const wpEnvRestore = readText('bin/wp-env/restore.sh');
 export const betaUpdater = readText('bin/wp-env/update-beta-channel.sh');
+export const designSystemCheck = readText('bin/check-design-system-css.sh');

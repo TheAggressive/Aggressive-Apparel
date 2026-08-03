@@ -186,7 +186,7 @@
     "plugin-zip": "wp-scripts plugin-zip",
     "wp-env": "wp-env",
     "// 🌍 ENVIRONMENT SCRIPTS": "_",
-    "env:start": "wp-env start",
+    "env:start": "bash bin/wp-env/start.sh",
     "env:stop": "wp-env stop",
     "env:check": "bash bin/wp-env/check.sh",
     "env:beta": "bash bin/wp-env/update-beta-channel.sh",

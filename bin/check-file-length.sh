@@ -35,6 +35,11 @@ done < <(
 	find src \( -name '*.ts' -o -name '*.tsx' \) \
 		-not -path '*/__tests__/*' -not -name '*.test.ts' -not -name '*.test.tsx' -print0
 	find includes -name '*.php' -print0
+	# The build tooling is held to the same budget. bin/ci/contracts.mjs reached
+	# 1007 lines before anyone noticed, because this gate only looked at
+	# shipping code — and an unreadable drift guard is the one file where
+	# nobody wanting to read it is the actual risk.
+	find bin -name '*.mjs' -not -name '*.test.mjs' -print0
 )
 
 if [[ "$EXIT" -ne 0 ]]; then

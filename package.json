@@ -189,6 +189,7 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "env:check": "bash bin/wp-env/check.sh",
+    "env:beta": "bash bin/wp-env/update-beta-channel.sh",
     "env:backup": "bash bin/wp-env/backup.sh",
     "env:backups": "bash bin/wp-env/restore.sh --list",
     "env:restore": "bash bin/wp-env/restore.sh",

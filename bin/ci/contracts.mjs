@@ -349,14 +349,41 @@ for (const [key, actual, expected] of CI_PORTS) {
   );
 }
 
-for (const environment of ['development', 'tests']) {
-  const themeMapping =
-    wpEnv.env?.[environment]?.mappings?.[
-      'wp-content/themes/aggressive-apparel'
-    ];
-  if (themeMapping !== '../..') {
-    throw new Error(
-      `CI ${environment} must map the theme to the canonical lowercase path.`
+// Both wp-env configs must mount the theme at an EXPLICIT lowercase path.
+//
+// `"themes": ["."]` looks equivalent and is not: wp-env names the mount after
+// path.basename() of the resolved source (parse-source-string.js), so the theme
+// directory becomes whatever the checkout is called. That is
+// "aggressive-apparel" on a developer's machine and "Aggressive-Apparel" on a
+// GitHub runner, where the repository name supplies the directory. Everything
+// keyed to the theme path — bin/wp-env/lib.sh's --env-cwd, and the slug
+// Core\Theme_Updates ships under — then works locally and fails in CI. That is
+// exactly how the WordPress beta job broke.
+const THEME_MOUNTS = [
+  ['bin/ci/.wp-env.json', wpEnv, '../..'],
+  ['.wp-env.json', developmentWpEnv, '.'],
+];
+
+for (const [source, config, expected] of THEME_MOUNTS) {
+  check(
+    !Object.hasOwn(config, 'themes'),
+    `${source} must not use a "themes" array — wp-env would name the mount ` +
+      'after the checkout directory, which differs between a developer machine ' +
+      'and a CI runner. Use an explicit mappings entry instead.'
+  );
+
+  for (const environment of ['development', 'tests']) {
+    const themeMapping =
+      config.env?.[environment]?.mappings?.[
+        'wp-content/themes/aggressive-apparel'
+      ];
+
+    check(
+      themeMapping === expected,
+      `${source} ${environment} must map ` +
+        `"wp-content/themes/aggressive-apparel" to "${expected}" (found ` +
+        `${JSON.stringify(themeMapping)}), so the theme directory name is the ` +
+        'canonical lowercase slug everywhere it runs.'
     );
   }
 }
@@ -389,12 +416,73 @@ for (const [name, script] of [
   ['restore', wpEnvRestore],
   ['beta update', betaUpdater],
 ]) {
-  if (!script.includes('--exclude="wp-content/mu-plugins"')) {
-    throw new Error(
-      `The ${name} path must not archive or extract the repository-mapped mu-plugin directory.`
-    );
-  }
+  check(
+    script.includes('--exclude="wp-content/mu-plugins"'),
+    `The ${name} path must not archive or extract the repository-mapped ` +
+      'mu-plugin directory.'
+  );
 }
+
+// The beta upgrade replaces wp-content. It must never run as a wp-env lifecycle
+// hook: as an afterStart hook it fired on every `pnpm env:start` anywhere,
+// including a developer's environment, where it destroyed uploaded media the
+// first time it actually completed. It belongs to a disposable runner, invoked
+// by name so a failure is attributable.
+check(
+  !JSON.stringify(developmentWpEnv).includes('update-beta-channel'),
+  '.wp-env.json must not run bin/wp-env/update-beta-channel.sh from ' +
+    'lifecycleScripts — it replaces wp-content, and a developer environment is ' +
+    'not disposable. The beta workflow invokes it explicitly instead.'
+);
+
+check(
+  !JSON.stringify(wpEnv).includes('lifecycleScripts'),
+  'bin/ci/.wp-env.json must not declare lifecycleScripts — the parity ' +
+    'environment must be reproducible from its lanes alone.'
+);
+
+check(
+  betaWorkflow.includes('pnpm env:beta'),
+  'wordpress-beta-compatibility.yml must invoke `pnpm env:beta` explicitly. ' +
+    'That upgrade is the entire purpose of the job; if no step runs it, the ' +
+    'suite silently tests the stable WordPress it already tests everywhere else.'
+);
+
+check(
+  packageJson.scripts['env:beta'] === 'bash bin/wp-env/update-beta-channel.sh',
+  'The env:beta script must run bin/wp-env/update-beta-channel.sh.'
+);
+
+// Same reasoning as the lifecycle hook, one layer down. With the Beta Tester
+// plugin installed and this repository's cron loopback mu-plugin running,
+// WordPress auto-updates the site to a beta in the background. Core then stops
+// matching the pinned version, and the next `wp-env start` re-provisions
+// /var/www/html — taking wp-content, uploads included, with it.
+for (const [source, config] of [
+  ['.wp-env.json', developmentWpEnv],
+  ['bin/ci/.wp-env.json', wpEnv],
+]) {
+  check(
+    !JSON.stringify(config).includes('wordpress-beta-tester'),
+    `${source} must not install wordpress-beta-tester. It makes the site ` +
+      'drift off the pinned core, and the next start wipes wp-content. The ' +
+      'beta lane installs it on a disposable runner instead.'
+  );
+}
+
+check(
+  betaUpdater.includes('wp plugin install wordpress-beta-tester'),
+  'bin/wp-env/update-beta-channel.sh must install wordpress-beta-tester ' +
+    'itself, now that it is no longer a declared wp-env plugin.'
+);
+
+// The restore is what failed silently and cost a developer their uploads.
+check(
+  betaUpdater.includes('files_after') && betaUpdater.includes('files_before'),
+  'bin/wp-env/update-beta-channel.sh must verify that its wp-content restore ' +
+    'returned as many files as it archived. An unverified restore turns data ' +
+    'loss into a passing run.'
+);
 
 const workflowsDirectory = path.join(repositoryRoot, '.github/workflows');
 const workflowFiles = readdirSync(workflowsDirectory).filter(fileName =>

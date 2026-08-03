@@ -63,9 +63,15 @@ jobs:
       - name: Install Playwright browser
         run: pnpm test:e2e:install
 
+      # The beta upgrade is an explicit step, not a wp-env afterStart hook. As a
+      # hook it ran on every `pnpm env:start` anywhere, including a developer's
+      # daily environment — silently turning it into a beta site and replacing
+      # wp-content. Here it only runs on a disposable runner, and a failure
+      # points at the step that caused it instead of at "wp-env start".
       - name: Start latest Beta/RC environment
         run: |
           pnpm env:start
+          pnpm env:beta
           pnpm env:check
 
       - name: Run end-to-end compatibility suite

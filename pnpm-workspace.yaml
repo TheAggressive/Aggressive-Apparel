@@ -9,17 +9,18 @@ allowBuilds:
   unrs-resolver: false
 
 # Security overrides for transitive devDependencies (GitHub advisories).
+#
 # These MUST live here, not in package.json's `pnpm.overrides`: with a
 # pnpm-workspace.yaml present, pnpm 10+ reads overrides from this file and
 # silently ignores the package.json field.
 #
-# Caret-pinned so a fix cannot drag in a major: `>=3.3.4` resolved svgo 4.0.2.
-# Patch-level only — same major as what the tree already resolves, so no API
-# break. linkify-it and webpack-dev-server are deliberately absent: their fixes
-# require major bumps to @wordpress/scripts' chain, and neither code path
-# (markdownlint, webpack serve) is ever executed by this project.
+# Pin within the major each consumer declares. An unscoped range crosses
+# majors for some consumer and breaks it: `>=3.3.4` pulled svgo 4, and an
+# unscoped brace-expansion `^1` breaks minimatch 9/10, which declare ^2 and ^5
+# and call the named `expand` export that 1.x does not have.
 overrides:
-  brace-expansion: '^1.1.16'
+  # Only minimatch@3 pulls the vulnerable 1.x line; 2.x and 5.x are unaffected.
+  'brace-expansion@1': '^1.1.16'
   immutable: '^5.1.8'
   'js-yaml@<4': '^3.15.0'
   'js-yaml@>=4': '^4.3.0'
@@ -30,10 +31,9 @@ overrides:
   # ci:* lane, so it only affects a manual Lighthouse run.
   '@lhci/cli>lighthouse': '13.4.0'
 
-  # These need majors, which is why they were deferred. Both are safe here
-  # because neither code path runs in this project: linkify-it arrives via
-  # markdownlint (markdown is linted with Prettier) and webpack-dev-server via
-  # `serve` (builds use wp-scripts build and watch). The build and test lanes
-  # verify nothing else depended on the old majors.
+  # These two cross majors, which is safe only because neither code path runs
+  # here: linkify-it arrives via markdownlint (markdown is linted with
+  # Prettier) and webpack-dev-server via `serve` (builds use wp-scripts build
+  # and watch). The build and test lanes verify nothing else depended on them.
   linkify-it: '^5.0.2'
   webpack-dev-server: '^5.2.6'

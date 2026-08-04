@@ -73,6 +73,16 @@ for prune in "${AA_PACKAGE_PRUNE[@]}"; do
 	fi
 done
 
+# Compiled test bundles, wherever webpack emitted them. This is a pattern, not
+# a named path, because a named path is what failed: AA_PACKAGE_PRUNE listed
+# build/scripts/__tests__, and a test added under build/scripts/admin/__tests__
+# sailed straight past it into the package — the same way compiled Jest output
+# shipped in real releases before the allowlist existed. Any depth, any name.
+while IFS= read -r -d '' tests_dir; do
+	rm -rf "${tests_dir}"
+	echo "  pruned ${tests_dir#"${THEME_DIR}/"}"
+done < <(find "${THEME_DIR}" -type d -name '__tests__' -print0)
+
 # Strip repository and OS metadata that has no meaning inside a distributed
 # theme. Handled generically rather than as named prune entries so a new
 # .gitignore anywhere in a shipping directory cannot start leaking.

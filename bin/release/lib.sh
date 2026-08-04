@@ -64,11 +64,12 @@ AA_PACKAGE_REQUIRED=(
 # inside otherwise-shipping directories, so the allowlist alone cannot exclude
 # them. Relative to the theme root; directories are removed recursively.
 #
-# build/scripts/__tests__ is compiled Jest output that webpack emits alongside
-# the real bundles. The previous blocklist packaging shipped it, because
-# `rm -rf tests` only ever matched the repository-root suite.
+# Compiled Jest output is NOT listed here. Naming its path is what failed
+# twice: `rm -rf tests` never matched `__tests__`, and later
+# 'build/scripts/__tests__' missed a suite that webpack emitted one directory
+# deeper. bin/release/package.sh removes every `__tests__` directory by pattern
+# instead, so a new test location cannot leak into the package.
 AA_PACKAGE_PRUNE=(
-	'build/scripts/__tests__'
 	'languages/README.md'
 )
 

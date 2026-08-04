@@ -100,11 +100,6 @@
     "webpack-merge": "^6.0.1",
     "webpack-remove-empty-scripts": "^1.0.4"
   },
-  "pnpm": {
-    "overrides": {
-      "@lhci/cli>lighthouse": "13.4.0"
-    }
-  },
   "scripts": {
     "// 🧱 BLOCK DEVELOPMENT": "_",
     "create-block": "npx @wordpress/create-block@latest --no-plugin --namespace aggressive-apparel",

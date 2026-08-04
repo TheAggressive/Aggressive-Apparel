@@ -24,3 +24,16 @@ overrides:
   'js-yaml@<4': '^3.15.0'
   'js-yaml@>=4': '^4.3.0'
   svgo: '^3.3.4'
+
+  # Moved from package.json's `pnpm.overrides`, where it had never applied —
+  # lighthouse was resolving to 12.x despite the 13.4.0 pin. Not used by any
+  # ci:* lane, so it only affects a manual Lighthouse run.
+  '@lhci/cli>lighthouse': '13.4.0'
+
+  # These need majors, which is why they were deferred. Both are safe here
+  # because neither code path runs in this project: linkify-it arrives via
+  # markdownlint (markdown is linted with Prettier) and webpack-dev-server via
+  # `serve` (builds use wp-scripts build and watch). The build and test lanes
+  # verify nothing else depended on the old majors.
+  linkify-it: '^5.0.2'
+  webpack-dev-server: '^5.2.6'

@@ -20,6 +20,7 @@ import {
   nodeBootstrap,
   nodeVersion,
   packageJson,
+  pnpmWorkspace,
   phpLane,
   phpcsConfiguration,
   phpunitConfiguration,
@@ -273,4 +274,23 @@ check(
     designSystemCheck.includes('cannot verify the design system'),
   'bin/check-design-system-css.sh must fail loudly when it has no usable ' +
     'search tool, rather than degrading to a pass.'
+);
+
+// Dependency overrides must live in pnpm-workspace.yaml, never in
+// package.json. With a workspace file present, pnpm 10+ reads overrides from
+// the workspace file and silently ignores `pnpm.overrides` — no warning, no
+// error, the install just reports "Already up to date". A lighthouse pin sat
+// dead in package.json for exactly that reason, and every security override
+// added there would be equally inert while looking applied.
+check(
+  packageJson.pnpm?.overrides === undefined,
+  'package.json must not declare pnpm.overrides — pnpm ignores it when ' +
+    'pnpm-workspace.yaml exists, so the overrides silently do nothing. ' +
+    'Declare them under `overrides:` in pnpm-workspace.yaml instead.'
+);
+
+check(
+  /^overrides:/mu.test(pnpmWorkspace),
+  'pnpm-workspace.yaml must keep its `overrides:` block — it carries the ' +
+    'security pins for transitive dependencies that upstream has not fixed.'
 );

@@ -8,7 +8,17 @@ import { wpCli } from './wp-cli';
  * setup so every catalog e2e starts from a known floor.
  */
 
-const MIN_PRODUCTS = 24;
+// The shop archive renders 24 products per page, so a 24-product floor is the
+// single worst value available: the first page shows everything, nothing is
+// left to paginate, and the load-more sentinel stays hidden. That is exactly
+// how catalog-cursor-pagination timed out in CI while passing locally, where a
+// reused database had accumulated extras above the floor and produced a second
+// page by accident.
+//
+// Seed comfortably past one page so a second page always exists on a clean
+// install. Keep this ABOVE the archive's per-page count if that ever changes.
+const PRODUCTS_PER_PAGE = 24;
+const MIN_PRODUCTS = PRODUCTS_PER_PAGE + 12;
 const FEATURE_OPTION = 'aggressive_apparel_wc_features';
 const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 const COMING_SOON_OPTION = 'woocommerce_coming_soon';
@@ -160,6 +170,19 @@ function ensureProductFloor(): void {
   if (finalCount < MIN_PRODUCTS) {
     throw new Error(
       `Expected at least ${MIN_PRODUCTS} published products, found ${finalCount}.`
+    );
+  }
+
+  // The floor exists to guarantee a SECOND page, not merely some products.
+  // Asserting the count alone is what let a 24-product floor sit against a
+  // 24-per-page archive: the fixture reported success while leaving nothing to
+  // paginate, and the failure surfaced 60 seconds later as an unrelated-looking
+  // locator timeout in a spec that never mentions page size.
+  if (finalCount <= PRODUCTS_PER_PAGE) {
+    throw new Error(
+      `Catalog pagination needs more than one page: found ${finalCount} ` +
+        `products against ${PRODUCTS_PER_PAGE} per page, so the load-more ` +
+        'sentinel stays hidden and every pagination spec times out.'
     );
   }
 }

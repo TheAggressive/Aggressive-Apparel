@@ -106,15 +106,90 @@ function buildIconStyle(): string {
   return style;
 }
 
+/** Elements the preview will render. Mirrors the server-side kses allowlist. */
+const ALLOWED_SVG_ELEMENTS = new Set([
+  'svg',
+  'g',
+  'defs',
+  'title',
+  'desc',
+  'path',
+  'circle',
+  'ellipse',
+  'line',
+  'polygon',
+  'polyline',
+  'rect',
+  'lineargradient',
+  'radialgradient',
+  'stop',
+  'clippath',
+  'mask',
+]);
+
+/** Attributes those elements may carry. Anything else is dropped. */
+const ALLOWED_SVG_ATTRIBUTES = new Set([
+  'viewbox',
+  'xmlns',
+  'width',
+  'height',
+  'fill',
+  'fill-rule',
+  'fill-opacity',
+  'stroke',
+  'stroke-width',
+  'stroke-linecap',
+  'stroke-linejoin',
+  'stroke-dasharray',
+  'stroke-opacity',
+  'clip-rule',
+  'clip-path',
+  'mask',
+  'opacity',
+  'transform',
+  'd',
+  'cx',
+  'cy',
+  'r',
+  'rx',
+  'ry',
+  'x',
+  'y',
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'points',
+  'offset',
+  'stop-color',
+  'stop-opacity',
+  'gradientunits',
+  'gradienttransform',
+  'id',
+  'class',
+  'aria-hidden',
+  'focusable',
+  'role',
+]);
+
 /**
  * Parse SVG markup and return only what is safe to inject.
  *
  * The value comes from a form field, so it is attacker-influenced whenever the
- * badge is edited by anyone who can reach this screen — and "the admin typed
- * it" stops being true the moment a value is saved by one user and previewed
- * by another. Parsing detached, then dropping scripts, event handlers and
- * javascript: URLs, means the preview can render an icon without ever
- * executing one. Returns an empty string if the markup is not valid SVG.
+ * badge is edited by anyone who can reach this screen — "the admin typed it"
+ * stops being true the moment one user saves and another previews.
+ *
+ * Two deliberate choices:
+ *
+ * - Parsed as `text/html`, not `image/svg+xml`. Strict XML rejects markup that
+ *   `wp_kses` accepts and the storefront renders — an unclosed `<path>` is
+ *   well-formed HTML but fatal XML — and a preview that silently blanks while
+ *   the real badge renders is worse than one that shows the icon.
+ * - Filtered by ALLOWLIST, not by hunting for `javascript:` and `on*`. A
+ *   denylist has to anticipate `data:`, `vbscript:`, `<animate>` and whatever
+ *   comes next; the server side is an allowlist, so this mirrors it.
+ *
+ * Returns an empty string when the markup contains no SVG root.
  */
 export const sanitizeSvgMarkup = (markup: string): string => {
   const trimmed = markup.trim();
@@ -122,23 +197,25 @@ export const sanitizeSvgMarkup = (markup: string): string => {
     return '';
   }
 
-  const parsed = new DOMParser().parseFromString(trimmed, 'image/svg+xml');
-  const svg = parsed.documentElement;
-
-  if (!svg || svg.nodeName === 'parsererror' || svg.nodeName !== 'svg') {
+  const parsed = new DOMParser().parseFromString(trimmed, 'text/html');
+  const svg = parsed.body.querySelector('svg');
+  if (!svg) {
     return '';
   }
 
-  svg
-    .querySelectorAll('script, foreignObject, style, use, image')
-    .forEach(node => node.remove());
-
+  // Depth-first over a snapshot: the tree is mutated while walking it.
   for (const element of [svg, ...Array.from(svg.querySelectorAll('*'))]) {
-    for (const attribute of Array.from(element.attributes)) {
-      const name = attribute.name.toLowerCase();
-      const value = attribute.value.replace(/\s+/g, '').toLowerCase();
+    if (!element.isConnected) {
+      continue;
+    }
 
-      if (name.startsWith('on') || value.startsWith('javascript:')) {
+    if (!ALLOWED_SVG_ELEMENTS.has(element.nodeName.toLowerCase())) {
+      element.remove();
+      continue;
+    }
+
+    for (const attribute of Array.from(element.attributes)) {
+      if (!ALLOWED_SVG_ATTRIBUTES.has(attribute.name.toLowerCase())) {
         element.removeAttribute(attribute.name);
       }
     }

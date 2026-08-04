@@ -119,24 +119,29 @@ export function decodeEntities(str: string | null | undefined): string {
   if (!str) {
     return '';
   }
-  return (
-    str
-      .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
-        String.fromCodePoint(parseInt(hex, 16))
-      )
-      .replace(/&#(\d+);/g, (_, dec: string) =>
-        String.fromCodePoint(parseInt(dec, 10))
-      )
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&nbsp;/g, ' ')
-      // `&amp;` MUST be decoded last. Decoded first, "&amp;lt;" becomes "&lt;"
-      // and the next pass turns it into a real "<" — the text was meant to
-      // display the literal characters "&lt;", so an author (or an attacker
-      // upstream) could smuggle markup through a single decode.
-      .replace(/&amp;/g, '&')
-  );
+
+  // `&` must be produced LAST, in every form it can arrive in. Decoded early,
+  // "&amp;lt;" — or its numeric equivalents "&#38;lt;" and "&#x26;lt;" — leaves
+  // "&lt;" for a later pass to turn into a real "<", so text that was meant to
+  // display an entity becomes markup. Numeric refs are held back as a sentinel
+  // that cannot appear in the input, then released once the rest are done.
+  const AMP = '\u0000AA_AMP\u0000';
+
+  return str
+    .replace(/&#0*38;|&#x0*26;/gi, AMP)
+    .replace(/&amp;/g, AMP)
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec: string) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, ' ')
+    .split(AMP)
+    .join('&');
 }
 
 /**
@@ -147,6 +152,10 @@ export function decodeEntities(str: string | null | undefined): string {
  * characters back into `<script>`, so one replace can *construct* the tag it
  * was meant to delete. Looping to a fixed point closes that, and the bounded
  * iteration count means a pathological input fails safe rather than hanging.
+ *
+ * Literal angle brackets left over after decoding are KEPT. Every caller binds
+ * the result through `data-wp-text`, which sets textContent, so a stray "<" is
+ * inert — and deleting it would quietly corrupt real copy like "orders < 5kg".
  */
 export function stripTags(html: string | null | undefined): string {
   if (!html) {
@@ -162,9 +171,7 @@ export function stripTags(html: string | null | undefined): string {
     previous = stripped;
   }
 
-  // Decoding can reveal further markup ("&lt;script&gt;"), so drop any angle
-  // brackets that survive. Callers want plain text; none of them want a tag.
-  return decodeEntities(previous).replace(/[<>]/g, '').trim();
+  return decodeEntities(previous).trim();
 }
 
 /**

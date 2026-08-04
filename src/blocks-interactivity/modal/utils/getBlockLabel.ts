@@ -6,8 +6,8 @@ import { blockAttrString } from './blockAttributes';
  *
  * The strip repeats until stable because a single pass can build the very tag
  * it removes: deleting the inner tag from `<scr<script>ipt>` splices the rest
- * back into `<script>`. Any angle brackets left afterwards are dropped — this
- * is a label, so it never legitimately contains one.
+ * back into `<script>`. Literal angle brackets are kept: the label is rendered
+ * as text, and a heading reading "5 > 3" should still say so.
  *
  * @param content - Raw block content, possibly containing markup.
  * @return Plain text safe to use as a label.
@@ -22,7 +22,7 @@ const toPlainText = (content: string): string => {
     previous = stripped;
   }
 
-  return previous.replace(/[<>]/g, '').trim();
+  return previous.trim();
 };
 
 /**

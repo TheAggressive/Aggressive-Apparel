@@ -7,9 +7,9 @@
  * tag from `<scr<script>ipt>` splices the remainder back into `<script>`, so a
  * single pass can build the tag it was meant to delete.
  *
- * Labels are short strings shown in the editor UI. Residual text characters are
- * acceptable; an angle bracket is not, because it is what any later markup
- * context would act on.
+ * Labels are short strings rendered as text in the editor UI, so the job is to
+ * leave no parseable tag — not to delete every angle bracket, which would turn
+ * a heading reading "5 > 3" into "5  3".
  */
 
 import type { EditorBlock } from '../types';
@@ -32,7 +32,7 @@ describe('getBlockLabel', () => {
 
     for (const content of payloads) {
       expect(getBlockLabel(block('core/paragraph', { content }))).not.toMatch(
-        /[<>]/u
+        /<[a-z!/]/iu
       );
     }
   });
@@ -44,7 +44,7 @@ describe('getBlockLabel', () => {
           content: '<scr<script>ipt>alert(1)</scr</script>ipt>',
         })
       )
-    ).not.toMatch(/[<>]/u);
+    ).not.toMatch(/<[a-z!/]/iu);
   });
 
   it('keeps the readable text of ordinary markup', () => {

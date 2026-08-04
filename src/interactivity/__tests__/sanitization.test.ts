@@ -1,10 +1,9 @@
 /**
  * Sanitization guarantees for the shared interactivity helpers.
  *
- * These outputs reach `innerHTML` — load-more assigns rendered card markup,
- * product-filters restores a grid — so a helper that only *looks* like it
- * neutralises markup is an XSS in waiting. Both defects below were live and
- * found by CodeQL, not by a test:
+ * Callers bind these through `data-wp-text` (textContent), so the job is to
+ * remove markup without mangling copy — not to strip every angle bracket.
+ * Both defects below were live and found by CodeQL, not by a test:
  *
  *   - decodeEntities decoded `&amp;` before `&lt;`, so "&amp;lt;" double-decoded
  *     into a real "<". Text meant to display an entity became live markup.
@@ -23,6 +22,11 @@ describe('decodeEntities', () => {
     // The whole finding: decoded first, this yields "<script>".
     expect(decodeEntities('&amp;lt;script&amp;gt;')).toBe('&lt;script&gt;');
     expect(decodeEntities('&amp;amp;')).toBe('&amp;');
+    // The numeric forms of "&" decode first in the chain, so they reintroduced
+    // the same hole until they were held back too.
+    expect(decodeEntities('&#38;lt;script&#38;gt;')).toBe('&lt;script&gt;');
+    expect(decodeEntities('&#x26;lt;script&#x26;gt;')).toBe('&lt;script&gt;');
+    expect(decodeEntities('&#038;lt;')).toBe('&lt;');
   });
 
   it('still decodes ordinary entities', () => {
@@ -54,13 +58,15 @@ describe('stripTags', () => {
     ];
 
     for (const payload of payloads) {
-      expect(stripTags(payload)).not.toMatch(/[<>]/u);
+      expect(stripTags(payload)).not.toMatch(/<[a-z!/]/iu);
     }
   });
 
-  it('drops brackets that only appear after entities decode', () => {
-    expect(stripTags('&lt;script&gt;alert(1)&lt;/script&gt;')).not.toMatch(
-      /[<>]/u
+  it('keeps decoded comparison operators in ordinary copy', () => {
+    // Decoding reveals "<script>", but the result is bound as text, so the
+    // characters are inert. What must not happen is losing the copy.
+    expect(stripTags('&lt;script&gt;alert(1)&lt;/script&gt;')).toBe(
+      '<script>alert(1)</script>'
     );
   });
 
@@ -70,6 +76,10 @@ describe('stripTags', () => {
     );
     expect(stripTags('  <span>padded</span>  ')).toBe('padded');
     expect(stripTags('Tom &amp; Jerry')).toBe('Tom & Jerry');
+    // The regression the bracket-stripping caused: real copy was corrupted.
+    expect(stripTags('Save &gt;20% on orders &lt; 5kg')).toBe(
+      'Save >20% on orders < 5kg'
+    );
   });
 
   it('terminates on input designed to keep reconstructing tags', () => {
@@ -77,7 +87,7 @@ describe('stripTags', () => {
     // hang. Whatever it returns, it must not carry a bracket.
     const nested = `${'<'.repeat(50)}div${'>'.repeat(50)}`;
 
-    expect(stripTags(nested)).not.toMatch(/[<>]/u);
+    expect(stripTags(nested)).not.toMatch(/<[a-z!/]/iu);
   });
 
   it('returns an empty string for absent input', () => {

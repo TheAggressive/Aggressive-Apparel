@@ -75,8 +75,43 @@ describe('sanitizeSvgMarkup', () => {
     expect(sanitizeSvgMarkup('plain text')).toBe('');
   });
 
-  it('rejects malformed markup rather than passing it through', () => {
-    expect(sanitizeSvgMarkup('<svg><unclosed>')).toBe('');
+  it('recovers SVG that is valid HTML but invalid XML', () => {
+    // Strict image/svg+xml parsing rejected an unclosed <path>, which wp_kses
+    // accepts and the storefront renders — the preview blanked while the real
+    // badge showed an icon. Lenient parsing plus the allowlist keeps both
+    // honest: known elements survive, unknown ones do not.
+    const host = render('<svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z">');
+
+    expect(host.querySelector('path')?.getAttribute('d')).toBe('M0 0h24v24H0z');
+
+    expect(sanitizeSvgMarkup('<svg><unclosed></svg>')).not.toContain(
+      'unclosed'
+    );
+  });
+
+  it('drops elements outside the allowlist', () => {
+    // A denylist had to anticipate each of these by name.
+    const host = render(
+      '<svg><animate attributeName="x" to="9"/><set to="1"/>' +
+        '<circle r="5"/></svg>'
+    );
+
+    expect(host.querySelector('animate')).toBeNull();
+    expect(host.querySelector('set')).toBeNull();
+    expect(host.querySelector('circle')).not.toBeNull();
+  });
+
+  it('drops attributes outside the allowlist, including data: URLs', () => {
+    const host = render(
+      '<svg><circle r="5" data-x="1" style="background:url(data:x)" ' +
+        'xlink:href="data:text/html,<script>alert(1)</script>"/></svg>'
+    );
+
+    const circle = host.querySelector('circle');
+    expect(circle?.getAttribute('r')).toBe('5');
+    expect(circle?.hasAttribute('style')).toBe(false);
+    expect(circle?.hasAttribute('data-x')).toBe(false);
+    expect(circle?.hasAttribute('xlink:href')).toBe(false);
   });
 
   it('returns an empty string for empty input', () => {

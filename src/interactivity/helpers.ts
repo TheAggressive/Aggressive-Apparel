@@ -119,25 +119,52 @@ export function decodeEntities(str: string | null | undefined): string {
   if (!str) {
     return '';
   }
-  return str
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
-      String.fromCodePoint(parseInt(hex, 16))
-    )
-    .replace(/&#(\d+);/g, (_, dec: string) =>
-      String.fromCodePoint(parseInt(dec, 10))
-    )
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&nbsp;/g, ' ');
+  return (
+    str
+      .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
+        String.fromCodePoint(parseInt(hex, 16))
+      )
+      .replace(/&#(\d+);/g, (_, dec: string) =>
+        String.fromCodePoint(parseInt(dec, 10))
+      )
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&nbsp;/g, ' ')
+      // `&amp;` MUST be decoded last. Decoded first, "&amp;lt;" becomes "&lt;"
+      // and the next pass turns it into a real "<" — the text was meant to
+      // display the literal characters "&lt;", so an author (or an attacker
+      // upstream) could smuggle markup through a single decode.
+      .replace(/&amp;/g, '&')
+  );
 }
 
+/**
+ * Remove every HTML tag, then decode entities.
+ *
+ * The strip repeats until the string stops changing. A single pass is not
+ * enough: removing the inner tag from `<scr<script>ipt>` splices the remaining
+ * characters back into `<script>`, so one replace can *construct* the tag it
+ * was meant to delete. Looping to a fixed point closes that, and the bounded
+ * iteration count means a pathological input fails safe rather than hanging.
+ */
 export function stripTags(html: string | null | undefined): string {
   if (!html) {
     return '';
   }
-  return decodeEntities(html.replace(/<[^>]*>/g, '')).trim();
+
+  let previous = html;
+  for (let pass = 0; pass < 10; pass += 1) {
+    const stripped = previous.replace(/<[^>]*>/g, '');
+    if (stripped === previous) {
+      break;
+    }
+    previous = stripped;
+  }
+
+  // Decoding can reveal further markup ("&lt;script&gt;"), so drop any angle
+  // brackets that survive. Callers want plain text; none of them want a tag.
+  return decodeEntities(previous).replace(/[<>]/g, '').trim();
 }
 
 /**

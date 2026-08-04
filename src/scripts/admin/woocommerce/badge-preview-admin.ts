@@ -107,6 +107,47 @@ function buildIconStyle(): string {
 }
 
 /**
+ * Parse SVG markup and return only what is safe to inject.
+ *
+ * The value comes from a form field, so it is attacker-influenced whenever the
+ * badge is edited by anyone who can reach this screen — and "the admin typed
+ * it" stops being true the moment a value is saved by one user and previewed
+ * by another. Parsing detached, then dropping scripts, event handlers and
+ * javascript: URLs, means the preview can render an icon without ever
+ * executing one. Returns an empty string if the markup is not valid SVG.
+ */
+export const sanitizeSvgMarkup = (markup: string): string => {
+  const trimmed = markup.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  const parsed = new DOMParser().parseFromString(trimmed, 'image/svg+xml');
+  const svg = parsed.documentElement;
+
+  if (!svg || svg.nodeName === 'parsererror' || svg.nodeName !== 'svg') {
+    return '';
+  }
+
+  svg
+    .querySelectorAll('script, foreignObject, style, use, image')
+    .forEach(node => node.remove());
+
+  for (const element of [svg, ...Array.from(svg.querySelectorAll('*'))]) {
+    for (const attribute of Array.from(element.attributes)) {
+      const name = attribute.name.toLowerCase();
+      const value = attribute.value.replace(/\s+/g, '').toLowerCase();
+
+      if (name.startsWith('on') || value.startsWith('javascript:')) {
+        element.removeAttribute(attribute.name);
+      }
+    }
+  }
+
+  return svg.outerHTML;
+};
+
+/**
  * Create the icon node for the preview, or null when no icon is configured.
  */
 function buildIconNode(): HTMLElement | null {
@@ -124,13 +165,12 @@ function buildIconNode(): HTMLElement | null {
   icon.style.cssText = buildIconStyle();
 
   if (svgRaw) {
-    // Trusted admin-supplied markup, mirroring the previous behaviour.
-    icon.innerHTML = svgRaw;
+    icon.innerHTML = sanitizeSvgMarkup(svgRaw);
   } else if (libIcon) {
     const select = document.getElementById('badge_library_icon');
     const selected =
       select instanceof HTMLSelectElement ? select.selectedOptions[0] : null;
-    icon.innerHTML = selected?.dataset.svg || '';
+    icon.innerHTML = sanitizeSvgMarkup(selected?.dataset.svg || '');
   } else {
     icon.textContent = emoji;
   }

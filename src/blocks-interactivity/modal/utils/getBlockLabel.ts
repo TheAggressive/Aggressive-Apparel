@@ -2,6 +2,30 @@ import type { EditorBlock } from '../types';
 import { blockAttrString } from './blockAttributes';
 
 /**
+ * Reduce block content to plain text.
+ *
+ * The strip repeats until stable because a single pass can build the very tag
+ * it removes: deleting the inner tag from `<scr<script>ipt>` splices the rest
+ * back into `<script>`. Any angle brackets left afterwards are dropped — this
+ * is a label, so it never legitimately contains one.
+ *
+ * @param content - Raw block content, possibly containing markup.
+ * @return Plain text safe to use as a label.
+ */
+const toPlainText = (content: string): string => {
+  let previous = content;
+  for (let pass = 0; pass < 10; pass += 1) {
+    const stripped = previous.replace(/<[^>]*>/g, '');
+    if (stripped === previous) {
+      break;
+    }
+    previous = stripped;
+  }
+
+  return previous.replace(/[<>]/g, '').trim();
+};
+
+/**
  * Get a human readable label for a block
  *
  * @param block - The block to get a label for
@@ -25,7 +49,7 @@ export const getBlockLabel = (
     // For paragraphs, use a trimmed version of the content.
     const content = blockAttrString(block.attributes, 'content');
     // Strip HTML tags and trim.
-    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    const plainText = toPlainText(content);
     // Truncate if too long.
     label =
       plainText.length > 30
@@ -35,7 +59,7 @@ export const getBlockLabel = (
     // For headings, use the content.
     const content = blockAttrString(block.attributes, 'content');
     // Strip HTML tags and trim.
-    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    const plainText = toPlainText(content);
     // Truncate if too long.
     label =
       plainText.length > 30

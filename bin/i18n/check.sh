@@ -33,30 +33,25 @@ fi
 
 aa_i18n_info "POT is up to date."
 
-# Validate locale catalogs when present.
-po_files="$(aa_i18n_list_po_files || true)"
-if [[ -n "${po_files}" ]]; then
-	while IFS= read -r po; do
-		[[ -n "${po}" ]] || continue
-		aa_i18n_info "Validating $(basename "${po}")"
-		validation_mo="${tmp_dir}/$(basename "${po%.po}").mo"
-		used_wp_cli=0
-		if [[ "${AA_I18N_PO_VALIDATOR:-auto}" == "wp-cli" ]]; then
-			used_wp_cli=1
-			aa_i18n_wp i18n make-mo "${po}" "${validation_mo}"
-		elif command -v msgfmt >/dev/null 2>&1; then
-			msgfmt -c -o /dev/null "${po}"
-		else
-			# WP-CLI compile to a temp dir as a validity check.
-			used_wp_cli=1
-			aa_i18n_wp i18n make-mo "${po}" "${validation_mo}"
-		fi
-		[[ "${used_wp_cli}" -eq 0 || -s "${validation_mo}" ]] ||
-			aa_i18n_die "WP-CLI did not produce ${validation_mo}"
-	done <<< "${po_files}"
-else
-	aa_i18n_info "No locale .po files — skipping PO validation."
-fi
+# Validate locale catalogs.
+#
+# Only two modes, because the third was a lie. The old `wp-cli` validator ran
+# `wp i18n make-mo`, which reports "Success" on an unterminated msgid and on a
+# msgid/msgstr placeholder mismatch alike — and bin/ci/i18n.sh forced that mode
+# for every CI run, so this gate printed "Validating <catalog>" four times and
+# passed unconditionally. Skipping is now explicit and loud; it is never
+# something a missing tool selects on your behalf.
+case "${AA_I18N_PO_VALIDATOR:-auto}" in
+	auto)
+		bash "${AA_I18N_DIR}/validate-po.sh"
+		;;
+	skip)
+		aa_i18n_info "PO validation SKIPPED (AA_I18N_PO_VALIDATOR=skip) — catalogs are NOT checked here."
+		;;
+	*)
+		aa_i18n_die "AA_I18N_PO_VALIDATOR must be 'auto' or 'skip' (got '${AA_I18N_PO_VALIDATOR}')."
+		;;
+esac
 
 # Translator-comment lint (placeholders).
 bash "${AA_I18N_DIR}/lint-translators.sh"

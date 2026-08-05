@@ -29,6 +29,17 @@ pnpm i18n                     # pot → sync → compile → status
 
 Requires WP-CLI (`wp`) with the i18n package, **or** a running `wp-env` (scripts auto-detect).
 
+Catalog validation additionally requires **gettext** (`msgfmt`) — `apt install gettext`,
+`brew install gettext`. This is a hard requirement on purpose. It used to fall back to
+`wp i18n make-mo`, which reports success on an unterminated `msgid` and on a
+`msgid`/`msgstr` placeholder mismatch alike, so the gate passed unconditionally in CI.
+A missing tool now fails loudly instead of quietly validating nothing.
+
+`AA_I18N_PO_VALIDATOR` selects the mode: `auto` (default — `msgfmt -c`) or `skip`
+(explicit, announces itself). `bin/ci/i18n.sh` uses `skip` for the in-container half of
+the gate, because the wp-env cli image is Alpine and ships no `msgfmt`, then validates
+catalogs on the host where it does exist.
+
 **You do not need Poedit.** Machine translation fills `.po` files; you only review the GitHub PR.
 
 ## Happy path (new locale) — no manual typing

@@ -11,6 +11,7 @@
  * thing being asserted; add a new module when none of them does.
  */
 
+import './contracts/guards.mjs';
 import './contracts/toolchain.mjs';
 import './contracts/wp-env.mjs';
 import './contracts/workflows.mjs';

@@ -187,7 +187,12 @@ while IFS= read -r class; do
 		EXIT=1
 	fi
 done < <(
-	rg -o --no-filename '\.(aggressive-apparel-[a-z0-9_-]+|aa-[a-z0-9_-]+)' \
+	# Extract with [A-Za-z] even though BEM_PATTERN only accepts lowercase. A
+	# lowercase-only extraction cannot see `.aa-productCard` at all: the regex
+	# simply stops at the capital, so nothing is captured and nothing is tested
+	# — the check reported success on precisely the names it exists to reject.
+	# Extract broadly, judge narrowly, so case violations reach the pattern.
+	rg -o --no-filename '\.(aggressive-apparel-[A-Za-z0-9_-]+|aa-[A-Za-z0-9_-]+)' \
 		src/styles/components \
 		src/styles/woocommerce \
 		src/blocks \

@@ -1,0 +1,245 @@
+/**
+ * Tests for bin/i18n/validate-po.sh and the validator modes in check.sh.
+ *
+ * Catalog validation in CI was a no-op for its entire life. bin/ci/i18n.sh ran
+ * the gate inside the wp-env cli container, which is Alpine and ships no
+ * msgfmt, so it forced `AA_I18N_PO_VALIDATOR=wp-cli`. That mode ran
+ * `wp i18n make-mo`, which accepts an unterminated msgid and a msgid/msgstr
+ * placeholder mismatch alike — printing "Success: Created 1 file" and exiting
+ * 0. The gate printed "Validating <catalog>" for all four locales and passed
+ * unconditionally.
+ *
+ * That matters more here than in most projects: catalogs arrive by machine
+ * translation, and a mangled `%s` is a production crash rather than a cosmetic
+ * error. So these cases pin the two corruptions that must fail, and — just as
+ * important — that a missing msgfmt is a hard failure and never a silent skip.
+ */
+
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { after, test } from 'node:test';
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const VALIDATE = path.join(SCRIPT_DIR, 'validate-po.sh');
+const CHECK = path.join(SCRIPT_DIR, 'check.sh');
+const LIB = path.join(SCRIPT_DIR, 'lib.sh');
+
+const BASH = ['/usr/bin/bash', '/bin/bash'].find(candidate =>
+  fs.existsSync(candidate)
+);
+
+const DOMAIN = 'aggressive-apparel';
+
+/**
+ * A catalog msgfmt accepts.
+ *
+ * The `#, php-format` flag is load-bearing, not decoration: msgfmt only checks
+ * that format specifiers agree on entries carrying a format flag. WP-CLI's
+ * make-pot emits php-format for every placeholder string, so real catalogs are
+ * covered — but a fixture without the flag silently tests nothing, which is
+ * the same trap this whole file exists to close.
+ */
+const VALID_PO = `msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Language: fr_FR\\n"
+
+#, php-format
+msgid "View all in %s"
+msgstr "Tout afficher dans %s"
+`;
+
+/** Unterminated msgid — the shape a truncated write or bad merge produces. */
+const SYNTAX_ERROR_PO = `${VALID_PO}
+msgid "broken probe
+`;
+
+/**
+ * msgid says %s, msgstr says %d. msgfmt -c rejects it; `wp i18n make-mo`
+ * compiled it happily. This is the machine-translation failure mode.
+ */
+const PLACEHOLDER_MISMATCH_PO = `msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Language: fr_FR\\n"
+
+#, php-format
+msgid "View all in %s"
+msgstr "Tout afficher dans %d"
+`;
+
+const workspaces = [];
+
+after(() => {
+  for (const dir of workspaces) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+/** Sandbox holding only the i18n scripts, so the repo's catalogs are untouched. */
+function sandbox(catalogs = {}) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-po-'));
+  workspaces.push(root);
+
+  const binDir = path.join(root, 'bin', 'i18n');
+  fs.mkdirSync(binDir, { recursive: true });
+  fs.mkdirSync(path.join(root, 'languages'), { recursive: true });
+
+  for (const script of [VALIDATE, LIB]) {
+    fs.copyFileSync(script, path.join(binDir, path.basename(script)));
+  }
+
+  for (const [locale, contents] of Object.entries(catalogs)) {
+    fs.writeFileSync(
+      path.join(root, 'languages', `${DOMAIN}-${locale}.po`),
+      contents
+    );
+  }
+
+  return root;
+}
+
+function validate(root, { path: pathOverride } = {}) {
+  const result = spawnSync(BASH, [path.join(root, 'bin/i18n/validate-po.sh')], {
+    encoding: 'utf8',
+    env:
+      pathOverride === undefined
+        ? process.env
+        : { ...process.env, PATH: pathOverride },
+  });
+
+  return { status: result.status, output: `${result.stdout}${result.stderr}` };
+}
+
+/** A PATH with the coreutils the script needs but deliberately no msgfmt. */
+function pathWithoutMsgfmt() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-nomsgfmt-'));
+  workspaces.push(dir);
+
+  for (const tool of ['find', 'sort', 'basename', 'dirname', 'cat', 'bash']) {
+    const resolved = spawnSync('command', ['-v', tool], {
+      encoding: 'utf8',
+      shell: true,
+    }).stdout.trim();
+
+    if (resolved) {
+      fs.symlinkSync(resolved, path.join(dir, tool));
+    }
+  }
+
+  return dir;
+}
+
+test('accepts a valid catalog', () => {
+  const { status, output } = validate(sandbox({ fr_FR: VALID_PO }));
+
+  assert.equal(status, 0, `a valid catalog must pass:\n${output}`);
+  assert.match(output, /Locale catalogs valid/u);
+});
+
+test('rejects a catalog with a syntax error', () => {
+  const { status, output } = validate(sandbox({ fr_FR: SYNTAX_ERROR_PO }));
+
+  assert.equal(status, 1, `a malformed catalog must fail:\n${output}`);
+  assert.match(output, /1 locale catalog\(s\) failed validation/u);
+});
+
+test('rejects a msgid/msgstr placeholder mismatch', () => {
+  // The regression. `wp i18n make-mo` reported success on this exact input, so
+  // a machine-translated %s -> %d shipped through a green gate.
+  const { status, output } = validate(
+    sandbox({ fr_FR: PLACEHOLDER_MISMATCH_PO })
+  );
+
+  assert.equal(status, 1, `a placeholder mismatch must fail:\n${output}`);
+  assert.match(output, /format specifications/u);
+});
+
+test('reports every failing catalog, not just the first', () => {
+  const { status, output } = validate(
+    sandbox({
+      de_DE: SYNTAX_ERROR_PO,
+      es_ES: PLACEHOLDER_MISMATCH_PO,
+      fr_FR: VALID_PO,
+    })
+  );
+
+  assert.equal(status, 1);
+  assert.match(output, /2 locale catalog\(s\) failed validation/u);
+});
+
+test('passes when there are no catalogs to validate', () => {
+  const { status, output } = validate(sandbox());
+
+  assert.equal(status, 0, `an empty languages/ is not an error:\n${output}`);
+  assert.match(output, /nothing to validate/u);
+});
+
+test('fails closed when msgfmt is unavailable', () => {
+  // The whole defect in one assertion: a missing tool must never downgrade
+  // into "validated nothing, reported success".
+  const { status, output } = validate(sandbox({ fr_FR: VALID_PO }), {
+    path: pathWithoutMsgfmt(),
+  });
+
+  assert.equal(status, 1, `a missing msgfmt must fail the gate:\n${output}`);
+  assert.match(output, /msgfmt \(gettext\) is required/u);
+});
+
+test('check.sh offers exactly the auto and skip validator modes', () => {
+  // The contract. `wp-cli` was a validator that could not fail; re-adding a
+  // mode without a proof that it rejects a broken catalog lands here.
+  const source = fs.readFileSync(CHECK, 'utf8');
+  const caseBlock = source.slice(
+    source.indexOf('case "${AA_I18N_PO_VALIDATOR:-auto}"'),
+    source.indexOf('esac')
+  );
+
+  assert.ok(caseBlock.length > 0, 'could not locate the validator mode switch');
+
+  const modes = [...caseBlock.matchAll(/^\t(\w+)\)/gmu)].map(match => match[1]);
+
+  assert.deepEqual(
+    modes.sort(),
+    ['auto', 'skip'],
+    'the validator modes must stay auto (msgfmt) and skip (explicit, loud)'
+  );
+  // Comment lines are allowed to name make-mo — the history is worth keeping.
+  // What must never come back is an executable call to it.
+  const executable = source
+    .split('\n')
+    .filter(line => !line.trim().startsWith('#'))
+    .join('\n');
+
+  assert.doesNotMatch(
+    executable,
+    /make-mo/u,
+    'check.sh must not validate catalogs with wp i18n make-mo — it accepts broken input'
+  );
+});
+
+test('the CI lane runs catalog validation on the host', () => {
+  // bin/ci/i18n.sh must keep validation outside the container: inside it, the
+  // Alpine image has no msgfmt and the gate silently degrades.
+  const lane = fs.readFileSync(path.join(SCRIPT_DIR, '../ci/i18n.sh'), 'utf8');
+
+  assert.match(
+    lane,
+    /AA_I18N_PO_VALIDATOR=skip/u,
+    'the in-container run must explicitly skip catalog validation'
+  );
+  assert.match(
+    lane,
+    /bin\/i18n\/validate-po\.sh/u,
+    'the lane must run validate-po.sh on the host, where msgfmt exists'
+  );
+  assert.doesNotMatch(
+    lane,
+    /AA_I18N_PO_VALIDATOR=wp-cli/u,
+    'the wp-cli validator accepted broken catalogs and must not come back'
+  );
+});

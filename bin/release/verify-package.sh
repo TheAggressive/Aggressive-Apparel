@@ -76,6 +76,8 @@ for pattern in "${AA_PACKAGE_FORBIDDEN[@]}"; do
 	matches="$(grep -E "${pattern}" <<<"${ENTRIES}" || true)"
 	if [[ -n "${matches}" ]]; then
 		fail "Forbidden path matching /${pattern}/ is in the package:"
+		# Indents every line; parameter expansion cannot prefix per line.
+		# shellcheck disable=SC2001
 		sed 's/^/     /' <<<"${matches}" >&2
 	fi
 done

@@ -16,21 +16,22 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
+
+import {
+  cleanup,
+  pathWithout,
+  runScript,
+  workspace,
+} from '../lib/script-harness.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const VALIDATE = path.join(SCRIPT_DIR, 'validate-po.sh');
 const CHECK = path.join(SCRIPT_DIR, 'check.sh');
 const LIB = path.join(SCRIPT_DIR, 'lib.sh');
-
-const BASH = ['/usr/bin/bash', '/bin/bash'].find(candidate =>
-  fs.existsSync(candidate)
-);
 
 const DOMAIN = 'aggressive-apparel';
 
@@ -72,18 +73,11 @@ msgid "View all in %s"
 msgstr "Tout afficher dans %d"
 `;
 
-const workspaces = [];
-
-after(() => {
-  for (const dir of workspaces) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
+after(cleanup);
 
 /** Sandbox holding only the i18n scripts, so the repo's catalogs are untouched. */
 function sandbox(catalogs = {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-po-'));
-  workspaces.push(root);
+  const root = workspace('aa-po');
 
   const binDir = path.join(root, 'bin', 'i18n');
   fs.mkdirSync(binDir, { recursive: true });
@@ -103,35 +97,8 @@ function sandbox(catalogs = {}) {
   return root;
 }
 
-function validate(root, { path: pathOverride } = {}) {
-  const result = spawnSync(BASH, [path.join(root, 'bin/i18n/validate-po.sh')], {
-    encoding: 'utf8',
-    env:
-      pathOverride === undefined
-        ? process.env
-        : { ...process.env, PATH: pathOverride },
-  });
-
-  return { status: result.status, output: `${result.stdout}${result.stderr}` };
-}
-
-/** A PATH with the coreutils the script needs but deliberately no msgfmt. */
-function pathWithoutMsgfmt() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-nomsgfmt-'));
-  workspaces.push(dir);
-
-  for (const tool of ['find', 'sort', 'basename', 'dirname', 'cat', 'bash']) {
-    const resolved = spawnSync('command', ['-v', tool], {
-      encoding: 'utf8',
-      shell: true,
-    }).stdout.trim();
-
-    if (resolved) {
-      fs.symlinkSync(resolved, path.join(dir, tool));
-    }
-  }
-
-  return dir;
+function validate(root, options = {}) {
+  return runScript(path.join(root, 'bin/i18n/validate-po.sh'), options);
 }
 
 test('accepts a valid catalog', () => {
@@ -183,7 +150,7 @@ test('fails closed when msgfmt is unavailable', () => {
   // The whole defect in one assertion: a missing tool must never downgrade
   // into "validated nothing, reported success".
   const { status, output } = validate(sandbox({ fr_FR: VALID_PO }), {
-    path: pathWithoutMsgfmt(),
+    path: pathWithout(['msgfmt']),
   });
 
   assert.equal(status, 1, `a missing msgfmt must fail the gate:\n${output}`);
@@ -194,10 +161,13 @@ test('check.sh offers exactly the auto and skip validator modes', () => {
   // The contract. `wp-cli` was a validator that could not fail; re-adding a
   // mode without a proof that it rejects a broken catalog lands here.
   const source = fs.readFileSync(CHECK, 'utf8');
-  const caseBlock = source.slice(
-    source.indexOf('case "${AA_I18N_PO_VALIDATOR:-auto}"'),
-    source.indexOf('esac')
-  );
+  const caseStart = source.indexOf('case "${AA_I18N_PO_VALIDATOR:-auto}"');
+
+  assert.notEqual(caseStart, -1, 'validator mode switch not found in check.sh');
+
+  // Searched from the case, not from index 0: an earlier `case` added to the
+  // script would otherwise put `esac` before this one and slice to nothing.
+  const caseBlock = source.slice(caseStart, source.indexOf('esac', caseStart));
 
   assert.ok(caseBlock.length > 0, 'could not locate the validator mode switch');
 

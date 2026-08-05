@@ -99,4 +99,6 @@ rm -f "${OUT_ZIP}"
 	zip -qrX "${OUT_ZIP}" "${AA_THEME_SLUG}"
 )
 
+# One known, quoted filename - there is no glob for `find` to handle better.
+# shellcheck disable=SC2012
 echo "✅ Package created: $(ls -lh "${OUT_ZIP}" | awk '{print $5}') at ${OUT_ZIP}"

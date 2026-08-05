@@ -26,7 +26,12 @@ WP_CLI_INSTALL_PATH="${WP_CLI_PATH}" \
 if ! command -v msgfmt > /dev/null 2>&1; then
 	if command -v apt-get > /dev/null 2>&1 && sudo -n true > /dev/null 2>&1; then
 		echo "msgfmt not found — installing gettext for catalog validation."
-		sudo -n apt-get update -qq && sudo -n apt-get install -y -qq gettext
+		# Never fatal on its own. Under `set -e` a flaky apt mirror would kill
+		# the lane with a raw apt error; falling through instead lets
+		# validate-po.sh report the actionable "install gettext" message.
+		if ! { sudo -n apt-get update -qq && sudo -n apt-get install -y -qq gettext; }; then
+			echo "Warning: installing gettext failed." >&2
+		fi
 	else
 		echo "Warning: msgfmt is missing and cannot be installed automatically." >&2
 	fi

@@ -16,6 +16,9 @@ if [[ "${1:-}" == "--container" ]]; then
 	beta_tester_status="${beta_tester_status:-not installed}"
 	beta_channel="$(wp option get wp_beta_tester --format=json 2>/dev/null || echo "not configured")"
 
+	# The single-quoted body is PHP source for `wp eval`; it must reach the
+	# interpreter unexpanded by this shell.
+	# shellcheck disable=SC2016
 	read -r attachment_count missing_count <<EOF
 $(wp eval '
 	$total   = 0;

@@ -8,6 +8,8 @@ AA_I18N_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AA_THEME_ROOT="$(cd "${AA_I18N_DIR}/../.." && pwd)"
 AA_TEXT_DOMAIN="${AA_TEXT_DOMAIN:-aggressive-apparel}"
 AA_LANGUAGES_DIR="${AA_THEME_ROOT}/languages"
+# Read by the scripts that source this file; ShellCheck sees one file.
+# shellcheck disable=SC2034
 AA_POT_FILE="${AA_LANGUAGES_DIR}/${AA_TEXT_DOMAIN}.pot"
 AA_I18N_EXCLUDE="${AA_I18N_EXCLUDE:-node_modules,vendor,build,coverage,tests,.git,bin,.wp-env,.wp-env-ci,.wp-env-backups,.wp-env-backup-staging,.cache,local-uploads}"
 

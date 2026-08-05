@@ -13,27 +13,21 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
 
+import {
+  cleanup,
+  runScript,
+  stubCommand,
+  workspace,
+} from '../lib/script-harness.mjs';
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(SCRIPT_DIR, 'check.sh');
 
-const BASH = ['/usr/bin/bash', '/bin/bash'].find(candidate =>
-  fs.existsSync(candidate)
-);
-
-const workspaces = [];
-
-after(() => {
-  for (const dir of workspaces) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
+after(cleanup);
 
 /**
  * Stub the container's `wp` and `php`.
@@ -42,15 +36,14 @@ after(() => {
  * of it, so each case controls exactly that pair.
  */
 function stubs({ total = 12, missing = 0, evalOutput } = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-wpenv-'));
-  workspaces.push(dir);
+  const dir = workspace('aa-wpenv');
 
   const evalLine = evalOutput ?? `${total} ${missing}`;
 
-  fs.writeFileSync(
-    path.join(dir, 'wp'),
-    `#!/usr/bin/env bash
-case "$1 $2" in
+  stubCommand(
+    dir,
+    'wp',
+    `case "$1 $2" in
 \t"core version") echo "7.0" ;;
 \t"option get") [[ "$3" == "siteurl" ]] && echo "http://localhost:9910" || echo "not configured" ;;
 \t"theme list") echo "aggressive-apparel" ;;
@@ -59,30 +52,19 @@ case "$1 $2" in
 \t"eval "*|"eval") printf '%s' '${evalLine}' ;;
 \t*) echo "" ;;
 esac
-exit 0
-`,
-    { mode: 0o755 }
+exit 0`
   );
 
-  fs.writeFileSync(
-    path.join(dir, 'php'),
-    '#!/usr/bin/env bash\necho "8.2.0"\nexit 0\n',
-    { mode: 0o755 }
-  );
+  stubCommand(dir, 'php', 'echo "8.2.0"\nexit 0');
 
   return dir;
 }
 
 function check(stubDir) {
-  const result = spawnSync(BASH, [SCRIPT, '--container'], {
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      PATH: `${stubDir}${path.delimiter}${process.env.PATH}`,
-    },
+  return runScript(SCRIPT, {
+    args: ['--container'],
+    path: `${stubDir}${path.delimiter}${process.env.PATH}`,
   });
-
-  return { status: result.status, output: `${result.stdout}${result.stderr}` };
 }
 
 test('passes and reports when every attachment has its file', () => {

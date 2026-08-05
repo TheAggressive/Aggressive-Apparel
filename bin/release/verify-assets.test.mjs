@@ -15,31 +15,26 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
 
+import {
+  cleanup,
+  runScript,
+  stubCommand,
+  workspace,
+} from '../lib/script-harness.mjs';
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(SCRIPT_DIR, 'verify-assets.sh');
-
-const BASH = ['/usr/bin/bash', '/bin/bash'].find(candidate =>
-  fs.existsSync(candidate)
-);
 
 const SLUG = 'aggressive-apparel';
 const VERSION = '9.9.9';
 const ZIP = `${SLUG}-${VERSION}.zip`;
 
-const workspaces = [];
-
-after(() => {
-  for (const dir of workspaces) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
+after(cleanup);
 
 /**
  * Stage a release working directory.
@@ -52,8 +47,7 @@ after(() => {
  *                                       the silent partial upload.
  */
 function stage({ local = [], attached = [], uploadWorks = true } = {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-assets-'));
-  workspaces.push(root);
+  const root = workspace('aa-assets');
 
   fs.writeFileSync(
     path.join(root, 'package.json'),
@@ -73,10 +67,10 @@ function stage({ local = [], attached = [], uploadWorks = true } = {}) {
 
   const binDir = path.join(root, 'stub-bin');
   fs.mkdirSync(binDir);
-  fs.writeFileSync(
-    path.join(binDir, 'gh'),
-    `#!/usr/bin/env bash
-# Stub gh: 'release view' lists attached assets, 'release upload' appends.
+  stubCommand(
+    binDir,
+    'gh',
+    `# Stub gh: 'release view' lists attached assets, 'release upload' appends.
 if [[ "$1" == "release" && "$2" == "view" ]]; then
 \tgrep -v '^$' "${stateFile}" || true
 \texit 0
@@ -87,25 +81,17 @@ if [[ "$1" == "release" && "$2" == "upload" ]]; then
 \tfi
 \texit 0
 fi
-exit 0
-`,
-    { mode: 0o755 }
+exit 0`
   );
 
   return { root, binDir };
 }
 
 function verify({ root, binDir }) {
-  const result = spawnSync(BASH, [SCRIPT], {
+  return runScript(SCRIPT, {
     cwd: root,
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      PATH: `${binDir}${path.delimiter}${process.env.PATH}`,
-    },
+    path: `${binDir}${path.delimiter}${process.env.PATH}`,
   });
-
-  return { status: result.status, output: `${result.stdout}${result.stderr}` };
 }
 
 test('does nothing when no release was prepared in this run', () => {

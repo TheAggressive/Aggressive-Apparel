@@ -31,6 +31,7 @@ import { check, packageJson, repositoryRoot } from '../lib/contract-inputs.mjs';
 const GUARDS = {
   'bin/check-design-system-css.sh': 'bin/check-design-system-css.test.mjs',
   'bin/check-file-length.sh': 'bin/check-file-length.test.mjs',
+  'bin/check-shell.sh': 'bin/check-shell.test.mjs',
   // POT drift needs WP-CLI, so it is proven by the ci:i18n lane rather than
   // here; this test pins the validator mode switch, which is the half that was
   // inert and the half that can regress silently.

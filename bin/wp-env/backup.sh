@@ -71,6 +71,12 @@ trap cleanup EXIT
 umask 077
 mkdir -p "${staging_directory}"
 if [[ ! -d "${AA_WP_ENV_BACKUP_ROOT}" ]]; then
+	# SC2174 is about `-m` applying only to the deepest directory. Splitting
+	# this into mkdir + chmod does NOT fix that — parents still take the umask
+	# either way — and it adds a window where the directory exists at the
+	# umask's mode. The `umask 077` set immediately above already covers every
+	# parent, so keep the atomic form.
+	# shellcheck disable=SC2174
 	mkdir -m 700 -p "${AA_WP_ENV_BACKUP_ROOT}"
 fi
 chmod 700 "${AA_WP_ENV_STAGING_ROOT}" "${staging_directory}"

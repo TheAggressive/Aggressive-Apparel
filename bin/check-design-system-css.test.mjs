@@ -18,21 +18,20 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
 
+import {
+  cleanup,
+  pathWithout,
+  runScript,
+  workspace,
+} from './lib/script-harness.mjs';
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(SCRIPT_DIR, 'check-design-system-css.sh');
-
-// Resolved up front: the PATH-stripping cases below would otherwise leave
-// spawnSync unable to find bash, turning a real assertion into a spawn error.
-const BASH = ['/usr/bin/bash', '/bin/bash'].find(candidate =>
-  fs.existsSync(candidate)
-);
 
 /**
  * Each key is the rule banner the script prints; each value names the
@@ -69,18 +68,11 @@ const SCANNED = [
   'includes/WooCommerce',
 ];
 
-const workspaces = [];
-
-after(() => {
-  for (const dir of workspaces) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
+after(cleanup);
 
 /** A tree the script accepts, so any failure is the injected violation. */
 function sandbox(populate = () => {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-design-'));
-  workspaces.push(root);
+  const root = workspace('aa-design');
 
   for (const dir of SCANNED) {
     fs.mkdirSync(path.join(root, dir), { recursive: true });
@@ -99,20 +91,8 @@ function sandbox(populate = () => {}) {
   return root;
 }
 
-function check(root, { path: pathOverride } = {}) {
-  const result = spawnSync(
-    BASH,
-    [path.join(root, 'bin', path.basename(SCRIPT))],
-    {
-      encoding: 'utf8',
-      env:
-        pathOverride === undefined
-          ? process.env
-          : { ...process.env, PATH: pathOverride },
-    }
-  );
-
-  return { status: result.status, output: `${result.stdout}${result.stderr}` };
+function check(root, options = {}) {
+  return runScript(path.join(root, 'bin', path.basename(SCRIPT)), options);
 }
 
 /** Assert that `populate`'s tree is rejected, and a clean one is not. */
@@ -300,12 +280,10 @@ test('still enforces every rule when ripgrep is absent', () => {
     write('src/styles/components/probe.css', '.a{color:#ff0000;}\n')
   );
 
-  const withoutRipgrep = (process.env.PATH ?? '')
-    .split(path.delimiter)
-    .filter(entry => entry && !fs.existsSync(path.join(entry, 'rg')))
-    .join(path.delimiter);
-
-  const { status, output } = check(root, { path: withoutRipgrep });
+  // Built from scratch rather than filtered out of the real PATH: dropping the
+  // directory that holds `rg` would take grep and sed with it, and the case
+  // would fail on a missing grep while appearing to prove the translation.
+  const { status, output } = check(root, { path: pathWithout(['rg']) });
 
   assert.equal(status, 1, `the grep path must enforce the rules:\n${output}`);
   assert.match(output, /FAIL: hex color found/u);
@@ -314,10 +292,7 @@ test('still enforces every rule when ripgrep is absent', () => {
 test('fails loudly when neither ripgrep nor grep is available', () => {
   // Fail closed. Silently degrading to "checked nothing, reported success" is
   // the exact defect this file exists to prevent.
-  const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-nopath-'));
-  workspaces.push(empty);
-
-  const { status, output } = check(sandbox(), { path: empty });
+  const { status, output } = check(sandbox(), { path: workspace('aa-nopath') });
 
   assert.equal(status, 1);
   assert.match(output, /Neither ripgrep nor grep is available/u);

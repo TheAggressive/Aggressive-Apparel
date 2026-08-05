@@ -13,12 +13,12 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, test } from 'node:test';
+
+import { cleanup, runScript, workspace } from './lib/script-harness.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(SCRIPT_DIR, 'check-file-length.sh');
@@ -29,17 +29,10 @@ const WARN_AT = 800;
 /** Roots the script walks, each of which needs a case proving it is walked. */
 const SCANNED_ROOTS = ['src', 'includes', 'bin'];
 
-const workspaces = [];
-
-after(() => {
-  for (const dir of workspaces) {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
+after(cleanup);
 
 function sandbox(populate = () => {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aa-length-'));
-  workspaces.push(root);
+  const root = workspace('aa-length');
 
   for (const dir of SCANNED_ROOTS) {
     fs.mkdirSync(path.join(root, dir), { recursive: true });
@@ -57,13 +50,7 @@ function sandbox(populate = () => {}) {
 }
 
 function check(root, env = {}) {
-  const result = spawnSync(
-    'bash',
-    [path.join(root, 'bin', path.basename(SCRIPT))],
-    { encoding: 'utf8', env: { ...process.env, ...env } }
-  );
-
-  return { status: result.status, output: `${result.stdout}${result.stderr}` };
+  return runScript(path.join(root, 'bin', path.basename(SCRIPT)), { env });
 }
 
 test('accepts a tree with no oversized files', () => {

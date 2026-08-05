@@ -11,11 +11,17 @@
 #
 # Sourced by bin/release/package.sh and bin/release/verify-package.sh. Both read
 # these arrays, so the build and its verification can never disagree.
+#
+# The arrays below ARE this file's public API — package.sh, verify-package.sh,
+# contracts, and verify-package.test.mjs all read them. Each carries its own
+# SC2034 suppression rather than one file-wide directive, so a genuinely dead
+# variable added later is still reported.
 
 AA_THEME_SLUG='aggressive-apparel'
 
 # Top-level repository paths copied into the package. Anything not listed here
 # does not ship. Keep alphabetised within each group.
+# shellcheck disable=SC2034
 AA_PACKAGE_INCLUDE=(
 	'CHANGELOG.md'
 	'README.md'
@@ -39,6 +45,7 @@ AA_PACKAGE_INCLUDE=(
 # manifest drives registration, and the FSE templates/parts are the theme.
 # A partially-populated build/ artifact or an over-eager clean step is caught
 # here rather than by a customer whose site went blank after auto-updating.
+# shellcheck disable=SC2034
 AA_PACKAGE_REQUIRED=(
 	'style.css'
 	'index.php'
@@ -69,6 +76,7 @@ AA_PACKAGE_REQUIRED=(
 # 'build/scripts/__tests__' missed a suite that webpack emitted one directory
 # deeper. bin/release/package.sh removes every `__tests__` directory by pattern
 # instead, so a new test location cannot leak into the package.
+# shellcheck disable=SC2034
 AA_PACKAGE_PRUNE=(
 	'languages/README.md'
 )
@@ -76,6 +84,7 @@ AA_PACKAGE_PRUNE=(
 # Directories that must contain at least one FILE inside the ZIP. Bare directory
 # entries do not count, so a build that emitted only empty subdirectories fails
 # the very check meant to catch a partially-populated tree.
+# shellcheck disable=SC2034
 AA_PACKAGE_REQUIRED_NONEMPTY=(
 	'build/blocks'
 	'build/blocks-interactivity'
@@ -90,6 +99,7 @@ AA_PACKAGE_REQUIRED_NONEMPTY=(
 # the build. This is defence in depth behind the allowlist: it catches a path
 # that slipped in through an included directory (for example a stray test
 # fixture or a build artifact carrying a source map).
+# shellcheck disable=SC2034
 AA_PACKAGE_FORBIDDEN=(
 	'(^|/)node_modules/'
 	'(^|/)vendor/'

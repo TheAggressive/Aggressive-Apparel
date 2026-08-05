@@ -2,10 +2,13 @@
 
 # Shared, host-side helpers for the repository's wp-env lifecycle commands.
 
+
 set -euo pipefail
 
 AA_WP_ENV_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AA_WP_ENV_REPO_ROOT="$(cd "${AA_WP_ENV_SCRIPT_DIR}/../.." && pwd)"
+# Read by the scripts that source this file; ShellCheck sees one file.
+# shellcheck disable=SC2034
 AA_WP_ENV_THEME_CWD="wp-content/themes/aggressive-apparel"
 AA_WP_ENV_LOCAL_BACKUP_ROOT="${AA_WP_ENV_REPO_ROOT}/.wp-env-backups"
 AA_WP_ENV_BACKUP_ROOT="${WP_ENV_BACKUP_DIR:-${AA_WP_ENV_LOCAL_BACKUP_ROOT}}"

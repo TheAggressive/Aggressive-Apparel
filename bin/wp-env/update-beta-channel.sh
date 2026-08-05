@@ -23,6 +23,9 @@ fi
 
 echo "wp-env: selecting the WordPress Bleeding Edge Beta/RC Only channel..."
 
+# The single-quoted body runs inside the container, not here, so it must
+# reach that shell unexpanded.
+# shellcheck disable=SC2016
 pnpm wp-env run cli bash -c '
 	set -euo pipefail
 
@@ -39,8 +42,8 @@ pnpm wp-env run cli bash -c '
 	}
 
 	# Installed here rather than in .wp-env.json. Listing it as a development
-	# plugin put it on every developer machine, where — with this repository’s
-	# cron loopback mu-plugin — WordPress quietly auto-updated the site to a
+	# plugin put it on every developer machine, where — alongside the cron
+	# loopback mu-plugin — WordPress quietly auto-updated the site to a
 	# beta in the background. Core then no longer matched the pinned version, so
 	# the next `wp-env start` re-provisioned /var/www/html and took wp-content,
 	# uploads included, with it.

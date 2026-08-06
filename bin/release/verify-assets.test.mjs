@@ -1,20 +1,5 @@
-/**
- * Tests for bin/release/verify-assets.sh.
- *
- * This script guards a failure that is invisible from the outside: a release
- * can publish with the tag, the commit, and the ZIP all present but the
- * `.sha256` sidecar missing. Core\Theme_Updates returns early without that
- * sidecar, so every installed site silently stops being offered the update —
- * and semantic-release cannot self-heal, because the tag already exists and it
- * never reaches the upload step again.
- *
- * The script therefore has to do two things a simpler one would skip: re-read
- * the release from the API instead of trusting its own upload calls, and fail
- * loudly when an asset is still missing. Both are asserted here against a stub
- * `gh` whose behaviour each case controls.
- */
-
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,135 +14,206 @@ import {
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(SCRIPT_DIR, 'verify-assets.sh');
-
-const SLUG = 'aggressive-apparel';
+const LIB = path.join(SCRIPT_DIR, 'lib.sh');
 const VERSION = '9.9.9';
-const ZIP = `${SLUG}-${VERSION}.zip`;
+const ZIP = `aggressive-apparel-${VERSION}.zip`;
+const CHECKSUM = `${ZIP}.sha256`;
 
 after(cleanup);
 
-/**
- * Stage a release working directory.
- *
- * @param {object}   options
- * @param {string[]} options.local    Asset filenames present on disk.
- * @param {string[]} options.attached Asset names the stub `gh` reports.
- * @param {boolean}  options.uploadWorks Whether `gh release upload` actually
- *                                       attaches the asset. False reproduces
- *                                       the silent partial upload.
- */
-function stage({ local = [], attached = [], uploadWorks = true } = {}) {
-  const root = workspace('aa-assets');
-
-  fs.writeFileSync(
-    path.join(root, 'package.json'),
-    JSON.stringify({ name: SLUG, version: VERSION })
+function libArray(name) {
+  const result = spawnSync(
+    'bash',
+    ['-c', `source "${LIB}"; printf '%s\\n' "\${${name}[@]}"`],
+    { encoding: 'utf8' }
   );
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.split('\n').filter(Boolean);
+}
 
-  for (const asset of local) {
-    fs.writeFileSync(path.join(root, asset), 'payload\n');
+const required = libArray('AA_PACKAGE_REQUIRED');
+const requiredNonempty = libArray('AA_PACKAGE_REQUIRED_NONEMPTY');
+
+function writePackageFile(root, relative, contents = `${relative}\n`) {
+  const target = path.join(root, 'aggressive-apparel', relative);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, contents);
+}
+
+function createAcceptedPackage(root) {
+  const style = `/*
+Theme Name: Aggressive Apparel
+Version: ${VERSION}
+Requires at least: 7.0
+Requires PHP: 8.2
+Text Domain: aggressive-apparel
+*/
+`;
+  for (const file of required) {
+    writePackageFile(root, file, file === 'style.css' ? style : `${file}\n`);
+  }
+  for (const directory of requiredNonempty) {
+    writePackageFile(root, path.posix.join(directory, 'placeholder.txt'));
   }
 
-  // The stub keeps attached assets in a file so an upload can mutate the state
-  // the later re-read observes — which is the behaviour under test.
-  // Each entry needs its own trailing newline: an upload appends, and without
-  // one the appended name would land on the same line as the last entry.
-  const stateFile = path.join(root, 'attached.txt');
-  fs.writeFileSync(stateFile, attached.map(name => `${name}\n`).join(''));
+  const zipped = spawnSync('zip', ['-qrX', ZIP, 'aggressive-apparel'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(zipped.status, 0, zipped.stderr);
+  const digest = spawnSync('sha256sum', [ZIP], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(digest.status, 0, digest.stderr);
+  fs.writeFileSync(path.join(root, CHECKSUM), digest.stdout);
+}
+
+function stage({
+  attached = [ZIP, CHECKSUM],
+  release = true,
+  draftState = 'true',
+  corrupt,
+  attestation = true,
+} = {}) {
+  const root = workspace('aa-release');
+  createAcceptedPackage(root);
+
+  const remote = path.join(root, 'remote');
+  fs.mkdirSync(remote);
+  const state = path.join(root, 'assets.tsv');
+  const draft = path.join(root, 'draft.txt');
+  fs.writeFileSync(draft, release ? `${draftState}\n` : 'missing\n');
+
+  const rows = [];
+  attached.forEach((name, index) => {
+    const id = String(101 + index);
+    rows.push(`${id}\t${name}\n`);
+    fs.copyFileSync(path.join(root, name), path.join(remote, id));
+    if (corrupt === name) {
+      fs.writeFileSync(path.join(remote, id), 'truncated\n');
+    }
+  });
+  fs.writeFileSync(state, rows.join(''));
 
   const binDir = path.join(root, 'stub-bin');
   fs.mkdirSync(binDir);
   stubCommand(
     binDir,
     'gh',
-    `# Stub gh: 'release view' lists attached assets, 'release upload' appends.
-if [[ "$1" == "release" && "$2" == "view" ]]; then
-\tgrep -v '^$' "${stateFile}" || true
-\texit 0
+    `if [[ "$1" == "attestation" ]]; then
+\t[[ "${attestation}" == "true" ]] && exit 0
+\texit 1
 fi
 if [[ "$1" == "release" && "$2" == "upload" ]]; then
-\tif [[ "${uploadWorks}" == "true" ]]; then
-\t\tprintf '%s\\n' "$4" >> "${stateFile}"
+\tname="$4"
+\tid="$(($(wc -l < "${state}") + 201))"
+\tcp "$name" "${remote}/$id"
+\tprintf '%s\\t%s\\n' "$id" "$name" >> "${state}"
+\texit 0
+fi
+[[ "$1" == "api" ]] || exit 2
+shift
+method=GET
+input=""
+endpoint=""
+while [[ $# -gt 0 ]]; do
+\tcase "$1" in
+\t\t--method) method="$2"; shift 2 ;;
+\t\t--input) input="$2"; shift 2 ;;
+\t\t-H|--jq|-F) shift 2 ;;
+\t\t--paginate) shift ;;
+\t\trepos/*) endpoint="$1"; shift ;;
+\t\t*) shift ;;
+\tesac
+done
+if [[ "$endpoint" == *"/releases?per_page=100" ]]; then
+\t[[ "$(cat "${draft}")" != "missing" ]] && printf '99\\t%s\\n' "$(cat "${draft}")"
+\texit 0
+fi
+if [[ "$endpoint" == *"/releases/99/assets" && "$method" == GET ]]; then
+\tcat "${state}"
+\texit 0
+fi
+if [[ "$endpoint" == *"/releases/assets/"* ]]; then
+\tid="\${endpoint##*/}"
+\tif [[ "$method" == DELETE ]]; then
+\t\trm -f "${remote}/$id"
+\t\tawk -F '\\t' -v id="$id" '$1 != id' "${state}" > "${state}.new"
+\t\tmv "${state}.new" "${state}"
+\telse
+\t\tcat "${remote}/$id"
 \tfi
 \texit 0
 fi
-exit 0`
+if [[ "$endpoint" == *"/releases/99" && "$method" == PATCH ]]; then
+\tprintf 'false\\n' > "${draft}"
+\texit 0
+fi
+if [[ "$endpoint" == *"/releases/99" ]]; then
+\tcat "${draft}"
+\texit 0
+fi
+exit 2`
   );
 
-  return { root, binDir };
+  return { root, binDir, draft, state };
 }
 
-function verify({ root, binDir }) {
+function verify(fixture) {
   return runScript(SCRIPT, {
-    cwd: root,
-    path: `${binDir}${path.delimiter}${process.env.PATH}`,
+    cwd: fixture.root,
+    path: `${fixture.binDir}${path.delimiter}${process.env.PATH}`,
+    env: {
+      AA_RELEASE_ROOT: fixture.root,
+      AA_RELEASE_VERSION: VERSION,
+      GITHUB_REPOSITORY: 'owner/repository',
+    },
   });
 }
 
-test('does nothing when no release was prepared in this run', () => {
-  // package.json holds a previously released version whenever there were no
-  // releasable commits. Touching that release would be wrong.
-  const { status, output } = verify(stage());
-
-  assert.equal(status, 0, `a no-release run must be a no-op:\n${output}`);
-  assert.match(output, /No release prepared in this run/u);
+test('verifies remote bytes and promotes a complete draft', () => {
+  const fixture = stage();
+  const { status, output } = verify(fixture);
+  assert.equal(status, 0, output);
+  assert.equal(fs.readFileSync(fixture.draft, 'utf8').trim(), 'false');
+  assert.match(output, /remotely verified, attested and published/u);
 });
 
-test('passes when both assets are already attached', () => {
-  const { status, output } = verify(
-    stage({
-      local: [ZIP, `${ZIP}.sha256`],
-      attached: [ZIP, `${ZIP}.sha256`],
-    })
-  );
-
-  assert.equal(status, 0, `a complete release must pass:\n${output}`);
-  assert.match(output, /has both release assets/u);
+test('uploads an asset missing from a partial semantic-release draft', () => {
+  const fixture = stage({ attached: [ZIP] });
+  const { status, output } = verify(fixture);
+  assert.equal(status, 0, output);
+  assert.match(output, new RegExp(`Uploading ${CHECKSUM}`, 'u'));
 });
 
-test('uploads and passes when the sidecar is missing from the release', () => {
-  // The repair path: the ZIP uploaded but the sha256 did not.
-  const { status, output } = verify(
-    stage({ local: [ZIP, `${ZIP}.sha256`], attached: [ZIP] })
-  );
-
-  assert.equal(status, 0, `a repairable release must pass:\n${output}`);
-  assert.match(output, /missing from v9\.9\.9 — uploading/u);
-  assert.match(output, /has both release assets/u);
+test('replaces a corrupt remote asset with the accepted local bytes', () => {
+  const fixture = stage({ corrupt: ZIP });
+  const { status, output } = verify(fixture);
+  assert.equal(status, 0, output);
+  assert.match(output, /differs from the accepted artifact; replacing/u);
 });
 
-test('fails when an upload silently does not attach the asset', () => {
-  // The reason the script re-reads from the API rather than trusting its own
-  // upload calls. If this degrades, a broken release reports success.
-  const { status, output } = verify(
-    stage({
-      local: [ZIP, `${ZIP}.sha256`],
-      attached: [ZIP],
-      uploadWorks: false,
-    })
-  );
-
-  assert.equal(status, 1, `a silent partial upload must fail:\n${output}`);
-  assert.match(output, /is still missing from v9\.9\.9/u);
-  assert.match(output, /theme updater will not offer this version/u);
+test('fails closed when semantic-release created no draft', () => {
+  const { status, output } = verify(stage({ release: false, attached: [] }));
+  assert.equal(status, 1);
+  assert.match(output, /Expected exactly one GitHub release/u);
 });
 
-test('fails when a required asset is missing from disk', () => {
-  const { status, output } = verify(stage({ local: [ZIP], attached: [ZIP] }));
-
-  assert.equal(status, 1, `a missing local asset must fail:\n${output}`);
-  assert.match(output, /Expected local asset '.*\.sha256' not found/u);
-});
-
-test('fails when the release has no assets at all', () => {
-  const { status, output } = verify(
-    stage({
-      local: [ZIP, `${ZIP}.sha256`],
-      attached: [],
-      uploadWorks: false,
-    })
-  );
+test('refuses to mutate assets on an already-published release', () => {
+  const fixture = stage({ attached: [ZIP], draftState: 'false' });
+  const initialAssets = fs.readFileSync(fixture.state, 'utf8');
+  const { status, output } = verify(fixture);
 
   assert.equal(status, 1);
-  assert.match(output, /is still missing/u);
+  assert.match(output, /already published; refusing to modify/u);
+  assert.equal(fs.readFileSync(fixture.state, 'utf8'), initialAssets);
+  assert.equal(fs.readFileSync(fixture.draft, 'utf8').trim(), 'false');
+});
+
+test('does not publish a draft whose provenance cannot be verified', () => {
+  const fixture = stage({ attestation: false });
+  const { status } = verify(fixture);
+  assert.equal(status, 1);
+  assert.equal(fs.readFileSync(fixture.draft, 'utf8').trim(), 'true');
 });

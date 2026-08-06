@@ -9,6 +9,7 @@
  */
 
 import {
+  artifactWpEnv,
   betaUpdater,
   betaWorkflow,
   check,
@@ -50,6 +51,35 @@ check(
   stableCorePattern.test(wpEnv.core),
   `bin/ci/.wp-env.json must pin a stable WordPress release (found ` +
     `"${wpEnv.core}"). Beta coverage belongs in the scheduled beta workflow.`
+);
+
+check(
+  artifactWpEnv.core === wpEnv.core &&
+    artifactWpEnv.phpVersion === wpEnv.phpVersion,
+  'The artifact-acceptance environment must use the same pinned WordPress and ' +
+    'PHP versions as the release gate.'
+);
+
+check(
+  JSON.stringify(artifactWpEnv.env?.development?.plugins) ===
+    JSON.stringify(developmentPlugins),
+  "The artifact-acceptance environment must install the release gate's pinned " +
+    'WooCommerce archive.'
+);
+
+check(
+  artifactWpEnv.port === 9940 && artifactWpEnv.testsPort === 9941,
+  'The artifact-acceptance environment must stay isolated on ports 9940/9941.'
+);
+
+check(
+  !JSON.stringify(artifactWpEnv).includes(
+    'wp-content/themes/aggressive-apparel'
+  ) &&
+    artifactWpEnv.env?.development?.mappings?.['wp-content/aa-artifacts'] ===
+      '../../../.cache/ci/artifact-files',
+  'Artifact acceptance must install the ZIP without mapping the source tree as ' +
+    'the active theme.'
 );
 
 // Dedicated ports: the parity environment must never bind the development one,

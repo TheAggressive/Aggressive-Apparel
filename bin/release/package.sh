@@ -10,7 +10,7 @@
 # was already being cut. Staging makes the exact same command safe everywhere,
 # which is what keeps local and CI from drifting.
 #
-# Usage: bin/release/package.sh
+# Usage: bin/release/package.sh [release-version]
 #
 # Requires: build/ (produced by `pnpm ci:build`) and compiled language catalogs
 # (produced by bin/i18n/compile.sh). Both are checked before anything is staged.
@@ -23,7 +23,18 @@ source "${SCRIPT_DIR}/lib.sh"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
-OUT_ZIP="${REPO_ROOT}/${AA_THEME_SLUG}.zip"
+VERSION="${1:-}"
+if [[ -n "${VERSION}" && ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+	echo "❌ Invalid release version '${VERSION}'." >&2
+	exit 2
+fi
+
+if [[ -n "${VERSION}" ]]; then
+	OUT_NAME="${AA_THEME_SLUG}-${VERSION}.zip"
+else
+	OUT_NAME="${AA_THEME_SLUG}.zip"
+fi
+OUT_ZIP="${REPO_ROOT}/${OUT_NAME}"
 
 echo "=== Packaging ${AA_THEME_SLUG} ==="
 
@@ -88,15 +99,44 @@ done < <(find "${THEME_DIR}" -type d -name '__tests__' -print0)
 # .gitignore anywhere in a shipping directory cannot start leaking.
 find "${THEME_DIR}" \
 	\( -name '.gitignore' -o -name '.gitattributes' -o -name '.DS_Store' \
-	-o -name 'Thumbs.db' -o -name '*.map' \) -delete
+		-o -name 'Thumbs.db' -o -name '*.map' \) -delete
+
+# The package job already knows the planned semantic version. Stamp the staged
+# tree before it is archived so the bytes verified, accepted, checksummed,
+# attested and uploaded are the same bytes. Nothing in the checkout is mutated.
+if [[ -n "${VERSION}" ]]; then
+	STAGED_STYLE="${THEME_DIR}/style.css"
+	sed -i "s/^Version:[[:space:]].*$/Version: ${VERSION}/" "${STAGED_STYLE}"
+	staged_version="$(aa_release_style_version "${STAGED_STYLE}")"
+	if [[ "${staged_version}" != "${VERSION}" ]]; then
+		echo "❌ Version stamp did not apply to staged style.css." >&2
+		exit 1
+	fi
+fi
+
+# Normalise archive metadata. `zip -X` removes extra attributes but does not
+# remove filesystem timestamps or mode differences, so two clean builds could
+# otherwise produce different hashes from identical source bytes.
+SOURCE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct)}"
+if [[ ! "${SOURCE_EPOCH}" =~ ^[0-9]+$ || "${SOURCE_EPOCH}" -lt 315532800 ]]; then
+	echo "❌ SOURCE_DATE_EPOCH must be a Unix timestamp supported by ZIP." >&2
+	exit 2
+fi
+
+find "${THEME_DIR}" -type d -exec chmod 0755 {} +
+find "${THEME_DIR}" -type f -exec chmod 0644 {} +
+find "${THEME_DIR}" -exec touch -h -d "@${SOURCE_EPOCH}" {} +
 
 # --- Zip ---------------------------------------------------------------------
 rm -f "${OUT_ZIP}"
 (
 	cd "${STAGE_ROOT}"
-	# -X drops extra file attributes (uid/gid, extended attrs) so the archive
-	# is not machine-specific.
-	zip -qrX "${OUT_ZIP}" "${AA_THEME_SLUG}"
+	# Feed a sorted entry list instead of relying on filesystem traversal order.
+	# The repository disallows newline-bearing filenames, so zip's line-oriented
+	# stdin interface is unambiguous here.
+	TZ=UTC find "${AA_THEME_SLUG}" -print |
+		LC_ALL=C sort |
+		TZ=UTC zip -qX "${OUT_ZIP}" -@
 )
 
 # One known, quoted filename - there is no glob for `find` to handle better.

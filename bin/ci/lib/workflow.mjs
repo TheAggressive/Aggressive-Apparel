@@ -1,91 +1,60 @@
-/**
- * Workflow parsing helpers used by bin/ci/contracts.mjs.
- *
- * These live in their own module for one reason: the contract that keeps local
- * and Actions from drifting is only as trustworthy as the parsing underneath
- * it, and a regex that quietly stops matching turns a guard into decoration.
- * Two real defects have already shipped here — a `run:` pattern that missed
- * bare `- run:` steps, and a float version comparison that read 8.10 as older
- * than 8.2 — and both were found by review rather than by any check.
- *
- * Everything exported is pure and covered by bin/ci/contracts.test.mjs.
- */
+import { parse } from 'yaml';
 
-/**
- * Extract every `run:` command from a workflow job body, in document order.
- *
- * Matches the key wherever it appears in a step — with or without a preceding
- * `name:`, and whether or not it is the first key of the list item. `runs-on:`
- * is never matched because the colon must follow `run` directly.
- *
- * @param {string} jobBody Raw YAML of a single job.
- * @return {string[]} Trimmed command strings.
- */
-export function runCommands(jobBody) {
-  return [...jobBody.matchAll(/^[ \t]+(?:-[ \t]+)?run:[ \t]*(.*)$/gmu)].map(
-    match => match[1].trim()
-  );
+/** @param {string} workflow @return {Record<string, any>} */
+function parseWorkflow(workflow) {
+  const document = parse(workflow);
+  if (!document || typeof document !== 'object' || Array.isArray(document)) {
+    throw new Error('Workflow YAML must contain a mapping document.');
+  }
+  return document;
 }
 
-/**
- * Slice a workflow's `jobs:` section into `{ jobName: body }`.
- *
- * Throws rather than returning an empty object when the section cannot be
- * found: callers iterate the result, so an empty parse would silently satisfy
- * every per-job assertion instead of failing.
- *
- * @param {string} workflow Raw workflow YAML.
- * @return {Record<string, string>} Job bodies keyed by job id.
- */
+/** Return run commands from a parsed job in step order. */
+/** @param {any} job @return {string[]} */
+export function runCommands(job) {
+  if (!job || typeof job !== 'object' || !Array.isArray(job.steps)) {
+    return [];
+  }
+  return job.steps
+    .filter(
+      (/** @type {any} */ step) =>
+        step && typeof step === 'object' && 'run' in step
+    )
+    .map((/** @type {any} */ step) => {
+      if (typeof step.run !== 'string') {
+        throw new Error('A workflow run step must contain a string command.');
+      }
+      return step.run.trim();
+    });
+}
+
+/** Parse and return the workflow's jobs mapping. */
+/** @param {string} workflow @return {Record<string, any>} */
 export function parseJobs(workflow) {
-  const jobsStart = workflow.search(/^jobs:$/mu);
-  if (jobsStart < 0) {
-    throw new Error('Workflow has no jobs: section.');
+  const document = parseWorkflow(workflow);
+  const jobs = document.jobs;
+  if (!jobs || typeof jobs !== 'object' || Array.isArray(jobs)) {
+    throw new Error('Workflow has no non-empty jobs: mapping.');
   }
-
-  /** @type {Record<string, string>} */
-  const jobs = {};
-  const section = workflow.slice(jobsStart);
-  const headings = [...section.matchAll(/^ {2}([A-Za-z][\w-]*):$/gmu)];
-
-  if (headings.length === 0) {
-    throw new Error('Workflow jobs: section contains no job definitions.');
+  if (Object.keys(jobs).length === 0) {
+    throw new Error('Workflow jobs: mapping contains no job definitions.');
   }
-
-  for (const [index, heading] of headings.entries()) {
-    const start = (heading.index ?? 0) + heading[0].length;
-    const end = headings[index + 1]?.index ?? section.length;
-    jobs[heading[1]] = section.slice(start, end);
-  }
-
   return jobs;
 }
 
-/**
- * Compare `major.minor` versions numerically.
- *
- * Deliberately not `Number(version)`: that parses "8.10" as 8.1, which reads as
- * older than 8.2 and would silently accept a forward-compatibility matrix that
- * no longer looks forward.
- *
- * @param {string} candidate Version to test, e.g. "8.10".
- * @param {string} baseline  Version to beat, e.g. "8.2".
- * @return {boolean} True when candidate is strictly newer.
- */
+/** Compare major.minor versions numerically. */
+/** @param {string} candidate @param {string} baseline @return {boolean} */
 export function isNewerThan(candidate, baseline) {
-  const [candidateMajor, candidateMinor] = candidate.split('.').map(Number);
-  const [baselineMajor, baselineMinor] = baseline.split('.').map(Number);
-
-  if (
-    ![candidateMajor, candidateMinor, baselineMajor, baselineMinor].every(
-      Number.isInteger
-    )
-  ) {
+  const pattern = /^(\d+)\.(\d+)$/u;
+  const candidateMatch = pattern.exec(candidate);
+  const baselineMatch = pattern.exec(baseline);
+  if (!candidateMatch || !baselineMatch) {
     throw new Error(
       `Expected major.minor versions, got "${candidate}" and "${baseline}".`
     );
   }
-
+  const [, candidateMajor, candidateMinor] = candidateMatch.map(Number);
+  const [, baselineMajor, baselineMinor] = baselineMatch.map(Number);
   return (
     candidateMajor > baselineMajor ||
     (candidateMajor === baselineMajor && candidateMinor > baselineMinor)
@@ -93,62 +62,63 @@ export function isNewerThan(candidate, baseline) {
 }
 
 /**
- * Collect every third-party action reference in a workflow.
- *
- * Self-checking: the count of extracted references must equal the number of
- * `uses:` keys present in the text. If the pattern ever stops matching a form
- * of the key, this throws instead of reporting "no unpinned actions found",
- * which is the failure mode that would let an unpinned action through.
- *
- * @param {string} workflow Raw workflow YAML.
- * @return {string[]} Action references such as "actions/checkout@<sha>".
+ * @param {any} value
+ * @param {(key: string, value: any) => void} callback
+ * @return {void}
  */
-export function actionReferences(workflow) {
-  const declared = [...workflow.matchAll(/^\s*-?\s*uses:/gmu)].length;
-  const references = [
-    ...workflow.matchAll(/^\s*-?\s*uses:\s*['"]?([^'"\s#]+)['"]?/gmu),
-  ].map(match => match[1]);
-
-  if (references.length !== declared) {
-    throw new Error(
-      `Found ${declared} uses: keys but parsed ${references.length} action ` +
-        'references — the workflow uses a form this parser does not understand.'
-    );
+function visit(value, callback) {
+  if (Array.isArray(value)) {
+    for (const item of value) visit(item, callback);
+    return;
   }
+  if (!value || typeof value !== 'object') return;
+  for (const [key, child] of Object.entries(value)) {
+    callback(key, child);
+    visit(child, callback);
+  }
+}
 
+/** Collect all structurally parsed `uses` references. */
+/** @param {string} workflow @return {string[]} */
+export function actionReferences(workflow) {
+  /** @type {string[]} */
+  const references = [];
+  visit(parseWorkflow(workflow), (key, value) => {
+    if (key !== 'uses') return;
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new Error(
+        'A workflow uses: key does not contain a string reference.'
+      );
+    }
+    references.push(value);
+  });
   return references;
 }
 
-/**
- * True when an action reference is pinned to a full 40-character commit SHA.
- * Local (`./`) and container (`docker://`) references are exempt.
- *
- * @param {string} reference Action reference.
- * @return {boolean} Whether the reference is acceptably pinned.
- */
+/** True for full-SHA action references and local/container references. */
+/** @param {string} reference @return {boolean} */
 export function isPinnedAction(reference) {
   if (reference.startsWith('./') || reference.startsWith('docker://')) {
     return true;
   }
-
   const separator = reference.lastIndexOf('@');
   const ref = separator >= 0 ? reference.slice(separator + 1) : '';
-
   return /^[0-9a-f]{40}$/u.test(ref);
 }
 
-/**
- * Extract the quoted values of a single-line YAML flow sequence.
- *
- * @param {string} text Raw YAML.
- * @param {string} key  Sequence key, e.g. "php".
- * @return {string[]} Quoted entries, empty when the key is absent.
- */
+/** Find the first sequence assigned to `key` anywhere in parsed YAML. */
+/** @param {string} text @param {string} key @return {string[]} */
 export function flowSequence(text, key) {
-  const match = new RegExp(`^\\s*${key}:\\s*\\[(.+)\\]\\s*$`, 'mu').exec(text);
-  if (!match) {
-    return [];
+  /** @type {any[] | undefined} */
+  let found;
+  visit(parseWorkflow(text), (candidate, value) => {
+    if (found === undefined && candidate === key && Array.isArray(value)) {
+      found = value;
+    }
+  });
+  if (found === undefined) return [];
+  if (!found.every(value => typeof value === 'string')) {
+    throw new Error(`Expected ${key} to contain only quoted string values.`);
   }
-
-  return [...match[1].matchAll(/'([^']+)'/gu)].map(entry => entry[1]);
+  return found;
 }

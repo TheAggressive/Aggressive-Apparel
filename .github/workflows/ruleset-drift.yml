@@ -1,0 +1,24 @@
+name: Ruleset Drift
+
+on:
+  schedule:
+    - cron: '47 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Ruleset Drift
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compare live rules with committed intent
+        env:
+          GH_TOKEN: ${{ secrets.RULESET_AUDIT_TOKEN || github.token }}
+        run: node bin/ci/ruleset-drift.mjs

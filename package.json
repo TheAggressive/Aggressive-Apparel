@@ -1,6 +1,7 @@
 {
   "name": "aggressive-apparel",
-  "version": "1.181.4",
+  "version": "0.0.0-development",
+  "private": true,
   "description": "Official WooCommerce Block Theme for Aggressive Apparel",
   "author": "The Aggressive Network, LLC",
   "license": "GPL-2.0-or-later",
@@ -19,12 +20,12 @@
   "bugs": {
     "url": "https://github.com/TheAggressive/Aggressive-Apparel/issues"
   },
-  "type": "module",
   "packageManager": "pnpm@11.1.2",
   "engines": {
     "node": "24.18.0",
     "pnpm": "11.1.2"
   },
+  "type": "module",
   "main": "index.js",
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
@@ -32,9 +33,6 @@
     "@eslint/js": "^9.39.5",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "1.62.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^7.1.0",
-    "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.9",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/jest": "^30.0.0",
@@ -98,7 +96,8 @@
     "webpack": "^5.109.2",
     "webpack-cli": "^6.0.1",
     "webpack-merge": "^6.0.1",
-    "webpack-remove-empty-scripts": "^1.0.4"
+    "webpack-remove-empty-scripts": "^1.0.4",
+    "yaml": "2.8.2"
   },
   "scripts": {
     "// 🧱 BLOCK DEVELOPMENT": "_",
@@ -143,7 +142,7 @@
     "pretest": "pnpm run build:icons",
     "test": "pnpm run test:js && pnpm run test:tools && pnpm run test:php",
     "test:js": "wp-scripts test-unit-js --passWithNoTests",
-    "test:tools": "node bin/lib/icon-build.test.mjs && node bin/ci/contracts.test.mjs && node --test bin/release/verify-package.test.mjs bin/check-design-system-css.test.mjs bin/check-file-length.test.mjs bin/check-shell.test.mjs bin/i18n/validate-po.test.mjs bin/release/verify-assets.test.mjs bin/wp-env/check.test.mjs && bash bin/wp-env/test.sh",
+    "test:tools": "node bin/lib/icon-build.test.mjs && node bin/ci/contracts.test.mjs && node --test bin/ci/release-summary.test.mjs bin/release/verify-package.test.mjs bin/check-design-system-css.test.mjs bin/check-file-length.test.mjs bin/check-shell.test.mjs bin/i18n/validate-po.test.mjs bin/release/verify-assets.test.mjs bin/wp-env/check.test.mjs && bash bin/wp-env/test.sh",
     "test:js:watch": "wp-scripts test-unit-js --watch",
     "test:php": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --testdox'",
     "test:unit": "wp-env run tests-cli --env-cwd=wp-content/themes/aggressive-apparel bash -c './vendor/bin/phpunit --testsuite=unit --testdox'",
@@ -214,6 +213,7 @@
     "ci:php": "pnpm ci:doctor && bash bin/ci/php.sh",
     "ci:php:forward": "pnpm ci:doctor && bash bin/ci/php-forward.sh",
     "ci:package": "pnpm ci:doctor && bash bin/ci/package.sh",
+    "ci:artifact": "pnpm ci:doctor && bash bin/ci/artifact.sh",
     "ci:browser:install": "playwright install chromium",
     "ci:e2e": "pnpm ci:doctor && bash bin/ci/e2e.sh",
     "ci:e2e:beta": "pnpm ci:doctor && CI=1 WP_BASE_URL=http://localhost:9910 playwright test",

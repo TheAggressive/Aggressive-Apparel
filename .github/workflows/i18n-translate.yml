@@ -1,5 +1,5 @@
 # Machine-translate empty/fuzzy PO strings when the catalog drifts, then open a PR.
-# Never pushes to main. Default DeepL when DEEPL_AUTH_KEY is set; MyMemory fallback otherwise.
+# Never pushes to master. Default DeepL when DEEPL_AUTH_KEY is set; MyMemory fallback otherwise.
 name: 🌐 i18n MT Drafts
 
 on:
@@ -14,7 +14,7 @@ on:
         required: false
         default: '200'
   push:
-    branches: [main, master]
+    branches: [master]
     paths:
       - 'languages/aggressive-apparel.pot'
 
@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Install gettext tools
         run: sudo apt-get update && sudo apt-get install -y gettext
@@ -72,18 +73,18 @@ jobs:
           DEEPL_AUTH_KEY: ${{ secrets.DEEPL_AUTH_KEY }}
           I18N_MT_EMAIL: ${{ secrets.I18N_MT_EMAIL }}
           I18N_MT_DELAY_MS: '400'
+          I18N_LOCALE: ${{ github.event.inputs.locale || '' }}
+          I18N_LIMIT: ${{ github.event.inputs.limit || '200' }}
         run: |
           set -euo pipefail
           # auto = DeepL when the DEEPL_AUTH_KEY secret is set, MyMemory
           # fallback otherwise — so this step still works with no secret.
           export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-auto}"
           ARGS=()
-          LOCALE="${{ github.event.inputs.locale || '' }}"
-          LIMIT="${{ github.event.inputs.limit || '200' }}"
-          if [[ -n "$LOCALE" ]]; then
-            ARGS+=(--locale="$LOCALE")
+          if [[ -n "$I18N_LOCALE" ]]; then
+            ARGS+=(--locale="$I18N_LOCALE")
           fi
-          ARGS+=(--limit="$LIMIT")
+          ARGS+=(--limit="$I18N_LIMIT")
           bash bin/i18n/sync.sh
           node bin/i18n/translate.mjs "${ARGS[@]}"
 
@@ -93,7 +94,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # chore(i18n) (not fix) so merging translations does NOT cut its own
-          # release — no extra version bump. The reviewed .po lands on main and
+          # release — no extra version bump. The reviewed .po lands on master and
           # ships with the next code release, whose package step recompiles the
           # .mo from the current catalogs.
           commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'

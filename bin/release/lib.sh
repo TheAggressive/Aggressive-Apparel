@@ -23,7 +23,6 @@ AA_THEME_SLUG='aggressive-apparel'
 # does not ship. Keep alphabetised within each group.
 # shellcheck disable=SC2034
 AA_PACKAGE_INCLUDE=(
-	'CHANGELOG.md'
 	'README.md'
 	'functions.php'
 	'index.php'

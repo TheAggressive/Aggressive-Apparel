@@ -1,78 +1,132 @@
 #!/usr/bin/env bash
-#
-# Post-release asset check, run after `semantic-release` in the release job.
-#
-# A flaky GitHub upload (502 "Error creating policy") can publish a release with
-# the tag, the commit, and the ZIP all in place but the SHA-256 sidecar missing.
-# That failure is worse than it looks: Core\Theme_Updates requires a
-# `<zip>.sha256` asset and returns early without one, so every existing install
-# silently stops being offered the update. semantic-release cannot recover on a
-# re-run either — the tag already exists, so it never reaches the upload again.
-#
-# This re-uploads whatever is missing and fails loudly if it still is, so a
-# broken release surfaces as a red build instead of a silent no-op.
-#
-# Usage: bin/release/verify-assets.sh
-#
-# Runs from the repo root, after prepare.sh has produced the versioned assets.
-# Requires `gh` (preinstalled on GitHub runners) with GH_TOKEN in the env.
+
+# Reconcile a semantic-release draft with the locally accepted artifacts, verify
+# the bytes through GitHub's download API, then publish it. semantic-release is
+# configured with draftRelease=true, so the updater cannot observe a partial
+# release while this script is repairing or validating it.
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${AA_RELEASE_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
 SLUG="aggressive-apparel"
+VERSION="${AA_RELEASE_VERSION:?AA_RELEASE_VERSION is required}"
+REPOSITORY="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
 
-VERSION="$(node -p "require('./package.json').version")"
-ZIP="${SLUG}-${VERSION}.zip"
-TAG="v${VERSION}"
-
-# prepare.sh only builds the versioned ZIP when a release is actually being cut.
-# Its absence means this run published nothing (no releasable commits) — the
-# version in package.json is a previous release we must not touch.
-if [[ ! -f "${ZIP}" ]]; then
-	echo "No release prepared in this run — nothing to verify."
-	exit 0
+if [[ "${REPO_ROOT}" != /* || ! -d "${REPO_ROOT}" ]]; then
+	echo "AA_RELEASE_ROOT must resolve to an absolute directory." >&2
+	exit 2
 fi
 
-echo "=== Verifying assets on ${TAG} ==="
+if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+	echo "Invalid release version '${VERSION}'." >&2
+	exit 2
+fi
+if [[ ! "${REPOSITORY}" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+	echo "Invalid GITHUB_REPOSITORY '${REPOSITORY}'." >&2
+	exit 2
+fi
 
-# Upload anything the release is missing. --clobber keeps this idempotent, so a
-# re-run repairs a partial upload rather than erroring on a name collision.
-for asset in "${ZIP}" "${ZIP}.sha256"; do
+cd "${REPO_ROOT}"
+ZIP="${SLUG}-${VERSION}.zip"
+CHECKSUM="${ZIP}.sha256"
+TAG="v${VERSION}"
+
+for asset in "${ZIP}" "${CHECKSUM}"; do
 	if [[ ! -f "${asset}" ]]; then
-		echo "❌ Expected local asset '${asset}' not found in $(pwd)" >&2
+		echo "Expected local release asset '${asset}' is missing." >&2
 		exit 1
 	fi
-
-	if gh release view "${TAG}" --json assets \
-		--jq '.assets[].name' | grep -qxF "${asset}"; then
-		echo "✅ ${asset} already attached"
-		continue
-	fi
-
-	echo "⚠️  ${asset} missing from ${TAG} — uploading…"
-	gh release upload "${TAG}" "${asset}" --clobber
 done
+sha256sum --check "${CHECKSUM}"
+bash "${SCRIPT_DIR}/verify-package.sh" "${ZIP}" "${VERSION}"
 
-# Re-read from the API rather than trusting the upload calls above: a silent
-# partial failure here is exactly the bug this script exists to catch.
-attached="$(gh release view "${TAG}" --json assets --jq '.assets[].name')"
-missing=0
-
-for asset in "${ZIP}" "${ZIP}.sha256"; do
-	if ! grep -qxF "${asset}" <<<"${attached}"; then
-		echo "❌ ${asset} is still missing from ${TAG}" >&2
-		missing=1
-	fi
-done
-
-if [[ "${missing}" -ne 0 ]]; then
-	echo "" >&2
-	echo "Release ${TAG} is published but incomplete. Without the .sha256" >&2
-	echo "sidecar the theme updater will not offer this version to any site." >&2
-	echo "Re-running this job will NOT repair it: the tag already exists, so" >&2
-	echo "semantic-release republishes nothing and this script exits early." >&2
-	echo "Rebuild the assets locally and upload them — see" >&2
-	echo "docs/release-runbook.md ('verify-assets.sh fails')." >&2
+release_rows="$(
+	gh api --paginate "repos/${REPOSITORY}/releases?per_page=100" \
+		--jq ".[] | select(.tag_name == \"${TAG}\") | [.id, .draft] | @tsv"
+)"
+row_count="$(grep -c . <<<"${release_rows}" || true)"
+if [[ "${row_count}" -ne 1 ]]; then
+	echo "Expected exactly one GitHub release for ${TAG}, found ${row_count}." >&2
+	exit 1
+fi
+read -r release_id release_is_draft <<<"${release_rows}"
+if [[ ! "${release_id}" =~ ^[0-9]+$ ]]; then
+	echo "GitHub returned an invalid release id for ${TAG}." >&2
+	exit 1
+fi
+if [[ "${release_is_draft}" != "true" ]]; then
+	echo "Release ${TAG} is already published; refusing to modify its assets." >&2
 	exit 1
 fi
 
-echo "✅ ${TAG} has both release assets"
+list_assets() {
+	gh api "repos/${REPOSITORY}/releases/${release_id}/assets" \
+		--jq '.[] | [.id, .name] | @tsv'
+}
+
+asset_id() {
+	local asset_name="$1"
+	list_assets | awk -F '\t' -v name="${asset_name}" '$2 == name { print $1 }'
+}
+
+upload_asset() {
+	local asset_name="$1"
+	echo "Uploading ${asset_name} to ${TAG} draft..."
+	gh release upload "${TAG}" "${asset_name}" --repo "${REPOSITORY}"
+}
+
+DOWNLOAD_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/aa-release-download.XXXXXX")"
+cleanup() {
+	rm -rf "${DOWNLOAD_ROOT}"
+}
+trap cleanup EXIT
+
+for asset in "${ZIP}" "${CHECKSUM}"; do
+	remote_id="$(asset_id "${asset}")"
+	if [[ -z "${remote_id}" ]]; then
+		upload_asset "${asset}"
+		remote_id="$(asset_id "${asset}")"
+	fi
+	if [[ ! "${remote_id}" =~ ^[0-9]+$ ]]; then
+		echo "Could not resolve remote asset id for ${asset}." >&2
+		exit 1
+	fi
+
+	gh api -H 'Accept: application/octet-stream' \
+		"repos/${REPOSITORY}/releases/assets/${remote_id}" \
+		>"${DOWNLOAD_ROOT}/${asset}"
+
+	# A matching name is not evidence that the upload completed with the right
+	# bytes. Replace a corrupt/truncated remote object and verify the replacement.
+	if ! cmp -s "${asset}" "${DOWNLOAD_ROOT}/${asset}"; then
+		echo "Remote ${asset} differs from the accepted artifact; replacing it."
+		gh api --method DELETE \
+			"repos/${REPOSITORY}/releases/assets/${remote_id}" >/dev/null
+		upload_asset "${asset}"
+		remote_id="$(asset_id "${asset}")"
+		gh api -H 'Accept: application/octet-stream' \
+			"repos/${REPOSITORY}/releases/assets/${remote_id}" \
+			>"${DOWNLOAD_ROOT}/${asset}"
+		cmp "${asset}" "${DOWNLOAD_ROOT}/${asset}"
+	fi
+done
+
+(
+	cd "${DOWNLOAD_ROOT}"
+	sha256sum --check "${CHECKSUM}"
+)
+bash "${SCRIPT_DIR}/verify-package.sh" "${DOWNLOAD_ROOT}/${ZIP}" "${VERSION}"
+gh attestation verify "${DOWNLOAD_ROOT}/${ZIP}" --repo "${REPOSITORY}"
+
+gh api --method PATCH "repos/${REPOSITORY}/releases/${release_id}" \
+	-F draft=false -F make_latest=true >/dev/null
+
+published_draft_state="$(
+	gh api "repos/${REPOSITORY}/releases/${release_id}" --jq '.draft'
+)"
+if [[ "${published_draft_state}" != "false" ]]; then
+	echo "Release ${TAG} is still a draft after promotion." >&2
+	exit 1
+fi
+
+echo "Release ${TAG} is remotely verified, attested and published."

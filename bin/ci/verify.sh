@@ -25,5 +25,6 @@ pnpm ci:e2e
 # last. bin/ci/contracts.mjs asserts this list stays equal to the set of lanes
 # the release workflow invokes, in both directions.
 pnpm ci:package
+pnpm ci:artifact
 
 echo "Full local CI parity verification passed."

@@ -38,6 +38,11 @@ jest.mock(
 );
 
 class MockIntersectionObserver {
+  constructor(
+    _callback: IntersectionObserverCallback,
+    _options?: IntersectionObserverInit
+  ) {}
+
   observe(): void {}
   unobserve(): void {}
   disconnect(): void {}

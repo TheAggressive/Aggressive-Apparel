@@ -172,8 +172,21 @@ const ALLOWED_SVG_ATTRIBUTES = new Set([
   'role',
 ]);
 
+/** Presentation attributes may reference definitions, but never remote URLs. */
+const LOCAL_IRI_ATTRIBUTES = new Set(['fill', 'stroke', 'clip-path', 'mask']);
+const SAFE_LOCAL_IRI = /^url\(\s*(['"]?)#[A-Za-z_][\w:.-]*\1\s*\)$/i;
+
+/** Whether an SVG presentation value contains a non-local URL reference. */
+function hasUnsafeUrlReference(name: string, value: string): boolean {
+  return (
+    LOCAL_IRI_ATTRIBUTES.has(name) &&
+    /url\s*\(/i.test(value) &&
+    !SAFE_LOCAL_IRI.test(value.trim())
+  );
+}
+
 /**
- * Parse SVG markup and return only what is safe to inject.
+ * Parse SVG markup and return a sanitized node that is safe to append.
  *
  * The value comes from a form field, so it is attacker-influenced whenever the
  * badge is edited by anyone who can reach this screen — "the admin typed it"
@@ -189,18 +202,23 @@ const ALLOWED_SVG_ATTRIBUTES = new Set([
  *   denylist has to anticipate `data:`, `vbscript:`, `<animate>` and whatever
  *   comes next; the server side is an allowlist, so this mirrors it.
  *
- * Returns an empty string when the markup contains no SVG root.
+ * Returning a node rather than serialized markup keeps attacker-controlled data
+ * away from `innerHTML`, even after it has passed the allowlist.
+ *
+ * Returns null when the markup contains no SVG root.
  */
-export const sanitizeSvgMarkup = (markup: string): string => {
+export const createSanitizedSvgNode = (
+  markup: string
+): SVGSVGElement | null => {
   const trimmed = markup.trim();
   if (!trimmed) {
-    return '';
+    return null;
   }
 
   const parsed = new DOMParser().parseFromString(trimmed, 'text/html');
-  const svg = parsed.body.querySelector('svg');
+  const svg = parsed.body.querySelector<SVGSVGElement>('svg');
   if (!svg) {
-    return '';
+    return null;
   }
 
   // Depth-first over a snapshot: the tree is mutated while walking it.
@@ -215,13 +233,17 @@ export const sanitizeSvgMarkup = (markup: string): string => {
     }
 
     for (const attribute of Array.from(element.attributes)) {
-      if (!ALLOWED_SVG_ATTRIBUTES.has(attribute.name.toLowerCase())) {
+      const name = attribute.name.toLowerCase();
+      if (
+        !ALLOWED_SVG_ATTRIBUTES.has(name) ||
+        hasUnsafeUrlReference(name, attribute.value)
+      ) {
         element.removeAttribute(attribute.name);
       }
     }
   }
 
-  return svg.outerHTML;
+  return document.importNode(svg, true);
 };
 
 /**
@@ -242,12 +264,14 @@ function buildIconNode(): HTMLElement | null {
   icon.style.cssText = buildIconStyle();
 
   if (svgRaw) {
-    icon.innerHTML = sanitizeSvgMarkup(svgRaw);
+    const svg = createSanitizedSvgNode(svgRaw);
+    if (svg) icon.appendChild(svg);
   } else if (libIcon) {
     const select = document.getElementById('badge_library_icon');
     const selected =
       select instanceof HTMLSelectElement ? select.selectedOptions[0] : null;
-    icon.innerHTML = sanitizeSvgMarkup(selected?.dataset.svg || '');
+    const svg = createSanitizedSvgNode(selected?.dataset.svg || '');
+    if (svg) icon.appendChild(svg);
   } else {
     icon.textContent = emoji;
   }

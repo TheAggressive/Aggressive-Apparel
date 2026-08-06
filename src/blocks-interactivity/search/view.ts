@@ -259,10 +259,7 @@ function mapErrorCode(raw: string | undefined): SearchErrorCode {
 async function parseSearchResponse(
   response: Response
 ): Promise<SearchSuccessResponse> {
-  let payload: SearchSuccessResponse & SearchErrorPayload = {
-    query: '',
-    groups: [],
-  };
+  let payload: SearchSuccessResponse & SearchErrorPayload;
 
   try {
     payload = (await response.json()) as SearchSuccessResponse &
@@ -612,7 +609,7 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
       const currentIndex = tabs.indexOf(current as HTMLButtonElement);
       if (currentIndex < 0) return;
 
-      let nextIndex = currentIndex;
+      let nextIndex: number;
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowDown':

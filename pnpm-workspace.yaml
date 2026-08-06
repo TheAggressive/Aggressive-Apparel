@@ -20,16 +20,42 @@ allowBuilds:
 # and call the named `expand` export that 1.x does not have.
 overrides:
   # Only minimatch@3 pulls the vulnerable 1.x line; 2.x and 5.x are unaffected.
-  'brace-expansion@1': '^1.1.16'
+  'brace-expansion@1': '1.1.18'
+  '@babel/core@7': '7.29.7'
+  '@babel/runtime@7': '7.29.7'
+  'ajv@8': '8.18.0'
+  'basic-ftp@5': '5.3.1'
+  'body-parser@1': '1.20.6'
+  'fast-xml-parser@5': '5.7.0'
+  'flatted@3': '3.4.2'
+  'follow-redirects@1': '1.16.0'
+  'handlebars@4': '4.7.9'
+  'http-proxy-middleware@2': '2.0.10'
   immutable: '^5.1.8'
   'js-yaml@<4': '^3.15.0'
   'js-yaml@>=4': '^4.3.0'
+  'lodash@4': '4.18.1'
+  'lodash-es@4': '4.18.1'
+  'minimatch@3': '3.1.4'
+  'picomatch@2': '2.3.2'
+  'picomatch@4': '4.0.4'
+  'qs@6': '6.15.2'
+  'simple-git@3': '3.36.0'
   svgo: '^3.3.4'
+  'websocket-driver@0.7': '0.7.5'
+  'ws@7': '7.5.11'
+  'ws@8': '8.21.0'
 
   # Moved from package.json's `pnpm.overrides`, where it had never applied —
   # lighthouse was resolving to 12.x despite the 13.4.0 pin. Not used by any
   # ci:* lane, so it only affects a manual Lighthouse run.
   '@lhci/cli>lighthouse': '13.4.0'
+
+  # Patched lines required by Lighthouse/WordPress tooling and semantic-release.
+  # Keep each override within the major requested by its consumers.
+  'ip-address@10': '10.3.1'
+  'undici@6': '6.28.0'
+  'undici@7': '7.29.0'
 
   # These two cross majors, which is safe only because neither code path runs
   # here: linkify-it arrives via markdownlint (markdown is linted with

@@ -275,7 +275,7 @@ export const productTabsStore = store<ProductTabsStore>(
           tabNav.querySelectorAll('[role="tab"]')
         ) as HTMLElement[];
         const count = tabs.length;
-        let newIndex: number = state.activeTab;
+        let newIndex: number;
 
         switch (event.key) {
           case 'ArrowRight':

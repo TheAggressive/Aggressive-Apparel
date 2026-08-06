@@ -76,7 +76,10 @@ class MockIntersectionObserver {
   rootMargin = '0px';
   thresholds = [0];
 
-  constructor(callback: IntersectionCallback) {
+  constructor(
+    callback: IntersectionCallback,
+    _options?: IntersectionObserverInit
+  ) {
     this.callback = callback;
     intersectionObservers.push(this);
   }

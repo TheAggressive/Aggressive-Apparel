@@ -110,7 +110,7 @@ export function calculateScrollOpacity(
     mode
   );
 
-  let rangeProgress = mappedProgress;
+  let rangeProgress: number;
 
   switch (fadeRange) {
     case 'top':
@@ -182,7 +182,7 @@ export function calculateBlur(
     mode
   );
 
-  let rangeProgress = mappedProgress;
+  let rangeProgress: number;
 
   // Adjust progress based on fade range
   switch (fadeRange) {

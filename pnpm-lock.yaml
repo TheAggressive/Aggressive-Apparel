@@ -226,8 +226,8 @@ importers:
         specifier: ^1.0.4
         version: 1.1.1(webpack@5.109.2)
       yaml:
-        specifier: 2.8.2
-        version: 2.8.2
+        specifier: 2.9.0
+        version: 2.9.0
 
 packages:
 
@@ -11010,8 +11010,8 @@ packages:
     resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
     engines: {node: '>= 6'}
 
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+  yaml@2.9.0:
+    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -20048,7 +20048,7 @@ snapshots:
 
   docker-compose@0.24.8:
     dependencies:
-      yaml: 2.8.2
+      yaml: 2.9.0
 
   doctrine@2.1.0:
     dependencies:
@@ -26346,7 +26346,7 @@ snapshots:
 
   yaml@1.10.3: {}
 
-  yaml@2.8.2: {}
+  yaml@2.9.0: {}
 
   yargs-parser@13.1.2:
     dependencies:

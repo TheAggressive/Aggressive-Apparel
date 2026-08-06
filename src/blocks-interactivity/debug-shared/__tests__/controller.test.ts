@@ -24,7 +24,10 @@ class MockIntersectionObserver {
   unobserve = jest.fn();
   disconnect = jest.fn();
 
-  constructor(callback: ObserverCallback, options: IntersectionObserverInit) {
+  constructor(
+    callback: ObserverCallback,
+    options: IntersectionObserverInit = {}
+  ) {
     this.callback = callback;
     this.options = options;
     observers.push(this);

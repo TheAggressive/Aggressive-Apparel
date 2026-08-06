@@ -111,8 +111,6 @@ interface HighlightData {
   resizeObserver: ResizeObserver | null;
 }
 
-let highlightTimer: ReturnType<typeof setInterval> | null = null;
-
 // Track which elements have been highlighted so we can clean them up precisely.
 const highlightedElements = new Set<Element>();
 
@@ -215,12 +213,6 @@ export const findBlockDomElement = (clientId: string): Element | null => {
  * @param modalId - Optional modalId to target specific cleanup
  */
 export const cleanupAllHighlights = (modalId: string | null = null): void => {
-  // Clear any timers.
-  if (highlightTimer) {
-    clearInterval(highlightTimer);
-    highlightTimer = null;
-  }
-
   // Clear all animation timers.
   animationTimers.forEach(timer => clearInterval(timer));
   animationTimers.clear();
@@ -460,9 +452,7 @@ export const highlightModalTrigger = (
 
       if (highlightInfo) {
         // Track which elements were highlighted in this session.
-        if (targetElement) {
-          highlightedElements.add(targetElement);
-        }
+        highlightedElements.add(targetElement);
 
         return {
           highlighted: true,

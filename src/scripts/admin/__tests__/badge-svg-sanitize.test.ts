@@ -1,25 +1,25 @@
 /**
  * SVG sanitization for the badge admin preview.
  *
- * The preview injects the badge's SVG field into `innerHTML`. That value is
- * saved by one user and previewed by another, so "an admin typed it" is not a
- * safety argument — CodeQL flagged the path as js/xss-through-dom.
+ * The badge's SVG field is saved by one user and previewed by another, so "an
+ * admin typed it" is not a safety argument. The sanitizer returns a DOM node
+ * that the preview appends directly, keeping the value away from `innerHTML`.
  *
- * Every case asserts on the *rendered* result rather than the returned string,
- * because the string is only safe if the browser agrees. Parsing the output
- * back into a detached element is what a real injection would do.
+ * Every case asserts on the rendered result because that is what the receiving
+ * admin's browser will execute.
  */
 
-import { sanitizeSvgMarkup } from '../woocommerce/badge-preview-admin';
+import { createSanitizedSvgNode } from '../woocommerce/badge-preview-admin';
 
 /** Render sanitized output the way the preview does, then inspect it. */
 const render = (markup: string): HTMLElement => {
   const host = document.createElement('span');
-  host.innerHTML = sanitizeSvgMarkup(markup);
+  const svg = createSanitizedSvgNode(markup);
+  if (svg) host.appendChild(svg);
   return host;
 };
 
-describe('sanitizeSvgMarkup', () => {
+describe('createSanitizedSvgNode', () => {
   it('keeps legitimate SVG intact', () => {
     const host = render(
       '<svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>'
@@ -70,9 +70,9 @@ describe('sanitizeSvgMarkup', () => {
   });
 
   it('rejects markup that is not SVG', () => {
-    expect(sanitizeSvgMarkup('<div>not svg</div>')).toBe('');
-    expect(sanitizeSvgMarkup('<img src=x onerror="alert(1)">')).toBe('');
-    expect(sanitizeSvgMarkup('plain text')).toBe('');
+    expect(createSanitizedSvgNode('<div>not svg</div>')).toBeNull();
+    expect(createSanitizedSvgNode('<img src=x onerror="alert(1)">')).toBeNull();
+    expect(createSanitizedSvgNode('plain text')).toBeNull();
   });
 
   it('recovers SVG that is valid HTML but invalid XML', () => {
@@ -84,9 +84,9 @@ describe('sanitizeSvgMarkup', () => {
 
     expect(host.querySelector('path')?.getAttribute('d')).toBe('M0 0h24v24H0z');
 
-    expect(sanitizeSvgMarkup('<svg><unclosed></svg>')).not.toContain(
-      'unclosed'
-    );
+    expect(
+      createSanitizedSvgNode('<svg><unclosed></svg>')?.querySelector('unclosed')
+    ).toBeNull();
   });
 
   it('drops elements outside the allowlist', () => {
@@ -114,8 +114,21 @@ describe('sanitizeSvgMarkup', () => {
     expect(circle?.hasAttribute('xlink:href')).toBe(false);
   });
 
-  it('returns an empty string for empty input', () => {
-    expect(sanitizeSvgMarkup('')).toBe('');
-    expect(sanitizeSvgMarkup('   ')).toBe('');
+  it('allows local SVG definition references but strips remote URLs', () => {
+    const host = render(
+      '<svg><defs><linearGradient id="safe"><stop offset="1"/></linearGradient></defs>' +
+        '<rect fill="url(#safe)" stroke="url(https://attacker.example/pixel)" ' +
+        'mask="url(data:image/svg+xml,bad)"/></svg>'
+    );
+
+    const rect = host.querySelector('rect');
+    expect(rect?.getAttribute('fill')).toBe('url(#safe)');
+    expect(rect?.hasAttribute('stroke')).toBe(false);
+    expect(rect?.hasAttribute('mask')).toBe(false);
+  });
+
+  it('returns null for empty input', () => {
+    expect(createSanitizedSvgNode('')).toBeNull();
+    expect(createSanitizedSvgNode('   ')).toBeNull();
   });
 });

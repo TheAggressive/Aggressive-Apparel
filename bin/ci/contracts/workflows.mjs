@@ -120,7 +120,12 @@ if (missingJobs.length > 0) {
 // enumerating them means a new one is a deliberate, reviewable contract change.
 const PARITY_JOBS = {
   'lint-frontend': {
-    setup: ['pnpm install --frozen-lockfile'],
+    // validate-po.test.mjs deliberately exercises real msgfmt semantics; the
+    // runner must provision gettext rather than skip or mock that regression.
+    setup: [
+      'sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gettext',
+      'pnpm install --frozen-lockfile',
+    ],
     lanes: ['pnpm ci:frontend'],
   },
   i18n: { setup: ['pnpm install --frozen-lockfile'], lanes: ['pnpm ci:i18n'] },

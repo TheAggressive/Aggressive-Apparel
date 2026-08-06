@@ -455,6 +455,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # zizmor: ignore[artipacked] semantic-release needs this credential
+          # to push the verified release tag from this publishing-only job.
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -530,95 +532,26 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Check status
-        run: |
-          echo "## CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Check if this was a release-worthy commit
-          RELEASE_PLAN_RESULT="${{ needs.release-plan.result }}"
-          SHOULD_RELEASE="${{ needs.release-plan.outputs.should_release }}"
-          NEXT_VERSION="${{ needs.release-plan.outputs.next_version }}"
-          CODE_CHANGED="${{ needs.changes.outputs.code }}"
-          if [ "$RELEASE_PLAN_RESULT" = "failure" ] || [ "$RELEASE_PLAN_RESULT" = "cancelled" ]; then
-            echo "**Release planning failed** — Packaging and release were blocked" >> $GITHUB_STEP_SUMMARY
-          elif [ "$SHOULD_RELEASE" = "true" ]; then
-            echo "**Release v${NEXT_VERSION} planned** — Full pipeline (incl. packaging) executed" >> $GITHUB_STEP_SUMMARY
-          elif [ "$RELEASE_PLAN_RESULT" = "success" ]; then
-            echo "**Non-release commit** — Quality checks, build and tests executed (packaging skipped)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Release planning skipped** — This event is not a release-branch code push" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Release planning | ${{ needs.release-plan.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend (ESLint + Stylelint + Prettier + JS Tests) | ${{ needs.lint-frontend.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| i18n (POT drift + catalogs) | ${{ needs.i18n.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PHP (syntax + PHPCS + PHPStan + PHPUnit) | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Browser E2E | ${{ needs.e2e.result }} |" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$SHOULD_RELEASE" = "true" ]; then
-            echo "| Package | ${{ needs.package.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Artifact acceptance | ${{ needs.artifact-acceptance.result }} |" >> $GITHUB_STEP_SUMMARY
-            echo "| Release (publish + assets + provenance) | ${{ needs.release.result }} |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Package | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-            echo "| Artifact acceptance | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-            echo "| Release | skipped (non-release) |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "| Dependency review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          FAILED=0
-          require_success() {
-            local label="$1"
-            local result="$2"
-            if [ "$result" != "success" ]; then
-              echo "::error::Required ${label} job concluded ${result}"
-              FAILED=1
-            fi
-          }
-
-          require_success "change detection" "${{ needs.changes.result }}"
-          require_success "i18n" "${{ needs.i18n.result }}"
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            require_success "dependency review" "${{ needs.dependency-review.result }}"
-          fi
-
-          if [ "$CODE_CHANGED" = "true" ]; then
-            require_success "frontend" "${{ needs.lint-frontend.result }}"
-            require_success "build" "${{ needs.build.result }}"
-            require_success "PHP" "${{ needs.test.result }}"
-            require_success "browser E2E" "${{ needs.e2e.result }}"
-
-            if [ "${{ github.event_name }}" = "push" ] && \
-               [ "${{ github.ref }}" = "refs/heads/master" ]; then
-              require_success "release planning" "$RELEASE_PLAN_RESULT"
-            fi
-
-            if [ "$SHOULD_RELEASE" = "true" ]; then
-              require_success "package" "${{ needs.package.result }}"
-              require_success "artifact acceptance" "${{ needs.artifact-acceptance.result }}"
-
-              # The release job publishes the tag, uploads the assets, verifies
-              # them and attests provenance. Without this the aggregate gate
-              # could report success on a run whose publish step failed.
-              if [ "${{ needs.release.result }}" != "skipped" ]; then
-                require_success "release" "${{ needs.release.result }}"
-              fi
-            fi
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "$FAILED" -ne 0 ]; then
-            echo "### Required CI gate failed." >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-
-          echo "### Required CI gate passed." >> $GITHUB_STEP_SUMMARY
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+          CODE_CHANGED: ${{ needs.changes.outputs.code }}
+          SHOULD_RELEASE: ${{ needs.release-plan.outputs.should_release }}
+          NEXT_VERSION: ${{ needs.release-plan.outputs.next_version }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          RELEASE_PLAN_RESULT: ${{ needs.release-plan.result }}
+          DEPENDENCY_REVIEW_RESULT: ${{ needs.dependency-review.result }}
+          FRONTEND_RESULT: ${{ needs.lint-frontend.result }}
+          I18N_RESULT: ${{ needs.i18n.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          PHP_RESULT: ${{ needs.test.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+          ARTIFACT_ACCEPTANCE_RESULT: ${{ needs.artifact-acceptance.result }}
+          RELEASE_RESULT: ${{ needs.release.result }}
+        run: node bin/ci/release-summary.mjs

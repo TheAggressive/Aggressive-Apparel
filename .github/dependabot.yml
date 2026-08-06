@@ -13,6 +13,8 @@ updates:
       day: monday
       time: '06:00'
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     commit-message:
       # `chore` deliberately: CI tooling bumps must not cut a theme release.
       prefix: chore
@@ -32,6 +34,11 @@ updates:
       day: monday
       time: '06:00'
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     commit-message:
       prefix: chore
       include: scope
@@ -73,6 +80,11 @@ updates:
       day: monday
       time: '06:00'
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     commit-message:
       prefix: chore
       include: scope

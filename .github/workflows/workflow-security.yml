@@ -51,3 +51,5 @@ jobs:
         with:
           advanced-security: false
           online-audits: true
+          min-severity: low
+          version: 1.25.2

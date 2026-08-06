@@ -31,6 +31,7 @@ import {
   phpstanConfiguration,
   prePushHook,
   releaseLib,
+  releaseSummaryScript,
   releaseWorkflow,
   repositoryRoot,
   styleCss,
@@ -488,21 +489,30 @@ for (const job of summaryDependencies) {
 }
 
 check(
-  summaryCommands.includes(
-    'require_success "browser E2E" "${{ needs.e2e.result }}"'
-  ),
-  'The summary job must assert the E2E result explicitly. `needs:` alone ' +
-    'treats a skipped job as satisfied.'
+  summaryCommands === 'node bin/ci/release-summary.mjs',
+  'The summary job must delegate to bin/ci/release-summary.mjs so aggregate ' +
+    'release policy remains locally testable instead of becoming inline shell.'
 );
 
 check(
-  summaryCommands.includes('echo "### Required CI gate passed."'),
-  'The summary job must state its verdict in the run summary, so a green ' +
-    'pipeline is legible without opening the job logs.'
+  releaseSummaryScript.includes("requireSuccess('browser E2E', results.e2e)"),
+  'The release summary script must assert the E2E result explicitly. `needs:` ' +
+    'alone treats a skipped job as satisfied.'
 );
 
 check(
-  summaryCommands.includes('exit 1'),
-  'The summary job must exit non-zero on failure — an aggregate gate that ' +
-    'only prints is not a gate.'
+  releaseSummaryScript.includes('### Required CI gate passed.'),
+  'The release summary script must state its verdict, so a green aggregate ' +
+    'gate is legible without opening job logs.'
+);
+
+check(
+  releaseSummaryScript.includes('process.exitCode = 1'),
+  'The release summary script must exit non-zero on failure — an aggregate ' +
+    'gate that only prints is not a gate.'
+);
+
+check(
+  packageJson.scripts['test:tools'].includes('bin/ci/release-summary.test.mjs'),
+  'test:tools must exercise the release summary policy before workflow changes ship.'
 );

@@ -49,6 +49,7 @@ export const wpEnv = readJson('bin/ci/.wp-env.json');
 export const artifactWpEnv = readJson('bin/ci/artifact/.wp-env.json');
 export const developmentWpEnv = readJson('.wp-env.json');
 export const releaseWorkflow = readText('.github/workflows/release.yml');
+export const releaseSummaryScript = readText('bin/ci/release-summary.mjs');
 export const betaWorkflow = readText(
   '.github/workflows/wordpress-beta-compatibility.yml'
 );

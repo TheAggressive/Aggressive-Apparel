@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Install gettext tools
         run: sudo apt-get update && sudo apt-get install -y gettext
@@ -72,18 +73,18 @@ jobs:
           DEEPL_AUTH_KEY: ${{ secrets.DEEPL_AUTH_KEY }}
           I18N_MT_EMAIL: ${{ secrets.I18N_MT_EMAIL }}
           I18N_MT_DELAY_MS: '400'
+          I18N_LOCALE: ${{ github.event.inputs.locale || '' }}
+          I18N_LIMIT: ${{ github.event.inputs.limit || '200' }}
         run: |
           set -euo pipefail
           # auto = DeepL when the DEEPL_AUTH_KEY secret is set, MyMemory
           # fallback otherwise — so this step still works with no secret.
           export I18N_MT_PROVIDER="${I18N_MT_PROVIDER:-auto}"
           ARGS=()
-          LOCALE="${{ github.event.inputs.locale || '' }}"
-          LIMIT="${{ github.event.inputs.limit || '200' }}"
-          if [[ -n "$LOCALE" ]]; then
-            ARGS+=(--locale="$LOCALE")
+          if [[ -n "$I18N_LOCALE" ]]; then
+            ARGS+=(--locale="$I18N_LOCALE")
           fi
-          ARGS+=(--limit="$LIMIT")
+          ARGS+=(--limit="$I18N_LIMIT")
           bash bin/i18n/sync.sh
           node bin/i18n/translate.mjs "${ARGS[@]}"
 

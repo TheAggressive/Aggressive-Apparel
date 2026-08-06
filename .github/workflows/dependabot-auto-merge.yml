@@ -20,7 +20,7 @@ name: Dependabot auto-merge
 #      dependabot.yml, so this is defence in depth: a config change alone should
 #      never be enough to start auto-merging majors.
 
-on:
+on: # zizmor: ignore[dangerous-triggers] guarded policy job never executes pull-request code
   workflow_run:
     workflows: ['CI/CD Pipeline']
     types: [completed]

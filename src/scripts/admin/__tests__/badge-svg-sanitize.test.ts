@@ -75,11 +75,13 @@ describe('createSanitizedSvgNode', () => {
     expect(createSanitizedSvgNode('plain text')).toBeNull();
   });
 
-  it('rejects malformed SVG instead of applying HTML error recovery', () => {
+  it('safely recovers malformed SVG through the audited sanitizer', () => {
     const host = render('<svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z">');
 
-    expect(host.querySelector('svg')).toBeNull();
-    expect(createSanitizedSvgNode('<svg><unclosed></svg>')).toBeNull();
+    expect(host.querySelector('path')?.getAttribute('d')).toBe('M0 0h24v24H0z');
+    expect(
+      createSanitizedSvgNode('<svg><unclosed></svg>')?.querySelector('unclosed')
+    ).toBeNull();
   });
 
   it('rejects document types and custom entities', () => {

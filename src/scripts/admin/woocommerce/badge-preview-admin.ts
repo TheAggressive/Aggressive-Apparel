@@ -12,7 +12,7 @@
  * @since 1.19.0
  */
 
-export {};
+import DOMPurify from 'dompurify';
 
 const PREVIEW_ID = 'aa-badge-preview-el';
 const COLOR_PICKER_SELECTOR = '.aa-badge-color-picker';
@@ -249,12 +249,19 @@ export const createSanitizedSvgNode = (
     return null;
   }
 
-  // Parse as XML so attacker-controlled text is never reinterpreted as HTML.
-  // Malformed SVG is rejected rather than relying on HTML error recovery.
-  const parsed = new DOMParser().parseFromString(trimmed, 'image/svg+xml');
-  const root = parsed.documentElement;
+  // DOMPurify owns the parsing boundary; the second allowlist pass below then
+  // rebuilds a fresh SVG tree instead of trusting or serializing its output.
+  const fragment = DOMPurify.sanitize(trimmed, {
+    ALLOWED_TAGS: Array.from(ALLOWED_SVG_ELEMENTS.keys()),
+    ALLOWED_ATTR: Array.from(ALLOWED_SVG_ATTRIBUTES),
+    ALLOW_ARIA_ATTR: false,
+    ALLOW_DATA_ATTR: false,
+    RETURN_DOM_FRAGMENT: true,
+  });
+  const root = fragment.firstElementChild;
   if (
-    parsed.querySelector('parsererror') ||
+    !root ||
+    fragment.childElementCount !== 1 ||
     root.nodeName.toLowerCase() !== 'svg' ||
     (root.namespaceURI !== null && root.namespaceURI !== SVG_NAMESPACE)
   ) {

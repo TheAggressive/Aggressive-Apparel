@@ -2,7 +2,7 @@
 
 Official WooCommerce block theme for [Aggressive Apparel](https://theaggressive.com) — a Full Site Editing (FSE) theme with toggleable store enhancements, custom blocks, a shared design system, and WooCommerce-first patterns.
 
-**Version:** see `style.css` / `package.json` (kept in sync by semantic-release) · **Requires:** WordPress 7.0+ / PHP 8.2+ · **License:** GPL-2.0-or-later
+**Version:** see GitHub release tags; the distributable `style.css` is stamped during packaging · **Requires:** WordPress 7.0+ / PHP 8.2+ · **License:** GPL-2.0-or-later
 
 ## Features
 
@@ -93,6 +93,7 @@ pnpm test:e2e
 | `pnpm qa`                  | Full local rehearsal of every required GitHub Actions check           |
 | `pnpm qa:dev`              | Development wp-env i18n, tests, lint, and PHPStan                     |
 | `pnpm ci:verify`           | Canonical release-parity implementation used by `pnpm qa`             |
+| `pnpm ci:artifact`         | Install and smoke-test the distributable ZIP in clean WordPress       |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
 | `pnpm env:start`           | Start wp-env and update development to the latest Beta/RC             |
 | `pnpm env:stop`            | Stop wp-env                                                           |
@@ -134,10 +135,12 @@ official Node version from `.node-version` into the ignored local cache and
 verifies its pinned SHA-256 checksum before running; it does not change the
 global Node installation. `pnpm ci:doctor` then fails immediately if Node or
 pnpm differs from Actions. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`,
-`ci:php`, `ci:e2e`, and `ci:package` in parallel jobs, while `pnpm ci:verify`
+`ci:php`, `ci:e2e`, `ci:package`, and `ci:artifact` in gated jobs, while `pnpm ci:verify`
 runs those same commands serially. `bin/ci/contracts.mjs` asserts both
 directions of that list, so a lane cannot be added to Actions without also
-running locally, or removed locally while Actions still runs it. Jest, PHPUnit, and Playwright fail the release gate when any
+running locally, or removed locally while Actions still runs it. The artifact lane
+installs the final ZIP in an unmapped WordPress environment before publication.
+Jest, PHPUnit, and Playwright fail the release gate when any
 discovered test is skipped, incomplete, risky, flaky after a retry, or otherwise
 lacks reliable executed test evidence.
 
@@ -311,7 +314,7 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-detect changes → frontend ∥ i18n → build → PHP quality/tests ∥ browser E2E → package → semantic-release (feat/fix/perf only) → verify release assets
+detect changes → frontend ∥ i18n → build → PHP ∥ browser E2E → final package → clean-install acceptance → draft → attest → verify and publish
 ```
 
 - **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release
@@ -320,26 +323,26 @@ detect changes → frontend ∥ i18n → build → PHP quality/tests ∥ browser
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
   - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm ci:verify` — exact release-CI lanes against an isolated clean wp-env
+  - `pre-push`: `pnpm qa:fast` — fast subset of the canonical CI lanes
 
-### Versioning (what stays in sync on release)
+### Versioning
 
-semantic-release (see `.releaserc.json`) automatically bumps and commits:
+semantic-release tags the reviewed merge commit and writes no release commit:
 
 | File                             | Updated on release?                                   |
 | -------------------------------- | ----------------------------------------------------- |
-| `style.css` (`Version:`)         | Yes — WordPress theme version                         |
-| `package.json` (`version`)       | Yes                                                   |
-| `CHANGELOG.md`                   | Yes                                                   |
+| Source `style.css` (`Version:`)  | No — development baseline                             |
+| `package.json` (`version`)       | No — private tooling package                          |
+| `CHANGELOG.md`                   | No — GitHub Release notes are generated instead       |
 | Release ZIP + `.sha256`          | Yes — version stamped inside the packaged `style.css` |
 | `README.md` / `CLAUDE.md`        | **No** — do not hardcode the theme version here       |
 | Per-block `block.json` `version` | **No** — independent of theme releases                |
 
 Both release assets are **required**: `Core\Theme_Updates` verifies the package
 against the `.sha256` sidecar and offers no update at all when it is missing, so
-a partial upload silently stops every install from seeing the release. The
-release job runs `bin/release/verify-assets.sh` afterwards, which re-uploads a
-missing asset and fails the build if it still is.
+a partial upload never leaves draft state. `bin/release/verify-assets.sh` repairs
+missing or corrupt assets, downloads and verifies them, validates provenance,
+and only then publishes the release.
 
 When docs mention inventory (block counts, pattern counts, feature lists), update those in the same PR that changes the inventory — not as part of the release job.
 
@@ -348,7 +351,7 @@ When docs mention inventory (block counts, pattern counts, feature lists), updat
 ### Constants
 
 ```php
-AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (release-managed)
+AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (artifact-stamped)
 AGGRESSIVE_APPAREL_DIR      // Theme directory path
 AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```

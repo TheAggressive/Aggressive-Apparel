@@ -1,6 +1,5 @@
 # Code owners. Requires "Require review from Code Owners" on the release-branch
-# ruleset (.github/rulesets/release-branches.json) to be enforcing rather than
-# advisory.
+# ruleset (.github/rulesets/release-branches.json) to enforce these reviews.
 
 # Default owner for everything not matched below.
 *                           @TheAggressive

@@ -19,6 +19,7 @@ import {
   runCommands,
 } from '../lib/workflow.mjs';
 import {
+  artifactWpEnv,
   autoMergeWorkflow,
   check,
   composerJson,
@@ -29,7 +30,6 @@ import {
   phpForwardWorkflow,
   phpstanConfiguration,
   prePushHook,
-  prepareScript,
   releaseLib,
   releaseWorkflow,
   repositoryRoot,
@@ -59,8 +59,8 @@ for (const fileName of workflowFiles) {
     'utf8'
   );
 
-  // actionReferences throws when its pattern misses a `uses:` key, so a parser
-  // that stops understanding the file cannot silently report zero findings.
+  // Parse the YAML structure rather than grepping text so alternate valid YAML
+  // formatting cannot evade the action pinning check.
   for (const action of actionReferences(workflow)) {
     if (!isPinnedAction(action)) {
       throw new Error(
@@ -100,6 +100,7 @@ const EXPECTED_RELEASE_JOBS = [
   'test',
   'e2e',
   'package',
+  'artifact-acceptance',
   'release',
   'summary',
 ];
@@ -136,6 +137,10 @@ const PARITY_JOBS = {
   package: {
     setup: ['pnpm install --frozen-lockfile'],
     lanes: ['pnpm ci:package'],
+  },
+  'artifact-acceptance': {
+    setup: ['pnpm install --frozen-lockfile', 'pnpm test:e2e:install'],
+    lanes: ['pnpm ci:artifact'],
   },
 };
 
@@ -266,7 +271,7 @@ const AUTO_MERGE_GUARDS = [
     'crosses a major version',
     'refuse major version bumps even if dependabot.yml is later loosened',
   ],
-  ['--squash', 'squash-merge rather than adding merge commits to main'],
+  ['--squash', 'squash-merge rather than adding merge commits to master'],
 ];
 
 for (const [needle, purpose] of AUTO_MERGE_GUARDS) {
@@ -300,11 +305,21 @@ if (
 
 // Only the release job may keep a usable credential in the checkout.
 for (const [jobName, jobBody] of Object.entries(releaseJobs)) {
-  if (jobName === 'release' || !jobBody.includes('actions/checkout@')) {
+  const jobText = JSON.stringify(jobBody);
+  if (jobName === 'release' || !jobText.includes('actions/checkout@')) {
     continue;
   }
 
-  if (!jobBody.includes('persist-credentials: false')) {
+  if (!jobText.includes('persist-credentials')) {
+    throw new Error(
+      `Job "${jobName}" must check out with persist-credentials: false.`
+    );
+  }
+
+  const checkoutStep = jobBody.steps.find((/** @type {any} */ step) =>
+    step?.uses?.startsWith('actions/checkout@')
+  );
+  if (checkoutStep?.with?.['persist-credentials'] !== false) {
     throw new Error(
       `Job "${jobName}" must check out with persist-credentials: false.`
     );
@@ -322,12 +337,6 @@ check(
   packageLane.includes('bin/release/verify-package.sh'),
   'bin/ci/package.sh must verify the ZIP it just built — an unverified ' +
     'artifact is the failure mode this lane exists to catch.'
-);
-
-check(
-  prepareScript.includes('verify-package.sh'),
-  'bin/release/prepare.sh must re-verify after version stamping. The lane ' +
-    'verified a pre-stamp ZIP; the stamped one is what actually ships.'
 );
 
 for (const array of ['AA_PACKAGE_INCLUDE', 'AA_PACKAGE_REQUIRED']) {
@@ -358,6 +367,11 @@ const PHP_FLOOR_DECLARATIONS = [
   ['composer.json config.platform.php', composerPlatformPhp, `${phpFloor}.0`],
   ['phpstan.neon phpVersion', phpstanTarget, '80200'],
   ['bin/ci/.wp-env.json phpVersion', wpEnv.phpVersion, phpFloor],
+  [
+    'bin/ci/artifact/.wp-env.json phpVersion',
+    artifactWpEnv.phpVersion,
+    phpFloor,
+  ],
   // Development must run the same PHP the gate runs. A newer dev runtime lets
   // an API that does not exist on the floor pass locally and fail in Actions —
   // exactly the drift this contract exists to prevent. Forward compatibility
@@ -432,15 +446,9 @@ for (const version of forwardVersions) {
   );
 }
 
-const summaryJobStart = releaseWorkflow.indexOf('\n  summary:');
-const summaryJob =
-  summaryJobStart >= 0 ? releaseWorkflow.slice(summaryJobStart) : '';
-const summaryNeedsStart = summaryJob.indexOf('\n    needs:');
-const summaryNeedsEnd = summaryJob.indexOf('\n    if:', summaryNeedsStart);
-const summaryNeeds =
-  summaryNeedsStart >= 0 && summaryNeedsEnd > summaryNeedsStart
-    ? summaryJob.slice(summaryNeedsStart, summaryNeedsEnd)
-    : '';
+const summaryJob = releaseJobs.summary;
+const summaryNeeds = summaryJob?.needs ?? [];
+const summaryCommands = runCommands(summaryJob).join('\n');
 const summaryDependencies = [
   'changes',
   'release-plan',
@@ -450,6 +458,7 @@ const summaryDependencies = [
   'test',
   'e2e',
   'package',
+  'artifact-acceptance',
 ];
 
 check(
@@ -465,7 +474,7 @@ check(
 );
 
 check(
-  summaryJob.length > 0,
+  Boolean(summaryJob),
   'release.yml has no summary job — the aggregate gate is what makes a ' +
     'skipped or cancelled job fail the pipeline.'
 );
@@ -479,7 +488,7 @@ for (const job of summaryDependencies) {
 }
 
 check(
-  summaryJob.includes(
+  summaryCommands.includes(
     'require_success "browser E2E" "${{ needs.e2e.result }}"'
   ),
   'The summary job must assert the E2E result explicitly. `needs:` alone ' +
@@ -487,13 +496,13 @@ check(
 );
 
 check(
-  summaryJob.includes('echo "### Required CI gate passed."'),
+  summaryCommands.includes('echo "### Required CI gate passed."'),
   'The summary job must state its verdict in the run summary, so a green ' +
     'pipeline is legible without opening the job logs.'
 );
 
 check(
-  summaryJob.includes('exit 1'),
+  summaryCommands.includes('exit 1'),
   'The summary job must exit non-zero on failure — an aggregate gate that ' +
     'only prints is not a gate.'
 );

@@ -3,12 +3,10 @@ name: Dependabot auto-merge
 # Squash-merges Dependabot dependency updates once the full pipeline has passed,
 # so routine minor/patch bumps stop being a weekly chore.
 #
-# Why `workflow_run` rather than GitHub's built-in auto-merge: built-in
-# auto-merge waits for *required* status checks, and this repository has none —
-# `required_status_checks` is deliberately absent from the branch ruleset
-# because it blocks semantic-release's direct push (see
-# .github/rulesets/README.md). With nothing required, built-in auto-merge would
-# merge immediately, tests or not. This waits for a real, verified green.
+# `workflow_run` provides the policy layer before GitHub's built-in auto-merge:
+# it verifies the completed pipeline, re-checks every PR status, and rejects
+# major updates before registering the merge. Branch protection then waits for
+# the independent code-owner approval.
 #
 # Four independent conditions must hold before anything merges. Any one of them
 # failing leaves the pull request untouched for a human:
@@ -108,5 +106,8 @@ jobs:
             esac
           done
 
-          echo "All checks green on #${PR} — squash-merging."
-          gh pr merge "${PR}" --squash --delete-branch
+          echo "All checks green on #${PR} — enabling squash auto-merge."
+          # Branch protection still requires an independent code-owner review.
+          # --auto records the intent and lets GitHub merge only after that final
+          # governance requirement is satisfied.
+          gh pr merge "${PR}" --auto --squash --delete-branch

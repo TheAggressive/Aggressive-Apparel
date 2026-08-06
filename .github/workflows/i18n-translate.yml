@@ -1,5 +1,5 @@
 # Machine-translate empty/fuzzy PO strings when the catalog drifts, then open a PR.
-# Never pushes to main. Default DeepL when DEEPL_AUTH_KEY is set; MyMemory fallback otherwise.
+# Never pushes to master. Default DeepL when DEEPL_AUTH_KEY is set; MyMemory fallback otherwise.
 name: 🌐 i18n MT Drafts
 
 on:
@@ -14,7 +14,7 @@ on:
         required: false
         default: '200'
   push:
-    branches: [main, master]
+    branches: [master]
     paths:
       - 'languages/aggressive-apparel.pot'
 
@@ -93,7 +93,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # chore(i18n) (not fix) so merging translations does NOT cut its own
-          # release — no extra version bump. The reviewed .po lands on main and
+          # release — no extra version bump. The reviewed .po lands on master and
           # ships with the next code release, whose package step recompiles the
           # .mo from the current catalogs.
           commit-message: 'chore(i18n): machine-translate empty/fuzzy strings'

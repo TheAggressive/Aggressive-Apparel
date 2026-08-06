@@ -81,9 +81,11 @@ test('runCommands catches a bare "- run:" step with no name', () => {
 test('runCommands surfaces block scalars rather than skipping them', () => {
   const jobs = parseJobs(WORKFLOW);
 
-  // The parity check compares against an exact command list, so a multi-line
-  // `run: |` must appear (as "|") and force a mismatch instead of vanishing.
-  assert.ok(runCommands(jobs.release).includes('|'));
+  assert.ok(
+    runCommands(jobs.release).some(command =>
+      command.includes('git config --global user.name')
+    )
+  );
 });
 
 test('runCommands never matches runs-on', () => {
@@ -101,9 +103,9 @@ test('parseJobs scopes to the jobs section, not top-level on: keys', () => {
 test('parseJobs throws when the jobs section is missing or empty', () => {
   assert.throws(
     () => parseJobs('name: x\non:\n  push:\n'),
-    /no jobs: section/u
+    /no non-empty jobs: mapping/u
   );
-  assert.throws(() => parseJobs('jobs:\n'), /no job definitions/u);
+  assert.throws(() => parseJobs('jobs:\n'), /no non-empty jobs: mapping/u);
 });
 
 test('isNewerThan compares major.minor numerically, not as a float', () => {
@@ -131,7 +133,7 @@ test('actionReferences throws when a uses: form is not understood', () => {
   // silently pass the SHA-pinning gate.
   assert.throws(
     () => actionReferences('jobs:\n  a:\n    steps:\n      - uses:\n'),
-    /does not understand/u
+    /does not contain a string reference/u
   );
 });
 

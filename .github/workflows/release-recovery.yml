@@ -1,0 +1,77 @@
+name: Release Recovery
+run-name: Recover v${{ inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing semantic-release tag version without the v prefix
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release-recovery-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    name: Recover Verified Draft
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: production
+
+    steps:
+      - name: Validate recovery version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release version: ${VERSION}" >&2
+            exit 2
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: v${{ inputs.version }}
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.18.0'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build final package from the tagged commit
+        env:
+          AA_RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          pnpm ci:build
+          pnpm ci:package
+
+      - name: Install Playwright browser
+        run: pnpm test:e2e:install
+
+      - name: Accept final package in clean WordPress
+        env:
+          AA_RELEASE_VERSION: ${{ inputs.version }}
+        run: pnpm ci:artifact
+
+      - name: Attest recovered package provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: aggressive-apparel-${{ inputs.version }}.zip
+
+      - name: Repair and publish verified draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AA_RELEASE_VERSION: ${{ inputs.version }}
+        run: bash bin/release/verify-assets.sh

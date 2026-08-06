@@ -41,5 +41,29 @@ bash "${SCRIPT_DIR}/wp-env.sh" run cli \
 	-- bash -c 'PATH="$PWD/bin/ci:$PATH" bash bin/i18n/compile.sh'
 
 cd "${REPO_ROOT}"
-bash bin/release/package.sh
-bash bin/release/verify-package.sh
+release_version="${AA_RELEASE_VERSION:-}"
+if [[ -n "${release_version}" ]]; then
+	package_name="aggressive-apparel-${release_version}.zip"
+else
+	package_name="aggressive-apparel.zip"
+fi
+
+bash bin/release/package.sh "${release_version}"
+bash bin/release/verify-package.sh "${package_name}" "${release_version}"
+
+# Rebuild once and require an identical digest. This is intentionally in the
+# canonical package lane so reproducibility is enforced locally and in Actions.
+first_digest="$(sha256sum "${package_name}" | awk '{print $1}')"
+bash bin/release/package.sh "${release_version}"
+second_digest="$(sha256sum "${package_name}" | awk '{print $1}')"
+if [[ "${first_digest}" != "${second_digest}" ]]; then
+	echo "Package is not reproducible: ${first_digest} != ${second_digest}" >&2
+	exit 1
+fi
+
+bash bin/release/verify-package.sh "${package_name}" "${release_version}"
+
+if [[ -n "${release_version}" ]]; then
+	sha256sum "${package_name}" >"${package_name}.sha256"
+	sha256sum --check "${package_name}.sha256"
+fi

@@ -46,6 +46,7 @@ export const readText = relativePath =>
 export const packageJson = readJson('package.json');
 export const composerJson = readJson('composer.json');
 export const wpEnv = readJson('bin/ci/.wp-env.json');
+export const artifactWpEnv = readJson('bin/ci/artifact/.wp-env.json');
 export const developmentWpEnv = readJson('.wp-env.json');
 export const releaseWorkflow = readText('.github/workflows/release.yml');
 export const betaWorkflow = readText(
@@ -67,7 +68,6 @@ export const verifyScript = readText('bin/ci/verify.sh');
 export const verifyFastScript = readText('bin/ci/verify-fast.sh');
 export const prePushHook = readText('.husky/pre-push');
 export const releaseLib = readText('bin/release/lib.sh');
-export const prepareScript = readText('bin/release/prepare.sh');
 export const styleCss = readText('style.css');
 export const phpstanConfiguration = readText('phpstan.neon');
 export const jestConfiguration = readText('jest.config.js');

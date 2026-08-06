@@ -6,14 +6,15 @@ The short version. For release mechanics and recovery, see
 ## The whole loop
 
 ```bash
-# 1. make your change, then:
+# 1. Make the change on a branch, then:
 git add -A
 git commit -m "fix: cart badge shows the wrong count"
 git push
+gh pr create --fill
 ```
 
-That's it. The commit message decides whether a release happens. Pushing runs
-checks automatically.
+The commit message decides whether the protected merge produces a release. CI,
+CodeQL, workflow security analysis, and code-owner review gate the merge.
 
 ## The one thing to know: your commit prefix
 
@@ -24,17 +25,16 @@ checks automatically.
 | `chore:` `ci:` `docs:` `test:`          | **No release.** Just checks.          |
 | `feat!:` or a `BREAKING CHANGE:` footer | Major release — **2**.0.0             |
 
-A release publishes automatically and every site running the theme is offered
-the update. There is no separate "deploy" step, so use `chore:` when you are
-not ready for that.
+A release is prepared automatically after merge. The protected `production`
+environment supplies the final independent approval before the verified draft
+becomes visible to sites.
 
 ## What runs, and when
 
-**When you push** (~3 min, automatic): lint, types, JS tests, the build, and
-all the PHP tests. Enough to catch what people actually break.
+**On the pull request:** lint, types, tests, CodeQL, Actionlint, and Zizmor.
 
-**In GitHub afterwards** (~15 min): the same checks plus browser tests, and —
-only for `fix:`/`feat:` commits — building, verifying and publishing the ZIP.
+**After a release-worthy merge:** build the normalized final ZIP, install it in
+clean WordPress, attest it, verify the remote draft, and publish it.
 
 **Before a release, if you want certainty:** `pnpm qa` runs everything GitHub
 runs, on your machine, before you push.
@@ -56,6 +56,7 @@ exceeded`, `TLS handshake timeout` → not your code. Re-run it:
    | 🧪 PHP Quality & Tests  | `pnpm ci:php`      |
    | 🎭 Browser E2E          | `pnpm ci:e2e`      |
    | 📦 Package Theme        | `pnpm ci:package`  |
+   | 🧳 Artifact Acceptance  | `pnpm ci:artifact` |
    | 🌐 i18n Check           | `pnpm ci:i18n`     |
 
    These are the _same commands_ GitHub runs — not approximations.
@@ -65,7 +66,7 @@ exceeded`, `TLS handshake timeout` → not your code. Re-run it:
 
 A few arrive each Monday, grouped. They are dependency updates.
 
-- **All checks green** → merge it.
+- **All checks green** → review it; auto-merge completes after approval.
 - **`CONFLICTING`** → comment `@dependabot rebase` on the PR. Never fix a
   lockfile conflict by hand.
 - **Checks failing** → the update genuinely breaks something. Close it; it will
@@ -91,8 +92,9 @@ Stop it reaching any more sites immediately:
 gh release edit v1.2.3 --prerelease
 ```
 
-Sites fall back to the previous version. Then fix forward with a normal `fix:`
-commit. Full detail in [`release-runbook.md`](release-runbook.md).
+Sites that have not updated resolve the previous stable version; already-updated
+sites stay on the bad version. Fix forward with a normal `fix:` commit. Full
+detail is in [`release-runbook.md`](release-runbook.md).
 
 ## Commands worth remembering
 

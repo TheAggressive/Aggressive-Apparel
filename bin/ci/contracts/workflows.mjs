@@ -254,8 +254,9 @@ check(
 
 // Unattended merging is only acceptable while every one of its guards holds.
 // Weakening any of them should fail the build rather than quietly widen what
-// merges without a human: the author must be re-verified against the API, every
-// check must be green, and a major version bump must never auto-merge.
+// merges without a human: the author must be re-verified against the API, stale
+// branches must be updated and retested, every check must be green, and a major
+// version bump must never auto-merge.
 const AUTO_MERGE_GUARDS = [
   [
     "workflows: ['CI/CD Pipeline']",
@@ -276,6 +277,10 @@ const AUTO_MERGE_GUARDS = [
   [
     'crosses a major version',
     'refuse major version bumps even if dependabot.yml is later loosened',
+  ],
+  [
+    'pulls/${PR}/update-branch',
+    'update a stale Dependabot branch and require a fresh pipeline before merging',
   ],
   ['--squash', 'squash-merge rather than adding merge commits to master'],
 ];

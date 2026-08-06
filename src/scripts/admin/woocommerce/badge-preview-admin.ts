@@ -12,7 +12,7 @@
  * @since 1.19.0
  */
 
-export {};
+import DOMPurify from 'dompurify';
 
 const PREVIEW_ID = 'aa-badge-preview-el';
 const COLOR_PICKER_SELECTOR = '.aa-badge-color-picker';
@@ -107,24 +107,24 @@ function buildIconStyle(): string {
 }
 
 /** Elements the preview will render. Mirrors the server-side kses allowlist. */
-const ALLOWED_SVG_ELEMENTS = new Set([
-  'svg',
-  'g',
-  'defs',
-  'title',
-  'desc',
-  'path',
-  'circle',
-  'ellipse',
-  'line',
-  'polygon',
-  'polyline',
-  'rect',
-  'lineargradient',
-  'radialgradient',
-  'stop',
-  'clippath',
-  'mask',
+const ALLOWED_SVG_ELEMENTS = new Map([
+  ['svg', 'svg'],
+  ['g', 'g'],
+  ['defs', 'defs'],
+  ['title', 'title'],
+  ['desc', 'desc'],
+  ['path', 'path'],
+  ['circle', 'circle'],
+  ['ellipse', 'ellipse'],
+  ['line', 'line'],
+  ['polygon', 'polygon'],
+  ['polyline', 'polyline'],
+  ['rect', 'rect'],
+  ['lineargradient', 'linearGradient'],
+  ['radialgradient', 'radialGradient'],
+  ['stop', 'stop'],
+  ['clippath', 'clipPath'],
+  ['mask', 'mask'],
 ]);
 
 /** Attributes those elements may carry. Anything else is dropped. */
@@ -175,6 +175,7 @@ const ALLOWED_SVG_ATTRIBUTES = new Set([
 /** Presentation attributes may reference definitions, but never remote URLs. */
 const LOCAL_IRI_ATTRIBUTES = new Set(['fill', 'stroke', 'clip-path', 'mask']);
 const SAFE_LOCAL_IRI = /^url\(\s*(['"]?)#[A-Za-z_][\w:.-]*\1\s*\)$/i;
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
 /** Whether an SVG presentation value contains a non-local URL reference. */
 function hasUnsafeUrlReference(name: string, value: string): boolean {
@@ -183,6 +184,39 @@ function hasUnsafeUrlReference(name: string, value: string): boolean {
     /url\s*\(/i.test(value) &&
     !SAFE_LOCAL_IRI.test(value.trim())
   );
+}
+
+/** Copy only allowlisted attributes, child elements and inert text nodes. */
+function copySanitizedSvgContents(source: Element, target: SVGElement): void {
+  for (const attribute of Array.from(source.attributes)) {
+    const name = attribute.name.toLowerCase();
+    if (
+      ALLOWED_SVG_ATTRIBUTES.has(name) &&
+      !hasUnsafeUrlReference(name, attribute.value)
+    ) {
+      target.setAttribute(attribute.name, attribute.value);
+    }
+  }
+
+  for (const child of Array.from(source.childNodes)) {
+    // Text is safe when inserted as a text node; comments and processing
+    // instructions are intentionally discarded.
+    if (child.nodeType === 3) {
+      target.appendChild(document.createTextNode(child.textContent || ''));
+      continue;
+    }
+    if (child.nodeType !== 1) continue;
+
+    const sourceElement = child as Element;
+    const allowedName = ALLOWED_SVG_ELEMENTS.get(
+      sourceElement.nodeName.toLowerCase()
+    );
+    if (!allowedName) continue;
+
+    const targetElement = document.createElementNS(SVG_NAMESPACE, allowedName);
+    copySanitizedSvgContents(sourceElement, targetElement);
+    target.appendChild(targetElement);
+  }
 }
 
 /**
@@ -211,39 +245,32 @@ export const createSanitizedSvgNode = (
   markup: string
 ): SVGSVGElement | null => {
   const trimmed = markup.trim();
-  if (!trimmed) {
+  if (!trimmed || /<!DOCTYPE|<!ENTITY/i.test(trimmed)) {
     return null;
   }
 
-  const parsed = new DOMParser().parseFromString(trimmed, 'text/html');
-  const svg = parsed.body.querySelector<SVGSVGElement>('svg');
-  if (!svg) {
+  // DOMPurify owns the parsing boundary; the second allowlist pass below then
+  // rebuilds a fresh SVG tree instead of trusting or serializing its output.
+  const fragment = DOMPurify.sanitize(trimmed, {
+    ALLOWED_TAGS: Array.from(ALLOWED_SVG_ELEMENTS.keys()),
+    ALLOWED_ATTR: Array.from(ALLOWED_SVG_ATTRIBUTES),
+    ALLOW_ARIA_ATTR: false,
+    ALLOW_DATA_ATTR: false,
+    RETURN_DOM_FRAGMENT: true,
+  });
+  const root = fragment.firstElementChild;
+  if (
+    !root ||
+    fragment.childElementCount !== 1 ||
+    root.nodeName.toLowerCase() !== 'svg' ||
+    (root.namespaceURI !== null && root.namespaceURI !== SVG_NAMESPACE)
+  ) {
     return null;
   }
 
-  // Depth-first over a snapshot: the tree is mutated while walking it.
-  for (const element of [svg, ...Array.from(svg.querySelectorAll('*'))]) {
-    if (!element.isConnected) {
-      continue;
-    }
-
-    if (!ALLOWED_SVG_ELEMENTS.has(element.nodeName.toLowerCase())) {
-      element.remove();
-      continue;
-    }
-
-    for (const attribute of Array.from(element.attributes)) {
-      const name = attribute.name.toLowerCase();
-      if (
-        !ALLOWED_SVG_ATTRIBUTES.has(name) ||
-        hasUnsafeUrlReference(name, attribute.value)
-      ) {
-        element.removeAttribute(attribute.name);
-      }
-    }
-  }
-
-  return document.importNode(svg, true);
+  const svg = document.createElementNS(SVG_NAMESPACE, 'svg');
+  copySanitizedSvgContents(root, svg);
+  return svg;
 };
 
 /**

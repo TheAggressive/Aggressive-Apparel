@@ -5,8 +5,8 @@ name: Dependabot auto-merge
 #
 # `workflow_run` provides the policy layer before GitHub's built-in auto-merge:
 # it verifies the completed pipeline, re-checks every PR status, and rejects
-# major updates before registering the merge. Branch protection then waits for
-# the independent code-owner approval.
+# major updates before registering the merge. Branch rules independently enforce
+# the required current checks and squash-only merge policy.
 #
 # Four independent conditions must hold before anything merges. Any one of them
 # failing leaves the pull request untouched for a human:
@@ -107,7 +107,6 @@ jobs:
           done
 
           echo "All checks green on #${PR} — enabling squash auto-merge."
-          # Branch protection still requires an independent code-owner review.
-          # --auto records the intent and lets GitHub merge only after that final
-          # governance requirement is satisfied.
+          # --auto records intent; GitHub merges only while every required
+          # status check and repository rule remains satisfied.
           gh pr merge "${PR}" --auto --squash --delete-branch

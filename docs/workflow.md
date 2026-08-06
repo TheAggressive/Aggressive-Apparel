@@ -13,8 +13,9 @@ git push
 gh pr create --fill
 ```
 
-The commit message decides whether the protected merge produces a release. CI,
-CodeQL, workflow security analysis, and code-owner review gate the merge.
+The commit message decides whether the protected merge produces a release. A
+pull request plus current CI, CodeQL, Actionlint, and Zizmor results gate the
+merge.
 
 ## The one thing to know: your commit prefix
 
@@ -26,8 +27,8 @@ CodeQL, workflow security analysis, and code-owner review gate the merge.
 | `feat!:` or a `BREAKING CHANGE:` footer | Major release — **2**.0.0             |
 
 A release is prepared automatically after merge. The protected `production`
-environment supplies the final independent approval before the verified draft
-becomes visible to sites.
+environment permits deployment only from `master`, so publication follows a
+protected merge and the complete release verification path.
 
 ## What runs, and when
 
@@ -66,7 +67,8 @@ exceeded`, `TLS handshake timeout` → not your code. Re-run it:
 
 A few arrive each Monday, grouped. They are dependency updates.
 
-- **All checks green** → review it; auto-merge completes after approval.
+- **All checks green** → auto-merge completes under the branch rules. Inspect it
+  manually whenever the change needs judgment beyond the automated gates.
 - **`CONFLICTING`** → comment `@dependabot rebase` on the PR. Never fix a
   lockfile conflict by hand.
 - **Checks failing** → the update genuinely breaks something. Close it; it will

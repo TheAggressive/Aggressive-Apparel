@@ -1,8 +1,8 @@
 # Release runbook
 
 Releases are calculated automatically from conventional commits merged to
-`master`. The production environment may pause publication for approval, but no
-operator constructs or edits a release artifact manually.
+`master`. The production environment accepts deployments only from `master`, and
+no operator constructs or edits a release artifact manually.
 
 ## Release path
 
@@ -93,13 +93,15 @@ gh release edit v1.2.3 --latest
 ## Branch and production controls
 
 The committed branch rules are in `.github/rulesets/`. They require PR-only
-squash history, current CI and security checks, code-owner approval, resolved
-threads, and signed commits. They are not applied automatically; follow the
-ruleset README to apply and audit them.
+squash history, current CI and security checks, resolved threads, and signed
+commits. They are not applied automatically; follow the ruleset README to apply
+and audit them.
 
-Configure the `production` environment with an independent reviewer, prevent
-self-review, and restrict it to `master`. A one-maintainer project cannot claim
-separation of duties until a second reviewer exists.
+The `production` environment is restricted to `master`. With one maintainer,
+branch rules require zero approvals instead of creating a bypass or an
+impossible self-review gate. When a second active maintainer exists, require
+code-owner and last-push approval, then add that maintainer as a production
+reviewer and prevent self-review.
 
 ## Version ownership
 

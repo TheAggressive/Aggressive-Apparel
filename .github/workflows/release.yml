@@ -441,9 +441,9 @@ jobs:
     needs: [release-plan, package, artifact-acceptance]
     if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
     timeout-minutes: 15
-    # Configure this environment with an independent reviewer, prevent
-    # self-review, and restrict deployments to master. Those controls live in
-    # GitHub settings; the committed intent is documented in rulesets/README.md.
+    # The solo-maintainer production environment restricts deployments to
+    # master. Add an independent reviewer and prevent self-review when a second
+    # maintainer exists. The committed intent is documented in rulesets/README.md.
     environment: production
     permissions:
       contents: write

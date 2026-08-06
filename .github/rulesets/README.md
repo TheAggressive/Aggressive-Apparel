@@ -6,7 +6,7 @@ administrator must apply it and periodically check for drift.
 
 ## Apply or update
 
-Resolve whether this is a create or update before staging the rules:
+Resolve whether this is a create or update:
 
 ```bash
 RULESET_ID="$(gh api /repos/TheAggressive/Aggressive-Apparel/rulesets \
@@ -19,39 +19,36 @@ if [[ -n "${RULESET_ID}" ]]; then
 fi
 ```
 
-On GitHub plans that support ruleset evaluation, stage the rules with:
-
-```bash
-jq '.enforcement = "evaluate"' .github/rulesets/release-branches.json | \
-  gh api --method "${RULESET_METHOD}" "${RULESET_ENDPOINT}" --input -
-```
-
-GitHub currently reserves `evaluate` for Enterprise plans. On other plans, use
-`disabled` for the first application, merge the workflows that provide every
-required status check, and then update the ruleset with the committed active
-payload:
+Before the first activation, confirm that every named status check has completed
+successfully in the repository. To stage a first application without enforcing
+it, create the ruleset as disabled:
 
 ```bash
 jq '.enforcement = "disabled"' .github/rulesets/release-branches.json | \
   gh api --method "${RULESET_METHOD}" "${RULESET_ENDPOINT}" --input -
+```
 
-RULESET_ID="$(gh api /repos/TheAggressive/Aggressive-Apparel/rulesets \
-  --jq '.[] | select(.name == "release-branches") | .id')"
-gh api --method PUT \
-  "/repos/TheAggressive/Aggressive-Apparel/rulesets/${RULESET_ID}" \
+After staging a new ruleset, run the resolution block again so
+`RULESET_ENDPOINT` includes its ID. Apply the committed active policy after the
+checks exist:
+
+```bash
+gh api --method "${RULESET_METHOD}" "${RULESET_ENDPOINT}" \
   --input .github/rulesets/release-branches.json
 ```
 
-Do not activate the committed approval requirements while the repository has
-only one eligible reviewer: GitHub does not allow an author to approve their own
-pull request, and this ruleset intentionally has no administrative bypass.
+This repository currently has one maintainer. Requiring an approval would make
+the repository unmergeable without adding a bypass, so the policy deliberately
+requires zero approvals. The pull request, current checks, resolved threads,
+and merge restrictions remain hard gates; there is no administrative bypass.
 
 ## Enforced intent
 
 - Pull requests and squash merges only.
-- One independent code-owner approval, including approval of the last push.
+- Zero required approvals while there is only one maintainer.
 - All review conversations resolved.
-- `CI Summary` and CodeQL required on the current merge result.
+- `CI Summary`, CodeQL, Actionlint, and Zizmor required on the current merge
+  result.
 - Signed, linear history.
 - No force-pushes, deletion, or standing bypass actor.
 
@@ -77,17 +74,18 @@ credential that applies changes must remain separate and deliberately approved.
 Repository rulesets do not configure the `production` Actions environment.
 Configure it separately under **Settings → Environments → production**:
 
-1. Add at least one reviewer other than the author of the release change.
-2. Enable “Prevent self-review.”
-3. Restrict deployment branches to `master`.
+1. Restrict deployment branches to `master`.
+2. Do not configure a required reviewer while only one maintainer exists.
 
-With only one maintainer, the independent-review requirements cannot be met.
-Temporarily weakening them is a governance decision, not a workflow change; the
-repository should not claim separation of duties until a second reviewer exists.
+When a second active maintainer is added, raise
+`required_approving_review_count` to one, enable code-owner and last-push
+approval, add that maintainer as a production reviewer, and enable “Prevent
+self-review.” Until then, the repository intentionally does not claim
+separation of duties.
 
 ## Dependabot auto-merge
 
 Keep **Settings → General → Pull Requests → Allow auto-merge** enabled. The
 Dependabot workflow registers a squash auto-merge only after every check is
-green; the branch ruleset still withholds the merge until an independent
-code-owner approves it.
+green. The branch ruleset independently enforces the current required checks,
+PR-only history, and squash-only merge policy.

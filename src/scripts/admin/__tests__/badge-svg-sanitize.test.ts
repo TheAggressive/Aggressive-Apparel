@@ -75,17 +75,19 @@ describe('createSanitizedSvgNode', () => {
     expect(createSanitizedSvgNode('plain text')).toBeNull();
   });
 
-  it('recovers SVG that is valid HTML but invalid XML', () => {
-    // Strict image/svg+xml parsing rejected an unclosed <path>, which wp_kses
-    // accepts and the storefront renders — the preview blanked while the real
-    // badge showed an icon. Lenient parsing plus the allowlist keeps both
-    // honest: known elements survive, unknown ones do not.
+  it('rejects malformed SVG instead of applying HTML error recovery', () => {
     const host = render('<svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z">');
 
-    expect(host.querySelector('path')?.getAttribute('d')).toBe('M0 0h24v24H0z');
+    expect(host.querySelector('svg')).toBeNull();
+    expect(createSanitizedSvgNode('<svg><unclosed></svg>')).toBeNull();
+  });
 
+  it('rejects document types and custom entities', () => {
     expect(
-      createSanitizedSvgNode('<svg><unclosed></svg>')?.querySelector('unclosed')
+      createSanitizedSvgNode(
+        '<!DOCTYPE svg [<!ENTITY payload "expanded">]>' +
+          '<svg><title>&payload;</title></svg>'
+      )
     ).toBeNull();
   });
 
@@ -103,8 +105,9 @@ describe('createSanitizedSvgNode', () => {
 
   it('drops attributes outside the allowlist, including data: URLs', () => {
     const host = render(
-      '<svg><circle r="5" data-x="1" style="background:url(data:x)" ' +
-        'xlink:href="data:text/html,<script>alert(1)</script>"/></svg>'
+      '<svg xmlns:xlink="http://www.w3.org/1999/xlink">' +
+        '<circle r="5" data-x="1" style="background:url(data:x)" ' +
+        'xlink:href="data:text/html,%3Cscript%3Ealert(1)%3C/script%3E"/></svg>'
     );
 
     const circle = host.querySelector('circle');

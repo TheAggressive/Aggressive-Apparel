@@ -4,19 +4,21 @@ name: Dependabot auto-merge
 # so routine minor/patch bumps stop being a weekly chore.
 #
 # `workflow_run` provides the policy layer before GitHub's built-in auto-merge:
-# it verifies the completed pipeline, re-checks every PR status, and rejects
-# major updates before registering the merge. Branch rules independently enforce
-# the required current checks and squash-only merge policy.
+# it verifies the completed pipeline, updates a stale Dependabot branch, re-checks
+# every PR status, and rejects major updates before registering the merge. Branch
+# rules independently enforce the required current checks and squash-only policy.
 #
-# Four independent conditions must hold before anything merges. Any one of them
+# Five independent conditions must hold before anything merges. Any one of them
 # failing leaves the pull request untouched for a human:
 #
 #   1. The triggering run was the pipeline, on a pull request, and it succeeded.
 #   2. The pull request author is genuinely dependabot[bot], re-checked against
 #      the API rather than trusted from the event payload.
-#   3. EVERY check on the pull request is green — not just the run that fired
+#   3. The branch contains the latest target branch. A stale branch is updated,
+#      then left for the resulting fresh pipeline run to validate.
+#   4. EVERY check on the pull request is green — not just the run that fired
 #      this workflow. A pending or failed CodeQL still blocks the merge.
-#   4. The update does not cross a major version. Majors are already excluded in
+#   5. The update does not cross a major version. Majors are already excluded in
 #      dependabot.yml, so this is defence in depth: a config change alone should
 #      never be enough to start auto-merging majors.
 
@@ -87,6 +89,25 @@ jobs:
             fi
           elif [[ ! "${TITLE}" =~ bump\ the\ .*\ group ]]; then
             echo "::notice::#${PR} title is not a recognised Dependabot form. Leaving it."
+            exit 0
+          fi
+
+          # Another Dependabot PR can merge while this one's checks are running.
+          # With strict branch protection that leaves auto-merge waiting forever,
+          # because successful checks belong to an outdated base. Update the bot
+          # branch and let the resulting pull_request run validate the new head.
+          MERGE_STATE="$(gh pr view "${PR}" --json mergeStateStatus --jq '.mergeStateStatus')"
+          if [[ "${MERGE_STATE}" == "BEHIND" ]]; then
+            HEAD_SHA="$(gh pr view "${PR}" --json headRefOid --jq '.headRefOid')"
+            echo "#${PR} is behind its base — updating ${HEAD_SHA} before merge."
+            gh api --method PUT "repos/${GH_REPO}/pulls/${PR}/update-branch" \
+              -f expected_head_sha="${HEAD_SHA}"
+            echo "::notice::#${PR} was updated. Fresh checks will decide auto-merge."
+            exit 0
+          fi
+
+          if [[ "${MERGE_STATE}" == "DIRTY" ]]; then
+            echo "::notice::#${PR} conflicts with its base. Leaving it for review."
             exit 0
           fi
 

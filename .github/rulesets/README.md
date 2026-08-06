@@ -87,5 +87,7 @@ separation of duties.
 
 Keep **Settings → General → Pull Requests → Allow auto-merge** enabled. The
 Dependabot workflow registers a squash auto-merge only after every check is
-green. The branch ruleset independently enforces the current required checks,
-PR-only history, and squash-only merge policy.
+green. If another update reaches `master` first, the workflow updates the stale
+Dependabot branch and waits for a fresh pipeline before registering its merge.
+The branch ruleset independently enforces the current required checks, PR-only
+history, and squash-only merge policy.

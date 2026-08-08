@@ -53,6 +53,15 @@ ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-cl
 # now only bin/ci/package.sh produced them — which runs after this lane and in
 # a different job. Compiling here is what lets the translation-loading test
 # guard anything in CI rather than reporting a missing file.
+#
+# The compile needs WP-CLI, and the tests-cli container has none of its own:
+# bin/ci/wp is a shim that execs .cache/ci/wp, and only bin/ci/i18n.sh ever
+# downloaded that PHAR. Bootstrapping it here — same pinned, checksum-verified
+# release — is what the lane was missing.
+WP_CLI_INSTALL_PATH="${REPO_ROOT}/.cache/ci/wp" \
+	WP_CLI_SKIP_INFO=1 \
+	bash "${SCRIPT_DIR}/install-wp-cli.sh"
+
 ci_php 'bash bin/i18n/compile.sh'
 
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=integration --verbose'

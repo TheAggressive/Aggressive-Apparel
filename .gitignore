@@ -103,3 +103,8 @@ yarn-error.log*
 tests/e2e/.auth/
 test-results/
 playwright-report/
+
+# Design-tool import scratch (Badge Studio mockups + raw tool exports).
+# Local reference only: never shipped (not in AA_PACKAGE_INCLUDE), and the
+# bundled support.js is unparseable by prettier, which fails the pre-commit hook.
+design/

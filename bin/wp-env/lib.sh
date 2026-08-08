@@ -14,6 +14,7 @@ AA_WP_ENV_LOCAL_BACKUP_ROOT="${AA_WP_ENV_REPO_ROOT}/.wp-env-backups"
 AA_WP_ENV_BACKUP_ROOT="${WP_ENV_BACKUP_DIR:-${AA_WP_ENV_LOCAL_BACKUP_ROOT}}"
 AA_WP_ENV_STAGING_ROOT="${AA_WP_ENV_REPO_ROOT}/.wp-env-backup-staging"
 AA_WP_ENV_BACKUP_RETENTION="${WP_ENV_BACKUP_RETENTION:-5}"
+AA_WP_ENV_LOCK_FILE="${AA_WP_ENV_LOCAL_BACKUP_ROOT}/.lifecycle.lock"
 
 if [[ "${AA_WP_ENV_BACKUP_ROOT}" != /* ]]; then
 	echo "WP_ENV_BACKUP_DIR must be an absolute path." >&2
@@ -37,6 +38,28 @@ aa_wp_env() {
 		cd "${AA_WP_ENV_REPO_ROOT}"
 		pnpm wp-env "$@"
 	)
+}
+
+aa_acquire_environment_lock() {
+	if [[ "${AA_WP_ENV_LOCK_HELD:-0}" == "1" ]]; then
+		return 0
+	fi
+
+	if ! command -v flock >/dev/null 2>&1; then
+		echo "wp-env: flock is required to serialize environment lifecycle operations." >&2
+		return 1
+	fi
+
+	mkdir -p "$(dirname "${AA_WP_ENV_LOCK_FILE}")"
+	exec {AA_WP_ENV_LOCK_FD}>"${AA_WP_ENV_LOCK_FILE}"
+
+	if ! flock --nonblock "${AA_WP_ENV_LOCK_FD}"; then
+		echo "wp-env: another environment lifecycle operation is already running." >&2
+		echo "Wait for it to finish, then retry this command." >&2
+		return 1
+	fi
+
+	export AA_WP_ENV_LOCK_HELD=1
 }
 
 aa_require_development_site() {

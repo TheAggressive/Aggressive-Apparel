@@ -46,6 +46,7 @@ class TestPriceDisplay extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		delete_option( Feature_Settings::PRICE_STARTING_PREFIX_OPTION );
+		delete_option( Feature_Settings::PRICE_SAVINGS_TEXT_OPTION );
 		delete_option( Feature_Settings::OPTION_KEY );
 
 		parent::tearDown();
@@ -300,5 +301,72 @@ class TestPriceDisplay extends WP_UnitTestCase {
 		// native range.
 		$this->assertNotNull( Price_Display::from_price_text( $product ) );
 		$this->assertNotNull( Price_Display::from_price_text( $product, true ) );
+	}
+
+	/**
+	 * The savings note is merchant-authored and shares the badge's token, so
+	 * the two surfaces can be worded consistently.
+	 *
+	 * @return void
+	 */
+	public function test_savings_note_uses_store_copy(): void {
+		$product = new \WC_Product_Simple();
+		$product->set_regular_price( '100.00' );
+		$product->set_sale_price( '75.00' );
+		$product->save();
+
+		$this->assertStringContainsString(
+			'Save 25%',
+			$this->to_text( $this->price_display->format_price_html( $product->get_price_html(), $product ) ),
+			'The seeded default reproduces the historic wording'
+		);
+
+		update_option( Feature_Settings::PRICE_SAVINGS_TEXT_OPTION, '{percent}% off' );
+
+		$text = $this->to_text( $this->price_display->format_price_html( $product->get_price_html(), $product ) );
+		$this->assertStringContainsString( '25% off', $text );
+		$this->assertStringNotContainsString( 'Save', $text );
+	}
+
+	/**
+	 * A blank savings note is a deliberate "price only" choice, not a fallback
+	 * to the default — the same `allow_empty` contract as the "From" prefix.
+	 *
+	 * @return void
+	 */
+	public function test_blank_savings_note_is_honoured(): void {
+		update_option( Feature_Settings::PRICE_SAVINGS_TEXT_OPTION, '' );
+
+		$product = new \WC_Product_Simple();
+		$product->set_regular_price( '100.00' );
+		$product->set_sale_price( '75.00' );
+		$product->save();
+
+		$html = $this->price_display->format_price_html( $product->get_price_html(), $product );
+
+		$this->assertStringNotContainsString( 'aggressive-apparel-price-save', $html );
+	}
+
+	/**
+	 * A product on sale with no single discount figure gets no savings note:
+	 * the badge already says it is reduced, and "Save %" of what is unanswerable.
+	 *
+	 * @return void
+	 */
+	public function test_no_savings_note_without_a_single_discount(): void {
+		// v0 is the cheapest and is not reduced, so the minimum-price maths
+		// yields no percentage even though the product is on sale.
+		$product = $this->create_variable_product_with_sales(
+			array(
+				array( '20.00', '' ),
+				array( '80.00', '40.00' ),
+			)
+		);
+
+		$this->assertTrue( $product->is_on_sale() );
+
+		$html = $this->price_display->format_price_html( $product->get_price_html(), $product );
+
+		$this->assertStringNotContainsString( 'aggressive-apparel-price-save', $html );
 	}
 }

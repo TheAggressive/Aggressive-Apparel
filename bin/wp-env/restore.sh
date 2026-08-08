@@ -35,6 +35,13 @@ if [[ "${1:-}" == "--container" ]]; then
 			;;
 	esac
 
+	# WooCommerce is a normal, dashboard-updatable plugin in local wp-env. When
+	# a recovery point contains it, clear the current copy first so restoring an
+	# older snapshot cannot leave stale files from a newer release behind.
+	if tar -tzf "${source_directory}/wp-content.tar.gz" | grep -Fx 'wp-content/plugins/woocommerce/woocommerce.php' >/dev/null; then
+		rm -rf -- /var/www/html/wp-content/plugins/woocommerce
+	fi
+
 	tar \
 		--exclude="wp-content/mu-plugins" \
 		-C /var/www/html \
@@ -99,6 +106,9 @@ aa_wp_env run cli \
 	-- bash bin/wp-env/restore.sh \
 	--container ".wp-env-backup-staging/$(basename "${restore_staging}")"
 
+# A snapshot taken while WooCommerce was unavailable can remember it as
+# inactive. Seed it when missing and activate it before the health gate.
+bash "${SCRIPT_DIR}/ensure-woocommerce.sh"
 bash "${SCRIPT_DIR}/check.sh"
 trap - EXIT
 rm -rf -- "${restore_staging}"

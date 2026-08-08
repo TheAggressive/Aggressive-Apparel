@@ -2,8 +2,8 @@
 /**
  * Product Badges Class
  *
- * Injects sale-percentage, "New", "Low Stock", and "Bestseller" badges
- * onto WooCommerce product cards via block-specific render filters.
+ * Injects "Sale", "New", "Low Stock", and "Bestseller" badges onto
+ * WooCommerce product cards via block-specific render filters.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
@@ -49,32 +49,52 @@ class Product_Badges {
 	private int $bestseller_threshold = 50;
 
 	/**
+	 * Whether the automatic Sale badge rule is switched on.
+	 *
+	 * @var bool
+	 */
+	private bool $sale_enabled = true;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
+		$this->apply_threshold_filters();
+
 		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_badges' ) );
 		Block_Filter_Hooks::add( 'woocommerce/product-image', array( $this, 'inject_badges' ) );
-		Block_Filter_Hooks::add(
-			'woocommerce/product-sale-badge',
-			array( $this, 'suppress_native_sale_badge' )
-		);
-		add_filter( 'woocommerce_sale_flash', '__return_empty_string' );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
-		$this->apply_threshold_filters();
+		// Only take WooCommerce's sale flash away when this theme draws a sale
+		// badge in its place. Suppressing it unconditionally meant switching the
+		// Sale rule off removed every sale signal from the catalog rather than
+		// handing the job back to WooCommerce.
+		if ( $this->sale_enabled ) {
+			Block_Filter_Hooks::add(
+				'woocommerce/product-sale-badge',
+				array( $this, 'suppress_native_sale_badge' )
+			);
+			add_filter( 'woocommerce_sale_flash', '__return_empty_string' );
+		}
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
 	/**
-	 * Apply the badge threshold filters.
+	 * Read the saved rules into this instance and let integrators override them.
 	 *
-	 * Registers the `render_block` filter that injects badge markup onto
-	 * server-rendered product cards.
+	 * Runs once per request before any hook is registered, so `init()` can
+	 * decide whether this theme owns the sale badge at all.
 	 *
 	 * @return void
 	 */
 	public function apply_threshold_filters(): void {
+		$rules                      = Custom_Badge_Taxonomy::get_badge_rules();
+		$this->sale_enabled         = (bool) $rules['sale_enabled'];
+		$this->new_days             = (int) $rules['new_days'];
+		$this->low_stock_threshold  = (int) $rules['low_stock'];
+		$this->bestseller_threshold = (int) $rules['bestseller_sales'];
 		/**
 		 * Filter the number of days a product is considered new.
 		 *
@@ -186,23 +206,26 @@ class Product_Badges {
 	 * @return string Badge markup or empty string.
 	 */
 	private function build_badges_html( \WC_Product $product ): string {
-		$groups = array(
-			'top-left'     => array(),
-			'top-right'    => array(),
-			'bottom-left'  => array(),
-			'bottom-right' => array(),
-		);
+		$groups = array_fill_keys( Badge_Style_Schema::POSITIONS, array() );
 
 		// --- System badges (condition-based, styled via taxonomy term) ---
 		$system_badges = Custom_Badge_Taxonomy::get_system_badges();
-		$sale_pct      = $product->is_on_sale() ? $this->get_sale_percentage( $product ) : 0;
+		$rules         = Custom_Badge_Taxonomy::get_badge_rules();
 
 		$system_conditions = array(
-			'sale'       => $sale_pct > 0,
-			'new'        => $this->is_new_product( $product ),
-			'low_stock'  => $this->is_low_stock( $product ),
-			'bestseller' => $this->is_bestseller( $product ),
+			'sale'       => (bool) $rules['sale_enabled'] && $product->is_on_sale(),
+			'new'        => (bool) $rules['new_enabled'] && $this->is_new_product( $product ),
+			'low_stock'  => (bool) $rules['low_stock_enabled'] && $this->is_low_stock( $product ),
+			'bestseller' => (bool) $rules['bestseller_enabled'] && $this->is_bestseller( $product ),
 		);
+
+		$sale_label = $system_conditions['sale']
+			? Sale_Pricing::format_text(
+				Feature_Settings::get_sale_badge_text(),
+				Feature_Settings::get_sale_badge_no_discount_text(),
+				Sale_Pricing::get_discount_percentage( $product ),
+			)
+			: '';
 
 		foreach ( $system_conditions as $type => $active ) {
 			if ( ! $active || ! isset( $system_badges[ $type ] ) ) {
@@ -210,7 +233,7 @@ class Product_Badges {
 			}
 
 			$badge = $system_badges[ $type ];
-			$label = 'sale' === $type ? sprintf( '-%d%%', $sale_pct ) : $badge['name'];
+			$label = 'sale' === $type ? $sale_label : $badge['name'];
 
 			$this->add_badge_to_group( $groups, $badge, $label );
 		}
@@ -253,46 +276,35 @@ class Product_Badges {
 	 * @return string Badge HTML.
 	 */
 	private function build_badge_span( array $badge, string $label ): string {
-		$icon_html = Custom_Badge_Taxonomy::build_badge_icon_html(
-			$badge['svg_icon'],
-			$badge['library_icon'],
-			$badge['icon'],
-			$badge['icon_color'],
-			$badge['icon_size'],
-			$badge['icon_gap'],
+		$icon_position = Badge_Style_Schema::sanitize_enum(
+			$badge['icon_position'] ?? 'start',
+			Badge_Style_Schema::ICON_POSITIONS,
+			'start'
 		);
 
-		$style_parts = array(
-			'--badge-bg:' . $badge['bg_color'],
-			'--badge-text:' . $badge['text_color'],
-		);
+		$icon_html = 'only' === $icon_position || 'start' === $icon_position || 'end' === $icon_position
+			? Custom_Badge_Taxonomy::build_badge_icon_html(
+				$badge['svg_icon'],
+				$badge['library_icon'],
+				$badge['icon'],
+				$badge['icon_color'],
+				$badge['icon_size'],
+			)
+			: '';
 
-		if ( $badge['border_width'] > 0 && '' !== $badge['border_color'] && 'none' !== $badge['border_style'] ) {
-			$style_parts[] = '--badge-border-width:' . $badge['border_width'] . 'px';
-			$style_parts[] = '--badge-border-style:' . $badge['border_style'];
-			$style_parts[] = '--badge-border-color:' . $badge['border_color'];
+		$aria_label = '';
+		if ( 'only' === $icon_position ) {
+			$inner = '' !== $icon_html ? $icon_html : esc_html( $label );
+			if ( '' !== $icon_html ) {
+				$aria_label = $label;
+			}
+		} elseif ( 'end' === $icon_position ) {
+			$inner = esc_html( $label ) . $icon_html;
+		} else {
+			$inner = $icon_html . esc_html( $label );
 		}
 
-		$style_parts[] = sprintf(
-			'--badge-radius:%dpx %dpx %dpx %dpx',
-			$badge['radius_tl'],
-			$badge['radius_tr'],
-			$badge['radius_br'],
-			$badge['radius_bl'],
-		);
-
-		$style_parts[] = sprintf(
-			'--badge-padding:%dpx %dpx',
-			$badge['padding_y'],
-			$badge['padding_x'],
-		);
-
-		return sprintf(
-			'<span class="aggressive-apparel-product-badge aggressive-apparel-product-badge--custom" style="%s">%s%s</span>',
-			esc_attr( implode( ';', $style_parts ) ),
-			$icon_html,
-			esc_html( $label ),
-		);
+		return Badge_Style_Schema::compile_badge_span( $badge, $inner, 'frontend', '', $aria_label );
 	}
 
 	/**
@@ -309,31 +321,6 @@ class Product_Badges {
 			'priority' => (int) $badge['priority'],
 			'html'     => $this->build_badge_span( $badge, $label ),
 		);
-	}
-
-	/**
-	 * Calculate the sale discount percentage.
-	 *
-	 * @param \WC_Product $product Product object.
-	 * @return int Percentage (0-100).
-	 */
-	private function get_sale_percentage( \WC_Product $product ): int {
-		$regular = (float) $product->get_regular_price();
-		$sale    = (float) $product->get_sale_price();
-
-		if ( $regular <= 0 || $sale <= 0 ) {
-			// Try variable product min prices.
-			if ( $product instanceof \WC_Product_Variable ) {
-				$regular = (float) $product->get_variation_regular_price( 'min' );
-				$sale    = (float) $product->get_variation_sale_price( 'min' );
-			}
-		}
-
-		if ( $regular <= 0 || $sale >= $regular ) {
-			return 0;
-		}
-
-		return (int) round( ( ( $regular - $sale ) / $regular ) * 100 );
 	}
 
 	/**

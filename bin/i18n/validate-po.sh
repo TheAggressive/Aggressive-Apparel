@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate every locale catalog with msgfmt -c.
+# Validate every locale catalog: msgfmt -c, then placeholder parity.
 #
 # This exists as its own script because it is the one part of the i18n gate
 # that cannot run inside the wp-env container. POT drift needs the pinned
@@ -22,6 +22,14 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 if ! command -v msgfmt >/dev/null 2>&1; then
 	aa_i18n_die "msgfmt (gettext) is required to validate locale catalogs. Install gettext, or set AA_I18N_PO_VALIDATOR=skip to run the rest of the gate without catalog validation."
+fi
+
+# Placeholder parity is the second half of catalog validation and lives on the
+# host for the same reason msgfmt does: the wp-env cli container ships neither
+# gettext nor node. Same fail-closed rule — a missing tool is an error, never a
+# quiet downgrade.
+if ! command -v node >/dev/null 2>&1; then
+	aa_i18n_die "node is required to lint catalog placeholders. Install Node, or set AA_I18N_PO_VALIDATOR=skip to run the rest of the gate without catalog validation."
 fi
 
 po_files="$(aa_i18n_list_po_files || true)"
@@ -47,5 +55,11 @@ done <<< "${po_files}"
 if (( failures > 0 )); then
 	aa_i18n_die "${failures} locale catalog(s) failed validation."
 fi
+
+# msgfmt -c only compares format specifiers on entries gettext flagged as a
+# format string, and it has no concept of the `{percent}` tokens this theme
+# substitutes itself. Both gaps are how a translated token reaches a page.
+# shellcheck disable=SC2086 # Word splitting is the intent: one argument per catalog.
+node "${AA_I18N_DIR}/lint-placeholders.mjs" ${po_files}
 
 aa_i18n_info "Locale catalogs valid."

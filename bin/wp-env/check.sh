@@ -12,6 +12,8 @@ if [[ "${1:-}" == "--container" ]]; then
 	site_url="$(wp option get siteurl)"
 	active_theme="$(wp theme list --status=active --field=name | head -n 1)"
 	woocommerce_version="$(wp plugin get woocommerce --field=version 2>/dev/null || echo "not installed")"
+	woocommerce_status="$(wp plugin list --name=woocommerce --field=status 2>/dev/null || true)"
+	woocommerce_status="${woocommerce_status:-not installed}"
 	beta_tester_status="$(wp plugin list --name=wordpress-beta-tester --field=status 2>/dev/null || true)"
 	beta_tester_status="${beta_tester_status:-not installed}"
 	beta_channel="$(wp option get wp_beta_tester --format=json 2>/dev/null || echo "not configured")"
@@ -60,18 +62,29 @@ wp-env development health
   PHP:                   ${php_version}
   Active theme:          ${active_theme:-none}
   WooCommerce:           ${woocommerce_version}
+  WooCommerce status:    ${woocommerce_status}
   Beta Tester:           ${beta_tester_status}
   Beta channel:          ${beta_channel}
   Media attachments:     ${attachment_count}
   Missing media files:   ${missing_count}
 EOF
 
-	if [[ "${missing_count}" != "0" ]]; then
-		echo "wp-env: ${missing_count} attachment file(s) are missing." >&2
-		exit 1
+	health_failed=0
+
+	if [[ "${woocommerce_version}" == "not installed" ]]; then
+		echo "wp-env: WooCommerce is not installed." >&2
+		health_failed=1
+	elif [[ "${woocommerce_status}" != "active" ]]; then
+		echo "wp-env: WooCommerce is installed but not active." >&2
+		health_failed=1
 	fi
 
-	exit 0
+	if [[ "${missing_count}" != "0" ]]; then
+		echo "wp-env: ${missing_count} attachment file(s) are missing." >&2
+		health_failed=1
+	fi
+
+	exit "${health_failed}"
 fi
 
 # shellcheck source=bin/wp-env/lib.sh

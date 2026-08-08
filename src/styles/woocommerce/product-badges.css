@@ -19,10 +19,38 @@
 		align-items: flex-start;
 	}
 
+	/*
+	 * Centered edges use inset + flex — not translate(). Ancestor transforms
+	 * become a backdrop-filter root and make glass blur sample an empty layer.
+	 */
+	&--top {
+		top: 0.5rem;
+		left: 0;
+		right: 0;
+		align-items: center;
+		justify-content: center;
+	}
+
 	&--top-right {
 		top: 0.5rem;
 		right: 0.5rem;
 		align-items: flex-end;
+	}
+
+	&--left {
+		top: 0;
+		bottom: 0;
+		left: 0.5rem;
+		align-items: flex-start;
+		justify-content: center;
+	}
+
+	&--right {
+		top: 0;
+		right: 0.5rem;
+		bottom: 0;
+		align-items: flex-end;
+		justify-content: center;
 	}
 
 	&--bottom-left {
@@ -31,32 +59,191 @@
 		align-items: flex-start;
 	}
 
-	&--bottom-right {
+	&--bottom {
+		right: 0;
 		bottom: 0.5rem;
+		left: 0;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&--bottom-right {
 		right: 0.5rem;
+		bottom: 0.5rem;
 		align-items: flex-end;
 	}
 }
 
 .aggressive-apparel-product-badge {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25em;
 	padding: 0.2em 0.6em;
 	border-radius: 0.25rem;
-	font-size: var(--wp--preset--font-size--x-small);
-	font-weight: 700;
-	line-height: 1.4;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	font-size: var(--badge-font-size, var(--wp--preset--font-size--x-small));
+	font-weight: var(--badge-font-weight, 700);
+	line-height: var(--badge-line-height, 1.25);
+	text-transform: var(--badge-text-transform, uppercase);
+	letter-spacing: var(--badge-letter-spacing, 0.04em);
 	pointer-events: auto;
 
+	/*
+	 * Offset/rotate only when --moved is present. A perpetual transform: on
+	 * this node makes glass backdrop-filter sample an empty backdrop root.
+	 */
+	&--moved {
+		transform: translate(var(--badge-offset-x, 0), var(--badge-offset-y, 0))
+			rotate(var(--badge-rotate, 0deg));
+	}
+
 	&--custom {
-		background-color: var(--badge-bg, var(--aa-color-foreground));
+		background: var(--badge-bg, var(--aa-color-foreground));
 		color: var(--badge-text, var(--aa-color-surface));
 		border: var(--badge-border-width, 0) var(--badge-border-style, none) var(--badge-border-color, transparent);
 		border-radius: var(--badge-radius, 0.25rem);
 		padding: var(--badge-padding, 0.2em 0.6em);
+		box-shadow: var(--badge-shadow, none);
+	}
+
+	/*
+	 * Layered: CSS border = outer ring; ::before = inner ring inset by Gap.
+	 * Both stay inside the border box so overflow:hidden parents (catalog
+	 * cards, studio stage) do not clip the outer ring.
+	 */
+	&--layered {
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: var(--badge-border-gap, 0);
+			z-index: 0;
+			pointer-events: none;
+			border: var(--badge-inner-border-width, 1px) solid
+				var(--badge-inner-border-color, currentcolor);
+			border-radius: inherit;
+		}
+	}
+
+	&--shape-pill {
+		border-radius: 999px;
+	}
+
+	&--shaped {
+
+		/* Silhouette edges eat into the box — pad content into the well. */
+		--badge-shape-inset-x: 0.65em;
+		--badge-shape-inset-y: 0.4em;
+
+		border-radius: 0;
+		padding-block: calc(var(--badge-pad-y, 3px) + var(--badge-shape-inset-y));
+		padding-inline: calc(var(--badge-pad-x, 8px) + var(--badge-shape-inset-x));
+	}
+
+	&--shape-ticket {
+		--badge-shape-inset-x: 0.7em;
+		--badge-shape-inset-y: 0.35em;
+	}
+
+	&--shape-shield {
+		--badge-shape-inset-x: 0.85em;
+		--badge-shape-inset-y: 0.4em;
+
+		padding-block-end: calc(var(--badge-pad-y, 3px) + 0.8em);
+	}
+
+	&--shape-hex {
+		--badge-shape-inset-x: 0.85em;
+		--badge-shape-inset-y: 0.4em;
+	}
+
+	&--shape-burst {
+
+		/* Lock to the path's 100×40 design so long labels don't squash spikes. */
+		--badge-shape-inset-x: 1.15em;
+		--badge-shape-inset-y: 0.7em;
+
+		aspect-ratio: 5 / 2;
+		justify-content: center;
+		min-inline-size: 4.75em;
+	}
+
+	&--shape-ribbon-fold {
+		--badge-shape-inset-x: 0.55em;
+		--badge-shape-inset-y: 0.35em;
+
+		padding-inline-end: calc(var(--badge-pad-x, 8px) + 1.15em);
+	}
+
+	&--shape-tag {
+		--badge-shape-inset-x: 0.7em;
+		--badge-shape-inset-y: 0.35em;
+
+		padding-inline: calc(var(--badge-pad-x, 8px) + 0.95em) calc(var(--badge-pad-x, 8px) + 1.15em);
+	}
+
+	&--shape-stamp-circle {
+		--badge-shape-inset-x: 0.95em;
+		--badge-shape-inset-y: 0.95em;
+
+		aspect-ratio: 1 / 1;
+		justify-content: center;
+		min-inline-size: 2.75em;
+		min-block-size: 2.75em;
+	}
+
+	&--shape-custom {
+		--badge-shape-inset-x: 0.75em;
+		--badge-shape-inset-y: 0.5em;
+	}
+
+	&--shape-mode-mask {
+		mask-image: var(--badge-shape-mask);
+		mask-image: var(--badge-shape-mask);
+		mask-size: 100% 100%;
+		mask-size: 100% 100%;
+		mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-position: center;
+		border: 0;
+		outline: none;
+
+		&::before {
+			content: none;
+		}
+	}
+
+	&--glass {
+		backdrop-filter: blur(var(--badge-glass-blur, 12px)) saturate(1.35);
+		backdrop-filter: blur(var(--badge-glass-blur, 12px))
+			saturate(1.35);
+	}
+
+	&--icon-only .aggressive-apparel-product-badge__content {
+		gap: 0;
+	}
+}
+
+.aggressive-apparel-product-badge__content {
+	position: relative;
+	z-index: 1;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--badge-icon-gap, 0.25em);
+}
+
+.aggressive-apparel-product-badge__shape {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	overflow: visible;
+
+	& path {
+		stroke: var(--badge-frame-color, currentcolor);
+		stroke-width: var(--badge-frame-width, 2px);
 	}
 }
 
@@ -70,5 +257,13 @@
 		width: var(--badge-icon-size, 1.25em);
 		height: var(--badge-icon-size, 1.25em);
 		fill: currentcolor;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-product-badge--glass {
+		backdrop-filter: none;
+		backdrop-filter: none;
 	}
 }

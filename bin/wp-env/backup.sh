@@ -25,7 +25,6 @@ if [[ "${1:-}" == "--container" ]]; then
 	tar \
 		--exclude="wp-content/themes/aggressive-apparel" \
 		--exclude="wp-content/themes/Aggressive-Apparel" \
-		--exclude="wp-content/plugins/woocommerce" \
 		--exclude="wp-content/plugins/wordpress-beta-tester" \
 		--exclude="wp-content/mu-plugins" \
 		--exclude="wp-content/debug.log" \

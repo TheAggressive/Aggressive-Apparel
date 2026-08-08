@@ -99,10 +99,36 @@ class Feature_Settings_Fields {
 			echo '</datalist>';
 		}
 
+		$this->render_store_copy_preview( $option_name, $args );
+
 		printf(
 			'<p id="%1$s" class="description">%2$s</p>',
 			esc_attr( $desc_id ),
 			esc_html( $args['description'] )
+		);
+	}
+
+	/**
+	 * Render the live token preview for a Store Copy field.
+	 *
+	 * Only fields that declare `tokens` get one. Showing the resolved wording as
+	 * it is typed is what makes a mistyped placeholder obvious — the saved value
+	 * is validated too, but by then the merchant has already left the field.
+	 *
+	 * @param string $option_name Option key, also the input's id.
+	 * @param array  $args        Field arguments.
+	 * @return void
+	 */
+	private function render_store_copy_preview( string $option_name, array $args ): void {
+		if ( ! isset( $args['tokens'] ) || ! is_array( $args['tokens'] ) || array() === $args['tokens'] ) {
+			return;
+		}
+
+		printf(
+			'<p class="aa-store-copy-preview" data-aa-copy-preview="%1$s" data-aa-tokens="%2$s"><span class="aa-store-copy-preview__label">%3$s</span> <span class="aa-store-copy-preview__value"></span></p>',
+			esc_attr( $option_name ),
+			esc_attr( (string) wp_json_encode( $args['tokens'] ) ),
+			esc_html__( 'Preview:', 'aggressive-apparel' ),
 		);
 	}
 

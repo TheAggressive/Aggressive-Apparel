@@ -167,13 +167,17 @@ class Feature_Settings_Page {
 		$group = Feature_Settings::SETTINGS_GROUP;
 
 		foreach ( Feature_Settings::get_store_copy_definitions() as $definition ) {
+			$sanitizer = $this->sanitizer;
+
 			register_setting(
 				$group,
 				$definition['option'],
 				array(
 					'type'              => 'string',
 					'default'           => $definition['default'],
-					'sanitize_callback' => array( $this->sanitizer, 'sanitize_store_copy_text' ),
+					// Bound to its definition so the sanitizer can validate the
+					// field's placeholders; `register_setting` passes only the value.
+					'sanitize_callback' => static fn( $value ): string => $sanitizer->sanitize_store_copy_text( $value, $definition ),
 				)
 			);
 		}

@@ -1,9 +1,6 @@
 <?php
 /**
- * Custom badge taxonomy — admin field rendering.
- *
- * Extracted from Custom_Badge_Taxonomy to keep each file under the length cap.
- * Composed via `use`; all callers are unchanged.
+ * Custom badge taxonomy — React studio mount + save-bridge fields.
  *
  * @package Aggressive_Apparel
  */
@@ -12,11 +9,16 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
+use Aggressive_Apparel\Core\Icons;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Renders the badge studio root and hidden POST fields for taxonomy save.
+ */
 trait Badge_Admin_Fields {
 	/**
 	 * Render fields on the "Add New Badge" form.
@@ -24,8 +26,8 @@ trait Badge_Admin_Fields {
 	 * @return void
 	 */
 	public function render_add_fields(): void {
-		echo '<div class="form-field aa-badge-editor-wrap">';
-		self::render_editor_panel( self::get_default_badge_data() );
+		echo '<div class="aa-badge-studio-shell aa-badge-studio-shell--add">';
+		self::render_studio_mount( self::get_default_badge_data(), 'add' );
 		echo '</div>';
 	}
 
@@ -38,314 +40,207 @@ trait Badge_Admin_Fields {
 	public function render_edit_fields( \WP_Term $term ): void {
 		$data         = self::get_badge_data( $term->term_id );
 		$data['name'] = $term->name;
-		echo '<div class="aa-badge-editor-wrap aa-badge-editor-wrap--edit">';
-		self::render_editor_panel( $data );
+		echo '<div class="aa-badge-studio-shell aa-badge-studio-shell--edit">';
+		self::render_studio_mount( $data, 'edit' );
 		echo '</div>';
 	}
 
 	/**
-	 * Render the modern badge editor panel shared by the add and edit screens.
+	 * Mount node + hidden inputs the React studio syncs into.
 	 *
-	 * Field `name`/`id` attributes are identical to the legacy markup so the
-	 * save handler and live-preview script are unaffected.
-	 *
-	 * @param array<string, mixed> $d Badge data (see get_badge_data()).
+	 * @param array<string, mixed> $d      Badge data (see get_badge_data()).
+	 * @param string               $screen `add` or `edit`.
 	 * @return void
 	 */
-	private static function render_editor_panel( array $d ): void {
-		$icon_source = '' !== $d['svg_icon']
-			? 'svg'
-			: ( '' !== $d['library_icon'] ? 'library' : ( '' !== $d['icon'] ? 'emoji' : 'none' ) );
-		$is_system   = 'custom' !== $d['badge_type'];
-
-		$border_styles = array();
-		foreach ( self::BORDER_STYLES as $style ) {
-			$border_styles[ $style ] = ucfirst( $style );
-		}
-
-		$positions = array();
-		foreach ( self::POSITIONS as $pos ) {
-			$positions[ $pos ] = ucwords( str_replace( '-', ' ', $pos ) );
-		}
-		?>
-		<div class="aa-badge-editor">
-			<div class="aa-badge-editor__preview-col">
-				<div class="aa-badge-editor__preview">
-					<span class="aa-badge-editor__preview-label"><?php esc_html_e( 'Live Preview', 'aggressive-apparel' ); ?></span>
-					<div class="aa-badge-editor__stage">
-						<?php echo aggressive_apparel_trusted_html( self::build_preview_markup( $d ) ); ?>
-					</div>
-				</div>
-			</div>
-
-			<div class="aa-badge-editor__fields">
-				<?php if ( $is_system ) : ?>
-					<div class="aa-badge-systype">
-						<span class="dashicons dashicons-superhero" aria-hidden="true"></span>
-						<span>
-							<?php
-							printf(
-								/* translators: %s: system badge type name. */
-								esc_html__( 'System badge: %s — applied automatically by product conditions. Restyle it freely below.', 'aggressive-apparel' ),
-								wp_kses_post( '<strong>' . esc_html( ucwords( str_replace( '_', ' ', $d['badge_type'] ) ) ) . '</strong>' )
-							);
-							?>
-						</span>
-					</div>
-				<?php endif; ?>
-
-				<fieldset class="aa-badge-section">
-					<legend class="aa-badge-section__title"><span class="dashicons dashicons-art" aria-hidden="true"></span><?php esc_html_e( 'Colors', 'aggressive-apparel' ); ?></legend>
-					<div class="aa-badge-row">
-						<?php
-						self::render_color_control( 'badge_bg_color', __( 'Background', 'aggressive-apparel' ), $d['bg_color'] );
-						self::render_color_control( 'badge_text_color', __( 'Text', 'aggressive-apparel' ), $d['text_color'] );
-						?>
-					</div>
-				</fieldset>
-
-				<fieldset class="aa-badge-section">
-					<legend class="aa-badge-section__title"><span class="dashicons dashicons-star-filled" aria-hidden="true"></span><?php esc_html_e( 'Icon', 'aggressive-apparel' ); ?></legend>
-					<p class="aa-badge-section__note"><?php esc_html_e( 'Choose one icon source. It appears before the badge text.', 'aggressive-apparel' ); ?></p>
-
-					<div class="aa-badge-icon-source" role="radiogroup" aria-label="<?php esc_attr_e( 'Icon source', 'aggressive-apparel' ); ?>">
-						<?php
-						$sources = array(
-							'none'    => __( 'None', 'aggressive-apparel' ),
-							'emoji'   => __( 'Emoji', 'aggressive-apparel' ),
-							'library' => __( 'Library', 'aggressive-apparel' ),
-							'svg'     => __( 'Custom SVG', 'aggressive-apparel' ),
-						);
-						foreach ( $sources as $val => $label ) {
-							printf(
-								'<label><input type="radio" name="aa_badge_icon_source" value="%1$s" %2$s /><span>%3$s</span></label>',
-								esc_attr( $val ),
-								checked( $icon_source, $val, false ),
-								esc_html( $label )
-							);
-						}
-						?>
-					</div>
-
-					<div class="aa-badge-row">
-						<div class="aa-badge-control" data-icon-source="emoji">
-							<label for="badge_icon"><?php esc_html_e( 'Emoji / Character', 'aggressive-apparel' ); ?></label>
-							<input type="text" name="badge_icon" id="badge_icon" value="<?php echo esc_attr( $d['icon'] ); ?>" maxlength="10" />
-						</div>
-						<div class="aa-badge-control" data-icon-source="library">
-							<label for="badge_library_icon"><?php esc_html_e( 'Library Icon', 'aggressive-apparel' ); ?></label>
-							<?php self::render_library_icon_select( $d['library_icon'] ); ?>
-						</div>
-					</div>
-
-					<div class="aa-badge-control" data-icon-source="svg">
-						<label for="badge_svg_icon"><?php esc_html_e( 'Custom SVG markup', 'aggressive-apparel' ); ?></label>
-						<textarea name="badge_svg_icon" id="badge_svg_icon" rows="4"><?php echo esc_textarea( $d['svg_icon'] ); ?></textarea>
-						<p class="aa-badge-control__help"><?php esc_html_e( 'Paste raw SVG. Sanitized on save.', 'aggressive-apparel' ); ?></p>
-					</div>
-
-					<div class="aa-badge-row" data-icon-source="shared">
-						<?php
-						self::render_color_control( 'badge_icon_color', __( 'Icon Color', 'aggressive-apparel' ), $d['icon_color'], __( 'Empty = inherit text color.', 'aggressive-apparel' ) );
-						self::render_number_control( 'badge_icon_size', __( 'Icon Size (px)', 'aggressive-apparel' ), $d['icon_size'], 0, 64, __( '0 = auto (matches text).', 'aggressive-apparel' ) );
-						self::render_number_control( 'badge_icon_gap', __( 'Icon Spacing (px)', 'aggressive-apparel' ), $d['icon_gap'], 0, 40, __( 'Gap between icon and text.', 'aggressive-apparel' ) );
-						?>
-					</div>
-				</fieldset>
-
-				<fieldset class="aa-badge-section">
-					<legend class="aa-badge-section__title"><span class="dashicons dashicons-editor-table" aria-hidden="true"></span><?php esc_html_e( 'Border', 'aggressive-apparel' ); ?></legend>
-					<div class="aa-badge-row">
-						<?php
-						self::render_color_control( 'badge_border_color', __( 'Color', 'aggressive-apparel' ), $d['border_color'], __( 'Empty = no border.', 'aggressive-apparel' ) );
-						self::render_number_control( 'badge_border_width', __( 'Width (px)', 'aggressive-apparel' ), $d['border_width'], 0, 10 );
-						self::render_select_control( 'badge_border_style', __( 'Style', 'aggressive-apparel' ), $border_styles, $d['border_style'] );
-						?>
-					</div>
-				</fieldset>
-
-				<fieldset class="aa-badge-section">
-					<legend class="aa-badge-section__title"><span class="dashicons dashicons-editor-expand" aria-hidden="true"></span><?php esc_html_e( 'Shape & Spacing', 'aggressive-apparel' ); ?></legend>
-					<div class="aa-badge-row">
-						<div class="aa-badge-control">
-							<label><?php esc_html_e( 'Corner Radius (px)', 'aggressive-apparel' ); ?></label>
-							<div class="aa-badge-mini-grid">
-								<?php
-								self::render_mini_number( 'badge_radius_tl', __( 'TL', 'aggressive-apparel' ), $d['radius_tl'], 0, 100 );
-								self::render_mini_number( 'badge_radius_tr', __( 'TR', 'aggressive-apparel' ), $d['radius_tr'], 0, 100 );
-								self::render_mini_number( 'badge_radius_br', __( 'BR', 'aggressive-apparel' ), $d['radius_br'], 0, 100 );
-								self::render_mini_number( 'badge_radius_bl', __( 'BL', 'aggressive-apparel' ), $d['radius_bl'], 0, 100 );
-								?>
-							</div>
-						</div>
-						<div class="aa-badge-control">
-							<label><?php esc_html_e( 'Padding (px)', 'aggressive-apparel' ); ?></label>
-							<div class="aa-badge-mini-grid">
-								<?php
-								self::render_mini_number( 'badge_padding_x', __( 'X', 'aggressive-apparel' ), $d['padding_x'], 0, 50 );
-								self::render_mini_number( 'badge_padding_y', __( 'Y', 'aggressive-apparel' ), $d['padding_y'], 0, 50 );
-								?>
-							</div>
-						</div>
-					</div>
-				</fieldset>
-
-				<fieldset class="aa-badge-section">
-					<legend class="aa-badge-section__title"><span class="dashicons dashicons-location" aria-hidden="true"></span><?php esc_html_e( 'Placement', 'aggressive-apparel' ); ?></legend>
-					<div class="aa-badge-row">
-						<?php
-						self::render_select_control( 'badge_position', __( 'Position', 'aggressive-apparel' ), $positions, $d['position'], __( 'Corner of the product image.', 'aggressive-apparel' ) );
-						self::render_number_control( 'badge_priority', __( 'Priority', 'aggressive-apparel' ), $d['priority'], 0, 100, __( 'Lower shows first.', 'aggressive-apparel' ) );
-						?>
-					</div>
-				</fieldset>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render a labeled colour-picker control.
-	 *
-	 * @param string $name  Field name/id.
-	 * @param string $label Visible label.
-	 * @param string $value Current value.
-	 * @param string $help  Optional helper text.
-	 * @return void
-	 */
-	private static function render_color_control( string $name, string $label, string $value, string $help = '' ): void {
-		printf(
-			'<div class="aa-badge-control"><label for="%1$s">%2$s</label><input type="text" name="%1$s" id="%1$s" class="aa-badge-color-picker" value="%3$s" />%4$s</div>',
-			esc_attr( $name ),
-			esc_html( $label ),
-			esc_attr( $value ),
-			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
-		);
-	}
-
-	/**
-	 * Render a labeled number control.
-	 *
-	 * @param string     $name  Field name/id.
-	 * @param string     $label Visible label.
-	 * @param int|string $value Current value.
-	 * @param int        $min   Minimum.
-	 * @param int        $max   Maximum.
-	 * @param string     $help  Optional helper text.
-	 * @return void
-	 */
-	private static function render_number_control( string $name, string $label, $value, int $min, int $max, string $help = '' ): void {
-		printf(
-			'<div class="aa-badge-control"><label for="%1$s">%2$s</label><input type="number" name="%1$s" id="%1$s" value="%3$s" min="%4$d" max="%5$d" step="1" />%6$s</div>',
-			esc_attr( $name ),
-			esc_html( $label ),
-			esc_attr( (string) $value ),
-			(int) $min,
-			(int) $max,
-			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
-		);
-	}
-
-	/**
-	 * Render a compact number input for the radius/padding mini-grids.
-	 *
-	 * @param string     $name  Field name/id.
-	 * @param string     $label Short label (e.g. "TL").
-	 * @param int|string $value Current value.
-	 * @param int        $min   Minimum.
-	 * @param int        $max   Maximum.
-	 * @return void
-	 */
-	private static function render_mini_number( string $name, string $label, $value, int $min, int $max ): void {
-		printf(
-			'<label class="aa-badge-mini">%2$s<input type="number" name="%1$s" id="%1$s" value="%3$s" min="%4$d" max="%5$d" step="1" /></label>',
-			esc_attr( $name ),
-			esc_html( $label ),
-			esc_attr( (string) $value ),
-			(int) $min,
-			(int) $max
-		);
-	}
-
-	/**
-	 * Render a labeled select control.
-	 *
-	 * @param string                $name     Field name/id.
-	 * @param string                $label    Visible label.
-	 * @param array<string, string> $options  Value => label map.
-	 * @param string                $selected Currently selected value.
-	 * @param string                $help     Optional helper text.
-	 * @return void
-	 */
-	private static function render_select_control( string $name, string $label, array $options, string $selected, string $help = '' ): void {
-		$opts = '';
-		foreach ( $options as $value => $text ) {
-			$opts .= sprintf(
-				'<option value="%1$s" %2$s>%3$s</option>',
-				esc_attr( (string) $value ),
-				selected( $selected, (string) $value, false ),
-				esc_html( $text )
-			);
-		}
-
-		printf(
-			'<div class="aa-badge-control"><label for="%1$s">%2$s</label><select name="%1$s" id="%1$s">%3$s</select>%4$s</div>',
-			esc_attr( $name ),
-			esc_html( $label ),
-			wp_kses_post( $opts ),
-			wp_kses_post( '' !== $help ? '<p class="aa-badge-control__help">' . esc_html( $help ) . '</p>' : '' )
-		);
-	}
-
-	/**
-	 * Build the live-preview badge span markup (id #aa-badge-preview-el).
-	 *
-	 * @param array<string, mixed> $d Badge data, optionally including 'name'.
-	 * @return string Escaped badge markup.
-	 */
-	private static function build_preview_markup( array $d ): string {
-		$name      = isset( $d['name'] ) && '' !== $d['name'] ? (string) $d['name'] : __( 'Badge Name', 'aggressive-apparel' );
-		$icon_html = self::build_badge_icon_html( $d['svg_icon'], $d['library_icon'], $d['icon'], $d['icon_color'], (int) $d['icon_size'], (int) $d['icon_gap'] );
-
-		return self::build_static_badge_span( $d, $icon_html . esc_html( $name ), 'aa-badge-preview-el' );
-	}
-
-	/**
-	 * Build a self-styled badge <span> for admin contexts (no front-end CSS).
-	 *
-	 * Used by the editor live preview and the term list-table column. Colours,
-	 * border, radius and padding are written as literal inline styles. The
-	 * front-end renderer instead emits `--badge-*` custom properties (see
-	 * Product_Badges::build_badge_span()) because it relies on product-badges.css.
-	 *
-	 * @param array<string, mixed> $d     Badge data (see get_badge_data()).
-	 * @param string               $label Pre-escaped icon + text markup.
-	 * @param string               $id    Optional element id.
-	 * @return string Badge markup; `$label` must already be escaped.
-	 */
-	private static function build_static_badge_span( array $d, string $label, string $id = '' ): string {
-		$border = $d['border_width'] > 0 && '' !== $d['border_color'] && 'none' !== $d['border_style']
-			? sprintf( 'border:%dpx %s %s;', $d['border_width'], $d['border_style'], $d['border_color'] )
+	private static function render_studio_mount( array $d, string $screen = 'edit' ): void {
+		$screen      = 'add' === $screen ? 'add' : 'edit';
+		$fields      = self::badge_data_to_studio_fields( $d );
+		$label       = isset( $d['name'] ) ? (string) $d['name'] : '';
+		$sale_sample = 'sale' === ( $d['badge_type'] ?? '' )
+			? Sale_Pricing::format_text(
+				Feature_Settings::get_sale_badge_text(),
+				Feature_Settings::get_sale_badge_no_discount_text(),
+				25
+			)
 			: '';
 
-		$style = sprintf(
-			'display:inline-flex;align-items:center;gap:0.25em;padding:%1$dpx %2$dpx;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background-color:%3$s;color:%4$s;%5$sborder-radius:%6$dpx %7$dpx %8$dpx %9$dpx;',
-			(int) $d['padding_y'],
-			(int) $d['padding_x'],
-			$d['bg_color'],
-			$d['text_color'],
-			$border,
-			(int) $d['radius_tl'],
-			(int) $d['radius_tr'],
-			(int) $d['radius_br'],
-			(int) $d['radius_bl']
+		$config = array(
+			'fields'     => $fields,
+			'label'      => $label,
+			'badgeType'  => (string) ( $d['badge_type'] ?? 'custom' ),
+			'screen'     => $screen,
+			'saleSample' => $sale_sample,
+			'shapes'     => Badge_Shapes::labels(),
+			'icons'      => Icons::list(),
+			'presets'    => self::studio_preset_labels(),
+			'palette'    => Badge_Palette::swatches(),
+			'restUrl'    => esc_url_raw( rest_url( 'aggressive-apparel/v1/badge-studio/compile' ) ),
+			'nonce'      => wp_create_nonce( 'wp_rest' ),
+			// First paint comes from the same compiler the REST route uses, so
+			// the preview is correct before the first request resolves.
+			'compiled'   => Badge_Studio_Rest::compile_payload(
+				$fields,
+				'' !== $sale_sample ? $sale_sample : $label
+			),
+			'i18n'       => self::studio_i18n(),
 		);
 
-		return sprintf(
-			'<span%1$s style="%2$s">%3$s</span>',
-			'' !== $id ? ' id="' . esc_attr( $id ) . '"' : '',
-			esc_attr( $style ),
-			aggressive_apparel_trusted_html( $label )
+		printf(
+			'<div id="aa-badge-studio-root" class="aa-badge-studio" data-aa-badge-studio="%s"></div>',
+			esc_attr( (string) wp_json_encode( $config ) )
+		);
+
+		echo '<div id="aa-badge-studio-fields" class="aa-badge-studio__fields" hidden>';
+		foreach ( $fields as $name => $value ) {
+			if ( 'badge_shape_svg' === $name || 'badge_svg_icon' === $name ) {
+				printf(
+					'<textarea name="%1$s" id="%1$s">%2$s</textarea>',
+					esc_attr( $name ),
+					esc_textarea( (string) $value )
+				);
+				continue;
+			}
+
+			printf(
+				'<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />',
+				esc_attr( $name ),
+				esc_attr( (string) $value )
+			);
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * Flat `badge_*` field map for the studio + taxonomy POST save.
+	 *
+	 * @param array<string, mixed> $d Badge data.
+	 * @return array<string, string>
+	 */
+	private static function badge_data_to_studio_fields( array $d ): array {
+		$d = Badge_Style_Schema::with_defaults( $d );
+
+		return array(
+			'badge_bg_color'           => (string) $d['bg_color'],
+			'badge_text_color'         => (string) $d['text_color'],
+			'badge_icon'               => (string) $d['icon'],
+			'badge_library_icon'       => (string) $d['library_icon'],
+			'badge_svg_icon'           => (string) $d['svg_icon'],
+			'badge_icon_color'         => (string) $d['icon_color'],
+			'badge_icon_size'          => (string) (int) $d['icon_size'],
+			'badge_icon_gap'           => (string) (int) $d['icon_gap'],
+			'badge_priority'           => (string) (int) $d['priority'],
+			'badge_border_color'       => (string) $d['border_color'],
+			'badge_border_width'       => (string) (int) $d['border_width'],
+			'badge_border_style'       => (string) $d['border_style'],
+			'badge_radius_tl'          => (string) (int) $d['radius_tl'],
+			'badge_radius_tr'          => (string) (int) $d['radius_tr'],
+			'badge_radius_br'          => (string) (int) $d['radius_br'],
+			'badge_radius_bl'          => (string) (int) $d['radius_bl'],
+			'badge_padding_x'          => (string) (int) $d['padding_x'],
+			'badge_padding_y'          => (string) (int) $d['padding_y'],
+			'badge_position'           => (string) $d['position'],
+			'badge_type'               => (string) $d['badge_type'],
+			'badge_border_mode'        => (string) $d['border_mode'],
+			'badge_inner_border_color' => (string) $d['inner_border_color'],
+			'badge_inner_border_width' => (string) (int) $d['inner_border_width'],
+			'badge_border_gap'         => (string) (int) $d['border_gap'],
+			'badge_font_size'          => (string) $d['font_size'],
+			'badge_font_size_px'       => (string) (int) $d['font_size_px'],
+			'badge_font_weight'        => (string) (int) $d['font_weight'],
+			'badge_text_transform'     => (string) $d['text_transform'],
+			'badge_letter_spacing'     => (string) $d['letter_spacing'],
+			'badge_line_height'        => (string) $d['line_height'],
+			'badge_icon_position'      => (string) $d['icon_position'],
+			'badge_offset_x'           => (string) (int) $d['offset_x'],
+			'badge_offset_y'           => (string) (int) $d['offset_y'],
+			'badge_rotation'           => (string) (int) $d['rotation'],
+			'badge_shadow_blur'        => (string) (int) $d['shadow_blur'],
+			'badge_shadow_spread'      => (string) (int) $d['shadow_spread'],
+			'badge_shadow_color'       => (string) $d['shadow_color'],
+			'badge_glass'              => (int) $d['glass'] ? '1' : '0',
+			'badge_fill_mode'          => (string) $d['fill_mode'],
+			'badge_gradient_angle'     => (string) (int) $d['gradient_angle'],
+			'badge_gradient_from'      => (string) $d['gradient_from'],
+			'badge_gradient_to'        => (string) $d['gradient_to'],
+			'badge_shape'              => (string) $d['shape'],
+			'badge_shape_mode'         => (string) $d['shape_mode'],
+			'badge_shape_svg'          => (string) $d['shape_svg'],
+			'badge_frame_color'        => (string) $d['frame_color'],
+			'badge_frame_width'        => (string) (int) $d['frame_width'],
+		);
+	}
+
+	/**
+	 * Preset chip labels for the studio library.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function studio_preset_labels(): array {
+		return array(
+			'solid'    => __( 'Solid', 'aggressive-apparel' ),
+			'outline'  => __( 'Outline', 'aggressive-apparel' ),
+			'layered'  => __( 'Layered', 'aggressive-apparel' ),
+			'pill'     => __( 'Pill', 'aggressive-apparel' ),
+			'minimal'  => __( 'Minimal', 'aggressive-apparel' ),
+			'glass'    => __( 'Glass', 'aggressive-apparel' ),
+			'shadow'   => __( 'Soft shadow', 'aggressive-apparel' ),
+			'gradient' => __( 'Gradient blaze', 'aggressive-apparel' ),
+			'ticket'   => __( 'Ticket stub', 'aggressive-apparel' ),
+			'ribbon'   => __( 'Ribbon corner', 'aggressive-apparel' ),
+			'stamp'    => __( 'Stamp', 'aggressive-apparel' ),
+			'neon'     => __( 'Neon outline', 'aggressive-apparel' ),
+		);
+	}
+
+	/**
+	 * Client-facing strings.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function studio_i18n(): array {
+		return array(
+			'title'         => __( 'Badge Studio', 'aggressive-apparel' ),
+			'styles'        => __( 'Styles', 'aggressive-apparel' ),
+			'shapes'        => __( 'Shapes', 'aggressive-apparel' ),
+			'templates'     => __( 'Templates', 'aggressive-apparel' ),
+			'searchLibrary' => __( 'Search styles, shapes…', 'aggressive-apparel' ),
+			'inspector'     => __( 'Properties', 'aggressive-apparel' ),
+			'canvas'        => __( 'Badge Preview', 'aggressive-apparel' ),
+			'fill'          => __( 'Fill', 'aggressive-apparel' ),
+			'border'        => __( 'Border', 'aggressive-apparel' ),
+			'type'          => __( 'Type', 'aggressive-apparel' ),
+			'icon'          => __( 'Icon', 'aggressive-apparel' ),
+			'layout'        => __( 'Layout', 'aggressive-apparel' ),
+			'light'         => __( 'Light', 'aggressive-apparel' ),
+			'dark'          => __( 'Dark', 'aggressive-apparel' ),
+			'appearance'    => __( 'Preview backdrop', 'aggressive-apparel' ),
+			'solidFill'     => __( 'Solid', 'aggressive-apparel' ),
+			'gradientFill'  => __( 'Gradient', 'aggressive-apparel' ),
+			'glassEffect'   => __( 'Glass blur', 'aggressive-apparel' ),
+			'customSvg'     => __( 'Custom SVG', 'aggressive-apparel' ),
+			'maskMode'      => __( 'Filled silhouette', 'aggressive-apparel' ),
+			'frameMode'     => __( 'Outline frame', 'aggressive-apparel' ),
+			'systemLocked'  => __( 'System badge — style only. Label comes from store rules.', 'aggressive-apparel' ),
+			/* translators: %s: text/background contrast ratio, e.g. 4.7. */
+			'contrastPass'  => __( 'Contrast %s:1 — passes AA for small text.', 'aggressive-apparel' ),
+			/* translators: %s: text/background contrast ratio, e.g. 2.1. */
+			'contrastFail'  => __( 'Contrast %s:1 — increase contrast.', 'aggressive-apparel' ),
+			'contrastAlpha' => __( 'Transparency enabled — final contrast depends on the product image.', 'aggressive-apparel' ),
+			'none'          => __( 'None', 'aggressive-apparel' ),
+			'transparent'   => __( 'Transparent', 'aggressive-apparel' ),
+			'chooseColor'   => __( 'choose color', 'aggressive-apparel' ),
+			'emoji'         => __( 'Emoji', 'aggressive-apparel' ),
+			'library'       => __( 'Library', 'aggressive-apparel' ),
+			'svg'           => __( 'SVG', 'aggressive-apparel' ),
+			'saved'         => __( 'Saved', 'aggressive-apparel' ),
+			'unsaved'       => __( 'Unsaved', 'aggressive-apparel' ),
+			'preview'       => __( 'Preview', 'aggressive-apparel' ),
+			'update'        => __( 'Update', 'aggressive-apparel' ),
+			'addNew'        => __( 'Add New Badge', 'aggressive-apparel' ),
+			'undo'          => __( 'Undo', 'aggressive-apparel' ),
+			'redo'          => __( 'Redo', 'aggressive-apparel' ),
+			'zoomIn'        => __( 'Zoom in', 'aggressive-apparel' ),
+			'zoomOut'       => __( 'Zoom out', 'aggressive-apparel' ),
 		);
 	}
 }

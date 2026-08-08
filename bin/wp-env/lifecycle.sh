@@ -9,6 +9,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=bin/wp-env/lib.sh
 source "${SCRIPT_DIR}/lib.sh"
 
+aa_acquire_environment_lock
+
+verify_recreated_environment() {
+	bash "${SCRIPT_DIR}/ensure-theme.sh"
+	bash "${SCRIPT_DIR}/ensure-woocommerce.sh"
+	bash "${SCRIPT_DIR}/check.sh"
+}
+
 operation="${1:-}"
 shift || true
 assume_yes="$(aa_parse_yes_flag "$@")"
@@ -41,7 +49,7 @@ bash "${SCRIPT_DIR}/backup.sh"
 case "${operation}" in
 	clean)
 		aa_wp_env clean all --no-scripts
-		bash "${SCRIPT_DIR}/check.sh"
+		verify_recreated_environment
 		echo "wp-env: both databases were reset, reconfigured, and verified."
 		;;
 	destroy)
@@ -51,6 +59,6 @@ case "${operation}" in
 	reset)
 		aa_wp_env clean all --no-scripts
 		aa_wp_env start
-		bash "${SCRIPT_DIR}/check.sh"
+		verify_recreated_environment
 		;;
 esac

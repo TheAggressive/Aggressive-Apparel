@@ -32,6 +32,8 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const VALIDATE = path.join(SCRIPT_DIR, 'validate-po.sh');
 const CHECK = path.join(SCRIPT_DIR, 'check.sh');
 const LIB = path.join(SCRIPT_DIR, 'lib.sh');
+const LINT = path.join(SCRIPT_DIR, 'lint-placeholders.mjs');
+const PO_LIB = path.join(SCRIPT_DIR, 'po.mjs');
 
 const DOMAIN = 'aggressive-apparel';
 
@@ -83,7 +85,7 @@ function sandbox(catalogs = {}) {
   fs.mkdirSync(binDir, { recursive: true });
   fs.mkdirSync(path.join(root, 'languages'), { recursive: true });
 
-  for (const script of [VALIDATE, LIB]) {
+  for (const script of [VALIDATE, LIB, LINT, PO_LIB]) {
     fs.copyFileSync(script, path.join(binDir, path.basename(script)));
   }
 
@@ -155,6 +157,35 @@ test('fails closed when msgfmt is unavailable', () => {
 
   assert.equal(status, 1, `a missing msgfmt must fail the gate:\n${output}`);
   assert.match(output, /msgfmt \(gettext\) is required/u);
+});
+
+test('rejects a translated brace token msgfmt cannot see', () => {
+  // msgfmt only compares printf specifiers, and only on entries carrying a
+  // format flag. `{percent}` is neither, so this catalog compiles cleanly and
+  // then prints the literal token on a product badge.
+  const BRACE_MISMATCH_PO = `msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Language: fr_FR\\n"
+
+msgid "Save {percent}%"
+msgstr "Économisez {pourcentage} %"
+`;
+
+  const { status, output } = validate(sandbox({ fr_FR: BRACE_MISMATCH_PO }));
+
+  assert.equal(status, 1, `a translated token must fail:\n${output}`);
+  assert.match(output, /placeholder mismatch/u);
+  assert.match(output, /\{pourcentage\}/u);
+});
+
+test('fails closed when node is unavailable', () => {
+  const { status, output } = validate(sandbox({ fr_FR: VALID_PO }), {
+    path: pathWithout(['node']),
+  });
+
+  assert.equal(status, 1, `a missing node must fail the gate:\n${output}`);
+  assert.match(output, /node is required/u);
 });
 
 test('check.sh offers exactly the auto and skip validator modes', () => {

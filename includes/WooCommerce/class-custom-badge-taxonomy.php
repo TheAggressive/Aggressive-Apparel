@@ -27,9 +27,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Custom Badge Taxonomy
  *
  * @since 1.54.0
+ * @phpstan-type BadgeData array{bg_color: string, text_color: string, icon: string, library_icon: string, svg_icon: string, icon_color: string, icon_size: int, icon_gap: int, priority: int, border_color: string, border_width: int, border_style: string, radius_tl: int, radius_tr: int, radius_br: int, radius_bl: int, padding_x: int, padding_y: int, position: string, badge_type: string, border_mode: string, inner_border_color: string, inner_border_width: int, font_size: string, font_weight: int, text_transform: string, letter_spacing: string}
  */
 class Custom_Badge_Taxonomy {
 	use Badge_Admin_Fields;
+	use Badge_Advanced_Styles;
+	use Badge_Rules_Admin;
 	use Badge_System_Defaults;
 
 
@@ -76,7 +79,7 @@ class Custom_Badge_Taxonomy {
 	 *
 	 * @var string[]
 	 */
-	private const POSITIONS = array( 'top-left', 'top-right', 'bottom-left', 'bottom-right' );
+	private const POSITIONS = Badge_Style_Schema::POSITIONS;
 
 	/**
 	 * Allowed badge types.
@@ -113,10 +116,12 @@ class Custom_Badge_Taxonomy {
 	 */
 	public function init(): void {
 		add_action( 'init', array( $this, 'register_taxonomy' ) );
+		add_action( 'rest_api_init', array( new Badge_Studio_Rest(), 'register_routes' ) );
 
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( $this, 'register_term_meta_hooks' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_post_aggressive_apparel_save_badge_rules', array( $this, 'save_badge_rules' ) );
 		}
 	}
 
@@ -170,7 +175,7 @@ class Custom_Badge_Taxonomy {
 					'type'              => 'string',
 					'single'            => true,
 					'show_in_rest'      => true,
-					'sanitize_callback' => 'sanitize_hex_color',
+					'sanitize_callback' => array( self::class, 'sanitize_badge_color' ),
 				),
 			);
 		}
@@ -326,6 +331,8 @@ class Custom_Badge_Taxonomy {
 				},
 			),
 		);
+
+		self::register_advanced_style_meta();
 	}
 
 	/**
@@ -337,6 +344,7 @@ class Custom_Badge_Taxonomy {
 		$tax = self::TAXONOMY;
 
 		add_action( $tax . '_add_form_fields', array( $this, 'render_add_fields' ) );
+		add_action( $tax . '_pre_add_form', array( $this, 'render_rules_panel' ) );
 		// `_edit_form` (not `_edit_form_fields`) renders after the core form-table
 		// at full content width — the panel needs the room for its two-pane
 		// layout, and a container query on a table-cell collapses its width.
@@ -356,27 +364,30 @@ class Custom_Badge_Taxonomy {
 	 * @return array<string, mixed>
 	 */
 	private static function get_default_badge_data(): array {
-		return array(
-			'bg_color'     => '#000000',
-			'text_color'   => '#ffffff',
-			'icon'         => '',
-			'library_icon' => '',
-			'svg_icon'     => '',
-			'icon_color'   => '',
-			'icon_size'    => 0,
-			'icon_gap'     => 0,
-			'priority'     => 10,
-			'border_color' => '',
-			'border_width' => 0,
-			'border_style' => 'none',
-			'radius_tl'    => 4,
-			'radius_tr'    => 4,
-			'radius_br'    => 4,
-			'radius_bl'    => 4,
-			'padding_x'    => 8,
-			'padding_y'    => 3,
-			'position'     => 'top-left',
-			'badge_type'   => 'custom',
+		return array_merge(
+			array(
+				'bg_color'     => '#000000',
+				'text_color'   => '#ffffff',
+				'icon'         => '',
+				'library_icon' => '',
+				'svg_icon'     => '',
+				'icon_color'   => '',
+				'icon_size'    => 0,
+				'icon_gap'     => 0,
+				'priority'     => 10,
+				'border_color' => '',
+				'border_width' => 0,
+				'border_style' => 'none',
+				'radius_tl'    => 4,
+				'radius_tr'    => 4,
+				'radius_br'    => 4,
+				'radius_bl'    => 4,
+				'padding_x'    => 8,
+				'padding_y'    => 3,
+				'position'     => 'top-left',
+				'badge_type'   => 'custom',
+			),
+			self::get_advanced_style_defaults(),
 		);
 	}
 
@@ -403,13 +414,13 @@ class Custom_Badge_Taxonomy {
 
 		// Background color.
 		$bg_color = isset( $_POST['badge_bg_color'] )
-			? sanitize_hex_color( wp_unslash( $_POST['badge_bg_color'] ) )
+			? self::sanitize_badge_color( wp_unslash( $_POST['badge_bg_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
 			: '';
 		update_term_meta( $term_id, self::META_BG_COLOR, '' !== $bg_color ? $bg_color : '#000000' );
 
 		// Text color.
 		$text_color = isset( $_POST['badge_text_color'] )
-			? sanitize_hex_color( wp_unslash( $_POST['badge_text_color'] ) )
+			? self::sanitize_badge_color( wp_unslash( $_POST['badge_text_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
 			: '';
 		update_term_meta( $term_id, self::META_TEXT_COLOR, '' !== $text_color ? $text_color : '#ffffff' );
 
@@ -436,7 +447,7 @@ class Custom_Badge_Taxonomy {
 
 		// Icon color.
 		$icon_color = isset( $_POST['badge_icon_color'] )
-			? sanitize_hex_color( wp_unslash( $_POST['badge_icon_color'] ) )
+			? self::sanitize_badge_color( wp_unslash( $_POST['badge_icon_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
 			: '';
 		update_term_meta( $term_id, self::META_ICON_COLOR, '' !== $icon_color ? $icon_color : '' );
 
@@ -450,7 +461,7 @@ class Custom_Badge_Taxonomy {
 
 		// Border color.
 		$border_color = isset( $_POST['badge_border_color'] )
-			? sanitize_hex_color( wp_unslash( $_POST['badge_border_color'] ) )
+			? self::sanitize_badge_color( wp_unslash( $_POST['badge_border_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
 			: '';
 		update_term_meta( $term_id, self::META_BORDER_COLOR, '' !== $border_color ? $border_color : '' );
 
@@ -458,7 +469,6 @@ class Custom_Badge_Taxonomy {
 		$border_width = isset( $_POST['badge_border_width'] )
 			? absint( $_POST['badge_border_width'] )
 			: 0;
-		update_term_meta( $term_id, self::META_BORDER_WIDTH, min( $border_width, 10 ) );
 
 		// Border style.
 		$border_style = isset( $_POST['badge_border_style'] )
@@ -467,6 +477,10 @@ class Custom_Badge_Taxonomy {
 		if ( ! in_array( $border_style, self::BORDER_STYLES, true ) ) {
 			$border_style = 'none';
 		}
+		if ( 'double' === $border_style && $border_width > 0 ) {
+			$border_width = max( 3, $border_width );
+		}
+		update_term_meta( $term_id, self::META_BORDER_WIDTH, min( $border_width, 10 ) );
 		update_term_meta( $term_id, self::META_BORDER_STYLE, $border_style );
 
 		// Border radius (per corner).
@@ -496,6 +510,8 @@ class Custom_Badge_Taxonomy {
 			$position = 'top-left';
 		}
 		update_term_meta( $term_id, self::META_POSITION, $position );
+
+		self::save_advanced_style_fields( $term_id );
 	}
 
 	/**
@@ -539,21 +555,46 @@ class Custom_Badge_Taxonomy {
 		$data = self::get_badge_data( $tid );
 
 		if ( 'badge_type' === $column_name ) {
-			$type_label = 'custom' !== $data['badge_type']
+			$is_system  = 'custom' !== $data['badge_type'];
+			$type_label = $is_system
 				? ucwords( str_replace( '_', ' ', $data['badge_type'] ) )
 				: __( 'Custom', 'aggressive-apparel' );
 			printf(
-				'<span style="display:inline-flex;align-items:center;gap:0.25em;font-size:0.8em;color:%s;">%s%s</span>',
-				'custom' !== $data['badge_type'] ? '#6366f1' : '#6b7280',
-				'custom' !== $data['badge_type'] ? '<span class="dashicons dashicons-admin-generic" style="font-size:14px;width:14px;height:14px;"></span>' : '',
+				'<span class="aa-badge-type aa-badge-type--%1$s">%2$s</span>',
+				$is_system ? 'automatic' : 'custom',
 				esc_html( $type_label ),
 			);
 			return;
 		}
 
-		$icon_html = self::build_badge_icon_html( $data['svg_icon'], $data['library_icon'], $data['icon'], $data['icon_color'], $data['icon_size'], $data['icon_gap'] );
+		$icon_position = Badge_Style_Schema::sanitize_enum(
+			$data['icon_position'] ?? 'start',
+			Badge_Style_Schema::ICON_POSITIONS,
+			'start'
+		);
+		$icon_html     = self::build_badge_icon_html(
+			$data['svg_icon'],
+			$data['library_icon'],
+			$data['icon'],
+			$data['icon_color'],
+			$data['icon_size']
+		);
+		$aria_label    = '';
 
-		echo aggressive_apparel_trusted_html( self::build_static_badge_span( $data, $icon_html . esc_html( $term->name ) ) );
+		if ( 'only' === $icon_position ) {
+			$inner = '' !== $icon_html ? $icon_html : esc_html( $term->name );
+			if ( '' !== $icon_html ) {
+				$aria_label = $term->name;
+			}
+		} elseif ( 'end' === $icon_position ) {
+			$inner = esc_html( $term->name ) . $icon_html;
+		} else {
+			$inner = $icon_html . esc_html( $term->name );
+		}
+
+		echo aggressive_apparel_trusted_html(
+			Badge_Style_Schema::compile_badge_span( $data, $inner, 'admin', '', $aria_label )
+		);
 	}
 
 	/**
@@ -576,26 +617,54 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
-		wp_enqueue_style( 'wp-color-picker' );
-
 		// Modern badge-editor styles (also carries the icon-sizing rule the
 		// front-end bundle isn't loaded for in wp-admin).
-		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/badge-admin.css';
-		if ( file_exists( $css_file ) ) {
+		$style_deps     = array();
+		$storefront_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-badges.css';
+		if ( file_exists( $storefront_css ) ) {
 			wp_enqueue_style(
-				'aggressive-apparel-badge-admin',
-				AGGRESSIVE_APPAREL_URI . '/build/styles/admin/badge-admin.css',
-				array( 'wp-color-picker', 'dashicons' ),
-				(string) filemtime( $css_file )
+				'aggressive-apparel-product-badges',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/woocommerce/product-badges.css',
+				array(),
+				(string) filemtime( $storefront_css )
 			);
+			// Only depend on a handle that was actually registered: WordPress
+			// drops a stylesheet whose dependency is missing, so listing this
+			// unconditionally would take the whole studio UI down with it when
+			// the storefront bundle is absent.
+			$style_deps[] = 'aggressive-apparel-product-badges';
 		}
 
-		// Enqueue the compiled badge preview admin script following the theme's
-		// admin asset convention (filemtime cache-busting, build/ output).
+		// Load package CSS before our studio shell (do not list script handles as
+		// style deps — WordPress silently drops the stylesheet).
+		wp_enqueue_style( 'wp-components' );
+
+		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/badge-studio.css';
+		if ( file_exists( $css_file ) ) {
+			wp_enqueue_style(
+				'aggressive-apparel-badge-studio',
+				AGGRESSIVE_APPAREL_URI . '/build/styles/admin/badge-studio.css',
+				$style_deps,
+				(string) filemtime( $css_file )
+			);
+
+			$preset_css = Badge_Palette::root_css();
+			if ( '' !== $preset_css ) {
+				wp_add_inline_style( 'aggressive-apparel-badge-studio', $preset_css );
+			}
+		}
+
 		\Aggressive_Apparel\Assets\Asset_Loader::enqueue_admin_script(
-			'aggressive-apparel-badge-preview-admin',
-			'build/scripts/admin/woocommerce/badge-preview-admin',
-			array( 'wp-color-picker' )
+			'aggressive-apparel-badge-studio',
+			'build/scripts/admin/badge-studio/index',
+			array(
+				'react-jsx-runtime',
+				'wp-element',
+				'wp-components',
+				'wp-i18n',
+				'wp-api-fetch',
+				'wp-dom-ready',
+			)
 		);
 	}
 
@@ -603,7 +672,7 @@ class Custom_Badge_Taxonomy {
 	 * Get custom badges assigned to a product, sorted by priority.
 	 *
 	 * @param int $product_id Product ID.
-	 * @return array<int, array{name: string, bg_color: string, text_color: string, icon: string, library_icon: string, svg_icon: string, icon_color: string, icon_size: int, icon_gap: int, priority: int, border_color: string, border_width: int, border_style: string, radius_tl: int, radius_tr: int, radius_br: int, radius_bl: int, padding_x: int, padding_y: int, position: string, badge_type: string}>
+	 * @return array<int, array{name: string, bg_color: string, text_color: string, icon: string, library_icon: string, svg_icon: string, icon_color: string, icon_size: int, icon_gap: int, priority: int, border_color: string, border_width: int, border_style: string, radius_tl: int, radius_tr: int, radius_br: int, radius_bl: int, padding_x: int, padding_y: int, position: string, badge_type: string, border_mode: string, inner_border_color: string, inner_border_width: int, font_size: string, font_weight: int, text_transform: string, letter_spacing: string}>
 	 */
 	public static function get_product_badges( int $product_id ): array {
 		$terms = get_the_terms( $product_id, self::TAXONOMY );
@@ -645,10 +714,10 @@ class Custom_Badge_Taxonomy {
 	 * render_column(), and get_product_badges().
 	 *
 	 * @param int $term_id Term ID.
-	 * @return array{bg_color: string, text_color: string, icon: string, library_icon: string, svg_icon: string, icon_color: string, icon_size: int, icon_gap: int, priority: int, border_color: string, border_width: int, border_style: string, radius_tl: int, radius_tr: int, radius_br: int, radius_bl: int, padding_x: int, padding_y: int, position: string, badge_type: string}
+	 * @return BadgeData
 	 */
 	private static function get_badge_data( int $term_id ): array {
-		return array(
+		$legacy = array(
 			'bg_color'     => self::get_meta( $term_id, self::META_BG_COLOR, '#000000' ),
 			'text_color'   => self::get_meta( $term_id, self::META_TEXT_COLOR, '#ffffff' ),
 			'icon'         => self::get_meta( $term_id, self::META_ICON, '' ),
@@ -660,16 +729,25 @@ class Custom_Badge_Taxonomy {
 			'priority'     => (int) self::get_meta( $term_id, self::META_PRIORITY, '10' ),
 			'border_color' => self::get_meta( $term_id, self::META_BORDER_COLOR, '' ),
 			'border_width' => (int) self::get_meta( $term_id, self::META_BORDER_WIDTH, '0' ),
-			'border_style' => self::get_meta( $term_id, self::META_BORDER_STYLE, 'none' ),
+			'border_style' => self::validated_meta( $term_id, self::META_BORDER_STYLE, self::BORDER_STYLES, 'none' ),
 			'radius_tl'    => (int) self::get_meta( $term_id, self::META_RADIUS_TL, '4' ),
 			'radius_tr'    => (int) self::get_meta( $term_id, self::META_RADIUS_TR, '4' ),
 			'radius_br'    => (int) self::get_meta( $term_id, self::META_RADIUS_BR, '4' ),
 			'radius_bl'    => (int) self::get_meta( $term_id, self::META_RADIUS_BL, '4' ),
 			'padding_x'    => (int) self::get_meta( $term_id, self::META_PADDING_X, '8' ),
 			'padding_y'    => (int) self::get_meta( $term_id, self::META_PADDING_Y, '3' ),
-			'position'     => self::get_meta( $term_id, self::META_POSITION, 'top-left' ),
-			'badge_type'   => self::get_meta( $term_id, self::META_BADGE_TYPE, 'custom' ),
+			'position'     => self::validated_meta( $term_id, self::META_POSITION, self::POSITIONS, 'top-left' ),
+			'badge_type'   => self::validated_meta( $term_id, self::META_BADGE_TYPE, self::BADGE_TYPES, 'custom' ),
 		);
+
+		/**
+		 * Merged data retains the complete, validated badge-data shape.
+		 *
+		 * @var BadgeData $data
+		 */
+		$data = array_merge( $legacy, self::get_advanced_style_data( $term_id, $legacy ) );
+
+		return $data;
 	}
 
 	/**
@@ -761,13 +839,13 @@ class Custom_Badge_Taxonomy {
 	 * @param string $emoji        Emoji/text icon.
 	 * @param string $icon_color   Optional hex color for the icon.
 	 * @param int    $icon_size    Optional size in px (0 = auto).
-	 * @param int    $icon_gap     Optional spacing in px between icon and text (0 = default).
 	 * @return string Icon HTML with wrapper span, or empty string.
 	 */
-	public static function build_badge_icon_html( string $svg_icon, string $library_icon, string $emoji, string $icon_color = '', int $icon_size = 0, int $icon_gap = 0 ): string {
+	public static function build_badge_icon_html( string $svg_icon, string $library_icon, string $emoji, string $icon_color = '', int $icon_size = 0 ): string {
 		$style_parts = array();
-		if ( '' !== $icon_color ) {
-			$style_parts[] = 'color:' . $icon_color;
+		$safe_color  = Badge_Style_Schema::sanitize_color( $icon_color );
+		if ( '' !== $safe_color ) {
+			$style_parts[] = 'color:' . $safe_color;
 		}
 		if ( $icon_size > 0 ) {
 			// font-size sizes emoji glyphs; --badge-icon-size sizes SVGs (1:1,
@@ -776,15 +854,15 @@ class Custom_Badge_Taxonomy {
 			$style_parts[] = 'font-size:' . $icon_size . 'px';
 			$style_parts[] = '--badge-icon-size:' . $icon_size . 'px';
 		}
-		if ( $icon_gap > 0 ) {
-			// Extra space pushing the icon away from the badge text, on top of
-			// the badge's base flex gap.
-			$style_parts[] = 'margin-right:' . $icon_gap . 'px';
-		}
+		// Spacing uses flex gap (--badge-icon-gap) so start/end placement both work.
 		$style_attr = ! empty( $style_parts ) ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
 
 		if ( '' !== $svg_icon ) {
-			return '<span class="aggressive-apparel-product-badge__icon" aria-hidden="true"' . $style_attr . '>' . $svg_icon . '</span>';
+			$safe_svg = self::sanitize_svg( $svg_icon );
+			if ( '' === $safe_svg ) {
+				return '';
+			}
+			return '<span class="aggressive-apparel-product-badge__icon" aria-hidden="true"' . $style_attr . '>' . $safe_svg . '</span>';
 		}
 
 		if ( '' !== $library_icon && Icons::exists( $library_icon ) ) {
@@ -804,31 +882,5 @@ class Custom_Badge_Taxonomy {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Render the library icon <select> with data-svg attributes for live preview.
-	 *
-	 * @param string $selected Currently selected icon name.
-	 * @return void
-	 */
-	private static function render_library_icon_select( string $selected ): void {
-		$icon_attrs = array(
-			'width'       => 16,
-			'height'      => 16,
-			'aria-hidden' => 'true',
-		);
-		?>
-		<select name="badge_library_icon" id="badge_library_icon">
-			<option value=""><?php esc_html_e( 'None', 'aggressive-apparel' ); ?></option>
-			<?php foreach ( Icons::list() as $icon_name ) : ?>
-				<option
-					value="<?php echo esc_attr( $icon_name ); ?>"
-					data-svg="<?php echo esc_attr( Icons::get( $icon_name, $icon_attrs ) ); ?>"
-					<?php selected( $selected, $icon_name ); ?>
-				><?php echo esc_html( ucwords( str_replace( '-', ' ', $icon_name ) ) ); ?></option>
-			<?php endforeach; ?>
-		</select>
-		<?php
 	}
 }

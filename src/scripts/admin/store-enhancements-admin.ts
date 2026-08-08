@@ -66,7 +66,7 @@ function moveTabFocus(current: HTMLElement, delta: number): void {
   }
 }
 
-function initFeatureTabs(): void {
+export function initFeatureTabs(): void {
   const tablist = document.querySelector<HTMLElement>('.aa-features-tabs');
   const tabs = getTabs();
 
@@ -134,6 +134,13 @@ function initFeatureTabs(): void {
     }
   });
 
+  const requested = getRequestedTab();
+
+  if (requested) {
+    activateFeatureTab(requested);
+    return;
+  }
+
   try {
     const saved = localStorage.getItem(TAB_STORAGE_KEY);
 
@@ -143,6 +150,63 @@ function initFeatureTabs(): void {
   } catch {
     // Ignore storage failures in private browsing.
   }
+}
+
+/**
+ * Read a `?tab=` deep link, so other admin screens can point at one section.
+ * Takes precedence over the remembered tab: an explicit link should win.
+ */
+function getRequestedTab(): string | null {
+  const id = new URLSearchParams(window.location.search).get('tab');
+
+  return id && document.getElementById(`tab-${id}`) ? id : null;
+}
+
+/**
+ * Resolve a Store Copy field's placeholders as it is typed.
+ *
+ * The saved value is validated server-side, but by then the merchant has left
+ * the screen. Showing "Save 20%" under a field containing "Save {percent}%" is
+ * what makes a mistyped token obvious while it can still be corrected.
+ */
+export function initStoreCopyPreviews(): void {
+  document
+    .querySelectorAll<HTMLElement>('[data-aa-copy-preview]')
+    .forEach(preview => {
+      const input = document.getElementById(
+        preview.dataset.aaCopyPreview ?? ''
+      ) as HTMLInputElement | null;
+      const output = preview.querySelector<HTMLElement>(
+        '.aa-store-copy-preview__value'
+      );
+
+      if (!input || !output) {
+        return;
+      }
+
+      let tokens: Record<string, string> = {};
+
+      try {
+        tokens = JSON.parse(preview.dataset.aaTokens ?? '{}') as Record<
+          string,
+          string
+        >;
+      } catch {
+        return;
+      }
+
+      const render = (): void => {
+        const source = input.value.trim() || input.placeholder;
+
+        output.textContent = Object.entries(tokens).reduce(
+          (text, [token, sample]) => text.split(token).join(sample),
+          source
+        );
+      };
+
+      input.addEventListener('input', render);
+      render();
+    });
 }
 
 function initSocialProofSourceSliders(): void {
@@ -221,6 +285,7 @@ function initStoreEnhancementsAdmin(): void {
   initSocialProofSourceSliders();
   initFeatureTabs();
   initFeatureSubFields();
+  initStoreCopyPreviews();
 }
 
 if (document.readyState === 'loading') {

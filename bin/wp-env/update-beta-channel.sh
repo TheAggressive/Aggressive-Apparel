@@ -32,11 +32,10 @@ pnpm wp-env run cli bash -c '
 	# Everything the WordPress package cannot supply, and therefore everything
 	# the restore has to bring back. Bind-mounted paths are excluded from the
 	# archive because Docker owns them; core update leaves them alone.
-	count_wp_content() {
-		find /var/www/html/wp-content \
-			-path /var/www/html/wp-content/themes/aggressive-apparel -prune -o \
-			-path /var/www/html/wp-content/plugins/woocommerce -prune -o \
-			-path /var/www/html/wp-content/plugins/wordpress-beta-tester -prune -o \
+		count_wp_content() {
+			find /var/www/html/wp-content \
+				-path /var/www/html/wp-content/themes/aggressive-apparel -prune -o \
+				-path /var/www/html/wp-content/plugins/wordpress-beta-tester -prune -o \
 			-path /var/www/html/wp-content/mu-plugins -prune -o \
 			-type f -print 2>/dev/null | wc -l
 	}
@@ -67,10 +66,9 @@ pnpm wp-env run cli bash -c '
 	# the template to END in X characters.
 	backup_archive=$(mktemp /tmp/wp-content-before-core-update.XXXXXX)
 
-	tar \
-		--exclude="wp-content/themes/aggressive-apparel" \
-		--exclude="wp-content/plugins/woocommerce" \
-		--exclude="wp-content/plugins/wordpress-beta-tester" \
+		tar \
+			--exclude="wp-content/themes/aggressive-apparel" \
+			--exclude="wp-content/plugins/wordpress-beta-tester" \
 		--exclude="wp-content/mu-plugins" \
 		-C /var/www/html \
 		-cf "$backup_archive" \

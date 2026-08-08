@@ -10,6 +10,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 scripts=(
 	"${SCRIPT_DIR}/backup.sh"
 	"${SCRIPT_DIR}/check.sh"
+	"${SCRIPT_DIR}/ensure-woocommerce.sh"
 	"${SCRIPT_DIR}/lib.sh"
 	"${SCRIPT_DIR}/lifecycle.sh"
 	"${SCRIPT_DIR}/restore.sh"

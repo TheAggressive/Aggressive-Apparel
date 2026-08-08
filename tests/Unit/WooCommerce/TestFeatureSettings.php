@@ -61,6 +61,8 @@ class TestFeatureSettings extends WP_UnitTestCase {
 		$this->assertSame( 'Notify Me', Feature_Settings::get_back_in_stock_button_text(), 'Back in Stock copy should use the existing default' );
 		$this->assertSame( 'Add to Wishlist', Feature_Settings::get_wishlist_button_text(), 'Wishlist copy should use the existing default' );
 		$this->assertSame( 'From', Feature_Settings::get_price_starting_prefix(), 'Variable price prefix should default to From' );
+		$this->assertSame( '-{percent}%', Feature_Settings::get_sale_badge_text(), 'Sale badge copy should default to the historic -N% wording' );
+		$this->assertSame( 'On Sale', Feature_Settings::get_sale_badge_no_discount_text(), 'Sale badge fallback copy should default to On Sale' );
 	}
 
 	/**

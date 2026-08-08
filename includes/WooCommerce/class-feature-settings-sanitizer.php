@@ -172,10 +172,12 @@ class Feature_Settings_Sanitizer {
 	/**
 	 * Sanitize a Store Copy text field.
 	 *
-	 * @param mixed $input Raw input.
+	 * @param mixed                     $input      Raw input.
+	 * @param array<string, mixed>|null $definition Store Copy definition, when the
+	 *                                              field declares token support.
 	 * @return string
 	 */
-	public function sanitize_store_copy_text( $input ): string {
+	public function sanitize_store_copy_text( $input, ?array $definition = null ): string {
 		if ( ! is_string( $input ) ) {
 			return '';
 		}
@@ -188,7 +190,53 @@ class Feature_Settings_Sanitizer {
 			$text = mb_substr( $text, 0, 60 );
 		}
 
-		return $text;
+		return $this->reject_unknown_copy_tokens( $text, $definition );
+	}
+
+	/**
+	 * Keep the previous value when copy contains a placeholder we cannot resolve.
+	 *
+	 * A mistyped `{percnt}` would otherwise be printed on a product card
+	 * verbatim, which is the one failure mode token-based copy has. Rejecting it
+	 * at the point of entry — with the reason on screen — is the only place a
+	 * merchant can still act on it.
+	 *
+	 * @param string                    $text       Sanitized copy.
+	 * @param array<string, mixed>|null $definition Store Copy definition.
+	 * @return string Accepted copy, or the previously saved value.
+	 */
+	private function reject_unknown_copy_tokens( string $text, ?array $definition ): string {
+		if ( null === $definition || ! isset( $definition['tokens'] ) || ! is_array( $definition['tokens'] ) ) {
+			return $text;
+		}
+
+		$allowed = array_map( 'strval', array_keys( $definition['tokens'] ) );
+		$unknown = Feature_Settings::find_unknown_copy_tokens( $text, $allowed );
+
+		if ( array() === $unknown ) {
+			return $text;
+		}
+
+		$option = isset( $definition['option'] ) ? (string) $definition['option'] : '';
+		$label  = isset( $definition['label'] ) ? (string) $definition['label'] : $option;
+
+		add_settings_error(
+			$option,
+			$option . '_unknown_token',
+			sprintf(
+				/* translators: 1: Store Copy field label. 2: comma-separated list of unrecognised placeholders. 3: comma-separated list of supported placeholders, or a "none" notice. */
+				esc_html__( '%1$s was not saved: %2$s is not a placeholder this field understands. Supported here: %3$s', 'aggressive-apparel' ),
+				$label,
+				implode( ', ', $unknown ),
+				array() === $allowed
+					? esc_html__( 'none — this field cannot contain a placeholder', 'aggressive-apparel' )
+					: implode( ', ', $allowed )
+			)
+		);
+
+		$previous = '' !== $option ? get_option( $option, null ) : null;
+
+		return is_string( $previous ) ? $previous : (string) ( $definition['default'] ?? '' );
 	}
 
 	/**

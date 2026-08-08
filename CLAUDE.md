@@ -67,6 +67,15 @@ pnpm i18n:compile     # Build .mo + Jed JSON (release also runs this)
   anything passed.** Exposure is bounded — the i18n gate runs on the post-merge push
   to `main`, so a bad catalog fails the very next pipeline rather than shipping.
 - Commit `.pot` + locale `.po` drafts; `.mo` / Jed `.json` are gitignored and built by `i18n:compile` (release runs this).
+- **Placeholders are gated, both families.** `bin/i18n/po.mjs` defines the one
+ pattern covering printf (`%s`, `%2$d`) *and* brace tokens (`{percent}`,
+ `{pct}`) that this theme substitutes with `str_replace`. MT protects them from
+ the provider, and `lint-placeholders.mjs` fails the build when a catalog drops
+ or renames one. It runs from `validate-po.sh` on the **host**, not in the
+ wp-env cli container, which ships neither gettext nor node — the same split
+ that once let catalog validation pass unconditionally. Brace tokens are
+ invisible to `msgfmt -c`, so without this a translated `{pourcentage}` reaches
+ a product badge verbatim.
 - Interactivity **script modules** use PHP `i18n` bags — not `wp_set_script_translations`.
 - Full runbook: [`languages/README.md`](languages/README.md).
 

@@ -53,7 +53,12 @@ ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-cl
 # now only bin/ci/package.sh produced them — which runs after this lane and in
 # a different job. Compiling here is what lets the translation-loading test
 # guard anything in CI rather than reporting a missing file.
-ci_php 'bash bin/i18n/compile.sh'
+#
+# Runs on the host, not through ci_php: compile.sh needs WP-CLI's i18n package,
+# which the wp-env cli container does not ship — the same split that keeps
+# validate-po.sh on the host. The theme directory is bind-mounted, so catalogs
+# written here are the ones the container reads a moment later.
+bash "${REPO_ROOT}/bin/i18n/compile.sh"
 
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=integration --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=security --verbose'

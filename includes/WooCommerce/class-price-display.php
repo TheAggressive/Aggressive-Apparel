@@ -56,17 +56,20 @@ class Price_Display {
 			$price = $collapsed;
 		}
 
-		// Append "Save X%" on sale items.
+		// Append the savings line on sale items. An empty fallback means a
+		// product with no single discount figure gets no savings line at all —
+		// the sale badge already says it is reduced.
 		if ( $product->is_on_sale() ) {
-			$percentage = $this->get_sale_percentage( $product );
-			if ( $percentage > 0 ) {
+			$savings = Sale_Pricing::format_text(
+				Feature_Settings::get_price_savings_text(),
+				'',
+				Sale_Pricing::get_discount_percentage( $product ),
+			);
+
+			if ( '' !== $savings ) {
 				$price .= sprintf(
 					' <span class="aggressive-apparel-price-save">%s</span>',
-					sprintf(
-						/* translators: %d: discount percentage. */
-						esc_html__( 'Save %d%%', 'aggressive-apparel' ),
-						$percentage,
-					),
+					esc_html( $savings ),
 				);
 			}
 		}
@@ -228,29 +231,5 @@ class Price_Display {
 		// WooCommerce currency markup. A space separates them regardless of the
 		// active currency's own symbol placement.
 		return '<span class="aggressive-apparel-price-from-prefix">' . esc_html( $prefix ) . '</span> ' . $amount;
-	}
-
-	/**
-	 * Calculate the sale discount percentage.
-	 *
-	 * @param \WC_Product $product Product object.
-	 * @return int Percentage (0-100).
-	 */
-	private function get_sale_percentage( \WC_Product $product ): int {
-		$regular = (float) $product->get_regular_price();
-		$sale    = (float) $product->get_sale_price();
-
-		if ( $regular <= 0 || $sale <= 0 ) {
-			if ( $product instanceof \WC_Product_Variable ) {
-				$regular = (float) $product->get_variation_regular_price( 'min' );
-				$sale    = (float) $product->get_variation_sale_price( 'min' );
-			}
-		}
-
-		if ( $regular <= 0 || $sale >= $regular ) {
-			return 0;
-		}
-
-		return (int) round( ( ( $regular - $sale ) / $regular ) * 100 );
 	}
 }

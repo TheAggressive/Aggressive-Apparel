@@ -227,6 +227,38 @@ class Feature_Settings {
 	public const PRICE_STARTING_PREFIX_OPTION = 'aggressive_apparel_price_starting_prefix';
 
 	/**
+	 * Option key for the automatic sale badge text.
+	 *
+	 * A `{percent}` token is replaced with the whole-number discount, so
+	 * "Save {percent}%" renders as "Save 20%". Text without the token is used
+	 * verbatim, which is how a merchant opts out of showing the number.
+	 *
+	 * @var string
+	 */
+	public const SALE_BADGE_TEXT_OPTION = 'aggressive_apparel_sale_badge_text';
+
+	/**
+	 * Option key for the sale badge text used when no discount can be computed.
+	 *
+	 * Only consulted when the main text asks for a `{percent}` the product
+	 * cannot supply — e.g. a variable product whose variation prices do not
+	 * resolve to a positive saving.
+	 *
+	 * @var string
+	 */
+	public const SALE_BADGE_NO_DISCOUNT_TEXT_OPTION = 'aggressive_apparel_sale_badge_no_discount_text';
+
+	/**
+	 * Option key for the savings line appended to sale prices.
+	 *
+	 * Shares the `{percent}` token with the sale badge so the two surfaces can
+	 * be worded consistently. Blank removes the savings line entirely.
+	 *
+	 * @var string
+	 */
+	public const PRICE_SAVINGS_TEXT_OPTION = 'aggressive_apparel_price_savings_text';
+
+	/**
 	 * Option key for the social proof source mix.
 	 *
 	 * Stored as an associative array of `source_key => weight (int 0–10)`.
@@ -410,7 +442,7 @@ class Feature_Settings {
 			// ── Catalog & Browsing ──────────────────────────────.
 			'product_badges'             => array(
 				'label'       => __( 'Product Badges', 'aggressive-apparel' ),
-				'description' => __( 'Show sale percentage, "New", "Low Stock", and "Bestseller" badges on product cards.', 'aggressive-apparel' ),
+				'description' => __( 'Show "Sale", "New", "Low Stock", and "Bestseller" badges on product cards. Sale badge wording is set under Store Copy.', 'aggressive-apparel' ),
 				'section'     => 'catalog',
 			),
 			'price_display'              => array(

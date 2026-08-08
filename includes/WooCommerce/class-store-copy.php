@@ -20,16 +20,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 trait Store_Copy {
 	/**
+	 * Per-locale cache of the built definitions list.
+	 *
+	 * Definitions are static metadata, but building them runs ~50 `__()` calls
+	 * and every read (`get_store_copy_text()`) rebuilds the whole list to find
+	 * one entry — which product cards do per product. Keying by locale keeps
+	 * `switch_to_locale()` correct.
+	 *
+	 * @var array<string, array<string, array<string, mixed>>>
+	 */
+	private static array $store_copy_definitions_cache = array();
+
+	/**
 	 * Storefront microcopy settings with labels, defaults, and admin help.
+	 *
+	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
+	 */
+	public static function get_store_copy_definitions(): array {
+		$locale = determine_locale();
+
+		if ( ! isset( self::$store_copy_definitions_cache[ $locale ] ) ) {
+			self::$store_copy_definitions_cache[ $locale ] = self::build_store_copy_definitions();
+		}
+
+		/**
+		 * Cached value is the built list; the property is loosely typed so the
+		 * trait can hold it without repeating the full shape.
+		 *
+		 * @var array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
+		 */
+		return self::$store_copy_definitions_cache[ $locale ];
+	}
+
+	/**
+	 * Build the definitions list.
 	 *
 	 * The optional `suggestions` list surfaces popular phrasings in a datalist
 	 * dropdown while still allowing free text. `allow_empty` lets a blank saved
 	 * value mean "no copy" instead of falling back to the default, and
 	 * `placeholder` overrides the empty-field hint (defaults to the default text).
+	 * `tokens` maps each supported placeholder to a sample value: declaring it
+	 * turns on save-time validation and the admin preview, so a typo like
+	 * `{percnt}` is rejected instead of shipping to the storefront verbatim.
 	 *
-	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool}>
+	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
 	 */
-	public static function get_store_copy_definitions(): array {
+	private static function build_store_copy_definitions(): array {
 		return array(
 			'variable_product_button_text'  => array(
 				'option'      => self::VARIABLE_PRODUCT_BUTTON_TEXT_OPTION,
@@ -118,7 +154,74 @@ trait Store_Copy {
 					__( 'Now from', 'aggressive-apparel' ),
 				),
 			),
+			'sale_badge_text'               => array(
+				'option'      => self::SALE_BADGE_TEXT_OPTION,
+				/* translators: {percent} is a literal token and must not be translated. */
+				'default'     => __( '-{percent}%', 'aggressive-apparel' ),
+				'label'       => __( 'Sale Badge Text', 'aggressive-apparel' ),
+				'description' => __( 'Requires Product Badges. Text on the automatic sale badge. Write {percent} where the discount number should go — “Save {percent}%” shows as “Save 20%”. Leave the token out for wording that never mentions a number, such as “Now on Sale”.', 'aggressive-apparel' ),
+				'tokens'      => array( Sale_Pricing::PERCENT_TOKEN => '20' ),
+				'suggestions' => array(
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( '-{percent}%', 'aggressive-apparel' ),
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( '{percent}% Off', 'aggressive-apparel' ),
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( 'Save {percent}%', 'aggressive-apparel' ),
+					__( 'On Sale', 'aggressive-apparel' ),
+					__( 'Now on Sale', 'aggressive-apparel' ),
+				),
+			),
+			'sale_badge_no_discount_text'   => array(
+				'option'      => self::SALE_BADGE_NO_DISCOUNT_TEXT_OPTION,
+				'default'     => __( 'On Sale', 'aggressive-apparel' ),
+				'label'       => __( 'Sale Badge Text (no discount)', 'aggressive-apparel' ),
+				'description' => __( 'Fallback wording for products that are on sale but have no single discount figure — most often variable products whose variations are reduced by different amounts. Only used when Sale Badge Text asks for a percentage, so it cannot itself contain one.', 'aggressive-apparel' ),
+				'tokens'      => array(),
+				'suggestions' => array(
+					__( 'On Sale', 'aggressive-apparel' ),
+					__( 'Now on Sale', 'aggressive-apparel' ),
+					__( 'Sale', 'aggressive-apparel' ),
+					__( 'Reduced', 'aggressive-apparel' ),
+				),
+			),
+			'price_savings_text'            => array(
+				'option'      => self::PRICE_SAVINGS_TEXT_OPTION,
+				/* translators: {percent} is a literal token and must not be translated. */
+				'default'     => __( 'Save {percent}%', 'aggressive-apparel' ),
+				'label'       => __( 'Price Savings Text', 'aggressive-apparel' ),
+				'description' => __( 'Note appended to the price of a reduced product. Uses the same {percent} token as the sale badge, so both can be worded the same way. Leave blank to show the price on its own. Products with no single discount figure never show this note.', 'aggressive-apparel' ),
+				'placeholder' => __( 'No savings note', 'aggressive-apparel' ),
+				'allow_empty' => true,
+				'tokens'      => array( Sale_Pricing::PERCENT_TOKEN => '20' ),
+				'suggestions' => array(
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( 'Save {percent}%', 'aggressive-apparel' ),
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( '{percent}% off', 'aggressive-apparel' ),
+					/* translators: {percent} is a literal token and must not be translated. */
+					__( 'You save {percent}%', 'aggressive-apparel' ),
+				),
+			),
 		);
+	}
+
+	/**
+	 * Placeholders a merchant wrote that the field does not understand.
+	 *
+	 * Callers only check fields that declare a `tokens` key, so ordinary copy is
+	 * free to contain braces. An empty allow-list therefore means "this field
+	 * supports no tokens" — which is how the no-discount fallback rejects a
+	 * `{percent}` it could never resolve.
+	 *
+	 * @param string             $text    Candidate copy.
+	 * @param array<int, string> $allowed Tokens the field supports, e.g. `{percent}`.
+	 * @return list<string> Unrecognised tokens, in order of appearance.
+	 */
+	public static function find_unknown_copy_tokens( string $text, array $allowed ): array {
+		preg_match_all( '/\{[A-Za-z_][A-Za-z0-9_]*\}/', $text, $matches );
+
+		return array_values( array_unique( array_diff( $matches[0], $allowed ) ) );
 	}
 
 	/**
@@ -415,5 +518,32 @@ trait Store_Copy {
 	 */
 	public static function get_price_starting_prefix(): string {
 		return self::get_store_copy_text( self::PRICE_STARTING_PREFIX_OPTION );
+	}
+
+	/**
+	 * Automatic sale badge text, possibly containing a `{percent}` token.
+	 *
+	 * @return string
+	 */
+	public static function get_sale_badge_text(): string {
+		return self::get_store_copy_text( self::SALE_BADGE_TEXT_OPTION );
+	}
+
+	/**
+	 * Sale badge text for products with no computable discount percentage.
+	 *
+	 * @return string
+	 */
+	public static function get_sale_badge_no_discount_text(): string {
+		return self::get_store_copy_text( self::SALE_BADGE_NO_DISCOUNT_TEXT_OPTION );
+	}
+
+	/**
+	 * Savings note appended to a reduced price, possibly containing `{percent}`.
+	 *
+	 * @return string
+	 */
+	public static function get_price_savings_text(): string {
+		return self::get_store_copy_text( self::PRICE_SAVINGS_TEXT_OPTION );
 	}
 }

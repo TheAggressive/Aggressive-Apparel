@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-07T22:20:43+00:00\n"
+"POT-Creation-Date: 2026-08-08T04:35:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -664,7 +664,7 @@ msgid "Brand Stripe"
 msgstr ""
 
 #: includes/Core/class-theme-support.php:271
-#: includes/WooCommerce/class-badge-studio-rest.php:71
+#: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 msgid "Badge"
 msgstr ""
@@ -1136,224 +1136,223 @@ msgstr ""
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:197
-#: includes/WooCommerce/class-badge-admin-fields.php:234
+#: includes/WooCommerce/class-badge-admin-fields.php:180
+#: includes/WooCommerce/class-badge-admin-fields.php:217
 msgid "Solid"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:198
+#: includes/WooCommerce/class-badge-admin-fields.php:181
 msgid "Outline"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:199
+#: includes/WooCommerce/class-badge-admin-fields.php:182
 msgid "Layered"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:200
+#: includes/WooCommerce/class-badge-admin-fields.php:183
 #: includes/WooCommerce/class-badge-shapes.php:33
 #: patterns/design-system-preview.php:90
 msgid "Pill"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:201
+#: includes/WooCommerce/class-badge-admin-fields.php:184
 msgid "Minimal"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:202
+#: includes/WooCommerce/class-badge-admin-fields.php:185
 msgid "Glass"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:203
+#: includes/WooCommerce/class-badge-admin-fields.php:186
 msgid "Soft shadow"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:204
+#: includes/WooCommerce/class-badge-admin-fields.php:187
 msgid "Gradient blaze"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:205
+#: includes/WooCommerce/class-badge-admin-fields.php:188
 msgid "Ticket stub"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:206
+#: includes/WooCommerce/class-badge-admin-fields.php:189
 msgid "Ribbon corner"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:207
+#: includes/WooCommerce/class-badge-admin-fields.php:190
 #: includes/WooCommerce/class-badge-shapes.php:40
 msgid "Stamp"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:208
+#: includes/WooCommerce/class-badge-admin-fields.php:191
 msgid "Neon outline"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:219
+#: includes/WooCommerce/class-badge-admin-fields.php:202
 msgid "Badge Studio"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:220
+#: includes/WooCommerce/class-badge-admin-fields.php:203
 msgid "Styles"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:221
+#: includes/WooCommerce/class-badge-admin-fields.php:204
 msgid "Shapes"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:222
+#: includes/WooCommerce/class-badge-admin-fields.php:205
 msgid "Templates"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:223
+#: includes/WooCommerce/class-badge-admin-fields.php:206
 msgid "Search styles, shapes…"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:224
+#: includes/WooCommerce/class-badge-admin-fields.php:207
 msgid "Properties"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:225
+#: includes/WooCommerce/class-badge-admin-fields.php:208
 msgid "Badge Preview"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:226
+#: includes/WooCommerce/class-badge-admin-fields.php:209
 msgid "Fill"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:227
+#: includes/WooCommerce/class-badge-admin-fields.php:210
 msgid "Border"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:228
+#: includes/WooCommerce/class-badge-admin-fields.php:211
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:529
 msgid "Type"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:229
+#: includes/WooCommerce/class-badge-admin-fields.php:212
 #: includes/WooCommerce/class-product-tabs-admin.php:772
 #: includes/WooCommerce/class-product-tabs-admin.php:859
 msgid "Icon"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:230
+#: includes/WooCommerce/class-badge-admin-fields.php:213
 msgid "Layout"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:231
+#: includes/WooCommerce/class-badge-admin-fields.php:214
 msgid "Light"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:232
+#: includes/WooCommerce/class-badge-admin-fields.php:215
 msgid "Dark"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:233
+#: includes/WooCommerce/class-badge-admin-fields.php:216
 msgid "Preview backdrop"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:235
+#: includes/WooCommerce/class-badge-admin-fields.php:218
 msgid "Gradient"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:236
+#: includes/WooCommerce/class-badge-admin-fields.php:219
 msgid "Glass blur"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:237
+#: includes/WooCommerce/class-badge-admin-fields.php:220
 #: includes/WooCommerce/class-badge-shapes.php:41
 msgid "Custom SVG"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:238
+#: includes/WooCommerce/class-badge-admin-fields.php:221
 msgid "Filled silhouette"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:239
+#: includes/WooCommerce/class-badge-admin-fields.php:222
 msgid "Outline frame"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:240
+#: includes/WooCommerce/class-badge-admin-fields.php:223
 msgid "System badge — style only. Label comes from store rules."
 msgstr ""
 
 #. translators: %s: text/background contrast ratio, e.g. 4.7.
-#: includes/WooCommerce/class-badge-admin-fields.php:242
+#: includes/WooCommerce/class-badge-admin-fields.php:225
 #, php-format
 msgid "Contrast %s:1 — passes AA for small text."
 msgstr ""
 
 #. translators: %s: text/background contrast ratio, e.g. 2.1.
-#: includes/WooCommerce/class-badge-admin-fields.php:244
+#: includes/WooCommerce/class-badge-admin-fields.php:227
 #, php-format
 msgid "Contrast %s:1 — increase contrast."
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:245
+#: includes/WooCommerce/class-badge-admin-fields.php:228
 msgid "Transparency enabled — final contrast depends on the product image."
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:246
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:905
+#: includes/WooCommerce/class-badge-admin-fields.php:229
 #: includes/WooCommerce/class-feature-settings-fields.php:439
 msgid "None"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:247
+#: includes/WooCommerce/class-badge-admin-fields.php:230
 msgid "Transparent"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:248
+#: includes/WooCommerce/class-badge-admin-fields.php:231
 msgid "choose color"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:249
+#: includes/WooCommerce/class-badge-admin-fields.php:232
 msgid "Emoji"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:250
+#: includes/WooCommerce/class-badge-admin-fields.php:233
 msgid "Library"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:251
+#: includes/WooCommerce/class-badge-admin-fields.php:234
 msgid "SVG"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:252
+#: includes/WooCommerce/class-badge-admin-fields.php:235
 #: patterns/design-system-preview.php:88
 msgid "Saved"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:253
+#: includes/WooCommerce/class-badge-admin-fields.php:236
 msgid "Unsaved"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:254
+#: includes/WooCommerce/class-badge-admin-fields.php:237
 #: includes/WooCommerce/class-custom-badge-taxonomy.php:528
 msgid "Preview"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:255
+#: includes/WooCommerce/class-badge-admin-fields.php:238
 msgid "Update"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:256
+#: includes/WooCommerce/class-badge-admin-fields.php:239
 #: includes/WooCommerce/class-badge-system-defaults.php:31
 msgid "Add New Badge"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:257
+#: includes/WooCommerce/class-badge-admin-fields.php:240
 msgid "Undo"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:258
+#: includes/WooCommerce/class-badge-admin-fields.php:241
 msgid "Redo"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:259
+#: includes/WooCommerce/class-badge-admin-fields.php:242
 msgid "Zoom in"
 msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:260
+#: includes/WooCommerce/class-badge-admin-fields.php:243
 msgid "Zoom out"
 msgstr ""
 

@@ -125,6 +125,42 @@ Do **not** move MT into `pnpm build` / the release job — that would ship
 unreviewed machine output straight to customers. The review gate (PR or
 pre-merge skim) is deliberate.
 
+## The compiled `.mo` drops the domain prefix — on purpose
+
+`wp i18n make-mo` names its output `aggressive-apparel-de_DE.mo`. That is the
+convention for `wp-content/languages/themes/`, and it is the wrong one for a
+catalog the theme ships itself. `compile.sh` renames it to `de_DE.mo`.
+
+`_load_textdomain_just_in_time()` chooses the filename from where the
+registered path points:
+
+```php
+if ( str_starts_with( $path, $template_directory ) || … ) {
+    $mofile = "{$path}{$locale}.mo";            // de_DE.mo
+} else {
+    $mofile = "{$path}{$domain}-{$locale}.mo";  // aggressive-apparel-de_DE.mo
+}
+```
+
+There is no fallback — it returns `load_textdomain()` on that one path.
+`Theme_Support` registers `get_template_directory() . '/languages'`, so only
+the first branch is ever taken.
+
+This shipped broken. All four locales were compiled, packaged and never
+loaded, and nothing reported it: since WordPress 6.7
+`load_theme_textdomain()` only records the path and returns `true`
+unconditionally, so a wrong filename looks exactly like success while every
+string falls through to English. The POT was current, the catalogs were valid
+and the placeholders matched the whole time.
+
+`tests/Integration/TestTranslationLoading.php` now asserts on `__()` output
+per locale. Verify translations that way — never from the return value of
+`load_theme_textdomain()`.
+
+The JSON catalogs **keep** the prefix: `_load_script_textdomain_from_src()`
+builds `{$domain}-{$locale}-{$md5}.json` with no equivalent branch, which is
+why script translations were unaffected.
+
 ## Runtime notes
 
 - **PHP + Interactivity modules:** gettext via `load_theme_textdomain` and PHP-seeded `i18n` bags (script modules cannot use `wp_set_script_translations`).
@@ -137,7 +173,7 @@ pre-merge skim) is deliberate.
 | ------------------------------------ | -------------------------------------------------------- |
 | `aggressive-apparel.pot`             | Source catalog (committed; keep in sync with code)       |
 | `aggressive-apparel-<locale>.po`     | Locale drafts / reviewed strings (committed)             |
-| `aggressive-apparel-<locale>.mo`     | Compiled PHP catalog (**gitignored**; `i18n:compile`)    |
+| `<locale>.mo`                        | Compiled PHP catalog (**gitignored**; `i18n:compile`)    |
 | `aggressive-apparel-<locale>-*.json` | Classic JS translations (**gitignored**; `i18n:compile`) |
 
 Never hand-edit `.mo` / `.json`. MT never runs at deploy — only via `i18n:translate` / the draft PR workflow. Deploy only **loads** compiled catalogs from the release package.

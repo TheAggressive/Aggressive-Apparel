@@ -619,6 +619,7 @@ class Custom_Badge_Taxonomy {
 
 		// Modern badge-editor styles (also carries the icon-sizing rule the
 		// front-end bundle isn't loaded for in wp-admin).
+		$style_deps     = array();
 		$storefront_css = AGGRESSIVE_APPAREL_DIR . '/build/styles/woocommerce/product-badges.css';
 		if ( file_exists( $storefront_css ) ) {
 			wp_enqueue_style(
@@ -627,28 +628,23 @@ class Custom_Badge_Taxonomy {
 				array(),
 				(string) filemtime( $storefront_css )
 			);
+			// Only depend on a handle that was actually registered: WordPress
+			// drops a stylesheet whose dependency is missing, so listing this
+			// unconditionally would take the whole studio UI down with it when
+			// the storefront bundle is absent.
+			$style_deps[] = 'aggressive-apparel-product-badges';
 		}
 
 		// Load package CSS before our studio shell (do not list script handles as
 		// style deps — WordPress silently drops the stylesheet).
 		wp_enqueue_style( 'wp-components' );
 
-		wp_enqueue_style(
-			'aggressive-apparel-badge-studio-font',
-			'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
-			array(),
-			null // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Google Fonts URL.
-		);
-
 		$css_file = AGGRESSIVE_APPAREL_DIR . '/build/styles/admin/badge-studio.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'aggressive-apparel-badge-studio',
 				AGGRESSIVE_APPAREL_URI . '/build/styles/admin/badge-studio.css',
-				array(
-					'aggressive-apparel-product-badges',
-					'aggressive-apparel-badge-studio-font',
-				),
+				$style_deps,
 				(string) filemtime( $css_file )
 			);
 

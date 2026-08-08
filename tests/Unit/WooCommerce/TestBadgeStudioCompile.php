@@ -178,6 +178,75 @@ class TestBadgeStudioCompile extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * The badge screens load nothing from a third-party host.
+	 *
+	 * An external stylesheet hangs an offline admin behind a DNS timeout and
+	 * discloses the viewer's request to a third party on every page load. The
+	 * theme bundles no fonts and loads none remotely; this pins that.
+	 */
+	public function test_admin_assets_load_no_external_hosts(): void {
+		$_GET['taxonomy'] = Custom_Badge_Taxonomy::TAXONOMY;
+		set_current_screen( 'edit-tags' );
+
+		$taxonomy = new Custom_Badge_Taxonomy();
+		$taxonomy->enqueue_admin_scripts( 'edit-tags.php' );
+
+		$styles = wp_styles();
+		$local  = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		foreach ( $styles->queue as $handle ) {
+			$src = $styles->registered[ $handle ]->src ?? '';
+			if ( ! is_string( $src ) || '' === $src ) {
+				continue;
+			}
+
+			$host = wp_parse_url( $src, PHP_URL_HOST );
+			if ( null === $host ) {
+				// Relative src — same origin by definition.
+				continue;
+			}
+
+			$this->assertSame(
+				$local,
+				$host,
+				sprintf( 'Style "%s" loads from an external host: %s', $handle, $src )
+			);
+		}
+
+		unset( $_GET['taxonomy'] );
+	}
+
+	/**
+	 * The studio stylesheet must not depend on a conditionally-registered handle.
+	 *
+	 * WordPress drops a stylesheet whose dependency was never registered, so
+	 * naming the storefront bundle unconditionally would blank the entire studio
+	 * UI whenever that build artifact is missing.
+	 */
+	public function test_studio_style_does_not_hard_depend_on_storefront_bundle(): void {
+		$_GET['taxonomy'] = Custom_Badge_Taxonomy::TAXONOMY;
+		set_current_screen( 'edit-tags' );
+
+		$taxonomy = new Custom_Badge_Taxonomy();
+		$taxonomy->enqueue_admin_scripts( 'edit-tags.php' );
+
+		$studio = wp_styles()->registered['aggressive-apparel-badge-studio'] ?? null;
+		if ( null === $studio ) {
+			$this->markTestSkipped( 'Studio CSS build artifact is absent.' );
+		}
+
+		foreach ( $studio->deps as $dep ) {
+			$this->assertArrayHasKey(
+				$dep,
+				wp_styles()->registered,
+				sprintf( 'Studio CSS depends on unregistered handle "%s".', $dep )
+			);
+		}
+
+		unset( $_GET['taxonomy'] );
+	}
+
 	/** Frame width 0 means "no frame" in the markup and the CSS var alike. */
 	public function test_frame_width_zero_paints_nothing(): void {
 		$badge = array(

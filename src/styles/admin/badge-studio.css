@@ -21,7 +21,18 @@ body.taxonomy-aa_product_badge {
 	--aa-studio-success: #2f9e5b;
 	--aa-studio-success-bg: #f0f9f1;
 	--aa-studio-radius: 12px;
-	--aa-studio-font: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+	/*
+	 * Manrope is used when the viewer already has it, never fetched. The theme
+	 * bundles no font files and loads none remotely (see Space Grotesk / Bebas
+	 * Neue in theme.json, both declared without a fontFace), so a Google Fonts
+	 * request here would have been the sole exception — one that hangs an
+	 * offline admin and sends viewer data to a third party on page load. The
+	 * fallback is wp-admin's own stack so the studio reads as native without it.
+	 */
+	--aa-studio-font: 'Manrope', -apple-system, blinkmacsystemfont, 'Segoe UI',
+		roboto, oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', ui-sans-serif,
+		system-ui, sans-serif;
 	--aa-studio-shadow: 0 1px 2px rgb(23 23 26 / 4%),
 		0 12px 32px rgb(23 23 26 / 6%);
 	--aa-studio-shadow-card: 0 24px 48px rgb(0 0 0 / 35%);

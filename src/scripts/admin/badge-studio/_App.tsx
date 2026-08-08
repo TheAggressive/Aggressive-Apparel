@@ -4,12 +4,13 @@
  * @package Aggressive_Apparel
  */
 
-import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useEffect, useMemo, useReducer, useState } from '@wordpress/element';
 import Canvas from './_Canvas';
 import { cssColorToBadgeColor } from './_color';
 import { contrastRatio } from './_contrast';
 import Inspector from './_Inspector';
 import Library, { type LibraryTab } from './_Library';
+import { canRedo, canUndo, historyReducer, initHistory } from './_history';
 import { useCompiledBadge } from './_preview';
 import { readTermName, syncHiddenFields } from './_sync';
 import type { BadgeFields, InspectorTab, StudioConfig } from './_types';
@@ -17,8 +18,6 @@ import type { BadgeFields, InspectorTab, StudioConfig } from './_types';
 type Props = {
   config: StudioConfig;
 };
-
-const HISTORY_LIMIT = 40;
 
 /**
  * Format contrast status copy.
@@ -89,7 +88,12 @@ function submitTaxonomyForm(): void {
  * @param props Component props.
  */
 export default function App({ config }: Props) {
-  const [fields, setFields] = useState<BadgeFields>({ ...config.fields });
+  const [history, dispatch] = useReducer(
+    historyReducer,
+    config.fields,
+    initHistory
+  );
+  const fields = history.present;
   const [tone, setTone] = useState<'light' | 'dark'>('light');
   const [tab, setTab] = useState<InspectorTab>('fill');
   const [libraryTab, setLibraryTab] = useState<LibraryTab>('styles');
@@ -98,9 +102,6 @@ export default function App({ config }: Props) {
   const [label, setLabel] = useState(
     config.saleSample || config.label || 'Badge'
   );
-  const [history, setHistory] = useState<BadgeFields[]>([{ ...config.fields }]);
-  const [historyIndex, setHistoryIndex] = useState(0);
-  const skipHistory = useRef(false);
   const baseline = useMemo(
     () => serializeFields(config.fields),
     [config.fields]
@@ -157,47 +158,15 @@ export default function App({ config }: Props) {
   }, [config.label, config.saleSample]);
 
   const onPatch = (patch: Partial<BadgeFields>) => {
-    setFields(prev => {
-      const next: BadgeFields = { ...prev };
-      Object.entries(patch).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          next[key] = value;
-        }
-      });
-      if (!skipHistory.current) {
-        setHistory(h => {
-          const trimmed = h.slice(0, historyIndex + 1);
-          trimmed.push(next);
-          if (trimmed.length > HISTORY_LIMIT) {
-            trimmed.shift();
-          }
-          setHistoryIndex(trimmed.length - 1);
-          return trimmed;
-        });
-      }
-      skipHistory.current = false;
-      return next;
-    });
+    dispatch({ type: 'patch', patch });
   };
 
   const undo = () => {
-    if (historyIndex <= 0) {
-      return;
-    }
-    const nextIndex = historyIndex - 1;
-    skipHistory.current = true;
-    setHistoryIndex(nextIndex);
-    setFields({ ...history[nextIndex] });
+    dispatch({ type: 'undo' });
   };
 
   const redo = () => {
-    if (historyIndex >= history.length - 1) {
-      return;
-    }
-    const nextIndex = historyIndex + 1;
-    skipHistory.current = true;
-    setHistoryIndex(nextIndex);
-    setFields({ ...history[nextIndex] });
+    dispatch({ type: 'redo' });
   };
 
   const onNameChange = (value: string) => {
@@ -218,8 +187,8 @@ export default function App({ config }: Props) {
     ? config.i18n.addNew || config.i18n.update
     : config.i18n.update;
   const status = contrastMessage(fields, config.i18n);
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < history.length - 1;
+  const undoAvailable = canUndo(history);
+  const redoAvailable = canRedo(history);
 
   return (
     <div className='aa-badge-studio__app'>
@@ -259,7 +228,7 @@ export default function App({ config }: Props) {
             type='button'
             className='aa-badge-studio__icon-btn'
             aria-label={config.i18n.undo}
-            disabled={!canUndo}
+            disabled={!undoAvailable}
             onClick={undo}
           >
             <svg viewBox='0 0 24 24' width='16' height='16' fill='none'>
@@ -283,7 +252,7 @@ export default function App({ config }: Props) {
             type='button'
             className='aa-badge-studio__icon-btn'
             aria-label={config.i18n.redo}
-            disabled={!canRedo}
+            disabled={!redoAvailable}
             onClick={redo}
           >
             <svg viewBox='0 0 24 24' width='16' height='16' fill='none'>

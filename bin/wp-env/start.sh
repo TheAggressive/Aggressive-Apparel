@@ -22,6 +22,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=bin/wp-env/lib.sh
 source "${SCRIPT_DIR}/lib.sh"
 
+aa_acquire_environment_lock
+
 CONFIG_FILE="${AA_WP_ENV_REPO_ROOT}/.wp-env.json"
 STATE_FILE="${AA_WP_ENV_LOCAL_BACKUP_ROOT}/.last-config-hash"
 
@@ -76,6 +78,12 @@ if [[ -n "${pre_start_backup}" ]]; then
 	echo "wp-env: restoring ${pre_start_backup} over the re-provisioned site..."
 	bash "${SCRIPT_DIR}/restore.sh" "${pre_start_backup}" --yes
 fi
+
+# Validate the normal WordPress-managed plugin after every start. Fresh or
+# re-provisioned environments receive the tested seed release, while versions
+# installed later through WordPress's updater are preserved.
+bash "${SCRIPT_DIR}/ensure-woocommerce.sh"
+bash "${SCRIPT_DIR}/check.sh"
 
 mkdir -p "$(dirname "${STATE_FILE}")"
 printf '%s' "${current_hash}" >"${STATE_FILE}"

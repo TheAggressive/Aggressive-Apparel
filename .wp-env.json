@@ -16,7 +16,6 @@
         "WP_MEMORY_LIMIT": "256M",
         "WP_MAX_MEMORY_LIMIT": "512M"
       },
-      "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"],
       "mappings": {
         "wp-content/themes/aggressive-apparel": ".",
         "wp-content/mu-plugins": "./bin/wp-env/mu-plugins"
@@ -25,7 +24,6 @@
     "tests": {
       "port": 9920,
       "phpmyadminPort": 9922,
-      "plugins": ["https://downloads.wordpress.org/plugin/woocommerce.zip"],
       "mappings": {
         "wp-content/themes/aggressive-apparel": "."
       }

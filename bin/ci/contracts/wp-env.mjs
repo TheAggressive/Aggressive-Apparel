@@ -48,6 +48,24 @@ check(
 );
 
 check(
+  !Object.hasOwn(developmentWpEnv.env?.development ?? {}, 'plugins') &&
+    !Object.hasOwn(developmentWpEnv.env?.tests ?? {}, 'plugins'),
+  'The local environments must not declare WooCommerce as a wp-env plugin ' +
+    'source. Remote plugin sources become bind mounts that the normal ' +
+    'WordPress updater cannot replace.'
+);
+
+check(
+  !wpEnvBackup.includes('--exclude="wp-content/plugins/woocommerce"') &&
+    !betaUpdater.includes('--exclude="wp-content/plugins/woocommerce"') &&
+    !betaUpdater.includes(
+      '-path /var/www/html/wp-content/plugins/woocommerce -prune'
+    ),
+  'WooCommerce is a normal, dashboard-updatable local plugin, so recovery ' +
+    'and beta-update archives must preserve its installed files.'
+);
+
+check(
   stableCorePattern.test(wpEnv.core),
   `bin/ci/.wp-env.json must pin a stable WordPress release (found ` +
     `"${wpEnv.core}"). Beta coverage belongs in the scheduled beta workflow.`
@@ -247,6 +265,8 @@ check(
 );
 
 const wpEnvStart = readText('bin/wp-env/start.sh');
+const wpEnvLifecycle = readText('bin/wp-env/lifecycle.sh');
+const wpEnvWooCommerce = readText('bin/wp-env/ensure-woocommerce.sh');
 
 // The two things start.sh exists to guarantee. Losing either turns a routine
 // config edit back into silent, permanent loss of a developer's site content.
@@ -260,6 +280,37 @@ check(
   wpEnvStart.includes('ensure-theme.sh'),
   'bin/wp-env/start.sh must activate the mounted theme. The explicit path ' +
     'mapping that replaced the wp-env "themes" entry does not activate it.'
+);
+
+check(
+  wpEnvStart.includes('ensure-woocommerce.sh') &&
+    wpEnvStart.includes('check.sh') &&
+    wpEnvRestore.includes('ensure-woocommerce.sh') &&
+    wpEnvWooCommerce.includes(developmentPlugins[0]),
+  'bin/wp-env/start.sh must validate WooCommerce after startup and repair it ' +
+    'from the same pinned archive used by CI before startup or restore reports ' +
+    'success.'
+);
+
+check(
+  !wpEnvWooCommerce.includes('installed_version} ==') &&
+    wpEnvWooCommerce.includes('wp plugin install'),
+  'The local WooCommerce guard must seed a missing installation without ' +
+    'downgrading a version installed later through the WordPress updater.'
+);
+
+check(
+  wpEnvStart.includes('aa_acquire_environment_lock') &&
+    wpEnvLifecycle.includes('aa_acquire_environment_lock'),
+  'Development wp-env start and lifecycle operations must share a non-blocking ' +
+    'lock so concurrent refreshes cannot corrupt downloaded source mounts.'
+);
+
+check(
+  wpEnvLifecycle.includes('ensure-theme.sh') &&
+    wpEnvLifecycle.includes('ensure-woocommerce.sh'),
+  'Database clean/reset operations must reactivate the mapped theme and the ' +
+    'normal WordPress-managed WooCommerce plugin before running health checks.'
 );
 
 // Every route into the development environment has to go through that guard.

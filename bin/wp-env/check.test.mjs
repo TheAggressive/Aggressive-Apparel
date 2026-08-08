@@ -35,7 +35,13 @@ after(cleanup);
  * `wp eval` is the one that matters: the script reads "<total> <missing>" out
  * of it, so each case controls exactly that pair.
  */
-function stubs({ total = 12, missing = 0, evalOutput } = {}) {
+function stubs({
+  total = 12,
+  missing = 0,
+  evalOutput,
+  pluginVersion = '9.4.0',
+  pluginStatus = 'active',
+} = {}) {
   const dir = workspace('aa-wpenv');
 
   const evalLine = evalOutput ?? `${total} ${missing}`;
@@ -47,8 +53,8 @@ function stubs({ total = 12, missing = 0, evalOutput } = {}) {
 \t"core version") echo "7.0" ;;
 \t"option get") [[ "$3" == "siteurl" ]] && echo "http://localhost:9910" || echo "not configured" ;;
 \t"theme list") echo "aggressive-apparel" ;;
-\t"plugin get") echo "9.4.0" ;;
-\t"plugin list") echo "inactive" ;;
+\t"plugin get") [[ -n "${pluginVersion}" ]] && echo "${pluginVersion}" || exit 1 ;;
+\t"plugin list") echo "${pluginStatus}" ;;
 \t"eval "*|"eval") printf '%s' '${evalLine}' ;;
 \t*) echo "" ;;
 esac
@@ -102,4 +108,20 @@ test('still reports a single missing file', () => {
 
   assert.equal(status, 1);
   assert.match(output, /1 attachment file\(s\) are missing/u);
+});
+
+test('fails when WooCommerce is missing', () => {
+  const { status, output } = check(
+    stubs({ pluginVersion: '', pluginStatus: '' })
+  );
+
+  assert.equal(status, 1);
+  assert.match(output, /WooCommerce is not installed/u);
+});
+
+test('fails when WooCommerce is inactive', () => {
+  const { status, output } = check(stubs({ pluginStatus: 'inactive' }));
+
+  assert.equal(status, 1);
+  assert.match(output, /WooCommerce is installed but not active/u);
 });

@@ -216,6 +216,30 @@ class Badge_Style_Schema {
 	}
 
 	/**
+	 * Read a numeric badge value clamped to its registry bounds.
+	 *
+	 * The save and REST paths already clamp, but emit is public and reachable
+	 * with an arbitrary badge array — an unbounded radius or padding here would
+	 * paint a badge no editor control could have produced.
+	 *
+	 * @param array<string, mixed> $badge Badge data.
+	 * @param string               $key   Registry field key.
+	 * @return int
+	 */
+	public static function bounded( array $badge, string $key ): int {
+		$spec = Badge_Field_Registry::fields()[ $key ] ?? null;
+		if ( null === $spec ) {
+			return (int) ( $badge[ $key ] ?? 0 );
+		}
+
+		$value = $badge[ $key ] ?? $spec['default'];
+
+		return 'signed' === $spec['type']
+			? self::clamp_signed( $value, (int) $spec['min'], (int) $spec['max'] )
+			: self::clamp_int( $value, (int) $spec['min'], (int) $spec['max'] );
+	}
+
+	/**
 	 * Clamp an integer into an inclusive range.
 	 *
 	 * @param mixed $value Candidate.
@@ -544,14 +568,18 @@ class Badge_Style_Schema {
 			'--badge-line-height:' . self::resolve_line_height( $badge ),
 			sprintf(
 				'--badge-radius:%dpx %dpx %dpx %dpx',
-				(int) $badge['radius_tl'],
-				(int) $badge['radius_tr'],
-				(int) $badge['radius_br'],
-				(int) $badge['radius_bl']
+				self::bounded( $badge, 'radius_tl' ),
+				self::bounded( $badge, 'radius_tr' ),
+				self::bounded( $badge, 'radius_br' ),
+				self::bounded( $badge, 'radius_bl' )
 			),
-			sprintf( '--badge-pad-x:%dpx', (int) $badge['padding_x'] ),
-			sprintf( '--badge-pad-y:%dpx', (int) $badge['padding_y'] ),
-			sprintf( '--badge-padding:%dpx %dpx', (int) $badge['padding_y'], (int) $badge['padding_x'] ),
+			sprintf( '--badge-pad-x:%dpx', self::bounded( $badge, 'padding_x' ) ),
+			sprintf( '--badge-pad-y:%dpx', self::bounded( $badge, 'padding_y' ) ),
+			sprintf(
+				'--badge-padding:%dpx %dpx',
+				self::bounded( $badge, 'padding_y' ),
+				self::bounded( $badge, 'padding_x' )
+			),
 			'--badge-offset-x:' . self::clamp_signed( $badge['offset_x'], -40, 40 ) . 'px',
 			'--badge-offset-y:' . self::clamp_signed( $badge['offset_y'], -40, 40 ) . 'px',
 			'--badge-rotate:' . self::clamp_signed( $badge['rotation'], -45, 45 ) . 'deg',

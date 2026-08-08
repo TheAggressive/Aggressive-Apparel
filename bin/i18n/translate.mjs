@@ -29,6 +29,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+	PLACEHOLDER_PATTERN,
+	parsePo,
+	placeholdersIntact,
+} from './po.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const THEME_ROOT = path.resolve(__dirname, '../..');
 const LANGUAGES = path.join(THEME_ROOT, 'languages');
@@ -165,111 +171,6 @@ function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Minimal gettext PO entry parser (msgid / msgstr / fuzzy / msgctxt / plurals).
- *
- * @param {string} content
- * @returns {{ header: string, entries: Array<Record<string, unknown>> }}
- */
-function parsePo(content) {
-	const normalized = content.replace(/\r\n/g, '\n');
-	const blocks = normalized.split(/\n\n+/);
-	const entries = [];
-	let header = '';
-
-	for (const block of blocks) {
-		if (!block.trim()) {
-			continue;
-		}
-
-		const lines = block.split('\n');
-		const comments = [];
-		const flags = new Set();
-		let msgctxt = null;
-		let msgid = null;
-		let msgidPlural = null;
-		/** @type {Record<string, string>} */
-		const msgstrs = {};
-		let current = null;
-
-		const flushString = (key, chunk) => {
-			if (key === 'msgctxt') {
-				msgctxt = (msgctxt ?? '') + chunk;
-			} else if (key === 'msgid') {
-				msgid = (msgid ?? '') + chunk;
-			} else if (key === 'msgid_plural') {
-				msgidPlural = (msgidPlural ?? '') + chunk;
-			} else if (key?.startsWith('msgstr')) {
-				msgstrs[key] = (msgstrs[key] ?? '') + chunk;
-			}
-		};
-
-		for (const line of lines) {
-			if (line.startsWith('#')) {
-				if (line.startsWith('#,')) {
-					line
-						.slice(2)
-						.split(',')
-						.map((f) => f.trim())
-						.filter(Boolean)
-						.forEach((f) => flags.add(f));
-				} else {
-					comments.push(line);
-				}
-				continue;
-			}
-
-			const quoted = line.match(/^"(.*)"$/);
-			if (quoted && current) {
-				flushString(current, quoted[1]);
-				continue;
-			}
-
-			const m = line.match(
-				/^(msgctxt|msgid_plural|msgid|msgstr(?:\[\d+\])?)\s+"(.*)"\s*$/
-			);
-			if (m) {
-				current = m[1];
-				flushString(current, m[2]);
-				continue;
-			}
-		}
-
-		if (msgid === null) {
-			continue;
-		}
-
-		const unescaped = (s) =>
-			s
-				.replace(/\\n/g, '\n')
-				.replace(/\\t/g, '\t')
-				.replace(/\\"/g, '"')
-				.replace(/\\\\/g, '\\');
-
-		const entry = {
-			raw: block,
-			comments,
-			flags,
-			msgctxt: msgctxt === null ? null : unescaped(msgctxt),
-			msgid: unescaped(msgid),
-			msgidPlural:
-				msgidPlural === null ? null : unescaped(msgidPlural),
-			msgstrs: Object.fromEntries(
-				Object.entries(msgstrs).map(([k, v]) => [k, unescaped(v)])
-			),
-		};
-
-		if (entry.msgid === '' && !entry.msgctxt) {
-			header = block;
-			continue;
-		}
-
-		entries.push(entry);
-	}
-
-	return { header, entries };
-}
-
 function escapePo(str) {
 	return str
 		.replace(/\\/g, '\\\\')
@@ -379,7 +280,7 @@ function needsTranslation(entry) {
 function protectPlaceholders(text) {
 	const tokens = [];
 	const protectedText = text.replace(
-		/%(\d+\$)?[sd]|%\([^)]+\)[sd]/g,
+		new RegExp(PLACEHOLDER_PATTERN.source, 'g'),
 		(match) => {
 			const idx = tokens.length;
 			tokens.push(match);
@@ -409,23 +310,6 @@ function protectBrandTerms(text) {
 
 function restoreBrandTerms(text, tokens) {
 	return text.replace(/__AA_BR_(\d+)__/g, (_, n) => tokens[Number(n)] ?? '');
-}
-
-/**
- * Reject MT output that drops printf placeholders from the source.
- *
- * @param {string} source
- * @param {string} translated
- */
-function placeholdersIntact(source, translated) {
-	const extract = (s) =>
-		[...(s.matchAll(/%(\d+\$)?[sd]|%\([^)]+\)[sd]/g))].map((m) => m[0]).sort();
-	const a = extract(source);
-	const b = extract(translated);
-	if (a.length === 0) {
-		return true;
-	}
-	return a.length === b.length && a.every((p, i) => p === b[i]);
 }
 
 /**

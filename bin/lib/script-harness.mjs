@@ -41,6 +41,11 @@ const SHELL_TOOLS = [
   'grep',
   'head',
   'mktemp',
+  // Not shell builtins, but scripts under test require them and check for
+  // them individually. Listing them lets a test remove exactly one and prove
+  // that script's own guard fires, rather than tripping an earlier guard.
+  'msgfmt',
+  'node',
   'sed',
   'sort',
   'tr',

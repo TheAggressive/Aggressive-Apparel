@@ -104,22 +104,29 @@ trait Badge_System_Defaults {
 	 */
 	private static function get_system_badge_defaults(): array {
 		$shared_meta = array(
-			self::META_POSITION     => 'top-left',
-			self::META_RADIUS_TL    => 4,
-			self::META_RADIUS_TR    => 4,
-			self::META_RADIUS_BR    => 4,
-			self::META_RADIUS_BL    => 4,
-			self::META_PADDING_X    => 8,
-			self::META_PADDING_Y    => 3,
-			self::META_BORDER_WIDTH => 0,
-			self::META_BORDER_STYLE => 'none',
-			self::META_BORDER_COLOR => '',
-			self::META_ICON         => '',
-			self::META_LIBRARY_ICON => '',
-			self::META_SVG_ICON     => '',
-			self::META_ICON_COLOR   => '',
-			self::META_ICON_SIZE    => 0,
-			self::META_ICON_GAP     => 0,
+			self::META_POSITION           => 'top-left',
+			self::META_RADIUS_TL          => 4,
+			self::META_RADIUS_TR          => 4,
+			self::META_RADIUS_BR          => 4,
+			self::META_RADIUS_BL          => 4,
+			self::META_PADDING_X          => 8,
+			self::META_PADDING_Y          => 3,
+			self::META_BORDER_WIDTH       => 0,
+			self::META_BORDER_STYLE       => 'none',
+			self::META_BORDER_COLOR       => '',
+			self::META_ICON               => '',
+			self::META_LIBRARY_ICON       => '',
+			self::META_SVG_ICON           => '',
+			self::META_ICON_COLOR         => '',
+			self::META_ICON_SIZE          => 0,
+			self::META_ICON_GAP           => 0,
+			self::META_BORDER_MODE        => 'none',
+			self::META_INNER_BORDER_COLOR => '#ffffff',
+			self::META_INNER_BORDER_WIDTH => 1,
+			self::META_FONT_SIZE          => 'x-small',
+			self::META_FONT_WEIGHT        => 700,
+			self::META_TEXT_TRANSFORM     => 'uppercase',
+			self::META_LETTER_SPACING     => 'wide',
 		);
 
 		return array(
@@ -167,6 +174,7 @@ trait Badge_System_Defaults {
 						self::META_BORDER_WIDTH => 1,
 						self::META_BORDER_STYLE => 'solid',
 						self::META_BORDER_COLOR => '#000000',
+						self::META_BORDER_MODE  => 'single',
 					),
 				),
 			),
@@ -212,5 +220,18 @@ trait Badge_System_Defaults {
 		}
 
 		return self::$system_badges_cache;
+	}
+
+	/**
+	 * Drop the per-request system badge cache.
+	 *
+	 * A single request never edits a badge term and then renders a card with
+	 * it, so production has nothing to invalidate. Tests that seed terms after
+	 * something has already read them do.
+	 *
+	 * @return void
+	 */
+	public static function flush_system_badges_cache(): void {
+		self::$system_badges_cache = null;
 	}
 }

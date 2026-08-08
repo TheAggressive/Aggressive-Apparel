@@ -136,63 +136,22 @@ class Badge_Studio_Rest {
 	 * @return array<string, mixed>
 	 */
 	public static function fields_to_badge_data( array $fields ): array {
-		$get = static function ( string $key, $fallback = '' ) use ( $fields ) {
-			return array_key_exists( $key, $fields ) ? $fields[ $key ] : $fallback;
-		};
+		$badge = array();
 
-		$glass_raw = $get( 'badge_glass', '0' );
-		$glass     = in_array( (string) $glass_raw, array( '1', 'on', 'true' ), true ) ? 1 : 0;
+		foreach ( Badge_Field_Registry::fields() as $key => $spec ) {
+			$field = (string) $spec['field'];
 
-		return Badge_Style_Schema::with_defaults(
-			array(
-				'bg_color'           => (string) $get( 'badge_bg_color', '#000000' ),
-				'text_color'         => (string) $get( 'badge_text_color', '#ffffff' ),
-				'icon'               => (string) $get( 'badge_icon', '' ),
-				'library_icon'       => (string) $get( 'badge_library_icon', '' ),
-				'svg_icon'           => (string) $get( 'badge_svg_icon', '' ),
-				'icon_color'         => (string) $get( 'badge_icon_color', '' ),
-				'icon_size'          => (int) $get( 'badge_icon_size', 0 ),
-				'icon_gap'           => (int) $get( 'badge_icon_gap', 0 ),
-				'priority'           => (int) $get( 'badge_priority', 10 ),
-				'border_color'       => (string) $get( 'badge_border_color', '' ),
-				'border_width'       => (int) $get( 'badge_border_width', 0 ),
-				'border_style'       => (string) $get( 'badge_border_style', 'none' ),
-				'radius_tl'          => (int) $get( 'badge_radius_tl', 4 ),
-				'radius_tr'          => (int) $get( 'badge_radius_tr', 4 ),
-				'radius_br'          => (int) $get( 'badge_radius_br', 4 ),
-				'radius_bl'          => (int) $get( 'badge_radius_bl', 4 ),
-				'padding_x'          => (int) $get( 'badge_padding_x', 8 ),
-				'padding_y'          => (int) $get( 'badge_padding_y', 3 ),
-				'position'           => (string) $get( 'badge_position', 'top-left' ),
-				'badge_type'         => (string) $get( 'badge_type', 'custom' ),
-				'border_mode'        => (string) $get( 'badge_border_mode', 'none' ),
-				'inner_border_color' => (string) $get( 'badge_inner_border_color', '' ),
-				'inner_border_width' => (int) $get( 'badge_inner_border_width', 0 ),
-				'border_gap'         => (int) $get( 'badge_border_gap', 0 ),
-				'font_size'          => (string) $get( 'badge_font_size', 'x-small' ),
-				'font_size_px'       => (int) $get( 'badge_font_size_px', 0 ),
-				'font_weight'        => (int) $get( 'badge_font_weight', 700 ),
-				'text_transform'     => (string) $get( 'badge_text_transform', 'uppercase' ),
-				'letter_spacing'     => (string) $get( 'badge_letter_spacing', 'wide' ),
-				'line_height'        => (string) $get( 'badge_line_height', 'snug' ),
-				'icon_position'      => (string) $get( 'badge_icon_position', 'start' ),
-				'offset_x'           => (int) $get( 'badge_offset_x', 0 ),
-				'offset_y'           => (int) $get( 'badge_offset_y', 0 ),
-				'rotation'           => (int) $get( 'badge_rotation', 0 ),
-				'shadow_blur'        => (int) $get( 'badge_shadow_blur', 0 ),
-				'shadow_spread'      => (int) $get( 'badge_shadow_spread', 0 ),
-				'shadow_color'       => (string) $get( 'badge_shadow_color', '' ),
-				'glass'              => $glass,
-				'fill_mode'          => (string) $get( 'badge_fill_mode', 'solid' ),
-				'gradient_angle'     => (int) $get( 'badge_gradient_angle', 135 ),
-				'gradient_from'      => (string) $get( 'badge_gradient_from', '#000000' ),
-				'gradient_to'        => (string) $get( 'badge_gradient_to', '#444444' ),
-				'shape'              => (string) $get( 'badge_shape', 'rect' ),
-				'shape_mode'         => (string) $get( 'badge_shape_mode', 'mask' ),
-				'shape_svg'          => (string) $get( 'badge_shape_svg', '' ),
-				'frame_color'        => (string) $get( 'badge_frame_color', '' ),
-				'frame_width'        => (int) $get( 'badge_frame_width', 2 ),
-			)
-		);
+			// An absent field means "unspecified", which must fall through to the
+			// registry default rather than be coerced from an empty string —
+			// absint('') is 0, which would silently zero every unsent number.
+			if ( ! array_key_exists( $field, $fields ) ) {
+				$badge[ $key ] = $spec['default'];
+				continue;
+			}
+
+			$badge[ $key ] = Badge_Field_Registry::sanitize( $key, $fields[ $field ] );
+		}
+
+		return $badge;
 	}
 }

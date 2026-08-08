@@ -72,7 +72,7 @@ class Custom_Badge_Taxonomy {
 	 *
 	 * @var string[]
 	 */
-	private const BORDER_STYLES = array( 'none', 'solid', 'dashed', 'dotted', 'double' );
+	private const BORDER_STYLES = Badge_Style_Schema::BORDER_STYLES;
 
 	/**
 	 * Allowed badge positions.
@@ -86,7 +86,7 @@ class Custom_Badge_Taxonomy {
 	 *
 	 * @var string[]
 	 */
-	private const BADGE_TYPES = array( 'custom', 'sale', 'new', 'low_stock', 'bestseller' );
+	private const BADGE_TYPES = Badge_Style_Schema::BADGE_TYPES;
 
 	/**
 	 * Option key for tracking system badge seed version.
@@ -412,106 +412,55 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
-		// Background color.
-		$bg_color = isset( $_POST['badge_bg_color'] )
-			? self::sanitize_badge_color( wp_unslash( $_POST['badge_bg_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
-			: '';
-		update_term_meta( $term_id, self::META_BG_COLOR, '' !== $bg_color ? $bg_color : '#000000' );
+		self::save_registry_fields( $term_id );
+	}
 
-		// Text color.
-		$text_color = isset( $_POST['badge_text_color'] )
-			? self::sanitize_badge_color( wp_unslash( $_POST['badge_text_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
-			: '';
-		update_term_meta( $term_id, self::META_TEXT_COLOR, '' !== $text_color ? $text_color : '#ffffff' );
+	/**
+	 * Persist every registry-declared field from the posted form.
+	 *
+	 * One loop replaces the two hand-written save paths that previously split
+	 * these fields between this class and the advanced-styles trait, each with
+	 * its own clamping idiom. Bounds now come from the same table the schema and
+	 * the studio read, so a field cannot be saved to a range the compiler will
+	 * not honour.
+	 *
+	 * The caller has already verified the taxonomy nonce and capability.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return void
+	 */
+	private static function save_registry_fields( int $term_id ): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Verified by save_fields() before delegation.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each value is sanitized by Badge_Field_Registry::sanitize().
+		$values = array();
 
-		// Icon (emoji).
-		$icon = isset( $_POST['badge_icon'] )
-			? sanitize_text_field( wp_unslash( $_POST['badge_icon'] ) )
-			: '';
-		update_term_meta( $term_id, self::META_ICON, mb_substr( $icon, 0, 10 ) );
+		foreach ( Badge_Field_Registry::fields() as $key => $spec ) {
+			if ( ! $spec['save'] ) {
+				continue;
+			}
 
-		// Library icon.
-		$library_icon = isset( $_POST['badge_library_icon'] )
-			? sanitize_text_field( wp_unslash( $_POST['badge_library_icon'] ) )
-			: '';
-		if ( '' !== $library_icon && ! Icons::exists( $library_icon ) ) {
-			$library_icon = '';
+			$field = (string) $spec['field'];
+			$raw   = isset( $_POST[ $field ] ) ? wp_unslash( $_POST[ $field ] ) : null;
+
+			// A field the form did not post keeps its declared default rather than
+			// being coerced from null.
+			$values[ $key ] = null === $raw
+				? $spec['default']
+				: Badge_Field_Registry::sanitize( $key, $raw );
 		}
-		update_term_meta( $term_id, self::META_LIBRARY_ICON, $library_icon );
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		// Custom SVG icon.
-		$svg_icon = isset( $_POST['badge_svg_icon'] )
-			? aggressive_apparel_sanitize_badge_svg( wp_unslash( $_POST['badge_svg_icon'] ) )
-			: '';
-		update_term_meta( $term_id, self::META_SVG_ICON, $svg_icon );
-
-		// Icon color.
-		$icon_color = isset( $_POST['badge_icon_color'] )
-			? self::sanitize_badge_color( wp_unslash( $_POST['badge_icon_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
-			: '';
-		update_term_meta( $term_id, self::META_ICON_COLOR, '' !== $icon_color ? $icon_color : '' );
-
-		// Icon size.
-		$icon_size = isset( $_POST['badge_icon_size'] ) ? absint( $_POST['badge_icon_size'] ) : 0;
-		update_term_meta( $term_id, self::META_ICON_SIZE, min( $icon_size, 64 ) );
-
-		// Icon spacing (gap between icon and text).
-		$icon_gap = isset( $_POST['badge_icon_gap'] ) ? absint( $_POST['badge_icon_gap'] ) : 0;
-		update_term_meta( $term_id, self::META_ICON_GAP, min( $icon_gap, 40 ) );
-
-		// Border color.
-		$border_color = isset( $_POST['badge_border_color'] )
-			? self::sanitize_badge_color( wp_unslash( $_POST['badge_border_color'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by strict badge-color allowlist.
-			: '';
-		update_term_meta( $term_id, self::META_BORDER_COLOR, '' !== $border_color ? $border_color : '' );
-
-		// Border width.
-		$border_width = isset( $_POST['badge_border_width'] )
-			? absint( $_POST['badge_border_width'] )
-			: 0;
-
-		// Border style.
-		$border_style = isset( $_POST['badge_border_style'] )
-			? sanitize_text_field( wp_unslash( $_POST['badge_border_style'] ) )
-			: 'none';
-		if ( ! in_array( $border_style, self::BORDER_STYLES, true ) ) {
-			$border_style = 'none';
-		}
-		if ( 'double' === $border_style && $border_width > 0 ) {
-			$border_width = max( 3, $border_width );
-		}
-		update_term_meta( $term_id, self::META_BORDER_WIDTH, min( $border_width, 10 ) );
-		update_term_meta( $term_id, self::META_BORDER_STYLE, $border_style );
-
-		// Border radius (per corner).
-		foreach ( array( 'tl', 'tr', 'br', 'bl' ) as $corner ) {
-			$key   = 'badge_radius_' . $corner;
-			$value = isset( $_POST[ $key ] ) ? absint( $_POST[ $key ] ) : 4;
-			update_term_meta( $term_id, $key, min( $value, 100 ) );
+		// Cross-field rule: CSS `double` needs at least 3px to render two lines,
+		// so a thinner width saved alongside it would silently paint as solid.
+		if ( 'double' === $values['border_style'] && (int) $values['border_width'] > 0 ) {
+			$values['border_width'] = max( 3, (int) $values['border_width'] );
 		}
 
-		// Padding.
-		$padding_x = isset( $_POST['badge_padding_x'] ) ? absint( $_POST['badge_padding_x'] ) : 8;
-		$padding_y = isset( $_POST['badge_padding_y'] ) ? absint( $_POST['badge_padding_y'] ) : 3;
-		update_term_meta( $term_id, self::META_PADDING_X, min( $padding_x, 50 ) );
-		update_term_meta( $term_id, self::META_PADDING_Y, min( $padding_y, 50 ) );
-
-		// Priority.
-		$priority = isset( $_POST['badge_priority'] )
-			? absint( $_POST['badge_priority'] )
-			: 10;
-		update_term_meta( $term_id, self::META_PRIORITY, min( $priority, 100 ) );
-
-		// Position.
-		$position = isset( $_POST['badge_position'] )
-			? sanitize_text_field( wp_unslash( $_POST['badge_position'] ) )
-			: 'top-left';
-		if ( ! in_array( $position, self::POSITIONS, true ) ) {
-			$position = 'top-left';
+		$keys = Badge_Field_Registry::field_keys();
+		foreach ( $values as $key => $value ) {
+			update_term_meta( $term_id, $keys[ $key ], $value );
 		}
-		update_term_meta( $term_id, self::META_POSITION, $position );
-
-		self::save_advanced_style_fields( $term_id );
 	}
 
 	/**

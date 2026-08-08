@@ -47,6 +47,14 @@ ci_php 'XDEBUG_MODE=off find includes -name "*.php" -exec php -l {} \; >/dev/nul
 ci_php 'XDEBUG_MODE=off composer lint:php'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --memory-limit=2G --verbose'
 ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-clover=coverage-unit.xml.tmp && test -s coverage-unit.xml.tmp && mv coverage-unit.xml.tmp coverage-unit.xml'
+
+# The integration suite asserts that compiled catalogs actually reach __(), so
+# it needs those catalogs to exist. They are gitignored build output, and until
+# now only bin/ci/package.sh produced them — which runs after this lane and in
+# a different job. Compiling here is what lets the translation-loading test
+# guard anything in CI rather than reporting a missing file.
+ci_php 'bash bin/i18n/compile.sh'
+
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=integration --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=security --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=accessibility --verbose'

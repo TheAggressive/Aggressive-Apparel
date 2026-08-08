@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-07-30T07:36:14+00:00\n"
+"POT-Creation-Date: 2026-08-06T23:58:09+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -63,13 +63,11 @@ msgstr "Symbol nicht gefunden."
 
 #. translators: %s: navigation submenu label.
 #: includes/Blocks/class-navigation-functions.php:237
-#, php-format
 msgid "View all in %s"
 msgstr "Alle in %s anzeigen"
 
 #. translators: %s: service identifier.
 #: includes/class-service-container.php:74
-#, php-format
 msgid "Service '%s' not registered"
 msgstr "Dienst „%s“ nicht registriert"
 
@@ -324,7 +322,6 @@ msgstr "Die Seite „Nutzungsbedingungen“ wurde erfolgreich aktualisiert."
 
 #. translators: %s: URL to Customizer → Menus.
 #: includes/Core/class-legal-identity.php:190
-#, php-format
 msgid ""
 "Terms of Service page setting updated successfully. Remember to <a "
 "href=\"%s\">update your menus</a>!"
@@ -372,7 +369,6 @@ msgstr ""
 
 #. translators: %s: URL to Pages Trash.
 #: includes/Core/class-legal-identity.php:318
-#, php-format
 msgid ""
 "The currently selected Terms of Service page is in the Trash. Please create "
 "or select a new page or <a href=\"%s\">restore the current page</a>."
@@ -383,7 +379,6 @@ msgstr ""
 
 #. translators: %s: URL to edit the Privacy Policy page.
 #: includes/Core/class-legal-identity.php:344
-#, php-format
 msgid ""
 "Your Privacy Policy page is not published yet. <a href=\"%s\">Publish it</a> "
 "so visitors can open the Privacy link in the footer."
@@ -394,7 +389,6 @@ msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
 #: includes/Core/class-legal-identity.php:355
-#, php-format
 msgid ""
 "No usable Privacy Policy page is set. Choose one under <a "
 "href=\"%s\">Settings → Privacy</a>."
@@ -404,7 +398,6 @@ msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
 #: includes/Core/class-legal-identity.php:367
-#, php-format
 msgid ""
 "No Privacy Policy page is set. Choose one under <a href=\"%s\">Settings → "
 "Privacy</a> for the Copyright block Privacy link."
@@ -455,7 +448,6 @@ msgstr ""
 
 #. translators: %s: URL to Settings → Privacy.
 #: includes/Core/class-legal-identity.php:427
-#, php-format
 msgid ""
 "Your <a href=\"%s\">Privacy Policy</a> is managed separately under Settings "
 "→ Privacy."
@@ -465,7 +457,6 @@ msgstr ""
 
 #. translators: 1: URL to edit Terms page, 2: URL to view Terms page.
 #: includes/Core/class-legal-identity.php:456
-#, php-format
 msgid ""
 "<a href=\"%1$s\">Edit</a> or <a href=\"%2$s\">view</a> your Terms of Service "
 "page content."
@@ -475,7 +466,6 @@ msgstr ""
 
 #. translators: 1: URL to edit Terms page, 2: URL to preview Terms page.
 #: includes/Core/class-legal-identity.php:470
-#, php-format
 msgid ""
 "<a href=\"%1$s\">Edit</a> or <a href=\"%2$s\">preview</a> your Terms of "
 "Service page content."
@@ -647,7 +637,6 @@ msgstr "1 Ergebnis gefunden."
 
 #. translators: %d: number of search results.
 #: includes/Core/class-search-modal.php:257
-#, php-format
 msgid "%d results found."
 msgstr "%d Ergebnisse gefunden."
 
@@ -664,7 +653,6 @@ msgstr ""
 
 #. translators: 1: active tab label, 2: number of results in other types.
 #: includes/Core/class-search-modal.php:262
-#, php-format
 msgid "No %1$s found. View all results (%2$d) instead."
 msgstr ""
 "%1$s wurde nicht gefunden. Zeigen Sie stattdessen alle Ergebnisse (%2$d) an."
@@ -687,7 +675,6 @@ msgstr "Zu viele Anfragen. Bitte etwas langsamer."
 
 #. translators: %s: lowest price in a variable product's range.
 #: includes/Core/class-search-results.php:270
-#, php-format
 msgid "From %s"
 msgstr "Aus %s"
 
@@ -745,6 +732,7 @@ msgid "Tertiary (Text)"
 msgstr "Tertiär (Text)"
 
 #: includes/Core/class-theme-support.php:175
+#: includes/WooCommerce/class-badge-admin-fields.php:72
 #: patterns/design-system-preview.php:116
 msgid "Small"
 msgstr "Klein"
@@ -876,7 +864,6 @@ msgstr ""
 
 #. translators: 1: theme name, 2: current version, 3: new version
 #: includes/Core/class-theme-updates.php:463
-#, php-format
 msgid ""
 "A new version of %1$s is available. You have version %2$s and the latest "
 "version is %3$s."
@@ -1134,7 +1121,6 @@ msgstr "Abonnenten von Aktienbenachrichtigungen"
 
 #. translators: %d: number of items deleted.
 #: includes/WooCommerce/class-back-in-stock-admin.php:84
-#, php-format
 msgid "%d subscriber deleted."
 msgid_plural "%d subscribers deleted."
 msgstr[0] "%d-Teilnehmer gelöscht."
@@ -1249,7 +1235,6 @@ msgstr ""
 
 #. translators: %d: max subscriptions.
 #: includes/WooCommerce/class-back-in-stock.php:241
-#, php-format
 msgid "You can only subscribe to %d products at a time."
 msgstr "Sie können jeweils nur %d Produkte abonnieren."
 
@@ -1260,7 +1245,6 @@ msgstr "Wieder lieferbar – Abonnements"
 
 #. translators: %d: retention period in days.
 #: includes/WooCommerce/class-back-in-stock.php:602
-#, php-format
 msgid ""
 "After a notification is sent or you unsubscribe, related back-in-stock "
 "records are retained for up to %d days for support, abuse prevention, and "
@@ -1282,7 +1266,6 @@ msgstr ""
 
 #. translators: %s: retention policy sentence.
 #: includes/WooCommerce/class-back-in-stock.php:611
-#, php-format
 msgid ""
 "We use your email address to notify you when a requested product, size, or "
 "color is available again. Because some products are produced through print-"
@@ -1325,13 +1308,94 @@ msgstr ""
 "Ich bin damit einverstanden, eine einmalige E-Mail zu erhalten, sobald "
 "dieses Produkt wieder vorrätig ist."
 
+#: includes/WooCommerce/class-badge-admin-fields.php:73
+#: includes/WooCommerce/class-badge-admin-fields.php:77
+#: patterns/design-system-preview.php:117
+msgid "Medium"
+msgstr "Mittel"
+
 #: includes/WooCommerce/class-badge-admin-fields.php:74
-msgid "Live Preview"
-msgstr "Live-Vorschau"
+#: patterns/design-system-preview.php:103
+msgid "Large"
+msgstr "Groß"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:78
+msgid "Semibold"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:79
+msgid "Bold"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:80
+msgid "Extra bold"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:83
+#, fuzzy
+msgid "Original case"
+msgstr "Herkunft"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:84
+msgid "Uppercase"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:87
+msgid "Normal"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:88
+msgid "Comfortable"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:89
+msgid "Wide"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:90
+msgid "Extra wide"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:97
+#, fuzzy
+msgid "Product card preview"
+msgstr "Produktebene"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:98
+#, fuzzy
+msgid "Preview image tone"
+msgstr "Bild anzeigen"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:99
+#, fuzzy
+msgid "Light"
+msgstr "Licht"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:100
+#, fuzzy
+msgid "Dark"
+msgstr "Dunkler Modus"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:118
+msgid "Enter a valid hex or hex-alpha color."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:119
+msgid "Transparency enabled — final contrast depends on the product image."
+msgstr ""
+
+#. translators: %s: contrast ratio.
+#: includes/WooCommerce/class-badge-admin-fields.php:120
+msgid "Contrast %s:1 — passes AA for small text."
+msgstr ""
+
+#. translators: %s: contrast ratio.
+#: includes/WooCommerce/class-badge-admin-fields.php:121
+msgid "Contrast %s:1 — increase contrast."
+msgstr ""
 
 #. translators: %s: system badge type name.
-#: includes/WooCommerce/class-badge-admin-fields.php:89
-#, php-format
+#: includes/WooCommerce/class-badge-admin-fields.php:134
 msgid ""
 "System badge: %s — applied automatically by product conditions. Restyle it "
 "freely below."
@@ -1339,177 +1403,355 @@ msgstr ""
 "System-Badge: %s — wird automatisch gemäß den Produktbedingungen angewendet. "
 "Sie können es unten nach Belieben anpassen."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:98
+#: includes/WooCommerce/class-badge-admin-fields.php:143
+#, fuzzy
+msgid "Start with a style"
+msgstr "Ab"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:144
+msgid "Presets update the controls below and remain fully editable."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:148
+#, fuzzy
+msgid "Solid"
+msgstr "Einfarbig"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:149
+msgid "Outline"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:150
+#: includes/WooCommerce/class-badge-admin-fields.php:226
+msgid "Layered"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:151
+#: patterns/design-system-preview.php:90
+msgid "Pill"
+msgstr "Pille"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:152
+msgid "Minimal"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:161
 msgid "Colors"
 msgstr "Farben"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:101
+#: includes/WooCommerce/class-badge-admin-fields.php:164
 msgid "Background"
 msgstr "Hintergrund"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:102
+#: includes/WooCommerce/class-badge-admin-fields.php:165
 msgid "Text"
 msgstr "Text"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:108
+#: includes/WooCommerce/class-badge-admin-fields.php:171
 #: includes/WooCommerce/class-product-tabs-admin.php:772
 #: includes/WooCommerce/class-product-tabs-admin.php:859
 msgid "Icon"
 msgstr "Symbol"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:109
+#: includes/WooCommerce/class-badge-admin-fields.php:172
 msgid "Choose one icon source. It appears before the badge text."
 msgstr ""
 "Wählen Sie eine Symbolquelle aus. Diese wird vor dem Badge-Text angezeigt."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:111
+#: includes/WooCommerce/class-badge-admin-fields.php:174
 msgid "Icon source"
 msgstr "Quelle des Symbols"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:114
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:823
+#: includes/WooCommerce/class-badge-admin-fields.php:177
+#: includes/WooCommerce/class-badge-admin-fields.php:224
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:844
 #: includes/WooCommerce/class-feature-settings-fields.php:413
 msgid "None"
 msgstr "Keine"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:115
+#: includes/WooCommerce/class-badge-admin-fields.php:178
 msgid "Emoji"
 msgstr "Emoji"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:116
+#: includes/WooCommerce/class-badge-admin-fields.php:179
 msgid "Library"
 msgstr "Bibliothek"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:117
+#: includes/WooCommerce/class-badge-admin-fields.php:180
 msgid "Custom SVG"
 msgstr "Benutzerdefiniertes SVG"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:132
+#: includes/WooCommerce/class-badge-admin-fields.php:195
 msgid "Emoji / Character"
 msgstr "Emoji / Zeichen"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:136
+#: includes/WooCommerce/class-badge-admin-fields.php:199
 msgid "Library Icon"
 msgstr "Bibliothekssymbol"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:142
+#: includes/WooCommerce/class-badge-admin-fields.php:205
 msgid "Custom SVG markup"
 msgstr "Benutzerdefiniertes SVG-Markup"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:144
+#: includes/WooCommerce/class-badge-admin-fields.php:207
 msgid "Paste raw SVG. Sanitized on save."
 msgstr "Rohes SVG einfügen. Wird beim Speichern bereinigt."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:149
+#: includes/WooCommerce/class-badge-admin-fields.php:212
 msgid "Icon Color"
 msgstr "Symbolfarbe"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:149
+#: includes/WooCommerce/class-badge-admin-fields.php:212
 msgid "Empty = inherit text color."
 msgstr "Leer = Textfarbe übernehmen."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:150
+#: includes/WooCommerce/class-badge-admin-fields.php:213
 msgid "Icon Size (px)"
 msgstr "Symbolgröße (px)"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:150
+#: includes/WooCommerce/class-badge-admin-fields.php:213
 msgid "0 = auto (matches text)."
 msgstr "0 = automatisch (Text wird abgeglichen)."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:151
+#: includes/WooCommerce/class-badge-admin-fields.php:214
 msgid "Icon Spacing (px)"
 msgstr "Symbolabstand (px)"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:151
+#: includes/WooCommerce/class-badge-admin-fields.php:214
 msgid "Gap between icon and text."
 msgstr "Abstand zwischen Symbol und Text."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:157
+#: includes/WooCommerce/class-badge-admin-fields.php:220
 msgid "Border"
 msgstr "Grenze"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:160
-#: includes/WooCommerce/class-color-admin-ui.php:99
-#: includes/WooCommerce/class-color-admin-ui.php:155
-#: includes/WooCommerce/class-color-admin-ui.php:329
-#: includes/WooCommerce/class-product-filter-renderer.php:50
-#: includes/WooCommerce/class-product-filter-renderer.php:158
-msgid "Color"
-msgstr "Farbe"
+#: includes/WooCommerce/class-badge-admin-fields.php:221
+#, fuzzy
+msgid "Border mode"
+msgstr "Umrandet"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:160
-msgid "Empty = no border."
-msgstr "Leer = kein Rahmen."
+#: includes/WooCommerce/class-badge-admin-fields.php:225
+msgid "Single"
+msgstr ""
 
-#: includes/WooCommerce/class-badge-admin-fields.php:161
-msgid "Width (px)"
+#: includes/WooCommerce/class-badge-admin-fields.php:234
+#, fuzzy
+msgid "Outer color"
+msgstr "Nach Farbe filtern"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:235
+#, fuzzy
+msgid "Outer width (px)"
 msgstr "Breite (px)"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:162
+#: includes/WooCommerce/class-badge-admin-fields.php:236
 msgid "Style"
 msgstr "Stil"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:168
+#: includes/WooCommerce/class-badge-admin-fields.php:241
+#, fuzzy
+msgid "Inner color"
+msgstr "Symbolfarbe"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:242
+#, fuzzy
+msgid "Inner width (px)"
+msgstr "Breite (px)"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:242
+msgid "Drawn inside the badge."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:245
+msgid ""
+"The CSS Double style uses one color. Layered mode lets the outer and inner "
+"lines use independent colors and thicknesses."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:249
+#, fuzzy
+msgid "Advanced styling"
+msgstr "Erweiterte Sortieroptionen"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:251
+#, fuzzy
+msgid "Typography"
+msgstr "Rollen in der Typografie"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:254
+#: includes/WooCommerce/class-product-filter-renderer.php:59
+#: includes/WooCommerce/class-product-filter-renderer.php:187
+#: includes/WooCommerce/class-product-tabs-config.php:170
+msgid "Size"
+msgstr "Größe"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:255
+#: includes/WooCommerce/class-product-tabs-config.php:234
+#: patterns/fabric-tech-specs.php:46
+msgid "Weight"
+msgstr "Gewicht"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:256
+msgid "Letter case"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:257
+msgid "Tracking"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:262
 msgid "Shape & Spacing"
 msgstr "Form und Abstand"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:171
+#: includes/WooCommerce/class-badge-admin-fields.php:265
 msgid "Corner Radius (px)"
 msgstr "Eckenradius (px)"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:174
+#: includes/WooCommerce/class-badge-admin-fields.php:265
+msgid "Link corners"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:265
+msgid "Unlink corners"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:268
 msgid "TL"
 msgstr "TL"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:175
+#: includes/WooCommerce/class-badge-admin-fields.php:269
 msgid "TR"
 msgstr "TR"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:176
+#: includes/WooCommerce/class-badge-admin-fields.php:270
 msgid "BR"
 msgstr "BR"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:177
+#: includes/WooCommerce/class-badge-admin-fields.php:271
 msgid "BL"
 msgstr "BL"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:182
+#: includes/WooCommerce/class-badge-admin-fields.php:276
 msgid "Padding (px)"
 msgstr "Abstand (px)"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:185
+#: includes/WooCommerce/class-badge-admin-fields.php:279
 msgid "X"
 msgstr "X"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:186
+#: includes/WooCommerce/class-badge-admin-fields.php:280
 msgid "Y"
 msgstr "Y"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:194
+#: includes/WooCommerce/class-badge-admin-fields.php:289
 msgid "Placement"
 msgstr "Platzierung"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:197
-msgid "Position"
-msgstr "Position"
-
-#: includes/WooCommerce/class-badge-admin-fields.php:197
-msgid "Corner of the product image."
-msgstr "Ecke des Produktbildes."
-
-#: includes/WooCommerce/class-badge-admin-fields.php:198
+#: includes/WooCommerce/class-badge-admin-fields.php:293
 #: includes/WooCommerce/class-product-tabs-admin.php:616
 #: includes/WooCommerce/class-product-tabs-admin.php:865
 msgid "Priority"
 msgstr "Priorität"
 
-#: includes/WooCommerce/class-badge-admin-fields.php:198
+#: includes/WooCommerce/class-badge-admin-fields.php:293
 msgid "Lower shows first."
 msgstr "Zuerst wird der untere angezeigt."
 
-#: includes/WooCommerce/class-badge-admin-fields.php:307
+#: includes/WooCommerce/class-badge-admin-fields.php:322
+#, fuzzy
+msgid "Clear"
+msgstr "Alle löschen"
+
+#. translators: %s: color control label.
+#: includes/WooCommerce/class-badge-admin-fields.php:325
+#, fuzzy
+msgid "%s color"
+msgstr "Farbe"
+
+#. translators: %s: color control label.
+#: includes/WooCommerce/class-badge-admin-fields.php:326
+msgid "%s opacity"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-admin-fields.php:368
+msgid "Position"
+msgstr "Position"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:369
+#, fuzzy
+msgid "Position on product image"
+msgstr "Wishlist auf Produktbildern"
+
+#: includes/WooCommerce/class-badge-admin-fields.php:377
+msgid "Corner of the product image."
+msgstr "Ecke des Produktbildes."
+
+#: includes/WooCommerce/class-badge-admin-fields.php:463
 msgid "Badge Name"
 msgstr "Name des Abzeichens"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:47
+#, fuzzy
+msgid "Automatic badge rules"
+msgstr "Automatisch (Einzelproduktseite)"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:48
+msgid ""
+"Choose which system badges can appear and when their product conditions are "
+"met."
+msgstr ""
+
+#: includes/WooCommerce/class-badge-rules-admin.php:50
+msgid "Configure"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-rules-admin.php:50
+#: includes/WooCommerce/class-size-guide.php:203
+#: includes/WooCommerce/class-sticky-add-to-cart.php:299
+msgid "Close"
+msgstr "Schließen"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:56
+#, fuzzy
+msgid "Sale percentage"
+msgstr "Verkauf beendet"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:57
+#, fuzzy
+msgid "New product"
+msgstr "Produkt anzeigen"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:57
+msgid "days after publishing"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-rules-admin.php:58
+#, fuzzy
+msgid "Low stock"
+msgstr "Geringer Lagerbestand"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:58
+msgid "items remaining"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-rules-admin.php:59
+#: includes/WooCommerce/class-badge-system-defaults.php:167
+msgid "Bestseller"
+msgstr "Bestseller"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:59
+msgid "lifetime sales"
+msgstr ""
+
+#: includes/WooCommerce/class-badge-rules-admin.php:61
+#, fuzzy
+msgid "Save Rules"
+msgstr "Änderungen speichern"
+
+#: includes/WooCommerce/class-badge-rules-admin.php:71
+#, fuzzy
+msgid "You are not allowed to manage badge rules."
+msgstr "Leider haben Sie keine Berechtigung, Aktienabonnenten zu verwalten."
 
 #: includes/WooCommerce/class-badge-system-defaults.php:28
 #: includes/WooCommerce/class-feature-settings.php:412
@@ -1548,25 +1790,21 @@ msgstr "Alle Abzeichen"
 msgid "Back to Badges"
 msgstr "Zurück zu den Abzeichen"
 
-#: includes/WooCommerce/class-badge-system-defaults.php:127
+#: includes/WooCommerce/class-badge-system-defaults.php:134
 #: patterns/design-system-preview.php:145 patterns/footer-columns.php:49
 #: patterns/mega-menu-panel.php:64
 msgid "Sale"
 msgstr "Ausverkauf"
 
-#: includes/WooCommerce/class-badge-system-defaults.php:138
+#: includes/WooCommerce/class-badge-system-defaults.php:145
 #: patterns/design-system-preview.php:149
 msgid "New"
 msgstr "Neu"
 
-#: includes/WooCommerce/class-badge-system-defaults.php:149
+#: includes/WooCommerce/class-badge-system-defaults.php:156
 #: patterns/design-system-preview.php:153
 msgid "Low Stock"
 msgstr "Geringer Lagerbestand"
-
-#: includes/WooCommerce/class-badge-system-defaults.php:160
-msgid "Bestseller"
-msgstr "Bestseller"
 
 #: includes/WooCommerce/class-color-admin-ui.php:85
 #: includes/WooCommerce/class-color-admin-ui.php:137
@@ -1582,6 +1820,14 @@ msgstr "Einfarbig"
 #: includes/WooCommerce/class-color-admin-ui.php:147
 msgid "Pattern"
 msgstr "Muster"
+
+#: includes/WooCommerce/class-color-admin-ui.php:99
+#: includes/WooCommerce/class-color-admin-ui.php:155
+#: includes/WooCommerce/class-color-admin-ui.php:329
+#: includes/WooCommerce/class-product-filter-renderer.php:50
+#: includes/WooCommerce/class-product-filter-renderer.php:158
+msgid "Color"
+msgstr "Farbe"
 
 #: includes/WooCommerce/class-color-admin-ui.php:101
 #: includes/WooCommerce/class-color-admin-ui.php:159
@@ -1599,13 +1845,11 @@ msgstr "Kein Muster festgelegt"
 
 #. translators: %s: color term name
 #: includes/WooCommerce/class-color-admin-ui.php:390
-#, php-format
 msgid "Pattern preview for %s"
 msgstr "Vorschau des Musters für %s"
 
 #. translators: %s: color term name
 #: includes/WooCommerce/class-color-admin-ui.php:392
-#, php-format
 msgid "Pattern for %s"
 msgstr "Muster für %s"
 
@@ -1700,15 +1944,15 @@ msgstr ""
 "verwendet werden soll. Empfohlene Größe: quadratische Bilder mit mindestens "
 "100 x 100 Pixel."
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:512
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:527
 msgid "Preview"
 msgstr "Vorschau"
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:513
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:528
 msgid "Type"
 msgstr "Typ"
 
-#: includes/WooCommerce/class-custom-badge-taxonomy.php:544
+#: includes/WooCommerce/class-custom-badge-taxonomy.php:559
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
@@ -2074,7 +2318,6 @@ msgstr "Voreingestellte Symbol-Slugs (in PREFIX| kopieren)"
 
 #. translators: %s: Inline code snippet with PHP filter name.
 #: includes/WooCommerce/class-feature-settings-fields.php:458
-#, php-format
 msgid ""
 "Developers — register additional icons via the %s filter (child theme "
 "recommended). Use a string for a single path (viewBox 0 0 24 24), or an "
@@ -2271,7 +2514,6 @@ msgstr "Abschnitte zu Shop-Erweiterungen"
 
 #. translators: 1: enabled feature count, 2: total features in section.
 #: includes/WooCommerce/class-feature-settings-page.php:523
-#, php-format
 msgid "%1$d of %2$d features enabled"
 msgstr "%1$d von %2$d Funktionen aktiviert"
 
@@ -2500,13 +2742,11 @@ msgstr ""
 #. translators: %s: formatted amount still needed for free shipping.
 #: includes/WooCommerce/class-free-shipping.php:198
 #: includes/WooCommerce/class-free-shipping.php:231
-#, php-format
 msgid "%s Away from FREE Shipping!"
 msgstr "%s Weg von FREE Shipping!"
 
 #. translators: 1: formatted amount, 2: emphasized free shipping phrase.
 #: includes/WooCommerce/class-free-shipping.php:200
-#, php-format
 msgid "%1$s Away from %2$s!"
 msgstr "%1$s Weg von %2$s!"
 
@@ -2517,7 +2757,6 @@ msgstr "FREE Shipping FREIGESCHALTET!"
 
 #. translators: %s: emphasized free shipping phrase.
 #: includes/WooCommerce/class-free-shipping.php:203
-#, php-format
 msgid "%s UNLOCKED!"
 msgstr "%s FREIGEGEBEN!"
 
@@ -2538,7 +2777,6 @@ msgstr "Fehler – bitte erneut versuchen"
 #. translators: %d: number of items.
 #: includes/WooCommerce/class-frequently-bought-together.php:180
 #: includes/WooCommerce/class-frequently-bought-together.php:278
-#, php-format
 msgid "Add all %d items to cart"
 msgstr "Alle %d-Artikel in den Warenkorb legen"
 
@@ -2560,7 +2798,6 @@ msgstr "Gesamtpreis:"
 
 #. translators: %s: product name.
 #: includes/WooCommerce/class-frequently-bought-together.php:340
-#, php-format
 msgid "Include %s"
 msgstr "%s einfügen"
 
@@ -2584,13 +2821,11 @@ msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
 #: includes/WooCommerce/class-load-more.php:209
-#, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr "Es werden %1$d von %2$d Produkten angezeigt"
 
 #. translators: %d: number of products just loaded.
 #: includes/WooCommerce/class-load-more.php:211
-#, php-format
 msgid "%d more products loaded."
 msgstr "%d Weitere Produkte wurden geladen."
 
@@ -2625,7 +2860,6 @@ msgstr "Produkte suchen…"
 
 #. translators: %d: discount percentage.
 #: includes/WooCommerce/class-price-display.php:67
-#, php-format
 msgid "Save %d%%"
 msgstr "Sparen Sie %d%%"
 
@@ -2657,12 +2891,6 @@ msgstr "Kategorie"
 msgid "Fit"
 msgstr "Passform"
 
-#: includes/WooCommerce/class-product-filter-renderer.php:59
-#: includes/WooCommerce/class-product-filter-renderer.php:187
-#: includes/WooCommerce/class-product-tabs-config.php:170
-msgid "Size"
-msgstr "Größe"
-
 #: includes/WooCommerce/class-product-filter-renderer.php:74
 #: includes/WooCommerce/class-product-filter-renderer.php:240
 msgid "Availability"
@@ -2680,7 +2908,6 @@ msgstr "Nach Passform filtern"
 #. translators: %s: color name
 #: includes/WooCommerce/class-product-filter-renderer.php:148
 #: includes/WooCommerce/class-product-filter-renderer.php:177
-#, php-format
 msgid "Filter by %s"
 msgstr "Nach %s filtern"
 
@@ -2698,7 +2925,6 @@ msgstr "Nach Größe filtern"
 
 #. translators: %s: size name
 #: includes/WooCommerce/class-product-filter-renderer.php:195
-#, php-format
 msgid "Filter by size %s"
 msgstr "Nach Größe filtern %s"
 
@@ -2726,19 +2952,16 @@ msgstr "Nach Kategorie filtern"
 
 #. translators: %s is the number of currently active filters (always 1).
 #: includes/WooCommerce/class-product-filters.php:312
-#, php-format
 msgid "(%s filter applied)"
 msgstr "(Filter „%s“ angewendet)"
 
 #. translators: %s is the number of currently active filters (2 or more).
 #: includes/WooCommerce/class-product-filters.php:314
-#, php-format
 msgid "(%s filters applied)"
 msgstr "(%s Filter angewendet)"
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
 #: includes/WooCommerce/class-product-filters.php:316
-#, php-format
 msgid "Additional filters: %s"
 msgstr "Weitere Filter: %s"
 
@@ -2761,13 +2984,11 @@ msgstr "1 Produkt gefunden."
 
 #. translators: %d: number of products found after filtering.
 #: includes/WooCommerce/class-product-filters.php:324
-#, php-format
 msgid "%d products found."
 msgstr "%d Produkte gefunden."
 
 #. translators: %s: active filter label to remove.
 #: includes/WooCommerce/class-product-filters.php:326
-#, php-format
 msgid "Remove %s filter"
 msgstr "Filter „%s“ entfernen"
 
@@ -2945,7 +3166,6 @@ msgstr "Produktspezifische benutzerdefinierte Registerkarten"
 
 #. translators: %d: number of saved product-specific tabs.
 #: includes/WooCommerce/class-product-tabs-admin.php:325
-#, php-format
 msgid "%d saved product-specific tab."
 msgid_plural "%d saved product-specific tabs."
 msgstr[0] "%d Gespeicherte produktspezifische Registerkarte."
@@ -3441,11 +3661,6 @@ msgstr "Material"
 msgid "Add material or fabric details."
 msgstr "Fügen Sie Angaben zu Material oder Stoff hinzu."
 
-#: includes/WooCommerce/class-product-tabs-config.php:234
-#: patterns/fabric-tech-specs.php:46
-msgid "Weight"
-msgstr "Gewicht"
-
 #: includes/WooCommerce/class-product-tabs-config.php:236
 msgid "Add product weight or fabric weight."
 msgstr "Geben Sie das Produktgewicht oder das Stoffgewicht an."
@@ -3519,7 +3734,6 @@ msgstr "Produktinformationen"
 #. translators: 1: Wishlist action label, 2: product name.
 #: includes/WooCommerce/class-quick-view-renderer.php:78
 #: includes/WooCommerce/class-wishlist.php:468
-#, php-format
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
@@ -3545,7 +3759,6 @@ msgstr "In den Warenkorb gelegt!"
 
 #. translators: %d: remaining stock quantity.
 #: includes/WooCommerce/class-quick-view-renderer.php:228
-#, php-format
 msgid "Only %d left!"
 msgstr "Nur noch %d verfügbar!"
 
@@ -3559,7 +3772,6 @@ msgstr "Konnte nicht in den Warenkorb gelegt werden."
 
 #. translators: %s: error message from the cart API.
 #: includes/WooCommerce/class-quick-view-renderer.php:232
-#, php-format
 msgid "Error: %s"
 msgstr "Fehler: %s"
 
@@ -3624,7 +3836,6 @@ msgstr "Bestätigung zum Schließen des Warenkorbs"
 
 #. translators: %s: numeric rating value out of 5.
 #: includes/WooCommerce/class-rating.php:105
-#, php-format
 msgid "Rated %s out of 5"
 msgstr "Bewertung: %s von 5"
 
@@ -3664,7 +3875,6 @@ msgstr "Bisher wurde noch kein Neuaufbau abgeschlossen."
 
 #. translators: 1: worker state, 2: products checked, 3: assignments changed.
 #: includes/WooCommerce/class-sale-category.php:776
-#, php-format
 msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
 msgstr "Letzter Status: %1$s. Überprüft: %2$d; geändert: %3$d."
 
@@ -3710,18 +3920,12 @@ msgstr "Im Papierkorb wurden keine Größentabellen gefunden."
 msgid "Measurements in inches"
 msgstr "Maße in Zoll"
 
-#: includes/WooCommerce/class-size-guide.php:203
-#: includes/WooCommerce/class-sticky-add-to-cart.php:299
-msgid "Close"
-msgstr "Schließen"
-
 #: includes/WooCommerce/class-size-guide.php:418
 msgid "-- Inherit (category or global) --"
 msgstr "-- Vererben (Kategorie oder global) --"
 
 #. translators: %s: link to create a new size guide
 #: includes/WooCommerce/class-size-guide.php:442
-#, php-format
 msgid "Select a size guide or %s."
 msgstr "Wählen Sie eine Größentabelle oder %s aus."
 
@@ -3741,13 +3945,11 @@ msgstr "Weisen Sie allen Produkten dieser Kategorie eine Größentabelle zu."
 
 #. translators: %s: human-readable time difference, e.g. "5 minutes".
 #: includes/WooCommerce/class-social-proof-purchase.php:178
-#, php-format
 msgid "%s ago"
 msgstr "vor %s"
 
 #. translators: %s: product title.
 #: includes/WooCommerce/class-social-proof-purchase.php:244
-#, php-format
 msgid "Selling well — %s"
 msgstr "Verkauft sich gut — %s"
 
@@ -3757,19 +3959,16 @@ msgstr "Jemand"
 
 #. translators: 1: subject, 2: location, 3: product.
 #: includes/WooCommerce/class-social-proof-purchase.php:360
-#, php-format
 msgid "%1$s in %2$s purchased %3$s"
 msgstr "%1$s hat in %2$s %3$s gekauft"
 
 #. translators: 1: subject, 2: location, 3: product.
 #: includes/WooCommerce/class-social-proof-purchase.php:363
-#, php-format
 msgid "%1$s from %2$s purchased %3$s"
 msgstr "%1$s hat von %2$s %3$s gekauft"
 
 #. translators: 1: subject, 2: product.
 #: includes/WooCommerce/class-social-proof-purchase.php:367
-#, php-format
 msgid "%1$s purchased %2$s"
 msgstr "%1$s hat %2$s gekauft"
 
@@ -4941,10 +5140,6 @@ msgstr "Gespeichert"
 msgid "Ghost"
 msgstr "Geist"
 
-#: patterns/design-system-preview.php:90
-msgid "Pill"
-msgstr "Pille"
-
 #: patterns/design-system-preview.php:91
 msgid "Square"
 msgstr "Quadrat"
@@ -4962,10 +5157,6 @@ msgstr "Kompakt"
 msgid "Default"
 msgstr "Standard"
 
-#: patterns/design-system-preview.php:103
-msgid "Large"
-msgstr "Groß"
-
 #: patterns/design-system-preview.php:104
 msgid "Elevated hero"
 msgstr "Erhabener Held"
@@ -4981,10 +5172,6 @@ msgstr "Vorschau schließen"
 #: patterns/design-system-preview.php:115
 msgid "Remove preview"
 msgstr "Vorschau ausblenden"
-
-#: patterns/design-system-preview.php:117
-msgid "Medium"
-msgstr "Mittel"
 
 #: patterns/design-system-preview.php:131
 msgid "Badges and states"
@@ -6037,17 +6224,17 @@ msgstr "Hoodies anzeigen"
 #: patterns/homepage-drop-composition.php:54
 msgid ""
 "LIMITED RUN &nbsp;&nbsp;★&nbsp;&nbsp; NO RESTOCKS &nbsp;&nbsp;★&nbsp;&nbsp; "
-"MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS IN 48 HRS &nbsp;&nbsp;"
-"★&nbsp;&nbsp; LIMITED RUN &nbsp;&nbsp;★&nbsp;&nbsp; NO RESTOCKS &nbsp;&nbsp;"
-"★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS IN 48 HRS "
-"&nbsp;&nbsp;★&nbsp;&nbsp;"
+"MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS IN 48 HRS "
+"&nbsp;&nbsp;★&nbsp;&nbsp; LIMITED RUN &nbsp;&nbsp;★&nbsp;&nbsp; NO RESTOCKS "
+"&nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; SHIPS "
+"IN 48 HRS &nbsp;&nbsp;★&nbsp;&nbsp;"
 msgstr ""
-"LIMITIERTE AUFLAGE &nbsp;&nbsp;★&nbsp;&nbsp; KEINE NACHLieferung &nbsp;&nbsp;"
-"★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; VERSAND INNERHALB "
-"VON 48 STUNDEN &nbsp;&nbsp;★&nbsp;&nbsp; LIMITIERTE AUFLAGE &nbsp;&nbsp;"
-"★&nbsp;&nbsp; KEINE NACHLieferung &nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT "
-"PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; VERSAND INNERHALB VON 48 STUNDEN &nbsp;"
-"&nbsp;★&nbsp;&nbsp;"
+"LIMITIERTE AUFLAGE &nbsp;&nbsp;★&nbsp;&nbsp; KEINE NACHLieferung "
+"&nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; "
+"VERSAND INNERHALB VON 48 STUNDEN &nbsp;&nbsp;★&nbsp;&nbsp; LIMITIERTE "
+"AUFLAGE &nbsp;&nbsp;★&nbsp;&nbsp; KEINE NACHLieferung "
+"&nbsp;&nbsp;★&nbsp;&nbsp; MIDNIGHT PROTOCOL &nbsp;&nbsp;★&nbsp;&nbsp; "
+"VERSAND INNERHALB VON 48 STUNDEN &nbsp;&nbsp;★&nbsp;&nbsp;"
 
 #: patterns/homepage-drop-composition.php:66
 msgid "Just Landed"
@@ -6430,19 +6617,21 @@ msgstr ""
 #: patterns/marquee-banner.php:16
 msgid ""
 "FREE SHIPPING ON ORDERS $100+ &nbsp;&nbsp;★&nbsp;&nbsp; NEW DROPS EVERY "
-"FRIDAY &nbsp;&nbsp;★&nbsp;&nbsp; USE CODE AGGRESSIVE15 FOR 15% OFF &nbsp;"
-"&nbsp;★&nbsp;&nbsp; PREMIUM QUALITY GUARANTEED &nbsp;&nbsp;★&nbsp;&nbsp; "
-"FREE SHIPPING ON ORDERS $100+ &nbsp;&nbsp;★&nbsp;&nbsp; NEW DROPS EVERY "
-"FRIDAY &nbsp;&nbsp;★&nbsp;&nbsp; USE CODE AGGRESSIVE15 FOR 15% OFF &nbsp;"
-"&nbsp;★&nbsp;&nbsp; PREMIUM QUALITY GUARANTEED &nbsp;&nbsp;★&nbsp;&nbsp;"
+"FRIDAY &nbsp;&nbsp;★&nbsp;&nbsp; USE CODE AGGRESSIVE15 FOR 15% OFF "
+"&nbsp;&nbsp;★&nbsp;&nbsp; PREMIUM QUALITY GUARANTEED "
+"&nbsp;&nbsp;★&nbsp;&nbsp; FREE SHIPPING ON ORDERS $100+ "
+"&nbsp;&nbsp;★&nbsp;&nbsp; NEW DROPS EVERY FRIDAY &nbsp;&nbsp;★&nbsp;&nbsp; "
+"USE CODE AGGRESSIVE15 FOR 15% OFF &nbsp;&nbsp;★&nbsp;&nbsp; PREMIUM QUALITY "
+"GUARANTEED &nbsp;&nbsp;★&nbsp;&nbsp;"
 msgstr ""
 "KOSTENLOSER VERSAND AB 100 $ &nbsp;&nbsp;★&nbsp;&nbsp; JEDEN FREITAG NEUE "
 "PRODUKTE &nbsp;&nbsp;★&nbsp;&nbsp; MIT DEM CODE AGGRESSIVE15 ERHALTEN SIE 15 "
-"% RABATT &nbsp;&nbsp;★&nbsp;&nbsp; GARANTIERT PREMIUM-QUALITÄT &nbsp;&nbsp;"
-"★&nbsp;&nbsp; KOSTENLOSER VERSAND AB 100 $ &nbsp;&nbsp;★&nbsp;&nbsp; JEDEN "
-"FREITAG NEUE PRODUKTE &nbsp;&nbsp;★&nbsp;&nbsp; MIT DEM CODE AGGRESSIVE15 "
-"ERHALTEN SIE 15 % RABATT &nbsp;&nbsp;★&nbsp;&nbsp; GARANTIERT PREMIUM-"
-"QUALITÄT &nbsp;&nbsp;★&nbsp;&nbsp;"
+"% RABATT &nbsp;&nbsp;★&nbsp;&nbsp; GARANTIERT PREMIUM-QUALITÄT "
+"&nbsp;&nbsp;★&nbsp;&nbsp; KOSTENLOSER VERSAND AB 100 $ "
+"&nbsp;&nbsp;★&nbsp;&nbsp; JEDEN FREITAG NEUE PRODUKTE "
+"&nbsp;&nbsp;★&nbsp;&nbsp; MIT DEM CODE AGGRESSIVE15 ERHALTEN SIE 15 % RABATT "
+"&nbsp;&nbsp;★&nbsp;&nbsp; GARANTIERT PREMIUM-QUALITÄT "
+"&nbsp;&nbsp;★&nbsp;&nbsp;"
 
 #: patterns/mega-menu-panel.php
 msgctxt "Pattern title"
@@ -8038,43 +8227,36 @@ msgstr "Wendekarte"
 
 #. translators: %s: human-readable time remaining, e.g. "3 days, 4 hours, 12 minutes".
 #: src/blocks-interactivity/countdown-timer/render.php:174
-#, php-format
 msgid "Sale ends in %s"
 msgstr "Das Angebot endet in %s"
 
 #. translators: %s: number of days.
 #: src/blocks-interactivity/countdown-timer/render.php:177
-#, php-format
 msgid "%s day"
 msgstr "%s Tag"
 
 #. translators: %s: number of days.
 #: src/blocks-interactivity/countdown-timer/render.php:179
-#, php-format
 msgid "%s days"
 msgstr "%s Tage"
 
 #. translators: %s: number of hours.
 #: src/blocks-interactivity/countdown-timer/render.php:183
-#, php-format
 msgid "%s hour"
 msgstr "%s Uhr"
 
 #. translators: %s: number of hours.
 #: src/blocks-interactivity/countdown-timer/render.php:185
-#, php-format
 msgid "%s hours"
 msgstr "%s Stunden"
 
 #. translators: %s: number of minutes.
 #: src/blocks-interactivity/countdown-timer/render.php:189
-#, php-format
 msgid "%s minute"
 msgstr "%s Minute"
 
 #. translators: %s: number of minutes.
 #: src/blocks-interactivity/countdown-timer/render.php:191
-#, php-format
 msgid "%s minutes"
 msgstr "%s Minuten"
 
@@ -8147,7 +8329,6 @@ msgstr "Diashow anhalten"
 #. translators: 1: current slide number, 2: total slide count. Announced by screen readers.
 #: src/blocks-interactivity/hero-carousel/render.php:232
 #: src/blocks-interactivity/horizontal-scroll/render.php:114
-#, php-format
 msgid "Slide %1$s of %2$s"
 msgstr "Folie %1$s von %2$s"
 
@@ -8155,7 +8336,6 @@ msgstr "Folie %1$s von %2$s"
 #. translators: 1: current slide number, 2: total slide count. Per-slide aria-label.
 #: src/blocks-interactivity/hero-carousel/render.php:403
 #: src/blocks-interactivity/horizontal-scroll/render.php:116
-#, php-format
 msgid "%1$s of %2$s"
 msgstr "%1$s von %2$s"
 
@@ -8175,7 +8355,6 @@ msgstr "Folie auswählen"
 
 #. translators: %s: slide number.
 #: src/blocks-interactivity/hero-carousel/render.php:467
-#, php-format
 msgid "Go to slide %s"
 msgstr "Weiter zu Folie %s"
 
@@ -8206,13 +8385,11 @@ msgstr "Das Produkt konnte nicht geladen werden."
 #. translators: %s: product name.
 #: src/blocks-interactivity/lookbook/render.php:131
 #: src/blocks-interactivity/lookbook/render.php:243
-#, php-format
 msgid "View product: %s"
 msgstr "Produkt anzeigen: %s"
 
 #. translators: %d: hotspot number.
 #: src/blocks-interactivity/lookbook/render.php:248
-#, php-format
 msgid "View product %d"
 msgstr "Produkt anzeigen %d"
 
@@ -8226,7 +8403,6 @@ msgstr "Modal schließen"
 
 #. translators: %s: submenu name, e.g. "Back from Shop"
 #: src/blocks-interactivity/nav-submenu-drilldown/render.php:93
-#, php-format
 msgid "Back from %s"
 msgstr "Zurück von %s"
 
@@ -8254,7 +8430,6 @@ msgstr "Untermenü"
 
 #. translators: 1: submenu label, 2: drilldown level number.
 #: src/blocks-interactivity/navigation-panel/render.php:138
-#, php-format
 msgid "Opened %1$s, level %2$s"
 msgstr "Eröffnet: %1$s, Stufe %2$s"
 
@@ -8264,7 +8439,6 @@ msgstr "Zurück zum Hauptmenü"
 
 #. translators: %s: drilldown level number.
 #: src/blocks-interactivity/navigation-panel/render.php:141
-#, php-format
 msgid "Back to level %s"
 msgstr "Zurück zu Level %s"
 
@@ -8290,7 +8464,6 @@ msgstr "Farboptionen"
 
 #. translators: %s: Color name.
 #: src/blocks-interactivity/product-color-swatches/render.php:179
-#, php-format
 msgid "View in %s"
 msgstr "In %s anzeigen"
 
@@ -8346,7 +8519,6 @@ msgstr "Zum hellen Modus wechseln"
 
 #. translators: %s: number of customer reviews.
 #: src/blocks/product-rating/render.php:47
-#, php-format
 msgid "(%s customer review)"
 msgid_plural "(%s customer reviews)"
 msgstr[0] "(%s Kundenbewertung)"
@@ -8369,7 +8541,6 @@ msgstr "Abmelden:"
 
 #. translators: %s: unsubscribe link.
 #: templates/emails/back-in-stock.php:66
-#, php-format
 msgid "You received this email because you asked to be notified. %s"
 msgstr ""
 "Sie haben diese E-Mail erhalten, weil Sie darum gebeten haben, "
@@ -9668,6 +9839,21 @@ msgctxt "block keyword"
 msgid "editorial"
 msgstr "Leitartikel"
 
+#: styles/section-brand-red.json
+msgctxt "Style variation name"
+msgid "Section: Brand Accent"
+msgstr "Abschnitt: Markenakzent"
+
+#: styles/section-editorial-dark.json
+msgctxt "Style variation name"
+msgid "Section: Editorial Dark"
+msgstr "Rubrik: Leitartikel „Dark“"
+
+#: styles/section-surface.json
+msgctxt "Style variation name"
+msgid "Section: Surface"
+msgstr "Abschnitt: Oberfläche"
+
 #: theme.json
 msgctxt "Space size name"
 msgid "0.5"
@@ -10338,17 +10524,11 @@ msgctxt "Custom template name"
 msgid "Page (No Title)"
 msgstr "Seite (Ohne Titel)"
 
-#: styles/section-brand-red.json
-msgctxt "Style variation name"
-msgid "Section: Brand Accent"
-msgstr "Abschnitt: Markenakzent"
+#~ msgid "Live Preview"
+#~ msgstr "Live-Vorschau"
 
-#: styles/section-editorial-dark.json
-msgctxt "Style variation name"
-msgid "Section: Editorial Dark"
-msgstr "Rubrik: Leitartikel „Dark“"
+#~ msgid "Empty = no border."
+#~ msgstr "Leer = kein Rahmen."
 
-#: styles/section-surface.json
-msgctxt "Style variation name"
-msgid "Section: Surface"
-msgstr "Abschnitt: Oberfläche"
+#~ msgid "Width (px)"
+#~ msgstr "Breite (px)"

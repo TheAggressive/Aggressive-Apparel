@@ -38,6 +38,30 @@ class TestTranslationLoading extends WP_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->languages_dir = get_template_directory() . '/languages';
+		$this->reset_textdomain_state();
+	}
+
+	/**
+	 * Return the gettext globals to the state a fresh process would have.
+	 *
+	 * These tests pass in isolation and fail in the full suite without this.
+	 * Any earlier test that reaches a __() call for this domain leaves three
+	 * pieces of cached state behind, and unload_textdomain() clears only the
+	 * first:
+	 *
+	 * - $l10n holds the already-built translation set for the *previous*
+	 *   locale, so the domain looks loaded and nothing re-reads the .mo.
+	 * - $l10n_unloaded suppresses the just-in-time loader entirely.
+	 * - WP_Textdomain_Registry caches the path lookup per domain+locale, so a
+	 *   domain first resolved under en_US keeps answering for en_US.
+	 *
+	 * Clearing all three is what makes the assertion measure this theme's
+	 * catalogs rather than whatever ran before it in the process.
+	 */
+	private function reset_textdomain_state(): void {
+		global $l10n, $l10n_unloaded;
+
+		unset( $l10n['aggressive-apparel'], $l10n_unloaded['aggressive-apparel'] );
 	}
 
 	/**
@@ -127,7 +151,10 @@ class TestTranslationLoading extends WP_UnitTestCase {
 		}
 
 		$this->force_locale( $locale );
-		unload_textdomain( 'aggressive-apparel', true );
+		// After the filter, not before: the registry caches per domain+locale,
+		// so clearing it while determine_locale still says en_US would just
+		// re-cache the wrong answer.
+		$this->reset_textdomain_state();
 		load_theme_textdomain( 'aggressive-apparel', $this->languages_dir );
 
 		$this->assertSame(

@@ -14,6 +14,7 @@ import { canRedo, canUndo, historyReducer, initHistory } from './_history';
 import { useCompiledBadge } from './_preview';
 import { readTermName, syncHiddenFields } from './_sync';
 import type { BadgeFields, InspectorTab, StudioConfig } from './_types';
+import type { BadgeFieldKey } from './_field-keys';
 
 type Props = {
   config: StudioConfig;
@@ -55,7 +56,7 @@ function contrastMessage(
  */
 function serializeFields(fields: BadgeFields): string {
   return JSON.stringify(
-    Object.keys(fields)
+    (Object.keys(fields) as BadgeFieldKey[])
       .sort()
       .reduce<BadgeFields>((acc, key) => {
         acc[key] = fields[key] ?? '';

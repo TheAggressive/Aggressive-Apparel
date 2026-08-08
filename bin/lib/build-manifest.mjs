@@ -47,9 +47,15 @@ export function getAssetWebpackEntries(cwd = process.cwd()) {
   const entries = {};
   const mainCssPartials = getMainCssImportPartials(cwd);
 
+  // `_`-prefixed files are shared modules, not entries; test files are neither.
+  // Both would otherwise become standalone bundles that ship in the release ZIP.
   const jsFiles = fg.sync('src/scripts/**/*.{js,ts,tsx}', {
     cwd,
-    ignore: ['src/scripts/**/_*.{js,ts,tsx}'],
+    ignore: [
+      'src/scripts/**/_*.{js,ts,tsx}',
+      'src/scripts/**/__tests__/**',
+      'src/scripts/**/*.test.{js,ts,tsx}',
+    ],
   });
 
   jsFiles.forEach(file => {

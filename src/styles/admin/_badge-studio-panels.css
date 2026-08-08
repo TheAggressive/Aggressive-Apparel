@@ -1,0 +1,344 @@
+/**
+ * Badge studio: panels section.
+ *
+ * Split out of badge-studio.css for the file-length gate. The entry file
+ * is imports-only, so each section loads in its original position —
+ * moving one relative to the others would change the cascade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/**
+ * Automatic rules — same shell language as Badge Studio (tokens, radius, type).
+ */
+.aa-badge-rules {
+	margin: 0 0 16px;
+	overflow: hidden;
+	background: var(--aa-studio-surface);
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 14px;
+	box-shadow: var(--aa-studio-shadow);
+	font-family: var(--aa-studio-font);
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-rules__heading {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 24px;
+	background: var(--aa-studio-surface);
+}
+
+.aa-badge-rules__intro {
+	min-width: 0;
+}
+
+.aa-badge-rules__title-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.aa-badge-rules__heading h2 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.3;
+	color: var(--aa-studio-ink);
+	background: none;
+}
+
+.aa-badge-rules__count {
+	border-radius: 999px;
+	padding: 3px 10px;
+	background: var(--aa-studio-accent-soft);
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--aa-studio-accent);
+}
+
+.aa-badge-rules__heading p {
+	margin: 6px 0 0;
+	font-size: 12.5px;
+	line-height: 1.45;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-rules__status {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 14px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aa-badge-rules__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	margin: 0;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 999px;
+	padding: 5px 12px;
+	background: var(--aa-studio-page);
+	font-size: 12px;
+	font-weight: 650;
+	color: var(--aa-studio-mute);
+	box-shadow: none;
+}
+
+.aa-badge-rules__chip-dot {
+	display: block;
+	flex: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 999px;
+	background: #d4d0c8;
+}
+
+.aa-badge-rules__chip--on {
+	border-color: rgb(91 76 251 / 22%);
+	background: var(--aa-studio-accent-glow);
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-rules__chip--on .aa-badge-rules__chip-dot {
+	background: var(--aa-studio-success);
+}
+
+.aa-badge-rules__chip--off {
+	opacity: 0.7;
+}
+
+/* Configure / Close — mirror studio primary + ghost buttons. */
+.aa-badge-rules__toggle {
+	appearance: none;
+	flex: none;
+	margin: 0;
+	border: 0;
+	border-radius: 8px;
+	padding: 9px 16px;
+	background: var(--aa-studio-accent);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1;
+	color: #fff;
+	box-shadow: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.aa-badge-rules__toggle:hover,
+.aa-badge-rules__toggle:focus {
+	background: #4636d6;
+	color: #fff;
+	box-shadow: none;
+}
+
+.aa-badge-rules__toggle:focus {
+	outline: none;
+}
+
+.aa-badge-rules__toggle:focus-visible {
+	outline: 2px solid var(--aa-studio-accent);
+	outline-offset: 2px;
+}
+
+.aa-badge-rules__toggle[aria-expanded='true'] {
+	border: 1px solid var(--aa-studio-line);
+	background: #fff;
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-rules__toggle[aria-expanded='true']:hover,
+.aa-badge-rules__toggle[aria-expanded='true']:focus {
+	border-color: #d4d0c8;
+	background: var(--aa-studio-page);
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-rules__form {
+	padding: 18px 24px 20px;
+	background: var(--aa-studio-page);
+	border-top: 1px solid var(--aa-studio-line);
+}
+
+.aa-badge-rules__form[hidden] {
+	display: none !important;
+}
+
+.aa-badge-rules__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 12px;
+}
+
+.aa-badge-rule {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 12px;
+	padding: 14px;
+	background: var(--aa-studio-surface);
+	box-shadow: 0 1px 2px rgb(23 23 26 / 3%);
+}
+
+.aa-badge-rule__toggle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--aa-studio-ink);
+	cursor: pointer;
+}
+
+.aa-badge-rule__toggle input {
+	margin: 0;
+	accent-color: var(--aa-studio-accent);
+	width: 15px;
+	height: 15px;
+}
+
+.aa-badge-rule__threshold,
+.aa-badge-rule__link {
+	font-size: 12px;
+	font-weight: 550;
+	color: var(--aa-studio-mute);
+	text-decoration: none;
+}
+
+.aa-badge-rule__link {
+	display: inline-flex;
+	align-items: center;
+	align-self: flex-start;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	padding: 7px 12px;
+	background: var(--aa-studio-page);
+	color: var(--aa-studio-secondary);
+	font-weight: 650;
+	transition:
+		border-color 0.15s ease,
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.aa-badge-rule__link:hover {
+	border-color: var(--aa-studio-accent);
+	background: var(--aa-studio-accent-glow);
+	color: var(--aa-studio-accent);
+	text-decoration: none;
+}
+
+.aa-badge-rule__threshold {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aa-badge-rule__threshold input {
+	width: 72px;
+	min-height: 34px;
+	margin: 0;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	padding: 4px 10px;
+	background: var(--aa-studio-page);
+	box-shadow: none;
+	color: var(--aa-studio-ink);
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 650;
+}
+
+.aa-badge-rule__threshold input:focus {
+	border-color: var(--aa-studio-focus);
+	box-shadow: 0 0 0 1px var(--aa-studio-focus);
+	outline: none;
+}
+
+.aa-badge-rules__actions {
+	margin-top: 16px;
+}
+
+.aa-badge-rules__actions .button,
+.aa-badge-rules__save {
+	appearance: none !important;
+	min-height: 36px !important;
+	margin: 0 !important;
+	border: 0 !important;
+	border-radius: 8px !important;
+	padding: 9px 18px !important;
+	background: var(--aa-studio-accent) !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	font-family: var(--aa-studio-font) !important;
+	font-size: 13px !important;
+	font-weight: 700 !important;
+	line-height: 1 !important;
+	text-shadow: none !important;
+}
+
+.aa-badge-rules__actions .button:hover,
+.aa-badge-rules__actions .button:focus,
+.aa-badge-rules__save:hover,
+.aa-badge-rules__save:focus {
+	background: #4636d6 !important;
+	color: #fff !important;
+	border-color: transparent !important;
+	box-shadow: none !important;
+}
+
+.aa-badge-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+@media (width <= 1400px) {
+
+	.aa-badge-studio__workspace {
+		grid-template-columns: 260px minmax(0, 1fr) 300px;
+	}
+}
+
+@media (width <= 1100px) {
+
+	.aa-badge-studio__workspace {
+		grid-template-columns: 1fr;
+	}
+
+	.aa-badge-studio__library,
+	.aa-badge-studio__inspector {
+		border: 0;
+		border-top: 1px solid var(--aa-studio-line);
+		max-height: 420px;
+	}
+
+	.aa-badge-studio__toolbar {
+		flex-wrap: wrap;
+		padding: 12px 16px;
+		min-height: 0;
+	}
+
+	body.taxonomy-aa_product_badge #col-container {
+		grid-template-columns: 1fr;
+	}
+}

@@ -58,7 +58,16 @@ ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-cl
 # which the wp-env cli container does not ship — the same split that keeps
 # validate-po.sh on the host. The theme directory is bind-mounted, so catalogs
 # written here are the ones the container reads a moment later.
-bash "${REPO_ROOT}/bin/i18n/compile.sh"
+#
+# WP_ENV_HOME must be exported first. compile.sh falls back to `wp-env run cli`
+# when WP-CLI is absent, and a bare wp-env resolves the *default* project — the
+# one this lane deliberately does not use. In CI that directory has never been
+# created, so it failed with "docker-compose.yml: no such file or directory"
+# while every local run passed against the developer's own environment.
+AA_PARITY_HOME="${AA_CI_WP_ENV_HOME:-${REPO_ROOT}/.wp-env-ci}"
+WP_ENV_HOME="${AA_PARITY_HOME}" \
+	WP_ENV_SKIP_BETA_UPDATE=1 \
+	bash "${REPO_ROOT}/bin/i18n/compile.sh"
 
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=integration --verbose'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=security --verbose'

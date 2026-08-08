@@ -15,6 +15,7 @@
  */
 
 import type { BadgeFields } from './_types';
+import type { BadgeFieldKey } from './_field-keys';
 
 /** Maximum retained undo steps. */
 export const HISTORY_LIMIT = 40;
@@ -61,11 +62,13 @@ function applyPatch(
 ): BadgeFields {
   const next: BadgeFields = { ...fields };
 
-  Object.entries(patch).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      next[key] = value;
+  (Object.entries(patch) as [BadgeFieldKey, string | undefined][]).forEach(
+    ([key, value]) => {
+      if (typeof value === 'string') {
+        next[key] = value;
+      }
     }
-  });
+  );
 
   return next;
 }
@@ -77,7 +80,9 @@ function applyPatch(
  * @param next   Candidate fields.
  */
 function changed(fields: BadgeFields, next: BadgeFields): boolean {
-  return Object.keys(next).some(key => next[key] !== fields[key]);
+  return (Object.keys(next) as BadgeFieldKey[]).some(
+    key => next[key] !== fields[key]
+  );
 }
 
 /**

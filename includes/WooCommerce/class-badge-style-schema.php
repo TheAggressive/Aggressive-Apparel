@@ -46,6 +46,8 @@ class Badge_Style_Schema {
 		'custom',
 	);
 
+	public const BORDER_STYLES   = array( 'none', 'solid', 'dashed', 'dotted', 'double' );
+	public const BADGE_TYPES     = array( 'custom', 'sale', 'new', 'low_stock', 'bestseller' );
 	public const SHAPE_MODES     = array( 'mask', 'frame' );
 	public const FILL_MODES      = array( 'solid', 'gradient' );
 	public const ICON_POSITIONS  = array( 'start', 'end', 'only' );
@@ -62,30 +64,7 @@ class Badge_Style_Schema {
 	 * @return array<string, int|string>
 	 */
 	public static function designer_defaults(): array {
-		return array(
-			'border_gap'     => 0,
-			'offset_x'       => 0,
-			'offset_y'       => 0,
-			'rotation'       => 0,
-			'shadow_blur'    => 0,
-			'shadow_spread'  => 0,
-			'shadow_color'   => '',
-			'glass'          => 0,
-			'fill_mode'      => 'solid',
-			'gradient_angle' => 135,
-			'gradient_from'  => '#000000',
-			'gradient_to'    => '#444444',
-			'font_size'      => 'x-small',
-			'font_size_px'   => 0,
-			'line_height'    => 'snug',
-			'icon_position'  => 'start',
-			'icon_gap'       => 0,
-			'shape'          => 'rect',
-			'shape_mode'     => 'mask',
-			'shape_svg'      => '',
-			'frame_color'    => '',
-			'frame_width'    => 2,
-		);
+		return Badge_Field_Registry::defaults();
 	}
 
 	/**
@@ -94,28 +73,7 @@ class Badge_Style_Schema {
 	 * @return array<string, int|string>
 	 */
 	public static function base_defaults(): array {
-		return array_merge(
-			array(
-				'bg_color'           => '#000000',
-				'text_color'         => '#ffffff',
-				'border_mode'        => 'none',
-				'border_color'       => '',
-				'border_width'       => 0,
-				'border_style'       => 'none',
-				'inner_border_color' => '',
-				'inner_border_width' => 0,
-				'font_weight'        => 700,
-				'text_transform'     => 'uppercase',
-				'letter_spacing'     => 'wide',
-				'radius_tl'          => 4,
-				'radius_tr'          => 4,
-				'radius_br'          => 4,
-				'radius_bl'          => 4,
-				'padding_x'          => 8,
-				'padding_y'          => 3,
-			),
-			self::designer_defaults()
-		);
+		return Badge_Field_Registry::defaults();
 	}
 
 	/**
@@ -255,6 +213,30 @@ class Badge_Style_Schema {
 
 		$slugs = array_keys( $found );
 		return $slugs;
+	}
+
+	/**
+	 * Read a numeric badge value clamped to its registry bounds.
+	 *
+	 * The save and REST paths already clamp, but emit is public and reachable
+	 * with an arbitrary badge array — an unbounded radius or padding here would
+	 * paint a badge no editor control could have produced.
+	 *
+	 * @param array<string, mixed> $badge Badge data.
+	 * @param string               $key   Registry field key.
+	 * @return int
+	 */
+	public static function bounded( array $badge, string $key ): int {
+		$spec = Badge_Field_Registry::fields()[ $key ] ?? null;
+		if ( null === $spec ) {
+			return (int) ( $badge[ $key ] ?? 0 );
+		}
+
+		$value = $badge[ $key ] ?? $spec['default'];
+
+		return 'signed' === $spec['type']
+			? self::clamp_signed( $value, (int) $spec['min'], (int) $spec['max'] )
+			: self::clamp_int( $value, (int) $spec['min'], (int) $spec['max'] );
 	}
 
 	/**
@@ -586,14 +568,18 @@ class Badge_Style_Schema {
 			'--badge-line-height:' . self::resolve_line_height( $badge ),
 			sprintf(
 				'--badge-radius:%dpx %dpx %dpx %dpx',
-				(int) $badge['radius_tl'],
-				(int) $badge['radius_tr'],
-				(int) $badge['radius_br'],
-				(int) $badge['radius_bl']
+				self::bounded( $badge, 'radius_tl' ),
+				self::bounded( $badge, 'radius_tr' ),
+				self::bounded( $badge, 'radius_br' ),
+				self::bounded( $badge, 'radius_bl' )
 			),
-			sprintf( '--badge-pad-x:%dpx', (int) $badge['padding_x'] ),
-			sprintf( '--badge-pad-y:%dpx', (int) $badge['padding_y'] ),
-			sprintf( '--badge-padding:%dpx %dpx', (int) $badge['padding_y'], (int) $badge['padding_x'] ),
+			sprintf( '--badge-pad-x:%dpx', self::bounded( $badge, 'padding_x' ) ),
+			sprintf( '--badge-pad-y:%dpx', self::bounded( $badge, 'padding_y' ) ),
+			sprintf(
+				'--badge-padding:%dpx %dpx',
+				self::bounded( $badge, 'padding_y' ),
+				self::bounded( $badge, 'padding_x' )
+			),
 			'--badge-offset-x:' . self::clamp_signed( $badge['offset_x'], -40, 40 ) . 'px',
 			'--badge-offset-y:' . self::clamp_signed( $badge['offset_y'], -40, 40 ) . 'px',
 			'--badge-rotate:' . self::clamp_signed( $badge['rotation'], -45, 45 ) . 'deg',

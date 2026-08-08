@@ -1,0 +1,392 @@
+/**
+ * Badge studio: base section.
+ *
+ * Split out of badge-studio.css for the file-length gate. The entry file
+ * is imports-only, so each section loads in its original position —
+ * moving one relative to the others would change the cascade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+body.taxonomy-aa_product_badge {
+	--aa-studio-ink: #17171a;
+	--aa-studio-mute: #9c9994;
+	--aa-studio-secondary: #4b4a47;
+	--aa-studio-line: #e7e4de;
+	--aa-studio-line-soft: #f1efea;
+	--aa-studio-surface: #fff;
+	--aa-studio-rail: #fff;
+	--aa-studio-page: #f7f6f3;
+	--aa-studio-canvas: #e7e4de;
+	--aa-studio-accent: #5b4cfb;
+	--aa-studio-accent-soft: #eeebff;
+	--aa-studio-accent-glow: #f5f3ff;
+	--aa-studio-focus: #5b4cfb;
+	--aa-studio-success: #2f9e5b;
+	--aa-studio-success-bg: #f0f9f1;
+	--aa-studio-radius: 12px;
+
+	/*
+	 * Manrope is used when the viewer already has it, never fetched. The theme
+	 * bundles no font files and loads none remotely (see Space Grotesk / Bebas
+	 * Neue in theme.json, both declared without a fontFace), so a Google Fonts
+	 * request here would have been the sole exception — one that hangs an
+	 * offline admin and sends viewer data to a third party on page load. The
+	 * fallback is wp-admin's own stack so the studio reads as native without it.
+	 */
+	--aa-studio-font: 'Manrope', -apple-system, blinkmacsystemfont, 'Segoe UI',
+		roboto, oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', ui-sans-serif,
+		system-ui, sans-serif;
+	--aa-studio-shadow: 0 1px 2px rgb(23 23 26 / 4%),
+		0 12px 32px rgb(23 23 26 / 6%);
+	--aa-studio-shadow-card: 0 24px 48px rgb(0 0 0 / 35%);
+}
+
+body.taxonomy-aa_product_badge #wpbody-content {
+	font-family: var(--aa-studio-font);
+}
+
+.aggressive-apparel-product-badge__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.aggressive-apparel-product-badge__icon svg {
+	width: var(--badge-icon-size, 1.25em);
+	height: var(--badge-icon-size, 1.25em);
+	fill: currentcolor;
+}
+
+/* Taxonomy shell: studio owns the left column. */
+body.taxonomy-aa_product_badge #col-container {
+	display: grid;
+	grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.9fr);
+	gap: 28px;
+}
+
+body.taxonomy-aa_product_badge #col-left,
+body.taxonomy-aa_product_badge #col-right {
+	float: none;
+	width: auto;
+}
+
+body.taxonomy-aa_product_badge #col-left .form-wrap > h2,
+body.taxonomy-aa_product_badge #col-left .form-field.term-slug-wrap,
+body.taxonomy-aa_product_badge #col-left .form-field.term-description-wrap,
+body.taxonomy-aa_product_badge.term-php .form-table .term-slug-wrap,
+body.taxonomy-aa_product_badge.term-php .form-table .term-description-wrap {
+	display: none;
+}
+
+/*
+ * Name lives only in the studio toolbar. Keep WP's name input in the DOM for
+ * taxonomy save/validation — hide the chrome on add + edit screens.
+ */
+body.taxonomy-aa_product_badge #col-left .form-field.term-name-wrap,
+body.taxonomy-aa_product_badge.term-php #edittag > .form-table .term-name-wrap {
+	display: none !important;
+}
+
+body.taxonomy-aa_product_badge.term-php #edittag > .form-table {
+	display: none;
+}
+
+body.taxonomy-aa_product_badge #edittag {
+	max-width: none;
+}
+
+/*
+ * Primary save lives in the studio toolbar (Add New / Update). Keep WP's
+ * submit inputs in the DOM for form.requestSubmit, but hide the duplicates.
+ * Edit screen still shows Delete.
+ */
+body.taxonomy-aa_product_badge #addtag .button-primary,
+body.taxonomy-aa_product_badge.term-php .edit-tag-actions .button-primary {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	margin: -1px !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+	clip-path: inset(50%) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+body.taxonomy-aa_product_badge.term-php .edit-tag-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin: 4px 0 0;
+	padding: 16px 0 0;
+	border-top: 1px solid var(--aa-studio-line);
+}
+
+body.taxonomy-aa_product_badge.term-php .edit-tag-actions .delete {
+	color: #b91c1c;
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.taxonomy-aa_product_badge.term-php .edit-tag-actions .delete:hover {
+	color: #991b1b;
+	text-decoration: underline;
+}
+
+.aa-badge-studio-shell {
+	margin: 0 0 24px;
+}
+
+.aa-badge-studio__fields {
+	display: none !important;
+}
+
+.aa-badge-studio__app {
+	display: flex;
+	flex-direction: column;
+
+	/*
+	 * Fixed height (not min-height): inspector tab content must scroll inside
+	 * its rail. Otherwise the workspace grows and the centered canvas stage
+	 * jumps whenever Fill / Border / Type / Icon / Layout content height changes.
+	 */
+	height: min(860px, calc(100vh - 140px));
+	min-height: 560px;
+	background: var(--aa-studio-page);
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 14px;
+	box-shadow: var(--aa-studio-shadow);
+	overflow: hidden;
+	font-family: var(--aa-studio-font);
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-studio__toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 64px;
+	padding: 0 24px;
+	border-bottom: 1px solid var(--aa-studio-line);
+	background: var(--aa-studio-surface);
+	flex-shrink: 0;
+}
+
+.aa-badge-studio__toolbar-left,
+.aa-badge-studio__toolbar-right {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.aa-badge-studio__brand {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #5b4cfb, #8a7cff);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 800;
+	flex: none;
+}
+
+.aa-badge-studio__title {
+	display: block;
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	color: var(--aa-studio-ink);
+	white-space: nowrap;
+}
+
+.aa-badge-studio__toolbar-rule {
+	width: 1px;
+	height: 20px;
+	background: var(--aa-studio-line);
+	flex: none;
+}
+
+.aa-badge-studio__entity,
+.aa-badge-studio__entity-input {
+	min-width: 0;
+	max-width: 280px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--aa-studio-secondary);
+}
+
+.aa-badge-studio__entity-input {
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 4px 8px;
+	background: transparent;
+	box-shadow: none;
+}
+
+.aa-badge-studio__entity-input:hover,
+.aa-badge-studio__entity-input:focus {
+	border-color: var(--aa-studio-line);
+	background: var(--aa-studio-page);
+	outline: none;
+}
+
+.aa-badge-studio__save-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: var(--aa-studio-success-bg);
+	color: var(--aa-studio-success);
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.aa-badge-studio__save-pill.is-dirty {
+	background: #fff7ed;
+	color: #c2410c;
+}
+
+.aa-badge-studio__save-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 999px;
+	background: currentcolor;
+}
+
+.aa-badge-studio__icon-btn,
+.aa-badge-studio__ghost-btn,
+.aa-badge-studio__primary-btn {
+	appearance: none;
+	cursor: pointer;
+	font-family: inherit;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.aa-badge-studio__icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--aa-studio-ink);
+	padding: 0;
+}
+
+.aa-badge-studio__icon-btn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.aa-badge-studio__ghost-btn {
+	padding: 9px 16px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--aa-studio-ink);
+	font-size: 13px;
+}
+
+.aa-badge-studio__primary-btn {
+	padding: 9px 18px;
+	border: 0;
+	border-radius: 8px;
+	background: var(--aa-studio-accent);
+	color: #fff;
+	font-size: 13px;
+}
+
+.aa-badge-studio__primary-btn:hover {
+	background: #4636d6;
+}
+
+.aa-badge-studio__status,
+.aa-badge-studio__notice {
+	margin: 0;
+	padding: 10px 24px;
+	border-bottom: 1px solid var(--aa-studio-line);
+	background: var(--aa-studio-surface);
+	font-size: 12px;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-studio__workspace {
+	display: grid;
+	grid-template-columns: 300px minmax(0, 1fr) 360px;
+	grid-template-rows: minmax(0, 1fr);
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.aa-badge-studio__library,
+.aa-badge-studio__inspector {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+	background: var(--aa-studio-rail);
+	border-inline-end: 1px solid var(--aa-studio-line);
+}
+
+.aa-badge-studio__inspector {
+	border-inline-end: 0;
+	border-inline-start: 1px solid var(--aa-studio-line);
+	padding: 0;
+	background: var(--aa-studio-surface);
+}
+
+.aa-badge-studio__library-head {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px 16px 12px;
+	flex-shrink: 0;
+}
+
+.aa-badge-studio__library-scroll {
+	flex: 1;
+	overflow: auto;
+	padding: 4px 16px 20px;
+}
+
+.aa-badge-studio__segment {
+	display: flex;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 10px;
+	background: var(--aa-studio-line-soft);
+}
+
+.aa-badge-studio__segment-btn {
+	flex: 1 1 0;
+	border: 0;
+	border-radius: 8px;
+	padding: 7px 8px;
+	background: transparent;
+	color: var(--aa-studio-mute);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.aa-badge-studio__segment-btn.is-active {
+	background: #fff;
+	color: var(--aa-studio-ink);
+	box-shadow: 0 1px 2px rgb(23 23 26 / 8%);
+}

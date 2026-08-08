@@ -117,57 +117,20 @@ trait Badge_Admin_Fields {
 	 * @return array<string, string>
 	 */
 	private static function badge_data_to_studio_fields( array $d ): array {
-		$d = Badge_Style_Schema::with_defaults( $d );
+		$d    = Badge_Style_Schema::with_defaults( $d );
+		$flat = array();
 
-		return array(
-			'badge_bg_color'           => (string) $d['bg_color'],
-			'badge_text_color'         => (string) $d['text_color'],
-			'badge_icon'               => (string) $d['icon'],
-			'badge_library_icon'       => (string) $d['library_icon'],
-			'badge_svg_icon'           => (string) $d['svg_icon'],
-			'badge_icon_color'         => (string) $d['icon_color'],
-			'badge_icon_size'          => (string) (int) $d['icon_size'],
-			'badge_icon_gap'           => (string) (int) $d['icon_gap'],
-			'badge_priority'           => (string) (int) $d['priority'],
-			'badge_border_color'       => (string) $d['border_color'],
-			'badge_border_width'       => (string) (int) $d['border_width'],
-			'badge_border_style'       => (string) $d['border_style'],
-			'badge_radius_tl'          => (string) (int) $d['radius_tl'],
-			'badge_radius_tr'          => (string) (int) $d['radius_tr'],
-			'badge_radius_br'          => (string) (int) $d['radius_br'],
-			'badge_radius_bl'          => (string) (int) $d['radius_bl'],
-			'badge_padding_x'          => (string) (int) $d['padding_x'],
-			'badge_padding_y'          => (string) (int) $d['padding_y'],
-			'badge_position'           => (string) $d['position'],
-			'badge_type'               => (string) $d['badge_type'],
-			'badge_border_mode'        => (string) $d['border_mode'],
-			'badge_inner_border_color' => (string) $d['inner_border_color'],
-			'badge_inner_border_width' => (string) (int) $d['inner_border_width'],
-			'badge_border_gap'         => (string) (int) $d['border_gap'],
-			'badge_font_size'          => (string) $d['font_size'],
-			'badge_font_size_px'       => (string) (int) $d['font_size_px'],
-			'badge_font_weight'        => (string) (int) $d['font_weight'],
-			'badge_text_transform'     => (string) $d['text_transform'],
-			'badge_letter_spacing'     => (string) $d['letter_spacing'],
-			'badge_line_height'        => (string) $d['line_height'],
-			'badge_icon_position'      => (string) $d['icon_position'],
-			'badge_offset_x'           => (string) (int) $d['offset_x'],
-			'badge_offset_y'           => (string) (int) $d['offset_y'],
-			'badge_rotation'           => (string) (int) $d['rotation'],
-			'badge_shadow_blur'        => (string) (int) $d['shadow_blur'],
-			'badge_shadow_spread'      => (string) (int) $d['shadow_spread'],
-			'badge_shadow_color'       => (string) $d['shadow_color'],
-			'badge_glass'              => (int) $d['glass'] ? '1' : '0',
-			'badge_fill_mode'          => (string) $d['fill_mode'],
-			'badge_gradient_angle'     => (string) (int) $d['gradient_angle'],
-			'badge_gradient_from'      => (string) $d['gradient_from'],
-			'badge_gradient_to'        => (string) $d['gradient_to'],
-			'badge_shape'              => (string) $d['shape'],
-			'badge_shape_mode'         => (string) $d['shape_mode'],
-			'badge_shape_svg'          => (string) $d['shape_svg'],
-			'badge_frame_color'        => (string) $d['frame_color'],
-			'badge_frame_width'        => (string) (int) $d['frame_width'],
-		);
+		foreach ( Badge_Field_Registry::fields() as $key => $spec ) {
+			$value = $d[ $key ] ?? $spec['default'];
+
+			// Every hidden input posts a string; integers are normalised here so a
+			// stored "07" or true round-trips as the same value the schema holds.
+			$flat[ (string) $spec['field'] ] = Badge_Field_Registry::is_int_field( $spec )
+				? (string) (int) $value
+				: (string) $value;
+		}
+
+		return $flat;
 	}
 
 	/**

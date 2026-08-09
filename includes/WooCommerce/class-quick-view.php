@@ -51,8 +51,8 @@ class Quick_View {
 	 */
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_trigger_button' ) );
-		Block_Filter_Hooks::add( 'woocommerce/product-image', array( $this, 'inject_trigger_button' ) );
+		Block_Filter_Hooks::add_featured_image( array( $this, 'inject_trigger_button' ), 10, 3 );
+		Block_Filter_Hooks::add( 'woocommerce/product-image', array( $this, 'inject_trigger_button' ), 10, 3 );
 		add_action( 'wp_footer', array( $this->renderer, 'render_modal_shell' ) );
 		add_action( 'rest_api_init', array( $this, 'register_store_api_extension' ) );
 	}
@@ -145,12 +145,13 @@ class Quick_View {
 	}
 
 	/**
-	 * Enqueue CSS and register Interactivity API script module on shop/archive pages.
+	 * Enqueue CSS and register the Interactivity API module where product cards
+	 * can render, including related products on single-product pages.
 	 *
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( ! $this->is_listing_page() ) {
+		if ( ! Product_Context::is_product_display_page() ) {
 			return;
 		}
 
@@ -179,18 +180,17 @@ class Quick_View {
 	/**
 	 * Inject the Quick View media action stack onto product card images.
 	 *
-	 * @param string               $block_content Block HTML.
-	 * @param array<string, mixed> $block         Block data.
+	 * @param string               $block_content  Block HTML.
+	 * @param array<string, mixed> $block          Block data.
+	 * @param mixed                $block_instance Rendered block instance.
 	 * @return string Modified HTML.
 	 */
-	public function inject_trigger_button( string $block_content, array $block ): string {
-		unset( $block );
-
-		if ( '' === trim( $block_content ) || ! $this->is_listing_page() ) {
+	public function inject_trigger_button( string $block_content, array $block, $block_instance = null ): string {
+		if ( '' === trim( $block_content ) || ! $this->should_inject_trigger( $block ) ) {
 			return $block_content;
 		}
 
-		$product = $this->get_current_product();
+		$product = $this->get_current_product( $block, $block_instance );
 		if ( ! $product ) {
 			return $block_content;
 		}
@@ -204,12 +204,40 @@ class Quick_View {
 	}
 
 	/**
-	 * Get the WC_Product for the current post in the loop.
+	 * Get the WC_Product from the current block or loop context.
 	 *
+	 * @param array<string, mixed> $block          Block data.
+	 * @param mixed                $block_instance Rendered block instance.
 	 * @return \WC_Product|null
 	 */
-	private function get_current_product(): ?\WC_Product {
-		return Product_Context::get_current_product();
+	private function get_current_product( array $block, $block_instance = null ): ?\WC_Product {
+		$product_id = Product_Context::resolve_product_id( $block, $block_instance );
+		if ( $product_id <= 0 || ! function_exists( 'wc_get_product' ) ) {
+			return null;
+		}
+
+		$product = wc_get_product( $product_id );
+
+		return $product instanceof \WC_Product ? $product : null;
+	}
+
+	/**
+	 * Whether this image is a product-card surface that should receive Quick View.
+	 *
+	 * Archive/search images remain eligible as before. On broader product display
+	 * pages, only images explicitly marked as query-loop descendants are eligible,
+	 * which enables related/cross-sell cards without decorating the main gallery.
+	 *
+	 * @param array<string, mixed> $block Block data.
+	 * @return bool
+	 */
+	private function should_inject_trigger( array $block ): bool {
+		if ( $this->is_listing_page() ) {
+			return true;
+		}
+
+		return Product_Context::is_product_display_page()
+			&& ! empty( $block['attrs']['isDescendentOfQueryLoop'] );
 	}
 
 	/**

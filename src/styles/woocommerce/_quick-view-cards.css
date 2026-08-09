@@ -48,7 +48,7 @@
 	}
 
 	/* Corner chip stack. */
-	.aggressive-apparel-card-actions--corner {
+	&.aggressive-apparel-card-actions--corner {
 		flex-direction: column;
 		gap: 0.35rem;
 		padding: 0.5rem;
@@ -75,7 +75,7 @@
 	}
 
 	/* Bottom action bar. */
-	.aggressive-apparel-card-actions--bottom-bar {
+	&.aggressive-apparel-card-actions--bottom-bar {
 		align-items: stretch;
 		justify-content: flex-end;
 		flex-direction: column;

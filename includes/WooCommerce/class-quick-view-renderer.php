@@ -143,7 +143,7 @@ class Quick_View_Renderer {
 	 * @return void
 	 */
 	public function render_modal_shell(): void {
-		if ( ! Product_Context::is_product_listing() ) {
+		if ( ! Product_Context::is_product_display_page() ) {
 			return;
 		}
 

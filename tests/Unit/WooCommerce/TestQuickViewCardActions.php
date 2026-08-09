@@ -12,6 +12,7 @@ namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 use Aggressive_Apparel\WooCommerce\Block_Render_Helper;
 use Aggressive_Apparel\WooCommerce\Feature_Settings;
 use Aggressive_Apparel\WooCommerce\Feature_Settings_Sanitizer;
+use Aggressive_Apparel\WooCommerce\Quick_View;
 use Aggressive_Apparel\WooCommerce\Quick_View_Renderer;
 use WC_Product_Simple;
 use WP_UnitTestCase;
@@ -130,6 +131,56 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression( '/aggressive-apparel-card-actions[\s\S]*<\/div>\s*$/', $result );
 
 		wp_delete_post( $product->get_id(), true );
+	}
+
+	/**
+	 * Single-product pages should decorate related cards, not the main gallery.
+	 */
+	public function test_single_product_only_injects_into_query_loop_images(): void {
+		if ( ! class_exists( WC_Product_Simple::class ) ) {
+			$this->markTestSkipped( 'WooCommerce is required.' );
+		}
+
+		update_option( Feature_Settings::OPTION_KEY, array( 'quick_view' => '1' ) );
+
+		$product    = $this->create_test_product( 'Related Card Jacket' );
+		$product_id = $product->get_id();
+		$this->go_to( get_permalink( $product_id ) );
+
+		$quick_view = new Quick_View();
+		$content    = '<div class="wp-block-woocommerce-product-image"><img src="x.jpg" alt="" /></div>';
+		$context    = array( 'context' => array( 'postId' => $product_id ) );
+
+		$this->assertSame(
+			$content,
+			$quick_view->inject_trigger_button( $content, $context ),
+			'The main product gallery must not receive a redundant Quick View trigger.'
+		);
+
+		$related_block          = $context;
+		$related_block['attrs'] = array( 'isDescendentOfQueryLoop' => true );
+		$related_html           = $quick_view->inject_trigger_button( $content, $related_block );
+
+		$this->assertStringContainsString( 'aggressive-apparel-card-actions', $related_html );
+		$this->assertStringContainsString( 'aggressive-apparel-quick-view__trigger', $related_html );
+
+		wp_delete_post( $product_id, true );
+	}
+
+	/**
+	 * The default PDP template must preserve automatic Wishlist placement.
+	 */
+	public function test_single_product_template_does_not_override_wishlist_placement(): void {
+		$template_file = get_template_directory() . '/templates/single-product.html';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local template fixture.
+		$template = file_get_contents( $template_file );
+
+		$this->assertIsString( $template );
+		$this->assertStringNotContainsString(
+			'wp:aggressive-apparel/wishlist-button',
+			$template,
+			'The shipped template must not force manual placement when the default setting is automatic.'
+		);
 	}
 
 	/**

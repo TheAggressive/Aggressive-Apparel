@@ -131,6 +131,35 @@ class TestStyles extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Quick View placement modifiers must target the action stack itself.
+	 */
+	public function test_quick_view_card_position_selectors_are_compound(): void {
+		$css_file = get_template_directory() . '/build/styles/woocommerce/quick-view.css';
+
+		$this->assertFileExists( $css_file );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local build artifact in a test.
+		$css = file_get_contents( $css_file );
+		$this->assertIsString( $css );
+
+		$this->assertStringContainsString(
+			'.aggressive-apparel-card-actions.aggressive-apparel-card-actions--corner',
+			$css,
+			'Corner placement must target modifier classes on the action stack itself.'
+		);
+		$this->assertStringContainsString(
+			'.aggressive-apparel-card-actions.aggressive-apparel-card-actions--bottom-bar',
+			$css,
+			'Bottom-bar placement must target modifier classes on the action stack itself.'
+		);
+		$this->assertStringNotContainsString(
+			'.aggressive-apparel-card-actions .aggressive-apparel-card-actions--corner',
+			$css,
+			'Placement must not require a nonexistent nested action-stack element.'
+		);
+	}
+
+	/**
 	 * Product-card defaults must not outrank styles saved by the Site Editor.
 	 *
 	 * Load More and Infinite Scroll append freshly rendered cards to the native

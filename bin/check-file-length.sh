@@ -40,6 +40,12 @@ done < <(
 	# shipping code — and an unreadable drift guard is the one file where
 	# nobody wanting to read it is the actual risk.
 	find bin -name '*.mjs' -not -name '*.test.mjs' -print0
+	# Stylesheets too. A 1600-line stylesheet is as hard to navigate as a
+	# 1600-line class, and badge-studio.css reached that size precisely because
+	# this gate did not look at CSS. `_`-prefixed files are @import partials of
+	# a sibling entry and are measured on their own, which is the point: the
+	# entry stays small and each section is independently readable.
+	find src \( -name '*.css' \) -print0
 )
 
 if [[ "$EXIT" -ne 0 ]]; then

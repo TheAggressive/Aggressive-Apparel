@@ -239,13 +239,15 @@ test('rejects a locale catalog shipped without its compiled .mo', () => {
   const { status, output } = verify(zipPath);
 
   assert.equal(status, 1);
-  assert.match(output, /has no compiled aggressive-apparel-fr_FR\.mo/u);
+  assert.match(output, /has no compiled fr_FR\.mo/u);
 });
 
 test('accepts a locale catalog that has its compiled .mo', () => {
   const zipPath = buildPackage(root => {
     write(root, 'languages/aggressive-apparel-fr_FR.po', 'msgid ""\n');
-    write(root, 'languages/aggressive-apparel-fr_FR.mo', 'compiled\n');
+    // <locale>.mo, not <domain>-<locale>.mo: a theme's own languages/
+    // directory is only ever read as the bare form.
+    write(root, 'languages/fr_FR.mo', 'compiled\n');
   });
 
   const { status, output } = verify(zipPath);

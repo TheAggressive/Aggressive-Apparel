@@ -87,7 +87,16 @@ done
 # ships untranslated for that locale while still advertising the catalog.
 while IFS= read -r po_entry; do
 	[[ -n "${po_entry}" ]] || continue
-	mo_entry="${po_entry%.po}.mo"
+	# A theme's own languages/ directory is read as <locale>.mo, not
+	# <domain>-<locale>.mo — _load_textdomain_just_in_time() picks the bare form
+	# whenever the registered path sits inside the template directory, with no
+	# fallback. compile.sh emits that name, so this must expect it too;
+	# deriving <po-name>.mo here is what made the packager demand a filename
+	# WordPress would never open.
+	locale="${po_entry##*/}"
+	locale="${locale#"${AA_THEME_SLUG}"-}"
+	locale="${locale%.po}"
+	mo_entry="${po_entry%/*}/${locale}.mo"
 	if ! grep -qxF "${mo_entry}" <<<"${ENTRIES}"; then
 		fail "Locale catalog ${po_entry##*/} has no compiled ${mo_entry##*/}"
 	fi

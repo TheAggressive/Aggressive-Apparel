@@ -1,0 +1,343 @@
+/**
+ * Quick view: cards section.
+ *
+ * Split out of quick-view.css for the file-length gate. The entry file is
+ * imports-only so each section keeps its original position; moving one
+ * relative to the others would change the cascade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Media wrappers need a positioning context for the action stack. */
+.wp-block-post-featured-image,
+.wp-block-woocommerce-product-image {
+	position: relative;
+}
+
+/* Card media action stack (Quick View ± Wishlist). Shared sizing for both the
+   wishlist heart and the quick-view eye so the two card actions are always
+   visually identical: --aa-card-action-size is the canonical 44px hit area,
+   and --aa-card-action-icon is the smaller glyph inside it. */
+.aggressive-apparel-card-actions {
+	--aa-card-action-size: var(--aa-icon-button-size);
+	--aa-card-action-icon: 1.125rem;
+
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	display: flex;
+	pointer-events: none;
+
+	& > *,
+	&__bar {
+		pointer-events: auto;
+	}
+
+	&__bar {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.35rem;
+		width: 100%;
+		padding: 0.5rem;
+		background: linear-gradient(
+			to top,
+			color-mix(in oklch, var(--aa-color-surface) 88%, transparent),
+			transparent
+		);
+	}
+
+	/* Corner chip stack. */
+	.aggressive-apparel-card-actions--corner {
+		flex-direction: column;
+		gap: 0.35rem;
+		padding: 0.5rem;
+
+		&.aggressive-apparel-card-actions--top-right {
+			align-items: flex-end;
+			justify-content: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--top-left {
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-right {
+			align-items: flex-end;
+			justify-content: flex-end;
+		}
+
+		&.aggressive-apparel-card-actions--bottom-left {
+			align-items: flex-start;
+			justify-content: flex-end;
+		}
+	}
+
+	/* Bottom action bar. */
+	.aggressive-apparel-card-actions--bottom-bar {
+		align-items: stretch;
+		justify-content: flex-end;
+		flex-direction: column;
+	}
+
+}
+
+/* Clear common sale-badge corners so chips do not collide. */
+.wp-block-woocommerce-product-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right,
+.wp-block-post-featured-image:has(.wc-block-components-product-sale-badge, .onsale, .wc-block-components-sale-badge)
+	.aggressive-apparel-card-actions--corner.aggressive-apparel-card-actions--top-right {
+	padding-top: 2.5rem;
+}
+
+/* Shared product-card action contract (Quick View + Wishlist). */
+.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+	--aa-icon-button-background: var(
+		--aa-color-surface-80,
+		color-mix(in oklch, var(--aa-color-surface) 80%, transparent)
+	);
+	--aa-icon-button-border: color-mix(in oklch, var(--aa-color-border) 70%, transparent);
+	--aa-icon-button-color: var(--aa-color-foreground);
+	--aa-icon-button-hover-background: var(--aa-icon-button-background);
+	--aa-icon-button-hover-border: var(--aa-icon-button-border);
+	--aa-icon-button-hover-color: var(--aa-icon-button-color);
+
+	width: var(--aa-card-action-size);
+	height: var(--aa-card-action-size);
+	box-shadow: var(--aa-shadow-sm, 0 1px 2px color-mix(in oklch, var(--aa-color-black) 12%, transparent));
+
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+/* Trigger button on product cards. Icon-only by default; the bottom-bar
+   variant reveals its label and restores the pill shape. */
+.aggressive-apparel-quick-view__trigger {
+
+	.aggressive-apparel-quick-view__trigger-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+	}
+
+	.aggressive-apparel-quick-view__trigger-label {
+		display: none;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	svg {
+		display: block;
+		width: var(--aa-card-action-icon);
+		height: var(--aa-card-action-icon);
+	}
+}
+
+/* Match the heart glyph to the eye glyph (the base wishlist icon is larger for
+   the standalone button); scoped to the card action stack only. */
+.aggressive-apparel-card-actions .aggressive-apparel-wishlist__icon {
+	width: var(--aa-card-action-icon);
+	height: var(--aa-card-action-icon);
+}
+
+.aggressive-apparel-card-action
+	> :is(
+		.aggressive-apparel-quick-view__trigger-icon,
+		.aggressive-apparel-wishlist__icon
+	) {
+	opacity: 0.72;
+	transition: opacity var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aggressive-apparel-card-actions
+	.aggressive-apparel-card-action:is(:hover, :focus-visible, .is-active)
+	> :is(
+		.aggressive-apparel-quick-view__trigger-icon,
+		.aggressive-apparel-wishlist__icon
+	) {
+	opacity: 1;
+}
+
+/* Devices that can hover: hide until card/media hover or focus. */
+@media (hover: hover) and (pointer: fine) {
+
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+		opacity: 0;
+		transform: translateY(0.15rem);
+	}
+
+	.wp-block-post-featured-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-image:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wp-block-woocommerce-product-template > li:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.wc-block-grid__product:is(:hover, :focus-within) .aggressive-apparel-card-action,
+	.aggressive-apparel-card-actions:focus-within .aggressive-apparel-card-action {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+}
+
+/* Touch / no-hover: always-visible chips — never full-bleed image hijack. */
+@media (hover: none), (pointer: coarse) {
+
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+		position: relative;
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Bottom bar: expand label on capable hover devices. */
+@media (hover: hover) and (pointer: fine) {
+
+	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger-label {
+		display: inline;
+	}
+
+	/* With the label visible the trigger becomes a pill again (icon + text). */
+	.aggressive-apparel-card-actions--bottom-bar .aggressive-apparel-quick-view__trigger {
+		width: auto;
+		min-width: var(--aa-card-action-size);
+		padding: 0 0.65rem;
+	}
+}
+
+@media (forced-colors: active) {
+
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+		border: 1px solid ButtonText;
+		background: Canvas;
+		color: ButtonText;
+		opacity: 1;
+		forced-color-adjust: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.aggressive-apparel-card-actions .aggressive-apparel-card-action {
+		transition: none;
+	}
+
+	.aggressive-apparel-card-action
+		> :is(
+			.aggressive-apparel-quick-view__trigger-icon,
+			.aggressive-apparel-wishlist__icon
+		) {
+		transition: none;
+	}
+}
+
+/* Standalone add-to-cart confirmation. */
+.aggressive-apparel-quick-view-success {
+	--aa-overlay-opacity: 0.72;
+	--quick-view-stock-in: var(--aa-color-success);
+}
+
+.aggressive-apparel-quick-view-success__panel {
+	width: min(90vw, 30rem);
+	padding: 2rem;
+	align-items: center;
+	gap: 1rem;
+	overflow: visible;
+}
+
+.aggressive-apparel-quick-view-success__close {
+	--aa-icon-button-color: inherit;
+
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+
+	& svg {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+}
+
+.aggressive-apparel-quick-view-success__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 50%;
+	background: color-mix(in oklch, var(--quick-view-stock-in) 12%, transparent);
+	color: var(--quick-view-stock-in);
+	font-size: 1.5rem;
+	font-weight: 700;
+}
+
+.aggressive-apparel-quick-view-success__title {
+	margin: 0;
+	padding-inline: 2.5rem;
+	font-size: 1.35rem;
+	text-align: center;
+}
+
+.aggressive-apparel-quick-view-success__product {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+	padding: 0.875rem;
+	border-radius: var(--aa-radius-card);
+	background: color-mix(in oklch, currentcolor 4%, transparent);
+}
+
+.aggressive-apparel-quick-view-success__image {
+	width: 5rem;
+	height: 5rem;
+	flex-shrink: 0;
+	border-radius: 0.25rem;
+	object-fit: cover;
+}
+
+.aggressive-apparel-quick-view-success__product-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+.aggressive-apparel-quick-view-success__product-name {
+	font-weight: 700;
+}
+
+.aggressive-apparel-quick-view-success__options {
+	font-size: 0.875rem;
+	opacity: 0.7;
+
+	&:empty {
+		display: none;
+	}
+}
+
+.aggressive-apparel-quick-view-success__actions {
+	display: flex;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+.aggressive-apparel-quick-view-success__button {
+	flex: 1;
+	text-align: center;
+	text-decoration: none;
+}
+
+@media (width <= 480px) {
+
+	.aggressive-apparel-quick-view-success__panel {
+		width: calc(100vw - 2rem);
+		padding: 1.5rem;
+	}
+
+	.aggressive-apparel-quick-view-success__actions {
+		flex-direction: column-reverse;
+	}
+}

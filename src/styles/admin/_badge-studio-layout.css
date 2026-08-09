@@ -1,0 +1,576 @@
+/**
+ * Badge studio: layout section.
+ *
+ * Split out of badge-studio.css for the file-length gate. The entry file
+ * is imports-only, so each section loads in its original position —
+ * moving one relative to the others would change the cascade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/*
+ * Search field — use a div (not label). WP admin label rules force
+ * display:block and inflate input[type=search], which parks the icon
+ * at the top-left while the placeholder sinks.
+ */
+body.taxonomy-aa_product_badge .aa-badge-studio__search {
+	display: flex !important;
+	align-items: center !important;
+	gap: 10px;
+	box-sizing: border-box;
+	min-height: 40px;
+	padding: 0 12px 0 14px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	background: var(--aa-studio-page);
+	color: var(--aa-studio-mute);
+}
+
+body.taxonomy-aa_product_badge .aa-badge-studio__search svg {
+	display: block;
+	flex: none;
+	width: 16px;
+	height: 16px;
+	margin: 0;
+}
+
+body.taxonomy-aa_product_badge .aa-badge-studio__search input[type='search'] {
+	appearance: none;
+	flex: 1 1 auto;
+	min-width: 0;
+	width: auto;
+	height: 38px;
+	min-height: 0;
+	max-height: none;
+	margin: 0;
+	padding: 0;
+	border: 0 !important;
+	border-radius: 0;
+	background: transparent !important;
+	box-shadow: none !important;
+	outline: none;
+	font: inherit;
+	font-size: 13px;
+	line-height: 38px;
+	color: var(--aa-studio-ink);
+}
+
+body.taxonomy-aa_product_badge
+	.aa-badge-studio__search
+	input[type='search']::-webkit-search-decoration,
+body.taxonomy-aa_product_badge
+	.aa-badge-studio__search
+	input[type='search']::-webkit-search-cancel-button {
+	appearance: none;
+	display: none;
+}
+
+.aa-badge-studio__library-title {
+	margin: 10px 0 8px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-studio__preset-grid,
+.aa-badge-studio__shape-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+}
+
+.aa-badge-studio__preset,
+.aa-badge-studio__shape {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 10px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 12px;
+	background: #fff;
+	cursor: pointer;
+	text-align: left;
+	font: inherit;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.aa-badge-studio__preset:hover,
+.aa-badge-studio__shape:hover {
+	border-color: #d4d0c8;
+	background: #fffcf8;
+}
+
+.aa-badge-studio__preset.is-active,
+.aa-badge-studio__shape.is-active {
+	border: 2px solid var(--aa-studio-accent);
+	background: var(--aa-studio-accent-glow);
+	padding: 9px;
+}
+
+.aa-badge-studio__check {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 999px;
+	background: var(--aa-studio-accent);
+	color: #fff;
+}
+
+.aa-badge-studio__template-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.aa-badge-studio__template {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 12px;
+	background: #fff;
+	cursor: pointer;
+	text-align: left;
+	font: inherit;
+}
+
+.aa-badge-studio__template:hover {
+	border-color: var(--aa-studio-accent);
+	background: var(--aa-studio-accent-glow);
+}
+
+.aa-badge-studio__template.is-active {
+	border: 2px solid var(--aa-studio-accent);
+	background: var(--aa-studio-accent-glow);
+	padding: 9px;
+}
+
+.aa-badge-studio__template-thumb {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 40px;
+	border-radius: 8px;
+	background: #17171a;
+	color: #fff;
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	flex: none;
+}
+
+.aa-badge-studio__template-thumb--flash-sale {
+	background: linear-gradient(135deg, #ff6f59, #f2994a);
+}
+
+.aa-badge-studio__template-thumb--clearance {
+	background: transparent;
+	color: #e1483b;
+	border: 2px solid #e1483b;
+}
+
+.aa-badge-studio__template-thumb--new-arrival {
+	background: #2f9e5b;
+}
+
+.aa-badge-studio__template-thumb--free-shipping {
+	background: #3e6ae1;
+	border-radius: 999px;
+}
+
+.aa-badge-studio__template-thumb--limited-stock {
+	background: #111318;
+	color: #39ff88;
+	border: 2px solid #39ff88;
+}
+
+.aa-badge-studio__template-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.aa-badge-studio__template-name {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-studio__template-caption {
+	font-size: 11.5px;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-studio__preset:focus-visible,
+.aa-badge-studio__shape:focus-visible,
+.aa-badge-studio__tone-btn:focus-visible,
+.aa-badge-studio__tab:focus-visible {
+	outline: 2px solid var(--aa-studio-focus);
+	outline-offset: 2px;
+}
+
+.aa-badge-studio__preset-chip {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-start;
+	min-height: 22px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #fff;
+	background: #111;
+}
+
+.aa-badge-studio__preset-chip--outline {
+	color: #111;
+	background: transparent;
+	border: 1px solid #111;
+}
+
+.aa-badge-studio__preset-chip--glass {
+	color: #111;
+	background: rgb(255 255 255 / 70%);
+	border: 1px solid #ddd;
+	backdrop-filter: blur(4px);
+}
+
+.aa-badge-studio__preset-chip--gradient {
+	background: linear-gradient(135deg, #dc2626, #f59e0b);
+}
+
+.aa-badge-studio__preset-chip--neon {
+	color: #39ff14;
+	background: #0a0a0a;
+	border: 1px solid #39ff14;
+}
+
+.aa-badge-studio__preset-chip--minimal {
+	color: #111;
+	background: transparent;
+}
+
+.aa-badge-studio__preset-chip--shadow {
+	box-shadow: 0 6px 14px rgb(0 0 0 / 35%);
+}
+
+.aa-badge-studio__preset-chip--layered {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 3px #111;
+}
+
+.aa-badge-studio__preset-chip--stamp {
+	color: #111;
+	background: transparent;
+	border: 2px solid #111;
+	border-radius: 999px;
+	transform: rotate(-8deg);
+}
+
+.aa-badge-studio__preset-name,
+.aa-badge-studio__shape-name {
+	font-size: 12.5px;
+	font-weight: 700;
+	line-height: 1.25;
+	color: var(--aa-studio-secondary);
+}
+
+.aa-badge-studio__preset.is-active .aa-badge-studio__preset-name,
+.aa-badge-studio__shape.is-active .aa-badge-studio__shape-name {
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-studio__shape-stub {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-self: stretch;
+	min-height: 26px;
+	padding: 3px 6px;
+	border-radius: 4px;
+	background: #111;
+	color: #fff;
+	font-size: 8px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	line-height: 1;
+	text-transform: uppercase;
+	overflow: hidden;
+}
+
+.aa-badge-studio__shape-stub--pill {
+	border-radius: 999px;
+}
+
+.aa-badge-studio__shape-stub--ticket {
+	clip-path: polygon(
+		0 20%,
+		8% 0,
+		92% 0,
+		100% 20%,
+		100% 80%,
+		92% 100%,
+		8% 100%,
+		0 80%
+	);
+}
+
+.aa-badge-studio__shape-stub--shield {
+	clip-path: polygon(50% 0, 100% 18%, 100% 62%, 50% 100%, 0 62%, 0 18%);
+}
+
+.aa-badge-studio__shape-stub--hex {
+	clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
+}
+
+.aa-badge-studio__shape-stub--burst {
+	clip-path: polygon(
+		50% 0%,
+		59% 20%,
+		75% 7%,
+		75% 28%,
+		93% 25%,
+		84% 42%,
+		100% 50%,
+		84% 58%,
+		93% 75%,
+		75% 72%,
+		75% 93%,
+		59% 80%,
+		50% 100%,
+		41% 80%,
+		25% 93%,
+		25% 72%,
+		7% 75%,
+		16% 58%,
+		0% 50%,
+		16% 42%,
+		7% 25%,
+		25% 28%,
+		25% 7%,
+		41% 20%
+	);
+}
+
+.aa-badge-studio__shape-stub--ribbon-fold {
+	clip-path: polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%);
+}
+
+.aa-badge-studio__shape-stub--tag {
+	clip-path: polygon(0 15%, 70% 15%, 100% 50%, 70% 85%, 0 85%);
+}
+
+.aa-badge-studio__shape-stub--stamp-circle {
+	border-radius: 999px;
+}
+
+.aa-badge-studio__shape-stub--custom {
+	color: #111;
+	background: repeating-linear-gradient(
+		45deg,
+		#111,
+		#111 4px,
+		#fff 4px,
+		#fff 8px
+	);
+}
+
+.aa-badge-studio__canvas {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+	background: var(--aa-studio-page);
+}
+
+.aa-badge-studio__canvas-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 10px 16px;
+	min-height: 56px;
+	padding: 10px 24px;
+	background: #fff;
+	border-bottom: 1px solid var(--aa-studio-line);
+	flex-shrink: 0;
+}
+
+.aa-badge-studio__canvas-title {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--aa-studio-ink);
+}
+
+.aa-badge-studio__canvas-tools {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	flex: none;
+	margin-left: auto;
+}
+
+.aa-badge-studio__zoom {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-studio__zoom-btn {
+	width: 22px;
+	height: 22px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 6px;
+	background: #fff;
+	color: var(--aa-studio-ink);
+	font: inherit;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+}
+
+.aa-badge-studio__zoom-btn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.aa-badge-studio__zoom-value {
+	width: 36px;
+	text-align: center;
+}
+
+.aa-badge-studio__tone {
+	display: inline-flex;
+	padding: 3px;
+	border-radius: 8px;
+	background: var(--aa-studio-line-soft);
+	gap: 2px;
+}
+
+.aa-badge-studio__tone-btn {
+	border: 0;
+	border-radius: 6px;
+	padding: 5px 11px;
+	background: transparent;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--aa-studio-mute);
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.aa-badge-studio__tone-btn.is-active {
+	background: #fff;
+	color: var(--aa-studio-ink);
+	box-shadow: 0 1px 2px rgb(23 23 26 / 8%);
+}
+
+.aa-badge-studio__stage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 22px;
+	flex: 1;
+	padding: 32px;
+	overflow: auto;
+	background-color: var(--aa-studio-canvas);
+	background-image: radial-gradient(
+		circle at 1px 1px,
+		rgb(255 255 255 / 35%) 1px,
+		transparent 0
+	);
+	background-size: 22px 22px;
+
+	/* Drive light-dark() for preset badge colors inside the preview. */
+	color-scheme: light;
+}
+
+.aa-badge-studio__stage--dark {
+	color-scheme: dark;
+	background-color: #15141a;
+	background-image: radial-gradient(
+		circle at 1px 1px,
+		rgb(255 255 255 / 6%) 1px,
+		transparent 0
+	);
+}
+
+.aa-badge-studio__stage-scale {
+
+	/* Prefer zoom over transform so glass backdrop-filter keeps a real backdrop. */
+	transform-origin: center center;
+}
+
+.aa-badge-studio__card {
+	width: 300px;
+	border-radius: 16px;
+	overflow: hidden;
+	background: #fff;
+	box-shadow: var(--aa-studio-shadow-card);
+	position: relative;
+}
+
+.aa-badge-studio__stage--dark .aa-badge-studio__card {
+	background: #1f1e26;
+}
+
+.aa-badge-studio__card-image {
+	position: relative;
+	height: 260px;
+	background: linear-gradient(160deg, #f1efea, #e7e4de 55%, #dad7d0);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.aa-badge-studio__stage--dark .aa-badge-studio__card-image {
+	background: linear-gradient(160deg, #2a2930, #1f1e26 60%, #15141a);
+}
+
+.aa-badge-studio__garment {
+	position: absolute;
+	inset: 18% 22% 12%;
+	width: auto;
+	height: auto;
+	fill: #94a3b8;
+	opacity: 0.55;
+}
+
+.aa-badge-studio__stage--dark .aa-badge-studio__garment {
+	fill: #64748b;
+}
+
+.aa-badge-studio__badge-slot {
+	position: absolute;
+	z-index: 2;
+	display: flex;
+	pointer-events: none;
+}
+
+.aa-badge-studio__badge-slot--top-left {
+	top: 12px;
+	left: 12px;
+}

@@ -13,6 +13,15 @@ THEME_CWD="wp-content/themes/aggressive-apparel"
 # whatever WordPress shipped with it, so without this the lockfile metadata and
 # dependency resolution vary by who ran the lane.
 bash "${SCRIPT_DIR}/install-composer.sh"
+# The integration suite needs compiled catalogs, and compiling them needs
+# WP-CLI's i18n package. bin/ci/wp resolves it from .cache/ci by PATH inside
+# the container, exactly as the i18n lane does — but only once it is installed.
+# Installing into .cache/ci rather than the default /usr/local/bin keeps this
+# sudo-free, so the lane runs identically on a developer machine and a runner.
+mkdir -p "${REPO_ROOT}/.cache/ci"
+WP_CLI_INSTALL_PATH="${REPO_ROOT}/.cache/ci/wp" \
+	WP_CLI_SKIP_INFO=1 \
+	bash "${SCRIPT_DIR}/install-wp-cli.sh"
 
 cleanup() {
 	if ! bash "${SCRIPT_DIR}/stop-wp-env.sh"; then
@@ -54,14 +63,10 @@ ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-cl
 # a different job. Compiling here is what lets the translation-loading test
 # guard anything in CI rather than reporting a missing file.
 #
-# The compile needs WP-CLI, and the tests-cli container has none of its own:
-# bin/ci/wp is a shim that execs .cache/ci/wp, and only bin/ci/i18n.sh ever
-# downloaded that PHAR. Bootstrapping it here — same pinned, checksum-verified
-# release — is what the lane was missing.
-WP_CLI_INSTALL_PATH="${REPO_ROOT}/.cache/ci/wp" \
-	WP_CLI_SKIP_INFO=1 \
-	bash "${SCRIPT_DIR}/install-wp-cli.sh"
-
+# Runs through ci_php, so `wp` resolves to bin/ci/wp on the container PATH. The
+# host has no route to this lane's wp-env project: wp-env derives its project
+# hash from the cwd's .wp-env.json, and this environment is started from bin/ci,
+# so a host-side fallback looks for a compose file that was never created there.
 ci_php 'bash bin/i18n/compile.sh'
 
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=integration --verbose'

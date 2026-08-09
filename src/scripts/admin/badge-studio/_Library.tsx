@@ -4,6 +4,8 @@
  * @package Aggressive_Apparel
  */
 
+import type { BadgeFieldKey } from './_field-keys';
+
 import {
   BADGE_LOOK_PRESETS,
   BADGE_TEMPLATES,
@@ -36,7 +38,7 @@ function fieldsMatchPatch(
   fields: BadgeFields,
   patch: Record<string, string>
 ): boolean {
-  return Object.keys(patch).every(key => {
+  return (Object.keys(patch) as BadgeFieldKey[]).every(key => {
     const left = String(fields[key] ?? '').trim();
     const right = String(patch[key] ?? '').trim();
     // Hex colors from templates/presets may differ only by case.

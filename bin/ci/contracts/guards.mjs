@@ -30,6 +30,7 @@ import { check, packageJson, repositoryRoot } from '../lib/contract-inputs.mjs';
 /** Guard script (repo-relative) → the test proving it can fail. */
 const GUARDS = {
   'bin/check-design-system-css.sh': 'bin/check-design-system-css.test.mjs',
+  'bin/check-external-assets.sh': 'bin/check-external-assets.test.mjs',
   'bin/check-file-length.sh': 'bin/check-file-length.test.mjs',
   'bin/check-shell.sh': 'bin/check-shell.test.mjs',
   // POT drift needs WP-CLI, so it is proven by the ci:i18n lane rather than

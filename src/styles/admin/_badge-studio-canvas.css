@@ -1,0 +1,337 @@
+/**
+ * Badge studio: canvas section.
+ *
+ * Split out of badge-studio.css for the file-length gate. The entry file
+ * is imports-only, so each section loads in its original position —
+ * moving one relative to the others would change the cascade.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Flex insets — avoid transform so glass backdrop-filter can sample the card. */
+.aa-badge-studio__badge-slot--top {
+	top: 12px;
+	right: 0;
+	left: 0;
+	justify-content: center;
+}
+
+.aa-badge-studio__badge-slot--top-right {
+	top: 12px;
+	right: 12px;
+}
+
+.aa-badge-studio__badge-slot--left {
+	top: 0;
+	bottom: 0;
+	left: 12px;
+	align-items: center;
+}
+
+.aa-badge-studio__badge-slot--right {
+	top: 0;
+	right: 12px;
+	bottom: 0;
+	align-items: center;
+}
+
+.aa-badge-studio__badge-slot--bottom-left {
+	bottom: 12px;
+	left: 12px;
+}
+
+.aa-badge-studio__badge-slot--bottom {
+	right: 0;
+	bottom: 12px;
+	left: 0;
+	justify-content: center;
+}
+
+.aa-badge-studio__badge-slot--bottom-right {
+	right: 12px;
+	bottom: 12px;
+}
+
+.aa-badge-studio__card-copy {
+	display: grid;
+	gap: 8px;
+	padding: 14px 14px 16px;
+}
+
+.aa-badge-studio__card-title,
+.aa-badge-studio__card-price {
+	display: block;
+	height: 10px;
+	border-radius: 999px;
+	background: #e2e8f0;
+}
+
+.aa-badge-studio__card-title {
+	width: 72%;
+}
+
+.aa-badge-studio__card-price {
+	width: 34%;
+}
+
+.aa-badge-studio__stage--dark .aa-badge-studio__card-title,
+.aa-badge-studio__stage--dark .aa-badge-studio__card-price {
+	background: #374151;
+}
+
+.aa-badge-studio__tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 0;
+	margin: 0;
+	padding: 14px 16px 0;
+	border-bottom: 1px solid var(--aa-studio-line);
+	background: transparent;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.aa-badge-studio__tab {
+	flex: 1 1 0;
+	min-width: 0;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	border-radius: 0;
+	margin: 0 0 -1px;
+	padding: 0 4px 12px;
+	background: transparent;
+	font-size: 12.5px;
+
+	/* Keep weight stable — bold active labels reflow the tab row. */
+	font-weight: 650;
+	color: var(--aa-studio-mute);
+	cursor: pointer;
+	text-align: center;
+	font-family: inherit;
+	white-space: nowrap;
+}
+
+.aa-badge-studio__tab.is-active {
+	background: transparent;
+	color: var(--aa-studio-ink);
+	font-weight: 650;
+	border-bottom-color: var(--aa-studio-accent);
+	box-shadow: none;
+}
+
+.aa-badge-studio__panel {
+	display: grid;
+	gap: 22px;
+	padding: 22px 24px;
+	overflow: auto;
+	flex: 1;
+}
+
+.aa-badge-studio__native-field {
+	display: grid;
+	gap: 8px;
+}
+
+.aa-badge-studio__native-label {
+	font-size: 11px;
+	font-weight: 650;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--aa-studio-mute);
+}
+
+.aa-badge-studio__native-select {
+	width: 100%;
+	min-height: 36px;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	padding: 6px 10px;
+	background: #fff;
+	color: var(--aa-studio-ink);
+	font: inherit;
+	font-size: 13px;
+	box-shadow: none;
+}
+
+.aa-badge-studio__native-select:focus {
+	border-color: var(--aa-studio-focus);
+	box-shadow: 0 0 0 1px var(--aa-studio-focus);
+	outline: none;
+}
+
+.aa-badge-studio__panel .components-base-control {
+	margin-bottom: 0;
+}
+
+.aa-badge-studio__panel .components-base-control__label,
+.aa-badge-studio__panel .components-input-control__label,
+.aa-badge-studio__panel .components-toggle-control__label {
+	font-size: 11px !important;
+	font-weight: 650 !important;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--aa-studio-mute) !important;
+}
+
+.aa-badge-studio__panel .components-form-toggle.is-checked .components-form-toggle__track {
+	background: var(--aa-studio-accent);
+	border-color: var(--aa-studio-accent);
+}
+
+.aa-badge-studio__radius-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+/* Alpha-aware color control (theme palette + swatch + hex field). */
+.aa-badge-studio__color + .aa-badge-studio__color {
+	padding-top: 10px;
+	border-top: 1px solid var(--aa-studio-line-soft);
+}
+
+.aa-badge-studio__color-palette {
+	margin: 0 0 8px;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker {
+	width: auto;
+	margin-top: 0;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker__swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker__option-wrapper {
+	margin: 0;
+	height: 22px;
+	width: 22px;
+}
+
+/* WP hover scale(1.2) exaggerates edge AA. */
+.aa-badge-studio__color-palette .components-circular-option-picker__option-wrapper:hover {
+	transform: none;
+}
+
+/*
+ * Root cause of the jagged fringe: WP's ::before is a 28×28 pixel-art
+ * checkerboard SVG (transparency mat). Shrink + circular AA leaves that
+ * pattern peeking around the inset-shadow fill. Drop the mat and paint
+ * with background (inline style already sets backgroundColor + color).
+ */
+.aa-badge-studio__color-palette .components-circular-option-picker__option-wrapper::before {
+	content: none !important;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker__option {
+	padding: 0;
+	background-color: currentcolor !important;
+	box-shadow: none !important;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker__option:hover,
+.aa-badge-studio__color-palette
+	.components-circular-option-picker__option.components-button:focus {
+	background-color: currentcolor !important;
+	box-shadow: none !important;
+}
+
+.aa-badge-studio__color-palette
+	.components-circular-option-picker__option[aria-pressed='true'],
+.aa-badge-studio__color-palette
+	.components-circular-option-picker__option[aria-selected='true'] {
+	box-shadow: inset 0 0 0 2px #fff !important;
+}
+
+.aa-badge-studio__color-palette .components-circular-option-picker__option::after {
+	box-shadow: none;
+	border: 1px solid rgb(15 23 42 / 18%);
+}
+
+.aa-badge-studio__color-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.aa-badge-studio__color-swatch {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	cursor: pointer;
+
+	/* Checkerboard reads through partially transparent swatches. */
+	background-color: #fff;
+	background-image:
+		linear-gradient(var(--aa-swatch, transparent), var(--aa-swatch, transparent)),
+		conic-gradient(
+			#e2e8f0 0deg 90deg,
+			#fff 90deg 180deg,
+			#e2e8f0 180deg 270deg,
+			#fff 270deg
+		);
+	background-size:
+		auto,
+		10px 10px;
+	box-shadow: inset 0 0 0 1px rgb(15 23 42 / 6%);
+}
+
+.aa-badge-studio__color-swatch:hover {
+	border-color: #94a3b8;
+}
+
+.aa-badge-studio__color-swatch:focus-visible {
+	outline: 2px solid var(--aa-studio-focus);
+	outline-offset: 1px;
+}
+
+.aa-badge-studio__color-text {
+	min-width: 0;
+	width: 100%;
+	border: 1px solid var(--aa-studio-line);
+	border-radius: 8px;
+	padding: 4px 8px;
+	font-family: ui-monospace, sfmono-regular, menlo, monospace;
+	font-size: 11px;
+	line-height: 20px;
+	color: var(--aa-studio-ink);
+	background: var(--aa-studio-rail);
+}
+
+.aa-badge-studio__color-text:focus {
+	border-color: var(--aa-studio-focus);
+	background: #fff;
+	box-shadow: 0 0 0 1px var(--aa-studio-focus);
+	outline: none;
+}
+
+.aa-badge-studio__color-text[aria-invalid="true"] {
+	border-color: #dc2626;
+}
+
+.aa-badge-studio__color-popover {
+	padding: 8px;
+}
+
+.aa-badge-studio__color-actions {
+	display: flex;
+	gap: 4px;
+	margin-top: 4px;
+	padding-top: 8px;
+	border-top: 1px solid var(--aa-studio-line);
+}
+
+.aa-badge-studio__notice {
+	margin: 0 0 8px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: #f1f5f9;
+	font-size: 12px;
+	color: var(--aa-studio-mute);
+}

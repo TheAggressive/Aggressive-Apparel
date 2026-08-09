@@ -66,7 +66,13 @@ export function getAssetWebpackEntries(cwd = process.cwd()) {
     entries[`scripts/${name}`] = path.resolve(cwd, file);
   });
 
-  const styleFiles = fg.sync('src/styles/**/*.{css,scss}', { cwd });
+  // `_`-prefixed stylesheets are @import partials of a sibling entry, the same
+  // convention `src/scripts/**` uses. Without this, each split-out section would
+  // become its own bundle and ship unreferenced in the release ZIP.
+  const styleFiles = fg.sync('src/styles/**/*.{css,scss}', {
+    cwd,
+    ignore: ['src/styles/**/_*.{css,scss}'],
+  });
   styleFiles.forEach(file => {
     const rel = toPosix(
       path.relative(path.join(cwd, 'src/styles'), path.join(cwd, file))

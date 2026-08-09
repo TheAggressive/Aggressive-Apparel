@@ -4,7 +4,17 @@
  * @package Aggressive_Apparel
  */
 
-export type BadgeFields = Record<string, string>;
+import type { BadgeFieldKey } from './_field-keys';
+
+export type { BadgeFieldKey };
+
+/**
+ * Studio field map, keyed by the registry's field names.
+ *
+ * Partial because the studio holds whatever the server seeded; the union is
+ * what stops `badge_bg_colour` from compiling as a silent undefined read.
+ */
+export type BadgeFields = Partial<Record<BadgeFieldKey, string>>;
 
 export type StudioPaletteColor = {
   name: string;

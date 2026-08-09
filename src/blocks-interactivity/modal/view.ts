@@ -23,6 +23,7 @@ import { lockScroll, unlockScroll } from '../../interactivity/scroll-lock';
 import { setupFocusTrap } from '../../interactivity/helpers';
 import {
   buildExitAnimation,
+  calculateScrollDepth,
   canRestoreFocus,
   isExitIntentDismissed,
   markExitIntentDismissed,
@@ -487,9 +488,12 @@ function setupScrollDepthTrigger(
 
   const handleScroll = (): void => {
     if (triggered) return;
-    const scrolled = window.scrollY + window.innerHeight;
-    const total = document.documentElement.scrollHeight;
-    if ((scrolled / total) * 100 >= percent) {
+    const scrollDepth = calculateScrollDepth(
+      window.scrollY,
+      window.innerHeight,
+      document.documentElement.scrollHeight
+    );
+    if (scrollDepth !== null && scrollDepth >= percent) {
       triggered = true;
       window.removeEventListener('scroll', handleScroll);
       openModal(id, modalsState);

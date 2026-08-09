@@ -570,6 +570,15 @@ test.describe('Modal — front end', () => {
     await page.reload();
 
     const shell = page.locator('.wp-block-aggressive-apparel-modal__shell');
+    const builtIn = page.locator('.wp-block-aggressive-apparel-modal__trigger');
+    const wrapper = page.locator(
+      '.wp-block-aggressive-apparel-modal.is-triggerless'
+    );
+    await expect(builtIn).toHaveCount(0);
+    await expect(wrapper).toHaveCSS('display', 'contents');
+    expect(
+      await wrapper.evaluate(element => element.getBoundingClientRect().height)
+    ).toBe(0);
     await expect(shell).toBeVisible();
 
     await page.keyboard.press('Escape');
@@ -606,6 +615,44 @@ test.describe('Modal — front end', () => {
 
     await expect(shell).toBeVisible();
     await expect(page.getByText('Modal body copy')).toBeVisible();
+  });
+
+  test('scroll depth does not auto-open on a page that cannot scroll', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 2000 });
+    const { id, url } = await insertModalPage(page, {
+      modalId: 'e2e-scroll-short',
+      scrollDepthTrigger: true,
+      scrollDepthPercent: 50,
+      triggerLabel: 'Short-page scroll modal',
+    });
+    pageIds.push(id);
+
+    await page.goto(url);
+
+    const shell = page.locator('.wp-block-aggressive-apparel-modal__shell');
+    const wrapper = page.locator(
+      '.wp-block-aggressive-apparel-modal.is-triggerless'
+    );
+    await expect(wrapper).toHaveCSS('display', 'contents');
+    expect(
+      await wrapper.evaluate(element => element.getBoundingClientRect().height)
+    ).toBe(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollHeight <= window.innerHeight
+      )
+    ).toBe(true);
+    await expect(shell).toBeHidden();
+
+    // Fixture creation leaves Playwright logged in. Remove the admin toolbar
+    // so keyboard order matches the anonymous storefront experience.
+    await page.locator('#wpadminbar').evaluate(element => element.remove());
+    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
+    await page.keyboard.press('Tab');
+    await expect(page.locator('.skip-link')).toBeFocused();
+    await expect(shell).toBeHidden();
   });
 
   test('opens on exit-intent mouseout after arming delay', async ({ page }) => {

@@ -16,6 +16,11 @@
 
 	/* Inline trigger sits naturally in document flow. */
 	display: inline-block;
+
+	/* A triggerless modal should not leave an empty inline line box in flow. */
+	&.is-triggerless {
+		display: contents;
+	}
 }
 
 /* ──────────────────────────────────────────────

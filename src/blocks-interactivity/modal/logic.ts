@@ -85,6 +85,23 @@ export function shouldSkipOpenOnLoadOnce(
 }
 
 /**
+ * Percentage of the scrollable distance travelled, excluding the viewport.
+ * A document that cannot scroll has no meaningful scroll depth.
+ */
+export function calculateScrollDepth(
+  scrollY: number,
+  viewportHeight: number,
+  documentHeight: number
+): number | null {
+  const scrollableDistance = documentHeight - viewportHeight;
+  if (scrollableDistance <= 0) {
+    return null;
+  }
+
+  return Math.min(100, Math.max(0, (scrollY / scrollableDistance) * 100));
+}
+
+/**
  * Safe return-focus target after close (skip body / detached nodes).
  */
 export function canRestoreFocus(

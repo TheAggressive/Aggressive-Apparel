@@ -117,13 +117,14 @@ class Modal_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Auto-open / scroll / exit-intent suppress the built-in trigger.
+	 * Alternative trigger modes suppress the built-in trigger and its layout box.
 	 *
 	 * @return void
 	 */
-	public function test_auto_triggers_suppress_builtin_trigger(): void {
+	public function test_alternative_triggers_suppress_builtin_trigger(): void {
 		foreach (
 			array(
+				array( 'openOnLoad' => true ),
 				array( 'exitIntentTrigger' => true ),
 				array( 'scrollDepthTrigger' => true ),
 				array( 'triggerBlockId' => 'some-client-id' ),
@@ -135,13 +136,12 @@ class Modal_Block_Test extends WP_UnitTestCase {
 				$html,
 				'Built-in trigger should be omitted for ' . wp_json_encode( $attrs )
 			);
+			$this->assertStringContainsString(
+				'is-triggerless',
+				$html,
+				'Triggerless wrapper should collapse for ' . wp_json_encode( $attrs )
+			);
 		}
-
-		$open_on_load = $this->render_modal( array( 'openOnLoad' => true ) );
-		$this->assertStringContainsString(
-			'wp-block-aggressive-apparel-modal__trigger',
-			$open_on_load
-		);
 	}
 
 	/**

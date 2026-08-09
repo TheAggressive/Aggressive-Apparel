@@ -93,6 +93,10 @@ $exit_intent_trigger     = ! empty( $attributes['exitIntentTrigger'] );
 $exit_intent_reshow_days = min( 90, max( 1, absint( $attributes['exitIntentReshowDays'] ?? 7 ) ) );
 $scroll_depth_trigger    = ! empty( $attributes['scrollDepthTrigger'] );
 $scroll_depth_percent    = min( 100, max( 10, absint( $attributes['scrollDepthPercent'] ?? 50 ) ) );
+$show_builtin_trigger    = ! $open_on_load
+	&& empty( $trigger_block_id )
+	&& ! $exit_intent_trigger
+	&& ! $scroll_depth_trigger;
 $dialog_max_width        = $sanitize_css_value( $attributes['dialogMaxWidth'] ?? '' );
 
 // ── Close button attributes ───────────────────────────────────────────────────
@@ -414,6 +418,7 @@ wp_interactivity_state(
 	<?php
 	echo get_block_wrapper_attributes(
 		array(
+			'class'               => $show_builtin_trigger ? 'has-built-in-trigger' : 'is-triggerless',
 			'data-wp-interactive' => 'aggressive-apparel/modal',
 			'data-wp-context'     => (string) wp_json_encode( array( 'id' => $unique_id ) ),
 			'data-wp-init'        => 'actions.init',
@@ -422,7 +427,7 @@ wp_interactivity_state(
 	?>
 >
 
-	<?php if ( empty( $trigger_block_id ) && ! $exit_intent_trigger && ! $scroll_depth_trigger ) : ?>
+	<?php if ( $show_builtin_trigger ) : ?>
 	<button
 		class="<?php echo esc_attr( $trigger_classes ); ?>"
 		type="button"

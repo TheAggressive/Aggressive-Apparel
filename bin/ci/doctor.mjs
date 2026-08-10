@@ -8,8 +8,13 @@ const packageJson = JSON.parse(
   readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8')
 );
 
-const expectedNode = packageJson.engines?.node;
-const expectedPnpm = packageJson.engines?.pnpm;
+const expectedNode = readFileSync(
+  path.join(repositoryRoot, '.node-version'),
+  'utf8'
+).trim();
+const expectedPnpm = packageJson.packageManager?.match(
+  /^pnpm@([^+]+)(?:\+.+)?$/u
+)?.[1];
 const actualNode = process.versions.node;
 const pnpmMatch = process.env.npm_config_user_agent?.match(
   /(?:^|\s)pnpm\/([^\s]+)/u
@@ -32,7 +37,7 @@ if (mismatches.length > 0) {
     console.error(`  - ${mismatch}`);
   }
   console.error(
-    'Activate the versions pinned by .node-version and package.json before running CI parity.'
+    'Activate the versions pinned by .node-version and packageManager before running CI parity.'
   );
   process.exit(1);
 }

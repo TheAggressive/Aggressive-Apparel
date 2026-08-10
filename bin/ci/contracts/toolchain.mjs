@@ -55,12 +55,12 @@ for (const unsafe of ['env:clean', 'env:destroy']) {
   }
 }
 
-// Node and pnpm must be pinned identically everywhere a version is declared,
-// or a lane can resolve a different toolchain locally than in Actions.
+// Runtime pins keep parity lanes reproducible, while engine ranges describe
+// the supported major versions for contributors using development commands.
 const PINNED_TOOLCHAIN = [
   ['package.json packageManager', packageJson.packageManager, 'pnpm@11.1.2'],
-  ['package.json engines.node', packageJson.engines?.node, '24.18.0'],
-  ['package.json engines.pnpm', packageJson.engines?.pnpm, '11.1.2'],
+  ['package.json engines.node', packageJson.engines?.node, '>=24 <25'],
+  ['package.json engines.pnpm', packageJson.engines?.pnpm, '>=11 <12'],
   ['.node-version', nodeVersion, '24.18.0'],
 ];
 

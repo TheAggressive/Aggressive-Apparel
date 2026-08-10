@@ -193,6 +193,7 @@
 	.aggressive-apparel-quick-view__modal {
 		width: 100vw;
 		max-width: 100vw;
+		height: 100dvh;
 		max-height: 100dvh;
 		border-radius: 0;
 		transform: none;
@@ -204,7 +205,9 @@
 
 	/* Single-column layout. */
 	.aggressive-apparel-quick-view__content {
+		flex: 1;
 		grid-template-columns: 1fr;
+		grid-template-rows: auto 1fr;
 		gap: 1rem;
 		padding: 1rem;
 	}

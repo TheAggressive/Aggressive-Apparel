@@ -4,6 +4,7 @@
 
 import {
   buildExitAnimation,
+  calculateScrollDepth,
   canRestoreFocus,
   getExitIntentStorageKey,
   getOpenOnLoadSeenKey,
@@ -88,6 +89,24 @@ describe('shouldSkipOpenOnLoadOnce', () => {
   it('skips on subsequent visits once marked', () => {
     const storage = memoryStorage({ [getOpenOnLoadSeenKey('m1')]: '1' });
     expect(shouldSkipOpenOnLoadOnce('m1', true, storage)).toBe(true);
+  });
+});
+
+describe('calculateScrollDepth', () => {
+  it('measures progress through the scrollable distance', () => {
+    expect(calculateScrollDepth(0, 800, 1600)).toBe(0);
+    expect(calculateScrollDepth(400, 800, 1600)).toBe(50);
+    expect(calculateScrollDepth(800, 800, 1600)).toBe(100);
+  });
+
+  it('does not report depth when the page cannot scroll', () => {
+    expect(calculateScrollDepth(0, 800, 800)).toBeNull();
+    expect(calculateScrollDepth(0, 800, 600)).toBeNull();
+  });
+
+  it('clamps browser overscroll to the valid range', () => {
+    expect(calculateScrollDepth(-20, 800, 1600)).toBe(0);
+    expect(calculateScrollDepth(900, 800, 1600)).toBe(100);
   });
 });
 

@@ -145,6 +145,22 @@ class Modal_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A cleared trigger relationship must not make the modal unreachable.
+	 *
+	 * @return void
+	 */
+	public function test_whitespace_trigger_id_keeps_builtin_trigger(): void {
+		$html = $this->render_modal( array( 'triggerBlockId' => '   ' ) );
+
+		$this->assertStringContainsString(
+			'wp-block-aggressive-apparel-modal__trigger',
+			$html
+		);
+		$this->assertStringContainsString( 'has-built-in-trigger', $html );
+		$this->assertStringNotContainsString( 'is-triggerless', $html );
+	}
+
+	/**
 	 * Outside close is rendered as a sibling of the dialog.
 	 *
 	 * @return void

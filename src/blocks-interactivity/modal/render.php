@@ -73,7 +73,7 @@ $position                = $sanitize_choice(
 $open_on_load            = ! empty( $attributes['openOnLoad'] );
 $open_on_load_once       = ! empty( $attributes['openOnLoadOnce'] );
 $disable_overlay         = ! empty( $attributes['disableOverlay'] );
-$trigger_block_id        = isset( $attributes['triggerBlockId'] ) && is_string( $attributes['triggerBlockId'] ) ? $attributes['triggerBlockId'] : '';
+$trigger_block_id        = isset( $attributes['triggerBlockId'] ) && is_string( $attributes['triggerBlockId'] ) ? trim( $attributes['triggerBlockId'] ) : '';
 $trigger_label           = isset( $attributes['triggerLabel'] ) && is_string( $attributes['triggerLabel'] )
 	? trim( sanitize_text_field( $attributes['triggerLabel'] ) )
 	: '';

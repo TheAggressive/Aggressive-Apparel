@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/TheAggressive/Aggressive-Apparel/issues"
   },
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@11.21.0",
   "engines": {
     "node": ">=24 <25",
     "pnpm": ">=11 <12"

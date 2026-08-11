@@ -58,7 +58,7 @@ for (const unsafe of ['env:clean', 'env:destroy']) {
 // Runtime pins keep parity lanes reproducible, while engine ranges describe
 // the supported major versions for contributors using development commands.
 const PINNED_TOOLCHAIN = [
-  ['package.json packageManager', packageJson.packageManager, 'pnpm@11.1.2'],
+  ['package.json packageManager', packageJson.packageManager, 'pnpm@11.21.0'],
   ['package.json engines.node', packageJson.engines?.node, '>=24 <25'],
   ['package.json engines.pnpm', packageJson.engines?.pnpm, '>=11 <12'],
   ['.node-version', nodeVersion, '24.18.0'],

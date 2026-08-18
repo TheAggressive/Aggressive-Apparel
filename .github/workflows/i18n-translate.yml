@@ -45,6 +45,13 @@ jobs:
         with:
           app-id: ${{ secrets.AA_CI_APP_ID }}
           private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+          # Scope the minted token down to what this job does. Without these the
+          # token carries the App's whole installation permission set, so a
+          # later permission added to the App for some other repository would be
+          # silently inherited here. Repository scope is already the current
+          # repository by default.
+          permission-contents: write
+          permission-pull-requests: write
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

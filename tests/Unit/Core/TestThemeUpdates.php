@@ -507,4 +507,78 @@ class TestThemeUpdates extends WP_UnitTestCase {
 			remove_filter( 'pre_http_request', $callback, 10 );
 		}
 	}
+
+	/**
+	 * The updater must be unhookable, in both directions, via its filter.
+	 */
+	public function test_is_enabled_is_controlled_by_filter(): void {
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		try {
+			$this->assertFalse( Theme_Updates::is_enabled() );
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		}
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_true' );
+		try {
+			$this->assertTrue( Theme_Updates::is_enabled() );
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_true' );
+		}
+	}
+
+	/**
+	 * The filter receives the real checkout state, so a caller can re-enable
+	 * updates for a checkout deliberately rather than by accident.
+	 */
+	public function test_is_enabled_reports_checkout_state_to_filter(): void {
+		$expected = is_dir( trailingslashit( get_template_directory() ) . '.git' );
+		$observed = null;
+
+		$callback = static function ( $enabled, $is_checkout ) use ( &$observed ) {
+			$observed = $is_checkout;
+			return $enabled;
+		};
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', $callback, 10, 2 );
+		try {
+			$enabled = Theme_Updates::is_enabled();
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', $callback, 10 );
+		}
+
+		$this->assertSame( $expected, $observed );
+		$this->assertSame( ! $expected, $enabled );
+	}
+
+	/**
+	 * A disabled updater must register nothing at all. Advertising an update it
+	 * refuses to install, or installing over a checkout, are both failures.
+	 */
+	public function test_init_registers_no_hooks_when_disabled(): void {
+		$hooks = array(
+			'pre_set_site_transient_update_themes' => 'check_for_update',
+			'upgrader_pre_download'                => 'verify_package_download',
+			'upgrader_source_selection'            => 'rename_package',
+			'themes_api'                           => 'themes_api',
+		);
+
+		foreach ( $hooks as $hook => $method ) {
+			remove_filter( $hook, array( $this->theme_updates, $method ), 'pre_set_site_transient_update_themes' === $hook ? 100 : 10 );
+		}
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		try {
+			$this->theme_updates->init();
+
+			foreach ( $hooks as $hook => $method ) {
+				$this->assertFalse(
+					has_filter( $hook, array( $this->theme_updates, $method ) ),
+					"init() registered {$hook} while the updater was disabled."
+				);
+			}
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		}
+	}
 }

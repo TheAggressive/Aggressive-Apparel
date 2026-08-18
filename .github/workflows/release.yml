@@ -63,6 +63,13 @@ jobs:
         id: filter
         if: github.event_name != 'workflow_dispatch'
         with:
+          # REQUIRED for the '!' patterns below to exclude anything. Under the
+          # default 'some' quantifier a negated pattern is just another way to
+          # match, so `['**', '!languages/**']` matched every file and `code`
+          # was always true — the translations-only skip this workflow documents
+          # had never once engaged. Verified on the merge of a881323, a
+          # translations-only commit that ran lint, build, PHP and E2E in full.
+          predicate-quantifier: 'some-with-excludes'
           # `code` matches when any changed file is outside languages/.
           # `non_docs` matches when any changed file is NOT Markdown; its absence
           # is what proves a diff is documentation only. Asking the question in

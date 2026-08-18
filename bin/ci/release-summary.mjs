@@ -52,6 +52,18 @@ export function evaluateReleaseSummary(environment) {
     allowEmpty: true,
   });
   const nextVersion = environment.NEXT_VERSION ?? '';
+  // A prose-only diff skips the i18n gate, which cascade-skips build, PHP and
+  // E2E. Those jobs are then legitimately absent, so the gate must stop
+  // requiring them — while still requiring them everywhere else.
+  const docsOnly = booleanOutput(environment, 'DOCS_ONLY', {
+    allowEmpty: true,
+  });
+  // Releasing is now an explicit decision rather than a consequence of merging,
+  // so release planning is only required on a run that actually asked to
+  // publish. Requiring it on every push would fail every ordinary merge.
+  const publishRequested = booleanOutput(environment, 'PUBLISH_REQUESTED', {
+    allowEmpty: true,
+  });
 
   const results = {
     changes: jobResult(environment, 'CHANGES_RESULT'),
@@ -65,6 +77,7 @@ export function evaluateReleaseSummary(environment) {
     package: jobResult(environment, 'PACKAGE_RESULT'),
     artifactAcceptance: jobResult(environment, 'ARTIFACT_ACCEPTANCE_RESULT'),
     release: jobResult(environment, 'RELEASE_RESULT'),
+    versionSync: jobResult(environment, 'VERSION_SYNC_RESULT'),
   };
 
   if (results.changes === 'success' && codeChangedOutput.length === 0) {
@@ -93,9 +106,13 @@ export function evaluateReleaseSummary(environment) {
     lines.push(
       '**Non-release commit** — Quality checks, build and tests executed (packaging skipped)'
     );
+  } else if (docsOnly) {
+    lines.push(
+      '**Documentation only** — Linting ran; i18n, build, PHP and E2E were not applicable'
+    );
   } else {
     lines.push(
-      '**Release planning skipped** — This event is not a release-branch code push'
+      '**No release requested** — Quality checks ran; publish with the workflow_dispatch input'
     );
   }
 
@@ -115,7 +132,8 @@ export function evaluateReleaseSummary(environment) {
     lines.push(
       `| Package | ${results.package} |`,
       `| Artifact acceptance | ${results.artifactAcceptance} |`,
-      `| Release (publish + assets + provenance) | ${results.release} |`
+      `| Release (publish + assets + provenance) | ${results.release} |`,
+      `| Version sync | ${results.versionSync} |`
     );
   } else {
     lines.push(
@@ -137,19 +155,31 @@ export function evaluateReleaseSummary(environment) {
   };
 
   requireSuccess('change detection', results.changes);
-  requireSuccess('i18n', results.i18n);
+
+  if (!docsOnly) {
+    requireSuccess('i18n', results.i18n);
+  }
 
   if (eventName === 'pull_request') {
     requireSuccess('dependency review', results.dependencyReview);
   }
 
   if (codeChanged) {
+    // Linting runs for every code diff, prose included — it is what validates
+    // the CI contracts themselves.
     requireSuccess('frontend', results.frontend);
-    requireSuccess('build', results.build);
-    requireSuccess('PHP', results.php);
-    requireSuccess('browser E2E', results.e2e);
 
-    if (eventName === 'push' && eventRef === 'refs/heads/master') {
+    if (!docsOnly) {
+      requireSuccess('build', results.build);
+      requireSuccess('PHP', results.php);
+      requireSuccess('browser E2E', results.e2e);
+    }
+
+    if (
+      eventName === 'workflow_dispatch' &&
+      eventRef === 'refs/heads/master' &&
+      publishRequested
+    ) {
       requireSuccess('release planning', results.releasePlan);
     }
 
@@ -157,6 +187,7 @@ export function evaluateReleaseSummary(environment) {
       requireSuccess('package', results.package);
       requireSuccess('artifact acceptance', results.artifactAcceptance);
       requireSuccess('release', results.release);
+      requireSuccess('version sync', results.versionSync);
     }
   }
 

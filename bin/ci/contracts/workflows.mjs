@@ -103,6 +103,7 @@ const EXPECTED_RELEASE_JOBS = [
   'package',
   'artifact-acceptance',
   'release',
+  'version-sync',
   'summary',
 ];
 
@@ -470,6 +471,7 @@ const summaryDependencies = [
   'e2e',
   'package',
   'artifact-acceptance',
+  'version-sync',
 ];
 
 check(

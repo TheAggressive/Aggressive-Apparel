@@ -12,6 +12,15 @@
 # and ci:package (only meaningful at release time, where it runs BEFORE
 # publishing, so a packaging failure blocks the release rather than shipping).
 #
+# ci:i18n is excluded for cost, not because it rarely fires — it is one of the
+# easiest lanes to trip, since the POT records source line numbers and ANY
+# line-count change to a file holding a translatable string puts the committed
+# catalog out of date. It is excluded because bin/ci/i18n.sh resets and stops
+# its own wp-env, so adding it here buys a second full container cycle and
+# roughly doubles this gate. If a POT drift round-trip ever costs more than
+# that, move it in and reconsider the ~3 minute target rather than adding it
+# silently. Fix a drift failure with: pnpm i18n:pot
+#
 # bin/ci/contracts.mjs asserts every lane below is one Actions also runs.
 
 set -euo pipefail

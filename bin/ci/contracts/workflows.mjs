@@ -474,17 +474,25 @@ const summaryDependencies = [
   'version-sync',
 ];
 
-// A paths-filter using '!' patterns without this quantifier silently matches
-// everything: under the default 'some', a negated pattern is just another way
-// to match. That is how the translations-only skip sat inert while reading as
-// an optimization — the exact class of defect the guards contract exists for,
-// one level up in the workflow itself.
+// paths-filter's negated globs exclude nothing at the pinned version: under the
+// `some` quantifier a '!' pattern is merely another way for a file to match, so
+// `['**', '!languages/**']` matched everything and the translations-only skip
+// sat inert while reading as an optimization. Lane classification therefore
+// belongs in bin/ci/classify-changes.mjs, where it is unit tested. A '!' in the
+// filters means someone has started trusting the globs again.
+check(
+  !releaseWorkflow.includes("- '!"),
+  "release.yml uses a negated glob in a paths-filter. Those exclude nothing at " +
+    'this version, so the filter matches every file and any lane gate built on ' +
+    'it skips nothing. Classify in bin/ci/classify-changes.mjs instead.'
+);
+
 check(
   !/dorny\/paths-filter/u.test(releaseWorkflow) ||
-    releaseWorkflow.includes("predicate-quantifier: 'some-with-excludes'"),
-  "release.yml uses dorny/paths-filter without predicate-quantifier: 'some-with-excludes'. " +
-    'Its negated patterns would then match every file, so every lane gate built ' +
-    'on them would pass while skipping nothing.'
+    releaseWorkflow.includes('node bin/ci/classify-changes.mjs'),
+  'release.yml reads a changed-file list but does not classify it with ' +
+    'bin/ci/classify-changes.mjs, so the decision is being made somewhere ' +
+    'without tests.'
 );
 
 check(

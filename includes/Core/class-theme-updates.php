@@ -87,6 +87,39 @@ class Theme_Updates {
 	}
 
 	/**
+	 * Whether the self-updater may run against this install.
+	 *
+	 * WordPress installs a theme update through Theme_Upgrader, which clears the
+	 * destination directory before unpacking. The release package is built from a
+	 * strict allowlist (see bin/release/lib.sh), so it contains none of the
+	 * repository: no .git, no src, no bin, no tests. Running the updater against a
+	 * working checkout therefore replaces the checkout with the shipped subset and
+	 * destroys uncommitted work and history.
+	 *
+	 * A checkout is detected by the presence of .git in the theme root, so a
+	 * development install opts out without configuration. Distributed copies have
+	 * no .git and update normally.
+	 *
+	 * @since 1.184.0
+	 * @return bool True when update checks and installation may proceed.
+	 */
+	public static function is_enabled(): bool {
+		$is_checkout = is_dir( trailingslashit( get_template_directory() ) . '.git' );
+
+		/**
+		 * Filters whether the GitHub self-updater is active.
+		 *
+		 * Returning false unhooks the updater entirely: no update is advertised,
+		 * and no package can be installed over this theme.
+		 *
+		 * @since 1.184.0
+		 * @param bool $enabled     Whether the updater may run. False for a checkout.
+		 * @param bool $is_checkout Whether the theme root looks like a git checkout.
+		 */
+		return (bool) apply_filters( 'aggressive_apparel_enable_theme_updates', ! $is_checkout, $is_checkout );
+	}
+
+	/**
 	 * Initialize the theme updater.
 	 *
 	 * Call this from theme bootstrap.
@@ -95,6 +128,10 @@ class Theme_Updates {
 	 * @return void
 	 */
 	public function init(): void {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_pre_download', array( $this, 'verify_package_download' ), 10, 4 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );

@@ -561,7 +561,7 @@ The theme adds security headers via `Bootstrap::add_security_headers()`:
 ## Theme Constants
 
 ```php
-AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (release-managed)
+AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (artifact-stamped)
 AGGRESSIVE_APPAREL_DIR      // Theme directory path
 AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```
@@ -745,11 +745,33 @@ gate runs before code leaves the machine:
 
 ### Semantic Release
 
-Automated versioning and changelog generation via semantic-release (`.releaserc.json`).
+Automated versioning via semantic-release (`.releaserc.json`). It runs three
+plugins only — `commit-analyzer`, `release-notes-generator`, `@semantic-release/github`
+— so it **tags the reviewed commit and writes no release commit**. The
+`changelog` / `exec` / `git` plugins were removed in `384a111` so the publishing
+bot needs no branch-protection bypass; see `.github/rulesets/README.md`.
 
-**Auto-updated on release:** `style.css`, `package.json`, `CHANGELOG.md`, and the packaged theme ZIP.
+**Auto-updated on release:** the packaged theme ZIP only. `bin/release/package.sh`
+stamps `AA_RELEASE_VERSION` into the **staged** `style.css` at package time and
+`bin/release/verify-package.sh` asserts it; nothing in the checkout is mutated.
 
-**Not auto-updated:** `README.md`, `CLAUDE.md`, docs, or per-block `block.json` versions. Do not hardcode the theme version in assistant/docs files — point at `style.css` / `package.json`. Update inventory counts (blocks, patterns, features) in the same PR that changes them.
+**Not auto-updated — do not expect these to track the release:**
+
+| File                             | State                                                    |
+| -------------------------------- | -------------------------------------------------------- |
+| `style.css` (`Version:`)         | Development baseline; sync by hand when it drifts far     |
+| `package.json` (`version`)       | Permanently `0.0.0-development` — private, never on npm   |
+| `CHANGELOG.md`                   | Frozen at 1.181.4; GitHub Release notes superseded it     |
+| `README.md` / `CLAUDE.md` / docs | Manual, in the same PR as the change                      |
+| Per-block `block.json` `version` | Independent of theme releases                             |
+
+The released version lives in the **git tags**, not in any tracked file — read it
+from `git tag` or the GitHub Releases page, and never hardcode it in docs. Update
+inventory counts (blocks, patterns, features) in the same PR that changes them.
+
+The self-updater (`Core\Theme_Updates`) is disabled automatically when `.git` is
+present in the theme root, because a theme update clears the directory and unpacks
+the allowlisted ZIP over it. Override with `aggressive_apparel_enable_theme_updates`.
 
 ## Common Tasks
 

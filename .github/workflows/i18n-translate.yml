@@ -18,9 +18,11 @@ on:
     paths:
       - 'languages/aggressive-apparel.pot'
 
+# The App token below opens the pull request, so the workflow's own token only
+# needs to read the tree. Least privilege for the credential that is present on
+# the runner for the whole job.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: i18n-mt-drafts
@@ -33,12 +35,34 @@ jobs:
     timeout-minutes: 60
 
     steps:
+      # A pull request opened with GITHUB_TOKEN does not get an unattended
+      # pipeline run, which is how MT drafts arrived with no completed checks —
+      # a state easily misread as "nothing to review". An App installation token
+      # is a distinct identity, so its pull requests are validated like any
+      # other before anyone merges a catalog.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
+          private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+          # Scope the minted token down to what this job does. Without these the
+          # token carries the App's whole installation permission set, so a
+          # later permission added to the App for some other repository would be
+          # silently inherited here. Repository scope is already the current
+          # repository by default.
+          permission-contents: write
+          permission-pull-requests: write
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: false
 
+      # Bounded on purpose. This step is a bare apt install with no retry, and
+      # an unreachable mirror once stalled it for 51 minutes until the job's
+      # 60-minute cap killed it — every other run of this workflow has finished
+      # in under 5. Failing fast turns a silent hour into a visible error.
       - name: Install gettext tools
+        timeout-minutes: 5
         run: sudo apt-get update && sudo apt-get install -y gettext
 
       # Must precede setup-node: v5 resolves the `packageManager` field in
@@ -92,7 +116,7 @@ jobs:
         if: steps.gate.outputs.has_locales == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           sign-commits: true
           # chore(i18n) (not fix) so merging translations does NOT cut its own
           # release — no extra version bump. The reviewed .po lands on master and

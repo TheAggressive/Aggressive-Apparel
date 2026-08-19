@@ -561,7 +561,7 @@ The theme adds security headers via `Bootstrap::add_security_headers()`:
 ## Theme Constants
 
 ```php
-AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (release-managed)
+AGGRESSIVE_APPAREL_VERSION  // Theme version from style.css (artifact-stamped)
 AGGRESSIVE_APPAREL_DIR      // Theme directory path
 AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```
@@ -745,11 +745,74 @@ gate runs before code leaves the machine:
 
 ### Semantic Release
 
-Automated versioning and changelog generation via semantic-release (`.releaserc.json`).
+Automated versioning via semantic-release (`.releaserc.json`). It runs three
+plugins only — `commit-analyzer`, `release-notes-generator`, `@semantic-release/github`
+— so it **tags the reviewed commit and writes no release commit**. The
+`changelog` / `exec` / `git` plugins were removed in `384a111` so the publishing
+bot needs no branch-protection bypass; see `.github/rulesets/README.md`.
 
-**Auto-updated on release:** `style.css`, `package.json`, `CHANGELOG.md`, and the packaged theme ZIP.
+**Releasing is manual on purpose.** Merging to `master` runs the full pipeline
+and stops; publishing requires a deliberate run:
 
-**Not auto-updated:** `README.md`, `CLAUDE.md`, docs, or per-block `block.json` versions. Do not hardcode the theme version in assistant/docs files — point at `style.css` / `package.json`. Update inventory counts (blocks, patterns, features) in the same PR that changes them.
+```bash
+gh workflow run "CI/CD Pipeline" --ref master -f publish=true
+```
+
+Everything merged since the last tag ships as one release, so several fixes reach
+customer sites as a single update instead of one each.
+
+**Auto-updated on release:** the packaged theme ZIP. `bin/release/package.sh`
+stamps `AA_RELEASE_VERSION` into the **staged** `style.css` at package time and
+`bin/release/verify-package.sh` asserts it; nothing in the checkout is mutated.
+The `version-sync` job then opens `chore/version-sync` to put that version back
+into the tracked `style.css` — merge it. Change the tracked version only via
+`bash bin/release/sync-version.sh <version>`, never by editing the header.
+
+**Not auto-updated:**
+
+| File                             | State                                                   |
+| -------------------------------- | ------------------------------------------------------- |
+| `style.css` (`Version:`)         | Synced back by the `version-sync` PR after each release  |
+| `package.json` (`version`)       | Permanently `0.0.0-development` — private, never on npm  |
+| `CHANGELOG.md`                   | Frozen at 1.181.4; GitHub Release notes superseded it    |
+| `languages/*.po` `Project-Id-Version` | Stale (1.164.0). Nothing reads it; leave it alone  |
+| `README.md` / `CLAUDE.md` / docs | Manual, in the same PR as the change                     |
+| Per-block `block.json` `version` | Independent of theme releases                            |
+
+The released version lives in the **git tags**. Read it from `git tag` or the
+Releases page; never hardcode it in docs. Inventory counts (blocks, patterns,
+features) belong in the same PR that changes them.
+
+Why it matters: `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation key in
+`Rendered_Product_Cache`, the Product Collection style fingerprint, and five
+asset enqueues, so a header that never moves is a set of caches that never rotate
+in development. WordPress also reads `style.css` as the authoritative theme
+version.
+
+**Why not release-please:** it would put the bump in the release commit itself,
+but its generated commits are not signature-verified
+(googleapis/release-please-action#1124, open), and the `release-branches` ruleset
+requires signed commits with no bypass actors. `create-pull-request` with
+`sign-commits: true` creates commits through the GitHub API, which GitHub signs —
+so the sync PR satisfies the ruleset without weakening it.
+
+**Bumping `style.css` does NOT break `ci:i18n`.** `aa_i18n_normalize_pot`
+(`bin/i18n/lib.sh`) deliberately strips `Project-Id-Version` before the drift
+comparison, precisely so the catalog may lag the theme version. What *does* break
+that lane is far easier to trip: the POT records **source line numbers**, so any
+line-count change to a file containing a translatable string invalidates it, with
+no other symptom. `ci:i18n` is deliberately out of the `pre-push` gate (see
+`bin/ci/verify-fast.sh`), so it surfaces in CI. The fix is always `pnpm i18n:pot`.
+
+The self-updater (`Core\Theme_Updates`) refuses to run on a checkout or a
+local/development install; staging and production keep it. A theme update clears
+the theme directory and unpacks the allowlisted ZIP over it, which would destroy
+a working copy. Detection is layered on purpose: `WP_ENVIRONMENT_TYPE` is the
+WordPress-native signal but defaults to `production` when unset, while the `.git`
+marker needs no configuration but only exists on a checkout. Tested with
+`file_exists`, not `is_dir` — a worktree or submodule stores `.git` as a file.
+`Theme_Updates::should_enable()` is the pure policy function; override the result
+with `aggressive_apparel_enable_theme_updates`.
 
 ## Common Tasks
 

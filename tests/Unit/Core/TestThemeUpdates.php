@@ -507,4 +507,141 @@ class TestThemeUpdates extends WP_UnitTestCase {
 			remove_filter( 'pre_http_request', $callback, 10 );
 		}
 	}
+
+	/**
+	 * The updater must be unhookable, in both directions, via its filter.
+	 */
+	public function test_is_enabled_is_controlled_by_filter(): void {
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		try {
+			$this->assertFalse( Theme_Updates::is_enabled() );
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		}
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_true' );
+		try {
+			$this->assertTrue( Theme_Updates::is_enabled() );
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_true' );
+		}
+	}
+
+	/**
+	 * The filter receives the real checkout state, so a caller can re-enable
+	 * updates for a checkout deliberately rather than by accident.
+	 */
+	public function test_is_enabled_reports_its_inputs_to_the_filter(): void {
+		$observed = array();
+
+		$callback = static function ( $enabled, $is_checkout, $environment ) use ( &$observed ) {
+			$observed = compact( 'enabled', 'is_checkout', 'environment' );
+			return $enabled;
+		};
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', $callback, 10, 3 );
+		try {
+			Theme_Updates::is_enabled();
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', $callback, 10 );
+		}
+
+		$this->assertSame( Theme_Updates::is_checkout(), $observed['is_checkout'] );
+		$this->assertSame( wp_get_environment_type(), $observed['environment'] );
+		$this->assertSame(
+			Theme_Updates::should_enable( $observed['is_checkout'], $observed['environment'] ),
+			$observed['enabled']
+		);
+	}
+
+	/**
+	 * The policy matrix, exercised directly.
+	 *
+	 * wp_get_environment_type() caches its answer in a static, so the real
+	 * decision cannot be driven from a test through the environment. Keeping the
+	 * policy pure is what makes every branch reachable here instead of only the
+	 * one branch this test run happens to sit in.
+	 *
+	 * @dataProvider provide_update_policy_cases
+	 * @param bool   $is_checkout Whether the theme root is a working copy.
+	 * @param string $environment Environment type under test.
+	 * @param bool   $expected    Whether updates should be allowed.
+	 */
+	public function test_update_policy_matrix( bool $is_checkout, string $environment, bool $expected ): void {
+		$this->assertSame( $expected, Theme_Updates::should_enable( $is_checkout, $environment ) );
+	}
+
+	/**
+	 * @return array<string, array{0: bool, 1: string, 2: bool}>
+	 */
+	public function provide_update_policy_cases(): array {
+		return array(
+			'distributed production install'      => array( false, 'production', true ),
+			// Staging must be able to exercise the real update path.
+			'distributed staging install'         => array( false, 'staging', true ),
+			'distributed local install'           => array( false, 'local', false ),
+			'distributed development install'     => array( false, 'development', false ),
+			// A checkout is destructible regardless of how it is labelled, and
+			// WP_ENVIRONMENT_TYPE defaults to production when nobody sets it.
+			'checkout claiming to be production'  => array( true, 'production', false ),
+			'checkout on staging'                 => array( true, 'staging', false ),
+			'checkout with unknown environment'   => array( true, '', false ),
+		);
+	}
+
+	/**
+	 * A disabled updater must register nothing at all. Advertising an update it
+	 * refuses to install, or installing over a checkout, are both failures.
+	 */
+	public function test_init_registers_no_hooks_when_disabled(): void {
+		$hooks = array(
+			'pre_set_site_transient_update_themes' => 'check_for_update',
+			'upgrader_pre_download'                => 'verify_package_download',
+			'upgrader_source_selection'            => 'rename_package',
+			'themes_api'                           => 'themes_api',
+		);
+
+		foreach ( $hooks as $hook => $method ) {
+			remove_filter( $hook, array( $this->theme_updates, $method ), 'pre_set_site_transient_update_themes' === $hook ? 100 : 10 );
+		}
+
+		add_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		try {
+			$this->theme_updates->init();
+
+			foreach ( $hooks as $hook => $method ) {
+				$this->assertFalse(
+					has_filter( $hook, array( $this->theme_updates, $method ) ),
+					"init() registered {$hook} while the updater was disabled."
+				);
+			}
+		} finally {
+			remove_filter( 'aggressive_apparel_enable_theme_updates', '__return_false' );
+		}
+	}
+
+	/**
+	 * A linked worktree and a submodule both store .git as a regular file
+	 * holding a gitdir: pointer. Those checkouts are exactly as destructible as
+	 * a primary one, so detection must not be narrowed back to is_dir().
+	 */
+	public function test_checkout_detection_accepts_a_git_file(): void {
+		$root = get_temp_dir() . 'aa-worktree-' . wp_generate_password( 8, false );
+		$this->assertTrue( wp_mkdir_p( $root ) );
+
+		$marker = trailingslashit( $root ) . '.git';
+		file_put_contents( $marker, "gitdir: /elsewhere/.git/worktrees/wt\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		try {
+			$this->assertFileExists( $marker );
+			$this->assertFalse( is_dir( $marker ), 'A worktree marker must be a file, not a directory.' );
+			$this->assertTrue(
+				file_exists( trailingslashit( $root ) . '.git' ),
+				'file_exists() is the predicate is_enabled() relies on; is_dir() would miss this checkout.'
+			);
+		} finally {
+			wp_delete_file( $marker );
+			rmdir( $root ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		}
+	}
 }

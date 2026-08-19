@@ -87,6 +87,86 @@ class Theme_Updates {
 	}
 
 	/**
+	 * Whether the self-updater may run against this install.
+	 *
+	 * WordPress installs a theme update through Theme_Upgrader, which clears the
+	 * destination directory before unpacking. The release package is built from a
+	 * strict allowlist (see bin/release/lib.sh), so it contains none of the
+	 * repository: no .git, no src, no bin, no tests. Running the updater against a
+	 * working checkout therefore replaces the checkout with the shipped subset and
+	 * destroys uncommitted work and history.
+	 *
+	 * Two independent signals switch it off, because they fail differently.
+	 * WP_ENVIRONMENT_TYPE is the WordPress-native answer but defaults to
+	 * 'production' when nobody sets it, so it cannot be trusted alone to protect
+	 * an unconfigured machine. The .git marker needs no configuration to be
+	 * right, but only appears on a checkout. Together they cover both.
+	 *
+	 * Staging keeps updates on deliberately: exercising the real update path
+	 * before production is the point of having a staging site.
+	 *
+	 * @since 1.183.2
+	 * @return bool True when update checks and installation may proceed.
+	 */
+	public static function is_enabled(): bool {
+		$is_checkout = self::is_checkout();
+		$environment = wp_get_environment_type();
+
+		/**
+		 * Filters whether the GitHub self-updater is active.
+		 *
+		 * Returning false unhooks the updater entirely: no update is advertised,
+		 * and no package can be installed over this theme.
+		 *
+		 * @since 1.183.2
+		 * @param bool   $enabled     Whether the updater may run.
+		 * @param bool   $is_checkout Whether the theme root looks like a checkout.
+		 * @param string $environment The value of wp_get_environment_type().
+		 */
+		return (bool) apply_filters(
+			'aggressive_apparel_enable_theme_updates',
+			self::should_enable( $is_checkout, $environment ),
+			$is_checkout,
+			$environment
+		);
+	}
+
+	/**
+	 * Whether the theme root looks like a working copy of the repository.
+	 *
+	 * Tested with file_exists() rather than is_dir(): in a linked worktree or a
+	 * submodule, .git is a regular file holding a gitdir: pointer, not a
+	 * directory. Those checkouts are just as destructible as a primary one, and
+	 * an is_dir() test silently leaves the updater armed for them.
+	 *
+	 * @since 1.183.2
+	 * @return bool True when a .git marker of either kind is present.
+	 */
+	public static function is_checkout(): bool {
+		return file_exists( trailingslashit( get_template_directory() ) . '.git' );
+	}
+
+	/**
+	 * The update policy itself, as a pure function of its two inputs.
+	 *
+	 * Separated from the filesystem and the environment so the whole matrix is
+	 * testable. A policy that can only be exercised in the environment it
+	 * happens to run in is a policy nobody checks.
+	 *
+	 * @since 1.183.2
+	 * @param bool   $is_checkout Whether the theme root is a working copy.
+	 * @param string $environment The value of wp_get_environment_type().
+	 * @return bool True when updates are appropriate for this install.
+	 */
+	public static function should_enable( bool $is_checkout, string $environment ): bool {
+		if ( $is_checkout ) {
+			return false;
+		}
+
+		return ! in_array( $environment, array( 'local', 'development' ), true );
+	}
+
+	/**
 	 * Initialize the theme updater.
 	 *
 	 * Call this from theme bootstrap.
@@ -95,6 +175,10 @@ class Theme_Updates {
 	 * @return void
 	 */
 	public function init(): void {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		add_filter( 'pre_set_site_transient_update_themes', array( $this, 'check_for_update' ), 100, 1 );
 		add_filter( 'upgrader_pre_download', array( $this, 'verify_package_download' ), 10, 4 );
 		add_filter( 'upgrader_source_selection', array( $this, 'rename_package' ), 10, 3 );

@@ -314,10 +314,13 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-detect changes → frontend ∥ i18n → build → PHP ∥ browser E2E → final package → clean-install acceptance → draft → attest → verify and publish
+detect changes → frontend ∥ i18n → build → PHP ∥ browser E2E
+
+and, only when a run requests it, → plan → final package → clean-install acceptance → draft → attest → verify and publish → sync version
 ```
 
-- **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release
+- **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release; documentation-only changes run linting alone
+- **Releasing is deliberate.** Merging never publishes. Cut a release with `gh workflow run "CI/CD Pipeline" --ref master -f publish=true`, and everything merged since the last tag ships as one update
 - **PHP and browser tests run in parallel** from the same uploaded build, so the full E2E suite does not add a serial stage to the CI critical path
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
@@ -331,7 +334,7 @@ semantic-release tags the reviewed merge commit and writes no release commit:
 
 | File                             | Updated on release?                                   |
 | -------------------------------- | ----------------------------------------------------- |
-| Source `style.css` (`Version:`)  | No — development baseline                             |
+| Source `style.css` (`Version:`)  | Yes — via the `chore/version-sync` pull request        |
 | `package.json` (`version`)       | No — private tooling package                          |
 | `CHANGELOG.md`                   | No — GitHub Release notes are generated instead       |
 | Release ZIP + `.sha256`          | Yes — version stamped inside the packaged `style.css` |

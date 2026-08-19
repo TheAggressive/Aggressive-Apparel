@@ -2,13 +2,18 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master, develop]
-  # develop is included so integration PRs are gated by the same checks as the
-  # release branches; pushing to develop already ran them, so a PR into it was
-  # the only unguarded path into the tree.
+    branches: [master]
   pull_request:
-    branches: [master, develop]
+    branches: [master]
+  # Releasing is a decision, not a side effect of merging. Every push to master
+  # still runs the full quality pipeline; only this input reaches the publishing
+  # path, so several merges can ship as one update instead of one each.
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Cut a release from master if the merged commits warrant one'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -24,21 +29,30 @@ env:
 
 jobs:
   # ============================================================================
-  # Detect whether anything OUTSIDE languages/ changed.
-  # A translations-only merge (the i18n MT PR) leaves code=false. The frontend
-  # job gates on this and skips, which cascade-skips build → test → package →
-  # release, so the only required check is the canonical i18n lane. The
-  # merged translations ship with the NEXT code release — its package step
-  # recompiles the .mo from whatever .po is on master — so there's no extra
-  # version bump for translations. Any code or mixed commit sets code=true and
-  # runs the full pipeline.
+  # Classify the diff so a lane only runs when the change could affect it.
+  #
+  # `code` — anything outside languages/. A translations-only merge (the i18n MT
+  # pull request) leaves it false, which skips the frontend job and cascade-skips
+  # build → test → package. Those translations ship with the next release, whose
+  # package step recompiles the .mo from whatever catalogs are on master.
+  #
+  # `docs_only` — the diff is nothing but Markdown. Prose cannot change built
+  # output, shift a POT source reference, or alter behaviour, so the i18n gate
+  # skips and cascade-skips build → PHP → browser E2E with it. Linting still
+  # runs. Note this is deliberately narrower than it could be: workflow-only
+  # changes still run everything, because a workflow edit must be exercised by
+  # the pipeline it edits.
+  #
+  # A manual run has no diff to read, so it answers for itself: dispatch is
+  # either a release or a deliberate re-verification, and both need every lane.
   # ============================================================================
   changes:
     name: 🧭 Detect changes
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     outputs:
-      code: ${{ steps.filter.outputs.code }}
+      code: ${{ steps.decide.outputs.code }}
+      docs_only: ${{ steps.decide.outputs.docs_only }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,14 +61,27 @@ jobs:
 
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
+        if: github.event_name != 'workflow_dispatch'
         with:
-          # `code` matches when any changed file is outside languages/.
-          # `**` selects everything, `!languages/**` removes the catalogs;
-          # if nothing remains the diff was translations-only.
+          # The action is used ONLY to produce the changed-file list. Its glob
+          # filters are not trusted to classify anything: at this pinned version
+          # the quantifier options are `every` and `some`, and under `some` a
+          # pattern prefixed with `!` excludes nothing — it is just another way
+          # to match. The documented `['**', '!languages/**']` filter therefore
+          # matched every file, so `code` was permanently true and the
+          # translations-only skip never engaged once. Confirmed on the merge of
+          # a881323, a translations-only commit that ran every lane in full.
+          list-files: json
           filters: |
-            code:
+            all:
               - '**'
-              - '!languages/**'
+
+      - name: Decide which lanes are required
+        id: decide
+        env:
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          CHANGED_FILES: ${{ steps.filter.outputs.all_files }}
+        run: node bin/ci/classify-changes.mjs
 
   # ============================================================================
   # PARALLEL: Release planning.
@@ -69,9 +96,13 @@ jobs:
     name: 🧮 Plan Release
     runs-on: ubuntu-24.04
     needs: changes
+    # Only a deliberate publish reaches this job, so merging a fix no longer
+    # ships an update on its own. Everything downstream of it — package,
+    # acceptance, release, version-sync — skips with it on an ordinary push,
+    # because a skipped dependency skips its dependents.
     if: >-
-      needs.changes.outputs.code == 'true' &&
-      github.event_name == 'push' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.publish &&
       github.ref == 'refs/heads/master'
     timeout-minutes: 5
     permissions:
@@ -163,6 +194,11 @@ jobs:
   i18n:
     name: 🌐 i18n Check
     runs-on: ubuntu-24.04
+    needs: changes
+    # Markdown holds no translatable strings and cannot shift a POT source
+    # reference, so a prose-only diff has nothing for this lane to check. `build`
+    # depends on this job, so skipping here also skips build → PHP → E2E.
+    if: needs.changes.outputs.docs_only != 'true'
     timeout-minutes: 5
 
     steps:
@@ -439,7 +475,7 @@ jobs:
     name: 🚀 Release
     runs-on: ubuntu-24.04
     needs: [release-plan, package, artifact-acceptance]
-    if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
+    if: success() && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch'
     timeout-minutes: 15
     # The solo-maintainer production environment restricts deployments to
     # master. Add an independent reviewer and prevent self-review when a second
@@ -512,6 +548,87 @@ jobs:
         run: bash bin/release/verify-assets.sh
 
   # ============================================================================
+  # Post-release: put the shipped version back into the checkout.
+  #
+  # package.sh stamps the staged tree and deliberately leaves the repository
+  # untouched, so without this master drifts from every release — as it did from
+  # 1.181.4 to 1.183.2 before anyone noticed.
+  #
+  # It opens a pull request rather than pushing: the release-branches ruleset has
+  # no bypass actors, and a version header is not worth reinstating one. The
+  # commits are created through the GitHub API by create-pull-request's
+  # sign-commits, so they are verified and satisfy the ruleset's signature rule
+  # without any exemption.
+  #
+  # Failure here cannot corrupt a release — the release is already published and
+  # verified by the time this runs — but it is allowed to fail the run loudly
+  # rather than drop the sync silently, because a silent failure is how the
+  # drift started.
+  # ============================================================================
+  version-sync:
+    name: 🔖 Sync Theme Version
+    runs-on: ubuntu-24.04
+    needs: [release-plan, release]
+    if: success()
+    timeout-minutes: 10
+    # The App token below performs the write, so the workflow's own credential
+    # only needs to read the tree.
+    permissions:
+      contents: read
+
+    steps:
+      # A pull request opened with GITHUB_TOKEN gets no unattended pipeline run.
+      # This one must be validated like any other change to master.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
+          private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
+          # Scope the token to this job's work. Without these it would inherit
+          # the App's entire installation permission set.
+          permission-contents: write
+          permission-pull-requests: write
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Stamp the released version into style.css
+        env:
+          AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}
+        run: bash bin/release/sync-version.sh
+
+      - name: Open version sync pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          sign-commits: true
+          add-paths: style.css
+          branch: chore/version-sync
+          delete-branch: true
+          # chore(release) deliberately: syncing the header must never itself
+          # qualify for a release, or merging it would plan the next version.
+          commit-message: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
+          title: 'chore(release): sync style.css to ${{ needs.release-plan.outputs.next_version }}'
+          body: |
+            Automated follow-up to **v${{ needs.release-plan.outputs.next_version }}**.
+
+            `bin/release/package.sh` stamps the version into the distributable ZIP
+            and leaves the checkout untouched, so this restores the tracked
+            `style.css` header to the version that actually shipped.
+
+            This is not cosmetic: WordPress reads `style.css` as the authoritative
+            theme version, and `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation
+            key in `Rendered_Product_Cache`, the Product Collection style
+            fingerprint, and five asset enqueues.
+
+            Reproduce locally with:
+
+            ```bash
+            bash bin/release/sync-version.sh ${{ needs.release-plan.outputs.next_version }}
+            ```
+
+  # ============================================================================
   # Summary
   # ============================================================================
   summary:
@@ -530,6 +647,7 @@ jobs:
         package,
         artifact-acceptance,
         release,
+        version-sync,
       ]
     if: always()
     timeout-minutes: 5
@@ -544,6 +662,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_REF: ${{ github.ref }}
           CODE_CHANGED: ${{ needs.changes.outputs.code }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          PUBLISH_REQUESTED: ${{ inputs.publish }}
           SHOULD_RELEASE: ${{ needs.release-plan.outputs.should_release }}
           NEXT_VERSION: ${{ needs.release-plan.outputs.next_version }}
           CHANGES_RESULT: ${{ needs.changes.result }}
@@ -557,4 +677,5 @@ jobs:
           PACKAGE_RESULT: ${{ needs.package.result }}
           ARTIFACT_ACCEPTANCE_RESULT: ${{ needs.artifact-acceptance.result }}
           RELEASE_RESULT: ${{ needs.release.result }}
+          VERSION_SYNC_RESULT: ${{ needs.version-sync.result }}
         run: node bin/ci/release-summary.mjs

@@ -1,20 +1,36 @@
 # Release runbook
 
-Releases are calculated automatically from conventional commits merged to
-`master`. The production environment accepts deployments only from `master`, and
-no operator constructs or edits a release artifact manually.
+The version is calculated automatically from the conventional commits merged to
+`master`, but **cutting a release is a deliberate act**. Merging runs the full
+quality pipeline and stops there; publishing happens only when someone runs the
+pipeline manually with the `publish` input set. The production environment
+accepts deployments only from `master`, and no operator constructs or edits a
+release artifact manually.
+
+## Cutting a release
+
+```bash
+gh workflow run "CI/CD Pipeline" --ref master -f publish=true
+```
+
+Or use *Actions → CI/CD Pipeline → Run workflow* and tick **publish**.
+
+Everything merged since the last tag ships as one release. If those commits
+contain nothing release-worthy, planning reports no release and the run stops
+without publishing — running this when nothing is pending is harmless.
 
 ## Release path
 
 | Stage          | Control                                                                                                                                                |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Plan           | `semantic-release` dry run calculates the next version.                                                                                                |
+| Plan           | `semantic-release` dry run calculates the next version. Runs only when `publish` was requested.                                                       |
 | Build and test | Frontend, PHP, browser, i18n, and dependency gates run independently.                                                                                  |
 | Package        | `ci:package` stamps a staged tree, builds it twice, requires identical hashes, and verifies the ZIP.                                                   |
 | Accept         | `ci:artifact` installs the ZIP into clean WordPress without a source mapping, activates it, and runs browser smoke tests.                              |
 | Draft          | `semantic-release` tags the reviewed commit and uploads the accepted assets to a draft GitHub Release. It does not commit generated files to `master`. |
 | Attest         | GitHub records build provenance for the final ZIP.                                                                                                     |
 | Publish        | `verify-assets.sh` repairs the draft, downloads both assets, checks byte equality, checksum, package structure and provenance, then publishes it.      |
+| Sync           | `version-sync` stamps the shipped version into `style.css` and opens `chore/version-sync` for review. Merge it to keep the checkout honest.            |
 
 The release invariant is:
 

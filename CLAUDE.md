@@ -772,7 +772,7 @@ into the tracked `style.css` — merge it. Change the tracked version only via
 
 | File                             | State                                                   |
 | -------------------------------- | ------------------------------------------------------- |
-| `style.css` (`Version:`)         | Synced back by the `version-sync` PR after each release  |
+| `style.css` (`Version:`)         | Synced back by the `version-sync` PR, enforced by a guard |
 | `package.json` (`version`)       | Permanently `0.0.0-development` — private, never on npm  |
 | `CHANGELOG.md`                   | Frozen at 1.181.4; GitHub Release notes superseded it    |
 | `languages/*.po` `Project-Id-Version` | Stale (1.164.0). Nothing reads it; leave it alone  |
@@ -788,6 +788,15 @@ Why it matters: `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation key in
 asset enqueues, so a header that never moves is a set of caches that never rotate
 in development. WordPress also reads `style.css` as the authoritative theme
 version.
+
+`bin/check-version-sync.sh` runs inside `lint:files` → `ci:frontend` and fails
+the build while `style.css` is behind the newest tag. The sync PR is delivery,
+which automation cannot guarantee anyone merges; the guard is enforcement. Fix a
+failure by merging `chore/version-sync`, or with
+`bash bin/release/sync-version.sh <version>` — never by editing the header.
+Sibling repositories use the same split (see `Aggressive-Ads`), though theirs
+also regenerates the POT because it lacks this repo's `Project-Id-Version`
+normalizer.
 
 **Why not release-please:** it would put the bump in the release commit itself,
 but its generated commits are not signature-verified

@@ -43,7 +43,7 @@ jobs:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
-          app-id: ${{ secrets.AA_CI_APP_ID }}
+          client-id: ${{ secrets.AA_CI_CLIENT_ID }}
           private-key: ${{ secrets.AA_CI_PRIVATE_KEY }}
           # Scope the minted token down to what this job does. Without these the
           # token carries the App's whole installation permission set, so a

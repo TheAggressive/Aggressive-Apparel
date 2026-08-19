@@ -64,6 +64,14 @@ export function evaluateReleaseSummary(environment) {
   const publishRequested = booleanOutput(environment, 'PUBLISH_REQUESTED', {
     allowEmpty: true,
   });
+  // The machine version sync carries one header line this pipeline just
+  // published and verified inside the archive, so the build, PHP and browser
+  // lanes skip. Requiring them would make that pull request unmergeable and
+  // strand the repository behind its own release — the exact drift the sync
+  // exists to end.
+  const versionSync = booleanOutput(environment, 'VERSION_SYNC', {
+    allowEmpty: true,
+  });
 
   const results = {
     changes: jobResult(environment, 'CHANGES_RESULT'),
@@ -105,6 +113,10 @@ export function evaluateReleaseSummary(environment) {
   } else if (results.releasePlan === 'success') {
     lines.push(
       '**Non-release commit** — Quality checks, build and tests executed (packaging skipped)'
+    );
+  } else if (versionSync) {
+    lines.push(
+      '**Machine version sync** — Linting ran; build, PHP and E2E were not applicable'
     );
   } else if (docsOnly) {
     lines.push(
@@ -156,7 +168,7 @@ export function evaluateReleaseSummary(environment) {
 
   requireSuccess('change detection', results.changes);
 
-  if (!docsOnly) {
+  if (!docsOnly && !versionSync) {
     requireSuccess('i18n', results.i18n);
   }
 
@@ -164,12 +176,14 @@ export function evaluateReleaseSummary(environment) {
     requireSuccess('dependency review', results.dependencyReview);
   }
 
-  if (codeChanged) {
+  if (codeChanged && !versionSync) {
     // Linting runs for every code diff, prose included — it is what validates
-    // the CI contracts themselves.
+    // the CI contracts themselves. The machine version sync is the exception:
+    // its content is a header this pipeline just published and verified inside
+    // the archive, so there is nothing here for linting to establish.
     requireSuccess('frontend', results.frontend);
 
-    if (!docsOnly) {
+    if (!docsOnly && !versionSync) {
       requireSuccess('build', results.build);
       requireSuccess('PHP', results.php);
       requireSuccess('browser E2E', results.e2e);

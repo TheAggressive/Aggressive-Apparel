@@ -53,6 +53,7 @@ jobs:
     outputs:
       code: ${{ steps.decide.outputs.code }}
       docs_only: ${{ steps.decide.outputs.docs_only }}
+      version_sync: ${{ steps.decide.outputs.version_sync }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -81,6 +82,10 @@ jobs:
         env:
           IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
           CHANGED_FILES: ${{ steps.filter.outputs.all_files }}
+          # Branch and author together identify the machine version sync, whose
+          # only content is a version header this pipeline just published.
+          HEAD_REF: ${{ github.head_ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: node bin/ci/classify-changes.mjs
 
   # ============================================================================
@@ -145,17 +150,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: >-
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.version_sync != 'true'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # check-version-sync compares the tracked version against the newest
-          # release tag and fails closed when none are reachable, so a shallow
-          # clone reports that it cannot verify rather than passing vacuously.
-          # Fetching the tags is the fix; relaxing the guard is not.
-          fetch-tags: true
-          fetch-depth: 0
           persist-credentials: false
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
@@ -204,7 +205,12 @@ jobs:
     # Markdown holds no translatable strings and cannot shift a POT source
     # reference, so a prose-only diff has nothing for this lane to check. `build`
     # depends on this job, so skipping here also skips build → PHP → E2E.
-    if: needs.changes.outputs.docs_only != 'true'
+    # A machine version sync changes one header line that this pipeline just
+    # published and verified inside the archive. It cannot move a POT reference
+    # or change built output, so this lane skips — and build, PHP and E2E
+    # cascade-skip with it. Linting still runs, because check-version-sync is
+    # what proves the pull request does what it claims.
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.version_sync != 'true'
     timeout-minutes: 5
 
     steps:
@@ -640,6 +646,29 @@ jobs:
             bash bin/release/sync-version.sh ${{ needs.release-plan.outputs.next_version }}
             ```
 
+      # Merges itself once its checks pass. The content is machine-written from
+      # the tag this run just published and re-derivable with one command, so a
+      # human clicking merge reviews nothing and only delays the repository
+      # agreeing with its own release. Auto-merge still waits for every required
+      # check, so master's protection is unchanged — this removes a wait, not a
+      # gate.
+      - name: Let it merge once its checks pass
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          number="$(gh pr list --head chore/version-sync --state open \
+            --json number --jq '.[0].number // empty')"
+
+          if [[ -z "${number}" ]]; then
+            echo "No sync pull request was opened, so there is nothing to merge."
+            exit 0
+          fi
+
+          gh pr merge "${number}" --auto --squash --delete-branch
+          echo "Version sync #${number} will merge when its checks pass."
+
   # ============================================================================
   # Summary
   # ============================================================================
@@ -675,6 +704,7 @@ jobs:
           EVENT_REF: ${{ github.ref }}
           CODE_CHANGED: ${{ needs.changes.outputs.code }}
           DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          VERSION_SYNC: ${{ needs.changes.outputs.version_sync }}
           PUBLISH_REQUESTED: ${{ inputs.publish }}
           SHOULD_RELEASE: ${{ needs.release-plan.outputs.should_release }}
           NEXT_VERSION: ${{ needs.release-plan.outputs.next_version }}

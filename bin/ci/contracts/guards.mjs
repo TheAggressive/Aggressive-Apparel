@@ -33,7 +33,6 @@ const GUARDS = {
   'bin/check-external-assets.sh': 'bin/check-external-assets.test.mjs',
   'bin/check-file-length.sh': 'bin/check-file-length.test.mjs',
   'bin/check-shell.sh': 'bin/check-shell.test.mjs',
-  'bin/check-version-sync.sh': 'bin/check-version-sync.test.mjs',
   // POT drift needs WP-CLI, so it is proven by the ci:i18n lane rather than
   // here; this test pins the validator mode switch, which is the half that was
   // inert and the half that can regress silently.

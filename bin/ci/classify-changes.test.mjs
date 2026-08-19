@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { classifyChanges } from './classify-changes.mjs';
+import { classifyChanges, isMachineVersionSync } from './classify-changes.mjs';
 
 describe('classifyChanges', () => {
   it('treats a translations-only diff as not code', () => {
@@ -27,7 +27,10 @@ describe('classifyChanges', () => {
   });
 
   it('does not call a mixed diff documentation', () => {
-    const result = classifyChanges(['README.md', 'includes/class-bootstrap.php']);
+    const result = classifyChanges([
+      'README.md',
+      'includes/class-bootstrap.php',
+    ]);
 
     assert.deepEqual(result, { code: true, docsOnly: false });
   });
@@ -84,5 +87,32 @@ describe('classifyChanges', () => {
       code: false,
       docsOnly: false,
     });
+  });
+});
+
+describe('isMachineVersionSync', () => {
+  it('recognises the sync pull request the release opened', () => {
+    assert.equal(
+      isMachineVersionSync('chore/version-sync', 'aggressive-ci[bot]'),
+      true
+    );
+  });
+
+  it('rejects the branch name alone', () => {
+    // Anyone can push a branch with this name; only the App can author a pull
+    // request as its bot. Requiring both is what makes skipping lanes safe.
+    assert.equal(isMachineVersionSync('chore/version-sync', 'someone'), false);
+  });
+
+  it('rejects the bot on any other branch', () => {
+    assert.equal(
+      isMachineVersionSync('chore/i18n-mt-drafts', 'aggressive-ci[bot]'),
+      false
+    );
+  });
+
+  it('claims nothing when identity is unavailable', () => {
+    // Push events carry no pull-request identity, so this must not fire there.
+    assert.equal(isMachineVersionSync('', ''), false);
   });
 });

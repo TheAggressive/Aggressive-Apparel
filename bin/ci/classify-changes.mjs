@@ -15,6 +15,22 @@
  */
 
 /**
+ * Whether a pull request is the machine-written version sync.
+ *
+ * Identified by branch AND author together. The branch name alone is not
+ * enough — anyone can push a branch called chore/version-sync — but only the
+ * App can author a pull request as its bot, so the pair is what makes skipping
+ * lanes on it safe.
+ *
+ * @param {string} headRef Source branch of the pull request.
+ * @param {string} author Login of the pull request author.
+ * @returns {boolean}
+ */
+export function isMachineVersionSync(headRef, author) {
+  return headRef === 'chore/version-sync' && author === 'aggressive-ci[bot]';
+}
+
+/**
  * @param {string[]} files Repo-relative paths of the changed files.
  * @returns {{ code: boolean, docsOnly: boolean }}
  *   `code` — something outside languages/ changed, so the code lanes apply.
@@ -43,7 +59,10 @@ export function classifyChanges(files) {
 }
 
 /* c8 ignore start -- CLI wiring, exercised by the workflow itself. */
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop() ?? '')) {
+if (
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].split('/').pop() ?? '')
+) {
   const { appendFileSync } = await import('node:fs');
 
   const outputPath = process.env.GITHUB_OUTPUT;
@@ -53,6 +72,11 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop()
   }
 
   let result;
+
+  const versionSync = isMachineVersionSync(
+    process.env.HEAD_REF ?? '',
+    process.env.PR_AUTHOR ?? ''
+  );
 
   if (process.env.IS_DISPATCH === 'true') {
     // A manual run has no diff to read. It is either a release or a deliberate
@@ -77,9 +101,19 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop()
 
   appendFileSync(
     outputPath,
-    `code=${result.code}\ndocs_only=${result.docsOnly}\n`,
+    `code=${result.code}\ndocs_only=${result.docsOnly}\nversion_sync=${versionSync}\n`,
     'utf8'
   );
-  console.log(`code=${result.code} docs_only=${result.docsOnly}`);
+  console.log(
+    `code=${result.code} docs_only=${result.docsOnly} version_sync=${versionSync}`
+  );
+
+  if (versionSync) {
+    console.log(
+      'Machine version sync: build, PHP and browser lanes are skipped. Linting ' +
+        'still runs, because check-version-sync is what proves this pull ' +
+        'request does what it claims.'
+    );
+  }
 }
 /* c8 ignore stop */

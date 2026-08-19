@@ -22,6 +22,7 @@ const successfulPullRequest = {
   RELEASE_RESULT: 'skipped',
   VERSION_SYNC_RESULT: 'skipped',
   DOCS_ONLY: 'false',
+  VERSION_SYNC: 'false',
   PUBLISH_REQUESTED: 'false',
 };
 
@@ -146,7 +147,9 @@ describe('release summary gate', () => {
     });
 
     assert.equal(result.failed, true);
-    assert.deepEqual(result.errors, ['Required frontend job concluded failure']);
+    assert.deepEqual(result.errors, [
+      'Required frontend job concluded failure',
+    ]);
   });
 
   it('does not require release planning on an ordinary push to master', () => {
@@ -200,6 +203,62 @@ describe('release summary gate', () => {
     assert.equal(result.failed, true);
     assert.deepEqual(result.errors, [
       'Required version sync job concluded skipped',
+    ]);
+  });
+
+  it('does not require build, PHP or E2E for the machine version sync', () => {
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      VERSION_SYNC: 'true',
+      I18N_RESULT: 'skipped',
+      BUILD_RESULT: 'skipped',
+      PHP_RESULT: 'skipped',
+      E2E_RESULT: 'skipped',
+    });
+
+    assert.equal(result.failed, false);
+    assert.match(result.markdown, /Machine version sync/u);
+  });
+
+  it('requires no lane at all for the machine version sync', () => {
+    // Every lane skips, including linting. The content is a header this
+    // pipeline just published and verified inside the archive, and the release
+    // run already required the version-sync job that produced it.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      VERSION_SYNC: 'true',
+      FRONTEND_RESULT: 'skipped',
+      I18N_RESULT: 'skipped',
+      BUILD_RESULT: 'skipped',
+      PHP_RESULT: 'skipped',
+      E2E_RESULT: 'skipped',
+    });
+
+    assert.equal(result.failed, false);
+    assert.match(result.markdown, /Machine version sync/u);
+  });
+
+  it('still requires the release run to produce the sync', () => {
+    // Enforcement moved here: a release that fails to open the sync fails
+    // loudly, which is why the separate drift guard is no longer needed.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      EVENT_NAME: 'workflow_dispatch',
+      EVENT_REF: 'refs/heads/master',
+      DEPENDENCY_REVIEW_RESULT: 'skipped',
+      PUBLISH_REQUESTED: 'true',
+      SHOULD_RELEASE: 'true',
+      NEXT_VERSION: '1.2.3',
+      RELEASE_PLAN_RESULT: 'success',
+      PACKAGE_RESULT: 'success',
+      ARTIFACT_ACCEPTANCE_RESULT: 'success',
+      RELEASE_RESULT: 'success',
+      VERSION_SYNC_RESULT: 'failure',
+    });
+
+    assert.equal(result.failed, true);
+    assert.deepEqual(result.errors, [
+      'Required version sync job concluded failure',
     ]);
   });
 });

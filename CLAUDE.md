@@ -789,14 +789,23 @@ asset enqueues, so a header that never moves is a set of caches that never rotat
 in development. WordPress also reads `style.css` as the authoritative theme
 version.
 
-`bin/check-version-sync.sh` runs inside `lint:files` → `ci:frontend` and fails
-the build while `style.css` is behind the newest tag. The sync PR is delivery,
-which automation cannot guarantee anyone merges; the guard is enforcement. Fix a
-failure by merging `chore/version-sync`, or with
-`bash bin/release/sync-version.sh <version>` — never by editing the header.
-Sibling repositories use the same split (see `Aggressive-Ads`), though theirs
-also regenerates the POT because it lacks this repo's `Project-Id-Version`
-normalizer.
+The sync pull request **merges itself**: `version-sync` enables auto-merge on it,
+and the classifier recognises it by branch AND author together
+(`chore/version-sync` + `aggressive-ci[bot]`) and skips every lane. Only the
+trivial required checks run, so a release costs no runner time for a header.
+
+Enforcement is the release run itself — the summary gate requires the
+`version-sync` job to succeed whenever a release is planned, so a sync that
+fails to open fails the release loudly. There is deliberately no separate drift
+guard; it would only fire during the couple of minutes before auto-merge lands,
+where it produces false failures on unrelated pull requests.
+
+`style.css` is the ONLY version synced. `@since` tags are historical (they record
+when an API appeared, not the current release) and per-block `block.json`
+versions track blocks, not the theme. The catalog `Project-Id-Version` headers
+are left alone: nothing reads them, `aa_i18n_normalize_pot` strips that header
+before the drift comparison, and touching the POT would trigger the machine
+translation workflow on every release.
 
 **Why not release-please:** it would put the bump in the release commit itself,
 but its generated commits are not signature-verified

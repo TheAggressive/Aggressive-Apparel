@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-08-09T23:31:19+00:00\n"
+"POT-Creation-Date: 2026-08-18T05:34:05+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -876,7 +876,7 @@ msgstr ""
 "fehlgeschlagen."
 
 #. translators: 1: theme name, 2: current version, 3: new version
-#: includes/Core/class-theme-updates.php:463
+#: includes/Core/class-theme-updates.php:547
 #, php-format
 msgid ""
 "A new version of %1$s is available. You have version %2$s and the latest "
@@ -885,7 +885,7 @@ msgstr ""
 "Eine neue Version von %1$s ist verfügbar. Sie haben die Version %2$s, die "
 "neueste Version ist %3$s."
 
-#: includes/Core/class-theme-updates.php:485
+#: includes/Core/class-theme-updates.php:569
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 

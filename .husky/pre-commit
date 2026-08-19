@@ -1,4 +1,13 @@
 export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-# Fast, per-commit autofix only. The heavy suite (tests + full lint +
-# PHPStan) runs on pre-push and in CI — see .husky/pre-push.
-pnpm run format:fix && pnpm run lint:js:fix
+# Per-commit autofix, scoped to what is actually staged.
+#
+# This previously ran format:fix and lint:js:fix across the entire tree on every
+# commit, so a one-line YAML change paid the same toll as a refactor — measured
+# at over ten minutes. A hook that slow is one people bypass with --no-verify,
+# and a bypassed gate is worse than a fast one (the same reasoning
+# bin/ci/verify-fast.sh applies to pre-push).
+#
+# Coverage is unchanged: ci:frontend still runs format:check and lint:js over
+# the whole tree, so nothing escapes by being committed without its neighbours
+# being reformatted. The heavy suite still runs on pre-push.
+pnpm exec lint-staged

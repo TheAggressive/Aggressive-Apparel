@@ -20,6 +20,9 @@ const successfulPullRequest = {
   PACKAGE_RESULT: 'skipped',
   ARTIFACT_ACCEPTANCE_RESULT: 'skipped',
   RELEASE_RESULT: 'skipped',
+  VERSION_SYNC_RESULT: 'skipped',
+  DOCS_ONLY: 'false',
+  PUBLISH_REQUESTED: 'false',
 };
 
 describe('release summary gate', () => {
@@ -47,8 +50,9 @@ describe('release summary gate', () => {
   it('requires every artifact and publish stage for a master release', () => {
     const result = evaluateReleaseSummary({
       ...successfulPullRequest,
-      EVENT_NAME: 'push',
+      EVENT_NAME: 'workflow_dispatch',
       EVENT_REF: 'refs/heads/master',
+      PUBLISH_REQUESTED: 'true',
       SHOULD_RELEASE: 'true',
       NEXT_VERSION: '2.4.0',
       RELEASE_PLAN_RESULT: 'success',
@@ -56,10 +60,12 @@ describe('release summary gate', () => {
       PACKAGE_RESULT: 'success',
       ARTIFACT_ACCEPTANCE_RESULT: 'success',
       RELEASE_RESULT: 'success',
+      VERSION_SYNC_RESULT: 'success',
     });
 
     assert.equal(result.failed, false);
     assert.match(result.markdown, /Release v2\.4\.0 planned/u);
+    assert.match(result.markdown, /Version sync \| success/u);
     assert.match(
       result.markdown,
       /Release \(publish \+ assets \+ provenance\) \| success/u
@@ -69,8 +75,9 @@ describe('release summary gate', () => {
   it('fails when a planned master release is skipped', () => {
     const result = evaluateReleaseSummary({
       ...successfulPullRequest,
-      EVENT_NAME: 'push',
+      EVENT_NAME: 'workflow_dispatch',
       EVENT_REF: 'refs/heads/master',
+      PUBLISH_REQUESTED: 'true',
       SHOULD_RELEASE: 'true',
       NEXT_VERSION: '2.4.0',
       RELEASE_PLAN_RESULT: 'success',
@@ -78,6 +85,7 @@ describe('release summary gate', () => {
       PACKAGE_RESULT: 'success',
       ARTIFACT_ACCEPTANCE_RESULT: 'success',
       RELEASE_RESULT: 'skipped',
+      VERSION_SYNC_RESULT: 'success',
     });
 
     assert.equal(result.failed, true);
@@ -106,5 +114,92 @@ describe('release summary gate', () => {
         }),
       /E2E_RESULT has an unknown job result/u
     );
+  });
+
+  it('does not require build, PHP or E2E for a documentation-only diff', () => {
+    // Those jobs cascade-skip off the i18n gate, so requiring them would fail
+    // every prose change. Linting still runs and is still required.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      DOCS_ONLY: 'true',
+      I18N_RESULT: 'skipped',
+      BUILD_RESULT: 'skipped',
+      PHP_RESULT: 'skipped',
+      E2E_RESULT: 'skipped',
+    });
+
+    assert.equal(result.failed, false);
+    assert.match(result.markdown, /Documentation only/u);
+  });
+
+  it('still requires linting on a documentation-only diff', () => {
+    // lint-frontend runs the CI contracts, so it is the one lane a prose diff
+    // cannot be excused from.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      DOCS_ONLY: 'true',
+      I18N_RESULT: 'skipped',
+      BUILD_RESULT: 'skipped',
+      PHP_RESULT: 'skipped',
+      E2E_RESULT: 'skipped',
+      FRONTEND_RESULT: 'failure',
+    });
+
+    assert.equal(result.failed, true);
+    assert.deepEqual(result.errors, ['Required frontend job concluded failure']);
+  });
+
+  it('does not require release planning on an ordinary push to master', () => {
+    // Releasing is an explicit decision now; a merge that skips planning is the
+    // normal case, not a failure.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      EVENT_NAME: 'push',
+      EVENT_REF: 'refs/heads/master',
+      DEPENDENCY_REVIEW_RESULT: 'skipped',
+      RELEASE_PLAN_RESULT: 'skipped',
+    });
+
+    assert.equal(result.failed, false);
+    assert.match(result.markdown, /No release requested/u);
+  });
+
+  it('requires release planning when a publish was requested', () => {
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      EVENT_NAME: 'workflow_dispatch',
+      EVENT_REF: 'refs/heads/master',
+      DEPENDENCY_REVIEW_RESULT: 'skipped',
+      PUBLISH_REQUESTED: 'true',
+      RELEASE_PLAN_RESULT: 'failure',
+    });
+
+    assert.equal(result.failed, true);
+    assert.deepEqual(result.errors, [
+      'Required release planning job concluded failure',
+    ]);
+  });
+
+  it('requires the version sync job on a release run', () => {
+    // A silently skipped sync is how style.css drifted from 1.181.4 to 1.183.2.
+    const result = evaluateReleaseSummary({
+      ...successfulPullRequest,
+      EVENT_NAME: 'workflow_dispatch',
+      EVENT_REF: 'refs/heads/master',
+      DEPENDENCY_REVIEW_RESULT: 'skipped',
+      PUBLISH_REQUESTED: 'true',
+      SHOULD_RELEASE: 'true',
+      NEXT_VERSION: '1.2.3',
+      RELEASE_PLAN_RESULT: 'success',
+      PACKAGE_RESULT: 'success',
+      ARTIFACT_ACCEPTANCE_RESULT: 'success',
+      RELEASE_RESULT: 'success',
+      VERSION_SYNC_RESULT: 'skipped',
+    });
+
+    assert.equal(result.failed, true);
+    assert.deepEqual(result.errors, [
+      'Required version sync job concluded skipped',
+    ]);
   });
 });

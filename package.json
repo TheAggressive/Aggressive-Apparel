@@ -27,6 +27,12 @@
   },
   "type": "module",
   "main": "index.js",
+  "//": "lint-staged runs the SAME fixers as format:fix and lint:js:fix, but only over staged files. The whole-tree versions still run in ci:frontend, so coverage is unchanged — this only stops a one-line commit paying a whole-tree toll.",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,json,yml,yaml}": "prettier --write --ignore-path .gitignore --ignore-path .prettierignore",
+    "src/**/*.css": "stylelint --fix",
+    "{src,bin}/**/*.{js,jsx,ts,tsx,mjs}": "eslint --fix"
+  },
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
@@ -82,6 +88,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "fast-glob": "^3.3.3",
     "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "mini-css-extract-plugin": "^2.10.2",
     "postcss": "^8.5.26",
     "postcss-lightningcss": "^1.1.1",

@@ -319,7 +319,13 @@ jobs:
     name: 🎭 Browser E2E
     runs-on: ubuntu-24.04
     needs: [build]
-    timeout-minutes: 15
+    # A job timeout is there to catch something stuck, not to bound normal
+    # variance. At 15 this cancelled a healthy run mid-suite with 73 of 74 specs
+    # already green, purely because that runner was slower than the ~8-9 minutes
+    # these 74 specs usually take. A cap that fails a passing run teaches you to
+    # re-run on red, which is how a real hang gets waved through. 20 keeps a
+    # genuine hang bounded while leaving room for a slow runner.
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

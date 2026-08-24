@@ -56,6 +56,31 @@ const SHELL_TOOLS = [
 
 const created = [];
 
+/**
+ * Resolve an executable without invoking a shell. `command -v` requires a shell
+ * builtin, and spawning it with `shell: true` causes Node's DEP0190 warning
+ * because arguments would be concatenated without escaping.
+ *
+ * @param {string} tool Executable name.
+ * @return {string|null} Absolute executable path when available.
+ */
+function resolveExecutable(tool) {
+  for (const directory of (process.env.PATH ?? '').split(path.delimiter)) {
+    const candidate = path.resolve(directory || '.', tool);
+
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK);
+      if (fs.statSync(candidate).isFile()) {
+        return candidate;
+      }
+    } catch {
+      // Missing and non-executable PATH entries are expected here.
+    }
+  }
+
+  return null;
+}
+
 /** Make a tracked temporary directory. @param {string} prefix @return {string} */
 export function workspace(prefix) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `${prefix}-`));
@@ -120,10 +145,7 @@ export function pathWithout(missing = []) {
       continue;
     }
 
-    const resolved = spawnSync('command', ['-v', tool], {
-      encoding: 'utf8',
-      shell: true,
-    }).stdout.trim();
+    const resolved = resolveExecutable(tool);
 
     if (resolved) {
       fs.symlinkSync(resolved, path.join(dir, tool));

@@ -55,7 +55,6 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		}
 
 		$assets_flag = new \ReflectionProperty( Product_Filters::class, 'assets_enqueued' );
-		$assets_flag->setAccessible( true );
 		$assets_flag->setValue( null, false );
 
 		parent::tearDown();

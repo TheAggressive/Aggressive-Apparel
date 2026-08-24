@@ -725,7 +725,8 @@ Uses [Conventional Commits](https://www.conventionalcommits.org/):
 Husky splits checks across two hooks so commits stay fast and the heavy
 gate runs before code leaves the machine:
 
-- **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
+- **`pre-commit`** (fast, every commit): `lint-staged` runs Prettier,
+  Stylelint, and ESLint autofixes only on staged files.
 - **`commit-msg`**: commitlint validation (Conventional Commits).
 - **`pre-push`** (heavy, before push): `pnpm qa:fast` runs the Docker-free
   frontend/build/static-analysis checks plus native PHPUnit unit coverage.
@@ -742,8 +743,9 @@ gate runs before code leaves the machine:
   validated before anything is pushed. See
   [`docs/release-runbook.md`](docs/release-runbook.md).
 
-  Local `pnpm test:e2e` retains its `pretest:e2e` build so manual browser runs
-  always validate current source instead of a stale `build/`.
+  Local `pnpm test:e2e` builds before running, so manual browser runs always
+  validate current source instead of a stale `build/`. It writes fixtures only
+  to a Studio site that has explicitly opted in with `.aa-e2e-site`.
 
 ### Semantic Release
 

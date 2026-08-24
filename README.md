@@ -298,7 +298,7 @@ and, only when a run requests it, → plan → final package → clean-install a
 - **PHP and browser tests run in parallel** from the same uploaded build, so the full E2E suite does not add a serial stage to the CI critical path
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
-  - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
+  - `pre-commit`: `lint-staged` runs Prettier, Stylelint, and ESLint autofixes only on staged files
   - `commit-msg`: commitlint (Conventional Commits)
   - `pre-push`: `pnpm qa:fast` — Docker-free frontend, build, PHP, and unit checks
 

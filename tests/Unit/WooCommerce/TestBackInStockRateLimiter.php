@@ -76,7 +76,6 @@ class TestBackInStockRateLimiter extends WP_UnitTestCase {
 	private function is_rate_limited( string $email ): bool {
 		$reflection = new ReflectionClass( Back_In_Stock::class );
 		$method     = $reflection->getMethod( 'is_rate_limited' );
-		$method->setAccessible( true );
 
 		return (bool) $method->invoke( $this->back_in_stock, $email );
 	}

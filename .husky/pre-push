@@ -1,5 +1,6 @@
 export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 # Fast gate (~3 min, measured): lint, types, JS tests, drift contract, build, PHP.
-# Browser E2E and packaging are CI-only — see bin/ci/verify-fast.sh for why.
-# Before cutting a release, run the full rehearsal yourself: pnpm qa
+# Browser E2E is manual because it writes fixtures to an explicitly opted-in
+# Studio site. Run `pnpm qa` for the full Docker-free local suite; packaging
+# remains isolated in GitHub Actions.
 pnpm run qa:fast

@@ -281,7 +281,6 @@ class TestProductTabs extends WP_UnitTestCase {
 
 		$reflection = new \ReflectionClass( Product_Tabs::class );
 		$renderer   = $reflection->getProperty( 'renderer' );
-		$renderer->setAccessible( true );
 		$renderer_instance = $renderer->getValue( $this->product_tabs );
 
 		$html = $renderer_instance->render_tabs_by_style(
@@ -315,7 +314,6 @@ class TestProductTabs extends WP_UnitTestCase {
 
 		$reflection = new \ReflectionClass( Product_Tabs::class );
 		$renderer   = $reflection->getProperty( 'renderer' );
-		$renderer->setAccessible( true );
 		$renderer_instance = $renderer->getValue( $this->product_tabs );
 
 		$html = $renderer_instance->render_tabs_by_style(

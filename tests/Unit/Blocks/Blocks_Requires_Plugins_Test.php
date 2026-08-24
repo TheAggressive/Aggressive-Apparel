@@ -27,7 +27,6 @@ class Blocks_Requires_Plugins_Test extends WP_UnitTestCase {
 	 */
 	private function is_metadata_allowed( array $metadata ): bool {
 		$method = new ReflectionMethod( Blocks::class, 'metadata_required_plugins_active' );
-		$method->setAccessible( true );
 
 		return (bool) $method->invoke( null, $metadata );
 	}
@@ -126,7 +125,6 @@ class Blocks_Requires_Plugins_Test extends WP_UnitTestCase {
 		}
 
 		$method = new ReflectionMethod( Blocks::class, 'block_required_plugins_active' );
-		$method->setAccessible( true );
 
 		$allowed = (bool) $method->invoke( null, $block_json );
 

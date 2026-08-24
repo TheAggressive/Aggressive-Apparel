@@ -223,7 +223,6 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		// Get the admin UI instance from the manager using reflection
 		$reflection = new ReflectionClass( $this->color_manager );
 		$admin_ui_property = $reflection->getProperty( 'admin_ui' );
-		$admin_ui_property->setAccessible( true );
 		$admin_ui = $admin_ui_property->getValue( $this->color_manager );
 
 		$modified_columns = $admin_ui->add_color_column( $columns );
@@ -273,7 +272,6 @@ class TestColorAttributeManager extends WP_UnitTestCase {
 		// Get the admin UI instance using reflection
 		$reflection = new ReflectionClass( $this->color_manager );
 		$admin_ui_property = $reflection->getProperty( 'admin_ui' );
-		$admin_ui_property->setAccessible( true );
 		$admin_ui = $admin_ui_property->getValue( $this->color_manager );
 
 		// Mock the GET parameters - this should trigger script enqueuing

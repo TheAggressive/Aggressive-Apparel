@@ -198,7 +198,6 @@
     "dev": "pnpm run env:start && pnpm run watch",
     "setup": "pnpm install && composer install && pnpm run build && pnpm run env:start && pnpm run env:check",
     "prepare": "husky",
-    "precommit": "pnpm run format:fix && pnpm run lint:fix",
     "// 🔧 UTILITY SCRIPTS": "_",
     "composer:verify": "composer validate --strict && composer install --dry-run --no-interaction --no-scripts",
     "qa": "bash bin/ci/node.sh qa:local:pinned",

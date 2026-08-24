@@ -35,11 +35,9 @@ class TestProductFiltersAlignment extends WP_UnitTestCase {
 		$filters    = $reflection->newInstanceWithoutConstructor();
 
 		$layout = $reflection->getProperty( 'layout' );
-		$layout->setAccessible( true );
 		$layout->setValue( $filters, 'drawer' );
 
 		$method = new ReflectionMethod( Product_Filters::class, 'wrap_product_collection' );
-		$method->setAccessible( true );
 
 		return (string) $method->invoke( $filters, '<div class="wp-block-woocommerce-product-collection">grid</div>', $align_class );
 	}

@@ -85,7 +85,6 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 		}
 
 		$assets_flag = new \ReflectionProperty( Product_Filters::class, 'assets_enqueued' );
-		$assets_flag->setAccessible( true );
 		$assets_flag->setValue( null, false );
 	}
 
@@ -268,7 +267,6 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	public function test_product_filters_remove_native_sort_handler_preserves_markup(): void {
 		$filters = new Product_Filters();
 		$method  = new \ReflectionMethod( Product_Filters::class, 'remove_native_sort_handler' );
-		$method->setAccessible( true );
 
 		$html = '<form data-owner="extension"><select name="orderby" data-wp-on--change="actions.handleSortChange" data-track="catalog"><option value="date">Latest</option></select></form>';
 		$result = (string) $method->invoke( $filters, $html );

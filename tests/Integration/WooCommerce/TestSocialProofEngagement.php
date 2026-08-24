@@ -263,7 +263,6 @@ final class TestSocialProofEngagement extends WP_UnitTestCase {
 		$subject = new Social_Proof();
 
 		$method = new ReflectionMethod( Social_Proof::class, 'build_engagement_notifications' );
-		$method->setAccessible( true );
 
 		return $method->invoke( $subject );
 	}

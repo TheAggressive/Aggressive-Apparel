@@ -40,7 +40,6 @@ class Adaptive_Colors_Test extends WP_UnitTestCase {
 	 */
 	private function call_private( string $method, array $args = [] ) {
 		$reflection = new ReflectionMethod( Adaptive_Colors::class, $method );
-		$reflection->setAccessible( true );
 		return $reflection->invokeArgs( $this->adaptive, $args );
 	}
 

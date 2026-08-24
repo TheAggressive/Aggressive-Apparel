@@ -20,7 +20,7 @@ Canonical human-facing overview: [`README.md`](README.md). Keep architecture not
 # Development
 pnpm install          # Install dependencies
 pnpm build            # Build all blocks and assets
-pnpm dev              # Watch mode + start wp-env
+pnpm dev              # Start Studio + watch mode
 pnpm start            # Watch mode only
 
 # Testing
@@ -35,12 +35,13 @@ pnpm lint:fix         # Fix all lint issues
 pnpm analyse:php      # PHPStan static analysis
 
 # Environment
-pnpm env:start        # Start wp-env
-pnpm env:stop         # Stop wp-env
+pnpm env:start        # Start the WordPress Studio site
+pnpm env:stop         # Stop the WordPress Studio site
 pnpm setup            # Full setup: install → build → start
 
-# Release parity (identical commands to GitHub Actions)
-pnpm qa               # Every required lane, serially — what pre-push runs
+# Verification
+pnpm qa               # Docker-free native + Studio gate
+pnpm qa:ci            # Containerized release parity
 pnpm ci:package       # Package + verify the ZIP from the current build/
 
 # i18n (see languages/README.md)
@@ -309,7 +310,8 @@ pnpm test:js:watch
 
 # End-to-end (Playwright, drives the real editor + front end)
 pnpm test:e2e:install   # one-time: download the browser (CI: installs system deps)
-pnpm test:e2e           # requires wp-env running (pnpm env:start)
+pnpm test:e2e           # builds and drives the registered Studio site
+pnpm test:e2e:ci        # isolated containerized release parity
 ```
 
 ### Test Configuration
@@ -317,13 +319,15 @@ pnpm test:e2e           # requires wp-env running (pnpm env:start)
 - PHPUnit 9.6 with Yoast Polyfills
 - Jest for JavaScript
 - Playwright for end-to-end (`playwright.config.ts`, specs in `tests/e2e/`)
-- wp-env for WordPress test environment
+- WordPress Studio for browser tests and interactive development
+- Native disposable MySQL/Core fixtures for PHPUnit
+- wp-env only for CI release parity
 
 **E2E** (`tests/e2e/`) covers browser behavior unit tests can't — the card-flip
 3D flip + `inert` a11y and the split-story sticky/grid/gap layout. `global-setup.ts`
 logs in once (admin/password) and saves the session; each spec builds its block
 via `wp.data`, publishes, asserts on the rendered front end, and deletes the page.
-CI must run `pnpm test:e2e:install` before `pnpm test:e2e`. (On WSL without sudo,
+CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. (On WSL without sudo,
 the browser deps can't install — run with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`
 and an `LD_LIBRARY_PATH` to extracted libnss3/libnspr4/libasound2 debs.)
 
@@ -532,15 +536,14 @@ return array(
 
 ## Development Environment
 
-### wp-env Configuration
+### WordPress Studio
 
-```json
-{
-  "phpVersion": "8.2",
-  "port": 9910,
-  "testsPort": 9920
-}
-```
+`bin/local/studio.mjs` discovers the registered Studio site that contains this
+checkout. Never hardcode the Studio URL or port. Run WP-CLI through `pnpm cli`
+or `studio wp`; Studio uses SQLite. PHPUnit uses the isolated native MySQL/Core
+runner under `.cache/local/` and must never target the Studio database.
+
+The pinned `bin/ci/.wp-env.json` configuration belongs only to CI parity.
 
 ### Debug Flags
 
@@ -724,11 +727,10 @@ gate runs before code leaves the machine:
 
 - **`pre-commit`** (fast, every commit): `format:fix` + `lint:js:fix` autofix.
 - **`commit-msg`**: commitlint validation (Conventional Commits).
-- **`pre-push`** (heavy, before push): `pnpm qa` → `bin/ci/verify.sh`, which
-  runs every canonical lane serially: `ci:frontend`, `ci:i18n`, `ci:build`,
-  `ci:php`, `ci:e2e`, `ci:package`. It provisions its own pinned Node and uses
-  the isolated `bin/ci/.wp-env.json` environment, so it never touches the
-  development database.
+- **`pre-push`** (heavy, before push): `pnpm qa:fast` runs the Docker-free
+  frontend/build/static-analysis checks plus native PHPUnit unit coverage.
+  Use `pnpm qa:ci` explicitly before a release for every canonical container
+  lane. Neither local command touches the Studio database with PHPUnit.
 
   **These are the same commands Actions runs**, and `bin/ci/contracts.mjs`
   fails the build if the two lists ever diverge in either direction — a
@@ -872,9 +874,9 @@ pnpm analyse:php:baseline  # Generate baseline for existing issues
 
 ### Tests Failing
 
-1. Ensure wp-env is running: `pnpm env:start`
-2. Run `composer install` in wp-env: `pnpm cli composer install`
-3. Check PHP version compatibility
+1. Run `composer install`
+2. Verify the native test database and Core fixtures with `pnpm test:unit`
+3. Check PHP/MySQL versions printed by the native runner
 
 ### Styles Not Loading
 
@@ -893,4 +895,5 @@ pnpm analyse:php:baseline  # Generate baseline for existing issues
 | [composer.json](composer.json)       | PHP dependencies              |
 | [phpunit.xml.dist](phpunit.xml.dist) | PHPUnit configuration         |
 | [phpstan.neon](phpstan.neon)         | Static analysis config        |
-| [.wp-env.json](.wp-env.json)         | Development environment       |
+| [bin/local/studio.mjs](bin/local/studio.mjs) | Studio environment bridge     |
+| [bin/ci/.wp-env.json](bin/ci/.wp-env.json) | CI-only release environment   |

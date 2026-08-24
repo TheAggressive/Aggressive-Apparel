@@ -2,7 +2,7 @@
 #
 # Canonical release-packaging lane.
 #
-# Actions and `pnpm qa` both run exactly this script, so the artifact that gets
+# Actions and `pnpm qa:ci` both run exactly this script, so the artifact that gets
 # published is the same artifact a developer can build and inspect locally
 # before pushing. Previously this logic lived inline in the release workflow's
 # `package` job and had no local execution path at all, which made it the

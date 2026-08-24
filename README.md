@@ -57,13 +57,13 @@ composer install
 # Build blocks, interactivity modules, icons, and assets
 pnpm build
 
-# Watch mode + wp-env (port 9910)
+# Start the Studio site and watch theme assets
 pnpm dev
 
-# Full release-CI parity against an isolated WordPress environment
+# Docker-free local quality gate
 pnpm qa
 
-# Release-parity browser tests (install Chromium dependencies once first)
+# Studio browser tests (install Chromium dependencies once first)
 pnpm test:e2e:install
 pnpm test:e2e
 ```
@@ -73,87 +73,61 @@ pnpm test:e2e
 | Command                    | Description                                                           |
 | -------------------------- | --------------------------------------------------------------------- |
 | `pnpm build`               | Build blocks, interactivity blocks, shared modules, assets, and icons |
-| `pnpm dev`                 | Watch mode + wp-env                                                   |
-| `pnpm setup`               | Install, build, and start wp-env                                      |
+| `pnpm dev`                 | Start the WordPress Studio site, then watch theme assets              |
+| `pnpm setup`               | Install dependencies, build, start Studio, and check site health     |
 | `pnpm test`                | JS unit tests, tooling tests, and PHP suites                          |
-| `pnpm test:any -- <flags>` | Targeted PHPUnit runs inside wp-env                                   |
+| `pnpm test:any -- <flags>` | Targeted PHPUnit runs on the disposable native test database          |
 | `pnpm test:unit`           | PHP unit tests                                                        |
 | `pnpm test:integration`    | PHP integration tests                                                 |
 | `pnpm test:security`       | Security tests                                                        |
 | `pnpm test:accessibility`  | Accessibility tests                                                   |
 | `pnpm test:performance`    | Performance benchmarks                                                |
-| `pnpm test:e2e`            | Pinned build + isolated release-parity Playwright tests               |
-| `pnpm test:e2e:dev`        | Build + Playwright tests against the development wp-env               |
+| `pnpm test:e2e`            | Build + Playwright tests against the registered Studio site           |
+| `pnpm test:e2e:ci`         | Pinned containerized release-parity Playwright tests                  |
 | `pnpm test:e2e:install`    | Install the Playwright Chromium browser and system dependencies       |
 | `pnpm lint:all`            | Prettier, file lengths, ESLint, TypeScript, Stylelint, and PHPCS      |
 | `pnpm lint:files`          | Enforce source-file length budgets                                    |
 | `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
 | `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
 | `pnpm analyse:php`         | PHPStan (level 6)                                                     |
-| `pnpm qa`                  | Full local rehearsal of every required GitHub Actions check           |
-| `pnpm qa:dev`              | Development wp-env i18n, tests, lint, and PHPStan                     |
-| `pnpm ci:verify`           | Canonical release-parity implementation used by `pnpm qa`             |
+| `pnpm qa`                  | Docker-free local checks, native PHPUnit, and Studio browser tests    |
+| `pnpm qa:ci`               | Optional containerized rehearsal of every required Actions check      |
+| `pnpm ci:verify`           | Canonical containerized release-parity implementation                 |
 | `pnpm ci:artifact`         | Install and smoke-test the distributable ZIP in clean WordPress       |
 | `pnpm perf`                | Lighthouse performance budget (build + report)                        |
-| `pnpm env:start`           | Start wp-env and update development to the latest Beta/RC             |
-| `pnpm env:stop`            | Stop wp-env                                                           |
-| `pnpm env:check`           | Report versions and verify that attachment files exist                |
-| `pnpm env:backup`          | Create and checksum a database + wp-content recovery point            |
-| `pnpm env:backups`         | List available recovery points                                        |
-| `pnpm env:restore -- <id>` | Verify and restore a recovery point after backing up current state    |
-| `pnpm env:clean:all`       | Confirm, back up, and clean both wp-env databases                     |
-| `pnpm env:destroy:all`     | Confirm, back up, and destroy all wp-env containers and local data    |
-| `pnpm env:reset`           | Confirm, back up, clean, restart, and verify wp-env                   |
+| `pnpm env:start`           | Start the Studio site without opening a browser                       |
+| `pnpm env:stop`            | Stop the Studio site                                                  |
+| `pnpm env:status`          | Show Studio status, URL, runtime, and credentials                     |
+| `pnpm env:check`           | Verify theme, WooCommerce, versions, and attachment files             |
+| `pnpm cli -- <args>`       | Run WP-CLI through the selected Studio site                           |
+| `pnpm db:local -- <action>` | Start, stop, or inspect the disposable PHPUnit MySQL instance         |
 
-The environments intentionally use two WordPress channels:
+Local development and release verification deliberately use different runtimes:
 
-| Lane                       | WordPress version                               | Role                                           |
-| -------------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| Local development          | Latest Beta/RC via WordPress Beta Tester        | Early compatibility feedback                   |
-| Required release CI        | Pinned stable core and WooCommerce versions     | Reproducible release gate                      |
-| Scheduled compatibility CI | Latest Beta/RC, daily and manually dispatchable | Detect upcoming WordPress compatibility issues |
-| PHP test site              | Pinned stable version from `.wp-env.json`       | Reproducible unit and integration tests        |
+| Lane                       | WordPress/runtime                                  | Role                              |
+| -------------------------- | -------------------------------------------------- | --------------------------------- |
+| Local development          | Studio-managed WordPress + SQLite                  | Persistent interactive work       |
+| Local PHP tests            | Pinned Core/WooCommerce + disposable native MySQL | Docker-free PHPUnit feedback       |
+| Required release CI        | Pinned wp-env containers                          | Reproducible release gate          |
+| Scheduled compatibility CI | Latest Beta/RC in isolated wp-env                 | Upcoming compatibility detection  |
 
-The development site uses wp-env's normal `wp-content` directory; it does not
-map the complete directory into the repository. The Beta/RC updater takes a
-transactional archive before replacing core so uploads, fonts, and locally
-installed plugins survive the update. Set `WP_ENV_SKIP_BETA_UPDATE=1` to skip
-the moving update for an offline or deterministic run.
+Studio is the source of truth for the development site path and URL. The local
+wrapper discovers the registered site that physically contains this checkout,
+so it never hardcodes Studio's reassigned port or drives a second theme copy.
+WP-CLI always runs through `studio wp`.
 
-Required CI, `pnpm qa`, and `pnpm test:e2e` use `bin/ci/.wp-env.json`. That
-committed configuration pins WordPress, WooCommerce, and PHP; maps the theme to
-the same lowercase path; and stores its Docker state under the ignored
-`.wp-env-ci/` directory on dedicated ports. Each stateful parity lane resets
-both isolated databases, reapplies the pinned configuration, and stops its
-containers when finished. It therefore starts from the same WordPress state as
-Actions without altering the development database, uploads, fonts, or locally
-installed plugins. Use the explicit `qa:dev` and `test:e2e:dev` aliases only
-when testing against the persistent development environment is intentional.
+PHPUnit starts an isolated native MySQL instance under `.cache/local/`, downloads
+the Core and WooCommerce versions pinned by `bin/ci/.wp-env.json`, and uses a
+separate test schema. It never reads or modifies Studio's SQLite database.
 
-Node and pnpm are exact release-gate inputs. `pnpm qa` downloads the
-official Node version from `.node-version` into the ignored local cache and
-verifies its pinned SHA-256 checksum before running; it does not change the
-global Node installation. `pnpm ci:doctor` then fails immediately if Node or
-pnpm differs from Actions. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`,
-`ci:php`, `ci:e2e`, `ci:package`, and `ci:artifact` in gated jobs, while `pnpm ci:verify`
-runs those same commands serially. `bin/ci/contracts.mjs` asserts both
-directions of that list, so a lane cannot be added to Actions without also
-running locally, or removed locally while Actions still runs it. The artifact lane
-installs the final ZIP in an unmapped WordPress environment before publication.
-Jest, PHPUnit, and Playwright fail the release gate when any
-discovered test is skipped, incomplete, risky, flaky after a retry, or otherwise
-lacks reliable executed test evidence.
+The browser suite writes fixtures into Studio. Opt a disposable site in with
+`touch /path/to/studio/site/.aa-e2e-site`, or set `AA_STUDIO_E2E_ALLOW=1` for one
+run. Use Studio's export command or UI for development-site backups.
 
-Recovery points default to the ignored `.wp-env-backups/` directory. Set
-`WP_ENV_BACKUP_DIR` to an absolute directory on durable storage to keep them
-outside the repository. The five newest recovery points are retained by default;
-set `WP_ENV_BACKUP_RETENTION` to another positive count when storage policy
-requires it. Every clean, destroy, reset, and restore requires an explicit typed
-confirmation and creates a verified recovery point first. Intentional
-non-interactive automation must pass `--yes` or set
-`WP_ENV_CONFIRM_DESTRUCTIVE=1`; the commands otherwise fail closed. Direct
-`wp-env clean` and `wp-env destroy` bypass these safeguards and should not be
-used.
+Required Actions lanes and optional `pnpm qa:ci` retain the isolated
+`bin/ci/.wp-env.json` setup. CI state lives under `.wp-env-ci/` and never touches
+Studio. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`, `ci:php`, `ci:e2e`,
+`ci:package`, and `ci:artifact`; `pnpm ci:verify` runs the same commands serially.
 
 ### Scaffolding Blocks
 
@@ -288,7 +262,7 @@ Color swatches use `Color_Attribute_Manager`, `Color_Data_Manager`, `Color_Block
 
 ## Testing
 
-PHP and browser tests use wp-env (Docker), with WooCommerce installed in both development and test environments. JavaScript unit and tooling tests run directly through Node.
+PHP tests use disposable native MySQL/Core fixtures, browser tests use WordPress Studio, and JavaScript/tooling tests run directly through Node. Docker is reserved for explicit CI-parity commands.
 
 | Suite                 | Coverage                                                                 |
 | --------------------- | ------------------------------------------------------------------------ |
@@ -326,7 +300,7 @@ and, only when a run requests it, → plan → final package → clean-install a
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `format:fix` → `lint:js:fix` (autofix only)
   - `commit-msg`: commitlint (Conventional Commits)
-  - `pre-push`: `pnpm qa:fast` — fast subset of the canonical CI lanes
+  - `pre-push`: `pnpm qa:fast` — Docker-free frontend, build, PHP, and unit checks
 
 ### Versioning
 
@@ -380,10 +354,12 @@ Added via `Bootstrap::add_security_headers()`:
 ## Requirements
 
 - WordPress 7.0+
-- PHP 8.2+ (development wp-env, the CI gate, PHPStan, and Composer all pin 8.2)
+- PHP 8.2+ (the CI gate, PHPStan, and Composer pin the supported floor)
 - Node.js 24+ with pnpm 11+
 - WooCommerce 7.0+ (recommended)
-- Docker (for wp-env)
+- WordPress Studio with its terminal CLI enabled
+- MySQL or MariaDB server binary for native PHPUnit (the system service may stay stopped)
+- Docker only for explicit `pnpm qa:ci` release-parity runs
 
 ## Support
 

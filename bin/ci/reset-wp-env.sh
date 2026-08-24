@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # Reset only the isolated CI parity databases and reapply their pinned config.
-# This never addresses the development wp-env home that contains local uploads
-# and database content.
+# This never addresses WordPress Studio or its SQLite database and uploads.
 
 set -euo pipefail
 

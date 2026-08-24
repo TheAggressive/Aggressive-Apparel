@@ -49,8 +49,14 @@ const GUARDS = {
  * exemption: a new one has to be justified here rather than silently skipped.
  */
 const ORCHESTRATORS = {
+  'bin/ci/check-wp-env.sh':
+    'runs the proven bin/wp-env/check.sh guard inside the CI environment',
   'bin/ci/verify.sh': 'runs the canonical lanes; the lanes hold the assertions',
   'bin/ci/verify-fast.sh': 'pre-push subset of the same lanes',
+  'bin/local/verify-fast.sh':
+    'runs the Docker-free frontend, build, analysis, and unit lanes',
+  'bin/local/verify.sh':
+    'runs the Docker-free fast gate plus native and Studio suites',
 };
 
 /** Names that read as a guard. Broad on purpose — dodging it should be hard. */

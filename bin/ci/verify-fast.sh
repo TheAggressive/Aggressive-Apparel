@@ -2,7 +2,7 @@
 #
 # Fast pre-push gate: one wp-env bring-up, ~3 minutes warm.
 #
-# The full rehearsal (bin/ci/verify.sh, `pnpm qa`) takes ~15 minutes, mostly
+# The full rehearsal (bin/ci/verify.sh, `pnpm qa:ci`) takes ~15 minutes, mostly
 # starting wp-env three times. That is right before a release and wrong before
 # every push — a hook slow enough to annoy gets bypassed with --no-verify, and a
 # bypassed gate is worse than a fast one.
@@ -38,4 +38,4 @@ pnpm ci:php
 
 echo ""
 echo "Fast pre-push checks passed."
-echo "Before a release, run the full rehearsal: pnpm qa"
+echo "Before a release, run the full rehearsal: pnpm qa:ci"

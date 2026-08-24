@@ -4,8 +4,6 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 if [[ "${1:-}" == "--container" ]]; then
 	core_version="$(wp core version)"
 	php_version="$(php -r 'echo PHP_VERSION;')"
@@ -87,10 +85,5 @@ EOF
 	exit "${health_failed}"
 fi
 
-# shellcheck source=bin/wp-env/lib.sh
-source "${SCRIPT_DIR}/lib.sh"
-
-aa_require_development_site
-aa_wp_env run cli \
-	--env-cwd="${AA_WP_ENV_THEME_CWD}" \
-	-- bash bin/wp-env/check.sh --container
+echo "This health checker is CI-only. Use pnpm env:check for WordPress Studio." >&2
+exit 2

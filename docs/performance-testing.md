@@ -5,7 +5,7 @@ They are intentionally separate from pre-commit hooks and GitHub Actions.
 
 ## Requirements
 
-- Use Node.js 22.19 or newer. The project overrides Lighthouse CI's older
+- Use the Node.js 24 version pinned by the repository. The project overrides Lighthouse CI's older
   bundled audit engine with Lighthouse 13 so it remains compatible with current
   Chromium releases.
 - Install dependencies with `pnpm install`.
@@ -30,17 +30,17 @@ These commands handle prerequisites for you:
 
 - Chrome libraries on Linux/WSL (first run only, cached in
   `.cache/lighthouse-chrome-deps/`).
-- `wp-env` startup when the local site is down (`LHCI_ENSURE_SITE=1`).
+- WordPress Studio startup when the local site is down (`LHCI_ENSURE_SITE=1`).
 
 ```sh
-pnpm run perf:auto:quick    # shop audit, auto start wp-env if needed
-pnpm run perf:auto:budget   # full budget run, auto start wp-env if needed
+pnpm run perf:auto:quick    # shop audit, auto start Studio if needed
+pnpm run perf:auto:budget   # full budget run, auto start Studio if needed
 pnpm run perf:auto          # production build + full budget run
 ```
 
 ### Manual control
 
-Use these when `wp-env` is already running and you want faster iteration:
+Use these when the Studio site is already running and you want faster iteration:
 
 - `pnpm run perf:setup` downloads Linux libraries for Playwright Chromium when
   sudo is unavailable (WSL-friendly).
@@ -53,7 +53,7 @@ Use these when `wp-env` is already running and you want faster iteration:
 - `pnpm run preflight` runs QA, creates a production build, and then enforces the
   performance budget.
 
-Set `LHCI_ENSURE_SITE=1` on any perf command to opt into automatic `wp-env`
+Set `LHCI_ENSURE_SITE=1` on any perf command to opt into automatic Studio
 startup without using the `perf:auto:*` aliases.
 
 Reports are written to `.lighthouseci/reports/` and are excluded from Git.
@@ -74,7 +74,8 @@ The full checks discover a published product through the WooCommerce Store API.
 Override it when needed:
 
 ```sh
-LHCI_PRODUCT_URL=http://localhost:9910/product/example/ pnpm run perf:budget
+STUDIO_URL="$(node bin/local/studio.mjs url)"
+LHCI_PRODUCT_URL="${STUDIO_URL}/product/example/" pnpm run perf:budget
 ```
 
 The initial enforced limits cover LCP, CLS, Total Blocking Time, transfer sizes,

@@ -43,7 +43,7 @@ so a failed upload or verification never becomes visible to installed sites.
 ## Local rehearsal
 
 ```bash
-pnpm qa
+pnpm qa:ci
 ```
 
 The full rehearsal builds an unversioned `aggressive-apparel.zip` and runs the
@@ -134,7 +134,6 @@ Update these declarations together:
 - `style.css` (`Requires PHP`)
 - `composer.json` (`require.php` and `config.platform.php`)
 - `phpstan.neon` (`phpVersion`)
-- `.wp-env.json`
 - `bin/ci/.wp-env.json`
 - `bin/ci/artifact/.wp-env.json`
 

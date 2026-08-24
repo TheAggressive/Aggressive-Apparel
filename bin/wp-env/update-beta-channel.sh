@@ -10,11 +10,14 @@
 # meant every `pnpm env:start` anywhere ran it. It aborted at the mktemp call on
 # every invocation, so nobody noticed until that bug was fixed; its first real
 # execution replaced a development site's wp-content and its restore did not
-# bring the uploads back. It is now an explicit step (`pnpm env:beta`), and the
+# bring the uploads back. It is now an explicit CI step (`pnpm ci:env:beta`), and the
 # restore is verified rather than assumed: losing files fails the run loudly
 # instead of leaving a site that merely looks fine.
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CI_WP_ENV="${SCRIPT_DIR}/../ci/wp-env.sh"
 
 if [[ "${WP_ENV_SKIP_BETA_UPDATE:-0}" == "1" ]]; then
 	echo "wp-env: skipping the WordPress Beta/RC update."
@@ -26,7 +29,7 @@ echo "wp-env: selecting the WordPress Bleeding Edge Beta/RC Only channel..."
 # The single-quoted body runs inside the container, not here, so it must
 # reach that shell unexpanded.
 # shellcheck disable=SC2016
-pnpm wp-env run cli bash -c '
+bash "${CI_WP_ENV}" run cli --env-cwd=wp-content/themes/aggressive-apparel -- bash -c '
 	set -euo pipefail
 
 	# Everything the WordPress package cannot supply, and therefore everything
@@ -40,7 +43,7 @@ pnpm wp-env run cli bash -c '
 			-type f -print 2>/dev/null | wc -l
 	}
 
-	# Installed here rather than in .wp-env.json. Listing it as a development
+	# Installed here rather than in the committed CI config. Listing it as a development
 	# plugin put it on every developer machine, where — alongside the cron
 	# loopback mu-plugin — WordPress quietly auto-updated the site to a
 	# beta in the background. Core then no longer matched the pinned version, so

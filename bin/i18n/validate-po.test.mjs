@@ -244,3 +244,18 @@ test('the CI lane runs catalog validation on the host', () => {
     'the wp-cli validator accepted broken catalogs and must not come back'
   );
 });
+
+test('the Studio lane scopes POT extraction to this theme', () => {
+  const source = fs.readFileSync(LIB, 'utf8');
+
+  assert.match(
+    source,
+    /studio_args\[2\]="\$\{AA_THEME_ROOT\}"/u,
+    'Studio starts WP-CLI at the site root, so make-pot must receive the physical theme path'
+  );
+  assert.match(
+    source,
+    /memory_limit.*1G/u,
+    'Studio defaults WP-CLI to 512 MB, which is too small for this theme extraction'
+  );
+});

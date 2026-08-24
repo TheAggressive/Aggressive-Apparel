@@ -23,7 +23,6 @@ import {
   autoMergeWorkflow,
   check,
   composerJson,
-  developmentWpEnv,
   packageJson,
   packageLane,
   phpForwardLane,
@@ -75,7 +74,7 @@ for (const fileName of workflowFiles) {
 // Local ↔ Actions drift guard.
 //
 // Every command the required pipeline runs must be a canonical `pnpm ci:*`
-// lane, and bin/ci/verify.sh (which `pnpm qa` and the pre-push hook run) must
+// lane, and bin/ci/verify.sh (which `pnpm qa:ci` runs explicitly) must
 // invoke exactly that same set. The check is bidirectional, so neither side can
 // gain or lose a step without the other failing.
 //
@@ -243,8 +242,8 @@ check(
 );
 
 check(
-  packageJson.scripts['qa:fast:pinned'] === 'bash bin/ci/verify-fast.sh',
-  'The qa:fast:pinned script must run bin/ci/verify-fast.sh.'
+  packageJson.scripts['qa:fast:pinned'] === 'bash bin/local/verify-fast.sh',
+  'The qa:fast:pinned script must run the Docker-free local gate.'
 );
 
 check(
@@ -384,11 +383,6 @@ const PHP_FLOOR_DECLARATIONS = [
     artifactWpEnv.phpVersion,
     phpFloor,
   ],
-  // Development must run the same PHP the gate runs. A newer dev runtime lets
-  // an API that does not exist on the floor pass locally and fail in Actions —
-  // exactly the drift this contract exists to prevent. Forward compatibility
-  // belongs in a scheduled job, not in a disagreeing development environment.
-  ['.wp-env.json phpVersion', developmentWpEnv.phpVersion, phpFloor],
 ];
 
 for (const [source, actual, expected] of PHP_FLOOR_DECLARATIONS) {
@@ -400,10 +394,8 @@ for (const [source, actual, expected] of PHP_FLOOR_DECLARATIONS) {
   );
 }
 
-// Holding development and the gate on the same PHP is only defensible while
-// something else exercises newer PHP. If the scheduled forward-compatibility
-// job is removed or narrowed to the floor, that justification disappears
-// silently — so it is asserted here alongside the floor it complements.
+// The scheduled forward-compatibility job exercises newer PHP releases while
+// the required CI containers enforce the advertised floor.
 const forwardVersions = flowSequence(phpForwardWorkflow, 'php');
 
 check(
@@ -431,7 +423,7 @@ check(
 );
 
 // The forward run must not reuse the parity home or ports, or it would clobber
-// the environment `pnpm qa` depends on — and its home must sit inside the
+// the environment `pnpm qa:ci` depends on — and its home must sit inside the
 // .cache/ tree every scanner already excludes. A generated WordPress install
 // anywhere else becomes PHPCS input and OOMs the lint lane.
 check(
@@ -482,7 +474,7 @@ const summaryDependencies = [
 // filters means someone has started trusting the globs again.
 check(
   !releaseWorkflow.includes("- '!"),
-  "release.yml uses a negated glob in a paths-filter. Those exclude nothing at " +
+  'release.yml uses a negated glob in a paths-filter. Those exclude nothing at ' +
     'this version, so the filter matches every file and any lane gate built on ' +
     'it skips nothing. Classify in bin/ci/classify-changes.mjs instead.'
 );

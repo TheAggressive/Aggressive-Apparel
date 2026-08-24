@@ -51,7 +51,7 @@ check(
 
 for (const unsafe of ['env:clean', 'env:destroy']) {
   if (Object.hasOwn(packageJson.scripts, unsafe)) {
-    throw new Error(`${unsafe} bypasses the guarded development lifecycle.`);
+    throw new Error(`${unsafe} bypasses the WordPress Studio lifecycle.`);
   }
 }
 
@@ -71,23 +71,24 @@ for (const [source, actual, expected] of PINNED_TOOLCHAIN) {
   );
 }
 
-// Public commands run through the pinned bootstrap; the `:dev` variants are the
-// deliberate fast paths that use whatever the developer has installed.
+// Local public commands run through Studio/native tooling. Containerized parity
+// remains explicit under :ci so ordinary development never starts Docker.
 const EXACT_SCRIPTS = [
-  ['qa', 'pnpm run ci:verify'],
-  ['test:e2e', 'bash bin/ci/node.sh test:e2e:pinned'],
+  ['qa', 'bash bin/ci/node.sh qa:local:pinned'],
+  ['test:e2e', 'node bin/local/studio-e2e.mjs'],
+  ['test:e2e:ci', 'bash bin/ci/node.sh test:e2e:pinned'],
   [
     'test:e2e:pinned',
     'pnpm ci:build && pnpm ci:browser:install && pnpm ci:e2e',
   ],
-  ['test:e2e:dev', 'pnpm build && playwright test'],
+  ['test:e2e:dev', 'pnpm test:e2e'],
 ];
 
 for (const [name, expected] of EXACT_SCRIPTS) {
   check(
     packageJson.scripts[name] === expected,
     `package.json script "${name}" must be exactly "${expected}" (found ` +
-      `"${packageJson.scripts[name]}") so the public command runs pinned CI parity.`
+      `"${packageJson.scripts[name]}").`
   );
 }
 

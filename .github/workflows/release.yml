@@ -415,7 +415,7 @@ jobs:
 
       # Compiles catalogs, builds the ZIP from the allowlist in
       # bin/release/lib.sh, then asserts contents, exclusions, catalogs and
-      # headers. Identical to what `pnpm qa` runs locally.
+      # headers. Identical to what `pnpm qa:ci` runs explicitly.
       - name: Run canonical package lane
         env:
           AA_RELEASE_VERSION: ${{ needs.release-plan.outputs.next_version }}

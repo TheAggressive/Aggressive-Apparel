@@ -156,17 +156,33 @@ function sleep(ms) {
   });
 }
 
-async function startWpEnv() {
-  const wpEnvPath = path.join(themeRoot, 'node_modules', '.bin', 'wp-env');
+function studioCommand(command, capture = false) {
+  const result = spawnSync(
+    process.execPath,
+    [path.join(themeRoot, 'bin/local/studio.mjs'), command],
+    {
+      cwd: themeRoot,
+      encoding: 'utf8',
+      stdio: capture ? ['ignore', 'pipe', 'inherit'] : 'inherit',
+    }
+  );
 
-  console.log('Local site is not running. Starting wp-env...');
+  if (result.status !== 0) return '';
+  return capture ? result.stdout.trim() : 'ok';
+}
 
-  const result = spawnSync(wpEnvPath, ['start'], {
-    cwd: themeRoot,
-    stdio: 'inherit',
-  });
+async function startStudio() {
+  console.log('Local site is not running. Starting WordPress Studio...');
+  return studioCommand('start') !== '';
+}
 
-  return result.status === 0;
+function studioUrl() {
+  const url = studioCommand('url', true);
+  if (!url) {
+    console.error('Could not discover the WordPress Studio site URL.');
+    process.exit(1);
+  }
+  return url;
 }
 
 async function ensureSite(baseUrl) {
@@ -183,10 +199,10 @@ async function ensureSite(baseUrl) {
     process.exit(1);
   }
 
-  const started = await startWpEnv();
+  const started = await startStudio();
 
   if (!started) {
-    console.error('Failed to start wp-env.');
+    console.error('Failed to start WordPress Studio.');
     process.exit(1);
   }
 
@@ -287,15 +303,11 @@ function runLighthouse(environment) {
 
     const lhciPath = path.join(themeRoot, 'node_modules', '.bin', 'lhci');
 
-    const child = spawn(
-      lhciPath,
-      ['autorun', '--config=./lighthouserc.cjs'],
-      {
-        cwd: themeRoot,
-        env: childEnvironment,
-        stdio: 'inherit',
-      }
-    );
+    const child = spawn(lhciPath, ['autorun', '--config=./lighthouserc.cjs'], {
+      cwd: themeRoot,
+      env: childEnvironment,
+      stdio: 'inherit',
+    });
 
     child.on('error', error => {
       console.error(`Unable to start Lighthouse CI: ${error.message}`);
@@ -305,9 +317,7 @@ function runLighthouse(environment) {
   });
 }
 
-const baseUrl = normalizeBaseUrl(
-  process.env.LHCI_BASE_URL || 'http://localhost:9910'
-);
+const baseUrl = normalizeBaseUrl(process.env.LHCI_BASE_URL || studioUrl());
 const chromePath = await ensureChrome();
 
 if (!chromePath) {

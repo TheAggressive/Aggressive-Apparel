@@ -2,11 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * End-to-end tests that drive the block editor + rendered front end in the
- * running wp-env site. These guard real browser behavior (sticky/grid layout,
+ * running WordPress site. These guard real browser behavior (sticky/grid layout,
  * the card-flip 3D flip + inert a11y) that unit tests can't cover.
  *
- * Release-parity local run: `pnpm test:e2e`.
- * Development wp-env run: `pnpm env:start`, then `pnpm test:e2e:dev`.
+ * Studio run: `pnpm test:e2e`.
+ * Containerized release-parity run: `pnpm test:e2e:ci`.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -22,7 +22,7 @@ export default defineConfig({
     : [['list'], ['./tests/e2e/no-skips-reporter.ts']],
   globalSetup: './tests/e2e/global-setup.ts',
   use: {
-    baseURL: process.env.WP_BASE_URL ?? 'http://localhost:9910',
+    baseURL: process.env.WP_BASE_URL,
     storageState: 'tests/e2e/.auth/admin.json',
     headless: true,
     trace: 'retain-on-failure',

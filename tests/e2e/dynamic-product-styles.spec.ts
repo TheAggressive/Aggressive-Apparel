@@ -152,7 +152,7 @@ test('product-filter choice pills keep the shared interaction target', async ({
   const toggle = page.locator('.aa-filter-toggle:visible').first();
   await expect(
     toggle,
-    'The transactional fixture must enable Product Filters in clean wp-env.'
+    'The transactional fixture must enable Product Filters in the test site.'
   ).toBeVisible();
   await toggle.click();
 

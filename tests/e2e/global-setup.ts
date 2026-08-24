@@ -8,7 +8,7 @@ interface ThemeRecord {
   status: string;
 }
 
-/** Activate the mounted project theme in a fresh wp-env installation. */
+/** Activate the project theme in the selected WordPress installation. */
 function ensureProjectThemeActive(): void {
   const themes = JSON.parse(
     wpCli(['theme', 'list', '--format=json'])
@@ -19,7 +19,7 @@ function ensureProjectThemeActive(): void {
 
   if (!projectTheme) {
     throw new Error(
-      'Aggressive Apparel is not installed in the Playwright wp-env site.'
+      'Aggressive Apparel is not installed in the Playwright WordPress site.'
     );
   }
 
@@ -87,9 +87,15 @@ async function ensurePublicCatalogReady(
  * anonymous storefront specs exercise the same public routes as production.
  */
 export default async function globalSetup(_config: FullConfig): Promise<void> {
-  const base = process.env.WP_BASE_URL ?? 'http://localhost:9910';
+  const base = process.env.WP_BASE_URL;
   const user = process.env.WP_ADMIN_USER ?? 'admin';
   const pass = process.env.WP_ADMIN_PASS ?? 'password';
+
+  if (!base) {
+    throw new Error(
+      'WP_BASE_URL is required. Use pnpm test:e2e for Studio or pnpm test:e2e:ci for release parity.'
+    );
+  }
 
   mkdirSync('tests/e2e/.auth', { recursive: true });
 

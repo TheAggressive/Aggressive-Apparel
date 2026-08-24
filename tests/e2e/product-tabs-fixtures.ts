@@ -7,8 +7,8 @@ import { wpCli } from './wp-cli';
  * The product-tabs block only renders on single-product pages, and its
  * `displayStyle` block attribute (default "accordion", filled from block.json)
  * is passed directly to the renderer. To exercise each layout on the real
- * single-product template, .wp-env.json maps a repository-owned, test-only
- * mu-plugin that overrides selected block attributes from allowlisted query
+ * single-product template, a repository-owned test mu-plugin overrides selected
+ * block attributes from allowlisted query
  * parameters via `render_block_data`. Request-scoped inputs avoid shared
  * option/cache state between tests and retries. The product carries a long
  * Description plus weight/dimensions (Additional information tab) so several
@@ -77,7 +77,7 @@ echo $id . '|' . get_permalink($id);
  * Prove that the repository-owned fixture is active in the HTTP container and
  * can alter the real server-rendered Product Tabs block. This produces an
  * immediate, actionable setup error instead of several minute-long locator
- * timeouts when a wp-env mapping is missing.
+ * timeouts when the test mu-plugin integration is missing.
  */
 export async function assertProductTabsFixtureReady(
   productUrl: string
@@ -112,7 +112,7 @@ export async function assertProductTabsFixtureReady(
 
   if (response.headers.get(FIXTURE_HEADER) !== 'ready') {
     throw new Error(
-      `Product Tabs E2E fixture is not loaded by the wp-env web container: ${response.url}`
+      `Product Tabs E2E fixture is not loaded by WordPress: ${response.url}`
     );
   }
 
@@ -154,7 +154,7 @@ export function productTabsFixtureUrl(
 
 /**
  * Back up and remove the global Product Tabs option. A stale backup from an
- * interrupted run is restored first, keeping persistent local wp-env state
+ * interrupted run is restored first, keeping persistent local site state
  * transactional across cancellations and retries.
  */
 export function isolateGlobalTabsOption(): void {

@@ -27,7 +27,8 @@ pnpm i18n:translate           # Sync + MT empty/fuzzy (DeepL; MyMemory fallback)
 pnpm i18n                     # pot → sync → compile → status
 ```
 
-Requires WP-CLI (`wp`) with the i18n package, **or** a running `wp-env` (scripts auto-detect).
+Local commands use WordPress Studio's WP-CLI. CI uses its isolated wp-env CLI;
+both require the `i18n` command package.
 
 Catalog validation additionally requires **gettext** (`msgfmt`) — `apt install gettext`,
 `brew install gettext`. This is a hard requirement on purpose. It used to fall back to

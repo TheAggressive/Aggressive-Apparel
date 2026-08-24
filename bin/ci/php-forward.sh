@@ -16,7 +16,7 @@
 #   e.g. bin/ci/php-forward.sh 8.4
 #
 # Uses its own wp-env home and ports so it never disturbs the parity
-# environment that `pnpm qa` depends on.
+# environment that `pnpm qa:ci` depends on.
 set -euo pipefail
 
 PHP_VERSION="${1:?Usage: php-forward.sh <php-version> (e.g. 8.4)}"

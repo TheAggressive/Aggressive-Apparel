@@ -1,7 +1,7 @@
 import { wpCli } from './wp-cli';
 
 /**
- * Ensure the wp-env shop catalogue can exercise Load More / infinite scroll.
+ * Ensure the E2E shop catalogue can exercise Load More / infinite scroll.
  *
  * Soft-skips in catalog-cursor-pagination.spec.ts hide real regressions when
  * the env has too few products or is stuck in button mode. Run from global
@@ -90,7 +90,7 @@ function ensurePublicStore(): void {
 /**
  * Provision the WooCommerce archive and its rewrite contract.
  *
- * Persistent local wp-env installations normally already contain both, while a
+ * Persistent local Studio sites normally already contain both, while a
  * fresh CI database may have neither. In that state Apache handles `/shop/`
  * directly and returns a raw 404 before WordPress or the theme can run.
  */

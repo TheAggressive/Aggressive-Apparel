@@ -3,7 +3,7 @@ import { wpCli } from './wp-cli';
 /**
  * Transactional fixture for product-card visual contracts and variation
  * availability. Every suite receives a fresh owned product and restores the
- * feature option it found, so a persistent local wp-env converges to its
+ * feature option it found, so a persistent local site converges to its
  * original state after the tests finish.
  */
 
@@ -185,7 +185,7 @@ foreach ($variations as $slug => $spec) {
 WC_Product_Variable::sync($product_id);
 
 // Delay the option mutation until every fixture record exists. A setup
-// exception before this point cannot leak feature flags into persistent wp-env.
+// exception before this point cannot leak feature flags into a persistent site.
 $features = is_array($original) ? $original : array();
 foreach (array('product_filters', 'quick_view', 'sticky_add_to_cart', 'price_display', 'stock_status') as $feature) {
   $features[$feature] = 1;

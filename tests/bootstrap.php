@@ -3,7 +3,8 @@
  * PHPUnit Bootstrap for WordPress Theme Tests
  *
  * This file loads the WordPress test environment and prepares the theme for testing.
- * When running in wp-env, WordPress core files are available.
+ * Local runs use the native disposable Core/MySQL runner; CI supplies the same
+ * bootstrap contract from its isolated environment.
  *
  * @package Aggressive_Apparel
  */
@@ -12,12 +13,12 @@
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
-	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+	$_tests_dir = dirname( __DIR__ ) . '/vendor/wp-phpunit/wp-phpunit';
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	echo "Could not find {$_tests_dir}/includes/functions.php\n";
-	echo "Please set WP_TESTS_DIR environment variable or run tests in wp-env.\n";
+	echo "Run composer install, then use pnpm test:php.\n";
 	exit( 1 );
 }
 
@@ -66,7 +67,7 @@ function _aggressive_apparel_manually_load_environment() {
 		aggressive_apparel_init();
 	}
 
-	// If WooCommerce is present (added to the tests env via .wp-env.json),
+	// If WooCommerce is present in the selected test environment,
 	// activate it so its classes/blocks load during the test run.
 	if ( file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' ) ) {
 		$plugins = get_option( 'active_plugins', array() );

@@ -64,7 +64,12 @@ echo "Running ShellCheck over ${script_count} shell scripts..."
 # ambient binary would mean the digest pinned nothing on any machine that has
 # ShellCheck — including GitHub runners — and a runner-image bump would produce
 # exactly the surprise red build the pin is meant to prevent.
-if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then
+if [[ "${AA_SHELLCHECK_NATIVE:-0}" == "1" ]]; then
+	shellcheck_bin="$(bash bin/ci/install-shellcheck.sh)"
+	echo "Using repository-pinned ShellCheck ($("${shellcheck_bin}" --version |
+		awk '/^version:/ { print $2 }')) for the Docker-free local lane." >&2
+	find_scripts | xargs "${shellcheck_bin}" "${SHELLCHECK_ARGS[@]}"
+elif command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then
 	find_scripts | xargs docker run --rm -i \
 		-v "${ROOT}:/mnt" -w /mnt "${SHELLCHECK_IMAGE}" "${SHELLCHECK_ARGS[@]}"
 elif command -v shellcheck > /dev/null 2>&1; then

@@ -43,11 +43,25 @@ aa_i18n_load_dotenv() {
 	done
 }
 
-# Run `wp …` either via host WP-CLI or wp-env cli container.
+# Run WP-CLI through Studio locally or the isolated wp-env container in CI.
 aa_i18n_wp() {
 	if [[ "${AA_I18N_FORCE_WP_ENV:-0}" == "1" ]]; then
 		command -v wp-env >/dev/null 2>&1 || aa_i18n_die "wp-env is required (AA_I18N_FORCE_WP_ENV=1)."
 		CI=true wp-env run cli --env-cwd="${AA_WP_ENV_THEME_CWD}" wp "$@"
+		return
+	fi
+
+	if command -v studio >/dev/null 2>&1 && \
+		node "${AA_THEME_ROOT}/bin/local/studio.mjs" wp help i18n >/dev/null 2>&1; then
+		local -a studio_args=( "$@" )
+		if [[ "${studio_args[0]:-}" == "i18n" && \
+			"${studio_args[1]:-}" == "make-pot" && \
+			"${studio_args[2]:-}" == "." ]]; then
+			studio_args[2]="${AA_THEME_ROOT}"
+		fi
+		node "${AA_THEME_ROOT}/bin/local/studio.mjs" wp \
+			'--exec=ini_set( "memory_limit", "1G" );' \
+			"${studio_args[@]}"
 		return
 	fi
 
@@ -61,7 +75,7 @@ aa_i18n_wp() {
 		return
 	fi
 
-	aa_i18n_die "Need WP-CLI (\`wp\`) with the i18n package, or wp-env."
+	aa_i18n_die "Need WordPress Studio or WP-CLI with the i18n package; CI may use wp-env."
 }
 
 # Strip volatile POT headers for stable CI diffs.

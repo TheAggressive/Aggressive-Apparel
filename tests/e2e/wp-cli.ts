@@ -2,12 +2,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/**
- * Shared wp-env WP-CLI boundary for deterministic E2E fixtures.
- *
- * Keeping process execution here prevents every fixture from rebuilding the
- * same command, working-directory, encoding, and stdio contract.
- */
+/** Shared WP-CLI boundary for deterministic E2E fixtures in Studio and CI. */
 
 const THEME_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,6 +20,20 @@ const WP_ENV_EXECUTABLE = path.join(
 );
 
 export function wpCli(args: string[]): string {
+  if (process.env.WP_CLI_RUNNER === 'studio') {
+    const sitePath = process.env.AA_STUDIO_PATH;
+
+    if (!sitePath) {
+      throw new Error('AA_STUDIO_PATH is required for Studio E2E WP-CLI.');
+    }
+
+    return execFileSync('studio', ['wp', '--path', sitePath, ...args], {
+      cwd: THEME_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  }
+
   const environment = { ...process.env };
   if (process.env.WP_ENV_CONFIG_DIR && !process.env.WP_ENV_HOME) {
     environment.WP_ENV_HOME = path.join(THEME_ROOT, '.wp-env-ci');

@@ -37,8 +37,8 @@ protected merge and the complete release verification path.
 **After a release-worthy merge:** build the normalized final ZIP, install it in
 clean WordPress, attest it, verify the remote draft, and publish it.
 
-**Before a release, if you want certainty:** `pnpm qa` runs everything GitHub
-runs, on your machine, before you push.
+**Before a release, if you want exact parity:** `pnpm qa:ci` runs every required
+GitHub lane in its isolated containers. Ordinary `pnpm qa` stays Docker-free.
 
 ## When something goes red
 
@@ -80,7 +80,8 @@ deliberately when you want to:
 
 ```bash
 pnpm up typescript@latest
-pnpm qa          # full check
+pnpm qa          # Docker-free local check
+pnpm qa:ci       # full containerized release-parity check
 git commit -m "chore(deps): upgrade typescript"
 ```
 
@@ -104,7 +105,8 @@ detail is in [`release-runbook.md`](release-runbook.md).
 | -------------- | ------------------------------------------ |
 | `pnpm dev`     | Start the local site + watch for changes   |
 | `pnpm qa:fast` | The pre-push checks, on demand (~3 min)    |
-| `pnpm qa`      | Everything GitHub runs (~15 min)           |
+| `pnpm qa`      | Docker-free native + Studio checks         |
+| `pnpm qa:ci`   | Everything GitHub runs (~15 min)           |
 | `pnpm build`   | Compile assets                             |
 | `gh run watch` | Follow the current CI run in your terminal |
 | `gh pr list`   | See open pull requests                     |

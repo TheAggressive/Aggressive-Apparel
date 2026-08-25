@@ -1,0 +1,144 @@
+name: PR Policy
+
+# One lightweight policy layer owns title validation, classification, attention
+# routing, stale-branch updates, and native auto-merge registration. The
+# pull_request job is read-only. Jobs with write permission run only the copy of
+# these scripts on the protected base branch and never execute pull-request code.
+on: # zizmor: ignore[dangerous-triggers] pull_request_target runs trusted base code only
+  pull_request:
+    branches: [master]
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  pull_request_target:
+    branches: [master]
+    types:
+      [
+        opened,
+        edited,
+        labeled,
+        unlabeled,
+        reopened,
+        synchronize,
+        ready_for_review,
+      ]
+  workflow_run:
+    workflows: ['CI/CD Pipeline', 'CodeQL', 'Workflow Security']
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-policy-${{ github.event.pull_request.number || github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: PR Policy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate Conventional Commit title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node bin/ci/pr-policy-github.mjs title
+
+  classify:
+    name: Classify and route
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      statuses: write
+
+    steps:
+      # Explicitly check out the protected base SHA. This write-capable job must
+      # never load a script, action, or dependency from the pull-request branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      # Remove any stale low-risk decision before parsing fresh bot metadata.
+      # A metadata failure therefore leaves the PR visibly high-risk.
+      - name: Fail closed before Dependabot metadata verification
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node bin/ci/pr-policy-github.mjs quarantine
+
+      - name: Verify Dependabot update metadata
+        id: dependabot
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        continue-on-error: true
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply type, area, and risk labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DEPENDABOT_METADATA_OK: ${{ steps.dependabot.outcome == 'success' }}
+          DEPENDABOT_UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
+          DEPENDABOT_ECOSYSTEM: ${{ steps.dependabot.outputs.package-ecosystem }}
+        run: node bin/ci/pr-policy-github.mjs classify
+
+  automate-pr:
+    name: Re-evaluate opted-in automation
+    needs: classify
+    if: github.event_name == 'pull_request_target' && needs.classify.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Update or merge when policy is already satisfied
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node bin/ci/pr-policy-github.mjs automate
+
+  automate-after-checks:
+    name: Re-evaluate automation after checks
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      # workflow_run executes from the default branch. Pinning the checkout ref
+      # makes that trust boundary visible and keeps PR code off this runner.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          persist-credentials: false
+
+      - name: Let current policy and checks decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node bin/ci/pr-policy-github.mjs automate

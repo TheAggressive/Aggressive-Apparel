@@ -22,8 +22,23 @@ updates:
     labels:
       - dependencies
       - github-actions
+    # `allow.update-types` limits scheduled version updates only. Unlike
+    # `ignore`, it does not suppress a security fix that must cross a major.
+    allow:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
     groups:
-      github-actions:
+      routine-actions:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+      security-actions:
+        applies-to: security-updates
         patterns:
           - '*'
 
@@ -45,26 +60,25 @@ updates:
     labels:
       - dependencies
       - javascript
-    # Node and pnpm are pinned exactly and asserted by bin/ci/contracts.mjs
-    # against .node-version and bin/ci/node.sh (which also carries a checksum).
-    # An automated bump here would break that contract without updating either.
-    ignore:
-      # Majors are opened one PR at a time because groups only cover minor and
-      # patch, which is what makes a quiet week noisy. None of this is runtime
-      # code — it is build and test tooling — so majors are better done
-      # deliberately than drip-fed. Security updates are unaffected by `ignore`
-      # and still arrive automatically.
+    # Scheduled majors are intentionally quiet. `allow.update-types` applies
+    # only to version updates; security updates still open even when the minimum
+    # patched version crosses a major. Broad `ignore` rules cannot provide that
+    # separation because GitHub also applies them to security updates.
+    allow:
       - dependency-name: '*'
         update-types:
-          - version-update:semver-major
+          - version-update:semver-minor
+          - version-update:semver-patch
     groups:
       wordpress:
+        applies-to: version-updates
         patterns:
           - '@wordpress/*'
         update-types:
           - minor
           - patch
       dev-tooling:
+        applies-to: version-updates
         patterns:
           - '*'
         exclude-patterns:
@@ -72,6 +86,10 @@ updates:
         update-types:
           - minor
           - patch
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
 
   - package-ecosystem: composer
     directory: /
@@ -91,16 +109,20 @@ updates:
     labels:
       - dependencies
       - php
-    ignore:
-      # See the npm rationale above: PHP tooling majors are reviewed on purpose,
-      # not on Dependabot's schedule. Security updates still come through.
+    allow:
       - dependency-name: '*'
         update-types:
-          - version-update:semver-major
+          - version-update:semver-minor
+          - version-update:semver-patch
     groups:
       php-tooling:
+        applies-to: version-updates
         patterns:
           - '*'
         update-types:
           - minor
           - patch
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'

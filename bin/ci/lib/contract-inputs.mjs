@@ -56,8 +56,12 @@ export const phpForwardWorkflow = readText(
   '.github/workflows/php-forward-compatibility.yml'
 );
 export const phpForwardLane = readText('bin/ci/php-forward.sh');
-export const autoMergeWorkflow = readText(
-  '.github/workflows/dependabot-auto-merge.yml'
+export const prPolicyWorkflow = readText('.github/workflows/pr-policy.yml');
+export const prPolicyScript = readText('bin/ci/pr-policy.mjs');
+export const prPolicyGithubScript = readText('bin/ci/pr-policy-github.mjs');
+export const dependabotConfiguration = readText('.github/dependabot.yml');
+export const rulesetConfiguration = readJson(
+  '.github/rulesets/release-branches.json'
 );
 export const nodeVersion = readText('.node-version').trim();
 export const nodeBootstrap = readText('bin/ci/node.sh');

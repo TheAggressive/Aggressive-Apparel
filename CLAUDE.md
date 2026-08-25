@@ -769,7 +769,8 @@ customer sites as a single update instead of one each.
 stamps `AA_RELEASE_VERSION` into the **staged** `style.css` at package time and
 `bin/release/verify-package.sh` asserts it; nothing in the checkout is mutated.
 The `version-sync` job then opens `chore/version-sync` to put that version back
-into the tracked `style.css` — merge it. Change the tracked version only via
+into the tracked `style.css`; policy recognizes and auto-merges that exact
+machine PR. Change the tracked version only via
 `bash bin/release/sync-version.sh <version>`, never by editing the header.
 
 **Not auto-updated:**

@@ -20,19 +20,23 @@ import {
 } from '../lib/workflow.mjs';
 import {
   artifactWpEnv,
-  autoMergeWorkflow,
   check,
   composerJson,
+  dependabotConfiguration,
   packageJson,
   packageLane,
   phpForwardLane,
   phpForwardWorkflow,
   phpstanConfiguration,
   prePushHook,
+  prPolicyGithubScript,
+  prPolicyScript,
+  prPolicyWorkflow,
   releaseLib,
   releaseSummaryScript,
   releaseWorkflow,
   repositoryRoot,
+  rulesetConfiguration,
   styleCss,
   verifyFastScript,
   verifyScript,
@@ -257,47 +261,106 @@ check(
 // merges without a human: the author must be re-verified against the API, stale
 // branches must be updated and retested, every check must be green, and a major
 // version bump must never auto-merge.
+const policySurface = `${prPolicyWorkflow}\n${prPolicyScript}\n${prPolicyGithubScript}`;
 const AUTO_MERGE_GUARDS = [
   [
-    "workflows: ['CI/CD Pipeline']",
-    'trigger only on the required pipeline, not on any completed workflow',
+    "workflows: ['CI/CD Pipeline', 'CodeQL', 'Workflow Security']",
+    're-evaluate after every required CI and security workflow',
   ],
   [
-    "github.event.workflow_run.conclusion == 'success'",
-    'merge only after that pipeline actually succeeded',
+    'ref: ${{ github.event.pull_request.base.sha }}',
+    'run write-capable pull-request jobs from the protected base SHA',
   ],
   [
-    "github.event.workflow_run.actor.login == 'dependabot[bot]'",
-    'ignore runs that were not triggered by Dependabot',
+    'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98',
+    'classify Dependabot updates from verified metadata at an immutable pin',
   ],
   [
-    'gh pr view "${PR}" --json author',
+    'repos/${repository}/pulls/${number}',
     're-verify authorship against the API rather than trusting the event payload',
   ],
   [
-    'crosses a major version',
+    "classification.risk === 'high'",
     'refuse major version bumps even if dependabot.yml is later loosened',
   ],
   [
-    'pulls/${PR}/update-branch',
-    'update a stale Dependabot branch and require a fresh pipeline before merging',
+    'verifiedBotCommits',
+    'verify bot-authored commits again before a privileged operation',
+  ],
+  [
+    'trustedDependabotMetadata',
+    'authorize dependency updates from head-SHA-bound bot metadata, not labels',
+  ],
+  [
+    'REQUIRED_CHECKS',
+    'require the complete CI and security check set before auto-merge',
+  ],
+  [
+    'pulls/${number}/update-branch',
+    'update an eligible stale branch and require a fresh pipeline before merging',
   ],
   ['--squash', 'squash-merge rather than adding merge commits to master'],
 ];
 
 for (const [needle, purpose] of AUTO_MERGE_GUARDS) {
   check(
-    autoMergeWorkflow.includes(needle),
-    `The Dependabot auto-merge workflow must ${purpose}. Missing guard: ` +
+    policySurface.includes(needle),
+    `The PR policy must ${purpose}. Missing guard: ` +
       `"${needle}". Unattended merging is only acceptable while every guard holds.`
   );
 }
 
+check(
+  !prPolicyWorkflow.includes('github.event.pull_request.head.sha'),
+  'A write-capable pull_request_target job must never check out the PR head SHA.'
+);
+
+check(
+  dependabotConfiguration.includes('allow:') &&
+    !dependabotConfiguration.includes('ignore:'),
+  'Dependabot scheduled majors must be limited with allow.update-types, not a ' +
+    'broad ignore that can also suppress cross-major security updates.'
+);
+
+/**
+ * @typedef {object} RulesetRule
+ * @property {string} type
+ * @property {{
+ *   required_status_checks?: Array<{ context: string }>,
+ *   code_scanning_tools?: Array<{ tool: string }>
+ * }} [parameters]
+ */
+
+/** @type {RulesetRule[]} */
+const rulesetRules = rulesetConfiguration.rules;
+
+const requiredStatusRule = rulesetRules.find(
+  rule => rule.type === 'required_status_checks'
+);
+for (const { context } of requiredStatusRule?.parameters
+  ?.required_status_checks ?? []) {
+  check(
+    prPolicyScript.includes(`'${context}'`),
+    `The PR policy must wait for ruleset-required check "${context}".`
+  );
+}
+
+const codeScanningRule = rulesetRules.find(
+  rule => rule.type === 'code_scanning'
+);
+check(
+  codeScanningRule?.parameters?.code_scanning_tools?.some(
+    tool => tool.tool === 'CodeQL'
+  ),
+  'The ruleset must keep native CodeQL merge protection; the policy relies on ' +
+    'that durable gate instead of a workflow job name.'
+);
+
 // These would let a merge proceed over a failing or blocked check.
 for (const forbidden of ['--admin', '--force']) {
   check(
-    !autoMergeWorkflow.includes(forbidden),
-    `The Dependabot auto-merge workflow must never pass ${forbidden} — that ` +
+    !policySurface.includes(forbidden),
+    `The PR policy must never pass ${forbidden} — that ` +
       'overrides the very checks the workflow exists to wait for.'
   );
 }

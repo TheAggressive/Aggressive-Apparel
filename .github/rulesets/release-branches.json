@@ -21,6 +21,7 @@
         "dismiss_stale_reviews_on_push": false,
         "require_code_owner_review": false,
         "require_last_push_approval": false,
+        "require_extra_approval_for_unattributed_changes": true,
         "required_approving_review_count": 0,
         "required_reviewers": [],
         "required_review_thread_resolution": true
@@ -32,12 +33,22 @@
         "do_not_enforce_on_create": false,
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
-          { "context": "CI Summary" },
+          { "context": "CI Summary", "integration_id": 15368 },
+          { "context": "Actionlint", "integration_id": 15368 },
+          { "context": "Zizmor", "integration_id": 15368 },
+          { "context": "PR Policy", "integration_id": 15368 }
+        ]
+      }
+    },
+    {
+      "type": "code_scanning",
+      "parameters": {
+        "code_scanning_tools": [
           {
-            "context": "Analyze (JavaScript/TypeScript) (javascript-typescript)"
-          },
-          { "context": "Actionlint" },
-          { "context": "Zizmor" }
+            "tool": "CodeQL",
+            "alerts_threshold": "all",
+            "security_alerts_threshold": "all"
+          }
         ]
       }
     }

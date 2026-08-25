@@ -294,6 +294,7 @@ and, only when a run requests it, → plan → final package → clean-install a
 ```
 
 - **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release; documentation-only changes run linting alone
+- **PR policy** validates Conventional Commit titles, applies type/area/risk labels, auto-handles verified Dependabot patch/minor updates, and honors an owner-added `automerge` label only when the PR is not high-risk
 - **Releasing is deliberate.** Merging never publishes. Cut a release with `gh workflow run "CI/CD Pipeline" --ref master -f publish=true`, and everything merged since the last tag ships as one update
 - **PHP and browser tests run in parallel** from the same uploaded build, so the full E2E suite does not add a serial stage to the CI critical path
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits

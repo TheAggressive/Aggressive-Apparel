@@ -33,7 +33,11 @@ concurrency:
 
 jobs:
   validate:
-    name: PR Policy
+    # pull_request_target and workflow_run also parse this workflow and emit a
+    # skipped check for jobs whose `if` is false. Give those skipped checks a
+    # different name so only real title validation can satisfy the required
+    # `PR Policy` ruleset context.
+    name: ${{ github.event_name == 'pull_request' && 'PR Policy' || 'PR Policy (not applicable)' }}
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 2

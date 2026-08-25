@@ -36,6 +36,7 @@ import {
   releaseSummaryScript,
   releaseWorkflow,
   repositoryRoot,
+  rulesetDriftScript,
   rulesetDriftWorkflow,
   rulesetConfiguration,
   styleCss,
@@ -341,6 +342,13 @@ check(
   !rulesetDriftWorkflow.includes('RULESET_AUDIT_TOKEN'),
   'The ruleset drift workflow must not depend on a long-lived PAT that can ' +
     'expire or outlive the maintainer who created it.'
+);
+
+check(
+  rulesetDriftScript.includes('bypassActors(first: 1)') &&
+    rulesetDriftScript.includes('redacted_actor_count'),
+  'The read-only ruleset audit must fail closed when GraphQL reports any ' +
+    'bypass actor; REST hides that field unless the credential can write.'
 );
 
 check(

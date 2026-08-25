@@ -74,8 +74,11 @@ Monday. The default Actions token omits ruleset bypass actors, so the workflow
 mints a repository-scoped token from the existing `AA_CI` GitHub App with only
 read-only Administration access. The App private key does not expire
 automatically, while each installation token is short-lived and generated on
-demand. The App must keep **Repository permissions → Administration: Read-only**;
-the credential that applies ruleset changes remains separate and deliberately
+demand. GitHub's REST API reveals bypass-actor identities only to a write-capable
+credential; rather than grant the audit write access to its own control, the
+workflow uses GraphQL to assert that the live bypass-actor count remains zero.
+The App must keep **Repository permissions → Administration: Read-only**; the
+credential that applies ruleset changes remains separate and deliberately
 approved.
 
 ## Production environment

@@ -316,6 +316,14 @@ check(
 );
 
 check(
+  prPolicyWorkflow.includes(
+    "github.event_name == 'pull_request' && 'PR Policy' || 'PR Policy (not applicable)'"
+  ),
+  'Only the real pull_request title-validation job may publish the required ' +
+    'PR Policy context; skipped jobs from privileged triggers need another name.'
+);
+
+check(
   dependabotConfiguration.includes('allow:') &&
     !dependabotConfiguration.includes('ignore:'),
   'Dependabot scheduled majors must be limited with allow.update-types, not a ' +

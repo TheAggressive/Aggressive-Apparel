@@ -36,6 +36,7 @@ import {
   releaseSummaryScript,
   releaseWorkflow,
   repositoryRoot,
+  rulesetDriftWorkflow,
   rulesetConfiguration,
   styleCss,
   verifyFastScript,
@@ -321,6 +322,25 @@ check(
   ),
   'Only the real pull_request title-validation job may publish the required ' +
     'PR Policy context; skipped jobs from privileged triggers need another name.'
+);
+
+check(
+  rulesetDriftWorkflow.includes('permission-administration: read'),
+  'The ruleset drift workflow must mint an App token limited to read-only ' +
+    'repository Administration access so bypass actors remain auditable.'
+);
+
+check(
+  rulesetDriftWorkflow.includes(
+    'GH_TOKEN: ${{ steps.audit-token.outputs.token }}'
+  ),
+  'The ruleset drift comparison must use the short-lived GitHub App token.'
+);
+
+check(
+  !rulesetDriftWorkflow.includes('RULESET_AUDIT_TOKEN'),
+  'The ruleset drift workflow must not depend on a long-lived PAT that can ' +
+    'expire or outlive the maintainer who created it.'
 );
 
 check(

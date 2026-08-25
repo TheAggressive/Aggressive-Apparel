@@ -57,6 +57,9 @@ export const phpForwardWorkflow = readText(
 );
 export const phpForwardLane = readText('bin/ci/php-forward.sh');
 export const prPolicyWorkflow = readText('.github/workflows/pr-policy.yml');
+export const rulesetDriftWorkflow = readText(
+  '.github/workflows/ruleset-drift.yml'
+);
 export const prPolicyScript = readText('bin/ci/pr-policy.mjs');
 export const prPolicyGithubScript = readText('bin/ci/pr-policy-github.mjs');
 export const dependabotConfiguration = readText('.github/dependabot.yml');

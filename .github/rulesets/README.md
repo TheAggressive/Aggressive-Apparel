@@ -70,9 +70,13 @@ gh api "/repos/TheAggressive/Aggressive-Apparel/rulesets/${RULESET_ID}" \
 
 Run this after repository-setting changes and as a scheduled administrative
 control. `.github/workflows/ruleset-drift.yml` performs the same comparison each
-Monday. If the default Actions token cannot read rulesets, configure a
-`RULESET_AUDIT_TOKEN` secret with read-only repository-administration access. The
-credential that applies changes must remain separate and deliberately approved.
+Monday. The default Actions token omits ruleset bypass actors, so the workflow
+mints a repository-scoped token from the existing `AA_CI` GitHub App with only
+read-only Administration access. The App private key does not expire
+automatically, while each installation token is short-lived and generated on
+demand. The App must keep **Repository permissions → Administration: Read-only**;
+the credential that applies ruleset changes remains separate and deliberately
+approved.
 
 ## Production environment
 

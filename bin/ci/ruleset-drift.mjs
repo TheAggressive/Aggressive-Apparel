@@ -22,6 +22,22 @@ function gh(endpoint) {
   );
 }
 
+function ghGraphql(query, variables) {
+  const variableArguments = Object.entries(variables).flatMap(
+    ([key, value]) => ['-F', `${key}=${value}`]
+  );
+  return JSON.parse(
+    execFileSync(
+      'gh',
+      ['api', 'graphql', '-f', `query=${query}`, ...variableArguments],
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'inherit'],
+      }
+    )
+  );
+}
+
 function normalize(value) {
   if (Array.isArray(value)) {
     const normalized = value.map(normalize);
@@ -61,6 +77,42 @@ if (match.length !== 1) {
 }
 
 const live = gh(`repos/${repository}/rulesets/${match[0].id}`);
+const desiredBypassActors = desired.bypass_actors;
+let liveBypassActors = live.bypass_actors;
+
+// GitHub's REST API deliberately omits bypass_actors unless the credential can
+// write the ruleset. Giving a scheduled audit write access to the protection it
+// monitors would defeat separation of duties. GraphQL exposes the actor count
+// to the read-only App token, which is sufficient for this repository's strict
+// invariant: the committed bypass list must remain empty.
+if (liveBypassActors === undefined) {
+  if (!Array.isArray(desiredBypassActors) || desiredBypassActors.length !== 0) {
+    throw new Error(
+      'Read-only ruleset auditing supports only an empty committed bypass list.'
+    );
+  }
+
+  const response = ghGraphql(
+    `query($id: ID!) {
+      node(id: $id) {
+        ... on RepositoryRuleset {
+          bypassActors(first: 1) { totalCount }
+        }
+      }
+    }`,
+    { id: live.node_id }
+  );
+  const bypassActorCount = response.data?.node?.bypassActors?.totalCount;
+  if (!Number.isSafeInteger(bypassActorCount)) {
+    throw new Error(
+      'GitHub did not return the live ruleset bypass-actor count.'
+    );
+  }
+
+  liveBypassActors =
+    bypassActorCount === 0 ? [] : [{ redacted_actor_count: bypassActorCount }];
+}
+
 const desiredComparable = normalize({
   name: desired.name,
   target: desired.target,
@@ -74,7 +126,7 @@ const liveComparable = normalize({
   target: live.target,
   enforcement: live.enforcement,
   conditions: live.conditions,
-  bypass_actors: live.bypass_actors,
+  bypass_actors: liveBypassActors,
   rules: live.rules,
 });
 

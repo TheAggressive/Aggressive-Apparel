@@ -36,6 +36,8 @@ import {
   releaseSummaryScript,
   releaseWorkflow,
   repositoryRoot,
+  rulesetDriftScript,
+  rulesetDriftWorkflow,
   rulesetConfiguration,
   styleCss,
   verifyFastScript,
@@ -313,6 +315,40 @@ for (const [needle, purpose] of AUTO_MERGE_GUARDS) {
 check(
   !prPolicyWorkflow.includes('github.event.pull_request.head.sha'),
   'A write-capable pull_request_target job must never check out the PR head SHA.'
+);
+
+check(
+  prPolicyWorkflow.includes(
+    "github.event_name == 'pull_request' && 'PR Policy' || 'PR Policy (not applicable)'"
+  ),
+  'Only the real pull_request title-validation job may publish the required ' +
+    'PR Policy context; skipped jobs from privileged triggers need another name.'
+);
+
+check(
+  rulesetDriftWorkflow.includes('permission-administration: read'),
+  'The ruleset drift workflow must mint an App token limited to read-only ' +
+    'repository Administration access so bypass actors remain auditable.'
+);
+
+check(
+  rulesetDriftWorkflow.includes(
+    'GH_TOKEN: ${{ steps.audit-token.outputs.token }}'
+  ),
+  'The ruleset drift comparison must use the short-lived GitHub App token.'
+);
+
+check(
+  !rulesetDriftWorkflow.includes('RULESET_AUDIT_TOKEN'),
+  'The ruleset drift workflow must not depend on a long-lived PAT that can ' +
+    'expire or outlive the maintainer who created it.'
+);
+
+check(
+  rulesetDriftScript.includes('bypassActors(first: 1)') &&
+    rulesetDriftScript.includes('redacted_actor_count'),
+  'The read-only ruleset audit must fail closed when GraphQL reports any ' +
+    'bypass actor; REST hides that field unless the credential can write.'
 );
 
 check(

@@ -158,9 +158,12 @@ pnpm build:assets
 pnpm build:interactivity
 ```
 
-More detail: [`docs/design-system.md`](docs/design-system.md) · [`docs/block-placement.md`](docs/block-placement.md) · [`docs/performance-testing.md`](docs/performance-testing.md)
+More detail: [`docs/design-system.md`](docs/design-system.md) · [`docs/design-tokens.md`](docs/design-tokens.md) · [`docs/block-placement.md`](docs/block-placement.md) · [`docs/performance-testing.md`](docs/performance-testing.md)
 
 ## Architecture
+
+Deeper reference: [`docs/architecture.md`](docs/architecture.md) (service container, build,
+environment, testing) · [`docs/navigation.md`](docs/navigation.md) · [`docs/woocommerce.md`](docs/woocommerce.md) · [`docs/versioning.md`](docs/versioning.md)
 
 ### Directory Structure
 

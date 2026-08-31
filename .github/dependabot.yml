@@ -1,20 +1,16 @@
 version: 2
 
 # Every third-party action in .github/workflows is pinned to a full commit SHA,
-# which bin/ci/contracts.mjs enforces. Pinning without automated bumps rots:
-# the pin is what stops a compromised tag from executing, but it is also what
-# keeps a known-vulnerable version in place indefinitely. Dependabot rewrites
-# the SHA and the trailing version comment together, so review stays readable.
+# which bin/ci/contracts.mjs enforces. Routine version maintenance is kept
+# monthly and grouped; security updates remain separately grouped and eligible.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 2
     cooldown:
-      default-days: 7
+      default-days: 14
     commit-message:
       # `chore` deliberately: CI tooling bumps must not cut a theme release.
       prefix: chore
@@ -22,8 +18,8 @@ updates:
     labels:
       - dependencies
       - github-actions
-    # `allow.update-types` limits scheduled version updates only. Unlike
-    # `ignore`, it does not suppress a security fix that must cross a major.
+    # `allow.update-types` limits scheduled version updates only. It does not
+    # suppress a security fix that must cross a major.
     allow:
       - dependency-name: '*'
         update-types:
@@ -45,25 +41,19 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 2
     cooldown:
-      default-days: 7
+      default-days: 14
       semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 3
+      semver-minor-days: 14
+      semver-patch-days: 7
     commit-message:
       prefix: chore
       include: scope
     labels:
       - dependencies
       - javascript
-    # Scheduled majors are intentionally quiet. `allow.update-types` applies
-    # only to version updates; security updates still open even when the minimum
-    # patched version crosses a major. Broad `ignore` rules cannot provide that
-    # separation because GitHub also applies them to security updates.
     allow:
       - dependency-name: '*'
         update-types:
@@ -94,15 +84,13 @@ updates:
   - package-ecosystem: composer
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 2
     cooldown:
-      default-days: 7
+      default-days: 14
       semver-major-days: 30
-      semver-minor-days: 7
-      semver-patch-days: 3
+      semver-minor-days: 14
+      semver-patch-days: 7
     commit-message:
       prefix: chore
       include: scope

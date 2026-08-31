@@ -1,16 +1,18 @@
 version: 2
 
 # Every third-party action in .github/workflows is pinned to a full commit SHA,
-# which bin/ci/contracts.mjs enforces. Routine version maintenance is kept
-# monthly and grouped; security updates remain separately grouped and eligible.
+# which bin/ci/contracts.mjs enforces. Routine version maintenance runs weekly
+# and stays grouped; security updates remain separately grouped and eligible.
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
+      day: monday
+      time: '06:00'
     open-pull-requests-limit: 2
     cooldown:
-      default-days: 14
+      default-days: 7
     commit-message:
       # `chore` deliberately: CI tooling bumps must not cut a theme release.
       prefix: chore
@@ -41,13 +43,15 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
+      day: monday
+      time: '06:00'
     open-pull-requests-limit: 2
     cooldown:
-      default-days: 14
+      default-days: 7
       semver-major-days: 30
-      semver-minor-days: 14
-      semver-patch-days: 7
+      semver-minor-days: 7
+      semver-patch-days: 3
     commit-message:
       prefix: chore
       include: scope
@@ -67,7 +71,7 @@ updates:
         update-types:
           - minor
           - patch
-      dev-tooling:
+      js-tooling:
         applies-to: version-updates
         patterns:
           - '*'
@@ -84,13 +88,15 @@ updates:
   - package-ecosystem: composer
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
+      day: monday
+      time: '06:00'
     open-pull-requests-limit: 2
     cooldown:
-      default-days: 14
+      default-days: 7
       semver-major-days: 30
-      semver-minor-days: 14
-      semver-patch-days: 7
+      semver-minor-days: 7
+      semver-patch-days: 3
     commit-message:
       prefix: chore
       include: scope

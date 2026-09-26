@@ -401,6 +401,15 @@ for (const forbidden of ['--admin', '--force']) {
   );
 }
 
+// The required `PR Policy` check comes from the read-only pull_request run. If it
+// shares a concurrency group with the automation runs, a later edit or label
+// event replaces it while pending and the merge hangs on a cancelled check.
+check(
+  prPolicyWorkflow.includes("format('pr-policy-validate-{0}', github.run_id)"),
+  'pr-policy.yml must give each pull_request run its own concurrency group so ' +
+    'the required PR Policy check can never be cancelled by another event.'
+);
+
 // Release integrity: a release-branch run must never be cancelled mid-publish.
 if (
   !releaseWorkflow.includes(

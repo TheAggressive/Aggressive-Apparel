@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-08-18T05:34:05+00:00\n"
+"POT-Creation-Date: 2026-09-26T01:45:27+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -42,20 +42,6 @@ msgstr "The Aggressive Network, LLC"
 #: style.css
 msgid "https://theaggressive.com"
 msgstr "https://theaggressive.com"
-
-#: includes/Blocks/class-copyright.php:73
-#: includes/Blocks/class-copyright.php:383
-#: includes/Core/class-legal-identity.php:398
-msgid "Privacy"
-msgstr "Privacy"
-
-#: includes/Blocks/class-copyright.php:74
-#: includes/Blocks/class-copyright.php:392
-#: includes/Core/class-legal-identity.php:63
-#: includes/Core/class-legal-identity.php:64
-#: includes/Core/class-legal-identity.php:390
-msgid "Terms"
-msgstr "Condizioni"
 
 #: includes/Blocks/class-icon-block.php:395
 msgid "Icon not found."
@@ -295,6 +281,12 @@ msgstr "Blog in primo piano"
 msgid "Blog Thumbnail"
 msgstr "Miniatura del blog"
 
+#: includes/Core/class-legal-identity.php:63
+#: includes/Core/class-legal-identity.php:64
+#: includes/Core/class-legal-identity.php:390
+msgid "Terms"
+msgstr "Condizioni"
+
 #: includes/Core/class-legal-identity.php:125
 msgid "Overview"
 msgstr "Panoramica"
@@ -422,6 +414,10 @@ msgstr "Menu secondario"
 msgctxt "Terms Settings"
 msgid "Settings"
 msgstr "Impostazioni"
+
+#: includes/Core/class-legal-identity.php:398
+msgid "Privacy"
+msgstr "Privacy"
 
 #: includes/Core/class-legal-identity.php:407
 msgid "The Terms Settings require JavaScript."
@@ -8290,10 +8286,6 @@ msgstr "Sostituisci questo blocco con il modulo di domanda."
 msgid "wholesale@aggressiveapparel.com"
 msgstr "wholesale@aggressiveapparel.com"
 
-#: src/blocks-interactivity/card-flip/render.php:64
-msgid "Flip card"
-msgstr "Carta da capovolgere"
-
 #. translators: %s: human-readable time remaining, e.g. "3 days, 4 hours, 12 minutes".
 #: src/blocks-interactivity/countdown-timer/render.php:174
 #, php-format
@@ -8389,66 +8381,6 @@ msgstr "Visualizzazione a griglia"
 msgid "List view"
 msgstr "Visualizzazione elenco"
 
-#: src/blocks-interactivity/hero-carousel/render.php:211
-msgid "Hero slideshow"
-msgstr "Presentazione \"Hero\""
-
-#: src/blocks-interactivity/hero-carousel/render.php:229
-msgid "Play slideshow"
-msgstr "Riproduci presentazione"
-
-#: src/blocks-interactivity/hero-carousel/render.php:230
-#: src/blocks-interactivity/hero-carousel/render.php:487
-msgid "Pause slideshow"
-msgstr "Metti in pausa la presentazione"
-
-#. translators: 1: current slide number, 2: total slide count. Announced by screen readers.
-#: src/blocks-interactivity/hero-carousel/render.php:232
-#: src/blocks-interactivity/horizontal-scroll/render.php:114
-#, php-format
-msgid "Slide %1$s of %2$s"
-msgstr "Diapositiva %1$s di %2$s"
-
-#. translators: 1: current slide number, 2: total slide count.
-#. translators: 1: current slide number, 2: total slide count. Per-slide aria-label.
-#: src/blocks-interactivity/hero-carousel/render.php:403
-#: src/blocks-interactivity/horizontal-scroll/render.php:116
-#, php-format
-msgid "%1$s of %2$s"
-msgstr "%1$s di %2$s"
-
-#: src/blocks-interactivity/hero-carousel/render.php:422
-#: src/blocks-interactivity/horizontal-scroll/render.php:139
-msgid "Previous slide"
-msgstr "Diapositiva precedente"
-
-#: src/blocks-interactivity/hero-carousel/render.php:439
-#: src/blocks-interactivity/horizontal-scroll/render.php:154
-msgid "Next slide"
-msgstr "Diapositiva successiva"
-
-#: src/blocks-interactivity/hero-carousel/render.php:461
-msgid "Choose slide"
-msgstr "Scegli la diapositiva"
-
-#. translators: %s: slide number.
-#: src/blocks-interactivity/hero-carousel/render.php:467
-#, php-format
-msgid "Go to slide %s"
-msgstr "Vai alla diapositiva %s"
-
-#: src/blocks-interactivity/horizontal-scroll/render.php:70
-msgid "Scrolling gallery"
-msgstr "Galleria a scorrimento"
-
-#: src/blocks-interactivity/horizontal-scroll/render.php:175
-msgid "Scroll progress"
-msgstr "Avanzamento dello scorrimento"
-
-#: src/blocks-interactivity/horizontal-scroll/render.php:194
-msgid "Swipe"
-msgstr "Scorri"
-
 #: src/blocks-interactivity/lookbook/render.php:126
 msgid "Loading product."
 msgstr "Caricamento del prodotto in corso."
@@ -8473,14 +8405,6 @@ msgstr "Visualizza il prodotto: %s"
 #, php-format
 msgid "View product %d"
 msgstr "Visualizza il prodotto %d"
-
-#: src/blocks-interactivity/modal/render.php:80
-msgid "Open Modal"
-msgstr "Apri finestra modale"
-
-#: src/blocks-interactivity/modal/render.php:267
-msgid "Close modal"
-msgstr "Chiudi finestra modale"
 
 #. translators: %s: submenu name, e.g. "Back from Shop"
 #: src/blocks-interactivity/nav-submenu-drilldown/render.php:93
@@ -8564,14 +8488,6 @@ msgstr "Ignora la notifica"
 msgid "Store notifications"
 msgstr "Notifiche del negozio"
 
-#: src/blocks-interactivity/ticker/render.php:196
-msgid "Pause animation"
-msgstr "Metti in pausa l'animazione"
-
-#: src/blocks-interactivity/ticker/render.php:197
-msgid "Play animation"
-msgstr "Riproduci animazione"
-
 #: src/blocks-interactivity/wishlist/render.php:42
 msgid "Your wishlist is empty."
 msgstr "La tua lista dei desideri è vuota."
@@ -8633,107 +8549,6 @@ msgstr "Hai ricevuto questa e-mail perché hai richiesto di essere avvisato. %s"
 #: templates/emails/back-in-stock.php:67
 msgid "Unsubscribe"
 msgstr "Annulla iscrizione"
-
-#: src/blocks-interactivity/animate-on-scroll/block.json
-msgctxt "block title"
-msgid "Animate On Scroll"
-msgstr "Animazione allo scorrimento"
-
-#: src/blocks-interactivity/animate-on-scroll/block.json
-msgctxt "block description"
-msgid "Animate elements on scroll."
-msgstr "Animare gli elementi durante lo scorrimento."
-
-#: src/blocks-interactivity/card-flip-back/block.json
-msgctxt "block title"
-msgid "Card Back"
-msgstr "Retro della carta"
-
-#: src/blocks-interactivity/card-flip-back/block.json
-msgctxt "block description"
-msgid ""
-"The back face of a Card Flip, revealed when the card flips. Add any blocks "
-"here."
-msgstr ""
-"Il retro di un \"Card Flip\", che viene mostrato quando la carta si "
-"capovolge. Aggiungi qui eventuali blocchi."
-
-#: src/blocks-interactivity/card-flip-back/block.json
-#: src/blocks-interactivity/card-flip-front/block.json
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block keyword"
-msgid "card"
-msgstr "scheda"
-
-#: src/blocks-interactivity/card-flip-back/block.json
-#: src/blocks-interactivity/card-flip-front/block.json
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block keyword"
-msgid "flip"
-msgstr "capovolgere"
-
-#: src/blocks-interactivity/card-flip-back/block.json
-msgctxt "block keyword"
-msgid "back"
-msgstr "indietro"
-
-#: src/blocks-interactivity/card-flip-back/block.json
-#: src/blocks-interactivity/card-flip-front/block.json
-msgctxt "block keyword"
-msgid "face"
-msgstr "faccia"
-
-#: src/blocks-interactivity/card-flip-front/block.json
-msgctxt "block title"
-msgid "Card Front"
-msgstr "Frontale della cartolina"
-
-#: src/blocks-interactivity/card-flip-front/block.json
-msgctxt "block description"
-msgid "The front face of a Card Flip. Add any blocks here."
-msgstr ""
-"La parte frontale di un Card Flip. Aggiungi qui i blocchi che preferisci."
-
-#: src/blocks-interactivity/card-flip-front/block.json
-msgctxt "block keyword"
-msgid "front"
-msgstr "fronte"
-
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block title"
-msgid "Card Flip"
-msgstr "Capovolgimento della carta"
-
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block description"
-msgid ""
-"A card with two faces that flips to reveal the back. Accessible button-"
-"driven disclosure, with an optional hover flip."
-msgstr ""
-"Una scheda con due facce che, quando viene capovolta, mostra il retro. "
-"Visualizzazione intuitiva tramite pulsanti, con opzione di capovolgimento al "
-"passaggio del mouse."
-
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block keyword"
-msgid "3d"
-msgstr "3D"
-
-#: src/blocks-interactivity/card-flip/block.json
-#: src/blocks-interactivity/filter-active-bar/block.json
-#: src/blocks-interactivity/filter-toggle/block.json
-#: src/blocks-interactivity/product-color-swatches/block.json
-#: src/blocks-interactivity/product-tabs/block.json
-#: src/blocks-interactivity/wishlist-button/block.json
-#: src/blocks/product-rating/block.json src/blocks/size-guide/block.json
-msgctxt "block keyword"
-msgid "product"
-msgstr "prodotto"
-
-#: src/blocks-interactivity/card-flip/block.json
-msgctxt "block keyword"
-msgid "reveal"
-msgstr "svelare"
 
 #: src/blocks-interactivity/countdown-timer/block.json
 msgctxt "block title"
@@ -8818,6 +8633,16 @@ msgstr "negozio"
 msgctxt "block keyword"
 msgid "woocommerce"
 msgstr "woocommerce"
+
+#: src/blocks-interactivity/filter-active-bar/block.json
+#: src/blocks-interactivity/filter-toggle/block.json
+#: src/blocks-interactivity/product-color-swatches/block.json
+#: src/blocks-interactivity/product-tabs/block.json
+#: src/blocks-interactivity/wishlist-button/block.json
+#: src/blocks/product-rating/block.json src/blocks/size-guide/block.json
+msgctxt "block keyword"
+msgid "product"
+msgstr "prodotto"
 
 #: src/blocks-interactivity/filter-toggle/block.json
 msgctxt "block title"
@@ -8942,93 +8767,6 @@ msgctxt "block keyword"
 msgid "layout"
 msgstr "impaginazione"
 
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block title"
-msgid "Hero Carousel"
-msgstr "Carosello degli eroi"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block description"
-msgid ""
-"A full-bleed hero slider built from Cover blocks. Background motion effects, "
-"autoplay with pause control, and adaptive light/dark chrome."
-msgstr ""
-"Uno slider \"hero\" a tutto schermo realizzato con i blocchi Cover. Effetti "
-"di movimento sullo sfondo, riproduzione automatica con controllo della pausa "
-"e tema Chrome adattivo chiaro/scuro."
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "carousel"
-msgstr "carosello"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "slider"
-msgstr "cursore"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "hero"
-msgstr "eroe"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "slideshow"
-msgstr "presentazione"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "cover"
-msgstr "copertina"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "motion"
-msgstr "mozione"
-
-#: src/blocks-interactivity/hero-carousel/block.json
-msgctxt "block keyword"
-msgid "animation"
-msgstr "animazione"
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-msgctxt "block title"
-msgid "Horizontal Scroll"
-msgstr "Scorrimento orizzontale"
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-msgctxt "block description"
-msgid ""
-"Pins a section and drives horizontal scroll via vertical scroll progress. "
-"Falls back to native scroll-snap on touch."
-msgstr ""
-"Fissa una sezione e gestisce lo scorrimento orizzontale in base "
-"all'avanzamento dello scorrimento verticale. In caso di interazione tattile, "
-"ricorre allo scroll-snap nativo."
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-msgctxt "block keyword"
-msgid "scroll"
-msgstr "scorrere"
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-msgctxt "block keyword"
-msgid "horizontal"
-msgstr "orizzontale"
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-msgctxt "block keyword"
-msgid "parallax"
-msgstr "parallasse"
-
-#: src/blocks-interactivity/horizontal-scroll/block.json
-#: src/blocks/split-story-content/block.json
-#: src/blocks/split-story-media/block.json src/blocks/split-story/block.json
-msgctxt "block keyword"
-msgid "story"
-msgstr "storia"
-
 #: src/blocks-interactivity/lookbook/block.json
 msgctxt "block title"
 msgid "Lookbook / Shop the Look"
@@ -9067,20 +8805,6 @@ msgstr "punto di accesso"
 msgctxt "block keyword"
 msgid "outfit"
 msgstr "outfit"
-
-#: src/blocks-interactivity/modal/block.json
-msgctxt "block title"
-msgid "Modal"
-msgstr "Modale"
-
-#: src/blocks-interactivity/modal/block.json
-msgctxt "block description"
-msgid ""
-"An interactive modal block that can be positioned and triggered by other "
-"elements."
-msgstr ""
-"Un blocco modale interattivo che può essere posizionato e attivato da altri "
-"elementi."
 
 #: src/blocks-interactivity/nav-link/block.json
 msgctxt "block title"
@@ -9156,7 +8880,6 @@ msgid "panel"
 msgstr "pannello"
 
 #: src/blocks-interactivity/nav-panel-footer/block.json
-#: src/blocks/copyright/block.json
 msgctxt "block keyword"
 msgid "footer"
 msgstr "piè di pagina"
@@ -9358,20 +9081,6 @@ msgctxt "block keyword"
 msgid "nav"
 msgstr "nav"
 
-#: src/blocks-interactivity/parallax/block.json
-msgctxt "block title"
-msgid "Advanced Parallax Container"
-msgstr "Contenitore Parallax avanzato"
-
-#: src/blocks-interactivity/parallax/block.json
-msgctxt "block description"
-msgid ""
-"A container block that applies parallax effects to nested blocks using "
-"intersection observer."
-msgstr ""
-"Un blocco contenitore che applica effetti di parallasse ai blocchi annidati "
-"utilizzando l'Intersection Observer."
-
 #: src/blocks-interactivity/product-color-swatches/block.json
 msgctxt "block title"
 msgid "Product Color Swatches"
@@ -9528,21 +9237,6 @@ msgctxt "block keyword"
 msgid "alert"
 msgstr "avviso"
 
-#: src/blocks-interactivity/ticker/block.json
-msgctxt "block title"
-msgid "Ticker"
-msgstr "Ticker"
-
-#: src/blocks-interactivity/ticker/block.json
-msgctxt "block description"
-msgid ""
-"Infinite scrolling marquee for text, logos, or any content. Add the Free "
-"Shipping Message block for live cart thresholds."
-msgstr ""
-"Barra di scorrimento infinita per testi, loghi o qualsiasi altro contenuto. "
-"Aggiungi il blocco “Messaggio sulla spedizione gratuita” per visualizzare in "
-"tempo reale le soglie del carrello."
-
 #: src/blocks-interactivity/wishlist-button/block.json
 msgctxt "block title"
 msgid "Wishlist Button"
@@ -9685,55 +9379,6 @@ msgctxt "block keyword"
 msgid "dark mode"
 msgstr "modalità scura"
 
-#: src/blocks/copyright/block.json
-msgctxt "block title"
-msgid "Copyright"
-msgstr "Diritti d'autore"
-
-#: src/blocks/copyright/block.json
-msgctxt "block description"
-msgid ""
-"Dynamic copyright notice with legal identity, Schema.org markup, and Privacy/"
-"Terms links."
-msgstr ""
-"Avviso dinamico sul copyright con dati identificativi legali, marcatura "
-"Schema.org e link alla Privacy e ai Termini di utilizzo."
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "copyright"
-msgstr "diritti d'autore"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "year"
-msgstr "anno"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "legal"
-msgstr "legale"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "llc"
-msgstr "llc"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "inc"
-msgstr "inc"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "privacy"
-msgstr "privacy"
-
-#: src/blocks/copyright/block.json
-msgctxt "block keyword"
-msgid "terms"
-msgstr "termini"
-
 #: src/blocks/dark-mode-toggle/block.json
 msgctxt "block title"
 msgid "Dark Mode Toggle"
@@ -9861,77 +9506,6 @@ msgstr "dimensionamento"
 msgctxt "block keyword"
 msgid "measurements"
 msgstr "misure"
-
-#: src/blocks/split-story-content/block.json
-msgctxt "block title"
-msgid "Story Content"
-msgstr "Contenuto della storia"
-
-#: src/blocks/split-story-content/block.json
-msgctxt "block description"
-msgid "The scrolling content column of a Split Story. Add any blocks."
-msgstr ""
-"La colonna di contenuto a scorrimento di una Split Story. Aggiungi i blocchi "
-"che desideri."
-
-#: src/blocks/split-story-content/block.json
-#: src/blocks/split-story-media/block.json src/blocks/split-story/block.json
-msgctxt "block keyword"
-msgid "split"
-msgstr "divisione"
-
-#: src/blocks/split-story-content/block.json
-msgctxt "block keyword"
-msgid "content"
-msgstr "contenuto"
-
-#: src/blocks/split-story-content/block.json
-msgctxt "block keyword"
-msgid "text"
-msgstr "testo"
-
-#: src/blocks/split-story-media/block.json
-msgctxt "block title"
-msgid "Story Media"
-msgstr "Story Media"
-
-#: src/blocks/split-story-media/block.json
-msgctxt "block description"
-msgid ""
-"The sticky media column of a Split Story. Add an image, video, or any blocks."
-msgstr ""
-"La colonna multimediale fissa di una “Split Story”. Aggiungi un’immagine, un "
-"video o qualsiasi altro blocco."
-
-#: src/blocks/split-story-media/block.json src/blocks/split-story/block.json
-msgctxt "block keyword"
-msgid "media"
-msgstr "media"
-
-#: src/blocks/split-story-media/block.json src/blocks/split-story/block.json
-msgctxt "block keyword"
-msgid "sticky"
-msgstr "in evidenza"
-
-#: src/blocks/split-story/block.json
-msgctxt "block title"
-msgid "Split Story"
-msgstr "Storia divisa"
-
-#: src/blocks/split-story/block.json
-msgctxt "block description"
-msgid ""
-"A sticky media column alongside a scrolling content column — the classic "
-"editorial split layout."
-msgstr ""
-"Una colonna dedicata ai contenuti multimediali fissa affiancata da una "
-"colonna di contenuti a scorrimento: il classico layout editoriale a doppia "
-"colonna."
-
-#: src/blocks/split-story/block.json
-msgctxt "block keyword"
-msgid "editorial"
-msgstr "editoriale"
 
 #: theme.json
 msgctxt "Space size name"
@@ -10617,3 +10191,333 @@ msgstr "Sezione: Editoriale Dark"
 msgctxt "Style variation name"
 msgid "Section: Surface"
 msgstr "Sezione: Superficie"
+
+#~ msgid "Flip card"
+#~ msgstr "Carta da capovolgere"
+
+#~ msgid "Hero slideshow"
+#~ msgstr "Presentazione \"Hero\""
+
+#~ msgid "Play slideshow"
+#~ msgstr "Riproduci presentazione"
+
+#~ msgid "Pause slideshow"
+#~ msgstr "Metti in pausa la presentazione"
+
+#, php-format
+#~ msgid "Slide %1$s of %2$s"
+#~ msgstr "Diapositiva %1$s di %2$s"
+
+#, php-format
+#~ msgid "%1$s of %2$s"
+#~ msgstr "%1$s di %2$s"
+
+#~ msgid "Previous slide"
+#~ msgstr "Diapositiva precedente"
+
+#~ msgid "Next slide"
+#~ msgstr "Diapositiva successiva"
+
+#~ msgid "Choose slide"
+#~ msgstr "Scegli la diapositiva"
+
+#, php-format
+#~ msgid "Go to slide %s"
+#~ msgstr "Vai alla diapositiva %s"
+
+#~ msgid "Scrolling gallery"
+#~ msgstr "Galleria a scorrimento"
+
+#~ msgid "Scroll progress"
+#~ msgstr "Avanzamento dello scorrimento"
+
+#~ msgid "Swipe"
+#~ msgstr "Scorri"
+
+#~ msgid "Open Modal"
+#~ msgstr "Apri finestra modale"
+
+#~ msgid "Close modal"
+#~ msgstr "Chiudi finestra modale"
+
+#~ msgid "Pause animation"
+#~ msgstr "Metti in pausa l'animazione"
+
+#~ msgid "Play animation"
+#~ msgstr "Riproduci animazione"
+
+#~ msgctxt "block title"
+#~ msgid "Animate On Scroll"
+#~ msgstr "Animazione allo scorrimento"
+
+#~ msgctxt "block description"
+#~ msgid "Animate elements on scroll."
+#~ msgstr "Animare gli elementi durante lo scorrimento."
+
+#~ msgctxt "block title"
+#~ msgid "Card Back"
+#~ msgstr "Retro della carta"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "The back face of a Card Flip, revealed when the card flips. Add any "
+#~ "blocks here."
+#~ msgstr ""
+#~ "Il retro di un \"Card Flip\", che viene mostrato quando la carta si "
+#~ "capovolge. Aggiungi qui eventuali blocchi."
+
+#~ msgctxt "block keyword"
+#~ msgid "card"
+#~ msgstr "scheda"
+
+#~ msgctxt "block keyword"
+#~ msgid "flip"
+#~ msgstr "capovolgere"
+
+#~ msgctxt "block keyword"
+#~ msgid "back"
+#~ msgstr "indietro"
+
+#~ msgctxt "block keyword"
+#~ msgid "face"
+#~ msgstr "faccia"
+
+#~ msgctxt "block title"
+#~ msgid "Card Front"
+#~ msgstr "Frontale della cartolina"
+
+#~ msgctxt "block description"
+#~ msgid "The front face of a Card Flip. Add any blocks here."
+#~ msgstr ""
+#~ "La parte frontale di un Card Flip. Aggiungi qui i blocchi che preferisci."
+
+#~ msgctxt "block keyword"
+#~ msgid "front"
+#~ msgstr "fronte"
+
+#~ msgctxt "block title"
+#~ msgid "Card Flip"
+#~ msgstr "Capovolgimento della carta"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "A card with two faces that flips to reveal the back. Accessible button-"
+#~ "driven disclosure, with an optional hover flip."
+#~ msgstr ""
+#~ "Una scheda con due facce che, quando viene capovolta, mostra il retro. "
+#~ "Visualizzazione intuitiva tramite pulsanti, con opzione di capovolgimento "
+#~ "al passaggio del mouse."
+
+#~ msgctxt "block keyword"
+#~ msgid "3d"
+#~ msgstr "3D"
+
+#~ msgctxt "block keyword"
+#~ msgid "reveal"
+#~ msgstr "svelare"
+
+#~ msgctxt "block title"
+#~ msgid "Hero Carousel"
+#~ msgstr "Carosello degli eroi"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "A full-bleed hero slider built from Cover blocks. Background motion "
+#~ "effects, autoplay with pause control, and adaptive light/dark chrome."
+#~ msgstr ""
+#~ "Uno slider \"hero\" a tutto schermo realizzato con i blocchi Cover. "
+#~ "Effetti di movimento sullo sfondo, riproduzione automatica con controllo "
+#~ "della pausa e tema Chrome adattivo chiaro/scuro."
+
+#~ msgctxt "block keyword"
+#~ msgid "carousel"
+#~ msgstr "carosello"
+
+#~ msgctxt "block keyword"
+#~ msgid "slider"
+#~ msgstr "cursore"
+
+#~ msgctxt "block keyword"
+#~ msgid "hero"
+#~ msgstr "eroe"
+
+#~ msgctxt "block keyword"
+#~ msgid "slideshow"
+#~ msgstr "presentazione"
+
+#~ msgctxt "block keyword"
+#~ msgid "cover"
+#~ msgstr "copertina"
+
+#~ msgctxt "block keyword"
+#~ msgid "motion"
+#~ msgstr "mozione"
+
+#~ msgctxt "block keyword"
+#~ msgid "animation"
+#~ msgstr "animazione"
+
+#~ msgctxt "block title"
+#~ msgid "Horizontal Scroll"
+#~ msgstr "Scorrimento orizzontale"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "Pins a section and drives horizontal scroll via vertical scroll progress. "
+#~ "Falls back to native scroll-snap on touch."
+#~ msgstr ""
+#~ "Fissa una sezione e gestisce lo scorrimento orizzontale in base "
+#~ "all'avanzamento dello scorrimento verticale. In caso di interazione "
+#~ "tattile, ricorre allo scroll-snap nativo."
+
+#~ msgctxt "block keyword"
+#~ msgid "scroll"
+#~ msgstr "scorrere"
+
+#~ msgctxt "block keyword"
+#~ msgid "horizontal"
+#~ msgstr "orizzontale"
+
+#~ msgctxt "block keyword"
+#~ msgid "parallax"
+#~ msgstr "parallasse"
+
+#~ msgctxt "block keyword"
+#~ msgid "story"
+#~ msgstr "storia"
+
+#~ msgctxt "block title"
+#~ msgid "Modal"
+#~ msgstr "Modale"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "An interactive modal block that can be positioned and triggered by other "
+#~ "elements."
+#~ msgstr ""
+#~ "Un blocco modale interattivo che può essere posizionato e attivato da "
+#~ "altri elementi."
+
+#~ msgctxt "block title"
+#~ msgid "Advanced Parallax Container"
+#~ msgstr "Contenitore Parallax avanzato"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "A container block that applies parallax effects to nested blocks using "
+#~ "intersection observer."
+#~ msgstr ""
+#~ "Un blocco contenitore che applica effetti di parallasse ai blocchi "
+#~ "annidati utilizzando l'Intersection Observer."
+
+#~ msgctxt "block title"
+#~ msgid "Ticker"
+#~ msgstr "Ticker"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "Infinite scrolling marquee for text, logos, or any content. Add the Free "
+#~ "Shipping Message block for live cart thresholds."
+#~ msgstr ""
+#~ "Barra di scorrimento infinita per testi, loghi o qualsiasi altro "
+#~ "contenuto. Aggiungi il blocco “Messaggio sulla spedizione gratuita” per "
+#~ "visualizzare in tempo reale le soglie del carrello."
+
+#~ msgctxt "block title"
+#~ msgid "Copyright"
+#~ msgstr "Diritti d'autore"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "Dynamic copyright notice with legal identity, Schema.org markup, and "
+#~ "Privacy/Terms links."
+#~ msgstr ""
+#~ "Avviso dinamico sul copyright con dati identificativi legali, marcatura "
+#~ "Schema.org e link alla Privacy e ai Termini di utilizzo."
+
+#~ msgctxt "block keyword"
+#~ msgid "copyright"
+#~ msgstr "diritti d'autore"
+
+#~ msgctxt "block keyword"
+#~ msgid "year"
+#~ msgstr "anno"
+
+#~ msgctxt "block keyword"
+#~ msgid "legal"
+#~ msgstr "legale"
+
+#~ msgctxt "block keyword"
+#~ msgid "llc"
+#~ msgstr "llc"
+
+#~ msgctxt "block keyword"
+#~ msgid "inc"
+#~ msgstr "inc"
+
+#~ msgctxt "block keyword"
+#~ msgid "privacy"
+#~ msgstr "privacy"
+
+#~ msgctxt "block keyword"
+#~ msgid "terms"
+#~ msgstr "termini"
+
+#~ msgctxt "block title"
+#~ msgid "Story Content"
+#~ msgstr "Contenuto della storia"
+
+#~ msgctxt "block description"
+#~ msgid "The scrolling content column of a Split Story. Add any blocks."
+#~ msgstr ""
+#~ "La colonna di contenuto a scorrimento di una Split Story. Aggiungi i "
+#~ "blocchi che desideri."
+
+#~ msgctxt "block keyword"
+#~ msgid "split"
+#~ msgstr "divisione"
+
+#~ msgctxt "block keyword"
+#~ msgid "content"
+#~ msgstr "contenuto"
+
+#~ msgctxt "block keyword"
+#~ msgid "text"
+#~ msgstr "testo"
+
+#~ msgctxt "block title"
+#~ msgid "Story Media"
+#~ msgstr "Story Media"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "The sticky media column of a Split Story. Add an image, video, or any "
+#~ "blocks."
+#~ msgstr ""
+#~ "La colonna multimediale fissa di una “Split Story”. Aggiungi un’immagine, "
+#~ "un video o qualsiasi altro blocco."
+
+#~ msgctxt "block keyword"
+#~ msgid "media"
+#~ msgstr "media"
+
+#~ msgctxt "block keyword"
+#~ msgid "sticky"
+#~ msgstr "in evidenza"
+
+#~ msgctxt "block title"
+#~ msgid "Split Story"
+#~ msgstr "Storia divisa"
+
+#~ msgctxt "block description"
+#~ msgid ""
+#~ "A sticky media column alongside a scrolling content column — the classic "
+#~ "editorial split layout."
+#~ msgstr ""
+#~ "Una colonna dedicata ai contenuti multimediali fissa affiancata da una "
+#~ "colonna di contenuti a scorrimento: il classico layout editoriale a "
+#~ "doppia colonna."
+
+#~ msgctxt "block keyword"
+#~ msgid "editorial"
+#~ msgstr "editoriale"

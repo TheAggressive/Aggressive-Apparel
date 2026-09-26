@@ -82,6 +82,22 @@ const DEPENDENCY_PATHS = {
   'github-actions': [/^\.github\/workflows\/[^/]+\.ya?ml$/u],
 };
 
+// dependabot/fetch-metadata reports Dependabot's internal ecosystem names
+// (npm_and_yarn, github_actions), not the dependabot.yml spellings this policy
+// keys on. Anything unrecognised maps to '' and stays unclassified.
+const DEPENDABOT_ECOSYSTEMS = new Map([
+  ['npm_and_yarn', 'npm'],
+  ['npm', 'npm'],
+  ['composer', 'composer'],
+  ['github_actions', 'github-actions'],
+  ['github-actions', 'github-actions'],
+]);
+
+/** @param {string} ecosystem @return {string} */
+export function normalizeDependabotEcosystem(ecosystem) {
+  return DEPENDABOT_ECOSYSTEMS.get(ecosystem) ?? '';
+}
+
 /** @param {string} title */
 export function isValidTitle(title) {
   return TITLE_PATTERN.test(title);

@@ -3,7 +3,7 @@
  * Title: Press Quote Feature
  * Description: Single oversized editorial press quote with publication attribution in Hypebeast / Complex style.
  * Slug: aggressive-apparel/press-quote-feature
- * Categories: aggressive, aggressive-apparel, aggressive-social-proof, aggressive-informational
+ * Categories: aggressive, aggressive-social-proof, aggressive-informational
  * Keywords: press, quote, editorial, hypebeast, complex, media, feature
  * Viewport Width: 1200
  *

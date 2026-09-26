@@ -3,7 +3,7 @@
  * Title: No Posts Found
  * Description: Empty-state message for the blog index template.
  * Slug: aggressive-apparel/template-no-posts
- * Categories: aggressive, aggressive-apparel
+ * Categories: aggressive
  * Keywords: empty, no posts, blog
  * Inserter: no
  *

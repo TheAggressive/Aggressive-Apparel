@@ -3,7 +3,7 @@
  * Title: Video Lookbook Reel
  * Description: Campaign video section with heading, video player, shop the edit CTA, and three-product row below.
  * Slug: aggressive-apparel/video-lookbook-reel
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products, aggressive-drops
+ * Categories: aggressive, aggressive-homepage, aggressive-products, aggressive-drops
  * Keywords: video, lookbook, campaign, reel, shop the edit, products
  * Viewport Width: 1400
  *

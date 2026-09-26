@@ -3,7 +3,7 @@
  * Title: About Page
  * Description: Full about page layout with brand intro, mission statement, values grid, and team CTA.
  * Slug: aggressive-apparel/about-page
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: about, page, story, mission, values, brand, company
  * Viewport Width: 1200
  *

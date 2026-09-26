@@ -3,7 +3,7 @@
  * Title: Best Sellers Row
  * Description: Product row section with Best Sellers heading, View All link, and WooCommerce best-sellers collection.
  * Slug: aggressive-apparel/best-sellers-row
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-homepage
  * Keywords: best sellers, products, featured, popular, woocommerce, row
  * Viewport Width: 1200
  *

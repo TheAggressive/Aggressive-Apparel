@@ -3,7 +3,7 @@
  * Title: Checkout Heading
  * Description: Page title for the checkout template.
  * Slug: aggressive-apparel/template-checkout-heading
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: checkout, heading
  * Inserter: no
  *

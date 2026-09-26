@@ -3,7 +3,7 @@
  * Title: Testimonial Large Quote
  * Description: Single hero-sized customer testimonial with large quote text, star rating, and attribution.
  * Slug: aggressive-apparel/testimonial-large-quote
- * Categories: aggressive, aggressive-apparel, aggressive-social-proof, aggressive-homepage
+ * Categories: aggressive, aggressive-social-proof, aggressive-homepage
  * Keywords: testimonial, quote, review, large, hero, social proof
  * Viewport Width: 1200
  *

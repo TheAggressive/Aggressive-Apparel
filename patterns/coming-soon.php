@@ -3,7 +3,7 @@
  * Title: Coming Soon
  * Description: Pre-launch landing page with brand name, countdown placeholder, and email signup CTA.
  * Slug: aggressive-apparel/coming-soon
- * Categories: aggressive, aggressive-apparel, aggressive-conversion
+ * Categories: aggressive, aggressive-conversion
  * Keywords: coming soon, launch, maintenance, pre-launch, countdown, landing
  * Viewport Width: 1400
  *

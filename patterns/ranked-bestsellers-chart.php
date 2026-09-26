@@ -3,7 +3,7 @@
  * Title: Ranked Bestsellers Chart
  * Description: Editorial numbered chart of top sellers — list rhythm with one product card per row, not a uniform grid.
  * Slug: aggressive-apparel/ranked-bestsellers-chart
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-homepage
  * Keywords: ranked, chart, bestsellers, list, editorial, top products
  * Viewport Width: 1200
  *

@@ -3,7 +3,7 @@
  * Title: Footer with Columns
  * Description: Multi-column footer with navigation links, contact info, newsletter signup, and social icons.
  * Slug: aggressive-apparel/footer-columns
- * Categories: aggressive, aggressive-apparel, footer
+ * Categories: aggressive, footer
  * Keywords: footer, columns, navigation, newsletter, contact, social
  * Block Types: core/template-part/footer
  * Viewport Width: 1400

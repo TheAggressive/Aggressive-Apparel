@@ -3,7 +3,7 @@
  * Title: PDP Notify Me Strip
  * Description: Sold-out / pre-order companion strip with urgency copy and a form slot for restock or launch alerts.
  * Slug: aggressive-apparel/pdp-notify-me-strip
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-conversion, aggressive-drops
+ * Categories: aggressive, aggressive-pdp, aggressive-conversion, aggressive-drops
  * Keywords: notify me, restock, pre-order, sold out, waitlist, pdp, alert
  * Viewport Width: 800
  *

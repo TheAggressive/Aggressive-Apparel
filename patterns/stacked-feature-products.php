@@ -3,7 +3,7 @@
  * Title: Stacked Feature Products
  * Description: Two full-width alternating product features (copy left / product right, then reversed) — magazine pacing instead of a grid.
  * Slug: aggressive-apparel/stacked-feature-products
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-homepage
  * Keywords: stacked, feature, alternating, magazine, product spotlight, editorial
  * Viewport Width: 1400
  *

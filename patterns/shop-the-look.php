@@ -3,7 +3,7 @@
  * Title: Shop the Look
  * Description: Editorial lookbook section with large cover image, caption, and curated product collection to shop the outfit.
  * Slug: aggressive-apparel/shop-the-look
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-pdp
+ * Categories: aggressive, aggressive-products, aggressive-pdp
  * Keywords: shop the look, editorial, lookbook, outfit, curated, products
  * Viewport Width: 1400
  *

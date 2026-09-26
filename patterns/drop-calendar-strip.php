@@ -3,7 +3,7 @@
  * Title: Drop Calendar Strip
  * Description: Horizontal timeline strip of three upcoming drops with date, name, and live status badges.
  * Slug: aggressive-apparel/drop-calendar-strip
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-homepage
+ * Categories: aggressive, aggressive-drops, aggressive-homepage
  * Keywords: drop, calendar, timeline, upcoming, release, schedule, strip
  * Viewport Width: 1400
  *

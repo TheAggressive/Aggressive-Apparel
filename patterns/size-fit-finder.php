@@ -3,7 +3,7 @@
  * Title: Size Fit Finder
  * Description: Three tall fit-type cards for Regular, Slim, and Oversized with body copy and size chart links for product pages.
  * Slug: aggressive-apparel/size-fit-finder
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-informational, aggressive-products
+ * Categories: aggressive, aggressive-pdp, aggressive-informational, aggressive-products
  * Keywords: size, fit, regular, slim, oversized, size chart, sizing
  * Viewport Width: 1200
  *

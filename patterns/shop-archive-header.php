@@ -3,7 +3,7 @@
  * Title: Shop Archive Header
  * Description: Shop archive utility header with title, grid/list toggle, filter toggle, and active filter bar.
  * Slug: aggressive-apparel/shop-archive-header
- * Categories: aggressive, aggressive-apparel, aggressive-shop, aggressive-products
+ * Categories: aggressive, aggressive-shop, aggressive-products
  * Keywords: shop, archive, header, filters, grid, list, plp, product listing
  * Viewport Width: 1200
  *

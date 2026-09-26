@@ -3,7 +3,7 @@
  * Title: Product Duet
  * Description: Two equal tall product columns for a head-to-head launch — neither product is a “side card.”
  * Slug: aggressive-apparel/product-duet
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-drops
+ * Categories: aggressive, aggressive-products, aggressive-drops
  * Keywords: duet, pair, two products, launch, comparison, equal
  * Viewport Width: 1400
  *

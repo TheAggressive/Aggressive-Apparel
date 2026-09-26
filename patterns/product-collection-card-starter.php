@@ -3,7 +3,7 @@
  * Title: Product Collection — Card Starter
  * Description: Forkable WooCommerce Product Collection with the full Aggressive card template (swatches, wishlist, rating, price, button). Change the query, columns, and card blocks — start here instead of a blank collection.
  * Slug: aggressive-apparel/product-collection-card-starter
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-shop
+ * Categories: aggressive, aggressive-products, aggressive-shop
  * Keywords: product collection, starter, cards, grid, woocommerce, template, fork
  * Viewport Width: 1200
  *

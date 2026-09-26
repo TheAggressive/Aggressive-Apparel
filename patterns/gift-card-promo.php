@@ -3,7 +3,7 @@
  * Title: Gift Card Promo
  * Description: Promotional section for gift cards with bold messaging, price options, and call to action.
  * Slug: aggressive-apparel/gift-card-promo
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-homepage, aggressive-products
  * Keywords: gift card, promo, gift, present, voucher, holiday
  * Viewport Width: 1200
  *

@@ -3,7 +3,7 @@
  * Title: Newsletter Drop Access
  * Description: Dark conversion section for first access to drops with a form slot and optional SMS microcopy.
  * Slug: aggressive-apparel/newsletter-drop-access
- * Categories: aggressive, aggressive-apparel, aggressive-conversion, aggressive-drops
+ * Categories: aggressive, aggressive-conversion, aggressive-drops
  * Keywords: newsletter, drop access, email, sms, early access, signup, waitlist
  * Viewport Width: 1200
  *

@@ -3,7 +3,7 @@
  * Title: Manifesto Type Wall
  * Description: Typography-led brand statement with stacked lines and a single quiet CTA — no cover image, no card grid.
  * Slug: aggressive-apparel/manifesto-type-wall
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-informational
+ * Categories: aggressive, aggressive-homepage, aggressive-informational
  * Keywords: manifesto, typography, statement, brand, type wall, editorial
  * Viewport Width: 1400
  *

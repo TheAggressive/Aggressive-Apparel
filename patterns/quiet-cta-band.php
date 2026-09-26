@@ -3,7 +3,7 @@
  * Title: Quiet CTA Band
  * Description: Thin full-bleed strip with one sentence and one text link — intentional contrast to loud flash-sale sections.
  * Slug: aggressive-apparel/quiet-cta-band
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-conversion
+ * Categories: aggressive, aggressive-homepage, aggressive-conversion
  * Keywords: cta, band, strip, quiet, newsletter, soft sell
  * Viewport Width: 1400
  *

@@ -3,7 +3,7 @@
  * Title: Homepage Drop Composition
  * Description: Full drop-day homepage with announcement strip, hype hero, marquee, new arrivals, lookbook teaser, waitlist, and UGC gallery.
  * Slug: aggressive-apparel/homepage-drop-composition
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-drops
+ * Categories: aggressive, aggressive-homepage, aggressive-drops
  * Keywords: homepage, drop, launch, new arrivals, waitlist, lookbook, ugc, streetwear
  * Viewport Width: 1400
  *

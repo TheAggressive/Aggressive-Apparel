@@ -3,7 +3,7 @@
  * Title: Homepage Seasonal Shop
  * Description: Cleaner seasonal homepage with men/women split, animated category grid, best sellers, editorial quote, and newsletter signup.
  * Slug: aggressive-apparel/homepage-seasonal-shop
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-homepage, aggressive-products
  * Keywords: homepage, seasonal, shop, categories, best sellers, newsletter, browse
  * Viewport Width: 1400
  *

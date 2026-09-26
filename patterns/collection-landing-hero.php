@@ -3,7 +3,7 @@
  * Title: Collection Landing Hero
  * Description: Full-bleed parallax collection hero with collection name, description, and primary Shop plus secondary Lookbook CTAs.
  * Slug: aggressive-apparel/collection-landing-hero
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products, aggressive-drops
+ * Categories: aggressive, aggressive-homepage, aggressive-products, aggressive-drops
  * Keywords: collection, hero, landing, taxonomy, lookbook, shop, parallax
  * Viewport Width: 1400
  *

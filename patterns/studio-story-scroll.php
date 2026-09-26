@@ -3,7 +3,7 @@
  * Title: Studio Story Scroll
  * Description: Sticky media column with a long scrolling editorial narrative — uses the Split Story block for scroll-driven storytelling.
  * Slug: aggressive-apparel/studio-story-scroll
- * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-drops
+ * Categories: aggressive, aggressive-informational, aggressive-drops
  * Keywords: split story, sticky, editorial, studio, scroll, narrative
  * Viewport Width: 1400
  *

@@ -3,7 +3,7 @@
  * Title: 404 Page
  * Description: Branded 404 error page with search, popular products link, and back-to-home CTA.
  * Slug: aggressive-apparel/page-404
- * Categories: aggressive, aggressive-apparel
+ * Categories: aggressive
  * Keywords: 404, error, not found, missing, search
  * Viewport Width: 1200
  *

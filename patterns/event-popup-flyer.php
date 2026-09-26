@@ -3,7 +3,7 @@
  * Title: Event Popup Flyer
  * Description: Poster-style centered event flyer on a dark background with tall cover feel, date, location, and RSVP capture.
  * Slug: aggressive-apparel/event-popup-flyer
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-conversion
+ * Categories: aggressive, aggressive-drops, aggressive-conversion
  * Keywords: event, flyer, popup, rsvp, drop party, poster, launch
  * Viewport Width: 900
  *

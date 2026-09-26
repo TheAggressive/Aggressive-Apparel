@@ -3,7 +3,7 @@
  * Title: Empty Cart Message
  * Description: Empty-cart messaging and browse CTA for the cart template.
  * Slug: aggressive-apparel/template-cart-empty
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: cart, empty, browse
  * Inserter: no
  *

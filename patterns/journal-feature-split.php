@@ -3,7 +3,7 @@
  * Title: Journal Feature Split
  * Description: Editorial blog feature with large cover image, category eyebrow, title, excerpt, and read story CTA in a split layout.
  * Slug: aggressive-apparel/journal-feature-split
- * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-homepage
+ * Categories: aggressive, aggressive-informational, aggressive-homepage
  * Keywords: journal, blog, feature, editorial, story, article
  * Viewport Width: 1400
  *

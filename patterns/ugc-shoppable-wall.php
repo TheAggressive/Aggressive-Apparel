@@ -3,7 +3,7 @@
  * Title: UGC Shoppable Wall
  * Description: Dense six-tile shoppable mosaic with handle overlays and shop-this-fit links on featured cells.
  * Slug: aggressive-apparel/ugc-shoppable-wall
- * Categories: aggressive, aggressive-apparel, aggressive-social-proof, aggressive-homepage
+ * Categories: aggressive, aggressive-social-proof, aggressive-homepage
  * Keywords: ugc, shoppable, mosaic, instagram, social, fits, community
  * Viewport Width: 1400
  *

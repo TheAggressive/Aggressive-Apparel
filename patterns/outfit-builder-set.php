@@ -3,7 +3,7 @@
  * Title: Outfit Builder Set
  * Description: Curated three-piece outfit section with product grid, total price placeholder, and add-all CTA for conversion.
  * Slug: aggressive-apparel/outfit-builder-set
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-conversion
+ * Categories: aggressive, aggressive-products, aggressive-conversion
  * Keywords: outfit, builder, get the look, bundle, curated, conversion
  * Viewport Width: 1200
  *

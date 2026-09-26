@@ -3,7 +3,7 @@
  * Title: Animated Category Mosaic
  * Description: Two-by-two category mosaic with scroll-triggered stagger animation linking to product category archives.
  * Slug: aggressive-apparel/animated-category-mosaic
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-homepage, aggressive-products
  * Keywords: categories, mosaic, grid, animate, scroll, hoodies, tees
  * Viewport Width: 1200
  *

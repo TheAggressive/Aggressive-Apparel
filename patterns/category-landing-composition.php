@@ -3,7 +3,7 @@
  * Title: Category Landing Composition
  * Description: Full category/taxonomy landing page with hero, story, filter header, product grid, and lookbook teaser.
  * Slug: aggressive-apparel/category-landing-composition
- * Categories: aggressive, aggressive-apparel, aggressive-shop, aggressive-products
+ * Categories: aggressive, aggressive-shop, aggressive-products
  * Keywords: category, taxonomy, landing, plp, hoodies, collection, filters, shop
  * Viewport Width: 1400
  *

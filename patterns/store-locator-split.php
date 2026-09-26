@@ -3,7 +3,7 @@
  * Title: Store Locator Split
  * Description: Flagship store section with address, hours, directions CTA on the left and map cover on the right.
  * Slug: aggressive-apparel/store-locator-split
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: store, locator, flagship, address, hours, map, directions
  * Viewport Width: 1200
  *

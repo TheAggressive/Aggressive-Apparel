@@ -8,24 +8,24 @@ WooCommerce-dependent blocks declare `supports.requiresPlugins: ["woocommerce"]`
 
 ## Quick reference
 
-| Block | Best place | Feature flag | Renders empty / no-ops when |
-| ----- | ---------- | ------------ | --------------------------- |
-| `filter-toggle` | Shop / category / tag archive header | `product_filters` | Flag off, or not a filterable archive |
-| `filter-active-bar` | Below archive header / above product grid | `product_filters` | Flag off, or not a filterable archive |
-| `grid-list-toggle` | Archive toolbar near sorting | — | Anywhere (client-only layout preference) |
-| `product-color-swatches` | Inside product card / product template | — | No product context or no color attribute |
-| `product-rating` | Product card or single product | — | No product / no rating data |
-| `product-tabs` | Single product template | — | Not `is_product()` |
-| `wishlist-button` | Product card or single product | `wishlist` | Flag off |
-| `wishlist` (+ item children) | Dedicated wishlist page | `wishlist` | Flag off |
-| `recently-viewed` | Single product, cart, or home | — | Client list empty (shell still renders) |
-| `lookbook` | Landing / collection pages | — | No `mediaUrl` |
-| `countdown-timer` | Sale / drop landing pages | — | Invalid / missing end date |
-| `free-shipping-bar` / `free-shipping-message` | Header, cart, checkout, sticky regions | — | No free-shipping threshold |
-| `search` | Header / mobile nav | — | Never gated (global UX) |
-| `copyright` | Footer template part | — | Never gated (legal identity from Settings → General) |
-| `card-flip` | Marketing sections | — | — |
-| Nav family | Header / footer parts | — | Parent/ancestor constraints in editor |
+| Block                                         | Best place                                | Feature flag      | Renders empty / no-ops when                          |
+| --------------------------------------------- | ----------------------------------------- | ----------------- | ---------------------------------------------------- |
+| `filter-toggle`                               | Shop / category / tag archive header      | `product_filters` | Flag off, or not a filterable archive                |
+| `filter-active-bar`                           | Below archive header / above product grid | `product_filters` | Flag off, or not a filterable archive                |
+| `grid-list-toggle`                            | Archive toolbar near sorting              | —                 | Anywhere (client-only layout preference)             |
+| `product-color-swatches`                      | Inside product card / product template    | —                 | No product context or no color attribute             |
+| `product-rating`                              | Product card or single product            | —                 | No product / no rating data                          |
+| `product-tabs`                                | Single product template                   | —                 | Not `is_product()`                                   |
+| `wishlist-button`                             | Product card or single product            | `wishlist`        | Flag off                                             |
+| `wishlist` (+ item children)                  | Dedicated wishlist page                   | `wishlist`        | Flag off                                             |
+| `recently-viewed`                             | Single product, cart, or home             | —                 | Client list empty (shell still renders)              |
+| `lookbook`                                    | Landing / collection pages                | —                 | No `mediaUrl`                                        |
+| `countdown-timer`                             | Sale / drop landing pages                 | —                 | Invalid / missing end date                           |
+| `free-shipping-bar` / `free-shipping-message` | Header, cart, checkout, sticky regions    | —                 | No free-shipping threshold                           |
+| `search`                                      | Header / mobile nav                       | —                 | Never gated (global UX)                              |
+| `copyright`                                   | Footer template part                      | —                 | Never gated (legal identity from Settings → General) |
+| `card-flip`                                   | Marketing sections                        | —                 | —                                                    |
+| Nav family                                    | Header / footer parts                     | —                 | Parent/ancestor constraints in editor                |
 
 ---
 
@@ -37,11 +37,11 @@ Filter UI is **not** auto-injected into templates. You must place the blocks (or
 
 ### Where to place
 
-| Block | Recommended location |
-| ----- | -------------------- |
-| `aggressive-apparel/filter-toggle` | Archive header, next to title / sorting |
-| `aggressive-apparel/filter-active-bar` | Directly under the header, above `woocommerce/product-collection` |
-| `aggressive-apparel/grid-list-toggle` | Same header toolbar as `filter-toggle` (included in `shop-archive-header`) |
+| Block                                  | Recommended location                                                       |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `aggressive-apparel/filter-toggle`     | Archive header, next to title / sorting                                    |
+| `aggressive-apparel/filter-active-bar` | Directly under the header, above `woocommerce/product-collection`          |
+| `aggressive-apparel/grid-list-toggle`  | Same header toolbar as `filter-toggle` (included in `shop-archive-header`) |
 
 **Templates:** `archive-product`, `taxonomy-product_cat`, and any custom product-tag archive template.
 
@@ -75,11 +75,11 @@ Use only when you have a custom filterable catalog surface that is not a standar
 
 **Enable first:** Store Enhancements → **Wishlist**.
 
-| Block | Placement |
-| ----- | --------- |
+| Block             | Placement                                                                     |
+| ----------------- | ----------------------------------------------------------------------------- |
 | `wishlist-button` | Product cards (`woocommerce/product-template`) and/or single product template |
-| `wishlist` | A page dedicated to the saved list |
-| `wishlist-item-*` | **Only** as children of `wishlist` (editor-enforced `parent`) |
+| `wishlist`        | A page dedicated to the saved list                                            |
+| `wishlist-item-*` | **Only** as children of `wishlist` (editor-enforced `parent`)                 |
 
 ### Button placement mode
 
@@ -101,11 +101,11 @@ Card template for the page block should include, in order:
 
 ## Catalog & product cards
 
-| Block | Placement | Notes |
-| ----- | --------- | ----- |
+| Block                    | Placement                                                               | Notes                                                                                 |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `product-color-swatches` | Inside `woocommerce/product-template` (archive cards) or single product | Prefers `data-aa-product-image` / `data-aa-product-link` from `Product_Card_Contract` |
-| `product-rating` | Same card / single contexts | Uses post context `postId`; brand-mark rating UI |
-| `grid-list-toggle` | Archive toolbar | Persists layout preference in `localStorage`; pair with product-collection |
+| `product-rating`         | Same card / single contexts                                             | Uses post context `postId`; brand-mark rating UI                                      |
+| `grid-list-toggle`       | Archive toolbar                                                         | Persists layout preference in `localStorage`; pair with product-collection            |
 
 Keep swatches near the product image so image/link swapping has a clear card root.
 
@@ -117,11 +117,11 @@ When **Quick View** is enabled with **Wishlist on Product Images**, the heart mo
 
 With Quick View on:
 
-| Setting | Options | Notes |
-| ------- | ------- | ----- |
-| Card style | Corner chip (default), Bottom action bar, Center eye (legacy) | Corner/bottom keep transparent PNGs readable |
-| Card position | Top/bottom × left/right | Corner chips + Wishlist park here; bottom-bar stays along the bottom edge |
-| Wishlist on product images | Include / Quick View only | Shown only when Wishlist is also enabled |
+| Setting                    | Options                                                       | Notes                                                                     |
+| -------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Card style                 | Corner chip (default), Bottom action bar, Center eye (legacy) | Corner/bottom keep transparent PNGs readable                              |
+| Card position              | Top/bottom × left/right                                       | Corner chips + Wishlist park here; bottom-bar stays along the bottom edge |
+| Wishlist on product images | Include / Quick View only                                     | Shown only when Wishlist is also enabled                                  |
 
 **Mobile / touch:** chips stay as small always-visible corner (or bottom) controls — the image itself is not a full-bleed Quick View hit target, so tap-to-PDP still works.
 
@@ -129,11 +129,11 @@ With Quick View on:
 
 ## Single product
 
-| Block | Placement | Notes |
-| ----- | --------- | ----- |
-| `product-tabs` | `single-product` template | Returns empty when not `is_product()` |
+| Block             | Placement                            | Notes                                              |
+| ----------------- | ------------------------------------ | -------------------------------------------------- |
+| `product-tabs`    | `single-product` template            | Returns empty when not `is_product()`              |
 | `recently-viewed` | Below related products or after tabs | Records current product; excludes it from the list |
-| `wishlist-button` | Near title / add to cart | See Wishlist placement mode above |
+| `wishlist-button` | Near title / add to cart             | See Wishlist placement mode above                  |
 
 Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not blocks — toggle them in Store Enhancements.
 
@@ -141,11 +141,11 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 
 ## Cart, checkout, shipping
 
-| Block | Placement | Notes |
-| ----- | --------- | ----- |
-| `free-shipping-bar` | Header, cart drawer, cart page | Needs a free-shipping threshold (WC zone or `aggressive_apparel_free_shipping_threshold`) |
-| `free-shipping-message` | Same surfaces, lighter copy | Same threshold source |
-| `recently-viewed` | Empty cart / cart upsell areas | Optional recovery content |
+| Block                   | Placement                      | Notes                                                                                                                                                                                                       |
+| ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `free-shipping-bar`     | Header, cart drawer, cart page | Needs a free-shipping threshold in some zone (or `aggressive_apparel_free_shipping_threshold`); hidden for customers whose zone has none — see [woocommerce.md](woocommerce.md#free-shipping-international) |
+| `free-shipping-message` | Same surfaces, lighter copy    | Same threshold source                                                                                                                                                                                       |
+| `recently-viewed`       | Empty cart / cart upsell areas | Optional recovery content                                                                                                                                                                                   |
 
 ---
 
@@ -153,18 +153,18 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 
 These reusable marketing blocks are owned by the **Aggressive Blocks** plugin (`aggressive-blocks/*`). Theme patterns still place them.
 
-| Block | Placement | Notes |
-| ----- | --------- | ----- |
-| `lookbook` | Landing / collection pages | Requires media + optional hotspots with product IDs |
-| `countdown-timer` | Product cards, sale rows, promo banners, landing pages, editorial sections, drop heroes | Use a placement variation such as Product Card, Card Stack, Segment Chips, Promo Banner, Sale Strip, Urgency Pill, Boxed Launch, Outline Grid, Editorial Stack, Magazine Feature, or a Hero preset; needs a valid end datetime or product sale end date |
-| `card-flip` | Feature grids, lookbooks | Hover = CSS only; click = keyboard-accessible IA |
-| `hero-carousel` | Home / campaign heroes | Cover slides as inner blocks |
-| `parallax` / `animate-on-scroll` | Any long-scroll page | Respect `prefers-reduced-motion` |
-| `modal` | Site-wide promos | Supports exit-intent / scroll-depth triggers |
-| `ticker` | Announcement rails | Continuous marquee |
-| `horizontal-scroll` | Product / editorial rails, long-scroll story sections | Modes: `paged` (directional snap — one gesture → one slide; Arrow/Page/Home/End while in range; prev/next chrome on Tab/`focus-visible` only, Tab order region → arrows → slide content), `pinned` (scrub), `native` (CSS scroll-snap). Respect `prefers-reduced-motion`. |
-| `split-story` | Editorial splits | Static layout block (`src/blocks/`) |
-| `search` | Header / mobile bottom nav | Global; assets load when the block is present |
+| Block                            | Placement                                                                               | Notes                                                                                                                                                                                                                                                                     |
+| -------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lookbook`                       | Landing / collection pages                                                              | Requires media + optional hotspots with product IDs                                                                                                                                                                                                                       |
+| `countdown-timer`                | Product cards, sale rows, promo banners, landing pages, editorial sections, drop heroes | Use a placement variation such as Product Card, Card Stack, Segment Chips, Promo Banner, Sale Strip, Urgency Pill, Boxed Launch, Outline Grid, Editorial Stack, Magazine Feature, or a Hero preset; needs a valid end datetime or product sale end date                   |
+| `card-flip`                      | Feature grids, lookbooks                                                                | Hover = CSS only; click = keyboard-accessible IA                                                                                                                                                                                                                          |
+| `hero-carousel`                  | Home / campaign heroes                                                                  | Cover slides as inner blocks                                                                                                                                                                                                                                              |
+| `parallax` / `animate-on-scroll` | Any long-scroll page                                                                    | Respect `prefers-reduced-motion`                                                                                                                                                                                                                                          |
+| `modal`                          | Site-wide promos                                                                        | Supports exit-intent / scroll-depth triggers                                                                                                                                                                                                                              |
+| `ticker`                         | Announcement rails                                                                      | Continuous marquee                                                                                                                                                                                                                                                        |
+| `horizontal-scroll`              | Product / editorial rails, long-scroll story sections                                   | Modes: `paged` (directional snap — one gesture → one slide; Arrow/Page/Home/End while in range; prev/next chrome on Tab/`focus-visible` only, Tab order region → arrows → slide content), `pinned` (scrub), `native` (CSS scroll-snap). Respect `prefers-reduced-motion`. |
+| `split-story`                    | Editorial splits                                                                        | Static layout block (`src/blocks/`)                                                                                                                                                                                                                                       |
+| `search`                         | Header / mobile bottom nav                                                              | Global; assets load when the block is present                                                                                                                                                                                                                             |
 
 ### Countdown timer theming
 
@@ -172,13 +172,13 @@ The countdown block supports native WordPress color, gradient, spacing, typograp
 
 Theme-level overrides can target these variable groups on `.aggressive-apparel-countdown` or on a specific modifier such as `.aggressive-apparel-countdown--hero-panel`:
 
-| Group | Variables |
-| ----- | --------- |
+| Group      | Variables                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Typography | `--aa-countdown-label-font-size`, `--aa-countdown-label-font-weight`, `--aa-countdown-value-font-size`, `--aa-countdown-value-font-weight`, `--aa-countdown-unit-font-size`, `--aa-countdown-unit-font-weight` |
-| Color | `--aa-countdown-label-color`, `--aa-countdown-value-color`, `--aa-countdown-unit-color`, `--aa-countdown-border-color`, `--aa-countdown-segment-color`, `--aa-countdown-segment-bg` |
-| Shape | `--aa-countdown-border-width`, `--aa-countdown-border-style`, `--aa-countdown-radius`, `--aa-countdown-pill-radius` |
-| Rhythm | `--aa-countdown-gap`, `--aa-countdown-segment-padding`, `--aa-countdown-surface-padding` |
-| Scale | `--aa-countdown-hero-value-font-size`, `--aa-countdown-feature-value-font-size` |
+| Color      | `--aa-countdown-label-color`, `--aa-countdown-value-color`, `--aa-countdown-unit-color`, `--aa-countdown-border-color`, `--aa-countdown-segment-color`, `--aa-countdown-segment-bg`                            |
+| Shape      | `--aa-countdown-border-width`, `--aa-countdown-border-style`, `--aa-countdown-radius`, `--aa-countdown-pill-radius`                                                                                            |
+| Rhythm     | `--aa-countdown-gap`, `--aa-countdown-segment-padding`, `--aa-countdown-surface-padding`                                                                                                                       |
+| Scale      | `--aa-countdown-hero-value-font-size`, `--aa-countdown-feature-value-font-size`                                                                                                                                |
 
 ---
 
@@ -206,12 +206,12 @@ Two independent subsystems — do not nest a panel block inside the desktop `nav
 
 Place `aggressive-blocks/copyright` in the **footer template part** (already in `parts/footer.html`). Prefer the Site Editor over hardcoding a year in a paragraph.
 
-| Setting | Where |
-| ------- | ----- |
-| Terms of Service page | Settings → **Terms** |
-| Legal / organization name | Settings → **Terms** |
-| Privacy Policy page | Settings → **Privacy** (WordPress core; publish the page so visitors can open it) |
-| Owner source / LLC / Schema / links / separator | Block inspector |
+| Setting                                         | Where                                                                             |
+| ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| Terms of Service page                           | Settings → **Terms**                                                              |
+| Legal / organization name                       | Settings → **Terms**                                                              |
+| Privacy Policy page                             | Settings → **Privacy** (WordPress core; publish the page so visitors can open it) |
+| Owner source / LLC / Schema / links / separator | Block inspector                                                                   |
 
 **Starter pattern:** `aggressive-apparel/footer-columns` uses the copyright block with legal links.
 

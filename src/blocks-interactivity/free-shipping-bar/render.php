@@ -34,31 +34,31 @@ $percent    = $progress['percent'];
 $complete   = $progress['complete'];
 $message    = Free_Shipping::format_bar_message( $remaining, $complete );
 
-$currency_code   = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'USD';
-$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol( $currency_code ) : '$';
-
 $context = (string) wp_json_encode(
-	array(
-		'threshold'         => $threshold,
-		'cartTotal'         => $cart_total,
-		'percent'           => $percent,
-		'remaining'         => $remaining,
-		'complete'          => $complete,
-		'restBase'          => esc_url_raw( rest_url( 'wc/store/v1' ) ),
-		'currencyPrefix'    => $currency_symbol,
-		'currencySuffix'    => '',
-		'currencyMinorUnit' => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
-		'i18n'              => Free_Shipping::get_bar_message_i18n(),
+	array_merge(
+		array(
+			'threshold'       => $threshold,
+			'customThreshold' => $custom_threshold,
+			'cartTotal'       => $cart_total,
+			'percent'         => $percent,
+			'remaining'       => $remaining,
+			'complete'        => $complete,
+			'restBase'        => esc_url_raw( rest_url( 'wc/store/v1' ) ),
+			'i18n'            => Free_Shipping::get_bar_message_i18n(),
+		),
+		Free_Shipping::get_currency_context()
 	)
 );
 
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
-		'class'               => 'aggressive-apparel-shipping-bar' . ( $complete ? ' aggressive-apparel-shipping-bar--complete' : '' ),
-		'data-wp-interactive' => 'aggressive-apparel/free-shipping-bar',
-		'data-wp-context'     => $context,
-		'data-wp-init'        => 'callbacks.init',
+		'class'                => 'aggressive-apparel-shipping-bar' . ( $complete ? ' aggressive-apparel-shipping-bar--complete' : '' ),
+		'data-wp-interactive'  => 'aggressive-apparel/free-shipping-bar',
+		'data-wp-context'      => $context,
+		'data-wp-init'         => 'callbacks.init',
 		'data-wp-class--aggressive-apparel-shipping-bar--complete' => 'state.isComplete',
+		'data-wp-bind--hidden' => '!context.threshold',
+		'hidden'               => $threshold > 0 ? null : 'hidden',
 	)
 );
 ?>
@@ -67,13 +67,15 @@ $wrapper_attrs = get_block_wrapper_attributes(
 echo wp_kses(
 	$wrapper_attrs,
 	array(
-		'class'               => array(),
-		'id'                  => array(),
-		'style'               => array(),
-		'data-wp-interactive' => array(),
-		'data-wp-context'     => array(),
-		'data-wp-init'        => array(),
+		'class'                => array(),
+		'id'                   => array(),
+		'style'                => array(),
+		'data-wp-interactive'  => array(),
+		'data-wp-context'      => array(),
+		'data-wp-init'         => array(),
 		'data-wp-class--aggressive-apparel-shipping-bar--complete' => array(),
+		'data-wp-bind--hidden' => array(),
+		'hidden'               => array(),
 	)
 );
 ?>

@@ -6,7 +6,10 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
-import { interpolateI18n } from '../free-shipping-message/cart-data';
+import {
+  formatMoney,
+  interpolateI18n,
+} from '../free-shipping-message/cart-data';
 import {
   subscribeFreeShippingBarCartRefresh,
   type FreeShippingBarContext,
@@ -31,9 +34,10 @@ store('aggressive-apparel/free-shipping-bar', {
         return ctx.i18n.complete;
       }
 
-      const amount = `${ctx.currencyPrefix}${ctx.remaining.toFixed(ctx.currencyMinorUnit)}${ctx.currencySuffix}`;
-
-      return interpolateI18n(ctx.i18n.progress, amount);
+      return interpolateI18n(
+        ctx.i18n.progress,
+        formatMoney(ctx.remaining, ctx)
+      );
     },
   },
 

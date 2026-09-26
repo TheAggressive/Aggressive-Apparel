@@ -2,7 +2,10 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** Shared WP-CLI boundary for deterministic E2E fixtures in Studio and CI. */
+/**
+ * Shared WP-CLI boundary for deterministic E2E fixtures: Studio locally, the
+ * native release lane (bin/ci/e2e.sh), and the wp-env artifact and beta lanes.
+ */
 
 const THEME_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -28,6 +31,20 @@ export function wpCli(args: string[]): string {
     }
 
     return execFileSync('studio', ['wp', '--path', sitePath, ...args], {
+      cwd: THEME_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  }
+
+  if (process.env.WP_CLI_RUNNER === 'native') {
+    const executable = process.env.AA_E2E_WP_CLI;
+
+    if (!executable) {
+      throw new Error('AA_E2E_WP_CLI is required for native E2E WP-CLI.');
+    }
+
+    return execFileSync(executable, args, {
       cwd: THEME_ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],

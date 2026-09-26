@@ -26,6 +26,7 @@ concurrency:
 
 env:
   NODE_VERSION: '24.18.0'
+  PHP_VERSION: '8.2.32'
 
 jobs:
   # ============================================================================
@@ -333,6 +334,27 @@ jobs:
     # genuine hang bounded while leaving room for a slow runner.
     timeout-minutes: 20
 
+    # bin/ci/e2e.sh runs WordPress natively on the runner's PHP. It uses this
+    # database when AA_E2E_DB_HOST names one, and starts a local mysqld otherwise.
+    services:
+      mysql:
+        image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+        env:
+          MYSQL_DATABASE: aa_e2e
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 127.0.0.1:3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      AA_E2E_DB_HOST: 127.0.0.1:3306
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -344,6 +366,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
 
       - name: Cache Playwright browser
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -378,6 +405,9 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            .cache/ci/e2e/server.log
+            .cache/ci/e2e/wordpress/wp-content/debug.log
+          include-hidden-files: true
           retention-days: 7
 
   # ============================================================================

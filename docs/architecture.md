@@ -191,7 +191,7 @@ pnpm test:js:watch
 # End-to-end (Playwright, drives the real editor + front end)
 pnpm test:e2e:install   # one-time: download the browser (CI: installs system deps)
 pnpm test:e2e           # builds and drives the registered Studio site
-pnpm test:e2e:ci        # isolated containerized release parity
+pnpm test:e2e:ci        # pinned native release parity (no Docker)
 ```
 
 ### Test Configuration
@@ -207,7 +207,12 @@ pnpm test:e2e:ci        # isolated containerized release parity
 3D flip + `inert` a11y and the split-story sticky/grid/gap layout. `global-setup.ts`
 logs in once (admin/password) and saves the session; each spec builds its block
 via `wp.data`, publishes, asserts on the rendered front end, and deletes the page.
-CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. (On WSL without sudo,
+CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. `ci:e2e`
+([`bin/ci/e2e.sh`](../bin/ci/e2e.sh)) needs no Docker. It installs the WordPress
+and WooCommerce versions pinned in `bin/ci/.wp-env.json` under `.cache/ci/e2e/`,
+resets the database, and serves the site with `php -S`. The database is the one
+named by `AA_E2E_DB_HOST` (the Actions MySQL service); without it, the lane starts
+a native mysqld through `bin/local/mysql.sh`. (On WSL without sudo,
 the browser deps can't install — run with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`
 and an `LD_LIBRARY_PATH` to extracted libnss3/libnspr4/libasound2 debs.)
 

@@ -5,6 +5,7 @@ import {
   betaUpdater,
   betaWorkflow,
   check,
+  e2eLane,
   packageJson,
   wpEnv,
 } from '../lib/contract-inputs.mjs';
@@ -101,6 +102,13 @@ for (const name of localScripts) {
 }
 
 check(
+  !/wp-env\.sh|docker/u.test(e2eLane) &&
+    e2eLane.includes('bin/local/wp-core.sh') &&
+    e2eLane.includes('WP_CLI_RUNNER=native'),
+  'bin/ci/e2e.sh must run the pinned WordPress natively (bin/local/wp-core.sh ' +
+    'with the native WP-CLI runner), never through wp-env or Docker.'
+);
+check(
   packageJson.scripts['env:start'] === 'node bin/local/studio.mjs start' &&
     packageJson.scripts.cli === 'node bin/local/studio.mjs wp',
   'Local lifecycle and WP-CLI commands must route through WordPress Studio.'
@@ -110,6 +118,13 @@ check(
     'bash bin/wp-env/update-beta-channel.sh' &&
     packageJson.scripts['ci:env:check'] === 'bash bin/ci/check-wp-env.sh',
   'Beta compatibility must use explicit ci:env:* commands.'
+);
+// Without it tests/e2e/wp-cli.ts runs wp-env from the theme root, which has no
+// .wp-env.json, so every fixture call misses the environment ci:env:* started.
+check(
+  packageJson.scripts['ci:e2e:beta'].includes('WP_ENV_CONFIG_DIR=bin/ci '),
+  'ci:e2e:beta must set WP_ENV_CONFIG_DIR=bin/ci so E2E fixtures reach the ' +
+    'beta wp-env environment.'
 );
 check(
   betaWorkflow.includes('pnpm ci:env:reset') &&

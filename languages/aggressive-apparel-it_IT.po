@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-09-26T01:45:27+00:00\n"
+"POT-Creation-Date: 2026-09-26T18:26:00+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -601,7 +601,7 @@ msgstr "Ricerca in corso…"
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: includes/WooCommerce/class-product-filters.php:584
+#: includes/WooCommerce/class-product-filters.php:587
 msgid "Try again"
 msgstr "Riprova"
 
@@ -2736,22 +2736,23 @@ msgstr "Cursore del catalogo non valido."
 msgid "Unable to load product results."
 msgstr "Impossibile caricare i risultati relativi ai prodotti."
 
-#: includes/WooCommerce/class-load-more.php:206
-msgid "Loading more products…"
-msgstr "Caricamento di altri prodotti in corso…"
-
-#: includes/WooCommerce/class-load-more.php:207
-msgid "Products could not be loaded. Try again."
-msgstr "Impossibile caricare i prodotti. Riprova."
-
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:209
+#: includes/WooCommerce/class-load-more.php:158
+#: includes/WooCommerce/class-load-more.php:235
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr "Vengono visualizzati %1$d prodotti su %2$d"
 
+#: includes/WooCommerce/class-load-more.php:232
+msgid "Loading more products…"
+msgstr "Caricamento di altri prodotti in corso…"
+
+#: includes/WooCommerce/class-load-more.php:233
+msgid "Products could not be loaded. Try again."
+msgstr "Impossibile caricare i prodotti. Riprova."
+
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:211
+#: includes/WooCommerce/class-load-more.php:237
 #, php-format
 msgid "%d more products loaded."
 msgstr "%d Altri prodotti caricati."
@@ -2868,12 +2869,12 @@ msgid "Maximum price"
 msgstr "Prezzo massimo"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:242
-#: includes/WooCommerce/class-product-filters.php:317
+#: includes/WooCommerce/class-product-filters.php:320
 msgid "In stock"
 msgstr "Disponibile"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:247
-#: includes/WooCommerce/class-product-filters.php:318
+#: includes/WooCommerce/class-product-filters.php:321
 msgid "On sale"
 msgstr "In offerta"
 
@@ -2882,85 +2883,85 @@ msgid "Filter by category"
 msgstr "Filtra per categoria"
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:312
+#: includes/WooCommerce/class-product-filters.php:315
 #, php-format
 msgid "(%s filter applied)"
 msgstr "(filtro %s applicato)"
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:314
+#: includes/WooCommerce/class-product-filters.php:317
 #, php-format
 msgid "(%s filters applied)"
 msgstr "(filtri %s applicati)"
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:316
+#: includes/WooCommerce/class-product-filters.php:319
 #, php-format
 msgid "Additional filters: %s"
 msgstr "Filtri aggiuntivi: %s"
 
-#: includes/WooCommerce/class-product-filters.php:319
+#: includes/WooCommerce/class-product-filters.php:322
 msgid "All filters cleared."
 msgstr "Tutti i filtri sono stati cancellati."
 
-#: includes/WooCommerce/class-product-filters.php:320
-#: includes/WooCommerce/class-product-filters.php:582
+#: includes/WooCommerce/class-product-filters.php:323
+#: includes/WooCommerce/class-product-filters.php:585
 msgid "Something went wrong loading products."
 msgstr "Si è verificato un errore durante il caricamento dei prodotti."
 
-#: includes/WooCommerce/class-product-filters.php:321
+#: includes/WooCommerce/class-product-filters.php:324
 msgid "No products found."
 msgstr "Nessun prodotto trovato."
 
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:325
 msgid "1 product found."
 msgstr "1 prodotto trovato."
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:324
+#: includes/WooCommerce/class-product-filters.php:327
 #, php-format
 msgid "%d products found."
 msgstr "%d prodotti trovati."
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:326
+#: includes/WooCommerce/class-product-filters.php:329
 #, php-format
 msgid "Remove %s filter"
 msgstr "Rimuovi il filtro %s"
 
-#: includes/WooCommerce/class-product-filters.php:418
-#: includes/WooCommerce/class-product-filters.php:509
+#: includes/WooCommerce/class-product-filters.php:421
+#: includes/WooCommerce/class-product-filters.php:512
 msgid "Product filters"
 msgstr "Filtri per i prodotti"
 
-#: includes/WooCommerce/class-product-filters.php:427
+#: includes/WooCommerce/class-product-filters.php:430
 msgid "Filters"
 msgstr "Filtri"
 
-#: includes/WooCommerce/class-product-filters.php:432
+#: includes/WooCommerce/class-product-filters.php:435
 msgid "Close filters"
 msgstr "Chiudi i filtri"
 
-#: includes/WooCommerce/class-product-filters.php:457
+#: includes/WooCommerce/class-product-filters.php:460
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr "Seleziona tutto"
 
-#: includes/WooCommerce/class-product-filters.php:463
-#: includes/WooCommerce/class-product-filters.php:519
+#: includes/WooCommerce/class-product-filters.php:466
+#: includes/WooCommerce/class-product-filters.php:522
 msgid "View Results"
 msgstr "Visualizza i risultati"
 
-#: includes/WooCommerce/class-product-filters.php:523
+#: includes/WooCommerce/class-product-filters.php:526
 msgid "Clear All Filters"
 msgstr "Rimuovi tutti i filtri"
 
-#: includes/WooCommerce/class-product-filters.php:577
+#: includes/WooCommerce/class-product-filters.php:580
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."
 msgstr "Non sono stati trovati prodotti corrispondenti alla tua selezione."
 
-#: includes/WooCommerce/class-product-filters.php:590
+#: includes/WooCommerce/class-product-filters.php:593
 msgid "Filtered products pagination"
 msgstr "Paginazione dei prodotti filtrati"
 

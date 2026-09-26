@@ -3,7 +3,7 @@
  * Title: Related Products Heading
  * Description: Heading used above related products on the single product template.
  * Slug: aggressive-apparel/template-related-products-heading
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: related, products, heading
  * Inserter: no
  *

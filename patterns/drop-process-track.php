@@ -3,7 +3,7 @@
  * Title: Drop Process Track
  * Description: Four-step drop pipeline (design → sample → produce → release) connected by a top rule — sequential storytelling, not a feature grid.
  * Slug: aggressive-apparel/drop-process-track
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-informational
+ * Categories: aggressive, aggressive-drops, aggressive-informational
  * Keywords: process, drop, pipeline, steps, how we make, timeline
  * Viewport Width: 1400
  *

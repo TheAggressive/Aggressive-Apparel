@@ -3,7 +3,7 @@
  * Title: Latest Posts Heading
  * Description: Heading for the home / blog posts template.
  * Slug: aggressive-apparel/template-latest-posts-heading
- * Categories: aggressive, aggressive-apparel
+ * Categories: aggressive
  * Keywords: blog, latest, posts, heading
  * Inserter: no
  *

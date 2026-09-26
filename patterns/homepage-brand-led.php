@@ -3,7 +3,7 @@
  * Title: Homepage Brand Led
  * Description: Quiet editorial brand homepage with minimal typography hero, founder quote, values, press strip, and single shop CTA.
  * Slug: aggressive-apparel/homepage-brand-led
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-informational
+ * Categories: aggressive, aggressive-homepage, aggressive-informational
  * Keywords: homepage, brand, editorial, founder, values, press, minimal
  * Viewport Width: 1400
  *

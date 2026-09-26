@@ -3,7 +3,7 @@
  * Title: Fabric Tech Specs
  * Description: Material story split layout with heavyweight fleece cover image and definition-style technical specifications.
  * Slug: aggressive-apparel/fabric-tech-specs
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-products, aggressive-informational
+ * Categories: aggressive, aggressive-pdp, aggressive-products, aggressive-informational
  * Keywords: fabric, material, fleece, specs, heavyweight, technical
  * Viewport Width: 1200
  *

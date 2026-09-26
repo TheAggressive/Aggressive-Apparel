@@ -3,7 +3,7 @@
  * Title: Gift Guide Grid
  * Description: Three-column gift guide with price-tier cover tiles linking to shop filter concepts.
  * Slug: aggressive-apparel/gift-guide-grid
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-conversion, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-conversion, aggressive-homepage
  * Keywords: gift guide, gifts, holiday, under 100, premium, shop, grid
  * Viewport Width: 1400
  *

@@ -3,7 +3,7 @@
  * Title: Contact Page
  * Description: Full contact page with email, phone, and HQ cards, a support form slot, and wholesale CTA.
  * Slug: aggressive-apparel/contact-page
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: contact, email, phone, address, support, form, help
  * Viewport Width: 1200
  *

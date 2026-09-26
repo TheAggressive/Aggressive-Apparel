@@ -3,7 +3,7 @@
  * Title: Scrolling Marquee Banner
  * Description: Animated scrolling text ticker banner for promotions, announcements, and brand messaging.
  * Slug: aggressive-apparel/marquee-banner
- * Categories: aggressive, aggressive-apparel, aggressive-conversion
+ * Categories: aggressive, aggressive-conversion
  * Keywords: marquee, ticker, scrolling, banner, announcement, promotion
  * Viewport Width: 1400
  *

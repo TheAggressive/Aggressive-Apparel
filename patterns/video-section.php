@@ -3,7 +3,7 @@
  * Title: Video Section
  * Description: Full-width video embed section with heading, description, CTA, and embedded video player.
  * Slug: aggressive-apparel/video-section
- * Categories: aggressive, aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-homepage
  * Keywords: video, embed, youtube, vimeo, media, film, campaign
  * Viewport Width: 1400
  *

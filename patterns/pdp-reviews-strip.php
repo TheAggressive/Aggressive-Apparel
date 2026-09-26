@@ -3,7 +3,7 @@
  * Title: PDP Reviews Strip
  * Description: Product detail social-proof module with rating summary, three review quotes, and a see-all reviews CTA.
  * Slug: aggressive-apparel/pdp-reviews-strip
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-social-proof
+ * Categories: aggressive, aggressive-pdp, aggressive-social-proof
  * Keywords: reviews, ratings, pdp, social proof, testimonials, stars
  * Viewport Width: 1000
  *

@@ -3,7 +3,7 @@
  * Title: Lookbook Chapter
  * Description: Numbered editorial lookbook chapter with full-bleed cover, caption, and shop collection CTA.
  * Slug: aggressive-apparel/lookbook-chapter
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage, aggressive-drops
+ * Categories: aggressive, aggressive-products, aggressive-homepage, aggressive-drops
  * Keywords: lookbook, editorial, chapter, campaign, collection, night drive
  * Viewport Width: 1400
  *

@@ -3,7 +3,7 @@
  * Title: Video Hero Section
  * Description: Full-bleed cinematic hero. Insert as image cover, then set Cover → Media type to Video and upload your film in the editor.
  * Slug: aggressive-apparel/hero-video-background
- * Categories: aggressive, aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-homepage
  * Keywords: hero, video, background, cinematic, fullscreen, cta
  * Viewport Width: 1400
  *

@@ -3,7 +3,7 @@
  * Title: Cart Heading
  * Description: Page title for the cart template.
  * Slug: aggressive-apparel/template-cart-heading
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: cart, checkout, heading
  * Inserter: no
  *

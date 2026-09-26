@@ -3,7 +3,7 @@
  * Title: Aftercare Icon Row
  * Description: Practical three-column care guidance (wash, wear, repair) — trust-building without the numbered “brand values” layout.
  * Slug: aggressive-apparel/aftercare-icon-row
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-informational
+ * Categories: aggressive, aggressive-pdp, aggressive-informational
  * Keywords: aftercare, wash, care, repair, icons, trust, pdp
  * Viewport Width: 1200
  *

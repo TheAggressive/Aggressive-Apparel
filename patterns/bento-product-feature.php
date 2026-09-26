@@ -3,7 +3,7 @@
  * Title: Bento Grid Product Feature
  * Description: Asymmetric bento-style tile grid showcasing featured products and collections in a modern 2026 layout.
  * Slug: aggressive-apparel/bento-product-feature
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-homepage, aggressive-products
  * Keywords: bento, grid, tiles, asymmetric, featured, products, modern
  * Viewport Width: 1400
  *

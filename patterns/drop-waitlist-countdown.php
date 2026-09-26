@@ -3,7 +3,7 @@
  * Title: Drop Waitlist Countdown
  * Description: Dark full-bleed drop countdown hero with live timer, collection name, and a waitlist form slot.
  * Slug: aggressive-apparel/drop-waitlist-countdown
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-conversion
+ * Categories: aggressive, aggressive-drops, aggressive-conversion
  * Keywords: drop, countdown, waitlist, email, launch, hype, coming soon
  * Viewport Width: 1400
  *

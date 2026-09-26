@@ -3,7 +3,7 @@
  * Title: Community Spotlight
  * Description: Feature one community member with large portrait, personal quote, and the products they wear.
  * Slug: aggressive-apparel/community-spotlight
- * Categories: aggressive, aggressive-apparel, aggressive-social-proof, aggressive-homepage
+ * Categories: aggressive, aggressive-social-proof, aggressive-homepage
  * Keywords: community, spotlight, member, portrait, quote, shoppable, featured
  * Viewport Width: 1400
  *

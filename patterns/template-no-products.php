@@ -3,7 +3,7 @@
  * Title: No Products Found
  * Description: Empty-state message for shop and product category archives.
  * Slug: aggressive-apparel/template-no-products
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: empty, no products, archive
  * Inserter: no
  *

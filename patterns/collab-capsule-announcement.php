@@ -3,7 +3,7 @@
  * Title: Collab Capsule Announcement
  * Description: Split-screen collab announcement with brand lockup, capsule cover image, limited edition copy, and Shop Capsule CTA.
  * Slug: aggressive-apparel/collab-capsule-announcement
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-homepage
+ * Categories: aggressive, aggressive-drops, aggressive-homepage
  * Keywords: collab, capsule, collaboration, limited, partner, announcement, split
  * Viewport Width: 1400
  *

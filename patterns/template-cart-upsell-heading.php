@@ -3,7 +3,7 @@
  * Title: Cart Upsell Heading
  * Description: Cross-sell heading on the filled cart template.
  * Slug: aggressive-apparel/template-cart-upsell-heading
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: cart, upsell, interested
  * Inserter: no
  *

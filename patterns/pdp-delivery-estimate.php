@@ -3,7 +3,7 @@
  * Title: PDP Delivery Estimate
  * Description: Slim horizontal strip with same-day shipping cutoff, free shipping threshold, and returns messaging for product pages.
  * Slug: aggressive-apparel/pdp-delivery-estimate
- * Categories: aggressive, aggressive-apparel, aggressive-pdp, aggressive-conversion
+ * Categories: aggressive, aggressive-pdp, aggressive-conversion
  * Keywords: delivery, shipping, estimate, returns, pdp, urgency, free shipping
  * Viewport Width: 1200
  *

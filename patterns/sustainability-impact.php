@@ -3,7 +3,7 @@
  * Title: Sustainability & Impact
  * Description: Section showcasing brand sustainability commitments and environmental impact with numbered metrics.
  * Slug: aggressive-apparel/sustainability-impact
- * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-homepage
+ * Categories: aggressive, aggressive-informational, aggressive-homepage
  * Keywords: sustainability, impact, eco, environment, ethical, conscious, green
  * Viewport Width: 1200
  *

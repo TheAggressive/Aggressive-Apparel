@@ -3,7 +3,7 @@
  * Title: Hero Product Spotlight
  * Description: Split hero spotlighting a single product with story copy left, tall product image right, and featured product collection.
  * Slug: aggressive-apparel/hero-product-spotlight
- * Categories: aggressive, aggressive-apparel, aggressive-homepage, aggressive-products
+ * Categories: aggressive, aggressive-homepage, aggressive-products
  * Keywords: hero, product, spotlight, featured, single product, launch
  * Viewport Width: 1400
  *

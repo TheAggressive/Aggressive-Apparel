@@ -3,7 +3,7 @@
  * Title: Hero Editorial Asymmetric
  * Description: Magazine-style asymmetric hero with large cover image left and stacked eyebrow, headline, body, and CTA right.
  * Slug: aggressive-apparel/hero-editorial-asymmetric
- * Categories: aggressive, aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-homepage
  * Keywords: hero, editorial, asymmetric, magazine, cover, layout
  * Viewport Width: 1400
  *

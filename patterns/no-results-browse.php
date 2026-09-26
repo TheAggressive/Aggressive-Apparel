@@ -3,7 +3,7 @@
  * Title: No Results Browse Recovery
  * Description: Search and filter no-results recovery with category quick links and a product row to keep shoppers browsing.
  * Slug: aggressive-apparel/no-results-browse
- * Categories: aggressive, aggressive-apparel, aggressive-shop
+ * Categories: aggressive, aggressive-shop
  * Keywords: no results, search, filters, browse, recovery, categories, shop
  * Viewport Width: 1200
  *

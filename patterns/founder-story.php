@@ -3,7 +3,7 @@
  * Title: Founder Story
  * Description: Human-centric brand section featuring the founder with personal photo and authentic origin story.
  * Slug: aggressive-apparel/founder-story
- * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-homepage
+ * Categories: aggressive, aggressive-informational, aggressive-homepage
  * Keywords: founder, team, story, personal, about, authentic, human
  * Viewport Width: 1200
  *

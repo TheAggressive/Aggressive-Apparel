@@ -3,7 +3,7 @@
  * Title: Flash Sale Split
  * Description: Loud two-column flash sale banner with oversized type, countdown copy, and full-height shop CTA.
  * Slug: aggressive-apparel/flash-sale-split
- * Categories: aggressive, aggressive-apparel, aggressive-conversion, aggressive-homepage
+ * Categories: aggressive, aggressive-conversion, aggressive-homepage
  * Keywords: flash sale, countdown, split, urgent, promotion, sale, loud
  * Viewport Width: 1400
  *

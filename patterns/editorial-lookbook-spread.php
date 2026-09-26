@@ -3,7 +3,7 @@
  * Title: Editorial Lookbook Spread
  * Description: Magazine-style editorial spread with full-bleed imagery, overlaid text, and alternating layouts for a high-fashion feel.
  * Slug: aggressive-apparel/editorial-lookbook-spread
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-homepage
  * Keywords: editorial, lookbook, magazine, fashion, spread, lifestyle
  * Viewport Width: 1400
  *

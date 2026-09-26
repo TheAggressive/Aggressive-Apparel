@@ -3,7 +3,7 @@
  * Title: No Search Results
  * Description: Empty-state message for the search results template.
  * Slug: aggressive-apparel/template-no-search-results
- * Categories: aggressive, aggressive-apparel
+ * Categories: aggressive
  * Keywords: empty, search, no results
  * Inserter: no
  *

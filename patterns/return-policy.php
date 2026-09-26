@@ -3,7 +3,7 @@
  * Title: Return Policy Page
  * Description: Full return and exchange policy page with step-by-step process and conditions.
  * Slug: aggressive-apparel/return-policy
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: returns, exchanges, refund, policy, conditions, process
  * Viewport Width: 1200
  *

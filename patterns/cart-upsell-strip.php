@@ -3,7 +3,7 @@
  * Title: Cart Upsell Strip
  * Description: Compact cart drawer style upsell section with heading and two-column WooCommerce product recommendations.
  * Slug: aggressive-apparel/cart-upsell-strip
- * Categories: aggressive, aggressive-apparel, aggressive-conversion, aggressive-products, aggressive-pdp
+ * Categories: aggressive, aggressive-conversion, aggressive-products, aggressive-pdp
  * Keywords: cart, upsell, cross-sell, drawer, complete order, products
  * Viewport Width: 800
  *

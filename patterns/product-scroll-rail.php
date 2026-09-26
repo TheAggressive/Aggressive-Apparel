@@ -3,7 +3,7 @@
  * Title: Product Scroll Rail
  * Description: Pinned horizontal scroll of oversized product covers — browse by scrolling down. Completely different rhythm from a product grid.
  * Slug: aggressive-apparel/product-scroll-rail
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-homepage
+ * Categories: aggressive, aggressive-products, aggressive-homepage
  * Keywords: horizontal scroll, rail, carousel, products, browse, pinned
  * Viewport Width: 1400
  *

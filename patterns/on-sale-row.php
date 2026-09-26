@@ -3,7 +3,7 @@
  * Title: On Sale Row
  * Description: High-impact sale section with accent header band and WooCommerce on-sale product collection.
  * Slug: aggressive-apparel/on-sale-row
- * Categories: aggressive, aggressive-apparel, aggressive-products, aggressive-conversion
+ * Categories: aggressive, aggressive-products, aggressive-conversion
  * Keywords: sale, discount, on sale, promotion, products, conversion
  * Viewport Width: 1200
  *

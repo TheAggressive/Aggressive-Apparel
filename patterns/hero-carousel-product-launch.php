@@ -3,7 +3,7 @@
  * Title: Hero Carousel — Product Launch
  * Description: Autoplaying full-bleed hero carousel with three Cover slides, Ken Burns backgrounds, and staggered content entrances.
  * Slug: aggressive-apparel/hero-carousel-product-launch
- * Categories: aggressive, aggressive-apparel, aggressive-homepage
+ * Categories: aggressive, aggressive-homepage
  * Keywords: hero, carousel, slider, slideshow, launch, drop, banner
  * Viewport Width: 1400
  *

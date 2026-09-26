@@ -3,7 +3,7 @@
  * Title: Mega Menu Panel
  * Description: Content panel for nav mega menus — link columns, featured collection cover, and a compact product row.
  * Slug: aggressive-apparel/mega-menu-panel
- * Categories: aggressive, aggressive-apparel, navigation, aggressive-products
+ * Categories: aggressive, navigation, aggressive-products
  * Keywords: mega menu, navigation, dropdown, featured, shop, panel
  * Viewport Width: 1100
  *

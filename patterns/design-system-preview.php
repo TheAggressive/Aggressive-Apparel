@@ -3,7 +3,7 @@
  * Title: Design System Preview
  * Description: Living preview of design system primitives, type roles, commerce states, and WooCommerce block styling. Dev/QA only — hidden from the pattern inserter.
  * Slug: aggressive-apparel/design-system-preview
- * Categories: aggressive, aggressive-apparel
+ * Categories: aggressive
  * Keywords: design system, tokens, preview, buttons, badges, woocommerce
  * Viewport Width: 1400
  * Inserter: no

@@ -3,7 +3,7 @@
  * Title: Wholesale Trade Landing
  * Description: B2B wholesale landing with pitch, benefit columns, account requirements, and an application form slot.
  * Slug: aggressive-apparel/wholesale-trade-landing
- * Categories: aggressive, aggressive-apparel, aggressive-informational, aggressive-conversion
+ * Categories: aggressive, aggressive-informational, aggressive-conversion
  * Keywords: wholesale, trade, b2b, retailers, application, bulk, dealers
  * Viewport Width: 1200
  *

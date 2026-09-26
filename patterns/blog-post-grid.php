@@ -3,7 +3,7 @@
  * Title: Blog Post Grid
  * Description: Three-column grid of recent blog posts with featured images, dates, and excerpts.
  * Slug: aggressive-apparel/blog-post-grid
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: blog, posts, grid, articles, news, editorial
  * Viewport Width: 1200
  *

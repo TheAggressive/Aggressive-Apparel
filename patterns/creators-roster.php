@@ -3,7 +3,7 @@
  * Title: Creators Roster
  * Description: Culture-forward roster of creators with cover portraits, roles, and shop-their-picks links. Not a corporate team grid.
  * Slug: aggressive-apparel/creators-roster
- * Categories: aggressive, aggressive-apparel, aggressive-drops, aggressive-social-proof, aggressive-informational
+ * Categories: aggressive, aggressive-drops, aggressive-social-proof, aggressive-informational
  * Keywords: creators, roster, athletes, skaters, culture, streetwear, collaborators
  * Viewport Width: 1400
  *

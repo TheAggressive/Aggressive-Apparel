@@ -3,7 +3,7 @@
  * Title: Blog Post Header
  * Description: Single blog post hero header with title, date, author, reading time, and featured image.
  * Slug: aggressive-apparel/blog-post-header
- * Categories: aggressive, aggressive-apparel, aggressive-informational
+ * Categories: aggressive, aggressive-informational
  * Keywords: blog, post, header, hero, article, author, date
  * Viewport Width: 1400
  *

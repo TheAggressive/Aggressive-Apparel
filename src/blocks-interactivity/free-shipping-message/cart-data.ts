@@ -4,24 +4,48 @@
  * @package Aggressive_Apparel
  */
 
+/** Store API cart extension namespace (mirrors Free_Shipping::STORE_API_NAMESPACE). */
+export const FREE_SHIPPING_EXTENSION = 'aggressive-apparel/free-shipping';
+
 export interface CartTotals {
   total_items: string;
   currency_minor_unit?: number;
   currency_prefix?: string;
   currency_suffix?: string;
+  currency_decimal_separator?: string;
+  currency_thousand_separator?: string;
+}
+
+/**
+ * Customer-specific free-shipping data from the theme's cart extension.
+ * Amounts are Store API minor units in the active currency.
+ */
+export interface FreeShippingExtension {
+  threshold: number;
+  subtotal: number;
+  rate: number;
 }
 
 export interface CartResponse {
   totals?: CartTotals;
+  extensions?: {
+    [FREE_SHIPPING_EXTENSION]?: FreeShippingExtension;
+  };
 }
 
-export interface ParsedCartTotals {
-  cartTotal: number;
-  remaining: number;
-  complete: boolean;
+export interface CurrencyFormat {
   currencyMinorUnit: number;
   currencyPrefix: string;
   currencySuffix: string;
+  currencyDecimalSeparator: string;
+  currencyThousandSeparator: string;
+}
+
+export interface ParsedCartTotals extends CurrencyFormat {
+  threshold: number;
+  cartTotal: number;
+  remaining: number;
+  complete: boolean;
 }
 
 export interface FreeShippingMessageI18n {
@@ -36,12 +60,9 @@ export interface FreeShippingBarI18n {
   complete: string;
 }
 
-export interface FreeShippingMessageContext {
+export interface FreeShippingMessageContext extends CurrencyFormat {
   remaining: number;
   complete: boolean;
-  currencyPrefix: string;
-  currencySuffix: string;
-  currencyMinorUnit: number;
   emphasisText: string;
   i18n: FreeShippingMessageI18n;
 }
@@ -71,9 +92,22 @@ function isDefaultEmphasis(emphasis: string): boolean {
   return emphasis.replace(/\s+/g, '').toLowerCase() === 'freeshipping';
 }
 
-function formatRemainingAmount(ctx: FreeShippingMessageContext): string {
-  const amount = ctx.remaining.toFixed(ctx.currencyMinorUnit);
-  return `${ctx.currencyPrefix}${amount}${ctx.currencySuffix}`;
+/**
+ * Format an amount with the currency's symbol position and separators.
+ */
+export function formatMoney(amount: number, format: CurrencyFormat): string {
+  const [integer, fraction] = amount
+    .toFixed(format.currencyMinorUnit)
+    .split('.');
+  const grouped = integer.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    format.currencyThousandSeparator
+  );
+  const number = fraction
+    ? `${grouped}${format.currencyDecimalSeparator}${fraction}`
+    : grouped;
+
+  return `${format.currencyPrefix}${number}${format.currencySuffix}`;
 }
 
 /**
@@ -93,7 +127,7 @@ export function formatFreeShippingMessage(
     return interpolateI18n(i18n.unlockedCustom, emphasis);
   }
 
-  const amount = formatRemainingAmount(ctx);
+  const amount = formatMoney(ctx.remaining, ctx);
 
   if (isDefaultEmphasis(emphasis)) {
     return interpolateI18n(i18n.progressDefault, amount);
@@ -103,16 +137,23 @@ export function formatFreeShippingMessage(
 }
 
 /**
- * Parse Store API cart totals against a free-shipping threshold.
+ * Parse a Store API cart response into free-shipping progress.
+ *
+ * The theme's cart extension carries the customer's zone threshold and the
+ * subtotal WooCommerce actually tests, both in the active currency. Without
+ * it (extension unavailable) the server-rendered threshold and the raw items
+ * total are used.
+ *
+ * @param cart            Store API cart response.
+ * @param threshold       Server-rendered threshold (fallback).
+ * @param fallback        Server-rendered currency format (fallback).
+ * @param customThreshold Block override in store currency; 0 when unset.
  */
 export function parseCartTotals(
   cart: CartResponse,
   threshold: number,
-  fallback: {
-    currencyMinorUnit: number;
-    currencyPrefix: string;
-    currencySuffix: string;
-  }
+  fallback: CurrencyFormat,
+  customThreshold = 0
 ): ParsedCartTotals | null {
   const totals = cart?.totals;
   if (!totals || totals.total_items == null || totals.total_items === '') {
@@ -121,15 +162,33 @@ export function parseCartTotals(
 
   const minorUnit = totals.currency_minor_unit ?? fallback.currencyMinorUnit;
   const divisor = Math.pow(10, minorUnit);
-  const cartTotal = parseInt(totals.total_items, 10) / divisor;
-  const remaining = Math.max(0, threshold - cartTotal);
+  const extension = cart.extensions?.[FREE_SHIPPING_EXTENSION];
+
+  let cartTotal = parseInt(totals.total_items, 10) / divisor;
+  let resolvedThreshold = threshold;
+
+  if (extension) {
+    cartTotal = extension.subtotal / divisor;
+    resolvedThreshold =
+      customThreshold > 0
+        ? Math.round(customThreshold * extension.rate * divisor) / divisor
+        : extension.threshold / divisor;
+  }
+
+  const remaining =
+    resolvedThreshold > 0 ? Math.max(0, resolvedThreshold - cartTotal) : 0;
 
   return {
+    threshold: resolvedThreshold,
     cartTotal,
     remaining,
-    complete: remaining <= 0,
+    complete: resolvedThreshold > 0 && remaining <= 0,
     currencyMinorUnit: minorUnit,
     currencyPrefix: totals.currency_prefix ?? fallback.currencyPrefix,
     currencySuffix: totals.currency_suffix ?? fallback.currencySuffix,
+    currencyDecimalSeparator:
+      totals.currency_decimal_separator ?? fallback.currencyDecimalSeparator,
+    currencyThousandSeparator:
+      totals.currency_thousand_separator ?? fallback.currencyThousandSeparator,
   };
 }

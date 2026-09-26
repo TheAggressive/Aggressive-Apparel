@@ -10,12 +10,15 @@ import { withScope } from '@wordpress/interactivity';
 import {
   parseCartTotals,
   type CartResponse,
+  type CurrencyFormat,
   type FreeShippingMessageContext,
   type FreeShippingBarI18n,
+  type ParsedCartTotals,
 } from './cart-data';
 
 export type {
   CartResponse,
+  CurrencyFormat,
   ParsedCartTotals,
   FreeShippingMessageContext,
   FreeShippingMessageI18n,
@@ -24,26 +27,27 @@ export type {
 
 export {
   parseCartTotals,
+  formatMoney,
   formatFreeShippingMessage,
   interpolateI18n,
 } from './cart-data';
 
+/** `threshold` 0 = no free shipping in this customer's zone (block hidden). */
 export interface FreeShippingCartContext extends FreeShippingMessageContext {
   threshold: number;
+  customThreshold: number;
   cartTotal: number;
   restBase: string;
 }
 
-export interface FreeShippingBarContext {
+export interface FreeShippingBarContext extends CurrencyFormat {
   threshold: number;
+  customThreshold: number;
   cartTotal: number;
   percent: number;
   remaining: number;
   complete: boolean;
   restBase: string;
-  currencyPrefix: string;
-  currencySuffix: string;
-  currencyMinorUnit: number;
   i18n: FreeShippingBarI18n;
 }
 
@@ -275,32 +279,45 @@ function subscribeCartRefresh(
 }
 
 /**
+ * Copy parsed progress onto a block context (shared by both blocks).
+ */
+function applyParsedTotals(
+  ctx: FreeShippingCartContext | FreeShippingBarContext,
+  parsed: ParsedCartTotals
+): void {
+  ctx.threshold = parsed.threshold;
+  ctx.cartTotal = parsed.cartTotal;
+  ctx.remaining = parsed.remaining;
+  ctx.complete = parsed.complete;
+  ctx.currencyMinorUnit = parsed.currencyMinorUnit;
+  ctx.currencyPrefix = parsed.currencyPrefix;
+  ctx.currencySuffix = parsed.currencySuffix;
+  ctx.currencyDecimalSeparator = parsed.currencyDecimalSeparator;
+  ctx.currencyThousandSeparator = parsed.currencyThousandSeparator;
+}
+
+function parseForContext(
+  cart: CartResponse,
+  ctx: FreeShippingCartContext | FreeShippingBarContext
+): ParsedCartTotals | null {
+  return parseCartTotals(cart, ctx.threshold, ctx, ctx.customThreshold);
+}
+
+/**
  * Subscribe to cart changes and refresh free-shipping message context.
+ *
+ * Always subscribes, even when the server rendered a zero threshold: the
+ * cart response is what decides this customer's threshold, and a cached page
+ * may carry another visitor's zone.
  */
 export function subscribeFreeShippingCartRefresh(
   ctx: FreeShippingCartContext
 ): () => void {
-  if (ctx.threshold <= 0) {
-    return () => {};
-  }
-
   const refresh = withScope((cart: CartResponse) => {
-    const parsed = parseCartTotals(cart, ctx.threshold, {
-      currencyMinorUnit: ctx.currencyMinorUnit,
-      currencyPrefix: ctx.currencyPrefix,
-      currencySuffix: ctx.currencySuffix,
-    });
-
-    if (!parsed) {
-      return;
+    const parsed = parseForContext(cart, ctx);
+    if (parsed) {
+      applyParsedTotals(ctx, parsed);
     }
-
-    ctx.currencyMinorUnit = parsed.currencyMinorUnit;
-    ctx.currencyPrefix = parsed.currencyPrefix;
-    ctx.currencySuffix = parsed.currencySuffix;
-    ctx.cartTotal = parsed.cartTotal;
-    ctx.remaining = parsed.remaining;
-    ctx.complete = parsed.complete;
   });
 
   return subscribeCartRefresh(ctx.restBase, refresh);
@@ -312,25 +329,17 @@ export function subscribeFreeShippingCartRefresh(
 export function subscribeFreeShippingBarCartRefresh(
   ctx: FreeShippingBarContext
 ): () => void {
-  if (ctx.threshold <= 0) {
-    return () => {};
-  }
-
   const refresh = withScope((cart: CartResponse) => {
-    const parsed = parseCartTotals(cart, ctx.threshold, {
-      currencyMinorUnit: ctx.currencyMinorUnit ?? 2,
-      currencyPrefix: ctx.currencyPrefix ?? '$',
-      currencySuffix: ctx.currencySuffix ?? '',
-    });
-
+    const parsed = parseForContext(cart, ctx);
     if (!parsed) {
       return;
     }
 
-    ctx.cartTotal = parsed.cartTotal;
-    ctx.remaining = parsed.remaining;
-    ctx.complete = parsed.complete;
-    ctx.percent = Math.min(100, (parsed.cartTotal / ctx.threshold) * 100);
+    applyParsedTotals(ctx, parsed);
+    ctx.percent =
+      parsed.threshold > 0
+        ? Math.min(100, (parsed.cartTotal / parsed.threshold) * 100)
+        : 0;
   });
 
   return subscribeCartRefresh(ctx.restBase, refresh);

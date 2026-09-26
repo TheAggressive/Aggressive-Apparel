@@ -44,6 +44,43 @@ geo, or membership value is not. Nonces baked into cached HTML are a known,
 separate WP-wide staleness class (12h tick) — handle via an uncached refresh, not
 by baking them longer.
 
+**International stores:** the page cache must vary on the active currency
+(e.g. WooPayments' currency cookie) and on geolocation (WooCommerce → General →
+_Geolocate (with page caching support)_). Product prices need this anyway, and
+the free-shipping blocks rely on it for empty-cart visitors (below).
+
+## Free shipping (international)
+
+`free-shipping-bar` / `free-shipping-message` show progress toward the
+**customer's** free-shipping minimum, in the **active currency**:
+
+- **Rules** — `Free_Shipping_Rules` matches the customer's shipping package to a
+  zone and reads each free-shipping method's `min_amount` property (the value
+  WooCommerce tests, which multi-currency plugins convert). "Minimum AND coupon"
+  counts only once a free-shipping coupon is applied.
+- **Delivery** — server HTML carries a first-paint value; the live one rides on
+  the Store API cart response (`extensions["aggressive-apparel/free-shipping"]`:
+  `threshold`/`subtotal` in minor units, `rate`, `unlocked`). A zone without
+  free shipping renders the block `hidden` (never absent), so a cached page can
+  reveal it client-side.
+- **No request for empty carts** — without the `woocommerce_items_in_cart`
+  cookie the cart side is zero and the server-rendered threshold is trusted
+  (hence the cache-variation requirement above). Any cart mutation refetches.
+- **Currency** — WooPayments multi-currency is supported built in. Other
+  switchers: convert `min_amount` via `woocommerce_shipping_zone_shipping_methods`
+  (as WooPayments does) and supply the rate for store-currency overrides through
+  `aggressive_apparel_free_shipping_currency_rate`.
+
+**Upgrade contract.** Whether free shipping is unlocked is always WooCommerce's
+own verdict (`WC_Shipping_Free_Shipping::is_available()`, filters included) —
+the theme never re-implements it. Only the displayed amount is derived, and
+`TestFreeShipping`'s parity cases assert it agrees with that verdict at the
+boundaries (discounts, `ignore_discounts`, tax-inclusive display, rounding).
+WooCommerce upgrades go through the pinned version in `bin/ci/.wp-env.json`, so
+a behaviour change fails CI on the pin bump rather than drifting in production.
+WooPayments is not in CI: its rate is shape-checked and an unreadable rate or an
+unconverted minimum logs a `WP_DEBUG` diagnostic instead of guessing.
+
 ## Color Swatch System
 
 The theme includes a comprehensive color attribute system for product variations:

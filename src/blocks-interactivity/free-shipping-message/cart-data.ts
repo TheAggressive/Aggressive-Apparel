@@ -18,12 +18,14 @@ export interface CartTotals {
 
 /**
  * Customer-specific free-shipping data from the theme's cart extension.
- * Amounts are Store API minor units in the active currency.
+ * Amounts are Store API minor units in the active currency; `unlocked` is
+ * WooCommerce's own verdict that free shipping applies to this cart.
  */
 export interface FreeShippingExtension {
   threshold: number;
   subtotal: number;
   rate: number;
+  unlocked?: boolean;
 }
 
 export interface CartResponse {
@@ -175,14 +177,25 @@ export function parseCartTotals(
         : extension.threshold / divisor;
   }
 
+  // With the extension, a zone threshold completes only on WooCommerce's
+  // verdict; a store-currency custom threshold (free shipping configured
+  // outside WooCommerce's method) also completes when reached.
+  let complete = resolvedThreshold > 0 && cartTotal >= resolvedThreshold;
+  if (extension && resolvedThreshold > 0) {
+    complete = extension.unlocked === true || (customThreshold > 0 && complete);
+  }
+
+  // Never claim "0.00 away" while not complete.
   const remaining =
-    resolvedThreshold > 0 ? Math.max(0, resolvedThreshold - cartTotal) : 0;
+    resolvedThreshold > 0 && !complete
+      ? Math.max(1 / divisor, resolvedThreshold - cartTotal)
+      : 0;
 
   return {
     threshold: resolvedThreshold,
     cartTotal,
     remaining,
-    complete: resolvedThreshold > 0 && remaining <= 0,
+    complete,
     currencyMinorUnit: minorUnit,
     currencyPrefix: totals.currency_prefix ?? fallback.currencyPrefix,
     currencySuffix: totals.currency_suffix ?? fallback.currencySuffix,
@@ -191,4 +204,40 @@ export function parseCartTotals(
     currencyThousandSeparator:
       totals.currency_thousand_separator ?? fallback.currencyThousandSeparator,
   };
+}
+
+/**
+ * Progress for a cart known to be empty, keeping the rendered threshold.
+ */
+export function emptyCartTotals(
+  threshold: number,
+  format: CurrencyFormat
+): ParsedCartTotals {
+  return {
+    ...pickCurrencyFormat(format),
+    threshold,
+    cartTotal: 0,
+    remaining: Math.max(0, threshold),
+    complete: false,
+  };
+}
+
+function pickCurrencyFormat(format: CurrencyFormat): CurrencyFormat {
+  return {
+    currencyMinorUnit: format.currencyMinorUnit,
+    currencyPrefix: format.currencyPrefix,
+    currencySuffix: format.currencySuffix,
+    currencyDecimalSeparator: format.currencyDecimalSeparator,
+    currencyThousandSeparator: format.currencyThousandSeparator,
+  };
+}
+
+/**
+ * Whether WooCommerce reports a non-empty cart.
+ *
+ * WC sets `woocommerce_items_in_cart` only while the cart holds items, so its
+ * absence authoritatively means "empty" for anonymous visitors.
+ */
+export function hasCartItemsCookie(cookie: string): boolean {
+  return /(?:^|;\s*)woocommerce_items_in_cart=/.test(cookie);
 }

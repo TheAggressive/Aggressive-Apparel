@@ -8,6 +8,8 @@
 
 import { withScope } from '@wordpress/interactivity';
 import {
+  emptyCartTotals,
+  hasCartItemsCookie,
   parseCartTotals,
   type CartResponse,
   type CurrencyFormat,
@@ -26,6 +28,8 @@ export type {
 } from './cart-data';
 
 export {
+  emptyCartTotals,
+  hasCartItemsCookie,
   parseCartTotals,
   formatMoney,
   formatFreeShippingMessage,
@@ -67,12 +71,15 @@ const CART_EVENTS = [
 
 const REFRESH_DEBOUNCE_MS = 150;
 
-type CartRefreshHandler = (cart: CartResponse) => void;
+/** Receives the cart, or null when the cart is known to be empty. */
+type CartRefreshHandler = (cart: CartResponse | null) => void;
 
 const subscribers = new Set<CartRefreshHandler>();
 let listenersBound = false;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-let isInternalCartFetch = false;
+// Monotonic id of the latest cart fetch; older responses are discarded so a
+// slow pre-mutation response can never overwrite a newer cart.
+let latestFetchId = 0;
 let hubRestBase = '';
 
 function resolveRequestUrl(input: RequestInfo | URL): string {
@@ -92,7 +99,7 @@ function resolveRequestMethod(
   if (init?.method) {
     return init.method.toUpperCase();
   }
-  if (input instanceof Request) {
+  if (typeof Request !== 'undefined' && input instanceof Request) {
     return input.method.toUpperCase();
   }
   return 'GET';
@@ -126,14 +133,36 @@ function refreshSubscribers(): void {
     return;
   }
 
+  const fetchId = ++latestFetchId;
+
   void fetchCartTotals(hubRestBase).then(cart => {
-    if (!cart) {
+    if (!cart || fetchId !== latestFetchId) {
       return;
     }
 
     subscribers.forEach(handler => {
       handler(cart);
     });
+  });
+}
+
+/**
+ * Sync from the cart only when it can hold something to correct.
+ *
+ * An empty cart (no items cookie) needs no request: the cart side is zero and
+ * the server-rendered threshold is trusted. A page cache must already vary on
+ * currency and geolocation for product prices, so that threshold is as
+ * correct as the prices around it. This keeps anonymous page views off the
+ * uncached Store API. Mutations always fetch (see the patched fetch/XHR).
+ */
+function syncSubscribers(): void {
+  if (hasCartItemsCookie(document.cookie)) {
+    scheduleCartRefresh();
+    return;
+  }
+
+  subscribers.forEach(handler => {
+    handler(null);
   });
 }
 
@@ -157,7 +186,10 @@ function patchFetchForCartMutations(): void {
   ): Promise<Response> => {
     const responsePromise = nativeFetch(input, init);
 
-    if (!isInternalCartFetch && isCartMutationRequest(input, init)) {
+    // The hub's own cart read is a GET, which is never a mutation — so no
+    // "internal fetch" flag is needed (a global one would swallow real
+    // mutations that overlap it).
+    if (isCartMutationRequest(input, init)) {
       void responsePromise.then(
         response => {
           if (response.ok) {
@@ -232,7 +264,7 @@ function bindGlobalCartListeners(): void {
 
   window.addEventListener('pageshow', event => {
     if (event.persisted) {
-      scheduleCartRefresh();
+      syncSubscribers();
     }
   });
 
@@ -241,8 +273,6 @@ function bindGlobalCartListeners(): void {
 }
 
 function fetchCartTotals(restBase: string): Promise<CartResponse | null> {
-  isInternalCartFetch = true;
-
   return fetch(`${restBase}/cart`)
     .then(response => {
       if (!response.ok) {
@@ -250,10 +280,7 @@ function fetchCartTotals(restBase: string): Promise<CartResponse | null> {
       }
       return response.json() as Promise<CartResponse>;
     })
-    .catch(() => null)
-    .finally(() => {
-      isInternalCartFetch = false;
-    });
+    .catch(() => null);
 }
 
 function subscribeCartRefresh(
@@ -268,10 +295,14 @@ function subscribeCartRefresh(
 
   subscribers.add(handler);
 
-  // Initial sync: the server-rendered amount can be stale (page caching,
+  // Initial sync: the server-rendered cart total can be stale (page caching,
   // history navigation). Debounced, so every instance hydrating in the same
-  // tick still results in a single cart request.
-  scheduleCartRefresh();
+  // tick still results in a single cart request — and none for empty carts.
+  if (hasCartItemsCookie(document.cookie)) {
+    scheduleCartRefresh();
+  } else {
+    handler(null);
+  }
 
   return () => {
     subscribers.delete(handler);
@@ -297,23 +328,27 @@ function applyParsedTotals(
 }
 
 function parseForContext(
-  cart: CartResponse,
+  cart: CartResponse | null,
   ctx: FreeShippingCartContext | FreeShippingBarContext
 ): ParsedCartTotals | null {
+  if (cart === null) {
+    return emptyCartTotals(ctx.threshold, ctx);
+  }
+
   return parseCartTotals(cart, ctx.threshold, ctx, ctx.customThreshold);
 }
 
 /**
  * Subscribe to cart changes and refresh free-shipping message context.
  *
- * Always subscribes, even when the server rendered a zero threshold: the
- * cart response is what decides this customer's threshold, and a cached page
- * may carry another visitor's zone.
+ * Always subscribes, even when the server rendered a zero threshold: once
+ * the cart holds items or the shipping address changes, the cart response
+ * decides this customer's threshold and can reveal a hidden block.
  */
 export function subscribeFreeShippingCartRefresh(
   ctx: FreeShippingCartContext
 ): () => void {
-  const refresh = withScope((cart: CartResponse) => {
+  const refresh = withScope((cart: CartResponse | null) => {
     const parsed = parseForContext(cart, ctx);
     if (parsed) {
       applyParsedTotals(ctx, parsed);
@@ -329,15 +364,16 @@ export function subscribeFreeShippingCartRefresh(
 export function subscribeFreeShippingBarCartRefresh(
   ctx: FreeShippingBarContext
 ): () => void {
-  const refresh = withScope((cart: CartResponse) => {
+  const refresh = withScope((cart: CartResponse | null) => {
     const parsed = parseForContext(cart, ctx);
     if (!parsed) {
       return;
     }
 
     applyParsedTotals(ctx, parsed);
-    ctx.percent =
-      parsed.threshold > 0
+    ctx.percent = parsed.complete
+      ? 100
+      : parsed.threshold > 0
         ? Math.min(100, (parsed.cartTotal / parsed.threshold) * 100)
         : 0;
   });

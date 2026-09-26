@@ -13,13 +13,12 @@ namespace Aggressive_Apparel\WooCommerce;
 use Aggressive_Apparel\Core\Cache_Helper;
 
 /**
- * Reads WooCommerce free-shipping settings and cart progress.
+ * Free-shipping progress for the blocks.
  *
- * Thresholds are per customer: the shipping zone matching the customer's
- * location decides the amount, in the customer's active currency. Server
- * HTML only carries a first-paint guess (a full-page cache serves the priming
- * visitor's copy), so the live value rides on the Store API cart response and
- * the blocks rehydrate from it.
+ * Thresholds are per customer (zone + active currency), resolved by
+ * Free_Shipping_Rules. Server HTML only carries a first-paint value (a
+ * full-page cache serves the priming visitor's copy), so the live value rides
+ * on the Store API cart response and the blocks rehydrate from it.
  */
 class Free_Shipping {
 
@@ -52,13 +51,6 @@ class Free_Shipping {
 	private static ?float $cached_threshold = null;
 
 	/**
-	 * Request-local memo of per-zone rules, keyed by "zone id|currency".
-	 *
-	 * @var array<string, array{threshold: float, ignore_discounts: bool}>
-	 */
-	private static array $zone_rules = array();
-
-	/**
 	 * Register shipping-settings invalidation hooks and the cart extension.
 	 *
 	 * Called from Bootstrap when WooCommerce is active.
@@ -82,15 +74,15 @@ class Free_Shipping {
 	 */
 	public static function flush_threshold_cache(): void {
 		self::$cached_threshold = null;
-		self::$zone_rules       = array();
+		Free_Shipping_Rules::flush();
 		delete_transient( self::TRANSIENT_KEY );
 	}
 
 	/**
 	 * Expose the customer's threshold on the Store API `cart` endpoint.
 	 *
-	 * The free-shipping blocks already fetch the cart on load, so this costs
-	 * no extra request and corrects cached first-paint HTML.
+	 * The free-shipping blocks already fetch the cart when it holds items, so
+	 * this costs no extra request and corrects cached first-paint HTML.
 	 *
 	 * @return void
 	 */
@@ -104,20 +96,22 @@ class Free_Shipping {
 	/**
 	 * Cart extension payload, in Store API minor units.
 	 *
+	 * `unlocked` is WooCommerce's own verdict that free shipping applies.
 	 * `rate` converts store-currency amounts (block custom thresholds) to the
 	 * active currency client-side, since the cart request can't know which
 	 * block instances are on the page.
 	 *
-	 * @return array{threshold: int, subtotal: int, rate: float}
+	 * @return array{threshold: int, subtotal: int, rate: float, unlocked: bool}
 	 */
 	public static function get_store_api_cart_data(): array {
-		$rule   = self::get_customer_rule();
+		$state  = Free_Shipping_Rules::resolve();
 		$factor = 10 ** wc_get_price_decimals();
 
 		return array(
-			'threshold' => (int) round( $rule['threshold'] * $factor ),
-			'subtotal'  => (int) round( self::get_qualifying_subtotal( $rule['ignore_discounts'] ) * $factor ),
-			'rate'      => self::get_currency_rate(),
+			'threshold' => (int) round( $state['threshold'] * $factor ),
+			'subtotal'  => (int) round( $state['subtotal'] * $factor ),
+			'rate'      => Free_Shipping_Rules::get_currency_rate(),
+			'unlocked'  => $state['complete'],
 		);
 	}
 
@@ -128,7 +122,7 @@ class Free_Shipping {
 	 * @return float Threshold amount, or 0 when the customer's zone has none.
 	 */
 	public static function get_threshold( float $custom_threshold = 0.0 ): float {
-		return self::get_customer_rule( $custom_threshold )['threshold'];
+		return Free_Shipping_Rules::resolve( $custom_threshold )['threshold'];
 	}
 
 	/**
@@ -142,7 +136,7 @@ class Free_Shipping {
 	 * @return bool
 	 */
 	public static function is_offered( float $custom_threshold = 0.0 ): bool {
-		if ( $custom_threshold > 0 || self::get_filtered_threshold() > 0 ) {
+		if ( $custom_threshold > 0 || Free_Shipping_Rules::get_filtered_threshold() > 0 ) {
 			return true;
 		}
 
@@ -155,7 +149,7 @@ class Free_Shipping {
 			$detected = Cache_Helper::remember(
 				self::TRANSIENT_KEY,
 				self::CACHE_TTL,
-				static fn(): float => self::detect_threshold_from_zones(),
+				static fn(): float => Free_Shipping_Rules::get_lowest_configured_minimum(),
 				static fn( $cached ): bool => is_numeric( $cached )
 			);
 
@@ -166,235 +160,12 @@ class Free_Shipping {
 	}
 
 	/**
-	 * Resolve the threshold and discount rule for the current customer.
-	 *
-	 * Precedence: block custom threshold, then the filter, then the customer's
-	 * zone. Zone amounts come from `$method->min_amount` — the value WooCommerce
-	 * itself tests in WC_Shipping_Free_Shipping::is_available(), which
-	 * multi-currency plugins convert — so "unlocked" matches checkout exactly.
-	 *
-	 * @param float $custom_threshold Block override in store currency.
-	 * @return array{threshold: float, ignore_discounts: bool}
-	 */
-	public static function get_customer_rule( float $custom_threshold = 0.0 ): array {
-		$zone_rule = self::get_zone_rule();
-
-		if ( $custom_threshold <= 0 ) {
-			$custom_threshold = self::get_filtered_threshold();
-		}
-
-		if ( $custom_threshold > 0 ) {
-			return array(
-				'threshold'        => self::to_active_currency( $custom_threshold ),
-				'ignore_discounts' => $zone_rule['ignore_discounts'],
-			);
-		}
-
-		return $zone_rule;
-	}
-
-	/**
-	 * Store-currency → active-currency multiplier.
-	 *
-	 * Supports WooPayments multi-currency out of the box; other currency
-	 * switchers hook `aggressive_apparel_free_shipping_currency_rate`.
-	 *
-	 * @return float
-	 */
-	public static function get_currency_rate(): float {
-		$rate = 1.0;
-
-		if ( function_exists( 'WC_Payments_Multi_Currency' ) ) {
-			$multi_currency = \WC_Payments_Multi_Currency();
-			$currency       = is_object( $multi_currency ) && method_exists( $multi_currency, 'get_selected_currency' )
-				? $multi_currency->get_selected_currency()
-				: null;
-
-			if ( is_object( $currency ) && method_exists( $currency, 'get_rate' ) ) {
-				$rate = (float) $currency->get_rate();
-			}
-		}
-
-		/**
-		 * Filter the store-currency → active-currency rate for free-shipping amounts.
-		 *
-		 * @param float $rate Multiplier; 1.0 when no currency switcher is active.
-		 */
-		$rate = (float) apply_filters( 'aggressive_apparel_free_shipping_currency_rate', $rate );
-
-		return $rate > 0 ? $rate : 1.0;
-	}
-
-	/**
-	 * Global threshold override from the filter (store currency).
-	 *
-	 * @return float
-	 */
-	private static function get_filtered_threshold(): float {
-		return max( 0.0, (float) apply_filters( 'aggressive_apparel_free_shipping_threshold', 0.0 ) );
-	}
-
-	/**
-	 * Convert a store-currency amount to the active currency.
-	 *
-	 * @param float $amount Store-currency amount.
-	 * @return float
-	 */
-	private static function to_active_currency( float $amount ): float {
-		return round( $amount * self::get_currency_rate(), wc_get_price_decimals() );
-	}
-
-	/**
-	 * Free-shipping rule of the zone matching the customer's shipping location.
-	 *
-	 * @return array{threshold: float, ignore_discounts: bool}
-	 */
-	private static function get_zone_rule(): array {
-		$none = array(
-			'threshold'        => 0.0,
-			'ignore_discounts' => false,
-		);
-
-		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
-			return $none;
-		}
-
-		$zone     = \WC_Shipping_Zones::get_zone_matching_package( array( 'destination' => self::get_customer_destination() ) );
-		$currency = function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : '';
-		$memo_key = $zone->get_id() . '|' . $currency;
-
-		if ( isset( self::$zone_rules[ $memo_key ] ) ) {
-			return self::$zone_rules[ $memo_key ];
-		}
-
-		$rule = $none;
-		foreach ( $zone->get_shipping_methods( true ) as $method ) {
-			if ( 'free_shipping' !== $method->id || ! self::requires_min_amount( $method ) ) {
-				continue;
-			}
-
-			$amount = property_exists( $method, 'min_amount' ) ? (float) $method->min_amount : 0.0;
-			if ( $amount > 0 && ( 0.0 === $rule['threshold'] || $amount < $rule['threshold'] ) ) {
-				$rule = array(
-					'threshold'        => $amount,
-					'ignore_discounts' => property_exists( $method, 'ignore_discounts' ) && 'yes' === $method->ignore_discounts,
-				);
-			}
-		}
-
-		self::$zone_rules[ $memo_key ] = $rule;
-		return $rule;
-	}
-
-	/**
-	 * Customer shipping destination, falling back to the store default location
-	 * (which is geolocated when WooCommerce is configured to).
-	 *
-	 * @return array{country: string, state: string, postcode: string, city: string}
-	 */
-	private static function get_customer_destination(): array {
-		$customer = function_exists( 'WC' ) ? \WC()->customer : null;
-
-		if ( $customer instanceof \WC_Customer && '' !== $customer->get_shipping_country() ) {
-			return array(
-				'country'  => $customer->get_shipping_country(),
-				'state'    => $customer->get_shipping_state(),
-				'postcode' => $customer->get_shipping_postcode(),
-				'city'     => $customer->get_shipping_city(),
-			);
-		}
-
-		$default = function_exists( 'wc_get_customer_default_location' ) ? wc_get_customer_default_location() : array();
-
-		return array(
-			'country'  => (string) ( $default['country'] ?? '' ),
-			'state'    => (string) ( $default['state'] ?? '' ),
-			'postcode' => '',
-			'city'     => '',
-		);
-	}
-
-	/**
-	 * Cart amount WooCommerce compares against the minimum.
-	 *
-	 * Mirrors WC_Shipping_Free_Shipping::is_available(): displayed subtotal
-	 * (tax-inclusive when prices display with tax), less discounts unless the
-	 * method ignores them.
-	 *
-	 * @param bool $ignore_discounts Whether the zone's method ignores coupons.
-	 * @return float
-	 */
-	private static function get_qualifying_subtotal( bool $ignore_discounts ): float {
-		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
-			return 0.0;
-		}
-
-		$cart  = \WC()->cart;
-		$total = (float) $cart->get_displayed_subtotal();
-
-		if ( ! $ignore_discounts ) {
-			$total -= (float) $cart->get_discount_total();
-			if ( $cart->display_prices_including_tax() ) {
-				$total -= (float) $cart->get_discount_tax();
-			}
-		}
-
-		return round( $total, wc_get_price_decimals() );
-	}
-
-	/**
-	 * Whether a free-shipping method is gated on a minimum order amount.
-	 *
-	 * @param \WC_Shipping_Method $method Shipping method.
-	 * @return bool
-	 */
-	private static function requires_min_amount( \WC_Shipping_Method $method ): bool {
-		$requires = property_exists( $method, 'requires' ) ? $method->requires : $method->get_option( 'requires', '' );
-
-		return in_array( $requires, array( 'min_amount', 'either', 'both' ), true );
-	}
-
-	/**
-	 * Walk WooCommerce shipping zones for the lowest free-shipping min amount.
-	 *
-	 * Raw store-currency options; only used to decide whether free shipping
-	 * is offered anywhere, never shown to a customer.
-	 *
-	 * @return float
-	 */
-	private static function detect_threshold_from_zones(): float {
-		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
-			return 0.0;
-		}
-
-		$zones   = \WC_Shipping_Zones::get_zones();
-		$zones[] = array( 'zone_id' => 0 );
-		$min     = 0.0;
-
-		foreach ( $zones as $zone_data ) {
-			$zone    = new \WC_Shipping_Zone( $zone_data['zone_id'] );
-			$methods = $zone->get_shipping_methods( true );
-
-			foreach ( $methods as $method ) {
-				if ( 'free_shipping' !== $method->id || ! self::requires_min_amount( $method ) ) {
-					continue;
-				}
-
-				$amount = (float) $method->get_option( 'min_amount', 0 );
-				if ( $amount > 0 && ( 0.0 === $min || $amount < $min ) ) {
-					$min = $amount;
-				}
-			}
-		}
-
-		return $min;
-	}
-
-	/**
 	 * Cart progress toward the customer's free-shipping threshold.
 	 *
 	 * `threshold` is 0 when free shipping is offered somewhere but not in the
 	 * customer's zone — blocks render hidden so the client can reveal them.
+	 * `complete` is WooCommerce's verdict; while it is false, at least one
+	 * minor unit is shown as remaining so the copy never claims "0.00 away".
 	 *
 	 * @param float $custom_threshold Block override in store currency; 0 uses filter/zone.
 	 * @return array{
@@ -410,28 +181,30 @@ class Free_Shipping {
 			return null;
 		}
 
-		$rule       = self::get_customer_rule( $custom_threshold );
-		$threshold  = $rule['threshold'];
-		$cart_total = self::get_qualifying_subtotal( $rule['ignore_discounts'] );
+		$state     = Free_Shipping_Rules::resolve( $custom_threshold );
+		$threshold = $state['threshold'];
+		$subtotal  = $state['subtotal'];
 
 		if ( $threshold <= 0 ) {
 			return array(
 				'threshold'  => 0.0,
-				'cart_total' => $cart_total,
+				'cart_total' => $subtotal,
 				'remaining'  => 0.0,
 				'percent'    => 0.0,
 				'complete'   => false,
 			);
 		}
 
-		$remaining = max( 0.0, $threshold - $cart_total );
+		$complete  = $state['complete'];
+		$min_unit  = 1 / ( 10 ** wc_get_price_decimals() );
+		$remaining = $complete ? 0.0 : max( $min_unit, $threshold - $subtotal );
 
 		return array(
 			'threshold'  => $threshold,
-			'cart_total' => $cart_total,
+			'cart_total' => $subtotal,
 			'remaining'  => $remaining,
-			'percent'    => min( 100.0, ( $cart_total / $threshold ) * 100 ),
-			'complete'   => $remaining <= 0,
+			'percent'    => $complete ? 100.0 : min( 100.0, ( $subtotal / $threshold ) * 100 ),
+			'complete'   => $complete,
 		);
 	}
 

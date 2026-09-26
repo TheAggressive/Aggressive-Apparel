@@ -6,6 +6,8 @@
 
 import {
   FREE_SHIPPING_EXTENSION,
+  emptyCartTotals,
+  hasCartItemsCookie,
   parseCartTotals,
   formatFreeShippingMessage,
   formatMoney,
@@ -175,6 +177,82 @@ describe('parseCartTotals', () => {
     expect(parsed?.threshold).toBe(0);
     expect(parsed?.remaining).toBe(0);
     expect(parsed?.complete).toBe(false);
+  });
+});
+
+describe('coupon unlock', () => {
+  it('completes a "minimum OR coupon" cart regardless of amount', () => {
+    const parsed = parseCartTotals(
+      {
+        totals: { total_items: '1000', currency_minor_unit: 2 },
+        extensions: {
+          [FREE_SHIPPING_EXTENSION]: {
+            threshold: 7500,
+            subtotal: 1000,
+            rate: 1,
+            unlocked: true,
+          },
+        },
+      },
+      75,
+      usd
+    );
+
+    expect(parsed?.complete).toBe(true);
+    expect(parsed?.remaining).toBe(0);
+  });
+});
+
+describe('WooCommerce verdict', () => {
+  const extensionCart = (unlocked: boolean, subtotal: number) => ({
+    totals: { total_items: String(subtotal), currency_minor_unit: 2 },
+    extensions: {
+      [FREE_SHIPPING_EXTENSION]: {
+        threshold: 10000,
+        subtotal,
+        rate: 1,
+        unlocked,
+      },
+    },
+  });
+
+  it('waits for WooCommerce even when the amount is reached', () => {
+    // e.g. a "minimum AND coupon" rule WooCommerce hasn't satisfied yet.
+    const parsed = parseCartTotals(extensionCart(false, 12000), 100, usd);
+
+    expect(parsed?.complete).toBe(false);
+    expect(parsed?.remaining).toBe(0.01);
+  });
+
+  it('completes a reached custom threshold without the verdict', () => {
+    const parsed = parseCartTotals(extensionCart(false, 6000), 100, usd, 50);
+
+    expect(parsed?.complete).toBe(true);
+    expect(parsed?.remaining).toBe(0);
+  });
+});
+
+describe('emptyCartTotals', () => {
+  it('keeps the threshold and zeroes the cart side', () => {
+    expect(emptyCartTotals(75, usd)).toEqual({
+      ...usd,
+      threshold: 75,
+      cartTotal: 0,
+      remaining: 75,
+      complete: false,
+    });
+  });
+});
+
+describe('hasCartItemsCookie', () => {
+  it('detects the WooCommerce items cookie anywhere in the jar', () => {
+    expect(hasCartItemsCookie('a=1; woocommerce_items_in_cart=1')).toBe(true);
+    expect(hasCartItemsCookie('woocommerce_items_in_cart=1')).toBe(true);
+  });
+
+  it('ignores lookalike cookie names', () => {
+    expect(hasCartItemsCookie('x_woocommerce_items_in_cart=1')).toBe(false);
+    expect(hasCartItemsCookie('')).toBe(false);
   });
 });
 

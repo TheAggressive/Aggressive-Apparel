@@ -26,8 +26,8 @@ aggressive-apparel/
 ├── parts/                    # Template parts (header, footer)
 ├── patterns/                 # Block patterns
 ├── src/                      # Source code
-│   ├── blocks/               # Static Gutenberg blocks (8, incl. 2 split-story columns)
-│   ├── blocks-interactivity/ # Interactive blocks (Interactivity API, 36 incl. 2 card-flip faces)
+│   ├── blocks/               # Theme-owned static Gutenberg blocks
+│   ├── blocks-interactivity/ # Theme-owned Interactivity API blocks
 │   ├── interactivity/        # Shared frontend modules (filters, quick view, nav stores)
 │   ├── icons/                # Brand SVG sources
 │   ├── scripts/              # Theme JavaScript/TypeScript
@@ -75,10 +75,9 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 | ------------------------- | ------------------------- |
 | `aggressive-apparel-logo` | Brand logo component      |
 | `dark-mode-toggle`        | Light/dark theme switcher |
-| `copyright`               | Footer copyright line     |
 | `icon`                    | Brand / UI icon picker    |
 | `product-rating`          | Product rating display    |
-| `split-story`             | Split editorial layout    |
+| `size-guide`              | Size guide modal          |
 
 **Interactive Blocks** (`src/blocks-interactivity/`) — highlights:
 
@@ -87,11 +86,7 @@ Blocks are auto-discovered from `build/blocks/` and `build/blocks-interactivity/
 | `navigation` / `navigation-panel`             | Desktop bar + mobile drawer (separate stores; see Navigation System) |
 | `nav-link`                                    | Shared leaf link                                                     |
 | `nav-submenu-*`                               | Dropdown, mega, accordion, drilldown                                 |
-| `parallax`                                    | Parallax effects                                                     |
-| `animate-on-scroll`                           | Scroll-triggered animations                                          |
 | `filter-toggle` / `filter-active-bar`         | Product filters UI (block-placed; ships own CSS)                     |
-| `hero-carousel`                               | Hero carousel                                                        |
-| `horizontal-scroll`                           | Pinned / paged / native rails (`paged` = directional snap)           |
 | `wishlist` (+ item blocks)                    | Wishlist page and heart toggle                                       |
 | `free-shipping-bar` / `free-shipping-message` | Free-shipping progress / copy                                        |
 
@@ -191,7 +186,7 @@ pnpm test:js:watch
 # End-to-end (Playwright, drives the real editor + front end)
 pnpm test:e2e:install   # one-time: download the browser (CI: installs system deps)
 pnpm test:e2e           # builds and drives the registered Studio site
-pnpm test:e2e:ci        # isolated containerized release parity
+pnpm test:e2e:ci        # pinned native release parity (no Docker)
 ```
 
 ### Test Configuration
@@ -203,11 +198,18 @@ pnpm test:e2e:ci        # isolated containerized release parity
 - Native disposable MySQL/Core fixtures for PHPUnit
 - wp-env only for CI release parity
 
-**E2E** (`tests/e2e/`) covers browser behavior unit tests can't — the card-flip
-3D flip + `inert` a11y and the split-story sticky/grid/gap layout. `global-setup.ts`
-logs in once (admin/password) and saves the session; each spec builds its block
+Reusable marketing blocks (animate-on-scroll, parallax, modal, card flip, horizontal scroll, hero carousel, ticker, split story, copyright) live in the **Aggressive Blocks** plugin (`wp-content/plugins/aggressive-blocks`).
+
+**E2E** (`tests/e2e/`) covers browser behavior unit tests can't for theme-owned
+commerce and navigation blocks. `global-setup.ts` logs in once (admin/password)
+and saves the session; each spec builds its block
 via `wp.data`, publishes, asserts on the rendered front end, and deletes the page.
-CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. (On WSL without sudo,
+CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. `ci:e2e`
+([`bin/ci/e2e.sh`](../bin/ci/e2e.sh)) needs no Docker. It installs the WordPress
+and WooCommerce versions pinned in `bin/ci/.wp-env.json` under `.cache/ci/e2e/`,
+resets the database, and serves the site with `php -S`. The database is the one
+named by `AA_E2E_DB_HOST` (the Actions MySQL service); without it, the lane starts
+a native mysqld through `bin/local/mysql.sh`. (On WSL without sudo,
 the browser deps can't install — run with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`
 and an `LD_LIBRARY_PATH` to extracted libnss3/libnspr4/libasound2 debs.)
 

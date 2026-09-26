@@ -10,7 +10,7 @@
  * @package Aggressive_Apparel
  */
 
-?><!-- wp:aggressive-apparel/parallax {"align":"full","intensity":50,"parallaxDirection":"down"} -->
+?><!-- wp:aggressive-blocks/parallax {"align":"full","intensity":50,"parallaxDirection":"down"} -->
 <!-- wp:cover {"dimRatio":60,"overlayColor":"black","isUserOverlayColor":true,"minHeight":75,"minHeightUnit":"vh","contentPosition":"center center","align":"full","isDark":true,"style":{"spacing":{"margin":{"top":"0","bottom":"0"}},"color":{"background":"var:preset|color|surface-elevated"}}} -->
 <div class="wp-block-cover alignfull is-dark has-black-overlay-color" style="background-color:var(--wp--preset--color--surface-elevated);margin-top:0;margin-bottom:0;min-height:75vh"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-60 has-background-dim"></span><div class="wp-block-cover__inner-container"><!-- wp:group {"layout":{"type":"constrained","contentSize":"800px"}} -->
 <div class="wp-block-group">
@@ -40,4 +40,4 @@
 </div>
 <!-- /wp:group --></div></div>
 <!-- /wp:cover -->
-<!-- /wp:aggressive-apparel/parallax -->
+<!-- /wp:aggressive-blocks/parallax -->

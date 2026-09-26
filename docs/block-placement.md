@@ -151,6 +151,8 @@ Size Guide, Sticky Add to Cart, Quick View, etc. are **enhancements**, not block
 
 ## Marketing & content
 
+These reusable marketing blocks are owned by the **Aggressive Blocks** plugin (`aggressive-blocks/*`). Theme patterns still place them.
+
 | Block | Placement | Notes |
 | ----- | --------- | ----- |
 | `lookbook` | Landing / collection pages | Requires media + optional hotspots with product IDs |
@@ -202,7 +204,7 @@ Two independent subsystems — do not nest a panel block inside the desktop `nav
 
 ## Copyright (footer)
 
-Place `aggressive-apparel/copyright` in the **footer template part** (already in `parts/footer.html`). Prefer the Site Editor over hardcoding a year in a paragraph.
+Place `aggressive-blocks/copyright` in the **footer template part** (already in `parts/footer.html`). Prefer the Site Editor over hardcoding a year in a paragraph.
 
 | Setting | Where |
 | ------- | ----- |

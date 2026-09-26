@@ -71,6 +71,7 @@ export const nodeVersion = readText('.node-version').trim();
 export const nodeBootstrap = readText('bin/ci/node.sh');
 export const phpLane = readText('bin/ci/php.sh');
 export const packageLane = readText('bin/ci/package.sh');
+export const e2eLane = readText('bin/ci/e2e.sh');
 export const composerBootstrap = readText('bin/ci/install-composer.sh');
 export const verifyScript = readText('bin/ci/verify.sh');
 export const verifyFastScript = readText('bin/local/verify-fast.sh');

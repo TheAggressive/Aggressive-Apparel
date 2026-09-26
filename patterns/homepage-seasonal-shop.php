@@ -72,7 +72,7 @@
 	<p class="has-text-align-center has-foreground-muted-color has-text-color has-medium-font-size" style="margin-top:var(--wp--preset--spacing--4);margin-bottom:var(--wp--preset--spacing--14)"><?php echo esc_html__( 'Curated paths into the season\'s essentials.', 'aggressive-apparel' ); ?></p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
+	<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|6"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column -->
@@ -156,7 +156,7 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
-	<!-- /wp:aggressive-apparel/animate-on-scroll -->
+	<!-- /wp:aggressive-blocks/animate-on-scroll -->
 </div>
 <!-- /wp:group -->
 

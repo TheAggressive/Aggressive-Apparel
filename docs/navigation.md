@@ -101,10 +101,11 @@ All full-screen modals and overlays **must** follow this consistent pattern:
 
 ## Block Debug Tooling (parallax / animate-on-scroll)
 
-Both blocks share one debug implementation in `src/blocks-interactivity/debug-shared/`
+Both blocks now live in the Aggressive Blocks plugin and share one debug
+implementation in `plugins/aggressive-blocks/src/blocks-interactivity/debug-shared/`
 (controller, panel, overlays, probe, perf monitor, i18n); the per-block files
 (`parallax/debug/controller.ts`, `animate-on-scroll/debug.ts`) are thin adapters.
-Inspector preset UI is likewise shared via `src/blocks-interactivity/editor-shared/`.
+Inspector preset UI is likewise shared via `editor-shared/`.
 
 - **Visitors get zero debug bytes.** `debugMode` is gated in each `render.php`
   by `aggressive_apparel_can_view_block_debug()` (`edit_posts`, filterable) —

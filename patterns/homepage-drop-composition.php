@@ -188,7 +188,7 @@
 </div>
 <!-- /wp:group -->
 
-<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
+<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
 <!-- wp:columns {"isStackedOnMobile":false,"align":"full","style":{"spacing":{"blockGap":{"left":"4px","top":"4px"},"margin":{"top":"0","bottom":"0"}}}} -->
 <div class="wp-block-columns is-not-stacked-on-mobile alignfull" style="margin-top:0;margin-bottom:0">
 	<!-- wp:column -->
@@ -264,7 +264,7 @@
 	<!-- /wp:column -->
 </div>
 <!-- /wp:columns -->
-<!-- /wp:aggressive-apparel/animate-on-scroll -->
+<!-- /wp:aggressive-blocks/animate-on-scroll -->
 
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|12","bottom":"var:preset|spacing|24"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--12);padding-bottom:var(--wp--preset--spacing--24)">

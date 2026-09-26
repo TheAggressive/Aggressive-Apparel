@@ -97,7 +97,7 @@
 
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
 	<div class="wp-block-group">
-		<!-- wp:aggressive-apparel/copyright {"ownerSource":"legal_name","legalEntity":"LLC","prefix":"\u00a9","suffix":". All rights reserved.","showLegalLinks":true,"showSchema":true,"textAlign":"center","style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} /-->
+		<!-- wp:aggressive-blocks/copyright {"ownerSource":"legal_name","legalEntity":"LLC","prefix":"\u00a9","suffix":". All rights reserved.","showLegalLinks":true,"showSchema":true,"textAlign":"center","style":{"typography":{"fontSize":"0.75rem"}},"textColor":"white"} /-->
 	</div>
 	<!-- /wp:group -->
 </div>

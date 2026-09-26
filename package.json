@@ -220,7 +220,7 @@
     "ci:artifact": "pnpm ci:doctor && bash bin/ci/artifact.sh",
     "ci:browser:install": "playwright install chromium",
     "ci:e2e": "pnpm ci:doctor && bash bin/ci/e2e.sh",
-    "ci:e2e:beta": "pnpm ci:doctor && CI=1 WP_BASE_URL=http://localhost:9930 playwright test",
+    "ci:e2e:beta": "pnpm ci:doctor && CI=1 WP_BASE_URL=http://localhost:9930 WP_ENV_CONFIG_DIR=bin/ci playwright test",
     "ci:verify": "bash bin/ci/node.sh ci:verify:pinned",
     "ci:verify:pinned": "bash bin/ci/verify.sh",
     "test:e2e": "node bin/local/studio-e2e.mjs",

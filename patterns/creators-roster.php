@@ -32,7 +32,7 @@
 	</div>
 	<!-- /wp:group -->
 
-	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","direction":"up","staggerChildren":true,"staggerDelay":0.12,"duration":0.6} -->
+	<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","direction":"up","staggerChildren":true,"staggerDelay":0.12,"duration":0.6} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4","top":"var:preset|spacing|4"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column -->
@@ -116,6 +116,6 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
-	<!-- /wp:aggressive-apparel/animate-on-scroll -->
+	<!-- /wp:aggressive-blocks/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

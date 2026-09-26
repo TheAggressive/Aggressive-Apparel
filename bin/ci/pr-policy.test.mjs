@@ -7,6 +7,7 @@ import {
   decideAutomation,
   evaluateChecks,
   isValidTitle,
+  normalizeDependabotEcosystem,
   trustedDependabotMetadata,
   verifiedBotCommits,
 } from './pr-policy.mjs';
@@ -192,6 +193,23 @@ describe('classification', () => {
     assert.equal(result.risk, 'high');
     assert.equal(result.automationKind, 'none');
     assert.ok(result.labels.includes('needs-attention'));
+  });
+});
+
+describe('Dependabot ecosystem names', () => {
+  it('maps fetch-metadata names onto the policy ecosystems', () => {
+    assert.equal(normalizeDependabotEcosystem('npm_and_yarn'), 'npm');
+    assert.equal(normalizeDependabotEcosystem('composer'), 'composer');
+    assert.equal(
+      normalizeDependabotEcosystem('github_actions'),
+      'github-actions'
+    );
+  });
+
+  it('leaves unknown ecosystems unclassified', () => {
+    assert.equal(normalizeDependabotEcosystem('pip'), '');
+    assert.equal(normalizeDependabotEcosystem('constructor'), '');
+    assert.equal(normalizeDependabotEcosystem(''), '');
   });
 });
 

@@ -11,6 +11,7 @@ import {
   decideAutomation,
   isExpectedDependencyDiff,
   isValidTitle,
+  normalizeDependabotEcosystem,
   trustedDependabotMetadata,
   verifiedBotCommits,
 } from './pr-policy.mjs';
@@ -294,7 +295,7 @@ function classifyCommand() {
     ? (process.env.DEPENDABOT_UPDATE_TYPE ?? '')
     : '';
   const ecosystem = metadataSucceeded
-    ? (process.env.DEPENDABOT_ECOSYSTEM ?? '')
+    ? normalizeDependabotEcosystem(process.env.DEPENDABOT_ECOSYSTEM ?? '')
     : '';
   const classification = classifyPullRequest({
     title: pr.title,

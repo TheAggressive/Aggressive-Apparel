@@ -131,12 +131,38 @@ class Load_More {
 		$this->has_more = '' !== trim( $block_content );
 
 		$mode            = Feature_Settings::get_load_more_mode();
-		$context         = wp_json_encode( $this->get_runtime_seed() );
+		$seed            = $this->get_runtime_seed();
+		$context         = wp_json_encode( $seed );
+		$all_loaded      = (bool) $seed['allLoaded'];
+		$total_products  = (int) $seed['totalProducts'];
 		$load_more_html  = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center"';
 		$load_more_html .= ' data-wp-interactive="aggressive-apparel/load-more"';
 		$load_more_html .= ' data-wp-context=\'' . esc_attr( (string) $context ) . '\'';
 		$load_more_html .= ' data-wp-init="callbacks.init"';
 		$load_more_html .= ' data-wp-watch="callbacks.syncServerContext">';
+
+		// Seed the store's derived getters for SSR directive processing so the
+		// server markup matches the hydrated state. Unseeded, they evaluate
+		// falsy: the status line renders empty and the infinite-scroll button
+		// visible, and both change on hydration (layout shift on the grid).
+		if ( function_exists( 'wp_interactivity_state' ) ) {
+			wp_interactivity_state(
+				'aggressive-apparel/load-more',
+				array(
+					'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
+					'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
+					'showSentinelLoader' => false,
+					'statusText'         => $total_products > 0
+						? sprintf(
+							/* translators: 1: number loaded so far, 2: total products. */
+							__( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
+							(int) $seed['loadedCount'],
+							$total_products
+						)
+						: '',
+				)
+			);
+		}
 
 		// Status text.
 		$load_more_html .= '<div class="aa-load-more__status">';

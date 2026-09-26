@@ -12,6 +12,10 @@
  * (jquery, blockUI, js.cookie, woocommerce.js, add-to-cart.js) removed from
  * the homepage and other non-commerce pages.
  *
+ * Commerce routes rendered entirely by blocks (shop, product archives, block
+ * cart and checkout) drop the classic stylesheets too, but keep the classic
+ * scripts: third-party payment gateways may still rely on them.
+ *
  * @package Aggressive_Apparel
  * @since 1.132.0
  */
@@ -76,6 +80,19 @@ class Legacy_Asset_Trim {
 	);
 
 	/**
+	 * Blocks that print classic WooCommerce markup styled by woocommerce.css.
+	 *
+	 * @var array<int, string>
+	 */
+	private const CLASSIC_BLOCK_MARKERS = array(
+		'wp:woocommerce/legacy-template',
+		'wp:woocommerce/classic-shortcode',
+		'wp:woocommerce/product-details',
+		'wp:woocommerce/add-to-cart-form',
+		'wp:shortcode',
+	);
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -91,12 +108,16 @@ class Legacy_Asset_Trim {
 	 * @return void
 	 */
 	public function maybe_trim(): void {
-		if ( ! $this->should_trim() ) {
+		$trim_scripts = $this->should_trim();
+
+		if ( ! $trim_scripts && ! $this->should_trim_block_route_styles() ) {
 			return;
 		}
 
-		foreach ( self::SCRIPT_HANDLES as $handle ) {
-			wp_dequeue_script( $handle );
+		if ( $trim_scripts ) {
+			foreach ( self::SCRIPT_HANDLES as $handle ) {
+				wp_dequeue_script( $handle );
+			}
 		}
 
 		foreach ( self::STYLE_HANDLES as $handle ) {
@@ -135,6 +156,61 @@ class Legacy_Asset_Trim {
 			return false;
 		}
 
+		return $this->filter_trim();
+	}
+
+	/**
+	 * Whether a block-only commerce route can drop the classic stylesheets.
+	 *
+	 * Single products keep them: the reviews tab prints WooCommerce's classic
+	 * reviews template, whose star ratings only woocommerce.css styles. Account
+	 * pages and endpoints (order-received, order-pay) render classic templates.
+	 *
+	 * @return bool
+	 */
+	private function should_trim_block_route_styles(): bool {
+		if ( ! function_exists( 'is_woocommerce' ) || ! function_exists( 'is_wc_endpoint_url' ) ) {
+			return false;
+		}
+
+		if ( is_product() || is_account_page() || is_wc_endpoint_url() ) {
+			return false;
+		}
+
+		if ( ! is_woocommerce() && ! is_cart() && ! is_checkout() ) {
+			return false;
+		}
+
+		if ( ! $this->current_template_is_block_only() || $this->queried_content_has_wc_shortcode() ) {
+			return false;
+		}
+
+		return $this->filter_trim();
+	}
+
+	/**
+	 * Whether the resolved block template contains no classic-markup blocks.
+	 *
+	 * Fails closed when no block template resolved (classic PHP template).
+	 *
+	 * @return bool
+	 */
+	private function current_template_is_block_only(): bool {
+		global $_wp_current_template_content;
+
+		if ( ! wp_is_block_theme() || ! is_string( $_wp_current_template_content ) || '' === $_wp_current_template_content ) {
+			return false;
+		}
+
+		return ! $this->contains_any( $_wp_current_template_content, self::CLASSIC_BLOCK_MARKERS );
+	}
+
+	/**
+	 * Apply the public trim filter.
+	 *
+	 * @return bool
+	 */
+	private function filter_trim(): bool {
 		/**
 		 * Filter whether classic WooCommerce assets are trimmed on this request.
 		 *
@@ -146,7 +222,8 @@ class Legacy_Asset_Trim {
 	}
 
 	/**
-	 * Whether the queried post content contains a WooCommerce shortcode.
+	 * Whether the queried post content contains a WooCommerce shortcode or a
+	 * block that prints classic markup.
 	 *
 	 * @return bool
 	 */
@@ -163,8 +240,19 @@ class Legacy_Asset_Trim {
 			return false;
 		}
 
-		foreach ( self::WC_SHORTCODE_MARKERS as $marker ) {
-			if ( str_contains( $content, $marker ) ) {
+		return $this->contains_any( $content, array_merge( self::WC_SHORTCODE_MARKERS, self::CLASSIC_BLOCK_MARKERS ) );
+	}
+
+	/**
+	 * Whether the haystack contains any of the markers.
+	 *
+	 * @param string             $haystack Content to search.
+	 * @param array<int, string> $markers  Substrings to look for.
+	 * @return bool
+	 */
+	private function contains_any( string $haystack, array $markers ): bool {
+		foreach ( $markers as $marker ) {
+			if ( str_contains( $haystack, $marker ) ) {
 				return true;
 			}
 		}

@@ -179,6 +179,7 @@ class Bootstrap {
 			$this->container->register( 'wc_interactivity_defaults', fn() => new WooCommerce\WooCommerce_Interactivity_Defaults() );
 			$this->container->register( 'wc_block_asset_bailout', fn() => new WooCommerce\WooCommerce_Block_Asset_Bailout() );
 			$this->container->register( 'wc_legacy_asset_trim', fn() => new WooCommerce\Legacy_Asset_Trim() );
+			$this->container->register( 'wc_mini_cart_style_defer', fn() => new WooCommerce\Mini_Cart_Style_Defer() );
 			$this->container->register( 'jquery_optimizer', fn() => new WooCommerce\Jquery_Optimizer() );
 			$this->container->register( 'product_gallery_nav', fn() => new WooCommerce\Product_Gallery_Nav() );
 
@@ -281,6 +282,7 @@ class Bootstrap {
 		$this->container->get( 'wc_interactivity_defaults' )->init();
 		$this->container->get( 'wc_block_asset_bailout' )->init();
 		$this->container->get( 'wc_legacy_asset_trim' )->init();
+		$this->container->get( 'wc_mini_cart_style_defer' )->init();
 		$this->container->get( 'jquery_optimizer' )->init();
 		$this->container->get( 'product_gallery_nav' )->init();
 		$this->container->get( 'color_attributes' )->init();

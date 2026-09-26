@@ -1,11 +1,5 @@
 /**
- * Scroll-debug overlays + panel (parallax & animate-on-scroll blocks).
+ * Scroll-debug overlays moved to the Aggressive Blocks plugin.
  *
- * Build-entry stub: the source lives with the debug module in
- * src/blocks-interactivity/debug-shared/ and is inlined here at build
- * time. Built standalone to build/styles/components/debug-overlays.css
- * and enqueued from each block's render.php ONLY when Debug Mode is
- * active for a user who passes aggressive_apparel_can_view_block_debug()
- * — production visitors never download these bytes.
+ * Kept as an empty webpack entry so existing theme asset maps do not break.
  */
-@import '../../blocks-interactivity/debug-shared/style.css';

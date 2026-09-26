@@ -245,7 +245,6 @@ class Bootstrap {
 		// Custom blocks.
 		Blocks\Blocks::init();
 		Blocks\Icon_Block::init();
-		Blocks\Copyright::init();
 	}
 
 	/**

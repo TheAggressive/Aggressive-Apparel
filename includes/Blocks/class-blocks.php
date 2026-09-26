@@ -33,6 +33,29 @@ class Blocks {
 	);
 
 	/**
+	 * Block slugs now owned by the Aggressive Blocks plugin.
+	 *
+	 * Leftover theme build artifacts must not re-register these names.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PLUGIN_OWNED_SLUGS = array(
+		'animate-on-scroll',
+		'parallax',
+		'modal',
+		'card-flip',
+		'card-flip-front',
+		'card-flip-back',
+		'horizontal-scroll',
+		'hero-carousel',
+		'ticker',
+		'split-story',
+		'split-story-media',
+		'split-story-content',
+		'copyright',
+	);
+
+	/**
 	 * Aggressive Apparel block namespace prefix.
 	 */
 	private const BLOCK_NAMESPACE = 'aggressive-apparel/';
@@ -229,6 +252,10 @@ class Blocks {
 			$block_json = $block_location . '/block.json';
 
 			if ( ! file_exists( $block_json ) || ! is_readable( $block_json ) ) {
+				continue;
+			}
+
+			if ( in_array( basename( $block_location ), self::PLUGIN_OWNED_SLUGS, true ) ) {
 				continue;
 			}
 

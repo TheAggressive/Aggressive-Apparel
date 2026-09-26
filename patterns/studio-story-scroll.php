@@ -12,9 +12,9 @@
 
 ?><!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|16","bottom":"var:preset|spacing|16"},"margin":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull" style="margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--16);padding-bottom:var(--wp--preset--spacing--16)">
-	<!-- wp:aggressive-apparel/split-story {"mediaPosition":"left","mediaWidth":48,"mediaHeight":"viewport","sticky":true,"stackOrder":"media-first","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|10","left":"var:preset|spacing|14"}}}} -->
+	<!-- wp:aggressive-blocks/split-story {"mediaPosition":"left","mediaWidth":48,"mediaHeight":"viewport","sticky":true,"stackOrder":"media-first","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|10","left":"var:preset|spacing|14"}}}} -->
 	<div class="wp-block-aggressive-apparel-split-story aa-split-story aa-split-story--media-left aa-split-story--viewport aa-split-story--sticky aa-split-story--stack-media-first alignwide" style="--aa-split-media-width:48%;--aa-split-gap:var(--wp--preset--spacing--10) var(--wp--preset--spacing--14)">
-		<!-- wp:aggressive-apparel/split-story-media -->
+		<!-- wp:aggressive-blocks/split-story-media -->
 		<div class="wp-block-aggressive-apparel-split-story-media aa-split-story__media">
 			<!-- wp:cover {"dimRatio":25,"overlayColor":"black","minHeight":100,"minHeightUnit":"%","isDark":true,"style":{"color":{"background":"var:preset|color|black"}}} -->
 			<div class="wp-block-cover is-dark" style="background-color:var(--wp--preset--color--black);min-height:100%"><span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-25 has-background-dim"></span><div class="wp-block-cover__inner-container">
@@ -24,9 +24,9 @@
 			</div></div>
 			<!-- /wp:cover -->
 		</div>
-		<!-- /wp:aggressive-apparel/split-story-media -->
+		<!-- /wp:aggressive-blocks/split-story-media -->
 
-		<!-- wp:aggressive-apparel/split-story-content {"layout":{"type":"constrained"}} -->
+		<!-- wp:aggressive-blocks/split-story-content {"layout":{"type":"constrained"}} -->
 		<div class="wp-block-aggressive-apparel-split-story-content aa-split-story__content">
 			<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"0.14em","fontStyle":"normal","fontWeight":"600"}},"textColor":"accent","fontSize":"x-small"} -->
 			<p class="has-accent-color has-text-color has-x-small-font-size" style="font-style:normal;font-weight:600;letter-spacing:0.14em;text-transform:uppercase"><?php echo esc_html__( 'Inside the room', 'aggressive-apparel' ); ?></p>
@@ -56,8 +56,8 @@
 			</div>
 			<!-- /wp:buttons -->
 		</div>
-		<!-- /wp:aggressive-apparel/split-story-content -->
+		<!-- /wp:aggressive-blocks/split-story-content -->
 	</div>
-	<!-- /wp:aggressive-apparel/split-story -->
+	<!-- /wp:aggressive-blocks/split-story -->
 </div>
 <!-- /wp:group -->

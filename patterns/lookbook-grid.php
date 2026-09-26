@@ -24,7 +24,7 @@
 	<div style="height:var(--wp--preset--spacing--10)" aria-hidden="true" class="wp-block-spacer"></div>
 	<!-- /wp:spacer -->
 
-	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
+	<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","staggerChildren":true,"staggerDelay":0.12} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|4"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column {"width":"60%"} -->
@@ -166,6 +166,6 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
-	<!-- /wp:aggressive-apparel/animate-on-scroll -->
+	<!-- /wp:aggressive-blocks/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

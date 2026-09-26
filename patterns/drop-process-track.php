@@ -32,7 +32,7 @@
 	</div>
 	<!-- /wp:group -->
 
-	<!-- wp:aggressive-apparel/animate-on-scroll {"animation":"fade","direction":"up","staggerChildren":true,"staggerDelay":0.1} -->
+	<!-- wp:aggressive-blocks/animate-on-scroll {"animation":"fade","direction":"up","staggerChildren":true,"staggerDelay":0.1} -->
 	<!-- wp:columns {"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|6","top":"var:preset|spacing|10"}}}} -->
 	<div class="wp-block-columns">
 		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|8"}},"border":{"top":{"color":"var:preset|color|accent","width":"3px"}}}} -->
@@ -100,6 +100,6 @@
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
-	<!-- /wp:aggressive-apparel/animate-on-scroll -->
+	<!-- /wp:aggressive-blocks/animate-on-scroll -->
 </div>
 <!-- /wp:group -->

@@ -122,12 +122,18 @@ check(
     'matching bin/ci/node.sh.'
 );
 
-// The beta workflow is the only one that still provisions PHP on the runner
-// directly; it must stay on the same 8.2 series as the parity container.
+// Workflows that provision PHP on the runner directly (the beta workflow, and
+// release.yml for the native browser lane) must stay on the same 8.2 series as
+// the parity container.
 check(
   /PHP_VERSION: '8\.2\.\d+'/u.test(betaWorkflow),
   'wordpress-beta-compatibility.yml must provision a PHP 8.2.x runner so it ' +
     'tests new WordPress against the PHP floor, not against a newer runtime.'
+);
+check(
+  /PHP_VERSION: '8\.2\.\d+'/u.test(releaseWorkflow),
+  'release.yml must provision a PHP 8.2.x runner so the native browser lane ' +
+    'tests against the PHP floor, not against a newer runtime.'
 );
 
 check(

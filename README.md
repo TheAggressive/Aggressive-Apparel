@@ -70,46 +70,46 @@ pnpm test:e2e
 
 ### Development Commands
 
-| Command                    | Description                                                           |
-| -------------------------- | --------------------------------------------------------------------- |
-| `pnpm build`               | Build blocks, interactivity blocks, shared modules, assets, and icons |
-| `pnpm dev`                 | Start the WordPress Studio site, then watch theme assets              |
-| `pnpm setup`               | Install dependencies, build, start Studio, and check site health     |
-| `pnpm test`                | JS unit tests, tooling tests, and PHP suites                          |
-| `pnpm test:any -- <flags>` | Targeted PHPUnit runs on the disposable native test database          |
-| `pnpm test:unit`           | PHP unit tests                                                        |
-| `pnpm test:integration`    | PHP integration tests                                                 |
-| `pnpm test:security`       | Security tests                                                        |
-| `pnpm test:accessibility`  | Accessibility tests                                                   |
-| `pnpm test:performance`    | Performance benchmarks                                                |
-| `pnpm test:e2e`            | Build + Playwright tests against the registered Studio site           |
-| `pnpm test:e2e:ci`         | Pinned containerized release-parity Playwright tests                  |
-| `pnpm test:e2e:install`    | Install the Playwright Chromium browser and system dependencies       |
-| `pnpm lint:all`            | Prettier, file lengths, ESLint, TypeScript, Stylelint, and PHPCS      |
-| `pnpm lint:files`          | Enforce source-file length budgets                                    |
-| `pnpm lint:fix`            | Auto-fix formatting and lint issues                                   |
-| `pnpm lint:css`            | Stylelint + design-system CSS checks                                  |
-| `pnpm analyse:php`         | PHPStan (level 6)                                                     |
-| `pnpm qa`                  | Docker-free local checks, native PHPUnit, and Studio browser tests    |
-| `pnpm qa:ci`               | Optional containerized rehearsal of every required Actions check      |
-| `pnpm ci:verify`           | Canonical containerized release-parity implementation                 |
-| `pnpm ci:artifact`         | Install and smoke-test the distributable ZIP in clean WordPress       |
-| `pnpm perf`                | Lighthouse performance budget (build + report)                        |
-| `pnpm env:start`           | Start the Studio site without opening a browser                       |
-| `pnpm env:stop`            | Stop the Studio site                                                  |
-| `pnpm env:status`          | Show Studio status, URL, runtime, and credentials                     |
-| `pnpm env:check`           | Verify theme, WooCommerce, versions, and attachment files             |
-| `pnpm cli -- <args>`       | Run WP-CLI through the selected Studio site                           |
+| Command                     | Description                                                           |
+| --------------------------- | --------------------------------------------------------------------- |
+| `pnpm build`                | Build blocks, interactivity blocks, shared modules, assets, and icons |
+| `pnpm dev`                  | Start the WordPress Studio site, then watch theme assets              |
+| `pnpm setup`                | Install dependencies, build, start Studio, and check site health      |
+| `pnpm test`                 | JS unit tests, tooling tests, and PHP suites                          |
+| `pnpm test:any -- <flags>`  | Targeted PHPUnit runs on the disposable native test database          |
+| `pnpm test:unit`            | PHP unit tests                                                        |
+| `pnpm test:integration`     | PHP integration tests                                                 |
+| `pnpm test:security`        | Security tests                                                        |
+| `pnpm test:accessibility`   | Accessibility tests                                                   |
+| `pnpm test:performance`     | Performance benchmarks                                                |
+| `pnpm test:e2e`             | Build + Playwright tests against the registered Studio site           |
+| `pnpm test:e2e:ci`          | Pinned native release-parity Playwright tests (no Docker)             |
+| `pnpm test:e2e:install`     | Install the Playwright Chromium browser and system dependencies       |
+| `pnpm lint:all`             | Prettier, file lengths, ESLint, TypeScript, Stylelint, and PHPCS      |
+| `pnpm lint:files`           | Enforce source-file length budgets                                    |
+| `pnpm lint:fix`             | Auto-fix formatting and lint issues                                   |
+| `pnpm lint:css`             | Stylelint + design-system CSS checks                                  |
+| `pnpm analyse:php`          | PHPStan (level 6)                                                     |
+| `pnpm qa`                   | Docker-free local checks, native PHPUnit, and Studio browser tests    |
+| `pnpm qa:ci`                | Optional containerized rehearsal of every required Actions check      |
+| `pnpm ci:verify`            | Canonical containerized release-parity implementation                 |
+| `pnpm ci:artifact`          | Install and smoke-test the distributable ZIP in clean WordPress       |
+| `pnpm perf`                 | Lighthouse performance budget (build + report)                        |
+| `pnpm env:start`            | Start the Studio site without opening a browser                       |
+| `pnpm env:stop`             | Stop the Studio site                                                  |
+| `pnpm env:status`           | Show Studio status, URL, runtime, and credentials                     |
+| `pnpm env:check`            | Verify theme, WooCommerce, versions, and attachment files             |
+| `pnpm cli -- <args>`        | Run WP-CLI through the selected Studio site                           |
 | `pnpm db:local -- <action>` | Start, stop, or inspect the disposable PHPUnit MySQL instance         |
 
 Local development and release verification deliberately use different runtimes:
 
-| Lane                       | WordPress/runtime                                  | Role                              |
-| -------------------------- | -------------------------------------------------- | --------------------------------- |
-| Local development          | Studio-managed WordPress + SQLite                  | Persistent interactive work       |
-| Local PHP tests            | Pinned Core/WooCommerce + disposable native MySQL | Docker-free PHPUnit feedback       |
-| Required release CI        | Pinned wp-env containers                          | Reproducible release gate          |
-| Scheduled compatibility CI | Latest Beta/RC in isolated wp-env                 | Upcoming compatibility detection  |
+| Lane                       | WordPress/runtime                                 | Role                             |
+| -------------------------- | ------------------------------------------------- | -------------------------------- |
+| Local development          | Studio-managed WordPress + SQLite                 | Persistent interactive work      |
+| Local PHP tests            | Pinned Core/WooCommerce + disposable native MySQL | Docker-free PHPUnit feedback     |
+| Required release CI        | Pinned wp-env containers; native browser lane     | Reproducible release gate        |
+| Scheduled compatibility CI | Latest Beta/RC in isolated wp-env                 | Upcoming compatibility detection |
 
 Studio is the source of truth for the development site path and URL. The local
 wrapper discovers the registered site that physically contains this checkout,
@@ -126,8 +126,11 @@ run. Use Studio's export command or UI for development-site backups.
 
 Required Actions lanes and optional `pnpm qa:ci` retain the isolated
 `bin/ci/.wp-env.json` setup. CI state lives under `.wp-env-ci/` and never touches
-Studio. GitHub runs `ci:frontend`, `ci:i18n`, `ci:build`, `ci:php`, `ci:e2e`,
-`ci:package`, and `ci:artifact`; `pnpm ci:verify` runs the same commands serially.
+Studio. The exception is `ci:e2e`: it runs natively, with no Docker. It installs
+the WordPress and WooCommerce versions pinned in that file, serves them with PHP's
+built-in server, and uses a disposable database. GitHub runs `ci:frontend`,
+`ci:i18n`, `ci:build`, `ci:php`, `ci:e2e`, `ci:package`, and `ci:artifact`;
+`pnpm ci:verify` runs the same commands serially.
 
 ### Scaffolding Blocks
 
@@ -312,7 +315,7 @@ semantic-release tags the reviewed merge commit and writes no release commit:
 
 | File                             | Updated on release?                                   |
 | -------------------------------- | ----------------------------------------------------- |
-| Source `style.css` (`Version:`)  | Yes — via the `chore/version-sync` pull request        |
+| Source `style.css` (`Version:`)  | Yes — via the `chore/version-sync` pull request       |
 | `package.json` (`version`)       | No — private tooling package                          |
 | `CHANGELOG.md`                   | No — GitHub Release notes are generated instead       |
 | Release ZIP + `.sha256`          | Yes — version stamped inside the packaged `style.css` |

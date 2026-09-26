@@ -6,7 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * the card-flip 3D flip + inert a11y) that unit tests can't cover.
  *
  * Studio run: `pnpm test:e2e`.
- * Containerized release-parity run: `pnpm test:e2e:ci`.
+ * Release-parity run (pinned WordPress on PHP's built-in server, no Docker):
+ * `pnpm test:e2e:ci`.
  */
 export default defineConfig({
   testDir: './tests/e2e',

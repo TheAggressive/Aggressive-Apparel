@@ -19,7 +19,7 @@ WP_CLI_INSTALL_PATH="$(pwd -P)/.cache/ci/wp" \
 	bash bin/ci/install-wp-cli.sh
 
 wp_cli() {
-	php -d error_reporting='E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED' \
+	php -d memory_limit=512M -d error_reporting='E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED' \
 		.cache/ci/wp --path="${WP_DIR}" "$@"
 }
 
@@ -28,10 +28,24 @@ installed_version() {
 	grep -m1 -oE "\\\$wp_version = '[^']+'" "${WP_DIR}/wp-includes/version.php" | cut -d"'" -f2
 }
 
-if [ "$(installed_version || true)" != "${WP_VERSION}" ]; then
+# PHPUnit needs no bundled themes or plugins. The browser lane keeps them
+# (AA_TESTS_WP_SKIP_CONTENT=0), as wp-env and real sites do: wp-admin renders
+# differently when this theme is the only one installed.
+SKIP_CONTENT="${AA_TESTS_WP_SKIP_CONTENT:-1}"
+content_marker="${WP_DIR}/.aa-skip-content-${SKIP_CONTENT}"
+
+if [ "$(installed_version || true)" != "${WP_VERSION}" ] || [ ! -f "${content_marker}" ]; then
 	echo "wp-core: downloading WordPress ${WP_VERSION}"
 	mkdir -p "${WP_DIR}"
-	wp_cli core download --version="${WP_VERSION}" --skip-content --force
+	if [ "${SKIP_CONTENT}" = 1 ]; then
+		wp_cli core download --version="${WP_VERSION}" --skip-content --force
+	else
+		# The pinned zip, as wp-env installs it. The default .tar.gz goes through
+		# PharData, which truncates the longest wp-includes paths.
+		wp_cli core download "${WP_URL}" --force
+	fi
+	rm -f "${WP_DIR}"/.aa-skip-content-*
+	touch "${content_marker}"
 fi
 
 wp_cli core verify-checksums >/dev/null

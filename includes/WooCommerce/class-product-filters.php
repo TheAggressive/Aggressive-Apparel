@@ -286,6 +286,9 @@ class Product_Filters {
 				// flashing Clear All until JS runs.
 				'hasActiveFilters'    => false,
 				'hasNoActiveFilters'  => true,
+				'hideNoResults'       => true,
+				'hideError'           => true,
+				'hasSinglePage'       => true,
 				'orderBy'             => 'date',
 				'orderDir'            => 'desc',
 				'_customSort'         => '',

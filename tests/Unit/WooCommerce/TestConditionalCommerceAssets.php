@@ -225,6 +225,70 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Load More seeds its derived getters so SSR matches the hydrated markup.
+	 *
+	 * Unseeded, server directive processing evaluates them falsy: the status
+	 * line renders empty and the infinite-scroll button visible, and both
+	 * change on hydration (a layout shift on the shop grid).
+	 *
+	 * @return void
+	 */
+	public function test_load_more_seeds_derived_state_for_ssr(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Derived state product',
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+			)
+		);
+
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		foreach ( array( 'infinite_scroll', 'load_more' ) as $mode ) {
+			update_option( Feature_Settings::LOAD_MORE_MODE_OPTION, $mode );
+
+			$html = ( new Load_More() )->replace_pagination(
+				'<nav>Next page</nav>',
+				array( 'blockName' => 'core/query-pagination' )
+			);
+
+			$state = wp_interactivity_state( 'aggressive-apparel/load-more' );
+			preg_match( "/data-wp-context='([^']+)'/", $html, $matches );
+			$context = json_decode(
+				html_entity_decode( $matches[1] ?? '', ENT_QUOTES | ENT_HTML5 ),
+				true
+			);
+			$this->assertIsArray( $context );
+
+			$this->assertSame( $mode, $context['mode'] );
+			$this->assertSame( 'infinite_scroll' === $mode || $context['allLoaded'], $state['hideButton'] );
+			$this->assertSame( 'infinite_scroll' !== $mode || $context['allLoaded'], $state['hideSentinel'] );
+			$this->assertFalse( $state['showSentinelLoader'] );
+			$this->assertSame(
+				$context['totalProducts'] > 0
+					? sprintf( 'Showing %1$d of %2$d products', $context['loadedCount'], $context['totalProducts'] )
+					: '',
+				$state['statusText']
+			);
+
+			$processed = wp_interactivity_process_directives( $html );
+			$this->assertStringContainsString( '>' . esc_html( $state['statusText'] ) . '</span>', $processed );
+			$this->assertSame(
+				(bool) $state['hideButton'],
+				(bool) preg_match( '/<button hidden class="aa-load-more__btn/', $processed )
+			);
+		}
+
+		delete_option( Feature_Settings::LOAD_MORE_MODE_OPTION );
+	}
+
+	/**
 	 * Shop archives should load the product-filters bundle when the feature is on.
 	 *
 	 * @return void

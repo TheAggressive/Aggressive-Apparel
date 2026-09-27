@@ -306,17 +306,6 @@ jobs:
       - name: Run canonical PHP lane
         run: pnpm ci:php
 
-      # Reporting only — the PHP lane above is the gate. A Codecov outage or a
-      # missing token on a fork PR must not fail a run whose tests all passed.
-      - name: Upload coverage
-        if: always()
-        continue-on-error: true
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        with:
-          files: ./coverage-unit.xml
-          flags: unit
-          token: ${{ secrets.CODECOV_TOKEN }}
-
   # ============================================================================
   # Browser E2E: Runs beside PHP tests and reuses the build job's artifacts.
   # The shared CI lane avoids the public local E2E command's rebuild because the

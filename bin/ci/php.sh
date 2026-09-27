@@ -30,7 +30,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-AA_CI_XDEBUG_MODE=coverage bash "${SCRIPT_DIR}/reset-wp-env.sh"
+bash "${SCRIPT_DIR}/reset-wp-env.sh"
 
 # composer.json has no `version` field on purpose — the theme's version lives in
 # style.css and is managed by semantic-release, so duplicating it would drift.
@@ -55,7 +55,7 @@ ci_php 'XDEBUG_MODE=off composer install --no-interaction --prefer-dist --no-pro
 ci_php 'XDEBUG_MODE=off find includes -name "*.php" -exec php -l {} \; >/dev/null && echo "PHP syntax valid"'
 ci_php 'XDEBUG_MODE=off composer lint:php'
 ci_php 'XDEBUG_MODE=off ./vendor/bin/phpstan analyse --memory-limit=2G --verbose'
-ci_php 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --testsuite=unit --coverage-clover=coverage-unit.xml.tmp && test -s coverage-unit.xml.tmp && mv coverage-unit.xml.tmp coverage-unit.xml'
+ci_php 'XDEBUG_MODE=off ./vendor/bin/phpunit --testsuite=unit --verbose'
 
 # The integration suite asserts that compiled catalogs actually reach __(), so
 # it needs those catalogs to exist. They are gitignored build output, and until

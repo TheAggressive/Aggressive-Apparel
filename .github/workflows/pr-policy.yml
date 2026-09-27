@@ -27,8 +27,16 @@ on: # zizmor: ignore[dangerous-triggers] pull_request_target runs trusted base c
 permissions:
   contents: read
 
+# The write-capable automation (pull_request_target, workflow_run) is serialized
+# per PR. The read-only `pull_request` run that reports the required `PR Policy`
+# check gets a group of its own per run: in a shared group a later event (a
+# title/body edit, a label) replaces a *pending* run, and a cancelled required
+# check blocks the merge with nothing left to re-run it.
 concurrency:
-  group: pr-policy-${{ github.event.pull_request.number || github.event.workflow_run.head_branch }}
+  group: >-
+    ${{ github.event_name == 'pull_request'
+    && format('pr-policy-validate-{0}', github.run_id)
+    || format('pr-policy-{0}', github.event.pull_request.number || github.event.workflow_run.head_branch) }}
   cancel-in-progress: false
 
 jobs:

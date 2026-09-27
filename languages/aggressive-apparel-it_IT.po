@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-09-26T18:26:00+00:00\n"
+"POT-Creation-Date: 2026-09-26T23:36:31+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2660,25 +2660,25 @@ msgstr ""
 "Carrello e Account."
 
 #. translators: %s: formatted amount still needed for free shipping.
-#: includes/WooCommerce/class-free-shipping.php:198
-#: includes/WooCommerce/class-free-shipping.php:231
+#: includes/WooCommerce/class-free-shipping.php:272
+#: includes/WooCommerce/class-free-shipping.php:305
 #, php-format
 msgid "%s Away from FREE Shipping!"
 msgstr "%s Lontano da FREE Shipping!"
 
 #. translators: 1: formatted amount, 2: emphasized free shipping phrase.
-#: includes/WooCommerce/class-free-shipping.php:200
+#: includes/WooCommerce/class-free-shipping.php:274
 #, php-format
 msgid "%1$s Away from %2$s!"
 msgstr "%1$s Lontano da %2$s!"
 
-#: includes/WooCommerce/class-free-shipping.php:201
-#: includes/WooCommerce/class-free-shipping.php:232
+#: includes/WooCommerce/class-free-shipping.php:275
+#: includes/WooCommerce/class-free-shipping.php:306
 msgid "FREE Shipping UNLOCKED!"
 msgstr "FREE Shipping SBLOCCATO!"
 
 #. translators: %s: emphasized free shipping phrase.
-#: includes/WooCommerce/class-free-shipping.php:203
+#: includes/WooCommerce/class-free-shipping.php:277
 #, php-format
 msgid "%s UNLOCKED!"
 msgstr "%s SBLOCCATO!"
@@ -8362,7 +8362,7 @@ msgstr "m"
 msgid "s"
 msgstr "s"
 
-#: src/blocks-interactivity/free-shipping-bar/render.php:87
+#: src/blocks-interactivity/free-shipping-bar/render.php:89
 msgid "Free shipping progress"
 msgstr "Stato della spedizione gratuita"
 

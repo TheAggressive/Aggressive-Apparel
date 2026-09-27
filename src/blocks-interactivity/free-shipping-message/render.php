@@ -31,21 +31,19 @@ $remaining     = $progress['remaining'];
 $complete      = $progress['complete'];
 $message       = Free_Shipping::format_message( $remaining, $emphasis_text, $complete );
 
-$currency_code   = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'USD';
-$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? get_woocommerce_currency_symbol( $currency_code ) : '$';
-
 $context = (string) wp_json_encode(
-	array(
-		'threshold'         => $progress['threshold'],
-		'cartTotal'         => $progress['cart_total'],
-		'remaining'         => $remaining,
-		'complete'          => $complete,
-		'restBase'          => esc_url_raw( rest_url( 'wc/store/v1' ) ),
-		'currencyPrefix'    => $currency_symbol,
-		'currencySuffix'    => '',
-		'currencyMinorUnit' => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
-		'emphasisText'      => $emphasis_text,
-		'i18n'              => Free_Shipping::get_message_i18n(),
+	array_merge(
+		array(
+			'threshold'       => $progress['threshold'],
+			'customThreshold' => $custom_threshold,
+			'cartTotal'       => $progress['cart_total'],
+			'remaining'       => $remaining,
+			'complete'        => $complete,
+			'restBase'        => esc_url_raw( rest_url( 'wc/store/v1' ) ),
+			'emphasisText'    => $emphasis_text,
+			'i18n'            => Free_Shipping::get_message_i18n(),
+		),
+		Free_Shipping::get_currency_context()
 	)
 );
 
@@ -68,10 +66,12 @@ $suffix_markup = Icon_Block::render_wrapped_svg(
 	<?php
 	echo get_block_wrapper_attributes(
 		array(
-			'class'               => 'aggressive-apparel-free-shipping-message',
-			'data-wp-interactive' => 'aggressive-apparel/free-shipping-message',
-			'data-wp-context'     => $context,
-			'data-wp-init'        => 'callbacks.init',
+			'class'                => 'aggressive-apparel-free-shipping-message',
+			'data-wp-interactive'  => 'aggressive-apparel/free-shipping-message',
+			'data-wp-context'      => $context,
+			'data-wp-init'         => 'callbacks.init',
+			'data-wp-bind--hidden' => '!context.threshold',
+			'hidden'               => $progress['threshold'] > 0 ? null : 'hidden',
 		)
 	);
 	?>

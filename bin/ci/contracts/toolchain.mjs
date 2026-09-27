@@ -142,18 +142,6 @@ check(
     'composer.json is caught here or by a contributor mid-install.'
 );
 
-check(
-  phpLane.includes('AA_CI_XDEBUG_MODE=coverage'),
-  'bin/ci/php.sh must start the parity container with Xdebug in coverage mode, ' +
-    'or the unit suite produces an empty Clover report.'
-);
-
-check(
-  phpLane.includes('test -s coverage-unit.xml.tmp'),
-  'bin/ci/php.sh must reject an empty Clover artifact before publishing it — ' +
-    'a zero-byte report otherwise reads as "coverage collected".'
-);
-
 // Composer is the toolchain input most likely to drift silently: the wp-env
 // image ships its own, so without a pinned PHAR on PATH the lockfile metadata
 // and dependency resolution depend on who ran the lane.

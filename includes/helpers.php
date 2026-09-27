@@ -102,9 +102,9 @@ function aggressive_apparel_icon_block_svg( string $slug, int|float $size = 48 )
 }
 
 /**
- * Auto-detect the lowest free-shipping threshold from WooCommerce shipping zones.
+ * Free-shipping threshold for the current customer's zone, in the active currency.
  *
- * @return float Threshold in store currency, or 0 when none configured.
+ * @return float Threshold amount, or 0 when the customer's zone has none.
  */
 function aggressive_apparel_free_shipping_threshold(): float {
 	return \Aggressive_Apparel\WooCommerce\Free_Shipping::get_threshold();

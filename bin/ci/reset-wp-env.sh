@@ -7,23 +7,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 install_path="$(bash "${SCRIPT_DIR}/wp-env.sh" install-path)"
-xdebug_mode="${AA_CI_XDEBUG_MODE:-}"
-
-case "${xdebug_mode}" in
-	"" | coverage) ;;
-	*)
-		echo "AA_CI_XDEBUG_MODE must be empty or coverage." >&2
-		exit 2
-		;;
-esac
-
-start_wp_env() {
-	if [[ -n "${xdebug_mode}" ]]; then
-		bash "${SCRIPT_DIR}/wp-env.sh" start --xdebug="${xdebug_mode}"
-	else
-		bash "${SCRIPT_DIR}/wp-env.sh" start
-	fi
-}
 
 if [[ -f "${install_path}/docker-compose.yml" ]]; then
 	# An interrupted wp-env clone can leave a non-empty directory with an
@@ -62,10 +45,10 @@ if [[ -f "${install_path}/docker-compose.yml" ]]; then
 			chmod -R a+rwX /repair/wp-content
 	fi
 
-	start_wp_env
+	bash "${SCRIPT_DIR}/wp-env.sh" start
 	bash "${SCRIPT_DIR}/wp-env.sh" clean all --no-scripts
 else
-	start_wp_env
+	bash "${SCRIPT_DIR}/wp-env.sh" start
 fi
 
 bash "${SCRIPT_DIR}/wp-env.sh" run cli wp --info

@@ -13,12 +13,24 @@ namespace Aggressive_Apparel\WooCommerce;
 use Aggressive_Apparel\Core\Cache_Helper;
 
 /**
- * Reads WooCommerce free-shipping settings and cart progress.
+ * Free-shipping progress for the blocks.
+ *
+ * Thresholds are per customer (zone + active currency), resolved by
+ * Free_Shipping_Rules. Server HTML only carries a first-paint value (a
+ * full-page cache serves the priming visitor's copy), so the live value rides
+ * on the Store API cart response and the blocks rehydrate from it.
  */
 class Free_Shipping {
 
 	/**
-	 * Transient key for the zone-detected threshold.
+	 * Store API cart extension namespace (mirrored in cart-data.ts).
+	 *
+	 * @var string
+	 */
+	public const STORE_API_NAMESPACE = 'aggressive-apparel/free-shipping';
+
+	/**
+	 * Transient key for the store-wide "any zone offers a minimum" scan.
 	 *
 	 * @var string
 	 */
@@ -32,14 +44,14 @@ class Free_Shipping {
 	private const CACHE_TTL = DAY_IN_SECONDS;
 
 	/**
-	 * Request-local memo (avoids repeat transient hits in one request).
+	 * Request-local memo of the store-wide scan.
 	 *
 	 * @var float|null
 	 */
 	private static ?float $cached_threshold = null;
 
 	/**
-	 * Register shipping-settings invalidation hooks.
+	 * Register shipping-settings invalidation hooks and the cart extension.
 	 *
 	 * Called from Bootstrap when WooCommerce is active.
 	 *
@@ -52,6 +64,7 @@ class Free_Shipping {
 		add_action( 'woocommerce_shipping_zone_method_deleted', array( self::class, 'flush_threshold_cache' ) );
 		add_action( 'woocommerce_shipping_zone_method_status_toggled', array( self::class, 'flush_threshold_cache' ) );
 		add_action( 'update_option_woocommerce_free_shipping_settings', array( self::class, 'flush_threshold_cache' ) );
+		add_action( 'rest_api_init', array( self::class, 'register_store_api_extension' ) );
 	}
 
 	/**
@@ -61,119 +74,180 @@ class Free_Shipping {
 	 */
 	public static function flush_threshold_cache(): void {
 		self::$cached_threshold = null;
+		Free_Shipping_Rules::flush();
 		delete_transient( self::TRANSIENT_KEY );
 	}
 
 	/**
-	 * Resolve the free-shipping threshold in store currency.
+	 * Expose the customer's threshold on the Store API `cart` endpoint.
 	 *
-	 * Filter overrides and block custom thresholds are not persisted — only
-	 * the WooCommerce zone scan is cached across requests.
+	 * The free-shipping blocks already fetch the cart when it holds items, so
+	 * this costs no extra request and corrects cached first-paint HTML.
 	 *
-	 * @param float $custom_threshold Block override; 0 uses auto-detect/filter.
-	 * @return float Threshold amount, or 0 when none configured.
+	 * @return void
+	 */
+	public static function register_store_api_extension(): void {
+		Store_Api_Extension::register_cart_data(
+			self::STORE_API_NAMESPACE,
+			array( self::class, 'get_store_api_cart_data' )
+		);
+	}
+
+	/**
+	 * Cart extension payload, in Store API minor units.
+	 *
+	 * `unlocked` is WooCommerce's own verdict that free shipping applies.
+	 * `rate` converts store-currency amounts (block custom thresholds) to the
+	 * active currency client-side, since the cart request can't know which
+	 * block instances are on the page.
+	 *
+	 * @return array{threshold: int, subtotal: int, rate: float, unlocked: bool}
+	 */
+	public static function get_store_api_cart_data(): array {
+		$state  = Free_Shipping_Rules::resolve();
+		$factor = 10 ** wc_get_price_decimals();
+
+		return array(
+			'threshold' => (int) round( $state['threshold'] * $factor ),
+			'subtotal'  => (int) round( $state['subtotal'] * $factor ),
+			'rate'      => Free_Shipping_Rules::get_currency_rate(),
+			'unlocked'  => $state['complete'],
+		);
+	}
+
+	/**
+	 * Resolve the customer's free-shipping threshold in the active currency.
+	 *
+	 * @param float $custom_threshold Block override in store currency; 0 uses the filter or zone.
+	 * @return float Threshold amount, or 0 when the customer's zone has none.
 	 */
 	public static function get_threshold( float $custom_threshold = 0.0 ): float {
-		if ( $custom_threshold > 0 ) {
-			return $custom_threshold;
-		}
-
-		if ( null !== self::$cached_threshold ) {
-			return self::$cached_threshold;
-		}
-
-		$threshold = (float) apply_filters( 'aggressive_apparel_free_shipping_threshold', 0.0 );
-		if ( $threshold > 0 ) {
-			self::$cached_threshold = $threshold;
-			return self::$cached_threshold;
-		}
-
-		/**
-		 * Zone-detected threshold from transient or rebuild.
-		 *
-		 * @var float $detected
-		 */
-		$detected = Cache_Helper::remember(
-			self::TRANSIENT_KEY,
-			self::CACHE_TTL,
-			static fn(): float => self::detect_threshold_from_zones(),
-			static fn( $cached ): bool => is_numeric( $cached )
-		);
-
-		self::$cached_threshold = (float) $detected;
-		return self::$cached_threshold;
+		return Free_Shipping_Rules::resolve( $custom_threshold )['threshold'];
 	}
 
 	/**
-	 * Walk WooCommerce shipping zones for the lowest free-shipping min amount.
+	 * Whether free shipping is offered anywhere (decides if blocks render).
 	 *
-	 * @return float
+	 * Deliberately customer-independent: server HTML is cacheable, so a block
+	 * must not vanish for everyone because the priming visitor's zone had no
+	 * threshold. Per-customer visibility is handled client-side.
+	 *
+	 * @param float $custom_threshold Block override; > 0 always offers.
+	 * @return bool
 	 */
-	private static function detect_threshold_from_zones(): float {
-		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
-			return 0.0;
+	public static function is_offered( float $custom_threshold = 0.0 ): bool {
+		if ( $custom_threshold > 0 || Free_Shipping_Rules::get_filtered_threshold() > 0 ) {
+			return true;
 		}
 
-		$zones   = \WC_Shipping_Zones::get_zones();
-		$zones[] = array( 'zone_id' => 0 );
-		$min     = 0.0;
+		if ( null === self::$cached_threshold ) {
+			/**
+			 * Lowest store-currency minimum across all zones, from transient or rebuild.
+			 *
+			 * @var float $detected
+			 */
+			$detected = Cache_Helper::remember(
+				self::TRANSIENT_KEY,
+				self::CACHE_TTL,
+				static fn(): float => Free_Shipping_Rules::get_lowest_configured_minimum(),
+				static fn( $cached ): bool => is_numeric( $cached )
+			);
 
-		foreach ( $zones as $zone_data ) {
-			$zone    = new \WC_Shipping_Zone( $zone_data['zone_id'] );
-			$methods = $zone->get_shipping_methods( true );
-
-			foreach ( $methods as $method ) {
-				if ( 'free_shipping' !== $method->id ) {
-					continue;
-				}
-
-				$requires = $method->get_option( 'requires', '' );
-				if ( ! in_array( $requires, array( 'min_amount', 'either', 'both' ), true ) ) {
-					continue;
-				}
-
-				$amount = (float) $method->get_option( 'min_amount', 0 );
-				if ( $amount > 0 && ( 0.0 === $min || $amount < $min ) ) {
-					$min = $amount;
-				}
-			}
+			self::$cached_threshold = (float) $detected;
 		}
 
-		return $min;
+		return self::$cached_threshold > 0;
 	}
 
 	/**
-	 * Cart progress toward a free-shipping threshold.
+	 * Cart progress toward the customer's free-shipping threshold.
 	 *
-	 * @param float $custom_threshold Block override; 0 uses auto-detect/filter.
+	 * `threshold` is 0 when free shipping is offered somewhere but not in the
+	 * customer's zone — blocks render hidden so the client can reveal them.
+	 * `complete` is WooCommerce's verdict; while it is false, at least one
+	 * minor unit is shown as remaining so the copy never claims "0.00 away".
+	 *
+	 * @param float $custom_threshold Block override in store currency; 0 uses filter/zone.
 	 * @return array{
 	 *     threshold: float,
 	 *     cart_total: float,
 	 *     remaining: float,
 	 *     percent: float,
 	 *     complete: bool
-	 * }|null Null when no threshold is configured.
+	 * }|null Null when free shipping is not offered anywhere.
 	 */
 	public static function get_cart_progress( float $custom_threshold = 0.0 ): ?array {
-		if ( ! function_exists( 'WC' ) || ! \WC()->cart ) {
+		if ( ! function_exists( 'WC' ) || ! \WC()->cart || ! self::is_offered( $custom_threshold ) ) {
 			return null;
 		}
 
-		$threshold = self::get_threshold( $custom_threshold );
+		$state     = Free_Shipping_Rules::resolve( $custom_threshold );
+		$threshold = $state['threshold'];
+		$subtotal  = $state['subtotal'];
+
 		if ( $threshold <= 0 ) {
-			return null;
+			return array(
+				'threshold'  => 0.0,
+				'cart_total' => $subtotal,
+				'remaining'  => 0.0,
+				'percent'    => 0.0,
+				'complete'   => false,
+			);
 		}
 
-		$cart_total = (float) \WC()->cart->get_displayed_subtotal();
-		$remaining  = max( 0.0, $threshold - $cart_total );
-		$percent    = min( 100.0, ( $cart_total / $threshold ) * 100 );
+		$complete  = $state['complete'];
+		$min_unit  = 1 / ( 10 ** wc_get_price_decimals() );
+		$remaining = $complete ? 0.0 : max( $min_unit, $threshold - $subtotal );
 
 		return array(
 			'threshold'  => $threshold,
-			'cart_total' => $cart_total,
+			'cart_total' => $subtotal,
 			'remaining'  => $remaining,
-			'percent'    => $percent,
-			'complete'   => $remaining <= 0,
+			'percent'    => $complete ? 100.0 : min( 100.0, ( $subtotal / $threshold ) * 100 ),
+			'complete'   => $complete,
+		);
+	}
+
+	/**
+	 * Currency formatting for the blocks' client-side amounts.
+	 *
+	 * Mirrors the Store API currency fields so SSR context and cart responses
+	 * format identically (symbol position, separators, decimals).
+	 *
+	 * @return array{
+	 *     currencyPrefix: string,
+	 *     currencySuffix: string,
+	 *     currencyMinorUnit: int,
+	 *     currencyDecimalSeparator: string,
+	 *     currencyThousandSeparator: string
+	 * }
+	 */
+	public static function get_currency_context(): array {
+		$symbol   = html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES );
+		$position = (string) get_option( 'woocommerce_currency_pos', 'left' );
+		$prefix   = '';
+		$suffix   = '';
+
+		switch ( $position ) {
+			case 'left_space':
+				$prefix = $symbol . ' ';
+				break;
+			case 'right':
+				$suffix = $symbol;
+				break;
+			case 'right_space':
+				$suffix = ' ' . $symbol;
+				break;
+			default:
+				$prefix = $symbol;
+		}
+
+		return array(
+			'currencyPrefix'            => $prefix,
+			'currencySuffix'            => $suffix,
+			'currencyMinorUnit'         => wc_get_price_decimals(),
+			'currencyDecimalSeparator'  => wc_get_price_decimal_separator(),
+			'currencyThousandSeparator' => wc_get_price_thousand_separator(),
 		);
 	}
 

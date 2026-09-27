@@ -248,7 +248,7 @@ AGGRESSIVE_APPAREL_URI      // Theme directory URI
 ```php
 aggressive_apparel_asset_uri($path)     // Get asset URL
 aggressive_apparel_asset_path($path)    // Get asset file path
-aggressive_apparel_free_shipping_threshold() // Free-shipping threshold (filterable)
+aggressive_apparel_free_shipping_threshold() // Customer-zone free-shipping threshold, active currency (filterable)
 ```
 
 ## SVG Icon System

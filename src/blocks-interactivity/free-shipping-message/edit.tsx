@@ -14,10 +14,16 @@ import {
 } from '../../utils/icon-constants';
 import { IconEditorPreview } from '../../utils/icon-editor-preview';
 import { IconComboboxControl } from '../../utils/icon-combobox-control';
+import {
+  WordingPanel,
+  WordingText,
+  WordingToolbar,
+  useWording,
+  type WordingAttributes,
+} from './wording-editor';
 
-type FreeShippingMessageAttributes = {
+export type FreeShippingMessageAttributes = WordingAttributes & {
   customThreshold: number;
-  emphasisText: string;
   prefixIcon: string;
   suffixIcon: string;
   iconSize: number;
@@ -27,31 +33,21 @@ export default function Edit({
   attributes,
   setAttributes,
 }: BlockEditProps<FreeShippingMessageAttributes>) {
-  const { customThreshold, emphasisText, prefixIcon, suffixIcon, iconSize } =
-    attributes;
+  const { customThreshold, prefixIcon, suffixIcon, iconSize } = attributes;
+  const wording = useWording(attributes, setAttributes);
 
   const blockProps = useBlockProps({
     className: 'aggressive-apparel-free-shipping-message',
   });
 
-  const previewAmount = customThreshold > 0 ? customThreshold * 0.6 : 150;
-  const previewMessage = `$${previewAmount.toFixed(0)} Away from ${emphasisText || 'FREE Shipping'}!`;
-
   return (
     <>
+      <WordingToolbar {...wording} />
+
       <InspectorControls>
-        <PanelBody title={__('Message', 'aggressive-apparel')} initialOpen>
-          <TextControl
-            __next40pxDefaultSize
-            __nextHasNoMarginBottom
-            label={__('Emphasis text', 'aggressive-apparel')}
-            value={emphasisText}
-            onChange={value => setAttributes({ emphasisText: value })}
-            help={__(
-              'Shown in ALL CAPS style in the message, e.g. FREE Shipping.',
-              'aggressive-apparel'
-            )}
-          />
+        <WordingPanel {...wording} />
+
+        <PanelBody title={__('Threshold', 'aggressive-apparel')}>
           <TextControl
             __next40pxDefaultSize
             __nextHasNoMarginBottom
@@ -108,9 +104,10 @@ export default function Edit({
           size={iconSize}
           className='aggressive-apparel-free-shipping-message__icon aggressive-apparel-free-shipping-message__icon--prefix'
         />
-        <span className='aggressive-apparel-free-shipping-message__text'>
-          {previewMessage}
-        </span>
+        <WordingText
+          {...wording}
+          className='aggressive-apparel-free-shipping-message__text'
+        />
         <IconEditorPreview
           slug={suffixIcon}
           size={iconSize}

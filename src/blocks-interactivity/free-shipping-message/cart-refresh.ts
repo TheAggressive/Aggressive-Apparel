@@ -8,13 +8,12 @@
 
 import { withScope } from '@wordpress/interactivity';
 import {
+  cartFromMutationBody,
   emptyCartTotals,
   hasCartItemsCookie,
   parseCartTotals,
   type CartResponse,
-  type CurrencyFormat,
   type FreeShippingMessageContext,
-  type FreeShippingBarI18n,
   type ParsedCartTotals,
 } from './cart-data';
 
@@ -24,16 +23,17 @@ export type {
   ParsedCartTotals,
   FreeShippingMessageContext,
   FreeShippingMessageI18n,
-  FreeShippingBarI18n,
+  FreeShippingMessageSegment,
 } from './cart-data';
 
 export {
+  cartFromMutationBody,
   emptyCartTotals,
   hasCartItemsCookie,
   parseCartTotals,
   formatMoney,
+  buildFreeShippingSegments,
   formatFreeShippingMessage,
-  interpolateI18n,
 } from './cart-data';
 
 /** `threshold` 0 = no free shipping in this customer's zone (block hidden). */
@@ -44,15 +44,9 @@ export interface FreeShippingCartContext extends FreeShippingMessageContext {
   restBase: string;
 }
 
-export interface FreeShippingBarContext extends CurrencyFormat {
-  threshold: number;
-  customThreshold: number;
-  cartTotal: number;
+/** The bar shares the message's wording, so its context is a superset. */
+export interface FreeShippingBarContext extends FreeShippingCartContext {
   percent: number;
-  remaining: number;
-  complete: boolean;
-  restBase: string;
-  i18n: FreeShippingBarI18n;
 }
 
 // Matches every request that can change cart totals. WooCommerce Blocks
@@ -71,6 +65,10 @@ const CART_EVENTS = [
 
 const REFRESH_DEBOUNCE_MS = 150;
 
+// WooCommerce's cart events trail the mutation response they announce; a cart
+// published from that response within this window makes the refetch redundant.
+const FRESH_CART_MS = 1000;
+
 /** Receives the cart, or null when the cart is known to be empty. */
 type CartRefreshHandler = (cart: CartResponse | null) => void;
 
@@ -81,6 +79,11 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 // slow pre-mutation response can never overwrite a newer cart.
 let latestFetchId = 0;
 let hubRestBase = '';
+// Mutations are numbered when sent, so a slow response to an older mutation
+// can never overwrite the cart from a newer one.
+let mutationSeq = 0;
+let latestPublishedSeq = 0;
+let lastPublishedAt = 0;
 
 function resolveRequestUrl(input: RequestInfo | URL): string {
   if (typeof input === 'string') {
@@ -166,6 +169,55 @@ function syncSubscribers(): void {
   });
 }
 
+/**
+ * Fan a cart taken straight from a mutation response out to every subscriber.
+ *
+ * This is the instant path: no debounce and no extra cart read. It also
+ * invalidates any in-flight read, which was sent before this mutation landed.
+ */
+function publishMutationCart(cart: CartResponse, seq: number): void {
+  if (seq <= latestPublishedSeq) {
+    return;
+  }
+
+  latestPublishedSeq = seq;
+  latestFetchId++;
+  lastPublishedAt = Date.now();
+
+  if (debounceTimer !== null) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
+
+  subscribers.forEach(handler => {
+    handler(cart);
+  });
+}
+
+/**
+ * Apply a successful mutation's own cart, or refetch when it carries none.
+ */
+function handleMutationBody(body: Promise<unknown>, seq: number): void {
+  void body
+    .then(cartFromMutationBody, () => null)
+    .then(cart => {
+      if (cart) {
+        publishMutationCart(cart, seq);
+      } else {
+        scheduleCartRefresh();
+      }
+    });
+}
+
+/** A cart event only needs a read when no mutation response just covered it. */
+function handleCartEvent(): void {
+  if (Date.now() - lastPublishedAt < FRESH_CART_MS) {
+    return;
+  }
+
+  scheduleCartRefresh();
+}
+
 function scheduleCartRefresh(): void {
   if (debounceTimer !== null) {
     clearTimeout(debounceTimer);
@@ -175,6 +227,20 @@ function scheduleCartRefresh(): void {
     debounceTimer = null;
     refreshSubscribers();
   }, REFRESH_DEBOUNCE_MS);
+}
+
+/**
+ * Parse a copy of a response body, leaving the original to the caller.
+ *
+ * Must run in the same tick the response resolves: the caller's own
+ * continuation may consume the body next, after which clone() throws.
+ */
+function readClonedJson(response: Response): Promise<unknown> {
+  try {
+    return response.clone().json();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 }
 
 function patchFetchForCartMutations(): void {
@@ -190,10 +256,11 @@ function patchFetchForCartMutations(): void {
     // "internal fetch" flag is needed (a global one would swallow real
     // mutations that overlap it).
     if (isCartMutationRequest(input, init)) {
+      const seq = ++mutationSeq;
       void responsePromise.then(
         response => {
           if (response.ok) {
-            scheduleCartRefresh();
+            handleMutationBody(readClonedJson(response), seq);
           }
         },
         () => {}
@@ -232,17 +299,25 @@ function patchXHRForCartMutations(): void {
     },
     ...args: [Document | XMLHttpRequestBodyInit | null | undefined]
   ): void {
+    if (
+      !this._aaCartUrl ||
+      !this._aaCartMethod ||
+      !isCartMutationRequest(this._aaCartUrl, { method: this._aaCartMethod })
+    ) {
+      return nativeSend.apply(this, args);
+    }
+
+    const seq = ++mutationSeq;
     this.addEventListener('load', () => {
-      if (
-        this._aaCartUrl &&
-        this._aaCartMethod &&
-        isCartMutationRequest(this._aaCartUrl, {
-          method: this._aaCartMethod,
-        }) &&
-        this.status >= 200 &&
-        this.status < 300
-      ) {
-        scheduleCartRefresh();
+      if (this.status >= 200 && this.status < 300) {
+        handleMutationBody(
+          Promise.resolve().then(() =>
+            this.responseType === 'json'
+              ? this.response
+              : JSON.parse(this.responseText)
+          ),
+          seq
+        );
       }
     });
 
@@ -258,8 +333,8 @@ function bindGlobalCartListeners(): void {
   listenersBound = true;
 
   CART_EVENTS.forEach(event => {
-    document.addEventListener(event, scheduleCartRefresh);
-    window.addEventListener(event, scheduleCartRefresh);
+    document.addEventListener(event, handleCartEvent);
+    window.addEventListener(event, handleCartEvent);
   });
 
   window.addEventListener('pageshow', event => {

@@ -30,6 +30,16 @@
 		text-align: center;
 	}
 
+	/* Relative weights, so the editor's font-weight setting stays the base. */
+	&__amount {
+		font-weight: bolder;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__emphasis {
+		font-weight: bolder;
+	}
+
 	&--complete &__progress {
 		background-color: var(--shipping-bar-complete);
 	}

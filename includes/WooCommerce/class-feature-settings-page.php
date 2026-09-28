@@ -62,6 +62,7 @@ class Feature_Settings_Page {
 	public function init(): void {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_settings' ) );
 		add_filter(
 			'option_page_capability_' . Feature_Settings::SETTINGS_GROUP,
 			array( $this, 'get_settings_capability' )
@@ -167,19 +168,7 @@ class Feature_Settings_Page {
 		$group = Feature_Settings::SETTINGS_GROUP;
 
 		foreach ( Feature_Settings::get_store_copy_definitions() as $definition ) {
-			$sanitizer = $this->sanitizer;
-
-			register_setting(
-				$group,
-				$definition['option'],
-				array(
-					'type'              => 'string',
-					'default'           => $definition['default'],
-					// Bound to its definition so the sanitizer can validate the
-					// field's placeholders; `register_setting` passes only the value.
-					'sanitize_callback' => static fn( $value ): string => $sanitizer->sanitize_store_copy_text( $value, $definition ),
-				)
-			);
+			register_setting( $group, $definition['option'], $this->store_copy_setting_args( $definition ) );
 		}
 
 		foreach ( Feature_Settings::get_option_schema() as $option => $schema ) {
@@ -200,6 +189,42 @@ class Feature_Settings_Page {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Register the Store Copy options the block editor edits inline.
+	 *
+	 * REST requests never run admin_init, so these are registered again here
+	 * for /wp/v2/settings (which also gates them on manage_options).
+	 *
+	 * @return void
+	 */
+	public function register_rest_settings(): void {
+		foreach ( Feature_Settings::get_store_copy_definitions() as $definition ) {
+			if ( ! empty( $definition['show_in_rest'] ) ) {
+				register_setting( Feature_Settings::SETTINGS_GROUP, $definition['option'], $this->store_copy_setting_args( $definition ) );
+			}
+		}
+	}
+
+	/**
+	 * Setting args for one Store Copy option.
+	 *
+	 * @param array<string, mixed> $definition Store Copy definition.
+	 * @return array<string, mixed>
+	 */
+	private function store_copy_setting_args( array $definition ): array {
+		$sanitizer = $this->sanitizer;
+
+		return array(
+			'type'              => 'string',
+			// Inherit-default fields store blank, so the default is gettext's.
+			'default'           => empty( $definition['inherit_default'] ) ? $definition['default'] : '',
+			'show_in_rest'      => ! empty( $definition['show_in_rest'] ),
+			// Bound to its definition so the sanitizer can validate the
+			// field's placeholders; `register_setting` passes only the value.
+			'sanitize_callback' => static fn( $value ): string => $sanitizer->sanitize_store_copy_text( $value, $definition ),
+		);
 	}
 
 	/**

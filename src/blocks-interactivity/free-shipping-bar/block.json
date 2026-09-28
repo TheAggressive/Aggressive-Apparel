@@ -16,6 +16,20 @@
     "customThreshold": {
       "type": "number",
       "default": 0
+    },
+    "useCustomWording": {
+      "type": "boolean",
+      "default": false
+    },
+    "progressText": {
+      "type": "string",
+      "default": "",
+      "role": "content"
+    },
+    "unlockedText": {
+      "type": "string",
+      "default": "",
+      "role": "content"
     }
   },
   "textdomain": "aggressive-apparel",

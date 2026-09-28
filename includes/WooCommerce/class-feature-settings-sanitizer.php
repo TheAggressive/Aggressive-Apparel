@@ -185,9 +185,17 @@ class Feature_Settings_Sanitizer {
 		$text = sanitize_text_field( $input );
 		$text = trim( $text );
 
+		$max_length = isset( $definition['max_length'] ) ? (int) $definition['max_length'] : 60;
+
 		// mb_* so a cap landing mid-UTF-8-sequence can't leave an invalid trailing byte.
-		if ( mb_strlen( $text ) > 60 ) {
-			$text = mb_substr( $text, 0, 60 );
+		if ( mb_strlen( $text ) > $max_length ) {
+			$text = mb_substr( $text, 0, $max_length );
+		}
+
+		// Unchanged default wording is stored blank, so the field keeps
+		// following the translated default instead of freezing one language.
+		if ( ! empty( $definition['inherit_default'] ) && (string) ( $definition['default'] ?? '' ) === $text ) {
+			return '';
 		}
 
 		return $this->reject_unknown_copy_tokens( $text, $definition );
@@ -236,7 +244,12 @@ class Feature_Settings_Sanitizer {
 
 		$previous = '' !== $option ? get_option( $option, null ) : null;
 
-		return is_string( $previous ) ? $previous : (string) ( $definition['default'] ?? '' );
+		if ( is_string( $previous ) ) {
+			return $previous;
+		}
+
+		// Blank is an inherit-default field's "default", and keeps it translated.
+		return empty( $definition['inherit_default'] ) ? (string) ( $definition['default'] ?? '' ) : '';
 	}
 
 	/**

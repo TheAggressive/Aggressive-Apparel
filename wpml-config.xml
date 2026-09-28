@@ -1,0 +1,17 @@
+<wpml-config>
+	<!--
+		Per-block free-shipping wording (the "Custom wording for this block"
+		override). The site-wide wording is Store Copy, which registers itself
+		with WPML/Polylang string translation at runtime.
+	-->
+	<gutenberg-blocks>
+		<gutenberg-block type="aggressive-apparel/free-shipping-message" translate="1">
+			<key name="progressText" />
+			<key name="unlockedText" />
+		</gutenberg-block>
+		<gutenberg-block type="aggressive-apparel/free-shipping-bar" translate="1">
+			<key name="progressText" />
+			<key name="unlockedText" />
+		</gutenberg-block>
+	</gutenberg-blocks>
+</wpml-config>

@@ -163,6 +163,23 @@ function getRequestedTab(): string | null {
 }
 
 /**
+ * Split `*highlighted*` wording into text and <strong> nodes.
+ *
+ * Mirrors Free_Shipping_Message::wording_to_template(): a pair of asterisks
+ * on one line highlights, an unpaired one stays literal.
+ */
+export function highlightedNodes(text: string): Node[] {
+  return text.split(/\*([^*\r\n]+)\*/).map((part, index) => {
+    if (index % 2 === 0) {
+      return document.createTextNode(part);
+    }
+    const strong = document.createElement('strong');
+    strong.textContent = part;
+    return strong;
+  });
+}
+
+/**
  * Resolve a Store Copy field's placeholders as it is typed.
  *
  * The saved value is validated server-side, but by then the merchant has left
@@ -195,13 +212,21 @@ export function initStoreCopyPreviews(): void {
         return;
       }
 
+      const highlight = preview.dataset.aaHighlight !== undefined;
+
       const render = (): void => {
         const source = input.value.trim() || input.placeholder;
-
-        output.textContent = Object.entries(tokens).reduce(
-          (text, [token, sample]) => text.split(token).join(sample),
+        const text = Object.entries(tokens).reduce(
+          (result, [token, sample]) => result.split(token).join(sample),
           source
         );
+
+        if (!highlight) {
+          output.textContent = text;
+          return;
+        }
+
+        output.replaceChildren(...highlightedNodes(text));
       };
 
       input.addEventListener('input', render);

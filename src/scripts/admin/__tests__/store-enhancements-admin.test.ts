@@ -128,6 +128,22 @@ describe('store copy token preview', () => {
     expect(previewText()).toBe('Save 20%');
   });
 
+  it('bolds asterisked words in highlight fields and keeps a lone asterisk', () => {
+    document.body.innerHTML = `
+      <input type="text" id="aa_fs" value="{amount} to go for *free shipping* 5*" />
+      <p class="aa-store-copy-preview" data-aa-copy-preview="aa_fs"
+         data-aa-tokens='{"{amount}":"$25"}' data-aa-highlight>
+        <span class="aa-store-copy-preview__value"></span>
+      </p>
+    `;
+
+    initStoreCopyPreviews();
+
+    const value = document.querySelector('.aa-store-copy-preview__value');
+    expect(value?.textContent).toBe('$25 to go for free shipping 5*');
+    expect(value?.querySelector('strong')?.textContent).toBe('free shipping');
+  });
+
   it('updates as the merchant types', () => {
     render('Save {percent}%');
     initStoreCopyPreviews();

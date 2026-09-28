@@ -57,10 +57,21 @@ export interface FreeShippingMessageI18n {
   unlockedCustom: string;
 }
 
-export interface FreeShippingBarI18n {
-  progress: string;
-  complete: string;
+/** One styled run of the message (mirrors Free_Shipping::message_segments). */
+export interface FreeShippingMessageSegment {
+  key: string;
+  text: string;
+  amount: boolean;
+  emphasis: boolean;
 }
+
+type SegmentKind = 'text' | 'emphasis' | 'amount';
+
+/**
+ * Template tokens: printf args, a literal percent, and the `{em}`…`{em_end}`
+ * highlight pair. Mirrors Free_Shipping::MESSAGE_TOKEN.
+ */
+const MESSAGE_TOKEN = /%%|%(?:(\d+)\$)?s|\{em\}|\{em_end\}/g;
 
 export interface FreeShippingMessageContext extends CurrencyFormat {
   remaining: number;
@@ -69,24 +80,8 @@ export interface FreeShippingMessageContext extends CurrencyFormat {
   i18n: FreeShippingMessageI18n;
 }
 
-/**
- * Replace WordPress-style placeholders in a translated template.
- */
-export function interpolateI18n(template: string, ...values: string[]): string {
-  let result = template;
-
-  values.forEach((value, index) => {
-    result = result.split(`%${index + 1}$s`).join(value);
-  });
-
-  if (values.length > 0) {
-    result = result.replace('%s', values[0]);
-  }
-
-  return result;
-}
-
-function isDefaultEmphasis(emphasis: string): boolean {
+/** Whether a legacy emphasis phrase is blank or the stock label. */
+export function isDefaultEmphasis(emphasis: string): boolean {
   if (!emphasis) {
     return true;
   }
@@ -96,16 +91,19 @@ function isDefaultEmphasis(emphasis: string): boolean {
 
 /**
  * Format an amount with the currency's symbol position and separators.
+ *
+ * A whole amount drops its zero decimals ($104, not $104.00). Mirrors
+ * Free_Shipping::format_amount() so server HTML matches live updates.
  */
 export function formatMoney(amount: number, format: CurrencyFormat): string {
-  const [integer, fraction] = amount
+  const [integer, fraction = ''] = amount
     .toFixed(format.currencyMinorUnit)
     .split('.');
   const grouped = integer.replace(
     /\B(?=(\d{3})+(?!\d))/g,
     format.currencyThousandSeparator
   );
-  const number = fraction
+  const number = /[1-9]/.test(fraction)
     ? `${grouped}${format.currencyDecimalSeparator}${fraction}`
     : grouped;
 
@@ -113,29 +111,97 @@ export function formatMoney(amount: number, format: CurrencyFormat): string {
 }
 
 /**
- * Build the ticker-style free shipping message.
+ * Tokenize a message template into segments.
+ *
+ * Unbalanced or missing `{em}` markers degrade to plain text; a missing
+ * printf argument renders nothing.
+ */
+function splitTemplate(
+  template: string,
+  args: Array<[string, SegmentKind]>
+): FreeShippingMessageSegment[] {
+  const parts: Array<[string, SegmentKind]> = [];
+  const push = (text: string, kind: SegmentKind): void => {
+    if (!text) {
+      return;
+    }
+    const last = parts[parts.length - 1];
+    if (last && kind !== 'amount' && last[1] === kind) {
+      last[0] += text;
+      return;
+    }
+    parts.push([text, kind]);
+  };
+
+  let emphasized = false;
+  let nextArg = 0;
+  let offset = 0;
+
+  for (const match of template.matchAll(MESSAGE_TOKEN)) {
+    const [token, argNumber] = match;
+    const literal: SegmentKind = emphasized ? 'emphasis' : 'text';
+
+    push(template.slice(offset, match.index), literal);
+    offset = (match.index ?? 0) + token.length;
+
+    if (token === '{em}' || token === '{em_end}') {
+      emphasized = token === '{em}';
+    } else if (token === '%%') {
+      push('%', literal);
+    } else {
+      const arg = args[argNumber ? parseInt(argNumber, 10) - 1 : nextArg++];
+      if (arg) {
+        push(arg[0], arg[1]);
+      }
+    }
+  }
+
+  push(template.slice(offset), emphasized ? 'emphasis' : 'text');
+
+  return parts.map(([text, kind], index) => ({
+    key: `${index}-${kind}`,
+    text,
+    amount: kind === 'amount',
+    emphasis: kind === 'emphasis',
+  }));
+}
+
+/**
+ * Build the ticker-style free shipping message as styled segments.
+ */
+export function buildFreeShippingSegments(
+  ctx: FreeShippingMessageContext
+): FreeShippingMessageSegment[] {
+  const emphasis = ctx.emphasisText.trim();
+  const isDefault = isDefaultEmphasis(emphasis);
+  const { i18n } = ctx;
+  const phrase: [string, SegmentKind] = [emphasis, 'emphasis'];
+
+  if (ctx.complete) {
+    return isDefault
+      ? splitTemplate(i18n.unlockedDefault, [])
+      : splitTemplate(i18n.unlockedCustom, [phrase]);
+  }
+
+  const amount: [string, SegmentKind] = [
+    formatMoney(ctx.remaining, ctx),
+    'amount',
+  ];
+
+  return isDefault
+    ? splitTemplate(i18n.progressDefault, [amount])
+    : splitTemplate(i18n.progressCustom, [amount, phrase]);
+}
+
+/**
+ * Build the ticker-style free shipping message as plain text.
  */
 export function formatFreeShippingMessage(
   ctx: FreeShippingMessageContext
 ): string {
-  const emphasis = ctx.emphasisText.trim();
-  const { i18n } = ctx;
-
-  if (ctx.complete) {
-    if (isDefaultEmphasis(emphasis)) {
-      return i18n.unlockedDefault;
-    }
-
-    return interpolateI18n(i18n.unlockedCustom, emphasis);
-  }
-
-  const amount = formatMoney(ctx.remaining, ctx);
-
-  if (isDefaultEmphasis(emphasis)) {
-    return interpolateI18n(i18n.progressDefault, amount);
-  }
-
-  return interpolateI18n(i18n.progressCustom, amount, emphasis);
+  return buildFreeShippingSegments(ctx)
+    .map(segment => segment.text)
+    .join('');
 }
 
 /**
@@ -204,6 +270,40 @@ export function parseCartTotals(
     currencyThousandSeparator:
       totals.currency_thousand_separator ?? fallback.currencyThousandSeparator,
   };
+}
+
+/**
+ * The cart carried by a Store API mutation response, if any.
+ *
+ * Cart routes (add-item, update-item, remove-item, coupons, update-customer)
+ * answer with the full cart, extensions included; the batch route wraps one
+ * response per request, and its last successful cart is the newest state.
+ * Anything else (wc-ajax fragments) returns null, so the caller refetches.
+ */
+export function cartFromMutationBody(body: unknown): CartResponse | null {
+  const isCart = (value: unknown): value is CartResponse =>
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as CartResponse).totals?.total_items === 'string';
+
+  if (isCart(body)) {
+    return body;
+  }
+
+  const responses = (body as { responses?: unknown } | null)?.responses;
+  if (!Array.isArray(responses)) {
+    return null;
+  }
+
+  for (let i = responses.length - 1; i >= 0; i--) {
+    const entry = responses[i] as { status?: number; body?: unknown } | null;
+    const status = entry?.status ?? 0;
+    if (status >= 200 && status < 300 && isCart(entry?.body)) {
+      return entry.body;
+    }
+  }
+
+  return null;
 }
 
 /**

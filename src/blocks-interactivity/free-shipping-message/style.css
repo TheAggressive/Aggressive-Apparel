@@ -11,8 +11,14 @@
   white-space: nowrap;
   margin: 0;
 
-  &__text {
-    line-height: 1.2;
+  /* Relative weights, so the editor's font-weight setting stays the base. */
+  &__amount {
+    font-weight: bolder;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__emphasis {
+    font-weight: bolder;
   }
 
   &__icon {

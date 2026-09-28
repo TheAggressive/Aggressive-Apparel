@@ -13,10 +13,11 @@
 declare(strict_types=1);
 
 use Aggressive_Apparel\WooCommerce\Free_Shipping;
+use Aggressive_Apparel\WooCommerce\Free_Shipping_Message;
 
 defined( 'ABSPATH' ) || exit;
 
-if ( ! function_exists( 'WC' ) || ! function_exists( 'wc_price' ) ) {
+if ( ! function_exists( 'WC' ) ) {
 	return;
 }
 
@@ -27,25 +28,24 @@ if ( null === $progress ) {
 	return;
 }
 
-$threshold  = $progress['threshold'];
-$cart_total = $progress['cart_total'];
-$remaining  = $progress['remaining'];
-$percent    = $progress['percent'];
-$complete   = $progress['complete'];
-$message    = Free_Shipping::format_bar_message( $remaining, $complete );
+$threshold = $progress['threshold'];
+$percent   = $progress['percent'];
+$complete  = $progress['complete'];
+
+Free_Shipping_Message::register_segments_state( 'aggressive-apparel/free-shipping-bar' );
 
 $context = (string) wp_json_encode(
 	array_merge(
 		array(
 			'threshold'       => $threshold,
 			'customThreshold' => $custom_threshold,
-			'cartTotal'       => $cart_total,
+			'cartTotal'       => $progress['cart_total'],
 			'percent'         => $percent,
-			'remaining'       => $remaining,
+			'remaining'       => $progress['remaining'],
 			'complete'        => $complete,
 			'restBase'        => esc_url_raw( rest_url( 'wc/store/v1' ) ),
-			'i18n'            => Free_Shipping::get_bar_message_i18n(),
 		),
+		Free_Shipping_Message::block_context( $attributes ),
 		Free_Shipping::get_currency_context()
 	)
 );
@@ -84,6 +84,7 @@ echo wp_kses(
 		class="aggressive-apparel-shipping-bar__track"
 		role="progressbar"
 		aria-valuenow="<?php echo esc_attr( (string) round( $percent, 1 ) ); ?>"
+		data-wp-bind--aria-valuenow="state.progressValue"
 		aria-valuemin="0"
 		aria-valuemax="100"
 		aria-label="<?php esc_attr_e( 'Free shipping progress', 'aggressive-apparel' ); ?>"
@@ -94,7 +95,5 @@ echo wp_kses(
 			data-wp-style--width="state.progressWidth"
 		></div>
 	</div>
-	<p class="aggressive-apparel-shipping-bar__message" data-wp-text="state.message">
-		<?php echo esc_html( $message ); ?>
-	</p>
+	<p class="aggressive-apparel-shipping-bar__message" aria-live="polite" aria-atomic="true"><template data-wp-each--segment="state.segments" data-wp-each-key="context.segment.key"><span data-wp-class--aggressive-apparel-shipping-bar__amount="context.segment.amount" data-wp-class--aggressive-apparel-shipping-bar__emphasis="context.segment.emphasis" data-wp-text="context.segment.text"></span></template></p>
 </div>

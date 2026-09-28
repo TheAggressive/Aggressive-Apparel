@@ -6,16 +6,18 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import {
-  formatFreeShippingMessage,
+  buildFreeShippingSegments,
   subscribeFreeShippingCartRefresh,
   type FreeShippingCartContext,
+  type FreeShippingMessageSegment,
 } from './cart-refresh';
 
 store('aggressive-apparel/free-shipping-message', {
   state: {
-    get message(): string {
+    // Server twin: Free_Shipping::message_segments(), registered in render.php.
+    get segments(): FreeShippingMessageSegment[] {
       const ctx = getContext<FreeShippingCartContext>();
-      return formatFreeShippingMessage(ctx);
+      return buildFreeShippingSegments(ctx);
     },
   },
 

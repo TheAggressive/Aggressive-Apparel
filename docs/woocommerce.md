@@ -81,7 +81,9 @@ the free-shipping blocks rely on it for empty-cart visitors (below).
   wording is declared in `wpml-config.xml`. Server HTML and live updates
   render the same segments (`Free_Shipping_Message::segments()` /
   `buildFreeShippingSegments()`); translators get `{em}`…`{em_end}` markers,
-  which the i18n placeholder lint protects.
+  which the i18n placeholder lint protects. Custom code can replace the
+  default templates with `aggressive_apparel_free_shipping_message_i18n`,
+  which supersedes the removed `aggressive_apparel_free_shipping_bar_message_i18n`.
 - **Currency** — WooPayments multi-currency is supported built in. Other
   switchers: convert `min_amount` via `woocommerce_shipping_zone_shipping_methods`
   (as WooPayments does) and supply the rate for store-currency overrides through

@@ -57,7 +57,7 @@ export interface FreeShippingMessageI18n {
   unlockedCustom: string;
 }
 
-/** One styled run of the message (mirrors Free_Shipping::message_segments). */
+/** One styled run of the message (mirrors Free_Shipping_Message::segments). */
 export interface FreeShippingMessageSegment {
   key: string;
   text: string;
@@ -69,7 +69,7 @@ type SegmentKind = 'text' | 'emphasis' | 'amount';
 
 /**
  * Template tokens: printf args, a literal percent, and the `{em}`…`{em_end}`
- * highlight pair. Mirrors Free_Shipping::MESSAGE_TOKEN.
+ * highlight pair. Mirrors Free_Shipping_Message::MESSAGE_TOKEN.
  */
 const MESSAGE_TOKEN = /%%|%(?:(\d+)\$)?s|\{em\}|\{em_end\}/g;
 
@@ -93,7 +93,7 @@ export function isDefaultEmphasis(emphasis: string): boolean {
  * Format an amount with the currency's symbol position and separators.
  *
  * A whole amount drops its zero decimals ($104, not $104.00). Mirrors
- * Free_Shipping::format_amount() so server HTML matches live updates.
+ * Free_Shipping_Message::format_amount() so server HTML matches live updates.
  */
 export function formatMoney(amount: number, format: CurrencyFormat): string {
   const [integer, fraction = ''] = amount

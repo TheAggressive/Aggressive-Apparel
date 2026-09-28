@@ -14,7 +14,7 @@ import {
 
 store('aggressive-apparel/free-shipping-message', {
   state: {
-    // Server twin: Free_Shipping::message_segments(), registered in render.php.
+    // Server twin: Free_Shipping_Message::segments(), registered in render.php.
     get segments(): FreeShippingMessageSegment[] {
       const ctx = getContext<FreeShippingCartContext>();
       return buildFreeShippingSegments(ctx);

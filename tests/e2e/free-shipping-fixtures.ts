@@ -31,6 +31,9 @@ const OPTIONS = [
   'woocommerce_price_num_decimals',
   'woocommerce_default_country',
   'woocommerce_default_customer_address',
+  // Store Copy wording; restored so a wording test never leaks into the site.
+  'aggressive_apparel_free_shipping_progress_text',
+  'aggressive_apparel_free_shipping_unlocked_text',
 ];
 
 const RESTORE_PHP = `
@@ -175,6 +178,16 @@ export function createFreeShippingFixture(): FreeShippingFixture {
     deleteFreeShippingFixture();
     throw error;
   }
+}
+
+/** Set the site-wide Store Copy wording for the in-progress message. */
+export function setProgressWording(wording: string): void {
+  wpCli([
+    'option',
+    'update',
+    'aggressive_apparel_free_shipping_progress_text',
+    wording,
+  ]);
 }
 
 /** Point the guest default location (store base) at a country. */

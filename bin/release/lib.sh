@@ -29,6 +29,7 @@ AA_PACKAGE_INCLUDE=(
 	'screenshot.png'
 	'style.css'
 	'theme.json'
+	'wpml-config.xml'
 	'build'
 	'includes'
 	'languages'

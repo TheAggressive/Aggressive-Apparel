@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Free Shipping Message",
   "category": "aggressive-apparel",
-  "description": "Live free-shipping amount message with optional prefix and suffix icons. Designed for the Ticker block.",
+  "description": "Live free-shipping amount message using the shared Store Copy wording, with optional per-block wording and prefix and suffix icons. Designed for the Ticker block.",
   "keywords": ["shipping", "free", "ticker", "marquee", "message"],
   "supports": {
     "requiresPlugins": ["woocommerce"],
@@ -31,6 +31,20 @@
     "customThreshold": {
       "type": "number",
       "default": 0
+    },
+    "useCustomWording": {
+      "type": "boolean",
+      "default": false
+    },
+    "progressText": {
+      "type": "string",
+      "default": "",
+      "role": "content"
+    },
+    "unlockedText": {
+      "type": "string",
+      "default": "",
+      "role": "content"
     },
     "emphasisText": {
       "type": "string",

@@ -7,6 +7,7 @@ import {
   createFreeShippingFixture,
   deleteFreeShippingFixture,
   setGuestCountry,
+  setProgressWording,
   type FreeShippingFixture,
 } from './free-shipping-fixtures';
 
@@ -23,8 +24,10 @@ declare global {
   }
 }
 
+/** Store format: whole amounts drop their zero decimals (200 €, 170,01 €). */
 function euro(amount: number): string {
-  return `${amount.toFixed(2).replace('.', ',')} €`;
+  const fixed = amount.toFixed(2).replace(/\.00$/, '');
+  return `${fixed.replace('.', ',')} €`;
 }
 
 /** The fixture page's own block (headers may carry more instances). */
@@ -134,5 +137,32 @@ test.describe('Free shipping — international zones', () => {
     await expect(block(page)).toContainText(
       `${euro(THRESHOLD - PRODUCT_PRICE)} Away from FREE Shipping!`
     );
+  });
+
+  test('renders the shared wording with highlights and updates it in place', async ({
+    page,
+  }) => {
+    setProgressWording('Just {amount} to *free shipping*');
+
+    await page.goto(fixture!.pageUrl);
+    await page.waitForLoadState('networkidle');
+
+    const amount = block(page).locator(
+      '.aggressive-apparel-free-shipping-message__amount'
+    );
+    await expect(block(page)).toContainText(
+      `Just ${euro(THRESHOLD)} to free shipping`
+    );
+    await expect(amount).toHaveText(euro(THRESHOLD));
+    await expect(
+      block(page).locator('.aggressive-apparel-free-shipping-message__emphasis')
+    ).toHaveText('free shipping');
+
+    // The mutation's own response carries the cart: no reload, no re-read.
+    await storeApiPost(page, '/cart/add-item', {
+      id: fixture!.productId,
+      quantity: 1,
+    });
+    await expect(amount).toHaveText(euro(THRESHOLD - PRODUCT_PRICE));
   });
 });

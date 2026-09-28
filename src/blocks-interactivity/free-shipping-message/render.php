@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Aggressive_Apparel\Blocks\Icon_Block;
 use Aggressive_Apparel\WooCommerce\Free_Shipping;
+use Aggressive_Apparel\WooCommerce\Free_Shipping_Message;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,13 +24,11 @@ if ( null === $progress ) {
 	return;
 }
 
-$emphasis_text = sanitize_text_field( $attributes['emphasisText'] ?? 'FREE Shipping' );
-$prefix_icon   = sanitize_key( $attributes['prefixIcon'] ?? '' );
-$suffix_icon   = sanitize_key( $attributes['suffixIcon'] ?? '' );
-$icon_size     = Icon_Block::sanitize_size( $attributes['iconSize'] ?? 24 );
-$remaining     = $progress['remaining'];
-$complete      = $progress['complete'];
-$message       = Free_Shipping::format_message( $remaining, $emphasis_text, $complete );
+$prefix_icon = sanitize_key( $attributes['prefixIcon'] ?? '' );
+$suffix_icon = sanitize_key( $attributes['suffixIcon'] ?? '' );
+$icon_size   = Icon_Block::sanitize_size( $attributes['iconSize'] ?? 24 );
+
+Free_Shipping_Message::register_segments_state( 'aggressive-apparel/free-shipping-message' );
 
 $context = (string) wp_json_encode(
 	array_merge(
@@ -37,12 +36,11 @@ $context = (string) wp_json_encode(
 			'threshold'       => $progress['threshold'],
 			'customThreshold' => $custom_threshold,
 			'cartTotal'       => $progress['cart_total'],
-			'remaining'       => $remaining,
-			'complete'        => $complete,
+			'remaining'       => $progress['remaining'],
+			'complete'        => $progress['complete'],
 			'restBase'        => esc_url_raw( rest_url( 'wc/store/v1' ) ),
-			'emphasisText'    => $emphasis_text,
-			'i18n'            => Free_Shipping::get_message_i18n(),
 		),
+		Free_Shipping_Message::block_context( $attributes ),
 		Free_Shipping::get_currency_context()
 	)
 );
@@ -80,9 +78,7 @@ $suffix_markup = Icon_Block::render_wrapped_svg(
 		<?php echo aggressive_apparel_trusted_html( $prefix_markup ); ?>
 	<?php endif; ?>
 
-	<span class="aggressive-apparel-free-shipping-message__text" aria-live="polite" aria-atomic="true" data-wp-text="state.message">
-		<?php echo esc_html( $message ); ?>
-	</span>
+	<span class="aggressive-apparel-free-shipping-message__text" aria-live="polite" aria-atomic="true"><template data-wp-each--segment="state.segments" data-wp-each-key="context.segment.key"><span data-wp-class--aggressive-apparel-free-shipping-message__amount="context.segment.amount" data-wp-class--aggressive-apparel-free-shipping-message__emphasis="context.segment.emphasis" data-wp-text="context.segment.text"></span></template></span>
 
 	<?php if ( '' !== $suffix_markup ) : ?>
 		<?php echo aggressive_apparel_trusted_html( $suffix_markup ); ?>

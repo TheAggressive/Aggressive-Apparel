@@ -7,19 +7,28 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import {
-  formatMoney,
-  interpolateI18n,
+  buildFreeShippingSegments,
+  type FreeShippingMessageSegment,
 } from '../free-shipping-message/cart-data';
 import {
   subscribeFreeShippingBarCartRefresh,
   type FreeShippingBarContext,
 } from '../free-shipping-message/cart-refresh';
 
+function progressPercent(ctx: FreeShippingBarContext): number {
+  return Math.round(Math.min(100, ctx.percent) * 10) / 10;
+}
+
 store('aggressive-apparel/free-shipping-bar', {
   state: {
     get progressWidth(): string {
       const ctx = getContext<FreeShippingBarContext>();
-      return `${Math.min(100, ctx.percent).toFixed(1)}%`;
+      return `${progressPercent(ctx)}%`;
+    },
+
+    get progressValue(): number {
+      const ctx = getContext<FreeShippingBarContext>();
+      return progressPercent(ctx);
     },
 
     get isComplete(): boolean {
@@ -27,17 +36,10 @@ store('aggressive-apparel/free-shipping-bar', {
       return ctx.complete;
     },
 
-    get message(): string {
+    // Server twin: Free_Shipping_Message::segments(), registered in render.php.
+    get segments(): FreeShippingMessageSegment[] {
       const ctx = getContext<FreeShippingBarContext>();
-
-      if (ctx.complete) {
-        return ctx.i18n.complete;
-      }
-
-      return interpolateI18n(
-        ctx.i18n.progress,
-        formatMoney(ctx.remaining, ctx)
-      );
+      return buildFreeShippingSegments(ctx);
     },
   },
 

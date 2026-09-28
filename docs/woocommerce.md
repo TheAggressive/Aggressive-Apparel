@@ -65,7 +65,23 @@ the free-shipping blocks rely on it for empty-cart visitors (below).
   reveal it client-side.
 - **No request for empty carts** — without the `woocommerce_items_in_cart`
   cookie the cart side is zero and the server-rendered threshold is trusted
-  (hence the cache-variation requirement above). Any cart mutation refetches.
+  (hence the cache-variation requirement above).
+- **Instant updates** — Store API cart mutations (including `/batch`) answer
+  with the full cart, extensions included; the blocks apply that response
+  directly, with no second read. Mutations are sequenced, so a late response
+  to an older mutation is dropped. Only responses without a cart (classic
+  `wc-ajax` add-to-cart) fall back to a debounced `/cart` read.
+- **Wording** — `Free_Shipping_Message` resolves the copy in layers: the
+  block's own wording ("Custom wording for this block"), then a legacy
+  `emphasisText` phrase, then the site wording (two **Store Copy** fields,
+  also editable inline in either block like Site Title), then the gettext
+  default. Wording is plain text — `{amount}` for the amount, `*asterisks*`
+  to highlight. A blank Store Copy field follows the translated default;
+  saved wording goes to WPML/Polylang string translation, and per-block
+  wording is declared in `wpml-config.xml`. Server HTML and live updates
+  render the same segments (`Free_Shipping_Message::segments()` /
+  `buildFreeShippingSegments()`); translators get `{em}`…`{em_end}` markers,
+  which the i18n placeholder lint protects.
 - **Currency** — WooPayments multi-currency is supported built in. Other
   switchers: convert `min_amount` via `woocommerce_shipping_zone_shipping_methods`
   (as WooPayments does) and supply the rate for store-currency overrides through

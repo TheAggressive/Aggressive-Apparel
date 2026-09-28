@@ -24,7 +24,7 @@ Features are managed under **Appearance → Store Enhancements** and default to 
 
 Appearance features that work without WooCommerce (**Adaptive Colors**, and future Core toggles) live under **Appearance → Theme Features**.
 
-A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, and similar strings).
+A separate **Store Copy** tab controls storefront microcopy (button labels, filter text, wishlist copy, free-shipping messages, and similar strings).
 
 | Feature                    | Section                     | Description                                                                                                                  |
 | -------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |

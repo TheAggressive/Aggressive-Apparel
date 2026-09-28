@@ -18,11 +18,11 @@ msgstr "ZZ-BROWSE-SHOP"
 msgid "No products were found matching your selection."
 msgstr "ZZ-NO-PRODUCTS"
 
-msgid "%s Away from FREE Shipping!"
-msgstr "ZZ-%s-AWAY-FREE-SHIPPING"
+msgid "%s Away from {em}FREE Shipping{em_end}!"
+msgstr "ZZ-%s-AWAY-{em}FREE-SHIPPING{em_end}"
 
-msgid "FREE Shipping UNLOCKED!"
-msgstr "ZZ-FREE-SHIPPING-UNLOCKED"
+msgid "{em}FREE Shipping{em_end} UNLOCKED!"
+msgstr "ZZ-{em}FREE-SHIPPING{em_end}-UNLOCKED"
 
 msgid "Adding…"
 msgstr "ZZ-ADDING"

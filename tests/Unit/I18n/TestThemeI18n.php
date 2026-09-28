@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Unit\I18n;
 
 use Aggressive_Apparel\Assets\Asset_Loader;
-use Aggressive_Apparel\WooCommerce\Free_Shipping;
+use Aggressive_Apparel\WooCommerce\Free_Shipping_Message;
 use WP_UnitTestCase;
 
 /**
@@ -92,21 +92,15 @@ class TestThemeI18n extends WP_UnitTestCase {
 		$this->load_fixture_textdomain();
 
 		try {
-			$i18n = Free_Shipping::get_message_i18n();
+			$i18n = Free_Shipping_Message::get_default_templates();
 
 			$this->assertSame(
-				'ZZ-%s-AWAY-FREE-SHIPPING',
+				'ZZ-%s-AWAY-{em}FREE-SHIPPING{em_end}',
 				$i18n['progressDefault']
 			);
 			$this->assertSame(
-				'ZZ-FREE-SHIPPING-UNLOCKED',
+				'ZZ-{em}FREE-SHIPPING{em_end}-UNLOCKED',
 				$i18n['unlockedDefault']
-			);
-
-			$bar = Free_Shipping::get_bar_message_i18n();
-			$this->assertSame(
-				'ZZ-%s-AWAY-FREE-SHIPPING',
-				$bar['progress']
 			);
 		} finally {
 			$this->unload_fixture_textdomain();

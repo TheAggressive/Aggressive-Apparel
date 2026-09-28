@@ -34,7 +34,7 @@ trait Store_Copy {
 	/**
 	 * Storefront microcopy settings with labels, defaults, and admin help.
 	 *
-	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
+	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
 	 */
 	public static function get_store_copy_definitions(): array {
 		$locale = determine_locale();
@@ -47,7 +47,7 @@ trait Store_Copy {
 		 * Cached value is the built list; the property is loosely typed so the
 		 * trait can hold it without repeating the full shape.
 		 *
-		 * @var array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
+		 * @var array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
 		 */
 		return self::$store_copy_definitions_cache[ $locale ];
 	}
@@ -62,8 +62,14 @@ trait Store_Copy {
 	 * `tokens` maps each supported placeholder to a sample value: declaring it
 	 * turns on save-time validation and the admin preview, so a typo like
 	 * `{percnt}` is rejected instead of shipping to the storefront verbatim.
+	 * `inherit_default` keeps a blank field blank (shown as the placeholder)
+	 * and stores wording equal to the default as blank, so an untouched field
+	 * keeps following the translated default in every locale. `highlight`
+	 * renders `*asterisked*` words bold in the preview, and `max_length`
+	 * raises the 60-character cap. `show_in_rest` exposes the option to the
+	 * block editor (edited inline, like the Site Title block's title).
 	 *
-	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>}>
+	 * @return array<string, array{option: string, label: string, default: string, description: string, suggestions?: list<string>, placeholder?: string, allow_empty?: bool, tokens?: array<string, string>, inherit_default?: bool, highlight?: bool, max_length?: int, show_in_rest?: bool}>
 	 */
 	private static function build_store_copy_definitions(): array {
 		return array(
@@ -203,7 +209,42 @@ trait Store_Copy {
 					__( 'You save {percent}%', 'aggressive-apparel' ),
 				),
 			),
+			'free_shipping_progress_text'   => array(
+				'option'          => Free_Shipping_Message::PROGRESS_WORDING_OPTION,
+				'label'           => __( 'Free Shipping Message', 'aggressive-apparel' ),
+				'default'         => Free_Shipping_Message::default_wording( 'progress' ),
+				'description'     => __( 'Shown by the Free Shipping Message and Free Shipping Bar blocks while the cart is below the free shipping threshold. Use {amount} for the amount still needed and put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language.', 'aggressive-apparel' ),
+				'tokens'          => array( Free_Shipping_Message::AMOUNT_TOKEN => self::free_shipping_sample_amount() ),
+				'inherit_default' => true,
+				'highlight'       => true,
+				'max_length'      => 120,
+				'show_in_rest'    => true,
+			),
+			'free_shipping_unlocked_text'   => array(
+				'option'          => Free_Shipping_Message::UNLOCKED_WORDING_OPTION,
+				'label'           => __( 'Free Shipping Unlocked Message', 'aggressive-apparel' ),
+				'default'         => Free_Shipping_Message::default_wording( 'unlocked' ),
+				'description'     => __( 'Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language.', 'aggressive-apparel' ),
+				'tokens'          => array(),
+				'inherit_default' => true,
+				'highlight'       => true,
+				'max_length'      => 120,
+				'show_in_rest'    => true,
+			),
 		);
+	}
+
+	/**
+	 * Sample for the free-shipping `{amount}` preview, in the store currency.
+	 *
+	 * @return string
+	 */
+	private static function free_shipping_sample_amount(): string {
+		if ( ! function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			return '25';
+		}
+
+		return Free_Shipping_Message::format_amount( 25.0, Free_Shipping::get_currency_context() );
 	}
 
 	/**
@@ -275,7 +316,14 @@ trait Store_Copy {
 	public static function register_store_copy_translation_strings(): void {
 		foreach ( self::get_store_copy_definitions() as $definition ) {
 			$option_name = $definition['option'];
-			$value       = self::get_store_copy_base_text( $option_name, $definition['default'] );
+
+			// A blank inherit-default field renders gettext's translation, so
+			// only wording a merchant actually saved goes to string translation.
+			if ( ! empty( $definition['inherit_default'] ) && '' === trim( (string) get_option( $option_name, '' ) ) ) {
+				continue;
+			}
+
+			$value = self::get_store_copy_base_text( $option_name, $definition['default'] );
 
 			do_action(
 				'wpml_register_single_string',

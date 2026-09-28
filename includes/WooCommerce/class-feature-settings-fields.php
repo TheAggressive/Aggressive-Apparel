@@ -74,8 +74,13 @@ class Feature_Settings_Fields {
 		$option_name = (string) $args['option'];
 		$default     = (string) $args['default'];
 		$placeholder = isset( $args['placeholder'] ) ? (string) $args['placeholder'] : $default;
-		$value       = Feature_Settings::get_store_copy_text( $option_name );
+		$max_length  = isset( $args['max_length'] ) ? (int) $args['max_length'] : 60;
 		$desc_id     = $option_name . '-desc';
+		// Inherit-default fields show only saved wording; blank shows the
+		// translated default as the placeholder.
+		$value = empty( $args['inherit_default'] )
+			? Feature_Settings::get_store_copy_text( $option_name )
+			: (string) get_option( $option_name, '' );
 
 		$suggestions = ( isset( $args['suggestions'] ) && is_array( $args['suggestions'] ) )
 			? array_values( array_filter( array_map( 'strval', $args['suggestions'] ) ) )
@@ -83,12 +88,13 @@ class Feature_Settings_Fields {
 		$list_id     = '' !== implode( '', $suggestions ) ? $option_name . '-suggestions' : '';
 
 		printf(
-			'<input type="text" id="%1$s" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="60" aria-describedby="%4$s"%5$s />',
+			'<input type="text" id="%1$s" name="%1$s" value="%2$s" placeholder="%3$s" class="regular-text" maxlength="%6$d" aria-describedby="%4$s"%5$s />',
 			esc_attr( $option_name ),
 			esc_attr( $value ),
 			esc_attr( $placeholder ),
 			esc_attr( $desc_id ),
 			'' !== $list_id ? ' list="' . esc_attr( $list_id ) . '"' : '',
+			absint( $max_length ),
 		);
 
 		if ( '' !== $list_id ) {
@@ -111,7 +117,7 @@ class Feature_Settings_Fields {
 	/**
 	 * Render the live token preview for a Store Copy field.
 	 *
-	 * Only fields that declare `tokens` get one. Showing the resolved wording as
+	 * Only fields that declare `tokens` or `highlight` get one. Showing the resolved wording as
 	 * it is typed is what makes a mistyped placeholder obvious — the saved value
 	 * is validated too, but by then the merchant has already left the field.
 	 *
@@ -120,15 +126,19 @@ class Feature_Settings_Fields {
 	 * @return void
 	 */
 	private function render_store_copy_preview( string $option_name, array $args ): void {
-		if ( ! isset( $args['tokens'] ) || ! is_array( $args['tokens'] ) || array() === $args['tokens'] ) {
+		$highlight  = ! empty( $args['highlight'] );
+		$has_tokens = isset( $args['tokens'] ) && is_array( $args['tokens'] ) && array() !== $args['tokens'];
+
+		if ( ! $has_tokens && ! $highlight ) {
 			return;
 		}
 
 		printf(
-			'<p class="aa-store-copy-preview" data-aa-copy-preview="%1$s" data-aa-tokens="%2$s"><span class="aa-store-copy-preview__label">%3$s</span> <span class="aa-store-copy-preview__value"></span></p>',
+			'<p class="aa-store-copy-preview" data-aa-copy-preview="%1$s" data-aa-tokens="%2$s"%4$s><span class="aa-store-copy-preview__label">%3$s</span> <span class="aa-store-copy-preview__value"></span></p>',
 			esc_attr( $option_name ),
-			esc_attr( (string) wp_json_encode( $args['tokens'] ) ),
+			esc_attr( (string) wp_json_encode( $has_tokens ? $args['tokens'] : new \stdClass() ) ),
 			esc_html__( 'Preview:', 'aggressive-apparel' ),
+			$highlight ? ' data-aa-highlight' : '',
 		);
 	}
 

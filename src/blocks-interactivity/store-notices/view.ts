@@ -116,11 +116,12 @@ function announce(toastEl: HTMLElement, notice: StoreNotice): void {
     return;
   }
   // notice.message is already sanitised (server wp_kses / client sanitize on
-  // capture); this scratch node is detached and only read for its text, so no
-  // second sanitiser pass is needed to pull the plain-text announcement.
-  const scratch = document.createElement('div');
+  // capture). Parse into a <template> anyway: its content is inert, whereas a
+  // detached <div> still loads <img> and fires onerror, so this stays safe if
+  // a future notice path skips the sanitiser.
+  const scratch = document.createElement('template');
   scratch.innerHTML = notice.message;
-  const text = (scratch.textContent ?? '').trim();
+  const text = (scratch.content.textContent ?? '').trim();
   if (!text) {
     return;
   }

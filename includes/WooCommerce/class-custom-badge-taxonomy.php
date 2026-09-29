@@ -409,7 +409,7 @@ class Custom_Badge_Taxonomy {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		if ( ! current_user_can( 'edit_term', $term_id ) ) {
 			return;
 		}
 

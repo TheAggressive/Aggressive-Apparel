@@ -76,8 +76,8 @@ class Color_Pattern_Admin {
 			return;
 		}
 
-		// Verify user has permission to manage terms.
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		// Verify user has permission to manage terms (WooCommerce's cap for attribute terms).
+		if ( ! current_user_can( 'manage_product_terms' ) ) {
 			return;
 		}
 
@@ -142,14 +142,7 @@ class Color_Pattern_Admin {
 			wp_die( esc_html__( 'Security check failed.', 'aggressive-apparel' ) );
 		}
 
-		if ( ! current_user_can( 'manage_categories' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions.', 'aggressive-apparel' ) );
-		}
-
-		$term_id = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
-		if ( ! $term_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid term ID.', 'aggressive-apparel' ) ) );
-		}
+		$term_id = $this->authorized_color_term_id();
 
 		// Handle attachment selection from media library.
 		$attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
@@ -193,6 +186,33 @@ class Color_Pattern_Admin {
 	}
 
 	/**
+	 * The posted colour term ID, once the current user may edit colour terms.
+	 *
+	 * Authorizes against the colour attribute's own edit_terms capability
+	 * (WooCommerce: edit_product_terms, held by shop managers and admins), then
+	 * requires the term to belong to that attribute. The previous
+	 * manage_categories check let editors change swatch patterns, on any term.
+	 *
+	 * @return int
+	 */
+	private function authorized_color_term_id(): int {
+		$taxonomy = get_taxonomy( self::ATTRIBUTE_NAME );
+		if ( ! $taxonomy instanceof \WP_Taxonomy || ! current_user_can( $taxonomy->cap->edit_terms ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'aggressive-apparel' ) );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Both callers verify the color_pattern_admin nonce first.
+		$term_id = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
+		$term    = $term_id ? get_term( $term_id, self::ATTRIBUTE_NAME ) : null;
+
+		if ( ! $term instanceof \WP_Term ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid term ID.', 'aggressive-apparel' ) ) );
+		}
+
+		return $term->term_id;
+	}
+
+	/**
 	 * Handle pattern image deletion via AJAX
 	 *
 	 * @return void
@@ -203,14 +223,7 @@ class Color_Pattern_Admin {
 			wp_die( esc_html__( 'Security check failed.', 'aggressive-apparel' ) );
 		}
 
-		if ( ! current_user_can( 'manage_categories' ) ) {
-			wp_die( esc_html__( 'Insufficient permissions.', 'aggressive-apparel' ) );
-		}
-
-		$term_id = isset( $_POST['term_id'] ) ? absint( $_POST['term_id'] ) : 0;
-		if ( ! $term_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid term ID.', 'aggressive-apparel' ) ) );
-		}
+		$term_id = $this->authorized_color_term_id();
 
 		// Get current pattern ID.
 		$pattern_id = get_term_meta( $term_id, 'color_pattern_id', true );

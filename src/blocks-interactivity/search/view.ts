@@ -25,23 +25,14 @@ import {
   SEARCH_MODAL_ID,
   SEARCH_OPEN_BODY_CLASS,
 } from '../nav-shared/overlay-coordination';
+import { escapeHtml, MIN_QUERY_CHARS as MIN_CHARS, renderItem } from './markup';
+import type { SearchResultItem, SearchResultType } from './markup';
 
 type SearchErrorCode =
   '' | 'rate_limited' | 'server_error' | 'network' | 'invalid_response';
 
-interface SearchResultItem {
-  id: number;
-  title: string;
-  url: string;
-  thumbnail?: string;
-  price?: string;
-  onSale?: boolean;
-  excerpt?: string;
-  date?: string;
-}
-
 interface SearchGroup {
-  type: 'product' | 'post' | 'page';
+  type: SearchResultType;
   label: string;
   items: SearchResultItem[];
 }
@@ -125,7 +116,6 @@ const MODAL_ID = SEARCH_MODAL_ID;
 const RESULTS_ID = 'aa-search-results';
 const BODY_OPEN_CLASS = SEARCH_OPEN_BODY_CLASS;
 const DEBOUNCE_MS = 300;
-const MIN_CHARS = 2;
 const DEFAULT_SCOPE = 'all';
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -133,32 +123,6 @@ let controller: AbortController | null = null;
 let focusTrapCleanup: (() => void) | null = null;
 let triggerElement: HTMLElement | null = null;
 let focusedIndex = -1;
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-/**
- * Defense-in-depth: only allow http(s) or root-relative URLs as navigation
- * targets. Result URLs come from server-side get_permalink() so this should
- * always pass, but it neutralises any `javascript:`/`data:` value before it can
- * reach an href or window.location.
- */
-function safeUrl(url: string): string {
-  return /^https?:\/\//i.test(url) || url.startsWith('/') ? url : '#';
-}
-
-function highlight(text: string, query: string): string {
-  const safe = escapeHtml(text);
-  if (query.length < MIN_CHARS) return safe;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return safe.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
-}
 
 /**
  * Drop stale in-page modal copies so only the portaled wp_footer shell remains.
@@ -754,74 +718,3 @@ const { state, actions } = store<SearchStore>(SEARCH_STORE, {
 
   callbacks: {},
 });
-
-/** Result thumbnail (image when present, otherwise an empty placeholder box). */
-function renderThumb(url?: string): string {
-  return url
-    ? `<img class="aa-search__thumb" src="${escapeHtml(
-        url
-      )}" alt="" loading="lazy" width="52" height="52" />`
-    : `<span class="aa-search__thumb aa-search__thumb--empty" aria-hidden="true"></span>`;
-}
-
-/**
- * Build the markup for a single result, branching on content type so each kind
- * is displayed sensibly (product: thumb + price; post: thumb + excerpt + date;
- * page: title only).
- */
-function renderItem(
-  type: SearchGroup['type'],
-  item: SearchResultItem,
-  query: string,
-  optionId: string
-): string {
-  const url = escapeHtml(safeUrl(item.url));
-  const title = highlight(item.title, query);
-
-  if (type === 'product') {
-    const media = renderThumb(item.thumbnail);
-    const sale = item.onSale
-      ? `<span class="aa-search__badge">Sale</span>`
-      : '';
-    const price = item.price
-      ? `<span class="aa-search__price">${escapeHtml(item.price)}</span>`
-      : '';
-    // Name on the left, price + sale stacked on the right.
-    return (
-      `<a class="aa-search__result aa-search__result--product" role="option" id="${optionId}" href="${url}">` +
-      media +
-      `<span class="aa-search__result-body">` +
-      `<span class="aa-search__result-title">${title}</span>` +
-      `</span>` +
-      `<span class="aa-search__result-end">${price}${sale}</span>` +
-      `</a>`
-    );
-  }
-
-  if (type === 'post') {
-    const media = renderThumb(item.thumbnail);
-    const excerpt = item.excerpt
-      ? `<span class="aa-search__excerpt">${escapeHtml(item.excerpt)}</span>`
-      : '';
-    const date = item.date
-      ? `<span class="aa-search__date">${escapeHtml(item.date)}</span>`
-      : '';
-    return (
-      `<a class="aa-search__result aa-search__result--post" role="option" id="${optionId}" href="${url}">` +
-      media +
-      `<span class="aa-search__result-body">` +
-      `<span class="aa-search__result-title">${title}</span>` +
-      excerpt +
-      date +
-      `</span></a>`
-    );
-  }
-
-  // Page.
-  return (
-    `<a class="aa-search__result aa-search__result--page" role="option" id="${optionId}" href="${url}">` +
-    `<span class="aa-search__result-title">${title}</span>` +
-    `<span class="aa-search__result-kind" aria-hidden="true">Page</span>` +
-    `</a>`
-  );
-}

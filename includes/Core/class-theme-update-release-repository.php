@@ -125,12 +125,6 @@ final class Theme_Update_Release_Repository {
 			return $asset_url;
 		}
 
-		if ( isset( $release_data['zipball_url'] ) && is_string( $release_data['zipball_url'] ) ) {
-			return $this->is_allowed_package_url( $release_data['zipball_url'] )
-				? $release_data['zipball_url']
-				: false;
-		}
-
 		if ( isset( $release_data['tag_name'] ) && is_string( $release_data['tag_name'] ) ) {
 			$tag = ltrim( $release_data['tag_name'], 'v' );
 			$url = "{$this->get_repository_url()}/releases/download/v{$tag}/aggressive-apparel-{$tag}.zip";
@@ -197,16 +191,11 @@ final class Theme_Update_Release_Repository {
 		$owner = strtolower( $this->owner );
 		$repo  = strtolower( $this->repository );
 
-		if ( 'github.com' === $host ) {
-			return str_starts_with( $path, "/{$owner}/{$repo}/releases/download/" )
-				&& str_ends_with( $path, '.zip' );
-		}
-
-		if ( 'api.github.com' === $host ) {
-			return str_starts_with( $path, "/repos/{$owner}/{$repo}/zipball/" );
-		}
-
-		return false;
+		// Only built release assets. GitHub's source zipball has no build/ and
+		// no published checksum, so it could never be installed safely.
+		return 'github.com' === $host
+			&& str_starts_with( $path, "/{$owner}/{$repo}/releases/download/" )
+			&& str_ends_with( $path, '.zip' );
 	}
 
 	/**
@@ -247,7 +236,7 @@ final class Theme_Update_Release_Repository {
 
 		if (
 			'https' !== $scheme
-			|| ! in_array( $host, array( 'github.com', 'api.github.com' ), true )
+			|| 'github.com' !== $host
 			|| 443 !== $port
 			|| '' === $path
 			|| isset( $parts['user'] )

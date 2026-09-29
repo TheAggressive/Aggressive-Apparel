@@ -183,7 +183,7 @@ class Color_Admin_UI {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		if ( ! current_user_can( 'edit_term', $term_id ) ) {
 			return;
 		}
 
@@ -440,8 +440,8 @@ class Color_Admin_UI {
 			return;
 		}
 
-		// Security check: verify user capabilities.
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		// Security check: verify user capabilities (WooCommerce's cap for attribute terms).
+		if ( ! current_user_can( 'manage_product_terms' ) ) {
 			return;
 		}
 

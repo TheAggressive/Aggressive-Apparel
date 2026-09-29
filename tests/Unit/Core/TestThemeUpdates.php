@@ -151,7 +151,7 @@ class TestThemeUpdates extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Package URLs are limited to expected GitHub release/zipball URLs.
+	 * Package URLs are limited to built GitHub release assets.
 	 */
 	public function test_package_url_validation_limits_update_sources(): void {
 		$this->assertTrue(
@@ -159,7 +159,8 @@ class TestThemeUpdates extends WP_UnitTestCase {
 				'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip'
 			)
 		);
-		$this->assertTrue(
+		// The source zipball has no build/ and no checksum; never an update package.
+		$this->assertFalse(
 			$this->releases->is_allowed_package_url(
 				'https://api.github.com/repos/TheAggressive/Aggressive-Apparel/zipball/v1.2.3'
 			)
@@ -191,6 +192,20 @@ class TestThemeUpdates extends WP_UnitTestCase {
 			$this->releases->is_allowed_package_url(
 				'https://api.github.com/repos/TheAggressive/Aggressive-Apparel/zipball-redirect/v1.2.3'
 			)
+		);
+	}
+
+	/**
+	 * A release without a theme ZIP asset falls back to the tag's release
+	 * download URL, never GitHub's source zipball (no build/, no checksum).
+	 */
+	public function test_download_url_without_asset_uses_tag_not_zipball(): void {
+		delete_transient( 'aggressive_apparel_theme_update' );
+		$this->cache_release_data( $this->release_data() );
+
+		$this->assertSame(
+			'https://github.com/TheAggressive/Aggressive-Apparel/releases/download/v1.2.3/aggressive-apparel-1.2.3.zip',
+			$this->releases->get_download_url()
 		);
 	}
 

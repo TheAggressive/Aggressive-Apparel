@@ -29,10 +29,19 @@ The catalog is engineered to scale, but two infrastructure pieces are
   hard-requires `wp_using_ext_object_cache()` — without one, the anonymous
   rendered-fragment cache (keyset pagination + load-more, stale-while-revalidate
   with a regeneration lock) **silently no-ops** and every REST page recomputes.
+  The rate limiter and search cache also fall back to transients, writing to
+  `wp_options` on anonymous requests.
 - **Full-page cache (Varnish/Batcache/WP Rocket/edge).** Only the REST
   load-more path goes through `Rendered_Product_Cache`; the **initial** anonymous
   archive/Product Collection paint recomputes on every request unless a page
   cache sits in front. Without one, first paint is the catalog's load ceiling.
+- **Real client IP.** Public endpoints (search, load-more, sorting,
+  back-in-stock signup) rate-limit per IP via `Client_IP`, which trusts
+  `REMOTE_ADDR`, plus `CF-Connecting-IP` only from Cloudflare's published
+  ranges. Behind any other proxy or load balancer, have the server rewrite
+  `REMOTE_ADDR` to the visitor (nginx `real_ip`, Apache `mod_remoteip`) or
+  return it from the `aggressive_apparel_client_ip` filter; otherwise every
+  visitor shares one bucket and shoppers get 429s at peak.
 
 **Full-page-cache correctness rule:** never bake a per-user/per-session _value_
 into server HTML or `wp_interactivity_state` and trust it — a page cache serves
@@ -40,9 +49,12 @@ the priming visitor's copy to everyone. Personalized fragments must rehydrate
 client-side (cart count → Store API `refreshCartCount()` on load, gated on the
 `woocommerce_items_in_cart` cookie; wishlist → localStorage). Seeding **config,
 i18n, and default flags** into interactivity state is fine; seeding a live count,
-geo, or membership value is not. Nonces baked into cached HTML are a known,
-separate WP-wide staleness class (12h tick) — handle via an uncached refresh, not
-by baking them longer.
+geo, or membership value is not. Nonces baked into cached HTML expire after
+12–24h, so nothing may depend on one: guests get no REST nonce (the catalog
+endpoints are public, and WordPress 403s any request carrying an expired one),
+Store API cart calls go through `storeApiPost()` (adopts the fresh nonce the
+Store API returns and retries once), and guest back-in-stock signups skip the
+nonce check.
 
 **International stores:** the page cache must vary on the active currency
 (e.g. WooPayments' currency cookie) and on geolocation (WooCommerce → General →

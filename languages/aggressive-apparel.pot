@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-29T09:11:47+00:00\n"
+"POT-Creation-Date: 2026-09-29T22:32:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1677,17 +1677,17 @@ msgid "Pattern image not found"
 msgstr ""
 
 #: includes/WooCommerce/class-color-pattern-admin.php:119
-#: includes/WooCommerce/class-color-pattern-admin.php:272
+#: includes/WooCommerce/class-color-pattern-admin.php:285
 msgid "Upload Pattern"
 msgstr ""
 
 #: includes/WooCommerce/class-color-pattern-admin.php:120
-#: includes/WooCommerce/class-color-pattern-admin.php:262
+#: includes/WooCommerce/class-color-pattern-admin.php:275
 msgid "Change Pattern"
 msgstr ""
 
 #: includes/WooCommerce/class-color-pattern-admin.php:121
-#: includes/WooCommerce/class-color-pattern-admin.php:265
+#: includes/WooCommerce/class-color-pattern-admin.php:278
 msgid "Remove Pattern"
 msgstr ""
 
@@ -1712,49 +1712,47 @@ msgid "File too large. Maximum size is 2MB."
 msgstr ""
 
 #: includes/WooCommerce/class-color-pattern-admin.php:142
-#: includes/WooCommerce/class-color-pattern-admin.php:203
+#: includes/WooCommerce/class-color-pattern-admin.php:223
 msgid "Security check failed."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:146
-#: includes/WooCommerce/class-color-pattern-admin.php:207
-msgid "Insufficient permissions."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:151
-#: includes/WooCommerce/class-color-pattern-admin.php:212
-msgid "Invalid term ID."
-msgstr ""
-
-#: includes/WooCommerce/class-color-pattern-admin.php:157
+#: includes/WooCommerce/class-color-pattern-admin.php:150
 msgid "No attachment selected."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:163
+#: includes/WooCommerce/class-color-pattern-admin.php:156
 msgid "Invalid attachment."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:167
+#: includes/WooCommerce/class-color-pattern-admin.php:160
 msgid "Selected attachment must be an image."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:218
+#: includes/WooCommerce/class-color-pattern-admin.php:201
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/WooCommerce/class-color-pattern-admin.php:209
+msgid "Invalid term ID."
+msgstr ""
+
+#: includes/WooCommerce/class-color-pattern-admin.php:231
 msgid "No pattern found."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:230
+#: includes/WooCommerce/class-color-pattern-admin.php:243
 msgid "Pattern removed successfully."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:259
+#: includes/WooCommerce/class-color-pattern-admin.php:272
 msgid "Pattern preview"
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:270
+#: includes/WooCommerce/class-color-pattern-admin.php:283
 msgid "No pattern uploaded."
 msgstr ""
 
-#: includes/WooCommerce/class-color-pattern-admin.php:279
+#: includes/WooCommerce/class-color-pattern-admin.php:292
 msgid "Upload a pattern image to use instead of a solid color. Recommended size: 100x100px or larger square images."
 msgstr ""
 

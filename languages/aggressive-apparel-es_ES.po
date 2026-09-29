@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-09-28T06:17:05+00:00\n"
+"POT-Creation-Date: 2026-09-29T09:11:47+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -577,7 +577,7 @@ msgstr "Buscando…"
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: includes/WooCommerce/class-product-filters.php:587
+#: includes/WooCommerce/class-product-filters.php:589
 #, aa-mt
 msgid "Try again"
 msgstr "Inténtalo de nuevo"
@@ -977,8 +977,8 @@ msgid "Approaching"
 msgstr "Acercándose"
 
 #: includes/helpers.php:227 includes/helpers.php:229
-#: includes/WooCommerce/class-back-in-stock-admin.php:392
-#: includes/WooCommerce/class-back-in-stock-admin.php:446
+#: includes/WooCommerce/class-back-in-stock-admin.php:393
+#: includes/WooCommerce/class-back-in-stock-admin.php:448
 #, aa-mt
 msgid "Active"
 msgstr "Activo"
@@ -1186,26 +1186,26 @@ msgid "Email"
 msgstr "Correo electrónico"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:196
-#: includes/WooCommerce/class-back-in-stock.php:652
+#: includes/WooCommerce/class-back-in-stock-privacy.php:162
 #, aa-mt
 msgid "Product"
 msgstr "Producto"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:197
-#: includes/WooCommerce/class-back-in-stock.php:656
+#: includes/WooCommerce/class-back-in-stock-privacy.php:166
 #, aa-mt
 msgid "Status"
 msgstr "Estado"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:198
-#: includes/WooCommerce/class-back-in-stock.php:660
+#: includes/WooCommerce/class-back-in-stock-privacy.php:170
 #, aa-mt
 msgid "Subscribed"
 msgstr "Suscrito"
 
 #: includes/WooCommerce/class-back-in-stock-admin.php:199
-#: includes/WooCommerce/class-back-in-stock-admin.php:393
-#: includes/WooCommerce/class-back-in-stock-admin.php:447
+#: includes/WooCommerce/class-back-in-stock-admin.php:394
+#: includes/WooCommerce/class-back-in-stock-admin.php:449
 #, aa-mt
 msgid "Notified"
 msgstr "Notificado"
@@ -1216,28 +1216,61 @@ msgstr "Notificado"
 msgid "Delete"
 msgstr "Eliminar"
 
-#: includes/WooCommerce/class-back-in-stock-admin.php:394
-#: includes/WooCommerce/class-back-in-stock-admin.php:448
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-admin.php:392
+#: includes/WooCommerce/class-back-in-stock-admin.php:447
+#, aa-mt
+msgid "Awaiting confirmation"
+msgstr "A la espera de confirmación"
+
+#: includes/WooCommerce/class-back-in-stock-admin.php:395
+#: includes/WooCommerce/class-back-in-stock-admin.php:450
+#: includes/WooCommerce/class-back-in-stock-links.php:154
+#: includes/WooCommerce/class-back-in-stock-links.php:161
 #, aa-mt
 msgid "Unsubscribed"
 msgstr "Darse de baja"
 
-#: includes/WooCommerce/class-back-in-stock-admin.php:445
+#: includes/WooCommerce/class-back-in-stock-admin.php:446
 #, aa-mt
 msgid "All statuses"
 msgstr "Todos los estados"
 
-#: includes/WooCommerce/class-back-in-stock-admin.php:450
+#: includes/WooCommerce/class-back-in-stock-admin.php:452
 #: includes/WooCommerce/class-store-copy.php:97
 #: src/blocks-interactivity/filter-toggle/render.php:56
 #, aa-mt
 msgid "Filter"
 msgstr "Filtro"
 
-#: includes/WooCommerce/class-back-in-stock-admin.php:461
+#: includes/WooCommerce/class-back-in-stock-admin.php:463
 #, aa-mt
 msgid "No subscribers found."
 msgstr "No se han encontrado suscriptores."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:43
+#, aa-mt
+msgid "Back in Stock confirmation"
+msgstr "Confirmación de que el producto vuelve a estar disponible"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:44
+#, aa-mt
+msgid "Asks shoppers to confirm a back-in-stock signup before they are notified. Disable to activate signups without confirmation."
+msgstr "Solicita a los compradores que confirmen su suscripción al aviso de reposición de existencias antes de recibir la notificación. Desactívalo para habilitar las suscripciones sin confirmación."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:123
+#, aa-mt
+msgid "Confirm your back-in-stock alert"
+msgstr "Confirma tu alerta de reposición de existencias"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-confirmation-email.php:132
+#, aa-mt
+msgid "Confirm your alert for {product_name}"
+msgstr "Confirma tu alerta para {product_name}"
 
 #: includes/WooCommerce/class-back-in-stock-email.php:48
 #, aa-mt
@@ -1250,111 +1283,234 @@ msgid "Sent to customers who subscribed to out-of-stock product notifications."
 msgstr "Enviado a los clientes que se han suscrito a las notificaciones de productos agotados."
 
 #: includes/WooCommerce/class-back-in-stock-email.php:50
-#: includes/WooCommerce/class-back-in-stock-email.php:141
+#: includes/WooCommerce/class-back-in-stock-email.php:162
 #, aa-mt
 msgid "Good news — {product_name} is back!"
 msgstr "Buenas noticias: ¡{product_name} ha vuelto!"
 
 #: includes/WooCommerce/class-back-in-stock-email.php:51
-#: includes/WooCommerce/class-back-in-stock-email.php:150
+#: includes/WooCommerce/class-back-in-stock-email.php:171
 #, aa-mt
 msgid "{product_name} is back in stock!"
 msgstr "¡El {product_name} vuelve a estar disponible!"
 
-#: includes/WooCommerce/class-back-in-stock.php:178
-#: includes/WooCommerce/class-back-in-stock.php:207
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:91
 #, aa-mt
-msgid "Please enter a valid email address."
-msgstr "Introduce una dirección de correo electrónico válida."
+msgid "Link expired"
+msgstr "El enlace ha caducado"
 
-#: includes/WooCommerce/class-back-in-stock.php:179
-#: includes/WooCommerce/class-back-in-stock.php:220
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:92
 #, aa-mt
-msgid "You must agree to receive the notification."
-msgstr "Debes aceptar recibir la notificación."
+msgid "This confirmation link is invalid or has expired. Please sign up again from the product page."
+msgstr "Este enlace de confirmación no es válido o ha caducado. Por favor, vuelve a registrarte desde la página del producto."
 
-#: includes/WooCommerce/class-back-in-stock.php:180
-#: includes/WooCommerce/class-back-in-stock.php:296
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:102
 #, aa-mt
-msgid "We'll email you when this product is back in stock!"
-msgstr "¡Te enviaremos un correo electrónico cuando este producto vuelva a estar disponible!"
+msgid "Already confirmed"
+msgstr "Ya confirmado"
 
-#: includes/WooCommerce/class-back-in-stock.php:181
-#: includes/WooCommerce/class-back-in-stock.php:281
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:103
 #, aa-mt
-msgid "Something went wrong. Please try again."
-msgstr "Ha habido un error. Inténtalo de nuevo."
+msgid "You are already on the list. We will email you when it is back in stock."
+msgstr "Ya estás en la lista. Te enviaremos un correo electrónico cuando vuelva a estar disponible."
 
-#: includes/WooCommerce/class-back-in-stock.php:201
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:110
 #, aa-mt
-msgid "Too many requests. Please wait a few minutes and try again."
-msgstr "Demasiadas solicitudes. Espera unos minutos e inténtalo de nuevo."
+msgid "Confirm your alert"
+msgstr "Confirma tu alerta"
 
-#: includes/WooCommerce/class-back-in-stock.php:211
-#, aa-mt
-msgid "Invalid product."
-msgstr "Producto no válido."
-
-#: includes/WooCommerce/class-back-in-stock.php:216
-#, aa-mt
-msgid "This product is not available for stock notifications."
-msgstr "Este producto no está disponible para recibir notificaciones de disponibilidad."
-
-#. translators: %d: max subscriptions.
-#: includes/WooCommerce/class-back-in-stock.php:241
+#. translators: %s: product name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:113
 #, php-format, aa-mt
-msgid "You can only subscribe to %d products at a time."
-msgstr "Solo puedes suscribirte a %d productos a la vez."
+msgid "Confirm that you want an email when %s is back in stock."
+msgstr "Confirma que deseas recibir un correo electrónico cuando %s vuelva a estar disponible."
 
-#: includes/WooCommerce/class-back-in-stock.php:568
-#: includes/WooCommerce/class-back-in-stock.php:582
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:114
+#, aa-mt
+msgid "Confirm that you want an email when this product is back in stock."
+msgstr "Confirma que deseas recibir un correo electrónico cuando este producto vuelva a estar disponible."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:117
+#, aa-mt
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:124
+#, aa-mt
+msgid "You are on the list"
+msgstr "Estás en la lista"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:126
+#, aa-mt
+msgid "Good news: it is already back in stock."
+msgstr "Buenas noticias: ya vuelve a estar disponible."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:127
+#, aa-mt
+msgid "Thanks for confirming. We will email you when it is back in stock."
+msgstr "Gracias por la confirmación. Te enviaremos un correo electrónico cuando vuelva a estar disponible."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:155
+#, aa-mt
+msgid "You will not receive back-in-stock emails for this product."
+msgstr "No recibirás correos electrónicos de «vuelve a estar disponible» para este producto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:162
+#, aa-mt
+msgid "You are not subscribed to back-in-stock emails for this product."
+msgstr "No estás suscrito a los correos electrónicos de «vuelve a estar disponible» para este producto."
+
+#: includes/WooCommerce/class-back-in-stock-links.php:167
+#: includes/WooCommerce/class-back-in-stock-links.php:171
+#: templates/emails/back-in-stock.php:67
+#, aa-mt
+msgid "Unsubscribe"
+msgstr "Darse de baja"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:168
+#, aa-mt
+msgid "Stop back-in-stock emails for this product?"
+msgstr "¿Quieres dejar de recibir correos electrónicos sobre la reposición de existencias de este producto?"
+
+#. translators: %s: product name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-links.php:266
+#, php-format, aa-mt
+msgid "View %s"
+msgstr "Ver %s"
+
+#: includes/WooCommerce/class-back-in-stock-privacy.php:72
+#: includes/WooCommerce/class-back-in-stock-privacy.php:86
 #, aa-mt
 msgid "Back in Stock Subscriptions"
 msgstr "Suscripciones: de nuevo disponibles"
 
 #. translators: %d: retention period in days.
-#: includes/WooCommerce/class-back-in-stock.php:602
+#: includes/WooCommerce/class-back-in-stock-privacy.php:106
 #, php-format, aa-mt
 msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained for up to %d days for support, abuse prevention, and delivery troubleshooting, then deleted."
 msgstr "Una vez enviada una notificación o tras darte de baja, los registros relacionados con la reposición de existencias se conservan durante un máximo de %d días con fines de asistencia técnica, prevención de abusos y resolución de problemas de entrega, tras lo cual se eliminan."
 
-#: includes/WooCommerce/class-back-in-stock.php:605
+#: includes/WooCommerce/class-back-in-stock-privacy.php:109
 #, aa-mt
 msgid "After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store."
 msgstr "Una vez enviada una notificación o tras darte de baja, los registros relacionados con la reposición de existencias se conservan hasta que la tienda los elimine manualmente."
 
+#. translators: %d: days an unconfirmed request is kept.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock-privacy.php:113
+#, php-format, aa-mt
+msgid "We email you once to confirm each request, and only confirmed requests are notified; unconfirmed requests are deleted after %d days."
+msgstr "Te enviamos un correo electrónico una vez para confirmar cada solicitud, y solo se notifican las solicitudes confirmadas; las solicitudes no confirmadas se eliminan tras %d días."
+
 #. translators: %s: retention policy sentence.
-#: includes/WooCommerce/class-back-in-stock.php:611
+#: includes/WooCommerce/class-back-in-stock-privacy.php:121
 #, php-format, aa-mt
 msgid "We use your email address to notify you when a requested product, size, or color is available again. Because some products are produced through print-on-demand suppliers, availability may depend on supplier stock, production capacity, or product status. Active notification requests are kept until the item becomes available, you unsubscribe, or the product is discontinued. %s"
 msgstr "Utilizamos tu dirección de correo electrónico para avisarte cuando un producto, una talla o un color que hayas solicitado vuelva a estar disponible. Dado que algunos productos se fabrican a través de proveedores de impresión bajo demanda, la disponibilidad puede depender del stock del proveedor, de la capacidad de producción o del estado del producto. Las solicitudes de notificación activas se mantienen hasta que el artículo esté disponible, te des de baja o el producto se deje de fabricar. %s"
 
-#: includes/WooCommerce/class-back-in-stock.php:618
+#: includes/WooCommerce/class-back-in-stock-privacy.php:128
 #, aa-mt
 msgid "Aggressive Apparel Back in Stock Notifications"
 msgstr "Aggressive Apparel Notificaciones de reposición de existencias"
 
-#: includes/WooCommerce/class-back-in-stock.php:648
+#: includes/WooCommerce/class-back-in-stock-privacy.php:158
 #, aa-mt
 msgid "Stock Notification Subscriptions"
 msgstr "Suscripciones a notificaciones bursátiles"
 
-#: includes/WooCommerce/class-back-in-stock.php:808
+#: includes/WooCommerce/class-back-in-stock.php:149
+#: includes/WooCommerce/class-back-in-stock.php:183
+#, aa-mt
+msgid "Please enter a valid email address."
+msgstr "Introduce una dirección de correo electrónico válida."
+
+#: includes/WooCommerce/class-back-in-stock.php:150
+#: includes/WooCommerce/class-back-in-stock.php:196
+#, aa-mt
+msgid "You must agree to receive the notification."
+msgstr "Debes aceptar recibir la notificación."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock.php:151
+#, aa-mt
+msgid "Thanks! Check your inbox for next steps."
+msgstr "¡Gracias! Consulta tu bandeja de entrada para conocer los siguientes pasos."
+
+#: includes/WooCommerce/class-back-in-stock.php:152
+#: includes/WooCommerce/class-back-in-stock.php:263
+#, aa-mt
+msgid "Something went wrong. Please try again."
+msgstr "Ha habido un error. Inténtalo de nuevo."
+
+#: includes/WooCommerce/class-back-in-stock.php:177
+#, aa-mt
+msgid "Too many requests. Please wait a few minutes and try again."
+msgstr "Demasiadas solicitudes. Espera unos minutos e inténtalo de nuevo."
+
+#: includes/WooCommerce/class-back-in-stock.php:187
+#, aa-mt
+msgid "Invalid product."
+msgstr "Producto no válido."
+
+#: includes/WooCommerce/class-back-in-stock.php:192
+#, aa-mt
+msgid "This product is not available for stock notifications."
+msgstr "Este producto no está disponible para recibir notificaciones de disponibilidad."
+
+#. translators: %d: max subscriptions.
+#: includes/WooCommerce/class-back-in-stock.php:219
+#, php-format, aa-mt
+msgid "You can only subscribe to %d products at a time."
+msgstr "Solo puedes suscribirte a %d productos a la vez."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock.php:271
+#, aa-mt
+msgid "We could not send the confirmation email. Please try again."
+msgstr "No hemos podido enviar el correo electrónico de confirmación. Inténtalo de nuevo."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-back-in-stock.php:308
+#, aa-mt
+msgid "Almost done! Check your inbox and confirm to get your alert."
+msgstr "¡Ya casi está! Revisa tu bandeja de entrada y confirma para recibir tu alerta."
+
+#: includes/WooCommerce/class-back-in-stock.php:309
+#, aa-mt
+msgid "We'll email you when this product is back in stock!"
+msgstr "¡Te enviaremos un correo electrónico cuando este producto vuelva a estar disponible!"
+
+#: includes/WooCommerce/class-back-in-stock.php:560
 #, aa-mt
 msgid "This product is currently out of stock."
 msgstr "Este producto está agotado en estos momentos."
 
-#: includes/WooCommerce/class-back-in-stock.php:813
+#: includes/WooCommerce/class-back-in-stock.php:565
 #, aa-mt
 msgid "Email address"
 msgstr "Dirección de correo electrónico"
 
-#: includes/WooCommerce/class-back-in-stock.php:819
+#: includes/WooCommerce/class-back-in-stock.php:571
 #, aa-mt
 msgid "Enter your email"
 msgstr "Introduce tu correo electrónico"
 
-#: includes/WooCommerce/class-back-in-stock.php:827
+#: includes/WooCommerce/class-back-in-stock.php:579
 #, aa-mt
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr "Acepto recibir un correo electrónico único cuando se reponga el stock de este producto."
@@ -2650,7 +2806,7 @@ msgid "Preview products in a modal from shop cards. Style and Wishlist pairing o
 msgstr "Previsualiza los productos en una ventana modal desde las fichas de la tienda. Las opciones de estilo y Wishlist de combinaciones aparecen cuando están activadas."
 
 #: includes/WooCommerce/class-feature-settings.php:501
-#: includes/WooCommerce/class-frequently-bought-together.php:250
+#: includes/WooCommerce/class-frequently-bought-together.php:251
 #, aa-mt
 msgid "Frequently Bought Together"
 msgstr "Productos que suelen comprarse juntos"
@@ -2714,7 +2870,6 @@ msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
 msgstr "Barra inferior fija en la versión móvil con las opciones «Inicio», «Buscar», «Carrito» y «Cuenta»."
 
 #. translators: %s: formatted amount the customer still has to spend to get free shipping. {em} and {em_end} wrap the highlighted phrase; keep both.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-free-shipping-message.php:79
 #, php-format, aa-mt
 msgid "%s Away from {em}FREE Shipping{em_end}!"
@@ -2727,7 +2882,6 @@ msgid "%1$s Away from %2$s!"
 msgstr "%1$s ¡Lejos de %2$s!"
 
 #. translators: Shown once the cart qualifies for free shipping. {em} and {em_end} wrap the highlighted phrase; keep both.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-free-shipping-message.php:83
 #, aa-mt
 msgid "{em}FREE Shipping{em_end} UNLOCKED!"
@@ -2739,52 +2893,52 @@ msgstr "{em}FREE Shipping{em_end} ¡DESBLOQUEADO!"
 msgid "%s UNLOCKED!"
 msgstr "%s ¡DESBLOQUEADO!"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:176
+#: includes/WooCommerce/class-frequently-bought-together.php:177
 #: includes/WooCommerce/class-quick-view-renderer.php:215
 #, aa-mt
 msgid "Adding…"
 msgstr "Añadiendo…"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:177
+#: includes/WooCommerce/class-frequently-bought-together.php:178
 #, aa-mt
 msgid "Added!"
 msgstr "¡Añadido!"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:178
+#: includes/WooCommerce/class-frequently-bought-together.php:179
 #, aa-mt
 msgid "Error — try again"
 msgstr "Error: inténtalo de nuevo"
 
 #. translators: %d: number of selected products to add to cart.
 #. translators: %d: number of items.
-#: includes/WooCommerce/class-frequently-bought-together.php:180
-#: includes/WooCommerce/class-frequently-bought-together.php:278
+#: includes/WooCommerce/class-frequently-bought-together.php:181
+#: includes/WooCommerce/class-frequently-bought-together.php:279
 #, php-format, aa-mt
 msgid "Add all %d items to cart"
 msgstr "Añadir todos los artículos %d al carrito"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:181
+#: includes/WooCommerce/class-frequently-bought-together.php:182
 #, aa-mt
 msgid "All items have been added to your cart."
 msgstr "Todos los artículos se han añadido a tu carrito."
 
-#: includes/WooCommerce/class-frequently-bought-together.php:182
+#: includes/WooCommerce/class-frequently-bought-together.php:183
 #, aa-mt
 msgid "There was an error adding items to cart."
 msgstr "Se ha producido un error al añadir artículos al carrito."
 
-#: includes/WooCommerce/class-frequently-bought-together.php:248
+#: includes/WooCommerce/class-frequently-bought-together.php:249
 #, aa-mt
 msgid "Frequently bought together"
 msgstr "Productos que suelen comprarse juntos"
 
-#: includes/WooCommerce/class-frequently-bought-together.php:262
+#: includes/WooCommerce/class-frequently-bought-together.php:263
 #, aa-mt
 msgid "Total price:"
 msgstr "Precio total:"
 
 #. translators: %s: product name.
-#: includes/WooCommerce/class-frequently-bought-together.php:340
+#: includes/WooCommerce/class-frequently-bought-together.php:341
 #, php-format, aa-mt
 msgid "Include %s"
 msgstr "Incluir %s"
@@ -2954,13 +3108,13 @@ msgid "Maximum price"
 msgstr "Precio máximo"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:242
-#: includes/WooCommerce/class-product-filters.php:320
+#: includes/WooCommerce/class-product-filters.php:322
 #, aa-mt
 msgid "In stock"
 msgstr "En stock"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:247
-#: includes/WooCommerce/class-product-filters.php:321
+#: includes/WooCommerce/class-product-filters.php:323
 #, aa-mt
 msgid "On sale"
 msgstr "En oferta"
@@ -2971,96 +3125,96 @@ msgid "Filter by category"
 msgstr "Filtrar por categoría"
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:315
+#: includes/WooCommerce/class-product-filters.php:317
 #, php-format, aa-mt
 msgid "(%s filter applied)"
 msgstr "(Se ha aplicado el filtro %s)"
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:317
+#: includes/WooCommerce/class-product-filters.php:319
 #, php-format, aa-mt
 msgid "(%s filters applied)"
 msgstr "(Se han aplicado los filtros %s)"
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:319
+#: includes/WooCommerce/class-product-filters.php:321
 #, php-format, aa-mt
 msgid "Additional filters: %s"
 msgstr "Filtros adicionales: %s"
 
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:324
 #, aa-mt
 msgid "All filters cleared."
 msgstr "Se han desactivado todos los filtros."
 
-#: includes/WooCommerce/class-product-filters.php:323
-#: includes/WooCommerce/class-product-filters.php:585
+#: includes/WooCommerce/class-product-filters.php:325
+#: includes/WooCommerce/class-product-filters.php:587
 #, aa-mt
 msgid "Something went wrong loading products."
 msgstr "Ha surgido un error al cargar los productos."
 
-#: includes/WooCommerce/class-product-filters.php:324
+#: includes/WooCommerce/class-product-filters.php:326
 #, aa-mt
 msgid "No products found."
 msgstr "No se han encontrado productos."
 
-#: includes/WooCommerce/class-product-filters.php:325
+#: includes/WooCommerce/class-product-filters.php:327
 #, aa-mt
 msgid "1 product found."
 msgstr "Se ha encontrado 1 producto."
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:329
 #, php-format, aa-mt
 msgid "%d products found."
 msgstr "Se han encontrado %d productos."
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:329
+#: includes/WooCommerce/class-product-filters.php:331
 #, php-format, aa-mt
 msgid "Remove %s filter"
 msgstr "Eliminar el filtro %s"
 
-#: includes/WooCommerce/class-product-filters.php:421
-#: includes/WooCommerce/class-product-filters.php:512
+#: includes/WooCommerce/class-product-filters.php:423
+#: includes/WooCommerce/class-product-filters.php:514
 #, aa-mt
 msgid "Product filters"
 msgstr "Filtros de productos"
 
-#: includes/WooCommerce/class-product-filters.php:430
+#: includes/WooCommerce/class-product-filters.php:432
 #, aa-mt
 msgid "Filters"
 msgstr "Filtros"
 
-#: includes/WooCommerce/class-product-filters.php:435
+#: includes/WooCommerce/class-product-filters.php:437
 #, aa-mt
 msgid "Close filters"
 msgstr "Cerrar filtros"
 
-#: includes/WooCommerce/class-product-filters.php:460
+#: includes/WooCommerce/class-product-filters.php:462
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 #, aa-mt
 msgid "Clear All"
 msgstr "Borrar todo"
 
-#: includes/WooCommerce/class-product-filters.php:466
-#: includes/WooCommerce/class-product-filters.php:522
+#: includes/WooCommerce/class-product-filters.php:468
+#: includes/WooCommerce/class-product-filters.php:524
 #, aa-mt
 msgid "View Results"
 msgstr "Ver resultados"
 
-#: includes/WooCommerce/class-product-filters.php:526
+#: includes/WooCommerce/class-product-filters.php:528
 #, aa-mt
 msgid "Clear All Filters"
 msgstr "Borrar todos los filtros"
 
-#: includes/WooCommerce/class-product-filters.php:580
+#: includes/WooCommerce/class-product-filters.php:582
 #: patterns/template-no-products.php:15
 #, aa-mt
 msgid "No products were found matching your selection."
 msgstr "No se han encontrado productos que coincidan con tu selección."
 
-#: includes/WooCommerce/class-product-filters.php:593
+#: includes/WooCommerce/class-product-filters.php:595
 #, aa-mt
 msgid "Filtered products pagination"
 msgstr "Paginación de productos filtrados"
@@ -4475,25 +4629,21 @@ msgstr "{percent} % de descuento"
 msgid "You save {percent}%"
 msgstr "Ahorras un {percent} %"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-store-copy.php:214
 #, aa-mt
 msgid "Free Shipping Message"
 msgstr "Mensaje sobre el envío gratuito"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-store-copy.php:216
 #, aa-mt
 msgid "Shown by the Free Shipping Message and Free Shipping Bar blocks while the cart is below the free shipping threshold. Use {amount} for the amount still needed and put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
 msgstr "Se muestra en los bloques «Mensaje de envío gratuito» y «Barra de envío gratuito» cuando el carrito no alcanza el umbral de envío gratuito. Utiliza {amount} para indicar la cantidad que aún falta y añade *asteriscos* alrededor de las palabras para resaltarlas. Déjalo en blanco para utilizar el valor predeterminado, traducido para cada idioma."
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-store-copy.php:225
 #, aa-mt
 msgid "Free Shipping Unlocked Message"
 msgstr "Mensaje de «Envío gratuito activado»"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-store-copy.php:227
 #, aa-mt
 msgid "Shown by the same blocks once the cart qualifies for free shipping. Put *asterisks* around words to highlight them. Leave blank to use the default, translated for each language."
@@ -8645,6 +8795,27 @@ msgid_plural "(%s customer reviews)"
 msgstr[0] "(%s opinión de un cliente)"
 msgstr[1] "(%s opiniones de clientes)"
 
+#. translators: %s: product name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: templates/emails/back-in-stock-confirmation-plain.php:19
+#: templates/emails/back-in-stock-confirmation.php:22
+#, php-format, aa-mt
+msgid "You asked us to email you when %s is back in stock. Please confirm this was you:"
+msgstr "Nos pediste que te enviáramos un correo electrónico cuando el artículo %s volviera a estar disponible. Por favor, confirma que fuiste tú quien lo solicitó:"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: templates/emails/back-in-stock-confirmation-plain.php:24
+#: templates/emails/back-in-stock-confirmation.php:38
+#, aa-mt
+msgid "If you did not sign up, ignore this email and you will not hear from us about this product."
+msgstr "Si no te has registrado, ignora este correo electrónico y no recibirás más información nuestra sobre este producto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: templates/emails/back-in-stock-confirmation.php:33
+#, aa-mt
+msgid "Confirm my alert"
+msgstr "Confirmar mi alerta"
+
 #: templates/emails/back-in-stock-plain.php:18
 #: templates/emails/back-in-stock.php:26
 #, aa-mt
@@ -8666,11 +8837,6 @@ msgstr "Darse de baja:"
 #, php-format, aa-mt
 msgid "You received this email because you asked to be notified. %s"
 msgstr "Has recibido este correo electrónico porque solicitaste que te mantuvieran informado. %s"
-
-#: templates/emails/back-in-stock.php:67
-#, aa-mt
-msgid "Unsubscribe"
-msgstr "Darse de baja"
 
 #: src/blocks-interactivity/countdown-timer/block.json
 #, aa-mt
@@ -8827,7 +8993,6 @@ msgctxt "block title"
 msgid "Free Shipping Message"
 msgstr "Mensaje sobre el envío gratuito"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks-interactivity/free-shipping-message/block.json
 #, aa-mt
 msgctxt "block description"

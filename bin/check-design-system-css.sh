@@ -171,7 +171,6 @@ includes/WooCommerce/class-quick-view.php|aggressive-apparel-quick-view__close|a
 includes/WooCommerce/class-size-guide.php|aggressive-apparel-size-guide__close|aa-icon-button
 includes/WooCommerce/class-sticky-add-to-cart.php|aa-sticky-cart__drawer-close|aa-icon-button
 src/blocks/dark-mode-toggle/render.php|dark-mode-toggle__button|aa-icon-button
-src/blocks-interactivity/ticker/render.php|ticker__pause|aa-icon-button
 includes/Core/class-search-modal.php|aa-search__tab|aa-choice-pill
 includes/WooCommerce/class-product-filter-renderer.php|aa-product-filters__size-chip|aa-choice-pill
 includes/WooCommerce/class-quick-view.php|aggressive-apparel-quick-view__attribute-option|aa-choice-pill

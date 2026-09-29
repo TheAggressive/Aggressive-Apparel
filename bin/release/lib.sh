@@ -57,7 +57,6 @@ AA_PACKAGE_REQUIRED=(
 	'includes/class-service-container.php'
 	'includes/helpers.php'
 	'build/blocks-manifest.php'
-	'build/blocks/copyright/legal-entity-presets.json'
 	'templates/index.html'
 	'templates/single-product.html'
 	'templates/archive-product.html'

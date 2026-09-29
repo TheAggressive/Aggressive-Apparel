@@ -99,6 +99,28 @@ a behaviour change fails CI on the pin bump rather than drifting in production.
 WooPayments is not in CI: its rate is shape-checked and an unreadable rate or an
 unconverted minimum logs a `WP_DEBUG` diagnostic instead of guessing.
 
+## Back in Stock
+
+Signups are **double opt-in**. A signup is stored as `pending` and emails a
+confirm link (WooCommerce → Settings → Emails → _Back in Stock confirmation_);
+only confirmed (`active`) rows receive the restock email. Unconfirmed rows are
+deleted after 7 days, and pending rows count toward the per-address cap.
+
+- **Mail must work.** If the confirmation email can't be sent, the signup is
+  rolled back and the shopper sees an error, rather than being left pending
+  with no way to confirm.
+- **Disabling the confirmation email** makes signups single opt-in: they
+  activate immediately.
+- **Email links act on POST only.** Opening the confirm or unsubscribe link
+  shows a page with a button. Mail security scanners (Safe Links, Mimecast)
+  fetch every link, so a GET that changed state would confirm or unsubscribe on
+  the reader's behalf. Restock emails also carry RFC 8058
+  `List-Unsubscribe` / `List-Unsubscribe-Post` headers for the mail client's
+  native one-click unsubscribe.
+- **No nonce for guests.** A nonce baked into a page-cached copy expires, so
+  guest signups are protected by rate limits and the consent box instead;
+  logged-in signups are still nonce-checked.
+
 ## Color Swatch System
 
 The theme includes a comprehensive color attribute system for product variations:

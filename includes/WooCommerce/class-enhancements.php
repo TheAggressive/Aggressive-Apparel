@@ -71,6 +71,8 @@ class Enhancements {
 		Sale_Category::class,
 		Back_In_Stock_Installer::class,
 		Back_In_Stock::class,
+		Back_In_Stock_Links::class,
+		Back_In_Stock_Privacy::class,
 		Back_In_Stock_Admin::class,
 	);
 
@@ -171,6 +173,8 @@ class Enhancements {
 			// requests; the feature resumes automatically on the next request.
 			if ( $installer->is_current() ) {
 				$this->container->get( Back_In_Stock::class )->init();
+				$this->container->get( Back_In_Stock_Links::class )->init();
+				$this->container->get( Back_In_Stock_Privacy::class )->init();
 				if ( is_admin() ) {
 					$this->container->get( Back_In_Stock_Admin::class )->init();
 				}

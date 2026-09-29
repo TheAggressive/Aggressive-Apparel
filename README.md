@@ -42,7 +42,7 @@ A separate **Store Copy** tab controls storefront microcopy (button labels, filt
 | Frequently Bought Together | Product                     | Bundling with combined add-to-cart on product pages                                                                          |
 | Wishlist                   | Engagement                  | Heart-icon toggle with localStorage and Store API                                                                            |
 | Social Proof               | Engagement                  | Recent purchase toast notifications                                                                                          |
-| Back in Stock              | Engagement                  | Email subscriptions for out-of-stock products                                                                                |
+| Back in Stock              | Engagement                  | Email alerts for out-of-stock products, with double opt-in and one-click unsubscribe                                         |
 | Swatch Tooltips            | Mobile & UI                 | Fabric name and composition on swatch hover                                                                                  |
 | Mobile Bottom Navigation   | Mobile & UI                 | Fixed bottom nav on mobile (Home, Search, Cart, Account)                                                                     |
 | Adaptive Colors            | Appearance → Theme Features | Per-block light/dark overrides and adaptive palette via CSS `light-dark()`                                                   |

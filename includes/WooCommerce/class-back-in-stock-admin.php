@@ -240,7 +240,7 @@ class Back_In_Stock_Admin {
 				// Status filter.
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filtering; no state changes occur.
 				$status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '';
-				$status = in_array( $status, array( 'active', 'notified', 'unsubscribed' ), true ) ? $status : '';
+				$status = in_array( $status, array( 'pending', 'active', 'notified', 'unsubscribed' ), true ) ? $status : '';
 
 				// Search filter.
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filtering; no state changes occur.
@@ -389,6 +389,7 @@ class Back_In_Stock_Admin {
 				 * @var \stdClass $item
 				 */
 				$labels = array(
+					'pending'      => __( 'Awaiting confirmation', 'aggressive-apparel' ),
 					'active'       => __( 'Active', 'aggressive-apparel' ),
 					'notified'     => __( 'Notified', 'aggressive-apparel' ),
 					'unsubscribed' => __( 'Unsubscribed', 'aggressive-apparel' ),
@@ -443,6 +444,7 @@ class Back_In_Stock_Admin {
 				<div class="alignleft actions">
 					<select name="status">
 						<option value=""><?php esc_html_e( 'All statuses', 'aggressive-apparel' ); ?></option>
+						<option value="pending" <?php selected( $current, 'pending' ); ?>><?php esc_html_e( 'Awaiting confirmation', 'aggressive-apparel' ); ?></option>
 						<option value="active" <?php selected( $current, 'active' ); ?>><?php esc_html_e( 'Active', 'aggressive-apparel' ); ?></option>
 						<option value="notified" <?php selected( $current, 'notified' ); ?>><?php esc_html_e( 'Notified', 'aggressive-apparel' ); ?></option>
 						<option value="unsubscribed" <?php selected( $current, 'unsubscribed' ); ?>><?php esc_html_e( 'Unsubscribed', 'aggressive-apparel' ); ?></option>

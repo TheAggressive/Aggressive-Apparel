@@ -58,17 +58,6 @@ class Back_In_Stock {
 	private const BATCH_SIZE = 50;
 
 	/**
-	 * Default retention period for completed subscription rows.
-	 *
-	 * Print-on-demand supplier availability can shift over weeks, so active
-	 * requests remain until notified/unsubscribed/discontinued. Completed rows
-	 * are retained briefly for support, abuse prevention, and delivery debugging.
-	 *
-	 * @var int
-	 */
-	private const DEFAULT_RETENTION_DAYS = 90;
-
-	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -88,24 +77,6 @@ class Back_In_Stock {
 
 		// Continuation batches for products whose waitlist exceeds one batch.
 		add_action( 'aggressive_apparel_bis_send_batch', array( $this, 'send_notification_batch' ), 10, 2 );
-
-		// Discontinued products should not keep active waitlist requests.
-		add_action( 'wp_trash_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
-		add_action( 'before_delete_post', array( $this, 'cleanup_discontinued_product_subscriptions' ) );
-
-		// Unsubscribe handler.
-		add_action( 'init', array( $this, 'handle_unsubscribe' ) );
-
-		// Privacy/retention cleanup for completed rows; active requests remain.
-		add_action( 'aggressive_apparel_bis_cleanup', array( $this, 'run_cleanup_expired_subscriptions' ) );
-		if ( ! wp_next_scheduled( 'aggressive_apparel_bis_cleanup' ) ) {
-			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'aggressive_apparel_bis_cleanup' );
-		}
-
-		// GDPR hooks.
-		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
-		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_eraser' ) );
-		add_action( 'admin_init', array( $this, 'register_privacy_policy_content' ) );
 
 		// WooCommerce email class.
 		add_filter( 'woocommerce_email_classes', array( $this, 'register_email_class' ) );
@@ -177,7 +148,7 @@ class Back_In_Stock {
 				'i18n'         => array(
 					'invalidEmail'    => __( 'Please enter a valid email address.', 'aggressive-apparel' ),
 					'consentRequired' => __( 'You must agree to receive the notification.', 'aggressive-apparel' ),
-					'successFallback' => __( "We'll email you when this product is back in stock!", 'aggressive-apparel' ),
+					'successFallback' => __( 'Thanks! Check your inbox for next steps.', 'aggressive-apparel' ),
 					'errorFallback'   => __( 'Something went wrong. Please try again.', 'aggressive-apparel' ),
 				),
 			),
@@ -225,20 +196,22 @@ class Back_In_Stock {
 			wp_send_json_error( array( 'message' => __( 'You must agree to receive the notification.', 'aggressive-apparel' ) ) );
 		}
 
-		// Active subscription cap.
+		// Subscription cap. Pending signups count, so never confirming can't be
+		// used to get around it.
 		global $wpdb;
-		$table = Back_In_Stock_Installer::get_table_name();
+		$table        = Back_In_Stock_Installer::get_table_name();
+		$confirmation = $this->confirmation_email();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Subscription limits require current custom-table state before insertion.
-		$active_count = (int) $wpdb->get_var(
+		$open_count = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM %i WHERE email = %s AND status = 'active'",
+				"SELECT COUNT(*) FROM %i WHERE email = %s AND status IN ('pending', 'active')",
 				$table,
 				$email
 			)
 		);
 
-		if ( $active_count >= self::MAX_SUBSCRIPTIONS_PER_EMAIL ) {
+		if ( $open_count >= self::MAX_SUBSCRIPTIONS_PER_EMAIL ) {
 			wp_send_json_error(
 				array(
 					'message' => sprintf(
@@ -250,21 +223,25 @@ class Back_In_Stock {
 			);
 		}
 
-		// Check for existing active subscription.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Duplicate prevention requires current custom-table state before insertion.
-		$exists = (int) $wpdb->get_var(
+		$existing = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM %i WHERE email = %s AND product_id = %d AND status = 'active'",
+				"SELECT status, unsubscribe_token FROM %i WHERE email = %s AND product_id = %d AND status IN ('pending', 'active') ORDER BY id DESC LIMIT 1",
 				$table,
 				$email,
 				$product_id
-			)
+			),
+			ARRAY_A
 		);
 
-		if ( $exists > 0 ) {
-			// Return the same message as a fresh subscription so the response can't
-			// be used to probe whether an arbitrary email is on a product waitlist.
-			wp_send_json_success( array( 'message' => $this->subscription_confirmation_message() ) );
+		if ( is_array( $existing ) ) {
+			// Resend a pending confirmation (the attempt counter above throttles
+			// this). Either way, answer exactly as for a new signup so the
+			// response can't reveal whether an email is on a product's waitlist.
+			if ( 'pending' === ( $existing['status'] ?? '' ) && null !== $confirmation ) {
+				$confirmation->trigger( $product_id, $email, (string) ( $existing['unsubscribe_token'] ?? '' ) );
+			}
+			wp_send_json_success( array( 'message' => $this->subscription_message( null !== $confirmation ) ) );
 		}
 
 		$token = wp_generate_password( 64, false );
@@ -275,7 +252,7 @@ class Back_In_Stock {
 			array(
 				'email'             => $email,
 				'product_id'        => $product_id,
-				'status'            => 'active',
+				'status'            => null !== $confirmation ? 'pending' : 'active',
 				'consent'           => 1,
 				'unsubscribe_token' => $token,
 			),
@@ -286,19 +263,50 @@ class Back_In_Stock {
 			wp_send_json_error( array( 'message' => __( 'Something went wrong. Please try again.', 'aggressive-apparel' ) ) );
 		}
 
-		wp_send_json_success( array( 'message' => $this->subscription_confirmation_message() ) );
+		if ( null !== $confirmation && ! $confirmation->trigger( $product_id, $email, $token ) ) {
+			// No confirmation email means no way to confirm; drop the row so the
+			// shopper can retry instead of holding a dead pending signup.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Roll back the row inserted above.
+			$wpdb->delete( $table, array( 'id' => $wpdb->insert_id ), array( '%d' ) );
+			wp_send_json_error( array( 'message' => __( 'We could not send the confirmation email. Please try again.', 'aggressive-apparel' ) ) );
+		}
+
+		wp_send_json_success( array( 'message' => $this->subscription_message( null !== $confirmation ) ) );
 	}
 
 	/**
-	 * The confirmation message shown for both a new and an existing subscription.
+	 * The enabled signup-confirmation email, or null for single opt-in.
 	 *
-	 * Kept identical for the two cases so the endpoint doesn't leak whether an
-	 * email is already on a given product's waitlist.
+	 * Double opt-in is on unless the store disables this email in WooCommerce;
+	 * then signups activate immediately rather than waiting on an email that
+	 * will never be sent.
 	 *
+	 * @return Back_In_Stock_Confirmation_Email|null
+	 */
+	private function confirmation_email(): ?Back_In_Stock_Confirmation_Email {
+		if ( ! function_exists( 'WC' ) ) {
+			return null;
+		}
+
+		$emails = WC()->mailer()->get_emails();
+		$email  = $emails['Back_In_Stock_Confirmation_Email'] ?? null;
+
+		return $email instanceof Back_In_Stock_Confirmation_Email && $email->is_enabled() ? $email : null;
+	}
+
+	/**
+	 * The message shown after a signup, new or existing.
+	 *
+	 * Identical for both cases so the endpoint doesn't leak whether an email is
+	 * already on a given product's waitlist.
+	 *
+	 * @param bool $needs_confirmation Whether signups await email confirmation.
 	 * @return string
 	 */
-	private function subscription_confirmation_message(): string {
-		return __( "We'll email you when this product is back in stock!", 'aggressive-apparel' );
+	private function subscription_message( bool $needs_confirmation ): string {
+		return $needs_confirmation
+			? __( 'Almost done! Check your inbox and confirm to get your alert.', 'aggressive-apparel' )
+			: __( "We'll email you when this product is back in stock!", 'aggressive-apparel' );
 	}
 
 	/**
@@ -398,45 +406,6 @@ class Back_In_Stock {
 				self::RATE_LIMIT_WINDOW
 			)
 		);
-	}
-
-	/**
-	 * Handle unsubscribe requests via GET parameter.
-	 *
-	 * @return void
-	 */
-	public function handle_unsubscribe(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The 64-character random, single-purpose bearer token authorizes anonymous email unsubscribe links.
-		if ( ! isset( $_GET['aa_unsubscribe'] ) ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The unguessable token is verified in the conditional update below.
-		$token = sanitize_text_field( wp_unslash( $_GET['aa_unsubscribe'] ) );
-		if ( empty( $token ) ) {
-			return;
-		}
-
-		global $wpdb;
-		$table = Back_In_Stock_Installer::get_table_name();
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Token-authorized custom-table mutation; only active rows can transition.
-		$updated = $wpdb->update(
-			$table,
-			array( 'status' => 'unsubscribed' ),
-			array(
-				'unsubscribe_token' => $token,
-				'status'            => 'active',
-			),
-			array( '%s' ),
-			array( '%s', '%s' )
-		);
-
-		if ( $updated ) {
-			$shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url();
-			wp_safe_redirect( add_query_arg( 'aa_unsubscribed', '1', $shop_url ) );
-			exit;
-		}
 	}
 
 	/**
@@ -558,231 +527,9 @@ class Back_In_Stock {
 	 * @return array Modified email classes.
 	 */
 	public function register_email_class( array $emails ): array {
-		$emails['Back_In_Stock_Email'] = new Back_In_Stock_Email();
+		$emails['Back_In_Stock_Email']              = new Back_In_Stock_Email();
+		$emails['Back_In_Stock_Confirmation_Email'] = new Back_In_Stock_Confirmation_Email();
 		return $emails;
-	}
-
-	/**
-	 * Register GDPR personal data exporter.
-	 *
-	 * @param array $exporters Existing exporters.
-	 * @return array Modified exporters.
-	 */
-	public function register_exporter( array $exporters ): array {
-		$exporters['aggressive-apparel-bis'] = array(
-			'exporter_friendly_name' => __( 'Back in Stock Subscriptions', 'aggressive-apparel' ),
-			'callback'               => array( $this, 'export_personal_data' ),
-		);
-		return $exporters;
-	}
-
-	/**
-	 * Register GDPR personal data eraser.
-	 *
-	 * @param array $erasers Existing erasers.
-	 * @return array Modified erasers.
-	 */
-	public function register_eraser( array $erasers ): array {
-		$erasers['aggressive-apparel-bis'] = array(
-			'eraser_friendly_name' => __( 'Back in Stock Subscriptions', 'aggressive-apparel' ),
-			'callback'             => array( $this, 'erase_personal_data' ),
-		);
-		return $erasers;
-	}
-
-	/**
-	 * Register suggested privacy policy text for back-in-stock subscriptions.
-	 *
-	 * @return void
-	 */
-	public function register_privacy_policy_content(): void {
-		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
-			return;
-		}
-
-		$retention_days = self::get_retention_days();
-		$retention_text = $retention_days > 0
-			? sprintf(
-				/* translators: %d: retention period in days. */
-				__( 'After a notification is sent or you unsubscribe, related back-in-stock records are retained for up to %d days for support, abuse prevention, and delivery troubleshooting, then deleted.', 'aggressive-apparel' ),
-				$retention_days
-			)
-			: __( 'After a notification is sent or you unsubscribe, related back-in-stock records are retained until they are manually deleted by the store.', 'aggressive-apparel' );
-
-		$content = wp_kses_post(
-			wpautop(
-				sprintf(
-					/* translators: %s: retention policy sentence. */
-					__( 'We use your email address to notify you when a requested product, size, or color is available again. Because some products are produced through print-on-demand suppliers, availability may depend on supplier stock, production capacity, or product status. Active notification requests are kept until the item becomes available, you unsubscribe, or the product is discontinued. %s', 'aggressive-apparel' ),
-					$retention_text
-				)
-			)
-		);
-
-		wp_add_privacy_policy_content(
-			__( 'Aggressive Apparel Back in Stock Notifications', 'aggressive-apparel' ),
-			$content
-		);
-	}
-
-	/**
-	 * Export personal data for GDPR.
-	 *
-	 * @param string $email_address Email to export data for.
-	 * @param int    $page          Page number.
-	 * @return array Export data.
-	 */
-	public function export_personal_data( string $email_address, int $page = 1 ): array {
-		global $wpdb;
-		$table = Back_In_Stock_Installer::get_table_name();
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Privacy exports must reflect complete current user data and must not use shared caches.
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT product_id, status, created_at, notified_at FROM %i WHERE email = %s',
-				$table,
-				$email_address
-			)
-		);
-
-		$export_items = array();
-		foreach ( $rows as $row ) {
-			$product        = wc_get_product( $row->product_id );
-			$export_items[] = array(
-				'group_id'    => 'bis-subscriptions',
-				'group_label' => __( 'Stock Notification Subscriptions', 'aggressive-apparel' ),
-				'item_id'     => 'bis-' . $row->product_id,
-				'data'        => array(
-					array(
-						'name'  => __( 'Product', 'aggressive-apparel' ),
-						'value' => $product ? $product->get_name() : '#' . $row->product_id,
-					),
-					array(
-						'name'  => __( 'Status', 'aggressive-apparel' ),
-						'value' => $row->status,
-					),
-					array(
-						'name'  => __( 'Subscribed', 'aggressive-apparel' ),
-						'value' => $row->created_at,
-					),
-				),
-			);
-		}
-
-		return array(
-			'data' => $export_items,
-			'done' => true,
-		);
-	}
-
-	/**
-	 * Erase personal data for GDPR.
-	 *
-	 * @param string $email_address Email to erase data for.
-	 * @param int    $page          Page number.
-	 * @return array Erase result.
-	 */
-	public function erase_personal_data( string $email_address, int $page = 1 ): array {
-		global $wpdb;
-		$table = Back_In_Stock_Installer::get_table_name();
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Privacy erasure is an immediate custom-table mutation.
-		$deleted = $wpdb->delete(
-			$table,
-			array( 'email' => $email_address ),
-			array( '%s' )
-		);
-
-		return array(
-			'items_removed'  => $deleted ? (int) $deleted : 0,
-			'items_retained' => false,
-			'messages'       => array(),
-			'done'           => true,
-		);
-	}
-
-	/**
-	 * Run retention cleanup from WP-Cron.
-	 *
-	 * @return void
-	 */
-	public function run_cleanup_expired_subscriptions(): void {
-		$this->cleanup_expired_subscriptions();
-	}
-
-	/**
-	 * Delete active subscriptions for products that are trashed or deleted.
-	 *
-	 * Completed rows keep following the configured retention window for support
-	 * and delivery troubleshooting.
-	 *
-	 * @param int $post_id Product or variation post ID.
-	 * @return void
-	 */
-	public function cleanup_discontinued_product_subscriptions( int $post_id ): void {
-		if ( ! in_array( get_post_type( $post_id ), array( 'product', 'product_variation' ), true ) ) {
-			return;
-		}
-
-		global $wpdb;
-		$table = Back_In_Stock_Installer::get_table_name();
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Product lifecycle cleanup is an immediate custom-table mutation.
-		$wpdb->delete(
-			$table,
-			array(
-				'product_id' => $post_id,
-				'status'     => 'active',
-			),
-			array( '%d', '%s' )
-		);
-	}
-
-	/**
-	 * Delete completed subscriptions older than the configured retention window.
-	 *
-	 * Active waitlist rows are intentionally retained so customers still receive
-	 * the notification they requested. A retention value of 0 disables cleanup.
-	 *
-	 * @return int Number of deleted rows.
-	 */
-	public function cleanup_expired_subscriptions(): int {
-		$retention_days = self::get_retention_days();
-		if ( $retention_days <= 0 ) {
-			return 0;
-		}
-
-		global $wpdb;
-		$table  = Back_In_Stock_Installer::get_table_name();
-		$cutoff = current_datetime()
-			->modify( '-' . $retention_days . ' days' )
-			->format( 'Y-m-d H:i:s' );
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Scheduled retention deletion mutates custom-table data; caching is inapplicable.
-		$deleted = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM %i WHERE status IN ('notified', 'unsubscribed') AND created_at < %s",
-				$table,
-				$cutoff
-			)
-		);
-
-		return false === $deleted ? 0 : (int) $deleted;
-	}
-
-	/**
-	 * Configured retention period for completed back-in-stock rows.
-	 *
-	 * @return int Retention period in days; 0 disables automatic cleanup.
-	 */
-	private static function get_retention_days(): int {
-		return max(
-			0,
-			(int) apply_filters(
-				'aggressive_apparel_back_in_stock_retention_days',
-				self::DEFAULT_RETENTION_DAYS
-			)
-		);
 	}
 
 	/**

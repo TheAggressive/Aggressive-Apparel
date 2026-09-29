@@ -95,6 +95,27 @@ class Back_In_Stock_Email extends \WC_Email {
 	}
 
 	/**
+	 * Add RFC 8058 one-click unsubscribe headers.
+	 *
+	 * Gmail and Yahoo require them for bulk senders, and mail clients show a
+	 * native "Unsubscribe" control. The one-click POST lands on the same URL
+	 * as the footer link; Back_In_Stock_Links handles both.
+	 *
+	 * @return string
+	 */
+	public function get_headers(): string {
+		$headers = (string) parent::get_headers();
+
+		if ( '' === $this->unsubscribe_token ) {
+			return $headers;
+		}
+
+		return $headers
+			. 'List-Unsubscribe: <' . esc_url_raw( Back_In_Stock_Links::unsubscribe_url( $this->unsubscribe_token ) ) . ">\r\n"
+			. "List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n";
+	}
+
+	/**
 	 * Get email HTML content.
 	 *
 	 * @return string

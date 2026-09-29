@@ -20,7 +20,7 @@ $product_url   = $product->get_permalink();
 $product_price = wp_strip_all_tags( $product->get_price_html() );
 $image_id      = $product->get_image_id();
 $image_url     = $image_id ? wp_get_attachment_image_url( $image_id, 'woocommerce_thumbnail' ) : '';
-$unsubscribe   = add_query_arg( 'aa_unsubscribe', $unsubscribe_token, home_url() );
+$unsubscribe   = \Aggressive_Apparel\WooCommerce\Back_In_Stock_Links::unsubscribe_url( $unsubscribe_token );
 ?>
 
 <p><?php esc_html_e( 'Great news! A product you were waiting for is back in stock:', 'aggressive-apparel' ); ?></p>

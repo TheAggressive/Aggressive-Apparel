@@ -39,6 +39,20 @@ local_mysql() {
 }
 
 cleanup() {
+	local status=$? log
+	# A crashed PHP worker surfaces in Playwright only as ERR_EMPTY_RESPONSE,
+	# so print the server's own evidence whenever the run fails.
+	if (( status != 0 )) && [[ -n "${server_pid}" ]]; then
+		if ! kill -0 "${server_pid}" 2>/dev/null; then
+			echo "e2e: the PHP server had exited before cleanup." >&2
+		fi
+		for log in "${E2E_ROOT}/server.log" "${WP_DIR}/wp-content/debug.log"; do
+			[[ -s "${log}" ]] || continue
+			echo "::group::e2e: tail of ${log##*/}" >&2
+			tail -n 80 "${log}" >&2 || true
+			echo "::endgroup::" >&2
+		done
+	fi
 	if [[ -n "${server_pid}" ]]; then
 		kill "${server_pid}" 2>/dev/null || true
 		wait "${server_pid}" 2>/dev/null || true

@@ -72,7 +72,8 @@ class Frequently_Bought_Together {
 
 		Asset_Loader::enqueue_interactivity_module(
 			'@aggressive-apparel/frequently-bought-together',
-			'build/interactivity/frequently-bought-together'
+			'build/interactivity/frequently-bought-together',
+			array( '@aggressive-apparel/helpers' )
 		);
 	}
 

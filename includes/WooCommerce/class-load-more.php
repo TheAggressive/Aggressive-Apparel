@@ -266,7 +266,9 @@ class Load_More {
 			'mode'            => Feature_Settings::get_load_more_mode(),
 			'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
 			// Keep authenticated catalog continuations valid in coming-soon mode.
-			'restNonce'       => wp_create_nonce( 'wp_rest' ),
+			// Guests get none: the endpoint is public, and a nonce baked into a
+			// page-cached copy expires, after which WordPress 403s every request.
+			'restNonce'       => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 			'templateSlug'    => $seed['templateSlug'],
 			'perPage'         => $seed['perPage'],
 			'currentPage'     => 1,

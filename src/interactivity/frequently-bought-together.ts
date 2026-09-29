@@ -10,6 +10,7 @@
 import type { InteractivityActions } from '../../types/interactivity-shared';
 
 import { store } from '@wordpress/interactivity';
+import { storeApiPost } from '@aggressive-apparel/helpers';
 
 interface FbtItem {
   id: number;
@@ -54,6 +55,14 @@ interface FbtStore {
   state: FbtState;
   actions: InteractivityActions;
 }
+
+/** Store API nonce accessors for storeApiPost (read at request time). */
+const cartNonce = {
+  get: (): string => state.nonce,
+  set: (value: string): void => {
+    state.nonce = value;
+  },
+};
 
 const { state } = store<FbtStore>(
   'aggressive-apparel/frequently-bought-together',
@@ -125,14 +134,11 @@ const { state } = store<FbtStore>(
 
         try {
           for (const item of selectedItems) {
-            const res = await fetch(state.cartApiUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Nonce: state.nonce,
-              },
-              body: JSON.stringify({ id: item.id, quantity: 1 }),
-            });
+            const res = await storeApiPost(
+              state.cartApiUrl,
+              { id: item.id, quantity: 1 },
+              cartNonce
+            );
 
             if (!res.ok) {
               throw new Error(`Failed to add ${item.name}`);

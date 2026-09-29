@@ -169,7 +169,7 @@ class Back_In_Stock {
 			'aggressive-apparel/back-in-stock',
 			array(
 				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-				'nonce'        => wp_create_nonce( 'aa_stock_subscribe' ),
+				'nonce'        => is_user_logged_in() ? wp_create_nonce( 'aa_stock_subscribe' ) : '',
 				'isSubmitting' => false,
 				'isSuccess'    => false,
 				'hasError'     => false,
@@ -190,7 +190,12 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function handle_subscribe(): void {
-		check_ajax_referer( 'aa_stock_subscribe', 'nonce' );
+		// Guests are not nonce-checked: a nonce baked into a page-cached copy
+		// expires and would reject every signup, and CSRF protection means
+		// nothing for an anonymous form (rate limits and consent still apply).
+		if ( is_user_logged_in() ) {
+			check_ajax_referer( 'aa_stock_subscribe', 'nonce' );
+		}
 
 		$email      = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 		$product_id = absint( $_POST['product_id'] ?? 0 );

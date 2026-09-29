@@ -369,6 +369,62 @@ export function escapeHtml(str: string | null | undefined): string {
   return el.innerHTML;
 }
 
+/** Store API error codes that a fresh nonce resolves. */
+const STORE_API_NONCE_ERRORS = [
+  'woocommerce_rest_invalid_nonce',
+  'woocommerce_rest_missing_nonce',
+];
+
+/**
+ * POST JSON to a Store API cart route, adopting the fresh nonce every response
+ * carries.
+ *
+ * A page served from a full-page cache carries the nonce seeded when it was
+ * cached, which expires 12–24h later. The Store API rejects it but returns a
+ * fresh one, so retry exactly once with that before surfacing the error.
+ *
+ * @param url   Store API route.
+ * @param body  JSON-serialisable request body.
+ * @param nonce Accessors for the caller's nonce state.
+ */
+export async function storeApiPost(
+  url: string,
+  body: unknown,
+  nonce: { get: () => string; set: (value: string) => void }
+): Promise<Response> {
+  const send = (): Promise<Response> =>
+    fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', Nonce: nonce.get() },
+      body: JSON.stringify(body),
+    });
+  // Returns whether the response carried a nonce different from the one sent.
+  const adopt = (res: Response): boolean => {
+    const fresh = res.headers.get('Nonce');
+    if (!fresh || fresh === nonce.get()) {
+      return false;
+    }
+    nonce.set(fresh);
+    return true;
+  };
+
+  const res = await send();
+  if (!adopt(res) || (res.status !== 401 && res.status !== 403)) {
+    return res;
+  }
+  const error = (await res
+    .clone()
+    .json()
+    .catch(() => null)) as { code?: string } | null;
+  if (!STORE_API_NONCE_ERRORS.includes(error?.code ?? '')) {
+    return res;
+  }
+  const retry = await send();
+  adopt(retry);
+  return retry;
+}
+
 /**
  * Notify enhancement listeners that new product cards have been
  * rendered. Wishlist syncs heart states; countdown starts new tickers;

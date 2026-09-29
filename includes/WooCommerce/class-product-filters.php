@@ -245,8 +245,10 @@ class Product_Filters {
 				// REST nonce so logged-in shop managers/admins are authenticated
 				// for the rendered-products endpoint while the store is in
 				// "coming soon" mode (otherwise the fetch is treated as
-				// anonymous and the gated catalogue comes back empty).
-				'restNonce'           => wp_create_nonce( 'wp_rest' ),
+				// anonymous and the gated catalogue comes back empty). Guests
+				// get none: a nonce baked into a page-cached copy expires, after
+				// which WordPress 403s every request that sends it.
+				'restNonce'           => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 				'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
 				'salesCategoryUrl'    => $data_provider->sales_category_url(),
 				'layout'              => $layout,

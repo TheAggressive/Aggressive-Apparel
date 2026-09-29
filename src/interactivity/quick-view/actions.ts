@@ -20,6 +20,7 @@ import {
   parsePrice,
   matchVariation,
   decodeEntities,
+  storeApiPost,
 } from '@aggressive-apparel/helpers';
 import type { PriceResult, StoreApiPrices } from '@aggressive-apparel/helpers';
 import { calculateSalePercentage } from './product-data';
@@ -52,6 +53,14 @@ let triggerElement: HTMLElement | null = null;
 let fetchController: AbortController | null = null;
 
 // Cache fetched variation image data so repeated selections don't refetch.
+/** Store API nonce accessors for storeApiPost (read at request time). */
+const cartNonce = {
+  get: (): string => state.cartNonce,
+  set: (value: string): void => {
+    state.cartNonce = value;
+  },
+};
+
 const variationImageCache = new Map<
   number,
   { src: string; alt: string } | null
@@ -588,45 +597,10 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
       const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
       const addUrl = `${cartUrl}/add-item`;
 
-      // Ensure we have a valid nonce before sending.
-      if (!state.cartNonce) {
-        try {
-          const cartRes = await fetch(cartUrl, {
-            credentials: 'same-origin',
-          });
-          const freshNonce = cartRes.headers.get('Nonce');
-          if (freshNonce) {
-            state.cartNonce = freshNonce;
-          }
-        } catch {
-          // Fall through — request will fail with a clear nonce error.
-        }
-      }
-
-      if (!state.cartNonce) {
-        state.cartError = 'Session expired. Please reload the page.';
-        state.isAddingToCart = false;
-        return;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        Nonce: state.cartNonce,
-      };
-
-      fetch(addUrl, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers,
-        body: JSON.stringify(body),
-      })
+      // storeApiPost retries once with the fresh nonce when the seeded one is
+      // missing or stale (e.g. a page served from a full-page cache).
+      storeApiPost(addUrl, body, cartNonce)
         .then((res: Response) => {
-          // Capture the refreshed nonce for subsequent requests.
-          const newNonce = res.headers.get('Nonce');
-          if (newNonce) {
-            state.cartNonce = newNonce;
-          }
-
           if (!res.ok) {
             return res.json().then((err: { message?: string }) => {
               throw new Error(err.message || `HTTP ${res.status}`);
@@ -712,41 +686,8 @@ store<QuickViewStore>('aggressive-apparel/quick-view', {
       const cartUrl = state.cartApiUrl || '/wp-json/wc/store/v1/cart';
       const addUrl = `${cartUrl}/add-item`;
 
-      if (!state.cartNonce) {
-        try {
-          const cartRes = await fetch(cartUrl, {
-            credentials: 'same-origin',
-          });
-          const freshNonce = cartRes.headers.get('Nonce');
-          if (freshNonce) {
-            state.cartNonce = freshNonce;
-          }
-        } catch {
-          // Fall through.
-        }
-      }
-
-      if (!state.cartNonce) {
-        state.cartError = 'Session expired. Please reload the page.';
-        state.isBuyingNow = false;
-        return;
-      }
-
       try {
-        const res = await fetch(addUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            Nonce: state.cartNonce,
-          },
-          body: JSON.stringify(body),
-        });
-
-        const newNonce = res.headers.get('Nonce');
-        if (newNonce) {
-          state.cartNonce = newNonce;
-        }
+        const res = await storeApiPost(addUrl, body, cartNonce);
 
         if (!res.ok) {
           const err: { message?: string } = await res.json();

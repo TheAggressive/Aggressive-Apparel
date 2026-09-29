@@ -56,6 +56,11 @@ declare module '@aggressive-apparel/helpers' {
   ): PriceResult;
   export function decodeEntities(str: string | null | undefined): string;
   export function stripTags(html: string | null | undefined): string;
+  export function storeApiPost(
+    url: string,
+    body: unknown,
+    nonce: { get: () => string; set: (value: string) => void }
+  ): Promise<Response>;
   export function matchVariation(
     variations: Variation[],
     selected: Record<string, string>

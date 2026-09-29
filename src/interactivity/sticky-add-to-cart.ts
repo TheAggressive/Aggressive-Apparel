@@ -20,7 +20,7 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
-import { matchVariation } from '@aggressive-apparel/helpers';
+import { matchVariation, storeApiPost } from '@aggressive-apparel/helpers';
 import type { Variation } from '@aggressive-apparel/helpers';
 import {
   buildSelectedVariationPayload,
@@ -159,6 +159,14 @@ interface StickyCartStore {
   callbacks: InteractivityCallbacks;
 }
 
+/** Store API nonce accessors for storeApiPost (read at request time). */
+const cartNonce = {
+  get: (): string => state.nonce,
+  set: (value: string): void => {
+    state.nonce = value;
+  },
+};
+
 export const { state, actions } = store<StickyCartStore>(
   'aggressive-apparel/sticky-add-to-cart',
   {
@@ -283,22 +291,8 @@ export const { state, actions } = store<StickyCartStore>(
           body.variation = buildSelectedVariationPayload();
         }
 
-        fetch(state.cartApiUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            Nonce: state.nonce,
-          },
-          body: JSON.stringify(body),
-        })
+        storeApiPost(state.cartApiUrl, body, cartNonce)
           .then((res: Response) => {
-            // Capture refreshed nonce for subsequent requests.
-            const newNonce = res.headers.get('Nonce');
-            if (newNonce) {
-              state.nonce = newNonce;
-            }
-
             if (!res.ok) {
               return res.json().then((err: { message?: string }) => {
                 throw new Error(err.message || `HTTP ${res.status}`);
@@ -387,20 +381,8 @@ export const { state, actions } = store<StickyCartStore>(
           body.variation = buildSelectedVariationPayload();
         }
 
-        fetch(state.cartApiUrl, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            Nonce: state.nonce,
-          },
-          body: JSON.stringify(body),
-        })
+        storeApiPost(state.cartApiUrl, body, cartNonce)
           .then((res: Response) => {
-            const newNonce = res.headers.get('Nonce');
-            if (newNonce) {
-              state.nonce = newNonce;
-            }
             if (!res.ok) {
               return res.json().then((err: { message?: string }) => {
                 throw new Error(err.message || `HTTP ${res.status}`);

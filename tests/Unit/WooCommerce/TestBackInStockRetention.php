@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\Tests\Unit\WooCommerce;
 
-use Aggressive_Apparel\WooCommerce\Back_In_Stock;
 use Aggressive_Apparel\WooCommerce\Back_In_Stock_Installer;
+use Aggressive_Apparel\WooCommerce\Back_In_Stock_Privacy;
 use WP_UnitTestCase;
 
 /**
@@ -129,7 +129,7 @@ class TestBackInStockRetention extends WP_UnitTestCase {
 		$old_active   = $this->insert_subscription( 'active', $old );
 		$recent_done  = $this->insert_subscription( 'notified', $recent );
 
-		$deleted = ( new Back_In_Stock() )->cleanup_expired_subscriptions();
+		$deleted = ( new Back_In_Stock_Privacy() )->cleanup_expired_subscriptions();
 
 		$this->assertSame( 1, $deleted );
 		$this->assertFalse( $this->row_exists( $old_notified ) );
@@ -148,7 +148,7 @@ class TestBackInStockRetention extends WP_UnitTestCase {
 		$old = $this->days_ago( 120 );
 		$id  = $this->insert_subscription( 'notified', $old );
 
-		$deleted = ( new Back_In_Stock() )->cleanup_expired_subscriptions();
+		$deleted = ( new Back_In_Stock_Privacy() )->cleanup_expired_subscriptions();
 
 		$this->assertSame( 0, $deleted );
 		$this->assertTrue( $this->row_exists( $id ) );
@@ -170,7 +170,7 @@ class TestBackInStockRetention extends WP_UnitTestCase {
 		$old_active   = $this->insert_subscription( 'active', $old );
 		$recent_done  = $this->insert_subscription( 'notified', $recent );
 
-		$deleted = ( new Back_In_Stock() )->cleanup_expired_subscriptions();
+		$deleted = ( new Back_In_Stock_Privacy() )->cleanup_expired_subscriptions();
 
 		$this->assertSame( 2, $deleted );
 		$this->assertFalse( $this->row_exists( $old_notified ) );
@@ -196,7 +196,7 @@ class TestBackInStockRetention extends WP_UnitTestCase {
 		$active   = $this->insert_subscription( 'active', $old, $product_id );
 		$notified = $this->insert_subscription( 'notified', $old, $product_id );
 
-		( new Back_In_Stock() )->cleanup_discontinued_product_subscriptions( $product_id );
+		( new Back_In_Stock_Privacy() )->cleanup_discontinued_product_subscriptions( $product_id );
 
 		$this->assertFalse( $this->row_exists( $active ) );
 		$this->assertTrue( $this->row_exists( $notified ) );

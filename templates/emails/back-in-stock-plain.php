@@ -24,7 +24,7 @@ echo esc_html__( 'Shop now:', 'aggressive-apparel' ) . ' ' . esc_url( $product->
 
 echo "---\n\n";
 
-$unsubscribe = add_query_arg( 'aa_unsubscribe', $unsubscribe_token, home_url() );
+$unsubscribe = \Aggressive_Apparel\WooCommerce\Back_In_Stock_Links::unsubscribe_url( $unsubscribe_token );
 echo esc_html__( 'Unsubscribe:', 'aggressive-apparel' ) . ' ' . esc_url( $unsubscribe ) . "\n";
 
 echo "\n" . wp_kses_post( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) );

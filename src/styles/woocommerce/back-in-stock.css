@@ -82,6 +82,11 @@
 	background-color: var(--aa-color-neutral-bg);
 }
 
+.aa-bis-status--pending {
+	background-color: var(--aa-color-warning-bg);
+	color: var(--aa-color-warning);
+}
+
 .aa-bis-status--active {
 	background-color: var(--aa-color-info-bg);
 	color: var(--aa-color-info);

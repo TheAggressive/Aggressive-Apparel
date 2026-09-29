@@ -126,7 +126,11 @@ ln -sfn "${FIXTURE}" "${WP_DIR}/wp-content/mu-plugins/aa-e2e-product-tabs-style.
 
 # Several workers so WP-Cron and WooCommerce loopback requests cannot deadlock
 # the single-threaded default server while a page request waits on them.
-PHP_CLI_SERVER_WORKERS=4 php -S "127.0.0.1:${PORT}" -t "${WP_DIR}" \
+# setup-php enables the tracing JIT for PHP 8, and the built-in server honours
+# opcache.enable (not enable_cli), so the forked workers ran it and segfaulted
+# intermittently on heavy wp-admin pages. Keep opcache, disable the JIT.
+PHP_CLI_SERVER_WORKERS=4 php -d opcache.jit=disable \
+	-S "127.0.0.1:${PORT}" -t "${WP_DIR}" \
 	> "${E2E_ROOT}/server.log" 2>&1 &
 server_pid=$!
 

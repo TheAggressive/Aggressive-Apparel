@@ -407,6 +407,19 @@ select:user-invalid {
   color: var(--aa-color-foreground);
 }
 
+/* The line-height above already centres the text in the input height;
+ * woocommerce-blocktheme.css stacks 0.9rem of vertical padding on top,
+ * inflating classic selects (address forms) to ~80px. */
+.woocommerce-page form .form-row .select2-container.select2-container--default .select2-selection--single .select2-selection__rendered {
+  padding-block: 0;
+}
+
+/* select2 placeholders are real text (unlike ::placeholder), so they must
+ * meet contrast; select2's own greys do not on these surfaces. */
+.woocommerce .select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: color-mix(in oklch, var(--aa-color-foreground) 65%, transparent);
+}
+
 .select2-dropdown {
   border: 1.5px solid var(--aa-color-border-strong);
   background: var(--aa-color-surface-elevated);

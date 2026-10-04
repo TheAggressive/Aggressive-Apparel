@@ -1,0 +1,22 @@
+/**
+ * WooCommerce My Account — classic shortcode
+ *
+ * Sidebar tab nav (horizontal pill scroller on mobile), dashboard, one
+ * clickable card per order, address cards, and the account-details form.
+ * Loaded on account pages only (Account_Page).
+ *
+ * Unlayered on purpose: woocommerce.css, -layout.css and -smallscreen.css are
+ * unlayered and target these same elements (floats, table borders, the
+ * small-screen `tbody th { display: none }`), and the block editor can't reach
+ * this markup. Buttons and body links stay editor-controlled.
+ *
+ * Nav icons arrive as `--aa-account-icon` per endpoint via inline CSS.
+ *
+ * @package Aggressive_Apparel
+ */
+
+@import './_account-layout.css';
+@import './_account-dashboard.css';
+@import './_account-orders.css';
+@import './_account-forms.css';
+@import './_account-order-view.css';

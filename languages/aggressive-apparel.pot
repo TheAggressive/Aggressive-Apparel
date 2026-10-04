@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.184.0\n"
+"Project-Id-Version: Aggressive Apparel 1.185.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-29T22:32:42+00:00\n"
+"POT-Creation-Date: 2026-10-04T18:47:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -937,6 +937,80 @@ msgstr ""
 #: includes/helpers.php:264
 msgid "Entry threshold {pct}% is unreachable: the element ({elem}px) is taller than the detection area ({root}px). Max visibility ≈ {max}%."
 msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:47
+msgid "Welcome back"
+msgstr ""
+
+#. translators: %s: customer display name.
+#: includes/WooCommerce/class-account-dashboard.php:52
+#, php-format
+msgid "Not %s?"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:54
+msgid "Log out"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:59
+msgid "Latest order"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:69
+msgid "Account shortcuts"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:109
+msgctxt "hash before order number"
+msgid "#"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:119
+msgid "View order"
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:133
+msgid "You haven't placed an order yet."
+msgstr ""
+
+#: includes/WooCommerce/class-account-dashboard.php:134
+msgid "Start shopping"
+msgstr ""
+
+#. translators: %d: number of orders.
+#: includes/WooCommerce/class-account-dashboard.php:185
+#, php-format
+msgid "%d order"
+msgid_plural "%d orders"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/WooCommerce/class-account-dashboard.php:207
+msgid "Add an address"
+msgstr ""
+
+#. translators: %s: order date.
+#: includes/WooCommerce/class-account-order-view.php:75
+#, php-format
+msgid "Placed on %s"
+msgstr ""
+
+#: includes/WooCommerce/class-account-page.php:123
+msgid "Profile"
+msgstr ""
+
+#: includes/WooCommerce/class-account-page.php:221
+#: includes/WooCommerce/class-account-page.php:226
+msgid "Items"
+msgstr ""
+
+#. translators: %d: number of further items in the order.
+#: includes/WooCommerce/class-account-page.php:278
+#, php-format
+msgid "and %d more item"
+msgid_plural "and %d more items"
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/WooCommerce/class-advanced-sorting.php:97
 msgid "Best Selling"
@@ -2469,6 +2543,26 @@ msgstr ""
 
 #: includes/WooCommerce/class-mobile-bottom-nav.php:200
 msgid "Search products…"
+msgstr ""
+
+#: includes/WooCommerce/class-order-progress.php:42
+msgid "Placed"
+msgstr ""
+
+#: includes/WooCommerce/class-order-progress.php:43
+msgid "In production"
+msgstr ""
+
+#: includes/WooCommerce/class-order-progress.php:44
+msgid "Shipped"
+msgstr ""
+
+#: includes/WooCommerce/class-order-progress.php:101
+msgid "Order progress"
+msgstr ""
+
+#: includes/WooCommerce/class-order-progress.php:109
+msgid "(complete)"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-data.php:232

@@ -1,0 +1,241 @@
+/**
+ * My Account — address cards, the address edit form, account details.
+ *
+ * Both forms render as cards: account details as two fieldsets (Account_Page
+ * adds "Profile" to match "Password change"), the address form as one card
+ * with its heading inside. Inputs keep the forms.css baseline; labels share
+ * one caps style.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* -----------------------------------------------
+ * Address list
+ * ----------------------------------------------- */
+
+.woocommerce-edit-address .woocommerce-MyAccount-content > p {
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+}
+
+.woocommerce-account .woocommerce .woocommerce-Addresses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--aa-account-list-gap);
+  margin: 0;
+}
+
+.woocommerce-account .woocommerce .woocommerce-Addresses::before,
+.woocommerce-account .woocommerce .woocommerce-Addresses::after,
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title::before,
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title::after {
+  content: none;
+}
+
+.woocommerce-account .woocommerce .woocommerce-Addresses .woocommerce-Address {
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: var(--aa-account-card-padding);
+  border: 1px solid var(--aa-account-card-border);
+  border-radius: var(--aa-radius-card);
+  background-color: var(--aa-account-card-bg);
+}
+
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wp--preset--spacing--3);
+  margin-bottom: var(--aa-account-card-gap);
+  padding-bottom: var(--aa-account-card-gap);
+  border-bottom: 1px solid var(--aa-account-card-border);
+}
+
+/* Card titles: address cards, form headings, legends. */
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title :is(h2, h3),
+.woocommerce-edit-address .woocommerce-MyAccount-content > form > h2,
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm legend {
+  float: none;
+  margin: 0;
+  color: var(--aa-color-foreground);
+  font-family: var(--aa-account-title-font);
+  font-size: var(--aa-account-title-size);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title .edit {
+  display: inline-flex;
+  align-items: center;
+  float: none;
+  min-height: var(--aa-control-min-dense);
+  padding: 0 var(--wp--preset--spacing--3);
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-radius-full);
+  color: var(--aa-color-foreground);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    border-color var(--aa-duration-fast) var(--aa-ease-default),
+    background-color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title .edit:hover,
+.woocommerce-account .woocommerce .addresses .woocommerce-Address-title .edit:focus-visible {
+  border-color: var(--aa-color-border-strong);
+  background-color: color-mix(in oklch, var(--aa-color-foreground) 6%, transparent);
+}
+
+.woocommerce-account .woocommerce .woocommerce-Address address {
+  margin: 0;
+  color: var(--aa-account-muted);
+  font-style: normal;
+  line-height: 1.6;
+}
+
+/* -----------------------------------------------
+ * Form cards
+ * ----------------------------------------------- */
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm {
+  display: grid;
+  gap: var(--aa-account-list-gap);
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm > p {
+  margin: var(--wp--preset--spacing--3) 0 0;
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset,
+.woocommerce-edit-address .woocommerce-MyAccount-content > form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--aa-account-card-gap);
+  min-width: 0;
+  margin: 0;
+  padding: var(--aa-account-card-padding);
+  border: 1px solid var(--aa-account-card-border);
+  border-radius: var(--aa-radius-card);
+  background-color: var(--aa-account-card-bg);
+}
+
+/* A floated legend becomes an ordinary grid item inside the card. */
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm legend {
+  float: left;
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 0;
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm legend,
+.woocommerce-edit-address .woocommerce-MyAccount-content > form > h2 {
+  padding-bottom: var(--aa-account-card-gap);
+  border-bottom: 1px solid var(--aa-account-card-border);
+}
+
+.woocommerce-edit-address .woocommerce-address-fields,
+.woocommerce-edit-address .woocommerce-address-fields__field-wrapper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--aa-account-card-gap);
+}
+
+.woocommerce-edit-address .woocommerce-address-fields > p {
+  margin: var(--wp--preset--spacing--2) 0 0;
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset .form-row,
+.woocommerce-edit-address .woocommerce-address-fields__field-wrapper .form-row {
+  grid-column: 1 / -1;
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset .clear {
+  display: none;
+}
+
+@media (width >= 600px) {
+
+  .woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset,
+  .woocommerce-edit-address .woocommerce-address-fields__field-wrapper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset .form-row-first,
+  .woocommerce-edit-address .woocommerce-address-fields__field-wrapper .form-row-first {
+    grid-column: 1;
+  }
+
+  .woocommerce-account .woocommerce form.woocommerce-EditAccountForm fieldset .form-row-last,
+  .woocommerce-edit-address .woocommerce-address-fields__field-wrapper .form-row-last {
+    grid-column: 2;
+  }
+}
+
+/* Field labels — one caps style across both forms. */
+.woocommerce-account .woocommerce-MyAccount-content form .form-row label:not(.screen-reader-text, .checkbox) {
+  display: block;
+  margin-bottom: var(--wp--preset--spacing--2);
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content form .form-row label .optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm [id="account_display_name_description"] {
+  display: block;
+  margin-top: var(--wp--preset--spacing--2);
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+}
+
+.woocommerce-account .woocommerce form.woocommerce-EditAccountForm [id="account_display_name_description"] em {
+  font-style: normal;
+}
+
+/* Password reveal toggle — WooCommerce's icon is a dark background image,
+ * invisible on dark fields. Redraw it as a currentColor mask. */
+.woocommerce-account .woocommerce form .show-password-input {
+  display: grid;
+  place-items: center;
+  width: var(--aa-control-min-dense);
+  height: var(--aa-control-min-dense);
+  right: 0.5rem;
+  color: var(--aa-account-muted);
+}
+
+.woocommerce-account .woocommerce form .show-password-input:hover {
+  color: var(--aa-color-foreground);
+}
+
+.woocommerce-account .woocommerce form .show-password-input::before {
+  content: "";
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: currentcolor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.woocommerce-account .woocommerce form .show-password-input.display-password::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}

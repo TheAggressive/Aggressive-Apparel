@@ -1,0 +1,214 @@
+/**
+ * My Account — dashboard (Account_Dashboard): greeting, latest order,
+ * shortcut tiles.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-account-dash {
+  display: grid;
+  gap: var(--wp--preset--spacing--8);
+}
+
+/* Shared section eyebrow ("Latest order"). */
+.aa-account-dash__eyebrow,
+.aa-account-dash__label {
+  margin: 0;
+  color: var(--aa-account-muted);
+  font-family: var(--wp--preset--font-family--space-grotesk);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Greeting */
+.aa-account-dash__hello {
+  display: grid;
+  gap: var(--wp--preset--spacing--2);
+}
+
+.aa-account-dash__hello > * {
+  margin: 0;
+}
+
+.aa-account-dash__name {
+  color: var(--aa-color-foreground);
+  font-family: var(--aa-account-title-font);
+  font-size: var(--wp--preset--font-size--fluid-xxxx-large);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+.aa-account-dash__switch {
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+}
+
+/* Body colour + underline: the editor's red link colour is 3.75:1 on the
+ * dark page, and colour alone can't mark a link inside a sentence. */
+.aa-account-dash__switch a {
+  color: var(--aa-color-foreground);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.aa-account-dash__section {
+  display: grid;
+  gap: var(--wp--preset--spacing--3);
+}
+
+/* Latest order */
+.aa-account-latest {
+  display: grid;
+  gap: var(--aa-account-card-gap);
+}
+
+.aa-account-latest__head,
+.aa-account-latest__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wp--preset--spacing--2) var(--wp--preset--spacing--4);
+}
+
+.aa-account-latest__head {
+  padding-bottom: var(--aa-account-card-gap);
+  border-bottom: 1px solid var(--aa-account-card-border);
+}
+
+.aa-account-latest__number {
+  font-family: var(--aa-account-title-font);
+  font-size: var(--aa-account-title-size);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.aa-account-latest__date {
+  margin-inline-end: auto;
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+}
+
+@media (width < 600px) {
+
+  .aa-account-latest__number {
+    margin-inline-end: auto;
+  }
+
+  .aa-account-latest__date {
+    order: 1;
+    flex-basis: 100%;
+  }
+}
+
+.aa-account-latest .aa-order-progress {
+  padding-block: var(--wp--preset--spacing--2);
+}
+
+.aa-account-latest__total {
+  margin-inline-end: auto;
+  font-size: 1rem;
+}
+
+.aa-account-latest__total .amount {
+  font-weight: var(--aa-type-price-weight);
+}
+
+.aa-account-latest__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wp--preset--spacing--2);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  text-transform: uppercase;
+}
+
+.aa-account-latest__cta::after {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  background-color: currentcolor;
+  mask: var(--aa-account-chevron) center / contain no-repeat;
+  transition: translate var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aa-account-latest:hover .aa-account-latest__cta::after {
+  translate: 3px 0;
+}
+
+/* No orders yet */
+.aa-account-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--aa-account-card-gap);
+}
+
+.aa-account-empty p {
+  margin: 0;
+  color: var(--aa-account-muted);
+}
+
+/* Shortcut tiles — icon beside text when narrow, stacked once three fit. */
+.aa-account-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--aa-account-list-gap);
+}
+
+.aa-account-tile {
+  display: grid;
+  grid-template: "icon label" auto "icon value" auto / auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--wp--preset--spacing--1) var(--aa-account-card-gap);
+  padding-block: var(--wp--preset--spacing--4);
+}
+
+@media (width >= 960px) {
+
+  .aa-account-tile {
+    grid-template: "icon" auto "label" auto "value" auto / minmax(0, 1fr);
+    align-content: start;
+    padding-block: var(--aa-account-card-padding);
+  }
+
+  .aa-account-tile__icon {
+    margin-bottom: var(--wp--preset--spacing--3);
+  }
+}
+
+.aa-account-tile__icon {
+  display: inline-grid;
+  grid-area: icon;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--aa-radius-md);
+  background-color: color-mix(in oklch, var(--aa-color-accent) 16%, transparent);
+  color: var(--aa-color-accent);
+}
+
+.aa-account-tile__icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.aa-account-tile__label {
+  grid-area: label;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.aa-account-tile__value {
+  grid-area: value;
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+  overflow-wrap: anywhere;
+}

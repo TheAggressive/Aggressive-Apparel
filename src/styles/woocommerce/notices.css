@@ -143,6 +143,19 @@
 	color: var(--aa-color-foreground) !important;
 }
 
+/* WooCommerce prints the action link before the message text; show it after,
+ * sharing the row once there's room (the text shrinks and wraps beside it). */
+.wc-block-components-notice-banner > .wc-block-components-notice-banner__content > :is(.button, .wc-forward) {
+	order: 1;
+}
+
+@media (width >= 600px) {
+
+	.wc-block-components-notice-banner > .wc-block-components-notice-banner__content:has(> :is(.button, .wc-forward)) {
+		flex-wrap: nowrap;
+	}
+}
+
 /* Primary notice actions use the theme's compact button language. */
 :is(
 	.woocommerce-message,

@@ -1,0 +1,330 @@
+/**
+ * My Account — orders list as clickable cards, thumbnails, status chip.
+ *
+ * Each row is a wrapping flex line: number · date · status, a hairline
+ * (tr::before), then thumbnails · total · chevron (tr::after).
+ * The order-number link is stretched over the card; Account_Page drops the
+ * Actions column (the order page keeps Pay / Cancel).
+ *
+ * Decorative pseudo-elements take `pointer-events: none`: the chevron's
+ * mask (and hover translate) make it a stacking context, which paints over
+ * the stretched link in tree order and would swallow clicks.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.woocommerce-account .woocommerce table.account-orders-table {
+  display: block;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table thead {
+  display: none;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tbody {
+  display: grid;
+  gap: var(--aa-account-list-gap);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4);
+  padding: var(--wp--preset--spacing--4) var(--aa-account-card-padding);
+  border: 1px solid var(--aa-account-card-border);
+  border-radius: var(--aa-radius-card);
+  background-color: var(--aa-account-card-bg);
+  transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr::before {
+  content: "";
+  order: 4;
+  flex-basis: 100%;
+  height: 1px;
+  background-color: var(--aa-account-card-border);
+  pointer-events: none;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr::after {
+  content: "";
+  order: 8;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-inline-start: auto;
+  background-color: var(--aa-account-muted);
+  mask: var(--aa-account-chevron) center / contain no-repeat;
+  pointer-events: none;
+  transition: translate var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr:hover {
+  border-color: var(--aa-color-border-strong);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr:hover::after {
+  background-color: var(--aa-color-foreground);
+  translate: 3px 0;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr:has(.woocommerce-orders-table__cell-order-number a:focus-visible) {
+  outline: 2px solid var(--aa-color-accent);
+  outline-offset: 2px;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr :is(th, td) {
+  display: block;
+  padding: 0;
+  border: 0;
+  line-height: 1.3;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table tr :is(th, td)::before {
+  content: none;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-number {
+  order: 1;
+  font-family: var(--aa-account-title-font);
+  font-size: var(--aa-account-title-size);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-number a {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+/* Stretch the order link over the whole card. */
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-number a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-date {
+  order: 2;
+  margin-inline-end: auto;
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-meta-size);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-status {
+  order: 3;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-items {
+  order: 5;
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-total {
+  order: 6;
+  font-size: var(--aa-account-meta-size);
+}
+
+.woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-total .amount {
+  font-size: 1rem;
+  font-weight: var(--aa-type-price-weight);
+}
+
+/* Plugin-added columns sit on the second line, above the overlay. */
+.woocommerce-account .woocommerce table.account-orders-table tr > :not([class*="cell-order-"]) {
+  position: relative;
+  z-index: 1;
+  order: 7;
+}
+
+/* Narrow cards: number and status share the top line, the date drops under
+ * the number, so a long status ("Processing") never wraps on its own. */
+@media (width < 600px) {
+
+  .woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-number {
+    margin-inline-end: auto;
+  }
+
+  .woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-status {
+    order: 2;
+  }
+
+  .woocommerce-account .woocommerce table.account-orders-table .woocommerce-orders-table__cell-order-date {
+    order: 3;
+    flex-basis: 100%;
+    margin-top: calc(var(--wp--preset--spacing--2) * -1);
+
+    /* !important: woocommerce-smallscreen.css right-aligns every responsive
+     * table cell with !important. */
+    text-align: start !important;
+  }
+}
+
+/* -----------------------------------------------
+ * Stacked thumbnails
+ * ----------------------------------------------- */
+
+.aa-order-items {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 0.625rem;
+}
+
+.aa-order-items > * {
+  box-sizing: border-box;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  margin-inline-start: -0.625rem;
+  border: 2px solid var(--aa-account-card-bg);
+  border-radius: var(--aa-radius-md);
+  background-color: var(--aa-color-surface);
+}
+
+.aa-order-items__img {
+  object-fit: cover;
+}
+
+.aa-order-items__more {
+  display: grid;
+  place-items: center;
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+}
+
+/* -----------------------------------------------
+ * Status chip
+ * ----------------------------------------------- */
+
+.aa-order-status {
+  --aa-status-color: var(--aa-color-neutral-muted);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 0.85em;
+  border: 1px solid color-mix(in oklch, var(--aa-status-color) 40%, transparent);
+  border-radius: var(--aa-radius-full);
+  background-color: color-mix(in oklch, var(--aa-status-color) 14%, transparent);
+  color: var(--aa-color-foreground);
+  font-family: var(--wp--preset--font-family--space-grotesk);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aa-order-status::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: var(--aa-status-color);
+}
+
+.aa-order-status--success { --aa-status-color: var(--aa-color-success); }
+
+.aa-order-status--info { --aa-status-color: var(--aa-color-info); }
+
+.aa-order-status--warning { --aa-status-color: var(--aa-color-warning); }
+
+.aa-order-status--error { --aa-status-color: var(--aa-color-error); }
+
+/* -----------------------------------------------
+ * Progress tracker (Order_Progress)
+ * ----------------------------------------------- */
+
+.aa-order-progress {
+  --aa-progress-dot: 0.875rem;
+  --aa-progress-line: 2px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aa-order-progress__step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--wp--preset--spacing--2);
+  margin: 0;
+  text-align: center;
+}
+
+/* Dot. */
+.aa-order-progress__step::before {
+  content: "";
+  box-sizing: border-box;
+  width: var(--aa-progress-dot);
+  height: var(--aa-progress-dot);
+  border: 2px solid var(--aa-color-border-strong);
+  border-radius: 50%;
+  background-color: var(--aa-account-card-bg);
+}
+
+/* Connector to the next step. */
+.aa-order-progress__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: calc((var(--aa-progress-dot) - var(--aa-progress-line)) / 2);
+  left: calc(50% + var(--aa-progress-dot) / 2 + var(--wp--preset--spacing--2));
+  right: calc(-50% + var(--aa-progress-dot) / 2 + var(--wp--preset--spacing--2));
+  height: var(--aa-progress-line);
+  border-radius: var(--aa-progress-line);
+  background-color: var(--aa-color-border-default);
+}
+
+.aa-order-progress__step.is-done::before {
+  border-color: var(--aa-color-accent);
+  background-color: var(--aa-color-accent);
+}
+
+.aa-order-progress__step.is-done:not(:last-child)::after {
+  background-color: var(--aa-color-accent);
+}
+
+.aa-order-progress__step.is-current::before {
+  border-color: var(--aa-color-accent);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--aa-color-accent) 22%, transparent);
+}
+
+.aa-order-progress__label {
+  color: var(--aa-account-muted);
+  font-size: var(--aa-account-label-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-account-label-tracking);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.aa-order-progress__step:is(.is-done, .is-current) .aa-order-progress__label {
+  color: var(--aa-color-foreground);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .aa-order-progress__step.is-current::before {
+    animation: aa-order-progress-pulse 2s var(--aa-ease-default) infinite;
+  }
+}
+
+@keyframes aa-order-progress-pulse {
+
+  0%,
+  100% { box-shadow: 0 0 0 4px color-mix(in oklch, var(--aa-color-accent) 22%, transparent); }
+
+  50% { box-shadow: 0 0 0 7px color-mix(in oklch, var(--aa-color-accent) 8%, transparent); }
+}

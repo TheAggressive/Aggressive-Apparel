@@ -297,6 +297,7 @@ class Bootstrap {
 		$this->container->get( 'mini_cart_a11y' )->init();
 		WooCommerce\Free_Shipping::init();
 		WooCommerce\Free_Shipping_Rate_Hiding::init();
+		WooCommerce\Free_Shipping_Delivery_Estimate::init();
 		WooCommerce\Store_Notices::init();
 		WooCommerce\Account_Page::init();
 		WooCommerce\Select2_A11y::init();

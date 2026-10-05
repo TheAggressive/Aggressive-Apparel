@@ -79,7 +79,7 @@
     "@wordpress/url": "^4.55.0",
     "concurrently": "^9.2.4",
     "conventional-changelog-conventionalcommits": "^10.3.0",
-    "dompurify": "^3.4.14",
+    "dompurify": "^3.4.16",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",

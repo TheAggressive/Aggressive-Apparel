@@ -41,6 +41,18 @@
   }
 }
 
+/* woocommerce-blocktheme.css caps the account wrapper and page title at
+ * 1000px. Signed in, both take the page-my-account template's wide content
+ * size instead (the wrapper by filling post-content, the title by matching
+ * it); the logged-out login page keeps WooCommerce's narrower column. */
+.woocommerce-account.logged-in main .woocommerce {
+  max-width: none;
+}
+
+.woocommerce-account.logged-in main .wp-block-post-title {
+  max-width: var(--wp--style--global--wide-size);
+}
+
 .woocommerce-account .woocommerce:has(> .woocommerce-MyAccount-navigation) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -68,7 +80,6 @@
 .woocommerce-account .woocommerce-MyAccount-content {
   display: grid;
   gap: var(--aa-account-section-gap);
-  max-width: 52rem;
 }
 
 .woocommerce-account .woocommerce-MyAccount-content > * {

@@ -92,6 +92,9 @@ I18N_MT_PROVIDER=deepl pnpm i18n:translate -- --locale=fr_FR   # DeepL-only
 Shell / CI env still wins over `.env.local`. For Actions, set the `DEEPL_AUTH_KEY` repo secret.
 
 Only **empty** or **fuzzy** strings are filled. Entries get an `aa-mt` flag.
+`msgmerge` drops custom flags and comments, so `i18n:sync` carries the flag and
+its review comment across every merge (`bin/i18n/keep-mt-flags.mjs`); without
+that, a sync would make every machine draft look reviewed.
 
 **CI:** [`.github/workflows/i18n-translate.yml`](../.github/workflows/i18n-translate.yml)
 

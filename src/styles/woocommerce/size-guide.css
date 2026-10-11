@@ -105,9 +105,15 @@
 	}
 }
 
-.aggressive-apparel-size-guide__trigger-icon,
-.aggressive-apparel-size-guide__title-icon {
+/* The standalone dialog's trigger (no Size Guide block on the page). */
+.aggressive-apparel-size-guide__trigger[hidden] {
+	display: none;
+}
+
+.aggressive-apparel-size-guide__trigger-icon {
 	display: inline-flex;
+	width: 1.375rem;
+	height: 1.375rem;
 	flex-shrink: 0;
 	align-items: center;
 	justify-content: center;
@@ -118,17 +124,6 @@
 		width: 100%;
 		height: 100%;
 	}
-}
-
-.aggressive-apparel-size-guide__trigger-icon {
-	width: 1.375rem;
-	height: 1.375rem;
-}
-
-.aggressive-apparel-size-guide__title-icon {
-	width: 2.5rem;
-	height: 2.5rem;
-	color: var(--aa-color-foreground-muted);
 }
 
 /* -----------------------------------------------
@@ -143,12 +138,17 @@
 	border-bottom: 1px solid var(--aa-color-border-subtle);
 }
 
-.aggressive-apparel-size-guide__title {
-	display: inline-flex;
+/* The heading and, for structured charts, the in/cm switch beside it. */
+.aggressive-apparel-size-guide__heading {
+	display: flex;
+	flex-wrap: wrap;
 	grid-column: 2;
+	gap: 0.75rem 1.25rem;
 	align-items: center;
 	justify-content: center;
-	gap: 1rem;
+}
+
+.aggressive-apparel-size-guide__title {
 	margin: 0;
 	color: var(--aa-color-foreground);
 	font-size: var(--wp--preset--font-size--xxxx-large);
@@ -331,4 +331,164 @@
 			opacity: 1;
 		}
 	}
+}
+
+/* -----------------------------------------------
+ * Structured chart (Size_Chart): unit switch, both units in the markup.
+ * ----------------------------------------------- */
+
+.aa-size-chart {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.aa-size-chart[data-unit="in"] .aa-size-chart__v[data-show="cm"],
+.aa-size-chart[data-unit="cm"] .aa-size-chart__v[data-show="in"] {
+	display: none;
+}
+
+.aa-size-chart__units {
+	display: inline-flex;
+	padding: 3px;
+	border: 1px solid var(--aa-color-border-subtle);
+	border-radius: var(--aa-radius-full, 999px);
+}
+
+.aa-size-chart__unit-button {
+	min-width: 3rem;
+	padding: 0.35rem 0.85rem;
+	border: 0;
+	border-radius: var(--aa-radius-full, 999px);
+	background: none;
+	color: var(--aa-color-foreground);
+	font: inherit;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition:
+		background-color var(--aa-duration-fast) var(--aa-ease-default),
+		color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.aa-size-chart__unit-button[aria-pressed="true"] {
+	background: var(--aa-color-foreground);
+	color: var(--aa-color-surface);
+}
+
+.aa-size-chart__unit-button:focus-visible {
+	box-shadow: var(--aa-focus-ring);
+	outline: none;
+}
+
+.aa-size-chart__scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.aa-size-chart__scroll:focus-visible {
+	box-shadow: var(--aa-focus-ring);
+	outline: none;
+}
+
+/* The unit sits beside each measurement, a step smaller than the number. */
+.aa-size-chart__unit {
+	font-size: 0.8em;
+	font-weight: 500;
+}
+
+/* Values use full-strength text: muted grey misses 4.5:1 on the light panel. */
+.aggressive-apparel-size-guide__body .aa-size-chart__table td {
+	color: var(--aa-color-foreground);
+}
+
+/* Sizes stay pinned while measurements scroll on narrow screens. */
+.aggressive-apparel-size-guide__body .aa-size-chart__table tbody th {
+	position: sticky;
+	z-index: 1;
+	left: 0;
+	background: var(--aa-color-surface);
+	color: var(--aa-color-foreground);
+	font-size: 0.95rem;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr:nth-child(even) th {
+	background: color-mix(in oklch, var(--aa-color-foreground) 4%, var(--aa-color-surface));
+}
+
+.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected th,
+.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected td {
+	background: color-mix(in oklch, var(--aa-color-accent) 14%, var(--aa-color-surface));
+	color: var(--aa-color-foreground);
+}
+
+.aggressive-apparel-size-guide__body .aa-size-chart__table tbody tr.is-selected th {
+	box-shadow: inset 3px 0 0 var(--aa-color-accent);
+}
+
+.aa-size-chart__empty {
+	opacity: 0.5;
+}
+
+.aa-size-chart__notes {
+	padding: 0 0 0.25rem;
+}
+
+.aa-size-chart__diagram {
+	margin: 0 1.25rem 1rem;
+}
+
+.aa-size-chart__diagram img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--aa-radius-md, 0.5rem);
+}
+
+/* -----------------------------------------------
+ * "Size guide" link beside the size options' name
+ * ----------------------------------------------- */
+
+.aa-size-label {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.5rem;
+	align-items: baseline;
+}
+
+.aa-size-label__link {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: color-mix(in oklch, currentcolor 70%, transparent);
+	font: inherit;
+	font-size: 0.875em;
+	cursor: pointer;
+	transition: color 0.15s ease;
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+
+/* Hovered or focused, the link comes up to full strength. */
+.aa-size-label__link:hover,
+.aa-size-label__link:focus-visible {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.aa-size-label__link.is-pending {
+	display: none;
+}
+
+.aa-size-label__link:focus-visible {
+	border-radius: 2px;
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
 }

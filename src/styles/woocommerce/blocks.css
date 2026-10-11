@@ -347,9 +347,13 @@
 /* Single-product add-to-cart form: the quantity pill shares a stretch flex row
    with the (taller) Add to Cart button. Make its wrapper flex and let the pill
    stretch to the row height so the two align, instead of the pill sitting short.
-   `min-height` keeps the 44px floor if the button is ever shorter. */
+   `min-height` keeps the 44px floor if the button is ever shorter.
+   WooCommerce 11 also frames this wrapper (1px, 4px radius) for its own
+   stepper; the pill above is our frame, so drop theirs. (0,1,0) beats their
+   :where() rule; a border set on the block in the editor is inline and wins. */
 .wp-block-add-to-cart-with-options-quantity-selector {
 	display: flex;
+	border: 0;
 }
 
 .wp-block-add-to-cart-with-options-quantity-selector .wc-block-components-quantity-selector {

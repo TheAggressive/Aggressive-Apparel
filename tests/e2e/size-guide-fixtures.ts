@@ -2,7 +2,14 @@ import { wpCli } from './wp-cli';
 
 /**
  * Deterministic product + assigned guide for the Size Guide browser contract.
+ *
+ * Two shapes: `legacy` (a simple product whose guide is free-form content,
+ * the pre-chart format that must keep rendering) and `chart` (a variable
+ * product with a Size attribute and a structured chart, S/M/L chest in
+ * inches, for the unit toggle and selected-size highlight).
  */
+
+export type SizeGuideFixtureKind = 'legacy' | 'chart';
 
 const FEATURE_OPTION = 'aggressive_apparel_wc_features';
 const FEATURE_BACKUP_OPTION = 'e2e_size_guide_feature_backup';
@@ -50,6 +57,9 @@ $stale_product_ids = get_posts(
   )
 );
 foreach ($stale_product_ids as $stale_product_id) {
+  foreach (get_children(array('post_parent' => (int) $stale_product_id, 'post_type' => 'product_variation')) as $child) {
+    wp_delete_post($child->ID, true);
+  }
   wp_delete_post((int) $stale_product_id, true);
 }
 
@@ -177,6 +187,80 @@ echo wp_json_encode(
 );
 `;
 
+const CREATE_CHART_FIXTURE_PHP = `
+if (!function_exists('wc_get_product') || !post_type_exists('aa_size_guide')) {
+  echo wp_json_encode(array('error' => 'WooCommerce or the Size Guide post type is unavailable.'));
+  return;
+}
+
+$product = new WC_Product_Variable();
+$product->set_name('E2E Chart Product');
+// The Product Specs block (compact) shows Fit and the picked size's line.
+$product->set_description('<!-- wp:aggressive-apparel/product-specs {"layout":"compact","scales":["fit"]} /-->');
+$product->set_sku('${FIXTURE_SKU}-chart');
+$product->set_status('publish');
+$product->set_catalog_visibility('visible');
+$attribute = new WC_Product_Attribute();
+$attribute->set_name('Size');
+$attribute->set_options(array('Small', 'Medium', 'Large'));
+$attribute->set_visible(true);
+$attribute->set_variation(true);
+$product->set_attributes(array($attribute));
+$product_id = $product->save();
+if ($product_id <= 0) {
+  echo wp_json_encode(array('error' => 'Could not create the fixture product.'));
+  return;
+}
+update_post_meta($product_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta($product_id, '_aa_spec_fit', '2');
+
+foreach (array('Small', 'Medium', 'Large') as $size) {
+  $variation = new WC_Product_Variation();
+  $variation->set_parent_id($product_id);
+  $variation->set_attributes(array('size' => $size));
+  $variation->set_regular_price('29.99');
+  $variation->set_stock_status('instock');
+  $variation->save();
+}
+WC_Product_Variable::sync($product_id);
+
+$guide_id = wp_insert_post(
+  array(
+    'post_type'   => 'aa_size_guide',
+    'post_status' => 'publish',
+    'post_title'  => 'E2E Size Chart',
+  ),
+  true
+);
+if (is_wp_error($guide_id) || $guide_id <= 0) {
+  echo wp_json_encode(array('error' => 'Could not create the fixture guide.'));
+  return;
+}
+update_post_meta($guide_id, '${FIXTURE_OWNER_META}', '${FIXTURE_OWNER}');
+update_post_meta(
+  $guide_id,
+  '_aa_size_chart',
+  array(
+    'unit'    => 'in',
+    'columns' => array(array('label' => 'Chest', 'type' => 'measure')),
+    'rows'    => array(
+      array('size' => 'S', 'values' => array('19')),
+      array('size' => 'M', 'values' => array('21')),
+      array('size' => 'L', 'values' => array('23')),
+    ),
+  )
+);
+update_post_meta($product_id, '_aggressive_apparel_size_guide_id', $guide_id);
+
+echo wp_json_encode(
+  array(
+    'productId' => (int) $product_id,
+    'guideId'   => (int) $guide_id,
+    'permalink' => get_permalink($product_id),
+  )
+);
+`;
+
 const ROLLBACK_PHP = `
 $product_ids = get_posts(
   array(
@@ -190,6 +274,9 @@ $product_ids = get_posts(
   )
 );
 foreach ($product_ids as $product_id) {
+  foreach (get_children(array('post_parent' => (int) $product_id, 'post_type' => 'product_variation')) as $child) {
+    wp_delete_post($child->ID, true);
+  }
   wp_delete_post((int) $product_id, true);
 }
 
@@ -243,7 +330,9 @@ function rollbackSizeGuideFixture(): void {
   }
 }
 
-export function createSizeGuideFixture(): SizeGuideFixture {
+export function createSizeGuideFixture(
+  kind: SizeGuideFixtureKind = 'legacy'
+): SizeGuideFixture {
   try {
     const beginOutput = wpCli(['eval', BEGIN_TRANSACTION_PHP]);
     const beginResult = parseResponse<{ ready?: boolean; error?: string }>(
@@ -260,7 +349,10 @@ export function createSizeGuideFixture(): SizeGuideFixture {
 
     // A fresh WP-CLI request is intentional: production bootstrap now sees
     // the enabled flag and registers the post type through its normal hooks.
-    const output = wpCli(['eval', CREATE_FIXTURE_PHP]);
+    const output = wpCli([
+      'eval',
+      kind === 'chart' ? CREATE_CHART_FIXTURE_PHP : CREATE_FIXTURE_PHP,
+    ]);
     const result = parseResponse<
       Partial<SizeGuideFixture> & { error?: string }
     >(output, 'Size Guide fixture setup');

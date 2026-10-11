@@ -478,8 +478,8 @@ class Feature_Settings {
 
 			// ── Product Page ────────────────────────────────────.
 			'size_guide'                 => array(
-				'label'       => __( 'Size Guide', 'aggressive-apparel' ),
-				'description' => __( 'Manage reusable size guides and assign them to products or categories.', 'aggressive-apparel' ),
+				'label'       => __( 'Size Guides & Specs', 'aggressive-apparel' ),
+				'description' => __( 'Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size Guides and assigned to products or categories.', 'aggressive-apparel' ),
 				'section'     => 'product',
 			),
 			'sticky_add_to_cart'         => array(

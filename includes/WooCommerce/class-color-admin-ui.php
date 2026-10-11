@@ -267,47 +267,24 @@ class Color_Admin_UI {
 	public function register_color_taxonomy_hooks(): void {
 		$attribute_name = self::ATTRIBUTE_NAME;
 
-		// Register hooks when loading the edit-tags page.
+		// Register the column when the color attribute's term screens load.
+		// WordPress fires this for the list (edit-tags.php) and the term editor
+		// (term.php) alike. The taxonomy comes from the current screen, set
+		// before load hooks run, so the request is never read or rewritten.
 		add_action(
 			'load-edit-tags.php',
 			function () use ( $attribute_name ) {
-				// Security: Verify we're in admin context and user has permissions.
-				if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
-					return;
-				}
+				$screen = get_current_screen();
 
-				$current_taxonomy = isset( $_GET['taxonomy'] ) ? sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ) : '';
-
-				// Additional security: Verify taxonomy parameter is safe.
-				if ( empty( $current_taxonomy ) || ! taxonomy_exists( $current_taxonomy ) ) {
-					return;
-				}
-
-				// Ensure nonce is present; if missing/invalid, append and reload once.
-				$nonce_action = 'color_admin_ui_display_' . get_current_user_id();
-				$nonce_param  = isset( $_GET['_color_ui_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_color_ui_nonce'] ) ) : '';
-
-				if ( ! $nonce_param || ! wp_verify_nonce( $nonce_param, $nonce_action ) ) {
-					$nonce = wp_create_nonce( $nonce_action );
-
-					$current_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-					if ( empty( $current_url ) ) {
-						return;
-					}
-
-					$redirect_url = add_query_arg( '_color_ui_nonce', $nonce, $current_url );
-					wp_safe_redirect( $redirect_url );
-					exit;
-				}
-
-				if ( $current_taxonomy === $attribute_name ) {
+				if ( $screen && $attribute_name === $screen->taxonomy ) {
 					add_filter( 'manage_edit-' . $attribute_name . '_columns', array( $this, 'add_color_column' ), 10, 1 );
 					add_action( 'manage_' . $attribute_name . '_custom_column', array( $this, 'populate_color_column' ), 10, 3 );
 				}
 			}
 		);
 
-		// Also register for known taxonomies if they exist.
+		// Also register directly when the taxonomy already exists, so AJAX
+		// re-renders (quick edit, add term) that skip load hooks keep the column.
 		if ( taxonomy_exists( $attribute_name ) ) {
 			add_filter( 'manage_edit-' . $attribute_name . '_columns', array( $this, 'add_color_column' ), 10, 1 );
 			add_action( 'manage_' . $attribute_name . '_custom_column', array( $this, 'populate_color_column' ), 10, 3 );

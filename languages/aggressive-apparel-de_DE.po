@@ -11283,3 +11283,15 @@ msgstr "Rubrik: Leitartikel „Dark“"
 msgctxt "Style variation name"
 msgid "Section: Surface"
 msgstr "Abschnitt: Oberfläche"
+
+#: includes/WooCommerce/class-product-specs-registry.php:269
+#, aa-mt
+msgctxt "fabric weight scale, lightest end"
+msgid "Light"
+msgstr "Leicht"
+
+#: includes/WooCommerce/class-product-specs-registry.php:270
+#, aa-mt
+msgctxt "fabric weight scale, heaviest end"
+msgid "Heavy"
+msgstr "Schwer"

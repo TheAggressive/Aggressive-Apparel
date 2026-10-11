@@ -1,7 +1,7 @@
 # WooCommerce integration
 
-Conditional WooCommerce loading, templates, the colour swatch system, and the
-caching/scale prerequisites the catalog assumes.
+Conditional WooCommerce loading, templates, size guides and specs, the colour
+swatch system, and the caching/scale prerequisites the catalog assumes.
 
 ---
 
@@ -132,6 +132,112 @@ deleted after 7 days, and pending rows count toward the per-address cap.
 - **No nonce for guests.** A nonce baked into a page-cached copy expires, so
   guest signups are protected by rate limits and the consent box instead;
   logged-in signups are still nonce-checked.
+
+## Size Guides & Specs
+
+One feature (Store Enhancements → **Size Guides & Specs**, key `size_guide`),
+managed on **Products → Size Guides** (`Product_Specs_Settings`, React app in
+`src/scripts/admin/product-specs/`). A size guide is one garment blank: its
+size chart, notes, measuring diagram, and spec values. Products pick a guide,
+or get one from their category or the store-wide default
+(`Size_Guide::candidate_guide_ids()`; assignments in
+`Size_Guide_Assignments`).
+
+The page has three tabs:
+
+- **Size guides** — list plus editor (`Size_Guide_Rest`). The chart is a
+  spreadsheet-style grid: paste a table from Excel/Sheets into the first Size
+  cell (its header row becomes the columns), Enter moves down and adds a size
+  after the last, and header/row menus insert, move, duplicate, or delete.
+  Columns are measurements (converted in ↔ cm) or text (size systems like
+  "US" stay as typed). Templates: Tops, Bottoms, Hats. Duplicate copies chart,
+  notes, diagram, and values (not assignments), saving pending edits first.
+- **Specs** — define spec items: a **scale** (picked step), a **scale from a
+  number** (step from boundaries, optionally per category), or a **text
+  detail**. Add from presets, from suggestions (attributes products already
+  use, `Product_Specs_Suggestions`, cached until a product or attribute
+  changes), or from scratch. A spec whose attribute names match no product is
+  flagged. Stored in `aggressive_apparel_spec_items`, validated whole by
+  `Product_Specs_Registry::validate()`.
+- **Products** — every product's own values in a searchable, filterable grid
+  with bulk set and an "only products with gaps" filter (`Product_Specs_Grid`).
+
+The product's **Size & specs** tab picks its guide and overrides, hides, or
+rewords specs for that product only. Saving it rewrites only the specs it
+showed, so overrides for specs that apply elsewhere are kept.
+
+### Old guides
+
+Free-form guides are converted by `Size_Chart_Import`: the first table
+becomes the chart, text becomes notes in document order (links keep their
+address), and one media-library image becomes the measuring diagram. A later
+table is dropped only when it is the first one in the other unit (same sizes,
+every number ×2.54 apart); any other table is kept as lines in the notes. The
+unit comes from the column headers ("Chest (cm)"), then unambiguous words
+("inches", "centimetres" — never a bare "in"), then the numbers (median above
+45 = cm).
+
+The automatic pass (first admin load; batched; flag
+`aggressive_apparel_size_charts_migrated` set only once every guide is done)
+converts only guides that lose nothing shoppers see. Richer guides (more
+images, embeds, extra tables) keep rendering as they are until converted from
+the editor, which previews the result and warns about what didn't carry over.
+The original content always stays on the post.
+
+### Storefront
+
+- **Dialog:** `Size_Guide::resolved()` picks the guide (product → category →
+  default, first with content) and returns `{id, html, chart, unit, measures}`,
+  cached per product and keyed by `Size_Guide::MARKUP_VERSION` (bump it when
+  the markup changes). The Size Guide block renders the button and dialog;
+  without the block, product pages with a guide get the dialog in the footer
+  with a hidden trigger, so the links below still open it.
+- **Chart:** measurements are stored as entered; both units are in the markup
+  and the in/cm switch beside the dialog heading only flips `data-unit`. Each
+  value shows its unit ("30 cm"). The guide's name is admin-only: the table is
+  named "Size chart" for screen readers. The first visit defaults to inches in
+  the US, Liberia, and Myanmar and centimetres elsewhere, then remembers the
+  choice in `localStorage`.
+- **Picked size:** highlighted when the guide opens — classic selects, block
+  pills (ARIA radios and their hidden input), and radios, from attributes
+  named like "size" (else any picked attribute). Spelled-out names fold to
+  short ones, so "Large" matches an "L" row
+  (`src/interactivity/size-guide/sizes.ts`).
+- **"(Guide)" link:** `Size_Guide_Label_Link` adds it beside a size
+  attribute's name (also Taille, Talla, Größe…) when the product has a guide.
+  The name itself stays plain text because WooCommerce uses it as the size
+  options' accessible name; screen readers hear the link as "Size guide".
+- **Product Specs block:** _full_ (scales with end labels, optional details
+  list) or _compact_ (a card per scale, with its advice). Both can end with
+  the picked size's measurements ("Size M: Chest 42 in", in the shopper's
+  unit) and a **Size guide** link. The server prints every size's line in both
+  units; `src/interactivity/size-guide/specs.ts` picks one in the browser. The
+  block may sit in product tab content, which kses filters, so pending parts
+  hide by class (not `hidden`) and clicks are wired from the init callback
+  (kses strips `data-wp-on--*`); the tabs' kses list allows the meter's
+  `aria-value*` attributes.
+- **Additional information:** `Product_Specs_Table` adds rows, skipped when a
+  visible attribute already shows the value; the tab is added for products
+  with specs but no attributes, and shipping weight/dimensions rows can be
+  hidden.
+
+### Data
+
+- **Chart:** `_aa_size_chart` (unit, columns, rows), `_aa_size_notes`,
+  `_aa_size_diagram` on the guide (`Size_Chart`).
+- **Spec values:** product's own value → a product attribute named in the
+  item's attribute list (a picked scale matches the text to a step name;
+  `g/m²` also reads ounces) → the product's size guide. One scalar meta per
+  item, `_aa_spec_{key}`, registered with `show_in_rest`, so it round-trips
+  through WooCommerce CSV import/export as `Meta: _aa_spec_{key}`.
+  `Product_Specs::for_product()` is memoized per request and forgotten on any
+  post/term meta, term, or watched option change.
+- **Translation:** guide names, chart labels, and spec names are stored text,
+  not POT strings — translate them with a multilingual plugin.
+- **Filter:** `aggressive_apparel_product_specs_attribute_names( $names, $key )`.
+
+All of it is product data, never per-visitor, so it is safe in a full-page
+cache: the shopper's unit and picked size are applied in the browser.
 
 ## Color Swatch System
 

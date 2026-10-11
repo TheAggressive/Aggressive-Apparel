@@ -1,0 +1,111 @@
+/**
+ * Product Specs settings — attribute suggestions and the Add spec dialog.
+ *
+ * Uses the custom properties defined on .aa-ps in style.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Suggestions */
+.aa-ps-suggest {
+	margin: 0 0 16px;
+	padding: 16px 20px;
+	border: 1px solid #c5d9ed;
+	border-radius: 4px;
+	background: #f0f6fc;
+}
+
+.aa-ps-suggest__title {
+	margin: 0 0 2px;
+	font-size: 14px;
+}
+
+.aa-ps-suggest__list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aa-ps-suggest__row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.aa-ps-suggest__text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+/* Add spec dialog */
+.aa-ps-modal .components-modal__content {
+	padding-bottom: 24px;
+}
+
+.aa-ps-presets + .aa-ps-presets {
+	margin-top: 20px;
+}
+
+.aa-ps-presets__group {
+	margin: 0 0 8px;
+	color: var(--aa-ps-muted, #646970);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.aa-ps-presets__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 8px;
+}
+
+.aa-ps-preset {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 14px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+	text-align: left;
+	cursor: pointer;
+}
+
+.aa-ps-preset:hover:not(:disabled) {
+	border-color: var(--wp-admin-theme-color, #2271b1);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
+}
+
+.aa-ps-preset:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+	outline-offset: 1px;
+}
+
+.aa-ps-preset:disabled {
+	background: #f6f7f7;
+	cursor: default;
+	opacity: 0.7;
+}
+
+.aa-ps-preset__name {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aa-ps-preset__summary {
+	color: #646970;
+	font-size: 12px;
+}

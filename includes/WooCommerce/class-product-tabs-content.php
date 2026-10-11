@@ -103,9 +103,14 @@ class Product_Tabs_Content {
 			);
 		}
 
-		// Allow style on div too (some WC markup uses it).
+		// Allow style on div too (some WC markup uses it), and the ARIA value
+		// attributes a meter carries its reading in (the Product Specs block),
+		// which kses' global attribute list leaves out.
 		if ( isset( $allowed['div'] ) ) {
 			$allowed['div']['style'] = true;
+			foreach ( array( 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext' ) as $attribute ) {
+				$allowed['div'][ $attribute ] = true;
+			}
 		}
 
 		return wp_kses( $content, $allowed );

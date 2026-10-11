@@ -1,0 +1,258 @@
+/**
+ * Product Specs block.
+ *
+ * Segmented scales take every color from the block's own text color (editor
+ * controlled) except the active segment, which uses the adaptive accent.
+ * Override `--aa-product-specs-fill` / `--aa-product-specs-track` to restyle.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-product-specs {
+	--aa-product-specs-fill: var(--aa-color-accent, currentcolor);
+	--aa-product-specs-track: color-mix(in oklch, currentcolor 14%, transparent);
+	--aa-product-specs-muted: color-mix(in oklch, currentcolor 62%, transparent);
+	--aa-product-specs-bar: 0.5rem;
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--6, 1.5rem);
+}
+
+.aa-product-specs__scales {
+	display: flex;
+	flex-direction: column;
+}
+
+.aa-product-specs__scale {
+	display: grid;
+	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--2-5, 0.625rem) var(--wp--preset--spacing--8, 2rem);
+	padding-block: var(--wp--preset--spacing--5, 1.25rem);
+	border-bottom: 1px solid var(--aa-product-specs-track);
+}
+
+.aa-product-specs__scale:first-child {
+	padding-top: 0;
+}
+
+/* Dividers only between scales; the block's gap separates what follows. */
+.aa-product-specs__scale:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+.aa-product-specs__head {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--1, 0.25rem);
+	grid-row: span 2;
+}
+
+.aa-product-specs__title {
+	font-weight: 700;
+}
+
+/* The value is the bars' red. As text that red only reaches 3:1 on dark
+   surfaces, so it is large bold text (≥ 18.66px, never smaller whatever the
+   block's font size), where 3:1 is the WCAG AA bar. */
+.aa-product-specs__value {
+	color: var(--aa-product-specs-fill);
+	font-size: max(1.1875em, 1.1875rem);
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.aa-product-specs__track {
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(var(--aa-product-specs-steps, 5), 1fr);
+	gap: 3px;
+	align-self: center;
+}
+
+.aa-product-specs__segment {
+	height: var(--aa-product-specs-bar);
+	background: var(--aa-product-specs-track);
+}
+
+.aa-product-specs__segment:first-child {
+	border-radius: 999px 0 0 999px;
+}
+
+.aa-product-specs__segment:last-child {
+	border-radius: 0 999px 999px 0;
+}
+
+.aa-product-specs__segment.is-active {
+	background: var(--aa-product-specs-fill);
+}
+
+/* Centered scales (fit): a tick marks the "true to size" middle. */
+.is-centered > .aa-product-specs__track::after {
+	content: "";
+	position: absolute;
+	inset-block: -0.3rem;
+	left: 50%;
+	width: 2px;
+	margin-left: -1px;
+	border-radius: 1px;
+	background: var(--aa-product-specs-muted);
+	opacity: 0.6;
+}
+
+.aa-product-specs__labels {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.375rem;
+	color: var(--aa-product-specs-muted);
+	font-size: 0.8125em;
+}
+
+.aa-product-specs__labels span:nth-child(2) {
+	text-align: center;
+}
+
+.aa-product-specs__labels span:last-child {
+	text-align: right;
+}
+
+/*
+ * Compact: a card per scale — title and value over a full-width track, then
+ * the advice. The card frame is low priority (:where) so the block's own
+ * border, spacing, and color settings win.
+ */
+:where(.aa-product-specs.is-layout-compact) {
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--aa-product-specs-track);
+	border-radius: var(--aa-radius-md, 0.5rem);
+}
+
+.aa-product-specs__cards {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.aa-product-specs__line {
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+/* Full width: the track's own centring would shrink it to nothing here. */
+.aa-product-specs__line .aa-product-specs__track {
+	align-self: stretch;
+}
+
+.aa-product-specs__line .aa-product-specs__head {
+	flex-direction: row;
+	gap: 1rem;
+	align-items: baseline;
+	justify-content: space-between;
+}
+
+.aa-product-specs__line .aa-product-specs__title {
+	font-family: var(--wp--preset--font-family--bebas-neue, inherit);
+	font-size: 1.5em;
+	font-weight: 400;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+.aa-product-specs__line .aa-product-specs__value {
+	font-size: max(1.25em, 1.1875rem);
+	font-weight: 700;
+	line-height: 1;
+}
+
+.aa-product-specs__card .aa-product-specs__nudge {
+	margin-top: 0.625rem;
+}
+
+/* Footer: the picked size's measurements, and a link to the size guide. */
+.aa-product-specs__footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: baseline;
+	font-size: 0.875em;
+}
+
+/* Revealed by the size guide script once there is something to show. */
+.aa-product-specs__footer.is-pending,
+.aa-product-specs__guide-link.is-pending {
+	display: none;
+}
+
+.aa-product-specs__fit {
+	margin: 0;
+	color: var(--aa-product-specs-muted);
+}
+
+.aa-product-specs__guide-link {
+	margin-inline-start: auto;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+	cursor: pointer;
+}
+
+.aa-product-specs__guide-link:focus-visible {
+	border-radius: 2px;
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}
+
+.aa-product-specs__nudge {
+	margin: 0;
+}
+
+.aa-product-specs__details {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	border-radius: var(--aa-radius-md, 0.5rem);
+	overflow: hidden;
+}
+
+/* Inline padding + column gap = the scales' column gap, so values line up
+   under the tracks. */
+.aa-product-specs__detail {
+	display: grid;
+	grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--2, 0.5rem) var(--wp--preset--spacing--4, 1rem);
+	padding: var(--wp--preset--spacing--3-5, 0.875rem) var(--wp--preset--spacing--4, 1rem);
+}
+
+.aa-product-specs__detail:nth-child(odd) {
+	background: color-mix(in oklch, currentcolor 6%, transparent);
+}
+
+.aa-product-specs__detail dt {
+	font-weight: 700;
+}
+
+.aa-product-specs__detail dd {
+	margin: 0;
+}
+
+@media (width <= 480px) {
+
+	.aa-product-specs__scale,
+	.aa-product-specs__detail {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.aa-product-specs__head {
+		flex-direction: row;
+		justify-content: space-between;
+		grid-row: auto;
+	}
+}

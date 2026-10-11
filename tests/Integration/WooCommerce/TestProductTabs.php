@@ -112,8 +112,9 @@ class TestProductTabs extends WP_UnitTestCase {
 	/**
 	 * The tab-title heading strip must remove a redundant title heading whether
 	 * it is top-level or nested in leading wrappers (WooCommerce nests the
-	 * reviews title in #reviews > #comments), but never a non-matching heading
-	 * or one that appears after real content.
+	 * reviews title in #reviews > #comments) and WooCommerce's populated
+	 * reviews title, but never another non-matching heading or one that
+	 * appears after real content.
 	 *
 	 * @return void
 	 */
@@ -136,11 +137,17 @@ class TestProductTabs extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'id="reviews"', $out );
 		$this->assertStringContainsString( 'id="comments"', $out );
 
-		// A non-matching heading (populated reviews) is kept.
+		// The populated reviews heading repeats the tab too, so it goes.
 		$populated = '<div id="reviews"><h2 class="woocommerce-Reviews-title">3 reviews for Hat</h2></div>';
-		$this->assertStringContainsString(
+		$this->assertStringNotContainsString(
 			'3 reviews for Hat',
 			$renderer->strip_leading_tab_title_heading( $populated, 'Reviews (3)' )
+		);
+
+		// Any other non-matching heading is kept.
+		$this->assertStringContainsString(
+			'<h2>Care</h2>',
+			$renderer->strip_leading_tab_title_heading( '<h2>Care</h2><p>Body</p>', 'Description' )
 		);
 
 		// A heading that follows real content is never stripped.

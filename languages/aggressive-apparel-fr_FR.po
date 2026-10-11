@@ -1707,7 +1707,7 @@ msgstr "Mise en page"
 #: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
-msgstr "Lumière"
+msgstr "Clair"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:178
 #, aa-mt
@@ -3126,7 +3126,7 @@ msgstr "Catégorie"
 #: includes/WooCommerce/class-product-tabs-config.php:165
 #, aa-mt
 msgid "Fit"
-msgstr "Ajustement"
+msgstr "Coupe"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
@@ -3469,31 +3469,31 @@ msgstr "(sans titre)"
 #: includes/WooCommerce/class-product-specs-registry.php:240
 #, aa-mt
 msgid "Snug"
-msgstr "Confortable"
+msgstr "Très ajusté"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:241
 #, aa-mt
 msgid "Fitted"
-msgstr "Sur mesure"
+msgstr "Ajusté"
 
 #: includes/WooCommerce/class-product-specs-registry.php:242
 #: patterns/size-fit-finder.php:36
 #, aa-mt
 msgid "Regular"
-msgstr "Régulier"
+msgstr "Normal"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:243
 #, aa-mt
 msgid "Relaxed"
-msgstr "Détendu"
+msgstr "Ample"
 
 #: includes/WooCommerce/class-product-specs-registry.php:244
 #: patterns/size-fit-finder.php:92 patterns/size-guide-cards.php:91
 #, aa-mt
 msgid "Oversized"
-msgstr "Surdimensionné"
+msgstr "Oversize"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:248
@@ -3529,7 +3529,7 @@ msgstr "Coupe volontairement ample. Choisissez votre taille habituelle."
 #: includes/WooCommerce/class-product-specs-registry.php:261
 #, aa-mt
 msgid "Fabric weight"
-msgstr "Poids du tissu"
+msgstr "Grammage du tissu"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:263
@@ -3543,7 +3543,7 @@ msgstr "Léger"
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Light-midweight"
-msgstr "Poids léger à moyen"
+msgstr "Léger à moyen"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:265
@@ -3557,14 +3557,14 @@ msgstr "Poids moyen"
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Mid-heavyweight"
-msgstr "Poids mi-lourds"
+msgstr "Mi-lourd"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:267
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Heavyweight"
-msgstr "Poids lourds"
+msgstr "Lourd"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:270
@@ -3582,7 +3582,7 @@ msgstr "Tissu"
 #: includes/WooCommerce/class-product-specs-registry.php:290
 #, aa-mt
 msgid "Construction"
-msgstr "Construction"
+msgstr "Confection"
 
 #. translators: %d: maximum number of spec items.
 #. Auto-translated (aa-mt) via deepl — review before release.
@@ -4663,7 +4663,7 @@ msgstr "Taille %1$s : %2$s"
 #: includes/WooCommerce/class-size-chart.php:365
 #, aa-mt
 msgid "Inches"
-msgstr "pouces"
+msgstr "Pouces"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-size-chart.php:366

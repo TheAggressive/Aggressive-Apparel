@@ -1707,7 +1707,7 @@ msgstr "Diseño"
 #: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
-msgstr "Luz"
+msgstr "Claro"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:178
 #, aa-mt
@@ -3134,7 +3134,7 @@ msgstr "Ajuste"
 #: includes/WooCommerce/class-size-chart.php:400
 #, aa-mt
 msgid "Size"
-msgstr "Tamaño"
+msgstr "Talla"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:74
 #: includes/WooCommerce/class-product-filter-renderer.php:240
@@ -3469,31 +3469,31 @@ msgstr "(sin título)"
 #: includes/WooCommerce/class-product-specs-registry.php:240
 #, aa-mt
 msgid "Snug"
-msgstr "Acogedor"
+msgstr "Ceñido"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:241
 #, aa-mt
 msgid "Fitted"
-msgstr "A medida"
+msgstr "Entallado"
 
 #: includes/WooCommerce/class-product-specs-registry.php:242
 #: patterns/size-fit-finder.php:36
 #, aa-mt
 msgid "Regular"
-msgstr "Habitual"
+msgstr "Regular"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:243
 #, aa-mt
 msgid "Relaxed"
-msgstr "Tranquilo"
+msgstr "Holgado"
 
 #: includes/WooCommerce/class-product-specs-registry.php:244
 #: patterns/size-fit-finder.php:92 patterns/size-guide-cards.php:91
 #, aa-mt
 msgid "Oversized"
-msgstr "De gran tamaño"
+msgstr "Oversize"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:248
@@ -3511,7 +3511,7 @@ msgstr "Talla un poco pequeña. Te recomendamos que elijas una talla más."
 #: includes/WooCommerce/class-product-specs-registry.php:250
 #, aa-mt
 msgid "True to size. Take your usual size."
-msgstr "Se ajusta a la talla habitual. Elige tu talla habitual."
+msgstr "Talla normal. Elige tu talla habitual."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:251
@@ -3523,7 +3523,7 @@ msgstr "Corte holgado. Elige una talla menos si prefieres un ajuste más ceñido
 #: includes/WooCommerce/class-product-specs-registry.php:252
 #, aa-mt
 msgid "Oversized on purpose. Take your usual size."
-msgstr "Talla grande a propósito. Elige tu talla habitual."
+msgstr "Corte oversize intencionado. Elige tu talla habitual."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:261
@@ -3543,28 +3543,28 @@ msgstr "Ligero"
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Light-midweight"
-msgstr "Peso ligero-medio"
+msgstr "Ligero-medio"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:265
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Midweight"
-msgstr "De peso medio"
+msgstr "Peso medio"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:266
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Mid-heavyweight"
-msgstr "Peso medio-pesado"
+msgstr "Medio-pesado"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:267
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Heavyweight"
-msgstr "Peso pesado"
+msgstr "Pesado"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:270
@@ -3582,7 +3582,7 @@ msgstr "Tejido"
 #: includes/WooCommerce/class-product-specs-registry.php:290
 #, aa-mt
 msgid "Construction"
-msgstr "Construcción"
+msgstr "Confección"
 
 #. translators: %d: maximum number of spec items.
 #. Auto-translated (aa-mt) via deepl — review before release.
@@ -4724,7 +4724,7 @@ msgstr "pulgadas"
 #, aa-mt
 msgctxt "start of the \"Size guide\" link name, read only by screen readers"
 msgid "Size"
-msgstr "Tamaño"
+msgstr "Talla"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-size-guide-label-link.php:80

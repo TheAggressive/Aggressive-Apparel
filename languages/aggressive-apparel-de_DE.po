@@ -1707,7 +1707,7 @@ msgstr "Layout"
 #: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
-msgstr "Licht"
+msgstr "Hell"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:178
 #, aa-mt
@@ -3469,31 +3469,31 @@ msgstr "(ohne Titel)"
 #: includes/WooCommerce/class-product-specs-registry.php:240
 #, aa-mt
 msgid "Snug"
-msgstr "Gemütlich"
+msgstr "Eng"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:241
 #, aa-mt
 msgid "Fitted"
-msgstr "Passgenau"
+msgstr "Tailliert"
 
 #: includes/WooCommerce/class-product-specs-registry.php:242
 #: patterns/size-fit-finder.php:36
 #, aa-mt
 msgid "Regular"
-msgstr "Regulär"
+msgstr "Normal"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:243
 #, aa-mt
 msgid "Relaxed"
-msgstr "Entspannt"
+msgstr "Locker"
 
 #: includes/WooCommerce/class-product-specs-registry.php:244
 #: patterns/size-fit-finder.php:92 patterns/size-guide-cards.php:91
 #, aa-mt
 msgid "Oversized"
-msgstr "Übergröße"
+msgstr "Oversized"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:248
@@ -3557,14 +3557,14 @@ msgstr "Mittelschwer"
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Mid-heavyweight"
-msgstr "Mittel-Schwergewicht"
+msgstr "Mittelschwer bis schwer"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:267
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 #, aa-mt
 msgid "Heavyweight"
-msgstr "Schwergewicht"
+msgstr "Schwer"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-registry.php:270
@@ -3582,7 +3582,7 @@ msgstr "Stoff"
 #: includes/WooCommerce/class-product-specs-registry.php:290
 #, aa-mt
 msgid "Construction"
-msgstr "Bauwesen"
+msgstr "Verarbeitung"
 
 #. translators: %d: maximum number of spec items.
 #. Auto-translated (aa-mt) via deepl — review before release.
@@ -4731,7 +4731,7 @@ msgstr "Größe"
 #, aa-mt
 msgctxt "visible text of the size guide link beside the size options"
 msgid "Guide"
-msgstr "Leitfaden"
+msgstr "Ratgeber"
 
 #: includes/WooCommerce/class-size-guide-post-type.php:77
 #: includes/WooCommerce/class-size-guide.php:187

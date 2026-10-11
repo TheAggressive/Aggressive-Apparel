@@ -30,9 +30,15 @@ function readSizes(footer: HTMLElement): SizeLine[] {
   }
 }
 
-/** The line for the first picked size the chart has, else ''. */
-function lineFor(sizes: SizeLine[], unit: Unit): string {
+/**
+ * The line for the picked size: the prompt until one is picked, then its
+ * measurements, or nothing when the chart has no row for it.
+ */
+function lineFor(sizes: SizeLine[], unit: Unit, prompt: string): string {
   const picked = selectedSizes();
+  if (picked.length === 0) {
+    return prompt;
+  }
   const line = sizes.find(row => picked.includes(sizeKey(row.size)));
   return line ? line[unit] : '';
 }
@@ -65,14 +71,18 @@ store('aggressive-apparel/product-specs', {
         return;
       }
 
-      // One Text node, updated in place (no childList mutations).
-      const text = document.createTextNode('');
-      fit.replaceChildren(text);
+      // One Text node, updated in place (no childList mutations): the
+      // server-rendered prompt's, so nothing is announced on load.
+      const prompt = fit.dataset.prompt ?? '';
+      const text =
+        fit.firstChild instanceof Text
+          ? fit.firstChild
+          : fit.appendChild(document.createTextNode(prompt));
       let unit = preferredUnit();
       let frame = 0;
 
       const update = () => {
-        const next = lineFor(sizes, unit);
+        const next = lineFor(sizes, unit, prompt);
         if (text.data !== next) {
           text.data = next;
         }

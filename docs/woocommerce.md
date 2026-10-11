@@ -210,7 +210,8 @@ The original content always stays on the post.
 - **Product Specs block:** _full_ (scales with end labels, optional details
   list) or _compact_ (a card per scale, with its advice). Both can end with
   the picked size's measurements ("Size M: Chest 42 in", in the shopper's
-  unit) and a **Size guide** link. The server prints every size's line in both
+  unit; "Pick a size to see its measurements." until one is picked) and a
+  **Size guide** link. The server prints every size's line in both
   units; `src/interactivity/size-guide/specs.ts` picks one in the browser. The
   block may sit in product tab content, which kses filters, so pending parts
   hide by class (not `hidden`) and clicks are wired from the init callback

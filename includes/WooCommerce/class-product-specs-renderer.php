@@ -180,7 +180,10 @@ final class Product_Specs_Renderer {
 
 		$inner = '';
 		if ( array() !== $sizes ) {
-			$inner .= '<p class="aa-product-specs__fit" aria-live="polite"></p>';
+			// Starts as a prompt (server text, so it isn't announced on load);
+			// the script swaps in the picked size's line.
+			$prompt = __( 'Pick a size to see its measurements.', 'aggressive-apparel' );
+			$inner .= '<p class="aa-product-specs__fit" aria-live="polite" data-prompt="' . esc_attr( $prompt ) . '">' . esc_html( $prompt ) . '</p>';
 		}
 		if ( $link ) {
 			$inner .= '<button type="button" class="aa-product-specs__guide-link is-pending">' . esc_html__( 'Size guide', 'aggressive-apparel' ) . '</button>';

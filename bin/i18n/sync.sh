@@ -19,7 +19,13 @@ while IFS= read -r po; do
 	aa_i18n_info "Syncing ${locale} ← pot"
 
 	if command -v msgmerge >/dev/null 2>&1; then
+		# msgmerge drops the `aa-mt` review markers translate.mjs adds; carry
+		# them across so machine drafts never look reviewed after a sync.
+		state="$(mktemp)"
+		node "${AA_I18N_DIR}/keep-mt-flags.mjs" save "${po}" "${state}"
 		msgmerge --update --backup=none --previous "${po}" "${AA_POT_FILE}"
+		node "${AA_I18N_DIR}/keep-mt-flags.mjs" restore "${po}" "${state}"
+		rm -f "${state}"
 	else
 		aa_i18n_wp i18n update-po "${AA_POT_FILE}" "${po}"
 	fi

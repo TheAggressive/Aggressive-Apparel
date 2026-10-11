@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-04T18:47:12+00:00\n"
+"POT-Creation-Date: 2026-10-11T19:29:14+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1128,64 +1128,54 @@ msgstr "Zona de entrada: la banda tintada debe llegar hasta el borde delimitador
 msgid "Entry threshold {pct}% is unreachable: the element ({elem}px) is taller than the detection area ({root}px). Max visibility ≈ {max}%."
 msgstr "El umbral de entrada {pct} % es inalcanzable: el elemento ({elem} px) es más alto que el área de detección ({root} px). Visibilidad máxima ≈ {max} %."
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:47
 #, aa-mt
 msgid "Welcome back"
 msgstr "Bienvenido de nuevo"
 
 #. translators: %s: customer display name.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:52
 #, php-format, aa-mt
 msgid "Not %s?"
 msgstr "¿No es %s?"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:54
 #, aa-mt
 msgid "Log out"
 msgstr "Cerrar sesión"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:59
 #, aa-mt
 msgid "Latest order"
 msgstr "Último pedido"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:69
 #, aa-mt
 msgid "Account shortcuts"
 msgstr "Accesos directos de la cuenta"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:109
 #, aa-mt
 msgctxt "hash before order number"
 msgid "#"
 msgstr "#"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:119
 #, aa-mt
 msgid "View order"
 msgstr "Ver pedido"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:133
 #, aa-mt
 msgid "You haven't placed an order yet."
 msgstr "Aún no has realizado ningún pedido."
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:134
 #, aa-mt
 msgid "Start shopping"
 msgstr "Empieza a comprar"
 
 #. translators: %d: number of orders.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:185
 #, php-format, aa-mt
 msgid "%d order"
@@ -1193,26 +1183,22 @@ msgid_plural "%d orders"
 msgstr[0] "%d pedido"
 msgstr[1] "Pedidos %d"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-dashboard.php:207
 #, aa-mt
 msgid "Add an address"
 msgstr "Añadir una dirección"
 
 #. translators: %s: order date.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-order-view.php:75
 #, php-format, aa-mt
 msgid "Placed on %s"
 msgstr "Colocado en %s"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-page.php:123
 #, aa-mt
 msgid "Profile"
 msgstr "Perfil"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-page.php:221
 #: includes/WooCommerce/class-account-page.php:226
 #, aa-mt
@@ -1220,7 +1206,6 @@ msgid "Items"
 msgstr "Artículos"
 
 #. translators: %d: number of further items in the order.
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-account-page.php:278
 #, php-format, aa-mt
 msgid "and %d more item"
@@ -1719,6 +1704,7 @@ msgid "Layout"
 msgstr "Diseño"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:177
+#: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
 msgstr "Luz"
@@ -1862,7 +1848,7 @@ msgstr "Alejar la imagen"
 
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
-#: includes/WooCommerce/class-size-guide.php:203
+#: includes/WooCommerce/class-size-guide.php:235
 #: includes/WooCommerce/class-sticky-add-to-cart.php:299
 #, aa-mt
 msgid "Close"
@@ -2074,7 +2060,7 @@ msgstr "Patrón"
 
 #: includes/WooCommerce/class-color-admin-ui.php:99
 #: includes/WooCommerce/class-color-admin-ui.php:155
-#: includes/WooCommerce/class-color-admin-ui.php:329
+#: includes/WooCommerce/class-color-admin-ui.php:306
 #: includes/WooCommerce/class-product-filter-renderer.php:50
 #: includes/WooCommerce/class-product-filter-renderer.php:158
 #, aa-mt
@@ -2093,24 +2079,24 @@ msgstr "Elige un color liso para este atributo del producto."
 msgid "Pattern Image"
 msgstr "Imagen del patrón"
 
-#: includes/WooCommerce/class-color-admin-ui.php:376
+#: includes/WooCommerce/class-color-admin-ui.php:353
 #, aa-mt
 msgid "No pattern set"
 msgstr "No se ha establecido ningún patrón"
 
 #. translators: %s: color term name
-#: includes/WooCommerce/class-color-admin-ui.php:390
+#: includes/WooCommerce/class-color-admin-ui.php:367
 #, php-format, aa-mt
 msgid "Pattern preview for %s"
 msgstr "Vista previa del patrón para %s"
 
 #. translators: %s: color term name
-#: includes/WooCommerce/class-color-admin-ui.php:392
+#: includes/WooCommerce/class-color-admin-ui.php:369
 #, php-format, aa-mt
 msgid "Pattern for %s"
 msgstr "Patrón para %s"
 
-#: includes/WooCommerce/class-color-admin-ui.php:398
+#: includes/WooCommerce/class-color-admin-ui.php:375
 #, aa-mt
 msgid "Pattern image not found"
 msgstr "No se ha encontrado la imagen del patrón"
@@ -2831,22 +2817,19 @@ msgstr "Imagen al pasar el cursor por el catálogo"
 msgid "Show the first gallery image on hover for products that have additional gallery photos."
 msgstr "Mostrar la primera imagen de la galería al pasar el cursor por encima de los productos que tengan fotos adicionales en la galería."
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-feature-settings.php:481
-#: includes/WooCommerce/class-size-guide-post-type.php:77
-#: includes/WooCommerce/class-size-guide.php:158
-#: includes/WooCommerce/class-size-guide.php:201
-#: includes/WooCommerce/class-size-guide.php:381
-#: includes/WooCommerce/class-size-guide.php:431
-#: includes/WooCommerce/class-size-guide.php:490
-#: includes/WooCommerce/class-size-guide.php:518 patterns/footer-columns.php:83
+#: includes/WooCommerce/class-product-specs-settings.php:114
+#: includes/WooCommerce/class-product-specs-settings.php:175
 #, aa-mt
-msgid "Size Guide"
-msgstr "Guía de tallas"
+msgid "Size Guides & Specs"
+msgstr "Guías de tallas y especificaciones"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-feature-settings.php:482
 #, aa-mt
-msgid "Manage reusable size guides and assign them to products or categories."
-msgstr "Gestiona las guías de tallas reutilizables y asígnalas a productos o categorías."
+msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size Guides and assigned to products or categories."
+msgstr "Tablas de tallas con la opción de cambiar entre pulgadas y centímetros, además de especificaciones sobre el ajuste y el tejido, que se gestionan en «Productos → Guías de tallas» y se asignan a productos o categorías."
 
 #: includes/WooCommerce/class-feature-settings.php:486
 #, aa-mt
@@ -3086,31 +3069,26 @@ msgstr "Buscar productos"
 msgid "Search products…"
 msgstr "Buscar productos…"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-order-progress.php:42
 #, aa-mt
 msgid "Placed"
 msgstr "Colocado"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-order-progress.php:43
 #, aa-mt
 msgid "In production"
 msgstr "En producción"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-order-progress.php:44
 #, aa-mt
 msgid "Shipped"
 msgstr "Enviado"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-order-progress.php:101
 #, aa-mt
 msgid "Order progress"
 msgstr "Estado del pedido"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-order-progress.php:109
 #, aa-mt
 msgid "(complete)"
@@ -3143,6 +3121,7 @@ msgstr "Categoría"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:41
 #: includes/WooCommerce/class-product-filter-renderer.php:141
+#: includes/WooCommerce/class-product-specs-registry.php:238
 #: includes/WooCommerce/class-product-tabs-config.php:164
 #: includes/WooCommerce/class-product-tabs-config.php:165
 #, aa-mt
@@ -3152,6 +3131,7 @@ msgstr "Ajuste"
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
 #: includes/WooCommerce/class-product-tabs-config.php:170
+#: includes/WooCommerce/class-size-chart.php:400
 #, aa-mt
 msgid "Size"
 msgstr "Tamaño"
@@ -3322,6 +3302,418 @@ msgstr "No se han encontrado productos que coincidan con tu selección."
 #, aa-mt
 msgid "Filtered products pagination"
 msgstr "Paginación de productos filtrados"
+
+#. translators: %s: inherited value, e.g. "Regular".
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:57
+#, php-format, aa-mt
+msgid "Inherit (%s)"
+msgstr "Heredar (%s)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:58
+#, aa-mt
+msgid "Not set"
+msgstr "No se ha establecido"
+
+#: includes/WooCommerce/class-product-specs-admin-fields.php:92
+#: includes/WooCommerce/class-product-tabs-admin.php:440
+#, aa-mt
+msgid "Hide on this product"
+msgstr "Ocultar este producto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:118
+#, aa-mt
+msgid "Customize wording"
+msgstr "Personalizar el texto"
+
+#. translators: %d: number of wording fields changed.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:121
+#, php-format, aa-mt
+msgid "Customize wording (%d changed)"
+msgid_plural "Customize wording (%d changed)"
+msgstr[0] "Personalizar el texto (se ha modificado %d)"
+msgstr[1] "Personalizar el texto (se ha modificado %d)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:129
+#, aa-mt
+msgid "Name"
+msgstr "Nombre"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:131
+#, aa-mt
+msgid "Start label"
+msgstr "Etiqueta de inicio"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:132
+#, aa-mt
+msgid "Middle label"
+msgstr "Etiqueta central"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:133
+#, aa-mt
+msgid "End label"
+msgstr "Fin de la etiqueta"
+
+#. translators: %d: step number.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:138
+#, php-format, aa-mt
+msgid "Step %d"
+msgstr "Paso %d"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:230
+#, aa-mt
+msgid "Hidden on this product."
+msgstr "Oculto en este producto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:235
+#, aa-mt
+msgid "Not set anywhere, so it is left out."
+msgstr "No se ha establecido en ningún sitio, por lo que se omite."
+
+#. translators: 1: value shown on the product page, 2: product attribute name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:241
+#, php-format, aa-mt
+msgid "Showing “%1$s” from the “%2$s” attribute."
+msgstr "Se muestra «%1$s» del atributo «%2$s»."
+
+#. translators: 1: value shown on the product page, 2: size guide title.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:245
+#, php-format, aa-mt
+msgid "Showing “%1$s” from the size guide “%2$s”."
+msgstr "Se muestra «%1$s» de la guía de tallas «%2$s»."
+
+#. translators: %s: value shown on the product page.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin-fields.php:249
+#, php-format, aa-mt
+msgid "Showing “%s”, set on this product."
+msgstr "Se muestra «%s», configurado en este producto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:63
+#, aa-mt
+msgid "Size & specs"
+msgstr "Tamaño y características técnicas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:84
+#, aa-mt
+msgid "Product specs"
+msgstr "Especificaciones del producto"
+
+#. translators: %s: link to the Specs tab of Products → Size Guides.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:90
+#, php-format, aa-mt
+msgid "No specs apply to this product’s categories. Choose where each spec shows on %s."
+msgstr "No hay especificaciones asociadas a las categorías de este producto. Elige dónde se muestra cada especificación en %s."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:91
+#, aa-mt
+msgid "Products → Size Guides → Specs"
+msgstr "Productos → Guías de tallas → Características técnicas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:113
+#, aa-mt
+msgid "Product Specs block preview (updates when you save)"
+msgstr "Vista previa del bloque «Especificaciones del producto» (se actualiza al guardar)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:117
+#, aa-mt
+msgid "Nothing to show yet. Set a value here, on the size guide, or as a product attribute."
+msgstr "Aún no hay nada que mostrar. Introduce un valor aquí, en la guía de tallas o como atributo del producto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:124
+#, aa-mt
+msgid "Wording for this product only. Empty fields use the wording from Products → Size Guides → Specs, shown in grey."
+msgstr "Texto exclusivo de este producto. Los campos vacíos utilizan el texto de «Productos → Guías de tallas → Especificaciones», que aparece en gris."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:217
+#, aa-mt
+msgid "Empty fields use this product’s attributes. Choose a size guide above to share values across products."
+msgstr "Los campos vacíos utilizan los atributos de este producto. Elige una guía de tallas de las que aparecen arriba para aplicar los mismos valores a todos los productos."
+
+#. translators: %s: link to the size guide.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-admin.php:222
+#, php-format, aa-mt
+msgid "Empty fields use this product’s attributes, then the size guide %s."
+msgstr "Los campos vacíos utilizan los atributos de este producto y, a continuación, la guía de tallas %s."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-grid.php:223
+#: includes/WooCommerce/class-product-specs.php:211
+#: includes/WooCommerce/class-size-guide-rest.php:449
+#, aa-mt
+msgid "(no title)"
+msgstr "(sin título)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:240
+#, aa-mt
+msgid "Snug"
+msgstr "Acogedor"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:241
+#, aa-mt
+msgid "Fitted"
+msgstr "A medida"
+
+#: includes/WooCommerce/class-product-specs-registry.php:242
+#: patterns/size-fit-finder.php:36
+#, aa-mt
+msgid "Regular"
+msgstr "Habitual"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:243
+#, aa-mt
+msgid "Relaxed"
+msgstr "Tranquilo"
+
+#: includes/WooCommerce/class-product-specs-registry.php:244
+#: patterns/size-fit-finder.php:92 patterns/size-guide-cards.php:91
+#, aa-mt
+msgid "Oversized"
+msgstr "De gran tamaño"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:248
+#, aa-mt
+msgid "Fitted by design. Size up if you want room."
+msgstr "Corte ajustado. Elige una talla más si prefieres que te quede holgado."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:249
+#, aa-mt
+msgid "Runs a little small. Consider sizing up."
+msgstr "Talla un poco pequeña. Te recomendamos que elijas una talla más."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:250
+#, aa-mt
+msgid "True to size. Take your usual size."
+msgstr "Se ajusta a la talla habitual. Elige tu talla habitual."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:251
+#, aa-mt
+msgid "Relaxed cut. Size down for a closer fit."
+msgstr "Corte holgado. Elige una talla menos si prefieres un ajuste más ceñido."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:252
+#, aa-mt
+msgid "Oversized on purpose. Take your usual size."
+msgstr "Talla grande a propósito. Elige tu talla habitual."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:261
+#, aa-mt
+msgid "Fabric weight"
+msgstr "Gramaje del tejido"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:263
+#: includes/WooCommerce/class-product-specs-suggestions.php:194
+#, aa-mt
+msgid "Lightweight"
+msgstr "Ligero"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:264
+#: includes/WooCommerce/class-product-specs-suggestions.php:194
+#, aa-mt
+msgid "Light-midweight"
+msgstr "Peso ligero-medio"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:265
+#: includes/WooCommerce/class-product-specs-suggestions.php:194
+#, aa-mt
+msgid "Midweight"
+msgstr "De peso medio"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:266
+#: includes/WooCommerce/class-product-specs-suggestions.php:194
+#, aa-mt
+msgid "Mid-heavyweight"
+msgstr "Peso medio-pesado"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:267
+#: includes/WooCommerce/class-product-specs-suggestions.php:194
+#, aa-mt
+msgid "Heavyweight"
+msgstr "Peso pesado"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:270
+#, aa-mt
+msgid "Heavy"
+msgstr "Pesado"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:281
+#, aa-mt
+msgid "Fabric"
+msgstr "Tejido"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:290
+#, aa-mt
+msgid "Construction"
+msgstr "Construcción"
+
+#. translators: %d: maximum number of spec items.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:315
+#, php-format, aa-mt
+msgid "Keep it to %d items or fewer."
+msgstr "Limítate a %d elementos o menos."
+
+#. translators: %d: item position in the list.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:323
+#, php-format, aa-mt
+msgid "Item %d"
+msgstr "Artículo %d"
+
+#. translators: %s: item label.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:332
+#, php-format, aa-mt
+msgid "%s needs a name."
+msgstr "%s necesita un nombre."
+
+#. translators: %s: item name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:337
+#, php-format, aa-mt
+msgid "“%s” needs a different name."
+msgstr "«%s» necesita un nombre diferente."
+
+#. translators: %s: item name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:342
+#, php-format, aa-mt
+msgid "“%s” has the same key as another item. Rename one of them."
+msgstr "«%s» tiene la misma clave que otro elemento. Cambia el nombre de uno de ellos."
+
+#. translators: 1: minimum steps, 2: maximum steps.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:407
+#, php-format, aa-mt
+msgid "give the scale between %1$d and %2$d step names."
+msgstr "Asigna nombres a los intervalos entre %1$d y %2$d."
+
+#. translators: %d: number of thresholds needed.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:413
+#, php-format, aa-mt
+msgid "enter %d step boundaries, each higher than the one before."
+msgstr "Introduce los límites de paso %d, cada uno superior al anterior."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:419
+#, aa-mt
+msgid "pick a different category for each set of category boundaries."
+msgstr "Elige una categoría diferente para cada conjunto de límites de categoría."
+
+#. translators: %d: number of thresholds needed.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:423
+#, php-format, aa-mt
+msgid "each category needs %d boundaries, each higher than the one before."
+msgstr "Cada categoría necesita límites %d, cada uno de ellos más alto que el anterior."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-renderer.php:186
+#, aa-mt
+msgid "Size guide"
+msgstr "Guía de tallas"
+
+#. translators: 1: current step (e.g. "Regular"), 2: lowest label (e.g. "Snug"), 3: highest label (e.g. "Oversized").
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-renderer.php:226
+#, php-format, aa-mt
+msgid "%1$s, on a scale from %2$s to %3$s"
+msgstr "%1$s, en una escala que va de %2$s a %3$s"
+
+#: includes/WooCommerce/class-product-specs-settings.php:115
+#: includes/WooCommerce/class-size-guide-post-type.php:76
+#: includes/WooCommerce/class-size-guide-post-type.php:78
+#: includes/WooCommerce/class-size-guide-post-type.php:87
+#, aa-mt
+msgid "Size Guides"
+msgstr "Guías de tallas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-settings.php:179
+#, aa-mt
+msgid "Loading…"
+msgstr "Cargando…"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-settings.php:233
+#, aa-mt
+msgid "Some specs need fixing before they can be saved."
+msgstr "Hay que corregir algunos datos técnicos antes de poder guardarlos."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-suggestions.php:195
+#, aa-mt
+msgid "Very low"
+msgstr "Muy bajo"
+
+#: includes/WooCommerce/class-product-specs-suggestions.php:195
+#: includes/WooCommerce/class-product-tabs-config.php:258
+#, aa-mt
+msgid "Low"
+msgstr "Bajo"
+
+#: includes/WooCommerce/class-product-specs-suggestions.php:195
+#: patterns/design-system-preview.php:117
+#, aa-mt
+msgid "Medium"
+msgstr "Medio"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-suggestions.php:195
+#, aa-mt
+msgid "High"
+msgstr "Alto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-suggestions.php:195
+#, aa-mt
+msgid "Very high"
+msgstr "Muy alto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-table.php:80
+#, aa-mt
+msgid "Additional information"
+msgstr "Información adicional"
 
 #: includes/WooCommerce/class-product-tabs-admin.php:85
 #: includes/WooCommerce/class-product-tabs-admin.php:86
@@ -3511,11 +3903,6 @@ msgstr "Sobrescribir contenido"
 #, aa-mt
 msgid "Append product content"
 msgstr "Añadir contenido del producto"
-
-#: includes/WooCommerce/class-product-tabs-admin.php:440
-#, aa-mt
-msgid "Hide on this product"
-msgstr "Ocultar este producto"
 
 #: includes/WooCommerce/class-product-tabs-admin.php:455
 #, aa-mt
@@ -4048,11 +4435,6 @@ msgstr "Limpieza"
 msgid "Use cold water and similar colors."
 msgstr "Lava con agua fría y con prendas de colores similares."
 
-#: includes/WooCommerce/class-product-tabs-config.php:258
-#, aa-mt
-msgid "Low"
-msgstr "Bajo"
-
 #: includes/WooCommerce/class-product-tabs-config.php:259
 #, aa-mt
 msgid "Tumble Low"
@@ -4258,12 +4640,109 @@ msgstr "Aún no se ha completado ninguna reconstrucción."
 msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
 msgstr "Último estado: %1$s. Verificado: %2$d; modificado: %3$d."
 
-#: includes/WooCommerce/class-size-guide-post-type.php:76
-#: includes/WooCommerce/class-size-guide-post-type.php:78
-#: includes/WooCommerce/class-size-guide-post-type.php:87
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:160
 #, aa-mt
-msgid "Size Guides"
-msgstr "Guías de tallas"
+msgid "Showing inches"
+msgstr "Se muestran las pulgadas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:161
+#, aa-mt
+msgid "Showing centimetres"
+msgstr "Se muestran los centímetros"
+
+#. translators: 1: size (e.g. "M"), 2: its measurements (e.g. "Chest 42 in, Length 29 in").
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:351
+#, php-format, aa-mt
+msgid "Size %1$s: %2$s"
+msgstr "Talla %1$s: %2$s"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:365
+#, aa-mt
+msgid "Inches"
+msgstr "Pulgadas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:366
+#, aa-mt
+msgid "Centimetres"
+msgstr "Centímetros"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:377
+#, aa-mt
+msgid "Measurement units"
+msgstr "Unidades de medida"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:392
+#, aa-mt
+msgid "Size chart"
+msgstr "Tabla de tallas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:406
+#, aa-mt
+msgid "(your selected size)"
+msgstr "(la talla que hayas seleccionado)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:414
+#, aa-mt
+msgid "Not available"
+msgstr "No disponible"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:426
+#, aa-mt
+msgid "Size chart, scrolls sideways"
+msgstr "Tabla de tallas, se desplaza lateralmente"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:453
+#, aa-mt
+msgid "How to measure"
+msgstr "Cómo medir"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:492
+#, aa-mt
+msgid "centimetres"
+msgstr "centímetros"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-chart.php:492
+#, aa-mt
+msgid "inches"
+msgstr "pulgadas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-label-link.php:79
+#, aa-mt
+msgctxt "start of the \"Size guide\" link name, read only by screen readers"
+msgid "Size"
+msgstr "Tamaño"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-label-link.php:80
+#, aa-mt
+msgctxt "visible text of the size guide link beside the size options"
+msgid "Guide"
+msgstr "Guía"
+
+#: includes/WooCommerce/class-size-guide-post-type.php:77
+#: includes/WooCommerce/class-size-guide.php:187
+#: includes/WooCommerce/class-size-guide.php:228
+#: includes/WooCommerce/class-size-guide.php:482
+#: includes/WooCommerce/class-size-guide.php:532
+#: includes/WooCommerce/class-size-guide.php:601
+#: includes/WooCommerce/class-size-guide.php:629 patterns/footer-columns.php:83
+#, aa-mt
+msgid "Size Guide"
+msgstr "Guía de tallas"
 
 #: includes/WooCommerce/class-size-guide-post-type.php:79
 #, aa-mt
@@ -4305,35 +4784,66 @@ msgstr "No se han encontrado guías de tallas."
 msgid "No size guides found in Trash."
 msgstr "No se han encontrado guías de tallas en la papelera."
 
-#: includes/WooCommerce/class-size-guide.php:165
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-rest.php:141
+#, aa-mt
+msgid "You cannot edit this size guide."
+msgstr "No puedes editar esta guía de tallas."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-rest.php:149
+#, aa-mt
+msgid "That size guide no longer exists."
+msgstr "Esa guía de tallas ya no existe."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-rest.php:218
+#, aa-mt
+msgid "This guide has no table to convert. Start a chart from a template instead."
+msgstr "Esta guía no contiene ninguna tabla que se pueda convertir. En su lugar, crea un gráfico a partir de una plantilla."
+
+#. translators: %s: size guide name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-rest.php:255
+#, php-format, aa-mt
+msgid "%s (copy)"
+msgstr "%s (copia)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-rest.php:440
+#, aa-mt
+msgid "Untitled size guide"
+msgstr "Guía de tallas «Sin título»"
+
+#: includes/WooCommerce/class-size-guide.php:194
 #, aa-mt
 msgid "Measurements in inches"
 msgstr "Medidas en pulgadas"
 
-#: includes/WooCommerce/class-size-guide.php:418
+#: includes/WooCommerce/class-size-guide.php:519
 #, aa-mt
 msgid "-- Inherit (category or global) --"
 msgstr "-- Heredar (categoría o global) --"
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:442
+#: includes/WooCommerce/class-size-guide.php:543
 #, php-format, aa-mt
 msgid "Select a size guide or %s."
 msgstr "Selecciona una guía de tallas o %s."
 
-#: includes/WooCommerce/class-size-guide.php:444
+#: includes/WooCommerce/class-size-guide.php:545
 #, aa-mt
 msgid "create a new one"
 msgstr "crear uno nuevo"
 
-#: includes/WooCommerce/class-size-guide.php:492
-#: includes/WooCommerce/class-size-guide.php:521
+#: includes/WooCommerce/class-size-guide.php:603
+#: includes/WooCommerce/class-size-guide.php:632
 #, aa-mt
 msgid "-- None --"
 msgstr "-- Ninguno --"
 
-#: includes/WooCommerce/class-size-guide.php:501
-#: includes/WooCommerce/class-size-guide.php:531
+#: includes/WooCommerce/class-size-guide.php:612
+#: includes/WooCommerce/class-size-guide.php:642
 #, aa-mt
 msgid "Assign a size guide to all products in this category."
 msgstr "Asigna una guía de tallas a todos los productos de esta categoría."
@@ -5673,11 +6183,6 @@ msgstr "Cerrar vista previa"
 #, aa-mt
 msgid "Remove preview"
 msgstr "Eliminar vista previa"
-
-#: patterns/design-system-preview.php:117
-#, aa-mt
-msgid "Medium"
-msgstr "Medio"
 
 #: patterns/design-system-preview.php:131
 #, aa-mt
@@ -7864,11 +8369,6 @@ msgstr "¿Cómo queda?"
 msgid "Pick the silhouette that matches your style. Every fit is cut with intention."
 msgstr "Elige la silueta que mejor se adapte a tu estilo. Cada corte está diseñado con un propósito concreto."
 
-#: patterns/size-fit-finder.php:36
-#, aa-mt
-msgid "Regular"
-msgstr "Habitual"
-
 #: patterns/size-fit-finder.php:40
 #, aa-mt
 msgid "True-to-size with balanced room through the chest and waist. The everyday standard for layering and all-day wear."
@@ -7889,11 +8389,6 @@ msgstr "Delgado"
 #, aa-mt
 msgid "Tapered through the body with a clean line. Hugs without restricting — built for a sharper, more tailored profile."
 msgstr "De corte cónico a lo largo del cuerpo con una línea limpia. Se ajusta sin oprimir: diseñado para ofrecer un perfil más definido y entallado."
-
-#: patterns/size-fit-finder.php:92 patterns/size-guide-cards.php:91
-#, aa-mt
-msgid "Oversized"
-msgstr "De gran tamaño"
 
 #: patterns/size-fit-finder.php:96
 #, aa-mt
@@ -9032,7 +9527,8 @@ msgstr "WooCommerce"
 #: src/blocks-interactivity/product-color-swatches/block.json
 #: src/blocks-interactivity/product-tabs/block.json
 #: src/blocks-interactivity/wishlist-button/block.json
-#: src/blocks/product-rating/block.json src/blocks/size-guide/block.json
+#: src/blocks/product-rating/block.json src/blocks/product-specs/block.json
+#: src/blocks/size-guide/block.json
 #, aa-mt
 msgctxt "block keyword"
 msgid "product"
@@ -9886,6 +10382,55 @@ msgstr "opiniones"
 msgctxt "block keyword"
 msgid "stars"
 msgstr "estrellas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block title"
+msgid "Product Specs"
+msgstr "Especificaciones del producto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block description"
+msgid "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size Guides."
+msgstr "Características técnicas (como el ajuste o el gramaje del tejido), consejos, detalles y las medidas de la talla seleccionada para el producto actual. Las características técnicas se definen en Productos → Guías de tallas."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "specs"
+msgstr "características técnicas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "fit"
+msgstr "en forma"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "fabric"
+msgstr "tejido"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "weight"
+msgstr "peso"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks/product-specs/block.json
+#, aa-mt
+msgctxt "block keyword"
+msgid "scale"
+msgstr "escala"
 
 #: src/blocks/size-guide/block.json
 #, aa-mt

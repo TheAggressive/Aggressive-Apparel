@@ -54,6 +54,8 @@ class TestSizeGuideCache extends WP_UnitTestCase {
 	private function resolve_for_product( int $product_id ): string {
 		$method = new \ReflectionMethod( Size_Guide::class, 'get_size_guide_for_product' );
 
-		return (string) $method->invoke( new Size_Guide(), $product_id );
+		$resolved = $method->invoke( new Size_Guide(), $product_id );
+
+		return is_array( $resolved ) ? (string) $resolved['html'] : '';
 	}
 }

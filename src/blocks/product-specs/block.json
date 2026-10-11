@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "aggressive-apparel/product-specs",
+  "version": "1.0.0",
+  "title": "Product Specs",
+  "category": "aggressive-apparel",
+  "description": "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size Guides.",
+  "keywords": ["specs", "fit", "fabric", "weight", "scale", "product"],
+  "textdomain": "aggressive-apparel",
+  "usesContext": ["postId", "postType"],
+  "attributes": {
+    "layout": {
+      "type": "string",
+      "enum": ["full", "compact"],
+      "default": "full"
+    },
+    "scales": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "showLabels": {
+      "type": "boolean",
+      "default": true
+    },
+    "showNudge": {
+      "type": "boolean",
+      "default": false
+    },
+    "showDetails": {
+      "type": "boolean",
+      "default": false
+    },
+    "showMeasurements": {
+      "type": "boolean",
+      "default": true
+    },
+    "showGuideLink": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "requiresPlugins": ["woocommerce"],
+    "html": false,
+    "interactivity": true,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "link": false
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "className": true
+  },
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

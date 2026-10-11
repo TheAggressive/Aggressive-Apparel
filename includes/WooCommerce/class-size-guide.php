@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Size Guide
  *
  * @since 1.17.0
+ * @phpstan-type Resolved array{id: int, html: string, chart: bool, unit: string, measures: bool}
  */
 class Size_Guide {
 
@@ -34,14 +35,14 @@ class Size_Guide {
 	 *
 	 * @var string
 	 */
-	private const CPT_META_KEY = '_aggressive_apparel_size_guide_id';
+	public const CPT_META_KEY = '_aggressive_apparel_size_guide_id';
 
 	/**
 	 * Option key for global CPT size guide reference.
 	 *
 	 * @var string
 	 */
-	private const CPT_OPTION_KEY = 'aggressive_apparel_size_guide_id';
+	public const CPT_OPTION_KEY = 'aggressive_apparel_size_guide_id';
 
 	/**
 	 * Nonce action for size guide fields.
@@ -63,6 +64,15 @@ class Size_Guide {
 	 * @var string
 	 */
 	private const CACHE_PREFIX = 'aa_sg_';
+
+	/**
+	 * Version of the cached guide markup; bump whenever Size_Chart or the
+	 * guide content markup changes, so a theme update never serves the old
+	 * markup from cache (stale entries expire on their own).
+	 *
+	 * @var int
+	 */
+	private const MARKUP_VERSION = 3;
 
 	/** Option storing the cache-key generation. */
 	private const CACHE_GENERATION_OPTION = 'aa_size_guide_cache_generation';
@@ -104,6 +114,9 @@ class Size_Guide {
 		add_action( 'created_product_cat', array( $this, 'save_category_field' ) );
 		add_action( 'edited_product_cat', array( $this, 'save_category_field' ) );
 
+		// The dialog without the block: "Size guide" links still open it.
+		add_action( 'wp_footer', array( $this, 'render_standalone_dialog' ) );
+
 		// Invalidate cache when size guide CPT posts are updated.
 		add_action( 'save_post_' . Size_Guide_Post_Type::POST_TYPE, array( $this, 'flush_all_caches' ) );
 	}
@@ -135,6 +148,22 @@ class Size_Guide {
 	}
 
 	/**
+	 * Print the size guide dialog on product pages that have a guide but no
+	 * Size Guide block, so the "Size guide" links beside the size options and
+	 * in the Product Specs block still open it. Its own trigger is hidden.
+	 */
+	public function render_standalone_dialog(): void {
+		if ( self::$did_render || ! function_exists( 'is_product' ) || ! is_product() ) {
+			return;
+		}
+
+		$markup = $this->render_block_markup( (int) get_queried_object_id(), array( 'standalone' => true ) );
+		if ( '' !== $markup ) {
+			echo aggressive_apparel_trusted_html( $markup ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped while building.
+		}
+	}
+
+	/**
 	 * Render the dynamic Size Guide block for a product context.
 	 *
 	 * @param int                  $product_id Product post ID from block context.
@@ -147,7 +176,7 @@ class Size_Guide {
 		}
 
 		$guide = $this->get_size_guide_for_product( $product_id );
-		if ( empty( $guide ) ) {
+		if ( '' === $guide['html'] ) {
 			return '';
 		}
 
@@ -169,7 +198,8 @@ class Size_Guide {
 		$title_id  = $dialog_id . '-title';
 
 		$root_attributes    = $this->get_root_attributes();
-		$trigger_attributes = $this->get_trigger_attributes( $dialog_id );
+		$standalone         = ! empty( $attributes['standalone'] );
+		$trigger_attributes = $standalone ? $this->get_hidden_trigger_attributes( $dialog_id ) : $this->get_trigger_attributes( $dialog_id );
 		$markup             = '<div ' . $root_attributes . '>';
 		$markup            .= sprintf(
 			'<button %s>',
@@ -191,15 +221,17 @@ class Size_Guide {
 		$markup .= '<div class="aggressive-apparel-overlay__backdrop aggressive-apparel-size-guide__backdrop" data-wp-on--click="actions.close"></div>';
 		$markup .= '<div class="aggressive-apparel-panel aggressive-apparel-panel--guide aggressive-apparel-size-guide__modal">';
 		$markup .= '<div class="aggressive-apparel-size-guide__header">';
+		$markup .= '<div class="aggressive-apparel-size-guide__heading">';
 		$markup .= sprintf(
-			'<h2 id="%s" class="aggressive-apparel-size-guide__title">',
-			esc_attr( $title_id )
+			'<h2 id="%s" class="aggressive-apparel-size-guide__title">%s</h2>',
+			esc_attr( $title_id ),
+			esc_html__( 'Size Guide', 'aggressive-apparel' )
 		);
-		$markup .= '<span class="aggressive-apparel-size-guide__title-icon" aria-hidden="true">';
-		$markup .= $this->get_measuring_tape_icon( 24 );
-		$markup .= '</span>';
-		$markup .= esc_html__( 'Size Guide', 'aggressive-apparel' );
-		$markup .= '</h2>';
+		// A structured chart's in/cm switch sits beside the heading.
+		if ( $guide['measures'] ) {
+			$markup .= Size_Chart::unit_switch( $guide['unit'] );
+		}
+		$markup .= '</div>';
 		$markup .= '<button type="button" class="aggressive-apparel-size-guide__close aa-icon-button aa-icon-button--only aa-icon-button--square" data-wp-on--click="actions.close" aria-label="' . esc_attr__( 'Close', 'aggressive-apparel' ) . '">';
 		$markup .= aggressive_apparel_get_icon(
 			'close',
@@ -211,11 +243,15 @@ class Size_Guide {
 		);
 		$markup .= '</button>';
 		$markup .= '</div>';
-		if ( is_string( $units_label ) && '' !== $units_label ) {
+		// A structured chart has its own unit switcher.
+		if ( is_string( $units_label ) && '' !== $units_label && ! $guide['chart'] ) {
 			$markup .= '<p class="aggressive-apparel-size-guide__units">' . esc_html( $units_label ) . '</p>';
 		}
 		$markup .= '<div class="aggressive-apparel-size-guide__body">';
-		$markup .= wp_kses_post( $guide );
+		// Chart markup is built and escaped by Size_Chart (it carries
+		// interactivity directives wp_kses_post would strip); old content was
+		// kses-filtered when resolved.
+		$markup .= $guide['html'];
 		$markup .= '</div>';
 		$markup .= '</div>';
 		$markup .= '</div>';
@@ -237,6 +273,21 @@ class Size_Guide {
 			esc_attr( 'aggressive-apparel-size-guide-block' ),
 			esc_attr( 'aggressive-apparel/size-guide' ),
 			esc_attr( (string) wp_json_encode( array( 'isOpen' => false ) ) )
+		);
+	}
+
+	/**
+	 * Trigger attributes for the standalone dialog: hidden (the page's
+	 * "Size guide" links click it), and built by hand because no block is
+	 * rendering, so there are no block supports to apply.
+	 *
+	 * @param string $dialog_id Controlled dialog element ID.
+	 * @return string Escaped HTML attributes.
+	 */
+	private function get_hidden_trigger_attributes( string $dialog_id ): string {
+		return sprintf(
+			'class="aggressive-apparel-size-guide__trigger" type="button" data-wp-on--click="actions.toggle" aria-haspopup="dialog" aria-controls="%s" aria-expanded="false" data-wp-bind--aria-expanded="context.isOpen" hidden',
+			esc_attr( $dialog_id )
 		);
 	}
 
@@ -265,7 +316,7 @@ class Size_Guide {
 	}
 
 	/**
-	 * Measuring-tape icon markup for trigger/title.
+	 * Measuring-tape icon markup for the trigger.
 	 *
 	 * @param int $size Width and height in pixels.
 	 * @return string SVG markup.
@@ -282,92 +333,142 @@ class Size_Guide {
 	}
 
 	/**
-	 * Retrieve the size guide content for a product, with transient caching.
+	 * The guide a product's size guide dialog shows: per-product assignment →
+	 * category assignment → global, first one with content. Cached per
+	 * product; `id` is 0 when there is none.
 	 *
-	 * Priority: per-product assignment → category assignment → global
-	 * assignment.
+	 * The single resolver for the dialog and the Product Specs block, so both
+	 * always agree on which guide (and whether it is a structured chart).
+	 *
+	 * @param int $product_id Product ID, or 0 for the global guide only.
+	 * @return Resolved
+	 */
+	public static function resolved( int $product_id ): array {
+		return ( new self() )->get_size_guide_for_product( $product_id );
+	}
+
+	/**
+	 * Resolved guide for a product, with transient caching.
 	 *
 	 * @param int|false $product_id Product ID.
-	 * @return string HTML content or empty string.
+	 * @return Resolved
 	 */
-	private function get_size_guide_for_product( $product_id ): string {
+	private function get_size_guide_for_product( $product_id ): array {
 		if ( $product_id ) {
-			return Cache_Helper::remember(
+			$cached = Cache_Helper::remember(
 				$this->product_cache_key( (int) $product_id ),
 				self::CACHE_TTL,
-				fn(): string => $this->resolve_size_guide( $product_id ),
-				'is_string'
+				fn(): array => $this->resolve_size_guide( (int) $product_id ),
+				static fn( $value ): bool => is_array( $value ) && isset( $value['id'], $value['html'], $value['chart'], $value['unit'], $value['measures'] )
+			);
+
+			if ( ! is_array( $cached ) ) {
+				return $this->resolve_size_guide( (int) $product_id );
+			}
+
+			return array(
+				'id'       => (int) $cached['id'],
+				'html'     => (string) $cached['html'],
+				'chart'    => (bool) $cached['chart'],
+				'unit'     => 'cm' === $cached['unit'] ? 'cm' : 'in',
+				'measures' => (bool) $cached['measures'],
 			);
 		}
 
 		// No product ID — resolve global only.
-		return $this->resolve_size_guide( false );
+		return $this->resolve_size_guide( 0 );
 	}
 
 	/**
-	 * Resolve the size guide content without caching.
+	 * Resolve the guide without caching.
 	 *
-	 * @param int|false $product_id Product ID.
-	 * @return string HTML content or empty string.
+	 * @param int $product_id Product ID.
+	 * @return Resolved
 	 */
-	private function resolve_size_guide( $product_id ): string {
-		if ( $product_id ) {
-			// Per-product assignment.
-			$cpt_id = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
-			if ( $cpt_id > 0 ) {
-				$content = $this->get_cpt_content( $cpt_id );
-				if ( '' !== $content ) {
-					return $content;
-				}
-			}
-
-			// Per-category.
-			$cats = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
-			if ( is_array( $cats ) ) {
-				foreach ( $cats as $cat_id ) {
-					// Category assignment.
-					$cat_cpt_id = (int) get_term_meta( $cat_id, self::CPT_META_KEY, true );
-					if ( $cat_cpt_id > 0 ) {
-						$content = $this->get_cpt_content( $cat_cpt_id );
-						if ( '' !== $content ) {
-							return $content;
-						}
-					}
-				}
+	private function resolve_size_guide( int $product_id ): array {
+		foreach ( self::candidate_guide_ids( $product_id ) as $guide_id ) {
+			$guide = $this->guide_content( $guide_id );
+			if ( '' !== $guide['html'] ) {
+				return $guide;
 			}
 		}
 
-		// Global assignment.
-		$global_cpt_id = (int) get_option( self::CPT_OPTION_KEY, 0 );
-		if ( $global_cpt_id > 0 ) {
-			$content = $this->get_cpt_content( $global_cpt_id );
-			if ( '' !== $content ) {
-				return $content;
-			}
-		}
-
-		return '';
+		return self::no_guide();
 	}
 
 	/**
-	 * Get rendered content from a size guide CPT post.
+	 * Nothing to show.
+	 *
+	 * @return Resolved
+	 */
+	private static function no_guide(): array {
+		return array(
+			'id'       => 0,
+			'html'     => '',
+			'chart'    => false,
+			'unit'     => 'in',
+			'measures' => false,
+		);
+	}
+
+	/**
+	 * Size guide IDs assigned to a product, in resolution order.
+	 *
+	 * Per-product assignment, then each category assignment, then the global
+	 * fallback. IDs are unvalidated references; callers check the post.
+	 *
+	 * @param int $product_id Product ID, or 0 for the global guide only.
+	 * @return int[]
+	 */
+	public static function candidate_guide_ids( int $product_id ): array {
+		$ids = array();
+
+		if ( $product_id > 0 ) {
+			$ids[] = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
+
+			// get_the_terms() reads the object term cache, so repeat lookups on
+			// one request (guide modal + Product Specs block) stay query-free.
+			$cats = get_the_terms( $product_id, 'product_cat' );
+			if ( is_array( $cats ) ) {
+				foreach ( $cats as $cat ) {
+					$ids[] = (int) get_term_meta( $cat->term_id, self::CPT_META_KEY, true );
+				}
+			}
+		}
+
+		$ids[] = (int) get_option( self::CPT_OPTION_KEY, 0 );
+
+		return array_values( array_unique( array_filter( $ids, static fn( int $id ): bool => $id > 0 ) ) );
+	}
+
+	/**
+	 * A published size guide's dialog content: its structured chart, or its
+	 * old free-form content (kses-filtered) until it is converted.
 	 *
 	 * @param int $post_id Size guide post ID.
-	 * @return string Rendered HTML or empty string.
+	 * @return Resolved
 	 */
-	private function get_cpt_content( int $post_id ): string {
+	private function guide_content( int $post_id ): array {
 		$post = get_post( $post_id );
-		if ( ! $post instanceof \WP_Post ) {
-			return '';
-		}
-		if ( Size_Guide_Post_Type::POST_TYPE !== $post->post_type ) {
-			return '';
-		}
-		if ( 'publish' !== $post->post_status ) {
-			return '';
+		if ( ! $post instanceof \WP_Post || Size_Guide_Post_Type::POST_TYPE !== $post->post_type || 'publish' !== $post->post_status ) {
+			return self::no_guide();
 		}
 
-		return wp_kses_post( (string) do_blocks( $post->post_content ) );
+		$chart = Size_Chart::get( $post_id );
+		if ( null !== $chart ) {
+			return array(
+				'id'       => $post_id,
+				'html'     => Size_Chart::render( $post_id ),
+				'chart'    => true,
+				'unit'     => $chart['unit'],
+				'measures' => Size_Chart::has_measures( $chart ),
+			);
+		}
+
+		return array(
+			'id'   => $post_id,
+			'html' => wp_kses_post( (string) do_blocks( $post->post_content ) ),
+		) + self::no_guide();
 	}
 
 	/**
@@ -435,16 +536,26 @@ class Size_Guide {
 			);
 		}
 
-		$new_url = admin_url( 'post-new.php?post_type=' . Size_Guide_Post_Type::POST_TYPE );
+		$new_url = Product_Specs_Settings::url( 'guides', array( 'guide' => 'new' ) );
 		echo '<p class="form-field" style="padding-left:12px;">';
 		printf(
 			/* translators: %s: link to create a new size guide */
 			esc_html__( 'Select a size guide or %s.', 'aggressive-apparel' ),
-			'<a href="' . esc_url( $new_url ) . '" target="_blank">' .
+			'<a href="' . esc_url( $new_url ) . '">' .
 				esc_html__( 'create a new one', 'aggressive-apparel' ) .
 			'</a>',
 		);
 		echo '</p>';
+
+		/**
+		 * Fires at the end of the product Size Guide panel.
+		 *
+		 * Product Specs renders its fields here, beside the guide they inherit from.
+		 *
+		 * @param \WP_Post $post Product being edited.
+		 */
+		do_action( 'aggressive_apparel_size_guide_product_panel', $post );
+
 		echo '</div>';
 	}
 
@@ -585,7 +696,7 @@ class Size_Guide {
 	 * @param int $product_id Product ID.
 	 */
 	private function product_cache_key( int $product_id ): string {
-		return self::CACHE_PREFIX . $this->cache_generation() . '_' . $product_id;
+		return self::CACHE_PREFIX . 'v' . self::MARKUP_VERSION . '_' . $this->cache_generation() . '_' . $product_id;
 	}
 
 	/**

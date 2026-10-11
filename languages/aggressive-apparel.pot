@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T20:09:18+00:00\n"
+"POT-Creation-Date: 2026-10-11T20:41:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -3002,12 +3002,16 @@ msgstr ""
 msgid "each category needs %d boundaries, each higher than the one before."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-renderer.php:186
+#: includes/WooCommerce/class-product-specs-renderer.php:185
+msgid "Pick a size to see its measurements."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-renderer.php:189
 msgid "Size guide"
 msgstr ""
 
 #. translators: 1: current step (e.g. "Regular"), 2: lowest label (e.g. "Snug"), 3: highest label (e.g. "Oversized").
-#: includes/WooCommerce/class-product-specs-renderer.php:226
+#: includes/WooCommerce/class-product-specs-renderer.php:229
 #, php-format
 msgid "%1$s, on a scale from %2$s to %3$s"
 msgstr ""

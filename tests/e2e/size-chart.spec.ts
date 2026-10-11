@@ -130,7 +130,7 @@ test.describe('Size chart — product page', () => {
 
       await expect(specs.getByRole('meter', { name: 'Fit' })).toBeVisible();
       await expect(link).toBeVisible();
-      await expect(fit).toHaveText('');
+      await expect(fit).toHaveText('Pick a size to see its measurements.');
 
       await page.getByRole('radio', { name: 'Medium' }).first().click();
       await expect(fit).toHaveText('Size M: Chest 21 in');

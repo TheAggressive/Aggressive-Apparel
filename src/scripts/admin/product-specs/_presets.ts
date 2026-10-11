@@ -7,7 +7,7 @@
  * @package Aggressive_Apparel
  */
 
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import type { SpecItem } from './_types';
 
 export type Preset = {
@@ -68,8 +68,16 @@ export function presets(): Preset[] {
           __('Mid-heavyweight', 'aggressive-apparel'),
           __('Heavyweight', 'aggressive-apparel'),
         ],
-        start: __('Light', 'aggressive-apparel'),
-        end: __('Heavy', 'aggressive-apparel'),
+        start: _x(
+          'Light',
+          'fabric weight scale, lightest end',
+          'aggressive-apparel'
+        ),
+        end: _x(
+          'Heavy',
+          'fabric weight scale, heaviest end',
+          'aggressive-apparel'
+        ),
         unit: 'g/m²',
         thresholds: [145, 170, 195, 220],
         attributes: ['Fabric Weight', 'Fabric weight (gsm)', 'GSM'],
@@ -100,7 +108,7 @@ export function presets(): Preset[] {
         type: 'pick',
         name: __('Warmth', 'aggressive-apparel'),
         steps: [
-          __('Light', 'aggressive-apparel'),
+          _x('Light', 'warmth scale, least warm', 'aggressive-apparel'),
           __('Mid', 'aggressive-apparel'),
           __('Warm', 'aggressive-apparel'),
           __('Very warm', 'aggressive-apparel'),

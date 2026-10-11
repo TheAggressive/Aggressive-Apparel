@@ -417,7 +417,8 @@ class Product_Tabs_Renderer {
 	}
 
 	/**
-	 * Strip a leading heading when it matches the tab title.
+	 * Strip a leading heading when it matches the tab title, or when it is
+	 * WooCommerce's reviews heading.
 	 *
 	 * @param string $content Tab panel content.
 	 * @param string $title   Tab title.
@@ -438,15 +439,17 @@ class Product_Tabs_Renderer {
 			return $content;
 		}
 
-		$heading_text = $this->normalize_tab_heading_text( wp_strip_all_tags( $matches[1] ) );
-		$title_text   = $this->normalize_tab_heading_text( $title );
+		// WooCommerce's reviews heading ("3 reviews for Hat") always repeats the
+		// Reviews tab, whatever its wording, so it goes by class, not by text.
+		$is_reviews_title = 1 === preg_match( '/<h[1-6]\b[^>]*\bclass=(["\'])[^"\']*\bwoocommerce-Reviews-title\b/i', $matches[1] );
 
-		if ( '' === $heading_text || '' === $title_text ) {
-			return $content;
-		}
+		if ( ! $is_reviews_title ) {
+			$heading_text = $this->normalize_tab_heading_text( wp_strip_all_tags( $matches[1] ) );
+			$title_text   = $this->normalize_tab_heading_text( $title );
 
-		if ( $heading_text !== $title_text ) {
-			return $content;
+			if ( '' === $heading_text || '' === $title_text || $heading_text !== $title_text ) {
+				return $content;
+			}
 		}
 
 		// Remove only the heading element, leaving any leading wrappers intact.

@@ -17,6 +17,14 @@ import {
   activateOverlayFocus,
 } from '@aggressive-apparel/use-overlay';
 
+// Structured chart behaviour (unit switch, selected size) merges into this
+// namespace from a sibling store() call.
+import './size-guide/chart';
+// The Product Specs block's footer (picked size's measurements, guide link)
+// rides along: every product page loads this bundle.
+import './size-guide/specs';
+import { initLabelLinks } from './size-guide/open';
+
 interface SizeGuideContext {
   isOpen: boolean;
 }
@@ -282,3 +290,6 @@ store<SizeGuideStore>('aggressive-apparel/size-guide', {
     },
   },
 });
+
+// "Size guide" links beside the size options (Size_Guide_Label_Link).
+initLabelLinks();

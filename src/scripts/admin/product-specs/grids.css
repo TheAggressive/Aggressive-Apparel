@@ -1,0 +1,170 @@
+/**
+ * Product Specs settings — Products grid and shared value inputs.
+ *
+ * Uses the custom properties defined on .aa-ps in style.css.
+ *
+ * @package Aggressive_Apparel
+ */
+
+/* Data tables (Products grid) */
+.aa-ps-table__scroll {
+	overflow-x: auto;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+	background: #fff;
+}
+
+.aa-ps-table__table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.aa-ps-table__table th,
+.aa-ps-table__table td {
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--aa-ps-divider);
+	text-align: left;
+	vertical-align: middle;
+}
+
+.aa-ps-table__table thead th {
+	background: #f6f7f7;
+	color: #1e1e1e;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.aa-ps-table__table tbody th {
+	min-width: 180px;
+	font-weight: 600;
+}
+
+.aa-ps-table__table tbody tr:last-child > * {
+	border-bottom: 0;
+}
+
+.aa-ps-table__usage {
+	display: block;
+	margin-top: 4px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+.aa-ps-table__unit {
+	color: var(--aa-ps-muted);
+	font-weight: 400;
+}
+
+/* Shared value input (Values and Products grids) */
+.aa-ps-input-wrap {
+	display: block;
+}
+
+.aa-ps-input {
+	width: 100%;
+	min-width: 150px;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+}
+
+.aa-ps-input.is-changed {
+	border-color: var(--aa-ps-accent);
+	box-shadow: 0 0 0 1px var(--aa-ps-accent);
+}
+
+.aa-ps-input__hint {
+	display: block;
+	margin-top: 4px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-products .aa-ps-save {
+	margin-top: var(--aa-ps-gap);
+}
+
+/* Products grid */
+.aa-ps-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.aa-ps-toolbar__search {
+	flex: 1 1 220px;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+}
+
+.aa-ps-toolbar__category {
+	flex: 0 1 220px;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+}
+
+.aa-ps-bulk {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 12px;
+	padding: 10px 12px;
+	border-radius: 4px;
+	background: #f0f6fc;
+}
+
+.aa-ps-bulk .components-base-control,
+.aa-ps-bulk .aa-ps-input-wrap {
+	flex: 0 1 200px;
+}
+
+.aa-ps-grid-table__check {
+	width: 32px;
+}
+
+.aa-ps-grid-table__check input {
+	margin: 0;
+}
+
+.aa-ps-grid-table__na {
+	color: #a7aaad;
+	font-size: 12px;
+}
+
+.aa-ps-grid-table__empty {
+	padding: 24px;
+	color: var(--aa-ps-muted);
+	text-align: center;
+}
+
+.aa-ps-product {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.aa-ps-product img,
+.aa-ps-product__noimg {
+	flex: none;
+	width: 32px;
+	height: 32px;
+	border-radius: 2px;
+	object-fit: cover;
+	background: #f0f0f1;
+}
+
+.aa-ps-pager {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	justify-content: flex-end;
+	margin: 12px 0 16px;
+}
+
+.aa-ps-pager .aa-ps-help {
+	margin-right: auto;
+}

@@ -80,7 +80,7 @@
 }
 
 .aa-bottom-nav__item:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	border-radius: var(--aa-radius-full);
 	box-shadow: var(--aa-focus-ring);
 }

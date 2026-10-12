@@ -808,7 +808,10 @@
 .aa-product-info.woocommerce table.shop_attributes td,
 .aa-product-info table.woocommerce-product-attributes td {
 	width: auto;
-	color: var(--aa-color-foreground-muted);
+
+	/* Pulled toward the foreground: plain muted text drops under 4.5:1 on the
+	   striped rows. */
+	color: color-mix(in oklch, var(--aa-color-foreground-muted) 70%, var(--aa-color-foreground));
 	font-style: normal;
 	font-weight: 400;
 }

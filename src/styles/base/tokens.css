@@ -76,6 +76,7 @@
 	--aa-color-foreground: var(--wp--preset--color--foreground);
 	--aa-color-foreground-muted: var(--wp--preset--color--foreground-muted);
 	--aa-color-accent: var(--wp--preset--color--accent);
+	--aa-color-accent-fill: var(--wp--preset--color--accent-fill);
 	--aa-color-accent-on-foreground: var(--wp--preset--color--accent-on-foreground);
 	--aa-color-border: var(--wp--preset--color--border);
 	--aa-color-border-muted: var(--wp--preset--color--border-muted);
@@ -91,6 +92,10 @@
 	--aa-duration-normal: var(--wp--custom--motion--duration--normal, 300ms);
 	--aa-duration-slow: var(--wp--custom--motion--duration--slow, 500ms);
 	--aa-ease-default: var(--wp--custom--motion--ease, cubic-bezier(0.4, 0, 0.2, 1));
+
+	/* Entrances decelerate into place; exits accelerate away. */
+	--aa-ease-enter: var(--wp--custom--motion--ease-enter, cubic-bezier(0.16, 1, 0.3, 1));
+	--aa-ease-exit: var(--wp--custom--motion--ease-exit, cubic-bezier(0.4, 0, 1, 1));
 	--aa-transition-overlay: opacity var(--aa-duration-normal) var(--aa-ease-default),
 		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
 

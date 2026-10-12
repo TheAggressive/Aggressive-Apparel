@@ -38,7 +38,7 @@
 	/* WooCommerce's chip :focus outline is `1px solid currentColor`; neutralise
 	   it (we provide our own :focus-visible rings per chip type below). */
 	.wc-block-product-filter-chips__item:focus {
-		outline: none;
+		outline: 2px solid transparent;
 	}
 
 	/* Chip spacing. WooCommerce ships `gap: 4px` on the container behind
@@ -119,7 +119,7 @@
 		}
 
 		&:focus-visible {
-			outline: none;
+			outline: 2px solid transparent;
 			box-shadow: var(--aa-focus-ring);
 		}
 

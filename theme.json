@@ -349,12 +349,18 @@
         {
           "slug": "foreground-muted",
           "name": "Foreground Muted (Adaptive)",
-          "light": "oklch(55.6% 0 0)",
+          "light": "oklch(46% 0 0)",
           "dark": "oklch(87% 0 0)"
         },
         {
           "slug": "accent",
           "name": "Accent (Adaptive)",
+          "light": "oklch(44.4% 0.177 26.899)",
+          "dark": "oklch(68% 0.22 27.325)"
+        },
+        {
+          "slug": "accent-fill",
+          "name": "Accent Fill (Adaptive)",
           "light": "oklch(44.4% 0.177 26.899)",
           "dark": "oklch(57.7% 0.245 27.325)"
         },
@@ -383,7 +389,9 @@
           "normal": "300ms",
           "slow": "500ms"
         },
-        "ease": "cubic-bezier(0.4, 0, 0.2, 1)"
+        "ease": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "easeEnter": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "easeExit": "cubic-bezier(0.4, 0, 1, 1)"
       },
       "overlay": {
         "blur": "4px",
@@ -443,7 +451,7 @@
       },
       "button": {
         "primary": {
-          "background": "var(--wp--preset--color--accent)",
+          "background": "var(--wp--preset--color--accent-fill)",
           "text": "var(--wp--preset--color--white)",
           "hoverBackground": "var(--wp--preset--color--foreground)",
           "hoverText": "var(--wp--preset--color--accent-on-foreground)"
@@ -997,7 +1005,7 @@
     }
   },
   "styles": {
-    "css": ":root { color-scheme: light dark; font-optical-sizing: auto; } ::selection { background-color: var(--wp--preset--color--accent); color: var(--wp--preset--color--white); } h1, h2, h3, h4, h5, h6 { text-wrap: balance; } :where(h1, h2, h3, h4, h5, h6, .wp-block-heading, .wp-block-post-title, .wp-block-query-title, .wp-block-site-title, .wp-block-site-title a, .wc-block-components-product-title, .woocommerce-loop-product__title) { font-weight: 400; font-synthesis-weight: none; } body, p, .wp-block-paragraph, .wp-block-post-content, .wp-block-button__link, .wp-element-button, .wp-block-navigation, .wc-block-components-product-price, .price { font-synthesis-weight: none; } p { text-wrap: pretty; } .is-style-price, .wc-block-components-product-price, .price { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }",
+    "css": ":root { color-scheme: light dark; font-optical-sizing: auto; } ::selection { background-color: var(--wp--preset--color--accent-fill); color: var(--wp--preset--color--white); } h1, h2, h3, h4, h5, h6 { text-wrap: balance; } :where(h1, h2, h3, h4, h5, h6, .wp-block-heading, .wp-block-post-title, .wp-block-query-title, .wp-block-site-title, .wp-block-site-title a, .wc-block-components-product-title, .woocommerce-loop-product__title) { font-weight: 400; font-synthesis-weight: none; } body, p, .wp-block-paragraph, .wp-block-post-content, .wp-block-button__link, .wp-element-button, .wp-block-navigation, .wc-block-components-product-price, .price { font-synthesis-weight: none; } p { text-wrap: pretty; } .is-style-price, .wc-block-components-product-price, .price { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }",
     "color": {
       "background": "var:preset|color|surface",
       "text": "var:preset|color|foreground"
@@ -1428,6 +1436,15 @@
       "core/columns": {
         "spacing": {
           "blockGap": "var:preset|spacing|2"
+        }
+      },
+      "woocommerce/breadcrumbs": {
+        "elements": {
+          "link": {
+            "typography": {
+              "textDecoration": "underline"
+            }
+          }
         }
       },
       "woocommerce/product-collection": {

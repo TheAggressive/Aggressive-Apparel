@@ -92,7 +92,7 @@
   /* Focus: no outline — the 3px left bar turns the brand accent (red). At rest
    * the bar is transparent, so there's no visible border until focus. */
   :where(input, textarea):focus {
-    outline: none;
+    outline: 2px solid transparent;
     border-left-color: var(--aa-color-accent);
   }
 
@@ -156,7 +156,7 @@
   }
 
   input[type='file']:focus-visible {
-    outline: none;
+    outline: 2px solid transparent;
     box-shadow: var(--aa-focus-ring);
   }
 
@@ -235,7 +235,7 @@ select:hover {
 }
 
 select:focus {
-  outline: none;
+  outline: 2px solid transparent;
   border-color: var(--aa-color-foreground);
 }
 
@@ -262,7 +262,7 @@ select:user-invalid {
 }
 
 .wp-block-search :where(input, textarea):focus {
-  outline: none;
+  outline: 2px solid transparent;
   border-color: var(--aa-color-accent);
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
 }

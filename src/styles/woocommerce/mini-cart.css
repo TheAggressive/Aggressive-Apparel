@@ -104,7 +104,7 @@
 	@media (hover: hover) {
 
 		&:hover {
-			background-color: var(--aa-color-accent) !important;
+			background-color: var(--aa-color-accent-fill) !important;
 			color: var(--aa-color-white) !important;
 			box-shadow: var(--aa-shadow-sm);
 			scale: 1.25;
@@ -123,7 +123,7 @@
 
 /* Keyboard focus: reveal badge count when the parent cart button is focused. */
 .wc-block-mini-cart__button:focus-visible .wc-block-mini-cart__badge {
-	background-color: var(--aa-color-accent) !important;
+	background-color: var(--aa-color-accent-fill) !important;
 	color: var(--aa-color-white) !important;
 	scale: 1.25;
 
@@ -222,7 +222,7 @@
 	}
 
 	.wc-block-components-button:focus {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow: none;
 	}
 
@@ -492,7 +492,7 @@
 		}
 
 		&:focus-visible {
-			outline: none;
+			outline: 2px solid transparent;
 			box-shadow: var(--aa-focus-ring);
 		}
 	}

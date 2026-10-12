@@ -146,6 +146,7 @@
 		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
 
 	&:focus-within {
+		outline: 2px solid transparent;
 		border-color: var(--aa-color-accent);
 		box-shadow: 0 0 0 3px color-mix(in oklch, var(--aa-color-accent) 18%, transparent);
 	}
@@ -499,7 +500,7 @@
 
 .aa-search__badge {
 	padding: 0.05rem 0.4rem;
-	background-color: var(--aa-color-accent);
+	background-color: var(--aa-color-accent-fill);
 	color: var(--aa-color-white);
 	font-size: 0.625rem;
 	font-weight: 700;

@@ -117,7 +117,7 @@
  *    focusable control, so reflect its focus on the swatch circle.
  */
 .aggressive-apparel-color-chip:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 }
 
@@ -210,5 +210,17 @@
 
 	.aggressive-apparel-color-swatch[data-color-name]::after {
 		transition: none;
+	}
+}
+
+/*
+ * Forced colors (Windows High Contrast) repaints backgrounds with the system
+ * Canvas color, which would make every swatch identical. Keep the author fill
+ * on the swatch span; the chip button around it keeps system colors.
+ */
+@media (forced-colors: active) {
+
+	.aggressive-apparel-color-swatch {
+		forced-color-adjust: none;
 	}
 }

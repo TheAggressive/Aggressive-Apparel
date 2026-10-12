@@ -82,7 +82,8 @@ if (build.status !== 0) {
   process.exit(build.status ?? 1);
 }
 
-const test = spawnSync('playwright', ['test'], {
+// Extra args pass through, e.g. `pnpm test:e2e tests/e2e/accessibility.spec.ts`.
+const test = spawnSync('playwright', ['test', ...process.argv.slice(2)], {
   cwd: themeRoot,
   stdio: 'inherit',
   env: {

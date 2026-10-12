@@ -62,3 +62,31 @@
 .aa-has-adaptive-button .wp-block-button__link {
 	color: var(--aa-adaptive-button);
 }
+
+/*
+ * Palette roles that depend on the surface (WCAG 1.4.3).
+ *
+ * `accent` is the text red: in dark mode it is bright enough to read on every
+ * dark surface, which is too bright behind white text. Anything carrying the
+ * Accent swatch as a *background* therefore resolves accent to `accent-fill`
+ * instead. Re-pointing the custom property (rather than restating
+ * `background-color`) lets core's own `.has-accent-background-color` rule
+ * paint the fill, so saved content needs no edits and nothing fights core's
+ * !important.
+ *
+ * Black-background blocks — and covers, which core already treats as dark
+ * (white text) unless it detected a light overlay and added `is-light` — are
+ * dark in both schemes, so adaptive tokens inside them resolve their dark
+ * values: light-dark() reads the color-scheme of the element that uses the
+ * token, not of :root.
+ */
+@layer aa-components {
+
+	:where(.has-accent-background-color) {
+		--wp--preset--color--accent: var(--wp--preset--color--accent-fill);
+	}
+
+	:where(.has-black-background-color, .wp-block-cover:not(.is-light)) {
+		color-scheme: dark;
+	}
+}

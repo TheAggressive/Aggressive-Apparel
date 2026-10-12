@@ -188,7 +188,7 @@ body.has-product-filters {
 	}
 
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow:
 			inset 0 0 0 2px var(--pf-bg),
 			inset 0 0 0 4px var(--aa-color-accent);
@@ -426,7 +426,7 @@ button.aa-product-filters__color-swatch {
 	}
 
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow: var(--aa-focus-ring);
 	}
 }
@@ -792,5 +792,17 @@ button.aa-product-filters__color-swatch {
 
 	.aa-product-filters__bar {
 		display: none;
+	}
+}
+
+/*
+ * Forced colors (Windows High Contrast) repaints backgrounds with the system
+ * Canvas color, which would make every color filter identical. Keep the author
+ * fill on the swatch's ::before only.
+ */
+@media (forced-colors: active) {
+
+	button.aa-product-filters__color-swatch::before {
+		forced-color-adjust: none;
 	}
 }

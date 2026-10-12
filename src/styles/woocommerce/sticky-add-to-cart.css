@@ -188,8 +188,9 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 }
 
 .aa-sticky-cart__qty-input:focus {
-	outline: none;
+	outline: 2px solid transparent;
 	background-color: color-mix(in oklch, currentcolor 5%, transparent);
+	box-shadow: inset 0 0 0 2px var(--aa-color-accent);
 }
 
 .aa-sticky-cart__qty-input::-webkit-inner-spin-button,
@@ -461,6 +462,51 @@ body.aa-bottom-nav-hidden .aa-sticky-cart {
 		max-height: 80dvh;
 		border-radius: 0.75rem;
 		box-shadow: var(--aa-shadow-lg);
+	}
+
+	/*
+	 * Motion: a popover, not a sheet. It grows out of the bar's button corner
+	 * (bottom right) with a short lift and fade, instead of travelling its full
+	 * height up from the viewport edge. Selectors outrank the shared
+	 * `--drawer-bottom` sheet rules in components/panel.css.
+	 */
+	.aa-sticky-cart__drawer .aa-sticky-cart__drawer-panel {
+		opacity: 0;
+		transform: translateY(0.75rem) scale(0.96);
+		transform-origin: 100% 100%;
+		transition:
+			opacity 140ms var(--aa-ease-exit),
+			transform 160ms var(--aa-ease-exit);
+	}
+
+	.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open .aa-sticky-cart__drawer-panel {
+		opacity: 1;
+		transform: none;
+		transition:
+			opacity 160ms var(--aa-ease-enter),
+			transform 220ms var(--aa-ease-enter);
+	}
+
+	/* Replace the sheet's off-screen starting point, or the first open would
+	   still start a full panel-height below. */
+	@supports selector(@starting-style) {
+
+		.aa-sticky-cart__drawer .aa-sticky-cart__drawer-panel {
+
+			@starting-style {
+				opacity: 0;
+				transform: translateY(0.75rem) scale(0.96);
+			}
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		.aa-sticky-cart__drawer .aa-sticky-cart__drawer-panel,
+		.aggressive-apparel-overlay.aa-sticky-cart__drawer.is-open .aa-sticky-cart__drawer-panel {
+			transform: none;
+			transition: opacity var(--aa-duration-fast) linear;
+		}
 	}
 }
 

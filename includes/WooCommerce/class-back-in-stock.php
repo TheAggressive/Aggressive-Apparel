@@ -88,7 +88,9 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function enqueue_assets(): void {
-		if ( is_admin() ) {
+		// The form only renders on single products and the badge only on
+		// listings (see maybe_replace_*), so other pages need neither.
+		if ( is_admin() || ( ! $this->is_single_product() && ! $this->is_listing_page() ) ) {
 			return;
 		}
 
@@ -96,6 +98,11 @@ class Back_In_Stock {
 			'aggressive-apparel-back-in-stock',
 			'build/styles/woocommerce/back-in-stock'
 		);
+
+		// The listing badge is static markup; only the form is interactive.
+		if ( ! $this->is_single_product() ) {
+			return;
+		}
 
 		Asset_Loader::enqueue_interactivity_module(
 			'@aggressive-apparel/back-in-stock',
@@ -132,7 +139,7 @@ class Back_In_Stock {
 	 * @return void
 	 */
 	public function output_interactivity_state(): void {
-		if ( is_admin() || ! function_exists( 'wp_interactivity_state' ) ) {
+		if ( is_admin() || ! function_exists( 'wp_interactivity_state' ) || ! $this->is_single_product() ) {
 			return;
 		}
 
@@ -539,7 +546,7 @@ class Back_In_Stock {
 	 * @return string Modified content.
 	 */
 	private function maybe_replace_single_product( string $block_content ): string {
-		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		if ( ! $this->is_single_product() ) {
 			return $block_content;
 		}
 
@@ -627,5 +634,14 @@ class Back_In_Stock {
 	 */
 	private function is_listing_page(): bool {
 		return Product_Context::is_product_listing();
+	}
+
+	/**
+	 * Whether the current request is a single product page.
+	 *
+	 * @return bool
+	 */
+	private function is_single_product(): bool {
+		return function_exists( 'is_product' ) && is_product();
 	}
 }

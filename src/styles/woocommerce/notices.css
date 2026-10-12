@@ -215,7 +215,7 @@
 .wc-block-components-notice-banner .button:focus-visible,
 .wc-block-components-notice-banner > .wc-block-components-notice-banner__content .wc-forward:focus-visible,
 .wc-block-components-notice-banner__dismiss:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 }
 

@@ -86,11 +86,17 @@
 		opacity: 1;
 		transform: translateY(100%);
 		box-shadow: 0 -4px 24px var(--aa-color-shadow);
-		transition: transform var(--aa-duration-normal) var(--aa-ease-default);
+
+		/* Closing: quick, accelerating away. Keep it under use-overlay's
+		   FALLBACK_MS, which hides the shell if transitionend never lands. */
+		transition: transform 240ms var(--aa-ease-exit);
 
 		.aggressive-apparel-overlay.is-open & {
 			opacity: 1;
 			transform: translateY(0);
+
+			/* Opening: a longer, decelerating settle into place. */
+			transition: transform 400ms var(--aa-ease-enter);
 		}
 	}
 
@@ -158,6 +164,17 @@
 
 		.aggressive-apparel-overlay.is-open & {
 			transform: none;
+		}
+	}
+
+	/* The sheet keeps a brief fade so it doesn't snap in. */
+	.aggressive-apparel-panel--drawer-bottom {
+		opacity: 0;
+		transition: opacity var(--aa-duration-fast) linear;
+
+		.aggressive-apparel-overlay.is-open & {
+			opacity: 1;
+			transition: opacity var(--aa-duration-fast) linear;
 		}
 	}
 }

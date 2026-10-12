@@ -78,7 +78,7 @@
 .aggressive-footer-signup input[type='email']:focus,
 .aggressive-footer-signup input[type='email']:focus-visible {
 	border-color: var(--aa-color-accent) !important;
-	outline: none !important;
+	outline: 2px solid transparent !important;
 	box-shadow: none !important;
 }
 
@@ -99,7 +99,7 @@
 
 .aggressive-footer-signup [class$='-field-wrapper']:has(input[type='tel']):focus-within {
 	border-color: var(--aa-color-accent);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .aggressive-footer-signup [class$='-phone-number-prefix'] {
@@ -113,7 +113,7 @@
 
 .aggressive-footer-signup [class$='-phone-number-prefix']:focus,
 .aggressive-footer-signup [class$='-phone-number-prefix']:focus-visible {
-	outline: none !important;
+	outline: 2px solid transparent !important;
 	box-shadow: none !important;
 }
 
@@ -129,7 +129,7 @@
 
 .aggressive-footer-signup [class$='-field-wrapper'] input[type='tel']:focus,
 .aggressive-footer-signup [class$='-field-wrapper'] input[type='tel']:focus-visible {
-	outline: none !important;
+	outline: 2px solid transparent !important;
 	box-shadow: none !important;
 }
 
@@ -174,8 +174,8 @@
 }
 
 .aggressive-footer-signup input[type='checkbox']:checked + [aria-hidden='true'] {
-	border-color: var(--aa-color-accent) !important;
-	background: var(--aa-color-accent) !important;
+	border-color: var(--aa-color-accent-fill) !important;
+	background: var(--aa-color-accent-fill) !important;
 }
 
 .aggressive-footer-signup input[type='checkbox']:checked + [aria-hidden='true']::after {
@@ -184,7 +184,7 @@
 
 .aggressive-footer-signup input[type='checkbox']:focus-visible + [aria-hidden='true'] {
 	border-color: var(--aa-color-accent) !important;
-	outline: none !important;
+	outline: 2px solid transparent !important;
 	box-shadow: none !important;
 }
 
@@ -255,7 +255,7 @@
 
 .aggressive-footer-signup button[type='submit']:focus,
 .aggressive-footer-signup button[type='submit']:focus-visible {
-	outline: none !important;
+	outline: 2px solid transparent !important;
 	box-shadow: var(--aa-focus-ring) !important;
 }
 

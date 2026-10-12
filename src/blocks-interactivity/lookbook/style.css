@@ -38,7 +38,7 @@
 	cursor: pointer;
 
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow: var(--aa-focus-ring);
 	}
 }

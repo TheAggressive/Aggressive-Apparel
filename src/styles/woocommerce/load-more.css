@@ -11,7 +11,7 @@
 
 .aa-load-more__status {
 	font-size: var(--wp--preset--font-size--x-small);
-	color: var(--aa-color-muted-50);
+	color: var(--aa-color-foreground-muted);
 }
 
 .aa-load-more__btn.aggressive-apparel-button {

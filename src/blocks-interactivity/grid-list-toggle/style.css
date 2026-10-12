@@ -51,7 +51,7 @@
 }
 
 .aa-grid-list-toggle__btn:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 	z-index: 1;
 }

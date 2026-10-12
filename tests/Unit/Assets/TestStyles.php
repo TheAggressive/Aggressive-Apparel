@@ -206,8 +206,10 @@ class TestStyles extends WP_UnitTestCase {
 		$theme_json = json_decode( (string) file_get_contents( $theme_json_file ), true );
 
 		$this->assertIsArray( $theme_json );
+		// White text sits on the primary fill, so it uses the fill role of the
+		// accent (the text role is too bright behind white in dark mode).
 		$this->assertSame(
-			'var(--wp--preset--color--accent)',
+			'var(--wp--preset--color--accent-fill)',
 			$theme_json['settings']['custom']['button']['primary']['background']
 		);
 		$this->assertSame(

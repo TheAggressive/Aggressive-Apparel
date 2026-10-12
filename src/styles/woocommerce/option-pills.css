@@ -118,7 +118,7 @@
 
 .aggressive-apparel-quick-view__attribute-option.is-color-swatch:focus-visible,
 .aa-sticky-cart__drawer-option.is-color-swatch:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 }
 
@@ -169,5 +169,25 @@
 	.aggressive-apparel-quick-view__attribute-option.is-color-swatch,
 	.aa-sticky-cart__drawer-option.is-color-swatch {
 		transition: none;
+	}
+}
+
+/*
+ * Forced colors (Windows High Contrast) repaints backgrounds with the system
+ * Canvas color, which would make every color option identical. These buttons
+ * carry the fill themselves, so opting out also keeps their transparent focus
+ * outline transparent — paint it with the system Highlight color instead.
+ */
+@media (forced-colors: active) {
+
+	.aggressive-apparel-quick-view__attribute-option.is-color-swatch,
+	.aa-sticky-cart__drawer-option.is-color-swatch {
+		forced-color-adjust: none;
+	}
+
+	.aggressive-apparel-quick-view__attribute-option.is-color-swatch:focus-visible,
+	.aa-sticky-cart__drawer-option.is-color-swatch:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
 	}
 }

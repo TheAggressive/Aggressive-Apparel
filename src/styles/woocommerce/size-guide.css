@@ -96,7 +96,7 @@
 	}
 
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow: var(--aa-focus-ring);
 	}
 
@@ -380,7 +380,7 @@
 
 .aa-size-chart__unit-button:focus-visible {
 	box-shadow: var(--aa-focus-ring);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 .aa-size-chart__scroll {
@@ -390,7 +390,7 @@
 
 .aa-size-chart__scroll:focus-visible {
 	box-shadow: var(--aa-focus-ring);
-	outline: none;
+	outline: 2px solid transparent;
 }
 
 /* The unit sits beside each measurement, a step smaller than the number. */

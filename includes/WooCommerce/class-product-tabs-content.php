@@ -93,15 +93,14 @@ class Product_Tabs_Content {
 			'class' => true,
 		);
 
-		// Ensure style attribute is allowed on span (star rating width).
-		if ( isset( $allowed['span'] ) ) {
-			$allowed['span']['style'] = true;
-		} else {
-			$allowed['span'] = array(
-				'style' => true,
-				'class' => true,
-			);
+		// Ensure style attribute is allowed on span (star rating width), and
+		// aria-level: the review form title is a `role="heading"` span, and a
+		// heading role without a level is invalid ARIA.
+		if ( ! isset( $allowed['span'] ) ) {
+			$allowed['span'] = array( 'class' => true );
 		}
+		$allowed['span']['style']      = true;
+		$allowed['span']['aria-level'] = true;
 
 		// Allow style on div too (some WC markup uses it), and the ARIA value
 		// attributes a meter carries its reading in (the Product Specs block),

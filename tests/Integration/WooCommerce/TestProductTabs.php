@@ -110,6 +110,23 @@ class TestProductTabs extends WP_UnitTestCase {
 	}
 
 	/**
+	 * WooCommerce titles the review form with a `role="heading"` span; its
+	 * aria-level must survive sanitizing, or the heading role is invalid ARIA.
+	 *
+	 * @return void
+	 */
+	public function test_kses_tab_content_keeps_review_title_heading_level(): void {
+		$content = new \Aggressive_Apparel\WooCommerce\Product_Tabs_Content();
+
+		$result = $content->kses_tab_content(
+			'<span id="reply-title" class="comment-reply-title" role="heading" aria-level="3">Add a review</span>'
+		);
+
+		$this->assertStringContainsString( 'role="heading"', $result );
+		$this->assertStringContainsString( 'aria-level="3"', $result );
+	}
+
+	/**
 	 * The tab-title heading strip must remove a redundant title heading whether
 	 * it is top-level or nested in leading wrappers (WooCommerce nests the
 	 * reviews title in #reviews > #comments) and WooCommerce's populated

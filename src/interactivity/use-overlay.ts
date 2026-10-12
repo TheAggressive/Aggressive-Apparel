@@ -107,7 +107,16 @@ export function closeOverlay(options: CloseOverlayOptions): void {
   }
 
   let done = false;
+  // Not `{ once: true }`: the first transitionend may belong to another
+  // property or bubble up from a child, which would consume the listener and
+  // leave the shell waiting for the fallback.
+  const onTransitionEnd = (event: TransitionEvent): void => {
+    if (event.target === panel && event.propertyName === transitionProperty) {
+      finish();
+    }
+  };
   const finish = (): void => {
+    panel.removeEventListener('transitionend', onTransitionEnd);
     if (done || isStillOpen?.()) {
       return;
     }
@@ -117,15 +126,7 @@ export function closeOverlay(options: CloseOverlayOptions): void {
     onFinish?.();
   };
 
-  panel.addEventListener(
-    'transitionend',
-    (event: Event) => {
-      if ((event as TransitionEvent).propertyName === transitionProperty) {
-        finish();
-      }
-    },
-    { once: true }
-  );
+  panel.addEventListener('transitionend', onTransitionEnd);
 
   setTimeout(finish, FALLBACK_MS);
 }

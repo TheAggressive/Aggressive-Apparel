@@ -527,7 +527,7 @@ body.has-search-modal-open .aa-nav__panel.is-open {
     .wp-block-aggressive-apparel-nav-submenu-accordion__link,
     .wp-block-aggressive-apparel-nav-submenu-drilldown__link
   ):focus-visible {
-    outline: none;
+    outline: 2px solid transparent;
     background: var(--panel-link-hover-bg, var(--_item-hover));
     box-shadow: none;
     animation: none;

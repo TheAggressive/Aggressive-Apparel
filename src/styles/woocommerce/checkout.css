@@ -250,6 +250,7 @@
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
   border-left-color: var(--aa-color-accent) !important;
+  outline: 2px solid transparent !important;
 }
 
 /* Sale Badge */

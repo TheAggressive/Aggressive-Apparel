@@ -80,7 +80,7 @@
 
 /* Focus ring — keyboard accessibility. */
 .aa-product-color-swatches__swatch:focus-visible {
-	outline: none;
+	outline: 2px solid transparent;
 	box-shadow: var(--aa-focus-ring);
 }
 
@@ -664,5 +664,17 @@
 		translate: 0 0;
 		transform: none;
 		clip-path: none;
+	}
+}
+
+/*
+ * Forced colors (Windows High Contrast) repaints backgrounds with the system
+ * Canvas color, which would make every swatch identical. The fill is the
+ * information, so keep the author color on the fill only.
+ */
+@media (forced-colors: active) {
+
+	.aa-product-color-swatches__swatch::before {
+		forced-color-adjust: none;
 	}
 }

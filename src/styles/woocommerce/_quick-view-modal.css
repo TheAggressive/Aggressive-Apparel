@@ -245,7 +245,7 @@
 	}
 
 	&:focus-visible {
-		outline: none;
+		outline: 2px solid transparent;
 		box-shadow: var(--aa-focus-ring);
 	}
 
@@ -318,12 +318,14 @@
 	background-color: var(--quick-view-stock-in);
 }
 
+/* The dot carries the raw status color; the label mixes it toward the
+ * foreground so the text clears 4.5:1 on light and dark surfaces alike. */
 .aggressive-apparel-quick-view__stock.is-in-stock {
-	color: var(--quick-view-stock-in);
+	color: color-mix(in oklch, var(--quick-view-stock-in) 65%, var(--aa-color-foreground));
 }
 
 .aggressive-apparel-quick-view__stock.is-low-stock {
-	color: var(--quick-view-stock-low);
+	color: color-mix(in oklch, var(--quick-view-stock-low) 65%, var(--aa-color-foreground));
 
 	& .aggressive-apparel-quick-view__stock-dot {
 		background-color: var(--quick-view-stock-low);
@@ -332,7 +334,7 @@
 }
 
 .aggressive-apparel-quick-view__stock.is-out-of-stock {
-	color: var(--quick-view-stock-out);
+	color: color-mix(in oklch, var(--quick-view-stock-out) 65%, var(--aa-color-foreground));
 
 	& .aggressive-apparel-quick-view__stock-dot {
 		background-color: var(--quick-view-stock-out);

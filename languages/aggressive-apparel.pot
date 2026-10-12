@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.188.0\n"
+"Project-Id-Version: Aggressive Apparel 1.189.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-12T00:23:57+00:00\n"
+"POT-Creation-Date: 2026-10-12T05:14:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1251,68 +1251,68 @@ msgstr ""
 msgid "Stock Notification Subscriptions"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:149
-#: includes/WooCommerce/class-back-in-stock.php:183
+#: includes/WooCommerce/class-back-in-stock.php:156
+#: includes/WooCommerce/class-back-in-stock.php:190
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:150
-#: includes/WooCommerce/class-back-in-stock.php:196
+#: includes/WooCommerce/class-back-in-stock.php:157
+#: includes/WooCommerce/class-back-in-stock.php:203
 msgid "You must agree to receive the notification."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:151
+#: includes/WooCommerce/class-back-in-stock.php:158
 msgid "Thanks! Check your inbox for next steps."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:152
-#: includes/WooCommerce/class-back-in-stock.php:263
+#: includes/WooCommerce/class-back-in-stock.php:159
+#: includes/WooCommerce/class-back-in-stock.php:270
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:177
+#: includes/WooCommerce/class-back-in-stock.php:184
 msgid "Too many requests. Please wait a few minutes and try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:187
+#: includes/WooCommerce/class-back-in-stock.php:194
 msgid "Invalid product."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:192
+#: includes/WooCommerce/class-back-in-stock.php:199
 msgid "This product is not available for stock notifications."
 msgstr ""
 
 #. translators: %d: max subscriptions.
-#: includes/WooCommerce/class-back-in-stock.php:219
+#: includes/WooCommerce/class-back-in-stock.php:226
 #, php-format
 msgid "You can only subscribe to %d products at a time."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:271
+#: includes/WooCommerce/class-back-in-stock.php:278
 msgid "We could not send the confirmation email. Please try again."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:308
+#: includes/WooCommerce/class-back-in-stock.php:315
 msgid "Almost done! Check your inbox and confirm to get your alert."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:309
+#: includes/WooCommerce/class-back-in-stock.php:316
 msgid "We'll email you when this product is back in stock!"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:560
+#: includes/WooCommerce/class-back-in-stock.php:567
 msgid "This product is currently out of stock."
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:565
+#: includes/WooCommerce/class-back-in-stock.php:572
 msgid "Email address"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:571
+#: includes/WooCommerce/class-back-in-stock.php:578
 msgid "Enter your email"
 msgstr ""
 
-#: includes/WooCommerce/class-back-in-stock.php:579
+#: includes/WooCommerce/class-back-in-stock.php:586
 msgid "I agree to receive a one-time email when this product is restocked."
 msgstr ""
 

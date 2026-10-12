@@ -62,6 +62,58 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertSame( 'One size', Size_Chart::convert( 'One size', 'cm' ) );
 	}
 
+	/** Typed fractions show as glyphs; ranges and other text are untouched. */
+	public function test_display_value(): void {
+		$this->assertSame( '17 ½', Size_Chart::display_value( '17 1/2' ) );
+		$this->assertSame( '12 ½', Size_Chart::display_value( '12-1/2' ) );
+		$this->assertSame( '⅜', Size_Chart::display_value( '3/8' ) );
+		$this->assertSame( '38-40', Size_Chart::display_value( '38-40' ) );
+		$this->assertSame( '11 ¾', Size_Chart::display_value( '11 ¾' ) );
+	}
+
+	/** Size lines: capitals become sentence case, fractions glyphs, both units. */
+	public function test_size_lines(): void {
+		$lines = Size_Chart::size_lines(
+			Size_Chart::sanitize(
+				array(
+					'unit'    => 'in',
+					'columns' => array(
+						array(
+							'label' => '1/2 WAIST WIDTH',
+							'type'  => 'measure',
+						),
+						array(
+							'label' => 'US',
+							'type'  => 'text',
+						),
+					),
+					'rows'    => array(
+						array(
+							'size'   => '2XL',
+							'values' => array( '17 1/2', '38' ),
+						),
+					),
+				)
+			)
+		);
+
+		$this->assertSame( 'Size 2XL', $lines[0]['title'] );
+		$this->assertSame(
+			array(
+				array(
+					'label' => '½ waist width',
+					'value' => '17 ½ in',
+				),
+				array(
+					'label' => 'US',
+					'value' => '38',
+				),
+			),
+			$lines[0]['in']
+		);
+		$this->assertSame( '44.5 cm', $lines[0]['cm'][0]['value'] );
+	}
+
 	/** Sanitizing drops sizeless rows and squares values to the columns. */
 	public function test_sanitize(): void {
 		$chart = Size_Chart::sanitize(

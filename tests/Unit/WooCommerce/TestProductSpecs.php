@@ -320,7 +320,31 @@ class TestProductSpecs extends WP_UnitTestCase {
 
 		$this->assertMatchesRegularExpression( '#<div class="aa-product-specs__card"><div class="aa-product-specs__line is-centered" role="meter"[^>]*>.*?</div></div><p class="aa-product-specs__nudge">#s', $html, 'Advice follows the meter, outside it.' );
 		$this->assertStringContainsString( 'data-wp-interactive="aggressive-apparel/product-specs"', $html );
-		$this->assertStringContainsString( esc_attr( (string) wp_json_encode( array( array( 'size' => 'M', 'in' => 'Size M: Chest 21 in', 'cm' => 'Size M: Chest 53.5 cm' ) ) ) ), $html );
+		$this->assertStringContainsString(
+			esc_attr(
+				(string) wp_json_encode(
+					array(
+						array(
+							'size'  => 'M',
+							'title' => 'Size M',
+							'in'    => array(
+								array(
+									'label' => 'Chest',
+									'value' => '21 in',
+								),
+							),
+							'cm'    => array(
+								array(
+									'label' => 'Chest',
+									'value' => '53.5 cm',
+								),
+							),
+						),
+					)
+				)
+			),
+			$html
+		);
 		$this->assertStringContainsString( 'aa-product-specs__guide-link', $html );
 
 		$bare = Product_Specs_Renderer::render(

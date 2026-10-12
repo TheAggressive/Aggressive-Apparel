@@ -187,8 +187,29 @@
 }
 
 .aa-product-specs__fit {
+	display: flex;
+	flex-wrap: wrap;
+	row-gap: 0.25rem;
+	align-items: baseline;
 	margin: 0;
 	color: var(--aa-product-specs-muted);
+}
+
+/* "Size M · Chest 42 in · Length 29 in": size and values at full strength,
+   labels muted, each measurement kept on one line. */
+.aa-product-specs__fit-size,
+.aa-product-specs__fit-value {
+	color: var(--aa-color-foreground, currentcolor);
+	font-weight: 600;
+}
+
+.aa-product-specs__fit-size,
+.aa-product-specs__fit-item {
+	white-space: nowrap;
+}
+
+.aa-product-specs__fit-dot {
+	margin-inline: 0.5em;
 }
 
 .aa-product-specs__guide-link {

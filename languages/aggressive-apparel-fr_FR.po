@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-11T19:29:14+00:00\n"
+"POT-Creation-Date: 2026-10-12T00:23:57+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1704,7 +1704,6 @@ msgid "Layout"
 msgstr "Mise en page"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:177
-#: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
 msgstr "Clair"
@@ -3131,7 +3130,7 @@ msgstr "Coupe"
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
 #: includes/WooCommerce/class-product-tabs-config.php:170
-#: includes/WooCommerce/class-size-chart.php:400
+#: includes/WooCommerce/class-size-chart.php:468
 #, aa-mt
 msgid "Size"
 msgstr "Taille"
@@ -3566,9 +3565,15 @@ msgstr "Mi-lourd"
 msgid "Heavyweight"
 msgstr "Lourd"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:269
+#, aa-mt
+msgctxt "fabric weight scale, lightest end"
+msgid "Light"
+msgstr "Léger"
+
 #: includes/WooCommerce/class-product-specs-registry.php:270
 #, aa-mt
+msgctxt "fabric weight scale, heaviest end"
 msgid "Heavy"
 msgstr "Lourd"
 
@@ -3647,14 +3652,20 @@ msgid "each category needs %d boundaries, each higher than the one before."
 msgstr "Chaque catégorie doit comporter des limites %d, chacune étant supérieure à la précédente."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-product-specs-renderer.php:186
+#: includes/WooCommerce/class-product-specs-renderer.php:185
+#, aa-mt
+msgid "Pick a size to see its measurements."
+msgstr "Choisissez une taille pour consulter ses dimensions."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-renderer.php:189
 #, aa-mt
 msgid "Size guide"
 msgstr "Guide des tailles"
 
 #. translators: 1: current step (e.g. "Regular"), 2: lowest label (e.g. "Snug"), 3: highest label (e.g. "Oversized").
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-product-specs-renderer.php:226
+#: includes/WooCommerce/class-product-specs-renderer.php:229
 #, php-format, aa-mt
 msgid "%1$s, on a scale from %2$s to %3$s"
 msgstr "%1$s, sur une échelle allant de %2$s à %3$s"
@@ -4641,80 +4652,80 @@ msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
 msgstr "Dernier état : %1$s. Vérifié : %2$d ; modifié : %3$d."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:160
+#: includes/WooCommerce/class-size-chart.php:185
 #, aa-mt
 msgid "Showing inches"
 msgstr "Affichage en pouces"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:161
+#: includes/WooCommerce/class-size-chart.php:186
 #, aa-mt
 msgid "Showing centimetres"
 msgstr "Affichage en centimètres"
 
-#. translators: 1: size (e.g. "M"), 2: its measurements (e.g. "Chest 42 in, Length 29 in").
+#. translators: %s: size (e.g. "M").
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:351
+#: includes/WooCommerce/class-size-chart.php:372
 #, php-format, aa-mt
-msgid "Size %1$s: %2$s"
-msgstr "Taille %1$s : %2$s"
+msgid "Size %s"
+msgstr "Taille %s"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:365
+#: includes/WooCommerce/class-size-chart.php:433
 #, aa-mt
 msgid "Inches"
 msgstr "Pouces"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:366
+#: includes/WooCommerce/class-size-chart.php:434
 #, aa-mt
 msgid "Centimetres"
 msgstr "Centimètres"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:377
+#: includes/WooCommerce/class-size-chart.php:445
 #, aa-mt
 msgid "Measurement units"
 msgstr "Unités de mesure"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:392
+#: includes/WooCommerce/class-size-chart.php:460
 #, aa-mt
 msgid "Size chart"
 msgstr "Tableau des tailles"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:406
+#: includes/WooCommerce/class-size-chart.php:474
 #, aa-mt
 msgid "(your selected size)"
 msgstr "(la taille que vous avez choisie)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:414
+#: includes/WooCommerce/class-size-chart.php:482
 #, aa-mt
 msgid "Not available"
 msgstr "Indisponible"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:426
+#: includes/WooCommerce/class-size-chart.php:494
 #, aa-mt
 msgid "Size chart, scrolls sideways"
 msgstr "Tableau des tailles, défilement horizontal"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:453
+#: includes/WooCommerce/class-size-chart.php:521
 #, aa-mt
 msgid "How to measure"
 msgstr "Comment mesurer"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:492
+#: includes/WooCommerce/class-size-chart.php:560
 #, aa-mt
 msgid "centimetres"
 msgstr "centimètres"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:492
+#: includes/WooCommerce/class-size-chart.php:560
 #, aa-mt
 msgid "inches"
 msgstr "pouces"
@@ -11283,15 +11294,3 @@ msgstr "Rubrique : Éditorial Dark"
 msgctxt "Style variation name"
 msgid "Section: Surface"
 msgstr "Rubrique : Surface"
-
-#: includes/WooCommerce/class-product-specs-registry.php:269
-#, aa-mt
-msgctxt "fabric weight scale, lightest end"
-msgid "Light"
-msgstr "Léger"
-
-#: includes/WooCommerce/class-product-specs-registry.php:270
-#, aa-mt
-msgctxt "fabric weight scale, heaviest end"
-msgid "Heavy"
-msgstr "Lourd"

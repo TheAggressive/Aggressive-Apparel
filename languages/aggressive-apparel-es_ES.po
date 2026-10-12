@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-11T19:29:14+00:00\n"
+"POT-Creation-Date: 2026-10-12T00:23:57+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1704,7 +1704,6 @@ msgid "Layout"
 msgstr "Diseño"
 
 #: includes/WooCommerce/class-badge-admin-fields.php:177
-#: includes/WooCommerce/class-product-specs-registry.php:269
 #, aa-mt
 msgid "Light"
 msgstr "Claro"
@@ -3131,7 +3130,7 @@ msgstr "Ajuste"
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
 #: includes/WooCommerce/class-product-tabs-config.php:170
-#: includes/WooCommerce/class-size-chart.php:400
+#: includes/WooCommerce/class-size-chart.php:468
 #, aa-mt
 msgid "Size"
 msgstr "Talla"
@@ -3566,9 +3565,15 @@ msgstr "Medio-pesado"
 msgid "Heavyweight"
 msgstr "Pesado"
 
-#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-registry.php:269
+#, aa-mt
+msgctxt "fabric weight scale, lightest end"
+msgid "Light"
+msgstr "Ligero"
+
 #: includes/WooCommerce/class-product-specs-registry.php:270
 #, aa-mt
+msgctxt "fabric weight scale, heaviest end"
 msgid "Heavy"
 msgstr "Pesado"
 
@@ -3647,14 +3652,20 @@ msgid "each category needs %d boundaries, each higher than the one before."
 msgstr "Cada categoría necesita límites %d, cada uno de ellos más alto que el anterior."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-product-specs-renderer.php:186
+#: includes/WooCommerce/class-product-specs-renderer.php:185
+#, aa-mt
+msgid "Pick a size to see its measurements."
+msgstr "Elige una talla para ver sus medidas."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-product-specs-renderer.php:189
 #, aa-mt
 msgid "Size guide"
 msgstr "Guía de tallas"
 
 #. translators: 1: current step (e.g. "Regular"), 2: lowest label (e.g. "Snug"), 3: highest label (e.g. "Oversized").
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-product-specs-renderer.php:226
+#: includes/WooCommerce/class-product-specs-renderer.php:229
 #, php-format, aa-mt
 msgid "%1$s, on a scale from %2$s to %3$s"
 msgstr "%1$s, en una escala que va de %2$s a %3$s"
@@ -4641,80 +4652,80 @@ msgid "Last state: %1$s. Checked: %2$d; changed: %3$d."
 msgstr "Último estado: %1$s. Verificado: %2$d; modificado: %3$d."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:160
+#: includes/WooCommerce/class-size-chart.php:185
 #, aa-mt
 msgid "Showing inches"
 msgstr "Se muestran las pulgadas"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:161
+#: includes/WooCommerce/class-size-chart.php:186
 #, aa-mt
 msgid "Showing centimetres"
 msgstr "Se muestran los centímetros"
 
-#. translators: 1: size (e.g. "M"), 2: its measurements (e.g. "Chest 42 in, Length 29 in").
+#. translators: %s: size (e.g. "M").
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:351
+#: includes/WooCommerce/class-size-chart.php:372
 #, php-format, aa-mt
-msgid "Size %1$s: %2$s"
-msgstr "Talla %1$s: %2$s"
+msgid "Size %s"
+msgstr "Talla %s"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:365
+#: includes/WooCommerce/class-size-chart.php:433
 #, aa-mt
 msgid "Inches"
 msgstr "Pulgadas"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:366
+#: includes/WooCommerce/class-size-chart.php:434
 #, aa-mt
 msgid "Centimetres"
 msgstr "Centímetros"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:377
+#: includes/WooCommerce/class-size-chart.php:445
 #, aa-mt
 msgid "Measurement units"
 msgstr "Unidades de medida"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:392
+#: includes/WooCommerce/class-size-chart.php:460
 #, aa-mt
 msgid "Size chart"
 msgstr "Tabla de tallas"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:406
+#: includes/WooCommerce/class-size-chart.php:474
 #, aa-mt
 msgid "(your selected size)"
 msgstr "(la talla que hayas seleccionado)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:414
+#: includes/WooCommerce/class-size-chart.php:482
 #, aa-mt
 msgid "Not available"
 msgstr "No disponible"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:426
+#: includes/WooCommerce/class-size-chart.php:494
 #, aa-mt
 msgid "Size chart, scrolls sideways"
 msgstr "Tabla de tallas, se desplaza lateralmente"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:453
+#: includes/WooCommerce/class-size-chart.php:521
 #, aa-mt
 msgid "How to measure"
 msgstr "Cómo medir"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:492
+#: includes/WooCommerce/class-size-chart.php:560
 #, aa-mt
 msgid "centimetres"
 msgstr "centímetros"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-chart.php:492
+#: includes/WooCommerce/class-size-chart.php:560
 #, aa-mt
 msgid "inches"
 msgstr "pulgadas"
@@ -11283,15 +11294,3 @@ msgstr "Sección: Editorial Dark"
 msgctxt "Style variation name"
 msgid "Section: Surface"
 msgstr "Sección: Superficie"
-
-#: includes/WooCommerce/class-product-specs-registry.php:269
-#, aa-mt
-msgctxt "fabric weight scale, lightest end"
-msgid "Light"
-msgstr "Ligero"
-
-#: includes/WooCommerce/class-product-specs-registry.php:270
-#, aa-mt
-msgctxt "fabric weight scale, heaviest end"
-msgid "Heavy"
-msgstr "Pesado"

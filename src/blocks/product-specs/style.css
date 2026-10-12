@@ -193,6 +193,7 @@
 	align-items: baseline;
 	margin: 0;
 	color: var(--aa-product-specs-muted);
+	text-transform: capitalize;
 }
 
 /* "Size M · Chest 42 in · Length 29 in": size and values at full strength,
@@ -201,6 +202,11 @@
 .aa-product-specs__fit-value {
 	color: var(--aa-color-foreground, currentcolor);
 	font-weight: 600;
+}
+
+/* Units stay as written: "17 ½ in", not "17 ½ In". */
+.aa-product-specs__fit-value {
+	text-transform: none;
 }
 
 .aa-product-specs__fit-size,

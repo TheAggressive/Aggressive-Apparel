@@ -1,8 +1,8 @@
 /**
  * Product Specs block — footer behaviour.
  *
- * The footer under the specs shows the picked size's measurements ("Size M:
- * Chest 42 in, Length 29 in") and a link that opens the size guide. The
+ * The footer under the specs shows the picked size's measurements ("Size M ·
+ * Chest 42 in · Length 29 in") and a link that opens the size guide. The
  * server prints every size's line in both units (product data, so page-cache
  * safe); this picks the one for the shopper's size and unit, and follows
  * both as they change. Ships in the size guide bundle, which every product
@@ -17,7 +17,8 @@ import { selectedSizes, sizeKey } from './sizes';
 import { openSizeGuide, TRIGGER } from './open';
 import { preferredUnit, UNIT_EVENT, type Unit } from './units';
 
-type SizeLine = { size: string; in: string; cm: string };
+type Part = { label: string; value: string };
+type SizeLine = { size: string; title: string; in: Part[]; cm: Part[] };
 
 const PENDING = 'is-pending';
 
@@ -30,17 +31,47 @@ function readSizes(footer: HTMLElement): SizeLine[] {
   }
 }
 
+function span(className: string, text: string, hidden = false): HTMLElement {
+  const el = document.createElement('span');
+  el.className = className;
+  el.textContent = text;
+  if (hidden) {
+    el.setAttribute('aria-hidden', 'true');
+  }
+  return el;
+}
+
 /**
- * The line for the picked size: the prompt until one is picked, then its
+ * "Size M · Chest 42 in · Length 29 in": the dots are hidden from screen
+ * readers, which hear "Size M: Chest 42 in, Length 29 in" instead.
+ */
+function renderLine(line: SizeLine, unit: Unit): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  fragment.append(
+    span('aa-product-specs__fit-size', line.title),
+    span('screen-reader-text', ': ')
+  );
+  line[unit].forEach((part, index) => {
+    if (index > 0) {
+      fragment.append(span('screen-reader-text', ', '));
+    }
+    const item = span('aa-product-specs__fit-item', `${part.label} `);
+    item.append(span('aa-product-specs__fit-value', part.value));
+    fragment.append(span('aa-product-specs__fit-dot', '·', true), item);
+  });
+  return fragment;
+}
+
+/**
+ * What the line shows: the prompt until a size is picked, then that size's
  * measurements, or nothing when the chart has no row for it.
  */
-function lineFor(sizes: SizeLine[], unit: Unit, prompt: string): string {
+function lineFor(sizes: SizeLine[]): SizeLine | 'prompt' | null {
   const picked = selectedSizes();
   if (picked.length === 0) {
-    return prompt;
+    return 'prompt';
   }
-  const line = sizes.find(row => picked.includes(sizeKey(row.size)));
-  return line ? line[unit] : '';
+  return sizes.find(row => picked.includes(sizeKey(row.size))) ?? null;
 }
 
 store('aggressive-apparel/product-specs', {
@@ -71,20 +102,29 @@ store('aggressive-apparel/product-specs', {
         return;
       }
 
-      // One Text node, updated in place (no childList mutations): the
-      // server-rendered prompt's, so nothing is announced on load.
+      // The server-rendered prompt stays until something else is due, so
+      // nothing is announced on load; the line is rebuilt only on change.
       const prompt = fit.dataset.prompt ?? '';
-      const text =
-        fit.firstChild instanceof Text
-          ? fit.firstChild
-          : fit.appendChild(document.createTextNode(prompt));
       let unit = preferredUnit();
       let frame = 0;
+      let shown = 'prompt';
 
       const update = () => {
-        const next = lineFor(sizes, unit, prompt);
-        if (text.data !== next) {
-          text.data = next;
+        const line = lineFor(sizes);
+        const key =
+          line === 'prompt' || line === null
+            ? String(line)
+            : `${line.size}|${unit}`;
+        if (key === shown) {
+          return;
+        }
+        shown = key;
+        if (line === 'prompt') {
+          fit.textContent = prompt;
+        } else if (line === null) {
+          fit.textContent = '';
+        } else {
+          fit.replaceChildren(renderLine(line, unit));
         }
       };
       // Variation pickers update their own markup after the event, so read

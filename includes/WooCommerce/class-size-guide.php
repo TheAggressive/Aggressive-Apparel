@@ -72,7 +72,7 @@ class Size_Guide {
 	 *
 	 * @var int
 	 */
-	private const MARKUP_VERSION = 3;
+	private const MARKUP_VERSION = 4;
 
 	/** Option storing the cache-key generation. */
 	private const CACHE_GENERATION_OPTION = 'aa_size_guide_cache_generation';

@@ -43,6 +43,31 @@ final class Size_Chart {
 	public const NOTES = '_aa_size_notes';
 
 	/**
+	 * Words that stay in capitals in sentence-case labels: size systems and
+	 * letter sizes.
+	 *
+	 * @var string
+	 */
+	private const KEEP_CAPS = '/^(US|UK|EU|IT|FR|DE|JP|AU|CN|KR|MX|BR|INTL|X*[SML])$/';
+
+	/**
+	 * Typed fractions and their glyphs.
+	 *
+	 * @var array<string, string>
+	 */
+	private const FRACTION_GLYPHS = array(
+		'1/2' => '½',
+		'1/4' => '¼',
+		'3/4' => '¾',
+		'1/8' => '⅛',
+		'3/8' => '⅜',
+		'5/8' => '⅝',
+		'7/8' => '⅞',
+		'1/3' => '⅓',
+		'2/3' => '⅔',
+	);
+
+	/**
 	 * Measuring diagram (attachment ID) meta key.
 	 *
 	 * @var string
@@ -296,12 +321,14 @@ final class Size_Chart {
 	}
 
 	/**
-	 * One readable line per size, in both units, for showing the picked
-	 * size's measurements outside the chart ("Size M: Chest 42 in, Length 29 in").
+	 * Each size's measurements in both units, for showing the picked size
+	 * outside the chart: "Size M · Chest 42 in · Length 29 in". Labels typed
+	 * in capitals (the chart header shows them that way anyway) read in
+	 * sentence case here, and typed fractions show as glyphs.
 	 *
 	 * @param array $chart Chart.
 	 * @phpstan-param Chart $chart
-	 * @return list<array{size: string, in: string, cm: string}>
+	 * @return list<array{size: string, title: string, in: list<array{label: string, value: string}>, cm: list<array{label: string, value: string}>}>
 	 */
 	public static function size_lines( array $chart ): array {
 		$other = 'in' === $chart['unit'] ? 'cm' : 'in';
@@ -316,12 +343,23 @@ final class Size_Chart {
 				if ( '' === $value ) {
 					continue;
 				}
+				$label = self::sentence_label( $column['label'] );
 				if ( self::TYPE_MEASURE === $column['type'] ) {
-					$parts[ $chart['unit'] ][] = trim( $column['label'] . ' ' . $value . ' ' . $chart['unit'] );
-					$parts[ $other ][]         = trim( $column['label'] . ' ' . self::convert( $value, $chart['unit'] ) . ' ' . $other );
+					$parts[ $chart['unit'] ][] = array(
+						'label' => $label,
+						'value' => self::display_value( $value ) . ' ' . $chart['unit'],
+					);
+					$parts[ $other ][]         = array(
+						'label' => $label,
+						'value' => self::convert( $value, $chart['unit'] ) . ' ' . $other,
+					);
 				} else {
-					$parts['in'][] = trim( $column['label'] . ' ' . $value );
-					$parts['cm'][] = trim( $column['label'] . ' ' . $value );
+					$part          = array(
+						'label' => $label,
+						'value' => $value,
+					);
+					$parts['in'][] = $part;
+					$parts['cm'][] = $part;
 				}
 			}
 			if ( array() === $parts['in'] ) {
@@ -329,9 +367,11 @@ final class Size_Chart {
 			}
 
 			$lines[] = array(
-				'size' => $row['size'],
-				'in'   => self::size_line( $row['size'], $parts['in'] ),
-				'cm'   => self::size_line( $row['size'], $parts['cm'] ),
+				'size'  => $row['size'],
+				/* translators: %s: size (e.g. "M"). */
+				'title' => sprintf( __( 'Size %s', 'aggressive-apparel' ), $row['size'] ),
+				'in'    => $parts['in'],
+				'cm'    => $parts['cm'],
 			);
 		}
 
@@ -339,19 +379,47 @@ final class Size_Chart {
 	}
 
 	/**
-	 * "Size M: Chest 42 in, Length 29 in".
+	 * A measurement as shown: typed fractions as glyphs ("17 1/2" → "17 ½"),
+	 * matching values entered with glyphs.
 	 *
-	 * @param string $size  Size label.
-	 * @param array  $parts Measurements.
-	 * @phpstan-param list<string> $parts
+	 * @param string $value Measurement as entered.
 	 */
-	private static function size_line( string $size, array $parts ): string {
-		return sprintf(
-			/* translators: 1: size (e.g. "M"), 2: its measurements (e.g. "Chest 42 in, Length 29 in"). */
-			__( 'Size %1$s: %2$s', 'aggressive-apparel' ),
-			$size,
-			wp_sprintf( '%l', $parts )
+	public static function display_value( string $value ): string {
+		return (string) preg_replace_callback(
+			'~(\d?)[ \x{00A0}-]*(?<![\d/])([1-7]/[2348])(?![\d/])~u',
+			static function ( array $found ): string {
+				$glyph = self::FRACTION_GLYPHS[ $found[2] ] ?? null;
+				if ( null === $glyph ) {
+					return $found[0];
+				}
+
+				return '' !== $found[1] ? $found[1] . ' ' . $glyph : $glyph;
+			},
+			$value
 		);
+	}
+
+	/**
+	 * A column label for use mid-sentence: all-capitals becomes sentence
+	 * case ("FRONT RISE" → "Front rise"); anything else stays as typed.
+	 *
+	 * @param string $label Column label.
+	 */
+	private static function sentence_label( string $label ): string {
+		$label = self::display_value( $label );
+		if ( 1 !== preg_match( '/\p{Lu}/u', $label ) || mb_strtoupper( $label ) !== $label ) {
+			return $label;
+		}
+
+		// Lowercase each word except abbreviations (US, EU, XL…), then
+		// capitalize the first letter if the label starts with one.
+		$words = (string) preg_replace_callback(
+			'/\p{L}+/u',
+			static fn( array $word ): string => 1 === preg_match( self::KEEP_CAPS, $word[0] ) ? $word[0] : mb_strtolower( $word[0] ),
+			$label
+		);
+
+		return (string) preg_replace_callback( '/^\p{Ll}/u', static fn( array $letter ): string => mb_strtoupper( $letter[0] ), $words );
 	}
 
 	/**
@@ -413,7 +481,7 @@ final class Size_Chart {
 				if ( '' === $value ) {
 					$cells .= '<td><span class="aa-size-chart__empty" aria-hidden="true">–</span><span class="screen-reader-text">' . esc_html__( 'Not available', 'aggressive-apparel' ) . '</span></td>';
 				} elseif ( self::TYPE_MEASURE === $column['type'] ) {
-					$cells .= '<td>' . self::dual( self::with_unit( $value, $chart['unit'] ), self::with_unit( self::convert( $value, $chart['unit'] ), $other ), $chart['unit'] ) . '</td>';
+					$cells .= '<td>' . self::dual( self::with_unit( self::display_value( $value ), $chart['unit'] ), self::with_unit( self::convert( $value, $chart['unit'] ), $other ), $chart['unit'] ) . '</td>';
 				} else {
 					$cells .= '<td>' . esc_html( $value ) . '</td>';
 				}

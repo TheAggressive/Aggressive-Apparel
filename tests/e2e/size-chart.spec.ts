@@ -133,7 +133,12 @@ test.describe('Size chart — product page', () => {
       await expect(fit).toHaveText('Pick a size to see its measurements.');
 
       await page.getByRole('radio', { name: 'Medium' }).first().click();
-      await expect(fit).toHaveText('Size M: Chest 21 in');
+      await expect(fit.locator('.aa-product-specs__fit-size')).toHaveText(
+        'Size M'
+      );
+      await expect(fit.locator('.aa-product-specs__fit-value')).toHaveText(
+        '21 in'
+      );
 
       await link.click();
       const dialog = page.locator(
@@ -144,7 +149,9 @@ test.describe('Size chart — product page', () => {
       await page.keyboard.press('Escape');
 
       await expect(link).toBeFocused();
-      await expect(fit).toHaveText('Size M: Chest 53.5 cm');
+      await expect(fit.locator('.aa-product-specs__fit-value')).toHaveText(
+        '53.5 cm'
+      );
     });
 
     test('the Size guide link beside the size options opens the guide', async ({

@@ -24,7 +24,7 @@ import {
   syncAllControls,
   syncCategoryChips,
   syncChipPressed,
-  syncFitChipPressed,
+  syncCollectionChipPressed,
   syncOnSaleCheckboxes,
   syncPriceRange,
   syncPriceSliders,
@@ -39,13 +39,13 @@ import {
   setupScrollbarAutoHide,
 } from './product-filters/data';
 import {
+  applyUrlState,
   buildFilterUrl,
   getCanonicalShopUrl,
-  getCategorySlugFromPath,
   getShopPath,
+  isSalesArchive,
 } from './product-filters/url-state';
 import {
-  ATTRIBUTE_FILTERS,
   type DropdownContext,
   type ProductFiltersStore,
   type SortConfig,
@@ -103,7 +103,7 @@ function hasAdditionalRefinements(): boolean {
     visibleSelectedCategories().length > 0 ||
     state.selectedColors.length > 0 ||
     state.selectedSizes.length > 0 ||
-    state.selectedFit.length > 0 ||
+    state.selectedCollections.length > 0 ||
     state.priceMin > state.priceRange.min ||
     state.priceMax < state.priceRange.max ||
     state.inStockOnly ||
@@ -122,7 +122,7 @@ export const { state, actions } = store<ProductFiltersStore>(
           visibleSelectedCategories().length > 0 ||
           state.selectedColors.length > 0 ||
           state.selectedSizes.length > 0 ||
-          state.selectedFit.length > 0 ||
+          state.selectedCollections.length > 0 ||
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max ||
           state.inStockOnly ||
@@ -162,7 +162,7 @@ export const { state, actions } = store<ProductFiltersStore>(
         count += visibleSelectedCategories().length;
         count += state.selectedColors.length;
         count += state.selectedSizes.length;
-        count += state.selectedFit.length;
+        count += state.selectedCollections.length;
         if (
           state.priceMin > state.priceRange.min ||
           state.priceMax < state.priceRange.max
@@ -219,8 +219,8 @@ export const { state, actions } = store<ProductFiltersStore>(
       get isSizeDropdownOpen(): boolean {
         return state.openDropdown === 'sizes';
       },
-      get isFitDropdownOpen(): boolean {
-        return state.openDropdown === 'fit';
+      get isCollectionDropdownOpen(): boolean {
+        return state.openDropdown === 'collection';
       },
       get isPriceDropdownOpen(): boolean {
         return state.openDropdown === 'price';
@@ -255,14 +255,14 @@ export const { state, actions } = store<ProductFiltersStore>(
         stageFilterChange();
       },
 
-      toggleFit(event: MouseEvent): void {
+      toggleCollection(event: MouseEvent): void {
         const btn = (event.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__fit-chip'
+          '.aa-product-filters__collection-chip'
         );
         if (!btn) return;
         const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedFit, slug);
-        syncFitChipPressed(state.selectedFit);
+        if (slug) toggleArrayItem(state.selectedCollections, slug);
+        syncCollectionChipPressed(state.selectedCollections);
         stageFilterChange();
       },
 
@@ -314,7 +314,7 @@ export const { state, actions } = store<ProductFiltersStore>(
         state.selectedCategories = [];
         state.selectedColors = [];
         state.selectedSizes = [];
-        state.selectedFit = [];
+        state.selectedCollections = [];
         state.priceMin = state.priceRange.min;
         state.priceMax = state.priceRange.max;
         state.inStockOnly = false;
@@ -573,7 +573,7 @@ export function stageFilterChange(): void {
   state.currentPage = 1;
   renderPills();
   // Availability is independent of the deferred results — refresh which
-  // colour/size/fit options are still in stock for the new selection right away.
+  // colour/size/collection options are still in stock for the new selection right away.
   scheduleFacetsUpdate();
 }
 
@@ -641,51 +641,17 @@ export function hardNavigate(url: string): void {
  * Restore filter state from URL params on init.
  */
 function restoreFromUrl(): boolean {
-  const params = new URLSearchParams(window.location.search);
-
-  // Detect active category from URL path (handles pushState navigation).
-  // e.g. /shop/hoodies/ → 'hoodies', even after the page was loaded as /shop/clothing/.
-  const catFromPath = getCategorySlugFromPath(state);
-  const catFromParam = (params.get('cat') || '').split(',').filter(Boolean);
-  state.selectedCategories = [
-    ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
-  ];
-  for (const filter of ATTRIBUTE_FILTERS) {
-    const raw = params.get(filter.urlParam) || '';
-    if (raw) {
-      state[filter.stateKey] = raw.split(',').filter(Boolean);
-    }
-  }
-  if (params.has('min_price')) {
-    state.priceMin = Math.max(
-      parseInt(params.get('min_price') || '0', 10) || 0,
-      state.priceRange.min
-    );
-  }
-  if (params.has('max_price')) {
-    state.priceMax = Math.min(
-      parseInt(params.get('max_price') || '', 10) || state.priceRange.max,
-      state.priceRange.max
-    );
-  }
-  state.inStockOnly = params.get('stock') === 'instock';
-  state.onSaleOnly =
-    params.get('on_sale') === '1' ||
-    catFromPath === state.salesCategorySlug ||
-    state.currentCategorySlug === state.salesCategorySlug;
-  if (params.has('pf_page')) {
-    state.currentPage = Math.max(
-      parseInt(params.get('pf_page') || '1', 10) || 1,
-      1
-    );
-  }
+  const catFromPath = applyUrlState(
+    state,
+    new URLSearchParams(window.location.search)
+  );
 
   // Sync DOM controls to restored state.
   requestAnimationFrame(() => {
     syncCategoryChips(state.selectedCategories);
     syncSwatchPressed(state.selectedColors);
     syncChipPressed(state.selectedSizes);
-    syncFitChipPressed(state.selectedFit);
+    syncCollectionChipPressed(state.selectedCollections);
     syncPriceSliders();
     syncPriceRange();
     syncStockCheckboxes(state.inStockOnly);
@@ -697,12 +663,9 @@ function restoreFromUrl(): boolean {
 
   // The native Sales archive already has the correct indexed taxonomy query.
   // Avoid replacing its SSR grid until another filter genuinely requires AJAX.
-  const isNativeSalesArchive =
-    catFromPath === state.salesCategorySlug ||
-    state.currentCategorySlug === state.salesCategorySlug;
   const shouldFetch =
     state.hasActiveFilters &&
-    (!isNativeSalesArchive || hasAdditionalRefinements());
+    (!isSalesArchive(state, catFromPath) || hasAdditionalRefinements());
 
   if (shouldFetch) {
     fetchProducts();

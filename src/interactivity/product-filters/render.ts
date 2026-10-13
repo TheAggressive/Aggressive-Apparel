@@ -13,7 +13,7 @@ import type {
   CategoryTerm,
   ColorTerm,
   FilterPill,
-  FitTerm,
+  CollectionTerm,
   SizeTerm,
 } from './types';
 import { state, visibleSelectedCategories } from '../product-filters';
@@ -66,9 +66,11 @@ export function renderPills(): void {
     pills.push({ type: 'size', slug, label: sz?.name || slug });
   });
 
-  state.selectedFit.forEach((slug: string) => {
-    const term = state.fitTerms.find((t: FitTerm) => t.slug === slug);
-    pills.push({ type: 'fit', slug, label: term?.name || slug });
+  state.selectedCollections.forEach((slug: string) => {
+    const term = state.collectionTerms.find(
+      (t: CollectionTerm) => t.slug === slug
+    );
+    pills.push({ type: 'collection', slug, label: term?.name || slug });
   });
 
   if (
@@ -218,8 +220,8 @@ export const syncSwatchPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__color-swatch', selected);
 export const syncChipPressed = (selected: string[]): void =>
   syncPressed('.aa-product-filters__size-chip', selected);
-export const syncFitChipPressed = (selected: string[]): void =>
-  syncPressed('.aa-product-filters__fit-chip', selected);
+export const syncCollectionChipPressed = (selected: string[]): void =>
+  syncPressed('.aa-product-filters__collection-chip', selected);
 
 /**
  * Sync the visual position of the price range highlight.
@@ -293,7 +295,7 @@ export function syncAllControls(): void {
   syncCategoryChips([]);
   syncSwatchPressed([]);
   syncChipPressed([]);
-  syncFitChipPressed([]);
+  syncCollectionChipPressed([]);
   syncPriceSliders();
   syncPriceRange();
   syncStockCheckboxes(false);

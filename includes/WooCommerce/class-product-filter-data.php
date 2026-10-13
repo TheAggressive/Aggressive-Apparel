@@ -31,7 +31,7 @@ final class Product_Filter_Data {
 		}
 
 		$cached = get_transient( self::CACHE_KEY );
-		if ( is_array( $cached ) && isset( $cached['colorTerms'], $cached['fitTerms'] ) ) {
+		if ( is_array( $cached ) && isset( $cached['colorTerms'], $cached['collectionTerms'] ) ) {
 			$this->data = $cached;
 			return $cached;
 		}
@@ -45,12 +45,12 @@ final class Product_Filter_Data {
 		);
 
 		$data = array(
-			'categories'    => $this->safely( array( $this, 'categories' ) ),
-			'colorTerms'    => $this->safely( array( $this, 'colors' ) ),
-			'sizeTerms'     => $this->safely( array( $this, 'sizes' ) ),
-			'fitTerms'      => $this->safely( array( $this, 'fits' ) ),
-			'priceRange'    => $this->safely( array( $this, 'price_range' ), $default_price ),
-			'stockStatuses' => $this->stock_statuses(),
+			'categories'      => $this->safely( array( $this, 'categories' ) ),
+			'colorTerms'      => $this->safely( array( $this, 'colors' ) ),
+			'sizeTerms'       => $this->safely( array( $this, 'sizes' ) ),
+			'collectionTerms' => $this->safely( array( $this, 'collections' ) ),
+			'priceRange'      => $this->safely( array( $this, 'price_range' ), $default_price ),
+			'stockStatuses'   => $this->stock_statuses(),
 		);
 
 		set_transient( self::CACHE_KEY, $data, self::CACHE_TTL );
@@ -150,9 +150,9 @@ final class Product_Filter_Data {
 		return $this->simple_terms( 'pa_size', 'menu_order' );
 	}
 
-	/** Fit attribute terms. */
-	private function fits(): array {
-		return $this->simple_terms( 'pa_fit', 'name' );
+	/** Collection (audience) attribute terms, in the admin's term order. */
+	private function collections(): array {
+		return $this->simple_terms( 'pa_collection', 'menu_order' );
 	}
 
 	/**

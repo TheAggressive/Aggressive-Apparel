@@ -158,7 +158,7 @@ test('product-filter choice pills keep the shared interaction target', async ({
 
   const chip = page
     .locator(
-      '.aa-product-filters__category-chip:visible, .aa-product-filters__size-chip:visible, .aa-product-filters__fit-chip:visible'
+      '.aa-product-filters__category-chip:visible, .aa-product-filters__size-chip:visible, .aa-product-filters__collection-chip:visible'
     )
     .first();
   await expect(chip).toHaveCount(1);

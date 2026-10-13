@@ -62,12 +62,6 @@ final class Product_Facet_Service {
 	 * @return array<string, array<int, string>>
 	 */
 	public function compute( array $filters, string $taxonomy, string $term ): array {
-		$cache_key = self::CACHE_PREFIX . $this->version->current() . '_' . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term ) ) );
-		$cached    = get_transient( $cache_key );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
 		/**
 		 * Attribute taxonomies exposed by the product-filter interface.
 		 *
@@ -75,10 +69,19 @@ final class Product_Facet_Service {
 		 */
 		$facet_taxonomies = (array) apply_filters(
 			'aggressive_apparel_filter_facet_taxonomies',
-			array( 'pa_color', 'pa_size', 'pa_fit' )
+			array( 'pa_color', 'pa_size', 'pa_collection' )
 		);
-		$allowed          = $this->queries->allowed_taxonomies();
-		$facets           = array();
+
+		// The taxonomy list is part of the key so a changed list (a deploy or a
+		// filter) never serves facets cached under the old shape.
+		$cache_key = self::CACHE_PREFIX . $this->version->current() . '_' . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term, $facet_taxonomies ) ) );
+		$cached    = get_transient( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$allowed = $this->queries->allowed_taxonomies();
+		$facets  = array();
 
 		foreach ( $facet_taxonomies as $facet ) {
 			if ( ! in_array( $facet, $allowed, true ) ) {

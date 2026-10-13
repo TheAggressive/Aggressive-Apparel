@@ -31,7 +31,7 @@ export interface SizeTerm {
   name: string;
 }
 
-export interface FitTerm {
+export interface CollectionTerm {
   slug: string;
   name: string;
 }
@@ -62,7 +62,7 @@ export interface RenderedResponse {
 export interface AttributeFilterConfig {
   taxonomy: string;
   urlParam: string;
-  stateKey: 'selectedColors' | 'selectedSizes' | 'selectedFit';
+  stateKey: 'selectedColors' | 'selectedSizes' | 'selectedCollections';
   selector: string;
 }
 
@@ -80,10 +80,10 @@ export const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] = [
     selector: '.aa-product-filters__size-chip',
   },
   {
-    taxonomy: 'pa_fit',
-    urlParam: 'fit',
-    stateKey: 'selectedFit',
-    selector: '.aa-product-filters__fit-chip',
+    taxonomy: 'pa_collection',
+    urlParam: 'collection',
+    stateKey: 'selectedCollections',
+    selector: '.aa-product-filters__collection-chip',
   },
 ];
 
@@ -123,8 +123,8 @@ export interface ProductFiltersState {
   categories: CategoryTerm[];
   colorTerms: ColorTerm[];
   sizeTerms: SizeTerm[];
-  fitTerms: FitTerm[];
-  selectedFit: string[];
+  collectionTerms: CollectionTerm[];
+  selectedCollections: string[];
   currentCategorySlug: string;
   salesCategorySlug: string;
   i18n: {
@@ -156,7 +156,7 @@ export interface ProductFiltersState {
   readonly isCategoryDropdownOpen: boolean;
   readonly isColorDropdownOpen: boolean;
   readonly isSizeDropdownOpen: boolean;
-  readonly isFitDropdownOpen: boolean;
+  readonly isCollectionDropdownOpen: boolean;
   readonly isPriceDropdownOpen: boolean;
   readonly isStockDropdownOpen: boolean;
 }

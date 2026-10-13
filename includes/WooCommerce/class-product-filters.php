@@ -261,7 +261,7 @@ class Product_Filters {
 				'categories'          => $slim_terms( $data['categories'] ),
 				'colorTerms'          => $slim_terms( $data['colorTerms'] ),
 				'sizeTerms'           => $slim_terms( $data['sizeTerms'] ),
-				'fitTerms'            => $slim_terms( $data['fitTerms'] ),
+				'collectionTerms'     => $slim_terms( $data['collectionTerms'] ),
 				'priceRange'          => array_merge(
 					$data['priceRange'],
 					array(
@@ -276,7 +276,7 @@ class Product_Filters {
 				'selectedCategories'  => array(),
 				'selectedColors'      => array(),
 				'selectedSizes'       => array(),
-				'selectedFit'         => array(),
+				'selectedCollections' => array(),
 				'priceMin'            => $data['priceRange']['min'],
 				'priceMax'            => $data['priceRange']['max'],
 				'inStockOnly'         => false,

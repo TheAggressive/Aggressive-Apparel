@@ -49,7 +49,7 @@ class Enhancements {
 		'price_display'              => array( Price_Display::class ),
 		'advanced_sorting'           => array( Advanced_Sorting::class ),
 		'swatch_tooltips'            => array( Swatch_Tooltips::class ),
-		'product_filters'            => array( Product_Filters::class ),
+		'product_filters'            => array( Product_Filters::class, Collection_Legacy_Url::class ),
 		'page_transitions'           => array( Page_Transitions::class ),
 		'catalog_hover_image'        => array( Catalog_Hover_Image::class ),
 		'load_more'                  => array( Load_More::class, Load_More_Controller::class ),

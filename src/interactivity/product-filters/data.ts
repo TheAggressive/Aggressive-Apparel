@@ -24,7 +24,7 @@ import {
   setSaleStatus,
   syncCategoryChips,
   syncChipPressed,
-  syncFitChipPressed,
+  syncCollectionChipPressed,
   syncPressed,
   syncPriceRange,
   syncPriceSliders,
@@ -64,7 +64,7 @@ export function fetchFacets(): void {
 }
 
 /**
- * Enable only the colour/size/fit options that still have matching products.
+ * Enable only the colour/size/collection options that still have matching products.
  *
  * An option stays enabled if it's available OR currently selected, so a shopper
  * can always toggle their own picks back off without hitting a dead end.
@@ -480,9 +480,9 @@ export function setupDelegatedEvents(): void {
         } else if (type === 'size' && slug) {
           removeArrayItem(state.selectedSizes, slug);
           syncChipPressed(state.selectedSizes);
-        } else if (type === 'fit' && slug) {
-          removeArrayItem(state.selectedFit, slug);
-          syncFitChipPressed(state.selectedFit);
+        } else if (type === 'collection' && slug) {
+          removeArrayItem(state.selectedCollections, slug);
+          syncCollectionChipPressed(state.selectedCollections);
         } else if (type === 'price') {
           state.priceMin = state.priceRange.min;
           state.priceMax = state.priceRange.max;

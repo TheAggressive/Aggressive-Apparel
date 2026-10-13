@@ -67,7 +67,7 @@ class TestCatalogFilterServices extends WP_UnitTestCase {
 		$renderer->render_sections(
 			array(
 				'categories' => array(),
-				'fitTerms'   => array(),
+				'collectionTerms'   => array(),
 				'colorTerms' => array(),
 				'sizeTerms'  => array(),
 				'priceRange' => array( 'min' => 0, 'max' => 0 ),

@@ -44,6 +44,23 @@ export function getCategoryPath(
   }
 }
 
+/**
+ * Whether the current pathname is the native Sales archive. Decided from the
+ * URL, not `currentCategorySlug`: that is seeded once for the initially loaded
+ * page, so on popstate it would describe a different entry.
+ */
+export function isSalesArchive(
+  state: ProductFiltersState,
+  catFromPath: string | null
+): boolean {
+  if (!state.salesCategorySlug) return false;
+  if (catFromPath === state.salesCategorySlug) return true;
+  const salesPath = getSalesCategoryPath(state);
+  if (salesPath) return window.location.pathname === salesPath;
+  // No Sales URL to compare against; only the initial archive can say.
+  return state.currentCategorySlug === state.salesCategorySlug;
+}
+
 /** Category slug represented by the current pathname. */
 export function getCategorySlugFromPath(
   state: ProductFiltersState
@@ -109,4 +126,45 @@ export function buildFilterUrl(
 
   const query = params.toString();
   return query ? `${basePath}?${query}` : basePath;
+}
+
+/**
+ * Apply a filter URL to state (init and popstate). Every refinement is
+ * assigned whether or not its param is present: on popstate an absent param
+ * means "cleared", so keeping the previous entry's value would leak it.
+ *
+ * @return The category slug represented by the current pathname, if any.
+ */
+export function applyUrlState(
+  state: ProductFiltersState,
+  params: URLSearchParams
+): string | null {
+  // Active category from the path (handles pushState navigation), e.g.
+  // /shop/hoodies/ → 'hoodies' even after loading /shop/clothing/.
+  const catFromPath = getCategorySlugFromPath(state);
+  const catFromParam = (params.get('cat') || '').split(',').filter(Boolean);
+  state.selectedCategories = [
+    ...new Set([...(catFromPath ? [catFromPath] : []), ...catFromParam]),
+  ];
+  for (const filter of ATTRIBUTE_FILTERS) {
+    state[filter.stateKey] = (params.get(filter.urlParam) || '')
+      .split(',')
+      .filter(Boolean);
+  }
+  state.priceMin = Math.max(
+    parseInt(params.get('min_price') || '0', 10) || 0,
+    state.priceRange.min
+  );
+  state.priceMax = Math.min(
+    parseInt(params.get('max_price') || '', 10) || state.priceRange.max,
+    state.priceRange.max
+  );
+  state.inStockOnly = params.get('stock') === 'instock';
+  state.onSaleOnly =
+    params.get('on_sale') === '1' || isSalesArchive(state, catFromPath);
+  state.currentPage = Math.max(
+    parseInt(params.get('pf_page') || '1', 10) || 1,
+    1
+  );
+  return catFromPath;
 }

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.189.0\n"
+"Project-Id-Version: Aggressive Apparel 1.190.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-12T05:14:03+00:00\n"
+"POT-Creation-Date: 2026-10-13T03:32:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1697,6 +1697,27 @@ msgstr ""
 msgid "Low Stock"
 msgstr ""
 
+#: includes/WooCommerce/class-collection-attribute-migration.php:67
+#: patterns/homepage-seasonal-shop.php:24
+msgid "Men's"
+msgstr ""
+
+#: includes/WooCommerce/class-collection-attribute-migration.php:68
+#: patterns/homepage-seasonal-shop.php:48
+msgid "Women's"
+msgstr ""
+
+#: includes/WooCommerce/class-collection-attribute-migration.php:69
+msgid "Unisex"
+msgstr ""
+
+#: includes/WooCommerce/class-collection-attribute-migration.php:224
+#: includes/WooCommerce/class-product-filter-renderer.php:41
+#: includes/WooCommerce/class-product-filter-renderer.php:141
+#: patterns/collection-landing-hero.php:18
+msgid "Collection"
+msgstr ""
+
 #: includes/WooCommerce/class-color-admin-ui.php:85
 #: includes/WooCommerce/class-color-admin-ui.php:137
 msgid "Color Type"
@@ -2580,14 +2601,6 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filter-renderer.php:41
-#: includes/WooCommerce/class-product-filter-renderer.php:141
-#: includes/WooCommerce/class-product-specs-registry.php:238
-#: includes/WooCommerce/class-product-tabs-config.php:164
-#: includes/WooCommerce/class-product-tabs-config.php:165
-msgid "Fit"
-msgstr ""
-
 #: includes/WooCommerce/class-product-filter-renderer.php:59
 #: includes/WooCommerce/class-product-filter-renderer.php:187
 #: includes/WooCommerce/class-product-tabs-config.php:170
@@ -2605,10 +2618,10 @@ msgid "Categories"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:142
-msgid "Filter by fit"
+msgid "Filter by collection"
 msgstr ""
 
-#. translators: %s: fit name
+#. translators: %s: collection name
 #. translators: %s: color name
 #: includes/WooCommerce/class-product-filter-renderer.php:148
 #: includes/WooCommerce/class-product-filter-renderer.php:177
@@ -2858,6 +2871,12 @@ msgstr ""
 #: includes/WooCommerce/class-product-specs.php:211
 #: includes/WooCommerce/class-size-guide-rest.php:449
 msgid "(no title)"
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-registry.php:238
+#: includes/WooCommerce/class-product-tabs-config.php:164
+#: includes/WooCommerce/class-product-tabs-config.php:165
+msgid "Fit"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-registry.php:240
@@ -4786,10 +4805,6 @@ msgctxt "Pattern description"
 msgid "Full-bleed parallax collection hero with collection name, description, and primary Shop plus secondary Lookbook CTAs."
 msgstr ""
 
-#: patterns/collection-landing-hero.php:18
-msgid "Collection"
-msgstr ""
-
 #: patterns/collection-landing-hero.php:22
 #: patterns/drop-waitlist-countdown.php:24
 msgid "Nightfall Collection"
@@ -6002,20 +6017,12 @@ msgstr ""
 msgid "Menswear"
 msgstr ""
 
-#: patterns/homepage-seasonal-shop.php:24
-msgid "Men's"
-msgstr ""
-
 #: patterns/homepage-seasonal-shop.php:30
 msgid "Shop Men's"
 msgstr ""
 
 #: patterns/homepage-seasonal-shop.php:44
 msgid "Womenswear"
-msgstr ""
-
-#: patterns/homepage-seasonal-shop.php:48
-msgid "Women's"
 msgstr ""
 
 #: patterns/homepage-seasonal-shop.php:54

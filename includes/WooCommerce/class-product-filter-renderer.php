@@ -34,12 +34,12 @@ final class Product_Filter_Renderer {
 			);
 		}
 
-		// Fit dropdown.
-		if ( ! empty( $data['fitTerms'] ) ) {
+		// Collection dropdown.
+		if ( ! empty( $data['collectionTerms'] ) ) {
 			$bar .= $this->build_bar_dropdown(
-				'fit',
-				__( 'Fit', 'aggressive-apparel' ),
-				'state.isFitDropdownOpen',
+				'collection',
+				__( 'Collection', 'aggressive-apparel' ),
+				'state.isCollectionDropdownOpen',
 			);
 		}
 
@@ -136,17 +136,17 @@ final class Product_Filter_Renderer {
 			}
 		}
 
-		// Fit.
-		if ( ! empty( $data['fitTerms'] ) ) {
-			$this->render_section_start( 'fit', __( 'Fit', 'aggressive-apparel' ) );
-			echo '<div class="aa-product-filters__fit-list" role="group" aria-label="' . esc_attr__( 'Filter by fit', 'aggressive-apparel' ) . '">';
-			foreach ( $data['fitTerms'] as $fit ) {
+		// Collection: the audience a garment is cut for.
+		if ( ! empty( $data['collectionTerms'] ) ) {
+			$this->render_section_start( 'collection', __( 'Collection', 'aggressive-apparel' ) );
+			echo '<div class="aa-product-filters__collection-list" role="group" aria-label="' . esc_attr__( 'Filter by collection', 'aggressive-apparel' ) . '">';
+			foreach ( $data['collectionTerms'] as $collection ) {
 				printf(
-					'<button class="aa-product-filters__fit-chip aa-choice-pill" data-wp-on--click="actions.toggleFit" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__fit-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__fit-chip-name">%s</span></button>',
-					esc_attr( $fit['slug'] ),
-					/* translators: %s: fit name */
-					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $fit['name'] ) ),
-					esc_html( $fit['name'] ),
+					'<button class="aa-product-filters__collection-chip aa-choice-pill" data-wp-on--click="actions.toggleCollection" data-filter-value="%s" aria-pressed="false" aria-label="%s"><span class="aa-product-filters__collection-chip-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><polyline points="2.5 6.5 5 9 9.5 3.5"/></svg></span><span class="aa-product-filters__collection-chip-name">%s</span></button>',
+					esc_attr( $collection['slug'] ),
+					/* translators: %s: collection name */
+					esc_attr( sprintf( __( 'Filter by %s', 'aggressive-apparel' ), $collection['name'] ) ),
+					esc_html( $collection['name'] ),
 				);
 			}
 			echo '</div>';

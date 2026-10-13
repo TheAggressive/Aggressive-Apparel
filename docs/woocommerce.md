@@ -133,6 +133,76 @@ deleted after 7 days, and pending rows count toward the per-address cap.
   guest signups are protected by rate limits and the consent box instead;
   logged-in signups are still nonce-checked.
 
+## Collection vs Fit
+
+Two separate concepts, two separate systems:
+
+- **Collection** — who the garment is cut for: global attribute
+  `pa_collection` (Men's `mens`, Women's `womens`, Unisex `unisex`). It drives
+  the product-filter **Collection** control and the `?collection=` URL param
+  (`/shop/t-shirts/?collection=mens`). Nothing else in the filter stack is
+  Collection-specific: `ATTRIBUTE_FILTERS` (TS) and the facet taxonomy list
+  (PHP) name it, and the query layer accepts any registered `pa_*`.
+- **Fit / sizing** — garment silhouette and true-to-size advice: the
+  Product Specs **Fit** scale and its per-step advice
+  ([Size Guides & Specs](#size-guides--specs)). It reads no attribute.
+
+The audience filter used to read `pa_fit` / `?fit=`. `Collection_Legacy_Url`
+redirects (302, so a rollback is not pinned by cached redirects) only the
+audience slugs the migration recognises (`?fit=mens|men|womens|women|unisex`)
+on catalogue archives to `?collection=`,
+because navigation saved in the Site Editor (the header and mobile-nav
+template parts) and external links still carry it. Any other `fit` value is
+left alone. Delete the class once stored navigation is updated and the old
+links have aged out.
+
+### Migrating `pa_fit` → `pa_collection`
+
+`wp aggressive-apparel collection-migrate` (`Collection_Attribute_Migration`).
+Never runs automatically. Dry run unless `--apply`.
+
+- Creates the Collection attribute and its three terms if missing.
+- For every product (any status) with an audience term on `pa_fit`, adds the
+  matching `pa_collection` term through WooCommerce CRUD. Only `mens`, `men`,
+  `womens`, `women`, `unisex` count as audience; any other `pa_fit` term is
+  ignored. Collection is never a variation attribute.
+- Idempotent: re-runs report `unchanged`, never duplicate terms.
+- `--remove-source` additionally drops the migrated terms from `pa_fit`
+  (removing the attribute only when nothing else is left on it). It skips
+  products where `pa_fit` is used for variations, since their
+  `attribute_pa_fit` values would be orphaned. Those are reported `skipped`
+  with a note and a closing warning — fix them by hand.
+- Aborts before touching products if a Collection term cannot be created,
+  and flushes only the runtime object cache between batches (never a shared
+  persistent cache).
+
+Production runbook:
+
+1. Back up the database.
+2. Deploy the theme, then immediately run
+   `wp aggressive-apparel collection-migrate` and review the report.
+   Until step 3, Collection links show unfiltered results.
+3. `wp aggressive-apparel collection-migrate --apply --format=json > collection-migration.json`
+   (keep the output — it is the per-product change record).
+4. If **WooCommerce → Settings → Advanced → Features → attribute lookup
+   direct updates** is off, let Action Scheduler drain (or run
+   **WooCommerce → Status → Tools → Regenerate the product attributes lookup
+   table**) — facets read the lookup table; filtering itself does not.
+5. Purge the page cache, then verify: `/shop/?collection=mens`, `womens`,
+   `unisex` each list the expected products; re-running step 2 reports zero
+   `would-update`.
+6. Update the header and mobile-nav template parts in the Site Editor to use
+   `?collection=` (or reset them to the theme file if they carry no other
+   customisations).
+7. Optional, later: `--apply --remove-source` once nothing reads `pa_fit` as
+   an audience.
+
+Rollback: before `--remove-source`, `pa_fit` is untouched, so reverting the
+theme restores the old behaviour; the extra `pa_collection` terms are inert
+and can be removed in **Products → Attributes**. After `--remove-source`,
+restore the backup or re-add the terms listed under `remove` in the step 3
+output.
+
 ## Size Guides & Specs
 
 One feature (Store Enhancements → **Size Guides & Specs**, key `size_guide`),

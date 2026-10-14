@@ -1,272 +1,40 @@
 /**
  * Omnisend Embedded Forms
  *
- * Scoped overrides for Omnisend forms wrapped in .aggressive-footer-signup.
- * Omnisend injects form-specific CSS after the theme stylesheet, so important
- * declarations are limited to properties the embed otherwise forces.
+ * Unlayered on purpose: Omnisend injects its form CSS unlayered, after the
+ * theme stylesheet, so any layered rule would lose.
  *
  * @package Aggressive_Apparel
  */
 
-.aggressive-footer-signup {
-	color: var(--aa-color-foreground);
-	font-family: var(--wp--preset--font-family--space-grotesk);
+/*
+ * Alignment (any embed, anywhere).
+ *
+ * Omnisend centers the form box with `margin: auto` inside the width set in
+ * its form builder. Start-align it instead and take the position from the
+ * parent block's justification (Row, Stack, or Group "Justify" control), so
+ * Omnisend decides the width and the editor decides where it sits. The form
+ * box is the only <div> inside #omnisend-form-<id>.
+ */
+[id^='omnisend-embedded-v2-'] {
+	width: 100%;
+	min-width: 0;
 }
 
-/* Replace Omnisend's bundled display/body faces with the theme typography. */
-.aggressive-footer-signup [id^='omnisend-form-'],
-.aggressive-footer-signup [id^='omnisend-form-'] :where(*) {
-	font-family: var(--wp--preset--font-family--space-grotesk) !important;
+[id^='omnisend-embedded-v2-'] > [id^='omnisend-form-'] > div {
+	margin-inline: 0;
 }
 
-.aggressive-footer-signup [class*='-sections-container'] {
-	background: transparent !important;
-	color: var(--aa-color-foreground) !important;
+.is-content-justification-center
+	> [id^='omnisend-embedded-v2-']
+	> [id^='omnisend-form-']
+	> div {
+	margin-inline: auto;
 }
 
-.aggressive-footer-signup [class*='-section-']:not([class*='-opacity-layer']) {
-	background: transparent !important;
-}
-
-.aggressive-footer-signup [class*='-section-'][class*='-opacity-layer'] {
-	background: transparent !important;
-}
-
-.aggressive-footer-signup [class*='-text-'],
-.aggressive-footer-signup [class*='-text-'] :where(p, li) {
-	font-family: var(--wp--preset--font-family--space-grotesk) !important;
-	font-size: var(--wp--preset--font-size--medium) !important;
-	line-height: 1.55 !important;
-}
-
-.aggressive-footer-signup [class*='-text-'] :where(h1, h2, h3, h4, h5, h6) {
-	color: var(--aa-color-accent) !important;
-	font-family: var(--wp--preset--font-family--bebas-neue) !important;
-	font-size: var(--wp--preset--font-size--fluid-xxxxx-large) !important;
-	font-weight: 400 !important;
-	line-height: 1 !important;
-	letter-spacing: 0.01em;
-	text-wrap: balance;
-}
-
-.aggressive-footer-signup [class*='-text-'] :where(h1, h2, h3, h4, h5, h6) strong {
-	font: inherit;
-}
-
-/* Email field. The unused ID in :not() supplies enough specificity to beat
- * Omnisend's important generated ID selector without coupling to one form. */
-.aggressive-footer-signup input[type='email']:not(#aggressive-omnisend-email) {
-	min-height: var(--aa-input-height);
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4) !important;
-	border: 2px solid var(--aa-color-black) !important;
-	border-radius: var(--aa-radius-full) !important;
-	background: transparent !important;
-	color: var(--aa-color-black) !important;
-	font-size: var(--wp--preset--font-size--small) !important;
-	line-height: 1.4 !important;
-	transition:
-		border-color var(--aa-duration-fast) var(--aa-ease-default),
-		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
-}
-
-.aggressive-footer-signup input[type='email']::placeholder,
-.aggressive-footer-signup input[type='tel']::placeholder {
-	opacity: 1 !important;
-	color: var(--aa-color-light-gray) !important;
-}
-
-.aggressive-footer-signup input[type='email']:focus,
-.aggressive-footer-signup input[type='email']:focus-visible {
-	border-color: var(--aa-color-accent) !important;
-	outline: 2px solid transparent !important;
-	box-shadow: none !important;
-}
-
-.aggressive-footer-signup input[type='email'].error {
-	border-color: var(--aa-color-error) !important;
-}
-
-/* Phone prefix and number read as one control. */
-.aggressive-footer-signup [class$='-field-wrapper']:has(input[type='tel']) {
-	min-height: var(--aa-input-height);
-	border: 2px solid var(--aa-color-black);
-	border-radius: var(--aa-radius-full);
-	background: transparent;
-	transition:
-		border-color var(--aa-duration-fast) var(--aa-ease-default),
-		box-shadow var(--aa-duration-fast) var(--aa-ease-default);
-}
-
-.aggressive-footer-signup [class$='-field-wrapper']:has(input[type='tel']):focus-within {
-	border-color: var(--aa-color-accent);
-	outline: 2px solid transparent;
-}
-
-.aggressive-footer-signup [class$='-phone-number-prefix'] {
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4) !important;
-	border: 0 !important;
-	border-right: 2px solid var(--aa-color-black) !important;
-	border-radius: var(--aa-radius-full) 0 0 var(--aa-radius-full) !important;
-	background: transparent !important;
-	color: var(--aa-color-black) !important;
-}
-
-.aggressive-footer-signup [class$='-phone-number-prefix']:focus,
-.aggressive-footer-signup [class$='-phone-number-prefix']:focus-visible {
-	outline: 2px solid transparent !important;
-	box-shadow: none !important;
-}
-
-.aggressive-footer-signup [class$='-field-wrapper'] input[type='tel']:not(#aggressive-omnisend-phone) {
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4) !important;
-	border: 0 !important;
-	border-radius: 0 var(--aa-radius-full) var(--aa-radius-full) 0 !important;
-	background: transparent !important;
-	color: var(--aa-color-black) !important;
-	font-size: var(--wp--preset--font-size--small) !important;
-	line-height: 1.4 !important;
-}
-
-.aggressive-footer-signup [class$='-field-wrapper'] input[type='tel']:focus,
-.aggressive-footer-signup [class$='-field-wrapper'] input[type='tel']:focus-visible {
-	outline: 2px solid transparent !important;
-	box-shadow: none !important;
-}
-
-.aggressive-footer-signup [class$='-field-wrapper'] input[type='tel'].error {
-	box-shadow: inset 3px 0 0 var(--aa-color-error) !important;
-}
-
-.aggressive-footer-signup [class$='-select-arrow'] {
-	fill: currentcolor !important;
-}
-
-.aggressive-footer-signup [class$='-phone-number-prefix-options-container'] {
-	border: 1px solid var(--aa-color-border) !important;
-	border-radius: var(--aa-radius-panel) !important;
-	background: var(--aa-color-surface-elevated) !important;
-	color: var(--aa-color-foreground) !important;
-	box-shadow: var(--aa-shadow-md) !important;
-}
-
-.aggressive-footer-signup [class*='-phone-number-prefix-option'][role='option'] {
-	color: var(--aa-color-foreground) !important;
-}
-
-.aggressive-footer-signup [class*='-phone-number-prefix-option'][role='option']:is(:hover, .selected-option) {
-	background: var(--aa-color-hover-default) !important;
-}
-
-.aggressive-footer-signup [class*='-phone-number-prefix-option'][role='option']:is(.focus, .visually-focused-option) {
-	outline: 1px solid var(--aa-color-accent) !important;
-	outline-offset: -1px;
-}
-
-/* SMS consent and legal copy. */
-.aggressive-footer-signup label[for^='omnisend'] {
-	color: var(--aa-color-light-gray) !important;
-}
-
-.aggressive-footer-signup input[type='checkbox'] + [aria-hidden='true'] {
-	border: 2px solid var(--aa-color-black) !important;
-	border-radius: var(--aa-radius-control) !important;
-	background: transparent !important;
-}
-
-.aggressive-footer-signup input[type='checkbox']:checked + [aria-hidden='true'] {
-	border-color: var(--aa-color-accent-fill) !important;
-	background: var(--aa-color-accent-fill) !important;
-}
-
-.aggressive-footer-signup input[type='checkbox']:checked + [aria-hidden='true']::after {
-	border-color: var(--aa-color-white) !important;
-}
-
-.aggressive-footer-signup input[type='checkbox']:focus-visible + [aria-hidden='true'] {
-	border-color: var(--aa-color-accent) !important;
-	outline: 2px solid transparent !important;
-	box-shadow: none !important;
-}
-
-.aggressive-footer-signup [class$='-label'],
-.aggressive-footer-signup [class$='-label'] :where(p) {
-	color: var(--aa-color-light-gray) !important;
-	font-size: var(--wp--preset--font-size--small) !important;
-	line-height: 1.4 !important;
-}
-
-.aggressive-footer-signup [class$='-description'],
-.aggressive-footer-signup [class$='-description'] :where(p) {
-	color: var(--aa-color-light-gray) !important;
-	font-size: var(--aa-type-legal-size) !important;
-	line-height: var(--aa-type-legal-line-height) !important;
-}
-
-.aggressive-footer-signup [class$='-description-link'] {
-	fill: var(--aa-color-accent) !important;
-	color: var(--aa-color-accent) !important;
-}
-
-.aggressive-footer-signup [class$='-description-link']:is(:hover, :focus) {
-	fill: var(--aa-color-foreground) !important;
-	color: var(--aa-color-foreground) !important;
-}
-
-.aggressive-footer-signup [class$='-description-link']:focus-visible {
-	outline: 2px solid var(--aa-color-accent) !important;
-	outline-offset: 2px;
-	box-shadow: none !important;
-}
-
-/* Validation and submission feedback. */
-.aggressive-footer-signup :is([id$='-required'], [id$='-error'], [class*='-submit-error'], [class*='-next-step-error']) {
-	padding-block: var(--wp--preset--spacing--2) 0 !important;
-	color: var(--aa-color-error) !important;
-	font-size: var(--wp--preset--font-size--x-small) !important;
-	font-weight: 500 !important;
-	line-height: 1.4 !important;
-}
-
-/* CTA uses the same adaptive colors as theme.json buttons. */
-.aggressive-footer-signup button[type='submit'] {
-	min-height: var(--aa-input-height);
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8) !important;
-	border: 2px solid var(--wp--custom--button--primary--background) !important;
-	border-radius: var(--aa-radius-button) !important;
-	background: var(--wp--custom--button--primary--background) !important;
-	color: var(--wp--custom--button--primary--text) !important;
-	font-size: var(--wp--preset--font-size--medium) !important;
-	font-weight: 700 !important;
-	line-height: 1.1 !important;
-	letter-spacing: 0.06em !important;
-	text-transform: uppercase;
-	transition:
-		background-color var(--aa-duration-fast) var(--aa-ease-default),
-		color var(--aa-duration-fast) var(--aa-ease-default),
-		opacity var(--aa-duration-fast) var(--aa-ease-default) !important;
-}
-
-.aggressive-footer-signup button[type='submit']:hover:not(:disabled),
-.aggressive-footer-signup button[type='submit']:active:not(:disabled) {
-	border-color: var(--wp--custom--button--primary--hover-background) !important;
-	background: var(--wp--custom--button--primary--hover-background) !important;
-	color: var(--wp--custom--button--primary--hover-text) !important;
-}
-
-.aggressive-footer-signup button[type='submit']:focus,
-.aggressive-footer-signup button[type='submit']:focus-visible {
-	outline: 2px solid transparent !important;
-	box-shadow: var(--aa-focus-ring) !important;
-}
-
-.aggressive-footer-signup button[type='submit']:disabled {
-	opacity: var(--wp--custom--button--disabled-opacity, 0.5);
-	cursor: not-allowed;
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.aggressive-footer-signup :where(input, button, [class$='-field-wrapper']) {
-		transition: none !important;
-	}
+.is-content-justification-right
+	> [id^='omnisend-embedded-v2-']
+	> [id^='omnisend-form-']
+	> div {
+	margin-inline: auto 0;
 }

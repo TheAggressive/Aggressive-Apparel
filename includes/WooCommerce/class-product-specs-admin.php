@@ -7,7 +7,7 @@
  * its value comes from, and a product can override, hide, or reword any spec.
  *
  * Everything shared lives on Products → Size Guides (Product_Specs_Settings):
- * size guides with their values, spec definitions, and per-category
+ * size guides, spec definitions with their defaults, and per-category
  * boundaries.
  *
  * @package Aggressive_Apparel
@@ -96,7 +96,14 @@ final class Product_Specs_Admin {
 			return;
 		}
 
-		echo '<p class="aa-specs-help">' . wp_kses( $this->source_intro( $data['guide'] ), $links ) . '</p>';
+		echo '<p class="aa-specs-help">' . wp_kses(
+			sprintf(
+				/* translators: %s: link to the Specs tab of Products → Size Guides. */
+				__( 'Empty fields use this product’s attributes, then each spec’s default from %s.', 'aggressive-apparel' ),
+				'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size Guides → Specs', 'aggressive-apparel' ) . '</a>'
+			),
+			$links
+		) . '</p>';
 		foreach ( $data['items'] as $item ) {
 			echo Product_Specs_Admin_Fields::product_row( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
 			// Saving only rewrites the hidden flag and wording of items shown here.
@@ -114,7 +121,7 @@ final class Product_Specs_Admin {
 		if ( '' !== $preview ) {
 			echo '<div class="aa-product-specs is-layout-full">' . aggressive_apparel_trusted_html( $preview ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by Product_Specs_Renderer.
 		} else {
-			echo '<p>' . esc_html__( 'Nothing to show yet. Set a value here, on the size guide, or as a product attribute.', 'aggressive-apparel' ) . '</p>';
+			echo '<p>' . esc_html__( 'Nothing to show yet. Set a value here, as a product attribute, or as the spec’s default.', 'aggressive-apparel' ) . '</p>';
 		}
 		echo '</div>';
 
@@ -204,23 +211,6 @@ final class Product_Specs_Admin {
 				)
 			) . ';',
 			'before'
-		);
-	}
-
-	/**
-	 * Intro line: where empty fields get their values.
-	 *
-	 * @param array{id: int, title: string}|null $guide Supplying size guide.
-	 */
-	private function source_intro( ?array $guide ): string {
-		if ( null === $guide ) {
-			return esc_html__( 'Empty fields use this product’s attributes. Choose a size guide above to share values across products.', 'aggressive-apparel' );
-		}
-
-		return sprintf(
-			/* translators: %s: link to the size guide. */
-			__( 'Empty fields use this product’s attributes, then the size guide %s.', 'aggressive-apparel' ),
-			'<a href="' . esc_url( Product_Specs_Settings::url( 'guides', array( 'guide' => $guide['id'] ) ) ) . '">' . esc_html( $guide['title'] ) . '</a>'
 		);
 	}
 

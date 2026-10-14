@@ -144,32 +144,6 @@
 	background: #f6f7f7;
 }
 
-.aa-ps-guide__specs {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 12px 16px;
-}
-
-.aa-ps-guide__spec {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	color: #1e1e1e;
-	font-size: 13px;
-	font-weight: 500;
-}
-
-.aa-ps-guide__other-specs {
-	margin-top: 16px;
-}
-
-.aa-ps-guide__other-specs summary {
-	margin-bottom: 12px;
-	color: var(--aa-ps-muted);
-	font-size: 12px;
-	cursor: pointer;
-}
-
 .aa-ps-guide__footer {
 	padding-top: 4px;
 }

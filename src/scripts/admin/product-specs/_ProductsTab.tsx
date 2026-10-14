@@ -4,7 +4,7 @@
  * Every product's own spec values in one grid: search, filter by category,
  * spot gaps, and set a value on many products at once. Empty cells inherit
  * (shown as the placeholder), so a product only stores what differs from its
- * size guide or attributes. Edits survive paging and tab switches until saved.
+ * attributes or the spec default. Edits survive paging and tab switches until saved.
  *
  * @package Aggressive_Apparel
  */
@@ -200,7 +200,7 @@ export default function ProductsTab({
     <div className='aa-ps-products'>
       <p className='aa-ps-intro'>
         {__(
-          'Set values on many products at once. Leave a cell empty to use the size guide or attribute value shown in grey.',
+          'Set values on many products at once. Leave a cell empty to use the attribute or spec default shown in grey.',
           'aggressive-apparel'
         )}
       </p>

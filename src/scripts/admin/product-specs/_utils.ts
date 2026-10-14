@@ -4,7 +4,7 @@
  * @package Aggressive_Apparel
  */
 
-import type { Category, DraftItem, ItemType, SpecItem } from './_types';
+import type { DraftItem, ItemType, SpecItem } from './_types';
 
 let counter = 0;
 
@@ -74,47 +74,8 @@ export function blankItem(type: ItemType, steps: string[]): DraftItem {
     categories: [],
     category_steps: [],
     in_table: true,
+    default: '',
     uid: uid(),
     isNew: true,
   };
-}
-
-/** A category and its ancestors. */
-function lineage(id: number, categories: Category[]): number[] {
-  const parents = new Map(
-    categories.map(category => [category.id, category.parent])
-  );
-  const chain = [id];
-  let parent = parents.get(id) ?? 0;
-  while (parent > 0 && !chain.includes(parent)) {
-    chain.push(parent);
-    parent = parents.get(parent) ?? 0;
-  }
-  return chain;
-}
-
-/**
- * Whether a spec can show on some product in these guide categories
- * (children included). Mirrors Product_Specs_Registry::applies().
- */
-export function appliesToCategories(
-  item: Pick<SpecItem, 'scope' | 'categories'>,
-  guideCategories: number[],
-  categories: Category[]
-): boolean {
-  if (item.scope === 'all' || item.categories.length === 0) {
-    return true;
-  }
-  return guideCategories.some(id => {
-    const up = lineage(id, categories);
-    const inherited = item.categories.some(scoped => up.includes(scoped));
-    if (item.scope === 'except') {
-      return !inherited;
-    }
-    // A spec scoped to a subcategory still reaches part of this category.
-    return (
-      inherited ||
-      item.categories.some(scoped => lineage(scoped, categories).includes(id))
-    );
-  });
 }

@@ -4,7 +4,7 @@
  *
  * The routes behind the Size Guides editor (Products → Size Guides): list,
  * read, create, update, duplicate, and trash guides. One save writes the
- * whole guide — chart, notes, diagram, spec values, and where it applies.
+ * whole guide — chart, notes, diagram, and where it applies.
  *
  * @package Aggressive_Apparel
  */
@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
- * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, specs: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, values: array<string, string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -267,7 +267,6 @@ final class Size_Guide_Rest {
 				'chart'   => $source['chart'],
 				'notes'   => $source['notes'],
 				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
-				'values'  => $source['values'],
 			)
 		);
 
@@ -314,7 +313,6 @@ final class Size_Guide_Rest {
 				'title'   => self::display_title( $post ),
 				'sizes'   => null !== $chart ? count( $chart['rows'] ) : 0,
 				'columns' => null !== $chart ? count( $chart['columns'] ) : 0,
-				'specs'   => count( array_filter( Product_Specs_Values::stored( $post->ID ), static fn( string $value ): bool => '' !== $value ) ),
 				'usage'   => $usage[ $post->ID ],
 				'legacy'  => null === $chart && '' !== trim( $post->post_content ),
 			);
@@ -347,7 +345,6 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
-			'values'        => Product_Specs_Values::stored( $id ),
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
 			'usage'         => Size_Guide_Assignments::usage( $id ),
@@ -388,10 +385,6 @@ final class Size_Guide_Rest {
 			} else {
 				delete_post_meta( $id, Size_Chart::DIAGRAM );
 			}
-		}
-
-		if ( isset( $data['values'] ) && is_array( $data['values'] ) ) {
-			Product_Specs_Values::save( $id, $data['values'] );
 		}
 
 		if ( isset( $data['categories'] ) && is_array( $data['categories'] ) ) {

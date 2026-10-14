@@ -5,8 +5,9 @@
  * The store-wide list of spec items, edited on Products → Size Guides → Specs. Each item is
  * either a scale (picked per product, or derived from a number such as g/m²)
  * or a text detail (such as Fabric). Items decide which categories they apply
- * to, which product attributes can supply their value, and whether they add a
- * row to the Additional information tab.
+ * to, which product attributes can supply their value, the default value
+ * every product gets otherwise, and whether they add a row to the Additional
+ * information tab.
  *
  * Until the store saves its own list, the defaults below apply: Fit and Fabric
  * weight scales plus Fabric and Construction details.
@@ -26,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Spec item registry.
  *
- * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool}
+ * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string}
  * @phpstan-type CategorySteps array{category: int, thresholds: list<float>}
  * @phpstan-type Registry array{items: list<Item>, hide_dimensions: bool}
  */
@@ -40,7 +41,7 @@ final class Product_Specs_Registry {
 	public const OPTION_KEY = 'aggressive_apparel_spec_items';
 
 	/**
-	 * Scale whose step is picked on the size guide or product.
+	 * Scale whose step is picked per product or as the spec default.
 	 *
 	 * @var string
 	 */
@@ -379,6 +380,9 @@ final class Product_Specs_Registry {
 				continue;
 			}
 
+			// Checked against the final steps, so a stale step index is dropped.
+			$item['default'] = Product_Specs_Values::clean( $entry['default'] ?? '', $item );
+
 			$keys[ $key ] = true;
 			$items[]      = $item;
 		}
@@ -485,6 +489,7 @@ final class Product_Specs_Registry {
 				'categories'     => array(),
 				'category_steps' => array(),
 				'in_table'       => true,
+				'default'        => '',
 			),
 			$values
 		);

@@ -3,7 +3,7 @@
  * Product Specs Table
  *
  * Adds spec items to WooCommerce's Additional information table, so specs set
- * once on a size guide or product appear there without adding attributes by
+ * once as a spec default or on a product appear there without adding attributes by
  * hand. Items whose value already comes from a visible attribute are skipped
  * (the attribute row is already there). The tab is added for products that
  * have specs but no attributes, and the shipping weight/dimension rows can be

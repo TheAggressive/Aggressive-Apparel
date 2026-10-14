@@ -2,8 +2,8 @@
  * Product Specs settings — one size guide.
  *
  * Everything about a garment blank in one form: its name, size chart, notes
- * and measuring diagram, spec values, and where it applies. One save writes
- * it all (Size_Guide_Rest).
+ * and measuring diagram, and where it applies. One save writes it all
+ * (Size_Guide_Rest).
  *
  * @package Aggressive_Apparel
  */
@@ -20,12 +20,10 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideDetail, SpecItem } from './_types';
+import type { Config, GuideDetail } from './_types';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
-import SpecInput from './_SpecInput';
-import { appliesToCategories } from './_utils';
 
 type Attachment = {
   id: number;
@@ -43,7 +41,6 @@ type MediaFrame = {
 
 type Props = {
   config: Config;
-  specs: SpecItem[];
   guideId: number | 'new';
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
@@ -58,7 +55,6 @@ function blank(): GuideDetail {
     chart: templates()[0].chart,
     notes: '',
     diagram: null,
-    values: {},
     categories: [],
     isDefault: false,
     usage: { global: false, categories: [], products: 0 },
@@ -69,7 +65,6 @@ function blank(): GuideDetail {
 
 export default function GuideEditor({
   config,
-  specs,
   guideId,
   onClose,
   onOpen,
@@ -147,7 +142,6 @@ export default function GuideEditor({
           chart: guide.chart,
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
-          values: guide.values,
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
@@ -274,34 +268,6 @@ export default function GuideEditor({
         ? [...guide.categories, id]
         : guide.categories.filter(category => category !== id),
     });
-
-  // Specs scoped away from every category this guide covers sit in a
-  // collapsed group; a store-wide or unassigned guide can reach them all.
-  const reachesAll = guide.isDefault || guide.categories.length === 0;
-  const applicable = specs.filter(
-    item =>
-      reachesAll ||
-      appliesToCategories(item, guide.categories, config.categories)
-  );
-  const elsewhere = specs.filter(item => !applicable.includes(item));
-
-  const specField = (item: SpecItem) => (
-    <label key={item.key} className='aa-ps-guide__spec'>
-      <span>
-        {item.name}
-        {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
-      </span>
-      <SpecInput
-        item={item}
-        value={guide.values[item.key] ?? ''}
-        label={item.name}
-        showStep
-        onChange={value =>
-          update({ values: { ...guide.values, [item.key]: value } })
-        }
-      />
-    </label>
-  );
 
   return (
     <div className='aa-ps-guide'>
@@ -495,42 +461,6 @@ export default function GuideEditor({
         </div>
       </section>
 
-      {specs.length > 0 && (
-        <section className='aa-ps-guide__section'>
-          <h2>{__('Specs', 'aggressive-apparel')}</h2>
-          <p className='aa-ps-help'>
-            {__(
-              'Every product using this guide shows these, unless the product sets its own.',
-              'aggressive-apparel'
-            )}
-          </p>
-          {applicable.length > 0 && (
-            <div className='aa-ps-guide__specs'>
-              {applicable.map(specField)}
-            </div>
-          )}
-          {elsewhere.length > 0 && (
-            <details className='aa-ps-guide__other-specs'>
-              <summary>
-                {sprintf(
-                  /* translators: %d: number of specs. */
-                  _n(
-                    '%d spec doesn’t apply to this guide’s categories',
-                    '%d specs don’t apply to this guide’s categories',
-                    elsewhere.length,
-                    'aggressive-apparel'
-                  ),
-                  elsewhere.length
-                )}
-              </summary>
-              <div className='aa-ps-guide__specs'>
-                {elsewhere.map(specField)}
-              </div>
-            </details>
-          )}
-        </section>
-      )}
-
       <section className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>
         <p className='aa-ps-help'>
@@ -552,7 +482,7 @@ export default function GuideEditor({
         <ToggleControl
           label={__('Store-wide default', 'aggressive-apparel')}
           help={__(
-            'Used for products with no guide of their own or from their category, and for any spec those guides leave empty.',
+            'Used for products with no guide of their own or from their category.',
             'aggressive-apparel'
           )}
           checked={guide.isDefault}

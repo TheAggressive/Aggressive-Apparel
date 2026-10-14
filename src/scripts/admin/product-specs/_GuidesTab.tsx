@@ -12,12 +12,11 @@ import { useState } from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideSummary, SpecItem, Usage } from './_types';
+import type { Config, GuideSummary, Usage } from './_types';
 import GuideEditor from './_GuideEditor';
 
 type Props = {
   config: Config;
-  specs: SpecItem[];
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
   onDirty: (dirty: boolean) => void;
@@ -55,7 +54,6 @@ function usageText(usage: Usage): string {
 
 export default function GuidesTab({
   config,
-  specs,
   guides,
   onGuides,
   onDirty,
@@ -84,7 +82,6 @@ export default function GuidesTab({
       <GuideEditor
         key={String(open)}
         config={config}
-        specs={specs}
         guideId={open}
         onDirty={onDirty}
         onOpen={id => {
@@ -111,7 +108,7 @@ export default function GuidesTab({
       <div className='aa-ps-guides__head'>
         <p className='aa-ps-intro'>
           {__(
-            'One guide per garment blank: its size chart, notes, and specs. Products pick a guide, or get one from their category.',
+            'One guide per garment blank: its size chart and notes. Products pick a guide, or get one from their category.',
             'aggressive-apparel'
           )}
         </p>
@@ -163,17 +160,6 @@ export default function GuidesTab({
                         guide.columns
                       )
                     : __('No chart yet', 'aggressive-apparel')}
-                  {' · '}
-                  {sprintf(
-                    /* translators: %d: specs set. */
-                    _n(
-                      '%d spec',
-                      '%d specs',
-                      guide.specs,
-                      'aggressive-apparel'
-                    ),
-                    guide.specs
-                  )}
                 </span>
                 <span className='aa-ps-guides__usage'>
                   {usageText(guide.usage)}

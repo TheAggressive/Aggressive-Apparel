@@ -45,6 +45,13 @@ aa_i18n_load_dotenv() {
 
 # Run WP-CLI through Studio locally or the isolated wp-env container in CI.
 aa_i18n_wp() {
+	# An explicit WP-CLI entry point wins over discovery, so a CI lane can pin
+	# the exact PHAR it verified instead of whatever Studio or PATH provides.
+	if [[ -n "${AA_I18N_WP_BIN:-}" ]]; then
+		( cd "${AA_THEME_ROOT}" && "${AA_I18N_WP_BIN}" "$@" )
+		return
+	fi
+
 	if [[ "${AA_I18N_FORCE_WP_ENV:-0}" == "1" ]]; then
 		command -v wp-env >/dev/null 2>&1 || aa_i18n_die "wp-env is required (AA_I18N_FORCE_WP_ENV=1)."
 		CI=true wp-env run cli --env-cwd="${AA_WP_ENV_THEME_CWD}" wp "$@"

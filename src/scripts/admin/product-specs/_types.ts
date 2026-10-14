@@ -36,7 +36,7 @@ export type DraftItem = SpecItem & { uid: string; isNew: boolean };
 
 export type Registry = { items: SpecItem[]; hide_dimensions: boolean };
 
-export type Category = { id: number; name: string };
+export type Category = { id: number; name: string; parent: number };
 
 export type Tab = 'guides' | 'specs' | 'products';
 

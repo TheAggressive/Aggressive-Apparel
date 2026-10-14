@@ -151,6 +151,31 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['weight']['source'] );
 	}
 
+	/** Guides layer per item: a store-wide guide fills what nearer guides leave empty. */
+	public function test_guides_layer_per_item(): void {
+		$product_id = $this->create_product();
+		$guide_id   = $this->assign_guide( $product_id, array( 'fit' => '2' ) );
+		$default_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'aa_size_guide',
+				'post_status' => 'publish',
+				'post_title'  => 'Store default',
+			)
+		);
+		update_post_meta( $default_id, '_aa_spec_fit', '4' );
+		update_post_meta( $default_id, '_aa_spec_fabric', '100% cotton' );
+		update_option( \Aggressive_Apparel\WooCommerce\Size_Guide::CPT_OPTION_KEY, $default_id );
+
+		$items = $this->items( $product_id );
+
+		$this->assertSame( 2, $items['fit']['step'] );
+		$this->assertSame( 'Jersey Tee', $items['fit']['label'] );
+		$this->assertSame( '100% cotton', $items['fabric']['display'] );
+		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['fabric']['source'] );
+		$this->assertSame( 'Store default', $items['fabric']['label'] );
+		$this->assertSame( $guide_id, Product_Specs::for_product( $product_id )['guide']['id'] ?? null );
+	}
+
 	/** Attributes supply numbers, text, and matching step names. */
 	public function test_attributes_supply_values(): void {
 		$product_id = $this->create_product(

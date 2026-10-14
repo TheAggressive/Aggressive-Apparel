@@ -251,7 +251,7 @@ final class Product_Specs_Settings {
 	/**
 	 * Product categories for pickers, with their path for clarity.
 	 *
-	 * @return list<array{id: int, name: string}>
+	 * @return list<array{id: int, name: string, parent: int}>
 	 */
 	private static function categories(): array {
 		$terms = get_terms(
@@ -284,8 +284,9 @@ final class Product_Specs_Settings {
 				++$depth;
 			}
 			$list[] = array(
-				'id'   => $id,
-				'name' => implode( ' › ', $path ),
+				'id'     => $id,
+				'name'   => implode( ' › ', $path ),
+				'parent' => $term->parent,
 			);
 		}
 

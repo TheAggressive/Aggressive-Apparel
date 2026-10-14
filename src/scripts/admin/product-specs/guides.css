@@ -88,6 +88,13 @@
 	justify-content: space-between;
 }
 
+.aa-ps-guide__leave {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
 .aa-ps-guide__name {
 	max-width: 480px;
 }
@@ -150,6 +157,17 @@
 	color: #1e1e1e;
 	font-size: 13px;
 	font-weight: 500;
+}
+
+.aa-ps-guide__other-specs {
+	margin-top: 16px;
+}
+
+.aa-ps-guide__other-specs summary {
+	margin-bottom: 12px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	cursor: pointer;
 }
 
 .aa-ps-guide__footer {

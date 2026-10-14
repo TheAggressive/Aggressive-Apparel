@@ -609,7 +609,7 @@ export default function ItemCard({
                 onChange={in_table => onChange({ in_table })}
               />
               <ToggleControl
-                label={__('On', 'aggressive-apparel')}
+                label={__('Show this spec', 'aggressive-apparel')}
                 help={__(
                   'Turning a spec off hides it everywhere but keeps its saved values.',
                   'aggressive-apparel'

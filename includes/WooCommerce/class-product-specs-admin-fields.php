@@ -24,7 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type ResolvedItem from Product_Specs
  * @phpstan-import-type Wording from Product_Specs
- * @phpstan-import-type Guide from Product_Specs
  * @phpstan-type LabelSet array{key: string, type: string, title: string, start: string, mid: string, end: string, steps: list<string>}
  */
 final class Product_Specs_Admin_Fields {
@@ -39,12 +38,10 @@ final class Product_Specs_Admin_Fields {
 	/**
 	 * One product row per spec item: input, source line, hide toggle.
 	 *
-	 * @param array      $item  Resolved item.
-	 * @param array|null $guide Supplying size guide.
+	 * @param array $item Resolved item.
 	 * @phpstan-param ResolvedItem $item
-	 * @phpstan-param Guide|null   $guide
 	 */
-	public static function product_row( array $item, ?array $guide ): string {
+	public static function product_row( array $item ): string {
 		$key  = $item['key'];
 		$id   = 'aa-specs-' . $key;
 		$name = self::FIELD . '[values][' . $key . ']';
@@ -92,7 +89,7 @@ final class Product_Specs_Admin_Fields {
 			esc_html__( 'Hide on this product', 'aggressive-apparel' )
 		);
 
-		return '<p class="form-field"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>' . $control . $hide . self::status( $item, $guide ) . '</p>';
+		return '<p class="form-field"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>' . $control . $hide . self::status( $item ) . '</p>';
 	}
 
 	/**
@@ -220,12 +217,10 @@ final class Product_Specs_Admin_Fields {
 	/**
 	 * Status line: what the product page shows for an item, and from where.
 	 *
-	 * @param array      $item  Resolved item.
-	 * @param array|null $guide Supplying size guide.
+	 * @param array $item Resolved item.
 	 * @phpstan-param ResolvedItem $item
-	 * @phpstan-param Guide|null   $guide
 	 */
-	private static function status( array $item, ?array $guide ): string {
+	private static function status( array $item ): string {
 		if ( $item['hidden'] ) {
 			return self::status_markup( __( 'Hidden on this product.', 'aggressive-apparel' ), false );
 		}
@@ -242,7 +237,7 @@ final class Product_Specs_Admin_Fields {
 				break;
 			case Product_Specs::SOURCE_GUIDE:
 				/* translators: 1: value shown on the product page, 2: size guide title. */
-				$message = sprintf( __( 'Showing “%1$s” from the size guide “%2$s”.', 'aggressive-apparel' ), $shown, $guide['title'] ?? '' );
+				$message = sprintf( __( 'Showing “%1$s” from the size guide “%2$s”.', 'aggressive-apparel' ), $shown, $item['label'] );
 				break;
 			default:
 				/* translators: %s: value shown on the product page. */

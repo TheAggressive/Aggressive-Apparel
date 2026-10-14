@@ -5,7 +5,11 @@
  * Resolves every spec item (Products → Size Guides → Specs) for one product. Each value
  * falls back independently:
  *
- *   the product's own Specs fields → its attributes → its size guide
+ *   the product's own Specs fields → its attributes → its size guides
+ *
+ * Size guides are tried in assignment order (the product's own, then its
+ * categories', then the store-wide default), per item, so a store-wide guide
+ * can supply Care while a category guide supplies Fit.
  *
  * Items apply only to the categories they are scoped to (children included);
  * number scales can use different boundaries per category. A product can
@@ -53,7 +57,7 @@ final class Product_Specs {
 	public const SOURCE_ATTRIBUTE = 'attribute';
 
 	/**
-	 * Source: the assigned size guide.
+	 * Source: an assigned size guide.
 	 *
 	 * @var string
 	 */
@@ -165,7 +169,8 @@ final class Product_Specs {
 
 		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
 		$attrs   = $product instanceof \WC_Product ? Product_Specs_Attributes::values( $product, $items ) : array();
-		$guide   = self::guide( $product_id, $items );
+		$guides  = self::guides( $product_id );
+		$guide   = self::primary_guide( $guides, $items );
 		$hidden  = Product_Specs_Meta::sanitize_keys( get_post_meta( $product_id, Product_Specs_Meta::HIDDEN, true ) );
 
 		// Nearest category first: a product's own categories, then ancestors.
@@ -174,7 +179,7 @@ final class Product_Specs {
 
 		$resolved = array();
 		foreach ( $items as $item ) {
-			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $guide, $hidden, $wording, $category_order );
+			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $guides, $hidden, $wording, $category_order );
 		}
 
 		return array(
@@ -184,18 +189,13 @@ final class Product_Specs {
 	}
 
 	/**
-	 * The size guide that supplies a product's specs.
+	 * A product's published size guides, in assignment order.
 	 *
-	 * The first assigned, published guide with any spec value set; otherwise
-	 * the first assigned, published guide (so the editor can link to it).
-	 *
-	 * @param int   $product_id Product ID.
-	 * @param array $items      Applicable items.
-	 * @phpstan-param list<Item> $items
-	 * @return Guide|null
+	 * @param int $product_id Product ID.
+	 * @return list<Guide>
 	 */
-	public static function guide( int $product_id, array $items ): ?array {
-		$first = null;
+	public static function guides( int $product_id ): array {
+		$guides = array();
 		foreach ( Size_Guide::candidate_guide_ids( $product_id ) as $guide_id ) {
 			$post = get_post( $guide_id );
 			if (
@@ -206,19 +206,35 @@ final class Product_Specs {
 				continue;
 			}
 
-			$guide = array(
+			$guides[] = array(
 				'id'    => $guide_id,
 				'title' => '' !== $post->post_title ? $post->post_title : __( '(no title)', 'aggressive-apparel' ),
 			);
+		}
+
+		return $guides;
+	}
+
+	/**
+	 * The guide the product editor links to: the first with any spec value
+	 * set, otherwise the first assigned.
+	 *
+	 * @param array $guides Guides in assignment order.
+	 * @param array $items  Applicable items.
+	 * @phpstan-param list<Guide> $guides
+	 * @phpstan-param list<Item>  $items
+	 * @return Guide|null
+	 */
+	private static function primary_guide( array $guides, array $items ): ?array {
+		foreach ( $guides as $guide ) {
 			foreach ( $items as $item ) {
-				if ( '' !== Product_Specs_Meta::sanitize_value( get_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ), true ) ) ) {
+				if ( '' !== Product_Specs_Meta::sanitize_value( get_post_meta( $guide['id'], Product_Specs_Meta::key( $item['key'] ), true ) ) ) {
 					return $guide;
 				}
 			}
-			$first = $first ?? $guide;
 		}
 
-		return $first;
+		return $guides[0] ?? null;
 	}
 
 	/**
@@ -274,22 +290,22 @@ final class Product_Specs {
 	/**
 	 * Resolve one item for a product.
 	 *
-	 * @param array      $item       Item.
-	 * @param int        $product_id Product ID.
-	 * @param array      $attrs      Attribute values by item key.
-	 * @param array|null $guide      Supplying size guide.
-	 * @param array      $hidden     Item keys hidden on the product.
-	 * @param array      $wording    The product's wording overrides.
-	 * @param array      $categories Product categories, nearest first.
+	 * @param array $item       Item.
+	 * @param int   $product_id Product ID.
+	 * @param array $attrs      Attribute values by item key.
+	 * @param array $guides     Assigned size guides, in order.
+	 * @param array $hidden     Item keys hidden on the product.
+	 * @param array $wording    The product's wording overrides.
+	 * @param array $categories Product categories, nearest first.
 	 * @phpstan-param Item $item
 	 * @phpstan-param list<string> $hidden
 	 * @phpstan-param array<string, array{text: string, label: string, visible: bool}> $attrs
-	 * @phpstan-param Guide|null $guide
+	 * @phpstan-param list<Guide> $guides
 	 * @phpstan-param Wording $wording
 	 * @phpstan-param list<int> $categories
 	 * @return ResolvedItem
 	 */
-	private static function resolve_item( array $item, int $product_id, array $attrs, ?array $guide, array $hidden, array $wording, array $categories ): array {
+	private static function resolve_item( array $item, int $product_id, array $attrs, array $guides, array $hidden, array $wording, array $categories ): array {
 		$key   = $item['key'];
 		$steps = array();
 		foreach ( $item['steps'] as $i => $name ) {
@@ -313,8 +329,14 @@ final class Product_Specs {
 			$inherited          = self::read( $item, $attrs[ $key ]['text'], $boundaries, self::SOURCE_ATTRIBUTE );
 			$inherited['label'] = $attrs[ $key ]['label'];
 		}
-		if ( ! self::has_value( $item, $inherited ) && null !== $guide ) {
+		foreach ( $guides as $guide ) {
+			if ( self::has_value( $item, $inherited ) ) {
+				break;
+			}
 			$inherited = self::read( $item, get_post_meta( $guide['id'], Product_Specs_Meta::key( $key ), true ), $boundaries, self::SOURCE_GUIDE );
+			if ( self::has_value( $item, $inherited ) ) {
+				$inherited['label'] = $guide['title'];
+			}
 		}
 
 		$value = self::has_value( $item, $own ) ? $own : ( self::has_value( $item, $inherited ) ? $inherited : self::empty_value() );

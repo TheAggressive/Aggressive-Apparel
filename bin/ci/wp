@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# WP-CLI entry point used inside the parity container. The PHAR is downloaded
-# and checksum-verified by bin/ci/i18n.sh before this wrapper is invoked.
+# WP-CLI entry point for the CI lanes: on host PHP in the i18n lane, inside the
+# parity container in the PHP and package lanes. The PHAR is downloaded and
+# checksum-verified by bin/ci/install-wp-cli.sh before this wrapper runs.
 
 set -euo pipefail
 

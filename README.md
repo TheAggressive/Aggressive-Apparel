@@ -294,15 +294,17 @@ pnpm test:any -- --filter '^Some_Test::test_method$' --verbose
 GitHub Actions (`.github/workflows/release.yml`):
 
 ```
-detect changes → frontend ∥ i18n → build → PHP ∥ browser E2E
+detect changes → frontend ∥ i18n ∥ build → PHP ∥ browser E2E
 
-and, only when a run requests it, → plan → final package → clean-install acceptance → draft → attest → verify and publish → sync version
+and, only when a run requests it, → plan → final package → clean-install acceptance (alongside PHP ∥ E2E) → draft → attest → verify and publish → sync version
 ```
 
 - **Code changes** run the full pipeline on every push and pull request; translation-only changes run the i18n catalog check and ship with the next code release; documentation-only changes run linting alone
 - **PR policy** validates Conventional Commit titles, applies type/area/risk labels, auto-handles verified Dependabot patch/minor updates, and honors an owner-added `automerge` label only when the PR is not high-risk
 - **Releasing is deliberate.** Merging never publishes. Cut a release with `gh workflow run "CI/CD Pipeline" --ref master -f publish=true`, and everything merged since the last tag ships as one update
 - **PHP and browser tests run in parallel** from the same uploaded build, so the full E2E suite does not add a serial stage to the CI critical path
+- **Build does not wait for linting.** It is gated on the same change classification as the lint and i18n jobs, and a release still requires both to pass
+- **Packaging runs alongside the tests** on a release run; the publish job is what waits for PHP and E2E. A release run has its own concurrency group, so a later push to master cannot replace it while it is queued
 - **Release pipeline** (package + GitHub release ZIP) runs only for conventional `feat:`, `fix:`, or `perf:` commits
 - **Git hooks** (Husky) — split so commits stay fast:
   - `pre-commit`: `lint-staged` runs Prettier, Stylelint, and ESLint autofixes only on staged files

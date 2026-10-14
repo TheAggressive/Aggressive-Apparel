@@ -1,8 +1,8 @@
 /**
  * Product Specs settings — app shell (Products → Size Guides).
  *
- * - Size guides: one per garment blank — chart, notes, specs, where it applies.
- * - Specs: define the specs guides and products can show.
+ * - Size guides: one per garment blank — chart, notes, where it applies.
+ * - Specs: define the specs products can show, and their defaults.
  * - Products: per-product values, in bulk.
  *
  * Spec and product edits live here, and the Size guides tab stays mounted
@@ -82,8 +82,6 @@ export default function App({ config }: { config: Config }) {
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [guideDirty, specsDirty, productsDirty]);
-
-  const enabledSpecs = savedItems.filter(item => item.enabled);
 
   const selectTab = (next: Tab) => {
     setTab(next);
@@ -218,7 +216,7 @@ export default function App({ config }: { config: Config }) {
     <div className='aa-ps-tab'>
       <p className='aa-ps-intro'>
         {__(
-          'The specs size guides and products can show, like Fit or Fabric weight. Choose the categories each applies to, so hats, tees, and bags can show different things.',
+          'The specs products can show, like Fit or Fabric weight. Choose the categories each applies to, so hats, tees, and bags can show different things, and set a default every product gets.',
           'aggressive-apparel'
         )}
       </p>
@@ -368,8 +366,8 @@ export default function App({ config }: { config: Config }) {
         aria-labelledby={`aa-ps-tab-${tab}`}
         className='aa-ps-panel'
       >
-        {/* Guides and Products read the saved specs, not the draft. */}
-        {specsDirty && tab !== 'specs' && (
+        {/* Products reads the saved specs, not the draft. */}
+        {specsDirty && tab === 'products' && (
           <Notice
             status='warning'
             isDismissible={false}
@@ -389,7 +387,6 @@ export default function App({ config }: { config: Config }) {
         <div hidden={tab !== 'guides'}>
           <GuidesTab
             config={config}
-            specs={enabledSpecs}
             guides={guides}
             onGuides={setGuides}
             onDirty={setGuideDirty}

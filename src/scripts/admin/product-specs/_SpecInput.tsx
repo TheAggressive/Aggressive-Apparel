@@ -3,8 +3,8 @@
  * Products grids.
  *
  * A picked scale is a select; a number scale a number input; a text detail a
- * text input. `inherited` is what shows when this value is empty (from the
- * size guide or an attribute) and appears as the placeholder.
+ * text input. `inherited` is what shows when this value is empty (from an
+ * attribute or the spec default) and appears as the placeholder.
  *
  * @package Aggressive_Apparel
  */

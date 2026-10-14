@@ -5,11 +5,7 @@
  * Resolves every spec item (Products → Size Guides → Specs) for one product. Each value
  * falls back independently:
  *
- *   the product's own Specs fields → its attributes → its size guides
- *
- * Size guides are tried in assignment order (the product's own, then its
- * categories', then the store-wide default), per item, so a store-wide guide
- * can supply Care while a category guide supplies Fit.
+ *   the product's own Specs fields → its attributes → the spec's default
  *
  * Items apply only to the categories they are scoped to (children included);
  * number scales can use different boundaries per category. A product can
@@ -35,10 +31,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Wording array<string, array<string, string>>
- * @phpstan-type Guide array{id: int, title: string}
  * @phpstan-type Value array{step: int, number: float, text: string, source: string, label: string}
  * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool}
- * @phpstan-type Resolved array{items: list<ResolvedItem>, guide: Guide|null}
+ * @phpstan-type Resolved array{items: list<ResolvedItem>}
  */
 final class Product_Specs {
 
@@ -57,11 +52,11 @@ final class Product_Specs {
 	public const SOURCE_ATTRIBUTE = 'attribute';
 
 	/**
-	 * Source: an assigned size guide.
+	 * Source: the spec's store-wide default.
 	 *
 	 * @var string
 	 */
-	public const SOURCE_GUIDE = 'guide';
+	public const SOURCE_DEFAULT = 'default';
 
 	/**
 	 * Fixed wording fields; step names add step0…step6.
@@ -82,7 +77,7 @@ final class Product_Specs {
 	 *
 	 * @var list<string>
 	 */
-	private const WATCHED_OPTIONS = array( Product_Specs_Registry::OPTION_KEY, Size_Guide::CPT_OPTION_KEY, Feature_Settings::OPTION_KEY );
+	private const WATCHED_OPTIONS = array( Product_Specs_Registry::OPTION_KEY, Feature_Settings::OPTION_KEY );
 
 	/**
 	 * Resolved specs per product, for this request.
@@ -96,8 +91,8 @@ final class Product_Specs {
 	 *
 	 * Resolved once per request (the block, the Additional information rows,
 	 * and the size guide all ask) and forgotten as soon as anything it reads
-	 * changes: post or term meta, a product's terms, or the spec, default
-	 * guide, and feature options.
+	 * changes: post or term meta, a product's terms, or the spec and feature
+	 * options.
 	 *
 	 * @param int $product_id Product ID.
 	 * @return Resolved
@@ -169,8 +164,6 @@ final class Product_Specs {
 
 		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
 		$attrs   = $product instanceof \WC_Product ? Product_Specs_Attributes::values( $product, $items ) : array();
-		$guides  = self::guides( $product_id );
-		$guide   = self::primary_guide( $guides, $items );
 		$hidden  = Product_Specs_Meta::sanitize_keys( get_post_meta( $product_id, Product_Specs_Meta::HIDDEN, true ) );
 
 		// Nearest category first: a product's own categories, then ancestors.
@@ -179,62 +172,10 @@ final class Product_Specs {
 
 		$resolved = array();
 		foreach ( $items as $item ) {
-			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $guides, $hidden, $wording, $category_order );
+			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $hidden, $wording, $category_order );
 		}
 
-		return array(
-			'items' => $resolved,
-			'guide' => $guide,
-		);
-	}
-
-	/**
-	 * A product's published size guides, in assignment order.
-	 *
-	 * @param int $product_id Product ID.
-	 * @return list<Guide>
-	 */
-	public static function guides( int $product_id ): array {
-		$guides = array();
-		foreach ( Size_Guide::candidate_guide_ids( $product_id ) as $guide_id ) {
-			$post = get_post( $guide_id );
-			if (
-				! $post instanceof \WP_Post
-				|| Size_Guide_Post_Type::POST_TYPE !== $post->post_type
-				|| 'publish' !== $post->post_status
-			) {
-				continue;
-			}
-
-			$guides[] = array(
-				'id'    => $guide_id,
-				'title' => '' !== $post->post_title ? $post->post_title : __( '(no title)', 'aggressive-apparel' ),
-			);
-		}
-
-		return $guides;
-	}
-
-	/**
-	 * The guide the product editor links to: the first with any spec value
-	 * set, otherwise the first assigned.
-	 *
-	 * @param array $guides Guides in assignment order.
-	 * @param array $items  Applicable items.
-	 * @phpstan-param list<Guide> $guides
-	 * @phpstan-param list<Item>  $items
-	 * @return Guide|null
-	 */
-	private static function primary_guide( array $guides, array $items ): ?array {
-		foreach ( $guides as $guide ) {
-			foreach ( $items as $item ) {
-				if ( '' !== Product_Specs_Meta::sanitize_value( get_post_meta( $guide['id'], Product_Specs_Meta::key( $item['key'] ), true ) ) ) {
-					return $guide;
-				}
-			}
-		}
-
-		return $guides[0] ?? null;
+		return array( 'items' => $resolved );
 	}
 
 	/**
@@ -293,19 +234,17 @@ final class Product_Specs {
 	 * @param array $item       Item.
 	 * @param int   $product_id Product ID.
 	 * @param array $attrs      Attribute values by item key.
-	 * @param array $guides     Assigned size guides, in order.
 	 * @param array $hidden     Item keys hidden on the product.
 	 * @param array $wording    The product's wording overrides.
 	 * @param array $categories Product categories, nearest first.
 	 * @phpstan-param Item $item
 	 * @phpstan-param list<string> $hidden
 	 * @phpstan-param array<string, array{text: string, label: string, visible: bool}> $attrs
-	 * @phpstan-param list<Guide> $guides
 	 * @phpstan-param Wording $wording
 	 * @phpstan-param list<int> $categories
 	 * @return ResolvedItem
 	 */
-	private static function resolve_item( array $item, int $product_id, array $attrs, array $guides, array $hidden, array $wording, array $categories ): array {
+	private static function resolve_item( array $item, int $product_id, array $attrs, array $hidden, array $wording, array $categories ): array {
 		$key   = $item['key'];
 		$steps = array();
 		foreach ( $item['steps'] as $i => $name ) {
@@ -329,14 +268,8 @@ final class Product_Specs {
 			$inherited          = self::read( $item, $attrs[ $key ]['text'], $boundaries, self::SOURCE_ATTRIBUTE );
 			$inherited['label'] = $attrs[ $key ]['label'];
 		}
-		foreach ( $guides as $guide ) {
-			if ( self::has_value( $item, $inherited ) ) {
-				break;
-			}
-			$inherited = self::read( $item, get_post_meta( $guide['id'], Product_Specs_Meta::key( $key ), true ), $boundaries, self::SOURCE_GUIDE );
-			if ( self::has_value( $item, $inherited ) ) {
-				$inherited['label'] = $guide['title'];
-			}
+		if ( ! self::has_value( $item, $inherited ) ) {
+			$inherited = self::read( $item, $item['default'], $boundaries, self::SOURCE_DEFAULT );
 		}
 
 		$value = self::has_value( $item, $own ) ? $own : ( self::has_value( $item, $inherited ) ? $inherited : self::empty_value() );

@@ -2,10 +2,10 @@
 /**
  * Product Specs Values
  *
- * The one write path for spec values on a product or size guide, shared by
+ * The one write path for spec values on a product, shared by
  * the product's Size & specs tab and the Products tab of Products → Size Guides.
  * Values are normalized per item type, and empty values delete the meta so
- * the next fallback (attribute, size guide) shows through.
+ * the next fallback (attribute, spec default) shows through.
  *
  * @package Aggressive_Apparel
  */
@@ -29,7 +29,7 @@ final class Product_Specs_Values {
 	/**
 	 * Store submitted values. Items missing from $values are left untouched.
 	 *
-	 * @param int                  $post_id Product or size guide ID.
+	 * @param int                  $post_id Product ID.
 	 * @param array<string, mixed> $values  Item key => raw value.
 	 */
 	public static function save( int $post_id, array $values ): void {
@@ -51,7 +51,7 @@ final class Product_Specs_Values {
 	/**
 	 * A post's stored values for every item (no fallbacks).
 	 *
-	 * @param int $post_id Product or size guide ID.
+	 * @param int $post_id Product ID.
 	 * @return array<string, string> Item key => stored value ('' when unset).
 	 */
 	public static function stored( int $post_id ): array {

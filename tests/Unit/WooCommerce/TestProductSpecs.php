@@ -111,69 +111,58 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertSame( 'Light', Product_Specs_Registry::edge_labels( array( 'A', 'B', 'C' ), 'Light', '', '' )['start'] );
 	}
 
-	/** Facts come from the assigned size guide when the product sets none. */
-	public function test_product_inherits_from_size_guide(): void {
-		$product_id = $this->create_product();
-		$guide_id   = $this->assign_guide(
-			$product_id,
+	/** Values come from each spec's default when the product sets none. */
+	public function test_product_inherits_spec_default(): void {
+		$this->save_defaults(
 			array(
 				'fit'    => '2',
 				'weight' => '142',
 				'fabric' => '100% cotton',
 			)
 		);
-
-		$items = $this->items( $product_id );
+		$items = $this->items( $this->create_product() );
 
 		$this->assertSame( 2, $items['fit']['step'] );
-		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['fit']['source'] );
+		$this->assertSame( Product_Specs::SOURCE_DEFAULT, $items['fit']['source'] );
 		$this->assertSame( 0, $items['weight']['step'] );
 		$this->assertSame( '100% cotton', $items['fabric']['display'] );
-		$this->assertSame( $guide_id, Product_Specs::for_product( $product_id )['guide']['id'] ?? null );
 	}
 
-	/** A product value wins item by item; other items still inherit. */
+	/** A product value wins item by item; other items still use the default. */
 	public function test_product_value_wins_per_item(): void {
-		$product_id = $this->create_product();
-		$this->assign_guide(
-			$product_id,
+		$this->save_defaults(
 			array(
 				'fit'    => '2',
 				'weight' => '142',
 			)
 		);
+		$product_id = $this->create_product();
 		update_post_meta( $product_id, '_aa_spec_fit', '4' );
 
 		$items = $this->items( $product_id );
 
 		$this->assertSame( 4, $items['fit']['step'] );
 		$this->assertSame( Product_Specs::SOURCE_PRODUCT, $items['fit']['source'] );
-		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['weight']['source'] );
+		$this->assertSame( Product_Specs::SOURCE_DEFAULT, $items['weight']['source'] );
 	}
 
-	/** Guides layer per item: a store-wide guide fills what nearer guides leave empty. */
-	public function test_guides_layer_per_item(): void {
-		$product_id = $this->create_product();
-		$guide_id   = $this->assign_guide( $product_id, array( 'fit' => '2' ) );
-		$default_id = self::factory()->post->create(
+	/** A matching attribute beats the default; unusable defaults are dropped on save. */
+	public function test_attribute_beats_default_and_defaults_validate(): void {
+		$this->save_defaults(
 			array(
-				'post_type'   => 'aa_size_guide',
-				'post_status' => 'publish',
-				'post_title'  => 'Store default',
+				'fit'    => '9',
+				'weight' => '-5',
+				'fabric' => '100% cotton',
 			)
 		);
-		update_post_meta( $default_id, '_aa_spec_fit', '4' );
-		update_post_meta( $default_id, '_aa_spec_fabric', '100% cotton' );
-		update_option( \Aggressive_Apparel\WooCommerce\Size_Guide::CPT_OPTION_KEY, $default_id );
+		$items = Product_Specs_Registry::get()['items'];
+		$this->assertSame( '', $items[0]['default'], 'Step index out of range.' );
+		$this->assertSame( '', $items[1]['default'], 'Weight must be positive.' );
+		$this->assertSame( '100% cotton', $items[2]['default'] );
 
-		$items = $this->items( $product_id );
-
-		$this->assertSame( 2, $items['fit']['step'] );
-		$this->assertSame( 'Jersey Tee', $items['fit']['label'] );
-		$this->assertSame( '100% cotton', $items['fabric']['display'] );
-		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['fabric']['source'] );
-		$this->assertSame( 'Store default', $items['fabric']['label'] );
-		$this->assertSame( $guide_id, Product_Specs::for_product( $product_id )['guide']['id'] ?? null );
+		$items = $this->items( $this->create_product( array( 'Fabric' => 'Linen' ) ) );
+		$this->assertSame( 'Linen', $items['fabric']['display'] );
+		$this->assertSame( Product_Specs::SOURCE_ATTRIBUTE, $items['fabric']['source'] );
 	}
 
 	/** Attributes supply numbers, text, and matching step names. */
@@ -485,7 +474,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$keys = get_registered_meta_keys( 'post', 'product' );
 		$this->assertArrayHasKey( '_aa_spec_fit', $keys );
 		$this->assertNotEmpty( $keys['_aa_spec_weight']['show_in_rest'] );
-		$this->assertArrayHasKey( '_aa_spec_fabric', get_registered_meta_keys( 'post', 'aa_size_guide' ) );
+		$this->assertArrayNotHasKey( '_aa_spec_fabric', get_registered_meta_keys( 'post', 'aa_size_guide' ) );
 	}
 
 	/** The REST save refuses an invalid list and keeps the stored one. */
@@ -519,7 +508,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 	/** Size guide usage finds category and direct product assignments. */
 	public function test_size_guide_usage_reports_assignments(): void {
 		$product_id = $this->create_product();
-		$guide_id   = $this->assign_guide( $product_id, array() );
+		$guide_id   = $this->assign_guide( $product_id );
 		$term_id    = self::factory()->term->create(
 			array(
 				'taxonomy' => 'product_cat',
@@ -566,6 +555,25 @@ class TestProductSpecs extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The default items with these default values.
+	 *
+	 * @param array<string, string> $defaults Item key => default value.
+	 */
+	private function save_defaults( array $defaults ): void {
+		$items = Product_Specs_Registry::defaults();
+		foreach ( $items as $i => $item ) {
+			$items[ $i ]['default'] = $defaults[ $item['key'] ] ?? '';
+		}
+		$result = Product_Specs_Registry::validate( array( 'items' => $items ) );
+		Product_Specs_Registry::save(
+			array(
+				'items'           => $result['items'],
+				'hide_dimensions' => false,
+			)
+		);
+	}
+
+	/**
 	 * Defaults, with Fit also read from a "Cut" attribute.
 	 */
 	private function save_registry_with_attribute_fit(): void {
@@ -599,12 +607,11 @@ class TestProductSpecs extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Create a size guide with spec values and assign it to the product.
+	 * Create a size guide and assign it to the product.
 	 *
-	 * @param int                   $product_id Product ID.
-	 * @param array<string, string> $values     Item key => stored value.
+	 * @param int $product_id Product ID.
 	 */
-	private function assign_guide( int $product_id, array $values ): int {
+	private function assign_guide( int $product_id ): int {
 		$guide_id = self::factory()->post->create(
 			array(
 				'post_type'    => 'aa_size_guide',
@@ -613,9 +620,6 @@ class TestProductSpecs extends WP_UnitTestCase {
 				'post_content' => '<p>Guide</p>',
 			)
 		);
-		foreach ( $values as $key => $value ) {
-			update_post_meta( $guide_id, '_aa_spec_' . $key, $value );
-		}
 		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', $guide_id );
 
 		return $guide_id;

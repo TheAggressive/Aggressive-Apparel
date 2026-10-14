@@ -2,10 +2,10 @@
 /**
  * Product Specs Meta
  *
- * Registers one scalar meta key per spec item (`_aa_spec_{key}`) on products
- * and size guides, so values show in the REST API (the size guide sidebar
- * edits them there), round-trip through WooCommerce CSV import/export as a
- * "Meta: _aa_spec_{key}" column, and can be read or set with WP-CLI.
+ * Registers one scalar meta key per spec item (`_aa_spec_{key}`) on products,
+ * so values show in the REST API, round-trip through WooCommerce CSV
+ * import/export as a "Meta: _aa_spec_{key}" column, and can be read or set
+ * with WP-CLI.
  *
  * @package Aggressive_Apparel
  */
@@ -71,32 +71,25 @@ final class Product_Specs_Meta {
 	}
 
 	/**
-	 * Register post and term meta.
+	 * Register product meta.
 	 *
-	 * Runs after the size guide post type registers (init, 10) so the
-	 * custom-fields support the REST API needs can be added to it. Disabled
-	 * items stay registered so their values remain editable and exportable.
+	 * Disabled items stay registered so their values remain editable and
+	 * exportable.
 	 */
 	public function register(): void {
-		if ( post_type_exists( Size_Guide_Post_Type::POST_TYPE ) ) {
-			add_post_type_support( Size_Guide_Post_Type::POST_TYPE, 'custom-fields' );
-		}
-
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
-			foreach ( array( 'product', Size_Guide_Post_Type::POST_TYPE ) as $post_type ) {
-				register_post_meta(
-					$post_type,
-					self::key( $item['key'] ),
-					array(
-						'type'              => 'string',
-						'single'            => true,
-						'default'           => '',
-						'sanitize_callback' => array( self::class, 'sanitize_value' ),
-						'auth_callback'     => array( self::class, 'can_edit_post' ),
-						'show_in_rest'      => true,
-					)
-				);
-			}
+			register_post_meta(
+				'product',
+				self::key( $item['key'] ),
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'default'           => '',
+					'sanitize_callback' => array( self::class, 'sanitize_value' ),
+					'auth_callback'     => array( self::class, 'can_edit_post' ),
+					'show_in_rest'      => true,
+				)
+			);
 		}
 
 		register_post_meta(

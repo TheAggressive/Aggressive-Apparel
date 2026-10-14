@@ -235,9 +235,9 @@ final class Product_Specs_Admin_Fields {
 				/* translators: 1: value shown on the product page, 2: product attribute name. */
 				$message = sprintf( __( 'Showing “%1$s” from the “%2$s” attribute.', 'aggressive-apparel' ), $shown, $item['label'] );
 				break;
-			case Product_Specs::SOURCE_GUIDE:
-				/* translators: 1: value shown on the product page, 2: size guide title. */
-				$message = sprintf( __( 'Showing “%1$s” from the size guide “%2$s”.', 'aggressive-apparel' ), $shown, $item['label'] );
+			case Product_Specs::SOURCE_DEFAULT:
+				/* translators: %s: value shown on the product page. */
+				$message = sprintf( __( 'Showing “%s”, the store-wide default for this spec.', 'aggressive-apparel' ), $shown );
 				break;
 			default:
 				/* translators: %s: value shown on the product page. */

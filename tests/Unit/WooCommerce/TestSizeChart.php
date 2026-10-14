@@ -347,7 +347,6 @@ class TestSizeChart extends WP_UnitTestCase {
 						),
 					),
 					'notes'      => 'Measure flat.',
-					'values'     => array( 'fit' => '3' ),
 					'categories' => array( $term ),
 					'isDefault'  => true,
 				)
@@ -357,7 +356,6 @@ class TestSizeChart extends WP_UnitTestCase {
 		$id = (int) $created['id'];
 		$this->assertSame( 'Pullover Hoodie', $created['title'] );
 		$this->assertSame( 'cm', $created['chart']['unit'] );
-		$this->assertSame( '3', $created['values']['fit'] );
 		$this->assertSame( array( $term ), $created['categories'] );
 		$this->assertTrue( Size_Guide_Assignments::is_default( $id ) );
 

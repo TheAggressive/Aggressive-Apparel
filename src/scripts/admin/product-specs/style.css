@@ -64,6 +64,23 @@
 	font-size: 14px;
 }
 
+.aa-ps-default {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 16px;
+}
+
+.aa-ps-default > :is(.aa-ps-input, .aa-ps-input-wrap) {
+	max-width: 320px;
+}
+
+.aa-ps-default__label {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 500;
+}
+
 .aa-ps-help {
 	margin: 0;
 	color: var(--aa-ps-muted);

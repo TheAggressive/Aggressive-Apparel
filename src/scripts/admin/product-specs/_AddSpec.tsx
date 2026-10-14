@@ -94,7 +94,7 @@ export function AddSpecButton({ existing, disabled, onAdd }: Props) {
                 </span>
                 <span className='aa-ps-preset__summary'>
                   {__(
-                    'Pick a step per product or size guide',
+                    'Pick a step per product, or set a default',
                     'aggressive-apparel'
                   )}
                 </span>

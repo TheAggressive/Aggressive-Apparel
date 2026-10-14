@@ -26,6 +26,8 @@ export type SpecItem = {
   categories: number[];
   category_steps: CategorySteps[];
   in_table: boolean;
+  /** Value every product gets unless it sets its own ('' for none). */
+  default: string;
 };
 
 /** Number-scale boundaries for one category. */
@@ -36,7 +38,7 @@ export type DraftItem = SpecItem & { uid: string; isNew: boolean };
 
 export type Registry = { items: SpecItem[]; hide_dimensions: boolean };
 
-export type Category = { id: number; name: string; parent: number };
+export type Category = { id: number; name: string };
 
 export type Tab = 'guides' | 'specs' | 'products';
 
@@ -56,7 +58,6 @@ export type GuideSummary = {
   title: string;
   sizes: number;
   columns: number;
-  specs: number;
   usage: Usage;
   legacy: boolean;
 };
@@ -68,7 +69,6 @@ export type GuideDetail = {
   chart: Chart;
   notes: string;
   diagram: { id: number; url: string } | null;
-  values: Record<string, string>;
   categories: number[];
   isDefault: boolean;
   usage: Usage;

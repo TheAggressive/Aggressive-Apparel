@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.190.0\n"
+"Project-Id-Version: Aggressive Apparel 1.191.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-13T03:32:56+00:00\n"
+"POT-Creation-Date: 2026-10-14T00:00:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2753,76 +2753,76 @@ msgid "Filtered products pagination"
 msgstr ""
 
 #. translators: %s: inherited value, e.g. "Regular".
-#: includes/WooCommerce/class-product-specs-admin-fields.php:57
+#: includes/WooCommerce/class-product-specs-admin-fields.php:54
 #, php-format
 msgid "Inherit (%s)"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:58
+#: includes/WooCommerce/class-product-specs-admin-fields.php:55
 msgid "Not set"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:92
+#: includes/WooCommerce/class-product-specs-admin-fields.php:89
 #: includes/WooCommerce/class-product-tabs-admin.php:440
 msgid "Hide on this product"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:118
+#: includes/WooCommerce/class-product-specs-admin-fields.php:115
 msgid "Customize wording"
 msgstr ""
 
 #. translators: %d: number of wording fields changed.
-#: includes/WooCommerce/class-product-specs-admin-fields.php:121
+#: includes/WooCommerce/class-product-specs-admin-fields.php:118
 #, php-format
 msgid "Customize wording (%d changed)"
 msgid_plural "Customize wording (%d changed)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:129
+#: includes/WooCommerce/class-product-specs-admin-fields.php:126
 msgid "Name"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:131
+#: includes/WooCommerce/class-product-specs-admin-fields.php:128
 msgid "Start label"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:132
+#: includes/WooCommerce/class-product-specs-admin-fields.php:129
 msgid "Middle label"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:133
+#: includes/WooCommerce/class-product-specs-admin-fields.php:130
 msgid "End label"
 msgstr ""
 
 #. translators: %d: step number.
-#: includes/WooCommerce/class-product-specs-admin-fields.php:138
+#: includes/WooCommerce/class-product-specs-admin-fields.php:135
 #, php-format
 msgid "Step %d"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:230
+#: includes/WooCommerce/class-product-specs-admin-fields.php:225
 msgid "Hidden on this product."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-admin-fields.php:235
+#: includes/WooCommerce/class-product-specs-admin-fields.php:230
 msgid "Not set anywhere, so it is left out."
 msgstr ""
 
 #. translators: 1: value shown on the product page, 2: product attribute name.
-#: includes/WooCommerce/class-product-specs-admin-fields.php:241
+#: includes/WooCommerce/class-product-specs-admin-fields.php:236
 #, php-format
 msgid "Showing “%1$s” from the “%2$s” attribute."
 msgstr ""
 
 #. translators: 1: value shown on the product page, 2: size guide title.
-#: includes/WooCommerce/class-product-specs-admin-fields.php:245
+#: includes/WooCommerce/class-product-specs-admin-fields.php:240
 #, php-format
 msgid "Showing “%1$s” from the size guide “%2$s”."
 msgstr ""
 
 #. translators: %s: value shown on the product page.
-#: includes/WooCommerce/class-product-specs-admin-fields.php:249
+#: includes/WooCommerce/class-product-specs-admin-fields.php:244
 #, php-format
 msgid "Showing “%s”, set on this product."
 msgstr ""

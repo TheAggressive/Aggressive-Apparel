@@ -98,7 +98,7 @@ final class Product_Specs_Admin {
 
 		echo '<p class="aa-specs-help">' . wp_kses( $this->source_intro( $data['guide'] ), $links ) . '</p>';
 		foreach ( $data['items'] as $item ) {
-			echo Product_Specs_Admin_Fields::product_row( $item, $data['guide'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
+			echo Product_Specs_Admin_Fields::product_row( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
 			// Saving only rewrites the hidden flag and wording of items shown here.
 			echo '<input type="hidden" name="' . esc_attr( Product_Specs_Admin_Fields::FIELD ) . '[shown][]" value="' . esc_attr( $item['key'] ) . '">';
 		}

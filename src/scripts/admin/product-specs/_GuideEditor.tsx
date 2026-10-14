@@ -25,6 +25,7 @@ import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
 import SpecInput from './_SpecInput';
+import { appliesToCategories } from './_utils';
 
 type Attachment = {
   id: number;
@@ -85,6 +86,10 @@ export default function GuideEditor({
   const [partial, setPartial] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // A new guide starts dirty (it can be saved as-is), but leaving it
+  // untouched discards nothing worth asking about.
+  const [touched, setTouched] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -107,6 +112,10 @@ export default function GuideEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per guide.
   }, [guideId]);
 
+  // Whatever this editor left unsaved goes with it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount only.
+  useEffect(() => () => onDirty(false), []);
+
   if (!guide) {
     return error ? (
       <Notice status='error' isDismissible={false}>
@@ -120,6 +129,8 @@ export default function GuideEditor({
   const update = (patch: Partial<GuideDetail>) => {
     setGuide({ ...guide, ...patch });
     setDirty(true);
+    setTouched(true);
+    setConfirmLeave(false);
     setSaved(false);
   };
 
@@ -264,12 +275,68 @@ export default function GuideEditor({
         : guide.categories.filter(category => category !== id),
     });
 
+  // Specs scoped away from every category this guide covers sit in a
+  // collapsed group; a store-wide or unassigned guide can reach them all.
+  const reachesAll = guide.isDefault || guide.categories.length === 0;
+  const applicable = specs.filter(
+    item =>
+      reachesAll ||
+      appliesToCategories(item, guide.categories, config.categories)
+  );
+  const elsewhere = specs.filter(item => !applicable.includes(item));
+
+  const specField = (item: SpecItem) => (
+    <label key={item.key} className='aa-ps-guide__spec'>
+      <span>
+        {item.name}
+        {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
+      </span>
+      <SpecInput
+        item={item}
+        value={guide.values[item.key] ?? ''}
+        label={item.name}
+        showStep
+        onChange={value =>
+          update({ values: { ...guide.values, [item.key]: value } })
+        }
+      />
+    </label>
+  );
+
   return (
     <div className='aa-ps-guide'>
       <div className='aa-ps-guide__top'>
-        <Button variant='link' onClick={() => onClose(false)}>
-          {__('← All size guides', 'aggressive-apparel')}
-        </Button>
+        {confirmLeave ? (
+          <div className='aa-ps-guide__leave'>
+            <span className='aa-ps-help'>
+              {__('Discard your unsaved changes?', 'aggressive-apparel')}
+            </span>
+            <Button
+              variant='secondary'
+              isDestructive
+              onClick={() => {
+                setDirty(false);
+                onClose(false);
+              }}
+            >
+              {__('Discard', 'aggressive-apparel')}
+            </Button>
+            <Button variant='tertiary' onClick={() => setConfirmLeave(false)}>
+              {__('Keep editing', 'aggressive-apparel')}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant='link'
+            onClick={() =>
+              dirty && (guide.id > 0 || touched)
+                ? setConfirmLeave(true)
+                : onClose(false)
+            }
+          >
+            {__('← All size guides', 'aggressive-apparel')}
+          </Button>
+        )}
         {guide.id > 0 && (
           <span className='aa-ps-help'>
             {sprintf(
@@ -437,25 +504,30 @@ export default function GuideEditor({
               'aggressive-apparel'
             )}
           </p>
-          <div className='aa-ps-guide__specs'>
-            {specs.map(item => (
-              <label key={item.key} className='aa-ps-guide__spec'>
-                <span>
-                  {item.name}
-                  {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
-                </span>
-                <SpecInput
-                  item={item}
-                  value={guide.values[item.key] ?? ''}
-                  label={item.name}
-                  showStep
-                  onChange={value =>
-                    update({ values: { ...guide.values, [item.key]: value } })
-                  }
-                />
-              </label>
-            ))}
-          </div>
+          {applicable.length > 0 && (
+            <div className='aa-ps-guide__specs'>
+              {applicable.map(specField)}
+            </div>
+          )}
+          {elsewhere.length > 0 && (
+            <details className='aa-ps-guide__other-specs'>
+              <summary>
+                {sprintf(
+                  /* translators: %d: number of specs. */
+                  _n(
+                    '%d spec doesn’t apply to this guide’s categories',
+                    '%d specs don’t apply to this guide’s categories',
+                    elsewhere.length,
+                    'aggressive-apparel'
+                  ),
+                  elsewhere.length
+                )}
+              </summary>
+              <div className='aa-ps-guide__specs'>
+                {elsewhere.map(specField)}
+              </div>
+            </details>
+          )}
         </section>
       )}
 
@@ -480,7 +552,7 @@ export default function GuideEditor({
         <ToggleControl
           label={__('Store-wide default', 'aggressive-apparel')}
           help={__(
-            'Used for products with no guide of their own or from their category.',
+            'Used for products with no guide of their own or from their category, and for any spec those guides leave empty.',
             'aggressive-apparel'
           )}
           checked={guide.isDefault}

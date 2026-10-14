@@ -5,7 +5,9 @@
  * - Specs: define the specs guides and products can show.
  * - Products: per-product values, in bulk.
  *
- * State lives here so switching tabs never loses unsaved edits.
+ * Spec and product edits live here, and the Size guides tab stays mounted
+ * (hidden) so an open guide keeps its draft: switching tabs never loses
+ * unsaved edits.
  *
  * @package Aggressive_Apparel
  */
@@ -87,9 +89,6 @@ export default function App({ config }: { config: Config }) {
     setTab(next);
     const url = new URL(window.location.href);
     url.searchParams.set('tab', next);
-    if (next !== 'guides') {
-      url.searchParams.delete('guide');
-    }
     window.history.replaceState(null, '', url.toString());
   };
 
@@ -369,7 +368,25 @@ export default function App({ config }: { config: Config }) {
         aria-labelledby={`aa-ps-tab-${tab}`}
         className='aa-ps-panel'
       >
-        {tab === 'guides' && (
+        {/* Guides and Products read the saved specs, not the draft. */}
+        {specsDirty && tab !== 'specs' && (
+          <Notice
+            status='warning'
+            isDismissible={false}
+            actions={[
+              {
+                label: __('Go to Specs', 'aggressive-apparel'),
+                onClick: () => selectTab('specs'),
+              },
+            ]}
+          >
+            {__(
+              'Your spec changes aren’t saved yet, so they don’t show here. Save them on the Specs tab first.',
+              'aggressive-apparel'
+            )}
+          </Notice>
+        )}
+        <div hidden={tab !== 'guides'}>
           <GuidesTab
             config={config}
             specs={enabledSpecs}
@@ -377,7 +394,7 @@ export default function App({ config }: { config: Config }) {
             onGuides={setGuides}
             onDirty={setGuideDirty}
           />
-        )}
+        </div>
         {tab === 'specs' && specsTab}
         {tab === 'products' && (
           <ProductsTab

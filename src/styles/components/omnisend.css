@@ -2,7 +2,8 @@
  * Omnisend Embedded Forms
  *
  * Unlayered on purpose: Omnisend injects its form CSS unlayered, after the
- * theme stylesheet, so any layered rule would lose.
+ * theme stylesheet, so any layered rule would lose. !important is kept to the
+ * focus ring, which Omnisend sets with per-field ID selectors.
  *
  * @package Aggressive_Apparel
  */
@@ -37,4 +38,47 @@
 	> [id^='omnisend-form-']
 	> div {
 	margin-inline: auto 0;
+}
+
+/*
+ * Field errors (side-by-side layout only).
+ *
+ * Omnisend adds "This field is required" under the field, inside the field's
+ * column. The row centers its columns, so the field jumps up, the button
+ * drops out of line, and the row grows. Hang the message below the field
+ * instead so nothing moves. At 600px and below Omnisend stacks the button
+ * under the field, and the message keeps its own space there.
+ */
+@media (width > 600px) {
+
+	[id^='omnisend-embedded-v2-'] [class*='-field-container-'] {
+		position: relative;
+	}
+
+	[id^='omnisend-embedded-v2-'] [class*='-field-container-'] > input ~ div {
+		position: absolute;
+		inset-block-start: 100%;
+		inset-inline: 0;
+	}
+}
+
+/*
+ * Focus ring.
+ *
+ * Omnisend draws a two-tone ring (2px black, then 2px white) on every focus,
+ * including the one it moves to a field that fails validation. On a dark
+ * background the black half vanishes and the ring floats beside the red
+ * error border. Show one ring, flush with the border, on keyboard focus only:
+ * the text color normally, red when the field has an error.
+ */
+[id^='omnisend-embedded-v2-'] input:focus {
+	box-shadow: none !important;
+}
+
+[id^='omnisend-embedded-v2-'] input:focus-visible {
+	box-shadow: 0 0 0 2px currentcolor !important;
+}
+
+[id^='omnisend-embedded-v2-'] input.error:focus-visible {
+	box-shadow: 0 0 0 2px var(--wp--preset--color--red) !important;
 }

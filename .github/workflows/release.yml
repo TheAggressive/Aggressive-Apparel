@@ -20,8 +20,11 @@ permissions:
 
 # Superseded PR pushes are cancelled, but a release-branch run is allowed to
 # finish its draft creation, remote verification and promotion as one operation.
+# A publish run gets its own group: GitHub keeps one pending run per group, so
+# sharing with push CI let a later push (an auto-merged translations PR)
+# silently replace a queued release, and made the release wait behind it.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' && inputs.publish && '-publish' || '' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -33,13 +36,13 @@ jobs:
   # Classify the diff so a lane only runs when the change could affect it.
   #
   # `code` — anything outside languages/. A translations-only merge (the i18n MT
-  # pull request) leaves it false, which skips the frontend job and cascade-skips
-  # build → test → package. Those translations ship with the next release, whose
+  # pull request) leaves it false, which skips the frontend and build jobs and
+  # cascade-skips test → package. Those translations ship with the next release, whose
   # package step recompiles the .mo from whatever catalogs are on master.
   #
   # `docs_only` — the diff is nothing but Markdown. Prose cannot change built
-  # output, shift a POT source reference, or alter behaviour, so the i18n gate
-  # skips and cascade-skips build → PHP → browser E2E with it. Linting still
+  # output, shift a POT source reference, or alter behaviour, so the i18n and
+  # build jobs skip, and PHP → browser E2E cascade-skip with build. Linting still
   # runs. Note this is deliberately narrower than it could be: workflow-only
   # changes still run everything, because a workflow edit must be exercised by
   # the pipeline it edits.
@@ -204,13 +207,12 @@ jobs:
     runs-on: ubuntu-24.04
     needs: changes
     # Markdown holds no translatable strings and cannot shift a POT source
-    # reference, so a prose-only diff has nothing for this lane to check. `build`
-    # depends on this job, so skipping here also skips build → PHP → E2E.
+    # reference, so a prose-only diff has nothing for this lane to check.
     # A machine version sync changes one header line that this pipeline just
     # published and verified inside the archive. It cannot move a POT reference
-    # or change built output, so this lane skips — and build, PHP and E2E
-    # cascade-skip with it. Linting still runs, because check-version-sync is
-    # what proves the pull request does what it claims.
+    # or change built output, so this lane skips (as do build, PHP and E2E, on
+    # the same outputs). Linting still runs, because check-version-sync is what
+    # proves the pull request does what it claims.
     if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.version_sync != 'true'
     timeout-minutes: 5
 
@@ -226,6 +228,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      # The lane runs the pinned WP-CLI PHAR on the runner's PHP; it no longer
+      # boots wp-env just to borrow a PHP binary.
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -233,14 +242,20 @@ jobs:
         run: pnpm ci:i18n
 
   # ============================================================================
-  # Build Assets. On the translations-only path its lint deps skip, which
-  # cascade-skips this job (and test/package/release) — a .po merge never
-  # rebuilds. On the code path it runs so tests have artifacts.
+  # Build Assets. Gated on the same change outputs as the frontend and i18n
+  # jobs rather than on the jobs themselves: it uses nothing they produce, and
+  # waiting on them held build → PHP → E2E back by the slower of the two. A
+  # translations-only merge still never rebuilds. Package and release still
+  # require frontend and i18n to pass, so nothing ships unlinted.
   # ============================================================================
   build:
     name: 🔨 Build
     runs-on: ubuntu-24.04
-    needs: [lint-frontend, i18n]
+    needs: changes
+    if: >-
+      needs.changes.outputs.code == 'true' &&
+      needs.changes.outputs.docs_only != 'true' &&
+      needs.changes.outputs.version_sync != 'true'
     timeout-minutes: 5
 
     steps:
@@ -405,10 +420,12 @@ jobs:
   package:
     name: 📦 Package Theme
     runs-on: ubuntu-24.04
-    needs: [release-plan, build, test, e2e]
+    # Runs alongside PHP and E2E rather than after them: it needs only the build
+    # and the lint gates. `release` is what waits for every test.
+    needs: [release-plan, build, lint-frontend, i18n]
     if: success() && needs.release-plan.outputs.should_release == 'true'
-    # Matches the `test` job: this lane also brings up wp-env from cold to
-    # compile catalogs with the pinned WP-CLI.
+    # Matches the `test` job: this lane brings up wp-env from cold to compile
+    # catalogs with the pinned WP-CLI inside the parity image.
     timeout-minutes: 15
 
     steps:
@@ -511,7 +528,8 @@ jobs:
   release:
     name: 🚀 Release
     runs-on: ubuntu-24.04
-    needs: [release-plan, package, artifact-acceptance]
+    # PHP and E2E run in parallel with packaging, so they are gated here.
+    needs: [release-plan, package, artifact-acceptance, test, e2e]
     if: success() && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch'
     timeout-minutes: 15
     # The solo-maintainer production environment restricts deployments to

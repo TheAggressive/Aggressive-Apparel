@@ -27,8 +27,10 @@ pnpm i18n:translate           # Sync + MT empty/fuzzy (DeepL; MyMemory fallback)
 pnpm i18n                     # pot → sync → compile → status
 ```
 
-Local commands use WordPress Studio's WP-CLI. CI uses its isolated wp-env CLI;
-both require the `i18n` command package.
+Local commands use WordPress Studio's WP-CLI. The CI i18n lane runs the pinned,
+checksum-verified WP-CLI PHAR on host PHP (set `AA_I18N_WP_BIN` to choose an entry
+point explicitly); the package lane compiles catalogs with that PHAR inside the
+wp-env parity image. All of them need the `i18n` command package.
 
 Catalog validation additionally requires **gettext** (`msgfmt`) — `apt install gettext`,
 `brew install gettext`. This is a hard requirement on purpose. It used to fall back to
@@ -37,9 +39,8 @@ Catalog validation additionally requires **gettext** (`msgfmt`) — `apt install
 A missing tool now fails loudly instead of quietly validating nothing.
 
 `AA_I18N_PO_VALIDATOR` selects the mode: `auto` (default — `msgfmt -c`) or `skip`
-(explicit, announces itself). `bin/ci/i18n.sh` uses `skip` for the in-container half of
-the gate, because the wp-env cli image is Alpine and ships no `msgfmt`, then validates
-catalogs on the host where it does exist.
+(explicit, announces itself). `bin/ci/i18n.sh` uses `skip` for the POT-drift half of
+the gate, then validates catalogs as a separate step that hard-requires `msgfmt`.
 
 **You do not need Poedit.** Machine translation fills `.po` files; you only review the GitHub PR.
 

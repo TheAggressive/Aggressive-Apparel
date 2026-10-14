@@ -37,25 +37,21 @@ if ! command -v msgfmt > /dev/null 2>&1; then
 	fi
 fi
 
-cleanup() {
-	if ! bash "${SCRIPT_DIR}/stop-wp-env.sh"; then
-		echo "Warning: CI parity containers could not be stopped." >&2
-	fi
-}
-trap cleanup EXIT
+if ! command -v php > /dev/null 2>&1; then
+	echo "PHP is required to run the pinned WP-CLI (Actions provisions it with setup-php)." >&2
+	exit 1
+fi
 
-bash "${SCRIPT_DIR}/reset-wp-env.sh"
-
-# The gate is split across the container boundary on purpose.
+# POT drift runs the pinned, checksum-verified WP-CLI PHAR on host PHP. It used
+# to boot the whole wp-env parity stack (two WordPress sites, WooCommerce,
+# MySQL) only to borrow the cli container's PHP binary, which cost more than a
+# minute per run. Nothing here ships: the regenerated POT is only compared with
+# the committed one after normalization.
 #
-# POT drift needs the pinned WP-CLI, which lives in the wp-env cli container.
-# Catalog validation needs msgfmt, which that container (Alpine) does not ship.
-# Running both inside it is how catalog validation became a no-op: the lane
-# forced the `wp-cli` validator, and `wp i18n make-mo` accepts a broken catalog
-# and exits 0. So POT drift runs in the container and catalogs run on the host,
-# where msgfmt is a hard requirement rather than a silent downgrade.
-bash "${SCRIPT_DIR}/wp-env.sh" run cli \
-	--env-cwd="wp-content/themes/aggressive-apparel" \
-	-- bash -c 'PATH="$PWD/bin/ci:$PATH" I18N_CI=1 AA_I18N_PO_VALIDATOR=skip bash bin/i18n/check.sh'
+# Catalog validation stays a separate host step that hard-requires msgfmt.
+# `wp i18n make-mo` accepts a broken catalog and exits 0, which is how forcing
+# the `wp-cli` validator once made catalog validation a silent no-op.
+AA_I18N_WP_BIN="${SCRIPT_DIR}/wp" I18N_CI=1 AA_I18N_PO_VALIDATOR=skip \
+	bash "${REPO_ROOT}/bin/i18n/check.sh"
 
 bash "${REPO_ROOT}/bin/i18n/validate-po.sh"

@@ -536,6 +536,7 @@ export function setupDelegatedEvents(): void {
  * @return Number of cards added by this call.
  */
 export function injectProductsHtml(html: string, append: boolean): number {
+  state._ajaxGrid = true;
   const container = gridUl();
   if (!container) {
     state.products = [];

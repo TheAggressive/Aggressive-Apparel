@@ -147,14 +147,9 @@ Two separate concepts, two separate systems:
   Product Specs **Fit** scale and its per-step advice
   ([Size Guides & Specs](#size-guides--specs)). It reads no attribute.
 
-The audience filter used to read `pa_fit` / `?fit=`. `Collection_Legacy_Url`
-redirects (302, so a rollback is not pinned by cached redirects) only the
-audience slugs the migration recognises (`?fit=mens|men|womens|women|unisex`)
-on catalogue archives to `?collection=`,
-because navigation saved in the Site Editor (the header and mobile-nav
-template parts) and external links still carry it. Any other `fit` value is
-left alone. Delete the class once stored navigation is updated and the old
-links have aged out.
+The audience filter used to read `pa_fit` / `?fit=`; it now reads only
+`?collection=`. Nothing redirects `?fit=` any more, so stored links (Site
+Editor navigation, external links) must use `?collection=`.
 
 ### Migrating `pa_fit` → `pa_collection`
 

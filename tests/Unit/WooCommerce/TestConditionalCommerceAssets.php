@@ -225,11 +225,12 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Load More seeds its derived getters so SSR matches the hydrated markup.
+	 * Load More seeds its derived getters for the server (no-JS) render.
 	 *
 	 * Unseeded, server directive processing evaluates them falsy: the status
-	 * line renders empty and the infinite-scroll button visible, and both
-	 * change on hydration (a layout shift on the shop grid).
+	 * line renders empty and the infinite-scroll button visible. The button
+	 * needs the store, so the server renders it hidden and keeps the native
+	 * pagination links visible; the client getters swap them on hydration.
 	 *
 	 * @return void
 	 */
@@ -267,7 +268,8 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 			$this->assertIsArray( $context );
 
 			$this->assertSame( $mode, $context['mode'] );
-			$this->assertSame( 'infinite_scroll' === $mode || $context['allLoaded'], $state['hideButton'] );
+			$this->assertTrue( $state['hideButton'] );
+			$this->assertFalse( $state['hidePagination'] );
 			$this->assertSame( 'infinite_scroll' !== $mode || $context['allLoaded'], $state['hideSentinel'] );
 			$this->assertFalse( $state['showSentinelLoader'] );
 			$this->assertSame(
@@ -279,13 +281,48 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 
 			$processed = wp_interactivity_process_directives( $html );
 			$this->assertStringContainsString( '>' . esc_html( $state['statusText'] ) . '</span>', $processed );
-			$this->assertSame(
-				(bool) $state['hideButton'],
-				(bool) preg_match( '/<button hidden class="aa-load-more__btn/', $processed )
-			);
+			$this->assertMatchesRegularExpression( '/<button hidden class="aa-load-more__btn/', $processed );
+			$this->assertMatchesRegularExpression( '/<div class="aa-load-more__pagination"[^>]*><nav>Next page<\/nav>/', $processed );
+			$this->assertDoesNotMatchRegularExpression( '/<div hidden class="aa-load-more__pagination"/', $processed );
 		}
 
 		delete_option( Feature_Settings::LOAD_MORE_MODE_OPTION );
+	}
+
+	/**
+	 * Native pagination stays in the HTML so crawlers and no-JS shoppers can
+	 * reach every catalog page; only hydration hides it.
+	 *
+	 * @return void
+	 */
+	public function test_load_more_keeps_native_pagination_links(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Crawlable pagination product',
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+			)
+		);
+
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		$native = '<nav class="wp-block-query-pagination" aria-label="Pagination"><a href="/shop/page/2/" class="wp-block-query-pagination-next">Next</a></nav>';
+		$html   = ( new Load_More() )->replace_pagination( $native, array( 'blockName' => 'core/query-pagination' ) );
+
+		$this->assertStringContainsString(
+			'<div class="aa-load-more__pagination" data-wp-bind--hidden="state.hidePagination">' . $native . '</div>',
+			$html
+		);
+
+		// A single-page collection renders no native pagination: no empty wrapper.
+		$single = ( new Load_More() )->replace_pagination( '', array( 'blockName' => 'core/query-pagination' ) );
+		$this->assertStringNotContainsString( 'aa-load-more__pagination', $single );
 	}
 
 	/**

@@ -294,6 +294,7 @@ class Product_Filters {
 				'orderBy'             => 'date',
 				'orderDir'            => 'desc',
 				'_customSort'         => '',
+				'_ajaxGrid'           => false,
 				'isDrawerOpen'        => false,
 				'isLoading'           => false,
 				'hasError'            => false,

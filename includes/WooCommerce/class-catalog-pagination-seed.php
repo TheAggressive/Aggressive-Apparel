@@ -72,8 +72,10 @@ final class Catalog_Pagination_Seed {
 	 * @param string $term                 Optional term slug.
 	 * @param ?bool  $pagination_has_more  Native pagination had next links (null = unknown).
 	 * @param string $requested_orderby    Optional `?orderby=` from the request.
+	 * @param int    $page                 Server-rendered collection page (1-based).
 	 * @return array{
 	 *   templateSlug:string,
+	 *   currentPage:int,
 	 *   collectionBlock:?array<string,mixed>,
 	 *   perPage:int,
 	 *   orderby:string,
@@ -89,10 +91,12 @@ final class Catalog_Pagination_Seed {
 		string $taxonomy = '',
 		string $term = '',
 		?bool $pagination_has_more = null,
-		string $requested_orderby = ''
+		string $requested_orderby = '',
+		int $page = 1
 	): array {
 		global $wp_query;
 
+		$page          = max( 1, $page );
 		$template_slug = '' !== $template_slug ? $template_slug : 'archive-product';
 		$block         = $this->collection_block( $template_slug );
 		$per_page      = $this->resolve_per_page( $block );
@@ -100,7 +104,9 @@ final class Catalog_Pagination_Seed {
 
 		$fallback_products = (int) ( $wp_query->found_posts ?? 0 );
 		$fallback_pages    = max( 1, (int) ( $wp_query->max_num_pages ?? 1 ) );
-		$fallback_loaded   = null !== $pagination_has_more ? ! $pagination_has_more : $fallback_pages <= 1;
+		$fallback_loaded   = null !== $pagination_has_more
+			? ! $pagination_has_more || ( $page > 1 && $page >= $fallback_pages )
+			: $page >= $fallback_pages;
 
 		if ( null === $block ) {
 			$next_cursor = '';
@@ -113,19 +119,22 @@ final class Catalog_Pagination_Seed {
 
 			return array(
 				'templateSlug'    => $template_slug,
+				'currentPage'     => $page,
 				'collectionBlock' => null,
 				'perPage'         => $per_page,
 				'orderby'         => $orderby,
 				'nextCursor'      => $next_cursor,
 				'totalProducts'   => $fallback_products,
 				'totalPages'      => $fallback_pages,
-				'loadedCount'     => min( $per_page, $fallback_products ),
+				'loadedCount'     => min( $per_page, count( (array) ( $wp_query->posts ?? array() ) ), $fallback_products ),
 				'allLoaded'       => $fallback_loaded,
 			);
 		}
 
 		$args = $this->queries->build_args( $per_page, $orderby, $taxonomy, $term, array() );
-		$args = $this->queries->apply_collection_constraints( $args, $block, $per_page, null, 1 );
+		// Seek to the page actually rendered (`/page/N/` or `?query-ID-page=N`)
+		// so the cursor continues after its last card instead of page 1's.
+		$args = $this->queries->apply_collection_constraints( $args, $block, $per_page, null, $page );
 
 		// One page query with found_rows: totals + last-post cursor without a
 		// separate count probe or per_page+1 overflow fetch.
@@ -136,20 +145,23 @@ final class Catalog_Pagination_Seed {
 		$fetch_args['update_post_term_cache'] = false;
 		$query                                = $this->queries->run( $fetch_args );
 		$totals                               = $this->queries->totals( $query, $args, $per_page );
-		$has_more                             = null !== $pagination_has_more
+		// Native pagination also renders on the last page (previous links), so
+		// past page 1 only the totals can say whether another page follows.
+		$has_more    = null !== $pagination_has_more && 1 === $page
 			? $pagination_has_more
-			: ( $totals['products'] > $per_page );
-		$next_cursor                          = $this->queries->next_cursor( $query, $orderby, $has_more );
+			: ( false !== $pagination_has_more && $page < $totals['pages'] );
+		$next_cursor = $this->queries->next_cursor( $query, $orderby, $has_more );
 
 		return array(
 			'templateSlug'    => $template_slug,
+			'currentPage'     => $page,
 			'collectionBlock' => $block,
 			'perPage'         => $per_page,
 			'orderby'         => $orderby,
 			'nextCursor'      => $next_cursor,
 			'totalProducts'   => $totals['products'],
 			'totalPages'      => max( 1, $totals['pages'] ),
-			'loadedCount'     => min( $per_page, $totals['products'] ),
+			'loadedCount'     => min( $per_page, count( $query->posts ), max( 0, $totals['products'] - $per_page * ( $page - 1 ) ) ),
 			'allLoaded'       => ! $has_more || '' === $next_cursor,
 		);
 	}
@@ -170,17 +182,26 @@ final class Catalog_Pagination_Seed {
 	}
 
 	/**
-	 * Page size from the Product Collection block, else the reading setting.
+	 * Page size the rendered Product Collection actually uses.
+	 *
+	 * Inherited collections render the main archive query (WooCommerce's
+	 * `loop_shop_per_page`), not the block's `perPage`; explicit ones use the
+	 * block value. Falls back to the reading setting.
 	 *
 	 * @param array<string, mixed>|null $block Parsed collection block.
 	 * @return int
 	 */
 	public function resolve_per_page( ?array $block ): int {
+		global $wp_query;
+
 		if ( null !== $block ) {
 			$query = isset( $block['attrs']['query'] ) && is_array( $block['attrs']['query'] )
 				? $block['attrs']['query']
 				: array();
-			$per   = (int) ( $query['perPage'] ?? 0 );
+			$main  = $wp_query instanceof \WP_Query ? (int) $wp_query->get( 'posts_per_page' ) : 0;
+			$per   = ! empty( $query['inherit'] ) && $main > 0
+				? $main
+				: (int) ( $query['perPage'] ?? 0 );
 			if ( $per > 0 ) {
 				return min( 100, $per );
 			}

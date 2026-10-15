@@ -58,6 +58,7 @@ interface LoadMoreState {
   statusFormat: string;
   loadedFormat: string;
   readonly hideButton: boolean;
+  readonly hidePagination: boolean;
   readonly hideSentinel: boolean;
   readonly showSentinelLoader: boolean;
   readonly statusText: string;
@@ -120,6 +121,12 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
       // Infinite scroll hides the button; reduced-motion / observer failure
       // flips mode to `load_more` so the button reappears as a fallback.
       return shouldHideLoadMoreButton(state.mode, state.allLoaded);
+    },
+
+    // The server renders native pagination links (crawlers, no-JS) and seeds
+    // this false; once the store runs, Load More / infinite scroll replaces them.
+    get hidePagination(): boolean {
+      return true;
     },
 
     get hideSentinel(): boolean {
@@ -263,8 +270,12 @@ function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
     ? state.loadedCount + (productsCount || 0)
     : productsCount || 0;
   // The filter-driven fetch has completed — clear the loading state so the
-  // spinner hides and the button re-enables.
+  // spinner hides and the button re-enables, and replace the "Loading…"
+  // announcement (product-filters announces its own replace results).
   state.isLoading = false;
+  state.announcement = append
+    ? state.loadedFormat.replace('%d', String(productsCount || 0))
+    : '';
 }
 
 /**

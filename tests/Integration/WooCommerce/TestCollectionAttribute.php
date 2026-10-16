@@ -1,7 +1,7 @@
 <?php
 /**
  * Collection attribute tests: pa_fit → pa_collection migration, Collection
- * filtering and facets, and the legacy `?fit=` redirect.
+ * filtering and facets.
  *
  * @package Aggressive_Apparel\Tests\Integration\WooCommerce
  */
@@ -12,7 +12,6 @@ namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Catalog_Cache_Version;
 use Aggressive_Apparel\WooCommerce\Collection_Attribute_Migration as Migration;
-use Aggressive_Apparel\WooCommerce\Collection_Legacy_Url;
 use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
 use Aggressive_Apparel\WooCommerce\Product_Facet_Service;
 use Aggressive_Apparel\WooCommerce\Product_Specs_Registry;
@@ -264,27 +263,6 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 		$this->assertSame( array(), $fit['attributes'], 'Fit must not read an audience attribute.' );
 		$this->assertNotContains( "Men's", $fit['steps'] );
 		$this->assertNotContains( "Women's", $fit['steps'] );
-	}
-
-	/** Only known audience `fit` values redirect, to the `collection` param. */
-	public function test_legacy_fit_urls_redirect_narrowly(): void {
-		$this->assertSame(
-			'/shop/tank-tops/?color=black&collection=womens',
-			Collection_Legacy_Url::target( array( 'fit' => 'womens', 'color' => 'black' ), '/shop/tank-tops/?fit=womens&color=black' )
-		);
-		$this->assertSame(
-			'/shop/?collection=mens,unisex',
-			Collection_Legacy_Url::target( array( 'fit' => 'mens,unisex' ), '/shop/?fit=mens,unisex' )
-		);
-		$this->assertSame(
-			'/shop/?collection=mens',
-			Collection_Legacy_Url::target( array( 'fit' => 'men,mens' ), '/shop/?fit=men,mens' ),
-			'Uses the migration\'s audience map, aliases included.'
-		);
-		$this->assertNull( Collection_Legacy_Url::target( array( 'fit' => 'dre-blocks' ), '/shop?fit=dre-blocks' ) );
-		$this->assertNull( Collection_Legacy_Url::target( array( 'fit' => 'mens,slim' ), '/shop/?fit=mens,slim' ) );
-		$this->assertNull( Collection_Legacy_Url::target( array( 'fit' => 'mens', 'collection' => 'womens' ), '/shop/?fit=mens&collection=womens' ) );
-		$this->assertNull( Collection_Legacy_Url::target( array( 'collection' => 'mens' ), '/shop/?collection=mens' ) );
 	}
 
 	/**

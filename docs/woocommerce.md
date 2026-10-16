@@ -147,14 +147,22 @@ Two separate concepts, two separate systems:
   Product Specs **Fit** scale and its per-step advice
   ([Size Guides & Specs](#size-guides--specs)). It reads no attribute.
 
-The audience filter used to read `pa_fit` / `?fit=`. `Collection_Legacy_Url`
-redirects (302, so a rollback is not pinned by cached redirects) only the
-audience slugs the migration recognises (`?fit=mens|men|womens|women|unisex`)
-on catalogue archives to `?collection=`,
-because navigation saved in the Site Editor (the header and mobile-nav
-template parts) and external links still carry it. Any other `fit` value is
-left alone. Delete the class once stored navigation is updated and the old
-links have aged out.
+The audience filter used to read `pa_fit` / `?fit=`; it now reads only
+`?collection=`. Nothing redirects `?fit=` any more, so stored links (Site
+Editor navigation, external links) must use `?collection=`.
+
+### Men's / Women's landing pages
+
+Indexable audience pages are **native product subcategories** (e.g. *Men's
+T-Shirts* under *T-Shirts* → `/shop/t-shirts/mens-t-shirts/`), so Rank Math,
+sitemaps, breadcrumbs, menus and product feeds handle them with no theme code.
+Assign products to the subcategory as well as the Collection attribute.
+Category slugs are unique site-wide, hence `mens-t-shirts`, not `mens`.
+
+`?collection=` stays a **browsing filter**: applied by the product-filters
+script, not the server, and canonicalised to the category by Rank Math. A
+parent category's archive, facets and custom sorts include its subcategories'
+products.
 
 ### Migrating `pa_fit` → `pa_collection`
 

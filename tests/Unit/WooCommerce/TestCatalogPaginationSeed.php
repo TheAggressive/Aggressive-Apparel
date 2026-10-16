@@ -44,6 +44,29 @@ class TestCatalogPaginationSeed extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Inherited collections render the main query, so its page size wins over
+	 * the block's perPage (else cursors and `/page/N/` offsets drift).
+	 *
+	 * @return void
+	 */
+	public function test_inherited_collection_uses_main_query_per_page(): void {
+		global $wp_query;
+
+		$previous = $wp_query;
+		$wp_query = new WP_Query();
+		$wp_query->set( 'posts_per_page', 16 );
+
+		$seed      = new Catalog_Pagination_Seed();
+		$inherited = array( 'attrs' => array( 'query' => array( 'inherit' => true, 'perPage' => 12 ) ) );
+		$explicit  = array( 'attrs' => array( 'query' => array( 'inherit' => false, 'perPage' => 12 ) ) );
+
+		$this->assertSame( 16, $seed->resolve_per_page( $inherited ) );
+		$this->assertSame( 12, $seed->resolve_per_page( $explicit ) );
+
+		$wp_query = $previous;
+	}
+
+	/**
 	 * Inherited collections ignore block orderBy and use the main query sort.
 	 *
 	 * @return void

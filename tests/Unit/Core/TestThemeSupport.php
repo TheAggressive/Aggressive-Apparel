@@ -107,4 +107,23 @@ class TestThemeSupport extends WP_UnitTestCase {
 			'Theme translations should load from languages/'
 		);
 	}
+
+	/**
+	 * With Rank Math printing the title in its own head block, the block
+	 * theme's copy is dropped; without it, WordPress keeps printing its own.
+	 *
+	 * @return void
+	 */
+	public function test_single_title_tag_when_seo_plugin_owns_it(): void {
+		add_action( 'wp_head', '_block_template_render_title_tag', 1 );
+
+		$this->theme_support->keep_single_title_tag();
+		$this->assertSame( 1, has_action( 'wp_head', '_block_template_render_title_tag' ), 'No SEO plugin: keep core title.' );
+
+		add_action( 'rank_math/head', '_wp_render_title_tag', 1 );
+		$this->theme_support->keep_single_title_tag();
+		$this->assertFalse( has_action( 'wp_head', '_block_template_render_title_tag' ) );
+
+		remove_action( 'rank_math/head', '_wp_render_title_tag', 1 );
+	}
 }

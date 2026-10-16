@@ -142,6 +142,8 @@ export interface ProductFiltersState {
   };
   _announcement: string;
   _customSort: string;
+  /** The grid shows AJAX results, not the server-rendered archive. */
+  _ajaxGrid: boolean;
   readonly hasActiveFilters: boolean;
   readonly hasNoActiveFilters: boolean;
   readonly hasProducts: boolean;

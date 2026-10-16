@@ -39,6 +39,7 @@ import {
   setupScrollbarAutoHide,
 } from './product-filters/data';
 import {
+  applySort,
   applyUrlState,
   buildFilterUrl,
   getCanonicalShopUrl,
@@ -48,7 +49,6 @@ import {
 import {
   type DropdownContext,
   type ProductFiltersStore,
-  type SortConfig,
 } from './product-filters/types';
 
 let focusTrapCleanup: (() => void) | null = null;
@@ -86,6 +86,7 @@ function restoreOriginalGrid(): void {
     notifyCardsRendered(ul);
   }
   state.products = [];
+  state._ajaxGrid = false;
 }
 
 /** Cross-category URL waiting to be consumed when the drawer closes. */
@@ -97,10 +98,15 @@ export function visibleSelectedCategories(): string[] {
   );
 }
 
-/** Whether the restored URL needs AJAX beyond its native archive query. */
-function hasAdditionalRefinements(): boolean {
+/**
+ * Whether the restored URL needs AJAX beyond its native archive query.
+ *
+ * @param nativeCategory Category the server already rendered (the archive's
+ *                       own term), which is not a refinement.
+ */
+function hasAdditionalRefinements(nativeCategory: string | null): boolean {
   return (
-    visibleSelectedCategories().length > 0 ||
+    visibleSelectedCategories().some(slug => slug !== nativeCategory) ||
     state.selectedColors.length > 0 ||
     state.selectedSizes.length > 0 ||
     state.selectedCollections.length > 0 ||
@@ -142,7 +148,14 @@ export const { state, actions } = store<ProductFiltersStore>(
       // errored, and the filtered grid came back empty. Hidden on the unfiltered
       // initial view (where `products` is empty because the grid is SSR'd).
       get hideNoResults(): boolean {
-        if (!state.hasActiveFilters || state.isLoading || state.hasError) {
+        // A native archive (category, Sales) keeps its server-rendered grid
+        // until a refinement fetches; `products` only tracks AJAX results.
+        if (
+          !state._ajaxGrid ||
+          !state.hasActiveFilters ||
+          state.isLoading ||
+          state.hasError
+        ) {
           return true;
         }
         return state.products.length > 0;
@@ -500,10 +513,8 @@ export const { state, actions } = store<ProductFiltersStore>(
           state.selectedCategories.length === 0
         ) {
           state.selectedCategories = [state.currentCategorySlug];
-          if (
-            state.currentCategorySlug !== state.salesCategorySlug ||
-            hasAdditionalRefinements()
-          ) {
+          // The server rendered this archive (incl. `/page/N/`) natively.
+          if (hasAdditionalRefinements(state.currentCategorySlug)) {
             fetchProducts();
           }
         }
@@ -661,11 +672,14 @@ function restoreFromUrl(): boolean {
     fetchFacets();
   });
 
-  // The native Sales archive already has the correct indexed taxonomy query.
-  // Avoid replacing its SSR grid until another filter genuinely requires AJAX.
+  // A native category archive (Sales included) is already server-rendered with
+  // the correct taxonomy query, sort and page. Replacing it would re-sort the
+  // grid and swap `/page/N/` for page 1 — for shoppers and for crawlers that
+  // render JS. Only fetch once another filter genuinely requires AJAX.
   const shouldFetch =
     state.hasActiveFilters &&
-    (!isSalesArchive(state, catFromPath) || hasAdditionalRefinements());
+    (hasAdditionalRefinements(catFromPath) ||
+      (state.onSaleOnly && !isSalesArchive(state, catFromPath)));
 
   if (shouldFetch) {
     fetchProducts();
@@ -683,31 +697,9 @@ function captureSortDropdown(): void {
     if (
       target.matches('.woocommerce-ordering select, select[name="orderby"]')
     ) {
-      const val = target.value;
-      const sortMap: Record<string, SortConfig> = {
-        menu_order: { orderBy: 'menu_order', orderDir: 'asc' },
-        popularity: { orderBy: 'popularity', orderDir: 'desc' },
-        rating: { orderBy: 'rating', orderDir: 'desc' },
-        date: { orderBy: 'date', orderDir: 'desc' },
-        price: { orderBy: 'price', orderDir: 'asc' },
-        'price-desc': { orderBy: 'price', orderDir: 'desc' },
-        'title-asc': { orderBy: 'title', orderDir: 'asc' },
-        'title-desc': { orderBy: 'title', orderDir: 'desc' },
-        featured: {
-          orderBy: 'include',
-          orderDir: 'asc',
-          customSort: 'featured',
-        },
-        savings: {
-          orderBy: 'include',
-          orderDir: 'asc',
-          customSort: 'savings',
-        },
-      };
-      const sort = sortMap[val] || { orderBy: 'date', orderDir: 'desc' };
-      state.orderBy = sort.orderBy;
-      state.orderDir = sort.orderDir;
-      state._customSort = sort.customSort || '';
+      if (!applySort(state, target.value)) {
+        applySort(state, 'date');
+      }
 
       state.currentPage = 1;
       document.dispatchEvent(new CustomEvent('aa:filters-changed'));

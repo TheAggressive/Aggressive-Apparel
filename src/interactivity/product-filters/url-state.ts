@@ -1,4 +1,35 @@
-import { ATTRIBUTE_FILTERS, type ProductFiltersState } from './types';
+import {
+  ATTRIBUTE_FILTERS,
+  type ProductFiltersState,
+  type SortConfig,
+} from './types';
+
+/** WooCommerce `orderby` values → filter sort state. */
+export const SORT_OPTIONS: Readonly<Record<string, SortConfig>> = {
+  menu_order: { orderBy: 'menu_order', orderDir: 'asc' },
+  popularity: { orderBy: 'popularity', orderDir: 'desc' },
+  rating: { orderBy: 'rating', orderDir: 'desc' },
+  date: { orderBy: 'date', orderDir: 'desc' },
+  price: { orderBy: 'price', orderDir: 'asc' },
+  'price-desc': { orderBy: 'price', orderDir: 'desc' },
+  'title-asc': { orderBy: 'title', orderDir: 'asc' },
+  'title-desc': { orderBy: 'title', orderDir: 'desc' },
+  featured: { orderBy: 'include', orderDir: 'asc', customSort: 'featured' },
+  savings: { orderBy: 'include', orderDir: 'asc', customSort: 'savings' },
+};
+
+/** Apply a WooCommerce `orderby` value; false when it is not a known sort. */
+export function applySort(
+  state: ProductFiltersState,
+  orderby: string
+): boolean {
+  const sort = SORT_OPTIONS[orderby];
+  if (!sort) return false;
+  state.orderBy = sort.orderBy;
+  state.orderDir = sort.orderDir;
+  state._customSort = sort.customSort || '';
+  return true;
+}
 
 /** Canonical WooCommerce shop pathname. */
 export function getShopPath(state: ProductFiltersState): string {
@@ -166,5 +197,9 @@ export function applyUrlState(
     parseInt(params.get('pf_page') || '1', 10) || 1,
     1
   );
+  // The sort dropdown submits `?orderby=` (WooCommerce form). Honour it so a
+  // filtered re-fetch keeps the requested order. Filter URLs never carry it,
+  // so an absent param leaves the current sort alone rather than resetting it.
+  applySort(state, params.get('orderby') || '');
   return catFromPath;
 }

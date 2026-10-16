@@ -162,4 +162,29 @@ describe('applyUrlState', () => {
 
     expect(s.onSaleOnly).toBe(true);
   });
+
+  it('restores the WooCommerce sort from ?orderby so re-fetches keep it', () => {
+    const s = state({ orderBy: 'date', orderDir: 'desc', _customSort: '' });
+    window.history.replaceState({}, '', '/shop/shirts/');
+
+    applyUrlState(s, new URLSearchParams('orderby=price-desc'));
+
+    expect(s.orderBy).toBe('price');
+    expect(s.orderDir).toBe('desc');
+    expect(s._customSort).toBe('');
+
+    applyUrlState(s, new URLSearchParams('orderby=savings'));
+    expect(s.orderBy).toBe('include');
+    expect(s._customSort).toBe('savings');
+  });
+
+  it('keeps the current sort when ?orderby is absent or unknown', () => {
+    const s = state({ orderBy: 'price', orderDir: 'asc', _customSort: '' });
+
+    applyUrlState(s, new URLSearchParams('size=m'));
+    applyUrlState(s, new URLSearchParams('orderby=bogus'));
+
+    expect(s.orderBy).toBe('price');
+    expect(s.orderDir).toBe('asc');
+  });
 });

@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.191.0\n"
+"Project-Id-Version: Aggressive Apparel 1.192.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T02:55:40+00:00\n"
+"POT-Creation-Date: 2026-10-15T23:59:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -484,7 +484,7 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: includes/WooCommerce/class-product-filters.php:589
+#: includes/WooCommerce/class-product-filters.php:597
 msgid "Try again"
 msgstr ""
 
@@ -592,138 +592,138 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:151
+#: includes/Core/class-theme-support.php:170
 msgid "Secondary (Outline)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:159
+#: includes/Core/class-theme-support.php:178
 #: patterns/design-system-preview.php:57
 #: patterns/design-system-preview.php:181
 msgid "Large Secondary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:167
+#: includes/Core/class-theme-support.php:186
 msgid "Tertiary (Text)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:175
+#: includes/Core/class-theme-support.php:194
 #: patterns/design-system-preview.php:116
 msgid "Small"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:183
+#: includes/Core/class-theme-support.php:202
 #: patterns/design-system-preview.php:53
 msgid "Large Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:191
+#: includes/Core/class-theme-support.php:210
 #: patterns/design-system-preview.php:61
 msgid "Small Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:199
+#: includes/Core/class-theme-support.php:218
 #: patterns/design-system-preview.php:177
 msgid "Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:207
+#: includes/Core/class-theme-support.php:226
 msgid "Large Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:215
+#: includes/Core/class-theme-support.php:234
 msgid "Small Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:223
+#: includes/Core/class-theme-support.php:242
 msgid "Frosted Glass"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:231
+#: includes/Core/class-theme-support.php:250
 msgid "Surface Card"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:239
+#: includes/Core/class-theme-support.php:258
 msgid "Bordered"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:247
+#: includes/Core/class-theme-support.php:266
 msgid "Display"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:255
+#: includes/Core/class-theme-support.php:274
 #: patterns/homepage-seasonal-shop.php:210
 msgid "Editorial"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:263
+#: includes/Core/class-theme-support.php:282
 msgid "Brand Stripe"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:271
+#: includes/Core/class-theme-support.php:290
 #: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 msgid "Badge"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:279
+#: includes/Core/class-theme-support.php:298
 msgid "Badge Muted"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:287
+#: includes/Core/class-theme-support.php:306
 msgid "Eyebrow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:295
+#: includes/Core/class-theme-support.php:314
 msgid "Caption"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:303
+#: includes/Core/class-theme-support.php:322
 msgid "Meta"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:311
+#: includes/Core/class-theme-support.php:330
 msgid "Legal"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:319
+#: includes/Core/class-theme-support.php:338
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 msgid "Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:327
+#: includes/Core/class-theme-support.php:346
 msgid "Subtle"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:336
+#: includes/Core/class-theme-support.php:355
 msgid "Commerce Grid"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:344
+#: includes/Core/class-theme-support.php:363
 msgid "Commerce Cards"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:352
+#: includes/Core/class-theme-support.php:371
 msgid "Product Frame"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:360
+#: includes/Core/class-theme-support.php:379
 msgid "Commerce Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:370
+#: includes/Core/class-theme-support.php:389
 msgid "Overflow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:378
+#: includes/Core/class-theme-support.php:397
 msgid "Text Mask"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:386
+#: includes/Core/class-theme-support.php:405
 msgid "Cinematic"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:394
+#: includes/Core/class-theme-support.php:413
 msgid "Frosted Dark"
 msgstr ""
 
@@ -2511,22 +2511,22 @@ msgid "Unable to load product results."
 msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:158
-#: includes/WooCommerce/class-load-more.php:235
+#: includes/WooCommerce/class-load-more.php:175
+#: includes/WooCommerce/class-load-more.php:259
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:232
+#: includes/WooCommerce/class-load-more.php:256
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:233
+#: includes/WooCommerce/class-load-more.php:257
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:237
+#: includes/WooCommerce/class-load-more.php:261
 #, php-format
 msgid "%d more products loaded."
 msgstr ""
@@ -2656,12 +2656,12 @@ msgid "Maximum price"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:242
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:330
 msgid "In stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:247
-#: includes/WooCommerce/class-product-filters.php:323
+#: includes/WooCommerce/class-product-filters.php:331
 msgid "On sale"
 msgstr ""
 
@@ -2670,85 +2670,85 @@ msgid "Filter by category"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:317
+#: includes/WooCommerce/class-product-filters.php:325
 #, php-format
 msgid "(%s filter applied)"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:319
+#: includes/WooCommerce/class-product-filters.php:327
 #, php-format
 msgid "(%s filters applied)"
 msgstr ""
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:321
+#: includes/WooCommerce/class-product-filters.php:329
 #, php-format
 msgid "Additional filters: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:324
+#: includes/WooCommerce/class-product-filters.php:332
 msgid "All filters cleared."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:325
-#: includes/WooCommerce/class-product-filters.php:587
+#: includes/WooCommerce/class-product-filters.php:333
+#: includes/WooCommerce/class-product-filters.php:595
 msgid "Something went wrong loading products."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:326
+#: includes/WooCommerce/class-product-filters.php:334
 msgid "No products found."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:335
 msgid "1 product found."
 msgstr ""
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:329
+#: includes/WooCommerce/class-product-filters.php:337
 #, php-format
 msgid "%d products found."
 msgstr ""
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:331
+#: includes/WooCommerce/class-product-filters.php:339
 #, php-format
 msgid "Remove %s filter"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:423
-#: includes/WooCommerce/class-product-filters.php:514
+#: includes/WooCommerce/class-product-filters.php:431
+#: includes/WooCommerce/class-product-filters.php:522
 msgid "Product filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:432
+#: includes/WooCommerce/class-product-filters.php:440
 msgid "Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:437
+#: includes/WooCommerce/class-product-filters.php:445
 msgid "Close filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:462
+#: includes/WooCommerce/class-product-filters.php:470
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:468
-#: includes/WooCommerce/class-product-filters.php:524
+#: includes/WooCommerce/class-product-filters.php:476
+#: includes/WooCommerce/class-product-filters.php:532
 msgid "View Results"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:528
+#: includes/WooCommerce/class-product-filters.php:536
 msgid "Clear All Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:582
+#: includes/WooCommerce/class-product-filters.php:590
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:595
+#: includes/WooCommerce/class-product-filters.php:603
 msgid "Filtered products pagination"
 msgstr ""
 

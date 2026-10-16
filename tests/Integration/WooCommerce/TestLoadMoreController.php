@@ -1306,6 +1306,80 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertNotEmpty( $page_2['next_cursor'] );
 	}
 
+	/**
+	 * A directly requested archive page seeds its own continuation.
+	 *
+	 * Native pagination links (`/page/N/`, `?query-ID-page=N`) are the crawlable
+	 * path; Load More on such a page must continue after ITS last card, and the
+	 * last page must not offer more just because "previous" links rendered.
+	 */
+	public function test_pagination_seed_continues_from_requested_page(): void {
+		update_option( 'woocommerce_default_catalog_orderby', 'menu_order' );
+
+		for ( $i = 0; $i < 22; $i++ ) {
+			$this->create_product( 10.0 + $i );
+		}
+
+		$this->create_block_template(
+			'archive-product',
+			'<!-- wp:woocommerce/product-collection ' . wp_json_encode(
+				array(
+					'query' => array(
+						'perPage'                => 8,
+						'pages'                  => 0,
+						'offset'                 => 0,
+						'postType'               => 'product',
+						'order'                  => 'desc',
+						'orderBy'                => 'date',
+						'inherit'                => false,
+						'woocommerceStockStatus' => array( 'instock', 'outofstock', 'onbackorder' ),
+					),
+				)
+			) . ' -->'
+			. '<div class="wp-block-woocommerce-product-collection">'
+			. '<!-- wp:woocommerce/product-template -->'
+			. '<!-- wp:post-title {"isLink":true} /-->'
+			. '<!-- /wp:woocommerce/product-template -->'
+			. '</div><!-- /wp:woocommerce/product-collection -->'
+		);
+
+		$seeder = new \Aggressive_Apparel\WooCommerce\Catalog_Pagination_Seed();
+		$seed_2 = $seeder->for_request( 'archive-product', '', '', true, '', 2 );
+
+		$this->assertSame( 2, $seed_2['currentPage'] );
+		$this->assertSame( 8, $seed_2['loadedCount'] );
+		$this->assertSame( 22, $seed_2['totalProducts'] );
+		$this->assertFalse( $seed_2['allLoaded'] );
+		$this->assertNotSame( '', $seed_2['nextCursor'] );
+
+		$page = function ( int $number, string $cursor = '' ) use ( $seed_2 ): array {
+			$params = array(
+				'template' => 'archive-product',
+				'per_page' => $seed_2['perPage'],
+				'page'     => $number,
+				'orderby'  => $seed_2['orderby'],
+			);
+			if ( '' !== $cursor ) {
+				$params['cursor'] = $cursor;
+			}
+			return $this->product_ids_from_html( (string) $this->dispatch( $params )->get_data()['html'] );
+		};
+
+		$server_2  = $page( 2 );
+		$server_3  = $page( 3 );
+		$continued = $page( 3, $seed_2['nextCursor'] );
+
+		$this->assertCount( 6, $server_3 );
+		$this->assertSame( $server_3, $continued, 'Load More from page 2 must append exactly server page 3.' );
+		$this->assertSame( array(), array_intersect( $server_2, $continued ) );
+
+		$seed_3 = $seeder->for_request( 'archive-product', '', '', true, '', 3 );
+		$this->assertSame( 3, $seed_3['currentPage'] );
+		$this->assertSame( 6, $seed_3['loadedCount'] );
+		$this->assertTrue( $seed_3['allLoaded'], 'Last page renders "previous" links; that is not "more".' );
+		$this->assertSame( '', $seed_3['nextCursor'] );
+	}
+
 	/** Invalid cursors are rejected before querying. */
 	public function test_invalid_cursor_is_rejected(): void {
 		$response = $this->dispatch(

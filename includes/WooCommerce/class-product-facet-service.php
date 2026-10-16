@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 final class Product_Facet_Service {
 
 	/** Facet transient prefix. */
-	private const CACHE_PREFIX = 'aa_pf_facets_';
+	private const CACHE_PREFIX = 'aa_pf_facets_v2_'; // v2: categories include their children.
 
 	/** Facet transient lifetime. */
 	private const CACHE_TTL = 300;

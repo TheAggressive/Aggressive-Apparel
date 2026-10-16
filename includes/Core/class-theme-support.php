@@ -35,6 +35,25 @@ class Theme_Support {
 		$this->register_theme_support();
 		$this->register_block_styles();
 		$this->remove_emoji_scripts();
+		add_action( 'wp_head', array( $this, 'keep_single_title_tag' ), 0 );
+	}
+
+	/**
+	 * Print one `<title>` when an SEO plugin owns it.
+	 *
+	 * Block themes print the title through `_block_template_render_title_tag`,
+	 * added when the template resolves. Rank Math moves the classic
+	 * `_wp_render_title_tag` into its own `rank_math/head` output but does not
+	 * know the block-theme hook, so both print. Only when the title has been
+	 * re-homed like that is the block-theme copy dropped; otherwise WordPress
+	 * keeps printing it as usual.
+	 *
+	 * @return void
+	 */
+	public function keep_single_title_tag() {
+		if ( has_action( 'rank_math/head', '_wp_render_title_tag' ) ) {
+			remove_action( 'wp_head', '_block_template_render_title_tag', 1 );
+		}
 	}
 
 	/**

@@ -48,8 +48,16 @@
  * drops out of line, and the row grows. Hang the message below the field
  * instead so nothing moves. At 600px and below Omnisend stacks the button
  * under the field, and the message keeps its own space there.
+ *
+ * The hung message reaches past the form box, and Omnisend clips that box
+ * (`overflow: hidden` on -content-inner), so the clip is lifted. The message
+ * then sits in the space below the form; keep at least ~40px clear there.
  */
 @media (width > 600px) {
+
+	[id^='omnisend-embedded-v2-'] [class*='-content-inner'] {
+		overflow: visible;
+	}
 
 	[id^='omnisend-embedded-v2-'] [class*='-field-container-'] {
 		position: relative;

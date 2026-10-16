@@ -56,6 +56,14 @@ Store API cart calls go through `storeApiPost()` (adopts the fresh nonce the
 Store API returns and retries once), and guest back-in-stock signups skip the
 nonce check.
 
+**Design edits purge the page cache.** Templates, template parts, global
+styles, navigation and synced patterns have no URL of their own, so a page
+cache would keep serving the old design while uncached Load More / filter
+responses already use the new one (mismatched cards). `Page_Cache_Purge` fires
+Breeze's full purge (`breeze_clear_all_cache`: local, Varnish, Cloudflare) once
+per request when any of them is saved or reset; Breeze itself skips these
+updates. Another page cache needs the equivalent hook.
+
 **International stores:** the page cache must vary on the active currency
 (e.g. WooPayments' currency cookie) and on geolocation (WooCommerce → General →
 _Geolocate (with page caching support)_). Product prices need this anyway, and

@@ -303,6 +303,70 @@ test.describe('catalog pagination with JavaScript', () => {
     expect(await cardIds(page)).toEqual(server);
   });
 
+  test('Load More renders the same card markup as the page', async ({
+    page,
+  }) => {
+    // Load More must use the template the page rendered. Same products, same
+    // block structure, on the shop and on a category archive.
+    for (const url of ['/shop/', largestCategory().url]) {
+      await page.goto(url);
+      const seed = JSON.parse(
+        (await page
+          .locator('[data-wp-interactive="aggressive-apparel/load-more"]')
+          .getAttribute('data-wp-context')) ?? '{}'
+      ) as Record<string, string | number>;
+
+      const endpoint = new URL(String(seed.restBase));
+      endpoint.search = new URLSearchParams({
+        per_page: String(seed.perPage),
+        page: '1',
+        orderby: String(seed.orderby),
+        template: String(seed.templateSlug),
+        ...(seed.currentTaxonomy
+          ? {
+              taxonomy: String(seed.currentTaxonomy),
+              term: String(seed.currentTerm),
+            }
+          : {}),
+      }).toString();
+      const rendered = (await (await page.request.get(endpoint.href)).json())
+        .html as string;
+
+      const cards = await page.evaluate(restHtml => {
+        const outline = (card: Element): string =>
+          [...card.querySelectorAll('[class*="wp-block-"]')]
+            .map(el =>
+              [...el.classList]
+                .filter(name => name.startsWith('wp-block-'))
+                .sort()
+                .join('.')
+            )
+            .join(' > ');
+        const byProduct = (root: ParentNode): Record<string, string> =>
+          Object.fromEntries(
+            [...root.querySelectorAll('li.wc-block-product')].map(card => [
+              [...card.classList].find(name => /^post-\d+$/.test(name)) ?? '',
+              outline(card),
+            ])
+          );
+        const rest = document.createElement('ul');
+        rest.innerHTML = restHtml;
+        return {
+          page: byProduct(
+            document.querySelector('.wp-block-woocommerce-product-template')!
+          ),
+          rest: byProduct(rest),
+        };
+      }, rendered);
+
+      const shared = Object.keys(cards.page).filter(id => id in cards.rest);
+      expect(shared.length, url).toBeGreaterThan(0);
+      for (const id of shared) {
+        expect(cards.rest[id], `${url} ${id}`).toBe(cards.page[id]);
+      }
+    }
+  });
+
   test('the theme adds no competing canonical or robots tags', async ({
     page,
   }) => {

@@ -160,6 +160,7 @@ class Bootstrap {
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
 		$this->container->register( 'cache_health', fn() => new Core\Cache_Health() );
+		$this->container->register( 'page_cache_purge', fn() => new Core\Page_Cache_Purge() );
 		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
 		$this->container->register( 'image_output_format', fn() => new Core\Image_Output_Format() );
 		$this->container->register( 'font_preload', fn() => new Core\Font_Preload() );
@@ -243,6 +244,7 @@ class Bootstrap {
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
 		$this->container->get( 'cache_health' )->init();
+		$this->container->get( 'page_cache_purge' )->init();
 		$this->container->get( 'image_loading' )->init();
 		$this->container->get( 'image_output_format' )->init();
 		$this->container->get( 'font_preload' )->init();

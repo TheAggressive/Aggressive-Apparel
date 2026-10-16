@@ -93,11 +93,50 @@ final class Catalog_SQL_Constraints {
 		$t     = $this->alias_prefix . '_t_' . $this->join_index;
 		$marks = implode( ',', array_fill( 0, count( $slugs ), '%s' ) );
 
+		// A parent category's archive lists its children's products (WP_Query's
+		// `include_children` default), so facets and custom sorts must too.
+		if ( is_taxonomy_hierarchical( $taxonomy ) ) {
+			$term_ids = $this->term_ids_with_children( $taxonomy, $slugs );
+			$marks    = implode( ',', array_fill( 0, count( $term_ids ), '%d' ) );
+
+			$this->joins[]       = "INNER JOIN {$wpdb->term_relationships} {$tr} ON {$this->product_alias}.ID = {$tr}.object_id";
+			$this->joins[]       = "INNER JOIN {$wpdb->term_taxonomy} {$tt} ON {$tr}.term_taxonomy_id = {$tt}.term_taxonomy_id AND {$tt}.taxonomy = %s AND {$tt}.term_id IN ({$marks})";
+			$this->join_params[] = $taxonomy;
+			array_push( $this->join_params, ...$term_ids );
+			return;
+		}
+
 		$this->joins[]       = "INNER JOIN {$wpdb->term_relationships} {$tr} ON {$this->product_alias}.ID = {$tr}.object_id";
 		$this->joins[]       = "INNER JOIN {$wpdb->term_taxonomy} {$tt} ON {$tr}.term_taxonomy_id = {$tt}.term_taxonomy_id AND {$tt}.taxonomy = %s";
 		$this->joins[]       = "INNER JOIN {$wpdb->terms} {$t} ON {$tt}.term_id = {$t}.term_id AND {$t}.slug IN ({$marks})";
 		$this->join_params[] = $taxonomy;
 		array_push( $this->join_params, ...$slugs );
+	}
+
+	/**
+	 * Term IDs for the slugs plus all their descendants (bounded).
+	 *
+	 * @param string   $taxonomy Hierarchical taxonomy.
+	 * @param string[] $slugs    Sanitized term slugs.
+	 * @return int[] Never empty: `[0]` matches nothing, like an unknown slug.
+	 */
+	private function term_ids_with_children( string $taxonomy, array $slugs ): array {
+		$ids = array();
+		foreach ( $slugs as $slug ) {
+			$term = get_term_by( 'slug', $slug, $taxonomy );
+			if ( ! $term instanceof \WP_Term ) {
+				continue;
+			}
+			$ids[]    = $term->term_id;
+			$children = get_term_children( $term->term_id, $taxonomy );
+			if ( is_array( $children ) ) {
+				array_push( $ids, ...array_map( 'intval', $children ) );
+			}
+		}
+
+		$ids = array_slice( array_values( array_unique( $ids ) ), 0, 200 );
+
+		return array() !== $ids ? $ids : array( 0 );
 	}
 
 	/**

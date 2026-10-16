@@ -347,6 +347,34 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Filter state carries each category's archive link: URL sync navigates a
+	 * single selected category to its real archive (and its subcategories).
+	 *
+	 * @return void
+	 */
+	public function test_product_filters_state_includes_category_links(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for product filters state tests.' );
+		}
+
+		$parent  = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'state-tees' ) );
+		$child   = self::factory()->term->create( array( 'taxonomy' => 'product_cat', 'slug' => 'state-mens-tees', 'parent' => $parent ) );
+		$product = self::factory()->post->create( array( 'post_type' => 'product', 'post_status' => 'publish' ) );
+		wp_set_object_terms( $product, array( $child ), 'product_cat' );
+		( new Product_Filters() )->flush_cache();
+
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+		Product_Filters::ensure_assets();
+
+		$state = wp_interactivity_state( 'aggressive-apparel/product-filters' );
+		$links = array_column( $state['categories'] ?? array(), 'link', 'slug' );
+
+		$this->assertSame( get_term_link( $child ), $links['state-mens-tees'] ?? null );
+	}
+
+	/**
 	 * Custom filterable routes can opt into product-filters assets.
 	 *
 	 * @return void

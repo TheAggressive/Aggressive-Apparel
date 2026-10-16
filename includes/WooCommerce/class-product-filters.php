@@ -258,7 +258,14 @@ class Product_Filters {
 				// uses (e.g. a customised "Products by Category" template),
 				// not the default archive-product card.
 				'templateSlug'        => Product_Context::get_current_template_slug(),
-				'categories'          => $slim_terms( $data['categories'] ),
+				// Categories keep their link: URL sync maps a selected category
+				// to its archive path (a full navigation, so title, canonical
+				// and breadcrumbs are server-rendered).
+				'categories'          => array_map(
+					static fn( array $term, array $slim ): array => $slim + array( 'link' => (string) ( $term['link'] ?? '' ) ),
+					$data['categories'],
+					$slim_terms( $data['categories'] )
+				),
 				'colorTerms'          => $slim_terms( $data['colorTerms'] ),
 				'sizeTerms'           => $slim_terms( $data['sizeTerms'] ),
 				'collectionTerms'     => $slim_terms( $data['collectionTerms'] ),

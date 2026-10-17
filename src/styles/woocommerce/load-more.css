@@ -39,6 +39,11 @@
 	text-align: center;
 }
 
+/* Underlined: a link in running text is not told apart by colour alone. */
+.aa-load-more__fallback {
+	text-decoration: underline;
+}
+
 .aa-load-more__status {
 	font-size: var(--wp--preset--font-size--x-small);
 	color: var(--aa-color-foreground-muted);

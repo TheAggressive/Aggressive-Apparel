@@ -172,7 +172,8 @@ export const { state, actions } = store<ProductFiltersStore>(
         const btn = (event.target as HTMLElement).closest<HTMLElement>(
           '.aa-product-filters__color-swatch'
         );
-        if (!btn) return;
+        // Unavailable options are aria-disabled, which does not block activation.
+        if (!btn || btn.getAttribute('aria-disabled') === 'true') return;
         const slug = btn.dataset.filterValue;
         if (slug) toggleArrayItem(state.selectedColors, slug);
         syncSwatchPressed(state.selectedColors);
@@ -183,7 +184,8 @@ export const { state, actions } = store<ProductFiltersStore>(
         const btn = (event.target as HTMLElement).closest<HTMLElement>(
           '.aa-product-filters__collection-chip'
         );
-        if (!btn) return;
+        // Unavailable options are aria-disabled, which does not block activation.
+        if (!btn || btn.getAttribute('aria-disabled') === 'true') return;
         const slug = btn.dataset.filterValue;
         if (slug) toggleArrayItem(state.selectedCollections, slug);
         syncCollectionChipPressed(state.selectedCollections);
@@ -194,7 +196,8 @@ export const { state, actions } = store<ProductFiltersStore>(
         const btn = (event.target as HTMLElement).closest<HTMLElement>(
           '.aa-product-filters__size-chip'
         );
-        if (!btn) return;
+        // Unavailable options are aria-disabled, which does not block activation.
+        if (!btn || btn.getAttribute('aria-disabled') === 'true') return;
         const slug = btn.dataset.filterValue;
         if (slug) toggleArrayItem(state.selectedSizes, slug);
         syncChipPressed(state.selectedSizes);

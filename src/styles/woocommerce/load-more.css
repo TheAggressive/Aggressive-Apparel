@@ -46,7 +46,10 @@
 
 .aa-load-more__status {
 	font-size: var(--wp--preset--font-size--x-small);
-	color: var(--aa-color-foreground-muted);
+
+	/* The section's own text colour: the editor picks the background, so a
+	   fixed muted colour can fall below 4.5:1 on it. */
+	color: inherit;
 }
 
 .aa-load-more__btn.aggressive-apparel-button {

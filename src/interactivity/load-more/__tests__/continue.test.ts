@@ -96,9 +96,9 @@ describe('retryDelayMs', () => {
     expect(retryDelayMs(null, 2, now)).toBe(8000);
   });
 
-  it('never waits less than 1s or more than 30s', () => {
+  it('never waits less than 1s or more than 10s', () => {
     expect(retryDelayMs('0', 0, now)).toBe(1000);
-    expect(retryDelayMs('3600', 0, now)).toBe(30_000);
+    expect(retryDelayMs('3600', 0, now)).toBe(10_000);
     expect(retryDelayMs('Sat, 17 Oct 2026 05:00:00 GMT', 0, now)).toBe(1000);
   });
 });

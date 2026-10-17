@@ -2,17 +2,14 @@
  * Pure Load More decisions, kept free of the store so Jest can test them.
  */
 
-/** HTTP statuses that mean "try again later" (rate limited, overloaded). */
-export const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([429, 503]);
-
-/** Automatic retries of a rate-limited page before showing the error. */
+/** Automatic retries of a page before offering the next page as a link. */
 export const MAX_RETRIES = 3;
 
 /**
- * How long to wait before retrying a rate-limited page.
+ * How long to wait before retrying a page.
  *
  * Honours the server's `Retry-After` (seconds or an HTTP date); otherwise
- * backs off exponentially from 2s. Bounded to 1–30s so a shopper is never
+ * backs off exponentially from 2s. Bounded to 1–10s so a shopper is never
  * left waiting indefinitely.
  *
  * @param retryAfter `Retry-After` header value, if any.
@@ -33,11 +30,11 @@ export function retryDelayMs(
     if (!Number.isNaN(date)) delay = date - now;
   }
 
-  return Math.min(30_000, Math.max(1000, delay));
+  return Math.min(10_000, Math.max(1000, delay));
 }
 
 /** How far below the viewport infinite scroll starts the next load. */
-export const SENTINEL_ROOT_MARGIN_PX = 400;
+export const SENTINEL_ROOT_MARGIN_PX = 800;
 
 export function isSentinelWithinRootMargin(
   sentinelTop: number,

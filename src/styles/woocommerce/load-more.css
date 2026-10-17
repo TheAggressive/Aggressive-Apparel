@@ -27,9 +27,16 @@
 
 	.aa-load-more__btn.aggressive-apparel-button,
 	.aa-load-more__sentinel,
-	.aa-load-more__loading {
+	.aa-load-more__loading,
+	.aa-load-more__error {
 		display: none;
 	}
+}
+
+.aa-load-more__error {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--small);
+	text-align: center;
 }
 
 .aa-load-more__status {

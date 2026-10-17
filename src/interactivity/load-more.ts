@@ -26,7 +26,6 @@ import {
 } from '@aggressive-apparel/helpers';
 import {
   MAX_RETRIES,
-  RETRYABLE_STATUSES,
   SENTINEL_ROOT_MARGIN_PX,
   retryDelayMs,
   shouldContinueInfiniteScroll,
@@ -44,11 +43,14 @@ import {
   parseCatalogPage,
   type CatalogPage,
 } from './load-more/catalog-page';
+import { fetchPageHtml, PageLoadError } from './load-more/request';
 
 interface LoadMoreState {
   mode: LoadMoreSeed['mode'];
   allLoaded: boolean;
   isLoading: boolean;
+  /** Retries ran out: the next page is offered as a plain link. */
+  loadFailed: boolean;
   totalProducts: number;
   currentPage: number;
   loadedCount: number;
@@ -71,22 +73,11 @@ interface LoadMoreStore {
   callbacks: InteractivityCallbacks;
 }
 
-/** A page request the server answered with an error status. */
-class HttpError extends Error {
-  constructor(
-    readonly status: number,
-    readonly retryAfter: string | null
-  ) {
-    super(`HTTP ${status}`);
-    this.name = 'HttpError';
-  }
-}
-
 /** A page request, shared by the scroll prefetch and the load that uses it. */
 interface PageRequest {
   url: string;
   generation: number;
-  promise: Promise<CatalogPage | null>;
+  promise: Promise<CatalogPage>;
 }
 
 let loadController: AbortController | null = null;
@@ -193,6 +184,7 @@ function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
   window.removeEventListener('scroll', prefetchNextPage, true);
 
   applyLoadMoreSeed(state, seed);
+  state.loadFailed = false;
 }
 
 /**
@@ -208,38 +200,36 @@ function removeAppendedCards(): void {
     .forEach(node => node.remove());
 }
 
-/** Fetch and parse one catalog page. */
+/**
+ * Fetch and parse one catalog page.
+ *
+ * @throws {PageLoadError} When it failed, or is not a catalog page (e.g. a
+ *                         firewall challenge or maintenance page served
+ *                         with 200) — never mistaken for the end.
+ */
 async function requestPage(
   url: string,
   signal: AbortSignal,
   priority: 'auto' | 'low' = 'auto'
-): Promise<CatalogPage | null> {
-  const response = await fetch(url, {
-    signal,
-    priority,
-    mode: 'same-origin',
-    credentials: 'same-origin',
-    headers: { Accept: 'text/html' },
-  } as RequestInit);
-  if (!response.ok) {
-    throw new HttpError(response.status, response.headers.get('Retry-After'));
-  }
+): Promise<CatalogPage> {
+  const response = await fetchPageHtml(url, signal, priority);
 
   pageScope += 1;
-  return parseCatalogPage(
-    await response.text(),
-    response.url || url,
-    `aa${pageScope}`
-  );
+  const page = parseCatalogPage(response.html, response.url, `aa${pageScope}`);
+  if (!page) {
+    throw new PageLoadError('Not a catalog page', true);
+  }
+  return page;
 }
 
 /**
  * Load the next page, reusing its prefetch when one is pending or done.
  *
- * A rate-limited response (429/503) is retried after the server's
- * `Retry-After`, a few times, while the control stays busy — so neither
- * infinite scroll nor repeated clicks add requests while the server is
- * asking for fewer.
+ * A failure that can pass (rate limit, server error, timeout, dropped
+ * connection) is retried after the server's `Retry-After` or a backoff — once
+ * back online when offline — while the control stays busy, so neither clicks
+ * nor infinite scroll add requests. When retries run out, the next page is
+ * offered as a plain link: the rest of the catalog is always reachable.
  *
  * @param attempt Retries already made for this page.
  */
@@ -251,16 +241,17 @@ function loadNextPage(attempt = 0): void {
   const url = state.nextUrl;
   const generation = paginationGeneration;
   state.isLoading = true;
+  state.loadFailed = false;
   // Announce the wait to assistive tech (the spinner itself is aria-hidden).
   state.announcement = state.loadingText;
   lastFetchAt = Date.now();
 
-  // A prefetch the server refused is this load's answer too: requesting
-  // again at once would only repeat the refusal.
+  // A prefetch that failed is this load's first attempt: requesting again at
+  // once would only repeat it. One that was cancelled is simply re-requested.
   const pending =
     prefetched?.url === url && prefetched.generation === generation
       ? prefetched.promise.catch((error: Error) =>
-          error instanceof HttpError ? Promise.reject(error) : null
+          error instanceof PageLoadError ? Promise.reject(error) : null
         )
       : Promise.resolve(null);
   prefetched = null;
@@ -281,22 +272,42 @@ function loadNextPage(attempt = 0): void {
         return;
       }
       if (
-        error instanceof HttpError &&
-        RETRYABLE_STATUSES.has(error.status) &&
+        error instanceof PageLoadError &&
+        error.retryable &&
         attempt < MAX_RETRIES
       ) {
-        window.setTimeout(
-          () => {
-            if (generation === paginationGeneration) loadNextPage(attempt + 1);
-          },
-          retryDelayMs(error.retryAfter, attempt)
+        retryLater(
+          () => loadNextPage(attempt + 1),
+          retryDelayMs(error.retryAfter, attempt),
+          generation
         );
         return;
       }
       state.isLoading = false;
+      state.loadFailed = true;
       state.mode = 'load_more';
       state.announcement = state.errorText;
     });
+}
+
+/**
+ * Run a retry after a delay — or once the connection is back, when offline —
+ * unless the catalog changed meanwhile.
+ */
+function retryLater(
+  retry: () => void,
+  delayMs: number,
+  generation: number
+): void {
+  const run = (): void => {
+    if (generation === paginationGeneration) retry();
+  };
+
+  if (navigator.onLine === false) {
+    window.addEventListener('online', run, { once: true });
+    return;
+  }
+  window.setTimeout(run, delayMs);
 }
 
 /** Prefetch the next page on the shopper's first scroll of this catalog. */
@@ -344,21 +355,14 @@ function prefetchNextPage(): void {
  * Append a fetched page's new cards and advance to the page after it.
  *
  * @param url        URL the page was requested from.
- * @param page       Parsed page, or null when it has no catalog (past the end).
+ * @param page       Parsed page.
  * @param generation Pagination generation the request belongs to.
  */
-function appendPage(
-  url: string,
-  page: CatalogPage | null,
-  generation: number
-): void {
+function appendPage(url: string, page: CatalogPage, generation: number): void {
   const grid = findCatalogGrid(document);
-  if (!grid || !page) {
-    // Nothing more to show — settle the UI cleanly.
+  if (!grid) {
+    // The catalog left the page (e.g. replaced by a navigation).
     state.isLoading = false;
-    state.allLoaded = true;
-    state.nextUrl = '';
-    state.announcement = '';
     return;
   }
 

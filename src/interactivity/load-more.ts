@@ -6,6 +6,8 @@
  * own next page (the native pagination link) and appends its product cards,
  * so appended cards always match what that page renders.
  *
+ * This file is the DOM side; when and what to request is CatalogPager's.
+ *
  * @package Aggressive_Apparel
  * @since 1.51.0
  */
@@ -41,18 +43,19 @@ import {
   parseCatalogPage,
   type CatalogPage,
 } from './load-more/catalog-page';
+import { fetchPageHtml, PageLoadError } from './load-more/request';
+import { CatalogPager } from './load-more/pager';
 import {
-  fetchPageHtml,
-  MAX_RETRIES,
-  PageLoadError,
-  retryDelayMs,
-} from './load-more/request';
+  isBackForwardLoad,
+  saveCatalog,
+  savedCatalog,
+  type SavedCatalog,
+} from './load-more/history';
 
 interface LoadMoreState {
   mode: LoadMoreSeed['mode'];
   allLoaded: boolean;
   isLoading: boolean;
-  /** Retries ran out: the next page is offered as a plain link. */
   loadFailed: boolean;
   totalProducts: number;
   currentPage: number;
@@ -76,20 +79,12 @@ interface LoadMoreStore {
   callbacks: InteractivityCallbacks;
 }
 
-/** A page request, shared by the scroll prefetch and the load that uses it. */
-interface PageRequest {
-  url: string;
-  generation: number;
-  promise: Promise<CatalogPage>;
-}
+const FETCH_COOLDOWN_MS = 400;
 
-let loadController: AbortController | null = null;
-let prefetchController: AbortController | null = null;
-let prefetched: PageRequest | null = null;
+/** Marks cards appended by Load More (not part of the server render). */
+const APPENDED = 'data-aa-appended';
 
 let observer: IntersectionObserver | null = null;
-let lastFetchAt = 0;
-let paginationGeneration = 0;
 
 /** Unique suffix for each fetched page's per-request class names. */
 let pageScope = 0;
@@ -97,10 +92,11 @@ let pageScope = 0;
 /** Complete request seed currently installed in the long-lived module store. */
 let activeSeedFingerprint: string | null = null;
 
-const FETCH_COOLDOWN_MS = 400;
+/** Pages appended to the current catalog, saved for Back. */
+let appendedPages: string[] = [];
 
-/** Marks cards appended by Load More (not part of the server render). */
-const APPENDED = 'data-aa-appended';
+/** Pages still to re-append while rebuilding the grid after Back. */
+let restoring: SavedCatalog | null = null;
 
 const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
@@ -130,7 +126,7 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   actions: {
     loadMore(): void {
-      loadNextPage();
+      pager.load();
     },
   },
 
@@ -151,43 +147,66 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
       useLayoutEffect(() => {
         if (!fingerprint || fingerprint === activeSeedFingerprint) return;
 
-        if (activeSeedFingerprint !== null) {
+        const firstRender = activeSeedFingerprint === null;
+        if (!firstRender) {
           removeAppendedCards();
         }
-        resetPaginationRuntime(seed);
+        pager.reset();
+        observer?.disconnect();
+        observer = null;
+        window.removeEventListener('scroll', prefetchOnScroll, true);
+        applyLoadMoreSeed(state, seed);
         activeSeedFingerprint = fingerprint;
+        appendedPages = [];
 
-        if (state.mode === 'infinite_scroll') {
-          setupIntersectionObserver();
-        }
-
-        armPrefetchOnScroll();
+        if (firstRender && startRestore()) return;
+        startLoading();
       }, [fingerprint, seed]);
     },
   },
 });
 
-/**
- * Replace long-lived store state with the seed attached to this rendered root.
- *
- * Router navigation preserves the JS module but replaces the archive markup.
- * Invalidating all asynchronous work here prevents a page fetched for the
- * previous catalog from being appended to the new one.
- */
-function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
-  paginationGeneration += 1;
+const pager = new CatalogPager(state, {
+  request: requestPage,
+  append: appendPage,
+  started: () => {
+    // Announce the wait to assistive tech (the spinner itself is aria-hidden).
+    state.announcement = state.loadingText;
+  },
+  failed: () => {
+    state.mode = 'load_more';
+    state.announcement = state.errorText;
+    finishRestore();
+  },
+  prefetched: () => {
+    // A fast prefetch can finish after the observer's last edge event.
+    // Recheck the sentinel so the final page cannot stay stranded.
+    const token = pager.token;
+    requestAnimationFrame(() => continueInfiniteScrollIfNeeded(token));
+  },
+});
 
-  loadController?.abort();
-  loadController = null;
-  prefetchController?.abort();
-  prefetchController = null;
-  prefetched = null;
-  observer?.disconnect();
-  observer = null;
-  window.removeEventListener('scroll', prefetchNextPage, true);
+// Save where the shopper was, for Back.
+window.addEventListener('pagehide', () => {
+  if (appendedPages.length && !restoring) saveForBack();
+});
 
-  applyLoadMoreSeed(state, seed);
-  state.loadFailed = false;
+/** Watch the sentinel (infinite scroll) and prefetch on the first scroll. */
+function startLoading(): void {
+  if (state.mode === 'infinite_scroll') {
+    setupIntersectionObserver();
+  }
+  if (!state.allLoaded) {
+    window.addEventListener('scroll', prefetchOnScroll, {
+      capture: true,
+      passive: true,
+      once: true,
+    });
+  }
+}
+
+function prefetchOnScroll(): void {
+  pager.prefetch();
 }
 
 /**
@@ -213,7 +232,7 @@ function removeAppendedCards(): void {
 async function requestPage(
   url: string,
   signal: AbortSignal,
-  priority: 'auto' | 'low' = 'auto'
+  priority: 'auto' | 'low'
 ): Promise<CatalogPage> {
   const response = await fetchPageHtml(url, signal, priority);
 
@@ -226,142 +245,12 @@ async function requestPage(
 }
 
 /**
- * Load the next page, reusing its prefetch when one is pending or done.
- *
- * A failure that can pass (rate limit, server error, timeout, dropped
- * connection) is retried after the server's `Retry-After` or a backoff — once
- * back online when offline — while the control stays busy, so neither clicks
- * nor infinite scroll add requests. When retries run out, the next page is
- * offered as a plain link: the rest of the catalog is always reachable.
- *
- * @param attempt Retries already made for this page.
- */
-function loadNextPage(attempt = 0): void {
-  if ((state.isLoading && attempt === 0) || state.allLoaded || !state.nextUrl) {
-    return;
-  }
-
-  const url = state.nextUrl;
-  const generation = paginationGeneration;
-  state.isLoading = true;
-  state.loadFailed = false;
-  // Announce the wait to assistive tech (the spinner itself is aria-hidden).
-  state.announcement = state.loadingText;
-  lastFetchAt = Date.now();
-
-  // A prefetch that failed is this load's first attempt: requesting again at
-  // once would only repeat it. One that was cancelled is simply re-requested.
-  const pending =
-    prefetched?.url === url && prefetched.generation === generation
-      ? prefetched.promise.catch((error: Error) =>
-          error instanceof PageLoadError ? Promise.reject(error) : null
-        )
-      : Promise.resolve(null);
-  prefetched = null;
-
-  pending
-    .then(page => {
-      if (page) return page;
-      loadController?.abort();
-      loadController = new AbortController();
-      return requestPage(url, loadController.signal);
-    })
-    .then(page => {
-      if (generation !== paginationGeneration) return;
-      appendPage(url, page, generation);
-    })
-    .catch((error: Error) => {
-      if (error.name === 'AbortError' || generation !== paginationGeneration) {
-        return;
-      }
-      if (
-        error instanceof PageLoadError &&
-        error.retryable &&
-        attempt < MAX_RETRIES
-      ) {
-        retryLater(
-          () => loadNextPage(attempt + 1),
-          retryDelayMs(error.retryAfter, attempt),
-          generation
-        );
-        return;
-      }
-      state.isLoading = false;
-      state.loadFailed = true;
-      state.mode = 'load_more';
-      state.announcement = state.errorText;
-    });
-}
-
-/**
- * Run a retry after a delay — or once the connection is back, when offline —
- * unless the catalog changed meanwhile.
- */
-function retryLater(
-  retry: () => void,
-  delayMs: number,
-  generation: number
-): void {
-  const run = (): void => {
-    if (generation === paginationGeneration) retry();
-  };
-
-  if (navigator.onLine === false) {
-    window.addEventListener('online', run, { once: true });
-    return;
-  }
-  window.setTimeout(run, delayMs);
-}
-
-/** Prefetch the next page on the shopper's first scroll of this catalog. */
-function armPrefetchOnScroll(): void {
-  if (state.allLoaded) return;
-
-  window.addEventListener('scroll', prefetchNextPage, {
-    capture: true,
-    passive: true,
-    once: true,
-  });
-}
-
-/**
- * Fetch the next page in the background so it is ready before the
- * IntersectionObserver (or the button) asks for it.
- */
-function prefetchNextPage(): void {
-  const url = state.nextUrl;
-  const generation = paginationGeneration;
-  // A load in flight is already fetching this URL.
-  if (state.isLoading || state.allLoaded || !url) return;
-  if (prefetched?.url === url && prefetched.generation === generation) return;
-
-  prefetchController?.abort();
-  prefetchController = new AbortController();
-
-  const promise = requestPage(url, prefetchController.signal, 'low').then(
-    page => {
-      // A fast prefetch can finish after the observer's last edge event.
-      // Recheck the sentinel so the final page cannot stay stranded.
-      requestAnimationFrame(() => {
-        continueInfiniteScrollIfNeeded(generation);
-      });
-      return page;
-    }
-  );
-  // Failures are retried by the load itself.
-  promise.catch(() => undefined);
-
-  prefetched = { url, generation, promise };
-}
-
-/**
  * Append a fetched page's new cards and advance to the page after it.
  *
- * @param url        URL the page was requested from.
- * @param page       Parsed page.
- * @param generation Pagination generation the request belongs to.
+ * @param url  URL the page was requested from.
+ * @param page Parsed page.
  */
-function appendPage(url: string, page: CatalogPage, generation: number): void {
+function appendPage(url: string, page: CatalogPage): void {
   const grid = findCatalogGrid(document);
   if (!grid) {
     // The catalog left the page (e.g. replaced by a navigation).
@@ -401,23 +290,85 @@ function appendPage(url: string, page: CatalogPage, generation: number): void {
   state.isLoading = false;
   state.announcement = state.loadedFormat.replace('%d', String(cards.length));
 
-  prefetchNextPage();
+  appendedPages.push(new URL(url, window.location.href).href);
+  if (restoring) {
+    continueRestore();
+    return;
+  }
+  saveForBack();
+  pager.prefetch();
 
   // IntersectionObserver only re-fires on edge transitions. After appending
   // cards the sentinel often stays inside rootMargin, so chain another load
   // when it is still near the viewport (fixes mobile stalls at ~16 of N).
-  requestAnimationFrame(() => {
-    continueInfiniteScrollIfNeeded(generation);
-  });
+  const token = pager.token;
+  requestAnimationFrame(() => continueInfiniteScrollIfNeeded(token));
+}
+
+/** Record the appended pages and scroll position in this history entry. */
+function saveForBack(): void {
+  window.history.replaceState(
+    saveCatalog(window.history.state, {
+      pages: appendedPages,
+      scrollY: window.scrollY,
+    }),
+    ''
+  );
+}
+
+/**
+ * After Back reloads the page (no back/forward cache), re-append the pages
+ * the shopper had loaded, then return to where they were.
+ *
+ * @return Whether a restore started.
+ */
+function startRestore(): boolean {
+  const saved = isBackForwardLoad() ? savedCatalog(window.history.state) : null;
+  if (!saved || !sameUrl(saved.pages[0], state.nextUrl)) return false;
+
+  restoring = saved;
+  window.history.scrollRestoration = 'manual';
+  pager.load();
+  return true;
+}
+
+/** Load the next saved page; finish when none is left or the catalog changed. */
+function continueRestore(): void {
+  const pages = restoring?.pages ?? [];
+  const next = pages[appendedPages.length];
+  if (next && sameUrl(next, state.nextUrl)) {
+    pager.load();
+    return;
+  }
+  finishRestore();
+}
+
+function finishRestore(): void {
+  if (!restoring) return;
+
+  const { scrollY } = restoring;
+  restoring = null;
+  saveForBack();
+  window.history.scrollRestoration = 'auto';
+  window.scrollTo(0, scrollY);
+  startLoading();
+}
+
+function sameUrl(a: string | undefined, b: string): boolean {
+  if (!a || !b) return false;
+  return (
+    new URL(a, window.location.href).href ===
+    new URL(b, window.location.href).href
+  );
 }
 
 /**
  * Continue loading while the sentinel remains near the viewport.
+ *
+ * @param token Pager token the check was scheduled for.
  */
-function continueInfiniteScrollIfNeeded(
-  generation = paginationGeneration
-): void {
-  if (generation !== paginationGeneration) return;
+function continueInfiniteScrollIfNeeded(token = pager.token): void {
+  if (!pager.isCurrent(token) || restoring) return;
 
   const sentinel = document.querySelector<HTMLElement>(
     '.aa-load-more__sentinel'
@@ -431,19 +382,19 @@ function continueInfiniteScrollIfNeeded(
     sentinelTop:
       sentinel?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY,
     viewportHeight: window.innerHeight || 0,
-    msSinceLastFetch: Date.now() - lastFetchAt,
+    msSinceLastFetch: pager.msSinceLastLoad,
     cooldownMs: FETCH_COOLDOWN_MS,
   });
 
   if (decision === 'wait') {
     window.setTimeout(() => {
-      continueInfiniteScrollIfNeeded(generation);
+      continueInfiniteScrollIfNeeded(token);
     }, FETCH_COOLDOWN_MS);
     return;
   }
 
   if (decision === 'load') {
-    loadNextPage();
+    pager.load();
   }
 }
 
@@ -485,8 +436,6 @@ function setupIntersectionObserver(): void {
 
   // If the sentinel is already near the viewport (short catalogues), the
   // observer may not deliver an immediate callback — kick one check after layout.
-  const generation = paginationGeneration;
-  requestAnimationFrame(() => {
-    continueInfiniteScrollIfNeeded(generation);
-  });
+  const token = pager.token;
+  requestAnimationFrame(() => continueInfiniteScrollIfNeeded(token));
 }

@@ -25,9 +25,7 @@ import {
   pruneProductGrid,
 } from '@aggressive-apparel/helpers';
 import {
-  MAX_RETRIES,
   SENTINEL_ROOT_MARGIN_PX,
-  retryDelayMs,
   shouldContinueInfiniteScroll,
   shouldHideLoadMoreButton,
 } from './load-more/continue';
@@ -43,7 +41,12 @@ import {
   parseCatalogPage,
   type CatalogPage,
 } from './load-more/catalog-page';
-import { fetchPageHtml, PageLoadError } from './load-more/request';
+import {
+  fetchPageHtml,
+  MAX_RETRIES,
+  PageLoadError,
+  retryDelayMs,
+} from './load-more/request';
 
 interface LoadMoreState {
   mode: LoadMoreSeed['mode'];

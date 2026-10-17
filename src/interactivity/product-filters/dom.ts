@@ -5,27 +5,39 @@ export function escapeHtml(value: string): string {
   return element.innerHTML;
 }
 
+/** Whether a filter option is unavailable (the one marker CSS styles too). */
+export function isUnavailable(option: Element): boolean {
+  return option.getAttribute('aria-disabled') === 'true';
+}
+
 /**
- * Fade and disable filter options rejected by a predicate.
+ * Mark filter options rejected by a predicate as unavailable.
  *
- * Unavailable options stay perceivable — announced as unavailable
- * (`aria-disabled`), not hidden from assistive tech — and leave the tab order.
+ * `aria-disabled` keeps them focusable and announced as unavailable, rather
+ * than hidden from assistive tech or the tab order; chosenOption() ignores
+ * their activation, which `aria-disabled` does not block.
  */
 export function setFilterVisibility(
   selector: string,
   predicate: (element: HTMLElement) => boolean
 ): void {
   document.querySelectorAll<HTMLElement>(selector).forEach(element => {
-    const visible = predicate(element);
-    const unavailable = element.classList.contains('is-unavailable');
-    if (!visible && !unavailable) {
-      element.classList.add('is-unavailable');
-      element.setAttribute('aria-disabled', 'true');
-      element.tabIndex = -1;
-    } else if (visible && unavailable) {
-      element.classList.remove('is-unavailable');
+    if (predicate(element)) {
       element.removeAttribute('aria-disabled');
-      element.removeAttribute('tabindex');
+    } else {
+      element.setAttribute('aria-disabled', 'true');
     }
   });
+}
+
+/**
+ * The value of the filter option a click activated, or '' when it hit no
+ * option or an unavailable one.
+ */
+export function chosenOption(event: Event, selector: string): string {
+  const option = (event.target as Element | null)?.closest<HTMLElement>(
+    selector
+  );
+  if (!option || isUnavailable(option)) return '';
+  return option.dataset.filterValue ?? '';
 }

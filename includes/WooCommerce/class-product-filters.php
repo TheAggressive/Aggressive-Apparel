@@ -146,6 +146,12 @@ class Product_Filters {
 				'@aggressive-apparel/scroll-lock',
 				'@aggressive-apparel/helpers',
 				'@aggressive-apparel/use-overlay',
+				// Filters and sorts navigate with WordPress's router, loaded on
+				// first use only.
+				array(
+					'id'     => '@wordpress/interactivity-router',
+					'import' => 'dynamic',
+				),
 			)
 		);
 	}
@@ -241,23 +247,18 @@ class Product_Filters {
 		wp_interactivity_state(
 			'aggressive-apparel/product-filters',
 			array(
-				'restBase'            => esc_url_raw( rest_url( 'wc/store/v1/products' ) ),
+				'facetsUrl'           => esc_url_raw( rest_url( 'aggressive-apparel/v1/catalog/facets' ) ),
 				// REST nonce so logged-in shop managers/admins are authenticated
-				// for the rendered-products endpoint while the store is in
-				// "coming soon" mode (otherwise the fetch is treated as
-				// anonymous and the gated catalogue comes back empty). Guests
-				// get none: a nonce baked into a page-cached copy expires, after
-				// which WordPress 403s every request that sends it.
+				// for the facets endpoint while the store is in "coming soon"
+				// mode (otherwise the request is treated as anonymous and the
+				// gated catalogue has no facets). Guests get none: a nonce baked
+				// into a page-cached copy expires, after which WordPress 403s
+				// every request that sends it.
 				'restNonce'           => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 				'shopUrl'             => esc_url_raw( \wc_get_page_permalink( 'shop' ) ),
 				'salesCategoryUrl'    => $data_provider->sales_category_url(),
 				'layout'              => $layout,
-				'perPage'             => 12,
 				'currentCategorySlug' => $current_cat_slug,
-				// Render filtered cards from the same template the current page
-				// uses (e.g. a customised "Products by Category" template),
-				// not the default archive-product card.
-				'templateSlug'        => Product_Context::get_current_template_slug(),
 				// Categories keep their link: URL sync maps a selected category
 				// to its archive path (a full navigation, so title, canonical
 				// and breadcrumbs are server-rendered).
@@ -295,21 +296,11 @@ class Product_Filters {
 				// flashing Clear All until JS runs.
 				'hasActiveFilters'    => false,
 				'hasNoActiveFilters'  => true,
-				'hideNoResults'       => true,
-				'hideError'           => true,
-				'hasSinglePage'       => true,
-				'orderBy'             => 'date',
-				'orderDir'            => 'desc',
-				'_customSort'         => '',
-				'_ajaxGrid'           => false,
+				// The URL's sort, kept when filters change (the WooCommerce
+				// sort control submits it as `?orderby=`).
+				'orderby'             => Catalog_Archive_Filters::requested_sort(),
 				'isDrawerOpen'        => false,
 				'isLoading'           => false,
-				'hasError'            => false,
-				'currentPage'         => 1,
-				'totalPages'          => 1,
-				'totalProducts'       => 0,
-				'nextCursor'          => '',
-				'products'            => array(),
 				'announcement'        => '',
 				'openDropdown'        => '',
 
@@ -330,7 +321,6 @@ class Product_Filters {
 					'inStockLabel'                 => __( 'In stock', 'aggressive-apparel' ),
 					'onSaleLabel'                  => __( 'On sale', 'aggressive-apparel' ),
 					'allFiltersCleared'            => __( 'All filters cleared.', 'aggressive-apparel' ),
-					'loadError'                    => __( 'Something went wrong loading products.', 'aggressive-apparel' ),
 					'noProductsFound'              => __( 'No products found.', 'aggressive-apparel' ),
 					'oneProductFound'              => __( '1 product found.', 'aggressive-apparel' ),
 					/* translators: %d: number of products found after filtering. */
@@ -359,15 +349,7 @@ class Product_Filters {
 			// Lazily enqueue assets on first matching block (render_block fires before wp_enqueue_scripts in block themes).
 			self::ensure_assets();
 
-			// Product sorting is owned by this theme's rendered-products endpoint.
-			// Remove WooCommerce's competing Interactivity API handler at render
-			// time so the normal change event remains available to analytics and
-			// extensions without triggering two grid renders.
-			if ( 'woocommerce/catalog-sorting' === $block['blockName'] ) {
-				return $this->remove_native_sort_handler( $block_content );
-			}
-
-			// Wrap product-collection with AJAX grid container.
+			// Wrap the product collection with the filter UI and results area.
 			if ( 'woocommerce/product-collection' === $block['blockName'] ) {
 				return $this->wrap_product_collection(
 					$block_content,
@@ -385,26 +367,6 @@ class Product_Filters {
 		}
 
 		return $block_content;
-	}
-
-	/**
-	 * Remove WooCommerce's client-side sort action from its order-by select.
-	 *
-	 * @param string $block_content Rendered catalog-sorting markup.
-	 * @return string Updated markup.
-	 */
-	private function remove_native_sort_handler( string $block_content ): string {
-		$processor = new \WP_HTML_Tag_Processor( $block_content );
-		while ( $processor->next_tag( array( 'tag_name' => 'SELECT' ) ) ) {
-			if ( 'orderby' !== $processor->get_attribute( 'name' ) ) {
-				continue;
-			}
-
-			$processor->remove_attribute( 'data-wp-on--change' );
-			break;
-		}
-
-		return $processor->get_updated_html();
 	}
 
 	/**
@@ -505,7 +467,7 @@ class Product_Filters {
 	}
 
 	/**
-	 * Wrap the product-collection block with AJAX grid container.
+	 * Wrap the product-collection block with the filter UI and results area.
 	 *
 	 * @param string $block_content Original block HTML.
 	 * @param string $align_class   Alignment class to mirror onto the wrapper
@@ -568,41 +530,20 @@ class Product_Filters {
 
 		$output .= '<div class="aa-product-filters__main">';
 
-		// Loading skeleton — overlays the grid only while a filtered request is
-		// in flight.
+		// Loading skeleton — replaces the grid only while a filter or sort
+		// navigation is in flight.
 		$output .= '<div class="aa-product-filters__skeleton" data-wp-bind--hidden="!state.isLoading" aria-hidden="true" hidden>';
 		for ( $i = 0; $i < 6; $i++ ) {
 			$output .= '<div class="aa-product-filters__skeleton-card" role="presentation"><div class="aa-product-filters__skeleton-image"></div><div class="aa-product-filters__skeleton-title"></div><div class="aa-product-filters__skeleton-price"></div></div>';
 		}
 		$output .= '</div>';
 
-		// The real, native product-collection grid. Filtered/sorted results are
-		// injected by JS straight into its product-template <ul> — the same
-		// element infinite-scroll appends to — so columns, gap, alignment and the
-		// "Inner blocks use content width" constraint are always exactly what the
-		// block editor produced. Hidden only while a request is loading.
+		// The native product collection, rendered for the URL's filters and
+		// sort (Catalog_Archive_Filters). Filter and sort changes navigate to
+		// the new URL, and WordPress's router swaps the collection's region.
 		$output .= '<div class="aa-product-filters__grid" data-wp-bind--hidden="state.isLoading">';
 		$output .= $block_content;
 		$output .= '</div>';
-
-		// No results — only while filters are active and the grid came back empty.
-		$output .= '<div class="aa-product-filters__no-results" data-wp-bind--hidden="state.hideNoResults">';
-		$output .= '<p>' . esc_html__( 'No products were found matching your selection.', 'aggressive-apparel' ) . '</p>';
-		$output .= '</div>';
-
-		// Error notice with retry — shown when a request fails.
-		$output .= '<div class="aa-product-filters__error" role="alert" data-wp-bind--hidden="state.hideError">';
-		$output .= '<p>' . esc_html__( 'Something went wrong loading products.', 'aggressive-apparel' ) . '</p>';
-		$output .= '<button type="button" class="aa-product-filters__retry aggressive-apparel-button aggressive-apparel-button--primary wp-element-button" data-wp-on--click="actions.retry">';
-		$output .= esc_html__( 'Try again', 'aggressive-apparel' );
-		$output .= '</button>';
-		$output .= '</div>';
-
-		// Fallback pagination for filtered results. The frontend suppresses it only
-		// when this collection actually rendered a Load More control.
-		$output .= '<nav class="aa-product-filters__pagination-nav" data-wp-bind--hidden="state.hasSinglePage" aria-label="' . esc_attr__( 'Filtered products pagination', 'aggressive-apparel' ) . '">';
-		$output .= '<div class="aa-product-filters__pagination">';
-		$output .= '</div></nav>';
 
 		$output .= '</div>'; // End .aa-product-filters__main.
 		$output .= '</div>'; // End .aa-product-filters__grid-wrapper.

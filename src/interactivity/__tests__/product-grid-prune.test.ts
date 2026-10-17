@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {
-  PRODUCT_GRID_MAX_PAGES,
-  clearProductGridSpacer,
-  pruneProductGrid,
-} from '../helpers';
+import { PRODUCT_GRID_MAX_PAGES, pruneProductGrid } from '../helpers';
 
 function makeGrid(cardCount: number): HTMLElement {
   const grid = document.createElement('ul');
@@ -74,16 +70,4 @@ describe('pruneProductGrid', () => {
     expect(spacer?.getAttribute('aria-hidden')).toBe('true');
     expect(spacer?.style.height).toBe('500px');
   });
-
-  it('clearProductGridSpacer removes the scroll spacer', () => {
-    const grid = makeGrid(perPageCards());
-    pruneProductGrid(grid, 8);
-    expect(grid.querySelector('.aa-product-grid__spacer')).not.toBeNull();
-    clearProductGridSpacer(grid);
-    expect(grid.querySelector('.aa-product-grid__spacer')).toBeNull();
-  });
 });
-
-function perPageCards(): number {
-  return 8 * PRODUCT_GRID_MAX_PAGES + 1;
-}

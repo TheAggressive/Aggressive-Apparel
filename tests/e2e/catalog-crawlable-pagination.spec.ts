@@ -275,24 +275,21 @@ test.describe('catalog pagination with JavaScript', () => {
     expect(new URL(second!).searchParams.get('orderby')).toBe('price');
     const serverSecond = idsFromHtml(await (await request.get(second!)).text());
 
-    const continuation = page.waitForResponse(response => {
-      const url = new URL(response.url());
-      return (
-        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-        url.searchParams.get('orderby') === 'price' &&
-        url.searchParams.has('cursor')
-      );
-    });
+    // Load More fetches the native next link itself.
+    const continuation = page.waitForResponse(
+      response => response.url() === second
+    );
     await page.locator('.aa-load-more__btn').click();
     expect((await continuation).status()).toBe(200);
 
     await expect
       .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
       .toBeGreaterThan(before.length);
-    const after = await cardIds(page);
-    expect(new Set(after).size).toBe(after.length);
-    // Same products as server pages 1 + 2: nothing duplicated or skipped.
-    expect(new Set(after)).toEqual(new Set([...serverFirst, ...serverSecond]));
+    // Server pages 1 + 2, in order: nothing duplicated or skipped.
+    expect(await cardIds(page)).toEqual([
+      ...serverFirst,
+      ...serverSecond.filter(id => !serverFirst.includes(id)),
+    ]);
     await expect(page.locator('.aa-load-more__announcer')).toHaveText(
       /\d+ more products loaded/
     );
@@ -317,66 +314,63 @@ test.describe('catalog pagination with JavaScript', () => {
     expect(await cardIds(page)).toEqual(server);
   });
 
-  test('Load More renders the same card markup as the page', async ({
+  test('appended cards keep the markup of the page they came from', async ({
     page,
+    request,
   }) => {
-    // Load More must use the template the page rendered. Same products, same
-    // block structure, on the shop and on a category archive.
+    // On the shop and on a category archive: the cards Load More appends are
+    // the next page's own cards, block for block.
     for (const url of ['/shop/', largestCategory().url]) {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(url);
-      const seed = JSON.parse(
-        (await page
-          .locator('[data-wp-interactive="aggressive-apparel/load-more"]')
-          .getAttribute('data-wp-context')) ?? '{}'
-      ) as Record<string, string | number>;
+      const next = await nextHref(page);
+      expect(next, url).toBeTruthy();
+      const serverHtml = await (await request.get(next!)).text();
 
-      const endpoint = new URL(String(seed.restBase));
-      endpoint.search = new URLSearchParams({
-        per_page: String(seed.perPage),
-        page: '1',
-        orderby: String(seed.orderby),
-        template: String(seed.templateSlug),
-        ...(seed.currentTaxonomy
-          ? {
-              taxonomy: String(seed.currentTaxonomy),
-              term: String(seed.currentTerm),
-            }
-          : {}),
-      }).toString();
-      const rendered = (await (await page.request.get(endpoint.href)).json())
-        .html as string;
+      const before = (await cardIds(page)).length;
+      await page.locator('.aa-load-more__btn').click();
+      await expect
+        .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
+        .toBeGreaterThan(before);
 
-      const cards = await page.evaluate(restHtml => {
-        const outline = (card: Element): string =>
-          [...card.querySelectorAll('[class*="wp-block-"]')]
-            .map(el =>
-              [...el.classList]
-                .filter(name => name.startsWith('wp-block-'))
-                .sort()
-                .join('.')
-            )
-            .join(' > ');
-        const byProduct = (root: ParentNode): Record<string, string> =>
-          Object.fromEntries(
-            [...root.querySelectorAll('li.wc-block-product')].map(card => [
-              [...card.classList].find(name => /^post-\d+$/.test(name)) ?? '',
-              outline(card),
-            ])
-          );
-        const rest = document.createElement('ul');
-        rest.innerHTML = restHtml;
-        return {
-          page: byProduct(
-            document.querySelector('.wp-block-woocommerce-product-template')!
-          ),
-          rest: byProduct(rest),
-        };
-      }, rendered);
+      const cards = await page.evaluate(
+        ({ html, skip }) => {
+          const outline = (card: Element): string =>
+            [...card.querySelectorAll('[class*="wp-block-"]')]
+              .map(el =>
+                [...el.classList]
+                  .filter(name => name.startsWith('wp-block-'))
+                  .sort()
+                  .join('.')
+              )
+              .join(' > ');
+          const byProduct = (cards: Element[]): Record<string, string> =>
+            Object.fromEntries(
+              cards.map(card => [
+                [...card.classList].find(name => /^post-\d+$/.test(name)) ?? '',
+                outline(card),
+              ])
+            );
+          const grid = '.wp-block-woocommerce-product-template';
+          const server = new DOMParser().parseFromString(html, 'text/html');
+          return {
+            appended: byProduct(
+              [
+                ...document.querySelectorAll(`${grid} > li.wc-block-product`),
+              ].slice(skip)
+            ),
+            server: byProduct([
+              ...server.querySelectorAll(`${grid} > li.wc-block-product`),
+            ]),
+          };
+        },
+        { html: serverHtml, skip: before }
+      );
 
-      const shared = Object.keys(cards.page).filter(id => id in cards.rest);
-      expect(shared.length, url).toBeGreaterThan(0);
-      for (const id of shared) {
-        expect(cards.rest[id], `${url} ${id}`).toBe(cards.page[id]);
+      const appended = Object.keys(cards.appended);
+      expect(appended.length, url).toBeGreaterThan(0);
+      for (const id of appended) {
+        expect(cards.appended[id], `${url} ${id}`).toBe(cards.server[id]);
       }
     }
   });

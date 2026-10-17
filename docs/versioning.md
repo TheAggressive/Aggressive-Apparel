@@ -87,8 +87,7 @@ Releases page; never hardcode it in docs. Inventory counts (blocks, patterns,
 features) belong in the same PR that changes them.
 
 Why it matters: `AGGRESSIVE_APPAREL_VERSION` is a cache-invalidation key in
-`Rendered_Product_Cache`, the Product Collection style fingerprint, and five
-asset enqueues, so a header that never moves is a set of caches that never rotate
+the Product Collection style fingerprint and five asset enqueues, so a header that never moves is a set of caches that never rotate
 in development. WordPress also reads `style.css` as the authoritative theme
 version.
 

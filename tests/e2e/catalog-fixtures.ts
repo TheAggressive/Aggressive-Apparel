@@ -3,7 +3,7 @@ import { wpCli } from './wp-cli';
 /**
  * Ensure the E2E shop catalogue can exercise Load More / infinite scroll.
  *
- * Soft-skips in catalog-cursor-pagination.spec.ts hide real regressions when
+ * Soft-skips in catalog-load-more.spec.ts hide real regressions when
  * the env has too few products or is stuck in button mode. Run from global
  * setup so every catalog e2e starts from a known floor.
  */
@@ -11,7 +11,7 @@ import { wpCli } from './wp-cli';
 // The shop archive renders 24 products per page, so a 24-product floor is the
 // single worst value available: the first page shows everything, nothing is
 // left to paginate, and the load-more sentinel stays hidden. That is exactly
-// how catalog-cursor-pagination timed out in CI while passing locally, where a
+// how catalog-load-more timed out in CI while passing locally, where a
 // reused database had accumulated extras above the floor and produced a second
 // page by accident.
 //
@@ -24,7 +24,7 @@ const LOAD_MORE_MODE_OPTION = 'aggressive_apparel_load_more_mode';
 const COMING_SOON_OPTION = 'woocommerce_coming_soon';
 const PRETTY_PERMALINK_STRUCTURE = '/%postname%/';
 
-export interface CatalogCursorFixtures {
+export interface CatalogFixtures {
   shopPageId: number;
 }
 
@@ -187,8 +187,8 @@ function ensureProductFloor(): void {
   }
 }
 
-/** Idempotent catalogue floor for cursor-pagination e2e. */
-export function ensureCatalogCursorFixtures(): CatalogCursorFixtures {
+/** Idempotent catalogue floor for Load More e2e. */
+export function ensureCatalogFixtures(): CatalogFixtures {
   ensurePublicStore();
   const shopPageId = ensureStorefrontInfrastructure();
   ensureInfiniteScrollMode();

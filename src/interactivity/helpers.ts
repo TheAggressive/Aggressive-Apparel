@@ -494,68 +494,6 @@ export function pruneProductGrid(grid: HTMLElement, perPage: number): void {
   spacer.style.pointerEvents = 'none';
 }
 
-/** Remove the scroll-preserving spacer (filter resets / full grid replace). */
-export function clearProductGridSpacer(grid: HTMLElement | null): void {
-  grid?.querySelector(`:scope > .${GRID_SPACER_CLASS}`)?.remove();
-}
-
-export interface DynamicStyleAsset {
-  id: string;
-  css: string;
-  nonce?: string;
-}
-
-const installedDynamicStyles = new Map<string, HTMLStyleElement>();
-const MAX_RETAINED_DYNAMIC_STYLES = 64;
-
-/** Remove old style assets only after no matching element remains in the DOM. */
-function pruneUnusedDynamicStyles(): void {
-  if (installedDynamicStyles.size <= MAX_RETAINED_DYNAMIC_STYLES) return;
-
-  for (const [id, style] of installedDynamicStyles) {
-    const selectors = Array.from(
-      style.textContent?.matchAll(/\.(wp-elements-[a-f0-9]+)/g) || []
-    ).map(match => `.${match[1]}`);
-    const isUsed = selectors.some(selector => document.querySelector(selector));
-    if (!isUsed) {
-      style.remove();
-      installedDynamicStyles.delete(id);
-    }
-    if (installedDynamicStyles.size <= MAX_RETAINED_DYNAMIC_STYLES) break;
-  }
-}
-
-/**
- * Install deterministic block-support assets returned with dynamic markup.
- * Each ID is immutable and installed once. A nonce is forwarded for sites
- * enforcing a nonce-based Content-Security-Policy.
- */
-export function installBlockSupportStyles(
-  assets?: readonly DynamicStyleAsset[]
-): void {
-  if (!assets?.length) return;
-
-  for (const asset of assets) {
-    if (
-      !/^[a-f0-9]{64}$/.test(asset.id) ||
-      !asset.css ||
-      installedDynamicStyles.has(asset.id)
-    ) {
-      continue;
-    }
-
-    const style = document.createElement('style');
-    style.id = `aggressive-apparel-dynamic-style-${asset.id}`;
-    style.dataset.dynamicStyleId = asset.id;
-    if (asset.nonce) style.nonce = asset.nonce;
-    style.textContent = asset.css;
-    document.head.appendChild(style);
-    installedDynamicStyles.set(asset.id, style);
-  }
-
-  pruneUnusedDynamicStyles();
-}
-
 /**
  * Whether the user prefers reduced motion.
  */

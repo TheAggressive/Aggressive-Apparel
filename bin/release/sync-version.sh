@@ -5,9 +5,8 @@
 # The package step stamps the version into the staged tree only, so the checkout
 # never learns what shipped and drifts further from every release. That matters
 # beyond tidiness: WordPress reads style.css as the authoritative theme version,
-# and AGGRESSIVE_APPAREL_VERSION is a cache-invalidation key in
-# Rendered_Product_Cache, in the Product Collection style fingerprint, and in
-# five asset enqueues.
+# and AGGRESSIVE_APPAREL_VERSION is a cache-invalidation key in the Product
+# Collection style fingerprint and in five asset enqueues.
 #
 # Only style.css is touched. languages/aggressive-apparel.pot also embeds the
 # version in Project-Id-Version, but aa_i18n_normalize_pot (bin/i18n/lib.sh)

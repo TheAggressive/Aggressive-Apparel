@@ -219,9 +219,42 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 
 		$this->assertIsArray( $context );
 		$this->assertSame( 1, $context['currentPage'] );
-		$this->assertNotSame( '', $context['orderby'] );
-		$this->assertArrayHasKey( 'nextCursor', $context );
-		$this->assertArrayHasKey( 'restBase', $context );
+		$this->assertSame( '', $context['nextUrl'], 'No native next link, nothing to load.' );
+		$this->assertTrue( $context['allLoaded'] );
+		$this->assertArrayNotHasKey( 'restBase', $context, 'Continuations fetch pages, not REST.' );
+	}
+
+	/**
+	 * Continuations follow the native "next" link (entities decoded), so Load
+	 * More fetches the exact page a crawler or no-JS shopper would.
+	 *
+	 * @return void
+	 */
+	public function test_load_more_continues_from_the_native_next_link(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Next link product',
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+			)
+		);
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		$native = '<nav class="wp-block-query-pagination"><a href="/shop/page/2/?orderby=price&#038;color=black" class="wp-block-query-pagination-next">Next</a></nav>';
+		$html   = ( new Load_More() )->replace_pagination( $native, array( 'blockName' => 'core/query-pagination' ) );
+
+		preg_match( "/data-wp-context='([^']+)'/", $html, $matches );
+		$context = json_decode( html_entity_decode( $matches[1] ?? '', ENT_QUOTES | ENT_HTML5 ), true );
+
+		$this->assertIsArray( $context );
+		$this->assertSame( '/shop/page/2/?orderby=price&color=black', $context['nextUrl'] );
+		$this->assertFalse( $context['allLoaded'] );
 	}
 
 	/**
@@ -390,20 +423,19 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Theme AJAX sorting replaces only WooCommerce's competing change action.
+	 * WooCommerce's sort control keeps its own router navigation (it keeps the
+	 * URL's filters), so the filters only enqueue their assets on it.
 	 *
 	 * @return void
 	 */
-	public function test_product_filters_remove_native_sort_handler_preserves_markup(): void {
-		$filters = new Product_Filters();
-		$method  = new \ReflectionMethod( Product_Filters::class, 'remove_native_sort_handler' );
+	public function test_product_filters_leave_the_native_sort_control_alone(): void {
+		add_filter( 'aggressive_apparel_product_filters_needs_assets', '__return_true' );
+		$html = '<form class="woocommerce-ordering"><select name="orderby" data-wp-on--change="actions.handleSortChange"><option value="date">Latest</option></select></form>';
 
-		$html = '<form data-owner="extension"><select name="orderby" data-wp-on--change="actions.handleSortChange" data-track="catalog"><option value="date">Latest</option></select></form>';
-		$result = (string) $method->invoke( $filters, $html );
+		$result = ( new Product_Filters() )->inject_filter_ui( $html, array( 'blockName' => 'woocommerce/catalog-sorting' ) );
 
-		$this->assertStringNotContainsString( 'data-wp-on--change', $result );
-		$this->assertStringContainsString( 'data-owner="extension"', $result );
-		$this->assertStringContainsString( 'data-track="catalog"', $result );
+		remove_filter( 'aggressive_apparel_product_filters_needs_assets', '__return_true' );
+		$this->assertSame( $html, $result );
 	}
 
 	/**

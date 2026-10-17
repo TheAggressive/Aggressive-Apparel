@@ -2,8 +2,9 @@
  * Load More / Infinite Scroll — Interactivity API Store
  *
  * Replaces standard pagination with a Load More button or automatic
- * infinite scroll via IntersectionObserver. Continuations use opaque
- * keyset cursors from the rendered-products endpoint (no deep OFFSET).
+ * infinite scroll via IntersectionObserver. Each load fetches the archive's
+ * own next page (the native pagination link) and appends its product cards,
+ * so appended cards always match what that page renders.
  *
  * @package Aggressive_Apparel
  * @since 1.51.0
@@ -14,44 +15,42 @@ import type {
   InteractivityCallbacks,
 } from '../../types/interactivity-shared';
 
-import { getServerContext, store } from '@wordpress/interactivity';
 import {
-  clearProductGridSpacer,
-  installBlockSupportStyles,
+  getServerContext,
+  store,
+  useLayoutEffect,
+} from '@wordpress/interactivity';
+import {
   notifyCardsRendered,
   pruneProductGrid,
 } from '@aggressive-apparel/helpers';
 import {
-  resolveContinuationOrderby,
-  shouldHideLoadMoreButton,
-} from './load-more-orderby';
-import {
   SENTINEL_ROOT_MARGIN_PX,
   shouldContinueInfiniteScroll,
-} from './load-more-continue';
+  shouldHideLoadMoreButton,
+} from './load-more/continue';
 import {
   applyLoadMoreSeed,
   getLoadMoreSeedFingerprint,
   type LoadMoreSeed,
-} from './load-more-seed';
+} from './load-more/seed';
+import {
+  catalogCards,
+  findCatalogGrid,
+  installCatalogStyles,
+  parseCatalogPage,
+  type CatalogPage,
+} from './load-more/catalog-page';
 
 interface LoadMoreState {
   mode: LoadMoreSeed['mode'];
   allLoaded: boolean;
   isLoading: boolean;
   totalProducts: number;
-  totalPages: number;
   currentPage: number;
   loadedCount: number;
   perPage: number;
-  orderby: string;
-  restBase: string;
-  restNonce: string;
-  templateSlug: string;
-  currentTaxonomy: string;
-  currentTerm: string;
-  filtersActive: boolean;
-  nextCursor: string;
+  nextUrl: string;
   announcement: string;
   loadingText: string;
   errorText: string;
@@ -63,42 +62,22 @@ interface LoadMoreState {
   readonly statusText: string;
 }
 
-interface ProductsFetchedDetail {
-  page: number;
-  totalPages: number;
-  totalProducts: number;
-  append: boolean;
-  productsCount: number;
-  nextCursor?: string;
-}
-
-/** Response shape from aggressive-apparel/v1/products/rendered */
-interface RenderedEntry {
-  html: string;
-  styles?: Array<{ id: string; css: string; nonce?: string }>;
-  total_products: number;
-  total_pages: number;
-  next_cursor?: string;
-}
-
 interface LoadMoreStore {
   state: LoadMoreState;
   actions: InteractivityActions;
   callbacks: InteractivityCallbacks;
 }
 
-let abortController: AbortController | null = null;
-let prefetchController: AbortController | null = null;
-
-/** Cache of pre-fetched rendered pages keyed by cursor token. */
-const prefetchCache = new Map<string, RenderedEntry>();
-
-/** In-flight prefetch promise so loadSsrPage can adopt it instead of double-fetching. */
-let inflightPrefetch: {
-  cursor: string;
+/** A page request, shared by the scroll prefetch and the load that uses it. */
+interface PageRequest {
+  url: string;
   generation: number;
-  promise: Promise<RenderedEntry | null>;
-} | null = null;
+  promise: Promise<CatalogPage | null>;
+}
+
+let loadController: AbortController | null = null;
+let prefetchController: AbortController | null = null;
+let prefetched: PageRequest | null = null;
 
 let observer: IntersectionObserver | null = null;
 let lastFetchAt = 0;
@@ -106,13 +85,16 @@ let prefetchArmed = false;
 let prefetchScrollBound = false;
 let paginationGeneration = 0;
 
+/** Unique suffix for each fetched page's per-request class names. */
+let pageScope = 0;
+
 /** Complete request seed currently installed in the long-lived module store. */
 let activeSeedFingerprint: string | null = null;
 
-/** Document-level listeners are registered once per module lifetime. */
-let documentListenersBound = false;
-
 const FETCH_COOLDOWN_MS = 400;
+
+/** Marks cards appended by Load More (not part of the server render). */
+const APPENDED = 'data-aa-appended';
 
 const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
   state: {
@@ -142,48 +124,40 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
 
   actions: {
     loadMore(): void {
-      if (state.isLoading || state.allLoaded || !state.nextCursor) return;
       loadNextPage();
     },
   },
 
   callbacks: {
-    init(): void {
-      if (!documentListenersBound) {
-        documentListenersBound = true;
-        document.addEventListener(
-          'aa:products-fetched',
-          handleProductsFetched as EventListener
-        );
-        document.addEventListener(
-          'aa:products-fetch-failed',
-          handleFetchFailure
-        );
-        document.addEventListener('aa:filters-changed', handleFiltersChanged);
-      }
-    },
-
     /**
-     * Install the request-scoped seed after initial render and soft navigation.
+     * Install the request-scoped seed on first render and after each router
+     * navigation (filters, sort, back/forward).
      *
      * Unlike getContext(), getServerContext() is invalidated by the WordPress
-     * router when it morphs a region. This remains correct when the router
-     * deliberately reuses the same .aa-load-more DOM element.
+     * router when it renders a region, also when it reuses this element.
+     * Runs in render (`data-wp-run`), as a hook, so the layout effect applies
+     * the new page before the browser paints it — see removeAppendedCards().
      */
-    syncServerContext(): void {
+    useServerSeed(): void {
       const seed = getServerContext<Partial<LoadMoreSeed>>();
       const fingerprint = getLoadMoreSeedFingerprint(seed);
-      if (!fingerprint || fingerprint === activeSeedFingerprint) return;
 
-      resetPaginationRuntime(seed);
-      activeSeedFingerprint = fingerprint;
-      synchronizeInitialGridState();
+      useLayoutEffect(() => {
+        if (!fingerprint || fingerprint === activeSeedFingerprint) return;
 
-      if (state.mode === 'infinite_scroll') {
-        setupIntersectionObserver();
-      }
+        if (activeSeedFingerprint !== null) {
+          removeAppendedCards();
+        }
+        resetPaginationRuntime(seed);
+        activeSeedFingerprint = fingerprint;
+        synchronizeInitialGridState();
 
-      armPrefetchOnScroll();
+        if (state.mode === 'infinite_scroll') {
+          setupIntersectionObserver();
+        }
+
+        armPrefetchOnScroll();
+      }, [fingerprint, seed]);
     },
   },
 });
@@ -192,24 +166,19 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
  * Replace long-lived store state with the seed attached to this rendered root.
  *
  * Router navigation preserves the JS module but replaces the archive markup.
- * Invalidating all asynchronous work here prevents an earlier cursor response
- * from mutating the newly rendered catalog.
+ * Invalidating all asynchronous work here prevents a page fetched for the
+ * previous catalog from being appended to the new one.
  */
 function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
   paginationGeneration += 1;
 
-  if (abortController) {
-    abortController.abort();
-    abortController = null;
-  }
-  if (prefetchController) {
-    prefetchController.abort();
-    prefetchController = null;
-  }
+  loadController?.abort();
+  loadController = null;
+  prefetchController?.abort();
+  prefetchController = null;
+  prefetched = null;
   observer?.disconnect();
   observer = null;
-  prefetchCache.clear();
-  inflightPrefetch = null;
   prefetchArmed = false;
 
   if (prefetchScrollBound) {
@@ -218,160 +187,97 @@ function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
   }
 
   applyLoadMoreSeed(state, seed);
-  state.isLoading = false;
 }
 
-/** Align pagination with the Product Collection actually rendered by the template. */
+/**
+ * Remove the cards (and prune spacer) Load More added to the previous page.
+ *
+ * The router re-renders a region with Preact, which keeps DOM nodes it did
+ * not create: without this, the previous page's appended cards would stay
+ * beside the new page's cards.
+ */
+function removeAppendedCards(): void {
+  document
+    .querySelectorAll(`[${APPENDED}], .aa-product-grid__spacer`)
+    .forEach(node => node.remove());
+}
+
+/** Align page size with the Product Collection actually rendered. */
 function synchronizeInitialGridState(): void {
-  const grid = document.querySelector<HTMLElement>(
-    '.wp-block-woocommerce-product-template'
-  );
-  if (!grid) return;
-
-  const renderedCount = grid.querySelectorAll(
-    ':scope > li:not(.aa-product-grid__spacer)'
-  ).length;
-  if (renderedCount < 1) return;
-
-  state.perPage = renderedCount;
-  state.loadedCount = renderedCount;
-  state.totalPages = Math.max(
-    1,
-    Math.ceil(state.totalProducts / renderedCount)
-  );
-}
-
-/**
- * Handle product-filters fetch completion.
- */
-function handleProductsFetched(e: CustomEvent<ProductsFetchedDetail>): void {
-  const { page, totalPages, totalProducts, append, productsCount, nextCursor } =
-    e.detail;
-  state.filtersActive = true;
-  state.currentPage = page;
-  state.totalPages = totalPages;
-  state.totalProducts = totalProducts;
-  // Only overwrite when the filter response includes a cursor field — an
-  // omitted value must not wipe the SSR-seeded continuation token.
-  if (typeof nextCursor === 'string') {
-    state.nextCursor = nextCursor;
+  const grid = findCatalogGrid(document);
+  const renderedCount = grid ? catalogCards(grid).length : 0;
+  if (renderedCount > 0) {
+    state.perPage = renderedCount;
   }
-  state.allLoaded =
-    page >= totalPages ||
-    (typeof nextCursor === 'string' ? nextCursor === '' : state.allLoaded);
-  state.loadedCount = append
-    ? state.loadedCount + (productsCount || 0)
-    : productsCount || 0;
-  // The filter-driven fetch has completed — clear the loading state so the
-  // spinner hides and the button re-enables, and replace the "Loading…"
-  // announcement (product-filters announces its own replace results).
-  state.isLoading = false;
-  state.announcement = append
-    ? state.loadedFormat.replace('%d', String(productsCount || 0))
-    : '';
 }
 
-/**
- * Handle filter change — reset to page 1 and discard stale prefetch cache.
- */
-function handleFiltersChanged(): void {
-  paginationGeneration += 1;
-  if (abortController) {
-    abortController.abort();
-    abortController = null;
+/** Fetch and parse one catalog page. */
+async function requestPage(
+  url: string,
+  signal: AbortSignal,
+  priority: 'auto' | 'low' = 'auto'
+): Promise<CatalogPage | null> {
+  const response = await fetch(url, {
+    signal,
+    priority,
+    mode: 'same-origin',
+    credentials: 'same-origin',
+    headers: { Accept: 'text/html' },
+  } as RequestInit);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
   }
-  state.currentPage = 1;
-  state.allLoaded = false;
-  state.nextCursor = '';
-  state.filtersActive = true;
-  state.isLoading = false;
-  prefetchCache.clear();
-  if (prefetchController) {
-    prefetchController.abort();
-    prefetchController = null;
-  }
-  inflightPrefetch = null;
-  const grid = document.querySelector<HTMLElement>(
-    '.wp-block-woocommerce-product-template'
+
+  pageScope += 1;
+  return parseCatalogPage(
+    await response.text(),
+    response.url || url,
+    `aa${pageScope}`
   );
-  clearProductGridSpacer(grid);
 }
 
-/** Release loading state when a coordinated filter/sort request fails. */
-function handleFetchFailure(): void {
-  state.isLoading = false;
-  state.announcement = '';
-}
-
-/**
- * Load the next page of products.
- */
+/** Load the next page, reusing its prefetch when one is pending or done. */
 function loadNextPage(): void {
-  if (!state.nextCursor || state.isLoading || state.allLoaded) return;
+  if (state.isLoading || state.allLoaded || !state.nextUrl) return;
 
+  const url = state.nextUrl;
+  const generation = paginationGeneration;
   state.isLoading = true;
   // Announce the wait to assistive tech (the spinner itself is aria-hidden).
   state.announcement = state.loadingText;
-  const nextPage = state.currentPage + 1;
   lastFetchAt = Date.now();
 
-  if (state.filtersActive) {
-    document.dispatchEvent(
-      new CustomEvent('aa:load-more-page', {
-        detail: { page: nextPage, cursor: state.nextCursor },
-      })
-    );
-    return;
-  }
+  const pending =
+    prefetched?.url === url && prefetched.generation === generation
+      ? prefetched.promise
+      : Promise.resolve(null);
+  prefetched = null;
 
-  loadSsrPage(nextPage, state.nextCursor);
-}
-
-/**
- * Build the REST endpoint URL for the given page/cursor.
- */
-function buildUrl(page: number, cursor: string): string {
-  const params = new URLSearchParams();
-  params.set('per_page', String(state.perPage));
-  params.set('page', String(page));
-  if (cursor) {
-    params.set('cursor', cursor);
-  }
-
-  // Prefer SSR-seeded orderby over the dropdown's "Default sorting" value so
-  // a menu_order select cannot remount a date-seeded cursor (sparse dedupe).
-  const sortSelect = document.querySelector<HTMLSelectElement>(
-    '.woocommerce-ordering select, select[name="orderby"]'
-  );
-  const orderby = resolveContinuationOrderby(
-    state.orderby,
-    sortSelect?.value ?? '',
-    new URLSearchParams(window.location.search).get('orderby') ?? ''
-  );
-  params.set('orderby', orderby);
-
-  if (state.currentTaxonomy && state.currentTerm) {
-    params.set('taxonomy', state.currentTaxonomy);
-    params.set('term', state.currentTerm);
-  }
-
-  if (state.templateSlug) {
-    params.set('template', state.templateSlug);
-  }
-
-  return `${state.restBase}?${params}`;
+  pending
+    .catch(() => null)
+    .then(page => {
+      if (page) return page;
+      loadController?.abort();
+      loadController = new AbortController();
+      return requestPage(url, loadController.signal);
+    })
+    .then(page => {
+      if (generation !== paginationGeneration) return;
+      appendPage(url, page, generation);
+    })
+    .catch((error: Error) => {
+      if (error.name === 'AbortError' || generation !== paginationGeneration) {
+        return;
+      }
+      state.isLoading = false;
+      state.mode = 'load_more';
+      state.announcement = state.errorText;
+    });
 }
 
 /** Prefetch only after the shopper shows intent to scroll the catalog. */
 function armPrefetchOnScroll(): void {
-  if (
-    prefetchArmed ||
-    prefetchScrollBound ||
-    state.allLoaded ||
-    state.filtersActive
-  ) {
-    return;
-  }
+  if (prefetchArmed || prefetchScrollBound || state.allLoaded) return;
 
   prefetchScrollBound = true;
   window.addEventListener('scroll', handlePrefetchScroll, {
@@ -391,206 +297,88 @@ function handlePrefetchScroll(): void {
 }
 
 /**
- * Silently prefetch the next page in the background so it is ready
- * before the IntersectionObserver fires.
+ * Fetch the next page in the background so it is ready before the
+ * IntersectionObserver (or the button) asks for it.
  */
-async function prefetchNextPage(): Promise<void> {
-  if (state.filtersActive || state.allLoaded || !state.nextCursor) return;
-
-  const cursor = state.nextCursor;
+function prefetchNextPage(): void {
+  const url = state.nextUrl;
   const generation = paginationGeneration;
-  if (
-    prefetchCache.has(cursor) ||
-    (inflightPrefetch?.cursor === cursor &&
-      inflightPrefetch.generation === generation)
-  ) {
-    return;
-  }
+  // A load in flight is already fetching this URL.
+  if (state.isLoading || state.allLoaded || !url) return;
+  if (prefetched?.url === url && prefetched.generation === generation) return;
 
-  if (prefetchController) prefetchController.abort();
+  prefetchController?.abort();
   prefetchController = new AbortController();
-  const signal = prefetchController.signal;
 
-  const promise = (async (): Promise<RenderedEntry | null> => {
-    try {
-      const res = await fetch(buildUrl(state.currentPage + 1, cursor), {
-        signal,
-        priority: 'low',
-        headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
-      } as RequestInit);
-
-      if (!res.ok) return null;
-
-      const data = (await res.json()) as RenderedEntry;
-      if (generation !== paginationGeneration) return null;
-
-      prefetchCache.set(cursor, data);
-      // A fast prefetch can finish after the observer's last edge event. Recheck
-      // the sentinel so a cached final page cannot remain stranded at N-1.
+  const promise = requestPage(url, prefetchController.signal, 'low').then(
+    page => {
+      // A fast prefetch can finish after the observer's last edge event.
+      // Recheck the sentinel so the final page cannot stay stranded.
       requestAnimationFrame(() => {
         continueInfiniteScrollIfNeeded(generation);
       });
-      return data;
-    } catch {
-      // Silently discard — loadSsrPage will fetch again when needed.
-      return null;
-    } finally {
-      if (
-        inflightPrefetch?.cursor === cursor &&
-        inflightPrefetch.generation === generation
-      ) {
-        inflightPrefetch = null;
-      }
+      return page;
     }
-  })();
-
-  inflightPrefetch = { cursor, generation, promise };
-  await promise;
-}
-
-/**
- * Fetch (or serve from cache / in-flight prefetch) a rendered page and insert it.
- */
-function loadSsrPage(page: number, cursor: string): void {
-  const generation = paginationGeneration;
-  const cached = prefetchCache.get(cursor);
-  if (cached) {
-    prefetchCache.delete(cursor);
-    applyRenderedPage(page, cached, generation);
-    return;
-  }
-
-  if (
-    inflightPrefetch?.cursor === cursor &&
-    inflightPrefetch.generation === generation
-  ) {
-    inflightPrefetch.promise
-      .then(data => {
-        // Filter/sort may have reset pagination while this prefetch was in flight.
-        if (generation !== paginationGeneration) return;
-        if (state.filtersActive || state.nextCursor !== cursor) {
-          state.isLoading = false;
-          return;
-        }
-        if (data) {
-          prefetchCache.delete(cursor);
-          applyRenderedPage(page, data, generation);
-          return;
-        }
-        fetchRenderedPage(page, cursor, generation);
-      })
-      .catch(() => {
-        if (generation !== paginationGeneration) return;
-        if (state.filtersActive || state.nextCursor !== cursor) {
-          state.isLoading = false;
-          return;
-        }
-        fetchRenderedPage(page, cursor, generation);
-      });
-    return;
-  }
-
-  fetchRenderedPage(page, cursor, generation);
-}
-
-/**
- * Network fetch for a rendered page (used when prefetch is unavailable).
- */
-function fetchRenderedPage(
-  page: number,
-  cursor: string,
-  generation: number
-): void {
-  if (abortController) abortController.abort();
-  abortController = new AbortController();
-
-  fetch(buildUrl(page, cursor), {
-    signal: abortController.signal,
-    headers: state.restNonce ? { 'X-WP-Nonce': state.restNonce } : {},
-  })
-    .then((res: Response) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json() as Promise<RenderedEntry>;
-    })
-    .then((data: RenderedEntry) => {
-      if (generation !== paginationGeneration) return;
-      if (state.filtersActive || state.nextCursor !== cursor) {
-        state.isLoading = false;
-        return;
-      }
-      applyRenderedPage(page, data, generation);
-    })
-    .catch((err: Error) => {
-      if (err.name === 'AbortError') return;
-      if (generation !== paginationGeneration) return;
-      state.isLoading = false;
-      state.mode = 'load_more';
-      state.announcement = state.errorText;
-    });
-}
-
-/**
- * Insert server-rendered product HTML into the grid and update state.
- */
-function applyRenderedPage(
-  page: number,
-  data: RenderedEntry,
-  generation: number
-): void {
-  if (generation !== paginationGeneration) return;
-
-  const grid = document.querySelector<HTMLElement>(
-    '.wp-block-woocommerce-product-template'
   );
-  if (!grid || !data.html) {
-    // Empty page (no more products, or gated) — settle the UI cleanly.
+  // Failures are retried by the load itself.
+  promise.catch(() => undefined);
+
+  prefetched = { url, generation, promise };
+}
+
+/**
+ * Append a fetched page's new cards and advance to the page after it.
+ *
+ * @param url        URL the page was requested from.
+ * @param page       Parsed page, or null when it has no catalog (past the end).
+ * @param generation Pagination generation the request belongs to.
+ */
+function appendPage(
+  url: string,
+  page: CatalogPage | null,
+  generation: number
+): void {
+  const grid = findCatalogGrid(document);
+  if (!grid || !page) {
+    // Nothing more to show — settle the UI cleanly.
     state.isLoading = false;
     state.allLoaded = true;
-    state.nextCursor = '';
+    state.nextUrl = '';
+    state.announcement = '';
     return;
   }
 
-  installBlockSupportStyles(data.styles);
+  // Cards already shown (a product published or moved since the previous
+  // page was rendered shifts later pages) are skipped, never repeated.
+  const known = new Set(catalogCards(grid).map(productCardKey));
+  const cards = page.cards.filter(card => {
+    const key = productCardKey(card);
+    if (!key || known.has(key)) return false;
+    known.add(key);
+    return true;
+  });
 
-  // Count inserted <li> elements to update loadedCount accurately.
-  const temp = document.createElement('ul');
-  temp.innerHTML = data.html;
-  const knownKeys = new Set(
-    Array.from(
-      grid.querySelectorAll<HTMLElement>(
-        ':scope > li:not(.aa-product-grid__spacer)'
-      )
-    )
-      .map(productCardKey)
-      .filter(Boolean)
-  );
-  const incomingKeys = new Set<string>();
-  Array.from(temp.querySelectorAll<HTMLElement>(':scope > li')).forEach(
-    card => {
-      const key = productCardKey(card);
-      if (!key || knownKeys.has(key) || incomingKeys.has(key)) {
-        card.remove();
-        return;
-      }
-      incomingKeys.add(key);
-    }
-  );
-  const count = temp.children.length;
-
-  if (count > 0) {
-    grid.insertAdjacentHTML('beforeend', temp.innerHTML);
+  installCatalogStyles(page);
+  cards.forEach(card => card.setAttribute(APPENDED, ''));
+  if (cards.length > 0) {
+    grid.append(...cards);
     pruneProductGrid(grid, state.perPage);
     notifyCardsRendered(grid);
   }
 
-  state.totalProducts = data.total_products;
-  state.totalPages = data.total_pages;
-  state.currentPage = page;
-  state.loadedCount += count;
-  state.nextCursor = data.next_cursor || '';
-  state.allLoaded = !state.nextCursor || page >= data.total_pages;
+  // A next link pointing back at this page would loop forever.
+  const nextUrl = page.seed.nextUrl === url ? '' : page.seed.nextUrl;
+
+  state.totalProducts = page.seed.totalProducts;
+  state.currentPage = page.seed.currentPage;
+  state.loadedCount = Math.min(
+    state.loadedCount + cards.length,
+    state.totalProducts
+  );
+  state.nextUrl = nextUrl;
+  state.allLoaded = page.seed.allLoaded || nextUrl === '';
   state.isLoading = false;
-  state.announcement = state.loadedFormat.replace('%d', String(count));
+  state.announcement = state.loadedFormat.replace('%d', String(cards.length));
 
   prefetchNextPage();
 
@@ -617,7 +405,7 @@ function continueInfiniteScrollIfNeeded(
     mode: state.mode,
     isLoading: state.isLoading,
     allLoaded: state.allLoaded,
-    nextCursor: state.nextCursor,
+    nextUrl: state.nextUrl,
     sentinelHidden: !sentinel || sentinel.hasAttribute('hidden'),
     sentinelTop:
       sentinel?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY,
@@ -638,7 +426,7 @@ function continueInfiniteScrollIfNeeded(
   }
 }
 
-/** Stable identity used to make dynamic card insertion idempotent. */
+/** Stable identity used to make card insertion idempotent. */
 function productCardKey(card: HTMLElement): string {
   const postClass = [...card.classList].find(className =>
     /^post-\d+$/.test(className)
@@ -662,11 +450,7 @@ function setupIntersectionObserver(): void {
     return;
   }
 
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
-
+  observer?.disconnect();
   observer = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
       if (!entries[0]?.isIntersecting) return;

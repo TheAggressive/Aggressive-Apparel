@@ -20,9 +20,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * - Full-page caches: Breeze purges on Customizer and classic-menu saves but
  *   skips these updates, and never reaches Cloudflare for them.
- * - Theme caches (Load More's rendered cards) listen for
- *   `aggressive_apparel_design_changed`; a synced pattern's edit, for example,
- *   never changes the template markup their keys are built from.
+ * - Anything else keyed to the design can listen for
+ *   `aggressive_apparel_design_changed`.
  *
  * Saves are collected and handled once per request: the Site Editor often
  * saves several entities together.
@@ -85,8 +84,8 @@ final class Page_Cache_Purge {
 	 * Invalidate theme caches, then purge every page-cache layer, once.
 	 *
 	 * `breeze_clear_all_cache` is Breeze's own full purge (local files,
-	 * Varnish and Cloudflare); without Breeze it has no listeners. Theme caches
-	 * go first so a page-cache preloader re-renders against fresh fragments.
+	 * Varnish and Cloudflare); without Breeze it has no listeners. Listeners of
+	 * the theme action run first, before any page-cache preloader re-renders.
 	 *
 	 * @return void
 	 */

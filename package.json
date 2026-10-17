@@ -71,6 +71,7 @@
     "@wordpress/i18n": "^6.29.0",
     "@wordpress/icons": "^15.5.0",
     "@wordpress/interactivity": "^6.56.0",
+    "@wordpress/interactivity-router": "2.54.0",
     "@wordpress/keyboard-shortcuts": "^5.56.0",
     "@wordpress/keycodes": "^4.56.0",
     "@wordpress/notices": "^5.56.0",

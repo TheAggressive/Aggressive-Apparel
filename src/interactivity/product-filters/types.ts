@@ -42,22 +42,7 @@ export interface FilterPill {
   label: string;
 }
 
-export interface SortedProductsResponse {
-  total: number;
-  totalPages: number;
-  ids: number[];
-}
-
 export type Facets = Record<string, string[] | undefined>;
-
-export interface RenderedResponse {
-  html: string;
-  styles?: Array<{ id: string; css: string; nonce?: string }>;
-  total_products: number;
-  total_pages: number;
-  next_cursor?: string;
-  facets?: Facets;
-}
 
 export interface AttributeFilterConfig {
   taxonomy: string;
@@ -87,12 +72,6 @@ export const ATTRIBUTE_FILTERS: readonly AttributeFilterConfig[] = [
   },
 ];
 
-export interface SortConfig {
-  orderBy: string;
-  orderDir: string;
-  customSort?: string;
-}
-
 export interface ProductFiltersState {
   selectedCategories: string[];
   selectedColors: string[];
@@ -102,21 +81,14 @@ export interface ProductFiltersState {
   priceRange: PriceRange;
   inStockOnly: boolean;
   onSaleOnly: boolean;
-  products: number[];
-  currentPage: number;
-  totalPages: number;
-  totalProducts: number;
-  nextCursor: string;
+  /** True while a filter or sort navigation is in flight. */
   isLoading: boolean;
-  hasError: boolean;
   isDrawerOpen: boolean;
   openDropdown: string;
-  perPage: number;
-  orderBy: string;
-  orderDir: string;
-  restBase: string;
+  /** WooCommerce `orderby` value of the current URL ('' = default). */
+  orderby: string;
+  facetsUrl: string;
   restNonce: string;
-  templateSlug: string;
   shopUrl: string;
   salesCategoryUrl: string;
   layout: string;
@@ -134,22 +106,14 @@ export interface ProductFiltersState {
     inStockLabel: string;
     onSaleLabel: string;
     allFiltersCleared?: string;
-    loadError?: string;
     noProductsFound?: string;
     oneProductFound?: string;
     productsFound?: string;
     removeFilterAria?: string;
   };
   _announcement: string;
-  _customSort: string;
-  /** The grid shows AJAX results, not the server-rendered archive. */
-  _ajaxGrid: boolean;
   readonly hasActiveFilters: boolean;
   readonly hasNoActiveFilters: boolean;
-  readonly hasProducts: boolean;
-  readonly hideNoResults: boolean;
-  readonly hideError: boolean;
-  readonly hasSinglePage: boolean;
   readonly activeFilterCount: number | string;
   readonly triggerCountLabel: string;
   readonly priceMinDisplay: string;

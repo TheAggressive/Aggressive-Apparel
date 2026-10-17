@@ -1,7 +1,7 @@
 /**
  * Product Filters — pill / control render + sync layer.
  *
- * Pure state→DOM rendering for the filter pills, pagination, dropdowns and the
+ * Pure state→DOM rendering for the filter pills, dropdowns and the
  * control-sync helpers. Extracted from product-filters.ts to stay under the
  * file-length cap; touches only the store state (imported) and the DOM.
  *
@@ -111,58 +111,6 @@ export function renderPills(): void {
   containers.forEach((c: HTMLElement) => {
     c.innerHTML = html;
   });
-}
-
-/**
- * Hide numbered filter pagination when Load More / Infinite Scroll is active.
- */
-export function hideFilterPagination(): void {
-  if (!document.querySelector('.aa-product-filters .aa-load-more')) {
-    return;
-  }
-
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination-nav')
-    .forEach(nav => {
-      nav.hidden = true;
-    });
-
-  document
-    .querySelectorAll<HTMLElement>('.aa-product-filters__pagination')
-    .forEach(container => {
-      container.innerHTML = '';
-    });
-}
-
-/**
- * Render pagination controls.
- */
-export function renderPagination(): void {
-  if (document.querySelector('.aa-product-filters .aa-load-more')) {
-    hideFilterPagination();
-    return;
-  }
-
-  const container = document.querySelector<HTMLElement>(
-    '.aa-product-filters__pagination'
-  );
-  if (!container) return;
-
-  if (state.totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
-  const pages: string[] = [];
-  for (let i = 1; i <= state.totalPages; i++) {
-    const isCurrent = i === state.currentPage;
-    const ariaLabel = isCurrent ? `Page ${i}, current page` : `Go to page ${i}`;
-    pages.push(
-      `<button class="aa-product-filters__page-btn aa-choice-pill${isCurrent ? ' is-current' : ''}" data-page="${i}" aria-label="${escapeHtml(ariaLabel)}" ${isCurrent ? 'aria-current="page"' : ''}>${i}</button>`
-    );
-  }
-
-  container.innerHTML = pages.join('');
 }
 
 /**
@@ -310,7 +258,6 @@ export function setSaleStatus(enabled: boolean): void {
   const categoryFilters = visibleSelectedCategories();
 
   state.onSaleOnly = enabled;
-  state.currentPage = 1;
   state.selectedCategories = enabled
     ? [state.salesCategorySlug, ...categoryFilters]
     : categoryFilters;

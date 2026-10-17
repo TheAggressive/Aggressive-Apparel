@@ -256,21 +256,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
     const initialTitle = cards.first().locator('.wp-block-post-title a');
     const expected = await titleStyle(initialTitle);
 
-    const renderedResponse = page.waitForResponse(response => {
-      const url = new URL(response.url());
-      return (
-        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-        url.searchParams.has('cursor') &&
-        response.status() === 200
-      );
-    });
     const button = page.locator('.aa-load-more__btn');
     await expect(button).toBeVisible();
     await button.click();
-    const response = await renderedResponse;
-    const body = (await response.json()) as {
-      styles?: Array<{ id?: string; css?: string }>;
-    };
 
     await expect
       .poll(() => cards.count(), { timeout: 15_000 })
@@ -290,108 +278,27 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await expect(appended).toBeVisible();
     expect(await titleStyle(appended)).toEqual(expected);
 
-    const styles = body.styles ?? [];
-    expect(styles.length).toBeGreaterThan(0);
-    const styleIds = styles.map(asset => asset.id);
-    expect(styleIds.every(id => /^[a-f0-9]{64}$/.test(id ?? ''))).toBe(true);
-    expect(new Set(styleIds).size).toBe(styleIds.length);
-
-    for (const asset of styles) {
-      const dynamicStyle = page.locator(
-        `style[data-dynamic-style-id="${asset.id}"]`
-      );
-      await expect(dynamicStyle).toHaveCount(1);
-      expect(await dynamicStyle.textContent()).toBe(asset.css);
-      expect(asset.css).toMatch(/wp-elements-/);
+    // Per-request block-support classes (`wp-elements-N`) are renamed for
+    // the appended page and styled by that page's own rules.
+    const scoped = await appended.evaluate(title =>
+      [
+        ...(title.closest('li')?.querySelectorAll('[class*="wp-elements-"]') ??
+          []),
+      ].flatMap(el =>
+        [...el.classList].filter(name => /^wp-elements-\d+-aa\d+$/.test(name))
+      )
+    );
+    // Playwright's text matching skips <style> contents; read them directly.
+    const pageCss = await page
+      .locator('style[data-aa-catalog-page]')
+      .evaluateAll(styles => styles.map(style => style.textContent ?? ''));
+    for (const name of scoped) {
+      expect(
+        pageCss.filter(
+          css => css.includes(`.${name} `) || css.includes(`.${name}{`)
+        ),
+        name
+      ).toHaveLength(1);
     }
   });
 }
-
-test('catalog sorting resets paging and appends unique products', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/shop/');
-
-  const select = page.locator('select[name="orderby"]').first();
-  await expect(select).toBeVisible();
-
-  await Promise.all([
-    page.waitForURL(/orderby=price/, { timeout: 15_000 }).catch(() => null),
-    select.selectOption('price'),
-  ]);
-  await page.waitForLoadState('domcontentloaded');
-
-  const cards = page.locator(
-    '.wp-block-woocommerce-product-template > .wc-block-product'
-  );
-  await expect.poll(() => cards.count()).toBeGreaterThan(0);
-  const sortedCount = await cards.count();
-
-  const nextPage = page.waitForResponse(response => {
-    const url = new URL(response.url());
-    return (
-      url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-      url.searchParams.get('orderby') === 'price' &&
-      url.searchParams.has('cursor') &&
-      response.status() === 200
-    );
-  });
-
-  const button = page.locator('.aa-load-more__btn');
-  await expect(button).toBeVisible();
-  await button.click();
-  await nextPage;
-
-  await expect
-    .poll(() => cards.count(), { timeout: 15_000 })
-    .toBeGreaterThan(sortedCount);
-  const productIds = await cards.evaluateAll(elements =>
-    elements
-      .filter(el => !el.classList.contains('aa-product-grid__spacer'))
-      .map(element =>
-        [...element.classList].find(className => /^post-\d+$/.test(className))
-      )
-  );
-  expect(productIds.every(Boolean)).toBe(true);
-  expect(new Set(productIds).size).toBe(productIds.length);
-});
-
-test.describe('anonymous catalog pagination', () => {
-  test.use({ storageState: { cookies: [], origins: [] } });
-
-  test('default WooCommerce ordering loads the remaining unique products', async ({
-    page,
-  }) => {
-    const responsePromise = page.waitForResponse(response => {
-      const url = new URL(response.url());
-      return (
-        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-        (url.searchParams.get('orderby') === 'menu_order' ||
-          url.searchParams.has('cursor')) &&
-        url.searchParams.has('cursor') &&
-        response.status() === 200
-      );
-    });
-
-    await page.goto('/shop/');
-
-    const cards = page.locator(
-      '.wp-block-woocommerce-product-template > .wc-block-product'
-    );
-    const initialCount = await cards.count();
-    expect(initialCount).toBeGreaterThan(0);
-
-    await page.locator('.aa-load-more__sentinel').scrollIntoViewIfNeeded();
-    await responsePromise;
-    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
-
-    const productIds = await cards.evaluateAll(elements =>
-      elements.map(element =>
-        [...element.classList].find(className => /^post-\d+$/.test(className))
-      )
-    );
-    expect(productIds.every(Boolean)).toBe(true);
-    expect(new Set(productIds).size).toBe(productIds.length);
-  });
-});

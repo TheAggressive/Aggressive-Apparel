@@ -62,23 +62,22 @@ class TestStorefrontRestRequests extends WP_UnitTestCase {
 
 	/** Theme routes that render shopper prices boot like pages. */
 	public function test_price_routes_boot_as_storefront(): void {
-		$this->assertFalse( $this->rest_after_filter( '/wp-json/aggressive-apparel/v1/products/rendered?per_page=12&cursor=abc' ) );
 		$this->assertFalse( $this->rest_after_filter( '/wp-json/aggressive-apparel/v1/search?q=tee' ) );
 		$this->assertFalse( $this->rest_after_filter( '/subdir/wp-json/aggressive-apparel/v1/search/' ) );
 	}
 
 	/** Plain-permalink requests (`?rest_route=`) are recognised too. */
 	public function test_rest_route_query_parameter(): void {
-		$_GET['rest_route'] = '/aggressive-apparel/v1/products/rendered';
-		$this->assertFalse( $this->rest_after_filter( '/?rest_route=/aggressive-apparel/v1/products/rendered' ) );
+		$_GET['rest_route'] = '/aggressive-apparel/v1/search';
+		$this->assertFalse( $this->rest_after_filter( '/?rest_route=/aggressive-apparel/v1/search' ) );
 
-		$_GET['rest_route'] = '/aggressive-apparel/v1/products/sorted';
-		$this->assertTrue( $this->rest_after_filter( '/?rest_route=/aggressive-apparel/v1/products/sorted' ) );
+		$_GET['rest_route'] = '/aggressive-apparel/v1/catalog/facets';
+		$this->assertTrue( $this->rest_after_filter( '/?rest_route=/aggressive-apparel/v1/catalog/facets' ) );
 	}
 
 	/** Every other REST route keeps WooCommerce's own handling. */
 	public function test_other_routes_stay_rest(): void {
-		$this->assertTrue( $this->rest_after_filter( '/wp-json/aggressive-apparel/v1/products/sorted' ) );
+		$this->assertTrue( $this->rest_after_filter( '/wp-json/aggressive-apparel/v1/catalog/facets' ) );
 		$this->assertTrue( $this->rest_after_filter( '/wp-json/wc/store/v1/cart' ) );
 		$this->assertTrue( $this->rest_after_filter( '/wp-json/wp/v2/posts' ) );
 		$this->assertTrue( $this->rest_after_filter( '/wp-json/evil/aggressive-apparel/v1/search-like' ) );

@@ -18,8 +18,9 @@ defined( 'ABSPATH' ) || exit;
  * for REST requests, so prices rendered by these routes could be computed for
  * a different shopper than the page that requests them. WooPayments'
  * cache-optimized multi-currency, for one, renders client-side price skeletons
- * without a session but loads its converter only on session-less pages: a
- * shopper with a cart saw blank prices on every card Load More appended.
+ * without a session but loads its converter only on session-less pages: before
+ * Load More fetched real pages, a shopper with a cart saw blank prices on every
+ * card it appended. Search still renders prices over REST.
  *
  * Opting these routes out of WooCommerce's REST detection (it runs before
  * `init`, where the session is loaded) makes every pricing plugin see the
@@ -29,7 +30,6 @@ final class Storefront_Rest_Requests {
 
 	/** Theme routes that render prices for the current shopper. */
 	private const ROUTES = array(
-		'/aggressive-apparel/v1/products/rendered',
 		'/aggressive-apparel/v1/search',
 	);
 

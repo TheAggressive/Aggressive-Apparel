@@ -43,6 +43,9 @@ export default (env = {}, argv = {}) => {
     externalsType: 'module',
     externals: {
       '@wordpress/interactivity': '@wordpress/interactivity',
+      // Loaded on demand (`import()`), never as a static dependency.
+      '@wordpress/interactivity-router':
+        'import @wordpress/interactivity-router',
       '@aggressive-apparel/helpers': '@aggressive-apparel/helpers',
       '@aggressive-apparel/scroll-lock': '@aggressive-apparel/scroll-lock',
       '@aggressive-apparel/use-overlay': '@aggressive-apparel/use-overlay',

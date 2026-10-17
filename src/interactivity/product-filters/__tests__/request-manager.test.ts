@@ -4,15 +4,6 @@ describe('FilterRequestManager', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
-  it('aborts the previous product request', () => {
-    const manager = new FilterRequestManager();
-    const first = manager.beginProducts();
-    const second = manager.beginProducts();
-
-    expect(first.aborted).toBe(true);
-    expect(second.aborted).toBe(false);
-  });
-
   it('coalesces facet updates and cancels them before navigation', () => {
     const manager = new FilterRequestManager();
     const first = jest.fn();

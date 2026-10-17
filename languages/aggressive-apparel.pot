@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T00:27:00+00:00\n"
+"POT-Creation-Date: 2026-10-17T02:06:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -143,19 +143,19 @@ msgid "Persistent object cache is active"
 msgstr ""
 
 #: includes/Core/class-cache-health.php:84
-msgid "The theme caches anonymous product-grid responses (load-more, filtering, sorting) in the persistent object cache, so paginated catalog requests are served without recomputing their query."
+msgid "Filter availability, search results and rate-limit counters are cached in the persistent object cache instead of the database."
 msgstr ""
 
 #: includes/Core/class-cache-health.php:95
-msgid "No persistent object cache — catalog cache is inactive"
+msgid "No persistent object cache for the catalog"
 msgstr ""
 
 #: includes/Core/class-cache-health.php:98
-msgid "Aggressive Apparel caches anonymous product-grid responses (load-more, filtering, sorting) only when a persistent object cache is available. Without one, every catalog request recomputes its query and re-renders from scratch, which will not hold up under traffic."
+msgid "Aggressive Apparel caches filter availability, search results and rate-limit counters as transients. Without a persistent object cache they are stored in the database, so busy catalogs write to it on anonymous requests."
 msgstr ""
 
 #: includes/Core/class-cache-health.php:101
-msgid "How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — only paginated load-more is theme-cached; the initial archive paint relies on the page cache."
+msgid "How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — catalog pages, including those Load More fetches, rely on it."
 msgstr ""
 
 #: includes/Core/class-cache-health.php:108
@@ -484,7 +484,6 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: includes/WooCommerce/class-product-filters.php:597
 msgid "Try again"
 msgstr ""
 
@@ -1012,24 +1011,24 @@ msgid_plural "and %d more items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:97
+#: includes/WooCommerce/class-advanced-sorting.php:60
 msgid "Best Selling"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:101
+#: includes/WooCommerce/class-advanced-sorting.php:64
 #: patterns/mega-menu-panel.php:74
 msgid "Featured"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:102
+#: includes/WooCommerce/class-advanced-sorting.php:65
 msgid "Biggest Savings"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:103
+#: includes/WooCommerce/class-advanced-sorting.php:66
 msgid "Name: A-Z"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:104
+#: includes/WooCommerce/class-advanced-sorting.php:67
 msgid "Name: Z-A"
 msgstr ""
 
@@ -1695,6 +1694,11 @@ msgstr ""
 #: includes/WooCommerce/class-badge-system-defaults.php:156
 #: patterns/design-system-preview.php:153
 msgid "Low Stock"
+msgstr ""
+
+#: includes/WooCommerce/class-catalog-archive-filters.php:175
+#: patterns/template-no-products.php:15
+msgid "No products were found matching your selection."
 msgstr ""
 
 #: includes/WooCommerce/class-collection-attribute-migration.php:67
@@ -2501,32 +2505,23 @@ msgstr ""
 msgid "Include %s"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more-controller.php:308
-#: includes/WooCommerce/class-load-more-controller.php:321
-msgid "Invalid catalog cursor."
-msgstr ""
-
-#: includes/WooCommerce/class-load-more-controller.php:423
-msgid "Unable to load product results."
-msgstr ""
-
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:173
-#: includes/WooCommerce/class-load-more.php:260
+#: includes/WooCommerce/class-load-more.php:137
+#: includes/WooCommerce/class-load-more.php:224
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:257
+#: includes/WooCommerce/class-load-more.php:221
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:258
+#: includes/WooCommerce/class-load-more.php:222
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:262
+#: includes/WooCommerce/class-load-more.php:226
 #, php-format
 msgid "%d more products loaded."
 msgstr ""
@@ -2656,12 +2651,12 @@ msgid "Maximum price"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:242
-#: includes/WooCommerce/class-product-filters.php:330
+#: includes/WooCommerce/class-product-filters.php:321
 msgid "In stock"
 msgstr ""
 
 #: includes/WooCommerce/class-product-filter-renderer.php:247
-#: includes/WooCommerce/class-product-filters.php:331
+#: includes/WooCommerce/class-product-filters.php:322
 msgid "On sale"
 msgstr ""
 
@@ -2670,86 +2665,72 @@ msgid "Filter by category"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:325
+#: includes/WooCommerce/class-product-filters.php:316
 #, php-format
 msgid "(%s filter applied)"
 msgstr ""
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:318
 #, php-format
 msgid "(%s filters applied)"
 msgstr ""
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:329
+#: includes/WooCommerce/class-product-filters.php:320
 #, php-format
 msgid "Additional filters: %s"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:332
+#: includes/WooCommerce/class-product-filters.php:323
 msgid "All filters cleared."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:333
-#: includes/WooCommerce/class-product-filters.php:595
-msgid "Something went wrong loading products."
-msgstr ""
-
-#: includes/WooCommerce/class-product-filters.php:334
+#: includes/WooCommerce/class-product-filters.php:324
 msgid "No products found."
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:335
+#: includes/WooCommerce/class-product-filters.php:325
 msgid "1 product found."
 msgstr ""
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:337
+#: includes/WooCommerce/class-product-filters.php:327
 #, php-format
 msgid "%d products found."
 msgstr ""
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:339
+#: includes/WooCommerce/class-product-filters.php:329
 #, php-format
 msgid "Remove %s filter"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:431
-#: includes/WooCommerce/class-product-filters.php:522
+#: includes/WooCommerce/class-product-filters.php:393
+#: includes/WooCommerce/class-product-filters.php:484
 msgid "Product filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:440
+#: includes/WooCommerce/class-product-filters.php:402
 msgid "Filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:445
+#: includes/WooCommerce/class-product-filters.php:407
 msgid "Close filters"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:470
+#: includes/WooCommerce/class-product-filters.php:432
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 msgid "Clear All"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:476
-#: includes/WooCommerce/class-product-filters.php:532
+#: includes/WooCommerce/class-product-filters.php:438
+#: includes/WooCommerce/class-product-filters.php:494
 msgid "View Results"
 msgstr ""
 
-#: includes/WooCommerce/class-product-filters.php:536
+#: includes/WooCommerce/class-product-filters.php:498
 msgid "Clear All Filters"
-msgstr ""
-
-#: includes/WooCommerce/class-product-filters.php:590
-#: patterns/template-no-products.php:15
-msgid "No products were found matching your selection."
-msgstr ""
-
-#: includes/WooCommerce/class-product-filters.php:603
-msgid "Filtered products pagination"
 msgstr ""
 
 #. translators: %s: inherited value, e.g. "Regular".

@@ -65,13 +65,18 @@ test('a parent category offers options from its subcategories', async ({
     .first();
   await reveal(page, chip);
 
-  await expect(chip).not.toHaveClass(/\bis-unavailable\b/);
+  await expect(chip).not.toHaveAttribute('aria-disabled', 'true');
 });
 
-/** Titles of the product cards currently in the grid. */
+/**
+ * Titles of the server-rendered product cards in the grid — not the ones
+ * Load More appended, which infinite scroll may add at any time.
+ */
 async function cardTitles(page: Page): Promise<string[]> {
   return page
-    .locator('.wp-block-woocommerce-product-template > .wc-block-product')
+    .locator(
+      '.wp-block-woocommerce-product-template > .wc-block-product:not([data-aa-appended])'
+    )
     .evaluateAll(cards =>
       cards.map(
         card =>

@@ -89,12 +89,26 @@ prices and currency included.
   (`wp-elements-N`, style variations) are renamed for the appended page and
   its block-support rules copied with them. Cards are never repeated, and the
   order always ends on the post ID so pages never overlap.
+  Requesting, prefetching and retrying live in `load-more/pager.ts`
+  (unit-tested); failures are retried after `Retry-After` or a backoff and,
+  when retries run out, the next page is offered as a link. The appended
+  pages are saved in the history entry, so Back rebuilds the grid and scroll
+  position when the browser reloads the page instead of restoring it from
+  its back/forward cache.
 - **Filters and sorts** navigate to the new URL with WordPress's Interactivity
   router, which swaps the collection's router region; WooCommerce's Catalog
   Sorting block does this itself. Changing category is a full navigation
   (title, breadcrumbs, canonical). A filtered selection with no matches gets a
   No Results block when the template has none — WooCommerce otherwise renders
   nothing, not even the region.
+- **Card features on appended cards.** Load More inserts cards into a grid
+  the Interactivity API has already hydrated, and it never hydrates them:
+  `data-wp-on--*` and other directives inside a card do nothing on page 2
+  onwards. Anything interactive on a product card must listen at the
+  document level and identify its card from the DOM (Quick View and the
+  wishlist delegate their clicks; `aa:cards-rendered` fires after each
+  append for per-card setup). `catalog-load-more.spec.ts` checks both on an
+  appended card.
 - **Facets** (which options still have matches) are the one JSON endpoint:
   `aggressive-apparel/v1/catalog/facets`, data only.
 

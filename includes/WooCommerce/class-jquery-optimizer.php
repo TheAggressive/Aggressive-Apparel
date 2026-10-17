@@ -10,11 +10,15 @@
  *   1. Drops `jquery-migrate` from jQuery's dependency chain. Migrate is a shim
  *      for deprecated jQuery APIs that modern WooCommerce and this (vanilla-TS)
  *      theme do not use — removing it saves a request and ~10 KB.
- *   2. Applies the WordPress 6.3 `defer` loading strategy to jquery-core and the
- *      classic WooCommerce scripts that ride on it, so they no longer block
- *      rendering. The strategy API is dependency-aware: any handle with a
- *      blocking dependent on a given page is left blocking automatically, so
- *      this is self-limiting and cannot break a page.
+ *   2. Applies the WordPress 6.3 `defer` loading strategy to the classic
+ *      WooCommerce scripts that ride on jQuery, so they no longer block
+ *      rendering.
+ *
+ * jQuery itself stays blocking. The strategy API keeps a handle blocking only
+ * for dependents that *declare* it, and plugins use the `jQuery` global
+ * without declaring it (WooPayments' product-page payment messaging did,
+ * failing with "jQuery is not defined" on every product page).
+ * Deferring jQuery cannot be made safe against scripts it cannot see.
  *
  * The admin is never touched — wp-color-picker and other admin UIs depend on
  * jQuery and jquery-migrate.
@@ -40,17 +44,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jquery_Optimizer {
 
 	/**
-	 * Front-end script handles to load with the `defer` strategy.
-	 *
-	 * `jquery-core` is the library itself; the rest are the classic WooCommerce
-	 * scripts that depend on it (mirrors {@see Legacy_Asset_Trim} handles). The
-	 * strategy API is dependency-aware, so a handle needed synchronously on a
-	 * given page is left blocking there automatically.
+	 * Front-end script handles to load with the `defer` strategy: the classic
+	 * WooCommerce scripts that depend on jQuery (mirrors
+	 * {@see Legacy_Asset_Trim} handles). They declare jQuery, and nothing else
+	 * runs before them, so deferring them is safe.
 	 *
 	 * @var array<int, string>
 	 */
-	private const DEFER_HANDLES = array(
-		'jquery-core',
+	public const DEFER_HANDLES = array(
 		'wc-add-to-cart',
 		'woocommerce',
 		'wc-cart-fragments',
@@ -90,7 +91,7 @@ class Jquery_Optimizer {
 	}
 
 	/**
-	 * Mark jQuery and its classic-WooCommerce dependents as `defer`.
+	 * Mark the classic WooCommerce scripts as `defer`.
 	 *
 	 * Runs at priority 99 so WooCommerce (priority 10) has already registered
 	 * and enqueued its scripts. Only touches handles that are actually

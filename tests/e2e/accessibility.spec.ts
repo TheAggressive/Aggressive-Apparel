@@ -125,6 +125,46 @@ test.describe('accessibility — WCAG 2.2 AA', () => {
     await expectAccessible(page);
   });
 
+  test.describe('shop catalog', () => {
+    // Button mode: each Load More state is one explicit step.
+    test.beforeEach(async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto('/shop/', { waitUntil: 'networkidle' });
+    });
+
+    test('after Load More appends a page', async ({ page }) => {
+      const button = page.locator('.aa-load-more__btn');
+      await button.click();
+      await expect(button).not.toHaveAttribute('aria-busy', 'true');
+      await expect(page.locator('.aa-load-more__announcer')).toHaveText(
+        /more products loaded/
+      );
+
+      await expectAccessible(page, '.aa-product-filters');
+    });
+
+    test('filter drawer, with unavailable options', async ({ page }) => {
+      await page.locator('button[class*="filter-toggle"]').first().click();
+      const drawer = page.locator('#aa-product-filters-drawer');
+      await expect(drawer.locator('.aa-product-filters__close')).toBeFocused();
+
+      await expectAccessible(page, '#aa-product-filters-drawer');
+    });
+
+    test('Load More failure offers the next page', async ({ page }) => {
+      const seed = JSON.parse(
+        (await page.locator('.aa-load-more').getAttribute('data-wp-context'))!
+      ) as { nextUrl: string };
+      await page.route(new URL(seed.nextUrl, page.url()).href, route =>
+        route.fulfill({ status: 404, body: 'Not Found' })
+      );
+      await page.locator('.aa-load-more__btn').click();
+      await expect(page.locator('.aa-load-more__fallback')).toBeVisible();
+
+      await expectAccessible(page, '.aa-load-more');
+    });
+  });
+
   test('quick view modal', async ({ page }) => {
     await page.goto(categoryUrl);
 

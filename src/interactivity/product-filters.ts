@@ -158,45 +158,36 @@ export const { state, actions } = store<ProductFiltersStore>(
       // -- Filter Toggles --
 
       toggleCategory(event: MouseEvent): void {
-        const btn = (event.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__category-chip'
-        );
-        if (!btn) return;
-        const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedCategories, slug);
+        const slug = chosenOption(event, '.aa-product-filters__category-chip');
+        if (!slug) return;
+        toggleArrayItem(state.selectedCategories, slug);
         syncCategoryChips(state.selectedCategories);
         stageFilterChange();
       },
 
       toggleColor(event: MouseEvent): void {
-        const btn = (event.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__color-swatch'
-        );
-        if (!btn) return;
-        const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedColors, slug);
+        const slug = chosenOption(event, '.aa-product-filters__color-swatch');
+        if (!slug) return;
+        toggleArrayItem(state.selectedColors, slug);
         syncSwatchPressed(state.selectedColors);
         stageFilterChange();
       },
 
       toggleCollection(event: MouseEvent): void {
-        const btn = (event.target as HTMLElement).closest<HTMLElement>(
+        const slug = chosenOption(
+          event,
           '.aa-product-filters__collection-chip'
         );
-        if (!btn) return;
-        const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedCollections, slug);
+        if (!slug) return;
+        toggleArrayItem(state.selectedCollections, slug);
         syncCollectionChipPressed(state.selectedCollections);
         stageFilterChange();
       },
 
       toggleSize(event: MouseEvent): void {
-        const btn = (event.target as HTMLElement).closest<HTMLElement>(
-          '.aa-product-filters__size-chip'
-        );
-        if (!btn) return;
-        const slug = btn.dataset.filterValue;
-        if (slug) toggleArrayItem(state.selectedSizes, slug);
+        const slug = chosenOption(event, '.aa-product-filters__size-chip');
+        if (!slug) return;
+        toggleArrayItem(state.selectedSizes, slug);
         syncChipPressed(state.selectedSizes);
         stageFilterChange();
       },
@@ -413,6 +404,16 @@ export const { state, actions } = store<ProductFiltersStore>(
 );
 
 // -- Helper Functions --
+
+/**
+ * The value of the filter option a click activated, or '' when it hit no
+ * option or an unavailable one (`aria-disabled` does not block activation).
+ */
+function chosenOption(event: MouseEvent, selector: string): string {
+  const option = (event.target as HTMLElement).closest<HTMLElement>(selector);
+  if (!option || option.getAttribute('aria-disabled') === 'true') return '';
+  return option.dataset.filterValue ?? '';
+}
 
 /**
  * Toggle an item in an array (add if absent, remove if present).

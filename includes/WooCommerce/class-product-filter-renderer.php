@@ -352,7 +352,7 @@ final class Product_Filter_Renderer {
 
 		if ( $is_root ) {
 			printf(
-				'<ul class="%s" role="group" aria-label="%s">',
+				'<ul class="%s" aria-label="%s">',
 				esc_attr( $class ),
 				esc_attr__( 'Filter by category', 'aggressive-apparel' ),
 			);

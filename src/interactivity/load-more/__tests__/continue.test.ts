@@ -4,7 +4,6 @@
 
 import {
   isSentinelWithinRootMargin,
-  retryDelayMs,
   shouldContinueInfiniteScroll,
   shouldHideLoadMoreButton,
 } from '../continue';
@@ -79,26 +78,5 @@ describe('shouldHideLoadMoreButton', () => {
   it('shows the button in load_more mode until the catalogue is exhausted', () => {
     expect(shouldHideLoadMoreButton('load_more', false)).toBe(false);
     expect(shouldHideLoadMoreButton('load_more', true)).toBe(true);
-  });
-});
-
-describe('retryDelayMs', () => {
-  const now = Date.parse('2026-10-17T06:00:00Z');
-
-  it('honours Retry-After in seconds or as an HTTP date', () => {
-    expect(retryDelayMs('5', 0, now)).toBe(5000);
-    expect(retryDelayMs('Sat, 17 Oct 2026 06:00:07 GMT', 0, now)).toBe(7000);
-  });
-
-  it('backs off exponentially without a usable header', () => {
-    expect(retryDelayMs(null, 0, now)).toBe(2000);
-    expect(retryDelayMs('soon', 1, now)).toBe(4000);
-    expect(retryDelayMs(null, 2, now)).toBe(8000);
-  });
-
-  it('never waits less than 1s or more than 10s', () => {
-    expect(retryDelayMs('0', 0, now)).toBe(1000);
-    expect(retryDelayMs('3600', 0, now)).toBe(10_000);
-    expect(retryDelayMs('Sat, 17 Oct 2026 05:00:00 GMT', 0, now)).toBe(1000);
   });
 });

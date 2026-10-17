@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Catalog_Archive_Filters;
+use Aggressive_Apparel\WooCommerce\Catalog_Filter_Set;
 use Aggressive_Apparel\WooCommerce\Catalog_Url_Filters;
 use Aggressive_Apparel\WooCommerce\Product_Facets_Controller;
 use WP_REST_Request;
@@ -267,6 +268,22 @@ class TestCatalogArchiveFilters extends WP_UnitTestCase {
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/aggressive-apparel/v1/catalog/facets' ) );
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertArrayHasKey( 'facets', $response->get_data() );
+
+		// Values must be slugs: nested input is rejected before any query, and
+		// never reaches the filter parser as an "array to string" warning.
+		$nested = new WP_REST_Request( 'GET', '/aggressive-apparel/v1/catalog/facets' );
+		$nested->set_query_params( array( 'attributes' => array( 'pa_color' => array( array( 'x' ) ) ) ) );
+		$this->assertSame( 400, rest_do_request( $nested )->get_status() );
+
+		$list = new WP_REST_Request( 'GET', '/aggressive-apparel/v1/catalog/facets' );
+		$list->set_query_params( array( 'attributes' => array( 'pa_color' => array( 'black', 'red' ) ) ) );
+		$this->assertSame( 200, rest_do_request( $list )->get_status() );
+
+		$this->assertSame(
+			array( 'pa_color' => array( 'red' ) ),
+			( new Catalog_Filter_Set( array( 'attributes' => array( 'pa_color' => array( array( 'x' ), 'red' ) ) ) ) )->attributes(),
+			'Other callers get the string values only.'
+		);
 
 		$before = (int) get_option( 'aa_pf_facets_version', 1 );
 		do_action( 'edited_term', 1, 1, 'product_cat' );

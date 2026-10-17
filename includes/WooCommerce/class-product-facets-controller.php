@@ -96,9 +96,14 @@ final class Product_Facets_Controller {
 						'sanitize_callback' => static fn( $value ): string => sanitize_title( (string) $value ),
 					),
 					'category'   => $slug_list,
+					// Taxonomy → comma-separated slugs, or a list of slugs.
 					'attributes' => array(
-						'default' => array(),
-						'type'    => 'object',
+						'default'              => array(),
+						'type'                 => 'object',
+						'additionalProperties' => array(
+							'type'  => array( 'string', 'array' ),
+							'items' => array( 'type' => 'string' ),
+						),
 					),
 					'min_price'  => array(
 						'default'           => 0,

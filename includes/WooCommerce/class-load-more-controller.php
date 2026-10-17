@@ -121,6 +121,8 @@ final class Load_More_Controller {
 		add_action( 'created_term', array( $this, 'invalidate_catalog_cache' ) );
 		add_action( 'edited_term', array( $this, 'invalidate_catalog_cache' ) );
 		add_action( 'delete_term', array( $this, 'invalidate_catalog_cache' ) );
+		// Templates, parts, styles and synced patterns shape the rendered cards.
+		add_action( 'aggressive_apparel_design_changed', array( $this, 'invalidate_catalog_cache' ) );
 	}
 
 	/**

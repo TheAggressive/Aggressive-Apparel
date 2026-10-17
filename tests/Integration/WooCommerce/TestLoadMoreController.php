@@ -105,6 +105,45 @@ class TestLoadMoreController extends WP_UnitTestCase {
 		$this->assertSame( $before + 1, $after );
 	}
 
+	/** Site Editor design changes invalidate the rendered-card cache. */
+	public function test_design_changes_invalidate_catalog_caches(): void {
+		$controller = new Load_More_Controller();
+		$controller->init();
+
+		$before = (int) get_option( 'aa_pf_facets_version', 1 );
+		do_action( 'aggressive_apparel_design_changed' );
+
+		// The theme's own controller listens too; each bumps once.
+		$this->assertGreaterThan( $before, (int) get_option( 'aa_pf_facets_version', 1 ) );
+	}
+
+	/**
+	 * Cards rendered with and without a shopper session are cached apart:
+	 * pricing plugins (WooPayments) render prices differently for each.
+	 */
+	public function test_rendered_response_cache_key_varies_with_session(): void {
+		$cache    = new Rendered_Product_Cache( new Catalog_Cache_Version() );
+		$block    = array( 'blockName' => 'woocommerce/product-collection' );
+		$original = \WC()->session;
+		add_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+
+		try {
+			\WC()->session = null;
+			$without        = $cache->key( array( 'paged' => 1 ), $block, false );
+
+			\WC()->session = new class() extends \WC_Session_Handler {
+				/** A shopper with a cart. */
+				public function has_session() {
+					return true;
+				}
+			};
+			$this->assertNotSame( $without, $cache->key( array( 'paged' => 1 ), $block, false ) );
+		} finally {
+			\WC()->session = $original;
+			remove_filter( 'aggressive_apparel_rendered_products_cache_enabled', '__return_true' );
+		}
+	}
+
 	/** Lookup-table predicates are prepared directly into WP_Query clauses. */
 	public function test_product_lookup_clauses_prepare_filter_values(): void {
 		global $wpdb;

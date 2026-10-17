@@ -48,8 +48,10 @@ class Page_Cache_Purge_Test extends WP_UnitTestCase {
 		self::factory()->post->create( array( 'post_type' => 'wp_block' ) );
 
 		$this->assertSame( $before, $this->purges(), 'Nothing purges mid-request.' );
+		$changes = did_action( 'aggressive_apparel_design_changed' );
 		$this->purge->purge();
 		$this->assertSame( $before + 1, $this->purges(), 'Several design saves purge once.' );
+		$this->assertSame( $changes + 1, did_action( 'aggressive_apparel_design_changed' ), 'Theme caches are told once.' );
 		$this->purge->purge();
 		$this->assertSame( $before + 1, $this->purges(), 'A purge is not repeated.' );
 	}

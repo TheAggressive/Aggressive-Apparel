@@ -12,15 +12,19 @@ namespace Aggressive_Apparel\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Purges full-page caches when Site Editor design changes are saved.
+ * Invalidates cached markup when Site Editor design changes are saved.
  *
  * Templates, template parts, global styles, navigation and synced patterns
- * render on many pages but have no public URL of their own, so a page cache
- * keeps serving the old design while uncached responses (Load More, filters)
- * already use the new one. Breeze purges on Customizer and classic-menu saves
- * but skips these updates, and never reaches Cloudflare for them.
+ * render on many pages but have no public URL of their own, so caches keyed
+ * by URL or by template markup keep serving the old design:
  *
- * Saves are collected and purged once per request: the Site Editor often
+ * - Full-page caches: Breeze purges on Customizer and classic-menu saves but
+ *   skips these updates, and never reaches Cloudflare for them.
+ * - Theme caches (Load More's rendered cards) listen for
+ *   `aggressive_apparel_design_changed`; a synced pattern's edit, for example,
+ *   never changes the template markup their keys are built from.
+ *
+ * Saves are collected and handled once per request: the Site Editor often
  * saves several entities together.
  */
 final class Page_Cache_Purge {
@@ -78,10 +82,11 @@ final class Page_Cache_Purge {
 	}
 
 	/**
-	 * Purge every page-cache layer once, if a design change was saved.
+	 * Invalidate theme caches, then purge every page-cache layer, once.
 	 *
 	 * `breeze_clear_all_cache` is Breeze's own full purge (local files,
-	 * Varnish and Cloudflare); without Breeze it has no listeners.
+	 * Varnish and Cloudflare); without Breeze it has no listeners. Theme caches
+	 * go first so a page-cache preloader re-renders against fresh fragments.
 	 *
 	 * @return void
 	 */
@@ -91,6 +96,13 @@ final class Page_Cache_Purge {
 		}
 
 		$this->pending = false;
+
+		/**
+		 * Fires once per request after a Site Editor design change was saved.
+		 *
+		 * @since 1.192.4
+		 */
+		do_action( 'aggressive_apparel_design_changed' );
 		do_action( 'breeze_clear_all_cache' );
 	}
 }

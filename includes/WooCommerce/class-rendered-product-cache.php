@@ -68,6 +68,7 @@ final class Rendered_Product_Cache {
 		}
 
 		$location = $this->taxable_location();
+		$session  = function_exists( 'WC' ) ? \WC()->session : null;
 		$context  = array(
 			'locale'       => determine_locale(),
 			'currency'     => function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : '',
@@ -76,6 +77,9 @@ final class Rendered_Product_Cache {
 			'postcode'     => $location['postcode'],
 			'city'         => $location['city'],
 			'prices_taxed' => function_exists( 'wc_prices_include_tax' ) ? \wc_prices_include_tax() : false,
+			// Pricing plugins render differently with and without a shopper session
+			// (WooPayments: server prices vs client-side skeletons).
+			'has_session'  => $session instanceof \WC_Session_Handler && $session->has_session(),
 		);
 
 		/**

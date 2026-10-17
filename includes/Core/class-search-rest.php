@@ -138,8 +138,10 @@ class Search_Rest {
 		}
 
 		$show_products = Search_Visibility::products_are_public();
-		$cache_key     = 'aa_search_' . md5( $this->index->generation() . '|' . $scope . '|' . ( $show_products ? '1' : '0' ) . '|' . mb_strtolower( $query ) );
-		$cached        = get_transient( $cache_key );
+		// Prices follow the shopper's currency (see Storefront_Rest_Requests).
+		$currency  = function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : '';
+		$cache_key = 'aa_search_' . md5( $this->index->generation() . '|' . $scope . '|' . ( $show_products ? '1' : '0' ) . '|' . $currency . '|' . mb_strtolower( $query ) );
+		$cached    = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
 			return rest_ensure_response( $cached );
 		}

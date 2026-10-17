@@ -250,6 +250,45 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'pa_collection', $narrowed );
 	}
 
+	/**
+	 * Spelling variants of one selection share a cache entry, so a client
+	 * cannot write a transient per variant.
+	 */
+	public function test_facet_cache_is_keyed_on_the_normalized_selection(): void {
+		$service = new Product_Facet_Service( new Product_Collection_Query(), new Catalog_Cache_Version() );
+		$service->compute(
+			array(
+				'category'   => 'tank-tops,hoodies',
+				'attributes' => array( 'pa_collection' => 'womens,mens' ),
+			),
+			'',
+			''
+		);
+
+		$writes = 0;
+		$count  = static function ( string $transient ) use ( &$writes ): void {
+			if ( str_starts_with( $transient, 'aa_pf_facets_' ) ) {
+				++$writes;
+			}
+		};
+		add_action( 'setted_transient', $count );
+		$service->compute(
+			array(
+				'category'   => 'Hoodies,tank-tops,hoodies',
+				'attributes' => array(
+					'pa_collection' => 'mens,womens',
+					'not_allowed'   => 'x',
+				),
+				'ignored'    => 'anything',
+			),
+			'not_a_taxonomy',
+			'term'
+		);
+		remove_action( 'setted_transient', $count );
+
+		$this->assertSame( 0, $writes, 'The variant was served from the first entry.' );
+	}
+
 	/** The Fit spec scale stays a silhouette scale with no attribute source. */
 	public function test_fit_spec_is_independent_of_collection(): void {
 		$fit = null;

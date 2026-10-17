@@ -72,16 +72,24 @@ final class Product_Facet_Service {
 			array( 'pa_color', 'pa_size', 'pa_collection' )
 		);
 
-		// The taxonomy list is part of the key so a changed list (a deploy or a
-		// filter) never serves facets cached under the old shape.
+		$allowed = $this->queries->allowed_taxonomies();
+		$filters = self::canonical_filters( new Catalog_Filter_Set( $filters ), $allowed );
+		if ( ! in_array( $taxonomy, $allowed, true ) ) {
+			$taxonomy = '';
+			$term     = '';
+		}
+
+		// Keyed on the normalized request, so spelling variants of one selection
+		// (case, order, duplicates, unknown parameters) share one entry rather
+		// than each writing a transient. The taxonomy list is part of the key so
+		// a changed list (a deploy or a filter) never serves an old shape.
 		$cache_key = self::CACHE_PREFIX . $this->version->current() . '_' . md5( (string) wp_json_encode( array( $filters, $taxonomy, $term, $facet_taxonomies ) ) );
 		$cached    = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
 
-		$allowed = $this->queries->allowed_taxonomies();
-		$facets  = array();
+		$facets = array();
 
 		foreach ( $facet_taxonomies as $facet ) {
 			if ( ! in_array( $facet, $allowed, true ) ) {
@@ -100,6 +108,34 @@ final class Product_Facet_Service {
 		set_transient( $cache_key, $facets, self::CACHE_TTL );
 
 		return $facets;
+	}
+
+	/**
+	 * A filter selection in canonical form: validated, allow-listed and sorted.
+	 *
+	 * @param Catalog_Filter_Set $filter_set Parsed filters.
+	 * @param array<int, string> $allowed    Allowed taxonomies.
+	 * @return array<string, mixed>
+	 */
+	private static function canonical_filters( Catalog_Filter_Set $filter_set, array $allowed ): array {
+		$categories = $filter_set->categories();
+		sort( $categories );
+
+		$attributes = array();
+		foreach ( $filter_set->attributes( $allowed ) as $attribute_taxonomy => $slugs ) {
+			sort( $slugs );
+			$attributes[ $attribute_taxonomy ] = implode( ',', $slugs );
+		}
+		ksort( $attributes );
+
+		return array(
+			'category'   => implode( ',', $categories ),
+			'attributes' => $attributes,
+			'min_price'  => $filter_set->min_price(),
+			'max_price'  => $filter_set->max_price(),
+			'stock'      => $filter_set->stock(),
+			'on_sale'    => $filter_set->on_sale(),
+		);
 	}
 
 	/**

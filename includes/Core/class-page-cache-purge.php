@@ -12,19 +12,18 @@ namespace Aggressive_Apparel\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Invalidates cached markup when Site Editor design changes are saved.
+ * Purges the page cache when Site Editor design changes are saved.
  *
  * Templates, template parts, global styles, navigation and synced patterns
- * render on many pages but have no public URL of their own, so caches keyed
- * by URL or by template markup keep serving the old design:
+ * render on many pages but have no public URL of their own. Breeze purges on
+ * Customizer and classic-menu saves but skips these updates (and never
+ * reaches Cloudflare for them), so cached pages keep the old design.
  *
- * - Full-page caches: Breeze purges on Customizer and classic-menu saves but
- *   skips these updates, and never reaches Cloudflare for them.
- * - Anything else keyed to the design can listen for
- *   `aggressive_apparel_design_changed`.
- *
- * Saves are collected and handled once per request: the Site Editor often
- * saves several entities together.
+ * Only changes to published entities purge — a draft (e.g. a synced
+ * pattern a contributor is still writing) is not on the site, and a full
+ * purge is too expensive to let any author trigger at will. Saves are
+ * collected and purged once per request: the Site Editor often saves several
+ * entities together.
  */
 final class Page_Cache_Purge {
 
@@ -50,42 +49,55 @@ final class Page_Cache_Purge {
 	 * @return void
 	 */
 	public function init(): void {
-		foreach ( self::DESIGN_POST_TYPES as $post_type ) {
-			add_action( "save_post_{$post_type}", array( $this, 'schedule' ) );
-		}
+		// Fires on every save, including published → published updates.
+		add_action( 'transition_post_status', array( $this, 'schedule_for_save' ), 10, 3 );
 		// Reverting a customized template deletes its post.
 		add_action( 'deleted_post', array( $this, 'schedule_for_deleted' ), 10, 2 );
 		add_action( 'shutdown', array( $this, 'purge' ) );
 	}
 
 	/**
-	 * Mark the page cache stale.
+	 * Mark the page cache stale when a design entity is, or was, published.
 	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Previous post status.
+	 * @param \WP_Post $post       Saved post.
 	 * @return void
 	 */
-	public function schedule(): void {
-		$this->pending = true;
+	public function schedule_for_save( $new_status, $old_status, $post ): void {
+		if ( self::is_design( $post ) && in_array( 'publish', array( $new_status, $old_status ), true ) ) {
+			$this->pending = true;
+		}
 	}
 
 	/**
-	 * Mark the page cache stale when a design entity is deleted.
+	 * Mark the page cache stale when a published design entity is deleted.
 	 *
 	 * @param int      $post_id Deleted post ID.
 	 * @param \WP_Post $post    Deleted post.
 	 * @return void
 	 */
 	public function schedule_for_deleted( $post_id, $post ): void {
-		if ( $post instanceof \WP_Post && in_array( $post->post_type, self::DESIGN_POST_TYPES, true ) ) {
+		if ( self::is_design( $post ) && 'publish' === $post->post_status ) {
 			$this->pending = true;
 		}
 	}
 
 	/**
-	 * Invalidate theme caches, then purge every page-cache layer, once.
+	 * Whether a post is a Site Editor design entity.
+	 *
+	 * @param mixed $post Post.
+	 * @phpstan-assert-if-true \WP_Post $post
+	 */
+	private static function is_design( $post ): bool {
+		return $post instanceof \WP_Post && in_array( $post->post_type, self::DESIGN_POST_TYPES, true );
+	}
+
+	/**
+	 * Purge every page-cache layer, once.
 	 *
 	 * `breeze_clear_all_cache` is Breeze's own full purge (local files,
-	 * Varnish and Cloudflare); without Breeze it has no listeners. Listeners of
-	 * the theme action run first, before any page-cache preloader re-renders.
+	 * Varnish and Cloudflare); without Breeze it has no listeners.
 	 *
 	 * @return void
 	 */
@@ -95,13 +107,6 @@ final class Page_Cache_Purge {
 		}
 
 		$this->pending = false;
-
-		/**
-		 * Fires once per request after a Site Editor design change was saved.
-		 *
-		 * @since 1.192.4
-		 */
-		do_action( 'aggressive_apparel_design_changed' );
 		do_action( 'breeze_clear_all_cache' );
 	}
 }

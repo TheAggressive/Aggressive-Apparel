@@ -25,9 +25,4 @@ export class FilterRequestManager {
     this.facetsController?.abort();
     this.facetsController = null;
   }
-
-  /** Cancel every request before a hard page navigation. */
-  cancelAll(): void {
-    this.cancelFacets();
-  }
 }

@@ -81,8 +81,6 @@ let prefetched: PageRequest | null = null;
 
 let observer: IntersectionObserver | null = null;
 let lastFetchAt = 0;
-let prefetchArmed = false;
-let prefetchScrollBound = false;
 let paginationGeneration = 0;
 
 /** Unique suffix for each fetched page's per-request class names. */
@@ -150,7 +148,6 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
         }
         resetPaginationRuntime(seed);
         activeSeedFingerprint = fingerprint;
-        synchronizeInitialGridState();
 
         if (state.mode === 'infinite_scroll') {
           setupIntersectionObserver();
@@ -179,12 +176,7 @@ function resetPaginationRuntime(seed: Partial<LoadMoreSeed>): void {
   prefetched = null;
   observer?.disconnect();
   observer = null;
-  prefetchArmed = false;
-
-  if (prefetchScrollBound) {
-    window.removeEventListener('scroll', handlePrefetchScroll, true);
-    prefetchScrollBound = false;
-  }
+  window.removeEventListener('scroll', prefetchNextPage, true);
 
   applyLoadMoreSeed(state, seed);
 }
@@ -200,15 +192,6 @@ function removeAppendedCards(): void {
   document
     .querySelectorAll(`[${APPENDED}], .aa-product-grid__spacer`)
     .forEach(node => node.remove());
-}
-
-/** Align page size with the Product Collection actually rendered. */
-function synchronizeInitialGridState(): void {
-  const grid = findCatalogGrid(document);
-  const renderedCount = grid ? catalogCards(grid).length : 0;
-  if (renderedCount > 0) {
-    state.perPage = renderedCount;
-  }
 }
 
 /** Fetch and parse one catalog page. */
@@ -275,25 +258,15 @@ function loadNextPage(): void {
     });
 }
 
-/** Prefetch only after the shopper shows intent to scroll the catalog. */
+/** Prefetch the next page on the shopper's first scroll of this catalog. */
 function armPrefetchOnScroll(): void {
-  if (prefetchArmed || prefetchScrollBound || state.allLoaded) return;
+  if (state.allLoaded) return;
 
-  prefetchScrollBound = true;
-  window.addEventListener('scroll', handlePrefetchScroll, {
+  window.addEventListener('scroll', prefetchNextPage, {
     capture: true,
     passive: true,
+    once: true,
   });
-}
-
-/** Arm prefetch exactly once for the current pagination generation. */
-function handlePrefetchScroll(): void {
-  window.removeEventListener('scroll', handlePrefetchScroll, true);
-  prefetchScrollBound = false;
-  if (prefetchArmed) return;
-
-  prefetchArmed = true;
-  prefetchNextPage();
 }
 
 /**
@@ -452,15 +425,10 @@ function setupIntersectionObserver(): void {
 
   observer?.disconnect();
   observer = new IntersectionObserver(
-    (entries: IntersectionObserverEntry[]) => {
-      if (!entries[0]?.isIntersecting) return;
-
-      // Use the shared continuation decision instead of duplicating a
-      // fail-open cooldown check here. When the sentinel enters the root margin
-      // during the cooldown it may remain intersecting indefinitely, so an
-      // immediate return would strand the catalog until the user scrolls away
-      // and back. The helper schedules a post-cooldown retry for that state.
-      continueInfiniteScrollIfNeeded();
+    entries => {
+      // The shared decision also retries after the cooldown: a sentinel that
+      // enters the margin mid-cooldown may never re-intersect.
+      if (entries[0]?.isIntersecting) continueInfiniteScrollIfNeeded();
     },
     { rootMargin: `${SENTINEL_ROOT_MARGIN_PX}px 0px` }
   );

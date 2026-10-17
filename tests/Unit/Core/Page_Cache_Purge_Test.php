@@ -48,10 +48,8 @@ class Page_Cache_Purge_Test extends WP_UnitTestCase {
 		self::factory()->post->create( array( 'post_type' => 'wp_block' ) );
 
 		$this->assertSame( $before, $this->purges(), 'Nothing purges mid-request.' );
-		$changes = did_action( 'aggressive_apparel_design_changed' );
 		$this->purge->purge();
 		$this->assertSame( $before + 1, $this->purges(), 'Several design saves purge once.' );
-		$this->assertSame( $changes + 1, did_action( 'aggressive_apparel_design_changed' ), 'Theme caches are told once.' );
 		$this->purge->purge();
 		$this->assertSame( $before + 1, $this->purges(), 'A purge is not repeated.' );
 	}
@@ -63,6 +61,42 @@ class Page_Cache_Purge_Test extends WP_UnitTestCase {
 		$before = $this->purges();
 
 		wp_delete_post( $template, true );
+		$this->purge->purge();
+
+		$this->assertSame( $before + 1, $this->purges() );
+	}
+
+	/** Drafts are not on the site: saving or deleting one never purges. */
+	public function test_draft_design_entities_do_not_purge(): void {
+		$before = $this->purges();
+
+		$draft = self::factory()->post->create(
+			array(
+				'post_type'   => 'wp_block',
+				'post_status' => 'draft',
+			)
+		);
+		wp_update_post(
+			array(
+				'ID'           => $draft,
+				'post_content' => '<!-- wp:paragraph --><p>Still drafting</p><!-- /wp:paragraph -->',
+			)
+		);
+		wp_delete_post( $draft, true );
+		$this->purge->purge();
+
+		$this->assertSame( $before, $this->purges() );
+
+		// Unpublishing does change the site.
+		$published = self::factory()->post->create( array( 'post_type' => 'wp_block' ) );
+		$this->purge->purge();
+		$before = $this->purges();
+		wp_update_post(
+			array(
+				'ID'          => $published,
+				'post_status' => 'draft',
+			)
+		);
 		$this->purge->purge();
 
 		$this->assertSame( $before + 1, $this->purges() );

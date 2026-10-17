@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-14T02:55:40+00:00\n"
+"POT-Creation-Date: 2026-10-17T08:09:23+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -171,25 +171,29 @@ msgstr "Prestazioni"
 msgid "Persistent object cache is active"
 msgstr "La cache degli oggetti persistente è attiva"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/Core/class-cache-health.php:84
 #, aa-mt
-msgid "The theme caches anonymous product-grid responses (load-more, filtering, sorting) in the persistent object cache, so paginated catalog requests are served without recomputing their query."
-msgstr "Il tema memorizza nella cache degli oggetti persistenti le risposte anonime relative alla griglia dei prodotti (carica altri, filtraggio, ordinamento), in modo che le richieste relative al catalogo impaginato vengano gestite senza dover ricalcolare la query."
+msgid "Filter availability, search results and rate-limit counters are cached in the persistent object cache instead of the database."
+msgstr "La disponibilità dei filtri, i risultati delle ricerche e i contatori di limitazione della frequenza vengono memorizzati nella cache degli oggetti persistenti anziché nel database."
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/Core/class-cache-health.php:95
 #, aa-mt
-msgid "No persistent object cache — catalog cache is inactive"
-msgstr "Nessuna cache degli oggetti persistente — la cache del catalogo è inattiva"
+msgid "No persistent object cache for the catalog"
+msgstr "Nessuna cache degli oggetti persistente per il catalogo"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/Core/class-cache-health.php:98
 #, aa-mt
-msgid "Aggressive Apparel caches anonymous product-grid responses (load-more, filtering, sorting) only when a persistent object cache is available. Without one, every catalog request recomputes its query and re-renders from scratch, which will not hold up under traffic."
-msgstr "Aggressive Apparel memorizza nella cache le risposte anonime della griglia dei prodotti (carica altri, filtraggio, ordinamento) solo quando è disponibile una cache di oggetti persistente. In assenza di tale cache, ogni richiesta al catalogo ricalcola la propria query e esegue nuovamente il rendering da zero, il che non è sostenibile in caso di traffico elevato."
+msgid "Aggressive Apparel caches filter availability, search results and rate-limit counters as transients. Without a persistent object cache they are stored in the database, so busy catalogs write to it on anonymous requests."
+msgstr "Aggressive Apparel memorizza nella cache la disponibilità dei filtri, i risultati delle ricerche e i contatori di limitazione della frequenza come dati temporanei. In assenza di una cache di oggetti persistente, questi dati vengono memorizzati nel database, pertanto i cataloghi molto trafficati effettuano scritture su di esso in caso di richieste anonime."
 
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/Core/class-cache-health.php:101
 #, aa-mt
-msgid "How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — only paginated load-more is theme-cached; the initial archive paint relies on the page cache."
-msgstr "Come risolvere il problema: installare e abilitare una cache di oggetti persistente basata su Redis o Memcached. La maggior parte degli host WordPress gestiti offre questa funzionalità come add-on installabile con un solo clic; i siti self-hosted devono installare il server Redis/Memcached insieme a un plugin drop-in (ad esempio Redis Object Cache), che genera il file wp-content/object-cache.php. Inoltre, posizionare una cache a pagina intera (Varnish, Batcache o una cache di pagina dell’host/CDN) a protezione del traffico anonimo dell’archivio, configurata per bypassare il carrello, il checkout e “Il mio account” e per variare in base ai cookie di sessione di WooCommerce — solo il “carica altro” impaginato viene memorizzato nella cache del tema; il rendering iniziale dell’archivio si basa sulla cache della pagina."
+msgid "How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — catalog pages, including those Load More fetches, rely on it."
+msgstr "Come risolvere il problema: installare e abilitare una cache di oggetti persistente basata su Redis o Memcached. La maggior parte degli host WordPress gestiti offre questa funzionalità come add-on con un solo clic; i siti self-hosted devono installare il server Redis/Memcached insieme a un plugin drop-in (ad esempio Redis Object Cache), che genera il file wp-content/object-cache.php. Inoltre, inserisci una cache a pagina intera (Varnish, Batcache o una cache di pagina dell’host/CDN) a protezione del traffico anonimo dell’archivio, configurata per bypassare il carrello, la cassa e “Il mio account” e per variare in base ai cookie di sessione di WooCommerce: le pagine del catalogo, comprese quelle che richiamano “Carica altro”, si basano su di essa."
 
 #: includes/Core/class-cache-health.php:108
 #, aa-mt
@@ -515,21 +519,21 @@ msgstr "Tutto"
 
 #: includes/Core/class-search-modal.php:109
 #: includes/Core/class-search-modal.php:265
-#: includes/Core/class-search-rest.php:154
+#: includes/Core/class-search-rest.php:156
 #, aa-mt
 msgid "Products"
 msgstr "Prodotti"
 
 #: includes/Core/class-search-modal.php:111
 #: includes/Core/class-search-modal.php:266
-#: includes/Core/class-search-rest.php:165
+#: includes/Core/class-search-rest.php:167
 #, aa-mt
 msgid "Articles"
 msgstr "Articoli"
 
 #: includes/Core/class-search-modal.php:112
 #: includes/Core/class-search-modal.php:267
-#: includes/Core/class-search-rest.php:176
+#: includes/Core/class-search-rest.php:178
 #, aa-mt
 msgid "Pages"
 msgstr "Pagine"
@@ -577,7 +581,6 @@ msgstr "Ricerca in corso…"
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
-#: includes/WooCommerce/class-product-filters.php:589
 #, aa-mt
 msgid "Try again"
 msgstr "Riprova"
@@ -658,7 +661,7 @@ msgstr "Leggi il rumore…"
 msgid "Find Your Way…"
 msgstr "Trova la tua strada…"
 
-#: includes/Core/class-search-rest.php:229
+#: includes/Core/class-search-rest.php:231
 #, aa-mt
 msgid "Too many requests. Please slow down."
 msgstr "Troppe richieste. Per favore, rallenta."
@@ -705,167 +708,167 @@ msgstr "Funzionalità relative all'aspetto che funzionano sia con che senza WooC
 msgid "Enabled"
 msgstr "Abilitato"
 
-#: includes/Core/class-theme-support.php:151
+#: includes/Core/class-theme-support.php:170
 #, aa-mt
 msgid "Secondary (Outline)"
 msgstr "Secondario (Schema)"
 
-#: includes/Core/class-theme-support.php:159
+#: includes/Core/class-theme-support.php:178
 #: patterns/design-system-preview.php:57 patterns/design-system-preview.php:181
 #, aa-mt
 msgid "Large Secondary"
 msgstr "Scuola secondaria di secondo grado"
 
-#: includes/Core/class-theme-support.php:167
+#: includes/Core/class-theme-support.php:186
 #, aa-mt
 msgid "Tertiary (Text)"
 msgstr "Istruzione superiore (Testo)"
 
-#: includes/Core/class-theme-support.php:175
+#: includes/Core/class-theme-support.php:194
 #: patterns/design-system-preview.php:116
 #, aa-mt
 msgid "Small"
 msgstr "Piccolo"
 
-#: includes/Core/class-theme-support.php:183
+#: includes/Core/class-theme-support.php:202
 #: patterns/design-system-preview.php:53
 #, aa-mt
 msgid "Large Primary"
 msgstr "Scuola primaria grande"
 
-#: includes/Core/class-theme-support.php:191
+#: includes/Core/class-theme-support.php:210
 #: patterns/design-system-preview.php:61
 #, aa-mt
 msgid "Small Primary"
 msgstr "Scuola elementare piccola"
 
-#: includes/Core/class-theme-support.php:199
+#: includes/Core/class-theme-support.php:218
 #: patterns/design-system-preview.php:177
 #, aa-mt
 msgid "Secondary on Dark"
 msgstr "Secondario su Dark"
 
-#: includes/Core/class-theme-support.php:207
+#: includes/Core/class-theme-support.php:226
 #, aa-mt
 msgid "Large Secondary on Dark"
 msgstr "Grande secondario su sfondo scuro"
 
-#: includes/Core/class-theme-support.php:215
+#: includes/Core/class-theme-support.php:234
 #, aa-mt
 msgid "Small Secondary on Dark"
 msgstr "Piccola secondaria su sfondo scuro"
 
-#: includes/Core/class-theme-support.php:223
+#: includes/Core/class-theme-support.php:242
 #, aa-mt
 msgid "Frosted Glass"
 msgstr "Vetro smerigliato"
 
-#: includes/Core/class-theme-support.php:231
+#: includes/Core/class-theme-support.php:250
 #, aa-mt
 msgid "Surface Card"
 msgstr "Scheda Surface"
 
-#: includes/Core/class-theme-support.php:239
+#: includes/Core/class-theme-support.php:258
 #, aa-mt
 msgid "Bordered"
 msgstr "Con bordi"
 
-#: includes/Core/class-theme-support.php:247
+#: includes/Core/class-theme-support.php:266
 #, aa-mt
 msgid "Display"
 msgstr "Visualizza"
 
-#: includes/Core/class-theme-support.php:255
+#: includes/Core/class-theme-support.php:274
 #: patterns/homepage-seasonal-shop.php:210
 #, aa-mt
 msgid "Editorial"
 msgstr "Editoriale"
 
-#: includes/Core/class-theme-support.php:263
+#: includes/Core/class-theme-support.php:282
 #, aa-mt
 msgid "Brand Stripe"
 msgstr "Brand Stripe"
 
-#: includes/Core/class-theme-support.php:271
+#: includes/Core/class-theme-support.php:290
 #: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 #, aa-mt
 msgid "Badge"
 msgstr "Distintivo"
 
-#: includes/Core/class-theme-support.php:279
+#: includes/Core/class-theme-support.php:298
 #, aa-mt
 msgid "Badge Muted"
 msgstr "Distintivo disattivato"
 
-#: includes/Core/class-theme-support.php:287
+#: includes/Core/class-theme-support.php:306
 #, aa-mt
 msgid "Eyebrow"
 msgstr "Sopracciglio"
 
-#: includes/Core/class-theme-support.php:295
+#: includes/Core/class-theme-support.php:314
 #, aa-mt
 msgid "Caption"
 msgstr "Didascalia"
 
-#: includes/Core/class-theme-support.php:303
+#: includes/Core/class-theme-support.php:322
 #, aa-mt
 msgid "Meta"
 msgstr "Meta"
 
-#: includes/Core/class-theme-support.php:311
+#: includes/Core/class-theme-support.php:330
 #, aa-mt
 msgid "Legal"
 msgstr "Note legali"
 
-#: includes/Core/class-theme-support.php:319
+#: includes/Core/class-theme-support.php:338
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 #, aa-mt
 msgid "Price"
 msgstr "Prezzo"
 
-#: includes/Core/class-theme-support.php:327
+#: includes/Core/class-theme-support.php:346
 #, aa-mt
 msgid "Subtle"
 msgstr "Sottile"
 
-#: includes/Core/class-theme-support.php:336
+#: includes/Core/class-theme-support.php:355
 #, aa-mt
 msgid "Commerce Grid"
 msgstr "Rete commerciale"
 
-#: includes/Core/class-theme-support.php:344
+#: includes/Core/class-theme-support.php:363
 #, aa-mt
 msgid "Commerce Cards"
 msgstr "Carte Commerce"
 
-#: includes/Core/class-theme-support.php:352
+#: includes/Core/class-theme-support.php:371
 #, aa-mt
 msgid "Product Frame"
 msgstr "Struttura del prodotto"
 
-#: includes/Core/class-theme-support.php:360
+#: includes/Core/class-theme-support.php:379
 #, aa-mt
 msgid "Commerce Price"
 msgstr "Prezzo commerciale"
 
-#: includes/Core/class-theme-support.php:370
+#: includes/Core/class-theme-support.php:389
 #, aa-mt
 msgid "Overflow"
 msgstr "Overflow"
 
-#: includes/Core/class-theme-support.php:378
+#: includes/Core/class-theme-support.php:397
 #, aa-mt
 msgid "Text Mask"
 msgstr "Maschera di testo"
 
-#: includes/Core/class-theme-support.php:386
+#: includes/Core/class-theme-support.php:405
 #, aa-mt
 msgid "Cinematic"
 msgstr "Cinematografico"
 
-#: includes/Core/class-theme-support.php:394
+#: includes/Core/class-theme-support.php:413
 #, aa-mt
 msgid "Frosted Dark"
 msgstr "Scuro ghiacciato"
@@ -1213,28 +1216,28 @@ msgid_plural "and %d more items"
 msgstr[0] "e %d altro articolo"
 msgstr[1] "e altri %d articoli"
 
-#: includes/WooCommerce/class-advanced-sorting.php:97
+#: includes/WooCommerce/class-advanced-sorting.php:53
 #, aa-mt
 msgid "Best Selling"
 msgstr "I più venduti"
 
-#: includes/WooCommerce/class-advanced-sorting.php:101
+#: includes/WooCommerce/class-advanced-sorting.php:57
 #: patterns/mega-menu-panel.php:74
 #, aa-mt
 msgid "Featured"
 msgstr "In primo piano"
 
-#: includes/WooCommerce/class-advanced-sorting.php:102
+#: includes/WooCommerce/class-advanced-sorting.php:58
 #, aa-mt
 msgid "Biggest Savings"
 msgstr "I risparmi più consistenti"
 
-#: includes/WooCommerce/class-advanced-sorting.php:103
+#: includes/WooCommerce/class-advanced-sorting.php:59
 #, aa-mt
 msgid "Name: A-Z"
 msgstr "Nome: dalla A alla Z"
 
-#: includes/WooCommerce/class-advanced-sorting.php:104
+#: includes/WooCommerce/class-advanced-sorting.php:60
 #, aa-mt
 msgid "Name: Z-A"
 msgstr "Nome: Z-A"
@@ -2038,6 +2041,12 @@ msgstr "Torna alla pagina dei distintivi"
 #, aa-mt
 msgid "Low Stock"
 msgstr "Scorte limitate"
+
+#: includes/WooCommerce/class-catalog-archive-filters.php:183
+#: patterns/template-no-products.php:15
+#, aa-mt
+msgid "No products were found matching your selection."
+msgstr "Non sono stati trovati prodotti corrispondenti alla tua selezione."
 
 #: includes/WooCommerce/class-collection-attribute-migration.php:67
 #: patterns/homepage-seasonal-shop.php:24
@@ -3025,36 +3034,37 @@ msgstr "Prezzo totale:"
 msgid "Include %s"
 msgstr "Includi %s"
 
-#: includes/WooCommerce/class-load-more-controller.php:306
-#: includes/WooCommerce/class-load-more-controller.php:319
-#, aa-mt
-msgid "Invalid catalog cursor."
-msgstr "Cursore del catalogo non valido."
-
-#: includes/WooCommerce/class-load-more-controller.php:421
-#, aa-mt
-msgid "Unable to load product results."
-msgstr "Impossibile caricare i risultati relativi ai prodotti."
-
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:158
-#: includes/WooCommerce/class-load-more.php:235
+#: includes/WooCommerce/class-load-more.php:150
+#: includes/WooCommerce/class-load-more.php:245
 #, php-format, aa-mt
 msgid "Showing %1$d of %2$d products"
 msgstr "Vengono visualizzati %1$d prodotti su %2$d"
 
-#: includes/WooCommerce/class-load-more.php:232
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-load-more.php:208
+#, aa-mt
+msgid "More products could not be loaded."
+msgstr "Non è stato possibile caricare altri prodotti."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-load-more.php:210
+#, aa-mt
+msgid "Open the next page"
+msgstr "Apri la pagina successiva"
+
+#: includes/WooCommerce/class-load-more.php:242
 #, aa-mt
 msgid "Loading more products…"
 msgstr "Caricamento di altri prodotti in corso…"
 
-#: includes/WooCommerce/class-load-more.php:233
+#: includes/WooCommerce/class-load-more.php:243
 #, aa-mt
 msgid "Products could not be loaded. Try again."
 msgstr "Impossibile caricare i prodotti. Riprova."
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:237
+#: includes/WooCommerce/class-load-more.php:247
 #, php-format, aa-mt
 msgid "%d more products loaded."
 msgstr "%d Altri prodotti caricati."
@@ -3209,13 +3219,13 @@ msgid "Maximum price"
 msgstr "Prezzo massimo"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:242
-#: includes/WooCommerce/class-product-filters.php:322
+#: includes/WooCommerce/class-product-filters.php:321
 #, aa-mt
 msgid "In stock"
 msgstr "Disponibile"
 
 #: includes/WooCommerce/class-product-filter-renderer.php:247
-#: includes/WooCommerce/class-product-filters.php:323
+#: includes/WooCommerce/class-product-filters.php:322
 #, aa-mt
 msgid "On sale"
 msgstr "In offerta"
@@ -3226,99 +3236,82 @@ msgid "Filter by category"
 msgstr "Filtra per categoria"
 
 #. translators: %s is the number of currently active filters (always 1).
-#: includes/WooCommerce/class-product-filters.php:317
+#: includes/WooCommerce/class-product-filters.php:316
 #, php-format, aa-mt
 msgid "(%s filter applied)"
 msgstr "(filtro %s applicato)"
 
 #. translators: %s is the number of currently active filters (2 or more).
-#: includes/WooCommerce/class-product-filters.php:319
+#: includes/WooCommerce/class-product-filters.php:318
 #, php-format, aa-mt
 msgid "(%s filters applied)"
 msgstr "(filtri %s applicati)"
 
 #. translators: %s is a comma-separated list of filter names not shown in the pill row.
-#: includes/WooCommerce/class-product-filters.php:321
+#: includes/WooCommerce/class-product-filters.php:320
 #, php-format, aa-mt
 msgid "Additional filters: %s"
 msgstr "Filtri aggiuntivi: %s"
 
-#: includes/WooCommerce/class-product-filters.php:324
+#: includes/WooCommerce/class-product-filters.php:323
 #, aa-mt
 msgid "All filters cleared."
 msgstr "Tutti i filtri sono stati cancellati."
 
-#: includes/WooCommerce/class-product-filters.php:325
-#: includes/WooCommerce/class-product-filters.php:587
-#, aa-mt
-msgid "Something went wrong loading products."
-msgstr "Si è verificato un errore durante il caricamento dei prodotti."
-
-#: includes/WooCommerce/class-product-filters.php:326
+#: includes/WooCommerce/class-product-filters.php:324
 #, aa-mt
 msgid "No products found."
 msgstr "Nessun prodotto trovato."
 
-#: includes/WooCommerce/class-product-filters.php:327
+#: includes/WooCommerce/class-product-filters.php:325
 #, aa-mt
 msgid "1 product found."
 msgstr "1 prodotto trovato."
 
 #. translators: %d: number of products found after filtering.
-#: includes/WooCommerce/class-product-filters.php:329
+#: includes/WooCommerce/class-product-filters.php:327
 #, php-format, aa-mt
 msgid "%d products found."
 msgstr "%d prodotti trovati."
 
 #. translators: %s: active filter label to remove.
-#: includes/WooCommerce/class-product-filters.php:331
+#: includes/WooCommerce/class-product-filters.php:329
 #, php-format, aa-mt
 msgid "Remove %s filter"
 msgstr "Rimuovi il filtro %s"
 
-#: includes/WooCommerce/class-product-filters.php:423
-#: includes/WooCommerce/class-product-filters.php:514
+#: includes/WooCommerce/class-product-filters.php:393
+#: includes/WooCommerce/class-product-filters.php:484
 #, aa-mt
 msgid "Product filters"
 msgstr "Filtri per i prodotti"
 
-#: includes/WooCommerce/class-product-filters.php:432
+#: includes/WooCommerce/class-product-filters.php:402
 #, aa-mt
 msgid "Filters"
 msgstr "Filtri"
 
-#: includes/WooCommerce/class-product-filters.php:437
+#: includes/WooCommerce/class-product-filters.php:407
 #, aa-mt
 msgid "Close filters"
 msgstr "Chiudi i filtri"
 
-#: includes/WooCommerce/class-product-filters.php:462
+#: includes/WooCommerce/class-product-filters.php:432
 #: src/blocks-interactivity/filter-active-bar/render.php:61
 #, aa-mt
 msgid "Clear All"
 msgstr "Seleziona tutto"
 
-#: includes/WooCommerce/class-product-filters.php:468
-#: includes/WooCommerce/class-product-filters.php:524
+#: includes/WooCommerce/class-product-filters.php:438
+#: includes/WooCommerce/class-product-filters.php:494
 #, aa-mt
 msgid "View Results"
 msgstr "Visualizza i risultati"
 
-#: includes/WooCommerce/class-product-filters.php:528
+#: includes/WooCommerce/class-product-filters.php:498
 #, aa-mt
 msgid "Clear All Filters"
 msgstr "Rimuovi tutti i filtri"
-
-#: includes/WooCommerce/class-product-filters.php:582
-#: patterns/template-no-products.php:15
-#, aa-mt
-msgid "No products were found matching your selection."
-msgstr "Non sono stati trovati prodotti corrispondenti alla tua selezione."
-
-#: includes/WooCommerce/class-product-filters.php:595
-#, aa-mt
-msgid "Filtered products pagination"
-msgstr "Paginazione dei prodotti filtrati"
 
 #. translators: %s: inherited value, e.g. "Regular".
 #. Auto-translated (aa-mt) via deepl — review before release.

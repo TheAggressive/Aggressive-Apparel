@@ -17,7 +17,7 @@ describe('FilterRequestManager', () => {
     expect(second).toHaveBeenCalledTimes(1);
 
     const signal = manager.beginFacets();
-    manager.cancelAll();
+    manager.cancelFacets();
     expect(signal.aborted).toBe(true);
   });
 });

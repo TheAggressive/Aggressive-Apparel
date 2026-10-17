@@ -12,18 +12,14 @@ namespace Aggressive_Apparel\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Invalidates cached markup when Site Editor design changes are saved.
+ * Purges the page cache when Site Editor design changes are saved.
  *
  * Templates, template parts, global styles, navigation and synced patterns
- * render on many pages but have no public URL of their own, so caches keyed
- * by URL or by template markup keep serving the old design:
+ * render on many pages but have no public URL of their own. Breeze purges on
+ * Customizer and classic-menu saves but skips these updates (and never
+ * reaches Cloudflare for them), so cached pages keep the old design.
  *
- * - Full-page caches: Breeze purges on Customizer and classic-menu saves but
- *   skips these updates, and never reaches Cloudflare for them.
- * - Anything else keyed to the design can listen for
- *   `aggressive_apparel_design_changed`.
- *
- * Saves are collected and handled once per request: the Site Editor often
+ * Saves are collected and purged once per request: the Site Editor often
  * saves several entities together.
  */
 final class Page_Cache_Purge {
@@ -81,11 +77,10 @@ final class Page_Cache_Purge {
 	}
 
 	/**
-	 * Invalidate theme caches, then purge every page-cache layer, once.
+	 * Purge every page-cache layer, once.
 	 *
 	 * `breeze_clear_all_cache` is Breeze's own full purge (local files,
-	 * Varnish and Cloudflare); without Breeze it has no listeners. Listeners of
-	 * the theme action run first, before any page-cache preloader re-renders.
+	 * Varnish and Cloudflare); without Breeze it has no listeners.
 	 *
 	 * @return void
 	 */
@@ -95,13 +90,6 @@ final class Page_Cache_Purge {
 		}
 
 		$this->pending = false;
-
-		/**
-		 * Fires once per request after a Site Editor design change was saved.
-		 *
-		 * @since 1.192.4
-		 */
-		do_action( 'aggressive_apparel_design_changed' );
 		do_action( 'breeze_clear_all_cache' );
 	}
 }

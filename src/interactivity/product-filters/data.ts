@@ -229,7 +229,7 @@ export function setupApplyPrefetch(): void {
 
 /** Abort requests that cannot be used, then begin a full page navigation. */
 export function hardNavigate(url: string): void {
-  requests.cancelAll();
+  requests.cancelFacets();
   window.location.assign(url);
 }
 
@@ -246,15 +246,8 @@ async function navigateCatalog(url: string): Promise<void> {
   }
 
   state.isLoading = true;
-  let actions: Router['actions'];
   try {
-    ({ actions } = await loadRouter());
-  } catch {
-    hardNavigate(url);
-    return;
-  }
-
-  try {
+    const { actions } = await loadRouter();
     await actions.navigate(url);
   } catch {
     hardNavigate(url);

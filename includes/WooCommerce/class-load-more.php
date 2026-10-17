@@ -31,13 +31,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * append its cards, so appended cards are always the archive's own render.
  *
  * @since 1.51.0
+ *
+ * @phpstan-type Seed array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}
  */
 class Load_More {
 
 	/**
 	 * Request-scoped pagination state shared by global state and local context.
 	 *
-	 * @var array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}|null
+	 * @var Seed|null
 	 */
 	private ?array $runtime_seed = null;
 
@@ -242,7 +244,7 @@ class Load_More {
 	/**
 	 * Pagination seed for this request (main query when no block rendered).
 	 *
-	 * @return array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}
+	 * @return Seed
 	 */
 	private function get_runtime_seed(): array {
 		return $this->runtime_seed ??= $this->build_seed( '', null );
@@ -256,7 +258,7 @@ class Load_More {
 	 *
 	 * @param string         $pagination_html Rendered native pagination.
 	 * @param \WP_Block|null $instance        Pagination block (query context).
-	 * @return array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}
+	 * @return Seed
 	 */
 	private function build_seed( string $pagination_html, ?\WP_Block $instance ): array {
 		global $wp_query;

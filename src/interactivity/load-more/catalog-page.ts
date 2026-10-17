@@ -35,12 +35,11 @@ const CARD = ':scope > li:not(.aa-product-grid__spacer)';
  * block style variations and sticky/fixed position containers. Content-hashed
  * names (layout containers, custom CSS) are identical across pages and safe.
  */
-const PER_REQUEST_CLASS =
-  /^(?:wp-elements-\d+|is-style-[a-z0-9-]+--\d+|wp-container-\d+)$/;
-const PER_REQUEST_SELECTOR =
-  /\.(wp-elements-\d+|is-style-[a-z0-9-]+--\d+|wp-container-\d+)(?![\w-])/g;
-const HAS_PER_REQUEST_SELECTOR =
-  /\.(?:wp-elements-\d|is-style-[a-z0-9-]+--\d|wp-container-\d)/;
+const PER_REQUEST = String.raw`wp-elements-\d+|is-style-[a-z0-9-]+--\d+|wp-container-\d+`;
+const PER_REQUEST_CLASS = new RegExp(`^(?:${PER_REQUEST})$`);
+const PER_REQUEST_SELECTOR = new RegExp(
+  String.raw`\.(${PER_REQUEST})(?![\w-])`
+);
 
 /**
  * The paginated product grid and its Load More control in a document.
@@ -63,7 +62,7 @@ export function catalogCards(grid: HTMLElement): HTMLElement[] {
 }
 
 /**
- * Resolve a page-relative URL, accepting only same-origin http(s) targets.
+ * Resolve a page-relative URL, accepting only same-origin targets.
  *
  * @param href    URL as written in the page.
  * @param baseUrl URL of the page it was written in.
@@ -130,7 +129,7 @@ export function parseCatalogPage(
  *
  * @return The renamed class names now used by the cards.
  */
-export function scopePerRequestClasses(
+function scopePerRequestClasses(
   cards: readonly HTMLElement[],
   scope: string
 ): Set<string> {
@@ -152,7 +151,7 @@ export function scopePerRequestClasses(
 
 /** Rename per-request class selectors in a CSS rule to `<name>-<scope>`. */
 export function scopeSelectors(rule: string, scope: string): string {
-  return rule.replace(PER_REQUEST_SELECTOR, `.$1-${scope}`);
+  return rule.replace(new RegExp(PER_REQUEST_SELECTOR, 'g'), `.$1-${scope}`);
 }
 
 /** Whether a rule's selectors reference any of the given class names. */
@@ -172,14 +171,14 @@ function collectRules(doc: Document): string[] {
 
   doc.querySelectorAll('style').forEach(style => {
     const text = style.textContent ?? '';
-    if (HAS_PER_REQUEST_SELECTOR.test(text)) rules.push(...splitRules(text));
+    if (PER_REQUEST_SELECTOR.test(text)) rules.push(...splitRules(text));
   });
 
   return rules;
 }
 
 /** Split a stylesheet into rule texts; the whole sheet when unsupported. */
-export function splitRules(css: string): string[] {
+function splitRules(css: string): string[] {
   try {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(css);

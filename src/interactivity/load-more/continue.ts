@@ -1,11 +1,8 @@
 /**
  * Pure Load More decisions, kept free of the store so Jest can test them.
- *
- * Kept free of Interactivity store coupling so Jest can lock the mobile
- * "sentinel stayed intersecting" regression without booting the full module.
  */
 
-/** Matches load-more.ts SENTINEL_ROOT_MARGIN_PX. */
+/** How far below the viewport infinite scroll starts the next load. */
 export const SENTINEL_ROOT_MARGIN_PX = 400;
 
 export function isSentinelWithinRootMargin(

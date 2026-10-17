@@ -1,5 +1,5 @@
 /**
- * Pure helpers extracted for infinite-scroll continuation tests.
+ * Pure Load More decisions, kept free of the store so Jest can test them.
  *
  * Kept free of Interactivity store coupling so Jest can lock the mobile
  * "sentinel stayed intersecting" regression without booting the full module.
@@ -26,7 +26,7 @@ export function shouldContinueInfiniteScroll(options: {
   mode: string;
   isLoading: boolean;
   allLoaded: boolean;
-  nextCursor: string;
+  nextUrl: string;
   sentinelHidden: boolean;
   sentinelTop: number;
   viewportHeight: number;
@@ -37,7 +37,7 @@ export function shouldContinueInfiniteScroll(options: {
     options.mode !== 'infinite_scroll' ||
     options.isLoading ||
     options.allLoaded ||
-    !options.nextCursor ||
+    !options.nextUrl ||
     options.sentinelHidden
   ) {
     return 'stop';
@@ -54,4 +54,17 @@ export function shouldContinueInfiniteScroll(options: {
   }
 
   return 'load';
+}
+
+/**
+ * Whether the Load More button should be hidden for the current UI mode.
+ *
+ * Infinite scroll uses the sentinel + spinner; the button is only for
+ * explicit `load_more` mode (or when the store falls back to it).
+ */
+export function shouldHideLoadMoreButton(
+  mode: string,
+  allLoaded: boolean
+): boolean {
+  return mode === 'infinite_scroll' || allLoaded;
 }

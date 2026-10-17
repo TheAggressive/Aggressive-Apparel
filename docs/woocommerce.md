@@ -25,18 +25,15 @@ WooCommerce features are **conditionally loaded** only when WooCommerce is activ
 The catalog is engineered to scale, but two infrastructure pieces are
 **assumed, not optional**, at real traffic:
 
-- **Persistent object cache (Redis/Memcached).** `Rendered_Product_Cache`
-  hard-requires `wp_using_ext_object_cache()` — without one, the anonymous
-  rendered-fragment cache (keyset pagination + load-more, stale-while-revalidate
-  with a regeneration lock) **silently no-ops** and every REST page recomputes.
-  The rate limiter and search cache also fall back to transients, writing to
+- **Persistent object cache (Redis/Memcached).** Facet counts, the rate
+  limiter and the search cache fall back to transients without one, writing to
   `wp_options` on anonymous requests.
-- **Full-page cache (Varnish/Batcache/WP Rocket/edge).** Only the REST
-  load-more path goes through `Rendered_Product_Cache`; the **initial** anonymous
-  archive/Product Collection paint recomputes on every request unless a page
-  cache sits in front. Without one, first paint is the catalog's load ceiling.
-- **Real client IP.** Public endpoints (search, load-more, sorting,
-  back-in-stock signup) rate-limit per IP via `Client_IP`, which trusts
+- **Full-page cache (Varnish/Batcache/WP Rocket/edge).** Every product grid is
+  a real archive page — first paint, each Load More page (`/shop/page/N/`) and
+  each filtered URL — so a page cache serves all of them. Without one, every
+  catalog page renders uncached and that is the catalog's load ceiling.
+- **Real client IP.** Public endpoints (search, catalog facets, back-in-stock
+  signup) rate-limit per IP via `Client_IP`, which trusts
   `REMOTE_ADDR`, plus `CF-Connecting-IP` only from Cloudflare's published
   ranges. Behind any other proxy or load balancer, have the server rewrite
   `REMOTE_ADDR` to the visitor (nginx `real_ip`, Apache `mod_remoteip`) or
@@ -56,10 +53,56 @@ Store API cart calls go through `storeApiPost()` (adopts the fresh nonce the
 Store API returns and retries once), and guest back-in-stock signups skip the
 nonce check.
 
+**Design edits purge the page cache.** Templates, template parts, global
+styles, navigation and synced patterns have no URL of their own, so a page
+cache would keep serving the old design on cached pages while uncached ones
+render the new one — and Load More would append one to the other. `Page_Cache_Purge` fires
+Breeze's full purge (`breeze_clear_all_cache`: local, Varnish, Cloudflare) once
+per request when any of them is saved or reset; Breeze itself skips these
+updates. Another page cache needs the equivalent hook.
+
 **International stores:** the page cache must vary on the active currency
 (e.g. WooPayments' currency cookie) and on geolocation (WooCommerce → General →
 _Geolocate (with page caching support)_). Product prices need this anyway, and
 the free-shipping blocks rely on it for empty-cart visitors (below).
+
+## Catalog pagination, filters and sorting
+
+Product grids only ever come from a real render of the archive page, so the
+cards Load More appends or a filter shows always match the page — template,
+prices and currency included.
+
+- **URL contract.** Filters and sorts live in the query string: `cat`, `color`,
+  `size`, `collection`, `min_price`, `max_price`, `stock=instock`, `on_sale=1`
+  and WooCommerce's `orderby`. `Catalog_Url_Filters` parses them (bounded and
+  validated); its parameter map mirrors `ATTRIBUTE_FILTERS` in
+  `src/interactivity/product-filters/types.ts`, and a PHPUnit test keeps the
+  two (and the sort lists) in sync.
+- **Server-side filtering.** `Catalog_Archive_Filters` applies them to the
+  archive's own query: the main query for inherited Product Collections, the
+  template's main collection (matched by `queryId`) for explicit ones. A
+  filtered URL therefore renders correctly on first load and without
+  JavaScript. Rank Math canonicalises it to the unfiltered archive.
+- **Load More / infinite scroll** fetch the native "next page" link the page
+  rendered, parse it and append its cards; the seed (totals and the URL of the
+  page after it) comes from that page too. Per-request class names
+  (`wp-elements-N`, style variations) are renamed for the appended page and
+  its block-support rules copied with them. Cards are never repeated, and the
+  order always ends on the post ID so pages never overlap.
+- **Filters and sorts** navigate to the new URL with WordPress's Interactivity
+  router, which swaps the collection's router region; WooCommerce's Catalog
+  Sorting block does this itself. Changing category is a full navigation
+  (title, breadcrumbs, canonical). A filtered selection with no matches gets a
+  No Results block when the template has none — WooCommerce otherwise renders
+  nothing, not even the region.
+- **Facets** (which options still have matches) are the one JSON endpoint:
+  `aggressive-apparel/v1/catalog/facets`, data only.
+
+**Prerequisite for explicit collections:** they paginate with
+`?query-<id>-page=N`. Some hosts block that parameter (production returns 403),
+which breaks native pagination and Load More alike. Set the archive template's
+Product Collection to _Sync with current query_ (pages become `/shop/page/N/`),
+or have the host allow the parameter.
 
 ## Free shipping (international)
 

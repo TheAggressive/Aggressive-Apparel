@@ -1,34 +1,30 @@
-import {
-  ATTRIBUTE_FILTERS,
-  type ProductFiltersState,
-  type SortConfig,
-} from './types';
+import { ATTRIBUTE_FILTERS, type ProductFiltersState } from './types';
 
-/** WooCommerce `orderby` values → filter sort state. */
-export const SORT_OPTIONS: Readonly<Record<string, SortConfig>> = {
-  menu_order: { orderBy: 'menu_order', orderDir: 'asc' },
-  popularity: { orderBy: 'popularity', orderDir: 'desc' },
-  rating: { orderBy: 'rating', orderDir: 'desc' },
-  date: { orderBy: 'date', orderDir: 'desc' },
-  price: { orderBy: 'price', orderDir: 'asc' },
-  'price-desc': { orderBy: 'price', orderDir: 'desc' },
-  'title-asc': { orderBy: 'title', orderDir: 'asc' },
-  'title-desc': { orderBy: 'title', orderDir: 'desc' },
-  featured: { orderBy: 'include', orderDir: 'asc', customSort: 'featured' },
-  savings: { orderBy: 'include', orderDir: 'asc', customSort: 'savings' },
-};
+/**
+ * WooCommerce `orderby` values the server applies (mirrors
+ * Catalog_Archive_Filters::SORTS).
+ */
+export const SORTS: ReadonlySet<string> = new Set([
+  'menu_order',
+  'date',
+  'popularity',
+  'rating',
+  'price',
+  'price-desc',
+  'title-asc',
+  'title-desc',
+  'featured',
+  'savings',
+]);
 
-/** Apply a WooCommerce `orderby` value; false when it is not a known sort. */
+/** Apply a WooCommerce `orderby` value; '' or unknown resets to the default. */
 export function applySort(
   state: ProductFiltersState,
   orderby: string
 ): boolean {
-  const sort = SORT_OPTIONS[orderby];
-  if (!sort) return false;
-  state.orderBy = sort.orderBy;
-  state.orderDir = sort.orderDir;
-  state._customSort = sort.customSort || '';
-  return true;
+  const known = SORTS.has(orderby);
+  state.orderby = known ? orderby : '';
+  return known;
 }
 
 /** Canonical WooCommerce shop pathname. */
@@ -153,7 +149,7 @@ export function buildFilterUrl(
   }
   if (state.inStockOnly) params.set('stock', 'instock');
   if (state.onSaleOnly && !salesPath) params.set('on_sale', '1');
-  if (state.currentPage > 1) params.set('pf_page', String(state.currentPage));
+  if (state.orderby) params.set('orderby', state.orderby);
 
   const query = params.toString();
   return query ? `${basePath}?${query}` : basePath;
@@ -193,13 +189,6 @@ export function applyUrlState(
   state.inStockOnly = params.get('stock') === 'instock';
   state.onSaleOnly =
     params.get('on_sale') === '1' || isSalesArchive(state, catFromPath);
-  state.currentPage = Math.max(
-    parseInt(params.get('pf_page') || '1', 10) || 1,
-    1
-  );
-  // The sort dropdown submits `?orderby=` (WooCommerce form). Honour it so a
-  // filtered re-fetch keeps the requested order. Filter URLs never carry it,
-  // so an absent param leaves the current sort alone rather than resetting it.
   applySort(state, params.get('orderby') || '');
   return catFromPath;
 }

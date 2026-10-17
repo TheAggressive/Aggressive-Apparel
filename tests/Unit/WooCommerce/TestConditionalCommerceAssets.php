@@ -219,18 +219,51 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 
 		$this->assertIsArray( $context );
 		$this->assertSame( 1, $context['currentPage'] );
-		$this->assertNotSame( '', $context['orderby'] );
-		$this->assertArrayHasKey( 'nextCursor', $context );
-		$this->assertArrayHasKey( 'restBase', $context );
+		$this->assertSame( '', $context['nextUrl'], 'No native next link, nothing to load.' );
+		$this->assertTrue( $context['allLoaded'] );
+		$this->assertArrayNotHasKey( 'restBase', $context, 'Continuations fetch pages, not REST.' );
 	}
 
 	/**
-	 * Load More seeds its derived getters for the server (no-JS) render.
+	 * Continuations follow the native "next" link (entities decoded), so Load
+	 * More fetches the exact page a crawler or no-JS shopper would.
+	 *
+	 * @return void
+	 */
+	public function test_load_more_continues_from_the_native_next_link(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Next link product',
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+			)
+		);
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		$native = '<nav class="wp-block-query-pagination"><a href="/shop/page/2/?orderby=price&#038;color=black" class="wp-block-query-pagination-next">Next</a></nav>';
+		$html   = ( new Load_More() )->replace_pagination( $native, array( 'blockName' => 'core/query-pagination' ) );
+
+		preg_match( "/data-wp-context='([^']+)'/", $html, $matches );
+		$context = json_decode( html_entity_decode( $matches[1] ?? '', ENT_QUOTES | ENT_HTML5 ), true );
+
+		$this->assertIsArray( $context );
+		$this->assertSame( '/shop/page/2/?orderby=price&color=black', $context['nextUrl'] );
+		$this->assertFalse( $context['allLoaded'] );
+	}
+
+	/**
+	 * Load More seeds its derived getters so SSR matches the hydrated markup.
 	 *
 	 * Unseeded, server directive processing evaluates them falsy: the status
-	 * line renders empty and the infinite-scroll button visible. The button
-	 * needs the store, so the server renders it hidden and keeps the native
-	 * pagination links visible; the client getters swap them on hydration.
+	 * line renders empty and the infinite-scroll button visible, and both
+	 * change on hydration (a layout shift on the shop grid). The native links
+	 * render too; CSS shows them only without scripting.
 	 *
 	 * @return void
 	 */
@@ -268,8 +301,7 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 			$this->assertIsArray( $context );
 
 			$this->assertSame( $mode, $context['mode'] );
-			$this->assertTrue( $state['hideButton'] );
-			$this->assertFalse( $state['hidePagination'] );
+			$this->assertSame( 'infinite_scroll' === $mode || $context['allLoaded'], $state['hideButton'] );
 			$this->assertSame( 'infinite_scroll' !== $mode || $context['allLoaded'], $state['hideSentinel'] );
 			$this->assertFalse( $state['showSentinelLoader'] );
 			$this->assertSame(
@@ -281,9 +313,11 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 
 			$processed = wp_interactivity_process_directives( $html );
 			$this->assertStringContainsString( '>' . esc_html( $state['statusText'] ) . '</span>', $processed );
-			$this->assertMatchesRegularExpression( '/<button hidden class="aa-load-more__btn/', $processed );
-			$this->assertMatchesRegularExpression( '/<div class="aa-load-more__pagination"[^>]*><nav>Next page<\/nav>/', $processed );
-			$this->assertDoesNotMatchRegularExpression( '/<div hidden class="aa-load-more__pagination"/', $processed );
+			$this->assertSame(
+				(bool) $state['hideButton'],
+				(bool) preg_match( '/<button hidden class="aa-load-more__btn/', $processed )
+			);
+			$this->assertStringContainsString( '<div class="aa-load-more__pagination"><nav>Next page</nav></div>', $processed );
 		}
 
 		delete_option( Feature_Settings::LOAD_MORE_MODE_OPTION );
@@ -291,7 +325,7 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 
 	/**
 	 * Native pagination stays in the HTML so crawlers and no-JS shoppers can
-	 * reach every catalog page; only hydration hides it.
+	 * reach every catalog page; CSS decides its visibility at first paint.
 	 *
 	 * @return void
 	 */
@@ -316,7 +350,7 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 		$html   = ( new Load_More() )->replace_pagination( $native, array( 'blockName' => 'core/query-pagination' ) );
 
 		$this->assertStringContainsString(
-			'<div class="aa-load-more__pagination" data-wp-bind--hidden="state.hidePagination">' . $native . '</div>',
+			'<div class="aa-load-more__pagination">' . $native . '</div>',
 			$html
 		);
 
@@ -389,20 +423,19 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Theme AJAX sorting replaces only WooCommerce's competing change action.
+	 * WooCommerce's sort control keeps its own router navigation (it keeps the
+	 * URL's filters), so the filters only enqueue their assets on it.
 	 *
 	 * @return void
 	 */
-	public function test_product_filters_remove_native_sort_handler_preserves_markup(): void {
-		$filters = new Product_Filters();
-		$method  = new \ReflectionMethod( Product_Filters::class, 'remove_native_sort_handler' );
+	public function test_product_filters_leave_the_native_sort_control_alone(): void {
+		add_filter( 'aggressive_apparel_product_filters_needs_assets', '__return_true' );
+		$html = '<form class="woocommerce-ordering"><select name="orderby" data-wp-on--change="actions.handleSortChange"><option value="date">Latest</option></select></form>';
 
-		$html = '<form data-owner="extension"><select name="orderby" data-wp-on--change="actions.handleSortChange" data-track="catalog"><option value="date">Latest</option></select></form>';
-		$result = (string) $method->invoke( $filters, $html );
+		$result = ( new Product_Filters() )->inject_filter_ui( $html, array( 'blockName' => 'woocommerce/catalog-sorting' ) );
 
-		$this->assertStringNotContainsString( 'data-wp-on--change', $result );
-		$this->assertStringContainsString( 'data-owner="extension"', $result );
-		$this->assertStringContainsString( 'data-track="catalog"', $result );
+		remove_filter( 'aggressive_apparel_product_filters_needs_assets', '__return_true' );
+		$this->assertSame( $html, $result );
 	}
 
 	/**

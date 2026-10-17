@@ -16,12 +16,12 @@ namespace Aggressive_Apparel\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Reports whether a persistent object cache backs the catalog cache.
+ * Reports whether a persistent object cache backs the theme's catalog caches.
  *
- * `Rendered_Product_Cache` only caches anonymous product-grid responses when
- * `wp_using_ext_object_cache()` is true. Without a persistent object cache the
- * whole layer no-ops with no visible symptom, so this test makes the missing
- * dependency loud and actionable.
+ * Facet counts, search results and rate-limit counters are cached as
+ * transients; without a persistent object cache they live in `wp_options`
+ * and every anonymous request writes to the database. Product grids (first
+ * load, Load More, filters) are full pages and rely on the page cache.
  */
 final class Cache_Health {
 
@@ -82,24 +82,24 @@ final class Cache_Health {
 				'status'      => 'good',
 				'badge'       => $badge,
 				'description' => '<p>' . esc_html__(
-					'The theme caches anonymous product-grid responses (load-more, filtering, sorting) in the persistent object cache, so paginated catalog requests are served without recomputing their query.',
+					'Filter availability, search results and rate-limit counters are cached in the persistent object cache instead of the database.',
 					'aggressive-apparel'
 				) . '</p>',
 				'test'        => self::TEST_ID,
 			);
 		}
 
-		$badge['color'] = 'red';
+		$badge['color'] = 'orange';
 
 		return array(
-			'label'       => __( 'No persistent object cache — catalog cache is inactive', 'aggressive-apparel' ),
-			'status'      => 'critical',
+			'label'       => __( 'No persistent object cache for the catalog', 'aggressive-apparel' ),
+			'status'      => 'recommended',
 			'badge'       => $badge,
 			'description' => '<p>' . esc_html__(
-				'Aggressive Apparel caches anonymous product-grid responses (load-more, filtering, sorting) only when a persistent object cache is available. Without one, every catalog request recomputes its query and re-renders from scratch, which will not hold up under traffic.',
+				'Aggressive Apparel caches filter availability, search results and rate-limit counters as transients. Without a persistent object cache they are stored in the database, so busy catalogs write to it on anonymous requests.',
 				'aggressive-apparel'
 			) . '</p><p>' . esc_html__(
-				'How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — only paginated load-more is theme-cached; the initial archive paint relies on the page cache.',
+				'How to fix: install and enable a persistent object cache backed by Redis or Memcached. Most managed WordPress hosts offer this as a one-click add-on; self-hosted sites install the Redis/Memcached server plus a drop-in plugin (for example Redis Object Cache), which writes wp-content/object-cache.php. Additionally place a full-page cache (Varnish, Batcache, or a host/CDN page cache) in front of anonymous archive traffic, configured to bypass cart, checkout, and my-account and to vary on the WooCommerce session cookies — catalog pages, including those Load More fetches, rely on it.',
 				'aggressive-apparel'
 			) . '</p>',
 			'actions'     => sprintf(

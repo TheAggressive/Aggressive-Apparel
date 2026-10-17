@@ -5,7 +5,8 @@
 import {
   isSentinelWithinRootMargin,
   shouldContinueInfiniteScroll,
-} from '../load-more-continue';
+  shouldHideLoadMoreButton,
+} from '../continue';
 
 describe('isSentinelWithinRootMargin', () => {
   it('treats a sentinel still inside rootMargin as near the viewport', () => {
@@ -25,7 +26,7 @@ describe('shouldContinueInfiniteScroll', () => {
     mode: 'infinite_scroll',
     isLoading: false,
     allLoaded: false,
-    nextCursor: 'cursor-token',
+    nextUrl: 'https://store.test/shop/page/2/',
     sentinelHidden: false,
     sentinelTop: 900,
     viewportHeight: 844,
@@ -53,9 +54,7 @@ describe('shouldContinueInfiniteScroll', () => {
     expect(shouldContinueInfiniteScroll({ ...base, isLoading: true })).toBe(
       'stop'
     );
-    expect(shouldContinueInfiniteScroll({ ...base, nextCursor: '' })).toBe(
-      'stop'
-    );
+    expect(shouldContinueInfiniteScroll({ ...base, nextUrl: '' })).toBe('stop');
     expect(shouldContinueInfiniteScroll({ ...base, mode: 'load_more' })).toBe(
       'stop'
     );
@@ -68,5 +67,16 @@ describe('shouldContinueInfiniteScroll', () => {
         sentinelTop: 2000,
       })
     ).toBe('stop');
+  });
+});
+
+describe('shouldHideLoadMoreButton', () => {
+  it('hides the button in infinite_scroll mode even when more products remain', () => {
+    expect(shouldHideLoadMoreButton('infinite_scroll', false)).toBe(true);
+  });
+
+  it('shows the button in load_more mode until the catalogue is exhausted', () => {
+    expect(shouldHideLoadMoreButton('load_more', false)).toBe(false);
+    expect(shouldHideLoadMoreButton('load_more', true)).toBe(true);
   });
 });

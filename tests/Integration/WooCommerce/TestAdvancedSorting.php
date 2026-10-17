@@ -1,6 +1,6 @@
 <?php
 /**
- * Advanced sorting REST integration tests.
+ * Advanced sorting: server-side Featured and Savings orders.
  *
  * @package Aggressive_Apparel\Tests\Integration\WooCommerce
  */
@@ -10,31 +10,25 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Advanced_Sorting;
+use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
 use Aggressive_Apparel\WooCommerce\Sale_Category;
-use WP_REST_Request;
-use WP_REST_Response;
-use WP_REST_Server;
+use WP_Query;
 use WP_UnitTestCase;
 
 /**
- * Covers product filters applied to custom-sorted product IDs.
+ * Custom sorts are applied by SQL to the archive's own query, flagged with
+ * `aa_catalog_custom_sort` (explicit collections) or through WooCommerce's
+ * ordering args (the main query), and combine with every catalog filter.
  */
 class TestAdvancedSorting extends WP_UnitTestCase {
-
-	/** REST route under test. */
-	private const ROUTE = '/aggressive-apparel/v1/sorted-products';
 
 	/** Sorting service under test. */
 	private Advanced_Sorting $sorting;
 
-	/** Previous REMOTE_ADDR value. */
-	private string $previous_remote_addr = '';
+	/** Query argument builder (filters). */
+	private Product_Collection_Query $queries;
 
-	/**
-	 * Register the route on a fresh REST server.
-	 *
-	 * @return void
-	 */
+	/** Register the sorting and lookup clauses. */
 	public function setUp(): void {
 		parent::setUp();
 
@@ -44,43 +38,28 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 
 		$this->sorting = new Advanced_Sorting();
 		$this->sorting->init();
+		$this->queries = new Product_Collection_Query();
+		add_filter( 'posts_clauses', array( $this->queries, 'apply_lookup_clauses' ), 10, 2 );
 		delete_transient( 'wc_products_onsale' );
-		$this->previous_remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-		do_action( 'rest_api_init' );
 	}
 
-	/**
-	 * Reset the REST server.
-	 *
-	 * @return void
-	 */
+	/** Remove the clause filters. */
 	public function tearDown(): void {
-		global $wp_rest_server;
-		$wp_rest_server = null;
-
-		if ( '' === $this->previous_remote_addr ) {
-			unset( $_SERVER['REMOTE_ADDR'] );
-		} else {
-			$_SERVER['REMOTE_ADDR'] = $this->previous_remote_addr;
-		}
-		remove_all_filters( 'aggressive_apparel_advanced_sorting_rate_limit_max' );
-		remove_all_filters( 'aggressive_apparel_advanced_sorting_rate_limit_window' );
-
+		remove_filter( 'posts_clauses', array( $this->sorting, 'apply_ssr_ordering' ), 20 );
+		remove_filter( 'posts_clauses', array( $this->queries, 'apply_lookup_clauses' ), 10 );
 		parent::tearDown();
 	}
 
 	/**
-	 * Create a featured product for the custom-sort endpoint.
+	 * Create a published product.
 	 *
 	 * @param float  $price        Regular price.
 	 * @param float  $sale_price   Optional active sale price.
 	 * @param string $stock_status WooCommerce stock status.
+	 * @param bool   $featured     Whether the product is featured.
 	 * @return int Product ID.
 	 */
-	private function create_product( float $price, float $sale_price = 0, string $stock_status = 'instock' ): int {
+	private function create_product( float $price, float $sale_price = 0, string $stock_status = 'instock', bool $featured = true ): int {
 		$product = new \WC_Product_Simple();
 		$product->set_name( 'Sorted product ' . wp_generate_password( 6, false ) );
 		$product->set_regular_price( (string) $price );
@@ -88,181 +67,124 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 			$product->set_sale_price( (string) $sale_price );
 		}
 		$product->set_stock_status( $stock_status );
-		$product->set_featured( true );
+		$product->set_featured( $featured );
 		$product->set_status( 'publish' );
 		$product->set_catalog_visibility( 'visible' );
-		$product_id = $product->save();
 
-		return (int) $product_id;
+		return (int) $product->save();
 	}
 
 	/**
-	 * Dispatch the sorted-products route through REST validation.
+	 * Product IDs for a custom sort plus catalog filters, as an explicit
+	 * collection's query would run it.
 	 *
-	 * @param array<string, mixed> $params Request query params.
-	 * @return WP_REST_Response
+	 * @param string               $sort    Custom sort.
+	 * @param array<string, mixed> $filters Catalog_Filter_Set input.
+	 * @param array<string, mixed> $extra   Extra query vars.
+	 * @return array{ids: list<int>, total: int}
 	 */
-	private function dispatch( array $params ): WP_REST_Response {
-		$request = new WP_REST_Request( 'GET', self::ROUTE );
-		foreach ( $params as $key => $value ) {
-			$request->set_param( $key, $value );
-		}
-
-		return rest_do_request( $request );
-	}
-
-	/**
-	 * Coming-soon mode must not leak sorted product IDs to the public.
-	 *
-	 * @return void
-	 */
-	public function test_coming_soon_hides_sorted_ids_from_anonymous_users(): void {
-		$this->create_product( 10 );
-		update_option( 'woocommerce_coming_soon', 'yes' );
-		wp_set_current_user( 0 );
-
-		$response = $this->dispatch( array( 'sort' => 'featured' ) );
-		$data     = $response->get_data();
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array(), $data['ids'] );
-		$this->assertSame( 0, (int) $data['total'] );
-		$this->assertSame( 0, (int) $data['totalPages'] );
-
-		update_option( 'woocommerce_coming_soon', 'no' );
-	}
-
-	/**
-	 * Shop managers can still preview sorted IDs while coming soon is on.
-	 *
-	 * @return void
-	 */
-	public function test_coming_soon_allows_shop_managers_to_preview(): void {
-		$product_id = $this->create_product( 10 );
-		update_option( 'woocommerce_coming_soon', 'yes' );
-
-		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $admin_id );
-
-		$response = $this->dispatch( array( 'sort' => 'featured' ) );
-		$data     = $response->get_data();
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertContains( $product_id, array_map( 'intval', $data['ids'] ) );
-
-		update_option( 'woocommerce_coming_soon', 'no' );
-		wp_set_current_user( 0 );
-	}
-
-	/**
-	 * The On Sale toggle is honored before custom-sort pagination.
-	 *
-	 * @return void
-	 */
-	public function test_on_sale_filter_applies_to_featured_sort(): void {
-		$sale_id = $this->create_product( 100, 75 );
-		$this->create_product( 50 );
-		( new Sale_Category() )->sync_product( $sale_id );
-
-		$response = $this->dispatch(
-			array(
-				'sort'    => 'featured',
-				'on_sale' => true,
+	private function sorted( string $sort, array $filters = array(), array $extra = array() ): array {
+		$query = new WP_Query(
+			array_merge(
+				array(
+					'post_type'              => 'product',
+					'post_status'            => 'publish',
+					'fields'                 => 'ids',
+					'posts_per_page'         => 50,
+					'aa_catalog_custom_sort' => $sort,
+				),
+				$this->queries->filter_args( $filters ),
+				$extra
 			)
 		);
-		$data     = $response->get_data();
 
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array( $sale_id ), array_map( 'intval', $data['ids'] ) );
-		$this->assertSame( 1, (int) $data['total'] );
-	}
-
-	/**
-	 * Price and stock filters remain active when a custom sort is selected.
-	 *
-	 * @return void
-	 */
-	public function test_price_and_stock_filters_apply_to_featured_sort(): void {
-		$expected_id = $this->create_product( 50 );
-		$this->create_product( 200 );
-		$this->create_product( 40, 0, 'outofstock' );
-
-		$response = $this->dispatch(
-			array(
-				'sort'      => 'featured',
-				'max_price' => 75,
-				'stock'     => 'instock',
-			)
+		return array(
+			'ids'   => array_map( 'intval', $query->posts ),
+			'total' => (int) $query->found_posts,
 		);
-		$data     = $response->get_data();
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array( $expected_id ), array_map( 'intval', $data['ids'] ) );
-		$this->assertSame( 1, (int) $data['total'] );
 	}
 
-	/**
-	 * Custom sorting is paginated by SQL rather than slicing a full ID array.
-	 *
-	 * @return void
-	 */
-	public function test_featured_sort_returns_one_bounded_page_and_total(): void {
-		$this->create_product( 10 );
-		$this->create_product( 20 );
-		$this->create_product( 30 );
+	/** Featured products come first. */
+	public function test_featured_sort_puts_featured_first(): void {
+		$plain    = $this->create_product( 10, 0, 'instock', false );
+		$featured = $this->create_product( 20 );
 
-		$response = $this->dispatch(
-			array(
-				'sort'     => 'featured',
-				'per_page' => 2,
-				'page'     => 2,
-			)
-		);
-		$data     = $response->get_data();
-
-		$this->assertCount( 1, $data['ids'] );
-		$this->assertSame( 3, (int) $data['total'] );
-		$this->assertSame( 2, (int) $data['totalPages'] );
+		$this->assertSame( array( $featured, $plain ), $this->sorted( 'featured' )['ids'] );
 	}
 
-	/**
-	 * Savings ordering ranks discounts in SQL and leaves regular products last.
-	 *
-	 * @return void
-	 */
+	/** Savings ranks discount percentage; full-price products come last. */
 	public function test_savings_sort_orders_discount_percentage(): void {
 		$half_price    = $this->create_product( 100, 50 );
 		$quarter_saved = $this->create_product( 100, 75 );
 		$regular       = $this->create_product( 100 );
 
-		$data = $this->dispatch( array( 'sort' => 'savings' ) )->get_data();
-		$ids  = array_map( 'intval', $data['ids'] );
-
-		$this->assertSame( $half_price, $ids[0] );
-		$this->assertSame( $quarter_saved, $ids[1] );
-		$this->assertSame( $regular, $ids[2] );
+		$this->assertSame( array( $half_price, $quarter_saved, $regular ), $this->sorted( 'savings' )['ids'] );
 	}
 
-	/**
-	 * Anonymous callers are throttled through the shared rate limiter.
-	 *
-	 * @return void
-	 */
-	public function test_anonymous_sorted_products_requests_are_rate_limited(): void {
-		wp_set_current_user( 0 );
-		$_SERVER['REMOTE_ADDR'] = '203.0.113.47';
+	/** The On Sale filter combines with a custom sort. */
+	public function test_on_sale_filter_applies_to_featured_sort(): void {
+		$sale_id = $this->create_product( 100, 75 );
+		$this->create_product( 50 );
+		( new Sale_Category() )->sync_product( $sale_id );
 
-		add_filter( 'aggressive_apparel_advanced_sorting_rate_limit_max', static fn(): int => 1 );
-		add_filter( 'aggressive_apparel_advanced_sorting_rate_limit_window', static fn(): int => 60 );
+		$result = $this->sorted( 'featured', array( 'on_sale' => true ) );
 
-		$this->create_product( 100 );
+		$this->assertSame( array( $sale_id ), $result['ids'] );
+		$this->assertSame( 1, $result['total'] );
+	}
 
-		$first  = $this->dispatch( array( 'sort' => 'featured' ) );
-		$second = $this->dispatch( array( 'sort' => 'featured' ) );
+	/** Price and stock filters combine with a custom sort. */
+	public function test_price_and_stock_filters_apply_to_featured_sort(): void {
+		$expected_id = $this->create_product( 50 );
+		$this->create_product( 200 );
+		$this->create_product( 40, 0, 'outofstock' );
 
-		$this->assertSame( 200, $first->get_status() );
-		$this->assertSame( 429, $second->get_status() );
-		$this->assertSame( '60', $second->get_headers()['Retry-After'] ?? '' );
-		$this->assertSame( array( 'error' => 'rate_limited' ), $second->get_data() );
+		$result = $this->sorted(
+			'featured',
+			array(
+				'max_price' => 75,
+				'stock'     => 'instock',
+			)
+		);
+
+		$this->assertSame( array( $expected_id ), $result['ids'] );
+		$this->assertSame( 1, $result['total'] );
+	}
+
+	/** Custom sorts paginate in SQL like any query. */
+	public function test_featured_sort_paginates_in_sql(): void {
+		$this->create_product( 10 );
+		$this->create_product( 20 );
+		$this->create_product( 30 );
+
+		$result = $this->sorted(
+			'featured',
+			array(),
+			array(
+				'posts_per_page' => 2,
+				'paged'          => 2,
+			)
+		);
+
+		$this->assertCount( 1, $result['ids'] );
+		$this->assertSame( 3, $result['total'] );
+	}
+
+	/** Unflagged secondary queries keep their own order. */
+	public function test_other_queries_are_left_alone(): void {
+		$first  = $this->create_product( 10, 0, 'instock', false );
+		$second = $this->create_product( 20 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => 'product',
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'posts_per_page' => 50,
+			)
+		);
+
+		$this->assertSame( array( $first, $second ), array_map( 'intval', $query->posts ) );
 	}
 }

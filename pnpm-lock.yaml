@@ -152,6 +152,9 @@ importers:
       '@wordpress/interactivity':
         specifier: ^6.56.0
         version: 6.56.0
+      '@wordpress/interactivity-router':
+        specifier: 2.54.0
+        version: 2.54.0
       '@wordpress/keyboard-shortcuts':
         specifier: ^5.56.0
         version: 5.56.0(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@18.3.1(react@19.2.8))(react@19.2.8)
@@ -17210,7 +17213,7 @@ snapshots:
       '@types/gradient-parser': 1.1.0
       '@types/highlight-words-core': 1.2.1
       '@use-gesture/react': 10.3.1(react@19.2.8)
-      '@wordpress/a11y': 4.54.0
+      '@wordpress/a11y': 4.56.0
       '@wordpress/base-styles': 6.20.0
       '@wordpress/compose': 7.46.0(@types/react@18.3.31)(react@19.2.8)
       '@wordpress/date': 5.54.0

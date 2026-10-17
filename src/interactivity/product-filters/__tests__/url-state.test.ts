@@ -16,7 +16,7 @@ function state(
     currentCategorySlug: '',
     inStockOnly: false,
     onSaleOnly: false,
-    currentPage: 1,
+    orderby: '',
     shopUrl: 'https://example.com/shop/',
     salesCategoryUrl: 'https://example.com/shop/sales/',
     categories: [
@@ -105,7 +105,7 @@ describe('applyUrlState', () => {
       selectedCollections: ['mens', 'unisex'],
       selectedSizes: ['l'],
       priceMax: 80,
-      currentPage: 2,
+      orderby: 'savings',
     });
     const url = buildFilterUrl(original, []);
     window.history.replaceState({}, '', url);
@@ -116,7 +116,7 @@ describe('applyUrlState', () => {
     expect(restored.selectedCollections).toEqual(['mens', 'unisex']);
     expect(restored.selectedSizes).toEqual(['l']);
     expect(restored.priceMax).toBe(80);
-    expect(restored.currentPage).toBe(2);
+    expect(restored.orderby).toBe('savings');
   });
 
   it('clears refinements absent from the URL (back/forward)', () => {
@@ -126,7 +126,7 @@ describe('applyUrlState', () => {
       priceMin: 20,
       priceMax: 60,
       inStockOnly: true,
-      currentPage: 3,
+      orderby: 'price',
     });
 
     applyUrlState(s, new URLSearchParams(''));
@@ -136,7 +136,7 @@ describe('applyUrlState', () => {
     expect(s.priceMin).toBe(0);
     expect(s.priceMax).toBe(100);
     expect(s.inStockOnly).toBe(false);
-    expect(s.currentPage).toBe(1);
+    expect(s.orderby).toBe('');
   });
 
   it('does not read the legacy fit parameter as a collection', () => {
@@ -163,28 +163,29 @@ describe('applyUrlState', () => {
     expect(s.onSaleOnly).toBe(true);
   });
 
-  it('restores the WooCommerce sort from ?orderby so re-fetches keep it', () => {
-    const s = state({ orderBy: 'date', orderDir: 'desc', _customSort: '' });
+  it('carries the WooCommerce sort in the URL so the server applies it', () => {
+    const s = state();
     window.history.replaceState({}, '', '/shop/shirts/');
 
     applyUrlState(s, new URLSearchParams('orderby=price-desc'));
+    expect(s.orderby).toBe('price-desc');
 
-    expect(s.orderBy).toBe('price');
-    expect(s.orderDir).toBe('desc');
-    expect(s._customSort).toBe('');
-
-    applyUrlState(s, new URLSearchParams('orderby=savings'));
-    expect(s.orderBy).toBe('include');
-    expect(s._customSort).toBe('savings');
+    expect(buildFilterUrl(state({ orderby: 'featured' }), [])).toBe(
+      '/shop/?orderby=featured'
+    );
   });
 
-  it('keeps the current sort when ?orderby is absent or unknown', () => {
-    const s = state({ orderBy: 'price', orderDir: 'asc', _customSort: '' });
+  it('drops unknown sorts instead of sending them to the server', () => {
+    const s = state({ orderby: 'price' });
 
-    applyUrlState(s, new URLSearchParams('size=m'));
     applyUrlState(s, new URLSearchParams('orderby=bogus'));
 
-    expect(s.orderBy).toBe('price');
-    expect(s.orderDir).toBe('asc');
+    expect(s.orderby).toBe('');
+  });
+
+  it('never writes the retired filter pagination parameter', () => {
+    expect(buildFilterUrl(state({ selectedSizes: ['m'] }), [])).toBe(
+      '/shop/?size=m'
+    );
   });
 });

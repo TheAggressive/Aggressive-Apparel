@@ -197,6 +197,20 @@ test.describe('catalog pagination with JavaScript', () => {
     await expect(page.locator('.aa-load-more__btn')).toBeVisible();
   });
 
+  test('the native links never flash before Load More starts', async ({
+    page,
+  }) => {
+    // With the store's script blocked, only CSS decides what shows: the
+    // scripting layout from first paint, so nothing swaps on hydration.
+    await page.route('**/build/interactivity/load-more.js*', route =>
+      route.abort()
+    );
+    await page.goto('/shop/');
+
+    await expect(page.locator(NATIVE_NAV)).toBeHidden();
+    await expect(page.locator(NEXT_LINK)).toHaveCount(1);
+  });
+
   test('Load More on a deep-linked page appends exactly the next server page', async ({
     page,
     request,
@@ -261,24 +275,21 @@ test.describe('catalog pagination with JavaScript', () => {
     expect(new URL(second!).searchParams.get('orderby')).toBe('price');
     const serverSecond = idsFromHtml(await (await request.get(second!)).text());
 
-    const continuation = page.waitForResponse(response => {
-      const url = new URL(response.url());
-      return (
-        url.pathname.endsWith('/aggressive-apparel/v1/products/rendered') &&
-        url.searchParams.get('orderby') === 'price' &&
-        url.searchParams.has('cursor')
-      );
-    });
+    // Load More fetches the native next link itself.
+    const continuation = page.waitForResponse(
+      response => response.url() === second
+    );
     await page.locator('.aa-load-more__btn').click();
     expect((await continuation).status()).toBe(200);
 
     await expect
       .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
       .toBeGreaterThan(before.length);
-    const after = await cardIds(page);
-    expect(new Set(after).size).toBe(after.length);
-    // Same products as server pages 1 + 2: nothing duplicated or skipped.
-    expect(new Set(after)).toEqual(new Set([...serverFirst, ...serverSecond]));
+    // Server pages 1 + 2, in order: nothing duplicated or skipped.
+    expect(await cardIds(page)).toEqual([
+      ...serverFirst,
+      ...serverSecond.filter(id => !serverFirst.includes(id)),
+    ]);
     await expect(page.locator('.aa-load-more__announcer')).toHaveText(
       /\d+ more products loaded/
     );
@@ -301,6 +312,67 @@ test.describe('catalog pagination with JavaScript', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(second, { waitUntil: 'networkidle' });
     expect(await cardIds(page)).toEqual(server);
+  });
+
+  test('appended cards keep the markup of the page they came from', async ({
+    page,
+    request,
+  }) => {
+    // On the shop and on a category archive: the cards Load More appends are
+    // the next page's own cards, block for block.
+    for (const url of ['/shop/', largestCategory().url]) {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto(url);
+      const next = await nextHref(page);
+      expect(next, url).toBeTruthy();
+      const serverHtml = await (await request.get(next!)).text();
+
+      const before = (await cardIds(page)).length;
+      await page.locator('.aa-load-more__btn').click();
+      await expect
+        .poll(async () => (await cardIds(page)).length, { timeout: 15_000 })
+        .toBeGreaterThan(before);
+
+      const cards = await page.evaluate(
+        ({ html, skip }) => {
+          const outline = (card: Element): string =>
+            [...card.querySelectorAll('[class*="wp-block-"]')]
+              .map(el =>
+                [...el.classList]
+                  .filter(name => name.startsWith('wp-block-'))
+                  .sort()
+                  .join('.')
+              )
+              .join(' > ');
+          const byProduct = (cards: Element[]): Record<string, string> =>
+            Object.fromEntries(
+              cards.map(card => [
+                [...card.classList].find(name => /^post-\d+$/.test(name)) ?? '',
+                outline(card),
+              ])
+            );
+          const grid = '.wp-block-woocommerce-product-template';
+          const server = new DOMParser().parseFromString(html, 'text/html');
+          return {
+            appended: byProduct(
+              [
+                ...document.querySelectorAll(`${grid} > li.wc-block-product`),
+              ].slice(skip)
+            ),
+            server: byProduct([
+              ...server.querySelectorAll(`${grid} > li.wc-block-product`),
+            ]),
+          };
+        },
+        { html: serverHtml, skip: before }
+      );
+
+      const appended = Object.keys(cards.appended);
+      expect(appended.length, url).toBeGreaterThan(0);
+      for (const id of appended) {
+        expect(cards.appended[id], `${url} ${id}`).toBe(cards.server[id]);
+      }
+    }
   });
 
   test('the theme adds no competing canonical or robots tags', async ({

@@ -367,7 +367,7 @@ class TestCollectionAttribute extends WP_UnitTestCase {
 	 * @return list<int>
 	 */
 	private function filtered( array $filters ): array {
-		$args  = ( new Product_Collection_Query() )->build_args( 12, 'menu_order', '', '', $filters );
+		$args  = ( new Product_Collection_Query() )->filter_args( $filters );
 		$query = new WP_Query(
 			array(
 				'post_type'      => 'product',

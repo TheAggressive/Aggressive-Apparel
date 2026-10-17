@@ -160,6 +160,7 @@ class Bootstrap {
 		$this->container->register( 'search', fn() => new Core\Search() );
 		$this->container->register( 'security_hardening', fn() => new Core\Security_Hardening() );
 		$this->container->register( 'cache_health', fn() => new Core\Cache_Health() );
+		$this->container->register( 'page_cache_purge', fn() => new Core\Page_Cache_Purge() );
 		$this->container->register( 'image_loading', fn() => new Core\Image_Loading() );
 		$this->container->register( 'image_output_format', fn() => new Core\Image_Output_Format() );
 		$this->container->register( 'font_preload', fn() => new Core\Font_Preload() );
@@ -194,6 +195,8 @@ class Bootstrap {
 			// Register enhancement services.
 			$this->container->register( 'wc_feature_settings', fn() => new WooCommerce\Feature_Settings() );
 			$this->container->register( 'wc_enhancements', fn( Service_Container $container ) => new WooCommerce\Enhancements( $container ) );
+			$this->container->register( 'storefront_rest_requests', fn() => new WooCommerce\Storefront_Rest_Requests() );
+			$this->container->register( 'catalog_archive_filters', fn() => new WooCommerce\Catalog_Archive_Filters() );
 			$this->container->register( 'wcpay_appearance', fn() => new WooCommerce\Wcpay_Appearance() );
 			$this->container->register( 'mini_cart_a11y', fn() => new WooCommerce\Mini_Cart_A11y() );
 			$this->container->register( 'variation_selector_a11y', fn() => new WooCommerce\Variation_Selector_A11y() );
@@ -243,6 +246,7 @@ class Bootstrap {
 		$this->container->get( 'search' )->init();
 		$this->container->get( 'security_hardening' )->init();
 		$this->container->get( 'cache_health' )->init();
+		$this->container->get( 'page_cache_purge' )->init();
 		$this->container->get( 'image_loading' )->init();
 		$this->container->get( 'image_output_format' )->init();
 		$this->container->get( 'font_preload' )->init();
@@ -295,6 +299,8 @@ class Bootstrap {
 		$this->container->get( 'product_card_contract' )->init();
 		$this->container->get( 'wc_feature_settings' )->init();
 		$this->container->get( 'wc_enhancements' )->init();
+		$this->container->get( 'storefront_rest_requests' )->init();
+		$this->container->get( 'catalog_archive_filters' )->init();
 		$this->container->get( 'wcpay_appearance' )->init();
 		$this->container->get( 'mini_cart_a11y' )->init();
 		$this->container->get( 'variation_selector_a11y' )->init();

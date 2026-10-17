@@ -24,52 +24,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Progressively enhances the query-pagination block on shop archives with
  * a Load More button or IntersectionObserver-based infinite scroll. The
- * native pagination links stay in the server HTML (crawlers, no-JS) and are
- * hidden only once the store hydrates.
- * Coordinates with product-filters via custom events when AJAX
- * filtering is active. Pagination seed values come from
- * {@see Catalog_Pagination_Seed} so SSR state matches REST continuations.
+ * native pagination links stay in the server HTML (crawlers, no-JS); CSS
+ * shows them only without scripting.
+ *
+ * Continuations fetch the next native page (`nextUrl`, the "next" link) and
+ * append its cards, so appended cards are always the archive's own render.
  *
  * @since 1.51.0
  */
 class Load_More {
 
 	/**
-	 * Whether the native pagination rendered links for the active collection.
-	 *
-	 * @var bool|null
-	 */
-	private ?bool $has_more = null;
-
-	/**
-	 * Page of the Product Collection being rendered (null = not yet known).
-	 *
-	 * @var int|null
-	 */
-	private ?int $current_page = null;
-
-	/**
-	 * Catalog pagination seeder (shared with rendered-products continuations).
-	 *
-	 * @var Catalog_Pagination_Seed
-	 */
-	private Catalog_Pagination_Seed $seed;
-
-	/**
 	 * Request-scoped pagination state shared by global state and local context.
 	 *
-	 * @var array<string, bool|int|string>|null
+	 * @var array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}|null
 	 */
 	private ?array $runtime_seed = null;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param ?Catalog_Pagination_Seed $seed Optional seeder (tests / DI).
-	 */
-	public function __construct( ?Catalog_Pagination_Seed $seed = null ) {
-		$this->seed = $seed ?? new Catalog_Pagination_Seed();
-	}
 
 	/**
 	 * Initialize hooks.
@@ -138,35 +108,27 @@ class Load_More {
 		}
 
 		$this->ensure_assets();
-		// The native pagination block is rendered inside the Product Collection's
-		// exact query context. Its presence is more authoritative than the global
-		// archive query for explicit/non-inherited collections: it renders
-		// whenever the collection spans several pages.
-		$this->has_more     = '' !== trim( $block_content );
-		$this->current_page = $this->collection_page( $instance );
+		$this->runtime_seed = $this->build_seed( $block_content, $instance );
 
 		$mode            = Feature_Settings::get_load_more_mode();
-		$seed            = $this->get_runtime_seed();
+		$seed            = $this->runtime_seed;
 		$context         = wp_json_encode( $seed );
 		$all_loaded      = (bool) $seed['allLoaded'];
 		$total_products  = (int) $seed['totalProducts'];
 		$load_more_html  = '<div class="aa-load-more aggressive-apparel-stack aggressive-apparel-stack--lg aggressive-apparel-stack--center"';
 		$load_more_html .= ' data-wp-interactive="aggressive-apparel/load-more"';
 		$load_more_html .= ' data-wp-context=\'' . esc_attr( (string) $context ) . '\'';
-		$load_more_html .= ' data-wp-init="callbacks.init"';
-		$load_more_html .= ' data-wp-watch="callbacks.syncServerContext">';
+		$load_more_html .= ' data-wp-run="callbacks.useServerSeed">';
 
-		// Seed the store's derived getters for SSR directive processing.
-		// Unseeded, they evaluate falsy: the status line renders empty and the
-		// infinite-scroll button visible. The server renders the no-JS state —
-		// native links visible, Load More button hidden (it needs the store) —
-		// and the client getters swap the two on hydration.
+		// Seed the store's derived getters for SSR directive processing so the
+		// server markup matches the hydrated state. Unseeded, they evaluate
+		// falsy: the status line renders empty and the infinite-scroll button
+		// visible, and both change on hydration (layout shift on the grid).
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			wp_interactivity_state(
 				'aggressive-apparel/load-more',
 				array(
-					'hideButton'         => true,
-					'hidePagination'     => false,
+					'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
 					'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
 					'showSentinelLoader' => false,
 					'statusText'         => $total_products > 0
@@ -181,9 +143,12 @@ class Load_More {
 			);
 		}
 
-		// Native pagination: the crawlable, no-JS path to every catalog page.
-		if ( $this->has_more ) {
-			$load_more_html .= '<div class="aa-load-more__pagination" data-wp-bind--hidden="state.hidePagination">'
+		// Native pagination: the crawlable path to every catalog page. CSS shows
+		// it only when scripting is unavailable (`@media (scripting: none)`),
+		// where it also hides the controls that need the store, so neither
+		// layout flashes before hydration.
+		if ( '' !== trim( $block_content ) ) {
+			$load_more_html .= '<div class="aa-load-more__pagination">'
 				. $block_content
 				. '</div>';
 		}
@@ -251,64 +216,113 @@ class Load_More {
 			array_merge(
 				$this->get_runtime_seed(),
 				array(
-					'isLoading'     => false,
-					'announcement'  => '',
-					'loadingText'   => __( 'Loading more products…', 'aggressive-apparel' ),
-					'errorText'     => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
+					'isLoading'    => false,
+					'announcement' => '',
+					'loadingText'  => __( 'Loading more products…', 'aggressive-apparel' ),
+					'errorText'    => __( 'Products could not be loaded. Try again.', 'aggressive-apparel' ),
 					/* translators: 1: number loaded so far, 2: total products. */
-					'statusFormat'  => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
+					'statusFormat' => __( 'Showing %1$d of %2$d products', 'aggressive-apparel' ),
 					/* translators: %d: number of products just loaded. */
-					'loadedFormat'  => __( '%d more products loaded.', 'aggressive-apparel' ),
-					'filtersActive' => false,
+					'loadedFormat' => __( '%d more products loaded.', 'aggressive-apparel' ),
 				)
 			)
 		);
 	}
 
 	/**
-	 * Build immutable pagination seed data for this rendered archive.
+	 * Pagination seed for this request (main query when no block rendered).
 	 *
-	 * The same values are emitted as local Interactivity API context so a
-	 * client-side router navigation can replace stale module-level state.
-	 *
-	 * @return array<string, bool|int|string> Pagination runtime seed.
+	 * @return array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}
 	 */
 	private function get_runtime_seed(): array {
-		if ( null !== $this->runtime_seed ) {
-			return $this->runtime_seed;
+		return $this->runtime_seed ??= $this->build_seed( '', null );
+	}
+
+	/**
+	 * Build the seed for the rendered collection page.
+	 *
+	 * The same values are emitted as local Interactivity API context so a
+	 * router navigation (filters) replaces stale module-level state.
+	 *
+	 * @param string         $pagination_html Rendered native pagination.
+	 * @param \WP_Block|null $instance        Pagination block (query context).
+	 * @return array{mode: string, perPage: int, currentPage: int, totalProducts: int, loadedCount: int, nextUrl: string, allLoaded: bool}
+	 */
+	private function build_seed( string $pagination_html, ?\WP_Block $instance ): array {
+		global $wp_query;
+
+		$page    = $this->collection_page( $instance );
+		$context = null !== $instance ? $instance->context : array();
+		$query   = isset( $context['query'] ) && is_array( $context['query'] ) ? $context['query'] : array();
+
+		if ( null !== $instance && empty( $query['inherit'] ) ) {
+			$per_page = max( 1, (int) ( $query['perPage'] ?? 12 ) );
+			$total    = $this->explicit_total( $instance, $page, $query );
+			$on_page  = max( 0, min( $per_page, $total - $per_page * ( $page - 1 ) ) );
+		} else {
+			$main     = $wp_query instanceof \WP_Query ? $wp_query : null;
+			$per_page = max( 1, null !== $main ? (int) $main->get( 'posts_per_page' ) : 0 );
+			$total    = null !== $main ? (int) $main->found_posts : 0;
+			$on_page  = null !== $main ? (int) $main->post_count : 0;
 		}
 
-		$term_archive = Product_Context::get_current_product_term_archive();
-		$seed         = $this->seed->for_request(
-			Product_Context::get_current_template_slug(),
-			$term_archive['taxonomy'],
-			$term_archive['term'],
-			$this->has_more,
-			'',
-			$this->current_page ?? max( 1, (int) get_query_var( 'paged' ) )
-		);
+		$next_url = self::next_url( $pagination_html );
 
-		$this->runtime_seed = array(
-			'mode'            => Feature_Settings::get_load_more_mode(),
-			'restBase'        => esc_url_raw( rest_url( 'aggressive-apparel/v1/products/rendered' ) ),
-			// Keep authenticated catalog continuations valid in coming-soon mode.
-			// Guests get none: the endpoint is public, and a nonce baked into a
-			// page-cached copy expires, after which WordPress 403s every request.
-			'restNonce'       => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
-			'templateSlug'    => $seed['templateSlug'],
-			'perPage'         => $seed['perPage'],
-			'currentPage'     => $seed['currentPage'],
-			'totalPages'      => $seed['totalPages'],
-			'totalProducts'   => $seed['totalProducts'],
-			'loadedCount'     => $seed['loadedCount'],
-			'allLoaded'       => $seed['allLoaded'],
-			'nextCursor'      => $seed['nextCursor'],
-			'orderby'         => $seed['orderby'],
-			'currentTaxonomy' => $term_archive['taxonomy'],
-			'currentTerm'     => $term_archive['term'],
+		return array(
+			'mode'          => Feature_Settings::get_load_more_mode(),
+			'perPage'       => $per_page,
+			'currentPage'   => $page,
+			'totalProducts' => $total,
+			'loadedCount'   => $on_page,
+			'nextUrl'       => $next_url,
+			'allLoaded'     => '' === $next_url,
 		);
+	}
 
-		return $this->runtime_seed;
+	/**
+	 * Total products in an explicit (non-inherited) collection, counted with
+	 * the same query vars the block renders with (filters included).
+	 *
+	 * @param \WP_Block            $instance Pagination block (query context).
+	 * @param int                  $page     Current page.
+	 * @param array<string, mixed> $query    Block query attributes.
+	 */
+	private function explicit_total( \WP_Block $instance, int $page, array $query ): int {
+		$vars                   = build_query_vars_from_query_block( $instance, $page );
+		$vars['fields']         = 'ids';
+		$vars['posts_per_page'] = 1;
+		$vars['no_found_rows']  = false;
+		$count                  = new \WP_Query( $vars );
+
+		// found_posts ignores `offset`; the block's own offset hides that many.
+		$total = max( 0, (int) $count->found_posts - max( 0, (int) ( $query['offset'] ?? 0 ) ) );
+		$pages = max( 0, (int) ( $query['pages'] ?? 0 ) );
+
+		return $pages > 0 ? min( $total, $pages * max( 1, (int) ( $query['perPage'] ?? 12 ) ) ) : $total;
+	}
+
+	/**
+	 * URL of the native "next page" link, or '' on the last page.
+	 *
+	 * @param string $pagination_html Rendered native pagination.
+	 */
+	private static function next_url( string $pagination_html ): string {
+		if ( '' === $pagination_html ) {
+			return '';
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $pagination_html );
+		if ( $tags->next_tag(
+			array(
+				'tag_name'   => 'A',
+				'class_name' => 'wp-block-query-pagination-next',
+			)
+		) ) {
+			$href = $tags->get_attribute( 'href' );
+			return is_string( $href ) ? esc_url_raw( $href ) : '';
+		}
+
+		return '';
 	}
 
 	/**

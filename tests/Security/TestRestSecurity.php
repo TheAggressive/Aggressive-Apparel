@@ -35,7 +35,7 @@ class TestRestSecurity extends WP_UnitTestCase {
 	 */
 	private const EXPECTED_PUBLIC = array(
 		'/aggressive-apparel/v1/search',
-		'/aggressive-apparel/v1/products/rendered',
+		'/aggressive-apparel/v1/catalog/facets',
 	);
 
 	/**

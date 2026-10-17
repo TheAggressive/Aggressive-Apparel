@@ -109,16 +109,16 @@ class Cache_Health_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Without a persistent object cache the test reports critical + remediation.
+	 * Without a persistent object cache the test recommends one, with remediation.
 	 */
-	public function test_reports_critical_without_object_cache(): void {
+	public function test_recommends_object_cache_without_one(): void {
 		$this->force_object_cache( false );
 
 		$result = $this->health->test_object_cache();
 
-		$this->assertSame( 'critical', $result['status'] );
+		$this->assertSame( 'recommended', $result['status'] );
 		$this->assertSame( self::TEST_ID, $result['test'] );
-		$this->assertSame( 'red', $result['badge']['color'] );
+		$this->assertSame( 'orange', $result['badge']['color'] );
 		$this->assertArrayHasKey( 'actions', $result );
 		$this->assertStringContainsString( 'How to fix', $result['description'] );
 		$this->assertStringContainsString( 'Redis', $result['description'] );

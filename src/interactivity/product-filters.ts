@@ -1,8 +1,9 @@
 /**
  * Product Filters — Interactivity API Store
  *
- * AJAX product filtering with categories, color swatches, sizes, price range,
+ * Product filtering with categories, color swatches, sizes, price range,
  * stock status, and sale status. Supports drawer, sidebar, and horizontal layouts.
+ * Applying filters navigates to the filtered URL, which the server renders.
  *
  * @package Aggressive_Apparel
  * @since 1.22.0
@@ -14,11 +15,9 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
-import { notifyCardsRendered } from '@aggressive-apparel/helpers';
 import { requests, filterFlags } from './product-filters/runtime';
 import {
-  hideFilterPagination,
-  renderPagination,
+  renderHorizontalDropdowns,
   renderPills,
   setSaleStatus,
   syncAllControls,
@@ -34,18 +33,11 @@ import {
 import {
   applyStagedFilters,
   fetchFacets,
-  fetchProducts,
   setupDelegatedEvents,
   setupScrollbarAutoHide,
+  showFilteredCatalog,
 } from './product-filters/data';
-import {
-  applySort,
-  applyUrlState,
-  buildFilterUrl,
-  getCanonicalShopUrl,
-  getShopPath,
-  isSalesArchive,
-} from './product-filters/url-state';
+import { applySort, applyUrlState } from './product-filters/url-state';
 import {
   type DropdownContext,
   type ProductFiltersStore,
@@ -58,62 +50,10 @@ let drawerTrigger: HTMLElement | null = null;
 /** Prevent duplicate global listeners if an interactive region is reprocessed. */
 let initialized = false;
 
-/**
- * The original (unfiltered) server-rendered grid markup, captured once so it
- * can be restored verbatim when all filters are cleared.
- */
-let originalGridHtml: string | null = null;
-
-/**
- * The real, native product-collection grid `<ul>` — the same element the
- * infinite-scroll/load-more store appends to. Filtered results are injected
- * here so columns, gap, alignment and content-width stay exactly as the editor
- * configured them.
- */
-export function gridUl(): HTMLElement | null {
-  return document.querySelector<HTMLElement>(
-    '.aa-product-filters__grid .wp-block-woocommerce-product-template'
-  );
-}
-
-/**
- * Restore the unfiltered grid (called when filters are cleared).
- */
-function restoreOriginalGrid(): void {
-  const ul = gridUl();
-  if (ul && originalGridHtml !== null) {
-    ul.innerHTML = originalGridHtml;
-    notifyCardsRendered(ul);
-  }
-  state.products = [];
-  state._ajaxGrid = false;
-}
-
-/** Cross-category URL waiting to be consumed when the drawer closes. */
-
 /** Categories that should appear as shopper-selected filters. */
 export function visibleSelectedCategories(): string[] {
   return state.selectedCategories.filter(
     slug => slug !== state.salesCategorySlug
-  );
-}
-
-/**
- * Whether the restored URL needs AJAX beyond its native archive query.
- *
- * @param nativeCategory Category the server already rendered (the archive's
- *                       own term), which is not a refinement.
- */
-function hasAdditionalRefinements(nativeCategory: string | null): boolean {
-  return (
-    visibleSelectedCategories().some(slug => slug !== nativeCategory) ||
-    state.selectedColors.length > 0 ||
-    state.selectedSizes.length > 0 ||
-    state.selectedCollections.length > 0 ||
-    state.priceMin > state.priceRange.min ||
-    state.priceMax < state.priceRange.max ||
-    state.inStockOnly ||
-    state.currentPage > 1
   );
 }
 
@@ -138,36 +78,6 @@ export const { state, actions } = store<ProductFiltersStore>(
 
       get hasNoActiveFilters(): boolean {
         return !state.hasActiveFilters;
-      },
-
-      get hasProducts(): boolean {
-        return state.products.length > 0 || state.isLoading;
-      },
-
-      // No-results message: only while filters are active, not loading, not
-      // errored, and the filtered grid came back empty. Hidden on the unfiltered
-      // initial view (where `products` is empty because the grid is SSR'd).
-      get hideNoResults(): boolean {
-        // A native archive (category, Sales) keeps its server-rendered grid
-        // until a refinement fetches; `products` only tracks AJAX results.
-        if (
-          !state._ajaxGrid ||
-          !state.hasActiveFilters ||
-          state.isLoading ||
-          state.hasError
-        ) {
-          return true;
-        }
-        return state.products.length > 0;
-      },
-
-      // Error notice — shown only when a request failed and we're not mid-retry.
-      get hideError(): boolean {
-        return !state.hasError || state.isLoading;
-      },
-
-      get hasSinglePage(): boolean {
-        return state.totalPages <= 1;
       },
 
       get activeFilterCount(): number | string {
@@ -332,27 +242,16 @@ export const { state, actions } = store<ProductFiltersStore>(
         state.priceMax = state.priceRange.max;
         state.inStockOnly = false;
         state.onSaleOnly = false;
-        state.currentPage = 1;
-        state.totalPages = 1;
-        state.totalProducts = 0;
 
         // Clearing applies immediately, so nothing stays staged.
         filterFlags.staged = false;
 
-        // Filters gone — put the original, unfiltered grid back verbatim.
-        restoreOriginalGrid();
-
         syncAllControls();
 
-        const shopPath = getShopPath(state);
-        const leavingShopContext =
-          window.location.pathname !== shopPath ||
-          window.location.search !== '';
-        if (!leavingShopContext) {
-          fetchFacets();
-        }
-
-        navigateToShopAfterClear();
+        // The unfiltered shop (keeping the sort): a category archive leaves
+        // with a full navigation, the shop itself swaps its collection.
+        if (showFilteredCatalog()) return;
+        fetchFacets();
 
         // Announce for screen readers.
         state._announcement =
@@ -452,12 +351,6 @@ export const { state, actions } = store<ProductFiltersStore>(
         applyStagedFilters();
       },
 
-      // Re-run the current selection after a failed request (error notice).
-      retry(): void {
-        state.hasError = false;
-        fetchProducts();
-      },
-
       // -- Keyboard / Click Outside --
 
       handleKeydown(event: KeyboardEvent): void {
@@ -491,21 +384,13 @@ export const { state, actions } = store<ProductFiltersStore>(
         if (initialized) return;
         initialized = true;
 
-        // Capture the unfiltered grid before any AJAX fetch can replace it, so
-        // "Clear All" can restore the native server-rendered cards verbatim.
-        const initialGrid = gridUl();
-        originalGridHtml = initialGrid?.innerHTML ?? null;
-        const initialCount =
-          initialGrid?.querySelectorAll(':scope > li').length ?? 0;
-        if (initialCount > 0) {
-          state.perPage = initialCount;
-        }
-
+        // The server rendered this URL's filters and sort; mirror them in
+        // the controls.
         restoreFromUrl();
         captureSortDropdown();
         setupDelegatedEvents();
         setupScrollbarAutoHide();
-        hideFilterPagination();
+        renderHorizontalDropdowns();
 
         // Pre-select current category on taxonomy pages.
         if (
@@ -513,36 +398,13 @@ export const { state, actions } = store<ProductFiltersStore>(
           state.selectedCategories.length === 0
         ) {
           state.selectedCategories = [state.currentCategorySlug];
-          // The server rendered this archive (incl. `/page/N/`) natively.
-          if (hasAdditionalRefinements(state.currentCategorySlug)) {
-            fetchProducts();
-          }
         }
 
-        // Handle browser back/forward.
+        // Back/forward: WordPress's router restores the collection for the
+        // entry; bring the controls back in line with its URL.
         window.addEventListener('popstate', () => {
-          const fetched = restoreFromUrl();
-          if (!fetched) {
-            state.currentPage = 1;
-            state.totalPages = 1;
-            state.nextCursor = '';
-            restoreOriginalGrid();
-            renderPills();
-            renderPagination();
-          }
+          restoreFromUrl();
         });
-
-        // Listen for load-more requesting the next page.
-        document.addEventListener('aa:load-more-page', ((
-          e: CustomEvent<{ page: number; cursor?: string }>
-        ) => {
-          const { page, cursor } = e.detail;
-          state.currentPage = page;
-          if (cursor) {
-            state.nextCursor = cursor;
-          }
-          fetchProducts({ append: true });
-        }) as EventListener);
       },
     },
   }
@@ -581,7 +443,6 @@ export function removeArrayItem(arr: string[], item: string): void {
  */
 export function stageFilterChange(): void {
   filterFlags.staged = true;
-  state.currentPage = 1;
   renderPills();
   // Availability is independent of the deferred results — refresh which
   // colour/size/collection options are still in stock for the new selection right away.
@@ -596,66 +457,10 @@ export function scheduleFacetsUpdate(): void {
 }
 
 /**
- * Fetch the set of attribute terms that still have matching products for the
- * current selection, then enable/disable swatches and chips accordingly. This
- * is a lightweight request (no card HTML) so it can run live while the results
- * grid stays deferred until the panel is dismissed.
+ * Restore filter state from the URL (init and back/forward).
  */
-
-/**
- * After Clear All, land on the unfiltered shop URL so the address bar matches
- * what recipients see. Same-path clears strip query params via replaceState;
- * category archives and other paths get a full navigation to the shop root.
- */
-function navigateToShopAfterClear(): void {
-  filterFlags.pendingNavUrl = null;
-  const shopPath = getShopPath(state);
-
-  if (window.location.pathname !== shopPath || window.location.search !== '') {
-    hardNavigate(getCanonicalShopUrl(state));
-    return;
-  }
-
-  window.history.replaceState(null, '', shopPath);
-}
-
-export function syncUrl(): boolean {
-  const url = buildFilterUrl(state, visibleSelectedCategories());
-  const basePath = url.split('?')[0] ?? url;
-
-  // Cross-category switches require a full page navigation so title, breadcrumbs,
-  // and canonical are correct. For the drawer layout, defer until the drawer
-  // closes (View Results / backdrop / Escape) so the user can finish selecting.
-  // Sidebar and bar layouts have no apply step, so navigate immediately.
-  if (basePath !== window.location.pathname) {
-    if (state.layout === 'drawer') {
-      filterFlags.pendingNavUrl = url;
-    } else {
-      hardNavigate(url);
-      return true;
-    }
-  } else {
-    filterFlags.pendingNavUrl = null;
-    window.history.pushState(null, '', url);
-  }
-
-  return false;
-}
-
-/** Abort requests that cannot be used, then begin a full page navigation. */
-export function hardNavigate(url: string): void {
-  requests.cancelAll();
-  window.location.assign(url);
-}
-
-/**
- * Restore filter state from URL params on init.
- */
-function restoreFromUrl(): boolean {
-  const catFromPath = applyUrlState(
-    state,
-    new URLSearchParams(window.location.search)
-  );
+function restoreFromUrl(): void {
+  applyUrlState(state, new URLSearchParams(window.location.search));
 
   // Sync DOM controls to restored state.
   requestAnimationFrame(() => {
@@ -670,58 +475,29 @@ function restoreFromUrl(): boolean {
     ensureSizeListVisible();
     // Initial (and post-popstate) availability for the restored selection.
     fetchFacets();
+    renderPills();
   });
-
-  // A native category archive (Sales included) is already server-rendered with
-  // the correct taxonomy query, sort and page. Replacing it would re-sort the
-  // grid and swap `/page/N/` for page 1 — for shoppers and for crawlers that
-  // render JS. Only fetch once another filter genuinely requires AJAX.
-  const shouldFetch =
-    state.hasActiveFilters &&
-    (hasAdditionalRefinements(catFromPath) ||
-      (state.onSaleOnly && !isSalesArchive(state, catFromPath)));
-
-  if (shouldFetch) {
-    fetchProducts();
-  }
-
-  return shouldFetch;
 }
 
 /**
- * Capture sort dropdown changes and re-fetch.
+ * Keep the shopper's sort for the next filter change.
+ *
+ * WooCommerce's Catalog Sorting block navigates itself, keeping the URL's
+ * filters. It stops the change event from bubbling, so listen in capture.
  */
 function captureSortDropdown(): void {
-  document.addEventListener('change', (e: Event) => {
-    const target = e.target as HTMLSelectElement;
-    if (
-      target.matches('.woocommerce-ordering select, select[name="orderby"]')
-    ) {
-      if (!applySort(state, target.value)) {
-        applySort(state, 'date');
+  document.addEventListener(
+    'change',
+    (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      if (
+        target.matches('.woocommerce-ordering select, select[name="orderby"]')
+      ) {
+        applySort(state, target.value);
       }
-
-      state.currentPage = 1;
-      document.dispatchEvent(new CustomEvent('aa:filters-changed'));
-      fetchProducts();
-    }
-  });
-}
-
-/**
- * Scroll to the top of the product grid.
- */
-export function scrollToGrid(): void {
-  const grid = document.querySelector<HTMLElement>('.aa-product-filters');
-  if (grid) {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
-    grid.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
-  }
+    },
+    true
+  );
 }
 
 /**

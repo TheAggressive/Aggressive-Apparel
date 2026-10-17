@@ -21,21 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Advanced Sorting
  *
  * Extends the WooCommerce sort dropdown with Featured, Biggest Savings and
- * alphabetical options, and orders the archive query server-side for them:
- * the main query through WooCommerce's ordering args, explicit Product
- * Collections through the `aa_catalog_custom_sort` var set by
- * Catalog_Archive_Filters.
+ * alphabetical options, and orders the archive query server-side for them.
+ * Featured and Savings apply to any query flagged with
+ * `aa_catalog_custom_sort` — Catalog_Archive_Filters flags the archive's main
+ * query or main collection when the URL requests one.
  *
  * @since 1.51.0
  */
 class Advanced_Sorting {
-
-	/**
-	 * Custom sort waiting to be applied to the main server-rendered query.
-	 *
-	 * @var string
-	 */
-	private string $ssr_sort = '';
 
 	/**
 	 * Initialize hooks.
@@ -96,9 +89,9 @@ class Advanced_Sorting {
 				$args['order']   = 'DESC';
 				break;
 
+			// Ordered in SQL by apply_ssr_ordering(); date is the base order.
 			case 'featured':
 			case 'savings':
-				$this->ssr_sort  = $orderby;
 				$args['orderby'] = 'date';
 				$args['order']   = 'DESC';
 				break;
@@ -108,19 +101,14 @@ class Advanced_Sorting {
 	}
 
 	/**
-	 * Apply a custom sort directly in SQL for the native archive query.
+	 * Apply a custom sort in SQL to a query flagged `aa_catalog_custom_sort`.
 	 *
 	 * @param array<string, string> $clauses Query clauses.
 	 * @param \WP_Query             $query   Query object.
 	 * @return array<string, string>
 	 */
 	public function apply_ssr_ordering( array $clauses, \WP_Query $query ): array {
-		// Explicit collections are flagged by Catalog_Archive_Filters; the main
-		// archive query gets its sort from WooCommerce's ordering args.
 		$sort = (string) $query->get( 'aa_catalog_custom_sort' );
-		if ( '' === $sort && $query->is_main_query() ) {
-			$sort = $this->ssr_sort;
-		}
 		if ( 'featured' !== $sort && 'savings' !== $sort ) {
 			return $clauses;
 		}
@@ -142,10 +130,6 @@ class Advanced_Sorting {
 				WHEN aa_sale_price.meta_value <> '' AND CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) > 0
 				THEN (CAST(aa_regular_price.meta_value AS DECIMAL(20,6)) - CAST(aa_sale_price.meta_value AS DECIMAL(20,6))) / CAST(aa_regular_price.meta_value AS DECIMAL(20,6))
 				ELSE -1 END DESC, {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
-		}
-
-		if ( $query->is_main_query() ) {
-			$this->ssr_sort = '';
 		}
 
 		return $clauses;

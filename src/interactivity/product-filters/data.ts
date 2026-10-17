@@ -36,8 +36,27 @@ import {
   visibleSelectedCategories,
 } from '../product-filters';
 
-/** The router module, loaded on first navigation. */
+/** The router module, loaded on first use. */
 type Router = typeof import('@wordpress/interactivity-router');
+
+let router: Promise<Router> | null = null;
+
+/** Load WordPress's Interactivity router once. */
+function loadRouter(): Promise<Router> {
+  router ??= import('@wordpress/interactivity-router');
+  return router;
+}
+
+/** Whether the product collection can be swapped by the router. */
+function hasRouterRegion(): boolean {
+  return Boolean(
+    document.querySelector('.aa-product-filters [data-wp-router-region]')
+  );
+}
+
+/** Controls that apply the staged filters when used. */
+const APPLY_CONTROLS =
+  '.aa-product-filters__apply-btn, .aa-product-filters__close';
 
 export function fetchFacets(): void {
   const signal = requests.beginFacets();
@@ -170,6 +189,44 @@ export function showFilteredCatalog(): boolean {
   return false;
 }
 
+/**
+ * Start loading the filtered page once the shopper reaches for a control that
+ * applies the staged filters (hover, focus or touch), so applying swaps in a
+ * page that is already on its way. The router caches it by URL.
+ */
+export function setupApplyPrefetch(): void {
+  const prefetch = (event: Event): void => {
+    if (
+      !filterFlags.staged ||
+      !(event.target as Element | null)?.closest?.(APPLY_CONTROLS)
+    ) {
+      return;
+    }
+
+    const target = new URL(
+      buildFilterUrl(state, visibleSelectedCategories()),
+      window.location.href
+    );
+    if (
+      target.pathname !== window.location.pathname ||
+      target.href === window.location.href ||
+      !hasRouterRegion()
+    ) {
+      return;
+    }
+
+    loadRouter()
+      .then(({ actions }) => actions.prefetch(target.href))
+      .catch(() => {
+        // Applying fetches the page itself.
+      });
+  };
+
+  for (const type of ['pointerover', 'focusin', 'touchstart']) {
+    document.addEventListener(type, prefetch, { passive: true });
+  }
+}
+
 /** Abort requests that cannot be used, then begin a full page navigation. */
 export function hardNavigate(url: string): void {
   requests.cancelAll();
@@ -183,22 +240,22 @@ export function hardNavigate(url: string): void {
  * forces full page reloads) or when the router fails, load the page instead.
  */
 async function navigateCatalog(url: string): Promise<void> {
-  if (!document.querySelector('.aa-product-filters [data-wp-router-region]')) {
+  if (!hasRouterRegion()) {
     hardNavigate(url);
     return;
   }
 
   state.isLoading = true;
-  let router: Router;
+  let actions: Router['actions'];
   try {
-    router = await import('@wordpress/interactivity-router');
+    ({ actions } = await loadRouter());
   } catch {
     hardNavigate(url);
     return;
   }
 
   try {
-    await router.actions.navigate(url);
+    await actions.navigate(url);
   } catch {
     hardNavigate(url);
     return;

@@ -75,11 +75,19 @@ final class Catalog_Archive_Filters {
 	/**
 	 * Filter the main product archive query.
 	 *
+	 * WooCommerce applies `?orderby=` to it; custom sorts are only flagged here
+	 * for Advanced_Sorting, exactly as on explicit collections.
+	 *
 	 * @param \WP_Query $query Query being prepared.
 	 */
 	public function filter_main_query( $query ): void {
 		if ( ! $query instanceof \WP_Query || ! $query->is_main_query() || is_admin() || ! self::is_product_archive( $query ) ) {
 			return;
+		}
+
+		$orderby = self::requested_sort();
+		if ( in_array( $orderby, self::CUSTOM_SORTS, true ) ) {
+			$query->set( 'aa_catalog_custom_sort', $orderby );
 		}
 
 		$args = $this->filter_args();

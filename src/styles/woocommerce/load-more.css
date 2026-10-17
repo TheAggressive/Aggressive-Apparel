@@ -39,17 +39,16 @@
 	text-align: center;
 }
 
-/* Underlined: a link in running text is not told apart by colour alone. */
-.aa-load-more__fallback {
+/*
+ * Underlined: a link in running text is not told apart by colour alone.
+ * :where() keeps it overridable by Global Styles link settings.
+ */
+:where(.aa-load-more__fallback) {
 	text-decoration: underline;
 }
 
 .aa-load-more__status {
 	font-size: var(--wp--preset--font-size--x-small);
-
-	/* The section's own text colour: the editor picks the background, so a
-	   fixed muted colour can fall below 4.5:1 on it. */
-	color: inherit;
 }
 
 .aa-load-more__btn.aggressive-apparel-button {

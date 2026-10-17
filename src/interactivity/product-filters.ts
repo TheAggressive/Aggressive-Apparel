@@ -15,6 +15,7 @@ import {
   activateOverlayFocus,
   closeOverlay,
 } from '@aggressive-apparel/use-overlay';
+import { chosenOption } from './product-filters/dom';
 import { requests, filterFlags } from './product-filters/runtime';
 import {
   renderHorizontalDropdowns,
@@ -404,16 +405,6 @@ export const { state, actions } = store<ProductFiltersStore>(
 );
 
 // -- Helper Functions --
-
-/**
- * The value of the filter option a click activated, or '' when it hit no
- * option or an unavailable one (`aria-disabled` does not block activation).
- */
-function chosenOption(event: MouseEvent, selector: string): string {
-  const option = (event.target as HTMLElement).closest<HTMLElement>(selector);
-  if (!option || option.getAttribute('aria-disabled') === 'true') return '';
-  return option.dataset.filterValue ?? '';
-}
 
 /**
  * Toggle an item in an array (add if absent, remove if present).

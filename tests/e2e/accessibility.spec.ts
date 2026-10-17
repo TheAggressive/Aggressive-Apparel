@@ -6,6 +6,7 @@ import {
   deleteVariationAvailabilityFixture,
   type VariationFixture,
 } from './variation-availability-fixtures';
+import { ensureCategoryFilterFixtures } from './category-filter-fixtures';
 import { wpCli } from './wp-cli';
 
 /**
@@ -144,9 +145,18 @@ test.describe('accessibility — WCAG 2.2 AA', () => {
     });
 
     test('filter drawer, with unavailable options', async ({ page }) => {
+      // The fixture's parent category holds one product without a colour, so
+      // its colour options are unavailable there once facets load.
+      const { parentUrl } = ensureCategoryFilterFixtures();
+      await page.goto(parentUrl, { waitUntil: 'networkidle' });
       await page.locator('button[class*="filter-toggle"]').first().click();
       const drawer = page.locator('#aa-product-filters-drawer');
       await expect(drawer.locator('.aa-product-filters__close')).toBeFocused();
+      await expect(
+        drawer
+          .locator('.aa-product-filters__color-swatch[aria-disabled="true"]')
+          .first()
+      ).toBeAttached();
 
       await expectAccessible(page, '#aa-product-filters-drawer');
     });

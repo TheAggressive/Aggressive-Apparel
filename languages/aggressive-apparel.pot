@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-16T07:01:04+00:00\n"
+"POT-Creation-Date: 2026-10-17T00:27:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -432,19 +432,19 @@ msgstr ""
 
 #: includes/Core/class-search-modal.php:109
 #: includes/Core/class-search-modal.php:265
-#: includes/Core/class-search-rest.php:154
+#: includes/Core/class-search-rest.php:156
 msgid "Products"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:111
 #: includes/Core/class-search-modal.php:266
-#: includes/Core/class-search-rest.php:165
+#: includes/Core/class-search-rest.php:167
 msgid "Articles"
 msgstr ""
 
 #: includes/Core/class-search-modal.php:112
 #: includes/Core/class-search-modal.php:267
-#: includes/Core/class-search-rest.php:176
+#: includes/Core/class-search-rest.php:178
 msgid "Pages"
 msgstr ""
 
@@ -552,7 +552,7 @@ msgstr ""
 msgid "Find Your Way…"
 msgstr ""
 
-#: includes/Core/class-search-rest.php:229
+#: includes/Core/class-search-rest.php:231
 msgid "Too many requests. Please slow down."
 msgstr ""
 
@@ -2501,32 +2501,32 @@ msgstr ""
 msgid "Include %s"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more-controller.php:306
-#: includes/WooCommerce/class-load-more-controller.php:319
+#: includes/WooCommerce/class-load-more-controller.php:308
+#: includes/WooCommerce/class-load-more-controller.php:321
 msgid "Invalid catalog cursor."
 msgstr ""
 
-#: includes/WooCommerce/class-load-more-controller.php:421
+#: includes/WooCommerce/class-load-more-controller.php:423
 msgid "Unable to load product results."
 msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:175
-#: includes/WooCommerce/class-load-more.php:259
+#: includes/WooCommerce/class-load-more.php:173
+#: includes/WooCommerce/class-load-more.php:260
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:256
+#: includes/WooCommerce/class-load-more.php:257
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:257
+#: includes/WooCommerce/class-load-more.php:258
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:261
+#: includes/WooCommerce/class-load-more.php:262
 #, php-format
 msgid "%d more products loaded."
 msgstr ""

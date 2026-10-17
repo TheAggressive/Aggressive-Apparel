@@ -156,17 +156,15 @@ class Load_More {
 		$load_more_html .= ' data-wp-init="callbacks.init"';
 		$load_more_html .= ' data-wp-watch="callbacks.syncServerContext">';
 
-		// Seed the store's derived getters for SSR directive processing.
-		// Unseeded, they evaluate falsy: the status line renders empty and the
-		// infinite-scroll button visible. The server renders the no-JS state —
-		// native links visible, Load More button hidden (it needs the store) —
-		// and the client getters swap the two on hydration.
+		// Seed the store's derived getters for SSR directive processing so the
+		// server markup matches the hydrated state. Unseeded, they evaluate
+		// falsy: the status line renders empty and the infinite-scroll button
+		// visible, and both change on hydration (layout shift on the grid).
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			wp_interactivity_state(
 				'aggressive-apparel/load-more',
 				array(
-					'hideButton'         => true,
-					'hidePagination'     => false,
+					'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
 					'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
 					'showSentinelLoader' => false,
 					'statusText'         => $total_products > 0
@@ -181,9 +179,12 @@ class Load_More {
 			);
 		}
 
-		// Native pagination: the crawlable, no-JS path to every catalog page.
+		// Native pagination: the crawlable path to every catalog page. CSS shows
+		// it only when scripting is unavailable (`@media (scripting: none)`),
+		// where it also hides the controls that need the store, so neither
+		// layout flashes before hydration.
 		if ( $this->has_more ) {
-			$load_more_html .= '<div class="aa-load-more__pagination" data-wp-bind--hidden="state.hidePagination">'
+			$load_more_html .= '<div class="aa-load-more__pagination">'
 				. $block_content
 				. '</div>';
 		}

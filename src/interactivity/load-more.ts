@@ -58,7 +58,6 @@ interface LoadMoreState {
   statusFormat: string;
   loadedFormat: string;
   readonly hideButton: boolean;
-  readonly hidePagination: boolean;
   readonly hideSentinel: boolean;
   readonly showSentinelLoader: boolean;
   readonly statusText: string;
@@ -121,12 +120,6 @@ const { state } = store<LoadMoreStore>('aggressive-apparel/load-more', {
       // Infinite scroll hides the button; reduced-motion / observer failure
       // flips mode to `load_more` so the button reappears as a fallback.
       return shouldHideLoadMoreButton(state.mode, state.allLoaded);
-    },
-
-    // The server renders native pagination links (crawlers, no-JS) and seeds
-    // this false; once the store runs, Load More / infinite scroll replaces them.
-    get hidePagination(): boolean {
-      return true;
     },
 
     get hideSentinel(): boolean {

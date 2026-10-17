@@ -9,6 +9,29 @@
 	padding: 2rem 0;
 }
 
+/*
+ * Native pagination is the crawlable path and the no-JavaScript fallback.
+ * Decided by the `scripting` media feature at first paint, not on hydration:
+ * scripting browsers never see the links flash before Load More takes over,
+ * and browsers without it never see controls that need the store.
+ */
+.aa-load-more__pagination {
+	display: none;
+}
+
+@media (scripting: none) {
+
+	.aa-load-more__pagination {
+		display: block;
+	}
+
+	.aa-load-more__btn.aggressive-apparel-button,
+	.aa-load-more__sentinel,
+	.aa-load-more__loading {
+		display: none;
+	}
+}
+
 .aa-load-more__status {
 	font-size: var(--wp--preset--font-size--x-small);
 	color: var(--aa-color-foreground-muted);

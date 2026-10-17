@@ -197,6 +197,20 @@ test.describe('catalog pagination with JavaScript', () => {
     await expect(page.locator('.aa-load-more__btn')).toBeVisible();
   });
 
+  test('the native links never flash before Load More starts', async ({
+    page,
+  }) => {
+    // With the store's script blocked, only CSS decides what shows: the
+    // scripting layout from first paint, so nothing swaps on hydration.
+    await page.route('**/build/interactivity/load-more.js*', route =>
+      route.abort()
+    );
+    await page.goto('/shop/');
+
+    await expect(page.locator(NATIVE_NAV)).toBeHidden();
+    await expect(page.locator(NEXT_LINK)).toHaveCount(1);
+  });
+
   test('Load More on a deep-linked page appends exactly the next server page', async ({
     page,
     request,

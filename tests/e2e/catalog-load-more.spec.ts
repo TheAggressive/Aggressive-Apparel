@@ -93,6 +93,107 @@ test.describe('Load More', () => {
       ]);
   });
 
+  test('a rate-limited page is retried once, after Retry-After', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/shop/');
+    const nextUrl = new URL((await seed(page)).nextUrl, page.url()).href;
+    const expected = await serverIds(request, nextUrl);
+    const firstPage = await gridIds(page);
+
+    const requests: number[] = [];
+    await page.route(nextUrl, async route => {
+      requests.push(Date.now());
+      if (requests.length === 1) {
+        await route.fulfill({
+          status: 429,
+          headers: { 'Retry-After': '1' },
+          body: 'Too Many Requests',
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.locator('.aa-load-more__btn').click();
+    // Clicks while it waits must not add requests.
+    await page.locator('.aa-load-more__btn').click({ force: true });
+
+    await expect
+      .poll(() => gridIds(page), { timeout: 15_000 })
+      .toEqual([
+        ...firstPage,
+        ...expected.filter(id => !firstPage.includes(id)),
+      ]);
+    expect(requests).toHaveLength(2);
+    expect(requests[1] - requests[0]).toBeGreaterThanOrEqual(900);
+  });
+
+  test('a challenge page or dropped connection is retried, never the end', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/shop/');
+    const nextUrl = new URL((await seed(page)).nextUrl, page.url()).href;
+    const expected = await serverIds(request, nextUrl);
+    const firstPage = await gridIds(page);
+
+    let calls = 0;
+    await page.route(nextUrl, async route => {
+      calls += 1;
+      if (calls === 1) {
+        // A firewall challenge served with 200: not a catalog page.
+        await route.fulfill({
+          status: 200,
+          body: '<html><body>Checking your browser…</body></html>',
+        });
+        return;
+      }
+      if (calls === 2) {
+        await route.abort('connectionreset');
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.locator('.aa-load-more__btn').click();
+
+    await expect
+      .poll(() => gridIds(page), { timeout: 20_000 })
+      .toEqual([
+        ...firstPage,
+        ...expected.filter(id => !firstPage.includes(id)),
+      ]);
+    expect(calls).toBe(3);
+    await expect(page.locator('.aa-load-more__error')).toBeHidden();
+  });
+
+  test('a page that cannot load offers it as a link', async ({ page }) => {
+    await page.goto('/shop/');
+    const nextUrl = new URL((await seed(page)).nextUrl, page.url()).href;
+    const firstPage = await gridIds(page);
+
+    await page.route(nextUrl, route =>
+      route.fulfill({ status: 404, body: 'Not Found' })
+    );
+    await page.locator('.aa-load-more__btn').click();
+
+    const fallback = page.locator('.aa-load-more__fallback');
+    await expect(fallback).toBeVisible();
+    expect(
+      new URL((await fallback.getAttribute('href'))!, page.url()).href
+    ).toBe(nextUrl);
+    await expect(page.locator('.aa-load-more__btn')).toBeVisible();
+    expect(await gridIds(page)).toEqual(firstPage);
+
+    // The link leads to the rest of the catalog.
+    await page.unroute(nextUrl);
+    await fallback.click();
+    await page.waitForURL(nextUrl);
+    expect((await gridIds(page)).length).toBeGreaterThan(0);
+  });
+
   test('after a sort, continues the sorted catalog', async ({
     page,
     request,

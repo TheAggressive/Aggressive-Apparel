@@ -143,6 +143,7 @@ class Load_More {
 					'hideButton'         => 'infinite_scroll' === $mode || $all_loaded,
 					'hideSentinel'       => 'infinite_scroll' !== $mode || $all_loaded,
 					'showSentinelLoader' => false,
+					'loadFailed'         => false,
 					'statusText'         => $total_products > 0
 						? sprintf(
 							/* translators: 1: number loaded so far, 2: total products. */
@@ -200,6 +201,14 @@ class Load_More {
 		if ( 'infinite_scroll' === $mode ) {
 			$load_more_html .= '<div class="aa-load-more__sentinel" data-wp-bind--hidden="state.hideSentinel" aria-hidden="true"></div>';
 		}
+
+		// When a page cannot be loaded after retries, the next page is offered
+		// as a plain link, so the rest of the catalog is always reachable.
+		$load_more_html .= '<p class="aa-load-more__error" data-wp-bind--hidden="!state.loadFailed" hidden>'
+			. esc_html__( 'More products could not be loaded.', 'aggressive-apparel' )
+			. ' <a class="aa-load-more__fallback" data-wp-bind--href="state.nextUrl">'
+			. esc_html__( 'Open the next page', 'aggressive-apparel' )
+			. '</a></p>';
 
 		// Screen reader announcements.
 		$load_more_html .= '<div class="aa-load-more__announcer screen-reader-text" role="status" aria-live="polite" data-wp-text="state.announcement"></div>';

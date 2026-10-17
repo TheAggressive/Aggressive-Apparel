@@ -54,6 +54,9 @@ if (!is_array($features)) {
 }
 
 $features['load_more'] = 1;
+// Card actions, to prove they work on cards Load More appends.
+$features['quick_view'] = 1;
+$features['wishlist'] = 1;
 update_option('${FEATURE_OPTION}', $features, false);
 update_option('${LOAD_MORE_MODE_OPTION}', 'infinite_scroll', false);
 
@@ -187,12 +190,46 @@ function ensureProductFloor(): void {
   }
 }
 
+/**
+ * Give the fixture products a featured image. Card actions (Quick View, the
+ * wishlist heart) render inside the image, so without one a card has none.
+ */
+function ensureCatalogImages(): void {
+  wpCli([
+    'eval',
+    `$title = 'E2E Catalog Card Image';
+$existing = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'title' => $title, 'fields' => 'ids', 'posts_per_page' => 1));
+$attachment_id = $existing ? (int) $existing[0] : 0;
+if (!$attachment_id) {
+	$bytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', true);
+	$upload = wp_upload_bits('e2e-catalog-card.png', null, $bytes);
+	if (!empty($upload['error'])) {
+		throw new RuntimeException((string) $upload['error']);
+	}
+	$attachment_id = wp_insert_attachment(array('post_mime_type' => 'image/png', 'post_title' => $title, 'post_status' => 'inherit'), $upload['file']);
+	if (is_wp_error($attachment_id)) {
+		throw new RuntimeException($attachment_id->get_error_message());
+	}
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	wp_update_attachment_metadata($attachment_id, wp_generate_attachment_metadata($attachment_id, $upload['file']));
+}
+
+$products = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 's' => 'E2E Catalog Product', 'fields' => 'ids', 'posts_per_page' => -1));
+foreach ($products as $product_id) {
+	if (!has_post_thumbnail($product_id)) {
+		set_post_thumbnail($product_id, $attachment_id);
+	}
+}`,
+  ]);
+}
+
 /** Idempotent catalogue floor for Load More e2e. */
 export function ensureCatalogFixtures(): CatalogFixtures {
   ensurePublicStore();
   const shopPageId = ensureStorefrontInfrastructure();
   ensureInfiniteScrollMode();
   ensureProductFloor();
+  ensureCatalogImages();
 
   return { shopPageId };
 }

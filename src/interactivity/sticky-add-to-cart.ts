@@ -671,7 +671,11 @@ export const { state, actions } = store<StickyCartStore>(
               // avoids body:has() (document-wide re-scan per mutation).
               setStickyCartVisible(visible);
             },
-            { threshold: 0 }
+            // The root extends far below the viewport, so a form below the
+            // fold already counts as intersecting: reaching the bottom of the
+            // page in one jump (End key, anchor link, restored scroll) still
+            // reports the form leaving through the top.
+            { threshold: 0, rootMargin: '0px 0px 100000px 0px' }
           );
 
           observer.observe(form);

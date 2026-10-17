@@ -194,6 +194,67 @@ test.describe('Load More', () => {
     expect((await gridIds(page)).length).toBeGreaterThan(0);
   });
 
+  test('card actions work on appended cards', async ({ page }) => {
+    // Appended cards are never hydrated by the Interactivity API, so card
+    // features must listen at the document level (see docs/woocommerce.md).
+    await page.goto('/shop/');
+    const actions = `${CARDS} .aggressive-apparel-quick-view__trigger`;
+    test.skip(
+      !process.env.CI && (await page.locator(actions).count()) === 0,
+      "This site's catalog template places no card actions."
+    );
+
+    const firstPage = (await gridIds(page)).length;
+    await page.locator('.aa-load-more__btn').click();
+    await expect
+      .poll(async () => (await gridIds(page)).length)
+      .toBeGreaterThan(firstPage);
+
+    const card = page.locator(`${CARDS}[data-aa-appended]`).first();
+    const title =
+      (await card.locator('.wp-block-post-title').textContent())?.trim() ?? '';
+
+    const heart = card.locator('.aggressive-apparel-wishlist__toggle');
+    await heart.click();
+    await expect(heart).toHaveAttribute('aria-pressed', 'true');
+
+    await card.locator('.aggressive-apparel-quick-view__trigger').click();
+    const modal = page.locator('.aggressive-apparel-quick-view__modal');
+    await expect(modal).toBeVisible();
+    await expect(
+      modal.locator('#aggressive-apparel-quick-view-title')
+    ).toHaveText(title);
+  });
+
+  test('Back from a product restores the loaded products and position', async ({
+    page,
+  }) => {
+    // Playwright disables the back/forward cache, so Back reloads the page:
+    // the fallback that rebuilds the grid from the history entry.
+    await page.goto('/shop/');
+    const button = page.locator('.aa-load-more__btn');
+    for (let i = 0; i < 2; i++) {
+      const before = (await gridIds(page)).length;
+      await button.click();
+      await expect
+        .poll(async () => (await gridIds(page)).length)
+        .toBeGreaterThan(before);
+    }
+    const loaded = await gridIds(page);
+
+    const card = page.locator(`${CARDS}[data-aa-appended]`).last();
+    await card.scrollIntoViewIfNeeded();
+    const scrollY = await page.evaluate(() => window.scrollY);
+    await card.locator('a').first().click();
+    await page.waitForURL(url => !url.pathname.startsWith('/shop/'));
+
+    await page.goBack();
+    await expect.poll(() => gridIds(page), { timeout: 20_000 }).toEqual(loaded);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(scrollY - 200);
+  });
+
   test('after a sort, continues the sorted catalog', async ({
     page,
     request,

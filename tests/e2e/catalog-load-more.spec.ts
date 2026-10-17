@@ -93,6 +93,43 @@ test.describe('Load More', () => {
       ]);
   });
 
+  test('a rate-limited page is retried once, after Retry-After', async ({
+    page,
+    request,
+  }) => {
+    await page.goto('/shop/');
+    const nextUrl = new URL((await seed(page)).nextUrl, page.url()).href;
+    const expected = await serverIds(request, nextUrl);
+    const firstPage = await gridIds(page);
+
+    const requests: number[] = [];
+    await page.route(nextUrl, async route => {
+      requests.push(Date.now());
+      if (requests.length === 1) {
+        await route.fulfill({
+          status: 429,
+          headers: { 'Retry-After': '1' },
+          body: 'Too Many Requests',
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.locator('.aa-load-more__btn').click();
+    // Clicks while it waits must not add requests.
+    await page.locator('.aa-load-more__btn').click({ force: true });
+
+    await expect
+      .poll(() => gridIds(page), { timeout: 15_000 })
+      .toEqual([
+        ...firstPage,
+        ...expected.filter(id => !firstPage.includes(id)),
+      ]);
+    expect(requests).toHaveLength(2);
+    expect(requests[1] - requests[0]).toBeGreaterThanOrEqual(900);
+  });
+
   test('after a sort, continues the sorted catalog', async ({
     page,
     request,

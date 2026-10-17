@@ -25,7 +25,10 @@ import {
   pruneProductGrid,
 } from '@aggressive-apparel/helpers';
 import {
+  MAX_RETRIES,
+  RETRYABLE_STATUSES,
   SENTINEL_ROOT_MARGIN_PX,
+  retryDelayMs,
   shouldContinueInfiniteScroll,
   shouldHideLoadMoreButton,
 } from './load-more/continue';
@@ -66,6 +69,17 @@ interface LoadMoreStore {
   state: LoadMoreState;
   actions: InteractivityActions;
   callbacks: InteractivityCallbacks;
+}
+
+/** A page request the server answered with an error status. */
+class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    readonly retryAfter: string | null
+  ) {
+    super(`HTTP ${status}`);
+    this.name = 'HttpError';
+  }
 }
 
 /** A page request, shared by the scroll prefetch and the load that uses it. */
@@ -208,7 +222,7 @@ async function requestPage(
     headers: { Accept: 'text/html' },
   } as RequestInit);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+    throw new HttpError(response.status, response.headers.get('Retry-After'));
   }
 
   pageScope += 1;
@@ -219,9 +233,20 @@ async function requestPage(
   );
 }
 
-/** Load the next page, reusing its prefetch when one is pending or done. */
-function loadNextPage(): void {
-  if (state.isLoading || state.allLoaded || !state.nextUrl) return;
+/**
+ * Load the next page, reusing its prefetch when one is pending or done.
+ *
+ * A rate-limited response (429/503) is retried after the server's
+ * `Retry-After`, a few times, while the control stays busy — so neither
+ * infinite scroll nor repeated clicks add requests while the server is
+ * asking for fewer.
+ *
+ * @param attempt Retries already made for this page.
+ */
+function loadNextPage(attempt = 0): void {
+  if ((state.isLoading && attempt === 0) || state.allLoaded || !state.nextUrl) {
+    return;
+  }
 
   const url = state.nextUrl;
   const generation = paginationGeneration;
@@ -230,14 +255,17 @@ function loadNextPage(): void {
   state.announcement = state.loadingText;
   lastFetchAt = Date.now();
 
+  // A prefetch the server refused is this load's answer too: requesting
+  // again at once would only repeat the refusal.
   const pending =
     prefetched?.url === url && prefetched.generation === generation
-      ? prefetched.promise
+      ? prefetched.promise.catch((error: Error) =>
+          error instanceof HttpError ? Promise.reject(error) : null
+        )
       : Promise.resolve(null);
   prefetched = null;
 
   pending
-    .catch(() => null)
     .then(page => {
       if (page) return page;
       loadController?.abort();
@@ -250,6 +278,19 @@ function loadNextPage(): void {
     })
     .catch((error: Error) => {
       if (error.name === 'AbortError' || generation !== paginationGeneration) {
+        return;
+      }
+      if (
+        error instanceof HttpError &&
+        RETRYABLE_STATUSES.has(error.status) &&
+        attempt < MAX_RETRIES
+      ) {
+        window.setTimeout(
+          () => {
+            if (generation === paginationGeneration) loadNextPage(attempt + 1);
+          },
+          retryDelayMs(error.retryAfter, attempt)
+        );
         return;
       }
       state.isLoading = false;

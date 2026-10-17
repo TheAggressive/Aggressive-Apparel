@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Aggressive_Apparel\Tests\Integration\WooCommerce;
 
 use Aggressive_Apparel\WooCommerce\Advanced_Sorting;
+use Aggressive_Apparel\WooCommerce\Catalog_Archive_Filters;
 use Aggressive_Apparel\WooCommerce\Product_Collection_Query;
 use Aggressive_Apparel\WooCommerce\Sale_Category;
 use WP_Query;
@@ -168,6 +169,28 @@ class TestAdvancedSorting extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $result['ids'] );
 		$this->assertSame( 3, $result['total'] );
+	}
+
+	/** The shop's main query is sorted by the URL's custom sort. */
+	public function test_main_archive_query_takes_the_custom_sort_from_the_url(): void {
+		// Featured is the older product: date order alone would put it last.
+		$featured = $this->create_product( 20 );
+		$plain    = $this->create_product( 10, 0, 'instock', false );
+		wp_update_post(
+			array(
+				'ID'            => $featured,
+				'post_date'     => '2020-01-01 00:00:00',
+				'post_date_gmt' => '2020-01-01 00:00:00',
+			)
+		);
+
+		$_GET = array( 'orderby' => 'featured' );
+		( new Catalog_Archive_Filters() )->init();
+		$this->go_to( add_query_arg( 'orderby', 'featured', (string) get_post_type_archive_link( 'product' ) ) );
+		$_GET = array();
+
+		$ids = array_map( static fn( $post ): int => (int) $post->ID, $GLOBALS['wp_query']->posts );
+		$this->assertSame( array( $featured, $plain ), array_values( array_intersect( $ids, array( $featured, $plain ) ) ) );
 	}
 
 	/** Unflagged secondary queries keep their own order. */

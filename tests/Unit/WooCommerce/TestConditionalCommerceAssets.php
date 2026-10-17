@@ -258,6 +258,48 @@ class TestConditionalCommerceAssets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An explicit collection's total comes from the query it already ran,
+	 * not from a second count query.
+	 *
+	 * @return void
+	 */
+	public function test_load_more_reuses_the_collection_query_total(): void {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required for Load More markup tests.' );
+		}
+
+		$archive = get_post_type_archive_link( 'product' );
+		$this->assertIsString( $archive );
+		$this->go_to( $archive );
+
+		$context   = array(
+			'queryId' => 5,
+			'query'   => array(
+				'perPage'                  => 8,
+				'inherit'                  => false,
+				'isProductCollectionBlock' => true,
+			),
+		);
+		$load_more = new Load_More();
+		$vars      = $load_more->tag_collection_query( array(), new \WP_Block( array( 'blockName' => 'core/query-pagination' ), $context ) );
+		$this->assertSame( 5, $vars['aa_collection_query_id'] );
+
+		// The collection's own query ran and found 37 products (the database
+		// holds none, so a recount would say 0).
+		$collection_query = new \WP_Query();
+		$collection_query->set( 'aa_collection_query_id', 5 );
+		$load_more->record_collection_total( 37, $collection_query );
+
+		$html = $load_more->replace_pagination( '', array( 'blockName' => 'core/query-pagination' ), new \WP_Block( array( 'blockName' => 'core/query-pagination' ), $context ) );
+		preg_match( "/data-wp-context='([^']+)'/", $html, $matches );
+		$seed = json_decode( html_entity_decode( $matches[1] ?? '', ENT_QUOTES | ENT_HTML5 ), true );
+
+		$this->assertIsArray( $seed );
+		$this->assertSame( 37, $seed['totalProducts'] );
+		$this->assertSame( 8, $seed['loadedCount'] );
+	}
+
+	/**
 	 * Load More seeds its derived getters so SSR matches the hydrated markup.
 	 *
 	 * Unseeded, server directive processing evaluates them falsy: the status

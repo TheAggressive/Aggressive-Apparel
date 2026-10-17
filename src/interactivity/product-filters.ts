@@ -33,6 +33,7 @@ import {
 import {
   applyStagedFilters,
   fetchFacets,
+  setupApplyPrefetch,
   setupDelegatedEvents,
   setupScrollbarAutoHide,
   showFilteredCatalog,
@@ -389,6 +390,7 @@ export const { state, actions } = store<ProductFiltersStore>(
         restoreFromUrl();
         captureSortDropdown();
         setupDelegatedEvents();
+        setupApplyPrefetch();
         setupScrollbarAutoHide();
         renderHorizontalDropdowns();
 

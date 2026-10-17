@@ -42,6 +42,14 @@ class Load_More {
 	private ?array $runtime_seed = null;
 
 	/**
+	 * `found_posts` of each Product Collection query this request ran, by
+	 * queryId: an explicit collection's total without a second count query.
+	 *
+	 * @var array<int, int>
+	 */
+	private array $collection_totals = array();
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @return void
@@ -49,6 +57,8 @@ class Load_More {
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_filter( 'render_block_core/query-pagination', array( $this, 'replace_pagination' ), 20, 3 );
+		add_filter( 'query_loop_block_query_vars', array( $this, 'tag_collection_query' ), 30, 2 );
+		add_filter( 'found_posts', array( $this, 'record_collection_total' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'output_interactivity_state' ) );
 	}
 
@@ -280,25 +290,70 @@ class Load_More {
 	}
 
 	/**
-	 * Total products in an explicit (non-inherited) collection, counted with
-	 * the same query vars the block renders with (filters included).
+	 * Tag a Product Collection's query with its queryId, so its total can be
+	 * recorded when it runs.
+	 *
+	 * @param array<string, mixed> $query_vars Query vars built from the block.
+	 * @param \WP_Block            $block      Block providing the query context.
+	 * @return array<string, mixed>
+	 */
+	public function tag_collection_query( $query_vars, $block ): array {
+		$query_vars = is_array( $query_vars ) ? $query_vars : array();
+		if ( $block instanceof \WP_Block && isset( $block->context['queryId'] ) && ! empty( $block->context['query']['isProductCollectionBlock'] ) ) {
+			$query_vars['aa_collection_query_id'] = (int) $block->context['queryId'];
+		}
+
+		return $query_vars;
+	}
+
+	/**
+	 * Record a tagged collection query's total.
+	 *
+	 * @param int|string $found_posts Total rows found.
+	 * @param \WP_Query  $query       Query.
+	 * @return int|string
+	 */
+	public function record_collection_total( $found_posts, $query ) {
+		if ( $query instanceof \WP_Query && is_int( $query->get( 'aa_collection_query_id', null ) ) ) {
+			$this->collection_totals[ (int) $query->get( 'aa_collection_query_id' ) ] = (int) $found_posts;
+		}
+
+		return $found_posts;
+	}
+
+	/**
+	 * Total products in an explicit (non-inherited) collection: the total its
+	 * own query found (filters included), counted again only if it was not
+	 * recorded.
 	 *
 	 * @param \WP_Block            $instance Pagination block (query context).
 	 * @param int                  $page     Current page.
 	 * @param array<string, mixed> $query    Block query attributes.
 	 */
 	private function explicit_total( \WP_Block $instance, int $page, array $query ): int {
+		$query_id = isset( $instance->context['queryId'] ) ? (int) $instance->context['queryId'] : 0;
+		$found    = $this->collection_totals[ $query_id ] ?? self::count_collection( $instance, $page );
+
+		// found_posts ignores `offset`; the block's own offset hides that many.
+		$total = max( 0, $found - max( 0, (int) ( $query['offset'] ?? 0 ) ) );
+		$pages = max( 0, (int) ( $query['pages'] ?? 0 ) );
+
+		return $pages > 0 ? min( $total, $pages * max( 1, (int) ( $query['perPage'] ?? 12 ) ) ) : $total;
+	}
+
+	/**
+	 * Count an explicit collection's products with the vars it renders with.
+	 *
+	 * @param \WP_Block $instance Pagination block (query context).
+	 * @param int       $page     Current page.
+	 */
+	private static function count_collection( \WP_Block $instance, int $page ): int {
 		$vars                   = build_query_vars_from_query_block( $instance, $page );
 		$vars['fields']         = 'ids';
 		$vars['posts_per_page'] = 1;
 		$vars['no_found_rows']  = false;
-		$count                  = new \WP_Query( $vars );
 
-		// found_posts ignores `offset`; the block's own offset hides that many.
-		$total = max( 0, (int) $count->found_posts - max( 0, (int) ( $query['offset'] ?? 0 ) ) );
-		$pages = max( 0, (int) ( $query['pages'] ?? 0 ) );
-
-		return $pages > 0 ? min( $total, $pages * max( 1, (int) ( $query['perPage'] ?? 12 ) ) ) : $total;
+		return (int) ( new \WP_Query( $vars ) )->found_posts;
 	}
 
 	/**

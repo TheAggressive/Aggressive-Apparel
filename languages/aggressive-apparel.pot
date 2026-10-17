@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-17T02:06:18+00:00\n"
+"POT-Creation-Date: 2026-10-17T04:51:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1011,24 +1011,24 @@ msgid_plural "and %d more items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:60
+#: includes/WooCommerce/class-advanced-sorting.php:53
 msgid "Best Selling"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:64
+#: includes/WooCommerce/class-advanced-sorting.php:57
 #: patterns/mega-menu-panel.php:74
 msgid "Featured"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:65
+#: includes/WooCommerce/class-advanced-sorting.php:58
 msgid "Biggest Savings"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:66
+#: includes/WooCommerce/class-advanced-sorting.php:59
 msgid "Name: A-Z"
 msgstr ""
 
-#: includes/WooCommerce/class-advanced-sorting.php:67
+#: includes/WooCommerce/class-advanced-sorting.php:60
 msgid "Name: Z-A"
 msgstr ""
 
@@ -1696,7 +1696,7 @@ msgstr ""
 msgid "Low Stock"
 msgstr ""
 
-#: includes/WooCommerce/class-catalog-archive-filters.php:175
+#: includes/WooCommerce/class-catalog-archive-filters.php:183
 #: patterns/template-no-products.php:15
 msgid "No products were found matching your selection."
 msgstr ""
@@ -2506,22 +2506,22 @@ msgid "Include %s"
 msgstr ""
 
 #. translators: 1: number loaded so far, 2: total products.
-#: includes/WooCommerce/class-load-more.php:137
-#: includes/WooCommerce/class-load-more.php:224
+#: includes/WooCommerce/class-load-more.php:147
+#: includes/WooCommerce/class-load-more.php:234
 #, php-format
 msgid "Showing %1$d of %2$d products"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:221
+#: includes/WooCommerce/class-load-more.php:231
 msgid "Loading more products…"
 msgstr ""
 
-#: includes/WooCommerce/class-load-more.php:222
+#: includes/WooCommerce/class-load-more.php:232
 msgid "Products could not be loaded. Try again."
 msgstr ""
 
 #. translators: %d: number of products just loaded.
-#: includes/WooCommerce/class-load-more.php:226
+#: includes/WooCommerce/class-load-more.php:236
 #, php-format
 msgid "%d more products loaded."
 msgstr ""

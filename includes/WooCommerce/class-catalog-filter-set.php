@@ -71,9 +71,12 @@ final class Catalog_Filter_Set {
 		foreach ( $attributes as $taxonomy => $terms ) {
 			$taxonomy = sanitize_key( (string) $taxonomy );
 			// Values arrive as a comma-separated string, but a client may also send
-			// them as an array (`attributes[pa_color][]=red`); accept both without a
-			// PHP "array to string" notice.
-			$raw   = is_array( $terms ) ? implode( ',', array_map( 'strval', $terms ) ) : (string) $terms;
+			// them as an array (`attributes[pa_color][]=red`). Anything else
+			// (nested arrays, objects) is not a selection and is ignored.
+			if ( is_array( $terms ) ) {
+				$terms = implode( ',', array_filter( $terms, 'is_string' ) );
+			}
+			$raw   = is_string( $terms ) ? $terms : '';
 			$slugs = self::normalize_slugs( $raw );
 			if ( '' !== $taxonomy && ! empty( $slugs ) ) {
 				$this->attributes[ $taxonomy ] = $slugs;

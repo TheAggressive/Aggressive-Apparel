@@ -107,6 +107,17 @@
 
 /* ─── Sizes ──────────────────────────────────────────────────────────────── */
 
+/* The 32px target floor would leave a 14px dot floating in dead space, so the
+   smallest tier lowers both floors to WCAG 2.2 AA's 24px minimum. */
+.is-size-xxs {
+	--aa-card-swatch-min: 1.5rem;
+	--aa-card-swatch-dense-min: 1.5rem;
+}
+
+.is-size-xxs .aa-product-color-swatches__swatch {
+	--aa-card-swatch-visual-size: 0.875rem; /* 14px visual, 26px target */
+}
+
 .is-size-xs .aa-product-color-swatches__swatch {
 	--aa-card-swatch-visual-size: 1.25rem; /* 20px visual, 32px target */
 }
@@ -139,6 +150,10 @@
 
 	.aa-product-color-swatches {
 		gap: 0;
+	}
+
+	.is-size-xxs .aa-product-color-swatches__swatch {
+		--aa-card-swatch-visual-size: 0.75rem;
 	}
 
 	.is-size-xs .aa-product-color-swatches__swatch {

@@ -51,7 +51,7 @@ type SwatchTransition =
 
 export type ProductColorSwatchesAttributes = {
   swatchShape: 'circle' | 'square' | 'diamond';
-  swatchSize: 'xs' | 'sm' | 'md' | 'lg';
+  swatchSize: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   maxVisible: number;
   mobileRowCapacity: number;
   showTooltip: boolean;
@@ -163,6 +163,10 @@ export default function Edit({
             label={__('Swatch Size', 'aggressive-apparel')}
             value={swatchSize}
             options={[
+              {
+                label: __('XX-Small (14 px)', 'aggressive-apparel'),
+                value: 'xxs',
+              },
               {
                 label: __('X-Small (20 px)', 'aggressive-apparel'),
                 value: 'xs',

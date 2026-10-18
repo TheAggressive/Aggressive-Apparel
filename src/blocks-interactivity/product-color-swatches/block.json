@@ -41,7 +41,7 @@
     "swatchSize": {
       "type": "string",
       "default": "md",
-      "enum": ["xs", "sm", "md", "lg"]
+      "enum": ["xxs", "xs", "sm", "md", "lg"]
     },
     "maxVisible": {
       "type": "number",

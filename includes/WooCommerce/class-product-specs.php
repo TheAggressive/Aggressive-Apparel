@@ -8,7 +8,8 @@
  *   the product's own Specs fields → its attributes → its size guide's
  *   specs → the spec's default
  *
- * Items apply only to the categories they are scoped to (children included);
+ * Items apply only to the categories they are scoped to (children included)
+ * and, when a size guide owns them, only to products using that guide;
  * number scales can use different boundaries per category. A product can
  * reword or hide any item.
  *
@@ -164,10 +165,11 @@ final class Product_Specs {
 			$scope_ids = array_merge( $scope_ids, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
 		}
 
-		$items = array_values(
+		$guide_id = Size_Guide::resolved( $product_id )['id'];
+		$items    = array_values(
 			array_filter(
 				Product_Specs_Registry::items(),
-				static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope_ids )
+				static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope_ids ) && Product_Specs_Registry::on_guide( $item, $guide_id )
 			)
 		);
 
@@ -178,7 +180,7 @@ final class Product_Specs {
 		// Nearest category first: a product's own categories, then ancestors.
 		$category_order = array_values( array_unique( $scope_ids ) );
 		$wording        = self::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
-		$guide          = self::guide_values( $product_id );
+		$guide          = self::guide_values( $guide_id );
 
 		$resolved = array();
 		foreach ( $items as $item ) {
@@ -192,11 +194,10 @@ final class Product_Specs {
 	 * Spec values stored on the size guide a product shows (the same guide
 	 * its size guide dialog opens), with the guide's name as their label.
 	 *
-	 * @param int $product_id Product ID.
+	 * @param int $guide_id Size guide post ID, or 0 for none.
 	 * @return GuideValues
 	 */
-	private static function guide_values( int $product_id ): array {
-		$guide_id = Size_Guide::resolved( $product_id )['id'];
+	private static function guide_values( int $guide_id ): array {
 		if ( $guide_id <= 0 ) {
 			return array(
 				'values' => array(),

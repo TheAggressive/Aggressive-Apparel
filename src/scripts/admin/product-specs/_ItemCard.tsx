@@ -18,11 +18,12 @@ import {
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, Scope } from './_types';
+import type { Category, DraftItem, GuideSummary, Scope } from './_types';
 import { edgeLabels, slugify } from './_utils';
 import Preview from './_Preview';
 import SpecInput from './_SpecInput';
 import CategorySteps from './_CategorySteps';
+import GuideScope, { guideSummary } from './_GuideScope';
 
 type Props = {
   item: DraftItem;
@@ -37,6 +38,14 @@ type Props = {
   onChange: (patch: Partial<DraftItem>) => void;
   onMove: (direction: -1 | 1) => void;
   onDelete: () => void;
+  /** Size guides, to pick which ones the spec shows with (Specs tab). */
+  guides?: GuideSummary[];
+  /** Replaces the Default value field (a size guide's own value). */
+  valueField?: ReactNode;
+  /** Extra header detail, such as the guide's value. */
+  extraMeta?: string;
+  /** Delete wording, when deleting does something narrower. */
+  deleteText?: { button: string; confirm: string };
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -115,6 +124,10 @@ export default function ItemCard({
   onChange,
   onMove,
   onDelete,
+  guides,
+  valueField,
+  extraMeta,
+  deleteText,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isScale = item.type !== 'text';
@@ -203,6 +216,8 @@ export default function ItemCard({
         ),
         item.category_steps.length
       ),
+    guides && guideSummary(item, guides),
+    extraMeta,
   ].filter(Boolean);
 
   return (
@@ -506,10 +521,17 @@ export default function ItemCard({
 
           <Section
             title={__('Where the value comes from', 'aggressive-apparel')}
-            help={__(
-              'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
-              'aggressive-apparel'
-            )}
+            help={
+              valueField
+                ? __(
+                    'A product’s own value first, then a product attribute with one of these names, then the value below.',
+                    'aggressive-apparel'
+                  )
+                : __(
+                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
+                    'aggressive-apparel'
+                  )
+            }
           >
             <TextControl
               label={__('Product attribute names', 'aggressive-apparel')}
@@ -549,25 +571,27 @@ export default function ItemCard({
                 )}
               </p>
             )}
-            <div className='aa-ps-default'>
-              <span className='aa-ps-default__label'>
-                {__('Default value', 'aggressive-apparel')}
-                {isNumber && item.unit ? ` (${item.unit})` : ''}
-              </span>
-              <SpecInput
-                item={item}
-                value={item.default}
-                label={__('Default value', 'aggressive-apparel')}
-                showStep
-                onChange={value => onChange({ default: value })}
-              />
-              <p className='aa-ps-help'>
-                {__(
-                  'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
-                  'aggressive-apparel'
-                )}
-              </p>
-            </div>
+            {valueField ?? (
+              <div className='aa-ps-default'>
+                <span className='aa-ps-default__label'>
+                  {__('Default value', 'aggressive-apparel')}
+                  {isNumber && item.unit ? ` (${item.unit})` : ''}
+                </span>
+                <SpecInput
+                  item={item}
+                  value={item.default}
+                  label={__('Default value', 'aggressive-apparel')}
+                  showStep
+                  onChange={value => onChange({ default: value })}
+                />
+                <p className='aa-ps-help'>
+                  {__(
+                    'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
+                    'aggressive-apparel'
+                  )}
+                </p>
+              </div>
+            )}
           </Section>
 
           <Section title={__('Where it shows', 'aggressive-apparel')}>
@@ -615,6 +639,13 @@ export default function ItemCard({
                 ))}
               </div>
             )}
+            {guides && (
+              <GuideScope
+                item={item}
+                guides={guides}
+                onChange={value => onChange({ guides: value })}
+              />
+            )}
             <div className='aa-ps-toggles'>
               <ToggleControl
                 label={__(
@@ -646,10 +677,11 @@ export default function ItemCard({
             {confirmDelete ? (
               <>
                 <span className='aa-ps-help'>
-                  {__(
-                    'Delete this spec? Saved values stay in the database but stop showing.',
-                    'aggressive-apparel'
-                  )}
+                  {deleteText?.confirm ??
+                    __(
+                      'Delete this spec? Saved values stay in the database but stop showing.',
+                      'aggressive-apparel'
+                    )}
                 </span>
                 <Button variant='secondary' isDestructive onClick={onDelete}>
                   {__('Delete', 'aggressive-apparel')}
@@ -667,7 +699,7 @@ export default function ItemCard({
                 isDestructive
                 onClick={() => setConfirmDelete(true)}
               >
-                {__('Delete spec', 'aggressive-apparel')}
+                {deleteText?.button ?? __('Delete spec', 'aggressive-apparel')}
               </Button>
             )}
           </div>

@@ -4,7 +4,8 @@
  *
  * The routes behind the Size Guides editor (Products → Size Guides): list,
  * read, create, update, duplicate, and trash guides. One save writes the
- * whole guide — chart, notes, diagram, spec values, and where it applies.
+ * whole guide — chart, notes, diagram, its own specs and spec values, and
+ * where it applies.
  *
  * @package Aggressive_Apparel
  */
@@ -160,7 +161,8 @@ final class Size_Guide_Rest {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create( \WP_REST_Request $request ) {
-		$id = wp_insert_post(
+		$body = self::body( $request );
+		$id   = wp_insert_post(
 			array(
 				'post_type'   => Size_Guide_Post_Type::POST_TYPE,
 				'post_status' => 'publish',
@@ -172,9 +174,16 @@ final class Size_Guide_Rest {
 			return $id;
 		}
 
-		self::save( $id, self::body( $request ) );
+		// Specs need the new ID; an invalid one leaves no half-made guide.
+		$invalid = self::save_spec_items( $id, $body );
+		if ( null !== $invalid ) {
+			wp_delete_post( $id, true );
+			return $invalid;
+		}
 
-		return rest_ensure_response( self::guide( $id ) );
+		self::save( $id, $body );
+
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -185,7 +194,13 @@ final class Size_Guide_Rest {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function update( \WP_REST_Request $request ) {
-		$id     = (int) $request['id'];
+		$id      = (int) $request['id'];
+		$body    = self::body( $request );
+		$invalid = self::save_spec_items( $id, $body );
+		if ( null !== $invalid ) {
+			return $invalid;
+		}
+
 		$result = wp_update_post(
 			array(
 				'ID'         => $id,
@@ -197,9 +212,9 @@ final class Size_Guide_Rest {
 			return $result;
 		}
 
-		self::save( $id, self::body( $request ) );
+		self::save( $id, $body );
 
-		return rest_ensure_response( self::guide( $id ) );
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -239,7 +254,7 @@ final class Size_Guide_Rest {
 
 	/**
 	 * Copy a guide's chart, notes, diagram, and spec values (not where it
-	 * applies) into a new guide.
+	 * applies) into a new guide, sharing its own specs with the copy.
 	 *
 	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 * @param \WP_REST_Request $request Request.
@@ -270,8 +285,9 @@ final class Size_Guide_Rest {
 				'specs'   => $source['specs'],
 			)
 		);
+		Size_Guide_Spec_Items::share( $source['id'], $id );
 
-		return rest_ensure_response( self::guide( $id ) );
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -352,6 +368,43 @@ final class Size_Guide_Rest {
 			'usage'         => Size_Guide_Assignments::usage( $id ),
 			'legacyHtml'    => $legacy,
 			'legacyEditUrl' => '' !== $legacy ? (string) get_edit_post_link( $id, 'raw' ) : '',
+		);
+	}
+
+	/**
+	 * A just-saved guide, with the spec registry its save may have changed.
+	 *
+	 * @param int $id Size guide post ID.
+	 * @return array<string, mixed>
+	 */
+	private static function saved( int $id ): array {
+		return self::guide( $id ) + array( 'registry' => Product_Specs_Registry::get() );
+	}
+
+	/**
+	 * Save the guide's own spec items when submitted.
+	 *
+	 * @param int                  $id   Size guide post ID.
+	 * @param array<string, mixed> $data Submitted fields.
+	 * @return \WP_Error|null Null when saved or not submitted.
+	 */
+	private static function save_spec_items( int $id, array $data ): ?\WP_Error {
+		if ( ! isset( $data['specItems'] ) || ! is_array( $data['specItems'] ) ) {
+			return null;
+		}
+
+		$errors = Size_Guide_Spec_Items::save( $id, $data['specItems'] );
+		if ( array() === $errors ) {
+			return null;
+		}
+
+		return new \WP_Error(
+			'aa_size_guide_specs_invalid',
+			__( 'Some specs need fixing before the guide can be saved.', 'aggressive-apparel' ),
+			array(
+				'status' => 400,
+				'errors' => $errors,
+			)
 		);
 	}
 

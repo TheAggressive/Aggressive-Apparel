@@ -28,6 +28,8 @@ export type SpecItem = {
   in_table: boolean;
   /** Value every product gets unless it sets its own ('' for none). */
   default: string;
+  /** Size guides that own the spec; empty for a store-wide spec. */
+  guides: number[];
 };
 
 /** Number-scale boundaries for one category. */

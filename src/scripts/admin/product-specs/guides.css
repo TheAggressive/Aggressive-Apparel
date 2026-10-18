@@ -109,6 +109,22 @@
 	background: #fff;
 }
 
+.aa-ps-guide__group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.aa-ps-guide__group + .aa-ps-guide__group {
+	padding-top: 16px;
+	border-top: 1px solid var(--aa-ps-border);
+}
+
+.aa-ps-guide__group h3 {
+	margin: 0;
+	font-size: 13px;
+}
+
 .aa-ps-guide__specs {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

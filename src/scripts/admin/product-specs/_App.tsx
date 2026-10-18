@@ -27,7 +27,7 @@ import type {
   Suggestion,
   Tab,
 } from './_types';
-import { blankItem, slugify, toDraft, toStored } from './_utils';
+import { newItem, slugify, toDraft, toStored } from './_utils';
 import ItemCard from './_ItemCard';
 import GuidesTab from './_GuidesTab';
 import ProductsTab, { type ProductEdits } from './_ProductsTab';
@@ -128,24 +128,7 @@ export default function App({ config }: { config: Config }) {
   };
 
   const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
-    const base = blankItem(partial.type, [
-      __('Low', 'aggressive-apparel'),
-      __('Medium', 'aggressive-apparel'),
-      __('High', 'aggressive-apparel'),
-    ]);
-    const item: DraftItem = { ...base, ...partial, uid: base.uid, isNew: true };
-
-    // Keep keys unique so a second "Fit" never shares the first one's values.
-    const keys = new Set(
-      items.map(existing => existing.key || slugify(existing.name))
-    );
-    const stem = item.key || slugify(item.name);
-    let key = stem;
-    for (let n = 2; key && keys.has(key); n++) {
-      key = `${stem}_${n}`;
-    }
-    item.key = key;
-
+    const item = newItem(partial, items);
     touch([...items, item]);
     setOpen(item.uid);
   };
@@ -251,6 +234,7 @@ export default function App({ config }: { config: Config }) {
             categories={config.categories}
             attributeNames={config.attributes}
             limits={config.limits}
+            guides={guides}
             open={open === item.uid}
             onToggle={() => setOpen(open === item.uid ? null : item.uid)}
             onChange={patch => update(item.uid, patch)}
@@ -388,6 +372,15 @@ export default function App({ config }: { config: Config }) {
           <GuidesTab
             config={config}
             items={savedItems}
+            specsDirty={specsDirty}
+            onRegistry={registry => {
+              setSavedItems(registry.items);
+              // An untouched Specs tab follows; a dirty one blocks guide
+              // spec saves instead (GuideEditor), so nothing is lost.
+              if (!specsDirty) {
+                setItems(registry.items.map(toDraft));
+              }
+            }}
             guides={guides}
             onGuides={setGuides}
             onDirty={setGuideDirty}

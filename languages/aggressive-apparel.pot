@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.193.0\n"
+"Project-Id-Version: Aggressive Apparel 1.194.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T06:23:29+00:00\n"
+"POT-Creation-Date: 2026-10-18T08:37:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2860,154 +2860,154 @@ msgid "Wording for this product only. Empty fields use the wording from Products
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:223
-#: includes/WooCommerce/class-size-guide-rest.php:448
+#: includes/WooCommerce/class-size-guide-rest.php:501
 msgid "(no title)"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:239
+#: includes/WooCommerce/class-product-specs-registry.php:255
 #: includes/WooCommerce/class-product-tabs-config.php:164
 #: includes/WooCommerce/class-product-tabs-config.php:165
 msgid "Fit"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:241
+#: includes/WooCommerce/class-product-specs-registry.php:257
 msgid "Snug"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:242
+#: includes/WooCommerce/class-product-specs-registry.php:258
 msgid "Fitted"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:243
+#: includes/WooCommerce/class-product-specs-registry.php:259
 #: patterns/size-fit-finder.php:36
 msgid "Regular"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:244
+#: includes/WooCommerce/class-product-specs-registry.php:260
 msgid "Relaxed"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:245
+#: includes/WooCommerce/class-product-specs-registry.php:261
 #: patterns/size-fit-finder.php:92
 #: patterns/size-guide-cards.php:91
 msgid "Oversized"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:249
+#: includes/WooCommerce/class-product-specs-registry.php:265
 msgid "Fitted by design. Size up if you want room."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:250
+#: includes/WooCommerce/class-product-specs-registry.php:266
 msgid "Runs a little small. Consider sizing up."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:251
+#: includes/WooCommerce/class-product-specs-registry.php:267
 msgid "True to size. Take your usual size."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:252
+#: includes/WooCommerce/class-product-specs-registry.php:268
 msgid "Relaxed cut. Size down for a closer fit."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:253
+#: includes/WooCommerce/class-product-specs-registry.php:269
 msgid "Oversized on purpose. Take your usual size."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:262
+#: includes/WooCommerce/class-product-specs-registry.php:278
 msgid "Fabric weight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:264
+#: includes/WooCommerce/class-product-specs-registry.php:280
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 msgid "Lightweight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:265
+#: includes/WooCommerce/class-product-specs-registry.php:281
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 msgid "Light-midweight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:266
+#: includes/WooCommerce/class-product-specs-registry.php:282
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 msgid "Midweight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:267
+#: includes/WooCommerce/class-product-specs-registry.php:283
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 msgid "Mid-heavyweight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:268
+#: includes/WooCommerce/class-product-specs-registry.php:284
 #: includes/WooCommerce/class-product-specs-suggestions.php:194
 msgid "Heavyweight"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:270
+#: includes/WooCommerce/class-product-specs-registry.php:286
 msgctxt "fabric weight scale, lightest end"
 msgid "Light"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:271
+#: includes/WooCommerce/class-product-specs-registry.php:287
 msgctxt "fabric weight scale, heaviest end"
 msgid "Heavy"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:282
+#: includes/WooCommerce/class-product-specs-registry.php:298
 msgid "Fabric"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:291
+#: includes/WooCommerce/class-product-specs-registry.php:307
 msgid "Construction"
 msgstr ""
 
 #. translators: %d: maximum number of spec items.
-#: includes/WooCommerce/class-product-specs-registry.php:316
+#: includes/WooCommerce/class-product-specs-registry.php:332
 #, php-format
 msgid "Keep it to %d items or fewer."
 msgstr ""
 
 #. translators: %d: item position in the list.
-#: includes/WooCommerce/class-product-specs-registry.php:324
+#: includes/WooCommerce/class-product-specs-registry.php:340
 #, php-format
 msgid "Item %d"
 msgstr ""
 
 #. translators: %s: item label.
-#: includes/WooCommerce/class-product-specs-registry.php:333
+#: includes/WooCommerce/class-product-specs-registry.php:349
 #, php-format
 msgid "%s needs a name."
 msgstr ""
 
 #. translators: %s: item name.
-#: includes/WooCommerce/class-product-specs-registry.php:338
+#: includes/WooCommerce/class-product-specs-registry.php:354
 #, php-format
 msgid "“%s” needs a different name."
 msgstr ""
 
 #. translators: %s: item name.
-#: includes/WooCommerce/class-product-specs-registry.php:343
+#: includes/WooCommerce/class-product-specs-registry.php:359
 #, php-format
 msgid "“%s” has the same key as another item. Rename one of them."
 msgstr ""
 
 #. translators: 1: minimum steps, 2: maximum steps.
-#: includes/WooCommerce/class-product-specs-registry.php:411
+#: includes/WooCommerce/class-product-specs-registry.php:428
 #, php-format
 msgid "give the scale between %1$d and %2$d step names."
 msgstr ""
 
 #. translators: %d: number of thresholds needed.
-#: includes/WooCommerce/class-product-specs-registry.php:417
+#: includes/WooCommerce/class-product-specs-registry.php:434
 #, php-format
 msgid "enter %d step boundaries, each higher than the one before."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-registry.php:423
+#: includes/WooCommerce/class-product-specs-registry.php:440
 msgid "pick a different category for each set of category boundaries."
 msgstr ""
 
 #. translators: %d: number of thresholds needed.
-#: includes/WooCommerce/class-product-specs-registry.php:427
+#: includes/WooCommerce/class-product-specs-registry.php:444
 #, php-format
 msgid "each category needs %d boundaries, each higher than the one before."
 msgstr ""
@@ -3935,25 +3935,29 @@ msgstr ""
 msgid "No size guides found in Trash."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:141
+#: includes/WooCommerce/class-size-guide-rest.php:142
 msgid "You cannot edit this size guide."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:149
+#: includes/WooCommerce/class-size-guide-rest.php:150
 msgid "That size guide no longer exists."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:218
+#: includes/WooCommerce/class-size-guide-rest.php:233
 msgid "This guide has no table to convert. Start a chart from a template instead."
 msgstr ""
 
 #. translators: %s: size guide name.
-#: includes/WooCommerce/class-size-guide-rest.php:255
+#: includes/WooCommerce/class-size-guide-rest.php:270
 #, php-format
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:439
+#: includes/WooCommerce/class-size-guide-rest.php:403
+msgid "Some specs need fixing before the guide can be saved."
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-rest.php:492
 msgid "Untitled size guide"
 msgstr ""
 

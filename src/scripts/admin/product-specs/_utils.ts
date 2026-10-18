@@ -4,6 +4,7 @@
  * @package Aggressive_Apparel
  */
 
+import { __ } from '@wordpress/i18n';
 import type { DraftItem, ItemType, SpecItem } from './_types';
 
 let counter = 0;
@@ -75,7 +76,43 @@ export function blankItem(type: ItemType, steps: string[]): DraftItem {
     category_steps: [],
     in_table: true,
     default: '',
+    guides: [],
     uid: uid(),
     isNew: true,
   };
+}
+
+/**
+ * A new draft item from a preset, suggestion, or blank type, keyed so it never
+ * shares another item's values (a second "Fit" becomes fit_2).
+ *
+ * @param partial Fields to start from.
+ * @param taken   Items whose keys are in use (the whole registry).
+ */
+export function newItem(
+  partial: Partial<SpecItem> & Pick<SpecItem, 'type'>,
+  taken: SpecItem[]
+): DraftItem {
+  const base = blankItem(partial.type, [
+    __('Low', 'aggressive-apparel'),
+    __('Medium', 'aggressive-apparel'),
+    __('High', 'aggressive-apparel'),
+  ]);
+  const item: DraftItem = { ...base, ...partial, uid: base.uid, isNew: true };
+
+  item.key = uniqueKey(item.key || slugify(item.name), taken);
+
+  return item;
+}
+
+/** The key, or the first "key_N" no other item uses ('' stays ''). */
+export function uniqueKey(stem: string, taken: SpecItem[]): string {
+  const keys = new Set(
+    taken.map(existing => existing.key || slugify(existing.name))
+  );
+  let key = stem;
+  for (let n = 2; key && keys.has(key); n++) {
+    key = `${stem}_${n}`;
+  }
+  return key;
 }

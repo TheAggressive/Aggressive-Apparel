@@ -35,6 +35,10 @@ export type SpecItem = {
   /** A picked scale's terms, one per step (kept through renames). */
   step_terms: number[];
   default_term: number;
+  /** A text spec holds several values, like an attribute with several terms. */
+  multiple: boolean;
+  /** Values link to their archive pages (the attribute's "Enable archives"). */
+  archives: boolean;
   /** A text spec's existing values (its terms) and their product counts. */
   terms?: { name: string; count: number }[];
 };

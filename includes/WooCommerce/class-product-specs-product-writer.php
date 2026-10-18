@@ -81,9 +81,9 @@ final class Product_Specs_Product_Writer {
 				continue;
 			}
 
-			$raw  = (string) $raw;
-			$term = Product_Specs_Taxonomy::term_for( $item, $raw, $create );
-			if ( 0 === $term ) {
+			$raw   = (string) $raw;
+			$terms = Product_Specs_Taxonomy::terms_for( $item, $raw, $create );
+			if ( array() === $terms ) {
 				// Only an empty value clears; an unusable one changes nothing.
 				if ( '' !== trim( $raw ) ) {
 					$result['failed'][] = $item['key'];
@@ -97,13 +97,18 @@ final class Product_Specs_Product_Writer {
 				continue;
 			}
 
+			// Some of several values had no term (and couldn't get one).
+			if ( $item['multiple'] && count( $terms ) < count( Product_Specs_Taxonomy::split( Product_Specs_Meta::sanitize_value( $raw ) ) ) ) {
+				$result['failed'][] = $item['key'];
+			}
+
 			$attribute = $existing ?? new \WC_Product_Attribute();
 			if ( null === $existing ) {
 				$attribute->set_position( count( $attributes ) );
 			}
 			$attribute->set_id( wc_attribute_taxonomy_id_by_name( $item['taxonomy'] ) );
 			$attribute->set_name( $item['taxonomy'] );
-			$attribute->set_options( array( $term ) );
+			$attribute->set_options( $terms );
 			$attribute->set_visible( $item['in_table'] );
 			$attribute->set_variation( false );
 			$attributes[ $slug ] = $attribute;

@@ -12,7 +12,9 @@
  * Each item is backed by a WooCommerce global attribute (`taxonomy`), whose
  * terms hold every value (Product_Specs_Taxonomy); the registry keeps only
  * what WooCommerce has no place for: scale labels, advice, number bands,
- * and where the spec shows.
+ * and where the spec shows. A text spec can hold several values (`multiple`,
+ * like an attribute with several terms); `archives` mirrors the attribute's
+ * own "Enable archives" setting, which links values to their archive pages.
  *
  * An item with no `guides` is store-wide. One created inside a size guide
  * lists that guide (and any it was shared with) and shows only on products
@@ -36,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Spec item registry.
  *
- * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string, default_term: int, guides: list<int>, taxonomy: string, step_terms: list<int>}
+ * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string, default_term: int, guides: list<int>, taxonomy: string, step_terms: list<int>, multiple: bool, archives: bool}
  * @phpstan-type CategorySteps array{category: int, thresholds: list<float>}
  * @phpstan-type RegistryInput array{items: list<Item>, hide_dimensions: bool}
  * @phpstan-type Registry array{items: list<Item>, hide_dimensions: bool, revision: int}
@@ -463,11 +465,17 @@ final class Product_Specs_Registry {
 					'taxonomy'       => is_string( $entry['taxonomy'] ?? null ) && 1 === preg_match( '/^pa_[\p{Ll}\p{Lo}\p{N}_\-]{1,29}$/u', $entry['taxonomy'] ) ? $entry['taxonomy'] : '',
 					'step_terms'     => array_values( array_map( 'absint', is_array( $entry['step_terms'] ?? null ) ? $entry['step_terms'] : array() ) ),
 					'default_term'   => absint( $entry['default_term'] ?? 0 ),
+					'multiple'       => ! empty( $entry['multiple'] ),
+					'archives'       => ! empty( $entry['archives'] ),
 				)
 			);
 
 			if ( self::TYPE_NUMBER !== $item['type'] ) {
 				$item['category_steps'] = array();
+			}
+			// Several values only make sense for text: a scale has one step.
+			if ( self::TYPE_TEXT !== $item['type'] ) {
+				$item['multiple'] = false;
 			}
 
 			$problem = self::problem( $item );
@@ -590,6 +598,8 @@ final class Product_Specs_Registry {
 				'guides'         => array(),
 				'taxonomy'       => '',
 				'step_terms'     => array(),
+				'multiple'       => false,
+				'archives'       => false,
 			),
 			$values
 		);

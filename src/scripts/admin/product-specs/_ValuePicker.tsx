@@ -4,7 +4,10 @@
  * Scales are their steps as a segmented bar (a radio group, arrow keys move).
  * Text details search the attribute's existing values, most used first, and
  * offer "Add “…”" for a new one, so near-duplicates like "Cotton" and
- * "cotton" don't pile up as separate terms. Numbers show their unit in the
+ * "cotton" don't pile up as separate terms. A text spec that holds several
+ * values (like Collection: Mens, Womens) is a token field instead. Lists open
+ * only while typing, so nothing below jumps when one closes; the most used
+ * values sit under the field as one-click chips instead. Numbers show their unit in the
  * field and the step the number lands on beside it.
  *
  * Values are what the REST API takes: a step index, a number, or text.
@@ -14,11 +17,11 @@
 
 import { useRef, useState } from '@wordpress/element';
 import type { KeyboardEvent } from 'react';
-import { Button, ComboboxControl } from '@wordpress/components';
+import { Button, ComboboxControl, FormTokenField } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
-import { stepFor } from './_utils';
+import { joinValues, splitValues, stepFor } from './_utils';
 
 type Props = {
   item: SpecItem;
@@ -164,7 +167,7 @@ function TermPicker({ item, value, label, inherited, onChange }: Props) {
             : __('Type or pick a value', 'aggressive-apparel')
         }
         allowReset
-        expandOnFocus
+        expandOnFocus={false}
         __next40pxDefaultSize
         __nextHasNoMarginBottom
         __experimentalRenderItem={({ item: option }) => (
@@ -186,6 +189,119 @@ function TermPicker({ item, value, label, inherited, onChange }: Props) {
             )}
           </span>
         )}
+      />
+      {value === '' && <Chips terms={terms} chosen={[]} onPick={onChange} />}
+    </div>
+  );
+}
+
+/** Most used values not chosen yet, as one-click chips. */
+function Chips({
+  terms,
+  chosen,
+  onPick,
+}: {
+  terms: { name: string; count: number }[];
+  chosen: string[];
+  onPick: (name: string) => void;
+}) {
+  const left = terms.filter(term => !chosen.includes(term.name)).slice(0, 6);
+  if (left.length === 0) {
+    return null;
+  }
+  return (
+    <div
+      className='aa-ps-picker__chips'
+      role='group'
+      aria-label={__('Used values', 'aggressive-apparel')}
+    >
+      {left.map(term => (
+        <button
+          key={term.name}
+          type='button'
+          className='aa-ps-chip'
+          onClick={() => onPick(term.name)}
+        >
+          {term.name}
+          {term.count > 0 && (
+            <span className='aa-ps-chip__count'>{term.count}</span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TokensPicker({ item, value, label, inherited, onChange }: Props) {
+  const terms = item.terms ?? [];
+  const counts = new Map(terms.map(term => [term.name, term.count]));
+  // Match an existing value whatever its case, so "mens" picks "Mens".
+  const canonical = (token: string) => {
+    const clean = token.replace(/\|/g, '').trim();
+    return (
+      terms.find(term => term.name.toLowerCase() === clean.toLowerCase())
+        ?.name ?? clean
+    );
+  };
+
+  return (
+    <div className='aa-ps-picker aa-ps-picker--tokens'>
+      <FormTokenField
+        label={label}
+        value={splitValues(value)}
+        suggestions={terms.map(term => term.name)}
+        onChange={tokens =>
+          onChange(
+            joinValues(
+              splitValues(
+                tokens
+                  .map(token =>
+                    canonical(typeof token === 'string' ? token : token.value)
+                  )
+                  .join('|')
+              )
+            )
+          )
+        }
+        placeholder={
+          value === ''
+            ? inherited
+              ? sprintf(
+                  /* translators: %s: the store-wide default values. */
+                  __('Not set — shows %s', 'aggressive-apparel'),
+                  inherited
+                )
+              : __('Type or pick values', 'aggressive-apparel')
+            : ''
+        }
+        __experimentalShowHowTo={false}
+        __experimentalRenderItem={({ item: name }) => (
+          <span className='aa-ps-term-option'>
+            <span>{name}</span>
+            {(counts.get(name) ?? 0) > 0 && (
+              <span className='aa-ps-term-option__count'>
+                {sprintf(
+                  /* translators: %d: number of products with this value. */
+                  _n(
+                    '%d product',
+                    '%d products',
+                    counts.get(name) ?? 0,
+                    'aggressive-apparel'
+                  ),
+                  counts.get(name) ?? 0
+                )}
+              </span>
+            )}
+          </span>
+        )}
+        tokenizeOnBlur
+        __next40pxDefaultSize
+        __nextHasNoMarginBottom
+      />
+      <Chips
+        terms={terms}
+        chosen={splitValues(value)}
+        onPick={name => onChange(joinValues([...splitValues(value), name]))}
       />
     </div>
   );
@@ -237,7 +353,11 @@ export default function ValuePicker(props: Props) {
     return <ScalePicker {...props} />;
   }
   if (props.item.type === 'text') {
-    return <TermPicker {...props} />;
+    return props.item.multiple ? (
+      <TokensPicker {...props} />
+    ) : (
+      <TermPicker {...props} />
+    );
   }
   return <NumberPicker {...props} />;
 }

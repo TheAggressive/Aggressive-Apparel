@@ -72,17 +72,27 @@ final class Product_Specs_Admin_Fields {
 				esc_attr( $item['inherited']['number'] > 0 ? (string) $item['inherited']['number'] : '' )
 			);
 		} else {
-			// Values already used for this attribute, so a value is picked
-			// rather than retyped with a different spelling.
-			$list    = '<datalist id="' . esc_attr( $id . '-terms' ) . '">' . implode( '', array_map( static fn( string $term ): string => '<option value="' . esc_attr( $term ) . '">', Product_Specs_Taxonomy::names( $item['taxonomy'] ) ) ) . '</datalist>';
+			// WooCommerce's own picker (selectWoo, as on its Attributes tab):
+			// search the attribute's values, pick several where the spec
+			// allows, and type a new one only with term management.
+			$current = $item['multiple'] ? Product_Specs_Taxonomy::split( $item['own'] ) : array_values( array_filter( array( $item['own'] ) ) );
+			$options = $item['multiple'] ? '' : '<option value=""></option>';
+			foreach ( array_unique( array_merge( $current, Product_Specs_Taxonomy::names( $item['taxonomy'] ) ) ) as $term ) {
+				$options .= sprintf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $term ), selected( in_array( $term, $current, true ), true, false ), esc_html( $term ) );
+			}
+			// An empty entry, so clearing every value still submits the field.
+			$list    = $item['multiple'] ? '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value="">' : '';
 			$control = sprintf(
-				'<input type="text" id="%1$s" name="%2$s" value="%3$s" placeholder="%4$s" list="%5$s">',
+				'<select id="%1$s" name="%2$s" class="aa-specs-terms"%3$s data-placeholder="%4$s" data-tags="%5$s">%6$s</select>',
 				esc_attr( $id ),
-				esc_attr( $name ),
-				esc_attr( $item['own'] ),
-				esc_attr( $item['inherited']['text'] ),
-				esc_attr( $id . '-terms' )
+				esc_attr( $item['multiple'] ? $name . '[]' : $name ),
+				$item['multiple'] ? ' multiple' : '',
+				esc_attr( $inherited ),
+				current_user_can( 'manage_product_terms' ) ? '1' : '0',
+				$options
 			);
+			$control = $list . $control;
+			$list    = '';
 		}
 
 		if ( $locked ) {
@@ -279,7 +289,7 @@ final class Product_Specs_Admin_Fields {
 	 */
 	public static function describe( array $item, array $value ): string {
 		if ( Product_Specs_Registry::TYPE_TEXT === $item['type'] ) {
-			return $value['text'];
+			return $item['multiple'] ? implode( ', ', Product_Specs_Taxonomy::split( $value['text'] ) ) : $value['text'];
 		}
 		if ( $value['step'] < 0 ) {
 			return '';

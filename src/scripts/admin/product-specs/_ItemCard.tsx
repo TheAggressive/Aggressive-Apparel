@@ -21,7 +21,8 @@ import { cx } from '../../../utils/product-specs-data';
 import type { Category, DraftItem, GuideSummary, Scope } from './_types';
 import { edgeLabels } from './_utils';
 import Preview from './_Preview';
-import SpecInput from './_SpecInput';
+import ValuePicker from './_ValuePicker';
+import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
 import GuideScope, { guideSummary } from './_GuideScope';
 
@@ -138,18 +139,6 @@ export default function ItemCard({
   const labels = edgeLabels(item);
   const unit = item.unit || __('number', 'aggressive-apparel');
   const unmatched = noAttributeMatches(item.attributes, attributeNames);
-  // The attribute's terms screen, beside this admin page; linked only for an
-  // attribute the server listed.
-  const termsTaxonomy = Object.keys(taxonomies ?? {}).find(
-    taxonomy => taxonomy === item.taxonomy
-  );
-  let termsHref = '';
-  if (termsTaxonomy) {
-    const url = new URL('edit-tags.php', window.location.href);
-    url.searchParams.set('post_type', 'product');
-    url.searchParams.set('taxonomy', termsTaxonomy);
-    termsHref = url.toString();
-  }
 
   const setStep = (i: number, value: string) => {
     const steps = [...item.steps];
@@ -542,59 +531,11 @@ export default function ItemCard({
             }
           >
             {taxonomies && (
-              <div className='aa-ps-attribute'>
-                <SelectControl
-                  label={__('WooCommerce attribute', 'aggressive-apparel')}
-                  value={item.taxonomy}
-                  options={[
-                    ...(item.taxonomy === ''
-                      ? [
-                          {
-                            value: '',
-                            label: __(
-                              'Create one when saved',
-                              'aggressive-apparel'
-                            ),
-                          },
-                        ]
-                      : []),
-                    // Its own attribute is always listed, so the field never
-                    // shows another attribute as if it were the one in use.
-                    ...(item.taxonomy !== '' && !(item.taxonomy in taxonomies)
-                      ? [{ value: item.taxonomy, label: item.taxonomy }]
-                      : []),
-                    ...Object.entries(taxonomies).map(([value, label]) => ({
-                      value,
-                      label: `${label} (${value})`,
-                    })),
-                  ]}
-                  // Terms belong to the attribute: switching re-finds steps.
-                  onChange={taxonomy => onChange({ taxonomy, step_terms: [] })}
-                  help={
-                    item.taxonomy
-                      ? __(
-                          'Values are this attribute’s terms, so they work in shop filters and feeds. Switching attributes leaves values already on products where they are.',
-                          'aggressive-apparel'
-                        )
-                      : __(
-                          'Saving links an attribute named like this spec, or creates one.',
-                          'aggressive-apparel'
-                        )
-                  }
-                  __next40pxDefaultSize
-                />
-                {termsHref && (
-                  <a href={termsHref} target='_blank' rel='noreferrer'>
-                    {__(
-                      'Manage its values in WooCommerce',
-                      'aggressive-apparel'
-                    )}
-                    <span className='screen-reader-text'>
-                      {__('(opens in a new tab)', 'aggressive-apparel')}
-                    </span>
-                  </a>
-                )}
-              </div>
+              <AttributeSettings
+                item={item}
+                taxonomies={taxonomies}
+                onChange={onChange}
+              />
             )}
             <TextControl
               label={__(
@@ -643,11 +584,10 @@ export default function ItemCard({
                   {__('Default value', 'aggressive-apparel')}
                   {isNumber && item.unit ? ` (${item.unit})` : ''}
                 </span>
-                <SpecInput
+                <ValuePicker
                   item={item}
                   value={item.default}
                   label={__('Default value', 'aggressive-apparel')}
-                  showStep
                   onChange={value => onChange({ default: value })}
                 />
                 <p className='aa-ps-help'>

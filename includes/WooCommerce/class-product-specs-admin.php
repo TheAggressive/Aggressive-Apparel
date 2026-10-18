@@ -47,7 +47,8 @@ final class Product_Specs_Admin {
 	public function init(): void {
 		add_filter( 'woocommerce_product_data_tabs', array( $this, 'product_tabs' ), 20 );
 		add_action( 'aggressive_apparel_size_guide_product_panel', array( $this, 'render_product_fields' ) );
-		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product' ) );
+		// After WooCommerce saves its own Attributes tab (priority 10).
+		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_product_assets' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_data' ) );
 	}
@@ -99,13 +100,15 @@ final class Product_Specs_Admin {
 		echo '<p class="aa-specs-help">' . wp_kses(
 			sprintf(
 				/* translators: %s: link to the Specs tab of Products → Size Guides. */
-				__( 'Empty fields use this product’s attributes, then each spec’s default from %s.', 'aggressive-apparel' ),
+				__( 'Values save as this product’s WooCommerce attributes. Empty fields use the product’s size guide, then each spec’s default from %s.', 'aggressive-apparel' ),
 				'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size Guides → Specs', 'aggressive-apparel' ) . '</a>'
 			),
 			$links
 		) . '</p>';
+		$product = wc_get_product( $post->ID );
 		foreach ( $data['items'] as $item ) {
-			echo Product_Specs_Admin_Fields::product_row( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
+			$locked = $product instanceof \WC_Product && Product_Specs_Product_Writer::drives_variations( $product, $item['taxonomy'] );
+			echo Product_Specs_Admin_Fields::product_row( $item, $locked ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
 			// Saving only rewrites the hidden flag and wording of items shown here.
 			echo '<input type="hidden" name="' . esc_attr( Product_Specs_Admin_Fields::FIELD ) . '[shown][]" value="' . esc_attr( $item['key'] ) . '">';
 		}
@@ -149,7 +152,35 @@ final class Product_Specs_Admin {
 			return;
 		}
 
-		Product_Specs_Values::save( $post_id, isset( $raw['values'] ) && is_array( $raw['values'] ) ? $raw['values'] : array() );
+		// Only fields changed here, so an edit to the same attribute in
+		// WooCommerce's Attributes tab is never undone by an untouched field.
+		// Only specs this form showed (those that apply to the product).
+		$values  = isset( $raw['values'] ) && is_array( $raw['values'] ) ? $raw['values'] : array();
+		$values  = array_intersect_key( $values, array_flip( Product_Specs_Meta::sanitize_keys( $raw['shown'] ?? array() ) ) );
+		$orig    = isset( $raw['orig'] ) && is_array( $raw['orig'] ) ? $raw['orig'] : array();
+		$changed = array_filter(
+			$values,
+			static fn( $value, $key ): bool => is_scalar( $value ) && 0 !== strcmp( (string) $value, (string) ( is_scalar( $orig[ $key ] ?? null ) ? $orig[ $key ] : '' ) ),
+			ARRAY_FILTER_USE_BOTH
+		);
+		$product = wc_get_product( $post_id );
+		if ( array() !== $changed && $product instanceof \WC_Product ) {
+			// New values become catalog terms, so they need term management.
+			$create = current_user_can( 'manage_product_terms' );
+			$failed = Product_Specs_Product_Writer::save( $product, $changed, false, $create )['failed'];
+			if ( array() !== $failed && class_exists( '\WC_Admin_Meta_Boxes' ) ) {
+				\WC_Admin_Meta_Boxes::add_error(
+					sprintf(
+						$create
+							/* translators: %s: comma-separated spec keys. */
+							? __( 'Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs.', 'aggressive-apparel' )
+							/* translators: %s: comma-separated spec keys. */
+							: __( 'Some spec values could not be saved (%s). You can pick existing values only; ask a store manager to add new ones.', 'aggressive-apparel' ),
+						implode( ', ', $failed )
+					)
+				);
+			}
+		}
 
 		// The form only lists items that apply to the product right now, so
 		// overrides for the others (another category, a spec scoped elsewhere)

@@ -12,13 +12,16 @@ import { useState } from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideSummary, SpecItem, Usage } from './_types';
+import type { Config, GuideSummary, Registry, SpecItem, Usage } from './_types';
 import GuideEditor from './_GuideEditor';
 
 type Props = {
   config: Config;
   /** Saved spec items, for the guide's Specs section. */
   items: SpecItem[];
+  onRegistry: (registry: Registry) => void;
+  /** Global attributes, taxonomy => label. */
+  taxonomies: Record<string, string>;
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
   onDirty: (dirty: boolean) => void;
@@ -57,6 +60,8 @@ function usageText(usage: Usage): string {
 export default function GuidesTab({
   config,
   items,
+  onRegistry,
+  taxonomies,
   guides,
   onGuides,
   onDirty,
@@ -86,6 +91,8 @@ export default function GuidesTab({
         key={String(open)}
         config={config}
         items={items}
+        onRegistry={onRegistry}
+        taxonomies={taxonomies}
         guideId={open}
         onDirty={onDirty}
         onOpen={id => {

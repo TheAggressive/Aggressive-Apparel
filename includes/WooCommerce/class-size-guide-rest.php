@@ -3,8 +3,9 @@
  * Size Guide REST
  *
  * The routes behind the Size Guides editor (Products → Size Guides): list,
- * read, create, update, duplicate, and trash guides. One save writes the
- * whole guide — chart, notes, diagram, spec values, and where it applies.
+ * read, create, update, duplicate, trash, and apply guides to products.
+ * One save writes the whole guide — chart, notes, diagram, its own specs
+ * and spec values, and where it applies.
  *
  * @package Aggressive_Apparel
  */
@@ -24,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -114,6 +115,30 @@ final class Size_Guide_Rest {
 
 		register_rest_route(
 			self::NAMESPACE,
+			self::ROUTE . '/(?P<id>\d+)/apply',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::status( (int) $request['id'] ) ),
+					'permission_callback' => $edit,
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::page( (int) $request['id'], absint( $request->get_param( 'page' ) ) ) ),
+					'permission_callback' => $edit,
+					'args'                => array(
+						'page' => array(
+							'type'    => 'integer',
+							'minimum' => 1,
+							'default' => 1,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
 			self::ROUTE . '/(?P<id>\d+)/duplicate',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -160,7 +185,8 @@ final class Size_Guide_Rest {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create( \WP_REST_Request $request ) {
-		$id = wp_insert_post(
+		$body = self::body( $request );
+		$id   = wp_insert_post(
 			array(
 				'post_type'   => Size_Guide_Post_Type::POST_TYPE,
 				'post_status' => 'publish',
@@ -172,9 +198,16 @@ final class Size_Guide_Rest {
 			return $id;
 		}
 
-		self::save( $id, self::body( $request ) );
+		// Specs need the new ID; an invalid one leaves no half-made guide.
+		$invalid = self::save_spec_items( $id, $body );
+		if ( null !== $invalid ) {
+			wp_delete_post( $id, true );
+			return $invalid;
+		}
 
-		return rest_ensure_response( self::guide( $id ) );
+		self::save( $id, $body );
+
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -185,7 +218,13 @@ final class Size_Guide_Rest {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function update( \WP_REST_Request $request ) {
-		$id     = (int) $request['id'];
+		$id      = (int) $request['id'];
+		$body    = self::body( $request );
+		$invalid = self::save_spec_items( $id, $body );
+		if ( null !== $invalid ) {
+			return $invalid;
+		}
+
 		$result = wp_update_post(
 			array(
 				'ID'         => $id,
@@ -197,9 +236,9 @@ final class Size_Guide_Rest {
 			return $result;
 		}
 
-		self::save( $id, self::body( $request ) );
+		self::save( $id, $body );
 
-		return rest_ensure_response( self::guide( $id ) );
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -239,7 +278,7 @@ final class Size_Guide_Rest {
 
 	/**
 	 * Copy a guide's chart, notes, diagram, and spec values (not where it
-	 * applies) into a new guide.
+	 * applies) into a new guide, sharing its own specs with the copy.
 	 *
 	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 * @param \WP_REST_Request $request Request.
@@ -268,10 +307,12 @@ final class Size_Guide_Rest {
 				'notes'   => $source['notes'],
 				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
 				'specs'   => $source['specs'],
+				'hidden'  => $source['hidden'],
 			)
 		);
+		Size_Guide_Spec_Items::share( $source['id'], $id );
 
-		return rest_ensure_response( self::guide( $id ) );
+		return rest_ensure_response( self::saved( $id ) );
 	}
 
 	/**
@@ -330,6 +371,7 @@ final class Size_Guide_Rest {
 	 */
 	public static function guide( int $id ): array {
 		$post    = get_post( $id );
+		$specs   = Product_Specs_Values::guide( $id );
 		$chart   = Size_Chart::get( $id );
 		$diagram = (int) get_post_meta( $id, Size_Chart::DIAGRAM, true );
 		$image   = $diagram > 0 ? wp_get_attachment_image_url( $diagram, 'medium' ) : false;
@@ -346,12 +388,50 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
-			'specs'         => Product_Specs_Values::stored( $id ),
+			'specs'         => $specs['values'],
+			'hidden'        => $specs['hidden'],
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
 			'usage'         => Size_Guide_Assignments::usage( $id ),
 			'legacyHtml'    => $legacy,
 			'legacyEditUrl' => '' !== $legacy ? (string) get_edit_post_link( $id, 'raw' ) : '',
+		);
+	}
+
+	/**
+	 * A just-saved guide, with the spec registry its save may have changed.
+	 *
+	 * @param int $id Size guide post ID.
+	 * @return array<string, mixed>
+	 */
+	private static function saved( int $id ): array {
+		return self::guide( $id ) + array( 'registry' => Product_Specs_Settings::registry() );
+	}
+
+	/**
+	 * Save the guide's own spec items when submitted.
+	 *
+	 * @param int                  $id   Size guide post ID.
+	 * @param array<string, mixed> $data Submitted fields.
+	 * @return \WP_Error|null Null when saved or not submitted.
+	 */
+	private static function save_spec_items( int $id, array $data ): ?\WP_Error {
+		if ( ! isset( $data['specItems'] ) || ! is_array( $data['specItems'] ) ) {
+			return null;
+		}
+
+		$errors = Size_Guide_Spec_Items::save( $id, $data['specItems'] );
+		if ( array() === $errors ) {
+			return null;
+		}
+
+		return new \WP_Error(
+			'aa_size_guide_specs_invalid',
+			__( 'Some specs need fixing before the guide can be saved.', 'aggressive-apparel' ),
+			array(
+				'status' => 400,
+				'errors' => $errors,
+			)
 		);
 	}
 
@@ -390,7 +470,11 @@ final class Size_Guide_Rest {
 		}
 
 		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
-			Product_Specs_Values::save( $id, $data['specs'] );
+			Product_Specs_Values::save_guide( $id, $data['specs'] );
+		}
+
+		if ( array_key_exists( 'hidden', $data ) ) {
+			Product_Specs_Values::save_hidden( $id, $data['hidden'] );
 		}
 
 		if ( isset( $data['categories'] ) && is_array( $data['categories'] ) ) {

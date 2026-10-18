@@ -2,10 +2,12 @@
 /**
  * Product Specs Meta
  *
- * Registers one scalar meta key per spec item (`_aa_spec_{key}`) on products,
- * so values show in the REST API, round-trip through WooCommerce CSV
- * import/export as a "Meta: _aa_spec_{key}" column, and can be read or set
- * with WP-CLI.
+ * Product meta for how specs present on one product: hidden items and
+ * wording overrides. Spec values themselves are WooCommerce attributes
+ * (Product_Specs_Taxonomy), so they show in the REST API and CSV
+ * import/export as ordinary attributes. The `_aa_spec_{key}` keys here are
+ * where values lived before; they are read until Product_Specs_Migration
+ * moves them.
  *
  * @package Aggressive_Apparel
  */
@@ -72,26 +74,8 @@ final class Product_Specs_Meta {
 
 	/**
 	 * Register product meta.
-	 *
-	 * Disabled items stay registered so their values remain editable and
-	 * exportable.
 	 */
 	public function register(): void {
-		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
-			register_post_meta(
-				'product',
-				self::key( $item['key'] ),
-				array(
-					'type'              => 'string',
-					'single'            => true,
-					'default'           => '',
-					'sanitize_callback' => array( self::class, 'sanitize_value' ),
-					'auth_callback'     => array( self::class, 'can_edit_post' ),
-					'show_in_rest'      => true,
-				)
-			);
-		}
-
 		register_post_meta(
 			'product',
 			self::HIDDEN,

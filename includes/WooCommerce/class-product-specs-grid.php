@@ -5,7 +5,8 @@
  * REST routes behind the Products tab on Products → Size Guides: a searchable,
  * paginated product list with each spec's own value and what the product
  * would show without it, and a bulk save. Every write goes through
- * Product_Specs_Values, the same path as the product's own Size & specs tab.
+ * Product_Specs_Product_Writer, as product attributes, the same path as the
+ * product's own Size & specs tab.
  *
  * @package Aggressive_Apparel
  */
@@ -23,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Products grid REST routes.
  *
  * @phpstan-type Cell array{applies: bool, own: string, shown: string, inherited: string, hidden: bool}
- * @phpstan-type Row array{id: int, title: string, editUrl: string, thumb: string, categories: list<string>, specs: array<string, Cell>}
+ * @phpstan-type Row array{id: int, title: string, editUrl: string, thumb: string, categories: list<string>, guide: int, specs: array<string, Cell>}
  */
 final class Product_Specs_Grid {
 
@@ -162,13 +163,19 @@ final class Product_Specs_Grid {
 
 		$saved   = 0;
 		$skipped = 0;
+		$failed  = 0;
 		foreach ( array_slice( $products, 0, self::MAX_SAVE, true ) as $product_id => $values ) {
 			$product_id = absint( $product_id );
-			if ( ! is_array( $values ) || 'product' !== get_post_type( $product_id ) || ! current_user_can( 'edit_post', $product_id ) ) {
+			$product    = 'product' === get_post_type( $product_id ) ? wc_get_product( $product_id ) : null;
+			if ( ! is_array( $values ) || ! $product instanceof \WC_Product || ! current_user_can( 'edit_post', $product_id ) ) {
 				++$skipped;
 				continue;
 			}
-			Product_Specs_Values::save( $product_id, $values );
+			// Only specs that apply to this product, as the grid shows them.
+			$values = array_intersect_key( $values, array_flip( array_column( Product_Specs::for_product( $product_id )['items'], 'key' ) ) );
+			// Values that couldn't be stored are counted, so the grid never
+			// reports them as saved.
+			$failed += count( Product_Specs_Product_Writer::save( $product, $values )['failed'] );
 			++$saved;
 		}
 
@@ -176,6 +183,7 @@ final class Product_Specs_Grid {
 			array(
 				'saved'   => $saved,
 				'skipped' => $skipped,
+				'failed'  => $failed,
 			)
 		);
 	}
@@ -224,6 +232,8 @@ final class Product_Specs_Grid {
 			'editUrl'    => (string) get_edit_post_link( $post->ID, 'raw' ),
 			'thumb'      => (string) get_the_post_thumbnail_url( $post->ID, 'thumbnail' ),
 			'categories' => is_array( $terms ) ? array_values( array_map( static fn( \WP_Term $term ): string => $term->name, $terms ) ) : array(),
+			// For showing a guide's own spec columns only where they apply.
+			'guide'      => Size_Guide::resolved( $post->ID )['id'],
 			'specs'      => $specs,
 		);
 	}

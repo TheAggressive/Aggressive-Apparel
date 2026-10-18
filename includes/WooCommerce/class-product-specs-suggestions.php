@@ -67,6 +67,10 @@ final class Product_Specs_Suggestions {
 			foreach ( $item['attributes'] as $name ) {
 				$known[ self::normalize( $name ) ] = true;
 			}
+			// The attribute the spec is stored in.
+			if ( '' !== $item['taxonomy'] && function_exists( 'wc_attribute_label' ) ) {
+				$known[ self::normalize( wc_attribute_label( $item['taxonomy'] ) ) ] = true;
+			}
 		}
 
 		$found = array();

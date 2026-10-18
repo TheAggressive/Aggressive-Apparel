@@ -18,11 +18,12 @@ import {
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
-import type { Category, DraftItem, Scope } from './_types';
-import { edgeLabels, slugify } from './_utils';
+import type { Category, DraftItem, GuideSummary, Scope } from './_types';
+import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import SpecInput from './_SpecInput';
 import CategorySteps from './_CategorySteps';
+import GuideScope, { guideSummary } from './_GuideScope';
 
 type Props = {
   item: DraftItem;
@@ -37,6 +38,16 @@ type Props = {
   onChange: (patch: Partial<DraftItem>) => void;
   onMove: (direction: -1 | 1) => void;
   onDelete: () => void;
+  /** Size guides, to pick which ones the spec shows with (Specs tab). */
+  guides?: GuideSummary[];
+  /** Replaces the Default value field (a size guide's own value). */
+  valueField?: ReactNode;
+  /** Extra header detail, such as the guide's value. */
+  extraMeta?: string;
+  /** Delete wording, when deleting does something narrower. */
+  deleteText?: { button: string; confirm: string };
+  /** Attributes the spec can use (taxonomy => label), to pick or switch. */
+  taxonomies?: Record<string, string>;
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -115,14 +126,30 @@ export default function ItemCard({
   onChange,
   onMove,
   onDelete,
+  guides,
+  valueField,
+  extraMeta,
+  deleteText,
+  taxonomies,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
-  const key = item.key || slugify(item.name);
   const unit = item.unit || __('number', 'aggressive-apparel');
   const unmatched = noAttributeMatches(item.attributes, attributeNames);
+  // The attribute's terms screen, beside this admin page; linked only for an
+  // attribute the server listed.
+  const termsTaxonomy = Object.keys(taxonomies ?? {}).find(
+    taxonomy => taxonomy === item.taxonomy
+  );
+  let termsHref = '';
+  if (termsTaxonomy) {
+    const url = new URL('edit-tags.php', window.location.href);
+    url.searchParams.set('post_type', 'product');
+    url.searchParams.set('taxonomy', termsTaxonomy);
+    termsHref = url.toString();
+  }
 
   const setStep = (i: number, value: string) => {
     const steps = [...item.steps];
@@ -152,6 +179,8 @@ export default function ItemCard({
       list.filter((_, n) => n !== Math.max(0, i - 1));
     onChange({
       steps: item.steps.filter((_, n) => n !== i),
+      // Each step's term goes with it, so the rest keep their own terms.
+      step_terms: item.step_terms.filter((_, n) => n !== i),
       advice: item.advice.filter((_, n) => n !== i),
       thresholds: isNumber ? drop(item.thresholds) : item.thresholds,
       category_steps: item.category_steps.map(row => ({
@@ -203,6 +232,8 @@ export default function ItemCard({
         ),
         item.category_steps.length
       ),
+    guides && guideSummary(item, guides),
+    extraMeta,
   ].filter(Boolean);
 
   return (
@@ -258,18 +289,10 @@ export default function ItemCard({
               label={__('Name', 'aggressive-apparel')}
               value={item.name}
               onChange={name => onChange({ name })}
-              help={
-                key
-                  ? sprintf(
-                      /* translators: %s: meta key. */
-                      __(
-                        'Stored as %s for CSV import and export.',
-                        'aggressive-apparel'
-                      ),
-                      `_aa_spec_${key}`
-                    )
-                  : undefined
-              }
+              help={__(
+                'What shoppers see as the spec’s title.',
+                'aggressive-apparel'
+              )}
               __next40pxDefaultSize
             />
             {item.isNew ? (
@@ -506,13 +529,78 @@ export default function ItemCard({
 
           <Section
             title={__('Where the value comes from', 'aggressive-apparel')}
-            help={__(
-              'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
-              'aggressive-apparel'
-            )}
+            help={
+              valueField
+                ? __(
+                    'A product’s own value first, then a product attribute with one of these names, then the value below.',
+                    'aggressive-apparel'
+                  )
+                : __(
+                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
+                    'aggressive-apparel'
+                  )
+            }
           >
+            {taxonomies && (
+              <div className='aa-ps-attribute'>
+                <SelectControl
+                  label={__('WooCommerce attribute', 'aggressive-apparel')}
+                  value={item.taxonomy}
+                  options={[
+                    ...(item.taxonomy === ''
+                      ? [
+                          {
+                            value: '',
+                            label: __(
+                              'Create one when saved',
+                              'aggressive-apparel'
+                            ),
+                          },
+                        ]
+                      : []),
+                    // Its own attribute is always listed, so the field never
+                    // shows another attribute as if it were the one in use.
+                    ...(item.taxonomy !== '' && !(item.taxonomy in taxonomies)
+                      ? [{ value: item.taxonomy, label: item.taxonomy }]
+                      : []),
+                    ...Object.entries(taxonomies).map(([value, label]) => ({
+                      value,
+                      label: `${label} (${value})`,
+                    })),
+                  ]}
+                  // Terms belong to the attribute: switching re-finds steps.
+                  onChange={taxonomy => onChange({ taxonomy, step_terms: [] })}
+                  help={
+                    item.taxonomy
+                      ? __(
+                          'Values are this attribute’s terms, so they work in shop filters and feeds. Switching attributes leaves values already on products where they are.',
+                          'aggressive-apparel'
+                        )
+                      : __(
+                          'Saving links an attribute named like this spec, or creates one.',
+                          'aggressive-apparel'
+                        )
+                  }
+                  __next40pxDefaultSize
+                />
+                {termsHref && (
+                  <a href={termsHref} target='_blank' rel='noreferrer'>
+                    {__(
+                      'Manage its values in WooCommerce',
+                      'aggressive-apparel'
+                    )}
+                    <span className='screen-reader-text'>
+                      {__('(opens in a new tab)', 'aggressive-apparel')}
+                    </span>
+                  </a>
+                )}
+              </div>
+            )}
             <TextControl
-              label={__('Product attribute names', 'aggressive-apparel')}
+              label={__(
+                'Also read from custom attributes named',
+                'aggressive-apparel'
+              )}
               value={item.attributes.join(', ')}
               placeholder={item.name}
               onChange={value =>
@@ -526,16 +614,16 @@ export default function ItemCard({
               help={
                 item.type === 'pick'
                   ? __(
-                      'Comma-separated. The attribute value must match a step name, like “Relaxed”.',
+                      'For products that keep this in a custom (per-product) attribute. Comma-separated; the value must match a step name, like “Relaxed”.',
                       'aggressive-apparel'
                     )
                   : isNumber
                     ? __(
-                        'Comma-separated. The first number in the value is used; g/m² also reads ounces, like “4.2 oz”.',
+                        'For products that keep this in a custom (per-product) attribute. Comma-separated; the first number is used, and g/m² also reads ounces, like “4.2 oz”.',
                         'aggressive-apparel'
                       )
                     : __(
-                        'Comma-separated. Leave empty to skip attributes.',
+                        'For products that keep this in a custom (per-product) attribute. Comma-separated; leave empty to skip.',
                         'aggressive-apparel'
                       )
               }
@@ -549,25 +637,27 @@ export default function ItemCard({
                 )}
               </p>
             )}
-            <div className='aa-ps-default'>
-              <span className='aa-ps-default__label'>
-                {__('Default value', 'aggressive-apparel')}
-                {isNumber && item.unit ? ` (${item.unit})` : ''}
-              </span>
-              <SpecInput
-                item={item}
-                value={item.default}
-                label={__('Default value', 'aggressive-apparel')}
-                showStep
-                onChange={value => onChange({ default: value })}
-              />
-              <p className='aa-ps-help'>
-                {__(
-                  'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
-                  'aggressive-apparel'
-                )}
-              </p>
-            </div>
+            {valueField ?? (
+              <div className='aa-ps-default'>
+                <span className='aa-ps-default__label'>
+                  {__('Default value', 'aggressive-apparel')}
+                  {isNumber && item.unit ? ` (${item.unit})` : ''}
+                </span>
+                <SpecInput
+                  item={item}
+                  value={item.default}
+                  label={__('Default value', 'aggressive-apparel')}
+                  showStep
+                  onChange={value => onChange({ default: value })}
+                />
+                <p className='aa-ps-help'>
+                  {__(
+                    'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
+                    'aggressive-apparel'
+                  )}
+                </p>
+              </div>
+            )}
           </Section>
 
           <Section title={__('Where it shows', 'aggressive-apparel')}>
@@ -615,6 +705,13 @@ export default function ItemCard({
                 ))}
               </div>
             )}
+            {guides && (
+              <GuideScope
+                item={item}
+                guides={guides}
+                onChange={value => onChange({ guides: value })}
+              />
+            )}
             <div className='aa-ps-toggles'>
               <ToggleControl
                 label={__(
@@ -646,10 +743,11 @@ export default function ItemCard({
             {confirmDelete ? (
               <>
                 <span className='aa-ps-help'>
-                  {__(
-                    'Delete this spec? Saved values stay in the database but stop showing.',
-                    'aggressive-apparel'
-                  )}
+                  {deleteText?.confirm ??
+                    __(
+                      'Delete this spec? Saved values stay in the database but stop showing.',
+                      'aggressive-apparel'
+                    )}
                 </span>
                 <Button variant='secondary' isDestructive onClick={onDelete}>
                   {__('Delete', 'aggressive-apparel')}
@@ -667,7 +765,7 @@ export default function ItemCard({
                 isDestructive
                 onClick={() => setConfirmDelete(true)}
               >
-                {__('Delete spec', 'aggressive-apparel')}
+                {deleteText?.button ?? __('Delete spec', 'aggressive-apparel')}
               </Button>
             )}
           </div>

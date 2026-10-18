@@ -496,14 +496,14 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertFalse( $table->dimensions_display( true ) );
 	}
 
-	/** Each item's value meta is registered for REST and CSV. */
-	public function test_meta_is_registered_per_item(): void {
+	/** Values are attributes now; only presentation meta stays registered. */
+	public function test_only_presentation_meta_is_registered(): void {
 		( new Product_Specs_Meta() )->register();
 
 		$keys = get_registered_meta_keys( 'post', 'product' );
-		$this->assertArrayHasKey( '_aa_spec_fit', $keys );
-		$this->assertNotEmpty( $keys['_aa_spec_weight']['show_in_rest'] );
-		$this->assertArrayNotHasKey( '_aa_spec_fabric', get_registered_meta_keys( 'post', 'aa_size_guide' ) );
+		$this->assertArrayNotHasKey( '_aa_spec_fit', $keys );
+		$this->assertArrayHasKey( Product_Specs_Meta::HIDDEN, $keys );
+		$this->assertArrayHasKey( Product_Specs_Meta::WORDING, $keys );
 	}
 
 	/** The REST save refuses an invalid list and keeps the stored one. */

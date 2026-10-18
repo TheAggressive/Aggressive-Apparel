@@ -9,6 +9,15 @@
  * every product gets otherwise, and whether they add a row to the Additional
  * information tab.
  *
+ * Each item is backed by a WooCommerce global attribute (`taxonomy`), whose
+ * terms hold every value (Product_Specs_Taxonomy); the registry keeps only
+ * what WooCommerce has no place for: scale labels, advice, number bands,
+ * and where the spec shows.
+ *
+ * An item with no `guides` is store-wide. One created inside a size guide
+ * lists that guide (and any it was shared with) and shows only on products
+ * using one of them (Size_Guide_Spec_Items).
+ *
  * Until the store saves its own list, the defaults below apply: Fit and Fabric
  * weight scales plus Fabric and Construction details.
  *
@@ -27,9 +36,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Spec item registry.
  *
- * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string}
+ * @phpstan-type Item array{key: string, type: string, name: string, enabled: bool, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, advice: list<string>, attributes: list<string>, scope: string, categories: list<int>, category_steps: list<CategorySteps>, in_table: bool, default: string, default_term: int, guides: list<int>, taxonomy: string, step_terms: list<int>}
  * @phpstan-type CategorySteps array{category: int, thresholds: list<float>}
- * @phpstan-type Registry array{items: list<Item>, hide_dimensions: bool}
+ * @phpstan-type RegistryInput array{items: list<Item>, hide_dimensions: bool}
+ * @phpstan-type Registry array{items: list<Item>, hide_dimensions: bool, revision: int}
  */
 final class Product_Specs_Registry {
 
@@ -87,7 +97,7 @@ final class Product_Specs_Registry {
 	 *
 	 * @var int
 	 */
-	public const MAX_ITEMS = 20;
+	public const MAX_ITEMS = 100;
 
 	/**
 	 * Fewest steps a scale can have.
@@ -137,11 +147,13 @@ final class Product_Specs_Registry {
 				self::$cache = array(
 					'items'           => $result['items'],
 					'hide_dimensions' => $result['hide_dimensions'],
+					'revision'        => absint( $stored['revision'] ?? 0 ),
 				);
 			} else {
 				self::$cache = array(
 					'items'           => self::defaults(),
 					'hide_dimensions' => false,
+					'revision'        => 0,
 				);
 			}
 		}
@@ -159,14 +171,82 @@ final class Product_Specs_Registry {
 	}
 
 	/**
-	 * Persist a validated registry.
+	 * Persist a validated registry under the next revision, so an editor
+	 * that loaded an older one can tell (Product_Specs_Settings).
 	 *
 	 * @param array $registry Validated registry.
-	 * @phpstan-param Registry $registry
+	 * @phpstan-param RegistryInput $registry
 	 */
 	public static function save( array $registry ): void {
-		update_option( self::OPTION_KEY, $registry, true );
-		self::$cache = null;
+		update_option(
+			self::OPTION_KEY,
+			array(
+				'items'           => $registry['items'],
+				'hide_dimensions' => $registry['hide_dimensions'],
+				'revision'        => self::get()['revision'] + 1,
+			),
+			true
+		);
+		self::flush();
+	}
+
+	/**
+	 * Connect a validated registry's items to WooCommerce attributes, then
+	 * save it. Nothing is saved when an item cannot be connected.
+	 *
+	 * @param array $registry Validated registry.
+	 * @phpstan-param RegistryInput $registry
+	 * @return list<string> Errors; empty when saved.
+	 */
+	public static function save_connected( array $registry ): array {
+		$connected = Product_Specs_Taxonomy::connect_all( $registry['items'] );
+		if ( array() !== $connected['errors'] ) {
+			return $connected['errors'];
+		}
+
+		self::save(
+			array(
+				'items'           => $connected['items'],
+				'hide_dimensions' => $registry['hide_dimensions'],
+			)
+		);
+
+		return array();
+	}
+
+	/**
+	 * Whether a saved item still lacks its attribute, or a default its term.
+	 */
+	public static function needs_connecting(): bool {
+		foreach ( self::get()['items'] as $item ) {
+			if ( '' === $item['taxonomy'] || ( '' !== $item['default'] && 0 === $item['default_term'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Connect the items before a value is written, so a store still on the
+	 * built-in specs gets their attributes the first time it sets a value,
+	 * never before. Errors leave the registry as it was.
+	 *
+	 * @return list<string> Errors.
+	 */
+	public static function ensure_connected(): array {
+		if ( ! self::needs_connecting() ) {
+			return array();
+		}
+
+		$registry = self::get();
+
+		return self::save_connected(
+			array(
+				'items'           => $registry['items'],
+				'hide_dimensions' => $registry['hide_dimensions'],
+			)
+		);
 	}
 
 	/**
@@ -192,6 +272,18 @@ final class Product_Specs_Registry {
 		$match = array() !== array_intersect( $item['categories'], $category_ids );
 
 		return self::SCOPE_ONLY === $item['scope'] ? $match : ! $match;
+	}
+
+	/**
+	 * Whether an item shows with this size guide: store-wide items always do,
+	 * guide-owned items only with one of their guides.
+	 *
+	 * @param array $item     Item.
+	 * @param int   $guide_id The product's size guide, or 0 for none.
+	 * @phpstan-param Item $item
+	 */
+	public static function on_guide( array $item, int $guide_id ): bool {
+		return array() === $item['guides'] || in_array( $guide_id, $item['guides'], true );
 	}
 
 	/**
@@ -367,6 +459,10 @@ final class Product_Specs_Registry {
 					'categories'     => array_values( array_unique( array_filter( array_map( 'absint', is_array( $entry['categories'] ?? null ) ? $entry['categories'] : array() ) ) ) ),
 					'in_table'       => ! empty( $entry['in_table'] ),
 					'category_steps' => self::category_steps( $entry['category_steps'] ?? array() ),
+					'guides'         => array_values( array_unique( array_filter( array_map( 'absint', is_array( $entry['guides'] ?? null ) ? $entry['guides'] : array() ) ) ) ),
+					'taxonomy'       => is_string( $entry['taxonomy'] ?? null ) && 1 === preg_match( '/^pa_[\p{Ll}\p{Lo}\p{N}_\-]{1,29}$/u', $entry['taxonomy'] ) ? $entry['taxonomy'] : '',
+					'step_terms'     => array_values( array_map( 'absint', is_array( $entry['step_terms'] ?? null ) ? $entry['step_terms'] : array() ) ),
+					'default_term'   => absint( $entry['default_term'] ?? 0 ),
 				)
 			);
 
@@ -490,6 +586,10 @@ final class Product_Specs_Registry {
 				'category_steps' => array(),
 				'in_table'       => true,
 				'default'        => '',
+				'default_term'   => 0,
+				'guides'         => array(),
+				'taxonomy'       => '',
+				'step_terms'     => array(),
 			),
 			$values
 		);

@@ -5,10 +5,16 @@
  * Resolves every spec item (Products → Size Guides → Specs) for one product. Each value
  * falls back independently:
  *
- *   the product's own Specs fields → its attributes → its size guide's
- *   specs → the spec's default
+ *   the product's own attribute for the spec → an attribute named like the
+ *   spec → its size guide's value → the spec's default
  *
- * Items apply only to the categories they are scoped to (children included);
+ * Specs are WooCommerce attributes, so a product's own value is simply its
+ * attribute (Product_Specs_Taxonomy); the guide and the default supply what
+ * the product shows without one, and nothing is copied onto products. A
+ * size guide can also hide store-wide specs for its products.
+ *
+ * Items apply only to the categories they are scoped to (children included)
+ * and, when a size guide owns them, only to products using that guide;
  * number scales can use different boundaries per category. A product can
  * reword or hide any item.
  *
@@ -32,9 +38,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Wording array<string, array<string, string>>
- * @phpstan-type GuideValues array{values: array<string, string>, label: string}
+ * @phpstan-type GuideValues array{values: array<string, string>, hidden: list<string>, label: string}
  * @phpstan-type Value array{step: int, number: float, text: string, source: string, label: string}
- * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool}
+ * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool, taxonomy: string}
  * @phpstan-type Resolved array{items: list<ResolvedItem>}
  */
 final class Product_Specs {
@@ -164,10 +170,14 @@ final class Product_Specs {
 			$scope_ids = array_merge( $scope_ids, array_map( 'intval', get_ancestors( $term_id, 'product_cat', 'taxonomy' ) ) );
 		}
 
-		$items = array_values(
+		$guide_id = Size_Guide::resolved( $product_id )['id'];
+		$guide    = self::guide_values( $guide_id );
+		$items    = array_values(
 			array_filter(
 				Product_Specs_Registry::items(),
 				static fn( array $item ): bool => Product_Specs_Registry::applies( $item, $scope_ids )
+					&& Product_Specs_Registry::on_guide( $item, $guide_id )
+					&& ! in_array( $item['key'], $guide['hidden'], true )
 			)
 		);
 
@@ -178,7 +188,6 @@ final class Product_Specs {
 		// Nearest category first: a product's own categories, then ancestors.
 		$category_order = array_values( array_unique( $scope_ids ) );
 		$wording        = self::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
-		$guide          = self::guide_values( $product_id );
 
 		$resolved = array();
 		foreach ( $items as $item ) {
@@ -192,24 +201,21 @@ final class Product_Specs {
 	 * Spec values stored on the size guide a product shows (the same guide
 	 * its size guide dialog opens), with the guide's name as their label.
 	 *
-	 * @param int $product_id Product ID.
+	 * @param int $guide_id Size guide post ID, or 0 for none.
 	 * @return GuideValues
 	 */
-	private static function guide_values( int $product_id ): array {
-		$guide_id = Size_Guide::resolved( $product_id )['id'];
+	private static function guide_values( int $guide_id ): array {
 		if ( $guide_id <= 0 ) {
 			return array(
 				'values' => array(),
+				'hidden' => array(),
 				'label'  => '',
 			);
 		}
 
 		$guide = get_post( $guide_id );
 
-		return array(
-			'values' => Product_Specs_Values::stored( $guide_id ),
-			'label'  => $guide instanceof \WP_Post ? $guide->post_title : '',
-		);
+		return Product_Specs_Values::guide( $guide_id ) + array( 'label' => $guide instanceof \WP_Post ? $guide->post_title : '' );
 	}
 
 	/**
@@ -274,15 +280,16 @@ final class Product_Specs {
 	 * @param array $categories Product categories, nearest first.
 	 * @phpstan-param Item $item
 	 * @phpstan-param list<string> $hidden
-	 * @phpstan-param array<string, array{text: string, label: string, visible: bool}> $attrs
+	 * @phpstan-param array<string, array{text: string, label: string, visible: bool, own: bool}> $attrs
 	 * @phpstan-param GuideValues $guide
 	 * @phpstan-param Wording $wording
 	 * @phpstan-param list<int> $categories
 	 * @return ResolvedItem
 	 */
 	private static function resolve_item( array $item, int $product_id, array $attrs, array $guide, array $hidden, array $wording, array $categories ): array {
-		$key   = $item['key'];
-		$steps = array();
+		$key           = $item['key'];
+		$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
+		$steps         = array();
 		foreach ( $item['steps'] as $i => $name ) {
 			$steps[] = self::override( $wording, $key, 'step' . $i ) ?? $name;
 		}
@@ -297,19 +304,28 @@ final class Product_Specs {
 
 		$boundaries = self::boundaries( $item, $categories );
 
-		$own_raw   = Product_Specs_Meta::sanitize_value( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ) );
+		$attr = $attrs[ $key ] ?? null;
+		// A value saved before specs were attributes, not moved yet (or kept
+		// because the product's attribute differs): it showed ahead of the
+		// attribute before, so it still does.
+		$own_raw   = Product_Specs_Values::clean( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ), $item );
+		$from_attr = '' === $own_raw && null !== $attr && $attr['own'];
+		if ( $from_attr ) {
+			$own_raw = Product_Specs_Taxonomy::value_from_text( $item, $attr['text'] );
+		}
 		$own       = self::read( $item, $own_raw, $boundaries, self::SOURCE_PRODUCT );
 		$inherited = self::empty_value();
-		if ( isset( $attrs[ $key ] ) ) {
-			$inherited          = self::read( $item, $attrs[ $key ]['text'], $boundaries, self::SOURCE_ATTRIBUTE );
-			$inherited['label'] = $attrs[ $key ]['label'];
+		if ( null !== $attr && ! $attr['own'] ) {
+			$inherited          = self::read( $item, $attr['text'], $boundaries, self::SOURCE_ATTRIBUTE );
+			$inherited['label'] = $attr['label'];
 		}
 		if ( ! self::has_value( $item, $inherited ) ) {
 			$inherited          = self::read( $item, $guide['values'][ $key ] ?? '', $boundaries, self::SOURCE_GUIDE );
 			$inherited['label'] = $guide['label'];
 		}
 		if ( ! self::has_value( $item, $inherited ) ) {
-			$inherited = self::read( $item, $item['default'], $boundaries, self::SOURCE_DEFAULT );
+			$default   = $item['default_term'] > 0 ? Product_Specs_Taxonomy::value_of( $item, $item['default_term'] ) : $item['default'];
+			$inherited = self::read( $item, $default, $boundaries, self::SOURCE_DEFAULT );
 		}
 
 		$value = self::has_value( $item, $own ) ? $own : ( self::has_value( $item, $inherited ) ? $inherited : self::empty_value() );
@@ -344,7 +360,9 @@ final class Product_Specs {
 			'inherited'         => $inherited,
 			'hidden'            => in_array( $key, $hidden, true ),
 			'in_table'          => $item['in_table'],
-			'attribute_visible' => self::SOURCE_ATTRIBUTE === $value['source'] && ! empty( $attrs[ $key ]['visible'] ),
+			'taxonomy'          => $item['taxonomy'],
+			// WooCommerce already lists a visible attribute in Additional information.
+			'attribute_visible' => null !== $attr && $attr['visible'] && ( self::SOURCE_ATTRIBUTE === $value['source'] || ( $from_attr && self::SOURCE_PRODUCT === $value['source'] ) ),
 		);
 	}
 

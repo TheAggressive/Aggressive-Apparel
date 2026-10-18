@@ -150,7 +150,7 @@ final class Product_Specs_Settings {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$config = array(
-			'registry'   => Product_Specs_Registry::get(),
+			'registry'   => self::registry(),
 			'defaults'   => Product_Specs_Registry::defaults(),
 			'categories' => self::categories(),
 			'restPath'   => '/' . self::REST_NAMESPACE . self::REST_ROUTE,
@@ -159,6 +159,8 @@ final class Product_Specs_Settings {
 			'guides'     => Size_Guide_Rest::summaries(),
 			'suggest'    => Product_Specs_Suggestions::all(),
 			'attributes' => Product_Specs_Suggestions::names(),
+			// Global attributes (taxonomy => label), for the attribute a spec uses.
+			'taxonomies' => Product_Specs_Taxonomy::attributes(),
 			'tab'        => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
 			// "new" opens a blank guide; a number opens that guide.
 			'guide'      => 'new' === $guide ? 'new' : absint( $guide ),
@@ -214,38 +216,115 @@ final class Product_Specs_Settings {
 	 * Current spec definitions.
 	 */
 	public function get_registry(): \WP_REST_Response {
-		return rest_ensure_response( Product_Specs_Registry::get() );
+		return rest_ensure_response( self::registry() );
 	}
 
 	/**
 	 * Validate and save spec definitions.
+	 *
+	 * The editor sends its whole list plus the revision it loaded. When the
+	 * registry moved on since (a size guide saved its own specs, or another
+	 * tab saved), only the items the editor changed or deleted are applied
+	 * on top of the current list, so neither save undoes the other.
 	 *
 	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function save_registry( \WP_REST_Request $request ) {
-		$result = Product_Specs_Registry::validate( $request->get_json_params() );
+		$body   = $request->get_json_params();
+		$body   = is_array( $body ) ? $body : array();
+		$result = Product_Specs_Registry::validate(
+			array(
+				'items'           => self::merged( $body ),
+				'hide_dimensions' => ! empty( $body['hide_dimensions'] ),
+			)
+		);
 
-		if ( array() !== $result['errors'] ) {
+		$errors = array() !== $result['errors']
+			? $result['errors']
+			: Product_Specs_Registry::save_connected(
+				array(
+					'items'           => $result['items'],
+					'hide_dimensions' => $result['hide_dimensions'],
+				)
+			);
+		if ( array() !== $errors ) {
 			return new \WP_Error(
 				'aa_product_specs_invalid',
 				__( 'Some specs need fixing before they can be saved.', 'aggressive-apparel' ),
 				array(
 					'status' => 400,
-					'errors' => $result['errors'],
+					'errors' => $errors,
 				)
 			);
 		}
 
-		Product_Specs_Registry::save(
-			array(
-				'items'           => $result['items'],
-				'hide_dimensions' => $result['hide_dimensions'],
-			)
-		);
+		return rest_ensure_response( self::registry() );
+	}
 
-		return rest_ensure_response( Product_Specs_Registry::get() );
+	/**
+	 * The registry for the editor: pick steps named as their terms are now,
+	 * each text spec's existing values (its terms) to pick from, and the
+	 * global attributes as they are after this save (a save can create one).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function registry(): array {
+		$registry = Product_Specs_Registry::get();
+		$items    = array();
+		foreach ( $registry['items'] as $item ) {
+			$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
+			$items[]       = $item + array(
+				'terms' => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
+			);
+		}
+
+		return array(
+			'items'      => $items,
+			'taxonomies' => Product_Specs_Taxonomy::attributes(),
+		) + $registry;
+	}
+
+	/**
+	 * The raw item list to save: the editor's list when it saw the latest
+	 * revision, else the current list with the editor's changes applied.
+	 *
+	 * @param array<string, mixed> $body Request body.
+	 * @return list<mixed>
+	 */
+	private static function merged( array $body ): array {
+		$sent    = isset( $body['items'] ) && is_array( $body['items'] ) ? array_values( $body['items'] ) : array();
+		$current = Product_Specs_Registry::get();
+		if ( absint( $body['revision'] ?? 0 ) === $current['revision'] ) {
+			return $sent;
+		}
+
+		$keys    = static fn( $raw ): array => array_flip( array_map( static fn( $key ): string => sanitize_key( (string) $key ), is_array( $raw ) ? array_filter( $raw, 'is_scalar' ) : array() ) );
+		$changed = $keys( $body['changed'] ?? array() );
+		$deleted = $keys( $body['deleted'] ?? array() );
+		$saved   = array_column( $current['items'], null, 'key' );
+
+		$items = array();
+		$seen  = array();
+		foreach ( $sent as $entry ) {
+			$key = is_array( $entry ) ? sanitize_key( (string) ( $entry['key'] ?? '' ) ) : '';
+			if ( '' === $key || isset( $changed[ $key ] ) ) {
+				$items[] = $entry;
+			} elseif ( isset( $saved[ $key ] ) ) {
+				// Unchanged here: keep whatever was saved since.
+				$items[] = $saved[ $key ];
+			}
+			$seen[ $key ] = true;
+		}
+		foreach ( $current['items'] as $item ) {
+			// Added elsewhere since this editor loaded.
+			if ( ! isset( $seen[ $item['key'] ] ) && ! isset( $deleted[ $item['key'] ] ) ) {
+				$items[] = $item;
+			}
+		}
+
+		return $items;
 	}
 
 	/**

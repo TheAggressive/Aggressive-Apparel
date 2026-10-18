@@ -109,16 +109,315 @@
 	background: #fff;
 }
 
-.aa-ps-guide__specs {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 16px;
+.aa-ps-spec-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-width: 0;
 }
 
-.aa-ps-guide__spec {
+.aa-ps-spec-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.aa-ps-spec-group__title {
+	margin: 0 0 4px;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* One spec: name, value, one action. Every row uses the same fixed tracks,
+   so names, fields, and icons line up down the list. */
+.aa-ps-spec-row {
+	display: grid;
+	grid-template-columns: 160px minmax(0, 1fr) 36px;
+	gap: 12px;
+	align-items: start;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--aa-ps-divider);
+}
+
+.aa-ps-spec-row__name {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	justify-content: center;
+	min-height: var(--aa-ps-control-height);
+}
+
+.aa-ps-spec-row__title {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 500;
+	overflow-wrap: anywhere;
+}
+
+.aa-ps-spec-row__note {
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-spec-row__action {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--aa-ps-control-height);
+}
+
+.aa-ps-spec-row__action .components-button:not(.is-pressed) {
+	color: var(--aa-ps-muted);
+}
+
+.aa-ps-spec-row__action .components-button:not(.is-pressed):hover,
+.aa-ps-spec-row__action .components-button:not(.is-pressed):focus-visible {
+	color: var(--aa-ps-accent);
+}
+
+.is-editing > .aa-ps-spec-row {
+	border-bottom-color: transparent;
+}
+
+.aa-ps-spec-group .aa-ps-card {
+	margin: 0 0 12px;
+}
+
+.aa-ps-spec-group .aa-ps-add {
+	padding-top: 12px;
+}
+
+.aa-ps-hidden-line {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+	margin: 10px 0 0;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+/* Value pickers: every control is the same height as a text field. */
+.aa-ps-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.aa-ps-picker__meta,
+.aa-ps-picker__hint {
+	min-height: 18px;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-picker__clear.components-button.is-link {
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.aa-ps-steps {
+	display: grid;
+	overflow: hidden;
+	border: 1px solid #949494;
+	border-radius: 2px;
+}
+
+.aa-ps-steps__step {
+	min-width: 0;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+	padding: 4px 6px;
+	border: 0;
+	border-left: 1px solid var(--aa-ps-border);
+	background: #fff;
+	color: #1e1e1e;
+	font: inherit;
+	font-size: 12px;
+	line-height: 1.2;
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+
+.aa-ps-steps__step:first-child {
+	border-left: 0;
+}
+
+.aa-ps-steps__step:hover {
+	background: #f0f6fc;
+}
+
+.aa-ps-steps__step.is-active {
+	background: var(--aa-ps-accent);
+	color: #fff;
+	font-weight: 600;
+}
+
+.aa-ps-steps__step:focus-visible {
+	position: relative;
+	z-index: 1;
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: -2px;
+	box-shadow: inset 0 0 0 4px #fff;
+}
+
+.aa-ps-number {
+	position: relative;
+	display: block;
+	max-width: 220px;
+}
+
+.aa-ps-number__input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: var(--aa-ps-control-height);
+	margin: 0;
+	padding-right: 56px;
+}
+
+.aa-ps-number__unit {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	color: var(--aa-ps-muted);
+	font-size: 13px;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.aa-ps-term-option {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.aa-ps-term-option__count {
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.aa-ps-quick-add {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 12px;
+	padding: 16px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.aa-ps-quick-add__fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 12px 16px;
+	align-items: start;
+}
+
+.aa-ps-quick-add__value {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
+}
+
+.aa-ps-quick-add__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aa-ps-guide-preview {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.aa-ps-guide-preview__row {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	margin: 0;
+	font-size: 13px;
+}
+
+.aa-ps-apply {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 8px 16px;
+	align-items: center;
+	padding: 16px;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.aa-ps-apply > :not(.aa-ps-apply__text, .aa-ps-apply__action) {
+	grid-column: 1 / -1;
+}
+
+.aa-ps-apply__text .aa-ps-help {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 0;
+}
+
+.aa-ps-apply__action {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	align-items: flex-end;
+}
+
+.aa-ps-apply__progress {
+	width: 100%;
+}
+
+.aa-ps-attribute {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-bottom: 12px;
+}
+
+.aa-ps-list__group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--aa-ps-gap);
+}
+
+/* Same look as the guide editor's group titles. */
+.aa-ps-list__group h3 {
+	margin: 8px 0 0;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+@media (width <= 782px) {
+
+	.aa-ps-spec-row {
+		grid-template-columns: minmax(0, 1fr) 36px;
+	}
+
+	.aa-ps-spec-row__value {
+		grid-column: 1 / -1;
+		grid-row: 2;
+	}
+
+	.aa-ps-apply {
+		grid-template-columns: 1fr;
+	}
+
+	.aa-ps-apply__action {
+		align-items: flex-start;
+	}
 }
 
 .aa-ps-guide__section h2 {
@@ -156,8 +455,16 @@
 	background: #f6f7f7;
 }
 
+/* The save bar stays in view on a long guide. */
 .aa-ps-guide__footer {
-	padding-top: 4px;
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
+	padding: 12px 20px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 -4px 12px rgb(0 0 0 / 6%);
 }
 
 /* Spreadsheet grid */

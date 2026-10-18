@@ -3,7 +3,8 @@
  *
  * Everything about a garment blank in one form: its name, size chart, notes
  * and measuring diagram, specs, and where it applies. One save writes it all
- * (Size_Guide_Rest).
+ * (Size_Guide_Rest), including the specs the guide owns, which the server
+ * merges into the spec registry (Size_Guide_Spec_Items).
  *
  * @package Aggressive_Apparel
  */
@@ -20,11 +21,19 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideDetail, SpecItem } from './_types';
+import type {
+  Config,
+  DraftItem,
+  GuideDetail,
+  Registry,
+  SpecItem,
+} from './_types';
+import { toDraft, toStored } from './_utils';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
 import GuideSpecs from './_GuideSpecs';
+import ApplyToProducts from './_ApplyToProducts';
 
 type Attachment = {
   id: number;
@@ -40,11 +49,23 @@ type MediaFrame = {
   };
 };
 
+type SaveError = { message?: string; data?: { errors?: string[] } };
+
+/** Error text plus any per-spec problems the server listed. */
+function errorText(failure: unknown, fallback: string): string {
+  const { message, data } = failure as SaveError;
+  return [message ?? fallback, ...(data?.errors ?? [])].join(' ');
+}
+
 type Props = {
   config: Config;
   /** Saved spec items (the Specs tab's last save). */
   items: SpecItem[];
   guideId: number | 'new';
+  /** A save changed the spec registry. */
+  onRegistry: (registry: Registry) => void;
+  /** Global attributes, taxonomy => label. */
+  taxonomies: Record<string, string>;
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
@@ -59,6 +80,7 @@ function blank(): GuideDetail {
     notes: '',
     diagram: null,
     specs: {},
+    hidden: [],
     categories: [],
     isDefault: false,
     usage: { global: false, categories: [], products: 0 },
@@ -71,6 +93,8 @@ export default function GuideEditor({
   config,
   items,
   guideId,
+  onRegistry,
+  taxonomies,
   onClose,
   onOpen,
   onCreated,
@@ -90,6 +114,23 @@ export default function GuideEditor({
   // untouched discards nothing worth asking about.
   const [touched, setTouched] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  // The guide's own specs, edited here and saved with the guide.
+  const [own, setOwn] = useState<DraftItem[]>([]);
+  const [ownDirty, setOwnDirty] = useState(false);
+  const savedId = guide?.id ?? 0;
+
+  // Follow the saved registry (after this or another save) unless the
+  // guide's own specs have unsaved edits.
+  useEffect(() => {
+    if (!ownDirty) {
+      setOwn(
+        savedId > 0
+          ? items.filter(item => item.guides.includes(savedId)).map(toDraft)
+          : []
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ownDirty only gates.
+  }, [items, savedId]);
 
   const setDirty = (value: boolean) => {
     setDirtyState(value);
@@ -126,12 +167,23 @@ export default function GuideEditor({
     );
   }
 
-  const update = (patch: Partial<GuideDetail>) => {
-    setGuide({ ...guide, ...patch });
+  const markDirty = () => {
     setDirty(true);
     setTouched(true);
     setConfirmLeave(false);
     setSaved(false);
+  };
+
+  // Functional, so a value move and a spec edit in one change both land.
+  const update = (patch: Partial<GuideDetail>) => {
+    setGuide(current => current && { ...current, ...patch });
+    markDirty();
+  };
+
+  const updateOwn = (next: DraftItem[]) => {
+    setOwn(next);
+    setOwnDirty(true);
+    markDirty();
   };
 
   /** Save the guide; true when it saved. */
@@ -148,11 +200,18 @@ export default function GuideEditor({
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
+          hidden: guide.hidden,
+          ...(ownDirty && { specItems: own.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
-      })) as GuideDetail;
-      setGuide(result);
+      })) as GuideDetail & { registry?: Registry };
+      const { registry, ...detail } = result;
+      setGuide(detail);
+      setOwnDirty(false);
+      if (registry) {
+        onRegistry(registry);
+      }
       setDirty(false);
       setSaved(true);
       if (!guide.id) {
@@ -162,8 +221,10 @@ export default function GuideEditor({
       return true;
     } catch (failure) {
       setError(
-        (failure as { message?: string }).message ??
+        errorText(
+          failure,
           __('Saving failed. Try again.', 'aggressive-apparel')
+        )
       );
       return false;
     } finally {
@@ -182,7 +243,10 @@ export default function GuideEditor({
       const copy = (await apiFetch({
         path: `${config.guidesPath}/${guide.id}/duplicate`,
         method: 'POST',
-      })) as GuideDetail;
+      })) as GuideDetail & { registry?: Registry };
+      if (copy.registry) {
+        onRegistry(copy.registry);
+      }
       onOpen(copy.id);
     } catch (failure) {
       setError(
@@ -468,7 +532,11 @@ export default function GuideEditor({
       </section>
 
       <GuideSpecs
+        config={config}
+        taxonomies={taxonomies}
+        guideId={guide.id}
         items={items}
+        own={own}
         values={guide.specs}
         // Mirrors Size_Chart::sanitize (a row needs a size) and
         // Size_Guide::guide_content (old free-form content also counts).
@@ -476,7 +544,19 @@ export default function GuideEditor({
           guide.legacyHtml !== '' ||
           guide.chart.rows.some(row => row.size.trim() !== '')
         }
-        onChange={specs => update({ specs })}
+        hidden={guide.hidden}
+        onValues={specs => update({ specs })}
+        onHidden={hidden => update({ hidden })}
+        onOwn={updateOwn}
+        footer={
+          guide.id > 0 && (
+            <ApplyToProducts
+              guidesPath={config.guidesPath}
+              guideId={guide.id}
+              dirty={dirty}
+            />
+          )
+        }
       />
 
       <section className='aa-ps-guide__section'>

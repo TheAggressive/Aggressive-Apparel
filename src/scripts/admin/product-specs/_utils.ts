@@ -80,6 +80,8 @@ export function blankItem(type: ItemType, steps: string[]): DraftItem {
     guides: [],
     taxonomy: '',
     step_terms: [],
+    multiple: false,
+    archives: false,
     uid: uid(),
     isNew: true,
   };
@@ -130,4 +132,24 @@ export function uniqueKey(stem: string, taken: SpecItem[]): string {
  */
 export function specKey(name: string, taken: SpecItem[]): string {
   return uniqueKey(slugify(name) || 'spec', taken);
+}
+
+/** Separator between several values, as WooCommerce writes attribute values. */
+export const DELIMITER = '|';
+
+/** The values in one value ("Mens | Womens" → ["Mens", "Womens"]). */
+export function splitValues(value: string): string[] {
+  return [
+    ...new Set(
+      value
+        .split(DELIMITER)
+        .map(part => part.trim())
+        .filter(Boolean)
+    ),
+  ];
+}
+
+/** Several values as one value. */
+export function joinValues(values: string[]): string {
+  return values.join(` ${DELIMITER} `);
 }

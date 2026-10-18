@@ -91,7 +91,14 @@ export default function SpecInput({
         type={item.type === 'number' ? 'number' : 'text'}
         min={item.type === 'number' ? 0 : undefined}
         step={item.type === 'number' ? 'any' : undefined}
-        placeholder={inherited || (item.type === 'number' ? item.unit : '')}
+        placeholder={
+          inherited ||
+          (item.type === 'number'
+            ? item.unit
+            : item.multiple
+              ? __('Value | Value', 'aggressive-apparel')
+              : '')
+        }
         value={value}
         onChange={event => onChange(event.target.value)}
       />

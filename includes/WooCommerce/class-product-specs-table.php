@@ -111,14 +111,15 @@ final class Product_Specs_Table {
 				continue;
 			}
 
-			$value = $item['display'];
+			$value = Product_Specs::value_html( $item );
 			if ( Product_Specs_Registry::TYPE_NUMBER === $item['type'] ) {
-				$value = ( $item['steps'][ $item['step'] ] ?? '' ) . ' · ' . $item['display'];
+				$value = esc_html( ( $item['steps'][ $item['step'] ] ?? '' ) . ' · ' . $item['display'] );
 			}
 
 			$rows[ 'aa-spec-' . $item['key'] ] = array(
 				'label' => esc_html( $item['title'] ),
-				'value' => esc_html( $value ),
+				// Escaped (with archive links) by Product_Specs::value_html().
+				'value' => $value,
 			);
 		}
 

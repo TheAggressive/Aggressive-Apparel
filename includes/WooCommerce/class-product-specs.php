@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-type Wording array<string, array<string, string>>
  * @phpstan-type GuideValues array{values: array<string, string>, hidden: list<string>, label: string}
  * @phpstan-type Value array{step: int, number: float, text: string, source: string, label: string}
- * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool, taxonomy: string}
+ * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool, taxonomy: string, multiple: bool, links: list<array{name: string, url: string}>}
  * @phpstan-type Resolved array{items: list<ResolvedItem>}
  */
 final class Product_Specs {
@@ -252,6 +252,29 @@ final class Product_Specs {
 	}
 
 	/**
+	 * A resolved text spec's value as HTML: each value linked to its archive
+	 * page when it has one (like WooCommerce's attribute rows), escaped.
+	 *
+	 * @param array $item Resolved item.
+	 * @phpstan-param ResolvedItem $item
+	 */
+	public static function value_html( array $item ): string {
+		if ( Product_Specs_Registry::TYPE_TEXT !== $item['type'] || array() === $item['links'] ) {
+			return esc_html( $item['display'] );
+		}
+
+		return implode(
+			', ',
+			array_map(
+				static fn( array $link ): string => '' !== $link['url']
+					? '<a href="' . esc_url( $link['url'] ) . '" rel="tag">' . esc_html( $link['name'] ) . '</a>'
+					: esc_html( $link['name'] ),
+				$item['links']
+			)
+		);
+	}
+
+	/**
 	 * Display text for a number in a unit ("180 g/m² (5.3 oz/yd²)").
 	 *
 	 * @param float  $number Number.
@@ -280,7 +303,7 @@ final class Product_Specs {
 	 * @param array $categories Product categories, nearest first.
 	 * @phpstan-param Item $item
 	 * @phpstan-param list<string> $hidden
-	 * @phpstan-param array<string, array{text: string, label: string, visible: bool, own: bool}> $attrs
+	 * @phpstan-param array<string, array{text: string, names: list<string>, label: string, visible: bool, own: bool}> $attrs
 	 * @phpstan-param GuideValues $guide
 	 * @phpstan-param Wording $wording
 	 * @phpstan-param list<int> $categories
@@ -311,7 +334,9 @@ final class Product_Specs {
 		$own_raw   = Product_Specs_Values::clean( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ), $item );
 		$from_attr = '' === $own_raw && null !== $attr && $attr['own'];
 		if ( $from_attr ) {
-			$own_raw = Product_Specs_Taxonomy::value_from_text( $item, $attr['text'] );
+			$own_raw = $item['multiple']
+				? implode( ' ' . Product_Specs_Taxonomy::DELIMITER . ' ', $attr['names'] )
+				: Product_Specs_Taxonomy::value_from_text( $item, $attr['text'] );
 		}
 		$own       = self::read( $item, $own_raw, $boundaries, self::SOURCE_PRODUCT );
 		$inherited = self::empty_value();
@@ -330,8 +355,10 @@ final class Product_Specs {
 
 		$value = self::has_value( $item, $own ) ? $own : ( self::has_value( $item, $inherited ) ? $inherited : self::empty_value() );
 
+		$names = array();
 		if ( Product_Specs_Registry::TYPE_TEXT === $item['type'] ) {
-			$display = $value['text'];
+			$names   = $item['multiple'] ? Product_Specs_Taxonomy::split( $value['text'] ) : array_filter( array( $value['text'] ) );
+			$display = implode( ', ', $names );
 		} elseif ( Product_Specs_Registry::TYPE_NUMBER === $item['type'] ) {
 			$display = $value['number'] > 0 ? self::format_number( $value['number'], $item['unit'] ) : '';
 		} else {
@@ -361,6 +388,9 @@ final class Product_Specs {
 			'hidden'            => in_array( $key, $hidden, true ),
 			'in_table'          => $item['in_table'],
 			'taxonomy'          => $item['taxonomy'],
+			'multiple'          => $item['multiple'],
+			// Each value and its archive page, when the attribute has archives.
+			'links'             => Product_Specs_Taxonomy::links( $item['taxonomy'], array_values( $names ) ),
 			// WooCommerce already lists a visible attribute in Additional information.
 			'attribute_visible' => null !== $attr && $attr['visible'] && ( self::SOURCE_ATTRIBUTE === $value['source'] || ( $from_attr && self::SOURCE_PRODUCT === $value['source'] ) ),
 		);

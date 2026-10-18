@@ -32,7 +32,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Product_Specs_Values {
 
 	/**
-	 * Guide meta: item key => term ID.
+	 * Guide meta: item key => term IDs (one, or several for a multi-value
+	 * spec; a single ID from before still reads).
 	 *
 	 * @var string
 	 */
@@ -60,10 +61,10 @@ final class Product_Specs_Values {
 				continue;
 			}
 
-			$raw  = (string) $values[ $item['key'] ];
-			$term = Product_Specs_Taxonomy::term_for( $item, $raw );
-			if ( $term > 0 ) {
-				$terms[ $item['key'] ] = $term;
+			$raw = (string) $values[ $item['key'] ];
+			$ids = Product_Specs_Taxonomy::terms_for( $item, $raw );
+			if ( array() !== $ids ) {
+				$terms[ $item['key'] ] = $ids;
 			} elseif ( '' === trim( $raw ) ) {
 				unset( $terms[ $item['key'] ] );
 			} else {
@@ -107,7 +108,7 @@ final class Product_Specs_Values {
 		$values = array();
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
 			$values[ $item['key'] ] = isset( $terms[ $item['key'] ] )
-				? Product_Specs_Taxonomy::value_of( $item, $terms[ $item['key'] ] )
+				? Product_Specs_Taxonomy::value_of_terms( $item, $terms[ $item['key'] ] )
 				: self::clean( get_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ), true ), $item );
 		}
 
@@ -141,15 +142,16 @@ final class Product_Specs_Values {
 	 * A guide's stored term IDs by item key.
 	 *
 	 * @param int $guide_id Size guide ID.
-	 * @return array<string, int>
+	 * @return array<string, list<int>>
 	 */
 	private static function guide_terms( int $guide_id ): array {
 		$raw   = get_post_meta( $guide_id, self::GUIDE_TERMS, true );
 		$terms = array();
-		foreach ( is_array( $raw ) ? $raw : array() as $key => $term ) {
+		foreach ( is_array( $raw ) ? $raw : array() as $key => $ids ) {
 			$key = sanitize_key( (string) $key );
-			if ( '' !== $key && absint( $term ) > 0 ) {
-				$terms[ $key ] = absint( $term );
+			$ids = array_values( array_filter( array_map( 'absint', is_array( $ids ) ? $ids : array( $ids ) ) ) );
+			if ( '' !== $key && array() !== $ids ) {
+				$terms[ $key ] = $ids;
 			}
 		}
 

@@ -97,7 +97,7 @@ final class Product_Specs_Renderer {
 		if ( $details && array() !== $facts ) {
 			$rows = '';
 			foreach ( $facts as $item ) {
-				$rows .= '<div class="aa-product-specs__detail"><dt>' . esc_html( $item['title'] ) . '</dt><dd>' . esc_html( $item['display'] ) . '</dd></div>';
+				$rows .= '<div class="aa-product-specs__detail"><dt>' . esc_html( $item['title'] ) . '</dt><dd>' . Product_Specs::value_html( $item ) . '</dd></div>';
 			}
 			$markup .= '<dl class="aa-product-specs__details">' . $rows . '</dl>';
 		}

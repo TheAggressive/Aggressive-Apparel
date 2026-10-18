@@ -54,7 +54,7 @@ final class Product_Specs_Meta {
 	 *
 	 * @var int
 	 */
-	private const VALUE_MAX = 200;
+	private const VALUE_MAX = 500;
 
 	/**
 	 * Register hooks.

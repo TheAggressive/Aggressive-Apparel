@@ -189,6 +189,22 @@ final class Product_Specs_Settings {
 	public function register_routes(): void {
 		register_rest_route(
 			self::REST_NAMESPACE,
+			self::REST_ROUTE . '/attribute',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_attribute' ),
+				'permission_callback' => array( $this, 'can_manage' ),
+				'args'                => array(
+					'taxonomy' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			self::REST_ROUTE,
 			array(
 				array(
@@ -201,6 +217,32 @@ final class Product_Specs_Settings {
 					'callback'            => array( $this, 'save_registry' ),
 					'permission_callback' => array( $this, 'can_manage' ),
 				),
+			)
+		);
+	}
+
+	/**
+	 * One global attribute for the editor: its label, whether its values
+	 * link to archive pages, and its values with how many products use each
+	 * (so a new spec can link it and pick values before it is saved).
+	 *
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_attribute( \WP_REST_Request $request ) {
+		$taxonomy   = (string) $request->get_param( 'taxonomy' );
+		$attributes = Product_Specs_Taxonomy::attributes();
+		if ( ! isset( $attributes[ $taxonomy ] ) ) {
+			return new \WP_Error( 'aa_product_specs_no_attribute', __( 'That attribute no longer exists.', 'aggressive-apparel' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response(
+			array(
+				'taxonomy' => $taxonomy,
+				'label'    => $attributes[ $taxonomy ],
+				'archives' => Product_Specs_Taxonomy::has_archives( $taxonomy ),
+				'terms'    => Product_Specs_Taxonomy::usage( $taxonomy ),
 			)
 		);
 	}
@@ -275,7 +317,11 @@ final class Product_Specs_Settings {
 		$items    = array();
 		foreach ( $registry['items'] as $item ) {
 			$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
-			$items[]       = $item + array(
+			// WooCommerce's own archive setting, so the editor shows the truth.
+			if ( '' !== $item['taxonomy'] ) {
+				$item['archives'] = Product_Specs_Taxonomy::has_archives( $item['taxonomy'] );
+			}
+			$items[] = $item + array(
 				'terms' => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
 			);
 		}

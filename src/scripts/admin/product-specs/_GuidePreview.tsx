@@ -10,7 +10,7 @@
 
 import { __ } from '@wordpress/i18n';
 import type { SpecItem } from './_types';
-import { stepFor } from './_utils';
+import { splitValues, stepFor } from './_utils';
 import { Scale } from './_Preview';
 
 type Props = {
@@ -38,7 +38,9 @@ export default function GuidePreview({ items, values }: Props) {
           return (
             <p key={item.key} className='aa-ps-guide-preview__row'>
               <strong>{item.name}</strong>
-              <span>{value}</span>
+              <span>
+                {item.multiple ? splitValues(value).join(', ') : value}
+              </span>
             </p>
           );
         }

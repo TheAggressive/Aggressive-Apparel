@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product attribute fallback for spec values.
  *
  * @phpstan-import-type Item from Product_Specs_Registry
- * @phpstan-type AttributeValue array{text: string, label: string, visible: bool, own: bool}
+ * @phpstan-type AttributeValue array{text: string, names: list<string>, label: string, visible: bool, own: bool}
  */
 final class Product_Specs_Attributes {
 
@@ -94,13 +94,15 @@ final class Product_Specs_Attributes {
 				continue;
 			}
 
-			$text = sanitize_text_field( implode( ', ', self::texts( $product, $attribute ) ) );
+			$names = array_values( array_filter( array_map( 'sanitize_text_field', self::texts( $product, $attribute ) ) ) );
+			$text  = implode( ', ', $names );
 			if ( '' === $text ) {
 				continue;
 			}
 
 			$found[ $key ] = array(
 				'text'    => $text,
+				'names'   => $names,
 				'label'   => $label,
 				'visible' => $attribute->get_visible(),
 				'own'     => $own,

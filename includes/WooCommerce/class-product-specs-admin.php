@@ -155,12 +155,14 @@ final class Product_Specs_Admin {
 		// Only fields changed here, so an edit to the same attribute in
 		// WooCommerce's Attributes tab is never undone by an untouched field.
 		// Only specs this form showed (those that apply to the product).
-		$values  = isset( $raw['values'] ) && is_array( $raw['values'] ) ? $raw['values'] : array();
-		$values  = array_intersect_key( $values, array_flip( Product_Specs_Meta::sanitize_keys( $raw['shown'] ?? array() ) ) );
-		$orig    = isset( $raw['orig'] ) && is_array( $raw['orig'] ) ? $raw['orig'] : array();
+		$values = isset( $raw['values'] ) && is_array( $raw['values'] ) ? $raw['values'] : array();
+		$values = array_intersect_key( $values, array_flip( Product_Specs_Meta::sanitize_keys( $raw['shown'] ?? array() ) ) );
+		$orig   = isset( $raw['orig'] ) && is_array( $raw['orig'] ) ? $raw['orig'] : array();
+		// Several picked values arrive as a list; store them as one value.
+		$values  = array_map( array( self::class, 'joined' ), $values );
 		$changed = array_filter(
 			$values,
-			static fn( $value, $key ): bool => is_scalar( $value ) && 0 !== strcmp( (string) $value, (string) ( is_scalar( $orig[ $key ] ?? null ) ? $orig[ $key ] : '' ) ),
+			static fn( string $value, $key ): bool => 0 !== strcmp( $value, self::joined( $orig[ $key ] ?? '' ) ),
 			ARRAY_FILTER_USE_BOTH
 		);
 		$product = wc_get_product( $post_id );
@@ -206,6 +208,23 @@ final class Product_Specs_Admin {
 	}
 
 	/**
+	 * A submitted value as one string: several values joined like
+	 * WooCommerce attribute values ("Mens | Womens"), spacing normalized so
+	 * an untouched field compares equal.
+	 *
+	 * @param mixed $value Submitted value.
+	 */
+	private static function joined( $value ): string {
+		$list = is_array( $value ) ? array_filter( $value, 'is_scalar' ) : ( is_scalar( $value ) ? array( $value ) : array() );
+		$all  = array();
+		foreach ( $list as $part ) {
+			$all = array_merge( $all, Product_Specs_Taxonomy::split( sanitize_text_field( (string) $part ) ) );
+		}
+
+		return implode( ' ' . Product_Specs_Taxonomy::DELIMITER . ' ', array_unique( $all ) );
+	}
+
+	/**
 	 * Load the block stylesheet on the product editor for the preview.
 	 *
 	 * @param string $hook_suffix Admin page hook.
@@ -216,6 +235,56 @@ final class Product_Specs_Admin {
 		}
 
 		wp_enqueue_style( generate_block_asset_handle( 'aggressive-apparel/product-specs', 'style' ) );
+
+		// Text spec fields use WooCommerce's selectWoo, like its Attributes tab.
+		wp_register_script( 'aa-product-specs-fields', false, array( 'jquery', 'selectWoo' ), AGGRESSIVE_APPAREL_VERSION, true );
+		wp_enqueue_script( 'aa-product-specs-fields' );
+		wp_add_inline_script(
+			'aa-product-specs-fields',
+			<<<'JS'
+			jQuery( function ( $ ) {
+				$( '.aa-specs-terms' ).each( function () {
+					var field = $( this );
+					field.selectWoo( {
+						width: '260px',
+						// New values only for users who may add terms.
+						tags: String( field.data( 'tags' ) ) === '1',
+						allowClear: ! this.multiple,
+						placeholder: String( field.data( 'placeholder' ) || '' ),
+						createTag: function ( params ) {
+							// "|" separates values, so it can't be part of one.
+							var term = $.trim( params.term ).replace( /\|/g, '' );
+							var lower = term.toLowerCase();
+							// Typing an existing value's name picks it, never a copy.
+							var exists = field.find( 'option' ).filter( function () {
+								return this.value.toLowerCase() === lower;
+							} ).length;
+							return term && ! exists ? { id: term, text: term } : null;
+						},
+						// Existing matches first, so Enter picks one; a new value last.
+						insertTag: function ( data, tag ) {
+							data.push( tag );
+						},
+					} );
+					// selectWoo's multi-select search stops Enter before its own
+					// document handler can pick the highlighted result, so pick
+					// it here, ahead of that (capture phase).
+					var select2 = field.data( 'select2' );
+					if ( this.multiple && select2 ) {
+						select2.$container[ 0 ].addEventListener(
+							'keydown',
+							function ( event ) {
+								if ( 'Enter' === event.key && select2.isOpen() ) {
+									select2.trigger( 'results:select', {} );
+								}
+							},
+							true
+						);
+					}
+				} );
+			} );
+			JS
+		);
 	}
 
 	/**

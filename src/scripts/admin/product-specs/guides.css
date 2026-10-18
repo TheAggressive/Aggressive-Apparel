@@ -319,6 +319,69 @@
 	align-items: start;
 }
 
+.aa-ps-quick-add__matches,
+.aa-ps-quick-add__options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	align-items: center;
+}
+
+.aa-ps-quick-add__options .components-base-control__field {
+	margin: 0;
+}
+
+.aa-ps-quick-add__linked {
+	margin: 0;
+}
+
+.aa-ps-picker__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.aa-ps-chip {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+	min-height: 28px;
+	margin: 0;
+	padding: 2px 10px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 14px;
+	background: #fff;
+	color: #1e1e1e;
+	font: inherit;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.aa-ps-chip:hover {
+	border-color: var(--aa-ps-accent);
+	color: var(--aa-ps-accent);
+}
+
+.aa-ps-chip:focus-visible {
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: 1px;
+}
+
+.aa-ps-chip__count {
+	color: var(--aa-ps-muted);
+}
+
+/* The spec's name sits beside the field, so its own label is for screen
+   readers only. */
+.aa-ps-picker--tokens .components-form-token-field__label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
 .aa-ps-quick-add__value {
 	display: flex;
 	flex-direction: column;

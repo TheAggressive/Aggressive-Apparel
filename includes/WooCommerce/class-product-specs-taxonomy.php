@@ -38,6 +38,21 @@ final class Product_Specs_Taxonomy {
 	private const SLUG_MAX = 28;
 
 	/**
+	 * Separator between several values of one spec, as WooCommerce uses for
+	 * attribute values ("Mens | Womens").
+	 *
+	 * @var string
+	 */
+	public const DELIMITER = '|';
+
+	/**
+	 * Whether each attribute taxonomy has archives, for this request.
+	 *
+	 * @var array<string, bool>
+	 */
+	private static array $archives = array();
+
+	/**
 	 * Term names per taxonomy, for this request.
 	 *
 	 * @var array<string, list<string>>
@@ -112,6 +127,7 @@ final class Product_Specs_Taxonomy {
 	public static function connect_all( array $items ): array {
 		$errors = array();
 		$used   = array();
+		$before = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
 		foreach ( $items as $i => $item ) {
 			$taken     = array_values( array_diff( array_filter( array_column( $items, 'taxonomy' ) ), array( $item['taxonomy'] ) ) );
 			$connected = self::connect( $item, array_merge( $taken, array_keys( $used ) ) );
@@ -125,6 +141,7 @@ final class Product_Specs_Taxonomy {
 				continue;
 			}
 
+			$connected['archives']          = self::sync_archives( $connected, $before[ $item['key'] ] ?? null );
 			$connected['default_term']      = self::term_for( $connected, $connected['default'] );
 			$used[ $connected['taxonomy'] ] = true;
 			$items[ $i ]                    = $connected;
@@ -134,6 +151,158 @@ final class Product_Specs_Taxonomy {
 			'items'  => $items,
 			'errors' => $errors,
 		);
+	}
+
+	/**
+	 * The archive setting an item ends up with. WooCommerce's own "Enable
+	 * archives" on the attribute is the truth: it changes only when the
+	 * editor toggled it for a spec already on that attribute, or asked for
+	 * archives on a newly linked one; otherwise the item follows it, so
+	 * linking a spec to "Collection" never turns its archives off.
+	 *
+	 * @param array      $item     Connected item.
+	 * @param array|null $previous The item as saved before, if any.
+	 * @phpstan-param Item $item
+	 * @phpstan-param Item|null $previous
+	 */
+	private static function sync_archives( array $item, ?array $previous ): bool {
+		$actual  = self::has_archives( $item['taxonomy'] );
+		$toggled = null !== $previous && $previous['taxonomy'] === $item['taxonomy']
+			? $item['archives'] !== $previous['archives']
+			: $item['archives'];
+		if ( $toggled && $item['archives'] !== $actual ) {
+			self::set_archives( $item['taxonomy'], $item['archives'] );
+
+			return $item['archives'];
+		}
+
+		return $actual;
+	}
+
+	/**
+	 * Whether an attribute has archives (its values link to archive pages).
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 */
+	public static function has_archives( string $taxonomy ): bool {
+		if ( ! isset( self::$archives[ $taxonomy ] ) ) {
+			$id        = '' !== $taxonomy && function_exists( 'wc_attribute_taxonomy_id_by_name' ) ? wc_attribute_taxonomy_id_by_name( $taxonomy ) : 0;
+			$attribute = $id > 0 ? wc_get_attribute( $id ) : null;
+
+			self::$archives[ $taxonomy ] = is_object( $attribute ) && ! empty( $attribute->has_archives );
+		}
+
+		return self::$archives[ $taxonomy ];
+	}
+
+	/**
+	 * Turn an attribute's archives on or off, keeping its other settings.
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 * @param bool   $on       Archives on.
+	 */
+	private static function set_archives( string $taxonomy, bool $on ): void {
+		$id        = wc_attribute_taxonomy_id_by_name( $taxonomy );
+		$attribute = $id > 0 ? wc_get_attribute( $id ) : null;
+		if ( ! is_object( $attribute ) ) {
+			return;
+		}
+
+		wc_update_attribute(
+			$id,
+			array(
+				'name'         => $attribute->name,
+				'slug'         => substr( $taxonomy, 3 ),
+				'type'         => $attribute->type,
+				'order_by'     => $attribute->order_by,
+				'has_archives' => $on,
+			)
+		);
+		self::$archives[ $taxonomy ] = $on;
+	}
+
+	/**
+	 * Values in one raw value: several for a multi-value spec ("Mens |
+	 * Womens"), else the one.
+	 *
+	 * @param string $raw Raw value.
+	 * @return list<string>
+	 */
+	public static function split( string $raw ): array {
+		return array_values( array_unique( array_filter( array_map( 'trim', explode( self::DELIMITER, $raw ) ), static fn( string $name ): bool => '' !== $name ) ) );
+	}
+
+	/**
+	 * Terms for a value: each of several for a multi-value spec, else the
+	 * one (term_for). Values with no term (that may not get one) are left out.
+	 *
+	 * @param array  $item   Item.
+	 * @param string $raw    Value.
+	 * @param bool   $create Add terms that don't exist yet.
+	 * @phpstan-param Item $item
+	 * @return list<int>
+	 */
+	public static function terms_for( array $item, string $raw, bool $create = true ): array {
+		if ( ! $item['multiple'] ) {
+			$term = self::term_for( $item, $raw, $create );
+
+			return $term > 0 ? array( $term ) : array();
+		}
+
+		$ids = array();
+		foreach ( self::split( Product_Specs_Meta::sanitize_value( $raw ) ) as $name ) {
+			$id = self::term_for( $item, $name, $create );
+			if ( $id > 0 ) {
+				$ids[] = $id;
+			}
+		}
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * The value terms stand for: their names joined for a multi-value spec,
+	 * else the first term's value.
+	 *
+	 * @param array $item Item.
+	 * @param array $ids  Term IDs.
+	 * @phpstan-param Item $item
+	 * @phpstan-param list<int> $ids
+	 */
+	public static function value_of_terms( array $item, array $ids ): string {
+		if ( ! $item['multiple'] ) {
+			return array() !== $ids ? self::value_of( $item, $ids[0] ) : '';
+		}
+
+		return implode( ' ' . self::DELIMITER . ' ', array_filter( array_map( static fn( int $id ): string => self::value_of( $item, $id ), $ids ) ) );
+	}
+
+	/**
+	 * Values with the archive page each links to ('' when the attribute has
+	 * no archives or the value isn't a term).
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 * @param array  $names    Value names.
+	 * @phpstan-param list<string> $names
+	 * @return list<array{name: string, url: string}>
+	 */
+	public static function links( string $taxonomy, array $names ): array {
+		$public = self::has_archives( $taxonomy );
+		$links  = array();
+		foreach ( $names as $name ) {
+			$url  = '';
+			$term = $public ? get_term_by( 'name', $name, $taxonomy ) : false;
+			if ( $term instanceof \WP_Term ) {
+				$link = get_term_link( $term );
+				$url  = is_string( $link ) ? $link : '';
+			}
+			$links[] = array(
+				'name' => $name,
+				'url'  => $url,
+			);
+		}
+
+		return $links;
 	}
 
 	/**
@@ -326,10 +495,12 @@ final class Product_Specs_Taxonomy {
 	}
 
 	/**
-	 * Forget memoized term names (after terms change, and in tests).
+	 * Forget memoized term names and archive flags (after changes, and in
+	 * tests).
 	 */
 	public static function flush(): void {
-		self::$names = array();
+		self::$names    = array();
+		self::$archives = array();
 	}
 
 	/**
@@ -404,7 +575,7 @@ final class Product_Specs_Taxonomy {
 				'slug'         => $slug,
 				'type'         => 'select',
 				'order_by'     => 'menu_order',
-				'has_archives' => false,
+				'has_archives' => $item['archives'],
 			)
 		);
 		if ( is_wp_error( $id ) ) {

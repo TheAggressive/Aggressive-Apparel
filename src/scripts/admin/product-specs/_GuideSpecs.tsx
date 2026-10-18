@@ -22,7 +22,7 @@ import { Button, Notice } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
-import { newItem, specKey } from './_utils';
+import { newItem, specKey, splitValues } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
@@ -62,7 +62,7 @@ function describe(item: SpecItem, value: string): string {
   if (item.type === 'number') {
     return `${value} ${item.unit}`.trim();
   }
-  return value;
+  return item.multiple ? splitValues(value).join(', ') : value;
 }
 
 export default function GuideSpecs({
@@ -336,7 +336,19 @@ export default function GuideSpecs({
             })}
 
             {adding ? (
-              <QuickAdd onAdd={add} onCancel={() => setAdding(false)} />
+              <QuickAdd
+                taxonomies={Object.fromEntries(
+                  Object.entries(taxonomies).filter(
+                    ([taxonomy]) =>
+                      ![...items, ...own].some(
+                        other => other.taxonomy === taxonomy
+                      )
+                  )
+                )}
+                attributePath={`${config.restPath}/attribute`}
+                onAdd={add}
+                onCancel={() => setAdding(false)}
+              />
             ) : (
               <div className='aa-ps-add'>
                 <Button

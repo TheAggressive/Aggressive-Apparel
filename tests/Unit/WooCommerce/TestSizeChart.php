@@ -347,6 +347,10 @@ class TestSizeChart extends WP_UnitTestCase {
 						),
 					),
 					'notes'      => 'Measure flat.',
+					'specs'      => array(
+						'fabric' => '100% cotton',
+						'fit'    => '9',
+					),
 					'categories' => array( $term ),
 					'isDefault'  => true,
 				)
@@ -357,11 +361,14 @@ class TestSizeChart extends WP_UnitTestCase {
 		$this->assertSame( 'Pullover Hoodie', $created['title'] );
 		$this->assertSame( 'cm', $created['chart']['unit'] );
 		$this->assertSame( array( $term ), $created['categories'] );
+		$this->assertSame( '100% cotton', $created['specs']['fabric'] );
+		$this->assertSame( '', $created['specs']['fit'], 'Out-of-range steps are dropped.' );
 		$this->assertTrue( Size_Guide_Assignments::is_default( $id ) );
 
 		$copy = $rest->duplicate( $this->request( 'POST', array(), $id ) )->get_data();
 		$this->assertSame( 'Pullover Hoodie (copy)', $copy['title'] );
 		$this->assertSame( '112', $copy['chart']['rows'][0]['values'][0] );
+		$this->assertSame( '100% cotton', $copy['specs']['fabric'], 'A copy keeps its specs.' );
 		$this->assertSame( array(), $copy['categories'], 'A copy does not take over assignments.' );
 
 		$rest->trash( $this->request( 'DELETE', array(), $id ) );

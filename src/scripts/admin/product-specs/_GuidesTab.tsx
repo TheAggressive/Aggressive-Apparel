@@ -12,11 +12,13 @@ import { useState } from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideSummary, Usage } from './_types';
+import type { Config, GuideSummary, SpecItem, Usage } from './_types';
 import GuideEditor from './_GuideEditor';
 
 type Props = {
   config: Config;
+  /** Saved spec items, for the guide's Specs section. */
+  items: SpecItem[];
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
   onDirty: (dirty: boolean) => void;
@@ -54,6 +56,7 @@ function usageText(usage: Usage): string {
 
 export default function GuidesTab({
   config,
+  items,
   guides,
   onGuides,
   onDirty,
@@ -82,6 +85,7 @@ export default function GuidesTab({
       <GuideEditor
         key={String(open)}
         config={config}
+        items={items}
         guideId={open}
         onDirty={onDirty}
         onOpen={id => {

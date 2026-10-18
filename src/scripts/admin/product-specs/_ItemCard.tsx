@@ -507,7 +507,7 @@ export default function ItemCard({
           <Section
             title={__('Where the value comes from', 'aggressive-apparel')}
             help={__(
-              'A product’s own value first, then a product attribute with one of these names, then the default below.',
+              'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
               'aggressive-apparel'
             )}
           >
@@ -544,7 +544,7 @@ export default function ItemCard({
             {unmatched && (
               <p className='aa-ps-help aa-ps-help--notice'>
                 {__(
-                  'None of your products use these attributes yet, so values come from each product or the default below. If you renamed an attribute, update the names here.',
+                  'None of your products use these attributes yet, so values come from each product, its size guide, or the default below. If you renamed an attribute, update the names here.',
                   'aggressive-apparel'
                 )}
               </p>
@@ -563,7 +563,7 @@ export default function ItemCard({
               />
               <p className='aa-ps-help'>
                 {__(
-                  'Every product this spec applies to shows it, unless the product sets its own value or has a matching attribute. Leave empty for none.',
+                  'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
                   'aggressive-apparel'
                 )}
               </p>

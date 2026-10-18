@@ -2,7 +2,7 @@
  * Product Specs settings — one size guide.
  *
  * Everything about a garment blank in one form: its name, size chart, notes
- * and measuring diagram, and where it applies. One save writes it all
+ * and measuring diagram, specs, and where it applies. One save writes it all
  * (Size_Guide_Rest).
  *
  * @package Aggressive_Apparel
@@ -20,10 +20,11 @@ import {
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { Config, GuideDetail } from './_types';
+import type { Config, GuideDetail, SpecItem } from './_types';
 import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
+import GuideSpecs from './_GuideSpecs';
 
 type Attachment = {
   id: number;
@@ -41,6 +42,8 @@ type MediaFrame = {
 
 type Props = {
   config: Config;
+  /** Saved spec items (the Specs tab's last save). */
+  items: SpecItem[];
   guideId: number | 'new';
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
@@ -55,6 +58,7 @@ function blank(): GuideDetail {
     chart: templates()[0].chart,
     notes: '',
     diagram: null,
+    specs: {},
     categories: [],
     isDefault: false,
     usage: { global: false, categories: [], products: 0 },
@@ -65,6 +69,7 @@ function blank(): GuideDetail {
 
 export default function GuideEditor({
   config,
+  items,
   guideId,
   onClose,
   onOpen,
@@ -142,6 +147,7 @@ export default function GuideEditor({
           chart: guide.chart,
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
+          specs: guide.specs,
           categories: guide.categories,
           isDefault: guide.isDefault,
         },
@@ -460,6 +466,12 @@ export default function GuideEditor({
           </div>
         </div>
       </section>
+
+      <GuideSpecs
+        items={items}
+        values={guide.specs}
+        onChange={specs => update({ specs })}
+      />
 
       <section className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>

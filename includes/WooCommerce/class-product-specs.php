@@ -5,7 +5,8 @@
  * Resolves every spec item (Products → Size Guides → Specs) for one product. Each value
  * falls back independently:
  *
- *   the product's own Specs fields → its attributes → the spec's default
+ *   the product's own Specs fields → its attributes → its size guide's
+ *   specs → the spec's default
  *
  * Items apply only to the categories they are scoped to (children included);
  * number scales can use different boundaries per category. A product can
@@ -31,6 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Wording array<string, array<string, string>>
+ * @phpstan-type GuideValues array{values: array<string, string>, label: string}
  * @phpstan-type Value array{step: int, number: float, text: string, source: string, label: string}
  * @phpstan-type ResolvedItem array{key: string, type: string, title: string, steps: list<string>, start: string, mid: string, end: string, centered: bool, unit: string, thresholds: list<float>, step: int, number: float, text: string, display: string, advice: string, source: string, label: string, own: string, inherited: Value, hidden: bool, in_table: bool, attribute_visible: bool}
  * @phpstan-type Resolved array{items: list<ResolvedItem>}
@@ -50,6 +52,13 @@ final class Product_Specs {
 	 * @var string
 	 */
 	public const SOURCE_ATTRIBUTE = 'attribute';
+
+	/**
+	 * Source: the product's size guide (Size_Guide::resolved()).
+	 *
+	 * @var string
+	 */
+	public const SOURCE_GUIDE = 'guide';
 
 	/**
 	 * Source: the spec's store-wide default.
@@ -169,13 +178,38 @@ final class Product_Specs {
 		// Nearest category first: a product's own categories, then ancestors.
 		$category_order = array_values( array_unique( $scope_ids ) );
 		$wording        = self::sanitize_wording( get_post_meta( $product_id, Product_Specs_Meta::WORDING, true ) );
+		$guide          = self::guide_values( $product_id );
 
 		$resolved = array();
 		foreach ( $items as $item ) {
-			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $hidden, $wording, $category_order );
+			$resolved[] = self::resolve_item( $item, $product_id, $attrs, $guide, $hidden, $wording, $category_order );
 		}
 
 		return array( 'items' => $resolved );
+	}
+
+	/**
+	 * Spec values stored on the size guide a product shows (the same guide
+	 * its size guide dialog opens), with the guide's name as their label.
+	 *
+	 * @param int $product_id Product ID.
+	 * @return GuideValues
+	 */
+	private static function guide_values( int $product_id ): array {
+		$guide_id = Size_Guide::resolved( $product_id )['id'];
+		if ( $guide_id <= 0 ) {
+			return array(
+				'values' => array(),
+				'label'  => '',
+			);
+		}
+
+		$guide = get_post( $guide_id );
+
+		return array(
+			'values' => Product_Specs_Values::stored( $guide_id ),
+			'label'  => $guide instanceof \WP_Post ? $guide->post_title : '',
+		);
 	}
 
 	/**
@@ -234,17 +268,19 @@ final class Product_Specs {
 	 * @param array $item       Item.
 	 * @param int   $product_id Product ID.
 	 * @param array $attrs      Attribute values by item key.
+	 * @param array $guide      The product's size guide values.
 	 * @param array $hidden     Item keys hidden on the product.
 	 * @param array $wording    The product's wording overrides.
 	 * @param array $categories Product categories, nearest first.
 	 * @phpstan-param Item $item
 	 * @phpstan-param list<string> $hidden
 	 * @phpstan-param array<string, array{text: string, label: string, visible: bool}> $attrs
+	 * @phpstan-param GuideValues $guide
 	 * @phpstan-param Wording $wording
 	 * @phpstan-param list<int> $categories
 	 * @return ResolvedItem
 	 */
-	private static function resolve_item( array $item, int $product_id, array $attrs, array $hidden, array $wording, array $categories ): array {
+	private static function resolve_item( array $item, int $product_id, array $attrs, array $guide, array $hidden, array $wording, array $categories ): array {
 		$key   = $item['key'];
 		$steps = array();
 		foreach ( $item['steps'] as $i => $name ) {
@@ -267,6 +303,10 @@ final class Product_Specs {
 		if ( isset( $attrs[ $key ] ) ) {
 			$inherited          = self::read( $item, $attrs[ $key ]['text'], $boundaries, self::SOURCE_ATTRIBUTE );
 			$inherited['label'] = $attrs[ $key ]['label'];
+		}
+		if ( ! self::has_value( $item, $inherited ) ) {
+			$inherited          = self::read( $item, $guide['values'][ $key ] ?? '', $boundaries, self::SOURCE_GUIDE );
+			$inherited['label'] = $guide['label'];
 		}
 		if ( ! self::has_value( $item, $inherited ) ) {
 			$inherited = self::read( $item, $item['default'], $boundaries, self::SOURCE_DEFAULT );

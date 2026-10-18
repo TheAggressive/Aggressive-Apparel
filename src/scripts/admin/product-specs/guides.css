@@ -109,6 +109,18 @@
 	background: #fff;
 }
 
+.aa-ps-guide__specs {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.aa-ps-guide__spec {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
 .aa-ps-guide__section h2 {
 	margin: 0;
 	font-size: 14px;

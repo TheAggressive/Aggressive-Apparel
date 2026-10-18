@@ -3,11 +3,14 @@
  *
  * Products using the guide show these unless they set their own value or
  * have a matching attribute; an empty field falls back to the spec default
- * (Product_Specs::resolve_item).
+ * (Product_Specs::resolve_item). Products only use a guide that has something
+ * to show in its dialog (Size_Guide::resolved), so a guide without a chart
+ * warns that its specs won't apply yet.
  *
  * @package Aggressive_Apparel
  */
 
+import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import type { SpecItem } from './_types';
 import SpecInput from './_SpecInput';
@@ -15,6 +18,8 @@ import SpecInput from './_SpecInput';
 type Props = {
   items: SpecItem[];
   values: Record<string, string>;
+  /** Whether products can use the guide (it has a chart or old content). */
+  usable: boolean;
   onChange: (values: Record<string, string>) => void;
 };
 
@@ -32,8 +37,9 @@ function describeDefault(item: SpecItem): string {
   return item.default;
 }
 
-export default function GuideSpecs({ items, values, onChange }: Props) {
+export default function GuideSpecs({ items, values, usable, onChange }: Props) {
   const specs = items.filter(item => item.enabled);
+  const hasValues = specs.some(item => (values[item.key] ?? '') !== '');
 
   return (
     <section className='aa-ps-guide__section'>
@@ -44,6 +50,14 @@ export default function GuideSpecs({ items, values, onChange }: Props) {
           'aggressive-apparel'
         )}
       </p>
+      {!usable && hasValues && (
+        <Notice status='warning' isDismissible={false}>
+          {__(
+            'Products won’t use this guide until its size chart has at least one size, so these specs won’t show yet.',
+            'aggressive-apparel'
+          )}
+        </Notice>
+      )}
       {specs.length === 0 ? (
         <p className='aa-ps-help'>
           {__('No specs yet. Add them on the Specs tab.', 'aggressive-apparel')}

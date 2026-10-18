@@ -470,6 +470,12 @@ export default function GuideEditor({
       <GuideSpecs
         items={items}
         values={guide.specs}
+        // Mirrors Size_Chart::sanitize (a row needs a size) and
+        // Size_Guide::guide_content (old free-form content also counts).
+        usable={
+          guide.legacyHtml !== '' ||
+          guide.chart.rows.some(row => row.size.trim() !== '')
+        }
         onChange={specs => update({ specs })}
       />
 

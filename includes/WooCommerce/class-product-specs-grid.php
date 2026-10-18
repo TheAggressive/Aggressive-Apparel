@@ -171,6 +171,8 @@ final class Product_Specs_Grid {
 				++$skipped;
 				continue;
 			}
+			// Only specs that apply to this product, as the grid shows them.
+			$values = array_intersect_key( $values, array_flip( array_column( Product_Specs::for_product( $product_id )['items'], 'key' ) ) );
 			// Values that couldn't be stored are counted, so the grid never
 			// reports them as saved.
 			$failed += count( Product_Specs_Product_Writer::save( $product, $values )['failed'] );

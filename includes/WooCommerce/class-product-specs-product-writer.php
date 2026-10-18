@@ -31,17 +31,24 @@ final class Product_Specs_Product_Writer {
 	 * Set or clear spec values on a product.
 	 *
 	 * Only what is written changes: a value that can't be stored (its spec
-	 * has no attribute, or the value isn't usable) is reported in `failed`
-	 * and leaves everything as it was, including any value saved before
-	 * specs were attributes.
+	 * has no attribute, the value isn't usable, or it would need a new term
+	 * the caller may not add) is reported in `failed` and leaves everything
+	 * as it was, including any value saved before specs were attributes.
+	 *
+	 * Adding terms and attributes is catalog management: callers pass
+	 * $create false for users without `manage_product_terms`, who can then
+	 * pick existing values only.
 	 *
 	 * @param \WC_Product          $product      Product.
 	 * @param array<string, mixed> $values       Item key => value (step index, number, or text); '' clears it.
 	 * @param bool                 $only_missing Only add values the product does not have yet (Apply, migration).
+	 * @param bool                 $create       May add new terms, and connect specs to (new) attributes.
 	 * @return WriteResult Values changed; values kept because the product had its own; keys skipped because they drive variations; keys that couldn't be stored; keys written or cleared.
 	 */
-	public static function save( \WC_Product $product, array $values, bool $only_missing = false ): array {
-		Product_Specs_Registry::ensure_connected();
+	public static function save( \WC_Product $product, array $values, bool $only_missing = false, bool $create = true ): array {
+		if ( $create ) {
+			Product_Specs_Registry::ensure_connected();
+		}
 		$items      = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
 		$attributes = $product->get_attributes();
 		$result     = array(
@@ -75,7 +82,7 @@ final class Product_Specs_Product_Writer {
 			}
 
 			$raw  = (string) $raw;
-			$term = Product_Specs_Taxonomy::term_for( $item, $raw );
+			$term = Product_Specs_Taxonomy::term_for( $item, $raw, $create );
 			if ( 0 === $term ) {
 				// Only an empty value clears; an unusable one changes nothing.
 				if ( '' !== trim( $raw ) ) {

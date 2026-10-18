@@ -190,13 +190,15 @@ final class Product_Specs_Taxonomy {
 
 	/**
 	 * The term for a value (a step index, a number, or text), created when
-	 * new; 0 for an empty or unusable value.
+	 * new and $create allows it; 0 for an empty, unusable, or (without
+	 * $create) unknown value.
 	 *
-	 * @param array  $item Item.
-	 * @param string $raw  Value.
+	 * @param array  $item   Item.
+	 * @param string $raw    Value.
+	 * @param bool   $create Add the term when it doesn't exist yet.
 	 * @phpstan-param Item $item
 	 */
-	public static function term_for( array $item, string $raw ): int {
+	public static function term_for( array $item, string $raw, bool $create = true ): int {
 		$raw = Product_Specs_Meta::sanitize_value( $raw );
 		if ( '' === $raw || '' === $item['taxonomy'] ) {
 			return 0;
@@ -217,7 +219,7 @@ final class Product_Specs_Taxonomy {
 			$raw = trim( ( floor( $number ) === $number ? (string) (int) $number : (string) round( $number, 1 ) ) . ' ' . $item['unit'] );
 		}
 
-		return self::term_id( $item['taxonomy'], $raw );
+		return self::term_id( $item['taxonomy'], $raw, $create );
 	}
 
 	/**
@@ -468,12 +470,14 @@ final class Product_Specs_Taxonomy {
 	}
 
 	/**
-	 * A term by name in a taxonomy, added when missing; 0 on failure.
+	 * A term by name in a taxonomy, added when missing (if $create); 0 when
+	 * there is none.
 	 *
 	 * @param string $taxonomy Taxonomy.
 	 * @param string $name     Term name.
+	 * @param bool   $create   Add the term when it doesn't exist yet.
 	 */
-	private static function term_id( string $taxonomy, string $name ): int {
+	private static function term_id( string $taxonomy, string $name, bool $create = true ): int {
 		if ( '' === $name || ! taxonomy_exists( $taxonomy ) ) {
 			return 0;
 		}
@@ -481,6 +485,9 @@ final class Product_Specs_Taxonomy {
 		$term = get_term_by( 'name', $name, $taxonomy );
 		if ( $term instanceof \WP_Term ) {
 			return $term->term_id;
+		}
+		if ( ! $create ) {
+			return 0;
 		}
 
 		$created = wp_insert_term( $name, $taxonomy );

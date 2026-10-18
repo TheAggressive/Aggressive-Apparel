@@ -154,7 +154,9 @@ final class Product_Specs_Admin {
 
 		// Only fields changed here, so an edit to the same attribute in
 		// WooCommerce's Attributes tab is never undone by an untouched field.
+		// Only specs this form showed (those that apply to the product).
 		$values  = isset( $raw['values'] ) && is_array( $raw['values'] ) ? $raw['values'] : array();
+		$values  = array_intersect_key( $values, array_flip( Product_Specs_Meta::sanitize_keys( $raw['shown'] ?? array() ) ) );
 		$orig    = isset( $raw['orig'] ) && is_array( $raw['orig'] ) ? $raw['orig'] : array();
 		$changed = array_filter(
 			$values,
@@ -163,12 +165,17 @@ final class Product_Specs_Admin {
 		);
 		$product = wc_get_product( $post_id );
 		if ( array() !== $changed && $product instanceof \WC_Product ) {
-			$failed = Product_Specs_Product_Writer::save( $product, $changed )['failed'];
+			// New values become catalog terms, so they need term management.
+			$create = current_user_can( 'manage_product_terms' );
+			$failed = Product_Specs_Product_Writer::save( $product, $changed, false, $create )['failed'];
 			if ( array() !== $failed && class_exists( '\WC_Admin_Meta_Boxes' ) ) {
 				\WC_Admin_Meta_Boxes::add_error(
 					sprintf(
-						/* translators: %s: comma-separated spec keys. */
-						__( 'Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs.', 'aggressive-apparel' ),
+						$create
+							/* translators: %s: comma-separated spec keys. */
+							? __( 'Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs.', 'aggressive-apparel' )
+							/* translators: %s: comma-separated spec keys. */
+							: __( 'Some spec values could not be saved (%s). You can pick existing values only; ask a store manager to add new ones.', 'aggressive-apparel' ),
 						implode( ', ', $failed )
 					)
 				);

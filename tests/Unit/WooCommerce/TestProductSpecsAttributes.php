@@ -350,6 +350,44 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$this->assertNotContains( $elsewhere, Size_Guide_Apply::candidates( $guide ) );
 	}
 
+	/** Without term management, existing values save but no term is added. */
+	public function test_writer_without_create_picks_existing_terms_only(): void {
+		$this->save_defaults( array( 'fabric' => 'Cotton' ) );
+		$fabric  = $this->items()['fabric']['taxonomy'];
+		$product = wc_get_product( $this->product( 0 ) );
+
+		$result = Product_Specs_Product_Writer::save( $product, array( 'fabric' => 'Velvet' ), false, false );
+		$this->assertSame( array( 'fabric' ), $result['failed'] );
+		$this->assertFalse( get_term_by( 'name', 'Velvet', $fabric ), 'No term added.' );
+
+		$result = Product_Specs_Product_Writer::save( wc_get_product( $product->get_id() ), array( 'fabric' => 'Cotton' ), false, false );
+		$this->assertSame( array( 'fabric' ), $result['written'] );
+		$this->assertSame( array( 'Cotton' ), wc_get_product_terms( $product->get_id(), $fabric, array( 'fields' => 'names' ) ) );
+	}
+
+	/** The grid writes only specs that apply to the product. */
+	public function test_grid_ignores_specs_that_do_not_apply(): void {
+		$this->save_defaults( array() );
+		$other = $this->guide();
+		Size_Guide_Spec_Items::save(
+			$other,
+			array(
+				array(
+					'name' => 'Closure',
+					'type' => 'text',
+				),
+			)
+		);
+		$product = $this->product( $this->guide() );
+
+		$request = new \WP_REST_Request( 'POST' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( array( 'products' => array( $product => array( 'closure' => 'Brass' ) ) ) ) );
+		( new \Aggressive_Apparel\WooCommerce\Product_Specs_Grid() )->save_products( $request );
+
+		$this->assertArrayNotHasKey( $this->items()['closure']['taxonomy'], wc_get_product( $product )->get_attributes(), 'Another guide’s spec is not written.' );
+	}
+
 	/**
 	 * Registry items by key.
 	 *

@@ -69,6 +69,8 @@ export type GuideDetail = {
   chart: Chart;
   notes: string;
   diagram: { id: number; url: string } | null;
+  /** Spec values products using the guide inherit (item key => value). */
+  specs: Record<string, string>;
   categories: number[];
   isDefault: boolean;
   usage: Usage;

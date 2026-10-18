@@ -165,6 +165,35 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertSame( Product_Specs::SOURCE_ATTRIBUTE, $items['fabric']['source'] );
 	}
 
+	/** A size guide's specs beat the default and lose to attributes and the product. */
+	public function test_size_guide_specs_sit_between_attributes_and_default(): void {
+		$this->save_defaults(
+			array(
+				'fit'    => '2',
+				'weight' => '142',
+			)
+		);
+		$product_id = $this->create_product( array( 'Fabric' => 'Linen' ) );
+		$guide_id   = $this->assign_guide( $product_id );
+		update_post_meta( $guide_id, '_aa_spec_fit', '3' );
+		update_post_meta( $guide_id, '_aa_spec_weight', '240' );
+		update_post_meta( $guide_id, '_aa_spec_fabric', '100% cotton' );
+		update_post_meta( $product_id, '_aa_spec_weight', '180' );
+
+		$items = $this->items( $product_id );
+
+		$this->assertSame( 3, $items['fit']['step'] );
+		$this->assertSame( Product_Specs::SOURCE_GUIDE, $items['fit']['source'] );
+		$this->assertSame( 'Jersey Tee', $items['fit']['label'] );
+		$this->assertSame( Product_Specs::SOURCE_PRODUCT, $items['weight']['source'] );
+		$this->assertSame( 240.0, $items['weight']['inherited']['number'], 'The guide is what the product would inherit.' );
+		$this->assertSame( 'Linen', $items['fabric']['display'] );
+		$this->assertSame( Product_Specs::SOURCE_ATTRIBUTE, $items['fabric']['source'] );
+
+		delete_post_meta( $guide_id, '_aa_spec_fit' );
+		$this->assertSame( Product_Specs::SOURCE_DEFAULT, $this->items( $product_id )['fit']['source'], 'An empty guide value falls back to the default.' );
+	}
+
 	/** Attributes supply numbers, text, and matching step names. */
 	public function test_attributes_supply_values(): void {
 		$product_id = $this->create_product(

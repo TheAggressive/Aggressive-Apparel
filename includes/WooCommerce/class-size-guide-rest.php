@@ -4,7 +4,7 @@
  *
  * The routes behind the Size Guides editor (Products → Size Guides): list,
  * read, create, update, duplicate, and trash guides. One save writes the
- * whole guide — chart, notes, diagram, and where it applies.
+ * whole guide — chart, notes, diagram, spec values, and where it applies.
  *
  * @package Aggressive_Apparel
  */
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -267,6 +267,7 @@ final class Size_Guide_Rest {
 				'chart'   => $source['chart'],
 				'notes'   => $source['notes'],
 				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
+				'specs'   => $source['specs'],
 			)
 		);
 
@@ -345,6 +346,7 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
+			'specs'         => Product_Specs_Values::stored( $id ),
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
 			'usage'         => Size_Guide_Assignments::usage( $id ),
@@ -385,6 +387,10 @@ final class Size_Guide_Rest {
 			} else {
 				delete_post_meta( $id, Size_Chart::DIAGRAM );
 			}
+		}
+
+		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
+			Product_Specs_Values::save( $id, $data['specs'] );
 		}
 
 		if ( isset( $data['categories'] ) && is_array( $data['categories'] ) ) {

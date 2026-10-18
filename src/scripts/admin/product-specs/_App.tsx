@@ -387,6 +387,7 @@ export default function App({ config }: { config: Config }) {
         <div hidden={tab !== 'guides'}>
           <GuidesTab
             config={config}
+            items={savedItems}
             guides={guides}
             onGuides={setGuides}
             onDirty={setGuideDirty}

@@ -142,6 +142,10 @@ export default function ItemCard({
   const key = item.key || slugify(item.name);
   const unit = item.unit || __('number', 'aggressive-apparel');
   const unmatched = noAttributeMatches(item.attributes, attributeNames);
+  // Linked only to an attribute the server listed, never to raw field input.
+  const termsTaxonomy = Object.keys(taxonomies ?? {}).find(
+    taxonomy => taxonomy === item.taxonomy
+  );
 
   const setStep = (i: number, value: string) => {
     const steps = [...item.steps];
@@ -576,9 +580,9 @@ export default function ItemCard({
                   }
                   __next40pxDefaultSize
                 />
-                {item.taxonomy && termsUrl && (
+                {termsTaxonomy && termsUrl && (
                   <a
-                    href={termsUrl + encodeURIComponent(item.taxonomy)}
+                    href={termsUrl + encodeURIComponent(termsTaxonomy)}
                     target='_blank'
                     rel='noreferrer'
                   >

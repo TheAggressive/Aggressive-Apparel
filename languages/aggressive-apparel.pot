@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T10:44:56+00:00\n"
+"POT-Creation-Date: 2026-10-18T11:21:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2863,7 +2863,13 @@ msgstr ""
 msgid "Wording for this product only. Empty fields use the wording from Products → Size Guides → Specs, shown in grey."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-grid.php:225
+#. translators: %s: comma-separated spec keys.
+#: includes/WooCommerce/class-product-specs-admin.php:171
+#, php-format
+msgid "Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs."
+msgstr ""
+
+#: includes/WooCommerce/class-product-specs-grid.php:229
 #: includes/WooCommerce/class-size-guide-rest.php:532
 msgid "(no title)"
 msgstr ""
@@ -3071,13 +3077,19 @@ msgstr ""
 msgid "Additional information"
 msgstr ""
 
+#. translators: %s: attribute name.
+#: includes/WooCommerce/class-product-specs-taxonomy.php:83
+#, php-format
+msgid "the “%s” attribute has values that aren’t steps of this scale. Pick another attribute, or let the spec create its own."
+msgstr ""
+
 #. translators: %s: spec name.
-#: includes/WooCommerce/class-product-specs-taxonomy.php:111
+#: includes/WooCommerce/class-product-specs-taxonomy.php:124
 #, php-format
 msgid "“%s” uses the same WooCommerce attribute as another spec."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-taxonomy.php:370
+#: includes/WooCommerce/class-product-specs-taxonomy.php:395
 msgid "WooCommerce is needed to save specs."
 msgstr ""
 

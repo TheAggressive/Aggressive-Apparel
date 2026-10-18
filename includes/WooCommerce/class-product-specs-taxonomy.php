@@ -73,6 +73,19 @@ final class Product_Specs_Taxonomy {
 	 * @return Item|\WP_Error
 	 */
 	public static function connect( array $item, array $taken = array() ) {
+		// An attribute picked in the editor (no step terms yet) must fit too,
+		// or its terms would gain the scale's steps, like "Relaxed" in Size.
+		if ( '' !== $item['taxonomy'] && taxonomy_exists( $item['taxonomy'] ) && array() === $item['step_terms'] && ! self::fits( $item, $item['taxonomy'] ) ) {
+			return new \WP_Error(
+				'aa_specs_attribute_mismatch',
+				sprintf(
+					/* translators: %s: attribute name. */
+					__( 'the “%s” attribute has values that aren’t steps of this scale. Pick another attribute, or let the spec create its own.', 'aggressive-apparel' ),
+					wc_attribute_label( $item['taxonomy'] )
+				)
+			);
+		}
+
 		if ( '' === $item['taxonomy'] || ! taxonomy_exists( $item['taxonomy'] ) ) {
 			$taxonomy = self::find( $item, $taken ) ?? self::create( $item );
 			if ( is_wp_error( $taxonomy ) ) {
@@ -350,12 +363,24 @@ final class Product_Specs_Taxonomy {
 		$base = substr( wc_sanitize_taxonomy_name( '' !== $item['key'] ? $item['key'] : $item['name'] ), 0, self::SLUG_MAX );
 		$slug = $base;
 		$n    = 1;
-		while ( '' === $slug || wc_attribute_taxonomy_id_by_name( $slug ) > 0 || taxonomy_exists( wc_attribute_taxonomy_name( $slug ) ) ) {
+		while ( '' === $slug || self::slug_taken( $slug ) ) {
 			$suffix = '_' . ( ++$n );
 			$slug   = substr( '' !== $base ? $base : 'spec', 0, self::SLUG_MAX - strlen( $suffix ) ) . $suffix;
 		}
 
 		return wc_attribute_taxonomy_name( $slug );
+	}
+
+	/**
+	 * Whether a new attribute can't use a slug: an attribute or taxonomy has
+	 * it, or WooCommerce reserves it ("type", "name", "order"…).
+	 *
+	 * @param string $slug Attribute slug.
+	 */
+	private static function slug_taken( string $slug ): bool {
+		return wc_attribute_taxonomy_id_by_name( $slug ) > 0
+			|| taxonomy_exists( wc_attribute_taxonomy_name( $slug ) )
+			|| ( function_exists( 'wc_check_if_attribute_name_is_reserved' ) && wc_check_if_attribute_name_is_reserved( $slug ) );
 	}
 
 	/**
@@ -407,6 +432,11 @@ final class Product_Specs_Taxonomy {
 	 * Terms for a picked scale's steps, in step order. A step keeps its term
 	 * when renamed; a new step finds or adds one. Terms of removed steps stay.
 	 *
+	 * A step whose name is already a term uses that term, and a term is only
+	 * renamed when no term has the new name and its current name is no other
+	 * step's. So IDs that are out of step with the names (a stale editor)
+	 * are matched by name instead of relabeling products catalog-wide.
+	 *
 	 * @param array $item Item.
 	 * @phpstan-param Item $item
 	 * @return list<int>
@@ -414,12 +444,13 @@ final class Product_Specs_Taxonomy {
 	private static function sync_steps( array $item ): array {
 		$ids = array();
 		foreach ( $item['steps'] as $i => $name ) {
-			$id   = (int) ( $item['step_terms'][ $i ] ?? 0 );
-			$term = $id > 0 ? get_term( $id, $item['taxonomy'] ) : null;
-			if ( $term instanceof \WP_Term ) {
-				if ( $term->name !== $name ) {
-					wp_update_term( $id, $item['taxonomy'], array( 'name' => $name ) );
-				}
+			$id    = (int) ( $item['step_terms'][ $i ] ?? 0 );
+			$term  = $id > 0 ? get_term( $id, $item['taxonomy'] ) : null;
+			$named = get_term_by( 'name', $name, $item['taxonomy'] );
+			if ( $named instanceof \WP_Term ) {
+				$id = $named->term_id;
+			} elseif ( $term instanceof \WP_Term && ! in_array( $term->name, $item['steps'], true ) ) {
+				wp_update_term( $id, $item['taxonomy'], array( 'name' => $name ) );
 			} else {
 				$id = self::term_id( $item['taxonomy'], $name );
 			}

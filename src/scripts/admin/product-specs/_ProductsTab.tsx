@@ -59,7 +59,7 @@ export default function ProductsTab({
   const [bulkValue, setBulkValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{
-    status: 'success' | 'error';
+    status: 'success' | 'warning' | 'error';
     text: string;
   } | null>(null);
   const [reload, setReload] = useState(0);
@@ -155,9 +155,26 @@ export default function ProductsTab({
         path: config.gridPath,
         method: 'POST',
         data: { products: edits },
-      })) as { saved: number; skipped: number };
+      })) as { saved: number; skipped: number; failed: number };
       onSaved();
       setReload(value => value + 1);
+      if (result.failed > 0) {
+        setNotice({
+          status: 'warning',
+          text: sprintf(
+            /* translators: 1: products saved, 2: values not stored. */
+            _n(
+              'Saved %1$d products, but %2$d value couldn’t be stored. Check that spec on the Specs tab.',
+              'Saved %1$d products, but %2$d values couldn’t be stored. Check those specs on the Specs tab.',
+              result.failed,
+              'aggressive-apparel'
+            ),
+            result.saved,
+            result.failed
+          ),
+        });
+        return;
+      }
       setNotice({
         status: 'success',
         text:

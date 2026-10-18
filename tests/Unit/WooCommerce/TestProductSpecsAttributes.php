@@ -232,6 +232,124 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'closure', $saved, 'The guide’s spec survives.' );
 	}
 
+	/** A stale editor's misaligned step terms never relabel other terms. */
+	public function test_removed_step_never_renames_other_terms(): void {
+		$this->save_defaults( array( 'fabric' => 'Cotton' ) );
+		$fit = $this->items()['fit'];
+		[ $snug, $fitted, $regular ] = $fit['step_terms'];
+
+		// "Snug" removed, but the terms list still starts with Snug's term.
+		$fit['steps']      = array_slice( $fit['steps'], 1 );
+		$fit['step_terms'] = array_slice( $fit['step_terms'], 0, 4 );
+		$connected         = Product_Specs_Taxonomy::connect( $fit );
+
+		$this->assertSame( 'Snug', get_term( $snug )->name, 'Not renamed.' );
+		$this->assertSame( array( $fitted, $regular ), array_slice( $connected['step_terms'], 0, 2 ) );
+	}
+
+	/** An unusable value fails without touching the old value; clearing removes it. */
+	public function test_writer_keeps_old_value_when_nothing_is_written(): void {
+		Product_Specs_Registry::ensure_connected();
+		$product = $this->product( 0 );
+		update_post_meta( $product, '_aa_spec_weight', '180' );
+
+		$result = Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'weight' => 'heavy' ) );
+		$this->assertSame( array( 'weight' ), $result['failed'] );
+		$this->assertSame( '180', get_post_meta( $product, '_aa_spec_weight', true ) );
+
+		$result = Product_Specs_Product_Writer::save( wc_get_product( $product ), array( 'weight' => '' ) );
+		$this->assertSame( array( 'weight' ), $result['written'] );
+		$this->assertSame( '', get_post_meta( $product, '_aa_spec_weight', true ) );
+	}
+
+	/** WooCommerce's reserved names get a suffix instead of failing the save. */
+	public function test_reserved_attribute_names_are_avoided(): void {
+		$item = Product_Specs_Registry::validate(
+			array(
+				'items' => array(
+					array(
+						'name' => 'Type',
+						'type' => 'text',
+					),
+				),
+			)
+		)['items'][0];
+
+		$this->assertNotSame( 'pa_type', Product_Specs_Taxonomy::new_taxonomy( $item ) );
+		$this->assertStringStartsWith( 'pa_type_', Product_Specs_Taxonomy::connect( $item )['taxonomy'] );
+	}
+
+	/** A value that can't move stays in theme meta and keeps showing. */
+	public function test_migration_keeps_values_it_cannot_move(): void {
+		$this->save_defaults( array() );
+		Product_Specs_Registry::ensure_connected();
+		$fit     = $this->items()['fit'];
+		$product = $this->product( 0 );
+		$this->set_term( $product, $fit['taxonomy'], get_term( $fit['step_terms'][2] )->name );
+		update_post_meta( $product, '_aa_spec_fit', '3' );
+
+		Product_Specs_Migration::run( false, true );
+
+		$this->assertSame( '3', get_post_meta( $product, '_aa_spec_fit', true ), 'Kept, not deleted.' );
+		$this->assertSame( 3, $this->resolved( $product )['fit']['step'], 'Still shown, as before.' );
+		$this->assertSame( Product_Specs_Migration::VERSION, (int) get_option( Product_Specs_Migration::OPTION ), 'Finished anyway.' );
+	}
+
+	/** A scale can't be switched to an attribute whose terms aren't its steps. */
+	public function test_scale_rejects_an_unfitting_attribute(): void {
+		$this->attribute( 'Size', 'size_test', array( 'S', 'M', 'L' ) );
+		$fit               = Product_Specs_Registry::defaults()[0];
+		$fit['taxonomy']   = 'pa_size_test';
+		$fit['step_terms'] = array();
+
+		$this->assertInstanceOf( \WP_Error::class, Product_Specs_Taxonomy::connect( $fit ) );
+		$this->assertEqualsCanonicalizing( array( 'S', 'M', 'L' ), Product_Specs_Taxonomy::names( 'pa_size_test' ) );
+		$this->assertFalse( get_term_by( 'name', 'Relaxed', 'pa_size_test' ), 'No steps added to it.' );
+	}
+
+	/** Non-Latin attribute slugs survive validation. */
+	public function test_utf8_taxonomy_survives_validation(): void {
+		$item = Product_Specs_Registry::validate(
+			array(
+				'items' => array(
+					array(
+						'name'     => 'Цвет',
+						'key'      => 'tsvet',
+						'type'     => 'text',
+						'taxonomy' => 'pa_цвет',
+					),
+				),
+			)
+		)['items'][0];
+
+		$this->assertSame( 'pa_цвет', $item['taxonomy'] );
+	}
+
+	/** A guide save returns the editor's registry: terms and attributes included. */
+	public function test_guide_save_returns_editor_registry(): void {
+		$request = new \WP_REST_Request( 'POST' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( array( 'title' => 'Bucket Hat' ) ) );
+		$created = ( new \Aggressive_Apparel\WooCommerce\Size_Guide_Rest() )->create( $request )->get_data();
+
+		$this->assertArrayHasKey( 'taxonomies', $created['registry'] );
+		$this->assertArrayHasKey( 'terms', $created['registry']['items'][0] );
+	}
+
+	/** Apply looks only at products that can use the guide. */
+	public function test_apply_candidates_are_the_guides_products(): void {
+		$guide = $this->guide();
+		$term  = self::factory()->term->create( array( 'taxonomy' => 'product_cat' ) );
+		update_term_meta( $term, '_aggressive_apparel_size_guide_id', $guide );
+		$direct   = $this->product( $guide );
+		$in_cat   = $this->product( 0 );
+		$elsewhere = $this->product( 0 );
+		wp_set_object_terms( $in_cat, array( $term ), 'product_cat' );
+
+		$this->assertSame( array( $direct, $in_cat ), Size_Guide_Apply::candidates( $guide ) );
+		$this->assertNotContains( $elsewhere, Size_Guide_Apply::candidates( $guide ) );
+	}
+
 	/**
 	 * Registry items by key.
 	 *

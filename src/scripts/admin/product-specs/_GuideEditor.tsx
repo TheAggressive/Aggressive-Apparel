@@ -64,6 +64,8 @@ type Props = {
   guideId: number | 'new';
   /** A save changed the spec registry. */
   onRegistry: (registry: Registry) => void;
+  /** Global attributes, taxonomy => label. */
+  taxonomies: Record<string, string>;
   onClose: (changed: boolean) => void;
   onOpen: (id: number) => void;
   onCreated: (id: number) => void;
@@ -92,6 +94,7 @@ export default function GuideEditor({
   items,
   guideId,
   onRegistry,
+  taxonomies,
   onClose,
   onOpen,
   onCreated,
@@ -530,6 +533,7 @@ export default function GuideEditor({
 
       <GuideSpecs
         config={config}
+        taxonomies={taxonomies}
         guideId={guide.id}
         items={items}
         own={own}

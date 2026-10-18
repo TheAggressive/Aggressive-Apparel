@@ -179,6 +179,8 @@ export default function ItemCard({
       list.filter((_, n) => n !== Math.max(0, i - 1));
     onChange({
       steps: item.steps.filter((_, n) => n !== i),
+      // Each step's term goes with it, so the rest keep their own terms.
+      step_terms: item.step_terms.filter((_, n) => n !== i),
       advice: item.advice.filter((_, n) => n !== i),
       thresholds: isNumber ? drop(item.thresholds) : item.thresholds,
       category_steps: item.category_steps.map(row => ({
@@ -555,6 +557,11 @@ export default function ItemCard({
                             ),
                           },
                         ]
+                      : []),
+                    // Its own attribute is always listed, so the field never
+                    // shows another attribute as if it were the one in use.
+                    ...(item.taxonomy !== '' && !(item.taxonomy in taxonomies)
+                      ? [{ value: item.taxonomy, label: item.taxonomy }]
                       : []),
                     ...Object.entries(taxonomies).map(([value, label]) => ({
                       value,

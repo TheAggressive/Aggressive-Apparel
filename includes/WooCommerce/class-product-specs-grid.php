@@ -163,6 +163,7 @@ final class Product_Specs_Grid {
 
 		$saved   = 0;
 		$skipped = 0;
+		$failed  = 0;
 		foreach ( array_slice( $products, 0, self::MAX_SAVE, true ) as $product_id => $values ) {
 			$product_id = absint( $product_id );
 			$product    = 'product' === get_post_type( $product_id ) ? wc_get_product( $product_id ) : null;
@@ -170,7 +171,9 @@ final class Product_Specs_Grid {
 				++$skipped;
 				continue;
 			}
-			Product_Specs_Product_Writer::save( $product, $values );
+			// Values that couldn't be stored are counted, so the grid never
+			// reports them as saved.
+			$failed += count( Product_Specs_Product_Writer::save( $product, $values )['failed'] );
 			++$saved;
 		}
 
@@ -178,6 +181,7 @@ final class Product_Specs_Grid {
 			array(
 				'saved'   => $saved,
 				'skipped' => $skipped,
+				'failed'  => $failed,
 			)
 		);
 	}

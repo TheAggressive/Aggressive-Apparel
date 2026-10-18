@@ -20,6 +20,8 @@ type Props = {
   /** Saved spec items, for the guide's Specs section. */
   items: SpecItem[];
   onRegistry: (registry: Registry) => void;
+  /** Global attributes, taxonomy => label. */
+  taxonomies: Record<string, string>;
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
   onDirty: (dirty: boolean) => void;
@@ -59,6 +61,7 @@ export default function GuidesTab({
   config,
   items,
   onRegistry,
+  taxonomies,
   guides,
   onGuides,
   onDirty,
@@ -89,6 +92,7 @@ export default function GuidesTab({
         config={config}
         items={items}
         onRegistry={onRegistry}
+        taxonomies={taxonomies}
         guideId={open}
         onDirty={onDirty}
         onOpen={id => {

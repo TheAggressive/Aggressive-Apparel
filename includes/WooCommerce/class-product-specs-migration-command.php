@@ -63,9 +63,17 @@ final class Product_Specs_Migration_Command {
 			\WP_CLI::error( 'Nothing was moved. Fix the specs above and re-run.' );
 		}
 
+		if ( $report['left'] > 0 ) {
+			\WP_CLI::warning(
+				sprintf(
+					'%d post(s) keep some values in theme meta: the product already has a different value for that attribute, the attribute drives variations, or the value is not usable. They still show as before; re-save them on the product to move them.',
+					$report['left']
+				)
+			);
+		}
 		\WP_CLI::success(
 			sprintf(
-				$dry_run ? '%d post(s) hold old spec values to move.' : '%d post(s) had old spec values moved onto attributes.',
+				$dry_run ? '%d post(s) hold old spec values to move.' : '%d post(s) had old spec values checked and moved where possible.',
 				$report['posts']
 			)
 		);

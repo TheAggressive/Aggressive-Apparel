@@ -14,8 +14,13 @@
  *    is left alone until it first sets a value.
  * 2. Values: product values become product attributes, only where the
  *    product has no value for that attribute yet (never overwriting, never
- *    touching variation attributes); guide values become term IDs. The old
- *    meta is deleted once moved. Runs in Action Scheduler batches.
+ *    touching variation attributes); guide values become term IDs. Old meta
+ *    is deleted only for values that moved. A value that can't move (the
+ *    product already has a different value for the attribute, the attribute
+ *    drives variations, or the value isn't usable) stays where it is, and
+ *    Product_Specs keeps showing it ahead of the attribute, exactly as
+ *    before; re-saving it on the product moves it. Runs in Action Scheduler
+ *    batches, a cursor keeping each batch moving forward.
  *
  * Until it finishes, Product_Specs still reads the old meta, so nothing
  * disappears from the storefront in between. Runs once from the admin, or
@@ -37,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Theme-meta specs → WooCommerce attributes.
  *
  * @phpstan-type Link array{spec: string, attribute: string, status: string}
- * @phpstan-type Report array{links: list<Link>, posts: int, errors: list<string>}
+ * @phpstan-type Report array{links: list<Link>, posts: int, left: int, errors: list<string>}
  */
 final class Product_Specs_Migration {
 
@@ -61,6 +66,13 @@ final class Product_Specs_Migration {
 	 * @var string
 	 */
 	public const ACTION = 'aggressive_apparel_specs_move_values';
+
+	/**
+	 * Option holding the last post ID a batch reached.
+	 *
+	 * @var string
+	 */
+	private const CURSOR = 'aggressive_apparel_specs_attributes_cursor';
 
 	/**
 	 * Posts moved per batch.
@@ -107,7 +119,8 @@ final class Product_Specs_Migration {
 	public static function run( bool $dry_run, bool $inline ): array {
 		$report = array(
 			'links'  => array(),
-			'posts'  => count( self::legacy_posts( PHP_INT_MAX ) ),
+			'posts'  => count( self::legacy_posts( PHP_INT_MAX, 0 ) ),
+			'left'   => 0,
 			'errors' => array(),
 		);
 
@@ -137,6 +150,7 @@ final class Product_Specs_Migration {
 			do {
 				$moved = self::move_batch( false );
 			} while ( self::BATCH === $moved );
+			$report['left'] = count( self::legacy_posts( PHP_INT_MAX, 0 ) );
 		} else {
 			as_enqueue_async_action( self::ACTION, array(), 'aggressive-apparel' );
 		}
@@ -159,7 +173,7 @@ final class Product_Specs_Migration {
 	 * @return int Posts moved.
 	 */
 	public static function move_batch( bool $queue_next = true ): int {
-		$ids   = self::legacy_posts( self::BATCH );
+		$ids   = self::legacy_posts( self::BATCH, (int) get_option( self::CURSOR, 0 ) );
 		$items = Product_Specs_Registry::get()['items'];
 
 		foreach ( $ids as $post_id ) {
@@ -171,6 +185,7 @@ final class Product_Specs_Migration {
 				}
 			}
 
+			// Each removes the old meta of the values it moved, and only those.
 			$type = get_post_type( $post_id );
 			if ( Size_Guide_Post_Type::POST_TYPE === $type ) {
 				Product_Specs_Values::save_guide( $post_id, $values );
@@ -180,18 +195,12 @@ final class Product_Specs_Migration {
 					Product_Specs_Product_Writer::save( $product, $values, true );
 				}
 			}
-
-			// Every old value key on the post, including specs since removed,
-			// so each batch makes progress.
-			foreach ( array_keys( (array) get_post_meta( $post_id ) ) as $key ) {
-				if ( self::is_legacy_key( (string) $key ) ) {
-					delete_post_meta( $post_id, (string) $key );
-				}
-			}
+			update_option( self::CURSOR, $post_id, false );
 		}
 
 		if ( count( $ids ) < self::BATCH ) {
 			update_option( self::OPTION, self::VERSION, false );
+			delete_option( self::CURSOR );
 			delete_transient( self::OPTION . '_lock' );
 		} elseif ( $queue_next && function_exists( 'as_enqueue_async_action' ) ) {
 			as_enqueue_async_action( self::ACTION, array(), 'aggressive-apparel' );
@@ -201,35 +210,28 @@ final class Product_Specs_Migration {
 	}
 
 	/**
-	 * Posts that still hold old meta values.
+	 * Posts that still hold old meta values, after a post ID.
 	 *
 	 * @param int $limit Most to return.
+	 * @param int $after Only posts with a higher ID.
 	 * @return list<int>
 	 */
-	private static function legacy_posts( int $limit ): array {
+	private static function legacy_posts( int $limit, int $after ): array {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration scan; meta_key prefix search has no API.
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key LIKE %s AND meta_key NOT IN (%s, %s) ORDER BY post_id LIMIT %d",
+				"SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key LIKE %s AND meta_key NOT IN (%s, %s) AND post_id > %d ORDER BY post_id LIMIT %d",
 				$wpdb->esc_like( Product_Specs_Meta::PREFIX ) . '%',
 				Product_Specs_Meta::HIDDEN,
 				Product_Specs_Meta::WORDING,
+				$after,
 				$limit
 			)
 		);
 
 		return array_values( array_map( 'intval', $ids ) );
-	}
-
-	/**
-	 * Whether a meta key held a spec value before specs were attributes.
-	 *
-	 * @param string $key Meta key.
-	 */
-	private static function is_legacy_key( string $key ): bool {
-		return str_starts_with( $key, Product_Specs_Meta::PREFIX ) && ! in_array( $key, array( Product_Specs_Meta::HIDDEN, Product_Specs_Meta::WORDING ), true );
 	}
 
 	/**

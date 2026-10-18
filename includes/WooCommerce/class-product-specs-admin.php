@@ -163,7 +163,16 @@ final class Product_Specs_Admin {
 		);
 		$product = wc_get_product( $post_id );
 		if ( array() !== $changed && $product instanceof \WC_Product ) {
-			Product_Specs_Product_Writer::save( $product, $changed );
+			$failed = Product_Specs_Product_Writer::save( $product, $changed )['failed'];
+			if ( array() !== $failed && class_exists( '\WC_Admin_Meta_Boxes' ) ) {
+				\WC_Admin_Meta_Boxes::add_error(
+					sprintf(
+						/* translators: %s: comma-separated spec keys. */
+						__( 'Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs.', 'aggressive-apparel' ),
+						implode( ', ', $failed )
+					)
+				);
+			}
 		}
 
 		// The form only lists items that apply to the product right now, so

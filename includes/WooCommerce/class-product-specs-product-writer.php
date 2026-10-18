@@ -23,17 +23,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Spec values → product attributes.
  *
- * @phpstan-type WriteResult array{applied: int, kept: int, skipped: list<string>}
+ * @phpstan-type WriteResult array{applied: int, kept: int, skipped: list<string>, failed: list<string>, written: list<string>}
  */
 final class Product_Specs_Product_Writer {
 
 	/**
 	 * Set or clear spec values on a product.
 	 *
+	 * Only what is written changes: a value that can't be stored (its spec
+	 * has no attribute, or the value isn't usable) is reported in `failed`
+	 * and leaves everything as it was, including any value saved before
+	 * specs were attributes.
+	 *
 	 * @param \WC_Product          $product      Product.
 	 * @param array<string, mixed> $values       Item key => value (step index, number, or text); '' clears it.
-	 * @param bool                 $only_missing Only add values the product does not have yet (Apply to products).
-	 * @return WriteResult Values written, values kept because the product had its own, and keys skipped because they drive variations.
+	 * @param bool                 $only_missing Only add values the product does not have yet (Apply, migration).
+	 * @return WriteResult Values changed; values kept because the product had its own; keys skipped because they drive variations; keys that couldn't be stored; keys written or cleared.
 	 */
 	public static function save( \WC_Product $product, array $values, bool $only_missing = false ): array {
 		Product_Specs_Registry::ensure_connected();
@@ -43,11 +48,17 @@ final class Product_Specs_Product_Writer {
 			'applied' => 0,
 			'kept'    => 0,
 			'skipped' => array(),
+			'failed'  => array(),
+			'written' => array(),
 		);
 
 		foreach ( $values as $key => $raw ) {
 			$item = $items[ (string) $key ] ?? null;
-			if ( null === $item || '' === $item['taxonomy'] || ! is_scalar( $raw ) ) {
+			if ( null === $item || ! is_scalar( $raw ) ) {
+				continue;
+			}
+			if ( '' === $item['taxonomy'] ) {
+				$result['failed'][] = $item['key'];
 				continue;
 			}
 
@@ -67,10 +78,15 @@ final class Product_Specs_Product_Writer {
 			$term = Product_Specs_Taxonomy::term_for( $item, $raw );
 			if ( 0 === $term ) {
 				// Only an empty value clears; an unusable one changes nothing.
-				if ( '' === trim( $raw ) && null !== $existing ) {
+				if ( '' !== trim( $raw ) ) {
+					$result['failed'][] = $item['key'];
+					continue;
+				}
+				if ( null !== $existing ) {
 					unset( $attributes[ $slug ] );
 					++$result['applied'];
 				}
+				$result['written'][] = $item['key'];
 				continue;
 			}
 
@@ -84,6 +100,7 @@ final class Product_Specs_Product_Writer {
 			$attribute->set_visible( $item['in_table'] );
 			$attribute->set_variation( false );
 			$attributes[ $slug ] = $attribute;
+			$result['written'][] = $item['key'];
 			++$result['applied'];
 		}
 
@@ -91,12 +108,10 @@ final class Product_Specs_Product_Writer {
 			$product->set_attributes( $attributes );
 			$product->save();
 		}
-		// A value saved before specs were attributes would otherwise show
-		// again once the attribute is cleared.
-		foreach ( array_keys( $values ) as $key ) {
-			if ( ! in_array( (string) $key, $result['skipped'], true ) && ! $only_missing ) {
-				delete_post_meta( $product->get_id(), Product_Specs_Meta::key( (string) $key ) );
-			}
+		// The value now lives in the attribute (or was cleared on purpose), so
+		// an older theme-meta value must not show through again.
+		foreach ( $result['written'] as $key ) {
+			delete_post_meta( $product->get_id(), Product_Specs_Meta::key( $key ) );
 		}
 
 		return $result;

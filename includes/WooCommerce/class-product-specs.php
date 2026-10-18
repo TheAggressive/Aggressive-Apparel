@@ -304,11 +304,15 @@ final class Product_Specs {
 
 		$boundaries = self::boundaries( $item, $categories );
 
-		$attr    = $attrs[ $key ] ?? null;
-		$own_raw = null !== $attr && $attr['own']
-			? Product_Specs_Taxonomy::value_from_text( $item, $attr['text'] )
-			// Saved before specs were attributes, until migrated.
-			: Product_Specs_Meta::sanitize_value( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ) );
+		$attr = $attrs[ $key ] ?? null;
+		// A value saved before specs were attributes, not moved yet (or kept
+		// because the product's attribute differs): it showed ahead of the
+		// attribute before, so it still does.
+		$own_raw   = Product_Specs_Values::clean( get_post_meta( $product_id, Product_Specs_Meta::key( $key ), true ), $item );
+		$from_attr = '' === $own_raw && null !== $attr && $attr['own'];
+		if ( $from_attr ) {
+			$own_raw = Product_Specs_Taxonomy::value_from_text( $item, $attr['text'] );
+		}
 		$own       = self::read( $item, $own_raw, $boundaries, self::SOURCE_PRODUCT );
 		$inherited = self::empty_value();
 		if ( null !== $attr && ! $attr['own'] ) {
@@ -358,7 +362,7 @@ final class Product_Specs {
 			'in_table'          => $item['in_table'],
 			'taxonomy'          => $item['taxonomy'],
 			// WooCommerce already lists a visible attribute in Additional information.
-			'attribute_visible' => null !== $attr && $attr['visible'] && ( self::SOURCE_ATTRIBUTE === $value['source'] || ( $attr['own'] && self::SOURCE_PRODUCT === $value['source'] ) ),
+			'attribute_visible' => null !== $attr && $attr['visible'] && ( self::SOURCE_ATTRIBUTE === $value['source'] || ( $from_attr && self::SOURCE_PRODUCT === $value['source'] ) ),
 		);
 	}
 

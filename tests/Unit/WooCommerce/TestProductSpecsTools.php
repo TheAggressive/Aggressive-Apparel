@@ -111,6 +111,7 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 
 		$this->assertSame( 1, $result['saved'] );
 		$this->assertSame( 1, $result['skipped'] );
+		$this->assertSame( 1, $result['failed'], 'The unusable weight is reported, not saved.' );
 
 		// Saved as the product's own Fit attribute, the scale's fourth step.
 		$fit        = \Aggressive_Apparel\WooCommerce\Product_Specs_Registry::get()['items'][0];

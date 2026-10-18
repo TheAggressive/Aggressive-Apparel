@@ -22,7 +22,7 @@ import { Button, Notice } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
-import { newItem, slugify, uniqueKey } from './_utils';
+import { newItem, specKey } from './_utils';
 import { AddSpecButton } from './_AddSpec';
 import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
@@ -31,6 +31,8 @@ import ValuePicker from './_ValuePicker';
 
 type Props = {
   config: Config;
+  /** Global attributes, taxonomy => label (current, not as loaded). */
+  taxonomies: Record<string, string>;
   /** Saved guide ID (0 while new). */
   guideId: number;
   /** Saved registry items (every spec, any guide). */
@@ -65,6 +67,7 @@ function describe(item: SpecItem, value: string): string {
 
 export default function GuideSpecs({
   config,
+  taxonomies,
   guideId,
   items,
   own,
@@ -100,7 +103,7 @@ export default function GuideSpecs({
       item.isNew && patch.name !== undefined
         ? {
             ...patch,
-            key: uniqueKey(slugify(patch.name), [
+            key: specKey(patch.name, [
               ...items.filter(other => !other.guides.includes(guideId)),
               ...own.filter(other => other.uid !== item.uid),
             ]),
@@ -128,7 +131,9 @@ export default function GuideSpecs({
     more = true
   ) => {
     // Keys are unique across the whole registry, not just this guide.
-    const item = newItem(partial, [...items, ...own]);
+    const taken = [...items, ...own];
+    const item = newItem(partial, taken);
+    item.key = item.key || specKey(item.name, taken);
     onOwn([...own, item]);
     if (value !== '') {
       setValue(item.key, value);
@@ -140,7 +145,7 @@ export default function GuideSpecs({
   // Attributes a spec can switch to: its own, and any no other spec uses.
   const freeTaxonomies = (item: DraftItem) =>
     Object.fromEntries(
-      Object.entries(config.taxonomies).filter(
+      Object.entries(taxonomies).filter(
         ([taxonomy]) =>
           taxonomy === item.taxonomy ||
           ![...items, ...own].some(other => other.taxonomy === taxonomy)

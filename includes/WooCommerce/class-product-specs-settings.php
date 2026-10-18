@@ -265,7 +265,8 @@ final class Product_Specs_Settings {
 
 	/**
 	 * The registry for the editor: pick steps named as their terms are now,
-	 * and each text spec's existing values (its terms) to pick from.
+	 * each text spec's existing values (its terms) to pick from, and the
+	 * global attributes as they are after this save (a save can create one).
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -279,7 +280,10 @@ final class Product_Specs_Settings {
 			);
 		}
 
-		return array( 'items' => $items ) + $registry;
+		return array(
+			'items'      => $items,
+			'taxonomies' => Product_Specs_Taxonomy::attributes(),
+		) + $registry;
 	}
 
 	/**

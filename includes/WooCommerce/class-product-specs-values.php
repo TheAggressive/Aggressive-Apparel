@@ -60,11 +60,16 @@ final class Product_Specs_Values {
 				continue;
 			}
 
-			$term = Product_Specs_Taxonomy::term_for( $item, (string) $values[ $item['key'] ] );
+			$raw  = (string) $values[ $item['key'] ];
+			$term = Product_Specs_Taxonomy::term_for( $item, $raw );
 			if ( $term > 0 ) {
 				$terms[ $item['key'] ] = $term;
-			} else {
+			} elseif ( '' === trim( $raw ) ) {
 				unset( $terms[ $item['key'] ] );
+			} else {
+				// Not storable (no attribute yet, or unusable): keep whatever
+				// the guide had, old meta included.
+				continue;
 			}
 			delete_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ) );
 		}

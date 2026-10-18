@@ -460,7 +460,7 @@ final class Product_Specs_Registry {
 					'in_table'       => ! empty( $entry['in_table'] ),
 					'category_steps' => self::category_steps( $entry['category_steps'] ?? array() ),
 					'guides'         => array_values( array_unique( array_filter( array_map( 'absint', is_array( $entry['guides'] ?? null ) ? $entry['guides'] : array() ) ) ) ),
-					'taxonomy'       => is_string( $entry['taxonomy'] ?? null ) && 1 === preg_match( '/^pa_[a-z0-9_\-]{1,28}$/', $entry['taxonomy'] ) ? $entry['taxonomy'] : '',
+					'taxonomy'       => is_string( $entry['taxonomy'] ?? null ) && 1 === preg_match( '/^pa_[\p{Ll}\p{Lo}\p{N}_\-]{1,29}$/u', $entry['taxonomy'] ) ? $entry['taxonomy'] : '',
 					'step_terms'     => array_values( array_map( 'absint', is_array( $entry['step_terms'] ?? null ) ? $entry['step_terms'] : array() ) ),
 					'default_term'   => absint( $entry['default_term'] ?? 0 ),
 				)

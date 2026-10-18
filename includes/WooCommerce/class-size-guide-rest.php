@@ -405,7 +405,7 @@ final class Size_Guide_Rest {
 	 * @return array<string, mixed>
 	 */
 	private static function saved( int $id ): array {
-		return self::guide( $id ) + array( 'registry' => Product_Specs_Registry::get() );
+		return self::guide( $id ) + array( 'registry' => Product_Specs_Settings::registry() );
 	}
 
 	/**

@@ -119,3 +119,15 @@ export function uniqueKey(stem: string, taken: SpecItem[]): string {
   }
   return key;
 }
+
+/**
+ * A key for a spec whose value is edited before it is saved (a size guide's
+ * own spec): from its name, or "spec", "spec_2"… when the name has no Latin
+ * letters, so the value always has a key the server keeps.
+ *
+ * @param name  Spec name.
+ * @param taken Items whose keys are in use.
+ */
+export function specKey(name: string, taken: SpecItem[]): string {
+  return uniqueKey(slugify(name) || 'spec', taken);
+}

@@ -70,6 +70,8 @@ export default function App({ config }: { config: Config }) {
   // The revision the draft started from, and what it changed since: a save
   // from an older revision applies only these on top of the current list.
   const [revision, setRevision] = useState(config.registry.revision);
+  // Global attributes, kept current: a save can create one.
+  const [taxonomies, setTaxonomies] = useState(config.taxonomies);
   const [changed, setChanged] = useState<string[]>([]);
   const [deleted, setDeleted] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>(config.suggest);
@@ -156,7 +158,7 @@ export default function App({ config }: { config: Config }) {
   // Attributes a spec can switch to: its own, and any no other spec uses.
   const freeTaxonomies = (item: DraftItem): Record<string, string> =>
     Object.fromEntries(
-      Object.entries(config.taxonomies).filter(
+      Object.entries(taxonomies).filter(
         ([taxonomy]) =>
           taxonomy === item.taxonomy ||
           !items.some(other => other.taxonomy === taxonomy)
@@ -196,6 +198,7 @@ export default function App({ config }: { config: Config }) {
         },
       })) as Registry;
       setRevision(registry.revision);
+      setTaxonomies(registry.taxonomies ?? taxonomies);
       setChanged([]);
       setDeleted([]);
       setItems(registry.items.map(toDraft));
@@ -435,8 +438,10 @@ export default function App({ config }: { config: Config }) {
           <GuidesTab
             config={config}
             items={savedItems}
+            taxonomies={taxonomies}
             onRegistry={registry => {
               setSavedItems(registry.items);
+              setTaxonomies(registry.taxonomies ?? taxonomies);
               // An untouched Specs tab follows. A dirty one keeps its draft
               // and older revision, so its save merges onto this one.
               if (!specsDirty) {

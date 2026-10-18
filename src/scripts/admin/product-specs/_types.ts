@@ -50,6 +50,8 @@ export type Registry = {
   hide_dimensions: boolean;
   /** Bumped on every save, so a stale editor's save merges instead. */
   revision: number;
+  /** Global attributes after the save, taxonomy => label. */
+  taxonomies?: Record<string, string>;
 };
 
 export type Category = { id: number; name: string };

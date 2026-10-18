@@ -41,43 +41,42 @@ final class Size_Guide_Apply {
 	public const PER_PAGE = 50;
 
 	/**
+	 * Most candidates the status check reads one by one; past this it only
+	 * counts them (`missing` -1), so opening a guide stays fast on any
+	 * catalog.
+	 *
+	 * @var int
+	 */
+	public const CHECK_LIMIT = 1000;
+
+	/**
 	 * How many products use the guide, and how many of those still show a
 	 * guide value that is not saved on the product (what Apply would fill).
+	 * For very large guides, the candidate count and `missing` -1 (unknown).
 	 *
 	 * @param int $guide_id Size guide ID.
 	 * @return ApplyStatus
 	 */
 	public static function status( int $guide_id ): array {
+		$candidates = self::candidates( $guide_id );
+		if ( count( $candidates ) > self::CHECK_LIMIT ) {
+			return array(
+				'products' => count( $candidates ),
+				'missing'  => -1,
+			);
+		}
+
 		$status = array(
 			'products' => 0,
 			'missing'  => 0,
 		);
-
-		for ( $page = 1; ; $page++ ) {
-			$ids = get_posts(
-				array(
-					'post_type'      => 'product',
-					'post_status'    => array( 'publish', 'private', 'draft', 'pending', 'future' ),
-					'posts_per_page' => 100,
-					'paged'          => $page,
-					'orderby'        => 'ID',
-					'order'          => 'ASC',
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-				)
-			);
-			foreach ( $ids as $id ) {
-				$id = $id instanceof \WP_Post ? $id->ID : (int) $id;
-				if ( Size_Guide::resolved( $id )['id'] !== $guide_id ) {
-					continue;
-				}
-				++$status['products'];
-				if ( array() !== self::from_guide( $id ) ) {
-					++$status['missing'];
-				}
+		foreach ( $candidates as $id ) {
+			if ( Size_Guide::resolved( $id )['id'] !== $guide_id ) {
+				continue;
 			}
-			if ( count( $ids ) < 100 ) {
-				break;
+			++$status['products'];
+			if ( array() !== self::from_guide( $id ) ) {
+				++$status['missing'];
 			}
 		}
 
@@ -85,36 +84,23 @@ final class Size_Guide_Apply {
 	}
 
 	/**
-	 * Apply one page of products.
+	 * Apply one page of the guide's candidate products.
 	 *
 	 * @param int $guide_id Size guide ID.
-	 * @param int $page     1-based page of all products.
+	 * @param int $page     1-based page.
 	 * @return ApplyPage Products updated and values written on this page.
 	 */
 	public static function page( int $guide_id, int $page ): array {
-		$query = new \WP_Query(
-			array(
-				'post_type'              => 'product',
-				'post_status'            => array( 'publish', 'private', 'draft', 'pending', 'future' ),
-				'posts_per_page'         => self::PER_PAGE,
-				'paged'                  => max( 1, $page ),
-				'orderby'                => 'ID',
-				'order'                  => 'ASC',
-				'fields'                 => 'ids',
-				'no_found_rows'          => false,
-				'update_post_term_cache' => true,
-			)
-		);
-
-		$result = array(
-			'page'     => max( 1, $page ),
-			'pages'    => (int) $query->max_num_pages,
+		$candidates = self::candidates( $guide_id );
+		$page       = max( 1, $page );
+		$result     = array(
+			'page'     => $page,
+			'pages'    => (int) ceil( count( $candidates ) / self::PER_PAGE ),
 			'products' => 0,
 			'values'   => 0,
 		);
 
-		foreach ( $query->posts as $post ) {
-			$product_id = $post instanceof \WP_Post ? $post->ID : (int) $post;
+		foreach ( array_slice( $candidates, ( $page - 1 ) * self::PER_PAGE, self::PER_PAGE ) as $product_id ) {
 			if ( Size_Guide::resolved( $product_id )['id'] !== $guide_id || ! current_user_can( 'edit_post', $product_id ) ) {
 				continue;
 			}
@@ -133,6 +119,87 @@ final class Size_Guide_Apply {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Products that can use the guide, by ID: those assigned it directly and
+	 * those in its categories, or every product when it is the store-wide
+	 * default. Callers confirm each with Size_Guide::resolved(), since a
+	 * product's own pick or another category can win.
+	 *
+	 * @param int $guide_id Size guide ID.
+	 * @return list<int>
+	 */
+	public static function candidates( int $guide_id ): array {
+		if ( Size_Guide_Assignments::is_default( $guide_id ) ) {
+			return self::product_ids( array() );
+		}
+
+		$ids = self::product_ids(
+			array(
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin-only, the assignment lives in meta.
+				'meta_query' => array(
+					array(
+						'key'   => Size_Guide::CPT_META_KEY,
+						'value' => (string) $guide_id,
+					),
+				),
+			)
+		);
+
+		$categories = Size_Guide_Assignments::categories( $guide_id );
+		if ( array() !== $categories ) {
+			$ids = array_merge(
+				$ids,
+				self::product_ids(
+					array(
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- admin-only.
+						'tax_query' => array(
+							array(
+								'taxonomy'         => 'product_cat',
+								'terms'            => $categories,
+								'include_children' => false,
+							),
+						),
+					)
+				)
+			);
+		}
+
+		$ids = array_values( array_unique( $ids ) );
+		sort( $ids );
+
+		return $ids;
+	}
+
+	/**
+	 * Every product ID matching extra query args, read a page at a time.
+	 *
+	 * @param array<string, mixed> $args Extra WP_Query args.
+	 * @return list<int>
+	 */
+	private static function product_ids( array $args ): array {
+		$ids = array();
+		for ( $page = 1; ; $page++ ) {
+			$batch = get_posts(
+				$args + array(
+					'post_type'      => 'product',
+					'post_status'    => array( 'publish', 'private', 'draft', 'pending', 'future' ),
+					'posts_per_page' => 100,
+					'paged'          => $page,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)
+			);
+			foreach ( $batch as $id ) {
+				$ids[] = $id instanceof \WP_Post ? $id->ID : (int) $id;
+			}
+			if ( count( $batch ) < 100 ) {
+				return $ids;
+			}
+		}
 	}
 
 	/**

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T10:14:13+00:00\n"
+"POT-Creation-Date: 2026-10-18T10:44:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2354,7 +2354,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:481
 #: includes/WooCommerce/class-product-specs-settings.php:114
-#: includes/WooCommerce/class-product-specs-settings.php:178
+#: includes/WooCommerce/class-product-specs-settings.php:177
 msgid "Size Guides & Specs"
 msgstr ""
 
@@ -2864,7 +2864,7 @@ msgid "Wording for this product only. Empty fields use the wording from Products
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:225
-#: includes/WooCommerce/class-size-guide-rest.php:525
+#: includes/WooCommerce/class-size-guide-rest.php:532
 msgid "(no title)"
 msgstr ""
 
@@ -3037,11 +3037,11 @@ msgstr ""
 msgid "Size Guides"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:182
+#: includes/WooCommerce/class-product-specs-settings.php:181
 msgid "Loading…"
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-settings.php:256
+#: includes/WooCommerce/class-product-specs-settings.php:255
 msgid "Some specs need fixing before they can be saved."
 msgstr ""
 
@@ -3077,7 +3077,7 @@ msgstr ""
 msgid "“%s” uses the same WooCommerce attribute as another spec."
 msgstr ""
 
-#: includes/WooCommerce/class-product-specs-taxonomy.php:337
+#: includes/WooCommerce/class-product-specs-taxonomy.php:370
 msgid "WooCommerce is needed to save specs."
 msgstr ""
 
@@ -3949,29 +3949,29 @@ msgstr ""
 msgid "No size guides found in Trash."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:159
+#: includes/WooCommerce/class-size-guide-rest.php:166
 msgid "You cannot edit this size guide."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:167
+#: includes/WooCommerce/class-size-guide-rest.php:174
 msgid "That size guide no longer exists."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:250
+#: includes/WooCommerce/class-size-guide-rest.php:257
 msgid "This guide has no table to convert. Start a chart from a template instead."
 msgstr ""
 
 #. translators: %s: size guide name.
-#: includes/WooCommerce/class-size-guide-rest.php:287
+#: includes/WooCommerce/class-size-guide-rest.php:294
 #, php-format
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:423
+#: includes/WooCommerce/class-size-guide-rest.php:430
 msgid "Some specs need fixing before the guide can be saved."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:516
+#: includes/WooCommerce/class-size-guide-rest.php:523
 msgid "Untitled size guide"
 msgstr ""
 

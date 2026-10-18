@@ -14,7 +14,7 @@ import { Button, SelectControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import type { ItemType, SpecItem } from './_types';
 import { blankItem } from './_utils';
-import SpecInput from './_SpecInput';
+import ValuePicker from './_ValuePicker';
 
 type Props = {
   /** Add the spec; `more` opens its full editor. */
@@ -114,18 +114,20 @@ export default function QuickAdd({ onAdd, onCancel }: Props) {
             __next40pxDefaultSize
           />
         )}
-        <label className='aa-ps-default'>
-          <span className='aa-ps-default__label'>
+      </div>
+      {name.trim() !== '' && (type === 'text' || stepList.length > 1) && (
+        <div className='aa-ps-quick-add__value'>
+          <span className='aa-ps-default__label' aria-hidden='true'>
             {__('Value on this guide', 'aggressive-apparel')}
           </span>
-          <SpecInput
+          <ValuePicker
             item={draft}
             value={value}
             label={__('Value on this guide', 'aggressive-apparel')}
             onChange={setValue}
           />
-        </label>
-      </div>
+        </div>
+      )}
       <div className='aa-ps-quick-add__actions'>
         <Button
           variant='primary'

@@ -161,7 +161,6 @@ final class Product_Specs_Settings {
 			'attributes' => Product_Specs_Suggestions::names(),
 			// Global attributes (taxonomy => label), for the attribute a spec uses.
 			'taxonomies' => Product_Specs_Taxonomy::attributes(),
-			'termsUrl'   => admin_url( 'edit-tags.php?post_type=product&taxonomy=' ),
 			'tab'        => in_array( $tab, self::TABS, true ) ? $tab : self::TABS[0],
 			// "new" opens a blank guide; a number opens that guide.
 			'guide'      => 'new' === $guide ? 'new' : absint( $guide ),
@@ -276,7 +275,7 @@ final class Product_Specs_Settings {
 		foreach ( $registry['items'] as $item ) {
 			$item['steps'] = Product_Specs_Taxonomy::step_names( $item );
 			$items[]       = $item + array(
-				'terms' => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::names( $item['taxonomy'] ) : array(),
+				'terms' => Product_Specs_Registry::TYPE_TEXT === $item['type'] ? Product_Specs_Taxonomy::usage( $item['taxonomy'] ) : array(),
 			);
 		}
 

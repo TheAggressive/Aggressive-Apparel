@@ -29,6 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Apply a guide's spec values to its products.
  *
  * @phpstan-type ApplyPage array{page: int, pages: int, products: int, values: int}
+ * @phpstan-type ApplyStatus array{products: int, missing: int}
  */
 final class Size_Guide_Apply {
 
@@ -38,6 +39,50 @@ final class Size_Guide_Apply {
 	 * @var int
 	 */
 	public const PER_PAGE = 50;
+
+	/**
+	 * How many products use the guide, and how many of those still show a
+	 * guide value that is not saved on the product (what Apply would fill).
+	 *
+	 * @param int $guide_id Size guide ID.
+	 * @return ApplyStatus
+	 */
+	public static function status( int $guide_id ): array {
+		$status = array(
+			'products' => 0,
+			'missing'  => 0,
+		);
+
+		for ( $page = 1; ; $page++ ) {
+			$ids = get_posts(
+				array(
+					'post_type'      => 'product',
+					'post_status'    => array( 'publish', 'private', 'draft', 'pending', 'future' ),
+					'posts_per_page' => 100,
+					'paged'          => $page,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)
+			);
+			foreach ( $ids as $id ) {
+				$id = $id instanceof \WP_Post ? $id->ID : (int) $id;
+				if ( Size_Guide::resolved( $id )['id'] !== $guide_id ) {
+					continue;
+				}
+				++$status['products'];
+				if ( array() !== self::from_guide( $id ) ) {
+					++$status['missing'];
+				}
+			}
+			if ( count( $ids ) < 100 ) {
+				break;
+			}
+		}
+
+		return $status;
+	}
 
 	/**
 	 * Apply one page of products.

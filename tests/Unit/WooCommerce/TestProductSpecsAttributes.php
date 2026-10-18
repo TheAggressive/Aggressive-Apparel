@@ -151,8 +151,18 @@ class TestProductSpecsAttributes extends WP_UnitTestCase {
 		Product_Specs_Values::save_guide( $guide, array( 'fabric' => 'Cotton' ) );
 		Product_Specs_Product_Writer::save( wc_get_product( $own ), array( 'fabric' => 'Linen' ) );
 
+		$this->assertSame(
+			array(
+				'products' => 2,
+				'missing'  => 1,
+			),
+			Size_Guide_Apply::status( $guide ),
+			'Two products use the guide; only one lacks the value.'
+		);
+
 		$result = Size_Guide_Apply::page( $guide, 1 );
 		$fabric = $this->items()['fabric']['taxonomy'];
+		$this->assertSame( 0, Size_Guide_Apply::status( $guide )['missing'] );
 
 		$this->assertSame( 1, $result['products'] );
 		$this->assertSame( array( 'Cotton' ), wc_get_product_terms( $plain, $fabric, array( 'fields' => 'names' ) ) );

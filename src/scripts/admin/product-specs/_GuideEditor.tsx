@@ -544,14 +544,16 @@ export default function GuideEditor({
         onValues={specs => update({ specs })}
         onHidden={hidden => update({ hidden })}
         onOwn={updateOwn}
+        footer={
+          guide.id > 0 && (
+            <ApplyToProducts
+              guidesPath={config.guidesPath}
+              guideId={guide.id}
+              dirty={dirty}
+            />
+          )
+        }
       />
-      {guide.id > 0 && (
-        <ApplyToProducts
-          guidesPath={config.guidesPath}
-          guideId={guide.id}
-          dirty={dirty}
-        />
-      )}
 
       <section className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>

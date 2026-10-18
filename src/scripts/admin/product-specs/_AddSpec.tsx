@@ -20,7 +20,7 @@ type Props = {
   onAdd: (item: Partial<SpecItem> & Pick<SpecItem, 'type'>) => void;
   /** Button text and style, when it is not the page's main action. */
   label?: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'tertiary';
 };
 
 export function AddSpecButton({

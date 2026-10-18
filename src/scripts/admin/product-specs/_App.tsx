@@ -294,7 +294,6 @@ export default function App({ config }: { config: Config }) {
                     limits={config.limits}
                     guides={guides}
                     taxonomies={freeTaxonomies(item)}
-                    termsUrl={config.termsUrl}
                     open={open === item.uid}
                     onToggle={() =>
                       setOpen(open === item.uid ? null : item.uid)

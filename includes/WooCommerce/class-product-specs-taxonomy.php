@@ -278,6 +278,39 @@ final class Product_Specs_Taxonomy {
 	}
 
 	/**
+	 * Terms in a taxonomy with how many products use each, most used first
+	 * (at most 200), for the editor's value picker.
+	 *
+	 * @param string $taxonomy Attribute taxonomy.
+	 * @return list<array{name: string, count: int}>
+	 */
+	public static function usage( string $taxonomy ): array {
+		if ( '' === $taxonomy || ! taxonomy_exists( $taxonomy ) ) {
+			return array();
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+				'number'     => 200,
+				'orderby'    => 'count',
+				'order'      => 'DESC',
+			)
+		);
+
+		return is_array( $terms ) ? array_values(
+			array_map(
+				static fn( \WP_Term $term ): array => array(
+					'name'  => $term->name,
+					'count' => $term->count,
+				),
+				array_filter( $terms, static fn( $term ): bool => $term instanceof \WP_Term )
+			)
+		) : array();
+	}
+
+	/**
 	 * Forget memoized term names (after terms change, and in tests).
 	 */
 	public static function flush(): void {

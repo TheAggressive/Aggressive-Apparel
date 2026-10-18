@@ -80,7 +80,7 @@ export default function SpecInput({
       {listId && (
         <datalist id={listId}>
           {item.terms?.map(term => (
-            <option key={term} value={term} />
+            <option key={term.name} value={term.name} />
           ))}
         </datalist>
       )}

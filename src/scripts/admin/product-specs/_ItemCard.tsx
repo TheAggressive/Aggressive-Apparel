@@ -19,7 +19,7 @@ import {
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { Category, DraftItem, GuideSummary, Scope } from './_types';
-import { edgeLabels, slugify } from './_utils';
+import { edgeLabels } from './_utils';
 import Preview from './_Preview';
 import SpecInput from './_SpecInput';
 import CategorySteps from './_CategorySteps';
@@ -48,8 +48,6 @@ type Props = {
   deleteText?: { button: string; confirm: string };
   /** Attributes the spec can use (taxonomy => label), to pick or switch. */
   taxonomies?: Record<string, string>;
-  /** Terms screen URL; append the taxonomy. */
-  termsUrl?: string;
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -133,19 +131,25 @@ export default function ItemCard({
   extraMeta,
   deleteText,
   taxonomies,
-  termsUrl,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
-  const key = item.key || slugify(item.name);
   const unit = item.unit || __('number', 'aggressive-apparel');
   const unmatched = noAttributeMatches(item.attributes, attributeNames);
-  // Linked only to an attribute the server listed, never to raw field input.
+  // The attribute's terms screen, beside this admin page; linked only for an
+  // attribute the server listed.
   const termsTaxonomy = Object.keys(taxonomies ?? {}).find(
     taxonomy => taxonomy === item.taxonomy
   );
+  let termsHref = '';
+  if (termsTaxonomy) {
+    const url = new URL('edit-tags.php', window.location.href);
+    url.searchParams.set('post_type', 'product');
+    url.searchParams.set('taxonomy', termsTaxonomy);
+    termsHref = url.toString();
+  }
 
   const setStep = (i: number, value: string) => {
     const steps = [...item.steps];
@@ -283,18 +287,10 @@ export default function ItemCard({
               label={__('Name', 'aggressive-apparel')}
               value={item.name}
               onChange={name => onChange({ name })}
-              help={
-                key
-                  ? sprintf(
-                      /* translators: %s: meta key. */
-                      __(
-                        'Stored as %s for CSV import and export.',
-                        'aggressive-apparel'
-                      ),
-                      `_aa_spec_${key}`
-                    )
-                  : undefined
-              }
+              help={__(
+                'What shoppers see as the spec’s title.',
+                'aggressive-apparel'
+              )}
               __next40pxDefaultSize
             />
             {item.isNew ? (
@@ -580,12 +576,8 @@ export default function ItemCard({
                   }
                   __next40pxDefaultSize
                 />
-                {termsTaxonomy && termsUrl && (
-                  <a
-                    href={termsUrl + encodeURIComponent(termsTaxonomy)}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
+                {termsHref && (
+                  <a href={termsHref} target='_blank' rel='noreferrer'>
                     {__(
                       'Manage its values in WooCommerce',
                       'aggressive-apparel'
@@ -598,7 +590,10 @@ export default function ItemCard({
               </div>
             )}
             <TextControl
-              label={__('Product attribute names', 'aggressive-apparel')}
+              label={__(
+                'Also read from custom attributes named',
+                'aggressive-apparel'
+              )}
               value={item.attributes.join(', ')}
               placeholder={item.name}
               onChange={value =>
@@ -612,16 +607,16 @@ export default function ItemCard({
               help={
                 item.type === 'pick'
                   ? __(
-                      'Comma-separated. The attribute value must match a step name, like “Relaxed”.',
+                      'For products that keep this in a custom (per-product) attribute. Comma-separated; the value must match a step name, like “Relaxed”.',
                       'aggressive-apparel'
                     )
                   : isNumber
                     ? __(
-                        'Comma-separated. The first number in the value is used; g/m² also reads ounces, like “4.2 oz”.',
+                        'For products that keep this in a custom (per-product) attribute. Comma-separated; the first number is used, and g/m² also reads ounces, like “4.2 oz”.',
                         'aggressive-apparel'
                       )
                     : __(
-                        'Comma-separated. Leave empty to skip attributes.',
+                        'For products that keep this in a custom (per-product) attribute. Comma-separated; leave empty to skip.',
                         'aggressive-apparel'
                       )
               }

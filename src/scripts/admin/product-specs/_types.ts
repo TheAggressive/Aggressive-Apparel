@@ -35,8 +35,8 @@ export type SpecItem = {
   /** A picked scale's terms, one per step (kept through renames). */
   step_terms: number[];
   default_term: number;
-  /** A text spec's existing values (its terms), to pick from. */
-  terms?: string[];
+  /** A text spec's existing values (its terms) and their product counts. */
+  terms?: { name: string; count: number }[];
 };
 
 /** Number-scale boundaries for one category. */
@@ -138,8 +138,6 @@ export type Config = {
   attributes: string[];
   /** Global attributes, taxonomy => label. */
   taxonomies: Record<string, string>;
-  /** Terms screen URL; append the taxonomy. */
-  termsUrl: string;
   tab: Tab;
   guide: number | 'new';
   limits: {

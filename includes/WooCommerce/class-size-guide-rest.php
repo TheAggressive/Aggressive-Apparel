@@ -117,14 +117,21 @@ final class Size_Guide_Rest {
 			self::NAMESPACE,
 			self::ROUTE . '/(?P<id>\d+)/apply',
 			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::page( (int) $request['id'], absint( $request->get_param( 'page' ) ) ) ),
-				'permission_callback' => $edit,
-				'args'                => array(
-					'page' => array(
-						'type'    => 'integer',
-						'minimum' => 1,
-						'default' => 1,
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::status( (int) $request['id'] ) ),
+					'permission_callback' => $edit,
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::page( (int) $request['id'], absint( $request->get_param( 'page' ) ) ) ),
+					'permission_callback' => $edit,
+					'args'                => array(
+						'page' => array(
+							'type'    => 'integer',
+							'minimum' => 1,
+							'default' => 1,
+						),
 					),
 				),
 			)

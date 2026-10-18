@@ -95,14 +95,12 @@ final class Size_Guide_Spec_Items {
 			return $result['errors'];
 		}
 
-		Product_Specs_Registry::save(
+		return Product_Specs_Registry::save_connected(
 			array(
 				'items'           => $result['items'],
 				'hide_dimensions' => $result['hide_dimensions'],
 			)
 		);
-
-		return array();
 	}
 
 	/**

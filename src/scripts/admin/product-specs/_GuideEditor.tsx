@@ -33,6 +33,7 @@ import { templates } from './_chart';
 import ChartEditor from './_ChartEditor';
 import ChartPreview from './_ChartPreview';
 import GuideSpecs from './_GuideSpecs';
+import ApplyToProducts from './_ApplyToProducts';
 
 type Attachment = {
   id: number;
@@ -60,8 +61,6 @@ type Props = {
   config: Config;
   /** Saved spec items (the Specs tab's last save). */
   items: SpecItem[];
-  /** The Specs tab has unsaved changes (it saves the whole spec list). */
-  specsDirty: boolean;
   guideId: number | 'new';
   /** A save changed the spec registry. */
   onRegistry: (registry: Registry) => void;
@@ -79,6 +78,7 @@ function blank(): GuideDetail {
     notes: '',
     diagram: null,
     specs: {},
+    hidden: [],
     categories: [],
     isDefault: false,
     usage: { global: false, categories: [], products: 0 },
@@ -90,7 +90,6 @@ function blank(): GuideDetail {
 export default function GuideEditor({
   config,
   items,
-  specsDirty,
   guideId,
   onRegistry,
   onClose,
@@ -186,15 +185,6 @@ export default function GuideEditor({
 
   /** Save the guide; true when it saved. */
   const save = async (): Promise<boolean> => {
-    if (ownDirty && specsDirty) {
-      setError(
-        __(
-          'Save or discard your changes on the Specs tab first. Both change the list of specs.',
-          'aggressive-apparel'
-        )
-      );
-      return false;
-    }
     setSaving(true);
     setError('');
     try {
@@ -207,6 +197,7 @@ export default function GuideEditor({
           notes: guide.notes,
           diagram: guide.diagram?.id ?? 0,
           specs: guide.specs,
+          hidden: guide.hidden,
           ...(ownDirty && { specItems: own.map(toStored) }),
           categories: guide.categories,
           isDefault: guide.isDefault,
@@ -549,9 +540,18 @@ export default function GuideEditor({
           guide.legacyHtml !== '' ||
           guide.chart.rows.some(row => row.size.trim() !== '')
         }
+        hidden={guide.hidden}
         onValues={specs => update({ specs })}
+        onHidden={hidden => update({ hidden })}
         onOwn={updateOwn}
       />
+      {guide.id > 0 && (
+        <ApplyToProducts
+          guidesPath={config.guidesPath}
+          guideId={guide.id}
+          dirty={dirty}
+        />
+      )}
 
       <section className='aa-ps-guide__section'>
         <h2>{__('Where it applies', 'aggressive-apparel')}</h2>

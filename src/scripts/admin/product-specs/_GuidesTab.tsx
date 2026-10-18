@@ -19,8 +19,6 @@ type Props = {
   config: Config;
   /** Saved spec items, for the guide's Specs section. */
   items: SpecItem[];
-  /** The Specs tab has unsaved changes. */
-  specsDirty: boolean;
   onRegistry: (registry: Registry) => void;
   guides: GuideSummary[];
   onGuides: (guides: GuideSummary[]) => void;
@@ -60,7 +58,6 @@ function usageText(usage: Usage): string {
 export default function GuidesTab({
   config,
   items,
-  specsDirty,
   onRegistry,
   guides,
   onGuides,
@@ -91,7 +88,6 @@ export default function GuidesTab({
         key={String(open)}
         config={config}
         items={items}
-        specsDirty={specsDirty}
         onRegistry={onRegistry}
         guideId={open}
         onDirty={onDirty}

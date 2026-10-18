@@ -3,9 +3,9 @@
  * Size Guide REST
  *
  * The routes behind the Size Guides editor (Products → Size Guides): list,
- * read, create, update, duplicate, and trash guides. One save writes the
- * whole guide — chart, notes, diagram, its own specs and spec values, and
- * where it applies.
+ * read, create, update, duplicate, trash, and apply guides to products.
+ * One save writes the whole guide — chart, notes, diagram, its own specs
+ * and spec values, and where it applies.
  *
  * @package Aggressive_Apparel
  */
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -110,6 +110,23 @@ final class Size_Guide_Rest {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'convert' ),
 				'permission_callback' => $edit,
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			self::ROUTE . '/(?P<id>\d+)/apply',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => fn( \WP_REST_Request $request ): \WP_REST_Response => rest_ensure_response( Size_Guide_Apply::page( (int) $request['id'], absint( $request->get_param( 'page' ) ) ) ),
+				'permission_callback' => $edit,
+				'args'                => array(
+					'page' => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+						'default' => 1,
+					),
+				),
 			)
 		);
 
@@ -283,6 +300,7 @@ final class Size_Guide_Rest {
 				'notes'   => $source['notes'],
 				'diagram' => null !== $source['diagram'] ? $source['diagram']['id'] : 0,
 				'specs'   => $source['specs'],
+				'hidden'  => $source['hidden'],
 			)
 		);
 		Size_Guide_Spec_Items::share( $source['id'], $id );
@@ -346,6 +364,7 @@ final class Size_Guide_Rest {
 	 */
 	public static function guide( int $id ): array {
 		$post    = get_post( $id );
+		$specs   = Product_Specs_Values::guide( $id );
 		$chart   = Size_Chart::get( $id );
 		$diagram = (int) get_post_meta( $id, Size_Chart::DIAGRAM, true );
 		$image   = $diagram > 0 ? wp_get_attachment_image_url( $diagram, 'medium' ) : false;
@@ -362,7 +381,8 @@ final class Size_Guide_Rest {
 				'id'  => $diagram,
 				'url' => $image,
 			) : null,
-			'specs'         => Product_Specs_Values::stored( $id ),
+			'specs'         => $specs['values'],
+			'hidden'        => $specs['hidden'],
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
 			'usage'         => Size_Guide_Assignments::usage( $id ),
@@ -443,7 +463,11 @@ final class Size_Guide_Rest {
 		}
 
 		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
-			Product_Specs_Values::save( $id, $data['specs'] );
+			Product_Specs_Values::save_guide( $id, $data['specs'] );
+		}
+
+		if ( array_key_exists( 'hidden', $data ) ) {
+			Product_Specs_Values::save_hidden( $id, $data['hidden'] );
 		}
 
 		if ( isset( $data['categories'] ) && is_array( $data['categories'] ) ) {

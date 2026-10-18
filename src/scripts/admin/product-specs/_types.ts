@@ -30,6 +30,13 @@ export type SpecItem = {
   default: string;
   /** Size guides that own the spec; empty for a store-wide spec. */
   guides: number[];
+  /** WooCommerce attribute holding the values ('' until first saved). */
+  taxonomy: string;
+  /** A picked scale's terms, one per step (kept through renames). */
+  step_terms: number[];
+  default_term: number;
+  /** A text spec's existing values (its terms), to pick from. */
+  terms?: string[];
 };
 
 /** Number-scale boundaries for one category. */
@@ -38,7 +45,12 @@ export type CategorySteps = { category: number; thresholds: number[] };
 /** Editor-side item: a stable React key and whether it was ever saved. */
 export type DraftItem = SpecItem & { uid: string; isNew: boolean };
 
-export type Registry = { items: SpecItem[]; hide_dimensions: boolean };
+export type Registry = {
+  items: SpecItem[];
+  hide_dimensions: boolean;
+  /** Bumped on every save, so a stale editor's save merges instead. */
+  revision: number;
+};
 
 export type Category = { id: number; name: string };
 
@@ -73,6 +85,8 @@ export type GuideDetail = {
   diagram: { id: number; url: string } | null;
   /** Spec values products using the guide inherit (item key => value). */
   specs: Record<string, string>;
+  /** Store-wide specs hidden on this guide's products. */
+  hidden: string[];
   categories: number[];
   isDefault: boolean;
   usage: Usage;
@@ -106,6 +120,8 @@ export type GridRow = {
   editUrl: string;
   thumb: string;
   categories: string[];
+  /** The size guide the product uses (0 for none). */
+  guide: number;
   specs: Record<string, GridCell>;
 };
 
@@ -120,6 +136,10 @@ export type Config = {
   suggest: Suggestion[];
   /** Attribute names in use on products. */
   attributes: string[];
+  /** Global attributes, taxonomy => label. */
+  taxonomies: Record<string, string>;
+  /** Terms screen URL; append the taxonomy. */
+  termsUrl: string;
   tab: Tab;
   guide: number | 'new';
   limits: {

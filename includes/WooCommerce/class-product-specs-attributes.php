@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product attribute fallback for spec values.
  *
  * @phpstan-import-type Item from Product_Specs_Registry
- * @phpstan-type AttributeValue array{text: string, label: string, visible: bool}
+ * @phpstan-type AttributeValue array{text: string, label: string, visible: bool, own: bool}
  */
 final class Product_Specs_Attributes {
 
@@ -35,7 +35,9 @@ final class Product_Specs_Attributes {
 	private const GSM_PER_OZ = 33.906;
 
 	/**
-	 * Attribute text for each item that names a matching attribute.
+	 * Attribute text for each item: from the item's own attribute taxonomy
+	 * (`own`, the product's own value), else from an attribute named like
+	 * one of the item's attribute names (custom attributes included).
 	 *
 	 * @param \WC_Product $product Product.
 	 * @param array       $items   Spec items.
@@ -44,7 +46,11 @@ final class Product_Specs_Attributes {
 	 */
 	public static function values( \WC_Product $product, array $items ): array {
 		$lookup = array();
+		$owned  = array();
 		foreach ( $items as $item ) {
+			if ( '' !== $item['taxonomy'] ) {
+				$owned[ $item['taxonomy'] ] = $item['key'];
+			}
 			/**
 			 * Filters the attribute names that can supply a spec item.
 			 *
@@ -62,12 +68,19 @@ final class Product_Specs_Attributes {
 			}
 		}
 
-		if ( array() === $lookup ) {
+		if ( array() === $lookup && array() === $owned ) {
 			return array();
 		}
 
 		$found = array();
-		foreach ( $product->get_attributes() as $attribute ) {
+		// Own taxonomies first, so a name match never shadows them.
+		$is_own     = static fn( $attribute ): bool => $attribute instanceof \WC_Product_Attribute && isset( $owned[ $attribute->get_name() ] );
+		$attributes = $product->get_attributes();
+		$attributes = array_merge(
+			array_filter( $attributes, $is_own ),
+			array_filter( $attributes, static fn( $attribute ): bool => ! $is_own( $attribute ) )
+		);
+		foreach ( $attributes as $attribute ) {
 			if ( ! $attribute instanceof \WC_Product_Attribute ) {
 				continue;
 			}
@@ -75,7 +88,8 @@ final class Product_Specs_Attributes {
 			$label = $attribute->is_taxonomy()
 				? wc_attribute_label( $attribute->get_name() )
 				: $attribute->get_name();
-			$key   = $lookup[ self::normalize( $label ) ] ?? null;
+			$own   = $attribute->is_taxonomy() && isset( $owned[ $attribute->get_name() ] );
+			$key   = $own ? $owned[ $attribute->get_name() ] : ( $lookup[ self::normalize( $label ) ] ?? null );
 			if ( null === $key || isset( $found[ $key ] ) ) {
 				continue;
 			}
@@ -89,6 +103,7 @@ final class Product_Specs_Attributes {
 				'text'    => $text,
 				'label'   => $label,
 				'visible' => $attribute->get_visible(),
+				'own'     => $own,
 			);
 		}
 

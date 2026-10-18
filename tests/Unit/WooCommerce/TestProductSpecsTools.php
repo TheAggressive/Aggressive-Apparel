@@ -111,8 +111,13 @@ class TestProductSpecsTools extends WP_UnitTestCase {
 
 		$this->assertSame( 1, $result['saved'] );
 		$this->assertSame( 1, $result['skipped'] );
-		$this->assertSame( '3', get_post_meta( $product_id, '_aa_spec_fit', true ) );
-		$this->assertSame( '', get_post_meta( $product_id, '_aa_spec_weight', true ) );
+
+		// Saved as the product's own Fit attribute, the scale's fourth step.
+		$fit        = \Aggressive_Apparel\WooCommerce\Product_Specs_Registry::get()['items'][0];
+		$attributes = wc_get_product( $product_id )->get_attributes();
+		$this->assertArrayHasKey( $fit['taxonomy'], $attributes );
+		$this->assertSame( array( $fit['step_terms'][3] ), $attributes[ $fit['taxonomy'] ]->get_options() );
+		$this->assertArrayNotHasKey( \Aggressive_Apparel\WooCommerce\Product_Specs_Registry::get()['items'][1]['taxonomy'], $attributes, 'An unusable number writes nothing.' );
 		$this->assertSame( '', get_post_meta( $page_id, '_aa_spec_fit', true ) );
 	}
 

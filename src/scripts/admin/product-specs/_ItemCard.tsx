@@ -46,6 +46,10 @@ type Props = {
   extraMeta?: string;
   /** Delete wording, when deleting does something narrower. */
   deleteText?: { button: string; confirm: string };
+  /** Attributes the spec can use (taxonomy => label), to pick or switch. */
+  taxonomies?: Record<string, string>;
+  /** Terms screen URL; append the taxonomy. */
+  termsUrl?: string;
 };
 
 function typeLabel(type: DraftItem['type']): string {
@@ -128,6 +132,8 @@ export default function ItemCard({
   valueField,
   extraMeta,
   deleteText,
+  taxonomies,
+  termsUrl,
 }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isScale = item.type !== 'text';
@@ -533,6 +539,60 @@ export default function ItemCard({
                   )
             }
           >
+            {taxonomies && (
+              <div className='aa-ps-attribute'>
+                <SelectControl
+                  label={__('WooCommerce attribute', 'aggressive-apparel')}
+                  value={item.taxonomy}
+                  options={[
+                    ...(item.taxonomy === ''
+                      ? [
+                          {
+                            value: '',
+                            label: __(
+                              'Create one when saved',
+                              'aggressive-apparel'
+                            ),
+                          },
+                        ]
+                      : []),
+                    ...Object.entries(taxonomies).map(([value, label]) => ({
+                      value,
+                      label: `${label} (${value})`,
+                    })),
+                  ]}
+                  // Terms belong to the attribute: switching re-finds steps.
+                  onChange={taxonomy => onChange({ taxonomy, step_terms: [] })}
+                  help={
+                    item.taxonomy
+                      ? __(
+                          'Values are this attribute’s terms, so they work in shop filters and feeds. Switching attributes leaves values already on products where they are.',
+                          'aggressive-apparel'
+                        )
+                      : __(
+                          'Saving links an attribute named like this spec, or creates one.',
+                          'aggressive-apparel'
+                        )
+                  }
+                  __next40pxDefaultSize
+                />
+                {item.taxonomy && termsUrl && (
+                  <a
+                    href={termsUrl + encodeURIComponent(item.taxonomy)}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    {__(
+                      'Manage its values in WooCommerce',
+                      'aggressive-apparel'
+                    )}
+                    <span className='screen-reader-text'>
+                      {__('(opens in a new tab)', 'aggressive-apparel')}
+                    </span>
+                  </a>
+                )}
+              </div>
+            )}
             <TextControl
               label={__('Product attribute names', 'aggressive-apparel')}
               value={item.attributes.join(', ')}

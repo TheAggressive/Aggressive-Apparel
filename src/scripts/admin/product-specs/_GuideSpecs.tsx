@@ -1,27 +1,31 @@
 /**
  * Product Specs settings — a size guide's specs.
  *
- * Two groups: store-wide specs (defined on the Specs tab, so only their value
- * is set here) and the guide's own specs, made and edited right here with the
- * same card as the Specs tab and shown only on products using the guide
- * (Size_Guide_Spec_Items). Products using the guide show these values unless
- * they set their own or have a matching attribute; an empty value falls back
- * to the spec default (Product_Specs::resolve_item).
+ * One row per spec this guide's products show, with its value right there:
+ * store-wide specs (defined on the Specs tab, and hideable per guide) and the
+ * guide's own specs (shown only on products using it, editable in place).
+ * New specs are added in one row; a live preview shows the result.
  *
- * Products only use a guide that has something to show in its dialog
- * (Size_Guide::resolved), so a guide without a chart warns that its specs
- * won't apply yet.
+ * Every spec is a WooCommerce attribute and every value one of its terms
+ * (Product_Specs_Taxonomy). Products using the guide show these values
+ * unless they have their own; an empty value falls back to the spec default
+ * (Product_Specs::resolve_item). Products only use a guide that has a chart
+ * or old content (Size_Guide::resolved), hence the no-chart warning.
  *
  * @package Aggressive_Apparel
  */
 
 import { useState } from '@wordpress/element';
-import { Notice } from '@wordpress/components';
+import type { ReactNode } from 'react';
+import { Button, CheckboxControl, Notice } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { cx } from '../../../utils/product-specs-data';
 import type { Config, DraftItem, SpecItem } from './_types';
 import { newItem, slugify, uniqueKey } from './_utils';
 import { AddSpecButton } from './_AddSpec';
+import GuidePreview from './_GuidePreview';
 import ItemCard from './_ItemCard';
+import QuickAdd from './_QuickAdd';
 import SpecInput from './_SpecInput';
 
 type Props = {
@@ -33,9 +37,12 @@ type Props = {
   /** This guide's own specs, as edited. */
   own: DraftItem[];
   values: Record<string, string>;
+  /** Store-wide specs hidden on this guide's products. */
+  hidden: string[];
   /** Whether products can use the guide (it has a chart or old content). */
   usable: boolean;
   onValues: (values: Record<string, string>) => void;
+  onHidden: (hidden: string[]) => void;
   onOwn: (own: DraftItem[]) => void;
 };
 
@@ -59,15 +66,21 @@ export default function GuideSpecs({
   items,
   own,
   values,
+  hidden,
   usable,
   onValues,
+  onHidden,
   onOwn,
 }: Props) {
   const [open, setOpen] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const storeWide = items.filter(
     item => item.enabled && item.guides.length === 0
   );
-  const shown = [...storeWide, ...own.filter(item => item.enabled)];
+  const shown = [
+    ...storeWide.filter(item => !hidden.includes(item.key)),
+    ...own.filter(item => item.enabled),
+  ];
   const hasValues = shown.some(item => (values[item.key] ?? '') !== '');
   // Registry size after saving: every other item plus this guide's own.
   const total =
@@ -105,41 +118,59 @@ export default function GuideSpecs({
     onOwn(next);
   };
 
-  const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
+  const add = (
+    partial: Partial<SpecItem> & Pick<SpecItem, 'type'>,
+    value = '',
+    more = true
+  ) => {
     // Keys are unique across the whole registry, not just this guide.
     const item = newItem(partial, [...items, ...own]);
     onOwn([...own, item]);
-    setOpen(item.uid);
+    if (value !== '') {
+      setValue(item.key, value);
+    }
+    setAdding(false);
+    setOpen(more ? item.uid : null);
   };
 
-  const valueField = (item: DraftItem) => (
-    <label className='aa-ps-default'>
-      <span className='aa-ps-default__label'>
-        {__('Value on this guide', 'aggressive-apparel')}
-        {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
-      </span>
-      <SpecInput
-        item={item}
-        value={values[item.key] ?? ''}
-        label={__('Value on this guide', 'aggressive-apparel')}
-        showStep
-        onChange={value => setValue(item.key, value)}
-      />
-      <span className='aa-ps-help'>
-        {__(
-          'Products using this guide show this, unless they set their own value or have a matching attribute.',
-          'aggressive-apparel'
-        )}
-      </span>
-    </label>
-  );
+  const row = (item: SpecItem, extra: { tag: string; actions: ReactNode }) => {
+    const isHidden = hidden.includes(item.key);
+    return (
+      <div className={cx('aa-ps-spec-row', isHidden && 'is-hidden')}>
+        <div className='aa-ps-spec-row__name'>
+          <span className='aa-ps-default__label'>
+            {item.name || __('Untitled spec', 'aggressive-apparel')}
+            {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
+          </span>
+          <span className='aa-ps-badge'>{extra.tag}</span>
+        </div>
+        <div className='aa-ps-spec-row__value'>
+          {isHidden ? (
+            <span className='aa-ps-help'>
+              {__('Not shown on this guide’s products', 'aggressive-apparel')}
+            </span>
+          ) : (
+            <SpecInput
+              item={item}
+              value={values[item.key] ?? ''}
+              label={item.name}
+              inherited={describe(item, item.default)}
+              showStep
+              onChange={value => setValue(item.key, value)}
+            />
+          )}
+        </div>
+        <div className='aa-ps-spec-row__actions'>{extra.actions}</div>
+      </div>
+    );
+  };
 
   return (
     <section className='aa-ps-guide__section'>
       <h2>{__('Specs', 'aggressive-apparel')}</h2>
       <p className='aa-ps-help'>
         {__(
-          'Add the specs this garment needs. Specs you add here show only on products using this guide; store-wide specs from the Specs tab show on every guide.',
+          'Products using this guide show these values, unless a product has its own. Each spec is a WooCommerce attribute, so values you enter become reusable attribute terms.',
           'aggressive-apparel'
         )}
       </p>
@@ -152,115 +183,138 @@ export default function GuideSpecs({
         </Notice>
       )}
 
-      {storeWide.length > 0 && (
-        <div className='aa-ps-guide__group'>
-          <h3>{__('Store-wide specs', 'aggressive-apparel')}</h3>
-          <p className='aa-ps-help'>
-            {__(
-              'Defined on the Specs tab. Leave a value empty to use the spec’s store-wide default.',
-              'aggressive-apparel'
-            )}
-          </p>
-          <div className='aa-ps-guide__specs'>
-            {storeWide.map(item => (
-              // A wrapping label, so clicking the name focuses the field.
-              <label key={item.key} className='aa-ps-guide__spec'>
-                <span className='aa-ps-default__label'>
-                  {item.name}
-                  {item.type === 'number' && item.unit ? ` (${item.unit})` : ''}
-                </span>
-                <SpecInput
-                  item={item}
-                  value={values[item.key] ?? ''}
-                  label={item.name}
-                  inherited={describe(item, item.default)}
-                  showStep
-                  onChange={value => setValue(item.key, value)}
-                />
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className='aa-ps-guide__chart'>
+        <div className='aa-ps-spec-rows'>
+          {storeWide.map(item => (
+            <div key={item.key}>
+              {row(item, {
+                tag: __('Store-wide', 'aggressive-apparel'),
+                actions: (
+                  <CheckboxControl
+                    label={__('Hide on this guide', 'aggressive-apparel')}
+                    checked={hidden.includes(item.key)}
+                    onChange={checked =>
+                      onHidden(
+                        checked
+                          ? [...hidden, item.key]
+                          : hidden.filter(key => key !== item.key)
+                      )
+                    }
+                  />
+                ),
+              })}
+            </div>
+          ))}
 
-      <div className='aa-ps-guide__group'>
-        <h3>{__('This guide’s specs', 'aggressive-apparel')}</h3>
-        {own.length === 0 && (
-          <p className='aa-ps-help'>
-            {__(
-              'None yet. Add one for anything this garment needs, like Closure or Stretch.',
-              'aggressive-apparel'
-            )}
-          </p>
-        )}
-        <div className='aa-ps-list'>
           {own.map((item, index) => {
             const others = item.guides.filter(id => id !== guideId).length;
-            const value = describe(item, values[item.key] ?? '');
+            const isOpen = open === item.uid;
             return (
-              <ItemCard
-                key={item.uid}
-                item={item}
-                index={index}
-                total={own.length}
-                categories={config.categories}
-                attributeNames={config.attributes}
-                limits={config.limits}
-                open={open === item.uid}
-                onToggle={() => setOpen(open === item.uid ? null : item.uid)}
-                onChange={patch => update(item, patch)}
-                onMove={direction => move(index, direction)}
-                onDelete={() =>
-                  onOwn(own.filter(other => other.uid !== item.uid))
-                }
-                valueField={valueField(item)}
-                extraMeta={[
-                  value
-                    ? sprintf(
-                        /* translators: %s: the spec's value on this guide. */
-                        __('Value: %s', 'aggressive-apparel'),
-                        value
+              <div key={item.uid}>
+                {row(item, {
+                  tag:
+                    others > 0
+                      ? sprintf(
+                          /* translators: %d: number of other size guides. */
+                          _n(
+                            'Shared with %d other guide',
+                            'Shared with %d other guides',
+                            others,
+                            'aggressive-apparel'
+                          ),
+                          others
+                        )
+                      : __('This guide', 'aggressive-apparel'),
+                  actions: (
+                    <Button
+                      variant='tertiary'
+                      aria-expanded={isOpen}
+                      onClick={() => setOpen(isOpen ? null : item.uid)}
+                    >
+                      {isOpen
+                        ? __('Done', 'aggressive-apparel')
+                        : __('Edit', 'aggressive-apparel')}
+                    </Button>
+                  ),
+                })}
+                {isOpen && (
+                  <ItemCard
+                    item={item}
+                    index={index}
+                    total={own.length}
+                    categories={config.categories}
+                    attributeNames={config.attributes}
+                    limits={config.limits}
+                    taxonomies={Object.fromEntries(
+                      Object.entries(config.taxonomies).filter(
+                        ([taxonomy]) =>
+                          taxonomy === item.taxonomy ||
+                          ![...items, ...own].some(
+                            other => other.taxonomy === taxonomy
+                          )
                       )
-                    : __('No value yet', 'aggressive-apparel'),
-                  others > 0 &&
-                    sprintf(
-                      /* translators: %d: number of other size guides. */
-                      _n(
-                        'shared with %d other guide',
-                        'shared with %d other guides',
-                        others,
-                        'aggressive-apparel'
-                      ),
-                      others
-                    ),
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-                deleteText={
-                  others > 0
-                    ? {
-                        button: __(
-                          'Remove from this guide',
-                          'aggressive-apparel'
-                        ),
-                        confirm: __(
-                          'Remove from this guide? The other guides sharing it keep it.',
-                          'aggressive-apparel'
-                        ),
-                      }
-                    : undefined
-                }
-              />
+                    )}
+                    termsUrl={config.termsUrl}
+                    open
+                    onToggle={() => setOpen(null)}
+                    onChange={patch => update(item, patch)}
+                    onMove={direction => move(index, direction)}
+                    onDelete={() => {
+                      onOwn(own.filter(other => other.uid !== item.uid));
+                      setOpen(null);
+                    }}
+                    // The value is edited in the row above.
+                    valueField={<></>}
+                    deleteText={
+                      others > 0
+                        ? {
+                            button: __(
+                              'Remove from this guide',
+                              'aggressive-apparel'
+                            ),
+                            confirm: __(
+                              'Remove from this guide? The other guides sharing it keep it.',
+                              'aggressive-apparel'
+                            ),
+                          }
+                        : {
+                            button: __('Delete spec', 'aggressive-apparel'),
+                            confirm: __(
+                              'Delete this spec? Its WooCommerce attribute and the values on products stay.',
+                              'aggressive-apparel'
+                            ),
+                          }
+                    }
+                  />
+                )}
+              </div>
             );
           })}
+
+          {adding ? (
+            <QuickAdd onAdd={add} onCancel={() => setAdding(false)} />
+          ) : (
+            <div className='aa-ps-add'>
+              <Button
+                variant='secondary'
+                icon='plus'
+                disabled={total >= config.limits.items}
+                onClick={() => setAdding(true)}
+              >
+                {__('Add a spec', 'aggressive-apparel')}
+              </Button>
+              <AddSpecButton
+                existing={shown}
+                disabled={total >= config.limits.items}
+                onAdd={partial => add(partial)}
+                label={__('From a preset…', 'aggressive-apparel')}
+                variant='secondary'
+              />
+            </div>
+          )}
         </div>
-        <div className='aa-ps-add'>
-          <AddSpecButton
-            existing={shown}
-            disabled={total >= config.limits.items}
-            onAdd={add}
-          />
-        </div>
+
+        <GuidePreview items={shown} values={values} />
       </div>
     </section>
   );

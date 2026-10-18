@@ -36,15 +36,19 @@ final class Product_Specs_Admin_Fields {
 	public const FIELD = 'aa_specs';
 
 	/**
-	 * One product row per spec item: input, source line, hide toggle.
+	 * One product row per spec item: input, source line, hide toggle. The
+	 * value is the product's own attribute for the spec; an attribute that
+	 * drives variations is shown read only.
 	 *
-	 * @param array $item Resolved item.
+	 * @param array $item   Resolved item.
+	 * @param bool  $locked Whether the attribute drives variations.
 	 * @phpstan-param ResolvedItem $item
 	 */
-	public static function product_row( array $item ): string {
+	public static function product_row( array $item, bool $locked = false ): string {
 		$key  = $item['key'];
 		$id   = 'aa-specs-' . $key;
 		$name = self::FIELD . '[values][' . $key . ']';
+		$list = '';
 
 		$inherited = self::describe( $item, $item['inherited'] );
 
@@ -68,14 +72,24 @@ final class Product_Specs_Admin_Fields {
 				esc_attr( $item['inherited']['number'] > 0 ? (string) $item['inherited']['number'] : '' )
 			);
 		} else {
+			// Values already used for this attribute, so a value is picked
+			// rather than retyped with a different spelling.
+			$list    = '<datalist id="' . esc_attr( $id . '-terms' ) . '">' . implode( '', array_map( static fn( string $term ): string => '<option value="' . esc_attr( $term ) . '">', Product_Specs_Taxonomy::names( $item['taxonomy'] ) ) ) . '</datalist>';
 			$control = sprintf(
-				'<input type="text" id="%1$s" name="%2$s" value="%3$s" placeholder="%4$s">',
+				'<input type="text" id="%1$s" name="%2$s" value="%3$s" placeholder="%4$s" list="%5$s">',
 				esc_attr( $id ),
 				esc_attr( $name ),
 				esc_attr( $item['own'] ),
-				esc_attr( $item['inherited']['text'] )
+				esc_attr( $item['inherited']['text'] ),
+				esc_attr( $id . '-terms' )
 			);
 		}
+
+		if ( $locked ) {
+			$control = str_replace( array( '<select ', '<input ' ), array( '<select disabled ', '<input disabled ' ), $control );
+		}
+		// What the field held when shown: saving writes only changed fields.
+		$control .= $list . sprintf( '<input type="hidden" name="%1$s" value="%2$s">', esc_attr( self::FIELD . '[orig][' . $key . ']' ), esc_attr( $item['own'] ) );
 
 		$label = Product_Specs_Registry::TYPE_NUMBER === $item['type'] && '' !== $item['unit']
 			? sprintf( '%1$s (%2$s)', $item['title'], $item['unit'] )
@@ -89,7 +103,11 @@ final class Product_Specs_Admin_Fields {
 			esc_html__( 'Hide on this product', 'aggressive-apparel' )
 		);
 
-		return '<p class="form-field"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>' . $control . $hide . self::status( $item ) . '</p>';
+		$status = $locked
+			? self::status_markup( __( 'This attribute sets the product’s variations, so change it in the Attributes tab.', 'aggressive-apparel' ), false )
+			: self::status( $item );
+
+		return '<p class="form-field"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>' . $control . $hide . $status . '</p>';
 	}
 
 	/**

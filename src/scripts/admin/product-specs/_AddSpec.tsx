@@ -18,9 +18,18 @@ type Props = {
   existing: SpecItem[];
   disabled: boolean;
   onAdd: (item: Partial<SpecItem> & Pick<SpecItem, 'type'>) => void;
+  /** Button text and style, when it is not the page's main action. */
+  label?: string;
+  variant?: 'primary' | 'secondary';
 };
 
-export function AddSpecButton({ existing, disabled, onAdd }: Props) {
+export function AddSpecButton({
+  existing,
+  disabled,
+  onAdd,
+  label,
+  variant = 'primary',
+}: Props) {
   const [open, setOpen] = useState(false);
   const keys = new Set(existing.map(item => item.key));
   const all = presets();
@@ -36,11 +45,11 @@ export function AddSpecButton({ existing, disabled, onAdd }: Props) {
   return (
     <>
       <Button
-        variant='primary'
+        variant={variant}
         disabled={disabled}
         onClick={() => setOpen(true)}
       >
-        {__('Add spec', 'aggressive-apparel')}
+        {label ?? __('Add spec', 'aggressive-apparel')}
       </Button>
       {open && (
         <Modal

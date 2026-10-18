@@ -10,6 +10,7 @@
  * @package Aggressive_Apparel
  */
 
+import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { SpecItem } from './_types';
@@ -35,6 +36,7 @@ export default function SpecInput({
   onChange,
 }: Props) {
   const className = cx('aa-ps-input', changed && 'is-changed');
+  const id = useId();
 
   if (item.type === 'pick') {
     return (
@@ -68,11 +70,24 @@ export default function SpecInput({
       ? item.steps[stepFor(number, item.thresholds)]
       : '';
 
+  // A text spec's values are its attribute's terms: offer them, so a value
+  // is picked rather than retyped with a different spelling.
+  const listId =
+    item.type === 'text' && item.terms?.length ? `${id}-terms` : undefined;
+
   return (
     <span className='aa-ps-input-wrap'>
+      {listId && (
+        <datalist id={listId}>
+          {item.terms?.map(term => (
+            <option key={term} value={term} />
+          ))}
+        </datalist>
+      )}
       <input
         className={className}
         aria-label={label}
+        list={listId}
         type={item.type === 'number' ? 'number' : 'text'}
         min={item.type === 'number' ? 0 : undefined}
         step={item.type === 'number' ? 'any' : undefined}

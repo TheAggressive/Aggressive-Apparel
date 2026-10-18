@@ -67,6 +67,11 @@ export default function App({ config }: { config: Config }) {
   const [specsSaving, setSpecsSaving] = useState(false);
   const [specsErrors, setSpecsErrors] = useState<string[]>([]);
   const [specsSaved, setSpecsSaved] = useState(false);
+  // The revision the draft started from, and what it changed since: a save
+  // from an older revision applies only these on top of the current list.
+  const [revision, setRevision] = useState(config.registry.revision);
+  const [changed, setChanged] = useState<string[]>([]);
+  const [deleted, setDeleted] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>(config.suggest);
 
   // Products.
@@ -117,8 +122,22 @@ export default function App({ config }: { config: Config }) {
     setSpecsSaved(false);
   };
 
-  const update = (uid: string, patch: Partial<DraftItem>) =>
+  const markChanged = (uid: string) =>
+    setChanged(previous =>
+      previous.includes(uid) ? previous : [...previous, uid]
+    );
+
+  const update = (uid: string, patch: Partial<DraftItem>) => {
+    markChanged(uid);
     touch(items.map(item => (item.uid === uid ? { ...item, ...patch } : item)));
+  };
+
+  const remove = (item: DraftItem) => {
+    if (!item.isNew) {
+      setDeleted(previous => [...previous, item.key]);
+    }
+    touch(items.filter(other => other.uid !== item.uid));
+  };
 
   const move = (index: number, direction: -1 | 1) => {
     const next = [...items];
@@ -129,9 +148,20 @@ export default function App({ config }: { config: Config }) {
 
   const add = (partial: Partial<SpecItem> & Pick<SpecItem, 'type'>) => {
     const item = newItem(partial, items);
+    markChanged(item.uid);
     touch([...items, item]);
     setOpen(item.uid);
   };
+
+  // Attributes a spec can switch to: its own, and any no other spec uses.
+  const freeTaxonomies = (item: DraftItem): Record<string, string> =>
+    Object.fromEntries(
+      Object.entries(config.taxonomies).filter(
+        ([taxonomy]) =>
+          taxonomy === item.taxonomy ||
+          !items.some(other => other.taxonomy === taxonomy)
+      )
+    );
 
   const fromSuggestion = (suggestion: Suggestion) => {
     add({
@@ -155,8 +185,19 @@ export default function App({ config }: { config: Config }) {
       const registry = (await apiFetch({
         path: config.restPath,
         method: 'POST',
-        data: { items: items.map(toStored), hide_dimensions: hideDimensions },
+        data: {
+          items: items.map(toStored),
+          hide_dimensions: hideDimensions,
+          revision,
+          changed: items
+            .filter(item => changed.includes(item.uid))
+            .map(item => toStored(item).key),
+          deleted,
+        },
       })) as Registry;
+      setRevision(registry.revision);
+      setChanged([]);
+      setDeleted([]);
       setItems(registry.items.map(toDraft));
       setSavedItems(registry.items);
       setHideDimensions(registry.hide_dimensions);
@@ -225,25 +266,48 @@ export default function App({ config }: { config: Config }) {
             </p>
           </div>
         )}
-        {items.map((item, index) => (
-          <ItemCard
-            key={item.uid}
-            item={item}
-            index={index}
-            total={items.length}
-            categories={config.categories}
-            attributeNames={config.attributes}
-            limits={config.limits}
-            guides={guides}
-            open={open === item.uid}
-            onToggle={() => setOpen(open === item.uid ? null : item.uid)}
-            onChange={patch => update(item.uid, patch)}
-            onMove={direction => move(index, direction)}
-            onDelete={() =>
-              touch(items.filter(other => other.uid !== item.uid))
-            }
-          />
-        ))}
+        {[
+          {
+            title: __('Store-wide specs', 'aggressive-apparel'),
+            owned: false,
+          },
+          {
+            title: __('Size guide specs', 'aggressive-apparel'),
+            owned: true,
+          },
+        ].map(group => {
+          const list = items
+            .map((item, index) => ({ item, index }))
+            .filter(({ item }) => item.guides.length > 0 === group.owned);
+          return (
+            list.length > 0 && (
+              <div key={group.title} className='aa-ps-list__group'>
+                <h3>{group.title}</h3>
+                {list.map(({ item, index }) => (
+                  <ItemCard
+                    key={item.uid}
+                    item={item}
+                    index={index}
+                    total={items.length}
+                    categories={config.categories}
+                    attributeNames={config.attributes}
+                    limits={config.limits}
+                    guides={guides}
+                    taxonomies={freeTaxonomies(item)}
+                    termsUrl={config.termsUrl}
+                    open={open === item.uid}
+                    onToggle={() =>
+                      setOpen(open === item.uid ? null : item.uid)
+                    }
+                    onChange={patch => update(item.uid, patch)}
+                    onMove={direction => move(index, direction)}
+                    onDelete={() => remove(item)}
+                  />
+                ))}
+              </div>
+            )
+          );
+        })}
       </div>
 
       <div className='aa-ps-add'>
@@ -372,13 +436,13 @@ export default function App({ config }: { config: Config }) {
           <GuidesTab
             config={config}
             items={savedItems}
-            specsDirty={specsDirty}
             onRegistry={registry => {
               setSavedItems(registry.items);
-              // An untouched Specs tab follows; a dirty one blocks guide
-              // spec saves instead (GuideEditor), so nothing is lost.
+              // An untouched Specs tab follows. A dirty one keeps its draft
+              // and older revision, so its save merges onto this one.
               if (!specsDirty) {
                 setItems(registry.items.map(toDraft));
+                setRevision(registry.revision);
               }
             }}
             guides={guides}

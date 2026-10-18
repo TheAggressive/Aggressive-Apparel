@@ -2,11 +2,14 @@
 /**
  * Product Specs Values
  *
- * The one write path for spec values on a product or a size guide, shared by
- * the product's Size & specs tab, the Products tab of Products → Size Guides,
- * and the size guide editor.
- * Values are normalized per item type, and empty values delete the meta so
- * the next fallback (attribute, spec default) shows through.
+ * A size guide's spec values: the terms products using the guide show when
+ * they have no value of their own (stored as term IDs, since every value is a
+ * term of the spec's attribute), and the store-wide specs it hides. Products'
+ * own values are product attributes (Product_Specs_Product_Writer).
+ *
+ * Values arrive and leave as the editor uses them: a step index, a number,
+ * or text. Guide values saved before specs were attributes (`_aa_spec_*`
+ * guide meta) still read until Product_Specs_Migration moves them.
  *
  * @package Aggressive_Apparel
  */
@@ -21,47 +24,92 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Spec value normalization and storage.
+ * Size guide spec values and value normalization.
  *
  * @phpstan-import-type Item from Product_Specs_Registry
+ * @phpstan-type GuideSpecs array{values: array<string, string>, hidden: list<string>}
  */
 final class Product_Specs_Values {
 
 	/**
-	 * Store submitted values. Items missing from $values are left untouched.
+	 * Guide meta: item key => term ID.
 	 *
-	 * @param int                  $post_id Product or size guide ID.
-	 * @param array<string, mixed> $values  Item key => raw value.
+	 * @var string
 	 */
-	public static function save( int $post_id, array $values ): void {
+	public const GUIDE_TERMS = '_aa_guide_specs';
+
+	/**
+	 * Guide meta: store-wide item keys hidden on the guide's products.
+	 *
+	 * @var string
+	 */
+	public const GUIDE_HIDDEN = '_aa_guide_hidden';
+
+	/**
+	 * Store a guide's submitted values. Items missing from $values are left
+	 * untouched; an empty value removes the guide's value.
+	 *
+	 * @param int                  $guide_id Size guide ID.
+	 * @param array<string, mixed> $values   Item key => value.
+	 */
+	public static function save_guide( int $guide_id, array $values ): void {
+		Product_Specs_Registry::ensure_connected();
+		$terms = self::guide_terms( $guide_id );
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
-			if ( ! array_key_exists( $item['key'], $values ) ) {
+			if ( ! array_key_exists( $item['key'], $values ) || ! is_scalar( $values[ $item['key'] ] ) ) {
 				continue;
 			}
 
-			$value = self::clean( $values[ $item['key'] ], $item );
-			$key   = Product_Specs_Meta::key( $item['key'] );
-			if ( '' === $value ) {
-				delete_post_meta( $post_id, $key );
+			$term = Product_Specs_Taxonomy::term_for( $item, (string) $values[ $item['key'] ] );
+			if ( $term > 0 ) {
+				$terms[ $item['key'] ] = $term;
 			} else {
-				update_post_meta( $post_id, $key, $value );
+				unset( $terms[ $item['key'] ] );
 			}
+			delete_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ) );
+		}
+
+		if ( array() === $terms ) {
+			delete_post_meta( $guide_id, self::GUIDE_TERMS );
+		} else {
+			update_post_meta( $guide_id, self::GUIDE_TERMS, $terms );
 		}
 	}
 
 	/**
-	 * A post's stored values for every item (no fallbacks).
+	 * Store the store-wide specs a guide hides.
 	 *
-	 * @param int $post_id Product or size guide ID.
-	 * @return array<string, string> Item key => stored value ('' when unset).
+	 * @param int   $guide_id Size guide ID.
+	 * @param mixed $keys     Item keys.
 	 */
-	public static function stored( int $post_id ): array {
+	public static function save_hidden( int $guide_id, $keys ): void {
+		$keys = Product_Specs_Meta::sanitize_keys( $keys );
+		if ( array() === $keys ) {
+			delete_post_meta( $guide_id, self::GUIDE_HIDDEN );
+		} else {
+			update_post_meta( $guide_id, self::GUIDE_HIDDEN, $keys );
+		}
+	}
+
+	/**
+	 * A guide's values for every item (no fallbacks) and the keys it hides.
+	 *
+	 * @param int $guide_id Size guide ID.
+	 * @return GuideSpecs
+	 */
+	public static function guide( int $guide_id ): array {
+		$terms  = self::guide_terms( $guide_id );
 		$values = array();
 		foreach ( Product_Specs_Registry::get()['items'] as $item ) {
-			$values[ $item['key'] ] = self::clean( get_post_meta( $post_id, Product_Specs_Meta::key( $item['key'] ), true ), $item );
+			$values[ $item['key'] ] = isset( $terms[ $item['key'] ] )
+				? Product_Specs_Taxonomy::value_of( $item, $terms[ $item['key'] ] )
+				: self::clean( get_post_meta( $guide_id, Product_Specs_Meta::key( $item['key'] ), true ), $item );
 		}
 
-		return $values;
+		return array(
+			'values' => $values,
+			'hidden' => Product_Specs_Meta::sanitize_keys( get_post_meta( $guide_id, self::GUIDE_HIDDEN, true ) ),
+		);
 	}
 
 	/**
@@ -82,5 +130,24 @@ final class Product_Specs_Values {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * A guide's stored term IDs by item key.
+	 *
+	 * @param int $guide_id Size guide ID.
+	 * @return array<string, int>
+	 */
+	private static function guide_terms( int $guide_id ): array {
+		$raw   = get_post_meta( $guide_id, self::GUIDE_TERMS, true );
+		$terms = array();
+		foreach ( is_array( $raw ) ? $raw : array() as $key => $term ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' !== $key && absint( $term ) > 0 ) {
+				$terms[ $key ] = absint( $term );
+			}
+		}
+
+		return $terms;
 	}
 }

@@ -98,7 +98,7 @@ $transition      = isset( $attributes['swatchTransition'] ) ? (string) $attribut
 $alignment       = isset( $attributes['swatchAlignment'] ) ? (string) $attributes['swatchAlignment'] : 'left';
 
 $shape             = in_array( $shape, array( 'circle', 'square', 'diamond' ), true ) ? $shape : 'circle';
-$size              = in_array( $size, array( 'xs', 'sm', 'md', 'lg' ), true ) ? $size : 'md';
+$size              = in_array( $size, array( 'xxs', 'xs', 'sm', 'md', 'lg' ), true ) ? $size : 'md';
 $alignment         = in_array( $alignment, array( 'left', 'center', 'right' ), true ) ? $alignment : 'left';
 $valid_transitions = array( 'fade', 'blur', 'zoom-in', 'zoom-out', 'slide-up', 'slide-down', 'slide-left', 'flip', 'blur-zoom', 'flash', 'wipe', 'squeeze', 'rotate', 'tilt', 'desaturate', 'elastic', 'glitch', 'iris', 'dissolve', 'swing' );
 $transition        = in_array( $transition, $valid_transitions, true ) ? $transition : 'blur';

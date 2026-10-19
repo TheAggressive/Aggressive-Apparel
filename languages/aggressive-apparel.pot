@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T22:59:22+00:00\n"
+"POT-Creation-Date: 2026-10-19T00:16:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2353,13 +2353,11 @@ msgid "Show the first gallery image on hover for products that have additional g
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:481
-#: includes/WooCommerce/class-product-specs-settings.php:114
-#: includes/WooCommerce/class-product-specs-settings.php:177
 msgid "Size Guides & Specs"
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:482
-msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size Guides and assigned to products or categories."
+msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size & Specs and assigned to products or categories."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings.php:486
@@ -2834,7 +2832,7 @@ msgstr ""
 msgid "Product specs"
 msgstr ""
 
-#. translators: %s: link to the Specs tab of Products → Size Guides.
+#. translators: %s: link to the Specs tab of Products → Size & Specs.
 #: includes/WooCommerce/class-product-specs-admin.php:91
 #, php-format
 msgid "No specs apply to this product’s categories. Choose where each spec shows on %s."
@@ -2842,10 +2840,10 @@ msgstr ""
 
 #: includes/WooCommerce/class-product-specs-admin.php:92
 #: includes/WooCommerce/class-product-specs-admin.php:104
-msgid "Products → Size Guides → Specs"
+msgid "Products → Size & Specs → Specs"
 msgstr ""
 
-#. translators: %s: link to the Specs tab of Products → Size Guides.
+#. translators: %s: link to the Specs tab of Products → Size & Specs.
 #: includes/WooCommerce/class-product-specs-admin.php:103
 #, php-format
 msgid "Values save as this product’s WooCommerce attributes. Empty fields use the product’s size guide, then each spec’s default from %s."
@@ -2860,13 +2858,13 @@ msgid "Nothing to show yet. Set a value here, as a product attribute, or as the 
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-admin.php:134
-msgid "Wording for this product only. Empty fields use the wording from Products → Size Guides → Specs, shown in grey."
+msgid "Wording for this product only. Empty fields use the wording from Products → Size & Specs → Specs, shown in grey."
 msgstr ""
 
 #. translators: %s: comma-separated spec keys.
 #: includes/WooCommerce/class-product-specs-admin.php:178
 #, php-format
-msgid "Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs."
+msgid "Some spec values could not be saved (%s). Check the spec on Products → Size & Specs → Specs."
 msgstr ""
 
 #. translators: %s: comma-separated spec keys.
@@ -3042,11 +3040,10 @@ msgstr ""
 msgid "%1$s, on a scale from %2$s to %3$s"
 msgstr ""
 
+#: includes/WooCommerce/class-product-specs-settings.php:114
 #: includes/WooCommerce/class-product-specs-settings.php:115
-#: includes/WooCommerce/class-size-guide-post-type.php:76
-#: includes/WooCommerce/class-size-guide-post-type.php:78
-#: includes/WooCommerce/class-size-guide-post-type.php:87
-msgid "Size Guides"
+#: includes/WooCommerce/class-product-specs-settings.php:177
+msgid "Size & Specs"
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-settings.php:181
@@ -3926,6 +3923,12 @@ msgstr ""
 #: includes/WooCommerce/class-size-guide-label-link.php:80
 msgctxt "visible text of the size guide link beside the size options"
 msgid "Guide"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-post-type.php:76
+#: includes/WooCommerce/class-size-guide-post-type.php:78
+#: includes/WooCommerce/class-size-guide-post-type.php:87
+msgid "Size Guides"
 msgstr ""
 
 #: includes/WooCommerce/class-size-guide-post-type.php:77
@@ -8611,7 +8614,7 @@ msgstr ""
 
 #: src/blocks/product-specs/block.json
 msgctxt "block description"
-msgid "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size Guides."
+msgid "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size & Specs."
 msgstr ""
 
 #: src/blocks/product-specs/block.json

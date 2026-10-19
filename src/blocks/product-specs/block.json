@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Product Specs",
   "category": "aggressive-apparel",
-  "description": "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size Guides.",
+  "description": "Spec scales (like fit or fabric weight), advice, details, and the picked size's measurements for the current product. Specs are defined on Products → Size & Specs.",
   "keywords": ["specs", "fit", "fabric", "weight", "scale", "product"],
   "textdomain": "aggressive-apparel",
   "usesContext": ["postId", "postType"],

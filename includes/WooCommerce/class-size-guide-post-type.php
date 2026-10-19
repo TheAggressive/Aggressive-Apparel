@@ -54,7 +54,7 @@ class Size_Guide_Post_Type {
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_ui'             => true,
-				'show_in_menu'        => false, // Managed on Products → Size Guides (Product_Specs_Settings).
+				'show_in_menu'        => false, // Managed on Products → Size & Specs (Product_Specs_Settings).
 				'show_in_rest'        => true,
 				'supports'            => array( 'title', 'editor', 'revisions' ),
 				'capability_type'     => 'post',

@@ -6,7 +6,7 @@
  * Guide tab (or its own tab when Size Guide is off). Each field shows where
  * its value comes from, and a product can override, hide, or reword any spec.
  *
- * Everything shared lives on Products → Size Guides (Product_Specs_Settings):
+ * Everything shared lives on Products → Size & Specs (Product_Specs_Settings):
  * size guides, spec definitions with their defaults, and per-category
  * boundaries.
  *
@@ -87,9 +87,9 @@ final class Product_Specs_Admin {
 		if ( array() === $data['items'] ) {
 			echo '<p class="aa-specs-help">' . wp_kses(
 				sprintf(
-					/* translators: %s: link to the Specs tab of Products → Size Guides. */
+					/* translators: %s: link to the Specs tab of Products → Size & Specs. */
 					__( 'No specs apply to this product’s categories. Choose where each spec shows on %s.', 'aggressive-apparel' ),
-					'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size Guides → Specs', 'aggressive-apparel' ) . '</a>'
+					'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size & Specs → Specs', 'aggressive-apparel' ) . '</a>'
 				),
 				$links
 			) . '</p></div>';
@@ -99,9 +99,9 @@ final class Product_Specs_Admin {
 
 		echo '<p class="aa-specs-help">' . wp_kses(
 			sprintf(
-				/* translators: %s: link to the Specs tab of Products → Size Guides. */
+				/* translators: %s: link to the Specs tab of Products → Size & Specs. */
 				__( 'Values save as this product’s WooCommerce attributes. Empty fields use the product’s size guide, then each spec’s default from %s.', 'aggressive-apparel' ),
-				'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size Guides → Specs', 'aggressive-apparel' ) . '</a>'
+				'<a href="' . esc_url( $manage ) . '">' . esc_html__( 'Products → Size & Specs → Specs', 'aggressive-apparel' ) . '</a>'
 			),
 			$links
 		) . '</p>';
@@ -131,7 +131,7 @@ final class Product_Specs_Admin {
 		$wording = Product_Specs_Admin_Fields::wording(
 			array_map( array( Product_Specs_Admin_Fields::class, 'set_from_resolved' ), $data['items'] ),
 			Product_Specs::sanitize_wording( get_post_meta( $post->ID, Product_Specs_Meta::WORDING, true ) ),
-			__( 'Wording for this product only. Empty fields use the wording from Products → Size Guides → Specs, shown in grey.', 'aggressive-apparel' )
+			__( 'Wording for this product only. Empty fields use the wording from Products → Size & Specs → Specs, shown in grey.', 'aggressive-apparel' )
 		);
 		echo $wording; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in builder.
 		echo '</div>';
@@ -175,7 +175,7 @@ final class Product_Specs_Admin {
 					sprintf(
 						$create
 							/* translators: %s: comma-separated spec keys. */
-							? __( 'Some spec values could not be saved (%s). Check the spec on Products → Size Guides → Specs.', 'aggressive-apparel' )
+							? __( 'Some spec values could not be saved (%s). Check the spec on Products → Size & Specs → Specs.', 'aggressive-apparel' )
 							/* translators: %s: comma-separated spec keys. */
 							: __( 'Some spec values could not be saved (%s). You can pick existing values only; ask a store manager to add new ones.', 'aggressive-apparel' ),
 						implode( ', ', $failed )

@@ -1,6 +1,6 @@
 /**
  * Product Specs — editor data for the block preview, and a class helper
- * shared with the Products → Size Guides screen.
+ * shared with the Products → Size & Specs screen.
  *
  * PHP (Product_Specs_Admin::enqueue_block_data) prints the store's spec
  * items as `window.aaProductSpecs` before the block's editor script runs.

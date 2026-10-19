@@ -2,7 +2,7 @@
 /**
  * Product Specs Settings
  *
- * Products → Size Guides: the one screen for size guides (chart, notes,
+ * Products → Size & Specs: the one screen for size guides (chart, notes,
  * specs, where each applies), spec definitions, and per-product values. It
  * hosts the React app in src/scripts/admin/product-specs/ and owns the REST
  * route for spec definitions; guides and products save through
@@ -106,13 +106,13 @@ final class Product_Specs_Settings {
 	}
 
 	/**
-	 * Add Products → Size Guides.
+	 * Add Products → Size & Specs.
 	 */
 	public function add_page(): void {
 		$hook = add_submenu_page(
 			'edit.php?post_type=product',
-			__( 'Size Guides & Specs', 'aggressive-apparel' ),
-			__( 'Size Guides', 'aggressive-apparel' ),
+			__( 'Size & Specs', 'aggressive-apparel' ),
+			__( 'Size & Specs', 'aggressive-apparel' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -174,7 +174,7 @@ final class Product_Specs_Settings {
 		);
 
 		echo '<div class="wrap aa-product-specs-settings">';
-		echo '<h1>' . esc_html__( 'Size Guides & Specs', 'aggressive-apparel' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Size & Specs', 'aggressive-apparel' ) . '</h1>';
 		printf(
 			'<div id="aa-product-specs-root" data-aa-product-specs="%s"><p>%s</p></div>',
 			esc_attr( (string) wp_json_encode( $config ) ),

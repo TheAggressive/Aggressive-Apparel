@@ -271,7 +271,7 @@ output.
 ## Size Guides & Specs
 
 One feature (Store Enhancements → **Size Guides & Specs**, key `size_guide`),
-managed on **Products → Size Guides** (`Product_Specs_Settings`, React app in
+managed on **Products → Size & Specs** (`Product_Specs_Settings`, React app in
 `src/scripts/admin/product-specs/`). A size guide is one garment blank: its
 size chart, notes, measuring diagram, and spec values. Products pick a guide,
 or get one from their category or the store-wide default

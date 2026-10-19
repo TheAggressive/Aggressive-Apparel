@@ -154,3 +154,39 @@ export type Config = {
     rows: number;
   };
 };
+
+/** A Printful catalog product in search results. */
+export type PrintfulProduct = {
+  id: number;
+  title: string;
+  brand: string;
+  model: string;
+  image: string;
+  group: string;
+  /** The guide already imported from it (0 for none). */
+  guide: number;
+};
+
+/** One description bullet and the spec it maps to (Printful_Import). */
+export type ImportFact = {
+  /** Rule key: the text with numbers generalized. */
+  key: string;
+  text: string;
+  /** A spec key, 'skip', or '' when unsure. */
+  target: string;
+  value: string;
+  status: 'sure' | 'guess' | 'unsure' | 'skipped';
+};
+
+/** A Printful product as a size guide draft to review. */
+export type ImportDraft = {
+  source: { provider: string; id: number };
+  title: string;
+  image: string;
+  charts: { garment: Chart | null; body: Chart | null };
+  notes: { garment: string; body: string };
+  diagrams: { garment: string; body: string };
+  facts: ImportFact[];
+  /** A guide already imported from this product (0 for none). */
+  guide: number;
+};

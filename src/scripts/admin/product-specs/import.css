@@ -1,0 +1,190 @@
+/**
+ * Product Specs settings — Import from Printful (search and review).
+ *
+ * @package Aggressive_Apparel
+ */
+
+.aa-ps-guides__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aa-ps-import {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.aa-ps-import__filters {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(160px, 1fr);
+	gap: 12px;
+	align-items: center;
+	max-width: 720px;
+}
+
+.aa-ps-import__results {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.aa-ps-import__product {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 0;
+}
+
+.aa-ps-import__pick {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 100%;
+	height: 100%;
+	padding: 10px;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 4px;
+	background: #fff;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.aa-ps-import__pick:hover,
+.aa-ps-import__pick:focus-visible {
+	border-color: var(--aa-ps-accent);
+	outline: none;
+	box-shadow: 0 0 0 1px var(--aa-ps-accent);
+}
+
+.aa-ps-import__pick img {
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: contain;
+	background: #f6f7f7;
+}
+
+.aa-ps-import__name {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aa-ps-import__meta {
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+}
+
+.aa-ps-import__existing.components-button.is-link {
+	font-size: 12px;
+}
+
+.aa-ps-import-review {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.aa-ps-import-review__head {
+	display: grid;
+	grid-template-columns: 96px minmax(0, 1fr);
+	gap: 16px;
+	align-items: center;
+}
+
+.aa-ps-import-review__head img {
+	width: 96px;
+	height: 96px;
+	border-radius: 4px;
+	background: #f6f7f7;
+	object-fit: contain;
+}
+
+.aa-ps-import-review__kinds {
+	min-width: 360px;
+}
+
+.aa-ps-import-review__diagram {
+	width: 100%;
+	max-width: 320px;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.aa-ps-facts {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* One line of the description: its text, the spec it goes to, its value. */
+.aa-ps-fact {
+	display: grid;
+	grid-template-columns: minmax(0, 1.4fr) minmax(160px, 1fr) minmax(0, 1.2fr);
+	gap: 8px 16px;
+	align-items: center;
+	margin: 0;
+	padding: 12px 0;
+	border-bottom: 1px solid var(--aa-ps-divider);
+}
+
+.aa-ps-fact__source {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+.aa-ps-fact__text {
+	color: #1e1e1e;
+	font-size: 13px;
+}
+
+.aa-ps-fact__status {
+	align-self: flex-start;
+	padding: 1px 8px;
+	border-radius: 10px;
+	background: #f0f0f1;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.aa-ps-fact.is-sure .aa-ps-fact__status {
+	background: #edfaef;
+	color: #00632a;
+}
+
+.aa-ps-fact.is-guess .aa-ps-fact__status {
+	background: #fcf9e8;
+	color: #6e5a00;
+}
+
+.aa-ps-fact.is-unsure .aa-ps-fact__status {
+	background: #fcf0f1;
+	color: #a7171a;
+}
+
+.aa-ps-fact.is-skipped .aa-ps-fact__text {
+	color: var(--aa-ps-muted);
+	text-decoration: line-through;
+}
+
+@media (width <= 782px) {
+
+	.aa-ps-import__filters,
+	.aa-ps-fact {
+		grid-template-columns: 1fr;
+	}
+
+	.aa-ps-import-review__kinds {
+		min-width: 0;
+	}
+}

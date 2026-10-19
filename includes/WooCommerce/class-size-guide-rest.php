@@ -207,6 +207,15 @@ final class Size_Guide_Rest {
 
 		self::save( $id, $body );
 
+		/**
+		 * Fires after a size guide is created, with the request body, so an
+		 * import can add what it brought (Printful_Import::created()).
+		 *
+		 * @param int                  $id   Size guide ID.
+		 * @param array<string, mixed> $body Request body.
+		 */
+		do_action( 'aggressive_apparel_size_guide_created', $id, $body );
+
 		return rest_ensure_response( self::saved( $id ) );
 	}
 

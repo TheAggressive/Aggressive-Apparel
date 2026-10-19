@@ -104,14 +104,17 @@ function Section({
   title,
   help,
   summary,
+  defaultOpen = false,
   children,
 }: {
   title: string;
   help?: string;
   summary?: string;
+  /** Start unfolded (a foldable section with something to fix). */
+  defaultOpen?: boolean;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(summary === undefined);
+  const [open, setOpen] = useState(summary === undefined || defaultOpen);
   const id = useId();
 
   if (summary === undefined) {
@@ -128,19 +131,22 @@ function Section({
 
   return (
     <section className={cx('aa-ps-section', 'is-foldable', open && 'is-open')}>
-      <button
-        type='button'
-        className='aa-ps-section__toggle'
-        aria-expanded={open}
-        aria-controls={id}
-        onClick={() => setOpen(!open)}
-      >
-        <span className='aa-ps-card__chevron' aria-hidden='true' />
-        <span className='aa-ps-section__title'>{title}</span>
-        {!open && summary && (
-          <span className='aa-ps-section__summary'>{summary}</span>
-        )}
-      </button>
+      {/* The heading stays a heading (for heading navigation); its button folds. */}
+      <h2 className='aa-ps-section__heading'>
+        <button
+          type='button'
+          className='aa-ps-section__toggle'
+          aria-expanded={open}
+          aria-controls={id}
+          onClick={() => setOpen(!open)}
+        >
+          <span className='aa-ps-card__chevron' aria-hidden='true' />
+          <span className='aa-ps-section__title'>{title}</span>
+          {!open && summary && (
+            <span className='aa-ps-section__summary'>{summary}</span>
+          )}
+        </button>
+      </h2>
       <div id={id} hidden={!open} className='aa-ps-section__body'>
         {help && <p className='aa-ps-help'>{help}</p>}
         {children}
@@ -366,12 +372,19 @@ export default function ItemCard({
                 'aggressive-apparel'
               )}
             >
-              <ValuePicker
-                item={item}
-                value={item.default}
-                label={__('Default value', 'aggressive-apparel')}
-                onChange={value => onChange({ default: value })}
-              />
+              <div
+                className={cx(
+                  'aa-ps-default',
+                  item.type !== 'pick' && 'is-narrow'
+                )}
+              >
+                <ValuePicker
+                  item={item}
+                  value={item.default}
+                  label={__('Default value', 'aggressive-apparel')}
+                  onChange={value => onChange({ default: value })}
+                />
+              </div>
             </Section>
           )}
 
@@ -470,7 +483,14 @@ export default function ItemCard({
 
           <Section
             title={__('WooCommerce attribute', 'aggressive-apparel')}
+            // A broken custom-attribute lookup must not hide in a fold.
+            defaultOpen={unmatched}
             summary={[
+              unmatched &&
+                __(
+                  'custom attribute names match no product',
+                  'aggressive-apparel'
+                ),
               item.taxonomy
                 ? `${taxonomies?.[item.taxonomy] ?? item.taxonomy} (${item.taxonomy})`
                 : __('Created when saved', 'aggressive-apparel'),
@@ -493,11 +513,11 @@ export default function ItemCard({
             help={
               valueField
                 ? __(
-                    'A product’s own value first, then a product attribute with one of these names, then the value below.',
+                    'A product’s own value first, then a product attribute with one of these names, then this guide’s value.',
                     'aggressive-apparel'
                   )
                 : __(
-                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
+                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s value, then the default value above.',
                     'aggressive-apparel'
                   )
             }
@@ -545,7 +565,7 @@ export default function ItemCard({
             {unmatched && (
               <p className='aa-ps-help aa-ps-help--notice'>
                 {__(
-                  'None of your products use these attributes yet, so values come from each product, its size guide, or the default below. If you renamed an attribute, update the names here.',
+                  'None of your products use these attributes yet, so values come from each product, its size guide, or the default value. If you renamed an attribute, update the names here.',
                   'aggressive-apparel'
                 )}
               </p>

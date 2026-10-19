@@ -17,6 +17,7 @@ import { Button, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { cx } from '../../../utils/product-specs-data';
 import type { DraftItem } from './_types';
+import { addStep, boundary, removeStep } from './_steps';
 
 type Props = {
   item: DraftItem;
@@ -24,9 +25,9 @@ type Props = {
   onChange: (patch: Partial<DraftItem>) => void;
 };
 
-/** A boundary as shown: whole numbers plain, others to one decimal. */
+/** A boundary as stored, so two different boundaries never look alike. */
 function show(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  return Number.isFinite(value) ? String(value) : '–';
 }
 
 /** The bands of a number scale as a bar, each sized by its range. */
@@ -38,8 +39,11 @@ function Bands({ item }: { item: DraftItem }) {
   const span = t.length > 1 ? (t[t.length - 1] - t[0]) / (t.length - 1) : 20;
   const low = t[0] - span;
   const high = t[t.length - 1] + span;
-  const width = (from: number, to: number) =>
-    Math.max(6, ((to - from) / (high - low || 1)) * 100);
+  // A band with a missing or out-of-order boundary still gets a sliver.
+  const width = (from: number, to: number) => {
+    const share = ((to - from) / (high - low || 1)) * 100;
+    return Number.isFinite(share) ? Math.max(6, share) : 6;
+  };
 
   return (
     <div className='aa-ps-bands' aria-hidden='true'>
@@ -72,6 +76,10 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
   const last = item.steps.length - 1;
   const t = item.thresholds;
 
+  // "145 g/m²", or just "145" for a scale with no unit.
+  const amount = (value: number) =>
+    unit ? `${show(value)} ${unit}` : show(value);
+
   const setStep = (i: number, value: string) => {
     const steps = [...item.steps];
     steps[i] = value;
@@ -80,41 +88,8 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
 
   const setThreshold = (i: number, value: string) => {
     const thresholds = [...t];
-    thresholds[i] = Number(value);
+    thresholds[i] = boundary(value);
     onChange({ thresholds });
-  };
-
-  const addStep = () => {
-    const next = (list: number[]) => [
-      ...list,
-      (list[list.length - 1] ?? 0) + 10,
-    ];
-    onChange({
-      steps: [...item.steps, ''],
-      thresholds: isNumber ? next(t) : t,
-      category_steps: item.category_steps.map(row => ({
-        ...row,
-        thresholds: next(row.thresholds),
-      })),
-    });
-  };
-
-  const removeStep = (i: number) => {
-    // Removing step i drops the boundary where it starts (step 0 has none,
-    // so the next step's boundary goes instead).
-    const drop = (list: number[]) =>
-      list.filter((_, n) => n !== Math.max(0, i - 1));
-    onChange({
-      steps: item.steps.filter((_, n) => n !== i),
-      // Each step's term goes with it, so the rest keep their own terms.
-      step_terms: item.step_terms.filter((_, n) => n !== i),
-      advice: item.advice.filter((_, n) => n !== i),
-      thresholds: isNumber ? drop(t) : t,
-      category_steps: item.category_steps.map(row => ({
-        ...row,
-        thresholds: drop(row.thresholds),
-      })),
-    });
   };
 
   /** Why step i's boundary is wrong ('' when fine). */
@@ -125,10 +100,9 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
     }
     if (i > 1 && value <= t[i - 2]) {
       return sprintf(
-        /* translators: 1: previous boundary, 2: unit. */
-        __('Must be higher than %1$s %2$s.', 'aggressive-apparel'),
-        show(t[i - 2]),
-        unit
+        /* translators: %s: previous boundary, with its unit. */
+        __('Must be higher than %s.', 'aggressive-apparel'),
+        amount(t[i - 2])
       );
     }
     return '';
@@ -162,10 +136,9 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
                   {i === 0 ? (
                     <span className='aa-ps-step__fixed'>
                       {sprintf(
-                        /* translators: 1: first boundary, 2: unit. */
-                        __('under %1$s %2$s', 'aggressive-apparel'),
-                        show(t[0] ?? 0),
-                        unit
+                        /* translators: %s: first boundary, with its unit. */
+                        __('under %s', 'aggressive-apparel'),
+                        amount(t[0] ?? 0)
                       )}
                     </span>
                   ) : (
@@ -178,12 +151,23 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
                           className='aa-ps-number__input'
                           type='number'
                           step='any'
-                          aria-label={sprintf(
-                            /* translators: 1: step name, 2: unit. */
-                            __('%1$s starts at (%2$s)', 'aggressive-apparel'),
-                            step || String(i + 1),
+                          aria-label={
                             unit
-                          )}
+                              ? sprintf(
+                                  /* translators: 1: step name, 2: unit. */
+                                  __(
+                                    '%1$s starts at (%2$s)',
+                                    'aggressive-apparel'
+                                  ),
+                                  step || String(i + 1),
+                                  unit
+                                )
+                              : sprintf(
+                                  /* translators: %s: step name. */
+                                  __('%s starts at', 'aggressive-apparel'),
+                                  step || String(i + 1)
+                                )
+                          }
                           aria-invalid={error ? true : undefined}
                           value={Number.isNaN(t[i - 1]) ? '' : t[i - 1]}
                           onChange={event =>
@@ -222,7 +206,7 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
                 )}
                 showTooltip
                 disabled={item.steps.length <= limits.minSteps}
-                onClick={() => removeStep(i)}
+                onClick={() => onChange(removeStep(item, i))}
                 size='compact'
               />
               {error && (
@@ -238,7 +222,7 @@ export default function StepsEditor({ item, limits, onChange }: Props) {
         variant='secondary'
         icon='plus'
         disabled={item.steps.length >= limits.maxSteps}
-        onClick={addStep}
+        onClick={() => onChange(addStep(item))}
       >
         {__('Add step', 'aggressive-apparel')}
       </Button>

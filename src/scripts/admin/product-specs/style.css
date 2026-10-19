@@ -71,7 +71,8 @@
 	margin-top: 16px;
 }
 
-.aa-ps-default > :is(.aa-ps-input, .aa-ps-input-wrap) {
+/* A text or number default stays field-width; a scale uses the full row. */
+.aa-ps-default.is-narrow > .aa-ps-picker {
 	max-width: 320px;
 }
 
@@ -461,6 +462,11 @@
 .aa-ps-section.is-foldable {
 	gap: 0;
 	padding: 0;
+}
+
+.aa-ps-section__heading {
+	margin: 0;
+	font-size: inherit;
 }
 
 .aa-ps-section__toggle {

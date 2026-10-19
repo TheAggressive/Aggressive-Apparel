@@ -46,13 +46,17 @@ final class Attribute_Breadcrumb {
 		$taxonomy = get_taxonomy( $term->taxonomy );
 		$label    = $taxonomy instanceof \WP_Taxonomy ? $taxonomy->labels->name : '';
 		$name     = wc_attribute_label( $term->taxonomy );
-		// No attribute name found: keep WooCommerce's label, never the slug.
-		if ( '' === $label || $name === $term->taxonomy ) {
+		// No attribute name found (WooCommerce falls back to the slug, with
+		// or without "pa_"): keep its label rather than show a slug.
+		if ( '' === $label || in_array( $name, array( $term->taxonomy, wc_attribute_taxonomy_slug( $term->taxonomy ) ), true ) ) {
 			return $crumbs;
 		}
+		// Only the label crumb, which comes before any term crumbs; a term
+		// that happens to share the label keeps its own title.
 		foreach ( $crumbs as $i => $crumb ) {
 			if ( is_array( $crumb ) && ( $crumb[0] ?? null ) === $label ) {
 				$crumbs[ $i ][0] = $name;
+				break;
 			}
 		}
 

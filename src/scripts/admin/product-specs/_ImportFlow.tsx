@@ -11,7 +11,7 @@
  * @package Aggressive_Apparel
  */
 
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button, Notice, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -23,6 +23,7 @@ import type {
   ImportBlankState,
   ImportDraft,
   ImportMapping,
+  ImportResult,
   PrintfulProduct,
   Registry,
   SpecItem,
@@ -32,6 +33,7 @@ import { attributeItem, combine, nameFrom, valueFor } from './_import';
 import ImportSearch from './_ImportSearch';
 import ImportBlank from './_ImportBlank';
 import ImportTag from './_ImportTag';
+import ImportDone from './_ImportDone';
 
 type Props = {
   config: Config;
@@ -44,7 +46,11 @@ type Props = {
   onRegistry: (registry: Registry) => void;
 };
 
-type Result = { id: number; title: string; guide: number; error: string };
+/** Smooth scrolling, unless the user prefers less motion. */
+const scrollBehavior = (): ScrollBehavior =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
 
 const STEPS = [
   __('Choose blanks', 'aggressive-apparel'),
@@ -69,7 +75,11 @@ export default function ImportFlow({
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<Result[]>([]);
+  const [results, setResults] = useState<ImportResult[]>([]);
+  const [jump, setJump] = useState(0);
+  // Specs made by this import: the key sent => the key saved. Kept across
+  // retries, so trying a failed blank again never makes a spec twice.
+  const madeRef = useRef(new Map<string, string>());
   const [error, setError] = useState('');
 
   const specs = items.filter(item => item.enabled && item.guides.length === 0);
@@ -99,6 +109,7 @@ export default function ImportFlow({
       title: draft.title,
       kind,
       notes: { ...draft.notes },
+      diagram: true,
       categories: [],
       isDefault: false,
       mappings: draft.facts.map(fact => {
@@ -263,9 +274,9 @@ export default function ImportFlow({
     setError('');
     // Specs made so far: the key they were sent with => the key they saved
     // as (the server re-keys one taken since the review opened).
-    const made = new Map<string, string>();
-    const before = new Set(items.map(item => item.key));
-    const done: Result[] = [];
+    const made = madeRef.current;
+    const before = new Set([...items.map(item => item.key), ...made.values()]);
+    const done: ImportResult[] = [];
     const saved = (attr: ImportAttribute) => made.get(attr.key) ?? attr.key;
     /** Record the specs a save made, as the registry now has them. */
     const reconcile = (
@@ -343,6 +354,23 @@ export default function ImportFlow({
         }
       }
 
+      const chart = draft.charts[state.kind];
+      const summary = {
+        id: product.id,
+        title: state.title,
+        chart: chart ? state.kind : ('' as const),
+        sizes: chart?.rows.length ?? 0,
+        specs: Object.values(values).filter(value => value !== '').length,
+        attributes: used
+          .filter(attr => !made.has(attr.key))
+          .map(attr => attr.name),
+        categories: config.categories
+          .filter(category => state.categories.includes(category.id))
+          .map(category => category.name),
+        isDefault: state.isDefault,
+        diagram: Boolean(chart && state.diagram && draft.diagrams[state.kind]),
+      };
+
       try {
         const result = (await apiFetch({
           path: config.guidesPath,
@@ -359,7 +387,9 @@ export default function ImportFlow({
             ...(own.length > 0 && { specItems: own }),
             ...(store.length > 0 && { storeSpecItems: store }),
             importSource: draft.source,
-            diagramUrl: draft.diagrams[state.kind],
+            ...(summary.diagram && {
+              diagramUrl: draft.diagrams[state.kind],
+            }),
             importRules: draft.facts.map((fact, i) => ({
               key: fact.key,
               target:
@@ -376,12 +406,7 @@ export default function ImportFlow({
           onRegistry(result.registry);
         }
         used.forEach(attr => made.set(attr.key, saved(attr)));
-        done.push({
-          id: product.id,
-          title: state.title,
-          guide: result.id,
-          error: '',
-        });
+        done.push({ ...summary, guide: result.id, error: '' });
       } catch (failure) {
         // The save may have gone through before the reply was lost: look
         // again, so the next blank joins what it made instead of a copy.
@@ -399,8 +424,7 @@ export default function ImportFlow({
           data?: { errors?: string[] };
         };
         done.push({
-          id: product.id,
-          title: state.title,
+          ...summary,
           guide: 0,
           error: [
             message ??
@@ -415,7 +439,19 @@ export default function ImportFlow({
     setStep(2);
   };
 
+  /** Back to review with only the blanks that failed. */
+  const retry = () => {
+    const failed = selected.filter(product =>
+      results.some(result => result.id === product.id && result.guide === 0)
+    );
+    setSelected(failed);
+    setActive(failed[0]?.id ?? 0);
+    setResults([]);
+    setStep(1);
+  };
+
   const restart = () => {
+    madeRef.current = new Map();
     setSelected([]);
     setDrafts({});
     setStates({});
@@ -425,31 +461,107 @@ export default function ImportFlow({
   };
 
   const current = drafts[active];
+  const label = (product: PrintfulProduct) => product.model || product.title;
+  const unnamed = (id: number) => states[id]?.title.trim() === '';
+  const waiting = selected.filter(product => pending(product.id) > 0);
+  const blocked = selected.find(product => unnamed(product.id));
+
+  /** Show the next thing that stops Create: a line to decide, or a name. */
+  const goNext = () => {
+    const start = Math.max(
+      0,
+      selected.findIndex(product => product.id === active)
+    );
+    const target = [...selected.slice(start), ...selected.slice(0, start)].find(
+      product => pending(product.id) > 0 || unnamed(product.id)
+    );
+    if (target) {
+      setActive(target.id);
+      setJump(jump + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (jump === 0) {
+      return;
+    }
+    const field =
+      document.querySelector<HTMLElement>(
+        '.aa-ps-review .aa-ps-line.is-unsure select'
+      ) ??
+      document.querySelector<HTMLInputElement>('.aa-ps-review__name input');
+    field?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
+    field?.focus({ preventScroll: true });
+  }, [jump]);
+
+  let status: string = __('Everything is placed', 'aggressive-apparel');
+  if (progress > 0) {
+    status = sprintf(
+      /* translators: 1: guide being created, 2: all guides. */
+      __('Creating %1$d of %2$d…', 'aggressive-apparel'),
+      progress,
+      selected.length
+    );
+  } else if (waiting.length === 1) {
+    status = sprintf(
+      /* translators: 1: lines needing a decision, 2: blank model, like 18500. */
+      _n(
+        '%1$d line on %2$s needs a decision',
+        '%1$d lines on %2$s need a decision',
+        totalPending,
+        'aggressive-apparel'
+      ),
+      totalPending,
+      label(waiting[0])
+    );
+  } else if (waiting.length > 1) {
+    status = sprintf(
+      /* translators: 1: lines needing a decision, 2: number of blanks. */
+      _n(
+        '%1$d line on %2$d blanks needs a decision',
+        '%1$d lines on %2$d blanks need a decision',
+        totalPending,
+        'aggressive-apparel'
+      ),
+      totalPending,
+      waiting.length
+    );
+  } else if (blocked) {
+    status = sprintf(
+      /* translators: %s: blank model, like 18500. */
+      __('The %s guide needs a name', 'aggressive-apparel'),
+      label(blocked)
+    );
+  }
 
   return (
     <div className='aa-ps-importer'>
-      <div className='aa-ps-importer__top'>
-        <Button variant='link' onClick={onCancel}>
-          {__('All size guides', 'aggressive-apparel')}
-        </Button>
+      <Button
+        variant='link'
+        className='aa-ps-importer__back'
+        onClick={onCancel}
+      >
+        {__('All size guides', 'aggressive-apparel')}
+      </Button>
+      <header className='aa-ps-importer__head'>
+        <h2 className='aa-ps-importer__title'>
+          {__('Import from Printful', 'aggressive-apparel')}
+        </h2>
         <ol
           className='aa-ps-steps-bar'
           aria-label={__('Import steps', 'aggressive-apparel')}
         >
-          {STEPS.map((label, i) => (
+          {STEPS.map((name, i) => (
             <li
-              key={label}
+              key={name}
               className={cx(i === step && 'is-current', i < step && 'is-done')}
               aria-current={i === step ? 'step' : undefined}
             >
-              {label}
+              {name}
             </li>
           ))}
         </ol>
-      </div>
-      <h2 className='aa-ps-importer__title'>
-        {__('Import from Printful', 'aggressive-apparel')}
-      </h2>
+      </header>
 
       {error && (
         <Notice status='error' isDismissible={false}>
@@ -488,6 +600,7 @@ export default function ImportFlow({
                 product={product}
                 active={product.id === active}
                 pending={pending(product.id)}
+                ready={!unnamed(product.id)}
                 onSelect={() => setActive(product.id)}
               />
             ))}
@@ -510,26 +623,15 @@ export default function ImportFlow({
           />
           <div className='aa-ps-importer__bar'>
             <p className='aa-ps-importer__status' aria-live='polite'>
-              {progress > 0
-                ? sprintf(
-                    /* translators: 1: guide being created, 2: all guides. */
-                    __('Creating %1$d of %2$d…', 'aggressive-apparel'),
-                    progress,
-                    selected.length
-                  )
-                : totalPending > 0
-                  ? sprintf(
-                      /* translators: %d: lines needing a decision. */
-                      _n(
-                        '%d line needs a decision',
-                        '%d lines need a decision',
-                        totalPending,
-                        'aggressive-apparel'
-                      ),
-                      totalPending
-                    )
-                  : __('Everything is placed', 'aggressive-apparel')}
+              {status}
             </p>
+            {progress === 0 && (waiting.length > 0 || blocked) && (
+              <Button variant='secondary' onClick={goNext}>
+                {waiting.length > 0
+                  ? __('Go to next decision', 'aggressive-apparel')
+                  : __('Go to it', 'aggressive-apparel')}
+              </Button>
+            )}
             <Button
               variant='tertiary'
               disabled={progress > 0}
@@ -539,13 +641,7 @@ export default function ImportFlow({
             </Button>
             <Button
               variant='primary'
-              disabled={
-                totalPending > 0 ||
-                progress > 0 ||
-                selected.some(
-                  product => states[product.id]?.title.trim() === ''
-                )
-              }
+              disabled={totalPending > 0 || progress > 0 || Boolean(blocked)}
               isBusy={progress > 0}
               onClick={() => void create()}
             >
@@ -565,43 +661,14 @@ export default function ImportFlow({
       )}
 
       {step === 2 && (
-        <div className='aa-ps-done'>
-          <ul className='aa-ps-done__list'>
-            {results.map(result => {
-              const product = selected.find(other => other.id === result.id);
-              return (
-                <li key={result.id} className='aa-ps-done__item'>
-                  {product && (
-                    <ImportTag product={product} done={result.guide > 0} />
-                  )}
-                  <div className='aa-ps-done__detail'>
-                    <strong>{result.title}</strong>
-                    {result.guide > 0 ? (
-                      <Button
-                        variant='secondary'
-                        onClick={() => onOpen(result.guide)}
-                      >
-                        {__('Open guide', 'aggressive-apparel')}
-                      </Button>
-                    ) : (
-                      <Notice status='error' isDismissible={false}>
-                        {result.error}
-                      </Notice>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className='aa-ps-done__actions'>
-            <Button variant='primary' onClick={restart}>
-              {__('Import more blanks', 'aggressive-apparel')}
-            </Button>
-            <Button variant='tertiary' onClick={onCancel}>
-              {__('Back to size guides', 'aggressive-apparel')}
-            </Button>
-          </div>
-        </div>
+        <ImportDone
+          results={results}
+          products={selected}
+          onOpen={onOpen}
+          onRetry={retry}
+          onMore={restart}
+          onClose={onCancel}
+        />
       )}
     </div>
   );

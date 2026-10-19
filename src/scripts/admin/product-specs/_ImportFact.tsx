@@ -10,6 +10,7 @@
  * @package Aggressive_Apparel
  */
 
+import { useEffect, useRef, useState } from '@wordpress/element';
 import {
   CheckboxControl,
   SelectControl,
@@ -40,11 +41,20 @@ type Props = {
   onAttribute: (attribute: Partial<ImportAttribute>) => void;
 };
 
-const STATUS: Record<Fact['status'], string> = {
+/**
+ * What the pill says: how sure the import was, until the store decides;
+ * then what was decided.
+ */
+type Status = Fact['status'] | 'chosen' | 'new' | 'attribute';
+
+const STATUS: Record<Status, string> = {
   sure: __('Matched', 'aggressive-apparel'),
   guess: __('Best guess', 'aggressive-apparel'),
   unsure: __('Needs you', 'aggressive-apparel'),
   skipped: __('Left out', 'aggressive-apparel'),
+  chosen: __('Your choice', 'aggressive-apparel'),
+  new: __('New attribute', 'aggressive-apparel'),
+  attribute: __('Your attribute', 'aggressive-apparel'),
 };
 
 export default function ImportFact({
@@ -59,13 +69,32 @@ export default function ImportFact({
   const spec = specs.find(item => item.key === mapping.target);
   const target = mapping.target;
   const pending = target === '';
-  const status: Fact['status'] = pending
-    ? 'unsure'
-    : target === 'skip'
-      ? 'skipped'
-      : mapping.touched
-        ? 'sure'
-        : fact.status;
+  let status: Status = fact.status;
+  if (pending) {
+    status = 'unsure';
+  } else if (target === 'skip') {
+    status = 'skipped';
+  } else if (target === 'new') {
+    status = attribute?.taxonomy ? 'attribute' : 'new';
+  } else if (target !== fact.target || mapping.touched) {
+    status = 'chosen';
+  }
+  const form = useRef<HTMLFieldSetElement>(null);
+  const [reveal, setReveal] = useState(false);
+
+  // A form opened by the store scrolls into view (clear of the bottom bar).
+  useEffect(() => {
+    if (!reveal || !form.current) {
+      return;
+    }
+    form.current.scrollIntoView({
+      block: 'nearest',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+    setReveal(false);
+  }, [reveal, target]);
   const choice =
     target === 'new' && attribute?.taxonomy
       ? `attr:${attribute.taxonomy}`
@@ -73,6 +102,9 @@ export default function ImportFact({
   const draft = target === 'new' && attribute ? attributeItem(attribute) : null;
 
   const choose = (value: string) => {
+    if (value.startsWith('attr:') || value === 'new') {
+      setReveal(true);
+    }
     if (value.startsWith('attr:')) {
       const taxonomy = value.slice(5);
       onAttribute({
@@ -179,7 +211,7 @@ export default function ImportFact({
       </div>
 
       {target === 'new' && attribute && (
-        <fieldset className='aa-ps-line__attribute'>
+        <fieldset className='aa-ps-line__attribute' ref={form}>
           <legend>
             {attribute.taxonomy
               ? sprintf(

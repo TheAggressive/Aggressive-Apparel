@@ -226,7 +226,29 @@ export type ImportBlankState = {
   kind: 'garment' | 'body';
   /** Notes per chart, so switching charts keeps edits to either. */
   notes: { garment: string; body: string };
+  /** Whether the measuring diagram comes along. */
+  diagram: boolean;
   categories: number[];
   isDefault: boolean;
   mappings: ImportMapping[];
+};
+
+/** What an import made of one blank, for the summary. */
+export type ImportResult = {
+  id: number;
+  title: string;
+  /** New guide ID; 0 when it failed. */
+  guide: number;
+  error: string;
+  chart: '' | 'garment' | 'body';
+  /** Rows in the chart. */
+  sizes: number;
+  /** Specs given a value. */
+  specs: number;
+  /** New attributes this guide made or joined. */
+  attributes: string[];
+  categories: string[];
+  isDefault: boolean;
+  /** A diagram is on its way (it downloads in the background). */
+  diagram: boolean;
 };

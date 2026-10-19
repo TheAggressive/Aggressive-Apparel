@@ -28,12 +28,14 @@
 	padding-bottom: 96px;
 }
 
-.aa-ps-importer__top {
+.aa-ps-importer__back.components-button.is-link {
+	align-self: flex-start;
+}
+
+.aa-ps-importer__head {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 12px 24px;
-	align-items: center;
-	justify-content: space-between;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .aa-ps-importer__title {
@@ -50,10 +52,11 @@
 	font-size: 14px;
 }
 
-/* The flow is a real sequence, so its steps are numbered. */
+/* The flow is a real sequence, so its steps are numbered and joined. */
 .aa-ps-steps-bar {
 	display: flex;
-	gap: 4px;
+	flex-wrap: wrap;
+	gap: 8px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -62,14 +65,23 @@
 
 .aa-ps-steps-bar li {
 	display: flex;
-	gap: 6px;
+	gap: 8px;
 	align-items: center;
 	margin: 0;
-	padding: 4px 10px 4px 4px;
-	border-radius: 14px;
 	color: var(--aa-ps-muted);
-	font-size: 12px;
+	font-size: 13px;
 	counter-increment: aa-step;
+}
+
+.aa-ps-steps-bar li:not(:last-child)::after {
+	width: 32px;
+	height: 1px;
+	background: var(--aa-ps-border);
+	content: "";
+}
+
+.aa-ps-steps-bar li.is-done:not(:last-child)::after {
+	background: var(--aa-ps-ok);
 }
 
 .aa-ps-steps-bar li::before {
@@ -79,24 +91,30 @@
 	width: 20px;
 	height: 20px;
 	border-radius: 50%;
-	background: #f0f0f1;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px var(--aa-ps-border);
 	content: counter(aa-step);
 	font-weight: 600;
 }
 
 .aa-ps-steps-bar li.is-current {
-	background: #fff;
 	color: #1e1e1e;
 	font-weight: 600;
 }
 
+.aa-ps-steps-bar li.is-done {
+	color: #1e1e1e;
+}
+
 .aa-ps-steps-bar li.is-current::before {
 	background: var(--aa-ps-accent);
+	box-shadow: none;
 	color: #fff;
 }
 
 .aa-ps-steps-bar li.is-done::before {
 	background: var(--aa-ps-ok-bg);
+	box-shadow: none;
 	color: var(--aa-ps-ok);
 	content: "✓";
 }
@@ -269,21 +287,46 @@
 }
 
 /* The hang tag: clipped top corners, a punched hole, the model large.
-   drop-shadow (not border) draws the outline, so it follows the clip. */
+   A clipped underlay one line wider draws the outline (a border can't
+   follow the clip), crisp on any background. */
 .aa-ps-tag {
+	--aa-ps-tag-width: 1px;
+
 	position: relative;
 	display: inline-flex;
 	flex: none;
-	filter: drop-shadow(0 0 0.6px var(--aa-ps-tag-line)) drop-shadow(0 0 0.6px var(--aa-ps-tag-line));
 }
 
-.aa-ps-tag.is-active {
-	--aa-ps-tag-line: var(--wp-admin-theme-color, #3858e9);
+.aa-ps-tag::before {
+	position: absolute;
+	inset: calc(var(--aa-ps-tag-width) * -1);
+	background: var(--aa-ps-tag-line);
+	content: "";
+	clip-path: polygon(calc(16px + var(--aa-ps-tag-width) * 0.42) 0, calc(100% - 16px - var(--aa-ps-tag-width) * 0.42) 0, 100% calc(16px + var(--aa-ps-tag-width) * 0.42), 100% 100%, 0 100%, 0 calc(16px + var(--aa-ps-tag-width) * 0.42));
+}
 
-	filter: drop-shadow(0 0 1px var(--aa-ps-tag-line)) drop-shadow(0 0 1px var(--aa-ps-tag-line));
+.aa-ps-tag.is-active,
+.aa-ps-tag:has(> .aa-ps-tag__body:focus-visible) {
+	--aa-ps-tag-line: var(--aa-ps-accent);
+	--aa-ps-tag-width: 2px;
+}
+
+/* The tag being reviewed is tinted, so it reads as "here" at a glance. */
+.aa-ps-tag.is-active .aa-ps-tag__body {
+	background: color-mix(in srgb, var(--aa-ps-accent) 9%, #fff);
+}
+
+.aa-ps-tag.is-active .aa-ps-tag__model {
+	color: var(--aa-ps-accent);
+}
+
+/* The clip hides outlines; the tag's own outline shows focus instead. */
+.aa-ps-tag__body:focus-visible {
+	outline: none;
 }
 
 .aa-ps-tag__body {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -302,6 +345,10 @@
 
 button.aa-ps-tag__body {
 	cursor: pointer;
+}
+
+.aa-ps-tag:not(.is-active) button.aa-ps-tag__body:hover {
+	background: #f6f7f7;
 }
 
 .aa-ps-tag__hole {
@@ -403,6 +450,7 @@ button.aa-ps-tag__body {
 
 .aa-ps-tray__tags {
 	display: flex;
+	align-items: flex-start;
 	flex: 1 1 auto;
 	gap: 10px;
 	min-width: 0;
@@ -424,6 +472,9 @@ button.aa-ps-tag__body {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+
+	/* Tags keep their own width; stretched, the outline would show. */
+	align-items: center;
 	padding: 2px;
 }
 
@@ -499,9 +550,20 @@ button.aa-ps-tag__body {
 }
 
 .aa-ps-review__diagram {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.aa-ps-review__diagram img {
 	width: 100%;
 	border-radius: 4px;
 	background: #f6f7f7;
+}
+
+.aa-ps-review__diagram.is-off img {
+	opacity: 0.35;
+	filter: grayscale(1);
 }
 
 .aa-ps-review__notes summary {
@@ -549,8 +611,19 @@ button.aa-ps-tag__body {
 	display: grid;
 	grid-template-columns: minmax(0, 1.3fr) minmax(170px, 0.9fr) minmax(0, 1.2fr);
 	gap: 8px 16px;
-	align-items: center;
+	align-items: start;
 }
+
+/* Controls sit level with the line's text; a hint under a value hangs below. */
+.aa-ps-line__value {
+	align-self: stretch;
+	min-width: 0;
+}
+
+.aa-ps-line__value .aa-ps-number {
+	max-width: none;
+}
+
 
 .aa-ps-line__source {
 	display: flex;
@@ -591,14 +664,28 @@ button.aa-ps-tag__body {
 	color: var(--aa-ps-need);
 }
 
+.aa-ps-line.is-chosen .aa-ps-line__status,
+.aa-ps-line.is-new .aa-ps-line__status,
+.aa-ps-line.is-attribute .aa-ps-line__status {
+	background: color-mix(in srgb, var(--aa-ps-accent) 10%, #fff);
+	color: var(--aa-ps-accent);
+}
+
 .aa-ps-line.is-skipped .aa-ps-line__text {
 	color: var(--aa-ps-muted);
 	text-decoration: line-through;
 }
 
 .aa-ps-line__note {
+	display: flex;
+	align-items: center;
+	min-height: 40px;
 	color: var(--aa-ps-muted);
 	font-size: 12px;
+}
+
+.aa-ps-line__attribute .components-checkbox-control {
+	grid-column: 1 / -1;
 }
 
 .aa-ps-line__attribute {
@@ -611,6 +698,9 @@ button.aa-ps-tag__body {
 	border: 1px solid var(--aa-ps-border);
 	border-radius: 6px;
 	background: #f6f7f7;
+
+	/* Clear of the pinned review bar when scrolled into view. */
+	scroll-margin-bottom: 96px;
 }
 
 .aa-ps-line__attribute legend {
@@ -633,34 +723,90 @@ button.aa-ps-tag__body {
 .aa-ps-done {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px;
+}
+
+.aa-ps-done__summary {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.aa-ps-done__summary h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.aa-ps-done__summary p {
+	max-width: 64ch;
+	margin: 0;
+	color: #50575e;
 }
 
 .aa-ps-done__list {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
+	flex-direction: column;
 	margin: 0;
 	padding: 0;
+	border: 1px solid var(--aa-ps-border);
+	border-radius: 6px;
+	background: #fff;
 	list-style: none;
 }
 
 .aa-ps-done__item {
-	display: flex;
-	gap: 14px;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	gap: 16px 24px;
 	align-items: center;
 	margin: 0;
+	padding: 16px 20px;
+	border-top: 1px solid var(--aa-ps-divider);
+}
+
+.aa-ps-done__item:first-child {
+	border-top: 0;
 }
 
 .aa-ps-done__detail {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	align-items: flex-start;
+	min-width: 0;
+}
+
+.aa-ps-done__detail h4 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.aa-ps-done__detail .components-notice {
+	margin: 0;
+}
+
+.aa-ps-done__facts {
+	display: grid;
+
+	/* Fixed label column, so every row's values line up. */
+	grid-template-columns: 9em minmax(0, 1fr);
+	gap: 4px 16px;
+	margin: 0;
+	font-size: 13px;
+}
+
+.aa-ps-done__facts dt {
+	color: var(--aa-ps-muted);
+}
+
+.aa-ps-done__facts dd {
+	margin: 0;
 }
 
 .aa-ps-done__actions {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 }
 
@@ -685,6 +831,19 @@ button.aa-ps-tag__body {
 	.aa-ps-line__main,
 	.aa-ps-review__chart {
 		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.aa-ps-review__diagram {
+		max-width: 260px;
+	}
+
+	.aa-ps-done__item {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.aa-ps-done__open {
+		grid-column: 1 / -1;
+		justify-self: start;
 	}
 }
 

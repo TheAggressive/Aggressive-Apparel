@@ -715,6 +715,7 @@
 	font-weight: 400;
 }
 
+.aa-ps-chart-preview thead th:first-child,
 .aa-ps-chart-preview tbody th {
 	text-align: left;
 }

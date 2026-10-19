@@ -1,8 +1,8 @@
 /**
  * Product Specs settings — review one blank before it becomes a size guide.
  *
- * Its name, size chart (garment or body measurements, with the diagram and
- * how-to-measure notes), where the guide applies (categories, store
+ * Its name, size chart (garment or body measurements, the measuring diagram
+ * if wanted, and how-to-measure notes), where the guide applies (categories, store
  * default), and each description line's spec (_ImportFact).
  *
  * @package Aggressive_Apparel
@@ -55,6 +55,7 @@ export default function ImportBlank({
     kind => draft.charts[kind]
   );
   const chart = draft.charts[state.kind];
+  const diagram = draft.diagrams[state.kind];
   // An attribute another line already turns into a spec isn't offered again.
   const unclaimed = (factKey: string) =>
     Object.fromEntries(
@@ -141,12 +142,35 @@ export default function ImportBlank({
         {chart ? (
           <div className='aa-ps-review__chart'>
             <ChartPreview chart={chart} />
-            {draft.diagrams[state.kind] && (
-              <img
-                className='aa-ps-review__diagram'
-                src={draft.diagrams[state.kind]}
-                alt={__('How to measure', 'aggressive-apparel')}
-              />
+            {diagram && (
+              <div
+                className={cx(
+                  'aa-ps-review__diagram',
+                  !state.diagram && 'is-off'
+                )}
+              >
+                <img
+                  src={diagram}
+                  alt={__('Measuring diagram', 'aggressive-apparel')}
+                />
+                <ToggleControl
+                  label={__('Use this diagram', 'aggressive-apparel')}
+                  help={
+                    state.diagram
+                      ? __(
+                          'Shown with the chart on product pages.',
+                          'aggressive-apparel'
+                        )
+                      : __(
+                          'Left out. You can add your own in the guide later.',
+                          'aggressive-apparel'
+                        )
+                  }
+                  checked={state.diagram}
+                  onChange={on => onState({ diagram: on })}
+                  __nextHasNoMarginBottom
+                />
+              </div>
             )}
           </div>
         ) : (

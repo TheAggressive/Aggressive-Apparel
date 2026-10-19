@@ -18,6 +18,8 @@ type Props = {
   active?: boolean;
   /** Lines still needing a decision. */
   pending?: number;
+  /** Nothing left to decide. */
+  ready?: boolean;
   /** Shows the tag as done. */
   done?: boolean;
   onSelect?: () => void;
@@ -28,6 +30,7 @@ export default function ImportTag({
   product,
   active = false,
   pending = 0,
+  ready = false,
   done = false,
   onSelect,
   onRemove,
@@ -50,6 +53,11 @@ export default function ImportTag({
             _n('%d to decide', '%d to decide', pending, 'aggressive-apparel'),
             pending
           )}
+        </span>
+      )}
+      {ready && !done && pending === 0 && (
+        <span className='aa-ps-tag__done'>
+          {__('Ready', 'aggressive-apparel')}
         </span>
       )}
       {done && (

@@ -7,7 +7,7 @@
  * @package Aggressive_Apparel
  */
 
-import { useState } from '@wordpress/element';
+import { useId, useState } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import {
   Button,
@@ -24,6 +24,7 @@ import Preview from './_Preview';
 import ValuePicker from './_ValuePicker';
 import AttributeSettings from './_AttributeSettings';
 import CategorySteps from './_CategorySteps';
+import StepsEditor from './_StepsEditor';
 import GuideScope, { guideSummary } from './_GuideScope';
 
 type Props = {
@@ -94,23 +95,62 @@ function scopeSummary(item: DraftItem, categories: Category[]): string {
       );
 }
 
-/** A titled card section with optional help. */
+/**
+ * A titled card section with optional help. With a summary it starts
+ * folded, showing the summary, so the card leads with what most edits need
+ * and keeps the rest one click away.
+ */
 function Section({
   title,
   help,
+  summary,
+  defaultOpen = false,
   children,
 }: {
   title: string;
   help?: string;
+  summary?: string;
+  /** Start unfolded (a foldable section with something to fix). */
+  defaultOpen?: boolean;
   children: ReactNode;
 }) {
+  const [open, setOpen] = useState(summary === undefined || defaultOpen);
+  const id = useId();
+
+  if (summary === undefined) {
+    return (
+      <section className='aa-ps-section'>
+        <div className='aa-ps-section__head'>
+          <h2 className='aa-ps-section__title'>{title}</h2>
+          {help && <p className='aa-ps-help'>{help}</p>}
+        </div>
+        {children}
+      </section>
+    );
+  }
+
   return (
-    <section className='aa-ps-section'>
-      <div className='aa-ps-section__head'>
-        <h2 className='aa-ps-section__title'>{title}</h2>
+    <section className={cx('aa-ps-section', 'is-foldable', open && 'is-open')}>
+      {/* The heading stays a heading (for heading navigation); its button folds. */}
+      <h2 className='aa-ps-section__heading'>
+        <button
+          type='button'
+          className='aa-ps-section__toggle'
+          aria-expanded={open}
+          aria-controls={id}
+          onClick={() => setOpen(!open)}
+        >
+          <span className='aa-ps-card__chevron' aria-hidden='true' />
+          <span className='aa-ps-section__title'>{title}</span>
+          {!open && summary && (
+            <span className='aa-ps-section__summary'>{summary}</span>
+          )}
+        </button>
+      </h2>
+      <div id={id} hidden={!open} className='aa-ps-section__body'>
         {help && <p className='aa-ps-help'>{help}</p>}
+        {children}
       </div>
-      {children}
     </section>
   );
 }
@@ -137,53 +177,7 @@ export default function ItemCard({
   const isScale = item.type !== 'text';
   const isNumber = item.type === 'number';
   const labels = edgeLabels(item);
-  const unit = item.unit || __('number', 'aggressive-apparel');
   const unmatched = noAttributeMatches(item.attributes, attributeNames);
-
-  const setStep = (i: number, value: string) => {
-    const steps = [...item.steps];
-    steps[i] = value;
-    onChange({ steps });
-  };
-
-  const addStep = () => {
-    const next = (list: number[]) => [
-      ...list,
-      (list[list.length - 1] ?? 0) + 10,
-    ];
-    onChange({
-      steps: [...item.steps, ''],
-      thresholds: isNumber ? next(item.thresholds) : item.thresholds,
-      category_steps: item.category_steps.map(row => ({
-        ...row,
-        thresholds: next(row.thresholds),
-      })),
-    });
-  };
-
-  const removeStep = (i: number) => {
-    // Removing step i drops the boundary where it starts (step 0 has none,
-    // so the next step's boundary goes instead).
-    const drop = (list: number[]) =>
-      list.filter((_, n) => n !== Math.max(0, i - 1));
-    onChange({
-      steps: item.steps.filter((_, n) => n !== i),
-      // Each step's term goes with it, so the rest keep their own terms.
-      step_terms: item.step_terms.filter((_, n) => n !== i),
-      advice: item.advice.filter((_, n) => n !== i),
-      thresholds: isNumber ? drop(item.thresholds) : item.thresholds,
-      category_steps: item.category_steps.map(row => ({
-        ...row,
-        thresholds: drop(row.thresholds),
-      })),
-    });
-  };
-
-  const setThreshold = (i: number, value: string) => {
-    const thresholds = [...item.thresholds];
-    thresholds[i] = Number(value);
-    onChange({ thresholds });
-  };
 
   const setAdvice = (i: number, value: string) => {
     const advice = [...item.advice];
@@ -355,77 +349,7 @@ export default function ItemCard({
                     )
               }
             >
-              <div className={cx('aa-ps-steps', isNumber && 'has-boundaries')}>
-                <div
-                  className='aa-ps-steps__row aa-ps-steps__head'
-                  aria-hidden='true'
-                >
-                  <span />
-                  <span>{__('Step name', 'aggressive-apparel')}</span>
-                  {isNumber && (
-                    <span>
-                      {sprintf(
-                        /* translators: %s: unit, e.g. "g/m²". */
-                        __('Starts at (%s)', 'aggressive-apparel'),
-                        unit
-                      )}
-                    </span>
-                  )}
-                  <span />
-                </div>
-                {item.steps.map((step, i) => (
-                  <div className='aa-ps-steps__row' key={i}>
-                    <span className='aa-ps-steps__index'>{i + 1}</span>
-                    <TextControl
-                      label={sprintf(
-                        /* translators: %d: step number. */
-                        __('Step %d name', 'aggressive-apparel'),
-                        i + 1
-                      )}
-                      hideLabelFromVision
-                      value={step}
-                      onChange={value => setStep(i, value)}
-                      __next40pxDefaultSize
-                    />
-                    {isNumber &&
-                      (i === 0 ? (
-                        <span className='aa-ps-steps__lowest'>
-                          {__('Lowest', 'aggressive-apparel')}
-                        </span>
-                      ) : (
-                        <TextControl
-                          label={sprintf(
-                            /* translators: 1: step name, 2: unit. */
-                            __('%1$s starts at (%2$s)', 'aggressive-apparel'),
-                            step || String(i + 1),
-                            unit
-                          )}
-                          hideLabelFromVision
-                          type='number'
-                          value={String(item.thresholds[i - 1] ?? '')}
-                          onChange={value => setThreshold(i - 1, value)}
-                          __next40pxDefaultSize
-                        />
-                      ))}
-                    <Button
-                      icon='no-alt'
-                      label={__('Remove step', 'aggressive-apparel')}
-                      disabled={item.steps.length <= limits.minSteps}
-                      onClick={() => removeStep(i)}
-                      size='small'
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className='aa-ps-indent'>
-                <Button
-                  variant='secondary'
-                  disabled={item.steps.length >= limits.maxSteps}
-                  onClick={addStep}
-                >
-                  {__('Add step', 'aggressive-apparel')}
-                </Button>
-              </div>
+              <StepsEditor item={item} limits={limits} onChange={onChange} />
               {isNumber && (
                 <CategorySteps
                   item={item}
@@ -436,9 +360,40 @@ export default function ItemCard({
             </Section>
           )}
 
+          {valueField ?? (
+            <Section
+              title={sprintf(
+                /* translators: %s: unit, or nothing. */
+                __('Default value%s', 'aggressive-apparel'),
+                isNumber && item.unit ? ` (${item.unit})` : ''
+              )}
+              help={__(
+                'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
+                'aggressive-apparel'
+              )}
+            >
+              <div
+                className={cx(
+                  'aa-ps-default',
+                  item.type !== 'pick' && 'is-narrow'
+                )}
+              >
+                <ValuePicker
+                  item={item}
+                  value={item.default}
+                  label={__('Default value', 'aggressive-apparel')}
+                  onChange={value => onChange({ default: value })}
+                />
+              </div>
+            </Section>
+          )}
+
           {isScale && (
             <Section
               title={__('Labels under the scale', 'aggressive-apparel')}
+              summary={[labels.start, labels.mid, labels.end]
+                .filter(Boolean)
+                .join(' · ')}
               help={__(
                 'Leave empty to use the first, middle, and last step names.',
                 'aggressive-apparel'
@@ -482,6 +437,16 @@ export default function ItemCard({
           {isScale && (
             <Section
               title={__('Advice per step', 'aggressive-apparel')}
+              summary={
+                item.advice.some(Boolean)
+                  ? sprintf(
+                      /* translators: 1: steps with advice, 2: all steps. */
+                      __('On %1$d of %2$d steps', 'aggressive-apparel'),
+                      item.advice.filter(Boolean).length,
+                      item.steps.length
+                    )
+                  : __('None yet', 'aggressive-apparel')
+              }
               help={__(
                 'Optional. One short line shown under the scale when the block’s advice is on.',
                 'aggressive-apparel'
@@ -517,15 +482,42 @@ export default function ItemCard({
           )}
 
           <Section
-            title={__('Where the value comes from', 'aggressive-apparel')}
+            title={__('WooCommerce attribute', 'aggressive-apparel')}
+            // A broken custom-attribute lookup must not hide in a fold.
+            defaultOpen={unmatched}
+            summary={[
+              unmatched &&
+                __(
+                  'custom attribute names match no product',
+                  'aggressive-apparel'
+                ),
+              item.taxonomy
+                ? `${taxonomies?.[item.taxonomy] ?? item.taxonomy} (${item.taxonomy})`
+                : __('Created when saved', 'aggressive-apparel'),
+              item.multiple && __('several values', 'aggressive-apparel'),
+              item.archives && __('links to archives', 'aggressive-apparel'),
+              item.attributes.length > 0 &&
+                sprintf(
+                  /* translators: %d: number of custom attribute names. */
+                  _n(
+                    'also reads %d custom attribute',
+                    'also reads %d custom attributes',
+                    item.attributes.length,
+                    'aggressive-apparel'
+                  ),
+                  item.attributes.length
+                ),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
             help={
               valueField
                 ? __(
-                    'A product’s own value first, then a product attribute with one of these names, then the value below.',
+                    'A product’s own value first, then a product attribute with one of these names, then this guide’s value.',
                     'aggressive-apparel'
                   )
                 : __(
-                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s specs, then the default below.',
+                    'A product’s own value first, then a product attribute with one of these names, then its size guide’s value, then the default value above.',
                     'aggressive-apparel'
                   )
             }
@@ -573,34 +565,25 @@ export default function ItemCard({
             {unmatched && (
               <p className='aa-ps-help aa-ps-help--notice'>
                 {__(
-                  'None of your products use these attributes yet, so values come from each product, its size guide, or the default below. If you renamed an attribute, update the names here.',
+                  'None of your products use these attributes yet, so values come from each product, its size guide, or the default value. If you renamed an attribute, update the names here.',
                   'aggressive-apparel'
                 )}
               </p>
             )}
-            {valueField ?? (
-              <div className='aa-ps-default'>
-                <span className='aa-ps-default__label'>
-                  {__('Default value', 'aggressive-apparel')}
-                  {isNumber && item.unit ? ` (${item.unit})` : ''}
-                </span>
-                <ValuePicker
-                  item={item}
-                  value={item.default}
-                  label={__('Default value', 'aggressive-apparel')}
-                  onChange={value => onChange({ default: value })}
-                />
-                <p className='aa-ps-help'>
-                  {__(
-                    'Every product this spec applies to shows it, unless the product sets its own value, has a matching attribute, or its size guide sets one. Leave empty for none.',
-                    'aggressive-apparel'
-                  )}
-                </p>
-              </div>
-            )}
           </Section>
 
-          <Section title={__('Where it shows', 'aggressive-apparel')}>
+          <Section
+            title={__('Where it shows', 'aggressive-apparel')}
+            summary={[
+              scopeSummary(item, categories),
+              guides && guideSummary(item, guides),
+              item.in_table &&
+                __('in Additional information', 'aggressive-apparel'),
+              !item.enabled && __('turned off', 'aggressive-apparel'),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          >
             <SelectControl
               label={__('Categories', 'aggressive-apparel')}
               value={item.scope}

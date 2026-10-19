@@ -2,7 +2,7 @@
 /**
  * Size Guide REST
  *
- * The routes behind the Size Guides editor (Products → Size Guides): list,
+ * The routes behind the Size Guides editor (Products → Size & Specs): list,
  * read, create, update, duplicate, trash, and apply guides to products.
  * One save writes the whole guide — chart, notes, diagram, its own specs
  * and spec values, and where it applies.

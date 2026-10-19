@@ -1,5 +1,5 @@
 /**
- * Product Specs settings entry — mounts the app on Products → Size Guides.
+ * Product Specs settings entry — mounts the app on Products → Size & Specs.
  *
  * @package Aggressive_Apparel
  */

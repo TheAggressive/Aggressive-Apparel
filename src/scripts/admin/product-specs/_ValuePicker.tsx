@@ -61,7 +61,7 @@ function ScalePicker({ item, value, label, inherited, onChange }: Props) {
       <div
         role='radiogroup'
         aria-label={label}
-        className='aa-ps-steps'
+        className='aa-ps-segments'
         style={{
           gridTemplateColumns: `repeat(${item.steps.length}, minmax(0, 1fr))`,
         }}
@@ -77,7 +77,7 @@ function ScalePicker({ item, value, label, inherited, onChange }: Props) {
             aria-checked={i === current}
             // One tab stop: the chosen step, or the first.
             tabIndex={i === Math.max(0, current) ? 0 : -1}
-            className={cx('aa-ps-steps__step', i === current && 'is-active')}
+            className={cx('aa-ps-segments__step', i === current && 'is-active')}
             onClick={() => onChange(String(i))}
             onKeyDown={event => move(event, i)}
           >

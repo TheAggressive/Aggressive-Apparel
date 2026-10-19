@@ -2,7 +2,7 @@
 /**
  * Product Specs Grid
  *
- * REST routes behind the Products tab on Products → Size Guides: a searchable,
+ * REST routes behind the Products tab on Products → Size & Specs: a searchable,
  * paginated product list with each spec's own value and what the product
  * would show without it, and a bulk save. Every write goes through
  * Product_Specs_Product_Writer, as product attributes, the same path as the

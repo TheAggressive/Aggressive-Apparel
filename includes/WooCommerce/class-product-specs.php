@@ -2,7 +2,7 @@
 /**
  * Product Specs
  *
- * Resolves every spec item (Products → Size Guides → Specs) for one product. Each value
+ * Resolves every spec item (Products → Size & Specs → Specs) for one product. Each value
  * falls back independently:
  *
  *   the product's own attribute for the spec → an attribute named like the

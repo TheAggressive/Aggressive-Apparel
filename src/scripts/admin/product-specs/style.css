@@ -1,5 +1,5 @@
 /**
- * Product Specs settings screen (Products → Size Guides).
+ * Product Specs settings screen (Products → Size & Specs).
  *
  * One spacing scale (4 / 8 / 12 / 16 / 24 px), one label style, and every
  * control at the 40px WordPress component height so rows line up.
@@ -71,7 +71,8 @@
 	margin-top: 16px;
 }
 
-.aa-ps-default > :is(.aa-ps-input, .aa-ps-input-wrap) {
+/* A text or number default stays field-width; a scale uses the full row. */
+.aa-ps-default.is-narrow > .aa-ps-picker {
 	max-width: 320px;
 }
 
@@ -329,49 +330,192 @@
 	margin-top: 6px;
 }
 
-/* Steps table */
-.aa-ps-steps {
+/* Steps: a band bar (number scales) and one row per step. */
+.aa-ps-step-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	align-items: flex-start;
+}
+
+.aa-ps-bands {
+	align-self: stretch;
+	padding-bottom: 18px;
+}
+
+.aa-ps-bands__bar {
+	display: flex;
+	gap: 2px;
+	height: 32px;
+}
+
+.aa-ps-bands__band {
+	position: relative;
+	display: flex;
+	flex-basis: 0;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	padding: 0 6px;
+	border-radius: 2px;
+	background: color-mix(in srgb, var(--aa-ps-accent) 14%, #fff);
+	color: #1e1e1e;
+	font-size: 12px;
+}
+
+.aa-ps-bands__band:nth-child(even) {
+	background: color-mix(in srgb, var(--aa-ps-accent) 26%, #fff);
+}
+
+.aa-ps-bands__name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Each boundary sits under the line where its band starts. */
+.aa-ps-bands__edge {
+	position: absolute;
+	top: 100%;
+	left: -1px;
+	padding-top: 2px;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	transform: translateX(-50%);
+}
+
+.aa-ps-step-list {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	align-self: stretch;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
-.aa-ps-steps__row {
+.aa-ps-step {
 	display: grid;
-	grid-template-columns: 24px minmax(0, 1fr) 32px;
+	grid-template-columns: 24px minmax(0, 1fr) auto 36px;
+	gap: 4px 10px;
+	align-items: center;
+	margin: 0;
+}
+
+.aa-ps-step:not(:has(.aa-ps-step__range)) {
+	grid-template-columns: 24px minmax(0, 1fr) 36px;
+}
+
+.aa-ps-step__index {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #f0f0f1;
+	color: var(--aa-ps-muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.aa-ps-step__range {
+	display: flex;
 	gap: 8px;
 	align-items: center;
-}
-
-.aa-ps-steps.has-boundaries .aa-ps-steps__row {
-	grid-template-columns: 24px minmax(0, 1fr) minmax(0, 0.6fr) 32px;
-}
-
-.aa-ps-steps__head {
-	color: var(--aa-ps-muted);
-	font-size: 12px;
-	font-weight: 500;
-}
-
-.aa-ps-steps__index {
-	color: var(--aa-ps-muted);
-	font-size: 12px;
-	text-align: right;
-}
-
-.aa-ps-steps__lowest {
-	display: flex;
-	align-items: center;
-	min-height: var(--aa-ps-control-height);
-	padding: 0 12px;
-	border-radius: 2px;
-	background: #f6f7f7;
+	min-width: 250px;
 	color: var(--aa-ps-muted);
 	font-size: 13px;
 }
 
-.aa-ps-indent {
-	padding-left: 32px;
+.aa-ps-step__range .aa-ps-number {
+	width: 120px;
+}
+
+.aa-ps-step__fixed {
+	display: flex;
+	align-items: center;
+	min-height: var(--aa-ps-control-height);
+}
+
+.aa-ps-step__word {
+	white-space: nowrap;
+}
+
+.aa-ps-step__remove.components-button:not(:hover, :focus-visible) {
+	color: var(--aa-ps-muted);
+}
+
+.aa-ps-step.has-error .aa-ps-number__input {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
+}
+
+.aa-ps-step__error {
+	grid-column: 2 / -1;
+	margin: 0;
+	color: #d63638;
+	font-size: 12px;
+}
+
+/* Folded sections: a header row that opens them, with a summary. */
+.aa-ps-section.is-foldable {
+	gap: 0;
+	padding: 0;
+}
+
+.aa-ps-section__heading {
+	margin: 0;
+	font-size: inherit;
+}
+
+.aa-ps-section__toggle {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	width: 100%;
+	margin: 0;
+	padding: 16px 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.aa-ps-section__toggle:focus-visible {
+	outline: 2px solid var(--aa-ps-accent);
+	outline-offset: 2px;
+}
+
+.aa-ps-section__summary {
+	min-width: 0;
+	overflow: hidden;
+	color: var(--aa-ps-muted);
+	font-size: 12px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aa-ps-section.is-foldable:not(.is-open) .aa-ps-card__chevron {
+	transform: rotate(-45deg);
+}
+
+.aa-ps-section.is-foldable.is-open .aa-ps-card__chevron {
+	transform: rotate(45deg);
+}
+
+.aa-ps-section__body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-bottom: 20px;
+}
+
+/* `hidden` must win over the flex layout above. */
+.aa-ps-section__body[hidden] {
+	display: none;
 }
 
 /* Per-category boundaries */

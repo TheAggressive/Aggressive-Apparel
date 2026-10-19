@@ -2,7 +2,7 @@
  * Product Specs block — editor preview.
  *
  * Server-rendered on the front end from the store's spec items
- * (Products → Size Guides → Specs). Templates have no product to resolve, so the editor
+ * (Products → Size & Specs → Specs). Templates have no product to resolve, so the editor
  * shows each scale at its middle step with the same markup and classes.
  *
  * @package Aggressive_Apparel
@@ -195,7 +195,7 @@ export default function Edit({
         {shown.length === 0 && (
           <p>
             {__(
-              'Product Specs: no scales to preview. Define them on Products → Size Guides → Specs.',
+              'Product Specs: no scales to preview. Define them on Products → Size & Specs → Specs.',
               'aggressive-apparel'
             )}
           </p>

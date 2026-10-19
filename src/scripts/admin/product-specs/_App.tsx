@@ -1,5 +1,5 @@
 /**
- * Product Specs settings — app shell (Products → Size Guides).
+ * Product Specs settings — app shell (Products → Size & Specs).
  *
  * - Size guides: one per garment blank — chart, notes, where it applies.
  * - Specs: define the specs products can show, and their defaults.

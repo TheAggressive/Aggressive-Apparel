@@ -2,7 +2,7 @@
 /**
  * Product Specs Registry
  *
- * The store-wide list of spec items, edited on Products → Size Guides → Specs. Each item is
+ * The store-wide list of spec items, edited on Products → Size & Specs → Specs. Each item is
  * either a scale (picked per product, or derived from a number such as g/m²)
  * or a text detail (such as Fabric). Items decide which categories they apply
  * to, which product attributes can supply their value, the default value

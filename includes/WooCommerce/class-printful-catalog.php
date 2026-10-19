@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Printful catalog reads.
  *
- * @phpstan-type Summary array{id: int, title: string, brand: string, model: string, image: string, group: string}
+ * @phpstan-type Summary array{id: int, title: string, brand: string, model: string, image: string, group: string, popular: bool}
  */
 final class Printful_Catalog {
 
@@ -50,6 +50,13 @@ final class Printful_Catalog {
 	public const GROUPS = array( "Men's clothing", "Women's clothing", "Kids' & youth clothing", 'Hats' );
 
 	/**
+	 * Blank models most stores start with, shown first before a search.
+	 *
+	 * @var list<string>
+	 */
+	private const POPULAR = array( '3001', '64000', '5000', '18000', '18500', '1717', '1566', '3719', '3739', '3600', 'SS4500', '6245CM', '112' );
+
+	/**
 	 * Products matching a search, apparel only, best matches first.
 	 *
 	 * @param string $search Words to find in the title, brand, or model.
@@ -65,6 +72,7 @@ final class Printful_Catalog {
 		$split  = preg_split( '/\s+/', strtolower( trim( $search ) ) );
 		$words  = array_filter( false !== $split ? $split : array() );
 		$scored = array();
+		$rank   = array_flip( array_map( 'strtolower', self::POPULAR ) );
 		foreach ( $all as $product ) {
 			if ( '' !== $group && $product['group'] !== $group ) {
 				continue;
@@ -77,7 +85,10 @@ final class Printful_Catalog {
 				}
 				$score += str_contains( strtolower( $product['model'] ), $word ) ? 2 : 1;
 			}
-			$scored[] = array( $score, $product );
+			// Before a search, popular blanks lead, in the list's order.
+			$popular            = isset( $rank[ strtolower( $product['model'] ) ] );
+			$product['popular'] = array() === $words && $popular;
+			$scored[]           = array( array() === $words ? ( $popular ? 1000 - $rank[ strtolower( $product['model'] ) ] : 0 ) : $score, $product );
 		}
 		usort( $scored, static fn( array $a, array $b ): int => $b[0] <=> $a[0] );
 
@@ -204,12 +215,13 @@ final class Printful_Catalog {
 	 */
 	private static function summary( array $product ): array {
 		return array(
-			'id'    => (int) ( $product['id'] ?? 0 ),
-			'title' => self::text( $product['title'] ?? '' ),
-			'brand' => self::text( $product['brand'] ?? '' ),
-			'model' => self::text( $product['model'] ?? '' ),
-			'image' => esc_url_raw( (string) ( $product['image'] ?? '' ) ),
-			'group' => self::text( $product['group'] ?? '' ),
+			'id'      => (int) ( $product['id'] ?? 0 ),
+			'title'   => self::text( $product['title'] ?? '' ),
+			'brand'   => self::text( $product['brand'] ?? '' ),
+			'model'   => self::text( $product['model'] ?? '' ),
+			'image'   => esc_url_raw( (string) ( $product['image'] ?? '' ) ),
+			'group'   => self::text( $product['group'] ?? '' ),
+			'popular' => false,
 		);
 	}
 

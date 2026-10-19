@@ -5,8 +5,8 @@
  * @package Aggressive_Apparel
  */
 
-import type { SpecItem } from './_types';
-import { joinValues, splitValues } from './_utils';
+import type { DraftItem, ImportAttribute, ItemType, SpecItem } from './_types';
+import { blankItem, joinValues, splitValues } from './_utils';
 
 const GSM_PER_OZ = 33.906;
 
@@ -77,4 +77,30 @@ export function nameFrom(text: string): string {
     .split(':')[0]
     .trim();
   return name.length > 40 ? `${name.slice(0, 37)}…` : name;
+}
+
+/** A spec as an import's new-attribute form describes it. */
+export function attributeItem(attribute: ImportAttribute): DraftItem {
+  const steps = attribute.steps
+    .split(',')
+    .map(step => step.trim())
+    .filter(Boolean);
+  const type: ItemType =
+    attribute.kind === 'pick' || attribute.kind === 'number'
+      ? attribute.kind
+      : 'text';
+  const base = blankItem(
+    type,
+    steps.length > 1 ? steps : ['Low', 'Medium', 'High']
+  );
+  return {
+    ...base,
+    key: attribute.key,
+    name: attribute.name,
+    unit: type === 'number' ? attribute.unit : '',
+    multiple: attribute.kind === 'multiple',
+    archives: type === 'text' && attribute.archives,
+    taxonomy: attribute.taxonomy,
+    guides: [],
+  };
 }

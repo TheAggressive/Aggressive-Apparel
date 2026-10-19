@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Usage from Size_Guide_Assignments
  * @phpstan-type Summary array{id: int, title: string, sizes: int, columns: int, usage: Usage, legacy: bool}
- * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
+ * @phpstan-type Guide array{id: int, title: string, chart: Chart, notes: string, diagram: array{id: int, url: string}|null, specs: array<string, string>, hidden: list<string>, source: array{provider: string, id: int, title: string}|null, categories: list<int>, isDefault: bool, usage: Usage, legacyHtml: string, legacyEditUrl: string}
  */
 final class Size_Guide_Rest {
 
@@ -399,6 +399,7 @@ final class Size_Guide_Rest {
 			) : null,
 			'specs'         => $specs['values'],
 			'hidden'        => $specs['hidden'],
+			'source'        => Printful_Import::source( $id ),
 			'categories'    => Size_Guide_Assignments::categories( $id ),
 			'isDefault'     => Size_Guide_Assignments::is_default( $id ),
 			'usage'         => Size_Guide_Assignments::usage( $id ),
@@ -425,11 +426,15 @@ final class Size_Guide_Rest {
 	 * @return \WP_Error|null Null when saved or not submitted.
 	 */
 	private static function save_spec_items( int $id, array $data ): ?\WP_Error {
-		if ( ! isset( $data['specItems'] ) || ! is_array( $data['specItems'] ) ) {
+		$owned = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? $data['specItems'] : null;
+		$store = isset( $data['storeSpecItems'] ) && is_array( $data['storeSpecItems'] ) ? $data['storeSpecItems'] : array();
+		if ( null === $owned && array() === $store ) {
 			return null;
 		}
 
-		$errors = Size_Guide_Spec_Items::save( $id, $data['specItems'] );
+		// Without specItems the guide's own specs stay as they are.
+		$keep   = array_values( array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => in_array( $id, $item['guides'], true ) ) );
+		$errors = Size_Guide_Spec_Items::save( $id, $owned ?? $keep, $store );
 		if ( array() === $errors ) {
 			return null;
 		}

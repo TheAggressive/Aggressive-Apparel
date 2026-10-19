@@ -30,6 +30,13 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	private array $requests = array();
 
 	/**
+	 * Taxonomies registered before each test.
+	 *
+	 * @var list<string>
+	 */
+	private array $baseline = array();
+
+	/**
 	 * Serve recorded responses and start clean.
 	 */
 	public function setUp(): void {
@@ -42,6 +49,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 			delete_transient( $key );
 		}
 		Product_Specs_Registry::flush();
+		$this->baseline = array_values( get_taxonomies() );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'pre_http_request', array( $this, 'respond' ), 10, 3 );
 	}
@@ -50,6 +58,10 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	 * Restore global state.
 	 */
 	public function tearDown(): void {
+		// Attribute taxonomies outlive the DB rollback; drop the ones made here.
+		foreach ( array_diff( array_values( get_taxonomies() ), $this->baseline ) as $taxonomy ) {
+			unregister_taxonomy( $taxonomy );
+		}
 		remove_filter( 'pre_http_request', array( $this, 'respond' ), 10 );
 		delete_option( Feature_Settings::OPTION_KEY );
 		delete_option( Printful_Import::RULES );
@@ -196,6 +208,101 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$data = ( new Printful_Rest() )->search( $request )->get_data();
 
 		$this->assertSame( $guide, $data['products'][0]['guide'] );
+	}
+
+	/** Before a search, popular blanks come first and are marked. */
+	public function test_popular_blanks_lead_an_empty_search(): void {
+		$all = Printful_Catalog::search( '' );
+
+		$this->assertSame( 71, $all[0]['id'], 'Bella + Canvas 3001 is a popular blank.' );
+		$this->assertTrue( $all[0]['popular'] );
+		$this->assertFalse( Printful_Catalog::search( '3001' )[0]['popular'], 'Not flagged once searching.' );
+	}
+
+	/** Only a real composition maps to Fabric, not a line that mentions a fiber. */
+	public function test_fabric_needs_a_composition(): void {
+		$facts = array_column( Printful_Import::facts( "• 1 × 1 rib-knit cuffs with spandex\n• 50% cotton, 50% polyester\n• Fabric: French terry" ), 'target', 'text' );
+
+		$this->assertSame( '', $facts['1 × 1 rib-knit cuffs with spandex'] );
+		$this->assertSame( 'fabric', $facts['50% cotton, 50% polyester'] );
+		$this->assertSame( 'fabric', $facts['Fabric: French terry'] );
+	}
+
+	/** Creating a guide can add a store-wide spec and join another guide's spec. */
+	public function test_create_adds_store_specs_and_joins_guide_specs(): void {
+		// The feature registers this on boot; the test registers it itself.
+		if ( false === has_action( 'aggressive_apparel_size_guide_created', array( Printful_Import::class, 'created' ) ) ) {
+			( new Printful_Import() )->init();
+		}
+		$rest  = new \Aggressive_Apparel\WooCommerce\Size_Guide_Rest();
+		$first = $rest->create(
+			$this->json(
+				array(
+					'title'          => 'Bella + Canvas 3001',
+					'categories'     => array(),
+					'specItems'      => array(
+						array(
+							'key'  => 'pre_shrunk',
+							'name' => 'Pre-shrunk',
+							'type' => 'text',
+						),
+					),
+					'storeSpecItems' => array(
+						array(
+							'key'      => 'closure',
+							'name'     => 'Closure',
+							'type'     => 'text',
+							'multiple' => true,
+						),
+					),
+					'specs'          => array(
+						'pre_shrunk' => 'Yes',
+						'closure'    => 'Zip | Snap',
+					),
+					'importSource'   => array(
+						'provider' => 'printful',
+						'id'       => 71,
+						'title'    => 'Unisex Staple T-Shirt',
+					),
+				)
+			)
+		)->get_data();
+		$second = $rest->create(
+			$this->json(
+				array(
+					'title'     => 'Gildan 18500',
+					'specItems' => array(
+						array(
+							'key'  => 'pre_shrunk',
+							'name' => 'Pre-shrunk',
+							'join' => true,
+						),
+					),
+				)
+			)
+		)->get_data();
+
+		$items = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
+		$this->assertSame( array(), $items['closure']['guides'], 'Store-wide.' );
+		$this->assertTrue( $items['closure']['multiple'] );
+		$this->assertSame( array( $first['id'], $second['id'] ), $items['pre_shrunk']['guides'], 'One spec, shared.' );
+		$this->assertArrayNotHasKey( 'pre_shrunk_2', $items, 'No duplicate.' );
+		$this->assertSame( 'Zip | Snap', $first['specs']['closure'] );
+		$this->assertSame( 'Unisex Staple T-Shirt', $first['source']['title'] );
+	}
+
+	/**
+	 * A JSON REST request.
+	 *
+	 * @param array<string, mixed> $body Body.
+	 * @return \WP_REST_Request<array<string, mixed>>
+	 */
+	private function json( array $body ): \WP_REST_Request {
+		$request = new \WP_REST_Request( 'POST' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( $body ) );
+
+		return $request;
 	}
 
 	/**

@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @phpstan-import-type Chart from Size_Chart
  * @phpstan-import-type Item from Product_Specs_Registry
  * @phpstan-type Fact array{key: string, text: string, target: string, value: string, status: string}
- * @phpstan-type Draft array{source: array{provider: string, id: int}, title: string, image: string, charts: array{garment: Chart|null, body: Chart|null}, notes: array{garment: string, body: string}, diagrams: array{garment: string, body: string}, facts: list<Fact>, guide: int}
+ * @phpstan-type Draft array{source: array{provider: string, id: int, title: string}, title: string, image: string, charts: array{garment: Chart|null, body: Chart|null}, notes: array{garment: string, body: string}, diagrams: array{garment: string, body: string}, facts: list<Fact>, guide: int}
  */
 final class Printful_Import {
 
@@ -113,6 +113,7 @@ final class Printful_Import {
 			'source'   => array(
 				'provider' => 'printful',
 				'id'       => $id,
+				'title'    => self::text( $product['title'] ?? '' ),
 			),
 			'title'    => '' !== $brand && '' !== $model ? $brand . ' ' . $model : self::text( $product['title'] ?? '' ),
 			'image'    => esc_url_raw( (string) ( $product['image'] ?? '' ) ),
@@ -152,6 +153,7 @@ final class Printful_Import {
 			array(
 				'provider' => 'printful',
 				'id'       => absint( $source['id'] ),
+				'title'    => mb_substr( self::text( $source['title'] ?? '' ), 0, 120 ),
 				'imported' => time(),
 			)
 		);
@@ -166,6 +168,25 @@ final class Printful_Import {
 
 		self::remember( 'printful', is_array( $body['importRules'] ?? null ) ? $body['importRules'] : array() );
 		( new Size_Guide() )->flush_all_caches();
+	}
+
+	/**
+	 * Where a guide was imported from, for the editor (null when it wasn't).
+	 *
+	 * @param int $guide_id Size guide ID.
+	 * @return array{provider: string, id: int, title: string}|null
+	 */
+	public static function source( int $guide_id ): ?array {
+		$source = get_post_meta( $guide_id, self::SOURCE, true );
+		if ( ! is_array( $source ) || 'printful' !== ( $source['provider'] ?? '' ) ) {
+			return null;
+		}
+
+		return array(
+			'provider' => 'printful',
+			'id'       => absint( $source['id'] ?? 0 ),
+			'title'    => self::text( $source['title'] ?? '' ),
+		);
 	}
 
 	/**
@@ -304,7 +325,9 @@ final class Printful_Import {
 			$key = $find( Product_Specs_Registry::TYPE_NUMBER, array( 'weight', 'fabric weight', 'gsm' ) );
 			return array( $key, '' !== $key ? 'sure' : 'unsure' );
 		}
-		if ( 1 === preg_match( '/^\s*(\d+\s*%|fabric\s*:|material\s*:)|\b(cotton|polyester|rayon|spandex|elastane|linen|wool|fleece|viscose|nylon|modal|bamboo)\b/iu', $text ) ) {
+		// A composition ("50% cotton, 50% polyester", "Fabric: …"), not any
+		// line that mentions a fiber ("rib-knit cuffs with spandex").
+		if ( 1 === preg_match( '/^\s*(fabric|material|composition)\s*:|\d+\s*%\s*[^,;]*\b(cotton|polyester|rayon|spandex|elastane|linen|wool|fleece|viscose|nylon|modal|bamboo|acrylic|silk|hemp|lyocell|tencel)\b/iu', $text ) ) {
 			$key = $find( Product_Specs_Registry::TYPE_TEXT, array( 'fabric', 'material', 'composition' ) );
 			return array( $key, '' !== $key ? 'sure' : 'unsure' );
 		}

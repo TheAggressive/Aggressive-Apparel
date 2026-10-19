@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-19T04:48:43+00:00\n"
+"POT-Creation-Date: 2026-10-19T06:00:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -2581,12 +2581,12 @@ msgstr ""
 msgid "(complete)"
 msgstr ""
 
-#: includes/WooCommerce/class-printful-catalog.php:189
+#: includes/WooCommerce/class-printful-catalog.php:200
 msgid "Printful has no size chart for that product."
 msgstr ""
 
 #. translators: %d: HTTP status code.
-#: includes/WooCommerce/class-printful-catalog.php:191
+#: includes/WooCommerce/class-printful-catalog.php:202
 #, php-format
 msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr ""
@@ -2884,7 +2884,7 @@ msgid "Some spec values could not be saved (%s). You can pick existing values on
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:541
+#: includes/WooCommerce/class-size-guide-rest.php:546
 msgid "(no title)"
 msgstr ""
 
@@ -4002,11 +4002,11 @@ msgstr ""
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:439
+#: includes/WooCommerce/class-size-guide-rest.php:444
 msgid "Some specs need fixing before the guide can be saved."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:532
+#: includes/WooCommerce/class-size-guide-rest.php:537
 msgid "Untitled size guide"
 msgstr ""
 

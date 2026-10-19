@@ -14,7 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { Config, GuideSummary, Registry, SpecItem, Usage } from './_types';
 import GuideEditor from './_GuideEditor';
-import PrintfulImport from './_PrintfulImport';
+import ImportFlow from './_ImportFlow';
 
 type Props = {
   config: Config;
@@ -89,18 +89,16 @@ export default function GuidesTab({
 
   if (importing && open === null) {
     return (
-      <PrintfulImport
-        guidesPath={config.guidesPath}
+      <ImportFlow
+        config={config}
         items={items}
-        onCancel={() => setImporting(false)}
-        onOpen={id => {
+        taxonomies={taxonomies}
+        onRegistry={onRegistry}
+        onCancel={() => {
           setImporting(false);
-          show(id);
+          void refresh();
         }}
-        onCreated={(id, registry) => {
-          if (registry) {
-            onRegistry(registry);
-          }
+        onOpen={id => {
           setImporting(false);
           show(id);
           void refresh();

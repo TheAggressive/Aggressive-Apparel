@@ -93,6 +93,8 @@ export type GuideDetail = {
   specs: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */
   hidden: string[];
+  /** Where the guide was imported from, if anywhere. */
+  source: { provider: string; id: number; title: string } | null;
   categories: number[];
   isDefault: boolean;
   usage: Usage;
@@ -165,6 +167,8 @@ export type PrintfulProduct = {
   group: string;
   /** The guide already imported from it (0 for none). */
   guide: number;
+  /** A common blank, listed first before a search. */
+  popular: boolean;
 };
 
 /** One description bullet and the spec it maps to (Printful_Import). */
@@ -180,7 +184,7 @@ export type ImportFact = {
 
 /** A Printful product as a size guide draft to review. */
 export type ImportDraft = {
-  source: { provider: string; id: number };
+  source: { provider: string; id: number; title: string };
   title: string;
   image: string;
   charts: { garment: Chart | null; body: Chart | null };
@@ -189,4 +193,39 @@ export type ImportDraft = {
   facts: ImportFact[];
   /** A guide already imported from this product (0 for none). */
   guide: number;
+};
+
+/** A spec made while importing: new, or an existing attribute made a spec. */
+export type ImportAttribute = {
+  /** Spec key, fixed when first set up. */
+  key: string;
+  name: string;
+  kind: 'text' | 'multiple' | 'pick' | 'number';
+  /** This guide only, or every guide. */
+  scope: 'guide' | 'store';
+  archives: boolean;
+  /** Comma-separated steps, for a scale. */
+  steps: string;
+  unit: string;
+  /** An existing WooCommerce attribute to use ('' for a new one). */
+  taxonomy: string;
+};
+
+/** Where one description line goes. */
+export type ImportMapping = {
+  /** Spec key, 'skip', 'new' (an ImportAttribute), or '' (undecided). */
+  target: string;
+  value: string;
+  /** Set by the store (not inherited from another blank). */
+  touched: boolean;
+};
+
+/** The store's edits to one blank before it becomes a guide. */
+export type ImportBlankState = {
+  title: string;
+  kind: 'garment' | 'body';
+  notes: string;
+  categories: number[];
+  isDefault: boolean;
+  mappings: ImportMapping[];
 };

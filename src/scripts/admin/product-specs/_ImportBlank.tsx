@@ -55,6 +55,16 @@ export default function ImportBlank({
     kind => draft.charts[kind]
   );
   const chart = draft.charts[state.kind];
+  // An attribute another line already turns into a spec isn't offered again.
+  const unclaimed = (factKey: string) =>
+    Object.fromEntries(
+      Object.entries(attributes).filter(
+        ([taxonomy]) =>
+          !Object.entries(created).some(
+            ([key, other]) => key !== factKey && other.taxonomy === taxonomy
+          )
+      )
+    );
 
   const toggleCategory = (id: number) =>
     onState({
@@ -118,7 +128,7 @@ export default function ImportBlank({
                     'aa-ps-pill',
                     state.kind === kind && 'is-active'
                   )}
-                  onClick={() => onState({ kind, notes: draft.notes[kind] })}
+                  onClick={() => onState({ kind })}
                 >
                   {kind === 'garment'
                     ? __('Garment', 'aggressive-apparel')
@@ -154,9 +164,11 @@ export default function ImportBlank({
           <TextareaControl
             label={__('Notes', 'aggressive-apparel')}
             hideLabelFromVision
-            value={state.notes}
+            value={state.notes[state.kind]}
             rows={6}
-            onChange={notes => onState({ notes })}
+            onChange={notes =>
+              onState({ notes: { ...state.notes, [state.kind]: notes } })
+            }
             __nextHasNoMarginBottom
           />
         </details>
@@ -228,7 +240,7 @@ export default function ImportBlank({
               mapping={state.mappings[index]}
               attribute={created[fact.key]}
               specs={specs}
-              attributes={attributes}
+              attributes={unclaimed(fact.key)}
               onMapping={patch => onMapping(index, patch)}
               onAttribute={patch => onAttribute(index, patch)}
             />

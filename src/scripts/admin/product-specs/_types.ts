@@ -224,7 +224,8 @@ export type ImportMapping = {
 export type ImportBlankState = {
   title: string;
   kind: 'garment' | 'body';
-  notes: string;
+  /** Notes per chart, so switching charts keeps edits to either. */
+  notes: { garment: string; body: string };
   categories: number[];
   isDefault: boolean;
   mappings: ImportMapping[];

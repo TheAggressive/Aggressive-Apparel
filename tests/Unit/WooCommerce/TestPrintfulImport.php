@@ -37,6 +37,13 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	private array $baseline = array();
 
 	/**
+	 * HTTP status Printful answers the size table request with.
+	 *
+	 * @var int
+	 */
+	private int $sizes_status = 200;
+
+	/**
 	 * Serve recorded responses and start clean.
 	 */
 	public function setUp(): void {
@@ -91,6 +98,18 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$file             = 'api.printful.com' === wp_parse_url( $url, PHP_URL_HOST ) && isset( $files[ $path ] )
 			? dirname( __DIR__, 2 ) . '/fixtures/printful/' . $files[ $path ]
 			: '';
+
+		if ( '/products/71/sizes' === $path && 200 !== $this->sizes_status ) {
+			return array(
+				'headers'  => array(),
+				'body'     => '{"code":500,"result":"Server error"}',
+				'response' => array(
+					'code'    => $this->sizes_status,
+					'message' => '',
+				),
+				'cookies'  => array(),
+			);
+		}
 
 		return array(
 			'headers'  => array(),
@@ -194,14 +213,7 @@ class TestPrintfulImport extends WP_UnitTestCase {
 	/** The search route marks products already imported. */
 	public function test_search_route_marks_imported(): void {
 		$guide = self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) );
-		update_post_meta(
-			$guide,
-			Printful_Import::SOURCE,
-			array(
-				'provider' => 'printful',
-				'id'       => 71,
-			)
-		);
+		update_post_meta( $guide, Printful_Import::SOURCE_KEY, 'printful:71' );
 		$request = new \WP_REST_Request( 'GET' );
 		$request->set_param( 'search', '3001' );
 
@@ -289,6 +301,141 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'pre_shrunk_2', $items, 'No duplicate.' );
 		$this->assertSame( 'Zip | Snap', $first['specs']['closure'] );
 		$this->assertSame( 'Unisex Staple T-Shirt', $first['source']['title'] );
+	}
+
+	/** Printful being down is an error, not a guide without its chart. */
+	public function test_draft_reports_a_size_table_outage(): void {
+		$this->sizes_status = 500;
+
+		$draft = Printful_Import::draft( 71 );
+
+		$this->assertWPError( $draft );
+		$this->assertFalse( get_transient( 'aa_printful_sizes_71' ), 'A failure is not cached.' );
+	}
+
+	/** Only garment and "measure yourself" tables become charts. */
+	public function test_draft_ignores_other_size_tables(): void {
+		$table = static fn( string $type, string $label ): array => array(
+			'type'         => $type,
+			'unit'         => 'inches',
+			'measurements' => array(
+				array(
+					'type_label' => $label,
+					'values'     => array(
+						array(
+							'size'  => 'S',
+							'value' => '30',
+						),
+					),
+				),
+			),
+		);
+		set_transient( 'aa_printful_product_73', array( 'product' => array( 'title' => 'Tee' ) ), HOUR_IN_SECONDS );
+		set_transient(
+			'aa_printful_sizes_73',
+			array( 'size_tables' => array( $table( 'international', 'EU' ), $table( 'measure_yourself', 'Chest' ) ) ),
+			HOUR_IN_SECONDS
+		);
+
+		$draft = Printful_Import::draft( 73 );
+
+		$this->assertNull( $draft['charts']['garment'], 'A size conversion is not a garment chart.' );
+		$this->assertSame( 'Chest', $draft['charts']['body']['columns'][0]['label'] );
+	}
+
+	/** Rules and matches only target store-wide specs that are on. */
+	public function test_facts_only_target_store_wide_specs(): void {
+		$items = Product_Specs_Registry::get()['items'];
+		foreach ( $items as &$item ) {
+			if ( 'construction' === $item['key'] ) {
+				$item['guides'] = array( self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) ) );
+			}
+			if ( 'fabric' === $item['key'] ) {
+				$item['enabled'] = false;
+			}
+		}
+		unset( $item );
+		Product_Specs_Registry::save(
+			array(
+				'items'           => $items,
+				'hide_dimensions' => false,
+			)
+		);
+		update_option( Printful_Import::RULES, array( 'printful' => array( 'pre-shrunk fabric' => 'construction' ) ), false );
+
+		$facts = array_column( Printful_Import::facts( "• Side-seamed\n• Pre-shrunk fabric\n• 100% cotton" ), 'target', 'text' );
+
+		$this->assertSame( '', $facts['Side-seamed'], 'Not a spec of one guide.' );
+		$this->assertSame( '', $facts['Pre-shrunk fabric'], 'A rule for a guide spec is ignored.' );
+		$this->assertSame( '', $facts['100% cotton'], 'Not a disabled spec.' );
+	}
+
+	/** A line's key never ends in half a character. */
+	public function test_fact_key_is_character_safe(): void {
+		$text = str_repeat( 'é', 130 );
+		$key  = Printful_Import::facts( '• ' . $text )[0]['key'];
+
+		$this->assertSame( 120, mb_strlen( $key ) );
+		$this->assertTrue( mb_check_encoding( $key, 'UTF-8' ) );
+	}
+
+	/** The diagram downloads in the background, not during the save. */
+	public function test_diagram_downloads_in_the_background(): void {
+		$guide = self::factory()->post->create( array( 'post_type' => 'aa_size_guide' ) );
+		$url   = 'https://files.cdn.printful.com/upload/product-measure/71.png';
+		Printful_Import::created(
+			$guide,
+			array(
+				'importSource' => array(
+					'provider' => 'printful',
+					'id'       => 71,
+				),
+				'diagramUrl'   => $url,
+			)
+		);
+
+		$this->assertSame( array(), $this->requests, 'Nothing fetched during the save.' );
+		$scheduled = function_exists( 'as_has_scheduled_action' )
+			? as_has_scheduled_action( Printful_Import::DIAGRAM_ACTION, array( $guide, $url ), 'aggressive-apparel' )
+			: false !== wp_next_scheduled( Printful_Import::DIAGRAM_ACTION, array( $guide, $url ) );
+		$this->assertTrue( $scheduled );
+	}
+
+	/** A spec re-keyed on save keeps its value and its import rule. */
+	public function test_renamed_key_keeps_value_and_rule(): void {
+		if ( false === has_action( 'aggressive_apparel_size_guide_created', array( Printful_Import::class, 'created' ) ) ) {
+			( new Printful_Import() )->init();
+		}
+		$guide = ( new \Aggressive_Apparel\WooCommerce\Size_Guide_Rest() )->create(
+			$this->json(
+				array(
+					'title'          => 'Tee',
+					// "fabric" is already a store-wide spec, so this one is re-keyed.
+					'storeSpecItems' => array(
+						array(
+							'key'  => 'fabric',
+							'name' => 'Shell fabric',
+							'type' => 'text',
+						),
+					),
+					'specs'          => array( 'fabric' => 'Nylon' ),
+					'importSource'   => array(
+						'provider' => 'printful',
+						'id'       => 71,
+					),
+					'importRules'    => array(
+						array(
+							'key'    => 'shell: nylon',
+							'target' => 'fabric',
+						),
+					),
+				)
+			)
+		)->get_data();
+
+		$this->assertSame( 'Nylon', $guide['specs']['fabric_2'] ?? null );
+		$this->assertArrayNotHasKey( 'fabric', array_filter( $guide['specs'] ) );
+		$this->assertSame( 'fabric_2', get_option( Printful_Import::RULES )['printful']['shell: nylon'] );
 	}
 
 	/**

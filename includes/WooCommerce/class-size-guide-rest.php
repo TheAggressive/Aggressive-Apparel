@@ -421,11 +421,14 @@ final class Size_Guide_Rest {
 	/**
 	 * Save the guide's own spec items when submitted.
 	 *
+	 * A spec whose key had to change (taken since the editor loaded) has
+	 * its value and import rules moved to the saved key, so neither is lost.
+	 *
 	 * @param int                  $id   Size guide post ID.
-	 * @param array<string, mixed> $data Submitted fields.
+	 * @param array<string, mixed> $data Submitted fields; spec keys are rewritten when renamed.
 	 * @return \WP_Error|null Null when saved or not submitted.
 	 */
-	private static function save_spec_items( int $id, array $data ): ?\WP_Error {
+	private static function save_spec_items( int $id, array &$data ): ?\WP_Error {
 		$owned = isset( $data['specItems'] ) && is_array( $data['specItems'] ) ? $data['specItems'] : null;
 		$store = isset( $data['storeSpecItems'] ) && is_array( $data['storeSpecItems'] ) ? $data['storeSpecItems'] : array();
 		if ( null === $owned && array() === $store ) {
@@ -433,9 +436,11 @@ final class Size_Guide_Rest {
 		}
 
 		// Without specItems the guide's own specs stay as they are.
-		$keep   = array_values( array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => in_array( $id, $item['guides'], true ) ) );
-		$errors = Size_Guide_Spec_Items::save( $id, $owned ?? $keep, $store );
+		$keep    = array_values( array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => in_array( $id, $item['guides'], true ) ) );
+		$renamed = array();
+		$errors  = Size_Guide_Spec_Items::save( $id, $owned ?? $keep, $store, $renamed );
 		if ( array() === $errors ) {
+			self::rekey( $data, $renamed );
 			return null;
 		}
 
@@ -447,6 +452,33 @@ final class Size_Guide_Rest {
 				'errors' => $errors,
 			)
 		);
+	}
+
+	/**
+	 * Point submitted values and import rules at renamed spec keys.
+	 *
+	 * @param array<string, mixed>  $data    Submitted fields.
+	 * @param array<string, string> $renamed Submitted key => saved key.
+	 */
+	private static function rekey( array &$data, array $renamed ): void {
+		if ( array() === $renamed ) {
+			return;
+		}
+		if ( isset( $data['specs'] ) && is_array( $data['specs'] ) ) {
+			$specs = array();
+			foreach ( $data['specs'] as $key => $value ) {
+				$specs[ $renamed[ (string) $key ] ?? $key ] = $value;
+			}
+			$data['specs'] = $specs;
+		}
+		if ( isset( $data['importRules'] ) && is_array( $data['importRules'] ) ) {
+			foreach ( $data['importRules'] as $n => $rule ) {
+				$target = is_array( $rule ) && is_string( $rule['target'] ?? null ) ? $rule['target'] : '';
+				if ( isset( $renamed[ $target ] ) ) {
+					$data['importRules'][ $n ]['target'] = $renamed[ $target ];
+				}
+			}
+		}
 	}
 
 	/**

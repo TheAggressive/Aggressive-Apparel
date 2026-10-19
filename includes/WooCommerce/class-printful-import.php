@@ -48,6 +48,20 @@ final class Printful_Import {
 	public const SOURCE = '_aa_guide_source';
 
 	/**
+	 * Guide meta: "provider:id", flat for lookups.
+	 *
+	 * @var string
+	 */
+	public const SOURCE_KEY = '_aa_guide_source_key';
+
+	/**
+	 * Background hook that copies a diagram into the media library.
+	 *
+	 * @var string
+	 */
+	public const DIAGRAM_ACTION = 'aggressive_apparel_import_diagram';
+
+	/**
 	 * Option: the store's mapping choices, provider => fact key => target.
 	 *
 	 * @var string
@@ -80,6 +94,7 @@ final class Printful_Import {
 	 */
 	public function init(): void {
 		add_action( 'aggressive_apparel_size_guide_created', array( self::class, 'created' ), 10, 2 );
+		add_action( self::DIAGRAM_ACTION, array( self::class, 'attach_diagram' ), 10, 2 );
 	}
 
 	/**
@@ -93,15 +108,28 @@ final class Printful_Import {
 		if ( is_wp_error( $product ) ) {
 			return $product;
 		}
-		// No size tables is fine (hats, bags): specs still import.
+		// No size tables (a 404: hats, bags) is fine and specs still import;
+		// any other failure is Printful being unavailable, so say so rather
+		// than make a guide without its chart.
 		$sizes = Printful_Catalog::sizes( $id );
-		$sizes = is_wp_error( $sizes ) ? array() : $sizes;
+		if ( is_wp_error( $sizes ) ) {
+			$data = $sizes->get_error_data();
+			if ( ! is_array( $data ) || 404 !== ( $data['status'] ?? 0 ) ) {
+				return $sizes;
+			}
+			$sizes = array();
+		}
 
+		// Garment and "measure yourself" tables only (not size conversions).
+		$kinds  = array(
+			'product_measure'  => 'garment',
+			'measure_yourself' => 'body',
+		);
 		$tables = array();
 		foreach ( is_array( $sizes['size_tables'] ?? null ) ? $sizes['size_tables'] : array() as $table ) {
-			if ( is_array( $table ) ) {
-				$kind            = 'product_measure' === ( $table['type'] ?? '' ) ? 'garment' : 'body';
-				$tables[ $kind ] = $tables[ $kind ] ?? $table;
+			$kind = is_array( $table ) ? ( $kinds[ (string) ( $table['type'] ?? '' ) ] ?? '' ) : '';
+			if ( '' !== $kind && ! isset( $tables[ $kind ] ) ) {
+				$tables[ $kind ] = $table;
 			}
 		}
 		$order = array_values( array_filter( array_map( 'strval', is_array( $sizes['available_sizes'] ?? null ) ? $sizes['available_sizes'] : array() ) ) );
@@ -157,12 +185,17 @@ final class Printful_Import {
 				'imported' => time(),
 			)
 		);
+		// A flat, indexed copy for the "already imported" lookup.
+		update_post_meta( $guide_id, self::SOURCE_KEY, 'printful:' . absint( $source['id'] ) );
 
+		// The diagram downloads in the background, so a slow CDN never makes
+		// a created guide look failed.
 		$url = self::diagram_url( $body['diagramUrl'] ?? '' );
 		if ( '' !== $url ) {
-			$attachment = self::sideload( $url, $guide_id );
-			if ( $attachment > 0 ) {
-				update_post_meta( $guide_id, Size_Chart::DIAGRAM, $attachment );
+			if ( function_exists( 'as_enqueue_async_action' ) ) {
+				as_enqueue_async_action( self::DIAGRAM_ACTION, array( $guide_id, $url ), 'aggressive-apparel' );
+			} else {
+				wp_schedule_single_event( time(), self::DIAGRAM_ACTION, array( $guide_id, $url ) );
 			}
 		}
 
@@ -196,27 +229,45 @@ final class Printful_Import {
 	 * @return array<int, int> Source product ID => guide ID.
 	 */
 	public static function imported( string $provider ): array {
-		$guides = get_posts(
-			array(
-				'post_type'      => Size_Guide_Post_Type::POST_TYPE,
-				'post_status'    => 'publish',
-				'posts_per_page' => 100,
-				'fields'         => 'ids',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- admin-only lookup over a small CPT.
-				'meta_key'       => self::SOURCE,
+		global $wpdb;
+
+		// One query over the flat source key, however many guides exist.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- admin-only lookup; meta_value prefix match has no API.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT m.post_id, m.meta_value FROM {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id WHERE m.meta_key = %s AND m.meta_value LIKE %s AND p.post_type = %s AND p.post_status = 'publish' ORDER BY m.post_id",
+				self::SOURCE_KEY,
+				$wpdb->esc_like( $provider . ':' ) . '%',
+				Size_Guide_Post_Type::POST_TYPE
 			)
 		);
 
 		$map = array();
-		foreach ( $guides as $guide ) {
-			$guide  = $guide instanceof \WP_Post ? $guide->ID : (int) $guide;
-			$source = get_post_meta( $guide, self::SOURCE, true );
-			if ( is_array( $source ) && ( $source['provider'] ?? '' ) === $provider ) {
-				$map[ absint( $source['id'] ?? 0 ) ] = $guide;
-			}
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$map[ absint( substr( (string) $row->meta_value, strlen( $provider ) + 1 ) ) ] = (int) $row->post_id;
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Copy an imported guide's diagram into the media library (background).
+	 *
+	 * @param int    $guide_id Size guide ID.
+	 * @param string $url      Diagram URL.
+	 */
+	public static function attach_diagram( $guide_id, $url ): void {
+		$guide_id = absint( $guide_id );
+		$url      = self::diagram_url( $url );
+		if ( $guide_id <= 0 || '' === $url || Size_Guide_Post_Type::POST_TYPE !== get_post_type( $guide_id ) || (int) get_post_meta( $guide_id, Size_Chart::DIAGRAM, true ) > 0 ) {
+			return;
+		}
+
+		$attachment = self::sideload( $url, $guide_id );
+		if ( $attachment > 0 ) {
+			update_post_meta( $guide_id, Size_Chart::DIAGRAM, $attachment );
+			( new Size_Guide() )->flush_all_caches();
+		}
 	}
 
 	/**
@@ -226,7 +277,13 @@ final class Printful_Import {
 	 * @return list<Fact>
 	 */
 	public static function facts( string $description ): array {
-		$items = array_column( Product_Specs_Registry::get()['items'], null, 'key' );
+		// Only specs the review can offer: store-wide and on. A rule or match
+		// pointing anywhere else would be silently lost, so it isn't used.
+		$items = array_column(
+			array_filter( Product_Specs_Registry::get()['items'], static fn( array $item ): bool => $item['enabled'] && array() === $item['guides'] ),
+			null,
+			'key'
+		);
 		$rules = self::rules( 'printful' );
 		$facts = array();
 		$lines = preg_split( '/\R/u', $description );
@@ -296,7 +353,7 @@ final class Printful_Import {
 	 * @param string $text Fact text.
 	 */
 	public static function fact_key( string $text ): string {
-		return substr( strtolower( trim( (string) preg_replace( array( '/[\d.,]+/', '/\s+/' ), array( '#', ' ' ), $text ) ) ), 0, 120 );
+		return mb_substr( mb_strtolower( trim( (string) preg_replace( array( '/[\d.,]+/', '/\s+/' ), array( '#', ' ' ), $text ) ) ), 0, 120 );
 	}
 
 	/**
@@ -446,7 +503,7 @@ final class Printful_Import {
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
 		// Printful's URLs end in "_l?v=…", without an image extension.
-		$file = download_url( $url, 30 );
+		$file = download_url( $url, 20 );
 		if ( is_wp_error( $file ) ) {
 			return 0;
 		}

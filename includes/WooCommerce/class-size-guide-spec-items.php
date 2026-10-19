@@ -41,12 +41,14 @@ final class Size_Guide_Spec_Items {
 	 * $store adds new store-wide specs in the same save (a spec made while
 	 * importing); existing specs are never changed through it.
 	 *
-	 * @param int   $guide_id  Size guide post ID.
-	 * @param mixed $submitted Raw items the guide owns.
-	 * @param mixed $store     Raw new store-wide items.
+	 * @param int                   $guide_id  Size guide post ID.
+	 * @param mixed                 $submitted Raw items the guide owns.
+	 * @param mixed                 $store     Raw new store-wide items.
+	 * @param array<string, string> $renamed   Filled with submitted key => saved key, for keys that had to change.
 	 * @return list<string> Errors; empty when saved.
 	 */
-	public static function save( int $guide_id, $submitted, $store = array() ): array {
+	public static function save( int $guide_id, $submitted, $store = array(), array &$renamed = array() ): array {
+		$renamed   = array();
 		$registry  = Product_Specs_Registry::get();
 		$submitted = is_array( $submitted ) ? array_values( array_filter( $submitted, 'is_array' ) ) : array();
 
@@ -86,6 +88,7 @@ final class Size_Guide_Spec_Items {
 			} else {
 				$entry['guides'] = array( $guide_id );
 				$key             = self::free_key( $key, $taken );
+				self::renamed( $renamed, $entry, $key );
 			}
 			$entry['key']  = $key;
 			$taken[ $key ] = true;
@@ -95,7 +98,8 @@ final class Size_Guide_Spec_Items {
 		array_splice( $items, $at ?? count( $items ), 0, $added );
 
 		foreach ( is_array( $store ) ? array_filter( $store, 'is_array' ) : array() as $entry ) {
-			$key             = self::free_key( self::key( $entry ), $taken );
+			$key = self::free_key( self::key( $entry ), $taken );
+			self::renamed( $renamed, $entry, $key );
 			$entry['key']    = $key;
 			$entry['guides'] = array();
 			$taken[ $key ]   = true;
@@ -118,6 +122,20 @@ final class Size_Guide_Spec_Items {
 				'hide_dimensions' => $result['hide_dimensions'],
 			)
 		);
+	}
+
+	/**
+	 * Note a submitted key the save had to change.
+	 *
+	 * @param array<string, string> $renamed Submitted key => saved key.
+	 * @param array<mixed>          $entry   Submitted item.
+	 * @param string                $key     Saved key.
+	 */
+	private static function renamed( array &$renamed, array $entry, string $key ): void {
+		$submitted = is_scalar( $entry['key'] ?? null ) ? (string) $entry['key'] : '';
+		if ( '' !== $submitted && $submitted !== $key ) {
+			$renamed[ $submitted ] = $key;
+		}
 	}
 
 	/**

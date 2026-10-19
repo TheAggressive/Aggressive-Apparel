@@ -98,7 +98,7 @@ export default function ImportFlow({
     return {
       title: draft.title,
       kind,
-      notes: draft.notes[kind],
+      notes: { ...draft.notes },
       categories: [],
       isDefault: false,
       mappings: draft.facts.map(fact => {
@@ -114,31 +114,61 @@ export default function ImportFlow({
     };
   };
 
+  /** Load every blank at once; one that fails is set aside, not the batch. */
   const review = async () => {
     setLoading(true);
     setError('');
     const nextDrafts = { ...drafts };
     const nextStates = { ...states };
-    try {
-      for (const product of selected) {
-        if (!nextDrafts[product.id]) {
-          nextDrafts[product.id] = (await apiFetch({
-            path: `${path}/${product.id}`,
-          })) as ImportDraft;
-        }
-        nextStates[product.id] ??= startState(nextDrafts[product.id]);
+    const loaded = await Promise.allSettled(
+      selected.map(product =>
+        nextDrafts[product.id]
+          ? Promise.resolve(nextDrafts[product.id])
+          : (apiFetch({
+              path: `${path}/${product.id}`,
+            }) as Promise<ImportDraft>)
+      )
+    );
+    const ready: PrintfulProduct[] = [];
+    const failed: string[] = [];
+    loaded.forEach((outcome, i) => {
+      const product = selected[i];
+      if (outcome.status === 'rejected') {
+        failed.push(
+          sprintf(
+            /* translators: 1: blank name, 2: error message. */
+            __('%1$s: %2$s', 'aggressive-apparel'),
+            product.model || product.title,
+            (outcome.reason as { message?: string })?.message ??
+              __('It could not be loaded from Printful.', 'aggressive-apparel')
+          )
+        );
+        return;
       }
-      setDrafts(nextDrafts);
-      setStates(nextStates);
-      setActive(selected[0].id);
-      setStep(1);
-    } catch (failure) {
+      nextDrafts[product.id] = outcome.value;
+      nextStates[product.id] ??= startState(outcome.value);
+      ready.push(product);
+    });
+    setLoading(false);
+    setDrafts(nextDrafts);
+    setStates(nextStates);
+    if (failed.length > 0) {
       setError(
-        (failure as { message?: string }).message ??
-          __('A blank could not be loaded from Printful.', 'aggressive-apparel')
+        [
+          _n(
+            'This blank was left out. Try it again later:',
+            'These blanks were left out. Try them again later:',
+            failed.length,
+            'aggressive-apparel'
+          ),
+          ...failed,
+        ].join(' ')
       );
-    } finally {
-      setLoading(false);
+    }
+    if (ready.length > 0) {
+      setSelected(ready);
+      setActive(ready[0].id);
+      setStep(1);
     }
   };
 
@@ -231,8 +261,38 @@ export default function ImportFlow({
 
   const create = async () => {
     setError('');
-    const made = new Set<string>();
+    // Specs made so far: the key they were sent with => the key they saved
+    // as (the server re-keys one taken since the review opened).
+    const made = new Map<string, string>();
+    const before = new Set(items.map(item => item.key));
     const done: Result[] = [];
+    const saved = (attr: ImportAttribute) => made.get(attr.key) ?? attr.key;
+    /** Record the specs a save made, as the registry now has them. */
+    const reconcile = (
+      registry: Registry,
+      used: ImportAttribute[],
+      guide: number
+    ) => {
+      for (const attr of used) {
+        if (made.has(attr.key)) {
+          continue;
+        }
+        const item = registry.items.find(
+          other =>
+            !before.has(other.key) &&
+            other.name === attr.name &&
+            (attr.scope === 'store'
+              ? other.guides.length === 0
+              : guide > 0
+                ? other.guides.includes(guide)
+                : other.guides.length > 0)
+        );
+        if (item) {
+          made.set(attr.key, item.key);
+          before.add(item.key);
+        }
+      }
+    };
     for (const [n, product] of selected.entries()) {
       setProgress(n + 1);
       const draft = drafts[product.id];
@@ -260,7 +320,7 @@ export default function ImportFlow({
       const store: object[] = [];
       for (const attr of used) {
         const item = attributeItem(attr);
-        values[attr.key] = combine(
+        values[saved(attr)] = combine(
           item,
           draft.facts.flatMap((fact, i) =>
             created[fact.key]?.key === attr.key &&
@@ -277,7 +337,7 @@ export default function ImportFlow({
           // A later blank joins the spec the first one created.
           own.push(
             made.has(attr.key)
-              ? { key: attr.key, name: attr.name, join: true }
+              ? { key: saved(attr), name: attr.name, join: true }
               : toStored({ ...item, uid: '', isNew: true })
           );
         }
@@ -292,7 +352,7 @@ export default function ImportFlow({
             ...(draft.charts[state.kind] && {
               chart: draft.charts[state.kind],
             }),
-            notes: state.notes,
+            notes: state.notes[state.kind],
             categories: state.categories,
             isDefault: state.isDefault,
             specs: values,
@@ -304,15 +364,18 @@ export default function ImportFlow({
               key: fact.key,
               target:
                 state.mappings[i].target === 'new'
-                  ? (created[fact.key]?.key ?? '')
+                  ? created[fact.key]
+                    ? saved(created[fact.key])
+                    : ''
                   : state.mappings[i].target || 'skip',
             })),
           },
         })) as GuideDetail & { registry?: Registry };
-        used.forEach(attr => made.add(attr.key));
         if (result.registry) {
+          reconcile(result.registry, used, result.id);
           onRegistry(result.registry);
         }
+        used.forEach(attr => made.set(attr.key, saved(attr)));
         done.push({
           id: product.id,
           title: state.title,
@@ -320,6 +383,17 @@ export default function ImportFlow({
           error: '',
         });
       } catch (failure) {
+        // The save may have gone through before the reply was lost: look
+        // again, so the next blank joins what it made instead of a copy.
+        try {
+          const registry = (await apiFetch({
+            path: config.restPath,
+          })) as Registry;
+          reconcile(registry, used, 0);
+          onRegistry(registry);
+        } catch {
+          // Nothing more to learn; the next blank sends the spec again.
+        }
         const { message, data } = failure as {
           message?: string;
           data?: { errors?: string[] };

@@ -1,5 +1,5 @@
 import { attributeItem, combine, nameFrom, valueFor } from '../_import';
-import { blankItem } from '../_utils';
+import { blankItem, KEY_MAX, specKey } from '../_utils';
 import type { ImportAttribute } from '../_types';
 
 const attribute = (patch: Partial<ImportAttribute>): ImportAttribute => ({
@@ -84,5 +84,21 @@ describe('nameFrom', () => {
   it('names a spec from a line', () => {
     expect(nameFrom('Fabric weight: 4.2 oz')).toBe('Fabric weight');
     expect(nameFrom('Pre-shrunk fabric (washed)')).toBe('Pre-shrunk fabric');
+  });
+});
+
+/* Mirrors Size_Guide_Spec_Items::key() / free_key() in PHP. */
+describe('specKey', () => {
+  const taken = (key: string) => ({ ...blankItem('text', []), key });
+
+  it('keeps keys within what the server stores', () => {
+    const name = 'Garment dye and enzyme wash treatment';
+    const key = specKey(name, []);
+    expect(key).toHaveLength(KEY_MAX);
+    expect(specKey(name, [taken(key)])).toBe(`${key.slice(0, KEY_MAX - 2)}_2`);
+  });
+
+  it('numbers a taken key', () => {
+    expect(specKey('Fabric', [taken('fabric')])).toBe('fabric_2');
   });
 });

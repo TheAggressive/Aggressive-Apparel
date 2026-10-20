@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T06:15:29+00:00\n"
+"POT-Creation-Date: 2026-10-20T06:28:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1537,7 +1537,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
-#: includes/WooCommerce/class-size-guide.php:243
+#: includes/WooCommerce/class-size-guide.php:219
 #: includes/WooCommerce/class-sticky-add-to-cart.php:299
 msgid "Close"
 msgstr ""
@@ -2884,7 +2884,8 @@ msgid "Some spec values could not be saved (%s). You can pick existing values on
 msgstr ""
 
 #: includes/WooCommerce/class-product-specs-grid.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:578
+#: includes/WooCommerce/class-size-guide-admin-fields.php:231
+#: includes/WooCommerce/class-size-guide-rest.php:579
 msgid "(no title)"
 msgstr ""
 
@@ -3925,6 +3926,53 @@ msgstr ""
 msgid "inches"
 msgstr ""
 
+#: includes/WooCommerce/class-size-guide-admin-fields.php:72
+#: includes/WooCommerce/class-size-guide-admin-fields.php:113
+#: includes/WooCommerce/class-size-guide-admin-fields.php:172
+#: includes/WooCommerce/class-size-guide-admin-fields.php:187
+#: includes/WooCommerce/class-size-guide-post-type.php:104
+#: includes/WooCommerce/class-size-guide.php:171
+#: includes/WooCommerce/class-size-guide.php:212
+#: patterns/footer-columns.php:83
+msgid "Size Guide"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:114
+msgid "Category or store default"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:117
+msgid "“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show."
+msgstr ""
+
+#. translators: %s: link to create a new size guide
+#: includes/WooCommerce/class-size-guide-admin-fields.php:126
+#, php-format
+msgid "Select a size guide or %s."
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:128
+msgid "create a new one"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:227
+msgid "No size guide"
+msgstr ""
+
+#. translators: %s: size guide title or ID.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:239
+#, php-format
+msgid "%s (not published)"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:268
+msgid "Store default"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:281
+msgid "Products in this category use this guide unless they pick their own. “No size guide” leaves out the store default for them."
+msgstr ""
+
 #: includes/WooCommerce/class-size-guide-label-link.php:79
 msgctxt "start of the \"Size guide\" link name, read only by screen readers"
 msgid "Size"
@@ -3943,17 +3991,6 @@ msgstr ""
 #: includes/WooCommerce/class-size-guide-post-type.php:105
 #: includes/WooCommerce/class-size-guide-post-type.php:114
 msgid "Size Guides"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide-post-type.php:104
-#: includes/WooCommerce/class-size-guide.php:195
-#: includes/WooCommerce/class-size-guide.php:236
-#: includes/WooCommerce/class-size-guide.php:497
-#: includes/WooCommerce/class-size-guide.php:550
-#: includes/WooCommerce/class-size-guide.php:620
-#: includes/WooCommerce/class-size-guide.php:648
-#: patterns/footer-columns.php:83
-msgid "Size Guide"
 msgstr ""
 
 #: includes/WooCommerce/class-size-guide-post-type.php:106
@@ -4006,48 +4043,16 @@ msgstr ""
 msgid "%s (copy)"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:449
+#: includes/WooCommerce/class-size-guide-rest.php:450
 msgid "Some specs need fixing before the guide can be saved."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide-rest.php:569
+#: includes/WooCommerce/class-size-guide-rest.php:570
 msgid "Untitled size guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:202
+#: includes/WooCommerce/class-size-guide.php:178
 msgid "Measurements in inches"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:535
-msgid "Category or store default"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:536
-msgid "No size guide"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:554
-msgid "“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show."
-msgstr ""
-
-#. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:563
-#, php-format
-msgid "Select a size guide or %s."
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:565
-msgid "create a new one"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:622
-#: includes/WooCommerce/class-size-guide.php:651
-msgid "-- None --"
-msgstr ""
-
-#: includes/WooCommerce/class-size-guide.php:631
-#: includes/WooCommerce/class-size-guide.php:661
-msgid "Assign a size guide to all products in this category."
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "5 minutes".

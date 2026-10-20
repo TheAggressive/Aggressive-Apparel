@@ -197,7 +197,11 @@ export default function GuidesTab({
                         guide.sizes,
                         guide.columns
                       )
-                    : __('Specs only, no chart', 'aggressive-apparel')}
+                    : guide.legacy
+                      ? __('Free-form content', 'aggressive-apparel')
+                      : guide.specs
+                        ? __('Specs only, no chart', 'aggressive-apparel')
+                        : __('Empty, not used yet', 'aggressive-apparel')}
                 </span>
                 <span className='aa-ps-guides__usage'>
                   {usageText(guide.usage)}

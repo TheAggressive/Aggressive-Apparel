@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Size Guide
  *
  * @since 1.17.0
- * @phpstan-type Resolved array{id: int, html: string, chart: bool, unit: string, measures: bool}
+ * @phpstan-type Resolved array{id: int, html: string, dialog: bool, chart: bool, unit: string, measures: bool}
  */
 class Size_Guide {
 
@@ -51,20 +51,6 @@ class Size_Guide {
 	 * @var string
 	 */
 	public const CPT_OPTION_KEY = 'aggressive_apparel_size_guide_id';
-
-	/**
-	 * Nonce action for size guide fields.
-	 *
-	 * @var string
-	 */
-	private const NONCE_ACTION = 'aa_size_guide_save';
-
-	/**
-	 * Nonce field name for size guide fields.
-	 *
-	 * @var string
-	 */
-	private const NONCE_NAME = 'aa_size_guide_nonce';
 
 	/**
 	 * Transient prefix for cached size guide content.
@@ -110,17 +96,7 @@ class Size_Guide {
 	public function init(): void {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
-		// Product data tab for per-product size guides.
-		add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_product_data_tab' ) );
-		add_action( 'woocommerce_product_data_panels', array( $this, 'render_product_data_panel' ) );
-		add_action( 'woocommerce_process_product_meta', array( $this, 'save_product_data' ) );
-		add_action( 'admin_head', array( $this, 'add_tab_icon_style' ) );
-
-		// Category assignment.
-		add_action( 'product_cat_add_form_fields', array( $this, 'render_category_add_field' ) );
-		add_action( 'product_cat_edit_form_fields', array( $this, 'render_category_edit_field' ), 20 );
-		add_action( 'created_product_cat', array( $this, 'save_category_field' ) );
-		add_action( 'edited_product_cat', array( $this, 'save_category_field' ) );
+		// Product and category pickers: Size_Guide_Admin_Fields.
 
 		// The dialog without the block: "Size guide" links still open it.
 		add_action( 'wp_footer', array( $this, 'render_standalone_dialog' ) );
@@ -184,7 +160,7 @@ class Size_Guide {
 		}
 
 		$guide = $this->get_size_guide_for_product( $product_id );
-		if ( '' === $guide['html'] ) {
+		if ( ! $guide['dialog'] ) {
 			return '';
 		}
 
@@ -341,9 +317,11 @@ class Size_Guide {
 	}
 
 	/**
-	 * The guide a product's size guide dialog shows: per-product assignment →
-	 * category assignment → global, first one with content. Cached per
-	 * product; `id` is 0 when there is none.
+	 * The guide a product uses: per-product assignment → category assignment
+	 * → global, the first that has a chart, old content, or specs (empty
+	 * guides are passed over; "No size guide" stops the search). Cached per
+	 * product; `id` is 0 when there is none. `dialog` says whether there is
+	 * anything to open: a specs-only guide has none, so no button or link.
 	 *
 	 * The single resolver for the dialog and the Product Specs block, so both
 	 * always agree on which guide (and whether it is a structured chart).
@@ -367,7 +345,7 @@ class Size_Guide {
 				$this->product_cache_key( (int) $product_id ),
 				self::CACHE_TTL,
 				fn(): array => $this->resolve_size_guide( (int) $product_id ),
-				static fn( $value ): bool => is_array( $value ) && isset( $value['id'], $value['html'], $value['chart'], $value['unit'], $value['measures'] )
+				static fn( $value ): bool => is_array( $value ) && isset( $value['id'], $value['html'], $value['dialog'], $value['chart'], $value['unit'], $value['measures'] )
 			);
 
 			if ( ! is_array( $cached ) ) {
@@ -377,6 +355,7 @@ class Size_Guide {
 			return array(
 				'id'       => (int) $cached['id'],
 				'html'     => (string) $cached['html'],
+				'dialog'   => (bool) $cached['dialog'],
 				'chart'    => (bool) $cached['chart'],
 				'unit'     => 'cm' === $cached['unit'] ? 'cm' : 'in',
 				'measures' => (bool) $cached['measures'],
@@ -389,9 +368,10 @@ class Size_Guide {
 
 	/**
 	 * Resolve the guide without caching: the first published guide assigned
-	 * to the product. A guide without a chart still counts (a specs-only
-	 * guide, e.g. for hats): its specs show, and with no html there is no
-	 * Size Guide button or link.
+	 * to the product that has a chart, old content, or specs. A specs-only
+	 * guide (e.g. for hats) counts: its specs show, and with no dialog there
+	 * is no Size Guide button or link. An empty guide is passed over, so a
+	 * guide still being built never hides the category or store guide.
 	 *
 	 * @param int $product_id Product ID.
 	 * @return Resolved
@@ -416,6 +396,7 @@ class Size_Guide {
 		return array(
 			'id'       => 0,
 			'html'     => '',
+			'dialog'   => false,
 			'chart'    => false,
 			'unit'     => 'in',
 			'measures' => false,
@@ -426,13 +407,16 @@ class Size_Guide {
 	 * Size guide IDs assigned to a product, in resolution order.
 	 *
 	 * Per-product assignment, then each category assignment, then the global
-	 * fallback. IDs are unvalidated references; callers check the post.
+	 * fallback. A product set to "No size guide" has none; a category set to
+	 * it drops the global fallback. IDs are unvalidated references; callers
+	 * check the post.
 	 *
 	 * @param int $product_id Product ID, or 0 for the global guide only.
 	 * @return int[]
 	 */
 	public static function candidate_guide_ids( int $product_id ): array {
-		$ids = array();
+		$ids     = array();
+		$opt_out = false;
 
 		if ( $product_id > 0 ) {
 			$own = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
@@ -443,15 +427,21 @@ class Size_Guide {
 
 			// get_the_terms() reads the object term cache, so repeat lookups on
 			// one request (guide modal + Product Specs block) stay query-free.
+			// A category set to "No size guide" drops the store default for its
+			// products; another category's own guide still applies.
 			$cats = get_the_terms( $product_id, 'product_cat' );
 			if ( is_array( $cats ) ) {
 				foreach ( $cats as $cat ) {
-					$ids[] = (int) get_term_meta( $cat->term_id, self::CPT_META_KEY, true );
+					$id      = (int) get_term_meta( $cat->term_id, self::CPT_META_KEY, true );
+					$opt_out = $opt_out || self::NONE === $id;
+					$ids[]   = $id;
 				}
 			}
 		}
 
-		$ids[] = (int) get_option( self::CPT_OPTION_KEY, 0 );
+		if ( ! $opt_out ) {
+			$ids[] = (int) get_option( self::CPT_OPTION_KEY, 0 );
+		}
 
 		return array_values( array_unique( array_filter( $ids, static fn( int $id ): bool => $id > 0 ) ) );
 	}
@@ -474,222 +464,24 @@ class Size_Guide {
 			return array(
 				'id'       => $post_id,
 				'html'     => Size_Chart::render( $post_id ),
+				'dialog'   => true,
 				'chart'    => true,
 				'unit'     => $chart['unit'],
 				'measures' => Size_Chart::has_measures( $chart ),
 			);
 		}
 
+		// Old free-form content, judged as the editor judges it (trimmed).
+		$html = '' !== trim( $post->post_content ) ? trim( wp_kses_post( (string) do_blocks( $post->post_content ) ) ) : '';
+		if ( '' === $html && ! Product_Specs_Values::guide_has_specs( $post_id ) ) {
+			return self::no_guide();
+		}
+
 		return array(
-			'id'   => $post_id,
-			'html' => wp_kses_post( (string) do_blocks( $post->post_content ) ),
+			'id'     => $post_id,
+			'html'   => $html,
+			'dialog' => '' !== $html,
 		) + self::no_guide();
-	}
-
-	/**
-	 * Add a "Size Guide" tab to the WooCommerce Product Data panel.
-	 *
-	 * @param array<string, array<string, mixed>> $tabs Existing tabs.
-	 * @return array<string, array<string, mixed>>
-	 */
-	public function add_product_data_tab( array $tabs ): array {
-		$tabs['aa_size_guide'] = array(
-			'label'    => __( 'Size Guide', 'aggressive-apparel' ),
-			'target'   => 'aa_size_guide_product_data',
-			'class'    => array(),
-			'priority' => 65,
-		);
-
-		return $tabs;
-	}
-
-	/**
-	 * Output inline CSS for the Size Guide tab icon on product edit screens.
-	 *
-	 * @return void
-	 */
-	public function add_tab_icon_style(): void {
-		$screen = get_current_screen();
-		if ( ! $screen || 'product' !== $screen->id ) {
-			return;
-		}
-
-		echo '<style>#woocommerce-product-data ul.wc-tabs li.aa_size_guide_options a::before{content:"\f163";font-family:dashicons}</style>';
-	}
-
-	/**
-	 * Render the Size Guide product data panel.
-	 *
-	 * @return void
-	 */
-	public function render_product_data_panel(): void {
-		global $post;
-
-		if ( ! $post instanceof \WP_Post ) {
-			return;
-		}
-
-		$selected_id = (int) get_post_meta( $post->ID, self::CPT_META_KEY, true );
-
-		$options = array(
-			''     => __( 'Category or store default', 'aggressive-apparel' ),
-			'none' => __( 'No size guide', 'aggressive-apparel' ),
-		);
-		foreach ( $this->get_published_guides() as $guide ) {
-			$options[ (string) $guide->ID ] = $guide->post_title;
-		}
-
-		echo '<div id="aa_size_guide_product_data" class="panel woocommerce_options_panel">';
-
-		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
-
-		if ( function_exists( 'woocommerce_wp_select' ) ) {
-			woocommerce_wp_select(
-				array(
-					'id'          => 'aa_size_guide_id',
-					'label'       => __( 'Size Guide', 'aggressive-apparel' ),
-					'options'     => $options,
-					'value'       => self::NONE === $selected_id ? 'none' : ( $selected_id > 0 ? (string) $selected_id : '' ),
-					'desc_tip'    => true,
-					'description' => __( '“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show.', 'aggressive-apparel' ),
-				),
-			);
-		}
-
-		$new_url = Product_Specs_Settings::url( 'guides', array( 'guide' => 'new' ) );
-		echo '<p class="form-field" style="padding-left:12px;">';
-		printf(
-			/* translators: %s: link to create a new size guide */
-			esc_html__( 'Select a size guide or %s.', 'aggressive-apparel' ),
-			'<a href="' . esc_url( $new_url ) . '">' .
-				esc_html__( 'create a new one', 'aggressive-apparel' ) .
-			'</a>',
-		);
-		echo '</p>';
-
-		/**
-		 * Fires at the end of the product Size Guide panel.
-		 *
-		 * Product Specs renders its fields here, beside the guide they inherit from.
-		 *
-		 * @param \WP_Post $post Product being edited.
-		 */
-		do_action( 'aggressive_apparel_size_guide_product_panel', $post );
-
-		echo '</div>';
-	}
-
-	/**
-	 * Save the size guide selection when product meta is processed.
-	 *
-	 * @param int $post_id Product ID.
-	 * @return void
-	 */
-	public function save_product_data( int $post_id ): void {
-		if ( ! isset( $_POST[ self::NONCE_NAME ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-
-		$choice   = isset( $_POST['aa_size_guide_id'] ) ? sanitize_key( wp_unslash( $_POST['aa_size_guide_id'] ) ) : '';
-		$guide_id = 'none' === $choice ? self::NONE : absint( $choice );
-
-		if ( self::NONE === $guide_id || $guide_id > 0 ) {
-			update_post_meta( $post_id, self::CPT_META_KEY, $guide_id );
-		} else {
-			delete_post_meta( $post_id, self::CPT_META_KEY );
-		}
-
-		delete_transient( $this->product_cache_key( $post_id ) );
-	}
-
-	/**
-	 * Render the size guide field on the Add Category form.
-	 *
-	 * @return void
-	 */
-	public function render_category_add_field(): void {
-		$guides = $this->get_published_guides();
-
-		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
-
-		echo '<div class="form-field">';
-		echo '<label for="aa_cat_size_guide_id">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</label>';
-		echo '<select name="aa_cat_size_guide_id" id="aa_cat_size_guide_id">';
-		echo '<option value="0">' . esc_html__( '-- None --', 'aggressive-apparel' ) . '</option>';
-		foreach ( $guides as $guide ) {
-			printf(
-				'<option value="%d">%s</option>',
-				absint( $guide->ID ),
-				esc_html( $guide->post_title ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Assign a size guide to all products in this category.', 'aggressive-apparel' ) . '</p>';
-		echo '</div>';
-	}
-
-	/**
-	 * Render the size guide field on the Edit Category form.
-	 *
-	 * @param \WP_Term $term Current term.
-	 * @return void
-	 */
-	public function render_category_edit_field( \WP_Term $term ): void {
-		$selected_id = (int) get_term_meta( $term->term_id, self::CPT_META_KEY, true );
-		$guides      = $this->get_published_guides();
-
-		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
-
-		echo '<tr class="form-field">';
-		echo '<th scope="row"><label for="aa_cat_size_guide_id">' . esc_html__( 'Size Guide', 'aggressive-apparel' ) . '</label></th>';
-		echo '<td>';
-		echo '<select name="aa_cat_size_guide_id" id="aa_cat_size_guide_id" class="postform">';
-		echo '<option value="0">' . esc_html__( '-- None --', 'aggressive-apparel' ) . '</option>';
-		foreach ( $guides as $guide ) {
-			printf(
-				'<option value="%d" %s>%s</option>',
-				absint( $guide->ID ),
-				selected( $selected_id, $guide->ID, false ),
-				esc_html( $guide->post_title ),
-			);
-		}
-		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Assign a size guide to all products in this category.', 'aggressive-apparel' ) . '</p>';
-		echo '</td>';
-		echo '</tr>';
-	}
-
-	/**
-	 * Save the category size guide field.
-	 *
-	 * @param int $term_id Term ID.
-	 * @return void
-	 */
-	public function save_category_field( int $term_id ): void {
-		if ( ! isset( $_POST[ self::NONCE_NAME ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'edit_term', $term_id ) ) {
-			return;
-		}
-
-		$guide_id = isset( $_POST['aa_cat_size_guide_id'] )
-			? absint( wp_unslash( $_POST['aa_cat_size_guide_id'] ) )
-			: 0;
-
-		if ( $guide_id > 0 ) {
-			update_term_meta( $term_id, self::CPT_META_KEY, $guide_id );
-		} else {
-			delete_term_meta( $term_id, self::CPT_META_KEY );
-		}
-
-		// Category change affects all products in the category.
-		$this->flush_all_caches();
 	}
 
 	/**
@@ -704,6 +496,15 @@ class Size_Guide {
 		update_option( self::CACHE_GENERATION_OPTION, $this->cache_generation() + 1, false );
 	}
 
+	/**
+	 * Drop one product's cached guide (its assignment changed).
+	 *
+	 * @param int $product_id Product ID.
+	 */
+	public function flush_product( int $product_id ): void {
+		delete_transient( $this->product_cache_key( $product_id ) );
+	}
+
 	/** Current cache generation. */
 	private function cache_generation(): int {
 		return max( 1, (int) get_option( self::CACHE_GENERATION_OPTION, 1 ) );
@@ -716,25 +517,5 @@ class Size_Guide {
 	 */
 	private function product_cache_key( int $product_id ): string {
 		return self::CACHE_PREFIX . 'v' . self::MARKUP_VERSION . '_' . $this->cache_generation() . '_' . $product_id;
-	}
-
-	/**
-	 * Query published size guides for the admin assignment selectors.
-	 *
-	 * Keep the result bounded so an unexpectedly large guide library cannot
-	 * create an unbounded query or admin response.
-	 *
-	 * @return \WP_Post[]
-	 */
-	private function get_published_guides(): array {
-		return get_posts(
-			array(
-				'post_type'      => Size_Guide_Post_Type::POST_TYPE,
-				'post_status'    => 'publish',
-				'posts_per_page' => 100,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-			),
-		);
 	}
 }

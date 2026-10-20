@@ -98,6 +98,19 @@ final class Product_Specs_Values {
 	}
 
 	/**
+	 * Whether a guide sets anything for its products' specs: a value, or a
+	 * store-wide spec hidden. A guide with neither and no chart is empty
+	 * (still being built), so products keep their category or store guide.
+	 *
+	 * @param int $guide_id Size guide post ID.
+	 */
+	public static function guide_has_specs( int $guide_id ): bool {
+		$guide = self::guide( $guide_id );
+
+		return array() !== $guide['hidden'] || array() !== array_filter( $guide['values'], static fn( string $value ): bool => '' !== $value );
+	}
+
+	/**
 	 * A guide's values for every item (no fallbacks) and the keys it hides.
 	 *
 	 * @param int $guide_id Size guide ID.

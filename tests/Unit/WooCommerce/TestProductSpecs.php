@@ -188,10 +188,57 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$items = $this->items( $product_id );
 
 		$this->assertSame( $hat, $guide['id'], 'The hat guide, not the category tee guide.' );
-		$this->assertSame( '', $guide['html'], 'No chart, so no Size Guide button or link.' );
+		$this->assertFalse( $guide['dialog'], 'No chart, so no Size Guide button or link.' );
+		// The once-per-request guard is cleared, so only `dialog` can make this empty.
+		$this->reset_did_render();
 		$this->assertSame( '', ( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->render_block_markup( $product_id ) );
 		$this->assertSame( 3, $items['fit']['step'] );
 		$this->assertSame( 'Dad Hat', $items['fit']['label'] );
+	}
+
+	/** An empty guide (no chart, content, or specs) never hides the category guide. */
+	public function test_empty_guide_falls_through(): void {
+		$product_id = $this->create_product( array() );
+		$tee        = $this->assign_guide( $product_id );
+		$this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => $tee ) );
+		$draft = self::factory()->post->create(
+			array(
+				'post_type'    => 'aa_size_guide',
+				'post_status'  => 'publish',
+				'post_title'   => 'Still building',
+				'post_content' => "\n\n",
+			)
+		);
+		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', $draft );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+
+		$this->assertSame( $tee, \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id )['id'] );
+
+		update_post_meta( $draft, '_aa_spec_fit', '3' );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+		$guide = \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id );
+
+		$this->assertSame( $draft, $guide['id'], 'With a spec it is a specs-only guide.' );
+		$this->assertFalse( $guide['dialog'], 'Whitespace content is no dialog.' );
+	}
+
+	/** A category set to "No size guide" drops the store default; another category's guide still wins. */
+	public function test_category_no_size_guide_drops_the_store_default(): void {
+		$product_id = $this->create_product( array() );
+		$tee        = $this->assign_guide( $product_id );
+		delete_post_meta( $product_id, '_aggressive_apparel_size_guide_id' );
+		update_option( \Aggressive_Apparel\WooCommerce\Size_Guide::CPT_OPTION_KEY, $tee );
+		$hats = $this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => \Aggressive_Apparel\WooCommerce\Size_Guide::NONE ) );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+
+		$this->assertSame( 0, \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id )['id'] );
+
+		$sale = self::factory()->term->create( array( 'taxonomy' => 'product_cat' ) );
+		update_term_meta( $sale, '_aggressive_apparel_size_guide_id', $tee );
+		wp_set_object_terms( $product_id, array( $hats, $sale ), 'product_cat' );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+
+		$this->assertSame( $tee, \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id )['id'] );
 	}
 
 	/** "No size guide" opts a product out of its category and store guides. */
@@ -214,7 +261,7 @@ class TestProductSpecs extends WP_UnitTestCase {
 	public function test_product_panel_saves_no_size_guide(): void {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$product_id = $this->create_product( array() );
-		$guide      = new \Aggressive_Apparel\WooCommerce\Size_Guide();
+		$guide      = new \Aggressive_Apparel\WooCommerce\Size_Guide_Admin_Fields();
 		$_POST      = array(
 			'aa_size_guide_nonce' => wp_create_nonce( 'aa_size_guide_save' ),
 			'aa_size_guide_id'    => 'none',
@@ -227,6 +274,28 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$guide->save_product_data( $product_id );
 		$this->assertSame( '', get_post_meta( $product_id, '_aggressive_apparel_size_guide_id', true ) );
 		$_POST = array();
+	}
+
+	/** A pick whose guide was unpublished stays listed, so saving keeps it. */
+	public function test_picker_keeps_an_unpublished_pick(): void {
+		$guide = self::factory()->post->create(
+			array(
+				'post_type'   => 'aa_size_guide',
+				'post_status' => 'draft',
+				'post_title'  => 'Old Tee',
+			)
+		);
+		$options = \Aggressive_Apparel\WooCommerce\Size_Guide_Admin_Fields::options( $guide, 'Inherit' );
+
+		$this->assertSame( 'Old Tee (not published)', $options[ $guide ] );
+		$this->assertSame( (string) $guide, \Aggressive_Apparel\WooCommerce\Size_Guide_Admin_Fields::value( $guide ) );
+		$this->assertSame( 'none', \Aggressive_Apparel\WooCommerce\Size_Guide_Admin_Fields::value( \Aggressive_Apparel\WooCommerce\Size_Guide::NONE ) );
+	}
+
+	/** Size_Guide renders its dialog once per request; tests start fresh. */
+	private function reset_did_render(): void {
+		$property = new \ReflectionProperty( \Aggressive_Apparel\WooCommerce\Size_Guide::class, 'did_render' );
+		$property->setValue( null, false );
 	}
 
 	/** A size guide's specs beat the default and lose to attributes and the product. */

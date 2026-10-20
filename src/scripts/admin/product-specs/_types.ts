@@ -80,6 +80,8 @@ export type GuideSummary = {
   columns: number;
   usage: Usage;
   legacy: boolean;
+  /** No chart, but sets specs: a specs-only guide. */
+  specs: boolean;
 };
 
 /** A size guide being edited. */

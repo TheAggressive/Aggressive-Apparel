@@ -28,8 +28,9 @@ import type {
   Registry,
   SpecItem,
 } from './_types';
-import { specKey, toStored } from './_utils';
-import { attributeItem, combine, nameFrom, valueFor } from './_import';
+import { scrollBehavior, specKey } from './_utils';
+import { attributeItem, nameFrom, valueFor } from './_import';
+import { findSaved, guideRequest, savedKey } from './_importGuide';
 import ImportSearch from './_ImportSearch';
 import ImportBlank from './_ImportBlank';
 import ImportTag from './_ImportTag';
@@ -45,12 +46,6 @@ type Props = {
   onOpen: (guide: number) => void;
   onRegistry: (registry: Registry) => void;
 };
-
-/** Smooth scrolling, unless the user prefers less motion. */
-const scrollBehavior = (): ScrollBehavior =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 'auto'
-    : 'smooth';
 
 const STEPS = [
   __('Choose blanks', 'aggressive-apparel'),
@@ -272,32 +267,17 @@ export default function ImportFlow({
 
   const create = async () => {
     setError('');
-    // Specs made so far: the key they were sent with => the key they saved
-    // as (the server re-keys one taken since the review opened).
     const made = madeRef.current;
     const before = new Set([...items.map(item => item.key), ...made.values()]);
     const done: ImportResult[] = [];
-    const saved = (attr: ImportAttribute) => made.get(attr.key) ?? attr.key;
     /** Record the specs a save made, as the registry now has them. */
     const reconcile = (
       registry: Registry,
       used: ImportAttribute[],
       guide: number
     ) => {
-      for (const attr of used) {
-        if (made.has(attr.key)) {
-          continue;
-        }
-        const item = registry.items.find(
-          other =>
-            !before.has(other.key) &&
-            other.name === attr.name &&
-            (attr.scope === 'store'
-              ? other.guides.length === 0
-              : guide > 0
-                ? other.guides.includes(guide)
-                : other.guides.length > 0)
-        );
+      for (const attr of used.filter(other => !made.has(other.key))) {
+        const item = findSaved(registry.items, attr, before, guide);
         if (item) {
           made.set(attr.key, item.key);
           before.add(item.key);
@@ -306,106 +286,26 @@ export default function ImportFlow({
     };
     for (const [n, product] of selected.entries()) {
       setProgress(n + 1);
-      const draft = drafts[product.id];
-      const state = states[product.id];
-      const values: Record<string, string> = {};
-      for (const spec of specs) {
-        const picked = state.mappings
-          .filter(mapping => mapping.target === spec.key)
-          .map(mapping => mapping.value);
-        if (picked.length > 0) {
-          values[spec.key] = combine(spec, picked);
-        }
-      }
-
-      const used = [
-        ...new Set(
-          draft.facts
-            .filter((_, i) => state.mappings[i].target === 'new')
-            .map(fact => fact.key)
-        ),
-      ]
-        .map(key => created[key])
-        .filter((value): value is ImportAttribute => Boolean(value));
-      const own: object[] = [];
-      const store: object[] = [];
-      for (const attr of used) {
-        const item = attributeItem(attr);
-        values[saved(attr)] = combine(
-          item,
-          draft.facts.flatMap((fact, i) =>
-            created[fact.key]?.key === attr.key &&
-            state.mappings[i].target === 'new'
-              ? [state.mappings[i].value]
-              : []
-          )
-        );
-        if (attr.scope === 'store') {
-          if (!made.has(attr.key)) {
-            store.push(toStored({ ...item, uid: '', isNew: true }));
-          }
-        } else {
-          // A later blank joins the spec the first one created.
-          own.push(
-            made.has(attr.key)
-              ? { key: saved(attr), name: attr.name, join: true }
-              : toStored({ ...item, uid: '', isNew: true })
-          );
-        }
-      }
-
-      const chart = draft.charts[state.kind];
-      const summary = {
-        id: product.id,
-        title: state.title,
-        chart: chart ? state.kind : ('' as const),
-        sizes: chart?.rows.length ?? 0,
-        specs: Object.values(values).filter(value => value !== '').length,
-        attributes: used
-          .filter(attr => !made.has(attr.key))
-          .map(attr => attr.name),
-        categories: config.categories
-          .filter(category => state.categories.includes(category.id))
-          .map(category => category.name),
-        isDefault: state.isDefault,
-        diagram: Boolean(chart && state.diagram && draft.diagrams[state.kind]),
-      };
+      const { data, used, summary } = guideRequest({
+        draft: drafts[product.id],
+        state: states[product.id],
+        specs,
+        created,
+        made,
+        categories: config.categories,
+      });
 
       try {
         const result = (await apiFetch({
           path: config.guidesPath,
           method: 'POST',
-          data: {
-            title: state.title,
-            ...(draft.charts[state.kind] && {
-              chart: draft.charts[state.kind],
-            }),
-            notes: state.notes[state.kind],
-            categories: state.categories,
-            isDefault: state.isDefault,
-            specs: values,
-            ...(own.length > 0 && { specItems: own }),
-            ...(store.length > 0 && { storeSpecItems: store }),
-            importSource: draft.source,
-            ...(summary.diagram && {
-              diagramUrl: draft.diagrams[state.kind],
-            }),
-            importRules: draft.facts.map((fact, i) => ({
-              key: fact.key,
-              target:
-                state.mappings[i].target === 'new'
-                  ? created[fact.key]
-                    ? saved(created[fact.key])
-                    : ''
-                  : state.mappings[i].target || 'skip',
-            })),
-          },
+          data,
         })) as GuideDetail & { registry?: Registry };
         if (result.registry) {
           reconcile(result.registry, used, result.id);
           onRegistry(result.registry);
         }
-        used.forEach(attr => made.set(attr.key, saved(attr)));
+        used.forEach(attr => made.set(attr.key, savedKey(made, attr)));
         done.push({ ...summary, guide: result.id, error: '' });
       } catch (failure) {
         // The save may have gone through before the reply was lost: look

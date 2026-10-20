@@ -26,6 +26,7 @@ import type {
 } from './_types';
 import { attributeItem, valueFor } from './_import';
 import ValuePicker from './_ValuePicker';
+import { scrollBehavior } from './_utils';
 
 type Props = {
   fact: Fact;
@@ -89,9 +90,7 @@ export default function ImportFact({
     }
     form.current.scrollIntoView({
       block: 'nearest',
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'auto'
-        : 'smooth',
+      behavior: scrollBehavior(),
     });
     setReveal(false);
   }, [reveal, target]);

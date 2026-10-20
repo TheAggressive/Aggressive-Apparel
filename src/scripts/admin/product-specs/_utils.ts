@@ -161,3 +161,10 @@ export function splitValues(value: string): string[] {
 export function joinValues(values: string[]): string {
   return values.join(` ${DELIMITER} `);
 }
+
+/** Smooth scrolling, unless the user prefers less motion. */
+export function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
+}

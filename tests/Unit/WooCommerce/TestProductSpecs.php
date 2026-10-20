@@ -165,6 +165,70 @@ class TestProductSpecs extends WP_UnitTestCase {
 		$this->assertSame( Product_Specs::SOURCE_ATTRIBUTE, $items['fabric']['source'] );
 	}
 
+	/** A guide with no chart still applies: its specs show, with no Size Guide button. */
+	public function test_specs_only_guide_wins_without_a_button(): void {
+		$this->save_defaults( array( 'fit' => '2' ) );
+		$product_id = $this->create_product( array() );
+		$tee        = $this->assign_guide( $product_id );
+		update_post_meta( $tee, '_aa_spec_fit', '5' );
+		$this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => $tee ) );
+		$hat = self::factory()->post->create(
+			array(
+				'post_type'   => 'aa_size_guide',
+				'post_status' => 'publish',
+				'post_title'   => 'Dad Hat',
+				'post_content' => '',
+			)
+		);
+		update_post_meta( $hat, '_aa_spec_fit', '3' );
+		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', $hat );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+
+		$guide = \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id );
+		$items = $this->items( $product_id );
+
+		$this->assertSame( $hat, $guide['id'], 'The hat guide, not the category tee guide.' );
+		$this->assertSame( '', $guide['html'], 'No chart, so no Size Guide button or link.' );
+		$this->assertSame( '', ( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->render_block_markup( $product_id ) );
+		$this->assertSame( 3, $items['fit']['step'] );
+		$this->assertSame( 'Dad Hat', $items['fit']['label'] );
+	}
+
+	/** "No size guide" opts a product out of its category and store guides. */
+	public function test_no_size_guide_opts_out_of_inherited_guides(): void {
+		$this->save_defaults( array( 'fit' => '2' ) );
+		$product_id = $this->create_product( array() );
+		$tee        = $this->assign_guide( $product_id );
+		update_post_meta( $tee, '_aa_spec_fit', '5' );
+		$this->add_category( $product_id, array( '_aggressive_apparel_size_guide_id' => $tee ) );
+		update_option( \Aggressive_Apparel\WooCommerce\Size_Guide::CPT_OPTION_KEY, $tee );
+		update_post_meta( $product_id, '_aggressive_apparel_size_guide_id', \Aggressive_Apparel\WooCommerce\Size_Guide::NONE );
+		( new \Aggressive_Apparel\WooCommerce\Size_Guide() )->flush_all_caches();
+
+		$this->assertSame( array(), \Aggressive_Apparel\WooCommerce\Size_Guide::candidate_guide_ids( $product_id ) );
+		$this->assertSame( 0, \Aggressive_Apparel\WooCommerce\Size_Guide::resolved( $product_id )['id'] );
+		$this->assertSame( Product_Specs::SOURCE_DEFAULT, $this->items( $product_id )['fit']['source'], 'Specs still show, from the default.' );
+	}
+
+	/** The product panel saves "No size guide" and "category or store default". */
+	public function test_product_panel_saves_no_size_guide(): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$product_id = $this->create_product( array() );
+		$guide      = new \Aggressive_Apparel\WooCommerce\Size_Guide();
+		$_POST      = array(
+			'aa_size_guide_nonce' => wp_create_nonce( 'aa_size_guide_save' ),
+			'aa_size_guide_id'    => 'none',
+		);
+
+		$guide->save_product_data( $product_id );
+		$this->assertSame( '-1', get_post_meta( $product_id, '_aggressive_apparel_size_guide_id', true ) );
+
+		$_POST['aa_size_guide_id'] = '';
+		$guide->save_product_data( $product_id );
+		$this->assertSame( '', get_post_meta( $product_id, '_aggressive_apparel_size_guide_id', true ) );
+		$_POST = array();
+	}
+
 	/** A size guide's specs beat the default and lose to attributes and the product. */
 	public function test_size_guide_specs_sit_between_attributes_and_default(): void {
 		$this->save_defaults(

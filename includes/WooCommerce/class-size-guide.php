@@ -38,6 +38,14 @@ class Size_Guide {
 	public const CPT_META_KEY = '_aggressive_apparel_size_guide_id';
 
 	/**
+	 * Product meta value for "no size guide": the product opts out of its
+	 * category and store-wide guides (its own spec values still show).
+	 *
+	 * @var int
+	 */
+	public const NONE = -1;
+
+	/**
 	 * Option key for global CPT size guide reference.
 	 *
 	 * @var string
@@ -72,7 +80,7 @@ class Size_Guide {
 	 *
 	 * @var int
 	 */
-	private const MARKUP_VERSION = 4;
+	private const MARKUP_VERSION = 5;
 
 	/** Option storing the cache-key generation. */
 	private const CACHE_GENERATION_OPTION = 'aa_size_guide_cache_generation';
@@ -380,7 +388,10 @@ class Size_Guide {
 	}
 
 	/**
-	 * Resolve the guide without caching.
+	 * Resolve the guide without caching: the first published guide assigned
+	 * to the product. A guide without a chart still counts (a specs-only
+	 * guide, e.g. for hats): its specs show, and with no html there is no
+	 * Size Guide button or link.
 	 *
 	 * @param int $product_id Product ID.
 	 * @return Resolved
@@ -388,7 +399,7 @@ class Size_Guide {
 	private function resolve_size_guide( int $product_id ): array {
 		foreach ( self::candidate_guide_ids( $product_id ) as $guide_id ) {
 			$guide = $this->guide_content( $guide_id );
-			if ( '' !== $guide['html'] ) {
+			if ( $guide['id'] > 0 ) {
 				return $guide;
 			}
 		}
@@ -424,7 +435,11 @@ class Size_Guide {
 		$ids = array();
 
 		if ( $product_id > 0 ) {
-			$ids[] = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
+			$own = (int) get_post_meta( $product_id, self::CPT_META_KEY, true );
+			if ( self::NONE === $own ) {
+				return array();
+			}
+			$ids[] = $own;
 
 			// get_the_terms() reads the object term cache, so repeat lookups on
 			// one request (guide modal + Product Specs block) stay query-free.
@@ -516,7 +531,10 @@ class Size_Guide {
 
 		$selected_id = (int) get_post_meta( $post->ID, self::CPT_META_KEY, true );
 
-		$options = array( '' => __( '-- Inherit (category or global) --', 'aggressive-apparel' ) );
+		$options = array(
+			''     => __( 'Category or store default', 'aggressive-apparel' ),
+			'none' => __( 'No size guide', 'aggressive-apparel' ),
+		);
 		foreach ( $this->get_published_guides() as $guide ) {
 			$options[ (string) $guide->ID ] = $guide->post_title;
 		}
@@ -528,10 +546,12 @@ class Size_Guide {
 		if ( function_exists( 'woocommerce_wp_select' ) ) {
 			woocommerce_wp_select(
 				array(
-					'id'      => 'aa_size_guide_id',
-					'label'   => __( 'Size Guide', 'aggressive-apparel' ),
-					'options' => $options,
-					'value'   => $selected_id > 0 ? (string) $selected_id : '',
+					'id'          => 'aa_size_guide_id',
+					'label'       => __( 'Size Guide', 'aggressive-apparel' ),
+					'options'     => $options,
+					'value'       => self::NONE === $selected_id ? 'none' : ( $selected_id > 0 ? (string) $selected_id : '' ),
+					'desc_tip'    => true,
+					'description' => __( '“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show.', 'aggressive-apparel' ),
 				),
 			);
 		}
@@ -574,11 +594,10 @@ class Size_Guide {
 			return;
 		}
 
-		$guide_id = isset( $_POST['aa_size_guide_id'] )
-			? absint( wp_unslash( $_POST['aa_size_guide_id'] ) )
-			: 0;
+		$choice   = isset( $_POST['aa_size_guide_id'] ) ? sanitize_key( wp_unslash( $_POST['aa_size_guide_id'] ) ) : '';
+		$guide_id = 'none' === $choice ? self::NONE : absint( $choice );
 
-		if ( $guide_id > 0 ) {
+		if ( self::NONE === $guide_id || $guide_id > 0 ) {
 			update_post_meta( $post_id, self::CPT_META_KEY, $guide_id );
 		} else {
 			delete_post_meta( $post_id, self::CPT_META_KEY );

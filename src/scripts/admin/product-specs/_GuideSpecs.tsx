@@ -42,8 +42,8 @@ type Props = {
   values: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */
   hidden: string[];
-  /** Whether products can use the guide (it has a chart or old content). */
-  usable: boolean;
+  /** Whether the guide shows a Size Guide button (a chart or old content). */
+  hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
   onOwn: (own: DraftItem[]) => void;
@@ -73,7 +73,7 @@ export default function GuideSpecs({
   own,
   values,
   hidden,
-  usable,
+  hasChart,
   onValues,
   onHidden,
   onOwn,
@@ -184,10 +184,10 @@ export default function GuideSpecs({
           )}
         </p>
       </div>
-      {!usable && hasValues && (
-        <Notice status='warning' isDismissible={false}>
+      {!hasChart && hasValues && (
+        <Notice status='info' isDismissible={false}>
           {__(
-            'Products won’t use this guide until its size chart has at least one size, so these specs won’t show yet.',
+            'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
             'aggressive-apparel'
           )}
         </Notice>

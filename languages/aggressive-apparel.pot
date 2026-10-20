@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.196.0\n"
+"Project-Id-Version: Aggressive Apparel 1.197.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T01:16:01+00:00\n"
+"POT-Creation-Date: 2026-10-20T06:15:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1537,7 +1537,7 @@ msgstr ""
 
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
-#: includes/WooCommerce/class-size-guide.php:235
+#: includes/WooCommerce/class-size-guide.php:243
 #: includes/WooCommerce/class-sticky-add-to-cart.php:299
 msgid "Close"
 msgstr ""
@@ -3946,12 +3946,12 @@ msgid "Size Guides"
 msgstr ""
 
 #: includes/WooCommerce/class-size-guide-post-type.php:104
-#: includes/WooCommerce/class-size-guide.php:187
-#: includes/WooCommerce/class-size-guide.php:228
-#: includes/WooCommerce/class-size-guide.php:482
-#: includes/WooCommerce/class-size-guide.php:532
-#: includes/WooCommerce/class-size-guide.php:601
-#: includes/WooCommerce/class-size-guide.php:629
+#: includes/WooCommerce/class-size-guide.php:195
+#: includes/WooCommerce/class-size-guide.php:236
+#: includes/WooCommerce/class-size-guide.php:497
+#: includes/WooCommerce/class-size-guide.php:550
+#: includes/WooCommerce/class-size-guide.php:620
+#: includes/WooCommerce/class-size-guide.php:648
 #: patterns/footer-columns.php:83
 msgid "Size Guide"
 msgstr ""
@@ -4014,31 +4014,39 @@ msgstr ""
 msgid "Untitled size guide"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:194
+#: includes/WooCommerce/class-size-guide.php:202
 msgid "Measurements in inches"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:519
-msgid "-- Inherit (category or global) --"
+#: includes/WooCommerce/class-size-guide.php:535
+msgid "Category or store default"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide.php:536
+msgid "No size guide"
+msgstr ""
+
+#: includes/WooCommerce/class-size-guide.php:554
+msgid "“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show."
 msgstr ""
 
 #. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:543
+#: includes/WooCommerce/class-size-guide.php:563
 #, php-format
 msgid "Select a size guide or %s."
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:545
+#: includes/WooCommerce/class-size-guide.php:565
 msgid "create a new one"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:603
-#: includes/WooCommerce/class-size-guide.php:632
+#: includes/WooCommerce/class-size-guide.php:622
+#: includes/WooCommerce/class-size-guide.php:651
 msgid "-- None --"
 msgstr ""
 
-#: includes/WooCommerce/class-size-guide.php:612
-#: includes/WooCommerce/class-size-guide.php:642
+#: includes/WooCommerce/class-size-guide.php:631
+#: includes/WooCommerce/class-size-guide.php:661
 msgid "Assign a size guide to all products in this category."
 msgstr ""
 

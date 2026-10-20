@@ -176,7 +176,7 @@ export default function ImportBlank({
         ) : (
           <p className='aa-ps-help'>
             {__(
-              'Printful has no size chart for this blank. Its specs still import; add a chart afterwards.',
+              'Printful has no size chart for this blank. The guide shows its specs only, with no Size Guide button, until you add a chart.',
               'aggressive-apparel'
             )}
           </p>

@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-20T01:16:01+00:00\n"
+"POT-Creation-Date: 2026-10-20T06:28:52+00:00\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1850,7 +1850,7 @@ msgstr "Alejar la imagen"
 
 #: includes/WooCommerce/class-badge-rules-admin.php:47
 #: includes/WooCommerce/class-badge-rules-admin.php:105
-#: includes/WooCommerce/class-size-guide.php:235
+#: includes/WooCommerce/class-size-guide.php:219
 #: includes/WooCommerce/class-sticky-add-to-cart.php:299
 #, aa-mt
 msgid "Close"
@@ -3502,7 +3502,8 @@ msgstr "No se han podido guardar algunos valores de especificaciones (%s). Solo 
 
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-product-specs-grid.php:231
-#: includes/WooCommerce/class-size-guide-rest.php:578
+#: includes/WooCommerce/class-size-guide-admin-fields.php:231
+#: includes/WooCommerce/class-size-guide-rest.php:579
 #, aa-mt
 msgid "(no title)"
 msgstr "(sin título)"
@@ -4806,6 +4807,65 @@ msgstr "centímetros"
 msgid "inches"
 msgstr "pulgadas"
 
+#: includes/WooCommerce/class-size-guide-admin-fields.php:72
+#: includes/WooCommerce/class-size-guide-admin-fields.php:113
+#: includes/WooCommerce/class-size-guide-admin-fields.php:172
+#: includes/WooCommerce/class-size-guide-admin-fields.php:187
+#: includes/WooCommerce/class-size-guide-post-type.php:104
+#: includes/WooCommerce/class-size-guide.php:171
+#: includes/WooCommerce/class-size-guide.php:212 patterns/footer-columns.php:83
+#, aa-mt
+msgid "Size Guide"
+msgstr "Guía de tallas"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:114
+#, aa-mt
+msgid "Category or store default"
+msgstr "Categoría o valor predeterminado de la tienda"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:117
+#, aa-mt
+msgid "“No size guide” hides the size guide on this product, even when its category or the store has one. Its own specs still show."
+msgstr "La opción «Sin guía de tallas» oculta la guía de tallas de este producto, incluso cuando su categoría o la tienda dispongan de una. Sus propias especificaciones siguen apareciendo."
+
+#. translators: %s: link to create a new size guide
+#: includes/WooCommerce/class-size-guide-admin-fields.php:126
+#, php-format, aa-mt
+msgid "Select a size guide or %s."
+msgstr "Selecciona una guía de tallas o %s."
+
+#: includes/WooCommerce/class-size-guide-admin-fields.php:128
+#, aa-mt
+msgid "create a new one"
+msgstr "crear uno nuevo"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:227
+#, aa-mt
+msgid "No size guide"
+msgstr "No hay guía de tallas"
+
+#. translators: %s: size guide title or ID.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:239
+#, php-format, aa-mt
+msgid "%s (not published)"
+msgstr "%s (no publicado)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:268
+#, aa-mt
+msgid "Store default"
+msgstr "Valor predeterminado de la tienda"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-size-guide-admin-fields.php:281
+#, aa-mt
+msgid "Products in this category use this guide unless they pick their own. “No size guide” leaves out the store default for them."
+msgstr "Los productos de esta categoría siguen esta guía, a menos que elijan la suya propia. La opción «Sin guía de tallas» omite la opción predeterminada de la tienda para ellos."
+
 #. Auto-translated (aa-mt) via deepl — review before release.
 #: includes/WooCommerce/class-size-guide-label-link.php:79
 #, aa-mt
@@ -4832,17 +4892,6 @@ msgstr "Lo siento, no puedes hacer eso."
 #, aa-mt
 msgid "Size Guides"
 msgstr "Guías de tallas"
-
-#: includes/WooCommerce/class-size-guide-post-type.php:104
-#: includes/WooCommerce/class-size-guide.php:187
-#: includes/WooCommerce/class-size-guide.php:228
-#: includes/WooCommerce/class-size-guide.php:482
-#: includes/WooCommerce/class-size-guide.php:532
-#: includes/WooCommerce/class-size-guide.php:601
-#: includes/WooCommerce/class-size-guide.php:629 patterns/footer-columns.php:83
-#, aa-mt
-msgid "Size Guide"
-msgstr "Guía de tallas"
 
 #: includes/WooCommerce/class-size-guide-post-type.php:106
 #, aa-mt
@@ -4910,49 +4959,21 @@ msgid "%s (copy)"
 msgstr "%s (copia)"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-guide-rest.php:449
+#: includes/WooCommerce/class-size-guide-rest.php:450
 #, aa-mt
 msgid "Some specs need fixing before the guide can be saved."
 msgstr "Hay que corregir algunos datos técnicos antes de poder guardar la guía."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-size-guide-rest.php:569
+#: includes/WooCommerce/class-size-guide-rest.php:570
 #, aa-mt
 msgid "Untitled size guide"
 msgstr "Guía de tallas «Sin título»"
 
-#: includes/WooCommerce/class-size-guide.php:194
+#: includes/WooCommerce/class-size-guide.php:178
 #, aa-mt
 msgid "Measurements in inches"
 msgstr "Medidas en pulgadas"
-
-#: includes/WooCommerce/class-size-guide.php:519
-#, aa-mt
-msgid "-- Inherit (category or global) --"
-msgstr "-- Heredar (categoría o global) --"
-
-#. translators: %s: link to create a new size guide
-#: includes/WooCommerce/class-size-guide.php:543
-#, php-format, aa-mt
-msgid "Select a size guide or %s."
-msgstr "Selecciona una guía de tallas o %s."
-
-#: includes/WooCommerce/class-size-guide.php:545
-#, aa-mt
-msgid "create a new one"
-msgstr "crear uno nuevo"
-
-#: includes/WooCommerce/class-size-guide.php:603
-#: includes/WooCommerce/class-size-guide.php:632
-#, aa-mt
-msgid "-- None --"
-msgstr "-- Ninguno --"
-
-#: includes/WooCommerce/class-size-guide.php:612
-#: includes/WooCommerce/class-size-guide.php:642
-#, aa-mt
-msgid "Assign a size guide to all products in this category."
-msgstr "Asigna una guía de tallas a todos los productos de esta categoría."
 
 #. translators: %s: human-readable time difference, e.g. "5 minutes".
 #: includes/WooCommerce/class-social-proof-purchase.php:178

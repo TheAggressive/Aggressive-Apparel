@@ -10,8 +10,10 @@
  * Every spec is a WooCommerce attribute and every value one of its terms
  * (Product_Specs_Taxonomy). Products using the guide show these values
  * unless they have their own; an empty value falls back to the spec default
- * (Product_Specs::resolve_item). Products only use a guide that has a chart
- * or old content (Size_Guide::resolved), hence the no-chart warning.
+ * (Product_Specs::resolve_item). A guide without a chart still applies when
+ * it sets specs (a specs-only guide: no Size Guide button); one with neither
+ * is passed over, so its products keep their category or store guide
+ * (Size_Guide::resolved). The notes below say which case this guide is.
  *
  * @package Aggressive_Apparel
  */
@@ -42,8 +44,8 @@ type Props = {
   values: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */
   hidden: string[];
-  /** Whether products can use the guide (it has a chart or old content). */
-  usable: boolean;
+  /** Whether the guide shows a Size Guide button (a chart or old content). */
+  hasChart: boolean;
   onValues: (values: Record<string, string>) => void;
   onHidden: (hidden: string[]) => void;
   onOwn: (own: DraftItem[]) => void;
@@ -73,7 +75,7 @@ export default function GuideSpecs({
   own,
   values,
   hidden,
-  usable,
+  hasChart,
   onValues,
   onHidden,
   onOwn,
@@ -87,7 +89,9 @@ export default function GuideSpecs({
   const showing = storeWide.filter(item => !hidden.includes(item.key));
   const hiddenItems = storeWide.filter(item => hidden.includes(item.key));
   const shown = [...showing, ...own.filter(item => item.enabled)];
-  const hasValues = shown.some(item => (values[item.key] ?? '') !== '');
+  // Mirrors Product_Specs_Values::guide_has_specs: any value, or a hidden spec.
+  const hasSpecs =
+    Object.values(values).some(value => value !== '') || hidden.length > 0;
   // Registry size after saving: every other item plus this guide's own.
   const total =
     items.filter(item => !item.guides.includes(guideId)).length + own.length;
@@ -184,12 +188,17 @@ export default function GuideSpecs({
           )}
         </p>
       </div>
-      {!usable && hasValues && (
-        <Notice status='warning' isDismissible={false}>
-          {__(
-            'Products won’t use this guide until its size chart has at least one size, so these specs won’t show yet.',
-            'aggressive-apparel'
-          )}
+      {!hasChart && (
+        <Notice status='info' isDismissible={false}>
+          {hasSpecs
+            ? __(
+                'Specs only: this guide has no size chart, so its products show these specs without a Size Guide button. Add sizes to the chart to show one.',
+                'aggressive-apparel'
+              )
+            : __(
+                'This guide is empty, so products assigned to it keep their category’s or the store’s size guide. Add a size chart or set a spec to use it.',
+                'aggressive-apparel'
+              )}
         </Notice>
       )}
 

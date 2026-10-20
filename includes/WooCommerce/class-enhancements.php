@@ -56,6 +56,7 @@ class Enhancements {
 		'size_guide'                 => array(
 			Size_Guide_Post_Type::class,
 			Size_Guide::class,
+			Size_Guide_Admin_Fields::class,
 			Size_Guide_Rest::class,
 			Size_Guide_Label_Link::class,
 			Size_Chart_Import::class,

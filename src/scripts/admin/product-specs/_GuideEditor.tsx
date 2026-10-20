@@ -556,7 +556,7 @@ export default function GuideEditor({
         values={guide.specs}
         // Mirrors Size_Chart::sanitize (a row needs a size) and
         // Size_Guide::guide_content (old free-form content also counts).
-        usable={
+        hasChart={
           guide.legacyHtml !== '' ||
           guide.chart.rows.some(row => row.size.trim() !== '')
         }

@@ -366,6 +366,7 @@ final class Size_Guide_Rest {
 				'columns' => null !== $chart ? count( $chart['columns'] ) : 0,
 				'usage'   => $usage[ $post->ID ],
 				'legacy'  => null === $chart && '' !== trim( $post->post_content ),
+				'specs'   => null === $chart && Product_Specs_Values::guide_has_specs( $post->ID ),
 			);
 		}
 

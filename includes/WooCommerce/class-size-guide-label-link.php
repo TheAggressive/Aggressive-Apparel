@@ -67,7 +67,7 @@ final class Size_Guide_Label_Link {
 
 		// The block has no postId context; it renders inside the product's loop.
 		$product_id = absint( get_the_ID() );
-		if ( $product_id <= 0 || '' === Size_Guide::resolved( $product_id )['html'] ) {
+		if ( $product_id <= 0 || ! Size_Guide::resolved( $product_id )['dialog'] ) {
 			return $content;
 		}
 

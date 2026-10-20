@@ -26,10 +26,7 @@ type Props = {
 /** "Garment measurements, 9 sizes", or that there's no chart. */
 function chartLine(result: ImportResult): string {
   if (result.chart === '') {
-    return __(
-      'None from Printful. Add one in the guide.',
-      'aggressive-apparel'
-    );
+    return __('None, so the guide shows specs only', 'aggressive-apparel');
   }
   const sizes = sprintf(
     /* translators: %d: number of sizes. */

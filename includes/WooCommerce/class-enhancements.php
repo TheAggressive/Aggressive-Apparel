@@ -65,6 +65,8 @@ class Enhancements {
 			Product_Specs_Table::class,
 			Product_Specs_Grid::class,
 			Product_Specs_Migration::class,
+			Printful_Rest::class,
+			Printful_Import::class,
 		),
 		'sticky_add_to_cart'         => array( Sticky_Add_To_Cart::class ),
 		'mobile_bottom_nav'          => array( Mobile_Bottom_Nav::class ),

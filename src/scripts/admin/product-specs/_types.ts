@@ -93,6 +93,8 @@ export type GuideDetail = {
   specs: Record<string, string>;
   /** Store-wide specs hidden on this guide's products. */
   hidden: string[];
+  /** Where the guide was imported from, if anywhere. */
+  source: { provider: string; id: number; title: string } | null;
   categories: number[];
   isDefault: boolean;
   usage: Usage;
@@ -153,4 +155,100 @@ export type Config = {
     columns: number;
     rows: number;
   };
+};
+
+/** A Printful catalog product in search results. */
+export type PrintfulProduct = {
+  id: number;
+  title: string;
+  brand: string;
+  model: string;
+  image: string;
+  group: string;
+  /** The guide already imported from it (0 for none). */
+  guide: number;
+  /** A common blank, listed first before a search. */
+  popular: boolean;
+};
+
+/** One description bullet and the spec it maps to (Printful_Import). */
+export type ImportFact = {
+  /** Rule key: the text with numbers generalized. */
+  key: string;
+  text: string;
+  /** A spec key, 'skip', or '' when unsure. */
+  target: string;
+  value: string;
+  status: 'sure' | 'guess' | 'unsure' | 'skipped';
+};
+
+/** A Printful product as a size guide draft to review. */
+export type ImportDraft = {
+  source: { provider: string; id: number; title: string };
+  title: string;
+  image: string;
+  charts: { garment: Chart | null; body: Chart | null };
+  notes: { garment: string; body: string };
+  diagrams: { garment: string; body: string };
+  facts: ImportFact[];
+  /** A guide already imported from this product (0 for none). */
+  guide: number;
+};
+
+/** A spec made while importing: new, or an existing attribute made a spec. */
+export type ImportAttribute = {
+  /** Spec key, fixed when first set up. */
+  key: string;
+  name: string;
+  kind: 'text' | 'multiple' | 'pick' | 'number';
+  /** This guide only, or every guide. */
+  scope: 'guide' | 'store';
+  archives: boolean;
+  /** Comma-separated steps, for a scale. */
+  steps: string;
+  unit: string;
+  /** An existing WooCommerce attribute to use ('' for a new one). */
+  taxonomy: string;
+};
+
+/** Where one description line goes. */
+export type ImportMapping = {
+  /** Spec key, 'skip', 'new' (an ImportAttribute), or '' (undecided). */
+  target: string;
+  value: string;
+  /** Set by the store (not inherited from another blank). */
+  touched: boolean;
+};
+
+/** The store's edits to one blank before it becomes a guide. */
+export type ImportBlankState = {
+  title: string;
+  kind: 'garment' | 'body';
+  /** Notes per chart, so switching charts keeps edits to either. */
+  notes: { garment: string; body: string };
+  /** Whether the measuring diagram comes along. */
+  diagram: boolean;
+  categories: number[];
+  isDefault: boolean;
+  mappings: ImportMapping[];
+};
+
+/** What an import made of one blank, for the summary. */
+export type ImportResult = {
+  id: number;
+  title: string;
+  /** New guide ID; 0 when it failed. */
+  guide: number;
+  error: string;
+  chart: '' | 'garment' | 'body';
+  /** Rows in the chart. */
+  sizes: number;
+  /** Specs given a value. */
+  specs: number;
+  /** New attributes this guide made or joined. */
+  attributes: string[];
+  categories: string[];
+  isDefault: boolean;
+  /** A diagram is on its way (it downloads in the background). */
+  diagram: boolean;
 };

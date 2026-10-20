@@ -1,0 +1,120 @@
+{
+  "code": 200,
+  "result": {
+    "categories": [
+      {
+        "id": 1,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/fb/fbf0cf796a5603666e85713ece1708a1_t?v=1764596927",
+        "catalog_position": 1,
+        "size": "small",
+        "title": "Men's clothing"
+      },
+      {
+        "id": 2,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/04/04140d7cd1565012645092fc8f1d8632_t?v=1764596927",
+        "catalog_position": 2,
+        "size": "small",
+        "title": "Women's clothing"
+      },
+      {
+        "id": 3,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/96/96e91feb26f0b28ba821534bb0d5478b_t?v=1764596927",
+        "catalog_position": 3,
+        "size": "small",
+        "title": "Kids' & youth clothing"
+      },
+      {
+        "id": 4,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/b1/b1e86be07423274b27b55561ddc6eee9_t?v=1764596927",
+        "catalog_position": 5,
+        "size": "small",
+        "title": "Accessories"
+      },
+      {
+        "id": 5,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/77/7776d01e716d80e3ffbdebbf3db6b198_t?v=1764596927",
+        "catalog_position": 6,
+        "size": "small",
+        "title": "Home & living"
+      },
+      {
+        "id": 6,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/4b/4b37924aaa8e264d1d3cd2a54beb6436_t?v=1764596927",
+        "catalog_position": 1,
+        "size": "small",
+        "title": "All shirts"
+      },
+      {
+        "id": 7,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/48/4895a0d9535a163841a8fb70623abfca_t?v=1764596927",
+        "catalog_position": 11,
+        "size": "small",
+        "title": "All hoodies & sweatshirts"
+      },
+      {
+        "id": 24,
+        "parent_id": 6,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/b1/b1513c82696405fcc316fc611c57f132_t?v=1764596927",
+        "catalog_position": 5,
+        "size": "small",
+        "title": "T-shirts"
+      },
+      {
+        "id": 93,
+        "parent_id": 0,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/0c/0c38c3b13be79b5f8e1f2f1dccf62115_t?v=1764596927",
+        "catalog_position": 4,
+        "size": "small",
+        "title": "Hats"
+      },
+      {
+        "id": 95,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/cf/cfaac716caea797f3e48c267edc34869_t?v=1764596927",
+        "catalog_position": 6,
+        "size": "small",
+        "title": "Jackets & vests"
+      },
+      {
+        "id": 106,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/e8/e810507648a873b85087af9c5a102970_t?v=1764596927",
+        "catalog_position": 20,
+        "size": "small",
+        "title": "All bottoms"
+      },
+      {
+        "id": 226,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/57/574bda9157f8cd79f555c652a2ffa175_t?v=1764596927",
+        "catalog_position": 0,
+        "size": "small",
+        "title": "All men's clothing"
+      },
+      {
+        "id": 235,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/13/132458ceee5b398f8e0380b6c2e58e6d_t?v=1764596927",
+        "catalog_position": 14,
+        "size": "small",
+        "title": "Swimwear"
+      },
+      {
+        "id": 290,
+        "parent_id": 1,
+        "image_url": "https://files.cdn.printful.com/o/upload/catalog_category/95/9569e5a8168036cc0d4a455a3581a32b_t?v=1764596927",
+        "catalog_position": 5,
+        "size": "small",
+        "title": "Knitwear"
+      }
+    ]
+  },
+  "extra": []
+}

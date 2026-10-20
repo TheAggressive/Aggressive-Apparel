@@ -14,6 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { Config, GuideSummary, Registry, SpecItem, Usage } from './_types';
 import GuideEditor from './_GuideEditor';
+import ImportFlow from './_ImportFlow';
 
 type Props = {
   config: Config;
@@ -70,6 +71,7 @@ export default function GuidesTab({
     config.guide === 'new' || config.guide > 0 ? config.guide : null
   );
   const [loading, setLoading] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const show = (value: number | 'new' | null) => {
     setOpen(value);
@@ -84,6 +86,26 @@ export default function GuidesTab({
       setLoading(false);
     }
   };
+
+  if (importing && open === null) {
+    return (
+      <ImportFlow
+        config={config}
+        items={items}
+        taxonomies={taxonomies}
+        onRegistry={onRegistry}
+        onCancel={() => {
+          setImporting(false);
+          void refresh();
+        }}
+        onOpen={id => {
+          setImporting(false);
+          show(id);
+          void refresh();
+        }}
+      />
+    );
+  }
 
   if (open !== null) {
     return (
@@ -123,9 +145,14 @@ export default function GuidesTab({
             'aggressive-apparel'
           )}
         </p>
-        <Button variant='primary' onClick={() => show('new')}>
-          {__('New size guide', 'aggressive-apparel')}
-        </Button>
+        <div className='aa-ps-guides__actions'>
+          <Button variant='secondary' onClick={() => setImporting(true)}>
+            {__('Import from Printful', 'aggressive-apparel')}
+          </Button>
+          <Button variant='primary' onClick={() => show('new')}>
+            {__('New size guide', 'aggressive-apparel')}
+          </Button>
+        </div>
       </div>
 
       {loading && <Spinner />}

@@ -13,6 +13,7 @@ import './style.css';
 import './grids.css';
 import './add-spec.css';
 import './guides.css';
+import './import.css';
 
 domReady(() => {
   const root = document.getElementById('aa-product-specs-root');

@@ -110,14 +110,22 @@ export function newItem(
   return item;
 }
 
-/** The key, or the first "key_N" no other item uses ('' stays ''). */
+/** Longest key the server keeps (Size_Guide_Spec_Items::key()). */
+export const KEY_MAX = 32;
+
+/**
+ * The key, or the first "key_N" no other item uses ('' stays ''), at most
+ * KEY_MAX characters, the way the server picks one, so both agree.
+ */
 export function uniqueKey(stem: string, taken: SpecItem[]): string {
   const keys = new Set(
     taken.map(existing => existing.key || slugify(existing.name))
   );
-  let key = stem;
+  const base = stem.slice(0, KEY_MAX);
+  let key = base;
   for (let n = 2; key && keys.has(key); n++) {
-    key = `${stem}_${n}`;
+    const suffix = `_${n}`;
+    key = base.slice(0, KEY_MAX - suffix.length) + suffix;
   }
   return key;
 }
@@ -152,4 +160,11 @@ export function splitValues(value: string): string[] {
 /** Several values as one value. */
 export function joinValues(values: string[]): string {
   return values.join(` ${DELIMITER} `);
+}
+
+/** Smooth scrolling, unless the user prefers less motion. */
+export function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
 }

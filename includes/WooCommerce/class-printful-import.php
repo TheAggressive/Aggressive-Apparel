@@ -90,6 +90,15 @@ final class Printful_Import {
 	private const NOT_A_SPEC = '/\b(sourced from|blank product|printed in|made in|imported|disclaimer|ships? from|fulfilled|may vary|see-through)\b/i';
 
 	/**
+	 * Text that would tell shoppers where products are made: the supplier's
+	 * name or its print-on-demand boilerplate. Never offered as a spec (not
+	 * even by a saved rule) and dropped from imported notes.
+	 *
+	 * @var string
+	 */
+	private const SUPPLIER = '/\b(printful|print[- ]on[- ]demand|on[- ]demand|made especially for you|as soon as you place an order|made to order)\b/i';
+
+	/**
 	 * Register hooks.
 	 */
 	public function init(): void {
@@ -298,7 +307,7 @@ final class Printful_Import {
 
 			$key                 = self::fact_key( $text );
 			[ $target, $status ] = self::classify( $text, $items );
-			if ( isset( $rules[ $key ] ) && ( self::SKIP === $rules[ $key ] || isset( $items[ $rules[ $key ] ] ) ) ) {
+			if ( 1 !== preg_match( self::SUPPLIER, $text ) && isset( $rules[ $key ] ) && ( self::SKIP === $rules[ $key ] || isset( $items[ $rules[ $key ] ] ) ) ) {
 				[ $target, $status ] = array( $rules[ $key ], self::SKIP === $rules[ $key ] ? 'skipped' : 'sure' );
 			}
 
@@ -364,7 +373,7 @@ final class Printful_Import {
 	 * @return array{0: string, 1: string} Target (spec key, 'skip', or '') and status.
 	 */
 	private static function classify( string $text, array $items ): array {
-		if ( 1 === preg_match( self::NOT_A_SPEC, $text ) ) {
+		if ( 1 === preg_match( self::NOT_A_SPEC, $text ) || 1 === preg_match( self::SUPPLIER, $text ) ) {
 			return array( self::SKIP, 'skipped' );
 		}
 
@@ -473,7 +482,14 @@ final class Printful_Import {
 		$text = wp_strip_all_tags( (string) preg_replace( '#</(p|h\d|li)>|<br\s*/?>#i', "\n", $html ) );
 		$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = (string) preg_replace( "/[ \t]+/", ' ', $text );
-		$text = (string) preg_replace( "/\n\s*\n+/", "\n\n", $text );
+
+		// Notes show on product pages: drop any sentence naming the supplier.
+		$lines = array();
+		foreach ( explode( "\n", $text ) as $line ) {
+			$sentences = preg_split( '/(?<=[.!?])\s+/u', $line );
+			$lines[]   = implode( ' ', array_filter( false !== $sentences ? $sentences : array( $line ), static fn( string $part ): bool => 1 !== preg_match( self::SUPPLIER, $part ) ) );
+		}
+		$text = (string) preg_replace( "/\n\s*\n+/", "\n\n", implode( "\n", $lines ) );
 
 		return trim( $text );
 	}

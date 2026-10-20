@@ -438,6 +438,81 @@ class TestPrintfulImport extends WP_UnitTestCase {
 		$this->assertSame( 'fabric_2', get_option( Printful_Import::RULES )['printful']['shell: nylon'] );
 	}
 
+	/** Nothing that names the supplier reaches a product page. */
+	public function test_supplier_never_reaches_the_storefront(): void {
+		update_option( Printful_Import::RULES, array( 'printful' => array( 'made especially for you on demand' => 'construction' ) ), false );
+		$facts = array_column( Printful_Import::facts( "• Made especially for you on demand\n• Printful quality guarantee\n• Side-seamed" ), null, 'text' );
+
+		$this->assertSame( 'skipped', $facts['Made especially for you on demand']['status'], 'Even a saved rule never maps it.' );
+		$this->assertSame( 'skipped', $facts['Printful quality guarantee']['status'] );
+		$this->assertSame( 'construction', $facts['Side-seamed']['target'] );
+
+		set_transient( 'aa_printful_product_74', array( 'product' => array( 'title' => 'Tee' ) ), HOUR_IN_SECONDS );
+		set_transient(
+			'aa_printful_sizes_74',
+			array(
+				'size_tables' => array(
+					array(
+						'type'         => 'product_measure',
+						'unit'         => 'inches',
+						'description'  => '<p>Lay the shirt flat. Printful measures every blank by hand. Measure across the chest.</p>',
+						'measurements' => array(
+							array(
+								'type_label' => 'Width',
+								'values'     => array(
+									array(
+										'size'  => 'S',
+										'value' => '18',
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$notes = Printful_Import::draft( 74 )['notes']['garment'];
+
+		$this->assertStringNotContainsStringIgnoringCase( 'printful', $notes );
+		$this->assertStringContainsString( 'Lay the shirt flat. Measure across the chest.', $notes );
+	}
+
+	/** Visitors can't list guides through the REST API; staff still can. */
+	public function test_guides_are_not_in_the_public_rest_api(): void {
+		global $wp_rest_server;
+		$type       = new \Aggressive_Apparel\WooCommerce\Size_Guide_Post_Type();
+		$registered = post_type_exists( 'aa_size_guide' );
+		if ( ! $registered ) {
+			$type->register();
+		}
+		$wp_rest_server = new \WP_REST_Server();
+		do_action( 'rest_api_init', $wp_rest_server );
+		$filter = array( $type, 'staff_only_rest' );
+		add_filter( 'rest_pre_dispatch', $filter, 10, 3 );
+		$guide = self::factory()->post->create(
+			array(
+				'post_type'  => 'aa_size_guide',
+				'post_title' => 'Bella + Canvas 3001',
+			)
+		);
+
+		$staff = rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/aa_size_guide' ) );
+		wp_set_current_user( 0 );
+		$list = rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/aa_size_guide' ) );
+		$one  = rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/aa_size_guide/' . $guide ) );
+		remove_filter( 'rest_pre_dispatch', $filter, 10 );
+		$wp_rest_server = null;
+		if ( ! $registered ) {
+			unregister_post_type( 'aa_size_guide' );
+		}
+
+		$this->assertSame( 200, $staff->get_status() );
+		$this->assertSame( 401, $list->get_status() );
+		$this->assertSame( 401, $one->get_status() );
+	}
+
 	/**
 	 * A JSON REST request.
 	 *

@@ -1,0 +1,45 @@
+{
+  "code": 200,
+  "result": [
+    {
+      "id": 938,
+      "main_category_id": 229,
+      "type": "DECOR",
+      "title": "Luggage Tag",
+      "brand": null,
+      "model": "Tag | Luggage",
+      "image": "https://files.cdn.printful.com/o/upload/product-catalog-img/04/04f318b62ba2242360baeb2fcc89fe2c_l",
+      "is_discontinued": false
+    },
+    {
+      "id": 679,
+      "main_category_id": 24,
+      "type": "DTFILM",
+      "title": "Unisex Performance Crew Neck T-Shirt | A4 N3142",
+      "brand": "A4",
+      "model": "N3142",
+      "image": "https://files.cdn.printful.com/o/upload/product-catalog-img/e2/e239b78e54f77c63f3ec3bcda3be8e62_l",
+      "is_discontinued": false
+    },
+    {
+      "id": 71,
+      "main_category_id": 24,
+      "type": "T-SHIRT",
+      "title": "Unisex Staple T-Shirt | Bella + Canvas 3001",
+      "brand": "Bella + Canvas",
+      "model": "3001",
+      "image": "https://files.cdn.printful.com/o/upload/product-catalog-img/20/2079a3ee4cc472ad952fe16654f274cd_l",
+      "is_discontinued": false
+    },
+    {
+      "id": 999,
+      "main_category_id": 24,
+      "type": "T-SHIRT",
+      "title": "Old Tee | Gone 1",
+      "brand": "Gone",
+      "model": "1",
+      "image": "",
+      "is_discontinued": true
+    }
+  ]
+}

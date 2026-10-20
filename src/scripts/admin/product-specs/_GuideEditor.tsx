@@ -81,6 +81,7 @@ function blank(): GuideDetail {
     diagram: null,
     specs: {},
     hidden: [],
+    source: null,
     categories: [],
     isDefault: false,
     usage: { global: false, categories: [], products: 0 },
@@ -388,6 +389,21 @@ export default function GuideEditor({
           </span>
         )}
       </div>
+
+      {guide.source && (
+        <p className='aa-ps-guide__source'>
+          {sprintf(
+            /* translators: %s: Printful product name. */
+            __('Imported from Printful: %s', 'aggressive-apparel'),
+            guide.source.title ||
+              sprintf(
+                /* translators: %d: Printful product ID. */
+                __('product #%d', 'aggressive-apparel'),
+                guide.source.id
+              )
+          )}
+        </p>
+      )}
 
       <TextControl
         className='aa-ps-guide__name'

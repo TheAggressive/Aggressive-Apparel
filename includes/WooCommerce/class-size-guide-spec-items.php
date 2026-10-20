@@ -33,14 +33,22 @@ final class Size_Guide_Spec_Items {
 	 *
 	 * Submitted items keep the guides of the owned item with the same key (so
 	 * sharing survives an edit); any other item is new to this guide only and
-	 * gets a fresh key if its key is taken. Owned items left out are removed
+	 * gets a fresh key if its key is taken. An item marked `join` with the key
+	 * of another guide's spec adds this guide to it instead (several guides
+	 * imported together share one new spec). Owned items left out are removed
 	 * from this guide, and deleted when no other guide has them.
 	 *
-	 * @param int   $guide_id  Size guide post ID.
-	 * @param mixed $submitted Raw items.
+	 * $store adds new store-wide specs in the same save (a spec made while
+	 * importing); existing specs are never changed through it.
+	 *
+	 * @param int                   $guide_id  Size guide post ID.
+	 * @param mixed                 $submitted Raw items the guide owns.
+	 * @param mixed                 $store     Raw new store-wide items.
+	 * @param array<string, string> $renamed   Filled with submitted key => saved key, for keys that had to change.
 	 * @return list<string> Errors; empty when saved.
 	 */
-	public static function save( int $guide_id, $submitted ): array {
+	public static function save( int $guide_id, $submitted, $store = array(), array &$renamed = array() ): array {
+		$renamed   = array();
 		$registry  = Product_Specs_Registry::get();
 		$submitted = is_array( $submitted ) ? array_values( array_filter( $submitted, 'is_array' ) ) : array();
 
@@ -72,11 +80,15 @@ final class Size_Guide_Spec_Items {
 		$added = array();
 		foreach ( $submitted as $entry ) {
 			$key = self::key( $entry );
+			if ( ! isset( $owned[ $key ] ) && ! empty( $entry['join'] ) && self::join( $items, $key, $guide_id ) ) {
+				continue;
+			}
 			if ( isset( $owned[ $key ] ) && ! isset( $taken[ $key ] ) ) {
 				$entry['guides'] = $owned[ $key ]['guides'];
 			} else {
 				$entry['guides'] = array( $guide_id );
 				$key             = self::free_key( $key, $taken );
+				self::renamed( $renamed, $entry, $key );
 			}
 			$entry['key']  = $key;
 			$taken[ $key ] = true;
@@ -84,6 +96,15 @@ final class Size_Guide_Spec_Items {
 		}
 
 		array_splice( $items, $at ?? count( $items ), 0, $added );
+
+		foreach ( is_array( $store ) ? array_filter( $store, 'is_array' ) : array() as $entry ) {
+			$key = self::free_key( self::key( $entry ), $taken );
+			self::renamed( $renamed, $entry, $key );
+			$entry['key']    = $key;
+			$entry['guides'] = array();
+			$taken[ $key ]   = true;
+			$items[]         = $entry;
+		}
 
 		$result = Product_Specs_Registry::validate(
 			array(
@@ -101,6 +122,40 @@ final class Size_Guide_Spec_Items {
 				'hide_dimensions' => $result['hide_dimensions'],
 			)
 		);
+	}
+
+	/**
+	 * Note a submitted key the save had to change.
+	 *
+	 * @param array<string, string> $renamed Submitted key => saved key.
+	 * @param array<mixed>          $entry   Submitted item.
+	 * @param string                $key     Saved key.
+	 */
+	private static function renamed( array &$renamed, array $entry, string $key ): void {
+		$submitted = is_scalar( $entry['key'] ?? null ) ? (string) $entry['key'] : '';
+		if ( '' !== $submitted && $submitted !== $key ) {
+			$renamed[ $submitted ] = $key;
+		}
+	}
+
+	/**
+	 * Add a guide to another guide's spec with this key; false when there is
+	 * none (a store-wide spec isn't joinable: it is on every guide already).
+	 *
+	 * @param array  $items    Registry items (changed in place).
+	 * @param string $key      Item key.
+	 * @param int    $guide_id Guide joining.
+	 * @phpstan-param list<Item> $items
+	 */
+	private static function join( array &$items, string $key, int $guide_id ): bool {
+		foreach ( $items as $i => $item ) {
+			if ( $item['key'] === $key && array() !== $item['guides'] ) {
+				$items[ $i ]['guides'] = array_values( array_unique( array_merge( $item['guides'], array( $guide_id ) ) ) );
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

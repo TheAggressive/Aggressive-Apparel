@@ -39,6 +39,33 @@ class Size_Guide_Post_Type {
 	 */
 	public function init(): void {
 		add_action( 'init', array( $this, 'register' ) );
+		add_filter( 'rest_pre_dispatch', array( $this, 'staff_only_rest' ), 10, 3 );
+	}
+
+	/**
+	 * Keep guides out of the public REST API. They stay in REST for the
+	 * block editor (older free-form guides), but only staff can read them,
+	 * so visitors can't list guide names or where they were imported from.
+	 *
+	 * @param mixed            $result  Response so far.
+	 * @param \WP_REST_Server  $server  Server.
+	 * @param \WP_REST_Request $request Request.
+	 * @phpstan-param \WP_REST_Request<array<string, mixed>> $request
+	 * @return mixed
+	 */
+	public function staff_only_rest( $result, $server, $request ) {
+		unset( $server );
+		$route = untrailingslashit( $request->get_route() );
+		$base  = '/wp/v2/' . self::POST_TYPE;
+		if ( null !== $result || ( $base !== $route && ! str_starts_with( $route, $base . '/' ) ) || current_user_can( 'edit_posts' ) ) {
+			return $result;
+		}
+
+		return new \WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to do that.', 'aggressive-apparel' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

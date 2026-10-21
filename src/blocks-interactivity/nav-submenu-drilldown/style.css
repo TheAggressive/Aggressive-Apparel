@@ -21,8 +21,8 @@
  */
 
 /* Push-variant motion tokens live on the panel body so BOTH the drilldown
-   (a descendant) and the level behind it — the panel menu / utility row, which
-   are ancestors of the drilldown and so can't inherit from the block — share
+   (a descendant) and the level behind it — the panel menus / content sections,
+   which are ancestors of the drilldown and so can't inherit from the block — share
    one source of truth for the recede distance and easing. */
 .aa-nav__panel-body {
   --dd-push-parallax: -28%; /* recede distance of the level behind (push) */
@@ -45,7 +45,7 @@
     gap: var(--wp--preset--spacing--2, 0.5rem);
     width: 100%;
     min-height: 56px;
-    padding: 0.875rem 1.25rem;
+    padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
     color: inherit;
     font: inherit;
     font-weight: 400;
@@ -202,12 +202,31 @@
     }
   }
 
+  /* Rows are spaced by the drilldown's Block spacing (none by default). */
   &__panel-inner {
+    display: grid;
+    align-content: start;
+    gap: var(--aa-nav-submenu-gap, 0);
     list-style: none;
     margin: 0;
     padding: 0;
-    flex: 1;
     transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+  }
+
+  /* Content section, aligned with the sub-item text (see navigation-panel). */
+  &__panel-section {
+    padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
+    transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
+  }
+
+  &__panel > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) + :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) {
+    margin-block-start: var(--aa-nav-submenu-gap, 0);
+  }
+
+  /* The last list or section fills the remaining panel height. */
+  &__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner:last-child,
+  &__panel > .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section:last-child {
+    flex: 1;
   }
 
   /* Sub-items */
@@ -215,7 +234,7 @@
     font-size: inherit;
     font-weight: 400;
     min-height: 48px;
-    padding: 0.75rem 1.25rem 0.75rem 3.25rem;
+    padding: var(--aa-nav-submenu-item-pad) var(--aa-nav-panel-inset) var(--aa-nav-submenu-item-pad) var(--aa-nav-submenu-inset);
   }
 }
 
@@ -245,20 +264,21 @@
    the :has rule) is what fixes the close: a transition that only exists while
    :has matches vanishes the instant the drilldown closes, so the margin would
    otherwise snap back to 0 with no animation. */
-.aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+.aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-section) {
   transition: margin-inline-start var(--dd-push-ease, 420ms cubic-bezier(0.32, 0.72, 0, 1));
 }
 
 /* Top level: the open push drilldown is a direct child of the panel menu.
-   The menu and the utility row above it recede together (parallax). */
-.aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+   Every menu and content section at that level recedes together (parallax). */
+.aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-section) {
   margin-inline-start: var(--dd-push-parallax, -28%);
 }
 
 /* Nested level: the open push drilldown is a direct child of a parent
    drilldown's inner list. That parent panel's back button + inner list recede
-   together. (Base transitions live on __back-button / __panel-inner above.) */
-.wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner) {
+   together. (Base transitions live on __back-button / __panel-inner /
+   __panel-section above.) */
+.wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) {
   margin-inline-start: var(--dd-push-parallax, -28%);
 }
 
@@ -285,12 +305,13 @@
 
   .wp-block-aggressive-apparel-nav-submenu-drilldown__back-button,
   .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner,
-  .aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-utility) {
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section,
+  .aa-nav__panel-body > :is(.aa-nav__panel-menu, .aa-nav__panel-section) {
     transition: none;
   }
 
-  .aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-utility),
-  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner) {
+  .aa-nav__panel-body:has(> .aa-nav__panel-menu > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.aa-nav__panel-menu, .aa-nav__panel-section),
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel:has(> .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner > .wp-block-aggressive-apparel-nav-submenu-drilldown--push.is-open) > :is(.wp-block-aggressive-apparel-nav-submenu-drilldown__back-button, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner, .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section) {
     margin-inline-start: 0;
     transition: none;
   }

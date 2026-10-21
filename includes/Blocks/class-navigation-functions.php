@@ -252,17 +252,243 @@ function aggressive_apparel_get_nav_view_all_link( string $url, string $label, s
 }
 
 /**
+ * Parse rendered inner-block HTML into its top-level nodes.
+ *
+ * @param string $content Rendered inner-block content.
+ * @return list<array{node: DOMNode, html: string, classes: list<string>}>|null
+ *     Top-level nodes in source order, or null when the markup can't be parsed.
+ */
+function aggressive_apparel_parse_nav_fragment( string $content ): ?array {
+	$previous = libxml_use_internal_errors( true );
+	$document = new DOMDocument();
+	$loaded   = $document->loadHTML(
+		'<?xml encoding="utf-8" ?><div id="aa-nav-panel-parser-root">' . $content . '</div>',
+		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+	);
+	$root     = $loaded ? $document->getElementById( 'aa-nav-panel-parser-root' ) : null;
+
+	$nodes = array();
+	if ( $root ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+		foreach ( $root->childNodes as $child ) {
+			$html = $document->saveHTML( $child );
+			if ( false === $html ) {
+				continue;
+			}
+
+			$classes = array();
+			if ( $child instanceof DOMElement ) {
+				$classes = preg_split( '/\s+/', trim( $child->getAttribute( 'class' ) ), -1, PREG_SPLIT_NO_EMPTY );
+				$classes = false === $classes ? array() : $classes;
+			}
+
+			$nodes[] = array(
+				'node'    => $child,
+				'html'    => $html,
+				'classes' => $classes,
+			);
+		}
+	}
+
+	libxml_clear_errors();
+	libxml_use_internal_errors( $previous );
+
+	return $root ? $nodes : null;
+}
+
+/**
+ * Get the serialized inner HTML of a parsed node.
+ *
+ * @param DOMNode $node Parsed node.
+ * @return string Inner HTML.
+ */
+function aggressive_apparel_nav_node_inner_html( DOMNode $node ): string {
+	$html = '';
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+	foreach ( $node->childNodes as $child ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+		$inner = $node->ownerDocument?->saveHTML( $child );
+		if ( is_string( $inner ) ) {
+			$html .= $inner;
+		}
+	}
+	return $html;
+}
+
+/**
+ * Whether a parsed node is a navigation menu item (nav-link / nav-submenu `<li>`).
+ *
+ * @param array{node: DOMNode, html: string, classes: list<string>} $node Parsed node.
+ * @return bool
+ */
+function aggressive_apparel_is_nav_menu_item( array $node ): bool {
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+	if ( 'li' !== strtolower( $node['node']->nodeName ) ) {
+		return false;
+	}
+
+	foreach ( $node['classes'] as $class_name ) {
+		if ( 'wp-block-aggressive-apparel-nav-link' === $class_name || str_starts_with( $class_name, 'wp-block-aggressive-apparel-nav-submenu' ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Add a parsed node to an ordered list of menu / content sections.
+ *
+ * Menu items join a menu section and anything else a content section;
+ * consecutive nodes of the same kind share one section.
+ *
+ * @param list<array{type: string, html: string}>                   $sections Sections, appended in place.
+ * @param array{node: DOMNode, html: string, classes: list<string>} $node     Parsed node.
+ */
+function aggressive_apparel_append_nav_section( array &$sections, array $node ): void {
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+	if ( XML_ELEMENT_NODE !== $node['node']->nodeType && '' === trim( $node['html'] ) ) {
+		return;
+	}
+
+	$type = aggressive_apparel_is_nav_menu_item( $node ) ? 'menu' : 'content';
+
+	$last = array_key_last( $sections );
+	if ( null !== $last && $type === $sections[ $last ]['type'] ) {
+		$sections[ $last ]['html'] .= $node['html'];
+		return;
+	}
+
+	$sections[] = array(
+		'type' => $type,
+		'html' => $node['html'],
+	);
+}
+
+/**
+ * Split rendered navigation children into ordered menu / content sections.
+ *
+ * @param string $content Rendered inner-block content.
+ * @return list<array{type: string, html: string}> Sections in source order.
+ */
+function aggressive_apparel_split_nav_sections( string $content ): array {
+	if ( '' === trim( $content ) ) {
+		return array();
+	}
+
+	$nodes = aggressive_apparel_parse_nav_fragment( $content );
+	if ( null === $nodes ) {
+		return array(
+			array(
+				'type' => 'content',
+				'html' => $content,
+			),
+		);
+	}
+
+	$sections = array();
+	foreach ( $nodes as $node ) {
+		aggressive_apparel_append_nav_section( $sections, $node );
+	}
+	return $sections;
+}
+
+/**
+ * Prepend menu items (e.g. a "View all" link) to the leading menu section.
+ *
+ * Starts a new leading menu section when the first section is content. An
+ * empty submenu still yields one empty menu section so it keeps its list.
+ *
+ * @param list<array{type: string, html: string}> $sections Ordered sections.
+ * @param string                                  $html     Menu item HTML.
+ * @return list<array{type: string, html: string}>
+ */
+function aggressive_apparel_prepend_nav_menu_html( array $sections, string $html ): array {
+	if ( '' === $html && ! empty( $sections ) ) {
+		return $sections;
+	}
+
+	if ( isset( $sections[0] ) && 'menu' === $sections[0]['type'] ) {
+		$sections[0]['html'] = $html . $sections[0]['html'];
+		return $sections;
+	}
+
+	array_unshift(
+		$sections,
+		array(
+			'type' => 'menu',
+			'html' => $html,
+		)
+	);
+	return $sections;
+}
+
+/**
+ * Render ordered menu / content sections.
+ *
+ * @param list<array{type: string, html: string}> $sections      Ordered sections.
+ * @param string                                  $menu_open_tag Opening `<ul …>` tag for each menu section.
+ * @param string                                  $content_class Class for each content section wrapper.
+ * @return string Rendered HTML.
+ */
+function aggressive_apparel_render_nav_sections( array $sections, string $menu_open_tag, string $content_class ): string {
+	$html = '';
+	foreach ( $sections as $section ) {
+		$html .= 'menu' === $section['type']
+			? $menu_open_tag . $section['html'] . '</ul>'
+			: '<div class="' . esc_attr( $content_class ) . '">' . $section['html'] . '</div>';
+	}
+	return $html;
+}
+
+/**
+ * Render a panel submenu's links and content blocks in editor order.
+ *
+ * @param string $content       Rendered inner blocks.
+ * @param string $view_all_html "View all" menu item that leads the first list.
+ * @param string $label         Submenu label, the lists' accessible name.
+ * @param string $base_class    Block class; lists get `__panel-inner`, content `__panel-section`.
+ * @return string Rendered HTML.
+ */
+function aggressive_apparel_render_nav_submenu_sections( string $content, string $view_all_html, string $label, string $base_class ): string {
+	return aggressive_apparel_render_nav_sections(
+		aggressive_apparel_prepend_nav_menu_html( aggressive_apparel_split_nav_sections( $content ), $view_all_html ),
+		sprintf( '<ul class="%s__panel-inner" role="menu" aria-label="%s">', esc_attr( $base_class ), esc_attr( $label ) ),
+		$base_class . '__panel-section'
+	);
+}
+
+/**
+ * Resolve a block's Block spacing (blockGap) value to CSS.
+ *
+ * The navigation blocks render custom markup without layout support, so core
+ * never prints their gap. Render callbacks expose it as a custom property.
+ *
+ * @param array<string, mixed> $attributes Block attributes.
+ * @return string CSS value, or '' when unset or unsafe.
+ */
+function aggressive_apparel_get_nav_block_gap( array $attributes ): string {
+	$gap = $attributes['style']['spacing']['blockGap'] ?? '';
+	if ( is_array( $gap ) ) {
+		$gap = $gap['top'] ?? '';
+	}
+	if ( ! is_string( $gap ) || ! preg_match( '/^[\w\s().,%+*\/|:-]+$/', $gap ) ) {
+		return '';
+	}
+
+	return (string) preg_replace( '/^var:preset\|([^|]+)\|(.+)$/', 'var(--wp--preset--$1--$2)', trim( $gap ) );
+}
+
+/**
  * Partition navigation-panel children into semantic regions.
  *
- * Navigation list items remain in the menu list. Rich core blocks move to a
- * utility region so they stay inside the dialog and focus trap without
- * becoming invalid list children or inheriting menu semantics. Header and
- * footer slot wrappers are extracted into their dedicated regions.
+ * Header and footer slot wrappers are extracted into their dedicated regions.
+ * Everything else becomes ordered menu / content sections (see
+ * aggressive_apparel_append_nav_section()), so the front end keeps the order
+ * the blocks have in the editor.
  *
  * @param string $content Rendered inner-block content.
  * @return array{
- *     menu_items_html: string,
- *     utility_html: string,
+ *     sections: list<array{type: string, html: string}>,
  *     panel_header_html: string,
  *     panel_footer_html: string,
  *     panel_header_classes: string,
@@ -273,8 +499,7 @@ function aggressive_apparel_get_nav_view_all_link( string $url, string $label, s
  */
 function aggressive_apparel_partition_nav_panel_content( string $content ): array {
 	$parts = array(
-		'menu_items_html'      => '',
-		'utility_html'         => '',
+		'sections'             => array(),
 		'panel_header_html'    => '',
 		'panel_footer_html'    => '',
 		'panel_header_classes' => '',
@@ -287,97 +512,34 @@ function aggressive_apparel_partition_nav_panel_content( string $content ): arra
 		return $parts;
 	}
 
-	$previous = libxml_use_internal_errors( true );
-	$document = new DOMDocument();
-	$loaded   = $document->loadHTML(
-		'<?xml encoding="utf-8" ?><div id="aa-nav-panel-parser-root">' . $content . '</div>',
-		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-	);
-
-	if ( ! $loaded ) {
-		libxml_clear_errors();
-		libxml_use_internal_errors( $previous );
-		$parts['utility_html'] = $content;
-		return $parts;
-	}
-
-	$root = $document->getElementById( 'aa-nav-panel-parser-root' );
-	if ( ! $root ) {
-		libxml_clear_errors();
-		libxml_use_internal_errors( $previous );
-		$parts['utility_html'] = $content;
-		return $parts;
-	}
-
-	$children = array();
-	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
-	foreach ( $root->childNodes as $child ) {
-		$children[] = $child;
-	}
-
-	foreach ( $children as $child ) {
-		$html = $document->saveHTML( $child );
-		if ( false === $html ) {
-			continue;
-		}
-
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
-		if ( XML_ELEMENT_NODE !== $child->nodeType ) {
-			if ( '' !== trim( $html ) ) {
-				$parts['utility_html'] .= $html;
-			}
-			continue;
-		}
-
-		$class_name = $child->attributes?->getNamedItem( 'class' )->nodeValue ?? '';
-		$classes    = preg_split( '/\s+/', trim( $class_name ) );
-		if ( false === $classes ) {
-			$classes = array();
-		}
-
-		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-header', $classes, true ) ) {
-			$parts['panel_header_classes'] = $class_name;
-			$parts['panel_header_style']   = $child->attributes?->getNamedItem( 'style' )->nodeValue ?? '';
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
-			foreach ( $child->childNodes as $inner_child ) {
-				$inner_html = $document->saveHTML( $inner_child );
-				if ( false !== $inner_html ) {
-					$parts['panel_header_html'] .= $inner_html;
-				}
-			}
-			continue;
-		}
-
-		if ( in_array( 'wp-block-aggressive-apparel-nav-panel-footer', $classes, true ) ) {
-			$parts['panel_footer_classes'] = $class_name;
-			$parts['panel_footer_style']   = $child->attributes?->getNamedItem( 'style' )->nodeValue ?? '';
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
-			foreach ( $child->childNodes as $inner_child ) {
-				$inner_html = $document->saveHTML( $inner_child );
-				if ( false !== $inner_html ) {
-					$parts['panel_footer_html'] .= $inner_html;
-				}
-			}
-			continue;
-		}
-
-		$is_navigation_item = array_filter(
-			$classes,
-			static fn( string $candidate_class ): bool => 'wp-block-aggressive-apparel-nav-link' === $candidate_class
-				|| str_starts_with( $candidate_class, 'wp-block-aggressive-apparel-nav-submenu' )
+	$nodes = aggressive_apparel_parse_nav_fragment( $content );
+	if ( null === $nodes ) {
+		$parts['sections'][] = array(
+			'type' => 'content',
+			'html' => $content,
 		);
+		return $parts;
+	}
 
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
-		if ( 'li' === strtolower( $child->nodeName ) && ! empty( $is_navigation_item ) ) {
-			$parts['menu_items_html'] .= $html;
+	foreach ( $nodes as $node ) {
+		$element = $node['node'];
+
+		if ( $element instanceof DOMElement && in_array( 'wp-block-aggressive-apparel-nav-panel-header', $node['classes'], true ) ) {
+			$parts['panel_header_classes'] = implode( ' ', $node['classes'] );
+			$parts['panel_header_style']   = $element->getAttribute( 'style' );
+			$parts['panel_header_html']   .= aggressive_apparel_nav_node_inner_html( $element );
 			continue;
 		}
 
-		$parts['utility_html'] .= $html;
-	}
+		if ( $element instanceof DOMElement && in_array( 'wp-block-aggressive-apparel-nav-panel-footer', $node['classes'], true ) ) {
+			$parts['panel_footer_classes'] = implode( ' ', $node['classes'] );
+			$parts['panel_footer_style']   = $element->getAttribute( 'style' );
+			$parts['panel_footer_html']   .= aggressive_apparel_nav_node_inner_html( $element );
+			continue;
+		}
 
-	libxml_clear_errors();
-	libxml_use_internal_errors( $previous );
+		aggressive_apparel_append_nav_section( $parts['sections'], $node );
+	}
 
 	return $parts;
 }

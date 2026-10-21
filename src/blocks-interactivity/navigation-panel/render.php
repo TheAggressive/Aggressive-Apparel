@@ -145,12 +145,10 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 }
 
 // ============================================================================
-// Separate inner block content into menu items, panel header/footer, utility
+// Separate inner block content into panel header/footer and ordered sections
 // ============================================================================
 
 $panel_parts          = aggressive_apparel_partition_nav_panel_content( $content );
-$menu_items_html      = $panel_parts['menu_items_html'];
-$utility_html         = $panel_parts['utility_html'];
 $panel_header_html    = $panel_parts['panel_header_html'];
 $panel_footer_html    = $panel_parts['panel_footer_html'];
 $panel_header_classes = $panel_parts['panel_header_classes'];
@@ -196,6 +194,11 @@ if ( $panel_hover_color ) {
 }
 if ( $panel_hover_bg ) {
 	$panel_style_parts[] = sprintf( '--panel-link-hover-bg: %s', esc_attr( $panel_hover_bg ) );
+}
+// Block spacing from the Dimensions sidebar — spaces links and content alike.
+$panel_gap = aggressive_apparel_get_nav_block_gap( $attributes );
+if ( '' !== $panel_gap ) {
+	$panel_style_parts[] = sprintf( '--aa-nav-panel-gap: %s', esc_attr( $panel_gap ) );
 }
 // Always emit the overlay background so the configured color and opacity are
 // applied even when both are at their defaults (no color + 50% opacity). The
@@ -250,23 +253,24 @@ if ( ! empty( $panel_footer_html ) ) {
 	$panel_footer_section_html = '<div' . $panel_footer_attr . '>' . $panel_footer_html . '</div>';
 }
 
-$utility_section_html = '';
-if ( ! empty( $utility_html ) ) {
-	$utility_section_html = '<div class="aa-nav__panel-utility">' . $utility_html . '</div>';
-}
+// Body sections, in editor order.
+$panel_sections_html = aggressive_apparel_render_nav_sections(
+	$panel_parts['sections'],
+	'<ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">',
+	'aa-nav__panel-section'
+);
 
-// Panel content: header + scrollable body (utility + menu) + optional footer.
+// Panel content: header + scrollable body (sections) + optional footer.
 // Padding from the Dimensions sidebar is applied to the body (scrollable area)
 // rather than the panel shell so it doesn't squeeze the header / close button.
 $panel_body_attr    = $panel_body_style ? ' style="' . $panel_body_style . '"' : '';
 $panel_content_html = sprintf(
-	'<div%s>%s%s</div><div class="aa-nav__panel-body"%s>%s<ul class="aa-nav__panel-menu" role="menu" aria-orientation="vertical" data-wp-on--keydown="callbacks.onArrowKey">%s</ul></div>%s',
+	'<div%s>%s%s</div><div class="aa-nav__panel-body"%s>%s</div>%s',
 	aggressive_apparel_trusted_html( $panel_header_attr ),
 	aggressive_apparel_trusted_html( $panel_header_content_html ),
 	aggressive_apparel_trusted_html( $close_button_html ),
 	aggressive_apparel_trusted_html( $panel_body_attr ),
-	aggressive_apparel_trusted_html( $utility_section_html ),
-	aggressive_apparel_trusted_html( $menu_items_html ),
+	aggressive_apparel_trusted_html( $panel_sections_html ),
 	aggressive_apparel_trusted_html( $panel_footer_section_html )
 );
 

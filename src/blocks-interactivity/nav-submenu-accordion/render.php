@@ -72,18 +72,27 @@ if ( $has_url ) {
 	);
 }
 
+$submenu_gap         = aggressive_apparel_get_nav_block_gap( $attributes );
+$panel_sections_html = aggressive_apparel_render_nav_submenu_sections(
+	$content,
+	$view_all_html,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu-accordion'
+);
+
 printf(
 	'<li %s>
 		<div class="wp-block-aggressive-apparel-nav-submenu-accordion__trigger">%s</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel" id="%s">
 			<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-content">
-				<ul class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner" role="menu" aria-label="%s">%s%s</ul>
+				<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-sections">%s</div>
 			</div>
 		</div>
 	</li>',
 	get_block_wrapper_attributes(
 		array(
 			'role'                   => 'none',
+			'style'                  => '' !== $submenu_gap ? '--aa-nav-submenu-gap: ' . $submenu_gap : '',
 			'data-wp-interactive'    => 'aggressive-apparel/navigation-panel',
 			'data-wp-context'        => $context,
 			'data-wp-class--is-open' => 'callbacks.isSubmenuOpen',
@@ -91,7 +100,5 @@ printf(
 	),
 	aggressive_apparel_trusted_html( $trigger_el ),
 	esc_attr( $submenu_id ),
-	esc_attr( $label ),
-	aggressive_apparel_trusted_html( $view_all_html ),
-	aggressive_apparel_trusted_html( $content )
+	aggressive_apparel_trusted_html( $panel_sections_html )
 );

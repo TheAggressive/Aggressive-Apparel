@@ -36,6 +36,32 @@ the portaled panel.
 | `nav-submenu-accordion`                 | Expand-in-place submenu (`ancestor: navigation-panel`).                                       |
 | `nav-submenu-drilldown`                 | Slide-over submenu, supports nesting + overlay/push animation (`ancestor: navigation-panel`). |
 
+#### Designing the panel in the editor
+
+The panel, drilldown screens, and accordion bodies accept any block except the
+navigation blocks themselves (`nav-shared/use-panel-allowed-blocks.ts`).
+Accordions can't go inside drilldowns, and submenus can't go inside accordions.
+
+The front end keeps editor order. `aggressive_apparel_split_nav_sections()`
+groups each run of `nav-link` / `nav-submenu-*` items into a `role="menu"` list
+and each run of other blocks into a content section (`.aa-nav__panel-section`
+in the panel, `__panel-section` in submenus). Arrow keys move through all of a
+level's lists as one menu; Tab reaches the content.
+
+- Block spacing works on the panel, drilldown, and accordion. They have no
+  layout support, so the render callbacks and editors set it as
+  `--aa-nav-panel-gap` / `--aa-nav-submenu-gap`. It spaces links, sections, and
+  blocks inside a section. Submenu links default to no gap; blocks inside a
+  submenu section fall back to the panel gap.
+- Content sections use the link row's inset and padding (the
+  `--aa-nav-panel-*` / `--aa-nav-submenu-*` tokens on `:root`), so text lines
+  up. Their inner margins use `:where()`, so block and Global Styles margins
+  win.
+- Sections animate in with the links, recede with push drilldowns, and become
+  `inert` behind an open drilldown.
+- `navigation-panel/editor.css` mirrors this layout in the editor through the
+  `--_aa-*` variables.
+
 ### Shared leaf
 
 - `nav-link` — single link. `parent` of every container above. Consumes `navigationId` context.

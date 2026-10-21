@@ -78,25 +78,76 @@ class Navigation_Panel_Block_Test extends WP_UnitTestCase {
     }
 
     /**
-     * Rich direct children belong to the utility region, not the menu list.
+     * Header/footer slots are extracted; everything else keeps editor order,
+     * with nav items in menu sections and rich blocks in content sections.
      */
-    public function test_partitions_menu_slots_and_rich_utility_blocks(): void {
+    public function test_partitions_slots_and_keeps_section_order(): void {
         $content = implode(
             '',
             [
                 '<div class="wp-block-aggressive-apparel-nav-panel-header"><p>Header</p></div>',
                 '<li class="wp-block-aggressive-apparel-nav-link" role="none"><a href="/shop/">Shop</a></li>',
                 '<div class="wp-block-buttons"><a class="wp-block-button__link" href="/account/">Account</a></div>',
+                "\n",
+                '<li class="wp-block-aggressive-apparel-nav-link" role="none"><a href="/sale/">Sale</a></li>',
+                '<li class="wp-block-aggressive-apparel-nav-submenu-drilldown" role="none"><a href="/men/">Men</a></li>',
                 '<div class="wp-block-aggressive-apparel-nav-panel-footer"><p>Footer</p></div>',
             ]
         );
 
-        $parts = aggressive_apparel_partition_nav_panel_content( $content );
+        $parts    = aggressive_apparel_partition_nav_panel_content( $content );
+        $sections = $parts['sections'];
 
-        $this->assertStringContainsString( 'Shop', $parts['menu_items_html'] );
-        $this->assertStringNotContainsString( 'Account', $parts['menu_items_html'] );
-        $this->assertStringContainsString( 'Account', $parts['utility_html'] );
+        $this->assertSame( [ 'menu', 'content', 'menu' ], array_column( $sections, 'type' ) );
+        $this->assertStringContainsString( 'Shop', $sections[0]['html'] );
+        $this->assertStringContainsString( 'Account', $sections[1]['html'] );
+        $this->assertStringContainsString( 'Sale', $sections[2]['html'] );
+        $this->assertStringContainsString( 'Men', $sections[2]['html'] );
         $this->assertStringContainsString( '<p>Header</p>', $parts['panel_header_html'] );
         $this->assertStringContainsString( '<p>Footer</p>', $parts['panel_footer_html'] );
+        $this->assertStringContainsString( 'wp-block-aggressive-apparel-nav-panel-header', $parts['panel_header_classes'] );
+    }
+
+    /**
+     * Menu sections render as lists, content sections as wrappers, in order.
+     */
+    public function test_renders_sections_in_order(): void {
+        $html = aggressive_apparel_render_nav_sections(
+            [
+                [ 'type' => 'menu', 'html' => '<li>A</li>' ],
+                [ 'type' => 'content', 'html' => '<p>B</p>' ],
+            ],
+            '<ul class="menu">',
+            'section'
+        );
+
+        $this->assertSame( '<ul class="menu"><li>A</li></ul><div class="section"><p>B</p></div>', $html );
+    }
+
+    /**
+     * The view-all link leads the first list, starting one before leading content.
+     */
+    public function test_prepends_view_all_to_leading_menu(): void {
+        $content  = [ [ 'type' => 'content', 'html' => '<p>Promo</p>' ] ];
+        $sections = aggressive_apparel_prepend_nav_menu_html( $content, '<li>All</li>' );
+
+        $this->assertSame( [ 'menu', 'content' ], array_column( $sections, 'type' ) );
+        $this->assertSame( '<li>All</li>', $sections[0]['html'] );
+        $this->assertSame( $content, aggressive_apparel_prepend_nav_menu_html( $content, '' ) );
+        $this->assertSame( [ [ 'type' => 'menu', 'html' => '' ] ], aggressive_apparel_prepend_nav_menu_html( [], '' ) );
+    }
+
+    /**
+     * Block spacing resolves presets, takes the vertical axis, and rejects
+     * values that could break out of the style attribute.
+     */
+    public function test_resolves_block_gap(): void {
+        $gap = static fn( $value ): string => aggressive_apparel_get_nav_block_gap( [ 'style' => [ 'spacing' => [ 'blockGap' => $value ] ] ] );
+
+        $this->assertSame( 'var(--wp--preset--spacing--20)', $gap( 'var:preset|spacing|20' ) );
+        $this->assertSame( '1.5rem', $gap( [ 'top' => '1.5rem', 'left' => '2rem' ] ) );
+        $this->assertSame( 'calc(1rem + 2px)', $gap( 'calc(1rem + 2px)' ) );
+        $this->assertSame( '', $gap( '1rem; color: red' ) );
+        $this->assertSame( '', aggressive_apparel_get_nav_block_gap( [] ) );
     }
 }

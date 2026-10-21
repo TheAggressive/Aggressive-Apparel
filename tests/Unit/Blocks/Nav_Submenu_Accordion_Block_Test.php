@@ -103,4 +103,30 @@ class Nav_Submenu_Accordion_Block_Test extends WP_UnitTestCase {
         );
         $this->assertStringNotContainsString( '<script>x</script>', $html );
     }
+
+    /**
+     * Links and other blocks render in editor order: the view-all list, a
+     * content section, then the next list. Block spacing becomes a property.
+     */
+    public function test_renders_links_and_content_in_editor_order(): void {
+        $html = do_blocks(
+            '<!-- wp:aggressive-apparel/nav-submenu-accordion {"label":"Shop","url":"/shop/","submenuId":"accordion-shop","style":{"spacing":{"blockGap":"var:preset|spacing|2"}}} -->'
+            . '<!-- wp:core/paragraph --><p>Promo</p><!-- /wp:core/paragraph -->'
+            . '<!-- wp:aggressive-apparel/nav-link {"label":"Tees","url":"/tees/"} /-->'
+            . '<!-- /wp:aggressive-apparel/nav-submenu-accordion -->'
+        );
+
+        $view_all = strpos( $html, 'View all in Shop' );
+        $section  = strpos( $html, '<div class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-section"><p' );
+        $tees     = strpos( $html, 'Tees' );
+
+        $this->assertIsInt( $view_all );
+        $this->assertIsInt( $section );
+        $this->assertIsInt( $tees );
+        $this->assertLessThan( $section, $view_all );
+        $this->assertLessThan( $tees, $section );
+        $this->assertStringContainsString( 'Promo</p></div>', substr( $html, $section, $tees - $section ) );
+        $this->assertSame( 2, substr_count( $html, 'class="wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner" role="menu"' ) );
+        $this->assertStringContainsString( '--aa-nav-submenu-gap: var(--wp--preset--spacing--2)', $html );
+    }
 }

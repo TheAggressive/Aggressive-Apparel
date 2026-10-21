@@ -31,25 +31,14 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { EDITOR_HELP_TEXT_STYLE } from '../../utils/editor-style-tokens';
+import { resolveBlockGap, resolvePresetValue } from '../nav-shared/spacing';
+import { usePanelAllowedBlocks } from '../nav-shared/use-panel-allowed-blocks';
 import type {
   MenuStyle,
   NavigationPanelAttributes,
   PanelAnimationStyle,
   PanelPosition,
 } from './types';
-
-const ALLOWED_BLOCKS = [
-  'aggressive-apparel/nav-link',
-  'aggressive-apparel/nav-submenu-accordion',
-  'aggressive-apparel/nav-submenu-drilldown',
-  'aggressive-apparel/nav-panel-header',
-  'aggressive-apparel/nav-panel-footer',
-  'core/site-logo',
-  'core/social-links',
-  'core/buttons',
-  'core/group',
-  'core/separator',
-];
 
 const TEMPLATE: [string, Record<string, unknown>?][] = [
   ['aggressive-apparel/nav-panel-header'],
@@ -111,20 +100,18 @@ export default function Edit({
         'fontSize'
       ];
 
-  // Convert wp:preset spacing values to CSS custom properties in the editor.
-  const resolvePaddingValue = (val: string) =>
-    val.replace(/var:preset\|([^|]+)\|(.+)/, 'var(--wp--preset--$1--$2)');
-
   const paddingStyle = wpPadding
     ? Object.fromEntries(
         (['top', 'right', 'bottom', 'left'] as const)
           .filter(side => wpPadding[side])
           .map(side => [
             `padding${side.charAt(0).toUpperCase() + side.slice(1)}`,
-            resolvePaddingValue(wpPadding[side]),
+            resolvePresetValue(wpPadding[side]),
           ])
       )
     : {};
+
+  const resolvedGap = resolveBlockGap(wpAttrs);
 
   const blockProps = useBlockProps({
     className: [
@@ -147,11 +134,13 @@ export default function Edit({
           }
         : {}),
       ...paddingStyle,
+      ...(resolvedGap ? { '--aa-nav-panel-gap': resolvedGap } : {}),
     } as React.CSSProperties,
   });
 
+  const allowedBlocks = usePanelAllowedBlocks();
   const innerBlocksProps = useInnerBlocksProps(blockProps, {
-    allowedBlocks: ALLOWED_BLOCKS,
+    allowedBlocks,
     template: TEMPLATE,
     templateLock: false,
   });

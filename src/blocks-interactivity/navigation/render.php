@@ -79,44 +79,16 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $menu_items_html = '';
 $utility_html    = '';
 
-if ( ! empty( $content ) ) {
-	$dom                    = new DOMDocument();
-	$wrapped                = '<div id="aa-nav-parse-root">' . $content . '</div>';
-	$previous_libxml_errors = libxml_use_internal_errors( true );
-	try {
-		$dom->loadHTML( '<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-	} finally {
-		libxml_clear_errors();
-		libxml_use_internal_errors( $previous_libxml_errors );
+foreach ( aggressive_apparel_parse_nav_fragment( $content ) ?? array() as $node ) {
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API property.
+	if ( XML_ELEMENT_NODE !== $node['node']->nodeType ) {
+		continue;
 	}
 
-	$root = $dom->getElementById( 'aa-nav-parse-root' );
-	if ( $root ) {
-		foreach ( $root->childNodes as $node ) {
-			if ( XML_ELEMENT_NODE !== $node->nodeType ) {
-				continue;
-			}
-
-			$html_fragment = $dom->saveHTML( $node );
-			if ( false === $html_fragment ) {
-				continue;
-			}
-
-			$node_class = $node instanceof DOMElement ? $node->getAttribute( 'class' ) : '';
-
-			if (
-				'li' === $node->nodeName
-				&& $node instanceof DOMElement
-				&& (
-					str_contains( $node_class, 'wp-block-aggressive-apparel-nav-link' )
-					|| str_contains( $node_class, 'wp-block-aggressive-apparel-nav-submenu' )
-				)
-			) {
-				$menu_items_html .= $html_fragment;
-			} else {
-				$utility_html .= $html_fragment;
-			}
-		}
+	if ( aggressive_apparel_is_nav_menu_item( $node ) ) {
+		$menu_items_html .= $node['html'];
+	} else {
+		$utility_html .= $node['html'];
 	}
 }
 

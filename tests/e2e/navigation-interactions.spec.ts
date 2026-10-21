@@ -30,6 +30,8 @@ const CONTENT = `
 <!-- wp:aggressive-apparel/nav-submenu-accordion {"label":"Panel shop","url":"/shop/","submenuId":"e2e-panel-shop"} -->
 <!-- wp:aggressive-apparel/nav-link {"label":"Panel featured","url":"/shop/"} /-->
 <!-- /wp:aggressive-apparel/nav-submenu-accordion -->
+<!-- wp:core/paragraph --><p>Panel between</p><!-- /wp:core/paragraph -->
+<!-- wp:aggressive-apparel/nav-link {"label":"Panel contact","url":"/contact/"} /-->
 <!-- wp:aggressive-apparel/nav-panel-footer --><!-- wp:core/paragraph --><p>Panel footer</p><!-- /wp:core/paragraph --><!-- /wp:aggressive-apparel/nav-panel-footer -->
 <!-- /wp:aggressive-apparel/navigation-panel -->
 `;
@@ -142,15 +144,43 @@ test.describe('navigation enterprise interaction contract', () => {
     await expect(panel).toBeVisible();
 
     const body = panel.locator('.aa-nav__panel-body');
-    const utility = body.locator(':scope > .aa-nav__panel-utility');
+    const sections = body.locator(':scope > .aa-nav__panel-section');
     const menu = body.locator(':scope > .aa-nav__panel-menu');
-    const account = utility.getByRole('link', { name: 'Account' });
+    const account = sections.getByRole('link', { name: 'Account' });
 
-    await expect(utility).toHaveCount(1);
+    await expect(sections).toHaveCount(2);
     await expect(account).toBeVisible();
     await expect(menu.getByRole('link', { name: 'Account' })).toHaveCount(0);
     await expect(menu.locator(':scope > *:not(li)')).toHaveCount(0);
     await expect(panel.getByText('Panel header')).toBeVisible();
     await expect(panel.getByText('Panel footer')).toBeVisible();
+  });
+
+  test('renders panel blocks in editor order and arrows across split menus', async ({
+    page,
+  }) => {
+    await page.getByRole('button', { name: 'Fixture menu' }).click();
+    const panel = page.getByRole('dialog', { name: 'Navigation menu' });
+    await expect(panel).toBeVisible();
+
+    const sections = await panel
+      .locator('.aa-nav__panel-body > *')
+      .evaluateAll(nodes =>
+        nodes.map(node =>
+          node.classList.contains('aa-nav__panel-menu') ? 'menu' : 'content'
+        )
+      );
+    expect(sections).toEqual(['content', 'menu', 'content', 'menu']);
+    await expect(panel.locator('.aa-nav__panel-section').nth(1)).toHaveText(
+      'Panel between'
+    );
+
+    await panel
+      .getByRole('menuitem', { name: 'Panel shop', exact: true })
+      .focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(
+      panel.getByRole('menuitem', { name: 'Panel contact' })
+    ).toBeFocused();
   });
 });

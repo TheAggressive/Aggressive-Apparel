@@ -35,6 +35,13 @@
   --indicator-color-fallback: var(--aa-color-accent);
   --item-index: 0;
   --push-panel-width: min(320px, 85vw);
+
+  /* Row rhythm shared by links and content sections. Spacing between rows is
+     the panel's Block spacing (--aa-nav-panel-gap, set inline by render.php). */
+  --aa-nav-panel-inset: 1.25rem;
+  --aa-nav-panel-item-pad: 0.875rem;
+  --aa-nav-submenu-inset: 3.25rem;
+  --aa-nav-submenu-item-pad: 0.75rem;
 }
 
 /* Screen reader only text. */
@@ -304,18 +311,51 @@ body.has-search-modal-open .aa-nav__panel.is-open {
    appears to start partway in rather than fully off the right edge. */
 .aa-nav__panel-body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--aa-nav-panel-gap, 0.5rem);
   overflow: clip auto;
   position: relative;
   scrollbar-width: none; /* Firefox */
+
+  & > * {
+    flex-shrink: 0;
+  }
 }
 
 .aa-nav__panel-body::-webkit-scrollbar {
   display: none; /* WebKit/Blink */
 }
 
-/* Optional utility area rendered above the panel menu */
-.aa-nav__panel-utility {
-  padding: 0.5rem 1.25rem;
+/* Content section — non-link blocks between the menu lists, in editor order.
+   Padded like a link row so content text lines up with link text. Starts
+   hidden for the open stagger (see STAGGER REVEAL). */
+.aa-nav__panel-section {
+  padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
+  opacity: 0;
+  translate: 0 4px;
+}
+
+/* Content sections lay their blocks out like a core flow layout, spaced by the
+   owning block's Block spacing. Zero-specificity, so block-level margins and
+   Global Styles element margins still win. */
+:where(
+  .aa-nav__panel-section,
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__panel-section
+) > * {
+  margin-block: 0;
+}
+
+:where(.aa-nav__panel-section) > * + * {
+  margin-block-start: var(--aa-nav-panel-gap, 0.5rem);
+}
+
+:where(
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-section,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__panel-section
+) > * + * {
+  margin-block-start: var(--aa-nav-submenu-gap, var(--aa-nav-panel-gap, 0.5rem));
 }
 
 /* Panel footer — sticky at the bottom */
@@ -335,18 +375,19 @@ body.has-search-modal-open .aa-nav__panel.is-open {
 }
 
 /* Strip social link brand backgrounds inside the panel so the icon shape is
-   visible on any panel background. Color is intentionally not touched here —
+   visible on any panel background (footer or body sections). Color is
+   intentionally not touched here —
    has-*-color on each .wp-social-link is what the editor writes, and those
    values cascade correctly to the SVG via fill: currentcolor above. */
-.aa-nav__panel-footer .wp-block-social-links .wp-social-link {
+.aa-nav__panel .wp-block-social-links .wp-social-link {
   background-color: transparent;
 }
 
-.aa-nav__panel-footer .wp-block-social-links {
+.aa-nav__panel .wp-block-social-links {
   gap: 1rem;
 }
 
-.aa-nav__panel-footer .wp-social-link a {
+.aa-nav__panel .wp-social-link a {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +409,7 @@ body.has-search-modal-open .aa-nav__panel.is-open {
    aa-nav__panel-body above, not the menu itself. */
 .aa-nav__panel-menu {
   display: grid;
-  gap: 0.5rem;
+  gap: var(--aa-nav-panel-gap, 0.5rem);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -441,6 +482,14 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
 }
 
+/* Stagger: content sections fade + slide in their slot among the links */
+.aa-nav__panel.is-open .aa-nav__panel-section {
+  animation:
+    aa-nav-stagger-fade 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    aa-nav-stagger-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--item-index, 0) * 30ms + 50ms);
+}
+
 /* Stagger: slide-up on nav-link children */
 .aa-nav__panel.is-open .aa-nav__panel-menu > li:not(:is(
   .wp-block-aggressive-apparel-nav-submenu-drilldown,
@@ -481,7 +530,7 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   align-items: baseline;
   justify-content: center;
   text-align: left;
-  padding: 0.875rem 1.25rem;
+  padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
   color: inherit;
   text-decoration: none;
   font-size: inherit;
@@ -574,11 +623,13 @@ body.has-search-modal-open .aa-nav__panel.is-open {
   }
 
   /* Stagger items appear immediately */
-  .aa-nav__panel-menu > li {
+  .aa-nav__panel-menu > li,
+  .aa-nav__panel-section {
     opacity: 1 !important;
     animation: none !important;
   }
 
+  .aa-nav__panel-section,
   .aa-nav__panel-menu > li > :is(
     .wp-block-aggressive-apparel-nav-link__link,
     .wp-block-aggressive-apparel-nav-submenu-accordion__trigger,

@@ -4,6 +4,7 @@
  * @package Aggressive_Apparel
  */
 
+import type React from 'react';
 import {
   BlockControls,
   InspectorControls,
@@ -28,6 +29,11 @@ import {
   SUBMENU_BLOCK_NAMES,
   useUniqueBlockId,
 } from '../nav-shared/use-unique-block-id';
+import {
+  DRILLDOWN_EXCLUDED_BLOCKS,
+  usePanelAllowedBlocks,
+} from '../nav-shared/use-panel-allowed-blocks';
+import { resolveBlockGap } from '../nav-shared/spacing';
 import type { AnimationStyle, NavDrilldownAttributes } from './types';
 
 const TEMPLATE: [string, Record<string, unknown>][] = [
@@ -54,10 +60,17 @@ export default function Edit({
     setId: id => setAttributes({ submenuId: id }),
   });
 
+  const submenuGap = resolveBlockGap(
+    attributes as unknown as Record<string, unknown>
+  );
   const blockProps = useBlockProps({
     className: `wp-block-aggressive-apparel-nav-submenu-drilldown wp-block-aggressive-apparel-nav-submenu-drilldown--${animationStyle}`,
+    style: submenuGap
+      ? ({ '--aa-nav-submenu-gap': submenuGap } as React.CSSProperties)
+      : undefined,
   });
 
+  const allowedBlocks = usePanelAllowedBlocks(DRILLDOWN_EXCLUDED_BLOCKS);
   const innerBlocksProps = useInnerBlocksProps(
     {
       className:
@@ -65,10 +78,7 @@ export default function Edit({
       role: 'menu',
     },
     {
-      allowedBlocks: [
-        'aggressive-apparel/nav-link',
-        'aggressive-apparel/nav-submenu-drilldown',
-      ],
+      allowedBlocks,
       template: TEMPLATE,
       templateLock: false,
     }

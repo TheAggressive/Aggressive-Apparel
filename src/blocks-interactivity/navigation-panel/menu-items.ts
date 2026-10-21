@@ -8,6 +8,7 @@
  */
 
 import {
+  SELECTORS,
   SUBMENU_ITEM_SELECTOR,
   TOP_LEVEL_MENU_ITEM_SELECTOR,
 } from './constants';
@@ -21,6 +22,23 @@ export function getMenuItems(container: Element): HTMLElement[] {
     container,
     TOP_LEVEL_MENU_ITEM_SELECTOR
   );
+}
+
+/**
+ * Collect the top-level items of every menu list in the panel body.
+ *
+ * Content sections can split the panel menu into several lists; arrow keys
+ * move through them as one menu.
+ */
+export function getPanelMenuItems(menu: Element): HTMLElement[] {
+  const body = menu.closest(SELECTORS.panelBody);
+  if (!body) {
+    return getMenuItems(menu);
+  }
+  return safeQuerySelectorAll<HTMLElement>(
+    body,
+    `:scope > ${SELECTORS.panelMenu}`
+  ).flatMap(getMenuItems);
 }
 
 /**

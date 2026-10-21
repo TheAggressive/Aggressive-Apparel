@@ -45,5 +45,19 @@
     list-style: none;
     margin: 0;
     padding: 0;
+
+    /* Content-block preview metrics (navigation-panel/editor.css). */
+    /* stylelint-disable-next-line length-zero-no-unit -- feeds calc(); unitless 0 is invalid there */
+    --_aa-row-gap: var(--aa-nav-submenu-gap, 0px);
+    --_aa-flow-gap: var(--aa-nav-submenu-gap, var(--aa-nav-panel-gap, 0.5rem));
+    --_aa-inset-start: 1rem;
+    --_aa-inset-end: 1rem;
+    --_aa-pad: 0.625rem;
   }
+}
+
+/* Sub-items match the front end (overrides the panel's top-level row). */
+.wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-submenu-accordion .wp-block-aggressive-apparel-nav-link__link {
+  min-height: 44px;
+  padding: 0.625rem 1rem !important;
 }

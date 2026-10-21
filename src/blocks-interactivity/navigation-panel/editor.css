@@ -21,6 +21,13 @@
   overflow-y: auto;
   font-size: var(--wp--preset--font-size--medium, 1rem);
   z-index: 100000;
+
+  /* Content-block preview metrics (see "Content blocks" below). */
+  --_aa-row-gap: var(--aa-nav-panel-gap, 0.5rem);
+  --_aa-flow-gap: var(--_aa-row-gap);
+  --_aa-inset-start: var(--aa-nav-panel-inset, 1.25rem);
+  --_aa-inset-end: var(--aa-nav-panel-inset, 1.25rem);
+  --_aa-pad: var(--aa-nav-panel-item-pad, 0.875rem);
 }
 
 /* Position: left */
@@ -83,11 +90,46 @@
 .wp-block-aggressive-apparel-navigation-panel .wp-block-aggressive-apparel-nav-link__link {
   display: flex !important;
   width: 100%;
-  min-height: 48px;
-  align-items: center;
-  padding: 0.75rem 1.25rem !important;
+  min-height: 56px;
+  align-items: baseline; /* Column flex (nav-link): start-aligned, like the front end */
+  justify-content: center;
+  padding: var(--aa-nav-panel-item-pad, 0.875rem) var(--aa-nav-panel-inset, 1.25rem) !important;
   border-radius: 0 !important;
-  font-weight: 500;
+  font-weight: 400;
+}
+
+/* ── Content blocks ────────────────────────────────────────────────────────
+   Anything that isn't a nav block previews the front end's content sections
+   (aggressive_apparel_split_nav_sections()): inset to the link text, padded
+   like a row where it meets links, and spaced by Block spacing among its
+   neighbors. Each container sets the --_aa-* metrics; block-level margins
+   (inline styles) still win. */
+:is(
+  .wp-block-aggressive-apparel-navigation-panel,
+  .wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner,
+  .wp-block-aggressive-apparel-nav-submenu-accordion__panel-inner
+) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_aa-row-gap);
+
+  & > .wp-block:not([data-type^="aggressive-apparel/nav-"]) {
+    margin-block: 0;
+    margin-inline: var(--_aa-inset-start) var(--_aa-inset-end);
+  }
+
+  & > [data-type^="aggressive-apparel/nav-"] + .wp-block:not([data-type^="aggressive-apparel/nav-"]),
+  & > .wp-block:not([data-type^="aggressive-apparel/nav-"]):first-child {
+    margin-block-start: var(--_aa-pad);
+  }
+
+  & > .wp-block:not([data-type^="aggressive-apparel/nav-"]):is(:last-child, :has(+ [data-type^="aggressive-apparel/nav-"])) {
+    margin-block-end: var(--_aa-pad);
+  }
+
+  & > .wp-block:not([data-type^="aggressive-apparel/nav-"]) + .wp-block:not([data-type^="aggressive-apparel/nav-"]) {
+    margin-block-start: calc(var(--_aa-flow-gap) - var(--_aa-row-gap));
+  }
 }
 
 

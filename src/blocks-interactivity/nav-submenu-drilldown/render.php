@@ -101,18 +101,27 @@ $view_all_html = aggressive_apparel_get_nav_view_all_link(
 	'wp-block-aggressive-apparel-nav-submenu-drilldown__view-all'
 );
 
+$submenu_gap         = aggressive_apparel_get_nav_block_gap( $attributes );
+$panel_sections_html = aggressive_apparel_render_nav_submenu_sections(
+	$content,
+	$view_all_html,
+	(string) $label,
+	'wp-block-aggressive-apparel-nav-submenu-drilldown'
+);
+
 printf(
 	'<li %s>
 		<div class="wp-block-aggressive-apparel-nav-submenu-drilldown__trigger">%s</div>
 		<div class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel" id="%s" role="group" aria-label="%s">
 			%s
-			<ul class="wp-block-aggressive-apparel-nav-submenu-drilldown__panel-inner" role="menu" aria-label="%s">%s%s</ul>
+			%s
 		</div>
 	</li>',
 	get_block_wrapper_attributes(
 		array(
 			'class'                                        => implode( ' ', $classes ),
 			'role'                                         => 'none',
+			'style'                                        => '' !== $submenu_gap ? '--aa-nav-submenu-gap: ' . $submenu_gap : '',
 			'data-wp-interactive'                          => 'aggressive-apparel/navigation-panel',
 			'data-wp-context'                              => $context,
 			// The is-open class and the trigger's aria-expanded are toggled imperatively
@@ -125,7 +134,5 @@ printf(
 	esc_attr( $submenu_id ),
 	esc_attr( $label ),
 	aggressive_apparel_trusted_html( $back_button ),
-	esc_attr( $label ),
-	aggressive_apparel_trusted_html( $view_all_html ),
-	aggressive_apparel_trusted_html( $content )
+	aggressive_apparel_trusted_html( $panel_sections_html )
 );

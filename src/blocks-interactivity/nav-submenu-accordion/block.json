@@ -9,7 +9,6 @@
   "keywords": ["navigation", "mobile", "accordion", "submenu"],
   "textdomain": "aggressive-apparel",
   "ancestor": ["aggressive-apparel/navigation-panel"],
-  "allowedBlocks": ["aggressive-apparel/nav-link"],
   "attributes": {
     "label": { "type": "string", "default": "" },
     "url": { "type": "string", "default": "" },

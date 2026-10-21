@@ -43,6 +43,7 @@ export const SELECTORS = {
   panelHeader: '.aa-nav__panel-header',
   panelBody: '.aa-nav__panel-body',
   panelMenu: '.aa-nav__panel-menu',
+  panelSection: '.aa-nav__panel-section',
   panelOverlay: '.aa-nav__panel-overlay',
   panelClose: '.aa-nav__panel-close',
 

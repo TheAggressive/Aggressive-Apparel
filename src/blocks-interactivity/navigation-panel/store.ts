@@ -37,7 +37,7 @@ import {
   updateMegaContentInertState,
   watchMaxWidth,
 } from './utils';
-import { getMenuItems, getSubmenuItems } from './menu-items';
+import { getPanelMenuItems, getSubmenuItems } from './menu-items';
 import { closePanelWithCleanup, findPanel, openPanelWithSetup } from './panel';
 
 // ============================================================================
@@ -472,9 +472,10 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
 
         setPanelInert(panel, true);
 
-        // Set --item-index on each panel menu item for the stagger animation.
+        // Set --item-index on each panel menu item and content section, in
+        // document order, for the stagger animation.
         const panelItems = panel.querySelectorAll(
-          `${SELECTORS.panelMenu} > li`
+          `${SELECTORS.panelMenu} > li, ${SELECTORS.panelBody} > ${SELECTORS.panelSection}`
         );
         panelItems.forEach((li, index) => {
           (li as HTMLElement).style.setProperty('--item-index', String(index));
@@ -573,7 +574,7 @@ const panelStore = store('aggressive-apparel/navigation-panel', {
         if (isInSubmenu && submenuPanel) {
           items = getSubmenuItems(submenuPanel);
         } else if (panelMenu) {
-          items = getMenuItems(panelMenu);
+          items = getPanelMenuItems(panelMenu);
         }
 
         if (items.length === 0) {

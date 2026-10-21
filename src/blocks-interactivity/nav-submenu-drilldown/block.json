@@ -9,10 +9,6 @@
   "keywords": ["navigation", "mobile", "drilldown", "slide", "submenu"],
   "textdomain": "aggressive-apparel",
   "ancestor": ["aggressive-apparel/navigation-panel"],
-  "allowedBlocks": [
-    "aggressive-apparel/nav-link",
-    "aggressive-apparel/nav-submenu-drilldown"
-  ],
   "attributes": {
     "label": { "type": "string", "default": "" },
     "url": { "type": "string", "default": "" },
@@ -30,6 +26,7 @@
     "interactivity": true,
     "color": { "background": true, "text": true },
     "typography": { "fontSize": true },
+    "spacing": { "blockGap": true },
     "className": true
   },
   "render": "file:./render.php",

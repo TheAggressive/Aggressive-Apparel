@@ -23,7 +23,7 @@
     gap: var(--wp--preset--spacing--2, 0.5rem);
     width: 100%;
     min-height: 56px;
-    padding: 0.875rem 1.25rem;
+    padding: var(--aa-nav-panel-item-pad) var(--aa-nav-panel-inset);
     color: inherit;
     font: inherit;
     font-weight: 400;
@@ -102,13 +102,29 @@
     overflow: hidden;
   }
 
-  &__panel-inner {
-    list-style: none;
+  /* One box around every list and content section; rows inside are spaced by
+     the accordion's Block spacing (none by default). */
+  &__panel-sections {
+    display: grid;
+    gap: var(--aa-nav-submenu-gap, 0);
     margin: 0.25rem 0 0.5rem;
     padding: 0.5rem 0 0.5rem 1rem;
     background: var(--accordion-content-bg, var(--aa-color-hover-subtle));
     border-inline-start: 1px solid var(--_accent-muted, var(--aa-color-accent));
     border-radius: 0 var(--aa-radius-md) var(--aa-radius-md) 0;
+  }
+
+  &__panel-inner {
+    display: grid;
+    gap: var(--aa-nav-submenu-gap, 0);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Content section, aligned with the sub-item text (see navigation-panel). */
+  &__panel-section {
+    padding: 0.625rem 1rem;
   }
 
   &__view-all {

@@ -517,6 +517,7 @@
         "fill": "8%",
         "fillHover": "11%",
         "gap": "0.375rem",
+        "choiceGap": "0.75rem",
         "label": {
           "fontSize": "var(--wp--preset--font-size--small)",
           "fontWeight": "500",

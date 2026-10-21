@@ -74,6 +74,28 @@ fi
 
 AA_TESTS_WP_DIR="${WP_DIR}" AA_TESTS_WP_SKIP_CONTENT=0 bash bin/local/wp-core.sh
 
+# Fluent Forms, pinned beside WooCommerce in the wp-env development config: the
+# theme ships its "Inherit Theme Style" adapter, so the browser suite renders
+# real forms (form-choice-spacing.spec.ts) rather than hand-copied markup.
+FLUENTFORM_URL="$(node -p "JSON.parse(require('fs').readFileSync('bin/ci/.wp-env.json')).env.development.plugins.find(url => url.includes('/fluentform.'))")"
+FLUENTFORM_VERSION="${FLUENTFORM_URL##*fluentform.}"
+FLUENTFORM_VERSION="${FLUENTFORM_VERSION%.zip}"
+fluentform_file="${WP_DIR}/wp-content/plugins/fluentform/fluentform.php"
+installed_fluentform="$(grep -m1 -E '^ \* Version:' "${fluentform_file}" 2>/dev/null | sed -E 's/^ \* Version:[[:space:]]*//' || true)"
+if [[ "${installed_fluentform}" != "${FLUENTFORM_VERSION}" ]]; then
+	echo "e2e: downloading Fluent Forms ${FLUENTFORM_VERSION}"
+	archive=".cache/local/fluentform-${FLUENTFORM_VERSION}.zip"
+	staging=".cache/local/fluentform-${FLUENTFORM_VERSION}.staging"
+	mkdir -p ".cache/local" "${WP_DIR}/wp-content/plugins"
+	curl --fail --location --silent --show-error "${FLUENTFORM_URL}" --output "${archive}"
+	rm -rf "${staging}"
+	mkdir -p "${staging}"
+	unzip -q "${archive}" -d "${staging}"
+	rm -rf "${WP_DIR}/wp-content/plugins/fluentform"
+	mv "${staging}/fluentform" "${WP_DIR}/wp-content/plugins/fluentform"
+	rmdir "${staging}"
+fi
+
 # A stable executable the Playwright fixtures call (WP_CLI_RUNNER=native), with
 # PHP notices on stderr so they never corrupt the JSON the fixtures parse.
 cat > "${WP_CLI}" <<-SH
@@ -117,7 +139,7 @@ done < <(
 # inside this checkout (its path already contains wp-content) as a subdirectory.
 "${WP_CLI}" option update siteurl "${BASE_URL}"
 "${WP_CLI}" option update home "${BASE_URL}"
-"${WP_CLI}" plugin activate woocommerce
+"${WP_CLI}" plugin activate woocommerce fluentform
 "${WP_CLI}" theme activate aggressive-apparel
 "${WP_CLI}" rewrite structure '/%postname%/'
 

@@ -230,6 +230,7 @@
 	--aa-field-radius: var(--wp--custom--field--radius, var(--aa-radius-lg));
 	--aa-field-bar-width: var(--wp--custom--field--bar-width, 3px);
 	--aa-field-gap: var(--wp--custom--field--gap, 0.375rem);
+	--aa-field-choice-gap: var(--wp--custom--field--choice-gap, 0.75rem);
 	--aa-field-label-size: var(--wp--custom--field--label--font-size, var(--wp--preset--font-size--small));
 	--aa-field-label-weight: var(--wp--custom--field--label--font-weight, 500);
 	--aa-field-label-tracking: var(--wp--custom--field--label--letter-spacing, 0.05em);

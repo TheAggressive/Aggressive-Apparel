@@ -22,9 +22,17 @@
   --fluentform-border-radius: var(--aa-field-radius);
 }
 
-/* Fluent Forms spaces the choice text itself (span margin). */
-.fluentform.ff-inherit-theme-style .ff-el-form-check-input {
-  margin-inline-end: 0;
+/* Choice control → its text. Fluent Forms zeroes every checkbox/radio margin
+ * (unlayered), which beats the baseline's choice gap, so restate it here.
+ * Options lead their label with a space before the text, like the baseline;
+ * Terms & Conditions and GDPR Agreement put the checkbox and text in separate
+ * table cells with no space, so they take the full gap. */
+.fluentform.ff-inherit-theme-style .ff-el-form-check-label > .ff-el-form-check-input:first-child {
+  margin-inline-end: calc(var(--aa-field-choice-gap) - 0.25em);
+}
+
+.fluentform.ff-inherit-theme-style .ff_tc_checkbox > .ff-el-form-check-input {
+  margin-inline-end: var(--aa-field-choice-gap);
 }
 
 /* The group wrapper already spaces label and control. */

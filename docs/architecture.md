@@ -205,8 +205,10 @@ commerce and navigation blocks. `global-setup.ts` logs in once (admin/password)
 and saves the session; each spec builds its block
 via `wp.data`, publishes, asserts on the rendered front end, and deletes the page.
 CI must run `pnpm test:e2e:install` before `pnpm ci:e2e`. `ci:e2e`
-([`bin/ci/e2e.sh`](../bin/ci/e2e.sh)) needs no Docker. It installs the WordPress
-and WooCommerce versions pinned in `bin/ci/.wp-env.json` under `.cache/ci/e2e/`,
+([`bin/ci/e2e.sh`](../bin/ci/e2e.sh)) needs no Docker. It installs the WordPress,
+WooCommerce, and Fluent Forms versions pinned in `bin/ci/.wp-env.json` under
+`.cache/ci/e2e/` (Fluent Forms so the theme's form adapter is tested against
+the plugin's real markup),
 resets the database, and serves the site with `php -S`. The database is the one
 named by `AA_E2E_DB_HOST` (the Actions MySQL service); without it, the lane starts
 a native mysqld through `bin/local/mysql.sh`. (On WSL without sudo,

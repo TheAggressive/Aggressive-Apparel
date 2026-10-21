@@ -14,6 +14,11 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+import {
+  CHOICE_GAP_TOLERANCE_PX,
+  choiceGapPx,
+  measureChoiceGaps,
+} from './choice-gap';
 import { wpCli } from './wp-cli';
 
 const FIXTURE_OWNER_META = '_aa_e2e_fixture_owner';
@@ -126,6 +131,17 @@ test.describe('checkout field contract', () => {
       expect(control.topWidth).toBe('0px');
     }
     expect(field.labelTransform).toBe('uppercase');
+
+    // Checkout checkboxes are the reference for --aa-field-choice-gap, the
+    // spacing every other form's choices are held to.
+    const choiceGap = await choiceGapPx(page);
+    const checkoutChoices = await measureChoiceGaps(page, '.wc-block-checkout');
+    expect(checkoutChoices.length).toBeGreaterThan(0);
+    for (const { name, gap } of checkoutChoices) {
+      expect
+        .soft(Math.abs(gap - choiceGap), `${name}: ${gap}px from its text`)
+        .toBeLessThanOrEqual(CHOICE_GAP_TOLERANCE_PX);
+    }
 
     // Focus: the bar turns accent and the label floats (scaled down). The bar
     // animates (checkout.css), so poll for the end state.

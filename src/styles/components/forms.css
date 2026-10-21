@@ -395,9 +395,14 @@
       }
     }
 
-    /* Leading control in a choice label: room before the text. */
-    &:where(label > input:is([type='checkbox'], [type='radio']):first-child) {
-      margin-inline-end: 0.375rem;
+    /* Choice control → its text: a control leading its label, or one followed
+     * by a sibling label (the core comment form's consent). Both markups put a
+     * space character before the text, which supplies the last ~0.25em. */
+    &:where(
+      label > input:is([type='checkbox'], [type='radio']):first-child,
+      input:is([type='checkbox'], [type='radio']):has(+ label)
+    ) {
+      margin-inline-end: calc(var(--aa-field-choice-gap) - 0.25em);
     }
 
     /* "Some selected" — a dash instead of the check. */

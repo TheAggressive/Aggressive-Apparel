@@ -127,7 +127,7 @@ run. Use Studio's export command or UI for development-site backups.
 Required Actions lanes and optional `pnpm qa:ci` retain the isolated
 `bin/ci/.wp-env.json` setup. CI state lives under `.wp-env-ci/` and never touches
 Studio. The exception is `ci:e2e`: it runs natively, with no Docker. It installs
-the WordPress and WooCommerce versions pinned in that file, serves them with PHP's
+the WordPress, WooCommerce, and Fluent Forms versions pinned in that file, serves them with PHP's
 built-in server, and uses a disposable database. GitHub runs `ci:frontend`,
 `ci:i18n`, `ci:build`, `ci:php`, `ci:e2e`, `ci:package`, and `ci:artifact`;
 `pnpm ci:verify` runs the same commands serially.

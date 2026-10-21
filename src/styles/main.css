@@ -8,10 +8,19 @@
 @import './base/breakpoints.css';
 
 /* Layer order declaration — must come before any @layer usage.
- * Later layers win over earlier ones at equal specificity.
- * Tailwind's own layers (theme, base, components, utilities) sit
- * between our tokens and our overrides. */
-@layer aa-tokens, aa-base, aa-components, aa-blocks, aa-woocommerce, aa-utilities;
+ * Later layers win over earlier ones regardless of specificity. A layer's
+ * position is fixed where it is FIRST named, so every aa-* layer listed here
+ * sits BELOW Tailwind's own layers (theme, base, components, utilities), which
+ * are first named by `@import 'tailwindcss'` further down.
+ *
+ * aa-forms is the exception: the native form-control baseline
+ * (components/forms.css, a separate frontend-only stylesheet) must sit ABOVE
+ * Tailwind's `base` layer — Preflight resets input padding, border, radius and
+ * background there, and would otherwise erase the baseline — yet stay below
+ * Tailwind utilities and all unlayered CSS (theme.json, WooCommerce, plugins,
+ * component styles), so anything can still override it. Naming theme/base
+ * here pins aa-forms between base and components. */
+@layer aa-tokens, aa-base, aa-components, aa-blocks, aa-woocommerce, aa-utilities, theme, base, aa-forms;
 
 /* Import partials — each file is responsible for assigning itself
  * to the right layer via @layer aa-<name> { … } */
@@ -24,7 +33,8 @@
 /* NOTE: components/forms.css is intentionally NOT imported here. main.css loads
  * in the editor canvas (enqueue_block_assets); the form baseline styles native
  * input/select/label and would bleed into the editor (white text in dark mode).
- * It's built standalone and enqueued frontend-only — see Assets\Styles. */
+ * It's built standalone and enqueued frontend-only — see Assets\Styles. Its
+ * aa-forms layer still takes its position from the declaration above. */
 @import './components/layout.css';
 @import './components/marquee.css';
 @import './components/overlay.css';

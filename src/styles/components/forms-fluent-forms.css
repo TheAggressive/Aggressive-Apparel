@@ -1,0 +1,419 @@
+/**
+ * Fluent Forms — "Inherit Theme Style" adapter.
+ *
+ * That preset swaps the `.ff-default` skin for `.ff-inherit-theme-style` and
+ * keeps only Fluent Forms' structural CSS, so the native baseline in forms.css
+ * styles the fields, labels, checkboxes and (via its submit selector list) the
+ * submit button. This file only bridges the plugin's own structure: its CSS
+ * variables, the few unlayered greys it still paints, its status messages, and
+ * Choices.js enhanced dropdowns. Other presets are left untouched.
+ *
+ * UNLAYERED: Fluent Forms ships unlayered CSS. Enqueued only while the plugin
+ * is active (Assets\Styles), and in the editor canvas so the block preview
+ * matches.
+ *
+ * @package Aggressive_Apparel
+ */
+
+.fluentform.ff-inherit-theme-style {
+  --fluentform-primary: var(--aa-color-accent);
+  --fluentform-secondary: var(--aa-color-foreground-muted);
+  --fluentform-danger: var(--aa-field-bar-invalid);
+  --fluentform-border-radius: var(--aa-field-radius);
+}
+
+/* Fluent Forms spaces the choice text itself (span margin). */
+.fluentform.ff-inherit-theme-style .ff-el-form-check-input {
+  margin-inline-end: 0;
+}
+
+/* The group wrapper already spaces label and control. */
+.fluentform.ff-inherit-theme-style .ff-el-input--label label {
+  margin-block-end: 0;
+}
+
+.fluentform.ff-inherit-theme-style .ff-el-is-required label::before,
+.fluentform.ff-inherit-theme-style .ff-el-is-required label::after {
+  color: var(--aa-color-accent);
+}
+
+.fluentform.ff-inherit-theme-style .ff-el-form-control::placeholder {
+  color: var(--aa-field-placeholder);
+}
+
+/* Fluent Forms sets `display: block` on every control; a customizable
+ * (base-select) select needs flex to keep its text and chevron on one row. */
+@supports (appearance: base-select) {
+
+  .fluentform.ff-inherit-theme-style select.ff-el-form-control:not([multiple], [size]) {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Fluent Forms paints disabled/readonly fields a fixed light grey. */
+.fluentform.ff-inherit-theme-style .ff-el-form-control:disabled {
+  background-color: var(--aa-field-bg);
+}
+
+.fluentform.ff-inherit-theme-style .ff-el-form-control[readonly]:not(.flatpickr-input),
+.fluentform.ff-inherit-theme-style .ff-el-group .ff-read-only {
+  background-color: transparent !important; /* Fluent Forms sets !important */
+}
+
+/* Error: Fluent Forms sets border-color (→ the left bar) on .ff-el-is-error,
+ * and colours the message from --fluentform-danger (bridged above). */
+.fluentform.ff-inherit-theme-style .ff-el-is-error .text-danger {
+  font-size: var(--wp--preset--font-size--x-small);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.fluentform.ff-inherit-theme-style .ff-el-help-message {
+  font-size: var(--wp--preset--font-size--x-small);
+  font-style: normal;
+  line-height: 1.4;
+}
+
+/* Status messages — same treatment as .aggressive-apparel-message. */
+.fluentform.ff-inherit-theme-style .ff-message-success {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--aa-color-success-border);
+  border-radius: var(--aa-radius-control);
+  background-color: var(--aa-color-success-bg);
+  box-shadow: none;
+  color: var(--aa-color-foreground);
+}
+
+.fluentform.ff-inherit-theme-style .ff-errors-in-stack .error {
+  color: var(--aa-field-bar-invalid);
+}
+
+/* File-upload trigger — secondary button. */
+.fluentform.ff-inherit-theme-style .ff_upload_btn.ff-btn {
+  border: 2px solid var(--wp--custom--button--secondary--border);
+  border-radius: var(--aa-radius-button);
+  background: var(--wp--custom--button--secondary--background);
+  color: var(--wp--custom--button--secondary--text);
+  font-weight: var(--aa-button-font-weight);
+  letter-spacing: 0.04em;
+  text-transform: var(--aa-button-text-transform);
+}
+
+.fluentform.ff-inherit-theme-style .ff_upload_btn.ff-btn:is(:hover, :focus-visible) {
+  background: var(--wp--custom--button--secondary--hover-background);
+  color: var(--wp--custom--button--secondary--hover-text);
+}
+
+/* ------------------------------------------------------------------------
+ * Choices.js enhanced dropdowns (multi-select / searchable select).
+ * The box is the shared field; chips use the selected choice-pill paint
+ * (the same as size/variation pills); the list matches the native select's
+ * themed picker (forms.css).
+ * ---------------------------------------------------------------------- */
+.fluentform.ff-inherit-theme-style .choices__inner {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: var(--aa-field-height);
+  padding: 0.5rem 2.75rem 0.5rem var(--aa-field-padding-inline);
+  border: 0 solid transparent;
+  border-left-width: var(--aa-field-bar-width);
+  border-radius: var(--aa-field-radius);
+  background-color: var(--aa-field-bg);
+  color: var(--aa-field-text);
+  font-size: var(--aa-field-font-size);
+  cursor: pointer;
+  transition:
+    border-color var(--aa-duration-fast) var(--aa-ease-default),
+    background-color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.fluentform.ff-inherit-theme-style .choices:hover .choices__inner {
+  background-color: var(--aa-field-bg-hover);
+}
+
+.fluentform.ff-inherit-theme-style .choices:is(.is-focused, .is-open) .choices__inner {
+  border-left-color: var(--aa-field-bar-focus);
+  border-radius: var(--aa-field-radius);
+}
+
+/* Chips and the search box flow as direct flex items of .choices__inner. */
+.fluentform.ff-inherit-theme-style .choices__list--multiple {
+  display: contents;
+}
+
+.fluentform.ff-inherit-theme-style .choices__list--multiple .choices__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0.3125rem 0.5rem 0.3125rem 0.75rem;
+  border: 0;
+  border-radius: var(--aa-radius-button);
+  background-color: var(--wp--custom--button--choice--selected-background);
+  color: var(--wp--custom--button--choice--selected-text);
+  font-size: var(--aa-compact-action-font-size);
+  font-weight: var(--aa-compact-action-font-weight);
+  line-height: 1.2;
+  letter-spacing: var(--aa-compact-action-letter-spacing);
+  text-transform: uppercase;
+}
+
+/* Remove (×): a masked icon in the chip's text colour — no divider. The
+ * button is a 24px target (WCAG 2.5.8; it sits inside the clickable chip)
+ * with a small icon; negative margins keep the chip compact. */
+.fluentform.ff-inherit-theme-style .choices[data-type*='select-multiple'] .choices__button {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.25rem -0.375rem -0.25rem -0.125rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: currentcolor;
+  mask: var(--aa-icon-close) center / 0.625rem no-repeat;
+  opacity: 0.7;
+}
+
+.fluentform.ff-inherit-theme-style .choices[data-type*='select-multiple'] .choices__button:is(:hover, :focus-visible) {
+  background-color: currentcolor;
+  opacity: 1;
+}
+
+.fluentform.ff-inherit-theme-style .choices[data-type*='select-multiple'] .choices__button:focus-visible {
+  outline: 2px solid var(--aa-field-bar-focus);
+  outline-offset: 1px;
+}
+
+.fluentform.ff-inherit-theme-style .choices__input {
+  border-left-width: 0;
+  background-color: transparent;
+}
+
+/* The inline multi-select search box takes the rest of the row. */
+.fluentform.ff-inherit-theme-style .choices[data-type*='select-multiple'] .choices__input {
+  flex: 1 1 6rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+.fluentform.ff-inherit-theme-style .choices[data-type*='select-one'] .choices__input {
+  background-color: var(--aa-field-bg-solid);
+}
+
+/* Chevron — the theme's, turning while open (replaces the CSS triangle). */
+.fluentform.ff-inherit-theme-style .choices:is([data-type*='select-one'], [data-type*='select-multiple'])::after {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: -0.375rem;
+  right: 1rem;
+  border: 0;
+  background-color: var(--aa-color-foreground-muted);
+  mask: var(--aa-icon-chevron) center / contain no-repeat;
+  transition: rotate var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.fluentform.ff-inherit-theme-style .choices:is([data-type*='select-one'], [data-type*='select-multiple']).is-open::after {
+  margin-top: -0.375rem;
+  border: 0;
+  rotate: 180deg;
+}
+
+/* The list — the same panel and rows as the native select picker. */
+.fluentform.ff-inherit-theme-style .choices__list--dropdown {
+  margin-top: 0.375rem;
+  padding: 0.375rem;
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-field-radius);
+  background-color: var(--aa-color-surface-elevated);
+  box-shadow: var(--aa-shadow-md);
+  color: var(--aa-color-foreground);
+}
+
+.fluentform.ff-inherit-theme-style .choices__list--dropdown .choices__item {
+  min-height: var(--aa-control-min);
+  padding: 0.5rem 0.75rem;
+  border-left: var(--aa-field-bar-width) solid transparent;
+  border-radius: var(--aa-radius-sm);
+  font-size: var(--aa-field-font-size);
+}
+
+.fluentform.ff-inherit-theme-style .choices__list--dropdown .choices__item--selectable.is-highlighted {
+  border-left-color: var(--aa-field-bar-focus);
+  background-color: var(--aa-color-hover-default);
+}
+
+/* "Press to select" hint — noise next to the highlighted row. */
+.fluentform.ff-inherit-theme-style .choices__list--dropdown .choices__item--selectable::after {
+  content: none;
+}
+
+.fluentform.ff-inherit-theme-style .choices__list--dropdown :is(.has-no-choices, .has-no-results) {
+  color: var(--aa-color-foreground-muted);
+  cursor: default;
+}
+
+/* ------------------------------------------------------------------------
+ * Date / time — Fluent Forms uses flatpickr. The input stays a normal field
+ * (forms.css skips its keyboard-suppressing readonly) with a calendar icon;
+ * the calendar is appended to <body>, so its rules are global here (this
+ * file only loads with Fluent Forms). `body` adds one type selector so these
+ * beat flatpickr's equal-specificity rules whatever the load order.
+ * ---------------------------------------------------------------------- */
+.fluentform.ff-inherit-theme-style .ff-el-input--content:has(> .flatpickr-input) {
+  position: relative;
+}
+
+.fluentform.ff-inherit-theme-style .ff-el-input--content:has(> .flatpickr-input)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--aa-field-height) / 2);
+  right: 1rem;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  background-color: var(--aa-color-foreground-muted);
+  mask: var(--aa-icon-calendar) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.fluentform.ff-inherit-theme-style .flatpickr-input {
+  padding-right: 2.75rem;
+  cursor: pointer;
+}
+
+body .flatpickr-calendar {
+  border: 1px solid var(--aa-color-border-default);
+  border-radius: var(--aa-field-radius);
+  background: var(--aa-color-surface-elevated);
+  box-shadow: var(--aa-shadow-md);
+  color: var(--aa-color-foreground);
+  font-family: var(--aa-field-font-family);
+}
+
+body .flatpickr-calendar.arrowTop::before {
+  border-bottom-color: var(--aa-color-border-default);
+}
+
+body .flatpickr-calendar.arrowTop::after {
+  border-bottom-color: var(--aa-color-surface-elevated);
+}
+
+body .flatpickr-calendar.arrowBottom::before {
+  border-top-color: var(--aa-color-border-default);
+}
+
+body .flatpickr-calendar.arrowBottom::after {
+  border-top-color: var(--aa-color-surface-elevated);
+}
+
+body .flatpickr-calendar :is(.flatpickr-months .flatpickr-month, .flatpickr-current-month, .flatpickr-current-month input.cur-year) {
+  color: inherit;
+  fill: currentcolor;
+}
+
+body .flatpickr-calendar .flatpickr-current-month {
+  font-size: var(--wp--preset--font-size--medium);
+  font-weight: 700;
+}
+
+/* Month select: theme.json paints every <select> as a field; undo that here. */
+body .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
+  width: auto;
+  min-height: 0;
+  padding: 0 0 0 0.5ch;
+  border: 0;
+  background-color: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+body .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
+  background-color: var(--aa-color-surface-elevated);
+  color: var(--aa-color-foreground);
+}
+
+body .flatpickr-calendar .flatpickr-months :is(.flatpickr-prev-month, .flatpickr-next-month) {
+  color: inherit;
+  fill: currentcolor;
+}
+
+body .flatpickr-calendar .flatpickr-months :is(.flatpickr-prev-month, .flatpickr-next-month):hover svg {
+  fill: var(--aa-color-accent);
+}
+
+body .flatpickr-calendar span.flatpickr-weekday {
+  color: var(--aa-color-foreground-muted);
+  font-size: var(--aa-compact-action-font-size);
+  font-weight: 700;
+  letter-spacing: var(--aa-compact-action-letter-spacing);
+  text-transform: uppercase;
+}
+
+body .flatpickr-calendar .flatpickr-day {
+  border-radius: var(--aa-radius-sm);
+  color: var(--aa-color-foreground);
+}
+
+body .flatpickr-calendar .flatpickr-day:is(:hover, :focus) {
+  border-color: transparent;
+  background: var(--aa-color-hover-default);
+}
+
+body .flatpickr-calendar .flatpickr-day.today {
+  border-color: var(--aa-color-accent);
+}
+
+body .flatpickr-calendar .flatpickr-day:is(.selected, .startRange, .endRange),
+body .flatpickr-calendar .flatpickr-day:is(.selected, .startRange, .endRange):is(:hover, :focus) {
+  border-color: var(--aa-color-accent-fill);
+  background: var(--aa-color-accent-fill);
+  color: var(--aa-color-white);
+}
+
+body .flatpickr-calendar .flatpickr-day.inRange {
+  border-color: transparent;
+  background: var(--aa-color-hover-default);
+  box-shadow: none;
+}
+
+/* Days of the neighbouring months are still clickable, so they keep 4.5:1
+ * (a 60% mix: ~9:1 light, ~5.3:1 dark) — only truly disabled days fade. */
+body .flatpickr-calendar .flatpickr-day:is(.prevMonthDay, .nextMonthDay) {
+  color: color-mix(in oklch, var(--aa-color-foreground) 60%, var(--aa-color-surface-elevated));
+}
+
+body .flatpickr-calendar .flatpickr-day:is(.flatpickr-disabled, .notAllowed) {
+  color: var(--aa-color-muted-40);
+}
+
+/* Keyboard focus moves between days (arrow keys): show it clearly. */
+body .flatpickr-calendar .flatpickr-day:focus-visible {
+  outline: 2px solid var(--aa-field-bar-focus);
+  outline-offset: -2px;
+}
+
+/* Time picker (date-time fields). */
+body .flatpickr-calendar .flatpickr-time {
+  border-top-color: var(--aa-color-border-default);
+}
+
+body .flatpickr-calendar .flatpickr-time :is(input, .flatpickr-am-pm, .flatpickr-time-separator) {
+  color: inherit;
+}
+
+body .flatpickr-calendar .flatpickr-time :is(input, .flatpickr-am-pm):is(:hover, :focus) {
+  background: var(--aa-color-hover-default);
+}
+
+body .flatpickr-calendar .numInputWrapper span:is(.arrowUp, .arrowDown)::after {
+  border-bottom-color: currentcolor;
+}
+
+body .flatpickr-calendar .numInputWrapper span.arrowDown::after {
+  border-top-color: currentcolor;
+  border-bottom-color: transparent;
+}

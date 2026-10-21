@@ -80,6 +80,11 @@ plugin) + Prettier. Tailwind 4.x with PostCSS, Stylelint, BEM-like custom classe
   Component-scoped `:has()` subjects are fine.
 - **Per-frame text updates must mutate a `Text` node's `.data`**, never assign
   `textContent` (which replaces the node — a childList mutation).
+- **Every `aa-*` cascade layer sits below Tailwind Preflight** (`base`), which
+  zeroes padding/border/radius on form controls. The form baseline lives in
+  `aa-forms`, pinned after `base` in `main.css`; don't move form rules into
+  other `aa-*` layers. Field values come from `--aa-field-*` tokens
+  ([`docs/design-tokens.md`](docs/design-tokens.md#forms)).
 
 ### Design system override principle
 

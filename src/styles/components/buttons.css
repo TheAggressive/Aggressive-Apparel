@@ -55,14 +55,14 @@
 	.aggressive-apparel-button--success,
 	.aggressive-apparel-button--ghost
 ) {
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--8);
+	padding: var(--aa-button-padding-block) var(--aa-button-padding-inline);
 	border-radius: var(--aa-radius-button);
-	font-family: var(--wp--preset--font-family--space-grotesk);
-	font-size: var(--wp--preset--font-size--medium);
-	font-weight: 700;
-	line-height: 1.1;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
+	font-family: var(--aa-button-font-family);
+	font-size: var(--aa-button-font-size);
+	font-weight: var(--aa-button-font-weight);
+	line-height: var(--aa-button-line-height);
+	text-transform: var(--aa-button-text-transform);
+	letter-spacing: var(--aa-button-letter-spacing);
 }
 
 :where(

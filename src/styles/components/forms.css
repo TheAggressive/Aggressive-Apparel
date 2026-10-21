@@ -1,247 +1,697 @@
 /**
  * Global Form Controls
  *
- * Token-driven baseline for every form control on the site — native inputs,
- * WordPress core (search, comments), plugin forms, and WooCommerce (classic
- * forms + the React checkout/cart blocks). Pulls all of them into the design
- * system using the same tokens as the .aggressive-apparel-field primitive.
+ * One field design for every form on the site — the WooCommerce checkout look:
+ * a translucent adaptive fill, soft radius, uppercase tracked labels, and a 3px
+ * left bar that turns accent on focus and error when invalid. Every value comes
+ * from the --aa-field-* tokens (tokens.css ← theme.json settings.custom.field),
+ * so native controls, .aggressive-apparel-field, WooCommerce, select2 and plugin
+ * adapters all read the same source.
  *
- * Layering matters: the NATIVE baseline lives in @layer aa-components so it sits
- * at low priority (and uses :where() for 0 specificity) — anything overrides it
- * trivially. The WooCommerce / select2 overrides are intentionally
- * UNLAYERED, because WooCommerce ships its CSS unlayered and unlayered styles
- * beat any @layer regardless of specificity; only unlayered rules can reliably
- * win against WC's defaults.
+ * Layering matters:
+ *
+ * - The NATIVE baseline lives in @layer aa-forms with :where() (0 specificity).
+ *   main.css orders that layer just above Tailwind's `base` (Preflight would
+ *   otherwise reset input padding/border/radius/background) and below
+ *   everything else, so any component, plugin or theme.json rule overrides it.
+ * - <select>'s paint comes from theme.json styles.elements.select (unlayered),
+ *   so its interaction states are unlayered here too.
+ * - WooCommerce / select2 bridges are UNLAYERED: those plugins ship unlayered
+ *   CSS, and only unlayered rules can beat it. The Fluent Forms adapter is a
+ *   separate stylesheet (forms-fluent-forms.css), loaded only with the plugin.
+ *
+ * Loaded on the frontend AND, via add_editor_style(), in the editor canvas, so
+ * server-rendered previews (Fluent Forms, core widgets) match the site.
+ *
+ * Buttons are NOT styled here except native <input> submit/reset/button
+ * controls without a theme button class (editor-controlled buttons stay put).
  *
  * @package Aggressive_Apparel
  */
 
-@layer aa-components {
+@layer aa-forms {
+
+  :root {
+    --aa-field-chevron-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+    --aa-field-chevron-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+    --aa-field-chevron: var(--aa-field-chevron-light);
+
+    /* Mask icons (black = opaque): paint with background-color so they take
+     * any token colour. Shared by the select picker, the drawn choices and
+     * the plugin adapters (Choices.js, flatpickr). */
+    --aa-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --aa-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --aa-icon-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 3l6 6M9 3l-6 6' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round'/%3E%3C/svg%3E");
+    --aa-icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='12' height='11' rx='2'/%3E%3Cpath d='M2 7h12M5 1.5v3M11 1.5v3'/%3E%3C/svg%3E");
+  }
+
+  html[data-theme='dark'] {
+    --aa-field-chevron: var(--aa-field-chevron-dark);
+  }
+
+  /* No-JS fallback: the colour-scheme bootstrap sets data-theme; without it
+   * the page follows the system scheme, so the chevron must too. */
+  @media (prefers-color-scheme: dark) {
+
+    html:not([data-theme]) {
+      --aa-field-chevron: var(--aa-field-chevron-dark);
+    }
+  }
 
   /* ----------------------------------------------------------------------
-   * Native baseline — input / select / textarea (0 specificity via :where).
-   * `number` and `file` are excluded so quantity steppers and upload controls
-   * keep their existing (single-product / theme) styling untouched.
+   * BOUNDARY — every baseline rule is nested here, so the list of places the
+   * baseline must never reach lives in one selector:
+   * - WooCommerce Blocks (`[class*='wc-block']`, itself or any ancestor):
+   *   checkout/cart/filters/quantity own their DOM, floating labels and
+   *   controls (checkout.css, blocks.css).
+   * - WordPress components and block placeholders inside the editor canvas
+   *   (e.g. the Embed URL field), which belong to editor UI, not content.
+   * - Third-party widget chrome that draws its own controls (the flatpickr
+   *   calendar's month select and year input).
+   * - Fluent Forms presets other than "Inherit Theme Style".
    * -------------------------------------------------------------------- */
   :where(
-    input:not(
-      [type='checkbox'],
-      [type='radio'],
-      [type='range'],
-      [type='color'],
-      [type='number'],
-      [type='file'],
-      [type='submit'],
-      [type='button'],
-      [type='reset'],
-      [type='image'],
-      [type='hidden'],
-      .aa-search__input
-    ),
-    textarea
+    :not(
+      [class*='wc-block'],
+      [class*='wc-block'] *,
+      [class^='components-'],
+      [class*=' components-'],
+      .components-placeholder *,
+      .flatpickr-calendar,
+      .flatpickr-calendar *,
+      .fluentform:not(.ff-inherit-theme-style) *
+    )
   ) {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: var(--aa-input-height);
-    padding: 0.75rem 1.5rem; /* clears the pill curve */
-    border: none;
-    border-left: 3px solid transparent; /* accent bar; shows on focus only */
-    border-radius: var(--aa-radius-full);
-    background: transparent;
-    color: var(--aa-color-foreground);
-    font-family: inherit;
-    font-size: var(--wp--preset--font-size--small);
-    line-height: 1.4;
-    transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
-  }
 
-  /* Native <select> — separate from pill inputs; appearance:none needs an
-   * explicit surface and frame or dark-mode text vanishes on UA light fills.
-   * The visual foundation now comes from styles.elements.select in theme.json;
-   * CSS retains the interaction and native-arrow treatment that theme.json
-   * cannot express. */
-  :where(select) {
-    cursor: pointer;
-    transition:
-      border-color var(--aa-duration-fast) var(--aa-ease-default),
-      background-color var(--aa-duration-fast) var(--aa-ease-default);
-  }
+    /* --------------------------------------------------------------------
+     * Text controls — every text-like <input> and <textarea>. Quantity
+     * steppers (WooCommerce .qty, sticky cart, quick view) and the search
+     * modal keep their own component styling.
+     * ------------------------------------------------------------------ */
+    &:where(
+      input:not(
+        [type='checkbox'],
+        [type='radio'],
+        [type='range'],
+        [type='color'],
+        [type='file'],
+        [type='submit'],
+        [type='button'],
+        [type='reset'],
+        [type='image'],
+        [type='hidden'],
+        .qty,
+        .quantity *,
+        .aa-sticky-cart__qty-input,
+        .aggressive-apparel-quick-view__qty-input,
+        .aa-search__input
+      ),
+      textarea
+    ) {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: var(--aa-field-height);
+      padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+      border: 0 solid transparent;
+      border-left-width: var(--aa-field-bar-width); /* reserved; coloured on focus */
+      border-radius: var(--aa-field-radius);
+      background-color: var(--aa-field-bg);
+      color: var(--aa-field-text);
+      font-family: var(--aa-field-font-family);
+      font-size: var(--aa-field-font-size); /* 16px: no iOS focus zoom */
+      line-height: var(--aa-field-line-height);
+      transition:
+        border-color var(--aa-duration-fast) var(--aa-ease-default),
+        background-color var(--aa-duration-fast) var(--aa-ease-default);
 
-  :where(select option) {
-    background-color: var(--aa-color-surface-elevated);
-    color: var(--aa-color-foreground);
-  }
+      &::placeholder {
+        color: var(--aa-field-placeholder);
+        opacity: 1;
+      }
 
-  /* Single-select: custom chevron (native arrows often break in dark mode). */
-  :where(select:not([multiple], [size])) {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.85rem center;
-    background-size: 0.75rem;
-  }
+      &:hover:not(:focus, :disabled, [readonly]:not(.flatpickr-input)) {
+        background-color: var(--aa-field-bg-hover);
+      }
 
-  html[data-theme='dark'] :where(select:not([multiple], [size])) {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
-  }
+      /* No outline — the left bar turns accent. The transparent outline keeps
+       * a visible ring in forced-colors (Windows High Contrast) mode. */
+      &:focus {
+        outline: 2px solid transparent;
+        border-left-color: var(--aa-field-bar-focus);
+      }
 
-  :where(input, textarea)::placeholder {
-    color: var(--aa-color-muted-40);
-  }
+      /* Date/time pickers: Tab also stops on the UA's (shadow-DOM) calendar
+       * button, where the input itself no longer matches :focus. */
+      &:focus-within {
+        border-left-color: var(--aa-field-bar-focus);
+      }
 
-  /* Focus: no outline — the 3px left bar turns the brand accent (red). At rest
-   * the bar is transparent, so there's no visible border until focus. */
-  :where(input, textarea):focus {
-    outline: 2px solid transparent;
-    border-left-color: var(--aa-color-accent);
-  }
+      /* Read-only values. Date pickers (flatpickr) set readonly only to keep
+       * the mobile keyboard closed — they're still the field people use. */
+      &[readonly]:not(.flatpickr-input) {
+        background-color: transparent;
+        border-left-color: var(--aa-color-border-strong);
+      }
 
-  :where(input, textarea):disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+      &[readonly]:not(.flatpickr-input):focus {
+        border-left-color: var(--aa-field-bar-focus);
+      }
 
-  /* Error state — only after the user has interacted (not on first paint). */
-  :where(input, textarea):user-invalid {
-    border-left-color: var(--aa-color-error);
-  }
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
 
-  /* Textarea: soft radius, not a full pill (a pill multi-line box looks odd). */
-  :where(textarea) {
-    min-height: calc(var(--aa-input-height) * 2);
-    border-radius: var(--aa-radius-lg);
-    resize: vertical;
-  }
+      /* Errors show only after interaction (:user-invalid), or when a form
+       * explicitly reports one (aria-invalid) — never on first paint. Separate
+       * rules: a selector list containing an unsupported pseudo-class is
+       * dropped whole. Declared after :focus so a focused invalid field stays
+       * red. */
+      &:user-invalid {
+        border-left-color: var(--aa-field-bar-invalid);
+      }
 
-  /* Checkboxes, radios and range share the brand accent — but not WC Blocks
-   * checkout/cart controls (payment methods, shipping options, etc.). */
-  :where(
-    input[type='checkbox']:not([class*='wc-block-components-']),
-    input[type='radio']:not([class*='wc-block-components-']),
-    input[type='range']:not([class*='wc-block-components-'])
-  ) {
-    accent-color: var(--aa-color-accent);
-  }
+      &[aria-invalid='true'] {
+        border-left-color: var(--aa-field-bar-invalid);
+      }
 
-  /* File input + its button. */
-  :where(input[type='file']) {
-    width: 100%;
-    font-family: inherit;
-    font-size: var(--wp--preset--font-size--small);
-    color: var(--aa-color-foreground);
-  }
+      /* Browser autofill — repaint with the (opaque) field fill so the UA's
+       * yellow/white background doesn't break dark mode. The inset box-shadow
+       * is the only reliable override. Kept as two rules: Safari < 15 knows
+       * only the prefixed pseudo-class. */
+      &:-webkit-autofill {
+        -webkit-text-fill-color: var(--aa-field-text);
+        box-shadow: 0 0 0 1000px var(--aa-field-bg-solid) inset;
+        caret-color: var(--aa-field-text);
+        transition: background-color 9999s ease-in-out 0s;
+      }
 
-  input[type='file']::file-selector-button {
-    margin-right: 0.75rem;
-    min-height: var(--aa-control-min);
-    padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
-    border: 2px solid var(--wp--custom--button--secondary--border);
-    border-radius: var(--aa-radius-button);
-    background: var(--wp--custom--button--secondary--background);
-    color: var(--wp--custom--button--secondary--text);
-    font: inherit;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition:
-      background-color var(--aa-duration-fast) var(--aa-ease-default),
-      border-color var(--aa-duration-fast) var(--aa-ease-default),
-      color var(--aa-duration-fast) var(--aa-ease-default);
-  }
+      &:autofill {
+        -webkit-text-fill-color: var(--aa-field-text);
+        box-shadow: 0 0 0 1000px var(--aa-field-bg-solid) inset;
+        caret-color: var(--aa-field-text);
+        transition: background-color 9999s ease-in-out 0s;
+      }
+    }
 
-  input[type='file']::file-selector-button:hover {
-    background: var(--wp--custom--button--secondary--hover-background);
-    color: var(--wp--custom--button--secondary--hover-text);
-  }
+    &:where(textarea) {
+      min-height: calc(var(--aa-field-height) * 2.5);
+      line-height: 1.5;
+      resize: vertical;
+    }
 
-  input[type='file']:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: var(--aa-focus-ring);
-  }
+    /* Native date/time pickers keep their UA widgets; root color-scheme (set
+     * by the dark-mode toggle) recolours the indicator. */
+    &:where(input:is([type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week'])) {
+      min-inline-size: 0;
 
-  /* Labels — adaptive colour so they stay legible in light AND dark mode.
-   * WC Blocks (checkout payment/shipping radios, etc.) manage their own. */
-  :where(label:not([class*='wc-block-components-'])) {
-    color: var(--aa-color-foreground);
-  }
+      &::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.7;
+      }
+    }
 
-  /* Form output element. */
-  :where(output) {
-    color: var(--aa-color-foreground-muted);
-  }
+    /* --------------------------------------------------------------------
+     * <select> — paint is theme.json styles.elements.select (same field
+     * tokens); this adds what theme.json can't express. States are unlayered
+     * below.
+     * ------------------------------------------------------------------ */
+    &:where(select) {
+      cursor: pointer;
+      transition:
+        border-color var(--aa-duration-fast) var(--aa-ease-default),
+        background-color var(--aa-duration-fast) var(--aa-ease-default);
+    }
 
-  /* Colour picker — small swatch, same frame as the inputs. */
-  :where(input[type='color']) {
-    width: 3rem;
-    height: var(--aa-input-height);
-    padding: 0.25rem;
-    border: 1.5px solid var(--aa-color-border-strong);
-    border-radius: var(--aa-radius-control);
-    background: transparent;
-    cursor: pointer;
-  }
+    &:where(select option) {
+      background-color: var(--aa-color-surface-elevated);
+      color: var(--aa-color-foreground);
+    }
 
-  /* Progress + meter share the brand accent. */
-  :where(progress, meter) {
-    accent-color: var(--aa-color-accent);
-  }
+    /* Single-select: custom chevron (native arrows often break in dark mode). */
+    &:where(select:not([multiple], [size])) {
+      appearance: none;
+      background-image: var(--aa-field-chevron);
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 0.75rem;
+    }
 
-  /* Grouped controls. */
-  :where(fieldset) {
-    border: 1px solid var(--aa-color-border);
-    border-radius: var(--aa-radius-control);
-    padding: var(--wp--preset--spacing--4);
-  }
+    /* Customizable select (progressive): where the browser supports
+     * `appearance: base-select`, the open list is ours too — elevated surface,
+     * hover/keyboard rows with the field's accent bar, an accent check on the
+     * chosen option, and a chevron that turns while open. The chevron becomes
+     * a token-coloured ::picker-icon, so the background chevron is dropped and
+     * the end padding (theme.json reads --aa-select-padding-end) shrinks to
+     * the field's inline padding. Elsewhere the select above stays as is. */
+    @supports (appearance: base-select) {
 
-  :where(legend) {
-    padding-inline: 0.5rem;
-    color: var(--aa-color-foreground);
-    font-weight: 600;
-  }
+      &:where(select:not([multiple], [size])) {
+        --aa-select-padding-end: var(--aa-field-padding-inline);
 
-  /* Browser autofill — repaint the field so it keeps the system colours
-   * instead of the UA's yellow/white background (which breaks dark mode). The
-   * inset box-shadow is the only reliable way to override the autofill bg.
-   * The two pseudo-classes are kept in SEPARATE rules on purpose: a rule-level
-   * comma list is not forgiving, so combining them would drop the whole rule in
-   * browsers that support only :-webkit-autofill (e.g. Safari < 15). */
-  :where(input, textarea):-webkit-autofill {
-    -webkit-text-fill-color: var(--aa-color-foreground);
-    box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
-    caret-color: var(--aa-color-foreground);
-    transition: background-color 9999s ease-in-out 0s;
-  }
+        appearance: base-select;
+        display: flex; /* text + ::picker-icon on one row */
+        align-items: center;
+        background-image: none;
 
-  :where(input, textarea):autofill {
-    -webkit-text-fill-color: var(--aa-color-foreground);
-    box-shadow: 0 0 0 1000px var(--aa-color-surface-elevated) inset;
-    caret-color: var(--aa-color-foreground);
-    transition: background-color 9999s ease-in-out 0s;
+        &::picker-icon {
+          content: '';
+          width: 0.75rem;
+          height: 0.75rem;
+          background-color: var(--aa-color-foreground-muted);
+          mask: var(--aa-icon-chevron) center / contain no-repeat;
+          transition: rotate var(--aa-duration-fast) var(--aa-ease-default);
+        }
+
+        &:open::picker-icon {
+          rotate: 180deg;
+        }
+
+        &::picker(select) {
+          appearance: base-select;
+          margin-block: 0.375rem;
+          padding: 0.375rem;
+          border: 1px solid var(--aa-color-border-default);
+          border-radius: var(--aa-field-radius);
+          background-color: var(--aa-color-surface-elevated);
+          color: var(--aa-color-foreground);
+          box-shadow: var(--aa-shadow-md);
+          font-family: var(--aa-field-font-family);
+          opacity: 0;
+          translate: 0 -0.25rem;
+          transition:
+            opacity var(--aa-duration-fast) var(--aa-ease-enter),
+            translate var(--aa-duration-fast) var(--aa-ease-enter),
+            display var(--aa-duration-fast) allow-discrete,
+            overlay var(--aa-duration-fast) allow-discrete;
+        }
+
+        &:open::picker(select) {
+          opacity: 1;
+          translate: 0;
+        }
+
+        & option {
+          gap: 0.75rem;
+          min-height: var(--aa-control-min);
+          padding: 0.5rem 0.75rem;
+          border-left: var(--aa-field-bar-width) solid transparent;
+          border-radius: var(--aa-radius-sm);
+          background-color: transparent;
+          color: inherit;
+          font-size: var(--aa-field-font-size);
+          cursor: pointer;
+        }
+
+        & option:is(:hover, :focus-visible) {
+          outline: 2px solid transparent;
+          border-left-color: var(--aa-field-bar-focus);
+          background-color: var(--aa-color-hover-default);
+        }
+
+        & option:checked {
+          font-weight: 600;
+        }
+
+        & option:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Check at the end of the row, drawn like the checkbox check. */
+        & option::checkmark {
+          content: '';
+          order: 1;
+          width: 0.75rem;
+          height: 0.75rem;
+          margin-inline-start: auto;
+          background-color: var(--aa-color-accent);
+          mask: var(--aa-icon-check) center / contain no-repeat;
+        }
+      }
+    }
+
+    @starting-style {
+
+      &:where(select:not([multiple], [size])):open::picker(select) {
+        opacity: 0;
+        translate: 0 -0.25rem;
+      }
+    }
+
+    /* --------------------------------------------------------------------
+     * Choice controls — drawn, not tinted: a field-fill box with a muted
+     * frame (≥ 3:1 against the page) that fills accent when checked, with the
+     * variation pills' check and spring. The mark is a background image, not
+     * a pseudo-element, so it renders whatever `display` a plugin forces on
+     * the input (Fluent Forms sets inline-block); it springs in by animating
+     * background-size. Radios keep the fill and grow an accent dot. Custom
+     * controls (switches, pills, swatches) hide or restyle their input and
+     * win. Forced-colours mode gets the native widget back.
+     * ------------------------------------------------------------------ */
+    &:where(input:is([type='checkbox'], [type='radio'])) {
+      appearance: none;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      width: 1.125rem;
+      height: 1.125rem;
+      margin: 0;
+      vertical-align: middle;
+      border: 1.5px solid var(--aa-color-foreground-muted);
+      border-radius: var(--aa-radius-sm);
+      background-color: var(--aa-field-bg);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpolyline points='2.5 6.5 5 9 9.5 3.5' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 0;
+      cursor: pointer;
+      transition:
+        background-color var(--aa-duration-fast) var(--aa-ease-default),
+        border-color var(--aa-duration-fast) var(--aa-ease-default),
+        background-size 0.35s var(--aa-ease-spring);
+
+      &:hover:not(:disabled, :checked) {
+        border-color: var(--aa-color-foreground);
+      }
+
+      &:checked {
+        border-color: var(--aa-color-accent-fill);
+        background-color: var(--aa-color-accent-fill);
+        background-size: 0.75rem;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--aa-field-bar-focus);
+        outline-offset: 2px;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &:user-invalid {
+        border-color: var(--aa-field-bar-invalid);
+      }
+    }
+
+    /* Leading control in a choice label: room before the text. */
+    &:where(label > input:is([type='checkbox'], [type='radio']):first-child) {
+      margin-inline-end: 0.375rem;
+    }
+
+    /* "Some selected" — a dash instead of the check. */
+    &:where(input[type='checkbox']:indeterminate) {
+      border-color: var(--aa-color-accent-fill);
+      background-color: var(--aa-color-accent-fill);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6h6' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-size: 0.75rem;
+    }
+
+    /* Radio: the dot is sized in % of the image, so it scales from centre. */
+    &:where(input[type='radio']) {
+      border-radius: 50%;
+      background-image: radial-gradient(circle closest-side, var(--aa-color-accent-fill) 50%, transparent calc(50% + 1px));
+      background-size: 0% 0%;
+
+      &:checked {
+        border-color: var(--aa-color-accent-fill);
+        background-color: var(--aa-field-bg);
+        background-size: 100% 100%;
+      }
+    }
+
+    @media (forced-colors: active) {
+
+      &:where(input:is([type='checkbox'], [type='radio'])) {
+        appearance: auto;
+        background-image: none;
+      }
+    }
+
+    &:where(input[type='range']) {
+      accent-color: var(--aa-color-accent);
+      cursor: pointer;
+      vertical-align: middle;
+
+      &:focus-visible {
+        outline: 2px solid var(--aa-field-bar-focus);
+        outline-offset: 2px;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+
+    &:where(progress, meter) {
+      accent-color: var(--aa-color-accent);
+    }
+
+    /* File input — field typography; its button is a secondary button. */
+    &:where(input[type='file']) {
+      width: 100%;
+      color: var(--aa-field-text);
+      font-family: var(--aa-field-font-family);
+      font-size: var(--wp--preset--font-size--small);
+
+      &:focus-visible {
+        outline: 2px solid transparent;
+        box-shadow: var(--aa-focus-ring);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      &::file-selector-button {
+        margin-right: 0.75rem;
+        min-height: var(--aa-control-min);
+        padding: var(--wp--preset--spacing--2) var(--wp--preset--spacing--5);
+        border: 2px solid var(--wp--custom--button--secondary--border);
+        border-radius: var(--aa-radius-button);
+        background: var(--wp--custom--button--secondary--background);
+        color: var(--wp--custom--button--secondary--text);
+        font: inherit;
+        font-weight: var(--aa-button-font-weight);
+        text-transform: var(--aa-button-text-transform);
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition:
+          background-color var(--aa-duration-fast) var(--aa-ease-default),
+          border-color var(--aa-duration-fast) var(--aa-ease-default),
+          color var(--aa-duration-fast) var(--aa-ease-default);
+      }
+
+      &::file-selector-button:hover {
+        background: var(--wp--custom--button--secondary--hover-background);
+        color: var(--wp--custom--button--secondary--hover-text);
+      }
+    }
+
+    /* Colour picker — a field-height swatch on the field fill. */
+    &:where(input[type='color']) {
+      box-sizing: border-box;
+      inline-size: 3.25rem;
+      block-size: var(--aa-field-height);
+      padding: 0.375rem;
+      border: 0;
+      border-radius: var(--aa-field-radius);
+      background-color: var(--aa-field-bg);
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid transparent;
+        box-shadow: var(--aa-focus-ring);
+      }
+
+      &::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      &::-webkit-color-swatch {
+        border: 0;
+        border-radius: var(--aa-radius-sm);
+      }
+
+      &::-moz-color-swatch {
+        border: 0;
+        border-radius: var(--aa-radius-sm);
+      }
+    }
+
+    /* --------------------------------------------------------------------
+     * Native submit / reset / button inputs — the primary / secondary button
+     * look, from the same --aa-button-* tokens as the .aggressive-apparel-button
+     * fallback. Only raw <input>s without a theme or WooCommerce button class;
+     * <button> elements are left to the editor. Fluent Forms' inherited submit
+     * (a <button> its preset leaves unstyled) joins via its adapter class.
+     * ------------------------------------------------------------------ */
+    &:where(
+      input:is([type='submit'], [type='reset'], [type='button']):not(
+        .button,
+        .wp-element-button,
+        .wp-block-button__link,
+        .aggressive-apparel-button
+      ),
+      .ff-inherit-theme-style .ff-btn-submit
+    ) {
+      box-sizing: border-box;
+      min-height: var(--aa-button-height-md);
+      padding: var(--aa-button-padding-block) var(--aa-button-padding-inline);
+      border: 2px solid var(--wp--custom--button--primary--background);
+      border-radius: var(--aa-radius-button);
+      background-color: var(--wp--custom--button--primary--background);
+      color: var(--wp--custom--button--primary--text);
+      font-family: var(--aa-button-font-family);
+      font-size: var(--aa-button-font-size);
+      font-weight: var(--aa-button-font-weight);
+      line-height: var(--aa-button-line-height);
+      letter-spacing: var(--aa-button-letter-spacing);
+      text-transform: var(--aa-button-text-transform);
+      cursor: pointer;
+      transition:
+        background-color var(--aa-duration-fast) var(--aa-ease-default),
+        border-color var(--aa-duration-fast) var(--aa-ease-default),
+        color var(--aa-duration-fast) var(--aa-ease-default),
+        box-shadow var(--aa-duration-fast) var(--aa-ease-default);
+
+      &:hover:not(:disabled) {
+        border-color: var(--wp--custom--button--primary--hover-background);
+        background-color: var(--wp--custom--button--primary--hover-background);
+        color: var(--wp--custom--button--primary--hover-text);
+      }
+
+      &:focus-visible {
+        outline: 2px solid transparent;
+        box-shadow: var(--aa-focus-ring);
+      }
+
+      &:disabled {
+        opacity: var(--wp--custom--button--disabled-opacity, 0.5);
+        cursor: not-allowed;
+      }
+    }
+
+    &:where(
+      input:is([type='reset'], [type='button']):not(
+        .button,
+        .wp-element-button,
+        .wp-block-button__link,
+        .aggressive-apparel-button
+      )
+    ) {
+      border-color: var(--wp--custom--button--secondary--border);
+      background-color: var(--wp--custom--button--secondary--background);
+      color: var(--wp--custom--button--secondary--text);
+
+      &:hover:not(:disabled) {
+        border-color: var(--wp--custom--button--secondary--border);
+        background-color: var(--wp--custom--button--secondary--hover-background);
+        color: var(--wp--custom--button--secondary--hover-text);
+      }
+    }
+
+    /* --------------------------------------------------------------------
+     * Labels & groups
+     * ------------------------------------------------------------------ */
+
+    /* Field labels sit ABOVE their control, uppercase and tracked like
+     * checkout's. No floating labels here — those belong to components that
+     * implement them (WooCommerce Blocks). Choice labels (wrapping or followed
+     * by a checkbox / radio) are excluded and read as sentence-case text. */
+    &:where(
+      label:not(
+        :has(> input:is([type='checkbox'], [type='radio'])),
+        input:is([type='checkbox'], [type='radio']) + label
+      )
+    ) {
+      display: inline-block;
+      margin-block-end: var(--aa-field-gap);
+      color: var(--aa-field-label-color);
+      font-family: var(--aa-field-font-family);
+      font-size: var(--aa-field-label-size);
+      font-weight: var(--aa-field-label-weight);
+      line-height: 1.3;
+      letter-spacing: var(--aa-field-label-tracking);
+      text-transform: var(--aa-field-label-transform);
+    }
+
+    /* Unwrapped markup (label, control, label, control…): a label that
+     * directly follows a field starts a new field, so it gets the separation
+     * wrappers would otherwise provide. */
+    &:where(:is(input:not([type='checkbox'], [type='radio'], [type='hidden']), select, textarea) + label) {
+      margin-block-start: var(--wp--preset--spacing--4);
+    }
+
+    &:where(
+      label:has(> input:is([type='checkbox'], [type='radio'])),
+      input:is([type='checkbox'], [type='radio']) + label
+    ) {
+      color: var(--aa-color-foreground);
+      cursor: pointer;
+    }
+
+    /* Required marker inside a label (WordPress core and theme markup). */
+    &:where(label .required, label abbr[title]) {
+      color: var(--aa-color-accent);
+      text-decoration: none;
+      cursor: help;
+    }
+
+    /* Plain grouping — no frame by default; the legend carries the hierarchy. */
+    &:where(fieldset) {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    &:where(legend) {
+      padding: 0;
+      margin-block-end: 0.75rem;
+      color: var(--aa-color-foreground);
+      font-family: var(--aa-field-font-family);
+      font-size: var(--aa-field-label-size);
+      font-weight: 700;
+      letter-spacing: var(--aa-field-label-tracking);
+      text-transform: var(--aa-field-label-transform);
+    }
+
+    &:where(output) {
+      color: var(--aa-color-foreground-muted);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      &:where(input, textarea, select),
+      &:where(select)::picker-icon,
+      &:where(select)::picker(select),
+      &:where(input[type='file'])::file-selector-button {
+        transition: none;
+      }
+    }
   }
 }
 
 /* ========================================================================
- * UNLAYERED overrides — must beat theme.json and WooCommerce's unlayered
- * styles. Keep selectors narrow so plugin-specific form chrome can still win.
+ * UNLAYERED overrides — must beat theme.json and plugin unlayered styles.
+ * Keep selectors narrow so plugin-specific form chrome can still win.
  * ====================================================================== */
 
-/* The select foundation and core Search text input are emitted by theme.json
- * outside cascade layers. Their interaction states must also be unlayered or
- * the non-state foundation wins regardless of selector specificity. */
-select:hover {
-  border-color: var(--aa-color-border-strong);
-  background-color: var(--aa-color-hover-subtle);
+/* <select> paint is theme.json styles.elements.select (`:root :where(select)`,
+ * unlayered), so its states must also be unlayered or the foundation wins
+ * regardless of specificity. */
+select:hover:not(:focus, :disabled) {
+  background-color: var(--aa-field-bg-hover);
 }
 
 select:focus {
   outline: 2px solid transparent;
-  border-color: var(--aa-color-foreground);
-}
-
-select:focus-visible {
-  outline: 2px solid var(--aa-color-foreground);
-  outline-offset: 2px;
+  border-left-color: var(--aa-field-bar-focus);
 }
 
 select:disabled {
@@ -250,7 +700,30 @@ select:disabled {
 }
 
 select:user-invalid {
-  border-color: var(--aa-color-error);
+  border-left-color: var(--aa-field-bar-invalid);
+}
+
+select[aria-invalid='true'] {
+  border-left-color: var(--aa-field-bar-invalid);
+}
+
+/* Multi-row selects: symmetric padding (no chevron) and a selected-option fill
+ * that survives blur (a plain background-color is ignored for :checked). */
+select:is([multiple], [size]:not([size='1'])) {
+  min-height: calc(var(--aa-field-height) * 2);
+  padding: 0.5rem;
+}
+
+select:is([multiple], [size]:not([size='1'])) option {
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--aa-radius-sm);
+  background-color: transparent;
+  color: inherit;
+}
+
+select:is([multiple], [size]:not([size='1'])) option:checked {
+  background: var(--aa-color-accent-fill) linear-gradient(var(--aa-color-accent-fill), var(--aa-color-accent-fill));
+  color: var(--aa-color-white);
 }
 
 /* Core Search is a full-border pill (theme.json), styled to match the custom
@@ -268,87 +741,117 @@ select:user-invalid {
 }
 
 .wp-block-search :where(input, textarea):user-invalid {
-  border-color: var(--aa-color-error);
+  border-color: var(--aa-field-bar-invalid);
 }
 
-/* WooCommerce — React checkout / cart blocks. Quantity steppers are
- * intentionally left alone (handled by the product/cart styling). */
-.wc-block-components-text-input input,
-.wc-block-components-text-input textarea,
-.wc-block-components-select .wc-block-components-select__select {
-  min-height: var(--aa-input-height);
-  border: 1.5px solid var(--aa-color-border-strong);
-  border-radius: var(--aa-radius-control);
-  background: transparent;
-  color: inherit;
-  font-family: inherit;
+/* Core Comments Form block (singular.html) — block-library paints a 1px grey
+ * frame with unlayered :where() rules, which beat the layered baseline. Restate
+ * the field paint; spacing and typography already come from the baseline. */
+.wp-block-post-comments-form :is(input:not([type='submit'], [type='checkbox'], [type='radio'], [type='hidden']), textarea) {
+  padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+  border: 0 solid transparent;
+  border-left-width: var(--aa-field-bar-width);
+  font-size: var(--aa-field-font-size);
 }
 
-.wc-block-components-text-input input:focus,
-.wc-block-components-text-input textarea:focus,
-.wc-block-components-select .wc-block-components-select__select:focus {
-  outline: 2px solid var(--aa-color-accent);
-  outline-offset: 1px;
-  border-color: var(--aa-color-foreground);
+/* The rule above is unlayered, so the bar colours must be restated here too. */
+.wp-block-post-comments-form :is(input:not([type='submit'], [type='checkbox'], [type='radio'], [type='hidden']), textarea):focus {
+  border-left-color: var(--aa-field-bar-focus);
 }
 
-/* NOTE: do NOT recolour .wc-block-components-text-input label here — WC keeps the
- * field white in both modes and the label inherits its dark text (readable). An
- * adaptive colour would turn the label white and hide it on the white field. */
+.wp-block-post-comments-form :is(input:not([type='submit'], [type='checkbox'], [type='radio'], [type='hidden']), textarea):user-invalid {
+  border-left-color: var(--aa-field-bar-invalid);
+}
+
+/* ------------------------------------------------------------------------
+ * WooCommerce Blocks — checkout/cart fields are owned by checkout.css (loaded
+ * on those pages); these only cover chrome that appears elsewhere too.
+ * ---------------------------------------------------------------------- */
+
+/* NOTE: do NOT recolour .wc-block-components-text-input label here — its
+ * colour comes from checkout.css / blocks.css alongside the floating-label
+ * treatment. */
 .wc-block-components-checkout-step__title {
   color: var(--aa-color-foreground-muted);
 }
 
 .wc-block-components-validation-error {
-  color: var(--aa-color-error);
+  color: var(--aa-field-bar-invalid);
 }
 
-/* WC Blocks — leave payment/shipping option radios + checkboxes on WC chrome. */
-.wc-block-components-radio-control__input,
-.wc-block-components-checkbox__input {
-  accent-color: revert;
-  width: auto;
-  min-height: 0;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-}
-
-.wc-block-components-radio-control__option,
-.wc-block-components-checkbox__label {
-  color: revert;
-}
-
-/* WooCommerce — classic (non-block) forms: my-account, login, reviews. */
-.woocommerce form .form-row input.input-text,
-.woocommerce form .form-row textarea,
-.woocommerce-input-wrapper input {
-  min-height: var(--aa-input-height);
-  border: 1.5px solid var(--aa-color-border-strong);
-  border-radius: var(--aa-radius-control);
-  background: transparent;
-  color: inherit;
-}
-
-/* Native <select> anywhere in WooCommerce — catalog sort (.orderby),
- * widgets, my-account, etc. Excludes block checkout/cart selects. */
-.woocommerce form .form-row select,
-.woocommerce select:not([multiple], [size], .wc-block-components-select__select) {
+/* ------------------------------------------------------------------------
+ * WooCommerce classic forms — My Account, login/register, lost password,
+ * reviews. WooCommerce's own field CSS is unlayered (and draws borders from
+ * --wc-form-*), so the shared field look is restated here.
+ * `:is(input.input-text, textarea, select)` lifts all three to (0,3,2), above
+ * WooCommerce's `.form-row .input-text` / `.form-row select` rules.
+ * WooCommerce's invalid/validated rules set `border-color`, which now lands on
+ * the left bar only.
+ * ---------------------------------------------------------------------- */
+.woocommerce form .form-row :is(input.input-text, textarea, select),
+.woocommerce-input-wrapper input:not([type='checkbox'], [type='radio'], [type='hidden']),
+.woocommerce select:not([multiple], [size], [class*='wc-block']) {
   box-sizing: border-box;
-  min-height: var(--aa-input-height);
-  padding: 0.625rem 2.25rem 0.625rem 1rem;
-  border: 1px solid var(--aa-color-border-default);
-  border-radius: var(--aa-radius-control);
-  background-color: var(--aa-color-surface);
-  color: var(--aa-color-foreground);
-  font-family: inherit;
-  line-height: 1.2;
+  min-height: var(--aa-field-height);
+  padding: var(--aa-field-padding-block) var(--aa-field-padding-inline);
+  border: 0 solid transparent;
+  border-left-width: var(--aa-field-bar-width);
+  border-radius: var(--aa-field-radius);
+  background-color: var(--aa-field-bg);
+  color: var(--aa-field-text);
+  font-family: var(--aa-field-font-family);
+  font-size: var(--aa-field-font-size);
+  line-height: var(--aa-field-line-height);
 }
 
-.woocommerce select:not(.wc-block-components-select__select) option {
+.woocommerce form .form-row select:not([multiple], [size]),
+.woocommerce select:not([multiple], [size], [class*='wc-block']) {
+  appearance: none; /* the layered baseline doesn't reach wc-block wrappers (catalog sorting) */
+  padding-right: 2.5rem;
+  background-image: var(--aa-field-chevron);
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.75rem;
+}
+
+/* Room for WooCommerce's show-password toggle (redrawn in _account-forms.css). */
+.woocommerce form .form-row .password-input input {
+  padding-inline-end: 2.75rem;
+}
+
+.woocommerce form .form-row :is(input.input-text, textarea, select):focus,
+.woocommerce-input-wrapper input:focus {
+  outline: 2px solid transparent;
+  border-left-color: var(--aa-field-bar-focus);
+}
+
+.woocommerce form .form-row.woocommerce-invalid :is(input.input-text, textarea, select) {
+  border-left-color: var(--aa-field-bar-invalid);
+}
+
+.woocommerce form .form-row.woocommerce-validated :is(input.input-text, textarea, select):not(:focus) {
+  border-left-color: var(--aa-field-bar-valid);
+}
+
+.woocommerce select:not([class*='wc-block']) option {
   background-color: var(--aa-color-surface-elevated);
   color: var(--aa-color-foreground);
+}
+
+/* Catalog sort is toolbar chrome, not a form field — it matches the filter
+ * trigger + grid/list toggle (full hairline border, compact height). */
+.woocommerce-ordering select.orderby {
+  border: 1px solid var(--aa-color-border-default);
+  background-color: var(--aa-color-surface);
+}
+
+.woocommerce-ordering select.orderby:focus {
+  border-color: var(--aa-color-foreground);
+}
+
+.woocommerce-ordering select.orderby:focus-visible {
+  outline: 2px solid var(--aa-color-foreground);
+  outline-offset: 2px;
 }
 
 /* Catalog toolbar — match filter trigger + grid/list toggle chrome. */
@@ -381,30 +884,53 @@ select:user-invalid {
   background-position: right 0.75rem center;
 }
 
-/* Classic WooCommerce labels — adaptive colour so they're legible in both
- * modes (WC's own label CSS is unlayered and would beat the native baseline). */
-.woocommerce form .form-row label,
-.woocommerce-form-row label,
+/* Classic WooCommerce labels — the shared field-label type (WC's label CSS is
+ * unlayered and would beat the native baseline). Checkbox labels stay
+ * sentence case. My Account content restyles its labels in _account-forms.css. */
+.woocommerce form .form-row label:not(.checkbox, .woocommerce-form__label-for-checkbox, .screen-reader-text),
+.woocommerce-form-row label:not(.checkbox, .woocommerce-form__label-for-checkbox, .screen-reader-text) {
+  color: var(--aa-field-label-color);
+  font-size: var(--aa-field-label-size);
+  font-weight: var(--aa-field-label-weight);
+  letter-spacing: var(--aa-field-label-tracking);
+  line-height: 1.3;
+  text-transform: var(--aa-field-label-transform);
+}
+
+.woocommerce form :is(label.checkbox, .woocommerce-form__label-for-checkbox),
 .woocommerce-EditAccountForm label {
   color: var(--aa-color-foreground);
 }
 
 /* WooCommerce classic country/state dropdowns render as select2, not a native
- * <select> — style the select2 box + dropdown to match the inputs. */
+ * <select> — give the select2 box the same field look. */
 .woocommerce .select2-container--default .select2-selection--single,
 .woocommerce .select2-container--default .select2-selection--multiple {
-  min-height: var(--aa-input-height);
-  border: 1.5px solid var(--aa-color-border-strong);
-  border-radius: var(--aa-radius-control);
-  background: transparent;
+  min-height: var(--aa-field-height);
+  border: 0 solid transparent;
+  border-left-width: var(--aa-field-bar-width);
+  border-radius: var(--aa-field-radius);
+  background-color: var(--aa-field-bg);
+  transition: border-color var(--aa-duration-fast) var(--aa-ease-default);
+}
+
+.woocommerce .select2-container--default:is(.select2-container--focus, .select2-container--open) :is(.select2-selection--single, .select2-selection--multiple) {
+  border-left-color: var(--aa-field-bar-focus);
 }
 
 .woocommerce
   .select2-container--default
   .select2-selection--single
   .select2-selection__rendered {
-  line-height: var(--aa-input-height);
-  color: var(--aa-color-foreground);
+  padding-inline: calc(var(--aa-field-padding-inline) - var(--aa-field-bar-width)) 2.25rem;
+  line-height: var(--aa-field-height);
+  color: var(--aa-field-text);
+  font-size: var(--aa-field-font-size);
+}
+
+.woocommerce .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: var(--aa-field-height);
+  right: 0.5rem;
 }
 
 /* The line-height above already centres the text in the input height;
@@ -421,7 +947,9 @@ select:user-invalid {
 }
 
 .select2-dropdown {
+  overflow: hidden;
   border: 1.5px solid var(--aa-color-border-strong);
+  border-radius: var(--aa-field-radius);
   background: var(--aa-color-surface-elevated);
   color: var(--aa-color-foreground);
 }

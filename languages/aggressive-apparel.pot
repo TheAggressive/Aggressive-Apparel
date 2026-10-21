@@ -2,14 +2,14 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Aggressive Apparel 1.197.0\n"
+"Project-Id-Version: Aggressive Apparel 1.198.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-apparel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T06:28:52+00:00\n"
+"POT-Creation-Date: 2026-10-21T05:04:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -591,138 +591,138 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:170
+#: includes/Core/class-theme-support.php:179
 msgid "Secondary (Outline)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:178
+#: includes/Core/class-theme-support.php:187
 #: patterns/design-system-preview.php:57
 #: patterns/design-system-preview.php:181
 msgid "Large Secondary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:186
+#: includes/Core/class-theme-support.php:195
 msgid "Tertiary (Text)"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:194
+#: includes/Core/class-theme-support.php:203
 #: patterns/design-system-preview.php:116
 msgid "Small"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:202
+#: includes/Core/class-theme-support.php:211
 #: patterns/design-system-preview.php:53
 msgid "Large Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:210
+#: includes/Core/class-theme-support.php:219
 #: patterns/design-system-preview.php:61
 msgid "Small Primary"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:218
+#: includes/Core/class-theme-support.php:227
 #: patterns/design-system-preview.php:177
 msgid "Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:226
+#: includes/Core/class-theme-support.php:235
 msgid "Large Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:234
+#: includes/Core/class-theme-support.php:243
 msgid "Small Secondary on Dark"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:242
+#: includes/Core/class-theme-support.php:251
 msgid "Frosted Glass"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:250
+#: includes/Core/class-theme-support.php:259
 msgid "Surface Card"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:258
+#: includes/Core/class-theme-support.php:267
 msgid "Bordered"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:266
+#: includes/Core/class-theme-support.php:275
 msgid "Display"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:274
+#: includes/Core/class-theme-support.php:283
 #: patterns/homepage-seasonal-shop.php:210
 msgid "Editorial"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:282
+#: includes/Core/class-theme-support.php:291
 msgid "Brand Stripe"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:290
+#: includes/Core/class-theme-support.php:299
 #: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 msgid "Badge"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:298
+#: includes/Core/class-theme-support.php:307
 msgid "Badge Muted"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:306
+#: includes/Core/class-theme-support.php:315
 msgid "Eyebrow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:314
+#: includes/Core/class-theme-support.php:323
 msgid "Caption"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:322
+#: includes/Core/class-theme-support.php:331
 msgid "Meta"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:330
+#: includes/Core/class-theme-support.php:339
 msgid "Legal"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:338
+#: includes/Core/class-theme-support.php:347
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 msgid "Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:346
+#: includes/Core/class-theme-support.php:355
 msgid "Subtle"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:355
+#: includes/Core/class-theme-support.php:364
 msgid "Commerce Grid"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:363
+#: includes/Core/class-theme-support.php:372
 msgid "Commerce Cards"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:371
+#: includes/Core/class-theme-support.php:380
 msgid "Product Frame"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:379
+#: includes/Core/class-theme-support.php:388
 msgid "Commerce Price"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:389
+#: includes/Core/class-theme-support.php:398
 msgid "Overflow"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:397
+#: includes/Core/class-theme-support.php:406
 msgid "Text Mask"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:405
+#: includes/Core/class-theme-support.php:414
 msgid "Cinematic"
 msgstr ""
 
-#: includes/Core/class-theme-support.php:413
+#: includes/Core/class-theme-support.php:422
 msgid "Frosted Dark"
 msgstr ""
 

@@ -58,8 +58,23 @@ class Styles {
 
 		// Native form-element baseline — frontend only. main.css loads in the
 		// editor canvas, so the form styles live in their own file enqueued here
-		// (wp_enqueue_scripts) to keep them off the editor.
-		Asset_Loader::enqueue_style( 'aggressive-apparel-forms', 'build/styles/components/forms' );
+		// (wp_enqueue_scripts) to keep them off the editor. It depends on main
+		// because main.css declares the cascade-layer order that places its
+		// aa-forms layer above Tailwind Preflight.
+		Asset_Loader::enqueue_style(
+			'aggressive-apparel-forms',
+			'build/styles/components/forms',
+			array( 'aggressive-apparel-main' )
+		);
+
+		// Fluent Forms "Inherit Theme Style" adapter — only with the plugin.
+		if ( defined( 'FLUENTFORM' ) ) {
+			Asset_Loader::enqueue_style(
+				'aggressive-apparel-forms-fluent-forms',
+				'build/styles/components/forms-fluent-forms',
+				array( 'aggressive-apparel-forms' )
+			);
+		}
 
 		if ( function_exists( 'WC' ) ) {
 			// Transactional feedback can be rendered by both classic WooCommerce

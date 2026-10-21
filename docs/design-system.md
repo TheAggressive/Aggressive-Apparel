@@ -235,7 +235,7 @@ When a UI decision should be user-configurable, expose it as a token or block se
 | ------------------------------ | --------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | `components/overlay.css`       | `.aggressive-apparel-overlay`, `__backdrop`                                                   | Modal shell + backdrop blur                          |
 | `components/panel.css`         | `.aggressive-apparel-panel`, `--md`, `--lg`, `--xl`                                           | Dialog container sizes                               |
-| `components/field.css`         | `.aggressive-apparel-field`, `__input`, `__error`, `--checkbox`                               | Form inputs and validation                           |
+| `components/field.css`         | `.aggressive-apparel-field`, `__input`, `__error`, `--checkbox`                               | Class-based shared field (`--aa-field-*` tokens)     |
 | `components/buttons.css`       | `.aggressive-apparel-button`, `.aa-icon-button`, `.aa-choice-pill`, `.aa-stepper-button`      | Shared CTA, utility, choice, and stepper contracts   |
 | `components/layout.css`        | `.aggressive-apparel-stack`, `.aggressive-apparel-cluster`, `.aggressive-apparel-inline-form` | Flex layout recipes                                  |
 | `base/content-elements.css`    | Semantic HTML inside `.wp-block-post-content`                                                 | Raw/classic content fallback                         |

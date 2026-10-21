@@ -1,8 +1,9 @@
 /**
  * WooCommerce Checkout & Cart — branded dark form fields
  *
- * Replaces WooCommerce's flat white checkout fields with the theme's look: a
- * dark, adaptive translucent fill, adaptive value text + labels, uppercase
+ * Replaces WooCommerce's flat white checkout fields with the theme's shared
+ * field look (the reference for every form on the site): an adaptive
+ * translucent fill, adaptive value text + labels, uppercase
  * tracked floating labels, and an accent left bar that animates in on focus. WC's
  * field CSS is very specific, so !important is used to override it (acceptable —
  * the block editor can't control form styling). Only loaded on checkout/cart.
@@ -13,17 +14,13 @@
  * @package Aggressive_Apparel
  */
 
-/* SINGLE CONTROL POINT for the checkout field-label look. Both the text-input
- * labels and the select (State/Country) labels read from these variables, so the
- * styling lives in one place — adjust here and every field follows. */
-.wc-block-checkout,
-.wc-block-cart {
-  --aa-field-label-color: var(--aa-color-foreground-muted);
-  --aa-field-label-weight: 500;
-  --aa-field-label-weight-active: 600;
-}
-
-/* Every field label (text inputs + the wc-blocks- select __label, which WC
+/* The field look is the site-wide one: every value below reads the shared
+ * --aa-field-* tokens (tokens.css ← theme.json settings.custom.field), the same
+ * source as the native form baseline (components/forms.css). What stays
+ * checkout-specific is the WooCommerce DOM: floating labels and the
+ * !important needed to beat WC's highly specific field selectors.
+ *
+ * Every field label (text inputs + the wc-blocks- select __label, which WC
  * otherwise colours white-on-white) reads the shared variables. WC sets both to
  * font-weight:inherit, so they pick up different weights from their different
  * wrappers — pin an explicit resting weight here so they match. */
@@ -31,13 +28,13 @@
 .wc-blocks-components-select .wc-blocks-components-select__label {
   color: var(--aa-field-label-color);
   font-weight: var(--aa-field-label-weight);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: var(--aa-field-label-transform);
+  letter-spacing: var(--aa-field-label-tracking);
 
   /* !important: WC sizes the select label at 13px with the same specificity as
    * this rule, so without it the base size is a load-order tie (selects end up
-   * a hair different from text inputs). Pin both to `small` so they match. */
-  font-size: var(--wp--preset--font-size--small) !important;
+   * a hair different from text inputs). Pin both to the label size. */
+  font-size: var(--aa-field-label-size) !important;
 }
 
 /* Express payment title */
@@ -65,6 +62,13 @@
    * that extra transform so both float at the same `scale(0.85)` size. (No-op on
    * selects, which have no transform.) */
   transform: none !important;
+}
+
+/* Links inside checkbox labels (terms, privacy) — underlined, so they're not
+ * told apart from the label by colour alone (WCAG 1.4.1). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-checkbox__label a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 /* Checkbox labels sit on the dark page (not inside a white field), so they need
@@ -200,11 +204,11 @@
 .wc-blocks-components-select .wc-blocks-components-select__container,
 .wc-blocks-components-select .wc-blocks-components-select__select {
   border: none !important;
-  border-radius: var(--aa-radius-lg) !important;
+  border-radius: var(--aa-field-radius) !important;
   outline: none !important;
   box-shadow: none !important;
-  color: var(--aa-color-foreground) !important;
-  transition: border-color 0.15s var(--aa-ease-default) !important;
+  color: var(--aa-field-text) !important;
+  transition: border-color var(--aa-duration-fast) var(--aa-ease-default) !important;
 }
 
 /* The native <select> stays transparent so the tinted container shows through. */
@@ -227,7 +231,7 @@
 
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input::placeholder,
 :is(.wc-block-checkout, .wc-block-cart) textarea::placeholder {
-  color: var(--aa-color-foreground-muted) !important;
+  color: var(--aa-field-placeholder) !important;
 }
 
 /* Reserved transparent 3px left bar + dark translucent fill that adapts to the
@@ -236,8 +240,8 @@
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input,
 :is(.wc-block-checkout, .wc-block-cart) textarea,
 .wc-blocks-components-select .wc-blocks-components-select__container {
-  border-left: 3px solid transparent !important;
-  background: color-mix(in oklch, var(--aa-color-foreground) 8%, transparent) !important;
+  border-left: var(--aa-field-bar-width) solid transparent !important;
+  background: var(--aa-field-bg) !important;
 }
 
 /* Text inputs need right room for the curve (selects keep their chevron space). */
@@ -249,8 +253,16 @@
 :is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input input:focus,
 :is(.wc-block-checkout, .wc-block-cart) textarea:focus,
 .wc-blocks-components-select:focus-within .wc-blocks-components-select__container {
-  border-left-color: var(--aa-color-accent) !important;
+  border-left-color: var(--aa-field-bar-focus) !important;
   outline: 2px solid transparent !important;
+}
+
+/* Validation — WC flags the wrapper with .has-error after a failed submit or
+ * blur; the left bar turns error (WC's red border is stripped above). */
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-text-input.has-error input,
+:is(.wc-block-checkout, .wc-block-cart) .wc-block-components-textarea.has-error,
+.wc-blocks-components-select.has-error .wc-blocks-components-select__container {
+  border-left-color: var(--aa-field-bar-invalid) !important;
 }
 
 /* Sale Badge */

@@ -318,6 +318,22 @@
 		font-size: var(--wp--preset--font-size--small);
 	}
 
+	/* The cookies-consent checkbox label is a choice label: sentence case,
+	 * inline beside its checkbox. */
+	& .comment-form-cookies-consent {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	& .comment-form-cookies-consent label {
+		display: inline;
+		margin: 0;
+		font-weight: 400;
+		text-transform: none;
+		letter-spacing: normal;
+	}
+
 	& .comment-form .required {
 		color: var(--aa-color-accent, var(--aa-color-error));
 		border: none;
@@ -328,24 +344,10 @@
 		max-width: 20rem;
 	}
 
+	/* Fill, bar, radius and focus come from the shared field (forms.css). */
 	& .comment-form-comment textarea {
-		width: 100%;
 		min-height: 9rem;
-		padding: 0.85rem 1rem;
-		border: 1.5px solid var(--aa-color-border-strong);
-		border-radius: var(--aa-radius-control);
-		background: transparent;
-		color: inherit;
-		font-family: inherit;
-		font-size: 1rem;
 		line-height: 1.6;
-		resize: vertical;
-
-		&:focus-visible {
-			border-color: var(--aa-color-accent);
-			outline: 2px solid var(--aa-color-accent);
-			outline-offset: 1px;
-		}
 	}
 
 	& .form-submit {

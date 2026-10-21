@@ -96,6 +96,9 @@
 	/* Entrances decelerate into place; exits accelerate away. */
 	--aa-ease-enter: var(--wp--custom--motion--ease-enter, cubic-bezier(0.16, 1, 0.3, 1));
 	--aa-ease-exit: var(--wp--custom--motion--ease-exit, cubic-bezier(0.4, 0, 1, 1));
+
+	/* Overshoots slightly, then settles — checkmarks popping in. */
+	--aa-ease-spring: var(--wp--custom--motion--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
 	--aa-transition-overlay: opacity var(--aa-duration-normal) var(--aa-ease-default),
 		backdrop-filter var(--aa-duration-normal) var(--aa-ease-default);
 
@@ -142,6 +145,20 @@
 	--aa-compact-action-line-height: var(--wp--custom--compact-action--line-height, 1);
 	--aa-compact-action-letter-spacing: var(--wp--custom--compact-action--letter-spacing, 0.06em);
 	--aa-input-height: var(--wp--custom--size--input-height, 3.25rem);
+
+	/* Button label + padding (from settings.custom.button). These mirror
+	   styles.elements.button, which stays literal so Global Styles can edit it;
+	   TestStyles keeps the two in step. Only fallbacks for controls that can't
+	   carry .wp-element-button read them (raw .aggressive-apparel-button
+	   variants, native <input> submits). */
+	--aa-button-font-family: var(--wp--custom--button--font-family, var(--wp--preset--font-family--space-grotesk));
+	--aa-button-font-size: var(--wp--custom--button--font-size, var(--wp--preset--font-size--medium));
+	--aa-button-font-weight: var(--wp--custom--button--font-weight, 700);
+	--aa-button-line-height: var(--wp--custom--button--line-height, 1.1);
+	--aa-button-letter-spacing: var(--wp--custom--button--letter-spacing, 0.06em);
+	--aa-button-text-transform: var(--wp--custom--button--text-transform, uppercase);
+	--aa-button-padding-block: var(--wp--custom--button--padding-block, var(--wp--preset--spacing--3));
+	--aa-button-padding-inline: var(--wp--custom--button--padding-inline, var(--wp--preset--spacing--8));
 
 	/* Close-button glyph size shared by the toast overlays (store-notices +
 	   social-proof) so the two "×" stay the same size. */
@@ -199,6 +216,25 @@
 	--aa-type-product-title-weight: var(--wp--custom--type-role--product-title--font-weight, 400);
 	--aa-type-product-title-line-height: var(--wp--custom--type-role--product-title--line-height, 1.2);
 
+	/* Form fields (from settings.custom.field) — the branded checkout field:
+	   translucent fill, soft radius, and a 3px left bar that turns accent on
+	   focus / error on invalid. Shared by the native baseline (forms.css),
+	   .aggressive-apparel-field, the WooCommerce overrides, plugin adapters,
+	   and theme.json styles.elements.select. */
+	--aa-field-height: var(--aa-input-height);
+	--aa-field-font-family: var(--wp--custom--field--font-family, var(--wp--preset--font-family--space-grotesk, inherit));
+	--aa-field-font-size: var(--wp--custom--field--font-size, 1rem);
+	--aa-field-line-height: var(--wp--custom--field--line-height, 1.4);
+	--aa-field-padding-block: var(--wp--custom--field--padding-block, 0.75rem);
+	--aa-field-padding-inline: var(--wp--custom--field--padding-inline, 1rem);
+	--aa-field-radius: var(--wp--custom--field--radius, var(--aa-radius-lg));
+	--aa-field-bar-width: var(--wp--custom--field--bar-width, 3px);
+	--aa-field-gap: var(--wp--custom--field--gap, 0.375rem);
+	--aa-field-label-size: var(--wp--custom--field--label--font-size, var(--wp--preset--font-size--small));
+	--aa-field-label-weight: var(--wp--custom--field--label--font-weight, 500);
+	--aa-field-label-tracking: var(--wp--custom--field--label--letter-spacing, 0.05em);
+	--aa-field-label-transform: var(--wp--custom--field--label--text-transform, uppercase);
+
 	/* Focus ring — outer ring for free-standing controls. */
 	--aa-focus-ring: var(
 		--wp--custom--focus-ring,
@@ -226,6 +262,26 @@
 	--aa-color-skeleton-mid: color-mix(in oklch, var(--aa-color-foreground) 11%, var(--aa-color-surface));
 	--aa-color-skeleton-image: color-mix(in oklch, var(--aa-color-foreground) 8%, var(--aa-color-surface));
 
+	/* Form field paint (derived; fill strengths from settings.custom.field).
+	   --aa-field-bg-solid is the same fill flattened onto the page surface, for
+	   the autofill inset shadow, which must be opaque. */
+	--aa-field-bg: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill, 8%), transparent);
+	--aa-field-bg-hover: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill-hover, 11%), transparent);
+	--aa-field-bg-solid: color-mix(in oklch, var(--aa-color-foreground) var(--wp--custom--field--fill, 8%), var(--aa-color-surface));
+	--aa-field-text: var(--aa-color-foreground);
+
+	/* Placeholder: muted text nudged toward foreground — foreground-muted alone
+	   is ~4.05:1 on the light fill; this is ~4.9:1. */
+	--aa-field-placeholder: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
+
+	/* Labels can sit ON the fill (checkout's floating labels), where plain
+	   foreground-muted is ~4.0:1; the same nudge as the placeholder clears
+	   4.5:1 on the fill and the page. */
+	--aa-field-label-color: color-mix(in oklch, var(--aa-color-foreground-muted) 90%, var(--aa-color-foreground));
+	--aa-field-bar-focus: var(--aa-color-accent);
+	--aa-field-bar-invalid: var(--aa-color-error-text);
+	--aa-field-bar-valid: var(--aa-color-success-text);
+
 	/* Static status colors (stock, alerts — not adaptive). */
 	--aa-color-success: var(--wp--preset--color--success, oklch(52.7% 0.137 150.1deg));
 	--aa-color-warning: var(--wp--preset--color--warning, oklch(55.3% 0.174 38.4deg));
@@ -241,6 +297,16 @@
 	--aa-color-info-bg: color-mix(in oklch, var(--aa-color-info) 12%, transparent);
 	--aa-color-info-border: color-mix(in oklch, var(--aa-color-info) 30%, transparent);
 	--aa-color-neutral-bg: color-mix(in oklch, var(--aa-color-foreground) 6%, var(--aa-color-surface));
+
+	/* Status colours as TEXT. The static status swatches sit near 3.3–3.7:1 on
+	   the page surface, below the 4.5:1 that small text (validation messages,
+	   form notices) needs. Mixing 30% of the adaptive foreground in darkens them
+	   in light mode and lightens them in dark: ≥ 4.9:1 on the surface,
+	   muted/elevated surfaces, their own 12% tint, and the field fill, in both
+	   schemes. Use these for text and thin indicators; keep the swatches for
+	   fills and badges. */
+	--aa-color-error-text: color-mix(in oklch, var(--aa-color-error) 70%, var(--aa-color-foreground));
+	--aa-color-success-text: color-mix(in oklch, var(--aa-color-success) 70%, var(--aa-color-foreground));
 
 	/* Commerce-state colors — semantic aliases of the status colors above. */
 	--aa-commerce-sale: var(--aa-color-error);

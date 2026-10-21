@@ -322,4 +322,109 @@ class TestStyles extends WP_UnitTestCase {
 			'Dense card swatches must use the theme.json-backed 28px target token.'
 		);
 	}
+
+	/**
+	 * The native form baseline must sit above Tailwind Preflight and read the
+	 * shared field tokens — the regression this guards left every unclassed
+	 * <input> with Preflight's zero padding, border and radius.
+	 */
+	public function test_form_baseline_layer_and_token_contract() {
+		do_action( 'wp_enqueue_scripts' );
+
+		$forms = wp_styles()->registered['aggressive-apparel-forms'] ?? null;
+		$this->assertNotNull( $forms, 'Form baseline stylesheet should be registered on the frontend' );
+		$this->assertContains(
+			'aggressive-apparel-main',
+			$forms->deps,
+			'forms.css must load after main.css, which declares the cascade-layer order.'
+		);
+
+		$theme = get_template_directory();
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$main_css = file_get_contents( $theme . '/src/styles/main.css' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$forms_css = file_get_contents( $theme . '/src/styles/components/forms.css' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$checkout_css = file_get_contents( $theme . '/src/styles/woocommerce/checkout.css' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$theme_json = json_decode( (string) file_get_contents( $theme . '/theme.json' ), true );
+
+		$this->assertIsString( $main_css );
+		$this->assertIsString( $forms_css );
+		$this->assertIsString( $checkout_css );
+		$this->assertIsArray( $theme_json );
+
+		$this->assertMatchesRegularExpression(
+			'/@layer\s[^;]*aa-utilities,\s*theme,\s*base,\s*aa-forms;/',
+			$main_css,
+			'aa-forms must be declared directly after Tailwind\'s base layer (Preflight).'
+		);
+		$this->assertStringContainsString( '@layer aa-forms {', $forms_css );
+		$this->assertStringNotContainsString(
+			'@layer aa-components',
+			$forms_css,
+			'aa-components sits below Preflight; the form baseline would be reset.'
+		);
+		$this->assertStringNotContainsString(
+			'.fluentform.ff-inherit-theme-style {',
+			$forms_css,
+			'The Fluent Forms adapter ships separately, only with the plugin.'
+		);
+		$this->assertFileExists( $theme . '/src/styles/components/forms-fluent-forms.css' );
+		$this->assertContains(
+			'build/styles/components/forms.css',
+			get_editor_stylesheets() ? array_map( array( $this, 'relative_to_theme' ), get_editor_stylesheets() ) : array(),
+			'The baseline must also load in the editor canvas for server-rendered previews.'
+		);
+
+		$this->assertArrayHasKey( 'field', $theme_json['settings']['custom'] );
+		$this->assertSame(
+			'var(--aa-field-bg)',
+			$theme_json['styles']['elements']['select']['color']['background'],
+			'theme.json <select> paint must read the shared field tokens.'
+		);
+		$this->assertStringNotContainsString(
+			'var(--aa-color-foreground) 8%',
+			$checkout_css,
+			'Checkout must consume --aa-field-bg rather than restating the fill.'
+		);
+	}
+
+	/**
+	 * The --aa-button-* fallback tokens (settings.custom.button) must equal the
+	 * editable styles.elements.button values they mirror.
+	 */
+	public function test_button_fallback_tokens_mirror_the_button_element() {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local source artifacts in a test.
+		$theme_json = json_decode( (string) file_get_contents( get_template_directory() . '/theme.json' ), true );
+		$this->assertIsArray( $theme_json );
+
+		$custom  = $theme_json['settings']['custom']['button'];
+		$element = $theme_json['styles']['elements']['button'];
+		$preset  = static function ( string $value ): string {
+			// "var:preset|font-size|medium" → "var(--wp--preset--font-size--medium)".
+			return (string) preg_replace( '/^var:preset\\|([a-z-]+)\\|([a-z0-9-]+)$/', 'var(--wp--preset--$1--$2)', $value );
+		};
+
+		foreach ( array( 'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textTransform' ) as $key ) {
+			$this->assertSame( $preset( $element['typography'][ $key ] ), $custom[ $key ], "button {$key}" );
+		}
+		$this->assertSame( $preset( $element['spacing']['padding']['top'] ), $custom['paddingBlock'] );
+		$this->assertSame( $preset( $element['spacing']['padding']['left'] ), $custom['paddingInline'] );
+	}
+
+	/**
+	 * Path of an editor stylesheet relative to the theme directory.
+	 *
+	 * @param string $path Absolute path or URL.
+	 * @return string
+	 */
+	private function relative_to_theme( string $path ): string {
+		foreach ( array( get_template_directory(), get_template_directory_uri() ) as $base ) {
+			if ( str_starts_with( $path, $base . '/' ) ) {
+				return substr( $path, strlen( $base ) + 1 );
+			}
+		}
+		return $path;
+	}
 }

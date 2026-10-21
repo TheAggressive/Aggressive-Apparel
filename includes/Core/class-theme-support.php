@@ -120,6 +120,15 @@ class Theme_Support {
 		add_theme_support( 'editor-styles' );
 		add_editor_style( 'build/styles/base/tokens.css' );
 
+		// The native form baseline, so server-rendered previews (Fluent Forms,
+		// core widgets) and raw HTML forms match the front end. Editor styles
+		// are scoped to .editor-styles-wrapper, so editor chrome is untouched;
+		// forms.css itself skips WordPress components inside the canvas.
+		add_editor_style( 'build/styles/components/forms.css' );
+		if ( defined( 'FLUENTFORM' ) ) {
+			add_editor_style( 'build/styles/components/forms-fluent-forms.css' );
+		}
+
 		// Add support for full and wide align images.
 		add_theme_support( 'align-wide' );
 

@@ -72,10 +72,82 @@ only structural props (use `color: inherit` so editor colors win).
 
 ## Forms
 
-`src/styles/components/forms.css` is the single token-driven form layer: native
-`input`/`select`/`textarea` baseline (layered + `:where()`), plus unlayered
-WooCommerce (block + classic), select2, file input, autofill, and `:user-invalid`
-coverage. Buttons are intentionally NOT styled here (editor-controlled).
+One field design everywhere — the WooCommerce checkout look: translucent
+adaptive fill, `radius-lg`, a reserved 3px left bar (accent on focus, error on
+`:user-invalid` / `aria-invalid`), 16px values, and uppercase tracked labels
+above the control.
+
+- **Source:** `settings.custom.field` in theme.json (font, size, padding, radius,
+  bar width, fill strengths, label type) → `--aa-field-*` aliases and derived
+  paint (`--aa-field-bg`, `-bg-hover`, `-bg-solid`, `-placeholder`,
+  `-bar-focus|invalid|valid`) in `tokens.css`. Every consumer below reads these;
+  none restates the values. Labels and placeholders use foreground-muted nudged
+  10% toward foreground: labels can sit on the fill (checkout's floating
+  labels), where plain foreground-muted is ~4.0:1.
+- **Status text:** `--aa-color-error-text` / `--aa-color-success-text` mix 30%
+  of the adaptive foreground into the static status swatches, which alone sit
+  near 3.3–3.7:1. Use them for validation messages and thin indicators (≥ 4.9:1
+  on every surface, both schemes); keep the swatches for fills and badges.
+- **`src/styles/components/forms.css`** (frontend, enqueued after main; also an
+  editor style, so server-rendered previews match): the native baseline for
+  text-like inputs, `textarea`, checkbox/radio/range, file, color, raw `input`
+  submit/reset/button, labels, fieldset/legend, output, autofill. Plus unlayered
+  bridges for WooCommerce classic forms, select2 and the core Comments Form
+  block. `<button>` elements are NOT styled (editor-controlled).
+- **`components/forms-fluent-forms.css`** — the Fluent Forms "Inherit Theme
+  Style" adapter (`.fluentform.ff-inherit-theme-style`): maps `--fluentform-*`,
+  status messages, Choices.js multiselects (choice-pill chips, theme chevron,
+  picker-style list) and the flatpickr date field + calendar (appended to
+  `<body>`, so those rules are global and prefixed with `body` to beat
+  flatpickr's equal-specificity CSS). Enqueued and added as an editor style
+  only when `FLUENTFORM` is defined.
+- **Icons:** `--aa-icon-chevron|check|close|calendar` (defined in forms.css) are
+  black SVG masks — paint them with `background-color` so they take any token
+  colour.
+- **Button fallback tokens:** raw `input` submits and `.aggressive-apparel-button`
+  variants read `--aa-button-*` (`settings.custom.button` typography/padding).
+  `styles.elements.button` keeps literal values so Global Styles can edit them;
+  `TestStyles` fails if the two drift.
+- **`<select>` paint** is `styles.elements.select` in theme.json (unlayered), so
+  its states in forms.css are unlayered too. Where the browser supports
+  `appearance: base-select`, the baseline also themes the open list
+  (`::picker(select)`: elevated surface, rows with the field's accent bar on
+  hover/keyboard focus, an accent `::checkmark`, a turning `::picker-icon`).
+  The end padding is `--aa-select-padding-end` (read by theme.json), which
+  shrinks there because the chevron moves into the content box. Other browsers
+  keep the native list. WooCommerce selects keep WC's own `appearance: none`.
+- **Checkboxes / radios** are drawn (`appearance: none`): field fill, a muted
+  frame (≥ 3:1), accent fill plus the variation pills' check, a dash for
+  `:indeterminate`, and an accent dot for radios. The mark is a background
+  image animated through `background-size` with `--aa-ease-spring`, so it works
+  whatever `display` a plugin forces. `forced-colors` restores the native
+  widgets.
+- **`.aggressive-apparel-field`** (`components/field.css`, in main.css) is the
+  class-based wrapper for the same field.
+- **Checkout/cart** (`woocommerce/checkout.css`) consumes the same tokens and
+  keeps only what WooCommerce's DOM needs: floating labels and the `!important`
+  that beats WC's field selectors.
+
+**Layer order matters.** Tailwind's `base` layer (Preflight) resets input
+padding, border, radius and background, and every `aa-*` layer is ordered
+below it. The baseline therefore lives in its own `aa-forms` layer, which
+`main.css` pins directly after `base` (`… aa-utilities, theme, base, aa-forms`).
+It beats Preflight but loses to Tailwind utilities and all unlayered CSS.
+
+**Boundaries** live in ONE wrapper selector at the top of the baseline (every
+rule nests inside it): WooCommerce Blocks (`[class*='wc-block']` itself or any
+ancestor), WordPress components and block placeholders in the editor canvas,
+Fluent Forms presets other than Inherit Theme Style, and the flatpickr
+calendar's own controls. Text controls also
+skip quantity steppers (`.qty`, `.quantity *`, `.aa-sticky-cart__qty-input`,
+`.aggressive-apparel-quick-view__qty-input`) and the search modal input. Choice
+labels (wrapping or followed by a checkbox/radio) stay sentence case.
+flatpickr inputs are exempt from the read-only look: their `readonly` only keeps
+the mobile keyboard closed.
+
+Locked by `tests/e2e/native-form-baseline.spec.ts` (native + Fluent Forms
+computed result), `tests/e2e/checkout-field-contract.spec.ts` (checkout fields
+read the tokens, labels still float, focus/error bar), and `TestStyles`.
 
 ## Style Variations (FSE)
 

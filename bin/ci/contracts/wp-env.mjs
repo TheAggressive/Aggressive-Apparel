@@ -10,8 +10,12 @@ import {
   wpEnv,
 } from '../lib/contract-inputs.mjs';
 
-const stablePluginPattern =
-  /^https:\/\/downloads\.wordpress\.org\/plugin\/woocommerce\.\d+\.\d+\.\d+\.zip$/;
+// WooCommerce first (bin/local/wp-core.sh reads plugins[0]), then Fluent Forms,
+// whose real markup the theme's form adapter is tested against.
+const stablePluginPatterns = [
+  /^https:\/\/downloads\.wordpress\.org\/plugin\/woocommerce\.\d+\.\d+\.\d+\.zip$/,
+  /^https:\/\/downloads\.wordpress\.org\/plugin\/fluentform\.\d+\.\d+\.\d+\.zip$/,
+];
 const stableCorePattern =
   /^https:\/\/wordpress\.org\/wordpress-\d+\.\d+\.\d+\.zip$/;
 const developmentPlugins = wpEnv.env?.development?.plugins;
@@ -22,9 +26,11 @@ check(
   `bin/ci/.wp-env.json must pin stable WordPress (found "${wpEnv.core}").`
 );
 check(
-  developmentPlugins?.length === 1 &&
-    stablePluginPattern.test(developmentPlugins[0]),
-  'bin/ci/.wp-env.json must pin exactly one stable WooCommerce archive.'
+  developmentPlugins?.length === stablePluginPatterns.length &&
+    stablePluginPatterns.every((pattern, index) =>
+      pattern.test(developmentPlugins[index])
+    ),
+  'bin/ci/.wp-env.json must pin stable WooCommerce, then stable Fluent Forms archives.'
 );
 check(
   JSON.stringify(developmentPlugins) === JSON.stringify(testPlugins),
@@ -63,7 +69,7 @@ check(
 check(
   JSON.stringify(artifactWpEnv.env?.development?.plugins) ===
     JSON.stringify(developmentPlugins),
-  'Artifact acceptance must install the release gate WooCommerce version.'
+  'Artifact acceptance must install the release gate plugin versions.'
 );
 check(
   artifactWpEnv.port === 9940 && artifactWpEnv.testsPort === 9941,

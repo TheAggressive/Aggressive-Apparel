@@ -122,6 +122,16 @@ above the control.
   image animated through `background-size` with `--aa-ease-spring`, so it works
   whatever `display` a plugin forces. `forced-colors` restores the native
   widgets.
+- **Choice gap:** every checkbox/radio sits `--aa-field-choice-gap`
+  (`settings.custom.field.choiceGap`, the checkout's 12px) from its text. Each
+  markup gets there differently: a leading control in its label or one
+  followed by a sibling label takes the gap minus the space character the
+  markup adds; the field primitive uses a flex gap; the Fluent Forms adapter
+  restates it because Fluent Forms zeroes choice margins with unlayered CSS.
+  `form-choice-spacing.spec.ts` measures the rendered gap for each structure
+  (Fluent Forms rendered for real) and `checkout-field-contract.spec.ts` pins
+  the checkout reference, so a new structure or a plugin markup change fails
+  in CI.
 - **`.aggressive-apparel-field`** (`components/field.css`, in main.css) is the
   class-based wrapper for the same field.
 - **Checkout/cart** (`woocommerce/checkout.css`) consumes the same tokens and

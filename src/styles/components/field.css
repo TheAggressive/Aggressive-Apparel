@@ -95,16 +95,18 @@
 	&--checkbox {
 		flex-direction: row;
 		align-items: flex-start;
-		gap: 0.5rem;
+		gap: var(--aa-field-choice-gap);
 		color: var(--aa-color-foreground);
 		font-size: var(--wp--preset--font-size--x-small);
 		line-height: 1.4;
 		opacity: 0.85;
 		cursor: pointer;
 
-		/* Only placement here; the box itself is the shared drawn checkbox. */
-		& .aggressive-apparel-field__input[type='checkbox'] {
+		/* Only placement here; the box itself is the shared drawn checkbox. The
+		 * flex gap spaces the text, so drop the baseline's choice margin. */
+		& input[type='checkbox'] {
 			margin-top: 0.0625rem;
+			margin-inline-end: 0;
 		}
 	}
 

@@ -366,10 +366,6 @@ class Feature_Settings_Page {
 			);
 		}
 
-		if ( 'product_badges' === $key ) {
-			$this->register_badge_small_screen_fields();
-		}
-
 		if ( 'quick_view' === $key ) {
 			$qv_class = $this->sub_field_classes( 'quick_view' );
 
@@ -398,18 +394,6 @@ class Feature_Settings_Page {
 			);
 
 			add_settings_field(
-				'quick_view_touch_mode',
-				__( 'Card Buttons on Touch Devices', 'aggressive-apparel' ),
-				array( $this->fields, 'render_quick_view_touch_mode_field' ),
-				Feature_Settings::PAGE_SLUG,
-				'aggressive_apparel_features_product',
-				array(
-					'label_for' => Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION,
-					'class'     => $qv_class,
-				),
-			);
-
-			add_settings_field(
 				'quick_view_media_wishlist',
 				__( 'Wishlist on Product Images', 'aggressive-apparel' ),
 				array( $this->fields, 'render_quick_view_media_wishlist_field' ),
@@ -425,30 +409,34 @@ class Feature_Settings_Page {
 		if ( 'social_proof' === $key ) {
 			$this->register_social_proof_fields();
 		}
+
+		$this->register_card_display_fields( $key );
 	}
 
 	/**
-	 * Register the Product Badges small-screen sub-fields.
+	 * Register a feature's card display sub-fields, in its own section.
 	 *
+	 * @param string $key Parent feature key.
 	 * @return void
 	 */
-	private function register_badge_small_screen_fields(): void {
-		$fields = array(
-			'badge_small_screen_limit' => array( __( 'Badges per Product on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_limit_field', Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION ),
-			'badge_small_screen_sale'  => array( __( 'Sale Badge on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_sale_field', Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION ),
-			'badge_small_screen_size'  => array( __( 'Badge Size on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_size_field', Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION ),
-		);
+	private function register_card_display_fields( string $key ): void {
+		$section = Feature_Settings::get_feature_definitions()[ $key ]['section'];
 
-		foreach ( $fields as $id => list( $title, $renderer, $option ) ) {
+		foreach ( Feature_Settings::get_card_display_field_definitions() as $option => $definition ) {
+			if ( $key !== $definition['feature'] ) {
+				continue;
+			}
+
 			add_settings_field(
-				$id,
-				$title,
-				array( $this->fields, $renderer ),
+				$option,
+				$definition['title'],
+				array( $this->fields, 'render_card_display_field' ),
 				Feature_Settings::PAGE_SLUG,
-				'aggressive_apparel_features_catalog',
+				'aggressive_apparel_features_' . $section,
 				array(
 					'label_for' => $option,
-					'class'     => $this->sub_field_classes( 'product_badges' ),
+					'option'    => $option,
+					'class'     => $this->sub_field_classes( $key ),
 				),
 			);
 		}

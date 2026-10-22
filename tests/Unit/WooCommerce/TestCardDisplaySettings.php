@@ -56,6 +56,20 @@ class TestCardDisplaySettings extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Admin dropdowns offer exactly the allowed values, in the same order
+	 * (default first), so the two lists can't drift apart.
+	 */
+	public function test_admin_choices_match_allowed_values(): void {
+		$definitions = Feature_Settings::get_card_display_field_definitions();
+
+		$this->assertEqualsCanonicalizing( array_keys( Feature_Settings::CARD_DISPLAY_CHOICES ), array_keys( $definitions ) );
+		foreach ( Feature_Settings::CARD_DISPLAY_CHOICES as $option => $choices ) {
+			$this->assertSame( $choices, array_keys( $definitions[ $option ]['choices'] ), $option );
+			$this->assertArrayHasKey( $definitions[ $option ]['feature'], Feature_Settings::get_feature_definitions(), $option );
+		}
+	}
+
+	/**
 	 * The toggle chip renders only in the "toggle" touch mode, and the stack
 	 * carries the mode as a modifier class.
 	 */

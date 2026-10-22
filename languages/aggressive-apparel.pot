@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T05:35:58+00:00\n"
+"POT-Creation-Date: 2026-10-22T05:52:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: aggressive-apparel\n"
@@ -1472,7 +1472,7 @@ msgid "Transparency enabled — final contrast depends on the product image."
 msgstr ""
 
 #: includes/WooCommerce/class-badge-admin-fields.php:192
-#: includes/WooCommerce/class-feature-settings-fields.php:525
+#: includes/WooCommerce/class-feature-settings-fields.php:463
 msgid "None"
 msgstr ""
 
@@ -1694,6 +1694,86 @@ msgstr ""
 #: includes/WooCommerce/class-badge-system-defaults.php:156
 #: patterns/design-system-preview.php:153
 msgid "Low Stock"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:101
+msgid "Card Buttons on Touch Devices"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:103
+msgid "Behind one small chip — tap it to show the actions"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:104
+msgid "Always visible"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:105
+msgid "Hidden (tap the product to open it)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:107
+msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover."
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:111
+msgid "Badges per Product on Phones"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:113
+msgid "One badge (highest priority)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:114
+msgid "Up to two badges"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:115
+msgid "Up to three badges"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:116
+msgid "All badges"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:118
+msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:122
+msgid "Sale Badge on Phones"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:124
+msgid "Hide — the price already shows the sale"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:125
+msgid "Show"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:127
+msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:131
+msgid "Badge Size on Phones"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:133
+msgid "Compact (85%)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:134
+msgid "Smallest (75%)"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:135
+msgid "Same as large screens"
+msgstr ""
+
+#: includes/WooCommerce/class-card-display-settings.php:137
+msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
 msgstr ""
 
 #: includes/WooCommerce/class-catalog-archive-filters.php:183
@@ -2067,178 +2147,114 @@ msgstr ""
 msgid "When included, listing cards hide the Wishlist Button block on the image stack so you do not get two hearts. Single product placement still follows Wishlist Button Placement on the Customer Engagement tab."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:341
-msgid "Behind one small chip — tap it to show the actions"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:342
-msgid "Always visible"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:343
-msgid "Hidden (tap the product to open it)"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:349
-msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:360
-msgid "One badge (highest priority)"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:361
-msgid "Up to two badges"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:362
-msgid "Up to three badges"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:363
-msgid "All badges"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:369
-msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:380
-msgid "Hide — the price already shows the sale"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:381
-msgid "Show"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:387
-msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:398
-msgid "Compact (85%)"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:399
-msgid "Smallest (75%)"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:400
-msgid "Same as large screens"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:406
-msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-fields.php:418
+#: includes/WooCommerce/class-feature-settings-fields.php:356
 msgid "Load More Button"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:419
+#: includes/WooCommerce/class-feature-settings-fields.php:357
 msgid "Infinite Scroll"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:425
+#: includes/WooCommerce/class-feature-settings-fields.php:363
 msgid "Load More shows a button; Infinite Scroll loads automatically as users scroll down."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:458
-#: includes/WooCommerce/class-feature-settings-fields.php:459
+#: includes/WooCommerce/class-feature-settings-fields.php:396
+#: includes/WooCommerce/class-feature-settings-fields.php:397
 msgid "Off"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:467
+#: includes/WooCommerce/class-feature-settings-fields.php:405
 msgid "Weight 0 disables a source. Higher weights appear more often in the random rotation. Engagement uses catalog sales totals (requires the minimum sales threshold below). Set Engagement to 0 until you have steady sales. Set Purchases to 0 on day one if you prefer only trust + engagement + announcements."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:485
+#: includes/WooCommerce/class-feature-settings-fields.php:423
 msgid "One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:500
+#: includes/WooCommerce/class-feature-settings-fields.php:438
 msgid ""
 "gift|Spring drop launches Friday\n"
 "https://cdn.example.com/sale-dot.png | Free shipping today only"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:504
+#: includes/WooCommerce/class-feature-settings-fields.php:442
 msgid "Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:543
+#: includes/WooCommerce/class-feature-settings-fields.php:481
 msgid "Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:557
+#: includes/WooCommerce/class-feature-settings-fields.php:495
 msgid "Trust Messages and Custom Announcements: each line uses PREFIX|message. PREFIX is either a slug from the expandable list below (same slugs appear in the badge dropdown) or a full https URL to your own PNG/SVG/WebP badge. Prefix none| to force plain text on that row."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:558
+#: includes/WooCommerce/class-feature-settings-fields.php:496
 msgid "Slides that include a WooCommerce thumbnail only show icons as the thumbnail-corner badge—not the PREFIX column—to avoid crowding."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:562
+#: includes/WooCommerce/class-feature-settings-fields.php:500
 msgid "Built-in icon slugs (copy into PREFIX|)"
 msgstr ""
 
 #. translators: %s: Inline code snippet with PHP filter name.
-#: includes/WooCommerce/class-feature-settings-fields.php:570
+#: includes/WooCommerce/class-feature-settings-fields.php:508
 #, php-format
 msgid "Developers — register additional icons via the %s filter (child theme recommended). Use a string for a single path (viewBox 0 0 24 24), or an array with viewBox, paths, and optional circles, polygons, and rects."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:594
+#: includes/WooCommerce/class-feature-settings-fields.php:532
 msgid "Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:605
+#: includes/WooCommerce/class-feature-settings-fields.php:543
 msgid "Anonymous — \"Someone in [Location] purchased X\" (recommended)"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:606
+#: includes/WooCommerce/class-feature-settings-fields.php:544
 msgid "Initial only — \"S. in [Location] purchased X\""
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:607
+#: includes/WooCommerce/class-feature-settings-fields.php:545
 msgid "First name — \"Sarah from [Location] purchased X\" (requires checkout consent)"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:613
+#: includes/WooCommerce/class-feature-settings-fields.php:551
 msgid "Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:625
+#: includes/WooCommerce/class-feature-settings-fields.php:563
 msgid "City — \"Portland\""
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:626
+#: includes/WooCommerce/class-feature-settings-fields.php:564
 msgid "State / Region — \"Oregon\""
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:627
+#: includes/WooCommerce/class-feature-settings-fields.php:565
 msgid "Country — \"United States\""
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:628
+#: includes/WooCommerce/class-feature-settings-fields.php:566
 msgid "Hide location entirely"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:634
+#: includes/WooCommerce/class-feature-settings-fields.php:572
 msgid "Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:654
+#: includes/WooCommerce/class-feature-settings-fields.php:592
 msgid "Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:674
+#: includes/WooCommerce/class-feature-settings-fields.php:612
 msgid "Show a sample notification first in the rotation so you can preview the design. Visible only to logged-in users with the “Edit Theme Options” capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active."
 msgstr ""
 
 #: includes/WooCommerce/class-feature-settings-page.php:90
 #: includes/WooCommerce/class-feature-settings-page.php:91
-#: includes/WooCommerce/class-feature-settings-page.php:567
+#: includes/WooCommerce/class-feature-settings-page.php:555
 msgid "Store Enhancements"
 msgstr ""
 
@@ -2266,91 +2282,75 @@ msgstr ""
 msgid "Wishlist Button Placement"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:378
+#: includes/WooCommerce/class-feature-settings-page.php:374
 msgid "Quick View Card Style"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:390
+#: includes/WooCommerce/class-feature-settings-page.php:386
 msgid "Quick View Card Position"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:402
-msgid "Card Buttons on Touch Devices"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-page.php:414
+#: includes/WooCommerce/class-feature-settings-page.php:398
 msgid "Wishlist on Product Images"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:437
-msgid "Badges per Product on Phones"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-page.php:438
-msgid "Sale Badge on Phones"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-page.php:439
-msgid "Badge Size on Phones"
-msgstr ""
-
-#: includes/WooCommerce/class-feature-settings-page.php:481
+#: includes/WooCommerce/class-feature-settings-page.php:469
 msgid "Notification Sources"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:486
+#: includes/WooCommerce/class-feature-settings-page.php:474
 #: includes/WooCommerce/class-social-proof-settings.php:32
 msgid "Trust Messages"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:491
+#: includes/WooCommerce/class-feature-settings-page.php:479
 #: includes/WooCommerce/class-social-proof-settings.php:40
 msgid "Custom Announcements"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:496
+#: includes/WooCommerce/class-feature-settings-page.php:484
 msgid "Badge on Purchase Thumbnails"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:501
+#: includes/WooCommerce/class-feature-settings-page.php:489
 msgid "Icons: reference & customization"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:506
+#: includes/WooCommerce/class-feature-settings-page.php:494
 msgid "Engagement: Minimum Lifetime Sales"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:511
+#: includes/WooCommerce/class-feature-settings-page.php:499
 msgid "Purchase Display Mode"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:516
+#: includes/WooCommerce/class-feature-settings-page.php:504
 msgid "Location Granularity"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:521
+#: includes/WooCommerce/class-feature-settings-page.php:509
 msgid "Minimum Order Age (Minutes)"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:526
+#: includes/WooCommerce/class-feature-settings-page.php:514
 msgid "Demo Preview (Admin Only)"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:573
+#: includes/WooCommerce/class-feature-settings-page.php:561
 msgid "Enable or disable individual WooCommerce enhancements. Disabled features have zero performance overhead."
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:580
+#: includes/WooCommerce/class-feature-settings-page.php:568
 msgid "Store Enhancements sections"
 msgstr ""
 
 #. translators: 1: enabled feature count, 2: total features in section.
-#: includes/WooCommerce/class-feature-settings-page.php:595
+#: includes/WooCommerce/class-feature-settings-page.php:583
 #, php-format
 msgid "%1$d of %2$d features enabled"
 msgstr ""
 
-#: includes/WooCommerce/class-feature-settings-page.php:640
+#: includes/WooCommerce/class-feature-settings-page.php:628
 msgid "Save Changes"
 msgstr ""
 

@@ -234,13 +234,6 @@
 				display: inline-flex;
 			}
 
-			/* The chip sits in the stack's corner: first for top corners, last
-			   for bottom corners and the bottom bar. */
-			&:is(.aggressive-apparel-card-actions--bottom-right, .aggressive-apparel-card-actions--bottom-left, .aggressive-apparel-card-actions--bottom-bar)
-				.aggressive-apparel-card-actions__toggle {
-				order: 1;
-			}
-
 			&:has(.aggressive-apparel-card-actions__popover:popover-open) .aggressive-apparel-card-actions__toggle-open,
 			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open)) .aggressive-apparel-card-actions__toggle-close {
 				display: none;

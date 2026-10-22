@@ -200,9 +200,10 @@ class Product_Badges {
 	 * System badges (sale, new, low-stock, bestseller) are styled via their
 	 * taxonomy term data and auto-applied based on product conditions.
 	 * Custom badges render in their configured position. All badges within
-	 * the same position group are sorted by priority. On small screens the
-	 * Store Enhancements → Product Badges options may hide the sale badge and
-	 * cap the count (by priority across every position) and shrink the badges.
+	 * the same position group are sorted by priority. For phones, the Store
+	 * Enhancements → Product Badges options mark the sale badge and any badge
+	 * past the per-product limit (counted by priority across every position)
+	 * as hidden, and choose the badge size.
 	 *
 	 * @param \WC_Product $product Product object.
 	 * @return string Badge markup or empty string.

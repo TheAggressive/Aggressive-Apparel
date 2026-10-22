@@ -88,6 +88,58 @@ trait Card_Display_Settings {
 	}
 
 	/**
+	 * Admin field per card display option: the feature it sits under, its
+	 * title, choice labels (keyed and ordered like CARD_DISPLAY_CHOICES —
+	 * TestCardDisplaySettings enforces it) and help text.
+	 *
+	 * @return array<string, array{feature: string, title: string, choices: array<string, string>, description: string}>
+	 */
+	public static function get_card_display_field_definitions(): array {
+		return array(
+			self::QUICK_VIEW_TOUCH_MODE_OPTION    => array(
+				'feature'     => 'quick_view',
+				'title'       => __( 'Card Buttons on Touch Devices', 'aggressive-apparel' ),
+				'choices'     => array(
+					'toggle' => __( 'Behind one small chip — tap it to show the actions', 'aggressive-apparel' ),
+					'always' => __( 'Always visible', 'aggressive-apparel' ),
+					'hidden' => __( 'Hidden (tap the product to open it)', 'aggressive-apparel' ),
+				),
+				'description' => __( 'Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover.', 'aggressive-apparel' ),
+			),
+			self::BADGE_SMALL_SCREEN_LIMIT_OPTION => array(
+				'feature'     => 'product_badges',
+				'title'       => __( 'Badges per Product on Phones', 'aggressive-apparel' ),
+				'choices'     => array(
+					'one'   => __( 'One badge (highest priority)', 'aggressive-apparel' ),
+					'two'   => __( 'Up to two badges', 'aggressive-apparel' ),
+					'three' => __( 'Up to three badges', 'aggressive-apparel' ),
+					'all'   => __( 'All badges', 'aggressive-apparel' ),
+				),
+				'description' => __( 'On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge.', 'aggressive-apparel' ),
+			),
+			self::BADGE_SMALL_SCREEN_SALE_OPTION  => array(
+				'feature'     => 'product_badges',
+				'title'       => __( 'Sale Badge on Phones', 'aggressive-apparel' ),
+				'choices'     => array(
+					'hide' => __( 'Hide — the price already shows the sale', 'aggressive-apparel' ),
+					'show' => __( 'Show', 'aggressive-apparel' ),
+				),
+				'description' => __( 'Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge.', 'aggressive-apparel' ),
+			),
+			self::BADGE_SMALL_SCREEN_SIZE_OPTION  => array(
+				'feature'     => 'product_badges',
+				'title'       => __( 'Badge Size on Phones', 'aggressive-apparel' ),
+				'choices'     => array(
+					'compact'  => __( 'Compact (85%)', 'aggressive-apparel' ),
+					'smallest' => __( 'Smallest (75%)', 'aggressive-apparel' ),
+					'standard' => __( 'Same as large screens', 'aggressive-apparel' ),
+				),
+				'description' => __( 'Scales every badge on screens under 600px wide, keeping each badge’s own design.', 'aggressive-apparel' ),
+			),
+		);
+	}
+
+	/**
 	 * A card display option's value, constrained to its allowed choices.
 	 *
 	 * @param string $option Option key from CARD_DISPLAY_CHOICES.

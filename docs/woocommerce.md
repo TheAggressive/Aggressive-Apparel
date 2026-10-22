@@ -118,6 +118,30 @@ which breaks native pagination and Load More alike. Set the archive template's
 Product Collection to _Sync with current query_ (pages become `/shop/page/N/`),
 or have the host allow the parameter.
 
+## Product cards on phones and touch devices
+
+Every behavior below is a Store Enhancements option, so nothing is fixed in
+code.
+
+- **Card Buttons on Touch Devices** (Quick View sub-option): devices that
+  can't hover would otherwise show Quick View and Wishlist on every image.
+  The default puts them behind one chip that opens a native popover
+  (`popover="auto"`, CSS anchor positioning), so the browser handles
+  tap-outside, Escape, one-open-at-a-time and the expanded state, with no
+  JavaScript. Quick View closes the popover before opening (`view.ts`), since
+  the top layer would float it above the modal. Hover devices, and browsers
+  without anchor positioning, get the buttons inline as before. Popover ids
+  include the product id because each Load More page is a separate render.
+  The other options are "always visible" and "hidden".
+- **Badges on phones** (Product Badges sub-options, under 600px wide): hide the
+  sale badge (the crossed-out price already shows it), cap the badges per
+  product by badge priority across every position, and scale them with
+  `zoom` (a transform would break glass badges). The server marks the
+  badges; CSS applies the breakpoint, so pages stay cache-safe.
+
+`card-touch-actions.spec.ts` covers the chip (including on appended cards);
+`TestCardDisplaySettings` covers the options and badge ranking.
+
 ## Free shipping (international)
 
 `free-shipping-bar` / `free-shipping-message` show progress toward the

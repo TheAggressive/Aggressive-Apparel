@@ -332,6 +332,20 @@ class Feature_Settings_Fields {
 	}
 
 	/**
+	 * Render a card display option (Feature_Settings::get_card_display_field_definitions()).
+	 *
+	 * @param array{option: string} $args Field args; `option` is the option key.
+	 * @return void
+	 */
+	public function render_card_display_field( array $args ): void {
+		$option     = $args['option'];
+		$definition = Feature_Settings::get_card_display_field_definitions()[ $option ];
+
+		$this->render_select( $option, $definition['choices'], Feature_Settings::get_card_display_setting( $option ) );
+		$this->render_field_description( $option, $definition['description'] );
+	}
+
+	/**
 	 * Render the load more mode select field.
 	 *
 	 * @return void

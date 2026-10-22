@@ -34,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Feature_Settings {
 	use Store_Copy;
 	use Social_Proof_Settings;
+	use Card_Display_Settings;
 
 
 	/**
@@ -600,7 +601,7 @@ class Feature_Settings {
 	 * @return array<string, array{type: string, default: mixed, sanitize: string, empty_means_default?: bool}>
 	 */
 	public static function get_option_schema(): array {
-		return array(
+		return self::get_card_display_option_schema() + array(
 			self::FILTER_LAYOUT_OPTION                     => array(
 				'type'     => 'string',
 				'default'  => 'drawer',

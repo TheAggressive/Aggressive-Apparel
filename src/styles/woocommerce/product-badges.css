@@ -267,3 +267,21 @@
 		backdrop-filter: none;
 	}
 }
+
+/* Phones (Store Enhancements → Product Badges): the sale badge and badges past
+   the per-product limit are marked server-side; `zoom` scales a badge's own
+   inline sizes without a transform (which would break glass blur). */
+@media (width < 600px) {
+
+	.aggressive-apparel-product-badge--hide-small {
+		display: none;
+	}
+
+	.aggressive-apparel-product-badge__wrapper--small-compact {
+		zoom: 0.85;
+	}
+
+	.aggressive-apparel-product-badge__wrapper--small-smallest {
+		zoom: 0.75;
+	}
+}

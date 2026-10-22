@@ -409,6 +409,37 @@ class Feature_Settings_Page {
 		if ( 'social_proof' === $key ) {
 			$this->register_social_proof_fields();
 		}
+
+		$this->register_card_display_fields( $key );
+	}
+
+	/**
+	 * Register a feature's card display sub-fields, in its own section.
+	 *
+	 * @param string $key Parent feature key.
+	 * @return void
+	 */
+	private function register_card_display_fields( string $key ): void {
+		$section = Feature_Settings::get_feature_definitions()[ $key ]['section'];
+
+		foreach ( Feature_Settings::get_card_display_field_definitions() as $option => $definition ) {
+			if ( $key !== $definition['feature'] ) {
+				continue;
+			}
+
+			add_settings_field(
+				$option,
+				$definition['title'],
+				array( $this->fields, 'render_card_display_field' ),
+				Feature_Settings::PAGE_SLUG,
+				'aggressive_apparel_features_' . $section,
+				array(
+					'label_for' => $option,
+					'option'    => $option,
+					'class'     => $this->sub_field_classes( $key ),
+				),
+			);
+		}
 	}
 
 	/**

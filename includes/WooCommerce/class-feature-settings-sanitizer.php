@@ -148,6 +148,58 @@ class Feature_Settings_Sanitizer {
 	}
 
 	/**
+	 * Sanitize the card action stack behaviour on touch devices.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_quick_view_touch_mode( $input ): string {
+		return $this->sanitize_card_display_choice( Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION, $input );
+	}
+
+	/**
+	 * Sanitize the badges-per-card limit on small screens.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_badge_small_screen_limit( $input ): string {
+		return $this->sanitize_card_display_choice( Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION, $input );
+	}
+
+	/**
+	 * Sanitize the sale badge visibility on small screens.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_badge_small_screen_sale( $input ): string {
+		return $this->sanitize_card_display_choice( Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION, $input );
+	}
+
+	/**
+	 * Sanitize the badge size on small screens.
+	 *
+	 * @param mixed $input Raw input.
+	 * @return string
+	 */
+	public function sanitize_badge_small_screen_size( $input ): string {
+		return $this->sanitize_card_display_choice( Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION, $input );
+	}
+
+	/**
+	 * Constrain a card display option to its allowed choices.
+	 *
+	 * @param string $option Option key from Feature_Settings::CARD_DISPLAY_CHOICES.
+	 * @param mixed  $input  Raw input.
+	 * @return string
+	 */
+	private function sanitize_card_display_choice( string $option, $input ): string {
+		$choices = Feature_Settings::CARD_DISPLAY_CHOICES[ $option ];
+		return in_array( $input, $choices, true ) ? $input : $choices[0];
+	}
+
+	/**
 	 * Sanitize whether Wishlist joins the Quick View media stack.
 	 *
 	 * @param mixed $input Raw input.

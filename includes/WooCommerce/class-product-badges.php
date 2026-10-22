@@ -200,13 +200,15 @@ class Product_Badges {
 	 * System badges (sale, new, low-stock, bestseller) are styled via their
 	 * taxonomy term data and auto-applied based on product conditions.
 	 * Custom badges render in their configured position. All badges within
-	 * the same position group are sorted by priority.
+	 * the same position group are sorted by priority. On small screens the
+	 * Store Enhancements → Product Badges options may hide the sale badge and
+	 * cap the count (by priority across every position) and shrink the badges.
 	 *
 	 * @param \WC_Product $product Product object.
 	 * @return string Badge markup or empty string.
 	 */
 	private function build_badges_html( \WC_Product $product ): string {
-		$groups = array_fill_keys( Badge_Style_Schema::POSITIONS, array() );
+		$entries = array();
 
 		// --- System badges (condition-based, styled via taxonomy term) ---
 		$system_badges = Custom_Badge_Taxonomy::get_system_badges();
@@ -235,7 +237,7 @@ class Product_Badges {
 			$badge = $system_badges[ $type ];
 			$label = 'sale' === $type ? $sale_label : $badge['name'];
 
-			$this->add_badge_to_group( $groups, $badge, $label );
+			$entries[] = $this->badge_entry( $badge, $label, $type );
 		}
 
 		// --- Custom badges (taxonomy-assigned to products) ---
@@ -246,22 +248,44 @@ class Product_Badges {
 				continue;
 			}
 
-			$this->add_badge_to_group( $groups, $badge, $badge['name'] );
+			$entries[] = $this->badge_entry( $badge, $badge['name'], 'custom' );
 		}
 
-		// Sort each position group by priority, then build output.
+		// Priority order across every position decides which badges keep their
+		// slot on small screens; usort is stable, so ties keep insertion order.
+		usort( $entries, fn( array $a, array $b ): int => $a['priority'] <=> $b['priority'] );
+
+		$hide_sale = Feature_Settings::hides_sale_badge_on_small_screens();
+		$limit     = Feature_Settings::get_badge_small_screen_limit();
+		$shown     = 0;
+		$groups    = array_fill_keys( Badge_Style_Schema::POSITIONS, array() );
+		foreach ( $entries as $entry ) {
+			$hidden = ( $hide_sale && 'sale' === $entry['type'] ) || ( $limit > 0 && $shown >= $limit );
+			if ( ! $hidden ) {
+				++$shown;
+			}
+
+			$groups[ $entry['position'] ][] = $this->build_badge_span(
+				$entry['badge'],
+				$entry['label'],
+				$hidden ? array( 'aggressive-apparel-product-badge--hide-small' ) : array()
+			);
+		}
+
+		$size          = Feature_Settings::get_badge_small_screen_size();
+		$size_modifier = 'standard' === $size ? '' : ' aggressive-apparel-product-badge__wrapper--small-' . $size;
+
 		$output = '';
 		foreach ( $groups as $position => $badges ) {
 			if ( empty( $badges ) ) {
 				continue;
 			}
 
-			usort( $badges, fn( array $a, array $b ): int => $a['priority'] <=> $b['priority'] );
-
 			$output .= sprintf(
-				'<div class="aggressive-apparel-product-badge__wrapper aggressive-apparel-product-badge__wrapper--%s">%s</div>',
+				'<div class="aggressive-apparel-product-badge__wrapper aggressive-apparel-product-badge__wrapper--%s%s">%s</div>',
 				esc_attr( $position ),
-				implode( '', array_column( $badges, 'html' ) ),
+				esc_attr( $size_modifier ),
+				implode( '', $badges ),
 			);
 		}
 
@@ -271,11 +295,12 @@ class Product_Badges {
 	/**
 	 * Build a single badge <span> from badge data.
 	 *
-	 * @param array<string, mixed> $badge Badge data from get_badge_data().
-	 * @param string               $label Display text.
+	 * @param array<string, mixed> $badge         Badge data from get_badge_data().
+	 * @param string               $label         Display text.
+	 * @param string[]             $extra_classes Extra classes (small-screen rules).
 	 * @return string Badge HTML.
 	 */
-	private function build_badge_span( array $badge, string $label ): string {
+	private function build_badge_span( array $badge, string $label, array $extra_classes = array() ): string {
 		$icon_position = Badge_Style_Schema::sanitize_enum(
 			$badge['icon_position'] ?? 'start',
 			Badge_Style_Schema::ICON_POSITIONS,
@@ -304,22 +329,26 @@ class Product_Badges {
 			$inner = $icon_html . esc_html( $label );
 		}
 
-		return Badge_Style_Schema::compile_badge_span( $badge, $inner, 'frontend', '', $aria_label );
+		return Badge_Style_Schema::compile_badge_span( $badge, $inner, 'frontend', '', $aria_label, $extra_classes );
 	}
 
 	/**
-	 * Add a badge to the appropriate position group.
+	 * Describe a badge for ranking and placement.
 	 *
-	 * @param array<string, array<int, array{priority: int, html: string}>> $groups Position groups (by reference).
-	 * @param array<string, mixed>                                          $badge  Badge data.
-	 * @param string                                                        $label  Display text.
-	 * @return void
+	 * @param array<string, mixed> $badge Badge data.
+	 * @param string               $label Display text.
+	 * @param string               $type  System badge type, or `custom`.
+	 * @return array{badge: array<string, mixed>, label: string, type: string, priority: int, position: string}
 	 */
-	private function add_badge_to_group( array &$groups, array $badge, string $label ): void {
-		$pos              = isset( $groups[ $badge['position'] ] ) ? (string) $badge['position'] : 'top-left';
-		$groups[ $pos ][] = array(
+	private function badge_entry( array $badge, string $label, string $type ): array {
+		$position = (string) ( $badge['position'] ?? '' );
+
+		return array(
+			'badge'    => $badge,
+			'label'    => $label,
+			'type'     => $type,
 			'priority' => (int) $badge['priority'],
-			'html'     => $this->build_badge_span( $badge, $label ),
+			'position' => in_array( $position, Badge_Style_Schema::POSITIONS, true ) ? $position : 'top-left',
 		);
 	}
 

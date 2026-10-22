@@ -191,6 +191,103 @@
 	}
 }
 
+/* Touch mode (Store Enhancements → Quick View → Card Buttons on Touch
+   Devices). In "behind one small chip" mode the actions sit in a native
+   popover. By default it lays out inline (display: contents beats the UA's
+   hidden closed popover), which is what hover devices and browsers without
+   anchor positioning get; only touch devices with it switch to the chip.
+   Every engine shipped the Popover API before anchor positioning, so one
+   anchor-name check covers both. */
+.aggressive-apparel-card-actions__popover {
+	display: contents;
+}
+
+.aggressive-apparel-card-actions__toggle {
+	display: none;
+
+	& svg {
+		display: block;
+		width: var(--aa-card-action-icon);
+		height: var(--aa-card-action-icon);
+	}
+
+	/* The bundled "dots" glyph is vertical; lay it flat. */
+	& .aggressive-apparel-card-actions__toggle-open svg {
+		rotate: 90deg;
+	}
+}
+
+@media (hover: none), (pointer: coarse) {
+
+	.aggressive-apparel-card-actions--touch-hidden {
+		display: none;
+	}
+}
+
+@supports (anchor-name: --aa-card) {
+
+	@media (hover: none), (pointer: coarse) {
+
+		.aggressive-apparel-card-actions--touch-toggle {
+
+			.aggressive-apparel-card-actions__toggle {
+				display: inline-flex;
+			}
+
+			/* The chip sits in the stack's corner: first for top corners, last
+			   for bottom corners and the bottom bar. */
+			&:is(.aggressive-apparel-card-actions--bottom-right, .aggressive-apparel-card-actions--bottom-left, .aggressive-apparel-card-actions--bottom-bar)
+				.aggressive-apparel-card-actions__toggle {
+				order: 1;
+			}
+
+			&:has(.aggressive-apparel-card-actions__popover:popover-open) .aggressive-apparel-card-actions__toggle-open,
+			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open)) .aggressive-apparel-card-actions__toggle-close {
+				display: none;
+			}
+
+			.aggressive-apparel-card-actions__popover:not(:popover-open) {
+				display: none;
+			}
+
+			/* Opens in the top layer, anchored to the chip (inline
+			   position-anchor), below it for top corners and above it for
+			   bottom ones, flipping when there is no room. */
+			.aggressive-apparel-card-actions__popover:popover-open {
+				display: flex;
+				flex-direction: column;
+				gap: 0.35rem;
+				inset: auto;
+				margin: 0.35rem 0;
+				padding: 0;
+				overflow: visible;
+				border: 0;
+				background: none;
+				color: inherit;
+				position-try-fallbacks: flip-block;
+				top: anchor(bottom);
+				right: anchor(right);
+			}
+
+			&:is(.aggressive-apparel-card-actions--top-left, .aggressive-apparel-card-actions--bottom-left)
+				.aggressive-apparel-card-actions__popover:popover-open {
+				right: auto;
+				left: anchor(left);
+			}
+
+			&:is(.aggressive-apparel-card-actions--bottom-right, .aggressive-apparel-card-actions--bottom-left, .aggressive-apparel-card-actions--bottom-bar)
+				.aggressive-apparel-card-actions__popover:popover-open {
+				top: auto;
+				bottom: anchor(top);
+			}
+
+			&:not(:has(.aggressive-apparel-card-actions__popover:popover-open)) .aggressive-apparel-card-actions__bar {
+				background: none;
+			}
+		}
+	}
+}
+
 /* Bottom bar: expand label on capable hover devices. */
 @media (hover: hover) and (pointer: fine) {
 

@@ -366,6 +366,10 @@ class Feature_Settings_Page {
 			);
 		}
 
+		if ( 'product_badges' === $key ) {
+			$this->register_badge_small_screen_fields();
+		}
+
 		if ( 'quick_view' === $key ) {
 			$qv_class = $this->sub_field_classes( 'quick_view' );
 
@@ -394,6 +398,18 @@ class Feature_Settings_Page {
 			);
 
 			add_settings_field(
+				'quick_view_touch_mode',
+				__( 'Card Buttons on Touch Devices', 'aggressive-apparel' ),
+				array( $this->fields, 'render_quick_view_touch_mode_field' ),
+				Feature_Settings::PAGE_SLUG,
+				'aggressive_apparel_features_product',
+				array(
+					'label_for' => Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION,
+					'class'     => $qv_class,
+				),
+			);
+
+			add_settings_field(
 				'quick_view_media_wishlist',
 				__( 'Wishlist on Product Images', 'aggressive-apparel' ),
 				array( $this->fields, 'render_quick_view_media_wishlist_field' ),
@@ -408,6 +424,33 @@ class Feature_Settings_Page {
 
 		if ( 'social_proof' === $key ) {
 			$this->register_social_proof_fields();
+		}
+	}
+
+	/**
+	 * Register the Product Badges small-screen sub-fields.
+	 *
+	 * @return void
+	 */
+	private function register_badge_small_screen_fields(): void {
+		$fields = array(
+			'badge_small_screen_limit' => array( __( 'Badges per Product on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_limit_field', Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION ),
+			'badge_small_screen_sale'  => array( __( 'Sale Badge on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_sale_field', Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION ),
+			'badge_small_screen_size'  => array( __( 'Badge Size on Phones', 'aggressive-apparel' ), 'render_badge_small_screen_size_field', Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION ),
+		);
+
+		foreach ( $fields as $id => list( $title, $renderer, $option ) ) {
+			add_settings_field(
+				$id,
+				$title,
+				array( $this->fields, $renderer ),
+				Feature_Settings::PAGE_SLUG,
+				'aggressive_apparel_features_catalog',
+				array(
+					'label_for' => $option,
+					'class'     => $this->sub_field_classes( 'product_badges' ),
+				),
+			);
 		}
 	}
 

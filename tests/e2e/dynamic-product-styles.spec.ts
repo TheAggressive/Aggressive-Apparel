@@ -174,8 +174,9 @@ test('product-card utility actions use the shared icon-button contract', async (
 }) => {
   const card = await openVisualFixtureCard(page);
 
+  // Visible ones: the touch-only chip is display: none on this desktop run.
   const actions = card.locator(
-    '.aggressive-apparel-card-actions .aggressive-apparel-card-action'
+    '.aggressive-apparel-card-actions .aggressive-apparel-card-action:visible'
   );
   const actionCount = await actions.count();
   expect(actionCount).toBeGreaterThan(0);

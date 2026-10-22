@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Aggressive_Apparel\WooCommerce;
 
-use Aggressive_Apparel\Core\Icons;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,115 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Renders the Quick View card triggers and modal shell.
  */
 class Quick_View_Renderer {
-
-	/**
-	 * Build the card media action stack markup for a product.
-	 *
-	 * @param \WC_Product $product Product instance.
-	 * @return string
-	 */
-	public function build_card_actions_markup( \WC_Product $product ): string {
-		$product_id = $product->get_id();
-		if ( $product_id <= 0 ) {
-			return '';
-		}
-
-		$style    = Feature_Settings::get_quick_view_trigger_style();
-		$position = Feature_Settings::get_quick_view_trigger_position();
-
-		$allowed_styles = array( 'corner', 'bottom-bar' );
-		if ( ! in_array( $style, $allowed_styles, true ) ) {
-			$style = 'corner';
-		}
-
-		$allowed_positions = array( 'top-right', 'top-left', 'bottom-right', 'bottom-left' );
-		if ( ! in_array( $position, $allowed_positions, true ) ) {
-			$position = 'top-right';
-		}
-
-		$include_wishlist = Feature_Settings::quick_view_includes_wishlist();
-		$quick_view_text  = Feature_Settings::get_quick_view_button_text();
-		$icon             = Icons::get(
-			'eye',
-			array(
-				'width'       => 18,
-				'height'      => 18,
-				'aria-hidden' => 'true',
-			)
-		);
-
-		$context_json = wp_json_encode( array( 'productId' => $product_id ) );
-		if ( ! is_string( $context_json ) ) {
-			return '';
-		}
-
-		// Clicks are handled by capture-phase document delegation in quick-view.js —
-		// keep data-wp-interactive + context for product id, omit data-wp-on--click
-		// to avoid double-open when hydration succeeds.
-		$trigger = sprintf(
-			'<button type="button" class="aggressive-apparel-card-action aggressive-apparel-quick-view__trigger aa-icon-button aa-icon-button--only" data-wp-interactive="aggressive-apparel/quick-view" data-wp-context="%1$s" aria-label="%2$s" title="%3$s"><span class="aggressive-apparel-quick-view__trigger-icon" aria-hidden="true">%4$s</span><span class="aggressive-apparel-quick-view__trigger-label" aria-hidden="true">%5$s</span></button>',
-			esc_attr( $context_json ),
-			esc_attr(
-				sprintf(
-					/* translators: 1: Quick View label, 2: product name. */
-					__( '%1$s: %2$s', 'aggressive-apparel' ),
-					$quick_view_text,
-					$product->get_name(),
-				),
-			),
-			esc_attr( $quick_view_text ),
-			$icon,
-			esc_html( $quick_view_text ),
-		);
-
-		$wishlist_html = '';
-		if ( $include_wishlist ) {
-			$wishlist_html = Wishlist::get_heart_button_html(
-				$product_id,
-				false,
-				'aggressive-apparel-card-action aggressive-apparel-wishlist__toggle--card-media'
-			);
-			Wishlist::mark_button_block_rendered( $product_id );
-		}
-
-		$stack_inner = $wishlist_html . $trigger;
-		if ( 'bottom-bar' === $style ) {
-			$stack_inner = sprintf(
-				'<div class="aggressive-apparel-card-actions__bar">%s</div>',
-				$stack_inner
-			);
-		}
-
-		$group_label = $include_wishlist
-			? __( 'Product actions', 'aggressive-apparel' )
-			: $quick_view_text;
-
-		$stack = sprintf(
-			'<div class="aggressive-apparel-card-actions aggressive-apparel-card-actions--%1$s aggressive-apparel-card-actions--%2$s" role="group" aria-label="%3$s">%4$s</div>',
-			esc_attr( $style ),
-			esc_attr( $position ),
-			esc_attr( $group_label ),
-			$stack_inner
-		);
-
-		/**
-		 * Filters the Quick View card media action stack markup.
-		 *
-		 * @since 1.81.0
-		 *
-		 * @param string      $stack   Action stack HTML.
-		 * @param \WC_Product $product Current product.
-		 * @param string      $style   Trigger style slug.
-		 * @param string      $position Corner position slug.
-		 */
-		return (string) apply_filters(
-			'aggressive_apparel_quick_view_card_actions_html',
-			$stack,
-			$product,
-			$style,
-			$position
-		);
-	}
+	use Quick_View_Card_Actions;
 
 	/**
 	 * Render the modal shell in the footer.

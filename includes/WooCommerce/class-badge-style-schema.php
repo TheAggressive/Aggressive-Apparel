@@ -726,11 +726,12 @@ class Badge_Style_Schema {
 	 * @param string               $context    `frontend` or `admin`.
 	 * @param string               $id         Optional element id.
 	 * @param string               $aria_label Optional accessible name (icon-only).
+	 * @param string[]             $extra_classes Optional extra classes (e.g. display rules).
 	 * @return string
 	 */
-	public static function compile_badge_span( array $badge, string $inner_html, string $context = 'frontend', string $id = '', string $aria_label = '' ): string {
+	public static function compile_badge_span( array $badge, string $inner_html, string $context = 'frontend', string $id = '', string $aria_label = '', array $extra_classes = array() ): string {
 		$badge   = self::with_defaults( $badge );
-		$classes = self::emit_class_names( $badge );
+		$classes = array_merge( self::emit_class_names( $badge ), $extra_classes );
 		$style   = self::emit_style_attribute( $badge, $context );
 		$shape   = Badge_Shapes::render_frame_svg( $badge );
 

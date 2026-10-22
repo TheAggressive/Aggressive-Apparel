@@ -30,6 +30,7 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		delete_option( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION );
 		delete_option( Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION );
 		delete_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION );
+		delete_option( Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION );
 
 		parent::tearDown();
 	}
@@ -67,6 +68,8 @@ class TestQuickViewCardActions extends WP_UnitTestCase {
 		update_option( Feature_Settings::QUICK_VIEW_TRIGGER_STYLE_OPTION, 'corner' );
 		update_option( Feature_Settings::QUICK_VIEW_TRIGGER_POSITION_OPTION, 'top-left' );
 		update_option( Feature_Settings::QUICK_VIEW_MEDIA_WISHLIST_OPTION, 'with_wishlist' );
+		// No touch chip, so the stack holds exactly the heart and the eye.
+		update_option( Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION, 'always' );
 
 		$product  = $this->create_test_product( 'Card Stack Tee' );
 		$renderer = new Quick_View_Renderer();

@@ -393,6 +393,13 @@ document.addEventListener(
       return;
     }
 
+    // On touch the trigger can sit in the card's actions popover, which lives
+    // in the top layer and would otherwise float above the modal.
+    const popover = trigger.closest<HTMLElement>('[popover]');
+    if (popover?.matches(':popover-open')) {
+      popover.hidePopover();
+    }
+
     actions.open(e);
     syncModalDOM();
   },

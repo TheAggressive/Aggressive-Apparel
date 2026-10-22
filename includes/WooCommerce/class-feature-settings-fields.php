@@ -332,6 +332,82 @@ class Feature_Settings_Fields {
 	}
 
 	/**
+	 * Render the card action stack behaviour on touch devices.
+	 *
+	 * @return void
+	 */
+	public function render_quick_view_touch_mode_field(): void {
+		$options = array(
+			'toggle' => __( 'Behind one small chip — tap it to show the actions', 'aggressive-apparel' ),
+			'always' => __( 'Always visible', 'aggressive-apparel' ),
+			'hidden' => __( 'Hidden (tap the product to open it)', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION, $options, Feature_Settings::get_quick_view_touch_mode() );
+		$this->render_field_description(
+			Feature_Settings::QUICK_VIEW_TOUCH_MODE_OPTION,
+			__( 'Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render the badges-per-card limit on small screens.
+	 *
+	 * @return void
+	 */
+	public function render_badge_small_screen_limit_field(): void {
+		$options = array(
+			'one'   => __( 'One badge (highest priority)', 'aggressive-apparel' ),
+			'two'   => __( 'Up to two badges', 'aggressive-apparel' ),
+			'three' => __( 'Up to three badges', 'aggressive-apparel' ),
+			'all'   => __( 'All badges', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION, $options, Feature_Settings::get_card_display_setting( Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION ) );
+		$this->render_field_description(
+			Feature_Settings::BADGE_SMALL_SCREEN_LIMIT_OPTION,
+			__( 'On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render the sale badge visibility on small screens.
+	 *
+	 * @return void
+	 */
+	public function render_badge_small_screen_sale_field(): void {
+		$options = array(
+			'hide' => __( 'Hide — the price already shows the sale', 'aggressive-apparel' ),
+			'show' => __( 'Show', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION, $options, Feature_Settings::get_card_display_setting( Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION ) );
+		$this->render_field_description(
+			Feature_Settings::BADGE_SMALL_SCREEN_SALE_OPTION,
+			__( 'Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
+	 * Render the badge size on small screens.
+	 *
+	 * @return void
+	 */
+	public function render_badge_small_screen_size_field(): void {
+		$options = array(
+			'compact'  => __( 'Compact (85%)', 'aggressive-apparel' ),
+			'smallest' => __( 'Smallest (75%)', 'aggressive-apparel' ),
+			'standard' => __( 'Same as large screens', 'aggressive-apparel' ),
+		);
+
+		$this->render_select( Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION, $options, Feature_Settings::get_card_display_setting( Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION ) );
+		$this->render_field_description(
+			Feature_Settings::BADGE_SMALL_SCREEN_SIZE_OPTION,
+			__( 'Scales every badge on screens under 600px wide, keeping each badge’s own design.', 'aggressive-apparel' )
+		);
+	}
+
+	/**
 	 * Render the load more mode select field.
 	 *
 	 * @return void

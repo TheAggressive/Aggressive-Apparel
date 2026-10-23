@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Aggressive Apparel 1.164.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/aggressive-"
 "apparel\n"
-"POT-Creation-Date: 2026-10-20T06:28:52+00:00\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2026-07-18T08:28:48+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -106,7 +106,7 @@ msgid "PLP headers, filters, and browse recovery states."
 msgstr "Intestazioni PLP, filtri e stati di recupero della navigazione."
 
 #: includes/Core/class-block-categories.php:88
-#: includes/WooCommerce/class-feature-settings.php:419
+#: includes/WooCommerce/class-feature-settings.php:420
 #, aa-mt
 msgid "Product Page"
 msgstr "Pagina del prodotto"
@@ -581,6 +581,7 @@ msgstr "Ricerca in corso…"
 
 #: includes/Core/class-search-modal.php:211
 #: includes/Core/class-search-modal.php:260
+#: src/blocks-interactivity/wishlist/render.php:116
 #, aa-mt
 msgid "Try again"
 msgstr "Riprova"
@@ -708,167 +709,167 @@ msgstr "Funzionalità relative all'aspetto che funzionano sia con che senza WooC
 msgid "Enabled"
 msgstr "Abilitato"
 
-#: includes/Core/class-theme-support.php:170
+#: includes/Core/class-theme-support.php:179
 #, aa-mt
 msgid "Secondary (Outline)"
 msgstr "Secondario (Schema)"
 
-#: includes/Core/class-theme-support.php:178
+#: includes/Core/class-theme-support.php:187
 #: patterns/design-system-preview.php:57 patterns/design-system-preview.php:181
 #, aa-mt
 msgid "Large Secondary"
 msgstr "Scuola secondaria di secondo grado"
 
-#: includes/Core/class-theme-support.php:186
+#: includes/Core/class-theme-support.php:195
 #, aa-mt
 msgid "Tertiary (Text)"
 msgstr "Istruzione superiore (Testo)"
 
-#: includes/Core/class-theme-support.php:194
+#: includes/Core/class-theme-support.php:203
 #: patterns/design-system-preview.php:116
 #, aa-mt
 msgid "Small"
 msgstr "Piccolo"
 
-#: includes/Core/class-theme-support.php:202
+#: includes/Core/class-theme-support.php:211
 #: patterns/design-system-preview.php:53
 #, aa-mt
 msgid "Large Primary"
 msgstr "Scuola primaria grande"
 
-#: includes/Core/class-theme-support.php:210
+#: includes/Core/class-theme-support.php:219
 #: patterns/design-system-preview.php:61
 #, aa-mt
 msgid "Small Primary"
 msgstr "Scuola elementare piccola"
 
-#: includes/Core/class-theme-support.php:218
+#: includes/Core/class-theme-support.php:227
 #: patterns/design-system-preview.php:177
 #, aa-mt
 msgid "Secondary on Dark"
 msgstr "Secondario su Dark"
 
-#: includes/Core/class-theme-support.php:226
+#: includes/Core/class-theme-support.php:235
 #, aa-mt
 msgid "Large Secondary on Dark"
 msgstr "Grande secondario su sfondo scuro"
 
-#: includes/Core/class-theme-support.php:234
+#: includes/Core/class-theme-support.php:243
 #, aa-mt
 msgid "Small Secondary on Dark"
 msgstr "Piccola secondaria su sfondo scuro"
 
-#: includes/Core/class-theme-support.php:242
+#: includes/Core/class-theme-support.php:251
 #, aa-mt
 msgid "Frosted Glass"
 msgstr "Vetro smerigliato"
 
-#: includes/Core/class-theme-support.php:250
+#: includes/Core/class-theme-support.php:259
 #, aa-mt
 msgid "Surface Card"
 msgstr "Scheda Surface"
 
-#: includes/Core/class-theme-support.php:258
+#: includes/Core/class-theme-support.php:267
 #, aa-mt
 msgid "Bordered"
 msgstr "Con bordi"
 
-#: includes/Core/class-theme-support.php:266
+#: includes/Core/class-theme-support.php:275
 #, aa-mt
 msgid "Display"
 msgstr "Visualizza"
 
-#: includes/Core/class-theme-support.php:274
+#: includes/Core/class-theme-support.php:283
 #: patterns/homepage-seasonal-shop.php:210
 #, aa-mt
 msgid "Editorial"
 msgstr "Editoriale"
 
-#: includes/Core/class-theme-support.php:282
+#: includes/Core/class-theme-support.php:291
 #, aa-mt
 msgid "Brand Stripe"
 msgstr "Brand Stripe"
 
-#: includes/Core/class-theme-support.php:290
+#: includes/Core/class-theme-support.php:299
 #: includes/WooCommerce/class-badge-studio-rest.php:90
 #: includes/WooCommerce/class-badge-system-defaults.php:29
 #, aa-mt
 msgid "Badge"
 msgstr "Distintivo"
 
-#: includes/Core/class-theme-support.php:298
+#: includes/Core/class-theme-support.php:307
 #, aa-mt
 msgid "Badge Muted"
 msgstr "Distintivo disattivato"
 
-#: includes/Core/class-theme-support.php:306
+#: includes/Core/class-theme-support.php:315
 #, aa-mt
 msgid "Eyebrow"
 msgstr "Sopracciglio"
 
-#: includes/Core/class-theme-support.php:314
+#: includes/Core/class-theme-support.php:323
 #, aa-mt
 msgid "Caption"
 msgstr "Didascalia"
 
-#: includes/Core/class-theme-support.php:322
+#: includes/Core/class-theme-support.php:331
 #, aa-mt
 msgid "Meta"
 msgstr "Meta"
 
-#: includes/Core/class-theme-support.php:330
+#: includes/Core/class-theme-support.php:339
 #, aa-mt
 msgid "Legal"
 msgstr "Note legali"
 
-#: includes/Core/class-theme-support.php:338
+#: includes/Core/class-theme-support.php:347
 #: includes/WooCommerce/class-product-filter-renderer.php:67
 #: includes/WooCommerce/class-product-filter-renderer.php:206
 #, aa-mt
 msgid "Price"
 msgstr "Prezzo"
 
-#: includes/Core/class-theme-support.php:346
+#: includes/Core/class-theme-support.php:355
 #, aa-mt
 msgid "Subtle"
 msgstr "Sottile"
 
-#: includes/Core/class-theme-support.php:355
+#: includes/Core/class-theme-support.php:364
 #, aa-mt
 msgid "Commerce Grid"
 msgstr "Rete commerciale"
 
-#: includes/Core/class-theme-support.php:363
+#: includes/Core/class-theme-support.php:372
 #, aa-mt
 msgid "Commerce Cards"
 msgstr "Carte Commerce"
 
-#: includes/Core/class-theme-support.php:371
+#: includes/Core/class-theme-support.php:380
 #, aa-mt
 msgid "Product Frame"
 msgstr "Struttura del prodotto"
 
-#: includes/Core/class-theme-support.php:379
+#: includes/Core/class-theme-support.php:388
 #, aa-mt
 msgid "Commerce Price"
 msgstr "Prezzo commerciale"
 
-#: includes/Core/class-theme-support.php:389
+#: includes/Core/class-theme-support.php:398
 #, aa-mt
 msgid "Overflow"
 msgstr "Overflow"
 
-#: includes/Core/class-theme-support.php:397
+#: includes/Core/class-theme-support.php:406
 #, aa-mt
 msgid "Text Mask"
 msgstr "Maschera di testo"
 
-#: includes/Core/class-theme-support.php:405
+#: includes/Core/class-theme-support.php:414
 #, aa-mt
 msgid "Cinematic"
 msgstr "Cinematografico"
 
-#: includes/Core/class-theme-support.php:413
+#: includes/Core/class-theme-support.php:422
 #, aa-mt
 msgid "Frosted Dark"
 msgstr "Scuro ghiacciato"
@@ -1197,19 +1198,19 @@ msgstr "Aggiungi un indirizzo"
 msgid "Placed on %s"
 msgstr "Posizionato su %s"
 
-#: includes/WooCommerce/class-account-page.php:123
+#: includes/WooCommerce/class-account-page.php:125
 #, aa-mt
 msgid "Profile"
 msgstr "Profilo"
 
-#: includes/WooCommerce/class-account-page.php:221
-#: includes/WooCommerce/class-account-page.php:226
+#: includes/WooCommerce/class-account-page.php:223
+#: includes/WooCommerce/class-account-page.php:228
 #, aa-mt
 msgid "Items"
 msgstr "Articoli"
 
 #. translators: %d: number of further items in the order.
-#: includes/WooCommerce/class-account-page.php:278
+#: includes/WooCommerce/class-account-page.php:280
 #, php-format, aa-mt
 msgid "and %d more item"
 msgid_plural "and %d more items"
@@ -1770,7 +1771,7 @@ msgid "Transparency enabled — final contrast depends on the product image."
 msgstr "Trasparenza attivata — il contrasto finale dipende dall'immagine del prodotto."
 
 #: includes/WooCommerce/class-badge-admin-fields.php:192
-#: includes/WooCommerce/class-feature-settings-fields.php:449
+#: includes/WooCommerce/class-feature-settings-fields.php:463
 #, aa-mt
 msgid "None"
 msgstr "Nessuno"
@@ -1996,7 +1997,7 @@ msgid "Tag"
 msgstr "Tag"
 
 #: includes/WooCommerce/class-badge-system-defaults.php:28
-#: includes/WooCommerce/class-feature-settings.php:444
+#: includes/WooCommerce/class-feature-settings.php:445
 #, aa-mt
 msgid "Product Badges"
 msgstr "Etichette dei prodotti"
@@ -2041,6 +2042,126 @@ msgstr "Torna alla pagina dei distintivi"
 #, aa-mt
 msgid "Low Stock"
 msgstr "Scorte limitate"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:101
+#, aa-mt
+msgid "Card Buttons on Touch Devices"
+msgstr "Pulsanti a forma di carta sui dispositivi touch"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:103
+#, aa-mt
+msgid "Behind one small chip — tap it to show the actions"
+msgstr "Dietro una piccola icona: toccala per visualizzare le azioni"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:104
+#, aa-mt
+msgid "Always visible"
+msgstr "Sempre visibile"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:105
+#, aa-mt
+msgid "Hidden (tap the product to open it)"
+msgstr "Nascosto (tocca il prodotto per aprirlo)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:107
+#, aa-mt
+msgid "Phones and tablets can’t hover, so the Quick View and Wishlist buttons would otherwise sit on every product image. Tapping the image always opens the product. Mouse users still see the buttons on hover."
+msgstr "Poiché su telefoni e tablet non è possibile passare il mouse, i pulsanti Quick View e Wishlist rimarrebbero altrimenti visibili su ogni immagine del prodotto. Toccando l'immagine si apre sempre la scheda del prodotto. Gli utenti che utilizzano il mouse continuano a vedere i pulsanti al passaggio del mouse."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:111
+#, aa-mt
+msgid "Badges per Product on Phones"
+msgstr "Numero di badge per prodotto sui telefoni"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:113
+#, aa-mt
+msgid "One badge (highest priority)"
+msgstr "Un badge (priorità massima)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:114
+#, aa-mt
+msgid "Up to two badges"
+msgstr "Fino a due badge"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:115
+#, aa-mt
+msgid "Up to three badges"
+msgstr "Fino a tre distintivi"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:116
+#, aa-mt
+msgid "All badges"
+msgstr "Tutti i badge"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:118
+#, aa-mt
+msgid "On screens under 600px wide, show only this many badges per product, chosen by each badge’s priority (Products → Badges). Larger screens show every badge."
+msgstr "Sugli schermi con larghezza inferiore a 600px, mostra solo questo numero di badge per prodotto, in base alla priorità di ciascun badge (Prodotti → Badge). Sugli schermi più grandi vengono visualizzati tutti i badge."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:122
+#, aa-mt
+msgid "Sale Badge on Phones"
+msgstr "Etichetta \"In saldo\" sui telefoni"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:124
+#, aa-mt
+msgid "Hide — the price already shows the sale"
+msgstr "Nascondi — il prezzo riflette già lo sconto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:125
+#, aa-mt
+msgid "Show"
+msgstr "Mostra"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:127
+#, aa-mt
+msgid "Sale prices are shown crossed out next to the new price. To also show the percentage there, turn on Smart Price Display. A hidden sale badge frees its slot for the next badge."
+msgstr "I prezzi in offerta sono indicati barrati accanto al nuovo prezzo. Per visualizzare anche la percentuale, attiva la funzione “Visualizzazione intelligente dei prezzi”. Un badge di offerta nascosto libera lo spazio occupato per il badge successivo."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:131
+#, aa-mt
+msgid "Badge Size on Phones"
+msgstr "Dimensioni dei badge sui telefoni"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:133
+#, aa-mt
+msgid "Compact (85%)"
+msgstr "Compatto (85%)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:134
+#, aa-mt
+msgid "Smallest (75%)"
+msgstr "Il più piccolo (75%)"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:135
+#, aa-mt
+msgid "Same as large screens"
+msgstr "Come per gli schermi di grandi dimensioni"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-card-display-settings.php:137
+#, aa-mt
+msgid "Scales every badge on screens under 600px wide, keeping each badge’s own design."
+msgstr "Adatta le dimensioni di ogni badge sugli schermi con larghezza inferiore a 600px, mantenendo il design specifico di ciascun badge."
 
 #: includes/WooCommerce/class-catalog-archive-filters.php:183
 #: patterns/template-no-products.php:15
@@ -2499,38 +2620,38 @@ msgstr "solo Quick View (mantenere Wishlist nella riga del blocco/titolo)"
 msgid "When included, listing cards hide the Wishlist Button block on the image stack so you do not get two hearts. Single product placement still follows Wishlist Button Placement on the Customer Engagement tab."
 msgstr "Quando vengono incluse, le schede di elenco nascondono il blocco “Pulsante Wishlist” nella pila di immagini, in modo da evitare la visualizzazione di due cuori. Il posizionamento di un singolo prodotto segue comunque le impostazioni di posizionamento del pulsante Wishlist nella scheda “Coinvolgimento dei clienti”."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:342
+#: includes/WooCommerce/class-feature-settings-fields.php:356
 #, aa-mt
 msgid "Load More Button"
 msgstr "Pulsante \"Carica altro\""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:343
+#: includes/WooCommerce/class-feature-settings-fields.php:357
 #, aa-mt
 msgid "Infinite Scroll"
 msgstr "Scorrimento infinito"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:349
+#: includes/WooCommerce/class-feature-settings-fields.php:363
 #, aa-mt
 msgid "Load More shows a button; Infinite Scroll loads automatically as users scroll down."
 msgstr "\"Carica altro\" mostra un pulsante; lo \"scorrimento infinito\" si attiva automaticamente man mano che gli utenti scorrono verso il basso."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:382
-#: includes/WooCommerce/class-feature-settings-fields.php:383
+#: includes/WooCommerce/class-feature-settings-fields.php:396
+#: includes/WooCommerce/class-feature-settings-fields.php:397
 #, aa-mt
 msgid "Off"
 msgstr "Spento"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:391
+#: includes/WooCommerce/class-feature-settings-fields.php:405
 #, aa-mt
 msgid "Weight 0 disables a source. Higher weights appear more often in the random rotation. Engagement uses catalog sales totals (requires the minimum sales threshold below). Set Engagement to 0 until you have steady sales. Set Purchases to 0 on day one if you prefer only trust + engagement + announcements."
 msgstr "Un peso pari a 0 disattiva una fonte. I pesi più elevati compaiono più spesso nella rotazione casuale. Il parametro \"Coinvolgimento\" utilizza i totali delle vendite del catalogo (richiede la soglia minima di vendite indicata di seguito). Imposta il parametro \"Coinvolgimento\" su 0 finché non avrai vendite costanti. Imposta il parametro \"Acquisti\" su 0 il primo giorno se preferisci basarti solo su fiducia + coinvolgimento + annunci."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:409
+#: includes/WooCommerce/class-feature-settings-fields.php:423
 #, aa-mt
 msgid "One message per line. Optional icon prefix — put PREFIX| before the visible text; PREFIX may be (a) a theme SVG slug such as check, heart, cart, info, warning, … or (b) a secure https URL to a small PNG/SVG/WebP/GIF badge. Prefix none| to force plain text without an icon even when another line uses one. Lines starting with # and blank lines are ignored."
 msgstr "Un messaggio per riga. Prefisso icona facoltativo: inserire PREFIX| prima del testo visibile; PREFIX può essere (a) uno slug SVG del tema, come check, heart, cart, info, warning, … oppure (b) un URL https sicuro che rimanda a un piccolo badge in formato PNG/SVG/WebP/GIF. Aggiungi il prefisso none| per forzare il testo semplice senza icona anche quando un’altra riga ne utilizza una. Le righe che iniziano con # e le righe vuote vengono ignorate."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:424
+#: includes/WooCommerce/class-feature-settings-fields.php:438
 #, aa-mt
 msgid ""
 "gift|Spring drop launches Friday\n"
@@ -2539,100 +2660,100 @@ msgstr ""
 "regalo|La collezione primaverile debutta venerdì\n"
 "https://cdn.example.com/sale-dot.png | Spedizione gratuita solo oggi"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:428
+#: includes/WooCommerce/class-feature-settings-fields.php:442
 #, aa-mt
 msgid "Short-term promos and seasonal copy — same PREFIX|MESSAGE icon rules as Trust Messages. Prefix none| to force text-only. Set the Announcements weight above 0 to include them in the rotation."
 msgstr "Promozioni a breve termine e testi stagionali: valgono le stesse regole relative all’icona PREFIX|MESSAGE dei messaggi di fiducia. Inserire il prefisso “none|” per forzare la visualizzazione solo testo. Impostare il peso degli annunci su un valore superiore a 0 per includerli nella rotazione."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:467
+#: includes/WooCommerce/class-feature-settings-fields.php:481
 #, aa-mt
 msgid "Tiny SVG pinned to the thumbnail corner on purchase / engagement / demo notifications. Choosing “None” removes it permanently after save. Icons reference & customization sits directly below."
 msgstr "Piccolo file SVG fissato all’angolo della miniatura nelle notifiche relative ad acquisti, interazioni e demo. Selezionando “Nessuno” viene rimosso definitivamente dopo il salvataggio. Le indicazioni relative alle icone e alla personalizzazione si trovano proprio qui sotto."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:481
+#: includes/WooCommerce/class-feature-settings-fields.php:495
 #, aa-mt
 msgid "Trust Messages and Custom Announcements: each line uses PREFIX|message. PREFIX is either a slug from the expandable list below (same slugs appear in the badge dropdown) or a full https URL to your own PNG/SVG/WebP badge. Prefix none| to force plain text on that row."
 msgstr "Messaggi di fiducia e annunci personalizzati: ogni riga utilizza il formato PREFIX|messaggio. PREFIX può essere uno slug tratto dall'elenco espandibile riportato di seguito (gli stessi slug compaiono nel menu a tendina dei badge) oppure un URL https completo che rimanda al proprio badge in formato PNG/SVG/WebP. Per impostare il testo in formato semplice su quella riga, anteporre \"none|\" a PREFIX."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:482
+#: includes/WooCommerce/class-feature-settings-fields.php:496
 #, aa-mt
 msgid "Slides that include a WooCommerce thumbnail only show icons as the thumbnail-corner badge—not the PREFIX column—to avoid crowding."
 msgstr "Le diapositive che includono una miniatura di WooCommerce mostrano solo le icone come badge nell'angolo della miniatura — e non la colonna PREFIX — per evitare un effetto di sovraffollamento."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:486
+#: includes/WooCommerce/class-feature-settings-fields.php:500
 #, aa-mt
 msgid "Built-in icon slugs (copy into PREFIX|)"
 msgstr "Slug delle icone predefiniti (copiare in PREFIX|)"
 
 #. translators: %s: Inline code snippet with PHP filter name.
-#: includes/WooCommerce/class-feature-settings-fields.php:494
+#: includes/WooCommerce/class-feature-settings-fields.php:508
 #, php-format, aa-mt
 msgid "Developers — register additional icons via the %s filter (child theme recommended). Use a string for a single path (viewBox 0 0 24 24), or an array with viewBox, paths, and optional circles, polygons, and rects."
 msgstr "Sviluppatori: registrate icone aggiuntive tramite il filtro %s (si consiglia di utilizzare un tema figlio). Utilizzate una stringa per un singolo percorso (viewBox 0 0 24 24) oppure un array contenente viewBox, percorsi e, facoltativamente, cerchi, poligoni e rettangoli."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:518
+#: includes/WooCommerce/class-feature-settings-fields.php:532
 #, aa-mt
 msgid "Only products whose WooCommerce lifetime total sales reach this number are eligible for Engagement toasts together with thumbnail + optional badge. Typical starting values: 2–5 for new shops, higher when you want only strong sellers promoted."
 msgstr "Solo i prodotti il cui totale delle vendite accumulate su WooCommerce raggiunge tale cifra possono beneficiare dei toast di Engagement, accompagnati da una miniatura e da un badge opzionale. Valori iniziali tipici: 2–5 per i nuovi negozi; valori più elevati se si desidera promuovere solo i prodotti più venduti."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:529
+#: includes/WooCommerce/class-feature-settings-fields.php:543
 #, aa-mt
 msgid "Anonymous — \"Someone in [Location] purchased X\" (recommended)"
 msgstr "Anonimo — \"Qualcuno a [Località] ha acquistato X\" (consigliato)"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:530
+#: includes/WooCommerce/class-feature-settings-fields.php:544
 #, aa-mt
 msgid "Initial only — \"S. in [Location] purchased X\""
 msgstr "Solo l'iniziale — \"S. a [Luogo] ha acquistato X\""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:531
+#: includes/WooCommerce/class-feature-settings-fields.php:545
 #, aa-mt
 msgid "First name — \"Sarah from [Location] purchased X\" (requires checkout consent)"
 msgstr "Nome — \"Sarah di [Località] ha acquistato X\" (richiede il consenso al momento del pagamento)"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:537
+#: includes/WooCommerce/class-feature-settings-fields.php:551
 #, aa-mt
 msgid "Affects only the Real Purchases source. Anonymous is the safest choice in most jurisdictions; First Name should be paired with explicit checkout consent."
 msgstr "Riguarda solo la fonte \"Acquisti reali\". L'opzione \"Anonimo\" è la scelta più sicura nella maggior parte delle giurisdizioni; il \"Nome\" deve essere abbinato a un consenso esplicito al momento del pagamento."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:549
+#: includes/WooCommerce/class-feature-settings-fields.php:563
 #, aa-mt
 msgid "City — \"Portland\""
 msgstr "Città — \"Portland\""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:550
+#: includes/WooCommerce/class-feature-settings-fields.php:564
 #, aa-mt
 msgid "State / Region — \"Oregon\""
 msgstr "Stato / Regione — \"Oregon\""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:551
+#: includes/WooCommerce/class-feature-settings-fields.php:565
 #, aa-mt
 msgid "Country — \"United States\""
 msgstr "Paese — \"Stati Uniti\""
 
-#: includes/WooCommerce/class-feature-settings-fields.php:552
+#: includes/WooCommerce/class-feature-settings-fields.php:566
 #, aa-mt
 msgid "Hide location entirely"
 msgstr "Nascondi completamente la posizione"
 
-#: includes/WooCommerce/class-feature-settings-fields.php:558
+#: includes/WooCommerce/class-feature-settings-fields.php:572
 #, aa-mt
 msgid "Lower granularity = more anonymity. State / Region is a good compromise for small markets where city + product can identify a customer."
 msgstr "Maggiore granularità = maggiore anonimato. La suddivisione per Stato/Regione rappresenta un buon compromesso per i mercati di piccole dimensioni, in cui la combinazione città + prodotto può consentire l'identificazione di un cliente."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:578
+#: includes/WooCommerce/class-feature-settings-fields.php:592
 #, aa-mt
 msgid "Orders younger than this number of minutes are excluded from the rotation. Default 5. Recommended 5–10 to prevent unique product + city + exact-time combinations from identifying individual customers."
 msgstr "Gli ordini effettuati in un arco di tempo inferiore a questo numero di minuti vengono esclusi dalla rotazione. Impostazione predefinita: 5. Si consiglia un intervallo compreso tra 5 e 10 per impedire che combinazioni univoche di prodotto, città e ora esatta consentano di identificare i singoli clienti."
 
-#: includes/WooCommerce/class-feature-settings-fields.php:598
+#: includes/WooCommerce/class-feature-settings-fields.php:612
 #, aa-mt
 msgid "Show a sample notification first in the rotation so you can preview the design. Visible only to logged-in users with the “Edit Theme Options” capability — customers never see the preview, even when this is on. An indicator appears in your admin bar while it is active."
 msgstr "Mostra prima un'anteprima della notifica nella rotazione, in modo da poter visualizzare il design. Visibile solo agli utenti che hanno effettuato l'accesso e dispongono dell'autorizzazione \"Modifica opzioni tema\": i clienti non vedranno mai l'anteprima, anche se questa funzione è attiva. Quando è attiva, nella barra di amministrazione compare un indicatore."
 
 #: includes/WooCommerce/class-feature-settings-page.php:90
 #: includes/WooCommerce/class-feature-settings-page.php:91
-#: includes/WooCommerce/class-feature-settings-page.php:524
+#: includes/WooCommerce/class-feature-settings-page.php:555
 #, aa-mt
 msgid "Store Enhancements"
 msgstr "Miglioramenti al negozio"
@@ -2682,230 +2803,230 @@ msgstr "Quick View Posizione della carta"
 msgid "Wishlist on Product Images"
 msgstr "Wishlist sulle immagini dei prodotti"
 
-#: includes/WooCommerce/class-feature-settings-page.php:438
+#: includes/WooCommerce/class-feature-settings-page.php:469
 #, aa-mt
 msgid "Notification Sources"
 msgstr "Fonti delle notifiche"
 
-#: includes/WooCommerce/class-feature-settings-page.php:443
+#: includes/WooCommerce/class-feature-settings-page.php:474
 #: includes/WooCommerce/class-social-proof-settings.php:32
 #, aa-mt
 msgid "Trust Messages"
 msgstr "Messaggi di fiducia"
 
-#: includes/WooCommerce/class-feature-settings-page.php:448
+#: includes/WooCommerce/class-feature-settings-page.php:479
 #: includes/WooCommerce/class-social-proof-settings.php:40
 #, aa-mt
 msgid "Custom Announcements"
 msgstr "Annunci personalizzati"
 
-#: includes/WooCommerce/class-feature-settings-page.php:453
+#: includes/WooCommerce/class-feature-settings-page.php:484
 #, aa-mt
 msgid "Badge on Purchase Thumbnails"
 msgstr "Icona sulle miniature dei prodotti acquistati"
 
-#: includes/WooCommerce/class-feature-settings-page.php:458
+#: includes/WooCommerce/class-feature-settings-page.php:489
 #, aa-mt
 msgid "Icons: reference & customization"
 msgstr "Icone: guida e personalizzazione"
 
-#: includes/WooCommerce/class-feature-settings-page.php:463
+#: includes/WooCommerce/class-feature-settings-page.php:494
 #, aa-mt
 msgid "Engagement: Minimum Lifetime Sales"
 msgstr "Impegno: vendite minime nel corso della vita utile"
 
-#: includes/WooCommerce/class-feature-settings-page.php:468
+#: includes/WooCommerce/class-feature-settings-page.php:499
 #, aa-mt
 msgid "Purchase Display Mode"
 msgstr "Modalità di visualizzazione dell'acquisto"
 
-#: includes/WooCommerce/class-feature-settings-page.php:473
+#: includes/WooCommerce/class-feature-settings-page.php:504
 #, aa-mt
 msgid "Location Granularity"
 msgstr "Granularità della posizione"
 
-#: includes/WooCommerce/class-feature-settings-page.php:478
+#: includes/WooCommerce/class-feature-settings-page.php:509
 #, aa-mt
 msgid "Minimum Order Age (Minutes)"
 msgstr "Età minima per effettuare un ordine (minuti)"
 
-#: includes/WooCommerce/class-feature-settings-page.php:483
+#: includes/WooCommerce/class-feature-settings-page.php:514
 #, aa-mt
 msgid "Demo Preview (Admin Only)"
 msgstr "Anteprima della demo (solo per amministratori)"
 
-#: includes/WooCommerce/class-feature-settings-page.php:530
+#: includes/WooCommerce/class-feature-settings-page.php:561
 #, aa-mt
 msgid "Enable or disable individual WooCommerce enhancements. Disabled features have zero performance overhead."
 msgstr "Attiva o disattiva le singole funzionalità avanzate di WooCommerce. Le funzionalità disattivate non comportano alcun impatto sulle prestazioni."
 
-#: includes/WooCommerce/class-feature-settings-page.php:537
+#: includes/WooCommerce/class-feature-settings-page.php:568
 #, aa-mt
 msgid "Store Enhancements sections"
 msgstr "Sezioni \"Miglioramenti al negozio\""
 
 #. translators: 1: enabled feature count, 2: total features in section.
-#: includes/WooCommerce/class-feature-settings-page.php:552
+#: includes/WooCommerce/class-feature-settings-page.php:583
 #, php-format, aa-mt
 msgid "%1$d of %2$d features enabled"
 msgstr "%1$d delle funzionalità di %2$d sono attivate"
 
-#: includes/WooCommerce/class-feature-settings-page.php:597
+#: includes/WooCommerce/class-feature-settings-page.php:628
 #, aa-mt
 msgid "Save Changes"
 msgstr "Salva le modifiche"
 
 #. translators: 1: Store Copy field label. 2: comma-separated list of unrecognised placeholders. 3: comma-separated list of supported placeholders, or a "none" notice.
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:236
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:288
 #, php-format, aa-mt
 msgid "%1$s was not saved: %2$s is not a placeholder this field understands. Supported here: %3$s"
 msgstr "%1$s non è stato salvato: %2$s non è un segnaposto riconosciuto da questo campo. Qui è supportato: %3$s"
 
-#: includes/WooCommerce/class-feature-settings-sanitizer.php:240
+#: includes/WooCommerce/class-feature-settings-sanitizer.php:292
 #, aa-mt
 msgid "none — this field cannot contain a placeholder"
 msgstr "nessuno — questo campo non può contenere un segnaposto"
 
-#: includes/WooCommerce/class-feature-settings.php:417
+#: includes/WooCommerce/class-feature-settings.php:418
 #, aa-mt
 msgid "Catalog & Browsing"
 msgstr "Catalogo e navigazione"
 
-#: includes/WooCommerce/class-feature-settings.php:418
+#: includes/WooCommerce/class-feature-settings.php:419
 #, aa-mt
 msgid "Store Copy"
 msgstr "Copia in negozio"
 
-#: includes/WooCommerce/class-feature-settings.php:420
+#: includes/WooCommerce/class-feature-settings.php:421
 #, aa-mt
 msgid "Customer Engagement"
 msgstr "Coinvolgimento dei clienti"
 
-#: includes/WooCommerce/class-feature-settings.php:421
+#: includes/WooCommerce/class-feature-settings.php:422
 #, aa-mt
 msgid "Mobile & UI"
 msgstr "Mobile e interfaccia utente"
 
-#: includes/WooCommerce/class-feature-settings.php:445
+#: includes/WooCommerce/class-feature-settings.php:446
 #, aa-mt
 msgid "Show \"Sale\", \"New\", \"Low Stock\", and \"Bestseller\" badges on product cards. Sale badge wording is set under Store Copy."
 msgstr "Mostra i badge \"In saldo\", \"Nuovo\", \"Scorte limitate\" e \"Best seller\" sulle schede dei prodotti. Il testo del badge \"In saldo\" va impostato nella sezione \"Testi del negozio\"."
 
-#: includes/WooCommerce/class-feature-settings.php:449
+#: includes/WooCommerce/class-feature-settings.php:450
 #, aa-mt
 msgid "Smart Price Display"
 msgstr "Espositore intelligente dei prezzi"
 
-#: includes/WooCommerce/class-feature-settings.php:450
+#: includes/WooCommerce/class-feature-settings.php:451
 #, aa-mt
 msgid "Collapse variable price ranges to a single starting price (e.g. “From $34.99”) on shop cards and product pages, and add “Save X%” on sale items. Set the prefix under Store Copy → Variable Price Prefix."
 msgstr "Nascondi le fasce di prezzo variabili sostituendole con un unico prezzo di partenza (ad es. “A partire da 34,99 $”) nelle schede del negozio e nelle pagine dei prodotti, e aggiungi “Risparmia l’X%” sugli articoli in saldo. Imposta il prefisso in Testi del negozio → Prefisso prezzo variabile."
 
-#: includes/WooCommerce/class-feature-settings.php:454
+#: includes/WooCommerce/class-feature-settings.php:455
 #, aa-mt
 msgid "Advanced Sorting Options"
 msgstr "Opzioni di ordinamento avanzate"
 
-#: includes/WooCommerce/class-feature-settings.php:455
+#: includes/WooCommerce/class-feature-settings.php:456
 #, aa-mt
 msgid "Add Featured, Biggest Savings, and A-Z/Z-A sorting to the product catalog."
 msgstr "Aggiungi le sezioni “In primo piano”, “I migliori sconti” e l’ordinamento “A-Z/Z-A” al catalogo prodotti."
 
-#: includes/WooCommerce/class-feature-settings.php:459
+#: includes/WooCommerce/class-feature-settings.php:460
 #, aa-mt
 msgid "Product Filters"
 msgstr "Filtri prodotti"
 
-#: includes/WooCommerce/class-feature-settings.php:460
+#: includes/WooCommerce/class-feature-settings.php:461
 #, aa-mt
 msgid "AJAX product filters with categories, color swatches, sizes, price range, and stock status."
 msgstr "Filtri dei prodotti AJAX con categorie, campioni di colore, taglie, fascia di prezzo e disponibilità."
 
-#: includes/WooCommerce/class-feature-settings.php:464
+#: includes/WooCommerce/class-feature-settings.php:465
 #, aa-mt
 msgid "Load More / Infinite Scroll"
 msgstr "Carica altro / Scorrimento infinito"
 
-#: includes/WooCommerce/class-feature-settings.php:465
+#: includes/WooCommerce/class-feature-settings.php:466
 #, aa-mt
 msgid "Replace pagination with a Load More button or automatic infinite scroll."
 msgstr "Sostituisci l'impaginazione con un pulsante \"Carica altro\" o con lo scorrimento infinito automatico."
 
-#: includes/WooCommerce/class-feature-settings.php:469
+#: includes/WooCommerce/class-feature-settings.php:470
 #, aa-mt
 msgid "Page Transitions"
 msgstr "Transizioni tra le pagine"
 
-#: includes/WooCommerce/class-feature-settings.php:470
+#: includes/WooCommerce/class-feature-settings.php:471
 #, aa-mt
 msgid "Smooth crossfade between pages with product image morphing (Chrome/Safari)."
 msgstr "Transizione fluida tra le pagine con morphing delle immagini dei prodotti (Chrome/Safari)."
 
-#: includes/WooCommerce/class-feature-settings.php:474
+#: includes/WooCommerce/class-feature-settings.php:475
 #, aa-mt
 msgid "Catalog Hover Image"
 msgstr "Immagine al passaggio del mouse nel catalogo"
 
-#: includes/WooCommerce/class-feature-settings.php:475
+#: includes/WooCommerce/class-feature-settings.php:476
 #, aa-mt
 msgid "Show the first gallery image on hover for products that have additional gallery photos."
 msgstr "Mostra la prima immagine della galleria al passaggio del mouse per i prodotti che dispongono di altre foto nella galleria."
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:481
+#: includes/WooCommerce/class-feature-settings.php:482
 #, aa-mt
 msgid "Size Guides & Specs"
 msgstr "Guide alle taglie e specifiche tecniche"
 
 #. Auto-translated (aa-mt) via deepl — review before release.
-#: includes/WooCommerce/class-feature-settings.php:482
+#: includes/WooCommerce/class-feature-settings.php:483
 #, aa-mt
 msgid "Size charts with an inch/cm switch, plus fit and fabric specs, managed on Products → Size & Specs and assigned to products or categories."
 msgstr "Tabelle delle taglie con opzione di conversione tra pollici e centimetri, oltre alle specifiche relative alla vestibilità e ai tessuti, gestite nella sezione Prodotti → Taglie e specifiche e assegnate a prodotti o categorie."
 
-#: includes/WooCommerce/class-feature-settings.php:486
+#: includes/WooCommerce/class-feature-settings.php:487
 #, aa-mt
 msgid "Sticky Add to Cart"
 msgstr "In evidenza Add to Cart"
 
-#: includes/WooCommerce/class-feature-settings.php:487
+#: includes/WooCommerce/class-feature-settings.php:488
 #, aa-mt
 msgid "Fixed bar with product info and add-to-cart when main button scrolls out of view."
 msgstr "Barra fissa con informazioni sul prodotto e pulsante “Aggiungi al carrello” quando il pulsante principale esce dallo schermo."
 
-#: includes/WooCommerce/class-feature-settings.php:491
+#: includes/WooCommerce/class-feature-settings.php:492
 #, aa-mt
 msgid "Stock Status"
 msgstr "Disponibilità delle scorte"
 
-#: includes/WooCommerce/class-feature-settings.php:492
+#: includes/WooCommerce/class-feature-settings.php:493
 #, aa-mt
 msgid "Show stock availability indicator (In Stock, Low Stock, Out of Stock) in Quick View."
 msgstr "Mostra l'indicatore di disponibilità delle scorte (Disponibile, Scorte in esaurimento, Esaurito) in Quick View."
 
-#: includes/WooCommerce/class-feature-settings.php:496
+#: includes/WooCommerce/class-feature-settings.php:497
 #: includes/WooCommerce/class-store-copy.php:109
 #, aa-mt
 msgid "Quick View"
 msgstr "Quick View"
 
-#: includes/WooCommerce/class-feature-settings.php:497
+#: includes/WooCommerce/class-feature-settings.php:498
 #, aa-mt
 msgid "Preview products in a modal from shop cards. Style and Wishlist pairing options appear when enabled."
 msgstr "Visualizza l'anteprima dei prodotti in una finestra modale dalle schede dei prodotti. Se abilitate, vengono visualizzate le opzioni di stile e di abbinamento Wishlist."
 
-#: includes/WooCommerce/class-feature-settings.php:501
+#: includes/WooCommerce/class-feature-settings.php:502
 #: includes/WooCommerce/class-frequently-bought-together.php:251
 #, aa-mt
 msgid "Frequently Bought Together"
 msgstr "Prodotti acquistati spesso insieme"
 
-#: includes/WooCommerce/class-feature-settings.php:502
+#: includes/WooCommerce/class-feature-settings.php:503
 #, aa-mt
 msgid "Show recommended products with checkboxes and combined add-to-cart on product pages."
 msgstr "Mostra i prodotti consigliati con caselle di selezione e il pulsante combinato \"Aggiungi al carrello\" nelle pagine dei prodotti."
 
-#: includes/WooCommerce/class-feature-settings.php:508
+#: includes/WooCommerce/class-feature-settings.php:509
 #: includes/WooCommerce/class-mobile-bottom-nav.php:173
 #: includes/WooCommerce/class-mobile-bottom-nav.php:175
 #: includes/WooCommerce/class-wishlist.php:204
@@ -2913,47 +3034,48 @@ msgstr "Mostra i prodotti consigliati con caselle di selezione e il pulsante com
 msgid "Wishlist"
 msgstr "Wishlist"
 
-#: includes/WooCommerce/class-feature-settings.php:509
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-feature-settings.php:510
 #, aa-mt
-msgid "Save-for-later with heart icon toggle and dedicated wishlist page."
-msgstr "Funzione \"Salva per dopo\" con icona a forma di cuore e pagina dedicata alla lista dei desideri."
+msgid "Save products for guests and sync signed-in wishlists with WooCommerce."
+msgstr "Salva i prodotti per gli ospiti e sincronizza le liste dei desideri degli utenti registrati con WooCommerce."
 
-#: includes/WooCommerce/class-feature-settings.php:513
+#: includes/WooCommerce/class-feature-settings.php:514
 #, aa-mt
 msgid "Social Proof Notifications"
 msgstr "Notifiche relative alla prova sociale"
 
-#: includes/WooCommerce/class-feature-settings.php:514
+#: includes/WooCommerce/class-feature-settings.php:515
 #, aa-mt
 msgid "Show recent purchase toast notifications to build urgency."
 msgstr "Mostra notifiche a comparsa relative agli acquisti recenti per creare un senso di urgenza."
 
-#: includes/WooCommerce/class-feature-settings.php:518
+#: includes/WooCommerce/class-feature-settings.php:519
 #, aa-mt
 msgid "Back in Stock Notifications"
 msgstr "Notifiche di disponibilità"
 
-#: includes/WooCommerce/class-feature-settings.php:519
+#: includes/WooCommerce/class-feature-settings.php:520
 #, aa-mt
 msgid "Let customers subscribe to out-of-stock products and get notified when restocked."
 msgstr "Consenti ai clienti di iscriversi alla notifica per i prodotti esauriti e di ricevere un avviso quando vengono nuovamente disponibili."
 
-#: includes/WooCommerce/class-feature-settings.php:525
+#: includes/WooCommerce/class-feature-settings.php:526
 #, aa-mt
 msgid "Swatch Tooltips"
 msgstr "Descrizioni degli Swatch"
 
-#: includes/WooCommerce/class-feature-settings.php:526
+#: includes/WooCommerce/class-feature-settings.php:527
 #, aa-mt
 msgid "Show fabric name and composition on color swatch hover."
 msgstr "Mostra il nome del tessuto e la composizione al passaggio del mouse sul campione di colore."
 
-#: includes/WooCommerce/class-feature-settings.php:530
+#: includes/WooCommerce/class-feature-settings.php:531
 #, aa-mt
 msgid "Mobile Bottom Navigation"
 msgstr "Barra di navigazione inferiore per dispositivi mobili"
 
-#: includes/WooCommerce/class-feature-settings.php:531
+#: includes/WooCommerce/class-feature-settings.php:532
 #, aa-mt
 msgid "Fixed bottom bar on mobile with Home, Search, Cart, and Account."
 msgstr "Barra inferiore fissa sui dispositivi mobili con le voci Home, Ricerca, Carrello e Account."
@@ -2983,7 +3105,7 @@ msgid "%s UNLOCKED!"
 msgstr "%s SBLOCCATO!"
 
 #: includes/WooCommerce/class-frequently-bought-together.php:177
-#: includes/WooCommerce/class-quick-view-renderer.php:215
+#: includes/WooCommerce/class-quick-view-renderer.php:105
 #, aa-mt
 msgid "Adding…"
 msgstr "Aggiunta in corso…"
@@ -3141,13 +3263,13 @@ msgid "Printful didn’t answer (status %d). Try again in a moment."
 msgstr "Printful non ha risposto (stato %d). Riprova tra poco."
 
 #: includes/WooCommerce/class-product-filter-data.php:232
-#: includes/WooCommerce/class-quick-view-renderer.php:226
+#: includes/WooCommerce/class-quick-view-renderer.php:116
 #, aa-mt
 msgid "In Stock"
 msgstr "Disponibile"
 
 #: includes/WooCommerce/class-product-filter-data.php:236
-#: includes/WooCommerce/class-quick-view-renderer.php:225
+#: includes/WooCommerce/class-quick-view-renderer.php:115
 #: includes/WooCommerce/class-store-copy.php:91
 #: patterns/design-system-preview.php:157
 #, aa-mt
@@ -4561,30 +4683,37 @@ msgstr "Informazioni sul prodotto"
 
 #. translators: 1: Quick View label, 2: product name.
 #. translators: 1: Wishlist action label, 2: product name.
-#: includes/WooCommerce/class-quick-view-renderer.php:78
-#: includes/WooCommerce/class-wishlist.php:468
+#: includes/WooCommerce/class-quick-view-card-actions.php:75
+#: includes/WooCommerce/class-wishlist.php:476
 #, php-format, aa-mt
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:107
+#: includes/WooCommerce/class-quick-view-card-actions.php:108
 #, aa-mt
 msgid "Product actions"
 msgstr "Azioni relative al prodotto"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:216
+#. translators: %s: product name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-quick-view-card-actions.php:169
+#, php-format, aa-mt
+msgid "Product actions: %s"
+msgstr "Azioni relative al prodotto: %s"
+
+#: includes/WooCommerce/class-quick-view-renderer.php:106
 #, aa-mt
 msgid "✓ Added!"
 msgstr "✓ Aggiunto!"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:220
+#: includes/WooCommerce/class-quick-view-renderer.php:110
 #: includes/WooCommerce/class-sticky-add-to-cart.php:133
 #, aa-mt
 msgid "Redirecting…"
 msgstr "Reindirizzamento in corso…"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:224
-#: includes/WooCommerce/class-quick-view-renderer.php:751
+#: includes/WooCommerce/class-quick-view-renderer.php:114
+#: includes/WooCommerce/class-quick-view-renderer.php:641
 #: includes/WooCommerce/class-sticky-add-to-cart.php:136
 #: includes/WooCommerce/class-sticky-add-to-cart.php:426
 #, aa-mt
@@ -4592,91 +4721,91 @@ msgid "Added to cart!"
 msgstr "Aggiunto al carrello!"
 
 #. translators: %d: remaining stock quantity.
-#: includes/WooCommerce/class-quick-view-renderer.php:228
+#: includes/WooCommerce/class-quick-view-renderer.php:118
 #, php-format, aa-mt
 msgid "Only %d left!"
 msgstr "Ne è rimasto solo %d!"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:229
+#: includes/WooCommerce/class-quick-view-renderer.php:119
 #, aa-mt
 msgid "Product added to cart successfully"
 msgstr "Il prodotto è stato aggiunto al carrello con successo"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:230
+#: includes/WooCommerce/class-quick-view-renderer.php:120
 #, aa-mt
 msgid "Could not add to cart."
 msgstr "Impossibile aggiungere al carrello."
 
 #. translators: %s: error message from the cart API.
-#: includes/WooCommerce/class-quick-view-renderer.php:232
+#: includes/WooCommerce/class-quick-view-renderer.php:122
 #, php-format, aa-mt
 msgid "Error: %s"
 msgstr "Errore: %s"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:233
+#: includes/WooCommerce/class-quick-view-renderer.php:123
 #: includes/WooCommerce/class-sticky-add-to-cart.php:139
 #: patterns/design-system-preview.php:118
 #, aa-mt
 msgid "Unavailable"
 msgstr "Non disponibile"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:260
+#: includes/WooCommerce/class-quick-view-renderer.php:150
 #, aa-mt
 msgid "Close quick view"
 msgstr "Chiudi anteprima"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:325
+#: includes/WooCommerce/class-quick-view-renderer.php:215
 #, aa-mt
 msgid "Scroll thumbnails left"
 msgstr "Scorri le miniature verso sinistra"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:345
-#: includes/WooCommerce/class-quick-view-renderer.php:390
+#: includes/WooCommerce/class-quick-view-renderer.php:235
+#: includes/WooCommerce/class-quick-view-renderer.php:280
 #, aa-mt
 msgid "View image"
 msgstr "Visualizza immagine"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:363
+#: includes/WooCommerce/class-quick-view-renderer.php:253
 #, aa-mt
 msgid "Scroll thumbnails right"
 msgstr "Scorri le miniature verso destra"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:455
-#: includes/WooCommerce/class-quick-view-renderer.php:638
+#: includes/WooCommerce/class-quick-view-renderer.php:345
+#: includes/WooCommerce/class-quick-view-renderer.php:528
 #: includes/WooCommerce/class-sticky-add-to-cart.php:199
 #: includes/WooCommerce/class-sticky-add-to-cart.php:370
 #, aa-mt
 msgid "Decrease quantity"
 msgstr "Riduci la quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:463
-#: includes/WooCommerce/class-quick-view-renderer.php:646
+#: includes/WooCommerce/class-quick-view-renderer.php:353
+#: includes/WooCommerce/class-quick-view-renderer.php:536
 #: includes/WooCommerce/class-sticky-add-to-cart.php:208
 #: includes/WooCommerce/class-sticky-add-to-cart.php:379
 #, aa-mt
 msgid "Quantity"
 msgstr "Quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:469
-#: includes/WooCommerce/class-quick-view-renderer.php:652
+#: includes/WooCommerce/class-quick-view-renderer.php:359
+#: includes/WooCommerce/class-quick-view-renderer.php:542
 #: includes/WooCommerce/class-sticky-add-to-cart.php:214
 #: includes/WooCommerce/class-sticky-add-to-cart.php:385
 #, aa-mt
 msgid "Increase quantity"
 msgstr "Aumenta la quantità"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:537
+#: includes/WooCommerce/class-quick-view-renderer.php:427
 #: includes/WooCommerce/class-sticky-add-to-cart.php:268
 #, aa-mt
 msgid "Select product options"
 msgstr "Seleziona le opzioni del prodotto"
 
-#: includes/WooCommerce/class-quick-view-renderer.php:700
+#: includes/WooCommerce/class-quick-view-renderer.php:590
 #, aa-mt
 msgid "Could not load product details. Please try again."
 msgstr "Impossibile caricare i dettagli del prodotto. Riprova."
 
-#: includes/WooCommerce/class-quick-view-renderer.php:738
+#: includes/WooCommerce/class-quick-view-renderer.php:628
 #, aa-mt
 msgid "Close cart confirmation"
 msgstr "Chiudi la conferma del carrello"
@@ -5096,8 +5225,8 @@ msgid "Simple Product Button Text"
 msgstr "Testo semplice del pulsante del prodotto"
 
 #: includes/WooCommerce/class-store-copy.php:85
-#: src/blocks-interactivity/wishlist-item-actions/render.php:19
-#: src/blocks-interactivity/wishlist-item-actions/render.php:21
+#: src/blocks-interactivity/wishlist-item-actions/render.php:20
+#: src/blocks-interactivity/wishlist-item-actions/render.php:22
 #, aa-mt
 msgid "Add to Cart"
 msgstr "Add to Cart"
@@ -5233,7 +5362,7 @@ msgid "Wishlist Button Text"
 msgstr "Wishlist Testo del pulsante"
 
 #: includes/WooCommerce/class-store-copy.php:145
-#: src/blocks-interactivity/wishlist-button/render.php:62
+#: src/blocks-interactivity/wishlist-button/render.php:64
 #, aa-mt
 msgid "Add to Wishlist"
 msgstr "Aggiungi a Wishlist"
@@ -5402,11 +5531,63 @@ msgstr "Nome del tessuto"
 msgid "Fabric Composition"
 msgstr "Composizione del tessuto"
 
-#: includes/WooCommerce/class-wishlist.php:310
-#: src/blocks-interactivity/wishlist-item-actions/render.php:32
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist-integration.php:52
+#, aa-mt
+msgid "Wishlist Unsaved Icon"
+msgstr "Wishlist Icona \"Non salvato\""
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist-integration.php:52
+#, aa-mt
+msgid "Wishlist Saved Icon"
+msgstr "Wishlist Icona salvata"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist-integration.php:76
+#, aa-mt
+msgid "Applies to product cards, Quick View and the WooCommerce product-page button. Individual Wishlist Button blocks can override these icons."
+msgstr "Si applica alle schede dei prodotti, a Quick View e al pulsante della pagina del prodotto di WooCommerce. I singoli blocchi pulsante Wishlist possono sovrascrivere queste icone."
+
+#: includes/WooCommerce/class-wishlist.php:312
+#: src/blocks-interactivity/wishlist-item-actions/render.php:33
 #, aa-mt
 msgid "Remove from wishlist"
 msgstr "Rimuovi dalla lista dei desideri"
+
+#. translators: %s: Product name.
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist.php:314
+#, php-format, aa-mt
+msgid "Remove %s from wishlist"
+msgstr "Rimuovi %s dalla lista dei desideri"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist.php:315
+#, aa-mt
+msgid "Your wishlist could not be updated. Please try again."
+msgstr "Non è stato possibile aggiornare la tua lista dei desideri. Riprova."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist.php:316
+#, aa-mt
+msgid "Choose options"
+msgstr "Scegli le opzioni"
+
+#: includes/WooCommerce/class-wishlist.php:317
+#: patterns/stacked-feature-products.php:42
+#: patterns/stacked-feature-products.php:116
+#: src/blocks-interactivity/lookbook/render.php:129
+#: src/blocks-interactivity/wishlist-item-actions/render.php:39
+#, aa-mt
+msgid "View product"
+msgstr "Visualizza il prodotto"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: includes/WooCommerce/class-wishlist.php:318
+#, aa-mt
+msgid "Saved on this device"
+msgstr "Salvato su questo dispositivo"
 
 #: patterns/about-page.php
 #, aa-mt
@@ -8668,13 +8849,6 @@ msgstr "Il supporto su cui è stampata l'immagine"
 msgid "Swap the featured collection below for your hero SKU. Keep the story short — this section sells by pacing, not density."
 msgstr "Sostituisci la collezione in evidenza qui sotto con il tuo SKU di punta. Mantieni il testo conciso: in questa sezione le vendite dipendono dal ritmo, non dalla densità."
 
-#: patterns/stacked-feature-products.php:42
-#: patterns/stacked-feature-products.php:116
-#: src/blocks-interactivity/lookbook/render.php:129
-#, aa-mt
-msgid "View product"
-msgstr "Visualizza il prodotto"
-
 #: patterns/stacked-feature-products.php:102
 #, aa-mt
 msgid "Core staple"
@@ -9415,12 +9589,12 @@ msgstr "Torna al menu principale"
 msgid "Back to level %s"
 msgstr "Torna al livello %s"
 
-#: src/blocks-interactivity/navigation-panel/render.php:227
+#: src/blocks-interactivity/navigation-panel/render.php:230
 #, aa-mt
 msgid "Close menu"
 msgstr "Chiudi menu"
 
-#: src/blocks-interactivity/navigation-panel/render.php:292
+#: src/blocks-interactivity/navigation-panel/render.php:296
 #, aa-mt
 msgid "Navigation menu"
 msgstr "Menu di navigazione"
@@ -9461,20 +9635,63 @@ msgstr "Ignora la notifica"
 msgid "Store notifications"
 msgstr "Notifiche del negozio"
 
-#: src/blocks-interactivity/wishlist/render.php:42
+#: src/blocks-interactivity/wishlist/render.php:44
 #, aa-mt
 msgid "Your wishlist is empty."
 msgstr "La tua lista dei desideri è vuota."
 
-#: src/blocks-interactivity/wishlist/render.php:81
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:85
 #, aa-mt
-msgid "items saved"
-msgstr "elementi salvati"
+msgid "Saved for later"
+msgstr "Salvato per dopo"
 
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:86
+#, aa-mt
+msgid "Your wishlist"
+msgstr "La tua lista dei desideri"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
 #: src/blocks-interactivity/wishlist/render.php:87
+#, aa-mt
+msgid "Your favorite pieces, all in one place."
+msgstr "I tuoi articoli preferiti, tutti in un unico posto."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:103
+#, aa-mt
+msgid "saved"
+msgstr "salvato"
+
+#: src/blocks-interactivity/wishlist/render.php:111
 #, aa-mt
 msgid "Loading wishlist…"
 msgstr "Caricamento della lista dei desideri…"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:115
+#, aa-mt
+msgid "Some wishlist items could not be loaded."
+msgstr "Non è stato possibile caricare alcuni articoli della lista dei desideri."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:134
+#, aa-mt
+msgid "Tap the heart on any product to keep it here."
+msgstr "Tocca il cuoricino su qualsiasi prodotto per aggiungerlo ai preferiti."
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:135
+#, aa-mt
+msgid "Explore the collection"
+msgstr "Scopri la collezione"
+
+#. Auto-translated (aa-mt) via deepl — review before release.
+#: src/blocks-interactivity/wishlist/render.php:148
+#, aa-mt
+msgid "Continue shopping"
+msgstr "Continua lo shopping"
 
 #: src/blocks/dark-mode-toggle/render.php:36
 #: src/blocks/dark-mode-toggle/render.php:41

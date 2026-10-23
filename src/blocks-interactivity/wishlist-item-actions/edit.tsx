@@ -3,10 +3,11 @@ import './editor.css';
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-import { HeartIcon } from '../../utils/heart-icon';
+import { closeSmall } from '@wordpress/icons';
 
 export type Attrs = {
   showRemove: boolean;
+  showViewProduct: boolean;
   showAddToCart: boolean;
   addToCartLabel: string;
   removeLabel: string;
@@ -22,6 +23,7 @@ export default function Edit({
 }: Props): JSX.Element {
   const {
     showRemove = true,
+    showViewProduct = true,
     showAddToCart = false,
     addToCartLabel = 'Add to Cart',
     removeLabel = '',
@@ -54,6 +56,16 @@ export default function Edit({
             />
           )}
           <ToggleControl
+            label={__('Show View Product', 'aggressive-apparel')}
+            checked={showViewProduct}
+            onChange={value => setAttributes({ showViewProduct: value })}
+            help={__(
+              'Shown when Add to Cart is off or unavailable.',
+              'aggressive-apparel'
+            )}
+            __nextHasNoMarginBottom
+          />
+          <ToggleControl
             label={__('Show Add to Cart', 'aggressive-apparel')}
             checked={showAddToCart}
             onChange={v => setAttributes({ showAddToCart: v })}
@@ -72,6 +84,11 @@ export default function Edit({
       </InspectorControls>
 
       <div {...blockProps}>
+        {showViewProduct && !showAddToCart && (
+          <span className='aa-wl-item-actions-preview__atc'>
+            {__('View product', 'aggressive-apparel')}
+          </span>
+        )}
         {showAddToCart && (
           <span className='aa-wl-item-actions-preview__atc'>
             {addToCartLabel}
@@ -79,7 +96,7 @@ export default function Edit({
         )}
         {showRemove && (
           <span className='aa-wl-item-actions-preview__remove'>
-            <HeartIcon outlined={false} size={14} />
+            {closeSmall}
             {removeLabel && <span>{removeLabel}</span>}
           </span>
         )}

@@ -48,10 +48,11 @@ export default function Edit({
   setAttributes,
 }: BlockEditProps<WishlistPageAttributes>): JSX.Element {
   const {
-    columns = 3,
-    mobileColumns = 1,
+    columns = 4,
+    mobileColumns = 2,
     gap = '',
-    showCount = false,
+    showCount = true,
+    showHeader = true,
     emptyMessage = 'Your wishlist is empty.',
   } = attributes;
 
@@ -102,6 +103,12 @@ export default function Edit({
           title={__('Messages', 'aggressive-apparel')}
           initialOpen={false}
         >
+          <ToggleControl
+            label={__('Show Wishlist Header', 'aggressive-apparel')}
+            checked={showHeader}
+            onChange={value => setAttributes({ showHeader: value })}
+            __nextHasNoMarginBottom
+          />
           <ToggleControl
             label={__('Show Item Count', 'aggressive-apparel')}
             checked={showCount}

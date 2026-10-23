@@ -1,151 +1,64 @@
 /**
  * Wishlist — Interactivity API Store.
  *
- * All storage is handled via localStorage. Zero database writes.
- * A reactive `state.items` array mirrors localStorage so that UI updates
- * (heart icon fill, wishlist count, etc.) happen instantly without a page refresh.
- *
- * Toggle clicks on every `.aggressive-apparel-wishlist__toggle` heart—whether
- * rendered automatically on a single product or by the Wishlist Button block—
- * are handled by one document delegate. This avoids double-toggles when
- * Interactivity API hydration overlaps with dynamic markup.
- *
- * Product details for the wishlist page are fetched from the public
- * WooCommerce Store API (read-only, no auth required).
- *
- * The `productsApiUrl` state value is provided by PHP via wp_interactivity_state().
+ * Guest saves stay in the browser. Account saves use WooCommerce Shopper Lists.
+ * The existing blocks, card actions and dynamically inserted buttons share this
+ * adapter; no second account wishlist is maintained by the theme.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
  */
 
-import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
-  decodeEntities,
-  formatVariablePriceRange,
-} from '@aggressive-apparel/helpers';
-import type { StoreApiPrices } from '@aggressive-apparel/helpers';
+  store,
+  getContext,
+  getElement,
+  getConfig,
+} from '@wordpress/interactivity';
 
-const STORAGE_KEY = 'aggressive_apparel_wishlist';
+import {
+  WishlistAccount,
+  STORAGE_KEY,
+  readGuestItems,
+  writeGuestItems,
+  type WishlistConfig,
+  type WishlistProduct,
+} from './wishlist/account';
+import { fetchWishlistProducts } from './wishlist/products';
+import {
+  formatWishlistItem,
+  type WishlistDisplayItem,
+  type WishlistI18n,
+} from './wishlist/display';
+import { observeNativeWishlist } from './wishlist/native';
 
-interface WishlistI18n {
-  addLabel?: string;
-  removeLabel?: string;
-}
-
-interface StoreApiImage {
-  src: string;
-}
-
-interface StoreApiAddToCart {
-  url?: string;
-}
-
-interface StoreApiProduct {
-  id: number;
-  name: string;
-  permalink: string;
-  type?: string;
-  images?: StoreApiImage[];
-  prices: StoreApiPrices;
-  add_to_cart?: StoreApiAddToCart;
-}
-
-interface WishlistDisplayItem {
-  id: number;
-  name: string;
-  image: string;
-  price: string;
-  permalink: string;
-  addToCartUrl: string;
-}
+const config = getConfig('aggressive-apparel/wishlist') as WishlistConfig;
+const account = config.account ? new WishlistAccount(config) : null;
+let accountItems: WishlistProduct[] = [];
+const pendingToggles = new Map<number, boolean>();
+let ready: Promise<void>;
+let queue: Promise<void> = Promise.resolve();
+let feedbackTimer: ReturnType<typeof setTimeout> | undefined;
 
 interface WishlistContext {
   item: WishlistDisplayItem;
   loaded: boolean;
 }
 
-/**
- * Read wishlist product IDs from localStorage.
- */
-function readStorage(): number[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Persist the reactive items array to localStorage.
- */
-function writeStorage(items: number[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    // Ignore storage errors (private browsing, quota exceeded).
-  }
-}
-
-/**
- * Format a Store API raw price (minor units) into a display string.
- */
-function formatPrice(prices: StoreApiPrices | null): string {
-  if (!prices || !prices.price) {
-    return '';
-  }
-  const minorUnit = prices.currency_minor_unit ?? 2;
-  const divisor = Math.pow(10, minorUnit);
-  const value = (parseInt(prices.price, 10) / divisor).toFixed(minorUnit);
-  const prefix = prices.currency_prefix ?? '$';
-  const suffix = prices.currency_suffix ?? '';
-  return `${prefix}${value}${suffix}`;
-}
-
-/**
- * Transform a Store API product into a simple object for template rendering.
- *
- * Variable products collapse to a shared "From $X" starting price when Smart
- * Price Display is on (matching every other surface); otherwise they keep the
- * existing single-value (minimum) formatting.
- */
-function toWishlistItem(product: StoreApiProduct): WishlistDisplayItem {
-  // Seeded by PHP; read via cast because these keys are intentionally omitted
-  // from the store literal below — the client literal is deep-merged over the
-  // server state with override, so a default here would clobber the seeded
-  // value (the same bug that hid the "From $X" collapse in Quick View).
-  const priceCfg = state as unknown as {
-    collapseVariablePrice: boolean;
-    priceStartingPrefix: string;
-  };
-  const fromPrice =
-    priceCfg.collapseVariablePrice && product.type === 'variable'
-      ? formatVariablePriceRange(product.prices, {
-          collapse: true,
-          prefix: priceCfg.priceStartingPrefix,
-        })
-      : null;
-
-  return {
-    id: product.id,
-    name: decodeEntities(product.name) || '',
-    image:
-      product.images && product.images.length > 0 ? product.images[0].src : '',
-    price: fromPrice ?? formatPrice(product.prices),
-    permalink: product.permalink || '#',
-    addToCartUrl: product.add_to_cart?.url || '',
-  };
-}
-
 // Hydrate the reactive array from localStorage on module load.
-const initialItems: number[] = readStorage();
+let initialItems: number[] = [];
+try {
+  initialItems = readGuestItems();
+} catch {
+  // Initialization reports denied browser storage after the store exists.
+}
 
 /**
  * Read the product ID from a heart button's data attribute.
  */
 function readProductIdFromButton(btn: HTMLElement): number | null {
-  const n = parseInt(btn.dataset.aaProductId || '', 10);
-  return Number.isFinite(n) && n > 0 ? n : null;
+  const n = Number(btn.dataset.aaProductId);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
 }
 
 /**
@@ -189,24 +102,158 @@ function syncDynamicHearts(
       return;
     }
 
-    applyHeartState(btn, activeIds.has(id));
+    applyHeartState(btn, pendingToggles.get(id) ?? activeIds.has(id));
+    if (pendingToggles.has(id)) {
+      btn.setAttribute('aria-busy', 'true');
+    } else {
+      btn.removeAttribute('aria-busy');
+    }
   });
 }
 
-/**
- * Toggle a product ID in the wishlist + persist.
- *
- * @return True when the product was added, false when removed.
- */
-function toggleWishlistId(productId: number): boolean {
-  const idx = state.items.indexOf(productId);
-  const isAdding = idx === -1;
-  const next = isAdding
-    ? [...state.items, productId]
-    : state.items.filter(id => id !== productId);
-  writeStorage(next);
-  state.items = next;
-  return isAdding;
+/** Announce actual failures on every wishlist surface. */
+function announce(message: string): void {
+  let notice = document.querySelector<HTMLElement>(
+    '[data-aa-wishlist-feedback]'
+  );
+  clearTimeout(feedbackTimer);
+  if (!message.trim()) {
+    if (notice) {
+      notice.textContent = '';
+      notice.hidden = true;
+    }
+    return;
+  }
+  if (!notice) {
+    notice = document.createElement('p');
+    notice.dataset.aaWishlistFeedback = '';
+    notice.className = 'aa-wishlist-feedback';
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    document.body.append(notice);
+  }
+  notice.textContent = message;
+  notice.hidden = false;
+  const currentNotice = notice;
+  feedbackTimer = setTimeout(() => {
+    currentNotice.hidden = true;
+    currentNotice.textContent = '';
+  }, 8000);
+}
+
+function guestProducts(ids: number[]): Promise<WishlistProduct[]> {
+  return fetchWishlistProducts(
+    ids,
+    config.productsUrl ||
+      (state as unknown as { productsApiUrl?: string }).productsApiUrl
+  );
+}
+
+function toWishlistItem(product: WishlistProduct): WishlistDisplayItem {
+  return formatWishlistItem(
+    product,
+    state as unknown as {
+      collapseVariablePrice?: boolean;
+      priceStartingPrefix?: string;
+    },
+    Boolean(account),
+    getWishlistLabel
+  );
+}
+
+/** Keep each healthy source visible even when another source is unavailable. */
+let localProducts: WishlistProduct[] = [];
+function publishItems(guestIds: number[]): void {
+  const imported = new Set(
+    accountItems.flatMap(item => [item.id, item.product_id || item.id])
+  );
+  state.items = [...new Set([...imported, ...guestIds])];
+  state.wishlistProducts = [
+    ...accountItems.map(toWishlistItem),
+    ...localProducts
+      .filter(item => guestIds.includes(item.id) && !imported.has(item.id))
+      .map(toWishlistItem),
+  ];
+  syncDynamicHearts();
+}
+
+/** Reconcile account and browser products independently; retain healthy caches. */
+async function refresh(readAccount = true): Promise<void> {
+  let storageFailed = false;
+  let guestIds: number[] = [];
+  try {
+    guestIds = readGuestItems();
+  } catch {
+    storageFailed = true;
+  }
+  publishItems(guestIds);
+  const results = await Promise.allSettled([
+    (async () => {
+      if (!account || !readAccount) return;
+      accountItems = await account.list();
+      publishItems(guestIds);
+      const currentIds = readGuestItems();
+      const remaining = currentIds.filter(
+        id =>
+          !accountItems.some(item => item.id === id || item.product_id === id)
+      );
+      if (remaining.length !== currentIds.length) writeGuestItems(remaining);
+    })(),
+    (async () => {
+      if (!document.querySelector('.wp-block-aggressive-apparel-wishlist'))
+        return;
+      localProducts = await guestProducts(guestIds);
+      publishItems(guestIds);
+    })(),
+  ]);
+  state.loadFailed =
+    storageFailed || results.some(result => result.status === 'rejected');
+  try {
+    guestIds = readGuestItems();
+  } catch {
+    state.loadFailed = true;
+  }
+  publishItems(guestIds);
+  if (state.loadFailed) throw new Error('Wishlist partially unavailable');
+}
+
+/** Serialize writes, including repeated clicks and removals during login import. */
+function enqueue(operation: () => Promise<void>): void {
+  queue = queue.then(async () => {
+    try {
+      await ready;
+      await operation();
+      announce('');
+    } catch {
+      announce(
+        getWishlistLabel(
+          'errorLabel',
+          'Your wishlist could not be updated. Please try again.'
+        )
+      );
+    }
+  });
+}
+
+async function removeSavedItem(id: number, key?: string): Promise<void> {
+  if (account?.needsReconcile) await refresh();
+  const removedIds = new Set([id]);
+  if (account) {
+    const matches = key
+      ? accountItems.filter(item => item.key === key)
+      : accountItems.filter(item => item.id === id || item.product_id === id);
+    for (const item of matches) {
+      removedIds.add(item.product_id || item.id);
+      if (item.key) {
+        await account.remove(item.key);
+        accountItems = accountItems.filter(saved => saved.key !== item.key);
+      }
+    }
+  }
+  const localIds = readGuestItems();
+  if (localIds.some(saved => removedIds.has(saved)))
+    writeGuestItems(localIds.filter(saved => !removedIds.has(saved)));
+  await refresh(false);
 }
 
 /**
@@ -222,21 +269,56 @@ function pulseHeart(button: HTMLElement): void {
  */
 function handleWishlistToggleClick(button: HTMLElement): void {
   const productId = readProductIdFromButton(button);
-  if (!productId) {
+  if (!productId || pendingToggles.has(productId)) {
     return;
   }
 
-  const isAdding = toggleWishlistId(productId);
+  // Paint before waiting for initialization, queued writes or the network.
+  const isAdding = button.getAttribute('aria-pressed') !== 'true';
+  pendingToggles.set(productId, isAdding);
   syncDynamicHearts(document, productId);
-  if (isAdding) {
-    pulseHeart(button);
-  }
+  if (isAdding) pulseHeart(button);
+
+  enqueue(async () => {
+    try {
+      if (account?.needsReconcile) await refresh();
+      // Initialization may discover that this desired state is already saved.
+      if (state.items.includes(productId) === isAdding) return;
+      if (!isAdding) {
+        await removeSavedItem(productId);
+      } else if (account) {
+        // Server-rendered cards carry this information. Older cached buttons
+        // get a public product lookup before any account mutation is attempted.
+        const product = button.dataset.aaProductType
+          ? {
+              type: button.dataset.aaProductType,
+            }
+          : (await guestProducts([productId]))[0];
+        if (!product) throw new Error('Wishlist product unavailable');
+        if (product.type === 'variable') {
+          // WooCommerce cannot store an unconfigured parent. Keep the save on
+          // this device, just as we do for guests, until options are chosen.
+          writeGuestItems([...new Set([...readGuestItems(), productId])]);
+          await refresh(false);
+          return;
+        }
+        const saved = await account.add(productId);
+        accountItems = [...accountItems, saved];
+        await refresh(false);
+      } else {
+        writeGuestItems([...readGuestItems(), productId]);
+        await refresh();
+      }
+    } finally {
+      pendingToggles.delete(productId);
+      syncDynamicHearts(document, productId);
+    }
+  });
 }
 
 const { state } = store('aggressive-apparel/wishlist', {
   state: {
-    // Provided by PHP via wp_interactivity_state().
-    productsApiUrl: '',
+    // API URL and price settings are seeded by PHP; do not override them.
     // collapseVariablePrice / priceStartingPrefix are intentionally NOT seeded
     // here — see toWishlistItem(): a client default clobbers the PHP-seeded
     // value on merge, so we omit them and read the server value via cast.
@@ -247,13 +329,25 @@ const { state } = store('aggressive-apparel/wishlist', {
 
     // Wishlist page product objects (populated by loadWishlistPage callback).
     wishlistProducts: [] as WishlistDisplayItem[],
+    loadFailed: false,
 
     get hasWishlistItems(): boolean {
-      return state.items.length > 0;
+      return state.wishlistProducts.length > 0;
+    },
+
+    get isEmpty(): boolean {
+      return (
+        getContext<WishlistContext>().loaded &&
+        !state.loadFailed &&
+        !state.hasWishlistItems
+      );
     },
   },
 
   actions: {
+    retryLoad(): void {
+      enqueue(initialize);
+    },
     /**
      * Remove a specific item from the wishlist page grid.
      * Uses context.item.id (set by data-wp-each).
@@ -265,12 +359,8 @@ const { state } = store('aggressive-apparel/wishlist', {
         return;
       }
 
-      state.items = state.items.filter((i: number) => i !== id);
-      writeStorage(state.items);
-      state.wishlistProducts = state.wishlistProducts.filter(
-        (p: WishlistDisplayItem) => p.id !== id
-      );
-      syncDynamicHearts(document, id);
+      const key = ctx.item.key;
+      enqueue(() => removeSavedItem(id, key));
     },
   },
 
@@ -287,28 +377,9 @@ const { state } = store('aggressive-apparel/wishlist', {
 
     loadWishlistPage(): void {
       const ctx = getContext<WishlistContext>();
-      const ids = state.items;
-
-      if (ids.length === 0) {
+      void ready.finally(() => {
         ctx.loaded = true;
-        return;
-      }
-
-      const base: string =
-        state.productsApiUrl || '/wp-json/wc/store/v1/products';
-      const param = ids.join(',');
-
-      fetch(`${base}?include=${param}`)
-        .then((res: Response) => res.json())
-        .then((data: unknown) => {
-          if (Array.isArray(data)) {
-            state.wishlistProducts = data.map(toWishlistItem);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          ctx.loaded = true;
-        });
+      });
     },
   },
 });
@@ -359,3 +430,59 @@ if (typeof document !== 'undefined') {
     syncDynamicHearts();
   }
 }
+
+/** Import only after a successful account read, then render both sources. */
+async function initialize(): Promise<void> {
+  let failed = false;
+  let guestIds: number[] = [];
+  try {
+    guestIds = readGuestItems();
+  } catch {
+    failed = true;
+  }
+  const results = await Promise.allSettled([
+    (async () => {
+      if (account) accountItems = await account.list();
+      publishItems(guestIds);
+    })(),
+    (async () => {
+      if (
+        account ||
+        document.querySelector('.wp-block-aggressive-apparel-wishlist')
+      ) {
+        localProducts = await guestProducts(guestIds);
+        publishItems(guestIds);
+      }
+    })(),
+  ]);
+  failed ||= results.some(result => result.status === 'rejected');
+  if (account && results.every(result => result.status === 'fulfilled')) {
+    try {
+      accountItems = await account.merge(accountItems, localProducts);
+      failed ||= account.importFailed;
+    } catch {
+      failed = true;
+    }
+  }
+  try {
+    guestIds = readGuestItems();
+  } catch {
+    failed = true;
+  }
+  publishItems(guestIds);
+  state.loadFailed = failed;
+  if (failed)
+    announce(
+      getWishlistLabel(
+        'errorLabel',
+        'Your wishlist could not be loaded. Please try again.'
+      )
+    );
+}
+
+ready = initialize();
+observeNativeWishlist(() => enqueue(refresh));
+window.addEventListener('focus', () => enqueue(refresh));
+window.addEventListener('storage', event => {
+  if (event.key === STORAGE_KEY || event.key === null) enqueue(refresh);
+});

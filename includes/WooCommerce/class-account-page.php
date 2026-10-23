@@ -38,13 +38,15 @@ class Account_Page {
 	 * @var array<string, string>
 	 */
 	private const NAV_ICONS = array(
-		'dashboard'       => 'grid-view',
-		'orders'          => 'shopping-bag',
-		'downloads'       => 'list-view',
-		'edit-address'    => 'home',
-		'payment-methods' => 'payment-card',
-		'edit-account'    => 'user',
-		'customer-logout' => 'arrow-right',
+		'dashboard'           => 'grid-view',
+		'orders'              => 'shopping-bag',
+		'downloads'           => 'list-view',
+		'edit-address'        => 'home',
+		'payment-methods'     => 'payment-card',
+		'edit-account'        => 'user',
+		'stock-notifications' => 'bell-alert',
+		'wishlist'            => 'heart',
+		'customer-logout'     => 'arrow-right',
 	);
 
 	/**

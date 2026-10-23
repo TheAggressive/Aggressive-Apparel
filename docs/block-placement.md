@@ -88,7 +88,15 @@ Store Enhancements → Wishlist button placement:
 - **`auto`** — theme can inject a heart on single product; block still works in cards.
 - **`block`** — automatic single-product heart is suppressed; place `wishlist-button` yourself.
 
-Assign the wishlist page under the Wishlist settings so empty-state / nav links resolve correctly.
+On single-product templates containing `woocommerce/add-to-cart-with-options`, WooCommerce's variation-aware button takes precedence and the main product's separate theme button is suppressed. Related-product cards keep their theme buttons. The placement modes above apply to templates without that native form.
+
+Store-wide **Wishlist Unsaved Icon** and **Wishlist Saved Icon** controls live under **Appearance → Store Enhancements → Customer Engagement**. These apply to automatic card buttons and the native product-page button. Standalone Wishlist Button blocks offer their own icon overrides in the editor.
+
+Guests keep browser saves. Signed-in customers use WooCommerce's account wishlist, and confirmed guest saves merge after login when a wishlist surface loads. Unconfigured variable products save in the current browser for guests and signed-in shoppers without navigating away. They appear as “Saved on this device” with a “Choose options” action; selecting options and saving a variation lets WooCommerce sync the item to the account. Published out-of-stock products can still be saved. The theme's Wishlist toggle enables WooCommerce's experimental backend while this theme is active; no persistent WooCommerce feature option is overwritten. On older WooCommerce versions without Shopper Lists, browser storage remains available.
+
+The wishlist page is created automatically when the feature is enabled. WooCommerce's My Account wishlist uses the theme's card layout and the same account data. Authenticated pages must follow WooCommerce's normal full-page-cache exclusions, since account requests require customer-specific REST nonces.
+
+Wishlist requests time out after 15 seconds, including response decoding. An uncertain account write is reconciled before another write is attempted. Failed imports remain in browser storage and account shoppers see “Saved on this device” for those items. Account items and browser product details load independently; a failed source offers “Try again” while healthy cards stay visible. Routine saves show no notification banner. Permanent browser coverage lives in `tests/e2e/wishlist.spec.ts`.
 
 Card template for the page block should include, in order:
 
@@ -111,7 +119,7 @@ Keep swatches near the product image so image/link swapping has a clear card roo
 
 **Starter card template** (`product-collection-card-starter` and most product-row patterns): image → color swatches → title + wishlist → rating → price → button.
 
-When **Quick View** is enabled with **Wishlist on Product Images**, the heart moves onto the product image action stack on shop/archive cards and the title-row `wishlist-button` block is suppressed there (so you only get one heart). Single-product placement still follows the Wishlist placement mode.
+When **Quick View** is enabled with **Wishlist on Product Images**, the heart moves onto the product image action stack on shop/archive cards and the title-row `wishlist-button` block is suppressed there (so you only get one heart). Single-product templates use the native wishlist button when Add to Cart + Options is present; otherwise they follow the Wishlist placement mode.
 
 ### Quick View card controls (Store Enhancements)
 

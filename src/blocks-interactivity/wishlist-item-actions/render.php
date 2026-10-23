@@ -14,16 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$show_remove      = ! isset( $attributes['showRemove'] ) || (bool) $attributes['showRemove'];
-$show_add_to_cart = ! empty( $attributes['showAddToCart'] );
-$default_atc      = class_exists( Feature_Settings::class ) ? Feature_Settings::get_simple_product_button_text() : __( 'Add to Cart', 'aggressive-apparel' );
-$atc_label        = sanitize_text_field( $attributes['addToCartLabel'] ?? $default_atc );
+$show_remove       = ! isset( $attributes['showRemove'] ) || (bool) $attributes['showRemove'];
+$show_add_to_cart  = ! empty( $attributes['showAddToCart'] );
+$show_view_product = ! isset( $attributes['showViewProduct'] ) || (bool) $attributes['showViewProduct'];
+$default_atc       = class_exists( Feature_Settings::class ) ? Feature_Settings::get_simple_product_button_text() : __( 'Add to Cart', 'aggressive-apparel' );
+$atc_label         = sanitize_text_field( $attributes['addToCartLabel'] ?? $default_atc );
 if ( __( 'Add to Cart', 'aggressive-apparel' ) === $atc_label ) {
 	$atc_label = $default_atc;
 }
 $remove_label = sanitize_text_field( $attributes['removeLabel'] ?? '' );
 
-if ( ! $show_remove && ! $show_add_to_cart ) {
+if ( ! $show_remove && ! $show_add_to_cart && ! $show_view_product ) {
 	return;
 }
 
@@ -33,10 +34,26 @@ $remove_aria = $remove_label
 ?>
 <div <?php echo get_block_wrapper_attributes( array( 'class' => 'aa-wl-item-actions' ) ); ?>>
 
+	<?php if ( $show_view_product ) : ?>
+	<a class="aa-wl-item-actions__view aggressive-apparel-button aggressive-apparel-button--outline aggressive-apparel-button--compact" data-wp-bind--href="context.item.permalink" data-wp-bind--hidden="<?php echo $show_add_to_cart ? '!context.item.hasProductFallback' : '!context.item.hasProductLink'; ?>">
+		<span data-wp-text="context.item.viewProductLabel"><?php esc_html_e( 'View product', 'aggressive-apparel' ); ?></span>
+		<?php
+		echo aggressive_apparel_get_icon(
+			'arrow-right',
+			array(
+				'width'       => 16,
+				'height'      => 16,
+				'aria-hidden' => 'true',
+			)
+		);
+		?>
+	</a>
+	<?php endif; ?>
 	<?php if ( $show_add_to_cart ) : ?>
 	<a
 			class="aa-wl-item-actions__atc aggressive-apparel-button aggressive-apparel-button--primary wp-element-button"
 		data-wp-bind--href="context.item.addToCartUrl"
+		data-wp-bind--hidden="!context.item.canAddToCart"
 	>
 		<?php echo esc_html( $atc_label ); ?>
 	</a>
@@ -45,13 +62,16 @@ $remove_aria = $remove_label
 	<?php if ( $show_remove ) : ?>
 	<button
 		type="button"
-		class="aa-wl-item-actions__remove aa-icon-button aa-icon-button--danger"
+		class="aa-wl-item-actions__remove aa-icon-button aa-icon-button--danger <?php echo $remove_label ? 'aa-wl-item-actions__remove--labeled' : 'aa-icon-button--only'; ?>"
 		data-wp-on--click="actions.removeItem"
 		aria-label="<?php echo esc_attr( $remove_aria ); ?>"
+		<?php if ( ! $remove_label ) : ?>
+			data-wp-bind--aria-label="context.item.removeLabel"
+		<?php endif; ?>
 	>
 		<?php
 		echo aggressive_apparel_get_icon(
-			'heart',
+			'close',
 			array(
 				'class'       => 'aa-wl-item-actions__remove-icon',
 				'width'       => 16,

@@ -22,4 +22,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 		data-wp-bind--hidden="!context.item.price"
 		hidden
 	></span>
+	<span class="aa-wl-item-price__storage" data-wp-text="context.item.storageNote" data-wp-bind--hidden="!context.item.storageNote" hidden></span>
 </div>

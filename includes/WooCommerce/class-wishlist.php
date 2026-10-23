@@ -3,9 +3,8 @@
  * Wishlist Class
  *
  * Wishlist heart toggles, client-side storage, and wishlist page rendering.
- * All storage is handled client-side via localStorage for zero database impact.
- * Product details for the wishlist page are fetched from the public
- * WooCommerce Store API (read-only, no auth required).
+ * Guests save locally; signed-in shoppers use WooCommerce Shopper Lists.
+ * Product details and account lists are loaded through the WooCommerce Store API.
  *
  * @package Aggressive_Apparel
  * @since 1.17.0
@@ -61,6 +60,7 @@ class Wishlist {
 	 * @return void
 	 */
 	public function init(): void {
+		( new Wishlist_Integration() )->init();
 		add_action( 'admin_init', array( $this, 'maybe_create_page' ), 20 );
 		add_action( 'update_option_' . Feature_Settings::OPTION_KEY, array( $this, 'on_features_updated' ), 10, 2 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -295,6 +295,8 @@ BLOCKS;
 		if ( function_exists( 'wp_interactivity_state' ) ) {
 			$price_config = Price_Display::interactivity_price_config();
 
+			wp_interactivity_config( 'aggressive-apparel/wishlist', Wishlist_Integration::get_client_config() );
+
 			wp_interactivity_state(
 				'aggressive-apparel/wishlist',
 				array(
@@ -306,8 +308,14 @@ BLOCKS;
 					'priceStartingPrefix'   => $price_config['priceStartingPrefix'],
 
 					'i18n'                  => array(
-						'addLabel'    => Feature_Settings::get_wishlist_button_text(),
-						'removeLabel' => __( 'Remove from wishlist', 'aggressive-apparel' ),
+						'addLabel'           => Feature_Settings::get_wishlist_button_text(),
+						'removeLabel'        => __( 'Remove from wishlist', 'aggressive-apparel' ),
+						/* translators: %s: Product name. */
+						'removeItemLabel'    => __( 'Remove %s from wishlist', 'aggressive-apparel' ),
+						'errorLabel'         => __( 'Your wishlist could not be updated. Please try again.', 'aggressive-apparel' ),
+						'chooseOptionsLabel' => __( 'Choose options', 'aggressive-apparel' ),
+						'viewProductLabel'   => __( 'View product', 'aggressive-apparel' ),
+						'localSaveLabel'     => __( 'Saved on this device', 'aggressive-apparel' ),
 					),
 				),
 			);
@@ -397,7 +405,7 @@ BLOCKS;
 		}
 
 		$product_id = (int) get_the_ID();
-		if ( $product_id <= 0 ) {
+		if ( $product_id <= 0 || Wishlist_Integration::uses_native_button( $product_id ) ) {
 			return;
 		}
 
@@ -474,12 +482,13 @@ BLOCKS;
 		$icon = self::get_toggle_icon_html();
 
 		return sprintf(
-			'<button type="button" class="%1$s" data-aa-product-id="%2$d" aria-pressed="false" aria-label="%3$s" title="%4$s">%5$s</button>',
+			'<button type="button" class="%1$s" data-aa-product-id="%2$d" aria-pressed="false" aria-label="%3$s" title="%4$s" data-aa-product-type="%6$s">%5$s</button>',
 			esc_attr( implode( ' ', $classes ) ),
 			$product_id,
 			esc_attr( $label ),
 			esc_attr( Feature_Settings::get_wishlist_button_text() ),
 			$icon,
+			esc_attr( $product instanceof \WC_Product ? $product->get_type() : '' ),
 		);
 	}
 
@@ -489,9 +498,35 @@ BLOCKS;
 	 * Stroking the silhouette alone looks muddy at chip size; a separate fill
 	 * path fades in cleanly when the item is wishlisted.
 	 *
+	 * @param string $icon Unsaved icon override, or empty for the store default.
+	 * @param string $saved_icon Saved icon override, or empty for the store default.
 	 * @return string
 	 */
-	public static function get_toggle_icon_html(): string {
+	public static function get_toggle_icon_html( string $icon = '', string $saved_icon = '' ): string {
+		$icon       = $icon ? $icon : (string) get_option( Wishlist_Integration::ICON_OPTION, 'heart-outline' );
+		$saved_icon = $saved_icon ? $saved_icon : (string) get_option( Wishlist_Integration::SAVED_ICON_OPTION, 'heart' );
+		if ( 'heart-outline' !== $icon || 'heart' !== $saved_icon ) {
+			$idle  = Icons::get(
+				$icon,
+				array(
+					'aria-hidden' => 'true',
+					'width'       => 22,
+					'height'      => 22,
+				)
+			);
+			$saved = Icons::get(
+				$saved_icon,
+				array(
+					'aria-hidden' => 'true',
+					'width'       => 22,
+					'height'      => 22,
+				)
+			);
+			if ( '' !== $idle && '' !== $saved ) {
+				return '<span class="aggressive-apparel-wishlist__icon" aria-hidden="true"><span class="aa-wishlist-icon-idle">' . $idle . '</span><span class="aa-wishlist-icon-saved">' . $saved . '</span></span>';
+			}
+		}
+
 		$path = esc_attr( Icons::heart_path() );
 
 		return sprintf(

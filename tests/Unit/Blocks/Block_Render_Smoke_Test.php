@@ -434,6 +434,7 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'aa-wl-item-actions__atc', $html );
 		$this->assertStringContainsString( 'data-wp-bind--href="context.item.addToCartUrl"', $html );
 		$this->assertStringContainsString( 'Buy now', $html );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!context.item.hasProductFallback"', $html );
 	}
 
 	/**
@@ -449,8 +450,9 @@ class Block_Render_Smoke_Test extends WP_UnitTestCase {
 		$html = $this->render(
 			'wishlist-item-actions',
 			array(
-				'showRemove'    => false,
-				'showAddToCart' => false,
+				'showRemove'      => false,
+				'showAddToCart'   => false,
+				'showViewProduct' => false,
 			)
 		);
 
